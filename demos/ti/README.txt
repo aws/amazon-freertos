@@ -1,0 +1,1 @@
+Amazon FreeRTOS currently only has a subset of the TI SimpleLink SDK which includes "headers and pre-compiled libraries" in order to keep the download small. No source code files are available for drivers. After initial evaluation, users are strongly encouraged to download and use the TI SDK so all documents and examples needed to develop their end product are available.
