@@ -118,9 +118,9 @@ extern volatile TCB_t * volatile pxCurrentTCB;
 					"push	r31						\n\t"	\
 					"lds	r26, pxCurrentTCB		\n\t"	\
 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
-					"in		r0, 0x3d				\n\t"	\
+					"in		r0, __SP_L__				\n\t"	\
 					"st		x+, r0					\n\t"	\
-					"in		r0, 0x3e				\n\t"	\
+					"in		r0, __SP_H__				\n\t"	\
 					"st		x+, r0					\n\t"	\
 				);
 
