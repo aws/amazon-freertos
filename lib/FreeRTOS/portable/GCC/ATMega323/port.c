@@ -82,7 +82,6 @@ extern volatile TCB_t * volatile pxCurrentTCB;
 #define portSAVE_CONTEXT()									\
 	asm volatile (	"push	r0						\n\t"	\
 					"in		r0, __SREG__			\n\t"	\
-					"cli							\n\t"	\
 					"push	r0						\n\t"	\
 					"push	r1						\n\t"	\
 					"clr	r1						\n\t"	\
@@ -329,11 +328,12 @@ void vPortEndScheduler( void )
 void vPortYield( void ) __attribute__ ( ( naked ) );
 void vPortYield( void )
 {
+	cli(); //disable interrupts here
 	portSAVE_CONTEXT();
 	vTaskSwitchContext();
 	portRESTORE_CONTEXT();
 
-	asm volatile ( "ret" );
+	asm volatile ( "reti" ); //enable interrupts again
 }
 /*-----------------------------------------------------------*/
 
