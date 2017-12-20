@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS WiFi V1.0.0
+ * Amazon FreeRTOS Wi-Fi for NXP54018_IoT_Module V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -23,7 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
- 
+
 /**
  * @file aws_WIFI.c
  * @brief WiFi Interface.
@@ -36,7 +35,7 @@
 
 /* This is here because the maximum DNS name length is defined in aws_secure_sockets.h.
  * Wifi must not have a dependency on aws_secure_sockets.h
- */ 
+ */
 #define wifiMAX_DNS_NAME_LENGTH 253
 
 /* Only 1 WiFi module is present at the time */
@@ -236,6 +235,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     WLAN_AUTH_MODE auth_mode;
     WLAN_CRYPT_TYPE crypt_type;
     WIFIReturnCode_t status = eWiFiFailure;
+    const TickType_t xTimeout = pdMS_TO_TICKS( 10000UL );
 
     /* Check params */
     if (NULL == pxNetworkParams || NULL == pxNetworkParams->pcSSID || NULL == pxNetworkParams->pcPassword)
@@ -287,7 +287,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
                 break;
 
             /* Wait for callback, that is invoked from 'driver_task' context */
-            if (pdTRUE != xSemaphoreTake(g_connect_semaph, portMAX_DELAY))
+            if (pdTRUE != xSemaphoreTake(g_connect_semaph, xTimeout))
                 break;
 
             /* Remove callback ?? */
@@ -309,7 +309,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
  *
  * @param[in] None.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_Disconnect( void )
 {
@@ -333,7 +333,7 @@ WIFIReturnCode_t WIFI_Disconnect( void )
  *
  * @param[in] None.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_Reset( void )
 {
@@ -345,7 +345,7 @@ WIFIReturnCode_t WIFI_Reset( void )
  *
  * @param[in] xDeviceMode - Mode of the device Station / Access Point /P2P.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_SetMode( WIFIDeviceMode_t xDeviceMode )
 {
@@ -373,7 +373,7 @@ WIFIReturnCode_t WIFI_SetMode( WIFIDeviceMode_t xDeviceMode )
  *
  * @param[in] pxDeviceMode - return mode Station / Access Point /P2P
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_GetMode( WIFIDeviceMode_t * pxDeviceMode )
 {
@@ -459,7 +459,7 @@ WIFIReturnCode_t WIFI_NetworkDelete( uint16_t uxIndex )
  * @param[in] Interval in mili seconds for ping operation
  *
  * @note 'WIFI_GetIP' must be invoked before
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_Ping( uint8_t * pxIPAddr,
                                        uint16_t xCount,
@@ -497,7 +497,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pxIPAddr,
  *
  * @param[in] IP Address buffer.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_GetIP( uint8_t * pxIPAddr )
 {
@@ -532,7 +532,7 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pxIPAddr )
  *
  * @param[in] MAC Address buffer.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_GetMAC( uint8_t * pxMac )
 {
@@ -666,7 +666,7 @@ static WIFIReturnCode_t wifi_dns_resolver(IP_ADDR_T dns_ip, char * hostname, IP_
     int32_t tmp_len = 0;
 
     const uint32_t rx_buffer_max = 512;
-    /* The total DNS query message is the size of the header + a null character before the host name + the maximum host name 
+    /* The total DNS query message is the size of the header + a null character before the host name + the maximum host name
      * length + the size of the tail */
     const uint32_t tx_buffer_max = sizeof(wifi_dns_header_t) + 1 + wifiMAX_DNS_NAME_LENGTH + sizeof(wifi_dns_q_tail_t);
 
@@ -737,7 +737,7 @@ static WIFIReturnCode_t wifi_dns_resolver(IP_ADDR_T dns_ip, char * hostname, IP_
                 dns_resp = (wifi_dns_rr_header_t*)&rx_buffer[ tx_len ];
                 /* Expected IPv4 response*/
                 if (
-                    (dns_resp->rr_class == A_CPU2BE16(WIFI_DNS_HEADER_CLASS_IN)) && 
+                    (dns_resp->rr_class == A_CPU2BE16(WIFI_DNS_HEADER_CLASS_IN)) &&
                     (dns_resp->type == A_CPU2BE16(WIFI_DNS_TYPE_A))
                  )
                 {
@@ -782,7 +782,7 @@ static WIFIReturnCode_t wifi_dns_resolver(IP_ADDR_T dns_ip, char * hostname, IP_
  * @param[in] pxHost - Host URL.
  * @param[in] pxIPAddr - IP Address buffer.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_GetHostIP( char * pxHost,
                                             uint8_t * pxIPAddr )
@@ -835,7 +835,7 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pxHost,
  *
  * @param[in] pxIPAddr - IP Address buffer.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_GetAccessPointIP( uint8_t * pxIPAddr )
 {
@@ -871,7 +871,7 @@ WIFIReturnCode_t WIFI_GetAccessPointIP( uint8_t * pxIPAddr )
  * @param[in] pxBuffer - Buffer for scan results.
  * @param[in] uxNumNetworks - Number of networks in scan result.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                                        uint8_t uxNumNetworks )
@@ -908,7 +908,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                     pxBuffer->xSecurity = eWiFiSecurityOpen;
                 }
                 else if (
-                    (0 == scan_result[i].rsn_cipher) || 
+                    (0 == scan_result[i].rsn_cipher) ||
                     (ATH_CIPHER_TYPE_WEP & scan_result[i].rsn_cipher)
                 )
                 {
@@ -962,7 +962,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
  *
  * @param[in] pxNetworkParams - Network params to configure AP.
  *
- * @return eWiFiSuccess if disconnected, eWiFiFailure otherwise.
+ * @return eWiFiSuccess if everything succeeds, failure code otherwise.
  */
 WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkParams )
 {
@@ -1025,6 +1025,3 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 {
 	return eWiFiNotSupported;
 }
-
-
-

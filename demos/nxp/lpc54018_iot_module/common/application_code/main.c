@@ -29,7 +29,7 @@
  */
 
 /*
- * Amazon FreeRTOS V1.0.0
+ * Amazon FreeRTOS V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,8 +40,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -81,7 +80,10 @@
  * Definitions
  ******************************************************************************/
 
-#define mainLOGGING_TASK_PRIORITY (configMAX_PRIORITIES - 1)
+/* The lpc54018 usb logging driver calls a blocking write function. Since this 
+ * task is the lowest priority all of the demo's priorities must be higher than
+ * this to run. */
+#define mainLOGGING_TASK_PRIORITY (tskIDLE_PRIORITY)
 #define mainLOGGING_TASK_STACK_SIZE (configMINIMAL_STACK_SIZE * 4)
 #define mainLOGGING_QUEUE_LENGTH (16)
 
@@ -150,7 +152,9 @@ int main(void)
 
     BOARD_InitDebugConsole();
 
-    xLoggingTaskInitialize(mainLOGGING_TASK_STACK_SIZE, mainLOGGING_TASK_PRIORITY, mainLOGGING_QUEUE_LENGTH);
+    xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE, 
+                            mainLOGGING_TASK_PRIORITY, 
+                            mainLOGGING_QUEUE_LENGTH );
 
     vTaskStartScheduler();
     for (;;)

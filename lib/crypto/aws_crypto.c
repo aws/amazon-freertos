@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Crypto V1.0.0
+ * Amazon FreeRTOS Crypto V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -34,7 +33,7 @@
 #include "mbedtls/config.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/sha256.h"
-#include "mbedTLS/sha1.h"
+#include "mbedtls/sha1.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/x509_crt.h"
 
@@ -85,8 +84,11 @@ static BaseType_t prvVerifySignature( char * pcSignerCertificate,
                                       size_t xSignatureLength )
 {
     BaseType_t xResult = pdTRUE;
-    mbedtls_x509_crt xCertCtx = { 0 };
+    mbedtls_x509_crt xCertCtx;
     mbedtls_md_type_t xMbedHashAlg = MBEDTLS_MD_SHA256;
+
+
+    memset( &xCertCtx, 0, sizeof( mbedtls_x509_crt ) );
 
     /*
      * Map the hash algorithm

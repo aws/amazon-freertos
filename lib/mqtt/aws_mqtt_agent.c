@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Agent V1.0.0
+ * Amazon FreeRTOS MQTT Agent V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -245,7 +244,7 @@ static const uint16_t usUserNameLength = ( uint16_t ) ( sizeof( cUserName ) - 1U
  * to an MQTT broker. The maximum number of simultaneous connections is set by
  * mqttconfigMAX_BROKERS.
  */
-static MQTTBrokerConnection_t xMQTTConnections[ mqttconfigMAX_BROKERS ] = { NULL };
+static MQTTBrokerConnection_t xMQTTConnections[ mqttconfigMAX_BROKERS ];
 
 /**
  * @brief Handle of the command queue used to pass commands from application
@@ -1236,38 +1235,47 @@ static TickType_t prvManageConnections( void )
             xAnyConnectedClient = pdTRUE;
 
             /* Look for incoming messages and process. */
-            for( ; ; )
+            /* Read data from the socket. */
+            lBytesReceived = SOCKETS_Recv( pxConnection->xSocket, pxConnection->ucRxBuffer, mqttconfigRX_BUFFER_SIZE, 0 );
+
+            /* If data was read, pass it to the MQTT Core library. */
+            if( lBytesReceived > 0 )
             {
-                /* Read data from the socket. */
-                lBytesReceived = SOCKETS_Recv( pxConnection->xSocket, pxConnection->ucRxBuffer, mqttconfigRX_BUFFER_SIZE, 0 );
+                ( void ) MQTT_ParseReceivedData( &( pxConnection->xMQTTContext ), pxConnection->ucRxBuffer, ( size_t ) lBytesReceived );
 
-                /* If data was read, pass it to the MQTT Core library. */
-                if( lBytesReceived > 0 )
+                /* Some data was received on this socket and we do not
+                 * know if there is more data available. Therefore we
+                 * set xNextTimeoutTicks to zero which ensures that we
+                 * do not block on the command queue and try to read
+                 * again from this socket on the next invocation of
+                 * prvManageConnections. This way we ensure that we keep
+                 * processing commands received on the command queue
+                 * between calls to SOCKETS_Recv. As a result, a socket
+                 * receiving lots of data continuously does not starve
+                 * the command processing. */
+                xNextTimeoutTicks = 0;
+            }
+            else if( lBytesReceived < 0 )
+            {
+                /* A negative return value from SOCKETS_Recv indicates error.
+                 * Since the socket is marked non-blocking, read can potentially
+                 * return SOCKETS_EWOULDBLOCK in which case we will re-try to
+                 * read on the next execution of this function. In case of any
+                 * other error, we disconnect. */
+                if( lBytesReceived != SOCKETS_EWOULDBLOCK )
                 {
-                    ( void ) MQTT_ParseReceivedData( &( pxConnection->xMQTTContext ), pxConnection->ucRxBuffer, ( size_t ) lBytesReceived );
+                    /* Disconnect from the broker. Note that the socket close
+                     * and cleanup will happen in the disconnect callback
+                     * ( prvProcessReceivedDisconnect function ) from the core
+                     * MQTT library. */
+                    ( void ) MQTT_Disconnect( &( pxConnection->xMQTTContext ) );
                 }
-                else if( lBytesReceived == 0 )
-                {
-                    /* No more data available, stop reading. */
-                    break;
-                }
-                else
-                {
-                    /* A negative return value from SOCKETS_Recv indicates error.
-                     * Since the socket is marked non-blocking, read can potentially
-                     * return SOCKETS_EWOULDBLOCK in which case we will re-try to
-                     * read on the next execution of this function. In case of any
-                     * other error, we disconnect. */
-                    if( lBytesReceived != SOCKETS_EWOULDBLOCK )
-                    {
-                        /* Disconnect from the broker.Note that the socket close and cleanup
-                         * will happen in the disconnect callback( prvProcessReceivedDisconnect
-                         * function ) from the core MQTT library. */
-                        ( void ) MQTT_Disconnect( &( pxConnection->xMQTTContext ) );
-                    }
-
-                    break;
-                }
+            }
+            else
+            {
+                /* If no data was received on this socket, we continue
+                 * to call MQTT_Periodic and calculate xNextTimeoutTicks
+                 * accordingly. */
             }
 
             /* Get the current tick count. */

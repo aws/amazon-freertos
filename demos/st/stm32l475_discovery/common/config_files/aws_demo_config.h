@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.0.0
+ * Amazon FreeRTOS V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -38,23 +37,27 @@
 
 /* IoT simple subscribe/publish example task parameters. */
 #define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 5 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
+#define democonfigMQTT_SUB_PUB_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* Greengrass discovery example task parameters. */
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 22 )
-#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY         ( tskIDLE_PRIORITY + 1 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY         ( tskIDLE_PRIORITY )
 
 /* Shadow lightbulb example task parameters. */
 #define democonfigSHADOW_LIGHTBULB_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE * 10 )
-#define democonfigSHADOW_LIGHTBULB_TASK_PRIORIRY             ( tskIDLE_PRIORITY + 1 )
+#define democonfigSHADOW_LIGHTBULB_TASK_PRIORIRY             ( tskIDLE_PRIORITY )
 
 /* TCP Echo Client tasks single example parameters */
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY        ( tskIDLE_PRIORITY + 1 )
+#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY        ( tskIDLE_PRIORITY )
+
+/* OTA Update task example parameters */
+#define democonfigOTA_UPDATE_TASK_STACK_SIZE                 ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigOTA_UPDATE_TASK_TASK_PRIORITY              ( tskIDLE_PRIORITY )
 
 /* MQTT echo task example parameters. */
 #define democonfigMQTT_ECHO_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 3 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY                    ( tskIDLE_PRIORITY + 1 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                    ( tskIDLE_PRIORITY )
 
 /* Timeout used when establishing a connection, which required TLS
  * negotiation. */

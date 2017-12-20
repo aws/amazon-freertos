@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass Discovery V1.0.0
+ * Amazon FreeRTOS Greengrass Discovery V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -187,10 +186,6 @@ void GGD_SecureConnect_Disconnect( Socket_t * pxSocket )
     TimeOut_t xTimeOut;
     char cBuf; /*lint !e971 can use char without signed/unsigned. */
 
-    #if ( configUSE_TRACE_FACILITY == 1 && configRECORD_STACK_HIGH_ADDRESS == 1 )
-        TaskStatus_t xTaskStatus;
-    #endif
-
     configASSERT( pxSocket != NULL );
     configASSERT( *pxSocket != SOCKETS_INVALID_SOCKET );
     ggdconfigPRINT( "About to close socket.\r\n" );
@@ -221,16 +216,12 @@ void GGD_SecureConnect_Disconnect( Socket_t * pxSocket )
     *pxSocket = SOCKETS_INVALID_SOCKET;
     ggdconfigPRINT( "Socket closed.\r\n" );
 
-    #if ( configUSE_TRACE_FACILITY == 1 && configRECORD_STACK_HIGH_ADDRESS == 1 )
-        {
-            vTaskGetInfo( NULL,             /* MQTT Task status. */
-                          &( xTaskStatus ), /* Output parameter. */
-                          pdTRUE,           /* Include the stack high watermark in xTaskStatus. */
-                          eRunning          /* Do not include the task state in xTaskStatus as MQTT task is already running. */
-                          );
-
-            configPRINTF( ( "Stack high watermark for GGD task: %u\r\n", xTaskStatus.usStackHighWaterMark ) );
-        }
+	#if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
+	{
+		configPRINTF( (
+			"Stack high watermark for discovery helper task: %u.\r\n",
+			uxTaskGetStackHighWaterMark( NULL ) ) );
+	}
     #endif
 }
 /*-----------------------------------------------------------*/

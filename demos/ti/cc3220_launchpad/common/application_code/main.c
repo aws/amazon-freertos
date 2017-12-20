@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.0.0
+ * Amazon FreeRTOS V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -58,6 +57,16 @@
 
 /* CC3220SF board file. */
 #include "Board.h"
+
+/* Application version info. */
+#include "aws_application_version.h"
+
+/* Declare the firmware version structure for all to see. */
+const AppVersion32_t xAppFirmwareVersion = {
+   .u.x.ucMajor = APP_VERSION_MAJOR,
+   .u.x.ucMinor = APP_VERSION_MINOR,
+   .u.x.usBuild = APP_VERSION_BUILD,
+};
 
 
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )

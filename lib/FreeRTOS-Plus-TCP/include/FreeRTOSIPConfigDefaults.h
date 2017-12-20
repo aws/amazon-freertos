@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.0
+ * FreeRTOS+TCP V2.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -20,8 +19,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
+ * http://aws.amazon.com/freertos
+ *
+ * 1 tab == 4 spaces!
  */
 
 #ifndef FREERTOS_DEFAULT_IP_CONFIG_H
@@ -498,6 +499,10 @@ from the FreeRTOSIPConfig.h configuration header file. */
 
 #ifndef ipconfigSOCKET_HAS_USER_SEMAPHORE
 	#define ipconfigSOCKET_HAS_USER_SEMAPHORE 0
+#endif
+
+#ifndef ipconfigSOCKET_HAS_USER_WAKE_CALLBACK
+	#define ipconfigSOCKET_HAS_USER_WAKE_CALLBACK 0
 #endif
 
 #ifndef ipconfigSUPPORT_SELECT_FUNCTION

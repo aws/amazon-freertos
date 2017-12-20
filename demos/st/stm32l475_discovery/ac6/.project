@@ -146,6 +146,16 @@
 			<locationURI>AWS_IOT_MCU_ROOT/lib/third_party/pkcs11</locationURI>
 		</link>
 		<link>
+			<name>lib/third_party/tinycbor</name>
+			<type>2</type>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/third_party/tinycbor</locationURI>
+		</link>
+		<link>
+			<name>application_code/common_demos/include/aws_application_version.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/include/aws_application_version.h</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_demos/include/aws_clientcredential_keys.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/common/include/aws_clientcredential_keys.h</locationURI>
@@ -269,6 +279,15 @@
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-heap_5.c</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1512765783845</id>
+			<name>lib/third_party/mcu_vendor/st/stm32l475_discovery</name>
+			<type>26</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-Bootloader</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.0.0
+ * Amazon FreeRTOS V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -287,21 +286,18 @@ static MQTTBool_t prvMQTTUint32PublishCallback( void * pvCallbackContext,
                                                 const MQTTPublishData_t * const pxPublishData )
 {
     const char * pcTopic;
-    uint32_t * pulData;
     SubpubUserData_t * pxUserData;
     MQTTBool_t xTakeOwnership = eMQTTFalse;
 
     pxUserData = ( SubpubUserData_t * ) pvCallbackContext;
 
-    /* The published data was a uint32_t. */
-    pulData = ( uint32_t * ) pxPublishData->pvData;
-    configPRINTF( ( "Received %u on topic %.*s\r\n", *pulData,
-                    ( size_t ) pxPublishData->usTopicLength,
-                    ( char * ) pxPublishData->pucTopic ) );
-
     /* Does the value of the received uint32_t match that expected? */
-    if( *pulData == pxUserData->ulExpectedUint32 )
+    if( memcmp( ( void * ) &pxUserData->ulExpectedUint32, pxPublishData->pvData, sizeof( uint32_t ) ) == 0 )
     {
+        configPRINTF( ( "Received %u on topic %.*s\r\n", pxUserData->ulExpectedUint32,
+                        ( size_t ) pxPublishData->usTopicLength,
+                        ( char * ) pxPublishData->pucTopic ) );
+
         /* Was the topic on which the uint32_t was received match
          * that expected? */
         pcTopic = ( char * ) pxPublishData->pucTopic;

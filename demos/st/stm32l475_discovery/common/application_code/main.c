@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.0.0
+ * Amazon FreeRTOS V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -49,7 +48,6 @@
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
-
 
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
@@ -97,7 +95,7 @@ int main( void )
 
     /* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
-                            configMAX_PRIORITIES - 1, /* Not ideal but allows logging during TLS negotiation. */
+                            configMAX_PRIORITIES - 1,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
     /* Start the scheduler.  Initialization that requires the OS to be running,

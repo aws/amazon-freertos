@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V1.0.0
+ * Amazon FreeRTOS Shadow V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -10,8 +10,7 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software. If you wish to use our Amazon
- * FreeRTOS name, please do so in a fair use way that does not cause confusion.
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -325,7 +324,7 @@ static uint8_t prvGetSubscribedFlag( const ShadowClient_t * const pxShadowClient
 /**
  * @brief Memory allocated to store Shadow Clients.
  */
-static ShadowClient_t pxShadowClients[ shadowMAX_CLIENTS ] = { NULL };
+static ShadowClient_t pxShadowClients[ shadowMAX_CLIENTS ];
 
 /**
  * @brief Custom prvCreateTopic function since prvCreateTopic is not MISRA 2012 compliant (rule 21.6) .

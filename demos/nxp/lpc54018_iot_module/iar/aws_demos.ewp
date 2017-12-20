@@ -219,7 +219,6 @@
                     <state>USB_DEVICE_CONFIG_LPCIP3511HS=1</state>
                     <state>USB_STACK_USE_DEDICATED_RAM=1</state>
                     <state>USE_RTOS=1</state>
-                    <state>MBEDTLS_CONFIG_FILE="aws_mbedtls_config.h"</state>
                     <state>FSL_RTOS_FREE_RTOS</state>
                     <state>A_LITTLE_ENDIAN</state>
                 </option>
@@ -1306,6 +1305,9 @@
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_mqtt_lib.h</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_cbor.h</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_pkcs11.h</name>
                 </file>
                 <file>
@@ -1331,6 +1333,15 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_tls.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_ts_ota_agent.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ts_ota_pal.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ts_ota_types.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_wifi.h</name>

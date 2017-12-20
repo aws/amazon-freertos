@@ -28,12 +28,12 @@
 		<link>
 			<name>application_code</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/demos/ti/cc3220_launchpad/common/application_code</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/ti/cc3220_launchpad/common/application_code</locationURI>
 		</link>
 		<link>
 			<name>config_files</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/demos/ti/cc3220_launchpad/common/config_files</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/ti/cc3220_launchpad/common/config_files</locationURI>
 		</link>
 		<link>
 			<name>lib</name>
@@ -58,7 +58,7 @@
 		<link>
 			<name>application_code/common_demos/include</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/include</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/include</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source</name>
@@ -68,27 +68,32 @@
 		<link>
 			<name>lib/aws/FreeRTOS</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/FreeRTOS</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/bufferpool</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/bufferpool</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/bufferpool</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/greengrass</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/greengrass</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/greengrass</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/include</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/include</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/include</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/mqtt</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/mqtt</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/mqtt</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/ota</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/ota/portable/ti/cc3220_launchpad</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/pkcs11</name>
@@ -98,27 +103,32 @@
 		<link>
 			<name>lib/aws/secure_sockets</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/secure_sockets/portable/ti/cc3220_launchpad</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/secure_sockets/portable/ti/cc3220_launchpad</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/shadow</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/shadow</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/shadow</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/utils</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/utils</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/utils</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/wifi</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/wifi/portable/ti/cc3220_launchpad</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/wifi/portable/ti/cc3220_launchpad</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/jsmn</name>
 			<type>2</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/jsmn</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/jsmn</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/mbedtls</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor</name>
@@ -131,54 +141,89 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>lib/third_party/tinycbor</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/tinycbor</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_demos/source/aws_demo_runner.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/demo_runner/aws_demo_runner.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/demo_runner/aws_demo_runner.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_dev_mode_key_provisioning.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_greengrass_discovery_demo.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_hello_world.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/mqtt/aws_hello_world.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/mqtt/aws_hello_world.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
+		</link>
+		<link>
+			<name>application_code/common_demos/source/aws_ota_update_demo.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/ota/aws_ota_update_demo.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_shadow_lightbulb_on_off.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/shadow/aws_shadow_lightbulb_on_off.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/shadow/aws_shadow_lightbulb_on_off.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_subscribe_publish_loop.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/mqtt/aws_subscribe_publish_loop.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/mqtt/aws_subscribe_publish_loop.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_tcp_echo_client_separate_tasks.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/tcp/aws_tcp_echo_client_separate_tasks.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/tcp/aws_tcp_echo_client_separate_tasks.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_tcp_echo_client_single_task.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/demos/common/tcp/aws_tcp_echo_client_single_task.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/common/tcp/aws_tcp_echo_client_single_task.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/ota/aws_ota_cbor.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_cbor.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/ota/aws_rsprintf.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/ota/aws_rsprintf.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/ota/aws_ts_ota_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ts_ota_agent.c</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/pkcs11/pkcs11.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/pkcs11/portable/ti/cc3220_launchpad/pkcs11.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/pkcs11/portable/ti/cc3220_launchpad/pkcs11.c</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/mbedtls/base64.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls/library/base64.c</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/mbedtls/base64.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls/include/mbedtls/base64.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti</name>
@@ -188,7 +233,7 @@
 		<link>
 			<name>lib/third_party/pkcs11/pkcs11.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/pkcs11/pkcs11.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/pkcs11/pkcs11.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx</name>
@@ -228,127 +273,127 @@
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/ClockP_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/ClockP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/ClockP_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/DebugP_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/DebugP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/DebugP_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/FreeRTOS_OSAL_issues.txt</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/FreeRTOS_OSAL_issues.txt</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/FreeRTOS_OSAL_issues.txt</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/HwiPCC32XX_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/HwiPCC32XX_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/HwiPCC32XX_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/MutexP_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/MutexP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/MutexP_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/PowerCC32XX_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/PowerCC32XX_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/PowerCC32XX_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SemaphoreP_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SemaphoreP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SemaphoreP_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SystemP_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SystemP_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SystemP_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/clock_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/clock_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/clock_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/errno.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/errno.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/errno.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/memory_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/memory_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/memory_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_barrier_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_barrier_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_barrier_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_cond_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_cond_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_cond_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_mutex_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_mutex_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_mutex_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_rwlock_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_rwlock_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_rwlock_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/signal.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/signal.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/signal.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sleep_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sleep_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sleep_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys</name>
@@ -358,37 +403,37 @@
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/time.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/time.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/time.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/timer_freertos.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/timer_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/timer_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/unistd.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/unistd.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/unistd.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/signal.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/signal.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/signal.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/time.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/time.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/time.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/types.h</name>
 			<type>1</type>
-			<locationURI>TREADSTONE_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/types.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/types.h</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>
@@ -449,7 +494,7 @@
 	</filteredResources>
 	<variableList>
 		<variable>
-			<name>TREADSTONE_ROOT</name>
+			<name>BASE_DIR_ROOT</name>
 			<value>$%7BPARENT-4-PROJECT_LOC%7D</value>
 		</variable>
 	</variableList>
