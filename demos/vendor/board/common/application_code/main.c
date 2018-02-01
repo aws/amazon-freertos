@@ -90,8 +90,8 @@ void vApplicationDaemonTaskStartupHook( void )
 
 void prvWifiConnect( void )
 {
-    WiFiNetworkParams_t xNetworkParams;
-    WiFiReturnCode_t xWifiStatus;
+    WIFINetworkParams_t xNetworkParams;
+    WIFIReturnCode_t xWifiStatus;
 
     xWifiStatus = WIFI_On();
 
@@ -110,7 +110,9 @@ void prvWifiConnect( void )
 
     /* Setup parameters. */
     xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
+    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
     xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
+    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
 
     xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
