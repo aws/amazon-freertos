@@ -43,7 +43,7 @@ WIFIReturnCode_t WIFI_On( void )
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_ConnectAP( const WiFiNetworkParams_t * const pxNetworkParams )
+WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
     /* FIX ME. */
     return eWiFiFailure;
@@ -64,28 +64,28 @@ WIFIReturnCode_t WIFI_Reset( void )
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFISetMode( WiFiDeviceMode_t xDeviceMode )
+WIFIReturnCode_t WIFISetMode( WIFIDeviceMode_t xDeviceMode )
 {
     /* FIX ME. */
     return eWiFiFailure;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFIGetMode( WiFiDeviceMode_t * pxDeviceMode )
+WIFIReturnCode_t WIFIGetMode( WIFIDeviceMode_t * pxDeviceMode )
 {
     /* FIX ME. */
     return eWiFiFailure;
 }
 /*-----------------------------------------------------------*/
 
-int16_t WIFINetworkAdd( WiFiNetworkParams_t * pxNetworkParams )
+int16_t WIFINetworkAdd( WIFINetworkParams_t * pxNetworkParams )
 {
     /* FIX ME. */
     return eWiFiFailure;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFINetworkGet( WiFiNetworkParams_t * pxNetworkParams,
+WIFIReturnCode_t WIFINetworkGet( WIFINetworkParams_t * pxNetworkParams,
                                             uint16_t uxIndex )
 
 {
@@ -103,7 +103,7 @@ WIFIReturnCode_t WIFINetworkDelete( uint16_t uxIndex )
 
 WIFIReturnCode_t WIFI_Ping( uint8_t * pxIPAddr,
                                        uint16_t xCount,
-                                       uint16_t xIntervalMS )
+                                       uint32_t xIntervalMS )
 {
     /* FIX ME. */
     return eWiFiFailure;
@@ -132,7 +132,7 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pxHost,
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_Scan( WiFiScanResult_t * pxBuffer,
+WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                                        uint8_t uxNumNetworks )
 {
     /* FIX ME. */
@@ -140,7 +140,7 @@ WIFIReturnCode_t WIFI_Scan( WiFiScanResult_t * pxBuffer,
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_ConfigureAP( WiFiNetworkParams_t * pxNetworkParams )
+WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * pxNetworkParams )
 {
     /* FIX ME. */
     return eWiFiFailure;
