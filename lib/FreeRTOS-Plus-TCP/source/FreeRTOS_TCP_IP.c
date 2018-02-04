@@ -61,7 +61,7 @@
 
 /* This compile-time test was moved to here because some macro's
 were unknown within 'FreeRTOSIPConfigDefaults.h'.  It tests whether
-the defined MTU size can contain at ;east a complete TCP packet. */
+the defined MTU size can contain at least a complete TCP packet. */
 
 #if ( ( ipconfigTCP_MSS + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER ) > ipconfigNETWORK_MTU )
 	#error The ipconfigTCP_MSS setting in FreeRTOSIPConfig.h is too large.
