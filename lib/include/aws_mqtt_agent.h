@@ -123,16 +123,24 @@ typedef BaseType_t ( * MQTTAgentCallback_t ) ( void * pvUserData,
                                                const MQTTAgentCallbackParams_t * const pxCallbackParams );
 
 /**
+* @brief Flags for the MQTT agent connect params.
+*/
+#define mqttagentURL_IS_IP_ADDRESS          0x00000001 /**< Set this bit in xFlags if the provided URL is an IP address. */
+#define mqttagentREQUIRE_TLS                0x00000002 /**< Set this bit in xFlags to use TLS. */
+#define mqttagentUSE_AWS_IOT_ALPN_443       0x00000004 /**< Set this bit in xFlags to use AWS IoT support for MQTT over TLS port 443. */
+
+/**
  * @brief Parameters passed to the MQTT_AGENT_Connect API.
  */
 typedef struct MQTTAgentConnectParams
 {
     const char * pcURL;             /**< The URL of the MQTT broker to connect to. */
-    BaseType_t xURLIsIPAddress;     /**< Set to pdTRUE if the provided URL is an IP address, otherwise set to pdFALSE. */
-    uint16_t usPort;                /**< Port number at which MQTT broker is listening. */
+    BaseType_t xFlags;              /**< Flags to control the behavior of MQTT connect. */
+    BaseType_t xURLIsIPAddress;     /**< Deprecated. Set the mqttagentURL_IS_IP_ADDRESS bit in xFlags instead. */
+    uint16_t usPort;                /**< Port number at which MQTT broker is listening. This field is ignored if the mqttagentUSE_AWS_IOT_ALPN_443 flag is set. */
     const uint8_t * pucClientId;    /**< Client Identifier of the MQTT client. It should be unique per broker. */
     uint16_t usClientIdLength;      /**< The length of the client Id. */
-    BaseType_t xSecuredConnection;  /**< Set to pdTRUE to use TLS, pdFALSE to not use TLS. */
+    BaseType_t xSecuredConnection;  /**< Deprecated. Set the mqttagentREQUIRE_TLS bit in xFlags instead. */
     void * pvUserData;              /**< User data supplied back as it is in the callback. Can be NULL. */
     MQTTAgentCallback_t pxCallback; /**< Callback used to report various events. In addition to other events, this callback is invoked for the publish
                                      *   messages received on the topics for which the user has not registered any subscription callback. Can be NULL. */

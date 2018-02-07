@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V1.0.1
+ * Amazon FreeRTOS Shadow V1.0.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,10 +27,6 @@
  * @file aws_shadow_json.c
  * @brief JSON wrapper for shadow API.
  */
-
-
-/*_RB_ Function in this file need commenting.  Easier to do when stepping
- * through (in the Visual Studio project, as that allows edits at debug time). */
 
 /* C library includes. */
 #include <string.h>
@@ -72,45 +68,50 @@ static int16_t prvParseJSON( const char * const pcDoc,
 
 /*-----------------------------------------------------------*/
 
-BaseType_t SHADOW_JSONDocClientTokenMatch( const char * const pcDoc1, /*_RB_ Should this be named JSON_ rather than SHADOW_? */
+BaseType_t SHADOW_JSONDocClientTokenMatch( const char * const pcDoc1,
                                            uint32_t ulDoc1Length,
                                            const char * const pcDoc2,
                                            uint32_t ulDoc2Length )
 {
     jsmntok_t pxJSMNTokens[ shadowConfigJSON_JSMN_TOKENS ];
     BaseType_t xReturn = pdFAIL;
-    uint16_t sClientToken1Length, sClientToken2Length;
+    uint16_t usClientToken1Length, usClientToken2Length;
     int16_t sNbTokens;
     char * pcClientToken1;
     char * pcClientToken2;
 
+    /* Parse pcDoc1 with jsmn. */
     sNbTokens = prvParseJSON( pcDoc1, ulDoc1Length, pxJSMNTokens );
 
     if( sNbTokens > 0 )
     {
-        sClientToken1Length = prvGetJSONValue( ( const char ** ) &pcClientToken1,
-                                               shadowConfigJSON_CLIENT_TOKEN,
-                                               pcDoc1,
-                                               ( jsmntok_t * ) pxJSMNTokens,
-                                               sNbTokens );
+        /* Attempt to find the "clientToken" string in parsed pcDoc1. */
+        usClientToken1Length = prvGetJSONValue( ( const char ** ) &pcClientToken1,
+                                                shadowConfigJSON_CLIENT_TOKEN,
+                                                pcDoc1,
+                                                ( jsmntok_t * ) pxJSMNTokens,
+                                                sNbTokens );
 
-        if( sClientToken1Length > ( uint16_t ) 0 )
+        if( usClientToken1Length > ( uint16_t ) 0 )
         {
+            /* Parse pcDoc2 with jsmn. */
             sNbTokens = prvParseJSON( pcDoc2, ulDoc2Length, pxJSMNTokens );
 
             if( sNbTokens > 0 )
             {
-                sClientToken2Length = prvGetJSONValue( ( const char ** ) &pcClientToken2,
-                                                       shadowConfigJSON_CLIENT_TOKEN,
-                                                       pcDoc2,
-                                                       ( jsmntok_t * ) pxJSMNTokens,
-                                                       sNbTokens );
+                /* If "clientToken" was found in pcDoc1, attempt to find "clientToken" in pcDoc2. */
+                usClientToken2Length = prvGetJSONValue( ( const char ** ) &pcClientToken2,
+                                                        shadowConfigJSON_CLIENT_TOKEN,
+                                                        pcDoc2,
+                                                        ( jsmntok_t * ) pxJSMNTokens,
+                                                        sNbTokens );
 
-                if( sClientToken2Length == sClientToken1Length )
+                /* Compare the client tokens. */
+                if( usClientToken2Length == usClientToken1Length )
                 {
                     if( strncmp( ( const char * ) pcClientToken1,
                                  ( const char * ) pcClientToken2,
-                                 ( size_t ) sClientToken1Length ) == 0 )
+                                 ( size_t ) usClientToken1Length ) == 0 )
                     {
                         xReturn = pdPASS;
                     }
@@ -137,6 +138,7 @@ int16_t SHADOW_JSONGetErrorCodeAndMessage( const char * const pcErrorJSON,
 
     if( sTokensParsed > 0 )
     {
+        /* Attempt to find the error code. */
         sReturn = ( int16_t ) prvGetJSONValue( ( const char ** ) &pcErrorCode,
                                                shadowJSON_ERROR_CODE,
                                                pcErrorJSON,
@@ -145,10 +147,12 @@ int16_t SHADOW_JSONGetErrorCodeAndMessage( const char * const pcErrorJSON,
 
         if( sReturn > 0 )
         {
-            sReturn = ( int16_t ) strtoul( pcErrorCode, NULL, sReturn );
+            /* Convert the error code to int16_t for return value. */
+            sReturn = ( int16_t ) strtol( pcErrorCode, NULL, 0 );
 
             if( ( ppcErrorMessage != NULL ) && ( pusErrorMessageLength != NULL ) )
             {
+                /* Set the pointer to the error message and the error message length. */
                 *pusErrorMessageLength = prvGetJSONValue( ( const char ** ) ppcErrorMessage,
                                                           shadowJSON_ERROR_MESSAGE,
                                                           pcErrorJSON,
@@ -159,6 +163,7 @@ int16_t SHADOW_JSONGetErrorCodeAndMessage( const char * const pcErrorJSON,
     }
     else
     {
+        /* On failure, sTokenParsed returns a jsmn error code.  Return this error code. */
         sReturn = sTokensParsed;
     }
 
@@ -198,15 +203,22 @@ static uint16_t prvGetJSONValue( const char ** ppcValue,
 
     if( ppcValue != NULL )
     {
-        for( sIterator = ( sTokensParsed - 1 ); sIterator >= 0; sIterator-- ) /*_RB_ Is there a reason to start and the end and work forward?  If not we should stick to a start at 0 and work forwards convention. */
+        /* "clientToken" is usually (but not guaranteed to be) the last key in the Shadow JSON document.
+         * Since this function is primarily used to find "clientToken", find "clientToken" faster
+         * by starting from the end. */
+        for( sIterator = ( sTokensParsed - 1 ); sIterator >= 0; sIterator-- )
         {
             pxJSMNToken = &( pxJSMNTokens[ sIterator ] );
             usCompareLength = configMAX( ( ( uint16_t ) pxJSMNToken->end - ( uint16_t ) pxJSMNToken->start ),
                                          ( ( uint16_t ) strlen( pcKey ) ) );
 
+            /* Compare pcKey with the keys in the JSON document. */
             if( ( ( strncmp( pcKey, pcDoc + pxJSMNToken->start, usCompareLength ) ) == 0 ) && ( pxJSMNToken->size == 1 ) )
             {
+                /* The JSON value is the next jsmn token after the key. */
                 pxJSMNToken++;
+
+                /* Set the pointer to the value and the value's length. */
                 *ppcValue = ( const char * ) ( pcDoc + pxJSMNToken->start );
                 usReturn = ( uint16_t ) pxJSMNToken->end - ( uint16_t ) pxJSMNToken->start;
                 xValueFound = pdTRUE;

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Agent V1.0.1
+ * Amazon FreeRTOS MQTT Agent V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -760,7 +760,7 @@ static BaseType_t prvGetFreeConnection( void )
      * in critical section. */
     taskENTER_CRITICAL();
 
-    for( x = 0 ; x < mqttconfigMAX_BROKERS ; x++ )
+    for( x = 0; x < mqttconfigMAX_BROKERS; x++ )
     {
         /* If we find a free connection... */
         if( xMQTTConnections[ x ].xConnectionInUse == pdFALSE )
@@ -805,7 +805,7 @@ static MQTTNotificationData_t * prvStoreNotificationData( MQTTBrokerConnection_t
 
     /* Iterate over all the buffers to find an unused one. Unused
     * buffer is identified by the NULL value of xTaskToNotify. */
-    for( x = 0 ; x < ( UBaseType_t ) mqttconfigMAX_PARALLEL_OPS ; x++ )
+    for( x = 0; x < ( UBaseType_t ) mqttconfigMAX_PARALLEL_OPS; x++ )
     {
         if( pxConnection->xWaitingTasks[ x ].xTaskToNotify == NULL )
         {
@@ -830,7 +830,7 @@ static MQTTNotificationData_t * prvRetrieveNotificationData( MQTTBrokerConnectio
     /* Iterate over all the buffers to see if there is one matching the
      * packet identifier. Note that the packet identifier constitutes of the
      * top 16 bits of the message identifier stored in the notification data. */
-    for( x = 0 ; x < ( UBaseType_t ) mqttconfigMAX_PARALLEL_OPS ; x++ )
+    for( x = 0; x < ( UBaseType_t ) mqttconfigMAX_PARALLEL_OPS; x++ )
     {
         if( ( pxConnection->xWaitingTasks[ x ].xTaskToNotify != NULL ) &&
             ( usPacketIdentifier == ( uint16_t ) ( mqttMESSAGE_IDENTIFIER_EXTRACT( pxConnection->xWaitingTasks[ x ].ulMessageIdentifier ) ) ) )
@@ -851,6 +851,7 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
     BaseType_t xStatus = pdPASS;
     size_t xURLLength;
     MQTTBrokerConnection_t * pxConnection = &( xMQTTConnections[ pxEventData->uxBrokerNumber ] );
+    char * ppcAlpns[] = { socketsAWS_IOT_ALPN_MQTT };
 
     /* Should not get here if the socket used to communicate with the
      * broker is already connected. */
@@ -863,7 +864,16 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
      * within the permitted limits. */
     if( xURLLength <= ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
     {
-        xMQTTServerAddress.usPort = SOCKETS_htons( pxEventData->u.pxConnectParams->usPort );
+        if( ( pxEventData->u.pxConnectParams->xFlags & mqttagentUSE_AWS_IOT_ALPN_443 ) != 0 )
+        {
+            /* The AWS IoT ALPN feature implies the default TLS server port. */
+            xMQTTServerAddress.usPort = SOCKETS_htons( securesocketsDEFAULT_TLS_DESTINATION_PORT );
+        }
+        else
+        {
+            xMQTTServerAddress.usPort = SOCKETS_htons( pxEventData->u.pxConnectParams->usPort );
+        }
+
         xMQTTServerAddress.ulAddress = SOCKETS_GetHostByName( pxEventData->u.pxConnectParams->pcURL );
         xMQTTServerAddress.ucSocketDomain = SOCKETS_AF_INET;
 
@@ -883,10 +893,18 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
             /* Set secure socket option if it is a secured connection. */
             if( ( pxConnection->uxFlags & mqttCONNECTION_SECURED ) == mqttCONNECTION_SECURED )
             {
-                ( void ) SOCKETS_SetSockOpt( pxConnection->xSocket, 0, SOCKETS_SO_REQUIRE_TLS, NULL, 0 );
+                if( SOCKETS_SetSockOpt( pxConnection->xSocket,
+                                        0, /* Level - Unused. */
+                                        SOCKETS_SO_REQUIRE_TLS,
+                                        NULL,
+                                        0 ) != SOCKETS_ERROR_NONE )
+                {
+                    xStatus = pdFAIL;
+                }
 
                 /* If a certificate is supplied, set it. */
-                if( pxEventData->u.pxConnectParams->pcCertificate != NULL )
+                if( ( xStatus == pdPASS ) &&
+                    ( pxEventData->u.pxConnectParams->pcCertificate != NULL ) )
                 {
                     if( SOCKETS_SetSockOpt( pxConnection->xSocket,
                                             0, /* Level - Unused. */
@@ -900,6 +918,7 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
 
                 /* Use SNI if the provided URL is not IP address. */
                 if( ( xStatus == pdPASS ) &&
+                    ( ( pxEventData->u.pxConnectParams->xFlags & mqttagentURL_IS_IP_ADDRESS ) == 0 ) &&
                     ( pxEventData->u.pxConnectParams->xURLIsIPAddress == pdFALSE ) )
                 {
                     if( SOCKETS_SetSockOpt( pxConnection->xSocket,
@@ -907,6 +926,20 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
                                             SOCKETS_SO_SERVER_NAME_INDICATION,
                                             pxEventData->u.pxConnectParams->pcURL,
                                             ( size_t ) 1 + xURLLength ) != SOCKETS_ERROR_NONE )
+                    {
+                        xStatus = pdFAIL;
+                    }
+                }
+
+                /* Negotiate ALPN if requested. */
+                if( ( xStatus == pdPASS ) &&
+                    ( ( pxEventData->u.pxConnectParams->xFlags & mqttagentUSE_AWS_IOT_ALPN_443 ) ) != 0 )
+                {
+                    if( SOCKETS_SetSockOpt( pxConnection->xSocket,
+                                            0, /* Level - Unused. */
+                                            SOCKETS_SO_ALPN_PROTOCOLS, 
+                                            ppcAlpns,
+                                            sizeof( ppcAlpns ) / sizeof( ppcAlpns[ 0 ] ) ) != SOCKETS_ERROR_NONE )
                     {
                         xStatus = pdFAIL;
                     }
@@ -1038,8 +1071,15 @@ static void prvProcessReceivedCONNACK( MQTTBrokerConnection_t * const pxConnecti
         }
         else
         {
+            /* We must not unblock the task which initiated the connect
+             * operation from here. The reason is that TCP socket is
+             * still connected and if the task re-tries the connect
+             * operation it will attempt to call connect on an already
+             * connected socket. If the broker rejects the connection,
+             * we get a disconnect from the core library also which is
+             * when we unblock the task. This ensures the connect is not
+             * re-tried until the socket is closed. */
             configPRINTF( ( "MQTT Connect was rejected with error %d.\r\n", pxParams->u.xMQTTConnACKData.xConnACkReturnCode ) );
-            prvNotifyRequestingTask( pxNotificationData, eMQTTCONNACKConnectionRejected, pdFAIL );
         }
     }
 }
@@ -1178,7 +1218,7 @@ static void prvProcessReceivedDisconnect( MQTTBrokerConnection_t * const pxConne
      * task calling MQTT_AGENT_Disconnect gets unblocked from
      * prvInitiateMQTTDisconnect and therefore receives a success
      * return code. */
-    for( x = 0 ; x < ( UBaseType_t ) mqttconfigMAX_PARALLEL_OPS ; x++ )
+    for( x = 0; x < ( UBaseType_t ) mqttconfigMAX_PARALLEL_OPS; x++ )
     {
         if( pxConnection->xWaitingTasks[ x ].xTaskToNotify != NULL )
         {
@@ -1224,17 +1264,13 @@ static TickType_t prvManageConnections( void )
     uint64_t xTickCount = 0;
 
     /* For each broker the MQTT task might be connected to. */
-    for( uxBrokerNumber = 0 ; uxBrokerNumber < ( UBaseType_t ) mqttconfigMAX_BROKERS ; uxBrokerNumber++ )
+    for( uxBrokerNumber = 0; uxBrokerNumber < ( UBaseType_t ) mqttconfigMAX_BROKERS; uxBrokerNumber++ )
     {
         pxConnection = &( xMQTTConnections[ uxBrokerNumber ] );
 
-        /* Process only the connected ones. */
+        /* Process only the connected clients. */
         if( pxConnection->xSocket != SOCKETS_INVALID_SOCKET )
         {
-            /* At least one client is connected. */
-            xAnyConnectedClient = pdTRUE;
-
-            /* Look for incoming messages and process. */
             /* Read data from the socket. */
             lBytesReceived = SOCKETS_Recv( pxConnection->xSocket, pxConnection->ucRxBuffer, mqttconfigRX_BUFFER_SIZE, 0 );
 
@@ -1277,16 +1313,22 @@ static TickType_t prvManageConnections( void )
                  * to call MQTT_Periodic and calculate xNextTimeoutTicks
                  * accordingly. */
             }
-
-            /* Get the current tick count. */
-            prvMQTTGetTicks( &xTickCount );
-
-            /* Invoke MQTT_Periodic. */
-            xNextMQTTPeriodicInvokeTicks = ( TickType_t ) MQTT_Periodic( &( pxConnection->xMQTTContext ), xTickCount );
-
-            /* Update the next timeout value. */
-            xNextTimeoutTicks = configMIN( xNextTimeoutTicks, xNextMQTTPeriodicInvokeTicks );
         }
+
+        /* Is the client connected? */
+        if( ( xAnyConnectedClient == pdFALSE ) && ( pxConnection->xSocket != SOCKETS_INVALID_SOCKET ) )
+        {
+            xAnyConnectedClient = pdTRUE;
+        }
+
+        /* Get the current tick count. */
+        prvMQTTGetTicks( &xTickCount );
+
+        /* Invoke MQTT_Periodic. */
+        xNextMQTTPeriodicInvokeTicks = ( TickType_t ) MQTT_Periodic( &( pxConnection->xMQTTContext ), xTickCount );
+
+        /* Update the next timeout value. */
+        xNextTimeoutTicks = configMIN( xNextTimeoutTicks, xNextMQTTPeriodicInvokeTicks );
     }
 
     /* The MQTT task must not block for more than mqttconfigMQTT_TASK_MAX_BLOCK_TICKS
@@ -1321,7 +1363,8 @@ static void prvInitiateMQTTConnect( MQTTEventData_t * const pxEventData )
         pxConnection->pxCallback = pxEventData->u.pxConnectParams->pxCallback;
 
         /* Check if the connection is to be secured. */
-        if( pxEventData->u.pxConnectParams->xSecuredConnection == pdFALSE )
+        if( ( pxEventData->u.pxConnectParams->xSecuredConnection == pdFALSE) &&
+            ( pxEventData->u.pxConnectParams->xFlags & mqttagentREQUIRE_TLS ) == 0 )
         {
             pxConnection->uxFlags &= ~mqttCONNECTION_SECURED;
         }
@@ -1782,7 +1825,7 @@ BaseType_t MQTT_AGENT_Init( void )
         /* Ensure the connection structures start in a consistent state. */
         memset( xMQTTConnections, 0x00, sizeof( xMQTTConnections ) );
 
-        for( x = 0 ; x < ( UBaseType_t ) mqttconfigMAX_BROKERS ; x++ )
+        for( x = 0; x < ( UBaseType_t ) mqttconfigMAX_BROKERS; x++ )
         {
             xMQTTConnections[ x ].xSocket = SOCKETS_INVALID_SOCKET;
 
@@ -1810,7 +1853,7 @@ BaseType_t MQTT_AGENT_Init( void )
             }
 
             /* Initialize waiting tasks list. */
-            for( y = 0 ; y < ( UBaseType_t ) mqttconfigMAX_PARALLEL_OPS ; y++ )
+            for( y = 0; y < ( UBaseType_t ) mqttconfigMAX_PARALLEL_OPS; y++ )
             {
                 xMQTTConnections[ x ].xWaitingTasks[ y ].xTaskToNotify = NULL;
                 xMQTTConnections[ x ].xWaitingTasks[ y ].ulMessageIdentifier = 0;

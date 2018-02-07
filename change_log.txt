@@ -1,3 +1,40 @@
+Change Log for Amazon FreeRTOS V1.2.0 02/06/2018
+
+Greengrass Discovery V1.0.2
+    Updated to send all data until an error is recieved.
+
+MQTT Agent V1.1.0
+    Added support for ALPN. ALPN allows MQTT traffic to be sent to
+    the AWS IoT broker over port 443 instead of 8883.
+
+OTA Agent V0.9.1
+    The agent was fixed to send a FAILED status when a file too large for the platform
+    is recieved. 
+    Some files were renamed.
+
+PKCS#11 for Windows_Simulator
+    Added developer mode key provisioning support.
+
+Secure Socket for Curiosity_PIC32MZEF V1.0.1
+    Added support for ALPN.
+
+Secure Socket for Windows_Simulator V1.1.0
+    Added support for ALPN.
+
+Secure Sockets for CC32220SF_LaunchpadXL V1.0.1
+    Removed unnecessary server certificate storage on the client side.
+    Removed unnecessary global synchronization semaphore. 
+    Updated for other small bugs.
+
+Shadow V1.0.2
+    Fixed error handling bugs.
+    Require client tokens.
+    Updated for other small bugs.
+
+TLS V1.1.0
+    Added support for ALPN.
+
+
 Change Log for Amazon FreeRTOS V1.1.0 12/20/2017
 
 Crypto V1.0.1

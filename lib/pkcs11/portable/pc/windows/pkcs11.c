@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 for Windows_Simulator V1.0.0
+ * Amazon FreeRTOS PKCS#11 for Windows_Simulator V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -103,6 +103,13 @@ typedef struct P11Session
     mbedtls_ctr_drbg_context xMbedDrbgCtx;
     mbedtls_entropy_context xMbedEntropyContext;
 } P11Session_t, * P11SessionPtr_t;
+
+/**
+ * @brief Helper definitions.
+ */
+#define pkcs11CREATE_OBJECT_MIN_ATTRIBUTE_COUNT 3
+#define pkcs11CERTIFICATE_ATTRIBUTE_COUNT 3
+#define pkcs11PRIVATE_KEY_ATTRIBUTE_COUNT 4
 
 /*-----------------------------------------------------------*/
 
@@ -716,14 +723,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                              CK_OBJECT_HANDLE_PTR pxObject )
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
-    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
+
+    ( void )( xSession );
 
     /*
      * Check parameters.
      */
-
-    if( ( 2 > ulCount ) ||
-        ( NULL == pxSession ) ||
+    if( ( pkcs11CREATE_OBJECT_MIN_ATTRIBUTE_COUNT > ulCount ) ||
         ( NULL == pxTemplate ) ||
         ( NULL == pxObject ) )
     {
@@ -750,7 +756,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
             case CKO_CERTIFICATE:
 
                 /* Validate the attribute count for this object class. */
-                if( 2 != ulCount )
+                if( pkcs11CERTIFICATE_ATTRIBUTE_COUNT != ulCount )
                 {
                     xResult = CKR_ARGUMENTS_BAD;
                     break;
@@ -766,34 +772,27 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                     }
                 }
 
-                /* Write out the client certificate. */
-                if( pdFALSE == prvSaveFile( pkcs11FILE_NAME_CLIENT_CERTIFICATE,
-                                            pxTemplate[ 1 ].pValue,
-                                            pxTemplate[ 1 ].ulValueLen ) )
+                if( *( ( uint32_t * )pxTemplate[ 2 ].pValue ) == pkcs11CERTIFICATE_TYPE_USER )
                 {
-                    xResult = CKR_DEVICE_ERROR;
-                    break;
+                    /* Write out the client certificate. */
+                    if( pdFALSE == prvSaveFile( pkcs11FILE_NAME_CLIENT_CERTIFICATE,
+                        pxTemplate[ 1 ].pValue,
+                        pxTemplate[ 1 ].ulValueLen ) )
+                    {
+                        xResult = CKR_DEVICE_ERROR;
+                        break;
+                    }
                 }
-
-                /* Attach the certificate to the session. */
-                xResult = prvInitializeKey( pxSession,
-                                            NULL,
-                                            0,
-                                            pxTemplate[ 1 ].pValue,
-                                            pxTemplate[ 1 ].ulValueLen );
-
-                /* Create a certificate handle to return. */
-                if( CKR_OK == xResult )
+                else if( *( ( uint32_t * )pxTemplate[ 2 ].pValue ) == pkcs11CERTIFICATE_TYPE_ROOT )
                 {
-                    *pxObject = pkcs11OBJECT_HANDLE_CERTIFICATE;
+                    /* Ignore writing the default root certificate. */
                 }
-
                 break;
 
             case CKO_PRIVATE_KEY:
 
                 /* Validate the attribute count for this object class. */
-                if( 4 != ulCount )
+                if( pkcs11PRIVATE_KEY_ATTRIBUTE_COUNT != ulCount )
                 {
                     xResult = CKR_ARGUMENTS_BAD;
                     break;
@@ -817,21 +816,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                     xResult = CKR_DEVICE_ERROR;
                     break;
                 }
-
-                /* Attach the key to the session. */
-                xResult = prvInitializeKey(
-                    pxSession,
-                    pxTemplate[ 3 ].pValue,
-                    pxTemplate[ 3 ].ulValueLen,
-                    NULL,
-                    0 );
-
-                /* Create a key handle to return. */
-                if( CKR_OK == xResult )
-                {
-                    *pxObject = pkcs11OBJECT_HANDLE_PRIVATE_KEY;
-                }
-
                 break;
 
             default:

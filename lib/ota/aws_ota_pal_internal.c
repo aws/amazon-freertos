@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Agent V0.9.0
+Amazon FreeRTOS OTA Agent V0.9.1
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /**
  * @file aws_ota_pal_internal.c
- * @brief Functions to access private info in aws_ts_ota_pal.c.
+ * @brief Functions to access private info in aws_ota_pal.c.
  *
  * Needed for testing private functions.
  */

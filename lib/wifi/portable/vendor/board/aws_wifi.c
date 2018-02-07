@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS Wi-Fi V1.0.0
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -43,7 +43,14 @@ WIFIReturnCode_t WIFI_On( void )
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_ConnectAP( const WiFiNetworkParams_t * const pxNetworkParams )
+WIFIReturnCode_t WIFI_Off( void )
+{
+    /* FIX ME. */
+    return eWiFiFailure;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
     /* FIX ME. */
     return eWiFiFailure;
@@ -64,85 +71,115 @@ WIFIReturnCode_t WIFI_Reset( void )
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFISetMode( WiFiDeviceMode_t xDeviceMode )
+WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
+                            uint8_t ucNumNetworks )
 {
     /* FIX ME. */
     return eWiFiFailure;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFIGetMode( WiFiDeviceMode_t * pxDeviceMode )
+WIFIReturnCode_t WIFI_SetMode( WIFIDeviceMode_t xDeviceMode )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-int16_t WIFINetworkAdd( WiFiNetworkParams_t * pxNetworkParams )
+WIFIReturnCode_t WIFI_GetMode( WIFIDeviceMode_t * pxDeviceMode )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFINetworkGet( WiFiNetworkParams_t * pxNetworkParams,
-                                            uint16_t uxIndex )
-
+WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkProfile,
+                                  uint16_t * pusIndex )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFINetworkDelete( uint16_t uxIndex )
+WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile,
+                                  uint16_t usIndex )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_Ping( uint8_t * pxIPAddr,
-                                       uint16_t xCount,
-                                       uint16_t xIntervalMS )
+WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetIP( uint8_t * pxIPAddr )
+WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
+                            uint16_t usCount,
+                            uint32_t ulIntervalMS )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetMAC( uint8_t * pxMac )
+WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_GetHostIP( char * pxHost,
-                                            uint8_t * pxIPAddr )
+WIFIReturnCode_t WIFI_GetMAC( uint8_t * pucMac )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_Scan( WiFiScanResult_t * pxBuffer,
-                                       uint8_t uxNumNetworks )
+WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
+                                 uint8_t * pucIPAddr )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_ConfigureAP( WiFiNetworkParams_t * pxNetworkParams )
+WIFIReturnCode_t WIFI_StartAP( void )
 {
     /* FIX ME. */
-    return eWiFiFailure;
+    return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_StopAP( void )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkParams )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_SetPMMode( WIFIPMMode_t xPMModeType,
+                                 const void * pvOptionValue )
+{
+    /* FIX ME. */
+    return eWiFiNotSupported;
+}
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
+                                 void * pvOptionValue )
+                                 {
+    /* FIX ME. */
+    return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/

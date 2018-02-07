@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Agent V0.9.0
+Amazon FreeRTOS OTA Agent V0.9.1
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,8 +26,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /* OTA agent includes. */
 #define INCLUDE_FROM_OTA_AGENT
-#include "aws_ts_ota_pal.h"
-#include "aws_ts_ota_agent.h"
+#include "aws_ota_pal.h"
+#include "aws_ota_agent.h"
 #include "event_groups.h"
 #include "aws_rsprintf.h"
 #include "aws_clientcredential.h"
@@ -1646,6 +1646,7 @@ IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                             if( iBytesWritten < 0 )
                             {
                                 OTA_PRINT( "[OTA] Error (%d) writing file block\r\n", iBytesWritten );
+                                eIngestResult = eIngest_Result_WriteBlockFailed;
                             }
                             else
                             {
@@ -1956,7 +1957,7 @@ static MQTTAgentReturnCode_t prvPublishMessage( void * const pvClient,
 
 /*-----------------------------------------------------------*/
 /* Private OTA abstractions. These are statics so the implementation is included in-line. */
-#include "aws_ts_ota_pal.c"
+#include "aws_ota_pal.c"
 
 /*-----------------------------------------------------------*/
 

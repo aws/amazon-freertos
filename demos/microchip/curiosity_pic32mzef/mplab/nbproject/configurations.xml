@@ -151,8 +151,8 @@
             <itemPath>../../../../lib/include/private/aws_secure_sockets_config_defaults.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_shadow_config_defaults.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_shadow_json.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_ts_ota_pal.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_ts_ota_types.h</itemPath>
+            <itemPath>../../../../lib/include/private/aws_ota_pal.h</itemPath>
+            <itemPath>../../../../lib/include/private/aws_ota_types.h</itemPath>
             <itemPath>../../../../lib/include/private/deprecated_definitions.h</itemPath>
             <itemPath>../../../../lib/include/private/list.h</itemPath>
             <itemPath>../../../../lib/include/private/mpu_wrappers.h</itemPath>
@@ -169,7 +169,7 @@
           <itemPath>../../../../lib/include/aws_shadow.h</itemPath>
           <itemPath>../../../../lib/include/aws_system_init.h</itemPath>
           <itemPath>../../../../lib/include/aws_tls.h</itemPath>
-          <itemPath>../../../../lib/include/aws_ts_ota_agent.h</itemPath>
+          <itemPath>../../../../lib/include/aws_ota_agent.h</itemPath>
           <itemPath>../../../../lib/include/aws_wifi.h</itemPath>
           <itemPath>../../../../lib/include/event_groups.h</itemPath>
           <itemPath>../../../../lib/include/FreeRTOS.h</itemPath>

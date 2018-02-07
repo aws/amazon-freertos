@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -611,7 +611,9 @@ static void prvSubscribePublishDemo( MQTTAgentHandle_t xMQTTClientHandle,
     xConnectParams.usClientIdLength = ( uint16_t ) ( strlen( clientcredentialIOT_THING_NAME ) );
 
     xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-    xConnectParams.xURLIsIPAddress = pdFALSE;
+    xConnectParams.xFlags = 0;
+    xConnectParams.xURLIsIPAddress = pdFALSE; /* Deprecated. */
+    xConnectParams.xSecuredConnection = pdFALSE; /* Deprecated. */
     xConnectParams.pcCertificate = NULL;
     xConnectParams.ulCertificateSize = 0;
     xConnectParams.pvUserData = NULL;
@@ -619,13 +621,12 @@ static void prvSubscribePublishDemo( MQTTAgentHandle_t xMQTTClientHandle,
 
     if( xSecureConnection == pdTRUE )
     {
-        xConnectParams.xSecuredConnection = pdTRUE;
+        xConnectParams.xFlags |= mqttagentREQUIRE_TLS;
         xConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
         xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
     }
     else
     {
-        xConnectParams.xSecuredConnection = pdFALSE;
         xConnectParams.pcURL = subpubUNSECURE_BROKER_ENDPOINT;
         xConnectParams.usPort = subpubUNSECURE_BROKER_PORT;
     }

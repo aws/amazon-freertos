@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,15 +42,20 @@
 #include "task.h"
 #include "semphr.h"
 
-/* pkcs11 includes */
+/* PKCS#11 includes. */
 #include "aws_pkcs11.h"
 
-/* client credential includes */
+/* Client credential includes. */
 #include "aws_clientcredential.h"
 #include "aws_default_root_certificates.h"
 
-/*key provisioning includes */
+/* Key provisioning includes. */
 #include "aws_dev_mode_key_provisioning.h"
+
+/* Key provisioning helper defines. */
+#define provisioningPRIVATE_KEY_TEMPLATE_COUNT  4
+#define provisioningCERTIFICATE_TEMPLATE_COUNT 3
+#define provisioningROOT_CERTIFICATE_TEMPLATE_COUNT 3
 
 /*-----------------------------------------------------------*/
 
@@ -102,47 +107,56 @@ void vDevModeKeyProvisioning( void )
     CK_OBJECT_CLASS xRootCertificateType = pkcs11CERTIFICATE_TYPE_ROOT;
     CK_KEY_TYPE xPrivateKeyType = CKK_RSA;
     CK_BBOOL xCanSign = CK_TRUE;
+    CK_ATTRIBUTE xPrivateKeyTemplate[ provisioningPRIVATE_KEY_TEMPLATE_COUNT ];
+    CK_ATTRIBUTE xCertificateTemplate[ provisioningCERTIFICATE_TEMPLATE_COUNT ];
+    CK_ATTRIBUTE xRootCertificateTemplate[ provisioningROOT_CERTIFICATE_TEMPLATE_COUNT ];
 
     configPRINTF( ( "Starting key provisioning...\r\n" ) );
 
-    CK_ATTRIBUTE xPrivateKeyTemplate[] =
-    {
-        { CKA_CLASS,    &xPrivateKeyClass, sizeof( xPrivateKeyClass ) },
-        { CKA_KEY_TYPE, &xPrivateKeyType,  sizeof( xPrivateKeyType )  },
-        { CKA_SIGN,     &xCanSign,         sizeof( xCanSign )         },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) clientcredentialCLIENT_PRIVATE_KEY_PEM,
-          ( CK_ULONG ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH }
-    };
+    /* Initialize the device private key template. */
+    xPrivateKeyTemplate[ 0 ].type = CKA_CLASS;
+    xPrivateKeyTemplate[ 0 ].pValue = &xPrivateKeyClass;
+    xPrivateKeyTemplate[ 0 ].ulValueLen = sizeof( xPrivateKeyClass );
+    xPrivateKeyTemplate[ 1 ].type = CKA_KEY_TYPE;
+    xPrivateKeyTemplate[ 1 ].pValue = &xPrivateKeyType;
+    xPrivateKeyTemplate[ 1 ].ulValueLen = sizeof( xPrivateKeyType );
+    xPrivateKeyTemplate[ 2 ].type = CKA_SIGN;
+    xPrivateKeyTemplate[ 2 ].pValue = &xCanSign;
+    xPrivateKeyTemplate[ 2 ].ulValueLen = sizeof( xCanSign );
+    xPrivateKeyTemplate[ 3 ].type = CKA_VALUE;
+    xPrivateKeyTemplate[ 3 ].pValue = ( CK_VOID_PTR )clientcredentialCLIENT_PRIVATE_KEY_PEM;
+    xPrivateKeyTemplate[ 3 ].ulValueLen = ( CK_ULONG )clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
 
-    CK_ATTRIBUTE xCertificateTemplate[] =
-    {
-        { CKA_CLASS,            &xCertificateClass,      sizeof( xCertificateClass )      },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) clientcredentialCLIENT_CERTIFICATE_PEM,
-          ( CK_ULONG ) clientcredentialCLIENT_CERTIFICATE_LENGTH },
-        { CKA_CERTIFICATE_TYPE, &xDeviceCertificateType, sizeof( xDeviceCertificateType ) }
-    };
+    /* Initialize the client certificate template. */
+    xCertificateTemplate[ 0 ].type = CKA_CLASS;
+    xCertificateTemplate[ 0 ].pValue = &xCertificateClass;
+    xCertificateTemplate[ 0 ].ulValueLen = sizeof( xCertificateClass );
+    xCertificateTemplate[ 1 ].type = CKA_VALUE;
+    xCertificateTemplate[ 1 ].pValue = ( CK_VOID_PTR )clientcredentialCLIENT_CERTIFICATE_PEM;
+    xCertificateTemplate[ 1 ].ulValueLen = ( CK_ULONG )clientcredentialCLIENT_CERTIFICATE_LENGTH;
+    xCertificateTemplate[ 2 ].type = CKA_CERTIFICATE_TYPE;
+    xCertificateTemplate[ 2 ].pValue = &xDeviceCertificateType;
+    xCertificateTemplate[ 2 ].ulValueLen = sizeof( xDeviceCertificateType );
 
-    CK_ATTRIBUTE xRootCertificateTemplate[] =
-    {
-        { CKA_CLASS,            &xCertificateClass,    sizeof( xCertificateClass )    },
-
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) tlsVERISIGN_ROOT_CERTIFICATE_PEM,
-          ( CK_ULONG ) tlsVERISIGN_ROOT_CERTIFICATE_LENGTH },
-        { CKA_CERTIFICATE_TYPE, &xRootCertificateType, sizeof( xRootCertificateType ) }
-    };
+    /* Initialize the root certificate template. */
+    xRootCertificateTemplate[ 0 ].type = CKA_CLASS;
+    xRootCertificateTemplate[ 0 ].pValue = &xCertificateClass;
+    xRootCertificateTemplate[ 0 ].ulValueLen = sizeof( xCertificateClass );
+    xRootCertificateTemplate[ 1 ].type = CKA_VALUE;
+    xRootCertificateTemplate[ 1 ].pValue = ( CK_VOID_PTR )tlsVERISIGN_ROOT_CERTIFICATE_PEM;
+    xRootCertificateTemplate[ 1 ].ulValueLen = ( CK_ULONG )tlsVERISIGN_ROOT_CERTIFICATE_LENGTH;
+    xRootCertificateTemplate[ 2 ].type = CKA_CERTIFICATE_TYPE;
+    xRootCertificateTemplate[ 2 ].pValue = &xRootCertificateType;
+    xRootCertificateTemplate[ 2 ].ulValueLen = sizeof( xRootCertificateType );
 
     /* Initialize the module. */
     xResult = prvInitialize( &pxFunctionList,
                              &xSlotId,
                              &xSession );
 
-    /** \brief Check that a certificate and private key can be imported into
-     *
+    /* 
+     * Check that a certificate and private key can be imported into
      * persistent storage.
-     *
      */
 
     /* Create an object using the encoded root certificate. */

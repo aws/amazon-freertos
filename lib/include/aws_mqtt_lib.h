@@ -143,7 +143,8 @@ typedef enum
 {
     eMQTTDisconnectReasonMalformedPacket,         /**< The client was disconnected because a malformed packet was received. */
     eMQTTDisconnectReasonBrokerRefusedConnection, /**< The client was disconnected because broker refused the connection request. */
-    eMQTTDisconnectReasonUserRequest              /**< The client was disconnected on user request. */
+    eMQTTDisconnectReasonUserRequest,             /**< The client was disconnected on user request. */
+    eMQTTDisconnectReasonConnectTimeout           /**< The client was disconnected because an expected CONNACK was not received. */
 } MQTTDisconnectReason_t;
 
 /**

@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Agent V0.9.0
+Amazon FreeRTOS OTA Agent V0.9.1
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,8 +26,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef _AWS_OTA_PAL_INTERNAL_H_
 #define _AWS_OTA_PAL_INTERNAL_H_
 
-#include "aws_ts_ota_types.h"
-#include "aws_ts_ota_agent.h"
+#include "aws_ota_types.h"
+#include "aws_ota_agent.h"
 
 extern s32 TEST_OTA_prvAbort(OTA_FileContext_t * const C);
 extern bool_t TEST_OTA_prvCreateFileForRx(OTA_FileContext_t * const C);

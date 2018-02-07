@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,6 +54,7 @@
 #include "aws_system_init.h"
 #include "aws_demo_runner.h"
 #include "aws_application_version.h"
+#include "aws_dev_mode_key_provisioning.h"
 
 /* Declare the firmware version structure for all to see. */
 const AppVersion32_t xAppFirmwareVersion = {
@@ -213,6 +214,11 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
          * created. */
         if( xTasksAlreadyCreated == pdFALSE )
         {
+            /* A simple example to demonstrate key and certificate provisioning in
+             * microcontroller flash using PKCS#11 interface. This should be replaced
+             * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning( );
+
             /* Initialize AWS system libraries */
             SYSTEM_Init();
 

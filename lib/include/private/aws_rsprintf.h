@@ -36,7 +36,7 @@
 #include <stdint.h>
 /* #include <unistd.h> */
 #include <stdarg.h>
-#include "aws_ts_ota_types.h"
+#include "aws_ota_types.h"
 
 #define kH32_MaxPlaces 8							/* Maximum number of output digits of the szH32 function. */
 #define kU32_MaxPlaces 10							/* Maximum number of output digits of the szU32 function. */

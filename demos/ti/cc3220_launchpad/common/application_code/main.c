@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.1.0
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V1.2.0
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -62,10 +62,11 @@
 #include "aws_application_version.h"
 
 /* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion = {
-   .u.x.ucMajor = APP_VERSION_MAJOR,
-   .u.x.ucMinor = APP_VERSION_MINOR,
-   .u.x.usBuild = APP_VERSION_BUILD,
+const AppVersion32_t xAppFirmwareVersion =
+{
+    .u.x.ucMajor = APP_VERSION_MAJOR,
+    .u.x.ucMinor = APP_VERSION_MINOR,
+    .u.x.usBuild = APP_VERSION_BUILD,
 };
 
 
@@ -114,7 +115,7 @@ void vApplicationDaemonTaskStartupHook( void )
     WIFINetworkParams_t xNetworkParams;
 
     Board_initGPIO();
-    Board_initSPI(); /* AN:  Is the SPI actually used? */
+    Board_initSPI();
 
     /* Configure the UART. */
     xtUartHndl = InitTerm();
@@ -125,7 +126,8 @@ void vApplicationDaemonTaskStartupHook( void )
 
     /* A simple example to demonstrate key and certificate provisioning in
      * flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. */
+     * by production ready key provisioning mechanism. This function must be called after
+     * initializing the TI File System using WIFI_On. */
     vDevModeKeyProvisioning();
 
     /* Initialize the AWS library system. */
@@ -181,7 +183,9 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     portDISABLE_INTERRUPTS();
 
     /* Loop forever */
-    for( ; ; );
+    for( ; ; )
+    {
+    }
 }
 
 /*-----------------------------------------------------------*/

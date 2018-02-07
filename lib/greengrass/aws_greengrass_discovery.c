@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass Discovery V1.0.1
+ * Amazon FreeRTOS Greengrass Discovery V1.0.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -178,12 +178,15 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer, /*lint !e971 can use cha
 
     if( xStatus == pdPASS )
     {
-        xStatus = GGD_JSONRequestGetFile( &xSocket,
-                                          pcBuffer,
-                                          ulBufferSize,
-                                          &ulByteRead,
-                                          &xJSONFileRetrieveCompleted,
-                                          ulJSONFileSize ); /*lint !e644 ulJSONFileSize has been initialized if code reaches here. */
+        /* Loop until the full JSON is retrieved. */
+        do {
+            xStatus = GGD_JSONRequestGetFile( &xSocket,
+                                              &pcBuffer[ulByteRead],
+                                              ulBufferSize - ulByteRead,
+                                              &ulByteRead,
+                                              &xJSONFileRetrieveCompleted,
+                                              ulJSONFileSize ); /*lint !e644 ulJSONFileSize has been initialized if code reaches here. */
+        } while ( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) );
 
         if( xSocket != SOCKETS_INVALID_SOCKET )             /* Check connection is closed. */
         {

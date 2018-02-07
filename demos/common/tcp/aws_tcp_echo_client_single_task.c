@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -142,7 +142,7 @@ void vStartTCPEchoClientTasks_SingleTasks( void )
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
 
     /* Create the echo client tasks. */
-    for( x = 0 ; x < echoNUM_ECHO_CLIENTS ; x++ )
+    for( x = 0; x < echoNUM_ECHO_CLIENTS; x++ )
     {
         snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", x );
         xTaskCreate( prvEchoClientTask,                               /* The function that implements the task. */
@@ -222,7 +222,7 @@ static void prvEchoClientTask( void * pvParameters )
             ulConnections[ xInstance ]++;
 
             /* Send a number of echo requests. */
-            for( lLoopCount = 0 ; lLoopCount < lMaxLoopCount ; lLoopCount++ )
+            for( lLoopCount = 0; lLoopCount < lMaxLoopCount; lLoopCount++ )
             {
                 /* Create the string that is sent to the echo server. */
                 lStringLength = prvCreateTxData( pcTransmittedString, echoBUFFER_SIZES );
@@ -346,7 +346,8 @@ static void prvEchoClientTask( void * pvParameters )
         }
 
         /* Close this socket before looping back to create another. */
-        SOCKETS_Close( xSocket );
+        xReturned = SOCKETS_Close( xSocket );
+        configASSERT( xReturned == SOCKETS_ERROR_NONE );
 
         /* Pause for a short while to ensure the network is not too
          * congested. */
@@ -371,7 +372,7 @@ static BaseType_t prvCreateTxData( char * cBuffer,
         ulCharactersToAdd = 1UL;
     }
 
-    for( ulCharacter = 0 ; ulCharacter < ulCharactersToAdd ; ulCharacter++ )
+    for( ulCharacter = 0; ulCharacter < ulCharactersToAdd; ulCharacter++ )
     {
         cBuffer[ ulCharacter ] = cChar;
         cChar++;
@@ -393,7 +394,7 @@ BaseType_t xAreSingleTaskTCPEchoClientsStillRunning( void )
 
     /* Return fail is the number of cycles does not increment between
      * consecutive calls. */
-    for( x = 0 ; x < echoNUM_ECHO_CLIENTS ; x++ )
+    for( x = 0; x < echoNUM_ECHO_CLIENTS; x++ )
     {
         if( ulTxRxCycles[ x ] == ulLastEchoSocketCount[ x ] )
         {

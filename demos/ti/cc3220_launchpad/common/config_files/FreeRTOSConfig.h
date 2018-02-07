@@ -89,7 +89,7 @@
 /* Needed for POSIX/pthread. */
 #define configUSE_APPLICATION_TASK_TAG           1
 
-/* The function that implements FreeRTOS printf style outout, and the macro
+/* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */
 extern void vLoggingPrintf( const char * pcFormat,
                             ... );

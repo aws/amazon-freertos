@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Echo Demo V1.1.0
+ * Amazon FreeRTOS MQTT Echo Demo V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -181,11 +181,12 @@ static BaseType_t prvCreateClientAndConnectToBroker( void )
     MQTTAgentConnectParams_t xConnectParameters =
     {
         clientcredentialMQTT_BROKER_ENDPOINT, /* The URL of the MQTT broker to connect to. */
-        pdFALSE,                              /* Set to pdTRUE if the provided URL is an IP address, otherwise set to pdFALSE. */
+        mqttagentREQUIRE_TLS,                 /* Connection flags. */
+        pdFALSE,                              /* Deprecated. */
         clientcredentialMQTT_BROKER_PORT,     /* Port number on which the MQTT broker is listening. */
         echoCLIENT_ID,                        /* Client Identifier of the MQTT client. It should be unique per broker. */
         0,                                    /* The length of the client Id, filled in later as not const. */
-        pdTRUE,                               /* Set to pdTRUE to use TLS, pdFALSE to not use TLS. */
+        pdFALSE,                              /* Deprecated. */
         NULL,                                 /* User data supplied to the callback. Can be NULL. */
         NULL,                                 /* Callback used to report various events. Can be NULL. */
         NULL,                                 /* Certificate used for secure connection. Can be NULL. */
@@ -241,7 +242,8 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
     configASSERT( xMQTTHandle != NULL );
 
     /* Create the message that will be published, which is of the form "Hello World n"
-     * where n is a monotonically increasing number. */
+     * where n is a monotonically increasing number. Note that snprintf appends
+     * terminating null character to the cDataBuffer. */
     ( void ) snprintf( cDataBuffer, echoMAX_DATA_LENGTH, "Hello World %d", ( int ) xMessageNumber );
 
     /* Setup the publish parameters. */
@@ -304,7 +306,9 @@ static void prvMessageEchoingTask( void * pvParameters )
         /* Ensure the ACK can be added without overflowing the buffer. */
         if( xBytesReceived < ( sizeof( cDataBuffer ) - strlen( echoACK_STRING ) - ( size_t ) 1 ) )
         {
-            /* Append ACK to the received message. */
+            /* Append ACK to the received message. Note that
+             * strcat appends terminating null character to the
+             * cDataBuffer. */
             strcat( cDataBuffer, echoACK_STRING );
             xPublishParameters.ulDataLength = ( uint32_t ) strlen( cDataBuffer );
 
@@ -324,6 +328,8 @@ static void prvMessageEchoingTask( void * pvParameters )
         }
         else
         {
+            /* cDataBuffer is null terminated as the terminating null
+             * character was sent from the MQTT callback. */
             configPRINTF( ( "ERROR:  Buffer is not big enough to return message with ACK: '%s'\r\n", cDataBuffer ) );
         }
     }
@@ -373,7 +379,8 @@ static MQTTBool_t prvMQTTCallback( void * pvUserData,
     ( void ) pvUserData;
 
     /* Don't expect the callback to be invoked for any other topics. */
-    configASSERT( strcmp( ( const char * ) pxPublishParameters->pucTopic, ( const char * ) echoTOPIC_NAME ) == 0 );
+    configASSERT( ( size_t ) ( pxPublishParameters->usTopicLength ) == strlen( ( const char * ) echoTOPIC_NAME ) );
+    configASSERT( memcmp( pxPublishParameters->pucTopic, echoTOPIC_NAME, ( size_t ) ( pxPublishParameters->usTopicLength ) ) == 0 );
 
     /* THe ulBytesToCopy has already been initialized to ensure it does not copy
      * more bytes than will fit in the buffer.  Now check it does not copy more
@@ -395,11 +402,13 @@ static MQTTBool_t prvMQTTCallback( void * pvUserData,
     if( strstr( cBuffer, echoACK_STRING ) == NULL )
     {
         /* The string has not been echoed before, so send it to the publish
-         * task, which will then echo the data back.  THE DATA CANNOT BE ECHOED
+         * task, which will then echo the data back.  Make sure to send the
+         * terminating null character as well so that the received buffer in
+         * EchoingTask can be printed as a C string.  THE DATA CANNOT BE ECHOED
          * BACK WITHIN THE CALLBACK AS THE CALLBACK IS EXECUTING WITHINT THE
          * CONTEXT OF THE MQTT TASK.  Calling an MQTT API function here could cause
          * a deadlock. */
-        ( void ) xMessageBufferSend( xEchoMessageBuffer, cBuffer, strlen( cBuffer ), echoDONT_BLOCK );
+        ( void ) xMessageBufferSend( xEchoMessageBuffer, cBuffer, ( size_t ) ulBytesToCopy + ( size_t ) 1, echoDONT_BLOCK );
     }
 
     /* The data was copied into the FreeRTOS message buffer, so the buffer
@@ -458,7 +467,7 @@ static void prvMQTTConnectAndPublishTask( void * pvParameters )
     {
         /* MQTT client is now connected to a broker.  Publish a message
          * every five seconds until a minute has elapsed. */
-        for( x = 0 ; x < xIterationsInAMinute ; x++ )
+        for( x = 0; x < xIterationsInAMinute; x++ )
         {
             prvPublishNextMessage( x );
 

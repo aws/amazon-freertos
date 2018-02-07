@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Library V1.0.1
+ * Amazon FreeRTOS MQTT Library V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1030,7 +1030,7 @@ static void prvResetMQTTContext( MQTTContext_t * pxMQTTContext )
 
         /* Mark all the subscription entires in the subscription
          * manager as free. */
-        for( x = 0; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS; x++ )
+        for( x = 0 ; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ; x++ )
         {
             pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].xInUse = eMQTTFalse;
         }
@@ -1930,7 +1930,7 @@ static uint8_t prvDecodeRemainingLength( const uint8_t * const pucEncodedRemaini
     uint8_t ucBytesRead, ucDecodedByte;
     uint32_t x, ulDecodedRemainingLength = 0, ulDecodedByte;
 
-    for( x = 0; x < ( uint32_t ) mqttREMAINING_LENGTH_MAX_BYTES; x++ )
+    for( x = 0 ; x < ( uint32_t ) mqttREMAINING_LENGTH_MAX_BYTES ; x++ )
     {
         /* Extract 7 lower bits from the current byte - These bits contain the
          * actual length information. */
@@ -2005,7 +2005,7 @@ static uint8_t prvDecodeRemainingLength( const uint8_t * const pucEncodedRemaini
                     prvRemoveSubscription( pxMQTTContext, pucTopic, usTopicLength );
 
                     /* Find a free entry in the subscription manager. */
-                    for( x = 0; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS; x++ )
+                    for( x = 0 ; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ; x++ )
                     {
                         if( pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].xInUse == eMQTTFalse )
                         {
@@ -2069,7 +2069,7 @@ static uint8_t prvDecodeRemainingLength( const uint8_t * const pucEncodedRemaini
         /* Iterate over all the subscription entries in
          * the subscription manager and try to find the
          * matching one. */
-        for( x = 0; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS; x++ )
+        for( x = 0 ; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ; x++ )
         {
             if( ( pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].xInUse == eMQTTTrue ) &&
                 ( pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].usTopicFilterLength == usTopicLength ) )
@@ -2144,7 +2144,7 @@ static uint8_t prvDecodeRemainingLength( const uint8_t * const pucEncodedRemaini
 
         /* Iterate over the subscription entries containing topic filters
          * without any wild-cards and invoke the registered callbacks. */
-        for( x = 0; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS; x++ )
+        for( x = 0 ; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ; x++ )
         {
             if( ( pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].xInUse == eMQTTTrue ) &&
                 ( pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].xTopicFilterType == eMQTTTopicFilterTypeSimple ) &&
@@ -2184,7 +2184,7 @@ static uint8_t prvDecodeRemainingLength( const uint8_t * const pucEncodedRemaini
          * which match the topic. */
         if( xBufferOwnershipTaken == eMQTTFalse )
         {
-            for( x = 0; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS; x++ )
+            for( x = 0 ; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ; x++ )
             {
                 if( ( pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].xInUse == eMQTTTrue ) &&
                     ( pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].xTopicFilterType == eMQTTTopicFilterTypeWildCard ) )
@@ -2236,7 +2236,7 @@ static uint8_t prvDecodeRemainingLength( const uint8_t * const pucEncodedRemaini
         uint16_t x;
 
         /* Iterate over the topic filter. */
-        for( x = 0; x < usTopicFilterLength; x++ )
+        for( x = 0 ; x < usTopicFilterLength ; x++ )
         {
             if( pucTopicFilter[ x ] == ( uint8_t ) '+' )
             {
@@ -2461,7 +2461,7 @@ MQTTReturnCode_t MQTT_Init( MQTTContext_t * pxMQTTContext,
 
         /* Mark all the subscription entires in the subscription
          * manager as free. */
-        for( x = 0; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS; x++ )
+        for( x = 0 ; x < ( uint32_t ) mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ; x++ )
         {
             pxMQTTContext->xSubscriptionManager.xSubscriptions[ x ].xInUse = eMQTTFalse;
         }
@@ -2653,9 +2653,11 @@ MQTTReturnCode_t MQTT_Disconnect( MQTTContext_t * pxMQTTContext )
     mqttconfigASSERT( pxMQTTContext->xBufferPoolInterface.pxReturnBufferFxn != NULL );
 
     /* Send the MQTT Disconnect message only if the MQTT client
-     * is connected. Do not send the disconnect message if someone
-     * is trying to disconnect an already disconnected client. */
-    if( pxMQTTContext->xConnectionState == eMQTTConnected )
+     * is connected or a connection attempt is in progress (i.e.
+     * we have sent connect message and are waiting for a CONNACK).
+     * Do not send the disconnect message if someone is trying to
+     * disconnect an already disconnected client. */
+    if( ( pxMQTTContext->xConnectionState == eMQTTConnected ) || ( pxMQTTContext->xConnectionState == eMQTTConnectionInProgress ) )
     {
         if( prvSendData( pxMQTTContext, ucDisconnectPacket, sizeof( ucDisconnectPacket ) ) != eMQTTSuccess )
         {
@@ -3108,6 +3110,19 @@ MQTTReturnCode_t MQTT_ParseReceivedData( MQTTContext_t * pxMQTTContext,
     /* Keep processing until all the supplied bytes are over. */
     while( xProcessedBytes < xReceivedDataLength )
     {
+        /* Do not process any data received on the client
+         * which is not connected. This check needs to be in
+         * the loop because one iteration of the loop can result
+         * in client getting disconnected because of a malformed
+         * packet. */
+        if( pxMQTTContext->xConnectionState == eMQTTNotConnected )
+        {
+            xReturnCode = eMQTTClientNotConnected;
+
+            /* Stop. */
+            break;
+        }
+
         if( pxMQTTContext->xRxMessageState.xRxNextByte == eMQTTRxNextBytePacketType )
         {
             /* Looking for the start of a new MQTT message, which always begins with
@@ -3312,30 +3327,43 @@ uint32_t MQTT_Periodic( MQTTContext_t * pxMQTTContext,
          * return the buffer to the free buffer pool. */
         if( prvIsTimeElapsed( &( mqttbufferGET_PACKET_RECORDED_TICK_COUNT( xBuffer ) ), xCurrentTickCount, &( mqttbufferGET_PACKET_TIMEOUT_TICKS( xBuffer ) ) ) == eMQTTTrue )
         {
-            /* If a connect timed out, change the connection state back to
-             * not connected. */
+            /* If a connect timed out, disconnect the client and inform
+             * the user about the same. */
             if( mqttbufferGET_DATA( xBuffer )[ mqttFIXED_HEADER_CONTROL_BYTE_OFFSET ] == ( uint8_t ) ( mqttCONTROL_CONNECT | mqttFLAGS_CONNECT ) )
             {
-                pxMQTTContext->xConnectionState = eMQTTNotConnected;
+                /* Disconnect. */
+                prvResetMQTTContext( pxMQTTContext );
+
+                /* Inform the user about disconnect. */
+                xEventCallbackParams.xEventType = eMQTTClientDisconnected;
+                xEventCallbackParams.u.xDisconnectData.xDisconnectReason = eMQTTDisconnectReasonConnectTimeout;
+                ( void ) prvInvokeCallback( pxMQTTContext, &xEventCallbackParams );
+
+                /* No need to traverse the Tx list anymore as all
+                 * the packets have already been returned to the
+                 * buffer-pool in prvResetMQTTContext. */
+                break;
             }
+            else
+            {
+                #ifdef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
 
-            #ifdef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
+                    /* If a subscribe message timed out, remove the corresponding
+                     * entry from the subscription manager. */
+                    if( mqttbufferGET_DATA( xBuffer )[ mqttFIXED_HEADER_CONTROL_BYTE_OFFSET ] == ( uint8_t ) ( mqttCONTROL_SUBSCRIBE | mqttFLAGS_SUBSCRIBE ) )
+                    {
+                        prvRemoveSubscriptionForSubscribeOrUnsubscribeBuffer( pxMQTTContext, xBuffer );
+                    }
+                #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
 
-                /* If a subscribe message timed out, remove the corresponding
-                 * entry from the subscription manager. */
-                if( mqttbufferGET_DATA( xBuffer )[ mqttFIXED_HEADER_CONTROL_BYTE_OFFSET ] == ( uint8_t ) ( mqttCONTROL_SUBSCRIBE | mqttFLAGS_SUBSCRIBE ) )
-                {
-                    prvRemoveSubscriptionForSubscribeOrUnsubscribeBuffer( pxMQTTContext, xBuffer );
-                }
-            #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
+                /* Inform the user about the timeout. */
+                xEventCallbackParams.xEventType = eMQTTTimeout;
+                xEventCallbackParams.u.xTimeoutData.usPacketIdentifier = mqttbufferGET_PACKET_IDENTIFIER( xBuffer );
+                ( void ) prvInvokeCallback( pxMQTTContext, &xEventCallbackParams );
 
-            /* Invoke user callback. */
-            xEventCallbackParams.xEventType = eMQTTTimeout;
-            xEventCallbackParams.u.xTimeoutData.usPacketIdentifier = mqttbufferGET_PACKET_IDENTIFIER( xBuffer );
-            ( void ) prvInvokeCallback( pxMQTTContext, &xEventCallbackParams );
-
-            /* Return the buffer back to the free buffer pool. */
-            prvReturnBuffer( pxMQTTContext, xBuffer );
+                /* Return the buffer back to the free buffer pool. */
+                prvReturnBuffer( pxMQTTContext, xBuffer );
+            }
         }
         else
         {

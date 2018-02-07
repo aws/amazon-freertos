@@ -72,6 +72,8 @@ typedef struct xTLS_PARAMS
     const char * pcDestination;
     const char * pcServerCertificate;
     uint32_t ulServerCertificateLength;
+    const char ** ppcAlpnProtocols;
+    uint32_t ulAlpnProtocolsCount;
 
     NetworkRecv_t pxNetworkRecv;
     NetworkSend_t pxNetworkSend;

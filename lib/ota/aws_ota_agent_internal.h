@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Agent V0.9.0
+Amazon FreeRTOS OTA Agent V0.9.1
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,23 +25,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #ifndef _AWS_OTA_AGENT_INTERNAL_H_
 #define _AWS_OTA_AGENT_INTERNAL_H_
-#include "aws_ts_ota_types.h"
-#include "aws_ts_ota_agent.h"
+#include "aws_ota_types.h"
+#include "aws_ota_agent.h"
 
 #define kBitsPerByte          8                             /* Number of bits in a byte. This is used by the block bitmap implementation. */
 #define kOTA_FileBlockSize    1024                          /* Data section size of the file data block message (excludes the header). */
 
 typedef enum
 {
-    eIngest_Result_FileComplete = -1,    /* The file transfer is complete and the signature check passed. */
-    eIngest_Result_SigCheckFail = -2,    /* The file transfer is complete but the signature check failed. */
-    eIngest_Result_FileCloseFail = -3,   /* There was a problem trying to close the receive file. */
-    eIngest_Result_NullContext = -4,     /* The specified OTA context pointer is null. */
-    eIngest_Result_BadFileHandle = -5,   /* The receive file pointer is invalid. */
-    eIngest_Result_UnexpectedBlock = -6, /* We were asked to ingest a block but weren't expecting one. */
-    eIngest_Result_BlockOutOfRange = -7, /* The received block is out of the expected range. */
-    eIngest_Result_BadData = -8,         /* The data block from the server was malformed. */
-    eIngest_Result_Continue = 0,         /* The block was accepted and we're expecting more. */
+    eIngest_Result_FileComplete = -1,        /* The file transfer is complete and the signature check passed. */
+    eIngest_Result_SigCheckFail = -2,        /* The file transfer is complete but the signature check failed. */
+    eIngest_Result_FileCloseFail = -3,       /* There was a problem trying to close the receive file. */
+    eIngest_Result_NullContext = -4,         /* The specified OTA context pointer is null. */
+    eIngest_Result_BadFileHandle = -5,       /* The receive file pointer is invalid. */
+    eIngest_Result_UnexpectedBlock = -6,     /* We were asked to ingest a block but weren't expecting one. */
+    eIngest_Result_BlockOutOfRange = -7,     /* The received block is out of the expected range. */
+    eIngest_Result_BadData = -8,             /* The data block from the server was malformed. */
+    eIngest_Result_WriteBlockFailed = -9,    /* The PAL layer failed to write the file block. */
+    eIngest_Result_Continue = 0,             /* The block was accepted and we're expecting more. */
 } IngestResult_t;
 
 extern IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,

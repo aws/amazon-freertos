@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,6 +39,6 @@
 /**
  * @brief The size of each buffer in the static buffer pool.
  */
-#define bufferpoolconfigBUFFER_SIZE    ( 2048 + 128 )
+#define bufferpoolconfigBUFFER_SIZE    ( 512 )
 
 #endif /* _AWS_BUFFER_POOL_CONFIG_H_ */

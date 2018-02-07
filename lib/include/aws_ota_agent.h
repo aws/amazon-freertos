@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ts_ota_agent.h
+ * @file aws_ota_agent.h
  * @brief OTA Agent Interface
  */
 
@@ -32,7 +32,7 @@
 #define AWS_TS_OTA_AGENT_H_
 
 /* Type definitions for OTA Agent */
-#include "aws_ts_ota_types.h"
+#include "aws_ota_types.h"
 
 /* Includes required by the FreeRTOS timers structure. */
 #include "FreeRTOS.h"

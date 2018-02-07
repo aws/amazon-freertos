@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,8 +44,8 @@
 #define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY         ( tskIDLE_PRIORITY )
 
 /* Shadow lightbulb example task parameters. */
-#define democonfigSHADOW_LIGHTBULB_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE * 10 )
-#define democonfigSHADOW_LIGHTBULB_TASK_PRIORIRY             ( tskIDLE_PRIORITY )
+#define democonfigSHADOW_LIGHTBULB_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigSHADOW_LIGHTBULB_TASK_PRIORITY             ( tskIDLE_PRIORITY )
 
 /* TCP Echo Client tasks single example parameters */
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )

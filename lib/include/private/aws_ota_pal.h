@@ -25,8 +25,8 @@
 
 #ifdef INCLUDE_FROM_OTA_AGENT
 
-#include "aws_ts_ota_types.h"
-#include "aws_ts_ota_agent.h"
+#include "aws_ota_types.h"
+#include "aws_ota_agent.h"
 
 
 /** 
@@ -38,7 +38,7 @@
  * @param[in] C OTA file context information.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
- * error codes information in aws_ts_ota_agent.h.
+ * error codes information in aws_ota_agent.h.
  */
 static OTA_Err_t prvAbort(OTA_FileContext_t * const C);
 
@@ -58,7 +58,7 @@ static bool_t prvCreateFileForRx(OTA_FileContext_t * const C);
  * @param[in] C OTA file context information.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
- * error codes information in aws_ts_ota_agent.h.
+ * error codes information in aws_ota_agent.h.
  */
 static OTA_Err_t prvCloseFile(OTA_FileContext_t * const C);
 
@@ -70,7 +70,7 @@ static OTA_Err_t prvCloseFile(OTA_FileContext_t * const C);
  * @param[in] C OTA file context information.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
- * error codes information in aws_ts_ota_agent.h.
+ * error codes information in aws_ota_agent.h.
  */
 static OTA_Err_t prvCheckFileSignature(OTA_FileContext_t * const C);
 
@@ -95,7 +95,7 @@ static int16_t prvWriteBlock(OTA_FileContext_t * const C, int32_t iOffset, uint8
  * @note This function MAY not return.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
- * error codes information in aws_ts_ota_agent.h.
+ * error codes information in aws_ota_agent.h.
  */
 static OTA_Err_t prvActivateNewImage(void);
 
@@ -108,7 +108,7 @@ static OTA_Err_t prvActivateNewImage(void);
  * @param[in] eState The state of the OTA Image.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
- * error codes information in aws_ts_ota_agent.h.
+ * error codes information in aws_ota_agent.h.
  */
 static OTA_Err_t prvSetImageState (OTA_ImageState_t eState);
 

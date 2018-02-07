@@ -40,13 +40,18 @@
 * stack in this demo.  Constants specific to FreeRTOS+TCP itself (rather than
 * the demo) are contained in FreeRTOSIPConfig.h.
 *----------------------------------------------------------*/
+
+/* FIX ME: Uncomment and set to the specifications for your MCU. */
+/* #define configCPU_CLOCK_HZ                        0 */
+
+#define configUSE_DAEMON_TASK_STARTUP_HOOK         1
 #define configENABLE_BACKWARD_COMPATIBILITY        0
 #define configUSE_PREEMPTION                       1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    1
 #define configMAX_PRIORITIES                       ( 7 )
-#define configTICK_RATE_HZ                         ( 1000 )                  /* In this non-real time simulated environment the tick frequency has to be at least a multiple of the Win32 tick frequency, and therefore very slow. */
-#define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 60 ) /* In this simulated case, the stack only has to hold one small structure as the real stack is part of the Win32 thread. */
-#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 2048U * 1024U ) )
+#define configTICK_RATE_HZ                         ( 1000 )                  
+#define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 60 ) 
+#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 2048U * 1024U ) ) 
 #define configMAX_TASK_NAME_LEN                    ( 15 )
 #define configUSE_TRACE_FACILITY                   1
 #define configUSE_16_BIT_TICKS                     0
@@ -77,11 +82,13 @@
 #define configUSE_EVENT_GROUPS                     1
 
 /* Run time stats gathering definitions. */
+/* FIX ME: Uncomment if you plan to use Tracealyzer.
 unsigned long ulGetRunTimeCounterValue( void );
 void vConfigureTimerForRunTimeStats( void );
 #define configGENERATE_RUN_TIME_STATS    1
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()    vConfigureTimerForRunTimeStats()
 #define portGET_RUN_TIME_COUNTER_VALUE()            ulGetRunTimeCounterValue()
+*/
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                   0
@@ -112,6 +119,14 @@ void vConfigureTimerForRunTimeStats( void );
 #define INCLUDE_xTaskGetCurrentTaskHandle       1
 #define INCLUDE_xTaskAbortDelay                 1
 
+/* Cortex-M specific definitions. */
+#ifdef __NVIC_PRIO_BITS
+    /* __NVIC_PRIO_BITS will be specified when CMSIS is being used. */
+    #define configPRIO_BITS    __NVIC_PRIO_BITS
+#else
+    #define configPRIO_BITS    3                                 /* 8 priority levels. */
+#endif
+
 /* This demo makes use of one or more example stats formatting functions.  These
  * format the raw data provided by the uxTaskGetSystemState() function in to human
  * readable ASCII form.  See the notes in the implementation of vTaskList() within
@@ -128,9 +143,29 @@ extern void vAssertCalled( const char * pcFile,
 
 /* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */
-extern void vLoggingPrintf( const char * pcFormat,
-                            ... );
+extern void vLoggingPrintf( const char * pcFormat, ... );
 #define configPRINTF( X )    vLoggingPrintf X
+
+/* Non-format version thread-safe print */
+extern void vLoggingPrint( const char * pcMessage );
+#define configPRINT( X )     vLoggingPrint( X )
+
+/* Map the logging task's printf to the board specific output function. */
+#define configPRINT_STRING( x )    printf X
+/* Sets the length of the buffers into which logging messages are written - so
+ * also defines the maximum length of each log message. */ 
+#define configLOGGING_MAX_MESSAGE_LENGTH            100
+
+/* Set to 1 to prepend each log message with a message number, the task name,
+ * and a time stamp. */
+#define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
+
+/* The priority at which the tick interrupt runs.  This should probably be kept at 1. */
+#define configKERNEL_INTERRUPT_PRIORITY             1
+
+/* The maximum interrupt priority from which FreeRTOS API functions can be called.
+ * Only API functions that end in ...FromISR() can be used within interrupts. */
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY        ( 1 << 5 )
 
 /* Application specific definitions follow. **********************************/
 

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass Demo V1.1.0
+ * Amazon FreeRTOS Greengrass Demo V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,7 +42,6 @@
 #include "semphr.h"
 
 /* Greengrass includes. */
-#include "aws_greengrass_discovery_demo.h"
 #include "aws_ggd_config.h"
 #include "aws_ggd_config_defaults.h"
 #include "aws_greengrass_discovery.h"
@@ -54,11 +53,11 @@
 /* Demo includes. */
 #include "aws_demo_config.h"
 
-#define ggdDEMO_MAX_MQTT_MESSAGES      5
+#define ggdDEMO_MAX_MQTT_MESSAGES      3
 #define ggdDEMO_MAX_MQTT_MSG_SIZE      500
 #define ggdDEMO_DISCOVERY_FILE_SIZE    2500
 #define ggdDEMO_MQTT_MSG_TOPIC         "freertos/demos/ggd"
-#define ggdDEMO_MQTT_MSG_DISCOVERY     "{\"message\":\"Hello #%lu from device to Greengrass Core.\"}"
+#define ggdDEMO_MQTT_MSG_DISCOVERY     "{\"message\":\"Hello #%lu from Amazon FreeRTOS to Greengrass Core.\"}"
 
 /**
  * @brief Contains the user data for callback processing.
@@ -158,12 +157,13 @@ static BaseType_t prvMQTTConnect( GGD_HostAddressData_t * pxHostAddressData )
     xConnectParams.usClientIdLength = ( uint16_t ) ( strlen( clientcredentialIOT_THING_NAME ) );
     xConnectParams.pcURL = pxHostAddressData->pcHostAddress;
     xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-    xConnectParams.xURLIsIPAddress = pdTRUE;
+    xConnectParams.xFlags = mqttagentREQUIRE_TLS | mqttagentURL_IS_IP_ADDRESS;
+    xConnectParams.xURLIsIPAddress = pdTRUE; /* Deprecated. */
     xConnectParams.pcCertificate = pxHostAddressData->pcCertificate;
     xConnectParams.ulCertificateSize = pxHostAddressData->ulCertificateSize;
     xConnectParams.pvUserData = NULL;
     xConnectParams.pxCallback = NULL;
-    xConnectParams.xSecuredConnection = pdTRUE;
+    xConnectParams.xSecuredConnection = pdTRUE; /* Deprecated. */
 
     if( MQTT_AGENT_Connect( xMQTTClientHandle,
                             &xConnectParams,

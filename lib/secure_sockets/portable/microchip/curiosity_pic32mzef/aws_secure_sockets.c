@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Socket for Curiosity_PIC32MZEF V1.0.0
+ * Amazon FreeRTOS Secure Socket for Curiosity_PIC32MZEF V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,6 +45,8 @@ typedef struct SSOCKETContext
     BaseType_t xRecvFlags;
     char * pcServerCertificate;
     uint32_t ulServerCertificateLength;
+    char ** ppcAlpnProtocols;
+    uint32_t ulAlpnProtocolsCount;
 } SSOCKETContext_t, * SSOCKETContextPtr_t;
 
 /*
@@ -84,25 +86,48 @@ static BaseType_t prvNetworkRecv( void * pvContext,
 int32_t SOCKETS_Close( Socket_t xSocket )
 {
     SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket; /*lint !e9087 cast used for portability. */
+    uint32_t ulProtocol;
 
     if( NULL != pxContext )
     {
+        /* Clean-up destination string. */
         if( NULL != pxContext->pcDestination )
         {
             vPortFree( pxContext->pcDestination );
         }
 
+        /* Clean-up server certificate. */
         if( NULL != pxContext->pcServerCertificate )
         {
             vPortFree( pxContext->pcServerCertificate );
         }
 
+        /* Clean-up application protocol array. */
+        if( NULL != pxContext->ppcAlpnProtocols )
+        {
+            for( ulProtocol = 0; 
+                 ulProtocol < pxContext->ulAlpnProtocolsCount; 
+                 ulProtocol++ )
+            {
+                if( NULL != pxContext->ppcAlpnProtocols[ ulProtocol ] )
+                {
+                    vPortFree( pxContext->ppcAlpnProtocols[ ulProtocol ] );
+                }
+            }
+
+            vPortFree( pxContext->ppcAlpnProtocols );
+        }
+
+        /* Clean-up TLS context. */
         if( pdTRUE == pxContext->xRequireTLS )
         {
             TLS_Cleanup( pxContext->pvTLSContext );
         }
 
+        /* Close the underlying socket handle. */
         ( void ) FreeRTOS_closesocket( pxContext->xSocket );
+
+        /* Free the context. */
         vPortFree( pxContext );
     }
 
@@ -135,6 +160,8 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
             xTLSParams.pcDestination = pxContext->pcDestination;
             xTLSParams.pcServerCertificate = pxContext->pcServerCertificate;
             xTLSParams.ulServerCertificateLength = pxContext->ulServerCertificateLength;
+            xTLSParams.ppcAlpnProtocols = ( const char ** )pxContext->ppcAlpnProtocols;
+            xTLSParams.ulAlpnProtocolsCount = pxContext->ulAlpnProtocolsCount;
             xTLSParams.pvCallerContext = pxContext;
             xTLSParams.pxNetworkRecv = prvNetworkRecv;
             xTLSParams.pxNetworkSend = prvNetworkSend;
@@ -228,7 +255,10 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
     int32_t lStatus = pdFREERTOS_ERRNO_NONE;
     TickType_t xTimeout;
     SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket; /*lint !e9087 cast used for portability. */
-
+    char ** ppcAlpnIn = ( char ** )pvOptionValue;
+    size_t xLength = 0;
+    uint32_t ulProtocol;
+    
     switch( lOptionName )
     {
         case SOCKETS_SO_SERVER_NAME_INDICATION:
@@ -267,6 +297,42 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
         case SOCKETS_SO_REQUIRE_TLS:
             pxContext->xRequireTLS = pdTRUE;
+            break;
+
+        case SOCKETS_SO_ALPN_PROTOCOLS:
+            /* Allocate a sufficiently long array of pointers. */
+            pxContext->ulAlpnProtocolsCount = 1 + xOptionLength;
+            if( NULL == ( pxContext->ppcAlpnProtocols =
+                ( char ** )pvPortMalloc( pxContext->ulAlpnProtocolsCount ) ) )
+            {
+                lStatus = pdFREERTOS_ERRNO_ENOMEM;
+            }
+            else
+            {
+                pxContext->ppcAlpnProtocols[ 
+                    pxContext->ulAlpnProtocolsCount - 1 ] = NULL;
+            }
+
+            /* Copy each protocol string. */
+            for( ulProtocol = 0; 
+                 ( ulProtocol < pxContext->ulAlpnProtocolsCount - 1 ) &&
+                    ( pdFREERTOS_ERRNO_NONE == lStatus );       
+                 ulProtocol++ )
+            {
+                xLength = strlen( ppcAlpnIn[ ulProtocol ] );
+                if( NULL == ( pxContext->ppcAlpnProtocols[ ulProtocol ] = 
+                    ( char * )pvPortMalloc( 1 + xLength ) ) )
+                {
+                    lStatus = pdFREERTOS_ERRNO_ENOMEM;
+                }
+                else
+                {
+                    memcpy( pxContext->ppcAlpnProtocols[ ulProtocol ], 
+                            ppcAlpnIn[ ulProtocol ],
+                            xLength );
+                    pxContext->ppcAlpnProtocols[ ulProtocol ][ xLength ] = '\0';
+                }
+            }
             break;
 
         case SOCKETS_SO_NONBLOCK:
@@ -333,28 +399,29 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 {
     int32_t lStatus = SOCKETS_ERROR_NONE;
     SSOCKETContextPtr_t pxContext = NULL;
+    Socket_t xSocket;
 
-    /* Allocate the internal context structure. */
-    if( NULL == ( pxContext = pvPortMalloc( sizeof( SSOCKETContext_t ) ) ) )
+    /* Create the wrapped socket. */
+    if( FREERTOS_INVALID_SOCKET == /*lint !e923 cast used for portability. */
+        ( xSocket = FreeRTOS_socket( lDomain, lType, lProtocol ) ) )
     {
-        lStatus = SOCKETS_ENOMEM;
+        lStatus = SOCKETS_SOCKET_ERROR;
     }
 
-    if( SOCKETS_ERROR_NONE == lStatus )
+    if( lStatus == SOCKETS_ERROR_NONE )
     {
-        memset( pxContext, 0, sizeof( SSOCKETContext_t ) );
-
-        /* Create the wrapped socket. */
-        if( FREERTOS_INVALID_SOCKET == /*lint !e923 cast used for portability. */
-            ( pxContext->xSocket = FreeRTOS_socket( lDomain, lType, lProtocol ) ) )
+        /* Allocate the internal context structure. */
+        if( NULL == ( pxContext = pvPortMalloc( sizeof( SSOCKETContext_t ) ) ) )
         {
-            lStatus = SOCKETS_SOCKET_ERROR;
+            /* Need to close socket. */
+            SOCKETS_Close( xSocket );
+            lStatus = SOCKETS_ENOMEM;
         }
-    }
-
-    if( SOCKETS_ERROR_NONE != lStatus )
-    {
-        vPortFree( pxContext );
+        else
+        {
+            memset( pxContext, 0, sizeof( SSOCKETContext_t ) );
+            pxContext->xSocket = xSocket;
+        }
     }
 
     return pxContext;

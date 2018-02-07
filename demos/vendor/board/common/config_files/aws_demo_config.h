@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,12 +27,12 @@
 #define _AWS_DEMO_CONFIG_H_
 
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS         ( 2 )
+#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS         ( 1 )
 
 /* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS           ( 2 )
+#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS           ( 1 )
 
-#define democonfigSHADOW_DEMO_NUM_TASKS                   ( 4 )
+#define democonfigSHADOW_DEMO_NUM_TASKS                   ( 2 )
 
 /* IoT simple subscribe/publish example task parameters. */
 #define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
@@ -44,7 +44,7 @@
 
 /* Shadow lightbulb example task parameters. */
 #define democonfigSHADOW_LIGHTBULB_TASK_STACK_SIZE        ( configMINIMAL_STACK_SIZE * 16 )
-#define democonfigSHADOW_LIGHTBULB_TASK_PRIORIRY          ( tskIDLE_PRIORITY )
+#define democonfigSHADOW_LIGHTBULB_TASK_PRIORITY          ( tskIDLE_PRIORITY )
 
 
 /* TCP Echo Client tasks single example parameters. */

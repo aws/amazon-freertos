@@ -1,5 +1,5 @@
 /*
-* Amazon FreeRTOS OTA Update Demo V0.9.0
+* Amazon FreeRTOS OTA Update Demo V0.9.1
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -52,7 +52,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "aws_clientcredential.h"
 
 /* Amazon FreeRTOS OTA agent includes. */
-#include "aws_ts_ota_agent.h"
+#include "aws_ota_agent.h"
 
 /* Required for demo task stack and priority */
 #include "aws_ota_update_demo.h"
@@ -90,12 +90,11 @@ void vOTAUpdateDemoTask( void * pvParameters )
             xConnectParams.usClientIdLength = sizeof( clientcredentialIOT_THING_NAME ) - 1; /* Length doesn't include trailing 0. */
             xConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
             xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-            xConnectParams.xURLIsIPAddress = pdFALSE;
             xConnectParams.pcCertificate = NULL;
             xConnectParams.ulCertificateSize = 0;
             xConnectParams.pvUserData = NULL;
             xConnectParams.pxCallback = NULL;
-            xConnectParams.xSecuredConnection = pdTRUE;
+            xConnectParams.xFlags = mqttagentREQUIRE_TLS;
 
             /* Connect to the broker. */
             if( MQTT_AGENT_Connect( xMQTTClientHandle, &( xConnectParams ), xMaxCommandTime ) == eMQTTAgentSuccess )

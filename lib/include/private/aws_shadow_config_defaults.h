@@ -47,14 +47,6 @@
     #define shadowConfigJSON_CLIENT_TOKEN    "clientToken"
 #endif
 
-/**
- * @brief
- * enable/disable shadowConfigUNIQUE_CLIENT_TOKEN_CHECK check
- */
-#ifndef shadowConfigUNIQUE_CLIENT_TOKEN_CHECK
-    #define shadowConfigUNIQUE_CLIENT_TOKEN_CHECK    ( 0 )
-#endif
-
 
 /**
  * @brief Maximum number of Shadow Clients.

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -130,7 +130,7 @@ void vStartTCPEchoClientTasks_SeparateTasks( void )
                  NULL,                                              /* The task parameter, not used in this case. */
                  democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY,   /* The priority assigned to the task is defined in aws_demo_config.h. */
                  NULL );                                            /* The task handle is not used. */
-
+  
     /* Create the task that receives the reply to echoes initiated by the
      * prvEchoClientTxTask() task. */
     xTaskCreate( prvEchoClientRxTask, "EchoMultiRx", democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE, NULL, democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY, NULL );
@@ -171,7 +171,7 @@ static void prvEchoClientTxTask( void * pvParameters )
                                                             configECHO_SERVER_ADDR3 );
 
     /* Create the string that is sent to the echo server. */
-    for( ulTxCount = 0 ; ulTxCount < echoLARGE_BUFFER_SIZE_MULTIPLIER ; ulTxCount++ )
+    for( ulTxCount = 0; ulTxCount < echoLARGE_BUFFER_SIZE_MULTIPLIER; ulTxCount++ )
     {
         /* Generate character. */
         lCharacter = ( int32_t ) '0' + ulTxCount;
@@ -225,7 +225,6 @@ static void prvEchoClientTxTask( void * pvParameters )
                                               ( void * ) &( cTransmittedString[ lTransmitted ] ), /* The data being sent. */
                                               xLenToSend,                                         /* The length of the data being sent. */
                                               0 );                                                /* ulFlags. */
-
                     taskYIELD();
 
                     if( lReturned >= 0 )
@@ -311,12 +310,17 @@ static void prvEchoClientTxTask( void * pvParameters )
 
         /* The Rx task is no longer using the socket so the socket can be
          * closed. */
-        SOCKETS_Close( xSocket );
+        lReturned = SOCKETS_Close( xSocket );
+        configASSERT( lReturned == SOCKETS_ERROR_NONE );
 
         /* Pause for a short while to ensure the network is not too
          * congested. */
         vTaskDelay( echoLOOP_DELAY );
     }
+
+    /* Free Memory. */
+    vQueueDelete( xSocketPassingQueue );
+    vEventGroupDelete( xSyncEventGroup );
 }
 /*-----------------------------------------------------------*/
 

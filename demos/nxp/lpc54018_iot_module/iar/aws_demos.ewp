@@ -1305,7 +1305,16 @@
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_mqtt_lib.h</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_ota_agent.h</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_cbor.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_pal.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_types.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_pkcs11.h</name>
@@ -1333,15 +1342,6 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_tls.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_ts_ota_agent.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ts_ota_pal.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ts_ota_types.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_wifi.h</name>
@@ -1880,9 +1880,6 @@
             </group>
             <group>
                 <name>mcu_vendor</name>
-                <group>
-                    <name>board</name>
-                </group>
                 <group>
                     <name>drivers</name>
                     <file>

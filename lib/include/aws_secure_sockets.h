@@ -69,13 +69,11 @@ typedef void * Socket_t;
  */
 #define Socklen_t    uint32_t
 
-
-
 /**
  * @defgroup SocketsErrors Secure Sockets Error Codes
  * @brief Error codes returned by the SOCKETS API.
  *
- * Note that SOCKETS API may also propogate port-specific
+ * Note that SOCKETS API may also propagate port-specific
  * error codes when they are more descriptive. See your
  * port's error codes for more details.
  * PORT_SPECIFIC_LINK
@@ -155,6 +153,7 @@ typedef void * Socket_t;
 #define SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE    ( 7 )  /**< Override default TLS server certificate trust. Must be PEM encoded and length must include null terminator. */
 #define SOCKETS_SO_REQUIRE_TLS                   ( 8 )  /**< Toggle client enforcement of TLS. */
 #define SOCKETS_SO_NONBLOCK                      ( 9 )  /**< Socket is nonblocking. */
+#define SOCKETS_SO_ALPN_PROTOCOLS                ( 10 ) /**< Application protocol list to be included in TLS ClientHello. */
 #define SOCKETS_SO_WAKEUP_CALLBACK               ( 17 ) /**< Set the callback to be called whenever there is data available on the socket for reading. */
 
 /**@} */
@@ -189,6 +188,11 @@ typedef struct SocketsSockaddr
 } SocketsSockaddr_t;
 
 /**
+ * @brief Well-known port numbers.
+ */
+#define securesocketsDEFAULT_TLS_DESTINATION_PORT 443
+
+/**
  * @brief Secure Sockets library initialization function.
  *
  * This function does general initialization and setup. It must be called once
@@ -216,7 +220,7 @@ lib_initDECLARE_LIB_INIT( SOCKETS_Init );
  * @return
  * * If a socket is created successfully, then the socket handle is
  * returned
- * * @ref SOCKETS_INVALID_SOCKET is returned if an error occured.
+ * * @ref SOCKETS_INVALID_SOCKET is returned if an error occurred.
  */
 Socket_t SOCKETS_Socket( int32_t lDomain,
                          int32_t lType,
@@ -228,6 +232,13 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
  *
  * The socket must first have been successfully created by a call to SOCKETS_Socket().
  *
+ * \note To create a secure socket, SOCKETS_SetSockOpt() should be called with the
+ * SOCKETS_SO_REQUIRE_TLS option \a before SOCKETS_Connect() is called.
+ *
+ * \warning SOCKETS_Connect() is not safe to be called on the same socket
+ * from multiple threads simultaneously with SOCKETS_Connect(),
+ * SOCKETS_SetSockOpt(), SOCKETS_Shutdown(), SOCKETS_Close().
+ *
  * @param[in] xSocket The handle of the socket to be connected.
  * @param[in] pxAddress A pointer to a SocketsSockaddr_t structure that contains the
  * the address to connect the socket to.
@@ -235,7 +246,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
  *
  * @return
  * * @ref SOCKETS_ERROR_NONE if a connection is established.
- * * If an error occured, a negative value is returned. @ref SocketsErrors
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
 int32_t SOCKETS_Connect( Socket_t xSocket,
                          SocketsSockaddr_t * pxAddress,
@@ -258,7 +269,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
  *   buffer pointed to by pvBuffer) is returned.
  * * If a timeout occurred before data could be received then 0 is returned (timeout
  *   is set using @ref SOCKETS_SO_RCVTIMEO).
- * * If an error occured, a negative value is returned. @ref SocketsErrors
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
 int32_t SOCKETS_Recv( Socket_t xSocket,
                       void * pvBuffer,
@@ -278,7 +289,7 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
  *
  * @return
  * * On success, the number of bytes actually sent is returned.
- * * If an error occured, a negative value is returned. @ref SocketsErrors
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
 int32_t SOCKETS_Send( Socket_t xSocket,
                       const void * pvBuffer,
@@ -288,13 +299,17 @@ int32_t SOCKETS_Send( Socket_t xSocket,
 /**
  * @brief Closes all or part of a full-duplex connection on the socket.
  *
+ * \warning SOCKETS_Shutdown() is not safe to be called on the same socket
+ * from multiple threads simultaneously with SOCKETS_Connect(),
+ * SOCKETS_SetSockOpt(), SOCKETS_Shutdown(), SOCKETS_Close().
+ *
  * @param[in] xSocket The handle of the socket to shutdown.
  * @param[in] ulHow SOCKETS_SHUT_RD, SOCKETS_SHUT_WR or SOCKETS_SHUT_RDWR.
  * @ref ShutdownFlags
  *
  * @return
  * * If the operation was successful, 0 is returned.
- * * If an error occured, a negative value is returned. @ref SocketsErrors
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
 int32_t SOCKETS_Shutdown( Socket_t xSocket,
                           uint32_t ulHow );
@@ -302,13 +317,22 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 /**
  * @brief Closes the socket and frees the related resources.
  *
+ * \warning SOCKETS_Close() is not safe to be called on the same socket
+ * from multiple threads simultaneously with SOCKETS_Connect(),
+ * SOCKETS_SetSockOpt(), SOCKETS_Shutdown(), SOCKETS_Close().
+ *
  * @param[in] xSocket The handle of the socket to close.
  *
  * @return
  * * On success, 0 is returned.
- * * If an error occured, a negative value is returned. @ref SocketsErrors
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
 int32_t SOCKETS_Close( Socket_t xSocket );
+
+/**
+ * @brief AWS IoT ALPN protocol name for MQTT over TLS on server port 443.
+ */
+#define socketsAWS_IOT_ALPN_MQTT    "x-amzn-mqtt-ca"
 
 /**
  * @brief Manipulates the options for the socket.
@@ -318,6 +342,10 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  * @param[in] lOptionName See @ref SetSockOptOptions.
  * @param[in] pvOptionValue A buffer containing the value of the option to set.
  * @param[in] xOptionLength The length of the buffer pointed to by pvOptionValue.
+ *
+ * \warning SOCKETS_Close() is not safe to be called on the same socket
+ * from multiple threads simultaneously with SOCKETS_Connect(),
+ * SOCKETS_SetSockOpt(), SOCKETS_Shutdown(), SOCKETS_Close().
  *
  * @note Socket option support and possible values vary by port. Please see
  * PORT_SPECIFIC_LINK to check the valid options and limitations of your device.
@@ -344,9 +372,11 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  *      - Use TLS for all connect, send, and receive on this socket.
  *      - This socket options MUST be set for TLS to be used, even
  *        if other secure socket options are set.
+ *      - This socket option should be set before SOCKETS_Connect() is
+ *        called.
  *      - pvOptionValue is ignored for this option.
  *    - @ref SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE
- *      - Set the root of trust server certificiate for the socket.
+ *      - Set the root of trust server certificate for the socket.
  *      - This socket option only takes effect if @ref SOCKETS_SO_REQUIRE_TLS
  *        is also set.  If @ref SOCKETS_SO_REQUIRE_TLS is not set,
  *        this option will be ignored.
@@ -361,6 +391,11 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  *        this option will be ignored.
  *      - pvOptionValue is a pointer to a string containing the hostname
  *      - xOptionLength is the length of the hostname string in bytes.
+ *    - @ref SOCKETS_SO_ALPN_PROTOCOLS
+ *      - Negotiate an application protocol along with TLS.
+ *      - The ALPN list is expressed as an array of NULL-terminated ANSI
+ *        strings.
+ *      - xOptionLength is the number of items in the array.
  *
  * @return
  * * On success, 0 is returned.
@@ -386,7 +421,7 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName );
 
 /**
  * @brief Convert an unsigned thirty-two-bit value from host endianness to network
- * endianess.
+ * endianness.
  *
  * @param[in] usIn The unsigned thirty-two-bit value to convert.
  */
@@ -398,7 +433,7 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName );
 
 /**
  * @brief Convert an unsigned thirty-two-bit value from network endianness to host
- * endianess.
+ * endianness.
  *
  * @param[in] usIn The unsigned thirty-two-bit value to convert.
  */

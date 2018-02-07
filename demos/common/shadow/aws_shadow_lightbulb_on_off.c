@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow Demo V1.1.0
+ * Amazon FreeRTOS Shadow Demo V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,6 +39,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "queue.h"
 
 /* MQTT include. */
 #include "aws_mqtt_agent.h"
@@ -48,165 +49,177 @@
 
 /* Required to get the broker address and port. */
 #include "aws_clientcredential.h"
-#include "queue.h"
 
-/* Required for shadow API's */
+/* Required for shadow APIs. */
 #include "aws_shadow.h"
-#include "jsmn.h"
-/* Required for shadow demo */
+
+/* Required for shadow demo. */
 #include "aws_shadow_lightbulb_on_off.h"
+#include "jsmn.h"
 
-/** Task name. */
-#define shadowDemoCHAR_TASK_NAME    "Shd-IOT-%d"
-#define shadowDemoREPORT_JSON \
-    "{"                       \
-    "\"state\":{"             \
-    "\"reported\":"           \
-    "%s"                      \
-    "}"                       \
+/* Task names. */
+#define shadowDemoCHAR_TASK_NAME           "Shd-IOT-%d"
+#define shadowDemoUPDATE_TASK_NAME         "ShDemoUpdt"
+
+/* Format string and length of the initial reported state, "red". */
+#define shadowDemoINITIAL_REPORT_FORMAT    "{\"%s\": \"red\"}"
+#define shadowDemoINITIAL_REPORT_BUFFER_LENGTH \
+    ( sizeof( shadowDemoCHAR_TASK_NAME ) + sizeof( shadowDemoINITIAL_REPORT_FORMAT ) )
+
+/* JSON formats used in the Shadow tasks. Note the inclusion of the "clientToken"
+ * key, which is REQUIRED by the Shadow API. The "clientToken" may be anything, as
+ * long as it's unique. This demo uses "token-" suffixed with the RTOS tick count
+ * at the time the JSON document is generated. */
+#define shadowDemoREPORT_JSON       \
+    "{"                             \
+    "\"state\":{"                   \
+    "\"reported\":"                 \
+    "%.*s"                          \
+    "},"                            \
+    "\"clientToken\": \"token-%d\"" \
     "}"
 
-#define shadowDemoCREATE_JSON \
-    "{"                       \
-    "\"state\":{"             \
-    "\"desired\":{"           \
-    "\"%s\":\"red\""          \
-    "},"                      \
-    "\"reported\":{"          \
-    "\"%s\":\"red\""          \
-    "}"                       \
-    "}"                       \
+#define shadowDemoDESIRED_JSON      \
+    "{"                             \
+    "\"state\":{"                   \
+    "\"desired\":{"                 \
+    "\"%s\":\"%s\""                 \
+    "}"                             \
+    "},"                            \
+    "\"clientToken\": \"token-%d\"" \
     "}"
 
+/* Maximum amount of time a Shadow function call may block. */
 #define shadowDemoTIMEOUT                    pdMS_TO_TICKS( 30000UL )
 
-/** Max size for the name of tasks generated for Shadow.
- */
+/* Max size for the name of tasks generated for Shadow. */
 #define shadowDemoCHAR_TASK_NAME_MAX_SIZE    15
 
-/** update frequency for color of lightbulb
- */
-#define shadowDemoSEND_UPDATE_MS             pdMS_TO_TICKS( ( 5L * 1000UL ) )
+/* How often the "desired" state of the bulb should be changed. */
+#define shadowDemoSEND_UPDATE_MS             pdMS_TO_TICKS( ( 5UL * 1000UL ) )
 
-/** name of the thing
- */
+/* Name of the thing. */
 #define shadowDemoTHING_NAME                 clientcredentialIOT_THING_NAME
 
+/* Maximum size of update JSON documents. */
 #define shadowDemoBUFFER_LENGTH              128
 
-/** stack size for task that handles shadow delta and updates
- */
+/* Stack size for task that handles shadow delta and updates. */
 #define shadowDemoUPDATE_TASK_STACK_SIZE     ( ( uint16_t ) configMINIMAL_STACK_SIZE * ( uint16_t ) 5 )
 
-#define shadowDemo_MAX_TOKENS                40
-#define shadowDemo_SEND_QUEUE_WAIT_TICKS     3000
-#define shadowDemo_RECV_QUEUE_WAIT_TICKS     500
+/* Maximum number of jsmn tokens. */
+#define shadowDemoMAX_TOKENS                 40
+
+/* Queue configuration parameters. */
+#define shadowDemoSEND_QUEUE_WAIT_TICKS      3000
+#define shadowDemoRECV_QUEUE_WAIT_TICKS      500
 #define shadowDemoUPDATE_QUEUE_LENGTH        democonfigSHADOW_DEMO_NUM_TASKS * 2
 
-/**
- * @brief Could be local. Used in the call back.
- */
+/* The maximum amount of time tasks will wait for their updates to process.
+ * Tasks should not continue executing until their updates have processed.*/
+#define shadowDemoNOTIFY_WAIT_MS             pdMS_TO_TICKS( ( 100000UL ) )
+
+/* An element of the Shadow update queue. */
 typedef struct
 {
+    TaskHandle_t xTaskToNotify;
     uint32_t ulDataLength;
     char pcUpdateBuffer[ shadowDemoBUFFER_LENGTH ];
-} xShadowQueueData_t;
+} ShadowQueueData_t;
 
-static char cCopyString[ shadowDemoBUFFER_LENGTH ];
-static jsmntok_t pxJSMNTokens[ shadowDemo_MAX_TOKENS ];
-
-static ShadowClientHandle_t xClientHandle;
-
+/* The parameters of the Shadow tasks. */
 typedef struct
 {
-    char cBulbSate;
+    TaskHandle_t xTaskHandle;
     char cTaskName[ shadowDemoCHAR_TASK_NAME_MAX_SIZE ];
-    char pcUpdateBuffer[ shadowDemoBUFFER_LENGTH ];
 } ShadowTaskParam_t;
-static ShadowTaskParam_t xShadowTaskParamBuffer[ democonfigSHADOW_DEMO_NUM_TASKS ];
 
-/**
- * @brief Called when there's a difference between "reported" and "desired" in Shadow document.
- */
+/* Shadow demo tasks. */
+static void prvShadowInitTask( void * pvParameters );
+static void prvChangeDesiredTask( void * pvParameters );
+static void prvUpdateQueueTask( void * pvParameters );
+
+/* Creates Shadow client and connects to MQTT broker. */
+static ShadowReturnCode_t prvShadowClientCreateConnect( void );
+
+/* Called when there's a difference between "reported" and "desired" in Shadow document. */
 static BaseType_t prvDeltaCallback( void * pvUserData,
                                     const char * const pcThingName,
                                     const char * const pcDeltaDocument,
                                     uint32_t ulDocumentLength,
                                     MQTTBufferHandle_t xBuffer );
 
+/* JSON functions. */
+static uint32_t prvGenerateDesiredJSON( ShadowQueueData_t * const pxShadowQueueData,
+                                        const char * const pcTaskName,
+                                        uint8_t ucBulbState );
+static uint32_t prvGenerateReportedJSON( ShadowQueueData_t * const pxShadowQueueData,
+                                         const char * const pcReportedData,
+                                         uint32_t ulReportedDataLength );
+static BaseType_t prvIsStringEqual( const char * const pcJson,     /*lint !e971 can use char without signed/unsigned. */
+                                    const jsmntok_t * const pxTok,
+                                    const char * const pcString ); /*lint !e971 can use char without signed/unsigned. */
 
-static void prvShadowUpdateTasks( void * pvParameters );
-static void prvShadowMainTask( void * pvParameters );
-
-/**
- * @brief Updates the Thing Shadow when notified.
- */
-static void prvUpdateTask( void * pvParameters );
-
-/**
- * Called when shadow service received UPDATE request and updated thing shadow
- */
-static BaseType_t prvUpdatedCallback( void * pvUserData,
-                                      const char * const pcThingName,
-                                      const char * const pcDeltaDocument,
-                                      uint32_t ulDocumentLength,
-                                      MQTTBufferHandle_t xBuffer );
-
-/**
- * @brief Generate initial shadow document
- */
-static uint32_t prvGenerateShadowJSON( const ShadowTaskParam_t * pxShadowTaskParam );
-
-/**
- * @brief Handle of the update queue used to pass updates to shadow
- */
+/* The update queue's handle, data structure, and memory. */
 static QueueHandle_t xUpdateQueue = NULL;
+static StaticQueue_t xStaticQueue;
+static uint8_t ucQueueStorageArea[ shadowDemoUPDATE_QUEUE_LENGTH * sizeof( ShadowQueueData_t ) ];
 
-/**
- * @brief Called when thing shadow is deleted
- */
-static void prvDeletedCallback( void * pvUserData,
-                                const char * const pcThingName );
+/* The handle of the Shadow client shared across all tasks. */
+static ShadowClientHandle_t xClientHandle;
+/* Memory allocated to store the Shadow task params. */
+static ShadowTaskParam_t xShadowTaskParamBuffer[ democonfigSHADOW_DEMO_NUM_TASKS ];
 
-/**
- * @brief client(client app, aws console, here ShadowMainTask )
- * updates the desired state of lightbulb
- */
-static uint32_t prvUpdateShadowJSON( ShadowTaskParam_t * pxShadowTaskParam );
-
-/**
- * @brief Initialize Shadow Client.
- */
-static ShadowReturnCode_t prvShadowClientInit( void );
-static BaseType_t prvGGDJsoneq( const char * pcJson,     /*lint !e971 can use char without signed/unsigned. */
-                                const jsmntok_t * const pxTok,
-                                const char * pcString ); /*lint !e971 can use char without signed/unsigned. */
-static void prvShadowMainTask( void * pvParameters );
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvGGDJsoneq( const char * pcJson,    /*lint !e971 can use char without signed/unsigned. */
-                                const jsmntok_t * const pxTok,
-                                const char * pcString ) /*lint !e971 can use char without signed/unsigned. */
+static uint32_t prvGenerateDesiredJSON( ShadowQueueData_t * const pxShadowQueueData,
+                                        const char * const pcTaskName,
+                                        uint8_t ucBulbState )
+{
+    /* Map cBulbState to strings. */
+    static const char * const pColors[ 2 ] = { "green", "red" };
+
+    /* Generate JSON. */
+    return ( uint32_t ) snprintf( ( char * ) pxShadowQueueData->pcUpdateBuffer, shadowDemoBUFFER_LENGTH,
+                                  shadowDemoDESIRED_JSON,
+                                  pcTaskName,
+                                  pColors[ ucBulbState ],
+                                  ( int ) xTaskGetTickCount() );
+}
+/*-----------------------------------------------------------*/
+
+static uint32_t prvGenerateReportedJSON( ShadowQueueData_t * const pxShadowQueueData,
+                                         const char * const pcReportedData,
+                                         uint32_t ulReportedDataLength )
+{
+    return ( uint32_t ) snprintf( ( char * ) ( pxShadowQueueData->pcUpdateBuffer ),
+                                  shadowDemoBUFFER_LENGTH,
+                                  shadowDemoREPORT_JSON,
+                                  ( int ) ulReportedDataLength,
+                                  pcReportedData,
+                                  ( int ) xTaskGetTickCount() );
+}
+
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvIsStringEqual( const char * const pcJson,    /*lint !e971 can use char without signed/unsigned. */
+                                    const jsmntok_t * const pxTok,
+                                    const char * const pcString ) /*lint !e971 can use char without signed/unsigned. */
 {
     uint32_t ulStringSize = ( uint32_t ) pxTok->end - ( uint32_t ) pxTok->start;
     BaseType_t xStatus = pdFALSE;
 
     if( pxTok->type == JSMN_STRING )
     {
-        if( ( uint32_t ) strlen( pcString ) == ulStringSize )
+        if( ( pcString[ ulStringSize ] == 0 ) &&
+            ( strncmp( pcJson + pxTok->start, pcString, ulStringSize ) == 0 ) )
         {
-            if( ( int16_t ) strncmp( &pcJson[ pxTok->start ],
-                                     pcString,
-                                     ulStringSize ) == 0 )
-            {
-                xStatus = pdTRUE;
-            }
+            xStatus = pdTRUE;
         }
     }
 
     return xStatus;
 }
-
 
 /*-----------------------------------------------------------*/
 
@@ -216,46 +229,52 @@ static BaseType_t prvDeltaCallback( void * pvUserData,
                                     uint32_t ulDocumentLength,
                                     MQTTBufferHandle_t xBuffer )
 {
-    uint16_t usTokenIndex;
     int32_t lNbTokens;
-    int32_t lStringSize;
-    BaseType_t xMatchState;
-    static jsmn_parser xJSMNParser;
-    xShadowQueueData_t xShadowQueueData;
+    uint16_t usTokenIndex;
+    uint32_t ulStringSize;
+    jsmn_parser xJSMNParser;
+    ShadowQueueData_t xShadowQueueData;
+    jsmntok_t pxJSMNTokens[ shadowDemoMAX_TOKENS ];
 
+    /* Silence compiler warnings about unused variables. */
     ( void ) pvUserData;
     ( void ) xBuffer;
-    ( void ) ulDocumentLength;
     ( void ) pcThingName;
-    ( void ) pcDeltaDocument;
 
     jsmn_init( &xJSMNParser );
+    memset( &xShadowQueueData, 0x00, sizeof( ShadowQueueData_t ) );
 
     lNbTokens = ( int32_t ) jsmn_parse( &xJSMNParser,
                                         pcDeltaDocument,
                                         ( size_t ) ulDocumentLength,
                                         pxJSMNTokens,
-                                        ( unsigned int ) shadowDemo_MAX_TOKENS );
+                                        ( unsigned int ) shadowDemoMAX_TOKENS );
 
     if( lNbTokens > 0 )
     {
+        /* Find the new reported state. */
         for( usTokenIndex = 0; usTokenIndex < ( uint16_t ) lNbTokens; usTokenIndex++ )
         {
-            xMatchState = prvGGDJsoneq( pcDeltaDocument, &pxJSMNTokens[ usTokenIndex ], "state" );
-
-            if( xMatchState == pdTRUE )
+            if( prvIsStringEqual( pcDeltaDocument, &pxJSMNTokens[ usTokenIndex ], "state" ) == pdTRUE )
             {
-                lStringSize = pxJSMNTokens[ usTokenIndex + ( uint16_t ) 1 ].end
-                              - pxJSMNTokens[ usTokenIndex + ( uint16_t ) 1 ].start;
-                configASSERT( lStringSize < shadowDemoBUFFER_LENGTH );
-                memcpy( cCopyString,
-                        &pcDeltaDocument[ pxJSMNTokens[ usTokenIndex + ( uint16_t ) 1 ].start ],
-                        ( size_t ) lStringSize );
-                cCopyString[ lStringSize ] = ( char ) '\0';
-                xShadowQueueData.ulDataLength = ( uint32_t ) snprintf( xShadowQueueData.pcUpdateBuffer, shadowDemoBUFFER_LENGTH, shadowDemoREPORT_JSON, cCopyString );
+                ulStringSize = pxJSMNTokens[ usTokenIndex + ( uint16_t ) 1 ].end
+                               - pxJSMNTokens[ usTokenIndex + ( uint16_t ) 1 ].start;
+                configASSERT( ulStringSize < shadowDemoBUFFER_LENGTH );
 
-                configASSERT( xQueueSendToBack( xUpdateQueue, &xShadowQueueData, shadowDemo_SEND_QUEUE_WAIT_TICKS ) == pdPASS );
-                /*thing updates the device state in shadow */
+                /* Generate a new JSON document with new reported state. */
+                xShadowQueueData.ulDataLength = prvGenerateReportedJSON( &xShadowQueueData,
+                                                                         &pcDeltaDocument[ pxJSMNTokens[ usTokenIndex + ( uint16_t ) 1 ].start ],
+                                                                         ulStringSize );
+
+                /* Add new reported state to update queue. */
+                if( xQueueSendToBack( xUpdateQueue, &xShadowQueueData, shadowDemoSEND_QUEUE_WAIT_TICKS ) == pdTRUE )
+                {
+                    configPRINTF( ( "Successfully added new reported state to update queue.\r\n" ) );
+                }
+                else
+                {
+                    configPRINTF( ( "Update queue full, deferring reported state update.\r\n" ) );
+                }
 
                 break;
             }
@@ -267,277 +286,234 @@ static BaseType_t prvDeltaCallback( void * pvUserData,
 
 /*-----------------------------------------------------------*/
 
-static void prvUpdateTask( void * pvParameters )
+static void prvUpdateQueueTask( void * pvParameters )
 {
+    ShadowReturnCode_t xReturn;
     ShadowOperationParams_t xUpdateParams;
-    xShadowQueueData_t xShadowQueueData;
+    ShadowQueueData_t xShadowQueueData;
 
     ( void ) pvParameters;
 
     xUpdateParams.pcThingName = shadowDemoTHING_NAME;
     xUpdateParams.xQoS = eMQTTQoS0;
     xUpdateParams.pcData = xShadowQueueData.pcUpdateBuffer;
-    /* subscribe to the accepted and rejected topics */
+    /* Keep subscriptions across multiple calls to SHADOW_Update. */
     xUpdateParams.ucKeepSubscriptions = pdTRUE;
 
-    for( ;; )
+    for( ; ; )
     {
-        if( xQueueReceive( xUpdateQueue, &xShadowQueueData, shadowDemo_RECV_QUEUE_WAIT_TICKS ) != pdFALSE )
+        if( xQueueReceive( xUpdateQueue, &xShadowQueueData, shadowDemoRECV_QUEUE_WAIT_TICKS ) == pdTRUE )
         {
-            /* We were able to obtain the semaphore and can now access the
-             * shared resource. */
-
-            configPRINTF( ( "Performing thing update.\r\n" ) );
+            configPRINTF( ( "Performing Thing Shadow update.\r\n" ) );
             xUpdateParams.ulDataLength = xShadowQueueData.ulDataLength;
 
-            ( void ) SHADOW_Update( xClientHandle, &xUpdateParams, shadowDemoTIMEOUT );
+            xReturn = SHADOW_Update( xClientHandle, &xUpdateParams, shadowDemoTIMEOUT );
 
-            configPRINTF( ( "Performing thing update complete.\r\n" ) );
-        }
-    }
-}
-/*-----------------------------------------------------------*/
-
-static BaseType_t prvUpdatedCallback( void * pvUserData,
-                                      const char * const pcThingName,
-                                      const char * const pcDeltaDocument,
-                                      uint32_t ulDocumentLength,
-                                      MQTTBufferHandle_t xBuffer )
-{
-    ( void ) pvUserData;
-    ( void ) pcThingName;
-    ( void ) pcDeltaDocument;
-    ( void ) ulDocumentLength;
-    ( void ) xBuffer;
-
-    return pdFALSE;
-}
-/*-----------------------------------------------------------*/
-
-static void prvDeletedCallback( void * pvUserData,
-                                const char * const pcThingName )
-{
-    ( void ) pvUserData;
-    ( void ) pcThingName;
-}
-
-/*-----------------------------------------------------------*/
-
-static uint32_t prvGenerateShadowJSON( const ShadowTaskParam_t * pxShadowTaskParam )
-{
-    /*init shadow document with settings desired and reported color of light bulb. */
-
-    return ( uint32_t ) snprintf( ( char * ) pxShadowTaskParam->pcUpdateBuffer,
-                                  shadowDemoBUFFER_LENGTH,
-                                  shadowDemoCREATE_JSON,
-                                  pxShadowTaskParam->cTaskName,
-                                  pxShadowTaskParam->cTaskName ); /*lint !e9005 safe cast, lint will complain depending on snprintf implementation. */
-}
-/*-----------------------------------------------------------*/
-
-static uint32_t prvUpdateShadowJSON( ShadowTaskParam_t * pxShadowTaskParam )
-{
-    /*toggle color of lightbulb on every update  */
-    if( pxShadowTaskParam->cBulbSate == ( char ) 0 )
-    {
-        pxShadowTaskParam->cBulbSate = ( char ) 1;
-    }
-    else
-    {
-        pxShadowTaskParam->cBulbSate = ( char ) 0;
-    }
-
-    if( pxShadowTaskParam->cBulbSate != ( char ) 0 )
-    {
-        return ( uint32_t ) snprintf( ( char * ) pxShadowTaskParam->pcUpdateBuffer, shadowDemoBUFFER_LENGTH,
-                                      "{"
-                                      "\"state\":{"
-                                      "\"desired\":{"
-                                      "\"%s\":\"green\""
-                                      "}"
-                                      "}"
-                                      "}",
-                                      pxShadowTaskParam->cTaskName );
-    }
-    else
-    {
-        return ( uint32_t ) snprintf( ( char * ) pxShadowTaskParam->pcUpdateBuffer, shadowDemoBUFFER_LENGTH,
-                                      "{"
-                                      "\"state\":{"
-                                      "\"desired\":{"
-                                      "\"%s\":\"red\""
-                                      "}"
-                                      "}"
-                                      "}",
-                                      pxShadowTaskParam->cTaskName );
-    }
-}
-/*-----------------------------------------------------------*/
-
-static ShadowReturnCode_t prvShadowClientInit( void )
-{
-    ShadowCreateParams_t sCreateParams;
-    MQTTAgentConnectParams_t sConnectParams;
-    ShadowCallbackParams_t sCallbackParams;
-    ShadowReturnCode_t sReturn;
-
-    sCreateParams.xMQTTClientType = eDedicatedMQTTClient; /*_RB_ Why does this have to be dedicated?  What is the effect on other demos that might get built at the same time? */
-                                                          /*ToDo: sub manager? */
-    sReturn = SHADOW_ClientCreate( &xClientHandle, &sCreateParams );
-
-    if( sReturn == eShadowSuccess )
-    {
-        memset( &sConnectParams, 0x00, sizeof( sConnectParams ) );
-        sConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
-        sConnectParams.xURLIsIPAddress = pdFALSE;
-        sConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-
-        sConnectParams.xSecuredConnection = pdTRUE;
-        sConnectParams.pcCertificate = NULL;
-        sConnectParams.ulCertificateSize = 0;
-        sConnectParams.pxCallback = NULL;
-        sConnectParams.pvUserData = &xClientHandle;
-
-        sConnectParams.pucClientId = ( const uint8_t * ) ( clientcredentialIOT_THING_NAME );
-        sConnectParams.usClientIdLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
-        sReturn = SHADOW_ClientConnect( xClientHandle,
-                                        &sConnectParams,
-                                        shadowDemoTIMEOUT );
-
-        if( sReturn == eShadowSuccess )
-        {
-            sCallbackParams.pcThingName = shadowDemoTHING_NAME;
-            sCallbackParams.xShadowUpdatedCallback = prvUpdatedCallback;
-            sCallbackParams.xShadowDeletedCallback = prvDeletedCallback;
-            sCallbackParams.xShadowDeltaCallback = prvDeltaCallback;
-            sReturn = SHADOW_RegisterCallbacks( xClientHandle,
-                                                &sCallbackParams,
-                                                shadowDemoTIMEOUT );
-
-            if( sReturn != eShadowSuccess )
+            if( xReturn == eShadowSuccess )
             {
-                configPRINTF( ( "Shadow_RegisterCallbacks unsuccessful, returned %d.\r\n", sReturn ) );
+                configPRINTF( ( "Successfully performed update.\r\n" ) );
+            }
+            else
+            {
+                configPRINTF( ( "Update failed, returned %d.\r\n", xReturn ) );
+            }
+
+            /* Notify tasks that their update was completed. */
+            if( xShadowQueueData.xTaskToNotify != NULL )
+            {
+                xTaskNotifyGive( xShadowQueueData.xTaskToNotify );
             }
         }
-        else
+    }
+}
+/*-----------------------------------------------------------*/
+
+static ShadowReturnCode_t prvShadowClientCreateConnect( void )
+{
+    MQTTAgentConnectParams_t xConnectParams;
+    ShadowCreateParams_t xCreateParams;
+    ShadowReturnCode_t xReturn;
+
+    xCreateParams.xMQTTClientType = eDedicatedMQTTClient;
+    xReturn = SHADOW_ClientCreate( &xClientHandle, &xCreateParams );
+
+    if( xReturn == eShadowSuccess )
+    {
+        memset( &xConnectParams, 0x00, sizeof( xConnectParams ) );
+        xConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
+        xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
+
+        xConnectParams.xFlags = mqttagentREQUIRE_TLS;
+        xConnectParams.pcCertificate = NULL;
+        xConnectParams.ulCertificateSize = 0;
+        xConnectParams.pxCallback = NULL;
+        xConnectParams.pvUserData = &xClientHandle;
+
+        xConnectParams.pucClientId = ( const uint8_t * ) ( clientcredentialIOT_THING_NAME );
+        xConnectParams.usClientIdLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
+        xReturn = SHADOW_ClientConnect( xClientHandle,
+                                        &xConnectParams,
+                                        shadowDemoTIMEOUT );
+
+        if( xReturn != eShadowSuccess )
         {
-            configPRINTF( ( "Shadow_ClientConnect unsuccessful, returned %d.\r\n", sReturn ) );
+            configPRINTF( ( "Shadow_ClientConnect unsuccessful, returned %d.\r\n", xReturn ) );
         }
     }
     else
     {
-        configPRINTF( ( "Shadow_ClientCreate unsuccessful, returned %d.\r\n", sReturn ) );
+        configPRINTF( ( "Shadow_ClientCreate unsuccessful, returned %d.\r\n", xReturn ) );
     }
 
-    return sReturn;
+    return xReturn;
 }
 /*-----------------------------------------------------------*/
 
-static void prvShadowUpdateTasks( void * pvParameters )
+static void prvChangeDesiredTask( void * pvParameters )
 {
+    uint8_t ucBulbState = 0;
+    uint32_t ulInitialReportLength;
     TickType_t xLastWakeTime;
     ShadowTaskParam_t * pxShadowTaskParam;
-    ShadowOperationParams_t xOperationParams;
+    ShadowQueueData_t xShadowQueueData;
+    char pcInitialReportBuffer[ shadowDemoINITIAL_REPORT_BUFFER_LENGTH ];
 
+    /* Initialize parameters. */
     pxShadowTaskParam = ( ShadowTaskParam_t * ) pvParameters; /*lint !e9087 Safe cast from context. */
-    pxShadowTaskParam->cBulbSate = ( char ) 0;
+    memset( &xShadowQueueData, 0x00, sizeof( ShadowQueueData_t ) );
+    xShadowQueueData.xTaskToNotify = pxShadowTaskParam->xTaskHandle;
 
-    xOperationParams.pcThingName = shadowDemoTHING_NAME;
-    xOperationParams.xQoS = eMQTTQoS0;
-    xOperationParams.pcData = pxShadowTaskParam->pcUpdateBuffer;
-    /* subscribe to the accepted and rejected topics */
-    xOperationParams.ucKeepSubscriptions = pdTRUE;
-    xOperationParams.ulDataLength = prvGenerateShadowJSON( pxShadowTaskParam );
-
-    ( void ) SHADOW_Update( xClientHandle,
-                            &xOperationParams,
-                            shadowDemoTIMEOUT );
+    /* Add the initial state to the update queue, wait for the update to complete. */
+    ulInitialReportLength = snprintf( pcInitialReportBuffer,
+                                      shadowDemoINITIAL_REPORT_BUFFER_LENGTH,
+                                      shadowDemoINITIAL_REPORT_FORMAT,
+                                      pxShadowTaskParam->cTaskName );
+    xShadowQueueData.ulDataLength = prvGenerateReportedJSON( &xShadowQueueData,
+                                                             pcInitialReportBuffer,
+                                                             ulInitialReportLength );
+    /* The calls below should never fail because the queue should be empty currently. */
+    configASSERT( xQueueSendToBack( xUpdateQueue, &xShadowQueueData, shadowDemoSEND_QUEUE_WAIT_TICKS ) == pdTRUE );
+    configASSERT( ulTaskNotifyTake( pdTRUE, shadowDemoNOTIFY_WAIT_MS ) == 1 );
 
     xLastWakeTime = xTaskGetTickCount();
 
-    configPRINTF( ( "Shadow Demo initialized.\r\n" ) );
-
-    /* keep changing state of light bulb periodically as per duration set in shadowSendUpdateMs*/
-    for( ;; )
+    /* Keep changing the desired state of light bulb periodically. */
+    for( ; ; )
     {
-        configPRINTF( ( "Client request to change color of light bulb.\r\n" ) );
-        xOperationParams.ulDataLength = prvUpdateShadowJSON( pxShadowTaskParam );
+        configPRINTF( ( "%s changing desired state.\r\n", pxShadowTaskParam->cTaskName ) );
 
-        ( void ) SHADOW_Update( xClientHandle,
-                                &xOperationParams,
-                                shadowDemoTIMEOUT );
+        /* Toggle the desired state and generate a new JSON document. */
+        ucBulbState = !( ucBulbState );
+        xShadowQueueData.ulDataLength = prvGenerateDesiredJSON( &xShadowQueueData,
+                                                                pxShadowTaskParam->cTaskName,
+                                                                ucBulbState );
 
-        configPRINTF( ( "Client change done in thing shadow.\r\n" ) );
+        /* Add the new desired state to the update queue. */
+        if( xQueueSendToBack( xUpdateQueue, &xShadowQueueData, shadowDemoSEND_QUEUE_WAIT_TICKS ) == pdTRUE )
+        {
+            /* If the new desired state was successfully added, wait for notification that the update completed. */
+            configASSERT( ulTaskNotifyTake( pdTRUE, shadowDemoNOTIFY_WAIT_MS ) == 1 );
+            configPRINTF( ( "%s done changing desired state.\r\n", pxShadowTaskParam->cTaskName ) );
+        }
+        else
+        {
+            configPRINTF( ( "Update queue full, deferring desired state change.\r\n" ) );
+        }
+
         vTaskDelayUntil( &xLastWakeTime, shadowDemoSEND_UPDATE_MS );
     }
 }
 /*-----------------------------------------------------------*/
 
-static void prvShadowMainTask( void * pvParameters )
+static void prvShadowInitTask( void * pvParameters )
 {
-    uint8_t x;
-    /* The variable used to hold the queue's data structure. */
-    static StaticQueue_t xStaticQueue;
-    ShadowReturnCode_t xStatus;
+    uint8_t ucTask;
+    ShadowReturnCode_t xReturn;
     ShadowOperationParams_t xOperationParams;
-
-    /* The array to use as the queue's storage area.  This must be at least
-     * uxQueueLength * uxItemSize bytes.  Again, must be static. */
-    static uint8_t ucQueueStorageArea[ shadowDemoUPDATE_QUEUE_LENGTH * sizeof( xShadowQueueData_t ) ];
+    ShadowCallbackParams_t xCallbackParams;
 
     ( void ) pvParameters;
-    xUpdateQueue = xQueueCreateStatic( shadowDemoUPDATE_QUEUE_LENGTH, sizeof( xShadowQueueData_t ), ucQueueStorageArea, &xStaticQueue );
 
-    xStatus = prvShadowClientInit();
+    /* Initialize the update queue and Shadow client; set all pending updates to false. */
+    xUpdateQueue = xQueueCreateStatic( shadowDemoUPDATE_QUEUE_LENGTH,
+                                       sizeof( ShadowQueueData_t ),
+                                       ucQueueStorageArea,
+                                       &xStaticQueue );
+    xReturn = prvShadowClientCreateConnect();
 
-    if( xStatus == eShadowSuccess )
+    if( xReturn == eShadowSuccess )
     {
         xOperationParams.pcThingName = shadowDemoTHING_NAME;
         xOperationParams.xQoS = eMQTTQoS0;
         xOperationParams.pcData = NULL;
-        /* subscribe to the accepted and rejected topics */
-        xOperationParams.ucKeepSubscriptions = pdTRUE;
+        /* Don't keep subscriptions, since SHADOW_Delete is only called here once. */
+        xOperationParams.ucKeepSubscriptions = pdFALSE;
 
-        /*create initial shadow document for the thing with default color for the light bulb as red.*/
-        xStatus = SHADOW_Delete( xClientHandle,
+        /* Delete any previous shadow. */
+        xReturn = SHADOW_Delete( xClientHandle,
                                  &xOperationParams,
                                  shadowDemoTIMEOUT );
+
+        /* Atttempting to delete a non-existant shadow returns eShadowRejectedNotFound.
+         * Either eShadowSuccess or eShadowRejectedNotFound signify that there's no
+         * existing Thing Shadow, so both values are ok. */
+        if( ( xReturn == eShadowSuccess ) || ( xReturn == eShadowRejectedNotFound ) )
+        {
+            /* Register callbacks. This demo doesn't use updated or deleted callbacks, so
+             * those members are set to NULL. The callbacks are registered after deleting
+             * the Shadow so that any previous Shadow doesn't unintentionally trigger the
+             * delta callback.*/
+            xCallbackParams.pcThingName = shadowDemoTHING_NAME;
+            xCallbackParams.xShadowUpdatedCallback = NULL;
+            xCallbackParams.xShadowDeletedCallback = NULL;
+            xCallbackParams.xShadowDeltaCallback = prvDeltaCallback;
+
+            xReturn = SHADOW_RegisterCallbacks( xClientHandle,
+                                                &xCallbackParams,
+                                                shadowDemoTIMEOUT );
+        }
     }
 
-    if( xStatus == eShadowSuccess )
+    if( xReturn == eShadowSuccess )
     {
-        /* Create the update task which will handle the delta in shadow */
-        ( void ) xTaskCreate( prvUpdateTask,
-                              "ShDemoUpdt",
+        configPRINTF( ( "Shadow client initialized.\r\n" ) );
+
+        /* Create the update task which will process the update queue. */
+        ( void ) xTaskCreate( prvUpdateQueueTask,
+                              shadowDemoUPDATE_TASK_NAME,
                               shadowDemoUPDATE_TASK_STACK_SIZE,
                               NULL,
-                              tskIDLE_PRIORITY,
+                              democonfigSHADOW_LIGHTBULB_TASK_PRIORITY,
                               NULL );
 
-        /* Create the Shadow demo task which connects the modify Shadow. */
-        for( x = 0; x < ( uint8_t ) democonfigSHADOW_DEMO_NUM_TASKS; x++ )
+        /* Create the Shadow demo tasks which update the "desired" states. */
+        for( ucTask = 0; ucTask < ( uint8_t ) democonfigSHADOW_DEMO_NUM_TASKS; ucTask++ )
         {
-            ( void ) snprintf( ( char * ) ( &( xShadowTaskParamBuffer[ x ] ) )->cTaskName,
+            ( void ) snprintf( ( char * ) ( &( xShadowTaskParamBuffer[ ucTask ] ) )->cTaskName,
                                shadowDemoCHAR_TASK_NAME_MAX_SIZE,
                                shadowDemoCHAR_TASK_NAME,
-                               x );
-            ( void ) xTaskCreate( prvShadowUpdateTasks,
-                                  ( const char * ) ( &( xShadowTaskParamBuffer[ x ] ) )->cTaskName,
+                               ucTask );
+            ( void ) xTaskCreate( prvChangeDesiredTask,
+                                  ( const char * ) ( &( xShadowTaskParamBuffer[ ucTask ] ) )->cTaskName,
                                   democonfigSHADOW_LIGHTBULB_TASK_STACK_SIZE,
-                                  &( xShadowTaskParamBuffer[ x ] ),
-                                  democonfigSHADOW_LIGHTBULB_TASK_PRIORIRY,
-                                  NULL );
+                                  &( xShadowTaskParamBuffer[ ucTask ] ),
+                                  democonfigSHADOW_LIGHTBULB_TASK_PRIORITY,
+                                  &( ( xShadowTaskParamBuffer[ ucTask ] ).xTaskHandle ) );
         }
+    }
+    else
+    {
+        configPRINTF( ( "Failed to initialize Shadow client.\r\n" ) );
     }
 
     vTaskDelete( NULL );
 }
 
 /* Create the shadow demo main task which will act as a client application to
- * request periodic change in state(color) of light bulb  */
+ * request periodic change in state (color) of light bulb.  */
 void vStartShadowDemoTasks( void )
 {
-    ( void ) xTaskCreate( prvShadowMainTask,
+    ( void ) xTaskCreate( prvShadowInitTask,
                           "MainDemoTask",
                           shadowDemoUPDATE_TASK_STACK_SIZE,
                           NULL,

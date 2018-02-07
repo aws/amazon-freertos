@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -151,9 +151,11 @@ static void prvMiscInitialization( void )
     /* Seed the random number generator. */
     RNGCONbits.TRNGMODE = 1;
     RNGCONbits.TRNGEN = 1;
-    
+
     /* make sure that the TRNG has finished */
-    while (RNGCNT < 64)  ;
+    while( RNGCNT < 64 )
+    {
+    }
 
     ulSeed = RNGSEED1;
     configPRINTF( ( "Seed for randomizer: %lu\n", ulSeed ) );
@@ -162,6 +164,7 @@ static void prvMiscInitialization( void )
 
     SYS_Initialize( NULL );
     SYS_Tasks();
+
     FreeRTOS_IPInit( ucIPAddress, ucNetMask, ucGatewayAddress, ucDNSServerAddress, ucMACAddress );
 }
 /*-----------------------------------------------------------*/
@@ -184,22 +187,26 @@ static void prvSRand( UBaseType_t ulSeed )
     ulNextRand = ulSeed;
 }
 /*-----------------------------------------------------------*/
+
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
     uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
     char cBuffer[ 16 ];
-    
+    static BaseType_t xTasksAlreadyCreated = pdFALSE;
+
     /* If the network has just come up...*/
     if( eNetworkEvent == eNetworkUp )
     {
-        if( SYSTEM_Init() == pdPASS )
+        /* The network is up so we can run. */
+        if( ( SYSTEM_Init() == pdPASS ) && ( xTasksAlreadyCreated == pdFALSE ) )
         {
             /* Run all demos. */
             DEMO_RUNNER_RunDemos();
+            xTasksAlreadyCreated = pdTRUE;
         }
 
         /* Print out the network configuration, which may have come from a DHCP
-        * server. */
+         * server. */
         FreeRTOS_GetAddressConfiguration(
             &ulIPAddress,
             &ulNetMask,
@@ -408,7 +415,7 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     portDISABLE_INTERRUPTS();
 
     /* Loop forever */
-    for( ; ;)
+    for( ; ; )
     {
     }
 }

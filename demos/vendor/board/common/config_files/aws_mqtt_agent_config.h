@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.2.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,7 +59,7 @@
  * @brief The maximum time interval in seconds allowed to elapse between 2 consecutive
  * control packets.
  */
-#define mqttconfigKEEP_ALIVE_INTERVAL_SECONDS         ( 2000 )
+#define mqttconfigKEEP_ALIVE_INTERVAL_SECONDS         ( 1200 )
 
 /**
  * @brief Defines the frequency at which the client should send Keep Alive messages.
@@ -71,7 +71,7 @@
  * This macro defines the interval of inactivity after which a keep alive messages
  * is sent.
  */
-#define mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS    ( 50000 )
+#define mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS    ( pdMS_TO_TICKS( 300000 ) )
 
 /**
  * @brief The maximum interval in ticks to wait for PINGRESP.
@@ -79,7 +79,7 @@
  * If PINGRESP is not received within this much time after sending PINGREQ,
  * the client assumes that the PINGREQ timed out.
  */
-#define mqttconfigKEEP_ALIVE_TIMEOUT_TICKS            ( 5000 )
+#define mqttconfigKEEP_ALIVE_TIMEOUT_TICKS            ( 1000 )
 
 /**
  * @defgroup MQTTTask MQTT task configuration parameters.
@@ -107,6 +107,6 @@
 /**
  * @brief Length of the buffer used to receive data.
  */
-#define mqttconfigRX_BUFFER_SIZE         ( 1024 + 128 )
+#define mqttconfigRX_BUFFER_SIZE         ( 128 )
 
 #endif /* _AWS_MQTT_AGENT_CONFIG_H_ */
