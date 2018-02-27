@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.0
+ * Amazon FreeRTOS V1.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -317,10 +317,6 @@ static void prvEchoClientTxTask( void * pvParameters )
          * congested. */
         vTaskDelay( echoLOOP_DELAY );
     }
-
-    /* Free Memory. */
-    vQueueDelete( xSocketPassingQueue );
-    vEventGroupDelete( xSyncEventGroup );
 }
 /*-----------------------------------------------------------*/
 

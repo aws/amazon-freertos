@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 for CC32220SF_LaunchpadXL V1.0.0
+ * Amazon FreeRTOS PKCS#11 for CC3220SF-LAUNCHXL V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -63,6 +63,8 @@
  */
 typedef struct P11Key
 {
+  /* IAR complains about the empty structure. */
+  uint8_t ucFakeValue;
 } P11Key_t, * P11KeyPtr_t;
 
 /**

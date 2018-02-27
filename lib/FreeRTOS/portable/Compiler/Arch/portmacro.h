@@ -53,22 +53,40 @@ typedef unsigned long UBaseType_t;
 /* Architecture specifics. */
 #define portSTACK_GROWTH			( -1 )
 #define portTICK_PERIOD_MS			( ( TickType_t ) 1000 / configTICK_RATE_HZ )
-#define portBYTE_ALIGNMENT			/* FIX ME. */
+#define portBYTE_ALIGNMENT			8 /* FIX ME. */
 /*-----------------------------------------------------------*/
 
 /* Scheduler utilities. */
-#define portYIELD() 	/* FIX ME. */
+#define portYIELD() 	0 /* FIX ME. */
 #define portEND_SWITCHING_ISR( xSwitchRequired ) if( xSwitchRequired != pdFALSE ) portYIELD()
 #define portYIELD_FROM_ISR( x ) portEND_SWITCHING_ISR( x )
 /*-----------------------------------------------------------*/
 
+/* Architecture specific optimisations. */
+#ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
+#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
+#endif
+
+#if configUSE_PORT_OPTIMISED_TASK_SELECTION == 1
+
+	/* Store/clear the ready priorities in a bit map. */
+	#define portRECORD_READY_PRIORITY( uxPriority, uxReadyPriorities ) 0 /* FIX ME. */
+	#define portRESET_READY_PRIORITY( uxPriority, uxReadyPriorities ) 0 /* FIX ME. */
+
+	/*-----------------------------------------------------------*/
+
+	#define portGET_HIGHEST_PRIORITY( uxTopPriority, uxReadyPriorities ) uxTopPriority = 0 /* FIX ME. */
+
+#endif /* configUSE_PORT_OPTIMISED_TASK_SELECTION */
+/*-----------------------------------------------------------*/
+
 /* Critical section management. */
-#define portSET_INTERRUPT_MASK_FROM_ISR()		/* FIX ME. */
-#define portCLEAR_INTERRUPT_MASK_FROM_ISR(x)	/* FIX ME. */
-#define portDISABLE_INTERRUPTS()				/* FIX ME. */
-#define portENABLE_INTERRUPTS()					/* FIX ME. */
-#define portENTER_CRITICAL()					/* FIX ME. */
-#define portEXIT_CRITICAL()						/* FIX ME. */
+#define portSET_INTERRUPT_MASK_FROM_ISR()		0 /* FIX ME. */
+#define portCLEAR_INTERRUPT_MASK_FROM_ISR(x)	0 /* FIX ME. */
+#define portDISABLE_INTERRUPTS()				0 /* FIX ME. */
+#define portENABLE_INTERRUPTS()					0 /* FIX ME. */
+#define portENTER_CRITICAL()					0 /* FIX ME. */
+#define portEXIT_CRITICAL()						0 /* FIX ME. */
 
 /*-----------------------------------------------------------*/
 

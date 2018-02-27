@@ -28,8 +28,12 @@
  * @brief PKCS11 Interface.
  */
 
-/* PKCS#11 Interface Include. */
-#include "pkcs11.h"
+/* Amazon FreeRTOS Includes. */
+#include "aws_pkcs11.h"
+
+/* C runtime includes. */
+#include <stdio.h>
+#include <string.h>
 
 /**
  * @brief PKCS#11 interface functions implemented by this Cryptoki module.
@@ -106,6 +110,13 @@ static CK_FUNCTION_LIST prvP11FunctionList =
     NULL,
     NULL
 };
+
+/**
+ * @brief Hardware polling needed for third-party provided mbedTLS, if you are using 
+ * mbedTLS as the underlying TLS support. See 
+ * lib\third_party\mbedtls\include\mbedtls\entropy_poll.h for more information.
+ */
+int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen );
 
 /*-----------------------------------------------------------*/
 
@@ -260,3 +271,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
     return CKR_GENERAL_ERROR;
 }
 /*-----------------------------------------------------------*/
+
+int mbedtls_hardware_poll( void *data,
+                    unsigned char *output, size_t len, size_t *olen )
+{
+  /* FIX ME. */
+  return 0;
+}

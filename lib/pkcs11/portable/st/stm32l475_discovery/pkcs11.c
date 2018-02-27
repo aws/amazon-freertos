@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 for STM32_IoT_Discovery_Kit V1.0.0
+ * Amazon FreeRTOS PKCS#11 for STM32L4 Discovery kit IoT node V1.0.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

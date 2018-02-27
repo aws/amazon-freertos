@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.0
+ * Amazon FreeRTOS V1.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -130,6 +130,12 @@ int main( void )
      * running.  */
     prvMiscInitialization();
 
+    FreeRTOS_IPInit( ucIPAddress,
+                     ucNetMask,
+                     ucGatewayAddress,
+                     ucDNSServerAddress,
+                     ucMACAddress );
+
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
@@ -164,8 +170,6 @@ static void prvMiscInitialization( void )
 
     SYS_Initialize( NULL );
     SYS_Tasks();
-
-    FreeRTOS_IPInit( ucIPAddress, ucNetMask, ucGatewayAddress, ucDNSServerAddress, ucMACAddress );
 }
 /*-----------------------------------------------------------*/
 
@@ -177,7 +181,7 @@ uint32_t ulRand( void )
 
     ulNextRand = ( ulMultiplier * ulNextRand ) + ulIncrement;
 
-    return( ( int ) ( ulNextRand >> 16UL ) & 0x7fffUL );
+    return( ( uint32_t ) ( ulNextRand >> 16UL ) & 0x7fffUL );
 }
 /*-----------------------------------------------------------*/
 
@@ -311,9 +315,8 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
     const char * pcApplicationHostnameHook( void )
     {
-        /* Assign the name "FreeRTOS" to this network node.  This function will
-         * be called during the DHCP: the machine will be registered with an IP
-         * address plus this name. */
+        /* This function will be called during the DHCP: the machine will be registered 
+         * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }
 

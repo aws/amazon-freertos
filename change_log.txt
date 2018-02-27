@@ -1,3 +1,38 @@
+Change Log for Amazon FreeRTOS V1.2.1 02/23/2018
+
+    - Added an IAR IDE demo project for the Texas Instruments CC3220SF-LAUNCHXL.
+    - Added Wi-Fi support for the Microchip Curiosity PIC32MZEF.
+
+MQTT Agent V1.1.1
+    - Minor bug fix checking for a NULL pointer.
+
+OTA Agent V0.9.2
+    - Updated to support NULL OTA file handles.
+
+Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V0.9.2
+    - Updated to support NULL OTA file handles.
+
+PKCS#11 for CC3220SF-LAUNCHXL V1.0.1
+    - Added a dummy variable to a previosly empty structure to fix IAR compiler errors.
+
+Secure Socket for Windows Simulator V1.1.1
+    - Formatting update.
+
+Secure Sockets for CC3220SF-LAUNCHXL V1.0.2
+    - Updated to print SimpleLink driver specific error codes when debugging.
+    - Added error handling for non-blocking sockets.
+    - Updated socket option to return an error if security options are specified after 
+      a connection.
+
+Wi-Fi for Curiosity PIC32MZEF V1.0.1
+    - Updated such that Wi-Fi disconnection waits until the link is down before 
+      returning.
+
+Wi-Fi for CC3220SF-LAUNCHXL V1.0.1
+    - Fixed error in attempting to overwrite a const memory.
+
+---------------------------------------------------------------------------------------
+
 Change Log for Amazon FreeRTOS V1.2.0 02/06/2018
 
 Greengrass Discovery V1.0.2
@@ -12,16 +47,16 @@ OTA Agent V0.9.1
     is recieved. 
     Some files were renamed.
 
-PKCS#11 for Windows_Simulator
+PKCS#11 for Windows Simulator
     Added developer mode key provisioning support.
 
-Secure Socket for Curiosity_PIC32MZEF V1.0.1
+Secure Socket for Curiosity PIC32MZEF V1.0.1
     Added support for ALPN.
 
-Secure Socket for Windows_Simulator V1.1.0
+Secure Socket for Windows Simulator V1.1.0
     Added support for ALPN.
 
-Secure Sockets for CC32220SF_LaunchpadXL V1.0.1
+Secure Sockets for CC3220SF-LAUNCHXL V1.0.1
     Removed unnecessary server certificate storage on the client side.
     Removed unnecessary global synchronization semaphore. 
     Updated for other small bugs.
@@ -34,6 +69,7 @@ Shadow V1.0.2
 TLS V1.1.0
     Added support for ALPN.
 
+---------------------------------------------------------------------------------------
 
 Change Log for Amazon FreeRTOS V1.1.0 12/20/2017
 
@@ -59,18 +95,18 @@ OTA Agent V0.9.0
     Beta release of OTA Update library for Amazon FreeRTOS. Includes support
     for the Texas Instruments CC3220SF-LAUNCHXL and Windows Simulator.
 
-PKCS#11 for Curiosity_PIC32MZEF V1.0.0 Beta 1
+PKCS#11 for Curiosity PIC32MZEF V1.0.0 Beta 1
     Added support for the Microchip Curiosity PIC32MZEF.
 
-Secure Socket for Curiosity_PIC32MZEF V1.0.0
+Secure Socket for Curiosity PIC32MZEF V1.0.0
     Added support for the Microchip Curiosity PIC32MZEF.
 
-Secure Sockets for NXP54018_IoT_Module V1.0.0 Beta 2
+Secure Sockets for LPC54018 IoT Module V1.0.0 Beta 2
     Fixed bugs in the Secure Sockets implementation for the NXP LPC54018 IoT
     Module.
 
 Shadow V1.0.1
     Fixed compiler warning for the Microchip Curiosity PIC32MZEF.
 
-Wi-Fi for NXP54018_IoT_Module V1.0.1
+Wi-Fi for LPC54018 IoT Module V1.0.1
     Changed the Wi-Fi Connection timeout to 10 seconds.

@@ -60,6 +60,7 @@ SOFTWARE
 #include "system/common/sys_common.h"
 //#include "app.h"
 #include "system_definitions.h"
+#include "NetworkConfig.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -81,23 +82,46 @@ void IntHandlerDrvUsartErrorInstance0(void)
 }
  
  
+void IntHandlerSysDmaInstance1(void)
+{          
+    SYS_DMA_TasksISR(sysObj.sysDma, DMA_CHANNEL_0);
+}
+
+void IntHandlerSysDmaInstance2(void)
+{          
+    SYS_DMA_TasksISR(sysObj.sysDma, DMA_CHANNEL_1);
+}
+
 
  
-
- 
-
- 
-
- 
-
- 
- 
+void IntHandlerExternalInterruptInstance0(void)
+{
+    PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_EXTERNAL_2);
+    #ifndef PIC32_USE_ETHERNET
+        WDRV_WILC1000_ISR();
+    #endif /* #ifndef PIC32_USE_ETHERNET */
+}
  
 
 void IntHandlerDrvTmrInstance0(void)
 {
     DRV_TMR_Tasks(sysObj.drvTmr0);
 }
+
+ 
+void IntHandlerSPIRxInstance0(void)
+{
+    DRV_SPI_Tasks(sysObj.spiObjectIdx0);
+}
+void IntHandlerSPITxInstance0(void)
+{
+    DRV_SPI_Tasks(sysObj.spiObjectIdx0);
+}
+void IntHandlerSPIFaultInstance0(void)
+{
+    DRV_SPI_Tasks(sysObj.spiObjectIdx0);
+}
+
 void IntHandler_ETHMAC(void)
 {
     DRV_ETHMAC_Tasks_ISR((SYS_MODULE_OBJ)0);

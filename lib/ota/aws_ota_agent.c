@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Agent V0.9.1
+Amazon FreeRTOS OTA Agent V0.9.2
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1639,7 +1639,7 @@ IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                     }
                     else /* Otherwise, process it normally... */
                     {
-                        if( C->iFileHandle > 0 )
+                        if( C->iFileHandle != ( s32 )NULL )
                         {
                             i32 iBytesWritten = prvWriteBlock( C, ( lBlockIndex * kOTA_FileBlockSize ), pucPayload, ( u32 )lBlockSize );
 
@@ -1666,7 +1666,7 @@ IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                             vPortFree( C->pacRxBlockBitmap ); /* Free the bitmap now that we're done with the download. */
                             C->pacRxBlockBitmap = NULL;
 
-                            if( C->iFileHandle > 0 )
+                            if( C->iFileHandle != ( s32 )NULL )
                             {
                                 s32 iCloseResult = prvCloseFile( C );
 
@@ -1680,7 +1680,7 @@ IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                                     OTA_PRINT( "[OTA] Error (%u:%d) closing OTA file.\r\n", iCloseResult >> kOTA_MainErrShiftDownBits, iCloseResult & kOTA_PAL_ErrMask );
                                     eIngestResult = eIngest_Result_SigCheckFail;
                                 }
-                                C->iFileHandle = ( i32 )NULL; /* File is now closed so clear the file handle in the context. */
+                                C->iFileHandle = ( s32 )NULL; /* File is now closed so clear the file handle in the context. */
                             }
                             else
                             {

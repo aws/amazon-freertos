@@ -1,27 +1,29 @@
 /*
-FreeRTOS+TCP V2.0.1
-Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://aws.amazon.com/freertos
- http://www.FreeRTOS.org
-*/
+ * FreeRTOS+TCP V2.0.2
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://www.FreeRTOS.org
+ * http://aws.amazon.com/freertos
+ *
+ * 1 tab == 4 spaces!
+ */
 
 /******************************************************************************
  *
@@ -101,24 +103,25 @@ BaseType_t xReturn, x;
 	{
 		xNetworkBufferSemaphore = xSemaphoreCreateCounting( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS, ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS );
 		configASSERT( xNetworkBufferSemaphore );
-		#if ( configQUEUE_REGISTRY_SIZE > 0 )
-		{
-			vQueueAddToRegistry( xNetworkBufferSemaphore, "NetBufSem" );
-		}
-		#endif /* configQUEUE_REGISTRY_SIZE */
-
-		/* If the trace recorder code is included name the semaphore for viewing
-		in FreeRTOS+Trace.  */
-		#if( ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 )
-		{
-			extern QueueHandle_t xNetworkEventQueue;
-			vTraceSetQueueName( xNetworkEventQueue, "IPStackEvent" );
-			vTraceSetQueueName( xNetworkBufferSemaphore, "NetworkBufferCount" );
-		}
-		#endif /*  ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 */
 
 		if( xNetworkBufferSemaphore != NULL )
 		{
+			#if ( configQUEUE_REGISTRY_SIZE > 0 )
+			{
+				vQueueAddToRegistry( xNetworkBufferSemaphore, "NetBufSem" );
+			}
+			#endif /* configQUEUE_REGISTRY_SIZE */
+
+			/* If the trace recorder code is included name the semaphore for viewing
+			in FreeRTOS+Trace.  */
+			#if( ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 )
+			{
+				extern QueueHandle_t xNetworkEventQueue;
+				vTraceSetQueueName( xNetworkEventQueue, "IPStackEvent" );
+				vTraceSetQueueName( xNetworkBufferSemaphore, "NetworkBufferCount" );
+			}
+			#endif /*  ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 */
+
 			vListInitialise( &xFreeBuffersList );
 
 			/* Initialise all the network buffers.  No storage is allocated to
@@ -214,6 +217,8 @@ size_t uxCount;
 		xRequestedSizeBytes = baMINIMAL_BUFFER_SIZE;
 	}
 
+	/* Add 2 bytes to xRequestedSizeBytes and round up xRequestedSizeBytes
+	to the nearest multiple of N bytes, where N equals 'sizeof( size_t )'. */
 	xRequestedSizeBytes += 2u;
 	if( ( xRequestedSizeBytes & ( sizeof( size_t ) - 1u ) ) != 0u )
 	{
@@ -353,17 +358,24 @@ uint8_t *pucBuffer;
 
 	pucBuffer = pucGetNetworkBuffer( &( xNewSizeBytes ) );
 
-	if( pucBuffer != NULL )
+	if( pucBuffer == NULL )
 	{
+		/* In case the allocation fails, return NULL. */
+		pxNetworkBuffer = NULL;
+	}
+	else
+	{
+		pxNetworkBuffer->xDataLength = xNewSizeBytes;
 		if( xNewSizeBytes > xOriginalLength )
 		{
 			xNewSizeBytes = xOriginalLength;
 		}
+
 		memcpy( pucBuffer - ipBUFFER_PADDING, pxNetworkBuffer->pucEthernetBuffer - ipBUFFER_PADDING, xNewSizeBytes );
 		vReleaseNetworkBuffer( pxNetworkBuffer->pucEthernetBuffer );
 		pxNetworkBuffer->pucEthernetBuffer = pucBuffer;
 	}
-	
+
 	return pxNetworkBuffer;
 }
 

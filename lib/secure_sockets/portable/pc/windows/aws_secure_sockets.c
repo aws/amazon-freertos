@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Socket for Windows_Simulator V1.1.0
+ * Amazon FreeRTOS Secure Socket for Windows Simulator V1.1.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -105,8 +105,8 @@ int32_t SOCKETS_Close( Socket_t xSocket )
         /* Clean-up application protocol array. */
         if( NULL != pxContext->ppcAlpnProtocols )
         {
-            for( ulProtocol = 0; 
-                 ulProtocol < pxContext->ulAlpnProtocolsCount; 
+            for( ulProtocol = 0;
+                 ulProtocol < pxContext->ulAlpnProtocolsCount;
                  ulProtocol++ )
             {
                 if( NULL != pxContext->ppcAlpnProtocols[ ulProtocol ] )
@@ -160,7 +160,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
             xTLSParams.pcDestination = pxContext->pcDestination;
             xTLSParams.pcServerCertificate = pxContext->pcServerCertificate;
             xTLSParams.ulServerCertificateLength = pxContext->ulServerCertificateLength;
-            xTLSParams.ppcAlpnProtocols = ( const char ** )pxContext->ppcAlpnProtocols;
+            xTLSParams.ppcAlpnProtocols = ( const char ** ) pxContext->ppcAlpnProtocols;
             xTLSParams.ulAlpnProtocolsCount = pxContext->ulAlpnProtocolsCount;
             xTLSParams.pvCallerContext = pxContext;
             xTLSParams.pxNetworkRecv = prvNetworkRecv;
@@ -255,7 +255,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
     int32_t lStatus = pdFREERTOS_ERRNO_NONE;
     TickType_t xTimeout;
     SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket; /*lint !e9087 cast used for portability. */
-    char ** ppcAlpnIn = ( char ** )pvOptionValue;
+    char ** ppcAlpnIn = ( char ** ) pvOptionValue;
     size_t xLength = 0;
     uint32_t ulProtocol;
 
@@ -302,37 +302,40 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
         case SOCKETS_SO_ALPN_PROTOCOLS:
             /* Allocate a sufficiently long array of pointers. */
             pxContext->ulAlpnProtocolsCount = 1 + xOptionLength;
+
             if( NULL == ( pxContext->ppcAlpnProtocols =
-                ( char ** )pvPortMalloc( pxContext->ulAlpnProtocolsCount ) ) )
+                              ( char ** ) pvPortMalloc( pxContext->ulAlpnProtocolsCount * sizeof( char * ) ) ) )
             {
                 lStatus = pdFREERTOS_ERRNO_ENOMEM;
             }
             else
             {
-                pxContext->ppcAlpnProtocols[ 
+                pxContext->ppcAlpnProtocols[
                     pxContext->ulAlpnProtocolsCount - 1 ] = NULL;
             }
 
             /* Copy each protocol string. */
-            for( ulProtocol = 0; 
+            for( ulProtocol = 0;
                  ( ulProtocol < pxContext->ulAlpnProtocolsCount - 1 ) &&
-                    ( pdFREERTOS_ERRNO_NONE == lStatus );
+                 ( pdFREERTOS_ERRNO_NONE == lStatus );
                  ulProtocol++ )
             {
                 xLength = strlen( ppcAlpnIn[ ulProtocol ] );
-                if( NULL == ( pxContext->ppcAlpnProtocols[ ulProtocol ] = 
-                    ( char * )pvPortMalloc( 1 + xLength ) ) )
+
+                if( NULL == ( pxContext->ppcAlpnProtocols[ ulProtocol ] =
+                                  ( char * ) pvPortMalloc( 1 + xLength ) ) )
                 {
                     lStatus = pdFREERTOS_ERRNO_ENOMEM;
                 }
                 else
                 {
-                    memcpy( pxContext->ppcAlpnProtocols[ ulProtocol ], 
+                    memcpy( pxContext->ppcAlpnProtocols[ ulProtocol ],
                             ppcAlpnIn[ ulProtocol ],
                             xLength );
                     pxContext->ppcAlpnProtocols[ ulProtocol ][ xLength ] = '\0';
                 }
             }
+
             break;
 
         case SOCKETS_SO_NONBLOCK:

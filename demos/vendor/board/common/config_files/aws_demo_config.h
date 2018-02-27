@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.0
+ * Amazon FreeRTOS V1.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,6 +34,18 @@
 
 #define democonfigSHADOW_DEMO_NUM_TASKS                   ( 2 )
 
+/* Timeout used when performing MQTT operations that do not need extra time
+to perform a TLS negotiation. */
+#define democonfigMQTT_TIMEOUT						      pdMS_TO_TICKS( 300 )
+
+/* Timeout used when establishing a connection, which required TLS
+* negotiation. */
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT       pdMS_TO_TICKS( 12000 )
+
+/* MQTT echo task example parameters. */
+#define democonfigMQTT_ECHO_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 2 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
+
 /* IoT simple subscribe/publish example task parameters. */
 #define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
 #define democonfigMQTT_SUB_PUB_TASK_PRIORITY              ( tskIDLE_PRIORITY )
@@ -58,5 +70,9 @@
 /* Simple TCP Echo Server task example parameters */
 #define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 6 )
 #define democonfigTCP_ECHO_SERVER_TASK_PRIORITY            ( tskIDLE_PRIORITY )
+
+/* TCP Echo Client tasks multi task example parameters. */
+#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE  ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY    ( tskIDLE_PRIORITY )
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

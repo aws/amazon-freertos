@@ -151,7 +151,8 @@ extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )     vLoggingPrint( X )
 
 /* Map the logging task's printf to the board specific output function. */
-#define configPRINT_STRING( x )    printf X
+#include <stdio.h> 
+#define configPRINT_STRING( X )    printf( X ); /* FIX ME: Change to your devices console print acceptance function. */
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */ 
 #define configLOGGING_MAX_MESSAGE_LENGTH            100
@@ -261,6 +262,6 @@ extern uint32_t ulRand();
 
 
 /* Header required for the tracealyzer recorder library. */
-#include "trcRecorder.h"
+/* #include "trcRecorder.h" */
 
 #endif /* FREERTOS_CONFIG_H */

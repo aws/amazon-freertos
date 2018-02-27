@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Agent V0.9.1
+Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V0.9.2
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -96,15 +96,16 @@ static bool_t prvCreateFileForRx(OTA_FileContext_t *C)
 				}
 				else
 				{
-					/* Nothing to do. File handle is already invalid. */
+					/* Show error message and nullify the file handle. */
 					OTA_PRINT("[OTA] Error (%d) trying to re-open for access.\r\n", C->iFileHandle);
+	                C->iFileHandle = NULL;
 				}
 			}
 			else
 			{
 				OTA_PRINT("[OTA] Error (%d) when closing new file.\r\n", result);
 				/* Invalidate the file handle. */
-				C->iFileHandle = 0;
+				C->iFileHandle = NULL;
 			}
 		}
 		else {
@@ -123,8 +124,9 @@ static bool_t prvCreateFileForRx(OTA_FileContext_t *C)
 			}
 			else
 			{
-				C->iFileHandle = NULL;
+			    /* Nothing special. */
 			}
+            C->iFileHandle = NULL;      /* Nullify the file handle in all error cases. */
 		}
 	} while ( bRetry == pdTRUE );
 

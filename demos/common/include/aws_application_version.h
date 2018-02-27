@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.0
+ * Amazon FreeRTOS V1.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,13 +34,13 @@
 #pragma pack(push,1)
 typedef struct {
 	union {
-#if (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || (__little_endian__ == 1) || WIN32
+#if (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || (__little_endian__ == 1) || WIN32 || (__BYTE_ORDER == __LITTLE_ENDIAN)
 		struct {
 			uint16_t    usBuild;
 			uint8_t		ucMinor;
 			uint8_t		ucMajor;
 		} x;
-#elif (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || (__big_endian__ == 1)
+#elif (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || (__big_endian__ == 1) || (__BYTE_ORDER == __BIG_ENDIAN)
 		struct version {
 			uint8_t		ucMajor;
 			uint8_t		ucMinor;

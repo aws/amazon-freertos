@@ -57,6 +57,10 @@ SOFTWARE
 */
 #include "bsp.h"
 
+#ifndef PIC32_USE_ETHERNET
+    #include "aws_wifi.h"
+    #include "aws_clientcredential.h"
+#endif
 
 // DOM-IGNORE-BEGIN
 #ifdef __cplusplus  // Provide C++ Compatibility
@@ -200,6 +204,180 @@ extern "C" {
 // *****************************************************************************
 // *****************************************************************************
 
+/*** NVM Driver Configuration ***/
+#define DRV_NVM_INSTANCES_NUMBER     	1
+#define DRV_NVM_CLIENTS_NUMBER        	2
+#define DRV_NVM_BUFFER_OBJECT_NUMBER  	5
+#define DRV_NVM_INTERRUPT_MODE        	true
+#define DRV_NVM_INTERRUPT_SOURCE      	INT_SOURCE_FLASH_CONTROL
+
+#define DRV_NVM_MEDIA_SIZE              64
+#define DRV_NVM_MEDIA_START_ADDRESS     0x9D000000
+
+#define DRV_NVM_ERASE_WRITE_ENABLE
+
+
+#define DRV_NVM_SYS_FS_REGISTER
+    
+
+/*** SPI Driver Configuration ***/
+#define DRV_SPI_NUMBER_OF_MODULES		6
+/*** Driver Compilation and static configuration options. ***/
+/*** Select SPI compilation units.***/
+#define DRV_SPI_POLLED 				0
+#define DRV_SPI_ISR 				1
+#define DRV_SPI_MASTER 				1
+#define DRV_SPI_SLAVE 				0
+#define DRV_SPI_RM 					1
+#define DRV_SPI_EBM 				0
+#define DRV_SPI_8BIT 				1
+#define DRV_SPI_16BIT 				0
+#define DRV_SPI_32BIT 				0
+#define DRV_SPI_DMA 				1
+    
+    
+ 
+/*** SPI Driver Static Allocation Options ***/
+#define DRV_SPI_INSTANCES_NUMBER 		1
+#define DRV_SPI_CLIENTS_NUMBER 			1
+#define DRV_SPI_ELEMENTS_PER_QUEUE 		10
+/*** SPI Driver DMA Options ***/
+#define DRV_SPI_DMA_TXFER_SIZE 			512
+#define DRV_SPI_DMA_DUMMY_BUFFER_SIZE 	512
+    
+/* SPI Driver Instance 0 Configuration */
+/*#define DRV_SPI_SPI_ID_IDX0 				SPI_ID_1
+#define DRV_SPI_TASK_MODE_IDX0 				DRV_SPI_TASK_MODE_ISR
+#define DRV_SPI_SPI_MODE_IDX0				DRV_SPI_MODE_MASTER
+#define DRV_SPI_ALLOW_IDLE_RUN_IDX0			false
+#define DRV_SPI_SPI_PROTOCOL_TYPE_IDX0 		DRV_SPI_PROTOCOL_TYPE_STANDARD
+#define DRV_SPI_COMM_WIDTH_IDX0 			SPI_COMMUNICATION_WIDTH_8BITS
+#define DRV_SPI_SPI_CLOCK_IDX0 				CLK_BUS_PERIPHERAL_2
+#define DRV_SPI_BAUD_RATE_IDX0 				8000000
+#define DRV_SPI_BUFFER_TYPE_IDX0 			DRV_SPI_BUFFER_TYPE_STANDARD
+#define DRV_SPI_CLOCK_MODE_IDX0 			DRV_SPI_CLOCK_MODE_IDLE_LOW_EDGE_FALL
+#define DRV_SPI_INPUT_PHASE_IDX0 			SPI_INPUT_SAMPLING_PHASE_AT_END
+#define DRV_SPI_TRANSMIT_DUMMY_BYTE_VALUE_IDX0      0x00
+
+#define DRV_SPI_TX_INT_SOURCE_IDX0 			INT_SOURCE_SPI_1_TRANSMIT
+#define DRV_SPI_RX_INT_SOURCE_IDX0 			INT_SOURCE_SPI_1_RECEIVE
+#define DRV_SPI_ERROR_INT_SOURCE_IDX0 		INT_SOURCE_SPI_1_ERROR
+#define DRV_SPI_INT_VECTOR_IDX0				INT_VECTOR_SPI1
+#define DRV_SPI_INT_PRIORITY_IDX0			INT_PRIORITY_LEVEL1
+#define DRV_SPI_INT_SUB_PRIORITY_IDX0		INT_SUBPRIORITY_LEVEL0        
+#define DRV_SPI_QUEUE_SIZE_IDX0 			10
+#define DRV_SPI_RESERVED_JOB_IDX0 			1
+#define DRV_SPI_TX_DMA_CHANNEL_IDX0 		DMA_CHANNEL_1
+#define DRV_SPI_TX_DMA_THRESHOLD_IDX0 		16
+#define DRV_SPI_RX_DMA_CHANNEL_IDX0 		DMA_CHANNEL_0
+#define DRV_SPI_RX_DMA_THRESHOLD_IDX0 		16*/
+/* SPI Driver Instance 0 Configuration */
+#define DRV_SPI_SPI_ID_IDX0 				SPI_ID_2
+#define DRV_SPI_TASK_MODE_IDX0 				DRV_SPI_TASK_MODE_ISR
+#define DRV_SPI_SPI_MODE_IDX0				DRV_SPI_MODE_MASTER
+#define DRV_SPI_ALLOW_IDLE_RUN_IDX0			false
+#define DRV_SPI_SPI_PROTOCOL_TYPE_IDX0 		DRV_SPI_PROTOCOL_TYPE_STANDARD
+#define DRV_SPI_COMM_WIDTH_IDX0 			SPI_COMMUNICATION_WIDTH_8BITS
+#define DRV_SPI_CLOCK_SOURCE_IDX0 		    SPI_BAUD_RATE_PBCLK_CLOCK
+#define DRV_SPI_SPI_CLOCK_IDX0 				CLK_BUS_PERIPHERAL_2
+#define DRV_SPI_BAUD_RATE_IDX0 				8000000
+#define DRV_SPI_BUFFER_TYPE_IDX0 			DRV_SPI_BUFFER_TYPE_STANDARD
+#define DRV_SPI_CLOCK_MODE_IDX0 			DRV_SPI_CLOCK_MODE_IDLE_LOW_EDGE_FALL
+#define DRV_SPI_INPUT_PHASE_IDX0 			SPI_INPUT_SAMPLING_PHASE_AT_END
+#define DRV_SPI_TRANSMIT_DUMMY_BYTE_VALUE_IDX0      0x00
+
+#define DRV_SPI_TX_INT_SOURCE_IDX0 			INT_SOURCE_SPI_2_TRANSMIT
+#define DRV_SPI_RX_INT_SOURCE_IDX0 			INT_SOURCE_SPI_2_RECEIVE
+#define DRV_SPI_ERROR_INT_SOURCE_IDX0 		INT_SOURCE_SPI_2_ERROR
+#define DRV_SPI_TX_INT_VECTOR_IDX0			INT_VECTOR_SPI2_TX
+#define DRV_SPI_RX_INT_VECTOR_IDX0			INT_VECTOR_SPI2_RX
+#define DRV_DRV_SPI_ERROR_INT_VECTOR_IDX0	INT_VECTOR_SPI2_FAULT
+#define DRV_SPI_TX_INT_PRIORITY_IDX0 		INT_PRIORITY_LEVEL1
+#define DRV_SPI_TX_INT_SUB_PRIORITY_IDX0 	INT_SUBPRIORITY_LEVEL0
+#define DRV_SPI_RX_INT_PRIORITY_IDX0 		INT_PRIORITY_LEVEL1
+#define DRV_SPI_RX_INT_SUB_PRIORITY_IDX0 	INT_SUBPRIORITY_LEVEL0
+#define DRV_SPI_ERROR_INT_PRIORITY_IDX0 	INT_PRIORITY_LEVEL1
+#define DRV_SPI_ERROR_INT_SUB_PRIORITY_IDX0 INT_SUBPRIORITY_LEVEL0
+#define DRV_SPI_QUEUE_SIZE_IDX0 			10
+#define DRV_SPI_RESERVED_JOB_IDX0 			1
+
+#define DRV_SPI_TX_DMA_CHANNEL_IDX0 		DMA_CHANNEL_1
+#define DRV_SPI_TX_DMA_THRESHOLD_IDX0 		16
+#define DRV_SPI_RX_DMA_CHANNEL_IDX0 		DMA_CHANNEL_0
+#define DRV_SPI_RX_DMA_THRESHOLD_IDX0 		16
+    
+/*** Timer Driver Configuration ***/
+#define DRV_TMR_INTERRUPT_MODE             true
+#define DRV_TMR_INSTANCES_NUMBER           1
+#define DRV_TMR_CLIENTS_NUMBER             1
+    
+/*** Timer Driver 0 Configuration ***/
+/*#define DRV_TMR_PERIPHERAL_ID_IDX0          TMR_ID_1
+#define DRV_TMR_INTERRUPT_SOURCE_IDX0       INT_SOURCE_TIMER_1
+#define DRV_TMR_INTERRUPT_VECTOR_IDX0       INT_VECTOR_T1
+#define DRV_TMR_ISR_VECTOR_IDX0             _TIMER_1_VECTOR
+#define DRV_TMR_INTERRUPT_PRIORITY_IDX0     INT_PRIORITY_LEVEL1
+#define DRV_TMR_INTERRUPT_SUB_PRIORITY_IDX0 INT_SUBPRIORITY_LEVEL0
+#define DRV_TMR_CLOCK_SOURCE_IDX0           DRV_TMR_CLKSOURCE_INTERNAL
+#define DRV_TMR_PRESCALE_IDX0               TMR_PRESCALE_VALUE_256
+#define DRV_TMR_OPERATION_MODE_IDX0         DRV_TMR_OPERATION_MODE_16_BIT
+#define DRV_TMR_ASYNC_WRITE_ENABLE_IDX0     false
+#define DRV_TMR_POWER_STATE_IDX0            SYS_MODULE_POWER_RUN_FULL*/
+    
+/*** Wi-Fi Driver Configuration ***/
+#define WILC1000_INT_SOURCE INT_SOURCE_EXTERNAL_2
+#define WILC1000_INT_VECTOR INT_VECTOR_INT2
+
+#define WDRV_SPI_INDEX 0
+#define WDRV_SPI_INSTANCE sysObj.spiObjectIdx0
+
+//#define WDRV_NVM_SPACE_ENABLE   0
+//#define WDRV_NVM_SPACE_ADDR (48 * 1024)
+
+#define WDRV_BOARD_TYPE WDRV_BD_TYPE_CURIOSITY
+
+#define WDRV_EXT_RTOS_TASK_SIZE (2048u)
+#define WDRV_EXT_RTOS_TASK_PRIORITY (configMAX_PRIORITIES - 1)
+
+// I/O mappings for general control pins, including CHIP_EN, IRQN, RESET_N and SPI_SSN.
+#define WDRV_CHIP_EN_PORT_CHANNEL   PORT_CHANNEL_F
+#define WDRV_CHIP_EN_BIT_POS        2
+
+#define WDRV_IRQN_PORT_CHANNEL      PORT_CHANNEL_F
+#define WDRV_IRQN_BIT_POS           12
+
+#define WDRV_RESET_N_PORT_CHANNEL   PORT_CHANNEL_A
+#define WDRV_RESET_N_BIT_POS        5
+
+#define WDRV_SPI_SSN_PORT_CHANNEL   PORT_CHANNEL_D
+#define WDRV_SPI_SSN_BIT_POS        5
+
+#define WDRV_DEFAULT_NETWORK_TYPE WDRV_NETWORK_TYPE_INFRASTRUCTURE
+#define WDRV_DEFAULT_CHANNEL 6
+    
+/* The Wi-Fi drivers that user this code are in the IDE project and need these 
+ * macros to compile. */
+#ifndef PIC32_USE_ETHERNET
+    #define WDRV_DEFAULT_SSID clientcredentialWIFI_SSID
+
+    /* See wdrv_wilc1000_api.h for default key examples in the help definitions. */
+    #define WDRV_DEFAULT_SECURITY_MODE clientcredentialWIFI_SECURITY
+    #define WDRV_DEFAULT_WEP_KEYS_40 "5AFB6C8E77" // default WEP40 key
+    #define WDRV_DEFAULT_WEP_KEYS_104 "90E96780C739409DA50034FCAA" // default WEP104 key
+    #define WDRV_DEFAULT_PSK_PHRASE clientcredentialWIFI_PASSWORD
+    #define WDRV_DEFAULT_WPS_PIN "12390212" // default WPS PIN
+#else
+    #define WDRV_DEFAULT_SSID "Placeholder SSID"
+
+    /* See wdrv_wilc1000_api.h for default key examples in the help definitions. */
+    #define WDRV_DEFAULT_SECURITY_MODE 0 /* Place holder. */
+    #define WDRV_DEFAULT_WEP_KEYS_40 "5AFB6C8E77" // default WEP40 key
+    #define WDRV_DEFAULT_WEP_KEYS_104 "90E96780C739409DA50034FCAA" // default WEP104 key
+    #define WDRV_DEFAULT_PSK_PHRASE "Placeholder password" 
+    #define WDRV_DEFAULT_WPS_PIN "12390212" // default WPS PIN
+#endif
+
+#define WDRV_DEFAULT_POWER_SAVE WDRV_FUNC_DISABLED    
 /*** MIIM Driver Configuration ***/
 #define DRV_MIIM_ETH_MODULE_ID              ETH_ID_0
 #define DRV_MIIM_INSTANCES_NUMBER           1

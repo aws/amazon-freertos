@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Socket for Curiosity_PIC32MZEF V1.1.0
+ * Amazon FreeRTOS Secure Socket for Curiosity PIC32MZEF V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

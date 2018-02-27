@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.0
+ * Amazon FreeRTOS V1.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,6 +26,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "FreeRTOS_IP.h" /* FIX ME: Delete if you are not using the FreeRTOS-Plus-TCP library. */
 
 /* Demo includes */
 #include "aws_demo_runner.h"
@@ -43,10 +44,13 @@
 /* Unit test defines. */
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 16 )
 
-/* Static arrays for FreeRTOS+TCP stack initialization for Ethernet network connections
- * are use are below. If you are using an Ethernet connection on your MCU device it is 
- * recommended to use the FreeRTOS+TCP stack. The default values are defined in 
- * FreeRTOSConfig.h. */
+/* The name of the devices for xApplicationDNSQueryHook. */
+#define mainDEVICE_NICK_NAME				"vendor_demo" /* FIX ME.*/
+
+/* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network 
+ * connections are declared below. If you are using an Ethernet connection on your MCU 
+ * device it is recommended to use the FreeRTOS+TCP stack. The default values are 
+ * defined in FreeRTOSConfig.h. */
 
 /* Default MAC address configuration.  The demo creates a virtual network
  * connection that uses this MAC address by accessing the raw Ethernet data
@@ -97,6 +101,9 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR3
 };
 
+/* Used by the pseudo random number generator ulRand(). */
+static UBaseType_t ulNextRand;
+
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not 
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
@@ -111,7 +118,7 @@ void vApplicationDaemonTaskStartupHook( void );
  * start network dependent applications in vApplicationDaemonTaskStartupHook after the
  * network status is up.
  */
-void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
+void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
 
 /**
  * @brief Connects to WiFi.
@@ -122,6 +129,11 @@ static void prvWifiConnect( void );
  * @brief Initializes the board.
  */
 static void prvMiscInitialization( void );
+
+/*
+ * @brief Seeds the pseudo random number generator ulRand().
+ */
+static void prvSRand( UBaseType_t ulSeed );
 
 /*-----------------------------------------------------------*/
 
@@ -159,7 +171,12 @@ int main( void )
 
 static void prvMiscInitialization( void )
 {
-    /* FIX ME. */
+    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be 
+     * running, here.
+     */
+
+    /* Seed the random number generator. */
+    prvSRand( ( unsigned ) time( NULL ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -362,6 +379,8 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
  */
 void vApplicationIdleHook( void )
 {
+    /* FIX ME. If necessary, update to application idle periodic actions. */
+    
     static TickType_t xLastPrint = 0;
     TickType_t xTimeNow;
     const TickType_t xPrintFrequency = pdMS_TO_TICKS( 5000 );
@@ -374,3 +393,111 @@ void vApplicationIdleHook( void )
         xLastPrint = xTimeNow;
     }
 }
+/*-----------------------------------------------------------*/
+
+/**
+* @brief User defined application hook to process names returned by the DNS server.
+*/
+#if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
+    BaseType_t xApplicationDNSQueryHook( const char * pcName )
+    {
+        /* FIX ME. If necessary, update to applicable DNS name lookup actions. */
+
+        BaseType_t xReturn;
+
+        /* Determine if a name lookup is for this node.  Two names are given
+         * to this node: that returned by pcApplicationHostnameHook() and that set
+         * by mainDEVICE_NICK_NAME. */
+        if( strcmp( pcName, pcApplicationHostnameHook() ) == 0 )
+        {
+            xReturn = pdPASS;
+        }
+        else if( strcmp( pcName, mainDEVICE_NICK_NAME ) == 0 )
+        {
+            xReturn = pdPASS;
+        }
+        else
+        {
+            xReturn = pdFAIL;
+        }
+
+        return xReturn;
+    }
+	
+#endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief User defined assertion call. This function is plugged into configASSERT.
+ * See FreeRTOSConfig.h to define configASSERT to something different.
+ */
+void vAssertCalled(const char * pcFile,
+	uint32_t ulLine)
+{
+    /* FIX ME. If necessary, update to applicable assertion routine actions. */
+
+	const uint32_t ulLongSleep = 1000UL;
+	volatile uint32_t ulBlockVariable = 0UL;
+	volatile char * pcFileName = (volatile char *)pcFile;
+	volatile uint32_t ulLineNumber = ulLine;
+
+	(void)pcFileName;
+	(void)ulLineNumber;
+
+	printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
+	fflush(stdout);
+
+	/* Setting ulBlockVariable to a non-zero value in the debugger will allow
+	* this function to be exited. */
+	taskDISABLE_INTERRUPTS();
+	{
+		while (ulBlockVariable == 0UL)
+		{
+			vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
+		}
+	}
+	taskENABLE_INTERRUPTS();
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief User defined psuedo random number generator. Generates a pseudo random 
+ * number needed by the the FreeRTOS-Plus-TCP library. 
+ */
+uint32_t ulRand(void)
+{
+    /* FIX ME:  If necessary, update to custom random number generator. */
+
+	const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
+
+	ulNextRand = (ulMultiplier * ulNextRand) + ulIncrement;
+
+	return( (uint32_t) (ulNextRand >> 16UL) & 0x7fffUL );
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Initializing seed of the global next random number.
+ */
+static void prvSRand( UBaseType_t uxSeed )
+{
+    /* Utility function to seed the pseudo random number generator. */
+    ulNextRand = uxSeed;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief User defined application hook need by the FreeRTOS-Plus-TCP library.
+ */
+#if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) || ( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
+    const char * pcApplicationHostnameHook(void)
+    {
+        /* FIX ME: If necessary, update to applicable registration name. */
+
+        /* This function will be called during the DHCP: the machine will be registered 
+         * with an IP address plus this name. */
+        return clientcredentialIOT_THING_NAME;
+    }
+
+#endif

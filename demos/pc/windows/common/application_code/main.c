@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.0
+ * Amazon FreeRTOS V1.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -274,7 +274,7 @@ uint32_t ulRand( void )
 
     ulNextRand = ( ulMultiplier * ulNextRand ) + ulIncrement;
 
-    return( ( int ) ( ulNextRand >> 16UL ) & 0x7fffUL );
+    return( ( uint32_t ) ( ulNextRand >> 16UL ) & 0x7fffUL );
 }
 /*-----------------------------------------------------------*/
 
@@ -326,9 +326,8 @@ static void prvMiscInitialisation( void )
 
     const char * pcApplicationHostnameHook( void )
     {
-        /* Assign the name "FreeRTOS" to this network node.  This function will
-         * be called during the DHCP: the machine will be registered with an IP
-         * address plus this name. */
+        /* This function will be called during the DHCP: the machine will be registered 
+         * with an IP address plus this name. */
         return mainHOST_NAME;
     }
 

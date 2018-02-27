@@ -77,6 +77,12 @@ typedef unsigned long UBaseType_t;
 #define portTICK_PERIOD_MS			( ( TickType_t ) 1000 / configTICK_RATE_HZ )
 #define portBYTE_ALIGNMENT			8
 /*-----------------------------------------------------------*/
+        
+        /* Compiler directives. */
+#define portWEAK_SYMBOL				__attribute__((weak))
+
+/*-----------------------------------------------------------*/
+
 
 /* Scheduler utilities. */
 #define portYIELD()											\

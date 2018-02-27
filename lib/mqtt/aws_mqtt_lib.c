@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Library V1.1.0
+ * Amazon FreeRTOS MQTT Library V1.1.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -2694,6 +2694,7 @@ MQTTReturnCode_t MQTT_Subscribe( MQTTContext_t * pxMQTTContext,
     mqttconfigASSERT( pxMQTTContext->xBufferPoolInterface.pxGetBufferFxn != NULL );
     mqttconfigASSERT( pxMQTTContext->xBufferPoolInterface.pxReturnBufferFxn != NULL );
     mqttconfigASSERT( pxSubscribeParams != NULL );
+    mqttconfigASSERT( pxSubscribeParams->pucTopic != NULL );
     mqttconfigASSERT( pxSubscribeParams->xQos != eMQTTQoS2 ); /* QoS2 is not supported. */
 
     mqttconfigDEBUG_LOG( ( "Initiating MQTT subscribe.\r\n" ) );

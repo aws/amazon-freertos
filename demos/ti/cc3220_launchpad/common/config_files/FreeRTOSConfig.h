@@ -28,7 +28,11 @@
 
 
 #ifndef UART_PRINT
+
+/* Ensure stdint is only used by the compiler, and not the assembler. */
+#ifndef __ASSEMBLER__
     #include "uart_term.h"
+#endif
     #define UART_PRINT    Report
 #endif
 
@@ -91,8 +95,10 @@
 
 /* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */
+#ifndef __ASSEMBLER__ /* Ensure stdint is only used by the compiler, and not the assembler. */
 extern void vLoggingPrintf( const char * pcFormat,
                             ... );
+#endif
 #define configPRINTF( X )    vLoggingPrintf X
 
 

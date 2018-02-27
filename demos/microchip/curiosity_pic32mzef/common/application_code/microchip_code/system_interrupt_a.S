@@ -45,6 +45,28 @@ SOFTWARE
 
 #include "ISR_Support.h"
 
+
+/* External Interrupt Instance 0 Interrupt */
+   .extern  IntHandlerExternalInterruptInstance0
+
+   .section	.vector_13,code, keep
+   .equ     __vector_dispatch_13, IntVectorExternalInterruptInstance0
+   .global  __vector_dispatch_13
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorExternalInterruptInstance0
+
+IntVectorExternalInterruptInstance0:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerExternalInterruptInstance0
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorExternalInterruptInstance0
+
+
  
 
 /* TMR Instance 0 Interrupt */
@@ -68,6 +90,65 @@ IntVectorDrvTmrInstance0:
     .end	IntVectorDrvTmrInstance0
 
 
+/* SPI Instance 0 Interrupt */
+   .extern  IntHandlerSPIRxInstance0
+
+   .section	.vector_143,code, keep
+   .equ     __vector_dispatch_143, IntVectorSPIRxInstance0
+   .global  __vector_dispatch_143
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorSPIRxInstance0
+
+IntVectorSPIRxInstance0:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerSPIRxInstance0
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorSPIRxInstance0
+
+
+   .extern  IntHandlerSPITxInstance0
+
+   .section	.vector_144,code, keep
+   .equ     __vector_dispatch_144, IntVectorSPITxInstance0
+   .global  __vector_dispatch_144
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorSPITxInstance0
+
+IntVectorSPITxInstance0:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerSPITxInstance0
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorSPITxInstance0
+
+
+   .extern  IntHandlerSPIFaultInstance0
+
+   .section	.vector_142,code, keep
+   .equ     __vector_dispatch_142, IntVectorSPIFaultInstance0
+   .global  __vector_dispatch_142
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorSPIFaultInstance0
+
+IntVectorSPIFaultInstance0:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerSPIFaultInstance0
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorSPIFaultInstance0
 
 
 /* USART Instance 0 Interrupt */
@@ -90,6 +171,50 @@ IntVectorDrvUsartReceiveInstance0:
     nop
     portRESTORE_CONTEXT
     .end	IntVectorDrvUsartReceiveInstance0
+
+
+
+/* Sytem DMA Instance 1 Interrupt */
+   .extern  IntHandlerSysDmaInstance1
+
+   .section	.vector_134,code, keep
+   .equ     __vector_dispatch_134, IntVectorSysDmaInstance1
+   .global  __vector_dispatch_134
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorSysDmaInstance1
+
+IntVectorSysDmaInstance1:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerSysDmaInstance1
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorSysDmaInstance1
+
+
+/* Sytem DMA Instance 2 Interrupt */
+   .extern  IntHandlerSysDmaInstance2
+
+   .section	.vector_135,code, keep
+   .equ     __vector_dispatch_135, IntVectorSysDmaInstance2
+   .global  __vector_dispatch_135
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorSysDmaInstance2
+
+IntVectorSysDmaInstance2:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerSysDmaInstance2
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorSysDmaInstance2
+
 
 
    .extern  IntHandlerDrvUsartTransmitInstance0

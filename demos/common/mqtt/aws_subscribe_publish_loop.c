@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.0
+ * Amazon FreeRTOS V1.2.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -86,14 +86,14 @@
  */
 typedef struct SubpubUserData
 {
-    const char * pcExpectedString;        /**< Informs the MQTT callback of the next expected string. */
-    uint32_t ulExpectedUint32;            /**< Informs the MQTT callback of the next expected integer. */
-    BaseType_t xCallbackStatus;           /**< Used to communicate the success or failure of the callback function.
-                                           *   xCallbackStatus is set to pdFALSE before the callback is executed, and is
-                                           *   set to pdPASS inside the callback only if the callback receives the expected
-                                           *   data. */
-    SemaphoreHandle_t xWakeUpSemaphore;   /**< Handle of semaphore to wake up the task. */
-    const char cTopic[ subpubTopicSize ]; /**< Topic to subscribe and publish to. */
+    const char * pcExpectedString;      /**< Informs the MQTT callback of the next expected string. */
+    uint32_t ulExpectedUint32;          /**< Informs the MQTT callback of the next expected integer. */
+    BaseType_t xCallbackStatus;         /**< Used to communicate the success or failure of the callback function.
+                                         *   xCallbackStatus is set to pdFALSE before the callback is executed, and is
+                                         *   set to pdPASS inside the callback only if the callback receives the expected
+                                         *   data. */
+    SemaphoreHandle_t xWakeUpSemaphore; /**< Handle of semaphore to wake up the task. */
+    char cTopic[ subpubTopicSize ];     /**< Topic to subscribe and publish to. */
 } SubpubUserData_t;
 
 /**
@@ -612,7 +612,7 @@ static void prvSubscribePublishDemo( MQTTAgentHandle_t xMQTTClientHandle,
 
     xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
     xConnectParams.xFlags = 0;
-    xConnectParams.xURLIsIPAddress = pdFALSE; /* Deprecated. */
+    xConnectParams.xURLIsIPAddress = pdFALSE;    /* Deprecated. */
     xConnectParams.xSecuredConnection = pdFALSE; /* Deprecated. */
     xConnectParams.pcCertificate = NULL;
     xConnectParams.ulCertificateSize = 0;

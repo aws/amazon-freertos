@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Agent V1.1.0
+ * Amazon FreeRTOS MQTT Agent V1.1.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -671,7 +671,6 @@ static uint32_t prvMQTTSendCallback( void * pvSendContext,
     return ulBytesSent;
 }
 /*-----------------------------------------------------------*/
-
 static MQTTBool_t prvMQTTEventCallback( void * pvCallbackContext,
                                         const MQTTEventCallbackParams_t * const pxParams )
 {
@@ -933,11 +932,11 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
 
                 /* Negotiate ALPN if requested. */
                 if( ( xStatus == pdPASS ) &&
-                    ( ( pxEventData->u.pxConnectParams->xFlags & mqttagentUSE_AWS_IOT_ALPN_443 ) ) != 0 )
+                    ( ( ( pxEventData->u.pxConnectParams->xFlags & mqttagentUSE_AWS_IOT_ALPN_443 ) ) != 0 ) )
                 {
                     if( SOCKETS_SetSockOpt( pxConnection->xSocket,
                                             0, /* Level - Unused. */
-                                            SOCKETS_SO_ALPN_PROTOCOLS, 
+                                            SOCKETS_SO_ALPN_PROTOCOLS,
                                             ppcAlpns,
                                             sizeof( ppcAlpns ) / sizeof( ppcAlpns[ 0 ] ) ) != SOCKETS_ERROR_NONE )
                     {
@@ -1363,8 +1362,8 @@ static void prvInitiateMQTTConnect( MQTTEventData_t * const pxEventData )
         pxConnection->pxCallback = pxEventData->u.pxConnectParams->pxCallback;
 
         /* Check if the connection is to be secured. */
-        if( ( pxEventData->u.pxConnectParams->xSecuredConnection == pdFALSE) &&
-            ( pxEventData->u.pxConnectParams->xFlags & mqttagentREQUIRE_TLS ) == 0 )
+        if( ( pxEventData->u.pxConnectParams->xSecuredConnection == pdFALSE ) &&
+            ( ( pxEventData->u.pxConnectParams->xFlags & mqttagentREQUIRE_TLS ) == 0 ) )
         {
             pxConnection->uxFlags &= ~mqttCONNECTION_SECURED;
         }

@@ -58,10 +58,13 @@ SOFTWARE
 #include "system/ports/sys_ports.h"
 #include "system/debug/sys_debug.h"
 #include "system/command/sys_command.h"
+#include "system/dma/sys_dma.h"
 #include "driver/ethmac/drv_ethmac.h"
 #include "driver/miim/drv_miim.h"
+#include "driver/spi/drv_spi.h"
 #include "tcpip/tcpip.h"
-
+#include "osal/osal.h"
+#include "driver/wifi/wilc1000/include/wdrv_wilc1000_api.h"
 extern void SYS_RESET_SoftwareReset(void);
 #include "FreeRTOS.h"
 #include "task.h"
@@ -101,9 +104,13 @@ typedef struct
 {
     SYS_MODULE_OBJ  sysTmr;
     SYS_MODULE_OBJ  drvTmr0;
+    SYS_MODULE_OBJ  drvNvm;
     SYS_MODULE_OBJ  drvUsart0;
     SYS_MODULE_OBJ  sysDebug;
     SYS_MODULE_OBJ  sysConsole0;
+    SYS_MODULE_OBJ  sysDma;
+    /*** SPI Object for Index 0 ***/
+    SYS_MODULE_OBJ				spiObjectIdx0;
     SYS_MODULE_OBJ  tcpip;
     SYS_MODULE_OBJ  drvMiim;
 
