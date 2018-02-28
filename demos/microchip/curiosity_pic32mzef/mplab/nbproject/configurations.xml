@@ -17,6 +17,7 @@
           <itemPath>../../../common/include/aws_simple_tcp_echo_server.h</itemPath>
           <itemPath>../../../common/include/aws_subscribe_publish_loop.h</itemPath>
           <itemPath>../../../common/include/aws_tcp_echo_client_single_tasks.h</itemPath>
+          <itemPath>../../../common/include/aws_application_version.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="source" projectFiles="true">
           <itemPath>../../../common/demo_runner/aws_demo_runner.c</itemPath>
@@ -27,6 +28,7 @@
           <itemPath>../../../common/tcp/aws_tcp_echo_client_separate_tasks.c</itemPath>
           <itemPath>../../../common/tcp/aws_tcp_echo_client_single_task.c</itemPath>
           <itemPath>../../../common/logging/aws_logging_task_dynamic_buffers.c</itemPath>
+          <itemPath>../../../common/ota/aws_ota_update_demo.c</itemPath>
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="f2" displayName="microchip_code" projectFiles="true">
@@ -186,8 +188,20 @@
           <itemPath>../../../../lib/mqtt/aws_mqtt_agent.c</itemPath>
           <itemPath>../../../../lib/mqtt/aws_mqtt_lib.c</itemPath>
         </logicalFolder>
+        <logicalFolder name="f2" displayName="ota" projectFiles="true">
+          <itemPath>../../../../lib/ota/aws_ota_agent.c</itemPath>
+          <itemPath>../../../../lib/ota/aws_ota_cbor.c</itemPath>
+          <itemPath>../../../../lib/ota/aws_rsprintf.c</itemPath>
+          <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_nvm.c</itemPath>
+          <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_ota_pal.c</itemPath>
+          <itemPath>../../../../lib/ota/aws_ota_agent_internal.h</itemPath>
+          <itemPath>../../../../lib/ota/aws_ota_cbor_internal.h</itemPath>
+          <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_nvm.h</itemPath>
+          <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_codesign_keys.h</itemPath>
+        </logicalFolder>
         <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
           <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/pkcs11.c</itemPath>
+          <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/pkcs11_nvm.c</itemPath>
         </logicalFolder>
         <logicalFolder name="secure_sockets"
                        displayName="secure_sockets"
@@ -1635,11 +1649,20 @@
           <itemPath>../../../../lib/third_party/pkcs11/pkcs11f.h</itemPath>
           <itemPath>../../../../lib/third_party/pkcs11/pkcs11t.h</itemPath>
         </logicalFolder>
+        <logicalFolder name="f1" displayName="tinycbor" projectFiles="true">
+          <itemPath>../../../../lib/third_party/tinycbor/cborencoder.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborencoder_close_container_checked.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborparser.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborparser_dup_string.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborpretty.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborerrorstrings.c</itemPath>
+        </logicalFolder>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
+      <itemPath>../common/application_code/microchip_code/app_mz.ld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -1661,6 +1684,9 @@
     <Elem>../../../common/tcp</Elem>
     <Elem>../../../../lib/pkcs11/portable/microchip/pic32mzef</Elem>
     <Elem>../../../common/logging</Elem>
+    <Elem>../../../common/ota</Elem>
+    <Elem>../../../../lib/ota</Elem>
+    <Elem>../../../../lib/third_party/tinycbor</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -1684,6 +1710,21 @@
         <archiverTool>
         </archiverTool>
         <loading>
+          <makeArtifact PL="../../../../lib/third_party/mcu_vendor/microchip/harmony/v2.04/bootloader/firmware/harmony_boot.X"
+                        CT="1"
+                        CN="pic32mz_ef_curiosity"
+                        AC="true"
+                        BL="true"
+                        WD="../../../../lib/third_party/mcu_vendor/microchip/harmony/v2.04/bootloader/firmware/harmony_boot.X"
+                        BC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity"
+                        DBC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity TYPE_IMAGE=DEBUG_RUN"
+                        CC="rm -rf &quot;build/pic32mz_ef_curiosity&quot; &quot;dist/pic32mz_ef_curiosity&quot;"
+                        OP="dist/pic32mz_ef_curiosity/production/harmony_boot.X.production.hex"
+                        DOP="dist/pic32mz_ef_curiosity/debug/harmony_boot.X.debug.elf"
+                        FL="dist/pic32mz_ef_curiosity/production/harmony_boot.X.production.hex"
+                        PD="dist/pic32mz_ef_curiosity/production/harmony_boot.X.production.elf"
+                        DD="dist/pic32mz_ef_curiosity/debug/harmony_boot.X.debug.elf">
+          </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
@@ -1694,8 +1735,8 @@
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
-        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
-        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep>xc32-objcopy -I ihex ${ImagePath} -O binary ${ImageDir}\mplab.${IMAGE_TYPE}.bin</makeCustomizationPostStep>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
@@ -1709,12 +1750,12 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\common\config_files;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\bsp;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\..\tmp;..\common\application_code\microchip_code;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\GCC;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\system\common;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver_extension;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver_extension\common\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\source;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver\include"/>
+                  value="..\..\..\..\lib\pkcs11\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\common\config_files;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\bsp;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\..\tmp;..\common\application_code\microchip_code;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\GCC;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\system\common;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver_extension;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver_extension\common\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\source;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.04\framework\driver\wifi\wilc1000\wireless_driver\include;..\..\..\..\lib\ota\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\ota"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
         <property key="make-warnings-into-errors" value="false"/>
-        <property key="optimization-level" value=""/>
+        <property key="optimization-level" value="-O1"/>
         <property key="place-data-into-section" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -1726,6 +1767,7 @@
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
+        <appendMe value="-mnewlib-libc"/>
       </C32>
       <C32-AR>
         <property key="additional-options-chop-files" value="false"/>
@@ -1777,7 +1819,7 @@
         <property key="linker-symbols" value=""/>
         <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
         <property key="no-startup-files" value="false"/>
-        <property key="oXC32ld-extra-opts" value=""/>
+        <property key="oXC32ld-extra-opts" value="-mnewlib-libc"/>
         <property key="optimization-level" value=""/>
         <property key="preprocessor-macros" value=""/>
         <property key="remove-unused-sections" value="true"/>

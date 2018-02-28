@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.1
+ * Amazon FreeRTOS V1.2.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,13 +43,23 @@
 #include "aws_logging_task.h"
 #include "sys_module.h"
 
+/* Application version info. */
+#include "aws_application_version.h"
+
+/* Declare the firmware version structure for all to see. */
+const AppVersion32_t xAppFirmwareVersion = {
+   .u.x.ucMajor = APP_VERSION_MAJOR,
+   .u.x.ucMinor = APP_VERSION_MINOR,
+   .u.x.usBuild = APP_VERSION_BUILD,
+};
+
 /* Sleep on this platform */
 #define Sleep( nMs )    vTaskDelay( pdMS_TO_TICKS( nMs ) );
 
 #define mainDEVICE_NICK_NAME                "Microchip_Demo"
 
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 25 )
 
 
 /* The default IP and MAC address used by the demo.  The address configuration

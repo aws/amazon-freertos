@@ -150,7 +150,7 @@
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
-    #define configLOGGING_MAX_MESSAGE_LENGTH            100
+    #define configLOGGING_MAX_MESSAGE_LENGTH            128
 
 /* Set to 1 to prepend each log message with a message number, the task name,
  * and a time stamp. */

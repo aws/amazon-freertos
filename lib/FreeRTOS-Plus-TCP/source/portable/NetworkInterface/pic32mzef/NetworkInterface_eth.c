@@ -192,6 +192,7 @@
         {
             { "macinfo", _Command_MacInfo, ": Check MAC statistics" },
             { "netinfo", _Command_NetInfo, ":Net info"              },
+            {"version",     _Command_Version,              ":Version info"},
         };
     #endif /* (PIC32_MAC_DEBUG_COMMANDS != 0) */
 
@@ -838,6 +839,13 @@
             return true;
         }
 
+#include "aws_application_version.h"
+
+static int _Command_Version(SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char** argv)
+{
+    configPRINTF( ( "App version - maj: %d, min: %d, build: %d\r\n",  xAppFirmwareVersion.u.x.ucMajor, xAppFirmwareVersion.u.x.ucMinor, xAppFirmwareVersion.u.x.usBuild) );
+    return 0;
+}
 
     #endif /* (PIC32_MAC_DEBUG_COMMANDS != 0) */
 #endif /* #ifdef PIC32_USE_ETHERNET */

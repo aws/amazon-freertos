@@ -12,7 +12,7 @@
 *  File Name:  pic32_NetworkInterface.c
 *  Copyright 2017 Microchip Technology Incorporated and its subsidiaries.
 *
-*  Amazon FreeRTOS Wi-Fi for Curiosity PIC32MZEF V1.0.1
+*  Amazon FreeRTOS Wi-Fi for Curiosity PIC32MZEF V1.0.2
 *  Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,6 +32,7 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 *  SOFTWARE
 *******************************************************************************/
+#ifndef PIC32_USE_ETHERNET
 #include <sys/kmem.h>
 
 #include "FreeRTOS.h"
@@ -557,3 +558,4 @@ WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
 {
     return eWiFiNotSupported;
 }
+#endif

@@ -29,6 +29,7 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 *  SOFTWARE
 *******************************************************************************/
+#ifndef PIC32_USE_ETHERNET
 #include <sys/kmem.h>
 
 #include "FreeRTOS.h"
@@ -57,7 +58,7 @@
 
 #include "NetworkConfig.h"
 
-#ifndef PIC32_USE_ETHERNET
+
     #include "aws_wifi.h"
 
     /* local definitions and data */

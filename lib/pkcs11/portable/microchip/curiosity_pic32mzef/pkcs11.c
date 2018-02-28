@@ -1,7 +1,7 @@
 /*
   * Copyright 2017 Microchip Technology Incorporated and its subsidiaries.
   * 
-  * Amazon FreeRTOS PKCS#11 for Curiosity PIC32MZEF V1.0.0 Beta 1
+  * Amazon FreeRTOS PKCS#11 for Curiosity PIC32MZEF V1.0.1
   * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
   *
   * Permission is hereby granted, free of charge, to any person obtaining a copy of 
@@ -52,19 +52,31 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "driver/flash/drv_flash.h"
+#include "pkcs11_nvm.h"
+#include <sys/kmem.h>
 /**
  * @brief File storage location definitions.
  */
 #define pkcs11FILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
 #define pkcs11FILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 
-// flash section where the certificates are stored
-// reserve the last flash page
-// keep it page aligned and size of the page size(16 KB)!
-#define PKCS11_CERTIFICATE_SECTION_START_ADDRESS    (0x9d200000 - 0x4000)    
-#define PKCS11_CERTIFICATE_SECTION_SIZE             (DRV_FLASH_PAGE_SIZE)    
 
+// TODO aa:
+#define pkcs11FILE_NAME_PUBLISHER_CERTIFICATE  "FreeRTOS_Publisher_Certificate.dat"
+#define pkcs11FILE_NAME_PUBLISHER_KEY          "FreeRTOS_Publisher_Key.dat"
+
+
+// flash section where the certificates are stored
+// reserve the last flash page in the upper boot alias
+// keep it page aligned and size of the page size(16 KB)!
+// use k1 pointers to avoid issues with reading from cache
+#define PKCS11_CERTIFICATE_SECTION_START_ADDRESS    (__UPPERBOOTALIASLASTPAGE_BASE)    
+#define PKCS11_CERTIFICATE_SECTION_SIZE             (__UPPERBOOTALIASLASTPAGE_LENGTH)    
+
+// the number of the supported certificates:
+//      - client certificate + key
+//      - signing certificate + key
+#define PKCS11_CERTIFICATES_NO          4
 
 /**
  * @brief Cryptoki module attribute definitions.
@@ -76,7 +88,7 @@
 
 #define pkcs11SUPPORTED_KEY_BITS              2048
 
-#define pkcs11OBJECT_CERTIFICATE_MAX_SIZE     (PKCS11_CERTIFICATE_SECTION_SIZE / 2 - sizeof(CK_ULONG) * 2)
+#define pkcs11OBJECT_CERTIFICATE_MAX_SIZE     (PKCS11_CERTIFICATE_SECTION_SIZE / PKCS11_CERTIFICATES_NO - sizeof(CK_ULONG) * 2)
 
 #define pkcs11OBJECT_FLASH_CERT_PRESENT       ( 0xABCDEFuL )
 
@@ -125,13 +137,15 @@ typedef struct
 
     CK_ULONG ulCertificatePresent;
     CK_ULONG ulCertificateSize;
-    CK_CHAR cCertificateData[PKCS11_CERTIFICATE_SECTION_SIZE / 2 - sizeof(CK_ULONG) * 2];
+    CK_CHAR cCertificateData[pkcs11OBJECT_CERTIFICATE_MAX_SIZE];
 }P11CertData_t;
 
 typedef struct
 {
     P11CertData_t   xDeviceCertificate;
     P11CertData_t   xDeviceKey;
+    P11CertData_t   xPublisherCertificate;
+    P11CertData_t   xPublisherKey;
 }P11KeyConfig_t;
 
 int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen );
@@ -139,24 +153,20 @@ int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t
 static void PIC32MZ_HW_TRNG_Initialize(void);
 static uint64_t PIC32MZ_HW_TRNG_Get(void);
 
+
+
 /**
  * @brief Certificates/key storage in flash.
+   The last flash page in the upper boot alias!
  */
-const P11KeyConfig_t __attribute__((space(prog), section("PKCS11_CERTIFICATE_SECTION"), address(PKCS11_CERTIFICATE_SECTION_START_ADDRESS))) __attribute__((keep)) P11ConfigFlash;
+// const P11KeyConfig_t __attribute__((space(prog), section("PKCS11_CERTIFICATE_SECTION"), address(PKCS11_CERTIFICATE_SECTION_START_ADDRESS))) __attribute__((keep)) P11ConfigFlash;
 
 
 /**
  * Certificates/key save area for flash operations
 */
-P11KeyConfig_t P11ConfigSave;
+static P11KeyConfig_t P11ConfigSave;
 
-
-const P11KeyConfig_t* P11ConfigFlashPtr = &P11ConfigFlash;
-
-/**
- * Flash driver handle; Static driver, not used.
- */
-#define PKCS11_FLASH_HANDLE     0    
 
 /*-----------------------------------------------------------*/
 
@@ -177,52 +187,65 @@ static BaseType_t prvSaveFile( char * pcFileName,
                                uint8_t * pucData,
                                uint32_t ulDataSize )
 {
-    uint8_t *pFlashDest, *pDataSrc;
+    uint32_t *pFlashDest, *pDataSrc;
     int rowIx, nRows;
     const P11CertData_t* pCertFlash;
     P11CertData_t* pCertSave = 0;
     CK_RV xResult = pdFALSE;
 
+    const P11KeyConfig_t* P11ConfigFlashPtr = (const P11KeyConfig_t*)KVA0_TO_KVA1(PKCS11_CERTIFICATE_SECTION_START_ADDRESS);
+    P11KeyConfig_t* P11ConfigSavePtr = (P11KeyConfig_t*)KVA0_TO_KVA1((uint32_t)&P11ConfigSave);
+
+
     if(ulDataSize <= sizeof(pCertSave->cCertificateData))
     {   // enough room to store the certificate
         if(strcmp(pcFileName, pkcs11FILE_NAME_CLIENT_CERTIFICATE) == 0)
         {
-            pCertSave = &P11ConfigSave.xDeviceCertificate;
+            pCertSave = &P11ConfigSavePtr->xDeviceCertificate;
             pCertFlash = &P11ConfigFlashPtr->xDeviceCertificate;
         }
         else if(strcmp(pcFileName, pkcs11FILE_NAME_KEY) == 0)
         {
-            pCertSave = &P11ConfigSave.xDeviceKey;
+            pCertSave = &P11ConfigSavePtr->xDeviceKey;
             pCertFlash = &P11ConfigFlashPtr->xDeviceKey;
+        }
+        else if(strcmp(pcFileName, pkcs11FILE_NAME_PUBLISHER_CERTIFICATE) == 0)
+        {
+            pCertSave = &P11ConfigSavePtr->xPublisherCertificate;
+            pCertFlash = &P11ConfigFlashPtr->xPublisherCertificate;
+        }
+        else if(strcmp(pcFileName, pkcs11FILE_NAME_PUBLISHER_KEY) == 0)
+        {
+            pCertSave = &P11ConfigSavePtr->xPublisherKey;
+            pCertFlash = &P11ConfigFlashPtr->xPublisherKey;
         }
 
         if(pCertSave != 0)
         {   // can proceed with the write
-            P11ConfigSave = *P11ConfigFlashPtr;    // copy the existent before erase flash
+            *P11ConfigSavePtr = *P11ConfigFlashPtr;    // copy the (whole) existent data before erasing flash
             memcpy(pCertSave->cCertificateData, pucData, ulDataSize);
             pCertSave->ulCertificatePresent = pkcs11OBJECT_FLASH_CERT_PRESENT;
             pCertSave->ulCertificateSize = ulDataSize;
             // now update the flash
-            nRows = DRV_FLASH_PAGE_SIZE / DRV_FLASH_ROW_SIZE;
-            pFlashDest =  (uint8_t*)P11ConfigFlashPtr;
-            pDataSrc = (uint8_t*)&P11ConfigSave;
+            nRows = PKCS11_CERTIFICATE_SECTION_SIZE / AWS_NVM_ROW_SIZE;
+            pFlashDest =  (uint32_t*)P11ConfigFlashPtr;
+            pDataSrc = (uint32_t*)P11ConfigSavePtr;
 
             // start critical
             taskENTER_CRITICAL();
-            DRV_FLASH_ErasePage(PKCS11_FLASH_HANDLE, (uint32_t)P11ConfigFlashPtr);
-            while(DRV_FLASH_IsBusy(PKCS11_FLASH_HANDLE));
-            taskEXIT_CRITICAL();
+            AWS_UpperBootPage4ProtectionDisable();
+            AWS_UpperBootPage4Erase();
 
             // start writing
             for(rowIx = 0; rowIx < nRows; rowIx++)
             {
-                taskENTER_CRITICAL();
-                DRV_FLASH_WriteRow(PKCS11_FLASH_HANDLE, (uint32_t)pFlashDest, (uint32_t*)pDataSrc);
-                while(DRV_FLASH_IsBusy(PKCS11_FLASH_HANDLE));
-                taskEXIT_CRITICAL();
-                pFlashDest += DRV_FLASH_ROW_SIZE;
-                pDataSrc += DRV_FLASH_ROW_SIZE;
+                AWS_UpperBootWriteRow(pFlashDest, pDataSrc);
+                pFlashDest += AWS_NVM_ROW_SIZE / sizeof(uint32_t);
+                pDataSrc += AWS_NVM_ROW_SIZE / sizeof(uint32_t);
             }
+
+            AWS_UpperBootPage4ProtectionEnable();
+            taskEXIT_CRITICAL();
 
             // done; verify
             if(memcmp(pCertFlash, pCertSave, ulDataSize) == 0)
@@ -243,7 +266,9 @@ static BaseType_t prvSaveFile( char * pcFileName,
  */
 
 
-static BaseType_t prvReadFile( char * pcFileName,
+// TODO: check if making this function public
+// is the correct way to access the signer certificate
+/*static*/ BaseType_t prvReadFile( char * pcFileName,
                                uint8_t ** ppucData,
                                uint32_t * pulDataSize )
 {
@@ -252,6 +277,8 @@ static BaseType_t prvReadFile( char * pcFileName,
     uint8_t* pCertData = 0;
     const P11CertData_t* pCertFlash = 0;
 
+    const P11KeyConfig_t* P11ConfigFlashPtr = (const P11KeyConfig_t*)KVA0_TO_KVA1(PKCS11_CERTIFICATE_SECTION_START_ADDRESS);
+
     if(strcmp(pcFileName, pkcs11FILE_NAME_CLIENT_CERTIFICATE) == 0)
     {
         pCertFlash = &P11ConfigFlashPtr->xDeviceCertificate;
@@ -259,6 +286,14 @@ static BaseType_t prvReadFile( char * pcFileName,
     else if(strcmp(pcFileName, pkcs11FILE_NAME_KEY) == 0)
     {
         pCertFlash = &P11ConfigFlashPtr->xDeviceKey;
+    }
+    else if(strcmp(pcFileName, pkcs11FILE_NAME_PUBLISHER_CERTIFICATE) == 0)
+    {
+        pCertFlash = &P11ConfigFlashPtr->xPublisherCertificate;
+    }
+    else if(strcmp(pcFileName, pkcs11FILE_NAME_PUBLISHER_KEY) == 0)
+    {
+        pCertFlash = &P11ConfigFlashPtr->xPublisherKey;
     }
 
     if(pCertFlash != 0 && pCertFlash->ulCertificatePresent == pkcs11OBJECT_FLASH_CERT_PRESENT)

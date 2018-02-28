@@ -1,7 +1,26 @@
+Change Log for Amazon FreeRTOS V1.2.2 02/27/2018
+
+OTA Agent V0.9.3
+    - Formatting update.
+
+OTA PAL for Curiosity PIC32MZEF V0.9.0
+    - Beta release of the OTA Update support for the Microchip Curiosity PIC32MZEF.
+
+PKCS#11 for Curiosity_PIC32MZEF V1.0.1
+    - Added support for the management of OTA update code signing keys.
+
+Wi-Fi for Curiosity PIC32MZEF V1.0.1
+    - Updated to conditionally compile the entire file.
+
+---------------------------------------------------------------------------------------
+
 Change Log for Amazon FreeRTOS V1.2.1 02/23/2018
 
     - Added an IAR IDE demo project for the Texas Instruments CC3220SF-LAUNCHXL.
     - Added Wi-Fi support for the Microchip Curiosity PIC32MZEF.
+
+FreeRTOS+TCP V2.0.2
+    - Improved NULL variable check in buffer management.
 
 MQTT Agent V1.1.1
     - Minor bug fix checking for a NULL pointer.
