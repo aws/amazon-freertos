@@ -1,3 +1,8 @@
+Change Log for Amazon FreeRTOS V1.2.3 03/29/2018
+    - Fixed TI IAR project build failure.
+
+---------------------------------------------------------------------------------------
+
 Change Log for Amazon FreeRTOS V1.2.2 02/27/2018
 
 OTA Agent V0.9.3

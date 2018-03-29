@@ -211,8 +211,8 @@
                 <debug>1</debug>
                 <option>
                     <name>CCDefines</name>
-                    <state>_DLIB_FILE_DESCRIPTOR
-</state>
+                    <state>_DLIB_FILE_DESCRIPTOR</state>
+                    <state>__little_endian__</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
