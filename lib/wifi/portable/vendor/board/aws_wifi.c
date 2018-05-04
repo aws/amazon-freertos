@@ -25,13 +25,14 @@
 
 /**
  * @file aws_wifi.c
- * @brief WiFi Interface.
+ * @brief Wi-Fi Interface.
  */
 
-/* Socket and WiFi interface includes. */
+/* Socket and Wi-Fi interface includes. */
+#include "FreeRTOS.h"
 #include "aws_wifi.h"
 
-/* WiFi configuration includes. */
+/* Wi-Fi configuration includes. */
 #include "aws_wifi_config.h"
 
 /*-----------------------------------------------------------*/
@@ -178,8 +179,14 @@ WIFIReturnCode_t WIFI_SetPMMode( WIFIPMMode_t xPMModeType,
 
 WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
                                  void * pvOptionValue )
-                                 {
+{
     /* FIX ME. */
     return eWiFiNotSupported;
 }
 /*-----------------------------------------------------------*/
+
+BaseType_t WIFI_IsConnected(void)
+{
+	/* FIX ME. */
+	return pdFALSE;
+}

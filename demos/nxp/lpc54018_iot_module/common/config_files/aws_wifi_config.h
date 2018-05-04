@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,12 +43,38 @@
 
 /**
  * @brief Max passphrase length.
+ * 
+ * This length is designated by the Wi-Fi driver as both the WPA PSK and
+ * Passphrase length.
  */
-#define wificonfigMAX_PASSPHRASE_LEN          ( 32 )
+#define wificonfigMAX_PASSPHRASE_LEN          ( 64 )
 
 /**
  * @brief DNS query timeout when getting a host IP.
  */
 #define wificonfigDNS_QUERY_TIMEOUT           ( 10000 )
+
+/**
+ * @brief Soft Access point SSID
+ */
+#define wificonfigACCESS_POINT_SSID_PREFIX    ( "ConfigureMe" )
+
+/**
+ * @brief Soft Access point Passkey
+ */
+#define wificonfigACCESS_POINT_PASSKEY        ( "awsiotdevice" )
+
+/**
+ * @brief Soft Access point Channel
+ */
+#define wificonfigACCESS_POINT_CHANNEL        ( 11 )
+
+/**
+ * @brief Soft Access point security
+ * WPA2 Security, see WIFISecurity_t
+ * other values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA
+ */
+#define wificonfigACCESS_POINT_SECURITY       ( eWiFiSecurityWPA2 )
+
 
 #endif

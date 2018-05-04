@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA PAL for Curiosity PIC32MZEF V0.9.0
+Amazon FreeRTOS OTA PAL for Curiosity PIC32MZEF V0.9.1
 Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -345,11 +345,11 @@ static u8 * prvReadAndAssumeCertificate(const u8 * const pucCertName, s32 * cons
     uint32_t    certSize;
 	u8		    *pucSignerCert = NULL;
     
-    extern BaseType_t prvReadFile( char * pcFileName,
+    extern BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
                                uint8_t ** ppucData,
                                uint32_t * pulDataSize );
 
-    if(prvReadFile( pucCertName, &pCertData, &certSize) != pdTRUE)
+    if(PKCS11_PAL_ReadFile( pucCertName, &pCertData, &certSize) != pdTRUE)
     {   // use the back up "codesign_keys.h" file if the signing credentials haven't been saved in the device
         pCertData = (uint8_t*)signingcredentialSIGNING_CERTIFICATE_PEM;
         certSize = sizeof(signingcredentialSIGNING_CERTIFICATE_PEM);

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file aws_shadow_config.h
- * @brief specify shadow config
+ * @brief Configuration constants used by the Shadow library.
  */
 
 #ifndef _AWS_SHADOW_CONFIG_H_
@@ -35,24 +35,9 @@
  * @brief Number of jsmn tokens to use in parsing.  Each jsmn token contains 4 ints.
  * Ensure that the number of tokens does not overflow the calling task's stack,
  * but is also sufficient to parse the largest expected JSON documents. */
-#define shadowConfigJSON_JSMN_TOKENS    ( 64 )
-
+#define shadowconfigJSON_JSMN_TOKENS             ( 64 )
 
 /**
- * @brief
- * The JSON key to search for when looking for client tokens.
- */
-#define shadowConfigJSON_CLIENT_TOKEN    "clientToken"
-
-
- /**
- * @brief
- * enable/disable shadowConfigUNIQUE_CLIENT_TOKEN_CHECK check.
- */
-#define shadowConfigUNIQUE_CLIENT_TOKEN_CHECK    0
-
-
- /**
  * @brief Maximum number of Shadow Clients.
  *
  * Up to this number of Shadow Clients may be successfully created with
@@ -62,29 +47,29 @@
  *
  * @note Should be less than 256.
  */
-#define shadowMAX_CLIENTS                         ( ( BaseType_t ) ( 1 ) )
+#define shadowconfigMAX_CLIENTS                  ( 1 )
 
- /**
+/**
  * @brief Shadow debug message setting.
  *
- * Set this value to @c 0 to disable Shadow Client debug messages; or set it to
- * @c 1 to enable debug messages. Ensure that the macro @c configPRINTF is
- * available if debugging is enabled.
+ * Set this value to @c 0 to disable Shadow Client debug messages; or set
+ * it to @c 1 to enable debug messages. Ensure that the macro @c configPRINTF
+ * is available if debugging is enabled.
  */
-#define shadowENABLE_DEBUG_LOGS                   ( 1 )
+#define shadowconfigENABLE_DEBUG_LOGS            ( 1 )
 
- /**
+/**
  * @brief Number of unique Things for which user notify callbacks can be
- * registered.
+ * registered in each Shadow Client.
  *
  * Each Shadow Client stores the Things with user notify callbacks registered.
  * Define how many unique Things require user notify callbacks here.
  *
  * @note Should be less than 256.
  */
-#define shadowCLIENT_MAX_THINGS_WITH_CALLBACKS    ( ( BaseType_t ) ( 1 ) )
+#define shadowconfigMAX_THINGS_WITH_CALLBACKS    ( 1 )
 
- /**
+/**
  * @brief Time (in milliseconds) a Shadow Client may block during cleanup @b IF
  * a timeout occurs.
  *
@@ -103,5 +88,6 @@
  * @warning If cleanup doesn't fully complete, users may be billed for MQTT
  * messages on topics that weren't properly cleaned up!
  */
-#define shadowCLEANUP_TIME_MS                     5000
+#define shadowconfigCLEANUP_TIME_MS              ( 5000UL )
+
 #endif /* _AWS_SHADOW_CONFIG_H_ */

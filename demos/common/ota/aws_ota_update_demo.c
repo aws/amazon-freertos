@@ -1,5 +1,5 @@
 /*
-* Amazon FreeRTOS OTA Update Demo V0.9.3
+Amazon FreeRTOS OTA Update Demo V0.9.4
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -94,7 +94,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
             xConnectParams.ulCertificateSize = 0;
             xConnectParams.pvUserData = NULL;
             xConnectParams.pxCallback = NULL;
-            xConnectParams.xFlags = mqttagentREQUIRE_TLS;
+            xConnectParams.xFlags = democonfigMQTT_AGENT_CONNECT_FLAGS;
 
             /* Connect to the broker. */
             if( MQTT_AGENT_Connect( xMQTTClientHandle, &( xConnectParams ), xMaxCommandTime ) == eMQTTAgentSuccess )

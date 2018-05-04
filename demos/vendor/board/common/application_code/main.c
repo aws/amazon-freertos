@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,18 +41,23 @@
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+ * failure status before blocking indefinitely. */
+#define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
+
 /* Unit test defines. */
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 16 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
 #define mainDEVICE_NICK_NAME				"vendor_demo" /* FIX ME.*/
 
+
 /* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network 
  * connections are declared below. If you are using an Ethernet connection on your MCU 
  * device it is recommended to use the FreeRTOS+TCP stack. The default values are 
  * defined in FreeRTOSConfig.h. */
 
-/* Default MAC address configuration.  The demo creates a virtual network
+/* Default MAC address configuration.  The application creates a virtual network
  * connection that uses this MAC address by accessing the raw Ethernet data
  * to and from a real network connection on the host PC.  See the
  * configNETWORK_INTERFACE_TO_USE definition for information on how to configure
@@ -67,11 +72,10 @@ const uint8_t ucMACAddress[ 6 ] =
     configMAC_ADDR5
 };
 
-/* The default IP and MAC address used by the demo.  The address configuration
+/* The default IP and MAC address used by the application.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
  * 1 but a DHCP server could not be contacted.  See the online documentation for
- * more information.  In both cases the node can be discovered using
- * "ping RTOSDemo". */
+ * more information. */
 static const uint8_t ucIPAddress[ 4 ] =
 {
     configIP_ADDR0,
@@ -101,9 +105,6 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR3
 };
 
-/* Used by the pseudo random number generator ulRand(). */
-static UBaseType_t ulNextRand;
-
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not 
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
@@ -121,7 +122,7 @@ void vApplicationDaemonTaskStartupHook( void );
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
 
 /**
- * @brief Connects to WiFi.
+ * @brief Connects to Wi-Fi.
  */
 static void prvWifiConnect( void );
 
@@ -129,11 +130,6 @@ static void prvWifiConnect( void );
  * @brief Initializes the board.
  */
 static void prvMiscInitialization( void );
-
-/*
- * @brief Seeds the pseudo random number generator ulRand().
- */
-static void prvSRand( UBaseType_t ulSeed );
 
 /*-----------------------------------------------------------*/
 
@@ -146,13 +142,13 @@ int main( void )
      * running.  */
     prvMiscInitialization();
 
-    /* Create tasks that are not dependent on the WiFi being initialized. */
+    /* Create tasks that are not dependent on the Wi-Fi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
     /* FIX ME: If you are using Ethernet network connections and the FreeRTOS+TCP stack,
-     * uncomment the initialization function below. */
+     * uncomment the initialization function, FreeRTOS_IPInit(), below. */
     /*FreeRTOS_IPInit( ucIPAddress,
      *                 ucNetMask,
      *                 ucGatewayAddress,
@@ -161,7 +157,7 @@ int main( void )
      */
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
-     * including the WiFi initialization, is performed in the RTOS daemon task
+     * including the Wi-Fi initialization, is performed in the RTOS daemon task
      * startup hook. */
     vTaskStartScheduler();
 
@@ -174,9 +170,6 @@ static void prvMiscInitialization( void )
     /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be 
      * running, here.
      */
-
-    /* Seed the random number generator. */
-    prvSRand( ( unsigned ) time( NULL ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -193,7 +186,7 @@ void vApplicationDaemonTaskStartupHook( void )
     #if 0
         if( SYSTEM_Init() == pdPASS )
         {
-            /* Connect to the wifi before running the tests. */
+            /* Connect to the Wi-Fi before running the tests. */
             prvWifiConnect();
 
             /* Start the demo tasks. */
@@ -230,18 +223,24 @@ void prvWifiConnect( void )
 {
     /* FIX ME: Delete surrounding compiler directives when the Wi-Fi library is ported. */
     #if 0
-        WIFINetworkParams_t xJoinAPParams;
+        WIFINetworkParams_t xNetworkParams;
         WIFIReturnCode_t xWifiStatus;
+        uint8_t ucTempIp[4] = { 0 };
 
         xWifiStatus = WIFI_On();
 
         if( xWifiStatus == eWiFiSuccess )
         {
-            configPRINTF( ( "WiFi module initialized. Connecting to AP...\r\n" ) );
+            
+            configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
         }
         else
         {
-            configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
+            configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
+
+            /* Delay to allow the lower priority logging task to print the above status. 
+             * The while loop below will block the above printing. */
+            TaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
             while( 1 )
             {
@@ -249,23 +248,46 @@ void prvWifiConnect( void )
         }
 
         /* Setup parameters. */
-        xJoinAPParams.pcSSID = clientcredentialWIFI_SSID;
-        xJoinAPParams.pcPassword = clientcredentialWIFI_PASSWORD;
-        xJoinAPParams.xSecurity = clientcredentialWIFI_SECURITY;
+        xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
+        xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
+        xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
+        xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
+        xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+        xNetworkParams.cChannel = 0;
 
-        xWifiStatus = WIFI_ConnectAP( &( xJoinAPParams ) );
+        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
 
         if( xWifiStatus == eWiFiSuccess )
         {
-            configPRINTF( ( "WiFi Connected to AP. Creating tasks which use network...\r\n" ) );
+            configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
+
+            xWifiStatus = WIFI_GetIP( ucTempIp );
+            if ( eWiFiSuccess == xWifiStatus ) 
+            {
+                configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
+                                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
+            }
         }
         else
         {
-            configPRINTF( ( "WiFi failed to connect to AP.\r\n" ) );
+            /* Connection failed, configure SoftAP. */
+            configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
-            while( 1 )
+            xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
+            xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
+            xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+            xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
+
+            configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
+                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+
+            while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
             {
+                configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+                                xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
             }
+
+            configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
         }
     #endif /* if 0 */
 }
@@ -317,7 +339,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
      * function then they must be declared static - otherwise they will be allocated on
      * the stack and so not exists after this function exits. */
     static StaticTask_t xTimerTaskTCB;
-    static StackType_t uxTimerTaskStack[ configMINIMAL_STACK_SIZE ];
+    static StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
 
     /* Pass out a pointer to the StaticTask_t structure in which the Idle
      * task's state will be stored. */
@@ -329,7 +351,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
     /* Pass out the size of the array pointed to by *ppxTimerTaskStackBuffer.
      * Note that, as the array is necessarily of type StackType_t,
      * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
-    *pulTimerTaskStackSize = configMINIMAL_STACK_SIZE;
+    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
 }
 /*-----------------------------------------------------------*/
 
@@ -345,7 +367,8 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    taskDISABLE_INTERRUPTS();
+    for( ;; );
 }
 /*-----------------------------------------------------------*/
 
@@ -458,33 +481,6 @@ void vAssertCalled(const char * pcFile,
 	}
 	taskENABLE_INTERRUPTS();
 }
-/*-----------------------------------------------------------*/
-
-/**
- * @brief User defined psuedo random number generator. Generates a pseudo random 
- * number needed by the the FreeRTOS-Plus-TCP library. 
- */
-uint32_t ulRand(void)
-{
-    /* FIX ME:  If necessary, update to custom random number generator. */
-
-	const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
-
-	ulNextRand = (ulMultiplier * ulNextRand) + ulIncrement;
-
-	return( (uint32_t) (ulNextRand >> 16UL) & 0x7fffUL );
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Initializing seed of the global next random number.
- */
-static void prvSRand( UBaseType_t uxSeed )
-{
-    /* Utility function to seed the pseudo random number generator. */
-    ulNextRand = uxSeed;
-}
-
 /*-----------------------------------------------------------*/
 
 /**

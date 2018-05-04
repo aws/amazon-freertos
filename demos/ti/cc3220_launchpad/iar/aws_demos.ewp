@@ -1396,7 +1396,7 @@
             <group>
                 <name>pkcs11</name>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\portable\ti\cc3220_launchpad\pkcs11.c</name>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\portable\ti\cc3220_launchpad\aws_pkcs11_pal.c</name>
                 </file>
             </group>
             <group>

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.2
+ * FreeRTOS+TCP V2.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -437,7 +437,7 @@ uint16_t usGenerateChecksum( uint32_t ulSum, const uint8_t * pucNextData, size_t
 
 /* Socket related private functions. */
 BaseType_t xProcessReceivedUDPPacket( NetworkBufferDescriptor_t *pxNetworkBuffer, uint16_t usPort );
-void vNetworkSocketsInit( void );
+BaseType_t vNetworkSocketsInit( void );
 
 /*
  * Returns pdTRUE if the IP task has been created and is initialised.  Otherwise

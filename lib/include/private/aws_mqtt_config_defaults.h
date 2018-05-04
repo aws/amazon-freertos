@@ -42,7 +42,7 @@
  * callback.
  */
 #ifndef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
-    #define mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
+    #define mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT            ( 1 )
 #endif
 
 /**
@@ -50,13 +50,13 @@
  * manager.
  *
  * If the user has enabled subscription management (by defining the macro
- * mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT), then this macro must be defined
+ * mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT to 1), then this macro must be defined
  * to accommodate the maximum length topic which the user is going to subscribe.
  * The subscribe operation will fail if the user tries to subscribe to a topic
  * of length more than the maximum specified here.
  */
 #ifndef mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH
-    #define mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH    ( 128 )
+    #define mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH     ( 128 )
 #endif
 
 /**
@@ -64,7 +64,7 @@
  * manager.
  *
  * If the user has enabled subscription management (by defining the macro
- * mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT), then this macro must be defined
+ * mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT to 1), then this macro must be defined
  * to the maximum number of topics which the user is going to subscribe
  * simultaneously. The subscribe operation will fail is the user tries to
  * subscribe to more topics than the maximum specified here.

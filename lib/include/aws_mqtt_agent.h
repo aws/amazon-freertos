@@ -156,7 +156,7 @@ typedef struct MQTTAgentSubscribeParams
     const uint8_t * pucTopic;                    /**< The topic to subscribe to. This can be a topic filter containing wild cards as permitted by the MQTT protocol. */
     uint16_t usTopicLength;                      /**< The length of the topic. */
     MQTTQoS_t xQoS;                              /**< Requested Quality of Service. */
-    #ifdef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
+    #if( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
         void * pvPublishCallbackContext;         /**< Passed as it is in the publish callback. Can be NULL. */
         MQTTPublishCallback_t pxPublishCallback; /**< Callback function to be called whenever a publish message is received on this topic or on a topic which matches this
                                                   *   topic filter. If a publish message is received on a topic which matches more than one topic filters, the order in which

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Agent V1.1.1
+ * Amazon FreeRTOS MQTT Agent V1.1.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1391,6 +1391,16 @@ static void prvInitiateMQTTConnect( MQTTEventData_t * const pxEventData )
             if( MQTT_Connect( &( pxConnection->xMQTTContext ), &( xConnectParams ) ) != eMQTTSuccess )
             {
                 configPRINTF( ( "MQTT_Connect failed!\r\n" ) );
+
+                /* The TCP connection was successful but we failed to send
+                 * the MQTT Connect message. This could happen because of
+                 * multiple reasons like a free buffer from the buffer pool
+                 * was not available to construct the MQTT Connect message
+                 * or the network send failed. The TCP Connection must be
+                 * closed in this case to avoid leaking sockets. */
+                prvGracefulSocketClose( pxConnection );
+
+                /* Set the status to fail. */
                 xStatus = pdFAIL;
             }
         }
@@ -1453,7 +1463,7 @@ static void prvInitiateMQTTSubscribe( MQTTEventData_t * const pxEventData )
         xSubscribeParams.xQos = pxEventData->u.pxSubscribeParams->xQoS;
         xSubscribeParams.usPacketIdentifier = ( uint16_t ) ( mqttMESSAGE_IDENTIFIER_EXTRACT( pxEventData->xNotificationData.ulMessageIdentifier ) );
         xSubscribeParams.ulTimeoutTicks = pxEventData->xTicksToWait;
-        #ifdef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
+        #if( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
             xSubscribeParams.pvPublishCallbackContext = pxEventData->u.pxSubscribeParams->pvPublishCallbackContext;
             xSubscribeParams.pxPublishCallback = pxEventData->u.pxSubscribeParams->pxPublishCallback;
         #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */

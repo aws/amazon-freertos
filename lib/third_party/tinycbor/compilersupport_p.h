@@ -81,6 +81,10 @@
 #  define __has_builtin(x)  0
 #endif
 
+
+/* Disable this optimization for TI ARM compiler v18 or higher because it has some issues
+with these intrinsics. */
+#if !defined(__TI_COMPILER_VERSION__) || __TI_COMPILER_VERSION__ < 18000000
 #if (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)) || \
     (__has_builtin(__builtin_bswap64) && __has_builtin(__builtin_bswap32))
 #  if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -116,6 +120,7 @@
 #  define cbor_htonl        _byteswap_ulong
 #  define cbor_ntohs        _byteswap_ushort
 #  define cbor_htons        _byteswap_ushort
+#endif
 #endif
 #ifndef cbor_ntohs
 #   define cbor_ntohs(x) (((uint16_t)x >> 8) | ((uint16_t)x << 8))
@@ -230,4 +235,3 @@ static inline unsigned short encode_half(double val)
 }
 
 #endif /* COMPILERSUPPORT_H */
-

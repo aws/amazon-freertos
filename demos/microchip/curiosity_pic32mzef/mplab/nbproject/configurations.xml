@@ -50,7 +50,6 @@
       <itemPath>../common/config_files/aws_bufferpool_config.h</itemPath>
       <itemPath>../common/config_files/aws_demo_config.h</itemPath>
       <itemPath>../common/config_files/aws_ggd_config.h</itemPath>
-      <itemPath>../common/config_files/aws_iot_config.h</itemPath>
       <itemPath>../common/config_files/aws_mqtt_agent_config.h</itemPath>
       <itemPath>../common/config_files/aws_mqtt_config.h</itemPath>
       <itemPath>../common/config_files/aws_secure_sockets_config.h</itemPath>
@@ -58,6 +57,7 @@
       <itemPath>../common/config_files/aws_wifi_config.h</itemPath>
       <itemPath>../common/config_files/FreeRTOSConfig.h</itemPath>
       <itemPath>../common/config_files/FreeRTOSIPConfig.h</itemPath>
+      <itemPath>../common/config_files/aws_pkcs11_config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="f1" displayName="lib" projectFiles="true">
       <logicalFolder name="f1" displayName="aws" projectFiles="true">
@@ -143,13 +143,11 @@
             <itemPath>../../../../lib/include/private/aws_default_root_certificates.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_doubly_linked_list.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_ggd_config_defaults.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_greengrass_lib_private.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_helper_secure_connect.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_lib_init.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_mqtt_agent_config_defaults.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_mqtt_buffer.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_mqtt_config_defaults.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_mqtt_lib_private.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_ota_cbor.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_rsprintf.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_secure_sockets_config_defaults.h</itemPath>
@@ -194,19 +192,18 @@
           <itemPath>../../../../lib/ota/aws_rsprintf.c</itemPath>
           <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_nvm.c</itemPath>
           <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_ota_pal.c</itemPath>
-          <itemPath>../../../../lib/ota/aws_ota_agent_internal.h</itemPath>
-          <itemPath>../../../../lib/ota/aws_ota_cbor_internal.h</itemPath>
           <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_nvm.h</itemPath>
           <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_codesign_keys.h</itemPath>
         </logicalFolder>
         <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
-          <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/pkcs11.c</itemPath>
           <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/pkcs11_nvm.c</itemPath>
+          <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/aws_pkcs11_pal.c</itemPath>
+          <itemPath>../../../../lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</itemPath>
         </logicalFolder>
         <logicalFolder name="secure_sockets"
                        displayName="secure_sockets"
                        projectFiles="true">
-          <itemPath>../../../../lib/secure_sockets/portable/microchip/curiosity_pic32mzef/aws_secure_sockets.c</itemPath>
+          <itemPath>../../../../lib/secure_sockets/portable/freertos_plus_tcp/aws_secure_sockets.c</itemPath>
         </logicalFolder>
         <logicalFolder name="shadow" displayName="shadow" projectFiles="true">
           <itemPath>../../../../lib/shadow/aws_shadow.c</itemPath>
@@ -282,6 +279,7 @@
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/platform_time.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/ripemd160.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/rsa.h</itemPath>
+              <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/rsa_internal.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/sha1.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/sha256.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/sha512.h</itemPath>
@@ -350,6 +348,7 @@
             <itemPath>../../../../lib/third_party/mbedtls/library/platform.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/ripemd160.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/rsa.c</itemPath>
+            <itemPath>../../../../lib/third_party/mbedtls/library/rsa_internal.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/sha1.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/sha256.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/sha512.c</itemPath>
@@ -1687,6 +1686,7 @@
     <Elem>../../../common/ota</Elem>
     <Elem>../../../../lib/ota</Elem>
     <Elem>../../../../lib/third_party/tinycbor</Elem>
+    <Elem>../../../../lib/pkcs11/mbedtls</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -1698,7 +1698,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD4Tool</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>1.44</languageToolchainVersion>
+        <languageToolchainVersion>2.05</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>

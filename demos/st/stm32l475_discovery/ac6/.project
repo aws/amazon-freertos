@@ -96,11 +96,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/lib/mqtt</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/ota</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>lib/aws/pkcs11</name>
 			<type>2</type>
 			<locationURI>AWS_IOT_MCU_ROOT/lib/pkcs11/portable/st/stm32l475_discovery</locationURI>
@@ -221,24 +216,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/common/tcp/aws_tcp_echo_client_single_task.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/ota/aws_ota_cbor.c</name>
+			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/lib/ota/aws_ota_cbor.c</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/ota/aws_rsprintf.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/lib/ota/aws_rsprintf.c</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/ota/aws_ota_agent.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/lib/ota/aws_ota_agent.c</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/ota/aws_ota_pal.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/lib/ota/portable/st/stm32l475_discovery/aws_ota_pal.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mbedtls/include</name>

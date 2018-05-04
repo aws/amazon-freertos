@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,19 +53,20 @@ static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "Paste AWS IoT Broker
 #define clientcredentialGREENGRASS_DISCOVERY_PORT 8443
 
 /*
- * WIFI network to join.
+ * Wi-Fi network to join.
  */
-#define clientcredentialWIFI_SSID       "Paste WiFi SSID here."
+#define clientcredentialWIFI_SSID       "Paste Wi-Fi SSID here."
 
 /*
- * Password needed to join WiFi network.
+ * Password needed to join Wi-Fi network.
  */
-#define clientcredentialWIFI_PASSWORD   "Paste WiFi password here."
+#define clientcredentialWIFI_PASSWORD   "Paste Wi-Fi password here."
 
 /**
  * @brief Security type
  * WPA2 Security, @see WIFISecurity_t
- * other values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA
+ * Possible values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA,
+ * eWiFiSecurityWPA2
  */
 #define clientcredentialWIFI_SECURITY   eWiFiSecurityWPA2
 

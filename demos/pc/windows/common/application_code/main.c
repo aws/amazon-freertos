@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -70,11 +70,6 @@ const AppVersion32_t xAppFirmwareVersion = {
 #define mainDEVICE_NICK_NAME    "windows_demo"
 
 /*-----------------------------------------------------------*/
-
-/*
- * Just seeds the simple pseudo random number generator.
- */
-static void prvSRand( UBaseType_t ulSeed );
 
 /*
  * Miscellaneous initialization including preparing the logging and seeding the
@@ -262,32 +257,13 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
-}
-/*-----------------------------------------------------------*/
-
-uint32_t ulRand( void )
-{
-    const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
-
-    /* Utility function to generate a pseudo random number. */
-
-    ulNextRand = ( ulMultiplier * ulNextRand ) + ulIncrement;
-
-    return( ( uint32_t ) ( ulNextRand >> 16UL ) & 0x7fffUL );
-}
-/*-----------------------------------------------------------*/
-
-static void prvSRand( UBaseType_t ulSeed )
-{
-    /* Utility function to seed the pseudo random number generator. */
-    ulNextRand = ulSeed;
+    taskDISABLE_INTERRUPTS();
+    for( ;; );
 }
 /*-----------------------------------------------------------*/
 
 static void prvMiscInitialisation( void )
 {
-    time_t xTimeNow;
     uint32_t ulLoggingIPAddress;
 
     /* Initialise the trace recorder and create the label used to post user
@@ -306,17 +282,6 @@ static void prvMiscInitialisation( void )
         xLogToUDP,
         ulLoggingIPAddress,
         configPRINT_PORT );
-
-    /* Seed the random number generator. */
-    time( &xTimeNow );
-    FreeRTOS_debug_printf( ( "Seed for randomizer: %lu\n", xTimeNow ) );
-    prvSRand( ( uint32_t ) xTimeNow );
-    FreeRTOS_debug_printf( (
-                               "Random numbers: %08X %08X %08X %08X\n",
-                               ipconfigRAND32(),
-                               ipconfigRAND32(),
-                               ipconfigRAND32(),
-                               ipconfigRAND32() ) );
 }
 /*-----------------------------------------------------------*/
 

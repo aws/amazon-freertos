@@ -40,7 +40,10 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #ifndef _WDRV_WILC1000_STUB_H
 #define _WDRV_WILC1000_STUB_H
 
-#define WDRV_STUB_Print(x) SYS_CONSOLE_PRINT x
+/* This is redefined in system_config.h to attach to the application specific
+ * printing function. This is so that the WDRV console prints will cooperated with 
+ * the applications printing scheme. */
+/* #define WDRV_STUB_Print(x) SYS_CONSOLE_PRINT x */
 
 //*******************************************************************************
 /*

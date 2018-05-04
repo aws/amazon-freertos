@@ -130,7 +130,7 @@
                                 uint8_t const * const frame )
     {
         bool pktSuccess, pktLost;
-        NetworkBufferDescriptor_t * pxNetworkBuffer;
+        NetworkBufferDescriptor_t * pxNetworkBuffer = NULL;
         IPStackEvent_t xRxEvent = { eNetworkRxEvent, NULL };
 
         pktSuccess = pktLost = false;
@@ -145,7 +145,7 @@
             /* get the network descriptor (no data buffer) to hold this packet */
             pxNetworkBuffer = pxGetNetworkBufferWithDescriptor( len, 0 );
 
-            if( pxNetworkBuffer == 0 )
+            if( pxNetworkBuffer == NULL )
             {
                 pktLost = true;
                 break;
@@ -171,7 +171,7 @@
 
         if( !pktSuccess )
         { /* smth went wrong; nothing sent to the */
-            if( pxNetworkBuffer != 0 )
+            if( pxNetworkBuffer != NULL )
             {
                 pxNetworkBuffer->pucEthernetBuffer = 0;
                 vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );

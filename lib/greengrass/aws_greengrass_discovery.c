@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass Discovery V1.0.2
+ * Amazon FreeRTOS Greengrass Discovery V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -186,7 +186,18 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer, /*lint !e971 can use cha
                                               &ulByteRead,
                                               &xJSONFileRetrieveCompleted,
                                               ulJSONFileSize ); /*lint !e644 ulJSONFileSize has been initialized if code reaches here. */
-        } while ( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) );
+        } while ( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize - ulByteRead ) > 0 );
+
+        /* If the JSON file was not completely received and there
+         * is no space left in the buffer, it means that the buffer
+         * is not large enough to hold the complete GreenGrass
+         * Discovery document. The user should increase the size of
+         * the buffer. */
+        if( ( xJSONFileRetrieveCompleted == pdFALSE ) && ( ( ulBufferSize - ulByteRead ) ==  0 ) )
+        {
+            ggdconfigPRINT( "[ERROR] The supplied buffer is not large enough to hold the GreenGrass discovery document. \r\n" );
+            ggdconfigPRINT( "[ERROR] Consider increasing the size of the supplied buffer. \r\n" );
+        }
 
         if( xSocket != SOCKETS_INVALID_SOCKET )             /* Check connection is closed. */
         {
@@ -873,5 +884,5 @@ static BaseType_t prvCheckForContentLengthString( uint8_t * pucIndex,
 /*-----------------------------------------------------------*/
 /* Provide access to private members for testing. */
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-    #include "aws_greengrass_lib_private.c"
+    #include "aws_greengrass_discovery_test_access_define.h"
 #endif

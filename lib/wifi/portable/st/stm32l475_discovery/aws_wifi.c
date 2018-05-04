@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi STM32L4 Discovery kit IoT node V1.0.0
+ * Amazon FreeRTOS Wi-Fi STM32L4 Discovery kit IoT node V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file aws_wifi.c
- * @brief WiFi Interface.
+ * @brief Wi-Fi Interface.
  */
 
 /* FreeRTOS includes. */
@@ -33,39 +33,39 @@
 #include "task.h"
 #include "semphr.h"
 
-/* WiFi driver includes. */
+/* Wi-Fi driver includes. */
 #include "es_wifi.h"
 #include "es_wifi_io.h"
 
-/* Socket and WiFi interface includes. */
+/* Socket and Wi-Fi interface includes. */
 #include "aws_wifi.h"
 
 
 /**
- * @brief Represents the WiFi module.
+ * @brief Represents the Wi-Fi module.
  *
- * Since there is only one WiFi module on the ST board, only
+ * Since there is only one Wi-Fi module on the ST board, only
  * one instance of this type is needed. All the operations on
- * the WiFi module must be serialized because a single operation
+ * the Wi-Fi module must be serialized because a single operation
  * (like socket connect, send etc) consists of multiple AT Commands
  * sent over the same SPI bus. A semaphore is therefore used to
  * serialize all the operations.
  */
 typedef struct STWiFiModule
 {
-    ES_WIFIObject_t xWifiObject;        /**< Internal WiFi object. */
-    SemaphoreHandle_t xSemaphoreHandle; /**< Semaphore used to serialize all the operations on the WiFi module. */
+    ES_WIFIObject_t xWifiObject;        /**< Internal Wi-Fi object. */
+    SemaphoreHandle_t xSemaphoreHandle; /**< Semaphore used to serialize all the operations on the Wi-Fi module. */
 } STWiFiModule_t;
 
 STWiFiModule_t xWiFiModule;
 
 /**
- * @brief WiFi initialization status.
+ * @brief Wi-Fi initialization status.
  */
 static BaseType_t xWIFIInitDone;
 
 /**
- * @brief Maximum time to wait in ticks for obtaining the WiFi semaphore
+ * @brief Maximum time to wait in ticks for obtaining the Wi-Fi semaphore
  * before failing the operation.
  */
 
@@ -153,7 +153,7 @@ WIFIReturnCode_t WIFI_On( void )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
 
-    /* One time WiFi initialization */
+    /* One time Wi-Fi initialization */
     if( xWIFIInitDone == pdFALSE )
     {
         /* This buffer is used to store the semaphore's data structure
@@ -163,13 +163,13 @@ WIFIReturnCode_t WIFI_On( void )
         /* Start with all the zero. */
         memset( &( xWiFiModule ), 0, sizeof( xWiFiModule ) );
 
-        /* Create the semaphore used to serialize WiFi module operations. */
+        /* Create the semaphore used to serialize Wi-Fi module operations. */
         xWiFiModule.xSemaphoreHandle = xSemaphoreCreateMutexStatic( &( xSemaphoreBuffer ) );
 
         /* Initialize semaphore. */
         xSemaphoreGive( xWiFiModule.xSemaphoreHandle );
 
-        /* WiFi init done*/
+        /* Wi-Fi init done*/
         xWIFIInitDone = pdTRUE;
     }
 
@@ -181,7 +181,7 @@ WIFIReturnCode_t WIFI_On( void )
                                &( SPI_WIFI_SendData ),
                                &( SPI_WIFI_ReceiveData ) ) == ES_WIFI_STATUS_OK )
     {
-        /* Initialize the WiFi module. */
+        /* Initialize the Wi-Fi module. */
         if( ES_WIFI_Init( &( xWiFiModule.xWifiObject ) ) == ES_WIFI_STATUS_OK )
         {
             /* Initialization successful. */
@@ -196,7 +196,7 @@ WIFIReturnCode_t WIFI_On( void )
 
 WIFIReturnCode_t WIFI_Off( void )
 {
-    /*command not implemented in ES WiFi drivers. */
+    /*command not implemented in ES Wi-Fi drivers. */
     WIFIReturnCode_t xRetVal = eWiFiNotSupported;
 
     return xRetVal;
@@ -208,13 +208,21 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     WIFIReturnCode_t xRetVal = eWiFiFailure;
     uint32_t x;
 
+    configASSERT( pxNetworkParams != NULL );
+    configASSERT( pxNetworkParams->pcSSID != NULL );
+
+    if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen ) 
+    {
+        configASSERT( pxNetworkParams->pcPassword != NULL );
+    }
+
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
         /* Keep trying to connect until all the retries are exhausted. */
         for( x = 0 ; x < wificonfigNUM_CONNECTION_RETRY ; x++ )
         {
-            /* Try to connect to WiFi. */
+            /* Try to connect to Wi-Fi. */
             if( ES_WIFI_Connect( &( xWiFiModule.xWifiObject ),
                                  pxNetworkParams->pcSSID,
                                  pxNetworkParams->pcPassword,
@@ -254,7 +262,15 @@ WIFIReturnCode_t WIFI_Disconnect( void )
     {
         if( ES_WIFI_Disconnect( &( xWiFiModule.xWifiObject ) ) == ES_WIFI_STATUS_OK )
         {
-            xRetVal = eWiFiSuccess;
+            /* This variable is not updated by the driver after a disconnect. */
+        	xWiFiModule.xWifiObject.NetSettings.IsConnected = 0;
+
+            /* Store network settings. After a disconnect the IP address under NetSettings becomes 0.0.0.0 */
+            if( ES_WIFI_GetNetworkSettings( &( xWiFiModule.xWifiObject ) ) == ES_WIFI_STATUS_OK )
+            {
+                /* Disconnection successful. */
+                xRetVal = eWiFiSuccess;
+            }
         }
 
         /* Return the semaphore. */
@@ -348,6 +364,8 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
 
+    configASSERT( pucIPAddr != NULL );
+
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
@@ -372,6 +390,8 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
+
+    configASSERT( pucIPAddr != NULL );
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
@@ -399,6 +419,8 @@ WIFIReturnCode_t WIFI_GetMAC( uint8_t * pucMac )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
 
+    configASSERT( pucMac != NULL );
+
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
@@ -424,6 +446,9 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
                                  uint8_t * pucIPAddr )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
+
+    configASSERT( pcHost != NULL );
+    configASSERT( pucIPAddr != NULL );
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
@@ -455,6 +480,8 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     uint32_t x;
 
     ES_WIFI_APs_t xESWifiAPs;
+
+    configASSERT( pxBuffer != NULL );
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
@@ -515,14 +542,22 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
     WIFIReturnCode_t xRetVal = eWiFiFailure;
     ES_WIFI_APConfig_t xApConfig;
 
+    configASSERT( pxNetworkParams != NULL );
+    configASSERT( pxNetworkParams->pcSSID != NULL );
+
     strncpy( ( char * ) xApConfig.SSID,
              ( char * ) pxNetworkParams->pcSSID,
              ES_WIFI_MAX_SSID_NAME_SIZE );
 
-    strncpy( ( char * ) xApConfig.Pass,
-             ( char * ) pxNetworkParams->pcPassword,
-             ES_WIFI_MAX_PSWD_NAME_SIZE );
+    if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen ) 
+    {
+        configASSERT( pxNetworkParams->pcPassword != NULL );
 
+        strncpy( ( char * ) xApConfig.Pass,
+                 ( char * ) pxNetworkParams->pcPassword,
+                 ES_WIFI_MAX_PSWD_NAME_SIZE );
+    }
+    
     xApConfig.Channel = pxNetworkParams->cChannel;
     xApConfig.MaxConnections = wificonfigMAX_CONNECTED_STATIONS;
     xApConfig.Security = prvConvertSecurityFromAbstractedToST( pxNetworkParams->xSecurity );
@@ -546,8 +581,8 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
 
     return xRetVal;
 }
-
 /*-----------------------------------------------------------*/
+
 WIFIReturnCode_t WIFI_SetPMMode( WIFIPMMode_t xPMModeType,
                                  const void * pvOptionValue )
 {
@@ -555,12 +590,26 @@ WIFIReturnCode_t WIFI_SetPMMode( WIFIPMMode_t xPMModeType,
 
     return xRetVal;
 }
-
 /*-----------------------------------------------------------*/
+
 WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
                                  void * pvOptionValue )
 {
     WIFIReturnCode_t xRetVal = eWiFiNotSupported;
 
     return xRetVal;
+}
+/*-----------------------------------------------------------*/
+
+BaseType_t WIFI_IsConnected( void )
+{
+    BaseType_t xIsConnected = pdFALSE;
+    /* Expected result from ES_WIFI_IsConnected() when the board is connected to Wi-Fi. */
+    const uint8_t uConnected = 1;
+
+    if ( ES_WIFI_IsConnected( &xWiFiModule.xWifiObject ) == uConnected ) {
+        xIsConnected = pdTRUE;
+    }
+
+    return xIsConnected;
 }

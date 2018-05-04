@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi for LPC54018 IoT Module V1.0.1
+ * Amazon FreeRTOS Wi-Fi for LPC54018 IoT Module V1.0.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,20 +25,20 @@
 
 /**
  * @file aws_WIFI.c
- * @brief WiFi Interface.
+ * @brief Wi-Fi Interface.
  */
 
+/* Amazon FreeRTOS include. */
+#include "FreeRTOS.h"
 #include "aws_wifi.h"
+#include "aws_secure_sockets.h"
+
+/* LPC54018 Driver includes. */
 #include "wifi_common.h"
 #include "qcom_api.h"
 #include "atheros_wifi.h"
 
-/* This is here because the maximum DNS name length is defined in aws_secure_sockets.h.
- * Wifi must not have a dependency on aws_secure_sockets.h
- */
-#define wifiMAX_DNS_NAME_LENGTH 253
-
-/* Only 1 WiFi module is present at the time */
+/* Only 1 Wi-Fi module is present at the time */
 static uint8_t g_devid = 0;
 
 /* NOTE: Could be located on stack */
@@ -53,12 +53,12 @@ static SemaphoreHandle_t g_connect_semaph;
 /* Protect API */
 static SemaphoreHandle_t g_wifi_semaph;
 
-/* WiFi/HW hardware configuration */
+/* Wi-Fi/HW hardware configuration */
 QCA_CONTEXT_STRUCT g_wifi_ctx = {0};
 
 extern const QCA_MAC_IF_STRUCT ATHEROS_WIFI_IF;
 
-/* WiFi interface object */
+/* Wi-Fi interface object */
 const QCA_IF_STRUCT g_wifi_if = {
     .MAC_IF         = &ATHEROS_WIFI_IF,
     .MAC_NUMBER     = 0,
@@ -66,7 +66,7 @@ const QCA_IF_STRUCT g_wifi_if = {
     .PHY_ADDRESS    = 0,
 };
 
-/* WiFi params */
+/* Wi-Fi params */
 const QCA_PARAM_STRUCT g_wifi_params = {
     .QCA_IF         = &g_wifi_if,
     .MODE           = Auto_Negotiate,
@@ -74,7 +74,7 @@ const QCA_PARAM_STRUCT g_wifi_params = {
     .NUM_RX_PCBS    = WLAN_CONFIG_NUM_PRE_ALLOC_RX_BUFFERS,
 };
 
-/* Singleton, provides WiFi context structure */
+/* Singleton, provides Wi-Fi context structure */
 QCA_CONTEXT_STRUCT *wlan_get_context(void)
 {
     return &g_wifi_ctx;
@@ -174,10 +174,10 @@ static WIFIReturnCode_t conv_mode_to_qcom(WIFIDeviceMode_t xDeviceMode, QCOM_WLA
 }
 
 /**
- * @brief Initializes the WiFi module.
+ * @brief Initializes the Wi-Fi module.
  *
  * This function must be called exactly once before any other
- * WiFi functions (including socket functions) can be used.
+ * Wi-Fi functions (including socket functions) can be used.
  *
  * @return eWiFiSuccess if everything succeeds, eWiFiFailure otherwise.
  */
@@ -185,7 +185,7 @@ WIFIReturnCode_t WIFI_On( void )
 {
     A_STATUS result;
 
-    /* Initialize WIFI shield */
+    /* Initialize Wi-Fi shield */
     result = (A_STATUS)WIFISHIELD_Init();
     if (A_OK != result)
         return eWiFiFailure;
@@ -212,7 +212,7 @@ WIFIReturnCode_t WIFI_On( void )
     if (NULL == g_connect_semaph)
         return eWiFiFailure;
 
-    /* Wait for Wifi */
+    /* Wait for Wi-Fi */
     vTaskDelay(MSEC_TO_TICK(100));
 
     return eWiFiSuccess;
@@ -226,7 +226,7 @@ WIFIReturnCode_t WIFI_Off( void )
 /**
  * @brief Connects to Access Point.
  *
- * @param[in] pxJoinAPParams Configuration to join AP.
+ * @param[in] pxNetworkParams Configuration to join AP.
  *
  * @return eWiFiSuccess if connection is successful, eWiFiFailure otherwise.
  */
@@ -245,12 +245,12 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     if (xSemaphoreTake(g_wifi_semaph, portMAX_DELAY) == pdTRUE)
     {
         do {
-            /* Set WiFi to device mode */
+            /* Set Wi-Fi to device mode */
             if (A_OK != (A_STATUS)qcom_op_set_mode(g_devid, QCOM_WLAN_DEV_MODE_STATION))
                 break;
 
             /* Set SSID, must be done before auth, cipher and passphrase */
-            strncpy(g_ssid.ssid, pxNetworkParams->pcSSID, sizeof(g_ssid));
+            strncpy(g_ssid.ssid, pxNetworkParams->pcSSID, sizeof(g_ssid.ssid));
             if (A_OK != (A_STATUS)qcom_set_ssid(g_devid, &g_ssid))
                 break;
 
@@ -267,7 +267,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
                 break;
 
             /* Set passphrase */
-            strncpy(g_passphr.passphrase, pxNetworkParams->pcPassword, sizeof(g_passphr));
+            strncpy(g_passphr.passphrase, pxNetworkParams->pcPassword, sizeof(g_passphr.passphrase));
             if (A_OK != qcom_sec_set_passphrase(g_devid, &g_passphr))
                 break;
 
@@ -282,7 +282,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             if (A_OK != qcom_set_connect_callback(g_devid, (void *)aws_connect_cb))
                 break;
 
-            /* Commit settings to WiFi module */
+            /* Commit settings to Wi-Fi module */
             if (A_OK != qcom_commit(g_devid))
                 break;
 
@@ -329,7 +329,7 @@ WIFIReturnCode_t WIFI_Disconnect( void )
 }
 
 /**
- * @brief Resets the WiFi Module.
+ * @brief Resets the Wi-Fi Module.
  *
  * @param[in] None.
  *
@@ -341,7 +341,7 @@ WIFIReturnCode_t WIFI_Reset( void )
 }
 
 /**
- * @brief Sets wifi mode.
+ * @brief Sets Wi-Fi mode.
  *
  * @param[in] xDeviceMode - Mode of the device Station / Access Point /P2P.
  *
@@ -369,7 +369,7 @@ WIFIReturnCode_t WIFI_SetMode( WIFIDeviceMode_t xDeviceMode )
 }
 
 /**
- * @brief Gets wifi mode.
+ * @brief Gets Wi-Fi mode.
  *
  * @param[in] pxDeviceMode - return mode Station / Access Point /P2P
  *
@@ -401,9 +401,9 @@ WIFIReturnCode_t WIFI_GetMode( WIFIDeviceMode_t * pxDeviceMode )
 }
 
 /**
- * @brief WiFi Add Network profile.
+ * @brief Wi-Fi Add Network profile.
  *
- * Adds wifi network to network list in NV memory
+ * Adds Wi-Fi network to network list in non-volatile memory
  *
  * @param[in] pxNetworkProfile - network profile parameters
  * @param[out] pusIndex - network profile index
@@ -419,9 +419,9 @@ WIFIReturnCode_t WIFI_NetworkAdd(const WIFINetworkProfile_t * const pxNetworkPro
 
 
 /**
- * @brief WiFi Get Network profile .
+ * @brief Wi-Fi Get Network profile .
  *
- * Gets wifi network params at given index from network list in Non volatile memory
+ * Gets Wi-Fi network params at given index from network list in non-volatile memory
  *
  * @param[out] pxNetworkProfile - pointer to return network profile parameters
  * @param[in] usIndex - Index of the network profile, must be between 0 to wificonfigMAX_NETWORK_PROFILES
@@ -436,9 +436,9 @@ WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile,
 }
 
 /**
- * @brief WiFi Delete Network profile .
+ * @brief Wi-Fi Delete Network profile .
  *
- * Deletes wifi network from network list at given index in NV memory
+ * Deletes Wi-Fi network from network list at given index in non-volatile memory
  *
  * @param[in] usIndex - Index of the network profile, must be between 0 to wificonfigMAX_NETWORK_PROFILES
  *                      wificonfigMAX_NETWORK_PROFILES as index will delete all network profiles
@@ -493,7 +493,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pxIPAddr,
 }
 
 /**
- * @brief Retrieves the WiFi interface's IP address.
+ * @brief Retrieves the Wi-Fi interface's IP address.
  *
  * @param[in] IP Address buffer.
  *
@@ -528,7 +528,7 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pxIPAddr )
 }
 
 /**
- * @brief Retrieves the WiFi interface's MAC address.
+ * @brief Retrieves the Wi-Fi interface's MAC address.
  *
  * @param[in] MAC Address buffer.
  *
@@ -668,7 +668,7 @@ static WIFIReturnCode_t wifi_dns_resolver(IP_ADDR_T dns_ip, char * hostname, IP_
     const uint32_t rx_buffer_max = 512;
     /* The total DNS query message is the size of the header + a null character before the host name + the maximum host name
      * length + the size of the tail */
-    const uint32_t tx_buffer_max = sizeof(wifi_dns_header_t) + 1 + wifiMAX_DNS_NAME_LENGTH + sizeof(wifi_dns_q_tail_t);
+    const uint32_t tx_buffer_max = sizeof(wifi_dns_header_t) + 1 + securesocketsMAX_DNS_NAME_LENGTH + sizeof(wifi_dns_q_tail_t);
 
     do {
         /* Try to allocate buffer for request, must be fill with '\0' */
@@ -709,7 +709,7 @@ static WIFIReturnCode_t wifi_dns_resolver(IP_ADDR_T dns_ip, char * hostname, IP_
         CUSTOM_FREE(tx_buffer);
         tx_buffer = NULL;
 
-        /* Obtain WiFi context */
+        /* Obtain Wi-Fi context */
         QCA_CONTEXT_STRUCT *qcaCtx = wlan_get_context();
         if (NULL == qcaCtx)
             break;
@@ -978,12 +978,12 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
     if (xSemaphoreTake(g_wifi_semaph, portMAX_DELAY) == pdTRUE)
     {
         do {
-            /* Set WiFi to device mode */
+            /* Set Wi-Fi to device mode */
             if (A_OK != (A_STATUS)qcom_op_set_mode(g_devid, QCOM_WLAN_DEV_MODE_AP))
                 break;
 
             /* Set SSID, must be done before auth, cipher and passphrase */
-            strncpy(g_ssid.ssid, pxNetworkParams->pcSSID, sizeof(g_ssid));
+            strncpy(g_ssid.ssid, pxNetworkParams->pcSSID, sizeof(g_ssid.ssid));
             if (A_OK != (A_STATUS)qcom_set_ssid(g_devid, &g_ssid))
                 break;
 
@@ -1000,7 +1000,7 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
                 break;
 
             /* Set passphrase */
-            strncpy(g_passphr.passphrase, pxNetworkParams->pcPassword, sizeof(g_passphr));
+            strncpy(g_passphr.passphrase, pxNetworkParams->pcPassword, sizeof(g_passphr.passphrase));
             if (A_OK != qcom_sec_set_passphrase(g_devid, &g_passphr))
                 break;
 
@@ -1017,11 +1017,26 @@ WIFIReturnCode_t WIFI_ConfigureAP(const WIFINetworkParams_t * const pxNetworkPar
 WIFIReturnCode_t WIFI_SetPMMode( WIFIPMMode_t xPMModeType,
                                  const void * pvOptionValue )
 {
-	return eWiFiNotSupported;
+    return eWiFiNotSupported;
 }
 
 WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
                                  void * pvOptionValue )
 {
-	return eWiFiNotSupported;
+    return eWiFiNotSupported;
 }
+
+BaseType_t WIFI_IsConnected( void )
+{
+    uint32_t ip4_addr = 0, ip4_mask = 0, ip4_gw = 0;
+    BaseType_t xIsConnected = pdFALSE;
+  
+    if ( A_OK == qcom_ipconfig( g_devid, QCOM_IPCONFIG_DHCP, &ip4_addr, &ip4_mask, &ip4_gw ) ) 
+    {
+        xIsConnected = pdTRUE;
+    }
+    
+    return xIsConnected;
+}
+  
+

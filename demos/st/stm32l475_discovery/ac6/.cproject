@@ -57,7 +57,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/st/stm32l475_discovery/BSP/Components/lsm6dsl}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/st/stm32l475_discovery/BSP/Components/vl53l0x}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/st/stm32l475_discovery/BSP/Components/es_wifi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../lib/ota/portable/st/stm32l475_discovery&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1779062689" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>

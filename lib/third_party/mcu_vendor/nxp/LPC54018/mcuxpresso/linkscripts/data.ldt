@@ -1,0 +1,5 @@
+        *(.data.$${memory.alias}*)
+        *(.data.$${memory.name}*)
+        */mflash_drv.o
+        */fsl_spifi.o
+        */bignum.o

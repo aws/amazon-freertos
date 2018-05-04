@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -121,14 +121,6 @@ void vApplicationDaemonTaskStartupHook( void );
  */
 static void prvMiscInitialization( void );
 
-/*
- * Just seeds the simple pseudo random number generator.
- */
-static void prvSRand( UBaseType_t ulSeed );
-
-/* Use by the pseudo random number generator. */
-static UBaseType_t ulNextRand;
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -157,48 +149,13 @@ int main( void )
 
 static void prvMiscInitialization( void )
 {
-    uint32_t ulSeed;
-
     /* Start logging task. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-    /* Seed the random number generator. */
-    RNGCONbits.TRNGMODE = 1;
-    RNGCONbits.TRNGEN = 1;
-
-    /* make sure that the TRNG has finished */
-    while( RNGCNT < 64 )
-    {
-    }
-
-    ulSeed = RNGSEED1;
-    configPRINTF( ( "Seed for randomizer: %lu\n", ulSeed ) );
-    prvSRand( ( uint32_t ) ulSeed );
-    configPRINTF( ( "Random numbers: %08X %08X %08X %08X\n", ipconfigRAND32(), ipconfigRAND32(), ipconfigRAND32(), ipconfigRAND32() ) );
-
     SYS_Initialize( NULL );
     SYS_Tasks();
-}
-/*-----------------------------------------------------------*/
-
-uint32_t ulRand( void )
-{
-    const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
-
-    /* Utility function to generate a pseudo random number. */
-
-    ulNextRand = ( ulMultiplier * ulNextRand ) + ulIncrement;
-
-    return( ( uint32_t ) ( ulNextRand >> 16UL ) & 0x7fffUL );
-}
-/*-----------------------------------------------------------*/
-
-static void prvSRand( UBaseType_t ulSeed )
-{
-    /* Utility function to seed the pseudo random number generator. */
-    ulNextRand = ulSeed;
 }
 /*-----------------------------------------------------------*/
 
@@ -407,7 +364,8 @@ void vApplicationIdleHook( void )
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    taskDISABLE_INTERRUPTS();
+    for( ;; );
 }
 /*-----------------------------------------------------------*/
 

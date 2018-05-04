@@ -29,7 +29,7 @@
  */
 
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -81,11 +81,15 @@
  ******************************************************************************/
 
 /* The lpc54018 usb logging driver calls a blocking write function. Since this 
- * task is the lowest priority all of the demo's priorities must be higher than
+ * task is the lowest priority, all of the demo's priorities must be higher than
  * this to run. */
-#define mainLOGGING_TASK_PRIORITY (tskIDLE_PRIORITY)
-#define mainLOGGING_TASK_STACK_SIZE (configMINIMAL_STACK_SIZE * 4)
-#define mainLOGGING_QUEUE_LENGTH (16)
+#define mainLOGGING_TASK_PRIORITY       (tskIDLE_PRIORITY)
+#define mainLOGGING_TASK_STACK_SIZE     (configMINIMAL_STACK_SIZE * 4)
+#define mainLOGGING_QUEUE_LENGTH        (16)
+
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+ * failure status before blocking indefinitely. */
+#define mainLOGGING_WIFI_STATUS_DELAY   pdMS_TO_TICKS( 1000 )
 
 /*******************************************************************************
  * Prototypes
@@ -96,12 +100,6 @@ static void prvWifiConnect( void );
 /*******************************************************************************
  * Code
  ******************************************************************************/
-
-const WIFINetworkParams_t pxNetworkParams = {
-    .pcSSID = clientcredentialWIFI_SSID,
-    .pcPassword = clientcredentialWIFI_PASSWORD,
-    .xSecurity = clientcredentialWIFI_SECURITY,
-};
 
 int main(void)
 {
@@ -180,26 +178,70 @@ void vApplicationDaemonTaskStartupHook( void )
 
 static void prvWifiConnect( void )
 {
-    WIFIReturnCode_t result;
+    WIFINetworkParams_t xNetworkParams;
+    WIFIReturnCode_t xWifiStatus;
+    uint8_t ucTempIp[4];
 
-    configPRINTF( ( "Starting WiFi...\r\n" ) );
+    /* Setup WiFi parameters to connect to access point. */
+    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
+    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
+    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
+    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
+    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    xNetworkParams.cChannel = 0;
+    
+    configPRINTF( ( "Starting Wi-Fi...\r\n" ) );
 
-    result = WIFI_On();
-    assert(eWiFiSuccess == result);
+    xWifiStatus = WIFI_On();
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
+    }
+    else
+    {
+        configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
+        
+        /* Delay to allow the lower priority logging task to print the above status. */
+        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
-    configPRINTF( ( "WiFi module initialized.\r\n" ) );
+        while( 1 )
+        {
+        }
+    }
 
-    result = WIFI_ConnectAP(&pxNetworkParams);
-    assert(eWiFiSuccess == result);
+    xWifiStatus = WIFI_ConnectAP( &xNetworkParams );
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        configPRINTF( ( "Wi-Fi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
-    configPRINTF( ( "WiFi connected to AP %s.\r\n", pxNetworkParams.pcSSID ) );
+        xWifiStatus = WIFI_GetIP( ucTempIp );
+        if ( eWiFiSuccess == xWifiStatus ) 
+        {
+            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
+                            ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
+        }
+    }
+    else
+    {
+        /* Connection failed, configure SoftAP. */
+        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
-    uint8_t tmp_ip[4] = {0};
-    result = WIFI_GetIP(tmp_ip);
-    assert(eWiFiSuccess == result);
+        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
+        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
+        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
 
-    configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                          tmp_ip[ 0 ], tmp_ip[ 1 ], tmp_ip[ 2 ], tmp_ip[ 3 ] ) );
+        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
+                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+
+        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+        }
+
+        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -272,7 +314,8 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    taskDISABLE_INTERRUPTS();
+    for( ;; );
 }
 
 /*-----------------------------------------------------------*/

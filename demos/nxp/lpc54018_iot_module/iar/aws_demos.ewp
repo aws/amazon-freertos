@@ -1181,6 +1181,9 @@
             <name>$PROJ_DIR$\..\common\config_files\aws_mqtt_config.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\common\config_files\aws_pkcs11_config.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\common\config_files\aws_secure_sockets_config.h</name>
         </file>
         <file>
@@ -1401,10 +1404,13 @@
             <group>
                 <name>pkcs11</name>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\portable\nxp\lpc54018_iot_module\hw_poll.c</name>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\portable\nxp\lpc54018_iot_module\pkcs11.c</name>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\portable\nxp\lpc54018_iot_module\aws_pkcs11_pal.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\portable\nxp\lpc54018_iot_module\hw_poll.c</name>
                 </file>
             </group>
             <group>
@@ -1613,6 +1619,9 @@
                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa.h</name>
                     </file>
                     <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa_internal.h</name>
+                    </file>
+                    <file>
                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\include\mbedtls\sha1.h</name>
                     </file>
                     <file>
@@ -1809,6 +1818,9 @@
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\library\rsa.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c</name>
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\library\sha1.c</name>

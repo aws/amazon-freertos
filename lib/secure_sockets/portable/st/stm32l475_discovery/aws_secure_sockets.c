@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 1
+ * Amazon FreeRTOS Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -785,7 +785,7 @@ int32_t SOCKETS_Close( Socket_t xSocket )
     uint32_t ulSocketNumber = ( uint32_t ) xSocket; /*lint !e923 cast required for portability. */
     STSecureSocket_t * pxSecureSocket;
     ES_WIFI_Conn_t xWiFiConnection;
-    int32_t lRetVal = SOCKETS_SOCKET_ERROR;
+    int32_t lRetVal;
 
     /* Ensure that a valid socket was passed. */
     if( prvIsValidSocket( ulSocketNumber ) == pdTRUE )
@@ -828,13 +828,28 @@ int32_t SOCKETS_Close( Socket_t xSocket )
                 /* Connection close successful. */
                 lRetVal = SOCKETS_ERROR_NONE;
             }
+            else
+            {
+                /* Couldn't stop WiFi client connection. */
+                lRetVal = SOCKETS_SOCKET_ERROR;
+            }
 
             /* Return the semaphore. */
             ( void ) xSemaphoreGive( xWiFiModule.xSemaphoreHandle );
         }
+        else
+        {
+            /* Couldn't get semaphore. */
+            lRetVal = SOCKETS_SOCKET_ERROR;
+        }
 
         /* Return the socket back to the free socket pool. */
         prvReturnSocket( ulSocketNumber );
+    }
+    else
+    {
+    	/* Bad argument. */
+        lRetVal = SOCKETS_EINVAL;
     }
 
     return lRetVal;

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,7 @@
 #include <stdio.h>
 
 /* EDIT THIS FILE:
- * Wifi SSID, password & security settings,
+ * Wi-Fi SSID, password & security settings,
  * AWS endpoint, certificate, private key & thing name. */
 #include "aws_clientcredential.h"
 
@@ -46,7 +46,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* WiFi Interface files. */
+/* Wi-Fi Interface files. */
 #include "aws_wifi.h"
 
 /* Demo files. */
@@ -69,11 +69,15 @@ const AppVersion32_t xAppFirmwareVersion =
     .u.x.usBuild = APP_VERSION_BUILD,
 };
 
-
+/* The length of the logging task's queue to hold messages. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
-void vApplicationDaemonTaskStartupHook( void );
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+ * failure status before blocking indefinitely. */
+#define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
+void vApplicationDaemonTaskStartupHook( void );
+static void prvWifiConnect( void );
 
 /**
  * @brief Performs board and logging initializations, then starts the OS.
@@ -104,7 +108,7 @@ int main( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Completes board, Wifi, and AWS system initializations
+ * @brief Completes board, Wi-Fi, and AWS system initializations
  * and creates the test runner task.
  *
  * This task is run when configUSE_DAEMON_TASK_STARTUP_HOOK = 1.
@@ -112,8 +116,9 @@ int main( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     UART_Handle xtUartHndl;
-    WIFINetworkParams_t xNetworkParams;
+    WIFIReturnCode_t xWifiStatus;
 
+    /* Hardware initialization required after the RTOS is running. */
     Board_initGPIO();
     Board_initSPI();
 
@@ -121,8 +126,26 @@ void vApplicationDaemonTaskStartupHook( void )
     xtUartHndl = InitTerm();
     UART_control( xtUartHndl, UART_CMD_RXDISABLE, NULL );
 
-    /* Initialize WiFi module, start simple link device. */
-    WIFI_On();
+    configPRINTF( ( "Starting Wi-Fi Module ...\r\n" ) );
+
+    /* Initialize Wi-Fi module. This is called before key provisioning because
+     * initializing the Wi-Fi module also initializes the CC3220SF's file system. */
+    xWifiStatus = WIFI_On();
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        configPRINTF( ( "Wi-Fi module initialized.\r\n" ) );
+    }
+    else
+    {
+        configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
+
+        /* Delay to allow the lower priority logging task to print the above status. */
+        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
+
+        while( 1 )
+        {
+        }
+    }
 
     /* A simple example to demonstrate key and certificate provisioning in
      * flash using PKCS#11 interface. This should be replaced
@@ -130,9 +153,26 @@ void vApplicationDaemonTaskStartupHook( void )
      * initializing the TI File System using WIFI_On. */
     vDevModeKeyProvisioning();
 
-    /* Initialize the AWS library system. */
-    BaseType_t xResult = SYSTEM_Init();
-    configASSERT( xResult == pdPASS );
+    /* Initialize the AWS Libraries system. */
+    if ( SYSTEM_Init() == pdPASS )
+    {
+        prvWifiConnect();
+
+        DEMO_RUNNER_RunDemos();
+    }
+
+}
+/* ----------------------------------------------------------*/
+
+/**
+ * @brief Connect the Wi-Fi acess point specifed in aws_clientcredential.h
+ *
+ */
+static void prvWifiConnect( void )
+{
+    WIFIReturnCode_t xWifiStatus;
+    WIFINetworkParams_t xNetworkParams;
+    uint8_t ucTempIp[4];
 
     /* Initialize Network params. */
     xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
@@ -140,13 +180,48 @@ void vApplicationDaemonTaskStartupHook( void )
     xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
     xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    xNetworkParams.cChannel = 0;
 
-    /* Connect to WIFI. */
-    WIFI_ConnectAP( &xNetworkParams );
+    /* Connect to Wi-Fi. */
+    xWifiStatus = WIFI_ConnectAP( &xNetworkParams );
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        configPRINTF( ( "Wi-Fi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
-    DEMO_RUNNER_RunDemos();
+        xWifiStatus = WIFI_GetIP( ucTempIp );
+        if ( eWiFiSuccess == xWifiStatus )
+        {
+            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
+                            ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
+        }
+
+    }
+    else
+    {
+        /* If the Wi-Fi fails to connect, then the logic in ti_code/network_if.c asks
+         * the user for a open SSID to connect to instead. The code in this else-statement
+         * is for consistency between in the demos for each board. */
+
+        /* Connection failed, configure SoftAP. */
+        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
+
+        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
+        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
+        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
+
+        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
+                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+
+        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+        }
+
+        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
+    }
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -161,7 +236,8 @@ void vApplicationDaemonTaskStartupHook( void )
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    taskDISABLE_INTERRUPTS();
+    for( ;; );
 }
 
 /*-----------------------------------------------------------*/

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Echo Demo V1.2.3
+ * Amazon FreeRTOS MQTT Echo Demo V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -181,9 +181,9 @@ static BaseType_t prvCreateClientAndConnectToBroker( void )
     MQTTAgentConnectParams_t xConnectParameters =
     {
         clientcredentialMQTT_BROKER_ENDPOINT, /* The URL of the MQTT broker to connect to. */
-        mqttagentREQUIRE_TLS,                 /* Connection flags. */
+        democonfigMQTT_AGENT_CONNECT_FLAGS,   /* Connection flags. */
         pdFALSE,                              /* Deprecated. */
-        clientcredentialMQTT_BROKER_PORT,     /* Port number on which the MQTT broker is listening. */
+        clientcredentialMQTT_BROKER_PORT,     /* Port number on which the MQTT broker is listening. Can be overridden by ALPN connection flag. */
         echoCLIENT_ID,                        /* Client Identifier of the MQTT client. It should be unique per broker. */
         0,                                    /* The length of the client Id, filled in later as not const. */
         pdFALSE,                              /* Deprecated. */

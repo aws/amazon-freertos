@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets for LPC54018 IoT Module V1.0.0 Beta 2
+ * Amazon FreeRTOS Secure Sockets for LPC54018 IoT Module V1.0.0 Beta 3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -325,12 +325,12 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
     int32_t lStatus = SOCKETS_ERROR_NONE;
     SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket;
 
-    pxContext->xRecvFlags = ( BaseType_t ) ulFlags;
-
     if( ( SOCKETS_INVALID_SOCKET != xSocket ) &&
         ( NULL != pvBuffer ) &&
         ( ( nxpsecuresocketsSOCKET_READ_CLOSED_FLAG & pxContext->xShutdownFlags ) == 0UL ) )
     {
+        pxContext->xRecvFlags = ( BaseType_t ) ulFlags;
+
         if( pdTRUE == pxContext->xRequireTLS )
         {
             /* Receive through TLS pipe, if negotiated. */

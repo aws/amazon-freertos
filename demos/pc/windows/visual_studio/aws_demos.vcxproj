@@ -114,8 +114,9 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\pkcs11.c" />
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\pc\windows\aws_secure_sockets.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
+    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow_json.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\jsmn\jsmn.c" />
@@ -167,6 +168,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\ripemd160.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\sha1.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\sha256.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\sha512.c" />
@@ -326,6 +328,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_time.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\ripemd160.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa.h" />
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa_internal.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\sha1.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\sha256.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\sha512.h" />
@@ -349,6 +352,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\tinycbor\compilersupport_p.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\tinycbor\extract_number_p.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\tinycbor\math_support_p.h" />
+    <ClInclude Include="..\..\..\common\include\aws_application_version.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential_keys.h" />
     <ClInclude Include="..\..\..\common\include\aws_demo.h" />
@@ -369,6 +373,7 @@
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
+    <ClInclude Include="..\common\config_files\aws_pkcs11_config.h" />
     <ClInclude Include="..\common\config_files\aws_secure_sockets_config.h" />
     <ClInclude Include="..\common\config_files\aws_shadow_config.h" />
     <ClInclude Include="..\common\config_files\FreeRTOSConfig.h" />

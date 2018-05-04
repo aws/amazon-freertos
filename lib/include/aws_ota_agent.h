@@ -164,9 +164,22 @@ typedef struct {
  * @brief OTA Image stream completion callback function signature.
  * 
  * The user must register a call back to be notified of when the OTA job is complete in order to
- * call OTA_ActivateNewImage and reboot the MCU system or if the job failed.
+ * call OTA_ActivateNewImage() and reboot the MCU system or if the job failed.
  * 
- * @param[in] result The state of the OTA image that was being streamed.
+ * @note: 
+ * 
+ * The callback function is called with the input parameter result set to eOTA_ImageState_Accepted when 
+ * the image has been fully downloaded and the signature has been verified. At this point the job manager
+ * has just been notified that the signature verification has passed. The OTA job will next be in 
+ * self_test mode and waiting for the system to reboot.
+ * 
+ * The callback function is called with a result of eOTA_ImageState_Testing when the system
+ * has rebooted and it is verified that the current image is an acceptable image.
+ * 
+ * The callback function is called with a result of eOTA_ImageState_Rejected when there has
+ * been a problem in the download of the image.
+ * 
+ * @param[in] result The state of the OTA image that is being streamed.
  */
 typedef void (*pxOTACompleteCallback_t)(OTA_ImageState_t result);
 

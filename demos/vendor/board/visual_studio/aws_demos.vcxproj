@@ -108,7 +108,8 @@
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_helper_secure_connect.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_lib.c" />
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\pkcs11.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\aws_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow_json.c" />
@@ -161,6 +162,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\ripemd160.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\sha1.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\sha256.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\sha512.c" />
@@ -310,6 +312,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_time.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\ripemd160.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa.h" />
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa_internal.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\sha1.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\sha256.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\sha512.h" />
@@ -346,6 +349,7 @@
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
+    <ClInclude Include="..\common\config_files\aws_pkcs11_config.h" />
     <ClInclude Include="..\common\config_files\aws_secure_sockets_config.h" />
     <ClInclude Include="..\common\config_files\aws_shadow_config.h" />
     <ClInclude Include="..\common\config_files\FreeRTOSConfig.h" />

@@ -372,7 +372,7 @@ void (* const g_pfnVectors[])(void) = {
     0,                          // (0x10) CRC value (only applicable to NON Non-secure images).
     0,                          // (0x14) Version (only applicable to DUAL_ENH image type.
     0,                          // (0x18) EMC static memory configuration settings, required for EMC boot
-    IMG_BAUDRATE,               // (0x1C) image baudrate
+    (void *)IMG_BAUDRATE,       // (0x1C) image baudrate
     0,                          // (0x20) reserved
     (void *)0xEDDC94BD,         // (0x24) Image_marker
     0,                          // (0x28) SBZ

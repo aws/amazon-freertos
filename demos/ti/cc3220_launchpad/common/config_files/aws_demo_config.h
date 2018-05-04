@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,9 +30,6 @@
 #define democonfigTASKSTACKSIZE                              ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigSPAWN_TASK_PRIORITY                        ( 9 )
 
-/* Number of shadow tasks running. */
-#define democonfigSHADOW_DEMO_NUM_TASKS                      ( 1 )
-
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */
 #define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS            ( 0 )
 
@@ -51,9 +48,12 @@
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 16 )
 #define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY         ( tskIDLE_PRIORITY )
 
-/* Shadow lightbulb example task parameters. */
-#define democonfigSHADOW_LIGHTBULB_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigSHADOW_LIGHTBULB_TASK_PRIORITY             ( tskIDLE_PRIORITY )
+/* Shadow demo task parameters. */
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_PRIORITY                  ( tskIDLE_PRIORITY )
+
+/* Number of shadow light switch tasks running. */
+#define democonfigSHADOW_DEMO_NUM_TASKS                      ( 2 )
 
 /* TCP Echo Client tasks single example parameters */
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
@@ -74,5 +74,8 @@
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
 #define democonfigMQTT_TIMEOUT                               pdMS_TO_TICKS( 2500 )
+
+/* Send AWS IoT MQTT traffic encrypted. */
+#define democonfigMQTT_AGENT_CONNECT_FLAGS          	     ( mqttagentREQUIRE_TLS )
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

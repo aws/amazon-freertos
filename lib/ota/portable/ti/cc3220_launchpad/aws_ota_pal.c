@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V0.9.2
+Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V0.9.3
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -218,16 +218,29 @@ static OTA_Err_t prvSetImageState (OTA_ImageState_t eState)
 	return kOTA_Err_None;
 }
 
+/* Not used by this PAL. */
+static OTA_Err_t prvCheckFileSignature(OTA_FileContext_t * const C)
+{
+    return kOTA_Err_SignatureCheckFailed;
+}
+
+/* Not used by this PAL. */
+static u8 * prvReadAndAssumeCertificate(const u8 * const pucCertName, s32 * const lSignerCertSize)
+{
+    return NULL;
+}
 
 /* Write a block of data to the specified file.
  * Returns the number of bytes written on success or negative error code.
  */
-
 int16_t prvWriteBlock(OTA_FileContext_t *C, int32_t iOffset, uint8_t* pacData, uint32_t iBlockSize)
 {
 	return (int16_t)sl_FsWrite(C->iFileHandle, iOffset, pacData, iBlockSize);
 }
 
+#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#include "aws_ota_pal_test_access_define.h"
+#endif
 
 #else
 void dummy_function_to_avoid_empty_translation_unit_warning (void);

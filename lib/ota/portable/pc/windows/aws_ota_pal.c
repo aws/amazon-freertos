@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA PAL for Windows Simulator V0.9.1
+Amazon FreeRTOS OTA PAL for Windows Simulator V0.9.2
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -240,7 +240,7 @@ static s16 prvWriteBlock(OTA_FileContext_t * const C, s32 iOffset, u8* const pac
 }
 
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-#include "aws_ota_pal_internal.c"
+#include "aws_ota_pal_test_access_define.h"
 #endif
 
 #else

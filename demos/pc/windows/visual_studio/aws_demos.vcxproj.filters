@@ -468,12 +468,6 @@
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\pc\windows\aws_secure_sockets.c">
-      <Filter>lib\aws\secure_sockets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\pkcs11.c">
-      <Filter>lib\aws\pkcs11</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\mqtt\aws_hello_world.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
@@ -491,6 +485,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c">
       <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c">
+      <Filter>lib\aws\secure_sockets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c">
+      <Filter>lib\third_party\mbedtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c">
+      <Filter>lib\aws\pkcs11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c">
+      <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -973,6 +979,14 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_lib_private.h">
       <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa_internal.h">
+      <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_pkcs11_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>    <ClInclude Include="..\..\..\common\include\aws_application_version.h">
+      <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

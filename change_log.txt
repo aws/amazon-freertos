@@ -1,3 +1,123 @@
+Change Log for Amazon FreeRTOS V1.2.4 05/01/2018
+
+    - Upgraded to mbedTLS version 2.8.
+    - Added MCUXpresso IDE demo project for the NXP LPC54018 IoT Module.
+
+Crypto V1.0.2
+    - Minor updates due to mbedTLS crypto interface changes.
+
+FreeRTOS+TCP V2.0.3
+    - Fixed a bug where re-transmission and duplicated TCP packets would create a 
+      computation underflow as well as a memory leak.
+    - New public function FreeRTOS_UpdateMACAddress() to allow changing the MAC address 
+      after FreeRTOS_IPInit. Sometimes the device MAC address is not available at the 
+      time FreeRTOS_IPInit() is called, so it needs to be changed afterward.
+    - Removed non-cryptographic rand() implementation.
+    - Removed a static variable in functions prvGetHostByName() and 
+      prvCreateDNSSocket() to make them threadsafe.
+
+Greengrass Discovery V1.0.3
+    - Provide a helpful error message if the Greengrass Discovery JSON does not fit in 
+      the supplied buffer.
+
+MQTT Agent V1.1.2
+    - Bug fix to avoid socket leak if MQTT Connect fails after a successful TCP 
+      connection.
+    - The user can now disable subscription management feature by defining the macro 
+      mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT as 0.
+
+OTA PAL for Curiosity PIC32MZEF V0.9.1
+    - Updated for PKCS#11 PAL layer API changes.
+
+OTA PAL for Windows Simulator V0.9.2
+    - Minor restructuring of file locations.Minor restructuring of file locations.
+
+OTA PAL for CC3220SF-LAUNCHXL V0.9.3
+    - Minor changes to enable test integration.
+
+OTA Agent V0.9.4
+    - Minor restructuring of file locations.
+
+mbedTLS-based PKCS#11 V1.0.2
+    - Combined the mbedTLS based PKCS#11 implementation from Curiosity PIC32MZEF, 
+      LPC54018 IoT Module, Windows Simulator, and STM32L4 Discovery kit IoT node into a
+      single file.
+    - Add support for public key verification of signatures.
+    - Fix to free context structures on session failure.
+    - Update C_OpenSession to use CKF_SERIAL_SESSION flag.
+
+PKCS#11 for Curiosity PIC32MZEF V1.0.2
+    - Create port specific functions for certificate and key access: 
+      PKCS11_PAL_SaveFile(), PKCS11_PAL_ReadFile(), PKCS11_PAL_ReleaseFileData().
+
+PKCS#11 for LPC54018 IoT Module V1.0.1
+    - Create port specific functions for certificate and key access: 
+      PKCS11_PAL_SaveFile(), PKCS11_PAL_ReadFile(), PKCS11_PAL_ReleaseFileData().
+
+PKCS#11 PAL for Windows Simulator V1.0.2
+    - Create port specific functions for certificate and key access: 
+      PKCS11_PAL_SaveFile(), PKCS11_PAL_ReadFile(), PKCS11_PAL_ReleaseFileData().
+
+PKCS#11 for STM32L4 Discovery kit IoT node V1.0.1
+    - Create port specific functions for certificate and key access: 
+      PKCS11_PAL_SaveFile(), PKCS11_PAL_ReadFile(), PKCS11_PAL_ReleaseFileData().
+
+PKCS#11 for CC3220SF-LAUNCHXL V1.0.2
+    - PKCS#11 implementation for TI based on mbedTLS moved into this file.
+
+Secure Socket for FreeRTOS+TCP V1.1.2
+    - Combined Secure Sockets implementation for Curiosity PIC32MZEF and Windows 
+      Simulator into a single file.
+    - Fixed return value of SOCKETS_Socket on error.
+    - Attempting to create an unsupported UDP socket now triggers an assert.
+    - Added cryptographic random number generator function for TCP sequence numbers.
+    - Updated the Socket structure to keep track of a connection attempt and added 
+      support of the ECONN error.
+
+Secure Sockets for LPC54018 IoT Module V1.0.0 Beta 3
+    - Fixed minor bug in SOCKETS_Recv().
+
+Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 2
+    - Fixed return value of SOCKETS_Close on error.
+
+Secure Sockets for CC3220SF-LAUNCHXL V1.0.3
+    - Secure sockets printing is now controlled independently using the SOCKETS_PRINT 
+      macro. SOCKETS_PRINT prints TI driver error codes.
+
+Shadow V1.0.3
+    - Changed names of configuration constants to be consistent with FreeRTOS style.
+
+TLS V1.1.1
+    - Support AWS IoT Just-in-Time Registration (JITR) by sending optional 
+      client-issuer certificate.
+    - Use CKF_SERIAL_SESSION flag with PKCS#11.
+
+Wi-Fi for Curiosity PIC32MZEF V1.0.3
+    - Updated for setting the MAC Address in WIFI_On() by using new FreeRTOS+TCP 
+      function FreeRTOS_UpdateMACAddress().
+    - Redefined printing and assert stubs used in the Wi-Fi driver code.
+    - Added implementation of WIFI_GetMAC().
+    - Added implementation of WIFI_IsConnected().
+    - Minor bug fixes.
+
+Wi-Fi for LPC54018 IoT Module V1.0.2
+    - Added implementation of WIFI_IsConnected().
+    - Fixed max DNS name length redefinition.
+    - Fixed compiler errors in MCUXpresso IDE.
+    - Minor bug fixes.
+
+Wi-Fi STM32L4 Discovery kit IoT node V1.0.1
+    - Added implementation of WIFI_IsConnected().
+    - Added NULL pointer checks throughout.
+    - Minor bug fixes.
+
+Wi-Fi for CC3220SF-LAUNCHXL V1.0.2
+    - Added implementation of WIFI_IsConnected().
+    - Added NULL pointer checks throughout.
+    - Minor bug fixes.
+
+---------------------------------------------------------------------------------------
+
 Change Log for Amazon FreeRTOS V1.2.3 03/29/2018
     - Fixed TI IAR project build failure.
 

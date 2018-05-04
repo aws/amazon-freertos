@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,9 +23,21 @@
  * http://www.FreeRTOS.org
  */
 
+
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
 
-void vDevModeKeyProvisioning(void);
+typedef struct ProvisioningParams_t
+{
+    uint32_t ulClientPrivateKeyType;
+    uint8_t * pcClientPrivateKey;
+    uint32_t ulClientPrivateKeyLength;
+    uint8_t * pcClientCertificate;
+    uint32_t ulClientCertificateLength;
+} ProvisioningParams_t;
+
+void vDevModeKeyProvisioning( void );
+
+void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
 
 #endif /* _AWS_DEV_MODE_KEY_PROVISIONING_H_ */

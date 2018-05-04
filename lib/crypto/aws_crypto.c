@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Crypto V1.0.1
+ * Amazon FreeRTOS Crypto V1.0.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -184,12 +184,12 @@ BaseType_t CRYPTO_SignatureVerificationStart( void ** ppvContext,
         if( cryptoHASH_ALGORITHM_SHA1 == pxCtx->xHashAlgorithm )
         {
             mbedtls_sha1_init( &pxCtx->xSHA1Context );
-            mbedtls_sha1_starts( &pxCtx->xSHA1Context );
+            ( void )mbedtls_sha1_starts_ret( &pxCtx->xSHA1Context );
         }
         else
         {
             mbedtls_sha256_init( &pxCtx->xSHA256Context );
-            mbedtls_sha256_starts( &pxCtx->xSHA256Context, 0 );
+            ( void )mbedtls_sha256_starts_ret( &pxCtx->xSHA256Context, 0 );
         }
     }
 
@@ -211,11 +211,11 @@ void CRYPTO_SignatureVerificationUpdate( void * pvContext,
      */
     if( cryptoHASH_ALGORITHM_SHA1 == pxCtx->xHashAlgorithm )
     {
-        mbedtls_sha1_update( &pxCtx->xSHA1Context, pucData, xDataLength );
+        ( void )mbedtls_sha1_update_ret( &pxCtx->xSHA1Context, pucData, xDataLength );
     }
     else
     {
-        mbedtls_sha256_update( &pxCtx->xSHA256Context, pucData, xDataLength );
+        ( void )mbedtls_sha256_update_ret( &pxCtx->xSHA256Context, pucData, xDataLength );
     }
 }
 
@@ -241,13 +241,13 @@ BaseType_t CRYPTO_SignatureVerificationFinal( void * pvContext,
      */
     if( cryptoHASH_ALGORITHM_SHA1 == pxCtx->xHashAlgorithm )
     {
-        mbedtls_sha1_finish( &pxCtx->xSHA1Context, ucSHA1 );
+        ( void )mbedtls_sha1_finish_ret( &pxCtx->xSHA1Context, ucSHA1 );
         pucHash = ucSHA1;
         xHashLength = cryptoSHA1_DIGEST_BYTES;
     }
     else
     {
-        mbedtls_sha256_finish( &pxCtx->xSHA256Context, ucSHA256 );
+        ( void )mbedtls_sha256_finish_ret( &pxCtx->xSHA256Context, ucSHA256 );
         pucHash = ucSHA256;
         xHashLength = cryptoSHA256_DIGEST_BYTES;
     }

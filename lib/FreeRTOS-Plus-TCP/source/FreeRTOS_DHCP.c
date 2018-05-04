@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.2
+ * FreeRTOS+TCP V2.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -593,15 +593,19 @@ static void prvInitialiseDHCP( void )
 		xDHCPData.ulTransactionId++;
 	}
 
-	xDHCPData.xUseBroadcast = 0;
-	xDHCPData.ulOfferedIPAddress = 0UL;
-	xDHCPData.ulDHCPServerAddress = 0UL;
-	xDHCPData.xDHCPTxPeriod = dhcpINITIAL_DHCP_TX_PERIOD;
+    /* Check for random number generator API failure. */
+    if( 0 != xDHCPData.ulTransactionId )
+    {
+	    xDHCPData.xUseBroadcast = 0;
+	    xDHCPData.ulOfferedIPAddress = 0UL;
+	    xDHCPData.ulDHCPServerAddress = 0UL;
+	    xDHCPData.xDHCPTxPeriod = dhcpINITIAL_DHCP_TX_PERIOD;
 
-	/* Create the DHCP socket if it has not already been created. */
-	prvCreateDHCPSocket();
-	FreeRTOS_debug_printf( ( "prvInitialiseDHCP: start after %lu ticks\n", dhcpINITIAL_TIMER_PERIOD ) );
-	vIPReloadDHCPTimer( dhcpINITIAL_TIMER_PERIOD );
+	    /* Create the DHCP socket if it has not already been created. */
+	    prvCreateDHCPSocket();
+	    FreeRTOS_debug_printf( ( "prvInitialiseDHCP: start after %lu ticks\n", dhcpINITIAL_TIMER_PERIOD ) );
+	    vIPReloadDHCPTimer( dhcpINITIAL_TIMER_PERIOD );
+    }
 }
 /*-----------------------------------------------------------*/
 

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,6 +49,9 @@
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
 
+/* The SPI driver polls at a high priority. The logging task's priority must also
+ * be high to be not be starved of CPU time. */
+#define mainLOGGING_TASK_PRIORITY           ( configMAX_PRIORITIES - 1 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
@@ -95,7 +98,7 @@ int main( void )
 
     /* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
-                            configMAX_PRIORITIES - 1,
+                            mainLOGGING_TASK_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
@@ -128,7 +131,6 @@ static void prvWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-
     uint8_t ucIPAddr[ 4 ];
 
     /* Setup WiFi parameters to connect to access point. */
@@ -137,6 +139,7 @@ static void prvWifiConnect( void )
     xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
     xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    xNetworkParams.cChannel = 0;
 
     xWifiStatus = WIFI_On();
 
@@ -452,7 +455,8 @@ void Error_Handler( void )
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    taskDISABLE_INTERRUPTS();
+    for( ;; );
 }
 /*-----------------------------------------------------------*/
 

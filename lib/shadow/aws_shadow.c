@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V1.0.2
+ * Amazon FreeRTOS Shadow V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,8 +46,12 @@
 
 /**
  * @brief Format strings for the AWS IoT Shadow MQTT topics.
- * Refer to http://docs.aws.amazon.com/iot/latest/developerguide/thing-shadow-mqtt.html
- * If the MQTT topics change, update them here. Use %s for 'thingName'. */
+ * Refer to docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html
+ * If the MQTT topics change, update them here. Use %s for 'thingName'.
+ *
+ * These topics may also be changed to trim Thing Shadow messages.
+ * Refer to docs.aws.amazon.com/iot/latest/developerguide/using-device-shadows.html#device-shadow-trim-messages
+ */
 /** @{ */
 #define shadowTOPIC_PREFIX              "$aws/things/%s/shadow/" /* All shadow topics begin with this. */
 #define shadowTOPIC_OPERATION_UPDATE    "update"
@@ -75,7 +79,7 @@
 #define configMAX_THING_NAME_LENGTH    128
 #define shadowTOPIC_BUFFER_LENGTH      ( configMAX_THING_NAME_LENGTH + ( int16_t ) sizeof( shadowTOPIC_UPDATE_DOCUMENTS ) )
 
-#if ( shadowENABLE_DEBUG_LOGS == 1 )
+#if shadowconfigENABLE_DEBUG_LOGS == 1
     #define Shadow_debug_printf( X )    configPRINTF( X )
 #else
     #define Shadow_debug_printf( X )
@@ -182,7 +186,7 @@ typedef struct ShadowClient
     volatile ShadowReturnCode_t xOperationResult;
 
     /* Callback catalog stores Thing Names and registered callbacks. */
-    CallbackCatalogEntry_t pxCallbackCatalog[ shadowCLIENT_MAX_THINGS_WITH_CALLBACKS ];
+    CallbackCatalogEntry_t pxCallbackCatalog[ shadowconfigMAX_THINGS_WITH_CALLBACKS ];
 
     /* Stores the topic of the in-progress operation. Some of the Shadow API's
      * static functions depend on this buffer remaining the same throughout a
@@ -324,7 +328,7 @@ static uint8_t prvGetSubscribedFlag( const ShadowClient_t * const pxShadowClient
 /**
  * @brief Memory allocated to store Shadow Clients.
  */
-static ShadowClient_t pxShadowClients[ shadowMAX_CLIENTS ];
+static ShadowClient_t pxShadowClients[ shadowconfigMAX_CLIENTS ];
 
 /**
  * @brief Custom prvCreateTopic function since prvCreateTopic is not MISRA 2012 compliant (rule 21.6) .
@@ -342,7 +346,7 @@ static BaseType_t prvGetFreeShadowClient( void )
 
     taskENTER_CRITICAL();
     {
-        for( xIterator = 0; xIterator < shadowMAX_CLIENTS; xIterator++ )
+        for( xIterator = 0; xIterator < shadowconfigMAX_CLIENTS; xIterator++ )
         {
             if( pxShadowClients[ xIterator ].xInUse == pdFALSE )
             {
@@ -368,7 +372,7 @@ static BaseType_t prvGetCallbackCatalogEntry( CallbackCatalogEntry_t * const pxC
 
     taskENTER_CRITICAL();
     {
-        for( xIterator = 0; xIterator < shadowCLIENT_MAX_THINGS_WITH_CALLBACKS; xIterator++ )
+        for( xIterator = 0; xIterator < shadowconfigMAX_THINGS_WITH_CALLBACKS; xIterator++ )
         {
             pxCallbackCatalogEntry = &( pxCallbackCatalog[ xIterator ] );
 
@@ -543,7 +547,7 @@ static ShadowReturnCode_t prvRegisterCallback( BaseType_t xShadowClientID,
         xSubscribeParams.usTopicLength = usTopicLength;
         xSubscribeParams.pucTopic = pucTopicString;
 
-        #ifdef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
+        #if( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
             xSubscribeParams.pvPublishCallbackContext = NULL;
             xSubscribeParams.pxPublishCallback = NULL;
         #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
@@ -593,7 +597,7 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
     /* Shadow service always publishes QoS 1, regardless of the value below. */
     xSubscribeParams.xQoS = eMQTTQoS1;
 
-    #ifdef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
+    #if( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
         xSubscribeParams.pvPublishCallbackContext = NULL;
         xSubscribeParams.pxPublishCallback = NULL;
     #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
@@ -636,7 +640,7 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
 
             xUnsubscribeParams.pucTopic = pxShadowClient->pucTopicBuffer;
 
-            xTimeoutTicks = pdMS_TO_TICKS( shadowCLEANUP_TIME_MS );
+            xTimeoutTicks = pdMS_TO_TICKS( shadowconfigCLEANUP_TIME_MS );
 
             ( void ) MQTT_AGENT_Unsubscribe( pxShadowClient->xMQTTClient,
                                              &xUnsubscribeParams,
@@ -907,7 +911,7 @@ static const CallbackCatalogEntry_t * prvMatchCallbackTopic( const ShadowClient_
     uint8_t pucTopicBuffer[ shadowTOPIC_BUFFER_LENGTH ];
     size_t xCompareLength;
 
-    for( xIterator = 0; xIterator < shadowCLIENT_MAX_THINGS_WITH_CALLBACKS; xIterator++ )
+    for( xIterator = 0; xIterator < shadowconfigMAX_THINGS_WITH_CALLBACKS; xIterator++ )
     {
         pxReturn = &( pxShadowClient->pxCallbackCatalog[ xIterator ] );
 
@@ -1006,9 +1010,9 @@ static void prvShadowUpdateCallback( BaseType_t xShadowClientID,
 
     /* Verify client token match. */
     xReturn = SHADOW_JSONDocClientTokenMatch( pxParams->pcData,
-                                                pxParams->ulDataLength,
-                                                pcData,
-                                                ulDataLength );
+                                              pxParams->ulDataLength,
+                                              pcData,
+                                              ulDataLength );
 
     if( xReturn == pdPASS )
     {
@@ -1228,7 +1232,7 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
         if( ( pxParams->pxOperationParams )->ucKeepSubscriptions == ( uint8_t ) 0 )
         {
             xTimeOutData.xTicksRemaining = configMAX( xTimeOutData.xTicksRemaining,
-                                                      pdMS_TO_TICKS( shadowCLEANUP_TIME_MS ) );
+                                                      pdMS_TO_TICKS( shadowconfigCLEANUP_TIME_MS ) );
 
             /* If the Shadow client is subscribed to delete/accepted for this
              * Thing for a user notify callback, do not unsubscribe; that would
@@ -1407,7 +1411,7 @@ ShadowReturnCode_t SHADOW_ClientConnect( ShadowClientHandle_t xShadowClientHandl
     MQTTAgentReturnCode_t xMQTTReturn;
 
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
-                    ( BaseType_t ) xShadowClientHandle < shadowMAX_CLIENTS ) );                             /*lint !e923 Safe cast from pointer handle. */
+                    ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) );                       /*lint !e923 Safe cast from pointer handle. */
     configASSERT( xShadowClientHandle == *( ( ShadowClientHandle_t * ) ( pxConnectParams->pvUserData ) ) ); /*lint !e9087 Safe cast from opaque context. */
 
     pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] );                            /*lint !e923 Safe cast from pointer handle. */
@@ -1438,12 +1442,12 @@ ShadowReturnCode_t SHADOW_ClientDisconnect( ShadowClientHandle_t xShadowClientHa
     ShadowReturnCode_t xReturn;
 
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
-                    ( BaseType_t ) xShadowClientHandle < shadowMAX_CLIENTS ) );  /*lint !e923 Safe cast from pointer handle. */
+                    ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
-    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] ); /*lint !e923 Safe cast from pointer handle. */
+    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] );      /*lint !e923 Safe cast from pointer handle. */
     configASSERT( ( pxShadowClient->xInUse == pdTRUE ) );
 
-    xTimeoutTicks = pdMS_TO_TICKS( shadowCLEANUP_TIME_MS );
+    xTimeoutTicks = pdMS_TO_TICKS( shadowconfigCLEANUP_TIME_MS );
 
     xMQTTReturn = MQTT_AGENT_Disconnect( pxShadowClient->xMQTTClient,
                                          xTimeoutTicks );
@@ -1464,9 +1468,9 @@ ShadowReturnCode_t SHADOW_ClientDelete( ShadowClientHandle_t xShadowClientHandle
     MQTTAgentReturnCode_t xMQTTReturn;
 
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
-                    ( BaseType_t ) xShadowClientHandle < shadowMAX_CLIENTS ) );  /*lint !e923 Safe cast from pointer handle. */
+                    ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
-    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] ); /*lint !e923 Safe cast from pointer handle. */
+    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] );      /*lint !e923 Safe cast from pointer handle. */
     configASSERT( ( pxShadowClient->xInUse == pdTRUE ) );
 
     xMQTTReturn = MQTT_AGENT_Delete( pxShadowClient->xMQTTClient );
@@ -1494,7 +1498,7 @@ ShadowReturnCode_t SHADOW_Update( ShadowClientHandle_t xShadowClientHandle,
     ShadowOperationCallParams_t xUpdateCallParams;
 
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
-                    ( BaseType_t ) xShadowClientHandle < shadowMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
+                    ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
     configASSERT( ( pxUpdateParams != NULL ) );
     configASSERT( ( pxUpdateParams->pcThingName != NULL ) );
@@ -1528,7 +1532,7 @@ ShadowReturnCode_t SHADOW_Get( ShadowClientHandle_t xShadowClientHandle,
     ShadowOperationCallParams_t xGetCallParams;
 
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
-                    ( BaseType_t ) xShadowClientHandle < shadowMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
+                    ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
     configASSERT( ( pxGetParams != NULL ) );
     configASSERT( ( pxGetParams->pcThingName != NULL ) );
@@ -1562,7 +1566,7 @@ ShadowReturnCode_t SHADOW_Delete( ShadowClientHandle_t xShadowClientHandle,
     ShadowReturnCode_t xStatus;
 
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
-                    ( BaseType_t ) xShadowClientHandle < shadowMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
+                    ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
     configASSERT( ( pxDeleteParams != NULL ) );
     configASSERT( ( pxDeleteParams->pcThingName != NULL ) );
@@ -1600,7 +1604,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
     BaseType_t xCallbackCatalogIndex;
 
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
-                    ( BaseType_t ) xShadowClientHandle < shadowMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
+                    ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
     configASSERT( ( pxCallbackParams != NULL ) );
     configASSERT( ( pxCallbackParams->pcThingName != NULL ) );
@@ -1672,9 +1676,9 @@ ShadowReturnCode_t SHADOW_ReturnMQTTBuffer( ShadowClientHandle_t xShadowClientHa
     ShadowReturnCode_t xReturn = eShadowFailure;
 
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
-                    ( BaseType_t ) xShadowClientHandle < shadowMAX_CLIENTS ) );  /*lint !e923 Safe cast from pointer handle. */
+                    ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
-    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] ); /*lint !e923 Safe cast from pointer handle. */
+    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] );      /*lint !e923 Safe cast from pointer handle. */
     configASSERT( ( pxShadowClient->xInUse == pdTRUE ) );
 
     xMQTTReturn = MQTT_AGENT_ReturnBuffer( pxShadowClient->xMQTTClient,

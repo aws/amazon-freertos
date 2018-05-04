@@ -325,6 +325,8 @@ extern "C" {
 #define DRV_TMR_POWER_STATE_IDX0            SYS_MODULE_POWER_RUN_FULL*/
     
 /*** Wi-Fi Driver Configuration ***/
+#define WDRV_STUB_Print( x )    configPRINTF( x ) /* Redefined so WDRV printing does not clobber the logging task. */
+
 #define WILC1000_INT_SOURCE INT_SOURCE_EXTERNAL_2
 #define WILC1000_INT_VECTOR INT_VECTOR_INT2
 

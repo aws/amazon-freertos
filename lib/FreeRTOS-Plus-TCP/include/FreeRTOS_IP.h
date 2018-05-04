@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.2
+ * FreeRTOS+TCP V2.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -234,6 +234,7 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint3
 BaseType_t FreeRTOS_SendPingRequest( uint32_t ulIPAddress, size_t xNumberOfBytesToSend, TickType_t xBlockTimeTicks );
 void FreeRTOS_ReleaseUDPPayloadBuffer( void *pvBuffer );
 const uint8_t * FreeRTOS_GetMACAddress( void );
+void FreeRTOS_UpdateMACAddress( const uint8_t ucMACAddress[ipMAC_ADDRESS_LENGTH_BYTES] );
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
 void vApplicationPingReplyHook( ePingReplyStatus_t eStatus, uint16_t usIdentifier );
 uint32_t FreeRTOS_GetIPAddress( void );

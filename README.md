@@ -17,9 +17,9 @@ To evaluate Amazon FreeRTOS without using an MCU-based hardware, use the followi
 
 ## Development Environment
 
-Based on your MCU hardware, download one of the following Integrated Development Environments (IDEs):
-1. **Texas Instruments** - [Code Composer Studio](http://www.ti.com/tools-software/ccs.html).
+Based on your MCU hardware, download the applicable of the following Integrated Development Environments (IDEs):
+1. **Texas Instruments** - [Code Composer Studio](http://www.ti.com/tools-software/ccs.html), [IAR Embedded Workbench](https://www.iar.com/iar-embedded-workbench/partners/texas-instruments).
 2. **STMicroelectronics** - [STM32 System Workbench](http://openstm32.org/HomePage).
-3. **NXP** - [IAR Embedded Workbench](https://www.iar.com/iar-embedded-workbench/partners/nxp).
+3. **NXP** - [IAR Embedded Workbench](https://www.iar.com/iar-embedded-workbench/partners/nxp), [MCUXpresso IDE](https://www.nxp.com/mcuxpresso/ide/download).
 4. **Microchip** - [MPLAB X IDE](http://www.microchip.com/mplab/mplab-x-ide).
 5. **Windows Simulator** - [Visual Studio Community Edition](https://www.visualstudio.com/downloads/).

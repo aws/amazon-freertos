@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.2
+ * FreeRTOS+TCP V2.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -199,35 +199,70 @@ BaseType_t xReturn = pdTRUE;
 }
 /*-----------------------------------------------------------*/
 
-void vNetworkSocketsInit( void )
+BaseType_t vNetworkSocketsInit( void )
 {
+BaseType_t xReturn = pdTRUE;
 const uint32_t ulAutoPortRange = socketAUTO_PORT_ALLOCATION_MAX_NUMBER - socketAUTO_PORT_ALLOCATION_RESET_NUMBER;
-uint32_t ulRandomPort;
+uint32_t ulRandomPort = ipconfigRAND32( );
 
-	vListInitialise( &xBoundUDPSocketsList );
+    /* Check for random number generator API failure. */
+    if( 0 == ulRandomPort )
+    {
+        xReturn = pdFALSE;
+    }
 
-	/* Determine the first anonymous UDP port number to get assigned.  Give it
-	a random value in order to avoid confusion about port numbers being used
-	earlier, before rebooting the device.  Start with the first auto port
-	number, then add a random offset up to a maximum of the range of numbers. */
-	ulRandomPort = socketAUTO_PORT_ALLOCATION_START_NUMBER;
-	ulRandomPort += ( ipconfigRAND32() % ulAutoPortRange );
-	usNextPortToUse[ socketNEXT_UDP_PORT_NUMBER_INDEX ] = ( uint16_t ) ulRandomPort;
+    if( pdTRUE == xReturn )
+    {
+        vListInitialise( &xBoundUDPSocketsList );
 
-	#if( ipconfigUSE_TCP == 1 )
-	{
-		extern uint32_t ulNextInitialSequenceNumber;
+        /* Determine the first anonymous UDP port number to get assigned.  Give it
+        a random value in order to avoid confusion about port numbers being used
+        earlier, before rebooting the device.  Start with the first auto port
+        number, then add a random offset up to a maximum of the range of numbers. */
+        ulRandomPort %= ulAutoPortRange;
+        ulRandomPort += socketAUTO_PORT_ALLOCATION_START_NUMBER;
+        usNextPortToUse[ socketNEXT_UDP_PORT_NUMBER_INDEX ] = ( uint16_t )ulRandomPort;
+    }
 
-		ulNextInitialSequenceNumber = ipconfigRAND32();
+    #if( ipconfigUSE_TCP == 1 )
+    {
+        if( pdTRUE == xReturn )
+        {
+            extern uint32_t ulNextInitialSequenceNumber;
 
-		/* Determine the first anonymous TCP port number to get assigned. */
-		ulRandomPort = socketAUTO_PORT_ALLOCATION_START_NUMBER;
-		ulRandomPort += ( ipconfigRAND32() % ulAutoPortRange );
-		usNextPortToUse[ socketNEXT_TCP_PORT_NUMBER_INDEX ] = ( uint16_t ) ulRandomPort;
+            ulNextInitialSequenceNumber = ipconfigRAND32( );
 
-		vListInitialise( &xBoundTCPSocketsList );
-	}
-	#endif  /* ipconfigUSE_TCP == 1 */
+            /* Check for random number generator API failure. */
+            if( 0 == ulNextInitialSequenceNumber )
+            {
+                xReturn = pdFALSE;
+            }
+        }
+
+        if( pdTRUE == xReturn )
+        {
+            /* Determine the first anonymous TCP port number to get assigned. */
+            ulRandomPort = ipconfigRAND32( );
+
+            /* Check for random number generator API failure. */
+            if( 0 == ulRandomPort )
+            {
+                xReturn = pdFALSE;
+            }
+        }
+
+        if( pdTRUE == xReturn )
+        {
+            ulRandomPort %= ulAutoPortRange;
+            ulRandomPort += socketAUTO_PORT_ALLOCATION_START_NUMBER;
+            usNextPortToUse[ socketNEXT_TCP_PORT_NUMBER_INDEX ] = ( uint16_t )ulRandomPort;
+
+            vListInitialise( &xBoundTCPSocketsList );
+        }
+    }
+    #endif  /* ipconfigUSE_TCP == 1 */
+
+    return xReturn;
 }
 /*-----------------------------------------------------------*/
 

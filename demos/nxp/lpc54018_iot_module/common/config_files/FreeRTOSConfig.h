@@ -40,10 +40,10 @@
 *----------------------------------------------------------*/
 
 /* Ensure stdint is only used by the compiler, and not the assembler. */
-#if defined( __ICCARM__ ) || defined( __ARMCC_VERSION ) 
+#if defined( __ICCARM__ ) || defined( __ARMCC_VERSION ) || defined( __GNUC__ )
     #include <stdint.h>
     extern uint32_t SystemCoreClock;
-	extern int DbgConsole_Printf( const char *fmt_s, ... );
+       extern int DbgConsole_Printf( const char *fmt_s, ... );
 #endif
 
 
@@ -186,7 +186,7 @@
 #define configTCP_ECHO_CLIENT_PORT    7
 
 /* Prevent the assembler seeing code it doesn't understand. */
-#ifdef __ICCARM__
+#if defined( __ICCARM__ ) || defined( __GNUC__ )
 	/* Logging task definitions. */
 	extern void vMainUARTPrintString( char * pcString );
 	void vLoggingPrintf( const char * pcFormat,

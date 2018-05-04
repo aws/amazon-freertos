@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.3
+ * Amazon FreeRTOS V1.2.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,54 +27,55 @@
 #define _AWS_DEMO_CONFIG_H_
 
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS         ( 0 )
+#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS            ( 0 )
 
 /* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS           ( 2 )
-
-#define democonfigSHADOW_DEMO_NUM_TASKS                   ( 4 )
+#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS              ( 2 )
 
 /* IoT simple subscribe/publish example task parameters. */
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY              ( tskIDLE_PRIORITY )
+#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigMQTT_SUB_PUB_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* Greengrass discovery example task parameters. */
-#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 16 )
-#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY      ( tskIDLE_PRIORITY )
+#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 16 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY         ( tskIDLE_PRIORITY )
 
-/* Shadow lightbulb example task parameters. */
-#define democonfigSHADOW_LIGHTBULB_TASK_STACK_SIZE        ( configMINIMAL_STACK_SIZE * 16 )
-#define democonfigSHADOW_LIGHTBULB_TASK_PRIORITY          ( tskIDLE_PRIORITY )
+/* Shadow demo task parameters. */
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE                ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_PRIORITY                  ( tskIDLE_PRIORITY )
 
+/* Number of shadow light switch tasks running. */
+#define democonfigSHADOW_DEMO_NUM_TASKS                      ( 4 )
 
 /* TCP Echo Client tasks single example parameters. */
-#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
+#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY        ( tskIDLE_PRIORITY + 1 )
 
 /* OTA Update task example parameters. */
-#define democonfigOTA_UPDATE_TASK_STACK_SIZE               ( 4 * configMINIMAL_STACK_SIZE )
-#define democonfigOTA_UPDATE_TASK_TASK_PRIORITY            ( tskIDLE_PRIORITY )
+#define democonfigOTA_UPDATE_TASK_STACK_SIZE                 ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigOTA_UPDATE_TASK_TASK_PRIORITY              ( tskIDLE_PRIORITY )
 
 /* Simple TCP Echo Server task example parameters */
-#define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 6 )
-#define democonfigTCP_ECHO_SERVER_TASK_PRIORITY            ( tskIDLE_PRIORITY )
+#define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 6 )
+#define democonfigTCP_ECHO_SERVER_TASK_PRIORITY              ( tskIDLE_PRIORITY )
 
 /* TCP Echo Client tasks multi task example parameters. */
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE  ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY    ( tskIDLE_PRIORITY )
+#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY      ( tskIDLE_PRIORITY )
 
 /* MQTT echo task example parameters. */
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE ( configMINIMAL_STACK_SIZE * 2 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY ( tskIDLE_PRIORITY )
+#define democonfigMQTT_ECHO_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 2 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                    ( tskIDLE_PRIORITY )
 
 /* Timeout used when establishing a connection, which required TLS
-negotiation. */
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT	pdMS_TO_TICKS( 12000 )
+ * negotiation. */
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT          pdMS_TO_TICKS( 12000 )
 
 /* Timeout used when performing MQTT operations that do not need extra time
-to perform a TLS negotiation. */
-#define democonfigMQTT_TIMEOUT						pdMS_TO_TICKS( 300 )
+ * to perform a TLS negotiation. */
+#define democonfigMQTT_TIMEOUT                               pdMS_TO_TICKS( 300 )
 
-
+/* Send AWS IoT MQTT traffic encrypted to destination port 443. */
+#define democonfigMQTT_AGENT_CONNECT_FLAGS                   ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

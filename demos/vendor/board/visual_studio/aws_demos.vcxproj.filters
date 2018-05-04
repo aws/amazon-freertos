@@ -429,9 +429,6 @@
     <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\pkcs11.c">
-      <Filter>lib\aws\pkcs11</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\aws_wifi.c">
       <Filter>lib\aws\wifi</Filter>
     </ClCompile>
@@ -446,6 +443,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch\port.c">
       <Filter>lib\aws\FreeRTOS\portable\Compiler\Arch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c">
+      <Filter>lib\third_party\mbedtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c">
+      <Filter>lib\aws\pkcs11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c">
+      <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -900,6 +906,12 @@
       <Filter>lib\aws\FreeRTOS\portable\Compiler\Arch</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\microchip\curiosity_pic32mzef\common\config_files\aws_wifi_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa_internal.h">
+      <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_pkcs11_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
   </ItemGroup>
