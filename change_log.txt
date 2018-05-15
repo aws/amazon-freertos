@@ -1,3 +1,25 @@
+Change Log for Amazon FreeRTOS V1.2.5 05/14/2018
+
+    - Added support for Espressif's ESP32-DevKitC and ESP-WROVER-KIT.
+
+FreeRTOS+TCP V2.0.4
+    - Added Espressif ESP32 network interface support.
+
+mbedTLS-based PKCS#11 V1.0.3
+    - Implement C_DigestInit, C_DigestUpdate, and C_DigestFinal for SHA-256.
+    - Implement C_GenerateKeyPair for non-persistent ECDSA P256.
+
+PKCS#11 for for ESP32-DevKitC ESP-WROVER-KIT V1.0.0
+    - Added support for Espressif's ESP32-DevKitC and ESP-WROVER-KIT.
+
+Wi-Fi STM32L4 Discovery kit IoT node V1.0.2
+    - Bug fix to ensure that WIFI_ConnectAP() switches to the network parameters input, even when already connected to a different set.
+
+Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.0
+    - Added support for Espressif's ESP32-DevKitC and ESP-WROVER-KIT.
+
+---------------------------------------------------------------------------------------
+
 Change Log for Amazon FreeRTOS V1.2.4 05/01/2018
 
     - Upgraded to mbedTLS version 2.8.

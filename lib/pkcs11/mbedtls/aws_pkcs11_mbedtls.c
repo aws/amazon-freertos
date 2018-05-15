@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS mbedTLS-based PKCS#11 V1.0.2
+ * Amazon FreeRTOS mbedTLS-based PKCS#11 V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -62,6 +62,8 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
                                   int ( *f_rng )( void *, unsigned char *, size_t ),
                                   void * p_rng );
 
+#define pkcs11NO_OPERATION    ( ( CK_MECHANISM_TYPE ) 0xFFFFFFFFF )
+
 /**
  * @brief Key structure.
  */
@@ -82,12 +84,14 @@ typedef struct P11Session
     P11KeyPtr_t pxCurrentKey;
     CK_ULONG ulState;
     CK_BBOOL xOpened;
+    CK_MECHANISM_TYPE xOperationInProgress;
     CK_BBOOL xFindObjectInit;
     CK_BBOOL xFindObjectComplete;
     CK_OBJECT_CLASS xFindObjectClass;
     mbedtls_ctr_drbg_context xMbedDrbgCtx;
     mbedtls_entropy_context xMbedEntropyContext;
     mbedtls_pk_context xPublicKey;
+    mbedtls_sha256_context xSHA256Context;
 } P11Session_t, * P11SessionPtr_t;
 
 /**
@@ -115,6 +119,9 @@ typedef struct P11Session
 #define pkcs11CREATE_OBJECT_PUBLIC_KEY_VALUE_ATTRIBUTE_INDEX     2
 #define pkcs11CREATE_OBJECT_PRIVATE_KEY_VALUE_ATTRIBUTE_INDEX    3
 
+#define pkcs11GENERATE_KEY_PAIR_KEYTYPE_ATTRIBUTE_INDEX          0
+#define pkcs11GENERATE_KEY_PAIR_ECPARAMS_ATTRIBUTE_INDEX         1
+
 /**
  * @brief Write file to filesystem (see PAL).
  */
@@ -132,7 +139,8 @@ extern BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
 /**
  * @brief Free the buffer allocated in PKCS11_PAL_ReadFile (see PAL).
  */
-extern void PKCS11_PAL_ReleaseFileData( uint8_t * pucBuffer, uint32_t ulBufferSize );
+extern void PKCS11_PAL_ReleaseFileData( uint8_t * pucBuffer,
+                                        uint32_t ulBufferSize );
 /*-----------------------------------------------------------*/
 
 /**
@@ -199,6 +207,31 @@ static int prvPrivateKeySigningCallback( void * pvContext,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Allow mbedTLS client authentication to use PKCS#11 without a separate
+ * shim library. 
+ */
+static CK_RV prvSetupPkcs11SigningForMbedTls( P11SessionPtr_t pxSessionObj, 
+                                              P11KeyPtr_t pxKeyObj )
+{
+    /* Swap out the signing function pointer. */
+    memcpy(
+        &pxKeyObj->xMbedPkInfo,
+        pxKeyObj->xMbedPkCtx.pk_info,
+        sizeof( pxKeyObj->xMbedPkInfo ) );
+    pxKeyObj->pfnSavedMbedSign = pxKeyObj->xMbedPkInfo.sign_func;
+    pxKeyObj->xMbedPkInfo.sign_func = prvPrivateKeySigningCallback;
+    pxKeyObj->xMbedPkCtx.pk_info = &pxKeyObj->xMbedPkInfo;
+
+    /* Swap out the underlying internal key context. */
+    pxKeyObj->pvSavedMbedPkCtx = pxKeyObj->xMbedPkCtx.pk_ctx;
+    pxKeyObj->xMbedPkCtx.pk_ctx = pxSessionObj;
+
+    return CKR_OK;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Initializes a key structure.
  */
 static CK_RV prvInitializeKey( P11SessionPtr_t pxSessionObj,
@@ -243,18 +276,8 @@ static CK_RV prvInitializeKey( P11SessionPtr_t pxSessionObj,
 
         if( CKR_OK == xResult )
         {
-            /* Swap out the signing function pointer. */
-            memcpy(
-                &pxSessionObj->pxCurrentKey->xMbedPkInfo,
-                pxSessionObj->pxCurrentKey->xMbedPkCtx.pk_info,
-                sizeof( pxSessionObj->pxCurrentKey->xMbedPkInfo ) );
-            pxSessionObj->pxCurrentKey->pfnSavedMbedSign = pxSessionObj->pxCurrentKey->xMbedPkInfo.sign_func;
-            pxSessionObj->pxCurrentKey->xMbedPkInfo.sign_func = prvPrivateKeySigningCallback;
-            pxSessionObj->pxCurrentKey->xMbedPkCtx.pk_info = &pxSessionObj->pxCurrentKey->xMbedPkInfo;
-
-            /* Swap out the underlying internal key context. */
-            pxSessionObj->pxCurrentKey->pvSavedMbedPkCtx = pxSessionObj->pxCurrentKey->xMbedPkCtx.pk_ctx;
-            pxSessionObj->pxCurrentKey->xMbedPkCtx.pk_ctx = pxSessionObj;
+            xResult = prvSetupPkcs11SigningForMbedTls( pxSessionObj, 
+                                                       pxSessionObj->pxCurrentKey );
         }
     }
 
@@ -379,72 +402,72 @@ static CK_FUNCTION_LIST prvP11FunctionList =
     { CRYPTOKI_VERSION_MAJOR, CRYPTOKI_VERSION_MINOR },
     C_Initialize,
     C_Finalize,
-    NULL,
+    NULL, /*C_GetInfo */
     C_GetFunctionList,
     C_GetSlotList,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL, /*C_GetSlotInfo*/
+    NULL, /*C_GetTokenInfo*/
+    NULL, /*C_GetMechanismList*/
+    NULL, /*C_GetMechansimInfo */
+    NULL, /*C_InitToken*/
+    NULL, /*C_InitPIN*/
+    NULL, /*C_SetPIN*/
     C_OpenSession,
     C_CloseSession,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL, /*C_CloseAllSessions*/
+    NULL, /*C_GetSessionInfo*/
+    NULL, /*C_GetOperationState*/
+    NULL, /*C_SetOperationState*/
+    NULL, /*C_Login*/
+    NULL, /*C_Logout*/
     C_CreateObject,
-    NULL,
+    NULL, /*C_CopyObject*/
     C_DestroyObject,
-    NULL,
+    NULL, /*C_GetObjectSize*/
     C_GetAttributeValue,
-    NULL,
+    NULL, /*C_SetAttributeValue*/
     C_FindObjectsInit,
     C_FindObjects,
     C_FindObjectsFinal,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL, /*C_EncryptInit*/
+    NULL, /*C_Encrypt*/
+    NULL, /*C_EncryptUpdate*/
+    NULL, /*C_EncryptFinal*/
+    NULL, /*C_DecryptInit*/
+    NULL, /*C_Decrypt*/
+    NULL, /*C_DecryptUpdate*/
+    NULL, /*C_DecryptFinal*/
+    C_DigestInit,
+    NULL, /*C_Digest*/
+    C_DigestUpdate,
+    NULL, /* C_DigestKey*/
+    C_DigestFinal,
     C_SignInit,
     C_Sign,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL, /*C_SignUpdate*/
+    NULL, /*C_SignFinal*/
+    NULL, /*C_SignRecoverInit*/
+    NULL, /*C_SignRecover*/
     C_VerifyInit,
     C_Verify,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL, /*C_VerifyUpdate*/
+    NULL, /*C_VerifyFinal*/
+    NULL, /*C_VerifyRecoverInit*/
+    NULL, /*C_VerifyRecover*/
+    NULL, /*C_DigestEncryptUpdate*/
+    NULL, /*C_DecryptDigestUpdate*/
+    NULL, /*C_SignEncryptUpdate*/
+    NULL, /*C_DecryptVerifyUpdate*/
+    NULL, /*C_GenerateKey*/
+    C_GenerateKeyPair,
+    NULL, /*C_WrapKey*/
+    NULL, /*C_UnwrapKey*/
+    NULL, /*C_DeriveKey*/
+    NULL, /*C_SeedRandom*/
     C_GenerateRandom,
-    NULL,
-    NULL,
-    NULL
+    NULL, /*C_GetFunctionStatus*/
+    NULL, /*C_CancelFunction*/
+    NULL  /*C_WaitForSlotEvent*/
 };
 
 /**
@@ -609,6 +632,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
          */
 
         *pxSession = ( CK_SESSION_HANDLE ) pxSessionObj; /*lint !e923 Allow casting pointer to integer type for handle. */
+    }
+
+    /*
+     *   Initialize the operation in progress.
+     */
+    if( CKR_OK == xResult )
+    {
+        pxSessionObj->xOperationInProgress = pkcs11NO_OPERATION;
     }
 
     if( ( NULL != pxSessionObj ) && ( CKR_OK != xResult ) )
@@ -870,13 +901,25 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
                                               CK_OBJECT_HANDLE xObject )
 {   /*lint !e9072 It's OK to have different parameter name. */
-    ( void ) ( xSession );
-    ( void ) ( xObject );
+    P11KeyPtr_t pxKey = ( P11KeyPtr_t )xObject;
 
-    /*
-     * This implementation uses virtual handles, and the certificate and
-     * private key data are attached to the session, so nothing to do here.
-     */
+    ( void ) ( xSession );
+
+    if( NULL != pxKey &&
+        pkcs11OBJECT_HANDLE_PRIVATE_KEY != xObject &&
+        pkcs11OBJECT_HANDLE_PUBLIC_KEY != xObject &&
+        pkcs11OBJECT_HANDLE_CERTIFICATE != xObject )
+    {
+        prvFreeKey( pxKey );
+    }
+    else
+    {
+        /*
+         * This implementation uses virtual handles, and the certificate and
+         * private key data are attached to the session, so nothing to do here.
+         */
+    }
+
     return CKR_OK;
 }
 
@@ -1175,6 +1218,115 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
     return xResult;
 }
 
+CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
+                                           CK_MECHANISM_PTR pMechanism )
+{
+    CK_RV xResult = CKR_OK;
+    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
+
+    if( pxSession == NULL )
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+    }
+
+    if( pMechanism->mechanism != CKM_SHA256 )
+    {
+        xResult = CKR_MECHANISM_INVALID;
+    }
+
+    /*
+     * Initialize the requested hash type
+     */
+    if( xResult == CKR_OK )
+    {
+        mbedtls_sha256_init( &pxSession->xSHA256Context );
+
+        if( 0 != mbedtls_sha256_starts_ret( &pxSession->xSHA256Context, 0 ) )
+        {
+            xResult = CKR_FUNCTION_FAILED;
+        }
+        else
+        {
+            pxSession->xOperationInProgress = pMechanism->mechanism;
+        }
+    }
+
+    return xResult;
+}
+
+CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
+                                             CK_BYTE_PTR pPart,
+                                             CK_ULONG ulPartLen )
+{
+    CK_RV xResult = CKR_OK;
+    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
+
+    if( pxSession == NULL )
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+    }
+    else if( pxSession->xOperationInProgress != CKM_SHA256 )
+    {
+        xResult = CKR_OPERATION_NOT_INITIALIZED;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        if( 0 != mbedtls_sha256_update_ret( &pxSession->xSHA256Context, pPart, ulPartLen ) )
+        {
+            xResult = CKR_FUNCTION_FAILED;
+            pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+        }
+    }
+
+    return xResult;
+}
+
+CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
+                                            CK_BYTE_PTR pDigest,
+                                            CK_ULONG_PTR pulDigestLen )
+{
+    CK_RV xResult = CKR_OK;
+    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
+
+    if( pxSession == NULL )
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+    }
+    else if( pxSession->xOperationInProgress != CKM_SHA256 )
+    {
+        xResult = CKR_OPERATION_NOT_INITIALIZED;
+        pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        if( pDigest == NULL )
+        {
+            /* Supply the required buffer size. */
+            *pulDigestLen = pcks11SHA256_DIGEST_LENGTH;
+        }
+        else
+        {
+            if( *pulDigestLen < pcks11SHA256_DIGEST_LENGTH )
+            {
+                xResult = CKR_BUFFER_TOO_SMALL;
+            }
+            else
+            {
+                if( 0 != mbedtls_sha256_finish_ret( &pxSession->xSHA256Context, pDigest ) )
+                {
+                    xResult = CKR_FUNCTION_FAILED;
+                }
+
+                pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+            }
+        }
+    }
+
+    return xResult;
+}
+
 /**
  * @brief Begin a digital signature generation session.
  */
@@ -1332,6 +1484,101 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     }
 
     /* Return the signature verification result. */
+    return xResult;
+}
+
+/**
+ * @brief Generate a new assymetric keyset.
+ */
+CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
+                                                CK_MECHANISM_PTR pxMechanism,
+                                                CK_ATTRIBUTE_PTR pxPublicKeyTemplate,
+                                                CK_ULONG ulPublicKeyAttributeCount,
+                                                CK_ATTRIBUTE_PTR pxPrivateKeyTemplate,
+                                                CK_ULONG ulPrivateKeyAttributeCount,
+                                                CK_OBJECT_HANDLE_PTR pxPublicKey,
+                                                CK_OBJECT_HANDLE_PTR pxPrivateKey )
+{
+    CK_RV xResult = CKR_OK;
+    P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
+    P11KeyPtr_t pxNewKey = NULL;
+
+    /* Check supported options. */
+    if( CKM_EC_KEY_PAIR_GEN != pxMechanism->mechanism ||
+        CKA_KEY_TYPE != pxPrivateKeyTemplate[ 
+            pkcs11GENERATE_KEY_PAIR_KEYTYPE_ATTRIBUTE_INDEX ].type ||
+        CKK_EC != *( ( CK_ULONG *)pxPrivateKeyTemplate[ 
+            pkcs11GENERATE_KEY_PAIR_KEYTYPE_ATTRIBUTE_INDEX ].pValue ) ||
+        CKA_KEY_TYPE != pxPublicKeyTemplate[ 
+            pkcs11GENERATE_KEY_PAIR_KEYTYPE_ATTRIBUTE_INDEX ].type ||
+        CKK_EC != *( ( CK_ULONG * )pxPrivateKeyTemplate[ 
+            pkcs11GENERATE_KEY_PAIR_KEYTYPE_ATTRIBUTE_INDEX ].pValue ) ||
+        CKA_EC_PARAMS != pxPublicKeyTemplate[ 
+            pkcs11GENERATE_KEY_PAIR_ECPARAMS_ATTRIBUTE_INDEX ].type ||
+        0 != strcmp( pkcs11ELLIPTIC_CURVE_NISTP256, pxPublicKeyTemplate[ 
+            pkcs11GENERATE_KEY_PAIR_ECPARAMS_ATTRIBUTE_INDEX ].pValue ) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
+    /* Allocate the wrapper key context. */
+    if( 0 == xResult )
+    {
+        pxNewKey = pvPortMalloc( sizeof( P11Key_t ) );
+        if( NULL == pxNewKey )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+    }
+
+    /* Initialize the mbed key fields. */
+    if( 0 == xResult )
+    {
+        memset( pxNewKey, 0, sizeof( P11Key_t ) );
+        xResult = mbedtls_pk_setup( &pxNewKey->xMbedPkCtx,
+                                    mbedtls_pk_info_from_type( 
+                                        MBEDTLS_PK_ECDSA ) );
+    }
+
+    /* Do the actual crypto aspect of key generation. */
+    if( 0 == xResult )
+    {
+        mbedtls_ecdsa_init( pxNewKey->xMbedPkCtx.pk_ctx );
+        if( 0 != mbedtls_ecdsa_genkey( pxNewKey->xMbedPkCtx.pk_ctx,
+                                       MBEDTLS_ECP_DP_SECP256R1,
+                                       mbedtls_ctr_drbg_random,
+                                       &pxSessionObj->xMbedDrbgCtx ) )
+        {
+            xResult = CKR_FUNCTION_FAILED;
+        }
+    }
+
+    /* Complete the wrapped key context. */
+    if( 0 == xResult )
+    {
+        xResult = prvSetupPkcs11SigningForMbedTls( pxSessionObj, pxNewKey );
+    }
+
+    /* Return the new private key. */
+    if( 0 == xResult )
+    {
+        if( NULL != pxSessionObj->pxCurrentKey )
+        {
+            prvFreeKey( pxSessionObj->pxCurrentKey );
+        }
+
+        pxSessionObj->pxCurrentKey = pxNewKey;
+        *pxPrivateKey = ( CK_OBJECT_HANDLE )pxNewKey;
+        pxNewKey = NULL;
+    }
+
+    /* Clean up. */
+    if( NULL != pxNewKey )
+    {
+        mbedtls_pk_free( &pxNewKey->xMbedPkCtx );
+        vPortFree( pxNewKey );
+    }
+
     return xResult;
 }
 

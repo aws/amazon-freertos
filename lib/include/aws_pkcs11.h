@@ -45,10 +45,21 @@
 #define CK_CALLBACK_FUNCTION( returnType, name )           returnType( CK_PTR name )
 
 /**
+ *   @brief Length of a SHA256 digest, in bytes.
+ */
+#define pcks11SHA256_DIGEST_LENGTH     32
+
+/**
  * @brief Certificate type definitions.
  */
-#define pkcs11CERTIFICATE_TYPE_USER                        1
-#define pkcs11CERTIFICATE_TYPE_ROOT                        2
+#define pkcs11CERTIFICATE_TYPE_USER    1
+#define pkcs11CERTIFICATE_TYPE_ROOT    2
+
+/**
+ * @brief Elliptic-curve object identifiers.
+ * From https://tools.ietf.org/html/rfc6637#section-11.
+ */
+#define pkcs11ELLIPTIC_CURVE_NISTP256                      "1.2.840.10045.3.1.7"
 
 /* Bring in the public header. */
 #include "pkcs11.h"

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi STM32L4 Discovery kit IoT node V1.0.1
+ * Amazon FreeRTOS Wi-Fi STM32L4 Discovery kit IoT node V1.0.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -219,23 +219,42 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
     {
-        /* Keep trying to connect until all the retries are exhausted. */
-        for( x = 0 ; x < wificonfigNUM_CONNECTION_RETRY ; x++ )
+        /* Disconnect first if we are connected, to connect to the input network. */
+        if( ES_WIFI_IsConnected( &xWiFiModule.xWifiObject ) )
         {
-            /* Try to connect to Wi-Fi. */
-            if( ES_WIFI_Connect( &( xWiFiModule.xWifiObject ),
-                                 pxNetworkParams->pcSSID,
-                                 pxNetworkParams->pcPassword,
-                                 prvConvertSecurityFromAbstractedToST( pxNetworkParams->xSecurity ) ) == ES_WIFI_STATUS_OK )
+            if( ES_WIFI_Disconnect( &( xWiFiModule.xWifiObject ) ) ==  ES_WIFI_STATUS_OK )
             {
-                /* Store network settings. */
-                if( ES_WIFI_GetNetworkSettings( &( xWiFiModule.xWifiObject ) ) == ES_WIFI_STATUS_OK )
-                {
-                    /* Connection successful. */
-                    xRetVal = eWiFiSuccess;
+                xRetVal = eWiFiSuccess;
+            }
+        }
+        else
+        {
+            xRetVal = eWiFiSuccess;
+        }
 
-                    /* No more retries needed. */
-                    break;
+        if ( xRetVal == eWiFiSuccess )
+        {
+            /* Reset the return value to failure to catch errors in connection. */
+            xRetVal = eWiFiFailure;
+
+            /* Keep trying to connect until all the retries are exhausted. */
+            for( x = 0 ; x < wificonfigNUM_CONNECTION_RETRY ; x++ )
+            {
+                /* Try to connect to Wi-Fi. */
+                if( ES_WIFI_Connect( &( xWiFiModule.xWifiObject ),
+                                        pxNetworkParams->pcSSID,
+                                        pxNetworkParams->pcPassword,
+                                        prvConvertSecurityFromAbstractedToST( pxNetworkParams->xSecurity ) ) == ES_WIFI_STATUS_OK )
+                {
+                    /* Store network settings. */
+                    if( ES_WIFI_GetNetworkSettings( &( xWiFiModule.xWifiObject ) ) == ES_WIFI_STATUS_OK )
+                    {
+                        /* Connection successful. */
+                        xRetVal = eWiFiSuccess;
+
+                        /* No more retries needed. */
+                        break;
+                    }
                 }
             }
         }

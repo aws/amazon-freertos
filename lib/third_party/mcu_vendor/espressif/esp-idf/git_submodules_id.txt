@@ -1,0 +1,10 @@
+ f307f41c9a4287f7ef8889534e41b425f19cd9b5 esp-idf
+-b9f19d57a0d94e98469cde470003ec45d5819ba4 components/aws_iot/aws-iot-device-sdk-embedded-C
+-429496d568d4dd052d9659545dd3f0936d5529ca components/bt/lib
+-6468887a12666f88b8704d797fc176cd4f40ee4c components/coap/libcoap
+ b9e5c1c48927f77c53a3f8f40a02a9046c57d1c3 components/esp32/lib (remotes/gitlab/feature/add_wifi_os_adapter)
+ 200ab6e39487bef1df9db12a5be5b0682d80d3c1 components/esptool_py/esptool (v2.2.1)
+-70170c28c844a4786e75efc626e1aeebc93caebc components/libsodium/libsodium
+ 14222e062d77f45321676e813d9525f32a88e8fa components/micro-ecc/micro-ecc (v1.0~3)
+ 3bcc416e13cc790e2fb45fcfe9111d38609c5032 components/nghttp/nghttp2 (v1.24.0)
+ f5e26c4e933189593a71c6b82cda381a7b21e41c components/spiffs/spiffs (0.2-221-gf5e26c4)

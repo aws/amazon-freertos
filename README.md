@@ -11,6 +11,7 @@ Use the following MCU hardware to get started:
 2. **STMicroelectronics** - [STM32L4 Discovery kit IoT node](http://www.st.com/en/evaluation-tools/b-l475e-iot01a.html).
 3. **NXP** - [LPC54018 IoT Module](http://www.nxp.com/LPC-AWS-Module).
 4. **Microchip** - [Curiosity PIC32MZEF](http://www.microchipdirect.com/product/search/all/dm320104-BNDL).
+5. **Espressif** - [ESP32-DevKitC](https://www.espressif.com/en/products/hardware/esp32-devkitc/overview), [ESP-WROVER-KIT](https://www.espressif.com/en/products/hardware/esp-wrover-kit/overview).
 
 To evaluate Amazon FreeRTOS without using an MCU-based hardware, use the following:
 1. **Windows Simulator** - Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection.
