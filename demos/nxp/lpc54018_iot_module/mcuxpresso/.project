@@ -153,17 +153,17 @@
 		<link>
 			<name>lib/third_party/mcu_vendor/CMSIS</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/drivers</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/drivers</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/drivers</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/libs</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/mcuxpresso</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/mcuxpresso</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware</name>
@@ -173,22 +173,22 @@
 		<link>
 			<name>lib/third_party/mcu_vendor/startup</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/mcuxpresso</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/mcuxpresso</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/utilities</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/utilities</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/utilities</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/CMSIS/Include</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/CMSIS/Include</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/CMSIS/Include</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/osa</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/middleware/usb/osa</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/middleware/usb/osa</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/usb</name>
@@ -198,7 +198,7 @@
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/wifi_qca</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/middleware/wifi_qca</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/middleware/wifi_qca</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/usb/device</name>
@@ -208,17 +208,17 @@
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/usb/include</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/middleware/usb/include</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/middleware/usb/include</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/usb/device/include</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/middleware/usb/device</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/middleware/usb/device</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/usb/device/source</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/middleware/usb/device</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/middleware/usb/device</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/wifi_qca/port/shields</name>
@@ -228,7 +228,7 @@
 		<link>
 			<name>lib/third_party/mcu_vendor/middleware/usb/device/source/lpcip</name>
 			<type>2</type>
-			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/lpc54018/middleware/usb/device</locationURI>
+			<locationURI>BASE_DIR/lib/third_party/mcu_vendor/nxp/LPC54018/middleware/usb/device</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>

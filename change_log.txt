@@ -1,3 +1,9 @@
+Change Log for Amazon FreeRTOS V1.2.6 05/18/2018
+
+    - Fix NXP MCUXpresso project build failure on Linux.
+
+---------------------------------------------------------------------------------------
+
 Change Log for Amazon FreeRTOS V1.2.5 05/14/2018
 
     - Added support for Espressif's ESP32-DevKitC and ESP-WROVER-KIT.

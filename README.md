@@ -1,6 +1,6 @@
 ## Getting Started
 
-For more information on Amazon FreeRTOS, refer to the [Getting Started section of Amazon FreeRTOS webpage](https://aws.amazon.com/freertos). 
+For more information on Amazon FreeRTOS, refer to the [Getting Started section of Amazon FreeRTOS webpage](https://aws.amazon.com/freertos).
 
 To directly access the **Getting Started Guide** for supported hardware platforms, click the corresponding link in the Supported Hardware section below.
 
@@ -22,9 +22,9 @@ The following MCU boards are supported for Amazon FreeRTOS:
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_mch.html)
     * IDE: [MPLAB X IDE](http://www.microchip.com/mplab/mplab-x-ide)
 5. **Espressif** - [ESP32-DevKitC](https://www.espressif.com/en/products/hardware/esp32-devkitc/overview), [ESP-WROVER-KIT](https://www.espressif.com/en/products/hardware/esp-wrover-kit/overview).
-      * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html)
 
-**Windows Simulator**  
+**Windows Simulator**
 To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
 * Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
 * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
