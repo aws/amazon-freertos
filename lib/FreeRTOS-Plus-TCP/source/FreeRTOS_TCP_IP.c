@@ -3225,7 +3225,13 @@ struct freertos_sockaddr xAddress;
 	xAddress.sin_addr = *ipLOCAL_IP_ADDRESS_POINTER;
 	xAddress.sin_port = FreeRTOS_htons( pxSocket->usLocalPort );
 
-	#if( ipconfigTCP_HANG_PROTECTION == 1 )
+	/* Without bPassQueued and pxPeerSocket being set, the server socket
+	will not receive eSOCKET_ACCEPT event on child socket (instead,
+	eSOCKET_CONNECT will be used). See respective xEventGroupWaitBits()
+	call FreeRTOS_accept() and bPassQueued handling in vTCPStateChange().
+	*/
+	/* #if( ipconfigTCP_HANG_PROTECTION == 1 ) */
+	#if ( 1 )
 	{
 		/* Only when there is anti-hanging protection, a socket may become an
 		orphan temporarily.  Once this socket is really connected, the owner of
