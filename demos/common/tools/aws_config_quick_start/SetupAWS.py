@@ -4,8 +4,18 @@ import thing
 import policy
 import certs
 import misc
+import boto3
+import sys
+import os
 
-def setup():
+def check_aws_configuration():
+    mysession = boto3.session.Session()
+    if not (mysession._session._config['profiles']):
+        print("AWS not configured. Please run `aws configure`.")
+        sys.exit(1)
+
+
+def prereq():
     with open('configure.json') as file:
         json_text = json.load(file)
 
@@ -18,29 +28,32 @@ def setup():
         cert_obj = certs.Certificate()
         result = cert_obj.create()
 
-        # Store cert_pem
+        # Store certId
+        cert_id = result['certificateId']
+        cert_id_filename = thing_name + '_cert_id_file'
+        cert_id_file = open(cert_id_filename, 'w')
+        cert_id_file.write(cert_id)
+        cert_id_file_path = os.path.abspath(cert_id_filename)
+        os.chmod(cert_id_file_path, 0o444)
+        cert_id_file.close()
+
+        # Store cert_pem as file
         cert_pem = result['certificatePem']
+        cert_pem_filename = thing_name + '_cert_pem_file'
+        cert_pem_file = open(cert_pem_filename, 'w')
+        cert_pem_file.write(cert_pem)
+        cert_pem_file_path = os.path.abspath(cert_pem_filename)
+        os.chmod(cert_pem_file_path, 0o444)
+        cert_pem_file.close()
 
-        # Store Private key PEM
+        # Store private key PEM as file
         private_key_pem = result['keyPair']['PrivateKey']
-
-        wifi_ssid = json_text['wifi_ssid']
-        wifi_passwd = json_text['wifi_password']
-        wifi_security = json_text['wifi_security']
-
-        # Modify 'aws_clientcredential.h' file
-        misc.client_credential(
-            wifi_ssid = wifi_ssid,
-            wifi_passwd = wifi_passwd,
-            wifi_security = wifi_security,
-            thing_name = thing_name,
-            credentials_or_keys = "client_credential")
-
-        # Modify 'aws_clientcredential_keys.h' file
-        misc.client_credential(
-            client_certificate_pem = cert_pem,
-            clientprivate_key_pem = private_key_pem,
-            credentials_or_keys = "client_keys")
+        private_key_pem_filename = thing_name + '_private_key_pem_file'
+        private_key_pem_file = open(private_key_pem_filename, 'w')
+        private_key_pem_file.write(private_key_pem)
+        private_key_pem_file_path = os.path.abspath(private_key_pem_filename)
+        os.chmod(private_key_pem_file_path, 0o444)
+        private_key_pem_file.close()
 
         # Create a Policy
         policy_document = misc.create_policy_document()
@@ -54,44 +67,100 @@ def setup():
         # Attach policy to certificate
         cert_obj.attach_policy(policy_name)
 
-def cleanup():
-    certIdlength = 64
+def update_credential_file():
     with open('configure.json') as file:
         json_text = json.load(file)
 
     thing_name = json_text['thing_name']
-    thing_obj = thing.Thing(thing_name)
+    wifi_ssid = json_text['wifi_ssid']
+    wifi_passwd = json_text['wifi_password']
+    wifi_security = json_text['wifi_security']
 
-    principals = thing_obj.list_principals()
+    # Read cert_pem from file
+    cert_pem_filename = thing_name + '_cert_pem_file'
+    try:
+        cert_pem_file = open(cert_pem_filename, 'r')
+    except IOError:
+        print("%s file not found. Run prerequisite step"%cert_pem_filename)
+        sys.exit(1)
+    else:
+        cert_pem = cert_pem_file.read()
 
-    # Delete certificates and policies attached to thing
-    for eachPrincipal in principals:
-        certId = eachPrincipal[-certIdlength:]
-        certarn = eachPrincipal
-        cert_obj = certs.Certificate(certId)
+    # Read private_key_pem from file
+    private_key_pem_filename = thing_name + '_private_key_pem_file'
+    try:
+        private_key_pem_file = open(private_key_pem_filename, 'r')
+    except IOError:
+        print("%s file not found. Run prerequisite step"%private_key_pem_filename)
+        sys.exit(1)
+    else:
+        private_key_pem = private_key_pem_file.read()
 
-        # Get policies attached to certificate
-        policies_attached = cert_obj.list_policies()
+    # Modify 'aws_clientcredential.h' file
+    misc.update_client_credentials(
+        thing_name, wifi_ssid, wifi_passwd, wifi_security)
 
-        # Delete certificate
-        cert_obj.delete()
+    # Modify 'aws_clientcredential_keys.h' file
+    misc.update_client_credential_keys(
+        cert_pem, private_key_pem)
 
-        # Delete policies attached to the certificate
-        for each_policy in policies_attached:
-            policy_obj = policy.Policy(each_policy['policyName'])
-            policy_obj.delete()
+def delete_prereq():
+    with open('configure.json') as file:
+        json_text = json.load(file)
 
     # Delete Thing
+    thing_name = json_text['thing_name']
+    thing_obj = thing.Thing(thing_name)
     thing_obj.delete()
 
+    # Delete certificate
+    cert_id_filename = thing_name + '_cert_id_file'
+    cert_id_file = open(cert_id_filename, 'r')
+    cert_id =  cert_id_file.read()
+    cert_obj = certs.Certificate(cert_id)
+    cert_obj.delete()
+    os.remove(cert_id_filename)
+
+    # Delete cert_pem file and private_key_pem file
+    cert_pem_filename = thing_name + '_cert_pem_file'
+    private_key_pem_filename = thing_name + '_private_key_pem_file'
+    os.remove(cert_pem_filename)
+    os.remove(private_key_pem_filename)
+
+    # Delete policy
+    policy_name = thing_name + '_amazon_freertos_policy'
+    policy_obj = policy.Policy(policy_name)
+    policy_obj.delete()
+
+def cleanup_creds():
+    # Cleanup modified 'aws_clientcredential.h' file
+    misc.cleanup_client_credential_file()
+
+    # Cleanup modified 'aws_clientcredential_keys.h' file
+    misc.cleanup_client_credential_keys_file()
+
+def setup():
+    prereq()
+    update_credential_file()
+
+def cleanup():
+    delete_prereq()
+    cleanup_creds()
+
 def list_certificates():
-    print(certs.list_certificates())
+    client = boto3.client('iot')
+    certs = client.list_certificates()['certificates']
+    print(certs)
 
 def list_things():
-    print(thing.list_things())
+    client = boto3.client('iot')
+    things = client.list_things()['things']
+    print(things)
 
 def list_policies():
-    print(policy.list_policies())
+    client = boto3.client('iot')
+    policies = client.list_policies()['policies']
+    print(policies)
 
 if __name__ == "__main__":
 
@@ -106,7 +175,17 @@ if __name__ == "__main__":
         help='list things')
     list_policy_parser = sub_arg_parser.add_parser('list_policies',
         help='list policies')
+    prereq_parser = sub_arg_parser.add_parser('prereq',
+        help='Setup Prerequisites for aws iot')
+    update_creds = sub_arg_parser.add_parser('update_creds',
+        help='Update credential files')
+    delete_prereq_parser = sub_arg_parser.add_parser('delete_prereq',
+        help='Delete prerequisites created')
+    cleanup_creds_parser = sub_arg_parser.add_parser('cleanup_creds',
+        help='Cleanup credential files')
     args = arg_parser.parse_args()
+
+    check_aws_configuration()
 
     if args.command == 'setup':
         setup()
@@ -118,6 +197,14 @@ if __name__ == "__main__":
         list_things()
     elif args.command == 'list_policies':
         list_policies()
+    elif args.command == 'prereq':
+        prereq()
+    elif args.command == 'update_creds':
+        update_credential_file()
+    elif args.command == 'delete_prereq':
+        delete_prereq()
+    elif args.command == 'cleanup_creds':
+        cleanup_creds()
     else:
         print("Command does not exist")
 

@@ -38,7 +38,7 @@ UART_Handle InitTerm(void)
 
     UART_Params   		uartParams;
 
-    Board_initUART();
+    UART_init();
     UART_Params_init(&uartParams);
 
     uartParams.writeDataMode    = UART_DATA_BINARY;

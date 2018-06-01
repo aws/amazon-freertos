@@ -29,12 +29,14 @@ def create_policy_document():
         policy_document_text = policy_document_file.read()
 
     # Replace Account ID and AWS Region
-    policy_document_text = policy_document_text.replace('<aws-region>', region_name)
-    policy_document_text = policy_document_text.replace('<aws-account-id>', aws_account_id)
+    policy_document_text = policy_document_text.replace(
+        '<aws-region>', region_name)
+    policy_document_text = policy_document_text.replace(
+        '<aws-account-id>', aws_account_id)
 
     return policy_document_text
 
-def format_credential_text(credentialText):
+def format_credential_keys_text(credentialText):
     credentialTextLines = credentialText.split('\n')
     formattedCredentialTextLines = []
 
@@ -46,39 +48,88 @@ def format_credential_text(credentialText):
     formattedCredentialText = '\n'.join(formattedCredentialTextLines)
     return formattedCredentialText
 
-def client_credential(**kwargs):
-    filename = ''
-    new_text = ''
-    file_to_modify = ''
+def update_client_credentials(thing_name, wifi_ssid, wifi_passwd, wifi_security):
     this_file_directory = os.getcwd()
     common_directory = os.path.dirname(os.path.dirname(this_file_directory))
+    file_to_modify = os.path.join(
+        common_directory, 'include', 'aws_clientcredential.h')
+
+    filename = "aws_clientcredential.templ"
+    with open(filename,'r') as template_file:
+        file_text = template_file.read()
+        new_text = file_text.replace("<WiFiSSID>", "\"" + wifi_ssid + "\"")
+        new_text = new_text.replace("<WiFiPasswd>", "\"" + wifi_passwd + "\"")
+        new_text = new_text.replace("<WiFiSecurity>", wifi_security)
+        new_text = new_text.replace("<IOTThingName>", "\"" + thing_name + "\"")
+        new_text = new_text.replace(
+            "<IOTEndpoint>", "\"" + describe_endpoint() + "\"")
+        header_file = open(str(file_to_modify),'w')
+        header_file.write(new_text)
+        header_file.close()
+
+def update_client_credential_keys(client_certificate_pem, client_private_key_pem):
+    this_file_directory = os.getcwd()
+    common_directory = os.path.dirname(os.path.dirname(this_file_directory))
+    file_to_modify = os.path.join(
+        common_directory, 'include', 'aws_clientcredential_keys.h')
+
+    filename = "aws_clientcredential_keys.templ"
+    with open(filename,'r') as template_file:
+        file_text = template_file.read()
+        new_text = file_text.replace("<ClientCertificatePEM>",
+                format_credential_keys_text(client_certificate_pem))
+        new_text = new_text.replace("<ClientPrivateKeyPEM>",
+                format_credential_keys_text(client_private_key_pem))
+        header_file = open(str(file_to_modify),'w')
+        header_file.write(new_text)
+        header_file.close()
+
+def cleanup_client_credential_file():
+    this_file_directory = os.getcwd()
+    common_directory = os.path.dirname(os.path.dirname(this_file_directory))
+    client_credential_file = os.path.join(
+        common_directory, 'include', 'aws_clientcredential.h')
+
+    endpoint_string = "Paste AWS IoT Broker endpoint here."
+    wifi_ssid_string = "Paste Wi-Fi SSID here."
+    wifi_passwd_string = "Paste Wi-Fi password here."
+    thing_name_string = "Paste AWS IoT Thing name here."
+    wifi_security_string = "eWiFiSecurityWPA2"
+
+    filename = "aws_clientcredential.templ"
+    with open(filename,'r') as template_file:
+        file_text = template_file.read()
+        new_text = file_text.replace(
+            "<WiFiSSID>", "\"" + wifi_ssid_string + "\"")
+        new_text = new_text.replace(
+            "<WiFiPasswd>", "\"" + wifi_passwd_string + "\"")
+        new_text = new_text.replace(
+            "<WiFiSecurity>", wifi_security_string)
+        new_text = new_text.replace(
+            "<IOTThingName>", "\"" + thing_name_string + "\"")
+        new_text = new_text.replace(
+            "<IOTEndpoint>", "\"" + endpoint_string + "\"")
+        header_file = open(str(client_credential_file),'w')
+        header_file.write(new_text)
+        header_file.close()
 
 
-    if (kwargs["credentials_or_keys"] == "client_credential"):
-        assert 5 >= len(kwargs),"Less than 5 arguments"
-        filename = "aws_clientcredential.templ"
-        with open(filename,'r') as file:
-            file_text = file.read()
-        new_text = file_text.replace("<WiFiSSID>", "\"" + kwargs["wifi_ssid"] + "\"")
-        new_text = new_text.replace("<WiFiPasswd>", "\"" + kwargs["wifi_passwd"] + "\"")
-        new_text = new_text.replace("<WiFiSecurity>", kwargs["wifi_security"])
-        new_text = new_text.replace("<IOTEndpoint>", "\"" + describe_endpoint() + "\"")
-        new_text = new_text.replace("<IOTThingName>", "\""+ kwargs["thing_name"] + "\"")
-        file_to_modify = os.path.abspath(os.path.join(common_directory,'include','aws_clientcredential.h'))
+def cleanup_client_credential_keys_file():
+    this_file_directory = os.getcwd()
+    common_directory = os.path.dirname(os.path.dirname(this_file_directory))
+    client_credential_keys_file = os.path.join(
+        common_directory, 'include', 'aws_clientcredential_keys.h')
 
-    elif (kwargs["credentials_or_keys"] == "client_keys"):
-        assert 3 >= len(kwargs),"Less than 3 arguments"
-        filename = "aws_clientcredential_keys.templ"
-        with open(filename,'r') as file:
-            file_text = file.read()
-        new_text = file_text.replace("<ClientCertificatePEM>", format_credential_text(kwargs["client_certificate_pem"]))
-        new_text = new_text.replace("<ClientPrivateKeyPEM>", format_credential_text(kwargs["clientprivate_key_pem"]))
-        file_to_modify = os.path.abspath(os.path.join(common_directory,'include','aws_clientcredential_keys.h'))
-    else:
-        print("Invalid option")
-        sys.exit(1)
+    certificate_pem_string = "Paste client certificate here."
+    private_key_pem_string = "Paste client private key here."
 
-    file = open(str(file_to_modify),'w')
-    file.write(new_text)
-    file.close()
-
+    filename = "aws_clientcredential_keys.templ"
+    with open(filename, 'r') as template_file:
+        file_text = template_file.read()
+        new_text = file_text.replace(
+            "<ClientCertificatePEM>", "\"" + certificate_pem_string + "\"")
+        new_text = new_text.replace(
+            "<ClientPrivateKeyPEM>", "\"" + private_key_pem_string + "\"")
+        header_file = open(str(client_credential_keys_file),'w')
+        header_file.write(new_text)
+        header_file.close()

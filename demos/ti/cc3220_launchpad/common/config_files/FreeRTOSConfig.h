@@ -29,7 +29,7 @@
 
 #ifndef UART_PRINT
 
-/* Ensure stdint is only used by the compiler, and not the assembler. */
+/* Ensure stdint (needed by UART.h) is only used by the compiler, and not the assembler. */
 #ifndef __ASSEMBLER__
     #include "uart_term.h"
 #endif
@@ -113,18 +113,42 @@ extern void vLoggingPrintf( const char * pcFormat,
  * and a time stamp. */
 #define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
 
+/* Cortex-M3/4 interrupt priority configuration follows...................... */
+
+/* Use the system definition, if there is one. */
+#ifdef __NVIC_PRIO_BITS
+    #define configPRIO_BITS       __NVIC_PRIO_BITS
+#else
+    #define configPRIO_BITS       3     /* 8 priority levels */
+#endif
+
+
+/* The lowest interrupt priority that can be used in a call to a "set priority"
+function. */
+#define configLIBRARY_LOWEST_INTERRUPT_PRIORITY         0x07
+
+/*
+ * The highest interrupt priority that can be used by any interrupt service
+ * routine that makes calls to interrupt safe FreeRTOS API functions.  DO NOT CALL
+ * INTERRUPT SAFE FREERTOS API FUNCTIONS FROM ANY INTERRUPT THAT HAS A HIGHER
+ * PRIORITY THAN THIS! (higher priorities are lower numeric values.
+ */
+#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY    1
+
 /*
  *  Priority 7 (shifted 5 since only the top 3 bits are implemented).
  *  Priority 7 is the lowest priority.
  */
-#define configKERNEL_INTERRUPT_PRIORITY             ( 7 << 5 )
+#define configKERNEL_INTERRUPT_PRIORITY (configLIBRARY_LOWEST_INTERRUPT_PRIORITY << (8 - configPRIO_BITS))
 
 /*
  *  Priority 1 (shifted 5 since only the top 3 bits are implemented).
  *  Priority 1 is the second highest priority.
  *  Priority 0 is the highest priority.
+ *  !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
+ *  See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html.
  */
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY        ( 1 << 5 )
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS))
 
 /*
  * Use the Cortex-M3 optimised task selection rather than the generic C code
@@ -149,6 +173,7 @@ extern void vLoggingPrintf( const char * pcFormat,
 #define INCLUDE_xTaskGetIdleTaskHandle              0
 #define INCLUDE_eTaskGetState                       1
 #define INCLUDE_xSemaphoreGetMutexHolder            0
+#define INCLUDE_xTaskGetCurrentTaskHandle           1
 
 /* The address of an echo server that will be used by the two demo echo client
  * tasks.
@@ -159,6 +184,5 @@ extern void vLoggingPrintf( const char * pcFormat,
 #define configECHO_SERVER_ADDR2                     2
 #define configECHO_SERVER_ADDR3                     6
 #define configTCP_ECHO_CLIENT_PORT                  7
-
 
 #endif /* FREERTOS_CONFIG_H */

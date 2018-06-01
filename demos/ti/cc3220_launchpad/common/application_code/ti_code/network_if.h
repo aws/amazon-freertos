@@ -65,8 +65,6 @@ extern "C"
 #define SECURITY_TYPE           SL_WLAN_SEC_TYPE_WPA_WPA2
 /* Password of the secured AP                                                 */
 #define SECURITY_KEY            clientcredentialWIFI_PASSWORD
-#define SSID_LEN_MAX            32
-#define BSSID_LEN_MAX           6
 
 #define SSID_AP_MODE            "<ap-ssid>"
 #define SEC_TYPE_AP_MODE        SL_WLAN_SEC_TYPE_OPEN

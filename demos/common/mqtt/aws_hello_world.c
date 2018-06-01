@@ -97,6 +97,12 @@
 #define echoACK_STRING         ( ( const char * ) " ACK" )
 
 /**
+ * @brief The length of the ACK string appended to messages that are echoed back
+ * to the MQTT broker.
+ */
+#define echoACK_STRING_LENGTH   4
+
+/**
  * @brief Dimension of the character array buffers used to hold data (strings in
  * this case) that is published to and received from the MQTT broker (in the cloud).
  */
@@ -277,7 +283,7 @@ static void prvMessageEchoingTask( void * pvParameters )
 {
     MQTTAgentPublishParams_t xPublishParameters;
     MQTTAgentReturnCode_t xReturned;
-    char cDataBuffer[ echoMAX_DATA_LENGTH * 2 ];
+    char cDataBuffer[ echoMAX_DATA_LENGTH + echoACK_STRING_LENGTH ];
     size_t xBytesReceived;
 
     /* Remove compiler warnings about unused parameters. */
@@ -303,8 +309,10 @@ static void prvMessageEchoingTask( void * pvParameters )
                                                 sizeof( cDataBuffer ),
                                                 portMAX_DELAY );
 
-        /* Ensure the ACK can be added without overflowing the buffer. */
-        if( xBytesReceived < ( sizeof( cDataBuffer ) - strlen( echoACK_STRING ) - ( size_t ) 1 ) )
+        /* Ensure the ACK can be added without overflowing the buffer.
+         * Note that xBytesReceived already includes null character as
+         * it is written to the message buffer in the MQTT callback. */
+        if( xBytesReceived <= ( sizeof( cDataBuffer ) - ( size_t ) echoACK_STRING_LENGTH ) )
         {
             /* Append ACK to the received message. Note that
              * strcat appends terminating null character to the
@@ -372,8 +380,10 @@ static BaseType_t prvSubscribe( void )
 static MQTTBool_t prvMQTTCallback( void * pvUserData,
                                    const MQTTPublishData_t * const pxPublishParameters )
 {
-    char cBuffer[ echoMAX_DATA_LENGTH ];
-    uint32_t ulBytesToCopy = ( echoMAX_DATA_LENGTH - 1 ); /* Bytes to copy initialized to ensure it fits in the buffer. One place is left for NULL terminator. */
+    char cBuffer[ echoMAX_DATA_LENGTH + echoACK_STRING_LENGTH ];
+    uint32_t ulBytesToCopy = ( echoMAX_DATA_LENGTH + echoACK_STRING_LENGTH - 1 ); /* Bytes to copy initialized to ensure it
+                                                                                   * fits in the buffer. One place is left
+                                                                                   * for NULL terminator. */
 
     /* Remove warnings about the unused parameters. */
     ( void ) pvUserData;
@@ -385,30 +395,34 @@ static MQTTBool_t prvMQTTCallback( void * pvUserData,
     /* THe ulBytesToCopy has already been initialized to ensure it does not copy
      * more bytes than will fit in the buffer.  Now check it does not copy more
      * bytes than are available. */
-    if( pxPublishParameters->ulDataLength < ulBytesToCopy )
+    if( pxPublishParameters->ulDataLength <= ulBytesToCopy )
     {
         ulBytesToCopy = pxPublishParameters->ulDataLength;
+
+        /* Set the buffer to zero and copy the data into the buffer to ensure
+         * there is a NULL terminator and the buffer can be accessed as a
+         * string. */
+        memset( cBuffer, 0x00, sizeof( cBuffer ) );
+        memcpy( cBuffer, pxPublishParameters->pvData, ( size_t ) ulBytesToCopy );
+
+        /* Only echo the message back if it has not already been echoed.  If the
+         * data has already been echoed then it will already contain the echoACK_STRING
+         * string. */
+        if( strstr( cBuffer, echoACK_STRING ) == NULL )
+        {
+            /* The string has not been echoed before, so send it to the publish
+             * task, which will then echo the data back.  Make sure to send the
+             * terminating null character as well so that the received buffer in
+             * EchoingTask can be printed as a C string.  THE DATA CANNOT BE ECHOED
+             * BACK WITHIN THE CALLBACK AS THE CALLBACK IS EXECUTING WITHINT THE
+             * CONTEXT OF THE MQTT TASK.  Calling an MQTT API function here could cause
+             * a deadlock. */
+            ( void ) xMessageBufferSend( xEchoMessageBuffer, cBuffer, ( size_t ) ulBytesToCopy + ( size_t ) 1, echoDONT_BLOCK );
+        }
     }
-
-    /* Set the buffer to zero and copy the data into the buffer to ensure
-     * there is a NULL terminator and the buffer can be accessed as a
-     * string. */
-    memset( cBuffer, 0x00, sizeof( cBuffer ) );
-    memcpy( cBuffer, pxPublishParameters->pvData, ( size_t ) ulBytesToCopy );
-
-    /* Only echo the message back if it has not already been echoed.  If the
-     * data has already been echoed then it will already contain the echoACK_STRING
-     * string. */
-    if( strstr( cBuffer, echoACK_STRING ) == NULL )
+    else
     {
-        /* The string has not been echoed before, so send it to the publish
-         * task, which will then echo the data back.  Make sure to send the
-         * terminating null character as well so that the received buffer in
-         * EchoingTask can be printed as a C string.  THE DATA CANNOT BE ECHOED
-         * BACK WITHIN THE CALLBACK AS THE CALLBACK IS EXECUTING WITHINT THE
-         * CONTEXT OF THE MQTT TASK.  Calling an MQTT API function here could cause
-         * a deadlock. */
-        ( void ) xMessageBufferSend( xEchoMessageBuffer, cBuffer, ( size_t ) ulBytesToCopy + ( size_t ) 1, echoDONT_BLOCK );
+        configPRINTF( ( "[WARN]: Dropping received message as it does not fit in the buffer.\r\n" ) );
     }
 
     /* The data was copied into the FreeRTOS message buffer, so the buffer

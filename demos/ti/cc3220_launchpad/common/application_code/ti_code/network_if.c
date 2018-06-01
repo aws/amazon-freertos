@@ -46,17 +46,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-/* Hardware includes                                                          */
-#include <ti/devices/cc32xx/inc/hw_types.h>
-
-/* Driverlib includes                                                         */
-#include <ti/devices/cc32xx/driverlib/rom.h>
-#include <ti/devices/cc32xx/driverlib/rom_map.h>
-#include <ti/devices/cc32xx/driverlib/utils.h>
-
 /* Kernel (Non OS/Free-RTOS/TI-RTOS) includes                                 */
-#include "pthread.h"
-#include "mqueue.h"
+#include <pthread.h>
+#include <mqueue.h>
+#include <unistd.h>
 
 /* Simplelink includes                                                        */
 #include <ti/drivers/net/wifi/simplelink.h>
@@ -64,7 +57,6 @@
 /* Common interface includes                                                  */
 #include "network_if.h"
 #include "uart_term.h"
-#include "unistd.h"
 
 //*****************************************************************************
 //                          LOCAL DEFINES
@@ -91,9 +83,9 @@ unsigned long g_ulStaIp = 0;
 /* Network Gateway IP address                                                 */
 unsigned long g_ulGatewayIP = 0;
 /* Connection SSID                                                            */
-unsigned char g_ucConnectionSSID[SSID_LEN_MAX + 1];
+unsigned char g_ucConnectionSSID[SL_WLAN_SSID_MAX_LENGTH + 1];
 /* Connection BSSID                                                           */
-unsigned char g_ucConnectionBSSID[BSSID_LEN_MAX];
+unsigned char g_ucConnectionBSSID[SL_WLAN_BSSID_LENGTH ];
 /* SimpleLink Status                                                          */
 volatile unsigned long g_ulStatus = 0;
 /* Connection time delay index                                                */
@@ -387,7 +379,7 @@ long Network_IF_InitDriver(uint32_t uiMode)
         lRetVal = sl_WlanSetMode(uiMode);
         ASSERT_ON_ERROR(lRetVal);
 
-        lRetVal = sl_Stop(0xFF);
+        lRetVal = sl_Stop(SL_STOP_TIMEOUT);
         lRetVal = sl_Start(0, 0, 0);
         ASSERT_ON_ERROR(lRetVal);
 
@@ -495,7 +487,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
         /* This triggers the CC3220 to connect to a specific AP.              */
         lRetVal = sl_WlanConnect((signed char *) pcSsid, strlen((const char *) pcSsid),
         NULL, &SecurityParams, NULL);
-
+        ASSERT_ON_ERROR(lRetVal);
 
         /* Wait for ~10 sec to check if connection to desire AP succeeds      */
         while (g_usConnectIndex < 10)

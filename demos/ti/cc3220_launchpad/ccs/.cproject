@@ -40,10 +40,10 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT.554673149" name="Specify floating point support (--float_support)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT.vfplib" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.LITTLE_ENDIAN.2031715668" name="Little endian code [See 'General' page to edit] (--little_endian, -me)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.LITTLE_ENDIAN" value="true" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.INCLUDE_PATH.1680333660" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.INCLUDE_PATH" valueType="includePath">
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/source"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/source/ti/drivers/net/wifi"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/ccs"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/ccs/sys"/>
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/config_files}"/>
@@ -79,9 +79,9 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.OUTPUT_FILE.809721442" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.OUTPUT_FILE" useByScannerDiscovery="false" value="${ProjName}.out" valueType="string"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.LIBRARY.559734136" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.LIBRARY" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="libc.a"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/source/ti/devices/cc32xx/driverlib/ccs/Release/driverlib.a"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/source/ti/drivers/lib/drivers_cc32xx.aem4"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/source/ti/drivers/net/wifi/ccs/rtos/simplelink.a"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/devices/cc32xx/driverlib/ccs/Release/driverlib.a"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/drivers/lib/drivers_cc32xx.aem4"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/drivers/net/wifi/ccs/rtos/simplelink.a"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.SEARCH_PATH.882890543" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.SEARCH_PATH" useByScannerDiscovery="false" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/lib&quot;"/>

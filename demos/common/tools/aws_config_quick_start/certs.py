@@ -3,30 +3,21 @@ import json
 
 from iot_abstract import IotAbstract
 
-def list_certificates():
-    client = boto3.client('iot')
-    certificates = client.list_certificates(pageSize=100)
-    certificates = certificates['certificates']
-    return certificates
-
-
 class Certificate(IotAbstract):
 
     def __init__(self, certId = ''):
-        self.client = boto3.client('iot')
         self.id = certId
         self.arn = ''
+        self.client = boto3.client('iot')
         if (self.id != ''):
             result = self.client.describe_certificate(certificateId=self.id)
             self.arn = result['certificateDescription']['certificateArn']
-        self.certs = list_certificates()
 
     def create(self):
         assert self.exists() == False, "Cert already exists"
         cert = self.create_keys_and_certificate()
         self.id = cert["certificateId"]
         self.arn = cert["certificateArn"]
-        self.certs = list_certificates()
         return cert
 
     def create_keys_and_certificate(self):
@@ -35,25 +26,31 @@ class Certificate(IotAbstract):
 
     def delete(self):
         cert_not_found = True
-        for cert in self.certs:
-            if cert['certificateId'] == self.id:
-                # Detach Policies attached to the cert
-                policies_attached = self.list_policies()
-                for policy in policies_attached:
-                    self.detach_policy(policy['policyName'])
+        # Detach Policies attached to the cert
+        policies_attached = self.list_policies()
+        for policy in policies_attached:
+            self.detach_policy(policy['policyName'])
 
-                # Detach Things attached to the cert
-                things_attached = self.list_things()
-                for thing in things_attached:
-                    self.detach_thing(thing)
-                # Update the status of the certificate to INACTIVE
-                self.client.update_certificate(certificateId=self.id,
-                    newStatus='INACTIVE')
-                # Delete the certificate
-                self.client.delete_certificate(certificateId=self.id)
-                self.id = ''
-                cert_not_found = False
-                break
+        # Detach Things attached to the cert
+        things_attached = self.list_things()
+        for thing in things_attached:
+            self.detach_thing(thing)
+
+        # Update the status of the certificate to INACTIVE
+        try:
+            self.client.update_certificate(certificateId=self.id,
+                newStatus='INACTIVE')
+            cert_not_found = False
+        except self.client.exceptions.ResourceNotFoundException:
+            cert_not_found = True
+            return cert_not_found
+
+        # Delete the certificate
+        try:
+            self.client.delete_certificate(certificateId=self.id)
+            cert_not_found = False
+        except self.client.exceptions.ResourceNotFoundException:
+            cert_not_found = True
         return cert_not_found
 
     def exists(self):

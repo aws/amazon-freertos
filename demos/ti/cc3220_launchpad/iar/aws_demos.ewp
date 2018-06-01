@@ -342,10 +342,10 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\source</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\source\ti\drivers\net\wifi</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\sys</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\iar</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\iar\sys</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos</state>
                     <state>$PROJ_DIR$\..\common</state>
                     <state>$PROJ_DIR$\..\..\..\..\lib</state>
                     <state>$PROJ_DIR$\..\..\..\..\lib\ota\portable\ti\cc3220_launchpad</state>
@@ -362,6 +362,7 @@
                     <state>$PROJ_DIR$\..\..\..\..\lib\include\private</state>
                     <state>$PROJ_DIR$\..\..\..\common\include</state>
                     <state>$TOOLKIT_DIR$\inc</state>
+                    <state>$TOOLKIT_DIR$\inc\c</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -628,7 +629,7 @@
                 <option>
                     <name>AUserIncludes</name>
                     <state>$PROJ_DIR$\..\common\application_code\ti_code</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\source</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source</state>
                     <state>$PROJ_DIR$\..\common\config_files</state>
                 </option>
                 <option>
@@ -782,7 +783,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\source\ti\boards\CC3220SF_LAUNCHXL\CC3220SF_LAUNCHXL_FREERTOS.icf</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\boards\CC3220SF_LAUNCHXL\CC3220SF_LAUNCHXL_FREERTOS.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
@@ -818,9 +819,9 @@
                 </option>
                 <option>
                     <name>IlinkExtraOptions</name>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\source\ti\drivers\net\wifi\iar\rtos\simplelink.a</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\source\ti\devices\cc32xx\driverlib\iar\Release\driverlib.a</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\source\ti\drivers\lib\drivers_cc32xx.arm4</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\drivers\net\wifi\iar\rtos\simplelink.a</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\devices\cc32xx\driverlib\iar\Release\driverlib.a</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\drivers\lib\drivers_cc32xx.arm4</state>
                 </option>
                 <option>
                     <name>IlinkLowLevelInterfaceSlave</name>
@@ -1450,111 +1451,96 @@
             <group>
                 <name>mcu_vendor</name>
                 <group>
-                    <name>v1.40.01.00_kernel_freertos</name>
+                    <name>ti</name>
                     <group>
-                        <name>dpl</name>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\dpl\ClockP_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\dpl\DebugP_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\dpl\HwiPCC32XX_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\dpl\MutexP_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\dpl\PowerCC32XX_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\dpl\SemaphoreP_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\dpl\SystemP_freertos.c</name>
-                        </file>
-                    </group>
-                    <group>
-                        <name>posix</name>
+                        <name>SimpleLink_CC32xx</name>
                         <group>
-                            <name>sys</name>
-                            <file>
-                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\sys\signal.h</name>
-                            </file>
-                            <file>
-                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\sys\time.h</name>
-                            </file>
-                            <file>
-                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\sys\types.h</name>
-                            </file>
+                            <name> v2_10_00_04</name>
+                            <group>
+                                <name>kernel</name>
+                                <group>
+                                    <name>dpl</name>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\ClockP_freertos.c</name>
+                                    </file>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\DebugP_freertos.c</name>
+                                    </file>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\HwiPCC32XX_freertos.c</name>
+                                    </file>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\MutexP_freertos.c</name>
+                                    </file>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\PowerCC32XX_freertos.c</name>
+                                    </file>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\SemaphoreP_freertos.c</name>
+                                    </file>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\SystemP_freertos.c</name>
+                                    </file>
+                                </group>
+                                <group>
+                                    <name>startup</name>
+                                    <file>
+                                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\startup\startup_cc32xx_iar.c</name>
+                                    </file>
+                                </group>
+                            </group>
+                            <group>
+                                <name>source</name>
+                                <group>
+                                    <name>ti</name>
+                                    <group>
+                                        <name>posix</name>
+                                        <group>
+                                            <name>freertos</name>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\clock.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\memory.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\mqueue.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread_barrier.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread_cond.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread_mutex.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread_rwlock.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\reent.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\sched.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\semaphore.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\sleep.c</name>
+                                            </file>
+                                            <file>
+                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\timer.c</name>
+                                            </file>
+                                        </group>
+                                    </group>
+                                </group>
+                            </group>
                         </group>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\clock_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\errno.h</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\memory_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\mqueue.h</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\mqueue_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\pthread.h</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\pthread_barrier_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\pthread_cond_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\pthread_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\pthread_mutex_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\pthread_rwlock_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\sched.h</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\sched_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\semaphore.h</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\semaphore_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\signal.h</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\sleep_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\time.h</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\timer_freertos.c</name>
-                        </file>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\posix\unistd.h</name>
-                        </file>
-                    </group>
-                    <group>
-                        <name>startup</name>
-                        <file>
-                            <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v1_40_01_00\kernel\freertos\startup\startup_cc32xx_iar.c</name>
-                        </file>
                     </group>
                 </group>
             </group>

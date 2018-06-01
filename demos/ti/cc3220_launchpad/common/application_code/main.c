@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.6
+ * Amazon FreeRTOS V1.2.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,6 +54,10 @@
 #include "aws_demo_runner.h"
 #include "aws_system_init.h"
 #include "aws_dev_mode_key_provisioning.h"
+
+/* TI-Driver includes. */
+#include <ti/drivers/GPIO.h>
+#include <ti/drivers/SPI.h>
 
 /* CC3220SF board file. */
 #include "Board.h"
@@ -119,8 +123,8 @@ void vApplicationDaemonTaskStartupHook( void )
     WIFIReturnCode_t xWifiStatus;
 
     /* Hardware initialization required after the RTOS is running. */
-    Board_initGPIO();
-    Board_initSPI();
+    GPIO_init();
+    SPI_init();
 
     /* Configure the UART. */
     xtUartHndl = InitTerm();

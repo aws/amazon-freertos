@@ -241,199 +241,94 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/startup</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/ClockP_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/ClockP_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/DebugP_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/DebugP_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/FreeRTOS_OSAL_issues.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/FreeRTOS_OSAL_issues.txt</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/HwiPCC32XX_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/HwiPCC32XX_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/MutexP_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/MutexP_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/PowerCC32XX_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/PowerCC32XX_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SemaphoreP_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SemaphoreP_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SystemP_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/dpl/SystemP_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/clock_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/clock_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/errno.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/errno.h</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/memory_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/memory_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue.h</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/mqueue_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread.h</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_barrier_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_barrier_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_cond_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_cond_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_mutex_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_mutex_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_rwlock_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/pthread_rwlock_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched.h</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sched_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore.h</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/semaphore_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/signal.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/signal.h</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sleep_freertos.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sleep_freertos.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/time.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/time.h</locationURI>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/timer_freertos.c</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/ClockP_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/timer_freertos.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/ClockP_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/unistd.h</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/DebugP_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/unistd.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/DebugP_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/FreeRTOS_OSAL_issues.txt</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/FreeRTOS_OSAL_issues.txt</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/signal.h</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/HwiPCC32XX_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/signal.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/HwiPCC32XX_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/time.h</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/MutexP_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/time.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/MutexP_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/types.h</name>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/PowerCC32XX_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v1_40_01_00/kernel/freertos/posix/sys/types.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/PowerCC32XX_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SemaphoreP_freertos.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SemaphoreP_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SystemP_freertos.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SystemP_freertos.c</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>
@@ -489,6 +384,42 @@
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-heap_4.c</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>0</id>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
+			<type>5</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-true-false-*.c</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>0</id>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-Mtx.c</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>0</id>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-PTLS.*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>0</id>
+			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-aeabi_portable.*</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
