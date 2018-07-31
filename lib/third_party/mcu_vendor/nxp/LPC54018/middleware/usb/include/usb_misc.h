@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2015 - 2016, Freescale Semiconductor, Inc.
  * Copyright 2016 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -313,7 +317,7 @@ _Pragma("diag_suppress=Pm120")
 #define USB_RAM_ADDRESS_ALIGNMENT(n) USB_ALIGN_PRAGMA(data_alignment = n)
         _Pragma("diag_suppress=Pm120")
 #define USB_LINK_SECTION_PART(str) _Pragma(#str)
-#define USB_LINK_SECTION_SUB(sec) USB_LINK_SECTION_PART(location = #sec)
+#define USB_LINK_DMA_INIT_DATA(sec) USB_LINK_SECTION_PART(location = #sec)
 #define USB_LINK_USB_GLOBAL _Pragma("location = \"m_usb_global\"")
 #define USB_LINK_USB_BDT _Pragma("location = \"m_usb_bdt\"")
 #define USB_LINK_USB_GLOBAL_BSS _Pragma("location = \".bss.m_usb_global\"")
@@ -326,7 +330,7 @@ _Pragma("diag_suppress=Pm120")
 #define USB_WEAK_VAR __attribute__((weak))
 #define USB_WEAK_FUN __weak
 #define USB_RAM_ADDRESS_ALIGNMENT(n) __attribute__((aligned(n)))
-#define USB_LINK_SECTION_SUB(sec) __attribute__((section(#sec))) __attribute__((zero_init))
+#define USB_LINK_DMA_INIT_DATA(sec) __attribute__((section(#sec)))
 #define USB_LINK_USB_GLOBAL __attribute__((section("m_usb_global"))) __attribute__((zero_init))
 #define USB_LINK_USB_BDT __attribute__((section("m_usb_bdt"))) __attribute__((zero_init))
 #define USB_LINK_USB_GLOBAL_BSS __attribute__((section(".bss.m_usb_global"))) __attribute__((zero_init))
@@ -339,7 +343,7 @@ _Pragma("diag_suppress=Pm120")
 #define USB_WEAK_VAR __attribute__((weak))
 #define USB_WEAK_FUN __attribute__((weak))
 #define USB_RAM_ADDRESS_ALIGNMENT(n) __attribute__((aligned(n)))
-#define USB_LINK_SECTION_SUB(sec) __attribute__((section(#sec)))
+#define USB_LINK_DMA_INIT_DATA(sec) __attribute__((section(#sec)))
 #define USB_LINK_USB_GLOBAL __attribute__((section("m_usb_global, \"aw\", %nobits @")))
 #define USB_LINK_USB_BDT __attribute__((section("m_usb_bdt, \"aw\", %nobits @")))
 #define USB_LINK_USB_GLOBAL_BSS __attribute__((section(".bss.m_usb_global, \"aw\", %nobits @")))
@@ -387,7 +391,7 @@ _Pragma("diag_suppress=Pm120")
 #if (defined(USB_DEVICE_CONFIG_BUFFER_PROPERTY_CACHEABLE) && (USB_DEVICE_CONFIG_BUFFER_PROPERTY_CACHEABLE)) || \
     (defined(USB_HOST_CONFIG_BUFFER_PROPERTY_CACHEABLE) && (USB_HOST_CONFIG_BUFFER_PROPERTY_CACHEABLE))
 #define USB_DMA_DATA_NONINIT_SUB USB_LINK_DMA_NONINIT_DATA
-#define USB_DMA_DATA_INIT_SUB USB_LINK_SECTION_SUB(m_usb_dma_init_data)
+#define USB_DMA_DATA_INIT_SUB USB_LINK_DMA_INIT_DATA(m_usb_dma_init_data)
 #define USB_CONTROLLER_DATA USB_LINK_NONCACHE_NONINIT_DATA
 #else
 #define USB_DMA_DATA_NONINIT_SUB
@@ -403,7 +407,7 @@ _Pragma("diag_suppress=Pm120")
     (defined(USB_HOST_CONFIG_BUFFER_PROPERTY_CACHEABLE) && (USB_HOST_CONFIG_BUFFER_PROPERTY_CACHEABLE))
 #define USB_GLOBAL USB_LINK_DMA_NONINIT_DATA
 #define USB_DMA_DATA_NONINIT_SUB USB_LINK_DMA_NONINIT_DATA
-#define USB_DMA_DATA_INIT_SUB USB_LINK_SECTION_SUB(m_usb_dma_init_data)
+#define USB_DMA_DATA_INIT_SUB USB_LINK_DMA_INIT_DATA(m_usb_dma_init_data)
 #define USB_CONTROLLER_DATA USB_LINK_NONCACHE_NONINIT_DATA
 #else
 #define USB_GLOBAL USB_LINK_USB_GLOBAL_BSS
@@ -420,7 +424,7 @@ _Pragma("diag_suppress=Pm120")
 #define USB_GLOBAL USB_LINK_DMA_NONINIT_DATA
 #define USB_BDT USB_LINK_NONCACHE_NONINIT_DATA
 #define USB_DMA_DATA_NONINIT_SUB USB_LINK_DMA_NONINIT_DATA
-#define USB_DMA_DATA_INIT_SUB USB_LINK_SECTION_SUB(m_usb_dma_init_data)
+#define USB_DMA_DATA_INIT_SUB USB_LINK_DMA_INIT_DATA(m_usb_dma_init_data)
 #define USB_CONTROLLER_DATA USB_LINK_NONCACHE_NONINIT_DATA
 
 #else

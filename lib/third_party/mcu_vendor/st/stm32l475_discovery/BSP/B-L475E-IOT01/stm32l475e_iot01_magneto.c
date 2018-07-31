@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l475e_iot01_magneto.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    17-March-2017
   * @brief   This file provides a set of functions needed to manage the magnetometer sensor
   ******************************************************************************
   * @attention

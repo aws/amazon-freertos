@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.4
+ * FreeRTOS+TCP V2.0.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1895,6 +1895,39 @@ uint8_t ucProtocol;
 }
 /*-----------------------------------------------------------*/
 
+/**
+ * This method generates a checksum for a given IPv4 header, per RFC791 (page 14).
+ * The checksum algorithm is decribed as:
+ *   "[T]he 16 bit one's complement of the one's complement sum of all 16 bit words in the
+ *   header.  For purposes of computing the checksum, the value of the checksum field is zero."
+ *
+ * In a nutshell, that means that each 16-bit 'word' must be summed, after which
+ * the number of 'carries' (overflows) is added to the result. If that addition
+ * produces an overflow, that 'carry' must also be added to the final result. The final checksum
+ * should be the bitwise 'not' (ones-complement) of the result if the packet is
+ * meant to be transmitted, but this method simply returns the raw value, probably
+ * because when a packet is received, the checksum is verified by checking that
+ * ((received & calculated) == 0) without applying a bitwise 'not' to the 'calculated' checksum.
+ *
+ * This logic is optimized for microcontrollers which have limited resources, so the logic looks odd.
+ * It iterates over the full range of 16-bit words, but it does so by processing several 32-bit
+ * words at once whenever possible. Its first step is to align the memory pointer to a 32-bit boundary,
+ * after which it runs a fast loop to process multiple 32-bit words at once and adding their 'carries'.
+ * Finally, it finishes up by processing any remaining 16-bit words, and adding up all of the 'carries'.
+ * With 32-bit arithmetic, the number of 16-bit 'carries' produced by sequential additions can be found
+ * by looking at the 16 most-significant bits of the 32-bit integer, since a 32-bit int will continue
+ * counting up instead of overflowing after 16 bits. That is why the actual checksum calculations look like:
+ *   union.u32 = ( uint32_t ) union.u16[ 0 ] + union.u16[ 1 ];
+ *
+ * Arguments:
+ *   ulSum: This argument provides a value to initialize the progressive summation
+ *     of the header's values to. It is often 0, but protocols like TCP or UDP
+ *     can have pseudo-header fields which need to be included in the checksum.
+ *   pucNextData: This argument contains the address of the first byte which this
+ *     method should process. The method's memory iterator is initialized to this value.
+ *   uxDataLengthBytes: This argument contains the number of bytes that this method
+ *     should process.
+ */
 uint16_t usGenerateChecksum( uint32_t ulSum, const uint8_t * pucNextData, size_t uxDataLengthBytes )
 {
 xUnion32 xSum2, xSum, xTerm;

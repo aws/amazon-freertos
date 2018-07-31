@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -221,6 +225,20 @@ void DMIC_ConfigChannel(DMIC_Type *base,
                         dmic_channel_t channel,
                         stereo_side_t side,
                         dmic_channel_config_t *channel_config);
+
+/*!
+ * @brief	Configure DMIC channel
+ * @param	base		: The base address of DMIC interface
+ * @param	channel		: DMIC channel
+ * @param   dc_cut_level  : dc_removal_t, Cut off Frequency
+ * @param	post_dc_gain_reduce	: Fine gain adjustment in the form of a number of bits to downshift.
+ * @param   saturate16bit : If selects 16-bit saturation.
+ */
+void DMIC_CfgChannelDc(DMIC_Type *base,
+                       dmic_channel_t channel,
+                       dc_removal_t dc_cut_level,
+                       uint32_t post_dc_gain_reduce,
+                       bool saturate16bit);
 
 /*!
  * @brief	Configure Clock scaling

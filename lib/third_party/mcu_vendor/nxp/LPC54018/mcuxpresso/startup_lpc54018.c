@@ -4,11 +4,14 @@
 // Version : 090817
 //*****************************************************************************
 //
+// The Clear BSD License
 // Copyright(C) NXP Semiconductors, 2017
 // All rights reserved.
 //
+// 
 // Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
+// are permitted (subject to the limitations in the disclaimer below) provided
+//  that the following conditions are met:
 //
 // o Redistributions of source code must retain the above copyright notice, this list
 //   of conditions and the following disclaimer.
@@ -21,6 +24,7 @@
 //   contributors may be used to endorse or promote products derived from this
 //   software without specific prior written permission.
 //
+// NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -242,6 +246,12 @@ extern void _image_size(void);
 WEAK extern void __valid_user_code_checksum();
 
 //*****************************************************************************
+// External declaration for image type and load address from  Linker Script
+//*****************************************************************************
+WEAK extern void __imghdr_loadaddress();
+WEAK extern void __imghdr_imagetype();
+
+//*****************************************************************************
 #if defined (__cplusplus)
 } // extern "C"
 #endif
@@ -254,6 +264,7 @@ WEAK extern void __valid_user_code_checksum();
 //*****************************************************************************
 extern void (* const g_pfnVectors[])(void);
 extern void * __Vectors __attribute__ ((alias ("g_pfnVectors")));
+
 __attribute__ ((used, section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
     // Core Level - CM4
@@ -348,27 +359,16 @@ void (* const g_pfnVectors[])(void) = {
     0,                          // Reserved
     0,                          // Reserved
     (void *)0xFEEDA5A5,         // Header Marker
-#if defined (XIP_IMAGE)
-    #if defined (ADD_CRC)
-    (void *)0x2,                // (0x04) Image Type
-    #else
-    (void *)0x3,                // (0x04) Image Type
-    #endif
+
+#if defined (ADD_CRC)
+    (__imghdr_imagetype - 1) , // (0x04) Image Type
+	__imghdr_loadaddress,      // (0x08) Load_address
 #else
-    #if defined (ADD_CRC)
-    (void *)0x0,                // (0x04) Image Type
-    #else
-    (void *)0x1,                // (0x04) Image Type
-    #endif
+    __imghdr_imagetype,        // (0x04) Image Type
+	__imghdr_loadaddress,      // (0x08) Load_address
 #endif
 
-#if defined (XIP_IMAGE)
-    (void *)0x10000000,         // (0x08) Load_address
-
-#else
-    (void *)0x00000000,         // (0x08) Load_address
-#endif
-    _image_size,                // (0x0C) load_length
+    _image_size - 4,            // (0x0C) load_length, exclude 4 bytes CRC field.
     0,                          // (0x10) CRC value (only applicable to NON Non-secure images).
     0,                          // (0x14) Version (only applicable to DUAL_ENH image type.
     0,                          // (0x18) EMC static memory configuration settings, required for EMC boot

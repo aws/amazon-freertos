@@ -71,6 +71,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/bufferpool</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/bufferpool</locationURI>
@@ -196,6 +201,16 @@
 			<locationURI>BASE_DIR_ROOT/demos/common/tcp/aws_tcp_echo_client_single_task.c</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/include</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/source</name>
+			<type>2</type>
+			<locationURI>$%7BBASE_DIR_ROOT%7D/lib/FreeRTOS-Plus-POSIX/source</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/ota/aws_ota_agent.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_agent.c</locationURI>
@@ -236,6 +251,26 @@
 			<locationURI>BASE_DIR_ROOT/lib/third_party/pkcs11/pkcs11.h</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h</name>
+			<type>1</type>
+			<locationURI>$%7BBASE_DIR_ROOT%7D/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable.h</name>
+			<type>1</type>
+			<locationURI>$%7BBASE_DIR_ROOT%7D/lib/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad/FreeRTOS_POSIX_portable.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable_default.h</name>
+			<type>1</type>
+			<locationURI>$%7BBASE_DIR_ROOT%7D/lib/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h</locationURI>
+		</link>
+		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -251,17 +286,7 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -272,11 +297,6 @@
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -324,11 +344,6 @@
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
-			<type>2</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>
@@ -384,42 +399,6 @@
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-heap_4.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>0</id>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-*.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>0</id>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-Mtx.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>0</id>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-PTLS.*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>0</id>
-			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-aeabi_portable.*</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>

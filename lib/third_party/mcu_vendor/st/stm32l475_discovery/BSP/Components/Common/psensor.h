@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    tsensor.h
   * @author  MCD Application Team
-  * @version V5.0.0
-  * @date    01-March-2017
   * @brief   This header file contains the functions prototypes for the
   *          Temperature Sensor driver. 
   ******************************************************************************

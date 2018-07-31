@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -52,6 +56,13 @@
 /*! @brief Prime all the double endpoint buffer at the same time, if the transfer length is larger than max packet size.
  */
 #define USB_DEVICE_IP3511_DOUBLE_BUFFER_ENABLE (1u)
+#if ((defined(USB_DEVICE_CONFIG_LPCIP3511HS)) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U))
+#define USB_LPC3511IP_Type USBHSD_Type
+#define USB_DEVICE_IP3511_ENDPOINTS_NUM FSL_FEATURE_USBHSD_EP_NUM
+#else
+#define USB_LPC3511IP_Type USB_Type
+#define USB_DEVICE_IP3511_ENDPOINTS_NUM FSL_FEATURE_USB_EP_NUM
+#endif
 
 /*! @brief Endpoint state structure */
 typedef struct _usb_device_lpc3511ip_endpoint_state_struct
@@ -104,9 +115,9 @@ typedef struct _usb_device_lpc3511ip_state_struct
     /*!< 4 bytes for zero length transaction, must align with 64 */
     uint8_t *zeroTransactionData;
     /* Endpoint state structures */
-    usb_device_lpc3511ip_endpoint_state_struct_t endpointState[(USB_DEVICE_CONFIG_ENDPOINTS * 2)];
+    usb_device_lpc3511ip_endpoint_state_struct_t endpointState[(USB_DEVICE_IP3511_ENDPOINTS_NUM * 2)];
     usb_device_handle deviceHandle; /*!< (4 bytes) Device handle used to identify the device object belongs to */
-    USB_Type *registerBase;         /*!< (4 bytes) ip base address */
+    USB_LPC3511IP_Type *registerBase;         /*!< (4 bytes) ip base address */
     volatile uint32_t *epCommandStatusList; /* endpoint list */
     uint8_t controllerId;                   /*!< Controller ID */
     uint8_t isResetting;                    /*!< Is doing device reset or not */

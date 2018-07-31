@@ -6,11 +6,15 @@
 ; * @date:    2017-6-8
 ; *----------------------------------------------------------------------------
 ; *
+; * The Clear BSD License
 ; * Copyright 1997-2016 Freescale Semiconductor, Inc.
 ; * Copyright 2016-2017 NXP
 ; *
+; * All rights reserved.
+; * 
 ; Redistribution and use in source and binary forms, with or without modification,
-; are permitted provided that the following conditions are met:
+; are permitted (subject to the limitations in the disclaimer below) provided
+;  that the following conditions are met:
 ;
 ; 1. Redistributions of source code must retain the above copyright notice, this list
 ;   of conditions and the following disclaimer.
@@ -23,6 +27,7 @@
 ;   contributors may be used to endorse or promote products derived from this
 ;   software without specific prior written permission.
 ;
+; NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S' PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
 ; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ; ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 ; WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -80,7 +85,7 @@ __vector_table_0x1c
         DCD     0
         DCD     0xFFFFFFFF ;ECRP
         DCD     0xEDDC94BD ;Enhanced image marker, set to 0x0 for legacy boot
-        DCD     0x160      ; Pointer to enhanced boot block, set to 0x0 for legacy boot
+        DCD     0x160      ;Pointer to enhanced boot block, set to 0x0 for legacy boot
         DCD     SVC_Handler
         DCD     DebugMon_Handler
         DCD     0
@@ -160,12 +165,12 @@ __vector_table_0x1c
         DCD     0  ; 0x150 PAD
         DCD     0  ; 0x154 PAD
         DCD     0  ; 0x158 PAD
-        DCD     0  ; 0x15C PAD      
+        DCD     0  ; 0x15C PAD
 
 #ifndef IMG_BAUDRATE
 #define IMG_BAUDRATE 0
 #endif
-        
+
 __image_header
         DCD   0xFEEDA5A5 ; (0x00, 0x160) Header Marker
         #ifdef XIP_IMAGE
@@ -181,14 +186,14 @@ __image_header
                 DCD   1           ; (0x04) Image Type
           #endif
         #endif
-        
+
         #ifdef XIP_IMAGE
                 DCD   0x10000000  ; (0x08) Load_address
         #else
                 DCD   0x00000000  ; (0x08) Load_address
-        #endif    
+        #endif
 
-        DCD   sfe(RO) - __vector_table   ; (0x0C) load_length, image size is RO end -__vector_table
+        DCD   sfe(RO) - __vector_table - 4   ; (0x0C) load_length, image size is RO end -__vector_table - CRC field
         DCD   0          ; (0x10) CRC value (only applicable to NON Non-secure images).
         DCD   0          ; (0x14) Version (only applicable to DUAL_ENH image type.
         DCD   0          ; (0x18) EMC static memory configuration settings, required for EMC boot
@@ -197,10 +202,9 @@ __image_header
         DCD   0xEDDC94BD ; (0x24) Image_marker
         DCD   0          ; (0x28) SBZ
         DCD   0          ; (0x2C) reserved
-        
         #ifdef W25Q128JVFM
         ; SPI Descriptor - W25Q128JVFM
-        DCD   0x00000000 ;0xFFFFFFFF to default 1-bit SPI mode  ；DevStrAdr
+        DCD   0x00000000 ;0xFFFFFFFF to default 1-bit SPI mode  ;DevStrAdr
         DCD   0x001870EF ;mfgId + extCount
         DCD   0x00000000 ;extid 0-3
         DCD   0x00000000 ;extid 4-7
@@ -214,7 +218,7 @@ __image_header
         DCD   0x04030050 ;maxHSProgramRate,initDeInitFxId,clearStatusFxId,getStatusFxId
         DCD   0x14110D09 ;setStatusFxId,setOptionsFxId,getReadCmdFxId,getWriteCmdFxId
         #endif
-        
+
         #ifdef MXL12835F
         ; SPIFI Descriptor - MXL12835F
         DCD   0x00000000 ;0xFFFFFFFF to default 1-bit SPI mode  ;DevStrAdr
@@ -231,7 +235,6 @@ __image_header
         DCD   0x06030050 ;maxHSProgramRate,initDeInitFxId,clearStatusFxId,getStatusFxId
         DCD   0x14110F0B ;setStatusFxId,setOptionsFxId,getReadCmdFxId,getWriteCmdFxId
         #endif
-
 __Vectors_End
 
 __Vectors       EQU   __vector_table
@@ -248,6 +251,9 @@ __Vectors_Size  EQU   __Vectors_End - __Vectors
         PUBWEAK Reset_Handler
         SECTION .text:CODE:REORDER:NOROOT(2)
 Reset_Handler
+                MOVS    r0,#56
+                LDR     r1, =0x40000220
+                STR     r0, [r1]           ;Enable SRAM clock used by Stack 
                 LDR     r0, =SystemInit
                 BLX     r0
                 LDR     r0, =__iar_program_start

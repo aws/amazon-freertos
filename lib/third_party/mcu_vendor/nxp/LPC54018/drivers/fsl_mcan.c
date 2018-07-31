@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,8 +35,14 @@
 #include "fsl_mcan.h"
 
 /*******************************************************************************
- * Definitons
+ * Definitions
  ******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.mcan"
+#endif
+
 
 #define MCAN_TIME_QUANTA_NUM (16U)
 
@@ -60,7 +70,7 @@ typedef void (*mcan_isr_t)(CAN_Type *base, mcan_handle_t *handle);
  * @param base MCAN peripheral base address.
  * @return MCAN instance.
  */
-uint32_t MCAN_GetInstance(CAN_Type *base);
+static uint32_t MCAN_GetInstance(CAN_Type *base);
 
 /*!
  * @brief Reset the MCAN instance.
@@ -151,7 +161,7 @@ static mcan_isr_t s_mcanIsr;
  * Code
  ******************************************************************************/
 
-uint32_t MCAN_GetInstance(CAN_Type *base)
+static uint32_t MCAN_GetInstance(CAN_Type *base)
 {
     uint32_t instance;
 
@@ -413,9 +423,9 @@ void MCAN_SetSTDFilterElement(CAN_Type *base,
                               const mcan_std_filter_element_config_t *filter,
                               uint8_t idx)
 {
-    uint8_t *elementAddress = 0;
-    elementAddress = (uint8_t *)(MCAN_GetMsgRAMBase(base) + config->address + idx * 4U);
-    memcpy(elementAddress, filter, sizeof(filter));
+    uint32_t *elementAddress = NULL;
+    elementAddress = (uint32_t *)(MCAN_GetMsgRAMBase(base) + config->address + idx * 4U);
+    memcpy(elementAddress, filter, sizeof(mcan_std_filter_element_config_t));
 }
 
 void MCAN_SetEXTFilterElement(CAN_Type *base,
@@ -423,9 +433,9 @@ void MCAN_SetEXTFilterElement(CAN_Type *base,
                               const mcan_ext_filter_element_config_t *filter,
                               uint8_t idx)
 {
-    uint8_t *elementAddress = 0;
-    elementAddress = (uint8_t *)(MCAN_GetMsgRAMBase(base) + config->address + idx * 8U);
-    memcpy(elementAddress, filter, sizeof(filter));
+    uint32_t *elementAddress = NULL;
+    elementAddress = (uint32_t *)(MCAN_GetMsgRAMBase(base) + config->address + idx * 8U);
+    memcpy(elementAddress, filter, sizeof(mcan_ext_filter_element_config_t));
 }
 
 static uint32_t MCAN_GetRxFifo0ElementAddress(CAN_Type *base)
@@ -506,11 +516,11 @@ status_t MCAN_WriteTxBuffer(CAN_Type *base, uint8_t idx, const mcan_tx_buffer_fr
 {
     if (!MCAN_IsTransmitRequestPending(base, idx))
     {
-        uint8_t *elementAddress = 0;
+        uint8_t *elementAddress = NULL;
         elementAddress = (uint8_t *)(MCAN_GetMsgRAMBase(base) + MCAN_GetTxBufferElementAddress(base, idx));
 
         /* Write 2 words configuration field. */
-        memcpy(elementAddress, (uint8_t *)txFrame, 8U);
+        memcpy(elementAddress, (const uint8_t *)txFrame, 8U);
         /* Write data field. */
         memcpy(elementAddress + 8U, txFrame->data, txFrame->size);
         return kStatus_Success;
@@ -523,7 +533,7 @@ status_t MCAN_WriteTxBuffer(CAN_Type *base, uint8_t idx, const mcan_tx_buffer_fr
 
 status_t MCAN_ReadRxBuffer(CAN_Type *base, uint8_t idx, mcan_rx_buffer_frame_t *rxFrame)
 {
-    mcan_rx_buffer_frame_t *elementAddress = 0;
+    mcan_rx_buffer_frame_t *elementAddress = NULL;
     elementAddress = (mcan_rx_buffer_frame_t *)(MCAN_GetMsgRAMBase(base) + MCAN_GetRxBufferElementAddress(base, idx));
     memcpy(rxFrame, elementAddress, (rxFrame->size + 8U) * 4U);
     return kStatus_Success;
@@ -532,7 +542,7 @@ status_t MCAN_ReadRxBuffer(CAN_Type *base, uint8_t idx, mcan_rx_buffer_frame_t *
 status_t MCAN_ReadRxFifo(CAN_Type *base, uint8_t fifoBlock, mcan_rx_buffer_frame_t *rxFrame)
 {
     assert((fifoBlock == 0) || (fifoBlock == 1U));
-    mcan_rx_buffer_frame_t *elementAddress = 0;
+    mcan_rx_buffer_frame_t *elementAddress = NULL;
     if (0 == fifoBlock)
     {
         elementAddress = (mcan_rx_buffer_frame_t *)(MCAN_GetMsgRAMBase(base) + MCAN_GetRxFifo0ElementAddress(base));

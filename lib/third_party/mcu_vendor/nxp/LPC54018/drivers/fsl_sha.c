@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,6 +37,12 @@
 /*******************************************************************************
  * Definitions
  *******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.sha"
+#endif
+
 
 /*!< SHA-1 and SHA-256 block size  */
 #define SHA_BLOCK_SIZE 64
@@ -90,16 +100,18 @@ enum _sha_digest_len
  * @param src address of the input 512-bit block (16 words) (word aligned)
  *
  */
-__STATIC_INLINE void sha_ldm_stm_16_words(volatile uint32_t *dst, const uint32_t *src)
+__STATIC_INLINE void sha_ldm_stm_16_words(SHA_Type *base, const uint32_t *src)
 {
-    for (int i = 0; i < 8; i++)
+    base->INDATA = src[0];
+    for (int i = 0; i < 7; i++)
     {
-        dst[i] = src[i];
+        base->ALIAS[i] = src[i+1];
     }
     src += 8u;
-    for (int i = 0; i < 8; i++)
+    base->INDATA = src[0];
+    for (int i = 0; i < 7; i++)
     {
-        dst[i] = src[i];
+        base->ALIAS[i] = src[i+1];
     }
 }
 
@@ -231,7 +243,7 @@ static void sha_one_block(SHA_Type *base, const uint8_t *blk)
     {
     }
     /* feed INDATA (and ALIASes). use STM instruction. */
-    sha_ldm_stm_16_words(&base->INDATA, actBlk);
+    sha_ldm_stm_16_words(base, actBlk);
 }
 
 /*!

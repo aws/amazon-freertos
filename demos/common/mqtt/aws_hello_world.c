@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Echo Demo V1.2.6
+ * Amazon FreeRTOS MQTT Echo Demo V1.3.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -495,6 +495,7 @@ static void prvMQTTConnectAndPublishTask( void * pvParameters )
 
     /* End the demo by deleting all created resources. */
     configPRINTF( ( "MQTT echo demo finished.\r\n" ) );
+    configPRINTF( ("----Demo finished----\r\n") );
     vMessageBufferDelete( xEchoMessageBuffer );
     vTaskDelete( xEchoingTask );
     vTaskDelete( NULL ); /* Delete this task. */

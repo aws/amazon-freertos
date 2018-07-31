@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 for STM32L4 Discovery kit IoT node V1.0.1
+ * Amazon FreeRTOS PKCS#11 for STM32L4 Discovery kit IoT node V1.0.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,6 +46,10 @@
 /* flash driver includes. */
 #include "flash.h"
 
+/* WiFi includes. */
+#ifdef USE_OFFLOAD_SSL
+    #include "aws_wifi.h"
+#endif
 
 #define pkcs11OBJECT_CERTIFICATE_MAX_SIZE    2048
 #define pkcs11OBJECT_FLASH_CERT_PRESENT      ( 0xABCDEFuL )
@@ -69,6 +73,14 @@ typedef struct
 P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 /*-----------------------------------------------------------*/
 
+#ifdef USE_OFFLOAD_SSL
+
+    /* Exported from aws_wifi.c */
+    extern WIFIReturnCode_t  WIFI_StoreCertificate( uint8_t * pucCertificate, uint16_t usCertificateLength );
+    extern WIFIReturnCode_t  WIFI_StoreKey( uint8_t * pucKey, uint16_t usKeyLength );
+
+#endif
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Writes a file to local storage.
@@ -111,6 +123,18 @@ BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
                           &ulFlashMark,
                           sizeof( CK_ULONG ) );
         }
+
+        #ifdef USE_OFFLOAD_SSL
+            /* If we are using offload SSL, write the certificate to the
+             * WiFi module as well. */
+            if( xResult == pdTRUE )
+            {
+                if( WIFI_StoreCertificate( pucData, ( uint16_t ) ulDataSize ) != eWiFiSuccess )
+                {
+                    xResult = pdFALSE;
+                }
+            }
+        #endif /* USE_OFFLOAD_SSL */
     }
 
     /*
@@ -134,6 +158,18 @@ BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
                           &ulFlashMark,
                           sizeof( CK_ULONG ) );
         }
+
+        #ifdef USE_OFFLOAD_SSL
+            /* If we are using offload SSL, write the key to the WiFi
+             * module as well. */
+            if( xResult == pdTRUE )
+            {
+                if( WIFI_StoreKey( pucData, ( uint16_t ) ulDataSize ) != eWiFiSuccess )
+                {
+                    xResult = pdFALSE;
+                }
+            }
+        #endif /* USE_OFFLOAD_SSL */
     }
 
     return xResult;

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.7
+ * Amazon FreeRTOS V1.3.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,13 +49,32 @@
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
 
+/* WiFi driver includes. */
+#include "es_wifi.h"
+
 /* The SPI driver polls at a high priority. The logging task's priority must also
  * be high to be not be starved of CPU time. */
-#define mainLOGGING_TASK_PRIORITY           ( configMAX_PRIORITIES - 1 )
-#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
+#define mainLOGGING_TASK_PRIORITY                       ( configMAX_PRIORITIES - 1 )
+#define mainLOGGING_TASK_STACK_SIZE                     ( configMINIMAL_STACK_SIZE * 5 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH                ( 15 )
+
+/* Minimum required WiFi firmware version. */
+#define mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION  ( 3 )
+#define mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION  ( 5 )
+#define mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION  ( 2 )
+#define mainREQUIRED_WIFI_FIRMWARE_INVENTEK_VERSION     ( 5 )
+/*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void );
+
+/* Defined in es_wifi_io.c. */
+extern void SPI_WIFI_ISR(void);
+extern SPI_HandleTypeDef hspi;
+
+#ifdef USE_OFFLOAD_SSL
+    /* Defined in aws_wifi.c. */
+    extern WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t *pucBuffer );
+#endif /* USE_OFFLOAD_SSL */
 
 /**********************
 * Global Variables
@@ -87,6 +106,19 @@ static void prvMiscInitialization( void );
  */
 static void prvInitializeHeap( void );
 
+#ifdef USE_OFFLOAD_SSL
+
+    /**
+     * @brief Checks whether the Inventek module's firmware version needs to be
+     * updated.
+     *
+     * Prints a message to inform the user to update the WiFi firmware.
+     */
+    static void prvCheckWiFiFirmwareVersion( void );
+
+#endif /* USE_OFFLOAD_SSL */
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Application runtime entry point.
  */
@@ -112,21 +144,47 @@ int main( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    /* A simple example to demonstrate key and certificate provisioning in
-     * microcontroller flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();
+    WIFIReturnCode_t xWifiStatus;
 
-    if( SYSTEM_Init() == pdPASS )
+    /* Turn on the WiFi before key provisioning. This is needed because
+     * if we want to use offload SSL, device certificate and key is stored
+     * on the WiFi module during key provisioning which requires the WiFi
+     * module to be initialized. */
+    xWifiStatus = WIFI_On();
+
+    if( xWifiStatus == eWiFiSuccess )
     {
-        /* Connect to the WiFi before running the demos */
-        prvWifiConnect();
+        configPRINTF( ( "WiFi module initialized.\r\n" ) );
 
-        DEMO_RUNNER_RunDemos();
+        /* A simple example to demonstrate key and certificate provisioning in
+         * microcontroller flash using PKCS#11 interface. This should be replaced
+         * by production ready key provisioning mechanism. */
+        vDevModeKeyProvisioning();
+
+        if( SYSTEM_Init() == pdPASS )
+        {
+            /* Connect to the WiFi before running the demos */
+            prvWifiConnect();
+
+            #ifdef USE_OFFLOAD_SSL
+                /* Check if WiFi firmware needs to be updated. */
+                prvCheckWiFiFirmwareVersion();
+            #endif /* USE_OFFLOAD_SSL */
+
+            /* Start demos. */
+            DEMO_RUNNER_RunDemos();
+        }
+    }
+    else
+    {
+        configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
+
+        /* Stop here if we fail to initialize WiFi. */
+        configASSERT( xWifiStatus == eWiFiSuccess );
     }
 }
-
 /*-----------------------------------------------------------*/
+
 static void prvWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
@@ -141,54 +199,41 @@ static void prvWifiConnect( void )
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
     xNetworkParams.cChannel = 0;
 
-    xWifiStatus = WIFI_On();
+    /* Try connecting using provided wifi credentials. */
+    xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        configPRINTF( ( "WiFi module initialized.\r\n" ) );
+        configPRINTF( ( "WiFi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
-        /* Try connecting using provided wifi credentials. */
-        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
+        /* Get IP address of the device. */
+        WIFI_GetIP( &ucIPAddr[ 0 ] );
 
-        if( xWifiStatus == eWiFiSuccess )
-        {
-            configPRINTF( ( "WiFi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-            /* Get IP address of the device. */
-            WIFI_GetIP( &ucIPAddr[ 0 ] );
-
-            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                            ucIPAddr[ 0 ], ucIPAddr[ 1 ], ucIPAddr[ 2 ], ucIPAddr[ 3 ] ) );
-        }
-        else
-        {
-            /* Connection failed configure softAP to allow user to set wifi credentials. */
-            configPRINTF( ( "WiFi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-            xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-            xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-            xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-            xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-            configPRINTF( ( "Connect to softAP %s using password %s. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-            while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
-            {
-                configPRINTF( ( "Connect to softAP %s using password %s and configure WiFi. \r\n",
-                                xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-            }
-
-            configPRINTF( ( "WiFi configuration successful. \r\n", xNetworkParams.pcSSID ) );
-        }
+        configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
+                        ucIPAddr[ 0 ], ucIPAddr[ 1 ], ucIPAddr[ 2 ], ucIPAddr[ 3 ] ) );
     }
     else
     {
-        configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
+        /* Connection failed configure softAP to allow user to set wifi credentials. */
+        configPRINTF( ( "WiFi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
+
+        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
+        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
+        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
+
+        configPRINTF( ( "Connect to softAP %s using password %s. \r\n",
+                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+
+        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to softAP %s using password %s and configure WiFi. \r\n",
+                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+        }
+
+        configPRINTF( ( "WiFi configuration successful. \r\n", xNetworkParams.pcSSID ) );
     }
 }
-
-
 /*-----------------------------------------------------------*/
 
 /* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
@@ -603,5 +648,131 @@ static void prvInitializeHeap( void )
     };
 
     vPortDefineHeapRegions( xHeapRegions );
+}
+/*-----------------------------------------------------------*/
+
+#ifdef USE_OFFLOAD_SSL
+
+    static void prvCheckWiFiFirmwareVersion( void )
+    {
+        int32_t lWicedMajorVersion = 0, lWicedMinorVersion = 0, lWicedPatchVersion = 0, lInventekVersion = 0, lParsedFields = 0;
+        uint8_t ucFirmwareVersion[ ES_WIFI_FW_REV_SIZE ];
+        BaseType_t xNeedsUpdate = pdFALSE;
+
+        if( WIFI_GetFirmwareVersion( &( ucFirmwareVersion[ 0 ] ) ) == eWiFiSuccess )
+        {
+            configPRINTF( ( "WiFi firmware version is: %s\r\n", ( char * ) ucFirmwareVersion ) );
+
+            /* Parse the firmware revision number. */
+            lParsedFields = sscanf( ( char* ) ucFirmwareVersion,
+                                    "C%ld.%ld.%ld.%ld.STM",
+                                    &( lWicedMajorVersion ),
+                                    &( lWicedMinorVersion ),
+                                    &( lWicedPatchVersion ),
+                                    &( lInventekVersion ) );
+
+            /* Check if the firmware version needs to be updated. */
+            if( lParsedFields > 0 )
+            {
+                if( lWicedMajorVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION )
+                {
+                    xNeedsUpdate = pdTRUE;
+                }
+                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
+                          ( lWicedMinorVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) )
+                {
+                    xNeedsUpdate = pdTRUE;
+                }
+                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
+                          ( lWicedMinorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) &&
+                          ( lWicedPatchVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION ) )
+                {
+                    xNeedsUpdate = pdTRUE;
+                }
+                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
+                          ( lWicedMinorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) &&
+                          ( lWicedPatchVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION ) &&
+                          ( lInventekVersion < mainREQUIRED_WIFI_FIRMWARE_INVENTEK_VERSION ) )
+                {
+                    xNeedsUpdate = pdTRUE;
+                }
+
+                /* Print a warning for the user to inform that the WiFi Firmware
+                * needs to be updated. */
+                if( xNeedsUpdate == pdTRUE )
+                {
+                    configPRINTF( ( "[WARN] WiFi firmware needs to be updated.\r\n" ) );
+                }
+                else
+                {
+                    configPRINTF( ( "WiFi firmware is up-to-date.\r\n" ) );
+                }
+            }
+            else
+            {
+                configPRINTF( ( "Failed to parse the WiFi firmware version.\r\n" ) );
+            }
+        }
+        else
+        {
+            configPRINTF( ( "Failed to get WiFi firmware version.\r\n" ) );
+        }
+    }
+
+#endif /* USE_OFFLOAD_SSL */
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief  EXTI line detection callback.
+ *
+ * @param  GPIO_Pin: Specifies the port pin connected to corresponding EXTI line.
+ */
+void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
+{
+    switch( GPIO_Pin )
+    {
+        /* Pin number 1 is connected to Inventek Module Cmd-Data
+         * ready pin. */
+        case( GPIO_PIN_1 ):
+        {
+            SPI_WIFI_ISR();
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
+    }
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief SPI Interrupt Handler.
+ *
+ * @note Inventek module is configured to use SPI3.
+ */
+void SPI3_IRQHandler( void )
+{
+    HAL_SPI_IRQHandler( &( hspi ) );
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Period elapsed callback in non blocking mode
+ *
+ * @note This function is called  when TIM1 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ *
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if( htim->Instance == TIM6 )
+    {
+        HAL_IncTick();
+    }
 }
 /*-----------------------------------------------------------*/

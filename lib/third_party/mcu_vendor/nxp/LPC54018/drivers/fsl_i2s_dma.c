@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,6 +40,12 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.flexcomm_i2s_dma"
+#endif
+
 
 #define DMA_MAX_TRANSFER_BYTES (DMA_MAX_TRANSFER_COUNT * sizeof(uint32_t))
 #define DMA_DESCRIPTORS (2U)
@@ -437,8 +447,8 @@ static status_t I2S_StartTransferDMA(I2S_Type *base, i2s_dma_handle_t *handle)
 
     /* Prepare transfer of data via initial DMA transfer descriptor */
     DMA_PrepareTransfer(
-        &xferConfig, (handle->state == kI2S_DmaStateTx) ? (void *)transfer->data : (void *)&(base->FIFORD),
-        (handle->state == kI2S_DmaStateTx) ? (void *)&(base->FIFOWR) : (void *)transfer->data, sizeof(uint32_t),
+        &xferConfig, (void *)((handle->state == kI2S_DmaStateTx) ? (uint32_t)transfer->data : (uint32_t)(&(base->FIFORD))),
+        (void *)((handle->state == kI2S_DmaStateTx) ? (uint32_t)(&(base->FIFOWR)) : (uint32_t)transfer->data), sizeof(uint32_t),
         transferBytes, (handle->state == kI2S_DmaStateTx) ? kDMA_MemoryToPeripheral : kDMA_PeripheralToMemory,
         (void *)&(s_DmaDescriptors[(instance * DMA_DESCRIPTORS) + 0U]));
 
@@ -476,8 +486,8 @@ static status_t I2S_StartTransferDMA(I2S_Type *base, i2s_dma_handle_t *handle)
         xfercfg.transferCount = 8U;
 
         DMA_CreateDescriptor(descriptor, &xfercfg,
-                             (handle->state == kI2S_DmaStateTx) ? (void *)&s_DummyBufferTx : (void *)&(base->FIFORD),
-                             (handle->state == kI2S_DmaStateTx) ? (void *)&(base->FIFOWR) : (void *)&s_DummyBufferRx,
+                             ((handle->state == kI2S_DmaStateTx) ? (void *)&s_DummyBufferTx : (void *)(uint32_t)(&(base->FIFORD))),
+                             ((handle->state == kI2S_DmaStateTx) ? (void *)(uint32_t)(&(base->FIFOWR)) : (void *)&s_DummyBufferRx),
                              (void *)nextDescriptor);
     }
 
@@ -513,6 +523,7 @@ static void I2S_AddTransferDMA(I2S_Type *base, i2s_dma_handle_t *handle)
     i2s_dma_private_handle_t *privateHandle;
     dma_descriptor_t *descriptor;
     dma_descriptor_t *nextDescriptor;
+    uint32_t srcAddr = 0, destAddr = 0;
 
     instance = I2S_GetInstance(base);
     privateHandle = &(s_DmaPrivateHandle[instance]);
@@ -548,11 +559,10 @@ static void I2S_AddTransferDMA(I2S_Type *base, i2s_dma_handle_t *handle)
         xfercfg.srcInc = (handle->state == kI2S_DmaStateTx) ? 1U : 0U;
         xfercfg.dstInc = (handle->state == kI2S_DmaStateTx) ? 0U : 1U;
         xfercfg.transferCount = transferBytes / sizeof(uint32_t);
+        srcAddr = ((handle->state == kI2S_DmaStateTx) ? (uint32_t)transfer->data : (uint32_t)&(base->FIFORD));
+        destAddr = ((handle->state == kI2S_DmaStateTx) ? (uint32_t)&(base->FIFOWR) : (uint32_t)transfer->data);
 
-        DMA_CreateDescriptor(descriptor, &xfercfg,
-                             (handle->state == kI2S_DmaStateTx) ? (void *)transfer->data : (void *)&(base->FIFORD),
-                             (handle->state == kI2S_DmaStateTx) ? (void *)&(base->FIFOWR) : (void *)transfer->data,
-                             (void *)nextDescriptor);
+        DMA_CreateDescriptor(descriptor, &xfercfg, (void *)srcAddr, (void *)destAddr, (void *)nextDescriptor);
 
         /* Advance internal state */
 

@@ -49,9 +49,9 @@
 #define configUSE_PREEMPTION                       1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    1
 #define configMAX_PRIORITIES                       ( 7 )
-#define configTICK_RATE_HZ                         ( 1000 )                  
-#define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 60 ) 
-#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 2048U * 1024U ) ) 
+#define configTICK_RATE_HZ                         ( 1000 )
+#define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 60 )
+#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 2048U * 1024U ) )
 #define configMAX_TASK_NAME_LEN                    ( 15 )
 #define configUSE_TRACE_FACILITY                   1
 #define configUSE_16_BIT_TICKS                     0
@@ -151,10 +151,10 @@ extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )     vLoggingPrint( X )
 
 /* Map the logging task's printf to the board specific output function. */
-#include <stdio.h> 
+#include <stdio.h>
 #define configPRINT_STRING( X )    printf( X ); /* FIX ME: Change to your devices console print acceptance function. */
 /* Sets the length of the buffers into which logging messages are written - so
- * also defines the maximum length of each log message. */ 
+ * also defines the maximum length of each log message. */
 #define configLOGGING_MAX_MESSAGE_LENGTH            100
 
 /* Set to 1 to prepend each log message with a message number, the task name,
@@ -259,7 +259,8 @@ extern void vLoggingPrint( const char * pcMessage );
 extern uint32_t ulRand();
 #define configRAND32()    ulRand()
 
-
+/* FIX ME: The platform FreeRTOS is running on. */
+#define configPLATFORM_NAME    "Unknown"
 
 /* Header required for the tracealyzer recorder library. */
 /* #include "trcRecorder.h" */

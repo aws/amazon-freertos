@@ -161,7 +161,7 @@ extern void vLoggingPrintf( const char * pcFormat,
  * results in the wired network being used, while setting
  * configNETWORK_INTERFACE_TO_USE to 2 results in the wireless network being
  * used. */
-#define configNETWORK_INTERFACE_TO_USE       2L
+#define configNETWORK_INTERFACE_TO_USE       ( 0L )
 
 /* The address of an echo server that will be used by the two demo echo client
  * tasks:
@@ -223,7 +223,8 @@ extern void vLoggingPrintf( const char * pcFormat,
 extern uint32_t ulRand();
 #define configRAND32()    ulRand()
 
-
+/* The platform that FreeRTOS is running on. */
+#define configPLATFORM_NAME    "WinSim"
 
 /* Header required for the tracealyzer recorder library. */
 #include "trcRecorder.h"

@@ -57,7 +57,7 @@
  * memory.
  *
  * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
- * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE. 
+ * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
  *----------------------------------------------------------*/
 
 #define configUSE_PREEMPTION			1
@@ -99,8 +99,8 @@
     #define configCHECK_FOR_STACK_OVERFLOW	2
 #endif
 
-/* We define the heap to span all of the non-statically-allocated shared RAM. 
- * TODO: Make sure there is some space left for the app and main cpu when running outside 
+/* We define the heap to span all of the non-statically-allocated shared RAM.
+ * TODO: Make sure there is some space left for the app and main cpu when running outside
  * of a thread. */
 #define configAPPLICATION_ALLOCATED_HEAP 1
 #define configTOTAL_HEAP_SIZE			(&_heap_end - &_heap_start)//( ( size_t ) (64 * 1024) )
@@ -287,6 +287,8 @@
 
 #define configPROFILING                      ( 0 )
 
+/* The platform FreeRTOS is running on. */
+#define configPLATFORM_NAME    "EspressifESP32"
 
 #ifndef __ASSEMBLER__
 /*-----------------------------------------------------------
@@ -341,7 +343,7 @@
 /* ESP31 and ESP32 are dualcore processors. */
 #ifndef CONFIG_FREERTOS_UNICORE
     #define portNUM_PROCESSORS 2
-#else 
+#else
     #define portNUM_PROCESSORS 1
 #endif
 
@@ -383,4 +385,3 @@
 #endif
 
 #endif /* #define FREERTOS_CONFIG_H */
-

@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -49,8 +53,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief I2C driver version 2.0.1. */
-#define FSL_I2C_DRIVER_VERSION (MAKE_VERSION(2, 0, 1))
+/*! @brief I2C driver version 2.0.3. */
+#define FSL_I2C_DRIVER_VERSION (MAKE_VERSION(2, 0, 3))
 /*@}*/
 
 /*! @brief Timeout times for waiting flag. */
@@ -439,6 +443,17 @@ void I2C_MasterInit(I2C_Type *base, const i2c_master_config_t *masterConfig, uin
  * @param base The I2C peripheral base address.
  */
 void I2C_MasterDeinit(I2C_Type *base);
+
+/*!
+ * @brief Returns an instance number given a base address.
+ *
+ * If an invalid base address is passed, debug builds will assert. Release builds will just return
+ * instance number 0.
+ *
+ * @param base The I2C peripheral base address.
+ * @return I2C instance number starting from 0.
+ */
+uint32_t I2C_GetInstance(I2C_Type *base);
 
 /*!
  * @brief Performs a software reset.

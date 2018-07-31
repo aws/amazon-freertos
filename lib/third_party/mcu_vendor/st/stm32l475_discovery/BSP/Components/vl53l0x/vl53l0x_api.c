@@ -48,6 +48,15 @@
 	level, TRACE_FUNCTION_NONE, ##__VA_ARGS__)
 #endif
 
+/* Private functions ---------------------------------------------------------*/
+VL53L0X_Error sequence_step_enabled(VL53L0X_DEV Dev,
+        VL53L0X_SequenceStepId SequenceStepId, uint8_t SequenceConfig,
+        uint8_t *pSequenceStepEnabled);
+VL53L0X_Error VL53L0X_CheckAndLoadInterruptSettings(VL53L0X_DEV Dev,
+        uint8_t StartNotStopFlag);
+
+/* Functions Definition ------------------------------------------------------*/
+
 /* Group PAL General Functions */
 
 VL53L0X_Error VL53L0X_GetVersion(VL53L0X_Version_t *pVersion)

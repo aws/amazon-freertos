@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2015 - 2016, Freescale Semiconductor, Inc.
  * Copyright 2016 - 2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -287,7 +291,8 @@ static usb_status_t USB_DeviceTransfer(usb_device_handle handle,
                 DCACHE_CleanByRange((uint32_t)buffer, length);
             }
 #endif
-            /* Call the controller send interface. */
+            /* Call the controller send interface, the callbackFn is initialized in
+            USB_DeviceGetControllerInterface */
             error = deviceHandle->controllerInterface->deviceSend(deviceHandle->controllerHandle, endpointAddress,
                                                                   buffer, length);
         }
@@ -299,7 +304,8 @@ static usb_status_t USB_DeviceTransfer(usb_device_handle handle,
                 DCACHE_CleanInvalidateByRange((uint32_t)buffer, length);
             }
 #endif
-            /* Call the controller receive interface. */
+            /* Call the controller receive interface, the callbackFn is initialized in
+            USB_DeviceGetControllerInterface */
             error = deviceHandle->controllerInterface->deviceRecv(deviceHandle->controllerHandle, endpointAddress,
                                                                   buffer, length);
         }
@@ -344,7 +350,8 @@ static usb_status_t USB_DeviceControl(usb_device_handle handle, usb_device_contr
 
     if (NULL != deviceHandle->controllerInterface)
     {
-        /* Call the controller control interface. */
+        /* Call the controller control interface. the controllerInterface is initialized in
+        USB_DeviceGetControllerInterface */
         error = deviceHandle->controllerInterface->deviceControl(deviceHandle->controllerHandle, type, param);
     }
     else
@@ -401,7 +408,8 @@ static usb_status_t USB_DeviceResetNotification(usb_device_struct_t *handle,
         handle->epCallback[count].isBusy = 0U;
     }
 
-    /* Call device callback to notify the application that the USB bus reset signal detected. */
+    /* Call device callback to notify the application that the USB bus reset signal detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     handle->deviceCallback(handle, kUSB_DeviceEventBusReset, NULL);
 
     handle->isResetting = 0U;
@@ -422,7 +430,8 @@ static usb_status_t USB_DeviceResetNotification(usb_device_struct_t *handle,
 static usb_status_t USB_DeviceSuspendNotification(usb_device_struct_t *handle,
                                                   usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the USB bus suspend signal detected. */
+    /* Call device callback to notify the application that the USB bus suspend signal detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventSuspend, NULL);
 }
 
@@ -439,7 +448,8 @@ static usb_status_t USB_DeviceSuspendNotification(usb_device_struct_t *handle,
 static usb_status_t USB_DeviceResumeNotification(usb_device_struct_t *handle,
                                                  usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the USB bus resume signal detected. */
+    /* Call device callback to notify the application that the USB bus resume signal detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventResume, NULL);
 }
 #if (defined(USB_DEVICE_CONFIG_LPM_L1) && (USB_DEVICE_CONFIG_LPM_L1 > 0U))
@@ -456,7 +466,8 @@ static usb_status_t USB_DeviceResumeNotification(usb_device_struct_t *handle,
 static usb_status_t USB_DeviceSleepNotification(usb_device_struct_t *handle,
                                                 usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the USB bus suspend signal detected. */
+    /* Call device callback to notify the application that the USB bus suspend signal detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventSleeped, NULL);
 }
 #endif
@@ -481,7 +492,8 @@ usb_status_t USB_DeviceGetRemoteWakeUp(usb_device_struct_t *handle, uint8_t **fl
 #if (defined(USB_DEVICE_CONFIG_ERROR_HANDLING) && (USB_DEVICE_CONFIG_ERROR_HANDLING > 0U))
 usb_status_t USB_DeviceErrorNotification(usb_device_struct_t *handle, usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the USB bus error signal detected. */
+    /* Call device callback to notify the application that the USB bus error signal detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventError, NULL);
 }
 #endif /* USB_DEVICE_CONFIG_ERROR_HANDLING */
@@ -500,7 +512,8 @@ usb_status_t USB_DeviceErrorNotification(usb_device_struct_t *handle, usb_device
 static usb_status_t USB_DeviceDetachNotification(usb_device_struct_t *handle,
                                                  usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the device is disconnected from a host. */
+    /* Call device callback to notify the application that the device is disconnected from a host.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventDetach, NULL);
 }
 
@@ -517,7 +530,8 @@ static usb_status_t USB_DeviceDetachNotification(usb_device_struct_t *handle,
 static usb_status_t USB_DeviceAttachNotification(usb_device_struct_t *handle,
                                                  usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the device is connected to a host. */
+    /* Call device callback to notify the application that the device is connected to a host.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventAttach, NULL);
 }
 #endif
@@ -538,7 +552,8 @@ static usb_status_t USB_DeviceAttachNotification(usb_device_struct_t *handle,
 static usb_status_t USB_DeviceDcdTimeOutNotification(usb_device_struct_t *handle,
                                                      usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the device charger detect timeout happened. */
+    /* Call device callback to notify the application that the device charger detect timeout happened.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventDcdTimeOut, NULL);
 }
 
@@ -555,7 +570,8 @@ static usb_status_t USB_DeviceDcdTimeOutNotification(usb_device_struct_t *handle
 static usb_status_t USB_DeviceDcdUnknownPortTypeNotification(usb_device_struct_t *handle,
                                                              usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the device charger detect unknown port type happened. */
+    /* Call device callback to notify the application that the device charger detect unknown port type happened.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventDcdUnknownType, NULL);
 }
 
@@ -572,7 +588,8 @@ static usb_status_t USB_DeviceDcdUnknownPortTypeNotification(usb_device_struct_t
 static usb_status_t USB_DeviceDcdSDPDetectNotification(usb_device_struct_t *handle,
                                                        usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the SDP facility is detected. */
+    /* Call device callback to notify the application that the SDP facility is detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventSDPDetected, NULL);
 }
 
@@ -589,7 +606,8 @@ static usb_status_t USB_DeviceDcdSDPDetectNotification(usb_device_struct_t *hand
 static usb_status_t USB_DeviceDcdChargingPortDetectNotification(usb_device_struct_t *handle,
                                                                 usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the charing port is detected. */
+    /* Call device callback to notify the application that the charing port is detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventChargingPortDetected, NULL);
 }
 
@@ -606,7 +624,8 @@ static usb_status_t USB_DeviceDcdChargingPortDetectNotification(usb_device_struc
 static usb_status_t USB_DeviceDcdChargingHostDetectNotification(usb_device_struct_t *handle,
                                                                 usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the CDP facility is detected. */
+    /* Call device callback to notify the application that the CDP facility is detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventChargingHostDetected, NULL);
 }
 
@@ -624,7 +643,8 @@ static usb_status_t USB_DeviceDcdChargingHostDetectNotification(usb_device_struc
 static usb_status_t USB_DeviceDcdDedicatedChargerDetectNotification(usb_device_struct_t *handle,
                                                                     usb_device_callback_message_struct_t *message)
 {
-    /* Call device callback to notify the application that the DCP facility is detected. */
+    /* Call device callback to notify the application that the DCP facility is detected.
+    the deviceCallback is the second parameter of USB_DeviceInit */
     return handle->deviceCallback(handle, kUSB_DeviceEventDedicatedChargerDetected, NULL);
 }
 #endif
@@ -720,7 +740,7 @@ static usb_status_t USB_DeviceNotification(usb_device_struct_t *handle, usb_devi
                     {
                         handle->epCallback[(uint8_t)((uint32_t)endpoint << 1U) | direction].isBusy = 0U;
                     }
-                    /* Call endpoint callback */
+                    /* Call endpoint callback, callbackFn is in the third parameter of USB_DeviceInitEndpoint */
                     error = handle->epCallback[(uint8_t)((uint32_t)endpoint << 1U) | direction].callbackFn(
                         handle, &endpointCallbackMessage,
                         handle->epCallback[(uint8_t)((uint32_t)endpoint << 1U) | direction].callbackParam);
@@ -869,7 +889,7 @@ usb_status_t USB_DeviceInit(uint8_t controllerId, usb_device_callback_t deviceCa
 
     *handle = deviceHandle;
 
-    /* Initialize the controller */
+    /* Initialize the controller, the callbackFn is initialized in USB_DeviceGetControllerInterface */
     error = deviceHandle->controllerInterface->deviceInit(controllerId, deviceHandle, &deviceHandle->controllerHandle);
     if (kStatus_USB_Success != error)
     {
@@ -937,6 +957,7 @@ usb_status_t USB_DeviceDeinit(usb_device_handle handle)
     /* De-initialize the controller */
     if (NULL != deviceHandle->controllerInterface)
     {
+        /* the callbackFn is initialized in USB_DeviceGetControllerInterface */
         deviceHandle->controllerInterface->deviceDeinit(deviceHandle->controllerHandle);
         deviceHandle->controllerInterface = (usb_device_controller_interface_struct_t *)NULL;
     }
@@ -1041,6 +1062,7 @@ usb_status_t USB_DeviceCancel(usb_device_handle handle, uint8_t endpointAddress)
 
     if (NULL != deviceHandle->controllerInterface)
     {
+        /* the callbackFn is initialized in USB_DeviceGetControllerInterface */
         error = deviceHandle->controllerInterface->deviceCancel(deviceHandle->controllerHandle, endpointAddress);
     }
     else

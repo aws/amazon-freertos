@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,6 +39,11 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.flexcomm_i2s"
+#endif
 
 /* TODO - absent in device header files, should be there */
 #define I2S_FIFOCFG_TXI2SE0_MASK (0x4U)
@@ -59,6 +68,8 @@ enum _i2s_state
  ******************************************************************************/
 
 static void I2S_Config(I2S_Type *base, const i2s_config_t *config);
+static void I2S_TxEnable(I2S_Type *base, bool enable);
+static void I2S_RxEnable(I2S_Type *base, bool enable);
 static status_t I2S_ValidateBuffer(i2s_handle_t *handle, i2s_transfer_t *transfer);
 
 /*******************************************************************************
@@ -197,7 +208,7 @@ void I2S_Deinit(I2S_Type *base)
     /* TODO gate FLEXCOMM clock via FLEXCOMM driver */
 }
 
-void I2S_TxEnable(I2S_Type *base, bool enable)
+static void I2S_TxEnable(I2S_Type *base, bool enable)
 {
     if (enable)
     {
@@ -212,7 +223,7 @@ void I2S_TxEnable(I2S_Type *base, bool enable)
     }
 }
 
-void I2S_RxEnable(I2S_Type *base, bool enable)
+static void I2S_RxEnable(I2S_Type *base, bool enable)
 {
     if (enable)
     {
@@ -345,7 +356,7 @@ void I2S_TxTransferCreateHandle(I2S_Type *base, i2s_handle_t *handle, i2s_transf
     handle->useFifo48H = false;
 
     /* Register IRQ handling */
-    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)(uintptr_t)I2S_TxHandleIRQ, handle);
+    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)I2S_TxHandleIRQ, handle);
 }
 
 status_t I2S_TxTransferNonBlocking(I2S_Type *base, i2s_handle_t *handle, i2s_transfer_t transfer)
@@ -417,7 +428,7 @@ void I2S_RxTransferCreateHandle(I2S_Type *base, i2s_handle_t *handle, i2s_transf
     handle->useFifo48H = false;
 
     /* Register IRQ handling */
-    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)(uintptr_t)I2S_RxHandleIRQ, handle);
+    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)I2S_RxHandleIRQ, handle);
 }
 
 status_t I2S_RxTransferNonBlocking(I2S_Type *base, i2s_handle_t *handle, i2s_transfer_t transfer)
@@ -550,7 +561,7 @@ void I2S_TxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                 }
                 else if (handle->dataLength <= 8U)
                 {
-                    data = *((uint16_t *)handle->i2sQueue[handle->queueDriver].data);
+                    data = *((volatile uint16_t *)handle->i2sQueue[handle->queueDriver].data);
                     base->FIFOWR = ((data & 0xFF00U) << 8U) | (data & 0xFFU);
                     handle->i2sQueue[handle->queueDriver].data += sizeof(uint16_t);
                     handle->transferCount += sizeof(uint16_t);
@@ -558,7 +569,7 @@ void I2S_TxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                 }
                 else if (handle->dataLength <= 16U)
                 {
-                    base->FIFOWR = *((uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
+                    base->FIFOWR = *((volatile uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
                     handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                     handle->transferCount += sizeof(uint32_t);
                     handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
@@ -569,7 +580,7 @@ void I2S_TxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                     {
                         if (handle->useFifo48H)
                         {
-                            base->FIFOWR48H = *((uint16_t *)(handle->i2sQueue[handle->queueDriver].data));
+                            base->FIFOWR48H = *((volatile uint16_t *)(handle->i2sQueue[handle->queueDriver].data));
                             handle->i2sQueue[handle->queueDriver].data += sizeof(uint16_t);
                             handle->transferCount += sizeof(uint16_t);
                             handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint16_t);
@@ -577,7 +588,7 @@ void I2S_TxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                         }
                         else
                         {
-                            base->FIFOWR = *((uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
+                            base->FIFOWR = *((volatile uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
                             handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                             handle->transferCount += sizeof(uint32_t);
                             handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
@@ -605,7 +616,7 @@ void I2S_TxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                 }
                 else /* if (handle->dataLength <= 32U) */
                 {
-                    base->FIFOWR = *((uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
+                    base->FIFOWR = *((volatile uint32_t *)(handle->i2sQueue[handle->queueDriver].data));
                     handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                     handle->transferCount += sizeof(uint32_t);
                     handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
@@ -715,7 +726,7 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
             else if (handle->dataLength <= 8U)
             {
                 data = base->FIFORD;
-                *((uint16_t *)handle->i2sQueue[handle->queueDriver].data) = ((data >> 8U) & 0xFF00U) | (data & 0xFFU);
+                *((volatile uint16_t *)handle->i2sQueue[handle->queueDriver].data) = ((data >> 8U) & 0xFF00U) | (data & 0xFFU);
                 handle->i2sQueue[handle->queueDriver].data += sizeof(uint16_t);
                 handle->transferCount += sizeof(uint16_t);
                 handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint16_t);
@@ -723,7 +734,7 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
             else if (handle->dataLength <= 16U)
             {
                 data = base->FIFORD;
-                *((uint32_t *)handle->i2sQueue[handle->queueDriver].data) = data;
+                *((volatile uint32_t *)handle->i2sQueue[handle->queueDriver].data) = data;
                 handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                 handle->transferCount += sizeof(uint32_t);
                 handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
@@ -737,7 +748,7 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                         data = base->FIFORD48H;
                         handle->useFifo48H = false;
 
-                        *((uint16_t *)handle->i2sQueue[handle->queueDriver].data) = data;
+                        *((volatile uint16_t *)handle->i2sQueue[handle->queueDriver].data) = data;
                         handle->i2sQueue[handle->queueDriver].data += sizeof(uint16_t);
                         handle->transferCount += sizeof(uint16_t);
                         handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint16_t);
@@ -747,7 +758,7 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
                         data = base->FIFORD;
                         handle->useFifo48H = true;
 
-                        *((uint32_t *)handle->i2sQueue[handle->queueDriver].data) = data;
+                        *((volatile uint32_t *)handle->i2sQueue[handle->queueDriver].data) = data;
                         handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                         handle->transferCount += sizeof(uint32_t);
                         handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);
@@ -776,7 +787,7 @@ void I2S_RxHandleIRQ(I2S_Type *base, i2s_handle_t *handle)
             else /* if (handle->dataLength <= 32U) */
             {
                 data = base->FIFORD;
-                *((uint32_t *)handle->i2sQueue[handle->queueDriver].data) = data;
+                *((volatile uint32_t *)handle->i2sQueue[handle->queueDriver].data) = data;
                 handle->i2sQueue[handle->queueDriver].data += sizeof(uint32_t);
                 handle->transferCount += sizeof(uint32_t);
                 handle->i2sQueue[handle->queueDriver].dataSize -= sizeof(uint32_t);

@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -51,10 +55,22 @@
 
 #define DMA_MAX_TRANSFER_COUNT 0x400
 
+#if defined FSL_FEATURE_DMA_NUMBER_OF_CHANNELS
+#define FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(x) FSL_FEATURE_DMA_NUMBER_OF_CHANNELS
+#define FSL_FEATURE_DMA_MAX_CHANNELS FSL_FEATURE_DMA_NUMBER_OF_CHANNELS
+#define FSL_FEATURE_DMA_ALL_CHANNELS (FSL_FEATURE_DMA_NUMBER_OF_CHANNELS * FSL_FEATURE_SOC_DMA_COUNT)
+#define FSL_FEATURE_DMA_DESCRIPTOR_ALIGN_SIZE (512)
+#endif
+
 /* Channel group consists of 32 channels. channel_group = (channel / 32) */
-#define DMA_CHANNEL_GROUP(channel) (((uint8_t)channel) >> 5U)
+#define DMA_CHANNEL_GROUP(channel) (((uint8_t)(channel)) >> 5U)
 /* Channel index in channel group. channel_index = (channel % 32) */
-#define DMA_CHANNEL_INDEX(channel) (((uint8_t)channel) & 0x1F)
+#define DMA_CHANNEL_INDEX(channel) (((uint8_t)(channel)) & 0x1F)
+
+#define DMA_COMMON_REG_GET(base, channel, reg) (((volatile uint32_t *)(&((base)->COMMON[0].reg)))[DMA_CHANNEL_GROUP(channel)])
+#define DMA_COMMON_CONST_REG_GET(base, channel, reg) (((volatile const uint32_t *)(&((base)->COMMON[0].reg)))[DMA_CHANNEL_GROUP(channel)])
+#define DMA_COMMON_REG_SET(base, channel, reg, value) \
+    (((volatile uint32_t *)(&((base)->COMMON[0].reg)))[DMA_CHANNEL_GROUP(channel)] = (value))
 
 /*! @brief DMA descriptor structure */
 typedef struct _dma_descriptor
@@ -249,8 +265,8 @@ void DMA_Deinit(DMA_Type *base);
 */
 static inline bool DMA_ChannelIsActive(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
-    return (base->COMMON[DMA_CHANNEL_GROUP(channel)].ACTIVE & (1U << DMA_CHANNEL_INDEX(channel))) ? true : false;
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
+    return (DMA_COMMON_CONST_REG_GET(base, channel, ACTIVE) & (1U << DMA_CHANNEL_INDEX(channel))) ? true : false;
 }
 
 /*!
@@ -261,8 +277,8 @@ static inline bool DMA_ChannelIsActive(DMA_Type *base, uint32_t channel)
  */
 static inline void DMA_EnableChannelInterrupts(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
-    base->COMMON[DMA_CHANNEL_GROUP(channel)].INTENSET |= 1U << DMA_CHANNEL_INDEX(channel);
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
+    DMA_COMMON_REG_GET(base, channel, INTENSET) |= 1U << DMA_CHANNEL_INDEX(channel);
 }
 
 /*!
@@ -273,8 +289,8 @@ static inline void DMA_EnableChannelInterrupts(DMA_Type *base, uint32_t channel)
  */
 static inline void DMA_DisableChannelInterrupts(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
-    base->COMMON[DMA_CHANNEL_GROUP(channel)].INTENCLR |= 1U << DMA_CHANNEL_INDEX(channel);
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
+    DMA_COMMON_REG_GET(base, channel, INTENCLR) |= 1U << DMA_CHANNEL_INDEX(channel);
 }
 
 /*!
@@ -285,8 +301,8 @@ static inline void DMA_DisableChannelInterrupts(DMA_Type *base, uint32_t channel
  */
 static inline void DMA_EnableChannel(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
-    base->COMMON[DMA_CHANNEL_GROUP(channel)].ENABLESET |= 1U << DMA_CHANNEL_INDEX(channel);
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
+    DMA_COMMON_REG_GET(base, channel, ENABLESET) |= 1U << DMA_CHANNEL_INDEX(channel);
 }
 
 /*!
@@ -297,8 +313,8 @@ static inline void DMA_EnableChannel(DMA_Type *base, uint32_t channel)
  */
 static inline void DMA_DisableChannel(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
-    base->COMMON[DMA_CHANNEL_GROUP(channel)].ENABLECLR |= 1U << DMA_CHANNEL_INDEX(channel);
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
+    DMA_COMMON_REG_GET(base, channel, ENABLECLR) |= 1U << DMA_CHANNEL_INDEX(channel);
 }
 
 /*!
@@ -309,7 +325,7 @@ static inline void DMA_DisableChannel(DMA_Type *base, uint32_t channel)
  */
 static inline void DMA_EnableChannelPeriphRq(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
     base->CHANNEL[channel].CFG |= DMA_CHANNEL_CFG_PERIPHREQEN_MASK;
 }
 
@@ -322,7 +338,7 @@ static inline void DMA_EnableChannelPeriphRq(DMA_Type *base, uint32_t channel)
  */
 static inline void DMA_DisableChannelPeriphRq(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
     base->CHANNEL[channel].CFG &= ~DMA_CHANNEL_CFG_PERIPHREQEN_MASK;
 }
 
@@ -353,7 +369,7 @@ uint32_t DMA_GetRemainingBytes(DMA_Type *base, uint32_t channel);
  */
 static inline void DMA_SetChannelPriority(DMA_Type *base, uint32_t channel, dma_priority_t priority)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
     base->CHANNEL[channel].CFG =
         (base->CHANNEL[channel].CFG & (~(DMA_CHANNEL_CFG_CHPRIORITY_MASK))) | DMA_CHANNEL_CFG_CHPRIORITY(priority);
 }
@@ -367,7 +383,7 @@ static inline void DMA_SetChannelPriority(DMA_Type *base, uint32_t channel, dma_
  */
 static inline dma_priority_t DMA_GetChannelPriority(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELS);
+    assert(channel < FSL_FEATURE_DMA_NUMBER_OF_CHANNELSn(base));
     return (dma_priority_t)((base->CHANNEL[channel].CFG & DMA_CHANNEL_CFG_CHPRIORITY_MASK) >>
                             DMA_CHANNEL_CFG_CHPRIORITY_SHIFT);
 }

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.7
+ * Amazon FreeRTOS V1.3.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -197,7 +197,7 @@ static MQTTBool_t prvMQTTUint32PublishCallback( void * pvCallbackContext,
  * @param[in] pvParameters If pdTRUE is passed, it connects to the secure
  * AWS IoT broker otherwise it connects to the unsecure broker.
  */
-static void prvPublishSubscribeTask( void * pvParameters ); /*_RB_ Should be in header file. */
+static void prvPublishSubscribeTask( void * pvParameters );
 
 
 /*-----------------------------------------------------------*/
@@ -251,7 +251,7 @@ static MQTTBool_t prvMQTTStringPublishCallback( void * pvCallbackContext,
     configPRINTF( ( "Received %.*s on topic %.*s\r\n", pxPublishData->ulDataLength,
                     ( char * ) pxPublishData->pvData,
                     ( size_t ) pxPublishData->usTopicLength,
-                    ( char * ) pxPublishData->pucTopic ) ); /*_RB_ Not portable code. */
+                    ( char * ) pxPublishData->pucTopic ) );
 
     /* Does the received string match the expected string? */
     pcReceivedString = ( char * ) pxPublishData->pvData;
@@ -341,8 +341,8 @@ static BaseType_t prvUint32PublishSubscribe( MQTTAgentConnectParams_t * pxConnec
     xTickCount = xTaskGetTickCount();
     configPRINTF( ( "%s initiated connection to broker at time %u ticks.\r\n", __FUNCTION__, xTickCount ) );
 
-    strncpy( ( char * ) pxUserData->cTopic, ( char * ) pcTaskGetName( NULL ), subpubTopicSize );
-    strncat( ( char * ) pxUserData->cTopic, ( char * ) subpubUINT_TOPIC_PATH, subpubTopicSize );
+    strncpy( ( char * ) pxUserData->cTopic, ( char * ) pcTaskGetName( NULL ), subpubCHAR_TASK_NAME_MAX_SIZE );
+    strncat( ( char * ) pxUserData->cTopic, ( char * ) subpubUINT_TOPIC_PATH, sizeof( subpubSTRING_TOPIC_PATH ) );
 
     if( MQTT_AGENT_Connect( xMQTTClientHandle, pxConnectParams, xMaxCommandTime ) == eMQTTAgentSuccess )
     {
@@ -385,7 +385,8 @@ static BaseType_t prvUint32PublishSubscribe( MQTTAgentConnectParams_t * pxConnec
                     configPRINTF( ( "%s published to topic %s\r\n", __FUNCTION__, xPublishParams.pucTopic ) );
 
                     /* The event callback will give this semaphore when it
-                     * executes, until then wait here. _RB_ At this time this demo does not have more than one message outstanding at a time. */
+                     * executes, until then wait here. At this time this demo does not have 
+                     * more than one message outstanding at a time. */
                     if( xSemaphoreTake( pxUserData->xWakeUpSemaphore, xMaxCommandTime ) == pdPASS )
                     {
                         /* Did the callback execute and pass?  If so the callback
@@ -465,8 +466,8 @@ static BaseType_t prvStringPublishSubscribe( MQTTAgentConnectParams_t * pxConnec
     MQTTAgentUnsubscribeParams_t xUnsubscribeParams;
     BaseType_t xResult = pdPASS;
 
-    strncpy( ( char * ) pxUserData->cTopic, ( char * ) pcTaskGetName( NULL ), subpubTopicSize );
-    strncat( ( char * ) pxUserData->cTopic, ( char * ) subpubSTRING_TOPIC_PATH, subpubTopicSize );
+    strncpy( ( char * ) pxUserData->cTopic, ( char * ) pcTaskGetName( NULL ), subpubCHAR_TASK_NAME_MAX_SIZE );
+    strncat( ( char * ) pxUserData->cTopic, ( char * ) subpubSTRING_TOPIC_PATH, sizeof( subpubSTRING_TOPIC_PATH ) );
 
     if( MQTT_AGENT_Connect( xMQTTClientHandle, pxConnectParams, xMaxCommandTime ) == eMQTTAgentSuccess )
     {
@@ -693,9 +694,7 @@ void prvPublishSubscribeTask( void * pvParameters )
     configPRINTF( ( "Creating MQTT Client...\r\n" ) );
 
     /* Create MQTT Client.  This is used for all publishes and subscribes
-     * performed by this demo. _RB_ Will creating this here prevent other demos
-     * creating their own clients?  If so, this should be down outside of this
-     * file. */
+     * performed by this demo. */
     if( MQTT_AGENT_Create( &( xMQTTClientHandle ) ) == eMQTTAgentSuccess )
     {
         configPRINTF( ( "MQTT Client Created.\r\n" ) );
@@ -716,7 +715,7 @@ void prvPublishSubscribeTask( void * pvParameters )
     }
 
     /* This task has finished.  FreeRTOS does not allow a task to run off the
-     * end of its implementing function, so the task must be deleted. _RB_ have all buffers been freed? */
+     * end of its implementing function, so the task must be deleted. */
     vTaskDelete( NULL );
 }
 /*-----------------------------------------------------------*/

@@ -41,6 +41,12 @@
 #define LOG_FUNCTION_END_FMT(status, fmt, ...) \
 	_LOG_FUNCTION_END_FMT(TRACE_MODULE_API, status, fmt, ##__VA_ARGS__)
 
+/* Private function prototypes -----------------------------------------------*/
+VL53L0X_Error VL53L0X_check_part_used(VL53L0X_DEV Dev,
+                uint8_t *Revision,
+                VL53L0X_DeviceInfo_t *pVL53L0X_DeviceInfo);
+
+/* Functions Definition ------------------------------------------------------*/
 
 VL53L0X_Error VL53L0X_check_part_used(VL53L0X_DEV Dev,
 		uint8_t *Revision,

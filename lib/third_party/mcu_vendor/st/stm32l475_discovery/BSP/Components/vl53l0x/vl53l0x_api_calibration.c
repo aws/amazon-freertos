@@ -48,6 +48,41 @@
 uint32_t refArrayQuadrants[4] = {REF_ARRAY_SPAD_10, REF_ARRAY_SPAD_5,
 		REF_ARRAY_SPAD_0, REF_ARRAY_SPAD_5 };
 
+/* Private functions ---------------------------------------------------------*/
+void get_next_good_spad(uint8_t goodSpadArray[], uint32_t size,
+                        uint32_t curr, int32_t *next);
+uint8_t is_aperture(uint32_t spadIndex);
+VL53L0X_Error enable_spad_bit(uint8_t spadArray[], uint32_t size,
+        uint32_t spadIndex);
+VL53L0X_Error count_enabled_spads(uint8_t spadArray[],
+                uint32_t byteCount, uint32_t maxSpads,
+                uint32_t *pTotalSpadsEnabled, uint8_t *pIsAperture);
+VL53L0X_Error set_ref_spad_map(VL53L0X_DEV Dev, uint8_t *refSpadArray);
+VL53L0X_Error set_ref_spad_map(VL53L0X_DEV Dev, uint8_t *refSpadArray);
+VL53L0X_Error get_ref_spad_map(VL53L0X_DEV Dev, uint8_t *refSpadArray);
+VL53L0X_Error enable_ref_spads(VL53L0X_DEV Dev,
+                                uint8_t apertureSpads,
+                                uint8_t goodSpadArray[],
+                                uint8_t spadArray[],
+                                uint32_t size,
+                                uint32_t start,
+                                uint32_t offset,
+                                uint32_t spadCount,
+                                uint32_t *lastSpad);
+VL53L0X_Error perform_ref_signal_measurement(VL53L0X_DEV Dev,
+                uint16_t *refSignalRate);
+VL53L0X_Error VL53L0X_perform_single_ref_calibration(VL53L0X_DEV Dev,
+                uint8_t vhv_init_byte);
+VL53L0X_Error VL53L0X_ref_calibration_io(VL53L0X_DEV Dev, uint8_t read_not_write,
+        uint8_t VhvSettings, uint8_t PhaseCal,
+        uint8_t *pVhvSettings, uint8_t *pPhaseCal,
+        const uint8_t vhv_enable, const uint8_t phase_enable);
+VL53L0X_Error VL53L0X_perform_vhv_calibration(VL53L0X_DEV Dev,
+        uint8_t *pVhvSettings, const uint8_t get_data_enable,
+        const uint8_t restore_config);
+
+/* Functions Definition ------------------------------------------------------*/
+
 VL53L0X_Error VL53L0X_perform_xtalk_calibration(VL53L0X_DEV Dev,
 			FixPoint1616_t XTalkCalDistance,
 			FixPoint1616_t *pXTalkCompensationRateMegaCps)

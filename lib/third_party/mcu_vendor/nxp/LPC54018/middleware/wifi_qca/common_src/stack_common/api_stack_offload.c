@@ -131,6 +131,7 @@ A_STATUS socket_context_init(void)
         {
             return A_NO_MEMORY;
         }
+        memset(pcustctxt, 0, sizeof(SOCKET_CONTEXT));
         A_EVENT_INIT(&pcustctxt->sockRxWakeEvent, kEventManualClear);
         A_EVENT_INIT(&pcustctxt->sockTxWakeEvent, kEventManualClear);
 
@@ -168,6 +169,7 @@ void socket_context_deinit(void)
     for (index = 0; index < MAX_SOCKETS_SUPPORTED + 1; index++)
     {
         A_FREE(ath_sock_context[index], MALLOC_ID_CONTEXT);
+        ath_sock_context[index] = NULL;
     }
     /*Free the custom context as well*/
 
@@ -814,6 +816,7 @@ int32_t Api_socket(void *pCxt, uint32_t domain, uint32_t type, uint32_t protocol
     int32_t result = A_OK;
 
     pDCxt = GET_DRIVER_COMMON(pCxt);
+    xSemaphoreTake(pDCxt->apiMutex, portMAX_DELAY);
 
     do
     {
@@ -856,6 +859,7 @@ int32_t Api_socket(void *pCxt, uint32_t domain, uint32_t type, uint32_t protocol
             }
         } while (SOCK_EV_MASK_TEST(ath_sock_context[index], SOCK_OPEN));
 
+        /* Generic error reported in handle field */
         if (ath_sock_context[index]->handle == A_ERROR)
         {
             /*Socket not created, return error*/
@@ -863,11 +867,22 @@ int32_t Api_socket(void *pCxt, uint32_t domain, uint32_t type, uint32_t protocol
             result = A_ERROR;
             break;
         }
+//        /* 'handle' 0 means (probably) not enough resources */
+//        else if (ath_sock_context[index]->handle == 0)
+//        {
+//            /*Socket not created, return error*/
+//            clear_socket_context(index);
+//            result = A_RESOURCES;
+//            break;
+//        }
+        /* cosider any other number as valid 'handle' reference */
         else
         {
             result = ath_sock_context[index]->handle;
         }
     } while (0);
+
+    xSemaphoreGive(pDCxt->apiMutex);
 
     return result;
 }
@@ -903,13 +918,14 @@ int32_t Api_shutdown(void *pCxt, uint32_t handle)
             break;
         }
 
+        SOCK_EV_MASK_SET(ath_sock_context[index], SOCK_CLOSE);
+
         /*Delete all pending packets in the receive queue*/
         CUSTOM_PURGE_QUEUE(index);
 
         /*Create a socket close wmi message*/
         sock_close.handle = A_CPU2LE32(handle);
         /* set the sock_st_flags before calling wmi_ to avoid possible race conditions */
-        // SOCK_EV_MASK_SET(ath_sock_context[index], SOCK_CLOSE);
 
         if (wmi_socket_cmd(pDCxt->pWmiCxt, SOCK_CLOSE, (void *)(&sock_close), sizeof(SOCK_CLOSE_T)) != A_OK)
         {
@@ -919,13 +935,13 @@ int32_t Api_shutdown(void *pCxt, uint32_t handle)
             break;
         }
 
-#if 0 // For shutdown, we are not gonna wait for response. Fire and forgot 
-        /*Wait for response from target*/		
-        do{
-            if(BLOCK(pCxt, ath_sock_context[index], COMMAND_BLOCK_TIMEOUT, RX_DIRECTION) != A_OK){
+#if 1
+        /* Wait for response from target */
+        do {
+            if(BLOCK(pCxt, ath_sock_context[index], COMMAND_BLOCK_TIMEOUT, RX_DIRECTION) != A_OK) {
                 A_ASSERT(0);
-            }  
-        }while(SOCK_EV_MASK_TEST(ath_sock_context[index], SOCK_CLOSE));
+            }
+        } while(SOCK_EV_MASK_TEST(ath_sock_context[index], SOCK_CLOSE));
 #endif
 
         result = ath_sock_context[index]->result;
@@ -1006,6 +1022,10 @@ int32_t Api_connect(void *pCxt, uint32_t handle, void *name, uint16_t length)
             }
         } while (SOCK_EV_MASK_TEST(ath_sock_context[index], SOCK_CONNECT));
         result = ath_sock_context[index]->result;
+        if (A_OK == result)
+        {
+            ath_sock_context[index]->TCPCtrFlag = TCP_CONNECTED;
+        }
     } while (0);
 
     return result;
@@ -1320,6 +1340,7 @@ int32_t Api_accept(void *pCxt, uint32_t handle, void *name, socklen_t length)
                     ((SOCKADDR_6_T *)name)->sin6_family = A_CPU2LE16(((SOCKADDR_6_T *)name)->sin6_family);
                 }
                 // A_FREE(ath_sock_context[index]->data, MALLOC_ID_CONTEXT);
+                // ath_sock_context[index]->data = NULL;
 
                 ath_sock_context[index]->data = NULL;
             }
@@ -1397,6 +1418,7 @@ int32_t Api_accept_ver1(void *pCxt, uint32_t handle, void *name, socklen_t lengt
                     ((SOCKADDR_6_T *)name)->sin6_family = A_CPU2LE16(((SOCKADDR_6_T *)name)->sin6_family);
                 }
                 // A_FREE(ath_sock_context[index]->data, MALLOC_ID_CONTEXT);
+                // ath_sock_context[index]->data = NULL;
 
                 ath_sock_context[index]->data = NULL;
             }
@@ -1823,6 +1845,7 @@ int32_t Api_setsockopt(void *pCxt, uint32_t handle, uint32_t level, uint32_t opt
         if (wmi_socket_cmd(pDCxt->pWmiCxt, SOCK_SETSOCKOPT, (uint8_t *)sockSetopt, total_length) != A_OK)
         {
             SOCK_EV_MASK_CLEAR(ath_sock_context[index], SOCK_SETSOCKOPT);
+            A_FREE(sockSetopt, MALLOC_ID_CONTEXT);
             result = A_ERROR;
             break;
         }
@@ -1925,7 +1948,7 @@ int32_t Api_getsockopt(void *pCxt, uint32_t handle, uint32_t level, uint32_t opt
         {
             A_MEMCPY(optval, ((SOCK_OPT_T *)ath_sock_context[index]->data)->optval, optlen);
             // A_FREE(ath_sock_context[index]->data,MALLOC_ID_CONTEXT);
-            ath_sock_context[index]->data = NULL;
+            ath_sock_context[index]->data = NULL; //TODO: check possible leak !!
         }
         result = ath_sock_context[index]->result;
     } while (0);
@@ -1957,7 +1980,7 @@ int32_t Api_ipconfig(void *pCxt,
                      char *hostname)
 {
     A_DRIVER_CONTEXT *pDCxt;
-    IPCONFIG_CMD_T ipcfg;
+    IPCONFIG_CMD_T ipcfg = {0};
     IPCONFIG_RECV_T *result;
     uint32_t index = GLOBAL_SOCK_INDEX; // reserved for global commands ToDo- cleanup later
     int32_t res = A_OK;
@@ -1974,7 +1997,7 @@ int32_t Api_ipconfig(void *pCxt,
             free_buf = 0;
             break;
         }
-        if (mode == 1)
+        if (IPCFG_STATIC == mode)
         {
             /*This is not a query or dhcp command*/
             ipcfg.mode = A_CPU2LE32(mode);
@@ -1982,7 +2005,7 @@ int32_t Api_ipconfig(void *pCxt,
             ipcfg.subnetMask = A_CPU2LE32(*subnetMask);
             ipcfg.gateway4 = A_CPU2LE32(*gateway4);
         }
-        else if (mode == 3)
+        else if (IPCFG_AUTO == mode)
         {
             ipcfg.ipv4 = A_CPU2LE32(*ipv4_addr);
         }
@@ -1999,14 +2022,14 @@ int32_t Api_ipconfig(void *pCxt,
 
         do
         {
-            if (mode == 2)
+            if (IPCFG_DHCP == mode)
             {
                 if (BLOCK(pCxt, ath_sock_context[index], DHCP_WAIT_TIME, RX_DIRECTION) != A_OK)
                 {
                     return (int32_t)A_TIMEOUT;
                 }
             }
-            else if (mode == 3)
+            else if (IPCFG_AUTO == mode)
             {
                 if (BLOCK(pCxt, ath_sock_context[index], DHCP_AUTO_WAIT_TIME, RX_DIRECTION) != A_OK)
                 {
@@ -4456,6 +4479,7 @@ A_STATUS blockForResponse(void *pCxt, void *ctxt, uint32_t msec, uint8_t directi
                 A_EVENT_CLEAR(pEvent, 0x01);
             }
             pcustctxt->rxBlock = false;
+            pcustctxt->respAvailable = false;
         }
         else if (pcustctxt->respAvailable == true)
         {
@@ -4484,6 +4508,7 @@ A_STATUS blockForResponse(void *pCxt, void *ctxt, uint32_t msec, uint8_t directi
                 A_EVENT_CLEAR(pEvent, 0x01);
             }
             pcustctxt->txBlock = false;
+            pcustctxt->txUnblocked = false;
         }
 
         if (pcustctxt->txUnblocked == true)
@@ -4492,6 +4517,10 @@ A_STATUS blockForResponse(void *pCxt, void *ctxt, uint32_t msec, uint8_t directi
             result = A_OK;
             pcustctxt->txUnblocked = false;
         }
+        /* Propagate error, thread unsafe */
+        result = (A_STATUS)socket_get_driver_error(ctxt);
+        /* Clear error, thread unsafe*/
+        socket_set_driver_error(ctxt, A_OK);
     }
     else
     {
@@ -4563,6 +4592,28 @@ A_STATUS unblock(void *ctxt, uint8_t direction)
         }
     }
     return result;
+}
+
+/*****************************************************************************/
+/*  Set socket 'driver_error' field
+ *****************************************************************************/
+void socket_set_driver_error(void *ctxt, int32_t error)
+{
+    assert(NULL != ctxt);
+    SOCKET_CONTEXT_PTR socket = GET_SOCKET_CONTEXT(ctxt);
+    assert(NULL != socket);
+    socket->driver_error = error;
+}
+
+/*****************************************************************************/
+/*  Get socket 'driver_error' field
+ *****************************************************************************/
+int32_t socket_get_driver_error(void *ctxt)
+{
+    assert(NULL != ctxt);
+    SOCKET_CONTEXT_PTR socket = GET_SOCKET_CONTEXT(ctxt);
+    assert(NULL != socket);
+    return socket->driver_error;
 }
 
 #if T_SELECT_VER1

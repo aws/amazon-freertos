@@ -208,9 +208,11 @@ static void DbgConsole_RelocateLog(char *buf, int32_t *indicator, char val, int 
 }
 
 #endif /* SDK_DEBUGCONSOLE */
+
 /*************Code to support toolchain's printf, scanf *******************************/
 /* These function __write and __read is used to support IAR toolchain to printf and scanf*/
 #if (defined(__ICCARM__))
+#if defined(SDK_DEBUGCONSOLE_UART)
 #pragma weak __write
 size_t __write(int handle, const unsigned char *buffer, size_t size)
 {
@@ -249,6 +251,7 @@ size_t __read(int handle, unsigned char *buffer, size_t size)
 
     return size;
 }
+#endif /* SDK_DEBUGCONSOLE_UART */
 
 /* support LPC Xpresso with RedLib */
 #elif(defined(__REDLIB__))
@@ -288,7 +291,7 @@ int __attribute__((weak)) __sys_readc(void)
 /* These function __write and __read is used to support ARM_GCC, KDS, Atollic toolchains to printf and scanf*/
 #elif(defined(__GNUC__))
 
-#if ((defined(__GNUC__) && (!defined(__MCUXPRESSO))) || \
+#if ((defined(__GNUC__) && (!defined(__MCUXPRESSO)) && (defined(SDK_DEBUGCONSOLE_UART))) || \
      (defined(__MCUXPRESSO) && (!SDK_DEBUGCONSOLE) && (defined(SDK_DEBUGCONSOLE_UART))))
 
 int __attribute__((weak)) _write(int handle, char *buffer, int size)
@@ -326,6 +329,7 @@ int __attribute__((weak)) _read(int handle, char *buffer, int size)
 
 /* These function fputc and fgetc is used to support KEIL toolchain to printf and scanf*/
 #elif defined(__CC_ARM)
+#if defined(SDK_DEBUGCONSOLE_UART)
 struct __FILE
 {
     int handle;
@@ -358,4 +362,5 @@ int fgetc(FILE *f)
 
     return ch;
 }
+#endif /* SDK_DEBUGCONSOLE_UART */
 #endif /* __ICCARM__ */

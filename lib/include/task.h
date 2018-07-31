@@ -1343,6 +1343,20 @@ TickType_t xTaskGetTickCount( void ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
+ * <PRE>TickType_t xTaskGetIdleTickCount( void );</PRE>
+ *
+ * Idle ticks are defined as ticks in which no other task than the idle task was
+ * executed.
+ *
+ * @return The count of idle ticks since vTaskStartScheduler was called.
+ *
+ * \defgroup xTaskGetIdleTickCount xTaskGetIdleTickCount
+ * \ingroup TaskUtils
+ */
+TickType_t xTaskGetIdleTickCount( void ) PRIVILEGED_FUNCTION;
+
+/**
+ * task. h
  * <PRE>TickType_t xTaskGetTickCountFromISR( void );</PRE>
  *
  * @return The count of ticks since vTaskStartScheduler was called.
@@ -1356,6 +1370,22 @@ TickType_t xTaskGetTickCount( void ) PRIVILEGED_FUNCTION;
  * \ingroup TaskUtils
  */
 TickType_t xTaskGetTickCountFromISR( void ) PRIVILEGED_FUNCTION;
+
+/**
+ * task. h
+ * <PRE>TickType_t xTaskGetIdleTickCountFromISR( void );</PRE>
+ *
+ * @return The count of ticks since vTaskStartScheduler was called.
+ *
+ * This is a version of xTaskGetTickCount() that is safe to be called from an
+ * ISR - provided that TickType_t is the natural word size of the
+ * microcontroller being used or interrupt nesting is either not supported or
+ * not being used.
+ *
+ * \defgroup xTaskGetIdleTickCountFromISR xTaskGetIdleTickCountFromISR
+ * \ingroup TaskUtils
+ */
+TickType_t xTaskGetIdleTickCountFromISR( void ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h

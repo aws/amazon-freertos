@@ -52,6 +52,9 @@
 
 extern void xPortSysTickHandler( void );
 
+/* External variables --------------------------------------------------------*/
+
+extern TIM_HandleTypeDef htim6;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -132,7 +135,6 @@ void DebugMon_Handler(void)
 */
 void SysTick_Handler(void)
 {
-  HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
 }
 
@@ -154,12 +156,25 @@ void HAL_SYSTICK_Callback( void )
 /******************************************************************************/
 
 /**
-* @brief This function handles EXTI line[15:10] interrupts.
-*/
+ * @brief This function handles TIM6 global interrupt, DAC channel1 and channel2
+ * underrun error interrupts.
+ */
+void TIM6_DAC_IRQHandler(void)
+{
+  HAL_TIM_IRQHandler(&htim6);
+}
+
+/**
+ * @brief This function handles EXTI line[15:10] interrupts.
+ */
 void EXTI15_10_IRQHandler(void)
 {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 }
 
+void EXTI1_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

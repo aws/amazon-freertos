@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -45,7 +49,7 @@
 
 /*! @name Driver version */
 /*@{*/
-#define FSL_CTIMER_DRIVER_VERSION (MAKE_VERSION(2, 0, 0)) /*!< Version 2.0.0 */
+#define FSL_CTIMER_DRIVER_VERSION (MAKE_VERSION(2, 0, 1)) /*!< Version 2.0.1 */
 /*@}*/
 
 /*! @brief List of Timer capture channels */
@@ -232,7 +236,33 @@ void CTIMER_GetDefaultConfig(ctimer_config_t *config);
  * This function will assign match channel 3 to set the PWM cycle.
  *
  * @note When setting PWM output from multiple output pins, all should use the same PWM
- * frequency
+ * period
+ *
+ * @param base             Ctimer peripheral base address
+ * @param matchChannel     Match pin to be used to output the PWM signal
+ * @param pwmPeriod        PWM period match value
+ * @param pulsePeriod      Pulse width match value
+ * @param enableInt        Enable interrupt when the timer value reaches the match value of the PWM pulse,
+ *                         if it is 0 then no interrupt is generated
+ *
+ * @return kStatus_Success on success
+ *         kStatus_Fail If matchChannel passed in is 3; this channel is reserved to set the PWM period
+ */
+status_t CTIMER_SetupPwmPeriod(CTIMER_Type *base,
+                         ctimer_match_t matchChannel,
+                         uint32_t pwmPeriod,
+                         uint32_t pulsePeriod,
+                         bool enableInt);
+
+/*!
+ * @brief Configures the PWM signal parameters.
+ *
+ * Enables PWM mode on the match channel passed in and will then setup the match value
+ * and other match parameters to generate a PWM signal.
+ * This function will assign match channel 3 to set the PWM cycle.
+ *
+ * @note When setting PWM output from multiple output pins, all should use the same PWM
+ * frequency. Please use CTIMER_SetupPwmPeriod to set up the PWM with high resolution.
  *
  * @param base             Ctimer peripheral base address
  * @param matchChannel     Match pin to be used to output the PWM signal
@@ -253,8 +283,23 @@ status_t CTIMER_SetupPwm(CTIMER_Type *base,
                          bool enableInt);
 
 /*!
+ * @brief Updates the pulse period of an active PWM signal.
+ *
+ * @param base         Ctimer peripheral base address
+ * @param matchChannel Match pin to be used to output the PWM signal
+ * @param pulsePeriod  New PWM pulse width match value
+ */
+static inline void CTIMER_UpdatePwmPulsePeriod(CTIMER_Type *base, ctimer_match_t matchChannel, uint32_t pulsePeriod)
+{
+    /* Update PWM pulse period match value */
+    base->MR[matchChannel] = pulsePeriod;
+}
+
+/*!
  * @brief Updates the duty cycle of an active PWM signal.
  *
+ * @note Please use CTIMER_UpdatePwmPulsePeriod to update the PWM with high resolution.
+ *  
  * @param base             Ctimer peripheral base address
  * @param matchChannel     Match pin to be used to output the PWM signal
  * @param dutyCyclePercent New PWM pulse width; the value should be between 0 to 100

@@ -1885,12 +1885,13 @@ A_STATUS qcom_param_set(
     ATH_IOCTL_PARAM_STRUCT inout_param;
     uint32_t which_param = QCOM_PARAM_MAKE_ID(grp_id, param_id);
     uint32_t cmd_length = sizeof(WMI_PARAM_SET_CMD) + data_length - 1;
-    WMI_PARAM_SET_CMD *cmd = (WMI_PARAM_SET_CMD *)A_MALLOC(cmd_length + sizeof(boolean), MALLOC_ID_CONTEXT);
 
     if (A_OK != qcom_set_deviceid(device_id))
     {
         return A_ERROR;
     }
+
+    WMI_PARAM_SET_CMD *cmd = (WMI_PARAM_SET_CMD *)A_MALLOC(cmd_length + sizeof(boolean), MALLOC_ID_CONTEXT);
 
     if (!cmd)
     {
@@ -1911,8 +1912,7 @@ A_STATUS qcom_param_set(
         error = A_ERROR;
     }
 
-    if (cmd)
-        A_FREE(cmd, MALLOC_ID_CONTEXT);
+    A_FREE(cmd, MALLOC_ID_CONTEXT);
 
     return error;
 }

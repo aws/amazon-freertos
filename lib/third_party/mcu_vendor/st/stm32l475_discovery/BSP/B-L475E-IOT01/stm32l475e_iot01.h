@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l475e_iot01.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    17-March-2017
   * @brief   STM32L475E IOT01 board support package
   ******************************************************************************
   * @attention
@@ -134,6 +132,15 @@ typedef enum
 #define USER_BUTTON_GPIO_CLK_DISABLE()    __HAL_RCC_GPIOC_CLK_DISABLE()
 #define USER_BUTTON_EXTI_IRQn             EXTI15_10_IRQn
 
+/**
+  * @brief  NFC Gpio PINs
+  */
+#define NFC_GPIO_GPO_PIN                         GPIO_PIN_4
+#define NFC_GPIO_GPO_PIN_PORT                    GPIOE
+#define NFC_GPIO_RFDISABLE_PIN                   GPIO_PIN_2
+#define NFC_GPIO_RFDISABLE_PIN_PORT              GPIOE  
+#define NFC_GPIO_CLK_ENABLE()                    __HAL_RCC_GPIOE_CLK_ENABLE();
+#define NFC_GPIO_CLK_DISABLE()                   __HAL_RCC_GPIOE_CLK_DISABLE();
 
 
 #define COMn                              ((uint8_t)1)
@@ -218,6 +225,16 @@ typedef enum
 /* HTS221 Sensor hardware I2C address */ 
 #define TSENSOR_I2C_ADDRESS     HTS221_I2C_ADDRESS
 #endif
+
+/* NFC I2C address and specific config parameters */
+#define M24SR_I2C_ADDR             (uint8_t)  0xAC /*!< M24SR address */
+#define NFC_I2C_STATUS_SUCCESS     (uint16_t) 0x0000
+#define NFC_I2C_ERROR_TIMEOUT      (uint16_t) 0x0011
+#define NFC_I2C_TIMEOUT_STD        (uint32_t) 8 /* I2C Time out (ms), used to call Transmit/Receive HAL functions */
+#define NFC_I2C_TIMEOUT_MAX        (uint32_t) 200 /* I2C Time out (ms), this is the maximum time needed by M24SR to complete any command */
+#define NFC_I2C_TRIALS             (uint32_t) 1 /* In case M24SR will reply ACK failed allow to perform retry before returning error (HAL option not used) */
+
+
 /**
   * @}
   */

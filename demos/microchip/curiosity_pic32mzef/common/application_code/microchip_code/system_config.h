@@ -18,28 +18,28 @@
     definitions for build-time configuration options that are not instantiated
     until used by another MPLAB Harmony module or application.
 
-    Created with MPLAB Harmony Version 2.04
+    Created with MPLAB Harmony Version 2.05
 *******************************************************************************/
 
 // DOM-IGNORE-BEGIN
 /*******************************************************************************
 Copyright 2017 Microchip Technology Incorporated and its subsidiaries.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of 
-this software and associated documentation files (the "Software"), to deal in 
-the Software without restriction, including without limitation the rights to 
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
-of the Software, and to permit persons to whom the Software is furnished to do 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
 so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all 
+The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
 *******************************************************************************/
 // DOM-IGNORE-END
@@ -78,7 +78,7 @@ extern "C" {
 // *****************************************************************************
 /* Common System Service Configuration Options
 */
-#define SYS_VERSION_STR           "2.04"
+#define SYS_VERSION_STR           "2.05"
 #define SYS_VERSION               20400
 
 // *****************************************************************************
@@ -94,7 +94,7 @@ extern "C" {
 #define SYS_CLK_BUS_PERIPHERAL_8            200000000ul
 #define SYS_CLK_CONFIG_PRIMARY_XTAL         24000000ul
 #define SYS_CLK_CONFIG_SECONDARY_XTAL       32768ul
-   
+
 /*** Ports System Service Configuration ***/
 #define SYS_PORT_A_ANSEL        0x3F00
 #define SYS_PORT_A_TRIS         0xFFDE
@@ -218,7 +218,7 @@ extern "C" {
 
 
 #define DRV_NVM_SYS_FS_REGISTER
-    
+
 
 /*** SPI Driver Configuration ***/
 #define DRV_SPI_NUMBER_OF_MODULES		6
@@ -234,9 +234,9 @@ extern "C" {
 #define DRV_SPI_16BIT 				0
 #define DRV_SPI_32BIT 				0
 #define DRV_SPI_DMA 				1
-    
-    
- 
+
+
+
 /*** SPI Driver Static Allocation Options ***/
 #define DRV_SPI_INSTANCES_NUMBER 		1
 #define DRV_SPI_CLIENTS_NUMBER 			1
@@ -244,7 +244,7 @@ extern "C" {
 /*** SPI Driver DMA Options ***/
 #define DRV_SPI_DMA_TXFER_SIZE 			512
 #define DRV_SPI_DMA_DUMMY_BUFFER_SIZE 	512
-    
+
 /* SPI Driver Instance 0 Configuration */
 /*#define DRV_SPI_SPI_ID_IDX0 				SPI_ID_1
 #define DRV_SPI_TASK_MODE_IDX0 				DRV_SPI_TASK_MODE_ISR
@@ -264,7 +264,7 @@ extern "C" {
 #define DRV_SPI_ERROR_INT_SOURCE_IDX0 		INT_SOURCE_SPI_1_ERROR
 #define DRV_SPI_INT_VECTOR_IDX0				INT_VECTOR_SPI1
 #define DRV_SPI_INT_PRIORITY_IDX0			INT_PRIORITY_LEVEL1
-#define DRV_SPI_INT_SUB_PRIORITY_IDX0		INT_SUBPRIORITY_LEVEL0        
+#define DRV_SPI_INT_SUB_PRIORITY_IDX0		INT_SUBPRIORITY_LEVEL0
 #define DRV_SPI_QUEUE_SIZE_IDX0 			10
 #define DRV_SPI_RESERVED_JOB_IDX0 			1
 #define DRV_SPI_TX_DMA_CHANNEL_IDX0 		DMA_CHANNEL_1
@@ -305,12 +305,12 @@ extern "C" {
 #define DRV_SPI_TX_DMA_THRESHOLD_IDX0 		16
 #define DRV_SPI_RX_DMA_CHANNEL_IDX0 		DMA_CHANNEL_0
 #define DRV_SPI_RX_DMA_THRESHOLD_IDX0 		16
-    
+
 /*** Timer Driver Configuration ***/
 #define DRV_TMR_INTERRUPT_MODE             true
 #define DRV_TMR_INSTANCES_NUMBER           1
 #define DRV_TMR_CLIENTS_NUMBER             1
-    
+
 /*** Timer Driver 0 Configuration ***/
 /*#define DRV_TMR_PERIPHERAL_ID_IDX0          TMR_ID_1
 #define DRV_TMR_INTERRUPT_SOURCE_IDX0       INT_SOURCE_TIMER_1
@@ -323,7 +323,7 @@ extern "C" {
 #define DRV_TMR_OPERATION_MODE_IDX0         DRV_TMR_OPERATION_MODE_16_BIT
 #define DRV_TMR_ASYNC_WRITE_ENABLE_IDX0     false
 #define DRV_TMR_POWER_STATE_IDX0            SYS_MODULE_POWER_RUN_FULL*/
-    
+
 /*** Wi-Fi Driver Configuration ***/
 #define WDRV_STUB_Print( x )    configPRINTF( x ) /* Redefined so WDRV printing does not clobber the logging task. */
 
@@ -356,8 +356,8 @@ extern "C" {
 
 #define WDRV_DEFAULT_NETWORK_TYPE WDRV_NETWORK_TYPE_INFRASTRUCTURE
 #define WDRV_DEFAULT_CHANNEL 6
-    
-/* The Wi-Fi drivers that user this code are in the IDE project and need these 
+
+/* The Wi-Fi drivers that user this code are in the IDE project and need these
  * macros to compile. */
 #ifndef PIC32_USE_ETHERNET
     #define WDRV_DEFAULT_SSID clientcredentialWIFI_SSID
@@ -375,11 +375,11 @@ extern "C" {
     #define WDRV_DEFAULT_SECURITY_MODE 0 /* Place holder. */
     #define WDRV_DEFAULT_WEP_KEYS_40 "5AFB6C8E77" // default WEP40 key
     #define WDRV_DEFAULT_WEP_KEYS_104 "90E96780C739409DA50034FCAA" // default WEP104 key
-    #define WDRV_DEFAULT_PSK_PHRASE "Placeholder password" 
+    #define WDRV_DEFAULT_PSK_PHRASE "Placeholder password"
     #define WDRV_DEFAULT_WPS_PIN "12390212" // default WPS PIN
 #endif
 
-#define WDRV_DEFAULT_POWER_SAVE WDRV_FUNC_DISABLED    
+#define WDRV_DEFAULT_POWER_SAVE WDRV_FUNC_DISABLED
 /*** MIIM Driver Configuration ***/
 #define DRV_MIIM_ETH_MODULE_ID              ETH_ID_0
 #define DRV_MIIM_INSTANCES_NUMBER           1
@@ -388,10 +388,10 @@ extern "C" {
 #define DRV_MIIM_CLIENT_OP_PROTECTION   false
 #define DRV_MIIM_COMMANDS   false
 #define DRV_MIIM_DRIVER_OBJECT              DRV_MIIM_OBJECT_BASE_Default
-#define DRV_MIIM_DRIVER_INDEX               DRV_MIIM_INDEX_0              
+#define DRV_MIIM_DRIVER_INDEX               DRV_MIIM_INDEX_0
 
-#define DRV_FLASH_DRIVER_MODE_STATIC 
-        
+#define DRV_FLASH_DRIVER_MODE_STATIC
+
 /*** Timer Driver Configuration ***/
 #define DRV_TMR_INTERRUPT_MODE             true
 #define DRV_TMR_INSTANCES_NUMBER           1
@@ -426,7 +426,7 @@ extern "C" {
 
 #define DRV_USART_PERIPHERAL_ID_IDX0                USART_ID_1
 #define DRV_USART_OPER_MODE_IDX0                    DRV_USART_OPERATION_MODE_NORMAL
-#define DRV_USART_OPER_MODE_DATA_IDX0               
+#define DRV_USART_OPER_MODE_DATA_IDX0
 #define DRV_USART_INIT_FLAG_WAKE_ON_START_IDX0      false
 #define DRV_USART_INIT_FLAG_AUTO_BAUD_IDX0          false
 #define DRV_USART_INIT_FLAG_STOP_IN_IDLE_IDX0       false
@@ -658,7 +658,7 @@ extern "C" {
 
 #define TCPIP_EMAC_PHY_CONFIG_FLAGS     			\
                                                     DRV_ETHPHY_CFG_AUTO | \
-                                                    0                                                    
+                                                    0
 
 #define TCPIP_EMAC_PHY_LINK_INIT_DELAY  			500
 #define TCPIP_EMAC_PHY_ADDRESS		    			0

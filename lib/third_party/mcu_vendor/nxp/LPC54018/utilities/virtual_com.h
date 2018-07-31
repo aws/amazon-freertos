@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -39,13 +43,22 @@
 #if defined(USB_DEVICE_CONFIG_EHCI) && (USB_DEVICE_CONFIG_EHCI > 0)
 #define CONTROLLER_ID kUSB_ControllerEhci0
 #define DATA_BUFF_SIZE HS_CDC_VCOM_BULK_OUT_PACKET_SIZE
+#endif /* USB_DEVICE_CONFIG_EHCI */
 
-#endif
 #if defined(USB_DEVICE_CONFIG_KHCI) && (USB_DEVICE_CONFIG_KHCI > 0)
 #define CONTROLLER_ID kUSB_ControllerKhci0
 #define DATA_BUFF_SIZE FS_CDC_VCOM_BULK_OUT_PACKET_SIZE
+#endif /* USB_DEVICE_CONFIG_KHCI */
 
-#endif
+#if defined(USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS > 0U)
+#define CONTROLLER_ID kUSB_ControllerLpcIp3511Fs0
+#define DATA_BUFF_SIZE FS_CDC_VCOM_BULK_OUT_PACKET_SIZE
+#endif /* USB_DEVICE_CONFIG_LPCIP3511FS */
+
+#if defined(USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U)
+#define CONTROLLER_ID kUSB_ControllerLpcIp3511Hs0
+#define DATA_BUFF_SIZE HS_CDC_VCOM_BULK_OUT_PACKET_SIZE
+#endif /* USB_DEVICE_CONFIG_LPCIP3511HS */
 
 #if defined(USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS > 0U)
 #define CONTROLLER_ID kUSB_ControllerLpcIp3511Fs0
@@ -134,6 +147,18 @@ void USB_VcomDeinit(usb_device_handle deviceHandle);
  * @return A USB error code or kStatus_USB_Success.
  */
 status_t USB_VcomReadBlocking(usb_device_handle baseAddr, uint8_t *buf, size_t count);
+
+/*!
+ * @brief USB recive 'count' number of data from host using a blocking method.
+ *
+ * This function recives data from host by usb cdc protocol
+ * @param baseAddr pointer to USB device handle.
+ * @param buf pointer to the data.
+ * @param count size of the transfer.
+ *
+ * @return A USB error code or kStatus_USB_Success.
+ */
+status_t USB_VcomReadPolling(usb_device_handle baseAddr, uint8_t *buf, size_t count);
 
 /*!
  * @brief USB send data to host using a blocking method.

@@ -67,6 +67,7 @@
 #define configUSE_RECURSIVE_MUTEXES              1
 #define configUSE_QUEUE_SETS                     0
 #define configUSE_COUNTING_SEMAPHORES            1
+#define configUSE_POSIX_ERRNO                    1
 
 #define configMAX_PRIORITIES                     ( 10UL )
 #define configQUEUE_REGISTRY_SIZE                0
@@ -184,5 +185,8 @@ function. */
 #define configECHO_SERVER_ADDR2                     2
 #define configECHO_SERVER_ADDR3                     6
 #define configTCP_ECHO_CLIENT_PORT                  7
+
+/* The platform FreeRTOS is running on. */
+#define configPLATFORM_NAME    "TICC3220"
 
 #endif /* FREERTOS_CONFIG_H */

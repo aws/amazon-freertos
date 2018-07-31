@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS mbedTLS-based PKCS#11 V1.0.3
+ * Amazon FreeRTOS mbedTLS-based PKCS#11 V1.0.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -168,7 +168,7 @@ P11SessionPtr_t prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
 static int prvPrivateKeySigningCallback( void * pvContext,
                                          mbedtls_md_type_t xMdAlg,
                                          const unsigned char * pucHash,
-                                         unsigned int uiHashLen,
+                                         size_t xHashLen,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
                                          int ( *piRng )( void *, unsigned char *, size_t ), /*lint !e955 This parameter is unused. */
@@ -196,7 +196,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
         xResult = ( BaseType_t ) C_Sign(
             ( CK_SESSION_HANDLE ) pxSession,
             ( CK_BYTE_PTR ) pucHash, /*lint !e9005 The interfaces are from 3rdparty libraries, we are not suppose to change them. */
-            uiHashLen,
+            ( CK_ULONG ) xHashLen,
             pucSig,
             ( CK_ULONG_PTR ) pxSigLen );
     }
@@ -1499,6 +1499,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_OBJECT_HANDLE_PTR pxPublicKey,
                                                 CK_OBJECT_HANDLE_PTR pxPrivateKey )
 {
+    /* Avoid warnings about unused parameters. */
+    ( void ) ( pxPublicKey );
+    ( void ) ( ulPrivateKeyAttributeCount );
+    ( void ) ( ulPublicKeyAttributeCount );
+
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
     P11KeyPtr_t pxNewKey = NULL;

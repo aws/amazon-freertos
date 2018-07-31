@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi STM32L4 Discovery kit IoT node V1.0.2
+ * Amazon FreeRTOS Wi-Fi STM32L4 Discovery kit IoT node V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,6 +40,15 @@
 /* Socket and Wi-Fi interface includes. */
 #include "aws_wifi.h"
 
+/**
+ * @brief The credential set to use for TLS on the Inventek module.
+ *
+ * @note This is hard-coded to 3 because we are using re-writable
+ * credential slot.
+ */
+#define wifiOFFLOAD_SSL_CREDS_SLOT      ( 3 )
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Represents the Wi-Fi module.
@@ -211,7 +220,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     configASSERT( pxNetworkParams != NULL );
     configASSERT( pxNetworkParams->pcSSID != NULL );
 
-    if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen ) 
+    if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen )
     {
         configASSERT( pxNetworkParams->pcPassword != NULL );
     }
@@ -383,7 +392,10 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
 
-    configASSERT( pucIPAddr != NULL );
+    if( ( NULL == pucIPAddr ) || ( 0 == usCount ) )
+    {
+        return eWiFiFailure;
+    }
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
@@ -568,7 +580,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
              ( char * ) pxNetworkParams->pcSSID,
              ES_WIFI_MAX_SSID_NAME_SIZE );
 
-    if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen ) 
+    if ( pxNetworkParams->xSecurity != eWiFiSecurityOpen )
     {
         configASSERT( pxNetworkParams->pcPassword != NULL );
 
@@ -576,7 +588,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
                  ( char * ) pxNetworkParams->pcPassword,
                  ES_WIFI_MAX_PSWD_NAME_SIZE );
     }
-    
+
     xApConfig.Channel = pxNetworkParams->cChannel;
     xApConfig.MaxConnections = wificonfigMAX_CONNECTED_STATIONS;
     xApConfig.Security = prvConvertSecurityFromAbstractedToST( pxNetworkParams->xSecurity );
@@ -626,9 +638,141 @@ BaseType_t WIFI_IsConnected( void )
     /* Expected result from ES_WIFI_IsConnected() when the board is connected to Wi-Fi. */
     const uint8_t uConnected = 1;
 
-    if ( ES_WIFI_IsConnected( &xWiFiModule.xWifiObject ) == uConnected ) {
-        xIsConnected = pdTRUE;
+    /* Try to acquire the semaphore. */
+    if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        /* Check whether or not the WiFi module is connected to any AP. */
+        if ( ES_WIFI_IsConnected( &xWiFiModule.xWifiObject ) == uConnected )
+        {
+            xIsConnected = pdTRUE;
+        }
+
+        /* Return the semaphore. */
+        xSemaphoreGive( xWiFiModule.xSemaphoreHandle );
     }
 
     return xIsConnected;
 }
+/*-----------------------------------------------------------*/
+
+#ifdef USE_OFFLOAD_SSL
+
+    /**
+     * @brief Stores the provided certificate to the re-writable slot in
+     * the Inventak module.
+     *
+     * @param pucCertificate[in] The ceritificate to store.
+     * @param usCertificateLength[in] The length of the above certificate.
+     *
+     * @return If certificate is stored successfully, eWiFiSuccess is
+     * returned. Otherwise an error code indicating the reason of the error
+     * is returned.
+     */
+    WIFIReturnCode_t  WIFI_StoreCertificate( uint8_t * pucCertificate, uint16_t usCertificateLength )
+    {
+        WIFIReturnCode_t xRetVal = eWiFiFailure;
+
+        /* Try to acquire the semaphore. */
+        if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+        {
+            /* Store Certificate. */
+            if( ES_WIFI_StoreCertificate( &xWiFiModule.xWifiObject,
+                                          ES_WIFI_FUNCTION_TLS,
+                                          wifiOFFLOAD_SSL_CREDS_SLOT,
+                                          pucCertificate,
+                                          usCertificateLength ) == ES_WIFI_STATUS_OK )
+            {
+                xRetVal = eWiFiSuccess;
+            }
+
+            /* Return the semaphore. */
+            ( void ) xSemaphoreGive( xWiFiModule.xSemaphoreHandle );
+        }
+        else
+        {
+            xRetVal = eWiFiTimeout;
+        }
+
+        return xRetVal;
+    }
+
+#endif /* USE_OFFLOAD_SSL */
+/*-----------------------------------------------------------*/
+
+#ifdef USE_OFFLOAD_SSL
+
+    /**
+     * @brief Stores the provided key to the re-writable slot in the
+     * Inventak module.
+     *
+     * @param pucKey[in] The key to store.
+     * @param usKeyLength The length of the above key.
+     *
+     * @return If key is stored successfully, eWiFiSuccess is returned.
+     * Otherwise an error code indicating the reason of the error is
+     * returned.
+     */
+    WIFIReturnCode_t  WIFI_StoreKey( uint8_t * pucKey, uint16_t usKeyLength )
+    {
+        WIFIReturnCode_t xRetVal = eWiFiFailure;
+
+        /* Try to acquire the semaphore. */
+        if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+        {
+            /* Store Certificate. */
+            if( ES_WIFI_StoreKey( &xWiFiModule.xWifiObject,
+                                  ES_WIFI_FUNCTION_TLS,
+                                  wifiOFFLOAD_SSL_CREDS_SLOT,
+                                  pucKey,
+                                  usKeyLength ) == ES_WIFI_STATUS_OK )
+            {
+                xRetVal = eWiFiSuccess;
+            }
+
+            /* Return the semaphore. */
+            ( void ) xSemaphoreGive( xWiFiModule.xSemaphoreHandle );
+        }
+        else
+        {
+            xRetVal = eWiFiTimeout;
+        }
+
+        return xRetVal;
+    }
+
+#endif /* USE_OFFLOAD_SSL */
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Gets the Inventek module's firmware revision number.
+ *
+ * @param pucBuffer[out] The output buffer to return the firmware version.
+ *
+ * @return If firmware version is retrieved successfully, eWiFiSuccess
+ * is returned. Otherwise an error code indicating the reason of the
+ * error is returned.
+ */
+WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t * pucBuffer )
+{
+    WIFIReturnCode_t xRetVal = eWiFiFailure;
+
+    /* Try to acquire the semaphore. */
+    if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        /* Get the firmware version. */
+        if( ES_WIFI_GetFWRevID( &xWiFiModule.xWifiObject, pucBuffer ) == ES_WIFI_STATUS_OK )
+        {
+            xRetVal = eWiFiSuccess;
+        }
+
+        /* Return the semaphore. */
+        ( void ) xSemaphoreGive( xWiFiModule.xSemaphoreHandle );
+    }
+    else
+    {
+        xRetVal = eWiFiTimeout;
+    }
+
+    return xRetVal;
+}
+/*-----------------------------------------------------------*/

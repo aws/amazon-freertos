@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.4
+ * FreeRTOS+TCP V2.0.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -132,7 +132,12 @@ uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
 			#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
 				ucSocketOptions = pxNetworkBuffer->pucEthernetBuffer[ ipSOCKET_OPTIONS_OFFSET ];
 			#endif
-			memcpy( ( void *) &( pxUDPPacket->xEthernetHeader.xSourceAddress ), ( void * ) xDefaultPartUDPPacketHeader.ucBytes, sizeof( xDefaultPartUDPPacketHeader ) );
+			/*
+			 * Offset the memcpy by the size of a MAC address to start at the packet's
+			 * Ethernet header 'source' MAC address; the preceding 'destination' should not be altered.
+			 */
+			const char *pxUdpSrcAddrOffset = ( ( char *) pxUDPPacket + sizeof( MACAddress_t ) );
+			memcpy( pxUdpSrcAddrOffset, xDefaultPartUDPPacketHeader.ucBytes, sizeof( xDefaultPartUDPPacketHeader ) );
 
 		#if ipconfigSUPPORT_OUTGOING_PINGS == 1
 			if( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA )

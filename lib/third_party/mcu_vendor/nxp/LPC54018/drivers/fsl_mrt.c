@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,6 +33,12 @@
  */
 
 #include "fsl_mrt.h"
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.mrt"
+#endif
+
 
 /*******************************************************************************
  * Prototypes
@@ -53,8 +63,13 @@ static MRT_Type *const s_mrtBases[] = MRT_BASE_PTRS;
 static const clock_ip_name_t s_mrtClocks[] = MRT_CLOCKS;
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
-/*! @brief Pointers to MRT resets for each instance. */
+#if defined(FSL_FEATURE_MRT_WRITE_ZERO_ASSERT_RESET) && FSL_FEATURE_MRT_WRITE_ZERO_ASSERT_RESET
+/*! @brief Pointers to MRT resets for each instance, writing a zero asserts the reset */
+static const reset_ip_name_t s_mrtResets[] = MRT_RSTS_N;
+#else
+/*! @brief Pointers to MRT resets for each instance, writing a one asserts the reset */
 static const reset_ip_name_t s_mrtResets[] = MRT_RSTS;
+#endif
 
 /*******************************************************************************
  * Code
@@ -89,9 +104,11 @@ void MRT_Init(MRT_Type *base, const mrt_config_t *config)
 
     /* Reset the module */
     RESET_PeripheralReset(s_mrtResets[MRT_GetInstance(base)]);
-
+    
+#if !(defined(FSL_FEATURE_MRT_HAS_NO_MODCFG_MULTITASK) && FSL_FEATURE_MRT_HAS_NO_MODCFG_MULTITASK)
     /* Set timer operating mode */
     base->MODCFG = MRT_MODCFG_MULTITASK(config->enableMultiTask);
+#endif
 }
 
 void MRT_Deinit(MRT_Type *base)
@@ -99,8 +116,12 @@ void MRT_Deinit(MRT_Type *base)
     /* Stop all the timers */
     MRT_StopTimer(base, kMRT_Channel_0);
     MRT_StopTimer(base, kMRT_Channel_1);
+#if (FSL_FEATURE_MRT_NUMBER_OF_CHANNELS > 2U)
     MRT_StopTimer(base, kMRT_Channel_2);
+#endif
+#if (FSL_FEATURE_MRT_NUMBER_OF_CHANNELS > 3U)
     MRT_StopTimer(base, kMRT_Channel_3);
+#endif
 
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Gate the MRT clock*/
@@ -110,6 +131,8 @@ void MRT_Deinit(MRT_Type *base)
 
 void MRT_UpdateTimerPeriod(MRT_Type *base, mrt_chnl_t channel, uint32_t count, bool immediateLoad)
 {
+    assert(channel < FSL_FEATURE_MRT_NUMBER_OF_CHANNELS);
+
     uint32_t newValue = count;
     if (((base->CHANNEL[channel].CTRL & MRT_CHANNEL_CTRL_MODE_MASK) == kMRT_OneShotMode) || (immediateLoad))
     {

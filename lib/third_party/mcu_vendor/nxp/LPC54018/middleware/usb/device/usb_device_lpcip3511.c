@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016 - 2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -37,6 +41,65 @@
      ((defined(USB_DEVICE_CONFIG_LPCIP3511HS)) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U)))
 #include "usb_device_dci.h"
 #include "usb_device_lpcip3511.h"
+
+#if ((defined(USB_DEVICE_CONFIG_LPCIP3511HS)) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U))
+
+#define USB_LPC3511IP_INTSTAT_DEV_INT_MASK USBHSD_INTSTAT_DEV_INT_MASK
+#define USB_LPC3511IP_INTSTAT_FRAME_INT_MASK USBHSD_INTSTAT_FRAME_INT_MASK
+
+#define USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AO_MASK USBHSD_DEVCMDSTAT_INTONNAK_AO_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AI_MASK USBHSD_DEVCMDSTAT_INTONNAK_AI_MASK
+
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_REWP_MASK USBHSD_DEVCMDSTAT_LPM_REWP_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_REWP_SHIFT USBHSD_DEVCMDSTAT_LPM_REWP_SHIFT
+
+#define USB_LPC3511IP_DEVCMDSTAT_Speed_MASK  USBHSD_DEVCMDSTAT_Speed_MASK
+
+
+#define USB_LPC3511IP_DEVCMDSTAT_DCON_MASK USBHSD_DEVCMDSTAT_DCON_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DEV_EN_MASK USBHSD_DEVCMDSTAT_DEV_EN_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_SUP_MASK USBHSD_DEVCMDSTAT_LPM_SUP_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_FORCE_NEEDCLK_MASK USBHSD_DEVCMDSTAT_FORCE_NEEDCLK_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_SUS_MASK USBHSD_DEVCMDSTAT_LPM_SUS_MASK
+
+#define USB_LPC3511IP_USB_LPM_HIRD_SW USBHSD_LPM_HIRD_SW
+
+#define USB_LPC3511IP_DEVCMDSTAT_DEV_ADDR_MASK  USBHSD_DEVCMDSTAT_DEV_ADDR_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DSUS_MASK  USBHSD_DEVCMDSTAT_DSUS_MASK
+#define USB_LPC3511IP_INFO_ERR_CODE_MASK USBHSD_INFO_ERR_CODE_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_SETUP_MASK USBHSD_DEVCMDSTAT_SETUP_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DRES_C_MASK USBHSD_DEVCMDSTAT_DRES_C_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DSUS_C_MASK USBHSD_DEVCMDSTAT_DSUS_C_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DCON_C_MASK USBHSD_DEVCMDSTAT_DCON_C_MASK
+#else
+#define USB_LPC3511IP_INTSTAT_DEV_INT_MASK USB_INTSTAT_DEV_INT_MASK
+#define USB_LPC3511IP_INTSTAT_FRAME_INT_MASK USB_INTSTAT_FRAME_INT_MASK
+
+#define USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AO_MASK USB_DEVCMDSTAT_INTONNAK_AO_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AI_MASK USB_DEVCMDSTAT_INTONNAK_AI_MASK
+
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_REWP_MASK USB_DEVCMDSTAT_LPM_REWP_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_REWP_SHIFT USB_DEVCMDSTAT_LPM_REWP_SHIFT
+
+
+#define USB_LPC3511IP_DEVCMDSTAT_DCON_MASK USB_DEVCMDSTAT_DCON_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DEV_EN_MASK USB_DEVCMDSTAT_DEV_EN_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_SUP_MASK USB_DEVCMDSTAT_LPM_SUP_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_FORCE_NEEDCLK_MASK USB_DEVCMDSTAT_FORCE_NEEDCLK_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_SUP_MASK USB_DEVCMDSTAT_LPM_SUP_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_LPM_SUS_MASK USB_DEVCMDSTAT_LPM_SUS_MASK
+
+#define USB_LPC3511IP_USB_LPM_HIRD_SW            USB_LPM_HIRD_SW
+
+#define USB_LPC3511IP_DEVCMDSTAT_DEV_ADDR_MASK  USB_DEVCMDSTAT_DEV_ADDR_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DSUS_MASK  USB_DEVCMDSTAT_DSUS_MASK
+#define USB_LPC3511IP_INFO_ERR_CODE_MASK USB_INFO_ERR_CODE_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_SETUP_MASK USB_DEVCMDSTAT_SETUP_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DRES_C_MASK USB_DEVCMDSTAT_DRES_C_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DSUS_C_MASK USB_DEVCMDSTAT_DSUS_C_MASK
+#define USB_LPC3511IP_DEVCMDSTAT_DCON_C_MASK USB_DEVCMDSTAT_DCON_C_MASK
+
+#endif
 
 /*******************************************************************************
  * Definitions
@@ -129,7 +192,7 @@ static usb_device_lpc3511ip_state_struct_t
 /* LPC3511IP controller driver instances and endpoint command/status list, EPLISTSTART's value is the buffer pointer. */
 #if ((USB_DEVICE_CONFIG_LPCIP3511FS + USB_DEVICE_CONFIG_LPCIP3511HS) == 1U)
 USB_CONTROLLER_DATA USB_RAM_ADDRESS_ALIGNMENT(256) static uint32_t
-    s_EpCommandStatusList1[((USB_DEVICE_CONFIG_ENDPOINTS + 0x03U) & 0xFFFFFFFCU) * 4];
+    s_EpCommandStatusList1[((USB_DEVICE_IP3511_ENDPOINTS_NUM)) * 4];
 #define LPC_CONTROLLER_ENDPOINT_LIST_ARRAY \
     {                                      \
         &s_EpCommandStatusList1[0]         \
@@ -137,9 +200,9 @@ USB_CONTROLLER_DATA USB_RAM_ADDRESS_ALIGNMENT(256) static uint32_t
 
 #elif((USB_DEVICE_CONFIG_LPCIP3511FS + USB_DEVICE_CONFIG_LPCIP3511HS) == 2U)
 USB_CONTROLLER_DATA USB_RAM_ADDRESS_ALIGNMENT(256) static uint32_t
-    s_EpCommandStatusList1[((USB_DEVICE_CONFIG_ENDPOINTS + 0x03U) & 0xFFFFFFFCU) * 4];
+    s_EpCommandStatusList1[((USB_DEVICE_IP3511_ENDPOINTS_NUM ) * 4];
 USB_CONTROLLER_DATA USB_RAM_ADDRESS_ALIGNMENT(256) static uint32_t
-    s_EpCommandStatusList2[((USB_DEVICE_CONFIG_ENDPOINTS + 0x03U) & 0xFFFFFFFCU) * 4];
+    s_EpCommandStatusList2[((USB_DEVICE_IP3511_ENDPOINTS_NUM ) * 4];
 #define LPC_CONTROLLER_ENDPOINT_LIST_ARRAY                     \
     {                                                          \
         &s_EpCommandStatusList1[0], &s_EpCommandStatusList2[0] \
@@ -268,7 +331,7 @@ static void USB_DeviceLpcIp3511ReleaseMaxPacketBuffer(usb_device_lpc3511ip_state
 static usb_device_lpc3511ip_endpoint_state_struct_t *USB_DeviceLpc3511IpGetEndpointStateStruct(
     usb_device_lpc3511ip_state_struct_t *lpc3511IpState, uint8_t endpointIndex)
 {
-    if (endpointIndex <= (USB_DEVICE_CONFIG_ENDPOINTS * 2))
+    if (endpointIndex <= (USB_DEVICE_IP3511_ENDPOINTS_NUM * 2))
     {
         return &(lpc3511IpState->endpointState[endpointIndex]);
     }
@@ -375,7 +438,7 @@ static void USB_DeviceLpc3511IpSetDefaultState(usb_device_lpc3511ip_state_struct
     {
         lpc3511IpState->epCommandStatusList[index] = 0x00000000U;
     }
-    for (index = 4; index < USB_DEVICE_CONFIG_ENDPOINTS * 4; ++index)
+    for (index = 4; index < USB_DEVICE_IP3511_ENDPOINTS_NUM * 4; ++index)
     {
         lpc3511IpState->epCommandStatusList[index] = USB_LPC3511IP_ENDPOINT_DISABLE_MASK;
     }
@@ -398,9 +461,9 @@ static void USB_DeviceLpc3511IpSetDefaultState(usb_device_lpc3511ip_state_struct
 #endif
     /* clear interrupts */
     lpc3511IpState->registerBase->INTSTAT =
-        (USB_INTSTAT_DEV_INT_MASK | USB_INTSTAT_FRAME_INT_MASK | USB_LPC3511IP_MAX_PHY_ENDPOINT_MASK);
+        (USB_LPC3511IP_INTSTAT_DEV_INT_MASK | USB_LPC3511IP_INTSTAT_FRAME_INT_MASK | USB_LPC3511IP_MAX_PHY_ENDPOINT_MASK);
     /* enable interrupts */
-    lpc3511IpState->registerBase->INTEN = USB_INTSTAT_DEV_INT_MASK | USB_LPC3511IP_MAX_PHY_ENDPOINT_MASK;
+    lpc3511IpState->registerBase->INTEN = USB_LPC3511IP_INTSTAT_DEV_INT_MASK | USB_LPC3511IP_MAX_PHY_ENDPOINT_MASK;
 
     /* Clear reset flag */
     lpc3511IpState->isResetting = 0U;
@@ -567,7 +630,7 @@ static usb_status_t USB_DeviceLpc3511IpEndpointStall(usb_device_lpc3511ip_state_
 #if ((defined(USB_DEVICE_CONFIG_LPCIP3511HS)) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U))
     if ((lpc3511IpState->controllerSpeed) && (USB_ENDPOINT_INTERRUPT == epState->stateUnion.stateBitField.endpointType))
     {
-        lpc3511IpState->registerBase->DEVCMDSTAT |= (USB_DEVCMDSTAT_INTONNAK_AO_MASK | USB_DEVCMDSTAT_INTONNAK_AI_MASK);
+        lpc3511IpState->registerBase->DEVCMDSTAT |= (USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AO_MASK | USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AI_MASK);
         epState->stateUnion.stateBitField.epControlDefault &=
             (~((USB_LPC3511IP_ENDPOINT_ENDPOINT_TYPE_MASK | USB_LPC3511IP_ENDPOINT_RFTV_MASK) >>
                USB_LPC3511IP_ENDPOINT_CONFIGURE_BITS_SHIFT));
@@ -625,6 +688,8 @@ static usb_status_t USB_DeviceLpc3511IpEndpointUnstall(usb_device_lpc3511ip_stat
         epState->stateUnion.stateBitField.stallPrimed = 0u;
         USB_DeviceLpc3511IpTransaction(lpc3511IpState, epState, endpointIndex);
     }
+    /* cancel the transfer in the endpoint */
+    USB_DeviceLpc3511IpCancel(lpc3511IpState, ep);
     return kStatus_USB_Success;
 }
 
@@ -700,7 +765,7 @@ static usb_status_t USB_DeviceLpc3511IpInterruptLPMSleep(usb_device_lpc3511ip_st
     message.isSetup = 0U;
 
     remotewakeup =
-        (lpc3511IpState->registerBase->DEVCMDSTAT & USB_DEVCMDSTAT_LPM_REWP_MASK) >> USB_DEVCMDSTAT_LPM_REWP_SHIFT;
+        (lpc3511IpState->registerBase->DEVCMDSTAT & USB_LPC3511IP_DEVCMDSTAT_LPM_REWP_MASK) >> USB_LPC3511IP_DEVCMDSTAT_LPM_REWP_SHIFT;
     USB_DeviceSetStatus(lpc3511IpState->deviceHandle, kUSB_DeviceStatusRemoteWakeup, &remotewakeup);
 
     /* Notify up layer the USB suspend signal detected. */
@@ -844,9 +909,11 @@ static void USB_DeviceLpc3511IpInterruptToken(usb_device_lpc3511ip_state_struct_
         {
             uint32_t index;
             length = 0;
-            for (index = 0; index < ((USB_DEVICE_CONFIG_ENDPOINTS + 0x03U) & 0xFFFFFFFCU) * 4; ++index)
+            for (index = 0; index < (USB_DEVICE_IP3511_ENDPOINTS_NUM)*4; ++index)
             {
-                if (lpc3511IpState->epCommandStatusList[index] & USB_LPC3511IP_ENDPOINT_TOGGLE_RESET_MASK)
+                if ((lpc3511IpState->epCommandStatusList[index] & USB_LPC3511IP_ENDPOINT_TOGGLE_RESET_MASK) &&
+                    (USB_ENDPOINT_INTERRUPT ==
+                     lpc3511IpState->endpointState[index / 2].stateUnion.stateBitField.endpointType))
                 {
                     length++;
                 }
@@ -855,7 +922,7 @@ static void USB_DeviceLpc3511IpInterruptToken(usb_device_lpc3511ip_state_struct_
             if (length <= 1)
             {
                 lpc3511IpState->registerBase->DEVCMDSTAT &=
-                    ~(USB_DEVCMDSTAT_INTONNAK_AO_MASK | USB_DEVCMDSTAT_INTONNAK_AI_MASK);
+                    ~(USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AO_MASK | USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AI_MASK);
             }
             epState->stateUnion.stateBitField.epControlDefault &=
                 (~((USB_LPC3511IP_ENDPOINT_TOGGLE_RESET_MASK) >> USB_LPC3511IP_ENDPOINT_CONFIGURE_BITS_SHIFT));
@@ -904,7 +971,7 @@ static void USB_DeviceLpc3511IpInterruptToken(usb_device_lpc3511ip_state_struct_
 
         lpc3511IpState->registerBase->INTSTAT = 0x03u; /* clear interrupt */
         /* W1 to clear the setup flag */
-        lpc3511IpState->registerBase->DEVCMDSTAT |= USB_DEVCMDSTAT_SETUP_MASK;
+        lpc3511IpState->registerBase->DEVCMDSTAT |= USB_LPC3511IP_DEVCMDSTAT_SETUP_MASK;
     }
     else
     {
@@ -1096,7 +1163,7 @@ usb_status_t USB_DeviceLpc3511IpInit(uint8_t controllerId,
         lpc3511IpState->epCommandStatusList =
             endpointListArray[controllerId - kUSB_ControllerLpcIp3511Hs0 + USB_DEVICE_CONFIG_LPCIP3511FS];
         /* get the ip base address */
-        lpc3511IpState->registerBase = (USB_Type *)ip3511HsBases[controllerId - kUSB_ControllerLpcIp3511Hs0];
+        lpc3511IpState->registerBase = (USB_LPC3511IP_Type *)ip3511HsBases[controllerId - kUSB_ControllerLpcIp3511Hs0];
     }
     else
 #endif
@@ -1116,7 +1183,7 @@ usb_status_t USB_DeviceLpc3511IpInit(uint8_t controllerId,
         /* set the endpoint list */
         lpc3511IpState->epCommandStatusList = endpointListArray[controllerId - kUSB_ControllerLpcIp3511Fs0];
         /* get the ip base address */
-        lpc3511IpState->registerBase = (USB_Type *)ip3511FsBases[controllerId - kUSB_ControllerLpcIp3511Fs0];
+        lpc3511IpState->registerBase = (USB_LPC3511IP_Type *)ip3511FsBases[controllerId - kUSB_ControllerLpcIp3511Fs0];
     }
 #else
     {
@@ -1168,20 +1235,20 @@ usb_status_t USB_DeviceLpc3511IpInit(uint8_t controllerId,
 
     /* disable the controller */
     lpc3511IpState->registerBase->DEVCMDSTAT &=
-        (~(USB_DEVCMDSTAT_DCON_MASK | USB_DEVCMDSTAT_DEV_EN_MASK | USB_DEVCMDSTAT_LPM_SUP_MASK));
+        (~(USB_LPC3511IP_DEVCMDSTAT_DCON_MASK | USB_LPC3511IP_DEVCMDSTAT_DEV_EN_MASK | USB_LPC3511IP_DEVCMDSTAT_LPM_SUP_MASK));
     /* reset and enalbe the controller */
     USB_DeviceLpc3511IpSetDefaultState(lpc3511IpState);
     /* enable USB */
-    lpc3511IpState->registerBase->DEVCMDSTAT |= (USB_DEVCMDSTAT_DEV_EN_MASK
+    lpc3511IpState->registerBase->DEVCMDSTAT |= (USB_LPC3511IP_DEVCMDSTAT_DEV_EN_MASK
 #if ((defined(USB_DEVICE_CONFIG_LOW_POWER_MODE)) && (USB_DEVICE_CONFIG_LOW_POWER_MODE > 0U))
 #else
-                                                 | USB_DEVCMDSTAT_FORCE_NEEDCLK_MASK
+                                                 | USB_LPC3511IP_DEVCMDSTAT_FORCE_NEEDCLK_MASK
 #endif
                                                  );
 #if (defined(USB_DEVICE_CONFIG_LPM_L1) && (USB_DEVICE_CONFIG_LPM_L1 > 0U))
-    lpc3511IpState->registerBase->DEVCMDSTAT |= USB_DEVCMDSTAT_LPM_SUP_MASK;
-    lpc3511IpState->registerBase->LPM |= USB_LPM_HIRD_SW(4);
-    lpc3511IpState->registerBase->DEVCMDSTAT &= ~(USB_DEVCMDSTAT_FORCE_NEEDCLK_MASK);
+    lpc3511IpState->registerBase->DEVCMDSTAT |= USB_LPC3511IP_DEVCMDSTAT_LPM_SUP_MASK;
+    lpc3511IpState->registerBase->LPM |= USB_LPC3511IP_USB_LPM_HIRD_SW(4);
+    lpc3511IpState->registerBase->DEVCMDSTAT &= ~(USB_LPC3511IP_DEVCMDSTAT_FORCE_NEEDCLK_MASK);
 #endif
     lpc3511IpState->deviceHandle = handle;
     *controllerHandle = lpc3511IpState;
@@ -1200,17 +1267,17 @@ usb_status_t USB_DeviceLpc3511IpDeinit(usb_device_controller_handle controllerHa
     }
     /* Clear all interrupt flags. */
     lpc3511IpState->registerBase->INTSTAT =
-        (USB_INTSTAT_DEV_INT_MASK | USB_INTSTAT_FRAME_INT_MASK | USB_LPC3511IP_MAX_PHY_ENDPOINT_MASK);
+        (USB_LPC3511IP_INTSTAT_DEV_INT_MASK | USB_LPC3511IP_INTSTAT_FRAME_INT_MASK | USB_LPC3511IP_MAX_PHY_ENDPOINT_MASK);
     /* Disable all interrupts. */
     lpc3511IpState->registerBase->INTEN = 0U;
     /* Clear device address. */
     usbAddress = 0U;
     USB_DeviceLpc3511IpControl(lpc3511IpState, kUSB_DeviceControlSetDeviceAddress, &usbAddress);
 #if (defined(USB_DEVICE_CONFIG_LPM_L1) && (USB_DEVICE_CONFIG_LPM_L1 > 0U))
-    lpc3511IpState->registerBase->DEVCMDSTAT &= ~USB_DEVCMDSTAT_LPM_SUP_MASK;
+    lpc3511IpState->registerBase->DEVCMDSTAT &= ~USB_LPC3511IP_DEVCMDSTAT_LPM_SUP_MASK;
 #endif
     /* disable the controller */
-    lpc3511IpState->registerBase->DEVCMDSTAT &= (~(USB_DEVCMDSTAT_DCON_MASK | USB_DEVCMDSTAT_DEV_EN_MASK));
+    lpc3511IpState->registerBase->DEVCMDSTAT &= (~(USB_LPC3511IP_DEVCMDSTAT_DCON_MASK | USB_LPC3511IP_DEVCMDSTAT_DEV_EN_MASK));
 
     return kStatus_USB_Success;
 }
@@ -1351,11 +1418,10 @@ static usb_status_t USB_DeviceLpc3511IpTransaction(usb_device_lpc3511ip_state_st
          ((USB_LPC3511IP_ENDPOINT_TOGGLE_RESET_MASK) >> USB_LPC3511IP_ENDPOINT_CONFIGURE_BITS_SHIFT)) &&
         (USB_ENDPOINT_INTERRUPT == epState->stateUnion.stateBitField.endpointType) && (lpc3511IpState->controllerSpeed))
     {
-        uint32_t interruptMask;
-        interruptMask = lpc3511IpState->registerBase->INTEN;
-        lpc3511IpState->registerBase->INTEN = 0;
+        /* users can use NVIC to disable/enable the USB interrupt to improve the system performance */
+        USB_OSA_ENTER_CRITICAL();
 
-        lpc3511IpState->registerBase->DEVCMDSTAT |= (USB_DEVCMDSTAT_INTONNAK_AO_MASK | USB_DEVCMDSTAT_INTONNAK_AI_MASK);
+        lpc3511IpState->registerBase->DEVCMDSTAT |= (USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AO_MASK | USB_LPC3511IP_DEVCMDSTAT_INTONNAK_AI_MASK);
 
 #if (defined USB_DEVICE_IP3511_DOUBLE_BUFFER_ENABLE) && (USB_DEVICE_IP3511_DOUBLE_BUFFER_ENABLE)
         USB_LPC3511IP_ENDPOINT_SET_ENDPOINT(
@@ -1368,7 +1434,8 @@ static usb_status_t USB_DeviceLpc3511IpTransaction(usb_device_lpc3511ip_state_st
             (epState->stateUnion.stateBitField.epControlDefault << USB_LPC3511IP_ENDPOINT_CONFIGURE_BITS_SHIFT) | (epState->stateUnion.stateBitField.stalled << USB_LPC3511IP_ENDPOINT_STALL_SHIFT),
             0U, (uint32_t)lpc3511IpState->zeroTransactionData);
 #endif
-        lpc3511IpState->registerBase->INTEN = interruptMask;
+        /* users can use NVIC to disable/enable the USB interrupt to improve the system performance */
+        USB_OSA_EXIT_CRITICAL();
         return kStatus_USB_Success;
     }
 #endif
@@ -1395,13 +1462,10 @@ static usb_status_t USB_DeviceLpc3511IpTransaction(usb_device_lpc3511ip_state_st
     }
 
 #if (defined USB_DEVICE_IP3511_DOUBLE_BUFFER_ENABLE) && (USB_DEVICE_IP3511_DOUBLE_BUFFER_ENABLE)
-    uint32_t interruptMask;
-
     if ((endpointIndex >> 1U) != USB_CONTROL_ENDPOINT)
     {
-        /* disable endpoint interrupts */
-        interruptMask = lpc3511IpState->registerBase->INTEN;
-        lpc3511IpState->registerBase->INTEN = 0;
+        /* disable endpoint interrupts, users can use NVIC to disable/enable the USB interrupt to improve the system performance */
+        USB_OSA_ENTER_CRITICAL();
         /* lpc3511IpState->registerBase->INTEN &= (uint32_t)(~(USB_LPC3511IP_MAX_PHY_ENDPOINT_MASK)); */
 
         do
@@ -1414,9 +1478,8 @@ static usb_status_t USB_DeviceLpc3511IpTransaction(usb_device_lpc3511ip_state_st
         } while ((epState->transferLength > epState->transferPrimedLength) &&
                  (epState->stateUnion.stateBitField.doubleBufferBusy < 2));
 
-        /* enable endpoint interrupt again */
-        /* lpc3511IpState->registerBase->INTEN |= (uint32_t)(USB_LPC3511IP_MAX_PHY_ENDPOINT_MASK); */
-        lpc3511IpState->registerBase->INTEN = interruptMask;
+        /* enable endpoint interrupt again, users can use NVIC to disable/enable the USB interrupt to improve the system performance */
+        USB_OSA_EXIT_CRITICAL();
     }
     else
 #endif
@@ -1470,7 +1533,8 @@ usb_status_t USB_DeviceLpc3511IpRecv(usb_device_controller_handle controllerHand
 
 usb_status_t USB_DeviceLpc3511IpCancel(usb_device_controller_handle controllerHandle, uint8_t ep)
 {
-    uint8_t disableInterrupt;
+    /* users can use NVIC to disable/enable the USB interrupt to improve the system performance */
+    USB_OSA_SR_ALLOC();
 
     usb_device_lpc3511ip_state_struct_t *lpc3511IpState = (usb_device_lpc3511ip_state_struct_t *)controllerHandle;
     usb_device_callback_message_struct_t message;
@@ -1481,13 +1545,8 @@ usb_status_t USB_DeviceLpc3511IpCancel(usb_device_controller_handle controllerHa
     /* Cancel the transfer and notify the up layer when the endpoint is busy. */
     if (epState->stateUnion.stateBitField.transferring)
     {
-        disableInterrupt = 0u;
-        /* disable endpoint interrupts */
-        if (lpc3511IpState->registerBase->INTEN & (uint32_t)(0x01u << endpointIndex))
-        {
-            disableInterrupt = 1u;
-            lpc3511IpState->registerBase->INTEN &= (uint32_t)(~(0x01u << endpointIndex));
-        }
+        /* disable endpoint interrupts, users can use NVIC to disable/enable the USB interrupt to improve the system performance */
+        USB_OSA_ENTER_CRITICAL();
 
         do
         {
@@ -1514,12 +1573,11 @@ usb_status_t USB_DeviceLpc3511IpCancel(usb_device_controller_handle controllerHa
             }
         } while (epState->stateUnion.stateBitField.doubleBufferBusy);
 
-        if (disableInterrupt)
-        {
-            /* clear interrupt status, enable endpoint interrupt again */
-            lpc3511IpState->registerBase->INTSTAT = (0x01U << endpointIndex);
-            lpc3511IpState->registerBase->INTEN |= (uint32_t)(0x01u << endpointIndex);
-        }
+        /* clear interrupt status, enable endpoint interrupt again */
+        lpc3511IpState->registerBase->INTSTAT = (0x01U << endpointIndex);
+        
+        /* users can use NVIC to disable/enable the USB interrupt to improve the system performance */
+        USB_OSA_EXIT_CRITICAL();
 
         message.length = USB_UNINITIALIZED_VAL_32;
         message.buffer = epState->transferBuffer;
@@ -1560,11 +1618,11 @@ usb_status_t USB_DeviceLpc3511IpControl(usb_device_controller_handle controllerH
     switch (type)
     {
         case kUSB_DeviceControlRun:
-            lpc3511IpState->registerBase->DEVCMDSTAT |= (USB_DEVCMDSTAT_DCON_MASK);
+            lpc3511IpState->registerBase->DEVCMDSTAT |= (USB_LPC3511IP_DEVCMDSTAT_DCON_MASK);
             break;
 
         case kUSB_DeviceControlStop:
-            lpc3511IpState->registerBase->DEVCMDSTAT &= (~USB_DEVCMDSTAT_DCON_MASK);
+            lpc3511IpState->registerBase->DEVCMDSTAT &= (~USB_LPC3511IP_DEVCMDSTAT_DCON_MASK);
             break;
 
         case kUSB_DeviceControlEndpointInit:
@@ -1617,7 +1675,7 @@ usb_status_t USB_DeviceLpc3511IpControl(usb_device_controller_handle controllerH
             {
                 usb_device_endpoint_status_struct_t *endpointStatus = (usb_device_endpoint_status_struct_t *)param;
 
-                if (((endpointStatus->endpointAddress) & USB_ENDPOINT_NUMBER_MASK) < USB_DEVICE_CONFIG_ENDPOINTS)
+                if (((endpointStatus->endpointAddress) & USB_ENDPOINT_NUMBER_MASK) < USB_DEVICE_IP3511_ENDPOINTS_NUM)
                 {
                     epState = USB_DeviceLpc3511IpGetEndpointStateStruct(
                         lpc3511IpState, USB_LPC3511IP_ENDPOINT_DES_INDEX(endpointStatus->endpointAddress));
@@ -1634,8 +1692,8 @@ usb_status_t USB_DeviceLpc3511IpControl(usb_device_controller_handle controllerH
             {
                 tmp8Value = *((uint8_t *)param);
                 tmp32Value = lpc3511IpState->registerBase->DEVCMDSTAT;
-                tmp32Value &= (~USB_DEVCMDSTAT_DEV_ADDR_MASK);
-                tmp32Value |= (tmp8Value & USB_DEVCMDSTAT_DEV_ADDR_MASK);
+                tmp32Value &= (~USB_LPC3511IP_DEVCMDSTAT_DEV_ADDR_MASK);
+                tmp32Value |= (tmp8Value & USB_LPC3511IP_DEVCMDSTAT_DEV_ADDR_MASK);
                 lpc3511IpState->registerBase->DEVCMDSTAT = tmp32Value;
                 error = kStatus_USB_Success;
             }
@@ -1647,38 +1705,38 @@ usb_status_t USB_DeviceLpc3511IpControl(usb_device_controller_handle controllerH
 #if defined(USB_DEVICE_CONFIG_REMOTE_WAKEUP) && (USB_DEVICE_CONFIG_REMOTE_WAKEUP > 0U)
         case kUSB_DeviceControlResume:
             /* todo: turn on USB clock and enable the USB clock source */
-            lpc3511IpState->registerBase->DEVCMDSTAT |= USB_DEVCMDSTAT_FORCE_NEEDCLK_MASK;
-            lpc3511IpState->registerBase->DEVCMDSTAT &= ~USB_DEVCMDSTAT_DSUS_MASK;
-            while (lpc3511IpState->registerBase->DEVCMDSTAT & USB_DEVCMDSTAT_DSUS_MASK)
+            lpc3511IpState->registerBase->DEVCMDSTAT |= USB_LPC3511IP_DEVCMDSTAT_FORCE_NEEDCLK_MASK;
+            lpc3511IpState->registerBase->DEVCMDSTAT &= ~USB_LPC3511IP_DEVCMDSTAT_DSUS_MASK;
+            while (lpc3511IpState->registerBase->DEVCMDSTAT & USB_LPC3511IP_DEVCMDSTAT_DSUS_MASK)
             {
             }
             /* the W1C bits */
             lpc3511IpState->registerBase->DEVCMDSTAT &=
-                ~(USB_DEVCMDSTAT_FORCE_NEEDCLK_MASK | USB_LPC3511IP_DEVCMDSTAT_INTERRUPT_WC_MASK);
+                ~(USB_LPC3511IP_DEVCMDSTAT_FORCE_NEEDCLK_MASK | USB_LPC3511IP_DEVCMDSTAT_INTERRUPT_WC_MASK);
             error = kStatus_USB_Success;
             break;
 #if (defined(USB_DEVICE_CONFIG_LPM_L1) && (USB_DEVICE_CONFIG_LPM_L1 > 0U))
         case kUSB_DeviceControlSleepResume:
             /* todo: turn on USB clock and enable the USB clock source */
-            lpc3511IpState->registerBase->DEVCMDSTAT |= USB_DEVCMDSTAT_FORCE_NEEDCLK_MASK;
-            lpc3511IpState->registerBase->DEVCMDSTAT &= ~USB_DEVCMDSTAT_LPM_SUS_MASK;
-            while (lpc3511IpState->registerBase->DEVCMDSTAT & USB_DEVCMDSTAT_LPM_SUS_MASK)
+            lpc3511IpState->registerBase->DEVCMDSTAT |= USB_LPC3511IP_DEVCMDSTAT_FORCE_NEEDCLK_MASK;
+            lpc3511IpState->registerBase->DEVCMDSTAT &= ~USB_LPC3511IP_DEVCMDSTAT_LPM_SUS_MASK;
+            while (lpc3511IpState->registerBase->DEVCMDSTAT & USB_LPC3511IP_DEVCMDSTAT_LPM_SUS_MASK)
             {
                 __NOP();
             }
             /* the W1C bits */
             lpc3511IpState->registerBase->DEVCMDSTAT &=
-                ~(USB_DEVCMDSTAT_FORCE_NEEDCLK_MASK | USB_LPC3511IP_DEVCMDSTAT_INTERRUPT_WC_MASK);
+                ~(USB_LPC3511IP_DEVCMDSTAT_FORCE_NEEDCLK_MASK | USB_LPC3511IP_DEVCMDSTAT_INTERRUPT_WC_MASK);
             error = kStatus_USB_Success;
             break;
 #endif
         case kUSB_DeviceControlGetRemoteWakeUp:
-            *((uint8_t *)param) = !!(lpc3511IpState->registerBase->DEVCMDSTAT & USB_DEVCMDSTAT_LPM_REWP_MASK);
+            *((uint8_t *)param) = !!(lpc3511IpState->registerBase->DEVCMDSTAT & USB_LPC3511IP_DEVCMDSTAT_LPM_REWP_MASK);
             break;
 #endif /* USB_DEVICE_CONFIG_REMOTE_WAKEUP */
 
         case kUSB_DeviceControlSetDefaultStatus:
-            for (tmp32Value = 0U; tmp32Value < USB_DEVICE_CONFIG_ENDPOINTS; tmp32Value++)
+            for (tmp32Value = 0U; tmp32Value < USB_DEVICE_IP3511_ENDPOINTS_NUM; tmp32Value++)
             {
                 USB_DeviceLpc3511IpEndpointDeinit(lpc3511IpState, (tmp32Value | (USB_IN << 0x07U)));
                 USB_DeviceLpc3511IpEndpointDeinit(lpc3511IpState, (tmp32Value | (USB_OUT << 0x07U)));
@@ -1737,25 +1795,25 @@ void USB_DeviceLpcIp3511IsrFunction(void *deviceHandle)
     lpc3511IpState->registerBase->INTSTAT = interruptStatus;
     interruptStatus &= lpc3511IpState->registerBase->INTEN;
 
-    usbErrorCode = (lpc3511IpState->registerBase->INFO & USB_INFO_ERR_CODE_MASK);
+    usbErrorCode = (lpc3511IpState->registerBase->INFO & USB_LPC3511IP_INFO_ERR_CODE_MASK);
 
     /* device status change interrupt */
-    if (interruptStatus & USB_INTSTAT_DEV_INT_MASK)
+    if (interruptStatus & USB_LPC3511IP_INTSTAT_DEV_INT_MASK)
     {
         /* get and clear device state change status */
         devState = lpc3511IpState->registerBase->DEVCMDSTAT;
-        devState &= ~(USB_DEVCMDSTAT_SETUP_MASK);
+        devState &= ~(USB_LPC3511IP_DEVCMDSTAT_SETUP_MASK);
         lpc3511IpState->registerBase->DEVCMDSTAT = (devState | USB_LPC3511IP_DEVCMDSTAT_INTERRUPT_WC_MASK);
 
         /* reset change */
-        if (devState & USB_DEVCMDSTAT_DRES_C_MASK)
+        if (devState & USB_LPC3511IP_DEVCMDSTAT_DRES_C_MASK)
         {
             USB_DeviceLpc3511IpInterruptReset(lpc3511IpState);
         }
 
 #if (defined(USB_DEVICE_CONFIG_DETACH_ENABLE) && (USB_DEVICE_CONFIG_DETACH_ENABLE))
         /* dis-connect change */
-        if (devState & USB_DEVCMDSTAT_DCON_C_MASK)
+        if (devState & USB_LPC3511IP_DEVCMDSTAT_DCON_C_MASK)
         {
             USB_DeviceLpc3511IpInterruptDetach(lpc3511IpState);
         }
@@ -1763,36 +1821,29 @@ void USB_DeviceLpcIp3511IsrFunction(void *deviceHandle)
 
 /* Suspend/Resume */
 #if ((defined(USB_DEVICE_CONFIG_LOW_POWER_MODE)) && (USB_DEVICE_CONFIG_LOW_POWER_MODE > 0U))
-        if (devState & USB_DEVCMDSTAT_DSUS_C_MASK)
+        if (devState & USB_LPC3511IP_DEVCMDSTAT_DSUS_C_MASK)
         {
-            if (lpc3511IpState->registerBase->DEVCMDSTAT & USB_DEVCMDSTAT_DSUS_MASK)
+            if (lpc3511IpState->registerBase->DEVCMDSTAT & USB_LPC3511IP_DEVCMDSTAT_DSUS_MASK)
             {
                 USB_DeviceLpc3511IpInterruptSuspend(lpc3511IpState);
             }
-            else
-            {
-                USB_DeviceLpc3511IpInterruptResume(lpc3511IpState);
-            }
-        }
 #if (defined(USB_DEVICE_CONFIG_LPM_L1) && (USB_DEVICE_CONFIG_LPM_L1 > 0U))
-        if (devState & USB_DEVCMDSTAT_DSUS_C_MASK)
-        {
-            if (lpc3511IpState->registerBase->DEVCMDSTAT & USB_DEVCMDSTAT_LPM_SUS_MASK)
+            else if (lpc3511IpState->registerBase->DEVCMDSTAT & USB_LPC3511IP_DEVCMDSTAT_LPM_SUS_MASK)
             {
                 USB_DeviceLpc3511IpInterruptLPMSleep(lpc3511IpState);
             }
+#endif
             else
             {
                 USB_DeviceLpc3511IpInterruptResume(lpc3511IpState);
             }
         }
-#endif
 
 #endif
 
 #if 0U /* some soc don't support this bit, need check according to the feature macro */
         /* OTG Status change */
-        if (lpc3511IpState->registerBase->DEVCMDSTAT & USB_DEVCMDSTAT_OTG_C_MASK)
+        if (lpc3511IpState->registerBase->DEVCMDSTAT & USB_LPC3511IP_DEVCMDSTAT_OTG_C_MASK)
         {
         }
 #endif
@@ -1804,7 +1855,7 @@ void USB_DeviceLpcIp3511IsrFunction(void *deviceHandle)
         devState = 0;                /* devState means index here */
         if (interruptStatus & 0x01u) /* control OUT */
         {
-            if (lpc3511IpState->registerBase->DEVCMDSTAT & USB_DEVCMDSTAT_SETUP_MASK)
+            if (lpc3511IpState->registerBase->DEVCMDSTAT & USB_LPC3511IP_DEVCMDSTAT_SETUP_MASK)
             {
                 devState = 2;
                 if ((lpc3511IpState->endpointState[0].stateUnion.stateBitField.stalled == 1U) ||
@@ -1825,7 +1876,7 @@ void USB_DeviceLpcIp3511IsrFunction(void *deviceHandle)
             }
         }
 
-        for (; devState < (USB_DEVICE_CONFIG_ENDPOINTS * 2); ++devState)
+        for (; devState < (USB_DEVICE_IP3511_ENDPOINTS_NUM * 2); ++devState)
         {
             /* check the endpoint interrupt */
             if (interruptStatus & (0x01U << devState))
@@ -1836,7 +1887,7 @@ void USB_DeviceLpcIp3511IsrFunction(void *deviceHandle)
     }
 
 #if 0U
-    if (interruptStatus & USB_INTSTAT_FRAME_INT_MASK)
+    if (interruptStatus & USB_LPC3511IP_INTSTAT_FRAME_INT_MASK)
     {
     }
 #endif

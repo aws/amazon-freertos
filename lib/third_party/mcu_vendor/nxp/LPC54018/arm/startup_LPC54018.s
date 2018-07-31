@@ -5,11 +5,15 @@
 ; * @version: 1.2
 ; * @date:    2017-6-8
 ; *
+; * The Clear BSD License
 ; * Copyright 1997-2016 Freescale Semiconductor, Inc.
 ; * Copyright 2016-2017 NXP
 ; *
+; * All rights reserved.
+; * 
 ; * Redistribution and use in source and binary forms, with or without modification,
-; * are permitted provided that the following conditions are met:
+; * are permitted (subject to the limitations in the disclaimer below) provided
+; *  that the following conditions are met:
 ; *
 ; * 1. Redistributions of source code must retain the above copyright notice, this list
 ; *   of conditions and the following disclaimer.
@@ -22,6 +26,7 @@
 ; *   contributors may be used to endorse or promote products derived from this
 ; *   software without specific prior written permission.
 ; *
+; * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S' PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
 ; * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ; * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 ; * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -47,8 +52,8 @@
                 IMPORT  |Image$$ARM_LIB_STACK$$ZI$$Limit|
                 IMPORT  |Image$$RW_m_data$$RW$$Length|
                 IMPORT  |Image$$RW_m_data$$RW$$Base|
-                IMPORT  |Image$$ER_m_text$$RO$$Length|
-                IMPORT  |Image$$ER_m_text$$RO$$Base|
+                IMPORT  |Load$$LR$$LR_m_text$$Length|
+                IMPORT  |Load$$LR$$LR_m_text$$Base|
                 IMPORT  |Image$$VECTOR_ROM$$Length|
 
 __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
@@ -150,42 +155,41 @@ __image_header
                 IF      :DEF: XIP_IMAGE
                     IF      :DEF: ADD_CRC
                         DCD   2         ; (0x04) Image Type
-                    ELSE        
+                    ELSE
                         DCD   3         ; (0x04) Image Type
                     ENDIF
-                   
-                ELSE        
-                
+
+                ELSE
+
                     IF      :DEF: ADD_CRC
                         DCD   0             ; (0x04) Image Type
-                    ELSE        
+                    ELSE
                         DCD   1             ; (0x04) Image Type
                 ENDIF
-                
+
                 ENDIF
                 IF      :DEF: XIP_IMAGE
                         DCD   0x10000000          ; (0x08) Load_address
-                ELSE        
+                ELSE
                         DCD   0x00000000          ; (0x08) Load_address
                 ENDIF
-                    
-                DCD   |Image$$ER_m_text$$RO$$Length| + |Image$$RW_m_data$$RW$$Length| + |Image$$VECTOR_ROM$$Length| ; (0x0C) load_length
+
+                DCD   |Load$$LR$$LR_m_text$$Length| + |Image$$VECTOR_ROM$$Length| - 4 ; (0x0C) load_length, exclude 4 bytes CRC field.
                 DCD   0          ; (0x10) CRC value (only applicable to NON Non-secure images).
                 DCD   0          ; (0x14) Version (only applicable to DUAL_ENH image type.
                 DCD   0          ; (0x18) EMC static memory configuration settings, required for EMC boot
-                
+
                 IF      :DEF: IMG_BAUDRATE
                 DCD   IMG_BAUDRATE;(0x1C) image baudrate
                 ELSE
                 DCD   0          ; (0x1C) reserved
                 ENDIF
-                
+
                 DCD   0          ; (0x20) reserved
                 DCD   0xEDDC94BD ; (0x24) Image_marker
                 DCD   0          ; (0x28) SBZ
                 DCD   0          ; (0x2C) reserved
-                
-                IF      :DEF: W25Q128JVFM               
+                IF      :DEF: W25Q128JVFM
                 ; SPIFI Descriptor - W25Q128JVFM
                 DCD   0x00000000 ;0xFFFFFFFF to default 1-bit SPI mode ;DevStrAdr
                 DCD   0x001870EF ;mfgId + extCount
@@ -202,7 +206,7 @@ __image_header
                 DCD   0x14110D09 ;setStatusFxId,setOptionsFxId,getReadCmdFxId,getWriteCmdFxId
                 ENDIF
 
-                IF      :DEF: MXL12835F             
+                IF      :DEF: MXL12835F
                 ; SPIFI Descriptor - MXL12835F
                 DCD   0x00000000 ;0xFFFFFFFF to default 1-bit SPI mode  ;DevStrAdr
                 DCD   0x001820C2 ;mfgId + extCount
@@ -227,6 +231,10 @@ Reset_Handler   PROC
                 EXPORT  Reset_Handler               [WEAK]
                 IMPORT  SystemInit
                 IMPORT  __main
+
+                MOVS    r0,#56
+                LDR     r1, =0x40000220
+                STR     r0, [r1]       ;Enable SRAM clock used by Stack
 
                 LDR     r0, =SystemInit
                 BLX     r0
@@ -679,7 +687,6 @@ SMARTCARD1_IRQHandler\
                 LDR        R0, =SMARTCARD1_DriverIRQHandler
                 BX         R0
                 ENDP
-
 
 Default_Handler PROC
                 EXPORT     WDT_BOD_DriverIRQHandler        [WEAK]

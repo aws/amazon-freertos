@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.4
+ * FreeRTOS+TCP V2.0.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1157,7 +1157,7 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 				break;
 			}
 
-			if( strncmp( xDNSCache[ x ].pcName, pcName, sizeof( xDNSCache[ x ].pcName ) ) == 0 )
+			if( strncmp( xDNSCache[ x ].pcName, pcName, ( sizeof( xDNSCache[ x ].pcName ) ) - 1 ) == 0 )
 			{
 				/* Is this function called for a lookup or to add/update an IP address? */
 				if( xLookUp != pdFALSE )
@@ -1183,7 +1183,8 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 			else
 			{
 				/* Called to add or update an item */
-				strncpy( xDNSCache[ xFreeEntry ].pcName, pcName, sizeof( xDNSCache[ xFreeEntry ].pcName ) );
+				snprintf( xDNSCache[ xFreeEntry ].pcName, sizeof( xDNSCache[ xFreeEntry ] ), "%s", pcName );
+
 				xDNSCache[ xFreeEntry ].ulIPAddress = *pulIP;
 
 				xFreeEntry++;

@@ -343,9 +343,6 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\iar</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\iar\sys</state>
-                    <state>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos</state>
                     <state>$PROJ_DIR$\..\common</state>
                     <state>$PROJ_DIR$\..\..\..\..\lib</state>
                     <state>$PROJ_DIR$\..\..\..\..\lib\ota\portable\ti\cc3220_launchpad</state>
@@ -363,6 +360,9 @@
                     <state>$PROJ_DIR$\..\..\..\common\include</state>
                     <state>$TOOLKIT_DIR$\inc</state>
                     <state>$TOOLKIT_DIR$\inc\c</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\include</state>
+                    <state>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\ti\cc3220_launchpad</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1236,6 +1236,60 @@
                 </file>
             </group>
             <group>
+                <name>FreeRTOS-Plus-POSIX</name>
+                <group>
+                    <name>include</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\FreeRTOS_POSIX.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\FreeRTOS_POSIX_internal.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\ti\cc3220_launchpad\FreeRTOS_POSIX_portable.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\FreeRTOS_POSIX_portable_default.h</name>
+                    </file>
+                </group>
+                <group>
+                    <name>source</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_clock.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_mqueue.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_pthread.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_pthread_barrier.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_pthread_cond.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_pthread_mutex.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_sched.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_semaphore.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_timer.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_unistd.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_utils.c</name>
+                    </file>
+                </group>
+            </group>
+            <group>
                 <name>greengrass</name>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\greengrass\aws_greengrass_discovery.c</name>
@@ -1246,41 +1300,122 @@
             </group>
             <group>
                 <name>include</name>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_bufferpool.h</name>
-                </file>
+                <group>
+                    <name>FreeRTOS_POSIX</name>
+                    <group>
+                        <name>sys</name>
+                        <file>
+                            <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\sys\types.h</name>
+                        </file>
+                    </group>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\errno.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\fcntl.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\mqueue.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\pthread.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\sched.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\semaphore.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\signal.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\time.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS_POSIX\utils.h</name>
+                    </file>
+                </group>
+                <group>
+                    <name>private</name>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_bufferpool.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_default_root_certificates.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_doubly_linked_list.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ggd_config_defaults.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_helper_secure_connect.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_lib_init.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_mqtt_agent_config_defaults.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_mqtt_buffer.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_cbor.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_pal.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_types.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_rsprintf.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_shadow_config_defaults.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_shadow_json.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\deprecated_definitions.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\list.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\mpu_wrappers.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\portable.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\projdefs.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\include\private\stack_macros.h</name>
+                    </file>
+                </group>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_crypto.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_default_root_certificates.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_doubly_linked_list.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ggd_config_defaults.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_greengrass_discovery.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_helper_secure_connect.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_lib_init.h</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_mqtt_agent.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_mqtt_agent_config_defaults.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_mqtt_buffer.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_mqtt_lib.h</name>
@@ -1289,34 +1424,13 @@
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_ota_agent.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_cbor.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_pal.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_ota_types.h</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_pkcs11.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_rsprintf.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_secure_sockets.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_shadow.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_shadow_config_defaults.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_shadow_json.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_system_init.h</name>
@@ -1328,37 +1442,19 @@
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_wifi.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\deprecated_definitions.h</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\event_groups.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\FreeRTOS.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\list.h</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\message_buffer.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\mpu_wrappers.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\portable.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\projdefs.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\queue.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\semphr.h</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\stack_macros.h</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\stream_buffer.h</name>
@@ -1487,57 +1583,6 @@
                                     <file>
                                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\startup\startup_cc32xx_iar.c</name>
                                     </file>
-                                </group>
-                            </group>
-                            <group>
-                                <name>source</name>
-                                <group>
-                                    <name>ti</name>
-                                    <group>
-                                        <name>posix</name>
-                                        <group>
-                                            <name>freertos</name>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\clock.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\memory.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\mqueue.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread_barrier.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread_cond.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread_mutex.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\pthread_rwlock.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\reent.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\sched.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\semaphore.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\sleep.c</name>
-                                            </file>
-                                            <file>
-                                                <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mcu_vendor\ti\SimpleLink_CC32xx\v2_10_00_04\source\ti\posix\freertos\timer.c</name>
-                                            </file>
-                                        </group>
-                                    </group>
                                 </group>
                             </group>
                         </group>

@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -44,10 +48,16 @@
  * Definitions
  ******************************************************************************/
 
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.lpc_iocon"
+#endif
+
+
 /*! @name Driver version */
 /*@{*/
 /*! @brief IOCON driver version 2.0.0. */
-#define LPC_IOCON_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+#define FSL_IOCON_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
 /*@}*/
 
 /**
@@ -57,6 +67,7 @@ typedef struct _iocon_group
 {
     uint32_t port : 8;      /* Pin port */
     uint32_t pin : 8;       /* Pin number */
+    uint32_t ionumber : 8;  /* IO number */
     uint32_t modefunc : 16; /* Function and mode */
 } iocon_group_t;
 
@@ -139,6 +150,19 @@ typedef struct _iocon_group
 extern "C" {
 #endif
 
+#if (defined(FSL_FEATURE_IOCON_ONE_DIMENSION) && (FSL_FEATURE_IOCON_ONE_DIMENSION == 1))
+/**
+ * @brief   Sets I/O Control pin mux
+ * @param   base        : The base of IOCON peripheral on the chip
+ * @param   ionumber    : GPIO number to mux
+ * @param   modefunc    : OR'ed values of type IOCON_*
+ * @return  Nothing
+ */
+__STATIC_INLINE void IOCON_PinMuxSet(IOCON_Type *base, uint8_t ionumber, uint32_t modefunc)
+{
+    base->PIO[ionumber] = modefunc;
+}
+#else
 /**
  * @brief   Sets I/O Control pin mux
  * @param   base        : The base of IOCON peripheral on the chip
@@ -151,6 +175,7 @@ __STATIC_INLINE void IOCON_PinMuxSet(IOCON_Type *base, uint8_t port, uint8_t pin
 {
     base->PIO[port][pin] = modefunc;
 }
+#endif
 
 /**
  * @brief   Set all I/O Control pin muxing
@@ -165,7 +190,11 @@ __STATIC_INLINE void IOCON_SetPinMuxing(IOCON_Type *base, const iocon_group_t *p
 
     for (i = 0; i < arrayLength; i++)
     {
+#if (defined(FSL_FEATURE_IOCON_ONE_DIMENSION) && (FSL_FEATURE_IOCON_ONE_DIMENSION == 1))
+        IOCON_PinMuxSet(base, pinArray[i].ionumber, pinArray[i].modefunc);
+#else
         IOCON_PinMuxSet(base, pinArray[i].port, pinArray[i].pin, pinArray[i].modefunc);
+#endif /* FSL_FEATURE_IOCON_ONE_DIMENSION */
     }
 }
 

@@ -1,10 +1,13 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright (c) 2016 - 2017 , NXP
  * All rights reserved.
  *
+ *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -17,6 +20,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,6 +39,10 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.clock"
+#endif
 #define NVALMAX (0x100U)
 #define PVALMAX (0x20U)
 #define MVALMAX (0x8000U)
@@ -222,92 +230,274 @@ void CLOCK_SetClkDiv(clock_div_name_t div_name, uint32_t divided_by_value, bool 
 /* Get CLOCK OUT Clk */
 uint32_t CLOCK_GetClockOutClkFreq(void)
 {
-    return (SYSCON->CLKOUTSELA == 0U) ? CLOCK_GetCoreSysClkFreq():
-           (SYSCON->CLKOUTSELA == 1U) ? CLOCK_GetExtClkFreq():
-           (SYSCON->CLKOUTSELA == 2U) ? CLOCK_GetWdtOscFreq():
-           (SYSCON->CLKOUTSELA == 3U) ? CLOCK_GetFroHfFreq():
-           (SYSCON->CLKOUTSELA == 4U) ? CLOCK_GetPllOutFreq():
-           (SYSCON->CLKOUTSELA == 5U) ? CLOCK_GetUsbPllOutFreq():
-           (SYSCON->CLKOUTSELA == 6U) ? CLOCK_GetAudioPllOutFreq():
-           (SYSCON->CLKOUTSELA == 7U) ? CLOCK_GetOsc32KFreq():0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->CLKOUTSELA)
+    {
+        case 0U:
+            freq = CLOCK_GetCoreSysClkFreq();
+            break;
+
+        case 1U:
+            freq = CLOCK_GetExtClkFreq();
+            break;
+
+        case 2U:
+            freq = CLOCK_GetWdtOscFreq();
+            break;
+
+        case 3U:
+            freq = CLOCK_GetFroHfFreq();
+            break;
+
+        case 4U:
+            freq = CLOCK_GetPllOutFreq();
+            break;
+
+        case 5U:
+            freq = CLOCK_GetUsbPllOutFreq();
+            break;
+
+        case 6U:
+            freq = CLOCK_GetAudioPllOutFreq();
+            break;
+
+        case 7U:
+            freq = CLOCK_GetOsc32KFreq();
+            break;
+
+        default:
+            break;
+    }
+    return freq / ((SYSCON->CLKOUTDIV&0xffU)+1U);
 }
 
 /* Get SPIFI Clk */
 uint32_t CLOCK_GetSpifiClkFreq(void)
 {
-    return (SYSCON->SPIFICLKSEL == 0U) ? CLOCK_GetCoreSysClkFreq():
-           (SYSCON->SPIFICLKSEL == 1U) ? CLOCK_GetPllOutFreq():
-           (SYSCON->SPIFICLKSEL == 2U) ? CLOCK_GetUsbPllOutFreq():
-           (SYSCON->SPIFICLKSEL == 3U) ? CLOCK_GetFroHfFreq():
-           (SYSCON->SPIFICLKSEL == 4U) ? CLOCK_GetAudioPllOutFreq():
-           (SYSCON->SPIFICLKSEL == 7U) ? 0U:0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->SPIFICLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetCoreSysClkFreq();
+          break;
+        case 1U:
+          freq = CLOCK_GetPllOutFreq();
+          break;
+        case 2U:
+          freq = CLOCK_GetUsbPllOutFreq();
+          break;
+        case 3U:
+          freq = CLOCK_GetFroHfFreq();
+          break;
+        case 4U:
+          freq = CLOCK_GetAudioPllOutFreq();
+          break;
+        case 7U:
+          freq = 0U;
+          break;
+        default:
+          break;
+    }
+
+    return freq / ((SYSCON->SPIFICLKDIV & 0xffU) + 1U);
 }
 
 /* Get ADC Clk */
 uint32_t CLOCK_GetAdcClkFreq(void)
 {
-    return (SYSCON->ADCCLKSEL == 0U) ? CLOCK_GetFroHfFreq():
-           (SYSCON->ADCCLKSEL == 1U) ? CLOCK_GetPllOutFreq():
-           (SYSCON->ADCCLKSEL == 2U) ? CLOCK_GetUsbPllOutFreq():
-           (SYSCON->ADCCLKSEL == 3U) ? CLOCK_GetAudioPllOutFreq():
-           (SYSCON->ADCCLKSEL == 7U) ? 0U:0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->ADCCLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetFroHfFreq();
+          break;
+        case 1U:
+          freq = CLOCK_GetPllOutFreq();
+          break;
+        case 2U:
+          freq = CLOCK_GetUsbPllOutFreq();
+          break;
+        case 3U:
+          freq = CLOCK_GetAudioPllOutFreq();
+          break;
+        case 7U:
+          freq = 0U;
+          break;
+        default:
+          break;
+    }
+
+    return freq / ((SYSCON->ADCCLKDIV & 0xffU) + 1U);
 }
 
 /* Get USB0 Clk */
 uint32_t CLOCK_GetUsb0ClkFreq(void)
 {
-    return (SYSCON->USB0CLKSEL == 0U) ? CLOCK_GetFroHfFreq():
-           (SYSCON->USB0CLKSEL == 1U) ? CLOCK_GetPllOutFreq():
-           (SYSCON->USB0CLKSEL == 2U) ? CLOCK_GetUsbPllOutFreq():
-           (SYSCON->USB0CLKSEL == 7U) ? 0U:0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->USB0CLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetFroHfFreq();
+          break;
+        case 1U:
+          freq = CLOCK_GetPllOutFreq();
+          break;
+        case 2U:
+          freq = CLOCK_GetUsbPllOutFreq();
+          break;
+        case 7U:
+          freq = 0U;
+          break;
+
+        default:
+          break;
+    }
+
+    return freq / ((SYSCON->USB0CLKDIV & 0xffU) + 1U);
 }
 
 /* Get USB1 Clk */
 uint32_t CLOCK_GetUsb1ClkFreq(void)
 {
+    uint32_t freq = 0U;
 
-    return (SYSCON->USB1CLKSEL == 0U) ? CLOCK_GetCoreSysClkFreq():
-           (SYSCON->USB1CLKSEL == 1U) ? CLOCK_GetPllOutFreq():
-           (SYSCON->USB1CLKSEL == 2U) ? CLOCK_GetUsbPllOutFreq():
-           (SYSCON->USB1CLKSEL == 7U) ? 0U:0U;
+    switch(SYSCON->USB1CLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetCoreSysClkFreq();
+          break;
+        case 1U:
+          freq = CLOCK_GetPllOutFreq();
+          break;
+        case 2U:
+          freq = CLOCK_GetUsbPllOutFreq();
+          break;
+        case 7U:
+          freq = 0U;
+          break;
+
+        default:
+          break;
+    }
+
+    return freq / ((SYSCON->USB1CLKDIV & 0xffU) + 1U);
 }
 
 /* Get MCLK Clk */
 uint32_t CLOCK_GetMclkClkFreq(void)
 {
-    return (SYSCON->MCLKCLKSEL == 0U) ? CLOCK_GetFroHfFreq() / ((SYSCON->FROHFDIV & 0xffu) + 1U):
-           (SYSCON->MCLKCLKSEL == 1U) ? CLOCK_GetAudioPllOutFreq():
-           (SYSCON->MCLKCLKSEL == 7U) ? 0U:0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->MCLKCLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetFroHfFreq() / ((SYSCON->FROHFDIV & 0xffu) + 1U);
+          break;
+        case 1U:
+          freq = CLOCK_GetAudioPllOutFreq();
+          break;
+        case 7U:
+          freq = 0U;
+          break;
+
+        default:
+          break;
+    }
+
+    return freq / ((SYSCON->MCLKDIV & 0xffU) + 1U);
 }
 
 /* Get SCTIMER Clk */
 uint32_t CLOCK_GetSctClkFreq(void)
 {
-    return (SYSCON->SCTCLKSEL == 0U) ? CLOCK_GetCoreSysClkFreq():
-           (SYSCON->SCTCLKSEL == 1U) ? CLOCK_GetPllOutFreq():
-           (SYSCON->SCTCLKSEL == 2U) ? CLOCK_GetFroHfFreq():
-           (SYSCON->SCTCLKSEL == 3U) ? CLOCK_GetAudioPllOutFreq():
-           (SYSCON->SCTCLKSEL == 7U) ? 0U:0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->SCTCLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetCoreSysClkFreq();
+          break;
+        case 1U:
+          freq = CLOCK_GetPllOutFreq();
+          break;
+        case 2U:
+          freq = CLOCK_GetFroHfFreq();
+          break;
+        case 3U:
+          freq = CLOCK_GetAudioPllOutFreq();
+          break;
+        case 7U:
+          freq = 0U;
+          break;
+
+        default:
+          break;
+    }
+
+    return freq / ((SYSCON->SCTCLKDIV & 0xffU) + 1U);
 }
 
 /* Get SDIO Clk */
 uint32_t CLOCK_GetSdioClkFreq(void)
 {
-    return (SYSCON->SDIOCLKSEL == 0U) ? CLOCK_GetCoreSysClkFreq():
-           (SYSCON->SDIOCLKSEL == 1U) ? CLOCK_GetPllOutFreq():
-           (SYSCON->SDIOCLKSEL == 2U) ? CLOCK_GetUsbPllOutFreq():
-           (SYSCON->SDIOCLKSEL == 3U) ? CLOCK_GetFroHfFreq():
-           (SYSCON->SDIOCLKSEL == 4U) ? CLOCK_GetAudioPllOutFreq():
-           (SYSCON->SDIOCLKSEL == 7U) ? 0U:0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->SDIOCLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetCoreSysClkFreq();
+          break;
+        case 1U:
+          freq = CLOCK_GetPllOutFreq();
+          break;
+        case 2U:
+          freq = CLOCK_GetUsbPllOutFreq();
+          break;
+        case 3U:
+          freq = CLOCK_GetFroHfFreq();
+          break;
+        case 4U:
+          freq = CLOCK_GetAudioPllOutFreq();
+          break;
+        case 7U:
+          freq = 0U;
+          break;
+        default:
+          break;
+    }
+
+    return freq / ((SYSCON->SDIOCLKDIV & 0xffU) + 1U);
 }
 
 /* Get LCD Clk */
 uint32_t CLOCK_GetLcdClkFreq(void)
 {
-    return (SYSCON->LCDCLKSEL == 0U) ? CLOCK_GetCoreSysClkFreq():
-           (SYSCON->LCDCLKSEL == 1U) ? CLOCK_GetLcdClkIn():
-           (SYSCON->LCDCLKSEL == 2U) ? CLOCK_GetFroHfFreq():
-           (SYSCON->LCDCLKSEL == 3U) ? 0U:0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->LCDCLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetCoreSysClkFreq();
+          break;
+        case 1U:
+          freq = CLOCK_GetLcdClkIn();
+          break;
+        case 2U:
+          freq = CLOCK_GetFroHfFreq();
+          break;
+        case 3U:
+          freq = 0U;
+          break;
+
+        default:
+          break;
+    }
+
+    return freq / ((SYSCON->LCDCLKDIV & 0xffU) + 1U);
 }
 
 /* Get LCD CLK IN Clk */
@@ -347,9 +537,19 @@ uint32_t CLOCK_GetWdtOscFreq(void)
 /* Get HF FRO Clk */
 uint32_t CLOCK_GetFroHfFreq(void)
 {
-    return (SYSCON->PDRUNCFG[0] & SYSCON_PDRUNCFG_PDEN_FRO_MASK) ? 0 : 
-          !(SYSCON->FROCTRL & SYSCON_FROCTRL_HSPDCLK_MASK) ? 0 :
-           (SYSCON->FROCTRL & SYSCON_FROCTRL_SEL_MASK) ? 96000000U : 48000000U;
+    if ((SYSCON->PDRUNCFG[0] & SYSCON_PDRUNCFG_PDEN_FRO_MASK) || (!(SYSCON->FROCTRL & SYSCON_FROCTRL_HSPDCLK_MASK)))
+    {
+        return 0U;
+    }
+
+    if(SYSCON->FROCTRL & SYSCON_FROCTRL_SEL_MASK)
+    {
+        return 96000000U;
+    }
+    else
+    {
+        return 48000000U;
+    }
 }
 
 /* Get SYSTEM PLL Clk */
@@ -379,12 +579,44 @@ uint32_t CLOCK_GetOsc32KFreq(void)
 /* Get MAIN Clk */
 uint32_t CLOCK_GetCoreSysClkFreq(void)
 {
-    return ((SYSCON->MAINCLKSELB == 0U) && (SYSCON->MAINCLKSELA == 0U)) ? CLOCK_GetFro12MFreq() :
-           ((SYSCON->MAINCLKSELB == 0U) && (SYSCON->MAINCLKSELA == 1U)) ? CLOCK_GetExtClkFreq() :
-           ((SYSCON->MAINCLKSELB == 0U) && (SYSCON->MAINCLKSELA == 2U)) ? CLOCK_GetWdtOscFreq() :
-           ((SYSCON->MAINCLKSELB == 0U) && (SYSCON->MAINCLKSELA == 3U)) ? CLOCK_GetFroHfFreq() :
-           (SYSCON->MAINCLKSELB == 2U) ? CLOCK_GetPllOutFreq() :
-           (SYSCON->MAINCLKSELB == 3U) ? CLOCK_GetOsc32KFreq() : 0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->MAINCLKSELB)
+    {
+        case 0U:
+            if(SYSCON->MAINCLKSELA == 0U)
+            {
+                freq = CLOCK_GetFro12MFreq();
+            }
+            else if(SYSCON->MAINCLKSELA == 1U)
+            {
+                freq = CLOCK_GetExtClkFreq();
+            }
+            else if(SYSCON->MAINCLKSELA == 2U)
+            {
+                freq = CLOCK_GetWdtOscFreq();
+            }
+            else if(SYSCON->MAINCLKSELA == 3U)
+            {
+                freq = CLOCK_GetFroHfFreq();
+            }
+            else
+            {}
+            break;
+        case 2U:
+            freq = CLOCK_GetPllOutFreq();
+            break;
+
+        case 3U:
+            freq = CLOCK_GetOsc32KFreq();
+            break;
+
+        default:
+            break;
+
+    }
+
+    return freq;
 }
 
 /* Get I2S MCLK Clk */
@@ -420,32 +652,142 @@ uint32_t CLOCK_GetAsyncApbClkFreq(void)
 /* Get FLEXCOMM Clk */
 uint32_t CLOCK_GetFlexCommClkFreq(uint32_t id)
 {   
+    uint32_t freq = 0U;
+
     if (id != 10U)
     {
-        return (SYSCON->FCLKSEL[id] == 0U) ? CLOCK_GetFro12MFreq() : 
-               (SYSCON->FCLKSEL[id] == 1U) ? CLOCK_GetFroHfFreq() :
-               (SYSCON->FCLKSEL[id] == 2U) ? CLOCK_GetPllOutFreq() :
-               (SYSCON->FCLKSEL[id] == 3U) ? CLOCK_GetI2SMClkFreq() :
-               (SYSCON->FCLKSEL[id] == 4U) ? CLOCK_GetFreq(kCLOCK_Frg) : 0U;      
+        switch(SYSCON->FCLKSEL[id])
+        {
+            case 0U:
+              freq = CLOCK_GetFro12MFreq();
+              break;
+            case 1U:
+              freq = CLOCK_GetFroHfFreq();
+              break;
+            case 2U:
+              freq = CLOCK_GetPllOutFreq();
+              break;
+            case 3U:
+              freq = CLOCK_GetI2SMClkFreq();
+              break;
+            case 4U:
+              freq = CLOCK_GetFrgClkFreq();
+              break;
+
+            default:
+              break;
+        }     
     }
     else
     {
-        return (SYSCON->FCLKSEL10 == 0U) ? CLOCK_GetCoreSysClkFreq() : 
-               (SYSCON->FCLKSEL10 == 1U) ? CLOCK_GetPllOutFreq() :
-               (SYSCON->FCLKSEL10 == 2U) ? CLOCK_GetUsbPllOutFreq() :
-               (SYSCON->FCLKSEL10 == 3U) ? CLOCK_GetFroHfFreq() :
-               (SYSCON->FCLKSEL10 == 4U) ? CLOCK_GetAudioPllOutFreq() : 0U;   
+        switch(SYSCON->FCLKSEL10)
+        {
+            case 0U:
+              freq = CLOCK_GetCoreSysClkFreq();
+              break;
+            case 1U:
+              freq = CLOCK_GetPllOutFreq();
+              break;
+            case 2U:
+              freq = CLOCK_GetUsbPllOutFreq();
+              break;
+            case 3U:
+              freq = CLOCK_GetFroHfFreq();
+              break;
+            case 4U:
+              freq = CLOCK_GetAudioPllOutFreq();
+              break;
+            default:
+              break;
+        } 
     }
 
+    return freq;
 }
 
 /* Get FRG Clk */
 uint32_t CLOCK_GetFRGInputClock(void)
 {
-    return (SYSCON->FRGCLKSEL == 0U) ? CLOCK_GetCoreSysClkFreq() : 
-           (SYSCON->FRGCLKSEL == 1U) ? CLOCK_GetPllOutFreq() :
-           (SYSCON->FRGCLKSEL == 2U) ? CLOCK_GetFro12MFreq() : 
-           (SYSCON->FRGCLKSEL == 3U) ? CLOCK_GetFroHfFreq() : 0U;
+    uint32_t freq = 0U;
+
+    switch(SYSCON->FRGCLKSEL)
+    {
+        case 0U:
+          freq = CLOCK_GetCoreSysClkFreq();
+          break;
+        case 1U:
+          freq = CLOCK_GetPllOutFreq();
+          break;
+        case 2U:
+          freq = CLOCK_GetFro12MFreq();
+          break;
+        case 3U:
+          freq = CLOCK_GetFroHfFreq();
+          break;
+
+        default:
+          break;
+    }
+
+    return freq;
+}
+
+/* Get FRG Clk */
+uint32_t CLOCK_GetFrgClkFreq(void)
+{
+    uint32_t freq = 0U;
+
+    switch (SYSCON->FRGCLKSEL)
+    {
+        case 0U:
+            freq = CLOCK_GetCoreSysClkFreq();
+            break;
+        case 1U:
+            freq = CLOCK_GetPllOutFreq();
+            break;
+        case 2U:
+            freq = CLOCK_GetFro12MFreq();
+            break;
+        case 3U:
+            freq = CLOCK_GetFroHfFreq();
+            break;
+        default:
+            break;
+    }
+
+    return freq;
+}
+
+/* Get FRG Clk */
+uint32_t CLOCK_GetDmicClkFreq(void)
+{
+    uint32_t freq = 0U;
+
+    switch (SYSCON->DMICCLKSEL)
+    {
+        case 0U:
+            freq = CLOCK_GetFro12MFreq();
+            break;
+        case 1U:
+            freq = CLOCK_GetFroHfFreq();
+            break;
+        case 2U:
+            freq = CLOCK_GetPllOutFreq();
+            break;
+        case 3U:
+            freq = CLOCK_GetI2SMClkFreq();
+            break;
+        case 4U:
+            freq = CLOCK_GetCoreSysClkFreq();
+            break;
+        case 5U:
+            freq = CLOCK_GetWdtOscFreq();
+            break;
+        default:
+            break;
+    }
+
+    return freq / ((SYSCON->DMICCLKDIV & 0xffU) + 1U);;
 }
 
 /* Set FRG Clk */
@@ -480,22 +822,22 @@ uint32_t CLOCK_GetFreq(clock_name_t clockName)
             freq = CLOCK_GetCoreSysClkFreq() / ((SYSCON->AHBCLKDIV & 0xffU) + 1U);
             break;
         case kCLOCK_ClockOut:
-            freq = CLOCK_GetClockOutClkFreq() / ((SYSCON->CLKOUTDIV & 0xffU) + 1U);
+            freq = CLOCK_GetClockOutClkFreq();
             break;
         case kCLOCK_SpiFi:
-            freq = CLOCK_GetSpifiClkFreq() / ((SYSCON->SPIFICLKDIV & 0xffU) + 1U );
+            freq = CLOCK_GetSpifiClkFreq();
             break;
         case kCLOCK_Adc:
-            freq = CLOCK_GetAdcClkFreq() / ((SYSCON->ADCCLKDIV & 0xffU) + 1U );
+            freq = CLOCK_GetAdcClkFreq();
             break;
         case kCLOCK_Usb0:
-            freq = CLOCK_GetUsb0ClkFreq() / ((SYSCON->USB0CLKDIV & 0xffU) + 1U );
+            freq = CLOCK_GetUsb0ClkFreq();
             break;
         case kCLOCK_Usb1:
-            freq = CLOCK_GetUsb1ClkFreq() / ((SYSCON->USB1CLKDIV & 0xffU) + 1U );
+            freq = CLOCK_GetUsb1ClkFreq();
             break;
         case kCLOCK_Mclk:
-            freq = CLOCK_GetMclkClkFreq() / ((SYSCON->MCLKDIV & 0xffU) + 1U );
+            freq = CLOCK_GetMclkClkFreq();
             break;
         case kCLOCK_FroHf:
             freq = CLOCK_GetFroHfFreq();
@@ -509,39 +851,30 @@ uint32_t CLOCK_GetFreq(clock_name_t clockName)
         case kCLOCK_PllOut:
             freq = CLOCK_GetPllOutFreq();
             break;
-        case kClock_WdtOsc:
+        case kCLOCK_WdtOsc:
             freq = CLOCK_GetWdtOscFreq();
             break;
         case kCLOCK_Frg:
-            freq = (SYSCON->FRGCLKSEL == 0U) ? CLOCK_GetCoreSysClkFreq() : 
-                   (SYSCON->FRGCLKSEL == 1U) ? CLOCK_GetPllOutFreq() :
-                   (SYSCON->FRGCLKSEL == 2U) ? CLOCK_GetFro12MFreq() :
-                   (SYSCON->FRGCLKSEL == 3U) ? CLOCK_GetFroHfFreq() : 0U;
+            freq = CLOCK_GetFrgClkFreq();
             break;
         case kCLOCK_Dmic:
-            freq = (SYSCON->DMICCLKSEL == 0U) ? CLOCK_GetFro12MFreq() : 
-                   (SYSCON->DMICCLKSEL == 1U) ? CLOCK_GetFroHfFreq() :
-                   (SYSCON->DMICCLKSEL == 2U) ? CLOCK_GetPllOutFreq() :
-                   (SYSCON->DMICCLKSEL == 3U) ? CLOCK_GetI2SMClkFreq() :
-                   (SYSCON->DMICCLKSEL == 4U) ? CLOCK_GetCoreSysClkFreq() :
-                   (SYSCON->DMICCLKSEL == 5U) ? CLOCK_GetWdtOscFreq() : 0U;
-            freq = freq / ((SYSCON->DMICCLKDIV & 0xffU) + 1U);
+            freq = CLOCK_GetDmicClkFreq();
             break;
 
         case kCLOCK_AsyncApbClk:
             freq = CLOCK_GetAsyncApbClkFreq();
             break;
         case kCLOCK_Sct:
-            freq = CLOCK_GetSctClkFreq() / ((SYSCON->SCTCLKDIV & 0xffU) + 1U);
+            freq = CLOCK_GetSctClkFreq();
             break;
         case kCLOCK_SDio:
-            freq = CLOCK_GetSdioClkFreq() / ((SYSCON->SDIOCLKDIV & 0xffU) + 1U);
+            freq = CLOCK_GetSdioClkFreq();
             break;
         case kCLOCK_EMC:
             freq = CLOCK_GetCoreSysClkFreq() / ((SYSCON->AHBCLKDIV & 0xffU) + 1U) / ((SYSCON->EMCCLKDIV & 0xffU) + 1U);
             break;
         case kCLOCK_LCD:
-            freq = CLOCK_GetLcdClkFreq() / ((SYSCON->LCDCLKDIV & 0xffU) + 1U);
+            freq = CLOCK_GetLcdClkFreq();
             break;
         case kCLOCK_MCAN0:
             freq = CLOCK_GetCoreSysClkFreq() / ((SYSCON->CAN0CLKDIV & 0xffU) + 1U);

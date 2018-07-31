@@ -596,4 +596,7 @@ A_STATUS qcom_param_set(
 
 A_STATUS qcom_get_versionstr(ATH_VERSION_STR *versionstr);
 
+/* Workaround for 32 chars limitation of qcom_dns */
+A_STATUS qcom_dns_resolver(IP_ADDR_T dns_ip, char * hostname, IP_ADDR_T *host_ip, uint32_t timeout_ms);
+
 #endif

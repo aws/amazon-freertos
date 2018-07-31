@@ -59,6 +59,9 @@ uint32_t (*dhcpc_success_callback)(uint32_t ip, uint32_t mask, uint32_t gw) = NU
 int32_t t_socket(QCA_CONTEXT_STRUCT_PTR qca_ptr, uint32_t domain, uint32_t type, uint32_t protocol)
 {
     void *pCxt;
+    int32_t result = -1;
+    uint32_t delay_ms = 0;
+    volatile uint32_t timeout_idx = 0;
 
     if ((pCxt = qca_ptr->MAC_CONTEXT_PTR) == NULL)
     {
@@ -70,7 +73,25 @@ int32_t t_socket(QCA_CONTEXT_STRUCT_PTR qca_ptr, uint32_t domain, uint32_t type,
         return A_ERROR;
     }
 
-    return (Api_socket(pCxt, domain, type, protocol));
+    for (timeout_idx = 0; timeout_idx < 8; timeout_idx++)
+    {
+        result = Api_socket(pCxt, domain, type, protocol);
+        /* WiFi cannot allocate more resorces, let's try it again in 100ms */
+        if (A_RESOURCES == result || A_ERROR == result)
+        {
+            delay_ms = 100 << (timeout_idx);
+            A_MDELAY(delay_ms);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    /* Report last A_RESOURCES error as generic error to keep compatible API */
+    result = result == A_RESOURCES ? A_ERROR : result;
+
+    return (result);
 }
 
 /*****************************************************************************/
@@ -1217,21 +1238,42 @@ A_STATUS t_ping6(QCA_CONTEXT_STRUCT_PTR qca_ptr, uint8_t *ip6addr, uint32_t size
 int32_t t_send(QCA_CONTEXT_STRUCT_PTR qca_ptr, uint32_t handle, uint8_t *buffer, uint32_t length, uint32_t flags)
 {
     int32_t index;
+    int32_t result = 0;
 
-    /*Find socket context*/
-    if((index = find_socket_context(handle, true)) == SOCKET_NOT_FOUND)
+    /* This function is dedicated to TCP sockets, so transfer *should* pass without an error.
+     * Perform several attempts before give up on DEADLOCK state. */
+    for (int deadlock_attempts = 0; deadlock_attempts < 50; deadlock_attempts++)
     {
-        last_driver_error = A_SOCKCXT_NOT_FOUND;
-        return A_SOCK_INVALID;
+        /* Find socket context */
+        if((index = find_socket_context(handle, true)) == SOCKET_NOT_FOUND)
+        {
+            last_driver_error = A_SOCKCXT_NOT_FOUND;
+            return A_SOCK_INVALID;
+        }
+
+        if( ath_sock_context[index]->TCPCtrFlag == TCP_FIN )
+        {
+            last_driver_error = A_SOCKCXT_NOT_FOUND;
+            return A_SOCK_INVALID;
+        }
+
+        /* Send data to 'driver_task' */
+        result = t_sendto(qca_ptr, handle, buffer, length, flags, NULL, 0);
+
+        /* If 'driver_task' refuses to send data in case of 'deadlock' state,
+         * then put API task to sleep and try to send data later */
+        if (A_DEADLOCK == result)
+        {
+            A_MDELAY(70);
+            continue;
+        }
+        else
+        {
+            break;
+        }
     }
 
-    if( ath_sock_context[index]->TCPCtrFlag == TCP_FIN )
-    {
-        last_driver_error = A_SOCKCXT_NOT_FOUND;
-        return A_SOCK_INVALID;
-    }
-
-    return (t_sendto(qca_ptr, handle, buffer, length, flags, NULL, 0));
+    return result;
 }
 
 /*****************************************************************************/
@@ -1259,7 +1301,7 @@ int32_t t_sendto(QCA_CONTEXT_STRUCT_PTR qca_ptr,
 #if NON_BLOCKING_TX
     SOCKET_CONTEXT_PTR pcustctxt;
 #endif
-    int32_t result = 0;
+    int32_t result = 0, block_result = 0;
     A_STATUS status = A_OK;
     uint16_t rem_len = length;
     uint16_t offset = 0;
@@ -1276,25 +1318,38 @@ int32_t t_sendto(QCA_CONTEXT_STRUCT_PTR qca_ptr,
         return A_SOCK_INVALID;
     }
 
+    /* If socket is TCP and not connected, report error */
+    if (
+        ((ath_sock_context[index]->domain == ATH_AF_INET) && 
+         (ath_sock_context[index]->type == SOCK_STREAM_TYPE) && 
+         (ath_sock_context[index]->TCPCtrFlag != TCP_CONNECTED)) || 
+        ((ath_sock_context[index]->domain == ATH_AF_INET6) && 
+         (ath_sock_context[index]->type == SOCK_STREAM_TYPE) && 
+         (ath_sock_context[index]->TCPCtrFlag != TCP_CONNECTED))
+     )
+        return A_ERROR;
+
+    /* Get expected size of header */
+    /* TODO: fix for raw socket domain */
+    if (ath_sock_context[index]->domain == ATH_AF_INET)
+    {
+        if (ath_sock_context[index]->type == SOCK_STREAM_TYPE)
+            hdr_length = TCP_HEADROOM;
+        else
+            hdr_length = UDP_HEADROOM;
+    }
+    else
+    {
+        if (ath_sock_context[index]->type == SOCK_STREAM_TYPE)
+            hdr_length = TCP6_HEADROOM_WITH_NO_OPTION;
+        else
+            hdr_length = UDP6_HEADROOM;
+    }
+
     while (rem_len != 0)
     {
         length = rem_len;
         A_MEMZERO(custom_hdr, TCP6_HEADROOM);
-
-        if (ath_sock_context[index]->domain == ATH_AF_INET)
-        {
-            if (ath_sock_context[index]->type == SOCK_STREAM_TYPE)
-                hdr_length = TCP_HEADROOM;
-            else
-                hdr_length = UDP_HEADROOM;
-        }
-        else
-        {
-            if (ath_sock_context[index]->type == SOCK_STREAM_TYPE)
-                hdr_length = TCP6_HEADROOM_WITH_NO_OPTION;
-            else
-                hdr_length = UDP6_HEADROOM;
-        }
 
         /*Calculate fragmentation threshold. We cannot send packets greater that HTC credit size
           over HTC, Bigger packets need to be fragmented. Thresholds are different for IP v4 vs v6*/
@@ -1389,9 +1444,9 @@ int32_t t_sendto(QCA_CONTEXT_STRUCT_PTR qca_ptr,
 
 #if !NON_BLOCKING_TX
         /*Wait till packet is sent to target*/
-        if (BLOCK(pCxt, ath_sock_context[index], TRANSMIT_BLOCK_TIMEOUT, TX_DIRECTION) != A_OK)
+        if ((block_result = BLOCK(pCxt, ath_sock_context[index], TRANSMIT_BLOCK_TIMEOUT, TX_DIRECTION)) != A_OK)
         {
-            result = -1;
+            result = block_result;
             goto END_TX;
         }
 #endif
@@ -1489,6 +1544,18 @@ int32_t Api_recvfrom(
     {
         return A_SOCK_INVALID;
     }
+
+    /* If socket is TCP and not connected, report error */
+    if (
+        ((ath_sock_context[index]->domain == ATH_AF_INET) && 
+         (ath_sock_context[index]->type == SOCK_STREAM_TYPE) && 
+         (ath_sock_context[index]->TCPCtrFlag != TCP_CONNECTED)) || 
+        ((ath_sock_context[index]->domain == ATH_AF_INET6) && 
+         (ath_sock_context[index]->type == SOCK_STREAM_TYPE) && 
+         (ath_sock_context[index]->TCPCtrFlag != TCP_CONNECTED))
+     )
+        return A_ERROR;
+
     pcustctxt = GET_SOCKET_CONTEXT(ath_sock_context[index]);
     /*Check if a packet is available*/
     /*Check if a packet is available*/

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Agent V1.1.2
+ * Amazon FreeRTOS MQTT Agent V1.1.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -222,12 +222,18 @@ typedef struct MQTTBrokerConnection
 /*-----------------------------------------------------------*/
 
 /**
- * @brief The user name used by all the MQTT connections.
+ * @brief The user name used by all the MQTT connections. AWS IoT uses the user
+ * name for collecting anonymous metrics on SDK usage. Metrics default to on.
  */
 #if ( mqttconfigENABLE_METRICS == 1 )
-    static const char cUserName[] = "?"mqttconfigMETRIC_SDK
-                                    "&"mqttconfigMETRIC_VERSION
-                                    "&"mqttconfigMETRIC_PLATFORM;
+    #ifndef configPLATFORM_NAME
+        #define configPLATFORM_NAME    "Unknown"
+    #endif
+
+    static const char cUserName[] = "?SDK=AmazonFreeRTOS"
+                                    "&Version="tskKERNEL_VERSION_NUMBER
+                                    "&Platform="configPLATFORM_NAME;
+
 #else
     static const char cUserName[] = "";
 #endif
@@ -722,8 +728,8 @@ static MQTTBool_t prvMQTTEventCallback( void * pvCallbackContext,
             break;
 
         case eMQTTPacketDropped:
-            configPRINTF( ( "[WARN] MQTT Agent dropped a packet. No buffer available.\r\n" ) );
-            configPRINTF( ( "Consider adjusting parameters in aws_bufferpool_config.h.\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "[WARN] MQTT Agent dropped a packet. No buffer available.\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "Consider adjusting parameters in aws_bufferpool_config.h.\r\n" ) );
             break;
 
         default:
@@ -972,7 +978,7 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
     }
     else
     {
-        configPRINTF( ( "Malformed URL %s.\r\n", pxEventData->u.pxConnectParams->pcURL ) );
+        mqttconfigDEBUG_LOG( ( "Malformed URL %s.\r\n", pxEventData->u.pxConnectParams->pcURL ) );
         xStatus = pdFAIL;
     }
 
@@ -986,7 +992,7 @@ static void prvGracefulSocketClose( MQTTBrokerConnection_t * const pxConnection 
     TickType_t xTicksToWait = xShortDelay * ( TickType_t ) 100;
     TimeOut_t xTimeOut;
 
-    configPRINTF( ( "About to close socket.\r\n" ) );
+    mqttconfigDEBUG_LOG( ( "About to close socket.\r\n" ) );
 
     /* Initialize xTimeOut.  This records the time at which this function was
      * entered. */
@@ -1012,12 +1018,12 @@ static void prvGracefulSocketClose( MQTTBrokerConnection_t * const pxConnection 
     /* Close the socket. */
     ( void ) SOCKETS_Close( pxConnection->xSocket );
     pxConnection->xSocket = SOCKETS_INVALID_SOCKET;
-    configPRINTF( ( "Socket closed.\r\n" ) );
+    mqttconfigDEBUG_LOG( ( "Socket closed.\r\n" ) );
 
     #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
         {
             /* Print the stack high watermark for the MQTT task. */
-            configPRINTF( ( "Stack high watermark for MQTT task: %u\r\n", uxTaskGetStackHighWaterMark( NULL ) ) );
+            mqttconfigDEBUG_LOG( ( "Stack high watermark for MQTT task: %u\r\n", uxTaskGetStackHighWaterMark( NULL ) ) );
         }
     #endif
 }
@@ -1046,7 +1052,7 @@ static void prvMQTTClientSocketWakeupCallback( Socket_t pxSocket )
          * to unblock the MQTT task, so only the xEventType needs to be set. */
         memset( &xEventData, 0x00, sizeof( MQTTEventData_t ) );
         xEventData.xEventType = eMQTTServiceSocket;
-        configPRINTF( ( "Socket sending wakeup to MQTT task.\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "Socket sending wakeup to MQTT task.\r\n" ) );
         ( void ) xQueueSendToBack( xCommandQueue, &xEventData, xTicksToWait );
     }
 }
@@ -1063,9 +1069,9 @@ static void prvProcessReceivedCONNACK( MQTTBrokerConnection_t * const pxConnecti
     /* If there is no task waiting for it, ignore it. */
     if( pxNotificationData != NULL )
     {
-        if( pxParams->u.xMQTTConnACKData.xConnACkReturnCode == eMQTTConnACKConnectionAccepted )
+        if( pxParams->u.xMQTTConnACKData.xConnACKReturnCode == eMQTTConnACKConnectionAccepted )
         {
-            configPRINTF( ( "MQTT Connect was accepted. Connection established.\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "MQTT Connect was accepted. Connection established.\r\n" ) );
             prvNotifyRequestingTask( pxNotificationData, eMQTTCONNACKConnectionAccepted, pdPASS );
         }
         else
@@ -1078,7 +1084,7 @@ static void prvProcessReceivedCONNACK( MQTTBrokerConnection_t * const pxConnecti
              * we get a disconnect from the core library also which is
              * when we unblock the task. This ensures the connect is not
              * re-tried until the socket is closed. */
-            configPRINTF( ( "MQTT Connect was rejected with error %d.\r\n", pxParams->u.xMQTTConnACKData.xConnACkReturnCode ) );
+            mqttconfigDEBUG_LOG( ( "MQTT Connect was rejected with error %d.\r\n", pxParams->u.xMQTTConnACKData.xConnACKReturnCode ) );
         }
     }
 }
@@ -1097,12 +1103,12 @@ static void prvProcessReceivedSUBACK( MQTTBrokerConnection_t * const pxConnectio
     {
         if( pxParams->u.xMQTTSubACKData.xSubACKReturnCode != eMQTTSubACKFailure )
         {
-            configPRINTF( ( "MQTT Subscribe was accepted. Subscribed.\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "MQTT Subscribe was accepted. Subscribed.\r\n" ) );
             prvNotifyRequestingTask( pxNotificationData, eMQTTSUBACKSubscriptionAccepted, pdPASS );
         }
         else
         {
-            configPRINTF( ( "MQTT Subscribe was rejected.\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "MQTT Subscribe was rejected.\r\n" ) );
             prvNotifyRequestingTask( pxNotificationData, eMQTTSUBACKSubscriptionRejected, pdFAIL );
         }
     }
@@ -1121,7 +1127,7 @@ static void prvProcessReceivedUNSUBACK( MQTTBrokerConnection_t * const pxConnect
     if( pxNotificationData != NULL )
     {
         /* Otherwise inform the task. */
-        configPRINTF( ( "MQTT Unsubscribe was successful.\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "MQTT Unsubscribe was successful.\r\n" ) );
         prvNotifyRequestingTask( pxNotificationData, eMQTTUNSUBACKReceived, pdPASS );
     }
 }
@@ -1139,7 +1145,7 @@ static void prvProcessReceivedPUBACK( MQTTBrokerConnection_t * const pxConnectio
     if( pxNotificationData != NULL )
     {
         /* Otherwise inform the task. */
-        configPRINTF( ( "MQTT Publish was successful.\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "MQTT Publish was successful.\r\n" ) );
         prvNotifyRequestingTask( pxNotificationData, eMQTTPUBACKReceived, pdPASS );
     }
 }
@@ -1180,7 +1186,7 @@ static void prvProcessReceivedTimeout( MQTTBrokerConnection_t * const pxConnecti
      * inform the task about the timeout. */
     if( pxNotificationData != NULL )
     {
-        configPRINTF( ( "MQTT Timeout.\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "MQTT Timeout.\r\n" ) );
         prvNotifyRequestingTask( pxNotificationData, eMQTTOperationTimedOut, pdFAIL );
     }
 }
@@ -1238,7 +1244,7 @@ static void prvNotifyRequestingTask( MQTTNotificationData_t * const pxNotificati
         /* ulMessageIdentifier only uses the top 16-bits.  The status code uses
          * the low 16-bits, of which the least significant bit is used to indicate
          * if the operation passed or failed. */
-        configPRINTF( ( "Notifying task.\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "Notifying task.\r\n" ) );
 
         /* Encode the notification code and status in the notification value. */
         pxNotificationData->ulMessageIdentifier |= ( UBaseType_t ) xNotificationCode;
@@ -1377,12 +1383,17 @@ static void prvInitiateMQTTConnect( MQTTEventData_t * const pxEventData )
 
         if( xStatus == pdPASS )
         {
+            #if ( mqttconfigENABLE_METRICS == 1 )
+                mqttconfigDEBUG_LOG( ( "Anonymous metrics will be collected. Recompile with"
+                                "mqttconfigENABLE_METRICS set to 0 to disable.\r\n" ) );
+            #endif
+
             /* Setup connect parameters and call the Core library connect function. */
             xConnectParams.pucClientId = pxEventData->u.pxConnectParams->pucClientId;
             xConnectParams.usClientIdLength = pxEventData->u.pxConnectParams->usClientIdLength;
             xConnectParams.pucUserName = ( const uint8_t * ) cUserName;
             xConnectParams.usUserNameLength = usUserNameLength;
-            xConnectParams.usKeepAliveIntervlSeconds = mqttconfigKEEP_ALIVE_INTERVAL_SECONDS;
+            xConnectParams.usKeepAliveIntervalSeconds = mqttconfigKEEP_ALIVE_INTERVAL_SECONDS;
             xConnectParams.ulKeepAliveActualIntervalTicks = mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS;
             xConnectParams.ulPingRequestTimeoutTicks = mqttconfigKEEP_ALIVE_TIMEOUT_TICKS;
             xConnectParams.usPacketIdentifier = ( uint16_t ) ( mqttMESSAGE_IDENTIFIER_EXTRACT( pxEventData->xNotificationData.ulMessageIdentifier ) );
@@ -1390,7 +1401,7 @@ static void prvInitiateMQTTConnect( MQTTEventData_t * const pxEventData )
 
             if( MQTT_Connect( &( pxConnection->xMQTTContext ), &( xConnectParams ) ) != eMQTTSuccess )
             {
-                configPRINTF( ( "MQTT_Connect failed!\r\n" ) );
+                mqttconfigDEBUG_LOG( ( "MQTT_Connect failed!\r\n" ) );
 
                 /* The TCP connection was successful but we failed to send
                  * the MQTT Connect message. This could happen because of
@@ -1463,7 +1474,7 @@ static void prvInitiateMQTTSubscribe( MQTTEventData_t * const pxEventData )
         xSubscribeParams.xQos = pxEventData->u.pxSubscribeParams->xQoS;
         xSubscribeParams.usPacketIdentifier = ( uint16_t ) ( mqttMESSAGE_IDENTIFIER_EXTRACT( pxEventData->xNotificationData.ulMessageIdentifier ) );
         xSubscribeParams.ulTimeoutTicks = pxEventData->xTicksToWait;
-        #if( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
+        #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
             xSubscribeParams.pvPublishCallbackContext = pxEventData->u.pxSubscribeParams->pvPublishCallbackContext;
             xSubscribeParams.pxPublishCallback = pxEventData->u.pxSubscribeParams->pxPublishCallback;
         #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
@@ -1474,12 +1485,12 @@ static void prvInitiateMQTTSubscribe( MQTTEventData_t * const pxEventData )
         }
         else
         {
-            configPRINTF( ( "MQTT_Subscribe failed!\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "MQTT_Subscribe failed!\r\n" ) );
         }
     }
     else
     {
-        configPRINTF( ( "Could not get a buffer to store notification data. Too many parallel tasks!\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "Could not get a buffer to store notification data. Too many parallel tasks!\r\n" ) );
     }
 
     if( xStatus == pdFAIL )
@@ -1525,12 +1536,12 @@ static void prvInitiateMQTTUnSubscribe( MQTTEventData_t * const pxEventData )
         }
         else
         {
-            configPRINTF( ( "MQTT_Unsubscribe failed!\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "MQTT_Unsubscribe failed!\r\n" ) );
         }
     }
     else
     {
-        configPRINTF( ( "Could not get a buffer to store notification data. Too many parallel tasks!\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "Could not get a buffer to store notification data. Too many parallel tasks!\r\n" ) );
     }
 
     if( xStatus == pdFAIL )
@@ -1583,12 +1594,12 @@ static void prvInitiateMQTTPublish( MQTTEventData_t * const pxEventData )
         }
         else
         {
-            configPRINTF( ( "MQTT_Publish failed!\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "MQTT_Publish failed!\r\n" ) );
         }
     }
     else
     {
-        configPRINTF( ( "Could not get a buffer to store notification data. Too many parallel tasks!\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "Could not get a buffer to store notification data. Too many parallel tasks!\r\n" ) );
     }
 
     /* In case of QoS0 successful publish, inform and unblock the task that
@@ -1660,7 +1671,7 @@ static MQTTAgentReturnCode_t prvSendCommandToMQTTTask( MQTTEventData_t * pxEvent
         /* The MQTT protocol is running in a separate task, to which commands
          * are sent on a queue, and a signal is sent back using a task
          * notification. */
-        configPRINTF( ( "Sending command to MQTT task.\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "Sending command to MQTT task.\r\n" ) );
         xReturn = xQueueSendToBack( xCommandQueue, pxEventData, pxEventData->xTicksToWait );
 
         if( xReturn != pdFALSE )
@@ -1696,13 +1707,13 @@ static MQTTAgentReturnCode_t prvSendCommandToMQTTTask( MQTTEventData_t * pxEvent
                             xReturnCode = eMQTTAgentTimeout;
                         }
 
-                        configPRINTF( ( "Command sent to MQTT task failed.\r\n" ) );
+                        mqttconfigDEBUG_LOG( ( "Command sent to MQTT task failed.\r\n" ) );
                     }
                     else
                     {
                         /* A reply to the message was received and the operation
                          * passed. */
-                        configPRINTF( ( "Command sent to MQTT task passed.\r\n" ) );
+                        mqttconfigDEBUG_LOG( ( "Command sent to MQTT task passed.\r\n" ) );
                         xReturnCode = eMQTTAgentSuccess;
                     }
 
@@ -1711,18 +1722,18 @@ static MQTTAgentReturnCode_t prvSendCommandToMQTTTask( MQTTEventData_t * pxEvent
                 else
                 {
                     /* Don't know what the notification was from, keep waiting. */
-                    configPRINTF( ( "Unexpected notification received.\r\n" ) );
+                    mqttconfigDEBUG_LOG( ( "Unexpected notification received.\r\n" ) );
                 }
             }
         }
         else
         {
-            configPRINTF( ( "Attempt to write to the MQTT command queue failed.\r\n" ) );
+            mqttconfigDEBUG_LOG( ( "Attempt to write to the MQTT command queue failed.\r\n" ) );
         }
     }
     else
     {
-        configPRINTF( ( "MQTT Agent API called from MQTT task ( possibly from callback ) !!.\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "MQTT Agent API called from MQTT task ( possibly from callback ) !!.\r\n" ) );
         xReturnCode = eMQTTAgentAPICalledFromCallback;
     }
 
@@ -1742,7 +1753,7 @@ static void prvMQTTTask( void * pvParameters )
     {
         if( xQueueReceive( xCommandQueue, &xMQTTCommand, xNextTimeoutTicks ) != pdFALSE )
         {
-            configPRINTF( ( "Received message %x from queue.\r\n", xMQTTCommand.xNotificationData.ulMessageIdentifier ) );
+            mqttconfigDEBUG_LOG( ( "Received message %x from queue.\r\n", xMQTTCommand.xNotificationData.ulMessageIdentifier ) );
 
             /* The connection index identifies the broker to communicate with -
              * starting from an index of 0.  Check the index is valid here so
@@ -1793,7 +1804,7 @@ static void prvMQTTTask( void * pvParameters )
 
                     default:
                         /* Anything else is illegal. */
-                        configPRINTF( ( "Unknown request received on command queue.\r\n" ) );
+                        mqttconfigDEBUG_LOG( ( "Unknown request received on command queue.\r\n" ) );
                         break;
                 }
             }
@@ -1910,7 +1921,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Create( MQTTAgentHandle_t * const pxMQTTHandle 
     }
     else
     {
-        configPRINTF( ( "No free MQTTBrokerConnection_t struct available!.\r\n" ) );
+        mqttconfigDEBUG_LOG( ( "No free MQTTBrokerConnection_t struct available!.\r\n" ) );
     }
 
     return xReturnCode;

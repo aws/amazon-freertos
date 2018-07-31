@@ -40,10 +40,10 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT.554673149" name="Specify floating point support (--float_support)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.FLOAT_SUPPORT.vfplib" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.LITTLE_ENDIAN.2031715668" name="Little endian code [See 'General' page to edit] (--little_endian, -me)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.LITTLE_ENDIAN" value="true" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.INCLUDE_PATH.1680333660" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.INCLUDE_PATH" valueType="includePath">
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/include/FreeRTOS_POSIX"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/FreeRTOS-Plus-POSIX/include"/>
+									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad"/>
 									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/freertos"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/ccs"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/posix/ccs/sys"/>
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/config_files}"/>

@@ -2,13 +2,12 @@
   ******************************************************************************
   * @file    es-wifi.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    23-02-2017
+  * @date    2018-06-06
   * @brief   This file provides a set of functions to manage the es-wifi module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright © 2017 STMicroelectronics International N.V.
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics International N.V.
   * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without
@@ -45,14 +44,20 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-
 #include "es_wifi.h"
 
+#define DEBUG  printf("%s:%d :",__FILE__,__LINE__);printf
+
 #define AT_OK_STRING "\r\nOK\r\n> "
-#define AT_OK_STRING_LEN 8
+#define AT_OK_STRING_LEN (sizeof(AT_OK_STRING) - 1)
 
 #define AT_ERROR_STRING "\r\nERROR"
 
+#define AT_DELIMETER_STRING "\r\n> "
+#define AT_DELIMETER_LEN        4
+
+// This is version 3.5.2.5, with the byte order reversed for easy comparison
+#define UPDATED_SCAN_PARAMETERS_FW_REV (0x05020503)
 
 #define CHARISHEXNUM(x)                 (((x) >= '0' && (x) <= '9') || \
                                          ((x) >= 'a' && (x) <= 'f') || \
@@ -72,14 +77,18 @@ static void AT_ParseUARTConfig(char *pdata, ES_WIFI_UARTConfig_t *pConfig);
 #endif
 static void AT_ParseSystemConfig(char *pdata, ES_WIFI_SystemConfig_t *pConfig);
 static void AT_ParseConnSettings(char *pdata, ES_WIFI_Network_t *NetSettings);
-static ES_WIFI_Status_t AT_ExecuteCommand(ES_WIFIObject_t *Obj, uint8_t* cmd);
+static void AT_ParseTransportSettings(char *pdata, ES_WIFI_Transport_t *TransportSettings);
+static void AT_ParseIsConnected(char *pdata, uint8_t *isConnected);
+static ES_WIFI_Status_t AT_ExecuteCommand(ES_WIFIObject_t *Obj, uint8_t* cmd, uint8_t *pdata);
 
+uint32_t HAL_GetTick(void);
 /* Private functions ---------------------------------------------------------*/
 /**
   * @brief  Convert char in Hex format to integer.
   * @param  a: character to convert
   * @retval integer value.
   */
+
 static  uint8_t Hex2Num(char a)
 {
     if (a >= '0' && a <= '9') {                             /* Char is num */
@@ -196,10 +205,10 @@ static ES_WIFI_SecurityType_t ParseSecurity(char* ptr)
 {
   if(strstr(ptr,"Open")) return ES_WIFI_SEC_OPEN;
   else if(strstr(ptr,"WEP")) return ES_WIFI_SEC_WEP;
-  else if(strstr(ptr,"WPA")) return ES_WIFI_SEC_WPA;
-  else if(strstr(ptr,"WPA2")) return ES_WIFI_SEC_WPA2;
   else if(strstr(ptr,"WPA WPA2")) return ES_WIFI_SEC_WPA_WPA2;
   else if(strstr(ptr,"WPA2 TKIP")) return ES_WIFI_SEC_WPA2_TKIP;
+  else if(strstr(ptr,"WPA2")) return ES_WIFI_SEC_WPA2;
+  else if(strstr(ptr,"WPA")) return ES_WIFI_SEC_WPA;
   else return ES_WIFI_SEC_UNKNOWN;
 }
 
@@ -295,6 +304,93 @@ static void AT_ParseAP(char *pdata, ES_WIFI_APs_t *APs)
     case 8:
       APs->AP[APs->nbr].Channel = ParseNumber(ptr, NULL);
       APs->nbr++;
+      num = 1;
+      break;
+
+    default:
+      break;
+    }
+    ptr = strtok(NULL, ",");
+  }
+}
+
+uint32_t ReverseByteOrder32bit(uint8_t * buf)
+{
+	return ((buf[0] << 0) | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24));
+}
+
+/**
+  * @brief  Parses FW revision
+  * @param  ver: version array (4 position 8-bit array)
+  * @param  pdata: pointer to string
+  * @retval None.
+  */
+static void AT_ParseFWRev(char *pdata, uint8_t *ver)
+{
+  uint8_t num = 0;
+  char *ptr;
+
+  ptr = strtok(pdata + 1, ".");
+
+  while ((ptr != NULL) && (num < 4)) {
+    switch (num) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    {
+      ver[num] = atoi(ptr);
+
+      break;
+    }
+    default:
+      break;
+    }
+    num++;
+    ptr = strtok(NULL, ".");
+  }
+}
+
+/**
+  * @brief  Parses Access point configuration.
+  * @param  APs: Access points structure
+  * @param  ptr: pointer to string
+  * @retval None.
+  */
+static void AT_ParseSingleAP(char *pdata, ES_WIFI_AP_t *AP)
+{
+  uint8_t num = 0;
+  char *ptr;
+
+  ptr = strtok(pdata + 2, ",");
+
+  while (ptr != NULL) {
+    switch (num++) {
+    case 0: /* Ignore index */
+    case 4: /* Ignore Max Rate */
+    case 5: /* Ignore Network Type */
+    case 7: /* Ignore Radio Band */
+      break;
+
+    case 1:
+      ptr[strlen(ptr) - 1] = 0;
+      strncpy((char *)AP->SSID,  ptr+ 1, ES_WIFI_MAX_SSID_NAME_SIZE + 1);
+      break;
+
+    case 2:
+      ParseMAC(ptr, AP->MAC);
+      break;
+
+    case 3:
+      AP->RSSI = ParseNumber(ptr, NULL);
+      break;
+
+    case 6:
+      AP->Security = ParseSecurity(ptr);
+      break;
+
+    case 8:
+      AP->Channel = ParseNumber(ptr, NULL);
       num = 1;
       break;
 
@@ -494,6 +590,85 @@ static void AT_ParseConnSettings(char *pdata, ES_WIFI_Network_t *NetSettings)
   }
 }
 
+
+/**
+  * @brief  Parses WIFI transport settings.
+  * @param  TransportSettings: settings
+  * @param  pdata: pointer to data
+  * @retval None.
+  */
+static void AT_ParseTransportSettings(char *pdata, ES_WIFI_Transport_t *TransportSettings)
+{
+  uint8_t num = 0;
+  char *ptr;
+
+  ptr = strtok(pdata + 2, ",");
+
+  while (ptr != NULL) {
+    switch (num++) {
+    case 0:
+      TransportSettings->Protocol = (ES_WIFI_ConnType_t) ParseNumber(ptr, NULL);
+      break;
+
+    case 1:
+      ParseIP(ptr, TransportSettings->Local_IP_Addr);
+      break;
+
+    case 2:
+      TransportSettings->Local_Port = ParseNumber(ptr, NULL);
+      break;
+
+    case 3:
+      ParseIP(ptr, TransportSettings->Remote_IP_Addr);
+      break;
+
+    case 4:
+      TransportSettings->Remote_Port = ParseNumber(ptr, NULL);
+      break;
+
+    case 5:
+      TransportSettings->TCP_Server = ParseNumber(ptr, NULL);
+      break;
+
+    case 6:
+      TransportSettings->UDP_Server = ParseNumber(ptr, NULL);
+      break;
+
+    case 7:
+      TransportSettings->TCP_Backlogs = ParseNumber(ptr, NULL);
+      break;
+
+    case 8:
+      TransportSettings->Accept_Loop = ParseNumber(ptr, NULL);
+      break;
+
+    case 9:
+      TransportSettings->Read_Mode = ParseNumber(ptr, NULL);
+      break;
+
+    default:
+      break;
+    }
+    ptr = strtok(NULL, ",");
+    if ((ptr != NULL) && (ptr[-1] == ','))
+    { /* Ignore empty fields */
+      num++;
+    }
+  }
+}
+
+
+/**
+  * @brief  Parses the connection status
+  * @param  pdata: pointer to data
+  * @param  isConnected: pointer to result
+  * @retval None.
+  */
+static void AT_ParseIsConnected(char *pdata, uint8_t *isConnected)
+{
+  *isConnected = (pdata[2] == '1') ? 1 : 0;
+}
+
 /**
   * @brief  Execute AT command.
   * @param  Obj: pointer to module handle
@@ -501,24 +676,38 @@ static void AT_ParseConnSettings(char *pdata, ES_WIFI_Network_t *NetSettings)
   * @param  pdata: pointer to returned data
   * @retval Operation Status.
   */
-static ES_WIFI_Status_t AT_ExecuteCommand(ES_WIFIObject_t *Obj, uint8_t* cmd)
+static ES_WIFI_Status_t AT_ExecuteCommand(ES_WIFIObject_t *Obj, uint8_t* cmd, uint8_t *pdata)
 {
-  if(Obj->fops.IO_Send(cmd, strlen((char*)cmd), Obj->Timeout) > 0)
+  int ret = 0;
+  int16_t recv_len = 0;
+  LOCK_WIFI();  
+
+  ret = Obj->fops.IO_Send(cmd, strlen((char*)cmd), Obj->Timeout);
+
+  if( ret > 0)
   {
-    int16_t n=Obj->fops.IO_Receive(Obj->CmdData, sizeof( Obj->CmdData ), Obj->Timeout);
-    if(n > 0)
+    recv_len = Obj->fops.IO_Receive(pdata, ES_WIFI_DATA_SIZE, Obj->Timeout);
+    if((recv_len > 0) && (recv_len < ES_WIFI_DATA_SIZE))
     {
-      *((Obj->CmdData)+n)=0;
-      if(strstr((char *)(Obj->CmdData), AT_OK_STRING))
+      *(pdata + recv_len) = 0;
+      if(strstr((char *)pdata, AT_OK_STRING))
       {
+        UNLOCK_WIFI();
         return ES_WIFI_STATUS_OK;
       }
-      else if(strstr((char *)(Obj->CmdData), AT_ERROR_STRING))
+      else if(strstr((char *)pdata, AT_ERROR_STRING))
       {
-        return ES_WIFI_STATUS_ERROR;
+        UNLOCK_WIFI();
+        return ES_WIFI_STATUS_UNEXPECTED_CLOSED_SOCKET;
       }
     }
+    if (recv_len == ES_WIFI_ERROR_STUFFING_FOREVER ) 
+    {
+      UNLOCK_WIFI();
+      return ES_WIFI_STATUS_MODULE_CRASH;
+    }
   }
+  UNLOCK_WIFI();  
   return ES_WIFI_STATUS_IO_ERROR;
 }
 
@@ -528,31 +717,54 @@ static ES_WIFI_Status_t AT_ExecuteCommand(ES_WIFIObject_t *Obj, uint8_t* cmd)
   * @param  cmd: pointer to command string
   * @param  pcmd_data: pointer to binary data
   * @param  len: binary data length
+  * @param  pdata: pointer to returned data
   * @retval Operation Status.
   */
-static ES_WIFI_Status_t AT_RequestSendData(ES_WIFIObject_t *Obj, uint8_t* cmd, uint8_t *pcmd_data, uint16_t len)
+
+static ES_WIFI_Status_t AT_RequestSendData(ES_WIFIObject_t *Obj, uint8_t* cmd, uint8_t *pcmd_data, uint16_t len, uint8_t *pdata)
 {
+  int16_t send_len = 0;
+  int16_t recv_len = 0;
+  uint16_t cmd_len = 0;
+  uint16_t n ;
+
+  LOCK_WIFI();  
+  cmd_len = strlen((char*)cmd);
+
   /* can send only even number of byte on first send */
-  uint16_t n=strlen((char*)cmd);
-  if (n &1 ) return ES_WIFI_STATUS_ERROR;
-  if(Obj->fops.IO_Send(cmd, n, Obj->Timeout) == n)
-  {
-    int16_t n=Obj->fops.IO_Send(pcmd_data, len, Obj->Timeout);
-    if(n == len)
+  if (cmd_len & 1) return ES_WIFI_STATUS_ERROR;
+  n=Obj->fops.IO_Send(cmd, cmd_len, Obj->Timeout);
+  if (n == cmd_len)
+  {    
+    send_len = Obj->fops.IO_Send(pcmd_data, len, Obj->Timeout);
+    if (send_len == len)
     {
-      n = Obj->fops.IO_Receive(Obj->CmdData, sizeof( Obj->CmdData ), Obj->Timeout);
-      if(n > 0)
+      recv_len = Obj->fops.IO_Receive(pdata, 0, Obj->Timeout);
+      if (recv_len > 0)
       {
-        *((Obj->CmdData)+n)=0;
-        if(strstr((char *)(Obj->CmdData), AT_OK_STRING))
+        *(pdata+recv_len) = 0;
+        if(strstr((char *)pdata, AT_OK_STRING))
         {
+          UNLOCK_WIFI();
           return ES_WIFI_STATUS_OK;
         }
-        else if(strstr((char *)(Obj->CmdData), AT_ERROR_STRING))
+        else if(strstr((char *)pdata, AT_ERROR_STRING))
         {
+          UNLOCK_WIFI();
+          return ES_WIFI_STATUS_UNEXPECTED_CLOSED_SOCKET;
+        }
+        else
+        {
+          UNLOCK_WIFI();
           return ES_WIFI_STATUS_ERROR;
         }
       }
+      UNLOCK_WIFI();
+      if (recv_len == ES_WIFI_ERROR_STUFFING_FOREVER ) 
+      {
+        return ES_WIFI_STATUS_MODULE_CRASH;
+      }
+      return ES_WIFI_STATUS_ERROR;
     }
     else
     {
@@ -562,118 +774,6 @@ static ES_WIFI_Status_t AT_RequestSendData(ES_WIFIObject_t *Obj, uint8_t* cmd, u
   return ES_WIFI_STATUS_IO_ERROR;
 }
 
-
-/**
-  * @brief  Parses Received short data length.
-  * @param  Obj: pointer to module handle
-  * @param  cmd:command formatted string
-  * @param  pdata: payload
-  * @param  Reqlen : requested Data length.
-  * @param  ReadData : pointer to received data length.
-  * @retval Operation Status.
-  */
-static ES_WIFI_Status_t ReceiveShortDataLen(ES_WIFIObject_t *Obj,  char *pdata, uint16_t Reqlen, uint16_t *ReadData)
-{
-   uint16_t len;
-
-   len = Obj->fops.IO_Receive(Obj->CmdData, Reqlen + AT_OK_STRING_LEN , Obj->Timeout);
-
-   if (len >= AT_OK_STRING_LEN)
-   {
-     if(strstr((char *)Obj->CmdData + len - AT_OK_STRING_LEN, AT_OK_STRING))
-     {
-       *ReadData = len - AT_OK_STRING_LEN;
-       memcpy(pdata, Obj->CmdData, *ReadData);
-       return ES_WIFI_STATUS_OK;
-     }
-   }
-   return ES_WIFI_STATUS_IO_ERROR;
-
-}
-
-/**
-  * @brief  Parses Received long data length.
-  * @param  Obj: pointer to module handle
-  * @param  cmd:command formatted string
-  * @param  pdata: payload
-  * @param  Reqlen : requested Data length.
-  * @param  ReadData : pointer to received data length.
-  * @retval Operation Status.
-  */
-static ES_WIFI_Status_t ReceiveLongDataLen(ES_WIFIObject_t *Obj,  char *pdata, uint16_t Reqlen, uint16_t *ReadData)
-{
-  uint16_t firstTimeReceivedLength, secondTimeRequestedLength, secondTimeReceivedLength, totalReceivedLength;
-
-  /* This function is only called for receiving strings of length
-  more than 8. For strings of length less than or equal to 8,
-  ReceiveShortDataLen is called. */
-  if( ( Reqlen & 1 ) == 0 )
-  {
-      firstTimeReceivedLength = Obj->fops.IO_Receive( ( uint8_t * )pdata, Reqlen, Obj->Timeout );
-  }else
-  {
-      /* If the requested length is odd, we read one less
-      to ensure that we are always reading even length from
-      SPI bus. */
-      firstTimeReceivedLength = Obj->fops.IO_Receive( ( uint8_t * )pdata, Reqlen - 1, Obj->Timeout );
-  }
-
-  /* If we received less than 8 bytes, it is an error as
-  we expect read responses to contain AT_OK_STRING in the
-  end which is of length 8. */
-  if( firstTimeReceivedLength >= AT_OK_STRING_LEN )
-  {
-      /* Does the received string contains AT_OK_STRING
-      in the end? This would mean that complete string
-      has been received. */
-      if( memcmp( ( void* )( pdata + firstTimeReceivedLength - AT_OK_STRING_LEN ), ( void* )AT_OK_STRING, AT_OK_STRING_LEN ) == 0 )
-      {
-          *ReadData = firstTimeReceivedLength - AT_OK_STRING_LEN;
-          return ES_WIFI_STATUS_OK;
-      }
-      else
-      {
-          /* If the received string's last 8 bytes do not
-          form an AT_OK_STRING, we try to read more to see
-          if we get AT_OK_STRING. */
-
-          /* Copy the last 8 received bytes into the CmdData
-          buffer. The reason of doing so is that these bytes
-          may be part of AT_OK_STRING. */
-          memcpy( Obj->CmdData, pdata + firstTimeReceivedLength - AT_OK_STRING_LEN, AT_OK_STRING_LEN );
-
-          /* Try to read 8 or 10 bytes depending on whether
-          or not the buffer provided by the user has one space
-          available (i.e. odd number of bytes were requested by
-          the user). Note that we are always reading even bytes
-          even if we have only one extra space available. */
-          secondTimeRequestedLength = ( ( Reqlen & 1 ) == 0 ) ? ( AT_OK_STRING_LEN ) : ( AT_OK_STRING_LEN + 2 );
-          secondTimeReceivedLength = Obj->fops.IO_Receive( Obj->CmdData + AT_OK_STRING_LEN, secondTimeRequestedLength, Obj->Timeout );
-
-          /* Do the last 8 received bytes from AT_OK_STRING? */
-          if( memcmp( ( void* )( Obj->CmdData + secondTimeReceivedLength ), ( void* )AT_OK_STRING, AT_OK_STRING_LEN ) == 0 )
-          {
-              totalReceivedLength = firstTimeReceivedLength + secondTimeReceivedLength - AT_OK_STRING_LEN;
-
-              /* If the user had requested odd number of bytes and we
-              received enough data, we should fill the last spot in the
-              provided buffer. */
-              if( ( Reqlen & 1 ) != 0 && totalReceivedLength >= Reqlen )
-              {
-                  totalReceivedLength = Reqlen;
-                  /* Copy the first byte which is not part of
-                  AT_OK_STRING. */
-                  pdata[ Reqlen - 1 ] = Obj->CmdData[ AT_OK_STRING_LEN ];
-              }
-
-              *ReadData = totalReceivedLength;
-              return ES_WIFI_STATUS_OK;
-          }
-      }
-  }
-
-  return ES_WIFI_STATUS_IO_ERROR;
-}
 
 /**
   * @brief  Parses Received data.
@@ -686,14 +786,52 @@ static ES_WIFI_Status_t ReceiveLongDataLen(ES_WIFIObject_t *Obj,  char *pdata, u
   */
 static ES_WIFI_Status_t AT_RequestReceiveData(ES_WIFIObject_t *Obj, uint8_t* cmd, char *pdata, uint16_t Reqlen, uint16_t *ReadData)
 {
+  int len;
+  uint8_t *p=Obj->CmdData;
+  
+  LOCK_WIFI();  
   if(Obj->fops.IO_Send(cmd, strlen((char*)cmd), Obj->Timeout) > 0)
   {
-    if(Obj->fops.IO_Receive(Obj->CmdData, 2, Obj->Timeout) == 2) /* Read Prompt *//*_RB_Does not return until read timeout times out!. */
+    len = Obj->fops.IO_Receive(p, 0 , Obj->Timeout);
+    if ((p[0]!='\r') || (p[1]!='\n'))
     {
-      if (Reqlen <= AT_OK_STRING_LEN) return ReceiveShortDataLen(Obj,pdata, Reqlen ,ReadData);
-      if (Reqlen >  AT_OK_STRING_LEN) return ReceiveLongDataLen(Obj,pdata, Reqlen ,ReadData);
+     return  ES_WIFI_STATUS_IO_ERROR;
     }
-  }  
+    len-=2;
+    p+=2;
+    if (len >= AT_OK_STRING_LEN)
+    {
+     while(len && (p[len-1]==0x15)) len--;
+     p[len] = '\0';
+     if(strstr( (char*) p + len - AT_OK_STRING_LEN, AT_OK_STRING))
+     {
+       *ReadData = len - AT_OK_STRING_LEN;
+	   if (*ReadData > Reqlen)
+       {
+         *ReadData = Reqlen;
+       }
+       memcpy(pdata, p, *ReadData);
+       UNLOCK_WIFI();
+       return ES_WIFI_STATUS_OK;
+     }
+     else if(memcmp((char *)p + len - AT_DELIMETER_LEN , AT_DELIMETER_STRING, AT_DELIMETER_LEN) == 0)
+     {
+       *ReadData = 0;
+       UNLOCK_WIFI();
+       return ES_WIFI_STATUS_UNEXPECTED_CLOSED_SOCKET;
+     }
+     
+     UNLOCK_WIFI();
+     *ReadData = 0;
+     return ES_WIFI_STATUS_UNEXPECTED_CLOSED_SOCKET;
+   }
+   if (len == ES_WIFI_ERROR_STUFFING_FOREVER ) 
+   {
+     UNLOCK_WIFI();
+     return ES_WIFI_STATUS_MODULE_CRASH;
+   }
+  }
+  UNLOCK_WIFI();
   return ES_WIFI_STATUS_IO_ERROR;
 }
 
@@ -706,18 +844,21 @@ static ES_WIFI_Status_t AT_RequestReceiveData(ES_WIFIObject_t *Obj, uint8_t* cmd
 ES_WIFI_Status_t  ES_WIFI_Init(ES_WIFIObject_t *Obj)
 {
   ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  
+  LOCK_WIFI();  
 
   Obj->Timeout = ES_WIFI_TIMEOUT;
 
-  if (Obj->fops.IO_Init() == 0)
+  if (Obj->fops.IO_Init(ES_WIFI_INIT) == 0)
   {
-    ret = AT_ExecuteCommand(Obj,(uint8_t*)"I?\r\n");
+    ret = AT_ExecuteCommand(Obj,(uint8_t*)"I?\r\n", Obj->CmdData);
 
     if(ret == ES_WIFI_STATUS_OK)
     {
       AT_ParseInfo (Obj, Obj->CmdData);
     }
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -811,6 +952,7 @@ ES_WIFI_Status_t  ES_WIFI_RegisterBusIO(ES_WIFIObject_t *Obj, IO_Init_Func IO_In
   }
 
   Obj->fops.IO_Init = IO_Init;
+  Obj->fops.IO_DeInit = IO_DeInit;
   Obj->fops.IO_Send = IO_Send;
   Obj->fops.IO_Receive = IO_Receive;
   Obj->fops.IO_Delay = IO_Delay;
@@ -838,15 +980,76 @@ ES_WIFI_Status_t  ES_WIFI_SetTimeout(ES_WIFIObject_t *Obj, uint32_t Timeout)
   */
 ES_WIFI_Status_t  ES_WIFI_ListAccessPoints(ES_WIFIObject_t *Obj, ES_WIFI_APs_t *APs)
 {
-
   ES_WIFI_Status_t ret;
+  int send_len;
+  int16_t recv_len = 0;
+  uint8_t version[4] = { 0 };
+  LOCK_WIFI();
 
-  ret = AT_ExecuteCommand(Obj,(uint8_t*)"F0\r");
-  if(ret == ES_WIFI_STATUS_OK)
+  sprintf((char*)Obj->CmdData, Obj->FW_Rev);
+
+  AT_ParseFWRev(Obj->CmdData, version);
+
+  if (ReverseByteOrder32bit(version) >= UPDATED_SCAN_PARAMETERS_FW_REV)
   {
-     AT_ParseAP((char *)Obj->CmdData, APs);
+    APs->nbr = 0;
+
+    sprintf((char*)Obj->CmdData,"F0=2\r");
+
+    send_len = Obj->fops.IO_Send(Obj->CmdData, strlen((char*)Obj->CmdData), Obj->Timeout);
+
+    if (send_len == 5)
+    {
+  	  do
+	  {
+	    recv_len = Obj->fops.IO_Receive(Obj->CmdData, ES_WIFI_DATA_SIZE, Obj->Timeout);
+
+        if((recv_len > 0) && (recv_len < ES_WIFI_DATA_SIZE))
+	    {
+          *(Obj->CmdData + recv_len) = 0;
+
+	      if(strstr((char *)Obj->CmdData, AT_OK_STRING))
+          {
+		    UNLOCK_WIFI();
+		    return ES_WIFI_STATUS_OK;
+	      }
+	      else if(strstr((char *)Obj->CmdData, AT_ERROR_STRING))
+	      {
+            UNLOCK_WIFI();
+            return ES_WIFI_STATUS_UNEXPECTED_CLOSED_SOCKET;
+	      }
+	    }
+	    if (recv_len == ES_WIFI_ERROR_STUFFING_FOREVER )
+	    {
+          UNLOCK_WIFI();
+	      return ES_WIFI_STATUS_MODULE_CRASH;
+	    }
+
+        if (APs->nbr < ES_WIFI_MAX_DETECTED_AP)
+        {
+          AT_ParseSingleAP((char *)Obj->CmdData, &(APs->AP[APs->nbr]));
+          APs->nbr++;
+        }
+
+        sprintf((char*)Obj->CmdData,"MR\r");
+
+        send_len = Obj->fops.IO_Send(Obj->CmdData, strlen((char*)Obj->CmdData), Obj->Timeout);
+	  } while (send_len == 3);
+    }
+
+    UNLOCK_WIFI();
+    return ES_WIFI_STATUS_IO_ERROR;
   }
-  return ret;
+  else
+  {
+    ret = AT_ExecuteCommand(Obj,(uint8_t*)"F0\r", Obj->CmdData);
+    if(ret == ES_WIFI_STATUS_OK)
+    {
+      AT_ParseAP((char *)Obj->CmdData, APs);
+    }
+    UNLOCK_WIFI();
+    return ret;
+  }
 }
 
 /**
@@ -862,24 +1065,25 @@ ES_WIFI_Status_t ES_WIFI_Connect(ES_WIFIObject_t *Obj, const char* SSID,
                                          ES_WIFI_SecurityType_t SecType)
 {
   ES_WIFI_Status_t ret;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"C1=%s\r", SSID);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"C2=%s\r", Password);
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
     if(ret == ES_WIFI_STATUS_OK)
     {
       Obj->Security = SecType;
       sprintf((char*)Obj->CmdData,"C3=%d\r", (uint8_t)SecType);
-      ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+      ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
       if(ret == ES_WIFI_STATUS_OK)
       {
         sprintf((char*)Obj->CmdData,"C0\r");
-        ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+        ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
         if(ret == ES_WIFI_STATUS_OK)
         {
            Obj->NetSettings.IsConnected = 1;
@@ -887,6 +1091,7 @@ ES_WIFI_Status_t ES_WIFI_Connect(ES_WIFIObject_t *Obj, const char* SSID,
       }
     }
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -896,6 +1101,16 @@ ES_WIFI_Status_t ES_WIFI_Connect(ES_WIFIObject_t *Obj, const char* SSID,
   */
 uint8_t ES_WIFI_IsConnected(ES_WIFIObject_t *Obj)
 {
+  ES_WIFI_Status_t ret ;
+  LOCK_WIFI();  
+
+  sprintf((char*)Obj->CmdData,"CS\r");
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  if(ret == ES_WIFI_STATUS_OK)
+  {
+    AT_ParseIsConnected((char *)Obj->CmdData, &(Obj->NetSettings.IsConnected));
+  }
+  UNLOCK_WIFI();
   return Obj->NetSettings.IsConnected;
 }
 /**
@@ -905,8 +1120,12 @@ uint8_t ES_WIFI_IsConnected(ES_WIFIObject_t *Obj)
   */
 ES_WIFI_Status_t ES_WIFI_Disconnect(ES_WIFIObject_t *Obj)
 {
-  sprintf((char*)Obj->CmdData,"CD\r");
-  return  AT_ExecuteCommand(Obj, Obj->CmdData);
+   ES_WIFI_Status_t ret;
+   LOCK_WIFI();  
+   sprintf((char*)Obj->CmdData,"CD\r");
+   ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+   UNLOCK_WIFI();
+   return  ret;
 }
 /**
   * @brief  Return network settings.
@@ -917,14 +1136,17 @@ ES_WIFI_Status_t ES_WIFI_Disconnect(ES_WIFIObject_t *Obj)
 ES_WIFI_Status_t ES_WIFI_GetNetworkSettings(ES_WIFIObject_t *Obj)
 {
   ES_WIFI_Status_t ret;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"C?\r");
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
   if(ret == ES_WIFI_STATUS_OK)
   {
      AT_ParseConnSettings((char *)Obj->CmdData, &Obj->NetSettings);
   }
+  
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -939,33 +1161,34 @@ ES_WIFI_Status_t ES_WIFI_GetNetworkSettings(ES_WIFIObject_t *Obj)
 ES_WIFI_Status_t ES_WIFI_ActivateAP(ES_WIFIObject_t *Obj, ES_WIFI_APConfig_t *ApConfig)
 {
   ES_WIFI_Status_t ret;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"AS=0,%s\r", ApConfig->SSID);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
 
     sprintf((char*)Obj->CmdData,"A1=%c\r", (int)ApConfig->Security + '0');
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
     if(ret == ES_WIFI_STATUS_OK)
     {
 
       sprintf((char*)Obj->CmdData,"A2=%s\r", ApConfig->Pass);
-      ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+      ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
       if(ret == ES_WIFI_STATUS_OK)
       {
 
         sprintf((char*)Obj->CmdData,"AC=%d\r", ApConfig->Channel);
-        ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+        ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
         if(ret == ES_WIFI_STATUS_OK)
         {
 
           sprintf((char*)Obj->CmdData,"AT=%d\r", ApConfig->MaxConnections);
-          ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+          ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
           if(ret == ES_WIFI_STATUS_OK)
           {
             sprintf((char*)Obj->CmdData,"A0\r");
-            ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+            ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
             if(ret == ES_WIFI_STATUS_OK)
             {
               if(strstr((char *)Obj->CmdData, "[AP     ]"))
@@ -978,6 +1201,7 @@ ES_WIFI_Status_t ES_WIFI_ActivateAP(ES_WIFIObject_t *Obj, ES_WIFI_APConfig_t *Ap
       }
     }
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -992,20 +1216,23 @@ ES_WIFI_APState_t ES_WIFI_WaitAPStateChange(ES_WIFIObject_t *Obj)
 {
   ES_WIFI_APState_t ret = ES_WIFI_AP_NONE;
   char *ptr;
+  LOCK_WIFI();  
 
  #if (ES_WIFI_USE_UART == 1)
-  if(Obj->fops.IO_Receive(Obj->CmdData, sizeof( Obj->CmdData ), Obj->Timeout) > 0)
+  if(Obj->fops.IO_Receive(Obj->CmdData, 0, Obj->Timeout) > 0)
   {
     if(strstr((char *)Obj->CmdData, AT_ERROR_STRING))
     {
+      UNLOCK_WIFI();
       return ES_WIFI_AP_ERROR;
     }
 #else
     do
     {
       sprintf((char*)Obj->CmdData,"MR\r");
-      if(AT_ExecuteCommand(Obj, Obj->CmdData) != ES_WIFI_STATUS_OK)
+      if(AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData) != ES_WIFI_STATUS_OK)
       {
+        UNLOCK_WIFI();
         return ES_WIFI_AP_ERROR;
       }
 #endif
@@ -1038,9 +1265,12 @@ ES_WIFI_APState_t ES_WIFI_WaitAPStateChange(ES_WIFIObject_t *Obj)
 #if (ES_WIFI_USE_UART == 1)
     }
 #else
-    Obj->fops.IO_Delay(1000);
+	UNLOCK_WIFI();
+    Obj->fops.IO_Delay(100);
+	LOCK_WIFI();
   } while (1);
 #endif
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1054,14 +1284,16 @@ ES_WIFI_Status_t ES_WIFI_GetMACAddress(ES_WIFIObject_t *Obj, uint8_t *mac)
 {
   ES_WIFI_Status_t ret ;
   char *ptr;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"Z5\r");
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     ptr = strtok((char *)(Obj->CmdData + 2), "\r\n");
     ParseMAC(ptr, mac) ;
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1086,14 +1318,16 @@ ES_WIFI_Status_t ES_WIFI_GetIPAddress(ES_WIFIObject_t *Obj, uint8_t *ipaddr)
 ES_WIFI_Status_t ES_WIFI_SetMACAddress(ES_WIFIObject_t *Obj, uint8_t *mac)
 {
   ES_WIFI_Status_t ret ;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"Z4=%X:%X:%X:%X:%X:%X\r",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5] );
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"Z1\r");
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1105,9 +1339,10 @@ ES_WIFI_Status_t ES_WIFI_SetMACAddress(ES_WIFIObject_t *Obj, uint8_t *mac)
 ES_WIFI_Status_t ES_WIFI_ResetToFactoryDefault(ES_WIFIObject_t *Obj)
 {
   ES_WIFI_Status_t ret ;
-
+  LOCK_WIFI();
   sprintf((char*)Obj->CmdData,"Z0\r");
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1118,11 +1353,35 @@ ES_WIFI_Status_t ES_WIFI_ResetToFactoryDefault(ES_WIFIObject_t *Obj)
   */
 ES_WIFI_Status_t ES_WIFI_ResetModule(ES_WIFIObject_t *Obj)
 {
-  ES_WIFI_Status_t ret ;
+  int ret;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"ZR\r");
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-  return ret;
+  ret = Obj->fops.IO_Send(Obj->CmdData, strlen((char*)Obj->CmdData), Obj->Timeout);
+#if (ES_WIFI_USE_UART == 0)
+ if (ret==3)
+  {
+    // Fake received needed in case of SPI to unlock SPI and deselect NSS 
+     Obj->fops.IO_Receive(Obj->CmdData, 0, 1);
+  }
+#endif
+  UNLOCK_WIFI();
+  return (ret > 0) ? ES_WIFI_STATUS_OK : ES_WIFI_STATUS_ERROR;
+}
+
+
+/**
+  * @brief  Hard Reset the module.
+  * @param  Obj: pointer to module handle
+  * @retval Operation Status.
+  */
+ES_WIFI_Status_t ES_WIFI_HardResetModule(ES_WIFIObject_t *Obj)
+{
+  int ret;
+  LOCK_WIFI();  
+  ret = Obj->fops.IO_Init(ES_WIFI_RESET);
+  UNLOCK_WIFI();
+  return (ret > 0) ? ES_WIFI_STATUS_OK : ES_WIFI_STATUS_ERROR;
 }
 
 /**
@@ -1134,14 +1393,16 @@ ES_WIFI_Status_t ES_WIFI_ResetModule(ES_WIFIObject_t *Obj)
 ES_WIFI_Status_t ES_WIFI_SetProductName(ES_WIFIObject_t *Obj, uint8_t *ProductName)
 {
   ES_WIFI_Status_t ret ;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"ZN=%s\r",ProductName);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"Z1\r");
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1155,9 +1416,11 @@ ES_WIFI_Status_t ES_WIFI_SetProductName(ES_WIFIObject_t *Obj, uint8_t *ProductNa
 ES_WIFI_Status_t ES_WIFI_OTA_Upgrade(ES_WIFIObject_t *Obj, uint8_t *link)
 {
   ES_WIFI_Status_t ret ;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"Z0=%d\r%s",strlen((char *)link), (char *)link);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  UNLOCK_WIFI();
   return ret;
 }
 #endif
@@ -1171,14 +1434,16 @@ ES_WIFI_Status_t ES_WIFI_OTA_Upgrade(ES_WIFIObject_t *Obj, uint8_t *link)
 ES_WIFI_Status_t ES_WIFI_SetUARTBaudRate(ES_WIFIObject_t *Obj, uint16_t BaudRate)
 {
   ES_WIFI_Status_t ret ;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"U2=%d\r", BaudRate);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"U0\r");
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1191,13 +1456,15 @@ ES_WIFI_Status_t ES_WIFI_SetUARTBaudRate(ES_WIFIObject_t *Obj, uint16_t BaudRate
 ES_WIFI_Status_t ES_WIFI_GetUARTConfig(ES_WIFIObject_t *Obj, ES_WIFI_UARTConfig_t *pconf)
 {
   ES_WIFI_Status_t ret ;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"U?\r");
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     AT_ParseUARTConfig((char *)Obj->CmdData, pconf);
   }
+  UNLOCK_WIFI();
   return ret;
 }
 #endif
@@ -1211,13 +1478,15 @@ ES_WIFI_Status_t ES_WIFI_GetUARTConfig(ES_WIFIObject_t *Obj, ES_WIFI_UARTConfig_
 ES_WIFI_Status_t ES_WIFI_GetSystemConfig(ES_WIFIObject_t *Obj, ES_WIFI_SystemConfig_t *pconf)
 {
   ES_WIFI_Status_t ret ;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"Z?\r");
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     AT_ParseSystemConfig((char *)Obj->CmdData, pconf);
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1231,30 +1500,31 @@ ES_WIFI_Status_t ES_WIFI_GetSystemConfig(ES_WIFIObject_t *Obj, ES_WIFI_SystemCon
 ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t count, uint16_t interval_ms)
 {
   ES_WIFI_Status_t ret;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"T1=%d.%d.%d.%d\r", address[0],address[1],
           address[2],address[3]);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
   if(ret == ES_WIFI_STATUS_OK)
   {
 
     sprintf((char*)Obj->CmdData,"T2=%d\r", count);
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
     if(ret == ES_WIFI_STATUS_OK)
     {
       sprintf((char*)Obj->CmdData,"T3=%d\r", interval_ms);
-      ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+      ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
       if(ret == ES_WIFI_STATUS_OK)
       {
         sprintf((char*)Obj->CmdData,"T0=\r");
-        ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+        ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
       }
     }
   }
-
+  UNLOCK_WIFI();
   return ret;
 }
 #endif
@@ -1269,15 +1539,17 @@ ES_WIFI_Status_t ES_WIFI_DNS_LookUp(ES_WIFIObject_t *Obj, const char *url, uint8
 {
   ES_WIFI_Status_t ret;
   char *ptr;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"D0=%s\r", url);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
   if(ret == ES_WIFI_STATUS_OK)
   {
     ptr = strtok((char *)Obj->CmdData + 2, "\r");
     ParseIP(ptr, ipaddress);
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1290,43 +1562,56 @@ ES_WIFI_Status_t ES_WIFI_DNS_LookUp(ES_WIFIObject_t *Obj, const char *url, uint8
   */
 ES_WIFI_Status_t ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn)
 {
-  ES_WIFI_Status_t ret;
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_OK;
+  
+  if (conn->RemotePort == 0) return ES_WIFI_STATUS_ERROR;
+  
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
-  if(ret == ES_WIFI_STATUS_OK)
+  if (ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"P1=%d\r", conn->Type);
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-    if(ret == ES_WIFI_STATUS_OK)
-    {
-      if ((conn->Type == ES_WIFI_UDP_CONNECTION) && (conn->LocalPort > 0))
-      {
-        sprintf((char*)Obj->CmdData,"P2=%d\r", conn->RemotePort);
-        if(AT_ExecuteCommand(Obj, Obj->CmdData) == ES_WIFI_STATUS_ERROR)
-        {
-          return ES_WIFI_STATUS_ERROR;
-        }
-      }
-      sprintf((char*)Obj->CmdData,"P4=%d\r", conn->RemotePort);
-      ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-
-      if(ret == ES_WIFI_STATUS_OK)
-      {
-        sprintf((char*)Obj->CmdData,"P3=%d.%d.%d.%d\r", conn->RemoteIP[0],conn->RemoteIP[1],
-                conn->RemoteIP[2],conn->RemoteIP[3]);
-        ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-        if(ret == ES_WIFI_STATUS_OK)
-        {
-          sprintf((char*)Obj->CmdData,"P6=1\r");
-          ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-        }
-      }
-    }
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P2=%d\r", conn->LocalPort);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P4=%d\r", conn->RemotePort);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if ((ret == ES_WIFI_STATUS_OK) && ((conn->Type == ES_WIFI_TCP_CONNECTION) || (conn->Type == ES_WIFI_TCP_SSL_CONNECTION)))
+  {
+    sprintf((char*)Obj->CmdData,"P3=%d.%d.%d.%d\r", conn->RemoteIP[0],conn->RemoteIP[1],
+            conn->RemoteIP[2],conn->RemoteIP[3]);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if ((ret == ES_WIFI_STATUS_OK) && (conn->Type == ES_WIFI_TCP_SSL_CONNECTION))
+  {
+    sprintf((char*)Obj->CmdData,"P9=2\r");
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P6=1\r");
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+  
+  UNLOCK_WIFI();
   return ret;
 }
+
 
 /**
   * @brief  Stop Client connection.
@@ -1336,15 +1621,17 @@ ES_WIFI_Status_t ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Con
 ES_WIFI_Status_t ES_WIFI_StopClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn)
 {
   ES_WIFI_Status_t ret;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
-  if(ret == ES_WIFI_STATUS_OK)
+  if (ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"P6=0\r");
-    ret =  AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1359,46 +1646,47 @@ ES_WIFI_Status_t ES_WIFI_StartAWSClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_
 {
 
   ES_WIFI_Status_t ret;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
   if(ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"P1=%d\r", conn->Type);
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
     if(ret == ES_WIFI_STATUS_OK)
     {
       sprintf((char*)Obj->CmdData,"P4=%d\r", conn->RemotePort);
-      ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+      ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
       if(ret == ES_WIFI_STATUS_OK)
       {
         sprintf((char*)Obj->CmdData,"PM=0,%s\r", conn->PublishTopic);
-        ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+        ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
         if(ret == ES_WIFI_STATUS_OK)
         {
           if(ret == ES_WIFI_STATUS_OK)
           {
             sprintf((char*)Obj->CmdData,"PM=1,%s\r", conn->SubscribeTopic);
-            ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+            ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
             if(ret == ES_WIFI_STATUS_OK)
             {
 
               sprintf((char*)Obj->CmdData,"PM=2,%d\r", conn->MQTTMode);
-              ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+              ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
               if(ret == ES_WIFI_STATUS_OK)
               {
                 sprintf((char*)Obj->CmdData,"PM=5,%s\r", conn->ClientID);
-                ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+                ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
                 if(ret == ES_WIFI_STATUS_OK)
                 {
                   sprintf((char*)Obj->CmdData,"PM\r");
-                  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+                  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
                   if(ret == ES_WIFI_STATUS_OK)
                   {
                     sprintf((char*)Obj->CmdData,"P6=1\r");
-                    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+                    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
                   }
                 }
               }
@@ -1408,6 +1696,7 @@ ES_WIFI_Status_t ES_WIFI_StartAWSClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_
       }
     }
   }
+  UNLOCK_WIFI();
   return ret;
 }
 #endif
@@ -1419,32 +1708,44 @@ ES_WIFI_Status_t ES_WIFI_StartAWSClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_
   */
 ES_WIFI_Status_t ES_WIFI_StartServerSingleConn(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn)
 {
-  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
-  char *ptr;
-
-  sprintf((char*)Obj->CmdData,"PK=1,3000\r");
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-  if(ret == ES_WIFI_STATUS_OK)
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_OK;
+  LOCK_WIFI();  
+    
+  sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  if(ret != ES_WIFI_STATUS_OK)
   {
-    sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-    if(ret == ES_WIFI_STATUS_OK)
-    {
+    UNLOCK_WIFI();
+    return ret;
+  }
+  
+  if ((conn->Type != ES_WIFI_UDP_CONNECTION) && (conn->Type != ES_WIFI_UDP_LITE_CONNECTION))
+  {
+    sprintf((char*)Obj->CmdData,"PK=1,3000\r");
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+  
+  if(ret == ES_WIFI_STATUS_OK)
+  {  
       sprintf((char*)Obj->CmdData,"P1=%d\r", conn->Type);
-      ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+      ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
       if(ret == ES_WIFI_STATUS_OK)
       {
-        sprintf((char*)Obj->CmdData,"P2=%d\r", conn->LocalPort);
-        ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-        if(ret == ES_WIFI_STATUS_OK)
-        {
-          sprintf((char*)Obj->CmdData,"P5=1\r");
-          ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-
-          if(ret == ES_WIFI_STATUS_OK)
+        sprintf((char*)Obj->CmdData,"P8=%d\r", conn->Backlog);
+        ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+        if (ret == ES_WIFI_STATUS_OK)    
+		    {	
+		      sprintf((char*)Obj->CmdData,"P2=%d\r", conn->LocalPort);
+          ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+          if (ret == ES_WIFI_STATUS_OK)
           {
-#if (ES_WIFI_USE_UART == 1)
-            if(Obj->fops.IO_Receive(Obj->CmdData, sizeof( Obj->CmdData ), Obj->Timeout) > 0)
+            // multi accept mode
+            sprintf((char*)Obj->CmdData,"P5=11\r");
+            ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+
+ #if (ES_WIFI_USE_UART == 1)
+            // should normally send out of the band 
+            if(Obj->fops.IO_Receive(Obj->CmdData, 0, Obj->Timeout) > 0)
             {
               if(strstr((char *)Obj->CmdData, "Accepted"))
               {
@@ -1456,52 +1757,164 @@ ES_WIFI_Status_t ES_WIFI_StartServerSingleConn(ES_WIFIObject_t *Obj, ES_WIFI_Con
                 ret = ES_WIFI_STATUS_OK;
               }
             }
-#else
-            do
-            {
-              sprintf((char*)Obj->CmdData,"MR\r");
-              ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-              if(ret == ES_WIFI_STATUS_OK)
-              {
-                if((strstr((char *)Obj->CmdData, "[SOMA]")) && (strstr((char *)Obj->CmdData, "[EOMA]")))
-                {
-                  if(strstr((char *)Obj->CmdData, "Accepted"))
-                  {
-                    ptr = strtok((char *)Obj->CmdData + 2, " ");
-                    ptr = strtok(NULL, " ");
-                    ptr = strtok(NULL, " ");
-                    ptr = strtok(NULL, ":");
-                    ParseIP((char *)ptr, conn->RemoteIP);
-                    ret = ES_WIFI_STATUS_OK;
-                    break;
-                  }
-                }
-              }
-              else
-              {
-                ret = ES_WIFI_STATUS_ERROR;
-                break;
-              }
-              Obj->fops.IO_Delay(1000);
-            } while (1);
-#endif
+#endif    
           }
         }
       }
-    }
-  }
+	}
+  UNLOCK_WIFI();
   return ret;
 }
+
+/**
+  * @brief  Wait for a client connection to the Server.
+  * @param  Obj: pointer to module handle
+  * @param  conn: pointer to the connection structure
+  * @retval Operation Status.
+  */
+ES_WIFI_Status_t  ES_WIFI_WaitServerConnection(ES_WIFIObject_t *Obj,uint32_t timeout,ES_WIFI_Conn_t *conn)
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_OK;
+  uint32_t	t;
+  uint32_t	tlast;
+  uint32_t	tstart;
+  char *ptr;
+  
+  tstart=HAL_GetTick();
+  tlast=tstart+timeout;
+  if (tlast < tstart )
+  {
+	   tstart=0;
+  }
+  
+  
+  do
+  {
+#if (ES_WIFI_USE_UART == 0)
+    // mandatory to flush MR async messages 
+    memset(Obj->CmdData,0,sizeof(Obj->CmdData));
+    sprintf((char*)Obj->CmdData,"MR\r");
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+    if(ret == ES_WIFI_STATUS_OK)
+    {
+      if((strstr((char *)Obj->CmdData, "[SOMA]")) && (strstr((char *)Obj->CmdData, "[EOMA]")))
+      {
+        if(strstr((char *)Obj->CmdData, "Accepted"))
+        {
+         // flushing out the MR messages
+        }
+        else if(!strstr((char *)Obj->CmdData,"[SOMA][EOMA]"))
+        {
+          DEBUG("Bad MR stntax msg %s\n", Obj->CmdData);
+          UNLOCK_WIFI();
+          return ES_WIFI_STATUS_ERROR;
+        }
+      }
+    }
+    else
+    {
+      DEBUG("MR command failed %s\n", Obj->CmdData);
+      UNLOCK_WIFI();
+      return ES_WIFI_STATUS_ERROR;
+    }        
+#endif
+    
+    memset(Obj->CmdData,0,sizeof(Obj->CmdData));
+    sprintf((char*)Obj->CmdData,"P?\r");
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+    if(ret == ES_WIFI_STATUS_OK)
+    {
+      if(strncmp((char *)Obj->CmdData, "\r\n0,0.0.0.0,",12)!=0)
+      {
+        ptr = strtok((char *)Obj->CmdData + 2, ",");
+        ptr = strtok(0, ","); //port
+        ParseIP((char *)ptr, conn->RemoteIP);
+        ptr = strtok(0, ","); //port
+        conn->LocalPort=ParseNumber(ptr,0);
+        ptr = strtok(0, ","); //ip
+        ptr = strtok(0, ","); //remote port
+        conn->RemotePort=ParseNumber(ptr,0);
+	UNLOCK_WIFI();
+	return ES_WIFI_STATUS_OK;
+      }
+    }
+    else
+    {
+      DEBUG("P? command failed %s\n", Obj->CmdData);
+      UNLOCK_WIFI();
+      return ES_WIFI_STATUS_ERROR;
+    }
+    
+    UNLOCK_WIFI();
+    Obj->fops.IO_Delay(100);
+    LOCK_WIFI();
+    t = HAL_GetTick();
+  } 
+  while ((timeout==0) ||((t < tlast) || (t < tstart)));
+  return ES_WIFI_STATUS_TIMEOUT;
+}
+
+/**
+  * @brief  Close current server connection.
+  * @param  Obj: pointer to module handle
+  * @param  socket:  server socket
+  * @retval Operation Status.
+  */
+ES_WIFI_Status_t ES_WIFI_CloseServerConnection(ES_WIFIObject_t *Obj, int socket)
+{
+  ES_WIFI_Status_t ret;
+  LOCK_WIFI();  
+  sprintf((char*)Obj->CmdData,"P0=%d\r", socket);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  if(ret != ES_WIFI_STATUS_OK)
+  {
+    DEBUG(" Can not select socket %s\n", Obj->CmdData);
+    UNLOCK_WIFI();
+    return ret;
+  }
+  
+  sprintf((char*)Obj->CmdData,"P5=10\r");
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  if(ret != ES_WIFI_STATUS_OK)
+  {
+    DEBUG(" Open next failed %s\n", Obj->CmdData);
+  }  
+  
+  UNLOCK_WIFI();
+  return ret;
+}
+
+
 
 /**
   * @brief  Stop a Server.
   * @param  Obj: pointer to module handle
   * @retval Operation Status.
   */
-ES_WIFI_Status_t ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj)
+ES_WIFI_Status_t ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj, int socket)
 {
+  ES_WIFI_Status_t ret;
+  LOCK_WIFI();  
+  sprintf((char*)Obj->CmdData,"P0=%d\r", socket);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  if(ret != ES_WIFI_STATUS_OK)
+  {
+    DEBUG("Selecting socket failed: %s\n", Obj->CmdData);
+    UNLOCK_WIFI();
+    return ret;  
+  }
+  
   sprintf((char*)Obj->CmdData,"P5=0\r");
-  return AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  if(ret != ES_WIFI_STATUS_OK)
+  {
+    DEBUG("Stopping server failed %s\n", Obj->CmdData);
+    UNLOCK_WIFI();
+    return ret;
+  }
+  
+  UNLOCK_WIFI();
+  return ret;
 }
 
 
@@ -1514,81 +1927,48 @@ ES_WIFI_Status_t ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj)
 ES_WIFI_Status_t ES_WIFI_StartServerMultiConn(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn)
 {
   ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
-  char *ptr;
+  LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"PK=1,3000\r");
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
     if(ret == ES_WIFI_STATUS_OK)
     {
       sprintf((char*)Obj->CmdData,"P1=%d\r", conn->Type);
-      ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+      ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
       if(ret == ES_WIFI_STATUS_OK)
       {
         sprintf((char*)Obj->CmdData,"P2=%d\r", conn->LocalPort);
-        ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+        ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
         if(ret == ES_WIFI_STATUS_OK)
         {
           sprintf((char*)Obj->CmdData,"P8=6\r");
-          ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+          ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
           if(ret == ES_WIFI_STATUS_OK)
           {
             sprintf((char*)Obj->CmdData,"P5=1\r");
-            ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+            ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
             if(ret == ES_WIFI_STATUS_OK)
             {
 #if (ES_WIFI_USE_UART == 1)
-            if(Obj->fops.IO_Receive(Obj->CmdData, sizeof( Obj->CmdData ), Obj->Timeout) > 0)
-            {
-              if(strstr((char *)Obj->CmdData, "Accepted"))
-              {
-                ptr = strtok((char *)Obj->CmdData + 2, " ");
-                ptr = strtok(NULL, " ");
-                ptr = strtok(NULL, " ");
-                ptr = strtok(NULL, ":");
-                ParseIP((char *)ptr, conn->RemoteIP);
-                ret = ES_WIFI_STATUS_OK;
-              }
-            }
-#else
-            do
-            {
-              sprintf((char*)Obj->CmdData,"MR\r");
-              ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-              if(ret == ES_WIFI_STATUS_OK)
-              {
-                if((strstr((char *)Obj->CmdData, "[SOMA]")) && (strstr((char *)Obj->CmdData, "[EOMA]")))
+              if(Obj->fops.IO_Receive(Obj->CmdData, 0, Obj->Timeout) > 0)
+              { 
+                if(strstr((char *)Obj->CmdData, "Accepted"))
                 {
-                  if(strstr((char *)Obj->CmdData, "Accepted"))
-                  {
-                    ptr = strtok((char *)Obj->CmdData + 2, " ");
-                    ptr = strtok(NULL, " ");
-                    ptr = strtok(NULL, " ");
-                    ptr = strtok(NULL, ":");
-                    ParseIP((char *)ptr, conn->RemoteIP);
-                    ret = ES_WIFI_STATUS_OK;
-                    break;
-                  }
+                  ret = ES_WIFI_STATUS_OK;
                 }
-              }
-              else
-              {
-                ret = ES_WIFI_STATUS_ERROR;
-                break;
-              }
-              Obj->fops.IO_Delay(1000);
-            } while (1);
+              }           
 #endif
             }
             if(ret == ES_WIFI_STATUS_OK)
             {
               sprintf((char*)Obj->CmdData,"P7=1\r");
-              ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+              ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
             }
           }
@@ -1596,6 +1976,7 @@ ES_WIFI_Status_t ES_WIFI_StartServerMultiConn(ES_WIFIObject_t *Obj, ES_WIFI_Conn
       }
     }
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
@@ -1607,30 +1988,53 @@ ES_WIFI_Status_t ES_WIFI_StartServerMultiConn(ES_WIFIObject_t *Obj, ES_WIFI_Conn
 ES_WIFI_Status_t ES_WIFI_StopServerMultiConn(ES_WIFIObject_t *Obj)
 {
   ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  LOCK_WIFI();  
 
   /* close the socket handle for the current request. */
   sprintf((char*)Obj->CmdData,"P7=2\r");
-  ret =  AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret =  AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
   if(ret == ES_WIFI_STATUS_OK)
   {
     /*Get the next request out of the queue */
     sprintf((char*)Obj->CmdData,"P7=3\r");
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
     if(ret == ES_WIFI_STATUS_OK)
     {
-      if(ret == ES_WIFI_STATUS_OK)
-      {
-        if(Obj->fops.IO_Receive(Obj->CmdData, sizeof( Obj->CmdData ), Obj->Timeout) > 0)
-        {
-          if(strstr((char *)Obj->CmdData, "Accepted"))
-          {
-            ret = ES_WIFI_STATUS_OK;
-          }
-        }
-      }
+#if (ES_WIFI_USE_UART == 1)
+        if(Obj->fops.IO_Receive(Obj->CmdData, 0, Obj->Timeout) > 0)
+		{
+			if(strstr((char *)Obj->CmdData, "Accepted"))
+			{
+			  ret = ES_WIFI_STATUS_OK;
+			}
+		}
+#else
+		do
+		{
+			sprintf((char*)Obj->CmdData,"MR\r");
+			if(AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData) == ES_WIFI_STATUS_OK)
+			{ 
+				if(strstr((char *)Obj->CmdData, "Accepted"))
+				{
+				  ret = ES_WIFI_STATUS_OK;
+				  break;
+				}
+			}
+		    else
+	        {
+		      break;
+			}
+		
+			UNLOCK_WIFI();
+			Obj->fops.IO_Delay(100);
+			LOCK_WIFI();
+		}
+		while(1);
+#endif	  
     }
   }
+  UNLOCK_WIFI();
   return ret;
 }
 /**
@@ -1644,36 +2048,131 @@ ES_WIFI_Status_t ES_WIFI_StopServerMultiConn(ES_WIFIObject_t *Obj)
 ES_WIFI_Status_t ES_WIFI_SendData(ES_WIFIObject_t *Obj, uint8_t Socket, uint8_t *pdata, uint16_t Reqlen , uint16_t *SentLen , uint32_t Timeout)
 {
   ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
-
+  LOCK_WIFI();
   if(Reqlen >= ES_WIFI_PAYLOAD_SIZE ) Reqlen= ES_WIFI_PAYLOAD_SIZE;
 
   *SentLen = Reqlen;
   sprintf((char*)Obj->CmdData,"P0=%d\r", Socket);
-  ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   if(ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"S2=%lu\r",Timeout);
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
 
     if(ret == ES_WIFI_STATUS_OK)
     {
       sprintf((char *)Obj->CmdData,"S3=%04d\r",Reqlen);
-      ret = AT_RequestSendData(Obj, Obj->CmdData, pdata, Reqlen);
+      ret = AT_RequestSendData(Obj, Obj->CmdData, pdata, Reqlen, Obj->CmdData);
 
       if(ret == ES_WIFI_STATUS_OK)
       {
         if(strstr((char *)Obj->CmdData,"-1\r\n"))
         {
+          DEBUG("Send Data detect error %s\n", (char *)Obj->CmdData);
           ret = ES_WIFI_STATUS_ERROR;
         }
+      }
+      else
+      {
+        DEBUG("Send Data command failed\n");  
+      }
+    }
+    else
+    {
+      DEBUG("S2 command failed\n"); 
+    }
+  }
+  else
+  {
+   DEBUG("P0 command failed\n"); 
+  }
+
+  if (ret == ES_WIFI_STATUS_ERROR)
+  {
+    *SentLen = 0;
+  }
+  UNLOCK_WIFI();
+  return ret;
+}
+
+ES_WIFI_Status_t  ES_WIFI_SendDataTo(ES_WIFIObject_t *Obj, uint8_t Socket, uint8_t *pdata, uint16_t Reqlen , uint16_t *SentLen, uint32_t Timeout, uint8_t *IPaddr, uint16_t Port)
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  LOCK_WIFI();  
+
+  sprintf((char*)Obj->CmdData,"P0=%d\r", Socket);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P2=%d\r", /*LocalPort*/ 56830 ); // WARN: Does not work!
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  // ? Are we sure that the Firmware can change the packet destination without stopping the socket?
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P4=%d\r", Port);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P3=%d.%d.%d.%d\r", IPaddr[0], IPaddr[1], IPaddr[2], IPaddr[3]);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    if(Reqlen >= ES_WIFI_PAYLOAD_SIZE )
+    {
+      Reqlen= ES_WIFI_PAYLOAD_SIZE;
+    }
+  }
+
+  if(ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData, "S2=%lu\r", Timeout);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if(ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char *)Obj->CmdData, "S3=%04d\r", Reqlen);
+    ret = AT_RequestSendData(Obj, Obj->CmdData, pdata, Reqlen, Obj->CmdData);
+  }
+
+  if(ret == ES_WIFI_STATUS_OK)
+  {
+    char *ptr = strstr((char *)Obj->CmdData,"-1\r\n");
+    if(ptr != NULL)
+    {
+      if (ptr < (char *) &Obj->CmdData[sizeof(Obj->CmdData)])
+      {
+        ret = ES_WIFI_STATUS_ERROR;
+      }
+      else
+      {
+        ret = ES_WIFI_STATUS_IO_ERROR;
       }
     }
   }
 
-  if (ret == ES_WIFI_STATUS_ERROR) *SentLen = 0;
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    *SentLen = Reqlen;
+  }
+  else
+  {
+    DEBUG("Send error:\n%s\n", Obj->CmdData);
+    *SentLen = 0;
+  }
+
+  UNLOCK_WIFI();
   return ret;
 }
 
+int issue15=0;
 /**
   * @brief  Receive an amount data over WIFI.
   * @param  Obj: pointer to module handle
@@ -1684,34 +2183,238 @@ ES_WIFI_Status_t ES_WIFI_SendData(ES_WIFIObject_t *Obj, uint8_t Socket, uint8_t 
   */
 ES_WIFI_Status_t ES_WIFI_ReceiveData(ES_WIFIObject_t *Obj, uint8_t Socket, uint8_t *pdata, uint16_t Reqlen, uint16_t *Receivedlen, uint32_t Timeout)
 {
-  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;  
-  
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  LOCK_WIFI();  
+
   if(Reqlen <= ES_WIFI_PAYLOAD_SIZE )
   {
     sprintf((char*)Obj->CmdData,"P0=%d\r", Socket);
-    ret = AT_ExecuteCommand(Obj, Obj->CmdData);
-    
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+
     if(ret == ES_WIFI_STATUS_OK)
     {
       sprintf((char*)Obj->CmdData,"R1=%d\r", Reqlen);
-      ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+      ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
       if(ret == ES_WIFI_STATUS_OK)
-      { 
+      {
         sprintf((char*)Obj->CmdData,"R2=%lu\r", Timeout);
-        ret = AT_ExecuteCommand(Obj, Obj->CmdData);
+        ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
         if(ret == ES_WIFI_STATUS_OK)
-        {  
-         sprintf((char*)Obj->CmdData,"R0=\r");
+        {
+          sprintf((char*)Obj->CmdData,"R0\r");
           ret = AT_RequestReceiveData(Obj, Obj->CmdData, (char *)pdata, Reqlen, Receivedlen);
+          if (ret != ES_WIFI_STATUS_OK)
+          {
+            DEBUG("AT_RequestReceiveData  failed\n"); 
+          }
+        }
+        else
+        {
+         DEBUG("setting timeout failed\n"); 
         }
       }
       else
       {
+        DEBUG("setting requested len failed\n"); 
         *Receivedlen = 0;
       }
     }
+    else
+    {
+      DEBUG("setting socket for read failed\n"); 
+      issue15++;
+    }
   }
+  UNLOCK_WIFI();
   return ret;
 }
 
+
+ES_WIFI_Status_t  ES_WIFI_ReceiveDataFrom(ES_WIFIObject_t *Obj, uint8_t Socket, uint8_t *pdata, uint16_t Reqlen, uint16_t *Receivedlen, uint32_t Timeout, uint8_t *IPaddr, uint16_t *pPort)
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  *Receivedlen = 0;
+  LOCK_WIFI();  
+
+  if (Reqlen <= ES_WIFI_PAYLOAD_SIZE )
+  {
+    sprintf((char*)Obj->CmdData, "P0=%d\r", Socket);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if(ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"R1=%d\r", Reqlen);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+  else
+  {
+    DEBUG("P0 failed.\n");
+  }
+
+  if(ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"R2=%lu\r", Timeout);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+  else
+  {
+    DEBUG("R1 failed.\n");
+  }
+
+  if(ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"R0\r");
+    ret = AT_RequestReceiveData(Obj, Obj->CmdData, (char *)pdata, Reqlen, Receivedlen);
+  }
+  else
+  {
+    DEBUG("R2 failed.\n");
+  }
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    if (*Receivedlen > Reqlen)
+    {
+      DEBUG("AT_RequestReceiveData overflow\n.");
+      ret = ES_WIFI_STATUS_ERROR;
+    }
+    else
+    {
+      if (*Receivedlen > 0)
+      {
+        /* Get the peer addr */
+        sprintf((char*)Obj->CmdData,"P?\r");
+        ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+
+        if (ret == ES_WIFI_STATUS_OK)
+        {
+          ES_WIFI_Transport_t TransportSettings;
+          memset(&TransportSettings, 0, sizeof(TransportSettings));
+          AT_ParseTransportSettings((char *) Obj->CmdData, &TransportSettings);
+          memcpy(IPaddr, TransportSettings.Remote_IP_Addr, 4);
+          *pPort = TransportSettings.Remote_Port;
+        }
+      }
+    }
+  }
+
+  if (ret != ES_WIFI_STATUS_OK)
+  {
+    DEBUG("Read error:\n%s\n", Obj->CmdData);
+    *Receivedlen = 0;
+  }
+  UNLOCK_WIFI();
+  return ret;
+}
+
+ES_WIFI_Status_t  ES_WIFI_StoreCreds( ES_WIFIObject_t *Obj,
+                                      ES_WIFI_CredsFunction_t credsFunction, uint8_t credSet,
+                                      uint8_t* ca, uint16_t caLength,
+                                      uint8_t* certificate, uint16_t certificateLength,
+                                      uint8_t* key, uint16_t keyLength )
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  LOCK_WIFI();
+
+  /* Set the credential set to use. */
+  sprintf( ( char* )( Obj->CmdData ),"PF=%d,%d\r", credsFunction, credSet );
+  ret = AT_ExecuteCommand( Obj, Obj->CmdData, Obj->CmdData );
+
+  if( ret == ES_WIFI_STATUS_OK )
+  {
+    /* Store rootCA. */
+    sprintf( ( char* )( Obj->CmdData ),"PG=%d,0,%04d\r", credSet, caLength );
+    ret = AT_RequestSendData( Obj, Obj->CmdData, ( uint8_t* ) ca, caLength, Obj->CmdData );
+
+    if( ret == ES_WIFI_STATUS_OK )
+    {
+      /* Store device certificate. */
+      sprintf( ( char* )( Obj->CmdData ),"PG=%d,1,%04d\r", credSet, certificateLength );
+      ret = AT_RequestSendData( Obj, Obj->CmdData, certificate, certificateLength, Obj->CmdData );
+
+      if( ret == ES_WIFI_STATUS_OK )
+      {
+        /* Store device key. */
+        sprintf( ( char* )( Obj->CmdData ),"PG=%d,2,%04d\r", credSet, keyLength );
+        ret = AT_RequestSendData( Obj, Obj->CmdData, key, keyLength, Obj->CmdData );
+      }
+    }
+  }
+
+  UNLOCK_WIFI();
+  return ret;
+}
+
+ES_WIFI_Status_t  ES_WIFI_StoreCA( ES_WIFIObject_t *Obj,
+                                   ES_WIFI_CredsFunction_t credsFunction,
+                                   uint8_t credSet,
+                                   uint8_t* ca,
+                                   uint16_t caLength )
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  LOCK_WIFI();
+
+  /* Set the credential set to use. */
+  sprintf( ( char* )( Obj->CmdData ),"PF=%d,%d\r", credsFunction, credSet );
+  ret = AT_ExecuteCommand( Obj, Obj->CmdData, Obj->CmdData );
+
+  if( ret == ES_WIFI_STATUS_OK )
+  {
+    /* Store CA. */
+    sprintf( ( char* )( Obj->CmdData ),"PG=%d,0,%04d\r", credSet, caLength );
+    ret = AT_RequestSendData( Obj, Obj->CmdData, ca, caLength, Obj->CmdData );
+  }
+
+  UNLOCK_WIFI();
+  return ret;
+}
+
+ES_WIFI_Status_t  ES_WIFI_StoreCertificate( ES_WIFIObject_t *Obj,
+                                            ES_WIFI_CredsFunction_t credsFunction,
+                                            uint8_t credSet,
+                                            uint8_t* certificate,
+                                            uint16_t certificateLength )
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  LOCK_WIFI();
+
+  /* Set the credential set to use. */
+  sprintf( ( char* )( Obj->CmdData ),"PF=%d,%d\r", credsFunction, credSet );
+  ret = AT_ExecuteCommand( Obj, Obj->CmdData, Obj->CmdData );
+
+  if( ret == ES_WIFI_STATUS_OK )
+  {
+    /* Store certificate. */
+    sprintf( ( char* )( Obj->CmdData ),"PG=%d,1,%04d\r", credSet, certificateLength );
+    ret = AT_RequestSendData( Obj, Obj->CmdData, certificate, certificateLength, Obj->CmdData );
+  }
+
+  UNLOCK_WIFI();
+  return ret;
+}
+
+ES_WIFI_Status_t  ES_WIFI_StoreKey( ES_WIFIObject_t *Obj,
+                                    ES_WIFI_CredsFunction_t credsFunction,
+                                    uint8_t credSet,
+                                    uint8_t* key,
+                                    uint16_t keyLength )
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
+  LOCK_WIFI();
+
+  /* Set the credential set to use. */
+  sprintf( ( char* )( Obj->CmdData ),"PF=%d,%d\r", credsFunction, credSet );
+  ret = AT_ExecuteCommand( Obj, Obj->CmdData, Obj->CmdData );
+
+  if( ret == ES_WIFI_STATUS_OK )
+  {
+    /* Store device key. */
+    sprintf( ( char* )( Obj->CmdData ),"PG=%d,2,%04d\r", credSet, keyLength );
+    ret = AT_RequestSendData( Obj, Obj->CmdData, key, keyLength, Obj->CmdData );
+  }
+
+  UNLOCK_WIFI();
+  return ret;
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

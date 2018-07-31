@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2013 - 2015, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -59,6 +63,14 @@
 #define SDK_DEBUGCONSOLE 1U
 #endif
 
+/*! @brief Definition to select redirect toolchain printf, scanf to uart or not. */
+#ifndef SDK_DEBUGCONSOLE_UART
+/* mcux will handle this macro, not define it here */
+#if (!defined(__MCUXPRESSO))
+#define SDK_DEBUGCONSOLE_UART
+#endif
+#endif
+
 #if defined(SDK_DEBUGCONSOLE) && !(SDK_DEBUGCONSOLE)
 #include <stdio.h>
 #endif
@@ -87,7 +99,7 @@ extern "C" {
 /* @{ */
 
 /*!
- * @brief Initializes the the peripheral used for debug messages.
+ * @brief Initializes the peripheral used for debug messages.
  *
  * Call this function to enable debug log messages to be output via the specified peripheral,
  * frequency of peripheral source clock, and base address at the specified baud rate.

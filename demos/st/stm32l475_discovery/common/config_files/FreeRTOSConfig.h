@@ -191,4 +191,7 @@ extern int iMainRand32( void );
 #define configECHO_SERVER_ADDR3       6
 #define configTCP_ECHO_CLIENT_PORT    7
 
+/* The platform FreeRTOS is running on. */
+#define configPLATFORM_NAME    "STM32L475"
+
 #endif /* FREERTOS_CONFIG_H */

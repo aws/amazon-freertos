@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Update Demo V0.9.4
+Amazon FreeRTOS OTA Update Demo V1.3.0
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of

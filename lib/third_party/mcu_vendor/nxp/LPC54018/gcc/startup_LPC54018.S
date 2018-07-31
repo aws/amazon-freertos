@@ -7,10 +7,14 @@
 
 /* ---------------------------------------------------------------------------------------*/
 /*                                                                                        */
+/* The Clear BSD License                                                                  */
 /* Copyright 1997-2016 Freescale Semiconductor, Inc.                                      */
 /* Copyright 2016-2017 NXP                                                                */
+/* All rights reserved.                                                                   */
+/*                                                                                        */
 /* Redistribution and use in source and binary forms, with or without modification,       */
-/* are permitted provided that the following conditions are met:                          */
+/* are permitted (subject to the limitations in the disclaimer below) provided            */
+/*  that the following conditions are met:                          */
 /*                                                                                        */
 /* 1. Redistributions of source code must retain the above copyright notice, this list    */
 /*   of conditions and the following disclaimer.                                          */
@@ -23,6 +27,7 @@
 /*   contributors may be used to endorse or promote products derived from this            */
 /*   software without specific prior written permission.                                  */
 /*                                                                                        */
+/* NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S' PATENT RIGHTS ARE GRANTED BY THIS LICENSE.*/
 /* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND        */
 /* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED          */
 /* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                 */
@@ -164,7 +169,7 @@ __image_header:
     #else
           .long   0x00000000                                /* (0x08) Load_address */
     #endif
-    .long   __IMAGE_SIZE                                    /* (0x0C) load_length */
+    .long   __IMAGE_SIZE - 4                                /* (0x0C) load_length, exclude 4 bytes CRC field */
     .long   0                                               /* (0x10) CRC value (only applicable to NON Non-secure images) */
     .long   0                                               /* (0x14) Version (only applicable to DUAL_ENH image type */
     .long   0                                               /* (0x18) EMC static memory configuration settings, required for EMC boot */
@@ -175,7 +180,7 @@ __image_header:
     .long   0                                               /* (0x2C) reserved */
      #ifdef W25Q128JVFM
      /* SPI Descriptor - W25Q128JVFM */
-    .long   0x00000000                                      /* 0xFFFFFFFF to default 1-bit SPI mode  ；DevStrAdr */
+    .long   0x00000000                                      /* 0xFFFFFFFF to default 1-bit SPI mode   ;DevStrAdr */
     .long   0x001870EF                                      /* mfgId + extCount */
     .long   0x00000000                                      /* extid 0-3 */
     .long   0x00000000                                      /* extid 4-7 */
@@ -205,8 +210,7 @@ __image_header:
     .long   0x68506850                                      /* maxClkRate,maxReadRate,maxHSReadRate,maxProgramRate */
     .long   0x06030050                                      /* maxHSProgramRate,initDeInitFxId,clearStatusFxId,getStatusFxId */
     .long   0x14110F0B                                      /* setStatusFxId,setOptionsFxId,getReadCmdFxId,getWriteCmdFxId */
-    #endif 
-
+    #endif
     .text
     .thumb
 
@@ -219,6 +223,9 @@ __image_header:
 Reset_Handler:
 
 #ifndef __NO_SYSTEM_INIT
+    movs  r0,#56
+    ldr   r1, =0x40000220
+    str   r0, [r1]           /* Enable SRAM clock used by Stack */ 
     ldr   r0,=SystemInit
     blx   r0
 #endif

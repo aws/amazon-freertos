@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_hash.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    17-February-2017
   * @brief   Header file of HASH HAL module.
   ******************************************************************************
   * @attention
@@ -43,7 +41,7 @@
  extern "C" {
 #endif
 
-#if defined (STM32L4A6xx)
+#if defined (STM32L4A6xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
@@ -128,27 +126,29 @@ typedef struct
 
   uint8_t                    *pHashMsgBuffPtr; /*!< Pointer to message buffer (HMAC only) */             
 
-  uint32_t                    HashBuffSize;    /*!< Size of buffer to be processed */
+  uint32_t                   HashBuffSize;     /*!< Size of buffer to be processed */
 
-  __IO uint32_t               HashInCount;      /*!< Counter of inputted data */
+  __IO uint32_t              HashInCount;      /*!< Counter of inputted data */
                             
-  __IO uint32_t               HashITCounter;    /*!< Counter of issued interrupts */
+  __IO uint32_t              HashITCounter;    /*!< Counter of issued interrupts */
    
-  __IO uint32_t               HashKeyCount;     /*!< Counter for Key inputted data (HMAC only) */
+  __IO uint32_t              HashKeyCount;     /*!< Counter for Key inputted data (HMAC only) */
       
   HAL_StatusTypeDef          Status;           /*!< HASH peripheral status   */
 
-  HAL_HASH_PhaseTypeDef       Phase;            /*!< HASH peripheral phase   */
+  HAL_HASH_PhaseTypeDef      Phase;            /*!< HASH peripheral phase   */
 
   DMA_HandleTypeDef          *hdmain;          /*!< HASH In DMA Handle parameters */
 
   HAL_LockTypeDef            Lock;             /*!< Locking object */
 
-  __IO HAL_HASH_StateTypeDef  State;            /*!< HASH peripheral state */
+  __IO HAL_HASH_StateTypeDef State;            /*!< HASH peripheral state */
    
-  HAL_HASH_SuspendTypeDef      SuspendRequest;   /*!< HASH peripheral suspension request flag */        
+  HAL_HASH_SuspendTypeDef    SuspendRequest;   /*!< HASH peripheral suspension request flag */        
    
-  FlagStatus                 DigestCalculationDisable;   /*!< Digest calculation phase skip (MDMAT bit control) for multi-buffers DMA-based HMAC computation */        
+  FlagStatus                 DigestCalculationDisable;  /*!< Digest calculation phase skip (MDMAT bit control) for multi-buffers DMA-based HMAC computation */
+  
+  __IO uint32_t              NbWordsAlreadyPushed;      /*!< Numbers of words already pushed in FIFO before inputting new block */          
 
 } HASH_HandleTypeDef;
 
@@ -568,7 +568,7 @@ HAL_StatusTypeDef HMAC_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, 
   * @}
   */  
   
-#endif /* defined (STM32L4A6xx) */
+#endif /* defined (STM32L4A6xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx) */    
   
 #ifdef __cplusplus
 }

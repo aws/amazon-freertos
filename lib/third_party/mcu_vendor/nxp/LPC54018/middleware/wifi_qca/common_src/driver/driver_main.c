@@ -61,6 +61,7 @@ uint32_t g_poolid = 0xffffffff;
  *		uint16_t *pBlock_msec - used to report to caller how long the driver
  *			may block for. if zero then driver can block indefinitely.
  *****************************************************************************/
+// uint32_t g_drv_progress = 0;
 A_STATUS
 Driver_Main(void *pCxt, uint8_t scope, boolean *pCanBlock, uint16_t *pBlock_msec)
 {
@@ -77,6 +78,7 @@ Driver_Main(void *pCxt, uint8_t scope, boolean *pCanBlock, uint16_t *pBlock_msec
      */
     if ((scope & DRIVER_SCOPE_RX) && true == Driver_RxReady(pCxt))
     {
+        // g_drv_progress = 0;
         pDCxt->driver_state = DRIVER_STATE_RX_PROCESSING;
         pReq = pDCxt->pRxReq;
         pDCxt->pRxReq = NULL;
@@ -109,6 +111,7 @@ Driver_Main(void *pCxt, uint8_t scope, boolean *pCanBlock, uint16_t *pBlock_msec
 
     if ((scope & DRIVER_SCOPE_TX) && true == Driver_TxReady(pCxt))
     {
+        // g_drv_progress = 0;
         pDCxt->driver_state = DRIVER_STATE_TX_PROCESSING;
         /* after processing any outstanding device interrupts
          * see if there is a packet that requires transmitting
@@ -136,6 +139,7 @@ Driver_Main(void *pCxt, uint8_t scope, boolean *pCanBlock, uint16_t *pBlock_msec
     /* execute any asynchronous/special request when possible */
     if (0 == (pDCxt->booleans & SDHD_BOOL_DMA_IN_PROG) && pDCxt->asynchRequest)
     {
+        // g_drv_progress = 0;
         pDCxt->driver_state = DRIVER_STATE_ASYNC_PROCESSING;
         pDCxt->asynchRequest(pCxt);
         pDCxt->driver_state = DRIVER_STATE_PENDING_CONDITION_F;
@@ -168,6 +172,16 @@ Driver_Main(void *pCxt, uint8_t scope, boolean *pCanBlock, uint16_t *pBlock_msec
             *pCanBlock = false;
         }
     }
+
+    // Used for testing purpose
+    // A_MDELAY(1);
+    // g_drv_progress++;
+    // if (g_drv_progress == 20)
+    // {
+        // extern A_STATUS DoPioWriteInternal(void *pCxt, uint16_t Addr, uint32_t Value);
+        // DoPioWriteInternal(pCxt, ATH_SPI_INTR_ENABLE_REG, 0x1f);
+        // g_drv_progress = 0;
+    // }
 
     return A_OK;
 }
@@ -373,16 +387,17 @@ boolean Driver_TxReady(void *pCxt)
                              */
                             pDCxt->creditDeadlock = true;
 #if 0
-        				if(pDCxt->creditDeadlockCounter >= MAX_CREDIT_DEADLOCK_ATTEMPTS){
-        					/* This is a serious condition that can be brought about by
-        					 * a flood of RX packets which generate TX responses and do not
-        					 * return the RX buffer to the driver until the TX response
-        					 * completes. To mitigate this situation purge the tx queue
-        					 * of any packets on data endpoints.
-        					 */
-        					Driver_DropTxDataPackets(pCxt);
-        					pDCxt->creditDeadlockCounter = 0;
-        				}
+                            assert(0);
+                            if(pDCxt->creditDeadlockCounter >= MAX_CREDIT_DEADLOCK_ATTEMPTS){
+                                /* This is a serious condition that can be brought about by
+                                 * a flood of RX packets which generate TX responses and do not
+                                 * return the RX buffer to the driver until the TX response
+                                 * completes. To mitigate this situation purge the tx queue
+                                 * of any packets on data endpoints.
+                                 */
+                                Driver_DropTxDataPackets(pCxt);
+                                pDCxt->creditDeadlockCounter = 0;
+                            }
 #endif
                         }
 
@@ -639,6 +654,8 @@ boolean Driver_RxReady(void *pCxt)
     return res;
 }
 
+
+extern void socket_set_driver_error(void *ctxt, int32_t error);
 void Driver_DropTxDataPackets(void *pCxt)
 {
     A_DRIVER_CONTEXT *pDCxt = GET_DRIVER_COMMON(pCxt);
@@ -663,6 +680,11 @@ void Driver_DropTxDataPackets(void *pCxt)
             {
                 if (A_NETBUF_GET_ELEM(pReq, A_REQ_EPID) > ENDPOINT_1)
                 {
+                    /* Get netbuffer socket context and set it into error state. */
+                    /* This field is used/readed in unblock function. */
+                    A_NETBUF_PTR a_netbuf_ptr = (A_NETBUF *)pReq;
+                    DRV_BUFFER_PTR db_ptr = a_netbuf_ptr->native_orig;
+                    socket_set_driver_error(db_ptr->context, A_DEADLOCK);
                     Driver_CompleteRequest(pCxt, pReq);
                 }
                 else

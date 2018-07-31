@@ -336,6 +336,10 @@ typedef struct tskTaskControlBlock
 		uint8_t ucDelayAborted;
 	#endif
 
+	#if( configUSE_POSIX_ERRNO == 1 )
+		int iTaskErrno;
+	#endif
+
 } tskTCB;
 
 /* The old tskTCB name is maintained above then typedefed to the new TCB_t name
@@ -368,9 +372,16 @@ PRIVILEGED_DATA static List_t xPendingReadyList;						/*< Tasks that have been r
 
 #endif
 
+/* Global POSIX errno. Its value is changed upon context switching to match
+the errno of the currently running task. */
+#if ( configUSE_POSIX_ERRNO == 1 )
+	int FreeRTOS_errno = 0;
+#endif
+
 /* Other file private variables. --------------------------------*/
 PRIVILEGED_DATA static volatile UBaseType_t uxCurrentNumberOfTasks 	= ( UBaseType_t ) 0U;
 PRIVILEGED_DATA static volatile TickType_t xTickCount 				= ( TickType_t ) configINITIAL_TICK_COUNT;
+PRIVILEGED_DATA static volatile TickType_t xIdleTickCount 			= ( TickType_t ) configINITIAL_TICK_COUNT;
 PRIVILEGED_DATA static volatile UBaseType_t uxTopReadyPriority 		= tskIDLE_PRIORITY;
 PRIVILEGED_DATA static volatile BaseType_t xSchedulerRunning 		= pdFALSE;
 PRIVILEGED_DATA static volatile UBaseType_t uxPendedTicks 			= ( UBaseType_t ) 0U;
@@ -2227,6 +2238,21 @@ TickType_t xTicks;
 }
 /*-----------------------------------------------------------*/
 
+TickType_t xTaskGetIdleTickCount( void )
+{
+TickType_t xTicks;
+
+	/* Critical section required if running on a 16 bit processor. */
+	portTICK_TYPE_ENTER_CRITICAL();
+	{
+		xTicks = xIdleTickCount;
+	}
+	portTICK_TYPE_EXIT_CRITICAL();
+
+	return xTicks;
+}
+/*-----------------------------------------------------------*/
+
 TickType_t xTaskGetTickCountFromISR( void )
 {
 TickType_t xReturn;
@@ -2251,6 +2277,37 @@ UBaseType_t uxSavedInterruptStatus;
 	uxSavedInterruptStatus = portTICK_TYPE_SET_INTERRUPT_MASK_FROM_ISR();
 	{
 		xReturn = xTickCount;
+	}
+	portTICK_TYPE_CLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedInterruptStatus );
+
+	return xReturn;
+}
+/*-----------------------------------------------------------*/
+
+TickType_t xTaskGetIdleTickCountFromISR( void )
+{
+TickType_t xReturn;
+UBaseType_t uxSavedInterruptStatus;
+
+	/* RTOS ports that support interrupt nesting have the concept of a maximum
+	system call (or maximum API call) interrupt priority.  Interrupts that are
+	above the maximum system call priority are kept permanently enabled, even
+	when the RTOS kernel is in a critical section, but cannot make any calls to
+	FreeRTOS API functions.  If configASSERT() is defined in FreeRTOSConfig.h
+	then portASSERT_IF_INTERRUPT_PRIORITY_INVALID() will result in an assertion
+	failure if a FreeRTOS API function is called from an interrupt that has been
+	assigned a priority above the configured maximum system call priority.
+	Only FreeRTOS functions that end in FromISR can be called from interrupts
+	that have been assigned a priority at or (logically) below the maximum
+	system call	interrupt priority.  FreeRTOS maintains a separate interrupt
+	safe API to ensure interrupt entry is as fast and as simple as possible.
+	More information (albeit Cortex-M specific) is provided on the following
+	link: http://www.freertos.org/RTOS-Cortex-M3-M4.html */
+	portASSERT_IF_INTERRUPT_PRIORITY_INVALID();
+
+	uxSavedInterruptStatus = portTICK_TYPE_SET_INTERRUPT_MASK_FROM_ISR();
+	{
+		xReturn = xIdleTickCount;
 	}
 	portTICK_TYPE_CLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedInterruptStatus );
 
@@ -2891,10 +2948,24 @@ void vTaskSwitchContext( void )
 		/* Check for stack overflow, if configured. */
 		taskCHECK_FOR_STACK_OVERFLOW();
 
+		/* Before the currently running task is switched out, save its errno. */
+		#if( configUSE_POSIX_ERRNO == 1 )
+		{
+			pxCurrentTCB->iTaskErrno = FreeRTOS_errno;
+		}
+		#endif
+
 		/* Select a new task to run using either the generic C or port
 		optimised asm code. */
 		taskSELECT_HIGHEST_PRIORITY_TASK();
 		traceTASK_SWITCHED_IN();
+
+		/* After the new task is switched in, update the global errno. */
+		#if( configUSE_POSIX_ERRNO == 1 )
+		{
+			FreeRTOS_errno = pxCurrentTCB->iTaskErrno;
+		}
+		#endif
 
 		#if ( configUSE_NEWLIB_REENTRANT == 1 )
 		{

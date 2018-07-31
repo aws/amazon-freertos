@@ -5,14 +5,14 @@ and the configuring the files `aws_clientcredential.h` and `aws_cliencredential_
 Make sure you have `aws cli` configured on your machine with access_key, secret_key and region.
 
 Open the file `configure.json` and fill in the following details:
-    * thing_name : Name of the thing you want to create
-    * wifi_ssid : The SSID of the wifi you want to use.
-    * wifi_password : The password of your wifi.
-    * wifi_security : The security type for your WiFi network. Valid security types are:
-        * eWiFiSecurityOpen: Open, no security
-        * eWiFiSecurityWEP: WEP security
-        * eWiFiSecurityWPA: WPA security
-        * eWiFiSecurityWPA2: WPA2 security
+* thing_name : Name of the thing you want to create
+* wifi_ssid : The SSID of the wifi you want to use.
+* wifi_password : The password of your wifi.
+* wifi_security : The security type for your WiFi network. Valid security types are:
+    * eWiFiSecurityOpen: Open, no security
+    * eWiFiSecurityWEP: WEP security
+    * eWiFiSecurityWPA: WPA security
+    * eWiFiSecurityWPA2: WPA2 security
 
 **Options to use with the script**
 

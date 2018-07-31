@@ -1,10 +1,13 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright (c) 2017, NXP
  * All rights reserved.
  *
+ *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -17,6 +20,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,6 +39,10 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.inputmux_connections"
+#endif
 
 /*!
  * @addtogroup inputmux_driver
@@ -171,15 +179,17 @@ typedef enum _inputmux_connection_t
     kINPUTMUX_Ctimer0M0ToDma = 8U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Ctimer0M1ToDma = 9U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Ctimer1M0ToDma = 10U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer2M0ToDma = 11U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer2M1ToDma = 12U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer3M0ToDma = 13U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer4M0ToDma = 14U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer4M1ToDma = 15U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Otrig0ToDma = 16U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Otrig1ToDma = 17U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Otrig2ToDma = 18U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Otrig3ToDma = 19U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer1M1ToDma = 11U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer2M0ToDma = 12U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer2M1ToDma = 13U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer3M0ToDma = 14U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer3M1ToDma = 15U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer4M0ToDma = 16U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer4M1ToDma = 17U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Otrig0ToDma = 18U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Otrig1ToDma = 19U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Otrig2ToDma = 20U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Otrig3ToDma = 21U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
     /*!< DMA OTRIG. */
     kINPUTMUX_DmaFlexcomm0RxTrigoutToTriginChannels = 0U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_DmaFlexcomm0TxTrigoutToTriginChannels = 1U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
@@ -200,7 +210,7 @@ typedef enum _inputmux_connection_t
     kINPUTMUX_DmaDmic0Ch0TrigoutToTriginChannels = 16U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Dmamic0Ch1TrigoutToTriginChannels = 17U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_DmaSpifi0TrigoutToTriginChannels = 18U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_DmaChannel9_TrigoutToTriginChannels = 19U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_DmaSha_TrigoutToTriginChannels = 19U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_DmaFlexcomm8RxTrigoutToTriginChannels = 20U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_DmaFlexcomm8TxTrigoutToTriginChannels = 21U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_DmaFlexcomm9RxTrigoutToTriginChannels = 22U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
@@ -209,6 +219,9 @@ typedef enum _inputmux_connection_t
     kINPUTMUX_DmaSmartcard0TxTrigoutToTriginChannels = 25U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_DmaSmartcard1RxTrigoutToTriginChannels = 26U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_DmaSmartcard1TxTrigoutToTriginChannels = 27U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_DmaFlexcomm10RxTrigoutToTriginChannels = 28U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_DmaFlexcomm10TxTrigoutToTriginChannels = 29U + (DMA_OTRIG_PMUX_ID << PMUX_SHIFT),
+
 } inputmux_connection_t;
 
 /*@}*/

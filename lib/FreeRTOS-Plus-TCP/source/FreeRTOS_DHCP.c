@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.4
+ * FreeRTOS+TCP V2.0.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -738,7 +738,7 @@ const uint32_t ulMandatoryOptions = 2ul; /* DHCP server address, and the correct
 
 						case dhcpLEASE_TIME_OPTION_CODE :
 
-							if( ucLength == sizeof( &( xDHCPData.ulLeaseTime ) ) )
+							if( ucLength == sizeof( xDHCPData.ulLeaseTime ) )
 							{
 								/* ulProcessed is not incremented in this case
 								because the lease time is not essential. */

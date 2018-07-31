@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,17 +38,15 @@
  * Definitions
  ******************************************************************************/
 
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.spifi"
+#endif
+
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-
-/*!
- * @brief Get the SPIFI instance from peripheral base address.
- *
- * @param base SPIFI peripheral base address.
- * @return SPIFI instance.
- */
-uint32_t SPIFI_GetInstance(SPIFI_Type *base);
 
 /*******************************************************************************
  * Variables
@@ -87,7 +89,7 @@ void SPIFI_GetDefaultConfig(spifi_config_t *config)
     config->disableCachePrefech = false;
     config->isFeedbackClock = true;
     config->spiMode = kSPIFI_SPISckLow;
-    config->isReadFullClockCycle = false;
+    config->isReadFullClockCycle = true;
     config->dualMode = kSPIFI_QuadMode;
 }
 
@@ -134,11 +136,6 @@ void SPIFI_SetCommand(SPIFI_Type *base, spifi_command_t *cmd)
     base->CMD = SPIFI_CMD_DATALEN(cmd->dataLen) | SPIFI_CMD_POLL(cmd->isPollMode) | SPIFI_CMD_DOUT(cmd->direction) |
                 SPIFI_CMD_INTLEN(cmd->intermediateBytes) | SPIFI_CMD_FIELDFORM(cmd->format) |
                 SPIFI_CMD_FRAMEFORM(cmd->type) | SPIFI_CMD_OPCODE(cmd->opcode);
-
-    /* Wait for the command written */
-    while ((base->STAT & SPIFI_STAT_CMD_MASK) == 0)
-    {
-    }
 }
 
 void SPIFI_SetMemoryCommand(SPIFI_Type *base, spifi_command_t *cmd)
@@ -159,19 +156,19 @@ void SPIFI_SetMemoryCommand(SPIFI_Type *base, spifi_command_t *cmd)
 
 void SPIFI_WriteDataHalfword(SPIFI_Type *base, uint16_t data)
 {
-    uint8_t *dataReg = ((uint8_t *)(&(base->DATA)));
+    volatile uint8_t *dataReg = ((volatile uint8_t *)(&(base->DATA)));
 
     *dataReg = (data & 0xFFU);
     dataReg++;
-    *dataReg = ((data >> 8U) && 0xFFU);
+    *dataReg = ((data >> 8U) & 0xFFU);
 }
 
 uint16_t SPIFI_ReadDataHalfword(SPIFI_Type *base)
 {
     uint16_t val = 0;
-    uint8_t *dataReg = ((uint8_t *)(&(base->DATA)));
+    volatile uint8_t *dataReg = ((volatile uint8_t *)(&(base->DATA)));
 
-    val = ((uint16_t)(*dataReg) | (uint16_t)((uint16_t)(*(dataReg + 1U)) << 8U));
+    val = ((*dataReg) | (uint16_t)((uint16_t)(*(dataReg + 1U)) << 8U));
 
     return val;
 }

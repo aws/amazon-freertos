@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi for Curiosity PIC32MZEF V1.0.3
+ * Amazon FreeRTOS Wi-Fi for Curiosity PIC32MZEF V1.0.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,16 +34,22 @@
  * We want to call configASSERT() in Amazon FreeRTOS instead so that functions abort
  * tests for assertions instead of falling into a while loop.
  */
-void WDRV_STUB_Assert(int condition, const char *msg, const char *file, int line)
+void WDRV_STUB_Assert( int condition,
+                       const char * msg,
+                       const char * file,
+                       int line )
 {
-    if (!condition)
+    if( !condition )
     {
-        if ( *msg )
+        if( *msg )
+        {
             configPRINTF( ( "Wi-Fi Assert: %s in %s, line %u\r\n", msg, file, line ) );
+        }
         else
+        {
             configPRINTF( ( "Wi-Fi Assert: %s, line %u\r\n", file, line ) );
+        }
 
         configASSERT( condition );
     }
-    return;
 }

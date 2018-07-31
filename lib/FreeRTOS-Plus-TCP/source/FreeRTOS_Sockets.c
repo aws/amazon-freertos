@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.4
+ * FreeRTOS+TCP V2.0.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1562,7 +1562,7 @@ FreeRTOS_Socket_t *pxSocket;
 					if( pxSocket->u.xTCP.xTCPWindow.u.bits.bHasInit != pdFALSE_UNSIGNED )
 					{
 						pxSocket->u.xTCP.xTCPWindow.xSize.ulRxWindowLength = pxSocket->u.xTCP.uxRxWinSize * pxSocket->u.xTCP.usInitMSS;
-						pxSocket->u.xTCP.xTCPWindow.xSize.ulRxWindowLength = pxSocket->u.xTCP.uxTxWinSize * pxSocket->u.xTCP.usInitMSS;
+						pxSocket->u.xTCP.xTCPWindow.xSize.ulTxWindowLength = pxSocket->u.xTCP.uxTxWinSize * pxSocket->u.xTCP.usInitMSS;
 					}
 				}
 
@@ -3397,12 +3397,13 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 				char ucChildText[16] = "";
 				if (pxSocket->u.xTCP.ucTCPState == eTCP_LISTEN)
 				{
-					snprintf( ucChildText, sizeof( ucChildText ), " %d/%d",
-						pxSocket->u.xTCP.usChildCount,
-						pxSocket->u.xTCP.usBacklog);
+					const int32_t copied_len = snprintf( ucChildText, sizeof( ucChildText ), " %d/%d",
+						( int ) pxSocket->u.xTCP.usChildCount,
+						( int ) pxSocket->u.xTCP.usBacklog);
+					/* These should never evaluate to false since the buffers are both shorter than 5-6 characters (<=65535) */
+					configASSERT( copied_len >= 0 );
+					configASSERT( copied_len < sizeof( ucChildText ) );
 				}
-				if( age > 999999 )
-					age = 999999;
 				FreeRTOS_printf( ( "TCP %5d %-16lxip:%5d %d/%d %-13.13s %6lu %6u%s\n",
 					pxSocket->usLocalPort,		/* Local port on this machine */
 					pxSocket->u.xTCP.ulRemoteIP,	/* IP address of remote machine */
@@ -3410,7 +3411,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 					pxSocket->u.xTCP.rxStream != NULL,
 					pxSocket->u.xTCP.txStream != NULL,
 					FreeRTOS_GetTCPStateName( pxSocket->u.xTCP.ucTCPState ),
-					age,
+					(age > 999999 ? 999999 : age), /* Format 'age' for printing */
 					pxSocket->u.xTCP.usTimeout,
 					ucChildText ) );
 					/* Remove compiler warnings if FreeRTOS_debug_printf() is not defined. */

@@ -358,6 +358,7 @@ typedef struct _a_driver_context
     uint32_t hb_sequence;
     boolean hb_challenge_done;
     WMI_SCAN_PARAMS_CMD scan_param; // save scan parameters for roam mode change
+    SemaphoreHandle_t apiMutex;
 } A_DRIVER_CONTEXT;
 
 extern uint32_t last_driver_error;

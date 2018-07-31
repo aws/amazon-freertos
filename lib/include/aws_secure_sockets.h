@@ -86,6 +86,7 @@ typedef void * Socket_t;
 #define SOCKETS_ENOMEM                   ( -12 )   /*!< Memory allocation failed. */
 #define SOCKETS_EINVAL                   ( -22 )   /*!< Invalid argument. */
 #define SOCKETS_ENOPROTOOPT              ( -109 )  /*!< A bad option was specified . */
+#define SOCKETS_ENOTCONN                 ( -126 )  /*!< The supplied socket is not connected. */
 #define SOCKETS_EISCONN                  ( -127 )  /*!< The supplied socket is already connected. */
 #define SOCKETS_ECLOSED                  ( -128 )  /*!< The supplied socket has already been closed. */
 #define SOCKETS_TLS_INIT_ERROR           ( -1001 ) /*!< TLS initialization failed. */
@@ -235,8 +236,8 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
  *
  * \note To create a secure socket, SOCKETS_SetSockOpt() should be called with the
  * SOCKETS_SO_REQUIRE_TLS option \a before SOCKETS_Connect() is called.
- * 
- * If this function returns an error the socket is considered invalid. 
+ *
+ * If this function returns an error the socket is considered invalid.
  *
  * \warning SOCKETS_Connect() is not safe to be called on the same socket
  * from multiple threads simultaneously with SOCKETS_Connect(),

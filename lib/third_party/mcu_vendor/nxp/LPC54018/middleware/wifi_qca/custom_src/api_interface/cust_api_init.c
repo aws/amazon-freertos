@@ -223,8 +223,22 @@ static uint32_t Custom_Api_Initialize(QCA_CONTEXT_STRUCT_PTR qca_ptr)
     {
         if (p_Global_Cxt != NULL)
         {
-            A_FREE(GET_DRIVER_COMMON(p_Global_Cxt), MALLOC_ID_CONTEXT);
-            A_FREE(p_Global_Cxt, MALLOC_ID_CONTEXT);
+#if 0
+            void * tmp_addr;
+            /* NOTE: ***do not free memory*** in case of timeout/failure 
+             * there is no proper initialization fallback ! */
+
+            /* Free driver context, may be interrupted */
+            tmp_addr = ((cust_context_t *)p_Global_Cxt)->pCommonCxt;
+            ((cust_context_t *)p_Global_Cxt)->pCommonCxt = NULL;
+            A_FREE(tmp_addr, MALLOC_ID_CONTEXT);
+
+            /* Free custom driver context, may be interrupted */
+            tmp_addr = p_Global_Cxt;
+            p_Global_Cxt = NULL;
+            A_FREE(tmp_addr, MALLOC_ID_CONTEXT);
+#endif
+            return error;
         }
     }
     else
@@ -257,7 +271,7 @@ static uint32_t Custom_Api_Shutdown(struct qca_context_struct *qca_ptr)
     // Notify driver task to reset itself
     Driver_DestroyThread(pCxt);
 
-// It simply cannot work
+//TODO: It simply cannot work
 #if 0
     if (pCxt != NULL)
     {

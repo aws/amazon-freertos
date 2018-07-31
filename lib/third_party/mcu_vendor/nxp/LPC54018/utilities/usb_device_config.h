@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2016 - 2018 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,38 +39,32 @@
 * Definitions
 ******************************************************************************/
 /*!
- * @addtogroup usb_device_configuration
- * @{
- */
-
-/*!
  * @name Hardware instance define
  * @{
  */
+
 /*! @brief KHCI instance count */
-#ifndef USB_DEVICE_CONFIG_KHCI
 #define USB_DEVICE_CONFIG_KHCI (0U)
-#endif
+
 /*! @brief EHCI instance count */
-#ifndef USB_DEVICE_CONFIG_EHCI
 #define USB_DEVICE_CONFIG_EHCI (0U)
-#endif
 
 /*! @brief LPC USB IP3511 FS instance count */
-#ifndef USB_DEVICE_CONFIG_LPCIP3511FS
 #define USB_DEVICE_CONFIG_LPCIP3511FS (0U)
-#endif
 
 /*! @brief LPC USB IP3511 HS instance count */
-#ifndef USB_DEVICE_CONFIG_LPCIP3511HS
-#define USB_DEVICE_CONFIG_LPCIP3511HS (0U)
-#endif
+#define USB_DEVICE_CONFIG_LPCIP3511HS (1U)
 
 /*! @brief Device instance count, the sum of KHCI and EHCI instance counts*/
 #define USB_DEVICE_CONFIG_NUM \
     (USB_DEVICE_CONFIG_KHCI + USB_DEVICE_CONFIG_EHCI + USB_DEVICE_CONFIG_LPCIP3511FS + USB_DEVICE_CONFIG_LPCIP3511HS)
 
 /* @} */
+
+/*!
+ * @addtogroup usb_device_configuration
+ * @{
+ */
 
 /*!
  * @name class instance define
@@ -157,8 +155,9 @@
 #define USB_DEVICE_CONFIG_KEEP_ALIVE_MODE (0U)
 
 /*! @brief Whether the transfer buffer is cache-enabled or not. */
+#ifndef USB_DEVICE_CONFIG_BUFFER_PROPERTY_CACHEABLE
 #define USB_DEVICE_CONFIG_BUFFER_PROPERTY_CACHEABLE (0U)
-
+#endif
 /*! @brief Whether the low power mode is enabled or not. */
 #define USB_DEVICE_CONFIG_LOW_POWER_MODE (0U)
 
@@ -181,4 +180,26 @@
 
 /* @} */
 
+/*!
+ * @name Hardware instance define
+ * @{
+ */
+
+/*! @brief KHCI instance count */
+#define USB_DEVICE_CONFIG_KHCI (0U)
+
+/*! @brief EHCI instance count */
+#define USB_DEVICE_CONFIG_EHCI (0U)
+
+/*! @brief LPC USB IP3511 FS instance count */
+#define USB_DEVICE_CONFIG_LPCIP3511FS (0U)
+
+/*! @brief LPC USB IP3511 HS instance count */
+#define USB_DEVICE_CONFIG_LPCIP3511HS (1U)
+
+/*! @brief Device instance count, the sum of KHCI and EHCI instance counts*/
+#define USB_DEVICE_CONFIG_NUM \
+    (USB_DEVICE_CONFIG_KHCI + USB_DEVICE_CONFIG_EHCI + USB_DEVICE_CONFIG_LPCIP3511FS + USB_DEVICE_CONFIG_LPCIP3511HS)
+
+/* @} */
 #endif /* _USB_DEVICE_CONFIG_H_ */

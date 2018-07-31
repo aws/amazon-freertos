@@ -42,11 +42,11 @@
 #define WRITE_REGISTER              (5)
 
 
-#ifdef XIP_IMAGE
-#warning NOTE: MFLASH driver expects that application runs from XIP
-#else
-#warning NOTE: MFLASH driver expects that application runs from SRAM
-#endif
+//#ifdef XIP_IMAGE
+//#warning NOTE: MFLASH driver expects that application runs from XIP
+//#else
+//#warning NOTE: MFLASH driver expects that application runs from SRAM
+//#endif
 
 
 /* Temporary sector storage. Use uint32_t type to force 4B alignment and 
@@ -106,10 +106,10 @@ static int32_t mflash_drv_init_internal(void)
      * TODO: store/restore previous PRIMASK on stack to avoid
      * failure in case of nested critical sections !! */
     __asm("cpsid i");
-    uint32_t sourceClockFreq;
     spifi_config_t config = {0};
 
 #ifndef XIP_IMAGE
+    uint32_t sourceClockFreq;
     BOARD_InitSPIFI();
     /* Reset peripheral */
     RESET_PeripheralReset(kSPIFI_RST_SHIFT_RSTn);

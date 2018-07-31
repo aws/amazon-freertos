@@ -66,7 +66,7 @@ static A_STATUS Hcd_TransferData(void *pCxt, void *pReq);
  *		uint32_t value - value to write to the register.
  *****************************************************************************/
 #if 0
-static A_STATUS 
+A_STATUS 
 DoPioWriteInternal(void *pCxt, 
                                       uint16_t        Addr,
                                       uint32_t        Value) 
@@ -87,7 +87,7 @@ DoPioWriteInternal(void *pCxt,
     return Bus_InOutToken(pCxt, Value, ATH_TRANS_DS_16, NULL);
 }
 #else
-static A_STATUS DoPioWriteInternal(void *pCxt, uint16_t Addr, uint32_t Value)
+A_STATUS DoPioWriteInternal(void *pCxt, uint16_t Addr, uint32_t Value)
 {
     uint32_t dataIn;
     uint32_t dataOut;

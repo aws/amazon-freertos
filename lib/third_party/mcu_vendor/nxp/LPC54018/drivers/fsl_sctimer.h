@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -85,7 +89,9 @@ typedef enum _sctimer_out
     kSCTIMER_Out_4,      /*!< SCTIMER output 4 */
     kSCTIMER_Out_5,      /*!< SCTIMER output 5 */
     kSCTIMER_Out_6,      /*!< SCTIMER output 6 */
-    kSCTIMER_Out_7       /*!< SCTIMER output 7 */
+    kSCTIMER_Out_7,      /*!< SCTIMER output 7 */
+    kSCTIMER_Out_8,      /*!< SCTIMER output 8 */
+    kSCTIMER_Out_9       /*!< SCTIMER output 9 */
 } sctimer_out_t;
 
 /*! @brief SCTimer PWM output pulse mode: high-true, low-true or no output */
@@ -661,6 +667,8 @@ static inline void SCTIMER_SetupNextStateAction(SCT_Type *base, uint32_t nextSta
  */
 static inline void SCTIMER_SetupOutputSetAction(SCT_Type *base, uint32_t whichIO, uint32_t event)
 {
+    assert(whichIO < FSL_FEATURE_SCT_NUMBER_OF_OUTPUTS);
+
     base->OUT[whichIO].SET |= (1U << event);
 }
 
@@ -675,6 +683,8 @@ static inline void SCTIMER_SetupOutputSetAction(SCT_Type *base, uint32_t whichIO
  */
 static inline void SCTIMER_SetupOutputClearAction(SCT_Type *base, uint32_t whichIO, uint32_t event)
 {
+    assert(whichIO < FSL_FEATURE_SCT_NUMBER_OF_OUTPUTS);
+
     base->OUT[whichIO].CLR |= (1U << event);
 }
 
@@ -783,6 +793,7 @@ static inline void SCTIMER_SetupCounterHaltAction(SCT_Type *base, sctimer_counte
     }
 }
 
+#if !(defined(FSL_FEATURE_SCT_HAS_NO_DMA_REQUEST) && FSL_FEATURE_SCT_HAS_NO_DMA_REQUEST)
 /*!
  * @brief Generate a DMA request.
  *
@@ -803,6 +814,7 @@ static inline void SCTIMER_SetupDmaTriggerAction(SCT_Type *base, uint32_t dmaNum
         base->DMA1REQUEST |= (1U << event);
     }
 }
+#endif /* FSL_FEATURE_SCT_HAS_NO_DMA_REQUEST */
 
 /*!
  * @brief SCTimer interrupt handler.

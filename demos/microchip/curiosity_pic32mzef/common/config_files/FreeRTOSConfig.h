@@ -255,5 +255,7 @@
     #define configRAND32()    ulRand()
 #endif /* defined(__LANGUAGE_C__) */
 
+/* The platform FreeRTOS is running on. */
+#define configPLATFORM_NAME    "MicrochipPIC32MZEF"
 
 #endif /* FREERTOS_CONFIG_H */

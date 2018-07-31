@@ -1,5 +1,5 @@
 /*
-FreeRTOS+TCP V2.0.4
+FreeRTOS+TCP V2.0.5
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -79,7 +79,7 @@ static pcap_if_t * prvPrintAvailableNetworkInterfaces( void );
  * by the configNETWORK_INTERFACE_TO_USE constant in FreeRTOSConfig.h.
  */
 static void prvOpenSelectedNetworkInterface( pcap_if_t *pxAllNetworkInterfaces );
-static void prvOpenInterface( const char *pucName );
+static int prvOpenInterface( const char *pucName );
 
 /*
  * Configure the capture filter to allow blocking reads, and to filter out
@@ -274,7 +274,7 @@ static BaseType_t xInvalidInterfaceDetected = pdFALSE;
 		printf( "\r\nThe interface that will be opened is set by " );
 		printf( "\"configNETWORK_INTERFACE_TO_USE\", which\r\nshould be defined in FreeRTOSConfig.h\r\n" );
 
-		if( ( xConfigNextworkInterfaceToUse < 1L ) || ( xConfigNextworkInterfaceToUse >= lInterfaceNumber ) )
+		if( ( xConfigNextworkInterfaceToUse < 0L ) || ( xConfigNextworkInterfaceToUse >= lInterfaceNumber ) )
 		{
 			printf( "\r\nERROR:  configNETWORK_INTERFACE_TO_USE is set to %d, which is an invalid value.\r\n", xConfigNextworkInterfaceToUse );
 			printf( "Please set configNETWORK_INTERFACE_TO_USE to one of the interface numbers listed above,\r\n" );
@@ -299,7 +299,7 @@ static BaseType_t xInvalidInterfaceDetected = pdFALSE;
 }
 /*-----------------------------------------------------------*/
 
-static void prvOpenInterface( const char *pucName )
+static int prvOpenInterface( const char *pucName )
 {
 static char pucInterfaceName[ 256 ];
 
@@ -325,6 +325,7 @@ static char pucInterfaceName[ 256 ];
 	if ( pxOpenedInterfaceHandle == NULL )
 	{
 		printf( "\n%s is not supported by WinPcap and cannot be opened\n", pucInterfaceName );
+		return 1;
 	}
 	else
 	{
@@ -332,6 +333,7 @@ static char pucInterfaceName[ 256 ];
 		out packets that are not of interest to this demo. */
 		prvConfigureCaptureBehaviour();
 	}
+	return 0;
 }
 /*-----------------------------------------------------------*/
 
@@ -342,13 +344,22 @@ int32_t x;
 
 	/* Walk the list of devices until the selected device is located. */
 	xInterface = pxAllNetworkInterfaces;
-	for( x = 0L; x < ( xConfigNextworkInterfaceToUse - 1L ); x++ )
-	{
-		xInterface = xInterface->next;
+	if (0 == xConfigNextworkInterfaceToUse) {
+		while (NULL != xInterface) {
+			xInterface = xInterface->next;
+			if (0 == prvOpenInterface(xInterface->name)) {
+				break;
+			}
+		}
 	}
-
-	/* Open the selected interface. */
-	prvOpenInterface( xInterface->name );
+	else {
+		for (x = 1L; x < xConfigNextworkInterfaceToUse; x++)
+		{
+			xInterface = xInterface->next;
+		}
+		/* Open the selected interface. */
+		(void) prvOpenInterface(xInterface->name);
+	}
 
 	/* The device list is no longer required. */
 	pcap_freealldevs( pxAllNetworkInterfaces );

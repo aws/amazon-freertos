@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,6 +40,12 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.flexcomm_i2c"
+#endif
+
 
 /*! @brief Common sets of flags used by the driver. */
 enum _i2c_flag_constants
@@ -227,10 +237,13 @@ status_t I2C_MasterWriteBlocking(I2C_Type *base, const void *txBuff, size_t txSi
     while (txSize)
     {
         status = I2C_PendingStatusWait(base);
+
+#if I2C_WAIT_TIMEOUT
         if (status == kStatus_I2C_Timeout)
         {
             return kStatus_I2C_Timeout;
         }
+#endif
 
         if (status & I2C_STAT_MSTARBLOSS_MASK)
         {
@@ -272,10 +285,12 @@ status_t I2C_MasterWriteBlocking(I2C_Type *base, const void *txBuff, size_t txSi
 
     status = I2C_PendingStatusWait(base);
 
+#if I2C_WAIT_TIMEOUT
     if (status == kStatus_I2C_Timeout)
     {
         return kStatus_I2C_Timeout;
     }
+#endif
 
     if ((status & (I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK)) == 0)
     {
@@ -318,10 +333,13 @@ status_t I2C_MasterReadBlocking(I2C_Type *base, void *rxBuff, size_t rxSize, uin
     while (rxSize)
     {
         status = I2C_PendingStatusWait(base);
+
+#if I2C_WAIT_TIMEOUT
         if (status == kStatus_I2C_Timeout)
         {
             return kStatus_I2C_Timeout;
         }
+#endif
 
         if (status & (I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK))
         {
@@ -345,10 +363,13 @@ status_t I2C_MasterReadBlocking(I2C_Type *base, void *rxBuff, size_t rxSize, uin
                         /* initiate NAK and stop */
                         base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
                         status = I2C_PendingStatusWait(base);
+
+#if I2C_WAIT_TIMEOUT
                         if (status == kStatus_I2C_Timeout)
                         {
                             return kStatus_I2C_Timeout;
                         }
+#endif
                     }
                 }
                 break;
@@ -470,7 +491,7 @@ void I2C_MasterTransferCreateHandle(I2C_Type *base,
     handle->completionCallback = callback;
     handle->userData = userData;
 
-    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)(uintptr_t)I2C_MasterTransferHandleIRQ, handle);
+    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)I2C_MasterTransferHandleIRQ, handle);
 
     /* Clear internal IRQ enables and enable NVIC IRQ. */
     I2C_DisableInterrupts(base, kI2C_MasterIrqFlags);
@@ -539,10 +560,15 @@ status_t I2C_MasterTransferAbort(I2C_Type *base, i2c_master_handle_t *handle)
 
         /* Wait until module is ready */
         status = I2C_PendingStatusWait(base);
+
+#if I2C_WAIT_TIMEOUT
         if (status == kStatus_I2C_Timeout)
         {
+            /* Reset handle to idle state. */
+            handle->state = kIdleState;
             return kStatus_I2C_Timeout;
         }
+#endif
 
         /* Get the state of the I2C module */
         master_state = (status & I2C_STAT_MSTSTATE_MASK) >> I2C_STAT_MSTSTATE_SHIFT;
@@ -806,6 +832,9 @@ void I2C_MasterTransferHandleIRQ(I2C_Type *base, i2c_master_handle_t *handle)
 
     if (isDone || (result != kStatus_Success))
     {
+        /* Restore handle to idle state. */
+        handle->state = kIdleState;
+
         /* Disable internal IRQ enables. */
         I2C_DisableInterrupts(base, kI2C_MasterIrqFlags);
 
@@ -1329,7 +1358,7 @@ void I2C_SlaveTransferCreateHandle(I2C_Type *base,
     /* store pointer to handle into transfer struct */
     handle->transfer.handle = handle;
 
-    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)(uintptr_t)I2C_SlaveTransferHandleIRQ, handle);
+    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)I2C_SlaveTransferHandleIRQ, handle);
 
     /* Clear internal IRQ enables and enable NVIC IRQ. */
     I2C_DisableInterrupts(base, kI2C_SlaveIrqFlags);
@@ -1416,13 +1445,12 @@ void I2C_SlaveTransferHandleIRQ(I2C_Type *base, i2c_slave_handle_t *handle)
                         /* receive a byte */
                         if ((handle->transfer.rxData) && (handle->transfer.rxSize))
                         {
+                            /* continue transaction */
+                            base->SLVCTL = I2C_SLVCTL_SLVCONTINUE_MASK;
                             *(handle->transfer.rxData) = (uint8_t)base->SLVDAT;
                             (handle->transfer.rxSize)--;
                             (handle->transfer.rxData)++;
                             (handle->transfer.transferredCount)++;
-
-                            /* continue transaction */
-                            base->SLVCTL = I2C_SLVCTL_SLVCONTINUE_MASK;
                         }
 
                         /* is this last transaction for this transfer? allow next transaction */
@@ -1456,12 +1484,11 @@ void I2C_SlaveTransferHandleIRQ(I2C_Type *base, i2c_slave_handle_t *handle)
                         if ((handle->transfer.txData) && (handle->transfer.txSize))
                         {
                             base->SLVDAT = *(handle->transfer.txData);
+                            /* continue transaction */
+                            base->SLVCTL = I2C_SLVCTL_SLVCONTINUE_MASK;
                             (handle->transfer.txSize)--;
                             (handle->transfer.txData)++;
                             (handle->transfer.transferredCount)++;
-
-                            /* continue transaction */
-                            base->SLVCTL = I2C_SLVCTL_SLVCONTINUE_MASK;
                         }
 
                         /* is this last transaction for this transfer? allow next transaction */

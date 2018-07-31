@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -43,8 +47,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief Driver version 2.0.5. */
-#define FSL_SDIF_DRIVER_VERSION (MAKE_VERSION(2U, 0U, 5U))
+/*! @brief Driver version 2.0.7. */
+#define FSL_SDIF_DRIVER_VERSION (MAKE_VERSION(2U, 0U, 7U))
 /*@}*/
 
 /*! @brief  SDIOCLKCTRL setting
@@ -73,19 +77,19 @@
 #endif
 
 /*
-* Pharse shift delay configuration
+* Phase shift delay configuration
 * 0 degree: no delay
 * 90 degree: 0.25/source clk value
 * 180 degree: 0.50/source clk value
 * 270 degree: 0.75/source clk value
 */
-/*! @brief High speed mode clk_sample pharse shift */
+/*! @brief High speed mode clk_sample phase shift */
 #ifndef SDIF_HIGHSPEED_SAMPLE_PHASE_SHIFT
 #define SDIF_HIGHSPEED_SAMPLE_PHASE_SHIFT (0U)
 #endif
-/*! @brief High speed mode clk_drv pharse shift */
+/*! @brief High speed mode clk_drv phase shift */
 #ifndef SDIF_HIGHSPEED_DRV_PHASE_SHIFT
-#define SDIF_HIGHSPEED_DRV_PHASE_SHIFT (1U) /* 90 degrees clk_drv pharse delay */
+#define SDIF_HIGHSPEED_DRV_PHASE_SHIFT (1U) /* 90 degrees clk_drv phase delay */
 #endif
 
 /*! @brief SDIF internal DMA descriptor address and the data buffer address align */
@@ -95,7 +99,7 @@
 enum _sdif_status
 {
     kStatus_SDIF_DescriptorBufferLenError = MAKE_STATUS(kStatusGroup_SDIF, 0U), /*!< Set DMA descriptor failed */
-    kStatue_SDIF_InvalidArgument = MAKE_STATUS(kStatusGroup_SDIF, 1U),          /*!< invalid argument status */
+    kStatus_SDIF_InvalidArgument = MAKE_STATUS(kStatusGroup_SDIF, 1U),          /*!< invalid argument status */
     kStatus_SDIF_SyncCmdTimeout = MAKE_STATUS(kStatusGroup_SDIF, 2U), /*!< sync command to CIU timeout status */
     kStatus_SDIF_SendCmdFail = MAKE_STATUS(kStatusGroup_SDIF, 3U),    /*!< send command to card fail */
     kStatus_SDIF_SendCmdErrorBufferFull =
@@ -104,8 +108,8 @@ enum _sdif_status
     kStatus_SDIF_DMATransferFailWithFBE =
         MAKE_STATUS(kStatusGroup_SDIF, 5U), /*!< DMA transfer data fail with fatal bus error ,
                                      to do with this error :issue a hard reset/controller reset*/
-    kStatus_SDIF_DMATransferDescriptorUnavaliable =
-        MAKE_STATUS(kStatusGroup_SDIF, 6U),                             /*!< DMA descriptor unavalible */
+    kStatus_SDIF_DMATransferDescriptorUnavailable =
+        MAKE_STATUS(kStatusGroup_SDIF, 6U),                             /*!< DMA descriptor unavailable */
     kStatus_SDIF_DataTransferFail = MAKE_STATUS(kStatusGroup_SDIF, 6U), /*!< transfer data fail */
     kStatus_SDIF_ResponseError = MAKE_STATUS(kStatusGroup_SDIF, 7U),    /*!< response error */
     kStatus_SDIF_DMAAddrNotAlign = MAKE_STATUS(kStatusGroup_SDIF, 8U),  /*!< DMA address not align */
@@ -152,7 +156,7 @@ enum _sdif_command_flags
     kSDIF_CmdResponseExpect = SDIF_CMD_RESPONSE_EXPECT_MASK,      /*!< command request response*/
     kSDIF_CmdResponseLengthLong = SDIF_CMD_RESPONSE_LENGTH_MASK,  /*!< command response length long */
     kSDIF_CmdCheckResponseCRC = SDIF_CMD_CHECK_RESPONSE_CRC_MASK, /*!< request check command response CRC*/
-    kSDIF_DataExpect = SDIF_CMD_DATA_EXPECTED_MASK,               /*!< request data transfer,ethier read/write*/
+    kSDIF_DataExpect = SDIF_CMD_DATA_EXPECTED_MASK,               /*!< request data transfer,either read/write*/
     kSDIF_DataWriteToCard = SDIF_CMD_READ_WRITE_MASK,             /*!< data transfer direction */
     kSDIF_DataStreamTransfer = SDIF_CMD_TRANSFER_MODE_MASK,    /*!< data transfer mode :stream/block transfer command */
     kSDIF_DataTransferAutoStop = SDIF_CMD_SEND_AUTO_STOP_MASK, /*!< data transfer with auto stop at the end of */
@@ -163,7 +167,7 @@ enum _sdif_command_flags
                                        ,this bit should set so that cmd/data state-machines of CIU can return
                                        to idle correctly*/
     kSDIF_SendInitialization =
-        SDIF_CMD_SEND_INITIALIZATION_MASK, /*!< send initaliztion  80 clocks for SD card after power on  */
+        SDIF_CMD_SEND_INITIALIZATION_MASK, /*!< send initialization  80 clocks for SD card after power on  */
     kSDIF_CmdUpdateClockRegisterOnly =
         SDIF_CMD_UPDATE_CLOCK_REGISTERS_ONLY_MASK,                /*!< send cmd update the CIU clock register only */
     kSDIF_CmdtoReadCEATADevice = SDIF_CMD_READ_CEATA_DEVICE_MASK, /*!< host is perform read access to CE-ATA device */
@@ -214,12 +218,12 @@ enum _sdif_interrupt_mask
     kSDIF_DataTransferOver = SDIF_INTMASK_DTO_MASK,            /*!< data transfer over flag*/
     kSDIF_WriteFIFORequest = SDIF_INTMASK_TXDR_MASK,           /*!< write FIFO request */
     kSDIF_ReadFIFORequest = SDIF_INTMASK_RXDR_MASK,            /*!< read FIFO request */
-    kSDIF_ResponseCRCError = SDIF_INTMASK_RCRC_MASK,           /*!< reponse CRC error */
+    kSDIF_ResponseCRCError = SDIF_INTMASK_RCRC_MASK,           /*!< response CRC error */
     kSDIF_DataCRCError = SDIF_INTMASK_DCRC_MASK,               /*!< data CRC error */
     kSDIF_ResponseTimeout = SDIF_INTMASK_RTO_MASK,             /*!< response timeout */
     kSDIF_DataReadTimeout = SDIF_INTMASK_DRTO_MASK,            /*!< read data timeout */
     kSDIF_DataStarvationByHostTimeout = SDIF_INTMASK_HTO_MASK, /*!< data starvation by host time out */
-    kSDIF_FIFOError = SDIF_INTMASK_FRUN_MASK,                  /*!< indicate the FIFO underrun or overrun error */
+    kSDIF_FIFOError = SDIF_INTMASK_FRUN_MASK,                  /*!< indicate the FIFO under run or overrun error */
     kSDIF_HardwareLockError = SDIF_INTMASK_HLE_MASK,           /*!< hardware lock write error */
     kSDIF_DataStartBitError = SDIF_INTMASK_SBE_MASK,           /*!< start bit error */
     kSDIF_AutoCmdDone = SDIF_INTMASK_ACD_MASK,                 /*!< indicate the auto command done */
@@ -243,7 +247,7 @@ enum _sdif_interrupt_mask
 enum _sdif_dma_status
 {
     kSDIF_DMATransFinishOneDescriptor = SDIF_IDSTS_TI_MASK, /*!< DMA transfer finished for one DMA descriptor */
-    kSDIF_DMARecvFinishOneDescriptor = SDIF_IDSTS_RI_MASK,  /*!< DMA revieve finished for one DMA descriptor */
+    kSDIF_DMARecvFinishOneDescriptor = SDIF_IDSTS_RI_MASK,  /*!< DMA receive finished for one DMA descriptor */
     kSDIF_DMAFatalBusError = SDIF_IDSTS_FBE_MASK,           /*!< DMA fatal bus error */
     kSDIF_DMADescriptorUnavailable = SDIF_IDSTS_DU_MASK,    /*!< DMA descriptor unavailable */
     kSDIF_DMACardErrorSummary = SDIF_IDSTS_CES_MASK,        /*!< card error summary */
@@ -264,7 +268,7 @@ enum _sdif_dma_descriptor_flag
     kSDIF_DMADescriptorDataBufferEnd = 0x4U,   /*!< indicate this descriptor contain the last data buffer of data */
     kSDIF_DMADescriptorDataBufferStart = 0x8U, /*!< indicate this descriptor contain the first data buffer
                                                  of data,if first buffer size is 0,next descriptor contain
-                                                 the begaining of the data*/
+                                                 the begin of the data*/
     kSDIF_DMASecondAddrChained = 0x10U,        /*!< indicate that the second addr in the descriptor is the
                                                next descriptor addr not the data buffer */
     kSDIF_DMADescriptorEnd = 0x20U,            /*!< indicate that the descriptor list reached its final descriptor*/
@@ -288,7 +292,7 @@ typedef struct _sdif_dma_descriptor
 
 } sdif_dma_descriptor_t;
 
-/*! @brief Defines the internal DMA config structure. */
+/*! @brief Defines the internal DMA configure structure. */
 typedef struct _sdif_dma_config
 {
     bool enableFixBurstLen; /*!< fix burst len enable/disable flag,When set, the AHB will
@@ -316,9 +320,9 @@ typedef struct _sdif_data
     bool enableAutoCommand12; /*!< indicate if auto stop will send when data transfer over */
     bool enableIgnoreError;   /*!< indicate if enable ignore error when transfer data */
 
-    size_t blockSize;       /*!< Block size, take care when config this parameter */
+    size_t blockSize;       /*!< Block size, take care when configure this parameter */
     uint32_t blockCount;    /*!< Block count */
-    uint32_t *rxData;       /*!< data buffer to recieve */
+    uint32_t *rxData;       /*!< data buffer to receive */
     const uint32_t *txData; /*!< data buffer to transfer */
 } sdif_data_t;
 
@@ -336,7 +340,7 @@ typedef struct _sdif_command
     uint32_t responseType;       /*!< Command response type */
     uint32_t flags;              /*!< Cmd flags */
     uint32_t responseErrorFlags; /*!< response error flags, need to check the flags when
-                                    recieve the cmd response */
+                                    receive the cmd response */
 } sdif_command_t;
 
 /*! @brief Transfer state */
@@ -349,7 +353,7 @@ typedef struct _sdif_transfer
 /*! @brief Data structure to initialize the sdif */
 typedef struct _sdif_config
 {
-    uint8_t responseTimeout;        /*!< command reponse timeout value */
+    uint8_t responseTimeout;        /*!< command response timeout value */
     uint32_t cardDetDebounce_Clock; /*!< define the debounce clock count which will used in
                                         card detect logic,typical value is 5-25ms */
     uint32_t endianMode;            /*!< define endian mode ,this field is not used in this
@@ -445,7 +449,7 @@ void SDIF_Init(SDIF_Type *base, sdif_config_t *config);
 void SDIF_Deinit(SDIF_Type *base);
 
 /*!
- * @brief SDIF send initialize 80 clocks for SD card after initilize
+ * @brief SDIF send initialize 80 clocks for SD card after initial
  * @param base SDIF peripheral base address.
  * @param timeout value
  */
@@ -837,11 +841,11 @@ static inline void SDIF_SendCCSD(SDIF_Type *base, bool withAutoStop)
 /*!
  * @brief SDIF config the clock delay
  * This function is used to config the cclk_in delay to
- * sample and drvive the data ,should meet the min setup
- * time and hold time, and user need to config this paramter
+ * sample and driver the data ,should meet the min setup
+ * time and hold time, and user need to config this parameter
  * according to your board setting
  * @param target freq work mode
- * @param clock divider which is used to decide if use pharse shift for delay
+ * @param clock divider which is used to decide if use phase shift for delay
  */
 void SDIF_ConfigClockDelay(uint32_t target_HZ, uint32_t divider);
 

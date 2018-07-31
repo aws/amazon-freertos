@@ -43,6 +43,8 @@ typedef uint32_t boolean;
 
 typedef enum
 {
+    A_RESOURCES = -5,     /*TODO: fix later*/
+    A_DEADLOCK = -4,     /*TODO: fix later*/
     A_TIMEOUT = -3,      /*TODO: fix later*/
     A_SOCK_INVALID = -2,
     A_ERROR = -1,        /* Generic error return */

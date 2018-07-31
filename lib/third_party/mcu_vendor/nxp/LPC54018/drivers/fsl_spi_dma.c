@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,8 +35,14 @@
 #include "fsl_spi_dma.h"
 
 /*******************************************************************************
- * Definitons
+ * Definitions
  ******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.flexcomm_spi_dma"
+#endif
+
 /*<! Structure definition for spi_dma_private_handle_t. The structure is private. */
 typedef struct _spi_dma_private_handle
 {
@@ -58,13 +68,6 @@ static spi_dma_private_handle_t s_dmaPrivateHandle[FSL_FEATURE_SOC_SPI_COUNT];
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-
-/*!
-* @brief SPI private function to return SPI configuration
-*
-* @param base SPI base address.
-*/
-void *SPI_GetConfig(SPI_Type *base);
 
 /*!
  * @brief DMA callback function for SPI send transfer.
@@ -115,8 +118,6 @@ __attribute__((aligned(16))) static dma_descriptor_t s_spi_descriptor_table[FSL_
 __attribute__((aligned(16))) static dma_descriptor_t s_spi_descriptor_table[FSL_FEATURE_SOC_SPI_COUNT] = {0};
 #endif
 
-/*! @brief Global variable for dummy data value setting. */
-extern volatile uint8_t s_dummyData[];
 /*******************************************************************************
 * Code
 ******************************************************************************/
@@ -250,13 +251,13 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
         SPI_EnableRxDMA(base, true);
         if (xfer->rxData)
         {
-            DMA_PrepareTransfer(&xferConfig, (void *)&base->FIFORD, xfer->rxData,
+            DMA_PrepareTransfer(&xferConfig, ((void *)((uint32_t)&base->FIFORD)), xfer->rxData,
                                 ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (sizeof(uint16_t)) : (sizeof(uint8_t))),
                                 xfer->dataSize, kDMA_PeripheralToMemory, NULL);
         }
         else
         {
-            DMA_PrepareTransfer(&xferConfig, (void *)&base->FIFORD, &s_rxDummy,
+            DMA_PrepareTransfer(&xferConfig, ((void *)((uint32_t)&base->FIFORD)), &s_rxDummy,
                                 ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (sizeof(uint16_t)) : (sizeof(uint8_t))),
                                 xfer->dataSize, kDMA_StaticToStatic, NULL);
         }
@@ -290,10 +291,10 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
                 tmp_xfercfg.transferCount = 1;
                 /* Create chained descriptor to transmit last word */
                 DMA_CreateDescriptor(&s_spi_descriptor_table[instance], &tmp_xfercfg, &s_txLastWord[instance],
-                                     (void *)&base->FIFOWR, NULL);
+                                     ((void *)((uint32_t)&base->FIFOWR)), NULL);
 
                 DMA_PrepareTransfer(
-                    &xferConfig, xfer->txData, (void *)&base->FIFOWR,
+                    &xferConfig, xfer->txData, ((void *)((uint32_t)&base->FIFOWR)),
                     ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (sizeof(uint16_t)) : (sizeof(uint8_t))),
                     ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (xfer->dataSize - 2) : (xfer->dataSize - 1)),
                     kDMA_MemoryToPeripheral, &s_spi_descriptor_table[instance]);
@@ -309,7 +310,7 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
             else
             {
                 DMA_PrepareTransfer(
-                    &xferConfig, xfer->txData, (void *)&base->FIFOWR,
+                    &xferConfig, xfer->txData, ((void *)((uint32_t)&base->FIFOWR)),
                     ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (sizeof(uint16_t)) : (sizeof(uint8_t))),
                     xfer->dataSize, kDMA_MemoryToPeripheral, NULL);
                 DMA_SubmitTransfer(handle->txHandle, &xferConfig);
@@ -332,10 +333,10 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
                 tmp_xfercfg.transferCount = 1;
                 /* Create chained descriptor to transmit last word */
                 DMA_CreateDescriptor(&s_spi_descriptor_table[instance], &tmp_xfercfg, &s_txDummy[instance].lastWord,
-                                     (uint32_t *)&base->FIFOWR, NULL);
+                                     (void *)((uint32_t)&base->FIFOWR), NULL);
                 /* Use common API to setup first descriptor */
                 DMA_PrepareTransfer(
-                    &xferConfig, &s_txDummy[instance].word, (void *)&base->FIFOWR,
+                    &xferConfig, &s_txDummy[instance].word, ((void *)((uint32_t)&base->FIFOWR)),
                     ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (sizeof(uint16_t)) : (sizeof(uint8_t))),
                     ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (xfer->dataSize - 2) : (xfer->dataSize - 1)),
                     kDMA_StaticToStatic, &s_spi_descriptor_table[instance]);
@@ -351,7 +352,7 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
             else
             {
                 DMA_PrepareTransfer(
-                    &xferConfig, &s_txDummy[instance].word, (void *)&base->FIFOWR,
+                    &xferConfig, &s_txDummy[instance].word, ((void *)((uint32_t)&base->FIFOWR)),
                     ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (sizeof(uint16_t)) : (sizeof(uint8_t))),
                     xfer->dataSize, kDMA_StaticToStatic, NULL);
                 result = DMA_SubmitTransfer(handle->txHandle, &xferConfig);
@@ -375,13 +376,13 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
         if ((xfer->configFlags & kSPI_FrameAssert) &&
             ((spi_config_p->dataWidth > kSPI_Data8Bits) ? (xfer->dataSize == 2U) : (xfer->dataSize == 1U)))
         {
-            *(((uint16_t *)&(base->FIFOWR)) + 1) = (uint16_t)(tmp >> 16U);
+            *(((uint16_t *)((uint32_t) & (base->FIFOWR))) + 1) = (uint16_t)(tmp >> 16U);
         }
         else
         {
             /* Clear the SPI_FIFOWR_EOT_MASK bit when data is not the last. */
             tmp &= (uint32_t)(~kSPI_FrameAssert);
-            *(((uint16_t *)&(base->FIFOWR)) + 1) = (uint16_t)(tmp >> 16U);
+            *(((uint16_t *)((uint32_t) & (base->FIFOWR))) + 1) = (uint16_t)(tmp >> 16U);
         }
 
         DMA_StartTransfer(handle->txHandle);

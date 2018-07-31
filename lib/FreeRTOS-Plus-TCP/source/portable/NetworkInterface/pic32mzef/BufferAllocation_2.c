@@ -544,12 +544,21 @@ void vReleaseNetworkBufferAndDescriptor( NetworkBufferDescriptor_t * const pxNet
     }
     taskEXIT_CRITICAL();
 
+    /*
+     * Update the network state machine, unless the program fails to release its 'xNetworkBufferSemaphore'.
+     * The program should only try to release its semaphore if 'xListItemAlreadyInFreeList' is false.
+     */
     if( xListItemAlreadyInFreeList == pdFALSE )
     {
-        xSemaphoreGive( xNetworkBufferSemaphore );
+        if ( xSemaphoreGive( xNetworkBufferSemaphore ) == pdTRUE )
+        {
+            iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+        }
     }
-
-    iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+    else
+    {
+        iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+    }
 }
 /*-----------------------------------------------------------*/
 

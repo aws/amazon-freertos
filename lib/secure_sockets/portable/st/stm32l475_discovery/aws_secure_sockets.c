@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 2
+ * Amazon FreeRTOS Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,6 +48,10 @@
 /* WiFi configuration includes. */
 #include "aws_wifi_config.h"
 
+/* Credentials includes. */
+#include "aws_clientcredential.h"
+#include "aws_default_root_certificates.h"
+
 /**
  * @brief A Flag to indicate whether or not a socket is
  * secure i.e. it uses TLS or not.
@@ -65,6 +69,11 @@
  * for send.
  */
 #define stsecuresocketsSOCKET_WRITE_CLOSED_FLAG    ( 1UL << 2 )
+
+/**
+ * @brief A flag to indicate whether or not the socket is connected.
+ */
+#define stsecuresocketsSOCKET_IS_CONNECTED_FLAG    ( 1UL << 3 )
 
 /**
  * @brief The maximum timeout accepted by the Inventek module.
@@ -94,6 +103,13 @@
  */
 #define stsecuresocketsONE_MILLISECOND             ( 1 )
 
+/**
+ * @brief The credential set to use for TLS on the Inventek module.
+ *
+ * @note This is hard-coded to 3 because we are using re-writable
+ * credential slot.
+ */
+#define stsecuresocketsOFFLOAD_SSL_CREDS_SLOT      ( 3 )
 /*-----------------------------------------------------------*/
 
 /**
@@ -220,7 +236,7 @@ static uint32_t prvGetFreeSocket( void )
 
     /* Iterate over xSockets array to see if any free socket
      * is available. */
-    for( ulIndex = 0 ; ulIndex < ( uint32_t ) wificonfigMAX_SOCKETS ; ulIndex++ )
+    for( ulIndex = 0; ulIndex < ( uint32_t ) wificonfigMAX_SOCKETS; ulIndex++ )
     {
         /* Since multiple tasks can be accessing this simultaneously,
          * this has to be in critical section. */
@@ -447,7 +463,7 @@ static BaseType_t prvNetworkRecv( void * pvContext,
                 xRetVal = ( BaseType_t ) usReceivedBytes;
                 break;
             }
-            else if( ( xWiFiResult == ES_WIFI_STATUS_TIMEOUT ) || ( usReceivedBytes == 0 ) )
+            else if( ( xWiFiResult == ES_WIFI_STATUS_TIMEOUT ) || ( ( xWiFiResult == ES_WIFI_STATUS_OK ) && ( usReceivedBytes == 0 ) ) )
             {
                 /* The WiFi poll timed out, but has the socket timeout expired
                  * too? */
@@ -556,8 +572,11 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     uint32_t ulSocketNumber = ( uint32_t ) xSocket; /*lint !e923 cast required for portability. */
     STSecureSocket_t * pxSecureSocket;
     ES_WIFI_Conn_t xWiFiConnection;
-    TLSParams_t xTLSParams = { 0 };
-    int32_t lRetVal = SOCKETS_SOCKET_ERROR;
+    int32_t lRetVal = SOCKETS_ERROR_NONE;
+
+    #ifndef USE_OFFLOAD_SSL
+        TLSParams_t xTLSParams = { 0 };
+    #endif /* USE_OFFLOAD_SSL */
 
     /* Ensure that a valid socket was passed. */
     if( prvIsValidSocket( ulSocketNumber ) == pdTRUE )
@@ -565,61 +584,136 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
         /* Shortcut for easy access. */
         pxSecureSocket = &( xSockets[ ulSocketNumber ] );
 
-        /* Setup connection parameters. */
-        xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
-        xWiFiConnection.Type = pxSecureSocket->xSocketType;
-        xWiFiConnection.RemotePort = SOCKETS_ntohs( pxAddress->usPort ); /* WiFi Module expects the port number in host byte order. */
-        memcpy( &( xWiFiConnection.RemoteIP ),
-                &( pxAddress->ulAddress ),
-                sizeof( xWiFiConnection.RemoteIP ) );
-        xWiFiConnection.LocalPort = 0;
-        xWiFiConnection.Name = NULL;
+        /* Check that the socket is not already connected. */
+        if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) != 0UL )
+        {
+            /* Connect attempted on an already connected socket. */
+            lRetVal = SOCKETS_SOCKET_ERROR;
+        }
 
         /* Try to acquire the semaphore. */
-        if( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
+        if( ( lRetVal == SOCKETS_ERROR_NONE ) &&
+            ( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE ) )
         {
-            /* Start the client connection. */
-            if( ES_WIFI_StartClientConnection( &( xWiFiModule.xWifiObject ), &( xWiFiConnection ) )
-                == ES_WIFI_STATUS_OK )
+            /* Store server certificate if we are using offload SSL
+             * and the socket is a secure socket. */
+            #ifdef USE_OFFLOAD_SSL
+                if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL )
+                {
+                    /* Store the custom certificate if needed. */
+                    if( pxSecureSocket->pcServerCertificate != NULL )
+                    {
+                        if( ES_WIFI_StoreCA( &( xWiFiModule.xWifiObject ),
+                                             ES_WIFI_FUNCTION_TLS,
+                                             stsecuresocketsOFFLOAD_SSL_CREDS_SLOT,
+                                             ( uint8_t * ) pxSecureSocket->pcServerCertificate,
+                                             ( uint16_t ) pxSecureSocket->ulServerCertificateLength ) == ES_WIFI_STATUS_OK )
+                        {
+                            /* Certificate stored successfully. */
+                            lRetVal = SOCKETS_ERROR_NONE;
+                        }
+                        else
+                        {
+                            /* Failed to store certificate. */
+                            lRetVal = SOCKETS_SOCKET_ERROR;
+                        }
+                    }
+                    else
+                    {
+                        /* Store the default certificate. */
+                        if( ES_WIFI_StoreCA( &( xWiFiModule.xWifiObject ),
+                                             ES_WIFI_FUNCTION_TLS,
+                                             stsecuresocketsOFFLOAD_SSL_CREDS_SLOT,
+                                             ( uint8_t * ) tlsVERISIGN_ROOT_CERTIFICATE_PEM,
+                                             ( uint16_t ) tlsVERISIGN_ROOT_CERTIFICATE_LENGTH ) == ES_WIFI_STATUS_OK )
+                        {
+                            /* Certificate stored successfully. */
+                            lRetVal = SOCKETS_ERROR_NONE;
+                        }
+                        else
+                        {
+                            /* Failed to store certificate. */
+                            lRetVal = SOCKETS_SOCKET_ERROR;
+                        }
+                    }
+                }
+            #endif /* USE_OFFLOAD_SSL */
+
+            if( lRetVal == SOCKETS_ERROR_NONE )
             {
-                /* Successful connection is established. */
-                lRetVal = SOCKETS_ERROR_NONE;
+                /* Setup connection parameters. */
+                xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
+                xWiFiConnection.Type = pxSecureSocket->xSocketType;
+                xWiFiConnection.RemotePort = SOCKETS_ntohs( pxAddress->usPort ); /* WiFi Module expects the port number in host byte order. */
+                memcpy( &( xWiFiConnection.RemoteIP ),
+                        &( pxAddress->ulAddress ),
+                        sizeof( xWiFiConnection.RemoteIP ) );
+                xWiFiConnection.LocalPort = 0;
+                xWiFiConnection.Name = NULL;
+
+                /* Start the client connection. */
+                if( ES_WIFI_StartClientConnection( &( xWiFiModule.xWifiObject ), &( xWiFiConnection ) ) == ES_WIFI_STATUS_OK )
+                {
+                    /* Successful connection is established. */
+                    lRetVal = SOCKETS_ERROR_NONE;
+
+                    /* Mark that the socket is connected. */
+                    pxSecureSocket->ulFlags |= stsecuresocketsSOCKET_IS_CONNECTED_FLAG;
+                }
+                else
+                {
+                    /* Connection failed. */
+                    lRetVal = SOCKETS_SOCKET_ERROR;
+                }
             }
 
             /* Return the semaphore. */
             ( void ) xSemaphoreGive( xWiFiModule.xSemaphoreHandle );
         }
-    }
-
-    /* Initialize TLS only if the connection is successful. */
-    if( ( lRetVal == SOCKETS_ERROR_NONE ) &&
-        ( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL ) )
-    {
-        /* Setup TLS parameters. */
-        xTLSParams.ulSize = sizeof( xTLSParams );
-        xTLSParams.pcDestination = pxSecureSocket->pcDestination;
-        xTLSParams.pcServerCertificate = pxSecureSocket->pcServerCertificate;
-        xTLSParams.ulServerCertificateLength = pxSecureSocket->ulServerCertificateLength;
-        xTLSParams.pvCallerContext = ( void * ) xSocket;
-        xTLSParams.pxNetworkRecv = &( prvNetworkRecv );
-        xTLSParams.pxNetworkSend = &( prvNetworkSend );
-
-        /* Initialize TLS. */
-        if( TLS_Init( &( pxSecureSocket->pvTLSContext ), &( xTLSParams ) ) == pdFREERTOS_ERRNO_NONE )
-        {
-            /* Initiate TLS handshake. */
-            if( TLS_Connect( pxSecureSocket->pvTLSContext ) != pdFREERTOS_ERRNO_NONE )
-            {
-                /* TLS handshake failed. */
-                lRetVal = SOCKETS_TLS_HANDSHAKE_ERROR;
-            }
-        }
         else
         {
-            /* TLS Initialization failed. */
-            lRetVal = SOCKETS_TLS_INIT_ERROR;
+            /* Could not acquire semaphore. */
+            lRetVal = SOCKETS_SOCKET_ERROR;
         }
     }
+    else
+    {
+        /* Invalid socket handle was passed. */
+        lRetVal = SOCKETS_EINVAL;
+    }
+
+    /* TLS initialization is needed only if we are not using offload SSL. */
+    #ifndef USE_OFFLOAD_SSL
+        /* Initialize TLS only if the connection is successful. */
+        if( ( lRetVal == SOCKETS_ERROR_NONE ) &&
+            ( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL ) )
+        {
+            /* Setup TLS parameters. */
+            xTLSParams.ulSize = sizeof( xTLSParams );
+            xTLSParams.pcDestination = pxSecureSocket->pcDestination;
+            xTLSParams.pcServerCertificate = pxSecureSocket->pcServerCertificate;
+            xTLSParams.ulServerCertificateLength = pxSecureSocket->ulServerCertificateLength;
+            xTLSParams.pvCallerContext = ( void * ) xSocket;
+            xTLSParams.pxNetworkRecv = &( prvNetworkRecv );
+            xTLSParams.pxNetworkSend = &( prvNetworkSend );
+
+            /* Initialize TLS. */
+            if( TLS_Init( &( pxSecureSocket->pvTLSContext ), &( xTLSParams ) ) == pdFREERTOS_ERRNO_NONE )
+            {
+                /* Initiate TLS handshake. */
+                if( TLS_Connect( pxSecureSocket->pvTLSContext ) != pdFREERTOS_ERRNO_NONE )
+                {
+                    /* TLS handshake failed. */
+                    lRetVal = SOCKETS_TLS_HANDSHAKE_ERROR;
+                }
+            }
+            else
+            {
+                /* TLS Initialization failed. */
+                lRetVal = SOCKETS_TLS_INIT_ERROR;
+            }
+        }
+    #endif /* USE_OFFLOAD_SSL*/
 
     return lRetVal;
 }
@@ -648,23 +742,28 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
         /* Check that receive is allowed on the socket. */
         if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_READ_CLOSED_FLAG ) == 0UL )
         {
-            if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL )
-            {
-                /* Receive through TLS pipe, if negotiated. */
-                lReceivedBytes = TLS_Recv( pxSecureSocket->pvTLSContext, pvBuffer, xBufferLength );
-
-                /* Convert the error code. */
-                if( lReceivedBytes < 0 )
+            #ifndef USE_OFFLOAD_SSL
+                if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL )
                 {
-                    /* TLS_Recv failed. */
-                    lReceivedBytes = SOCKETS_TLS_RECV_ERROR;
+                    /* Receive through TLS pipe, if negotiated. */
+                    lReceivedBytes = TLS_Recv( pxSecureSocket->pvTLSContext, pvBuffer, xBufferLength );
+
+                    /* Convert the error code. */
+                    if( lReceivedBytes < 0 )
+                    {
+                        /* TLS_Recv failed. */
+                        lReceivedBytes = SOCKETS_TLS_RECV_ERROR;
+                    }
                 }
-            }
-            else
-            {
-                /* Receive un-encrypted. */
+                else
+                {
+                    /* Receive un-encrypted. */
+                    lReceivedBytes = prvNetworkRecv( xSocket, pvBuffer, xBufferLength );
+                }
+            #else  /* USE_OFFLOAD_SSL */
+                /* Always receive using prvNetworkRecv if using offload SSL. */
                 lReceivedBytes = prvNetworkRecv( xSocket, pvBuffer, xBufferLength );
-            }
+            #endif /* USE_OFFLOAD_SSL */
         }
         else
         {
@@ -700,23 +799,28 @@ int32_t SOCKETS_Send( Socket_t xSocket,
         /* Check that send is allowed on the socket. */
         if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_WRITE_CLOSED_FLAG ) == 0UL )
         {
-            if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL )
-            {
-                /* Send through TLS pipe, if negotiated. */
-                lSentBytes = TLS_Send( pxSecureSocket->pvTLSContext, pvBuffer, xDataLength );
-
-                /* Convert the error code. */
-                if( lSentBytes < 0 )
+            #ifndef USE_OFFLOAD_SSL
+                if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL )
                 {
-                    /* TLS_Send failed. */
-                    lSentBytes = SOCKETS_TLS_SEND_ERROR;
+                    /* Send through TLS pipe, if negotiated. */
+                    lSentBytes = TLS_Send( pxSecureSocket->pvTLSContext, pvBuffer, xDataLength );
+
+                    /* Convert the error code. */
+                    if( lSentBytes < 0 )
+                    {
+                        /* TLS_Send failed. */
+                        lSentBytes = SOCKETS_TLS_SEND_ERROR;
+                    }
                 }
-            }
-            else
-            {
-                /* Send un-encrypted. */
+                else
+                {
+                    /* Send un-encrypted. */
+                    lSentBytes = prvNetworkSend( xSocket, pvBuffer, xDataLength );
+                }
+            #else  /* USE_OFFLOAD_SSL */
+                /* Always send using prvNetworkSend if using offload SSL. */
                 lSentBytes = prvNetworkSend( xSocket, pvBuffer, xDataLength );
-            }
+            #endif /* USE_OFFLOAD_SSL */
         }
         else
         {
@@ -775,6 +879,11 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
                 break;
         }
     }
+    else
+    {
+        /* Invalid socket was passed. */
+        lRetVal = SOCKETS_EINVAL;
+    }
 
     return lRetVal;
 }
@@ -809,11 +918,13 @@ int32_t SOCKETS_Close( Socket_t xSocket )
             vPortFree( pxSecureSocket->pcServerCertificate );
         }
 
-        /* Cleanup TLS. */
-        if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL )
-        {
-            TLS_Cleanup( pxSecureSocket->pvTLSContext );
-        }
+        #ifndef USE_OFFLOAD_SSL
+            /* Cleanup TLS. */
+            if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_SECURE_FLAG ) != 0UL )
+            {
+                TLS_Cleanup( pxSecureSocket->pvTLSContext );
+            }
+        #endif /* USE_OFFLOAD_SSL */
 
         /* Initialize the members used by the ES_WIFI_StopClientConnection call. */
         xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
@@ -848,7 +959,7 @@ int32_t SOCKETS_Close( Socket_t xSocket )
     }
     else
     {
-    	/* Bad argument. */
+        /* Bad argument. */
         lRetVal = SOCKETS_EINVAL;
     }
 
@@ -877,45 +988,74 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
         {
             case SOCKETS_SO_SERVER_NAME_INDICATION:
 
-                /* Non-NULL destination string indicates that SNI extension should
-                 * be used during TLS negotiation. */
-                pxSecureSocket->pcDestination = ( char * ) pvPortMalloc( 1U + xOptionLength );
-
-                if( pxSecureSocket->pcDestination == NULL )
+                if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) == 0 )
                 {
-                    lRetVal = SOCKETS_ENOMEM;
+                    /* Non-NULL destination string indicates that SNI extension should
+                     * be used during TLS negotiation. */
+                    pxSecureSocket->pcDestination = ( char * ) pvPortMalloc( 1U + xOptionLength );
+
+                    if( pxSecureSocket->pcDestination == NULL )
+                    {
+                        lRetVal = SOCKETS_ENOMEM;
+                    }
+                    else
+                    {
+                        memcpy( pxSecureSocket->pcDestination, pvOptionValue, xOptionLength );
+                        pxSecureSocket->pcDestination[ xOptionLength ] = '\0';
+                    }
                 }
                 else
                 {
-                    memcpy( pxSecureSocket->pcDestination, pvOptionValue, xOptionLength );
-                    pxSecureSocket->pcDestination[ xOptionLength ] = '\0';
+                    /* SNI must be set before connection is established. */
+                    lRetVal = SOCKETS_SOCKET_ERROR;
                 }
 
                 break;
 
             case SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE:
 
-                /* Non-NULL server certificate field indicates that the default trust
-                 * list should not be used. */
-                pxSecureSocket->pcServerCertificate = ( char * ) pvPortMalloc( xOptionLength );
-
-                if( pxSecureSocket->pcServerCertificate == NULL )
+                if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) == 0 )
                 {
-                    lRetVal = SOCKETS_ENOMEM;
+                    /* Non-NULL server certificate field indicates that the default trust
+                     * list should not be used. */
+                    pxSecureSocket->pcServerCertificate = ( char * ) pvPortMalloc( xOptionLength );
+
+                    if( pxSecureSocket->pcServerCertificate == NULL )
+                    {
+                        lRetVal = SOCKETS_ENOMEM;
+                    }
+                    else
+                    {
+                        memcpy( pxSecureSocket->pcServerCertificate, pvOptionValue, xOptionLength );
+                        pxSecureSocket->ulServerCertificateLength = xOptionLength;
+                    }
                 }
                 else
                 {
-                    memcpy( pxSecureSocket->pcServerCertificate, pvOptionValue, xOptionLength );
-                    pxSecureSocket->ulServerCertificateLength = xOptionLength;
+                    /* Trusted server certificate must be set before the connection is established. */
+                    lRetVal = SOCKETS_SOCKET_ERROR;
                 }
 
                 break;
 
             case SOCKETS_SO_REQUIRE_TLS:
 
-                /* Turn on the secure socket flag to indicate that
-                 * TLS should be used. */
-                pxSecureSocket->ulFlags |= stsecuresocketsSOCKET_SECURE_FLAG;
+                if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) == 0 )
+                {
+                    /* Mark that it is a secure socket. */
+                    pxSecureSocket->ulFlags |= stsecuresocketsSOCKET_SECURE_FLAG;
+
+                    #ifdef USE_OFFLOAD_SSL
+                        /* Set the socket type to SSL to use offload SSL. */
+                        pxSecureSocket->xSocketType = ES_WIFI_TCP_SSL_CONNECTION;
+                    #endif /* USE_OFFLOAD_SSL */
+                }
+                else
+                {
+                    /* Require TLS must be set before the connection is established. */
+                    lRetVal = SOCKETS_SOCKET_ERROR;
+                }
+
                 break;
 
             case SOCKETS_SO_SNDTIMEO:
@@ -954,10 +1094,20 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
             case SOCKETS_SO_NONBLOCK:
 
-                /* Set the timeouts to the smallest value possible.
-                 * This isn't true nonblocking, but as close as we can get. */
-                pxSecureSocket->ulReceiveTimeout = 1;
-                pxSecureSocket->ulSendTimeout = 1;
+                if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) != 0 )
+                {
+                    /* Set the timeouts to the smallest value possible.
+                     * This isn't true nonblocking, but as close as we can get. */
+                    pxSecureSocket->ulReceiveTimeout = 1;
+                    pxSecureSocket->ulSendTimeout = 1;
+                }
+                else
+                {
+                    /* Non blocking option must be set after the connection is
+                     * established. Non blocking connect is not supported. */
+                    lRetVal = SOCKETS_SOCKET_ERROR;
+                }
+
                 break;
 
             default:
@@ -1002,7 +1152,7 @@ BaseType_t SOCKETS_Init( void )
     uint32_t ulIndex;
 
     /* Mark all the sockets as free and closed. */
-    for( ulIndex = 0 ; ulIndex < ( uint32_t ) wificonfigMAX_SOCKETS ; ulIndex++ )
+    for( ulIndex = 0; ulIndex < ( uint32_t ) wificonfigMAX_SOCKETS; ulIndex++ )
     {
         xSockets[ ulIndex ].ucInUse = 0;
         xSockets[ ulIndex ].ulFlags = 0;

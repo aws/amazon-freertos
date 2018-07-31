@@ -63,91 +63,78 @@
 
 #define TCP_FIN 1
 #define TCP_LISTEN 2
+#define TCP_CONNECTED 4
 
 enum SOCKET_CMDS
 {
-    SOCK_OPEN = 0,   /*Open a socket*/
-    SOCK_CLOSE,      /*Close existing socket*/
-    SOCK_CONNECT,    /*Connect to a peer*/
-    SOCK_BIND,       /*Bind to interface*/
-    SOCK_LISTEN,     /*Listen on socket*/
-    SOCK_ACCEPT,     /*Accept incoming connection*/
-    SOCK_SELECT,     /*Wait for specified file descriptors*/
-    SOCK_SETSOCKOPT, /*Set specified socket option*/
-    SOCK_GETSOCKOPT, /*Get socket option*/
-    SOCK_ERRNO,      /*Get error number for last error*/
-    SOCK_IPCONFIG,   /*Set static IP information, or get current IP config*/
-    SOCK_PING,
-    SOCK_STACK_INIT, /*Command to initialize stack*/
-    SOCK_STACK_MISC, /*Used to exchanges miscellaneous info, e.g. reassembly etc*/
-    SOCK_PING6,
-    SOCK_IP6CONFIG,                    /*Set static IP information, or get current IP config*/
-    SOCK_IPCONFIG_DHCP_POOL,           /*Set DHCP Pool  */
-    SOCK_IP6CONFIG_ROUTER_PREFIX,      /* Set ipv6 router prefix */
-    SOCK_IP_SET_TCP_EXP_BACKOFF_RETRY, /* set tcp exponential backoff retry */
-    SOCK_IP_SET_IP6_STATUS,            /* set ip6 module status enable/disable */
-    SOCK_IP_DHCP_RELEASE,              /* Release the DHCP IP Addres */
-    SOCK_IP_SET_TCP_RX_BUF,            /* set tcp rx buffer space */
-    SOCK_HTTP_SERVER,                  /* Http Server Command*/
-    SOCK_HTTP_SERVER_CMD,              /* Commands to get and post data */
-    SOCK_DNC_CMD,                      /* Commands related to resolver */
-    SOCK_DNC_ENABLE,                   /* Command to enable/disable DNS Client */
-    SOCK_DNS_SRVR_CFG_ADDR,            /* Command to configure DNS Server Address */
-    SOCK_HTTPC,                        /* HTTP Client commands */
-    SOCK_DNS_LOCAL_DOMAIN,             /* Configures the local domain */
-    SOCK_IP_HOST_NAME,                 /* Configures the local host name */
-    SOCK_IP_DNS,                       /* Configures DNS Database */
-    SOCK_IP_SNTP_SRVR_ADDR,            /* Configures the sntp server addr */
-    SOCK_IP_SNTP_GET_TIME,             /* GET UTC Time from SNTP Client */
-    SOCK_IP_SNTP_GET_TIME_OF_DAY,      /* Get time of day (secs)*/
-    SOCK_IP_SNTP_CONFIG_TIMEZONE_DSE,  /*Command to modify time zone and to enable/disable DSE */
-    SOCK_IP_SNTP_QUERY_SNTP_ADDRESS,   /* Command to query SNTP Server Address*/
-    SOCK_IP_SNTP_CLIENT_ENABLE,        /* Command to enable/disable SNTP client */
-    SOCK_IPV4_ROUTE,                   /* Commands to add,del and show IPv4 routes */
-    SOCK_IPV6_ROUTE,                   /* Commands to add,del and show IPv6 routes */
-    SOCK_IP_BRIDGEMODE,                /* Command to enable bridge mode */
-    SOCK_DNS_SERVER_STATUS,            /*Command to enable/disable DNS Server*/
-    SOCK_SSL_CTX_NEW,                  /* Create a new SSL context */
-    SOCK_SSL_CTX_FREE,                 /* Free/close SSL context */
-    SOCK_SSL_NEW,                      /* Create new SSL connection object/instance */
-    SOCK_SSL_SET_FD,                   /* Add socket handle to a SSL connection */
-    SOCK_SSL_ACCEPT,                   /* Accept SSL connection request from SSL client */
-    SOCK_SSL_CONNECT,                  /* Establish SSL connection from SSL client to SSL server */
-    SOCK_SSL_SHUTDOWN,                 /* Shutdown/close SSL connection */
-    SOCK_SSL_ADD_CERT,                 /* Add a certificate to SSL context */
-    SOCK_SSL_STORE_CERT,               /* Store a certificate or CA list file in FLASH */
-    SOCK_SSL_LOAD_CERT,                /* Reads a certificate or CA list from FLASH and adds it to SSL context */
-    SOCK_SSL_CONFIGURE,                /* Configure a SSL connection */
-    SOCK_SSL_LIST_CERT,                /* Request the names of the cert's stored in FLASH */
-    SOCK_GET_DEV_ID_FROM_DEST_IP,      /* Gets the device ID for the given destination IP address */
-    SOCK_OTA_UPGRADE,
-    /* 54*/ /*Intializes OTA upgrade*/
-    SOCK_OTA_READ,
-    /*55*/ /*Reads OTA Area after OTA download*/
-    SOCK_OTA_DONE,
-    /*56*/ /*OTA download Complete Event*/
-    SOCK_SET_DHCP_HOSTNAME,
-    /*57*/ /*set the DHCP Hostname*/
-    SOCK_TCP_CONN_TIMEOUT,
-    /*58*/ /*TCP Connection Timeout */
-    SOCK_HTTP_POST_EVENT,
-    /*59*/ /*HTTP server post event*/
-    SOCK_OTA_SESSION_START,
-    /*60*/ /*start OTA session */
-    SOCK_OTA_PARTITION_GET_SIZE,
-    /*61*/ /*start OTA session */
-    SOCK_OTA_PARTITION_ERASE,
-    /*62*/ /*start OTA session */
-    SOCK_OTA_PARSE_IMAGE_HDR,
-    /*63*/ /*parse OTA image header */
-    SOCK_OTA_PARTITION_VERIFY_CHECKSUM,
-    /*64*/ /*veirfy OTA partition checksum */
-    SOCK_OTA_PARTITION_WRITE_DATA,
-    /*65*/ /*write OTA partition data */
-    SOCK_DHCPS_SUCCESS_CALLBACK,
-    /*66*/ /*DHCP Server callback event*/
-    SOCK_DHCPC_SUCCESS_CALLBACK,
-    /*66*/ /*DHCP Client callback event*/
+    SOCK_OPEN = 0,                      /*0x00 - Open a socket*/
+    SOCK_CLOSE,                         /*0x01 - Close existing socket*/
+    SOCK_CONNECT,                       /*0x02 - Connect to a peer*/
+    SOCK_BIND,                          /*0x03 - Bind to interface*/
+    SOCK_LISTEN,                        /*0x04 - Listen on socket*/
+    SOCK_ACCEPT,                        /*0x05 - Accept incoming connection*/
+    SOCK_SELECT,                        /*0x06 - Wait for specified file descriptors*/
+    SOCK_SETSOCKOPT,                    /*0x07 - Set specified socket option*/
+    SOCK_GETSOCKOPT,                    /*0x08 - Get socket option*/
+    SOCK_ERRNO,                         /*0x09 - Get error number for last error*/
+    SOCK_IPCONFIG,                      /*0x0A - Set static IP information, or get current IP config*/
+    SOCK_PING,                          /*0x0B*/
+    SOCK_STACK_INIT,                    /*0x0C - Command to initialize stack*/
+    SOCK_STACK_MISC,                    /*0x0D - Used to exchanges miscellaneous info, e.g. reassembly etc*/
+    SOCK_PING6,                         /*0x0E*/
+    SOCK_IP6CONFIG,                     /*0x0F - Set static IP information, or get current IP config*/
+    SOCK_IPCONFIG_DHCP_POOL,            /*0x10 - Set DHCP Pool  */
+    SOCK_IP6CONFIG_ROUTER_PREFIX,       /*0x11 - Set ipv6 router prefix */
+    SOCK_IP_SET_TCP_EXP_BACKOFF_RETRY,  /*0x12 - set tcp exponential backoff retry */
+    SOCK_IP_SET_IP6_STATUS,             /*0x13 - set ip6 module status enable/disable */
+    SOCK_IP_DHCP_RELEASE,               /*0x14 - Release the DHCP IP Addres */
+    SOCK_IP_SET_TCP_RX_BUF,             /*0x15 - set tcp rx buffer space */
+    SOCK_HTTP_SERVER,                   /*0x16 - Http Server Command */
+    SOCK_HTTP_SERVER_CMD,               /*0x17 - Commands to get and post data */
+    SOCK_DNC_CMD,                       /*0x18 - Commands related to resolver */
+    SOCK_DNC_ENABLE,                    /*0x19 - Command to enable/disable DNS Client */
+    SOCK_DNS_SRVR_CFG_ADDR,             /*0x1A - Command to configure DNS Server Address */
+    SOCK_HTTPC,                         /*0x1B - HTTP Client commands */
+    SOCK_DNS_LOCAL_DOMAIN,              /*0x1C - Configures the local domain */
+    SOCK_IP_HOST_NAME,                  /*0x1D - Configures the local host name */
+    SOCK_IP_DNS,                        /*0x1F - Configures DNS Database */
+    SOCK_IP_SNTP_SRVR_ADDR,             /*0x1F - Configures the sntp server addr */
+    SOCK_IP_SNTP_GET_TIME,              /*0x20 - GET UTC Time from SNTP Client */
+    SOCK_IP_SNTP_GET_TIME_OF_DAY,       /*0x21 - Get time of day (secs) */
+    SOCK_IP_SNTP_CONFIG_TIMEZONE_DSE,   /*0x22 - Command to modify time zone and to enable/disable DSE */
+    SOCK_IP_SNTP_QUERY_SNTP_ADDRESS,    /*0x23 - Command to query SNTP Server Address */
+    SOCK_IP_SNTP_CLIENT_ENABLE,         /*0x24 - Command to enable/disable SNTP client */
+    SOCK_IPV4_ROUTE,                    /*0x25 - Commands to add,del and show IPv4 routes */
+    SOCK_IPV6_ROUTE,                    /*0x26 - Commands to add,del and show IPv6 routes */
+    SOCK_IP_BRIDGEMODE,                 /*0x27 - Command to enable bridge mode */
+    SOCK_DNS_SERVER_STATUS,             /*0x28 - Command to enable/disable DNS Server*/
+    SOCK_SSL_CTX_NEW,                   /*0x29 - Create a new SSL context */
+    SOCK_SSL_CTX_FREE,                  /*0x2A - Free/close SSL context */
+    SOCK_SSL_NEW,                       /*0x2B - Create new SSL connection object/instance */
+    SOCK_SSL_SET_FD,                    /*0x2C - Add socket handle to a SSL connection */
+    SOCK_SSL_ACCEPT,                    /*0x2D - Accept SSL connection request from SSL client */
+    SOCK_SSL_CONNECT,                   /*0x2E - Establish SSL connection from SSL client to SSL server */
+    SOCK_SSL_SHUTDOWN,                  /*0x2F - Shutdown/close SSL connection */
+    SOCK_SSL_ADD_CERT,                  /*0x30 - Add a certificate to SSL context */
+    SOCK_SSL_STORE_CERT,                /*0x31 - Store a certificate or CA list file in FLASH */
+    SOCK_SSL_LOAD_CERT,                 /*0x32 - Reads a certificate or CA list from FLASH and adds it to SSL context */
+    SOCK_SSL_CONFIGURE,                 /*0x33 - Configure a SSL connection */
+    SOCK_SSL_LIST_CERT,                 /*0x34 - Request the names of the cert's stored in FLASH */
+    SOCK_GET_DEV_ID_FROM_DEST_IP,       /*0x35 - Gets the device ID for the given destination IP address */
+    SOCK_OTA_UPGRADE,                   /*0x36 - Intializes OTA upgrade */
+    SOCK_OTA_READ,                      /*0x37 - Reads OTA Area after OTA download */
+    SOCK_OTA_DONE,                      /*0x38 - OTA download Complete Event */
+    SOCK_SET_DHCP_HOSTNAME,             /*0x39 - set the DHCP Hostname */
+    SOCK_TCP_CONN_TIMEOUT,              /*0x3A - TCP Connection Timeout */
+    SOCK_HTTP_POST_EVENT,               /*0x3B - HTTP server post event */
+    SOCK_OTA_SESSION_START,             /*0x3C - start OTA session */
+    SOCK_OTA_PARTITION_GET_SIZE,        /*0x3D - start OTA session */
+    SOCK_OTA_PARTITION_ERASE,           /*0x3E - start OTA session */
+    SOCK_OTA_PARSE_IMAGE_HDR,           /*0x3F - parse OTA image header */
+    SOCK_OTA_PARTITION_VERIFY_CHECKSUM, /*0x40 - veirfy OTA partition checksum */
+    SOCK_OTA_PARTITION_WRITE_DATA,      /*0x41 - write OTA partition data */
+    SOCK_DHCPS_SUCCESS_CALLBACK,        /*0x42 - DHCP Server callback event */
+    SOCK_DHCPC_SUCCESS_CALLBACK,        /*0x43 - DHCP Client callback event */
     /************************************/
     /* add new socket commands above this line */
     /************************************/
@@ -165,6 +152,7 @@ typedef struct socket_context
     boolean txUnblocked;
     boolean txBlock;
     boolean rxBlock;
+    int32_t driver_error;
 #if NON_BLOCKING_TX
     A_NETBUF_QUEUE_T non_block_queue; // Queue to hold packets to be freed later
     A_MUTEX_T nb_tx_mutex; // Mutex to synchronize access to non blocking queue
@@ -758,6 +746,8 @@ A_STATUS blockSelect(void *pCxt, uint32_t msec);
 
 #endif // T_SELECT_VER1
 
+void socket_set_driver_error(void *ctxt, int32_t error);
+int32_t socket_get_driver_error(void *ctxt);
 A_STATUS socket_context_init(void);
 int32_t find_socket_context(uint32_t handle, uint8_t retrieve);
 uint32_t getTransportLength(uint8_t proto);

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.4
+ * FreeRTOS+TCP V2.0.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -324,12 +324,21 @@ BaseType_t xListItemAlreadyInFreeList;
 	}
 	taskEXIT_CRITICAL();
 
+	/*
+	 * Update the network state machine, unless the program fails to release its 'xNetworkBufferSemaphore'.
+	 * The program should only try to release its semaphore if 'xListItemAlreadyInFreeList' is false.
+	 */
 	if( xListItemAlreadyInFreeList == pdFALSE )
 	{
-		xSemaphoreGive( xNetworkBufferSemaphore );
+		if ( xSemaphoreGive( xNetworkBufferSemaphore ) == pdTRUE )
+		{
+			iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+		}
 	}
-
-	iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+	else
+	{
+		iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+	}
 }
 /*-----------------------------------------------------------*/
 

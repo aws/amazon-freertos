@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -46,9 +50,12 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief USART driver version 2.0.0. */
+/*! @brief SPI driver version 2.0.2. */
 #define FSL_SPI_DRIVER_VERSION (MAKE_VERSION(2, 0, 2))
 /*@}*/
+
+/*! @brief Global variable for dummy data value setting. */
+extern volatile uint8_t s_dummyData[];
 
 #ifndef SPI_DUMMYDATA
 /*! @brief SPI dummy transfer data, the data is sent while txBuff is NULL. */
@@ -70,8 +77,8 @@
 /*! @brief SPI transfer option.*/
 typedef enum _spi_xfer_option
 {
-    kSPI_FrameDelay = (SPI_FIFOWR_EOF_MASK),  /*!< Delay chip select */
-    kSPI_FrameAssert = (SPI_FIFOWR_EOT_MASK), /*!< When transfer ends, assert chip select */
+    kSPI_FrameDelay = (SPI_FIFOWR_EOF_MASK),  /*!< A delay may be inserted, defined in the DLY register.*/
+    kSPI_FrameAssert = (SPI_FIFOWR_EOT_MASK), /*!< SSEL will be deasserted at the end of a transfer */
 } spi_xfer_option_t;
 
 /*! @brief SPI data shifter direction options.*/
@@ -238,7 +245,7 @@ typedef struct _spi_transfer
 {
     uint8_t *txData;      /*!< Send buffer */
     uint8_t *rxData;      /*!< Receive buffer */
-    uint32_t configFlags; /*!< Additional option to control transfer */
+    uint32_t configFlags; /*!< Additional option to control transfer, @ref spi_xfer_option_t. */
     size_t dataSize;      /*!< Transfer bytes */
 } spi_transfer_t;
 
@@ -249,7 +256,7 @@ typedef struct _spi_half_duplex_transfer
     uint8_t *rxData;            /*!< Receive buffer */
     size_t txDataSize;          /*!< Transfer bytes for transmit */
     size_t rxDataSize;          /*!< Transfer bytes */
-    uint32_t configFlags;       /*!< Transfer configuration flags. */
+    uint32_t configFlags;       /*!< Transfer configuration flags, @ref spi_xfer_option_t. */
     bool isPcsAssertInTransfer; /*!< If PCS pin keep assert between transmit and receive. true for assert and false for
                                    deassert. */
     bool isTransmitFirst;       /*!< True for transmit first and false for receive first. */
@@ -492,6 +499,14 @@ void SPI_EnableRxDMA(SPI_Type *base, bool enable);
  * @name Bus Operations
  * @{
  */
+/*!
+ * @brief Returns the configurations.
+ *
+ * @param base SPI peripheral address.
+ * @return return configurations which contain datawidth and SSEL numbers.
+ *         return data type is a pointer of spi_config_t.
+ */
+void *SPI_GetConfig(SPI_Type *base);
 
 /*!
  * @brief Sets the baud rate for SPI transfer. This is only used in master.

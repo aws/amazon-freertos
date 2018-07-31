@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -43,14 +47,16 @@
 
 #include "usb_device_descriptor.h"
 #include "virtual_com.h"
-#if (defined(FSL_FEATURE_SOC_MPU_COUNT) && (FSL_FEATURE_SOC_MPU_COUNT > 0U))
-#include "fsl_mpu.h"
-#endif /* FSL_FEATURE_SOC_MPU_COUNT */
+#if (defined(FSL_FEATURE_SOC_SYSMPU_COUNT) && (FSL_FEATURE_SOC_SYSMPU_COUNT > 0U))
+#include "fsl_sysmpu.h"
+#endif /* FSL_FEATURE_SOC_SYSMPU_COUNT */
 #if defined(USB_DEVICE_CONFIG_EHCI) && (USB_DEVICE_CONFIG_EHCI > 0)
 #include "usb_phy.h"
 #endif
 
-void BOARD_InitHardware(void);
+/* Provided by users. */
+extern void USB_DeviceClockInit(void);
+extern void USB_DeviceIsrEnable(void);
 /*******************************************************************************
 * Definitions
 ******************************************************************************/
@@ -59,7 +65,7 @@ void BOARD_InitHardware(void);
 * Variables
 ******************************************************************************/
 /* Data structure of virtual com device */
-static usb_cdc_vcom_struct_t s_cdcVcom;
+usb_cdc_vcom_struct_t s_cdcVcom;
 
 /* Line codinig of cdc device */
 static uint8_t s_lineCoding[LINE_CODING_SIZE] = {
@@ -181,8 +187,11 @@ usb_status_t USB_DeviceCdcAcmBulkOut(usb_device_handle handle,
                                      void *callbackParam)
 {
     usb_status_t error = kStatus_USB_Error;
-
-    if ((1 == s_cdcVcom.attach) && (1 == s_cdcVcom.startTransactions))
+    if (USB_UNINITIALIZED_VAL_32 == message->length)
+    {
+        s_recvSize = 0xFFFFFFFFU;
+    }
+    else if ((1 == s_cdcVcom.attach) && (1 == s_cdcVcom.startTransactions))
     {
         s_recvSize = message->length;
 #if defined(FSL_FEATURE_USB_KHCI_KEEP_ALIVE_ENABLED) && (FSL_FEATURE_USB_KHCI_KEEP_ALIVE_ENABLED > 0U) && \
@@ -198,6 +207,9 @@ usb_status_t USB_DeviceCdcAcmBulkOut(usb_device_handle handle,
             USB0->INTEN &= ~USB_INTEN_SOFTOKEN_MASK;
 #endif
         }
+    }
+    else
+    {
     }
     return error;
 }
@@ -444,7 +456,7 @@ usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event, void *
         {
             USB_DeviceControlPipeInit(s_cdcVcom.deviceHandle);
             s_cdcVcom.attach = 0;
-#if (defined(USB_DEVICE_CONFIG_EHCI) && (USB_DEVICE_CONFIG_EHCI > 0U)) || \
+#if (defined(USB_DEVICE_CONFIG_EHCI) && (USB_DEVICE_CONFIG_EHCI > 0)) || \
     (defined(USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U))
             if (kStatus_USB_Success ==
                 USB_DeviceGetStatus(s_cdcVcom.deviceHandle, kUSB_DeviceStatusSpeed, &s_cdcVcom.speed))
@@ -561,49 +573,6 @@ usb_status_t USB_DeviceConfigureEndpointStatus(usb_device_handle handle, uint8_t
     }
 }
 
-/*!
- * @brief USB Interrupt service routine.
- *
- * This function serves as the USB interrupt service routine.
- *
- * @return None.
- */
-#if defined(USB_DEVICE_CONFIG_EHCI) && (USB_DEVICE_CONFIG_EHCI > 0U)
-void USBHS_IRQHandler(void)
-{
-    USB_DeviceEhciIsrFunction(s_cdcVcom.deviceHandle);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
-}
-#endif
-#if defined(USB_DEVICE_CONFIG_KHCI) && (USB_DEVICE_CONFIG_KHCI > 0U)
-void USB0_IRQHandler(void)
-{
-    USB_DeviceKhciIsrFunction(s_cdcVcom.deviceHandle);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
-}
-#endif
-
-#if (defined(USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS > 0U))
-void USB0_IRQHandler(void)
-{
-    USB_DeviceLpcIp3511IsrFunction(s_cdcVcom.deviceHandle);
-}
-#endif
-#if (defined(USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U))
-void USB1_IRQHandler(void)
-{
-    USB_DeviceLpcIp3511IsrFunction(s_cdcVcom.deviceHandle);
-}
-#endif
-
 /* See virtual_com.h for documentation of this function. */
 void USB_VcomWriteBlocking(usb_device_handle baseAddr, const uint8_t *buf, size_t count)
 {
@@ -623,106 +592,66 @@ void USB_VcomWriteBlocking(usb_device_handle baseAddr, const uint8_t *buf, size_
 status_t USB_VcomReadBlocking(usb_device_handle baseAddr, uint8_t *buf, size_t count)
 {
     status_t error = kStatus_Success;
-    if (s_recvSize <= 0)
-    {
-        if (USB_DeviceRecvRequest(baseAddr, USB_CDC_VCOM_BULK_OUT_ENDPOINT, s_currRecvBuf, s_usbBulkMaxPacketSize) !=
-            kStatus_USB_Success)
-        {
-            error = kStatus_Fail;
-        }
-        s_currRecvIndex = 0;
-        if (error != kStatus_USB_Success)
-        {
-            return error;
-        }
-    }
-    while (s_recvSize <= 0)
+    size_t bufIndex = 0U, bytesToReceive = 0U;
+    assert(count != 0U);
+
+    /* Waiting for the USB ready. */
+    while ((s_cdcVcom.attach != 1) || (s_cdcVcom.startTransactions != 1))
     {
         __NOP();
     };
-    if (count > s_recvSize)
+
+    do
     {
-        count = s_recvSize;
-    }
-    memcpy(buf, s_currRecvBuf + s_currRecvIndex, count);
-    s_recvSize -= count;
-    s_currRecvIndex += count;
+        /* If no receive request. */
+        if (s_recvSize <= 0)
+        {
+            if (kStatus_USB_Success !=
+                USB_DeviceRecvRequest(baseAddr, USB_CDC_VCOM_BULK_OUT_ENDPOINT, s_currRecvBuf, s_usbBulkMaxPacketSize))
+            {
+                return kStatus_Fail;
+            }
+            s_currRecvIndex = 0;
+        }
+        /* Waiting for data received by virtual com. */
+        while (s_recvSize <= 0)
+        {
+            __NOP();
+        };
+
+        /* When receive request is error. */
+        if (0xFFFFFFFFU == s_recvSize)
+        {
+            /* Waiting for the USB ready and transfer started. */
+            while ((s_cdcVcom.attach != 1) || (s_cdcVcom.startTransactions != 1))
+            {
+                __NOP();
+            };
+            s_recvSize = 0;
+        }
+        else
+        {
+            bytesToReceive = MIN(count, s_recvSize);
+            memcpy((void *)&buf[bufIndex], s_currRecvBuf + s_currRecvIndex, bytesToReceive);
+            count -= bytesToReceive;
+            s_recvSize -= bytesToReceive;
+            bufIndex += bytesToReceive;
+            s_currRecvIndex += bytesToReceive;
+        }
+    } while (0U != count);
     return error;
 }
 
 /* See virtual_com.h for documentation of this function. */
 usb_device_handle USB_VcomInit(void)
 {
-    uint8_t irqNo;
     usb_device_handle deviceHandle = NULL;
-#if defined(USB_DEVICE_CONFIG_EHCI) && (USB_DEVICE_CONFIG_EHCI > 0)
-    uint8_t ehciIrq[] = USBHS_IRQS;
-    irqNo = ehciIrq[CONTROLLER_ID - kUSB_ControllerEhci0];
 
-    CLOCK_EnableUsbhs0Clock(kCLOCK_UsbSrcPll0, CLOCK_GetFreq(kCLOCK_PllFllSelClk));
-    USB_EhciPhyInit(CONTROLLER_ID, BOARD_XTAL0_CLK_HZ);
-#endif
-#if defined(USB_DEVICE_CONFIG_KHCI) && (USB_DEVICE_CONFIG_KHCI > 0)
-    uint8_t khciIrq[] = USB_IRQS;
-    irqNo = khciIrq[CONTROLLER_ID - kUSB_ControllerKhci0];
-
-    SystemCoreClockUpdate();
-
-#if ((defined FSL_FEATURE_USB_KHCI_IRC48M_MODULE_CLOCK_ENABLED) && (FSL_FEATURE_USB_KHCI_IRC48M_MODULE_CLOCK_ENABLED))
-    CLOCK_EnableUsbfs0Clock(kCLOCK_UsbSrcIrc48M, 48000000U);
-#else
-#if (defined(FSL_FEATURE_SOC_SCG_COUNT) && (FSL_FEATURE_SOC_SCG_COUNT > 0U))
-    CLOCK_EnableUsbfs0Clock(kCLOCK_IpSrcFircAsync, CLOCK_GetFreq(kCLOCK_ScgFircAsyncDiv1Clk));
-#else
-    CLOCK_EnableUsbfs0Clock(kCLOCK_UsbSrcPll0, CLOCK_GetFreq(kCLOCK_PllFllSelClk));
-#endif
-#endif /* FSL_FEATURE_USB_KHCI_IRC48M_MODULE_CLOCK_ENABLED */
-#endif
-
-#if defined(USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS > 0U)
-    uint8_t usbDeviceIP3511Irq[] = USB_IRQS;
-    irqNo = usbDeviceIP3511Irq[CONTROLLER_ID - kUSB_ControllerLpcIp3511Fs0];
-    /* enable USB IP clock */
-    CLOCK_EnableUsbfs0DeviceClock(kCLOCK_UsbSrcFro, CLOCK_GetFroHfFreq());
-#if defined(FSL_FEATURE_USB_USB_RAM) && (FSL_FEATURE_USB_USB_RAM)
-    for (int i = 0; i < FSL_FEATURE_USB_USB_RAM; i++)
-    {
-        ((uint8_t *)FSL_FEATURE_USB_USB_RAM_BASE_ADDRESS)[i] = 0x00U;
-    }
-#endif
-
-#endif
-
-#if defined(USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U)
-    uint8_t usbDeviceIP3511Irq[] = USBHSD_IRQS;
-    irqNo = usbDeviceIP3511Irq[CONTROLLER_ID - kUSB_ControllerLpcIp3511Hs0];
-    /* enable USB IP clock */
-    CLOCK_EnableUsbhs0DeviceClock(kCLOCK_UsbSrcUsbPll, 0U);
-#if defined(FSL_FEATURE_USBHSD_USB_RAM) && (FSL_FEATURE_USBHSD_USB_RAM)
-    for (int i = 0; i < FSL_FEATURE_USBHSD_USB_RAM; i++)
-    {
-        ((uint8_t *)FSL_FEATURE_USBHSD_USB_RAM_BASE_ADDRESS)[i] = 0x00U;
-    }
-#endif
-#endif
+    USB_DeviceClockInit();
 
 #if (defined(FSL_FEATURE_SOC_SYSMPU_COUNT) && (FSL_FEATURE_SOC_SYSMPU_COUNT > 0U))
     SYSMPU_Enable(SYSMPU, 0);
 #endif /* FSL_FEATURE_SOC_SYSMPU_COUNT */
-
-/*
- * If the SOC has USB KHCI dedicated RAM, the RAM memory needs to be clear after
- * the KHCI clock is enabled. When the demo uses USB EHCI IP, the USB KHCI dedicated
- * RAM can not be used and the memory can't be accessed.
- */
-#if (defined(FSL_FEATURE_USB_KHCI_USB_RAM) && (FSL_FEATURE_USB_KHCI_USB_RAM > 0U))
-#if (defined(FSL_FEATURE_USB_KHCI_USB_RAM_BASE_ADDRESS) && (FSL_FEATURE_USB_KHCI_USB_RAM_BASE_ADDRESS > 0U))
-    for (int i = 0; i < FSL_FEATURE_USB_KHCI_USB_RAM; i++)
-    {
-        ((uint8_t *)FSL_FEATURE_USB_KHCI_USB_RAM_BASE_ADDRESS)[i] = 0x00U;
-    }
-#endif /* FSL_FEATURE_USB_KHCI_USB_RAM_BASE_ADDRESS */
-#endif /* FSL_FEATURE_USB_KHCI_USB_RAM */
 
     s_cdcVcom.speed = USB_SPEED_FULL;
     s_cdcVcom.attach = 0;
@@ -735,8 +664,7 @@ usb_device_handle USB_VcomInit(void)
     else
     {
         deviceHandle = s_cdcVcom.deviceHandle;
-        NVIC_SetPriority((IRQn_Type)irqNo, USB_DEVICE_INTERRUPT_PRIORITY);
-        NVIC_EnableIRQ((IRQn_Type)irqNo);
+        USB_DeviceIsrEnable();
         USB_DeviceRun(s_cdcVcom.deviceHandle);
     }
     return deviceHandle;
@@ -749,10 +677,17 @@ void USB_VcomDeinit(usb_device_handle deviceHandle)
     USB_DeviceDeinit(deviceHandle);
     s_cdcVcom.deviceHandle = NULL;
 #if defined(USB_DEVICE_CONFIG_EHCI) && (USB_DEVICE_CONFIG_EHCI > 0)
-    CLOCK_DisableUsbhs0Clock();
     USB_EhciPhyDeinit(CONTROLLER_ID);
 #endif
 #if defined(USB_DEVICE_CONFIG_KHCI) && (USB_DEVICE_CONFIG_KHCI > 0)
     CLOCK_DisableUsbfs0Clock();
 #endif
+#if defined(USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS > 0U)
+    /* enable USB IP clock, user code. */
+    CLOCK_DisableClock(kCLOCK_Usbd0);
+#endif /* USB_DEVICE_CONFIG_LPCIP3511FS */
+
+#if defined(USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U)
+/* enable USB IP clock,user code. */
+#endif /* USB_DEVICE_CONFIG_LPCIP3511HS */
 }

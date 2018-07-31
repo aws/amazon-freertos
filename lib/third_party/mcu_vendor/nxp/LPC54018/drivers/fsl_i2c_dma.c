@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
- *
+ * All rights reserved.
+ * 
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,6 +38,12 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.flexcomm_i2c_dma"
+#endif
+
 
 /*<! @brief Structure definition for i2c_master_dma_handle_t. The structure is private. */
 typedef struct _i2c_master_dma_private_handle
@@ -65,14 +75,6 @@ static void I2C_MasterTransferCallbackDMA(dma_handle_t *handle, void *userData);
 static status_t I2C_InitTransferStateMachineDMA(I2C_Type *base,
                                                 i2c_master_dma_handle_t *handle,
                                                 i2c_master_transfer_t *xfer);
-
-/*!
- * @brief Get the I2C instance from peripheral base address.
- *
- * @param base I2C peripheral base address.
- * @return I2C instance.
- */
-extern uint32_t I2C_GetInstance(I2C_Type *base);
 
 /*******************************************************************************
  * Variables
@@ -466,7 +468,7 @@ void I2C_MasterTransferCreateHandleDMA(I2C_Type *base,
     handle->completionCallback = callback;
     handle->userData = userData;
 
-    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)(uintptr_t)I2C_MasterTransferDMAHandleIRQ, handle);
+    FLEXCOMM_SetIRQHandler(base, (flexcomm_irq_handler_t)I2C_MasterTransferDMAHandleIRQ, handle);
 
     /* Clear internal IRQ enables and enable NVIC IRQ. */
     I2C_DisableInterrupts(base,
@@ -479,7 +481,7 @@ void I2C_MasterTransferCreateHandleDMA(I2C_Type *base,
     s_dmaPrivateHandle[instance].base = base;
     s_dmaPrivateHandle[instance].handle = handle;
 
-    DMA_SetCallback(dmaHandle, (dma_callback)(uintptr_t)I2C_MasterTransferCallbackDMA, &s_dmaPrivateHandle[instance]);
+    DMA_SetCallback(dmaHandle, (dma_callback)I2C_MasterTransferCallbackDMA, &s_dmaPrivateHandle[instance]);
 }
 
 status_t I2C_MasterTransferDMA(I2C_Type *base, i2c_master_dma_handle_t *handle, i2c_master_transfer_t *xfer)

@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,6 +37,12 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.sctimer"
+#endif
+
 /*! @brief Typedef for interrupt handler. */
 typedef void (*sctimer_isr_t)(SCT_Type *base);
 
@@ -59,8 +69,13 @@ static SCT_Type *const s_sctBases[] = SCT_BASE_PTRS;
 static const clock_ip_name_t s_sctClocks[] = SCT_CLOCKS;
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
-/*! @brief Pointers to SCT resets for each instance. */
+#if defined(FSL_FEATURE_SCT_WRITE_ZERO_ASSERT_RESET) && FSL_FEATURE_SCT_WRITE_ZERO_ASSERT_RESET
+/*! @brief Pointers to SCT resets for each instance, writing a zero asserts the reset */
+static const reset_ip_name_t s_sctResets[] = SCT_RSTS_N;
+#else
+/*! @brief Pointers to SCT resets for each instance, writing a one asserts the reset */
 static const reset_ip_name_t s_sctResets[] = SCT_RSTS;
+#endif
 
 /*!< @brief SCTimer event Callback function. */
 static sctimer_event_callback_t s_eventCallback[FSL_FEATURE_SCT_NUMBER_OF_EVENTS];
@@ -189,10 +204,11 @@ status_t SCTIMER_SetupPwm(SCT_Type *base,
     assert(pwmParams);
     assert(srcClock_Hz);
     assert(pwmFreq_Hz);
+    assert(pwmParams->output < FSL_FEATURE_SCT_NUMBER_OF_OUTPUTS);
 
     uint32_t period, pulsePeriod = 0;
     uint32_t sctClock = srcClock_Hz / (((base->CTRL & SCT_CTRL_PRE_L_MASK) >> SCT_CTRL_PRE_L_SHIFT) + 1);
-    uint32_t periodEvent, pulseEvent;
+    uint32_t periodEvent = 0, pulseEvent = 0;
     uint32_t reg;
 
     /* This function will create 2 events, return an error if we do not have enough events available */
@@ -302,7 +318,8 @@ void SCTIMER_UpdatePwmDutycycle(SCT_Type *base, sctimer_out_t output, uint8_t du
 
 {
     assert(dutyCyclePercent > 0);
-
+    assert(output < FSL_FEATURE_SCT_NUMBER_OF_OUTPUTS);
+      
     uint32_t periodMatchReg, pulseMatchReg;
     uint32_t pulsePeriod = 0, period;
 
@@ -448,6 +465,8 @@ uint32_t SCTIMER_GetCurrentState(SCT_Type *base)
 
 void SCTIMER_SetupOutputToggleAction(SCT_Type *base, uint32_t whichIO, uint32_t event)
 {
+    assert(whichIO < FSL_FEATURE_SCT_NUMBER_OF_OUTPUTS);
+
     uint32_t reg;
 
     /* Set the same event to set and clear the output */
@@ -532,8 +551,8 @@ void SCTIMER_EventHandleIRQ(SCT_Type *base)
 void SCT0_IRQHandler(void)
 {
     s_sctimerIsr(SCT0);
-    /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-      exception return operation might vector to incorrect interrupt */
+/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+  exception return operation might vector to incorrect interrupt */
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
 #endif

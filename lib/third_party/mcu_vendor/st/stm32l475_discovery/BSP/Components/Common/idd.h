@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    idd.h
   * @author  MCD Application Team
-  * @version V5.0.0
-  * @date    01-March-2017
   * @brief   This file contains all the functions prototypes for the IDD driver.
   ******************************************************************************
   * @attention
