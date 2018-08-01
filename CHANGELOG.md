@@ -5,7 +5,7 @@
 ### New Features
 
 #### AFQP 1.0 Support
-This release of AFR has support for vendors who wish to have their ports qualified for Amazon FreeRTOS through the Amazon FreeRTOS Qualification Program (AFQP). This is the first public release of AFQP tests and documentation. A new top level "test" directory has been added to support this functionality. AFQP documents are available in "tests" directory. [Learn more.](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-qualification-program.html)
+This release of AFR has support for vendors who wish to have their ports qualified for Amazon FreeRTOS through the Amazon FreeRTOS Qualification Program (AFQP). This is the first public release of AFQP tests and documentation. A new top level "tests" directory has been added to support this functionality. AFQP documents are available in "tests" directory. [Learn more.](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-qualification-program.html)
 
 #### Device Defender 1.0 Support
 AWS IoT Device Defender is an AWS IoT security service that allows users to audit the configuration of their devices, monitor connected devices to detect abnormal behavior, and to mitigate security risks. It gives you the ability to enforce consistent security policies across your AWS IoT device fleet and respond quickly when devices are compromised. Device side support of this feature is part of this release. Devices supported are WinSim and Microchip PIC32MZEF. [Learn more.](https://docs.aws.amazon.com/freertos/latest/userguide/afr-device-defender-library.html)
