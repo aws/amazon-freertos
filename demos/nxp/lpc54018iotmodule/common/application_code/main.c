@@ -29,7 +29,7 @@
  */
 
 /*
- * Amazon FreeRTOS V1.3.0
+ * Amazon FreeRTOS V1.3.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -206,8 +206,8 @@ int main(void)
 
     BOARD_InitDebugConsole();
 
-    xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE, 
-                            mainLOGGING_TASK_PRIORITY, 
+    xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
+                            mainLOGGING_TASK_PRIORITY,
                             mainLOGGING_QUEUE_LENGTH );
 
     vTaskStartScheduler();
@@ -221,7 +221,7 @@ void vApplicationDaemonTaskStartupHook( void )
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
     vDevModeKeyProvisioning();
-  
+
     if( SYSTEM_Init() == pdPASS )
     {
         prvWifiConnect();

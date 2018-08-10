@@ -182,6 +182,17 @@ uint32_t FLASH_get_bank(uint32_t addr)
   return bank;
 }
 
+
+/**
+  * @brief  Return the size of a flash bank.
+  * @retval Size in bytes.
+  */
+uint32_t FLASH_get_bank_size( void )
+{
+	return FLASH_BANK_SIZE;
+}
+
+
 /**
   * @brief  Get the page of a given address within its FLASH bank.
   * @param  In: addr    Address in the FLASH memory.
@@ -194,22 +205,21 @@ int FLASH_get_pageInBank(uint32_t addr)
 	uint32_t ulFlashBank2Start = FLASH_BASE + FLASH_BANK_SIZE;
 	int page = -1;
 
-  if ( ( ulFlashBank2Start > addr ) && ( addr >= FLASH_BASE ) )
-  {
-    /* The address is in internal FLASH range. */
-    if ( addr < ulFlashBank2Start )
-    { 
-      /* Addr in the first bank */
-      page = (addr - FLASH_BASE) / FLASH_PAGE_SIZE;
-    }
-    else 
-    {
-      /* Addr in the second bank */
-      page = (addr - ulFlashBank2Start ) / FLASH_PAGE_SIZE;
-    }
-  }
-  
-  return page;
+	if ( ( addr < ( ulFlashBank2Start + FLASH_BANK_SIZE ) ) && ( addr >= FLASH_BASE ) )
+	{
+		/* The address is in internal FLASH range. */
+		if ( addr < ulFlashBank2Start )
+		{
+		  /* Addr in the first bank */
+		  page = (addr - FLASH_BASE) / FLASH_PAGE_SIZE;
+		}
+		else
+		{
+		  /* Addr in the second bank */
+		  page = (addr - ulFlashBank2Start ) / FLASH_PAGE_SIZE;
+		}
+	}
+	return page;
 }
 
 /**

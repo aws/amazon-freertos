@@ -27,10 +27,11 @@
 
 #include "aws_cbor.h"
 
-typedef void (*update_metric_t)(void);
-typedef cbor_handle_t (*report_metric_t)(void);
+typedef void (* update_metric_t)( void );
+typedef cbor_handle_t (* report_metric_t)( void );
 
-struct defender_metric_s {
+struct defender_metric_s
+{
     update_metric_t UpdateMetric;
     report_metric_t ReportMetric;
 };
@@ -38,7 +39,8 @@ struct defender_metric_s {
 /**
  * Enumeration of agent states
  */
-typedef enum {
+typedef enum
+{
     eDEFENDER_STATE_INIT,
     eDEFENDER_STATE_STARTED,
     eDEFENDER_STATE_NEW_MQTT_FAILED,

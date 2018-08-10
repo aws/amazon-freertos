@@ -40,8 +40,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\common\config_files;..\common\application_code\include;..\..\..\..\demos\common\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\ota\portable\pc\windows;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\tracealyzer_recorder\Include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\third_party\win_pcap;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\common\config_files;..\common\application_code\include;..\..\..\..\demos\common\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\ota\portable\pc\windows;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\tracealyzer_recorder\Include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\third_party\win_pcap;..\..\..\..\lib\cbor\src;..\..\..\..\lib\defender\src;..\..\..\..\lib\defender\src\metrics;..\..\..\..\lib\defender\src\report;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -83,7 +83,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c" />
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor.c" />
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_alloc.c" />
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_int.c" />
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_iter.c" />
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_map.c" />
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_mem.c" />
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_print.c" />
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_string.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\aws_defender.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_cpu.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_tcp_conn.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_uptime.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_cpu.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_header.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_tcp_conn.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_uptime.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_ARP.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_DHCP.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_DNS.c" />
@@ -109,7 +126,6 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_lib.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
-    <ClCompile Include="..\..\..\..\lib\ota\aws_rsprintf.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
     </ClCompile>
@@ -200,6 +216,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcSnapshotRecorder.c" />
     <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c" />
     <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c" />
+    <ClCompile Include="..\..\..\common\defender\aws_defender_demo.c" />
     <ClCompile Include="..\..\..\common\demo_runner\aws_demo_runner.c" />
     <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\common\greengrass_connectivity\aws_greengrass_discovery_demo.c" />
@@ -216,6 +233,29 @@
     <ClCompile Include="..\common\application_code\main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_alloc.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_int.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_internals.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_iter.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_jump_table.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_map.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_mem.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_print.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_string.h" />
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\aws_defender.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\aws_defender_internals.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_cpu.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_tcp_conn.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_uptime.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_cpu.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_header.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_tcp_conn.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_types.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_uptime.h" />
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_utils.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOSIPConfigDefaults.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_ARP.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_DHCP.h" />
@@ -257,7 +297,6 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_lib_private.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_rsprintf.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_json.h" />
@@ -354,6 +393,7 @@
     <ClInclude Include="..\..\..\common\include\aws_application_version.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential_keys.h" />
+    <ClInclude Include="..\..\..\common\include\aws_defender_demo.h" />
     <ClInclude Include="..\..\..\common\include\aws_demo.h" />
     <ClInclude Include="..\..\..\common\include\aws_demo_runner.h" />
     <ClInclude Include="..\..\..\common\include\aws_greengrass_discovery_demo.h" />
@@ -372,6 +412,7 @@
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
+    <ClInclude Include="..\common\config_files\aws_ota_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_pkcs11_config.h" />
     <ClInclude Include="..\common\config_files\aws_secure_sockets_config.h" />
     <ClInclude Include="..\common\config_files\aws_shadow_config.h" />

@@ -24,15 +24,15 @@
  */
 #include "aws_defender_cpu.h"
 
-int        DEFENDER_current_load = 42;
-static int DEFENDER_report_load  = 0;
+int DEFENDER_current_load = 42;
+static int DEFENDER_report_load = 0;
 
-int DEFENDER_CpuLoadGet(void)
+int DEFENDER_CpuLoadGet( void )
 {
     return DEFENDER_report_load;
 }
 
-void DEFENDER_CpuLoadRefresh(void)
+void DEFENDER_CpuLoadRefresh( void )
 {
     DEFENDER_report_load = DEFENDER_current_load;
 }

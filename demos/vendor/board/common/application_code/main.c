@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.3.0
+ * Amazon FreeRTOS V1.3.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,6 +36,14 @@
 #include "aws_logging_task.h"
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
+#include "aws_application_version.h"
+
+/* Declare the firmware version structure for all to see. */
+const AppVersion32_t xAppFirmwareVersion = {
+	.u.x.ucMajor = APP_VERSION_MAJOR,
+	.u.x.ucMinor = APP_VERSION_MINOR,
+	.u.x.usBuild = APP_VERSION_BUILD,
+};
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )

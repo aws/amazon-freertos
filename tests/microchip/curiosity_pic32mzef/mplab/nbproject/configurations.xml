@@ -32,6 +32,8 @@
           <itemPath>../../../common/include/aws_test_framework.h</itemPath>
           <itemPath>../../../common/include/aws_test_runner.h</itemPath>
           <itemPath>../../../common/include/aws_test_tcp.h</itemPath>
+          <itemPath>../../../common/include/aws_ota_codesigner_certificate.h</itemPath>
+          <itemPath>../../../common/include/aws_application_version.h</itemPath>
         </logicalFolder>
         <logicalFolder name="logging" displayName="logging" projectFiles="true">
           <itemPath>../../../../demos/common/logging/aws_logging_task_dynamic_buffers.c</itemPath>
@@ -42,6 +44,12 @@
         <logicalFolder name="mqtt" displayName="mqtt" projectFiles="true">
           <itemPath>../../../common/mqtt/aws_test_mqtt_lib.c</itemPath>
           <itemPath>../../../common/mqtt/aws_test_mqtt_agent.c</itemPath>
+        </logicalFolder>
+        <logicalFolder name="ota" displayName="ota" projectFiles="true">
+          <itemPath>../../../common/ota/aws_test_ota_agent.c</itemPath>
+          <itemPath>../../../common/ota/aws_test_ota_pal.c</itemPath>
+          <itemPath>../../../common/ota/aws_test_ota_pal_ecdsa_sha256_signature.h</itemPath>
+          <itemPath>../../../../demos/common/ota/aws_ota_update_demo.c</itemPath>
         </logicalFolder>
         <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
           <itemPath>../../../common/pkcs11/aws_test_pkcs11.c</itemPath>
@@ -104,6 +112,9 @@
       <itemPath>../common/config_files/aws_test_tcp_config.h</itemPath>
       <itemPath>../common/config_files/aws_pkcs11_config.h</itemPath>
       <itemPath>../common/config_files/aws_test_wifi_config.h</itemPath>
+      <itemPath>../common/config_files/aws_ota_agent_config.h</itemPath>
+      <itemPath>../common/config_files/aws_test_ota_config.h</itemPath>
+      <itemPath>../common/config_files/aws_demo_config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="f1" displayName="lib" projectFiles="true">
       <logicalFolder name="f1" displayName="aws" projectFiles="true">
@@ -282,7 +293,6 @@
             <itemPath>../../../../lib/include/private/aws_mqtt_buffer.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_mqtt_config_defaults.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_ota_cbor.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_rsprintf.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_secure_sockets_config_defaults.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_shadow_config_defaults.h</itemPath>
             <itemPath>../../../../lib/include/private/aws_shadow_json.h</itemPath>
@@ -318,6 +328,13 @@
         <logicalFolder name="mqtt" displayName="mqtt" projectFiles="true">
           <itemPath>../../../../lib/mqtt/aws_mqtt_agent.c</itemPath>
           <itemPath>../../../../lib/mqtt/aws_mqtt_lib.c</itemPath>
+        </logicalFolder>
+        <logicalFolder name="ota" displayName="ota" projectFiles="true">
+          <itemPath>../../../../lib/ota/aws_ota_agent.c</itemPath>
+          <itemPath>../../../../lib/ota/aws_ota_cbor.c</itemPath>
+          <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_ota_pal.c</itemPath>
+          <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_nvm.h</itemPath>
+          <itemPath>../../../../lib/ota/portable/microchip/curiosity_pic32mzef/aws_nvm.c</itemPath>
         </logicalFolder>
         <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
           <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/pkcs11_nvm.c</itemPath>
@@ -1770,6 +1787,14 @@
           <itemPath>../../../../lib/third_party/pkcs11/pkcs11f.h</itemPath>
           <itemPath>../../../../lib/third_party/pkcs11/pkcs11t.h</itemPath>
         </logicalFolder>
+        <logicalFolder name="tinycbor" displayName="tinycbor" projectFiles="true">
+          <itemPath>../../../../lib/third_party/tinycbor/cborencoder.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborencoder_close_container_checked.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborparser.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborparser_dup_string.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborpretty.c</itemPath>
+          <itemPath>../../../../lib/third_party/tinycbor/cborerrorstrings.c</itemPath>
+        </logicalFolder>
         <logicalFolder name="unity" displayName="unity" projectFiles="true">
           <itemPath>../../../../lib/third_party/unity/src/unity.c</itemPath>
           <itemPath>../../../../lib/third_party/unity/src/unity.h</itemPath>
@@ -1784,6 +1809,7 @@
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
+      <itemPath>../common/application_code/microchip_code/app_mz.ld</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -1806,6 +1832,7 @@
     <Elem>../../../../demos/common/devmode_key_provisioning</Elem>
     <Elem>../../../../demos/microchip/curiosity_pic32mzef/common/config_files</Elem>
     <Elem>../../../../lib/pkcs11/mbedtls</Elem>
+    <Elem>../../../../demos/common/ota</Elem>
     <Elem>../../../../lib/FreeRTOS-Plus-POSIX/include</Elem>
     <Elem>../../../../lib/FreeRTOS-Plus-POSIX/source</Elem>
     <Elem>../../../../lib/cbor/test</Elem>
@@ -1825,7 +1852,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD4Tool</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>2.10</languageToolchainVersion>
+        <languageToolchainVersion>2.05</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -1837,6 +1864,21 @@
         <archiverTool>
         </archiverTool>
         <loading>
+          <makeArtifact PL="../../curiosity_pic32_bl/aws_bootloader.X"
+                        CT="1"
+                        CN="pic32mz_ef_curiosity"
+                        AC="true"
+                        BL="true"
+                        WD="../../curiosity_pic32_bl/aws_bootloader.X"
+                        BC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity"
+                        DBC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity TYPE_IMAGE=DEBUG_RUN"
+                        CC="rm -rf &quot;build/pic32mz_ef_curiosity&quot; &quot;dist/pic32mz_ef_curiosity&quot;"
+                        OP="dist/pic32mz_ef_curiosity/production/aws_bootloader.X.production.hex"
+                        DOP="dist/pic32mz_ef_curiosity/debug/aws_bootloader.X.debug.elf"
+                        FL="dist/pic32mz_ef_curiosity/production/aws_bootloader.X.production.hex"
+                        PD="dist/pic32mz_ef_curiosity/production/aws_bootloader.X.production.elf"
+                        DD="dist/pic32mz_ef_curiosity/debug/aws_bootloader.X.debug.elf">
+          </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
@@ -1847,8 +1889,8 @@
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
-        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
-        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep>xc32-objcopy -I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin &amp;&amp; python ../../../../demos/common/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
@@ -1862,7 +1904,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\common\config_files;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\bsp;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\common\application_code\microchip_code;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\GCC;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\common\secure_sockets\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\system\common;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\common\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\source;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver\include;..\..\..\..\lib\pkcs11\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\cbor\src;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\defender\src\portable\free_rtos;..\..\..\..\lib\defender\src\metrics;..\..\..\..\lib\defender\src\report;..\..\..\..\lib\defender\src"/>
+                  value="..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\common\config_files;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\bsp;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\common\application_code\microchip_code;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\GCC;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\system\common;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\common\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\source;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver\include;..\..\..\..\lib\pkcs11\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\cbor\src;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\defender\src\portable\free_rtos;..\..\..\..\lib\defender\src\metrics;..\..\..\..\lib\defender\src\report;..\..\..\..\lib\defender\src;..\..\..\..\lib\ota\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\ota;..\..\..\common\ota;..\..\..\..\demos\common\include"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -1880,7 +1922,7 @@
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
-        <appendMe value="-std=gnu99 -fgnu89-inline"/>
+        <appendMe value="-mnewlib-libc -std=gnu99 -fgnu89-inline"/>
       </C32>
       <C32-AR>
         <property key="additional-options-chop-files" value="false"/>
@@ -1934,7 +1976,7 @@
         <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
         <property key="no-device-startup-code" value="false"/>
         <property key="no-startup-files" value="false"/>
-        <property key="oXC32ld-extra-opts" value=""/>
+        <property key="oXC32ld-extra-opts" value="-mnewlib-libc"/>
         <property key="optimization-level" value=""/>
         <property key="preprocessor-macros" value=""/>
         <property key="remove-unused-sections" value="true"/>

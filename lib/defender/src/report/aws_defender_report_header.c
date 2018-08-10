@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.0
+ * Amazon FreeRTOS Device Defender Agent V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,14 +24,44 @@
  */
 #include "aws_defender_internals.h"
 
-const char *pcDEFENDER_METRICS_VERSION = "1.0";
+/*
+ * Returns a non-crypto, but random number for initializing the report ID
+ * This helps to prevent duplicate report IDs from the same device after POR
+ */
+static uint32_t prvDEFENDER_ReportIdInit( void );
+#ifdef __free_rtos__
+    #include "FreeRTOS.h"
+    static uint32_t prvDEFENDER_ReportIdInit( void )
+    {
+        return configRAND32();
+    }
+#else
+    #include <stdlib.h>
+    static uint32_t prvDEFENDER_ReportIdInit( void )
+    {
+        /* Todo: detect platform and use apporpriate PRNG */
+        /* e.g. random() on POSIX */
+        return rand();
+    }
+#endif /* ifdef __free_rtos__ */
 
-cbor_handle_t DEFENDER_GetHeader(void)
+static int32_t lReportId;
+const char * pcDEFENDER_METRICS_VERSION = "1.0";
+
+cbor_handle_t DEFENDER_GetHeader( void )
 {
-    cbor_handle_t  pxHeader    = CBOR_New(0);
-    static int32_t lReport_id = 0;
-    CBOR_AssignKeyWithInt(pxHeader, DEFENDER_report_id_tag, lReport_id++);
+    lReportId = lReportId == 0 ? prvDEFENDER_ReportIdInit() : lReportId;
+
+    cbor_handle_t pxHeader = CBOR_New( 0 );
+
+    CBOR_AssignKeyWithInt( pxHeader, DEFENDER_report_id_tag, ++lReportId );
     CBOR_AssignKeyWithString(
-        pxHeader, DEFENDER_version_tag, pcDEFENDER_METRICS_VERSION);
+        pxHeader, DEFENDER_version_tag, pcDEFENDER_METRICS_VERSION );
+
     return pxHeader;
+}
+
+int32_t DEFENDER_GetLastReportId( void )
+{
+    return lReportId;
 }

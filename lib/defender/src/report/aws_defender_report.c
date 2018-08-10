@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.0
+ * Amazon FreeRTOS Device Defender Agent V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,39 +27,54 @@
 #include <stdint.h>
 #include <string.h>
 
-static DefenderMetric_t xDEFENDER_metrics_list[32];
-static int               xDEFENDER_metrics_count;
+static DefenderMetric_t xDEFENDER_metrics_list[ DEFENDER_MAX_METRICS_COUNT ];
+static int32_t xDEFENDER_metrics_count;
 
-DefenderErr_t DEFENDER_MetricsInitFunc(
-    DefenderMetric_t *ppxMetrics, int xMetric_count)
+DefenderErr_t DEFENDER_MetricsInitFunc( DefenderMetric_t * ppxMetrics,
+                                        int32_t xMetric_count )
 {
-    xDEFENDER_metrics_count = xMetric_count;
-    for (int xI = 0; xI < xMetric_count; ++xI) {
-        xDEFENDER_metrics_list[xI] = ppxMetrics[xI];
+    int32_t lI;
+
+    if( DEFENDER_MAX_METRICS_COUNT < xMetric_count )
+    {
+        return eDefenderErrTooManyMetrics;
     }
+
+    xDEFENDER_metrics_count = xMetric_count;
+
+    for( lI = 0; lI < xMetric_count; ++lI )
+    {
+        xDEFENDER_metrics_list[ lI ] = ppxMetrics[ lI ];
+    }
+
     return 0;
 }
 
-cbor_handle_t DEFENDER_CreateReport(void)
+cbor_handle_t DEFENDER_CreateReport( void )
 {
-    cbor_handle_t pxReport = CBOR_New(0);
+    cbor_handle_t pxReport = CBOR_New( 0 );
 
     cbor_handle_t pxHeader = DEFENDER_GetHeader();
-    CBOR_AppendKeyWithMap(pxReport, DEFENDER_header_tag, pxHeader);
-    CBOR_Delete(&pxHeader);
 
-    cbor_handle_t pxMetrics = CBOR_New(0);
-    for (int xI = 0; xI < xDEFENDER_metrics_count; ++xI) {
-        xDEFENDER_metrics_list[xI]->UpdateMetric();
-        cbor_handle_t pxMetric = xDEFENDER_metrics_list[xI]->ReportMetric();
-        CBOR_AppendMap(pxMetrics, pxMetric);
-        CBOR_Delete(&pxMetric);
+    CBOR_AppendKeyWithMap( pxReport, DEFENDER_header_tag, pxHeader );
+    CBOR_Delete( &pxHeader );
+
+    cbor_handle_t pxMetrics = CBOR_New( 0 );
+
+    for( int xI = 0; xI < xDEFENDER_metrics_count; ++xI )
+    {
+        xDEFENDER_metrics_list[ xI ]->UpdateMetric();
+        cbor_handle_t pxMetric = xDEFENDER_metrics_list[ xI ]->ReportMetric();
+        CBOR_AppendMap( pxMetrics, pxMetric );
+        CBOR_Delete( &pxMetric );
     }
-    CBOR_AppendKeyWithMap(pxReport, DEFENDER_metrics_tag, pxMetrics);
-    CBOR_Delete(&pxMetrics);
 
-    if (eCBOR_ERR_NO_ERROR != CBOR_CheckError(pxReport)) {
-        CBOR_Delete(&pxReport);
+    CBOR_AppendKeyWithMap( pxReport, DEFENDER_metrics_tag, pxMetrics );
+    CBOR_Delete( &pxMetrics );
+
+    if( eCBOR_ERR_NO_ERROR != CBOR_CheckError( pxReport ) )
+    {
+        CBOR_Delete( &pxReport );
     }
 
     return pxReport;

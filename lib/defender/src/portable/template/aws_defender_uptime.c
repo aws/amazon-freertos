@@ -24,13 +24,14 @@
  */
 #include "aws_defender_uptime.h"
 
-int DEFENDER_UptimeSecondsGet(void)
+int DEFENDER_UptimeSecondsGet( void )
 {
-#error Return uptime in seconds since the last reset or power on event
+    #error Return uptime in seconds since the last reset or power on event
+
     return -1;
 }
 
-void DEFENDER_UptimeRefresh(void)
+void DEFENDER_UptimeRefresh( void )
 {
-#error Compute and store the uptime in seconds since the last reset or power on event
+    #error Compute and store the uptime in seconds since the last reset or power on event
 }

@@ -35,38 +35,3 @@ static const char * clientcredentialJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM = NULL
  * "-----END RSA PRIVATE KEY-----";
  */
 static const char clientcredentialCLIENT_PRIVATE_KEY_PEM[] = "Paste client private key here.";
-
-/* The root certificate used for the encrypted echo server.
- * This certificate is self-signed, and not in the trusted catalog. */
-static const char tcptestECHO_HOST_ROOT_CA[] = "Paste root certificate here";
-
-/*
- * PEM-encoded client certificate.
- *
- * Certificate for P-256 elliptic curve key.
- */
-static const char tlstestCLIENT_CERTIFICATE_PEM_EC[] = "Paste client certificate here.";
-
-/*
- * PEM-encoded client private key.
- *
- * This is a P-256 elliptic curve key.
- */
-static const char tlstestCLIENT_PRIVATE_KEY_PEM_EC[] = "Paste client private key here.";
-
-
-/* One character of this certificate has been changed in the issuer
- * name from Amazon Web Services to Amazon Web Cervices. */
-static const char tlstestCLIENT_CERTIFICATE_PEM_MALFORMED[] = "Paste client certificate here.";
-
-/* Certificate which is not trusted by the broker. */
-static const char tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM[] = "Paste client certificate here.";
-
-/* Private key corresponding to the untrusted certificate. */
-static const char tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM[] = "Paste client private key here.";
-
-/* Device certificate created using BYOC instructions. */
-static const char tlstestCLIENT_BYOC_CERTIFICATE_PEM[] = "Paste client certificate here.";
-
-/* Device private key created using BYOC instructions. */
-static const char tlstestCLIENT_BYOC_PRIVATE_KEY_PEM[] = "Paste client private key here.";

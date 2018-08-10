@@ -41,6 +41,14 @@ typedef enum
     /** Function was successful */
     eDefenderErrSuccess = 0,
 
+    /** More metrics were provided than are available for use and/or storage.
+     * Double check that the metrics list is correct. */
+    eDefenderErrTooManyMetrics,
+
+    /** Request reporting period was too short.  The period should not be less
+     * than 300 seconds. */
+    eDefenderErrPeriodTooShort,
+
     /** A task could not be created, and therefore the device defender agent
      * failed to start. */
     eDefenderErrFailedToCreateTask,
@@ -126,5 +134,10 @@ DefenderErr_t DEFENDER_Stop( void );
  * @return DefenderReportStatus_t
  */
 DefenderReportStatus_t DEFENDER_ReportStatusGet( void );
+
+/**
+ * @brief Returns the last Report ID used.
+ */
+int32_t DEFENDER_GetLastReportId( void );
 
 #endif /* end of include guard: AWS_DEFENDER_H */

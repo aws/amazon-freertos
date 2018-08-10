@@ -28,11 +28,11 @@
 #include "aws_cbor.h"
 #include "aws_defender_report_utils.h"
 
-extern const char *DEFENDER_METRICS_VERSION;
+extern const char * DEFENDER_METRICS_VERSION;
 
-#define DEFENDER_report_id_tag DEFENDER_SelectTag("report_id", "rid")
-#define DEFENDER_version_tag DEFENDER_SelectTag("version", "v")
+#define DEFENDER_report_id_tag    DEFENDER_SelectTag( "report_id", "rid" )
+#define DEFENDER_version_tag      DEFENDER_SelectTag( "version", "v" )
 
-cbor_handle_t DEFENDER_GetHeader(void);
+cbor_handle_t DEFENDER_GetHeader( void );
 
 #endif /* end of include guard: AWS_DEFENDER_HEADER_H */

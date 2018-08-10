@@ -24,13 +24,14 @@
  */
 #include "aws_defender_cpu.h"
 
-int DEFENDER_CpuLoadGet(void)
+int DEFENDER_CpuLoadGet( void )
 {
-#error return CPU as a percentage * cores.
+    #error return CPU as a percentage * cores.
+
     return -1;
 }
 
-void DEFENDER_CpuLoadRefresh(void)
+void DEFENDER_CpuLoadRefresh( void )
 {
-#error measure and store CPU percentage * cores.
+    #error measure and store CPU percentage * cores.
 }

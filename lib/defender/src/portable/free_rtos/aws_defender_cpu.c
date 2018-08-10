@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.0
+ * Amazon FreeRTOS Device Defender Agent V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,13 +24,13 @@
  */
 #include "aws_defender_cpu.h"
 
-int DEFENDER_CpuLoadGet(void)
+int DEFENDER_CpuLoadGet( void )
 {
-    // #error return CPU as a percentage * cores.
+    /* #error return CPU as a percentage * cores. */
     return -1;
 }
 
-void DEFENDER_CpuLoadRefresh(void)
+void DEFENDER_CpuLoadRefresh( void )
 {
-    // #error measure and store CPU percentage * cores.
+    /* #error measure and store CPU percentage * cores. */
 }

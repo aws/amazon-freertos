@@ -26,41 +26,43 @@
 #include "unity_fixture.h"
 #include <assert.h>
 
-void test_delay(int sec)
+void test_delay( int sec )
 {
-    assert(0 <= sec);
+    assert( 0 <= sec );
 }
 
-TEST_GROUP(aws_defender_acceptance);
+TEST_GROUP( aws_defender_acceptance );
 
-TEST_SETUP(aws_defender_acceptance)
-{
-}
-
-TEST_TEAR_DOWN(aws_defender_acceptance)
+TEST_SETUP( aws_defender_acceptance )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_acceptance)
+TEST_TEAR_DOWN( aws_defender_acceptance )
 {
-    RUN_TEST_CASE(aws_defender_acceptance, acceptance_test);
 }
 
-TEST(aws_defender_acceptance, acceptance_test)
+TEST_GROUP_RUNNER( aws_defender_acceptance )
 {
-    DefenderMetric_t metrics_list[] = {
-        // DEFENDER_listening_tcp_ports,
-        // DEFENDER_listening_udp_ports,
+    RUN_TEST_CASE( aws_defender_acceptance, acceptance_test );
+}
+
+TEST( aws_defender_acceptance, acceptance_test )
+{
+    DefenderMetric_t metrics_list[] =
+    {
+        /* DEFENDER_listening_tcp_ports, */
+        /* DEFENDER_listening_udp_ports, */
         pxDEFENDER_tcp_connections,
     };
-    (void)DEFENDER_MetricsInit(metrics_list);
+
+    ( void ) DEFENDER_MetricsInit( metrics_list );
 
     int report_period = 5;
-    (void)DEFENDER_ReportPeriodSet(report_period);
+    ( void ) DEFENDER_ReportPeriodSet( report_period );
 
     DEFENDER_Start();
-    test_delay(report_period + 1);
+    test_delay( report_period + 1 );
     DEFENDER_Stop();
 }
 
-// List of unwritten tests:
+/* List of unwritten tests: */

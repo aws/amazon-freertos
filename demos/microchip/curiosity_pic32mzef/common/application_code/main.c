@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.3.0
+ * Amazon FreeRTOS V1.3.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,7 +59,7 @@ const AppVersion32_t xAppFirmwareVersion = {
 #define mainDEVICE_NICK_NAME                "Microchip_Demo"
 
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 25 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 128 )
 
 
 /* The default IP and MAC address used by the demo.  The address configuration

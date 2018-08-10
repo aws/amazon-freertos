@@ -13,7 +13,7 @@
             <asminc-extensions/>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects>
-                <make-dep-project>../../../../lib/third_party/mcu_vendor/microchip/harmony/v2.05/bootloader/firmware/harmony_boot.X</make-dep-project>
+                <make-dep-project>../../curiosity_pic32_bl/aws_bootloader.X</make-dep-project>
             </make-dep-projects>
         </data>
     </configuration>

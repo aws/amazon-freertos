@@ -25,7 +25,7 @@
 #ifndef AWS_DEFENDER_CPU_H
 #define AWS_DEFENDER_CPU_H
 
-int  DEFENDER_CpuLoadGet(void);
-void DEFENDER_CpuLoadRefresh(void);
+int DEFENDER_CpuLoadGet( void );
+void DEFENDER_CpuLoadRefresh( void );
 
 #endif /* end of include guard: AWS_DEFENDER_CPU_H */

@@ -108,17 +108,8 @@ SOFTWARE
 #pragma config FUSBIDIO =   ON
 
 /*** BF1SEQ0 ***/
-
-#if 0
-// @@@@ ???
-#pragma config_bf1 TSEQ =       0x0001
-#pragma config_bf1 CSEQ =       0xfffe
-
-#pragma config_bf2 TSEQ =       0x0000
-#pragma config_bf2 CSEQ =       0xffff
-#endif
-#pragma config TSEQ =       0x0000
-#pragma config CSEQ =       0xffff
+#pragma config TSEQ =       0xffff
+#pragma config CSEQ =       0x0000
 
 // </editor-fold>
 

@@ -148,6 +148,15 @@
     <Filter Include="application_code\common_tests\memory_leak">
       <UniqueIdentifier>{0286fdcc-912a-4ee7-8e74-b06e669030b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\ota">
+      <UniqueIdentifier>{30a17663-02b5-48c6-9642-7b190250efe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\third_party\tinycbor">
+      <UniqueIdentifier>{a505b804-d141-49ff-99ce-c8cfae64a367}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application_code\common_tests\ota">
+      <UniqueIdentifier>{13e2c71d-7de3-4979-be17-9269b2273ff0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -555,9 +564,6 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_rsprintf.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
@@ -597,9 +603,6 @@
     <ClInclude Include="..\..\..\common\include\aws_clientcredential_keys.h">
       <Filter>application_code\common_tests\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\secure_sockets\portable\vendor\board\aws_test_tcp_portable.h">
-      <Filter>application_code\common_tests\secure_sockets</Filter>
-    </ClInclude>
     <ClInclude Include="..\common\config_files\aws_wifi_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
@@ -613,6 +616,12 @@
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\common\config_files\aws_test_wifi_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_ota_agent_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_test_ota_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -988,6 +997,42 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c">
       <Filter>lib\aws\pkcs11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
+      <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c">
+      <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\portable\vendor\board\aws_ota_pal.c">
+      <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborencoder.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborencoder_close_container_checked.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborerrorstrings.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborparser.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborparser_dup_string.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborpretty.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\ota\aws_test_ota_agent.c">
+      <Filter>application_code\common_tests\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\ota\aws_test_ota_pal.c">
+      <Filter>application_code\common_tests\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\ota\aws_test_ota_cbor.c">
+      <Filter>application_code\common_tests\ota</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

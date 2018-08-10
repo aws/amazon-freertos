@@ -25,7 +25,7 @@
 #ifndef AWS_DEFENDER_TCP_CONN_H
 #define AWS_DEFENDER_TCP_CONN_H
 
-int  DEFENDER_TcpConnGet(void);
-void DEFENDER_TcpConnRefresh(void);
+int DEFENDER_TcpConnGet( void );
+void DEFENDER_TcpConnRefresh( void );
 
 #endif /* end of include guard: AWS_DEFENDER_TCP_CONN_H */

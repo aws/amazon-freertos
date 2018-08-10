@@ -40,7 +40,8 @@
 /**
  * @brief CBOR object errors
  */
-typedef enum {
+typedef enum
+{
     /** No error occurred in the last function call */
     eCBOR_ERR_NO_ERROR = 0,
 
@@ -79,31 +80,32 @@ typedef enum {
 } cbor_err_t;
 
 /** @brief Pointer to a CborData_s struct */
-typedef struct CborData_s *cbor_handle_t;
+typedef struct CborData_s * cbor_handle_t;
 
 /** @brief Pointer to write function for use with assigning values to keys */
-typedef void (*write_function_t)(cbor_handle_t, void const *);
+typedef void (* write_function_t)( cbor_handle_t,
+                                   void const * );
 
-typedef char *      cbor_key_t;
-typedef char const *cbor_const_key_t;
-typedef char *      cbor_string_t;
-typedef char const *cbor_const_string_t;
-typedef int         cbor_int_t;
-typedef int         cbor_ssize_t;
-typedef uint8_t     cbor_byte_t;
+typedef char       * cbor_key_t;
+typedef char const * cbor_const_key_t;
+typedef char       * cbor_string_t;
+typedef char const * cbor_const_string_t;
+typedef int        cbor_int_t;
+typedef int        cbor_ssize_t;
+typedef uint8_t    cbor_byte_t;
 
 /**
  * @brief Checks the error state of the CBOR object.
  * @param   cbor_handle_t  Handle for the CBOR data struct.
  * @return  cbor_err_t     The current error state of the CBOR object.
  */
-cbor_err_t CBOR_CheckError(cbor_handle_t /*cbor_data*/);
+cbor_err_t CBOR_CheckError( cbor_handle_t /*cbor_data*/ );
 
 /**
  * @brief Clears the error state from the CBOR object
  * @param cbor_handle_t   Handle for the CBOR data struct.
  */
-void CBOR_ClearError(cbor_handle_t /*cbor_data*/);
+void CBOR_ClearError( cbor_handle_t /*cbor_data*/ );
 
 /**
  * @brief Initializes user provided data buffer with AWS CBOR data structure.
@@ -119,7 +121,7 @@ void CBOR_ClearError(cbor_handle_t /*cbor_data*/);
  * @see cbor_handle_t
  * @see CBOR_Delete
  */
-cbor_handle_t CBOR_New(cbor_ssize_t /*size*/);
+cbor_handle_t CBOR_New( cbor_ssize_t /*size*/ );
 
 /**
  * @brief Frees memory allocated by CBOR_New(0)
@@ -127,7 +129,7 @@ cbor_handle_t CBOR_New(cbor_ssize_t /*size*/);
  * @param "cbor_handle_t *" handle for cbor_handle_t
  * @see CBOR_New
  */
-void CBOR_Delete(cbor_handle_t * /*handle*/);
+void CBOR_Delete( cbor_handle_t * /*handle*/ );
 
 /**
  * @brief Returns a pointer to the raw buffer
@@ -148,7 +150,7 @@ void CBOR_Delete(cbor_handle_t * /*handle*/);
  * @return               Pointer to the raw CBOR buffer
  * @see CBOR_GerBufferSize
  */
-cbor_byte_t const *const CBOR_GetRawBuffer(cbor_handle_t /*handle*/);
+cbor_byte_t const * const CBOR_GetRawBuffer( cbor_handle_t /*handle*/ );
 
 /**
  * @brief Returns the size of the CBOR buffer in bytes
@@ -156,14 +158,14 @@ cbor_byte_t const *const CBOR_GetRawBuffer(cbor_handle_t /*handle*/);
  * @return               Size of the CBOR buffer in bytes
  * @see CBOR_GetRawBuffer
  */
-cbor_ssize_t const CBOR_GetBufferSize(cbor_handle_t /*handle*/);
+cbor_ssize_t const CBOR_GetBufferSize( cbor_handle_t /*handle*/ );
 
 /**
  * @brief Points read/write cursor to @glos{value} at given @glos{key}
  * @return True: Key was found
  * @return False: Key was NOT found
  */
-bool CBOR_FindKey(cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/);
+bool CBOR_FindKey( cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/ );
 
 /**
  * @brief Assigns a @glos{key} with a string @glos{value}
@@ -171,8 +173,8 @@ bool CBOR_FindKey(cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/);
  * @param cbor_const_key_t  @glos{key}   - zero terminated string
  * @param cbor_const_string_t  @glos{value} - zero terminated string
  */
-void CBOR_AssignKeyWithString(cbor_handle_t /*cbor_data*/,
-    cbor_const_key_t /*key*/, cbor_const_string_t /*value*/);
+void CBOR_AssignKeyWithString( cbor_handle_t /*cbor_data*/,
+                               cbor_const_key_t /*key*/, cbor_const_string_t /*value*/ );
 
 /**
  * @brief Appends a @glos{key} with a string @glos{value}
@@ -181,8 +183,8 @@ void CBOR_AssignKeyWithString(cbor_handle_t /*cbor_data*/,
  * @param cbor_const_key_t  @glos{key}   - zero terminated string
  * @param cbor_const_string_t  @glos{value} - zero terminated string
  */
-void CBOR_AppendKeyWithString(cbor_handle_t /*cbor_data*/,
-    cbor_const_key_t /*key*/, cbor_const_string_t /*value*/);
+void CBOR_AppendKeyWithString( cbor_handle_t /*cbor_data*/,
+                               cbor_const_key_t /*key*/, cbor_const_string_t /*value*/ );
 
 /**
  * @brief Reads string from CBOR buffer at @glos{key}
@@ -191,8 +193,8 @@ void CBOR_AppendKeyWithString(cbor_handle_t /*cbor_data*/,
  * @param cbor_const_key_t  @glos{key}   - zero terminated string
  * @return "char *" @glos{value} - pointer to new zero terminated string
  */
-char *CBOR_FromKeyReadString(
-    cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/);
+char * CBOR_FromKeyReadString(
+    cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/ );
 
 /**
  * @brief Assigns a @glos{key} with an integer @glos{value}
@@ -200,8 +202,8 @@ char *CBOR_FromKeyReadString(
  * @param cbor_const_key_t  @glos{key}   - zero terminated string
  * @param "cbor_int_t"           @glos{value} - integer
  */
-void CBOR_AssignKeyWithInt(cbor_handle_t /*cbor_data*/,
-    cbor_const_key_t /*key*/, cbor_int_t /*value*/);
+void CBOR_AssignKeyWithInt( cbor_handle_t /*cbor_data*/,
+                            cbor_const_key_t /*key*/, cbor_int_t /*value*/ );
 
 /**
  * @brief Appends a @glos{key} with an integer @glos{value}
@@ -210,8 +212,8 @@ void CBOR_AssignKeyWithInt(cbor_handle_t /*cbor_data*/,
  * @param cbor_const_key_t  @glos{key}   - zero terminated string
  * @param "cbor_int_t"           @glos{value} - integer
  */
-void CBOR_AppendKeyWithInt(cbor_handle_t /*cbor_data*/,
-    cbor_const_key_t /*key*/, cbor_int_t /*value*/);
+void CBOR_AppendKeyWithInt( cbor_handle_t /*cbor_data*/,
+                            cbor_const_key_t /*key*/, cbor_int_t /*value*/ );
 
 /**
  * @brief Reads integer from CBOR buffer at @glos{key}
@@ -220,7 +222,7 @@ void CBOR_AppendKeyWithInt(cbor_handle_t /*cbor_data*/,
  * @return "cbor_int_t" @glos{value}
  */
 cbor_int_t CBOR_FromKeyReadInt(
-    cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/);
+    cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/ );
 
 /**
  * @brief Assigns a @glos{key} with a map.
@@ -229,8 +231,8 @@ cbor_int_t CBOR_FromKeyReadInt(
  * @param cbor_const_key_t  @glos{key}   - zero terminated string
  * @param cbor_handle_t   Handle for the source CBOR data struct
  */
-void CBOR_AssignKeyWithMap(cbor_handle_t /*cbor_data*/,
-    cbor_const_key_t /*key*/, cbor_handle_t /*value*/);
+void CBOR_AssignKeyWithMap( cbor_handle_t /*cbor_data*/,
+                            cbor_const_key_t /*key*/, cbor_handle_t /*value*/ );
 
 /**
  * @brief Appends a @glos{key} with a map.
@@ -239,8 +241,8 @@ void CBOR_AssignKeyWithMap(cbor_handle_t /*cbor_data*/,
  * @param cbor_const_key_t  @glos{key}   - zero terminated string
  * @param cbor_handle_t   Handle for the source CBOR data struct
  */
-void CBOR_AppendKeyWithMap(cbor_handle_t /*cbor_data*/,
-    cbor_const_key_t /*key*/, cbor_handle_t /*value*/);
+void CBOR_AppendKeyWithMap( cbor_handle_t /*cbor_data*/,
+                            cbor_const_key_t /*key*/, cbor_handle_t /*value*/ );
 
 /**
  * @brief Reads map from CBOR buffer at @glos{key}
@@ -250,7 +252,7 @@ void CBOR_AppendKeyWithMap(cbor_handle_t /*cbor_data*/,
  * @return "cbor_handle_t" @glos{value} - pointer to new copy of CBOR map
  */
 cbor_handle_t CBOR_FromKeyReadMap(
-    cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/);
+    cbor_handle_t /*cbor_data*/, cbor_const_key_t /*key*/ );
 
 /**
  * @brief Concatenates the source map to the destination map
@@ -263,7 +265,7 @@ cbor_handle_t CBOR_FromKeyReadMap(
  * @param dest cbor_handle_t for destination map
  * @param src cbor_handle_t for source map
  */
-void CBOR_AppendMap(cbor_handle_t /*dest*/, cbor_handle_t /*src*/);
+void CBOR_AppendMap( cbor_handle_t /*dest*/, cbor_handle_t /*src*/ );
 
 #endif /* ifndef AWS_CBOR_H */
 

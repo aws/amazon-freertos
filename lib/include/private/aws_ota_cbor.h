@@ -26,16 +26,15 @@
 #ifndef __AWS_OTACBOR__H__
 #define __AWS_OTACBOR__H__
 
-
 /**
  * @brief Decode a Get Stream response message from AWS IoT OTA.
  */
 BaseType_t OTA_CBOR_Decode_GetStreamResponseMessage(
-    uint8_t *pucMessageBuffer,
+    const uint8_t *pucMessageBuffer,
     size_t xMessageSize,
-    int *plFileId,
-    int *plBlockId,
-    int *plBlockSize,
+    int32_t *plFileId,
+    int32_t *plBlockId,
+    int32_t *plBlockSize,
     uint8_t **ppucPayload,
     size_t *pxPayloadSize );
 
@@ -47,51 +46,11 @@ BaseType_t OTA_CBOR_Encode_GetStreamRequestMessage(
     uint8_t *pucMessageBuffer,
     size_t xMessageBufferSize,
     size_t *pxEncodedMessageSize,
-    char *pcClientToken,
-    int lFileId,
-    int lBlockSize,
-    int lBlockOffset,
+    const char *pcClientToken,
+    int32_t lFileId,
+    int32_t lBlockSize,
+    int32_t lBlockOffset,
     uint8_t *pucBlockBitmap,
     size_t xBlockBitmapSize );
 
-
-#if INCLUDE_DESCRIBE_STREAM
-/**
- * @brief Free resources consumed by message decoding.
- */
-void OTA_CBOR_Decode_DescribeStreamResponseMessage_Finish(
-    void *pvDecodeContext );
-
-/**
- * @brief Decode the description of the first (or only) file in an OTA stream.
- */
-BaseType_t OTA_CBOR_Decode_DescribeStreamResponseMessage_Next(
-    void *pvDecodeContext,
-    int *plNextFileId,
-    int *plNextFileSize );
-
-/**
- * @brief Decode the description of the first (or only) file in an OTA stream.
- */
-BaseType_t OTA_CBOR_Decode_DescribeStreamResponseMessage_Start(
-    void **ppvDecodeContext,
-    uint8_t *pucMessageBuffer,
-    size_t xMessageSize,
-    char **ppcClientToken,
-    int *plStreamVersion,
-    char **ppcStreamDescription,
-    int *plFirstFileId,
-    int *plFirstFileSize );
-
-/**
- * @brief Create an encoded Describe Stream Request message for the AWS IoT
- * OTA service.
- */
-BaseType_t OTA_CBOR_Encode_DescribeStreamRequestMessage(
-    uint8_t *pucMessageBuffer,
-    size_t xMessageBufferSize,
-    size_t *pxEncodedMessageSize,
-    char *pcClientToken );
-
-#endif /* INCLUDE_DESCRIBE_STREAM */
 #endif 

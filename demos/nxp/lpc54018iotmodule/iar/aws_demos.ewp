@@ -1316,9 +1316,6 @@
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_pkcs11.h</name>
                 </file>
                 <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\include\private\aws_rsprintf.h</name>
-                </file>
-                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\include\aws_secure_sockets.h</name>
                 </file>
                 <file>

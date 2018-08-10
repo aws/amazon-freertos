@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Crypto V1.0.2
+ * Amazon FreeRTOS Crypto V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -201,7 +201,7 @@ BaseType_t CRYPTO_SignatureVerificationStart( void ** ppvContext,
  * verification.
  */
 void CRYPTO_SignatureVerificationUpdate( void * pvContext,
-                                         uint8_t * pucData,
+                                         const uint8_t * pucData,
                                          size_t xDataLength )
 {
     SignatureVerificationStatePtr_t pxCtx = ( SignatureVerificationStatePtr_t ) pvContext; /*lint !e9087 Allow casting void* to other types. */
@@ -228,45 +228,55 @@ BaseType_t CRYPTO_SignatureVerificationFinal( void * pvContext,
                                               uint8_t * pucSignature,
                                               size_t xSignatureLength )
 {
-    BaseType_t xResult = pdTRUE;
-    SignatureVerificationStatePtr_t pxCtx =
-        ( SignatureVerificationStatePtr_t ) pvContext; /*lint !e9087 Allow casting void* to other types. */
-    uint8_t ucSHA1[ cryptoSHA1_DIGEST_BYTES ];
-    uint8_t ucSHA256[ cryptoSHA256_DIGEST_BYTES ];
-    uint8_t * pucHash = NULL;
-    size_t xHashLength = 0;
+    BaseType_t xResult = pdFALSE;
+	if ( pvContext != NULL )
+	{
+		SignatureVerificationStatePtr_t pxCtx =
+			(SignatureVerificationStatePtr_t)pvContext;	/*lint !e9087 Allow casting void* to other types. */
+		uint8_t ucSHA1or256[cryptoSHA256_DIGEST_BYTES];	/* Reserve enough space for the larger of SHA1 or SHA256 results. */
+		uint8_t * pucHash = NULL;
+		size_t xHashLength = 0;
 
-    /*
-     * Finish the hash
-     */
-    if( cryptoHASH_ALGORITHM_SHA1 == pxCtx->xHashAlgorithm )
-    {
-        ( void )mbedtls_sha1_finish_ret( &pxCtx->xSHA1Context, ucSHA1 );
-        pucHash = ucSHA1;
-        xHashLength = cryptoSHA1_DIGEST_BYTES;
-    }
-    else
-    {
-        ( void )mbedtls_sha256_finish_ret( &pxCtx->xSHA256Context, ucSHA256 );
-        pucHash = ucSHA256;
-        xHashLength = cryptoSHA256_DIGEST_BYTES;
-    }
+		if ((pcSignerCertificate != NULL) &&
+			(pucSignature != NULL) &&
+			(xSignerCertificateLength > 0UL) &&
+			(xSignatureLength > 0UL))
+		{
+			/*
+			 * Finish the hash
+			 */
+			if (cryptoHASH_ALGORITHM_SHA1 == pxCtx->xHashAlgorithm)
+			{
+				(void)mbedtls_sha1_finish_ret (&pxCtx->xSHA1Context, ucSHA1or256);
+				pucHash = ucSHA1or256;
+				xHashLength = cryptoSHA1_DIGEST_BYTES;
+			}
+			else
+			{
+				(void)mbedtls_sha256_finish_ret (&pxCtx->xSHA256Context, ucSHA1or256);
+				pucHash = ucSHA1or256;
+				xHashLength = cryptoSHA256_DIGEST_BYTES;
+			}
 
-    /*
-     * Verify the signature
-     */
-    xResult = prvVerifySignature( pcSignerCertificate,
-                                  xSignerCertificateLength,
-                                  pxCtx->xHashAlgorithm,
-                                  pucHash,
-                                  xHashLength,
-                                  pucSignature,
-                                  xSignatureLength );
-
-    /*
-     * Clean-up
-     */
-    vPortFree( pxCtx );
-
+			/*
+			 * Verify the signature
+			 */
+			xResult = prvVerifySignature (pcSignerCertificate,
+				xSignerCertificateLength,
+				pxCtx->xHashAlgorithm,
+				pucHash,
+				xHashLength,
+				pucSignature,
+				xSignatureLength);
+		}
+		else
+		{
+			/* Allow function to be called with only the context pointer for cleanup after a failure. */
+		}
+		/*
+		 * Clean-up
+		 */
+		vPortFree (pxCtx);
+	}
     return xResult;
 }

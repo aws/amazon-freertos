@@ -29,68 +29,71 @@
 
 extern int DEFENDER_current_uptime;
 
-TEST_GROUP(aws_defender_report_uptime);
+TEST_GROUP( aws_defender_report_uptime );
 
-TEST_SETUP(aws_defender_report_uptime)
+TEST_SETUP( aws_defender_report_uptime )
 {
 }
 
-TEST_TEAR_DOWN(aws_defender_report_uptime)
+TEST_TEAR_DOWN( aws_defender_report_uptime )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_report_uptime)
+TEST_GROUP_RUNNER( aws_defender_report_uptime )
 {
     RUN_TEST_CASE(
-        aws_defender_report_uptime, UptimeGet_has_cpu_with_integer_result);
-    RUN_TEST_CASE(aws_defender_report_uptime,
-        UptimeReportGet_returns_result_from_uptime_get);
+        aws_defender_report_uptime, UptimeGet_has_cpu_with_integer_result );
+    RUN_TEST_CASE( aws_defender_report_uptime,
+                   UptimeReportGet_returns_result_from_uptime_get );
     RUN_TEST_CASE(
-        aws_defender_report_uptime, UptimeReportGet_updates_when_stats_update);
-    RUN_TEST_CASE(aws_defender_report_uptime,
-        UptimeReportGet_remains_unchanged_unless_refreshed);
+        aws_defender_report_uptime, UptimeReportGet_updates_when_stats_update );
+    RUN_TEST_CASE( aws_defender_report_uptime,
+                   UptimeReportGet_remains_unchanged_unless_refreshed );
 }
 
-TEST(aws_defender_report_uptime, UptimeGet_has_cpu_with_integer_result)
+TEST( aws_defender_report_uptime, UptimeGet_has_cpu_with_integer_result )
 {
     cbor_handle_t uptime_metric = DEFENDER_UptimeReportGet();
-    (void)CBOR_FromKeyReadInt(uptime_metric, "ut");
-    eCBOR_ERR_t err = CBOR_CheckError(uptime_metric);
-    CBOR_Delete(&uptime_metric);
-    TEST_ASSERT_EQUAL(eCBOR_ERR_NO_ERROR, err);
+
+    ( void ) CBOR_FromKeyReadInt( uptime_metric, "ut" );
+    eCBOR_ERR_t err = CBOR_CheckError( uptime_metric );
+    CBOR_Delete( &uptime_metric );
+    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, err );
 }
 
-TEST(aws_defender_report_uptime, UptimeReportGet_returns_result_from_uptime_get)
+TEST( aws_defender_report_uptime, UptimeReportGet_returns_result_from_uptime_get )
 {
     cbor_handle_t uptime_metric = DEFENDER_UptimeReportGet();
-    cbor_int_t    actual        = CBOR_FromKeyReadInt(uptime_metric, "ut");
-    int           expected      = DEFENDER_UptimeSecondsGet();
-    CBOR_Delete(&uptime_metric);
-    TEST_ASSERT_EQUAL(expected, actual);
+    cbor_int_t actual = CBOR_FromKeyReadInt( uptime_metric, "ut" );
+    int expected = DEFENDER_UptimeSecondsGet();
+
+    CBOR_Delete( &uptime_metric );
+    TEST_ASSERT_EQUAL( expected, actual );
 }
 
-TEST(aws_defender_report_uptime, UptimeReportGet_updates_when_stats_update)
+TEST( aws_defender_report_uptime, UptimeReportGet_updates_when_stats_update )
 {
     DEFENDER_current_uptime++;
     DEFENDER_UptimeRefresh();
 
-    int           expected      = DEFENDER_current_uptime;
+    int expected = DEFENDER_current_uptime;
     cbor_handle_t uptime_metric = DEFENDER_UptimeReportGet();
-    cbor_int_t    actual        = CBOR_FromKeyReadInt(uptime_metric, "ut");
-    CBOR_Delete(&uptime_metric);
+    cbor_int_t actual = CBOR_FromKeyReadInt( uptime_metric, "ut" );
+    CBOR_Delete( &uptime_metric );
 
-    TEST_ASSERT_EQUAL(expected, actual);
+    TEST_ASSERT_EQUAL( expected, actual );
 }
 
-TEST(aws_defender_report_uptime,
-    UptimeReportGet_remains_unchanged_unless_refreshed)
+TEST( aws_defender_report_uptime,
+      UptimeReportGet_remains_unchanged_unless_refreshed )
 {
     int expected = DEFENDER_current_uptime;
+
     DEFENDER_current_uptime++;
 
     cbor_handle_t uptime_metric = DEFENDER_UptimeReportGet();
-    cbor_int_t    actual        = CBOR_FromKeyReadInt(uptime_metric, "ut");
-    CBOR_Delete(&uptime_metric);
+    cbor_int_t actual = CBOR_FromKeyReadInt( uptime_metric, "ut" );
+    CBOR_Delete( &uptime_metric );
 
-    TEST_ASSERT_EQUAL(expected, actual);
+    TEST_ASSERT_EQUAL( expected, actual );
 }

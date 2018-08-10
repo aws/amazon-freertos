@@ -40,13 +40,13 @@
  *
  */
 #ifdef DEFENDER_USE_SHORT_TAG
-#define DEFENDER_SelectTag(long_tag, short_tag) (short_tag)
+    #define DEFENDER_SelectTag( long_tag, short_tag )    ( short_tag )
 #elif defined DEFENDER_USE_LONG_TAG
-#define DEFENDER_SelectTag(long_tag, short_tag) (long_tag)
+    #define DEFENDER_SelectTag( long_tag, short_tag )    ( long_tag )
 #elif defined NDEBUG
-#define DEFENDER_SelectTag(long_tag, short_tag) (short_tag)
+    #define DEFENDER_SelectTag( long_tag, short_tag )    ( short_tag )
 #else
-#define DEFENDER_SelectTag(long_tag, short_tag) (long_tag)
+    #define DEFENDER_SelectTag( long_tag, short_tag )    ( long_tag )
 #endif
 
 /**
@@ -54,6 +54,6 @@
  * @note used for testing, and not meant to be used as part of public API
  * @return  defender_state_t The current agent state
  */
-defender_state_t DEFENDER_StateGet(void);
+defender_state_t DEFENDER_StateGet( void );
 
 #endif /* end of include guard: AWS_DEFENDER_UTILS_H */

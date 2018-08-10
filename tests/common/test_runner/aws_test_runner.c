@@ -40,38 +40,14 @@
 #include "unity_fixture.h"
 #include "unity_internals.h"
 
-#pragma pack(push,1)
-typedef struct
-{
-    union
-    {
-        #if ( defined( __BYTE_ORDER__ ) && defined( __ORDER_LITTLE_ENDIAN__ ) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ ) || ( __little_endian__ == 1 ) || __LITTLE_ENDIAN__ || WIN32
-            struct
-            {
-                uint16_t usBuild;
-                uint8_t ucMinor;
-                uint8_t ucMajor;
-            } x;
-        #elif ( defined( __BYTE_ORDER__ ) && defined( __ORDER_BIG_ENDIAN__ ) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ ) || ( __big_endian__ == 1 ) || __BIG_ENDIAN__
-            struct version
-            {
-                uint8_t ucMajor;
-                uint8_t ucMinor;
-                uint16_t usBuild;
-            } x;
-        #else /* if ( defined( __BYTE_ORDER__ ) && defined( __ORDER_LITTLE_ENDIAN__ ) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ ) || ( __little_endian__ == 1 ) || __LITTLE_ENDIAN__ || WIN32 */
-        #error "Unable to determine byte order!"
-        #endif /* if ( defined( __BYTE_ORDER__ ) && defined( __ORDER_LITTLE_ENDIAN__ ) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ ) || ( __little_endian__ == 1 ) || __LITTLE_ENDIAN__ || WIN32 */
-        uint32_t ulVersion32;
-    } u;
-} AppVersion32_t;
-#pragma pack(pop)
+/* Application version info. */
+#include "aws_application_version.h"
 
 const AppVersion32_t xAppFirmwareVersion =
 {
-    .u.x.ucMajor = 0,
-    .u.x.ucMinor = 9,
-    .u.x.usBuild = 1,
+    .u.x.ucMajor = APP_VERSION_MAJOR,
+    .u.x.ucMinor = APP_VERSION_MINOR,
+    .u.x.usBuild = APP_VERSION_BUILD,
 };
 
 char cBuffer[ testrunnerBUFFER_SIZE ];
@@ -167,6 +143,11 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_POSIX_TIMER );
         RUN_TEST_GROUP( Full_POSIX_UTILS );
         RUN_TEST_GROUP( Full_POSIX_STRESS );
+    #endif
+    
+    #if ( testrunnerOTA_UPDATE_DEMO == 1 )
+        extern void vStartOTAUpdateDemoTask(void);
+        vStartOTAUpdateDemoTask();
     #endif
 }
 /*-----------------------------------------------------------*/

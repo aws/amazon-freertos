@@ -26,49 +26,52 @@
 #include "unity_fixture.h"
 
 #ifdef __linux__
-#include <unistd.h>
+    #include <unistd.h>
 
-static void delay()
-{
-    int sleep_time = 1;
-    while (sleep_time) {
-        sleep_time = sleep(sleep_time);
+    static void delay()
+    {
+        int sleep_time = 1;
+
+        while( sleep_time )
+        {
+            sleep_time = sleep( sleep_time );
+        }
     }
-}
 #elif defined __free_rtos__
-#include "FreeRTOS.h"
-#include "task.h"
-static void delay()
-{
-    vTaskDelay(pdMS_TO_TICKS(1000));
-}
-#endif
+    #include "FreeRTOS.h"
+    #include "task.h"
+    static void delay()
+    {
+        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+    }
+#endif /* ifdef __linux__ */
 
-TEST_GROUP(aws_defender_uptime);
+TEST_GROUP( aws_defender_uptime );
 
-TEST_SETUP(aws_defender_uptime)
-{
-}
-
-TEST_TEAR_DOWN(aws_defender_uptime)
+TEST_SETUP( aws_defender_uptime )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_uptime)
+TEST_TEAR_DOWN( aws_defender_uptime )
 {
-    RUN_TEST_CASE(aws_defender_uptime, UptimeGet_result_remains_unchanged);
-    RUN_TEST_CASE(aws_defender_uptime, UptimeGet_changes_upon_refresh);
 }
 
-TEST(aws_defender_uptime, UptimeGet_result_remains_unchanged)
+TEST_GROUP_RUNNER( aws_defender_uptime )
+{
+    RUN_TEST_CASE( aws_defender_uptime, UptimeGet_result_remains_unchanged );
+    RUN_TEST_CASE( aws_defender_uptime, UptimeGet_changes_upon_refresh );
+}
+
+TEST( aws_defender_uptime, UptimeGet_result_remains_unchanged )
 {
     int expected = DEFENDER_UptimeSecondsGet();
+
     delay();
     int result = DEFENDER_UptimeSecondsGet();
-    TEST_ASSERT_EQUAL(expected, result);
+    TEST_ASSERT_EQUAL( expected, result );
 }
 
-TEST(aws_defender_uptime, UptimeGet_changes_upon_refresh)
+TEST( aws_defender_uptime, UptimeGet_changes_upon_refresh )
 {
     DEFENDER_UptimeRefresh();
     int uptime_before = DEFENDER_UptimeSecondsGet();
@@ -76,6 +79,6 @@ TEST(aws_defender_uptime, UptimeGet_changes_upon_refresh)
     delay();
     DEFENDER_UptimeRefresh();
     uptime_after = DEFENDER_UptimeSecondsGet();
-    TEST_ASSERT_GREATER_THAN(uptime_before, uptime_after);
-    TEST_ASSERT_LESS_THAN(uptime_before + 3, uptime_after);
+    TEST_ASSERT_GREATER_THAN( uptime_before, uptime_after );
+    TEST_ASSERT_LESS_THAN( uptime_before + 3, uptime_after );
 }

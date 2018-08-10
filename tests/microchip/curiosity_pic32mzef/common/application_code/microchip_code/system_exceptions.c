@@ -45,6 +45,9 @@ SOFTWARE
 #include "system_definitions.h"
 #include "system/debug/sys_debug.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 
 // *****************************************************************************
 // *****************************************************************************
@@ -129,9 +132,11 @@ void _general_exception_handler ( void )
 
     SYS_DEBUG_PRINT(SYS_ERROR_ERROR, "\n\rGeneral Exception %s (cause=%d, addr=%x).\n\r", 
                     _cause_str, _excep_code, _excep_addr);
-
+    configPRINTF( ("\n\rGeneral Exception %s (cause=%d, addr=%x).\n\r", 
+                        _cause_str, _excep_code, _excep_addr) );
     while (1)
     {
+        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
         SYS_DEBUG_BreakPoint();
     }
 }

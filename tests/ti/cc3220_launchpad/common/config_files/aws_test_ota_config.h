@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.0.0
+ * Amazon FreeRTOS V0.9.5
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,14 +30,44 @@
 #ifndef _AWS_TEST_OTA_CONFIG_H_
 #define _AWS_TEST_OTA_CONFIG_H_
 
-/**
- * @brief Job document, with all required fields, that is expected to parse.
+ /**
+ * @brief Path to cert for OTA test PAL. Used to verify signature.
+ * If applicable, the device must be pre-provisioned with this certificate. Please see
+ * test/common/ota/test_files for the set of certificates.
  */
-#define otatestLASER_JSON "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"ts_ota\": {\"files\": [{\"streamname\": \"1\",\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"sig-sha1-rsa\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+#define otatestpalCERTIFICATE_FILE     "rsa-sha1-signer.crt.der"
 
 /**
- * @brief Job document that is missing a required field.
+ * @brief Some boards have a hard-coded name for the firmware image to boot.
  */
-#define otatestBAD_LASER_JSON "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"ts_ota\": {\"files\": [{\"streamname\": \"1\",\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"sig-sha256-rsa\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+#define otatestpalFRIMWARE_FILE  "/sys/mcuflashimg.bin"
+
+/**
+ * @brief Some boards will use aws_codesigner_certificate.h instead of a pre-provisioned
+ * certificate.
+ */
+#define otatestpalUSE_FILE_SYSTEM     1
+
+/**
+ * @brief 1 if prvPAL_CheckFileSignature is implemented in aws_ota_pal.c.
+ */
+#define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           0 
+
+/**
+ * @brief 1 if prvPAL_ReadAndAssumeCertificate is implemented in the aws_ota_pal.c.
+ */
+#define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    0 
+
+/**
+ * @brief Include of signature testing data applicable to this device.
+ */
+#include "aws_test_ota_pal_rsa_sha1_signature.h"
+
+/**
+ * @brief Define a valid and invalid signature verification method for this
+ * platform (TI). These are used for generating test JSON docs.
+ */
+#define otatestVALID_SIG_METHOD                         "sig-sha1-rsa"
+#define otatestINVALID_SIG_METHOD                       "sig-sha256-ecdsa"
 
 #endif 

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.0
+ * Amazon FreeRTOS Device Defender Agent V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,17 +24,19 @@
  */
 #include "aws_defender_internals.h"
 
-struct defender_metric_s xDEFENDER_metric_cpu_s = {
+struct defender_metric_s xDEFENDER_metric_cpu_s =
+{
     DEFENDER_CpuLoadRefresh,
     DEFENDER_CpuReportGet,
 };
 
 DefenderMetric_t pxDEFENDER_metric_cpu = &xDEFENDER_metric_cpu_s;
 
-cbor_handle_t DEFENDER_CpuReportGet(void)
+cbor_handle_t DEFENDER_CpuReportGet( void )
 {
-    cbor_handle_t pxCpu_metrics = CBOR_New(0);
+    cbor_handle_t pxCpu_metrics = CBOR_New( 0 );
 
-    CBOR_AssignKeyWithInt(pxCpu_metrics, "cpu", DEFENDER_CpuLoadGet());
+    CBOR_AssignKeyWithInt( pxCpu_metrics, "cpu", DEFENDER_CpuLoadGet() );
+
     return pxCpu_metrics;
 }

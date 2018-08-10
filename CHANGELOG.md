@@ -1,11 +1,31 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.3.1 08/10/2018
+### New Features
+None
+
+### Updates
+
+#### OTA Beta Update
+- Updates to OTA Beta to incorporate a new API for the OTA service. This API is not compatible with the  API used in the original OTA Beta released on Dec. 20th. 
+- Add a "reference bootloader" for use in the OTA process. This bootloader is for use with the Microchip MCU.
+
+#### Amazon FreeRTOS Qualification Program (AFQP) Update
+- Update AFQP documentation. For more info on the changes to AFQP, reference the Revision History of the "Amazon FreeRTOS Qualification Program Developer Guide" in the "tests" directory.
+
+#### Device Defender Update
+- Add a demo to illustrate the operation of Device Defender for the Windows Simulator and Microchip PIC32MZEF MCU.
+
+#### TI "Hello World" Build Failure Resolution
+- Address an issue where the "Hello World" demo did not build with TI CCS 7.3 in AFR 1.3.0 when downloaded from OCW.
+
+
 ## V1.3.0 07/31/2018
 
 ### New Features
 
 #### AFQP 1.0 Support
-This release of AFR has support for vendors who wish to have their ports qualified for Amazon FreeRTOS through the Amazon FreeRTOS Qualification Program (AFQP). This is the first public release of AFQP tests and documentation. A new top level "tests" directory has been added to support this functionality. AFQP documents are available in "tests" directory. [Learn more.](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-qualification-program.html)
+This release of AFR has support for vendors who wish to have their ports qualified for Amazon FreeRTOS through the Amazon FreeRTOS Qualification Program (AFQP). This is the first public release of AFQP tests and documentation. A new top level "tests" directory is added to support this functionality. AFQP documents are available in "tests" directory. [Learn more.](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-qualification-program.html)
 
 #### Device Defender 1.0 Support
 AWS IoT Device Defender is an AWS IoT security service that allows users to audit the configuration of their devices, monitor connected devices to detect abnormal behavior, and to mitigate security risks. It gives you the ability to enforce consistent security policies across your AWS IoT device fleet and respond quickly when devices are compromised. Device side support of this feature is part of this release. Devices supported are WinSim and Microchip PIC32MZEF. [Learn more.](https://docs.aws.amazon.com/freertos/latest/userguide/afr-device-defender-library.html)
@@ -16,44 +36,44 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 ### Updates
 
 #### FreeRTOS Kernel V10.0.1
-- Added Idle tick counter interface
-- Renamed posix/ to FreeRTOS_POSIX/
+- Add Idle tick counter interface
+- Rename posix/ to FreeRTOS_POSIX/
 
 #### FreeRTOS+TCP V2.0.4
-- Fixed issues raised by the Coverity scan
-    - Fixed a typo ulRxWindowLength -> ulTxWindowLength in FreeRTOS_Sockets.c
-    - Fixed strncmp length in FreeRTOS_DNS.c
-    - Fixed styling in FreeRTOS_ARP.c
-- Fixed a spelling typo ";east" -> "least" (response from a pull request)
-- Added auto check of network interfaces for WinSim
+- Fix issues raised by the Coverity scan
+    - Fix a typo ulRxWindowLength -> ulTxWindowLength in FreeRTOS_Sockets.c
+    - Fix strncmp length in FreeRTOS_DNS.c
+    - Fix styling in FreeRTOS_ARP.c
+- Fix a spelling typo ";east" -> "least" (response from a pull request)
+- Add auto check of network interfaces for WinSim
 
 #### MQTT Agent V1.1.2
-- Moved MQTT metrics to agent
+- Move MQTT metrics to agent
 
 #### mbedTLS-based PKCS#11 V1.0.3
-- Reduced the number of warnings generated
+- Reduce the number of warnings generated
 
 #### PKCS#11 for LPC54018 IoT Module V1.0.1
-- Changed project baudrate setting to resolve AFQP test failures
+- Change project baudrate setting to resolve AFQP test failures
 
 #### Secure Sockets for NXP54018_IoT_Module V1.0.0 Beta 3
-- Updated to latest NXP driver to address AFQP 1.0 test failures
+- Update to latest NXP driver to address AFQP 1.0 test failures
 
 #### Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 2
-- Updated to new Inventek driver to resolve AFQP 1.0 test failures
+- Update to new Inventek driver to resolve AFQP 1.0 test failures
 
 #### Wi-Fi for Curiosity PIC32MZEF V1.0.3
-- Changed Microchip network param to use a direct address instead of a section. This helpfed reduce the size of the binary image to allow OTA to continue working.
-- Reduced number of warnings generated.
+- Change Microchip network param to use a direct address instead of a section to reduce the size of the binary image to allow OTA to continue working.
+- Reduce number of warnings generated.
 
 #### Wi-Fi for LPC54018 IoT Module V1.0.1
-- Added fixes for Demo and DHCP.
+- Add fixes for Demo and DHCP.
 
 #### Wi-Fi STM32L4 Discovery kit IoT node V1.0.2
-- Updated for release of AFQP 1.0
+- Update for release of AFQP 1.0
 
 #### Wi-Fi for CC3220SF-LAUNCHXL V1.0.2
-- Updated for release of AFQP 1.0
+- Update for release of AFQP 1.0
 
 ---------------------------------------------------------------------------------------
 

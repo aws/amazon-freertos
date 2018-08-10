@@ -40,7 +40,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch;..\common\config_files;..\common\application_code\include;..\..\..\..\demos\common\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\demos\common\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch;..\common\config_files;..\common\application_code\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>VENDOR;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -107,6 +107,9 @@
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_helper_secure_connect.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_lib.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\portable\vendor\board\aws_ota_pal.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\aws_secure_sockets.c" />
@@ -184,6 +187,12 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\x509_crt.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\x509_csr.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\xtea.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborencoder.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborencoder_close_container_checked.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborerrorstrings.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborparser.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborparser_dup_string.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborpretty.c" />
     <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c" />
     <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c" />
     <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\aws_wifi.c" />
@@ -193,6 +202,7 @@
     <ClCompile Include="..\..\..\common\logging\aws_logging_task_dynamic_buffers.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_hello_world.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_subscribe_publish_loop.c" />
+    <ClCompile Include="..\..\..\common\ota\aws_ota_update_demo.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c" />
     <ClCompile Include="..\..\..\common\tcp\aws_simple_tcp_echo_server.c" />
     <ClCompile Include="..\..\..\common\tcp\aws_tcp_echo_client_separate_tasks.c" />
@@ -241,7 +251,6 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_lib_private.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_rsprintf.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_json.h" />
@@ -329,6 +338,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\x509_crt.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\x509_csr.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\xtea.h" />
+    <ClInclude Include="..\..\..\common\include\aws_application_version.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential_keys.h" />
     <ClInclude Include="..\..\..\common\include\aws_demo.h" />
@@ -348,6 +358,7 @@
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
+    <ClInclude Include="..\common\config_files\aws_ota_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_pkcs11_config.h" />
     <ClInclude Include="..\common\config_files\aws_secure_sockets_config.h" />
     <ClInclude Include="..\common\config_files\aws_shadow_config.h" />

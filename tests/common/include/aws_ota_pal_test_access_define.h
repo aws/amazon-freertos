@@ -34,58 +34,26 @@
 #define _AWS_OTA_PAL_TEST_ACCESS_DEFINE_H_
 
 #include "aws_ota_pal_test_access_declare.h"
+#include "aws_test_ota_config.h"
 
 /*-----------------------------------------------------------*/
 
-s32 TEST_OTA_prvAbort( OTA_FileContext_t * const C )
-{
-    return prvAbort( C );
-}
+#if otatestpalCHECK_FILE_SIGNATURE_SUPPORTED
+    OTA_Err_t test_prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
+    {
+        return prvPAL_CheckFileSignature( C );
+    }
+#endif
 
 /*-----------------------------------------------------------*/
 
-bool_t TEST_OTA_prvCreateFileForRx( OTA_FileContext_t * const C )
-{
-    return prvCreateFileForRx( C );
-}
+#if otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED
+    u8 * test_prvPAL_ReadAndAssumeCertificate( const u8 * const pucCertName,
+                                               u32 * const ulSignerCertSize )
 
-/*-----------------------------------------------------------*/
-
-s32 TEST_OTA_prvCloseFile( OTA_FileContext_t * const C )
-{
-    return prvCloseFile( C );
-}
-
-/*-----------------------------------------------------------*/
-
-u8 TEST_OTA_prvActivateNewImage( void )
-{
-    return prvActivateNewImage();
-}
-
-/*-----------------------------------------------------------*/
-
-s32 TEST_OTA_prvCheckFileSignature( OTA_FileContext_t * const C )
-{
-    return prvCheckFileSignature( C );
-}
-
-/*-----------------------------------------------------------*/
-
-u8 * TEST_OTA_prvReadAndAssumeCertificate( const u8 * const pucCertName,
-                                           s32 * const lSignerCertSize )
-{
-    return prvReadAndAssumeCertificate( pucCertName, lSignerCertSize );
-}
-
-/*-----------------------------------------------------------*/
-
-s16 TEST_OTA_prvWriteBlock( OTA_FileContext_t * const C,
-                            s32 iOffset,
-                            u8 * const pacData,
-                            u32 iBlockSize )
-{
-    return prvWriteBlock( C, iOffset, pacData, iBlockSize );
-}
+    {
+        return prvPAL_ReadAndAssumeCertificate( pucCertName, ulSignerCertSize );
+    }
+#endif
 
 #endif /* AWS_OTA_PAL_TEST_ACCESS_DEFINE_H_ */

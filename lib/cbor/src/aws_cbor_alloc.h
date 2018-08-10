@@ -41,17 +41,18 @@
  */
 
 /** Defaults to \c malloc from \b stdlib.h */
-extern void *(*pxCBOR_malloc)(size_t);
+extern void *( *pxCBOR_malloc )( size_t );
 /** Defaults to \c free from \b stdlib.h */
-extern void (*pxCBOR_free)(void *);
+extern void (* pxCBOR_free)( void * );
 /** Defaults to \c realloc from \b stdlib.h */
-extern void *(*pxCBOR_realloc)(void *, size_t);
+extern void *(* pxCBOR_realloc)( void *,
+                                 size_t );
 
 /**
  * @brief Implementation of realloc for platforms that lack realloc (e.g.
  *     FreeRTOS)
  * @warning Do not use if another realloc function is available!
  */
-void *CBOR_ReallocImpl(void * /*old_ptr*/, size_t /*new_size*/);
+void * CBOR_ReallocImpl( void * /*old_ptr*/, size_t /*new_size*/ );
 
 #endif /* end of include guard: AWS_CBOR_ALLOC_H */

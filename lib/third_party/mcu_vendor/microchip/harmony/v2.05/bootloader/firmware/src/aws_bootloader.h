@@ -54,16 +54,14 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #define AWS_BOOT_IMAGE_SIGNATURE  "@MCHP_@"
 
-
 typedef enum
 {
-    AWS_BOOT_FLAG_IMG_NEW    = 0xff,    // indicates that this is a a brand new image, never run before
-                                        // it can be run just once
-    AWS_BOOT_FLAG_IMG_TEST   = 0xfe,    // indicates that this has been launched in the test run
-    AWS_BOOT_FLAG_IMG_VALID  = 0xfc,    // the test run validated the image; this can be run normally
+    AWS_BOOT_FLAG_IMG_NEW               = 0xff, /* 11111111b A new image that hasn't yet been run. */
+    AWS_BOOT_FLAG_IMG_PENDING_COMMIT    = 0xfe, /* 11111110b Image is pending commit and is ready for self test. */
+    AWS_BOOT_FLAG_IMG_VALID             = 0xfc, /* 11111100b The image was accepted as valid by the self test code. */
+    AWS_BOOT_FLAG_IMG_INVALID           = 0xf8, /* 11111000b The image was NOT accepted by the self test code. */
+} AWS_BOOT_IMAGE_FLAGS;
 
-
-}AWS_BOOT_IMAGE_FLAGS;
 
 
 typedef union 

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.0
+ * Amazon FreeRTOS Device Defender Agent V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,16 +24,19 @@
  */
 #include "aws_defender_internals.h"
 
-static struct defender_metric_s xDEFENDER_metric_uptime_s = {
+static struct defender_metric_s xDEFENDER_metric_uptime_s =
+{
     DEFENDER_UptimeRefresh,
     DEFENDER_UptimeReportGet,
 };
 
 DefenderMetric_t pxDEFENDER_metric_uptime = &xDEFENDER_metric_uptime_s;
 
-cbor_handle_t DEFENDER_UptimeReportGet(void)
+cbor_handle_t DEFENDER_UptimeReportGet( void )
 {
-    cbor_handle_t pxUptime_metrics = CBOR_New(0);
-    CBOR_AppendKeyWithInt(pxUptime_metrics, "ut", DEFENDER_UptimeSecondsGet());
+    cbor_handle_t pxUptime_metrics = CBOR_New( 0 );
+
+    CBOR_AppendKeyWithInt( pxUptime_metrics, "ut", DEFENDER_UptimeSecondsGet() );
+
     return pxUptime_metrics;
 }

@@ -35,6 +35,6 @@
  * @param  cbor_data handle for cbor object
  * @return           String (JSON) representation of CBOR data
  */
-char *CBOR_AsString(cbor_handle_t /*cbor_data*/);
+char * CBOR_AsString( cbor_handle_t /*cbor_data*/ );
 
 #endif /* end of include guard: AWS_CBOR_PRINT_H */

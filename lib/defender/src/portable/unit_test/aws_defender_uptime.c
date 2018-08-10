@@ -24,15 +24,15 @@
  */
 #include "aws_defender_uptime.h"
 
-int        DEFENDER_current_uptime = 42;
-static int DEFENDER_report_uptime  = 0;
+int DEFENDER_current_uptime = 42;
+static int DEFENDER_report_uptime = 0;
 
-int DEFENDER_UptimeSecondsGet(void)
+int DEFENDER_UptimeSecondsGet( void )
 {
     return DEFENDER_report_uptime;
 }
 
-void DEFENDER_UptimeRefresh(void)
+void DEFENDER_UptimeRefresh( void )
 {
     DEFENDER_report_uptime = DEFENDER_current_uptime;
 }

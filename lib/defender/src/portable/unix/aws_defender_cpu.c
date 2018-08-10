@@ -27,25 +27,29 @@
 
 static int DEFENDER_cpu_load_percent;
 
-int DEFENDER_CpuLoadGet(void)
+int DEFENDER_CpuLoadGet( void )
 {
     return DEFENDER_cpu_load_percent;
 }
 
-void DEFENDER_CpuLoadRefresh(void)
+void DEFENDER_CpuLoadRefresh( void )
 {
-    static int    prev_clock_time = 0;
-    static time_t prev_time       = 0;
-    int           clock_time      = clock();
-    time_t        current_time    = 0;
-    time(&current_time);
-    int delta_t_sec       = difftime(current_time, prev_time);
+    static int prev_clock_time = 0;
+    static time_t prev_time = 0;
+    int clock_time = clock();
+    time_t current_time = 0;
+
+    time( &current_time );
+    int delta_t_sec = difftime( current_time, prev_time );
     int delta_clock_ticks = clock_time - prev_clock_time;
-    int delta_t_ticks     = delta_t_sec * CLOCKS_PER_SEC;
-    if (0 < delta_t_ticks) {
-        int temp                  = delta_clock_ticks * 100;
+    int delta_t_ticks = delta_t_sec * CLOCKS_PER_SEC;
+
+    if( 0 < delta_t_ticks )
+    {
+        int temp = delta_clock_ticks * 100;
         DEFENDER_cpu_load_percent = temp / delta_t_ticks;
     }
+
     prev_clock_time = clock_time;
-    prev_time       = current_time;
+    prev_time = current_time;
 }

@@ -29,106 +29,109 @@
 
 extern int DEFENDER_current_tcp_conn_count;
 
-TEST_GROUP(aws_defender_report_tcp_conn);
+TEST_GROUP( aws_defender_report_tcp_conn );
 
-TEST_SETUP(aws_defender_report_tcp_conn)
+TEST_SETUP( aws_defender_report_tcp_conn )
 {
 }
 
-TEST_TEAR_DOWN(aws_defender_report_tcp_conn)
+TEST_TEAR_DOWN( aws_defender_report_tcp_conn )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_report_tcp_conn)
+TEST_GROUP_RUNNER( aws_defender_report_tcp_conn )
 {
     RUN_TEST_CASE(
-        aws_defender_report_tcp_conn, TcpConnReportGet_has_total_as_integer);
-    RUN_TEST_CASE(aws_defender_report_tcp_conn,
-        TcpConnReportGet_returns_result_from_ConnGet);
-    RUN_TEST_CASE(aws_defender_report_tcp_conn,
-        TcpConnReportGet_updates_when_tcp_stat_refreshes);
-    RUN_TEST_CASE(aws_defender_report_tcp_conn,
-        TcpConnReportGet_remains_unchanged_unless_refreshed);
+        aws_defender_report_tcp_conn, TcpConnReportGet_has_total_as_integer );
+    RUN_TEST_CASE( aws_defender_report_tcp_conn,
+                   TcpConnReportGet_returns_result_from_ConnGet );
+    RUN_TEST_CASE( aws_defender_report_tcp_conn,
+                   TcpConnReportGet_updates_when_tcp_stat_refreshes );
+    RUN_TEST_CASE( aws_defender_report_tcp_conn,
+                   TcpConnReportGet_remains_unchanged_unless_refreshed );
 }
 
-TEST(aws_defender_report_tcp_conn, TcpConnReportGet_has_total_as_integer)
+TEST( aws_defender_report_tcp_conn, TcpConnReportGet_has_total_as_integer )
 {
-    cbor_handle_t tcp_report     = DEFENDER_TcpConnReportGet();
-    char *        tcp_report_str = CBOR_AsString(tcp_report);
+    cbor_handle_t tcp_report = DEFENDER_TcpConnReportGet();
+    char * tcp_report_str = CBOR_AsString( tcp_report );
     cbor_handle_t tcp_metrics =
-        CBOR_FromKeyReadMap(tcp_report, DEFENDER_tcp_conn_tag);
-    CBOR_Delete(&tcp_report);
-    cbor_handle_t est_conn =
-        CBOR_FromKeyReadMap(tcp_metrics, DEFENDER_est_conn_tag);
-    CBOR_Delete(&tcp_metrics);
-    (void)CBOR_FromKeyReadInt(est_conn, DEFENDER_total_tag);
-    eCBOR_ERR_t err = CBOR_CheckError(est_conn);
-    CBOR_Delete(&est_conn);
+        CBOR_FromKeyReadMap( tcp_report, DEFENDER_tcp_conn_tag );
 
-    TEST_ASSERT_EQUAL_MESSAGE(eCBOR_ERR_NO_ERROR, err, tcp_report_str);
-    free(tcp_report_str);
+    CBOR_Delete( &tcp_report );
+    cbor_handle_t est_conn =
+        CBOR_FromKeyReadMap( tcp_metrics, DEFENDER_est_conn_tag );
+    CBOR_Delete( &tcp_metrics );
+    ( void ) CBOR_FromKeyReadInt( est_conn, DEFENDER_total_tag );
+    eCBOR_ERR_t err = CBOR_CheckError( est_conn );
+    CBOR_Delete( &est_conn );
+
+    TEST_ASSERT_EQUAL_MESSAGE( eCBOR_ERR_NO_ERROR, err, tcp_report_str );
+    free( tcp_report_str );
 }
 
-TEST(aws_defender_report_tcp_conn, TcpConnReportGet_returns_result_from_ConnGet)
+TEST( aws_defender_report_tcp_conn, TcpConnReportGet_returns_result_from_ConnGet )
 {
-    cbor_handle_t tcp_report     = DEFENDER_TcpConnReportGet();
-    char *        tcp_report_str = CBOR_AsString(tcp_report);
+    cbor_handle_t tcp_report = DEFENDER_TcpConnReportGet();
+    char * tcp_report_str = CBOR_AsString( tcp_report );
     cbor_handle_t tcp_metrics =
-        CBOR_FromKeyReadMap(tcp_report, DEFENDER_tcp_conn_tag);
-    CBOR_Delete(&tcp_report);
-    cbor_handle_t est_conn =
-        CBOR_FromKeyReadMap(tcp_metrics, DEFENDER_est_conn_tag);
-    CBOR_Delete(&tcp_metrics);
+        CBOR_FromKeyReadMap( tcp_report, DEFENDER_tcp_conn_tag );
 
-    int actual = CBOR_FromKeyReadInt(est_conn, DEFENDER_total_tag);
-    CBOR_Delete(&est_conn);
+    CBOR_Delete( &tcp_report );
+    cbor_handle_t est_conn =
+        CBOR_FromKeyReadMap( tcp_metrics, DEFENDER_est_conn_tag );
+    CBOR_Delete( &tcp_metrics );
+
+    int actual = CBOR_FromKeyReadInt( est_conn, DEFENDER_total_tag );
+    CBOR_Delete( &est_conn );
 
     int expected = DEFENDER_TcpConnGet();
-    TEST_ASSERT_EQUAL_MESSAGE(expected, actual, tcp_report_str);
-    free(tcp_report_str);
+    TEST_ASSERT_EQUAL_MESSAGE( expected, actual, tcp_report_str );
+    free( tcp_report_str );
 }
 
-TEST(aws_defender_report_tcp_conn,
-    TcpConnReportGet_updates_when_tcp_stat_refreshes)
+TEST( aws_defender_report_tcp_conn,
+      TcpConnReportGet_updates_when_tcp_stat_refreshes )
 {
     DEFENDER_current_tcp_conn_count++;
     DEFENDER_TcpConnRefresh();
     int expected = DEFENDER_current_tcp_conn_count;
 
-    cbor_handle_t tcp_report     = DEFENDER_TcpConnReportGet();
-    char *        tcp_report_str = CBOR_AsString(tcp_report);
+    cbor_handle_t tcp_report = DEFENDER_TcpConnReportGet();
+    char * tcp_report_str = CBOR_AsString( tcp_report );
     cbor_handle_t tcp_metrics =
-        CBOR_FromKeyReadMap(tcp_report, DEFENDER_tcp_conn_tag);
-    CBOR_Delete(&tcp_report);
+        CBOR_FromKeyReadMap( tcp_report, DEFENDER_tcp_conn_tag );
+    CBOR_Delete( &tcp_report );
     cbor_handle_t est_conn =
-        CBOR_FromKeyReadMap(tcp_metrics, DEFENDER_est_conn_tag);
-    CBOR_Delete(&tcp_metrics);
+        CBOR_FromKeyReadMap( tcp_metrics, DEFENDER_est_conn_tag );
+    CBOR_Delete( &tcp_metrics );
 
-    int actual = CBOR_FromKeyReadInt(est_conn, DEFENDER_total_tag);
-    CBOR_Delete(&est_conn);
+    int actual = CBOR_FromKeyReadInt( est_conn, DEFENDER_total_tag );
+    CBOR_Delete( &est_conn );
 
-    TEST_ASSERT_EQUAL_MESSAGE(expected, actual, tcp_report_str);
-    free(tcp_report_str);
+    TEST_ASSERT_EQUAL_MESSAGE( expected, actual, tcp_report_str );
+    free( tcp_report_str );
 }
 
-TEST(aws_defender_report_tcp_conn,
-    TcpConnReportGet_remains_unchanged_unless_refreshed)
+TEST( aws_defender_report_tcp_conn,
+      TcpConnReportGet_remains_unchanged_unless_refreshed )
 {
     int expected = DEFENDER_current_tcp_conn_count;
+
     DEFENDER_current_tcp_conn_count++;
 
-    cbor_handle_t tcp_report     = DEFENDER_TcpConnReportGet();
-    char *        tcp_report_str = CBOR_AsString(tcp_report);
+    cbor_handle_t tcp_report = DEFENDER_TcpConnReportGet();
+    char * tcp_report_str = CBOR_AsString( tcp_report );
     cbor_handle_t tcp_metrics =
-        CBOR_FromKeyReadMap(tcp_report, DEFENDER_tcp_conn_tag);
-    CBOR_Delete(&tcp_report);
+        CBOR_FromKeyReadMap( tcp_report, DEFENDER_tcp_conn_tag );
+    CBOR_Delete( &tcp_report );
     cbor_handle_t est_conn =
-        CBOR_FromKeyReadMap(tcp_metrics, DEFENDER_est_conn_tag);
-    CBOR_Delete(&tcp_metrics);
+        CBOR_FromKeyReadMap( tcp_metrics, DEFENDER_est_conn_tag );
+    CBOR_Delete( &tcp_metrics );
 
-    int actual = CBOR_FromKeyReadInt(est_conn, DEFENDER_total_tag);
-    CBOR_Delete(&est_conn);
+    int actual = CBOR_FromKeyReadInt( est_conn, DEFENDER_total_tag );
+    CBOR_Delete( &est_conn );
 
-    TEST_ASSERT_EQUAL_MESSAGE(expected, actual, tcp_report_str);
-    free(tcp_report_str);
+    TEST_ASSERT_EQUAL_MESSAGE( expected, actual, tcp_report_str );
+    free( tcp_report_str );
 }

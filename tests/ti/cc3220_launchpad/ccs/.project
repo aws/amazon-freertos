@@ -241,9 +241,24 @@
 			<locationURI>BASE_DIR_ROOT/tests/common/mqtt/aws_test_mqtt_lib.c</locationURI>
 		</link>
 		<link>
+			<name>application_code/common_tests/ota/aws_ota_update_demo.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/ota/aws_ota_update_demo.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_tests/ota/aws_test_ota_agent.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/tests/common/ota/aws_test_ota_agent.c</locationURI>
+		</link>
+		<link>
+			<name>application_code/common_tests/ota/aws_test_ota_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/common/ota/aws_test_ota_pal.c</locationURI>
+		</link>
+		<link>
+			<name>application_code/common_tests/ota/aws_test_ota_pal_rsa_sha1_signature.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/common/ota/aws_test_ota_pal_rsa_sha1_signature.h</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/include</name>
@@ -264,11 +279,6 @@
 			<name>lib/aws/ota/aws_ota_cbor.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_cbor.c</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/ota/aws_rsprintf.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/ota/aws_rsprintf.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mbedtls/base64.c</name>

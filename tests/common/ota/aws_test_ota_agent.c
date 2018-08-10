@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA AFQP V1.0.0
+ * Amazon FreeRTOS OTA AFQP V0.9.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,6 +36,7 @@
 #include "aws_ota_agent_test_access_declare.h"
 #include "aws_ota_agent.h"
 #include "aws_clientcredential.h"
+#include "aws_ota_agent_internal.h"
 
 /* MQTT includes. */
 #include "aws_mqtt_agent.h"
@@ -77,32 +78,60 @@ static const uint8_t otatestSIGNATURE[] =
     0x28, 0xa3, 0x77, 0xbb, 0xa1, 0xb7, 0xb2, 0xe1, 0x72, 0x55, 0x0a, 0x31, 0x58, 0x9b, 0xb7, 0x68
 };
 
-/*
+/**
+ * @brief Job document, with all required fields, that is expected to parse.
+ */
+#define otatestLASER_JSON "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"ts_ota\": {\"files\": [{\"streamname\": \"1\",\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+
+/**
+ * @brief Job document that is missing a required field.
+ */
+#define otatestBAD_LASER_JSON "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"ts_ota\": {\"files\": [{\"streamname\": \"1\",\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestINVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+
+/**
+ * @brief Has a duplicate JSON field, but otherwise valid.
+ */
+#define otatestLASER_JSON_WITH_DUPLICATE         "{\"clientToken\":\"mytoken0\",\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"ts_ota\": {\"files\": [{\"streamname\": \"1\",\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+
+/**
+ * @brief Job document with an invalid client token (is a primitive instead of a string).
+ */
+#define otatestLASER_JSON_WITH_FIELD_MISMATCH    "{\"clientToken\":5,\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"ts_ota\": {\"files\": [{\"streamname\": \"1\",\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+
+/**
+ * @brief Job document with an invalid base64 signature.
+ */
+#define otatestLASER_JSON_WITH_BAD_BASE64        "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"ts_ota\": {\"files\": [{\"streamname\": \"1\",\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"(Hj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+
+/**
+ * @brief Valid job document; includes the "self_test" key.
+ */
+#define otatestLASER_JSON_WITH_SELF_TEST         "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"self_test\":\"true\",\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"ts_ota\": {\"files\": [{\"streamname\": \"1\",\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+
+/**
+ * @brief Shared MQTT client handle, used across setup, tests, and teardown.
+ * But only used by one test at a time. */
+static MQTTAgentHandle_t xMQTTClientHandle = NULL;
+
+/**
  * @brief Application-defined callback for the OTA agent.
  */
-static void vOTACompleteCallback( OTA_ImageState_t eState )
+static void vOTACompleteCallback( OTA_JobEvent_t eResult )
 {
 }
 
-/*
+/**
  * @brief Test group definition.
  */
 TEST_GROUP( Full_OTA_AGENT );
 
+/**
+ * @brief Set up the MQTT Agent before running any OTA tests.
+ */
 TEST_SETUP( Full_OTA_AGENT )
 {
-}
-
-TEST_TEAR_DOWN( Full_OTA_AGENT )
-{
-}
-
-TEST_GROUP_RUNNER( Full_OTA_AGENT )
-{
-    MQTTAgentHandle_t xMQTTClientHandle;
-    MQTTAgentConnectParams_t xConnectParams;
     MQTTAgentReturnCode_t xMqttStatus;
-    OTA_State_t xOtaStatus;
+    MQTTAgentConnectParams_t xConnectParams;
 
     /* Create the MQTT Client. */
     xMqttStatus = MQTT_AGENT_Create( &xMQTTClientHandle );
@@ -115,45 +144,69 @@ TEST_GROUP_RUNNER( Full_OTA_AGENT )
     xConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
     xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
     xConnectParams.xFlags = mqttagentREQUIRE_TLS;
-    xMqttStatus = MQTT_AGENT_Connect(
-        xMQTTClientHandle,
-        &xConnectParams,
-        pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
+    xMqttStatus = MQTT_AGENT_Connect( xMQTTClientHandle,
+                                      &xConnectParams,
+                                      pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
     TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
+}
 
-    /* Initialize the OTA agent. */
-    xOtaStatus = OTA_AgentInit(
-        xMQTTClientHandle,
-        vOTACompleteCallback,
-        pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, xOtaStatus );
-
-    /* Check OTA agent status via separate API. */
-    xOtaStatus = OTA_GetAgentState();
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, xOtaStatus );
-
-    /* Run OTA-dependent test. */
-    RUN_TEST_CASE( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close );
-
-    /* Shutdown the OTA agent. */
-    xOtaStatus = OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_NotReady, xOtaStatus );
+/**
+ * @brief Disconnect and delete the MQTT Agent after the OTA tests.
+ */
+TEST_TEAR_DOWN( Full_OTA_AGENT )
+{
+    MQTTAgentReturnCode_t xMqttStatus;
 
     /* Disconnect from the MQTT broker. */
-    xMqttStatus = MQTT_AGENT_Disconnect(
-        xMQTTClientHandle,
-        pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
+    xMqttStatus = MQTT_AGENT_Disconnect( xMQTTClientHandle,
+                                         pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
     TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
 
     /* Delete the MQTT handle. */
     xMqttStatus = MQTT_AGENT_Delete( xMQTTClientHandle );
     TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
+
+    xMQTTClientHandle = NULL;
+}
+
+TEST_GROUP_RUNNER( Full_OTA_AGENT )
+{
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_InvalidParams );
+    RUN_TEST_CASE( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close );
+    RUN_TEST_CASE( Full_OTA_AGENT, prvParseJSONbyModel_Errors );
+}
+
+TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
+{
+    /* Initial OTA image state. */
+    OTA_ImageState_t xOTAImageState = OTA_GetImageState();
+
+    /* Attempt to set image state aborted without initializing the OTA Agent. */
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
+
+    /* Attempt to set bad image states. */
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( eOTA_ImageState_Unknown ) );
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( -1 ) );
+
+    /* Ensure that the failed SetImageState calls didn't modify the image state. */
+    TEST_ASSERT_EQUAL( xOTAImageState, OTA_GetImageState() );
 }
 
 TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 {
-    OTA_FileContext_t * pstUpdateFile;
+    OTA_State_t eOtaStatus;
+    OTA_FileContext_t * pstUpdateFile = NULL;
     uint32_t ulLoopIndex;
+
+    /* Initialize the OTA agent. Some tests don't use an initialized OTA Agent,
+     * so this isn't done in SETUP.  This is done outside of TEST_PROTECT so that
+     * this test exits if OTA_AgentInit fails. */
+    eOtaStatus = OTA_AgentInit(
+        xMQTTClientHandle,
+        clientcredentialIOT_THING_NAME,
+        vOTACompleteCallback,
+        pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
+    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, eOtaStatus );
 
     /* Test:
      * 1. That in ideal scenario, the JSON gets correctly processed.
@@ -162,27 +215,36 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
      */
     if( TEST_PROTECT() )
     {
+        /* Check OTA agent status. */
+        eOtaStatus = OTA_GetAgentState();
+        TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, eOtaStatus );
+
         for( ulLoopIndex = 0; ulLoopIndex < otatestMAX_LOOP_MEM_LEAK_CHECK; ulLoopIndex++ )
         {
-            pstUpdateFile = TEST_OTA_prvParseJobDocFromJSON( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
+            pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
             TEST_ASSERT_TRUE( pstUpdateFile != NULL );
 
-            /* Check a string and integer conversion */
+            /* Check the various document field conversions. */
             TEST_ASSERT_EQUAL_STRING( otatestSTREAM_NAME, pstUpdateFile->pacStreamName );
-            TEST_ASSERT_EQUAL( otatestFILE_SIZE, pstUpdateFile->iFileSize );
+            TEST_ASSERT_EQUAL( otatestFILE_SIZE, pstUpdateFile->ulFileSize );
             TEST_ASSERT_EQUAL_STRING( otatestFILE_PATH, pstUpdateFile->pacFilepath );
             TEST_ASSERT_EQUAL_STRING( otatestCERT_FILE, pstUpdateFile->pacCertFilepath );
             TEST_ASSERT_EQUAL( otatestATTRIBUTES, pstUpdateFile->ulFileAttributes );
             TEST_ASSERT_EQUAL( otatestFILE_ID, pstUpdateFile->ulServerFileID );
-            TEST_ASSERT_EQUAL_MEMORY( otatestSIGNATURE, pstUpdateFile->pacSignature, sizeof( otatestSIGNATURE ) );
+            TEST_ASSERT_EQUAL( sizeof( otatestSIGNATURE ), pstUpdateFile->pxSignature->usSize );
+            TEST_ASSERT_EQUAL_MEMORY( otatestSIGNATURE,
+                                      pstUpdateFile->pxSignature->ucData,
+                                      sizeof( otatestSIGNATURE ) );
 
             TEST_OTA_prvOTA_Close( pstUpdateFile );
+            pstUpdateFile = NULL;
         }
     }
 
     if( pstUpdateFile != NULL )
     {
         TEST_OTA_prvOTA_Close( pstUpdateFile );
+        pstUpdateFile = NULL;
     }
 
     /* End test. */
@@ -196,13 +258,14 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     {
         if( TEST_PROTECT() )
         {
-            pstUpdateFile = TEST_OTA_prvParseJobDocFromJSON( otatestBAD_LASER_JSON, sizeof( otatestBAD_LASER_JSON ) );
+            pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestBAD_LASER_JSON, sizeof( otatestBAD_LASER_JSON ) );
             TEST_ASSERT_TRUE( pstUpdateFile == NULL );
         }
 
         if( pstUpdateFile != NULL )
         {
             TEST_OTA_prvOTA_Close( pstUpdateFile );
+            pstUpdateFile = NULL;
         }
     }
 
@@ -211,21 +274,21 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     /* Test that null is returned if JSON file with incorrect length is passed in parameter.
      * Start test.
      */
-    pstUpdateFile = TEST_OTA_prvParseJobDocFromJSON( otatestLASER_JSON, sizeof( otatestLASER_JSON ) / 2 );
+    pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) / 2 );
     TEST_ASSERT_TRUE( pstUpdateFile == NULL );
     /* End test. */
 
     /* Test that null is returned if corrupted JSON file is passed in parameter.
      * Start test.
      */
-    pstUpdateFile = TEST_OTA_prvParseJobDocFromJSON( otatestGARBAGE_JSON, sizeof( otatestGARBAGE_JSON ) );
+    pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestGARBAGE_JSON, sizeof( otatestGARBAGE_JSON ) );
     TEST_ASSERT_TRUE( pstUpdateFile == NULL );
     /* End test. */
 
     /* Test that prvOTA_Close doesn't try to free already freed memory.
      * Start test.
      */
-    pstUpdateFile = TEST_OTA_prvParseJobDocFromJSON( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
+    pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
 
     if( pstUpdateFile != NULL )
     {
@@ -233,12 +296,82 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
         pstUpdateFile->pacFilepath = NULL;
         vPortFree( pstUpdateFile->pacCertFilepath );
         pstUpdateFile->pacCertFilepath = NULL;
-        vPortFree( pstUpdateFile->pacSignature );
-        pstUpdateFile->pacSignature = NULL;
+        vPortFree( pstUpdateFile->pxSignature );
+        pstUpdateFile->pxSignature = NULL;
         vPortFree( pstUpdateFile->pacStreamName );
         pstUpdateFile->pacStreamName = NULL;
         TEST_OTA_prvOTA_Close( pstUpdateFile );
     }
 
+    /* Shutdown the OTA agent. */
+    eOtaStatus = OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
+    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_NotReady, eOtaStatus );
+
     /* End test. */
+}
+
+TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
+{
+    JSON_DocModel_t xDocModel = { 0 };
+    JSON_DocParam_t xDocParam = { 0 };
+
+
+
+    /* Ensure that NULL parameters are rejected. */
+    TEST_ASSERT_EQUAL( eDocParseErr_NullModelPointer,
+                       TEST_OTA_prvParseJSONbyModel( otatestLASER_JSON,
+                                                     sizeof( otatestLASER_JSON ),
+                                                     NULL ) );
+    TEST_ASSERT_EQUAL( eDocParseErr_NullBodyPointer,
+                       TEST_OTA_prvParseJSONbyModel( otatestLASER_JSON,
+                                                     sizeof( otatestLASER_JSON ),
+                                                     &xDocModel ) );
+    /* Set pxBodyDef to a non-NULL value. */
+    xDocModel.pxBodyDef = &xDocParam;
+    TEST_ASSERT_EQUAL( eDocParseErr_NullDocPointer,
+                       TEST_OTA_prvParseJSONbyModel( NULL,
+                                                     sizeof( otatestLASER_JSON ),
+                                                     &xDocModel ) );
+
+    /* Ensure an invalid JSON document is rejected. */
+    TEST_ASSERT_EQUAL( eDocParseErr_NoTokens, TEST_OTA_prvParseJSONbyModel( otatestLASER_JSON,
+                                                                            0,
+                                                                            &xDocModel ) );
+
+    /* Ensure usNumModelParams is rejected if too large. */
+    xDocModel.usNumModelParams = ( uint16_t ) ( 0xffffU );
+    TEST_ASSERT_EQUAL( eDocParseErr_TooManyParams,
+                       TEST_OTA_prvParseJSONbyModel( otatestLASER_JSON,
+                                                     sizeof( otatestLASER_JSON ),
+                                                     &xDocModel ) );
+
+    /* Ensure that a JSON document containing duplicate keys is rejected. */
+    TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_DUPLICATE,
+                                                      sizeof( otatestLASER_JSON_WITH_DUPLICATE ) ) );
+
+    /* Ensure that a JSON document containing a mismatched field is rejected. */
+    TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_FIELD_MISMATCH,
+                                                      sizeof( otatestLASER_JSON_WITH_FIELD_MISMATCH ) ) );
+
+    /* Initialize the OTA Agent for the following test. */
+    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
+                               xMQTTClientHandle,
+                               clientcredentialIOT_THING_NAME,
+                               vOTACompleteCallback,
+                               pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) ) );
+
+    /* The OTA Agent must be shut down if these tests fail, so a TEST_PROTECT is necessary. */
+    if( TEST_PROTECT() )
+    {
+        /* Ensure that the "self_test" key can be identified. */
+        TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_SELF_TEST,
+                                                          sizeof( otatestLASER_JSON_WITH_SELF_TEST ) ) );
+
+        /* Ensure that a JSON document containing bad base64 character is rejected. */
+        TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_BAD_BASE64,
+                                                          sizeof( otatestLASER_JSON_WITH_BAD_BASE64 ) ) );
+    }
+
+    /* Shut down the OTA Agent. */
+    ( void ) OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
 }

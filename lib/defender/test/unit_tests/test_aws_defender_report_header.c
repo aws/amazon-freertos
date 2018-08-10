@@ -27,44 +27,46 @@
 #include "aws_defender_internals.h"
 #include "unity_fixture.h"
 
-TEST_GROUP(aws_defender_report_header);
-TEST_SETUP(aws_defender_report_header)
+TEST_GROUP( aws_defender_report_header );
+TEST_SETUP( aws_defender_report_header )
 {
 }
 
-TEST_TEAR_DOWN(aws_defender_report_header)
+TEST_TEAR_DOWN( aws_defender_report_header )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_report_header)
+TEST_GROUP_RUNNER( aws_defender_report_header )
 {
-    RUN_TEST_CASE(aws_defender_report_header,
-        GetHeader_report_id_increments_with_each_call_to_grab_the_header);
+    RUN_TEST_CASE( aws_defender_report_header,
+                   GetHeader_report_id_increments_with_each_call_to_grab_the_header );
     RUN_TEST_CASE(
-        aws_defender_report_header, GetHeader_version_matches_metrics_version);
+        aws_defender_report_header, GetHeader_version_matches_metrics_version );
 }
 
-TEST(aws_defender_report_header,
-    GetHeader_report_id_increments_with_each_call_to_grab_the_header)
+TEST( aws_defender_report_header,
+      GetHeader_report_id_increments_with_each_call_to_grab_the_header )
 {
     cbor_handle_t first_header = DEFENDER_GetHeader();
-    cbor_int_t    first_id =
-        CBOR_FromKeyReadInt(first_header, DEFENDER_report_id_tag);
-    CBOR_Delete(&first_header);
+    cbor_int_t first_id =
+        CBOR_FromKeyReadInt( first_header, DEFENDER_report_id_tag );
+
+    CBOR_Delete( &first_header );
 
     cbor_handle_t second_header = DEFENDER_GetHeader();
-    cbor_int_t    second_id =
-        CBOR_FromKeyReadInt(second_header, DEFENDER_report_id_tag);
-    CBOR_Delete(&second_header);
+    cbor_int_t second_id =
+        CBOR_FromKeyReadInt( second_header, DEFENDER_report_id_tag );
+    CBOR_Delete( &second_header );
 
-    TEST_ASSERT_GREATER_THAN_INT(first_id, second_id);
+    TEST_ASSERT_GREATER_THAN_INT( first_id, second_id );
 }
 
-TEST(aws_defender_report_header, GetHeader_version_matches_metrics_version)
+TEST( aws_defender_report_header, GetHeader_version_matches_metrics_version )
 {
     cbor_handle_t header = DEFENDER_GetHeader();
-    char *version        = CBOR_FromKeyReadString(header, DEFENDER_version_tag);
-    CBOR_Delete(&header);
-    TEST_ASSERT_EQUAL_STRING(DEFENDER_METRICS_VERSION, version);
-    free(version);
+    char * version = CBOR_FromKeyReadString( header, DEFENDER_version_tag );
+
+    CBOR_Delete( &header );
+    TEST_ASSERT_EQUAL_STRING( DEFENDER_METRICS_VERSION, version );
+    free( version );
 }

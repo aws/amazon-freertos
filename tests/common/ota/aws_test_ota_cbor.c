@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA AFQP V1.0.0
+ * Amazon FreeRTOS OTA AFQP V0.9.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -275,23 +275,6 @@ BaseType_t prvCreateSampleDescribeStreamResponseMessage( uint8_t * pucMessageBuf
             CBOR_TEST_CLIENTTOKEN_VALUE );
     }
 
-    #ifdef INCLUDE_STREAM_VERSION_PARAM
-        /* Encode the stream version. */
-        if( CborNoError == xCborResult )
-        {
-            xCborResult = cbor_encode_text_stringz(
-                &xCborOuterMapEncoder,
-                OTA_CBOR_STREAMVERSION_KEY );
-        }
-
-        if( CborNoError == xCborResult )
-        {
-            xCborResult = cbor_encode_int(
-                &xCborOuterMapEncoder,
-                CBOR_TEST_STREAMVERSION_VALUE );
-        }
-    #endif /* ifdef INCLUDE_STREAM_VERSION_PARAM */
-
     /* Encode the stream description. */
     if( CborNoError == xCborResult )
     {
@@ -505,7 +488,7 @@ BaseType_t prvCreateSampleGetStreamResponseMessage( uint8_t * pucMessageBuffer,
 TEST( Full_OTA_CBOR, CborOtaApi )
 {
     BaseType_t xResult = pdFALSE;
-    uint8_t ucBlockPayload[ kOTA_FileBlockSize ] = { 0 };
+    uint8_t ucBlockPayload[OTA_FILE_BLOCK_SIZE] = { 0 };
     uint8_t ucCborWork[ CBOR_TEST_MESSAGE_BUFFER_SIZE ];
     size_t xEncodedSize = 0;
     uint32_t ulBitmap = CBOR_TEST_BITMAP_VALUE;
@@ -520,64 +503,6 @@ TEST( Full_OTA_CBOR, CborOtaApi )
     uint8_t * pucPayload = NULL;
     size_t xPayloadSize = 0;
 
-    #if INCLUDE_DESCRIBE_STREAM
-        /* Test OTA_CBOR_Encode_DescribeStreamRequestMessage( ). */
-        xResult = OTA_CBOR_Encode_DescribeStreamRequestMessage(
-            ucCborWork,
-            sizeof( ucCborWork ),
-            &xEncodedSize,
-            CBOR_TEST_CLIENTTOKEN_VALUE );
-        TEST_ASSERT_TRUE( xResult );
-
-        prvSaveCborTestFile( "tempDescribeStreamRequest.cbor", ucCborWork, xEncodedSize );
-
-        /* Test OTA_CBOR_Decode_DescribeStreamResponseMessage_Start( ). */
-        xResult = prvCreateSampleDescribeStreamResponseMessage(
-            ucCborWork,
-            sizeof( ucCborWork ),
-            &xEncodedSize );
-        TEST_ASSERT_TRUE( xResult );
-
-        prvSaveCborTestFile( "tempDescribeStreamResponse.cbor", ucCborWork, xEncodedSize );
-
-        xResult = OTA_CBOR_Decode_DescribeStreamResponseMessage_Start(
-            &pvDecodeContext,
-            ucCborWork,
-            xEncodedSize,
-            &pcClientToken,
-            &lStreamVersion,
-            &pcStreamDescription,
-            &lFileId,
-            &lFileSize );
-        TEST_ASSERT_TRUE( xResult );
-
-        if( NULL != pcClientToken )
-        {
-            vPortFree( pcClientToken );
-            pcClientToken = NULL;
-        }
-
-        if( NULL != pcStreamDescription )
-        {
-            vPortFree( pcStreamDescription );
-            pcStreamDescription = NULL;
-        }
-
-        /* Test OTA_CBOR_Decode_DescribeStreamResponseMessage_Next( ). */
-        do
-        {
-            xResult = OTA_CBOR_Decode_DescribeStreamResponseMessage_Next(
-                pvDecodeContext,
-                &lFileId,
-                &lFileSize );
-            TEST_ASSERT_TRUE( xResult );
-        } while( pdTRUE == xResult && 0 != lFileId && 0 != lFileSize );
-
-        /* Test OTA_CBOR_Decode_DescribeStreamResponseMessage_Finish( ). */
-        OTA_CBOR_Decode_DescribeStreamResponseMessage_Finish(
-            pvDecodeContext );
-    #endif /* #if INCLUDE_DESCRIBE_STREAM */
-
     /* Test OTA_CBOR_Encode_GetStreamRequestMessage( ). */
     xResult = OTA_CBOR_Encode_GetStreamRequestMessage(
         ucCborWork,
@@ -585,7 +510,7 @@ TEST( Full_OTA_CBOR, CborOtaApi )
         &xEncodedSize,
         CBOR_TEST_CLIENTTOKEN_VALUE,
         1,
-        kOTA_FileBlockSize,
+        OTA_FILE_BLOCK_SIZE,
         0,
         ( uint8_t * ) &ulBitmap,
         sizeof( ulBitmap ) );
@@ -635,7 +560,8 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     size_t xChunkSize = 0;
     size_t xEncodedSize = 0;
     OTA_FileContext_t xOTAFileContext = { 0 };
-    uint8_t * pucInFile = NULL;
+    Sig256_t xSig = { 0 };
+    uint8_t *pucInFile = NULL;
     size_t xBlockBitmapSize = 0;
     uint8_t ucSignature[] =
     {
@@ -661,61 +587,67 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     xResultBool = prvReadCborTestFile(
         "payload.bin",
         &pucInFile,
-        &xOTAFileContext.iFileSize );
+        &xOTAFileContext.ulFileSize );
 
     /* Test OTA agent data block handling internals. Needs to be read/write
      * since we read it back in order to ensure that the blocks are hashed in
      * order. */
     xOTAFileContext.pstFile = fopen( "testOtaFile.bin", "w+b" );
     TEST_ASSERT_NOT_NULL( xOTAFileContext.pstFile );
-    xOTAFileContext.iBlocksRemaining =
-        xOTAFileContext.iFileSize / kOTA_FileBlockSize;
-
-    if( 0 != xOTAFileContext.iFileSize % kOTA_FileBlockSize )
+    xOTAFileContext.ulBlocksRemaining =
+        xOTAFileContext.ulFileSize / OTA_FILE_BLOCK_SIZE;
+    if( 0 != xOTAFileContext.ulFileSize % OTA_FILE_BLOCK_SIZE )
     {
-        xOTAFileContext.iBlocksRemaining++;
+        xOTAFileContext.ulBlocksRemaining++;
     }
 
-    xBlockBitmapSize = 1 + ( xOTAFileContext.iFileSize / kBitsPerByte );
+    xBlockBitmapSize = 1 + ( xOTAFileContext.ulFileSize / BITS_PER_BYTE );
     xOTAFileContext.pacRxBlockBitmap = pvPortMalloc( xBlockBitmapSize );
     TEST_ASSERT_NOT_NULL( xOTAFileContext.pacRxBlockBitmap );
     memset( xOTAFileContext.pacRxBlockBitmap, 0xFF, xBlockBitmapSize );
 
     xOTAFileContext.pacCertFilepath = "rsasigner.crt";
-    xOTAFileContext.pacSignature = ucSignature;
-    xOTAFileContext.usSigSize = sizeof( ucSignature );
+    xOTAFileContext.pxSignature = &xSig;
+    memcpy( xOTAFileContext.pxSignature->ucData, ucSignature, sizeof( ucSignature ) );
+    xOTAFileContext.pxSignature->usSize = sizeof( ucSignature );
 
     /* Process the signed file by chunks. */
-    for( size_t xBlock = 0;
-         ( xBlock * kOTA_FileBlockSize ) < xOTAFileContext.iFileSize;
-         xBlock++ )
+    for(    size_t xBlock = 0;
+            ( xBlock * OTA_FILE_BLOCK_SIZE ) < xOTAFileContext.ulFileSize;
+            xBlock++ )
     {
         /* Create the encoded data block response. */
         xChunkSize = min(
-            kOTA_FileBlockSize,
-            xOTAFileContext.iFileSize - ( xBlock * kOTA_FileBlockSize ) );
+            OTA_FILE_BLOCK_SIZE,
+            xOTAFileContext.ulFileSize - ( xBlock * OTA_FILE_BLOCK_SIZE ) );
         xResultBool = prvCreateSampleGetStreamResponseMessage(
             ucCborWork,
             sizeof( ucCborWork ),
             xBlock,
-            pucInFile + ( xBlock * kOTA_FileBlockSize ),
+            pucInFile + ( xBlock * OTA_FILE_BLOCK_SIZE ),
             xChunkSize,
             &xEncodedSize );
         TEST_ASSERT_TRUE( xResultBool );
 
         /* Handle the encoded data block message. */
+        OTA_Err_t xCloseResult = kOTA_Err_None;
         xResultIngest = TEST_OTA_prvIngestDataBlock(
             &xOTAFileContext,
             ucCborWork,
-            xEncodedSize );
-
-        if( ( xBlock * kOTA_FileBlockSize ) + xChunkSize == xOTAFileContext.iFileSize )
+            xEncodedSize,
+            &xCloseResult );
+        if( ( xBlock * OTA_FILE_BLOCK_SIZE ) + xChunkSize == xOTAFileContext.ulFileSize )
         {
             TEST_ASSERT_EQUAL_INT32( xResultIngest, eIngest_Result_FileComplete );
         }
         else
         {
-            TEST_ASSERT_EQUAL_INT32( xResultIngest, eIngest_Result_Continue );
+            // eIngest_Result_Accepted_Continue = 0
+            // eIngest_Result_Duplicate_Continue = 1,  /* The block was a duplicate but that's OK. Continue. */
+            if ( (xResultIngest != eIngest_Result_Accepted_Continue) && (xResultIngest != eIngest_Result_Duplicate_Continue) )
+            {
+                TEST_ASSERT_EQUAL_INT32_MESSAGE( eIngest_Result_Accepted_Continue, xResultIngest, "Result was not accepted or duplicate continue" );
+            }
         }
     }
 
@@ -748,52 +680,6 @@ TEST( Full_OTA_CBOR, CborOtaServerFiles )
     size_t xPayloadSize = 0;
     char pcChunkFileName[ MAX_PATH ];
     uint32_t ulBitmap = CBOR_TEST_BITMAP_VALUE;
-
-    #if INCLUDE_DESCRIBE_STREAM
-        /* Read the server Describe Stream response. */
-        xResultBool = prvReadCborTestFile(
-            "describeStreamResponse.cbor",
-            &pucInFile,
-            &xBufferSize );
-
-        /* Parse the Describe Stream response. */
-        xResultBool = OTA_CBOR_Decode_DescribeStreamResponseMessage_Start(
-            &pvDecodeContext,
-            pucInFile,
-            xBufferSize,
-            &pcClientToken,
-            &lStreamVersion,
-            &pcStreamDescription,
-            &lFileId,
-            &lFileSize );
-        TEST_ASSERT_TRUE( xResultBool );
-
-        if( NULL != pcClientToken )
-        {
-            vPortFree( pcClientToken );
-            pcClientToken = NULL;
-        }
-
-        if( NULL != pcStreamDescription )
-        {
-            vPortFree( pcStreamDescription );
-            pcStreamDescription = NULL;
-        }
-
-        /* Iterate through each file. */
-        do
-        {
-            xResultBool = OTA_CBOR_Decode_DescribeStreamResponseMessage_Next(
-                pvDecodeContext,
-                &lFileId,
-                &lFileSize );
-            TEST_ASSERT_TRUE( xResultBool );
-        } while( pdTRUE == xResultBool && 0 != lFileId && 0 != lFileSize );
-
-        /* End of enumeration. */
-        OTA_CBOR_Decode_DescribeStreamResponseMessage_Finish(
-            pvDecodeContext );
-    #endif /* #if INCLUDE_DESCRIBE_STREAM */
 
     /* Read sample file chunks. */
     for( uint32_t ulChunk = 0;

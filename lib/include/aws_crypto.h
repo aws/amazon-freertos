@@ -27,6 +27,8 @@
 #ifndef __AWS_CRYPTO__H__
 #define __AWS_CRYPTO__H__
 
+#include "FreeRTOS.h"
+
 /**
  * @brief Commonly used buffer sizes for storing cryptographic hash computation
  * results.
@@ -70,7 +72,7 @@ BaseType_t CRYPTO_SignatureVerificationStart( void ** ppvContext,
  * @param[in] xDataLength Length in bytes of data that was signed.
  */
 void CRYPTO_SignatureVerificationUpdate( void * pvContext,
-                                         uint8_t * pucData,
+                                         const uint8_t * pucData,
                                          size_t xDataLength );
 
 /**

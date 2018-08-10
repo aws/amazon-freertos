@@ -27,6 +27,6 @@
 
 #include "aws_cbor.h"
 
-cbor_handle_t DEFENDER_CpuReportGet(void);
+cbor_handle_t DEFENDER_CpuReportGet( void );
 
 #endif /* ifndef AWS_DEFENDER_CPU_H */

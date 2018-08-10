@@ -24,13 +24,14 @@
  */
 #include "aws_defender_tcp_conn.h"
 
-int DEFENDER_TcpConnGet(void)
+int DEFENDER_TcpConnGet( void )
 {
-#error Return count of TCP connections
+    #error Return count of TCP connections
+
     return -1;
 }
 
-void DEFENDER_TcpConnRefresh(void)
+void DEFENDER_TcpConnRefresh( void )
 {
-#error Caluculate and store the count of TCP connections
+    #error Caluculate and store the count of TCP connections
 }

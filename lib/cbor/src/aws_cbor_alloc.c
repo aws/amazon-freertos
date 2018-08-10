@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS CBOR Library V1.0.0
+ * Amazon FreeRTOS CBOR Library V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,23 +26,38 @@
 #include <stdlib.h>
 #include <string.h>
 
-void *(*pxCBOR_malloc)(size_t)          = malloc;
-void (*pxCBOR_free)(void *)             = free;
-void *(*pxCBOR_realloc)(void *, size_t) = realloc;
+#ifdef __free_rtos__
+    #include "FreeRTOS.h"
+    void *( *pxCBOR_malloc )( size_t ) = pvPortMalloc;
+    void (* pxCBOR_free)( void * ) = vPortFree;
+    void *(* pxCBOR_realloc)( void *,
+                              size_t ) = CBOR_ReallocImpl;
+#else
+    void *(* pxCBOR_malloc)( size_t ) = malloc;
+    void (* pxCBOR_free)( void * ) = free;
+    void *(* pxCBOR_realloc)( void *,
+                              size_t ) = realloc;
+#endif
 
-void *CBOR_ReallocImpl(void *pxOld_ptr, size_t xNew_size)
+void * CBOR_ReallocImpl( void * pxOld_ptr,
+                         size_t xNew_size )
 {
-    void *pxNew_ptr = pxCBOR_malloc(xNew_size);
-    if (NULL == pxNew_ptr) {
+    void * pxNew_ptr = pxCBOR_malloc( xNew_size );
+
+    if( NULL == pxNew_ptr )
+    {
         return NULL;
     }
-    /* Ref: aws_cbor_mem.c:38 */
+
+    /* Ref: aws_cbor_mem.c:64 */
     /* Realloc is called with a 1.5 multiplier */
+
     /* This calculates the old size to ensure the correct amount of memory is
      * copied */
     size_t xOld_size = xNew_size * 2 + 1;
     xOld_size /= 3;
-    memcpy(pxNew_ptr, pxOld_ptr, xOld_size);
-    pxCBOR_free(pxOld_ptr);
+    memcpy( pxNew_ptr, pxOld_ptr, xOld_size );
+    pxCBOR_free( pxOld_ptr );
+
     return pxNew_ptr;
 }

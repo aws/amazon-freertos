@@ -26,79 +26,86 @@
 #include "unity_fixture.h"
 
 #ifdef __linux__
-#include <sys/sysinfo.h>
-#include <unistd.h>
+    #include <sys/sysinfo.h>
+    #include <unistd.h>
 
-static void idle_delay()
-{
-    int sleep_time = 1;
-    while (sleep_time) {
-        sleep_time = sleep(sleep_time);
-    }
-}
+    static void idle_delay()
+    {
+        int sleep_time = 1;
 
-static void active_delay()
-{
-    struct sysinfo current_sys_info = {0};
-    (void)sysinfo(&current_sys_info);
-    int current_time = current_sys_info.uptime;
-    int stop_time    = current_time + 2;
-    while (current_time < stop_time) {
-        (void)sysinfo(&current_sys_info);
-        current_time = current_sys_info.uptime;
+        while( sleep_time )
+        {
+            sleep_time = sleep( sleep_time );
+        }
     }
-}
+
+    static void active_delay()
+    {
+        struct sysinfo current_sys_info = { 0 };
+
+        ( void ) sysinfo( &current_sys_info );
+        int current_time = current_sys_info.uptime;
+        int stop_time = current_time + 2;
+
+        while( current_time < stop_time )
+        {
+            ( void ) sysinfo( &current_sys_info );
+            current_time = current_sys_info.uptime;
+        }
+    }
 
 #elif defined __free_rtos__
-#include "FreeRTOS.h"
-#include "task.h"
+    #include "FreeRTOS.h"
+    #include "task.h"
 
-static void idle_delay()
-{
-    vTaskDelay(pdMS_TO_TICKS(1000));
-}
+    static void idle_delay()
+    {
+        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+    }
 
-static void active_delay()
-{
-    TickType_t delay_period_ticks = pdMS_TO_TICKS(1000);
-    TickType_t current_tick       = xTaskGetTickCount();
-    while (xTaskGetTickCount() - current_tick < delay_period_ticks)
-        ;
-}
+    static void active_delay()
+    {
+        TickType_t delay_period_ticks = pdMS_TO_TICKS( 1000 );
+        TickType_t current_tick = xTaskGetTickCount();
 
-#endif
+        while( xTaskGetTickCount() - current_tick < delay_period_ticks )
+        {
+        }
+    }
 
-TEST_GROUP(aws_defender_cpu);
+#endif /* ifdef __linux__ */
 
-TEST_SETUP(aws_defender_cpu)
-{
-}
+TEST_GROUP( aws_defender_cpu );
 
-TEST_TEAR_DOWN(aws_defender_cpu)
+TEST_SETUP( aws_defender_cpu )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_cpu)
+TEST_TEAR_DOWN( aws_defender_cpu )
 {
-    RUN_TEST_CASE(aws_defender_cpu, CpuLoadGet_idle_period);
-    RUN_TEST_CASE(aws_defender_cpu, CpuLoadGet_active_period);
 }
 
-TEST(aws_defender_cpu, CpuLoadGet_idle_period)
+TEST_GROUP_RUNNER( aws_defender_cpu )
+{
+    RUN_TEST_CASE( aws_defender_cpu, CpuLoadGet_idle_period );
+    RUN_TEST_CASE( aws_defender_cpu, CpuLoadGet_active_period );
+}
+
+TEST( aws_defender_cpu, CpuLoadGet_idle_period )
 {
     DEFENDER_CpuLoadRefresh();
     idle_delay();
     DEFENDER_CpuLoadRefresh();
     int idle_load = DEFENDER_CpuLoadGet();
-    TEST_ASSERT_LESS_THAN(25, idle_load);
+    TEST_ASSERT_LESS_THAN( 25, idle_load );
 }
 
-TEST(aws_defender_cpu, CpuLoadGet_active_period)
+TEST( aws_defender_cpu, CpuLoadGet_active_period )
 {
     DEFENDER_CpuLoadRefresh();
     active_delay();
     DEFENDER_CpuLoadRefresh();
     int active_load = DEFENDER_CpuLoadGet();
-    TEST_ASSERT_GREATER_THAN_MESSAGE(50, active_load,
-        "Re-run. If it fails consistently, then there's likely a problem.");
+    TEST_ASSERT_GREATER_THAN_MESSAGE( 50, active_load,
+                                      "Re-run. If it fails consistently, then there's likely a problem." );
 }

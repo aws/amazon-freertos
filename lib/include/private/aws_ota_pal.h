@@ -23,10 +23,18 @@
  * http://www.FreeRTOS.org
  */
 
-#ifdef INCLUDE_FROM_OTA_AGENT
+#ifndef _AWS_OTA_PAL_H_
+#define _AWS_OTA_PAL_H_
 
 #include "aws_ota_types.h"
 #include "aws_ota_agent.h"
+
+typedef enum {
+    eOTA_PAL_ImageState_Unknown = 0,
+    eOTA_PAL_ImageState_PendingCommit,
+    eOTA_PAL_ImageState_Valid,
+    eOTA_PAL_ImageState_Invalid,
+} OTA_PAL_ImageState_t;
 
 
 /** 
@@ -35,96 +43,153 @@
  * Aborts access to an existing open file represented by the OTA file context C. This is only valid
  * for jobs that started successfully.
  * 
+ * @note The input OTA_FileContext_t C is checked for NULL by the OTA agent before this
+ * function is called. 
+ * This function may be called before the file is opened, so the file pointer C->iFileHandle may be NULL 
+ * when this function is called.
+ * 
  * @param[in] C OTA file context information.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
  * error codes information in aws_ota_agent.h.
+ * 
+ * The file pointer will be set to NULL after this function returns.
+ * kOTA_Err_None is returned when aborting access to the open file was successful.
+ * kOTA_Err_FileAbort is returned when aborting access to the open file context was unsuccessful.
  */
-static OTA_Err_t prvAbort(OTA_FileContext_t * const C);
+OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C );
 
 /** 
  * @brief Create a new receive file for the data chunks as they come in. 
  * 
  * @note Opens the file indicated in the OTA file context in the MCU file system.
  * 
+ * @note The input OTA_FileContext_t C is checked for NULL by the OTA agent before this
+ * function is called. 
+ * The device file path is a required field in the OTA job document, so C->pacFilepath is 
+ * checked for NULL by the OTA agent before this function is called.
+ * 
  * @param[in] C OTA file context information.
  * 
- * @return pdTRUE if succeeded, pdFALSE otherwise.
+ * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
+ * error codes information in aws_ota_agent.h.
+ * 
+ * kOTA_Err_None is returned when file creation is successful.
+ * kOTA_Err_RxFileTooLarge is returned if the file to be created exceeds the device's non-volatile memory size contraints.
+ * kOTA_Err_BootInfoCreateFailed is returned if the bootloader information file creation fails.
+ * kOTA_Err_RxFileCreateFailed is returned for other errors creating the file in the device's non-volatile memory.
  */
-static bool_t prvCreateFileForRx(OTA_FileContext_t * const C);
+OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C );
 
 /* @brief Authenticate and close the underlying receive file in the specified OTA context.
  * 
+ * @note The input OTA_FileContext_t C is checked for NULL by the OTA agent before this
+ * function is called. This function is called only at the end of block ingestion.
+ * prvPAL_CreateFileForRx() must succeed before this function is reached, so 
+ * C->iFileHandle(or C->pucFile) is never NULL. 
+ * The certificate path on the device is a required job document field in the OTA Agent, 
+ * so C->pacCertFilepath is never NULL.
+ * The file signature key is required job document field in the OTA Agent, so C->pxSignature will
+ * never be NULL.
+ * 
+ * If the signature verification fails, file close should still be attempted.
+ * 
  * @param[in] C OTA file context information.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
  * error codes information in aws_ota_agent.h.
+ * 
+ * kOTA_Err_None is returned on success.
+ * kOTA_Err_SignatureCheckFailed is returned when cryptographic signature verification fails.
+ * kOTA_Err_BadSignerCert is returned for errors in the certificate itself.
+ * kOTA_Err_FileClose is returned when closing the file fails.
  */
-static OTA_Err_t prvCloseFile(OTA_FileContext_t * const C);
-
-/** 
- * @brief Authenticate the received file using its signature and signing certificate in the specified OTA context.
- * 
- * @note Optional on some platforms.
- * 
- * @param[in] C OTA file context information.
- * 
- * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
- * error codes information in aws_ota_agent.h.
- */
-static OTA_Err_t prvCheckFileSignature(OTA_FileContext_t * const C);
+OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C );
 
 /**
  * @brief Write a block of data to the specified file at the given offset.
  * 
- * @param[in] C OTA file context information.
- * @param[in] iOffset Byte offset to write to from the beginning of the file.
- * @param[in] pacData Pointer to the byte array of data to write.
- * @param[in] iBlockSize The number of bytes to write.
+ * @note The input OTA_FileContext_t C is checked for NULL by the OTA agent before this
+ * function is called.
+ * The file pointer/handl,e C->pucFile, is checked for NULL by the OTA agent before this 
+ * function is called.
+ * pacData is checked for NULL by the OTA agent before this function is called.
+ * ulBlockSize is validated for range by the OTA agent before this function is called.
+ * ulBlockIndex is validated by the OTA agent before this function is called.
  * 
- * @return The number of bytes written on a success, or a negative error code from the MCU abstraction layer. 
+ * @param[in] C OTA file context information.
+ * @param[in] ulOffset Byte offset to write to from the beginning of the file.
+ * @param[in] pacData Pointer to the byte array of data to write.
+ * @param[in] ulBlockSize The number of bytes to write.
+ * 
+ * @return The number of bytes written on a success, or a negative error code from the platform abstraction layer.
  */
-static int16_t prvWriteBlock(OTA_FileContext_t * const C, int32_t iOffset, uint8_t * const pacData, uint32_t iBlockSize);
+int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C, uint32_t ulOffset, uint8_t * const pcData, uint32_t ulBlockSize );
 
 /** 
  * @brief Activate the newest MCU image received via OTA.
  * 
- * This function shall reset the MCU and cause a reboot of the system to execute the newly updated 
- * firmware.
+ * This function shall do whatever is necessary to activate the newest MCU
+ * firmware received via OTA. It is typically just a reset of the device.
  * 
- * @note This function MAY not return.
+ * @note This function SHOULD not return. If it does, the platform doesn't support
+ * an automatic reset or an error occurred.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
  * error codes information in aws_ota_agent.h.
  */
-static OTA_Err_t prvActivateNewImage(void);
+OTA_Err_t prvPAL_ActivateNewImage( void );
 
 /**
- * @brief sets the state of the OTA Image in the MCU file system.
+ * @brief Reset the device.
+ *
+ * This function shall reset the MCU and cause a reboot of the system.
+ *
+ * @note This function SHOULD not return. If it does, the platform doesn't support
+ * an automatic reset or an error occurred.
+ *
+ * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
+ * error codes information in aws_ota_agent.h.
+ */
+
+OTA_Err_t prvPAL_ResetDevice( void );
+
+/**
+ * @brief Set the state of the OTA Image in the MCU file system.
  * 
  * Do whatever is required by the platform to Accept/Reject the last firmware image (or bundle).
- * Refer to the platform implementation to determine what happens on your platform.
+ * Refer to the implementation to determine what happens on your platform.
  * 
  * @param[in] eState The state of the OTA Image.
  * 
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
  * error codes information in aws_ota_agent.h.
+ * 
+ * kOTA_Err_None is returned on success.
+ * kOTA_Err_BadImageState is returned for an unrecognized input OTA_ImageState_t i.e. when the image state is eOTA_ImageState_Unknown or out of range.
+ * kOTA_Err_AbortFailed is returned when the input eState == eOTA_ImageState_Aborted and settings the image in the system into an aborted state fails.
+ * kOTA_Err_RejectFailed is returned when the input eState == eOTA_ImageState_Rejected and setting the image in the system into a reject state fails.
+ * kOTA_Err_CommitFailed is returned when the input eState == eOTA_ImageState_Accepted and setting the image in the system into a committed state fails.
  */
-static OTA_Err_t prvSetImageState (OTA_ImageState_t eState);
+OTA_Err_t prvPAL_SetPlatformImageState ( OTA_ImageState_t eState );
 
 /**
- * @brief Read and return the signer certificate.
- * 
- * Read the specified signer certificate from the file system
- * and return it to the caller. 
- * 
- * @note Optional on some platforms.
- * 
- * @param[in] pucCertName The name of the signer certifiate.
- * @param[in] lSignerCertSize The size of the signer certifiate.
- * 
- * @return A pointer to the byte array of the signer certificate from the system.
+ * @brief Get the state of the currently running image.
+ *
+ * We read this at OTA_Init time so we can tell if the MCU image is in self
+ * test mode. If it is, we expect a successful connection to the OTA services
+ * within a reasonable amount of time. If we don't satisfy that requirement,
+ * we assume there is something wrong with the firmware and reset the device,
+ * causing it to roll back to the previous known working code. If the self tests
+ * pass, the application shall call OTA_ActivateNewImage() to reset the device.
+ *
+ * @return An OTA_PAL_ImageState_t. One of the following:
+ *   eOTA_PAL_ImageState_PendingCommit (new firmware is in the self test phase)
+ *   eOTA_PAL_ImageState_Valid         (new firmware is valid/committed) 
+ *   eOTA_PAL_ImageState_Invalid       (new firmware is invalid/rejected; the image is considered until it passes signature verification and it committed.)
  */
-static uint8_t * prvReadAndAssumeCertificate(const uint8_t * const pucCertName, int32_t * const lSignerCertSize);
+OTA_PAL_ImageState_t prvPAL_GetPlatformImageState ( void );
 
-#endif	/* INCLUDE_FROM_OTA_AGENT */
+#endif
+
+

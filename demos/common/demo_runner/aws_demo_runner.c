@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.3.0
+ * Amazon FreeRTOS V1.3.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,14 +36,15 @@
 #include "aws_demo_runner.h"
 
 /* Demo declarations. */
-extern void vStartMQTTEchoDemo( void );
-/* extern void vStartSubpubDemoTasks( void ); */
-/* extern void vStartSimpleTCPServerTasks( void ); */
-/* extern void vStartTCPEchoClientTasks_SingleTasks( void ); */
-/* extern void vStartTCPEchoClientTasks_SeparateTasks( void ); */
-/* extern void vStartShadowDemoTasks( void ); */
+/* extern void vStartDeviceDefenderDemo( void ); */
 /* extern void vStartGreenGrassDiscoveryTask( void ); */
+extern void vStartMQTTEchoDemo( void );
 /* extern void vStartOTAUpdateDemoTask( void ); */
+/* extern void vStartShadowDemoTasks( void ); */
+/* extern void vStartSimpleTCPServerTasks( void ); */
+/* extern void vStartSubpubDemoTasks( void ); */
+/* extern void vStartTCPEchoClientTasks_SeparateTasks( void ); */
+/* extern void vStartTCPEchoClientTasks_SingleTasks( void ); */
 
 /*-----------------------------------------------------------*/
 
@@ -52,12 +53,13 @@ extern void vStartMQTTEchoDemo( void );
  */
 void DEMO_RUNNER_RunDemos( void )
 {
-    vStartMQTTEchoDemo();
-    /* vStartSubpubDemoTasks(); */
-    /* vStartSimpleTCPServerTasks(); */
-    /* vStartTCPEchoClientTasks_SingleTasks(); */
-    /* vStartTCPEchoClientTasks_SeparateTasks(); */
-    /* vStartShadowDemoTasks(); */
+    /* vStartDeviceDefenderDemo(); */
     /* vStartGreenGrassDiscoveryTask(); */
     /* vStartOTAUpdateDemoTask(); */
+    vStartMQTTEchoDemo();
+    /* vStartShadowDemoTasks(); */
+    /* vStartSimpleTCPServerTasks(); */
+    /* vStartSubpubDemoTasks(); */
+    /* vStartTCPEchoClientTasks_SeparateTasks(); */
+    /* vStartTCPEchoClientTasks_SingleTasks(); */
 }

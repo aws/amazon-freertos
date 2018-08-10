@@ -351,7 +351,6 @@
                     <state>$PROJ_DIR$/../common/application_code/nxp_code</state>
                     <state>$PROJ_DIR$/../common/config_files</state>
                     <state>$PROJ_DIR$/../../../common/include</state>
-                    <state>$PROJ_DIR$/../../../common/secure_sockets/portable/nxp/lpc54018iotmodule</state>
                     <state>$PROJ_DIR$/../../../../lib/third_party/unity/src</state>
                     <state>$PROJ_DIR$/../../../../lib/third_party/unity/extras/fixture/src</state>
                     <state>$PROJ_DIR$/../../../../lib/third_party/mcu_vendor/nxp/LPC54018</state>
@@ -1174,9 +1173,6 @@
                 <name>secure_sockets</name>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\common\secure_sockets\aws_test_tcp.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\common\secure_sockets\portable\nxp\lpc54018iotmodule\aws_test_tcp_portable.h</name>
                 </file>
             </group>
             <group>

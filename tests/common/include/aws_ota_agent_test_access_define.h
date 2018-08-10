@@ -37,18 +37,19 @@
 
 IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,
                                             const char * pacRawMsg,
-                                            u32 iMsgSize )
+                                            u32 iMsgSize,
+                                            OTA_Err_t * pxCloseResult )
 {
-    return prvIngestDataBlock( C, pacRawMsg, iMsgSize );
+    return prvIngestDataBlock( C, pacRawMsg, iMsgSize, pxCloseResult );
 }
 
 
 /*-----------------------------------------------------------*/
 
-OTA_FileContext_t * TEST_OTA_prvParseJobDocFromJSON( const char * pacRawMsg,
-                                                     u32 iMsgLen )
+OTA_FileContext_t * TEST_OTA_prvParseJobDoc( const char * pacRawMsg,
+                                             u32 iMsgLen )
 {
-    return prvParseJobDocFromJSON( pacRawMsg, iMsgLen );
+    return prvParseJobDoc( pacRawMsg, iMsgLen );
 }
 
 /*-----------------------------------------------------------*/
@@ -56,6 +57,15 @@ OTA_FileContext_t * TEST_OTA_prvParseJobDocFromJSON( const char * pacRawMsg,
 bool_t TEST_OTA_prvOTA_Close( OTA_FileContext_t * const C )
 {
     return prvOTA_Close( C );
+}
+
+/*-----------------------------------------------------------*/
+
+DocParseErr_t TEST_OTA_prvParseJSONbyModel( const char * pcJSON,
+                                            uint32_t ulMsgLen,
+                                            JSON_DocModel_t * pxDocModel )
+{
+    return prvParseJSONbyModel( pcJSON, ulMsgLen, pxDocModel );
 }
 
 #endif /* _AWS_OTA_AGENT_TEST_ACCESS_DEFINE_H_ */

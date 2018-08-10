@@ -31,11 +31,7 @@
 #define testrunnerUNSUPPORTED               0
 
 /* Unsupported tests. */
-/* clang-format off */
-#define testrunnerFULL_OTA_CBOR_ENABLED     testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_AGENT_ENABLED    testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_PAL_ENABLED      testrunnerUNSUPPORTED
-/* clang-format on */
+#define testrunnerFULL_OTA_CBOR_ENABLED            testrunnerUNSUPPORTED
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
 
@@ -45,9 +41,9 @@
 #endif
 
 /* clang-format off */
-#define testrunnerFULL_CBOR_ENABLED                1
+#define testrunnerFULL_CBOR_ENABLED                0
 #define testrunnerFULL_CRYPTO_ENABLED              0
-#define testrunnerFULL_DEFENDER_ENABLED            1
+#define testrunnerFULL_DEFENDER_ENABLED            0
 #define testrunnerFULL_GGD_ENABLED                 0
 #define testrunnerFULL_GGD_HELPER_ENABLED          0
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
@@ -58,8 +54,10 @@
 #define testrunnerFULL_PKCS11_ENABLED              0
 #define testrunnerFULL_POSIX_ENABLED               0
 #define testrunnerFULL_SHADOW_ENABLED              0
-#define testrunnerFULL_TCP_ENABLED                 0
+#define testrunnerFULL_TCP_ENABLED                 1
 #define testrunnerFULL_TLS_ENABLED                 0
-/* clang-format off */
+#define testrunnerFULL_OTA_AGENT_ENABLED           0
+#define testrunnerFULL_OTA_PAL_ENABLED             0
+#define testrunnerOTA_UPDATE_DEMO                  0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

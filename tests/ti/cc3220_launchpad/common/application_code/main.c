@@ -158,7 +158,7 @@ void vApplicationDaemonTaskStartupHook( void )
 /* ----------------------------------------------------------*/
 
 /**
- * @brief Connect the Wi-Fi acess point specifed in aws_clientcredential.h
+ * @brief Connect the Wi-Fi access point specifed in aws_clientcredential.h
  *
  */
 static void prvWifiConnect( void )
@@ -192,7 +192,7 @@ static void prvWifiConnect( void )
     }
     else
     {
-        configPRINTF( ( "Wi-Fi failed to connect to AP.\r\n" ) );
+        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", clientcredentialWIFI_SSID) );
 
         /* Delay to allow the lower priority logging task to print the above status. */
         vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );

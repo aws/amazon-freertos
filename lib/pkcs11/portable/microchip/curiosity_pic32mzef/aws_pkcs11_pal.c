@@ -1,7 +1,7 @@
 /*
  * Copyright 2017 Microchip Technology Incorporated and its subsidiaries.
  *
- * Amazon FreeRTOS PKCS#11 for Curiosity PIC32MZEF V1.0.2
+ * Amazon FreeRTOS PKCS#11 for Curiosity PIC32MZEF V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -205,7 +205,7 @@ BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
  * @return pdTRUE if data was retrieved successfully from files,
  * pdFALSE otherwise.
  */
-BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
+BaseType_t PKCS11_PAL_ReadFile( const char * pcFileName,
                                 uint8_t ** ppucData,
                                 uint32_t * pulDataSize )
 {

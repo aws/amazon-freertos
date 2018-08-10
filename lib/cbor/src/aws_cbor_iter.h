@@ -33,7 +33,7 @@
 #include "aws_cbor.h"
 #include <stdint.h>
 
-cbor_byte_t *CBOR_NextPtr(const cbor_byte_t *pxPtr);
+cbor_byte_t * CBOR_NextPtr( const cbor_byte_t * pxPtr );
 
 /**
  * @brief Iterates to the next CBOR data item.
@@ -42,9 +42,9 @@ cbor_byte_t *CBOR_NextPtr(const cbor_byte_t *pxPtr);
  *
  * @param cbor_handle_t Handle for the CBOR data struct.
  */
-void CBOR_Next(cbor_handle_t /*cbor_data*/);
+void CBOR_Next( cbor_handle_t /*cbor_data*/ );
 
-cbor_byte_t *CBOR_NextKeyPtr(const cbor_byte_t *pxPtr);
+cbor_byte_t * CBOR_NextKeyPtr( const cbor_byte_t * pxPtr );
 
 /**
  * @brief Iterates to the next key in a map.
@@ -53,7 +53,7 @@ cbor_byte_t *CBOR_NextKeyPtr(const cbor_byte_t *pxPtr);
  *
  * @param cbor_handle_t Handle for the CBOR data struct.
  */
-void CBOR_NextKey(cbor_handle_t /*cbor_data*/);
+void CBOR_NextKey( cbor_handle_t /*cbor_data*/ );
 
 /**
  * @brief Sets cursor at a specific postion in the CBOR buffer
@@ -63,6 +63,6 @@ void CBOR_NextKey(cbor_handle_t /*cbor_data*/);
  * @param cbor_handle_t Handle for the CBOR data struct.
  * @param cbor_ssize_t Position to move the cursor to.
  */
-void CBOR_SetCursor(cbor_handle_t /*cbor_data*/, cbor_ssize_t /*pos*/);
+void CBOR_SetCursor( cbor_handle_t /*cbor_data*/, cbor_ssize_t /*pos*/ );
 
 #endif /* end of include guard: AWS_CBOR_ITER_H */

@@ -24,15 +24,15 @@
  */
 #include "aws_defender_tcp_conn.h"
 
-int        DEFENDER_current_tcp_conn_count;
+int DEFENDER_current_tcp_conn_count;
 static int DEFENDER_tcp_conn_count;
 
-int DEFENDER_TcpConnGet(void)
+int DEFENDER_TcpConnGet( void )
 {
     return DEFENDER_tcp_conn_count;
 }
 
-void DEFENDER_TcpConnRefresh(void)
+void DEFENDER_TcpConnRefresh( void )
 {
     DEFENDER_tcp_conn_count = DEFENDER_current_tcp_conn_count;
 }

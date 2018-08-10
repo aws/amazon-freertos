@@ -36,19 +36,20 @@
 /**
  * @brief Pointer to a CBOR Data Struct
  */
-struct CborData_s {
+struct CborData_s
+{
     /** Start of the CBOR data buffer */
-    cbor_byte_t *buffer_start;
+    cbor_byte_t * buffer_start;
     /** End of the allocated space for the CBOR buffer */
-    cbor_byte_t *buffer_end;
+    cbor_byte_t * buffer_end;
 
     /**
      * End of the space used by the CBOR buffer
      * map_end - buffer_start + 1 = buffer_length
      * buffer_end - map_end = space remaining */
-    cbor_byte_t *map_end;
+    cbor_byte_t * map_end;
     /** Current position of read/write cursor */
-    cbor_byte_t *cursor;
+    cbor_byte_t * cursor;
     /** Current error code status */
     cbor_err_t err;
 };

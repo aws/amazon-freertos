@@ -34,6 +34,7 @@
 
 /* Credential includes. */
 #include "aws_clientcredential.h"
+#include "aws_test_tls.h"
 
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"

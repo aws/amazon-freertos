@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.0
+ * Amazon FreeRTOS Device Defender Agent V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,26 +24,28 @@
  */
 #include "aws_defender_internals.h"
 
-static struct defender_metric_s xDEFENDER_tcp_connections_s = {
+static struct defender_metric_s xDEFENDER_tcp_connections_s =
+{
     DEFENDER_TcpConnRefresh,
     DEFENDER_TcpConnReportGet,
 };
 
 DefenderMetric_t pxDEFENDER_tcp_connections = &xDEFENDER_tcp_connections_s;
 
-cbor_handle_t DEFENDER_TcpConnReportGet(void)
+cbor_handle_t DEFENDER_TcpConnReportGet( void )
 {
-    cbor_handle_t pxEst_conn = CBOR_New(0);
-    CBOR_AssignKeyWithInt(pxEst_conn, DEFENDER_total_tag, DEFENDER_TcpConnGet());
+    cbor_handle_t pxEst_conn = CBOR_New( 0 );
 
-    cbor_handle_t pxTcp_conn_metrics = CBOR_New(0);
-    CBOR_AssignKeyWithMap(pxTcp_conn_metrics, DEFENDER_est_conn_tag, pxEst_conn);
-    CBOR_Delete(&pxEst_conn);
+    CBOR_AssignKeyWithInt( pxEst_conn, DEFENDER_total_tag, DEFENDER_TcpConnGet() );
 
-    cbor_handle_t pxTcp_conn_report = CBOR_New(0);
+    cbor_handle_t pxTcp_conn_metrics = CBOR_New( 0 );
+    CBOR_AssignKeyWithMap( pxTcp_conn_metrics, DEFENDER_est_conn_tag, pxEst_conn );
+    CBOR_Delete( &pxEst_conn );
+
+    cbor_handle_t pxTcp_conn_report = CBOR_New( 0 );
     CBOR_AssignKeyWithMap(
-        pxTcp_conn_report, DEFENDER_tcp_conn_tag, pxTcp_conn_metrics);
-    CBOR_Delete(&pxTcp_conn_metrics);
+        pxTcp_conn_report, DEFENDER_tcp_conn_tag, pxTcp_conn_metrics );
+    CBOR_Delete( &pxTcp_conn_metrics );
 
     return pxTcp_conn_report;
 }

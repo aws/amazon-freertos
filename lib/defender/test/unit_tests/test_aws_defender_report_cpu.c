@@ -29,65 +29,68 @@
 
 extern int DEFENDER_current_load;
 
-TEST_GROUP(aws_defender_report_cpu);
+TEST_GROUP( aws_defender_report_cpu );
 
-TEST_SETUP(aws_defender_report_cpu)
+TEST_SETUP( aws_defender_report_cpu )
 {
 }
 
-TEST_TEAR_DOWN(aws_defender_report_cpu)
+TEST_TEAR_DOWN( aws_defender_report_cpu )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_report_cpu)
+TEST_GROUP_RUNNER( aws_defender_report_cpu )
 {
-    RUN_TEST_CASE(aws_defender_report_cpu, CpuGet_has_cpu_with_integer_result);
-    RUN_TEST_CASE(aws_defender_report_cpu, CpuGet_returns_result_from_LoadGet);
+    RUN_TEST_CASE( aws_defender_report_cpu, CpuGet_has_cpu_with_integer_result );
+    RUN_TEST_CASE( aws_defender_report_cpu, CpuGet_returns_result_from_LoadGet );
     RUN_TEST_CASE(
-        aws_defender_report_cpu, CpuGet_updates_when_cpu_stat_refreshes);
+        aws_defender_report_cpu, CpuGet_updates_when_cpu_stat_refreshes );
     RUN_TEST_CASE(
-        aws_defender_report_cpu, CpuGet_remains_unchanged_unless_refreshed);
+        aws_defender_report_cpu, CpuGet_remains_unchanged_unless_refreshed );
 }
 
-TEST(aws_defender_report_cpu, CpuGet_has_cpu_with_integer_result)
+TEST( aws_defender_report_cpu, CpuGet_has_cpu_with_integer_result )
 {
     cbor_handle_t cpu_metric = DEFENDER_CpuReportGet();
-    (void)CBOR_FromKeyReadInt(cpu_metric, "cpu");
-    eCBOR_ERR_t err = CBOR_CheckError(cpu_metric);
-    CBOR_Delete(&cpu_metric);
-    TEST_ASSERT_EQUAL(eCBOR_ERR_NO_ERROR, err);
+
+    ( void ) CBOR_FromKeyReadInt( cpu_metric, "cpu" );
+    eCBOR_ERR_t err = CBOR_CheckError( cpu_metric );
+    CBOR_Delete( &cpu_metric );
+    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, err );
 }
 
-TEST(aws_defender_report_cpu, CpuGet_returns_result_from_LoadGet)
+TEST( aws_defender_report_cpu, CpuGet_returns_result_from_LoadGet )
 {
     cbor_handle_t cpu_metric = DEFENDER_CpuReportGet();
-    cbor_int_t    actual     = CBOR_FromKeyReadInt(cpu_metric, "cpu");
-    int           expected   = DEFENDER_CpuLoadGet();
-    CBOR_Delete(&cpu_metric);
-    TEST_ASSERT_EQUAL(expected, actual);
+    cbor_int_t actual = CBOR_FromKeyReadInt( cpu_metric, "cpu" );
+    int expected = DEFENDER_CpuLoadGet();
+
+    CBOR_Delete( &cpu_metric );
+    TEST_ASSERT_EQUAL( expected, actual );
 }
 
-TEST(aws_defender_report_cpu, CpuGet_updates_when_cpu_stat_refreshes)
+TEST( aws_defender_report_cpu, CpuGet_updates_when_cpu_stat_refreshes )
 {
     DEFENDER_current_load++;
     DEFENDER_CpuLoadRefresh();
 
-    int           expected   = DEFENDER_current_load;
+    int expected = DEFENDER_current_load;
     cbor_handle_t cpu_metric = DEFENDER_CpuReportGet();
-    cbor_int_t    actual     = CBOR_FromKeyReadInt(cpu_metric, "cpu");
-    CBOR_Delete(&cpu_metric);
+    cbor_int_t actual = CBOR_FromKeyReadInt( cpu_metric, "cpu" );
+    CBOR_Delete( &cpu_metric );
 
-    TEST_ASSERT_EQUAL(expected, actual);
+    TEST_ASSERT_EQUAL( expected, actual );
 }
 
-TEST(aws_defender_report_cpu, CpuGet_remains_unchanged_unless_refreshed)
+TEST( aws_defender_report_cpu, CpuGet_remains_unchanged_unless_refreshed )
 {
     int expected = DEFENDER_current_load;
+
     DEFENDER_current_load++;
 
     cbor_handle_t cpu_metric = DEFENDER_CpuReportGet();
-    cbor_int_t    actual     = CBOR_FromKeyReadInt(cpu_metric, "cpu");
-    CBOR_Delete(&cpu_metric);
+    cbor_int_t actual = CBOR_FromKeyReadInt( cpu_metric, "cpu" );
+    CBOR_Delete( &cpu_metric );
 
-    TEST_ASSERT_EQUAL(expected, actual);
+    TEST_ASSERT_EQUAL( expected, actual );
 }

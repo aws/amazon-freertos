@@ -37,15 +37,9 @@
  * not part of the library interface but are included here for testability.
  */
 #define OTA_CBOR_CLIENTTOKEN_KEY          "c"
-#ifdef INCLUDE_STREAM_VERSION_PARAM
-    #define OTA_CBOR_STREAMVERSION_KEY    "s"
-#endif
 #define OTA_CBOR_FILEID_KEY               "f"
 #define OTA_CBOR_BLOCKSIZE_KEY            "l"
 #define OTA_CBOR_BLOCKOFFSET_KEY          "o"
-#ifdef INCLUDE_BLOCK_COUNT_PARAM
-    #define OTA_CBOR_BLOCKCOUNT_KEY       "n"
-#endif
 #define OTA_CBOR_BLOCKBITMAP_KEY          "b"
 #define OTA_CBOR_STREAMDESCRIPTION_KEY    "d"
 #define OTA_CBOR_STREAMFILES_KEY          "r"

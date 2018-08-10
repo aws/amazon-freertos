@@ -24,11 +24,11 @@
  */
 #include "aws_defender_uptime.h"
 
-int DEFENDER_UptimeSecondsGet(void)
+int DEFENDER_UptimeSecondsGet( void )
 {
     return 0;
 }
 
-void DEFENDER_UptimeRefresh(void)
+void DEFENDER_UptimeRefresh( void )
 {
 }

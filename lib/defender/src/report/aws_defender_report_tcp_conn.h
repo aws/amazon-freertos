@@ -28,10 +28,10 @@
 #include "aws_cbor.h"
 #include "aws_defender_report_utils.h"
 
-#define DEFENDER_tcp_conn_tag DEFENDER_SelectTag("tcp_connections", "tc")
-#define DEFENDER_est_conn_tag                                                  \
-    DEFENDER_SelectTag("established_connections", "ec")
+#define DEFENDER_tcp_conn_tag    DEFENDER_SelectTag( "tcp_connections", "tc" )
+#define DEFENDER_est_conn_tag \
+    DEFENDER_SelectTag( "established_connections", "ec" )
 
-cbor_handle_t DEFENDER_TcpConnReportGet(void);
+cbor_handle_t DEFENDER_TcpConnReportGet( void );
 
 #endif /* end of include guard: AWS_DEFENDER_REPORT_TCP_CONN_H */

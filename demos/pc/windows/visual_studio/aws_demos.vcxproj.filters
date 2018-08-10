@@ -106,6 +106,21 @@
     <Filter Include="lib\aws\include\private">
       <UniqueIdentifier>{322d7873-75b0-487b-9128-2efdcaf52868}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\cbor">
+      <UniqueIdentifier>{3324cc96-1b02-4a5e-8f4b-1569c046176d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\defender">
+      <UniqueIdentifier>{769267e3-0b83-4f0e-8a3f-73d9049dd116}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\defender\metrics">
+      <UniqueIdentifier>{5e2639d3-1f9a-42c8-9f70-0b6d25b1e71f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\defender\portable">
+      <UniqueIdentifier>{e54c5813-1e97-4998-beb2-ae0380acc18a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\defender\report">
+      <UniqueIdentifier>{f2f71a82-8d57-4359-9678-c0932eb431d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c">
@@ -378,9 +393,6 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcSnapshotRecorder.c">
       <Filter>lib\third_party\tracealyzer_recorder</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_rsprintf.c">
-      <Filter>lib\aws\ota</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
@@ -497,6 +509,60 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c">
       <Filter>lib\aws\pkcs11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\defender\aws_defender_demo.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor.c">
+      <Filter>lib\aws\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_alloc.c">
+      <Filter>lib\aws\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_int.c">
+      <Filter>lib\aws\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_iter.c">
+      <Filter>lib\aws\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_map.c">
+      <Filter>lib\aws\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_mem.c">
+      <Filter>lib\aws\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_print.c">
+      <Filter>lib\aws\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_string.c">
+      <Filter>lib\aws\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\aws_defender.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_tcp_conn.c">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_uptime.c">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report.c">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_cpu.c">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_header.c">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_cpu.c">
+      <Filter>lib\aws\defender\portable</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_tcp_conn.c">
+      <Filter>lib\aws\defender\portable</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_uptime.c">
+      <Filter>lib\aws\defender\portable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -938,9 +1004,6 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_rsprintf.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
@@ -985,8 +1048,84 @@
     </ClInclude>
     <ClInclude Include="..\common\config_files\aws_pkcs11_config.h">
       <Filter>config_files</Filter>
-    </ClInclude>    <ClInclude Include="..\..\..\common\include\aws_application_version.h">
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_application_version.h">
       <Filter>application_code\common_demos\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_ota_agent_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_defender_demo.h">
+      <Filter>application_code\common_demos\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_alloc.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_int.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_internals.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_iter.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_jump_table.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_map.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_mem.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_print.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_string.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h">
+      <Filter>lib\aws\cbor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\aws_defender_internals.h">
+      <Filter>lib\aws\defender</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\aws_defender.h">
+      <Filter>lib\aws\defender</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_header.h">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_tcp_conn.h">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_types.h">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_uptime.h">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_utils.h">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report.h">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_cpu.h">
+      <Filter>lib\aws\defender\report</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_cpu.h">
+      <Filter>lib\aws\defender\metrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_tcp_conn.h">
+      <Filter>lib\aws\defender\metrics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_uptime.h">
+      <Filter>lib\aws\defender\metrics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -54,6 +54,7 @@ BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
                                 uint32_t ulDataSize )
 {
     /* FIX ME. */
+    return pdFALSE;
 }
 
 /**
@@ -75,6 +76,7 @@ BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
                                 uint32_t * pulDataSize )
 {
     /* FIX ME. */
+    return pdFALSE;
 }
 
 /**

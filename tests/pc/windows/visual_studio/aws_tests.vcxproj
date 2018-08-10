@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -8,7 +8,7 @@
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
+    </ProjectConfiguration> 
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -58,7 +58,7 @@
       <PreprocessorDefinitions>WIN32;UNIT_TESTS;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalUsingDirectories>
       </AdditionalUsingDirectories>
-      <AdditionalIncludeDirectories>..\..\..\..\lib\cbor\src;..\common\config_files;..\..\..\..\lib\third_party\win_pcap;..\common\application_code\include;..\..\..\..\tests\common\include;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\unity\src;..\..\..\..\demos\common\include;..\..\..\..\demos\pc\windows\common\application_code;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\ota;..\..\..\..\lib\ota\portable\pc\windows;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\tracealyzer_recorder\Include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\pc\windows;..\..\..\..\lib\defender\src\portable\free_rtos;..\..\..\..\lib\defender\src\metrics;..\..\..\..\lib\defender\src\report;..\..\..\..\lib\defender\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\lib\cbor\src;..\common\config_files;..\..\..\..\lib\third_party\win_pcap;..\common\application_code\include;..\..\..\..\tests\common\include;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\unity\src;..\..\..\..\demos\common\include;..\..\..\..\demos\pc\windows\common\application_code;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\ota;..\..\..\..\lib\ota\portable\pc\windows;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\tracealyzer_recorder\Include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\pc\windows;..\..\..\..\lib\defender\src\portable\free_rtos;..\..\..\..\lib\defender\src\metrics;..\..\..\..\lib\defender\src\report;..\..\..\..\lib\defender\src;..\..\..\..\tests\common\ota;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
     </ClCompile>
@@ -152,15 +152,12 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_default_root_certificates.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_doubly_linked_list.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ggd_config_defaults.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_greengrass_lib_private.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_helper_secure_connect.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_lib_init.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_agent_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_buffer.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_lib_private.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_rsprintf.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_json.h" />
@@ -249,12 +246,14 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\x509_crt.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\x509_csr.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\xtea.h" />
+    <ClInclude Include="..\..\..\common\include\aws_application_version.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential_keys.h" />
     <ClInclude Include="..\..\..\common\include\aws_logging_task.h" />
     <ClInclude Include="..\..\..\common\include\aws_test_framework.h" />
     <ClInclude Include="..\..\..\Common\include\aws_test_runner.h" />
     <ClInclude Include="..\..\..\common\include\aws_test_tcp.h" />
+    <ClInclude Include="..\..\..\common\ota\aws_test_ota_pal_rsa_sha256_signature.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\cmock\src\cmock.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture_internals.h" />
@@ -266,9 +265,11 @@
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
+    <ClInclude Include="..\common\config_files\aws_ota_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_pkcs11_config.h" />
     <ClInclude Include="..\common\config_files\aws_secure_sockets_config.h" />
     <ClInclude Include="..\common\config_files\aws_shadow_config.h" />
+    <ClInclude Include="..\common\config_files\aws_test_ota_config.h" />
     <ClInclude Include="..\common\config_files\aws_test_pkcs11_config.h" />
     <ClInclude Include="..\common\config_files\aws_test_runner_config.h" />
     <ClInclude Include="..\common\config_files\aws_test_tcp_config.h" />
@@ -280,6 +281,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\demos\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
+    <ClCompile Include="..\..\..\..\demos\common\ota\aws_ota_update_demo.c" />
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_demo_logging.c" />
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_entropy_hardware_poll.c" />
     <ClCompile Include="..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c" />
@@ -338,11 +340,8 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_lib.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
-    <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_rsprintf.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
@@ -442,7 +441,7 @@
     <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_lib.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_cbor.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_agent.c" />
-    <ClCompile Include="..\..\..\common\ota\aws_test_pal.c" />
+    <ClCompile Include="..\..\..\common\ota\aws_test_ota_pal.c" />
     <ClCompile Include="..\..\..\common\pkcs11\aws_test_pkcs11.c" />
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_clock.c" />
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_mqueue.c" />
@@ -463,12 +462,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\lib\third_party\mbedtls\library\Makefile" />
-    <None Include="..\..\..\Common\CBOR\testFiles\CC3220_Launchpad_CCS_Demo.bin">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\..\common\ota\test_files\texasInstrumentsPlaygroundSigner.pem" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

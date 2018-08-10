@@ -208,7 +208,7 @@
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/source</name>
 			<type>2</type>
-			<locationURI>$%7BBASE_DIR_ROOT%7D/lib/FreeRTOS-Plus-POSIX/source</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/source</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/ota/aws_ota_agent.c</name>
@@ -219,11 +219,6 @@
 			<name>lib/aws/ota/aws_ota_cbor.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_cbor.c</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/ota/aws_rsprintf.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/ota/aws_rsprintf.c</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/pkcs11/aws_pkcs11_pal.c</name>
@@ -253,7 +248,7 @@
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h</name>
 			<type>1</type>
-			<locationURI>$%7BBASE_DIR_ROOT%7D/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h</name>
@@ -263,12 +258,12 @@
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable.h</name>
 			<type>1</type>
-			<locationURI>$%7BBASE_DIR_ROOT%7D/lib/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad/FreeRTOS_POSIX_portable.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad/FreeRTOS_POSIX_portable.h</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable_default.h</name>
 			<type>1</type>
-			<locationURI>$%7BBASE_DIR_ROOT%7D/lib/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx</name>

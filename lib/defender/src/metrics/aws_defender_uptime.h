@@ -25,7 +25,7 @@
 #ifndef AWS_DEFENDER_UPTIME_H
 #define AWS_DEFENDER_UPTIME_H
 
-int  DEFENDER_UptimeSecondsGet(void);
-void DEFENDER_UptimeRefresh(void);
+int DEFENDER_UptimeSecondsGet( void );
+void DEFENDER_UptimeRefresh( void );
 
 #endif /* end of include guard: AWS_DEFENDER_UPTIME_H */

@@ -1165,6 +1165,9 @@
             <name>$PROJ_DIR$\..\common\config_files\aws_mqtt_config.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\common\config_files\aws_ota_agent_config.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\common\config_files\aws_secure_sockets_config.h</name>
         </file>
         <file>
@@ -1485,9 +1488,6 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\ota\portable\ti\cc3220_launchpad\aws_ota_pal.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\..\..\..\lib\ota\aws_rsprintf.c</name>
                 </file>
             </group>
             <group>

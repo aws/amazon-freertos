@@ -28,11 +28,11 @@
 #include "aws_cbor.h"
 #include "aws_defender_report_utils.h"
 
-#define DEFENDER_header_tag DEFENDER_SelectTag("header", "hed")
-#define DEFENDER_metrics_tag DEFENDER_SelectTag("metrics", "met")
-#define DEFENDER_total_tag DEFENDER_SelectTag("total", "t")
+#define DEFENDER_header_tag     DEFENDER_SelectTag( "header", "hed" )
+#define DEFENDER_metrics_tag    DEFENDER_SelectTag( "metrics", "met" )
+#define DEFENDER_total_tag      DEFENDER_SelectTag( "total", "t" )
 
-cbor_handle_t DEFENDER_CreateReport(void);
+cbor_handle_t DEFENDER_CreateReport( void );
 
 #endif /* ifndef AWS_DEFENDER_REPORT_H */
 

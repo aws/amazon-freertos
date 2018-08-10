@@ -54,7 +54,7 @@
 #define i8 int8_t
 #endif
 #ifndef bool_t
-#define bool_t u8
+#define bool_t uint8_t
 #endif
 #ifndef true
 #define true 1

@@ -39,10 +39,16 @@
 
 IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,
                                             const char * pacRawMsg,
-                                            u32 iMsgSize );
-OTA_FileContext_t * TEST_OTA_prvParseJobDocFromJSON( const char * pacRawMsg,
-                                                     u32 iMsgLen );
+                                            u32 iMsgSize,
+                                            OTA_Err_t * pxCloseResult );
+
+OTA_FileContext_t * TEST_OTA_prvParseJobDoc( const char * pacRawMsg,
+                                             u32 iMsgLen );
 
 bool_t TEST_OTA_prvOTA_Close( OTA_FileContext_t * const C );
+
+DocParseErr_t TEST_OTA_prvParseJSONbyModel( const char * pcJSON,
+                                            uint32_t ulMsgLen,
+                                            JSON_DocModel_t * pxDocModel );
 
 #endif /* ifndef _AWS_OTA_AGENT_TEST_ACCESS_DECLARE_H_ */

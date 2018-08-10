@@ -495,12 +495,6 @@
     <ClInclude Include="..\common\config_files\unity_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_greengrass_lib_private.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_lib_private.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW\portmacro.h">
       <Filter>lib\aws\FreeRTOS\portable\MSVC-Ming</Filter>
     </ClInclude>
@@ -606,9 +600,6 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_rsprintf.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
@@ -693,6 +684,18 @@
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_iter.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_test_ota_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_ota_agent_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_application_version.h">
+      <Filter>application_code\common_tests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\ota\aws_test_ota_pal_rsa_sha256_signature.h">
+      <Filter>application_code\common_tests\ota</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\FreeRTOS_POSIX.h">
       <Filter>lib\aws\FreeRTOS-Plus-POSIX\include</Filter>
     </ClInclude>
@@ -764,6 +767,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_utils.h">
       <Filter>lib\aws\defender\report</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\signal.h">
       <Filter>lib\aws\include\FreeRTOS_POSIX</Filter>
     </ClInclude>
@@ -1069,9 +1073,6 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_rsprintf.c">
-      <Filter>lib\aws\ota</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c">
       <Filter>lib\aws\bufferpool</Filter>
     </ClCompile>
@@ -1089,9 +1090,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_demo_logging.c">
       <Filter>application_code</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c">
-      <Filter>lib\aws\ota</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW\port.c">
       <Filter>lib\aws\FreeRTOS\portable\MSVC-Ming</Filter>
@@ -1129,7 +1127,7 @@
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_agent.c">
       <Filter>application_code\common_tests\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\ota\aws_test_pal.c">
+    <ClCompile Include="..\..\..\common\ota\aws_test_ota_pal.c">
       <Filter>application_code\common_tests\ota</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\pkcs11\aws_test_pkcs11.c">
@@ -1173,6 +1171,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c">
+      <Filter>lib\aws\ota</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c">
       <Filter>lib\aws\pkcs11</Filter>
@@ -1297,16 +1298,13 @@
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_semaphore.c">
       <Filter>application_code\common_tests\posix</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\demos\common\ota\aws_ota_update_demo.c">
+      <Filter>application_code\common_tests\ota</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\lib\third_party\mbedtls\library\Makefile">
       <Filter>lib\third_party\mbedtls\library</Filter>
-    </None>
-    <None Include="..\..\..\Common\CBOR\testFiles\CC3220_Launchpad_CCS_Demo.bin">
-      <Filter>application_code\common_tests\ota\test_files</Filter>
-    </None>
-    <None Include="..\..\..\common\ota\test_files\texasInstrumentsPlaygroundSigner.pem">
-      <Filter>application_code\common_tests\ota\test_files</Filter>
     </None>
   </ItemGroup>
 </Project>

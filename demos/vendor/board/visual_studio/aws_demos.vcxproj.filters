@@ -103,6 +103,12 @@
     <Filter Include="lib\aws\FreeRTOS\portable\Compiler\Arch">
       <UniqueIdentifier>{64601a7f-d56f-4f1b-ada9-a4b59db8bb11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\ota">
+      <UniqueIdentifier>{11600a5d-1f92-4c90-af81-643a5f68b90d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\third_party\tinycbor">
+      <UniqueIdentifier>{89320ef2-a4f6-4450-b6c0-927d3660d1dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c">
@@ -452,6 +458,36 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c">
       <Filter>lib\aws\pkcs11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\portable\vendor\board\aws_ota_pal.c">
+      <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
+      <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c">
+      <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborencoder.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborencoder_close_container_checked.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborerrorstrings.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborparser.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborparser_dup_string.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborpretty.c">
+      <Filter>lib\third_party\tinycbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\ota\aws_ota_update_demo.c">
+      <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -860,9 +896,6 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_rsprintf.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
@@ -913,6 +946,12 @@
     </ClInclude>
     <ClInclude Include="..\common\config_files\aws_pkcs11_config.h">
       <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_ota_agent_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_application_version.h">
+      <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

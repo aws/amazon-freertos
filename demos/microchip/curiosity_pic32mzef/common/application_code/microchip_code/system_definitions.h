@@ -110,7 +110,7 @@ typedef struct
     SYS_MODULE_OBJ  sysConsole0;
     SYS_MODULE_OBJ  sysDma;
     /*** SPI Object for Index 0 ***/
-    SYS_MODULE_OBJ				spiObjectIdx0;
+    SYS_MODULE_OBJ	spiObjectIdx0;
     SYS_MODULE_OBJ  tcpip;
     SYS_MODULE_OBJ  drvMiim;
 

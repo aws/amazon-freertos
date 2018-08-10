@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Update Demo V1.3.0
+Amazon FreeRTOS OTA Update Demo V0.9.5
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,16 +59,27 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "aws_demo_config.h"
 #include "aws_application_version.h"
 
-static void App_OTACompleteCallback(OTA_ImageState_t eState );
+static void App_OTACompleteCallback(OTA_JobEvent_t eEvent );
 
 /*-----------------------------------------------------------*/
 
+#define myappONE_SECOND_DELAY_IN_TICKS      pdMS_TO_TICKS( 1000UL )     /* One second delay value for calls to vTaskDelay(). */
+#define myappMAX_AWS_CONNECT_WAIT_IN_TICKS  pdMS_TO_TICKS( 60000UL )    /* Wait a maximum of 60 seconds to connect to the AWS IoT broker. */
+#define myappMAX_AWS_DISCONNECT_WAIT_IN_TICKS pdMS_TO_TICKS( 60000UL )  /* Wait a maximum of 60 seconds to disconnect from the AWS IoT broker. */
+
+static const char *pcStateStr[eOTA_NumAgentStates] =
+{
+     "Not Ready",
+     "Ready",
+     "Active",
+     "Shutting down"
+};
 
 void vOTAUpdateDemoTask( void * pvParameters )
 {
-    const TickType_t xMaxCommandTime = pdMS_TO_TICKS( 60000UL );
     MQTTAgentConnectParams_t xConnectParams;
     MQTTAgentHandle_t xMQTTClientHandle;
+    OTA_State_t eState;
 
 /* Remove compiler warnings about unused parameters. */
     ( void ) pvParameters;
@@ -82,7 +93,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
     /* Create the MQTT Client. */
     if( MQTT_AGENT_Create( &( xMQTTClientHandle ) ) == eMQTTAgentSuccess )
     {
-        for (;;)
+        for ( ; ; )
         {
             configPRINTF( ( "Connecting to broker...\r\n" ) );
             memset( &xConnectParams, 0, sizeof( xConnectParams ) );
@@ -97,23 +108,33 @@ void vOTAUpdateDemoTask( void * pvParameters )
             xConnectParams.xFlags = democonfigMQTT_AGENT_CONNECT_FLAGS;
 
             /* Connect to the broker. */
-            if( MQTT_AGENT_Connect( xMQTTClientHandle, &( xConnectParams ), xMaxCommandTime ) == eMQTTAgentSuccess )
+            if( MQTT_AGENT_Connect( xMQTTClientHandle, &( xConnectParams ), myappMAX_AWS_CONNECT_WAIT_IN_TICKS ) == eMQTTAgentSuccess )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
-                OTA_AgentInit( xMQTTClientHandle, App_OTACompleteCallback, ( TickType_t ) ~0 );
+                OTA_AgentInit( xMQTTClientHandle, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
 
-                while( OTA_GetAgentState() == eOTA_AgentState_Ready )
+                while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_NotReady )
                 {
-                    /* Wait forever for OTA traffic but allow other tasks to run. */
-                    vTaskDelay( 1000 );
-                    configPRINTF( ( "[OTA] Queued: %u   Processed: %u   Dropped: %u\r\n", OTA_GetPacketsQueued(),
-                                    OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
+                    /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
+                    vTaskDelay( myappONE_SECOND_DELAY_IN_TICKS );
+                    configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pcStateStr[eState],
+                            OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
+                }
+                if ( MQTT_AGENT_Disconnect( xMQTTClientHandle, myappMAX_AWS_DISCONNECT_WAIT_IN_TICKS ) == eMQTTAgentSuccess )
+                {
+                    configPRINTF( ( "Disconnected from MQTT broker\r\n" ) );
+                }
+                else
+                {
+                    configPRINTF( ( "Error trying to disconnect from MQTT broker\r\n" ) );
                 }
             }
             else
             {
                 configPRINTF( ( "ERROR:  MQTT_AGENT_Connect() Failed.\r\n" ) );
             }
+            /* After failure to connect or a disconnect, wait an arbitrary one second before retry. */
+            vTaskDelay( myappONE_SECOND_DELAY_IN_TICKS );
         }
     }
     else
@@ -132,32 +153,39 @@ void vOTAUpdateDemoTask( void * pvParameters )
  * This typically means we should reset the device to run the new firmware.
  * If now is not a good time to reset the device, it may be activated later
  * by your user code. If the update was rejected, just return without doing
- * anything and we'll wait for another job. If it reported that we're in self
- * test mode, normally we would perform some kind of system checks to make
- * sure our new firmware does the basic things we think it should do but
- * we'll just go ahead and set the image as accepted for demo purposes. The
- * accept function varies depending on your platform. Refer to the OTA PAL
- * implementation to see what it does for you.
+ * anything and we'll wait for another job. If it reported that we should
+ * start test mode, normally we would perform some kind of system checks to
+ * make sure our new firmware does the basic things we think it should do
+ * but we'll just go ahead and set the image as accepted for demo purposes.
+ * The accept function varies depending on your platform. Refer to the OTA
+ * PAL implementation for your platform in aws_ota_pal.c to see what it
+ * does for you.
  */
 
-static void App_OTACompleteCallback( OTA_ImageState_t eState )
+static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 {
-    if ( eState == eOTA_ImageState_Accepted )
+    if ( eEvent == eOTA_JobEvent_Activate )
     {
+        configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
         OTA_ActivateNewImage();
     }
-    else if (eState == eOTA_ImageState_Rejected)
+    else if (eEvent == eOTA_JobEvent_Fail)
     {
-        /* Do nothing. */
+        configPRINTF( ( "Received eOTA_JobEvent_Fail callback from OTA Agent.\r\n" ) );
+        /* Nothing special to do. The OTA agent handles it. */
     }
-	else if (eState == eOTA_ImageState_Testing)
+	else if (eEvent == eOTA_JobEvent_StartTest)
 	{
-		/* Skip the self test and just accept the image since it was a good transfer
-		 * and we're just running a demonstration app.
-		 */
+		/* This demo just accepts the image since it was a good OTA update and networking
+		 * and services are all working (or we wouldn't have made it this far). If this
+		 * were some custom device that wants to test other things before calling it OK,
+		 * this would be the place to kick off those tests before calling OTA_SetImageState()
+		 * with the final result of either accepted or rejected. */
+        configPRINTF( ( "Received eOTA_JobEvent_StartTest callback from OTA Agent.\r\n" ) );
 		OTA_SetImageState (eOTA_ImageState_Accepted);
 	}
 }
+
 
 /*-----------------------------------------------------------*/
 

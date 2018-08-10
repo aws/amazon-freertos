@@ -82,7 +82,7 @@ SOFTWARE
 #pragma config POSCMOD =    EC
 #pragma config OSCIOFNC =   OFF
 #pragma config FCKSM =      CSECME
-#pragma config WDTPS =      PS1048576
+#pragma config WDTPS =      PS65536
 #pragma config WDTSPGM =    STOP
 #pragma config FWDTEN =     OFF
 #pragma config WINDIS =     NORMAL
@@ -108,9 +108,9 @@ SOFTWARE
 #pragma config FUSBIDIO =   OFF
 
 /*** BF1SEQ0 ***/
-
 #pragma config TSEQ =       0xffff
-#pragma config CSEQ =       0xffff
+#pragma config CSEQ =       0x0000
+
 // </editor-fold>
 
 // *****************************************************************************

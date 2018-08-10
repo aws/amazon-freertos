@@ -388,7 +388,7 @@ static AWS_BOOT_STATE AWS_State_ExecuteImage(void)
         if(header_flags == AWS_BOOT_FLAG_IMG_NEW)
         {   // first launch of this app
             AWS_BOOT_IMAGE_DCPT copy_dcpt = *app_img_to_exec;
-            copy_dcpt.header.img_flags = AWS_BOOT_FLAG_IMG_TEST;
+            copy_dcpt.header.img_flags = AWS_BOOT_FLAG_IMG_PENDING_COMMIT;
 
 #if ((AWS_BOOT_DEBUG_MASK & AWS_BOOT_DEBUG_LAUNCH_FLAGS) != 0)
             SYS_CONSOLE_PRINT("AWS Launch: Updating the flags: 0x%02x, to: 0x%02x, dcpt: 0x%08x\r\n", header_flags, copy_dcpt.header.img_flags, app_img_to_exec);

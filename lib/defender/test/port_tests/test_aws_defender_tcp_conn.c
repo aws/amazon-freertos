@@ -25,24 +25,24 @@
 #include "aws_defender_tcp_conn.h"
 #include "unity_fixture.h"
 
-TEST_GROUP(aws_defender_tcp_conn);
+TEST_GROUP( aws_defender_tcp_conn );
 
-TEST_SETUP(aws_defender_tcp_conn)
+TEST_SETUP( aws_defender_tcp_conn )
 {
 }
 
-TEST_TEAR_DOWN(aws_defender_tcp_conn)
+TEST_TEAR_DOWN( aws_defender_tcp_conn )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_tcp_conn)
+TEST_GROUP_RUNNER( aws_defender_tcp_conn )
 {
-    RUN_TEST_CASE(aws_defender_tcp_conn, TcpConnCountGet_);
+    RUN_TEST_CASE( aws_defender_tcp_conn, TcpConnCountGet_ );
 }
 
-IGNORE_TEST(aws_defender_tcp_conn, TcpConnCountGet_)
+IGNORE_TEST( aws_defender_tcp_conn, TcpConnCountGet_ )
 {
     DEFENDER_TcpConnGet();
 }
 
-// List of unwritten tests:
+/* List of unwritten tests: */

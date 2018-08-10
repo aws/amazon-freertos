@@ -24,11 +24,11 @@
  */
 #include "aws_defender_tcp_conn.h"
 
-int DEFENDER_TcpConnGet(void)
+int DEFENDER_TcpConnGet( void )
 {
     return 0;
 }
 
-void DEFENDER_TcpConnRefresh(void)
+void DEFENDER_TcpConnRefresh( void )
 {
 }

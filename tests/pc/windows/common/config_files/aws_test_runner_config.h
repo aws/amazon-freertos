@@ -34,25 +34,27 @@
 
 /* Unsupported tests. */
 #define testrunnerFULL_WIFI_ENABLED                testrunnerUNSUPPORTED
-#define testrunnerFULL_MEMORYLEAK_ENABLED          testrunnerUNSUPPORTED
+
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
-#define testrunnerFULL_CBOR_ENABLED                1
+#define testrunnerFULL_CBOR_ENABLED                0
 #define testrunnerFULL_CRYPTO_ENABLED              0
-#define testrunnerFULL_DEFENDER_ENABLED            1
+#define testrunnerFULL_DEFENDER_ENABLED            0
 #define testrunnerFULL_GGD_ENABLED                 0
 #define testrunnerFULL_GGD_HELPER_ENABLED          0
-#define testrunnerFULL_MQTT_AGENT_ENABLED          1
+#define testrunnerFULL_MQTT_AGENT_ENABLED          0
 #define testrunnerFULL_MQTT_ALPN_ENABLED           0
 #define testrunnerFULL_MQTT_ENABLED                0
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED    0
-#define testrunnerFULL_OTA_AGENT_ENABLED           0
-#define testrunnerFULL_OTA_CBOR_ENABLED            0
-#define testrunnerFULL_OTA_PAL_ENABLED             0
 #define testrunnerFULL_PKCS11_ENABLED              0
 #define testrunnerFULL_POSIX_ENABLED               0
 #define testrunnerFULL_SHADOW_ENABLED              0
-#define testrunnerFULL_TCP_ENABLED                 0
+#define testrunnerFULL_TCP_ENABLED                 1
 #define testrunnerFULL_TLS_ENABLED                 0
+#define testrunnerFULL_MEMORYLEAK_ENABLED          0
+#define testrunnerFULL_OTA_CBOR_ENABLED            0
+#define testrunnerFULL_OTA_AGENT_ENABLED           0
+#define testrunnerFULL_OTA_PAL_ENABLED             0
+#define testrunnerOTA_UPDATE_DEMO                  0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.0
+ * Amazon FreeRTOS+POSIX V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,5 +39,12 @@
 #define posixconfigENABLE_PID_T         0
 #define posixconfigENABLE_SSIZE_T       0
 #define posixconfigENABLE_USECONDS_T    0
+/* Microchip -mnewlib compiler option supports these types. */
+#define posixconfigENABLE_TIMESPEC      0
+#define posixconfigENABLE_ITIMERSPEC    0
+#define posixconfigENABLE_CLOCKID_T     0
+#define posixconfigENABLE_TIME_T        0
+#define posixconfigENABLE_TIMER_T       0
+
 
 #endif /* _FREERTOS_POSIX_PORTABLE_H_ */

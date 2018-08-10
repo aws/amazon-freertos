@@ -70,7 +70,7 @@ COMPONENT_SRCDIRS += ../.. \
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/common/include $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/src
 
-COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/extras/fixture/src $(AMAZON_FREERTOS_TESTS_DIR)/common/secure_sockets/portable/vendor/board $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11
+COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/extras/fixture/src $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11
 
 # Define the board to pass the SOCKETS_Socket_InvalidTooManySockets test.
 CFLAGS += -DESP32

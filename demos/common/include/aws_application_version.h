@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.3.0
+ * Amazon FreeRTOS V1.3.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,34 +26,11 @@
 #ifndef _AWS_APPLICATION_VERSION_H_
 #define _AWS_APPLICATION_VERSION_H_
 
+#include "aws_appversion32.h"
+extern const AppVersion32_t xAppFirmwareVersion;
+
 #define APP_VERSION_MAJOR  0
 #define APP_VERSION_MINOR  9
-#define APP_VERSION_BUILD  0
-
-/* Application version structure. */
-#pragma pack(push,1)
-typedef struct {
-	union {
-#if (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || (__little_endian__ == 1) || WIN32 || (__BYTE_ORDER == __LITTLE_ENDIAN)
-		struct {
-			uint16_t    usBuild;
-			uint8_t		ucMinor;
-			uint8_t		ucMajor;
-		} x;
-#elif (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || (__big_endian__ == 1) || (__BYTE_ORDER == __BIG_ENDIAN)
-		struct version {
-			uint8_t		ucMajor;
-			uint8_t		ucMinor;
-			uint16_t	usBuild;
-		} x;
-#else
-#error "Unable to determine byte order!"
-#endif
-		uint32_t ulVersion32;
-	} u;
-} AppVersion32_t;
-#pragma pack(pop)
-
-extern const AppVersion32_t xAppFirmwareVersion;
+#define APP_VERSION_BUILD  2
 
 #endif

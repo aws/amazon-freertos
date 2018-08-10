@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA PAL for Curiosity_PIC32MZEF V0.9.1
+Amazon FreeRTOS OTA PAL for Curiosity_PIC32MZEF V0.9.2
 Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -74,13 +74,13 @@ static const uint32_t boot_crc_tbl[256] =       // CRC calculating table
 
 // prototypes
 //
-static bool AWS_NVMOperation(uint32_t nvmop);
+static bool_t AWS_NVMOperation(uint32_t nvmop);
 static void AWS_NVMClearError(void);
 
 
 // implementation
 
-static bool AWS_NVMOperation(uint32_t nvmop)
+static bool_t AWS_NVMOperation(uint32_t nvmop)
 {
     uint32_t processorStatus;
     
@@ -104,7 +104,7 @@ static bool AWS_NVMOperation(uint32_t nvmop)
     PLIB_NVM_FlashWriteStart(NVM_ID_0);
     
     while (!PLIB_NVM_FlashWriteCycleHasCompleted(NVM_ID_0));
-    bool success = PLIB_NVM_WriteOperationHasTerminated(NVM_ID_0) == false;
+    bool_t success = PLIB_NVM_WriteOperationHasTerminated(NVM_ID_0) == pdFALSE;
     
     PLIB_INT_SetState(INT_ID_0, processorStatus);
 
@@ -112,15 +112,15 @@ static bool AWS_NVMOperation(uint32_t nvmop)
 }
 
 
-bool AWS_FlashErase( void )
+bool_t AWS_FlashErase( void )
 {
     if(!AWS_NVMOperation(UPPER_FLASH_REGION_ERASE_OPERATION))
     {   // failed; clear the NVM error
         AWS_NVMClearError();
-        return false;
+        return pdFALSE;
     }
 
-    return true;
+    return pdTRUE;
 }
 
 static void AWS_NVMClearError(void)
@@ -128,16 +128,16 @@ static void AWS_NVMClearError(void)
     AWS_NVMOperation(NO_OPERATION);
 }
 
-bool AWS_NVM_QuadWordWrite(const uint32_t* address, const uint32_t* data, int nQuads)
+bool_t AWS_NVM_QuadWordWrite(const uint32_t* address, const uint32_t* data, uint32_t nQuads)
 {
     if(!PLIB_NVM_ExistsProvideQuadData(NVM_ID_0))
     {
-        return false;
+        return pdFALSE;
     }
 
     uint32_t flash_phys_addr = KVA_TO_PA((uint32_t)address);
 
-    bool success = true;
+    bool_t success = pdTRUE;
     while(nQuads--)
     {
         PLIB_NVM_FlashAddressToModify(NVM_ID_0, flash_phys_addr);
@@ -146,7 +146,7 @@ bool AWS_NVM_QuadWordWrite(const uint32_t* address, const uint32_t* data, int nQ
 
         if(!AWS_NVMOperation(QUAD_WORD_PROGRAM_OPERATION))
         {
-            success = false;
+            success = pdFALSE;
             AWS_NVMClearError();
             break;
         }
@@ -158,7 +158,7 @@ bool AWS_NVM_QuadWordWrite(const uint32_t* address, const uint32_t* data, int nQ
 }
 
 
-bool AWS_FlashProgramBlock(const uint8_t* address, const uint8_t* pData, uint32_t size)
+bool_t AWS_FlashProgramBlock(const uint8_t* address, const uint8_t* pData, uint32_t size)
 {
     uint32_t quad_buff[AWS_NVM_QUAD_SIZE / sizeof(uint32_t)];
 
@@ -167,16 +167,16 @@ bool AWS_FlashProgramBlock(const uint8_t* address, const uint8_t* pData, uint32_
     const uint8_t* end_quad = (const uint8_t*)(((uint32_t)address + size + AWS_NVM_QUAD_SIZE - 1) & AWS_NVM_QUAD_MASK); // last quad pointer, past the memory area
     const uint8_t* last_quad = end_quad - AWS_NVM_QUAD_SIZE; // last full quad pointer
 
-    int n_quads = (end_quad - start_quad ) / AWS_NVM_QUAD_SIZE;
+    uint32_t n_quads = (end_quad - start_quad ) / AWS_NVM_QUAD_SIZE;
 
-    bool flash_fault = false;
+    bool_t flash_fault = pdFALSE;
 
     while(n_quads)
     {
-        int start_gap = address - start_quad;    // not used bytes in the start quad
-        int last_gap = end_quad - (address + size);// not used bytes in the last quad
-        int last_fill = (address + size) - last_quad ;    // payload bytes in the last quad
-        int start_load = AWS_NVM_QUAD_SIZE - start_gap; // useful bytes at beginning
+        uint32_t start_gap = address - start_quad;    // not used bytes in the start quad
+        uint32_t last_gap = end_quad - (address + size);// not used bytes in the last quad
+        uint32_t last_fill = (address + size) - last_quad ;    // payload bytes in the last quad
+        uint32_t start_load = AWS_NVM_QUAD_SIZE - start_gap; // useful bytes at beginning
 
         if(start_gap != 0)
         {   // not complete quad at the beginning
@@ -184,7 +184,7 @@ bool AWS_FlashProgramBlock(const uint8_t* address, const uint8_t* pData, uint32_
             memcpy((uint8_t*)quad_buff + start_gap, pData, start_load);
             if(!AWS_NVM_QuadWordWrite((uint32_t*)start_quad, quad_buff, 1))
             {
-                flash_fault = true;
+                flash_fault = pdTRUE;
                 break;
             }
             start_quad = first_quad;
@@ -196,7 +196,7 @@ bool AWS_FlashProgramBlock(const uint8_t* address, const uint8_t* pData, uint32_
         {
             if(!AWS_NVM_QuadWordWrite((uint32_t*)start_quad, (uint32_t*)pData, n_quads))
             {
-                flash_fault = true;
+                flash_fault = pdTRUE;
             }
             break;
         }
@@ -205,7 +205,7 @@ bool AWS_FlashProgramBlock(const uint8_t* address, const uint8_t* pData, uint32_
         // program full quads first
         if(!AWS_NVM_QuadWordWrite((uint32_t*)start_quad, (uint32_t*)pData, n_quads - 1))
         {
-            flash_fault = true;
+            flash_fault = pdTRUE;
             break;
         }
 
@@ -214,7 +214,7 @@ bool AWS_FlashProgramBlock(const uint8_t* address, const uint8_t* pData, uint32_
         memcpy((uint8_t*)quad_buff, pData + (n_quads - 1) * AWS_NVM_QUAD_SIZE, last_fill);
         if(!AWS_NVM_QuadWordWrite((uint32_t*)last_quad, quad_buff , 1))
         {
-            flash_fault = true;
+            flash_fault = pdTRUE;
         }
 
         break;
@@ -234,7 +234,7 @@ void AWS_BootCrcInit(uint32_t seed)
     boot_crc_lfsr = seed;
 }
 
-void AWS_BootCrcAddBuffer(const uint8_t* buff, int buffLen)
+void AWS_BootCrcAddBuffer(const uint8_t* buff, uint32_t buffLen)
 {
     while(buffLen--)
     {

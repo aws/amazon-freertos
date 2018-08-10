@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.0
+ * Amazon FreeRTOS Device Defender Agent V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,25 +28,31 @@
 #include "aws_defender_tcp_conn.h"
 
 extern List_t xBoundTCPSocketsList;
-static int    xDEFENDER_tcp_conn_count;
+static int xDEFENDER_tcp_conn_count;
 
-int DEFENDER_TcpConnGet(void)
+int DEFENDER_TcpConnGet( void )
 {
     return xDEFENDER_tcp_conn_count;
 }
 
-void DEFENDER_TcpConnRefresh(void)
+void DEFENDER_TcpConnRefresh( void )
 {
-    int xTcp_conn_count[2];
+    int xTcp_conn_count[ 2 ];
     int xTries = 10;
-    do {
-        xTcp_conn_count[0] = xBoundTCPSocketsList.uxNumberOfItems;
-        xTcp_conn_count[1] = xBoundTCPSocketsList.uxNumberOfItems;
+
+    do
+    {
+        xTcp_conn_count[ 0 ] = xBoundTCPSocketsList.uxNumberOfItems;
+        xTcp_conn_count[ 1 ] = xBoundTCPSocketsList.uxNumberOfItems;
         xTries--;
-        if (0 == xTries) {
+
+        if( 0 == xTries )
+        {
             xDEFENDER_tcp_conn_count = -1;
+
             return;
         }
-    } while (xTcp_conn_count[0] != xTcp_conn_count[1]);
-    xDEFENDER_tcp_conn_count = xTcp_conn_count[0];
+    } while( xTcp_conn_count[ 0 ] != xTcp_conn_count[ 1 ] );
+
+    xDEFENDER_tcp_conn_count = xTcp_conn_count[ 0 ];
 }

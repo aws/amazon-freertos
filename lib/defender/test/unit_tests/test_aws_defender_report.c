@@ -26,61 +26,65 @@
 #include "aws_defender_internals.h"
 #include "unity_fixture.h"
 
-TEST_GROUP(aws_defender_report);
+TEST_GROUP( aws_defender_report );
 
-TEST_SETUP(aws_defender_report)
+TEST_SETUP( aws_defender_report )
 {
     DefenderMetric_t metrics_list[] = {};
-    (void)DEFENDER_MetricsInit(metrics_list);
+
+    ( void ) DEFENDER_MetricsInit( metrics_list );
 }
 
-TEST_TEAR_DOWN(aws_defender_report)
+TEST_TEAR_DOWN( aws_defender_report )
 {
 }
 
-TEST_GROUP_RUNNER(aws_defender_report)
+TEST_GROUP_RUNNER( aws_defender_report )
 {
-    RUN_TEST_CASE(aws_defender_report, CreateReport_creates_report_with_header);
+    RUN_TEST_CASE( aws_defender_report, CreateReport_creates_report_with_header );
     RUN_TEST_CASE(
-        aws_defender_report, CreateReport_includes_tcp_connections_from_list);
+        aws_defender_report, CreateReport_includes_tcp_connections_from_list );
     RUN_TEST_CASE(
-        aws_defender_report, CreateReport_excludes_uptime_when_not_in_list);
+        aws_defender_report, CreateReport_excludes_uptime_when_not_in_list );
 }
 
-TEST(aws_defender_report, CreateReport_creates_report_with_header)
+TEST( aws_defender_report, CreateReport_creates_report_with_header )
 {
-    cbor_handle_t report  = DEFENDER_CreateReport();
-    char *        rep_str = CBOR_AsString(report);
-    cbor_handle_t header  = CBOR_FromKeyReadMap(report, DEFENDER_header_tag);
-    CBOR_Delete(&report);
+    cbor_handle_t report = DEFENDER_CreateReport();
+    char * rep_str = CBOR_AsString( report );
+    cbor_handle_t header = CBOR_FromKeyReadMap( report, DEFENDER_header_tag );
 
-    // Header will have version key
-    bool is_header = CBOR_FindKey(header, DEFENDER_version_tag);
-    CBOR_Delete(&header);
-    TEST_ASSERT_TRUE_MESSAGE(is_header, rep_str);
-    free(rep_str);
+    CBOR_Delete( &report );
+
+    /* Header will have version key */
+    bool is_header = CBOR_FindKey( header, DEFENDER_version_tag );
+    CBOR_Delete( &header );
+    TEST_ASSERT_TRUE_MESSAGE( is_header, rep_str );
+    free( rep_str );
 }
 
-TEST(aws_defender_report, CreateReport_includes_tcp_connections_from_list)
+TEST( aws_defender_report, CreateReport_includes_tcp_connections_from_list )
 {
-    DefenderMetric_t metrics_list[] = {pxDEFENDER_tcp_connections};
-    (void)DEFENDER_MetricsInit(metrics_list);
+    DefenderMetric_t metrics_list[] = { pxDEFENDER_tcp_connections };
 
-    cbor_handle_t report  = DEFENDER_CreateReport();
-    char *        rep_str = CBOR_AsString(report);
-    cbor_handle_t metrics = CBOR_FromKeyReadMap(report, DEFENDER_metrics_tag);
-    CBOR_Delete(&report);
+    ( void ) DEFENDER_MetricsInit( metrics_list );
 
-    bool has_tcp_conn = CBOR_FindKey(metrics, DEFENDER_tcp_conn_tag);
-    CBOR_Delete(&metrics);
-    TEST_ASSERT_TRUE_MESSAGE(has_tcp_conn, rep_str);
-    free(rep_str);
+    cbor_handle_t report = DEFENDER_CreateReport();
+    char * rep_str = CBOR_AsString( report );
+    cbor_handle_t metrics = CBOR_FromKeyReadMap( report, DEFENDER_metrics_tag );
+    CBOR_Delete( &report );
+
+    bool has_tcp_conn = CBOR_FindKey( metrics, DEFENDER_tcp_conn_tag );
+    CBOR_Delete( &metrics );
+    TEST_ASSERT_TRUE_MESSAGE( has_tcp_conn, rep_str );
+    free( rep_str );
 }
 
-TEST(aws_defender_report, CreateReport_excludes_uptime_when_not_in_list)
+TEST( aws_defender_report, CreateReport_excludes_uptime_when_not_in_list )
 {
-    cbor_handle_t report     = DEFENDER_CreateReport();
-    bool          has_uptime = CBOR_FindKey(report, "ut");
-    CBOR_Delete(&report);
-    TEST_ASSERT_FALSE(has_uptime);
+    cbor_handle_t report = DEFENDER_CreateReport();
+    bool has_uptime = CBOR_FindKey( report, "ut" );
+
+    CBOR_Delete( &report );
+    TEST_ASSERT_FALSE( has_uptime );
 }

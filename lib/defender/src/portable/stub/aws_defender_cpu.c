@@ -24,11 +24,11 @@
  */
 #include "aws_defender_cpu.h"
 
-int DEFENDER_CpuLoadGet(void)
+int DEFENDER_CpuLoadGet( void )
 {
     return 0;
 }
 
-void DEFENDER_CpuLoadRefresh(void)
+void DEFENDER_CpuLoadRefresh( void )
 {
 }
