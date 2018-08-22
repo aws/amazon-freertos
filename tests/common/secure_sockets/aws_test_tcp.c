@@ -93,10 +93,10 @@ char * cRxBuffer = &cBuffer[ tcptestBUFFER_SIZE ];
 static const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( integrationtestportableRECEIVE_TIMEOUT );
 static const TickType_t xSendTimeOut = pdMS_TO_TICKS( integrationtestportableSEND_TIMEOUT );
 
-/* Primary socket.  Socket declared globally so that it can be closed in test tear down
+/* Primary socket, declared globally so that it can be closed in test tear down
  * in the event that a test exits/fails before socket is closed. */
-volatile Socket_t xSocket;
-volatile BaseType_t xSocketOpen;
+volatile Socket_t xSocket = SOCKETS_INVALID_SOCKET;
+volatile BaseType_t xSocketOpen = pdFALSE;
 
 /*
  * Uses a socket to send more than MSS bytes in one go to the standard echo
@@ -426,6 +426,89 @@ static BaseType_t prvSetSockOptHelper( Socket_t xSocket,
 
 /*-----------------------------------------------------------*/
 
+static BaseType_t prvConnectHelperWithRetry( volatile Socket_t *pxSocket,
+                                             Server_t xConn,
+                                             TickType_t xRxTimeOut,
+                                             TickType_t xTxTimeOut,
+                                             volatile BaseType_t *pxSocketIsAllocated )
+{
+    BaseType_t xResult = SOCKETS_ERROR_NONE;
+    BaseType_t xRetry = 0;
+    SocketsSockaddr_t xEchoServerAddress;
+    BaseType_t xIsConnected = pdFALSE;
+
+    do
+    {
+        /* Create the socket. */
+        *pxSocket = prvTcpSocketHelper( pxSocketIsAllocated );
+        if( SOCKETS_INVALID_SOCKET == *pxSocket )
+        {
+            xResult = SOCKETS_SOCKET_ERROR;
+        }
+
+        /* Set the appropriate socket options for the destination. */
+        if( SOCKETS_ERROR_NONE == xResult )
+        {
+            if( xConn == eSecure )
+            {
+                xResult = prvSecureConnectHelper( *pxSocket, &xEchoServerAddress );
+            }
+            else if( xConn == eNonsecure )
+            {
+                xResult = prvNonSecureConnectHelper( *pxSocket, &xEchoServerAddress );
+            }
+            else if( xConn == eAwsBroker )
+            {
+                xResult = prvAwsIotBrokerConnectHelper( *pxSocket, &xEchoServerAddress );
+            }
+            else
+            {
+                /* If a delay server is introduced, it will be added here. */
+                tcptestFAILUREPRINTF( ( "%s: Failed to setSockOpt SOCKETS_SO_REQUIRE_TLS \r\n", __FUNCTION__ ) );
+            }
+        }
+
+        /* Set socket timeout options. */
+        if( SOCKETS_ERROR_NONE == xResult )
+        {
+            xResult = prvSetSockOptHelper( *pxSocket, xRxTimeOut, xTxTimeOut );
+        }
+
+        /* Attempt, with possible retries, to connect to the destination. */
+        if( SOCKETS_ERROR_NONE == xResult )
+        {
+            xResult = SOCKETS_Connect( *pxSocket,
+                &xEchoServerAddress,
+                sizeof( xEchoServerAddress ) );
+            if( SOCKETS_ERROR_NONE == xResult )
+            {
+                xIsConnected = pdTRUE;
+            }
+            else
+            {
+                if( xRetry < tcptestRETRY_CONNECTION_TIMES )
+                {
+                    SOCKETS_Close( *pxSocket );
+                    *pxSocket = SOCKETS_INVALID_SOCKET;
+                    xResult = SOCKETS_ERROR_NONE;
+                    xRetry++;
+                    vTaskDelay( tcptestLOOP_DELAY );
+                }
+                else
+                {
+                    /* Too many failures. Give up. */
+                    break;
+                }
+            }
+        }
+    }
+    while( pdFALSE == xIsConnected );
+
+    return xResult;
+}
+
+/*-----------------------------------------------------------*/
+
 static BaseType_t prvSendHelper( Socket_t xSocket,
                                  uint8_t * pucTxBuffer,
                                  size_t xLength )
@@ -510,34 +593,26 @@ static BaseType_t prvRecvHelper( Socket_t xSocket,
 
 static BaseType_t prvShutdownHelper( Socket_t xSocket )
 {
-    TickType_t xTimeOnEntering;
-    BaseType_t xResult, xIsRecv;
+    BaseType_t xResult;
 
-    /* Finished using the connected socket, initiate a graceful close:
-     * FIN, FIN+ACK, ACK. */
+    /* The caller is done with the connected socket; initiate a graceful close: 
+     * send a FIN packet and wait for the server to stop sending. */
     xResult = SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR );
 
-    /* Expect SOCKETS_Recv() to return an error once the shutdown is
-     * complete. */
-    xTimeOnEntering = xTaskGetTickCount();
-
-    do
+    if( 0 == xResult )
     {
-        xIsRecv = SOCKETS_Recv( xSocket,            /* The socket being received from. */
-                                cRxBuffer,          /* The buffer into which the received data will be written. */
-                                tcptestBUFFER_SIZE, /* The size of the buffer provided to receive the data. */
-                                0 );
-
-        if( xIsRecv < 0 )
+        /* Keep calling receive until an error code is returned. */
+        do
         {
-            break;
+            xResult = SOCKETS_Recv( xSocket,            /* The socket being received from. */
+                                    cRxBuffer,          /* The buffer into which the received data will be written. */
+                                    tcptestBUFFER_SIZE, /* The size of the buffer provided to receive the data. */
+                                    0 );
         }
+        while( xResult >= 0 );
 
-        /* Wait for shutdown to complete.  If a receive block time is used then
-         * this delay will not be necessary as FreeRTOS_recv() will place the RTOS task
-         * into the Blocked state anyway. */
-        vTaskDelay( 250 );
-    } while( ( xTaskGetTickCount() - xTimeOnEntering ) < xReceiveTimeOut );
+        xResult = 0;
+    }
 
     return xResult;
 }
@@ -740,8 +815,6 @@ TEST_GROUP_RUNNER( Full_TCP )
     #endif /* if ( tcptestSECURE_SERVER == 1 ) */
 }
 
-
-
 /*-------------------------------------------------------------------*/
 /*-----------------------Begin Tests---------------------------------*/
 /*-------------------------------------------------------------------*/
@@ -775,13 +848,8 @@ static void prvSOCKETS_CloseWithoutReceiving( Server_t xConn )
 {
     BaseType_t xResult;
 
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-
-    xResult = prvConnectHelper( xSocket, xConn );
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
     /* Send a lot of data to the echo server but never use the recv. */
@@ -853,13 +921,8 @@ static void prvSOCKETS_ShutdownWithoutReceiving( Server_t xConn )
 {
     BaseType_t xResult;
 
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-
-    xResult = prvConnectHelper( xSocket, xConn );
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
     /* Send a lot of data to the echo server but never use the recv. */
@@ -908,14 +971,8 @@ static void prvSOCKETS_Recv_On_Unconnected_Socket( Server_t xConn )
 
         /* We connect another socket. The rational for this is a bug that was experienced in the past
          * where the data would be received  by from another socket. */
-        xConnectedSocket = prvTcpSocketHelper( &xConnectedSocketOpen );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xConnectedSocket, "Socket creation failed" );
-        xConnectedSocketOpen = pdTRUE;
-
-        xResult = prvSetSockOptHelper( xConnectedSocket, xReceiveTimeOut, xSendTimeOut );
-        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-
-        xResult = prvConnectHelper( xConnectedSocket, xConn );
+         /* Attempt to establish the requested connection. */
+        xResult = prvConnectHelperWithRetry( &xConnectedSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xConnectedSocketOpen );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
         /* Send data from the connected socket. */
@@ -1006,10 +1063,8 @@ static void prvSOCKETS_SetSockOpt_RCVTIMEO( Server_t xConn )
     tcptestPRINTF( ( "Starting %s \r\n", __FUNCTION__ ) );
     tcptestPRINTF( ( "This tests timeouts, so it takes a while! \r\n" ) );
 
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvConnectHelper( xSocket, xConn );
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
     /* Record the priority of this task. */
@@ -1087,12 +1142,10 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
     tcptestPRINTF( ( "Starting %s \r\n", __FUNCTION__ ) );
     tcptestPRINTF( ( "This tests timeouts, so it takes a while! \r\n" ) );
 
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
     if( TEST_PROTECT() )
     {
-        xResult = prvConnectHelper( xSocket, xConn );
+        /* Attempt to establish the requested connection. */
+        xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
         /*
@@ -1176,20 +1229,11 @@ static void prvSetSockOpt_InvalidParams( Server_t xConn )
 {
     BaseType_t xResult;
 
-    /* Create a socket. */
-    xSocket = prvTcpSocketHelper( &( xSocketOpen ) );
-
-    /* Ensure that the socket was created successfully. */
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed." );
-    TEST_ASSERT_EQUAL_MESSAGE( pdTRUE, xSocketOpen, "Socket creation failed." );
-
     if( TEST_PROTECT() )
     {
-        /* Connect to the server. */
-        xResult = prvConnectHelper( xSocket, xConn );
-
-        /* Ensure that the connect was successful. */
-        TEST_ASSERT_EQUAL_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket connect failed." );
+        /* Attempt to establish the requested connection. */
+        xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
         /* Try to set the invalid option. */
         xResult = SOCKETS_SetSockOpt( xSocket,
@@ -1276,61 +1320,63 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
 
     xResult = pdPASS;
 
-    /* Shutdown RD. */
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-
-    xResult = prvConnectHelper( xSocket, xConn );
+    /* Shutdown: Read. */
+    
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
     xResult = SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RD );
     TEST_ASSERT_EQUAL_INT32( SOCKETS_ERROR_NONE, xResult );
 
-    xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
+    do
+    {
+        xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
+    }
+    while( xResult >= 0 );
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 
-    /* Shutdown WR. */
+    /* Shutdown: Write. */
+
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
+    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
     /* AN: Should this test also make a send before closing the socket,
      * and make sure that the data is received "gracefully"? */
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-
-    xResult = prvConnectHelper( xSocket, xConn );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
-
 
     xResult = SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_WR );
     TEST_ASSERT_EQUAL_INT32( SOCKETS_ERROR_NONE, xResult );
 
-    /* Send test purposely omitted since the expected behavior of
-     * send after a shutdown is not well defined */
+    /* Expected behavior of send after Shutdown/WRITE is ambiguous. 
+    do
+    {
+        xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
+    }
+    while( xResult >= 0 );
+    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    */
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 
-    /* Shutdown RDWR. */
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
+    /* Shutdown: Read/Write. */
 
-    xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-    xResult = prvConnectHelper( xSocket, xConn );
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
     xResult = SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR );
     TEST_ASSERT_EQUAL_INT32( SOCKETS_ERROR_NONE, xResult );
 
-    xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
+    do
+    {
+        xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
+    }
+    while( xResult >= 0 );
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
@@ -1367,21 +1413,28 @@ static void prvTestSOCKETS_Close( Server_t xConn )
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 
+    /* The secure sockets API abstraction requires that Socket_t be treated as 
+    opaque. It could be a pointer, a handle, an index, or whatever. In addition, 
+    SOCKETS_Close treats the socket only as input. Therefore, it is not a valid 
+    test to pass a socket that has been freed, via explicit close, to other
+    downstream socket APIs. */
+    xSocket = SOCKETS_INVALID_SOCKET;
+
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
     xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
-
     /* Close a connected socket */
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvConnectHelper( xSocket, xConn );
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
+
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
+
+    /* See comment above. */
+    xSocket = SOCKETS_INVALID_SOCKET;
 
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
@@ -1390,16 +1443,17 @@ static void prvTestSOCKETS_Close( Server_t xConn )
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
     /* Close a shutdown socket */
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvConnectHelper( xSocket, xConn );
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
+
     xResult = prvShutdownHelper( xSocket );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to shutdown" );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
+
+    /* See comment above. */
+    xSocket = SOCKETS_INVALID_SOCKET;
 
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
@@ -1437,11 +1491,9 @@ static void prvTestSOCKETS_Recv_ByteByByte( Server_t xConn )
     size_t xMessageLengths[] = { 2, 7, 8, 9, 20 };
 
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-    xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-    xResult = prvConnectHelper( xSocket, xConn );
+
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
     for( ulTxCount = 0; ulTxCount < sizeof( xMessageLengths ) / sizeof( xMessageLengths[ 0 ] ); ulTxCount++ )
@@ -1519,12 +1571,8 @@ static void prvSOCKETS_SendRecv_VaryLength( Server_t xConn )
 
     for( ulIndex = 0; ulIndex < sizeof( xMessageLengths ) / sizeof( size_t ); ulIndex++ )
     {
-        xSocket = prvTcpSocketHelper( &xSocketOpen );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-        xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-        xResult = prvConnectHelper( xSocket, xConn );
+        /* Attempt to establish the requested connection. */
+        xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
         /* Send each message length ulMaxLoopCount times. */
@@ -1927,12 +1975,8 @@ static void prvSend_Invalid( Server_t xConn )
     /* Unconnected socket. */
     if( TEST_PROTECT() )
     {
-        xSocket = prvTcpSocketHelper( &xSocketOpen );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-        xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-        xResult = prvConnectHelper( xSocket, xConn );
+        /* Attempt to establish the requested connection. */
+        xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
         /* Invalid socket. */
@@ -1998,13 +2042,8 @@ static void prvRecv_Invalid( Server_t xConn )
 
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-
-    xResult = prvConnectHelper( xSocket, xConn );
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
     /* Receive with NULL buffer should fail. */
@@ -2117,14 +2156,10 @@ static void prvTrustedServerCertificate( void )
     BaseType_t xResult = pdFAIL;
     SocketsSockaddr_t xSecureEchoServerAddress;
 
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-    xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-    /* This call uses the SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE option and should work. */
-    xResult = prvConnectHelper( xSocket, eSecure );
+    /* Attempt to establish the requested connection. */
+    xResult = prvConnectHelperWithRetry( &xSocket, eSecure, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
+
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 
@@ -2135,6 +2170,7 @@ static void prvTrustedServerCertificate( void )
 
     xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
+
     /* Set the socket to use TLS. */
     xResult = SOCKETS_SetSockOpt( xSocket,
                                   0,
@@ -2173,7 +2209,6 @@ static void prvTriggerWrongRootCA( void )
 {
     BaseType_t xResult = pdFAIL;
     SocketsSockaddr_t xAwsIotBrokerAddress;
-
 
     /* Repeat the steps above, but without using SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE.
      * Make sure that an error is returned. */
@@ -2266,16 +2301,8 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
 
         for( xRecvLoop = 0; xRecvLoop < tcptestMAX_LOOPS_ECHO_TEST; xRecvLoop++ )
         {
-            /* Create a socket. */
-            xSocket = prvTcpSocketHelper( &xSocketOpen );
-            TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
-            /* Set a time out so a missing reply does not cause the task to block
-             * indefinitely. */
-            xResult = prvSetSockOptHelper( xSocket, xEchoTestRxTxTimeOut, xEchoTestRxTxTimeOut );
-            TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt receive timeout failed" );
-
-            xResult = prvConnectHelper( xSocket, xConn );
+            /* Attempt to establish the requested connection. */
+            xResult = prvConnectHelperWithRetry( &xSocket, xConn, xEchoTestRxTxTimeOut, xEchoTestRxTxTimeOut, &xSocketOpen );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
             /* Wait to receive the socket that will be used from the Tx task. */
@@ -2594,42 +2621,19 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
         /* Send a number of echo requests. */
         for( lLoopCount = 0; lLoopCount < tcptestMAX_LOOPS_ECHO_CLIENTS_LOOP; lLoopCount++ )
         {
-            /* Create a socket. */
-            /* Make socket. */
-            xTaskSocket = prvTcpSocketHelper( &xSocketOpen );
-
-            if( xTaskSocket == SOCKETS_INVALID_SOCKET )
-            {
-                tcptestFAILUREPRINTF( ( "%s: Task %d failed to create socket with error code %d on loop %d \r\n",
-                                        __FUNCTION__,
-                                        xResult,
-                                        lLoopCount,
-                                        ( int ) pxTcptestEchoClientsTaskParams->usTaskTag ) );
-                xResult = SOCKETS_SOCKET_ERROR;
-                break;
-            }
-
-            xResult = prvSetSockOptHelper( xTaskSocket, xEchoTestRxTxTimeOut, xEchoTestRxTxTimeOut );
-
-            if( xResult != SOCKETS_ERROR_NONE )
-            {
-                tcptestFAILUREPRINTF( ( "%s: Task %d failed to SetSockOpt with error code %d on loop %d \r\n",
-                                        __FUNCTION__,
-                                        xResult,
-                                        lLoopCount,
-                                        ( int ) pxTcptestEchoClientsTaskParams->usTaskTag ) );
-                break;
-            }
-
-            xResult = prvConnectHelper( xTaskSocket, pxTcptestEchoClientsTaskParams->xConn );
-
+            /* Attempt to establish the requested connection. */
+            xResult = prvConnectHelperWithRetry( &xTaskSocket,
+                                                 pxTcptestEchoClientsTaskParams->xConn, 
+                                                 xEchoTestRxTxTimeOut, 
+                                                 xEchoTestRxTxTimeOut, 
+                                                 &xSocketOpen );
             if( xResult != SOCKETS_ERROR_NONE )
             {
                 tcptestFAILUREPRINTF( ( "%s: Task %d failed to connect with error code %d on loop %d \r\n",
-                                        __FUNCTION__,
-                                        xResult,
-                                        lLoopCount,
-                                        ( int ) pxTcptestEchoClientsTaskParams->usTaskTag ) );
+                    __FUNCTION__,
+                    xResult,
+                    lLoopCount,
+                    ( int )pxTcptestEchoClientsTaskParams->usTaskTag ) );
                 break;
             }
 
@@ -2769,21 +2773,11 @@ static void prvTwoSecureConnections( void )
     if( TEST_PROTECT() )
     {
         /* Create 2 sockets- one which will connect to AWS Broker, one which will connect to secure server. */
-        xSocketAWS = prvTcpSocketHelper( &xSocketOpenAWS );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocketAWS, "First socket creation failed" );
-        xSocketSecServer = prvTcpSocketHelper( &xSocketOpenSecServer );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocketSecServer, "Second socket creation failed" );
 
-        /* Set default timeouts for both sockets. */
-        xResult = prvSetSockOptHelper( xSocketAWS, xReceiveTimeOut, xSendTimeOut );
-        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-        xResult = prvSetSockOptHelper( xSocketSecServer, xReceiveTimeOut, xSendTimeOut );
-        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-
-        /* Connect the sockets to their respective endpoints. */
-        xResult = prvConnectHelper( xSocketAWS, eAwsBroker );
+        xResult = prvConnectHelperWithRetry( &xSocketAWS, eAwsBroker, xReceiveTimeOut, xSendTimeOut, &xSocketOpenAWS );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect to AWS Broker" );
-        xResult = prvConnectHelper( xSocketSecServer, eSecure );
+
+        xResult = prvConnectHelperWithRetry( &xSocketSecServer, eSecure, xReceiveTimeOut, xSendTimeOut, &xSocketOpenSecServer );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect to secure server" );
 
         /* Send message 1x to AWS Broker, 2x to Secure Echo Server, alternating. */
@@ -2926,14 +2920,9 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSecureOptionsAfterConnect )
 
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
-    xSocket = prvTcpSocketHelper( &xSocketOpen );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xSocket, "Socket creation failed" );
-
     if( TEST_PROTECT() )
     {
-        xResult = prvSetSockOptHelper( xSocket, xReceiveTimeOut, xSendTimeOut );
-        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Set sockopt Failed" );
-        xResult = prvConnectHelper( xSocket, eNonsecure );
+        xResult = prvConnectHelperWithRetry( &xSocket, eNonsecure, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to connect" );
 
         /* Try to set the secure option AFTER the connect. */
@@ -2970,7 +2959,7 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSecureOptionsAfterConnect )
         TEST_ASSERT_LESS_THAN_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Trusted server certificate setup after connect succeed when fail was expected." );
     }
 
-    xResult = SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR );
+    xResult = prvShutdownHelper( xSocket );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to shutdown" );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );

@@ -25,6 +25,9 @@
 
 #include <stdint.h>
 
+/**
+ * @brief Invalid signature for OTA PAL testing.
+ */
 static const uint8_t ucInvalidSignature[] =
 {
     0x65, 0x2d, 0x7f, 0x38, 0x7d, 0xa7, 0x2b, 0x63, 0x83, 0x01, 0x7d, 0xc8,
@@ -52,6 +55,9 @@ static const uint8_t ucInvalidSignature[] =
 };
 static const int ucInvalidSignatureLength = 256;
 
+/**
+ * @brief Valid signature matching the test block in the OTA PAL tests.
+ */
 static const uint8_t ucValidSignature[] =
 {
     0xa9, 0x5f, 0xa1, 0x5d, 0x9b, 0x42, 0x09, 0x78, 0xaf, 0x95, 0xe4, 0x42,
@@ -77,5 +83,9 @@ static const uint8_t ucValidSignature[] =
     0xd8, 0xa7, 0x69, 0x9b, 0x27, 0x7a, 0x99, 0xde, 0x9d, 0xdc, 0x69, 0xb6,
     0x0c, 0x57, 0x68, 0x3d
 };
-
 static const int ucValidSignatureLength = 256;
+
+/**
+ * @brief The type of signature method this file defines for the valid signature.
+ */
+#define otatestSIG_METHOD   otatestSIG_SHA256_RSA

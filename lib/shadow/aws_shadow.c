@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V1.0.3
+ * Amazon FreeRTOS Shadow V1.0.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -469,10 +469,15 @@ static uint16_t prvCreateTopic( char * pcTopicString,
     usTopicFormatSize = ( uint16_t ) strlen( pcTopicFormat );
     usThingNameSize = ( uint16_t ) strlen( pcthingName );
 
-    /* Remove 2 because %s character is not printed. */
-    usTopicSize = usTopicFormatSize + usThingNameSize - ( uint16_t ) 2;
+    /* Buffer length check. */
+    if( usTopicFormatSize + usThingNameSize >= usBufferLength )
+    {
+        return 0;
+    }
 
-    configASSERT( usTopicSize < usBufferLength );
+    /* The topic format string is expected to include a %s. However, the length 
+    check above assumes, worst case, that the %s was for some reason missing. */
+    usTopicSize = usTopicFormatSize + usThingNameSize - ( uint16_t ) 2;
 
     for( usTopicFormatIdx = 0;
          usTopicFormatIdx < usTopicFormatSize;
@@ -490,7 +495,8 @@ static uint16_t prvCreateTopic( char * pcTopicString,
                     = ( char ) pcthingName[ usThingIdx ];
             }
 
-            usTopicIdx += usThingNameSize - ( uint16_t ) 1; /* Remove 1 because %s characters are not printed*/
+            /* Remove 1 because we backtracked in order to overwrite the %s. */
+            usTopicIdx += usThingNameSize - ( uint16_t ) 1; 
         }
         else
         {

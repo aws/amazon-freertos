@@ -39,6 +39,7 @@
 /* Supported tests. 0 = Disabled, 1 = Enabled */
 #define testrunnerFULL_CBOR_ENABLED                0
 #define testrunnerFULL_CRYPTO_ENABLED              0
+#define testrunnerFULL_FREERTOS_TCP_ENABLED        0
 #define testrunnerFULL_DEFENDER_ENABLED            0
 #define testrunnerFULL_GGD_ENABLED                 0
 #define testrunnerFULL_GGD_HELPER_ENABLED          0
@@ -55,6 +56,6 @@
 #define testrunnerFULL_OTA_CBOR_ENABLED            0
 #define testrunnerFULL_OTA_AGENT_ENABLED           0
 #define testrunnerFULL_OTA_PAL_ENABLED             0
-#define testrunnerOTA_UPDATE_DEMO                  0
+#define testrunnerOTA_END_TO_END_ENABLED           0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

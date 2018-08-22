@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.3.2
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS OTA AFQP V0.9.5
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,24 +23,10 @@
  * http://www.FreeRTOS.org
  */
 
-
 /**
- * @file aws_ggd_config.h
- * @brief GGD config options.
+ * @file aws_test_ota_signature_methods.h
+ * @brief List of all currently supported code signer signature methods for AWS OTA testing.
  */
-
-#ifndef _AWS_GGD_CONFIG_H_
-#define _AWS_GGD_CONFIG_H_
-
-
-/**
- * @brief The number of your network interface here.
- */
-#define ggdconfigCORE_NETWORK_INTERFACE     ( 0 )
-
-/**
- * @brief Size of the array used by jsmn to store the tokens.
- */
-#define ggdconfigJSON_MAX_TOKENS            ( 128 )
-
-#endif /* _AWS_GGD_CONFIG_H_ */
+#define otatestSIG_SHA256_ECDSA     1
+#define otatestSIG_SHA1_RSA         2
+#define otatestSIG_SHA256_RSA       3

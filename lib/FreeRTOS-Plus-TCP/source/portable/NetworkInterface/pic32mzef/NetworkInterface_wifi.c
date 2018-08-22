@@ -151,11 +151,16 @@
                 break;
             }
 
+            /* Set the actual packet length, in case a larger buffer was 
+            returned. */
+            pxNetworkBuffer->xDataLength = len;
+            
+            /* Copy the packet. */
             memcpy( pxNetworkBuffer->pucEthernetBuffer, frame, len );
 
+            /* Send the data to the TCP/IP stack. */
             xRxEvent.pvData = ( void * ) pxNetworkBuffer;
 
-            /* Send the data to the TCP/IP stack */
             if( xSendEventStructToIPTask( &xRxEvent, 0 ) == pdFALSE )
             { /* failed */
                 pktLost = true;

@@ -435,6 +435,7 @@
     <ClCompile Include="..\..\..\common\crypto\aws_test_crypto.c" />
     <ClCompile Include="..\..\..\common\defender\aws_test_defender.c" />
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c" />
+    <ClCompile Include="..\..\..\common\freertos_tcp\aws_test_freertos_tcp.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_greengrass_discovery.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_helper_secure_connect.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_agent.c" />

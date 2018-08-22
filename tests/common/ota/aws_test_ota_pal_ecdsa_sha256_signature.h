@@ -26,7 +26,11 @@
 #ifndef _AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_
 #define _AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_
 #include <stdint.h>
+#include "aws_test_ota_signature_methods.h"
 
+/**
+ * @brief Invalid signature for OTA PAL testing.
+ */
 static const uint8_t ucInvalidSignature[] =
 {
     0x30, 0x44, 0x02, 0x20, 0x75, 0xde, 0xa8, 0x1f, 0xca, 0xec, 0xff, 0x16,
@@ -38,6 +42,9 @@ static const uint8_t ucInvalidSignature[] =
 };
 static const int ucInvalidSignatureLength = 70;
 
+/**
+ * @brief Valid signature matching the test block in the OTA PAL tests.
+ */
 static const uint8_t ucValidSignature[] =
 {
     0x30, 0x44, 0x02, 0x20, 0x15, 0x6a, 0x68, 0x98, 0xf0, 0x4e, 0x1e, 0x12,
@@ -48,5 +55,10 @@ static const uint8_t ucValidSignature[] =
     0x17, 0x05, 0x47, 0xb2, 0xf6, 0x84, 0xd5, 0x68, 0x3e, 0x36
 };
 static const int ucValidSignatureLength = 70;
+
+/**
+ * @brief The type of signature method this file defines for the valid signature.
+ */
+#define otatestSIG_METHOD   otatestSIG_SHA256_ECDSA
 
 #endif /* ifndef _AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_ */

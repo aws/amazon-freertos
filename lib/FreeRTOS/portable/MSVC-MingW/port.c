@@ -410,16 +410,19 @@ CONTEXT xContext;
 			that is already in the running state. */
 			if( pvOldCurrentTCB != pxCurrentTCB )
 			{
-				/* Suspend the old thread. */
+				/* Suspend the old thread, if it still exists. */
 				pxThreadState = ( xThreadState *) *( ( size_t * ) pvOldCurrentTCB );
-				SuspendThread( pxThreadState->pvThread );
+                if( NULL != pxThreadState->pvThread )
+                {
+                    SuspendThread( pxThreadState->pvThread );
 
-				/* Ensure the thread is actually suspended by performing a
-				synchronous operation that can only complete when the thread is
-				actually suspended.  The below code asks for dummy register
-				data. */
-				xContext.ContextFlags = CONTEXT_INTEGER;
-				( void ) GetThreadContext( pxThreadState->pvThread, &xContext );
+                    /* Ensure the thread is actually suspended by performing a
+                    synchronous operation that can only complete when the thread is
+                    actually suspended.  The below code asks for dummy register
+                    data. */
+                    xContext.ContextFlags = CONTEXT_INTEGER;
+                    ( void )GetThreadContext( pxThreadState->pvThread, &xContext );
+                }
 
 				/* Obtain the state of the task now selected to enter the
 				Running state. */

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.6
+ * FreeRTOS+TCP V2.0.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -359,11 +359,19 @@ BaseType_t xGivingUp = pdFALSE;
 
 				if( xDHCPData.xDHCPTxPeriod <= ipconfigMAXIMUM_DISCOVER_TX_PERIOD )
 				{
-					xDHCPData.ulTransactionId++;
-					xDHCPData.xDHCPTxTime = xTaskGetTickCount();
-					xDHCPData.xUseBroadcast = !xDHCPData.xUseBroadcast;
-					prvSendDHCPDiscover( );
-					FreeRTOS_debug_printf( ( "vDHCPProcess: timeout %lu ticks\n", xDHCPData.xDHCPTxPeriod ) );
+                    xDHCPData.ulTransactionId = ipconfigRAND32( );
+
+                    if( 0 != xDHCPData.ulTransactionId )
+                    {
+                        xDHCPData.xDHCPTxTime = xTaskGetTickCount( );
+                        xDHCPData.xUseBroadcast = !xDHCPData.xUseBroadcast;
+                        prvSendDHCPDiscover( );
+                        FreeRTOS_debug_printf( ( "vDHCPProcess: timeout %lu ticks\n", xDHCPData.xDHCPTxPeriod ) );
+                    }
+                    else
+                    {
+                        FreeRTOS_debug_printf( ( "vDHCPProcess: failed to generate a random Transaction ID\n" ) );
+                    }
 				}
 				else
 				{
@@ -583,15 +591,10 @@ TickType_t xTimeoutTime = ( TickType_t ) 0;
 
 static void prvInitialiseDHCP( void )
 {
-	/* Initialise the parameters that will be set by the DHCP process. */
-	if( xDHCPData.ulTransactionId == 0ul )
-	{
-		xDHCPData.ulTransactionId = ipconfigRAND32();
-	}
-	else
-	{
-		xDHCPData.ulTransactionId++;
-	}
+	/* Initialise the parameters that will be set by the DHCP process. Per
+    https://www.ietf.org/rfc/rfc2131.txt, Transaction ID should be a random
+    value chosen by the client. */
+    xDHCPData.ulTransactionId = ipconfigRAND32();
 
     /* Check for random number generator API failure. */
     if( 0 != xDHCPData.ulTransactionId )
@@ -629,11 +632,14 @@ const uint32_t ulMandatoryOptions = 2ul; /* DHCP server address, and the correct
 		pxDHCPMessage = ( DHCPMessage_t * ) ( pucUDPPayload );
 
 		/* Sanity check. */
-		if( ( pxDHCPMessage->ulDHCPCookie == ( uint32_t ) dhcpCOOKIE ) &&
+		if( ( lBytes >= sizeof( DHCPMessage_t ) ) &&
+            ( pxDHCPMessage->ulDHCPCookie == ( uint32_t ) dhcpCOOKIE ) &&
 			( pxDHCPMessage->ucOpcode == ( uint8_t ) dhcpREPLY_OPCODE ) &&
 			( pxDHCPMessage->ulTransactionID == FreeRTOS_htonl( xDHCPData.ulTransactionId ) ) )
 		{
-			if( memcmp( ( void * ) &( pxDHCPMessage->ucClientHardwareAddress ), ( void * ) ipLOCAL_MAC_ADDRESS, sizeof( MACAddress_t ) ) == 0 )
+			if( memcmp( ( void * ) &( pxDHCPMessage->ucClientHardwareAddress ), 
+                        ( void * ) ipLOCAL_MAC_ADDRESS, 
+                        sizeof( MACAddress_t ) ) == 0 )
 			{
 				/* None of the essential options have been processed yet. */
 				ulProcessed = 0ul;
@@ -658,13 +664,37 @@ const uint32_t ulMandatoryOptions = 2ul; /* DHCP server address, and the correct
 						pucByte += 1;
 						continue;
 					}
-					ucLength = pucByte[ 1 ];
-					pucByte += 2;
+
+                    /* Stop if the response is malformed. */
+                    if( pucByte < pucLastByte - 1 )
+                    {
+                        ucLength = pucByte[ 1 ];
+                        pucByte += 2;
+
+                        if( pucByte >= pucLastByte - ucLength )
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }                    
 
 					/* In most cases, a 4-byte network-endian parameter follows,
-					just get it once here and use later */
-					memcpy( ( void * ) &( ulParameter ), ( void * ) pucByte, ( size_t ) sizeof( ulParameter ) );
+					just get it once here and use later. */
+                    if( ucLength >= sizeof( ulParameter ) )
+                    {
+    					memcpy( ( void * ) &( ulParameter ), 
+                                ( void * ) pucByte, 
+                                ( size_t ) sizeof( ulParameter ) );
+                    }
+                    else
+                    {
+                        ulParameter = 0;
+                    }
 
+                    /* Option-specific handling. */
 					switch( ucOptionCode )
 					{
 						case dhcpMESSAGE_TYPE_OPTION_CODE	:
@@ -823,9 +853,6 @@ uint8_t *pucUDPPayloadBuffer;
 	pxDHCPMessage->ucOpcode = ( uint8_t ) xOpcode;
 	pxDHCPMessage->ucAddressType = ( uint8_t ) dhcpADDRESS_TYPE_ETHERNET;
 	pxDHCPMessage->ucAddressLength = ( uint8_t ) dhcpETHERNET_ADDRESS_LENGTH;
-
-	/* ulTransactionID doesn't really need a htonl() translation, but when DHCP
-	times out, it is nicer to see an increasing number in this ID field */
 	pxDHCPMessage->ulTransactionID = FreeRTOS_htonl( xDHCPData.ulTransactionId );
 	pxDHCPMessage->ulDHCPCookie = ( uint32_t ) dhcpCOOKIE;
 	if( xDHCPData.xUseBroadcast != pdFALSE )

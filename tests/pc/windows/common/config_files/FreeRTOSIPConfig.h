@@ -67,13 +67,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME    ( 5000 )
 #define ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME       ( 5000 )
 
-/* Include support for LLMNR: Link-local Multicast Name Resolution
- * (non-Microsoft) */
-#define ipconfigUSE_LLMNR                          ( 1 )
-
-/* Include support for NBNS: NetBIOS Name Service (Microsoft) */
-#define ipconfigUSE_NBNS                           ( 1 )
-
 /* Include support for DNS caching.  For TCP, having a small DNS cache is very
  * useful.  When a cache is present, ipconfigDNS_REQUEST_ATTEMPTS can be kept low
  * and also DNS may use small timeouts.  If a DNS reply comes in after the DNS
@@ -81,8 +74,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * call to FreeRTOS_gethostbyname() will return immediately, without even creating
  * a socket. */
 #define ipconfigUSE_DNS_CACHE                      ( 1 )
-#define ipconfigDNS_CACHE_NAME_LENGTH              ( 16 )
-#define ipconfigDNS_CACHE_ENTRIES                  ( 4 )
 #define ipconfigDNS_REQUEST_ATTEMPTS               ( 2 )
 
 /* The IP stack executes it its own task (although any application task can make
@@ -295,11 +286,6 @@ extern uint32_t ulRand();
 /* When using call-back handlers, the driver may check if the handler points to
  * real program memory (RAM or flash) or just has a random non-zero value. */
 #define ipconfigIS_VALID_PROG_ADDRESS( x )    ( ( x ) != NULL )
-
-/* Include support for TCP hang protection.  All sockets in a connecting or
- * disconnecting stage will timeout after a period of non-activity. */
-#define ipconfigTCP_HANG_PROTECTION              ( 1 )
-#define ipconfigTCP_HANG_PROTECTION_TIME         ( 30 )
 
 /* Include support for TCP keep-alive messages. */
 #define ipconfigTCP_KEEP_ALIVE                   ( 1 )

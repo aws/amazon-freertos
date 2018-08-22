@@ -1,5 +1,5 @@
 /*
-FreeRTOS+TCP V2.0.6
+FreeRTOS+TCP V2.0.7
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -524,7 +524,16 @@ eFrameProcessingResult_t eResult;
 
 			iptraceNETWORK_INTERFACE_RECEIVE();
 
-			eResult = ipCONSIDER_FRAME_FOR_PROCESSING( pucPacketData );
+            /* Check for minimal size. */
+            if( pxHeader->len >= sizeof( EthernetHeader_t ) )
+            {
+                eResult = ipCONSIDER_FRAME_FOR_PROCESSING( pucPacketData );
+            }
+            else
+            {
+                eResult = eReleaseBuffer;
+            }
+
 			if( eResult == eProcessBuffer )
 			{
 				/* Will the data fit into the frame buffer? */

@@ -55,18 +55,6 @@
     <Filter Include="lib\aws\crypto">
       <UniqueIdentifier>{dc5905e3-8713-461c-84ad-6914b34def0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\aws\FreeRTOS-Plus-TCP">
-      <UniqueIdentifier>{8672fa26-b119-481f-8b8d-086419c01a3e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\aws\FreeRTOS-Plus-TCP\include">
-      <UniqueIdentifier>{5d93ed51-023a-41ad-9243-8d230165d34b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\aws\FreeRTOS-Plus-TCP\source">
-      <UniqueIdentifier>{c3c30702-b41d-4838-9cc8-1070202e8466}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\aws\FreeRTOS-Plus-TCP\source\portable">
-      <UniqueIdentifier>{4570be11-ec96-4b55-ac58-24b50ada980a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="config_files">
       <UniqueIdentifier>{a6b4f4d5-32bf-46fe-a9e6-61c73077bd64}</UniqueIdentifier>
     </Filter>
@@ -128,36 +116,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow_json.c">
       <Filter>lib\aws\shadow</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_ARP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_DHCP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_DNS.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_IP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_Sockets.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_Stream_Buffer.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_TCP_IP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_TCP_WIN.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_UDP_IP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\BufferManagement\BufferAllocation_2.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source\portable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\jsmn\jsmn.c">
       <Filter>lib\third_party\jsmn</Filter>
@@ -384,9 +342,6 @@
     <ClCompile Include="..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\tcp\aws_simple_tcp_echo_server.c">
-      <Filter>application_code\common_demos\source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\tcp\aws_tcp_echo_client_single_task.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
@@ -441,9 +396,6 @@
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\aws_secure_sockets.c">
       <Filter>lib\aws\secure_sockets</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\board_family\NetworkInterface.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source\portable</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\logging\aws_logging_task_dynamic_buffers.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
@@ -491,48 +443,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_ARP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_DHCP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_DNS.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_errno_TCP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_IP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_Sockets.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_Stream_Buffer.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_TCP_IP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_TCP_WIN.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_UDP_IP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOSIPConfigDefaults.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\IPTraceMacroDefaults.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\NetworkBufferManagement.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\NetworkInterface.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\third_party\jsmn\jsmn.h">
       <Filter>lib\third_party\jsmn</Filter>
     </ClInclude>

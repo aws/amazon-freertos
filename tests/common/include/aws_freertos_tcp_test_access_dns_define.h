@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.3.2
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,24 +23,26 @@
  * http://www.FreeRTOS.org
  */
 
-
 /**
- * @file aws_ggd_config.h
- * @brief GGD config options.
+ * @file aws_ota_pal_test_access_define.h
+ * @brief Function wrappers that access private methods in aws_ota_pal.c.
+ *
+ * Needed for testing private functions.
  */
 
-#ifndef _AWS_GGD_CONFIG_H_
-#define _AWS_GGD_CONFIG_H_
+#ifndef _AWS_FREERTOS_TCP_TEST_ACCESS_DNS_DEFINE_H_
+#define _AWS_FREERTOS_TCP_TEST_ACCESS_DNS_DEFINE_H_
 
+#include "aws_freertos_tcp_test_access_declare.h"
 
-/**
- * @brief The number of your network interface here.
- */
-#define ggdconfigCORE_NETWORK_INTERFACE     ( 0 )
+/*-----------------------------------------------------------*/
 
-/**
- * @brief Size of the array used by jsmn to store the tokens.
- */
-#define ggdconfigJSON_MAX_TOKENS            ( 128 )
+uint32_t TEST_FreeRTOS_TCP_prvParseDNSReply( uint8_t * pucUDPPayloadBuffer,
+                                             size_t xBufferLength,
+                                             TickType_t xIdentifier )
+{
+    return prvParseDNSReply( pucUDPPayloadBuffer, xBufferLength, xIdentifier );
+}
+/*-----------------------------------------------------------*/
 
-#endif /* _AWS_GGD_CONFIG_H_ */
+#endif /* ifndef _AWS_FREERTOS_TCP_TEST_ACCESS_DNS_DEFINE_H_ */

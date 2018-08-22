@@ -172,6 +172,9 @@
     <Filter Include="lib\aws\include\FreeRTOS_POSIX\sys">
       <UniqueIdentifier>{90d738ee-c579-4389-85be-456a3da2645e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="application_code\common_tests\freertos_tcp">
+      <UniqueIdentifier>{9d7593b1-eeef-4869-93ad-387a2893e0d2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="lib\aws\defender">
       <UniqueIdentifier>{b78e8e57-2049-4e57-bef8-7e64f23acca0}</UniqueIdentifier>
     </Filter>
@@ -1243,6 +1246,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_mqueue.c">
       <Filter>application_code\common_tests\posix</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\freertos_tcp\aws_test_freertos_tcp.c">
+      <Filter>application_code\common_tests\freertos_tcp</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\portable\MemMang\heap_4.c">
       <Filter>lib\aws\FreeRTOS\portable\MemMang</Filter>

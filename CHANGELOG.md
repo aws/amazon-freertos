@@ -1,5 +1,22 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.3.2 08/21/2018
+### New Features
+None
+
+### Updates
+
+#### FreeRTOS+TCP 
+- Multiple security improvements and fixes in packet parsing routines, DNS caching, and TCP sequence number and ID generation.
+- Disable NBNS and LLMNR by default.
+- Add TCP hang protection by default.
+
+#### Secure Socket for FreeRTOS+TCP 
+- Improve security in Amazon FreeRTOS Secure Sockets usage of mbedTLS and ALPN.
+
+We thank Ori Karliner of Zimperium zLabs Team for reporting these issues.
+
+
 ## V1.3.1 08/10/2018
 ### New Features
 None

@@ -1,6 +1,6 @@
 /*
- * FreeRTOS+TCP V2.0.6
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,46 +22,32 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-#ifndef FREERTOS_HTTP_COMMANDS_H
-#define	FREERTOS_HTTP_COMMANDS_H
 
-enum {
-	WEB_REPLY_OK = 200,
-	WEB_NO_CONTENT = 204,
-	WEB_BAD_REQUEST = 400,
-	WEB_UNAUTHORIZED = 401,
-	WEB_NOT_FOUND = 404,
-	WEB_GONE = 410,
-	WEB_PRECONDITION_FAILED = 412,
-	WEB_INTERNAL_SERVER_ERROR = 500,
-};
+/**
+ * @file aws_ota_pal_test_access_define.h
+ * @brief Function wrappers that access private methods in aws_ota_pal.c.
+ *
+ * Needed for testing private functions.
+ */
 
-enum EWebCommand {
-	ECMD_GET,
-	ECMD_HEAD,
-	ECMD_POST,
-	ECMD_PUT,
-	ECMD_DELETE,
-	ECMD_TRACE,
-	ECMD_OPTIONS,
-	ECMD_CONNECT,
-	ECMD_PATCH,
-	ECMD_UNK,
-};
+#ifndef _AWS_FREERTOS_TCP_TEST_ACCESS_TCP_DEFINE_H_
+#define _AWS_FREERTOS_TCP_TEST_ACCESS_TCP_DEFINE_H_
 
-struct xWEB_COMMAND
+#include "aws_freertos_tcp_test_access_declare.h"
+
+/*-----------------------------------------------------------*/
+
+void TEST_FreeRTOS_TCP_prvCheckOptions( FreeRTOS_Socket_t * pxSocket,
+                                        NetworkBufferDescriptor_t * pxNetworkBuffer )
 {
-	BaseType_t xCommandLength;
-	const char *pcCommandName;
-	const unsigned char ucCommandType;
-};
+    prvCheckOptions( pxSocket, pxNetworkBuffer );
+}
+/*-----------------------------------------------------------*/
 
-#define	WEB_CMD_COUNT	(ECMD_UNK+1)
+void TEST_FreeRTOS_TCP_prvTCPCreateWindow( FreeRTOS_Socket_t * pxSocket )
+{
+    prvTCPCreateWindow( pxSocket );
+}
+/*-----------------------------------------------------------*/
 
-extern const struct xWEB_COMMAND xWebCommands[WEB_CMD_COUNT];
-
-extern const char *webCodename (int aCode);
-
-#endif	/* FREERTOS_HTTP_COMMANDS_H */
-
-
+#endif /* ifndef _AWS_FREERTOS_TCP_TEST_ACCESS_TCP_DEFINE_H_ */

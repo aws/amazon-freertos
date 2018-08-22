@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.6
+ * FreeRTOS+TCP V2.0.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -436,7 +436,17 @@ eFrameProcessingResult_t eConsiderFrameForProcessing( const uint8_t * const pucE
 uint16_t usGenerateChecksum( uint32_t ulSum, const uint8_t * pucNextData, size_t uxDataLengthBytes );
 
 /* Socket related private functions. */
+
+/* 
+ * The caller must ensure that pxNetworkBuffer->xDataLength is the UDP packet 
+ * payload size (excluding packet headers) and that the packet in pucEthernetBuffer 
+ * is at least the size of UDPPacket_t. 
+ */
 BaseType_t xProcessReceivedUDPPacket( NetworkBufferDescriptor_t *pxNetworkBuffer, uint16_t usPort );
+
+/*
+ * Initialize the socket list data structures for TCP and UDP. 
+ */
 BaseType_t vNetworkSocketsInit( void );
 
 /*
@@ -671,7 +681,7 @@ void vProcessGeneratedUDPPacket( NetworkBufferDescriptor_t * const pxNetworkBuff
  * bOut = false: checksum will be calculated for incoming packets
  *     returning 0xffff means: checksum was correct
  */
-uint16_t usGenerateProtocolChecksum( const uint8_t * const pucEthernetBuffer, BaseType_t xOutgoingPacket );
+uint16_t usGenerateProtocolChecksum( const uint8_t * const pucEthernetBuffer, size_t uxBufferLength, BaseType_t xOutgoingPacket );
 
 /*
  * An Ethernet frame has been updated (maybe it was an ARP request or a PING

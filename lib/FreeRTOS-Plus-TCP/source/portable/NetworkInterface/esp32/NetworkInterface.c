@@ -105,6 +105,11 @@ esp_err_t wlanif_input(void *netif, void *buffer, uint16_t len, void *eb)
 
     pxNetworkBuffer = pxGetNetworkBufferWithDescriptor(len, xDescriptorWaitTime);
     if (pxNetworkBuffer != NULL) {
+
+	/* Set the packet size, in case a larger buffer was returned. */
+	pxNetworkBuffer->xDataLength = len;
+
+	/* Copy the packet data. */
         memcpy(pxNetworkBuffer->pucEthernetBuffer, buffer, len);
         xRxEvent.pvData = (void *) pxNetworkBuffer;
 

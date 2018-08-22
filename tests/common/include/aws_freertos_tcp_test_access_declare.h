@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.3.2
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,24 +23,16 @@
  * http://www.FreeRTOS.org
  */
 
+#ifndef _AWS_FREERTOS_TCP_TEST_ACCESS_DECLARE_H_
+#define _AWS_FREERTOS_TCP_TEST_ACCESS_DECLARE_H_
 
-/**
- * @file aws_ggd_config.h
- * @brief GGD config options.
- */
+uint32_t TEST_FreeRTOS_TCP_prvParseDNSReply( uint8_t * pucUDPPayloadBuffer,
+                                             size_t xBufferLength,
+                                             TickType_t xIdentifier );
 
-#ifndef _AWS_GGD_CONFIG_H_
-#define _AWS_GGD_CONFIG_H_
+void TEST_FreeRTOS_TCP_prvCheckOptions( FreeRTOS_Socket_t * pxSocket,
+                                        NetworkBufferDescriptor_t * pxNetworkBuffer );
 
+void TEST_FreeRTOS_TCP_prvTCPCreateWindow( FreeRTOS_Socket_t * pxSocket );
 
-/**
- * @brief The number of your network interface here.
- */
-#define ggdconfigCORE_NETWORK_INTERFACE     ( 0 )
-
-/**
- * @brief Size of the array used by jsmn to store the tokens.
- */
-#define ggdconfigJSON_MAX_TOKENS            ( 128 )
-
-#endif /* _AWS_GGD_CONFIG_H_ */
+#endif /* ifndef _AWS_FREERTOS_TCP_TEST_ACCESS_DECLARE_H_ */

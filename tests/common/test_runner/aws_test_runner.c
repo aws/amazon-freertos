@@ -144,8 +144,12 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_POSIX_UTILS );
         RUN_TEST_GROUP( Full_POSIX_STRESS );
     #endif
-    
-    #if ( testrunnerOTA_UPDATE_DEMO == 1 )
+
+    #if ( testrunnerFULL_FREERTOS_TCP_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_FREERTOS_TCP );
+    #endif
+
+    #if ( testrunnerOTA_END_TO_END_ENABLED == 1 )
         extern void vStartOTAUpdateDemoTask(void);
         vStartOTAUpdateDemoTask();
     #endif

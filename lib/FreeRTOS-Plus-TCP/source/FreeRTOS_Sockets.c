@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.6
+ * FreeRTOS+TCP V2.0.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,18 +54,16 @@ xBoundUDPSocketsList or xBoundTCPSocketsList */
 number then, depending on the FreeRTOSIPConfig.h settings, it might be that a
 port number is automatically generated for the socket.  Automatically generated
 port numbers will be between socketAUTO_PORT_ALLOCATION_START_NUMBER and
-0xffff. */
-/* _HT_ thinks that the default of 0xc000 is pretty high */
+0xffff. 
+
+Per https://tools.ietf.org/html/rfc6056, "the dynamic ports consist of the range
+49152-65535. However, ephemeral port selection algorithms should use the whole 
+range 1024-65535" excluding those already in use (inbound or outbound). */
 #if !defined( socketAUTO_PORT_ALLOCATION_START_NUMBER )
-	#define socketAUTO_PORT_ALLOCATION_START_NUMBER ( ( uint16_t ) 0xc000 )
+	#define socketAUTO_PORT_ALLOCATION_START_NUMBER ( ( uint16_t ) 0x0400 )
 #endif
 
-/* When the automatically generated port numbers overflow, the next value used
-is not set back to socketAUTO_PORT_ALLOCATION_START_NUMBER because it is likely
-that the first few automatically generated ports will still be in use.  Instead
-it is reset back to the value defined by this constant. */
-#define socketAUTO_PORT_ALLOCATION_RESET_NUMBER ( ( uint16_t ) 0xc100 )
-#define socketAUTO_PORT_ALLOCATION_MAX_NUMBER   ( ( uint16_t ) 0xff00 )
+#define socketAUTO_PORT_ALLOCATION_MAX_NUMBER   ( ( uint16_t ) 0xffff )
 
 /* The number of octets that make up an IP address. */
 #define socketMAX_IP_ADDRESS_OCTETS		4u
@@ -165,15 +163,6 @@ List_t xBoundUDPSocketsList;
 	List_t xBoundTCPSocketsList;
 #endif /* ipconfigUSE_TCP == 1 */
 
-/* Holds the next private port number to use when binding a client socket for
-UDP, and if ipconfigUSE_TCP is set to 1, also TCP.  UDP uses index
-socketNEXT_UDP_PORT_NUMBER_INDEX and TCP uses index
-socketNEXT_TCP_PORT_NUMBER_INDEX.  The initial value is set to be between
-socketAUTO_PORT_ALLOCATION_RESET_NUMBER and socketAUTO_PORT_ALLOCATION_MAX_NUMBER
-when the IP stack is initialised.  Note ipconfigRAND32() is used, which must be
-seeded prior to the IP task being started. */
-static uint16_t usNextPortToUse[ socketPROTOCOL_COUNT ] = { 0 };
-
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvValidSocket( FreeRTOS_Socket_t *pxSocket, BaseType_t xProtocol, BaseType_t xIsBound )
@@ -201,68 +190,15 @@ BaseType_t xReturn = pdTRUE;
 
 BaseType_t vNetworkSocketsInit( void )
 {
-BaseType_t xReturn = pdTRUE;
-const uint32_t ulAutoPortRange = socketAUTO_PORT_ALLOCATION_MAX_NUMBER - socketAUTO_PORT_ALLOCATION_RESET_NUMBER;
-uint32_t ulRandomPort = ipconfigRAND32( );
-
-    /* Check for random number generator API failure. */
-    if( 0 == ulRandomPort )
-    {
-        xReturn = pdFALSE;
-    }
-
-    if( pdTRUE == xReturn )
-    {
-        vListInitialise( &xBoundUDPSocketsList );
-
-        /* Determine the first anonymous UDP port number to get assigned.  Give it
-        a random value in order to avoid confusion about port numbers being used
-        earlier, before rebooting the device.  Start with the first auto port
-        number, then add a random offset up to a maximum of the range of numbers. */
-        ulRandomPort %= ulAutoPortRange;
-        ulRandomPort += socketAUTO_PORT_ALLOCATION_START_NUMBER;
-        usNextPortToUse[ socketNEXT_UDP_PORT_NUMBER_INDEX ] = ( uint16_t )ulRandomPort;
-    }
+    vListInitialise( &xBoundUDPSocketsList );
 
     #if( ipconfigUSE_TCP == 1 )
     {
-        if( pdTRUE == xReturn )
-        {
-            extern uint32_t ulNextInitialSequenceNumber;
-
-            ulNextInitialSequenceNumber = ipconfigRAND32( );
-
-            /* Check for random number generator API failure. */
-            if( 0 == ulNextInitialSequenceNumber )
-            {
-                xReturn = pdFALSE;
-            }
-        }
-
-        if( pdTRUE == xReturn )
-        {
-            /* Determine the first anonymous TCP port number to get assigned. */
-            ulRandomPort = ipconfigRAND32( );
-
-            /* Check for random number generator API failure. */
-            if( 0 == ulRandomPort )
-            {
-                xReturn = pdFALSE;
-            }
-        }
-
-        if( pdTRUE == xReturn )
-        {
-            ulRandomPort %= ulAutoPortRange;
-            ulRandomPort += socketAUTO_PORT_ALLOCATION_START_NUMBER;
-            usNextPortToUse[ socketNEXT_TCP_PORT_NUMBER_INDEX ] = ( uint16_t )ulRandomPort;
-
-            vListInitialise( &xBoundTCPSocketsList );
-        }
+        vListInitialise( &xBoundTCPSocketsList );
     }
     #endif  /* ipconfigUSE_TCP == 1 */
 
-    return xReturn;
+    return pdTRUE;
 }
 /*-----------------------------------------------------------*/
 
@@ -1054,14 +990,12 @@ List_t *pxSocketList;
 	#if( ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND == 1 )
 	{
 		/* pxAddress will be NULL if sendto() was called on a socket without the
-		socket being bound to an address.  In this case, automatically allocate
-		an address to the socket.  There is a very tiny chance that the allocated
-		port will already be in use - if that is the case, then the check below
-		[pxListFindListItemWithValue()] will result in an error being returned. */
+		socket being bound to an address. In this case, automatically allocate
+		an address and port to the socket. */
 		if( pxAddress == NULL )
 		{
 			pxAddress = &xAddress;
-			/* For now, put it to zero, will be assigned later */
+			/* Put the port to zero to be assigned later. */
 			pxAddress->sin_port = 0u;
 		}
 	}
@@ -1075,7 +1009,11 @@ List_t *pxSocketList;
 	{
 		if( pxAddress->sin_port == 0u )
 		{
-			pxAddress->sin_port = prvGetPrivatePortNumber( ( BaseType_t ) pxSocket->ucProtocol );
+			pxAddress->sin_port = prvGetPrivatePortNumber( ( BaseType_t )pxSocket->ucProtocol );            
+            if( 0 == pxAddress->sin_port )
+            {
+                return -pdFREERTOS_ERRNO_EADDRNOTAVAIL;
+            }
 		}
 
 		/* If vSocketBind() is called from the API FreeRTOS_bind() it has been
@@ -1669,54 +1607,77 @@ FreeRTOS_Socket_t *pxSocket;
 
 /*-----------------------------------------------------------*/
 
-/* Get a free private ('anonymous') port number */
+/* Find an available port number per https://tools.ietf.org/html/rfc6056. */
 static uint16_t prvGetPrivatePortNumber( BaseType_t xProtocol )
 {
-uint16_t usResult;
-BaseType_t xIndex;
+const uint16_t usEphemeralPortCount = 
+    socketAUTO_PORT_ALLOCATION_MAX_NUMBER - socketAUTO_PORT_ALLOCATION_START_NUMBER + 1;
+uint16_t usIterations = usEphemeralPortCount; 
+uint32_t ulRandomSeed = 0;
+uint16_t usResult = 0;
+BaseType_t xGotZeroOnce = pdFALSE;
 const List_t *pxList;
 
 #if ipconfigUSE_TCP == 1
 	if( xProtocol == ( BaseType_t ) FREERTOS_IPPROTO_TCP )
 	{
-		xIndex = socketNEXT_TCP_PORT_NUMBER_INDEX;
 		pxList = &xBoundTCPSocketsList;
 	}
 	else
 #endif
 	{
-		xIndex = socketNEXT_UDP_PORT_NUMBER_INDEX;
 		pxList = &xBoundUDPSocketsList;
 	}
 
 	/* Avoid compiler warnings if ipconfigUSE_TCP is not defined. */
 	( void ) xProtocol;
 
-	/* Assign the next port in the range.  Has it overflowed? */
-	/*_RB_ This needs to be randomised rather than sequential. */
-	/* _HT_ Agreed, although many OS's use sequential port numbers, see
-	https://www.cymru.com/jtk/misc/ephemeralports.html  */
-	for ( ;; )
-	{
-		++( usNextPortToUse[ xIndex ] );
+    /* Find the next available port using the random seed as a starting 
+    point. */
+    do
+    {
+        /* Generate a random seed. */
+        ulRandomSeed = ipconfigRAND32( );
 
-		if( usNextPortToUse[ xIndex ] >= socketAUTO_PORT_ALLOCATION_MAX_NUMBER )
-		{
-			/* Don't go right back to the start of the dynamic/private port
-			range numbers as any persistent sockets are likely to have been
-			create first so the early port numbers may still be in use. */
-			usNextPortToUse[ xIndex ] = socketAUTO_PORT_ALLOCATION_RESET_NUMBER;
-		}
+        /* Only proceed if the random number generator succeeded. */
+        if( 0 == ulRandomSeed )
+        {
+            if( pdFALSE == xGotZeroOnce )
+            {
+                xGotZeroOnce = pdTRUE;
+                continue;
+            }
+            else
+            {
+                break;
+            }
+        }
 
-		usResult = FreeRTOS_htons( usNextPortToUse[ xIndex ] );
+        /* Map the random to a candidate port. */
+        usResult =
+            socketAUTO_PORT_ALLOCATION_START_NUMBER +
+            ( ( ( uint16_t )ulRandomSeed ) % usEphemeralPortCount );
 
-		if( pxListFindListItemWithValue( pxList, ( TickType_t ) usResult ) == NULL )
-		{
-			break;
-		}
-	}
-	return usResult;
-} /* Tested */
+        /* Check if there's already an open socket with the same protocol
+        and port. */
+        if( NULL == pxListFindListItemWithValue( 
+            pxList, 
+            ( TickType_t )FreeRTOS_htons( usResult ) ) )
+        {
+            usResult = FreeRTOS_htons( usResult );
+            break;
+        }
+        else
+        {
+            usResult = 0;
+        }
+
+        usIterations--;
+    }
+    while( usIterations > 0 );
+    
+    return usResult;
+} 
 /*-----------------------------------------------------------*/
 
 /* pxListFindListItemWithValue: find a list item in a bound socket list

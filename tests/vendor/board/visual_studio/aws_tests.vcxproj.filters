@@ -79,18 +79,6 @@
     <Filter Include="lib\aws\FreeRTOS">
       <UniqueIdentifier>{599df67d-d23c-4b57-b11b-5aa0295d47ff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\aws\FreeRTOS-Plus-TCP">
-      <UniqueIdentifier>{f2227145-98f3-4736-9beb-88814b3f4260}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\aws\FreeRTOS-Plus-TCP\source">
-      <UniqueIdentifier>{d7487b11-d8a2-4469-90a4-178627e1c764}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\aws\FreeRTOS-Plus-TCP\include">
-      <UniqueIdentifier>{3c1d3b24-4ff7-477e-ab07-0945ac69ee5c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\aws\FreeRTOS-Plus-TCP\source\portable">
-      <UniqueIdentifier>{ea457092-90b7-4701-b51d-40133aac3f8f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="lib\aws\secure_sockets">
       <UniqueIdentifier>{00b88df5-3531-42f8-abdc-979d708baa30}</UniqueIdentifier>
     </Filter>
@@ -389,51 +377,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\third_party\cmock\src\cmock.h">
       <Filter>lib\third_party\cmock</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_UDP_IP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOSIPConfigDefaults.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\IPTraceMacroDefaults.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\NetworkBufferManagement.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\NetworkInterface.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_ARP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_DHCP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_DNS.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_errno_TCP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_IP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_IP_Private.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_Sockets.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_Stream_Buffer.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_TCP_IP.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_TCP_WIN.h">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
     </ClInclude>
     <ClInclude Include="..\common\config_files\aws_bufferpool_config.h">
       <Filter>config_files</Filter>
@@ -860,36 +803,6 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_lib.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_Sockets.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_Stream_Buffer.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_TCP_IP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_TCP_WIN.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_UDP_IP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_ARP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_DHCP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_DNS.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_IP.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\BufferManagement\BufferAllocation_2.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source\portable</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c">
       <Filter>lib\aws\bufferpool</Filter>
     </ClCompile>
@@ -964,9 +877,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_agent.c">
       <Filter>application_code\common_tests\mqtt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\board_family\NetworkInterface.c">
-      <Filter>lib\aws\FreeRTOS-Plus-TCP\source\portable</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch\port.c">
       <Filter>lib\aws\FreeRTOS\portable\Compiler\Arch</Filter>

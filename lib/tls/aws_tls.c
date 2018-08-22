@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS TLS V1.1.1
+ * Amazon FreeRTOS TLS V1.1.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -87,6 +87,7 @@ typedef struct TLSContext
     mbedtls_x509_crt mbedX509CA;
     mbedtls_x509_crt mbedX509Cli;
     mbedtls_pk_context mbedPkCtx;
+    BaseType_t xMbedInitialized;
 
     /* PKCS#11. */
     CK_FUNCTION_LIST_PTR pxP11FunctionList;
@@ -98,6 +99,32 @@ typedef struct TLSContext
 /*
  * Helper routines.
  */
+
+/**
+ * @brief TLS internal context rundown helper routine.
+ *
+ * @param[in] pvContext Caller context.
+ */
+static void prvFreeContext( TLSContext_t * pCtx )
+{
+    if( NULL != pCtx )
+    {
+        /* Cleanup mbedTLS. */
+        mbedtls_ssl_close_notify( &pCtx->mbedSslCtx ); /*lint !e534 The error is already taken care of inside mbedtls_ssl_close_notify*/
+        mbedtls_ssl_free( &pCtx->mbedSslCtx );
+        mbedtls_ssl_config_free( &pCtx->mbedSslConfig );
+
+        /* Cleanup PKCS#11. */
+        if( ( NULL != pCtx->pxP11FunctionList ) &&
+            ( NULL != pCtx->pxP11FunctionList->C_CloseSession ) )
+        {
+            pCtx->pxP11FunctionList->C_CloseSession( pCtx->xP11Session ); /*lint !e534 This function always return CKR_OK. */
+            pCtx->pxP11FunctionList->C_Finalize( NULL );                  /*lint !e534 This function always return CKR_OK. */
+        }
+
+        pCtx->xMbedInitialized = pdFALSE;
+    }
+}
 
 /**
  * @brief Network send callback shim.
@@ -562,9 +589,19 @@ BaseType_t TLS_Connect( void * pvContext )
             if( ( MBEDTLS_ERR_SSL_WANT_READ != xResult ) &&
                 ( MBEDTLS_ERR_SSL_WANT_WRITE != xResult ) )
             {
+                /* There was an unexpected error. Per mbedTLS API documentation,
+                ensure that upstream clean-up code doesn't accidentally use 
+                a context that failed the handshake. */
+                prvFreeContext( pCtx );
                 break;
             }
         }
+    }
+
+    /* Keep track of successful completion of the handshake. */
+    if( 0 == xResult )
+    {
+        pCtx->xMbedInitialized = pdTRUE;
     }
 
     /* Free up allocated memory. */
@@ -584,7 +621,7 @@ BaseType_t TLS_Recv( void * pvContext,
     TLSContext_t * pCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
     size_t xRead = 0;
 
-    if( NULL != pCtx )
+    if( NULL != pCtx && pdTRUE == pCtx->xMbedInitialized )
     {
         while( xRead < xReadLength )
         {
@@ -597,15 +634,24 @@ BaseType_t TLS_Recv( void * pvContext,
                 /* Got data, so update the tally and keep looping. */
                 xRead += ( size_t ) xResult;
             }
-            else
+            else if( 0 == xResult )
             {
-                if( ( 0 == xResult ) || ( MBEDTLS_ERR_SSL_WANT_READ != xResult ) )
-                {
-                    /* No data and no error or call read again, if indicated, otherwise return error. */
-                    break;
-                }
+                /* No data received (and no error). The secure sockets
+                API supports non-blocking read, so stop the loop but don't 
+                flag an error. */
+                break;
+            }
+            else if( MBEDTLS_ERR_SSL_WANT_READ != xResult )
+            {
+                /* Hard error: invalidate the context and stop. */
+                prvFreeContext( pCtx );
+                break;
             }
         }
+    }
+    else
+    {
+        xResult = MBEDTLS_ERR_SSL_INTERNAL_ERROR;
     }
 
     if( 0 <= xResult )
@@ -626,7 +672,7 @@ BaseType_t TLS_Send( void * pvContext,
     TLSContext_t * pCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
     size_t xWritten = 0;
 
-    if( NULL != pCtx )
+    if( NULL != pCtx && pdTRUE == pCtx->xMbedInitialized )
     {
         while( xWritten < xMsgLength )
         {
@@ -639,15 +685,24 @@ BaseType_t TLS_Send( void * pvContext,
                 /* Sent data, so update the tally and keep looping. */
                 xWritten += ( size_t ) xResult;
             }
-            else
+            else if( 0 == xResult )
             {
-                if( ( 0 == xResult ) || ( MBEDTLS_ERR_SSL_WANT_WRITE != xResult ) )
-                {
-                    /* No data and no error or call read again, if indicated, otherwise return error. */
-                    break;
-                }
+                /* No data sent (and no error). The secure sockets
+                API supports non-blocking send, so stop the loop but don't
+                flag an error. */
+                break;
+            }
+            else if( MBEDTLS_ERR_SSL_WANT_WRITE != xResult )
+            {
+                /* Hard error: invalidate the context and stop. */
+                prvFreeContext( pCtx );
+                break;
             }
         }
+    }
+    else
+    {
+        xResult = MBEDTLS_ERR_SSL_INTERNAL_ERROR;
     }
 
     if( 0 <= xResult )
@@ -666,17 +721,9 @@ void TLS_Cleanup( void * pvContext )
 
     if( NULL != pCtx )
     {
-        /* Cleanup mbedTLS. */
-        mbedtls_ssl_close_notify( &pCtx->mbedSslCtx ); /*lint !e534 The error is already taken care of inside mbedtls_ssl_close_notify*/
-        mbedtls_ssl_free( &pCtx->mbedSslCtx );
-        mbedtls_ssl_config_free( &pCtx->mbedSslConfig );
-
-        /* Cleanup PKCS#11. */
-        if( ( NULL != pCtx->pxP11FunctionList ) &&
-            ( NULL != pCtx->pxP11FunctionList->C_CloseSession ) )
+        if( pdTRUE == pCtx->xMbedInitialized )
         {
-            pCtx->pxP11FunctionList->C_CloseSession( pCtx->xP11Session ); /*lint !e534 This function always return CKR_OK. */
-            pCtx->pxP11FunctionList->C_Finalize( NULL );                  /*lint !e534 This function always return CKR_OK. */
+            prvFreeContext( pCtx );
         }
 
         /* Free memory. */
