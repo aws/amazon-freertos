@@ -1,14 +1,16 @@
 import argparse
-import sys
-from OpenSSL import crypto
 import os
+import sys
 
-from ota_image_generator import validateFilePath \
-    , appendOTADescriptor \
+from OpenSSL import crypto
+
+from ota_image_generator import printOTADescriptorImageStruct \
+    , generateOTADescriptorImage
+from util import validateFilePath \
+    , getFileSize \
     , toLitteEndianByte \
     , format32BitHexStr \
-    , printAddOTADescriptorResult \
-    , getFileSize
+    , extractFileName
 
 HEX_START = "0x1D000000"
 EXCLUDE_START = "0x1D000240"
@@ -38,7 +40,7 @@ def printFactoryImageStruct(processedImagePath, trailerSize, numLinesImageConten
 
 
     # print [ota_descriptor + image content]
-    printAddOTADescriptorResult(processedImagePath, numLinesImageContent,8)
+    printOTADescriptorImageStruct(processedImagePath, numLinesImageContent, 8)
 
 
     # print trailer
@@ -67,21 +69,23 @@ def printFactoryImageStruct(processedImagePath, trailerSize, numLinesImageConten
 
 def parseCMDParam():
     """
-    parse input image path and hardware platform name from command line.
+    parse required params from command line.
 
     raise exception if these parameters are not provided by user.
 
-    :return: input image path, hardware platform name and private key path
+    :return: input image path, hardware platform name , private key path and bootloader hex file path
     """
 
     progName = sys.argv[0]
 
-    format = "python3 " + progName + " [-h] -b binary_path -p hardware_platform -k private_key_path -x bootloader_hex_file_path"
+    progName = extractFileName(progName)
 
-    example1 = "\t get help: \n" + "\t\tpython3 " + progName + " -h"
+    format = "python " + progName + " [-h] -b binary_path -p hardware_platform -k private_key_path -x bootloader_hex_file_path"
 
-    example2 = "\t use folder/inputImage.bin, MCHP-Curiosity-PIC32MZEF, private_key.pem , aws_bootloader.X.production.hex as parameter : \n" \
-               + "\t\tpython3 " + progName + " -b folder/inputImage.bin -p MCHP-Curiosity-PIC32MZEF -k private_key.pem -x aws_bootloader.X.production.hex"
+    example1 = "\t get help: \n" + "\t\tpython " + progName + " -h"
+
+    example2 = "\t use inputImage.bin, MCHP-Curiosity-PIC32MZEF, private_key.pem , aws_bootloader.X.production.hex as parameter : \n" \
+               + "\t\tpython " + progName + " -b inputImage.bin -p MCHP-Curiosity-PIC32MZEF -k private_key.pem -x aws_bootloader.X.production.hex"
 
     usageMsg = format + "\n\n" + "example usages:" + "\n" + example1 + "\n" + example2
 
@@ -224,7 +228,7 @@ def addFactoryMagicCode(inputImagePath,outputPath):
 
 
 
-def convertToHex(inputImagePath, outputPath,bootLoaderHexPath):
+def convertToUnifiedHex(inputImagePath, outputPath, bootLoaderHexPath):
     """
     convert given image into intel hex format.
     Newly generated file will be saved at outputPath.
@@ -245,6 +249,44 @@ def convertToHex(inputImagePath, outputPath,bootLoaderHexPath):
 
 
 
+
+
+def generateFactoryImage(signature,otaImagePath,bootloaderHexPath):
+
+    typeStr = "sig-sha256-ecdsa"
+    descripFixedSize = 32  # signature description is fixed to 32 bytes, will use zeroes to fill up the rest
+    sigFixedSize = 256  # signature field is fixed to 256 bytes, will use zeroes to fill up the rest
+    trailer = getTrailer(signature, typeStr, descripFixedSize, sigFixedSize)
+
+    # append trailer to ota image
+    print("\nAppending trailer to image " + otaImagePath + " ...")
+    factoryImagePath = otaImagePath.replace(".ota.bin", ".initial.bin")
+    appendTrailer(inputImagePath=otaImagePath, trailer=trailer, outputPath=factoryImagePath)
+    print("\nTrailer appended! factory image generated at " + factoryImagePath)
+
+    # add factory magic code
+    print("\nAdding magic code to " + factoryImagePath + "  ...\n")
+    addFactoryMagicCode(inputImagePath=factoryImagePath, outputPath=factoryImagePath)
+
+    # print structure
+    print("\nStructure of factory image : " + factoryImagePath
+          + "\n[magic_code + ota_descriptor + image_content + trailer]:\n")
+    printFactoryImageStruct(processedImagePath=factoryImagePath, trailerSize=len(trailer), numLinesImageContent=10,
+                            descripFixedSize=descripFixedSize)
+
+    # convert factory image into hex format
+    print("\nConverting factory image " + factoryImagePath + " into hex format ....\n")
+    hexFilePath = factoryImagePath.replace("initial.bin", "factory.unified.hex")
+    convertToUnifiedHex(inputImagePath=factoryImagePath, outputPath=hexFilePath, bootLoaderHexPath=bootloaderHexPath)
+    print("\nHex file is generated at " + hexFilePath)
+
+    print("\nHex file info:")
+    os.system("srec_info " + hexFilePath + " -Intel ")
+
+
+
+
+
 if __name__ == "__main__":
     inputImagePath, hardwarePlatform, privateKeyPath, bootloaderHexPath = parseCMDParam()
 
@@ -254,41 +296,12 @@ if __name__ == "__main__":
     validateFilePath(bootloaderHexPath)
 
     #get ota image
-    otaImagePath = appendOTADescriptor(inputImagePath, hardwarePlatform)
+    otaImagePath = generateOTADescriptorImage(inputImagePath, hardwarePlatform)
 
 
     #sign the ota image
     digestMethod = "sha256"  # use "sha256" method
     signature = getSignitureLocally(otaImagePath, privateKeyPath, digestMethod)
 
-    typeStr = "sig-sha256-ecdsa"
-    descripFixedSize = 32  # signature description is fixed to 32 bytes, will use zeroes to fill up the rest
-    sigFixedSize = 256  # signature is fixed to 256 bytes, will use zeroes to fill up the rest
-    trailer = getTrailer(signature, typeStr, descripFixedSize, 256)
+    generateFactoryImage(signature,otaImagePath,bootloaderHexPath)
 
-    #append trailer to ota image
-    print("\nAppending trailer to image " + otaImagePath + " ...")
-    factoryImagePath = otaImagePath.replace(".ota.bin", ".initial.bin")
-    appendTrailer(inputImagePath=otaImagePath, trailer=trailer, outputPath=factoryImagePath)
-    print("\nTrailer appended! factory image generated at " + factoryImagePath)
-
-    # add factory magic code
-    print("\nAdding magic code to " + factoryImagePath + "  ...\n")
-    addFactoryMagicCode(inputImagePath=factoryImagePath, outputPath= factoryImagePath)
-
-
-    #print structure
-    print("\nStructure of factory image : "+ factoryImagePath
-          +"\n[magic_code + ota_descriptor + image_content + trailer]:\n")
-    printFactoryImageStruct(processedImagePath=factoryImagePath, trailerSize=len(trailer), numLinesImageContent=10,
-                            descripFixedSize=descripFixedSize)
-
-
-    #convert factory image into hex format
-    print("\nConverting factory image " + factoryImagePath + " into hex format ....\n")
-    hexFilePath = factoryImagePath.replace("initial.bin", "unified.factory.hex")
-    convertToHex(inputImagePath=factoryImagePath, outputPath=hexFilePath,bootLoaderHexPath=bootloaderHexPath)
-    print("\nHex file is generated at " + hexFilePath)
-
-    print("\nHex file info:")
-    os.system("srec_info " + hexFilePath + " -Intel ")

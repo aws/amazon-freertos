@@ -361,8 +361,8 @@ void _xt_coproc_release(volatile void * coproc_sa_base);
  * non-FreeRTOS-specific code, and behave the same as
  * pvPortMalloc()/vPortFree().
  */
-#define pvPortMalloc malloc
-#define vPortFree free
+#define pvPortMalloc heap_caps_malloc_default
+#define vPortFree heap_caps_free
 #define xPortGetFreeHeapSize esp_get_free_heap_size
 #define xPortGetMinimumEverFreeHeapSize esp_get_minimum_free_heap_size
 

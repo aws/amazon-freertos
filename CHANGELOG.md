@@ -1,5 +1,32 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.0 08/27/2018
+### New Features
+
+#### Demo Bootloader for Microchip Curiosity PIC32MZEF V1.0.0
+The demo bootloader supports Amazon FreeRTOS over-the-air (OTA) update by implementing firmware version checking, cryptographic signature verification, and application self-test. The firmware verification includes verifying the authenticity and integrity of the new firmware received over the air. The bootloader verifies the cryptographic signature of the application before boot. The elliptic-curve digital signature algorithm (ECDSA) with SHA256 is used. The utilities provided can be used to generate a signed application that can be flashed on the device. This enables signature verification of the initial image.
+
+### Updates
+
+#### Over-the-air (OTA) updates
+The over-the-air (OTA) updates feature of Amazon FreeRTOS is now generally available. The release includes enhancements to the OTA Agent and changes to the OTA Portable Abstraction Layer (PAL) interface.
+
+#### OTA PAL for Curiosity PIC32MZEF V1.0.0
+Update for API changes for OTA general availability release.
+
+#### OTA PAL for Windows Simulator V1.0.0
+Update for API changes for OTA general availability release.
+
+#### OTA PAL for CC3220SF-LAUNCHXL V1.0.0
+Update for API changes for OTA general availability release.
+
+#### OTA PAL for Espressif ESP32 V1.0.0
+Update for API changes for OTA general availability release.
+
+#### OTA Agent V1.0.0
+Enhancements and API changes for OTA general availability release.
+
+
 ## V1.3.2 08/21/2018
 ### New Features
 None
@@ -11,7 +38,7 @@ None
 - Disable NBNS and LLMNR by default.
 - Add TCP hang protection by default.
 
-#### Secure Socket for FreeRTOS+TCP 
+#### Secure Sockets for FreeRTOS+TCP 
 - Improve security in Amazon FreeRTOS Secure Sockets usage of mbedTLS and ALPN.
 
 We thank Ori Karliner of Zimperium zLabs Team for reporting these issues.

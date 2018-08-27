@@ -37,6 +37,8 @@ typedef struct {
     esp_partition_pos_t ota[MAX_OTA_SLOTS];
     uint32_t app_count;
     uint32_t selected_subtype;
+    esp_ota_select_entry_t se[2];
+    bool active_sec;
 } bootloader_state_t;
 
 bool flash_encrypt(bootloader_state_t *bs);

@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA PAL for Curiosity PIC32MZEF V0.9.2
+Amazon FreeRTOS OTA PAL for Curiosity PIC32MZEF V1.0.0
 Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,14 +41,15 @@ const char pcOTA_JSON_FileSignatureKey[OTA_FILE_SIG_KEY_STR_MAX_LENGTH] = "sig-s
 #define OTA_HALF_SECOND_DELAY        pdMS_TO_TICKS(500UL)
 
 /* definitions shared with the resident bootloader. */
-#define AWS_BOOT_IMAGE_SIGNATURE    "@AFRTOS"
+#define AWS_BOOT_IMAGE_SIGNATURE         "@AFRTOS"
+#define AWS_BOOT_IMAGE_SIGNATURE_SIZE    (7U)
 
 /* Microchip PAL error codes. */
 
 #define MCHP_ERR_NONE                0  /* No error. */
 #define MCHP_ERR_INVALID_CONTEXT    -1  /* The context valiation failed. */
 #define MCHP_ERR_ADDR_OUT_OF_RANGE  -2  /* The block write address was out of range. */
-#define MCHP_ERR_FLASH_WRITE_FAIL   -3  /* We failed to write data to flash. */ 
+#define MCHP_ERR_FLASH_WRITE_FAIL   -3  /* We failed to write data to flash. */
 #define MCHP_ERR_FLASH_ERASE_FAIL   -4  /* The flash erase operation failed. */
 #define MCHP_ERR_NOT_PENDING_COMMIT -5  /* Image isn't in the Pending Commit state. */
 
@@ -57,16 +58,16 @@ const char pcOTA_JSON_FileSignatureKey[OTA_FILE_SIG_KEY_STR_MAX_LENGTH] = "sig-s
 #define AWS_BOOT_FLAG_IMG_VALID          0xfcU /* 11111100b The image was accepted as valid by the self test code. */
 #define AWS_BOOT_FLAG_IMG_INVALID        0xf8U /* 11111000b The image was NOT accepted by the self test code. */
 
-/* 
+/*
  * Image Header.
  */
-typedef union 
+typedef union
 {
     uint32_t    ulAlign[2];             /* Force image header to be 8 bytes. */
     struct
     {
-        char    cImgSignature[7];       /* Signature identifying a valid application: AWS_BOOT_IMAGE_SIGNATURE. */
-        uint8_t ucImgFlags;             /* Flags from the AWS_BOOT_IMAGE_FLAG_IMG*, above. */ 
+        char    cImgSignature[AWS_BOOT_IMAGE_SIGNATURE_SIZE];       /* Signature identifying a valid application: AWS_BOOT_IMAGE_SIGNATURE. */
+        uint8_t ucImgFlags;             /* Flags from the AWS_BOOT_IMAGE_FLAG_IMG*, above. */
     };                                  /*lint !e657 This non-portable structure is strictly for the Microchip platform. */
 } BootImageHeader_t;
 
@@ -88,7 +89,7 @@ typedef struct
     uint32_t ulReserved;                /* Reserved. *//*lint -e754 -e830 intentionally unreferenced alignment word. */
 } BootImageDescriptor_t;
 
-/* 
+/*
  * Image Trailer.
  */
 typedef struct
@@ -102,8 +103,8 @@ typedef struct
  * Regarding MISRA 2012 requirements and the following values, first, the values
  * are based on definitions in an external SDK. For maintenance and portability,
  * it is undesirable to modify the external header files or duplicate their
- * contents. Second, the values in question are, by definition of the framework, 
- * valid virtual addresses that are allocated for firmware image storage. 
+ * contents. Second, the values in question are, by definition of the framework,
+ * valid virtual addresses that are allocated for firmware image storage.
  */
 
 /* The current running image is always in the lower flash bank. */
@@ -138,9 +139,9 @@ static __inline__ void prvContextClose( OTA_FileContext_t *C )
 {
     if( NULL != C)
     {
-        C->pucFile = NULL;        
+        C->pucFile = NULL;
     }
-    
+
     xCurOTAOpDesc.pxCurOTAFile = NULL;
     pxCurOTADesc = NULL;
 }
@@ -148,38 +149,38 @@ static __inline__ void prvContextClose( OTA_FileContext_t *C )
 static bool_t prvContextUpdateImageHeaderAndTrailer( OTA_FileContext_t *C  )
 {
     DEFINE_OTA_METHOD_NAME( "prvContextUpdateImageHeaderAndTrailer" );
-    
+
     BootImageHeader_t xImgHeader;
     BootImageDescriptor_t *pxImgDesc;
     BootImageTrailer_t xImgTrailer;
-    
-    memcpy( xImgHeader.cImgSignature, 
-            AWS_BOOT_IMAGE_SIGNATURE, 
+
+    memcpy( xImgHeader.cImgSignature,
+            AWS_BOOT_IMAGE_SIGNATURE,
             sizeof( xImgHeader.cImgSignature ) );
     xImgHeader.ucImgFlags = AWS_BOOT_FLAG_IMG_NEW;
-    
+
     /**
-     * Regarding MISRA 2012 requirements and this function, the implementation 
-     * of the PAL is such that there are two OTA flash banks and each starts with 
+     * Regarding MISRA 2012 requirements and this function, the implementation
+     * of the PAL is such that there are two OTA flash banks and each starts with
      * a descriptor structure.
-     * 
+     *
      * Virtual address translation is a requirement of the platform and the
      * translation macros are in the Microchip SDK. They require bitwise address
      * manipulation.
      */
-        
+
     /* Pointer to the app descriptor in the flash upper page. */
     pxImgDesc = (BootImageDescriptor_t *)KVA0_TO_KVA1(pcProgImageBankStart); /*lint !e9078 !e923 !e9027 !e9029 !e9033 !e9079 Please see the comment header block above. */
-    
+
     /* Write header to flash. */
-    bool_t bProgResult = ( bool_t )AWS_FlashProgramBlock( pcProgImageBankStart, 
-                                                          (const uint8_t*) &xImgHeader, 
+    bool_t bProgResult = ( bool_t )AWS_FlashProgramBlock( pcProgImageBankStart,
+                                                          (const uint8_t*) &xImgHeader,
                                                           sizeof(xImgHeader));
 
     OTA_LOG_L1( "[%s] OTA Sequence Number: %d\r\n", OTA_METHOD_NAME, pxImgDesc->ulSequenceNum );
     OTA_LOG_L1( "[%s] Image - Start: 0x%08x, End: 0x%08x\r\n", OTA_METHOD_NAME,
               pxImgDesc->pvStartAddr, pxImgDesc->pvEndAddr );
-    
+
     /* If header write is successful write trailer. */
     if(bProgResult)
     {
@@ -187,35 +188,35 @@ static bool_t prvContextUpdateImageHeaderAndTrailer( OTA_FileContext_t *C  )
         memcpy( xImgTrailer.aucSignatureType, pcOTA_JSON_FileSignatureKey, sizeof(pcOTA_JSON_FileSignatureKey) );
         xImgTrailer.ulSignatureSize = C->pxSignature->usSize;
         memcpy( xImgTrailer.aucSignature, C->pxSignature->ucData, C->pxSignature->usSize );
-    
+
         /* Pointer to the trailer in the flash upper page. */
-        const uint8_t*  pxAppImgTrailerPtr = (const uint8_t*)(pcProgImageBankStart) + sizeof(BootImageHeader_t) +  pxCurOTADesc->ulHighImageOffset;    
-    
+        const uint8_t*  pxAppImgTrailerPtr = (const uint8_t*)(pcProgImageBankStart) + sizeof(BootImageHeader_t) +  pxCurOTADesc->ulHighImageOffset;
+
         bProgResult = AWS_FlashProgramBlock(pxAppImgTrailerPtr, (const uint8_t*) &xImgTrailer, sizeof(xImgTrailer));
-    
+
         OTA_LOG_L1( "[%s] Writing Trailer at: 0x%08x\n", OTA_METHOD_NAME, pxAppImgTrailerPtr );
     }
 
     return bProgResult;
 }
 
-/* 
+/*
  * Turns the watchdog timer off.
  */
 static void prvPAL_WatchdogDisable( void )
 {
     DEFINE_OTA_METHOD_NAME( "prvPAL_WatchdogDisable" );
-     
+
     OTA_LOG_L1( "[%s] Disable watchdog timer. \n", OTA_METHOD_NAME );
-     
+
     /* Turn off the WDT. */
     WDTCONbits.ON = 0;
 }
 
 
 /**
- * @brief Attempts to create a new receive file to write the file chunks to as 
- * they come in. 
+ * @brief Attempts to create a new receive file to write the file chunks to as
+ * they come in.
  */
 OTA_Err_t prvPAL_CreateFileForRx(OTA_FileContext_t *C)
 {
@@ -233,11 +234,11 @@ OTA_Err_t prvPAL_CreateFileForRx(OTA_FileContext_t *C)
     else
     {
         /* Program this new file in the upper flash bank. */
-        if( AWS_FlashErase() == ( bool_t ) pdFALSE )
+        if( AWS_FlashEraseUpdateBank() == ( bool_t ) pdFALSE )
         {
             OTA_LOG_L1( "[%s] Error: Failed to erase the flash!\r\n", OTA_METHOD_NAME );
             lErr = MCHP_ERR_FLASH_ERASE_FAIL;
-        }        
+        }
         else
         {
             pxCurOTADesc = &xCurOTAOpDesc;
@@ -259,8 +260,8 @@ OTA_Err_t prvPAL_CreateFileForRx(OTA_FileContext_t *C)
 }
 
 /**
- * @brief Aborts access to an existing open file. This is only valid after a job 
- * starts successfully. 
+ * @brief Aborts access to an existing open file. This is only valid after a job
+ * starts successfully.
  */
 OTA_Err_t prvPAL_Abort(OTA_FileContext_t *C)
 {
@@ -301,18 +302,18 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C, uint32_t ulOffset, uint8
         {
             pxCurOTADesc->ulHighImageOffset = ulOffset + ulBlockSize;
         }
-        
+
         const uint8_t* pucFlashAddr = &pcProgImageBankStart[sizeof ( BootImageHeader_t ) + ulOffset ]; /* Image descriptor is not part of the image. */
-        
+
         /* NVM writes are quad word write so pad if writing less than Quad Words . */
         if( ulBlockSize < AWS_NVM_QUAD_SIZE )
         {
             memset( ucPadBuff , 0xFF ,AWS_NVM_QUAD_SIZE );
             memcpy( ucPadBuff , pcData ,  ulBlockSize);
-            
+
             pucWriteData = ucPadBuff;
             ulWriteBlockSzie = AWS_NVM_QUAD_SIZE;
-        } 
+        }
 
         if ( AWS_FlashProgramBlock( pucFlashAddr, pucWriteData, ulWriteBlockSzie ) == ( bool_t ) pdFALSE )
         {   /* Failed to program block to flash. */
@@ -327,8 +328,8 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C, uint32_t ulOffset, uint8
 }
 
 /**
- * @brief Closes the specified file. This will also authenticate the file if it 
- * is marked as secure. 
+ * @brief Closes the specified file. This will also authenticate the file if it
+ * is marked as secure.
  */
 OTA_Err_t prvPAL_CloseFile(OTA_FileContext_t *C)
 {
@@ -344,9 +345,9 @@ OTA_Err_t prvPAL_CloseFile(OTA_FileContext_t *C)
     if( kOTA_Err_None == eResult )
     {
         /* Verify that a block has actually been written by checking that the high image offset
-         is greater than the low image offset. If that is not the case, then an invalid memory location 
+         is greater than the low image offset. If that is not the case, then an invalid memory location
          may get passed to CRYPTO_SignatureVerificationUpdate, resulting in a data bus error. */
-        if( ( C->pxSignature != NULL ) && 
+        if( ( C->pxSignature != NULL ) &&
             ( pxCurOTADesc->ulHighImageOffset > pxCurOTADesc->ulLowImageOffset ) )
         {
             OTA_LOG_L1( "[%s] Authenticating and closing file.\r\n", OTA_METHOD_NAME );
@@ -359,9 +360,9 @@ OTA_Err_t prvPAL_CloseFile(OTA_FileContext_t *C)
             eResult = kOTA_Err_SignatureCheckFailed;
         }
     }
-    
+
 	if( kOTA_Err_None == eResult )
-	{   
+	{
         /* Update the image header. */
 		OTA_LOG_L1( "[%s] %s signature verification passed.\r\n", OTA_METHOD_NAME, pcOTA_JSON_FileSignatureKey );
         if( prvContextUpdateImageHeaderAndTrailer(  C ) == ( bool_t ) pdTRUE )
@@ -419,19 +420,19 @@ static OTA_Err_t prvPAL_CheckFileSignature(OTA_FileContext_t * const C)
                                                     C->pxSignature->ucData, C->pxSignature->usSize ) == pdFALSE )
             {
                 eResult = kOTA_Err_SignatureCheckFailed;
-                
-                /* Erase the image as signature verification failed.*/          
-               if( AWS_FlashErase() == ( bool_t ) pdFALSE )
+
+                /* Erase the image as signature verification failed.*/
+               if( AWS_FlashEraseUpdateBank() == ( bool_t ) pdFALSE )
                {
                    OTA_LOG_L1( "[%s] Error: Failed to erase the flash !\r\n", OTA_METHOD_NAME );
-               } 
+               }
             }
             else
             {
                 eResult = kOTA_Err_None;
             }
         }
-    }     
+    }
     /* Free the signer certificate that we now own after prvPAL_ReadAndAssumeCertificate(). */
     if( pucSignerCert != NULL )
     {
@@ -452,7 +453,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate(const uint8_t * const pucCertNa
     uint8_t*    pucCertData;
     uint32_t    ulCertSize;
 	uint8_t		*pucSignerCert = NULL;
-    
+
     extern BaseType_t PKCS11_PAL_ReadFile( const char * pcFileName,
                                uint8_t ** ppucData,
                                uint32_t * pulDataSize );
@@ -496,7 +497,7 @@ OTA_Err_t prvPAL_ResetDevice( void )
     /* Short delay for debug log output before reset. */
     vTaskDelay( OTA_HALF_SECOND_DELAY );
     SYS_RESET_SoftwareReset( );
-    
+
     /* We shouldn't actually get here if the board supports the auto reset.
      * But, it doesn't hurt anything if we do although someone will need to
      * reset the device for the new image to boot. */
@@ -525,105 +526,148 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
     BootImageDescriptor_t xDescCopy;
 	OTA_Err_t eResult = kOTA_Err_Uninitialized;
 
-    /* Descriptor handle for the image being executed, which is always the lower bank. */	
+    /* Descriptor handle for the image being executed, which is always the lower bank. */
     const BootImageDescriptor_t* pxAppImgDesc;
     pxAppImgDesc = ( const BootImageDescriptor_t* ) KVA0_TO_KVA1( pcFlashLowerBankStart ); /*lint !e923 !e9027 !e9029 !e9033 !e9079 !e9078 !e9087 Please see earlier lint comment header. */
     xDescCopy = *pxAppImgDesc;  /* Copy image descriptor from flash into RAM struct. */
-    
-    /* Descriptor handle for the program image, which is always the upper bank. */	
-    const BootImageDescriptor_t* pxAppImgDescProgImageBank;
-    pxAppImgDescProgImageBank = ( const BootImageDescriptor_t* ) KVA0_TO_KVA1( pcProgImageBankStart );
-    
 
-	if ( eState == eOTA_ImageState_Accepted )
+    /* This should be an image launched in self test mode! */
+    if ( xDescCopy.xImgHeader.ucImgFlags == AWS_BOOT_FLAG_IMG_PENDING_COMMIT )
     {
-        /* This should be an image launched in self test mode! */
-        if ( xDescCopy.xImgHeader.ucImgFlags == AWS_BOOT_FLAG_IMG_PENDING_COMMIT )
-        {   
+        if(eState == eOTA_ImageState_Accepted)
+        {
             /* Mark the image as valid */
             xDescCopy.xImgHeader.ucImgFlags = AWS_BOOT_FLAG_IMG_VALID;
 
             if ( AWS_NVM_QuadWordWrite( pxAppImgDesc->xImgHeader.ulAlign, xDescCopy.xImgHeader.ulAlign,
-                                       sizeof( xDescCopy ) / AWS_NVM_QUAD_SIZE ) == ( bool_t ) pdTRUE )
+                                        sizeof( xDescCopy ) / AWS_NVM_QUAD_SIZE ) == ( bool_t ) pdTRUE )
             {
                 OTA_LOG_L1( "[%s] Accepted and committed final image.\r\n", OTA_METHOD_NAME );
-                
+
                 /* Disable the watchdog timer. */
                 prvPAL_WatchdogDisable();
-                
+
+                /* We always execute from the lower bank and self-test is good, we should erase the older
+                 * version of the firmware by doing bank erase on upper bank. */
+                if( AWS_FlashEraseUpdateBank() == ( bool_t ) pdFALSE )
+                {
+                    OTA_LOG_L1( "[%s] Warning: Failed to erase the other image!\r\n", OTA_METHOD_NAME );
+                }
+
                 eResult = kOTA_Err_None;
             }
             else
             {
                 OTA_LOG_L1( "[%s] Accepted final image but commit failed (%d).\r\n", OTA_METHOD_NAME,
-                           MCHP_ERR_FLASH_WRITE_FAIL );
+                            MCHP_ERR_FLASH_WRITE_FAIL );
                 eResult = ( uint32_t ) kOTA_Err_CommitFailed | ( ( ( uint32_t ) MCHP_ERR_FLASH_WRITE_FAIL ) & ( uint32_t ) kOTA_PAL_ErrMask );
             }
         }
-        else
+        else if ( eState == eOTA_ImageState_Rejected )
         {
-            OTA_LOG_L1( "[%s] Warning: image is not pending commit (0x%02x)\r\n", OTA_METHOD_NAME, xDescCopy.xImgHeader.ucImgFlags );
-            if ( xDescCopy.xImgHeader.ucImgFlags == AWS_BOOT_FLAG_IMG_VALID )
+            /* Mark the image as invalid */
+            xDescCopy.xImgHeader.ucImgFlags = AWS_BOOT_FLAG_IMG_INVALID;
+
+            if ( AWS_NVM_QuadWordWrite( pxAppImgDesc->xImgHeader.ulAlign, xDescCopy.xImgHeader.ulAlign,
+                                        sizeof( xDescCopy ) / AWS_NVM_QUAD_SIZE ) == ( bool_t ) pdTRUE )
             {
+                OTA_LOG_L1( "[%s] Rejected image.\r\n", OTA_METHOD_NAME );
+
                 eResult = kOTA_Err_None;
             }
             else
             {
-                eResult = ( uint32_t ) kOTA_Err_CommitFailed | ( ( ( uint32_t ) MCHP_ERR_NOT_PENDING_COMMIT ) & ( uint32_t ) kOTA_PAL_ErrMask );
+                OTA_LOG_L1( "[%s] Failed updating the flags.(%d).\r\n", OTA_METHOD_NAME,
+                            MCHP_ERR_FLASH_WRITE_FAIL );
+                eResult = ( uint32_t ) kOTA_Err_RejectFailed | ( ( ( uint32_t ) MCHP_ERR_FLASH_WRITE_FAIL ) & ( uint32_t ) kOTA_PAL_ErrMask );
             }
         }
-    }
-    else if ( eState == eOTA_ImageState_Rejected )
-    {
-	/* The image in the program image bank (upper bank) is rejected so mark it invalid.  */    
-	    
-        /* Copy the descriptor in program bank. */
-        xDescCopy = *pxAppImgDescProgImageBank;
-        
-        /* Mark the image in program bank as invalid */
-        xDescCopy.xImgHeader.ucImgFlags = AWS_BOOT_FLAG_IMG_INVALID;
+        else if ( eState == eOTA_ImageState_Aborted )
+        {
+            /* Mark the image as invalid */
+            xDescCopy.xImgHeader.ucImgFlags = AWS_BOOT_FLAG_IMG_INVALID;
 
-        if ( AWS_NVM_QuadWordWrite( pxAppImgDescProgImageBank->xImgHeader.ulAlign, xDescCopy.xImgHeader.ulAlign,
-                                    sizeof( xDescCopy ) / AWS_NVM_QUAD_SIZE ) == ( bool_t ) pdTRUE ) {
-            OTA_LOG_L1( "[%s] Rejecting and invalidating image.\r\n", OTA_METHOD_NAME );
+            if ( AWS_NVM_QuadWordWrite( pxAppImgDesc->xImgHeader.ulAlign, xDescCopy.xImgHeader.ulAlign,
+                                        sizeof( xDescCopy ) / AWS_NVM_QUAD_SIZE ) == ( bool_t ) pdTRUE )
+            {
+                OTA_LOG_L1( "[%s] Aborted image.\r\n", OTA_METHOD_NAME );
+
+                eResult = kOTA_Err_None;
+            }
+            else
+            {
+                OTA_LOG_L1( "[%s] Failed updating the flags.(%d).\r\n", OTA_METHOD_NAME,
+                            MCHP_ERR_FLASH_WRITE_FAIL );
+                eResult = ( uint32_t ) kOTA_Err_AbortFailed | ( ( ( uint32_t ) MCHP_ERR_FLASH_WRITE_FAIL ) & ( uint32_t ) kOTA_PAL_ErrMask );
+            }
+        }
+        else if ( eState == eOTA_ImageState_Testing )
+        {
             eResult = kOTA_Err_None;
         }
-        else {
-            OTA_LOG_L1( "[%s] Reject failed to invalidate the final image (%d).\r\n", OTA_METHOD_NAME,
-                        MCHP_ERR_FLASH_WRITE_FAIL );
-            eResult = ( uint32_t ) kOTA_Err_RejectFailed | ( ( ( uint32_t ) MCHP_ERR_FLASH_WRITE_FAIL ) & ( uint32_t ) kOTA_PAL_ErrMask );
+        else
+        {
+            OTA_LOG_L1( "[%s] Unknown state received %d.\r\n", OTA_METHOD_NAME, ( int32_t ) eState );
+            eResult = kOTA_Err_BadImageState;
         }
-    }
-    else if ( eState == eOTA_ImageState_Aborted ) 
-    {
-	/* The OTA on program image bank (upper bank) is aborted so mark it as invalid.  */ 
-	    
-        /* Copy the descriptor in program bank. */
-        xDescCopy = *pxAppImgDescProgImageBank;
-        
-        /* Mark the image in upper bank as invalid */
-        xDescCopy.xImgHeader.ucImgFlags = AWS_BOOT_FLAG_IMG_INVALID;
-
-        if ( AWS_NVM_QuadWordWrite( pxAppImgDescProgImageBank->xImgHeader.ulAlign, xDescCopy.xImgHeader.ulAlign,
-                                    sizeof (xDescCopy ) / AWS_NVM_QUAD_SIZE ) == ( bool_t ) pdTRUE  ) {
-            OTA_LOG_L1( "[%s] Aborting and invalidating image.\r\n", OTA_METHOD_NAME );
-            eResult = kOTA_Err_None;
-        }
-        else {
-            OTA_LOG_L1( "[%s] Abort failed to invalidate the final image (%d).\r\n", OTA_METHOD_NAME,
-                        MCHP_ERR_FLASH_WRITE_FAIL );
-            eResult = ( uint32_t ) kOTA_Err_AbortFailed | ( ( ( uint32_t ) MCHP_ERR_FLASH_WRITE_FAIL ) & ( uint32_t ) kOTA_PAL_ErrMask );
-        }
-    }
-    else if ( eState == eOTA_ImageState_Testing )
-    {
-        eResult = kOTA_Err_None;
     }
     else
     {
-        eResult = kOTA_Err_BadImageState;
+        /* Not in self-test mode so get the descriptor for image in upper bank. */
+        pxAppImgDesc = ( const BootImageDescriptor_t* ) KVA0_TO_KVA1( pcProgImageBankStart );
+        xDescCopy = *pxAppImgDesc;
+
+        if( eState == eOTA_ImageState_Accepted )
+        {
+            /* We are not in self-test mode so can not set the image in upper bank as valid.  */
+            OTA_LOG_L1( "[%s] Not in commit pending so can not mark image valid (%d).\r\n", OTA_METHOD_NAME,
+                                MCHP_ERR_NOT_PENDING_COMMIT );
+            eResult = ( uint32_t ) kOTA_Err_CommitFailed | ( ( ( uint32_t ) MCHP_ERR_NOT_PENDING_COMMIT ) & ( uint32_t ) kOTA_PAL_ErrMask );
+
+        }
+        else if ( eState == eOTA_ImageState_Rejected  )
+        {
+            OTA_LOG_L1( "[%s] Rejected image.\r\n", OTA_METHOD_NAME );
+
+            /* The OTA on program image bank (upper bank) is rejected so erase the bank.  */
+            if( AWS_FlashEraseUpdateBank() == ( bool_t ) pdFALSE )
+            {
+                OTA_LOG_L1( "[%s] Error: Failed to erase the flash! (%d).\r\n", OTA_METHOD_NAME,
+                             MCHP_ERR_FLASH_ERASE_FAIL );
+                eResult = ( uint32_t ) kOTA_Err_RejectFailed | ( ( ( uint32_t ) MCHP_ERR_FLASH_ERASE_FAIL ) & ( uint32_t ) kOTA_PAL_ErrMask );
+            }
+            else
+            {
+                eResult = kOTA_Err_None;
+            }
+
+        }
+        else if ( eState == eOTA_ImageState_Aborted )
+        {
+            OTA_LOG_L1( "[%s] Aborted image.\r\n", OTA_METHOD_NAME );
+
+            /* The OTA on program image bank (upper bank) is aborted so erase the bank.  */
+            if( AWS_FlashEraseUpdateBank() == ( bool_t ) pdFALSE )
+            {
+                OTA_LOG_L1( "[%s] Error: Failed to erase the flash! (%d).\r\n", OTA_METHOD_NAME,
+                             MCHP_ERR_FLASH_ERASE_FAIL );
+                eResult = ( uint32_t ) kOTA_Err_AbortFailed | ( ( ( uint32_t ) MCHP_ERR_FLASH_ERASE_FAIL ) & ( uint32_t ) kOTA_PAL_ErrMask );
+            }
+            else
+            {
+                eResult = kOTA_Err_None;
+            }
+        }
+        else if ( eState == eOTA_ImageState_Testing )
+        {
+            eResult = kOTA_Err_None;
+        }
+        else
+        {
+            eResult = kOTA_Err_BadImageState;
+        }
     }
-    
+
 	return eResult;
 }
 
@@ -641,32 +685,64 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
 OTA_PAL_ImageState_t prvPAL_GetPlatformImageState( void )
 {
     BootImageDescriptor_t xDescCopy;
-    OTA_PAL_ImageState_t eImageState = eOTA_PAL_ImageState_Unknown;
+    OTA_PAL_ImageState_t eImageState = eOTA_PAL_ImageState_Invalid;
     const BootImageDescriptor_t* pxAppImgDesc;
+
     pxAppImgDesc = ( const BootImageDescriptor_t* ) KVA0_TO_KVA1( pcFlashLowerBankStart ); /*lint !e923 !e9027 !e9029 !e9033 !e9079 !e9078 !e9087 Please see earlier lint comment header. */
     xDescCopy = *pxAppImgDesc;
 
-
-    switch ( xDescCopy.xImgHeader.ucImgFlags )
+    /**
+     *  Check if valid magic code is present for the application image in lower bank.
+     */
+    if( memcmp( pxAppImgDesc->xImgHeader.cImgSignature,
+                AWS_BOOT_IMAGE_SIGNATURE,
+                AWS_BOOT_IMAGE_SIGNATURE_SIZE ) == 0 )
     {
-        case AWS_BOOT_FLAG_IMG_PENDING_COMMIT:
+
+        if(xDescCopy.xImgHeader.ucImgFlags == AWS_BOOT_FLAG_IMG_PENDING_COMMIT)
         {
             /* Pending Commit means we're in the Self Test phase. */
             eImageState = eOTA_PAL_ImageState_PendingCommit;
-            break;
         }
-        case AWS_BOOT_FLAG_IMG_VALID:
-        case AWS_BOOT_FLAG_IMG_NEW:
+        else
         {
-            eImageState = eOTA_PAL_ImageState_Valid;
-            break;
-        }
-        default:
-        {
-            eImageState = eOTA_PAL_ImageState_Invalid;
-            break;
+            /* The commit pending flag for application in lower bank is not set so we are not in self-test phase
+             so use the header flags from program bank(upper bank). */
+            pxAppImgDesc = ( const BootImageDescriptor_t* ) KVA0_TO_KVA1( pcProgImageBankStart );
+            xDescCopy = *pxAppImgDesc;
+
+            /**
+             *  Check if valid magic code is present for the application image in upper bank.
+             */
+            if( memcmp( pxAppImgDesc->xImgHeader.cImgSignature,
+                AWS_BOOT_IMAGE_SIGNATURE,
+                AWS_BOOT_IMAGE_SIGNATURE_SIZE ) == 0 )
+            {
+
+                switch ( xDescCopy.xImgHeader.ucImgFlags )
+                {
+                    case AWS_BOOT_FLAG_IMG_PENDING_COMMIT:
+                    {
+                        eImageState = eOTA_PAL_ImageState_PendingCommit;
+                        break;
+                    }
+                    case AWS_BOOT_FLAG_IMG_VALID:
+                    case AWS_BOOT_FLAG_IMG_NEW:
+                    {
+                        eImageState = eOTA_PAL_ImageState_Valid;
+                        break;
+                    }
+                    default:
+                    {
+                        eImageState = eOTA_PAL_ImageState_Invalid;
+                        break;
+                    }
+                }
+            }
+
         }
     }
+
     return eImageState;
 }
 

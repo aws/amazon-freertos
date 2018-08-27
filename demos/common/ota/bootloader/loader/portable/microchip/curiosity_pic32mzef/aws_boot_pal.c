@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Reference Bootloader V0.9.0
+ * Amazon FreeRTOS Demo Bootloader V1.4.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -103,7 +103,7 @@ BaseType_t BOOT_PAL_WatchdogEnable( void )
 {
     BaseType_t xReturn = pdFALSE;
 
-    /* Turn off WDT. */
+    /* Turn on WDT. */
     WDTCONbits.ON = 1;
 
     /* Check if its on. */

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA PAL for Windows Simulator V0.9.2
+ * Amazon FreeRTOS OTA PAL for Windows Simulator V1.0.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -67,7 +67,7 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
         {
             C->pstFile = fopen( ( const char * )C->pacFilepath, "w+b" ); /*lint !e586
                                                                            * C standard library call is being used for portability. */
-                                                                          
+
             if ( C->pstFile != NULL )
             {
                 eResult = kOTA_Err_None;

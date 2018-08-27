@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.4
+ * Amazon FreeRTOS V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -147,6 +147,20 @@ int app_main( void )
             ucDNSServerAddress,
             ucMACAddress );
 
+    if( SYSTEM_Init() == pdPASS )
+    {
+        /* Connect to the wifi before running the tests. */
+        prvWifiConnect();
+
+        /* Create the task to run unit tests. */
+        xTaskCreate( TEST_RUNNER_RunTests_task,
+                "RunTests_task",
+                mainTEST_RUNNER_TASK_STACK_SIZE,
+                NULL,
+                tskIDLE_PRIORITY + 5,
+                NULL );
+    }
+
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
@@ -171,19 +185,6 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    if( SYSTEM_Init() == pdPASS )
-    {
-        /* Connect to the wifi before running the tests. */
-        prvWifiConnect();
-
-        /* Create the task to run unit tests. */
-        xTaskCreate( TEST_RUNNER_RunTests_task,
-                "RunTests_task",
-                mainTEST_RUNNER_TASK_STACK_SIZE,
-                NULL,
-                tskIDLE_PRIORITY + 5,
-                NULL );
-    }
 }
 /*-----------------------------------------------------------*/
 
@@ -222,7 +223,7 @@ void prvWifiConnect( void )
     }
     else
     {
-        configPRINTF( ( "WiFi failed to connect to AP.\r\n" ) );
+        configPRINTF( ( "WiFi failed to connect to AP %s.\r\n", clientcredentialWIFI_SSID ) );
 
         while( 1 )
         {

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Reference Bootloader V0.9.0
+ * Amazon FreeRTOS Demo Bootloader V1.4.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -413,10 +413,10 @@ static BOOTState_t prvBOOT_Error( void )
 {
     DEFINE_BOOT_METHOD_NAME( "prvBOOT_Error" );
 
+    BOOT_LOG_L1( "[%s] No valid image found.\r\n", BOOT_METHOD_NAME );
+    
     /* Nothing to Boot, notify error. */
     BOOT_PAL_NotifyBootError();
-
-    BOOT_LOG_L1( "[%s] No valid image found.\r\n", BOOT_METHOD_NAME );
 }
 
 /*-----------------------------------------------------------*/

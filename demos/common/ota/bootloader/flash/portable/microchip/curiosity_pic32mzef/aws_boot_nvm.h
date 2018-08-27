@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Reference Bootloader V0.9.0
+ * Amazon FreeRTOS Demo Bootloader V1.4.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,8 +24,6 @@
  */
 
 
-
-
 #ifndef _AWS_BOOT_NVM_H_
 #define _AWS_BOOT_NVM_H_
 
@@ -43,8 +41,6 @@ bool AWS_NVM_QuadWordWrite( const uint32_t * address,
 /* toggles the mapping of the program flash panels: */
 /* lower <-> upper */
 void AWS_NVM_ToggleFlashBanks( void );
-
-/* test routines */
 
 bool AWS_UpperBootPageErase( const uint32_t * pagePtr );
 

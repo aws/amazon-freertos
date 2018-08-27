@@ -105,7 +105,7 @@ MEMORY
     kseg0_boot_reserved     : ORIGIN = 0x9D000000, LENGTH = 0x20   
  
     kseg1_boot_mem          : ORIGIN = 0x9D000000 + 0x20, LENGTH = 0x480
-    kseg0_program_mem  (rx) : ORIGIN = 0x9D000000 + 0x20 + 0x480, LENGTH = (0x200000 / 2) - 0x480
+    kseg0_program_mem  (rx) : ORIGIN = 0x9D000000 + 0x20 + 0x480, LENGTH = (0x200000 / 2) - 0x4A0
     kseg0_boot_mem          : ORIGIN = 0x9D000000 + 0x20, LENGTH = 0x0   
   kseg0_data_mem       (w!x)  : ORIGIN = 0x80000000, LENGTH = 0x80000
   sfrs                        : ORIGIN = 0xBF800000, LENGTH = 0x100000

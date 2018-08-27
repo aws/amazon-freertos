@@ -148,6 +148,7 @@ typedef uint32_t OTA_Err_t;
 #define kOTA_Err_JobParserError         0x24000000UL      /*!< An error occurred during job document parsing. See reason sub-code. */
 #define kOTA_Err_FailedToEncodeCBOR     0x25000000UL      /*!< Failed to encode CBOR object. */
 #define kOTA_Err_ImageStateMismatch     0x26000000UL      /*!< The OTA job was in Self Test but the platform image state was not. Possible tampering. */
+#define kOTA_Err_GenericIngestError     0x27000000UL      /*!< A failure in block ingestion not caused by the PAL. See the error sub code. */
 #define kOTA_Err_UserAbort              0x28000000UL      /*!< User aborted the active OTA. */
 #define kOTA_Err_ResetNotSupported      0x29000000UL      /*!< We tried to reset the device but the device doesn't support it. */
 #define kOTA_Err_TopicTooLarge          0x2a000000UL      /*!< Attempt to build a topic string larger than the supplied buffer. */

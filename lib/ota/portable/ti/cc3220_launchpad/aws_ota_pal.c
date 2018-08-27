@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V0.9.4
+Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V1.0.0
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,7 +51,8 @@ const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig
                                   ( uint32_t )  SL_FS_INFO_SECURE | \
                                   ( uint32_t )  SL_FS_INFO_NOSIGNATURE | \
                                   ( uint32_t )  SL_FS_INFO_PUBLIC_WRITE | \
-                                  ( uint32_t )  SL_FS_INFO_PUBLIC_READ )
+                                  ( uint32_t )  SL_FS_INFO_PUBLIC_READ | \
+                                  ( uint32_t )  SL_FS_INFO_NOT_VALID )
 
 #define OTA_FW_FILE_CHECK_GOOD  ( ( uint32_t )  SL_FS_INFO_SYS_FILE | \
                                   ( uint32_t )  SL_FS_INFO_SECURE | \
@@ -472,23 +473,23 @@ OTA_PAL_ImageState_t prvPAL_GetPlatformImageState ( void )
         if ( ( xFileInfo.Flags & ( _u16 ) SL_FS_INFO_PENDING_BUNDLE_COMMIT ) != 0U )
         {
             eState = eOTA_PAL_ImageState_PendingCommit;
-        }
-        else if ( ( xFileInfo.Flags & ( _u16 ) SL_FS_INFO_NOT_VALID ) != 0U )
-        {
-            eState = eOTA_PAL_ImageState_Invalid;
+            OTA_LOG_L1("[%s] eOTA_PAL_ImageState_PendingCommit\r\n", OTA_METHOD_NAME );
         }
         else if ( ( xFileInfo.Flags & OTA_FW_FILE_CHECK_FLAGS ) == OTA_FW_FILE_CHECK_GOOD )
         {
             eState = eOTA_PAL_ImageState_Valid;
+            OTA_LOG_L1("[%s] eOTA_PAL_ImageState_Valid\r\n", OTA_METHOD_NAME );
         }
-        else
+        else    /* All other combinations are considered invalid. */
         {
-            OTA_LOG_L1("[%s] Unable to determine platform image state from flags.\r\n", OTA_METHOD_NAME );
+            eState = eOTA_PAL_ImageState_Invalid;
+            OTA_LOG_L1("[%s] eOTA_PAL_ImageState_Invalid\r\n", OTA_METHOD_NAME );
         }
     }
     else
     {
         OTA_LOG_L1("[%s] sl_FsGetInfo failed (%d) on %s\r\n", OTA_METHOD_NAME, ( int32_t ) lResult, pcTI_FW_Filename );
+        eState = eOTA_PAL_ImageState_Invalid;
     }
     return eState;
 }

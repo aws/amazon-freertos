@@ -111,3 +111,4 @@ use inputImage.bin, MCHP-Curiosity-PIC32MZEF, private_key.pem & aws.bootloader.X
 
 
     python factory_image_generator.py -b inputImage.bin -p MCHP-Curiosity-PIC32MZEF -k private_key.pem -x aws.bootloader.X.hex
+	

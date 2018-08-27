@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Reference Bootloader V0.9.0
+ * Amazon FreeRTOS Demo Bootloader V1.4.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,6 +49,8 @@
  * key 1*/
 
 #define NVM_PROGRAM_UNLOCK_KEY2    0x556699AA
+
+#define AWS_NVM_QUAD_MASK    0xfffffff0
 
 /* prototypes */
 static bool AWS_NVMOperation( uint32_t nvmop );
@@ -155,11 +157,6 @@ static void AWS_NVMClearError( void )
     AWS_NVMOperation( NO_OPERATION );
 }
 
-/* test routines */
-#define FLASH_BOOT_TEST    1
-
-
-#if ( FLASH_BOOT_TEST != 0 )
 
 /*-----------------------------------------------------------*/
 
@@ -230,160 +227,6 @@ static void AWS_NVMClearError( void )
         return PLIB_NVM_IsBootPageWriteProtected( NVM_ID_0, UPPER_BOOT_ALIAS_PAGE4 );
     }
 
-    #define AWS_NVM_QUAD_MASK    0xfffffff0
-
-/*extern void UART_Write(const char* str);  //prsd */
-
-    static bool AWS_NVM_QuadWordWriteTest( const void * address,
-                                           uint32_t * data,
-                                           int nQuads,
-                                           int type );
-
-/*-----------------------------------------------------------*/
-
-    bool AWS_FlashProgramBlock( const uint8_t * address,
-                                const uint8_t * pData,
-                                uint32_t size )
-    {
-        char print_buff[ 100 ];
-        uint32_t quad_buff[ AWS_NVM_QUAD_SIZE / sizeof( uint32_t ) ];
-
-        const uint8_t * start_quad = ( const uint8_t * ) ( ( uint32_t ) address & AWS_NVM_QUAD_MASK );                                  /* quad to start with */
-        const uint8_t * first_quad = start_quad + AWS_NVM_QUAD_SIZE;                                                                    /* first full quad */
-        const uint8_t * end_quad = ( const uint8_t * ) ( ( ( uint32_t ) address + size + AWS_NVM_QUAD_SIZE - 1 ) & AWS_NVM_QUAD_MASK ); /* last quad pointer, past the memory area */
-        const uint8_t * last_quad = end_quad - AWS_NVM_QUAD_SIZE;                                                                       /* last full quad pointer */
-
-        int n_quads = ( end_quad - start_quad ) / AWS_NVM_QUAD_SIZE;
-
-        bool flash_fault = false;
-
-        while( n_quads )
-        {
-            int start_gap = address - start_quad;           /* not used bytes in the start quad */
-            int last_gap = end_quad - ( address + size );   /* not used bytes in the last quad */
-            int last_fill = ( address + size ) - last_quad; /* payload bytes in the last quad */
-            int start_load = AWS_NVM_QUAD_SIZE - start_gap; /* useful bytes at beginning */
-
-            sprintf( print_buff, "\r\n start quad: 0x%08x, first quad: 0x%08x, end quad: 0x%08x, last_quad: 0x%08x\r\n", start_quad, first_quad, end_quad, last_quad );
-            /*UART_Write(print_buff);  //prsd */
-
-            sprintf( print_buff, "\r\n start gap: %d, start load: %d, last fill: %d, last gap: %d\r\n", start_gap, start_load, last_fill, last_gap );
-            /*UART_Write(print_buff);  //prsd */
-
-            if( start_gap != 0 )
-            { /* not complete quad at the beginning */
-                memset( quad_buff, 0xff, sizeof( quad_buff ) );
-                memcpy( ( uint8_t * ) quad_buff + start_gap, pData, start_load );
-
-                if( !AWS_NVM_QuadWordWriteTest( start_quad, quad_buff, 1, 0 ) )
-                {
-                    flash_fault = true;
-                    break;
-                }
-
-                start_quad = first_quad;
-                pData += start_load;
-                n_quads--;
-            }
-
-            if( last_gap == 0 )
-            {
-                if( !AWS_NVM_QuadWordWriteTest( start_quad, ( uint32_t * ) pData, n_quads, 1 ) )
-                {
-                    flash_fault = true;
-                }
-
-                break;
-            }
-
-            /* there is left payload data in the last quad */
-            /* program full quads first */
-            if( !AWS_NVM_QuadWordWriteTest( start_quad, ( uint32_t * ) pData, n_quads - 1, 2 ) )
-            {
-                flash_fault = true;
-                break;
-            }
-
-            /* now program the last quad */
-            memset( quad_buff, 0xff, sizeof( quad_buff ) );
-            memcpy( ( uint8_t * ) quad_buff, pData + ( n_quads - 1 ) * AWS_NVM_QUAD_SIZE, last_fill );
-
-            if( !AWS_NVM_QuadWordWriteTest( last_quad, quad_buff, 1, 3 ) )
-            {
-                flash_fault = true;
-            }
-
-            break;
-        }
-
-        return !flash_fault;
-    }
-
-/*-----------------------------------------------------------*/
-
-    static bool AWS_NVM_QuadWordWriteTest( const void * address,
-                                           uint32_t * data,
-                                           int nQuads,
-                                           int type )
-    {
-        int ix;
-        char quad_buff[ 16 * 3 + 1 ];
-        char print_buff[ 100 ];
-
-        const char * msg;
-
-        switch( type )
-        {
-            case 0:
-                msg = "start";
-                break;
-
-            case 1:
-                msg = "all mid";
-                break;
-
-            case 2:
-                msg = "first mid";
-                break;
-
-            case 3:
-                msg = "last";
-                break;
-
-            default:
-
-                while( 1 )
-                {
-                }
-
-                return;
-        }
-
-        sprintf( print_buff, "\r\nQuad %s write to address: 0x%08x, from address: 0x%08x, quads: %d\r\n", msg, address, data, nQuads );
-        /*UART_Write(print_buff);  //prsd */
-
-        /* print the 1st quad of data */
-        quad_buff[ sizeof( quad_buff ) - 1 ] = 0;
-        char * pPrint = quad_buff;
-        uint8_t * pSrc = ( uint8_t * ) data;
-
-        for( ix = 0; ix < 16; ix++ )
-        {
-            pPrint += sprintf( pPrint, "%02x ", *pSrc++ );
-        }
-
-        /*UART_Write("Quad Data...: \r\n"); //prsd */
-        /*UART_Write(quad_buff);  //prsd */
-
-        /* wait for it to go out */
-        uint32_t t_start = SYS_TMR_TickCountGet();
-
-        while( ( SYS_TMR_TickCountGet() - t_start ) < SYS_TMR_TickCounterFrequencyGet() / 3 )
-        {
-        }
-
-        return true;
-    }
 
 /*-----------------------------------------------------------*/
 
@@ -394,9 +237,9 @@ static void AWS_NVMClearError( void )
 
 /*-----------------------------------------------------------*/
 
-    bool AWS_FlashErase( uint32_t ulFlashIndex )
+    bool AWS_FlashErase( uint32_t ulFlashNvop )
     {
-        if( !AWS_NVMOperation( ulFlashIndex ) )
+        if( !AWS_NVMOperation( ulFlashNvop ) )
         {
             /* failed; clear the NVM error */
             AWS_NVMClearError();
@@ -406,5 +249,3 @@ static void AWS_NVMClearError( void )
 
         return true;
     }
-
-#endif /* (FLASH_BOOT_TEST != 0) */

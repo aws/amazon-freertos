@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Agent V0.9.5
+Amazon FreeRTOS OTA Agent V1.0.0
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -121,7 +121,7 @@ typedef struct {
  * size, attributes, etc. The following value specifies the number of parameters
  * that are included in the job document model although some may be optional. */
 
-#define OTA_NUM_JOB_PARAMS ( 16 + 1 )   /* +1 for backward compatibility with old job document. */
+#define OTA_NUM_JOB_PARAMS ( 16 )   /* Number of parameters in the job document. */
 /* We need the following string to match in a couple places in the code so use a #define. */
 #define OTA_JSON_UPDATED_BY_KEY "updatedBy"
 
@@ -133,7 +133,6 @@ static const char pcOTA_JSON_SelfTestKey[] = "self_test";
 static const char pcOTA_JSON_UpdatedByKey[] = OTA_JSON_UPDATED_BY_KEY;
 static const char pcOTA_JSON_JobDocKey[] = "jobDocument";
 static const char pcOTA_JSON_OTAUnitKey[] = "afr_ota";
-static const char pcOTA_JSON_OldOTAUnitKey[] = "ts_ota";
 static const char pcOTA_JSON_FileGroupKey[] = "files";
 static const char pcOTA_JSON_StreamNameKey[] = "streamname";
 static const char pcOTA_JSON_FilePathKey[] = "filepath";
@@ -228,13 +227,8 @@ static const char pcOTA_JobsGetNextAccepted_TopicTemplate[] = "$aws/things/%s/jo
 static const char pcOTA_JobsNotifyNext_TopicTemplate[] = "$aws/things/%s/jobs/notify-next";
 static const char pcOTA_JobsGetNext_TopicTemplate[] = "$aws/things/%s/jobs/$next/get";
 static const char pcOTA_JobStatus_TopicTemplate[] = "$aws/things/%s/jobs/%s/update";
-#if 0 /* New topic structure. */
 static const char pcOTA_StreamData_TopicTemplate[] = "$aws/things/%s/streams/%s/data/cbor";
 static const char pcOTA_GetStream_TopicTemplate[] = "$aws/things/%s/streams/%s/get/cbor";
-#else /* Old topic structure. */
-static const char pcOTA_StreamData_TopicTemplate[] = "$aws/things/%s/streams/%s";
-static const char pcOTA_GetStream_TopicTemplate[] = "$aws/bin/things/%s/streams/%s/get";
-#endif
 static const char pcOTA_GetNextJob_MsgTemplate[] = "{\"clientToken\":\"%u:%s\"}";
 static const char pcOTA_JobStatus_StatusTemplate[] = "{\"status\":\"%s\",\"statusDetails\":{";
 static const char pcOTA_JobStatus_ReceiveDetailsTemplate[] = "\"%s\":\"%u/%u\"}}";
@@ -355,6 +349,10 @@ static DocParseErr_t prvSearchModelForTokenKey( JSON_DocModel_t *pxDocModel, con
  * and detecting all required parameters. */
 
 static DocParseErr_t prvInitDocModel( JSON_DocModel_t *pxDocModel, const JSON_DocParam_t *pxBodyDef, uint32_t ulContextBaseAddr, uint32_t ulContextSize, uint16_t usNumJobParams );
+
+/* Attempt to force reset the device. Normally called by the agent when a self test rejects the update. */
+
+static OTA_Err_t prvResetDevice( void );
 
 /* This is the OTA statistics structure to hold useful info. */
 
@@ -618,9 +616,9 @@ OTA_Err_t OTA_CheckForUpdate ( void )
 	OTA_LOG_L1("[%s] Request #%u\r\n", OTA_METHOD_NAME, ulReqCounter);
 	/*lint -e586 Intentionally using snprintf. */
 	ulMsgLen = ( uint32_t ) snprintf( pcMsg,
-                     sizeof ( pcMsg ), 
-                     pcOTA_GetNextJob_MsgTemplate, 
-                     ulReqCounter, 
+                     sizeof ( pcMsg ),
+                     pcOTA_GetNextJob_MsgTemplate,
+                     ulReqCounter,
                      xOTA_Agent.pcThingName );
 	ulReqCounter++;
 	usTopicLen = ( uint16_t ) snprintf ( pcJobTopic,
@@ -691,11 +689,11 @@ static void prvAgentShutdownCleanup( OTA_PubMsg_t *pxMsgMetaData )
 		vPortFree ( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
 		xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
 	}
-    
+
     /* If there are any queued OTA messages from MQTT, give the buffers back to MQTT for re-use. */
 	if ( pxMsgMetaData != NULL )
 	{
-	    pxMsgMetaData->pxPubData.xBuffer = NULL;    /* Reset the buffer pointer before we get a real one from the queue. */ 
+	    pxMsgMetaData->pxPubData.xBuffer = NULL;    /* Reset the buffer pointer before we get a real one from the queue. */
 	    if ( xOTA_Agent.xOTA_MsgQ != NULL )
 	    {
 	        while ( xQueueReceive( xOTA_Agent.xOTA_MsgQ, pxMsgMetaData, 0 ) != pdFALSE )
@@ -725,6 +723,10 @@ static void prvAgentShutdownCleanup( OTA_PubMsg_t *pxMsgMetaData )
 }
 
 
+/* This should be called by the user application or the default OTA callback handler
+ * after an OTA update is considered accepted. It simply calls the platform specific
+ * code required to activate the received OTA update (usually just a device reset).
+ */
 OTA_Err_t OTA_ActivateNewImage( void )
 {
     DEFINE_OTA_METHOD_NAME("OTA_ActivateNewImage");
@@ -732,11 +734,31 @@ OTA_Err_t OTA_ActivateNewImage( void )
     OTA_Err_t xErr;
 
 	/* Call platform specific code to activate the image. This should reset the device
-	 * and return unless there is a problem within the PAL layer. If it does return,
+	 * and not return unless there is a problem within the PAL layer. If it does return,
 	 * output an error message. The device may need to be reset manually. */
 	xErr = prvPAL_ActivateNewImage();
     OTA_LOG_L1( "[%s] Failed to activate new image (0x%08x). Please reset manually.\r\n", OTA_METHOD_NAME, xErr );
 	return xErr;
+}
+
+
+/* This is a private function only meant to be called by the OTA agent after the
+ * currently running image that is in the self test phase rejects the update.
+ * It simply calls the platform specific code required to reset the device.
+ */
+static OTA_Err_t prvResetDevice( void )
+{
+    DEFINE_OTA_METHOD_NAME("prvResetDevice");
+
+    OTA_Err_t xErr;
+
+    /* Call platform specific code to reset the device. This should not return unless
+     * there is a problem within the PAL layer. If it does return, output an error
+     * message. The device may need to be reset manually. */
+    OTA_LOG_L1( "[%s] Attempting forced reset of device...\r\n", OTA_METHOD_NAME );
+    xErr = prvPAL_ResetDevice();
+    OTA_LOG_L1( "[%s] Failed to reset the device (0x%08x). Please reset manually.\r\n", OTA_METHOD_NAME, xErr );
+    return xErr;
 }
 
 
@@ -907,14 +929,14 @@ static void prvUpdateJobStatus (OTA_FileContext_t *C, OTA_JobStatus_t eStatus, i
 					/* Downgrade Progress updates to QOS 0 to avoid overloading MQTT buffers during active streaming. */
 					eQOS = eMQTTQoS0;
 					ulMsgSize = ( uint32_t ) snprintf( pcMsg,   /*lint -e586 Intentionally using snprintf. */
-                                         sizeof ( pcMsg ), 
-                                         pcOTA_JobStatus_StatusTemplate, 
+                                         sizeof ( pcMsg ),
+                                         pcOTA_JobStatus_StatusTemplate,
                                          pcOTA_JobStatus_Strings[ eStatus ] );
 					ulMsgSize += ( uint32_t ) snprintf( &pcMsg[ulMsgSize],  /*lint -e586 Intentionally using snprintf. */
-                                         sizeof ( pcMsg ) - ulMsgSize, 
-                                         pcOTA_JobStatus_ReceiveDetailsTemplate, 
-                                         pcOTA_String_Receive, 
-                                         ulReceived, 
+                                         sizeof ( pcMsg ) - ulMsgSize,
+                                         pcOTA_JobStatus_ReceiveDetailsTemplate,
+                                         pcOTA_String_Receive,
+                                         ulReceived,
                                          ulNumBlocks );
 				}
 				else
@@ -934,37 +956,43 @@ static void prvUpdateJobStatus (OTA_FileContext_t *C, OTA_JobStatus_t eStatus, i
 		     * Test phase. Prepare to update the job status with the self_test phase (ready or active). */
 			ulMsgSize = ( uint32_t ) snprintf( pcMsg,   /*lint -e586 Intentionally using snprintf. */
                                  sizeof ( pcMsg ),
-                                 pcOTA_JobStatus_StatusTemplate, 
+                                 pcOTA_JobStatus_StatusTemplate,
                                  pcOTA_JobStatus_Strings[ eStatus ] );
 			ulMsgSize += ( uint32_t ) snprintf( &pcMsg[ulMsgSize],  /*lint -e586 Intentionally using snprintf. */
                                  sizeof ( pcMsg ) - ulMsgSize,
-                                 pcOTA_JobStatus_SelfTestDetailsTemplate, 
+                                 pcOTA_JobStatus_SelfTestDetailsTemplate,
                                  pcOTA_JSON_SelfTestKey,
-                                 pcOTA_JobReason_Strings[lReason], 
+                                 pcOTA_JobReason_Strings[lReason],
                                  xAppFirmwareVersion.u.ulVersion32 );
 		}
 	}
 	else
 	{
 		if (eStatus < eNumJobStatusMappings)
-		{	/* Status updates that are not "IN PROGRESS" map status and reason codes to a string
-		     * plus a sub-reason code except for FailedWithVal status. FailedWithVal updates use
-		     * a numeric OTA error code and sub-reason code to support many possibilities when
-		     * descriptions would be too long.
-		 	 */
+		{
+		    /* Status updates that are NOT "IN PROGRESS" or "SUCCEEDED" map status and reason codes
+		     * to a string plus a sub-reason code except for FailedWithVal status. FailedWithVal uses
+		     * a numeric OTA error code and sub-reason code to cover the case where there may be too
+		     * many description strings to reasonably include in the code.
+		     */
 			ulMsgSize = ( uint32_t ) snprintf(pcMsg,    /*lint -e586 Intentionally using snprintf. */
                                  sizeof ( pcMsg ),
                                  pcOTA_JobStatus_StatusTemplate,
                                  pcOTA_JobStatus_Strings[ eStatus ] );
-            
+
 			if (eStatus == eJobStatus_FailedWithVal)
 			{
 				ulMsgSize += ( uint32_t ) snprintf(&pcMsg[ ulMsgSize ], /*lint -e586 Intentionally using snprintf. */
-                                     sizeof( pcMsg ) - ulMsgSize, 
+                                     sizeof( pcMsg ) - ulMsgSize,
                                      pcOTA_JobStatus_ReasonValTemplate,
                                      lReason,
                                      lSubReason );
 			}
+            /* If the status update is for "SUCCEEDED," we are identifying the version of firmware
+             * that has been accepted. This makes it easy to find the version associated with each
+             * device (aka Thing) when examining the OTA jobs on the service side via the CLI or
+             * possibly with some console tool.
+             */
 			else if (eStatus == eJobStatus_Succeeded)
 			{
 			    AppVersion32_t xNewVersion;
@@ -981,7 +1009,7 @@ static void prvUpdateJobStatus (OTA_FileContext_t *C, OTA_JobStatus_t eStatus, i
 			else
 			{
 				ulMsgSize += ( uint32_t ) snprintf( &pcMsg[ ulMsgSize ],    /*lint -e586 Intentionally using snprintf. */
-                                     sizeof ( pcMsg ) - ulMsgSize, 
+                                     sizeof ( pcMsg ) - ulMsgSize,
                                      pcOTA_JobStatus_ReasonStrTemplate,
                                      pcOTA_JobReason_Strings[ lReason ],
                                      lSubReason );
@@ -1043,7 +1071,7 @@ static OTA_Err_t prvPublishGetStreamMessage(OTA_FileContext_t *C)
 	uint32_t ulMsgSizeToPublish;
     size_t xMsgSizeFromStream;
 	uint32_t ulNumBlocks, ulBitmapLen, ulTopicLen;
-	int16_t iResult;
+	MQTTAgentReturnCode_t eResult;
 	OTA_Err_t xErr = kOTA_Err_None;
 	char pcMsg[ OTA_REQUEST_MSG_MAX_SIZE ];
 	char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
@@ -1054,9 +1082,8 @@ static OTA_Err_t prvPublishGetStreamMessage(OTA_FileContext_t *C)
 		{
 			ulNumBlocks = ( C->ulFileSize + (OTA_FILE_BLOCK_SIZE - 1U) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;
 			ulBitmapLen = (ulNumBlocks + (BITS_PER_BYTE - 1U)) >> LOG2_BITS_PER_BYTE;
-			iResult = -1;	/* Start by assuming error code. */
 
-			if (pdTRUE == OTA_CBOR_Encode_GetStreamRequestMessage (
+			if ( pdTRUE == OTA_CBOR_Encode_GetStreamRequestMessage (
 				(uint8_t *)pcMsg,
 				sizeof (pcMsg),
 				&xMsgSizeFromStream,
@@ -1065,7 +1092,7 @@ static OTA_Err_t prvPublishGetStreamMessage(OTA_FileContext_t *C)
 				( int32_t ) ( OTA_FILE_BLOCK_SIZE & 0x7fffffffUL ),     /* Mask to keep lint happy. It's still a constant. */
 				0,
 				C->pacRxBlockBitmap,
-				ulBitmapLen))
+				ulBitmapLen ) )
 			{
                 ulMsgSizeToPublish = (uint32_t)xMsgSizeFromStream;
 
@@ -1082,7 +1109,7 @@ static OTA_Err_t prvPublishGetStreamMessage(OTA_FileContext_t *C)
                                                      ( const char* ) C->pacStreamName );
                 if ( ( ulTopicLen > 0U ) && ( ulTopicLen < sizeof( pcTopicBuffer ) ) )
                 {
-                    iResult = (int16_t)prvPublishMessage (
+                    eResult = prvPublishMessage (
                         xOTA_Agent.pvPubSubClient,
                         pcTopicBuffer,
                         (uint16_t)ulTopicLen,
@@ -1090,7 +1117,7 @@ static OTA_Err_t prvPublishGetStreamMessage(OTA_FileContext_t *C)
                         ulMsgSizeToPublish,
                         eMQTTQoS0);
 
-                    if (iResult < 0)
+                    if (eResult != eMQTTAgentSuccess)
                     {
                         OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer);
                         /* Don't return an error. Let max momentum catch it since this may be intermittent. */
@@ -1199,7 +1226,7 @@ static void prvOTAUpdateTask( void* pvUnused )
 
 			/* Put the OTA agent in the ready state. */
 			xOTA_Agent.eState = eOTA_AgentState_Ready;
-			for( ; ; ) 
+			for( ; ; )
             {
 				uxBits = xEventGroupWaitBits(
 					xOTA_Agent.xOTA_EventFlags, /* The event group being tested. */
@@ -1260,19 +1287,27 @@ static void prvOTAUpdateTask( void* pvUnused )
 							    }
 							    C = prvProcessOTAJobMsg( (const char*) xMsgMetaData.pxPubData.pvData,   /*lint !e9079 pointer to void is OK to cast to the real type. */
 							                             xMsgMetaData.pxPubData.ulDataLength );
+							    /* A null context here could either mean we didn't receive a valid job or it could
+							     * signify that we're in the self test phase (where the OTA file transfer is already
+							     * completed and we've reset the device and are now running the new firmware). We
+							     * will check the state to determine which case we're in. */
 							    if ( C == NULL )
 							    {
 							        /* If the OTA job is in the self_test state, alert the application layer. */
 							        if ( OTA_GetImageState() == eOTA_ImageState_Testing )
 							        {
+							            /* Check the platform's OTA update image state. It should also be in self test. */
 							            if ( OTA_CheckForSelfTest() == pdTRUE)
 							            {
 							                xOTA_Agent.pxOTAJobCompleteCallback ( eOTA_JobEvent_StartTest );
 							            }
 							            else {
-							                /* Could be an attack on the platform image state. Erase the image
-	                                            and attempt to abort the job with an error code. */
-					                        ( void ) prvSetImageStateWithReason ( eOTA_ImageState_Rejected, kOTA_Err_ImageStateMismatch );
+							                /* The job is in self test but the platform image state is not so it could be
+							                 * an attack on the platform image state. Reject the update (this should also
+							                 * cause the image to be erased), aborting the job and reset the device. */
+						                    OTA_LOG_L1("[%s] Job in self test but platform state is not!\r\n", OTA_METHOD_NAME);
+					                        ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_ImageStateMismatch );
+					                        ( void ) prvResetDevice();  /* Ignore return code since there's nothing we can do if we can't force reset. */
 							            }
 							        }
 							    }
@@ -1314,7 +1349,7 @@ static void prvOTAUpdateTask( void* pvUnused )
                                             {
                                                 /* Nothing special to do on success. */
                                             }
-                                            prvUpdateJobStatus ( C, eJobStatus_FailedWithVal, ( int32_t ) xResult, ( int32_t ) xCloseResult );
+                                            prvUpdateJobStatus ( C, eJobStatus_FailedWithVal, ( int32_t ) xCloseResult, ( int32_t ) xResult );
                                         }
                                         /* Release all remaining resources of the OTA file. */
                                         ( void ) prvOTA_Close( C );     /* Ignore false result since we're setting the pointer to null on the next line. */
@@ -1489,7 +1524,7 @@ static void prvStartRequestTimer( OTA_FileContext_t * C )
     {
         C->pvRequestTimer = xTimerCreate( pcTimerName,
                                           pdMS_TO_TICKS( otaconfigFILE_REQUEST_WAIT_MS ),
-                                          pdFALSE, 
+                                          pdFALSE,
                                           ( void * ) C, /*lint !e9087 Using the file context as the timer ID does not cause undefined behavior. */
                                           prvRequestTimer_Callback );
         if( C->pvRequestTimer != NULL )
@@ -2029,9 +2064,7 @@ static OTA_FileContext_t *prvParseJobDoc(const char *pcJSON, uint32_t ulMsgLen )
         { pcOTA_JSON_SelfTestKey, OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, bIsInSelfTest ) }, eModelParamType_Ident, JSMN_STRING },
         { pcOTA_JSON_UpdatedByKey, OTA_JOB_PARAM_OPTIONAL, {  OFFSET_OF( OTA_FileContext_t, ulUpdaterVersion ) }, eModelParamType_UInt32, JSMN_STRING },
         { pcOTA_JSON_JobDocKey, OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM }, eModelParamType_Object, JSMN_OBJECT },
-        /* Make both old/new OTA unit keys optional for backward compatibility with old job document format. */
-        { pcOTA_JSON_OTAUnitKey, OTA_JOB_PARAM_OPTIONAL, { OTA_DONT_STORE_PARAM }, eModelParamType_Object, JSMN_OBJECT },
-        { pcOTA_JSON_OldOTAUnitKey, OTA_JOB_PARAM_OPTIONAL, { OTA_DONT_STORE_PARAM }, eModelParamType_Object, JSMN_OBJECT },
+        { pcOTA_JSON_OTAUnitKey, OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM }, eModelParamType_Object, JSMN_OBJECT },
         { pcOTA_JSON_StreamNameKey, OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pacStreamName ) }, eModelParamType_StringCopy, JSMN_STRING },
         { pcOTA_JSON_FileGroupKey, OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM }, eModelParamType_Array, JSMN_ARRAY },
         { pcOTA_JSON_FilePathKey, OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pacFilepath ) }, eModelParamType_StringCopy, JSMN_STRING },
@@ -2121,28 +2154,39 @@ static OTA_FileContext_t *prvParseJobDoc(const char *pcJSON, uint32_t ulMsgLen )
                     OTA_LOG_L1("[%s] In self test mode.\r\n", OTA_METHOD_NAME);
                     if (C->ulUpdaterVersion < xAppFirmwareVersion.u.ulVersion32)
                     {
-                        /* Start test mode. */
+                        /* The running firmware version is newer than the firmware that performed
+                         * the update so this means we're ready to start the self test phase.
+                         *
+                         * Set image state accordingly and update job status with self test identifier.
+                         */
                         ( void ) prvSetImageStateWithReason (eOTA_ImageState_Testing, ( uint32_t ) NULL);
                     }
-                    else if (C->ulUpdaterVersion > xAppFirmwareVersion.u.ulVersion32)
+                    else
                     {
-                        /* Running firmware is older than the updater version so reject the job. */
-                        OTA_LOG_L1("[%s] Rejecting image. Job updater is from the future.\r\n", OTA_METHOD_NAME);
-                        ( void ) prvSetImageStateWithReason (eOTA_ImageState_Rejected, kOTA_Err_DowngradeNotAllowed );
-                    }
-                    else    /* Version reported is the same as the running version. */
-                    {
-                        if ( ( xOTA_Agent.pcClientTokenFromJob == NULL ) ||
-                             ( strtoul( ( const char* ) xOTA_Agent.pcClientTokenFromJob, NULL, 0) == 0U ) )    /*lint !e9007 We don't provide a modifiable variable to strtoul. */
+                        if (C->ulUpdaterVersion > xAppFirmwareVersion.u.ulVersion32)
                         {
-                            /* We're noted as the updater after a reboot, reject the job. */
-                            OTA_LOG_L1("[%s] Failing job. We rebooted and it is no different.\r\n", OTA_METHOD_NAME);
-                            ( void ) prvSetImageStateWithReason (eOTA_ImageState_Rejected, kOTA_Err_SameFirmwareVersion );
+                            /* The running firmware is older than the firmware that performed the update so reject the job. */
+                            OTA_LOG_L1("[%s] Rejecting image because version is older than previous.\r\n", OTA_METHOD_NAME);
+                            ( void ) prvSetImageStateWithReason (eOTA_ImageState_Rejected, kOTA_Err_DowngradeNotAllowed );
                         }
-                        else
+                        else    /* Version reported is the same as the running version. */
                         {
-                            OTA_LOG_L1("[%s] Ignoring job. Device must be rebooted first.\r\n", OTA_METHOD_NAME);
+                            if ( ( xOTA_Agent.pcClientTokenFromJob == NULL ) ||
+                                 ( strtoul( ( const char* ) xOTA_Agent.pcClientTokenFromJob, NULL, 0) == 0U ) )    /*lint !e9007 We don't provide a modifiable variable to strtoul. */
+                            {
+                                /* The version is the same so either we're not actually the new firmware or
+                                 * someone messed up and sent firmware with the same version. In either case,
+                                 * this is a failure of the OTA update so reject the job. */
+                                OTA_LOG_L1("[%s] Failing job. We rebooted and the version is still the same.\r\n", OTA_METHOD_NAME);
+                                ( void ) prvSetImageStateWithReason (eOTA_ImageState_Rejected, kOTA_Err_SameFirmwareVersion );
+                            }
+                            else
+                            {
+                                OTA_LOG_L1("[%s] Ignoring job. Device must be rebooted first.\r\n", OTA_METHOD_NAME);
+                            }
                         }
+                        /* All reject cases must reset the device. */
+                        ( void ) prvResetDevice();  /* Ignore return code since there's nothing we can do if we can't force reset. */
                     }
                 }
                 else
@@ -2308,7 +2352,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
     {
         if ( pxCloseResult != NULL )
         {
-            *pxCloseResult = 0; /* Reset the close result variable until we use it. */
+            *pxCloseResult = kOTA_Err_GenericIngestError;   /* Default to a generic ingest function error until we prove success. */
 
             /* If we have a block bitmap available then process the message. */
             if ( C->pacRxBlockBitmap && ( C->ulBlocksRemaining > 0U ) )
@@ -2342,14 +2386,17 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                         OTA_LOG_L1("[%s] Received file block %u, size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize);
 
                         /* Create bit mask for use in our bitmap. */
-                        uint8_t ulBitMask = 1U << ( ulBlockIndex % BITS_PER_BYTE );  /*lint !e9031 The composite expression will never be greater than BITS_PER_BYTE(8). */
+                        uint8_t ulBitMask = 1U << ( ulBlockIndex % BITS_PER_BYTE ); /*lint !e9031 The composite expression will never be greater than BITS_PER_BYTE(8). */
                         /* Calculate byte offset into bitmap. */
                         uint32_t ulByte = ulBlockIndex >> LOG2_BITS_PER_BYTE;
 
-                        if ( ( C->pacRxBlockBitmap[ulByte] & ulBitMask ) == 0U )     /* If we've already received this block... */
+                        if ( ( C->pacRxBlockBitmap[ulByte] & ulBitMask ) == 0U )    /* If we've already received this block... */
                         {
-                            OTA_LOG_L1("[%s] block %u is a DUPLICATE\r\n", OTA_METHOD_NAME, ulBlockIndex);
+                            OTA_LOG_L1("[%s] block %u is a DUPLICATE. %u blocks remaining.\r\n", OTA_METHOD_NAME,
+                                       ulBlockIndex,
+                                       C->ulBlocksRemaining );
                             eIngestResult = eIngest_Result_Duplicate_Continue;
+                            *pxCloseResult = kOTA_Err_None;                         /* This is a success path. */
                         }
                         else /* Otherwise, process it normally... */
                         {
@@ -2364,9 +2411,10 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                                 }
                                 else
                                 {
-                                    C->pacRxBlockBitmap[ulByte] &= ~ulBitMask; /* Mark this block as received in our bitmap. */
+                                    C->pacRxBlockBitmap[ulByte] &= ~ulBitMask;  /* Mark this block as received in our bitmap. */
                                     C->ulBlocksRemaining--;
                                     eIngestResult = eIngest_Result_Accepted_Continue;
+                                    *pxCloseResult = kOTA_Err_None;             /* This is a success path. */
                                 }
                             }
                             else
@@ -2645,7 +2693,7 @@ static MQTTAgentReturnCode_t prvPublishMessage( void * const pvClient,
                               uint32_t ulMsgSize,
 							  MQTTQoS_t eQOS )
 {
-    MQTTAgentReturnCode_t xResult;
+    MQTTAgentReturnCode_t eResult;
     MQTTAgentPublishParams_t xPublishParams;
 
     xPublishParams.pucTopic = ( const uint8_t * ) pacTopic;
@@ -2653,8 +2701,8 @@ static MQTTAgentReturnCode_t prvPublishMessage( void * const pvClient,
     xPublishParams.xQoS = eQOS;
     xPublishParams.pvData = pcMsg;
     xPublishParams.ulDataLength = ulMsgSize;
-    xResult = MQTT_AGENT_Publish( pvClient, &xPublishParams, ( TickType_t )OTA_PUBLISH_WAIT_TICKS);
-    if ( xResult != eMQTTAgentSuccess )
+    eResult = MQTT_AGENT_Publish( pvClient, &xPublishParams, ( TickType_t )OTA_PUBLISH_WAIT_TICKS);
+    if ( eResult != eMQTTAgentSuccess )
     {
         xOTA_Agent.xStatistics.ulOTA_PublishFailures++;    /* Track how many publish failures we've had. */
     }
@@ -2662,7 +2710,7 @@ static MQTTAgentReturnCode_t prvPublishMessage( void * const pvClient,
     {
         /* Nothing special to do on success. */
     }
-    return xResult;
+    return eResult;
 }
 
 

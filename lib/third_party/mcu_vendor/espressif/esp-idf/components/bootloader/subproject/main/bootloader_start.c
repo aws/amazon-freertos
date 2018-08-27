@@ -244,7 +244,11 @@ static uint32_t ota_select_crc(const esp_ota_select_entry_t *s)
 
 static bool ota_select_valid(const esp_ota_select_entry_t *s)
 {
-  return s->ota_seq != UINT32_MAX && s->crc == ota_select_crc(s);
+    bool val = s->ota_seq != UINT32_MAX && s->crc == ota_select_crc(s);
+#ifdef CONFIG_BOOTLOADER_OTA_ROLLBACK
+    val &= (s->ota_flags != ESP_OTA_IMG_INVALID && s->ota_flags != ESP_OTA_IMG_ABORTED && s->ota_flags != ESP_OTA_IMG_PENDING_VERIFY);
+#endif
+    return val;
 }
 
 /* indexes used by index_to_partition are the OTA index
@@ -297,10 +301,13 @@ static void log_invalid_app_partition(int index)
    This partition will only be booted if it contains a valid app image, otherwise load_boot_image() will search
    for a valid partition using this selection as the starting point.
 */
-static int get_selected_boot_partition(const bootloader_state_t *bs)
+static int get_selected_boot_partition(bootloader_state_t *bs)
 {
-    esp_ota_select_entry_t sa,sb;
+    esp_ota_select_entry_t *sa, *sb;
     const esp_ota_select_entry_t *ota_select_map;
+
+    sa = &bs->se[0];
+    sb = &bs->se[1];
 
     if (bs->ota_info.offset != 0) {
         // partition table has OTA data partition
@@ -315,36 +322,57 @@ static int get_selected_boot_partition(const bootloader_state_t *bs)
             ESP_LOGE(TAG, "bootloader_mmap(0x%x, 0x%x) failed", bs->ota_info.offset, bs->ota_info.size);
             return INVALID_INDEX; // can't proceed
         }
-        memcpy(&sa, ota_select_map, sizeof(esp_ota_select_entry_t));
-        memcpy(&sb, (uint8_t *)ota_select_map + SPI_SEC_SIZE, sizeof(esp_ota_select_entry_t));
+        memcpy(sa, ota_select_map, sizeof(esp_ota_select_entry_t));
+        memcpy(sb, (uint8_t *)ota_select_map + SPI_SEC_SIZE, sizeof(esp_ota_select_entry_t));
         bootloader_munmap(ota_select_map);
 
-        ESP_LOGD(TAG, "OTA sequence values A 0x%08x B 0x%08x", sa.ota_seq, sb.ota_seq);
-        if(sa.ota_seq == UINT32_MAX && sb.ota_seq == UINT32_MAX) {
+        ESP_LOGD(TAG, "OTA sequence values A 0x%08x B 0x%08x", sa->ota_seq, sb->ota_seq);
+        if(sa->ota_seq == UINT32_MAX && sb->ota_seq == UINT32_MAX) {
             ESP_LOGD(TAG, "OTA sequence numbers both empty (all-0xFF)");
             if (bs->factory.offset != 0) {
                 ESP_LOGI(TAG, "Defaulting to factory image");
+                bs->active_sec = 0;
                 return FACTORY_INDEX;
             } else {
                 ESP_LOGI(TAG, "No factory image, trying OTA 0");
+#ifdef CONFIG_BOOTLOADER_OTA_ROLLBACK
+                /* Write valid sequence number, such that on successful OTA this partition can be wiped out */
+                esp_err_t ret;
+                ret = bootloader_flash_erase_sector(bs->ota_info.offset / FLASH_SECTOR_SIZE);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "failed to erase ota sector");
+                }
+                sa->ota_seq = 0x1;
+                sa->ota_flags = ESP_OTA_IMG_VALID;
+                sa->crc = ota_select_crc(sa);
+                ret = bootloader_flash_write(bs->ota_info.offset, sa, sizeof(esp_ota_select_entry_t),
+                                        esp_flash_encryption_enabled());
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "flash write failed");
+                }
+#endif
+                bs->active_sec = 0;
                 return 0;
             }
         } else  {
             bool ota_valid = false;
             const char *ota_msg;
             int ota_seq; // Raw OTA sequence number. May be more than # of OTA slots
-            if(ota_select_valid(&sa) && ota_select_valid(&sb)) {
+            if(ota_select_valid(sa) && ota_select_valid(sb)) {
                 ota_valid = true;
                 ota_msg = "Both OTA values";
-                ota_seq = MAX(sa.ota_seq, sb.ota_seq) - 1;
-            } else if(ota_select_valid(&sa)) {
+                ota_seq = MAX(sa->ota_seq, sb->ota_seq) - 1;
+                bs->active_sec = (sa->ota_seq > sb->ota_seq) ? 0: 1;
+            } else if(ota_select_valid(sa)) {
                 ota_valid = true;
                 ota_msg = "Only OTA sequence A is";
-                ota_seq = sa.ota_seq - 1;
-            } else if(ota_select_valid(&sb)) {
+                ota_seq = sa->ota_seq - 1;
+                bs->active_sec = 0;
+            } else if(ota_select_valid(sb)) {
                 ota_valid = true;
                 ota_msg = "Only OTA sequence B is";
-                ota_seq = sb.ota_seq - 1;
+                ota_seq = sb->ota_seq - 1;
+                bs->active_sec = 1;
             }
 
             if (ota_valid) {
@@ -435,6 +463,75 @@ static bool load_boot_image(const bootloader_state_t *bs, int start_index, esp_i
     return false;
 }
 
+#ifdef CONFIG_BOOTLOADER_WDT_ENABLE
+static void enable_rtc_wdt(uint32_t time_ms)
+{
+    WRITE_PERI_REG(RTC_CNTL_WDTWPROTECT_REG, RTC_CNTL_WDT_WKEY_VALUE);
+    WRITE_PERI_REG(RTC_CNTL_WDTFEED_REG, 1);
+    REG_SET_FIELD(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_SYS_RESET_LENGTH, 7);
+    REG_SET_FIELD(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_CPU_RESET_LENGTH, 7);
+    REG_SET_FIELD(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_STG0, RTC_WDT_STG_SEL_RESET_RTC);
+    WRITE_PERI_REG(RTC_CNTL_WDTCONFIG1_REG, (rtc_clk_slow_freq_get_hz() / 1000) * time_ms);
+    SET_PERI_REG_MASK(RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_EN | RTC_CNTL_WDT_PAUSE_IN_SLP);
+    WRITE_PERI_REG(RTC_CNTL_WDTWPROTECT_REG, 0);
+}
+#endif
+
+#ifdef CONFIG_BOOTLOADER_OTA_ROLLBACK
+void esp_ota_rollback(bootloader_state_t *bs, esp_image_metadata_t *image_data)
+{
+    esp_err_t ret;
+    bool active_sec = bs->active_sec;
+    bool passive_sec = !bs->active_sec;
+
+    int a_ota_slot = (bs->se[active_sec].ota_seq - 1) % bs->app_count;
+    int p_ota_slot = (bs->se[passive_sec].ota_seq - 1) % bs->app_count;
+
+    /* Make sure that we are booting from correct partition */
+    if (image_data->start_addr == bs->ota[a_ota_slot].offset) {
+        /* Check if this is first OTA boot of firmware */
+        if (ota_select_valid(&bs->se[active_sec]) && (bs->se[active_sec].ota_flags == ESP_OTA_IMG_NEW)) {
+            ESP_LOGI(TAG, "Set fw to pending validation");
+#ifdef CONFIG_BOOTLOADER_WDT_ENABLE
+            /* Enable RTC WDT as this is first boot of OTA image */
+            const uint32_t time_ms = CONFIG_BOOTLOADER_WDT_TIME_MS;
+            enable_rtc_wdt(time_ms);
+#endif
+            bs->se[active_sec].ota_flags = ESP_OTA_IMG_PENDING_VERIFY;
+            ret = bootloader_flash_erase_sector((bs->ota_info.offset / FLASH_SECTOR_SIZE) + active_sec);
+            if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "failed to erase ota sector");
+                return;
+            }
+            ret = bootloader_flash_write(bs->ota_info.offset + (active_sec * FLASH_SECTOR_SIZE), &(bs->se[active_sec]),
+                                            sizeof(esp_ota_select_entry_t), esp_flash_encryption_enabled());
+            if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "flash write failed");
+            }
+        } else if (bs->se[active_sec].ota_flags == ESP_OTA_IMG_VALID) {
+#ifdef CONFIG_BOOTLOADER_OTA_NO_FORCE_ROLLBACK
+            /* Firmware image is valid, check if, passive partition should be completely erased */
+            if (bs->se[passive_sec].crc == ota_select_crc(&bs->se[passive_sec])) {
+                esp_partition_pos_t part;
+                part = index_to_partition(bs, p_ota_slot);
+                ESP_LOGW(TAG, "Deleting passive firmware @0x%x len:0x%x", part.offset, part.size);
+
+                /* Delete contents of other partition and its entry from `otadata` */
+                ret = bootloader_flash_erase_range(part.offset, part.size);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "flash partition erase failed");
+                }
+                ret = bootloader_flash_erase_sector((bs->ota_info.offset / FLASH_SECTOR_SIZE) + passive_sec);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "failed to erase ota sector");
+                }
+            }
+#endif
+        }
+        ESP_LOGI(TAG, "ota rollback check done");
+    }
+}
+#endif
 
 /**
  *  @function :     bootloader_main
@@ -536,6 +633,15 @@ void bootloader_main()
         ESP_LOGI(TAG, "Resetting with flash encryption enabled...");
         REG_WRITE(RTC_CNTL_OPTIONS0_REG, RTC_CNTL_SW_SYS_RST);
         return;
+    }
+#endif
+
+#ifdef CONFIG_BOOTLOADER_OTA_ROLLBACK
+    if (bs.ota_info.offset != 0) {
+        /* otadata partition exists, check for rollback */
+        if (bs.app_count >= 2) {
+            esp_ota_rollback(&bs, &image_data);
+        }
     }
 #endif
 

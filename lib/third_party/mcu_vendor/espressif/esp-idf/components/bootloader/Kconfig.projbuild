@@ -55,6 +55,38 @@ config BOOTLOADER_VDDSDIO_BOOST
         This option has no effect if VDDSDIO is set to 3.3V, or if the internal
         VDDSDIO regulator is disabled via efuse.
 
+config BOOTLOADER_WDT_ENABLE
+    bool "Enable RTC watchdog for first run of OTA update firmware"
+    default y
+    help
+        This will enable RTC hardware watchdog if firmware image is found to be in first run mode after successful
+        OTA update operation.
+
+config BOOTLOADER_WDT_TIME_MS
+    int "Timeout for RTC watchdog (msec)"
+    depends on BOOTLOADER_WDT_ENABLE
+    default 60000
+    range 0 60000
+    help
+        Timeout set to RTC hardware watchdog timer, this should be large enough to cover application bootup, network
+        connection and finally cloud connection for getting status of last firmware update operation.
+
+config BOOTLOADER_OTA_ROLLBACK
+    bool "Enable firmare rollback support"
+    default y
+    help
+        If enabled bootloader expects appropriate ota flags in otadata partition to treat firmware for various states
+        which includes, valid, invalid, first ota boot etc. Accrodingly bootloader can potentially treat it as valid
+        or invalid, and might even completely erase partition contents.
+
+config BOOTLOADER_OTA_NO_FORCE_ROLLBACK
+    bool "Disable firmware force rollback"
+    depends on BOOTLOADER_OTA_ROLLBACK
+    default y
+    help
+        If enabled bootloader will prevent force rollback to previous valid firmware image after new firmware post OTA
+        is successfully validated. This will additionally also make sure to wipe out (erase) flash contents of firmware
+        partition, hence at any moment, there will be single valid firmware image present on flash.
 endmenu  # Bootloader
 
 

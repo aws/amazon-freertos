@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA PAL for Curiosity_PIC32MZEF V0.9.2
+Amazon FreeRTOS OTA PAL for Curiosity_PIC32MZEF V1.0.0
 Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,30 +36,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define AWS_NVM_QUAD_SIZE       16U
 
 
-// erases the flash page and prepares for OTA update
-// returns true if the erase succeeded
-// false otherwise
-bool_t AWS_FlashErase(void);
+/* Erases the upper flash bank and prepares for OTA update
+ * returns true if the erase succeeded
+ * false otherwise. */
+bool_t AWS_FlashEraseUpdateBank(void);
 
 
-// performs a quad write operation
+/* Performs a quad write operation .*/
 bool_t    AWS_NVM_QuadWordWrite(const uint32_t* address, const uint32_t* data, uint32_t nQuads);
 
-// programs a block of data into the flash memory
-//      address - starting address in flash
-//      pData   - pointer to data buffer
-//      size    - size of buffer
-// returns true if programming succeeds, false otherwise
-// Uses the quad write operation
+/* Programs a block of data into the flash memory
+ *      address - starting address in flash
+ *      pData   - pointer to data buffer
+ *      size    - size of buffer
+ * returns true if programming succeeds, false otherwise
+ * Uses the quad write operation. */
 bool_t AWS_FlashProgramBlock(const uint8_t* address, const uint8_t* pData, uint32_t size);
 
 
-// CRC calculation
-
-void         AWS_BootCrcInit(uint32_t seed);
-void         AWS_BootCrcAddBuffer(const uint8_t* buff, uint32_t buffLen);
-uint32_t     AWS_BootCrcResult(void);
-
-
-#endif // _AWS_NVM_H_
-
+#endif /* _AWS_NVM_H_ */

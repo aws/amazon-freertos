@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA AFQP V0.9.5
+ * Amazon FreeRTOS OTA AFQP V1.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,6 +39,12 @@
 #include "aws_ota_agent.h"
 #include "aws_test_ota_config.h"
 
+/* The Texas Instruments CC3220SF has special requirements on its file system security. 
+ * We enable code specially for testing the OTA PAL layer for this device. */
+#ifdef CC3220sf
+    #include <ti/drivers/net/wifi/simplelink.h>
+#endif
+
 /* For the prvPAL_WriteBlock_WriteManyBlocks test this is the number of blocks of
  * ucDummyData to write to the non-volatile memory. */
 #define testotapalNUM_WRITE_BLOCKS         10
@@ -65,6 +71,57 @@ static uint8_t ucDummyData[] =
     0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f
 };
 
+/* Global static OTA file context used in every test. This context is reset to all zeros
+ * before every test. */
+static OTA_FileContext_t xOtaFile;
+
+#ifdef CC3220sf
+    /**
+     * @brief In the Texas Instruments CC3220(SF) device, we retrieve the number of security alerts and the threshold.
+     */
+    static void prvShowTiCc3220SecurityAlertCounts()
+    {
+        int32_t lResult;
+        SlFsControlGetStorageInfoResponse_t xStorageResponseInfo;
+
+        lResult = sl_FsCtl( ( SlFsCtl_e)SL_FS_CTL_GET_STORAGE_INFO, 0, NULL , NULL , 0, (_u8 *)&xStorageResponseInfo, sizeof(SlFsControlGetStorageInfoResponse_t), NULL );
+        if( lResult == 0 )
+        {
+            configPRINTF( ( "Security alert threshold = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlertsThreshold ) );
+            configPRINTF( ( "Current number of alerts = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlerts ) );
+        }
+        else
+        {
+            configPRINTF( ( "sl_FsCtl failed with error code: %d\r\n", lResult ) );
+        }
+    }
+
+    /**
+     * @brief In the Texas Instruments CC3220(SF) device, we need to restore mcuflashimage.bin to factory following tests
+     * that increase the number of security alerts.
+     */
+    static void prvResetTiCc3220ToFactoryImage()
+    {
+        int32_t lResult, lRetVal, lExtendedError;
+        SlFsRetToFactoryCommand_t xRetToFactoryCommand;
+
+        xRetToFactoryCommand.Operation = SL_FS_FACTORY_RET_TO_IMAGE;
+        lResult = sl_FsCtl( (SlFsCtl_e)SL_FS_CTL_RESTORE, 0, NULL , (_u8 *)&xRetToFactoryCommand , sizeof(SlFsRetToFactoryCommand_t), NULL, 0 , NULL );
+        if ((_i32)lResult < 0)
+        {
+                //Pay attention, for this function the lResult is composed from Signed lRetVal & extended error
+                lRetVal = (_i16)lResult >> 16;
+                lExtendedError = (_u16)lResult & 0xFFFF;
+                configPRINTF( ( "Error SL_FS_FACTORY_RET_TO_IMAGE, 5d, %d\r\n", lRetVal, lExtendedError ) );
+                return;
+        }
+        /* Reset the network processor. */
+        sl_Stop(0);
+        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
+        sl_Start(NULL, NULL, NULL);
+    }
+#endif
+
 /**
  * @brief Test group definition.
  */
@@ -72,10 +129,24 @@ TEST_GROUP( Full_OTA_PAL );
 
 TEST_SETUP( Full_OTA_PAL )
 {
+    /* Always reset the OTA file context before each test. */
+    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 }
 
 TEST_TEAR_DOWN( Full_OTA_PAL )
 {
+#ifdef CC3220sf
+    prvResetTiCc3220ToFactoryImage();
+#else
+    OTA_Err_t xOtaStatus;
+
+    /* We want to abort the OTA file after every test. This closes the OtaFile. */
+    xOtaStatus = prvPAL_Abort( &xOtaFile );
+    if( kOTA_Err_None != xOtaStatus )
+    {
+        configPRINTF( ( "Error aborting xOtaFile with code: %d", xOtaStatus ) );
+    }
+#endif
 }
 
 TEST_GROUP_RUNNER( Full_OTA_PAL )
@@ -149,11 +220,8 @@ TEST_GROUP_RUNNER( Full_OTA_PAL )
  */
 TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
     Sig256_t xSig = { 0 };
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* We use a dummy file name here because closing the system designated bootable 
      * image with content that is not runnable may cause issues. */
@@ -180,8 +248,6 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
         xOtaStatus = prvPAL_CloseFile( &xOtaFile );
         TEST_ASSERT_EQUAL_INT( kOTA_Err_None, xOtaStatus );
     }
-
-    ( void ) prvPAL_Abort( &xOtaFile );
 }
 
 
@@ -192,11 +258,8 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
  */
 TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
     Sig256_t xSig = { 0 };
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file using the PAL. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -229,10 +292,6 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten )
             TEST_ASSERT_TRUE( 0 );
         }
     }
-
-    /* This test failed to close the file, so really close the file here. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -242,11 +301,8 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten )
  */
 TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureNoBlockWritten )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
     Sig256_t xSig = { 0 };
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file using the PAL. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -272,10 +328,6 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureNoBlockWritten )
             TEST_ASSERT_TRUE( 0 );
         }
     }
-
-    /* This test failed to close the file, so really close the file here. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -289,8 +341,6 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureNoBlockWritten )
  */
 TEST( Full_OTA_PAL, prvPAL_CloseFile_NonexistingCodeSignerCertificate )
 {
-    /* TEST: Close a file with a non-existing signature verification certificate. */
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
     Sig256_t xSig = { 0 };
 
@@ -326,10 +376,6 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_NonexistingCodeSignerCertificate )
             TEST_ASSERT_TRUE( 0 );
         }
     }
-
-    /* This test failed to close the file, so really close the file here. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -337,7 +383,6 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_NonexistingCodeSignerCertificate )
  */
 TEST( Full_OTA_PAL, prvPAL_CreateFileForRx_CreateAnyFile )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
 
     memset( &xOtaFile, 0, sizeof( OTA_FileContext_t ) );
@@ -346,10 +391,6 @@ TEST( Full_OTA_PAL, prvPAL_CreateFileForRx_CreateAnyFile )
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
-
-    /* This test failed to close the file, so really close the file here. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -357,10 +398,8 @@ TEST( Full_OTA_PAL, prvPAL_CreateFileForRx_CreateAnyFile )
  */
 TEST( Full_OTA_PAL, prvPAL_Abort_OpenFile )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
 
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
 
     /* Create a local file using the PAL. */
@@ -380,10 +419,8 @@ TEST( Full_OTA_PAL, prvPAL_Abort_OpenFile )
  */
 TEST( Full_OTA_PAL, prvPAL_Abort_FileWithBlockWritten )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
 
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
 
     /* Create a local file again using the PAL. */
@@ -414,10 +451,8 @@ TEST( Full_OTA_PAL, prvPAL_Abort_FileWithBlockWritten )
  */
 TEST( Full_OTA_PAL, prvPAL_Abort_NullFileHandle )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
 
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
 
     xOtaFile.iFileHandle = 0;
@@ -430,10 +465,8 @@ TEST( Full_OTA_PAL, prvPAL_Abort_NullFileHandle )
  */
 TEST( Full_OTA_PAL, prvPAL_Abort_NonExistentFile )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
 
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
 
     xOtaFile.pacFilepath = "nonexistingfile.bin";
@@ -446,28 +479,20 @@ TEST( Full_OTA_PAL, prvPAL_Abort_NonExistentFile )
  */
 TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteSingleByte )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
     int16_t sNumBytesWritten;
     uint8_t ucData = 0xAA;
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* TEST: Write a byte of data. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
-    /* We still want to close the file if the test fails. */
     if( TEST_PROTECT() ) 
     {
         sNumBytesWritten = prvPAL_WriteBlock( &xOtaFile, 0, &ucData, 1 );
         TEST_ASSERT_EQUAL_INT( 1, sNumBytesWritten );
     }
-
-    /* This test failed to close the file, so really close the file here. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -475,11 +500,9 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteSingleByte )
  */
 TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteManyBlocks )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
     int16_t sNumBytesWritten;
 
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
 
     /* TEST: Write many bytes of data. */
@@ -488,7 +511,6 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteManyBlocks )
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
-    /* We still want to close the file if the test fails. */
     if( TEST_PROTECT() ) 
     {
         int lIndex = 0;
@@ -501,10 +523,6 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteManyBlocks )
         /* Sufficient delay for flash write to complete. */
         vTaskDelay( pdMS_TO_TICKS( testotapalWRITE_BLOCKS_DELAY_MS ) );
     }
-
-    /* This test failed to close the file, so really close the file here. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -524,12 +542,9 @@ TEST( Full_OTA_PAL, prvPAL_ActivateNewImage )
  */
 TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_SelfTestImageState )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
 
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -560,10 +575,6 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_SelfTestImageState )
         /*ePalImageState = prvPAL_GetPlatformImageState();
         * TEST_ASSERT_EQUAL_INT( eOTA_PAL_ImageState_PendingCommit, ePalImageState ); */
     }
-
-    /* Close the file. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -571,12 +582,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_SelfTestImageState )
  */
 TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_InvalidImageState )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
-
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -598,10 +605,6 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_InvalidImageState )
         xOtaStatus = prvPAL_SetPlatformImageState( eImageState );
         TEST_ASSERT_EQUAL( kOTA_Err_BadImageState, ( xOtaStatus & ~kOTA_PAL_ErrMask ) );
     }
-
-    /* Close the file. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -609,12 +612,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_InvalidImageState )
  */
 TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_UnknownImageState )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
-
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -636,10 +635,6 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_UnknownImageState )
         xOtaStatus = prvPAL_SetPlatformImageState( eImageState );
         TEST_ASSERT_EQUAL( kOTA_Err_BadImageState, ( xOtaStatus & ~kOTA_PAL_ErrMask ) );
     }
-
-    /* Close the file. */
-    xOtaStatus = prvPAL_Abort( &xOtaFile );
-    TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
 
 /**
@@ -649,12 +644,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_UnknownImageState )
  */
 TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AcceptedImageStateButImageNotClosed )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
-
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -675,9 +666,6 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AcceptedImageStateButImageNotCl
         xOtaStatus = prvPAL_SetPlatformImageState( eImageState );
         TEST_ASSERT_EQUAL_INT( kOTA_Err_CommitFailed, ( xOtaStatus & ~kOTA_PAL_ErrMask ) );
     }
-
-    /* Close the file. */
-    ( void ) prvPAL_Abort( &xOtaFile );
 }
 
 /**
@@ -686,12 +674,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AcceptedImageStateButImageNotCl
  */
 TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_RejectImageState )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
-
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -712,9 +696,6 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_RejectImageState )
         xOtaStatus = prvPAL_SetPlatformImageState( eImageState );
         TEST_ASSERT_EQUAL_INT( kOTA_Err_None, ( xOtaStatus & ~kOTA_PAL_ErrMask ) );
     }
-
-    /* Close the file. */
-    ( void ) prvPAL_Abort( &xOtaFile );
 }
 
 /**
@@ -723,12 +704,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_RejectImageState )
  */
 TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AbortImageState )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
-
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -749,9 +726,6 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AbortImageState )
         xOtaStatus = prvPAL_SetPlatformImageState( eImageState );
         TEST_ASSERT_EQUAL_INT( kOTA_Err_None, ( xOtaStatus & ~kOTA_PAL_ErrMask ) );
     }
-
-    /* Close the file. */
-    ( void ) prvPAL_Abort( &xOtaFile );
 }
 
 /**
@@ -760,13 +734,9 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AbortImageState )
  */
 TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseFailure )
 {
-    OTA_FileContext_t xOtaFile;
     OTA_Err_t xOtaStatus;
     Sig256_t xSig = { 0 };
-
     OTA_PAL_ImageState_t ePalImageState = eOTA_PAL_ImageState_Unknown;
-
-    memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* TEST: Invalid image returned from prvPAL_GetPlatformImageState(). Using a failure to close. */
     /* Create a local file again using the PAL. */
@@ -803,9 +773,6 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
         ePalImageState = prvPAL_GetPlatformImageState();
         TEST_ASSERT( ( eOTA_PAL_ImageState_Invalid == ePalImageState ) || ( eOTA_PAL_ImageState_Unknown == ePalImageState ) );
     }
-
-    /* Close the file. */
-    ( void ) prvPAL_Abort( &xOtaFile );
 }
 
 #if ( otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED == 1 )
@@ -861,11 +828,8 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
      */
     TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_ValidSignature )
     {
-        OTA_FileContext_t xOtaFile;
         OTA_Err_t xOtaStatus;
         Sig256_t xSig = { 0 };
-
-        memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
         /* Create a local file using the PAL. */
         xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -890,9 +854,6 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
             xOtaStatus = test_prvPAL_CheckFileSignature( &xOtaFile );
             TEST_ASSERT_EQUAL_INT( kOTA_Err_None, xOtaStatus );
         }
-
-        /* Close the file after the test is complete. */
-        ( void ) prvPAL_Abort( &xOtaFile );
     }
 
     /**
@@ -901,11 +862,8 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
      */
     TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureBlockWritten )
     {
-        OTA_FileContext_t xOtaFile;
         OTA_Err_t xOtaStatus;
         Sig256_t xSig = { 0 };
-
-        memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
         /* Create a local file using the PAL. */
         xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -937,18 +895,12 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
                 TEST_ASSERT_TRUE( 0 );
             }
         }
-
-        /* Close the file after the test is complete. */
-        ( void ) prvPAL_Abort( &xOtaFile );
     }
 
     TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_InvalidSignatureNoBlockWritten )
     {
-        OTA_FileContext_t xOtaFile;
         OTA_Err_t xOtaStatus;
         Sig256_t xSig = { 0 };
-
-        memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
         /* Create a local file using the PAL. */
         xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -973,18 +925,12 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
                 TEST_ASSERT_TRUE( 0 );
             }
         }
-
-        /* Close the file after the test is complete. */
-        ( void ) prvPAL_Abort( &xOtaFile );
     }
 
     TEST( Full_OTA_PAL, prvPAL_CheckFileSignature_NonexistingCodeSignerCertificate )
     {
-        OTA_FileContext_t xOtaFile;
         OTA_Err_t xOtaStatus;
         Sig256_t xSig = { 0 };
-
-        memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
         /* Create a local file using the PAL. */
         xOtaFile.pacFilepath = otatestpalFRIMWARE_FILE;
@@ -1015,8 +961,5 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
                 TEST_ASSERT_TRUE( 0 );
             }
         }
-
-        /* Close the file after the test is complete. */
-        ( void ) prvPAL_Abort( &xOtaFile );
     }
 #endif /* if ( otatestpalCHECK_FILE_SIGNATURE_SUPPORTED == 1 ) */

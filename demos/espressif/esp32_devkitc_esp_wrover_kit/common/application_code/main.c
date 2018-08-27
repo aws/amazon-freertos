@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.3.2
+ * Amazon FreeRTOS V1.4.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,16 +39,24 @@
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 
-
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
+
+/* Application version info. */
+#include "aws_application_version.h"
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
 #define mainDEVICE_NICK_NAME                "Espressif_Demo"
 
+/* Declare the firmware version structure for all to see. */
+const AppVersion32_t xAppFirmwareVersion = {
+   .u.x.ucMajor = APP_VERSION_MAJOR,
+   .u.x.ucMinor = APP_VERSION_MINOR,
+   .u.x.usBuild = APP_VERSION_BUILD,
+};
 
 /* Static arrays for FreeRTOS+TCP stack initialization for Ethernet network connections
  * are use are below. If you are using an Ethernet connection on your MCU device it is 
@@ -138,6 +146,14 @@ int app_main( void )
             ucDNSServerAddress,
             ucMACAddress );
 
+    if( SYSTEM_Init() == pdPASS )
+    {
+        /* Connect to the wifi before running the demos */
+        prvWifiConnect();
+        /* Run all demos. */
+        DEMO_RUNNER_RunDemos();
+    }
+
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
@@ -163,13 +179,6 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    if( SYSTEM_Init() == pdPASS )
-    {
-        /* Connect to the wifi before running the demos */
-        prvWifiConnect();
-        /* Run all demos. */
-        DEMO_RUNNER_RunDemos();
-    }
 }
 /*-----------------------------------------------------------*/
 
@@ -210,6 +219,7 @@ void prvWifiConnect( void )
     {
         configPRINTF( ( "WiFi failed to connect to AP.\r\n" ) );
 
+        portDISABLE_INTERRUPTS();
         while( 1 )
         {
         }
@@ -348,6 +358,20 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     {
     }
 }
+/*-----------------------------------------------------------*/
+extern void esp_vApplicationTickHook();
+void IRAM_ATTR vApplicationTickHook()
+{
+    esp_vApplicationTickHook();
+}
+
+/*-----------------------------------------------------------*/
+extern void esp_vApplicationIdleHook();
+void vApplicationIdleHook()
+{
+    esp_vApplicationIdleHook();
+}
+
 /*-----------------------------------------------------------*/
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {

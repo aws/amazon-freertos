@@ -1,83 +1,20 @@
-import binascii
-import struct
+import argparse
 import os
 import sys
-import argparse
 from collections import namedtuple
+
+from util import validateFilePath \
+    , parseConfigFile \
+    , format32BitHexStr \
+    , getFileSize \
+    , toLitteEndianByte
 
 OTADescriptor = namedtuple("OTADescriptor"
                            , ["sequenceNumber", "startAddress", "endAddress", "executionAddress", "hardwareID",
                               "reserves"])
 
 
-def printHeaderFromLittleEndian(imagePath, numLines):
-    """
-    print the first numLines of given image in big endian order from little endian order
-
-    :param imagePath:
-    :param numLines:
-    :return:
-    """
-    print("First ", numLines, " lines (", numLines * 4, " bytes )  : ")
-    f = open(imagePath, "rb")
-    time = numLines
-    try:
-        while time > 0:
-            byte = f.read(4)  # 32 bit machine uses 4 bytes
-            time -= 1
-            print(format32BitHexStr(hex(int.from_bytes(byte, "little"))))
-
-    finally:
-        f.close()
-
-
-def printComparison(unprocessedImagePath, processedImagePath):
-    """
-    Give the comparison of image content without and with OTA descriptor
-    by printing the given image header of unprocessed and processed image
-
-    :param unprocessedImagePath:
-    :param processedImagePath
-    :return:
-    """
-    print("\nComparison of image content without and with OTA descriptor :")
-
-    print("\nUnprocessed image content (without OTA descriptor):")
-    printHeaderFromLittleEndian(unprocessedImagePath, 10)
-
-    print("\nProcessed image content (with OTA descriptor added):")
-    printHeaderFromLittleEndian(processedImagePath, 16)
-
-
-def format32BitHexStr(hexStr):
-    """
-    format the given string which represents a valid 32-bit hexadecimal number.
-    prefix "0x" will be added and will replace any valid prefix.
-    alphabetic letter will be formatted into upper case.
-    "0" will be used to fill the hexadecimal number if this number is represented as less than 8-letter.
-
-    Exmaple usage:
-    input: 0Xff  -> output:0x000000FF
-    input: Ab -> output: 0x000000AB
-    input 0xAf -> output: 0x000000AF
-
-
-    :param hexStr:  a valid string representing a 32-bit hexadecimal number
-    :return: a formatted string representing 32-bit hexadecimal number as described
-    """
-    # remove "0x" or "OX"  prefix if it had any
-    hexStr = hexStr.replace("0x", "").replace("0X", "")
-
-    hexStr = hexStr[0:8].zfill(8)
-
-    hexStr = hexStr.upper()
-
-    hexStr = "0x" + hexStr
-
-    return hexStr
-
-
-def printAddOTADescriptorResult(processedImagePath, imageLines, offset):
+def printOTADescriptorImageStruct(processedImagePath, imageLines, offset):
     """
     output the OTA descriptor of processed image along with some of its contents
     for additionalLines
@@ -123,14 +60,6 @@ def printAddOTADescriptorResult(processedImagePath, imageLines, offset):
         f.close()
 
 
-def getFileSize(filePath):
-    """
-    :param filePath: path of a file
-    :return:  the size of the given file in bytes
-    """
-    return os.path.getsize(filePath)
-
-
 def parseParamFromCMD():
     """
     parse input image path and hardware platform name from command line.
@@ -142,12 +71,12 @@ def parseParamFromCMD():
 
     progName = sys.argv[0]
 
-    format = "python3 " + progName + " [-h] -b binary_path -p hardware_platform"
+    format = "python " + progName + " [-h] -b binary_path -p hardware_platform"
 
-    example1 = "\t get help: \n" + "\t\tpython3 " + progName + " -h"
+    example1 = "\t get help: \n" + "\t\tpython " + progName + " -h"
 
     example2 = "\t use folder/inputImage.bin and MCHP-Curiosity-PIC32MZEF as parameter : \n" \
-               + "\t\tpython3 " + progName + " -b folder/inputImage.bin -p MCHP-Curiosity-PIC32MZEF "
+               + "\t\tpython " + progName + " -b folder/inputImage.bin -p MCHP-Curiosity-PIC32MZEF "
 
     usageMsg = format + "\n\n" + "example usages:" + "\n" + example1 + "\n" + example2
 
@@ -163,48 +92,6 @@ def parseParamFromCMD():
     hardwarePlatform = args["p"]
 
     return inputImagePath, hardwarePlatform
-
-
-def parseConfigFile(configFilePath):
-    """
-    :param configFilePath:
-    :return: a hash map of the parameters defined in the given file.
-    Each entry is organized as <parameter name, parameter value>
-    """
-
-    # parse valid lines
-    lines = []
-    with open(configFilePath) as f:
-        for line in f:
-            line = line.strip()
-            if line == '':  # ignore empty line
-                continue
-            if line.startswith('#'):  # ignore the comment in config file
-                continue
-
-            lines.append(line)
-
-    params = {}
-    for line in lines:
-        if not line.__contains__("="):
-            raise Exception("Invalid parameter definition as \"" + line + "\" in file " + configFilePath)
-
-        paramName = line.split("=")[0].strip()
-        value = line.split("=")[1].strip()
-        params[paramName] = value
-
-    return params
-
-
-def validateFilePath(filePath):
-    """
-    raise exception if the given file path does not exist.
-
-    :param filePath:
-    :return:
-    """
-    if not os.path.isfile(filePath):
-        raise Exception("Error! Can't find given file : " + filePath)
 
 
 def validate32BitHexParam(hex32Str, paramName, fileLocation):
@@ -348,24 +235,6 @@ def validate32BitHexParamRange(val, paramName, minVal, maxVal, fileLocation):
             "Invalid value of \"" + paramName + "\"! Expected range : [" + minVal + "," + maxVal + "]. Found : " + val + ".  File location: " + fileLocation)
 
 
-def toLitteEndianByte(hexStr):
-    """
-    :param hexStr: a string representing a valid 32-bit hexadecimal number
-    :return:  byte value of this hexadecimal number in little endian format
-    """
-    # remove "0x" or "OX"  prefix if there's any
-    hexStr = hexStr.replace("0x", "").replace("0X", "")
-
-    # convert it into bytes
-    byteData = binascii.unhexlify(hexStr)
-
-    # convert to unsigned int
-    x = int.from_bytes(byteData, byteorder='big', signed=False)
-
-    # pack it into little endian format
-    return struct.pack('<I', x)
-
-
 def getEndAddress(fileSize, startAddress):
     """
     :param fileSize: size of the FreeRTOS image used to add OTA descriptor in bytes
@@ -407,6 +276,7 @@ def getOTADescriptor(userConfigFilePath, inputImagePath, ruleFolderPath, hardwar
 
     # 2. Make sure the rule file and the parameters defined in it are valid
     validationFileLocation = os.path.join(ruleFolderPath, hardwarePlatform)
+    validateFilePath(validationFileLocation)
     ruleParams = parseConfigFile(validationFileLocation)
     if len(ruleParams.keys()) != 2:
         raise Exception("Invalid validation rule file : " + validationFileLocation +
@@ -535,12 +405,19 @@ def addOTADescriptorToImage(inputImagePath, otaDescriptor, outputImagePath):
         fOut.write(data)
 
 
-def appendOTADescriptor(inputImagePath, hardwarePlatform):
+def generateOTADescriptorImage(inputImagePath, hardwarePlatform):
+    """
+
+    :param inputImagePath: valid input image path
+    :param hardwarePlatform:
+    :return:  path of generated ota image, which as OTA descriptor appended
+    """
     rootPath = os.path.dirname(__file__)
 
     userConfigFolder = 'user-config'
     userConfigFileName = 'ota-descriptor.config'
     userConfigFilePath = os.path.join(rootPath, userConfigFolder, userConfigFileName)
+    validateFilePath(userConfigFilePath)
 
     ruleFolder = "config-validation-rules"
     ruleFolderPath = os.path.join(rootPath, ruleFolder)
@@ -549,7 +426,7 @@ def appendOTADescriptor(inputImagePath, hardwarePlatform):
 
     print("\nAdding OTA descriptors to image " + inputImagePath + " ...")
 
-    if  inputImagePath.endswith(".bin"):
+    if inputImagePath.endswith(".bin"):
         otaImagePath = inputImagePath.replace(".bin", ".ota.bin")
     else:
         otaImagePath = inputImagePath + ".ota.bin"
@@ -563,6 +440,6 @@ def appendOTADescriptor(inputImagePath, hardwarePlatform):
 if __name__ == "__main__":
     inputImagePath, hardwarePlatform = parseParamFromCMD()
     validateFilePath(inputImagePath)
-    otaImagePath = appendOTADescriptor(inputImagePath, hardwarePlatform)
+    otaImagePath = generateOTADescriptorImage(inputImagePath, hardwarePlatform)
     print("\nResult of adding OTA descriptor: \n")
-    printAddOTADescriptorResult(processedImagePath=otaImagePath, imageLines=10,offset=0)
+    printOTADescriptorImageStruct(processedImagePath=otaImagePath, imageLines=10, offset=0)

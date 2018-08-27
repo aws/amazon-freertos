@@ -121,7 +121,7 @@ static void reset_hw_timer()
  */
 static void task_wdt_isr(void *arg)
 {
-    portENTER_CRITICAL(&twdt_spinlock);
+    portENTER_CRITICAL_ISR(&twdt_spinlock);
     twdt_task_t *twdttask;
     const char *cpu;
     //Reset hardware timer so that 2nd stage timeout is not reached (will trigger system reset)
@@ -154,11 +154,11 @@ static void task_wdt_isr(void *arg)
 
     if (twdt_config->panic){     //Trigger Panic if configured to do so
         ets_printf("Aborting.\n");
-        portEXIT_CRITICAL(&twdt_spinlock);
+        portEXIT_CRITICAL_ISR(&twdt_spinlock);
         abort();
     }
 
-    portEXIT_CRITICAL(&twdt_spinlock);
+    portEXIT_CRITICAL_ISR(&twdt_spinlock);
 }
 
 /*

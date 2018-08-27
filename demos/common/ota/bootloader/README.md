@@ -58,7 +58,7 @@ python factory_image_generator.py -b mplab.production.bin -p MCHP-Curiosity-PIC3
     -test_private_key.pem is the private key 
     -aws_bootloader.X.production.hex is the bootloader hex  
 
-The unified hex file generated has the extension `factory.hex` for ex - mplab.production.unified.factory.hex
+The unified hex file generated has the extension `factory.hex` for ex - mplab.production.factory.unified.hex
 
 ## Flashing the factory image
 
@@ -66,7 +66,7 @@ The unified hex file generated has the extension `factory.hex` for ex - mplab.pr
 
 * Erase the device.
 
-* Load the generated factory hex file i.e. mplab.production.unified.factory.hex.
+* Load the generated factory hex file i.e. mplab.production.factory.unified.hex.
 
 * Click program and wait for programming to complete.
 

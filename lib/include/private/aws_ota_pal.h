@@ -155,38 +155,46 @@ OTA_Err_t prvPAL_ActivateNewImage( void );
 OTA_Err_t prvPAL_ResetDevice( void );
 
 /**
- * @brief Set the state of the OTA Image in the MCU file system.
+ * @brief Attempt to set the state of the OTA update image.
  * 
- * Do whatever is required by the platform to Accept/Reject the last firmware image (or bundle).
- * Refer to the implementation to determine what happens on your platform.
+ * Do whatever is required by the platform to Accept/Reject the OTA update image (or bundle).
+ * Refer to the PAL implementation to determine what happens on your platform.
  * 
- * @param[in] eState The state of the OTA Image.
+ * @param[in] eState The desired state of the OTA update image.
  * 
- * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent 
- * error codes information in aws_ota_agent.h.
+ * @return The OTA_Err_t error code combined with the MCU specific error code. See aws_ota_agent.h for
+ *         OTA major error codes and your specific PAL implementation for the sub error code.
  * 
- * kOTA_Err_None is returned on success.
- * kOTA_Err_BadImageState is returned for an unrecognized input OTA_ImageState_t i.e. when the image state is eOTA_ImageState_Unknown or out of range.
- * kOTA_Err_AbortFailed is returned when the input eState == eOTA_ImageState_Aborted and settings the image in the system into an aborted state fails.
- * kOTA_Err_RejectFailed is returned when the input eState == eOTA_ImageState_Rejected and setting the image in the system into a reject state fails.
- * kOTA_Err_CommitFailed is returned when the input eState == eOTA_ImageState_Accepted and setting the image in the system into a committed state fails.
+ * Major error codes returned are:
+ *
+ *   kOTA_Err_None on success.
+ *   kOTA_Err_BadImageState: if you specify an invalid OTA_ImageState_t. No sub error code.
+ *   kOTA_Err_AbortFailed: failed to roll back the update image as requested by eOTA_ImageState_Aborted.
+ *   kOTA_Err_RejectFailed: failed to roll back the update image as requested by eOTA_ImageState_Rejected.
+ *   kOTA_Err_CommitFailed: failed to make the update image permanent as requested by eOTA_ImageState_Accepted.
  */
 OTA_Err_t prvPAL_SetPlatformImageState ( OTA_ImageState_t eState );
 
 /**
- * @brief Get the state of the currently running image.
+ * @brief Get the state of the OTA update image.
  *
- * We read this at OTA_Init time so we can tell if the MCU image is in self
- * test mode. If it is, we expect a successful connection to the OTA services
- * within a reasonable amount of time. If we don't satisfy that requirement,
- * we assume there is something wrong with the firmware and reset the device,
- * causing it to roll back to the previous known working code. If the self tests
- * pass, the application shall call OTA_ActivateNewImage() to reset the device.
+ * We read this at OTA_Init time and when the latest OTA job reports itself in self
+ * test. If the update image is in the "pending commit" state, we start a self test
+ * timer to assure that we can successfully connect to the OTA services and accept
+ * the OTA update image within a reasonable amount of time (user configurable). If
+ * we don't satisfy that requirement, we assume there is something wrong with the
+ * firmware and automatically reset the device, causing it to roll back to the
+ * previously known working code.
+ *
+ * If the update image state is not in "pending commit," the self test timer is
+ * not started.
  *
  * @return An OTA_PAL_ImageState_t. One of the following:
- *   eOTA_PAL_ImageState_PendingCommit (new firmware is in the self test phase)
- *   eOTA_PAL_ImageState_Valid         (new firmware is valid/committed) 
- *   eOTA_PAL_ImageState_Invalid       (new firmware is invalid/rejected; the image is considered until it passes signature verification and it committed.)
+ *   eOTA_PAL_ImageState_PendingCommit (the new firmware image is in the self test phase)
+ *   eOTA_PAL_ImageState_Valid         (the new firmware image is already committed)
+ *   eOTA_PAL_ImageState_Invalid       (the new firmware image is invalid or non-existent)
+ *
+ *   NOTE: eOTA_PAL_ImageState_Unknown should NEVER be returned and indicates an implementation error.
  */
 OTA_PAL_ImageState_t prvPAL_GetPlatformImageState ( void );
 
