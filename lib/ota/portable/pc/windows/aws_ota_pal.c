@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA PAL for Windows Simulator V1.0.0
+ * Amazon FreeRTOS OTA PAL for Windows Simulator V1.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,7 +33,7 @@
 #include "aws_ota_agent_internal.h"
 
 /* Specify the OTA signature algorithm we support on this platform. */
-const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-rsa";
+const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 
 static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C );
 static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
@@ -266,8 +266,8 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
 
     if( prvContextValidate( C ) == pdTRUE )
     {
-        /* Verify an RSA-SHA256 signature. */
-        if( pdFALSE == CRYPTO_SignatureVerificationStart( &pvSigVerifyContext, cryptoASYMMETRIC_ALGORITHM_RSA, cryptoHASH_ALGORITHM_SHA256 ) )
+        /* Verify an ECDSA-SHA256 signature. */
+        if( pdFALSE == CRYPTO_SignatureVerificationStart( &pvSigVerifyContext, cryptoASYMMETRIC_ALGORITHM_ECDSA, cryptoHASH_ALGORITHM_SHA256 ) )
         {
             eResult = kOTA_Err_SignatureCheckFailed;
         }

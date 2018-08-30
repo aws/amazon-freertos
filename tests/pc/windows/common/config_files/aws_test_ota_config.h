@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.0
+ * Amazon FreeRTOS V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,7 @@
  * If applicable, the device must be pre-provisioned with this certificate. Please see
  * test/common/ota/test_files for the set of certificates.
  */
-#define otatestpalCERTIFICATE_FILE    "tests\\common\\ota\\test_files\\rsa-sha256-signer.crt.pem"
+#define otatestpalCERTIFICATE_FILE    "tests\\common\\ota\\test_files\\ecdsa-sha256-signer.crt.pem"
 
  /**
  * @brief Some devices have a hard-coded name for the firmware image to boot.
@@ -62,13 +62,13 @@
  /**
  * @brief Include of signature testing data applicable to this device.
  */
-#include "aws_test_ota_pal_rsa_sha256_signature.h"
+#include "aws_test_ota_pal_ecdsa_sha256_signature.h"
 
 /**
  * @brief Define a valid and invalid signature verification method for this
  * platform (Windows). These are used for generating test JSON docs.
  */
-#define otatestVALID_SIG_METHOD                         "sig-sha256-rsa"
-#define otatestINVALID_SIG_METHOD                       "sig-sha256-ecdsa"
+#define otatestVALID_SIG_METHOD                         "sig-sha256-ecdsa"
+#define otatestINVALID_SIG_METHOD                       "sig-sha256-rsa"
 
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */

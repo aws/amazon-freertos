@@ -1,5 +1,15 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.1 08/29/2018
+### New Features
+None
+
+### Updates
+
+#### OTA PAL for Windows Simulator V1.0.1
+- Update Amazon FreeRTOS Windows Simulator to use ECDSA/SHA-256 for OTA image verification.
+
+
 ## V1.4.0 08/27/2018
 ### New Features
 
