@@ -81,7 +81,6 @@ extern volatile TCB_t * volatile pxCurrentTCB;
 #define portSAVE_CONTEXT()									\
 	asm volatile (	"push	r0						\n\t"	\
 					"in		r0, __SREG__			\n\t"	\
-					"cli							\n\t"	\
 					"push	r0						\n\t"	\
 					"push	r1						\n\t"	\
 					"clr	r1						\n\t"	\
@@ -117,9 +116,9 @@ extern volatile TCB_t * volatile pxCurrentTCB;
 					"push	r31						\n\t"	\
 					"lds	r26, pxCurrentTCB		\n\t"	\
 					"lds	r27, pxCurrentTCB + 1	\n\t"	\
-					"in		r0, 0x3d				\n\t"	\
+					"in		r0, __SP_L__				\n\t"	\
 					"st		x+, r0					\n\t"	\
-					"in		r0, 0x3e				\n\t"	\
+					"in		r0, __SP_H__				\n\t"	\
 					"st		x+, r0					\n\t"	\
 				);
 
@@ -328,31 +327,12 @@ void vPortEndScheduler( void )
 void vPortYield( void ) __attribute__ ( ( naked ) );
 void vPortYield( void )
 {
+	cli(); //disable interrupts here
 	portSAVE_CONTEXT();
 	vTaskSwitchContext();
 	portRESTORE_CONTEXT();
 
-	asm volatile ( "ret" );
-}
-/*-----------------------------------------------------------*/
-
-/*
- * Context switch function used by the tick.  This must be identical to 
- * vPortYield() from the call to vTaskSwitchContext() onwards.  The only
- * difference from vPortYield() is the tick count is incremented as the
- * call comes from the tick ISR.
- */
-void vPortYieldFromTick( void ) __attribute__ ( ( naked ) );
-void vPortYieldFromTick( void )
-{
-	portSAVE_CONTEXT();
-	if( xTaskIncrementTick() != pdFALSE )
-	{
-		vTaskSwitchContext();
-	}
-	portRESTORE_CONTEXT();
-
-	asm volatile ( "ret" );
+	asm volatile ( "reti" ); //enable interrupts again
 }
 /*-----------------------------------------------------------*/
 
@@ -399,13 +379,17 @@ uint8_t ucHighByte, ucLowByte;
 
 	/*
 	 * Tick ISR for preemptive scheduler.  We can use a naked attribute as
-	 * the context is saved at the start of vPortYieldFromTick().  The tick
+	 * the context is saved by portSAVE_CONTEXT().  The tick
 	 * count is incremented after the context is saved.
 	 */
-	void SIG_OUTPUT_COMPARE1A( void ) __attribute__ ( ( signal, naked ) );
-	void SIG_OUTPUT_COMPARE1A( void )
+	ISR(SIG_OUTPUT_COMPARE1A, ISR_NAKED)
 	{
-		vPortYieldFromTick();
+		portSAVE_CONTEXT();
+		if( xTaskIncrementTick() != pdFALSE )
+		{
+			vTaskSwitchContext();
+		}
+		portRESTORE_CONTEXT();
 		asm volatile ( "reti" );
 	}
 #else
@@ -415,8 +399,7 @@ uint8_t ucHighByte, ucLowByte;
 	 * tick count.  We don't need to switch context, this can only be done by
 	 * manual calls to taskYIELD();
 	 */
-	void SIG_OUTPUT_COMPARE1A( void ) __attribute__ ( ( signal ) );
-	void SIG_OUTPUT_COMPARE1A( void )
+	ISR(SIG_OUTPUT_COMPARE1A)
 	{
 		xTaskIncrementTick();
 	}
