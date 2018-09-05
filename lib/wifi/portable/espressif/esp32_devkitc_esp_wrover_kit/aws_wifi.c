@@ -525,7 +525,68 @@ WIFIReturnCode_t WIFI_StopAP( void )
 
 WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
-    return eWiFiNotSupported;
+    wifi_config_t wifi_config = { 0 };
+    WIFIReturnCode_t wifi_ret = eWiFiFailure;
+    esp_err_t ret;
+
+
+    if (pxNetworkParams == NULL || pxNetworkParams->pcSSID == NULL
+        || (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->pcPassword == NULL)) {
+        return wifi_ret;
+    }
+
+    if (!CHECK_VALID_SSID_LEN(pxNetworkParams->ucSSIDLength) ||
+        (pxNetworkParams->xSecurity != eWiFiSecurityOpen && !CHECK_VALID_PASSPHRASE_LEN(pxNetworkParams->ucPasswordLength))) {
+        return wifi_ret;
+    }
+
+    if (pxNetworkParams->xSecurity > 3) {
+        ESP_LOGE(TAG, "%s: WiFi Security mode not supported in AP mode", __func__);
+        return wifi_ret;
+    }
+    wifi_config.ap.authmode = pxNetworkParams->xSecurity;
+
+    /* Try to acquire the semaphore. */
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        // Check if WiFi is already connected
+        if (wifi_conn_state == true) {
+            esp_err_t ret = esp_wifi_disconnect();
+            if (ret == ESP_OK)
+            {
+                // Wait for wifi disconnected event
+                xEventGroupWaitBits(wifi_event_group, DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+            }
+        }
+
+        uint8_t ssid_len = pxNetworkParams->ucSSIDLength + 1; // To add room for null termination
+        strlcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, ssid_len);
+        if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
+            uint8_t passwordLength = pxNetworkParams->ucPasswordLength + 1; // To add room for null termination
+            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, passwordLength);
+        }
+
+        ret = esp_wifi_set_mode(WIFI_MODE_AP);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+
+        ret = esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+
+        xSemaphoreGive( xWiFiSem );
+    }
+    else
+    {
+        wifi_ret = eWiFiTimeout;
+    }
+    return wifi_ret;
 }
 /*-----------------------------------------------------------*/
 
