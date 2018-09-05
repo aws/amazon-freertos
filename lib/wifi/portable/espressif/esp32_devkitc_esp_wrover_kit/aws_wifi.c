@@ -497,7 +497,23 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
 
 WIFIReturnCode_t WIFI_StartAP( void )
 {
-    return eWiFiNotSupported;
+    WIFIReturnCode_t xRetVal = eWiFiFailure;
+
+    /* Try to acquire the semaphore. */
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        if (esp_wifi_start() == ESP_OK) {
+            xRetVal = eWiFiSuccess;
+        }
+    }
+    else
+    {
+        xRetVal = eWiFiTimeout;
+    }
+
+    xSemaphoreGive( xWiFiSem );
+
+    return xRetVal;
 }
 /*-----------------------------------------------------------*/
 
