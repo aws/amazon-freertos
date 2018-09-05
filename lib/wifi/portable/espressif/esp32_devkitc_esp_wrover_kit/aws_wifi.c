@@ -519,7 +519,7 @@ WIFIReturnCode_t WIFI_StartAP( void )
 
 WIFIReturnCode_t WIFI_StopAP( void )
 {
-    return eWiFiNotSupported;
+    return WIFI_Disconnect();
 }
 /*-----------------------------------------------------------*/
 
