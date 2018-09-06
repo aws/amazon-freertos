@@ -525,7 +525,11 @@ WIFIReturnCode_t WIFI_StopAP( void )
 
 WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
-    wifi_config_t wifi_config = { 0 };
+    wifi_config_t wifi_config = {
+            .ap = {
+                    .max_connection = wificonfigMAX_CONNECTED_STATIONS
+            }
+    };
     WIFIReturnCode_t wifi_ret = eWiFiFailure;
     esp_err_t ret;
 
