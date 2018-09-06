@@ -585,6 +585,7 @@ WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkPa
         }
 
         xSemaphoreGive( xWiFiSem );
+        wifi_ret = eWiFiSuccess;
     }
     else
     {
