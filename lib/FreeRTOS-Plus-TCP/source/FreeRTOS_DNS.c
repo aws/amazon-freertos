@@ -446,7 +446,8 @@ TickType_t xIdentifier = 0;
     /* Generate a unique identifier. */
     if( 0 == ulIPAddress )
     {
-        xIdentifier = ( TickType_t )ipconfigRAND32( );
+		/* DNS identifiers are 16-bit. */
+        xIdentifier = ( TickType_t )( ipconfigRAND32( ) & 0xffff );
     }
 
     #if( ipconfigDNS_USE_CALLBACKS != 0 )
@@ -567,7 +568,7 @@ TickType_t xWriteTimeOut_ms = ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME;
 					if( lBytes > 0 )
 					{
 						/* The reply was received.  Process it. */
-						ulIPAddress = prvParseDNSReply( pucUDPPayloadBuffer, lBytes, xIdentifier );
+						ulIPAddress = prvParseDNSReply( pucUDPPayloadBuffer, ( size_t )lBytes, xIdentifier );
 
 						/* Finished with the buffer.  The zero copy interface
 						is being used, so the buffer must be freed by the
@@ -813,7 +814,9 @@ uint8_t *pucUDPPayloadBuffer;
 size_t xPlayloadBufferLength;
 DNSMessage_t *pxDNSMessageHeader;
 
-	xPlayloadBufferLength = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
+	/* In this context, 'pxNetworkBuffer->xDataLength' is the
+	length of the UDP payload buffer. */
+	xPlayloadBufferLength = pxNetworkBuffer->xDataLength;
 	if ( xPlayloadBufferLength < sizeof( DNSMessage_t ) )
 	{
 		return pdFAIL;
@@ -822,12 +825,9 @@ DNSMessage_t *pxDNSMessageHeader;
 	pucUDPPayloadBuffer = pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t );
 	pxDNSMessageHeader = ( DNSMessage_t * ) pucUDPPayloadBuffer;
 
-    if( pxNetworkBuffer->xDataLength > sizeof( UDPPacket_t ) )
-    {
-        prvParseDNSReply( pucUDPPayloadBuffer, 
-            xPlayloadBufferLength,
-            ( uint32_t )pxDNSMessageHeader->usIdentifier );
-    }
+	prvParseDNSReply( pucUDPPayloadBuffer, 
+		xPlayloadBufferLength,
+		( uint32_t )pxDNSMessageHeader->usIdentifier );
 
 	/* The packet was not consumed. */
 	return pdFAIL;
