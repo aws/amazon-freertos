@@ -789,7 +789,6 @@ BaseType_t xIsCallingFromIPTask( void );
 typedef struct xSOCKET_SET
 {
 	EventGroupHandle_t xSelectGroup;
-	BaseType_t bApiCalled;	/* True if the API was calling  the private vSocketSelect */
 	FreeRTOS_Socket_t *pxSocket;
 } SocketSelect_t;
 

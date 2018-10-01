@@ -420,10 +420,7 @@ Socket_t xReturn;
 			pxSocket->pxSocketSet = ( SocketSelect_t * ) xSocketSet;
 
 			/* Now have the IP-task call vSocketSelect() to see if the set contains
-			any sockets which are 'ready' and set the proper bits.
-			By setting 'bApiCalled = false', vSocketSelect() knows that it was
-			not called from a user API */
-			pxSocketSet->bApiCalled = pdFALSE;
+			any sockets which are 'ready' and set the proper bits. */
 			prvFindSelectedSocket( pxSocketSet );
 		}
 	}
@@ -522,7 +519,6 @@ Socket_t xReturn;
 			#endif /* ipconfigSUPPORT_SIGNALS */
 
 			/* Have the IP-task find the socket which had an event */
-			pxSocketSet->bApiCalled = pdTRUE;
 			prvFindSelectedSocket( pxSocketSet );
 
 			xResult = ( BaseType_t ) xEventGroupGetBits( pxSocketSet->xSelectGroup );
