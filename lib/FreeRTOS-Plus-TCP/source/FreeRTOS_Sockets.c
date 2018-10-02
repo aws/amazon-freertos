@@ -150,7 +150,7 @@ static BaseType_t prvDetermineSocketSize( BaseType_t xDomain, BaseType_t xType, 
 #if( ipconfigSUPPORT_SELECT_FUNCTION == 1 )
 
 	/* Executed by the IP-task, it will check all sockets belonging to a set */
-	static FreeRTOS_Socket_t *prvFindSelectedSocket( SocketSelect_t *pxSocketSet );
+	static void prvFindSelectedSocket( SocketSelect_t *pxSocketSet );
 
 #endif /* ipconfigSUPPORT_SELECT_FUNCTION == 1 */
 /*-----------------------------------------------------------*/
@@ -545,10 +545,9 @@ Socket_t xReturn;
 
 	/* Send a message to the IP-task to have it check all sockets belonging to
 	'pxSocketSet' */
-	static FreeRTOS_Socket_t *prvFindSelectedSocket( SocketSelect_t *pxSocketSet )
+	static void prvFindSelectedSocket( SocketSelect_t *pxSocketSet )
 	{
 	IPStackEvent_t xSelectEvent;
-	FreeRTOS_Socket_t *xReturn;
 
 		xSelectEvent.eEventType = eSocketSelectEvent;
 		xSelectEvent.pvData = ( void * ) pxSocketSet;
@@ -562,19 +561,13 @@ Socket_t xReturn;
 		{
 			/* Oops, we failed to wake-up the IP task. No use to wait for it. */
 			FreeRTOS_debug_printf( ( "prvFindSelectedSocket: failed\n" ) );
-			xReturn = NULL;
 		}
 		else
 		{
 			/* As soon as the IP-task is ready, it will set 'eSELECT_CALL_IP' to
 			wakeup the calling API */
 			xEventGroupWaitBits( pxSocketSet->xSelectGroup, eSELECT_CALL_IP, pdTRUE, pdFALSE, portMAX_DELAY );
-
-			/* Return 'pxSocket' which is set by the IP-task */
-			xReturn = pxSocketSet->pxSocket;
 		}
-
-		return xReturn;
 	}
 
 #endif /* ipconfigSUPPORT_SELECT_FUNCTION == 1 */
@@ -3411,7 +3404,6 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 		/* These flags will be switched on after checking the socket status. */
 		EventBits_t xGroupBits = 0;
-		pxSocketSet->pxSocket = NULL;
 
 		for( xRound = 0; xRound <= xLastRound; xRound++ )
 		{

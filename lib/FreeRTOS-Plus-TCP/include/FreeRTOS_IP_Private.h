@@ -789,7 +789,6 @@ BaseType_t xIsCallingFromIPTask( void );
 typedef struct xSOCKET_SET
 {
 	EventGroupHandle_t xSelectGroup;
-	FreeRTOS_Socket_t *pxSocket;
 } SocketSelect_t;
 
 extern void vSocketSelect( SocketSelect_t *pxSocketSelect );
