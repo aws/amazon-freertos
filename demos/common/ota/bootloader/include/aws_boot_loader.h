@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.1
+ * Amazon FreeRTOS Demo Bootloader V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -60,6 +60,11 @@
  * @see BOOTImageHeader_t
  */
 #define BOOT_MAGIC_CODE_SIZE        ( 7U )
+
+/**
+ * @brief Quad Word size.
+ */
+#define BOOT_QUAD_WORD_SIZE         ( 16U )
 
 /**
  * @brief Bootloader states.

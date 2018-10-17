@@ -35,7 +35,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /**
  * @brief The number of buffers in the static buffer pool.
  */
-#define bufferpoolconfigNUM_BUFFERS    ( 6 )
+#define bufferpoolconfigNUM_BUFFERS    ( 8 )
 
 /**
  * @brief The size of each buffer in the static buffer pool.

@@ -28,18 +28,18 @@
 #include <assert.h>
 #include <string.h>
 
-cbor_handle_t cbor_data;
+CBORHandle_t xCborData;
 
 TEST_GROUP( aws_cbor_map );
 
 TEST_SETUP( aws_cbor_map )
 {
-    cbor_data = CBOR_New( 0 );
+    xCborData = CBOR_New( 0 );
 }
 
 TEST_TEAR_DOWN( aws_cbor_map )
 {
-    CBOR_Delete( &cbor_data );
+    CBOR_Delete( &xCborData );
 }
 
 TEST_GROUP_RUNNER( aws_cbor_map )
@@ -70,7 +70,7 @@ TEST_GROUP_RUNNER( aws_cbor_map )
 
 TEST( aws_cbor_map, AssignKey_writes_byte_to_key )
 {
-    cbor_byte_t expected[] =
+    uint8_t ucExpected[] =
     {
         0xBF, /* 0  Open Map         */
         0x66, /* 1  Key of length 6  */
@@ -82,29 +82,29 @@ TEST( aws_cbor_map, AssignKey_writes_byte_to_key )
         'r',  /* 7                   */
         0x18, /* 8  Start 8-bit int  */
         42,   /* 9                   */
-        0xFF, /* 10 End of map       */
+        0xFF, /* 10 End of Map       */
     };
 
-    cbor_int_t my_answer = 42;
+    int lMyAnswer = 42;
 
-    CBOR_AssignKey( cbor_data, "answer", CBOR_WriteInt, &my_answer );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, cbor_data->err );
+    CBOR_AssignKey( xCborData, "answer", CBOR_WriteInt, &lMyAnswer );
+    TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
-        expected, cbor_data->buffer_start, sizeof( expected ) );
+        ucExpected, xCborData->pxBufferStart, sizeof( ucExpected ) );
 }
 
 TEST( aws_cbor_map, AssignKey_update_key_with_larger_int )
 {
-    CBOR_AssignKey( cbor_data, "1", CBOR_WriteInt, &( cbor_int_t ) { 0x23 } );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, cbor_data->err );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x23 } );
+    TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
-    CBOR_AssignKey( cbor_data, "2", CBOR_WriteInt, &( cbor_int_t ) { 0x7392 } );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, cbor_data->err );
+    CBOR_AssignKey( xCborData, "2", CBOR_WriteInt, &( int ) { 0x7392 } );
+    TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
     /* Note, this test assert is here for documentation.  It demonstrates the
      * state of the CBOR buffer before re-writing the value for key '1'. */
-    cbor_byte_t expected[] =
+    uint8_t ucExpected[] =
     {
         0xBF, /* 0  Open Map         */
         0x61, /* 1  Key of length 6  */
@@ -116,15 +116,15 @@ TEST( aws_cbor_map, AssignKey_update_key_with_larger_int )
         0x19, /* 7  Start 16-bit int */
         0x73, /* 8                   */
         0x92, /* 9                   */
-        0xFF, /* 10 End of map       */
+        0xFF, /* 10 End of Map       */
     };
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
-        expected, cbor_data->buffer_start, sizeof( expected ) );
+        ucExpected, xCborData->pxBufferStart, sizeof( ucExpected ) );
 
-    CBOR_AssignKey( cbor_data, "1", CBOR_WriteInt, &( cbor_int_t ) { 0x1234 } );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, cbor_data->err );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x1234 } );
+    TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
-    cbor_byte_t expected_rewrite[] =
+    uint8_t ucExpectedRewrite[] =
     {
         0xBF, /* 0  Open Map         */
         0x61, /* 1  Key of length 6  */
@@ -137,24 +137,26 @@ TEST( aws_cbor_map, AssignKey_update_key_with_larger_int )
         0x19, /* 8  Start 16-bit int */
         0x73, /* 9                   */
         0x92, /* 10                  */
-        0xFF, /* 11 End of map       */
+        0xFF, /* 11 End of Map       */
     };
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
-        expected_rewrite, cbor_data->buffer_start, sizeof( expected_rewrite ) );
+        ucExpectedRewrite,
+        xCborData->pxBufferStart,
+        sizeof( ucExpectedRewrite ) );
 }
 
 TEST( aws_cbor_map, AssignKey_update_key_with_smaller_int )
 {
-    CBOR_AssignKey( cbor_data, "1", CBOR_WriteInt, &( cbor_int_t ) { 0x5CA1AB1E } );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, cbor_data->err );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x5CA1AB1E } );
+    TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
-    CBOR_AssignKey( cbor_data, "2", CBOR_WriteInt, &( cbor_int_t ) { 0xCAFE } );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, cbor_data->err );
+    CBOR_AssignKey( xCborData, "2", CBOR_WriteInt, &( int ) { 0xCAFE } );
+    TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
-    CBOR_AssignKey( cbor_data, "1", CBOR_WriteInt, &( cbor_int_t ) { 0xED } );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NO_ERROR, cbor_data->err );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0xED } );
+    TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
-    cbor_byte_t expected_rewrite[] =
+    uint8_t ucExpectedRewrite[] =
     {
         0xBF, /* 0  Open Map         */
         0x61, /* 1  Key of length 6  */
@@ -166,24 +168,24 @@ TEST( aws_cbor_map, AssignKey_update_key_with_smaller_int )
         0x19, /* 7  Start 16-bit int */
         0xCA, /* 8                   */
         0xFE, /* 9                   */
-        0xFF, /* 10 End of map       */
+        0xFF, /* 10 End of Map       */
     };
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
-        expected_rewrite, cbor_data->buffer_start, sizeof( expected_rewrite ) );
+        ucExpectedRewrite, xCborData->pxBufferStart, sizeof( ucExpectedRewrite ) );
 }
 
 TEST( aws_cbor_map, AssignKey_will_return_err_if_not_map_or_empty )
 {
-    *( cbor_data->buffer_start ) = 2;
-    CBOR_AssignKey( cbor_data, "1", CBOR_WriteInt, &( cbor_int_t ) { 0x5CA1AB1E } );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_UNSUPPORTED_READ_OPERATION, cbor_data->err );
+    *( xCborData->pxBufferStart ) = 2;
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x5CA1AB1E } );
+    TEST_ASSERT_EQUAL( eCborErrUnsupportedReadOperation, xCborData->xError );
 }
 
 TEST( aws_cbor_map, AssignKey_with_string )
 {
-    CBOR_AssignKey( cbor_data, "1", CBOR_WriteString, "Hi" );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteString, "Hi" );
 
-    cbor_byte_t expected_rewrite[] =
+    uint8_t ucExpectedRewrite[] =
     {
         0xBF, /* 0  Open Map           */
         0x61, /* 1  Key of length 1    */
@@ -191,15 +193,15 @@ TEST( aws_cbor_map, AssignKey_with_string )
         0x62, /* 3  String of length 2 */
         'H',  /* 4                     */
         'i',  /* 5                     */
-        0xFF, /* 6  End of map         */
+        0xFF, /* 6  End of Map         */
     };
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
-        expected_rewrite, cbor_data->buffer_start, sizeof( expected_rewrite ) );
+        ucExpectedRewrite, xCborData->pxBufferStart, sizeof( ucExpectedRewrite ) );
 }
 
 TEST( aws_cbor_map, AssignKey_with_map )
 {
-    cbor_byte_t map_buffer[] =
+    uint8_t ucMapBuffer[] =
     {
         0xBF, /* 0  Open Map           */
         0x63, /* 1  Key of length 3    */
@@ -208,16 +210,16 @@ TEST( aws_cbor_map, AssignKey_with_map )
         'y',  /* 4                     */
         0x18, /* 5  1 byte int         */
         78,   /* 6                     */
-        0xFF, /* 7  End of map         */
+        0xFF, /* 7  End of Map         */
     };
 
-    cbor_handle_t map = CBOR_New( 0 );
+    CBORHandle_t xMap = CBOR_New( 0 );
 
-    CBOR_MemCopy( map, map_buffer, sizeof( map_buffer ) );
-    CBOR_AssignKey( cbor_data, "1", CBOR_WriteMap, map );
-    CBOR_Delete( &map );
+    CBOR_MemCopy( xMap, ucMapBuffer, sizeof( ucMapBuffer ) );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteMap, xMap );
+    CBOR_Delete( &xMap );
 
-    cbor_byte_t expected_rewrite[] =
+    uint8_t ucExpectedRewrite[] =
     {
         0xBF, /* 0  Open Map        */
         0x61, /* 1  Key of length 1 */
@@ -229,16 +231,16 @@ TEST( aws_cbor_map, AssignKey_with_map )
         'y',  /* 7                  */
         0x18, /* 8  1 byte int      */
         78,   /* 9                  */
-        0xFF, /* 10 End of map      */
-        0xFF, /* 11 End of map      */
+        0xFF, /* 10 End of Map      */
+        0xFF, /* 11 End of Map      */
     };
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
-        expected_rewrite, cbor_data->buffer_start, sizeof( expected_rewrite ) );
+        ucExpectedRewrite, xCborData->pxBufferStart, sizeof( ucExpectedRewrite ) );
 }
 
 TEST( aws_cbor_map, FindKey_read_string_at_1_char_key )
 {
-    cbor_byte_t buffer[] =
+    uint8_t ucBuffer[] =
     {
         0xBF, /* 0  Open Map           */
         0x61, /* 1  Key of length 1    */
@@ -246,20 +248,20 @@ TEST( aws_cbor_map, FindKey_read_string_at_1_char_key )
         0x62, /* 3  String of length 2 */
         'H',  /* 4                     */
         'i',  /* 5                     */
-        0xFF, /* 6  End of map         */
+        0xFF, /* 6  End of Map         */
     };
 
-    CBOR_SetCursor( cbor_data, 0 );
-    CBOR_MemCopy( cbor_data, buffer, sizeof( buffer ) );
-    CBOR_FindKey( cbor_data, "1" );
-    char * str = CBOR_ReadString( cbor_data );
-    TEST_ASSERT_EQUAL_STRING( "Hi", str );
-    free( str );
+    CBOR_SetCursor( xCborData, 0 );
+    CBOR_MemCopy( xCborData, ucBuffer, sizeof( ucBuffer ) );
+    CBOR_FindKey( xCborData, "1" );
+    char * pcStr = CBOR_ReadString( xCborData );
+    TEST_ASSERT_EQUAL_STRING( "Hi", pcStr );
+    free( pcStr );
 }
 
 TEST( aws_cbor_map, FindKey_read_int_at_longer_key )
 {
-    cbor_byte_t buffer[] =
+    uint8_t ucBuffer[] =
     {
         0xBF, /* 0  Open Map           */
         0x63, /* 1  Key of length 3    */
@@ -268,19 +270,19 @@ TEST( aws_cbor_map, FindKey_read_int_at_longer_key )
         'y',  /* 4                     */
         0x18, /* 5  1 byte int         */
         78,   /* 6                     */
-        0xFF, /* 7  End of map         */
+        0xFF, /* 7  End of Map         */
     };
 
-    CBOR_SetCursor( cbor_data, 0 );
-    CBOR_MemCopy( cbor_data, buffer, sizeof( buffer ) );
-    CBOR_FindKey( cbor_data, "key" );
-    cbor_int_t result = CBOR_ReadInt( cbor_data );
-    TEST_ASSERT_EQUAL_INT( 78, result );
+    CBOR_SetCursor( xCborData, 0 );
+    CBOR_MemCopy( xCborData, ucBuffer, sizeof( ucBuffer ) );
+    CBOR_FindKey( xCborData, "key" );
+    int lResult = CBOR_ReadInt( xCborData );
+    TEST_ASSERT_EQUAL_INT( 78, lResult );
 }
 
 TEST( aws_cbor_map, FindKey_returns_true_when_key_is_found )
 {
-    cbor_byte_t buffer[] =
+    uint8_t ucBuffer[] =
     {
         0xBF, /* 0  Open Map           */
         0x63, /* 1  Key of length 3    */
@@ -289,18 +291,18 @@ TEST( aws_cbor_map, FindKey_returns_true_when_key_is_found )
         'y',  /* 4                     */
         0x18, /* 5  1 byte int         */
         78,   /* 6                     */
-        0xFF, /* 7  End of map         */
+        0xFF, /* 7  End of Map         */
     };
 
-    CBOR_SetCursor( cbor_data, 0 );
-    CBOR_MemCopy( cbor_data, buffer, sizeof( buffer ) );
-    bool result = CBOR_FindKey( cbor_data, "key" );
-    TEST_ASSERT_TRUE( result );
+    CBOR_SetCursor( xCborData, 0 );
+    CBOR_MemCopy( xCborData, ucBuffer, sizeof( ucBuffer ) );
+    bool xResult = CBOR_FindKey( xCborData, "key" );
+    TEST_ASSERT_TRUE( xResult );
 }
 
 TEST( aws_cbor_map, FindKey_returns_false_when_key_not_found )
 {
-    cbor_byte_t buffer[] =
+    uint8_t ucBuffer[] =
     {
         0xBF, /* 0  Open Map           */
         0x63, /* 1  Key of length 3    */
@@ -309,19 +311,19 @@ TEST( aws_cbor_map, FindKey_returns_false_when_key_not_found )
         'y',  /* 4                     */
         0x18, /* 5  1 byte int         */
         78,   /* 6                     */
-        0xFF, /* 7  End of map         */
+        0xFF, /* 7  End of Map         */
     };
 
-    CBOR_SetCursor( cbor_data, 0 );
-    CBOR_MemCopy( cbor_data, buffer, sizeof( buffer ) );
-    cbor_data->map_end = cbor_data->cursor - 1;
-    bool result = CBOR_FindKey( cbor_data, "lock" );
-    TEST_ASSERT_FALSE( result );
+    CBOR_SetCursor( xCborData, 0 );
+    CBOR_MemCopy( xCborData, ucBuffer, sizeof( ucBuffer ) );
+    xCborData->pxMapEnd = xCborData->pxCursor - 1;
+    bool xResult = CBOR_FindKey( xCborData, "lock" );
+    TEST_ASSERT_FALSE( xResult );
 }
 
 TEST( aws_cbor_map, WriteMap )
 {
-    cbor_byte_t map_buffer[] =
+    uint8_t ucMapBuffer[] =
     {
         0xBF, /* 0  Open Map           */
         0x63, /* 1  Key of length 3    */
@@ -330,20 +332,20 @@ TEST( aws_cbor_map, WriteMap )
         'y',  /* 4                     */
         0x18, /* 5  1 byte int         */
         78,   /* 6                     */
-        0xFF, /* 7  End of map         */
+        0xFF, /* 7  End of Map         */
     };
-    cbor_handle_t map = CBOR_New( 0 );
+    CBORHandle_t xMap = CBOR_New( 0 );
 
-    CBOR_MemCopy( map, map_buffer, sizeof( map_buffer ) );
-    CBOR_WriteMap( cbor_data, map );
-    CBOR_Delete( &map );
+    CBOR_MemCopy( xMap, ucMapBuffer, sizeof( ucMapBuffer ) );
+    CBOR_WriteMap( xCborData, xMap );
+    CBOR_Delete( &xMap );
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
-        map_buffer, cbor_data->buffer_start, sizeof( map_buffer ) );
+        ucMapBuffer, xCborData->pxBufferStart, sizeof( ucMapBuffer ) );
 }
 
 TEST( aws_cbor_map, ReadMap_returns_cbor_object_with_map_at_cursor )
 {
-    cbor_byte_t full_buffer[] =
+    uint8_t ucFullBuffer[] =
     {
         0xBF, /* 0  Open Map          */
         0x61, /* 1  Key of length 1   */
@@ -353,27 +355,27 @@ TEST( aws_cbor_map, ReadMap_returns_cbor_object_with_map_at_cursor )
         'z',  /* 5                    */
         0x18, /* 6  1 byte int        */
         87,   /* 7                    */
-        0xFF, /* 8  End of map        */
+        0xFF, /* 8  End of Map        */
         0x18, /* 9  1 byte int        */
         78,   /* 10                   */
-        0xFF, /* 11 End of map        */
+        0xFF, /* 11 End of Map        */
     };
 
-    CBOR_MemCopy( cbor_data, full_buffer, sizeof( full_buffer ) );
-    cbor_data->map_end = cbor_data->buffer_start + sizeof( full_buffer );
-    CBOR_FindKey( cbor_data, "z" );
-    cbor_handle_t map = CBOR_ReadMap( cbor_data );
+    CBOR_MemCopy( xCborData, ucFullBuffer, sizeof( ucFullBuffer ) );
+    xCborData->pxMapEnd = xCborData->pxBufferStart + sizeof( ucFullBuffer );
+    CBOR_FindKey( xCborData, "z" );
+    CBORHandle_t xMap = CBOR_ReadMap( xCborData );
 
-    CBOR_FindKey( map, "z" );
-    cbor_int_t result = CBOR_ReadInt( map );
-    TEST_ASSERT_EQUAL( 87, result );
+    CBOR_FindKey( xMap, "z" );
+    int lResult = CBOR_ReadInt( xMap );
+    TEST_ASSERT_EQUAL( 87, lResult );
 
-    CBOR_Delete( &map );
+    CBOR_Delete( &xMap );
 }
 
 TEST( aws_cbor_map, ReadMap_returned_map_has_correct_map_end )
 {
-    cbor_byte_t full_buffer[] =
+    uint8_t ucFullBuffer[] =
     {
         0xBF, /* 0  Open Map          */
         0x61, /* 1  Key of length 1   */
@@ -382,35 +384,35 @@ TEST( aws_cbor_map, ReadMap_returned_map_has_correct_map_end )
         0x61, /* 4  Key of length 1   */
         'y',  /* 5                    */
         22,   /* 6  small int (22)    */
-        0xFF, /* 7  End of map        */
+        0xFF, /* 7  End of Map        */
         0x18, /* 8  1 byte int        */
         78,   /* 9                    */
-        0xFF, /* 10 End of map        */
+        0xFF, /* 10 End of Map        */
     };
 
-    CBOR_MemCopy( cbor_data, full_buffer, sizeof( full_buffer ) );
-    cbor_data->map_end = cbor_data->buffer_start + sizeof( full_buffer );
-    CBOR_FindKey( cbor_data, "z" );
-    cbor_handle_t map = CBOR_ReadMap( cbor_data );
+    CBOR_MemCopy( xCborData, ucFullBuffer, sizeof( ucFullBuffer ) );
+    xCborData->pxMapEnd = xCborData->pxBufferStart + sizeof( ucFullBuffer );
+    CBOR_FindKey( xCborData, "z" );
+    CBORHandle_t xMap = CBOR_ReadMap( xCborData );
 
-    cbor_int_t expected = 4;
-    cbor_int_t actual = map->map_end - map->buffer_start;
-    TEST_ASSERT_EQUAL( expected, actual );
+    int lExpected = 4;
+    int lActual = xMap->pxMapEnd - xMap->pxBufferStart;
+    TEST_ASSERT_EQUAL( lExpected, lActual );
 
-    CBOR_Delete( &map );
+    CBOR_Delete( &xMap );
 }
 
 TEST( aws_cbor_map, ReadMap_sets_err_when_wrong_type )
 {
-    CBOR_AssignKeyWithInt( cbor_data, "1", 834 );
-    CBOR_FindKey( cbor_data, "1" );
-    ( void ) CBOR_ReadMap( cbor_data );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_READ_TYPE_MISMATCH, cbor_data->err );
+    CBOR_AssignKeyWithInt( xCborData, "1", 834 );
+    CBOR_FindKey( xCborData, "1" );
+    ( void ) CBOR_ReadMap( xCborData );
+    TEST_ASSERT_EQUAL( eCborErrReadTypeMismatch, xCborData->xError );
 }
 
 TEST( aws_cbor_map, ReadMap_sets_err_when_new_fails )
 {
-    cbor_byte_t full_buffer[] =
+    uint8_t ucFullBuffer[] =
     {
         0xBF, /* 0  Open Map          */
         0x61, /* 1  Key of length 1   */
@@ -420,25 +422,25 @@ TEST( aws_cbor_map, ReadMap_sets_err_when_new_fails )
         'z',  /* 5                    */
         0x18, /* 6  1 byte int        */
         87,   /* 7                    */
-        0xFF, /* 8  End of map        */
+        0xFF, /* 8  End of Map        */
         0x18, /* 9  1 byte int        */
         78,   /* 10                   */
-        0xFF, /* 11 End of map        */
+        0xFF, /* 11 End of Map        */
     };
 
-    CBOR_MemCopy( cbor_data, full_buffer, sizeof( full_buffer ) );
-    cbor_data->map_end = cbor_data->buffer_start + sizeof( full_buffer );
+    CBOR_MemCopy( xCborData, ucFullBuffer, sizeof( ucFullBuffer ) );
+    xCborData->pxMapEnd = xCborData->pxBufferStart + sizeof( ucFullBuffer );
 
     UnityMalloc_MakeMallocFailAfterCount( 0 );
-    CBOR_FindKey( cbor_data, "z" );
-    cbor_handle_t map = CBOR_ReadMap( cbor_data );
-    TEST_ASSERT_NULL( map );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_INSUFFICENT_SPACE, cbor_data->err );
+    CBOR_FindKey( xCborData, "z" );
+    CBORHandle_t xMap = CBOR_ReadMap( xCborData );
+    TEST_ASSERT_NULL( xMap );
+    TEST_ASSERT_EQUAL( eCborErrInsufficentSpace, xCborData->xError );
 }
 
 TEST( aws_cbor_map, AppendKey )
 {
-    cbor_byte_t init[] =
+    uint8_t ucInit[] =
     {
         0xBF, /* 0  Open Map           */
         0x63, /* 1  Key of length 3    */
@@ -447,16 +449,16 @@ TEST( aws_cbor_map, AppendKey )
         'y',  /* 4                     */
         0x18, /* 5  1 byte int         */
         78,   /* 6                     */
-        0xFF, /* 7  End of map         */
+        0xFF, /* 7  End of Map         */
     };
 
-    CBOR_MemCopy( cbor_data, init, sizeof( init ) );
-    CBOR_SetCursor( cbor_data, 7 );
-    cbor_data->map_end = cbor_data->cursor;
+    CBOR_MemCopy( xCborData, ucInit, sizeof( ucInit ) );
+    CBOR_SetCursor( xCborData, 7 );
+    xCborData->pxMapEnd = xCborData->pxCursor;
 
-    CBOR_AppendKey( cbor_data, "lock", CBOR_WriteInt, &( cbor_int_t ) { 0x0347 } );
+    CBOR_AppendKey( xCborData, "lock", CBOR_WriteInt, &( int ) { 0x0347 } );
 
-    cbor_byte_t expected[] =
+    uint8_t ucExpected[] =
     {
         0xBF, /* 0  Open Map           */
         0x63, /* 1  Key of length 3    */
@@ -473,39 +475,39 @@ TEST( aws_cbor_map, AppendKey )
         0x19, /* 12 2 byte int follows */
         0x03, /* 13                    */
         0x47, /* 14                    */
-        0xFF, /* 15 End of map         */
+        0xFF, /* 15 End of Map         */
     };
 
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
-        expected, cbor_data->buffer_start, sizeof( expected ) );
+        ucExpected, xCborData->pxBufferStart, sizeof( ucExpected ) );
 }
 
 TEST( aws_cbor_map, null_checks )
 {
-    TEST_EXPECT_ASSERT( CBOR_OpenMap( NULL ) );
+    xTEST_expect_assert( CBOR_OpenMap( NULL ) );
 
-    TEST_EXPECT_ASSERT( CBOR_CloseMap( NULL ) );
+    xTEST_expect_assert( CBOR_CloseMap( NULL ) );
 
-    TEST_EXPECT_ASSERT( CBOR_KeyIsMatch( NULL, "key" ) );
-    TEST_EXPECT_ASSERT( CBOR_KeyIsMatch( cbor_data, NULL ) );
+    xTEST_expect_assert( CBOR_KeyIsMatch( NULL, "key" ) );
+    xTEST_expect_assert( CBOR_KeyIsMatch( xCborData, NULL ) );
 
-    TEST_EXPECT_ASSERT( CBOR_SearchForKey( NULL, "key" ) );
-    TEST_EXPECT_ASSERT( CBOR_SearchForKey( cbor_data, NULL ) );
+    xTEST_expect_assert( CBOR_SearchForKey( NULL, "key" ) );
+    xTEST_expect_assert( CBOR_SearchForKey( xCborData, NULL ) );
 
-    TEST_EXPECT_ASSERT( CBOR_AppendKey( NULL, "1", CBOR_WriteString, "a" ) );
-    TEST_EXPECT_ASSERT( CBOR_AppendKey( cbor_data, NULL, CBOR_WriteString, "a" ) );
-    TEST_EXPECT_ASSERT( CBOR_AppendKey( cbor_data, "1", NULL, "a" ) );
-    TEST_EXPECT_ASSERT( CBOR_AppendKey( cbor_data, "1", CBOR_WriteString, NULL ) );
+    xTEST_expect_assert( CBOR_AppendKey( NULL, "1", CBOR_WriteString, "a" ) );
+    xTEST_expect_assert( CBOR_AppendKey( xCborData, NULL, CBOR_WriteString, "a" ) );
+    xTEST_expect_assert( CBOR_AppendKey( xCborData, "1", NULL, "a" ) );
+    xTEST_expect_assert( CBOR_AppendKey( xCborData, "1", CBOR_WriteString, NULL ) );
 
-    TEST_EXPECT_ASSERT( CBOR_AssignKey( NULL, "1", CBOR_WriteString, "a" ) );
-    TEST_EXPECT_ASSERT( CBOR_AssignKey( cbor_data, NULL, CBOR_WriteString, "a" ) );
-    TEST_EXPECT_ASSERT( CBOR_AssignKey( cbor_data, "1", NULL, "a" ) );
-    TEST_EXPECT_ASSERT( CBOR_AssignKey( cbor_data, "1", CBOR_WriteString, NULL ) );
+    xTEST_expect_assert( CBOR_AssignKey( NULL, "1", CBOR_WriteString, "a" ) );
+    xTEST_expect_assert( CBOR_AssignKey( xCborData, NULL, CBOR_WriteString, "a" ) );
+    xTEST_expect_assert( CBOR_AssignKey( xCborData, "1", NULL, "a" ) );
+    xTEST_expect_assert( CBOR_AssignKey( xCborData, "1", CBOR_WriteString, NULL ) );
 
-    TEST_EXPECT_ASSERT( CBOR_MapSize( NULL ) );
+    xTEST_expect_assert( CBOR_MapSize( NULL ) );
 
-    TEST_EXPECT_ASSERT( CBOR_WriteMap( NULL, cbor_data ) );
-    TEST_EXPECT_ASSERT( CBOR_WriteMap( cbor_data, NULL ) );
+    xTEST_expect_assert( CBOR_WriteMap( NULL, xCborData ) );
+    xTEST_expect_assert( CBOR_WriteMap( xCborData, NULL ) );
 
-    TEST_EXPECT_ASSERT( CBOR_ReadMap( NULL ) );
+    xTEST_expect_assert( CBOR_ReadMap( NULL ) );
 }

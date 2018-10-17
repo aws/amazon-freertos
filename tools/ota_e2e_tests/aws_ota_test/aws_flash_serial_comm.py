@@ -44,13 +44,22 @@ class FlashSerialComm:
         log = flashComm.getSerialLog()
         flashComm.cleanup()
     """
-    def __init__(self, flashConfig):
+    def __init__(self, flashConfig, initial_image = None, reset_image = None):
         self._flashConfig = flashConfig
-        self._serialThread = ReadSerialThread(
-            flashConfig['serial_port'],
-            flashConfig['serial_baudrate'],
-            flashConfig['serial_timeout_sec']
-        )
+        if flashConfig.get('run_executable', False):
+            self._serialThread = ReadSerialThread(
+                flashConfig['serial_port'],
+                flashConfig['serial_baudrate'],
+                flashConfig['serial_timeout_sec'],
+                initial_image,
+                reset_image
+            )
+        else:
+            self._serialThread = ReadSerialThread(
+                flashConfig['serial_port'],
+                flashConfig['serial_baudrate'],
+                flashConfig['serial_timeout_sec']
+            )
         # Start the serial reading thread, it will wait until we tell it to start reading.
         self._serialThread.start()
 
@@ -75,16 +84,20 @@ class FlashSerialComm:
 
         # Restore the system path
         os.environ['PATH'] = system_path
-
+        
     def flashAndRead(self):
         """Flash program the board and also open a serial port for reading.
         """
         retryCount = 0
         testOutput = ''
+
         while (not testOutput) and retryCount < self._flashConfig['flash_num_retry']:
             # Clear the serial log before each new program of the board.
             self._serialThread.clearLog()
-            if self._flashConfig['flash_after_serial_open']:
+            if self._flashConfig.get('run_executable', False):
+                # Start the thread to read the output of the executable
+                self._serialThread.startRead()
+            elif self._flashConfig['flash_after_serial_open']:
                 # Open the serial port because it takes a while. We do this before flashing
                 # so that we don't miss any output logs.
                 self._serialThread.startRead()
@@ -120,7 +133,6 @@ class FlashSerialComm:
         self._serialThread.join()
 
 
-
 class ReadSerialThread(Thread):
     """A class for reading the serial port.
     
@@ -130,6 +142,7 @@ class ReadSerialThread(Thread):
           reading after tests are over and to give up the serial port when necessary.
     
     Attributes:
+        _executable (str): The path to the executable to run instead of opening the serial port.
         _port (str): The serial communication port defined in board.json under the 
             flash_config field. This port is 'COMx' in Windows and '/dev/xxx' in Unix
             systems.
@@ -156,8 +169,10 @@ class ReadSerialThread(Thread):
         log = serialThread.getLog()
         serialThread.close()
     """
-    def __init__(self, port, baudrate, serialTimeout):
+    def __init__(self, port, baudrate, serialTimeout, initial_executable = None, reset_executable = None):
         Thread.__init__(self)
+        self._initial_executable = initial_executable
+        self._reset_executable = reset_executable
         self._port = port
         self._baudrate = baudrate
         self._timeout = serialTimeout
@@ -192,31 +207,50 @@ class ReadSerialThread(Thread):
         """
         self._log = ''
 
+    def _readOutput(self, outStream):
+        # Read until we are told to stop.
+        self._stopRead = False 
+        while self._stopRead == False and not self._exitRun:
+            try:
+                line = outStream.readline().decode()
+                # For windows simulator once we reach a reboot place, then we will manually reboot.
+                if 'Failed to activate new image (0x00000000). Please reset manually.' in line:
+                    return 'reset'
+            except UnicodeDecodeError:
+                # Discard data if fails to decode.
+                pass
+            except Exception:
+                # All other exceptions stop the read.
+                self._stopRead = True
+            else:
+                if not line:
+                    continue
+                print(line, end='')
+                self._log += line
+
     def run(self):
         """ Run until this object is closed. 
         """
         while not self._exitRun:
             # Start out each new read paused.
             self._holdBeforeOpen = True
-            while self._holdBeforeOpen and not self._exitRun: sleep(0.5)
+            # Nonblocking wait for the open of the serial port.
+            while self._holdBeforeOpen and not self._exitRun: 
+                sleep(0.5)
+            # Exit the run if we are told to do so.
             if self._exitRun: continue
-            with serial.Serial(port=self._port, baudrate=self._baudrate, timeout=self._timeout) as outStream:
-                # Read until we are told to stop.
-                self._stopRead = False 
-                while self._stopRead == False and not self._exitRun:
-                    try:
-                        line = outStream.readline().decode()
-                    except UnicodeDecodeError:
-                        # Discard data if fails to decode.
-                        pass
-                    except Exception:
-                        # All other exceptions stop the read.
-                        self._stopRead = True
-                    else:
-                        if not line:
-                            continue
-                        print(line, end='')
-                        self._log += line
+
+            proc = None
+            if self._initial_executable:
+                proc = subprocess.Popen(self._initial_executable.replace('/', '\\'), stdout=subprocess.PIPE)
+                while(self._readOutput(proc.stdout) == 'reset'):
+                    proc.kill()
+                    proc = subprocess.Popen(self._reset_executable.replace('/', '\\'), stdout=subprocess.PIPE)
+                    # If we come out from a reset needed. then we need to reset to the OTA image
+                proc.kill()
+            else:
+                with serial.Serial(port=self._port, baudrate=self._baudrate, timeout=self._timeout) as outStream:
+                    self._readOutput(outStream)
 
     def close(self):
         """ Close this object by stopping the read and freeing resources.

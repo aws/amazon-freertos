@@ -35,20 +35,20 @@
 #include <string.h>
 
 /** @brief Checks if CBOR cursor is out of bounds */
-#define CursorOutOfBounds( cbor_data ) \
-    OverflowOccured( ( cbor_data ) ) || UnderflowOccured( ( cbor_data ) )
+#define CursorOutOfBounds( xCborData ) \
+    OverflowOccured( ( xCborData ) ) || UnderflowOccured( ( xCborData ) )
 
 /** @brief Checks if CBOR cursor is past the end of the buffer */
-#define OverflowOccured( cbor_data ) \
-    ( ( cbor_data )->buffer_end < ( cbor_data )->cursor )
+#define OverflowOccured( xCborData ) \
+    ( ( xCborData )->pxBufferEnd < ( xCborData )->pxCursor )
 
 /** @brief Checks if CBOR cursor is before the start of the buffer */
-#define UnderflowOccured( cbor_data ) \
-    ( ( cbor_data )->buffer_start > ( cbor_data )->cursor )
+#define UnderflowOccured( xCborData ) \
+    ( ( xCborData )->pxBufferStart > ( xCborData )->pxCursor )
 
 /** @brief Calculates the size of the CBOR buffer */
-#define BufferSize( cbor_data ) \
-    ( ( cbor_data )->buffer_end - ( cbor_data )->buffer_start + 1 )
+#define BufferSize( xCborData ) \
+    ( ( xCborData )->pxBufferEnd - ( xCborData )->pxBufferStart + 1 )
 
 /**
  * @brief Doubles the size of the CBOR buffer
@@ -56,29 +56,29 @@
  * Reallocates the CBOR buffer with double the size of the current buffer size.
  * Sets err if unable to reallocate the space.
  */
-static void CBOR_Reallocate( cbor_handle_t pxCbor_data )
+static void CBOR_Reallocate( CBORHandle_t xCborData )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
 
     /* Multiply by 1.5, more efficient on some compilers than just doing *1.5 */
     /* https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md */
-    cbor_ssize_t xNew_size = BufferSize( pxCbor_data ) * 3;
-    xNew_size /= 2;
+    cbor_ssize_t xNewSize = BufferSize( xCborData ) * 3;
+    xNewSize /= 2;
 
-    cbor_byte_t * pxNew_start = pxCBOR_realloc( pxCbor_data->buffer_start, xNew_size );
+    cbor_byte_t * pxNew_start = pxCBOR_realloc( xCborData->pxBufferStart, xNewSize );
 
     if( NULL == pxNew_start )
     {
-        pxCbor_data->err = eCBOR_ERR_INSUFFICENT_SPACE;
+        xCborData->xError = eCborErrInsufficentSpace;
 
         return;
     }
 
     /* Adjust pointers to new location */
-    cbor_ssize_t xCursor_index = pxCbor_data->cursor - pxCbor_data->buffer_start;
-    pxCbor_data->buffer_start = pxNew_start;
-    pxCbor_data->buffer_end = pxCbor_data->buffer_start + xNew_size - 1;
-    pxCbor_data->cursor = pxCbor_data->buffer_start + xCursor_index;
+    cbor_ssize_t xCursor_index = xCborData->pxCursor - xCborData->pxBufferStart;
+    xCborData->pxBufferStart = pxNew_start;
+    xCborData->pxBufferEnd = xCborData->pxBufferStart + xNewSize - 1;
+    xCborData->pxCursor = xCborData->pxBufferStart + xCursor_index;
 }
 
 /**
@@ -87,20 +87,20 @@ static void CBOR_Reallocate( cbor_handle_t pxCbor_data )
  * Copies memory starting from the lowest address and ending with the highest
  * address.
  */
-static void CBOR_MemCopyLowToHigh( cbor_handle_t pxCbor_data,
+static void CBOR_MemCopyLowToHigh( CBORHandle_t xCborData,
                                    const cbor_byte_t * pxSource,
                                    cbor_ssize_t xLength )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
     assert( NULL != pxSource );
     assert( 0 <= xLength );
-    assert( pxCbor_data->cursor < pxSource );
+    assert( xCborData->pxCursor < pxSource );
 
     for( cbor_int_t xI = 0; xI < xLength; xI++ )
     {
-        CBOR_AssignAndIncrementCursor( pxCbor_data, *pxSource++ );
+        CBOR_AssignAndIncrementCursor( xCborData, *pxSource++ );
 
-        if( pxCbor_data->err )
+        if( xCborData->xError )
         {
             return;
         }
@@ -113,102 +113,102 @@ static void CBOR_MemCopyLowToHigh( cbor_handle_t pxCbor_data,
  * Copies memory starting from the highest address and ending with the lowest
  * address.
  */
-static void CBOR_MemCopyHighToLow( cbor_handle_t pxCbor_data,
+static void CBOR_MemCopyHighToLow( CBORHandle_t xCborData,
                                    const cbor_byte_t * pxSource,
                                    cbor_ssize_t xLength )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
     assert( NULL != pxSource );
     assert( 0 <= xLength );
-    assert( pxCbor_data->cursor > pxSource );
+    assert( xCborData->pxCursor > pxSource );
 
     pxSource += ( xLength - 1 );
-    pxCbor_data->cursor += ( xLength - 1 );
+    xCborData->pxCursor += ( xLength - 1 );
 
     for( cbor_int_t xI = 0; xI < xLength; xI++ )
     {
-        CBOR_AssignAndDecrementCursor( pxCbor_data, *pxSource-- );
+        CBOR_AssignAndDecrementCursor( xCborData, *pxSource-- );
         /* assert, because else case is unreachable, unlike in 'LowToHigh' */
-        assert( eCBOR_ERR_NO_ERROR == pxCbor_data->err );
+        assert( eCborErrNoError == xCborData->xError );
     }
 
-    pxCbor_data->cursor += xLength + 1;
+    xCborData->pxCursor += xLength + 1;
 }
 
-void CBOR_AssignAndIncrementCursor( cbor_handle_t pxCbor_data,
+void CBOR_AssignAndIncrementCursor( CBORHandle_t xCborData,
                                     cbor_byte_t xInput )
 {
-    assert( NULL != pxCbor_data );
-    assert( !UnderflowOccured( pxCbor_data ) );
+    assert( NULL != xCborData );
+    assert( !UnderflowOccured( xCborData ) );
 
-    while( OverflowOccured( pxCbor_data ) )
+    while( OverflowOccured( xCborData ) )
     {
-        CBOR_Reallocate( pxCbor_data );
+        CBOR_Reallocate( xCborData );
 
-        if( eCBOR_ERR_NO_ERROR != pxCbor_data->err )
+        if( eCborErrNoError != xCborData->xError )
         {
             return;
         }
     }
 
-    *( pxCbor_data->cursor )++ = xInput;
-    ( pxCbor_data->err ) = eCBOR_ERR_NO_ERROR;
+    *( xCborData->pxCursor )++ = xInput;
+    ( xCborData->xError ) = eCborErrNoError;
 }
 
-void CBOR_AssignAndDecrementCursor( cbor_handle_t pxCbor_data,
+void CBOR_AssignAndDecrementCursor( CBORHandle_t xCborData,
                                     cbor_byte_t xInput )
 {
-    assert( NULL != pxCbor_data );
-    assert( !UnderflowOccured( pxCbor_data ) );
+    assert( NULL != xCborData );
+    assert( !UnderflowOccured( xCborData ) );
 
-    while( OverflowOccured( pxCbor_data ) )
+    while( OverflowOccured( xCborData ) )
     {
-        CBOR_Reallocate( pxCbor_data );
+        CBOR_Reallocate( xCborData );
 
-        if( eCBOR_ERR_NO_ERROR != pxCbor_data->err )
+        if( eCborErrNoError != xCborData->xError )
         {
             return;
         }
     }
 
-    *( pxCbor_data->cursor )-- = xInput;
-    ( pxCbor_data->err ) = eCBOR_ERR_NO_ERROR;
+    *( xCborData->pxCursor )-- = xInput;
+    ( xCborData->xError ) = eCborErrNoError;
 }
 
-void CBOR_MemCopy( cbor_handle_t pxCbor_data,
-                   const void * pxInput,
+void CBOR_MemCopy( CBORHandle_t xCborData,
+                   const void * pvInput,
                    cbor_ssize_t xLength )
 {
-    assert( NULL != pxCbor_data );
-    assert( NULL != pxInput );
+    assert( NULL != xCborData );
+    assert( NULL != pvInput );
     assert( 0 <= xLength );
 
-    const cbor_byte_t * pxSource = pxInput;
+    const cbor_byte_t * pxSource = pvInput;
 
-    if( pxCbor_data->cursor < pxSource )
+    if( xCborData->pxCursor < pxSource )
     {
-        CBOR_MemCopyLowToHigh( pxCbor_data, pxSource, xLength );
+        CBOR_MemCopyLowToHigh( xCborData, pxSource, xLength );
     }
-    else if( pxCbor_data->cursor > pxSource )
+    else if( xCborData->pxCursor > pxSource )
     {
-        CBOR_MemCopyHighToLow( pxCbor_data, pxSource, xLength );
+        CBOR_MemCopyHighToLow( xCborData, pxSource, xLength );
     }
     else
     {
         /* Copying from a location into itself, so we can skip the copy part and
          * just move the cursor.  Maybe a user error, but not necessarily*/
-        pxCbor_data->cursor += xLength;
+        xCborData->pxCursor += xLength;
     }
 }
 
-cbor_ssize_t CBOR_DataItemSize( cbor_handle_t pxCbor_data )
+cbor_ssize_t xCborDataItemSize( CBORHandle_t xCborData )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
 
-    return CBOR_DataItemSizePtr( pxCbor_data->cursor );
+    return xCborDataItemSizePtr( xCborData->pxCursor );
 }
 
-cbor_ssize_t CBOR_DataItemSizePtr( const cbor_byte_t * pxPtr )
+cbor_ssize_t xCborDataItemSizePtr( const cbor_byte_t * pxPtr )
 {
     assert( NULL != pxPtr );
 
@@ -236,25 +236,25 @@ cbor_ssize_t CBOR_DataItemSizePtr( const cbor_byte_t * pxPtr )
     return 0;
 }
 
-void CBOR_ValueResize( cbor_handle_t pxCbor_data,
-                       cbor_ssize_t xNew_size )
+void CBOR_ValueResize( CBORHandle_t xCborData,
+                       cbor_ssize_t xNewSize )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
 
-    cbor_ssize_t xOld_size = CBOR_DataItemSize( pxCbor_data );
+    cbor_ssize_t xOld_size = xCborDataItemSize( xCborData );
 
     if( 0 == xOld_size )
     {
         return;
     }
 
-    cbor_byte_t * pxCurrent_place = pxCbor_data->cursor;
+    cbor_byte_t * pxCurrent_place = xCborData->pxCursor;
     cbor_byte_t * pxNext_key = pxCurrent_place + xOld_size;
-    cbor_byte_t * pxKey_position = pxCurrent_place + xNew_size;
-    cbor_ssize_t xRemaining_length = pxCbor_data->map_end - pxNext_key + 1;
+    cbor_byte_t * pxKey_position = pxCurrent_place + xNewSize;
+    cbor_ssize_t xRemaining_length = xCborData->pxMapEnd - pxNext_key + 1;
     assert( 0 <= xRemaining_length );
-    pxCbor_data->cursor = pxKey_position;
-    CBOR_MemCopy( pxCbor_data, pxNext_key, xRemaining_length );
-    assert( eCBOR_ERR_NO_ERROR == pxCbor_data->err );
-    pxCbor_data->cursor = pxCurrent_place;
+    xCborData->pxCursor = pxKey_position;
+    CBOR_MemCopy( xCborData, pxNext_key, xRemaining_length );
+    assert( eCborErrNoError == xCborData->xError );
+    xCborData->pxCursor = pxCurrent_place;
 }

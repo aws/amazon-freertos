@@ -48,10 +48,10 @@ TEST_TEAR_DOWN( Full_CRYPTO )
 
 TEST_GROUP_RUNNER( Full_CRYPTO )
 {
-    RUN_TEST_CASE( Full_CRYPTO, AFQP_VerifySignatureTestVectors );
+    RUN_TEST_CASE( Full_CRYPTO, VerifySignatureTestVectors );
 }
 
-TEST( Full_CRYPTO, AFQP_VerifySignatureTestVectors )
+TEST( Full_CRYPTO, VerifySignatureTestVectors )
 {
     BaseType_t xResult = pdFALSE;
     void * pvSignatureVerificationContext = NULL;

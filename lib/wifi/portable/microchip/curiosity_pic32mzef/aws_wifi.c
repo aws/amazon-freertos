@@ -117,7 +117,7 @@ typedef enum
 #define WIFI_MAX_NETWORK_PROFILES        64
 
 /* Network parameters section in curiosity flash
- * 
+ *
  * Point p_network_param to the network parameter storage area by direct address since
  * the XC32 compiler will create a single byte initializer at that address if assigning
  * it to a const section. That, in turn, will cause the binary image to be too large,
@@ -775,6 +775,8 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
         pxBuffer[ idx ].cChannel = ( int8_t ) scanResult.channel;
         pxBuffer[ idx ].ucHidden = 0;
     } while( ++idx < ucNumNetworks );
+
+    WDRV_EXT_ScanDoneSet();
 
     return eWiFiSuccess;
 }

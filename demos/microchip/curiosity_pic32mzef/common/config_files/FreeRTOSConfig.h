@@ -209,11 +209,11 @@
  * This address setting will override the factory programmed address.
  * Use all 0's to use the factory programmed address */
 #define configMAC_ADDR0           0x00
-#define configMAC_ADDR1           0x11
-#define configMAC_ADDR2           0x22
-#define configMAC_ADDR3           0x33
-#define configMAC_ADDR4           0x44
-#define configMAC_ADDR5           0x21
+#define configMAC_ADDR1           0x00
+#define configMAC_ADDR2           0x00
+#define configMAC_ADDR3           0x00
+#define configMAC_ADDR4           0x00
+#define configMAC_ADDR5           0x00
 
 /* Default IP address configuration.  Used in ipconfigUSE_DHCP is set to 0, or
  * ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */

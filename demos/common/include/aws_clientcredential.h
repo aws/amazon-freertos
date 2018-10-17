@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.1
+ * Amazon FreeRTOS V1.4.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -69,16 +69,5 @@ static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "Paste AWS IoT Broker
  * eWiFiSecurityWPA2
  */
 #define clientcredentialWIFI_SECURITY   eWiFiSecurityWPA2
-
-/*
- * Length of device certificate included from aws_clientcredential_keys.h .
- */
-static const uint32_t clientcredentialCLIENT_CERTIFICATE_LENGTH = sizeof( clientcredentialCLIENT_CERTIFICATE_PEM );
-
-/*
- * Length of device private key included from aws_clientcredential_keys.h .
- */
-
-static const uint32_t clientcredentialCLIENT_PRIVATE_KEY_LENGTH = sizeof( clientcredentialCLIENT_PRIVATE_KEY_PEM );
 
 #endif

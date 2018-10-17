@@ -524,15 +524,15 @@ eFrameProcessingResult_t eResult;
 
 			iptraceNETWORK_INTERFACE_RECEIVE();
 
-            /* Check for minimal size. */
-            if( pxHeader->len >= sizeof( EthernetHeader_t ) )
-            {
-                eResult = ipCONSIDER_FRAME_FOR_PROCESSING( pucPacketData );
-            }
-            else
-            {
-                eResult = eReleaseBuffer;
-            }
+			/* Check for minimal size. */
+			if( pxHeader->len >= sizeof( EthernetHeader_t ) )
+			{
+				eResult = ipCONSIDER_FRAME_FOR_PROCESSING( pucPacketData );
+			}
+			else
+			{
+				eResult = eReleaseBuffer;
+			}
 
 			if( eResult == eProcessBuffer )
 			{

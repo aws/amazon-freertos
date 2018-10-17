@@ -24,7 +24,7 @@
             // FIXME: The project is rebuilt for each test. Here are commands needed to build the project. You may also want
             // to clean before each build if your build tool does not pick up header file changes on an incremental build.
         ],
-        "use_reference_bootloader": true, // FIXME: Set to 'true' if the AmazonFreeRTOS Reference Bootloader is use in your OTA project. If you are using the AmazonFreeRTOS Reference bootloader, then you need to 
+        "use_reference_bootloader": true, // FIXME: Set to 'true' if the AmazonFreeRTOS Reference Bootloader is use in your OTA project.
         "bootloader_hardware_platform": "board-name", // FIXME: Set to the name of the platform assigned when porting the Amazon FreeRTOS Reference Bootloader.
         "bootloader_private_key_path": "system/path/to/private_key.pem", // FIXME: The path on your system to the private key use for OTA code signing.
         "bootloader_output": "{afr_root}/{demos_or_tests}/path/to/bootloader/project.hex" // FIXME: The path to the bootloader project hex formatted firmware output.

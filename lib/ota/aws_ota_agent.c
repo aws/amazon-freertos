@@ -238,6 +238,8 @@ static const char pcOTA_JobStatus_SucceededStrTemplate[] = "\"reason\":\"%s v%u.
 static const char pcOTA_JobStatus_ReasonValTemplate[] = "\"reason\":\"0x%08x: 0x%08x\"}}";
 static const char pcOTA_String_Receive[] = "receive";
 
+/* Flag for self-test mode. */
+static bool_t xInSelfTest = false;
 
 /* Test a null terminated string against a JSON string of known length and return whether
  * it is the same or not. */
@@ -354,6 +356,10 @@ static DocParseErr_t prvInitDocModel( JSON_DocModel_t *pxDocModel, const JSON_Do
 
 static OTA_Err_t prvResetDevice( void );
 
+/* Check if the platform is in self-test. */
+
+static bool_t prvInSelftest( void );
+
 /* This is the OTA statistics structure to hold useful info. */
 
 typedef struct ota_agent_statistics {
@@ -419,6 +425,8 @@ static OTA_AgentContext_t xOTA_Agent = {
 static void prvDefaultOTACompleteCallback( OTA_JobEvent_t eEvent )
 {
     DEFINE_OTA_METHOD_NAME("prvDefaultOTACompleteCallback");
+    
+    OTA_Err_t xErr = kOTA_Err_Uninitialized;
 
     if ( eEvent == eOTA_JobEvent_Activate )
     {
@@ -436,7 +444,11 @@ static void prvDefaultOTACompleteCallback( OTA_JobEvent_t eEvent )
          * and networking and services are all working.
          */
         OTA_LOG_L1("[%s] Received eOTA_JobEvent_StartTest callback from OTA Agent.\r\n", OTA_METHOD_NAME);
-        ( void ) OTA_SetImageState (eOTA_ImageState_Accepted);
+        xErr = OTA_SetImageState (eOTA_ImageState_Accepted);
+        if( xErr != kOTA_Err_None )
+        {
+            OTA_LOG_L1("[%s] Error! Failed to set image state.\r\n", OTA_METHOD_NAME);   
+        }
     }
     else
     {
@@ -761,6 +773,20 @@ static OTA_Err_t prvResetDevice( void )
     return xErr;
 }
 
+/* 
+ * This is a private function which checks if the platform is in self-test.
+ */
+static bool_t prvInSelftest( void )
+{
+    bool_t xSelfTest = false;
+    
+    if( prvPAL_GetPlatformImageState () == eOTA_PAL_ImageState_PendingCommit )
+    {
+        xSelfTest = true;
+    }    
+    return xSelfTest;
+}
+
 
 /* Accept, reject or abort the OTA image transfer.
  *
@@ -798,10 +824,21 @@ OTA_Err_t OTA_SetImageState (OTA_ImageState_t eState)
             break;
         }
 
-        case eOTA_ImageState_Accepted:
         case eOTA_ImageState_Rejected:
         {
             xErr = prvSetImageStateWithReason( eState, ( uint32_t ) NULL );
+            break;
+        }
+        
+        case eOTA_ImageState_Accepted:
+        {
+            xErr = prvSetImageStateWithReason( eState, ( uint32_t ) NULL );
+            
+            if( xErr == kOTA_Err_None )
+            {
+			    /* Reset the self-test flag.*/
+			    xInSelfTest = false;
+            }			
             break;
         }
 
@@ -1221,6 +1258,9 @@ static void prvOTAUpdateTask( void* pvUnused )
 		    /* Check if the firmware image is in self test mode. If so, enable the self test timer. */
 		    ( void ) OTA_CheckForSelfTest();
 
+		    /*Save the self-test mode in a flag. This flag is cleared when self-test is successful.*/
+		    xInSelfTest =  prvInSelftest();
+
 			/* Send a request to the job service for the latest available job. */
 		    ( void ) OTA_CheckForUpdate ();
 
@@ -1318,7 +1358,8 @@ static void prvOTAUpdateTask( void* pvUnused )
                             /* It's not a job message, maybe it's a data stream message... */
 							else if ( xMsgMetaData.eMsgType == eOTA_PubMsgType_Stream )
 							{
-                                if ( C != NULL )
+                                /* Ingest data blocks if the platform is not in self-test. */
+                                if ( ( C != NULL ) && ( xInSelfTest == false ) )
                                 {
                                     OTA_Err_t xCloseResult;
                                     IngestResult_t xResult = prvIngestDataBlock ( C,
@@ -2262,7 +2303,8 @@ static OTA_FileContext_t* prvProcessOTAJobMsg( const char *pcRawMsg, uint32_t ul
 
     pstUpdateFile = prvParseJobDoc( pcRawMsg, ulMsgLen );
 
-    if ( pstUpdateFile != NULL ) {
+    if ( (  pstUpdateFile != NULL ) && ( prvInSelftest() == false ) )
+    {
 
         if ( pstUpdateFile->pacRxBlockBitmap != NULL )
         {

@@ -30,10 +30,10 @@
 /* Uncomment this line if you want to run AFQP tests only. */
 /* #define testrunnerAFQP_ENABLED */
 
-#define testrunnerUNSUPPORTED                      0
+#define testrunnerUNSUPPORTED          0
 
 /* Unsupported tests. */
-#define testrunnerFULL_WIFI_ENABLED                testrunnerUNSUPPORTED
+#define testrunnerFULL_WIFI_ENABLED    testrunnerUNSUPPORTED
 
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
@@ -57,5 +57,12 @@
 #define testrunnerFULL_OTA_AGENT_ENABLED           0
 #define testrunnerFULL_OTA_PAL_ENABLED             0
 #define testrunnerOTA_END_TO_END_ENABLED           0
+
+/* On systems using FreeRTOS+TCP (such as this one) the TCP segments must be
+ * cleaned up before running the memory leak check. */
+#if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
+    extern void vTCPSegmentCleanup();
+    #define testrunnerMEMORYLEAK_CLEANUP()    vTCPSegmentCleanup()
+#endif
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

@@ -233,7 +233,7 @@ static MQTTBool_t prvMQTTCallback( void * pvUserData,
  */
 static BaseType_t prvCreateClientAndConnectToBroker( BaseType_t xUseAlpn )
 {
-    MQTTAgentReturnCode_t xReturned;
+    MQTTAgentReturnCode_t xReturned = eMQTTAgentFailure;
     SemaphoreHandle_t xSemaphore = NULL;
     MQTTAgentHandle_t xMQTTHandle = NULL;
     MQTTAgentSubscribeParams_t xSubscribeParams;
@@ -268,7 +268,7 @@ static BaseType_t prvCreateClientAndConnectToBroker( BaseType_t xUseAlpn )
         xReturned = MQTT_AGENT_Connect( xMQTTHandle,
                                         &xConnectParameters,
                                         mqttagenttestTIMEOUT );
-        TEST_ASSERT_EQUAL_INT( xReturned, eMQTTAgentSuccess );
+        TEST_ASSERT_EQUAL_INT_MESSAGE( xReturned, eMQTTAgentSuccess, "Failed to connect to the MQTT broker with MQTT_AGENT_Connect()." );
 
         /* Setup subscribe parameters to subscribe to echo topic. */
         xSubscribeParams.pucTopic = mqttagenttestTOPIC_NAME;

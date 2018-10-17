@@ -42,7 +42,7 @@
 
 /**
  * @brief Return code denoting API status.
- * 
+ *
  * @note Codes other than eWiFiSuccess are failure codes.
  */
 typedef enum
@@ -58,11 +58,11 @@ typedef enum
  */
 typedef enum
 {
-    eWiFiSecurityOpen = 0, /**< Open - No Security. */
-    eWiFiSecurityWEP,      /**< WEP Security. */
-    eWiFiSecurityWPA,      /**< WPA Security. */
-    eWiFiSecurityWPA2,     /**< WPA2 Security. */
-    eWiFiSecurityNotSupported   /**< Unknown Security. */
+    eWiFiSecurityOpen = 0,    /**< Open - No Security. */
+    eWiFiSecurityWEP,         /**< WEP Security. */
+    eWiFiSecurityWPA,         /**< WPA Security. */
+    eWiFiSecurityWPA2,        /**< WPA2 Security. */
+    eWiFiSecurityNotSupported /**< Unknown Security. */
 } WIFISecurity_t;
 
 /**
@@ -108,10 +108,12 @@ typedef struct
  * @brief Wi-Fi scan results.
  *
  * Structure to store the Wi-Fi scan results.
- * 
- * @note The size of char arrays are the MAX lengths + 1 to 
+ *
+ * @note The size of char arrays are the MAX lengths + 1 to
  * account for possible null terminating at the end of the
  * strings.
+ *
+ * @see WIFI_Scan
  */
 typedef struct
 {
@@ -125,8 +127,8 @@ typedef struct
 
 /**
  * @brief Wi-Fi network parameters passed to the WIFI_NetworkAdd API.
- * 
-* @note The size of char arrays are the MAX lengths + 1 to 
+ *
+ * @note The size of char arrays are the MAX lengths + 1 to
  * account for possible null terminating at the end of the
  * strings.
  */
@@ -153,7 +155,7 @@ WIFIReturnCode_t WIFI_On( void );
 /**
  * @brief Turns off Wi-Fi.
  *
- * This function turns off the Wi-Fi module. The Wi-Fi peripheral should be put in a 
+ * This function turns off the Wi-Fi module. The Wi-Fi peripheral should be put in a
  * low power or off state in this routine.
  *
  * @return eWiFiSuccess if Wi-Fi module was successfully turned off, failure code otherwise.
@@ -164,10 +166,10 @@ WIFIReturnCode_t WIFI_Off( void );
  * @brief Connects to the Wi-Fi Access Point (AP) specified in the input.
  *
  * The Wi-Fi should stay connected when the same Access Point it is currently connected to
- * is specified. Otherwise, the Wi-Fi should disconnect and connect to the new Access Point 
- * specified. If the new Access Point specifed has invalid parameters, then the Wi-Fi should be 
+ * is specified. Otherwise, the Wi-Fi should disconnect and connect to the new Access Point
+ * specified. If the new Access Point specifed has invalid parameters, then the Wi-Fi should be
  * disconnected.
- * 
+ *
  * @param[in] pxNetworkParams Configuration to join AP.
  *
  * @return eWiFiSuccess if connection is successful, failure code otherwise.
@@ -261,7 +263,7 @@ WIFIReturnCode_t WIFI_GetMode( WIFIDeviceMode_t * pxDeviceMode );
  * WIFINetworkProfile_t xNetworkProfile = {0};
  * WIFIReturnCode_t xWiFiStatus;
  * uint16_t usIndex;
- * strncpy( xNetworkProfile.cSSID, "SSID_Name", SSIDLen)); 
+ * strncpy( xNetworkProfile.cSSID, "SSID_Name", SSIDLen));
  * xNetworkProfile.ucSSIDLength = SSIDLen;
  * strncpy( xNetworkProfile.cPassword, "PASSWORD",PASSLen );
  * xNetworkProfile.ucPasswordLength = PASSLen;
@@ -276,19 +278,19 @@ WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkPr
 /**
  * @brief Get a Wi-Fi network profile.
  *
- * Gets the Wi-Fi network parameters at the given index from network list in non-volatile 
+ * Gets the Wi-Fi network parameters at the given index from network list in non-volatile
  * memory.
- * 
- * @note The WIFINetworkProfile_t data returned must have the the SSID and Password lengths 
- * specified as the length without a null terminator. 
+ *
+ * @note The WIFINetworkProfile_t data returned must have the the SSID and Password lengths
+ * specified as the length without a null terminator.
  *
  * @param[out] pxNetworkProfile - pointer to return network profile parameters
  * @param[in] usIndex - Index of the network profile,
  *                      must be between 0 to wificonfigMAX_NETWORK_PROFILES
  *
- * @return eWiFiSuccess if the network profile was successfully retrieved, failure code 
+ * @return eWiFiSuccess if the network profile was successfully retrieved, failure code
  * otherwise.
- * 
+ *
  * @see WIFINetworkProfile_t
  *
  * @code
@@ -303,16 +305,16 @@ WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile,
 /**
  * @brief Delete a Wi-Fi Network profile.
  *
- * Deletes the Wi-Fi network profile from the network profile list at given index in 
+ * Deletes the Wi-Fi network profile from the network profile list at given index in
  * non-volatile memory
  *
- * @param[in] usIndex - Index of the network profile, must be between 0 to 
+ * @param[in] usIndex - Index of the network profile, must be between 0 to
  *                      wificonfigMAX_NETWORK_PROFILES.
- * 
- *                      If wificonfigMAX_NETWORK_PROFILES is the index, then all 
+ *
+ *                      If wificonfigMAX_NETWORK_PROFILES is the index, then all
  *                      network profiles will be deleted.
  *
- * @return eWiFiSuccess if successful, failure code otherwise. If successful, the 
+ * @return eWiFiSuccess if successful, failure code otherwise. If successful, the
  * interface IP address is copied into the IP address buffer.
  *
  * @code
@@ -341,7 +343,7 @@ WIFIReturnCode_t WIFI_Ping( uint8_t * pucIPAddr,
  *
  * @param[out] IP Address buffer.
  *
- * @return eWiFiSuccess if successful and IP Address buffer has the interface's IP address, 
+ * @return eWiFiSuccess if successful and IP Address buffer has the interface's IP address,
  * failure code otherwise.
  *
  * @code
@@ -361,8 +363,8 @@ WIFIReturnCode_t WIFI_GetIP( uint8_t * pucIPAddr );
  * WIFI_GetMAC( &ucMacAddressVal[0] );
  * @endcode
  *
- * @return eWiFiSuccess if the MAC address was successfully retrieved, failure code 
- * otherwise. The returned MAC address must be 6 consecutive bytes with no delimitters.  
+ * @return eWiFiSuccess if the MAC address was successfully retrieved, failure code
+ * otherwise. The returned MAC address must be 6 consecutive bytes with no delimitters.
  */
 WIFIReturnCode_t WIFI_GetMAC( uint8_t * pucMac );
 
@@ -372,7 +374,7 @@ WIFIReturnCode_t WIFI_GetMAC( uint8_t * pucMac );
  * @param[in] pxHost - Host (node) name.
  * @param[in] pxIPAddr - IP Address buffer.
  *
- * @return eWiFiSuccess if the host IP address was successfully retrieved, failure code 
+ * @return eWiFiSuccess if the host IP address was successfully retrieved, failure code
  * otherwise.
  *
  * @code
@@ -390,7 +392,7 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
  * @param[in] uxNumNetworks - Number of networks to retrieve in scan result.
  *
  * @return eWiFiSuccess if the Wi-Fi network scan was successful, failure code otherwise.
- *  
+ *
  * @note The input buffer will have the results of the scan.
  *
  * @code
@@ -467,7 +469,7 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 
 /**
  * @brief Check if the Wi-Fi is connected.
- * 
+ *
  * @return pdTRUE if the link is up, pdFalse otherwise.
  */
 BaseType_t WIFI_IsConnected( void );

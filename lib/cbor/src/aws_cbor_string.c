@@ -27,96 +27,96 @@
 #include <stdlib.h>
 #include <string.h>
 
-void CBOR_WriteShortString( cbor_handle_t pxCbor_data,
+void CBOR_WriteShortString( CBORHandle_t xCborData,
                             const char * pcStr,
-                            cbor_ssize_t xString_length );
+                            cbor_ssize_t xStringLength );
 
-void CBOR_WriteInt8String( cbor_handle_t pxCbor_data,
+void CBOR_WriteInt8String( CBORHandle_t xCborData,
                            const char * pcStr,
-                           cbor_ssize_t xString_length );
+                           cbor_ssize_t xStringLength );
 
-void CBOR_WriteInt16String( cbor_handle_t pxCbor_data,
+void CBOR_WriteInt16String( CBORHandle_t xCborData,
                             const char * pcStr,
-                            cbor_ssize_t xString_length );
+                            cbor_ssize_t xStringLength );
 
-void CBOR_WriteString( cbor_handle_t pxCbor_data,
-                       const void * pxInput )
+void CBOR_WriteString( CBORHandle_t xCborData,
+                       const void * pvInput )
 {
-    assert( NULL != pxCbor_data );
-    assert( NULL != pxInput );
+    assert( NULL != xCborData );
+    assert( NULL != pvInput );
 
-    const char * pcStr = pxInput;
-    cbor_int_t xString_length = strlen( pcStr );
-    CBOR_ValueResize( pxCbor_data, xString_length + 1 );
+    const char * pcStr = pvInput;
+    cbor_int_t xStringLength = strlen( pcStr );
+    CBOR_ValueResize( xCborData, xStringLength + 1 );
 
-    if( CBOR_IsSmallInt( xString_length ) )
+    if( CBOR_IsSmallInt( xStringLength ) )
     {
-        CBOR_WriteShortString( pxCbor_data, pcStr, xString_length );
+        CBOR_WriteShortString( xCborData, pcStr, xStringLength );
     }
-    else if( CBOR_Is8BitInt( xString_length ) )
+    else if( CBOR_Is8BitInt( xStringLength ) )
     {
-        CBOR_WriteInt8String( pxCbor_data, pcStr, xString_length );
+        CBOR_WriteInt8String( xCborData, pcStr, xStringLength );
     }
-    else if( CBOR_Is16BitInt( xString_length ) )
+    else if( CBOR_Is16BitInt( xStringLength ) )
     {
-        CBOR_WriteInt16String( pxCbor_data, pcStr, xString_length );
+        CBOR_WriteInt16String( xCborData, pcStr, xStringLength );
     }
     else
     {
-        pxCbor_data->err = eCBOR_ERR_UNSUPPORTED_WRITE_OPERATION;
+        xCborData->xError = eCborErrUnsupportedWriteOperation;
 
         return;
     }
 }
 
-void CBOR_WriteShortString( cbor_handle_t pxCbor_data,
+void CBOR_WriteShortString( CBORHandle_t xCborData,
                             const char * pcStr,
-                            cbor_ssize_t xString_length )
+                            cbor_ssize_t xStringLength )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
     assert( NULL != pcStr );
-    assert( 0 <= xString_length );
+    assert( 0 <= xStringLength );
 
     cbor_byte_t xCbor_major_type = CBOR_STRING;
-    cbor_byte_t xAdditional_detail = xString_length;
+    cbor_byte_t xAdditional_detail = xStringLength;
     cbor_byte_t xCbor_type = xCbor_major_type | xAdditional_detail;
-    CBOR_AssignAndIncrementCursor( pxCbor_data, xCbor_type );
-    CBOR_MemCopy( pxCbor_data, pcStr, xString_length );
+    CBOR_AssignAndIncrementCursor( xCborData, xCbor_type );
+    CBOR_MemCopy( xCborData, pcStr, xStringLength );
 }
 
-void CBOR_WriteInt8String( cbor_handle_t pxCbor_data,
+void CBOR_WriteInt8String( CBORHandle_t xCborData,
                            const char * pcStr,
-                           cbor_ssize_t xString_length )
+                           cbor_ssize_t xStringLength )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
     assert( NULL != pcStr );
-    assert( 0 <= xString_length );
+    assert( 0 <= xStringLength );
 
     cbor_byte_t xCbor_major_type = CBOR_STRING;
     cbor_byte_t xAdditional_detail = CBOR_INT8_FOLLOWS;
     cbor_byte_t xCbor_type = xCbor_major_type | xAdditional_detail;
-    CBOR_AssignAndIncrementCursor( pxCbor_data, xCbor_type );
-    CBOR_AssignAndIncrementCursor( pxCbor_data, ( cbor_byte_t ) xString_length );
-    CBOR_MemCopy( pxCbor_data, pcStr, xString_length );
+    CBOR_AssignAndIncrementCursor( xCborData, xCbor_type );
+    CBOR_AssignAndIncrementCursor( xCborData, ( cbor_byte_t ) xStringLength );
+    CBOR_MemCopy( xCborData, pcStr, xStringLength );
 }
 
-void CBOR_WriteInt16String( cbor_handle_t pxCbor_data,
+void CBOR_WriteInt16String( CBORHandle_t xCborData,
                             const char * pcStr,
-                            cbor_ssize_t xString_length )
+                            cbor_ssize_t xStringLength )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
     assert( NULL != pcStr );
-    assert( 0 <= xString_length );
-    size_t xString_length_u = xString_length;
+    assert( 0 <= xStringLength );
+    size_t xString_length_u = xStringLength;
 
     cbor_byte_t xCbor_major_type = CBOR_STRING;
     cbor_byte_t xAdditional_detail = CBOR_INT16_FOLLOWS;
     cbor_byte_t xCbor_type = xCbor_major_type | xAdditional_detail;
-    CBOR_AssignAndIncrementCursor( pxCbor_data, xCbor_type );
+    CBOR_AssignAndIncrementCursor( xCborData, xCbor_type );
     CBOR_AssignAndIncrementCursor(
-        pxCbor_data, ( cbor_byte_t ) ( xString_length_u >> CBOR_BYTE_WIDTH ) );
-    CBOR_AssignAndIncrementCursor( pxCbor_data, ( cbor_byte_t ) xString_length_u );
-    CBOR_MemCopy( pxCbor_data, pcStr, xString_length_u );
+        xCborData, ( cbor_byte_t ) ( xString_length_u >> CBOR_BYTE_WIDTH ) );
+    CBOR_AssignAndIncrementCursor( xCborData, ( cbor_byte_t ) xString_length_u );
+    CBOR_MemCopy( xCborData, pcStr, xString_length_u );
 }
 
 cbor_ssize_t CBOR_StringSize( const cbor_byte_t * pxPtr )
@@ -152,10 +152,10 @@ cbor_ssize_t CBOR_StringSize( const cbor_byte_t * pxPtr )
     return xSize;
 }
 
-static cbor_ssize_t CBOR_StringLengthAtPtr( cbor_handle_t pxCbor_data,
+static cbor_ssize_t CBOR_StringLengthAtPtr( CBORHandle_t xCborData,
                                             cbor_byte_t ** ppxCursor )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
     assert( NULL != ppxCursor );
     assert( NULL != *ppxCursor );
 
@@ -182,22 +182,22 @@ static cbor_ssize_t CBOR_StringLengthAtPtr( cbor_handle_t pxCbor_data,
     return xLength;
 }
 
-cbor_ssize_t CBOR_StringLength( cbor_handle_t pxCbor_data )
+cbor_ssize_t CBOR_StringLength( CBORHandle_t xCborData )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
 
-    cbor_byte_t * pxPtr = pxCbor_data->cursor;
-    cbor_ssize_t xLength = CBOR_StringLengthAtPtr( pxCbor_data, &pxPtr );
+    cbor_byte_t * pxPtr = xCborData->pxCursor;
+    cbor_ssize_t xLength = CBOR_StringLengthAtPtr( xCborData, &pxPtr );
 
     return xLength;
 }
 
-char * CBOR_ReadString( cbor_handle_t pxCbor_data )
+char * CBOR_ReadString( CBORHandle_t xCborData )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
 
-    cbor_byte_t * pxPtr = pxCbor_data->cursor;
-    cbor_ssize_t xLength = CBOR_StringLengthAtPtr( pxCbor_data, &( pxPtr ) );
+    cbor_byte_t * pxPtr = xCborData->pxCursor;
+    cbor_ssize_t xLength = CBOR_StringLengthAtPtr( xCborData, &( pxPtr ) );
     char * pcStr = pxCBOR_malloc( xLength + 1 ); /* +1 for the null terminator */
     memcpy( pcStr, pxPtr, xLength );
     pcStr[ xLength ] = 0;
@@ -205,16 +205,16 @@ char * CBOR_ReadString( cbor_handle_t pxCbor_data )
     return pcStr;
 }
 
-cbor_int_t CBOR_StringCompare( cbor_handle_t pxCbor_data,
+cbor_int_t CBOR_StringCompare( CBORHandle_t xCborData,
                                const char * pcStr2 )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
     assert( NULL != pcStr2 );
 
     /* Note: the string in the CBOR buffer is not zero terminated and the
      * string passed in is.  Thus, strcmp can't be used directly.*/
-    cbor_byte_t * pxStr1 = pxCbor_data->cursor;
-    cbor_ssize_t xStr1_len = CBOR_StringLengthAtPtr( pxCbor_data, &pxStr1 );
+    cbor_byte_t * pxStr1 = xCborData->pxCursor;
+    cbor_ssize_t xStr1_len = CBOR_StringLengthAtPtr( xCborData, &pxStr1 );
 
     cbor_ssize_t xI;
 

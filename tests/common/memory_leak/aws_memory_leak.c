@@ -51,7 +51,6 @@ TEST_TEAR_DOWN( Full_MemoryLeak )
 
 TEST_GROUP_RUNNER( Full_MemoryLeak )
 {
-    /* Windows simulator does not use FreeRTOS heap. */
     RUN_TEST_CASE( Full_MemoryLeak, CheckHeap );
 }
 

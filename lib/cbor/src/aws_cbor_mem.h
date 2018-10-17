@@ -40,7 +40,7 @@
  * @param Byte to write to cursor location.
  */
 void CBOR_AssignAndIncrementCursor(
-    cbor_handle_t /*cbor_data*/, cbor_byte_t /*input*/ );
+    CBORHandle_t /*xCborData*/, cbor_byte_t /*input*/ );
 
 /**
  * @brief Assigns writes to the cursor's location and decrements the cursor.
@@ -48,7 +48,7 @@ void CBOR_AssignAndIncrementCursor(
  * @param Byte to write to cursor location.
  */
 void CBOR_AssignAndDecrementCursor(
-    cbor_handle_t /*cbor_data*/, cbor_byte_t /*input*/ );
+    CBORHandle_t /*xCborData*/, cbor_byte_t /*input*/ );
 
 /**
  * @brief Copies data to the read/write cursor.
@@ -58,20 +58,20 @@ void CBOR_AssignAndDecrementCursor(
  * location.  The user of this function can provide a pointer to a location in
  * the CBOR buffer, to include overlapping buffers.
  *
- * @param cbor_handle_t  Handle for the CBOR data struct.
+ * @param CBORHandle_t  Handle for the CBOR data struct.
  * @param "const void *" Pointer to a memory buffer.
  * @param cbor_ssize_t         Length (in bytes) of the memory buffer.
  */
-void CBOR_MemCopy( cbor_handle_t /*cbor_data*/, const void * /*input*/,
+void CBOR_MemCopy( CBORHandle_t /*xCborData*/, const void * /*input*/,
                    cbor_ssize_t /*length*/ );
 
 /**
  * @brief Gets size of the CBOR data item that the cursor points to.
  *
- * @param  cbor_handle_t Handle for the CBOR data struct.
+ * @param  CBORHandle_t Handle for the CBOR data struct.
  * @return cbor_ssize_t        Size of the CBOR data item
  */
-cbor_ssize_t CBOR_DataItemSize( cbor_handle_t /*cbor_data*/ );
+cbor_ssize_t xCborDataItemSize( CBORHandle_t /*xCborData*/ );
 
 /**
  * @brief Gets size of the CBOR data item at the pointer
@@ -80,7 +80,7 @@ cbor_ssize_t CBOR_DataItemSize( cbor_handle_t /*cbor_data*/ );
  * item.
  * @return cbor_ssize_t        Size of the CBOR data item
  */
-cbor_ssize_t CBOR_DataItemSizePtr( const cbor_byte_t * /*ptr*/ );
+cbor_ssize_t xCborDataItemSizePtr( const cbor_byte_t * /*ptr*/ );
 
 /**
  * @brief Resizes a value to allow writing a larger or smaller value in place.
@@ -94,6 +94,6 @@ cbor_ssize_t CBOR_DataItemSizePtr( const cbor_byte_t * /*ptr*/ );
  * @param Handle for the CBOR data struct.
  * @param The new size for the value.
  */
-void CBOR_ValueResize( cbor_handle_t /*cbor_data*/, cbor_ssize_t /*new_size*/ );
+void CBOR_ValueResize( CBORHandle_t /*xCborData*/, cbor_ssize_t /*new_size*/ );
 
 #endif /* ifndef AWS_CBOR_MEM_H */

@@ -854,9 +854,9 @@ uint8_t *pucBuffer;
 	}
 
 	/* Obtain the size of the packet and put it into the "usReceivedLength" variable. */
-        /* In order to make the code easier and faster, only packets in a single buffer
-        will be accepted.  This can be done by making the buffers large enough to
-        hold a complete Ethernet packet (1536 bytes). */
+	/* In order to make the code easier and faster, only packets in a single buffer
+	will be accepted.  This can be done by making the buffers large enough to
+	hold a complete Ethernet packet (1536 bytes). */
 	if( xReceivedLength > 0ul && xReceivedLength < ETH_RX_BUF_SIZE ) 
 	{
 		if( ( pxDMARxDescriptor->Status & ( ETH_DMARXDESC_CE | ETH_DMARXDESC_IPV4HCE | ETH_DMARXDESC_FT ) ) != ETH_DMARXDESC_FT )

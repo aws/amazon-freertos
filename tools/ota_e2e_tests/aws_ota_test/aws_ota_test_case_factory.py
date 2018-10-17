@@ -36,6 +36,7 @@ from .aws_ota_test_case_missing_filename import OtaTestMissingFilename
 from .aws_ota_test_case_incorrect_platform import OtaTestIncorrectPlatform
 from .aws_ota_test_case_back_to_back_downloads import OtaTestBackToBackDownloads
 from .aws_ota_test_case_incorrect_wifi_password import OtaTestIncorrectWifiPassword
+from .aws_ota_test_case_dummy_test import OtaTestDummyTest
 
 """
 All OTA test cases in the system.
@@ -53,7 +54,8 @@ AllOtaTestCases = {
     OtaTestSingleByteImage.NAME : OtaTestSingleByteImage,
     OtaTestMissingFilename.NAME : OtaTestMissingFilename,
     OtaTestBackToBackDownloads.NAME : OtaTestBackToBackDownloads,
-    OtaTestIncorrectWifiPassword.NAME : OtaTestIncorrectWifiPassword
+    OtaTestIncorrectWifiPassword.NAME : OtaTestIncorrectWifiPassword,
+    OtaTestDummyTest.NAME : OtaTestDummyTest
 }
 
 class OtaTestCaseFactory( object ):

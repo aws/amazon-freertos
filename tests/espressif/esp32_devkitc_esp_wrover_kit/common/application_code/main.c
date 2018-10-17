@@ -38,6 +38,7 @@
 #include "nvs_flash.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#include "aws_test_utils.h"
 
 
 #include "esp_system.h"
@@ -191,11 +192,13 @@ void vApplicationDaemonTaskStartupHook( void )
 void prvWifiConnect( void )
 {
     WIFINetworkParams_t xJoinAPParams;
-    WIFIReturnCode_t xWifiStatus;
+    WIFIReturnCode_t eWiFiStatus;
+    uint32_t ulInitialRetryPeriodMs = 500;
+    BaseType_t xMaxRetries = 6;
 
-    xWifiStatus = WIFI_On();
+    eWiFiStatus = WIFI_On();
 
-    if( xWifiStatus == eWiFiSuccess )
+    if( eWiFiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "WiFi module initialized. Connecting to AP %s\r\n", clientcredentialWIFI_SSID ) );
     }
@@ -215,9 +218,10 @@ void prvWifiConnect( void )
     xJoinAPParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
     xJoinAPParams.xSecurity = clientcredentialWIFI_SECURITY;
 
-    xWifiStatus = WIFI_ConnectAP( &( xJoinAPParams ) );
+    RETRY_EXPONENTIAL( eWiFiStatus = WIFI_ConnectAP( &( xJoinAPParams ) ),
+                       eWiFiSuccess, ulInitialRetryPeriodMs, xMaxRetries );
 
-    if( xWifiStatus == eWiFiSuccess )
+    if( eWiFiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "WiFi Connected to AP. Creating tasks which use network...\r\n" ) );
     }

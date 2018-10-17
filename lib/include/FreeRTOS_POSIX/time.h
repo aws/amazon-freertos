@@ -82,6 +82,22 @@
     };
 #endif
 
+#if !defined( posixconfigENABLE_TM ) || ( posixconfigENABLE_TM == 1 )
+    struct tm
+    {
+        time_t tm_tick; /* FreeRTOS tick count. */
+        int tm_sec;     /* Seconds [0,60]. Not used. */
+        int tm_min;     /* Minutes [0,59]. Not used. */
+        int tm_hour;    /* Hour [0,23]. Not used. */
+        int tm_mday;    /* Day of month [1,31]. Not used. */
+        int tm_mon;     /* Month of year [0,11]. Not used. */
+        int tm_year;    /* Years since 1900. Not used. */
+        int tm_wday;    /* Day of week [0,6] (Sunday=0). Not used. */
+        int tm_yday;    /* Day of year [0,365]. Not used. */
+        int tm_isdst;   /* Daylight Savings flag. Not used. */
+    };
+#endif
+
 /**
  * @brief Report CPU time used.
  *
@@ -121,6 +137,7 @@ int clock_getres( clockid_t clock_id,
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock_gettime.html
  *
  * @note clock_id is ignored; this function returns the FreeRTOS tick count.
+ * Also, this function does not check for overflows of time_t.
  */
 int clock_gettime( clockid_t clock_id,
                    struct timespec * tp );
@@ -153,6 +170,17 @@ int clock_settime( clockid_t clock_id,
                    const struct timespec * tp );
 
 /**
+ * @brief Convert a time value to a broken-down local time.
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/localtime_r.html
+ *
+ * @note This function only stores the time as tm.tm_tick. All other members of
+ * the struct will be set to 0.
+ */
+struct tm * localtime_r( const time_t * timer,
+                         struct tm * result );
+
+/**
  * @brief High resolution sleep.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/nanosleep.html
@@ -161,6 +189,28 @@ int clock_settime( clockid_t clock_id,
  */
 int nanosleep( const struct timespec * rqtp,
                struct timespec * rmtp );
+
+/**
+ * @brief Convert date and time to a string.
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html
+ *
+ * @note format is ignored.
+ */
+size_t strftime( char * s,
+                 size_t maxsize,
+                 const char * format,
+                 const struct tm * timeptr );
+
+/**
+ * @brief Get time.
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/time.html
+ *
+ * @note This function returns the FreeRTOS tick count, not the seconds since
+ * UNIX epoch.
+ */
+time_t time( time_t * tloc );
 
 /**
  * @brief Create a per-process timer.

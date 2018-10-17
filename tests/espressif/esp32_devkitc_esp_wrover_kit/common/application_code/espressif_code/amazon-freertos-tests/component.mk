@@ -9,6 +9,7 @@
 AMAZON_FREERTOS_ROOT_DIR := ../../../../../../..
 AMAZON_FREERTOS_LIB_DIR := $(AMAZON_FREERTOS_ROOT_DIR)/lib
 AMAZON_FREERTOS_TESTS_DIR := $(AMAZON_FREERTOS_ROOT_DIR)/tests
+AMAZON_FREERTOS_DEMOS_DIR := $(AMAZON_FREERTOS_ROOT_DIR)/demos
 
 
 #--------------------------------------------------------------------------------------
@@ -34,20 +35,18 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/esp32 \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/jsmn \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source \
-        $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor \
+        $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor
 
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/include \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/jsmn \
-        $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include/portable/espressif/esp32_devkitc_esp_wrover_kit \
-        $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor \
+        $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor
 
 COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/BufferManagement/BufferAllocation_1.o \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread.o \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_mutex.o \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_sched.o \
-        $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_cond.o \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/ota/aws_test_ota_cbor.o
 
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11 $(AMAZON_FREERTOS_LIB_DIR)/ota/portable/espressif/esp32_devkitc_esp_wrover_kit
@@ -71,10 +70,13 @@ COMPONENT_SRCDIRS += ../.. \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/tls \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/ota \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/wifi \
+        $(AMAZON_FREERTOS_TESTS_DIR)/common/posix \
+        $(AMAZON_FREERTOS_DEMOS_DIR)/common/ota \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/src \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/extras/fixture/src \
+        $(AMAZON_FREERTOS_DEMOS_DIR)/common/ota
 
-COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/common/include $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/src $(AMAZON_FREERTOS_TESTS_DIR)/common/ota
+COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/common/include $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/src $(AMAZON_FREERTOS_TESTS_DIR)/common/ota $(AMAZON_FREERTOS_DEMOS_DIR)/common/include
 
 COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/extras/fixture/src $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11
 

@@ -146,8 +146,10 @@ TEST_SETUP( Full_OTA_AGENT )
     xConnectParams.xFlags = mqttagentREQUIRE_TLS;
     xMqttStatus = MQTT_AGENT_Connect( xMQTTClientHandle,
                                       &xConnectParams,
-                                      pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
+                                      pdMS_TO_TICKS( ( TickType_t ) otatestAGENT_INIT_WAIT ) );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( eMQTTAgentSuccess, xMqttStatus,
+                                   "Failed to connect to the MQTT broker in MQTT_AGENT_Connect() during "
+                                   "TEST_SETUP." );
 }
 
 /**
@@ -203,7 +205,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
      * this test exits if OTA_AgentInit fails. */
     eOtaStatus = OTA_AgentInit(
         xMQTTClientHandle,
-        clientcredentialIOT_THING_NAME,
+        ( const uint8_t * ) clientcredentialIOT_THING_NAME,
         vOTACompleteCallback,
         pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, eOtaStatus );
@@ -356,7 +358,7 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     /* Initialize the OTA Agent for the following test. */
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
                                xMQTTClientHandle,
-                               clientcredentialIOT_THING_NAME,
+                               ( const uint8_t * ) clientcredentialIOT_THING_NAME,
                                vOTACompleteCallback,
                                pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) ) );
 
@@ -367,7 +369,6 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
         TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_BAD_BASE64,
                                                           sizeof( otatestLASER_JSON_WITH_BAD_BASE64 ) ) );
     }
-
 
     /* Shut down the OTA Agent. */
     ( void ) OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );

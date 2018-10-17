@@ -32,9 +32,9 @@
  *
  * @note allocates data memory for string return
  *
- * @param  cbor_data handle for cbor object
+ * @param  xCborData handle for cbor object
  * @return           String (JSON) representation of CBOR data
  */
-char * CBOR_AsString( cbor_handle_t /*cbor_data*/ );
+char * CBOR_AsString( CBORHandle_t /*xCborData*/ );
 
 #endif /* end of include guard: AWS_CBOR_PRINT_H */

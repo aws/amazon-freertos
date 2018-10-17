@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Demo V1.4.1
+ * Amazon FreeRTOS Device Defender Demo V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -56,11 +56,11 @@ static void prvLogReportStatus( DefenderReportStatus_t eStartStatus );
 
 void vStartDeviceDefenderDemo( void )
 {
-    configSTACK_DEPTH_TYPE const usStackDepth = configMINIMAL_STACK_SIZE;
+    configSTACK_DEPTH_TYPE const xStackDepth = configMINIMAL_STACK_SIZE;
 
     ( void ) xTaskCreate( prvDefenderDemo,
                           "Defender Demo",
-                          usStackDepth,
+                          xStackDepth,
                           NULL,
                           tskIDLE_PRIORITY,
                           NULL );
@@ -68,9 +68,9 @@ void vStartDeviceDefenderDemo( void )
 
 static void prvDefenderDemo( void * param )
 {
-    DefenderMetric_t pxMetricsList[] =
+    DefenderMetric_t xMetricsList[] =
     {
-        pxDEFENDER_tcp_connections,
+        xDefenderTCPConnections,
     };
     int32_t lReportPeriodSec = 300;
     DefenderErr_t eInitStatus;
@@ -80,7 +80,7 @@ static void prvDefenderDemo( void * param )
     /* Silence warning about unused param */
     ( void ) param;
 
-    eInitStatus = DEFENDER_MetricsInit( pxMetricsList );
+    eInitStatus = DEFENDER_MetricsInit( xMetricsList );
     prvLogInitStatus( eInitStatus );
 
     ePeriodStatus = DEFENDER_ReportPeriodSet( lReportPeriodSec );

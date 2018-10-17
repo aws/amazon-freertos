@@ -172,10 +172,12 @@ typedef struct ShadowClient
     BaseType_t xDeleteSubscribed;
 
     /* Synchronization mechanisms. */
-    SemaphoreHandle_t xOperationMutex;    /* Allows only one in-progress operation. */
-    SemaphoreHandle_t xCallbackSemaphore; /* Communication with callbacks. */
+    SemaphoreHandle_t xOperationDataMutex; /* Allows only one in-progress operation. */
+    SemaphoreHandle_t xOperationMutex;     /* Allows only one in-progress operation. */
+    SemaphoreHandle_t xCallbackSemaphore;  /* Communication with callbacks. */
     StaticSemaphore_t xOperationMutexBuffer;
     StaticSemaphore_t xCallbackSemaphoreBuffer;
+    StaticSemaphore_t xOperationDataMutexBuffer;
 
     /* Data shared between blocking function and MQTT callback. */
     ShadowOperationData_t * pxOperationData;
@@ -186,14 +188,14 @@ typedef struct ShadowClient
     volatile ShadowReturnCode_t xOperationResult;
 
     /* Callback catalog stores Thing Names and registered callbacks. */
-    CallbackCatalogEntry_t pxCallbackCatalog[ shadowconfigMAX_THINGS_WITH_CALLBACKS ];
+    CallbackCatalogEntry_t xCallbackCatalog[ shadowconfigMAX_THINGS_WITH_CALLBACKS ];
 
     /* Stores the topic of the in-progress operation. Some of the Shadow API's
      * static functions depend on this buffer remaining the same throughout a
      * Shadow API operation. Therefore, only prvShadowOperation (and the static
      * functions called by prvShadowOperation) should modify the contents of this
      * buffer. */
-    uint8_t pucTopicBuffer[ shadowTOPIC_BUFFER_LENGTH ];
+    uint8_t ucTopicBuffer[ shadowTOPIC_BUFFER_LENGTH ];
 } ShadowClient_t;
 
 /**
@@ -207,7 +209,7 @@ static BaseType_t prvGetFreeShadowClient( void );
  * returns the next available unused slot index in catalog.
  *
  */
-static BaseType_t prvGetCallbackCatalogEntry( CallbackCatalogEntry_t * const pxCallbackCatalog,
+static BaseType_t prvGetCallbackCatalogEntry( CallbackCatalogEntry_t * const xCallbackCatalog,
                                               const char * const pcThingName );
 
 
@@ -320,7 +322,7 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
 
 static void prvSetSubscribedFlag( ShadowClient_t * const pxShadowClient,
                                   ShadowOperationName_t xOperationName,
-                                  BaseType_t ucValue );
+                                  BaseType_t xValue );
 
 static uint8_t prvGetSubscribedFlag( const ShadowClient_t * const pxShadowClient,
                                      ShadowOperationName_t xOperationName );
@@ -328,7 +330,7 @@ static uint8_t prvGetSubscribedFlag( const ShadowClient_t * const pxShadowClient
 /**
  * @brief Memory allocated to store Shadow Clients.
  */
-static ShadowClient_t pxShadowClients[ shadowconfigMAX_CLIENTS ];
+static ShadowClient_t xShadowClients[ shadowconfigMAX_CLIENTS ];
 
 /**
  * @brief Custom prvCreateTopic function since prvCreateTopic is not MISRA 2012 compliant (rule 21.6) .
@@ -336,7 +338,7 @@ static ShadowClient_t pxShadowClients[ shadowconfigMAX_CLIENTS ];
 static uint16_t prvCreateTopic( char * pcTopicString,
                                 const uint16_t usBufferLength,
                                 const char * pcTopicFormat,
-                                const char * pcthingName );
+                                const char * pcThingName );
 
 /*-----------------------------------------------------------*/
 
@@ -348,9 +350,9 @@ static BaseType_t prvGetFreeShadowClient( void )
     {
         for( xIterator = 0; xIterator < shadowconfigMAX_CLIENTS; xIterator++ )
         {
-            if( pxShadowClients[ xIterator ].xInUse == pdFALSE )
+            if( xShadowClients[ xIterator ].xInUse == pdFALSE )
             {
-                pxShadowClients[ xIterator ].xInUse = pdTRUE;
+                xShadowClients[ xIterator ].xInUse = pdTRUE;
                 xReturn = xIterator;
                 break;
             }
@@ -362,7 +364,7 @@ static BaseType_t prvGetFreeShadowClient( void )
 }
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvGetCallbackCatalogEntry( CallbackCatalogEntry_t * const pxCallbackCatalog,
+static BaseType_t prvGetCallbackCatalogEntry( CallbackCatalogEntry_t * const xCallbackCatalog,
                                               const char * const pcThingName ) /*_RB_ I find the name of this function confusing compared to what it is actually doing. */
 {                                                                              /* Todo: sub manager. */
     CallbackCatalogEntry_t * pxCallbackCatalogEntry;
@@ -374,7 +376,7 @@ static BaseType_t prvGetCallbackCatalogEntry( CallbackCatalogEntry_t * const pxC
     {
         for( xIterator = 0; xIterator < shadowconfigMAX_THINGS_WITH_CALLBACKS; xIterator++ )
         {
-            pxCallbackCatalogEntry = &( pxCallbackCatalog[ xIterator ] );
+            pxCallbackCatalogEntry = &( xCallbackCatalog[ xIterator ] );
 
             if( pxCallbackCatalogEntry->xInUse == pdFALSE )
             {
@@ -403,8 +405,8 @@ static BaseType_t prvGetCallbackCatalogEntry( CallbackCatalogEntry_t * const pxC
 
     if( xThingNameFound == pdFALSE )
     {
-        pxCallbackCatalog[ xReturn ].xInUse = pdTRUE;
-        pxCallbackCatalog[ xReturn ].xCallbackInfo.pcThingName = pcThingName;
+        xCallbackCatalog[ xReturn ].xInUse = pdTRUE;
+        xCallbackCatalog[ xReturn ].xCallbackInfo.pcThingName = pcThingName;
     }
 
     return xReturn;
@@ -455,7 +457,7 @@ static ShadowReturnCode_t prvConvertMQTTReturnCode( MQTTAgentReturnCode_t xMQTTR
 static uint16_t prvCreateTopic( char * pcTopicString,
                                 const uint16_t usBufferLength,
                                 const char * pcTopicFormat,
-                                const char * pcthingName )
+                                const char * pcThingName )
 {
     uint16_t usTopicFormatIdx;
     uint16_t usThingIdx;
@@ -467,7 +469,7 @@ static uint16_t prvCreateTopic( char * pcTopicString,
     char cPrevChar = '0';
 
     usTopicFormatSize = ( uint16_t ) strlen( pcTopicFormat );
-    usThingNameSize = ( uint16_t ) strlen( pcthingName );
+    usThingNameSize = ( uint16_t ) strlen( pcThingName );
 
     /* Buffer length check. */
     if( usTopicFormatSize + usThingNameSize >= usBufferLength )
@@ -475,8 +477,8 @@ static uint16_t prvCreateTopic( char * pcTopicString,
         return 0;
     }
 
-    /* The topic format string is expected to include a %s. However, the length 
-    check above assumes, worst case, that the %s was for some reason missing. */
+    /* The topic format string is expected to include a %s. However, the length
+     * check above assumes, worst case, that the %s was for some reason missing. */
     usTopicSize = usTopicFormatSize + usThingNameSize - ( uint16_t ) 2;
 
     for( usTopicFormatIdx = 0;
@@ -492,11 +494,11 @@ static uint16_t prvCreateTopic( char * pcTopicString,
                  usThingIdx++ )
             {
                 pcTopicString[ usThingIdx + usTopicFormatIdx - ( uint16_t ) 1 ]
-                    = ( char ) pcthingName[ usThingIdx ];
+                    = ( char ) pcThingName[ usThingIdx ];
             }
 
             /* Remove 1 because we backtracked in order to overwrite the %s. */
-            usTopicIdx += usThingNameSize - ( uint16_t ) 1; 
+            usTopicIdx += usThingNameSize - ( uint16_t ) 1;
         }
         else
         {
@@ -521,7 +523,7 @@ static ShadowReturnCode_t prvRegisterCallback( BaseType_t xShadowClientID,
                                                const uint8_t * const pucTopicFormat,
                                                TickType_t xTimeoutTicks )
 {
-    uint8_t pucTopicString[ shadowTOPIC_BUFFER_LENGTH ];
+    uint8_t ucTopicString[ shadowTOPIC_BUFFER_LENGTH ];
     ShadowReturnCode_t xReturn = eShadowSuccess;
     MQTTAgentSubscribeParams_t xSubscribeParams;
     MQTTAgentUnsubscribeParams_t xUnsubscribeParams;
@@ -529,14 +531,14 @@ static ShadowReturnCode_t prvRegisterCallback( BaseType_t xShadowClientID,
     MQTTAgentReturnCode_t xMQTTReturn;
     uint16_t usTopicLength;
 
-    usTopicLength = prvCreateTopic( ( char * ) pucTopicString, shadowTOPIC_BUFFER_LENGTH,
+    usTopicLength = prvCreateTopic( ( char * ) ucTopicString, shadowTOPIC_BUFFER_LENGTH,
                                     ( const char * ) pucTopicFormat, pcThingName );
-    pxShadowClient = &( pxShadowClients[ xShadowClientID ] );
+    pxShadowClient = &( xShadowClients[ xShadowClientID ] );
 
     if( *ppvOldCallback != NULL )
     {
         xUnsubscribeParams.usTopicLength = usTopicLength;
-        xUnsubscribeParams.pucTopic = pucTopicString;
+        xUnsubscribeParams.pucTopic = ucTopicString;
 
         xMQTTReturn = MQTT_AGENT_Unsubscribe( pxShadowClient->xMQTTClient,
                                               &xUnsubscribeParams,
@@ -551,9 +553,9 @@ static ShadowReturnCode_t prvRegisterCallback( BaseType_t xShadowClientID,
     if( *ppvNewCallback != NULL )
     {
         xSubscribeParams.usTopicLength = usTopicLength;
-        xSubscribeParams.pucTopic = pucTopicString;
+        xSubscribeParams.pucTopic = ucTopicString;
 
-        #if( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
+        #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
             xSubscribeParams.pvPublishCallbackContext = NULL;
             xSubscribeParams.pxPublishCallback = NULL;
         #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
@@ -596,20 +598,20 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
     MQTTAgentReturnCode_t xMQTTReturn;
     TickType_t xTimeoutTicks;
 
-    pxShadowClient = &( pxShadowClients[ xShadowClientID ] );
+    pxShadowClient = &( xShadowClients[ xShadowClientID ] );
 
     /* MQTT subscription parameters. */
-    xSubscribeParams.pucTopic = pxShadowClient->pucTopicBuffer;
+    xSubscribeParams.pucTopic = pxShadowClient->ucTopicBuffer;
     /* Shadow service always publishes QoS 1, regardless of the value below. */
     xSubscribeParams.xQoS = eMQTTQoS1;
 
-    #if( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
+    #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
         xSubscribeParams.pvPublishCallbackContext = NULL;
         xSubscribeParams.pxPublishCallback = NULL;
     #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
 
     /* Fill the accepted topic. */
-    xSubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->pucTopicBuffer,
+    xSubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->ucTopicBuffer,
                                                      shadowTOPIC_BUFFER_LENGTH,
                                                      pcAcceptedTopic,
                                                      pcThingName );
@@ -625,7 +627,7 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
     if( xReturn == eShadowSuccess )
     {
         /* Fill the rejected topic. */
-        xSubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->pucTopicBuffer,
+        xSubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->ucTopicBuffer,
                                                          shadowTOPIC_BUFFER_LENGTH,
                                                          pcRejectedTopic, pcThingName );
 
@@ -639,12 +641,12 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
 
         if( xReturn != eShadowSuccess )
         {
-            xUnsubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->pucTopicBuffer,
+            xUnsubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->ucTopicBuffer,
                                                                shadowTOPIC_BUFFER_LENGTH,
                                                                pcAcceptedTopic,
                                                                pcThingName );
 
-            xUnsubscribeParams.pucTopic = pxShadowClient->pucTopicBuffer;
+            xUnsubscribeParams.pucTopic = pxShadowClient->ucTopicBuffer;
 
             xTimeoutTicks = pdMS_TO_TICKS( shadowconfigCLEANUP_TIME_MS );
 
@@ -675,15 +677,15 @@ static ShadowReturnCode_t prvShadowUnsubscribeFromAcceptedRejected( BaseType_t
     MQTTAgentUnsubscribeParams_t xUnsubscribeParams;
     MQTTAgentReturnCode_t xMQTTReturn;
 
-    pxShadowClient = &( pxShadowClients[ xShadowClientID ] );
+    pxShadowClient = &( xShadowClients[ xShadowClientID ] );
 
     /* MQTT unsubscribe parameters. */
-    xUnsubscribeParams.pucTopic = pxShadowClient->pucTopicBuffer;
+    xUnsubscribeParams.pucTopic = pxShadowClient->ucTopicBuffer;
 
     if( pcAcceptedTopic != NULL )
     {
         /* Fill the accepted topic. */
-        xUnsubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->pucTopicBuffer,
+        xUnsubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->ucTopicBuffer,
                                                            shadowTOPIC_BUFFER_LENGTH,
                                                            pcAcceptedTopic,
                                                            pcThingName );
@@ -700,7 +702,7 @@ static ShadowReturnCode_t prvShadowUnsubscribeFromAcceptedRejected( BaseType_t
     if( pcRejectedTopic != NULL )
     {
         /* Fill the rejected topic. */
-        xUnsubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->pucTopicBuffer,
+        xUnsubscribeParams.usTopicLength = prvCreateTopic( ( char * ) pxShadowClient->ucTopicBuffer,
                                                            shadowTOPIC_BUFFER_LENGTH,
                                                            pcRejectedTopic,
                                                            pcThingName );
@@ -733,7 +735,7 @@ static BaseType_t prvShadowMQTTCallback( void * pvUserData,
 
 
     xShadowClientID = *( ( BaseType_t * ) pvUserData ); /*lint !e9087 Safe cast from pointer handle. */
-    pxShadowClient = &( pxShadowClients[ xShadowClientID ] );
+    pxShadowClient = &( xShadowClients[ xShadowClientID ] );
 
     if( pxCallbackParams->xMQTTEvent == eMQTTAgentPublish )
     {
@@ -745,69 +747,76 @@ static BaseType_t prvShadowMQTTCallback( void * pvUserData,
          * deletes performed by itself in a user notify callback. However, the client
          * will still be notified of updates performed by itself if it has registered
          * a callback for /update/documents or update/delta. */
-        if( ( uint16_t ) uxSemaphoreGetCount( pxShadowClient->xOperationMutex ) == ( uint16_t ) 0 )
+
+        if( xSemaphoreTake( pxShadowClient->xOperationDataMutex,
+                            portMAX_DELAY ) == pdPASS )
         {
-            /* Verify Thing Name and operation by comparing the received topic with
-             * the current operation's topic. */
-
-            xCompareLen = ( BaseType_t ) configMIN( ( BaseType_t ) strlen( ( const char * ) pxShadowClient->pucTopicBuffer ),
-                                                    ( BaseType_t ) pxPublishData->usTopicLength );
-
-            if( strncmp( ( const char * ) pxPublishData->pucTopic,
-                         ( const char * ) pxShadowClient->pucTopicBuffer,
-                         ( size_t ) xCompareLen ) == 0 )
+            if( pxShadowClient->pxOperationData != NULL )
             {
-                /* Parse the in-progress operation and result. */
-                xOperationName = ( pxShadowClient->pxOperationData )->xOperationInProgress;
-                xResult = prvParseShadowOperationStatus( pxPublishData->pucTopic,
-                                                         pxPublishData->usTopicLength );
+                /* Verify Thing Name and operation by comparing the received topic with
+                 * the current operation's topic. */
 
-                /* Both an operation and result were identified, and both match
-                 * the operation this Shadow Client is waiting on; call the
-                 * operation-specific callback. */
-                if( ( xResult != eShadowUnknown ) && ( xOperationName != eShadowOperationOther ) )
+                xCompareLen = ( BaseType_t ) configMIN( ( BaseType_t ) strlen( ( const char * ) pxShadowClient->ucTopicBuffer ),
+                                                        ( BaseType_t ) pxPublishData->usTopicLength );
+
+                if( strncmp( ( const char * ) pxPublishData->pucTopic,
+                             ( const char * ) pxShadowClient->ucTopicBuffer,
+                             ( size_t ) xCompareLen ) == 0 )
                 {
-                    xOperationMatched = pdTRUE;
+                    /* Parse the in-progress operation and result. */
+                    xOperationName = ( pxShadowClient->pxOperationData )->xOperationInProgress;
+                    xResult = prvParseShadowOperationStatus( pxPublishData->pucTopic,
+                                                             pxPublishData->usTopicLength );
 
-                    switch( xOperationName )
+                    /* Both an operation and result were identified, and both match
+                     * the operation this Shadow Client is waiting on; call the
+                     * operation-specific callback. */
+                    if( ( xResult != eShadowUnknown ) && ( xOperationName != eShadowOperationOther ) )
                     {
-                        case eShadowOperationUpdate:
-                            prvShadowUpdateCallback( xShadowClientID,
-                                                     xResult,
-                                                     ( pxShadowClient->pxOperationData )->pxOperationParams,
-                                                     ( const char * ) pxPublishData->pvData,
-                                                     pxPublishData->ulDataLength );
-                            break;
+                        xOperationMatched = pdTRUE;
 
-                        case eShadowOperationGet:
-                            prvShadowGetCallback( xShadowClientID,
-                                                  xResult,
-                                                  ( pxShadowClient->pxOperationData )->pxOperationParams,
-                                                  ( const char * ) pxPublishData->pvData,
-                                                  pxPublishData->ulDataLength,
-                                                  pxPublishData->xBuffer );
+                        switch( xOperationName )
+                        {
+                            case eShadowOperationUpdate:
+                                prvShadowUpdateCallback( xShadowClientID,
+                                                         xResult,
+                                                         ( pxShadowClient->pxOperationData )->pxOperationParams,
+                                                         ( const char * ) pxPublishData->pvData,
+                                                         pxPublishData->ulDataLength );
+                                break;
 
-                            /* Only take an MQTT buffer if the Get operation succeeded. */
-                            if( xResult == eShadowSuccess )
-                            {
-                                xReturn = pdTRUE;
-                            }
+                            case eShadowOperationGet:
+                                prvShadowGetCallback( xShadowClientID,
+                                                      xResult,
+                                                      ( pxShadowClient->pxOperationData )->pxOperationParams,
+                                                      ( const char * ) pxPublishData->pvData,
+                                                      pxPublishData->ulDataLength,
+                                                      pxPublishData->xBuffer );
 
-                            break;
+                                /* Only take an MQTT buffer if the Get operation succeeded. */
+                                if( xResult == eShadowSuccess )
+                                {
+                                    xReturn = pdTRUE;
+                                }
 
-                        case eShadowOperationDelete:
-                            prvShadowDeleteCallback( xShadowClientID,
-                                                     xResult,
-                                                     ( const char * ) pxPublishData->pvData,
-                                                     pxPublishData->ulDataLength );
-                            break;
+                                break;
 
-                        default:
-                            /* Should not fall here. */
-                            break;
+                            case eShadowOperationDelete:
+                                prvShadowDeleteCallback( xShadowClientID,
+                                                         xResult,
+                                                         ( const char * ) pxPublishData->pvData,
+                                                         pxPublishData->ulDataLength );
+                                break;
+
+                            default:
+                                /* Should not fall here. */
+                                break;
+                        }
                     }
                 }
             }
+
+            configASSERT( xSemaphoreGive( pxShadowClient->xOperationDataMutex ) == pdPASS );
         }
 
         /* If the received topic doesn't match the current operation, it's
@@ -914,26 +923,26 @@ static const CallbackCatalogEntry_t * prvMatchCallbackTopic( const ShadowClient_
 {
     const CallbackCatalogEntry_t * pxReturn = NULL;
     BaseType_t xIterator, xTopicFound = pdFALSE;
-    uint8_t pucTopicBuffer[ shadowTOPIC_BUFFER_LENGTH ];
+    uint8_t ucTopicBuffer[ shadowTOPIC_BUFFER_LENGTH ];
     size_t xCompareLength;
 
     for( xIterator = 0; xIterator < shadowconfigMAX_THINGS_WITH_CALLBACKS; xIterator++ )
     {
-        pxReturn = &( pxShadowClient->pxCallbackCatalog[ xIterator ] );
+        pxReturn = &( pxShadowClient->xCallbackCatalog[ xIterator ] );
 
         if( pxReturn->xInUse == pdTRUE )
         {
-            xCompareLength = prvCreateTopic( ( char * ) pucTopicBuffer,
+            xCompareLength = prvCreateTopic( ( char * ) ucTopicBuffer,
                                              shadowTOPIC_BUFFER_LENGTH,
                                              shadowTOPIC_PREFIX, pxReturn->xCallbackInfo.pcThingName );
 
-            if( strncmp( ( const char * ) pucTopicBuffer,
+            if( strncmp( ( const char * ) ucTopicBuffer,
                          ( const char * ) pucTopic,
                          xCompareLength ) == 0 )
             {
                 xTopicFound = pdTRUE;
 
-                xCompareLength = prvCreateTopic( ( char * ) pucTopicBuffer,
+                xCompareLength = prvCreateTopic( ( char * ) ucTopicBuffer,
                                                  shadowTOPIC_BUFFER_LENGTH, shadowTOPIC_UPDATE_DOCUMENTS,
                                                  pxReturn->xCallbackInfo.pcThingName );
 
@@ -941,7 +950,7 @@ static const CallbackCatalogEntry_t * prvMatchCallbackTopic( const ShadowClient_
 
                 if( pxOperationName != NULL )
                 {
-                    if( strncmp( ( const char * ) pucTopicBuffer,
+                    if( strncmp( ( const char * ) ucTopicBuffer,
                                  ( const char * ) pucTopic,
                                  xCompareLength ) == 0 )
                     {
@@ -949,13 +958,13 @@ static const CallbackCatalogEntry_t * prvMatchCallbackTopic( const ShadowClient_
                     }
                     else
                     {
-                        xCompareLength = prvCreateTopic( ( char * ) pucTopicBuffer,
+                        xCompareLength = prvCreateTopic( ( char * ) ucTopicBuffer,
                                                          shadowTOPIC_BUFFER_LENGTH, shadowTOPIC_UPDATE_DELTA,
                                                          pxReturn->xCallbackInfo.pcThingName );
 
                         xCompareLength = configMAX( xCompareLength, usTopicLength );
 
-                        if( strncmp( ( const char * ) pucTopicBuffer,
+                        if( strncmp( ( const char * ) ucTopicBuffer,
                                      ( const char * ) pucTopic,
                                      xCompareLength ) == 0 )
                         {
@@ -963,14 +972,14 @@ static const CallbackCatalogEntry_t * prvMatchCallbackTopic( const ShadowClient_
                         }
                         else
                         {
-                            xCompareLength = prvCreateTopic( ( char * ) pucTopicBuffer,
+                            xCompareLength = prvCreateTopic( ( char * ) ucTopicBuffer,
                                                              shadowTOPIC_BUFFER_LENGTH,
                                                              shadowTOPIC_DELETE_ACCEPTED,
                                                              pxReturn->xCallbackInfo.pcThingName );
 
                             xCompareLength = configMAX( xCompareLength, usTopicLength );
 
-                            if( strncmp( ( const char * ) pucTopicBuffer,
+                            if( strncmp( ( const char * ) ucTopicBuffer,
                                          ( const char * ) pucTopic,
                                          xCompareLength ) == 0 )
                             {
@@ -1012,7 +1021,7 @@ static void prvShadowUpdateCallback( BaseType_t xShadowClientID,
 
     BaseType_t xReturn;
 
-    pxShadowClient = &( pxShadowClients[ xShadowClientID ] );
+    pxShadowClient = &( xShadowClients[ xShadowClientID ] );
 
     /* Verify client token match. */
     xReturn = SHADOW_JSONDocClientTokenMatch( pxParams->pcData,
@@ -1048,7 +1057,7 @@ static void prvShadowGetCallback( BaseType_t xShadowClientID,
 {
     ShadowClient_t * pxShadowClient;
 
-    pxShadowClient = &( pxShadowClients[ xShadowClientID ] );
+    pxShadowClient = &( xShadowClients[ xShadowClientID ] );
     pxShadowClient->xOperationResult = xResult;
 
 /* For successes, fill the user's buffer with the Shadow document. */
@@ -1080,7 +1089,7 @@ static void prvShadowDeleteCallback( BaseType_t xShadowClientID,
 {
     ShadowClient_t * pxShadowClient;
 
-    pxShadowClient = &( pxShadowClients[ xShadowClientID ] );
+    pxShadowClient = &( xShadowClients[ xShadowClientID ] );
     pxShadowClient->xOperationResult = xResult;
 
     if( xResult == eShadowFailure )
@@ -1154,7 +1163,7 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
 
     /* Identify the relevant Shadow Client, then lock that client's operation mutex.
      * This allows only one operation to be in progress. */
-    pxShadowClient = &( pxShadowClients[ ( pxParams->xShadowClientID ) ] );
+    pxShadowClient = &( xShadowClients[ ( pxParams->xShadowClientID ) ] );
 
     if( xSemaphoreTake( pxShadowClient->xOperationMutex,
                         xTimeOutData.xTicksRemaining ) == pdPASS )
@@ -1184,15 +1193,15 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
             configASSERT( xSemaphoreTake( pxShadowClient->xCallbackSemaphore,
                                           xTimeOutData.xTicksRemaining ) == pdPASS );
 
-            /* Fill pucTopicBuffer with the update topic. */
+            /* Fill ucTopicBuffer with the update topic. */
             xPublishParams.usTopicLength =
-                prvCreateTopic( ( char * ) pxShadowClient->pucTopicBuffer,
+                prvCreateTopic( ( char * ) pxShadowClient->ucTopicBuffer,
                                 shadowTOPIC_BUFFER_LENGTH,
                                 pxParams->pcOperationTopic,
                                 ( pxParams->pxOperationParams )->pcThingName );
 
             /* Operation parameters. */
-            xPublishParams.pucTopic = pxShadowClient->pucTopicBuffer;
+            xPublishParams.pucTopic = pxShadowClient->ucTopicBuffer;
             xPublishParams.pvData = pxParams->pcPublishMessage;
             xPublishParams.ulDataLength = pxParams->ulPublishMessageLength;
             xPublishParams.xQoS = ( pxParams->pxOperationParams )->xQoS;
@@ -1245,7 +1254,7 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
              * break callback notify. */
             if( pxParams->xOperationName == eShadowOperationDelete )
             {
-                ( void ) prvCreateTopic( ( char * ) pxShadowClient->pucTopicBuffer,
+                ( void ) prvCreateTopic( ( char * ) pxShadowClient->ucTopicBuffer,
                                          shadowTOPIC_BUFFER_LENGTH,
                                          shadowTOPIC_DELETE_ACCEPTED,
                                          pxParams->pxOperationParams->pcThingName );
@@ -1253,9 +1262,9 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
                 /* If there's a callback registered for delete/accepted, only
                  * unsubscribe from delete/rejected. */
                 if( prvMatchCallbackTopic( pxShadowClient,
-                                           pxShadowClient->pucTopicBuffer,
+                                           pxShadowClient->ucTopicBuffer,
                                            ( uint16_t )
-                                           strlen( ( const char * ) pxShadowClient->pucTopicBuffer ),
+                                           strlen( ( const char * ) pxShadowClient->ucTopicBuffer ),
                                            NULL ) == NULL )
                 {
                     if( prvShadowUnsubscribeFromAcceptedRejected( pxParams->xShadowClientID,
@@ -1287,9 +1296,20 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
 
         /* Delete this operation's data so that the next operation has a clean Shadow
          * Client, then release the operation mutex. */
-        pxShadowClient->pxOperationData = NULL;
+        if( xSemaphoreTake( pxShadowClient->xOperationDataMutex,
+                            portMAX_DELAY ) == pdPASS )
+        {
+            pxShadowClient->pxOperationData = NULL;
+            configASSERT( xSemaphoreGive( pxShadowClient->xOperationDataMutex ) == pdPASS );
+        }
+        else
+        {
+            Shadow_debug_printf( ( "Error while taking mutex\n" ) );
+            configASSERT( 0 );
+        }
+
         pxShadowClient->xOperationResult = eShadowSuccess;
-        memset( pxShadowClient->pucTopicBuffer, 0, shadowTOPIC_BUFFER_LENGTH );
+        memset( pxShadowClient->ucTopicBuffer, 0, shadowTOPIC_BUFFER_LENGTH );
         configASSERT( xSemaphoreGive( pxShadowClient->xOperationMutex )
                       == pdPASS );
     }
@@ -1301,20 +1321,20 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
 
 static void prvSetSubscribedFlag( ShadowClient_t * const pxShadowClient,
                                   ShadowOperationName_t xOperationName,
-                                  BaseType_t ucValue )
+                                  BaseType_t xValue )
 {
     switch( xOperationName )
     {
         case eShadowOperationUpdate:
-            pxShadowClient->xUpdateSubscribed = ucValue;
+            pxShadowClient->xUpdateSubscribed = xValue;
             break;
 
         case eShadowOperationGet:
-            pxShadowClient->xGetSubscribed = ucValue;
+            pxShadowClient->xGetSubscribed = xValue;
             break;
 
         case eShadowOperationDelete:
-            pxShadowClient->xDeleteSubscribed = ucValue;
+            pxShadowClient->xDeleteSubscribed = xValue;
             break;
 
         default:
@@ -1374,7 +1394,7 @@ ShadowReturnCode_t SHADOW_ClientCreate( ShadowClientHandle_t * pxShadowClientHan
 
     if( xShadowClientID >= 0 )
     {
-        pxShadowClient = &( pxShadowClients[ xShadowClientID ] );
+        pxShadowClient = &( xShadowClients[ xShadowClientID ] );
 
         xMQTTReturn = MQTT_AGENT_Create( &( pxShadowClient->xMQTTClient ) );
 
@@ -1387,7 +1407,7 @@ ShadowReturnCode_t SHADOW_ClientCreate( ShadowClientHandle_t * pxShadowClientHan
             /* Create synchronization mechanisms; these calls should never fail. */
             pxShadowClient->xCallbackSemaphore = xSemaphoreCreateBinaryStatic( &( pxShadowClient->xCallbackSemaphoreBuffer ) );
             pxShadowClient->xOperationMutex = xSemaphoreCreateMutexStatic( &( pxShadowClient->xOperationMutexBuffer ) );
-
+            pxShadowClient->xOperationDataMutex = xSemaphoreCreateMutexStatic( &( pxShadowClient->xOperationDataMutexBuffer ) );
             configASSERT( xSemaphoreGive( pxShadowClient->xCallbackSemaphore ) == pdPASS );
 
             /* Set the output parameter. */
@@ -1420,7 +1440,7 @@ ShadowReturnCode_t SHADOW_ClientConnect( ShadowClientHandle_t xShadowClientHandl
                     ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) );                       /*lint !e923 Safe cast from pointer handle. */
     configASSERT( xShadowClientHandle == *( ( ShadowClientHandle_t * ) ( pxConnectParams->pvUserData ) ) ); /*lint !e9087 Safe cast from opaque context. */
 
-    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] );                            /*lint !e923 Safe cast from pointer handle. */
+    pxShadowClient = &( xShadowClients[ ( BaseType_t ) xShadowClientHandle ] );                             /*lint !e923 Safe cast from pointer handle. */
     configASSERT( ( pxShadowClient->xInUse == pdTRUE ) );
 
     pxConnectParams->pxCallback = prvShadowMQTTCallback;
@@ -1450,7 +1470,7 @@ ShadowReturnCode_t SHADOW_ClientDisconnect( ShadowClientHandle_t xShadowClientHa
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
                     ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
-    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] );      /*lint !e923 Safe cast from pointer handle. */
+    pxShadowClient = &( xShadowClients[ ( BaseType_t ) xShadowClientHandle ] );       /*lint !e923 Safe cast from pointer handle. */
     configASSERT( ( pxShadowClient->xInUse == pdTRUE ) );
 
     xTimeoutTicks = pdMS_TO_TICKS( shadowconfigCLEANUP_TIME_MS );
@@ -1476,7 +1496,7 @@ ShadowReturnCode_t SHADOW_ClientDelete( ShadowClientHandle_t xShadowClientHandle
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
                     ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
-    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] );      /*lint !e923 Safe cast from pointer handle. */
+    pxShadowClient = &( xShadowClients[ ( BaseType_t ) xShadowClientHandle ] );       /*lint !e923 Safe cast from pointer handle. */
     configASSERT( ( pxShadowClient->xInUse == pdTRUE ) );
 
     xMQTTReturn = MQTT_AGENT_Delete( pxShadowClient->xMQTTClient );
@@ -1615,16 +1635,16 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
     configASSERT( ( pxCallbackParams != NULL ) );
     configASSERT( ( pxCallbackParams->pcThingName != NULL ) );
 
-    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] ); /*lint !e923 Safe cast from pointer handle. */
+    pxShadowClient = &( xShadowClients[ ( BaseType_t ) xShadowClientHandle ] ); /*lint !e923 Safe cast from pointer handle. */
     configASSERT( ( pxShadowClient->xInUse == pdTRUE ) );
 
-    xCallbackCatalogIndex = prvGetCallbackCatalogEntry( pxShadowClient->pxCallbackCatalog,
+    xCallbackCatalogIndex = prvGetCallbackCatalogEntry( pxShadowClient->xCallbackCatalog,
                                                         pxCallbackParams->pcThingName );
     configASSERT( xCallbackCatalogIndex >= 0 );
 
     /* Initialize timeout data. */
 
-    pxCallbackCatalogEntry = &( pxShadowClient->pxCallbackCatalog
+    pxCallbackCatalogEntry = &( pxShadowClient->xCallbackCatalog
                                 [ xCallbackCatalogIndex ] );
 
     /*_RB_ Casting on these calls make the code unreadable.  Types need changing to remove the need for the casts. */
@@ -1684,7 +1704,7 @@ ShadowReturnCode_t SHADOW_ReturnMQTTBuffer( ShadowClientHandle_t xShadowClientHa
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
                     ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
-    pxShadowClient = &( pxShadowClients[ ( BaseType_t ) xShadowClientHandle ] );      /*lint !e923 Safe cast from pointer handle. */
+    pxShadowClient = &( xShadowClients[ ( BaseType_t ) xShadowClientHandle ] );       /*lint !e923 Safe cast from pointer handle. */
     configASSERT( ( pxShadowClient->xInUse == pdTRUE ) );
 
     xMQTTReturn = MQTT_AGENT_ReturnBuffer( pxShadowClient->xMQTTClient,

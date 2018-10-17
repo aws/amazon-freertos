@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA Update Demo V1.4.1
+Amazon FreeRTOS OTA Update Demo V1.4.2
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -164,6 +164,8 @@ void vOTAUpdateDemoTask( void * pvParameters )
 
 static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 {
+	OTA_Err_t xErr = kOTA_Err_Uninitialized;
+	
     if ( eEvent == eOTA_JobEvent_Activate )
     {
         configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
@@ -182,7 +184,11 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 		 * this would be the place to kick off those tests before calling OTA_SetImageState()
 		 * with the final result of either accepted or rejected. */
         configPRINTF( ( "Received eOTA_JobEvent_StartTest callback from OTA Agent.\r\n" ) );
-		OTA_SetImageState (eOTA_ImageState_Accepted);
+	xErr = OTA_SetImageState (eOTA_ImageState_Accepted);
+        if( xErr != kOTA_Err_None )
+        {
+            OTA_LOG_L1( " Error! Failed to set image state as accepted.\r\n" );    
+        }
 	}
 }
 

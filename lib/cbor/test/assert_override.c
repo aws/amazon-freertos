@@ -25,19 +25,24 @@
 #include "assert_override.h"
 #include "unity_fixture.h"
 
-int  TEST_assert_fails  = 0;
-bool TEST_expect_assert = false;
-char err_msg[512];
+int lTEST_assert_fails = 0;
+bool xTEST_expect_assert = false;
+static char cErrorMessage[ 512 ];
 
-void TestAssertFail(const char *assertion, const char *file, unsigned int line,
-    const char *function)
+void TestAssertFail( const char * pcAssertion,
+                     const char * pcFile,
+                     unsigned int ulLine,
+                     const char * pcFunction )
 {
-    if (false == TEST_expect_assert) {
-        snprintf(err_msg, 512, "ASSERTION FAILED: %s, %s:%u, %s", assertion,
-            file, line, function);
-        TEST_FAIL_MESSAGE(err_msg);
-    } else {
-        TEST_expect_assert = false;
+    if( false == xTEST_expect_assert )
+    {
+        snprintf( cErrorMessage, 512, "ASSERTION FAILED: %s, %s:%u, %s", pcAssertion,
+                  pcFile, ulLine, pcFunction );
+        TEST_FAIL_MESSAGE( cErrorMessage );
+    }
+    else
+    {
+        xTEST_expect_assert = false;
         TEST_ABORT();
     }
 }

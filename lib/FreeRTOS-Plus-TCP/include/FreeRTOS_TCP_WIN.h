@@ -80,9 +80,9 @@ typedef struct xTCP_WINSIZE
  */
 /* Keep this as a multiple of 4 */
 #if( ipconfigUSE_TCP_WIN == 1 )
-    #define ipSIZE_TCP_OPTIONS	16u
+	#define ipSIZE_TCP_OPTIONS	16u
 #else
-    #define ipSIZE_TCP_OPTIONS   12u
+	#define ipSIZE_TCP_OPTIONS   12u
 #endif
 
 /*
@@ -153,6 +153,9 @@ void vTCPWindowDestroy( TCPWindow_t *pxWindow );
 
 /* Initialize a window */
 void vTCPWindowInit( TCPWindow_t *pxWindow, uint32_t ulAckNumber, uint32_t ulSequenceNumber, uint32_t ulMSS );
+
+/* Clean up allocated segments. Should only be called when FreeRTOS+TCP will no longer be used. */
+void vTCPSegmentCleanup( void );
 
 /*=============================================================================
  *

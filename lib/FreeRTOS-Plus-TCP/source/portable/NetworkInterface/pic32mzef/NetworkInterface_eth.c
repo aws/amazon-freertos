@@ -323,8 +323,13 @@
 
             moduleInit.sys.powerState = SYS_MODULE_POWER_RUN_FULL;
 
-            /* init the MAC */
+            /* Initialize the MAC. MAC address is defined to 0x000000000000 in
+             * FreeRTOSConfig.h and therefore it will be initialized to the
+             * factory programmed MAC address. */
             SetMacCtrl( &macCtrl );
+            /* Set the mac address in the FreeRTOS+TCP stack. */
+            FreeRTOS_UpdateMACAddress( macCtrl.ifPhyAddress.v );
+
             TCPIP_MAC_INIT macInit =
             {
                 .moduleInit = { moduleInit.value },

@@ -32,11 +32,11 @@
 /** Minimum size (in bytes) that the CBOR buffer shall start with */
 #define CBOR_MIN_BUFFER_SIZE    ( 32 )
 
-cbor_handle_t CBOR_New( cbor_ssize_t xSize )
+CBORHandle_t CBOR_New( cbor_ssize_t xSize )
 {
-    cbor_handle_t pxNew_cbor_data = pxCBOR_malloc( sizeof( struct CborData_s ) );
+    CBORHandle_t xNewCborData = pxCBOR_malloc( sizeof( struct CborData_s ) );
 
-    if( NULL == pxNew_cbor_data )
+    if( NULL == xNewCborData )
     {
         return NULL;
     }
@@ -46,22 +46,22 @@ cbor_handle_t CBOR_New( cbor_ssize_t xSize )
 
     if( NULL == pxNew_buffer )
     {
-        pxCBOR_free( pxNew_cbor_data );
+        pxCBOR_free( xNewCborData );
 
         return NULL;
     }
 
     cbor_byte_t xEmpty_map[ 2 ] = { CBOR_MAP_OPEN, CBOR_BREAK };
     memcpy( pxNew_buffer, xEmpty_map, 2 );
-    pxNew_cbor_data->buffer_start = pxNew_buffer;
-    pxNew_cbor_data->cursor = pxNew_buffer;
-    pxNew_cbor_data->buffer_end = &pxNew_buffer[ xSize - 1 ];
-    pxNew_cbor_data->map_end = &pxNew_buffer[ 1 ];
+    xNewCborData->pxBufferStart = pxNew_buffer;
+    xNewCborData->pxCursor = pxNew_buffer;
+    xNewCborData->pxBufferEnd = &pxNew_buffer[ xSize - 1 ];
+    xNewCborData->pxMapEnd = &pxNew_buffer[ 1 ];
 
-    return pxNew_cbor_data;
+    return xNewCborData;
 }
 
-void CBOR_Delete( cbor_handle_t * ppxHandle )
+void CBOR_Delete( CBORHandle_t * ppxHandle )
 {
     if( NULL == ppxHandle )
     {
@@ -73,283 +73,283 @@ void CBOR_Delete( cbor_handle_t * ppxHandle )
         return;
     }
 
-    pxCBOR_free( ( *ppxHandle )->buffer_start );
+    pxCBOR_free( ( *ppxHandle )->pxBufferStart );
     pxCBOR_free( *ppxHandle );
     *ppxHandle = NULL;
 }
 
-cbor_byte_t const * const CBOR_GetRawBuffer( cbor_handle_t pxHandle )
+cbor_byte_t const * const CBOR_GetRawBuffer( CBORHandle_t pxHandle )
 {
-    return pxHandle->buffer_start;
+    return pxHandle->pxBufferStart;
 }
 
-cbor_ssize_t const CBOR_GetBufferSize( cbor_handle_t pxHandle )
+cbor_ssize_t const CBOR_GetBufferSize( CBORHandle_t pxHandle )
 {
-    return pxHandle->map_end - pxHandle->buffer_start + 1;
+    return pxHandle->pxMapEnd - pxHandle->pxBufferStart + 1;
 }
 
-bool CBOR_FindKey( cbor_handle_t pxCbor_data,
-                   cbor_const_key_t pcKey )
+bool CBOR_FindKey( CBORHandle_t xCborData,
+                   char const * pcKey )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return false;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return false;
     }
 
-    ( pxCbor_data->cursor ) = ( pxCbor_data->buffer_start );
-    CBOR_OpenMap( pxCbor_data );
-    CBOR_SearchForKey( pxCbor_data, pcKey );
+    ( xCborData->pxCursor ) = ( xCborData->pxBufferStart );
+    CBOR_OpenMap( xCborData );
+    CBOR_SearchForKey( xCborData, pcKey );
     bool xFound = false;
 
-    if( CBOR_KeyIsMatch( pxCbor_data, pcKey ) )
+    if( CBOR_KeyIsMatch( xCborData, pcKey ) )
     {
         xFound = true;
-        CBOR_Next( pxCbor_data );
+        CBOR_Next( xCborData );
     }
 
     return xFound;
 }
 
-void CBOR_AssignKeyWithString( cbor_handle_t pxCbor_data,
+void CBOR_AssignKeyWithString( CBORHandle_t xCborData,
                                const char * pcKey,
                                const char * pcValue )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return;
     }
 
     if( NULL == pcValue )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_VALUE;
+        xCborData->xError = eCborErrNullValue;
 
         return;
     }
 
-    CBOR_AssignKey( pxCbor_data, pcKey, CBOR_WriteString, pcValue );
+    CBOR_AssignKey( xCborData, pcKey, CBOR_WriteString, pcValue );
 }
 
-void CBOR_AppendKeyWithString( cbor_handle_t pxCbor_data,
+void CBOR_AppendKeyWithString( CBORHandle_t xCborData,
                                const char * pcKey,
                                const char * pcValue )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return;
     }
 
     if( NULL == pcValue )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_VALUE;
+        xCborData->xError = eCborErrNullValue;
 
         return;
     }
 
-    CBOR_AppendKey( pxCbor_data, pcKey, CBOR_WriteString, pcValue );
+    CBOR_AppendKey( xCborData, pcKey, CBOR_WriteString, pcValue );
 }
 
-char * CBOR_FromKeyReadString( cbor_handle_t pxCbor_data,
+char * CBOR_FromKeyReadString( CBORHandle_t xCborData,
                                const char * pcKey )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return NULL;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return NULL;
     }
 
-    CBOR_FindKey( pxCbor_data, pcKey );
-    char * pcStr = CBOR_ReadString( pxCbor_data );
+    CBOR_FindKey( xCborData, pcKey );
+    char * pcStr = CBOR_ReadString( xCborData );
 
     return pcStr;
 }
 
-void CBOR_AssignKeyWithInt( cbor_handle_t pxCbor_data,
+void CBOR_AssignKeyWithInt( CBORHandle_t xCborData,
                             const char * pcKey,
                             cbor_int_t xValue )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return;
     }
 
-    CBOR_AssignKey( pxCbor_data, pcKey, CBOR_WriteInt, &xValue );
+    CBOR_AssignKey( xCborData, pcKey, CBOR_WriteInt, &xValue );
 }
 
-void CBOR_AppendKeyWithInt( cbor_handle_t pxCbor_data,
+void CBOR_AppendKeyWithInt( CBORHandle_t xCborData,
                             const char * pcKey,
                             cbor_int_t xValue )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return;
     }
 
-    CBOR_AppendKey( pxCbor_data, pcKey, CBOR_WriteInt, &xValue );
+    CBOR_AppendKey( xCborData, pcKey, CBOR_WriteInt, &xValue );
 }
 
-cbor_int_t CBOR_FromKeyReadInt( cbor_handle_t pxCbor_data,
+cbor_int_t CBOR_FromKeyReadInt( CBORHandle_t xCborData,
                                 const char * pcKey )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return 0;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return 0;
     }
 
-    CBOR_FindKey( pxCbor_data, pcKey );
-    cbor_int_t xValue = CBOR_ReadInt( pxCbor_data );
+    CBOR_FindKey( xCborData, pcKey );
+    cbor_int_t xValue = CBOR_ReadInt( xCborData );
 
     return xValue;
 }
 
-void CBOR_AssignKeyWithMap( cbor_handle_t pxCbor_data,
+void CBOR_AssignKeyWithMap( CBORHandle_t xCborData,
                             const char * pcKey,
-                            cbor_handle_t pxValue )
+                            CBORHandle_t xValue )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return;
     }
 
-    if( NULL == pxValue )
+    if( NULL == xValue )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_VALUE;
+        xCborData->xError = eCborErrNullValue;
 
         return;
     }
 
-    CBOR_AssignKey( pxCbor_data, pcKey, CBOR_WriteMap, pxValue );
+    CBOR_AssignKey( xCborData, pcKey, CBOR_WriteMap, xValue );
 }
 
-void CBOR_AppendKeyWithMap( cbor_handle_t pxCbor_data,
+void CBOR_AppendKeyWithMap( CBORHandle_t xCborData,
                             const char * pcKey,
-                            cbor_handle_t pxValue )
+                            CBORHandle_t xValue )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return;
     }
 
-    if( NULL == pxValue )
+    if( NULL == xValue )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_VALUE;
+        xCborData->xError = eCborErrNullValue;
 
         return;
     }
 
-    CBOR_AppendKey( pxCbor_data, pcKey, CBOR_WriteMap, pxValue );
+    CBOR_AppendKey( xCborData, pcKey, CBOR_WriteMap, xValue );
 }
 
-cbor_handle_t CBOR_FromKeyReadMap( cbor_handle_t pxCbor_data,
-                                   const char * pcKey )
+CBORHandle_t CBOR_FromKeyReadMap( CBORHandle_t xCborData,
+                                  const char * pcKey )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return NULL;
     }
 
     if( NULL == pcKey )
     {
-        pxCbor_data->err = eCBOR_ERR_NULL_KEY;
+        xCborData->xError = eCborErrNullKey;
 
         return NULL;
     }
 
-    CBOR_FindKey( pxCbor_data, pcKey );
-    cbor_handle_t pxMap = CBOR_ReadMap( pxCbor_data );
+    CBOR_FindKey( xCborData, pcKey );
+    CBORHandle_t xMap = CBOR_ReadMap( xCborData );
 
-    return pxMap;
+    return xMap;
 }
 
-void CBOR_AppendMap( cbor_handle_t pxDest,
-                     cbor_handle_t pxSrc )
+void CBOR_AppendMap( CBORHandle_t xDest,
+                     CBORHandle_t xSrc )
 {
-    pxSrc->cursor = pxSrc->buffer_start + 1;
-    cbor_ssize_t xLength = pxSrc->buffer_end - pxSrc->cursor;
-    pxDest->cursor = pxDest->map_end;
-    CBOR_MemCopy( pxDest, pxSrc->cursor, xLength );
-    pxDest->map_end = pxDest->cursor - 1;
+    xSrc->pxCursor = xSrc->pxBufferStart + 1;
+    cbor_ssize_t xLength = xSrc->pxBufferEnd - xSrc->pxCursor;
+    xDest->pxCursor = xDest->pxMapEnd;
+    CBOR_MemCopy( xDest, xSrc->pxCursor, xLength );
+    xDest->pxMapEnd = xDest->pxCursor - 1;
 }
 
-cbor_err_t CBOR_CheckError( cbor_handle_t pxCbor_data )
+cborError_t CBOR_CheckError( CBORHandle_t xCborData )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
-        return eCBOR_ERR_NULL_HANDLE;
+        return eCborErrNullHandle;
     }
 
-    return pxCbor_data->err;
+    return xCborData->xError;
 }
 
-void CBOR_ClearError( cbor_handle_t pxCbor_data )
+void CBOR_ClearError( CBORHandle_t xCborData )
 {
-    if( NULL == pxCbor_data )
+    if( NULL == xCborData )
     {
         return;
     }
 
-    pxCbor_data->err = eCBOR_ERR_NO_ERROR;
+    xCborData->xError = eCborErrNoError;
 }
 
 /*

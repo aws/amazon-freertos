@@ -66,6 +66,7 @@ void prvTimerCallback( TimerHandle_t xTimerHandle )
 {
     timer_internal_t * pxTimer = ( timer_internal_t * ) pvTimerGetTimerID( xTimerHandle );
     pthread_t xTimerNotificationThread;
+    pthread_attr_t xThreadAttributes;
 
     /* The value of the timer ID, set in timer_create, should not be NULL. */
     configASSERT( pxTimer != NULL );
@@ -84,10 +85,31 @@ void prvTimerCallback( TimerHandle_t xTimerHandle )
     /* Create the timer notification thread if requested. */
     if( pxTimer->xTimerEvent.sigev_notify == SIGEV_THREAD )
     {
-        ( void ) pthread_create( &xTimerNotificationThread,
-                                 pxTimer->xTimerEvent.sigev_notify_attributes,
-                                 ( void * ( * )( void * ) )pxTimer->xTimerEvent.sigev_notify_function,
-                                 pxTimer->xTimerEvent.sigev_value.sival_ptr );
+        /* By default, create a detached thread. But if the user has provided
+         * thread attributes, use the provided attributes. */
+        if( pxTimer->xTimerEvent.sigev_notify_attributes == NULL )
+        {
+            if( pthread_attr_init( &xThreadAttributes ) == 0 )
+            {
+                if( pthread_attr_setdetachstate( &xThreadAttributes,
+                                                 PTHREAD_CREATE_DETACHED ) == 0 )
+                {
+                    ( void ) pthread_create( &xTimerNotificationThread,
+                                             &xThreadAttributes,
+                                             ( void * ( * )( void * ) )pxTimer->xTimerEvent.sigev_notify_function,
+                                             pxTimer->xTimerEvent.sigev_value.sival_ptr );
+                }
+
+                ( void ) pthread_attr_destroy( &xThreadAttributes );
+            }
+        }
+        else
+        {
+            ( void ) pthread_create( &xTimerNotificationThread,
+                                     pxTimer->xTimerEvent.sigev_notify_attributes,
+                                     ( void * ( * )( void * ) )pxTimer->xTimerEvent.sigev_notify_function,
+                                     pxTimer->xTimerEvent.sigev_value.sival_ptr );
+        }
     }
 }
 
@@ -153,12 +175,15 @@ int timer_delete( timer_t timerid )
     /* The value of the timer ID, set in timer_create, should not be NULL. */
     configASSERT( pxTimer != NULL );
 
-    /* Stop and delete the FreeRTOS timer. */
-    if( xTimerIsTimerActive( xTimerHandle ) != pdFALSE )
+    /* Stop the FreeRTOS timer. Because the timer is statically allocated, no call
+     * to xTimerDelete is necessary. The timer is stopped so that it's not referenced
+     * anywhere. xTimerStop will not fail when it has unlimited block time. */
+    ( void ) xTimerStop( xTimerHandle, portMAX_DELAY );
+
+    /* Wait until the timer stop command is processed. */
+    while( xTimerIsTimerActive( xTimerHandle ) == pdTRUE )
     {
-        /* These functions will not fail when they have unlimited block time. */
-        ( void ) xTimerStop( xTimerHandle, portMAX_DELAY );
-        ( void ) xTimerDelete( xTimerHandle, portMAX_DELAY );
+        vTaskDelay( 1 );
     }
 
     /* Free the memory in use by the timer. */

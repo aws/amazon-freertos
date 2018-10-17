@@ -127,6 +127,9 @@ int pthread_mutex_init( pthread_mutex_t * mutex,
 
     if( iStatus == 0 )
     {
+        /* Clear the newly-allocated mutex. */
+        ( void ) memset( pxMutex, 0x00, sizeof( pthread_mutex_internal_t ) );
+
         /* No attributes given, use default attributes. */
         if( attr == NULL )
         {

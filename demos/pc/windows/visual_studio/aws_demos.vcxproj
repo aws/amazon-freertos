@@ -40,7 +40,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\common\config_files;..\common\application_code\include;..\..\..\..\demos\common\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\ota\portable\pc\windows;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\tracealyzer_recorder\Include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\third_party\win_pcap;..\..\..\..\lib\cbor\src;..\..\..\..\lib\defender\src;..\..\..\..\lib\defender\src\metrics;..\..\..\..\lib\defender\src\report;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\common\config_files;..\common\application_code\include;..\..\..\..\demos\common\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\ota\portable\pc\windows;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\tracealyzer_recorder\Include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\third_party\win_pcap;..\..\..\..\lib\cbor\src;..\..\..\..\lib\defender\src;..\..\..\..\lib\defender\metrics;..\..\..\..\lib\defender\report;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -92,15 +92,15 @@
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_print.c" />
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_string.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\aws_defender.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_cpu.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_tcp_conn.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\portable\free_rtos\aws_defender_uptime.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_cpu.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_header.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_tcp_conn.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\src\report\aws_defender_report_uptime.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\aws_defender.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\portable\freertos\aws_defender_cpu.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\portable\freertos\aws_defender_tcp_conn.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\portable\freertos\aws_defender_uptime.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\report\aws_defender_report.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\report\aws_defender_report_cpu.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\report\aws_defender_report_header.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\report\aws_defender_report_tcp_conn.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\report\aws_defender_report_uptime.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_ARP.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_DHCP.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\source\FreeRTOS_DNS.c" />
@@ -244,18 +244,18 @@
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_print.h" />
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_string.h" />
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\aws_defender.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\aws_defender_internals.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_cpu.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_tcp_conn.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\metrics\aws_defender_uptime.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_cpu.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_header.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_tcp_conn.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_types.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_uptime.h" />
-    <ClInclude Include="..\..\..\..\lib\defender\src\report\aws_defender_report_utils.h" />
+    <ClInclude Include="..\..\..\..\lib\include\aws_defender.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_internals.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_cpu.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_tcp_conn.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_uptime.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_report.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_report_cpu.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_report_header.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_report_tcp_conn.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_report_types.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_report_uptime.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_report_utils.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOSIPConfigDefaults.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_ARP.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_DHCP.h" />

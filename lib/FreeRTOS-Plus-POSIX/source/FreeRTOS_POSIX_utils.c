@@ -107,9 +107,6 @@ int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
     uint64_t ullTotalTicks = 0;
     long lNanoseconds = 0;
 
-    /* The FreeRTOS tick rate should never be 0 or negative. */
-    configASSERT( configTICK_RATE_HZ >= 0 );
-
     /* Check parameters. */
     if( ( pxTimespec == NULL ) || ( pxResult == NULL ) )
     {
@@ -125,20 +122,6 @@ int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
         /* Convert timespec.tv_sec to ticks. */
         ullTotalTicks = ( uint64_t ) configTICK_RATE_HZ * ( uint64_t ) ( pxTimespec->tv_sec );
 
-        /* Check for overflow of uint64_t. */
-        if( ullTotalTicks / ( ( uint64_t ) configTICK_RATE_HZ ) != ( uint64_t ) ( pxTimespec->tv_sec ) )
-        {
-            iStatus = EOVERFLOW;
-        }
-        /* Ensure that ullTotalTicks fits in TickType_t. */
-        else if( ullTotalTicks > ( uint64_t ) portMAX_DELAY )
-        {
-            iStatus = EOVERFLOW;
-        }
-    }
-
-    if( iStatus == 0 )
-    {
         /* Convert timespec.tv_nsec to ticks. This value does not have to be checked
          * for overflow because a valid timespec has 0 <= tv_nsec < 1000000000 and
          * NANOSECONDS_PER_TICK > 1. */
@@ -148,21 +131,8 @@ int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
         /* Add the nanoseconds to the total ticks. */
         ullTotalTicks += ( uint64_t ) lNanoseconds;
 
-        /* Check for overflow of uint64_t from the above addition. */
-        if( ullTotalTicks - ( uint64_t ) lNanoseconds > ullTotalTicks )
-        {
-            iStatus = EOVERFLOW;
-        }
-        /* Ensure that ullTotalTicks fits in TickType_t. */
-        else if( ullTotalTicks > ( uint64_t ) portMAX_DELAY )
-        {
-            iStatus = EOVERFLOW;
-        }
-        else
-        {
-            /* Write result. */
-            *pxResult = ( TickType_t ) ullTotalTicks;
-        }
+        /* Write result. */
+        *pxResult = ( TickType_t ) ullTotalTicks;
     }
 
     return iStatus;
@@ -170,26 +140,23 @@ int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
 
 /*-----------------------------------------------------------*/
 
-void UTILS_NanosecondsToTimespec( int64_t llSrc,
-                                  struct timespec * const pxDest )
+void UTILS_NanosecondsToTimespec( int64_t llSource,
+                                  struct timespec * const pxDestination )
 {
     long lCarrySec = 0;
 
-    /* Check the conversion constant. */
-    configASSERT( NANOSECONDS_PER_SECOND == 1000000000LL );
-
     /* Convert to timespec. */
-    pxDest->tv_sec = ( time_t ) ( llSrc / NANOSECONDS_PER_SECOND );
-    pxDest->tv_nsec = ( long ) ( llSrc % NANOSECONDS_PER_SECOND );
+    pxDestination->tv_sec = ( time_t ) ( llSource / NANOSECONDS_PER_SECOND );
+    pxDestination->tv_nsec = ( long ) ( llSource % NANOSECONDS_PER_SECOND );
 
     /* Subtract from tv_sec if tv_nsec < 0. */
-    if( pxDest->tv_nsec < 0L )
+    if( pxDestination->tv_nsec < 0L )
     {
         /* Compute the number of seconds to carry. */
-        lCarrySec = ( pxDest->tv_nsec / ( long ) NANOSECONDS_PER_SECOND ) + 1L;
+        lCarrySec = ( pxDestination->tv_nsec / ( long ) NANOSECONDS_PER_SECOND ) + 1L;
 
-        pxDest->tv_sec -= ( time_t ) ( lCarrySec );
-        pxDest->tv_nsec += lCarrySec * ( long ) NANOSECONDS_PER_SECOND;
+        pxDestination->tv_sec -= ( time_t ) ( lCarrySec );
+        pxDestination->tv_nsec += lCarrySec * ( long ) NANOSECONDS_PER_SECOND;
     }
 }
 

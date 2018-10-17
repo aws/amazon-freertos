@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.1
+ * Amazon FreeRTOS Demo Bootloader V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -548,6 +548,13 @@ static BaseType_t prvValidateImage( const BOOTImageDescriptor_t * pxAppDescripto
 
             /* Application trailer. */
             pucTrailerAddress = pucStartAddress + ulSizeApp;
+            
+            /* Align it to BOOT_QUAD_WORD_SIZE. */
+            if ( ( (uint32_t) pucTrailerAddress % BOOT_QUAD_WORD_SIZE) != 0)
+            {
+                pucTrailerAddress += BOOT_QUAD_WORD_SIZE - ( (uint32_t)pucTrailerAddress % BOOT_QUAD_WORD_SIZE );
+            }
+
             pxImgTrailer = ( BOOTImageTrailer_t * ) pucTrailerAddress;
 
             if( pdTRUE == BOOT_CRYPTO_Verify( pucStartAddress,

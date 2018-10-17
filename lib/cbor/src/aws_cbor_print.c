@@ -36,12 +36,12 @@
  * the string
  *
  * @param  str       Destination string
- * @param  cbor_data CBOR handle with cursor pointed at key to append
+ * @param  xCborData CBOR handle with cursor pointed at key to append
  * @param  buf_len   Pointer to length of the str buf
  * @return           New pointer to str
  */
 static char * CBOR_CatKeyValue( char * pcStr,
-                                cbor_handle_t pxCbor_data,
+                                CBORHandle_t xCborData,
                                 cbor_ssize_t * pxBuf_len );
 
 /**
@@ -53,12 +53,12 @@ static char * CBOR_CatKeyValue( char * pcStr,
  * will also append a ":".
  *
  * @param  str       Destination string
- * @param  cbor_data CBOR handle with cursor pointed at key to append
+ * @param  xCborData CBOR handle with cursor pointed at key to append
  * @param  buf_len   Pointer to length of the str buf
  * @return           New pointer to str
  */
 static char * CBOR_CatKey( char * pcStr,
-                           cbor_handle_t pxCbor_data,
+                           CBORHandle_t xCborData,
                            cbor_ssize_t * pxBuf_len );
 
 /**
@@ -67,12 +67,12 @@ static char * CBOR_CatKey( char * pcStr,
  * @note str will get reallocated if there is insufficient space for the value.
  *
  * @param  str       Destination string
- * @param  cbor_data CBOR handle with cursor pointed at value to append
+ * @param  xCborData CBOR handle with cursor pointed at value to append
  * @param  buf_len   Pointer to length of the str buf
  * @return           New pointer to str
  */
 static char * CBOR_CatValue( char * pcStr,
-                             cbor_handle_t pxCbor_data,
+                             CBORHandle_t xCborData,
                              cbor_ssize_t * pxBuf_len );
 
 /**
@@ -80,10 +80,10 @@ static char * CBOR_CatValue( char * pcStr,
  *
  * @note allocates data memory for string return
  *
- * @param  cbor_data handle for cbor object
+ * @param  xCborData handle for cbor object
  * @return           String representation of integer
  */
-static char * CBOR_IntAsString( cbor_handle_t pxCbor_data );
+static char * CBOR_IntAsString( CBORHandle_t xCborData );
 
 /**
  * @brief concatenates two strings together
@@ -105,21 +105,21 @@ static char * CBOR_StrCat( char * pcDest,
                            char const * pcSrc,
                            cbor_ssize_t * pxLen );
 
-char * CBOR_AsString( cbor_handle_t pxCbor_data )
+char * CBOR_AsString( CBORHandle_t xCborData )
 {
-    CBOR_SetCursor( pxCbor_data, 0 );
+    CBOR_SetCursor( xCborData, 0 );
     cbor_ssize_t xBuf_len = 16;
     char * pcStr = pxCBOR_malloc( xBuf_len );
     pcStr[ 0 ] = '{';
     pcStr[ 1 ] = 0;
-    CBOR_NextKey( pxCbor_data );
+    CBOR_NextKey( xCborData );
 
-    while( !( CBOR_BREAK == *( pxCbor_data->cursor ) ) )
+    while( !( CBOR_BREAK == *( xCborData->pxCursor ) ) )
     {
-        pcStr = CBOR_CatKeyValue( pcStr, pxCbor_data, &xBuf_len );
-        CBOR_NextKey( pxCbor_data );
+        pcStr = CBOR_CatKeyValue( pcStr, xCborData, &xBuf_len );
+        CBOR_NextKey( xCborData );
 
-        if( !( CBOR_BREAK == *( pxCbor_data->cursor ) ) )
+        if( !( CBOR_BREAK == *( xCborData->pxCursor ) ) )
         {
             pcStr = CBOR_StrCat( pcStr, ",", &xBuf_len );
         }
@@ -131,21 +131,21 @@ char * CBOR_AsString( cbor_handle_t pxCbor_data )
 }
 
 static char * CBOR_CatKeyValue( char * pcStr,
-                                cbor_handle_t pxCbor_data,
+                                CBORHandle_t xCborData,
                                 cbor_ssize_t * pxBuf_len )
 {
-    pcStr = CBOR_CatKey( pcStr, pxCbor_data, pxBuf_len );
-    pcStr = CBOR_CatValue( pcStr, pxCbor_data, pxBuf_len );
+    pcStr = CBOR_CatKey( pcStr, xCborData, pxBuf_len );
+    pcStr = CBOR_CatValue( pcStr, xCborData, pxBuf_len );
 
     return pcStr;
 }
 
 static char * CBOR_CatKey( char * pcStr,
-                           cbor_handle_t pxCbor_data,
+                           CBORHandle_t xCborData,
                            cbor_ssize_t * pxBuf_len )
 {
     pcStr = CBOR_StrCat( pcStr, "\"", pxBuf_len );
-    char * pcKey = CBOR_ReadString( pxCbor_data );
+    char * pcKey = CBOR_ReadString( xCborData );
     pcStr = CBOR_StrCat( pcStr, pcKey, pxBuf_len );
     pxCBOR_free( pcKey );
     pcStr = CBOR_StrCat( pcStr, "\":", pxBuf_len );
@@ -154,13 +154,13 @@ static char * CBOR_CatKey( char * pcStr,
 }
 
 static char * CBOR_CatValue( char * pcStr,
-                             cbor_handle_t pxCbor_data,
+                             CBORHandle_t xCborData,
                              cbor_ssize_t * pxBuf_len )
 {
-    cbor_byte_t * pxKey_pos = pxCbor_data->cursor;
+    cbor_byte_t * pxKey_pos = xCborData->pxCursor;
 
-    CBOR_Next( pxCbor_data );
-    cbor_byte_t xJump_type = *pxCbor_data->cursor;
+    CBOR_Next( xCborData );
+    cbor_byte_t xJump_type = *xCborData->pxCursor;
     cbor_byte_t xMajor_type = ( CBOR_MAJOR_TYPE_MASK & xJump_type );
 
     switch( xMajor_type )
@@ -168,7 +168,7 @@ static char * CBOR_CatValue( char * pcStr,
         case CBOR_POS_INT:
         case CBOR_NEG_INT:
            {
-               char * pcVal = CBOR_IntAsString( pxCbor_data );
+               char * pcVal = CBOR_IntAsString( xCborData );
                pcStr = CBOR_StrCat( pcStr, pcVal, pxBuf_len );
                pxCBOR_free( pcVal );
                break;
@@ -178,7 +178,7 @@ static char * CBOR_CatValue( char * pcStr,
         case CBOR_STRING:
            {
                pcStr = CBOR_StrCat( pcStr, "\"", pxBuf_len );
-               char * pcVal = CBOR_ReadString( pxCbor_data );
+               char * pcVal = CBOR_ReadString( xCborData );
                pcStr = CBOR_StrCat( pcStr, pcVal, pxBuf_len );
                pxCBOR_free( pcVal );
                pcStr = CBOR_StrCat( pcStr, "\"", pxBuf_len );
@@ -187,27 +187,27 @@ static char * CBOR_CatValue( char * pcStr,
 
         case CBOR_MAP:
            {
-               cbor_handle_t pxInner_map = CBOR_ReadMap( pxCbor_data );
-               char * pcVal = CBOR_AsString( pxInner_map );
-               CBOR_Delete( &pxInner_map );
+               CBORHandle_t xInner_map = CBOR_ReadMap( xCborData );
+               char * pcVal = CBOR_AsString( xInner_map );
+               CBOR_Delete( &xInner_map );
                pcStr = CBOR_StrCat( pcStr, pcVal, pxBuf_len );
                pxCBOR_free( pcVal );
                break;
            }
     }
 
-    pxCbor_data->cursor = pxKey_pos;
+    xCborData->pxCursor = pxKey_pos;
 
     return pcStr;
 }
 
-static char * CBOR_IntAsString( cbor_handle_t pxCbor_data )
+static char * CBOR_IntAsString( CBORHandle_t xCborData )
 {
-    int xVal = CBOR_ReadInt( pxCbor_data );
-    int xLen = snprintf( NULL, 0, "%d", xVal ) + 1;
-    char * pcStr = pxCBOR_malloc( xLen );
+    int lVal = CBOR_ReadInt( xCborData );
+    int lLen = snprintf( NULL, 0, "%d", lVal ) + 1;
+    char * pcStr = pxCBOR_malloc( lLen );
 
-    ( void ) snprintf( pcStr, xLen, "%d", xVal );
+    ( void ) snprintf( pcStr, lLen, "%d", lVal );
 
     return pcStr;
 }

@@ -23,6 +23,9 @@ The following MCU boards are supported for Amazon FreeRTOS:
     * IDE: [MPLAB X IDE](http://www.microchip.com/mplab/mplab-x-ide)
 5. **Espressif** - [ESP32-DevKitC](https://www.espressif.com/en/products/hardware/esp32-devkitc/overview), [ESP-WROVER-KIT](https://www.espressif.com/en/products/hardware/esp-wrover-kit/overview).
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html)
+6. **Infineon** - [Infineon XMC4800 IoT Connectivity Kit](https://www.infineon.com/connectivitykit)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_infineon.html)
+    * IDE: [DAVE](https://infineoncommunity.com/dave-download_ID645)
 
 **Windows Simulator**
 To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.

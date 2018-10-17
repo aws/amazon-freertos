@@ -31,17 +31,14 @@ def printFactoryImageStruct(processedImagePath, trailerSize, numLinesImageConten
     cuttingLine = "--------"
     subCuttingLine = "-----"
 
-
-    #print magic code
-    with open(processedImagePath,"rb") as f:
+    # print magic code
+    with open(processedImagePath, "rb") as f:
         print(cuttingLine + subCuttingLine + "Magic Code" + subCuttingLine + cuttingLine)
         byte = f.read(8)
         print(byte)
 
-
     # print [ota_descriptor + image content]
     printOTADescriptorImageStruct(processedImagePath, numLinesImageContent, 8)
-
 
     # print trailer
     fSize = getFileSize(processedImagePath)
@@ -204,15 +201,14 @@ def appendTrailer(inputImagePath, trailer, outputPath):
         f.write(trailer)
 
 
-
-def addFactoryMagicCode(inputImagePath,outputPath):
+def addFactoryMagicCode(inputImagePath, outputPath):
     """
     add 8-byte magic code
     :param inputImagePath:
     :param outputPath:
     :return:
     """
-    with open(inputImagePath,"rb") as f:
+    with open(inputImagePath, "rb") as f:
         inputContent = f.read()
 
     magicCode = bytearray("@AFRTOS".encode('ASCII'))
@@ -222,10 +218,9 @@ def addFactoryMagicCode(inputImagePath,outputPath):
 
     magicCode.extend(endByte)
 
-    with open(outputPath,"wb") as f:
+    with open(outputPath, "wb") as f:
         f.write(magicCode)
         f.write(inputContent)
-
 
 
 def convertToUnifiedHex(inputImagePath, outputPath, bootLoaderHexPath):
@@ -242,16 +237,37 @@ def convertToUnifiedHex(inputImagePath, outputPath, bootLoaderHexPath):
     cmd_convert = "srec_cat " + inputImagePath + " -binary -offset " + HEX_START + " -o " + temp_hex + " -Intel "
     os.system(cmd_convert)
 
-    cmd_unify = "srec_cat " + temp_hex +" -intel "+ bootLoaderHexPath + " -intel -o " + outputPath + " -intel"
+    cmd_unify = "srec_cat " + temp_hex + " -intel " + bootLoaderHexPath + " -intel -o " + outputPath + " -intel"
     os.system(cmd_unify)
 
     os.system("rm " + temp_hex)
 
 
+def alignFileSize(filePath):
+    alignSize = 16
+
+    # make sure the size is multiple of alignSize
+    fileSize = getFileSize(filePath)
+    print("fileSize ", fileSize)
+    if fileSize % alignSize != 0:
+        with open(filePath, "rb") as f:
+            content = f.read()
+            content = bytearray(content)
+            pad = bytearray(alignSize - (fileSize % 16))
+            content.extend(pad)
+            print("padSize: ", alignSize - (fileSize % 16))
+        with open(filePath, "wb") as f:
+            f.write(content)
 
 
+def generateFactoryImage(signature, otaImagePath, bootloaderHexPath):
+    # add factory magic code
+    factoryImagePath = otaImagePath.replace(".ota.bin", ".initial.bin")
+    print("\nAdding magic code to " + factoryImagePath + "  ...\n")
+    addFactoryMagicCode(inputImagePath=otaImagePath, outputPath=factoryImagePath)
 
-def generateFactoryImage(signature,otaImagePath,bootloaderHexPath):
+    # align the file size before attaching trailer
+    alignFileSize(factoryImagePath)
 
     typeStr = "sig-sha256-ecdsa"
     descripFixedSize = 32  # signature description is fixed to 32 bytes, will use zeroes to fill up the rest
@@ -259,14 +275,9 @@ def generateFactoryImage(signature,otaImagePath,bootloaderHexPath):
     trailer = getTrailer(signature, typeStr, descripFixedSize, sigFixedSize)
 
     # append trailer to ota image
-    print("\nAppending trailer to image " + otaImagePath + " ...")
-    factoryImagePath = otaImagePath.replace(".ota.bin", ".initial.bin")
-    appendTrailer(inputImagePath=otaImagePath, trailer=trailer, outputPath=factoryImagePath)
+    print("\nAppending trailer to image " + factoryImagePath + " ...")
+    appendTrailer(inputImagePath=factoryImagePath, trailer=trailer, outputPath=factoryImagePath)
     print("\nTrailer appended! factory image generated at " + factoryImagePath)
-
-    # add factory magic code
-    print("\nAdding magic code to " + factoryImagePath + "  ...\n")
-    addFactoryMagicCode(inputImagePath=factoryImagePath, outputPath=factoryImagePath)
 
     # print structure
     print("\nStructure of factory image : " + factoryImagePath
@@ -284,24 +295,19 @@ def generateFactoryImage(signature,otaImagePath,bootloaderHexPath):
     os.system("srec_info " + hexFilePath + " -Intel ")
 
 
-
-
-
 if __name__ == "__main__":
     inputImagePath, hardwarePlatform, privateKeyPath, bootloaderHexPath = parseCMDParam()
 
-    #verify parameter
+    # verify parameter
     validateFilePath(inputImagePath)
     validateFilePath(privateKeyPath)
     validateFilePath(bootloaderHexPath)
 
-    #get ota image
+    # get ota image
     otaImagePath = generateOTADescriptorImage(inputImagePath, hardwarePlatform)
 
-
-    #sign the ota image
+    # sign the ota image
     digestMethod = "sha256"  # use "sha256" method
     signature = getSignitureLocally(otaImagePath, privateKeyPath, digestMethod)
 
-    generateFactoryImage(signature,otaImagePath,bootloaderHexPath)
-
+    generateFactoryImage(signature, otaImagePath, bootloaderHexPath)

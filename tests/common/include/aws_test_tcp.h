@@ -54,13 +54,7 @@
 #define tcptestECHO_PORT_TLS             ( 443 )
 
 /* Number of times to retry a connection if it fails. */
-#define tcptestRETRY_CONNECTION_TIMES    3
-
-#define tcptestECHO_SERVER_TLS_ADDR0    34
-#define tcptestECHO_SERVER_TLS_ADDR1    218
-#define tcptestECHO_SERVER_TLS_ADDR2    25
-#define tcptestECHO_SERVER_TLS_ADDR3    197
-#define tcptestECHO_PORT_TLS            ( 443 )
+#define tcptestRETRY_CONNECTION_TIMES    6
 
 /* The root certificate used for the encrypted echo server.
  * This certificate is self-signed, and not in the trusted catalog. */

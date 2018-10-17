@@ -157,12 +157,12 @@ def createJunitTestResults(boardToResults, fileName):
     for board in boardToResults.keys():
         testCases = []
         for otaTestResult in boardToResults[board]:
-            testCase = TestCase(otaTestResult.testName, classname='OTAEndToEndTests')
+            testCase = TestCase(otaTestResult.testName, classname=board + '.OTAEndToEndTests')
             testCases.append(testCase)
             if otaTestResult.result != OtaTestResult.PASS:
                 testCases[-1].add_failure_info(message=otaTestResult.reason)
-
         testSuites.append(TestSuite(board, test_cases=testCases, package=board))
+        
     with open(fileName, 'w') as f:
         TestSuite.to_file(f, testSuites)
 

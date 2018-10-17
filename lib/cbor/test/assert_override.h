@@ -28,20 +28,24 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#define __assert_fail TestAssertFail
+#define __assert_fail    TestAssertFail
 
-#define TEST_EXPECT_ASSERT(a)                                                  \
-    TEST_expect_assert = true;                                                 \
-    if (TEST_PROTECT()) {                                                      \
-        (a);                                                                   \
-    } else {                                                                   \
-    }                                                                          \
-    TEST_ASSERT_EQUAL_MESSAGE(                                                 \
-        false, TEST_expect_assert, "assert() was not called")
+#define xTEST_expect_assert( a ) \
+    xTEST_expect_assert = true;  \
+    if( TEST_PROTECT() ) {       \
+        ( a );                   \
+    }                            \
+    else {                       \
+    }                            \
+    TEST_ASSERT_EQUAL_MESSAGE(   \
+        false, xTEST_expect_assert, "assert() was not called" )
 
-extern int  TEST_assert_fails;
-extern bool TEST_expect_assert;
+extern int lTEST_assert_fails;
+extern bool xTEST_expect_assert;
 
-void TestAssertFail(const char *, const char *, unsigned int, const char *);
+void TestAssertFail( const char *,
+                     const char *,
+                     unsigned int,
+                     const char * );
 
 #endif /* end of include guard: ASSERT_OVERRIDE_H */

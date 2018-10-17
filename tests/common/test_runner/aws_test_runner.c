@@ -131,7 +131,7 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_CBOR );
     #endif
 
-    #if( testrunnerFULL_DEFENDER_ENABLED == 1 )
+    #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
         RUN_TEST_GROUP( Full_DEFENDER );
     #endif
 
@@ -150,7 +150,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerOTA_END_TO_END_ENABLED == 1 )
-        extern void vStartOTAUpdateDemoTask(void);
+        extern void vStartOTAUpdateDemoTask( void );
         vStartOTAUpdateDemoTask();
     #endif
 }
@@ -161,7 +161,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     /* Initialize unity. */
     UnityFixture.Verbose = 1;
     UnityFixture.GroupFilter = 0;
-    UnityFixture.NameFilter = testrunerTEST_FILTER;
+    UnityFixture.NameFilter = testrunnerTEST_FILTER;
     UnityFixture.RepeatCount = 1;
 
     UNITY_BEGIN();
@@ -180,11 +180,16 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
         /* Measure the heap size after tests are done running.
          * This test must run last. */
 
+        /* Perform any global resource cleanup necessary to avoid memory leaks. */
+        #ifdef testrunnerMEMORYLEAK_CLEANUP
+            testrunnerMEMORYLEAK_CLEANUP();
+        #endif
+
         /* Give the print buffer time to empty */
         vTaskDelay( 500 );
         xHeapAfter = xPortGetFreeHeapSize();
         RUN_TEST_GROUP( Full_MemoryLeak );
-    #endif
+    #endif /* if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 ) */
 
     /* Currently disabled. Will be enabled after cleanup. */
     UNITY_END();

@@ -41,72 +41,72 @@ cbor_ssize_t CBOR_IntSize( const cbor_byte_t * pxPtr );
 
 /**
  * @brief Writes an integer to the CBOR buffer.
- * @param cbor_handle_t  Handle for the CBOR data struct.
+ * @param CBORHandle_t  Handle for the CBOR data struct.
  * @param "const void *" Pointer to integer to write.
  */
-void CBOR_WriteInt( cbor_handle_t /*cbor_data*/, const void * /*input*/ );
+void CBOR_WriteInt( CBORHandle_t /*xCborData*/, const void * /*input*/ );
 
 /**
  * @brief Writes a 32-bit integer to the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @param int32_t        Integer to write
  */
-void CBOR_WriteInt32( cbor_handle_t /*cbor_data*/, uint32_t /*num*/ );
+void CBOR_WriteInt32( CBORHandle_t /*xCborData*/, uint32_t /*num*/ );
 
 /**
  * @brief Writes a 16-bit integer to the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @param int16_t        Integer to write
  */
-void CBOR_WriteInt16( cbor_handle_t /*cbor_data*/, uint16_t /*num*/ );
+void CBOR_WriteInt16( CBORHandle_t /*xCborData*/, uint16_t /*num*/ );
 
 /**
  * @brief Writes an 8-bit integer to the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @param cbor_byte_t        Integer to write
  */
-void CBOR_WriteInt8( cbor_handle_t /*cbor_data*/, cbor_byte_t /*num*/ );
+void CBOR_WriteInt8( CBORHandle_t /*xCborData*/, cbor_byte_t /*num*/ );
 
 /**
  * @brief Writes a small integer (less than or equal to 24) to the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @param cbor_byte_t        Integer to write
  */
-void CBOR_WriteSmallInt( cbor_handle_t /*cbor_data*/, cbor_byte_t /*num*/ );
+void CBOR_WriteSmallInt( CBORHandle_t /*xCborData*/, cbor_byte_t /*num*/ );
 
 /**
  * @brief Reads an integer from the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @return Integer from the cursor location of the CBOR buffer.
  */
-cbor_int_t CBOR_ReadInt( cbor_handle_t /*cbor_data*/ );
+cbor_int_t CBOR_ReadInt( CBORHandle_t /*xCborData*/ );
 
 /**
  * @brief Reads a 32-bit integer from the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @return 32-bit integer from the cursor location of the CBOR buffer.
  */
-uint32_t CBOR_ReadPositiveInt32( cbor_handle_t /*cbor_data*/ );
+uint32_t CBOR_ReadPositiveInt32( CBORHandle_t /*xCborData*/ );
 
 /**
  * @brief Reads a 16-bit integer from the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @return 16-bit integer from the cursor location of the CBOR buffer.
  */
-uint16_t CBOR_ReadPositiveInt16( cbor_handle_t /*cbor_data*/ );
+uint16_t CBOR_ReadPositiveInt16( CBORHandle_t /*xCborData*/ );
 
 /**
  * @brief Reads an 8-bit integer from the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @return 8-bit integer from the cursor location of the CBOR buffer.
  */
-cbor_byte_t CBOR_ReadPositiveInt8( cbor_handle_t /*cbor_data*/ );
+cbor_byte_t CBOR_ReadPositiveInt8( CBORHandle_t /*xCborData*/ );
 
 /**
  * @brief Reads a small integer from the CBOR buffer.
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @return              An integer in the range of 0-23 (inclusive)
  */
-cbor_byte_t CBOR_ReadSmallPositiveInt( cbor_handle_t /*cbor_data*/ );
+cbor_byte_t CBOR_ReadSmallPositiveInt( CBORHandle_t /*xCborData*/ );
 
 #endif /* ifndef AWS_CBOR_INT_H */

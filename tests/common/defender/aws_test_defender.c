@@ -26,6 +26,7 @@
 #include "FreeRTOS.h"
 
 #include "projdefs.h"
+#include "task.h"
 
 #include "aws_cbor.h"
 #include "aws_cbor_print.h"
@@ -35,8 +36,8 @@
 #include "aws_mqtt_agent.h"
 #include "unity_fixture.h"
 
-static bool report_accepted;
-static bool report_rejected;
+static bool xReportAccepted;
+static bool xReportRejected;
 
 TEST_GROUP( Full_DEFENDER );
 
@@ -44,8 +45,8 @@ TEST_SETUP( Full_DEFENDER )
 {
     /* Delay to allow the MQTT logs to flush */
     vTaskDelay( pdMS_TO_TICKS( 500 ) );
-    report_accepted = false;
-    report_rejected = false;
+    xReportAccepted = false;
+    xReportRejected = false;
 }
 
 TEST_TEAR_DOWN( Full_DEFENDER )
@@ -78,361 +79,365 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
 TEST( Full_DEFENDER, Start_should_return_err_if_already_started )
 {
     ( void ) DEFENDER_Start();
-    DefenderErr_t err = DEFENDER_Start();
-    TEST_ASSERT_EQUAL( eDefenderErrAlreadyStarted, err );
+    DefenderErr_t eErr = DEFENDER_Start();
+    TEST_ASSERT_EQUAL( eDefenderErrAlreadyStarted, eErr );
 }
 
 TEST( Full_DEFENDER, Start_should_return_success )
 {
-    DefenderErr_t err = DEFENDER_Start();
+    DefenderErr_t eErr = DEFENDER_Start();
 
-    TEST_ASSERT_EQUAL( eDefenderErrSuccess, err );
+    TEST_ASSERT_EQUAL( eDefenderErrSuccess, eErr );
 }
 
 TEST( Full_DEFENDER, Stop_should_return_success_when_started )
 {
     ( void ) DEFENDER_Start();
-    DefenderErr_t err = DEFENDER_Stop();
-    TEST_ASSERT_EQUAL( eDefenderErrSuccess, err );
+    DefenderErr_t eErr = DEFENDER_Stop();
+    TEST_ASSERT_EQUAL( eDefenderErrSuccess, eErr );
 }
 
 TEST( Full_DEFENDER, Stop_should_return_err_when_not_started )
 {
-    DefenderErr_t err = DEFENDER_Stop();
+    DefenderErr_t eErr = DEFENDER_Stop();
 
-    TEST_ASSERT_EQUAL( eDefenderErrNotStarted, err );
+    TEST_ASSERT_EQUAL( eDefenderErrNotStarted, eErr );
 }
 
 /*----------------------------------------------------------------------------*/
 
-static bool echo_triggered;
+static bool xEchoTriggered;
 
-static cbor_handle_t CreateDummyReport( void );
-static MQTTAgentHandle_t MqttAgentNew( void );
-static void MqttAgentConnectToEcho( MQTTAgentHandle_t );
-static void SubscribeToEcho( MQTTAgentHandle_t );
-static MQTTBool_t echo_callback( void * pvPublishCallbackContext,
-                                 MQTTPublishData_t const * pxPublishData );
-static void ReportPublishToEcho( MQTTAgentHandle_t,
-                                 cbor_handle_t );
+static CBORHandle_t prvCreateDummyReport( void );
+static MQTTAgentHandle_t prvMqttAgentNew( void );
+static void prvMqttAgentConnectToEcho( MQTTAgentHandle_t );
+static void prvSubscribeToEcho( MQTTAgentHandle_t );
+static MQTTBool_t prvEchoCallback( void * pvPublishCallbackContext,
+                                   MQTTPublishData_t const * pxPublishData );
+static void prvReportPublishToEcho( MQTTAgentHandle_t,
+                                    CBORHandle_t );
 
 TEST( Full_DEFENDER, report_to_echo_server )
 {
-    cbor_handle_t defender_report = CreateDummyReport();
-    MQTTAgentHandle_t defender_mqtt_agent = MqttAgentNew();
+    CBORHandle_t xDefenderReport = prvCreateDummyReport();
+    MQTTAgentHandle_t xDefenderMqttAgent = prvMqttAgentNew();
 
-    MqttAgentConnectToEcho( defender_mqtt_agent );
-    SubscribeToEcho( defender_mqtt_agent );
-    ReportPublishToEcho( defender_mqtt_agent, defender_report );
+    prvMqttAgentConnectToEcho( xDefenderMqttAgent );
+    prvSubscribeToEcho( xDefenderMqttAgent );
+    prvReportPublishToEcho( xDefenderMqttAgent, xDefenderReport );
 
     /* Wait for 1 second while we  */
     vTaskDelay( pdMS_TO_TICKS( 10000 ) );
-    TEST_ASSERT_TRUE_MESSAGE( echo_triggered,
+    TEST_ASSERT_TRUE_MESSAGE( xEchoTriggered,
                               "Expected the echo to trigger the callback" )
 
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    ( void ) MQTT_AGENT_Disconnect( defender_mqtt_agent, timeout );
-    ( void ) MQTT_AGENT_Delete( defender_mqtt_agent );
-    CBOR_Delete( &defender_report );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    ( void ) MQTT_AGENT_Disconnect( xDefenderMqttAgent, xTimeout );
+    ( void ) MQTT_AGENT_Delete( xDefenderMqttAgent );
+    CBOR_Delete( &xDefenderReport );
 }
 
-static cbor_handle_t CreateDummyReport( void )
+static CBORHandle_t prvCreateDummyReport( void )
 {
     /* Create example report */
-    cbor_handle_t defender_report = CBOR_New( 0 );
+    CBORHandle_t xDefenderReport = CBOR_New( 0 );
 
-    TEST_ASSERT_NOT_NULL_MESSAGE( defender_report, "Failed to create new report" );
-    cbor_handle_t header = CBOR_New( 0 );
+    TEST_ASSERT_NOT_NULL_MESSAGE( xDefenderReport,
+                                  "Failed to create new pcReport" );
+    CBORHandle_t xHeader = CBOR_New( 0 );
 
-    if( NULL == header )
+    if( NULL == xHeader )
     {
-        CBOR_Delete( &defender_report );
-        TEST_FAIL_MESSAGE( "Failed to create new header" );
+        CBOR_Delete( &xDefenderReport );
+        TEST_FAIL_MESSAGE( "Failed to create new xHeader" );
     }
     else
     {
         /* Using configRAND32 instead of ipconfigRAND32 */
-        /* Including header with ipconfigRAND32 causes redefinition errors */
+        /* Including xHeader with ipconfigRAND32 causes redefinition errors */
         /* Cryptographically secure rand is not important here */
-        uint8_t ulReportId = configRAND32();
-        CBOR_AppendKeyWithInt( header, "report_id", ulReportId );
-        CBOR_AppendKeyWithString( header, "version", "1.0" );
-        CBOR_AppendKeyWithMap( defender_report, "header", header );
+        uint32_t ulReportId = configRAND32() && ( 0x3FFFFFFF );
+        CBOR_AppendKeyWithInt( xHeader, "report_id", ulReportId );
+        CBOR_AppendKeyWithString( xHeader, "version", "1.0" );
+        CBOR_AppendKeyWithMap( xDefenderReport, "header", xHeader );
     }
 
-    CBOR_Delete( &header );
+    CBOR_Delete( &xHeader );
 
-    cbor_handle_t metrics = CBOR_New( 0 );
+    CBORHandle_t xMetrics = CBOR_New( 0 );
     {
-        cbor_handle_t tcp_ports = CBOR_New( 0 );
+        CBORHandle_t xTcpPorts = CBOR_New( 0 );
         {
-            CBOR_AppendKeyWithInt( tcp_ports, "total", 0 );
-            CBOR_AppendKeyWithMap( metrics, "listening_tcp_ports", tcp_ports );
+            CBOR_AppendKeyWithInt( xTcpPorts, "total", 0 );
+            CBOR_AppendKeyWithMap( xMetrics, "listening_tcp_ports", xTcpPorts );
         }
-        CBOR_Delete( &tcp_ports );
+        CBOR_Delete( &xTcpPorts );
 
-        cbor_handle_t udp_ports = CBOR_New( 0 );
+        CBORHandle_t xUdpPorts = CBOR_New( 0 );
         {
-            CBOR_AppendKeyWithInt( udp_ports, "total", 0 );
-            CBOR_AppendKeyWithMap( metrics, "listening_udp_ports", udp_ports );
+            CBOR_AppendKeyWithInt( xUdpPorts, "total", 0 );
+            CBOR_AppendKeyWithMap( xMetrics, "listening_udp_ports", xUdpPorts );
         }
-        CBOR_Delete( &udp_ports );
+        CBOR_Delete( &xUdpPorts );
 
-        cbor_handle_t tcp_connections = CBOR_New( 0 );
+        CBORHandle_t xTcpConnections = CBOR_New( 0 );
         {
-            cbor_handle_t est_connections = CBOR_New( 0 );
+            CBORHandle_t xEstConnections = CBOR_New( 0 );
             {
-                CBOR_AppendKeyWithInt( est_connections, "total", 2 );
-                CBOR_AppendKeyWithMap( tcp_connections, "established_connections",
-                                       est_connections );
+                CBOR_AppendKeyWithInt( xEstConnections, "total", 2 );
+                CBOR_AppendKeyWithMap( xTcpConnections,
+                                       "established_connections",
+                                       xEstConnections );
             }
-            CBOR_AppendKeyWithMap( metrics, "tcp_connections", tcp_connections );
+            CBOR_AppendKeyWithMap( xMetrics, "tcp_connections",
+                                   xTcpConnections );
         }
-        CBOR_Delete( &tcp_connections );
+        CBOR_Delete( &xTcpConnections );
 
-        CBOR_AppendKeyWithMap( defender_report, "metrics", metrics );
+        CBOR_AppendKeyWithMap( xDefenderReport, "metrics", xMetrics );
     }
-    CBOR_Delete( &metrics );
-    cbor_err_t err = CBOR_CheckError( defender_report );
+    CBOR_Delete( &xMetrics );
+    cborError_t eErr = CBOR_CheckError( xDefenderReport );
 
-    if( err )
+    if( eErr )
     {
-        CBOR_Delete( &defender_report );
-        TEST_ASSERT_EQUAL_MESSAGE( eCBOR_ERR_NO_ERROR, err,
-                                   "Failed to create report" );
+        CBOR_Delete( &xDefenderReport );
+        TEST_ASSERT_EQUAL_MESSAGE( eCborErrNoError, eErr,
+                                   "Failed to create pcReport" );
     }
 
-    return defender_report;
+    return xDefenderReport;
 }
 
-static MQTTAgentHandle_t MqttAgentNew( void )
+static MQTTAgentHandle_t prvMqttAgentNew( void )
 {
-    MQTTAgentHandle_t new_mqtt_agent = 0;
-    MQTTAgentReturnCode_t create_result = MQTT_AGENT_Create( &new_mqtt_agent );
+    MQTTAgentHandle_t xNewMqttAgent = 0;
+    MQTTAgentReturnCode_t eCreateResult = MQTT_AGENT_Create( &xNewMqttAgent );
 
-    TEST_ASSERT_EQUAL_MESSAGE( eMQTTAgentSuccess, create_result,
+    TEST_ASSERT_EQUAL_MESSAGE( eMQTTAgentSuccess, eCreateResult,
                                "Failed to create agent" );
 
-    return new_mqtt_agent;
+    return xNewMqttAgent;
 }
 
-static void MqttAgentConnectToEcho( MQTTAgentHandle_t mqtt_agent )
+static void prvMqttAgentConnectToEcho( MQTTAgentHandle_t pxMQTTAgent )
 {
-    MQTTAgentConnectParams_t defender_con_params =
+    MQTTAgentConnectParams_t xDefenderConParams =
     {
         .pcURL              = clientcredentialMQTT_BROKER_ENDPOINT,
         .xFlags             = mqttagentREQUIRE_TLS,
         .xURLIsIPAddress    = pdFALSE,
         .usPort             = clientcredentialMQTT_BROKER_PORT,
         .pucClientId        = ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-        .usClientIdLength   = strlen( clientcredentialIOT_THING_NAME ),
+        .usClientIdLength   = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME ),
         .xSecuredConnection = pdTRUE,
         .pvUserData         = NULL,
         .pxCallback         = NULL,
         .pcCertificate      = NULL,
         .ulCertificateSize  = 0,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t connect_result =
-        MQTT_AGENT_Connect( mqtt_agent, &defender_con_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t eConnectResult =
+        MQTT_AGENT_Connect( pxMQTTAgent, &xDefenderConParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == connect_result,
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eConnectResult,
                          "Failed to connect agent to echo broker" );
 }
 
-static void SubscribeToEcho( MQTTAgentHandle_t mqtt_agent )
+static void prvSubscribeToEcho( MQTTAgentHandle_t pxMQTTAgent )
 {
-    uint8_t * topic = "freertos/tests/echo";
-    MQTTAgentSubscribeParams_t sub_params =
+    uint8_t * pucTopic = ( uint8_t * ) "freertos/tests/echo";
+    MQTTAgentSubscribeParams_t xSubscriptionParams =
     {
-        .pucTopic                 = topic,
-        .usTopicLength            = strlen( topic ),
+        .pucTopic                 = pucTopic,
+        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
         .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
-        .pxPublishCallback        = echo_callback,
+        .pxPublishCallback        = prvEchoCallback,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t sub_result =
-        MQTT_AGENT_Subscribe( mqtt_agent, &sub_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t eSubscriptionResult =
+        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == sub_result,
-                         "Failed to subscribe to topic" );
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
+                         "Failed to subscribe to pucTopic" );
 }
 
-static MQTTBool_t echo_callback( void * pvPublishCallbackContext,
-                                 MQTTPublishData_t const * pxPublishData )
+static MQTTBool_t prvEchoCallback( void * pvPublishCallbackContext,
+                                   MQTTPublishData_t const * pxPublishData )
 {
-    echo_triggered = true;
+    xEchoTriggered = true;
 
     return eMQTTFalse;
 }
 
-static void ReportPublishToEcho( MQTTAgentHandle_t mqtt_agent,
-                                 cbor_handle_t report )
+static void prvReportPublishToEcho( MQTTAgentHandle_t pxMQTTAgent,
+                                    CBORHandle_t xReport )
 {
-    uint8_t * topic = "freertos/tests/echo";
+    uint8_t * pucTopic = ( uint8_t * ) "freertos/tests/echo";
 
-    MQTTAgentPublishParams_t pub_rec_params =
+    MQTTAgentPublishParams_t xPubRecParams =
     {
-        .pucTopic      = topic,
-        .usTopicLength = ( uint16_t ) strlen( topic ),
+        .pucTopic      = pucTopic,
+        .usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic ),
         .xQoS          = eMQTTQoS0,
-        .pvData        = report->buffer_start,
-        .ulDataLength  = report->map_end - report->buffer_start,
+        .pvData        = xReport->pxBufferStart,
+        .ulDataLength  = xReport->pxMapEnd - xReport->pxBufferStart,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 1000 );
-    MQTTAgentReturnCode_t publish_result =
-        MQTT_AGENT_Publish( mqtt_agent, &pub_rec_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 1000 );
+    MQTTAgentReturnCode_t ePublishResult =
+        MQTT_AGENT_Publish( pxMQTTAgent, &xPubRecParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == publish_result,
-                         "Failed to publish to topic" );
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == ePublishResult,
+                         "Failed to publish to pucTopic" );
 }
 
 /*----------------------------------------------------------------------------*/
 
-static char const * const defender_test_endpoint =
+static char const * const pcDefenderTestEndpoint =
     clientcredentialMQTT_BROKER_ENDPOINT;
 /* "data.gamma.us-east-1.iot.amazonaws.com"; */
 
-static MQTTBool_t test_reject_callback( void * pvPublishCallbackContext,
-                                        MQTTPublishData_t const * pxPublishData );
+static MQTTBool_t testRejectCallback( void * pvPublishCallbackContext,
+                                      MQTTPublishData_t const * pxPublishData );
 
-static MQTTBool_t test_accept_callback( void * pvPublishCallbackContext,
-                                        MQTTPublishData_t const * pxPublishData );
+static MQTTBool_t testAcceptCallback( void * pvPublishCallbackContext,
+                                      MQTTPublishData_t const * pxPublishData );
 
 static void MqttAgentConnectToDevDef( MQTTAgentHandle_t );
 static void SubscribeToAcceptCbor( MQTTAgentHandle_t );
 static void SubscribeToRejectCbor( MQTTAgentHandle_t );
 static void PublishCborToDevDef( MQTTAgentHandle_t,
-                                 cbor_handle_t );
+                                 CBORHandle_t );
 
 TEST( Full_DEFENDER, endpoint_accepts_cbor_example_report )
 {
-    cbor_handle_t defender_report = CreateDummyReport();
-    MQTTAgentHandle_t defender_mqtt_agent = MqttAgentNew();
+    CBORHandle_t xDefenderReport = prvCreateDummyReport();
+    MQTTAgentHandle_t xDefenderMqttAgent = prvMqttAgentNew();
 
-    MqttAgentConnectToDevDef( defender_mqtt_agent );
-    SubscribeToAcceptCbor( defender_mqtt_agent );
-    SubscribeToRejectCbor( defender_mqtt_agent );
-    PublishCborToDevDef( defender_mqtt_agent, defender_report );
+    MqttAgentConnectToDevDef( xDefenderMqttAgent );
+    SubscribeToAcceptCbor( xDefenderMqttAgent );
+    SubscribeToRejectCbor( xDefenderMqttAgent );
+    PublishCborToDevDef( xDefenderMqttAgent, xDefenderReport );
 
     /* Wait for 1 second for the response to come back from the service */
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    vTaskDelay( pdMS_TO_TICKS( timeout ) );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    vTaskDelay( pdMS_TO_TICKS( xTimeout ) );
 
     /* Clean up resources before checking test assertions */
-    ( void ) MQTT_AGENT_Disconnect( defender_mqtt_agent, timeout );
-    ( void ) MQTT_AGENT_Delete( defender_mqtt_agent );
-    CBOR_Delete( &defender_report );
+    ( void ) MQTT_AGENT_Disconnect( xDefenderMqttAgent, xTimeout );
+    ( void ) MQTT_AGENT_Delete( xDefenderMqttAgent );
+    CBOR_Delete( &xDefenderReport );
 
-    TEST_ASSERT_FALSE_MESSAGE( report_rejected, "Metrics report was rejected." )
-    TEST_ASSERT_TRUE_MESSAGE( report_accepted,
-                              "Expected the report to be accepted." )
+    TEST_ASSERT_FALSE_MESSAGE( xReportRejected, "Metrics pcReport was rejected." )
+    TEST_ASSERT_TRUE_MESSAGE( xReportAccepted,
+                              "Expected the pcReport to be accepted." )
 }
 
-static void MqttAgentConnectToDevDef( MQTTAgentHandle_t mqtt_agent )
+static void MqttAgentConnectToDevDef( MQTTAgentHandle_t pxMQTTAgent )
 {
-    MQTTAgentConnectParams_t defender_con_params =
+    MQTTAgentConnectParams_t xDefenderConParams =
     {
-        .pcURL              = defender_test_endpoint,
+        .pcURL              = pcDefenderTestEndpoint,
         .xFlags             = mqttagentREQUIRE_TLS,
         .xURLIsIPAddress    = pdFALSE,
         .usPort             = clientcredentialMQTT_BROKER_PORT,
         .pucClientId        = ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-        .usClientIdLength   = strlen( clientcredentialIOT_THING_NAME ),
+        .usClientIdLength   = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME ),
         .xSecuredConnection = pdTRUE,
         .pvUserData         = NULL,
         .pxCallback         = NULL,
         .pcCertificate      = NULL,
         .ulCertificateSize  = 0,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t connect_result =
-        MQTT_AGENT_Connect( mqtt_agent, &defender_con_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t eConnectResult =
+        MQTT_AGENT_Connect( pxMQTTAgent, &xDefenderConParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == connect_result,
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eConnectResult,
                          "Failed to connect agent to broker" );
 }
 
-static void SubscribeToAcceptCbor( MQTTAgentHandle_t mqtt_agent )
+static void SubscribeToAcceptCbor( MQTTAgentHandle_t pxMQTTAgent )
 {
-    uint8_t * topic = "$aws/things/" clientcredentialIOT_THING_NAME
-                      "/defender/metrics/cbor/accepted";
-    MQTTAgentSubscribeParams_t sub_params =
+    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/" clientcredentialIOT_THING_NAME
+                         "/defender/metrics/cbor/accepted";
+    MQTTAgentSubscribeParams_t xSubscriptionParams =
     {
-        .pucTopic                 = topic,
-        .usTopicLength            = strlen( topic ),
+        .pucTopic                 = pucTopic,
+        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
         .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
-        .pxPublishCallback        = test_accept_callback,
+        .pxPublishCallback        = testAcceptCallback,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t sub_result =
-        MQTT_AGENT_Subscribe( mqtt_agent, &sub_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t eSubscriptionResult =
+        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == sub_result,
-                         "Failed to subscribe to topic" );
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
+                         "Failed to subscribe to pucTopic" );
 }
 
-static MQTTBool_t test_accept_callback( void * pvPublishCallbackContext,
-                                        MQTTPublishData_t const * pxPublishData )
+static MQTTBool_t testAcceptCallback( void * pvPublishCallbackContext,
+                                      MQTTPublishData_t const * pxPublishData )
 {
-    report_accepted = true;
+    xReportAccepted = true;
 
     return eMQTTFalse;
 }
 
-static void SubscribeToRejectCbor( MQTTAgentHandle_t mqtt_agent )
+static void SubscribeToRejectCbor( MQTTAgentHandle_t pxMQTTAgent )
 {
-    uint8_t * topic = "$aws/things/" clientcredentialIOT_THING_NAME
-                      "/defender/metrics/cbor/rejected";
-    MQTTAgentSubscribeParams_t sub_params =
+    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/" clientcredentialIOT_THING_NAME
+                         "/defender/metrics/cbor/rejected";
+    MQTTAgentSubscribeParams_t xSubscriptionParams =
     {
-        .pucTopic                 = topic,
-        .usTopicLength            = strlen( topic ),
+        .pucTopic                 = pucTopic,
+        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
         .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
-        .pxPublishCallback        = test_reject_callback,
+        .pxPublishCallback        = testRejectCallback,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t sub_result =
-        MQTT_AGENT_Subscribe( mqtt_agent, &sub_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t eSubscriptionResult =
+        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == sub_result,
-                         "Failed to subscribe to topic" );
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
+                         "Failed to subscribe to pucTopic" );
 }
 
-static MQTTBool_t test_reject_callback( void * pvPublishCallbackContext,
-                                        MQTTPublishData_t const * pxPublishData )
+static MQTTBool_t testRejectCallback( void * pvPublishCallbackContext,
+                                      MQTTPublishData_t const * pxPublishData )
 {
-    report_rejected = true;
+    xReportRejected = true;
 
     return eMQTTFalse;
 }
 
-static void PublishCborToDevDef( MQTTAgentHandle_t mqtt_agent,
-                                 cbor_handle_t report )
+static void PublishCborToDevDef( MQTTAgentHandle_t pxMQTTAgent,
+                                 CBORHandle_t xReport )
 {
-    uint8_t * topic =
-        "$aws/things/" clientcredentialIOT_THING_NAME "/defender/metrics/cbor";
-    uint8_t const * buffer = report->buffer_start;
-    int buf_len = report->map_end - report->buffer_start + 1;
+    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/"
+                         clientcredentialIOT_THING_NAME
+                         "/defender/metrics/cbor";
+    uint8_t const * pucBuffer = xReport->pxBufferStart;
+    int lBufLen = xReport->pxMapEnd - xReport->pxBufferStart + 1;
 
-    MQTTAgentPublishParams_t pub_rec_params =
+    MQTTAgentPublishParams_t xPubRecParams =
     {
-        .pucTopic      = topic,
-        .usTopicLength = ( uint16_t ) strlen( topic ),
+        .pucTopic      = pucTopic,
+        .usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic ),
         .xQoS          = eMQTTQoS0,
-        .pvData        = buffer,
-        .ulDataLength  = buf_len,
+        .pvData        = pucBuffer,
+        .ulDataLength  = lBufLen,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
 
-    MQTTAgentReturnCode_t publish_result =
-        MQTT_AGENT_Publish( mqtt_agent, &pub_rec_params, timeout );
+    MQTTAgentReturnCode_t ePublishResult =
+        MQTT_AGENT_Publish( pxMQTTAgent, &xPubRecParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == publish_result,
-                         "Failed to publish to topic" );
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == ePublishResult,
+                         "Failed to publish to pucTopic" );
 }
 
 /*----------------------------------------------------------------------------*/
@@ -444,173 +449,163 @@ static void PublishJsonToDevDef( MQTTAgentHandle_t,
 
 TEST( Full_DEFENDER, endpoint_accepts_json_example_report )
 {
-    cbor_handle_t defender_report = CreateDummyReport();
-    char const * const json_report = CBOR_AsString( defender_report );
+    CBORHandle_t xDefenderReport = prvCreateDummyReport();
+    char * pcJSONReport = CBOR_AsString( xDefenderReport );
 
-    CBOR_Delete( &defender_report );
+    CBOR_Delete( &xDefenderReport );
 
-    MQTTAgentHandle_t defender_mqtt_agent = MqttAgentNew();
-    MqttAgentConnectToDevDef( defender_mqtt_agent );
-    SubscribeToAcceptJson( defender_mqtt_agent );
-    SubscribeToRejectJson( defender_mqtt_agent );
-    PublishJsonToDevDef( defender_mqtt_agent, json_report );
-    vPortFree( json_report );
+    MQTTAgentHandle_t xDefenderMqttAgent = prvMqttAgentNew();
+    MqttAgentConnectToDevDef( xDefenderMqttAgent );
+    SubscribeToAcceptJson( xDefenderMqttAgent );
+    SubscribeToRejectJson( xDefenderMqttAgent );
+    PublishJsonToDevDef( xDefenderMqttAgent, pcJSONReport );
+    vPortFree( pcJSONReport );
 
-    /* Wait for 1 second whule we  */
+    /* Wait for the service to respond */
     vTaskDelay( pdMS_TO_TICKS( 10000 ) );
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
 
-    ( void ) MQTT_AGENT_Disconnect( defender_mqtt_agent, timeout );
-    ( void ) MQTT_AGENT_Delete( defender_mqtt_agent );
+    ( void ) MQTT_AGENT_Disconnect( xDefenderMqttAgent, xTimeout );
+    ( void ) MQTT_AGENT_Delete( xDefenderMqttAgent );
 
-    TEST_ASSERT_FALSE_MESSAGE( report_rejected,
-                               "JSON Metrics report was rejected." )
-    TEST_ASSERT_TRUE_MESSAGE( report_accepted,
-                              "Expected the JSON report to be accepted." )
+    TEST_ASSERT_FALSE_MESSAGE( xReportRejected,
+                               "JSON Metrics pcReport was rejected." )
+    TEST_ASSERT_TRUE_MESSAGE( xReportAccepted,
+                              "Expected the JSON pcReport to be accepted." )
 }
 
-static void SubscribeToAcceptJson( MQTTAgentHandle_t mqtt_agent )
+static void SubscribeToAcceptJson( MQTTAgentHandle_t pxMQTTAgent )
 {
-    uint8_t * topic = "$aws/things/" clientcredentialIOT_THING_NAME
-                      "/defender/metrics/json/accepted";
-    MQTTAgentSubscribeParams_t sub_params =
+    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/" clientcredentialIOT_THING_NAME
+                         "/defender/metrics/json/accepted";
+    MQTTAgentSubscribeParams_t xSubscriptionParams =
     {
-        .pucTopic                 = topic,
-        .usTopicLength            = strlen( topic ),
+        .pucTopic                 = pucTopic,
+        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
         .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
-        .pxPublishCallback        = test_accept_callback,
+        .pxPublishCallback        = testAcceptCallback,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t sub_result =
-        MQTT_AGENT_Subscribe( mqtt_agent, &sub_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t eSubscriptionResult =
+        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == sub_result,
-                         "Failed to subscribe to topic" );
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
+                         "Failed to subscribe to pucTopic" );
 }
 
-static void SubscribeToRejectJson( MQTTAgentHandle_t mqtt_agent )
+static void SubscribeToRejectJson( MQTTAgentHandle_t pxMQTTAgent )
 {
-    uint8_t * topic = "$aws/things/" clientcredentialIOT_THING_NAME
-                      "/defender/metrics/json/rejected";
-    MQTTAgentSubscribeParams_t sub_params =
+    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/" clientcredentialIOT_THING_NAME
+                         "/defender/metrics/json/rejected";
+    MQTTAgentSubscribeParams_t xSubscriptionParams =
     {
-        .pucTopic                 = topic,
-        .usTopicLength            = strlen( topic ),
+        .pucTopic                 = pucTopic,
+        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
         .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
-        .pxPublishCallback        = test_reject_callback,
+        .pxPublishCallback        = testRejectCallback,
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t sub_result =
-        MQTT_AGENT_Subscribe( mqtt_agent, &sub_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t eSubscriptionResult =
+        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == sub_result,
-                         "Failed to subscribe to topic" );
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
+                         "Failed to subscribe to pucTopic" );
 }
 
-static void PublishJsonToDevDef( MQTTAgentHandle_t mqtt_agent,
-                                 char const * report )
+static void PublishJsonToDevDef( MQTTAgentHandle_t pxMQTTAgent,
+                                 char const * pcReport )
 {
-    uint8_t * topic =
-        "$aws/things/" clientcredentialIOT_THING_NAME "/defender/metrics/json";
+    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/"
+                         clientcredentialIOT_THING_NAME
+                         "/defender/metrics/json";
 
-    MQTTAgentPublishParams_t pub_rec_params =
+    MQTTAgentPublishParams_t xPubRecParams =
     {
-        .pucTopic      = topic,
-        .usTopicLength = ( uint16_t ) strlen( topic ),
+        .pucTopic      = pucTopic,
+        .usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic ),
         .xQoS          = eMQTTQoS0,
-        .pvData        = report,
-        .ulDataLength  = strlen( report ),
+        .pvData        = pcReport,
+        .ulDataLength  = ( uint16_t ) strlen( pcReport ),
     };
-    TickType_t const timeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t publish_result =
-        MQTT_AGENT_Publish( mqtt_agent, &pub_rec_params, timeout );
+    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t ePublishResult =
+        MQTT_AGENT_Publish( pxMQTTAgent, &xPubRecParams, xTimeout );
 
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == publish_result,
-                         "Failed to publish JSON report to topic" );
+    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == ePublishResult,
+                         "Failed to publish JSON pcReport to pucTopic" );
 }
 
 /*----------------------------------------------------------------------------*/
-#define DEFENDER_AssertStateAndWait( state )                   \
-    do                                                         \
-    {                                                          \
-        TEST_ASSERT_EQUAL_MESSAGE(                             \
-            state, DEFENDER_StateGet(), "Expected " # state ); \
-        while( state == DEFENDER_StateGet() ) {; }             \
+#define DEFENDER_AssertStateAndWait( state )                     \
+    do {                                                         \
+        TEST_ASSERT_EQUAL_STRING( StateAsString( state ),        \
+                                  StateAsString( StateGet() ) ); \
+        while( state == StateGet() ) {                           \
+            ;                                                    \
+        }                                                        \
     } while( 0 )
 
-#define DEFENDER_AssertState( state ) \
-    TEST_ASSERT_EQUAL_MESSAGE( state, DEFENDER_StateGet(), "Expected " # state )
+#define DEFENDER_AssertState( state )                 \
+    TEST_ASSERT_EQUAL_STRING( StateAsString( state ), \
+                              StateAsString( StateGet() ) );
 
 TEST( Full_DEFENDER, agent_happy_states )
 {
     ( void ) DEFENDER_MetricsInitFunc( NULL, 0 );
 
-    int report_period = 5;
-    ( void ) DEFENDER_ReportPeriodSet( report_period );
+    int lReportPeriod = 5;
+    ( void ) DEFENDER_ReportPeriodSet( lReportPeriod );
 
     DEFENDER_Start();
 
-    while( eDEFENDER_STATE_INIT == DEFENDER_StateGet() )
+    while( eDefenderStateInit == StateGet() )
     {
     }
 
     /* The following asserts the flow of the device defender agent's state
      * machine, assuming no errors occur */
-    DEFENDER_AssertStateAndWait( eDEFENDER_STATE_STARTED );
-    DEFENDER_AssertStateAndWait( eDEFENDER_STATE_NEW_MQTT_SUCCESS );
-    DEFENDER_AssertStateAndWait( eDEFENDER_STATE_CONNECT_MQTT_SUCCESS );
-    DEFENDER_AssertStateAndWait( eDEFENDER_STATE_SUBSCRIBE_MQTT_SUCCESS );
-    DEFENDER_AssertStateAndWait( eDEFENDER_STATE_SUBMIT_REPORT_SUCCESS );
-    DEFENDER_AssertStateAndWait( eDEFENDER_STATE_DISCONNECTED );
-    DEFENDER_AssertStateAndWait( eDEFENDER_STATE_SLEEP );
-    DEFENDER_AssertState( eDEFENDER_STATE_STARTED );
+    DEFENDER_AssertStateAndWait( eDefenderStateStarted );
+    DEFENDER_AssertStateAndWait( eDefenderStateNewMqttSuccess );
+    DEFENDER_AssertStateAndWait( eDefenderStateConnectMqttSuccess );
+    DEFENDER_AssertStateAndWait( eDefenderStateSubscribeMqttSuccess );
+    DEFENDER_AssertStateAndWait( eDefenderStateSubmitReportSuccess );
+    DEFENDER_AssertStateAndWait( eDefenderStateDisconnected );
+    DEFENDER_AssertStateAndWait( eDefenderStateSleep );
+    DEFENDER_AssertState( eDefenderStateStarted );
 
     DEFENDER_Stop();
 }
 
 TEST( Full_DEFENDER, endpoint_accepts_report_from_agent )
 {
-    int32_t const lStrLen = 128;
-    char pcFailStr[ 128 ] = { 0 };
+    int32_t const lMaxStrLen = 128;
+    char cFailStr[ 128 ] = { 0 };
 
-    DefenderMetric_t metrics_list[] =
+    DefenderMetric_t xMetricsList[] =
     {
-        pxDEFENDER_tcp_connections,
+        xDefenderTCPConnections,
     };
 
-    ( void ) DEFENDER_MetricsInit( metrics_list );
+    ( void ) DEFENDER_MetricsInit( xMetricsList );
 
-    int report_period_sec = 20;
-    ( void ) DEFENDER_ReportPeriodSet( report_period_sec );
+    int32_t lReportPeriodSec = 20;
+    ( void ) DEFENDER_ReportPeriodSet( lReportPeriodSec );
 
     DEFENDER_Start();
 
-    while( eDEFENDER_STATE_SLEEP != DEFENDER_StateGet() )
+    while( eDefenderStateSleep != StateGet() )
     {
     }
 
     DEFENDER_Stop();
 
-    DefenderReportStatus_t report_status = DEFENDER_ReportStatusGet();
+    DefenderReportStatus_t eReportStatus = DEFENDER_ReportStatusGet();
 
-    if( eDefenderRepRejected == report_status )
-    {
-        ( void ) snprintf( pcFailStr, lStrLen, "Metrics report (ID %d) was rejected.",
-                           DEFENDER_GetLastReportId() );
-        TEST_FAIL_MESSAGE( pcFailStr );
-    }
-
-    if( eDefenderRepNoAck == report_status )
-    {
-        ( void ) snprintf( pcFailStr, lStrLen,
-                           "Metrics report (ID %d) was not acknowledged.",
-                           DEFENDER_GetLastReportId() );
-        TEST_FAIL_MESSAGE( pcFailStr );
-    }
-
-    ( void ) snprintf( pcFailStr, lStrLen, "Metrics report ID: %d",
-                       DEFENDER_GetLastReportId() );
-    TEST_ASSERT_EQUAL_MESSAGE( eDefenderRepSuccess, report_status, pcFailStr );
+    ( void ) snprintf( cFailStr, lMaxStrLen, "Metrics pcReport ID: %d",
+                       ( int ) GetLastReportId() );
+    TEST_ASSERT_EQUAL_STRING_MESSAGE(
+        DEFENDER_ReportStatusAsString( eDefenderRepSuccess ),
+        DEFENDER_ReportStatusAsString( eReportStatus ), cFailStr );
 }

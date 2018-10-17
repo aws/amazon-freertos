@@ -76,11 +76,11 @@ cbor_byte_t * CBOR_NextPtr( const cbor_byte_t * pxPtr )
     return ( cbor_byte_t * ) pxPtr;
 }
 
-void CBOR_Next( cbor_handle_t pxCbor_data )
+void CBOR_Next( CBORHandle_t xCborData )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
 
-    pxCbor_data->cursor = CBOR_NextPtr( pxCbor_data->cursor );
+    xCborData->pxCursor = CBOR_NextPtr( xCborData->pxCursor );
 }
 
 cbor_byte_t * CBOR_NextKeyPtr( const cbor_byte_t * pxPtr )
@@ -101,20 +101,20 @@ cbor_byte_t * CBOR_NextKeyPtr( const cbor_byte_t * pxPtr )
 
     if( CBOR_IsOpenMap( xJump_type ) )
     {
-        int xDepth = 1;
+        int lDepth = 1;
 
-        while( 0 < xDepth )
+        while( 0 < lDepth )
         {
             pxPtr = CBOR_NextPtr( pxPtr );
             xJump_type = *( pxPtr );
 
             if( CBOR_IsBreak( xJump_type ) )
             {
-                xDepth--;
+                lDepth--;
             }
             else if( CBOR_IsOpenMap( xJump_type ) )
             {
-                xDepth++;
+                lDepth++;
             }
         }
     }
@@ -124,23 +124,23 @@ cbor_byte_t * CBOR_NextKeyPtr( const cbor_byte_t * pxPtr )
     return ( cbor_byte_t * ) pxPtr;
 }
 
-void CBOR_NextKey( cbor_handle_t pxCbor_data )
+void CBOR_NextKey( CBORHandle_t xCborData )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
 
-    cbor_byte_t * pxPtr = CBOR_NextKeyPtr( pxCbor_data->cursor );
+    cbor_byte_t * pxPtr = CBOR_NextKeyPtr( xCborData->pxCursor );
 
-    assert( pxCbor_data->buffer_start <= pxPtr );
-    assert( pxCbor_data->buffer_end >= pxPtr );
-    assert( ( pxCbor_data->map_end + 1 ) >= pxPtr );
+    assert( xCborData->pxBufferStart <= pxPtr );
+    assert( xCborData->pxBufferEnd >= pxPtr );
+    assert( ( xCborData->pxMapEnd + 1 ) >= pxPtr );
 
-    pxCbor_data->cursor = pxPtr;
+    xCborData->pxCursor = pxPtr;
 }
 
-void CBOR_SetCursor( cbor_handle_t pxCbor_data,
+void CBOR_SetCursor( CBORHandle_t xCborData,
                      cbor_ssize_t xPos )
 {
-    assert( NULL != pxCbor_data );
+    assert( NULL != xCborData );
 
-    pxCbor_data->cursor = &( pxCbor_data->buffer_start[ xPos ] );
+    xCborData->pxCursor = &( xCborData->pxBufferStart[ xPos ] );
 }

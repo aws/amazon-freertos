@@ -30,26 +30,26 @@
 
 typedef struct test_next_s
 {
-    cbor_byte_t buffer[ 32 ];
-    cbor_int_t initial_index;
-    cbor_int_t expected_index;
-    char * message;
+    cbor_byte_t xBuffer[ 32 ];
+    int lInitialIndex;
+    int lExpectedIndex;
+    char * pcMessage;
 } test_next_t;
 
-cbor_handle_t cbor_data;
-const test_next_t * test_case;
+CBORHandle_t xCborData;
+const test_next_t * pxTestCase;
 
 TEST_GROUP( aws_cbor_iter );
 TEST_SETUP( aws_cbor_iter )
 {
-    cbor_data = CBOR_New( 0 );
-    test_case = NULL;
+    xCborData = CBOR_New( 0 );
+    pxTestCase = NULL;
 }
 
 TEST_TEAR_DOWN( aws_cbor_iter )
 {
-    CBOR_Delete( &cbor_data );
-    test_case = NULL;
+    CBOR_Delete( &xCborData );
+    pxTestCase = NULL;
 }
 
 TEST_GROUP_RUNNER( aws_cbor_iter )
@@ -63,407 +63,407 @@ TEST_GROUP_RUNNER( aws_cbor_iter )
 }
 
 #define NEXT_TEST_CASE_COUNT    ( 12 )
-const test_next_t next_test_cases[ NEXT_TEST_CASE_COUNT ] =
+const test_next_t xNextTestCases[ NEXT_TEST_CASE_COUNT ] =
 {
     {
-        .message = "next from open map goes to first key",
-        .buffer =
+        .pcMessage = "next from open map goes to first key",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x00,     /* 3  0                */
-            0xFF,     /* 4  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x00, /* 3  0                */
+            0xFF, /* 4  End of map       */
         },
-        .initial_index = 0,
-        .expected_index = 1,
+        .lInitialIndex = 0,
+        .lExpectedIndex = 1,
     },
     {
-        .message = "next from key goes to its value",
-        .buffer =
+        .pcMessage = "next from key goes to its value",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x00,     /* 3  0                */
-            0xFF,     /* 4  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x00, /* 3  0                */
+            0xFF, /* 4  End of map       */
         },
-        .initial_index = 1,
-        .expected_index = 3,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 3,
     },
     {
-        .message = "next from value goes to next key",
-        .buffer =
+        .pcMessage = "next from value goes to next key",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x00,     /* 3  0                */
-            0x61,     /* 4  Key of length 1  */
-            'b',      /* 5                   */
-            0x00,     /* 6  0                */
-            0xFF,     /* 7  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x00, /* 3  0                */
+            0x61, /* 4  Key of length 1  */
+            'b',  /* 5                   */
+            0x00, /* 6  0                */
+            0xFF, /* 7  End of map       */
         },
-        .initial_index = 3,
-        .expected_index = 4,
+        .lInitialIndex = 3,
+        .lExpectedIndex = 4,
     },
     {
-        .message = "next from last value goes to break",
-        .buffer =
+        .pcMessage = "next from last value goes to break",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x02,     /* 3  0                */
-            0x61,     /* 4  Key of length 1  */
-            'b',      /* 5                   */
-            0x17,     /* 6  0x17, 23         */
-            0xFF,     /* 7  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x02, /* 3  0                */
+            0x61, /* 4  Key of length 1  */
+            'b',  /* 5                   */
+            0x17, /* 6  0x17, 23         */
+            0xFF, /* 7  End of map       */
         },
-        .initial_index = 6,
-        .expected_index = 7,
+        .lInitialIndex = 6,
+        .lExpectedIndex = 7,
     },
     {
-        .message = "1 byte cbor_int_t jump",
-        .buffer =
+        .pcMessage = "1 byte int jump",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x18,     /* 3  1-byte uint      */
-            0x41,     /* 4                   */
-            0x61,     /* 5  Key of length 1  */
-            'b',      /* 6                   */
-            0x00,     /* 7  0                */
-            0xFF,     /* 8  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x18, /* 3  1-byte uint      */
+            0x41, /* 4                   */
+            0x61, /* 5  Key of length 1  */
+            'b',  /* 6                   */
+            0x00, /* 7  0                */
+            0xFF, /* 8  End of map       */
         },
-        .initial_index = 3,
-        .expected_index = 5,
+        .lInitialIndex = 3,
+        .lExpectedIndex = 5,
     },
     {
-        .message = "2 byte cbor_int_t jump",
-        .buffer =
+        .pcMessage = "2 byte int jump",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x19,     /* 3  2-byte uint      */
-            0xDE,     /* 4                   */
-            0xA1,     /* 5                   */
-            0x61,     /* 6  Key of length 1  */
-            'b',      /* 7                   */
-            0x00,     /* 8  0                */
-            0xFF,     /* 9  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x19, /* 3  2-byte uint      */
+            0xDE, /* 4                   */
+            0xA1, /* 5                   */
+            0x61, /* 6  Key of length 1  */
+            'b',  /* 7                   */
+            0x00, /* 8  0                */
+            0xFF, /* 9  End of map       */
         },
-        .initial_index = 3,
-        .expected_index = 6,
+        .lInitialIndex = 3,
+        .lExpectedIndex = 6,
     },
     {
-        .message = "4 byte cbor_int_t jump",
-        .buffer =
+        .pcMessage = "4 byte int jump",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x1A,     /* 3  4-byte uint      */
-            0xDE,     /* 4                   */
-            0xAD,     /* 5                   */
-            0xBE,     /* 6                   */
-            0xEF,     /* 7                   */
-            0x61,     /* 8  Key of length 1  */
-            'b',      /* 9                   */
-            0x00,     /* 10 0                */
-            0xFF,     /* 11 End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x1A, /* 3  4-byte uint      */
+            0xDE, /* 4                   */
+            0xAD, /* 5                   */
+            0xBE, /* 6                   */
+            0xEF, /* 7                   */
+            0x61, /* 8  Key of length 1  */
+            'b',  /* 9                   */
+            0x00, /* 10 0                */
+            0xFF, /* 11 End of map       */
         },
-        .initial_index = 3,
-        .expected_index = 8,
+        .lInitialIndex = 3,
+        .lExpectedIndex = 8,
     },
     {
-        .message = "small negative integer",
-        .buffer =
+        .pcMessage = "small negative integer",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x24,     /* 3  -5               */
-            0xFF,     /* 4  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x24, /* 3  -5               */
+            0xFF, /* 4  End of map       */
         },
-        .initial_index = 1,
-        .expected_index = 3,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 3,
     },
     {
-        .message = "key of size 3",
-        .buffer =
+        .pcMessage = "key of size 3",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x63,     /* 1  Key of length 3  */
-            'f',      /* 2                   */
-            'o',      /* 3                   */
-            'o',      /* 4                   */
-            0x24,     /* 5  -5               */
-            0xFF,     /* 6  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x63, /* 1  Key of length 3  */
+            'f',  /* 2                   */
+            'o',  /* 3                   */
+            'o',  /* 4                   */
+            0x24, /* 5  -5               */
+            0xFF, /* 6  End of map       */
         },
-        .initial_index = 1,
-        .expected_index = 5,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 5,
     },
     {
-        .message = "Iterate into map",
-        .buffer =
+        .pcMessage = "Iterate into map",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0xBF,     /* 3  Open Map         */
-            0x61,     /* 4  Key of length 1  */
-            'b',      /* 5                   */
-            0x24,     /* 6  -5               */
-            0xFF,     /* 7  End of map       */
-            0x61,     /* 8  Key of length 1  */
-            'b',      /* 9                   */
-            0x25,     /* 10 -6               */
-            0xFF,     /* 11 End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0xBF, /* 3  Open Map         */
+            0x61, /* 4  Key of length 1  */
+            'b',  /* 5                   */
+            0x24, /* 6  -5               */
+            0xFF, /* 7  End of map       */
+            0x61, /* 8  Key of length 1  */
+            'b',  /* 9                   */
+            0x25, /* 10 -6               */
+            0xFF, /* 11 End of map       */
         },
-        .initial_index = 1,
-        .expected_index = 3,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 3,
     },
     {
-        .message = "Iterate into map part 2",
-        .buffer =
+        .pcMessage = "Iterate into map part 2",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0xBF,     /* 3  Open Map         */
-            0x61,     /* 4  Key of length 1  */
-            'b',      /* 5                   */
-            0x24,     /* 6  -5               */
-            0xFF,     /* 7  End of map       */
-            0x61,     /* 8  Key of length 1  */
-            'b',      /* 9                   */
-            0x25,     /* 10 -6               */
-            0xFF,     /* 11 End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0xBF, /* 3  Open Map         */
+            0x61, /* 4  Key of length 1  */
+            'b',  /* 5                   */
+            0x24, /* 6  -5               */
+            0xFF, /* 7  End of map       */
+            0x61, /* 8  Key of length 1  */
+            'b',  /* 9                   */
+            0x25, /* 10 -6               */
+            0xFF, /* 11 End of map       */
         },
-        .initial_index = 3,
-        .expected_index = 4,
+        .lInitialIndex = 3,
+        .lExpectedIndex = 4,
     },
     {
-        .message = "Iterate into map part 3",
-        .buffer =
+        .pcMessage = "Iterate into map part 3",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0xBF,     /* 3  Open Map         */
-            0x61,     /* 4  Key of length 1  */
-            'b',      /* 5                   */
-            0x24,     /* 6  -5               */
-            0xFF,     /* 7  End of map       */
-            0x61,     /* 8  Key of length 1  */
-            'b',      /* 9                   */
-            0x25,     /* 10 -6               */
-            0xFF,     /* 11 End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0xBF, /* 3  Open Map         */
+            0x61, /* 4  Key of length 1  */
+            'b',  /* 5                   */
+            0x24, /* 6  -5               */
+            0xFF, /* 7  End of map       */
+            0x61, /* 8  Key of length 1  */
+            'b',  /* 9                   */
+            0x25, /* 10 -6               */
+            0xFF, /* 11 End of map       */
         },
-        .initial_index = 7,
-        .expected_index = 8,
+        .lInitialIndex = 7,
+        .lExpectedIndex = 8,
     },
 };
 
 void test_Next( void )
 {
-    CBOR_SetCursor( cbor_data, 0 );
-    CBOR_MemCopy( cbor_data, test_case->buffer, sizeof( test_case->buffer ) );
-    CBOR_SetCursor( cbor_data, test_case->initial_index );
-    CBOR_Next( cbor_data );
-    cbor_ssize_t actual_index = cbor_data->cursor - cbor_data->buffer_start;
+    CBOR_SetCursor( xCborData, 0 );
+    CBOR_MemCopy( xCborData, pxTestCase->xBuffer, sizeof( pxTestCase->xBuffer ) );
+    CBOR_SetCursor( xCborData, pxTestCase->lInitialIndex );
+    CBOR_Next( xCborData );
+    cbor_ssize_t xActualIndex = xCborData->pxCursor - xCborData->pxBufferStart;
     TEST_ASSERT_EQUAL_MESSAGE(
-        test_case->expected_index, actual_index, test_case->message );
+        pxTestCase->lExpectedIndex, xActualIndex, pxTestCase->pcMessage );
 }
 
 TEST( aws_cbor_iter, Next )
 {
-    for( cbor_int_t i = 0; i < NEXT_TEST_CASE_COUNT; i++ )
+    for( int i = 0; i < NEXT_TEST_CASE_COUNT; i++ )
     {
-        test_case = &next_test_cases[ i ];
+        pxTestCase = &xNextTestCases[ i ];
         RUN_TEST( test_Next );
     }
 }
 
 TEST( aws_cbor_iter, Next_asserts_default_case )
 {
-    CBOR_SetCursor( cbor_data, 0 );
-    *cbor_data->cursor = CBOR_TAG;
-    TEST_EXPECT_ASSERT( CBOR_Next( cbor_data ) );
+    CBOR_SetCursor( xCborData, 0 );
+    *xCborData->pxCursor = CBOR_TAG;
+    xTEST_expect_assert( CBOR_Next( xCborData ) );
 }
 
 #define NEXT_KEY_TEST_CASE_COUNT    ( 7 )
-const test_next_t next_key_test_cases[ NEXT_KEY_TEST_CASE_COUNT ] =
+const test_next_t xNextKeyTestCases[ NEXT_KEY_TEST_CASE_COUNT ] =
 {
     {
-        .message = "next from open map goes to first key",
-        .buffer =
+        .pcMessage = "next from open map goes to first key",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x00,     /* 3  0                */
-            0x61,     /* 4  Key of length 1  */
-            'b',      /* 5                   */
-            0x00,     /* 6  0                */
-            0xFF,     /* 7  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x00, /* 3  0                */
+            0x61, /* 4  Key of length 1  */
+            'b',  /* 5                   */
+            0x00, /* 6  0                */
+            0xFF, /* 7  End of map       */
         },
-        .initial_index = 0,
-        .expected_index = 1,
+        .lInitialIndex = 0,
+        .lExpectedIndex = 1,
     },
     {
-        .message = "next key first key goes to second key",
-        .buffer =
+        .pcMessage = "next key first key goes to second key",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0x00,     /* 3  0                */
-            0x61,     /* 4  Key of length 1  */
-            'b',      /* 5                   */
-            0x00,     /* 6  0                */
-            0xFF,     /* 7  End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0x00, /* 3  0                */
+            0x61, /* 4  Key of length 1  */
+            'b',  /* 5                   */
+            0x00, /* 6  0                */
+            0xFF, /* 7  End of map       */
         },
-        .initial_index = 1,
-        .expected_index = 4,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 4,
     },
     {
-        .message = "Next key after map",
-        .buffer =
+        .pcMessage = "Next key after map",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map         */
-            0x61,     /* 1  Key of length 1  */
-            'a',      /* 2                   */
-            0xBF,     /* 3  Open Map         */
-            0x61,     /* 4  Key of length 1  */
-            'b',      /* 5                   */
-            0x24,     /* 6  -5               */
-            0xFF,     /* 7  End of map       */
-            0x61,     /* 8  Key of length 1  */
-            'b',      /* 9                   */
-            0x25,     /* 10 -6               */
-            0xFF,     /* 11 End of map       */
+            0xBF, /* 0  Open Map         */
+            0x61, /* 1  Key of length 1  */
+            'a',  /* 2                   */
+            0xBF, /* 3  Open Map         */
+            0x61, /* 4  Key of length 1  */
+            'b',  /* 5                   */
+            0x24, /* 6  -5               */
+            0xFF, /* 7  End of map       */
+            0x61, /* 8  Key of length 1  */
+            'b',  /* 9                   */
+            0x25, /* 10 -6               */
+            0xFF, /* 11 End of map       */
         },
-        .initial_index = 1,
-        .expected_index = 8,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 8,
     },
     {
-        .message = "Next key after string",
-        .buffer =
+        .pcMessage = "Next key after string",
+        .xBuffer =
         {
-            0xBF,     /* 0 Open Map           */
-            0x61,     /* 1 Key of length 1    */
-            'a',      /* 2                    */
-            0x61,     /* 3 String of length 1 */
-            'f',      /* 4                    */
-            0x61,     /* 5 Key of length 1    */
-            'b',      /* 6                    */
-            0x25,     /* 7 -6                 */
-            0xFF,     /* 8 End of map         */
+            0xBF, /* 0 Open Map           */
+            0x61, /* 1 Key of length 1    */
+            'a',  /* 2                    */
+            0x61, /* 3 String of length 1 */
+            'f',  /* 4                    */
+            0x61, /* 5 Key of length 1    */
+            'b',  /* 6                    */
+            0x25, /* 7 -6                 */
+            0xFF, /* 8 End of map         */
         },
-        .initial_index = 1,
-        .expected_index = 5,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 5,
     },
     {
-        .message = "Next key after byte string",
-        .buffer =
+        .pcMessage = "Next key after byte string",
+        .xBuffer =
         {
-            0xBF,     /* 0 Open Map                */
-            0x61,     /* 1 Key of length 1         */
-            'a',      /* 2                         */
-            0x41,     /* 3 Byte String of length 1 */
-            0x10,     /* 4                         */
-            0x61,     /* 5 Key of length 1         */
-            'b',      /* 6                         */
-            0x25,     /* 7 -6                      */
-            0xFF,     /* 8 End of map              */
+            0xBF, /* 0 Open Map                */
+            0x61, /* 1 Key of length 1         */
+            'a',  /* 2                         */
+            0x41, /* 3 Byte String of length 1 */
+            0x10, /* 4                         */
+            0x61, /* 5 Key of length 1         */
+            'b',  /* 6                         */
+            0x25, /* 7 -6                      */
+            0xFF, /* 8 End of map              */
         },
-        .initial_index = 1,
-        .expected_index = 5,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 5,
     },
     {
-        .message = "Next key after last key",
-        .buffer =
+        .pcMessage = "Next key after last key",
+        .xBuffer =
         {
-            0xBF,     /* 0 Open Map                */
-            0x61,     /* 1 Key of length 1         */
-            'a',      /* 2                         */
-            0x41,     /* 3 Byte String of length 1 */
-            0x10,     /* 4                         */
-            0x61,     /* 5 Key of length 1         */
-            'b',      /* 6                         */
-            0x25,     /* 7 -6                      */
-            0xFF,     /* 8 End of map              */
+            0xBF, /* 0 Open Map                */
+            0x61, /* 1 Key of length 1         */
+            'a',  /* 2                         */
+            0x41, /* 3 Byte String of length 1 */
+            0x10, /* 4                         */
+            0x61, /* 5 Key of length 1         */
+            'b',  /* 6                         */
+            0x25, /* 7 -6                      */
+            0xFF, /* 8 End of map              */
         },
-        .initial_index = 5,
-        .expected_index = 8,
+        .lInitialIndex = 5,
+        .lExpectedIndex = 8,
     },
     {
-        .message = "Next key after nested map",
-        .buffer =
+        .pcMessage = "Next key after nested map",
+        .xBuffer =
         {
-            0xBF,     /* 0  Open Map 1      */
-            0x61,     /* 1  Key of length 1 */
-            'm',      /* 2                  */
-            0xBF,     /* 3  Open Map 2      */
-            0x61,     /* 4  Key of length 1 */
-            'n',      /* 5                  */
-            0xBF,     /* 6  Open Map 3      */
-            0xFF,     /* 7  End of map 3    */
-            0xFF,     /* 8  End of map 2    */
-            0x61,     /* 9  Key of length 1 */
-            'b',      /* 10                 */
-            0x25,     /* 11 -6              */
-            0xFF,     /* 12 End of map 1    */
+            0xBF, /* 0  Open Map 1      */
+            0x61, /* 1  Key of length 1 */
+            'm',  /* 2                  */
+            0xBF, /* 3  Open Map 2      */
+            0x61, /* 4  Key of length 1 */
+            'n',  /* 5                  */
+            0xBF, /* 6  Open Map 3      */
+            0xFF, /* 7  End of map 3    */
+            0xFF, /* 8  End of map 2    */
+            0x61, /* 9  Key of length 1 */
+            'b',  /* 10                 */
+            0x25, /* 11 -6              */
+            0xFF, /* 12 End of map 1    */
         },
-        .initial_index = 1,
-        .expected_index = 9,
+        .lInitialIndex = 1,
+        .lExpectedIndex = 9,
     },
 };
 
 void test_NextKey( void )
 {
-    CBOR_SetCursor( cbor_data, 0 );
-    CBOR_MemCopy( cbor_data, test_case->buffer, sizeof( test_case->buffer ) );
-    cbor_data->map_end = cbor_data->cursor - 1;
-    CBOR_SetCursor( cbor_data, test_case->initial_index );
-    CBOR_NextKey( cbor_data );
-    cbor_ssize_t actual_index = cbor_data->cursor - cbor_data->buffer_start;
+    CBOR_SetCursor( xCborData, 0 );
+    CBOR_MemCopy( xCborData, pxTestCase->xBuffer, sizeof( pxTestCase->xBuffer ) );
+    xCborData->pxMapEnd = xCborData->pxCursor - 1;
+    CBOR_SetCursor( xCborData, pxTestCase->lInitialIndex );
+    CBOR_NextKey( xCborData );
+    cbor_ssize_t xActualIndex = xCborData->pxCursor - xCborData->pxBufferStart;
     TEST_ASSERT_EQUAL_MESSAGE(
-        test_case->expected_index, actual_index, test_case->message );
+        pxTestCase->lExpectedIndex, xActualIndex, pxTestCase->pcMessage );
 }
 
 TEST( aws_cbor_iter, NextKey )
 {
-    for( cbor_int_t i = 0; i < NEXT_KEY_TEST_CASE_COUNT; i++ )
+    for( int i = 0; i < NEXT_KEY_TEST_CASE_COUNT; i++ )
     {
-        test_case = &next_key_test_cases[ i ];
+        pxTestCase = &xNextKeyTestCases[ i ];
         RUN_TEST( test_NextKey );
     }
 }
 
 TEST( aws_cbor_iter, SetCursor )
 {
-    cbor_int_t expected_position = 0;
+    int lExpectedPosition = 0;
 
-    CBOR_SetCursor( cbor_data, expected_position );
+    CBOR_SetCursor( xCborData, lExpectedPosition );
     TEST_ASSERT_EQUAL_PTR(
-        &( cbor_data->buffer_start[ expected_position ] ), cbor_data->cursor );
+        &( xCborData->pxBufferStart[ lExpectedPosition ] ), xCborData->pxCursor );
 
-    expected_position = 3;
-    CBOR_SetCursor( cbor_data, expected_position );
+    lExpectedPosition = 3;
+    CBOR_SetCursor( xCborData, lExpectedPosition );
     TEST_ASSERT_EQUAL_PTR(
-        &( cbor_data->buffer_start[ expected_position ] ), cbor_data->cursor );
+        &( xCborData->pxBufferStart[ lExpectedPosition ] ), xCborData->pxCursor );
 }
 
 TEST( aws_cbor_iter, null_checks )
 {
-    TEST_EXPECT_ASSERT( CBOR_NextPtr( NULL ) );
-    TEST_EXPECT_ASSERT( CBOR_Next( NULL ) );
-    TEST_EXPECT_ASSERT( CBOR_NextKeyPtr( NULL ) );
-    TEST_EXPECT_ASSERT( CBOR_NextKey( NULL ) );
-    TEST_EXPECT_ASSERT( CBOR_SetCursor( NULL, 0 ) );
+    xTEST_expect_assert( CBOR_NextPtr( NULL ) );
+    xTEST_expect_assert( CBOR_Next( NULL ) );
+    xTEST_expect_assert( CBOR_NextKeyPtr( NULL ) );
+    xTEST_expect_assert( CBOR_NextKey( NULL ) );
+    xTEST_expect_assert( CBOR_SetCursor( NULL, 0 ) );
 }

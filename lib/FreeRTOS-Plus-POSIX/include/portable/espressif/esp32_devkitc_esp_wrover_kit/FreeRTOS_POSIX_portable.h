@@ -46,7 +46,7 @@
 #define posixconfigENABLE_TIMESPEC               0
 #define posixconfigENABLE_ITIMERSPEC             0
 
-/* ESP-IDF already provides the headers pthread.h and sched.h. Exclude them by
+/* ESP-IDF already provides the header sched.h. Exclude them by
  * activating the double inclusion guards. */
 #define _FREERTOS_POSIX_SCHED_H_
 

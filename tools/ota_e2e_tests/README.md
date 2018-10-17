@@ -10,9 +10,7 @@
 2. Install the required python libraries:  
 `pip3 install pyopenssl pyserial junit-xml boto3`
 3. Install the AWS CLI: https://aws.amazon.com/cli/
-4. Install the AWS CLI code signing tools: https://tools.signer.aws.a2z.com/awssigner-tools-v2.zip
-Follow the README file within for installation instructions for the AWS CLI.
-5. Configure the AWS CLI from the terminal:  
+4. Configure the AWS CLI from the terminal:  
     `aws configure`  
     * If you don't have your **AWS Secret Access Key** saved on your machine, then get the **AWS Access Key ID** and the **AWS Secret Access Key** with https://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html  
     * Set the **Default region name** as the same region you will create OTA update jobs from, example: `us-west-2`  
@@ -33,13 +31,13 @@ the `"aws_untrusted_signer_certificate_arn"` board config value.
 ## Running the tests
 
 * Run all of the tests on board specified in board.json:  
-`python ota_e2e.py --board-config board.json`
+`python ota_e2e.py --board-configs board.json`
 
 * Run all of the tests on directory of board configurations:  
 `python ota_e2e.py --board-config-dir C:/example_dir/board_configs/`
   
 * Run only the specified tests:  
-`python ota_e2e.py --board-config board.json --tests OtaTestGreaterVersion`  
+`python ota_e2e.py --board-configs board.json --tests OtaTestGreaterVersion`  
 The names of the available tests are pre-filled in board.json under the `"supported_tests"` field.
   
 * More options specified in --help:  

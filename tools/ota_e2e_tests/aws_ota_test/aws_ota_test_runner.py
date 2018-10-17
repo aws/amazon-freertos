@@ -24,7 +24,6 @@ http://www.FreeRTOS.org
 
 """
 import os
-import traceback
 from .aws_flash_serial_comm import FlashSerialComm
 from .aws_ota_project import OtaAfrProject
 from .aws_ota_aws_agent import OtaAwsAgent
@@ -56,11 +55,11 @@ class OtaTestRunner:
     def __init__(self, boardConfig, stageParams):
         self._boardConfig = boardConfig
         self._stageParams = stageParams
-
-        # Initialize all objects needed by test cases.
-        self._flashComm = FlashSerialComm(boardConfig['flash_config'])
-        self._otaProject = OtaAfrProject(os.path.join(boardConfig['afr_root'], boardConfig['demos_or_tests']), boardConfig['vendor_board_path'], boardConfig['build_config'])
         self._otaConfig = boardConfig['ota_config']
+        
+        # Initialize all objects needed by test cases.
+        self._flashComm = FlashSerialComm(boardConfig['flash_config'], boardConfig['flash_config']['output'], self._otaConfig['device_firmware_file_name'])
+        self._otaProject = OtaAfrProject(os.path.join(boardConfig['afr_root'], boardConfig['demos_or_tests']), boardConfig['vendor_board_path'], boardConfig['build_config'])
         self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig['aws_ota_update_role_arn'], self._otaConfig['aws_s3_bucket_name'], stageParams, True)
 
         # Get the test cases from the board's ota config.
@@ -77,6 +76,8 @@ class OtaTestRunner:
             self._otaProject.setClientCredentialForThingName(self._otaAwsAgent.getThingName())
             self._otaProject.setClientCredentialKeys(self._otaAwsAgent.getThingCertificate(), self._otaAwsAgent.getThingPrivateKey())
             self._otaProject.copyCodesignerCertificateToBootloader(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
+            self._otaProject.setMqttLogsOn()
+            self._otaProject.setFreeRtosConfigNetworkInterface(self._boardConfig.get('windows_network_interface', 0))
             if self._otaConfig.get('compile_codesigner_certificate', False):
                 self._otaProject.setCodesignerCertificate(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
             if self._stageParams:
@@ -122,11 +123,7 @@ class OtaTestRunner:
         - Flash the code built. 
         """
         testResult = OtaTestResult(testName='InvalidTest', result=OtaTestResult.FAIL, reason='Initialized test result.')
-        try:
-            testResult = otaTestCase.runTest()
-        except Exception as e:
-            print(traceback.format_exc())
-            testResult = OtaTestResult(testName=otaTestCase.NAME, result=OtaTestResult.FAIL, reason='Python exception occurred in the test case, see the log for the error.')
+        testResult = otaTestCase.runTest()
 
         testResult.board = self._boardConfig['name']
         return testResult

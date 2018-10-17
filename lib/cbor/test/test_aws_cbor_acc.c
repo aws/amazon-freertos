@@ -60,23 +60,23 @@ TEST( aws_cbor_acceptance, assign_and_read_supported_types )
     /* } */
 
     /* Write the key value pairs using Assign functions */
-    cbor_handle_t cbor_data = CBOR_New( 0 );
+    CBORHandle_t xCborData = CBOR_New( 0 );
 
-    CBOR_AssignKeyWithString( cbor_data, "hello", "world" );
-    char * model = "of the modern major general";
-    CBOR_AssignKeyWithString( cbor_data, "model", model );
-    CBOR_AssignKeyWithInt( cbor_data, "answer", 42 );
-    cbor_int_t prime = 1033;
-    CBOR_AssignKeyWithInt( cbor_data, "prime", prime );
+    CBOR_AssignKeyWithString( xCborData, "hello", "world" );
+    char * pcModel = "of the modern major general";
+    CBOR_AssignKeyWithString( xCborData, "model", pcModel );
+    CBOR_AssignKeyWithInt( xCborData, "answer", 42 );
+    int lPrime = 1033;
+    CBOR_AssignKeyWithInt( xCborData, "prime", lPrime );
 
-    cbor_handle_t map = CBOR_New( 0 );
-    char * direction = "north";
-    CBOR_AssignKeyWithString( map, "direction", direction );
-    CBOR_AssignKeyWithInt( map, "miles", 2000 );
-    CBOR_AssignKeyWithMap( cbor_data, "map", map );
-    CBOR_Delete( &map );
+    CBORHandle_t xMap = CBOR_New( 0 );
+    char * pcDirection = "north";
+    CBOR_AssignKeyWithString( xMap, "direction", pcDirection );
+    CBOR_AssignKeyWithInt( xMap, "miles", 2000 );
+    CBOR_AssignKeyWithMap( xCborData, "map", xMap );
+    CBOR_Delete( &xMap );
 
-    char * lorem =
+    char * pcLorem =
         "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do "
         "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim "
         "ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
@@ -84,40 +84,40 @@ TEST( aws_cbor_acceptance, assign_and_read_supported_types )
         "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
         "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in "
         "culpa qui officia deserunt mollit anim id est laborum.";
-    CBOR_AssignKeyWithString( cbor_data, "lorem", lorem );
+    CBOR_AssignKeyWithString( xCborData, "lorem", pcLorem );
 
     /* Read the values from the key value pairs */
 
-    char * read_lorem = CBOR_FromKeyReadString( cbor_data, "lorem" );
-    TEST_ASSERT_EQUAL_STRING( lorem, read_lorem );
-    pxCBOR_free( read_lorem );
+    char * pcReadLorem = CBOR_FromKeyReadString( xCborData, "lorem" );
+    TEST_ASSERT_EQUAL_STRING( pcLorem, pcReadLorem );
+    pxCBOR_free( pcReadLorem );
 
-    char * read_hello = CBOR_FromKeyReadString( cbor_data, "hello" );
-    TEST_ASSERT_EQUAL_STRING( "world", read_hello );
-    pxCBOR_free( read_hello );
+    char * pcReadHello = CBOR_FromKeyReadString( xCborData, "hello" );
+    TEST_ASSERT_EQUAL_STRING( "world", pcReadHello );
+    pxCBOR_free( pcReadHello );
 
-    char * read_model = CBOR_FromKeyReadString( cbor_data, "model" );
-    TEST_ASSERT_EQUAL_STRING( model, read_model );
-    pxCBOR_free( read_model );
+    char * pcReadModel = CBOR_FromKeyReadString( xCborData, "model" );
+    TEST_ASSERT_EQUAL_STRING( pcModel, pcReadModel );
+    pxCBOR_free( pcReadModel );
 
-    cbor_int_t read_answer = CBOR_FromKeyReadInt( cbor_data, "answer" );
-    TEST_ASSERT_EQUAL( 42, read_answer );
+    int lReadAnswer = CBOR_FromKeyReadInt( xCborData, "answer" );
+    TEST_ASSERT_EQUAL( 42, lReadAnswer );
 
-    cbor_int_t read_prime = CBOR_FromKeyReadInt( cbor_data, "prime" );
-    TEST_ASSERT_EQUAL( prime, read_prime );
+    int lReadPrime = CBOR_FromKeyReadInt( xCborData, "prime" );
+    TEST_ASSERT_EQUAL( lPrime, lReadPrime );
 
-    cbor_handle_t read_map = CBOR_FromKeyReadMap( cbor_data, "map" );
+    CBORHandle_t xReadMap = CBOR_FromKeyReadMap( xCborData, "map" );
 
-    char * read_direction = CBOR_FromKeyReadString( read_map, "direction" );
-    TEST_ASSERT_EQUAL_STRING( direction, read_direction );
-    pxCBOR_free( read_direction );
+    char * pcReadDirection = CBOR_FromKeyReadString( xReadMap, "direction" );
+    TEST_ASSERT_EQUAL_STRING( pcDirection, pcReadDirection );
+    pxCBOR_free( pcReadDirection );
 
-    cbor_int_t read_miles = CBOR_FromKeyReadInt( read_map, "miles" );
-    TEST_ASSERT_EQUAL( 2000, read_miles );
+    int lReadMiles = CBOR_FromKeyReadInt( xReadMap, "miles" );
+    TEST_ASSERT_EQUAL( 2000, lReadMiles );
 
-    CBOR_Delete( &read_map );
+    CBOR_Delete( &xReadMap );
 
-    CBOR_Delete( &cbor_data );
+    CBOR_Delete( &xCborData );
 }
 
 TEST( aws_cbor_acceptance, append_and_read_supported_types )
@@ -136,23 +136,23 @@ TEST( aws_cbor_acceptance, append_and_read_supported_types )
     /* } */
 
     /* Write the key value pairs using Assign functions */
-    cbor_handle_t cbor_data = CBOR_New( 0 );
+    CBORHandle_t xCborData = CBOR_New( 0 );
 
-    CBOR_AppendKeyWithString( cbor_data, "hello", "world" );
-    char * model = "of the modern major general";
-    CBOR_AppendKeyWithString( cbor_data, "model", model );
-    CBOR_AppendKeyWithInt( cbor_data, "answer", 42 );
-    cbor_int_t prime = 1033;
-    CBOR_AppendKeyWithInt( cbor_data, "prime", prime );
+    CBOR_AppendKeyWithString( xCborData, "hello", "world" );
+    char * pcModel = "of the modern major general";
+    CBOR_AppendKeyWithString( xCborData, "model", pcModel );
+    CBOR_AppendKeyWithInt( xCborData, "answer", 42 );
+    int lPrime = 1033;
+    CBOR_AppendKeyWithInt( xCborData, "prime", lPrime );
 
-    cbor_handle_t map = CBOR_New( 0 );
-    char * direction = "north";
-    CBOR_AppendKeyWithString( map, "direction", direction );
-    CBOR_AppendKeyWithInt( map, "miles", 2000 );
-    CBOR_AppendKeyWithMap( cbor_data, "map", map );
-    CBOR_Delete( &map );
+    CBORHandle_t xMap = CBOR_New( 0 );
+    char * pcDirection = "north";
+    CBOR_AppendKeyWithString( xMap, "direction", pcDirection );
+    CBOR_AppendKeyWithInt( xMap, "miles", 2000 );
+    CBOR_AppendKeyWithMap( xCborData, "map", xMap );
+    CBOR_Delete( &xMap );
 
-    char * lorem =
+    char * pcLorem =
         "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do "
         "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim "
         "ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
@@ -160,105 +160,105 @@ TEST( aws_cbor_acceptance, append_and_read_supported_types )
         "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
         "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in "
         "culpa qui officia deserunt mollit anim id est laborum.";
-    CBOR_AppendKeyWithString( cbor_data, "lorem", lorem );
+    CBOR_AppendKeyWithString( xCborData, "lorem", pcLorem );
 
     /* Read the values from the key value pairs */
 
-    char * read_lorem = CBOR_FromKeyReadString( cbor_data, "lorem" );
-    TEST_ASSERT_EQUAL_STRING( lorem, read_lorem );
-    pxCBOR_free( read_lorem );
+    char * pcReadLorem = CBOR_FromKeyReadString( xCborData, "lorem" );
+    TEST_ASSERT_EQUAL_STRING( pcLorem, pcReadLorem );
+    pxCBOR_free( pcReadLorem );
 
-    char * read_hello = CBOR_FromKeyReadString( cbor_data, "hello" );
-    TEST_ASSERT_EQUAL_STRING( "world", read_hello );
-    pxCBOR_free( read_hello );
+    char * pcReadHello = CBOR_FromKeyReadString( xCborData, "hello" );
+    TEST_ASSERT_EQUAL_STRING( "world", pcReadHello );
+    pxCBOR_free( pcReadHello );
 
-    char * read_model = CBOR_FromKeyReadString( cbor_data, "model" );
-    TEST_ASSERT_EQUAL_STRING( model, read_model );
-    pxCBOR_free( read_model );
+    char * pcReadModel = CBOR_FromKeyReadString( xCborData, "model" );
+    TEST_ASSERT_EQUAL_STRING( pcModel, pcReadModel );
+    pxCBOR_free( pcReadModel );
 
-    cbor_int_t read_answer = CBOR_FromKeyReadInt( cbor_data, "answer" );
-    TEST_ASSERT_EQUAL( 42, read_answer );
+    int lReadAnswer = CBOR_FromKeyReadInt( xCborData, "answer" );
+    TEST_ASSERT_EQUAL( 42, lReadAnswer );
 
-    cbor_int_t read_prime = CBOR_FromKeyReadInt( cbor_data, "prime" );
-    TEST_ASSERT_EQUAL( prime, read_prime );
+    int lReadPrime = CBOR_FromKeyReadInt( xCborData, "prime" );
+    TEST_ASSERT_EQUAL( lPrime, lReadPrime );
 
-    cbor_handle_t read_map = CBOR_FromKeyReadMap( cbor_data, "map" );
+    CBORHandle_t xReadMap = CBOR_FromKeyReadMap( xCborData, "map" );
 
-    char * read_direction = CBOR_FromKeyReadString( read_map, "direction" );
-    TEST_ASSERT_EQUAL_STRING( direction, read_direction );
-    pxCBOR_free( read_direction );
+    char * pcReadDirection = CBOR_FromKeyReadString( xReadMap, "direction" );
+    TEST_ASSERT_EQUAL_STRING( pcDirection, pcReadDirection );
+    pxCBOR_free( pcReadDirection );
 
-    cbor_int_t read_miles = CBOR_FromKeyReadInt( read_map, "miles" );
-    TEST_ASSERT_EQUAL( 2000, read_miles );
+    int lReadMiles = CBOR_FromKeyReadInt( xReadMap, "miles" );
+    TEST_ASSERT_EQUAL( 2000, lReadMiles );
 
-    CBOR_Delete( &read_map );
+    CBOR_Delete( &xReadMap );
 
-    CBOR_Delete( &cbor_data );
+    CBOR_Delete( &xCborData );
 }
 
 TEST( aws_cbor_acceptance, public_functions_set_err_when_given_null_pointers )
 {
     /* All public functions that take pointers should set the appropriate error */
     /* when an invalid (e.g. NULL pointer) is passed in. */
-    cbor_handle_t cbor_data = CBOR_New( 0 );
+    CBORHandle_t xCborData = CBOR_New( 0 );
 
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_HANDLE, CBOR_CheckError( NULL ) );
+    TEST_ASSERT_EQUAL( eCborErrNullHandle, CBOR_CheckError( NULL ) );
 
     CBOR_ClearError( NULL );
 
     CBOR_Delete( NULL );
-    cbor_handle_t null_cbor_object = NULL;
-    CBOR_Delete( &null_cbor_object );
+    CBORHandle_t xNullCborObject = NULL;
+    CBOR_Delete( &xNullCborObject );
 
     TEST_ASSERT_FALSE( CBOR_FindKey( NULL, "key" ) );
-    TEST_ASSERT_FALSE( CBOR_FindKey( cbor_data, NULL ) );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
+    TEST_ASSERT_FALSE( CBOR_FindKey( xCborData, NULL ) );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
 
     CBOR_AssignKeyWithString( NULL, "key", "value" );
-    CBOR_AssignKeyWithString( cbor_data, NULL, "value" );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
-    CBOR_AssignKeyWithString( cbor_data, "key", NULL );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_VALUE, CBOR_CheckError( cbor_data ) );
+    CBOR_AssignKeyWithString( xCborData, NULL, "value" );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
+    CBOR_AssignKeyWithString( xCborData, "key", NULL );
+    TEST_ASSERT_EQUAL( eCborErrNullValue, CBOR_CheckError( xCborData ) );
 
     CBOR_AppendKeyWithString( NULL, "key", "value" );
-    CBOR_AppendKeyWithString( cbor_data, NULL, "value" );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
-    CBOR_AppendKeyWithString( cbor_data, "key", NULL );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_VALUE, CBOR_CheckError( cbor_data ) );
+    CBOR_AppendKeyWithString( xCborData, NULL, "value" );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
+    CBOR_AppendKeyWithString( xCborData, "key", NULL );
+    TEST_ASSERT_EQUAL( eCborErrNullValue, CBOR_CheckError( xCborData ) );
 
     ( void ) CBOR_FromKeyReadString( NULL, "key" );
-    ( void ) CBOR_FromKeyReadString( cbor_data, NULL );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
+    ( void ) CBOR_FromKeyReadString( xCborData, NULL );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
 
     CBOR_AssignKeyWithInt( NULL, "key", 123 );
-    CBOR_AssignKeyWithInt( cbor_data, NULL, 123 );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
+    CBOR_AssignKeyWithInt( xCborData, NULL, 123 );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
 
     CBOR_AppendKeyWithInt( NULL, "key", 123 );
-    CBOR_AppendKeyWithInt( cbor_data, NULL, 123 );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
+    CBOR_AppendKeyWithInt( xCborData, NULL, 123 );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
 
     ( void ) CBOR_FromKeyReadInt( NULL, "key" );
-    ( void ) CBOR_FromKeyReadInt( cbor_data, NULL );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
+    ( void ) CBOR_FromKeyReadInt( xCborData, NULL );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
 
-    cbor_handle_t map = CBOR_New( 0 );
-    CBOR_AssignKeyWithMap( NULL, "key", map );
-    CBOR_AssignKeyWithMap( cbor_data, NULL, map );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
-    CBOR_AssignKeyWithMap( cbor_data, "key", NULL );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_VALUE, CBOR_CheckError( cbor_data ) );
+    CBORHandle_t xMap = CBOR_New( 0 );
+    CBOR_AssignKeyWithMap( NULL, "key", xMap );
+    CBOR_AssignKeyWithMap( xCborData, NULL, xMap );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
+    CBOR_AssignKeyWithMap( xCborData, "key", NULL );
+    TEST_ASSERT_EQUAL( eCborErrNullValue, CBOR_CheckError( xCborData ) );
 
-    CBOR_AppendKeyWithMap( NULL, "key", map );
-    CBOR_AppendKeyWithMap( cbor_data, NULL, map );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
-    CBOR_AppendKeyWithMap( cbor_data, "key", NULL );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_VALUE, CBOR_CheckError( cbor_data ) );
+    CBOR_AppendKeyWithMap( NULL, "key", xMap );
+    CBOR_AppendKeyWithMap( xCborData, NULL, xMap );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
+    CBOR_AppendKeyWithMap( xCborData, "key", NULL );
+    TEST_ASSERT_EQUAL( eCborErrNullValue, CBOR_CheckError( xCborData ) );
 
     ( void ) CBOR_FromKeyReadMap( NULL, "key" );
-    ( void ) CBOR_FromKeyReadMap( cbor_data, NULL );
-    TEST_ASSERT_EQUAL( eCBOR_ERR_NULL_KEY, CBOR_CheckError( cbor_data ) );
+    ( void ) CBOR_FromKeyReadMap( xCborData, NULL );
+    TEST_ASSERT_EQUAL( eCborErrNullKey, CBOR_CheckError( xCborData ) );
 
-    CBOR_Delete( &map );
-    CBOR_Delete( &cbor_data );
+    CBOR_Delete( &xMap );
+    CBOR_Delete( &xCborData );
 }

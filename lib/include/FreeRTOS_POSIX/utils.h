@@ -59,8 +59,7 @@ size_t UTILS_strnlen( const char * const pcString,
  * is rounded up for fractional ticks.
  *
  * @return 0 on success. Otherwise, ETIMEDOUT if pxAbsoluteTime is in the past,
- * EOVERFLOW if the time difference does not fit in a TickType_t, or EINVAL for
- * invalid parameters.
+ * or EINVAL for invalid parameters.
  */
 int UTILS_AbsoluteTimespecToTicks( const struct timespec * const pxAbsoluteTime,
                                    TickType_t * const pxResult );
@@ -72,8 +71,7 @@ int UTILS_AbsoluteTimespecToTicks( const struct timespec * const pxAbsoluteTime,
  * @param[out] Where the result of the conversion is stored. The result is rounded
  * up for fractional ticks.
  *
- * @return 0 on success. Otherwise, EOVERFLOW if pxTimespec does not fit in a
- * TickType_t, or EINVAL for invalid parameters.
+ * @return 0 on success. Otherwise, EINVAL for invalid parameters.
  */
 int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
                            TickType_t * const pxResult );
@@ -81,13 +79,13 @@ int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
 /**
  * @brief Converts an integer value to a timespec.
  *
- * @param[in] llSrc The value to convert.
- * @param[out] pxDest Where to store the converted value.
+ * @param[in] llSource The value to convert.
+ * @param[out] pxDestination Where to store the converted value.
  *
  * @return No return value.
  */
-void UTILS_NanosecondsToTimespec( int64_t llSrc,
-                                  struct timespec * const pxDest );
+void UTILS_NanosecondsToTimespec( int64_t llSource,
+                                  struct timespec * const pxDestination );
 
 /**
  * @brief Calculates pxResult = x + y.

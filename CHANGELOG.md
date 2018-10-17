@@ -1,5 +1,40 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.2 10/08/2018
+### New Features
+
+#### New Board: Infineon XMC4800 IoT Connectivity Kit
+Update Amazon FreeRTOS with port files, demo projects, and tests for the Infineon XMC4800 IoT Connectivity Kit.
+
+### Updates
+
+#### Add checks in the OTA agent to ignore new OTA jobs while in self-test mode
+Add a filter to the OTA agent to ignore new OTA jobs until a self-test succeeds.
+
+#### Align digital signature metadata to quad-word boundaries for Microchip boards
+Update the starting addresses of cryptographic signatures used in Microchip PIC32MZEF projects to use quad-word boundaries for the purposes of facilitating Flash memory operations.
+
+#### Update pthread Implementation in ESP-IDF
+Incorporate an update to Espressif's ESP-IDF which improves the implementation of pthread.
+
+#### Build Improvement: MPLAB PIC32 Projects
+Resolve several warnings in the MPLAB project builds, and update the projects to no longer assume that the XC32 compiler is in the host computer's path.
+
+#### Move Helper Utilities to the 'tools/' Directory
+Move a few utilities to the root-level 'tools/' directory, from the 'tests/common/tools/' and 'demos/common/tools/' directories.
+
+#### Styling Updates
+Improve consistency of Hungarian Notation usage, update a number of methods to use 'void' instead of an empty argument list, and update the style guide.
+
+#### New POSIX Functions
+Add POSIX functions including `time`, `localtime_r`, and `strftime`.
+
+#### Refactor Device Defender Direcory Structure
+Update Device Defender code to use the same 'lib/' and 'include/' directory structures as the other libraries.
+
+#### AFQP Documentation Updates
+Update the Amazon FreeRTOS Qualification Program's documentation to reflect updated directory structures.
+
 ## V1.4.1 08/29/2018
 ### New Features
 None

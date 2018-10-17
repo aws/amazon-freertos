@@ -22,7 +22,9 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+#include <stdio.h>
 #include <string.h>
+
 #include "aws_greengrass_discovery.h"
 #include "aws_helper_secure_connect.h"
 #include "jsmn.h"
@@ -151,10 +153,12 @@ TEST( Full_GGD, prvIsIPvalid )
 
 TEST( Full_GGD, GetGGCIPandCertificate )
 {
-    uint32_t ulBufferSize = testrunnerBUFFER_SIZE;
-    GGD_HostAddressData_t xHostAddressData;
-    BaseType_t xStatus;
     BaseType_t i;
+    BaseType_t xStatus;
+    char cMsgBuffer[ 128 ];
+    GGD_HostAddressData_t xHostAddressData;
+    int16_t nBufferLength = 128;
+    uint32_t ulBufferSize = testrunnerBUFFER_SIZE;
 
     if( TEST_PROTECT() )
     {
@@ -168,7 +172,11 @@ TEST( Full_GGD, GetGGCIPandCertificate )
             xStatus = GGD_GetGGCIPandCertificate( cBuffer, /*lint !e971 can use char without signed/unsigned. */
                                                   ulBufferSize,
                                                   &xHostAddressData );
-            TEST_ASSERT_EQUAL_INT32( pdPASS, xStatus );
+
+            snprintf( cMsgBuffer, nBufferLength,
+                      "GGD_GetGGCIPandCertificate returned %d on iteration %d",
+                      ( int )xStatus, ( int )i );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xStatus, cBuffer );
         }
 
         /** @}*/
@@ -179,7 +187,7 @@ TEST( Full_GGD, GetGGCIPandCertificate )
         xStatus = GGD_GetGGCIPandCertificate( cBuffer, /*lint !e971 can use char without signed/unsigned. */
                                               xHostAddressData.ulCertificateSize - 1,
                                               &xHostAddressData );
-        TEST_ASSERT_EQUAL_INT32( pdFAIL, xStatus );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( pdFAIL, xStatus, "GGD_GetGGCIPandCertificate() passed when the input buffer was too small." );
         /** @}*/
     }
     else
@@ -921,9 +929,9 @@ TEST( Full_GGD, JSONRequestGetFile )
                                               ulJSONFileSize );
         }
 
-        TEST_ASSERT_EQUAL_INT32( pdPASS, xStatus );
-        TEST_ASSERT_EQUAL_INT32( pdTRUE, xJSONFileRetrieveCompleted );
-        TEST_ASSERT_EQUAL_INT32( ulJSONFileSize, ulByteRead + 1 );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xStatus, "GGD_JSONRequestGetFile() failed to return pdPASS." );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( pdTRUE, xJSONFileRetrieveCompleted, "GGD_JSONRequestGetFile() return pdFALSE in xJSONFileRetrieveCompleted." );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( ulJSONFileSize, ulByteRead + 1, "GGD_JSONRequestGetFile() returned ulJSONFileSize that is not ulByteRead + 1." );
         /** @}*/
 
         /** @brief Check fail if we receive more bytes than expected.

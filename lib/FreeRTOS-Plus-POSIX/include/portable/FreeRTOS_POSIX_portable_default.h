@@ -64,9 +64,15 @@
  * They are defined here to provide portability between platforms.
  */
 /**@{ */
-#define PTHREAD_STACK_MIN    configMINIMAL_STACK_SIZE * sizeof( StackType_t ) /**< Minimum size in bytes of thread stack storage. */
-#define NAME_MAX             64                                               /**< Maximum number of bytes in a filename (not including terminating null). */
-#define SEM_VALUE_MAX        0xFFFFU                                          /**< Maximum value of a sem_t. */
+#ifndef PTHREAD_STACK_MIN
+    #define PTHREAD_STACK_MIN    configMINIMAL_STACK_SIZE * sizeof( StackType_t ) /**< Minimum size in bytes of thread stack storage. */
+#endif
+#ifndef NAME_MAX
+    #define NAME_MAX             64                                               /**< Maximum number of bytes in a filename (not including terminating null). */
+#endif
+#ifndef SEM_VALUE_MAX
+    #define SEM_VALUE_MAX        0xFFFFU                                          /**< Maximum value of a sem_t. */
+#endif
 /**@} */
 
 /**
@@ -123,6 +129,9 @@
 #endif
 #ifndef posixconfigENABLE_ITIMERSPEC
     #define posixconfigENABLE_ITIMERSPEC             1 /**< struct itimerspec in time.h */
+#endif
+#ifndef posixconfigENABLE_TM
+    #define posixconfigENABLE_TM                     1 /**< struct tm in time.h */
 #endif
 /**@} */
 

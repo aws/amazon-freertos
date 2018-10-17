@@ -40,9 +40,9 @@ cbor_byte_t * CBOR_NextPtr( const cbor_byte_t * pxPtr );
  *
  * @pre The cursor must be pointing to the initial byte of a CBOR data item.
  *
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  */
-void CBOR_Next( cbor_handle_t /*cbor_data*/ );
+void CBOR_Next( CBORHandle_t /*xCborData*/ );
 
 cbor_byte_t * CBOR_NextKeyPtr( const cbor_byte_t * pxPtr );
 
@@ -51,18 +51,18 @@ cbor_byte_t * CBOR_NextKeyPtr( const cbor_byte_t * pxPtr );
  *
  * @pre The cursor must be pointing to the initial byte of a key in a map.
  *
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  */
-void CBOR_NextKey( cbor_handle_t /*cbor_data*/ );
+void CBOR_NextKey( CBORHandle_t /*xCborData*/ );
 
 /**
  * @brief Sets cursor at a specific postion in the CBOR buffer
  *
  * Sets the curso at a positive offset from the beginning of the buffer.
  *
- * @param cbor_handle_t Handle for the CBOR data struct.
+ * @param CBORHandle_t Handle for the CBOR data struct.
  * @param cbor_ssize_t Position to move the cursor to.
  */
-void CBOR_SetCursor( cbor_handle_t /*cbor_data*/, cbor_ssize_t /*pos*/ );
+void CBOR_SetCursor( CBORHandle_t /*xCborData*/, cbor_ssize_t /*pos*/ );
 
 #endif /* end of include guard: AWS_CBOR_ITER_H */

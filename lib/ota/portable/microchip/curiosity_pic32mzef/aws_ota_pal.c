@@ -191,6 +191,13 @@ static bool_t prvContextUpdateImageHeaderAndTrailer( OTA_FileContext_t *C  )
 
         /* Pointer to the trailer in the flash upper page. */
         const uint8_t*  pxAppImgTrailerPtr = (const uint8_t*)(pcProgImageBankStart) + sizeof(BootImageHeader_t) +  pxCurOTADesc->ulHighImageOffset;
+        
+        /* Align it to AWS_NVM_QUAD_SIZE. */
+        if ( ( (uint32_t) pxAppImgTrailerPtr % AWS_NVM_QUAD_SIZE) != 0)
+        {
+            pxAppImgTrailerPtr += AWS_NVM_QUAD_SIZE - ( (uint32_t)pxAppImgTrailerPtr % AWS_NVM_QUAD_SIZE );
+        }
+
 
         bProgResult = AWS_FlashProgramBlock(pxAppImgTrailerPtr, (const uint8_t*) &xImgTrailer, sizeof(xImgTrailer));
 

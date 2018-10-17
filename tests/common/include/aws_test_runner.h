@@ -38,9 +38,9 @@
  * @brief If set to 1, will run AFQP tests only.
  */
 #ifdef testrunnerAFQP_ENABLED
-    #define testrunerTEST_FILTER    "AFQP"
+    #define testrunnerTEST_FILTER    "AFQP"
 #else
-    #define testrunerTEST_FILTER    0
+    #define testrunnerTEST_FILTER    0
 #endif
 
 /**

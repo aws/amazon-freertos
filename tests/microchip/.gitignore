@@ -1,0 +1,10 @@
+# Ignore build and project artifacts for microchip test projects.
+build/
+debug/
+dist/
+private/
+
+Makefile-genesis.properties
+Package-pic32mz_ef_curiosity.bash
+
+*.mk

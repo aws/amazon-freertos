@@ -31,8 +31,10 @@
 
 #define testrunnerUNSUPPORTED                      0
 
+/* Unsupported tests */
+#define testrunnerFULL_OTA_CBOR_ENABLED            testrunnerUNSUPPORTED
+
 /* Enable tests by setting defines to 1 */
-#define testrunnerFULL_OTA_CBOR_ENABLED            0
 #define testrunnerFULL_OTA_AGENT_ENABLED           0
 #define testrunnerFULL_OTA_PAL_ENABLED             0
 #define testrunnerFULL_MQTT_ALPN_ENABLED           0
@@ -49,6 +51,6 @@
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_TLS_ENABLED                 0
 #define testrunnerFULL_POSIX_ENABLED               0
-#define testrunnerOTA_UPDATE_DEMO                  0
+#define testrunnerOTA_END_TO_END_ENABLED           0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */
