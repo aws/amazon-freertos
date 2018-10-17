@@ -1,6 +1,6 @@
 # Change Log for Amazon FreeRTOS
 
-## V1.4.2 10/08/2018
+## V1.4.2 10/17/2018
 ### New Features
 
 #### New Board: Infineon XMC4800 IoT Connectivity Kit
