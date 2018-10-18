@@ -416,68 +416,68 @@ uint32_t ulIPAddress = 0UL;
 TickType_t xReadTimeOut_ms = ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME;
 TickType_t xIdentifier = 0;
 
-    /* If the supplied hostname is IP address, convert it to uint32_t
-    and return. */
-    #if( ipconfigINCLUDE_FULL_INET_ADDR == 1 )
-    {
-        ulIPAddress = FreeRTOS_inet_addr( pcHostName );
-    }
-    #endif /* ipconfigINCLUDE_FULL_INET_ADDR == 1 */
+	/* If the supplied hostname is IP address, convert it to uint32_t
+	and return. */
+	#if( ipconfigINCLUDE_FULL_INET_ADDR == 1 )
+	{
+		ulIPAddress = FreeRTOS_inet_addr( pcHostName );
+	}
+	#endif /* ipconfigINCLUDE_FULL_INET_ADDR == 1 */
 
-    /* If a DNS cache is used then check the cache before issuing another DNS
-    request. */
-    #if( ipconfigUSE_DNS_CACHE == 1 )
-    {
-        if( ulIPAddress == 0UL )
-        {
-            ulIPAddress = FreeRTOS_dnslookup( pcHostName );
-            if( ulIPAddress != 0 )
-            {
-                FreeRTOS_debug_printf( ( "FreeRTOS_gethostbyname: found '%s' in cache: %lxip\n", pcHostName, ulIPAddress ) );
-            }
-            else
-            {
-                /* prvGetHostByName will be called to start a DNS lookup */
-            }
-        }
-    }
-    #endif /* ipconfigUSE_DNS_CACHE == 1 */
+	/* If a DNS cache is used then check the cache before issuing another DNS
+	request. */
+	#if( ipconfigUSE_DNS_CACHE == 1 )
+	{
+		if( ulIPAddress == 0UL )
+		{
+			ulIPAddress = FreeRTOS_dnslookup( pcHostName );
+			if( ulIPAddress != 0 )
+			{
+				FreeRTOS_debug_printf( ( "FreeRTOS_gethostbyname: found '%s' in cache: %lxip\n", pcHostName, ulIPAddress ) );
+			}
+			else
+			{
+				/* prvGetHostByName will be called to start a DNS lookup */
+			}
+		}
+	}
+	#endif /* ipconfigUSE_DNS_CACHE == 1 */
 
-    /* Generate a unique identifier. */
-    if( 0 == ulIPAddress )
-    {
+	/* Generate a unique identifier. */
+	if( 0 == ulIPAddress )
+	{
 		/* DNS identifiers are 16-bit. */
-        xIdentifier = ( TickType_t )( ipconfigRAND32( ) & 0xffff );
-    }
+		xIdentifier = ( TickType_t )( ipconfigRAND32( ) & 0xffff );
+	}
 
-    #if( ipconfigDNS_USE_CALLBACKS != 0 )
-    {
-        if( pCallback != NULL )
-        {
-            if( ulIPAddress == 0UL )
-            {
-                /* The user has provided a callback function, so do not block on recvfrom() */
-                if( 0 != xIdentifier )
-                {
-                    xReadTimeOut_ms = 0;
-                    vDNSSetCallBack( pcHostName, pvSearchID, pCallback, xTimeout, ( TickType_t )xIdentifier );
-                }
-            }
-            else
-            {
-                /* The IP address is known, do the call-back now. */
-                pCallback( pcHostName, pvSearchID, ulIPAddress );
-            }
-        }
-    }
-    #endif
+	#if( ipconfigDNS_USE_CALLBACKS != 0 )
+	{
+		if( pCallback != NULL )
+		{
+			if( ulIPAddress == 0UL )
+			{
+				/* The user has provided a callback function, so do not block on recvfrom() */
+				if( 0 != xIdentifier )
+				{
+					xReadTimeOut_ms = 0;
+					vDNSSetCallBack( pcHostName, pvSearchID, pCallback, xTimeout, ( TickType_t )xIdentifier );
+				}
+			}
+			else
+			{
+				/* The IP address is known, do the call-back now. */
+				pCallback( pcHostName, pvSearchID, ulIPAddress );
+			}
+		}
+	}
+	#endif
 
-    if( ulIPAddress == 0UL && 0 != xIdentifier )
-    {
-        ulIPAddress = prvGetHostByName( pcHostName, xIdentifier, xReadTimeOut_ms );
-    }
+	if( ( ulIPAddress == 0UL ) && ( 0 != xIdentifier ) )
+	{
+		ulIPAddress = prvGetHostByName( pcHostName, xIdentifier, xReadTimeOut_ms );
+	}
 
-    return ulIPAddress;
+	return ulIPAddress;
 }
 /*-----------------------------------------------------------*/
 
