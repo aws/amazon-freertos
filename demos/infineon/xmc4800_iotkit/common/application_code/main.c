@@ -27,6 +27,7 @@
 
 #include "console_io.h"
 #include "entropy_hardware.h"
+#include "optiga_trust_x.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -118,14 +119,13 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    vDevModeKeyProvisioning();
+	OPTIGA_TRUST_X_Init();
     
     /* Initialize the AWS Libraries system. */
     if ( SYSTEM_Init() == pdPASS )
     {
         prvWifiConnect();
 
-        DEMO_RUNNER_RunDemos();
     }
 
 }

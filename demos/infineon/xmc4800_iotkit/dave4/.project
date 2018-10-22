@@ -147,6 +147,11 @@
 			<locationURI>AFR_HOME/lib/third_party/pkcs11</locationURI>
 		</link>
 		<link>
+			<name>lib/third_party/trustx</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_demos/source/aws_demo_runner.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/common/demo_runner/aws_demo_runner.c</locationURI>
@@ -215,6 +220,26 @@
 			<name>lib/third_party/mbedtls/library</name>
 			<type>2</type>
 			<locationURI>AFR_HOME/lib/third_party/mbedtls/library</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/trustx/examples</name>
+			<type>2</type>
+			<locationURI>AFR_HOME/lib/third_party/trustx/examples</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/trustx/optiga</name>
+			<type>2</type>
+			<locationURI>AFR_HOME/lib/third_party/trustx/optiga</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/trustx/pal</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/trustx/pal/xmc4800_freertos</name>
+			<type>2</type>
+			<locationURI>AFR_HOME/lib/third_party/trustx/pal/xmc4800_freertos</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>

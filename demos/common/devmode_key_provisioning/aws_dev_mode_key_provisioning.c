@@ -249,7 +249,7 @@ void vDevModeKeyProvisioning( void )
 {
     ProvisioningParams_t xParams;
 
-    xParams.ulClientPrivateKeyType = CKK_RSA;
+    xParams.ulClientPrivateKeyType = CKK_EC;
     xParams.pcClientPrivateKey = ( uint8_t * ) clientcredentialCLIENT_PRIVATE_KEY_PEM;
     xParams.ulClientPrivateKeyLength = clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
     xParams.pcClientCertificate = ( uint8_t * ) clientcredentialCLIENT_CERTIFICATE_PEM;

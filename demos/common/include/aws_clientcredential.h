@@ -35,12 +35,12 @@
 /*
  * MQTT Broker endpoint.
  */
-static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "Paste AWS IoT Broker endpoint here.";
+static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "ayewfdvl8ay7c-ats.iot.us-west-2.amazonaws.com";
 
 
 /* Use of a "define" and not a "static const" here to be able to
 * use pre-compile concatenation on the string. */
-#define clientcredentialIOT_THING_NAME "Paste AWS IoT Thing name here."
+#define clientcredentialIOT_THING_NAME "XMC4800IoTThing"
 
 /*
  * Port number the MQTT broker is using.
@@ -55,12 +55,12 @@ static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "Paste AWS IoT Broker
 /*
  * Wi-Fi network to join.
  */
-#define clientcredentialWIFI_SSID       "Paste Wi-Fi SSID here."
+#define clientcredentialWIFI_SSID       "iPhoneMH"
 
 /*
  * Password needed to join Wi-Fi network.
  */
-#define clientcredentialWIFI_PASSWORD   "Paste Wi-Fi password here."
+#define clientcredentialWIFI_PASSWORD   "569089527"
 
 /**
  * @brief Security type
