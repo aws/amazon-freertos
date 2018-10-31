@@ -375,9 +375,9 @@ is used in assert() statements. */
  * memory to be allocated dynamically.
  *
  * @return If neither pxStackBuffer or pxTaskBuffer are NULL, then the task will
- * be created and pdPASS is returned.  If either pxStackBuffer or pxTaskBuffer
- * are NULL then the task will not be created and
- * errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY is returned.
+ * be created and a task handle will be returned by which the created task
+ * can be referenced.  If either pxStackBuffer or pxTaskBuffer
+ * are NULL then the task will not be created and NULL is returned.
  *
  * Example usage:
    <pre>
