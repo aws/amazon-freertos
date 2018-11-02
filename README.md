@@ -25,6 +25,7 @@ The following MCU boards are supported for Amazon FreeRTOS:
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html)
 6. **Infineon** - [Infineon XMC4800 IoT Connectivity Kit](https://www.infineon.com/connectivitykit)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_infineon.html)
+    * [Infineon OPTIGA™ Trust X support](https://github.com/Infineon/amazon-freertos-optiga-trust-x/wiki)
     * IDE: [DAVE](https://infineoncommunity.com/dave-download_ID645)
 
 **Windows Simulator**
