@@ -446,8 +446,7 @@ TickType_t xIdentifier = 0;
 	/* Generate a unique identifier. */
 	if( 0 == ulIPAddress )
 	{
-		/* DNS identifiers are 16-bit. */
-		xIdentifier = ( TickType_t )( ipconfigRAND32( ) & 0xffff );
+		xIdentifier = ( TickType_t )ipconfigRAND32( );
 	}
 
 	#if( ipconfigDNS_USE_CALLBACKS != 0 )
@@ -825,10 +824,12 @@ DNSMessage_t *pxDNSMessageHeader;
 	pucUDPPayloadBuffer = pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t );
 	pxDNSMessageHeader = ( DNSMessage_t * ) pucUDPPayloadBuffer;
 
-	prvParseDNSReply( pucUDPPayloadBuffer, 
-		xPlayloadBufferLength,
-		( uint32_t )pxDNSMessageHeader->usIdentifier );
-
+	if( pxNetworkBuffer->xDataLength > sizeof( UDPPacket_t ) )
+	{
+		prvParseDNSReply( pucUDPPayloadBuffer, 
+			xPlayloadBufferLength,
+			( uint32_t )pxDNSMessageHeader->usIdentifier );
+	}
 	/* The packet was not consumed. */
 	return pdFAIL;
 }
