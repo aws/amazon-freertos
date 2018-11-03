@@ -830,6 +830,7 @@ DNSMessage_t *pxDNSMessageHeader;
 			xPlayloadBufferLength,
 			( uint32_t )pxDNSMessageHeader->usIdentifier );
 	}
+
 	/* The packet was not consumed. */
 	return pdFAIL;
 }
