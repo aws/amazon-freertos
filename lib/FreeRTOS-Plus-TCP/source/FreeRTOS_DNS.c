@@ -826,7 +826,7 @@ DNSMessage_t *pxDNSMessageHeader;
 
 	if( pxNetworkBuffer->xDataLength > sizeof( UDPPacket_t ) )
 	{
-		prvParseDNSReply( pucUDPPayloadBuffer, 
+		prvParseDNSReply( pucUDPPayloadBuffer,
 			xPlayloadBufferLength,
 			( uint32_t )pxDNSMessageHeader->usIdentifier );
 	}
