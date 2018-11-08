@@ -26,7 +26,7 @@ The following MCU boards are supported for Amazon FreeRTOS:
 6. **Infineon** - [Infineon XMC4800 IoT Connectivity Kit](https://www.infineon.com/connectivitykit)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_infineon.html)
     * IDE: [DAVE](https://infineoncommunity.com/dave-download_ID645)
-7. **Xilinx** - [Xilinx MicroZed](http://www.zedboard.org/product/microzed-iiot-bundle-afreertos)
+7. **Xilinx** - [Xilinx Zynq-7000 based MicroZed Industrial IoT Bundle](http://www.zedboard.org/product/microzed-iiot-bundle-afreertos)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_xilinx.html)
     * IDE: [Xilinx SDK](https://www.xilinx.com/products/design-tools/embedded-software/sdk.html)
 
