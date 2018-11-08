@@ -109,7 +109,7 @@ class OtaAfrProject:
         system_path = os.environ['PATH']
         # Add the tool_paths to the system PATH
         for path in self._buildConfig['tool_paths']:
-            os.environ['PATH'] += ';' + path
+            os.environ['PATH'] = path + os.pathsep + os.environ['PATH']
 
         buildCommands = self._buildConfig['commands']
         print('Building project {}...'.format(self._buildConfig['project_dir']))
@@ -122,6 +122,9 @@ class OtaAfrProject:
             print("ERROR: Could not find the output binary, the build might have failed.")
             raise Exception("Error building project check build_output.txt")
         print('Build finished, output: {}'.format(self._buildConfig['output']))
+
+        # We generate the factory image if applicable. This may depend on some build tool paths.
+        self.generateFactoryImage()
 
         # Restore the system path
         os.environ['PATH'] = system_path

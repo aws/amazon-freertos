@@ -329,6 +329,7 @@
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/pk_internal.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/platform.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/platform_time.h</itemPath>
+              <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/platform_util.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/ripemd160.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/rsa.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/rsa_internal.h</itemPath>
@@ -398,6 +399,7 @@
             <itemPath>../../../../lib/third_party/mbedtls/library/pkwrite.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/pk_wrap.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/platform.c</itemPath>
+            <itemPath>../../../../lib/third_party/mbedtls/library/platform_util.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/ripemd160.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/rsa.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/rsa_internal.c</itemPath>

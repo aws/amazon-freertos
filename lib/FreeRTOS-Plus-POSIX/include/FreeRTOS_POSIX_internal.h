@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.0
+ * Amazon FreeRTOS+POSIX V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,11 +37,14 @@
 /**
  * @brief Mutex attribute object.
  */
-typedef struct pthread_mutexattr_internal
-{
-    int iType; /**< Mutex type. */
-} pthread_mutexattr_internal_t;
+#if posixconfigENABLE_PTHREAD_MUTEXATTR_T == 1
+    typedef struct pthread_mutexattr_internal
+    {
+        int iType; /**< Mutex type. */
+    } pthread_mutexattr_internal_t;
+#endif
 
+#if posixconfigENABLE_PTHREAD_MUTEX_T == 1
 /**
  * @brief Mutex.
  */
@@ -66,6 +69,7 @@ typedef struct pthread_mutex_internal
     }                                    \
          )                               \
     )
+#endif
 
 /**
  * @brief Condition variable.

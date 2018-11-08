@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.0
+ * Amazon FreeRTOS+POSIX V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,6 +37,13 @@
 #include "FreeRTOS_POSIX/errno.h"
 #include "FreeRTOS_POSIX/time.h"
 #include "FreeRTOS_POSIX/utils.h"
+
+/* Declaration of snprintf. The header stdio.h is not included because it
+ * includes conflicting symbols on some platforms. */
+extern int snprintf( char * s,
+                     size_t n,
+                     const char * format,
+                     ... );
 
 /*-----------------------------------------------------------*/
 

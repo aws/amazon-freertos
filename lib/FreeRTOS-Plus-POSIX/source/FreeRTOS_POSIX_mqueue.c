@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.0
+ * Amazon FreeRTOS+POSIX V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -142,7 +142,7 @@ static BaseType_t prvValidateQueueName( const char * const pcName,
 /**
  * @brief Guards access to the list of message queues.
  */
-static StaticSemaphore_t xQueueListMutex = { { 0 } };
+static StaticSemaphore_t xQueueListMutex = { { 0 }, .u = { 0 } };
 
 /**
  * @brief Head of the linked list of queues.

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 PAL for Windows Simulator V1.0.2
+ * Amazon FreeRTOS PKCS #11 PAL for Windows Simulator V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,10 +34,10 @@
 
 /*-----------------------------------------------------------*/
 
-
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "aws_pkcs11.h"
+#include "aws_pkcs11_config.h"
 
 
 /* C runtime includes. */
@@ -45,154 +45,331 @@
 #include <string.h>
 
 
+#define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
+#define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
+#define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
+
+enum eObjectHandles
+{
+    eInvalidHandle = 0, /* According to PKCS #11 spec, 0 is never a valid object handle. */
+    eAwsDevicePrivateKey = 1,
+    eAwsDevicePublicKey,
+    eAwsDeviceCertificate,
+    eAwsCodeSigningKey
+};
+
 /*-----------------------------------------------------------*/
 
+/* Returns pdTRUE if the file exists, pdFALSE if not. */
+BaseType_t prvFileExists( const char * pcFileName )
+{
+    DWORD xReturn;
+
+    xReturn = GetFileAttributesA( pcFileName );
+
+    if( INVALID_FILE_ATTRIBUTES == xReturn )
+    {
+        return pdFALSE;
+    }
+    else
+    {
+        return pdTRUE;
+    }
+}
+
+/* Converts a label to its respective filename and handle. */
+void prvLabelToFilenameHandle( uint8_t * pcLabel,
+                               char ** pcFileName,
+                               CK_OBJECT_HANDLE_PTR pHandle )
+{
+    if( pcLabel != NULL )
+    {
+        /* Translate from the PKCS#11 label to local storage file name. */
+        if( 0 == memcmp( pcLabel,
+                         &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                         sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
+            *pHandle = eAwsDeviceCertificate;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                              sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_KEY;
+            *pHandle = eAwsDevicePrivateKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                              sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_KEY;
+            *pHandle = eAwsDevicePublicKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_CODE_VERIFICATION_KEY,
+                              sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
+        {
+            *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+            *pHandle = eAwsCodeSigningKey;
+        }
+        else
+        {
+            *pcFileName = NULL;
+            *pHandle = eInvalidHandle;
+        }
+    }
+}
+
+
 /**
- * @brief Writes a file to local storage.
+ * @brief Saves an object in non-volatile storage.
  *
- * Port-specific file write for crytographic information.
+ * Port-specific file write for cryptographic information.
  *
- * @param[in] pcFileName    The name of the file to be written to.
- * @param[in] pucData       Data buffer to be written to file
- * @param[in] pulDataSize   Size (in bytes) of file data.
+ * @param[in] pxLabel       The label of the object to be stored.
+ * @param[in] pucData       The object data to be saved
+ * @param[in] pulDataSize   Size (in bytes) of object data.
  *
- * @return pdTRUE if data was saved successfully to file,
- * pdFALSE otherwise.
+ * @return The object handle if successful.
+ * eInvalidHandle = 0 if unsuccessful.
  */
-BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
-                                uint8_t * pucData,
-                                uint32_t ulDataSize )
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
+                                        uint8_t * pucData,
+                                        uint32_t ulDataSize )
 {
     uint32_t ulStatus = 0;
     HANDLE hFile = INVALID_HANDLE_VALUE;
     DWORD lpNumberOfBytesWritten;
+    char * pcFileName = NULL;
+    CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
-    /* Open the file. */
-    hFile = CreateFileA( pcFileName,
-                         GENERIC_WRITE,
-                         0,
-                         NULL,
-                         CREATE_ALWAYS,
-                         FILE_ATTRIBUTE_NORMAL,
-                         NULL );
+    /* Converts a label to its respective filename and handle. */
+    prvLabelToFilenameHandle( pxLabel->pValue,
+                              &pcFileName,
+                              &xHandle );
 
-    if( INVALID_HANDLE_VALUE == hFile )
+    /* If your project requires additional PKCS#11 objects, add them here. */
+
+    if( pcFileName != NULL )
     {
-        ulStatus = GetLastError();
-    }
+        /* Create the file. */
+        hFile = CreateFileA( pcFileName,
+                             GENERIC_WRITE,
+                             0,
+                             NULL,
+                             CREATE_ALWAYS,
+                             FILE_ATTRIBUTE_NORMAL,
+                             NULL );
 
-    /* Write the data. */
-    if( ERROR_SUCCESS == ulStatus )
-    {
-        if( FALSE == WriteFile( hFile, pucData, ulDataSize, &lpNumberOfBytesWritten, NULL ) )
+        if( INVALID_HANDLE_VALUE == hFile )
         {
             ulStatus = GetLastError();
+            xHandle = eInvalidHandle;
+        }
+
+        /* Write the object data. */
+        if( ERROR_SUCCESS == ulStatus )
+        {
+            if( FALSE == WriteFile( hFile, pucData, ulDataSize, &lpNumberOfBytesWritten, NULL ) )
+            {
+                ulStatus = GetLastError();
+                xHandle = eInvalidHandle;
+            }
+        }
+
+        /* Clean up. */
+        if( INVALID_HANDLE_VALUE != hFile )
+        {
+            CloseHandle( hFile );
         }
     }
 
-    /* Clean up. */
-    if( INVALID_HANDLE_VALUE != hFile )
+    return xHandle;
+}
+
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Translates a PKCS #11 label into an object handle.
+ *
+ * Port-specific object handle retrieval.
+ *
+ *
+ * @param[in] pLabel         Pointer to the label of the object
+ *                           who's handle should be found.
+ * @param[in] usLength       The length of the label, in bytes.
+ *
+ * @return The object handle if operation was successful.
+ * Returns eInvalidHandle if unsuccessful.
+ */
+
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
+                                        uint8_t usLength )
+{
+    /* Avoid compiler warnings about unused variables. */
+    ( void ) usLength;
+
+    CK_OBJECT_HANDLE xHandle = eInvalidHandle;
+    char * pcFileName = NULL;
+
+    /* Converts a label to its respective filename and handle. */
+    prvLabelToFilenameHandle( pLabel,
+                              &pcFileName,
+                              &xHandle );
+
+    /* Check if object exists/has been created before returning. */
+    if( pdTRUE != prvFileExists( pcFileName ) )
     {
-        CloseHandle( hFile );
+        xHandle = eInvalidHandle;
     }
 
-    return 0 == ulStatus;
+    return xHandle;
 }
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Reads a file from local storage.
+ * @brief Gets the value of an object in storage, by handle.
  *
- * Port-specific file access for crytographic information.
+ * Port-specific file access for cryptographic information.
  *
- * @sa PKCS11_ReleaseFileData
+ * This call dynamically allocates the buffer which object value
+ * data is copied into.  PKCS11_PAL_GetObjectValueCleanup()
+ * should be called after each use to free the dynamically allocated
+ * buffer.
+ *
+ * @sa PKCS11_PAL_GetObjectValueCleanup
  *
  * @param[in] pcFileName    The name of the file to be read.
  * @param[out] ppucData     Pointer to buffer for file data.
  * @param[out] pulDataSize  Size (in bytes) of data located in file.
+ * @param[out] pIsPrivate   Boolean indicating if value is private (CK_TRUE)
+ *                          or exportable (CK_FALSE)
  *
- * @return pdTRUE if data was retrieved successfully from files,
- * pdFALSE otherwise.
+ * @return CKR_OK if operation was successful.  CKR_KEY_HANDLE_INVALID if
+ * no such object handle was found, CKR_DEVICE_MEMORY if memory for
+ * buffer could not be allocated, CKR_FUNCTION_FAILED for device driver
+ * error.
  */
-BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
-                                uint8_t ** ppucData,
-                                uint32_t * pulDataSize )
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+                                 uint8_t ** ppucData,
+                                 uint32_t * pulDataSize,
+                                 CK_BBOOL * pIsPrivate )
 {
-    uint32_t ulStatus = 0;
+    CK_RV ulReturn = CKR_OK;
+    uint32_t ulDriverReturn = 0;
     HANDLE hFile = INVALID_HANDLE_VALUE;
     uint32_t ulSize = 0;
+    char * pcFileName = NULL;
 
-    /* Open the file. */
-    hFile = CreateFileA( pcFileName,
-                         GENERIC_READ,
-                         0,
-                         NULL,
-                         OPEN_EXISTING,
-                         FILE_ATTRIBUTE_NORMAL,
-                         NULL );
 
-    if( INVALID_HANDLE_VALUE == hFile )
+    if( xHandle == eAwsDeviceCertificate )
     {
-        ulStatus = GetLastError();
+        pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsDevicePrivateKey )
+    {
+        pcFileName = pkcs11palFILE_NAME_KEY;
+        *pIsPrivate = CK_TRUE;
+    }
+    else if( xHandle == eAwsDevicePublicKey )
+    {
+        /* Public and private key are stored together in same file. */
+        pcFileName = pkcs11palFILE_NAME_KEY;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsCodeSigningKey )
+    {
+        pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+        *pIsPrivate = CK_FALSE;
+    }
+    else
+    {
+        ulReturn = CKR_KEY_HANDLE_INVALID;
     }
 
-    if( 0 == ulStatus )
+    if( pcFileName != NULL )
     {
-        /* Get the file size. */
-        *pulDataSize = GetFileSize( hFile, ( LPDWORD ) ( &ulSize ) );
+        /* Open the file. */
+        hFile = CreateFileA( pcFileName,
+                             GENERIC_READ,
+                             0,
+                             NULL,
+                             OPEN_EXISTING,
+                             FILE_ATTRIBUTE_NORMAL,
+                             NULL );
 
-        /* Create a buffer. */
-        *ppucData = pvPortMalloc( *pulDataSize );
-
-        if( NULL == *ppucData )
+        if( INVALID_HANDLE_VALUE == hFile )
         {
-            ulStatus = ERROR_NOT_ENOUGH_MEMORY;
+            ulDriverReturn = GetLastError();
+            ulReturn = CKR_FUNCTION_FAILED;
+        }
+
+        if( 0 == ulReturn )
+        {
+            /* Get the file size. */
+            *pulDataSize = GetFileSize( hFile, ( LPDWORD ) ( &ulSize ) );
+
+            /* Create a buffer. */
+            *ppucData = pvPortMalloc( *pulDataSize );
+
+            if( NULL == *ppucData )
+            {
+                ulReturn = CKR_DEVICE_MEMORY;
+            }
+        }
+
+        /* Read the file. */
+        if( 0 == ulReturn )
+        {
+            if( FALSE == ReadFile( hFile,
+                                   *ppucData,
+                                   *pulDataSize,
+                                   ( LPDWORD ) ( &ulSize ),
+                                   NULL ) )
+            {
+                ulReturn = CKR_FUNCTION_FAILED;
+            }
+        }
+
+        /* Confirm the amount of data read. */
+        if( 0 == ulReturn )
+        {
+            if( ulSize != *pulDataSize )
+            {
+                ulReturn = CKR_FUNCTION_FAILED;
+            }
+        }
+
+        /* Clean up. */
+        if( INVALID_HANDLE_VALUE != hFile )
+        {
+            CloseHandle( hFile );
         }
     }
 
-    /* Read the file. */
-    if( 0 == ulStatus )
-    {
-        if( FALSE == ReadFile( hFile,
-                               *ppucData,
-                               *pulDataSize,
-                               ( LPDWORD ) ( &ulSize ),
-                               NULL ) )
-        {
-            ulStatus = GetLastError();
-        }
-    }
-
-    /* Confirm the amount of data read. */
-    if( 0 == ulStatus )
-    {
-        if( ulSize != *pulDataSize )
-        {
-            ulStatus = ERROR_INVALID_DATA;
-        }
-    }
-
-    /* Clean up. */
-    if( INVALID_HANDLE_VALUE != hFile )
-    {
-        CloseHandle( hFile );
-    }
-
-    return 0 == ulStatus;
+    return ulReturn;
 }
 
 /**
- * @brief Cleanup after PKCS11_ReadFile().
+ * @brief Cleanup after PKCS11_GetObjectValue().
  *
- * @param[in] pucBuffer The buffer to free.
- * @param[in] ulBufferSize The length of the above buffer.
+ * @param[in] pucData       The buffer to free.
+ *                          (*ppucData from PKCS11_PAL_GetObjectValue())
+ * @param[in] ulDataSize    The length of the buffer to free.
+ *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
-void PKCS11_PAL_ReleaseFileData( uint8_t * pucBuffer,
-                                 uint32_t ulBufferSize )
+void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
+                                       uint32_t ulDataSize )
 {
     /* Unused parameters. */
-    ( void ) ulBufferSize;
+    ( void ) ulDataSize;
 
-    vPortFree( pucBuffer );
+    if( NULL != pucData )
+    {
+        vPortFree( pucData );
+    }
 }

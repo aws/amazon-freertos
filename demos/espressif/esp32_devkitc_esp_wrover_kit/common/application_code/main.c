@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS V1.4.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,6 +29,7 @@
 
 /* Demo includes */
 #include "aws_demo_runner.h"
+#include "aws_dev_mode_key_provisioning.h"
 
 /* AWS System includes. */
 #include "aws_system_init.h"
@@ -150,6 +151,12 @@ int app_main( void )
     {
         /* Connect to the wifi before running the demos */
         prvWifiConnect();
+
+        /* A simple example to demonstrate key and certificate provisioning in
+        * microcontroller flash using PKCS#11 interface. This should be replaced
+        * by production ready key provisioning mechanism. */
+        vDevModeKeyProvisioning();
+
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }

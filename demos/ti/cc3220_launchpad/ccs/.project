@@ -133,7 +133,7 @@
 		<link>
 			<name>lib/third_party/mbedtls</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor</name>
@@ -224,16 +224,6 @@
 			<name>lib/aws/pkcs11/aws_pkcs11_pal.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/lib/pkcs11/portable/ti/cc3220_launchpad/aws_pkcs11_pal.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mbedtls/base64.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls/library/base64.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mbedtls/base64.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls/include/mbedtls/base64.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti</name>

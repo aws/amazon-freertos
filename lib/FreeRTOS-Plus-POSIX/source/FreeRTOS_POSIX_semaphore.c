@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.0
+ * Amazon FreeRTOS+POSIX V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -161,7 +161,15 @@ int sem_timedwait( sem_t * sem,
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxSem->xSemaphore,
                         xDelay ) != pdTRUE )
     {
-        errno = iStatus;
+        if( iStatus == 0 )
+        {
+            errno = ETIMEDOUT;
+        }
+        else
+        {
+            errno = iStatus;
+        }
+
         iStatus = -1;
     }
     else

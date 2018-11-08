@@ -49,4 +49,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #define socketsconfigDEFAULT_RECV_TIMEOUT    ( 10000 )
 
+/**
+ * @brief The file name for the root of trust certificate.
+ */
+#define socketsconfigSECURE_FILE_NAME_ROOTCA            "/certs/RootCA.crt"
+
+/**
+ * @brief Custom root CA.
+ */
+#define socketsconfigSECURE_FILE_NAME_CUSTOMROOTCA      "/certs/CustomRootCA.crt"
+
+/**
+ * @brief Client certificate.
+ */
+#define socketsconfigSECURE_FILE_NAME_CLIENTCERT        "/certs/ClientCert.crt"
+
+/**
+ * @brief Client private key.
+ */
+#define socketsconfigSECURE_FILE_NAME_PRIVATEKEY        "/certs/PrivateKey.key"
+
 #endif /* AWS_INC_SOCKETS_CONFIG_H_ */

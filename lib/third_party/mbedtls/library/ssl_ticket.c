@@ -36,13 +36,9 @@
 #endif
 
 #include "mbedtls/ssl_ticket.h"
+#include "mbedtls/platform_util.h"
 
 #include <string.h>
-
-/* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
-}
 
 /*
  * Initialze context
@@ -83,7 +79,7 @@ static int ssl_ticket_gen_key( mbedtls_ssl_ticket_context *ctx,
                                  mbedtls_cipher_get_key_bitlen( &key->ctx ),
                                  MBEDTLS_ENCRYPT );
 
-    mbedtls_zeroize( buf, sizeof( buf ) );
+    mbedtls_platform_zeroize( buf, sizeof( buf ) );
 
     return( ret );
 }
@@ -101,7 +97,7 @@ static int ssl_ticket_update_keys( mbedtls_ssl_ticket_context *ctx )
         uint32_t current_time = (uint32_t) mbedtls_time( NULL );
         uint32_t key_time = ctx->keys[ctx->active].generation_time;
 
-        if( current_time > key_time &&
+        if( current_time >= key_time &&
             current_time - key_time < ctx->ticket_lifetime )
         {
             return( 0 );
@@ -483,7 +479,7 @@ void mbedtls_ssl_ticket_free( mbedtls_ssl_ticket_context *ctx )
     mbedtls_mutex_free( &ctx->mutex );
 #endif
 
-    mbedtls_zeroize( ctx, sizeof( mbedtls_ssl_ticket_context ) );
+    mbedtls_platform_zeroize( ctx, sizeof( mbedtls_ssl_ticket_context ) );
 }
 
 #endif /* MBEDTLS_SSL_TICKET_C */

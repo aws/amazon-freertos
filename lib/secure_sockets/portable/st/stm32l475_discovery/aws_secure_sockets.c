@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 3
+ * Amazon FreeRTOS Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -620,20 +620,43 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
                     }
                     else
                     {
-                        /* Store the default certificate. */
-                        if( ES_WIFI_StoreCA( &( xWiFiModule.xWifiObject ),
-                                             ES_WIFI_FUNCTION_TLS,
-                                             stsecuresocketsOFFLOAD_SSL_CREDS_SLOT,
-                                             ( uint8_t * ) tlsVERISIGN_ROOT_CERTIFICATE_PEM,
-                                             ( uint16_t ) tlsVERISIGN_ROOT_CERTIFICATE_LENGTH ) == ES_WIFI_STATUS_OK )
+                        /* If we are not using the ATS endpoint, use the VeriSign root CA. Otherwise
+                         * use the Starfield root CA. */
+                        if( strstr( clientcredentialMQTT_BROKER_ENDPOINT, "-ats.iot" ) == NULL )
                         {
-                            /* Certificate stored successfully. */
-                            lRetVal = SOCKETS_ERROR_NONE;
+                            /* Store the default certificate. */
+                            if( ES_WIFI_StoreCA( &( xWiFiModule.xWifiObject ),
+                                                 ES_WIFI_FUNCTION_TLS,
+                                                 stsecuresocketsOFFLOAD_SSL_CREDS_SLOT,
+                                                 ( uint8_t * ) tlsVERISIGN_ROOT_CERTIFICATE_PEM,
+                                                 ( uint16_t ) tlsVERISIGN_ROOT_CERTIFICATE_LENGTH ) == ES_WIFI_STATUS_OK )
+                            {
+                                /* Certificate stored successfully. */
+                                lRetVal = SOCKETS_ERROR_NONE;
+                            }
+                            else
+                            {
+                                /* Failed to store certificate. */
+                                lRetVal = SOCKETS_SOCKET_ERROR;
+                            }
                         }
                         else
                         {
-                            /* Failed to store certificate. */
-                            lRetVal = SOCKETS_SOCKET_ERROR;
+                            /* Store the default certificate. */
+                            if( ES_WIFI_StoreCA( &( xWiFiModule.xWifiObject ),
+                                                 ES_WIFI_FUNCTION_TLS,
+                                                 stsecuresocketsOFFLOAD_SSL_CREDS_SLOT,
+                                                 ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
+                                                 ( uint16_t ) tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH ) == ES_WIFI_STATUS_OK )
+                            {
+                                /* Certificate stored successfully. */
+                                lRetVal = SOCKETS_ERROR_NONE;
+                            }
+                            else
+                            {
+                                /* Failed to store certificate. */
+                                lRetVal = SOCKETS_SOCKET_ERROR;
+                            }
                         }
                     }
                 }
@@ -760,7 +783,7 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
                     /* Receive un-encrypted. */
                     lReceivedBytes = prvNetworkRecv( xSocket, pvBuffer, xBufferLength );
                 }
-            #else  /* USE_OFFLOAD_SSL */
+            #else /* USE_OFFLOAD_SSL */
                 /* Always receive using prvNetworkRecv if using offload SSL. */
                 lReceivedBytes = prvNetworkRecv( xSocket, pvBuffer, xBufferLength );
             #endif /* USE_OFFLOAD_SSL */
@@ -817,7 +840,7 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                     /* Send un-encrypted. */
                     lSentBytes = prvNetworkSend( xSocket, pvBuffer, xDataLength );
                 }
-            #else  /* USE_OFFLOAD_SSL */
+            #else /* USE_OFFLOAD_SSL */
                 /* Always send using prvNetworkSend if using offload SSL. */
                 lSentBytes = prvNetworkSend( xSocket, pvBuffer, xDataLength );
             #endif /* USE_OFFLOAD_SSL */

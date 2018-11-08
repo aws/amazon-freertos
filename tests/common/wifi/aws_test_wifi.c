@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS WIFI AFQP V1.1.1
+ * Amazon FreeRTOS WIFI AFQP V1.1.2  
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -675,13 +675,13 @@ TEST( Full_WiFi, AFQP_WiFiOnOffLoop )
         {
             xWiFiStatus = WIFI_Off();
             snprintf( cBuffer, sBufferLength,
-                      "Failed WIFI_Off() in iteration %d", ulIndex );
+                      "Failed WIFI_Off() in iteration %lu", ( long unsigned int ) ulIndex );
             TEST_WIFI_ASSERT_OPTIONAL_API_MSG(
                 eWiFiSuccess == xWiFiStatus, xWiFiStatus, cBuffer );
 
             xWiFiStatus = WIFI_On();
-            snprintf( cBuffer, sBufferLength, "Failed WIFI_On() in iteration %d",
-                      ulIndex );
+            snprintf( cBuffer, sBufferLength, "Failed WIFI_On() in iteration %lu",
+                      ( long unsigned int ) ulIndex );
             TEST_WIFI_ASSERT_REQUIRED_API_MSG(
                 eWiFiSuccess == xWiFiStatus, xWiFiStatus, cBuffer );
         }
@@ -2137,7 +2137,7 @@ TEST( Full_WiFi, AFQP_WiFiConnectMultipleAP )
             snprintf( cMessageString, xMessageStringLength,
                       "Could not connect to %s on iteration %d after %d "
                       "retries. Status was %d.",
-                      xTestNetworkParams.pcSSID, ( int ) ulIndex, xMaxRetries,
+                      xTestNetworkParams.pcSSID, ( int ) ulIndex, ( int ) xMaxRetries,
                       eWiFiStatus );
             TEST_WIFI_ASSERT_REQUIRED_API_MSG(
                 eWiFiStatus == eWiFiSuccess, eWiFiStatus, cMessageString );
@@ -2169,7 +2169,7 @@ TEST( Full_WiFi, AFQP_WiFiConnectMultipleAP )
             snprintf( cMessageString, xMessageStringLength,
                       "Could not connect to %s on iteration %d after %d "
                       "retries. Status was %d.",
-                      xClientNetworkParams.pcSSID, ( int ) ulIndex, xMaxRetries,
+                      xClientNetworkParams.pcSSID, ( int ) ulIndex, ( int ) xMaxRetries,
                       eWiFiStatus );
             TEST_WIFI_ASSERT_REQUIRED_API_MSG(
                 eWiFiStatus == eWiFiSuccess, eWiFiStatus, cMessageString );
@@ -2190,8 +2190,9 @@ TEST( Full_WiFi, AFQP_WiFiConnectMultipleAP )
             {
                 snprintf( cMessageString, xMessageStringLength,
                           "Wi-Fi API claims to be connected to %s, but round "
-                          "trip test on iteration %d failed.\r\n",
-                          xClientNetworkParams.pcSSID, ulIndex );
+                          "trip test on iteration %lu failed.\r\n",
+                          xClientNetworkParams.pcSSID,
+                          ( long unsigned int ) ulIndex );
                 TEST_FAIL_MESSAGE( cMessageString );
             }
         }

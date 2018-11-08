@@ -46,7 +46,7 @@ class OtaTestCase( object ):
         setup() : Sets up _otaProject as 0.9.0 should be overwritten if that is not desired.
         teardown()
         runTest()
-        getTestResultAfterJobCompletion()
+        getTestResultAfterOtaUpdateCompletion()
     """
     TestCaseResult = namedtuple('TestCaseResult', 'result reason')
     def __init__(self, name, boardConfig, otaProject, otaAwsAgent, flashComm):
@@ -70,7 +70,6 @@ class OtaTestCase( object ):
         """
         self._otaProject.setApplicationVersion(0, 9, 0)
         self._otaProject.buildProject()
-        self._otaProject.generateFactoryImage()
         self._flashComm.flashAndRead()
 
     def teardown(self):
@@ -136,12 +135,12 @@ class OtaTestCase( object ):
         """
         print('OtaTestCase::run is not implemented.')
 
-    def getTestResultAfterJobCompletion(self, jobId):
+    def getTestResultAfterOtaUpdateCompletion(self, otaUpdateId):
         """Utility helper to poll for completion of the input job then stop reading
         from the serial port.
         Args:
-            jobId(str): AWS IoT Job ID to poll for completion status.
+            otaUpdateId(str): AWS IoT OTA Update ID to poll for completion status.
         """
-        jobStatus = self._otaAwsAgent.pollJobCompletion(jobId, self._otaConfig['ota_timeout_sec'])
+        jobStatus = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
         self._flashComm.stopSerialRead()
         return self.getTestResult(jobStatus, self._flashComm.getSerialLog())

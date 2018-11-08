@@ -441,6 +441,9 @@
     <ClCompile Include="..\..\..\common\ota\aws_ota_update_demo.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
+      <Filter>lib\third_party\mbedtls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\jsmn\jsmn.h">
@@ -863,10 +866,8 @@
     <ClInclude Include="..\..\..\common\include\aws_application_version.h">
       <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\lib\third_party\mbedtls\library\Makefile">
-      <Filter>lib\third_party\mbedtls</Filter>
-    </None>
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
+      <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

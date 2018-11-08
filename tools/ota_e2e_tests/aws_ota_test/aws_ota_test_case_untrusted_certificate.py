@@ -63,7 +63,7 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
         )
         # Create a job.
         if self._otaAwsAgent._stageParams:
-            jobId = self._otaAwsAgent.createOtaUpdateJob(
+            jobId = self._otaAwsAgent.createOtaUpdate(
                 deploymentFiles = [
                     {
                         'fileName': os.path.basename(self._otaConfig['ota_firmware_file_path']),
@@ -103,7 +103,7 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
                 signerJobId
             )
             # Create the OTA update job.
-            jobId = self._otaAwsAgent.createOtaUpdateJob(
+            otaUpdateId = self._otaAwsAgent.createOtaUpdate(
                 deploymentFiles = [
                     {
                         'fileName': self._otaConfig['device_firmware_file_name'],
@@ -124,7 +124,7 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
         # Reset to a valid signing key.
         self._otaConfig['aws_signer_certificate_arn'] = self._validSignerArn
         # Wait for the job to complete.
-        return self.getTestResultAfterJobCompletion(jobId)
+        return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
 
     def getTestResult(self, jobStatus, log):
         if (jobStatus.status == 'FAILED'):

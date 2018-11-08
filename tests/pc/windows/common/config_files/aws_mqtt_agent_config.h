@@ -1,27 +1,27 @@
 /*
-Amazon FreeRTOS
-Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://aws.amazon.com/freertos
- http://www.FreeRTOS.org
-*/
+ * Amazon FreeRTOS
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
 
 /**
  * @file aws_mqtt_agent_config.h
@@ -42,19 +42,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * metric information will be included in the "username" field of
  * the MQTT connect messages.
  */
-#define mqttconfigENABLE_METRICS    ( 1 )
-
-/**
- * @defgroup Metrics The metrics reported to the AWS IoT broker.
- *
- * If mqttconfigENABLE_METRICS is set to 1, these will be included
- * in the "username" field of MQTT connect messages.
- */
-/** @{ */
-#define mqttconfigMETRIC_SDK         "SDK=AmazonFreeRTOS"               /**< The SDK used by this device. */
-#define mqttconfigMETRIC_VERSION     "Version="tskKERNEL_VERSION_NUMBER /**< The version number of this SDK. */
-#define mqttconfigMETRIC_PLATFORM    "Platform=WinSim"                  /**< The platform that this SDK is running on. */
-/** @} */
+#define mqttconfigENABLE_METRICS                      ( 1 )
 
 /**
  * @brief The maximum time interval in seconds allowed to elapse between 2 consecutive
@@ -93,21 +81,26 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /**
  * @brief Maximum number of MQTT clients that can exist simultaneously.
  */
-#define mqttconfigMAX_BROKERS            ( 4 )
+#define mqttconfigMAX_BROKERS                  ( 4 )
 
 /**
  * @brief Maximum number of parallel operations per client.
  */
-#define mqttconfigMAX_PARALLEL_OPS       ( 5 )
+#define mqttconfigMAX_PARALLEL_OPS             ( 5 )
 
 /**
  * @brief Time in milliseconds after which the TCP send operation should timeout.
  */
-#define mqttconfigTCP_SEND_TIMEOUT_MS    ( 2000 )
+#define mqttconfigTCP_SEND_TIMEOUT_MS          ( 2000 )
 
 /**
  * @brief Length of the buffer used to receive data.
  */
-#define mqttconfigRX_BUFFER_SIZE         ( 1024 + 128 )
+#define mqttconfigRX_BUFFER_SIZE               ( 1024 + 128 )
+
+/**
+ * @brief The maximum time in ticks for which the MQTT task is permitted to block.
+ */
+#define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS    ( ~( ( uint32_t ) 0 ) )
 
 #endif /* _AWS_MQTT_AGENT_CONFIG_H_ */

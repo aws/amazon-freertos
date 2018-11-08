@@ -26,11 +26,14 @@
 /* Standard includes. */
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 /* EDIT THIS FILE:
  * Wi-Fi SSID, password & security settings,
  * AWS endpoint, certificate, private key & thing name. */
 #include "aws_clientcredential.h"
+#include "aws_default_root_certificates.h"
+
 
 /* FreeRTOS header files. */
 #include "FreeRTOS.h"
@@ -42,6 +45,7 @@
 #include "aws_test_runner.h"
 #include "aws_logging_task.h"
 #include "aws_dev_mode_key_provisioning.h"
+#include "aws_pkcs11.h"
 
 /* TI-Driver includes. */
 #include <ti/drivers/GPIO.h>
@@ -57,7 +61,7 @@
 /* Test runner task defines. */
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 16 )
 
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
@@ -65,6 +69,7 @@
 
 void vApplicationDaemonTaskStartupHook( void );
 static void prvWifiConnect( void );
+static CK_RV prvProvisionRootCA( void );
 
 
 /**
@@ -119,6 +124,7 @@ void vApplicationDaemonTaskStartupHook( void )
     /* Initialize Wi-Fi module. This is called before key provisioning because
      * initializing the Wi-Fi module also initializes the CC3220SF's file system. */
     xWifiStatus = WIFI_On();
+
     if( xWifiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "Wi-Fi module initialized.\r\n" ) );
@@ -139,9 +145,10 @@ void vApplicationDaemonTaskStartupHook( void )
      * flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
     vDevModeKeyProvisioning();
+    prvProvisionRootCA();
 
     /* Initialize the AWS Libraries system. */
-    if ( SYSTEM_Init() == pdPASS )
+    if( SYSTEM_Init() == pdPASS )
     {
         prvWifiConnect();
 
@@ -153,9 +160,53 @@ void vApplicationDaemonTaskStartupHook( void )
                      tskIDLE_PRIORITY,
                      NULL );
     }
-
 }
 /* ----------------------------------------------------------*/
+
+
+
+/**
+ * @brief Imports the trusted Root CA required for a connection to
+ * AWS IoT endpoint.
+ */
+CK_RV prvProvisionRootCA( void )
+{
+    uint8_t * pucRootCA = NULL;
+    uint32_t ulRootCALength = 0;
+    CK_RV xResult = CKR_OK;
+    CK_FUNCTION_LIST_PTR xFunctionList;
+    CK_SLOT_ID xSlotId;
+    CK_SESSION_HANDLE xSessionHandle;
+    CK_OBJECT_HANDLE xCertificateHandle;
+
+    /* Use either Verisign or Starfield root CA 
+     * depending on whether this is an ATS endpoint. */
+    if( strstr( clientcredentialMQTT_BROKER_ENDPOINT, "-ats.iot" ) == NULL )
+    {
+        pucRootCA = ( uint8_t * ) tlsVERISIGN_ROOT_CERTIFICATE_PEM;
+        ulRootCALength = tlsVERISIGN_ROOT_CERTIFICATE_LENGTH;
+    }
+    else
+    {
+        pucRootCA = ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM;
+        ulRootCALength = tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH;
+    }
+
+    xResult = xInitializePkcsSession( &xFunctionList,
+                                      &xSlotId,
+                                      &xSessionHandle );
+
+    if( xResult == CKR_OK )
+    {
+        xResult = xProvisionCertificate( xSessionHandle,
+                                         pucRootCA,
+                                         ulRootCALength,
+                                         pkcs11configLABEL_ROOT_CERTIFICATE,
+                                         &xCertificateHandle );
+    }
+
+    return xResult;
+}
 
 /**
  * @brief Connect the Wi-Fi access point specifed in aws_clientcredential.h
@@ -165,7 +216,7 @@ static void prvWifiConnect( void )
 {
     WIFIReturnCode_t xWifiStatus;
     WIFINetworkParams_t xNetworkParams;
-    uint8_t ucTempIp[4];
+    uint8_t ucTempIp[ 4 ];
 
     /* Initialize Network params. */
     xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
@@ -178,21 +229,22 @@ static void prvWifiConnect( void )
 
     /* Connect to Wi-Fi. */
     xWifiStatus = WIFI_ConnectAP( &xNetworkParams );
+
     if( xWifiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "Wi-Fi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
-        
+
         xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus )
+
+        if( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
         }
-
     }
     else
     {
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", clientcredentialWIFI_SSID) );
+        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", clientcredentialWIFI_SSID ) );
 
         /* Delay to allow the lower priority logging task to print the above status. */
         vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
@@ -239,7 +291,9 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     portDISABLE_INTERRUPTS();
 
     /* Loop forever */
-    for( ; ; );
+    for( ; ; )
+    {
+    }
 }
 
 /*-----------------------------------------------------------*/

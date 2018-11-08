@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 V1.0.0
+ * Amazon FreeRTOS PKCS #11 PAL V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,57 +38,89 @@
 
 
 /**
- * @brief Writes a file to local storage.
- *
- * Port-specific file write for crytographic information.
- *
- * @param[in] pcFileName    The name of the file to be written to.
- * @param[in] pucData       Data buffer to be written to file
- * @param[in] pulDataSize   Size (in bytes) of file data.
- *
- * @return pdTRUE if data was saved successfully to file,
- * pdFALSE otherwise.
- */
-BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
-                                uint8_t * pucData,
-                                uint32_t ulDataSize )
+* @brief Writes a file to local storage.
+*
+* Port-specific file write for crytographic information.
+*
+* @param[in] pxLabel       Label of the object to be saved.
+* @param[in] pucData       Data buffer to be written to file
+* @param[in] ulDataSize    Size (in bytes) of data to be saved.
+*
+* @return The file handle of the object that was stored.
+*/
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
+    uint8_t * pucData,
+    uint32_t ulDataSize )
 {
-    /* FIX ME. */
-    return pdFALSE;
+    CK_OBJECT_HANDLE xHandle = 0;
+    return xHandle;
 }
 
 /**
- * @brief Reads a file from local storage.
- *
- * Port-specific file access for crytographic information.
- *
- * @sa PKCS11_ReleaseFileData
- *
- * @param[in] pcFileName    The name of the file to be read.
- * @param[out] ppucData     Pointer to buffer for file data.
- * @param[out] pulDataSize  Size (in bytes) of data located in file.
- *
- * @return pdTRUE if data was retrieved successfully from files,
- * pdFALSE otherwise.
- */
-BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
-                                uint8_t ** ppucData,
-                                uint32_t * pulDataSize )
+* @brief Translates a PKCS #11 label into an object handle.
+*
+* Port-specific object handle retrieval.
+*
+*
+* @param[in] pLabel         Pointer to the label of the object
+*                           who's handle should be found.
+* @param[in] usLength       The length of the label, in bytes.
+*
+* @return The object handle if operation was successful.
+* Returns eInvalidHandle if unsuccessful.
+*/
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
+    uint8_t usLength )
 {
-    /* FIX ME. */
-    return pdFALSE;
+    CK_OBJECT_HANDLE xHandle = 0;
+    return xHandle;
 }
 
 /**
- * @brief Cleanup after PKCS11_ReadFile().
- *
- * @param[in] pucBuffer The buffer to free.
- * @param[in] ulBufferSize The length of the above buffer.
- */
-void PKCS11_PAL_ReleaseFileData( uint8_t * pucBuffer,
-                                 uint32_t ulBufferSize )
+* @brief Gets the value of an object in storage, by handle.
+*
+* Port-specific file access for cryptographic information.
+*
+* This call dynamically allocates the buffer which object value
+* data is copied into.  PKCS11_PAL_GetObjectValueCleanup()
+* should be called after each use to free the dynamically allocated
+* buffer.
+*
+* @sa PKCS11_PAL_GetObjectValueCleanup
+*
+* @param[in] pcFileName    The name of the file to be read.
+* @param[out] ppucData     Pointer to buffer for file data.
+* @param[out] pulDataSize  Size (in bytes) of data located in file.
+* @param[out] pIsPrivate   Boolean indicating if value is private (CK_TRUE)
+*                          or exportable (CK_FALSE)
+*
+* @return CKR_OK if operation was successful.  CKR_KEY_HANDLE_INVALID if
+* no such object handle was found, CKR_DEVICE_MEMORY if memory for
+* buffer could not be allocated, CKR_FUNCTION_FAILED for device driver
+* error.
+*/
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+    uint8_t ** ppucData,
+    uint32_t * pulDataSize,
+    CK_BBOOL * pIsPrivate )
 {
-    /* FIX ME. */
+    CK_RV xReturn = CKR_OK;
+    return xReturn;
+}
+
+
+/**
+* @brief Cleanup after PKCS11_GetObjectValue().
+*
+* @param[in] pucData       The buffer to free.
+*                          (*ppucData from PKCS11_PAL_GetObjectValue())
+* @param[in] ulDataSize    The length of the buffer to free.
+*                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
+*/
+void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
+    uint32_t ulDataSize )
+{
+    
 }
 
 /*-----------------------------------------------------------*/

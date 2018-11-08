@@ -67,7 +67,7 @@ class OtaTestSingleByteImage( OtaTestCase ):
             signerJobId
         )
         # Create the OTA update job.
-        jobId = self._otaAwsAgent.createOtaUpdateJob(
+        otaUpdateId = self._otaAwsAgent.createOtaUpdate(
             deploymentFiles = [
                 {
                     'fileName': self._otaConfig['device_firmware_file_name'],
@@ -85,7 +85,7 @@ class OtaTestSingleByteImage( OtaTestCase ):
             ]
         )
 
-        return self.getTestResultAfterJobCompletion(jobId)
+        return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
 
     def getTestResult(self, jobStatus, log):
         if (jobStatus.status == 'FAILED'):

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.1
+ * Amazon FreeRTOS V1.1.2  
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,6 +36,7 @@
 #include "aws_logging_task.h"
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
+#include "aws_dev_mode_key_provisioning.h"
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
@@ -187,6 +188,9 @@ void vApplicationDaemonTaskStartupHook( void )
         {
             /* Connect to the Wi-Fi before running the tests. */
             prvWifiConnect();
+
+            /* Provision the device with AWS certificate and private key. */
+            vDevModeKeyProvisioning();
 
             /* Create the task to run unit tests. */
             xTaskCreate( TEST_RUNNER_RunTests_task,

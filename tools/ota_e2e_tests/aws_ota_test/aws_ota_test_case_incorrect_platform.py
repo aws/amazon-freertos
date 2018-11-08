@@ -39,14 +39,14 @@ class OtaTestIncorrectPlatform( OtaTestCase ):
             otaAwsAgent, 
             flashComm
         )
-        if self._otaConfig['aws_signer_platform'] == 'TexasInstruments':
+        if self._otaConfig['aws_signer_platform'] == 'AmazonFreeRTOS-TI-CC3220SF':
             self._signingType = 'FakeMCHP'
-            self._incorrectPlatform = 'MicrochipTechnologyInc'
+            self._incorrectPlatform = 'AmazonFreeRTOS-Default'
             self._signingAlgorithm = 'ECDSA'
             self._hashingAlgorithm = 'SHA256'
         else:
             self._signingType = 'IdentifyAsTI'
-            self._incorrectPlatform = 'TexasInstruments'
+            self._incorrectPlatform = 'AmazonFreeRTOS-TI-CC3220SF'
             self._signingAlgorithm = 'RSA'
             self._hashingAlgorithm = 'SHA1'
 
@@ -71,7 +71,7 @@ class OtaTestIncorrectPlatform( OtaTestCase ):
             os.path.basename(self._otaConfig['ota_firmware_file_path'])
         )
         # Create a job.
-        jobId = self._otaAwsAgent.createOtaUpdateJob(
+        otaUpdateId = self._otaAwsAgent.createOtaUpdate(
             deploymentFiles = [
                 {
                     'fileName': self._otaConfig['device_firmware_file_name'],
@@ -100,7 +100,7 @@ class OtaTestIncorrectPlatform( OtaTestCase ):
         )
 
         # Wait for the job to complete.
-        return self.getTestResultAfterJobCompletion(jobId)
+        return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
 
     def getTestResult(self, jobStatus, log):
         if (jobStatus.status != 'SUCCEEDED'):

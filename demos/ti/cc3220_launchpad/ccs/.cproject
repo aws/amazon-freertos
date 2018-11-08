@@ -57,7 +57,6 @@
 									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/pkcs11"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/lib/third_party/tinycbor}"/>
 									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mbedtls/include"/>
-									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/mbedtls/include"/>
 									<listOptionValue builtIn="false" value="${BASE_DIR_ROOT}/lib/third_party/pkcs11"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.902230565" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL" useByScannerDiscovery="false" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>

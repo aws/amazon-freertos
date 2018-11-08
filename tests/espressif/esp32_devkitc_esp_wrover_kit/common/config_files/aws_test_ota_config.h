@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.1
+ * Amazon FreeRTOS V1.1.2  
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,24 +30,24 @@
 #ifndef _AWS_TEST_OTA_CONFIG_H_
 #define _AWS_TEST_OTA_CONFIG_H_
 
- /**
+/**
  * @brief Path to cert for OTA test PAL. Used to verify signature.
  * If applicable, the device must be pre-provisioned with this certificate. Please see
  * test/common/ota/test_files for the set of certificates.
  */
-#define otatestpalCERTIFICATE_FILE     "ecdsa-sha256-signer.crt.pem"
+#define otatestpalCERTIFICATE_FILE                         "ecdsa-sha256-signer.crt.pem"
 
 /**
  * @brief Some devices have a hard-coded name for the firmware image to boot.
  */
-#define otatestpalFRIMWARE_FILE  "dummy.bin"
+#define otatestpalFIRMWARE_FILE                            "dummy.bin"
 
 /**
- * @brief Some boards OTA PAL layers will use the file names passed into it for the 
+ * @brief Some boards OTA PAL layers will use the file names passed into it for the
  * image and the certificates because their non-volatile memory is abstracted by a
  * file system. Set this to 1 if that is the case for your device.
  */
-#define otatestpalUSE_FILE_SYSTEM    0
+#define otatestpalUSE_FILE_SYSTEM                          0
 
 /**
  * @brief 1 if prvPAL_CheckFileSignature() is implemented in aws_ota_pal.c.
@@ -60,15 +60,22 @@
 #define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1
 
 /**
+ * @brief 1 if using PKCS #11 to access the code sign certificate from NVM.
+ */
+#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    1
+
+/**
  * @brief Include of signature testing data applicable to this device.
  */
 #include "aws_test_ota_pal_ecdsa_sha256_signature.h"
+
+
 
 /**
  * @brief Define a valid and invalid signature verification method for this
  * platform (Microchip). These are used for generating test JSON docs.
  */
-#define otatestVALID_SIG_METHOD "sig-sha256-ecdsa"
-#define otatestINVALID_SIG_METHOD "sig-sha256-rsa"
+#define otatestVALID_SIG_METHOD      "sig-sha256-ecdsa"
+#define otatestINVALID_SIG_METHOD    "sig-sha256-rsa"
 
-#endif 
+#endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */

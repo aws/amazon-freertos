@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS11 AFQP V1.1.1
+ * Amazon FreeRTOS PKCS11 AFQP V1.1.2  
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,6 +39,7 @@
 #include "aws_pkcs11.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "aws_test_pkcs11_config.h"
+#include "aws_pkcs11_config.h"
 
 /* Test includes. */
 #include "unity_fixture.h"
@@ -47,6 +48,11 @@
 /* mbedTLS includes. */
 #include "mbedtls/sha256.h"
 #include "mbedtls/x509_crt.h"
+
+extern int convert_pem_to_der( const unsigned char * pucInput,
+                               size_t xLen,
+                               unsigned char * pucOutput,
+                               size_t * pxOlen );
 
 /*-----------------------------------------------------------*/
 /*         Multitask sign-verify loop configuration.         */
@@ -73,6 +79,17 @@ typedef struct SignVerifyTaskParams
 
 /* Event group used to synchronize tasks. */
 static EventGroupHandle_t xSyncEventGroup;
+
+
+
+CK_SESSION_HANDLE xGlobalSession;
+CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
+
+#define pkcs11testINVALID_SLOT_ID    -1
+
+
+extern CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
+                               ProvisioningParams_t * xParams );
 
 /*-----------------------------------------------------------*/
 /*                Certificates used in tests.                */
@@ -336,25 +353,70 @@ static const char pcSignedData[] =
     0x76, 0x62, 0x7f, 0xdc
 };
 
+
 /*-----------------------------------------------------------*/
 
-static void prvReprovision( const char * const pcClientCertificate,
-                            const char * const pcClientPrivateKey,
-                            uint32_t ulClientPrivateKeyType )
+static CK_RV prvReprovision( const char * const pcClientCertificate,
+                             const char * const pcClientPrivateKey,
+                             uint32_t ulClientPrivateKeyType )
 {
     ProvisioningParams_t xParams;
+    CK_RV xResult = CKR_OK;
+    int32_t lConverted = 0;
 
-    xParams.pcClientCertificate = ( uint8_t * ) pcClientCertificate;
-    xParams.pcClientPrivateKey = ( uint8_t * ) pcClientPrivateKey;
+    /* Since PEM is larger than DER, these buffers should always be sufficient. */
+    xParams.pcClientCertificate = ( uint8_t * ) pvPortMalloc( strlen( pcClientCertificate ) );
+    xParams.pcClientPrivateKey = ( uint8_t * ) pvPortMalloc( strlen( pcClientPrivateKey ) );
 
-    /* Include the null-terminator in cert and key length. */
-    xParams.ulClientCertificateLength = strlen( pcClientCertificate ) + 1;
-    xParams.ulClientPrivateKeyLength = strlen( pcClientPrivateKey ) + 1;
+    xParams.ulClientCertificateLength = strlen( pcClientCertificate );
+    xParams.ulClientPrivateKeyLength = strlen( pcClientPrivateKey );
 
     xParams.ulClientPrivateKeyType = ulClientPrivateKeyType;
 
-    /* Provision using alternate cert and key. */
-    vAlternateKeyProvisioning( &xParams );
+    if( ( xParams.pcClientCertificate != NULL ) && ( xParams.pcClientPrivateKey != NULL ) )
+    {
+        /* Convert PEM keys and certs to DER. */
+        lConverted = convert_pem_to_der( ( const unsigned char * ) pcClientCertificate,
+                                         strlen( pcClientCertificate ),
+                                         xParams.pcClientCertificate,
+                                         ( size_t * ) &( xParams.ulClientCertificateLength ) );
+
+        if( lConverted != 0 )
+        {
+            xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+            configPRINTF( ( "ERROR: Failed to convert certificate to DER format." ) );
+        }
+
+        lConverted = convert_pem_to_der( ( const unsigned char * ) pcClientPrivateKey,
+                                         strlen( pcClientPrivateKey ),
+                                         ( unsigned char * ) xParams.pcClientPrivateKey,
+                                         ( size_t * ) &( xParams.ulClientPrivateKeyLength ) );
+
+        if( lConverted != 0 )
+        {
+            xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+            configPRINTF( ( "ERROR: Failed to convert private key to DER format." ) );
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        /* Provision using alternate cert and key. */
+        xResult = xProvisionDevice( xGlobalSession, &xParams );
+    }
+
+    /* Free the memory malloc'ed for key and cert. */
+    if( xParams.pcClientCertificate != NULL )
+    {
+        vPortFree( xParams.pcClientCertificate );
+    }
+
+    if( xParams.pcClientPrivateKey != NULL )
+    {
+        vPortFree( xParams.pcClientPrivateKey );
+    }
+
+    return xResult;
 }
 
 /*-----------------------------------------------------------*/
@@ -380,23 +442,89 @@ static CK_RV prvInitializeAndStartSession( CK_FUNCTION_LIST_PTR * ppxFunctionLis
     }
 
     /* Get the default private key storage ID. */
-    if( 0 == xResult )
+    if( ( 0 == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
     {
-        xResult = ( *ppxFunctionList )->C_GetSlotList(
-            CK_TRUE,
-            pxSlotId,
-            &ulCount );
+        xResult = ( *ppxFunctionList )->C_GetSlotList( CK_TRUE,
+                                                       pxSlotId,
+                                                       &ulCount );
     }
 
     /* Start a private session with the PKCS#11 module. */
     if( 0 == xResult )
     {
-        xResult = ( *ppxFunctionList )->C_OpenSession(
-            *pxSlotId,
-            CKF_SERIAL_SESSION,
-            NULL,
-            NULL,
-            pxSession );
+        xResult = ( *ppxFunctionList )->C_OpenSession( *pxSlotId,
+                                                       CKF_SERIAL_SESSION,
+                                                       NULL,
+                                                       NULL,
+                                                       pxSession );
+    }
+
+    return xResult;
+}
+
+
+/*-----------------------------------------------------------*/
+
+static CK_RV prvGetPrivateKeyHandle( CK_FUNCTION_LIST_PTR pxFunctionList,
+                                     CK_SESSION_HANDLE xSession,
+                                     CK_OBJECT_HANDLE_PTR pxPrivateKey )
+{
+    CK_ATTRIBUTE xTemplate;
+    CK_ULONG ulCount;
+    CK_RV xResult = CKR_OK;
+
+    /* Set up the template for the private key handle. */
+    xTemplate.type = CKA_LABEL;
+    xTemplate.ulValueLen = sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
+    xTemplate.pValue = &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+    xResult = pxFunctionList->C_FindObjectsInit( xSession, &xTemplate, 1 );
+
+    if( CKR_OK == xResult )
+    {
+        xResult = pxFunctionList->C_FindObjects( xSession,
+                                                 pxPrivateKey,
+                                                 1,
+                                                 &ulCount );
+    }
+
+    if( CKR_OK == xResult )
+    {
+        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
+    }
+
+    return xResult;
+}
+
+/*-----------------------------------------------------------*/
+
+static CK_RV prvGetCertificateHandle( CK_FUNCTION_LIST_PTR pxFunctionList,
+                                      CK_SESSION_HANDLE xSession,
+                                      CK_OBJECT_HANDLE_PTR pxCertHandle )
+{
+    CK_ATTRIBUTE xTemplate;
+    CK_RV xResult = CKR_OK;
+    CK_ULONG ulCount = 0;
+
+    /* Get the certificate handle. */
+    if( 0 == xResult )
+    {
+        xTemplate.type = CKA_LABEL;
+        xTemplate.ulValueLen = sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS );
+        xTemplate.pValue = &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+        xResult = pxFunctionList->C_FindObjectsInit( xSession, &xTemplate, 1 );
+    }
+
+    if( 0 == xResult )
+    {
+        xResult = pxFunctionList->C_FindObjects( xSession,
+                                                 ( CK_OBJECT_HANDLE_PTR ) &pxCertHandle,
+                                                 1,
+                                                 &ulCount );
+    }
+
+    if( 0 == xResult )
+    {
+        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
     }
 
     return xResult;
@@ -409,32 +537,52 @@ static CK_RV prvImportPublicKey( CK_SESSION_HANDLE xSession,
                                  CK_OBJECT_HANDLE_PTR pxPublicKeyHandle,
                                  const char * const pcPublicKey )
 {
-    CK_RV xResult = 0;
+    CK_RV xResult = CKR_OK;
     CK_OBJECT_CLASS xPublicKeyClass = CKO_PUBLIC_KEY;
 
     /* It doesn't matter what key type is passed. The key type will be automatically
      * identified. */
     CK_KEY_TYPE xKeyType = CKK_RSA;
 
+    size_t xPublicKeyBufferLength = strlen( pcPublicKey );
+    uint8_t * pucPublicKeyDer = pvPortMalloc( xPublicKeyBufferLength );
+
+    if( pucPublicKeyDer == NULL )
+    {
+        xResult = CKR_HOST_MEMORY;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        /* Convert the key from PEM to DER */
+        xResult = convert_pem_to_der( ( const unsigned char * ) pcPublicKey,
+                                      strlen( pcPublicKey ),
+                                      pucPublicKeyDer,
+                                      &xPublicKeyBufferLength );
+    }
+
     /* Public key configuration template. */
     CK_ATTRIBUTE xPublicKeyTemplate[] =
     {
-        { CKA_CLASS,    &xPublicKeyClass, sizeof( xPublicKeyClass ) },
-        { CKA_KEY_TYPE, &xKeyType,        sizeof( xKeyType )        },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) pcPublicKey,
-          ( CK_ULONG ) strlen( pcPublicKey ) + 1 }
+        { CKA_CLASS,    &xPublicKeyClass,                         sizeof( xPublicKeyClass )                         },
+        { CKA_KEY_TYPE, &xKeyType,                                sizeof( xKeyType )                                },
+        { CKA_LABEL,    &pkcs11configLABEL_CODE_VERIFICATION_KEY, sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) },
+        { CKA_VALUE,    ( CK_VOID_PTR ) pucPublicKeyDer,          ( CK_ULONG ) xPublicKeyBufferLength              }
     };
 
     /* Create an object using the public key. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
-        xResult = pxFunctionList->C_CreateObject(
-            xSession,
-            xPublicKeyTemplate,
-            sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-            pxPublicKeyHandle
-            );
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                  xPublicKeyTemplate,
+                                                  sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxPublicKeyHandle
+                                                  );
+    }
+
+    if( pucPublicKeyDer != NULL )
+    {
+        vPortFree( pucPublicKeyDer );
     }
 
     return xResult;
@@ -447,42 +595,61 @@ static CK_RV prvImportCertificateAndKeys( const char * const pcCertificate,
                                           const char * const pcPublicKey,
                                           CK_KEY_TYPE xKeyType )
 {
-    CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
+    CK_RV xResult = CKR_OK;
     CK_OBJECT_HANDLE xObject = 0;
-
     /* Certificate configuration template. */
     CK_OBJECT_CLASS xCertificateClass = CKO_CERTIFICATE;
-    CK_OBJECT_CLASS xCertificateType = pkcs11CERTIFICATE_TYPE_USER;
-    CK_ATTRIBUTE xCertificateTemplate[] =
+    PKCS11_CertificateTemplate_t xCertificateTemplate;
+    size_t xDerCertificateLength = strlen( pcCertificate );
+    size_t xDerKeyLength = strlen( pcPrivateKey );
+
+    uint8_t * pucKeyDer = pvPortMalloc( strlen( pcPrivateKey ) );
+    uint8_t * pucCertificateDer = pvPortMalloc( strlen( pcCertificate ) );
+
+    if( ( pucCertificateDer == NULL ) || ( pucKeyDer == NULL ) )
     {
-        { CKA_CLASS,            &xCertificateClass, sizeof( xCertificateClass ) },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) pcCertificate,
-          ( CK_ULONG ) strlen( pcCertificate ) + 1 },
-        { CKA_CERTIFICATE_TYPE, &xCertificateType,  sizeof( xCertificateType )  }
+        xResult = CKR_HOST_MEMORY;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        /* Convert the key from PEM to DER */
+        xResult = convert_pem_to_der( ( const unsigned char * ) pcCertificate,
+                                      strlen( pcCertificate ),
+                                      pucCertificateDer,
+                                      &xDerCertificateLength );
+    }
+
+    xCertificateTemplate.xObjectClass = ( CK_ATTRIBUTE ) {
+        CKA_CLASS, &xCertificateClass, sizeof( xCertificateClass )
     };
+    xCertificateTemplate.xLabel = ( CK_ATTRIBUTE ) {
+        CKA_LABEL, &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS )
+    };
+    xCertificateTemplate.xValue = ( CK_ATTRIBUTE ) {
+        CKA_VALUE, ( CK_VOID_PTR ) pucCertificateDer, ( CK_ULONG ) xDerCertificateLength
+    };
+
+    if( xResult == CKR_OK )
+    {
+        /* Convert the key from PEM to DER */
+        xResult = convert_pem_to_der( ( const unsigned char * ) pcPrivateKey,
+                                      strlen( pcPrivateKey ),
+                                      pucKeyDer,
+                                      &xDerKeyLength );
+    }
 
     /* Private key configuration template. */
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
-    CK_BBOOL xCanSign = CK_TRUE;
     CK_ATTRIBUTE xPrivateKeyTemplate[] =
     {
-        { CKA_CLASS,    &xPrivateKeyClass, sizeof( xPrivateKeyClass ) },
-        { CKA_KEY_TYPE, &xKeyType,         sizeof( xKeyType )         },
-        { CKA_SIGN,     &xCanSign,         sizeof( xCanSign )         },
+        { CKA_CLASS,    &xPrivateKeyClass,                             sizeof( xPrivateKeyClass )                             },
+        { CKA_KEY_TYPE, &xKeyType,                                     sizeof( xKeyType )                                     },
+        { CKA_LABEL,    &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) },
         { CKA_VALUE,
-          ( CK_VOID_PTR ) pcPrivateKey,
-          ( CK_ULONG ) strlen( pcPrivateKey ) + 1 }
+          ( CK_VOID_PTR ) pucKeyDer,
+          ( CK_ULONG ) xDerKeyLength }
     };
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
 
     /** \brief Check that a certificate and private key can be imported into
      * persistent storage.
@@ -490,67 +657,64 @@ static CK_RV prvImportCertificateAndKeys( const char * const pcCertificate,
      */
 
     /* Create an object using the encoded private key. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
-        xResult = pxFunctionList->C_CreateObject(
-            xSession,
-            xPrivateKeyTemplate,
-            sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-            &xObject );
+        xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                        xPrivateKeyTemplate,
+                                                        sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                        &xObject );
     }
 
     /* Free the private key. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xObject );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                         xObject );
         xObject = 0;
     }
 
     /* Create an object using the encoded certificate. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
-        xResult = pxFunctionList->C_CreateObject(
-            xSession,
-            xCertificateTemplate,
-            sizeof( xCertificateTemplate ) / sizeof( CK_ATTRIBUTE ),
-            &xObject );
+        xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                        ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
+                                                        sizeof( xCertificateTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                        &xObject );
     }
 
     /* Free the certificate. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xObject );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                         xObject );
         xObject = 0;
     }
 
-    /* Import a public key. */
-    if( 0 == xResult )
+    if( pucCertificateDer != NULL )
     {
-        xResult = prvImportPublicKey( xSession,
-                                      pxFunctionList,
+        vPortFree( pucCertificateDer );
+    }
+
+    if( pucKeyDer != NULL )
+    {
+        vPortFree( pucKeyDer );
+    }
+
+    /* Import a public key. */
+    if( CKR_OK == xResult )
+    {
+        xResult = prvImportPublicKey( xGlobalSession,
+                                      pxGlobalFunctionList,
                                       &xObject,
                                       pcPublicKey );
     }
 
     /* Free the public key. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xObject );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                         xObject );
         xObject = 0;
-    }
-
-    /* Cleanup PKCS#11. */
-    if( ( NULL != pxFunctionList ) &&
-        ( NULL != pxFunctionList->C_CloseSession ) )
-    {
-        pxFunctionList->C_CloseSession( xSession );
-        pxFunctionList->C_Finalize( NULL );
     }
 
     return xResult;
@@ -565,32 +729,24 @@ static CK_RV prvExportCertificateAndKeys( const char * const pcCertificate,
                                           CK_KEY_TYPE xKeyType )
 {
     CK_RV xResult;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
+    CK_RV xResult2;
     CK_ATTRIBUTE xTemplate = { 0 };
     CK_ULONG ulCount = 0;
-    CK_OBJECT_CLASS xObjClass = 0;
     CK_OBJECT_HANDLE xCertificateHandle = 0;
     CK_OBJECT_HANDLE xPublicKeyHandle = 0;
     CK_OBJECT_HANDLE xPrivateKeyHandle = 0;
     CK_BYTE_PTR pucExportBuffer = NULL;
-    mbedtls_x509_crt xCertContext = { { 0 } };
+    mbedtls_x509_crt xCertContext = { 0 };
+
 
     /* Reprovision with given certificate and key. */
-    prvReprovision( pcCertificate, pcPrivateKey, xKeyType );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
+    xResult = prvReprovision( pcCertificate, pcPrivateKey, xKeyType );
 
     /* Import a public key. */
     if( 0 == xResult )
     {
-        xResult = prvImportPublicKey( xSession,
-                                      pxFunctionList,
+        xResult = prvImportPublicKey( xGlobalSession,
+                                      pxGlobalFunctionList,
                                       &xPublicKeyHandle,
                                       pcPublicKey );
     }
@@ -598,64 +754,49 @@ static CK_RV prvExportCertificateAndKeys( const char * const pcCertificate,
     /* Get the handle of the certificate. */
     if( 0 == xResult )
     {
-        xObjClass = CKO_CERTIFICATE;
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
+        xTemplate.type = CKA_LABEL;
+        xTemplate.ulValueLen = sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS );
+        xTemplate.pValue = &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
 
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
+        xResult = pxGlobalFunctionList->C_FindObjectsInit( xGlobalSession, &xTemplate, 1 );
 
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects( xSession,
-                                                 &xCertificateHandle,
-                                                 1,
-                                                 &ulCount );
+        if( 0 == xResult )
+        {
+            xResult = pxGlobalFunctionList->C_FindObjects( xGlobalSession,
+                                                           &xCertificateHandle,
+                                                           1,
+                                                           &ulCount );
+        }
+
+        xResult2 = pxGlobalFunctionList->C_FindObjectsFinal( xGlobalSession );
+
+        /* Cleanup for FindObjects, but if a previous function failed, maintain the error code. */
+        if( xResult == CKR_OK )
+        {
+            xResult = xResult2;
+        }
     }
 
     /* Get the handle of the private key. */
-    if( 0 == xResult )
-    {
-        xObjClass = CKO_PRIVATE_KEY;
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
-
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects( xSession,
-                                                 &xPrivateKeyHandle,
-                                                 1,
-                                                 &ulCount );
-    }
-
-    /* Close the FindObjects context. */
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
-    }
+    xResult = prvGetPrivateKeyHandle( pxGlobalFunctionList, xGlobalSession, &xPrivateKeyHandle );
 
     /* Attempt to export the private key. This should fail. */
+
     if( 0 == xResult )
     {
         xTemplate.type = CKA_VALUE;
         xTemplate.pValue = NULL;
 
-        if( 0 == pxFunctionList->C_GetAttributeValue( xSession,
-                                                      xPrivateKeyHandle,
-                                                      &xTemplate,
-                                                      1 ) )
+        if( 0 == pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession,
+                                                            xPrivateKeyHandle,
+                                                            &xTemplate,
+                                                            1 ) )
         {
             xResult = CKR_FUNCTION_FAILED;
         }
         else
         {
+            /* Note this test should also probably try with a non null value to extract the private key. */
             xResult = CKR_OK;
         }
     }
@@ -664,16 +805,14 @@ static CK_RV prvExportCertificateAndKeys( const char * const pcCertificate,
     if( 0 == xResult )
     {
         xTemplate.pValue = NULL;
-        xResult = pxFunctionList->C_GetAttributeValue(
-            xSession,
-            xCertificateHandle,
-            &xTemplate, 1 );
+        xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession,
+                                                             xCertificateHandle,
+                                                             &xTemplate, 1 );
     }
 
     if( 0 == xResult )
     {
-        pucExportBuffer = ( CK_BYTE_PTR ) pvPortMalloc(
-            xTemplate.ulValueLen );
+        pucExportBuffer = ( CK_BYTE_PTR ) pvPortMalloc( xTemplate.ulValueLen );
 
         if( NULL == pucExportBuffer )
         {
@@ -684,36 +823,25 @@ static CK_RV prvExportCertificateAndKeys( const char * const pcCertificate,
     if( 0 == xResult )
     {
         xTemplate.pValue = pucExportBuffer;
-        xResult = pxFunctionList->C_GetAttributeValue(
-            xSession,
-            xCertificateHandle,
-            &xTemplate, 1 );
+        xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession,
+                                                             xCertificateHandle,
+                                                             &xTemplate,
+                                                             1 );
     }
 
-    /* Compare the exported certificate with the provisioned certificate. They
-     * should be the same. */
+    /* Make sure that the certificate parses.  TODO: Think of way to compare, regardless of stored format */
     if( 0 == xResult )
     {
         mbedtls_x509_crt_init( &xCertContext );
 
-        if( 0 == mbedtls_x509_crt_parse( &xCertContext,
-                                         ( const uint8_t * ) pcCertificate,
-                                         strlen( pcCertificate ) + 1 ) )
+        if( 0 != mbedtls_x509_crt_parse( &xCertContext,
+                                         ( const uint8_t * ) xTemplate.pValue,
+                                         xTemplate.ulValueLen ) )
         {
-            if( ( xCertContext.raw.len != xTemplate.ulValueLen ) ||
-                ( 0 != memcmp( xCertContext.raw.p,
-                               xTemplate.pValue,
-                               xTemplate.ulValueLen ) ) )
-            {
-                xResult = CKR_FUNCTION_FAILED;
-            }
+            xResult = CKR_FUNCTION_FAILED;
+        }
 
-            mbedtls_x509_crt_free( &xCertContext );
-        }
-        else
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
+        mbedtls_x509_crt_free( &xCertContext );
     }
 
     /* Free the exported certificate. */
@@ -730,16 +858,14 @@ static CK_RV prvExportCertificateAndKeys( const char * const pcCertificate,
     if( 0 == xResult )
     {
         xTemplate.type = CKA_VALUE;
-        xResult = pxFunctionList->C_GetAttributeValue(
-            xSession,
-            xPublicKeyHandle,
-            &xTemplate, 1 );
+        xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession,
+                                                             xPublicKeyHandle,
+                                                             &xTemplate, 1 );
     }
 
     if( 0 == xResult )
     {
-        pucExportBuffer = ( CK_BYTE_PTR ) pvPortMalloc(
-            xTemplate.ulValueLen );
+        pucExportBuffer = ( CK_BYTE_PTR ) pvPortMalloc( xTemplate.ulValueLen );
 
         if( NULL == pucExportBuffer )
         {
@@ -750,10 +876,9 @@ static CK_RV prvExportCertificateAndKeys( const char * const pcCertificate,
     if( 0 == xResult )
     {
         xTemplate.pValue = pucExportBuffer;
-        xResult = pxFunctionList->C_GetAttributeValue(
-            xSession,
-            xPublicKeyHandle,
-            &xTemplate, 1 );
+        xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession,
+                                                             xPublicKeyHandle,
+                                                             &xTemplate, 1 );
     }
 
     /* Free the exported public key. */
@@ -766,17 +891,15 @@ static CK_RV prvExportCertificateAndKeys( const char * const pcCertificate,
     /* Free the public key object. */
     if( 0 != xPublicKeyHandle )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xPublicKeyHandle );
-        xPublicKeyHandle = 0;
-    }
+        xResult2 = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                          xPublicKeyHandle );
 
-    if( ( NULL != pxFunctionList ) &&
-        ( NULL != pxFunctionList->C_CloseSession ) )
-    {
-        pxFunctionList->C_CloseSession( xSession );
-        pxFunctionList->C_Finalize( NULL );
+        if( ( xResult2 != CKR_OK ) && ( xResult == CKR_OK ) )
+        {
+            xResult = xResult2;
+        }
+
+        xPublicKeyHandle = 0;
     }
 
     return xResult;
@@ -789,95 +912,58 @@ static CK_RV prvSignVerifyRoundTrip( CK_MECHANISM_TYPE xMechanism,
                                      const char * const pcPublicKey )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_ULONG ulCount = 0;
-    CK_ATTRIBUTE xTemplate = { 0 };
-    CK_OBJECT_CLASS xObjClass = 0;
-    CK_OBJECT_HANDLE xPrivateKey = 0;
-    CK_OBJECT_HANDLE xVerifyInitKeyHandle = 0;
-    CK_ULONG ulKeyType = 0;
     CK_MECHANISM xMech = { 0 };
     CK_BYTE pucMessage[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
     CK_BYTE pucHash[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
     CK_BYTE pucSignature[ 256 ] = { 0 };
     CK_OBJECT_HANDLE xPublicKey = 0;
+    CK_OBJECT_HANDLE xPrivateKey = 0;
 
     /* Hash the message (the null input). */
     ( void ) mbedtls_sha256_ret( pucMessage, 0, pucHash, 0 );
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
 
     /* Get the (first) private key handle. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
-        xObjClass = CKO_PRIVATE_KEY;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects(
-            xSession,
-            &xPrivateKey,
-            1,
-            &ulCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
-    }
+    xResult = prvGetPrivateKeyHandle( pxGlobalFunctionList, xGlobalSession, &xPrivateKey );
 
     /* Query the key type. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_KEY_TYPE;
-        xTemplate.ulValueLen = sizeof( ulKeyType );
-        xTemplate.pValue = &ulKeyType;
-        xResult = pxFunctionList->C_GetAttributeValue(
-            xSession,
-            xPrivateKey,
-            &xTemplate,
-            1 );
-    }
+    /*if( 0 == xResult ) */
+    /*{ */
+    /*    xTemplate.type = CKA_KEY_TYPE; */
+    /*    xTemplate.ulValueLen = sizeof( ulKeyType ); */
+    /*    xTemplate.pValue = &ulKeyType; */
+    /*    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, */
+    /*                                                         xPrivateKey, */
+    /*                                                         &xTemplate, */
+    /*                                                         1 ); */
+    /*} */
 
     /* Sign a hash. */
     if( 0 == xResult )
     {
         xMech.mechanism = xMechanism;
-        xResult = pxFunctionList->C_SignInit(
-            xSession,
-            &xMech,
-            xPrivateKey );
+        xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession,
+                                                    &xMech,
+                                                    xPrivateKey );
     }
 
     if( 0 == xResult )
     {
         /* TODO - query the key size instead. */
         ulCount = sizeof( pucSignature );
-        xResult = pxFunctionList->C_Sign(
-            xSession,
-            pucHash,
-            sizeof( pucHash ),
-            pucSignature,
-            &ulCount );
+        xResult = pxGlobalFunctionList->C_Sign( xGlobalSession,
+                                                pucHash,
+                                                sizeof( pucHash ),
+                                                pucSignature,
+                                                &ulCount );
     }
 
     /* Create an object using the public key if provided. */
     if( ( 0 == xResult ) && ( pcPublicKey != NULL ) )
     {
-        xResult = prvImportPublicKey( xSession,
-                                      pxFunctionList,
+        xResult = prvImportPublicKey( xGlobalSession,
+                                      pxGlobalFunctionList,
                                       &xPublicKey,
                                       pcPublicKey );
     }
@@ -885,38 +971,18 @@ static CK_RV prvSignVerifyRoundTrip( CK_MECHANISM_TYPE xMechanism,
     /* Verify the signature using the same key handle. */
     if( 0 == xResult )
     {
-        /* If a public key was given, use it. */
-        if( pcPublicKey != NULL )
-        {
-            xVerifyInitKeyHandle = xPublicKey;
-        }
-        else
-        {
-            xVerifyInitKeyHandle = xPrivateKey;
-        }
-
-        xResult = pxFunctionList->C_VerifyInit(
-            xSession,
-            &xMech,
-            xVerifyInitKeyHandle );
+        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession,
+                                                      &xMech,
+                                                      xPublicKey );
     }
 
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_Verify(
-            xSession,
-            pucHash,
-            sizeof( pucHash ),
-            pucSignature,
-            ulCount );
-    }
-
-    /* Clean-up. */
-    if( ( NULL != pxFunctionList ) &&
-        ( NULL != pxFunctionList->C_CloseSession ) )
-    {
-        pxFunctionList->C_CloseSession( xSession );
-        pxFunctionList->C_Finalize( NULL );
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession,
+                                                  pucHash,
+                                                  sizeof( pucHash ),
+                                                  pucSignature,
+                                                  ulCount );
     }
 
     return xResult;
@@ -939,8 +1005,9 @@ static void prvSignVerifyTask( void * pvParameters )
 
         if( xTestResult != 0 )
         {
-            configPRINTF( ( "Task %d: SignVerify error in loop iteration %d.\r\n",
+            configPRINTF( ( "Task %d: SignVerify error %d in loop iteration %d.\r\n",
                             pxTaskParams->xTaskNumber,
+                            xTestResult,
                             i ) );
             break;
         }
@@ -957,114 +1024,164 @@ static void prvSignVerifyTask( void * pvParameters )
 
 /*-----------------------------------------------------------*/
 
-TEST_GROUP( Full_PKCS11 );
+TEST_GROUP( Full_PKCS11_GeneralPurpose );
+TEST_GROUP( Full_PKCS11_CryptoOperation );
 
-TEST_SETUP( Full_PKCS11 )
+
+TEST_SETUP( Full_PKCS11_GeneralPurpose )
+{
+    CK_RV xResult;
+
+    pxGlobalFunctionList = NULL;
+
+    xResult = C_GetFunctionList( &pxGlobalFunctionList );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get function list." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxGlobalFunctionList->C_Finalize, "C_Finalize Function Pointer NULL" );
+
+    xResult = pxGlobalFunctionList->C_Finalize( NULL );
+
+    if( ( xResult != CKR_OK ) && ( xResult != CKR_CRYPTOKI_NOT_INITIALIZED ) )
+    {
+        /* We are just asserting on CKR_OK here so that xResult will print. */
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize PKCS module." );
+    }
+}
+
+TEST_SETUP( Full_PKCS11_CryptoOperation )
+{
+    CK_RV xResult;
+    CK_SLOT_ID xSlotId = pkcs11testINVALID_SLOT_ID;
+    CK_ULONG ulCount = 1;
+
+
+    pxGlobalFunctionList = NULL;
+    xGlobalSession = 0;
+
+    xResult = C_GetFunctionList( &pxGlobalFunctionList );
+
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get function list." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxGlobalFunctionList, "Invalid function list." );
+
+    /* Check that the functions used by TEST_SETUP are not NULL. */
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxGlobalFunctionList->C_Initialize, "C_Initialize Function Pointer NULL" );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxGlobalFunctionList->C_GetSlotList, "C_GetSlotList Function Pointer NULL" );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxGlobalFunctionList->C_OpenSession, "C_OpenSession Function Pointer NULL" );
+
+    /* Initialize the PKCS#11 module. */
+    xResult = pxGlobalFunctionList->C_Initialize( NULL );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "PKCS Module initialization failed." );
+
+    /* Get the slot ID with PKCS#11  token. */
+    xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, &xSlotId, &ulCount );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( pkcs11testINVALID_SLOT_ID, xSlotId, "Invalid slot number." );
+
+    /* Open a PKCS#11 Session. */
+    xResult = pxGlobalFunctionList->C_OpenSession( xSlotId, CKF_SERIAL_SESSION, NULL, NULL, &xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open session." );
+}
+
+TEST_TEAR_DOWN( Full_PKCS11_GeneralPurpose )
 {
 }
 
-/*-----------------------------------------------------------*/
-
-TEST_TEAR_DOWN( Full_PKCS11 )
+TEST_TEAR_DOWN( Full_PKCS11_CryptoOperation )
 {
+    CK_RV xResult;
+
+    /* Check that the functions used by TEST_TEAR_DOWN are not NULL. */
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxGlobalFunctionList->C_CloseSession, "C_CloseSession Function Pointer NULL" );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxGlobalFunctionList->C_Finalize, "C_Finalize Function Pointer NULL" );
+
+    xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to close session." );
+
+    xResult = pxGlobalFunctionList->C_Finalize( NULL );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize PKCS module." );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST_GROUP_RUNNER( Full_PKCS11 )
+TEST_GROUP_RUNNER( Full_PKCS11_CryptoOperation )
 {
-    RUN_TEST_CASE( Full_PKCS11, AFQP_Digest );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_Digest_ErrorConditions );
+    /* Close the last session if it was not closed already. */
+    C_Finalize( NULL );
 
-    /* Test PKCS11 functions with invalid parameters. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_GetFunctionListInvalidParams );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_InitializeFinalizeInvalidParams );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_GetSlotListInvalidParams );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_OpenCloseSessionInvalidParams );
+    /* Digest related tests. */
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_Digest );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_Digest_ErrorConditions );
 
     /* Verify related tests. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSHappyTestVerify );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSC_VerifyInvalidParams );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSC_VerifyInitInvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_Verify_HappyPath );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_Verify_InvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_VerifyInit_InvalidParams );
 
     /* Sign related tests. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSHappyTestSign );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSSignInvalidParams );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSSignInitInvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_Sign_HappyPath );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_Sign_InvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_SignInit_InvalidParams );
 
     /* Object related tests. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSHappyTestObject );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSCreateObjectInvalidParameters );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSFindObjectsFinalInvalidParams );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSFindObjectsInvalidParams );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSFindObjectsInitInvalidParams );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSGetAttributeValueInvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_Objects_HappyPath );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_CreateObject_InvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_FindObjectsFinal_InvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_FindObjects_InvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_FindObjectsInit_InvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_GetAttributeValue_InvalidParams );
 
     /* Generated Random tests. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSGenerateRandomInvalidParameters );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_C_PKCSGenerateRandomTestHappyTest );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_GenerateRandom_InvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_GenerateRandom_HappyPath );
 
     /* Test that keys can be parsed. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_TestRSAParse );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_TestECDSAParse );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_TestRSAParse );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_TestECDSAParse );
 
     /* Test key and cert export. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_TestRSAExport );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_TestECDSAExport );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_TestRSAExport );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_TestECDSAExport );
 
     /* Basic sign-verify tests using RSA/SHA256 mechanism. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_SignVerifyRoundTripRSANoPubKey );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_SignVerifyRoundTripWithCorrectRSAPublicKey );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_SignVerifyRoundTripWithWrongRSAPublicKey );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTripWithCorrectRSAPublicKey );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTripWithWrongRSAPublicKey );
 
     /* Basic sign-verify tests using EC/SHA256 mechanism. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_SignVerifyRoundTripECNoPubKey );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_SignVerifyRoundTripWithCorrectECPublicKey );
-    RUN_TEST_CASE( Full_PKCS11, AFQP_SignVerifyRoundTripWithWrongECPublicKey );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTripWithCorrectECPublicKey );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTripWithWrongECPublicKey );
 
     /* Test signature verification with output from OpenSSL. Also attempts to
      * verify an invalid signature. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_SignVerifyCryptoApiInteropRSA );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_SignVerifyCryptoApiInteropRSA );
 
     /* Run sign-verify in a loop with multiple tasks. This test may take a while. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_SignVerifyRoundTrip_MultitaskLoop );
+    /*RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTrip_MultitaskLoop ); */
 
     /* Test key generation. */
-    RUN_TEST_CASE( Full_PKCS11, AFQP_KeyGenerationEcdsaHappyPath );
+    RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_KeyGenerationEcdsaHappyPath );
+}
+
+TEST_GROUP_RUNNER( Full_PKCS11_GeneralPurpose )
+{
+    /* Test PKCS11 functions with invalid parameters. */
+    RUN_TEST_CASE( Full_PKCS11_GeneralPurpose, AFQP_GetFunctionListInvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_GeneralPurpose, AFQP_InitializeFinalizeInvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_GeneralPurpose, AFQP_GetSlotListInvalidParams );
+    RUN_TEST_CASE( Full_PKCS11_GeneralPurpose, AFQP_OpenCloseSessionInvalidParams );
 
     /* Re-provision the device with default RSA certs so that subsequent tests are not changed. */
     vDevModeKeyProvisioning();
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSC_VerifyInvalidParams )
+TEST( Full_PKCS11_CryptoOperation, AFQP_Verify_InvalidParams )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_MECHANISM xMech = { 0 };
     CK_OBJECT_HANDLE xPublicKey = 0;
 
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
-    if( 0 != xResult )
-    {
-        configPRINTF( ( "Could not start session.\r\n" ) );
-    }
-
     if( 0 == xResult )
     {
-        xResult = prvImportPublicKey( xSession,
-                                      pxFunctionList,
+        xResult = prvImportPublicKey( xGlobalSession,
+                                      pxGlobalFunctionList,
                                       &xPublicKey,
                                       pcValidRSAPublicKey );
 
@@ -1078,10 +1195,9 @@ TEST( Full_PKCS11, AFQP_C_PKCSC_VerifyInvalidParams )
     if( 0 == xResult )
     {
         xMech.mechanism = CKM_SHA256_RSA_PKCS;
-        xResult = pxFunctionList->C_VerifyInit(
-            xSession,
-            &xMech,
-            xPublicKey );
+        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession,
+                                                      &xMech,
+                                                      xPublicKey );
 
         if( 0 != xResult )
         {
@@ -1093,63 +1209,42 @@ TEST( Full_PKCS11, AFQP_C_PKCSC_VerifyInvalidParams )
     {
         if( TEST_PROTECT() )
         {
-            xResult = pxFunctionList->C_Verify(
-                xSession,
-                ( CK_BYTE_PTR ) NULL,
-                ( CK_ULONG ) sizeof( pcNullByteHash ),
-                ( CK_BYTE_PTR ) pcSignedData,
-                ( CK_ULONG ) sizeof( pcSignedData ) );
-            TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_PKCSC_VerifyInitInvalidParams" );
+            xResult = pxGlobalFunctionList->C_Verify( xGlobalSession,
+                                                      ( CK_BYTE_PTR ) NULL,
+                                                      ( CK_ULONG ) sizeof( pcNullByteHash ),
+                                                      ( CK_BYTE_PTR ) pcSignedData,
+                                                      ( CK_ULONG ) sizeof( pcSignedData ) );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from VerifyInit_InvalidParams" );
 
-            xResult = pxFunctionList->C_Verify(
-                xSession,
-                ( CK_BYTE_PTR ) pcNullByteHash,
-                ( CK_ULONG ) sizeof( pcNullByteHash ),
-                NULL,
-                ( CK_ULONG ) sizeof( pcSignedData ) );
-            TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_PKCSC_VerifyInitInvalidParams" );
+            xResult = pxGlobalFunctionList->C_Verify( xGlobalSession,
+                                                      ( CK_BYTE_PTR ) pcNullByteHash,
+                                                      ( CK_ULONG ) sizeof( pcNullByteHash ),
+                                                      NULL,
+                                                      ( CK_ULONG ) sizeof( pcSignedData ) );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from VerifyInit_InvalidParams" );
 
-            xResult = pxFunctionList->C_Verify(
-                xSession,
-                ( CK_BYTE_PTR ) pcNullByteHash,
-                ( CK_ULONG ) sizeof( pcNullByteHash ),
-                ( CK_BYTE_PTR ) pcSignedData,
-                ( CK_ULONG ) 0 );
-            TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_SIGNATURE_INVALID, "Unexpected status from C_PKCSC_VerifyInitInvalidParams" );
+            xResult = pxGlobalFunctionList->C_Verify( xGlobalSession,
+                                                      ( CK_BYTE_PTR ) pcNullByteHash,
+                                                      ( CK_ULONG ) sizeof( pcNullByteHash ),
+                                                      ( CK_BYTE_PTR ) pcSignedData,
+                                                      ( CK_ULONG ) 0 );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_SIGNATURE_INVALID, "Unexpected status from VerifyInit_InvalidParams" );
 
             xResult = 0;
         }
     }
 
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSC_VerifyInitInvalidParams )
+TEST( Full_PKCS11_CryptoOperation, AFQP_VerifyInit_InvalidParams )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_OBJECT_HANDLE xPublicKey = 0;
 
 
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
 
     if( 0 != xResult )
     {
@@ -1158,8 +1253,8 @@ TEST( Full_PKCS11, AFQP_C_PKCSC_VerifyInitInvalidParams )
 
     if( 0 == xResult )
     {
-        xResult = prvImportPublicKey( xSession,
-                                      pxFunctionList,
+        xResult = prvImportPublicKey( xGlobalSession,
+                                      pxGlobalFunctionList,
                                       &xPublicKey,
                                       pcValidRSAPublicKey );
 
@@ -1174,39 +1269,24 @@ TEST( Full_PKCS11, AFQP_C_PKCSC_VerifyInitInvalidParams )
     {
         if( TEST_PROTECT() )
         {
-            xResult = pxFunctionList->C_VerifyInit(
-                xSession,
+            xResult = pxGlobalFunctionList->C_VerifyInit(
+                xGlobalSession,
                 NULL,
                 xPublicKey );
-            TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_PKCSC_VerifyInitInvalidParams" );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from VerifyInit_InvalidParams" );
 
             xResult = 0;
         }
     }
 
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSSignInvalidParams )
+TEST( Full_PKCS11_CryptoOperation, AFQP_Sign_InvalidParams )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_ULONG ulCount = 0;
-    CK_ATTRIBUTE xTemplate = { 0 };
-    CK_OBJECT_CLASS xObjClass = 0;
     CK_OBJECT_HANDLE xPrivateKey = 0;
-    CK_ULONG ulKeyType = 0;
     CK_MECHANISM xMech = { 0 };
     CK_BYTE pucMessage[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
     CK_BYTE pucHash[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
@@ -1217,58 +1297,16 @@ TEST( Full_PKCS11, AFQP_C_PKCSSignInvalidParams )
     /* Hash the message (the null input). */
     ( void ) mbedtls_sha256_ret( pucMessage, 0, pucHash, 0 );
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
-    /* Get the (first) private key handle. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
-        xObjClass = CKO_PRIVATE_KEY;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects(
-            xSession,
-            &xPrivateKey,
-            1,
-            &ulCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
-    }
-
-    /* Query the key type. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_KEY_TYPE;
-        xTemplate.ulValueLen = sizeof( ulKeyType );
-        xTemplate.pValue = &ulKeyType;
-        xResult = pxFunctionList->C_GetAttributeValue(
-            xSession,
-            xPrivateKey,
-            &xTemplate,
-            1 );
-    }
+    /* Get the private key handle. */
+    xResult = prvGetPrivateKeyHandle( pxGlobalFunctionList, xGlobalSession, &xPrivateKey );
 
     /* Sign a hash. */
     if( 0 == xResult )
     {
         xMech.mechanism = CKM_SHA256_RSA_PKCS;
-        xResult = pxFunctionList->C_SignInit(
-            xSession,
-            &xMech,
-            xPrivateKey );
+        xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession,
+                                                    &xMech,
+                                                    xPrivateKey );
     }
 
     if( 0 == xResult )
@@ -1276,49 +1314,34 @@ TEST( Full_PKCS11, AFQP_C_PKCSSignInvalidParams )
         if( TEST_PROTECT() )
         {
             ulCount = sizeof( pucSignature );
-            xResult = pxFunctionList->C_Sign(
-                xSession,
-                pucHash,
-                0,
-                pucSignature,
-                &ulCount );
+            /* Sign data with an invalid (0) length. */
+            xResult = pxGlobalFunctionList->C_Sign( xGlobalSession,
+                                                    pucHash,
+                                                    0, /* Invalid hash data length. */
+                                                    pucSignature,
+                                                    &ulCount );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_DATA_LEN_RANGE, "Unexpected status from C_Sign" );
 
-            xResult = pxFunctionList->C_Sign(
-                xSession,
-                pucHash,
-                sizeof( pucHash ),
-                pucSignature,
-                NULL );
+            /*  Provide a NULL pointer to variable specifying signature length. */
+            xResult = pxGlobalFunctionList->C_Sign( xGlobalSession,
+                                                    pucHash,
+                                                    sizeof( pucHash ),
+                                                    pucSignature,
+                                                    NULL );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_Sign" );
 
             xResult = 0;
         }
     }
 
-    /* Clean-up. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_C_PKCSSignInitInvalidParams )
+TEST( Full_PKCS11_CryptoOperation, AFQP_SignInit_InvalidParams )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
-    CK_ULONG ulCount = 0;
-    CK_ATTRIBUTE xTemplate = { 0 };
-    CK_OBJECT_CLASS xObjClass = 0;
     CK_OBJECT_HANDLE xPrivateKey = 0;
-    CK_ULONG ulKeyType = 0;
     CK_BYTE pucMessage[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
     CK_BYTE pucHash[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
 
@@ -1327,113 +1350,59 @@ TEST( Full_PKCS11, AFQP_C_PKCSSignInitInvalidParams )
     /* Hash the message (the null input). */
     ( void ) mbedtls_sha256_ret( pucMessage, 0, pucHash, 0 );
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
-    /* Get the (first) private key handle. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
-        xObjClass = CKO_PRIVATE_KEY;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects(
-            xSession,
-            &xPrivateKey,
-            1,
-            &ulCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
-    }
-
-    /* Query the key type. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_KEY_TYPE;
-        xTemplate.ulValueLen = sizeof( ulKeyType );
-        xTemplate.pValue = &ulKeyType;
-        xResult = pxFunctionList->C_GetAttributeValue(
-            xSession,
-            xPrivateKey,
-            &xTemplate,
-            1 );
-    }
+    /* Get the private key handle. */
+    xResult = prvGetPrivateKeyHandle( pxGlobalFunctionList, xGlobalSession, &xPrivateKey );
 
     /* Sign a hash. */
     if( 0 == xResult )
     {
         if( TEST_PROTECT() )
         {
-            xResult = pxFunctionList->C_SignInit(
-                xSession,
-                NULL,
-                xPrivateKey );
+            /* Try to initialize a signature without a mechanism. */
+            xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession,
+                                                        NULL,
+                                                        xPrivateKey );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_SignInit" );
 
             xResult = 0;
         }
     }
 
-    /* Clean-up. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsFinalInvalidParams )
+TEST( Full_PKCS11_CryptoOperation, AFQP_FindObjectsFinal_InvalidParams )
 {
     CK_RV xResult = 0;
     CK_OBJECT_CLASS xPublicKeyClass = CKO_PUBLIC_KEY;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_OBJECT_HANDLE xObject = 0;
     CK_BBOOL xObjCreated = CK_FALSE;
     CK_ATTRIBUTE xTemplate = { 0 };
     CK_OBJECT_CLASS xObjClass = 0;
     CK_OBJECT_HANDLE xCertObj = 0;
     CK_ULONG ulCount = 0;
+    PKCS11_KeyTemplate_t xPublicKeyTemplate;
 
     /* It doesn't matter what key type is passed. The key type will be automatically
      * identified. */
     CK_KEY_TYPE xKeyType = CKK_RSA;
 
     /* Public key configuration template. */
-    CK_ATTRIBUTE xPublicKeyTemplate[] =
-    {
-        { CKA_CLASS,    &xPublicKeyClass, sizeof( xPublicKeyClass ) },
-        { CKA_KEY_TYPE, &xKeyType,        sizeof( xKeyType )        },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) pcValidRSAPublicKey,
-          ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1 }
+    xPublicKeyTemplate.xObjectClass = ( CK_ATTRIBUTE ) {
+        CKA_CLASS, &xPublicKeyClass, sizeof( xPublicKeyClass )
+    };
+    xPublicKeyTemplate.xKeyType = ( CK_ATTRIBUTE ) {
+        CKA_KEY_TYPE, &xKeyType, sizeof( xKeyType )
+    };
+    xPublicKeyTemplate.xLabel = ( CK_ATTRIBUTE ) {
+        CKA_LABEL, &pkcs11configLABEL_CODE_VERIFICATION_KEY, sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY )
+    };
+    xPublicKeyTemplate.xValue = ( CK_ATTRIBUTE ) {
+        CKA_VALUE, ( CK_VOID_PTR ) pcValidRSAPublicKey, ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1
     };
 
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
 
     if( 0 != xResult )
     {
@@ -1443,12 +1412,11 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsFinalInvalidParams )
     /* Create an object using the public key. */
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_CreateObject(
-            xSession,
-            xPublicKeyTemplate,
-            sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-            &xObject
-            );
+        xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                        ( CK_ATTRIBUTE_PTR ) &xPublicKeyTemplate,
+                                                        sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                        &xObject
+                                                        );
 
         if( 0 != xResult )
         {
@@ -1465,7 +1433,7 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsFinalInvalidParams )
     {
         if( TEST_PROTECT() )
         {
-            xResult = pxFunctionList->C_FindObjectsFinal( xSession );
+            xResult = pxGlobalFunctionList->C_FindObjectsFinal( xGlobalSession );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_OPERATION_NOT_INITIALIZED, "Unexpected status from C_FindObjectsFinal" );
 
             /* Place holder for tests. */
@@ -1476,30 +1444,27 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsFinalInvalidParams )
         xTemplate.ulValueLen = sizeof( CKA_CLASS );
         xTemplate.pValue = &xObjClass;
         xObjClass = CKO_CERTIFICATE;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
+        xResult = pxGlobalFunctionList->C_FindObjectsInit( xGlobalSession, &xTemplate, 1 );
     }
 
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_FindObjects(
-            xSession,
-            &xCertObj,
-            1,
-            &ulCount );
+        xResult = pxGlobalFunctionList->C_FindObjects( xGlobalSession,
+                                                       &xCertObj,
+                                                       1,
+                                                       &ulCount );
     }
 
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
+        xResult = pxGlobalFunctionList->C_FindObjectsFinal( xGlobalSession );
     }
 
     /* Free the public key. */
     if( xObjCreated == CK_TRUE )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xObject );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                         xObject );
         xObject = 0;
 
         if( 0 != xResult )
@@ -1508,54 +1473,42 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsFinalInvalidParams )
         }
     }
 
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInvalidParams )
+TEST( Full_PKCS11_CryptoOperation, AFQP_FindObjects_InvalidParams )
 {
     CK_RV xResult = 0;
     CK_OBJECT_CLASS xPublicKeyClass = CKO_PUBLIC_KEY;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_OBJECT_HANDLE xObject = 0;
     CK_BBOOL xObjCreated = CK_FALSE;
     CK_ATTRIBUTE xTemplate = { 0 };
     CK_OBJECT_CLASS xObjClass = 0;
     CK_OBJECT_HANDLE xCertObj = 0;
     CK_ULONG ulCount = 0;
+    PKCS11_KeyTemplate_t xPublicKeyTemplate;
 
     /* It doesn't matter what key type is passed. The key type will be automatically
      * identified. */
     CK_KEY_TYPE xKeyType = CKK_RSA;
 
     /* Public key configuration template. */
-    CK_ATTRIBUTE xPublicKeyTemplate[] =
-    {
-        { CKA_CLASS,    &xPublicKeyClass, sizeof( xPublicKeyClass ) },
-        { CKA_KEY_TYPE, &xKeyType,        sizeof( xKeyType )        },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) pcValidRSAPublicKey,
-          ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1 }
+    /* Public key configuration template. */
+    xPublicKeyTemplate.xObjectClass = ( CK_ATTRIBUTE ) {
+        CKA_CLASS, &xPublicKeyClass, sizeof( xPublicKeyClass )
+    };
+    xPublicKeyTemplate.xKeyType = ( CK_ATTRIBUTE ) {
+        CKA_KEY_TYPE, &xKeyType, sizeof( xKeyType )
+    };
+    xPublicKeyTemplate.xLabel = ( CK_ATTRIBUTE ) {
+        CKA_LABEL, &pkcs11configLABEL_CODE_VERIFICATION_KEY, sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY )
+    };
+    xPublicKeyTemplate.xValue = ( CK_ATTRIBUTE ) {
+        CKA_VALUE, ( CK_VOID_PTR ) pcValidRSAPublicKey, ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1
     };
 
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
 
     if( 0 != xResult )
     {
@@ -1565,12 +1518,11 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInvalidParams )
     /* Create an object using the public key. */
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_CreateObject(
-            xSession,
-            xPublicKeyTemplate,
-            sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-            &xObject
-            );
+        xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                        ( CK_ATTRIBUTE_PTR ) &xPublicKeyTemplate,
+                                                        sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                        &xObject
+                                                        );
 
         if( 0 != xResult )
         {
@@ -1587,11 +1539,10 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInvalidParams )
     {
         if( TEST_PROTECT() )
         {
-            xResult = pxFunctionList->C_FindObjects(
-                xSession,
-                &xCertObj,
-                1,
-                &ulCount );
+            xResult = pxGlobalFunctionList->C_FindObjects( xGlobalSession,
+                                                           &xCertObj,
+                                                           1,
+                                                           &ulCount );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_OPERATION_NOT_INITIALIZED, "Unexpected status from C_FindObjects" );
 
             xResult = 0;
@@ -1601,45 +1552,40 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInvalidParams )
         xTemplate.ulValueLen = sizeof( CKA_CLASS );
         xTemplate.pValue = &xObjClass;
         xObjClass = CKO_CERTIFICATE;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
+        xResult = pxGlobalFunctionList->C_FindObjectsInit( xGlobalSession, &xTemplate, 1 );
     }
 
     if( 0 == xResult )
     {
         if( TEST_PROTECT() )
         {
-            xResult = pxFunctionList->C_FindObjects(
-                xSession,
-                &xCertObj,
-                0,
-                &ulCount );
+            xResult = pxGlobalFunctionList->C_FindObjects( xGlobalSession,
+                                                           &xCertObj,
+                                                           0,
+                                                           &ulCount );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_FindObjects" );
 
-            xResult = pxFunctionList->C_FindObjects(
-                xSession,
-                NULL,
-                1,
-                &ulCount );
+            xResult = pxGlobalFunctionList->C_FindObjects( xGlobalSession,
+                                                           NULL,
+                                                           1,
+                                                           &ulCount );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_FindObjects" );
 
-            xResult = pxFunctionList->C_FindObjects(
-                xSession,
-                &xCertObj,
-                1,
-                NULL );
+            xResult = pxGlobalFunctionList->C_FindObjects( xGlobalSession,
+                                                           &xCertObj,
+                                                           1,
+                                                           NULL );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_FindObjects" );
         }
 
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
+        xResult = pxGlobalFunctionList->C_FindObjectsFinal( xGlobalSession );
     }
 
     /* Free the public key. */
     if( xObjCreated == CK_TRUE )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xObject );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                         xObject );
         xObject = 0;
 
         if( 0 != xResult )
@@ -1648,50 +1594,37 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInvalidParams )
         }
     }
 
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInitInvalidParams )
+TEST( Full_PKCS11_CryptoOperation, AFQP_FindObjectsInit_InvalidParams )
 {
     CK_RV xResult = 0;
     CK_OBJECT_CLASS xPublicKeyClass = CKO_PUBLIC_KEY;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_OBJECT_HANDLE xObject = 0;
     CK_BBOOL xObjCreated = CK_FALSE;
+    PKCS11_KeyTemplate_t xPublicKeyTemplate;
 
     /* It doesn't matter what key type is passed. The key type will be automatically
      * identified. */
     CK_KEY_TYPE xKeyType = CKK_RSA;
 
     /* Public key configuration template. */
-    CK_ATTRIBUTE xPublicKeyTemplate[] =
-    {
-        { CKA_CLASS,    &xPublicKeyClass, sizeof( xPublicKeyClass ) },
-        { CKA_KEY_TYPE, &xKeyType,        sizeof( xKeyType )        },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) pcValidRSAPublicKey,
-          ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1 }
+    xPublicKeyTemplate.xObjectClass = ( CK_ATTRIBUTE ) {
+        CKA_CLASS, &xPublicKeyClass, sizeof( xPublicKeyClass )
+    };
+    xPublicKeyTemplate.xKeyType = ( CK_ATTRIBUTE ) {
+        CKA_KEY_TYPE, &xKeyType, sizeof( xKeyType )
+    };
+    xPublicKeyTemplate.xLabel = ( CK_ATTRIBUTE ) {
+        CKA_LABEL, &pkcs11configLABEL_CODE_VERIFICATION_KEY, sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY )
+    };
+    xPublicKeyTemplate.xValue = ( CK_ATTRIBUTE ) {
+        CKA_VALUE, ( CK_VOID_PTR ) pcValidRSAPublicKey, ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1
     };
 
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
 
     if( 0 != xResult )
     {
@@ -1701,12 +1634,11 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInitInvalidParams )
     /* Create an object using the public key. */
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_CreateObject(
-            xSession,
-            xPublicKeyTemplate,
-            sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-            &xObject
-            );
+        xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                        ( CK_ATTRIBUTE_PTR ) &xPublicKeyTemplate,
+                                                        sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                        &xObject
+                                                        );
 
         if( 0 != xResult )
         {
@@ -1723,20 +1655,18 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInitInvalidParams )
     {
         if( TEST_PROTECT() )
         {
-            xResult = pxFunctionList->C_FindObjectsInit(
-                xSession, NULL, 1 );
+            xResult = pxGlobalFunctionList->C_FindObjectsInit( xGlobalSession, NULL, 1 );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_FindObjectsInit" );
         }
 
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
+        xResult = pxGlobalFunctionList->C_FindObjectsFinal( xGlobalSession );
     }
 
     /* Free the public key. */
     if( xObjCreated == CK_TRUE )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xObject );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                         xObject );
         xObject = 0;
 
         if( 0 != xResult )
@@ -1745,29 +1675,14 @@ TEST( Full_PKCS11, AFQP_C_PKCSFindObjectsInitInvalidParams )
         }
     }
 
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
 /*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSGetAttributeValueInvalidParams )
+TEST( Full_PKCS11_CryptoOperation, AFQP_GetAttributeValue_InvalidParams )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
-    CK_ULONG ulCount = 0;
-    CK_ATTRIBUTE xTemplate = { 0 };
-    CK_OBJECT_CLASS xObjClass = 0;
     CK_OBJECT_HANDLE xPrivateKey = 0;
-    CK_ULONG ulKeyType = 0;
     CK_BYTE pucMessage[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
     CK_BYTE pucHash[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
 
@@ -1776,128 +1691,114 @@ TEST( Full_PKCS11, AFQP_C_PKCSGetAttributeValueInvalidParams )
     /* Hash the message (the null input). */
     ( void ) mbedtls_sha256_ret( pucMessage, 0, pucHash, 0 );
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
     /* Get the (first) private key handle. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
-        xObjClass = CKO_PRIVATE_KEY;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects(
-            xSession,
-            &xPrivateKey,
-            1,
-            &ulCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
-    }
+    xResult = prvGetPrivateKeyHandle( pxGlobalFunctionList, xGlobalSession, &xPrivateKey );
 
     /* Query the key type. */
     if( 0 == xResult )
     {
         if( TEST_PROTECT() )
         {
-            xTemplate.type = CKA_KEY_TYPE;
-            xTemplate.ulValueLen = sizeof( ulKeyType );
-            xTemplate.pValue = &ulKeyType;
-
-            xResult = pxFunctionList->C_GetAttributeValue(
-                xSession,
-                xPrivateKey,
-                NULL,
-                1 );
+            xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession,
+                                                                 xPrivateKey,
+                                                                 NULL,
+                                                                 1 );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_GetAttribute" );
 
             xResult = 0;
         }
     }
 
-    /* Clean-up. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSGenerateRandomTestHappyTest )
+TEST( Full_PKCS11_CryptoOperation, AFQP_GenerateRandom_HappyPath )
 {
-    CK_SESSION_HANDLE xSession = 0;
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     CK_SLOT_ID xSlotId = 0;
+    BaseType_t xSameSession = 0;
+    BaseType_t xDifferentSessions = 0;
+
+#define pkcstestRAND_BUFFER_SIZE    10 /* This number is not actually flexible anymore because of the print formatting. */
+    CK_BYTE pcBuf1[ pkcstestRAND_BUFFER_SIZE ];
+    CK_BYTE pcBuf2[ pkcstestRAND_BUFFER_SIZE ];
+    CK_BYTE pcBuf3[ pkcstestRAND_BUFFER_SIZE ];
+
+    /* Generate random bytes twice. */
+    if( CKR_OK == xResult )
+    {
+        xResult = C_GenerateRandom( xGlobalSession, pcBuf1, pkcstestRAND_BUFFER_SIZE );
+    }
+
+    if( CKR_OK == xResult )
+    {
+        xResult = C_GenerateRandom( xGlobalSession, pcBuf2, pkcstestRAND_BUFFER_SIZE );
+    }
+
+    if( CKR_OK == xResult )
+    {
+        /* Close the session and PKCS#11 module */
+        if( NULL != pxGlobalFunctionList )
+        {
+            ( void ) pxGlobalFunctionList->C_CloseSession( xGlobalSession );
+            ( void ) pxGlobalFunctionList->C_Finalize( NULL );
+        }
+    }
+
+    /* Re-initialize PKCS#11. */
+    xResult = prvInitializeAndStartSession( &pxGlobalFunctionList,
+                                            &xSlotId,
+                                            &xGlobalSession );
+
+    if( CKR_OK == xResult )
+    {
+        xResult = C_GenerateRandom( xGlobalSession, pcBuf3, pkcstestRAND_BUFFER_SIZE );
+    }
+
+    /* Check that the result is good. */
+    TEST_ASSERT_EQUAL_INT32( CKR_OK, xResult );
+
+    /* Check that the random bytes generated within session
+     * and between initializations of PKCS module are not the same. */
+    for( int i = 0; i < pkcstestRAND_BUFFER_SIZE; i++ )
+    {
+        if( pcBuf1[ i ] == pcBuf2[ i ] )
+        {
+            xSameSession++;
+        }
+
+        if( pcBuf1[ i ] == pcBuf3[ i ] )
+        {
+            xDifferentSessions++;
+        }
+    }
+
+    if( ( xSameSession > 1 ) || ( xDifferentSessions > 1 ) )
+    {
+        configPRINTF( ( "First Random Bytes: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+                        pcBuf1[ 0 ], pcBuf1[ 1 ], pcBuf1[ 2 ], pcBuf1[ 3 ], pcBuf1[ 4 ],
+                        pcBuf1[ 5 ], pcBuf1[ 6 ], pcBuf1[ 7 ], pcBuf1[ 8 ], pcBuf1[ 9 ] ) );
+
+        configPRINTF( ( "Second Set of Random Bytes: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+                        pcBuf2[ 0 ], pcBuf2[ 1 ], pcBuf2[ 2 ], pcBuf2[ 3 ], pcBuf2[ 4 ],
+                        pcBuf2[ 5 ], pcBuf2[ 6 ], pcBuf2[ 7 ], pcBuf2[ 8 ], pcBuf2[ 9 ] ) );
+
+        configPRINTF( ( "Third Set of Random Bytes:  %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+                        pcBuf3[ 0 ], pcBuf3[ 1 ], pcBuf3[ 2 ], pcBuf3[ 3 ], pcBuf3[ 4 ],
+                        pcBuf3[ 5 ], pcBuf3[ 6 ], pcBuf3[ 7 ], pcBuf3[ 8 ], pcBuf3[ 9 ] ) );
+    }
+
+    TEST_ASSERT_LESS_THAN( 2, xSameSession );
+    TEST_ASSERT_LESS_THAN( 2, xDifferentSessions );
+}
+
+TEST( Full_PKCS11_CryptoOperation, AFQP_GenerateRandom_InvalidParams )
+{
+    CK_RV xResult = 0;
     CK_BYTE xBuf[ 1 ];
 
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
-    if( 0 != xResult )
-    {
-        configPRINTF( ( "Could not start session.\r\n" ) );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = C_GenerateRandom( xSession, xBuf, 1 );
-    }
-    else
-    {
-        configPRINTF( ( "Could generate random numbers.\r\n" ) );
-    }
-
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
-    TEST_ASSERT_EQUAL_INT32( 0, xResult );
-}
-
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSGenerateRandomInvalidParameters )
-{
-    CK_SESSION_HANDLE xSession = 0;
-    CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_BYTE xBuf[ 1 ];
-
-    /* Reprovision with test RSA certificate and private key. */
-    prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
 
     if( 0 != xResult )
     {
@@ -1908,10 +1809,10 @@ TEST( Full_PKCS11, AFQP_C_PKCSGenerateRandomInvalidParameters )
     {
         if( TEST_PROTECT() )
         {
-            xResult = C_GenerateRandom( xSession, NULL, 1 );
+            xResult = C_GenerateRandom( xGlobalSession, NULL, 1 );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_GenerateRandom" );
 
-            xResult = C_GenerateRandom( xSession, xBuf, 0 );
+            xResult = C_GenerateRandom( xGlobalSession, xBuf, 0 );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from C_GenerateRandom" );
         }
 
@@ -1922,49 +1823,37 @@ TEST( Full_PKCS11, AFQP_C_PKCSGenerateRandomInvalidParameters )
         configPRINTF( ( "Could generate random numbers.\r\n" ) );
     }
 
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSCreateObjectInvalidParameters )
+TEST( Full_PKCS11_CryptoOperation, AFQP_CreateObject_InvalidParams )
 {
     CK_RV xResult = 0;
     CK_OBJECT_CLASS xPublicKeyClass = CKO_PUBLIC_KEY;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_OBJECT_HANDLE xObject = 0;
+    PKCS11_KeyTemplate_t xPublicKeyTemplate;
 
     /* It doesn't matter what key type is passed. The key type will be automatically
      * identified. */
     CK_KEY_TYPE xKeyType = CKK_RSA;
 
     /* Public key configuration template. */
-    CK_ATTRIBUTE xPublicKeyTemplate[] =
-    {
-        { CKA_CLASS,    &xPublicKeyClass, sizeof( xPublicKeyClass ) },
-        { CKA_KEY_TYPE, &xKeyType,        sizeof( xKeyType )        },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) pcValidRSAPublicKey,
-          ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1 }
+    xPublicKeyTemplate.xObjectClass = ( CK_ATTRIBUTE ) {
+        CKA_CLASS, &xPublicKeyClass, sizeof( xPublicKeyClass )
+    };
+    xPublicKeyTemplate.xKeyType = ( CK_ATTRIBUTE ) {
+        CKA_KEY_TYPE, &xKeyType, sizeof( xKeyType )
+    };
+    xPublicKeyTemplate.xLabel = ( CK_ATTRIBUTE ) {
+        CKA_LABEL, &pkcs11configLABEL_CODE_VERIFICATION_KEY, sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY )
+    };
+    xPublicKeyTemplate.xValue = ( CK_ATTRIBUTE ) {
+        CKA_VALUE, ( CK_VOID_PTR ) pcValidRSAPublicKey, ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1
     };
 
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
 
     if( 0 != xResult )
     {
@@ -1976,34 +1865,30 @@ TEST( Full_PKCS11, AFQP_C_PKCSCreateObjectInvalidParameters )
     {
         if( TEST_PROTECT() )
         {
-            xResult = pxFunctionList->C_CreateObject(
-                xSession,
-                NULL,
-                sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-                &xObject );
+            xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                            NULL,
+                                                            sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                            &xObject );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from object creation" );
 
 
-            xResult = pxFunctionList->C_CreateObject(
-                xSession,
-                xPublicKeyTemplate,
-                sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-                NULL );
+            xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                            ( CK_ATTRIBUTE_PTR ) &xPublicKeyTemplate,
+                                                            sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                            NULL );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from object creation" );
 
-            xResult = pxFunctionList->C_CreateObject(
-                xSession,
-                xPublicKeyTemplate,
-                ( CK_ULONG ) -1, /* Maximum possible length (unsigned) should be invalid. */
-                &xObject );
+            xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                            ( CK_ATTRIBUTE_PTR ) &xPublicKeyTemplate,
+                                                            ( CK_ULONG ) -1, /* Maximum possible length (unsigned) should be invalid. */
+                                                            &xObject );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( xResult, CKR_ARGUMENTS_BAD, "Unexpected status from object creation" );
 
             /* Free the public key. */
             if( 0 == xResult )
             {
-                xResult = pxFunctionList->C_DestroyObject(
-                    xSession,
-                    xObject );
+                xResult = pxFunctionList->C_DestroyObject( xGlobalSession,
+                                                           xObject );
                 xObject = 0;
 
                 if( 0 != xResult )
@@ -2018,29 +1903,14 @@ TEST( Full_PKCS11, AFQP_C_PKCSCreateObjectInvalidParameters )
         }
     }
 
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSHappyTestSign )
+TEST( Full_PKCS11_CryptoOperation, AFQP_Sign_HappyPath )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_ULONG ulCount = 0;
-    CK_ATTRIBUTE xTemplate = { 0 };
-    CK_OBJECT_CLASS xObjClass = 0;
     CK_OBJECT_HANDLE xPrivateKey = 0;
-    CK_ULONG ulKeyType = 0;
     CK_MECHANISM xMech = { 0 };
     CK_BYTE pucMessage[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
     CK_BYTE pucHash[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
@@ -2051,135 +1921,72 @@ TEST( Full_PKCS11, AFQP_C_PKCSHappyTestSign )
     /* Hash the message (the null input). */
     ( void ) mbedtls_sha256_ret( pucMessage, 0, pucHash, 0 );
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
-    /* Get the (first) private key handle. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
-        xObjClass = CKO_PRIVATE_KEY;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects(
-            xSession,
-            &xPrivateKey,
-            1,
-            &ulCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
-    }
-
-    /* Query the key type. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_KEY_TYPE;
-        xTemplate.ulValueLen = sizeof( ulKeyType );
-        xTemplate.pValue = &ulKeyType;
-        xResult = pxFunctionList->C_GetAttributeValue(
-            xSession,
-            xPrivateKey,
-            &xTemplate,
-            1 );
-    }
+    /* Get the private key handle. */
+    xResult = prvGetPrivateKeyHandle( pxGlobalFunctionList, xGlobalSession, &xPrivateKey );
 
     /* Sign a hash. */
     if( 0 == xResult )
     {
         xMech.mechanism = CKM_SHA256_RSA_PKCS;
-        xResult = pxFunctionList->C_SignInit(
-            xSession,
-            &xMech,
-            xPrivateKey );
+        xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession,
+                                                    &xMech,
+                                                    xPrivateKey );
     }
 
     if( 0 == xResult )
     {
         /* TODO - query the key size instead. */
         ulCount = sizeof( pucSignature );
-        xResult = pxFunctionList->C_Sign(
-            xSession,
-            pucHash,
-            sizeof( pucHash ),
-            pucSignature,
-            &ulCount );
-    }
-
-    /* Clean-up. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
+        xResult = pxGlobalFunctionList->C_Sign( xGlobalSession,
+                                                pucHash,
+                                                sizeof( pucHash ),
+                                                pucSignature,
+                                                &ulCount );
     }
 
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSHappyTestObject )
+TEST( Full_PKCS11_CryptoOperation, AFQP_Objects_HappyPath )
 {
     CK_RV xResult = 0;
     CK_OBJECT_CLASS xPublicKeyClass = CKO_PUBLIC_KEY;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_OBJECT_HANDLE xObject = 0;
     CK_BBOOL xObjCreated = CK_FALSE;
-    CK_ATTRIBUTE xTemplate = { 0 };
-    CK_OBJECT_CLASS xObjClass = 0;
-    CK_OBJECT_HANDLE xCertObj = 0;
-    CK_ULONG ulCount = 0;
+
+    PKCS11_KeyTemplate_t xPublicKeyTemplate;
 
     /* It doesn't matter what key type is passed. The key type will be automatically
      * identified. */
     CK_KEY_TYPE xKeyType = CKK_RSA;
 
     /* Public key configuration template. */
-    CK_ATTRIBUTE xPublicKeyTemplate[] =
-    {
-        { CKA_CLASS,    &xPublicKeyClass, sizeof( xPublicKeyClass ) },
-        { CKA_KEY_TYPE, &xKeyType,        sizeof( xKeyType )        },
-        { CKA_VALUE,
-          ( CK_VOID_PTR ) pcValidRSAPublicKey,
-          ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1 }
+    xPublicKeyTemplate.xObjectClass = ( CK_ATTRIBUTE ) {
+        CKA_CLASS, &xPublicKeyClass, sizeof( xPublicKeyClass )
+    };
+    xPublicKeyTemplate.xKeyType = ( CK_ATTRIBUTE ) {
+        CKA_KEY_TYPE, &xKeyType, sizeof( xKeyType )
+    };
+    xPublicKeyTemplate.xLabel = ( CK_ATTRIBUTE ) {
+        CKA_LABEL, &pkcs11configLABEL_CODE_VERIFICATION_KEY, sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY )
+    };
+    xPublicKeyTemplate.xValue = ( CK_ATTRIBUTE ) {
+        CKA_VALUE, ( CK_VOID_PTR ) pcValidRSAPublicKey, ( CK_ULONG ) strlen( pcValidRSAPublicKey ) + 1
     };
 
+
     /* Reprovision with test RSA certificate and private key. */
-    prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
-    if( 0 != xResult )
-    {
-        configPRINTF( ( "Could not start session.\r\n" ) );
-    }
+    xResult = prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
+    TEST_ASSERT_EQUAL_INT32( CKR_OK, xResult );
 
     /* Create an object using the public key. */
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_CreateObject(
-            xSession,
-            xPublicKeyTemplate,
-            sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-            &xObject
-            );
+        xResult = pxGlobalFunctionList->C_CreateObject( xGlobalSession,
+                                                        ( CK_ATTRIBUTE_PTR ) &xPublicKeyTemplate,
+                                                        sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                        &xObject
+                                                        );
 
         if( 0 != xResult )
         {
@@ -2191,37 +1998,15 @@ TEST( Full_PKCS11, AFQP_C_PKCSHappyTestObject )
         }
     }
 
-    /* Get the (first) certificate handle. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
-        xObjClass = CKO_CERTIFICATE;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects(
-            xSession,
-            &xCertObj,
-            1,
-            &ulCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
-    }
+    /* Get the certificate handle. */
+    xResult = prvGetCertificateHandle( pxGlobalFunctionList, xGlobalSession, &xObject );
+    TEST_ASSERT_EQUAL_INT32( CKR_OK, xResult );
 
     /* Free the public key. */
     if( xObjCreated == CK_TRUE )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xObject );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                         xObject );
         xObject = 0;
 
         if( 0 != xResult )
@@ -2230,36 +2015,19 @@ TEST( Full_PKCS11, AFQP_C_PKCSHappyTestObject )
         }
     }
 
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
-    }
-
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
 }
 
-/*-----------------------------------------------------------*/
-
-TEST( Full_PKCS11, AFQP_C_PKCSHappyTestVerify )
+TEST( Full_PKCS11_CryptoOperation, AFQP_Verify_HappyPath )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_MECHANISM xMech = { 0 };
     CK_OBJECT_HANDLE xPublicKey = 0;
 
 
     /* Reprovision with test RSA certificate and private key. */
-    prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
-
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
+    xResult = prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     if( 0 != xResult )
     {
@@ -2268,8 +2036,8 @@ TEST( Full_PKCS11, AFQP_C_PKCSHappyTestVerify )
 
     if( 0 == xResult )
     {
-        xResult = prvImportPublicKey( xSession,
-                                      pxFunctionList,
+        xResult = prvImportPublicKey( xGlobalSession,
+                                      pxGlobalFunctionList,
                                       &xPublicKey,
                                       pcValidRSAPublicKey );
 
@@ -2283,10 +2051,9 @@ TEST( Full_PKCS11, AFQP_C_PKCSHappyTestVerify )
     if( 0 == xResult )
     {
         xMech.mechanism = CKM_SHA256_RSA_PKCS;
-        xResult = pxFunctionList->C_VerifyInit(
-            xSession,
-            &xMech,
-            xPublicKey );
+        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession,
+                                                      &xMech,
+                                                      xPublicKey );
 
         if( 0 != xResult )
         {
@@ -2296,19 +2063,11 @@ TEST( Full_PKCS11, AFQP_C_PKCSHappyTestVerify )
 
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_Verify(
-            xSession,
-            ( CK_BYTE_PTR ) pcNullByteHash,
-            ( CK_ULONG ) sizeof( pcNullByteHash ),
-            ( CK_BYTE_PTR ) pcSignedData,
-            ( CK_ULONG ) sizeof( pcSignedData ) );
-    }
-
-    /* Cleanup PKCS#11. */
-    if( NULL != pxFunctionList )
-    {
-        ( void ) pxFunctionList->C_CloseSession( xSession );
-        ( void ) pxFunctionList->C_Finalize( NULL );
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession,
+                                                  ( CK_BYTE_PTR ) pcNullByteHash,
+                                                  ( CK_ULONG ) sizeof( pcNullByteHash ),
+                                                  ( CK_BYTE_PTR ) pcSignedData,
+                                                  ( CK_ULONG ) sizeof( pcSignedData ) );
     }
 
     TEST_ASSERT_EQUAL_INT32( 0, xResult );
@@ -2316,7 +2075,7 @@ TEST( Full_PKCS11, AFQP_C_PKCSHappyTestVerify )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_GetFunctionListInvalidParams )
+TEST( Full_PKCS11_GeneralPurpose, AFQP_GetFunctionListInvalidParams )
 {
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
 
@@ -2330,32 +2089,41 @@ TEST( Full_PKCS11, AFQP_GetFunctionListInvalidParams )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_InitializeFinalizeInvalidParams )
+TEST( Full_PKCS11_GeneralPurpose, AFQP_InitializeFinalizeInvalidParams )
 {
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
 
-    TEST_ASSERT_EQUAL( CKR_OK, C_GetFunctionList( &pxFunctionList ) );
+    CK_RV xP11Result;
 
-    /* C_Finalize should fail if pReserved isn't NULL. It shouldn't matter that
-     * C_Finalize is called before C_Initialize because the failing C_Finalize call
-     * should do nothing. */
-    TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD,
-                       pxFunctionList->C_Finalize( ( CK_VOID_PTR ) 0x1234 ) );
+    xP11Result = C_GetFunctionList( &pxFunctionList );
 
-    /* Currently, C_Initialize doesn't support use of pInitArgs. Pass NULL. */
-    if( CKR_OK == pxFunctionList->C_Initialize( NULL ) )
+    if( xP11Result == CKR_OK )
     {
-        TEST_ASSERT_EQUAL( CKR_OK, pxFunctionList->C_Finalize( NULL ) );
+        xP11Result = pxFunctionList->C_Initialize( NULL );
     }
-    else
+
+    if( xP11Result == CKR_OK )
     {
-        TEST_FAIL();
+        if( TEST_PROTECT() )
+        {
+            /* C_Finalize should fail if pReserved isn't NULL. */
+            {
+                TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, pxFunctionList->C_Finalize( ( CK_VOID_PTR ) 0x1234 ) );
+            }
+        }
     }
+
+    if( xP11Result == CKR_OK )
+    {
+        xP11Result = pxFunctionList->C_Finalize( NULL );
+    }
+
+    TEST_ASSERT_EQUAL( CKR_OK, xP11Result );
 }
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_GetSlotListInvalidParams )
+TEST( Full_PKCS11_GeneralPurpose, AFQP_GetSlotListInvalidParams )
 {
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     CK_SLOT_ID xSlotId = 0;
@@ -2368,22 +2136,18 @@ TEST( Full_PKCS11, AFQP_GetSlotListInvalidParams )
         if( TEST_PROTECT() )
         {
             /* Passing NULL as pulCount isn't valid. */
-            TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD,
-                               pxFunctionList->C_GetSlotList( CK_FALSE, NULL, NULL ) );
+            TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, pxFunctionList->C_GetSlotList( CK_FALSE, NULL, NULL ) );
 
             /* Passing 0 for slot count and attempting to get slot list isn't valid. */
             ulSlotCount = 0;
-            TEST_ASSERT_EQUAL( CKR_BUFFER_TOO_SMALL,
-                               pxFunctionList->C_GetSlotList( CK_FALSE, &xSlotId, &ulSlotCount ) );
+            TEST_ASSERT_EQUAL( CKR_BUFFER_TOO_SMALL, pxFunctionList->C_GetSlotList( CK_FALSE, &xSlotId, &ulSlotCount ) );
 
             /* This should get the number of slots. Check that ulSlotCount changed. */
-            TEST_ASSERT_EQUAL( CKR_OK,
-                               pxFunctionList->C_GetSlotList( CK_FALSE, NULL, &ulSlotCount ) );
+            TEST_ASSERT_EQUAL( CKR_OK, pxFunctionList->C_GetSlotList( CK_FALSE, NULL, &ulSlotCount ) );
             TEST_ASSERT_NOT_EQUAL( 0, ulSlotCount );
 
             /* Get slot list, all inputs valid. */
-            TEST_ASSERT_EQUAL( CKR_OK,
-                               pxFunctionList->C_GetSlotList( CK_FALSE, &xSlotId, &ulSlotCount ) );
+            TEST_ASSERT_EQUAL( CKR_OK, pxFunctionList->C_GetSlotList( CK_FALSE, &xSlotId, &ulSlotCount ) );
             TEST_ASSERT_NOT_EQUAL( 0, xSlotId );
         }
 
@@ -2397,7 +2161,7 @@ TEST( Full_PKCS11, AFQP_GetSlotListInvalidParams )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_OpenCloseSessionInvalidParams )
+TEST( Full_PKCS11_GeneralPurpose, AFQP_OpenCloseSessionInvalidParams )
 {
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     CK_SLOT_ID xSlotId = 0;
@@ -2411,27 +2175,21 @@ TEST( Full_PKCS11, AFQP_OpenCloseSessionInvalidParams )
         if( TEST_PROTECT() )
         {
             /* Get slot list. */
-            TEST_ASSERT_EQUAL( CKR_OK,
-                               pxFunctionList->C_GetSlotList( CK_TRUE, NULL, &ulSlotCount ) );
-            TEST_ASSERT_EQUAL( CKR_OK,
-                               pxFunctionList->C_GetSlotList( CK_TRUE, &xSlotId, &ulSlotCount ) );
+            TEST_ASSERT_EQUAL( CKR_OK, pxFunctionList->C_GetSlotList( CK_TRUE, NULL, &ulSlotCount ) );
+            TEST_ASSERT_EQUAL( CKR_OK, pxFunctionList->C_GetSlotList( CK_TRUE, &xSlotId, &ulSlotCount ) );
 
             /* Test C_OpenSession with bad pxSession argument. */
-            TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD,
-                               pxFunctionList->C_OpenSession( xSlotId, CKF_SERIAL_SESSION, NULL, NULL, NULL ) );
+            TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, pxFunctionList->C_OpenSession( xSlotId, CKF_SERIAL_SESSION, NULL, NULL, NULL ) );
 
             /* Test C_OpenSession without setting required CKF_SERIAL_SESSION flag. */
-            TEST_ASSERT_EQUAL( CKR_SESSION_PARALLEL_NOT_SUPPORTED,
-                               pxFunctionList->C_OpenSession( xSlotId, 0, NULL, NULL, &xSession ) );
+            TEST_ASSERT_EQUAL( CKR_SESSION_PARALLEL_NOT_SUPPORTED, pxFunctionList->C_OpenSession( xSlotId, 0, NULL, NULL, &xSession ) );
 
             /* Test C_OpenSession with valid arguments. */
-            TEST_ASSERT_EQUAL( CKR_OK,
-                               pxFunctionList->C_OpenSession( xSlotId, CKF_SERIAL_SESSION, NULL, NULL, &xSession ) );
+            TEST_ASSERT_EQUAL( CKR_OK, pxFunctionList->C_OpenSession( xSlotId, CKF_SERIAL_SESSION, NULL, NULL, &xSession ) );
             TEST_ASSERT_NOT_EQUAL( 0, xSession );
 
             /* C_CloseSession with invalid argument. */
-            TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID,
-                               pxFunctionList->C_CloseSession( ( CK_SESSION_HANDLE ) NULL ) );
+            TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, pxFunctionList->C_CloseSession( ( CK_SESSION_HANDLE ) NULL ) );
 
             /* C_CloseSession with valid argument. */
             if( CKR_OK == pxFunctionList->C_CloseSession( xSession ) )
@@ -2460,7 +2218,7 @@ TEST( Full_PKCS11, AFQP_OpenCloseSessionInvalidParams )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_TestRSAParse )
+TEST( Full_PKCS11_CryptoOperation, AFQP_TestRSAParse )
 {
     if( TEST_PROTECT() )
     {
@@ -2504,7 +2262,7 @@ TEST( Full_PKCS11, AFQP_TestRSAParse )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_TestECDSAParse )
+TEST( Full_PKCS11_CryptoOperation, AFQP_TestECDSAParse )
 {
     if( TEST_PROTECT() )
     {
@@ -2548,7 +2306,7 @@ TEST( Full_PKCS11, AFQP_TestECDSAParse )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_TestRSAExport )
+TEST( Full_PKCS11_CryptoOperation, AFQP_TestRSAExport )
 {
     TEST_ASSERT_EQUAL_INT32( prvExportCertificateAndKeys( pcValidRSACertificate,
                                                           pcValidRSAPrivateKey,
@@ -2559,7 +2317,7 @@ TEST( Full_PKCS11, AFQP_TestRSAExport )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_TestECDSAExport )
+TEST( Full_PKCS11_CryptoOperation, AFQP_TestECDSAExport )
 {
     TEST_ASSERT_EQUAL_INT32( prvExportCertificateAndKeys( pcValidECDSACertificate,
                                                           pcValidECDSAPrivateKey,
@@ -2570,19 +2328,11 @@ TEST( Full_PKCS11, AFQP_TestECDSAExport )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_SignVerifyRoundTripRSANoPubKey )
-{
-    /* Reprovision with test RSA certificate and private key. */
-    prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
 
-    TEST_ASSERT_EQUAL_INT32( prvSignVerifyRoundTrip( CKM_SHA256_RSA_PKCS,
-                                                     NULL ),
-                             0 );
-}
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_SignVerifyRoundTripWithCorrectRSAPublicKey )
+TEST( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTripWithCorrectRSAPublicKey )
 {
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
@@ -2594,7 +2344,7 @@ TEST( Full_PKCS11, AFQP_SignVerifyRoundTripWithCorrectRSAPublicKey )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_SignVerifyRoundTripWithWrongRSAPublicKey )
+TEST( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTripWithWrongRSAPublicKey )
 {
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
@@ -2608,19 +2358,9 @@ TEST( Full_PKCS11, AFQP_SignVerifyRoundTripWithWrongRSAPublicKey )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_SignVerifyRoundTripECNoPubKey )
-{
-    /* Reprovision with test ECDSA certificate and private key. */
-    prvReprovision( pcValidECDSACertificate, pcValidECDSAPrivateKey, CKK_EC );
-
-    TEST_ASSERT_EQUAL_INT32( prvSignVerifyRoundTrip( CKM_ECDSA,
-                                                     NULL ),
-                             0 );
-}
-
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_SignVerifyRoundTripWithCorrectECPublicKey )
+TEST( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTripWithCorrectECPublicKey )
 {
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidECDSACertificate, pcValidECDSAPrivateKey, CKK_EC );
@@ -2632,7 +2372,7 @@ TEST( Full_PKCS11, AFQP_SignVerifyRoundTripWithCorrectECPublicKey )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_SignVerifyRoundTripWithWrongECPublicKey )
+TEST( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTripWithWrongECPublicKey )
 {
     /* Reprovision with test ECDSA certificate and private key. */
     prvReprovision( pcValidECDSACertificate, pcValidECDSAPrivateKey, CKK_EC );
@@ -2644,15 +2384,9 @@ TEST( Full_PKCS11, AFQP_SignVerifyRoundTripWithWrongECPublicKey )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_SignVerifyCryptoApiInteropRSA )
+TEST( Full_PKCS11_CryptoOperation, AFQP_SignVerifyCryptoApiInteropRSA )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_ULONG ulCount = 0;
-    CK_SESSION_HANDLE xSession = 0;
-    CK_ATTRIBUTE xTemplate = { 0 };
-    CK_OBJECT_CLASS xObjClass = 0;
     CK_OBJECT_HANDLE xCertObj = 0;
     CK_MECHANISM xMech = { 0 };
     CK_OBJECT_HANDLE xPublicKey = 0;
@@ -2660,42 +2394,14 @@ TEST( Full_PKCS11, AFQP_SignVerifyCryptoApiInteropRSA )
     /* Reprovision with test RSA certificate and private key. */
     prvReprovision( pcValidRSACertificate, pcValidRSAPrivateKey, CKK_RSA );
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
     /* Get the (first) certificate handle. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_CLASS;
-        xTemplate.ulValueLen = sizeof( CKA_CLASS );
-        xTemplate.pValue = &xObjClass;
-        xObjClass = CKO_CERTIFICATE;
-        xResult = pxFunctionList->C_FindObjectsInit(
-            xSession, &xTemplate, 1 );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjects(
-            xSession,
-            &xCertObj,
-            1,
-            &ulCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = pxFunctionList->C_FindObjectsFinal( xSession );
-    }
+    xResult = prvGetCertificateHandle( pxGlobalFunctionList, xGlobalSession, &xCertObj );
 
     /* Create an object using the public key. */
     if( 0 == xResult )
     {
-        xResult = prvImportPublicKey( xSession,
-                                      pxFunctionList,
+        xResult = prvImportPublicKey( xGlobalSession,
+                                      pxGlobalFunctionList,
                                       &xPublicKey,
                                       pcValidRSAPublicKey );
     }
@@ -2704,33 +2410,30 @@ TEST( Full_PKCS11, AFQP_SignVerifyCryptoApiInteropRSA )
     if( 0 == xResult )
     {
         xMech.mechanism = CKM_SHA256_RSA_PKCS;
-        xResult = pxFunctionList->C_VerifyInit(
-            xSession,
-            &xMech,
-            xPublicKey );
+        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession,
+                                                      &xMech,
+                                                      xPublicKey );
     }
 
     /* Attempt to verify a valid signature. */
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_Verify(
-            xSession,
-            ( CK_BYTE_PTR ) pcNullByteHash,
-            ( CK_ULONG ) sizeof( pcNullByteHash ),
-            ( CK_BYTE_PTR ) pcSignedData,
-            ( CK_ULONG ) sizeof( pcSignedData ) );
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession,
+                                                  ( CK_BYTE_PTR ) pcNullByteHash,
+                                                  ( CK_ULONG ) sizeof( pcNullByteHash ),
+                                                  ( CK_BYTE_PTR ) pcSignedData,
+                                                  ( CK_ULONG ) sizeof( pcSignedData ) );
     }
 
     /* Create a malformed signature by dropping a byte. Attempt to verify it.
      * Verification should fail. */
     if( 0 == xResult )
     {
-        if( 0 == pxFunctionList->C_Verify(
-                xSession,
-                ( CK_BYTE_PTR ) pcNullByteHash,
-                ( CK_ULONG ) sizeof( pcNullByteHash ),
-                ( CK_BYTE_PTR ) pcSignedData,
-                ( CK_ULONG ) sizeof( pcSignedData ) - 1 ) )
+        if( 0 == pxGlobalFunctionList->C_Verify( xGlobalSession,
+                                                 ( CK_BYTE_PTR ) pcNullByteHash,
+                                                 ( CK_ULONG ) sizeof( pcNullByteHash ),
+                                                 ( CK_BYTE_PTR ) pcSignedData,
+                                                 ( CK_ULONG ) sizeof( pcSignedData ) - 1 ) )
         {
             xResult = CKR_FUNCTION_FAILED;
         }
@@ -2743,17 +2446,9 @@ TEST( Full_PKCS11, AFQP_SignVerifyCryptoApiInteropRSA )
     /* Clean-up. */
     if( 0 != xPublicKey )
     {
-        xResult = pxFunctionList->C_DestroyObject(
-            xSession,
-            xPublicKey );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession,
+                                                         xPublicKey );
         xPublicKey = 0;
-    }
-
-    if( ( NULL != pxFunctionList ) &&
-        ( NULL != pxFunctionList->C_CloseSession ) )
-    {
-        pxFunctionList->C_CloseSession( xSession );
-        pxFunctionList->C_Finalize( NULL );
     }
 
     TEST_ASSERT_EQUAL_INT32( xResult, 0 );
@@ -2761,7 +2456,7 @@ TEST( Full_PKCS11, AFQP_SignVerifyCryptoApiInteropRSA )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_SignVerifyRoundTrip_MultitaskLoop )
+TEST( Full_PKCS11_CryptoOperation, AFQP_SignVerifyRoundTrip_MultitaskLoop )
 {
     SignVerifyTaskParams_t xTaskParams[ pkcs11testSIGN_VERIFY_TASK_COUNT ];
     BaseType_t i;
@@ -2818,7 +2513,6 @@ TEST( Full_PKCS11, AFQP_SignVerifyRoundTrip_MultitaskLoop )
     }
 }
 
-/*-----------------------------------------------------------*/
 
 static CK_BYTE pc896BitInput[] = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
 
@@ -2829,12 +2523,9 @@ static CK_BYTE pcSha256HashOf896BitInput[] =
 };
 
 
-TEST( Full_PKCS11, AFQP_Digest )
+TEST( Full_PKCS11_CryptoOperation, AFQP_Digest )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
 
     CK_MECHANISM xDigestMechanism;
 
@@ -2842,153 +2533,112 @@ TEST( Full_PKCS11, AFQP_Digest )
     CK_ULONG ulDigestLength = 0;
 
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
+    /* Hash with SHA256 */
+    xDigestMechanism.mechanism = CKM_SHA256;
 
+    xResult = pxGlobalFunctionList->C_DigestInit( xGlobalSession, &xDigestMechanism );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    if( TEST_PROTECT() )
-    {
-        /* Hash with SHA256 */
-        xDigestMechanism.mechanism = CKM_SHA256;
+    /* Subtract one because this hash was performed on the characters without the null terminator. */
+    xResult = pxGlobalFunctionList->C_DigestUpdate( xGlobalSession, pc896BitInput, sizeof( pc896BitInput ) - 1 );
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-        xResult = C_DigestInit( xSession, &xDigestMechanism );
-        TEST_ASSERT_EQUAL( CKR_OK, xResult );
+    /* Call C_DigestFinal on a NULL buffer to get the buffer length required. */
+    xResult = C_DigestFinal( xGlobalSession, NULL, &ulDigestLength );
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
+    TEST_ASSERT_EQUAL( pcks11SHA256_DIGEST_LENGTH, ulDigestLength );
 
-        /* Subtract one because this hash was performed on the characters without the null terminator. */
-        xResult = C_DigestUpdate( xSession, pc896BitInput, sizeof( pc896BitInput ) - 1 );
-        TEST_ASSERT_EQUAL( CKR_OK, xResult );
-
-        /* Call C_DigestFinal on a NULL buffer to get the buffer length required. */
-        xResult = C_DigestFinal( xSession, NULL, &ulDigestLength );
-        TEST_ASSERT_EQUAL( CKR_OK, xResult );
-        TEST_ASSERT_EQUAL( pcks11SHA256_DIGEST_LENGTH, ulDigestLength );
-
-        xResult = C_DigestFinal( xSession, pcDigestResult, &ulDigestLength );
-        TEST_ASSERT_EQUAL( CKR_OK, xResult );
-        TEST_ASSERT_EQUAL_INT8_ARRAY( pcSha256HashOf896BitInput, pcDigestResult, pcks11SHA256_DIGEST_LENGTH );
-    }
-
-    C_CloseSession( xSession );
-    C_Finalize( NULL );
+    xResult = C_DigestFinal( xGlobalSession, pcDigestResult, &ulDigestLength );
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
+    TEST_ASSERT_EQUAL_INT8_ARRAY( pcSha256HashOf896BitInput, pcDigestResult, pcks11SHA256_DIGEST_LENGTH );
 }
 
-/*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_Digest_ErrorConditions )
+TEST( Full_PKCS11_CryptoOperation, AFQP_Digest_ErrorConditions )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
-    CK_SESSION_HANDLE xSession = 0;
-
     CK_MECHANISM xDigestMechanism;
-
     CK_BYTE pcDigestResult[ pcks11SHA256_DIGEST_LENGTH ] = { 0 };
     CK_ULONG ulDigestLength = 0;
 
+    /* Make sure that no NULL pointers in functions to be called in this test. */
+    TEST_ASSERT_NOT_EQUAL( NULL, pxGlobalFunctionList->C_DigestInit );
+    TEST_ASSERT_NOT_EQUAL( NULL, pxGlobalFunctionList->C_DigestUpdate );
+    TEST_ASSERT_NOT_EQUAL( NULL, pxGlobalFunctionList->C_DigestFinal );
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
+    /* Invalid hash mechanism. */
+    xDigestMechanism.mechanism = CKM_MD5;
 
+    xResult = C_DigestInit( xGlobalSession, &xDigestMechanism );
+    TEST_ASSERT_EQUAL( CKR_MECHANISM_INVALID, xResult );
+
+    /* Null Session. */
+    xDigestMechanism.mechanism = CKM_SHA256;
+    xResult = C_DigestInit( ( CK_SESSION_HANDLE ) NULL, &xDigestMechanism );
+    TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, xResult );
+
+    /* Make sure that digest update fails if DigestInit did not succeed. */
+    xResult = C_DigestUpdate( xGlobalSession, pc896BitInput, sizeof( pc896BitInput ) - 1 );
+    TEST_ASSERT_EQUAL( CKR_OPERATION_NOT_INITIALIZED, xResult );
+
+    /* Initialize the session properly. */
+    xResult = C_DigestInit( xGlobalSession, &xDigestMechanism );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-    if( TEST_PROTECT() )
-    {
-        /* Invalid hash mechanism. */
-        xDigestMechanism.mechanism = CKM_MD5;
+    /* Try to update digest with a NULL session handle. */
+    xResult = C_DigestUpdate( ( CK_SESSION_HANDLE ) NULL, pc896BitInput, sizeof( pc896BitInput ) - 1 );
+    TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, xResult );
 
-        xResult = C_DigestInit( xSession, &xDigestMechanism );
-        TEST_ASSERT_EQUAL( CKR_MECHANISM_INVALID, xResult );
+    /* DigestUpdate correctly.  Note that digest is not terminated because we didn't tell the session handle last time. */
+    xResult = C_DigestUpdate( xGlobalSession, pc896BitInput, sizeof( pc896BitInput ) - 1 );
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
-        /* Null Session. */
-        xDigestMechanism.mechanism = CKM_SHA256;
-        xResult = C_DigestInit( ( CK_SESSION_HANDLE ) NULL, &xDigestMechanism );
-        TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, xResult );
+    /* Call C_DigestFinal on a buffer that is too small. */
+    ulDigestLength = pcks11SHA256_DIGEST_LENGTH - 1;
+    xResult = C_DigestFinal( xGlobalSession, pcDigestResult, &ulDigestLength );
+    TEST_ASSERT_EQUAL( CKR_BUFFER_TOO_SMALL, xResult );
 
-        /* Make sure that digest is not initialized. */
-        xResult = C_DigestUpdate( xSession, pc896BitInput, sizeof( pc896BitInput ) - 1 );
-        TEST_ASSERT_EQUAL( CKR_OPERATION_NOT_INITIALIZED, xResult );
+    /* Call C_DigestFinal on a NULL session handle. */
+    ulDigestLength = pcks11SHA256_DIGEST_LENGTH;
+    xResult = C_DigestFinal( ( CK_SESSION_HANDLE ) NULL, pcDigestResult, &ulDigestLength );
+    TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, xResult );
 
+    /* Call C_DigestFinal on a proper buffer size. Note that Digest is not terminated if error is "buffer too small" or if session handle wasn't present. */
+    ulDigestLength = pcks11SHA256_DIGEST_LENGTH;
+    xResult = C_DigestFinal( xGlobalSession, pcDigestResult, &ulDigestLength );
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
+    TEST_ASSERT_EQUAL_INT8_ARRAY( pcSha256HashOf896BitInput, pcDigestResult, pcks11SHA256_DIGEST_LENGTH );
 
-        /* Initialize the session properly. */
-        xResult = C_DigestInit( xSession, &xDigestMechanism );
-        TEST_ASSERT_EQUAL( CKR_OK, xResult );
-
-        /* Try with a NULL session handle. */
-        xResult = C_DigestUpdate( ( CK_SESSION_HANDLE ) NULL, pc896BitInput, sizeof( pc896BitInput ) - 1 );
-        TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, xResult );
-
-        /* DigestUpdate correctly.  Note that digest is not terminated because we didn't tell the session handle last time. */
-        xResult = C_DigestUpdate( xSession, pc896BitInput, sizeof( pc896BitInput ) - 1 );
-        TEST_ASSERT_EQUAL( CKR_OK, xResult );
-
-        /* Call C_DigestFinal on a buffer that is too small. */
-        ulDigestLength = pcks11SHA256_DIGEST_LENGTH - 1;
-        xResult = C_DigestFinal( xSession, pcDigestResult, &ulDigestLength );
-        TEST_ASSERT_EQUAL( CKR_BUFFER_TOO_SMALL, xResult );
-
-        /* Call C_DigestFinal on a NULL session handle. */
-        ulDigestLength = pcks11SHA256_DIGEST_LENGTH;
-        xResult = C_DigestFinal( ( CK_SESSION_HANDLE ) NULL, pcDigestResult, &ulDigestLength );
-        TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, xResult );
-
-        /* Call C_DigestFinal on a proper buffer size. Note that Digest is not terminated if error is "buffer too small" or if session handle wasn't present. */
-        ulDigestLength = pcks11SHA256_DIGEST_LENGTH;
-        xResult = C_DigestFinal( xSession, pcDigestResult, &ulDigestLength );
-        TEST_ASSERT_EQUAL( CKR_OK, xResult );
-        TEST_ASSERT_EQUAL_INT8_ARRAY( pcSha256HashOf896BitInput, pcDigestResult, pcks11SHA256_DIGEST_LENGTH );
-
-        /* Call C_DigestUpdate after the digest operation has been completed. */
-        xResult = C_DigestUpdate( xSession, pc896BitInput, sizeof( pc896BitInput ) - 1 );
-        TEST_ASSERT_EQUAL( CKR_OPERATION_NOT_INITIALIZED, xResult );
-    }
-
-    C_CloseSession( xSession );
-    C_Finalize( NULL );
+    /* Call C_DigestUpdate after the digest operation has been completed. */
+    xResult = C_DigestUpdate( xGlobalSession, pc896BitInput, sizeof( pc896BitInput ) - 1 );
+    TEST_ASSERT_EQUAL( CKR_OPERATION_NOT_INITIALIZED, xResult );
 }
-
 /*-----------------------------------------------------------*/
 
-TEST( Full_PKCS11, AFQP_KeyGenerationEcdsaHappyPath )
+TEST( Full_PKCS11_CryptoOperation, AFQP_KeyGenerationEcdsaHappyPath )
 {
     CK_RV xResult = 0;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
     CK_ULONG ulCount = 0;
-    CK_SESSION_HANDLE xSession = 0;
     CK_MECHANISM xMech = { 0 };
     CK_OBJECT_HANDLE xPublicKey = 0;
     CK_OBJECT_HANDLE xPrivateKey = 0;
-    CK_ULONG ulKeyType = CKK_EC;
-    CK_BBOOL xTrue = CK_TRUE;
-    CK_ATTRIBUTE xPublicTemplate[] =
-    {
-        { CKA_KEY_TYPE,  &ulKeyType, sizeof( ulKeyType ) },
-        { CKA_EC_PARAMS,
-          pkcs11ELLIPTIC_CURVE_NISTP256,
-          0 },
-        { CKA_VERIFY,    &xTrue,     sizeof( xTrue )     }
+
+    PKCS11_GenerateKeyPrivateTemplate_t xPrivateTemplate;
+    PKCS11_GenerateKeyPublicTemplate_t xPublicTemplate;
+
+    xPrivateTemplate.xLabel = ( CK_ATTRIBUTE ) {
+        CKA_LABEL, &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS )
     };
-    CK_ATTRIBUTE xPrivateTemplate[] =
-    {
-        { CKA_KEY_TYPE,  &ulKeyType, sizeof( ulKeyType ) },
-        { CKA_PRIVATE,   &xTrue,     sizeof( xTrue )     },
-        { CKA_SENSITIVE, &xTrue,     sizeof( xTrue )     },
-        { CKA_SIGN,      &xTrue,     sizeof( xTrue )     }
+    xPublicTemplate.xEcParams = ( CK_ATTRIBUTE ) {
+        CKA_EC_PARAMS, pkcs11ELLIPTIC_CURVE_NISTP256, 1 + strlen( pkcs11ELLIPTIC_CURVE_NISTP256 )
     };
+    xPublicTemplate.xLabel = ( CK_ATTRIBUTE ) {
+        CKA_LABEL, &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS )
+    };
+
     CK_BYTE pucMessage[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
     CK_BYTE pucHash[ cryptoSHA256_DIGEST_BYTES ] = { 0 };
     CK_BYTE pucSignature[ 256 ] = { 0 };
-
-    /* Calculate length of the elliptic curve object identifier. */
-    xPublicTemplate[ 1 ].ulValueLen = 1 + strlen( xPublicTemplate[ 1 ].pValue );
 
     /* Hash the message (the null input). */
     ( void ) mbedtls_sha256_ret( pucMessage, 0, pucHash, 0 );
@@ -2996,76 +2646,53 @@ TEST( Full_PKCS11, AFQP_KeyGenerationEcdsaHappyPath )
     /* Set crypto mechanism for key generation. */
     xMech.mechanism = CKM_EC_KEY_PAIR_GEN;
 
-    /* Initialize the module and start a private session. */
-    xResult = prvInitializeAndStartSession(
-        &pxFunctionList,
-        &xSlotId,
-        &xSession );
-
     /* Create a new key pair. */
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_GenerateKeyPair(
-            xSession,
-            &xMech,
-            xPublicTemplate,
-            sizeof( xPublicTemplate ) / sizeof( xPublicTemplate[ 0 ] ),
-            xPrivateTemplate,
-            sizeof( xPrivateTemplate ) / sizeof( xPrivateTemplate[ 0 ] ),
-            &xPublicKey,
-            &xPrivateKey );
+        xResult = pxGlobalFunctionList->C_GenerateKeyPair( xGlobalSession,
+                                                           &xMech,
+                                                           ( CK_ATTRIBUTE_PTR ) &xPublicTemplate,
+                                                           sizeof( xPublicTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                           ( CK_ATTRIBUTE_PTR ) &xPrivateTemplate,
+                                                           sizeof( xPrivateTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                           &xPublicKey,
+                                                           &xPrivateKey );
     }
 
     /* Sign a hash. */
     if( 0 == xResult )
     {
         xMech.mechanism = CKM_ECDSA;
-        xResult = pxFunctionList->C_SignInit(
-            xSession,
-            &xMech,
-            xPrivateKey );
+        xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession,
+                                                    &xMech,
+                                                    xPrivateKey );
     }
 
     if( 0 == xResult )
     {
         ulCount = sizeof( pucSignature );
-        xResult = pxFunctionList->C_Sign(
-            xSession,
-            pucHash,
-            sizeof( pucHash ),
-            pucSignature,
-            &ulCount );
+        xResult = pxGlobalFunctionList->C_Sign( xGlobalSession,
+                                                pucHash,
+                                                sizeof( pucHash ),
+                                                pucSignature,
+                                                &ulCount );
     }
 
     /* Verify the signature. */
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_VerifyInit(
-            xSession,
-            &xMech,
-            xPrivateKey );
+        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession,
+                                                      &xMech,
+                                                      xPublicKey );
     }
 
     if( 0 == xResult )
     {
-        xResult = pxFunctionList->C_Verify(
-            xSession,
-            pucHash,
-            sizeof( pucHash ),
-            pucSignature,
-            ulCount );
-    }
-
-    /* Clean-up. */
-    if( ( NULL != pxFunctionList ) &&
-        ( NULL != pxFunctionList->C_CloseSession ) )
-    {
-        if( 0 != xSession )
-        {
-            pxFunctionList->C_CloseSession( xSession );
-        }
-
-        pxFunctionList->C_Finalize( NULL );
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession,
+                                                  pucHash,
+                                                  sizeof( pucHash ),
+                                                  pucSignature,
+                                                  ulCount );
     }
 
     TEST_ASSERT_EQUAL_INT32( CKR_OK, xResult );

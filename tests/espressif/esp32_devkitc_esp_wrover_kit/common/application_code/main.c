@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.1
+ * Amazon FreeRTOS V1.1.2  
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,6 +35,7 @@
 #include "aws_logging_task.h"
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
+#include "aws_dev_mode_key_provisioning.h"
 #include "nvs_flash.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
@@ -152,6 +153,11 @@ int app_main( void )
     {
         /* Connect to the wifi before running the tests. */
         prvWifiConnect();
+
+        /* A simple example to demonstrate key and certificate provisioning in
+         * microcontroller flash using PKCS#11 interface. This should be replaced
+         * by production ready key provisioning mechanism. */
+        vDevModeKeyProvisioning();
 
         /* Create the task to run unit tests. */
         xTaskCreate( TEST_RUNNER_RunTests_task,

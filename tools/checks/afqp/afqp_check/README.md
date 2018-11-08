@@ -1,0 +1,30 @@
+### Amazon FreeRTOS Qualifcation Program (AFQP) Check
+
+#### Update to Directory Structure
+Update src/ rules.cfg with the names of files and directories of importance.
+Update AFR_ROOT in src/afqp_check.py for updated relative path from tools/checks/afqp/afqp_check.
+Update PORTABLE_LAYER_PATHS in src/afqp_check.py, if applicable.
+
+#### Dependencies
+* Python 2.7+ or Python 3+
+
+#### The Checks
+* Check for required AFQP files:
+    * see **tools/checks/afqp/fs_checkrules.json**
+* Check for **configPLATFORM_NAME** in **FreeRTOSConfig.h**
+    * Return *error* if missing.
+* Check for build artifiacts.
+    * Return *error* if present.
+* Check for vendor license in AFQP files.
+    * Return *warning* if the Amazon FreeRTOS license is in ported code.
+    * Return *error* for each missing Amazon FreeRTOS copyright.
+    * Return *error* for incorrect copyright year.
+    * Return *error* for incorrect versions on ported files.
+* Check for a compliant Eclipse file.
+
+#### Testing
+Run **pytest** from this directory (tools/checks/afqp/afqp_check)
+
+##### Dependencies
+* ```pytest```
+* ```pytest-cov```

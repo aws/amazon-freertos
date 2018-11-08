@@ -73,7 +73,7 @@ class FlashSerialComm:
         system_path = os.environ['PATH']
         # Add the tool_paths to the system PATH
         for path in self._flashConfig['tool_paths']:
-            os.environ['PATH'] += ';' + path
+            os.environ['PATH'] = path + os.pathsep + os.environ['PATH']
 
         flashCommands = self._flashConfig['commands']
         print('Flashing test application to board...')

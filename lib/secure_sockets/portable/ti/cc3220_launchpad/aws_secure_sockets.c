@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets for CC3220SF-LAUNCHXL V1.0.4
+ * Amazon FreeRTOS Secure Sockets for CC3220SF-LAUNCHXL V1.0.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,7 +38,6 @@
 
 /* TI driver includes. */
 #include <ti/drivers/net/wifi/simplelink.h>
-#include "uart_term.h"
 
 /* Credentials includes. */
 #include "aws_clientcredential.h"
@@ -48,25 +47,6 @@
 
 #define SOCKETS_PRINT( X )               vLoggingPrintf X
 
-/**
- * @brief Custom root CA.
- */
-#define securesocketsSECURE_FILE_NAME_CUSTOMROOTCA      "/certs/CustomRootCA.crt"
-
-/**
- * @brief Root CA.
- */
-#define securesocketsSECURE_FILE_NAME_ROOTCA            "/certs/RootCA.crt"
-
-/**
- * @brief Client certificate.
- */
-#define securesocketsSECURE_FILE_NAME_CLIENTCERT        "/certs/ClientCert.crt"
-
-/**
- * @brief Client private key.
- */
-#define securesocketsSECURE_FILE_NAME_PRIVATEKEY        "/certs/PrivateKey.key"
 
 /**
  * @brief Maximum number of sockets.
@@ -439,8 +419,8 @@ static int32_t prvSetupSecurity( const SSocketContextPtr_t pxSocketContext )
             sTIRetCode = sl_SetSockOpt( pxSocketContext->sSocketDescriptor,
                                         SL_SOL_SOCKET,
                                         SL_SO_SECURE_FILES_CA_FILE_NAME,
-                                        securesocketsSECURE_FILE_NAME_ROOTCA,
-                                        ( SlSocklen_t ) strlen( securesocketsSECURE_FILE_NAME_ROOTCA ) );
+                                        socketsconfigSECURE_FILE_NAME_ROOTCA,
+                                        ( SlSocklen_t ) strlen( socketsconfigSECURE_FILE_NAME_ROOTCA ) );
 
             if( sTIRetCode < 0 )
             {
@@ -457,8 +437,8 @@ static int32_t prvSetupSecurity( const SSocketContextPtr_t pxSocketContext )
         sTIRetCode = sl_SetSockOpt( pxSocketContext->sSocketDescriptor,
                                     SL_SOL_SOCKET,
                                     SL_SO_SECURE_FILES_CERTIFICATE_FILE_NAME,
-                                    securesocketsSECURE_FILE_NAME_CLIENTCERT,
-                                    ( SlSocklen_t ) strlen( securesocketsSECURE_FILE_NAME_CLIENTCERT ) );
+                                    socketsconfigSECURE_FILE_NAME_CLIENTCERT,
+                                    ( SlSocklen_t ) strlen( socketsconfigSECURE_FILE_NAME_CLIENTCERT ) );
 
         if( sTIRetCode < 0 )
         {
@@ -474,8 +454,8 @@ static int32_t prvSetupSecurity( const SSocketContextPtr_t pxSocketContext )
         sTIRetCode = sl_SetSockOpt( pxSocketContext->sSocketDescriptor,
                                     SL_SOL_SOCKET,
                                     SL_SO_SECURE_FILES_PRIVATE_KEY_FILE_NAME,
-                                    securesocketsSECURE_FILE_NAME_PRIVATEKEY,
-                                    ( SlSocklen_t ) strlen( securesocketsSECURE_FILE_NAME_PRIVATEKEY ) );
+                                    socketsconfigSECURE_FILE_NAME_PRIVATEKEY,
+                                    ( SlSocklen_t ) strlen( socketsconfigSECURE_FILE_NAME_PRIVATEKEY ) );
 
         if( sTIRetCode < 0 )
         {
@@ -1095,7 +1075,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                 if( ( pxSocketContext->ulFlags & securesocketsSOCKET_IS_CONNECTED ) == 0 )
                 {
                     /* Write the certificate to the file system. */
-                    lRetCode = prvWriteCertificate( securesocketsSECURE_FILE_NAME_CUSTOMROOTCA,
+                    lRetCode = prvWriteCertificate( socketsconfigSECURE_FILE_NAME_CUSTOMROOTCA,
                                                     pvOptionValue,
                                                     xOptionLength - 1U );
 
@@ -1106,8 +1086,8 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                         sTIRetCode = sl_SetSockOpt( pxSocketContext->sSocketDescriptor,
                                                     SL_SOL_SOCKET,
                                                     SL_SO_SECURE_FILES_CA_FILE_NAME,
-                                                    securesocketsSECURE_FILE_NAME_CUSTOMROOTCA,
-                                                    ( SlSocklen_t ) strlen( securesocketsSECURE_FILE_NAME_CUSTOMROOTCA ) );
+                                                    socketsconfigSECURE_FILE_NAME_CUSTOMROOTCA,
+                                                    ( SlSocklen_t ) strlen( socketsconfigSECURE_FILE_NAME_CUSTOMROOTCA ) );
 
                         if( sTIRetCode >= 0 )
                         {

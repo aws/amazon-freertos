@@ -52,26 +52,6 @@
 #endif
 
 /**
- * @defgroup Metrics The metrics reported to the AWS IoT broker.
- *
- * If mqttconfigENABLE_METRICS is set to 1, these will be included
- * in the "username" field of MQTT connect messages.
- */
-/** @{ */
-#ifndef mqttconfigMETRIC_SDK
-    #define mqttconfigMETRIC_SDK    "SDK=AmazonFreeRTOS"                    /**< The SDK used by this device. */
-#endif
-
-#ifndef mqttconfigMETRIC_VERSION
-    #define mqttconfigMETRIC_VERSION    "Version="tskKERNEL_VERSION_NUMBER /**< The version number of this SDK. */
-#endif
-
-#ifndef mqttconfigMETRIC_PLATFORM
-    #define mqttconfigMETRIC_PLATFORM    "Platform=Unknown"              /**< The platform that this SDK is running on. */
-#endif
-/** @} */
-
-/**
  * @brief The maximum time interval in seconds allowed to elapse between 2 consecutive
  * control packets.
  */
@@ -108,13 +88,23 @@
  *
  * The MQTT task blocks until the user initiates any action or until it receives
  * any data from the broker. This macro controls the maximum time the MQTT task can
- * block. It should be set to a low number for the platforms which do not have any
+ * block. It should be set to a small number for the platforms which do not have any
  * mechanism to wake up the MQTT task whenever data is received on a connected socket.
  * This ensures that the MQTT task keeps waking up frequently and processes the publish
  * messages received from the broker, if any.
+ *
+ * If the platform's secure_sockets layer supports SOCKETS_SO_WAKEUP_CALLBACK i.e.
+ * the MQTT task can wake up whenever data is received on a connected socket, this
+ * value should be set to maximum value:
+ * #define  #define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS    ( ~( ( uint32_t ) 0 ) )
+ *
+ * If the platform's secure_sockets layer does not support SOCKETS_SO_WAKEUP_CALLBACK
+ * i.e. the MQTT task cannot wake up whenever data is received on a connected socket,
+ * this value should be set to a small number:
+ * #define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS             ( 100 )
  */
 #ifndef mqttconfigMQTT_TASK_MAX_BLOCK_TICKS
-    #define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS    ( ~( ( uint32_t ) 0 ) )
+    #error "mqttconfigMQTT_TASK_MAX_BLOCK_TICKS must be defined in aws_mqtt_agent_config.h."
 #endif
 
 /**

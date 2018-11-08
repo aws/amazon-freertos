@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Socket for FreeRTOS+TCP V1.1.3
+ * Amazon FreeRTOS Secure Socket for FreeRTOS+TCP V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -182,6 +182,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
             if( SOCKETS_ERROR_NONE == lStatus )
             {
                 lStatus = TLS_Connect( pxContext->pvTLSContext );
+
                 if( lStatus < 0 )
                 {
                     lStatus = SOCKETS_TLS_HANDSHAKE_ERROR;
@@ -367,10 +368,9 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                 else
                 {
                     /* Zero out the pointers. */
-                    memset( 
-                        pxContext->ppcAlpnProtocols, 
-                        0, 
-                        pxContext->ulAlpnProtocolsCount * sizeof( char * ) );
+                    memset( pxContext->ppcAlpnProtocols,
+                            0,
+                            pxContext->ulAlpnProtocolsCount * sizeof( char * ) );
                 }
 
                 /* Copy each protocol string. */
@@ -526,7 +526,7 @@ BaseType_t SOCKETS_Init( void )
 }
 /*-----------------------------------------------------------*/
 
-static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE *pxSession,
+static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
                                          CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 {
     CK_RV xResult = 0;
@@ -536,7 +536,7 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE *pxSession,
     CK_ULONG ulCount = 1;
     CK_SLOT_ID xSlotId = 0;
 
-    portENTER_CRITICAL( );
+    portENTER_CRITICAL();
 
     if( 0 == xPkcs11Session )
     {
@@ -555,27 +555,25 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE *pxSession,
         }
 
         /* Get the default slot ID. */
-        if( 0 == xResult )
+        if( ( 0 == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
         {
-            xResult = pxPkcs11FunctionList->C_GetSlotList(
-                CK_TRUE,
-                &xSlotId,
-                &ulCount );
+            xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
+                                                           &xSlotId,
+                                                           &ulCount );
         }
 
         /* Start a session with the PKCS#11 module. */
         if( 0 == xResult )
         {
-            xResult = pxPkcs11FunctionList->C_OpenSession(
-                xSlotId,
-                CKF_SERIAL_SESSION,
-                NULL,
-                NULL,
-                &xPkcs11Session );
+            xResult = pxPkcs11FunctionList->C_OpenSession( xSlotId,
+                                                           CKF_SERIAL_SESSION,
+                                                           NULL,
+                                                           NULL,
+                                                           &xPkcs11Session );
         }
     }
 
-    portEXIT_CRITICAL( );
+    portEXIT_CRITICAL();
 
     /* Output the shared function pointers and session handle. */
     *ppxFunctionList = pxPkcs11FunctionList;
@@ -592,20 +590,16 @@ uint32_t ulRand( void )
     CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
     uint32_t ulRandomValue = 0;
 
-    xResult = prvSocketsGetCryptoSession( 
-        &xPkcs11Session,
-        &pxPkcs11FunctionList );
+    xResult = prvSocketsGetCryptoSession( &xPkcs11Session,
+                                          &pxPkcs11FunctionList );
 
     if( 0 == xResult )
     {
         /* Request a sequence of cryptographically random byte values using
          * PKCS#11. */
-        portENTER_CRITICAL( );
-        xResult = pxPkcs11FunctionList->C_GenerateRandom( 
-            xPkcs11Session,
-            ( CK_BYTE_PTR ) &ulRandomValue,
-            sizeof( ulRandomValue ) );
-        portEXIT_CRITICAL( );
+        xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
+                                                          ( CK_BYTE_PTR ) &ulRandomValue,
+                                                          sizeof( ulRandomValue ) );
     }
 
     /* Check if any of the API calls failed. */
@@ -619,14 +613,13 @@ uint32_t ulRand( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Generate a TCP Initial Sequence Number that is reasonably difficult 
- * to predict, per https://tools.ietf.org/html/rfc6528. 
+ * @brief Generate a TCP Initial Sequence Number that is reasonably difficult
+ * to predict, per https://tools.ietf.org/html/rfc6528.
  */
-uint32_t ulApplicationGetNextSequenceNumber( 
-    uint32_t ulSourceAddress,
-    uint16_t usSourcePort,
-    uint32_t ulDestinationAddress,
-    uint16_t usDestinationPort )
+uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
+                                             uint16_t usSourcePort,
+                                             uint32_t ulDestinationAddress,
+                                             uint16_t usDestinationPort )
 {
     CK_RV xResult = 0;
     CK_SESSION_HANDLE xPkcs11Session = 0;
@@ -638,102 +631,92 @@ uint32_t ulApplicationGetNextSequenceNumber(
     static uint64_t ullKey = 0;
 
     /* Acquire a crypto session handle. */
-    xResult = prvSocketsGetCryptoSession( 
-        &xPkcs11Session,
-        &pxPkcs11FunctionList );
+    xResult = prvSocketsGetCryptoSession( &xPkcs11Session,
+                                          &pxPkcs11FunctionList );
 
     if( 0 == xResult )
     {
-        portENTER_CRITICAL( );
         if( 0 == ullKey )
         {
             /* One-time initialization, per boot, of the random seed. */
-            xResult = pxPkcs11FunctionList->C_GenerateRandom( 
-                xPkcs11Session,
-                ( CK_BYTE_PTR )&ullKey,
-                sizeof( ullKey ) );
+            xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
+                                                              ( CK_BYTE_PTR ) &ullKey,
+                                                              sizeof( ullKey ) );
         }
-        portEXIT_CRITICAL( );
     }
 
     /* Lock the shared crypto session. */
-    portENTER_CRITICAL( );
+    portENTER_CRITICAL();
 
     /* Start a hash. */
     if( 0 == xResult )
     {
         xMechSha256.mechanism = CKM_SHA256;
-        xResult = pxPkcs11FunctionList->C_DigestInit( 
-            xPkcs11Session, &xMechSha256 );
+        xResult = pxPkcs11FunctionList->C_DigestInit( xPkcs11Session, &xMechSha256 );
     }
 
     /* Hash the seed. */
     if( 0 == xResult )
     {
-        xResult = pxPkcs11FunctionList->C_DigestUpdate( 
-            xPkcs11Session, ( CK_BYTE_PTR )&ullKey, sizeof( ullKey ) );
+        xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
+                                                        ( CK_BYTE_PTR ) &ullKey,
+                                                        sizeof( ullKey ) );
     }
 
     /* Hash the source address. */
     if( 0 == xResult )
     {
-        xResult = pxPkcs11FunctionList->C_DigestUpdate(
-            xPkcs11Session,
-            ( CK_BYTE_PTR )&ulSourceAddress,
-            sizeof( ulSourceAddress ) );
+        xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
+                                                        ( CK_BYTE_PTR ) &ulSourceAddress,
+                                                        sizeof( ulSourceAddress ) );
     }
 
     /* Hash the source port. */
     if( 0 == xResult )
     {
-        xResult = pxPkcs11FunctionList->C_DigestUpdate(
-            xPkcs11Session,
-            ( CK_BYTE_PTR )&usSourcePort,
-            sizeof( usSourcePort ) );
+        xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
+                                                        ( CK_BYTE_PTR ) &usSourcePort,
+                                                        sizeof( usSourcePort ) );
     }
 
     /* Hash the destination address. */
     if( 0 == xResult )
     {
-        xResult = pxPkcs11FunctionList->C_DigestUpdate( 
-            xPkcs11Session, 
-            ( CK_BYTE_PTR )&ulDestinationAddress, 
-            sizeof( ulDestinationAddress ) );
+        xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
+                                                        ( CK_BYTE_PTR ) &ulDestinationAddress,
+                                                        sizeof( ulDestinationAddress ) );
     }
 
     /* Hash the destination port. */
     if( 0 == xResult )
     {
-        xResult = pxPkcs11FunctionList->C_DigestUpdate(
-            xPkcs11Session,
-            ( CK_BYTE_PTR )&usDestinationPort,
-            sizeof( usDestinationPort ) );
+        xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
+                                                        ( CK_BYTE_PTR ) &usDestinationPort,
+                                                        sizeof( usDestinationPort ) );
     }
 
     /* Get the hash. */
     if( 0 == xResult )
     {
-        xResult = pxPkcs11FunctionList->C_DigestFinal(
-            xPkcs11Session,
-            ucSha256Result,
-            &ulLength );
+        xResult = pxPkcs11FunctionList->C_DigestFinal( xPkcs11Session,
+                                                       ucSha256Result,
+                                                       &ulLength );
     }
 
-    portEXIT_CRITICAL( );
+    portEXIT_CRITICAL();
 
     /* Use the first four bytes of the hash result as the starting point for
-    all initial sequence numbers for connections based on the input 4-tuple. */
+     * all initial sequence numbers for connections based on the input 4-tuple. */
     if( 0 == xResult )
     {
-        memcpy(
-            &ulNextSequenceNumber,
-            ucSha256Result,
-            sizeof( ulNextSequenceNumber ) );
+        memcpy( &ulNextSequenceNumber,
+                ucSha256Result,
+                sizeof( ulNextSequenceNumber ) );
 
         /* Add the tick count of four-tick intervals. In theory, per the RFC
-        (see above), this approach still allows server equipment to optimize
-        handling of connections from the same device that haven't fully timed out. */
-        ulNextSequenceNumber += xTaskGetTickCount( ) / 4;
+         * (see above), this approach still allows server equipment to optimize
+         * handling of connections from the same device that haven't fully timed out. */
+        ulNextSequenceNumber += xTaskGetTickCount() / 4;
     }
 
     return ulNextSequenceNumber;

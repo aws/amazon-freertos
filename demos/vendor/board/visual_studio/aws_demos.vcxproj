@@ -151,6 +151,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\pkwrite.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\pk_wrap.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform.c" />
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\ripemd160.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c" />
@@ -292,6 +293,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pk_internal.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_time.h" />
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\ripemd160.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\rsa_internal.h" />
@@ -338,9 +340,6 @@
     <ClInclude Include="..\common\config_files\aws_shadow_config.h" />
     <ClInclude Include="..\common\config_files\FreeRTOSConfig.h" />
     <ClInclude Include="..\common\config_files\FreeRTOSIPConfig.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\lib\third_party\mbedtls\library\Makefile" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

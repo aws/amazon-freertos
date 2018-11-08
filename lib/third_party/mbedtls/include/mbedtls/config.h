@@ -587,7 +587,7 @@
  *
  * Uncomment this macro to remove RC4 ciphersuites by default.
  */
-//#define MBEDTLS_REMOVE_ARC4_CIPHERSUITES
+#define MBEDTLS_REMOVE_ARC4_CIPHERSUITES
 
 /**
  * \def MBEDTLS_ECP_DP_SECP192R1_ENABLED
@@ -634,7 +634,7 @@
  *
  * Comment this macro to disable deterministic ECDSA.
  */
-#define MBEDTLS_ECDSA_DETERMINISTIC
+//#define MBEDTLS_ECDSA_DETERMINISTIC
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
@@ -1479,7 +1479,7 @@
  *
  * Uncomment this to allow your own alternate threading implementation.
  */
-//#define MBEDTLS_THREADING_ALT
+#define MBEDTLS_THREADING_ALT
 
 /**
  * \def MBEDTLS_THREADING_PTHREAD
@@ -1617,7 +1617,7 @@
  * Enable the AES block cipher.
  *
  * Module:  library/aes.c
- * Caller:  library/ssl_tls.c
+ * Caller:  library/cipher.c
  *          library/pem.c
  *          library/ctr_drbg.c
  *
@@ -1692,7 +1692,7 @@
  * Enable the ARCFOUR stream cipher.
  *
  * Module:  library/arc4.c
- * Caller:  library/ssl_tls.c
+ * Caller:  library/cipher.c
  *
  * This module enables the following ciphersuites (if other requisites are
  * enabled as well):
@@ -1786,7 +1786,7 @@
  * Enable the Camellia block cipher.
  *
  * Module:  library/camellia.c
- * Caller:  library/ssl_tls.c
+ * Caller:  library/cipher.c
  *
  * This module enables the following ciphersuites (if other requisites are
  * enabled as well):
@@ -1921,7 +1921,7 @@
  *
  * Module:  library/des.c
  * Caller:  library/pem.c
- *          library/ssl_tls.c
+ *          library/cipher.c
  *
  * This module enables the following ciphersuites (if other requisites are
  * enabled as well):
@@ -2103,7 +2103,7 @@
  *
  * Uncomment to enable the HMAC_DRBG random number geerator.
  */
-#define MBEDTLS_HMAC_DRBG_C
+//#define MBEDTLS_HMAC_DRBG_C
 
 /**
  * \def MBEDTLS_MD_C
@@ -2322,7 +2322,7 @@
  *
  * Uncomment to enable generic public key write functions.
  */
-//#define MBEDTLS_PK_WRITE_C
+#define MBEDTLS_PK_WRITE_C
 
 /**
  * \def MBEDTLS_PKCS5_C
@@ -2570,7 +2570,7 @@
  *
  * Enable this layer to allow use of mutexes within mbed TLS
  */
-//#define MBEDTLS_THREADING_C
+#define MBEDTLS_THREADING_C
 
 /**
  * \def MBEDTLS_TIMING_C

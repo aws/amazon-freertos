@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.0
+ * Amazon FreeRTOS+POSIX V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,7 @@
 
 /* C standard library includes. */
 #include <stddef.h>
-#include <stdbool.h>
+#include <string.h>
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX.h"

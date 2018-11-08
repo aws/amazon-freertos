@@ -46,9 +46,9 @@ class OtaTestSameVersion( OtaTestCase ):
         self._otaProject.setApplicationVersion(0, 9, 0)
         # Build the OTA image.
         self._otaProject.buildProject()
-        # Start an OTA job.
-        jobId = self._otaAwsAgent.quickCreateJob(self._otaConfig)
-        return self.getTestResultAfterJobCompletion(jobId)
+        # Start an OTA Update.
+        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig)
+        return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
 
     def getTestResult(self, jobStatus, log):
         if (jobStatus.status == 'FAILED'):

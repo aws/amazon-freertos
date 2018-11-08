@@ -171,13 +171,15 @@ def test_get_identifier(input, expected):
 
 
 prefix_is_correct_params = [
-    ("AnEnumType_t * peStatus;", True),
-    ("AnEnumType_t eStatus;", True),
-    ("char * pcTopic;", True),
-    ("char * topic;", False),
-    ("uint8_t * pcTopic;", False),
-    ("unsigned int ulStatus;", True),
-    ("extern char ulStatus;", True), # extern shall not be marked wrong
+    ("    AnEnumType_t * peStatus;", True),
+    ("    AnEnumType_t eStatus;", True),
+    ("    char * pcTopic;", True),
+    ("    char * topic;", False),
+    ("    uint8_t * pcTopic;", False),
+    ("    unsigned int ulStatus;", True),
+    ("    extern char ulStatus;", True), # extern shall not be marked wrong
+    ("AnEnumType_t * status;", True), # Globally linkable shouldn't be checked
+    ("static AnEnumType_t * status;", False),
 ]
 @pytest.mark.parametrize("input, expected", prefix_is_correct_params)
 def test_prefix_is_correct(input, expected):

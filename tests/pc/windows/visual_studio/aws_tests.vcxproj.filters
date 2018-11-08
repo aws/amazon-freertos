@@ -780,6 +780,9 @@
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\semaphore.h">
       <Filter>lib\aws\include\FreeRTOS_POSIX</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
+      <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
@@ -1313,10 +1316,8 @@
     <ClCompile Include="..\..\..\common\memory_leak\aws_memory_leak.c">
       <Filter>application_code\common_tests\memory_leak</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\lib\third_party\mbedtls\library\Makefile">
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
-    </None>
+    </ClCompile>
   </ItemGroup>
 </Project>

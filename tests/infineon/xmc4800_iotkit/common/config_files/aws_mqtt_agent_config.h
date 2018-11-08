@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.1
+ * Amazon FreeRTOS V1.1.2  
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,18 +42,6 @@
  * the MQTT connect messages.
  */
 #define mqttconfigENABLE_METRICS    ( 1 )
-
-/**
- * @defgroup Metrics The metrics reported to the AWS IoT broker.
- *
- * If mqttconfigENABLE_METRICS is set to 1, these will be included
- * in the "username" field of MQTT connect messages.
- */
-/** @{ */
-#define mqttconfigMETRIC_SDK         "SDK=AmazonFreeRTOS"               /**< The SDK used by this device. */
-#define mqttconfigMETRIC_VERSION     "Version="tskKERNEL_VERSION_NUMBER /**< The version number of this SDK. */
-#define mqttconfigMETRIC_PLATFORM    "Platform=XMC4800_IOTKIT"          /**< *FIX ME: Replace 'Unkown' with your platform name.* The platform that this SDK is running on. */
-/** @} */
 
 /**
  * @brief The maximum time interval in seconds allowed to elapse between 2 consecutive

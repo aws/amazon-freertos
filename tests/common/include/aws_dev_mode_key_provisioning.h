@@ -26,6 +26,8 @@
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
 
+#include "aws_pkcs11.h"
+
 typedef struct ProvisioningParams_t
 {
     uint32_t ulClientPrivateKeyType;
@@ -38,5 +40,16 @@ typedef struct ProvisioningParams_t
 void vDevModeKeyProvisioning( void );
 
 void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
+
+CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
+                              CK_SLOT_ID * pxSlotId,
+                              CK_SESSION_HANDLE * pxSession );
+
+CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
+                             uint8_t * pucCertificate,
+                             size_t xCertificateLength,
+                             uint8_t * pucLabel,
+                             CK_OBJECT_HANDLE_PTR xObjectHandle );
+
 
 #endif /* _AWS_DEV_MODE_KEY_PROVISIONING_H_ */
