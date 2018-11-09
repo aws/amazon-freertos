@@ -1,0 +1,57 @@
+
+PROJECT_NAME = "AWS IoT FreeRTOS+POSIX"
+
+# The main page for the documentation.
+USE_MDFILE_AS_MAINPAGE = doc/mainpage.txt
+
+# Documentation will be written to this directory.
+OUTPUT_DIRECTORY = doc
+
+# Only generate HTML documentation.
+GENERATE_LATEX = NO
+
+# Input directories
+INPUT = ../../lib/include/FreeRTOS_POSIX/ \
+        ../../lib/include/FreeRTOS_POSIX/sys \
+        ../../lib/FreeRTOS-Plus-POSIX/include \ 
+        ../../lib/FreeRTOS-Plus-POSIX/include/portable \
+        ../../lib/FreeRTOS-Plus-POSIX/source \
+        doc/
+
+# Specify where Doxygen should look for images.
+IMAGE_PATH = doc/images
+
+# Input file extensions: C headers and source, as well as markdown.
+FILE_PATTERNS = *.c *.h *.txt
+
+# Don't rearrange members in the input files.
+SORT_MEMBER_DOCS = NO
+
+# Preprocessing
+ENABLE_PREPROCESSING = YES
+MACRO_EXPANSION      = YES
+EXPAND_ONLY_PREDEF   = YES
+PREDEFINED = "DOXYGEN=1" \
+             "_LIBRARY_LOG_LEVEL=AWS_IOT_LOG_DEBUG" \
+             "_LIBRARY_LOG_NAME=\"DOXYGEN\"" 
+        
+# Do not document private functions and utility functions     
+EXCLUDE_SYMBOLS = "prv*" \
+                  "UTILS_*"
+
+ALIASES += sideeffect="\par Side Effects:^^" 
+
+# Configure Doxygen for C.
+OPTIMIZE_OUTPUT_FOR_C = YES
+TYPEDEF_HIDES_STRUCT = YES
+EXTRACT_STATIC = NO
+
+# Disable the tab bar and use a tree "table of contents" instead.
+DISABLE_INDEX = YES
+GENERATE_TREEVIEW = YES
+
+# Disable the default Doxygen diagrams.
+HAVE_DOT = NO
+
+# Override the default Doxygen layout.
+LAYOUT_FILE = doc/DoxygenLayout.xml

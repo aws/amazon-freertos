@@ -32,21 +32,25 @@
 #define _FREERTOS_POSIX_PORTABLE_DEFAULT_H_
 
 /**
- * @brief The FreeRTOS task name given to pthreads.
+ * @name The FreeRTOS task name given to pthreads.
  */
+/**@{ */
 #ifndef posixconfigPTHREAD_TASK_NAME
-    #define posixconfigPTHREAD_TASK_NAME    "pthread"
+    #define posixconfigPTHREAD_TASK_NAME    "pthread" /**< Task name. */
 #endif
+/**@} */
 
 /**
- * @brief the FreeRTOS timer name given to POSIX timers.
+ * @name the FreeRTOS timer name given to POSIX timers.
  */
+/**@{ */
 #ifndef posixconfigTIMER_NAME
-    #define posixconfigTIMER_NAME    "timer"
+    #define posixconfigTIMER_NAME    "timer" /**< Timer name. */
 #endif
+/**@} */
 
 /**
- * @defgroup Defaults for POSIX message queue implementation.
+ * @name Defaults for POSIX message queue implementation.
  */
 /**@{ */
 #ifndef posixconfigMQ_MAX_MESSAGES
@@ -59,7 +63,7 @@
 /**@} */
 
 /**
- * @defgroup POSIX implementation-dependent constants usually defined in limits.h.
+ * @name POSIX implementation-dependent constants usually defined in limits.h.
  *
  * They are defined here to provide portability between platforms.
  */
@@ -76,7 +80,7 @@
 /**@} */
 
 /**
- * @defgroup Enable typedefs of POSIX types.
+ * @name Enable typedefs of POSIX types.
  *
  * Set these values to 1 or 0 to enable or disable the typedefs, respectively.
  * These typedefs should only be disabled if they conflict with system typedefs.
