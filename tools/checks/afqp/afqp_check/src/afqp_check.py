@@ -267,7 +267,7 @@ def check_license(root, vendor, board):
     return errors
 
 
-def get_line_number(file_lines, pattern):
+def _get_line_number(file_lines, pattern):
     """Get the index of the first element in file_lines with the string in pattern
     """
     return next(i for i, line in enumerate(file_lines) if pattern in line) + 1
@@ -278,9 +278,11 @@ def get_eclipse_project_errors(project_path):
         1. The project not being named "aws_demos"
         2. Missing <locationURI> tags in linked resources
         3. Multiple root variables extended from in non-virtual linked resources.
+    Returns all the root variables in root_var_set, in addition to the errors.
     """
     errors = []
-    tree = ElementTree.parse(project_path)
+    root_var_set = set()
+
     file_lines = []
     with open(project_path, 'r') as project_file:
         file_lines = project_file.readlines()
@@ -288,14 +290,14 @@ def get_eclipse_project_errors(project_path):
     # All camel case variables below are elements in the XML tree.
 
     # Get the project name error, project must be named "aws_demos"
-    projectDescription = tree.getroot() # root is <projectDescription>
+    tree = ElementTree.parse(project_path)
+    projectDescription = tree.getroot() # eclipse .project document xml root element is <projectDescription>
     if projectDescription.find('name').text != 'aws_demos':
         errors.append(Error(
             type='error',
-            info='Eclipse IDE project name must be \"aws_demos\" at line {}.'.format(get_line_number(file_lines, '<name>'))
+            info='In .project Eclipse IDE project name must be \"aws_demos\" at line {}.'.format(_get_line_number(file_lines, '<name>'))
         ))
 
-    root_set = set()
     linkedResources = projectDescription.find('linkedResources')
     for link in linkedResources.findall('link'):
         locationURI = link.find('locationURI')
@@ -303,33 +305,61 @@ def get_eclipse_project_errors(project_path):
         if locationURI is not None:
             if locationURI.text == 'virtual:/virtual':
                 continue
-            root_set.add(locationURI.text[:locationURI.text.find('/')])
+            root_var_set.add(locationURI.text[:locationURI.text.find('/')])
         else:
-            error_line = get_line_number(file_lines, '<name>{}</name>'.format(name.text)) - 1
+            error_line = _get_line_number(file_lines, '<name>{}</name>'.format(name.text)) - 1
             errors.append(Error(
                 type='error',
                 info='Eclipse .project linked resource {} MUST have a <locationURI> tag at line {}.'.format(name.text, error_line)
             ))
-    if len(root_set) > 1:
+    if len(root_var_set) > 1:
         errors.append(Error(
             type='error',
-            info='Eclipse .project linked resources must all extend from a single root variable. {} root variables were found:\n' + '\n'.join(root_set)
+            info='Eclipse .project linked resources must all extend from a single root variable. {} root variables were found:\n' + '\n'.join(root_var_set)
         ))
+    return errors, root_var_set
+
+
+def get_eclipse_cproject_errors(cproject_path, afr_root_var):
+    """Get all the errors (type warning) in the eclipse .cproject file. Currently this is multiple root variables
+    on the incude paths. Having multiple root variables may cause project warnings after OCW cleans the project file.
+    """
+    file_lines = []
+    with open(cproject_path, 'r') as project_file:
+        file_lines = project_file.readlines()
+
+    errors = []
+    afr_root_var_ref = '${' + afr_root_var + '}' # ${AFR_ROOT}
+    workspace_ref = '${workspace_loc:/' # ${workspace_loc:/
+    tree = ElementTree.parse(cproject_path)
+    option_include_path_xpath = './/option[@valueType=\"includePath\"]'
+    option_include_path_elements = tree.getroot().findall(option_include_path_xpath)
+    for option_include_path_element in option_include_path_elements:
+        for listOptionValue in option_include_path_element.findall('listOptionValue'):
+            value = listOptionValue.get('value')
+            if afr_root_var_ref in value:
+                continue
+            elif workspace_ref in value:
+                continue
+            else:
+                error_line = _get_line_number(file_lines, value)
+                errors.append(Error(
+                    type='warning',
+                    info='Eclipse .cproject include path \"{}\" does not extend from {} at line {}'.format(value, afr_root_var_ref, error_line)
+                ))
     return errors
 
-def get_eclipse_cproject_errors(cproject_path):
-    # TODO: Implement checking the .cproject file.
-    errors = []
-    return errors
 
 def check_eclipse(root, project_path, vendor, board, ide):
     '''Returns errors found in the eclipse .project and .cproject files.
     '''
     errors = []
+    root_var_set = set()
     demo_project_path = os.path.join(root, 'demos', vendor, board, ide, project_path, '.project')
     demo_cproject_path = os.path.join(root, 'demos', vendor, board, ide, project_path, '.cproject')
-    errors.extend(get_eclipse_project_errors(demo_project_path))
-    errors.extend(get_eclipse_cproject_errors(demo_cproject_path))
+    project_errors, root_var_set = get_eclipse_project_errors(demo_project_path)
+    errors.extend(project_errors)
+    errors.extend(get_eclipse_cproject_errors(demo_cproject_path, next(iter(root_var_set))))
     return errors
 
 

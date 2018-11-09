@@ -104,6 +104,22 @@
     #define configECHO_CLIENT_RX_WINDOW_SIZE    2
 #endif
 
+/* The flag that turns on TLS for secure socket */
+#define configTCP_ECHO_TASKS_SINGLE_TASK_TLS_ENABLED    ( 0 )
+
+/*
+ * PEM-encoded server certificate
+ *
+ * Must include the PEM header and footer:
+ * "-----BEGIN CERTIFICATE-----\n"\
+ * "...base64 data...\n"\
+ * "-----END CERTIFICATE-----\n"
+ */
+#if ( configTCP_ECHO_TASKS_SINGLE_TASK_TLS_ENABLED == 1 )
+    static const char cTlsECHO_SERVER_CERTIFICATE_PEM[] = "Paste the echo server certificate here.";
+    static const uint32_t ulTlsECHO_SERVER_CERTIFICATE_LENGTH = sizeof( cTlsECHO_SERVER_CERTIFICATE_PEM );
+#endif
+
 /*-----------------------------------------------------------*/
 
 /*
@@ -138,17 +154,17 @@ static char cTxBuffers[ echoNUM_ECHO_CLIENTS ][ echoBUFFER_SIZES ],
 
 void vStartTCPEchoClientTasks_SingleTasks( void )
 {
-    BaseType_t x;
+    BaseType_t xX;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
 
     /* Create the echo client tasks. */
-    for( x = 0; x < echoNUM_ECHO_CLIENTS; x++ )
+    for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
     {
-        snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", x );
+        snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", xX );
         xTaskCreate( prvEchoClientTask,                               /* The function that implements the task. */
                      cNameBuffer,                                     /* Just a text name for the task to aid debugging. */
                      democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
-                     ( void * ) x,                                    /* The task parameter, not used in this case. */
+                     ( void * ) xX,                                   /* The task parameter, not used in this case. */
                      democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY,   /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
                      NULL );                                          /* The task handle is not used. */
     }
@@ -163,8 +179,9 @@ static void prvEchoClientTask( void * pvParameters )
     const int32_t lMaxLoopCount = 10;
     volatile uint32_t ulTxCount = 0UL;
     BaseType_t xReceivedBytes, xReturned, xInstance;
-    BaseType_t lTransmitted, lStringLength;
-    char * pcTransmittedString, * pcReceivedString;
+    BaseType_t xTransmitted, xStringLength;
+    char * pcTransmittedString;
+    char * pcReceivedString;
     TickType_t xTimeOnEntering;
 
     #if ( ipconfigUSE_TCP_WIN == 1 )
@@ -213,6 +230,14 @@ static void prvEchoClientTask( void * pvParameters )
             }
         #endif /* ipconfigUSE_TCP_WIN */
 
+        #if ( configTCP_ECHO_TASKS_SINGLE_TASK_TLS_ENABLED == 1 )
+            {
+                /* Set the socket to use TLS. */
+                SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_REQUIRE_TLS, NULL, ( size_t ) 0 );
+                SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE, cTlsECHO_SERVER_CERTIFICATE_PEM, ulTlsECHO_SERVER_CERTIFICATE_LENGTH );
+            }
+        #endif /* configTCP_ECHO_TASKS_SINGLE_TASK_TLS_ENABLED */
+
         /* Connect to the echo server. */
         configPRINTF( ( "Connecting to echo server\r\n" ) );
 
@@ -225,21 +250,21 @@ static void prvEchoClientTask( void * pvParameters )
             for( lLoopCount = 0; lLoopCount < lMaxLoopCount; lLoopCount++ )
             {
                 /* Create the string that is sent to the echo server. */
-                lStringLength = prvCreateTxData( pcTransmittedString, echoBUFFER_SIZES );
+                xStringLength = prvCreateTxData( pcTransmittedString, echoBUFFER_SIZES );
 
                 /* Add in some unique text at the front of the string. */
                 sprintf( pcTransmittedString, "TxRx message number %u", ( unsigned ) ulTxCount );
                 ulTxCount++;
 
                 /* Send the string to the socket. */
-                lTransmitted = SOCKETS_Send( xSocket,                        /* The socket being sent to. */
+                xTransmitted = SOCKETS_Send( xSocket,                        /* The socket being sent to. */
                                              ( void * ) pcTransmittedString, /* The data being sent. */
-                                             lStringLength,                  /* The length of the data being sent. */
+                                             xStringLength,                  /* The length of the data being sent. */
                                              0 );                            /* No flags. */
 
-                configPRINTF( ( "Sending %s of length %d to echo server\r\n", pcTransmittedString, lStringLength ) );
+                configPRINTF( ( "Sending %s of length %d to echo server\r\n", pcTransmittedString, xStringLength ) );
 
-                if( lTransmitted < 0 )
+                if( xTransmitted < 0 )
                 {
                     /* Error? */
                     configPRINTF( ( "ERROR - Failed to send to echo server\r\n", pcTransmittedString ) );
@@ -252,11 +277,11 @@ static void prvEchoClientTask( void * pvParameters )
                 xReceivedBytes = 0;
 
                 /* Receive data echoed back to the socket. */
-                while( xReceivedBytes < lTransmitted )
+                while( xReceivedBytes < xTransmitted )
                 {
                     xReturned = SOCKETS_Recv( xSocket,                                 /* The socket being received from. */
                                               &( pcReceivedString[ xReceivedBytes ] ), /* The buffer into which the received data will be written. */
-                                              lStringLength - xReceivedBytes,          /* The size of the buffer provided to receive the data. */
+                                              xStringLength - xReceivedBytes,          /* The size of the buffer provided to receive the data. */
                                               0 );                                     /* No flags. */
 
                     if( xReturned < 0 )
@@ -285,9 +310,9 @@ static void prvEchoClientTask( void * pvParameters )
                 if( xReceivedBytes > 0 )
                 {
                     /* Compare the transmitted string to the received string. */
-                    configASSERT( strncmp( pcReceivedString, pcTransmittedString, lTransmitted ) == 0 );
+                    configASSERT( strncmp( pcReceivedString, pcTransmittedString, xTransmitted ) == 0 );
 
-                    if( strncmp( pcReceivedString, pcTransmittedString, lTransmitted ) == 0 )
+                    if( strncmp( pcReceivedString, pcTransmittedString, xTransmitted ) == 0 )
                     {
                         /* The echo reply was received without error. */
                         ulTxRxCycles[ xInstance ]++;
