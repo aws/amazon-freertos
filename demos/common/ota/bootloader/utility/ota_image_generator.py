@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import struct
 from collections import namedtuple
 
 from util import validateFilePath \
@@ -31,29 +32,28 @@ def printOTADescriptorImageStruct(processedImagePath, imageLines, offset):
     try:
         print(cuttingLine + "Generated OTA descriptor" + cuttingLine)
         byte = f.read(4)
-        print(format32BitHexStr(hex(int.from_bytes(byte, "little"))), " -> sequence number")
+        print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])), " -> sequence number")
 
         byte = f.read(4)
-        print(format32BitHexStr(hex(int.from_bytes(byte, "little"))), " -> start address")
+        print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])), " -> start address")
+        byte = f.read(4)
+        print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])), " -> end address")
 
         byte = f.read(4)
-        print(format32BitHexStr(hex(int.from_bytes(byte, "little"))), " -> end address")
+        print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])), " -> execution address")
 
         byte = f.read(4)
-        print(format32BitHexStr(hex(int.from_bytes(byte, "little"))), " -> execution address")
+        print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])), " -> hardware ID")
 
         byte = f.read(4)
-        print(format32BitHexStr(hex(int.from_bytes(byte, "little"))), " -> hardware ID")
-
-        byte = f.read(4)
-        print(format32BitHexStr(hex(int.from_bytes(byte, "little"))), " -> reserved bytes")
+        print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])), " -> reserved bytes")
 
         print(cuttingLine + "Image Content" + cuttingLine)
         time = imageLines
         while time > 0:
             byte = f.read(4)  # Every time print 32 bits
             time -= 1
-            print(format32BitHexStr(hex(int.from_bytes(byte, "little"))))
+            print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])))
         print("...")
         print("...")
     finally:
