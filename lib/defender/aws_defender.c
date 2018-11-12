@@ -47,7 +47,7 @@ static char const * const pcDefenderMQTTEndpoint =
 /* Status of last report sent. */
 static DefenderReportStatus_t eDefenderReportStatus;
 /* Set of agent states. */
-static DefenderState_t (* DEFENDER_States[ eDefenderStateCount ])( void ) = { 0 };
+static DefenderState_t ( * DEFENDER_States[ eDefenderStateCount ] )( void ) = { 0 };
 /* The current state. */
 static DefenderState_t eDefenderState;
 /* Period between reports. */
@@ -233,7 +233,7 @@ static DefenderState_t prvStateConnectMqtt( void )
         .xFlags             = mqttagentREQUIRE_TLS,
         .xURLIsIPAddress    = pdFALSE,
         .usPort             = clientcredentialMQTT_BROKER_PORT,
-        .pucClientId        = ( const uint8_t * )clientcredentialIOT_THING_NAME,
+        .pucClientId        = ( const uint8_t * ) clientcredentialIOT_THING_NAME,
         .usClientIdLength   = 0,
         .xSecuredConnection = pdTRUE,
         .pvUserData         = NULL,
@@ -246,7 +246,7 @@ static DefenderState_t prvStateConnectMqtt( void )
     /* Initialize non-static field values. */
     xDefenderConParams.pcURL = pcDefenderMQTTEndpoint;
     xDefenderConParams.usClientIdLength =
-        ( uint16_t )strlen( clientcredentialIOT_THING_NAME );
+        ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
 
     /*Connect to the endpoint*/
     xConnectResult = MQTT_AGENT_Connect( xDefenderMQTTAgent,
@@ -293,7 +293,7 @@ static DEFENDERBool_t prvSubscribeToAcceptCbor( void )
 
     /* Initialize non-static field values. */
     xSubParams.pucTopic = pucTopic;
-    xSubParams.usTopicLength = ( uint16_t )strlen( ( char * )pucTopic );
+    xSubParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
 
     xSubResult = MQTT_AGENT_Subscribe( xDefenderMQTTAgent,
                                        &xSubParams,
@@ -307,8 +307,8 @@ static DEFENDERBool_t prvSubscribeToAcceptCbor( void )
 static MQTTBool_t xAcceptCallback( void * pxPvPublishCallbackContext,
                                    MQTTPublishData_t const * pxPublishData )
 {
-    ( void )pxPvPublishCallbackContext;
-    ( void )pxPublishData;
+    ( void ) pxPvPublishCallbackContext;
+    ( void ) pxPublishData;
 
     eDefenderReportStatus = eDefenderRepSuccess;
 
@@ -332,7 +332,7 @@ static DEFENDERBool_t prvSubscribeToRejectCbor( void )
 
     /* Initialize non-static field values. */
     xSubParams.pucTopic = pucTopic;
-    xSubParams.usTopicLength = ( uint16_t )strlen( ( char * )pucTopic );
+    xSubParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
 
     xSubResult = MQTT_AGENT_Subscribe( xDefenderMQTTAgent,
                                        &xSubParams,
@@ -346,8 +346,8 @@ static DEFENDERBool_t prvSubscribeToRejectCbor( void )
 static MQTTBool_t prvRejectCallback( void * pxPvPublishCallbackContext,
                                      MQTTPublishData_t const * pxPublishData )
 {
-    ( void )pxPvPublishCallbackContext;
-    ( void )pxPublishData;
+    ( void ) pxPvPublishCallbackContext;
+    ( void ) pxPublishData;
 
     eDefenderReportStatus = eDefenderRepRejected;
 
@@ -384,11 +384,11 @@ static DEFENDERBool_t prvPublishCborToDevDef( CBORHandle_t xReport )
 {
     MQTTAgentPublishParams_t xPubRecParams =
     {
-        .pucTopic       = NULL,
-        .usTopicLength  = 0,
-        .xQoS           = eMQTTQoS0,
-        .pvData         = NULL,
-        .ulDataLength   = 0,
+        .pucTopic      = NULL,
+        .usTopicLength = 0,
+        .xQoS          = eMQTTQoS0,
+        .pvData        = NULL,
+        .ulDataLength  = 0,
     };
     uint8_t * pucTopic = ( uint8_t * )
                          "$aws/things/"
@@ -400,7 +400,7 @@ static DEFENDERBool_t prvPublishCborToDevDef( CBORHandle_t xReport )
 
     /* Initialize non-static field values. */
     xPubRecParams.pucTopic = pucTopic;
-    xPubRecParams.usTopicLength = ( uint16_t )strlen( ( char * )pucTopic );
+    xPubRecParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
     xPubRecParams.pvData = pucBuffer;
     xPubRecParams.ulDataLength = lBufLen;
 
