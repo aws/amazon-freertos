@@ -374,7 +374,7 @@ def main():
     parser = argparse.ArgumentParser(description='AFQP File System Check')
     parser.add_argument('--root', action='store', required=False, dest='root', default=AFR_ROOT, help='Amazon FreeRTOS Root Path. This path is relative to the /afqp_check folder by default ({}).'.format(AFR_ROOT))
     parser.add_argument('--rules', action='store', required=False, dest='rules_path', default='rules.json', help='The path to the rules json file. This path is relative to the /afqp_check folder by default.')
-    parser.add_argument('--files', nargs='*', action='append', required=False, dest='files', help='List of files changed.')
+    parser.add_argument('--files', nargs='+', required=False, dest='files', help='List of files changed.')
     parser.add_argument('--vendor', action='store', required=True, dest='vendor', help='Expected vendor directory name.')
     parser.add_argument('--board', action='store', required=True, dest='board', help='Expected board directory name.')
     parser.add_argument('--ide', action='store', required=True, dest='ide', help='Expected IDE directory name.')
