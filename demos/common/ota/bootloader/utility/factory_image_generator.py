@@ -1,9 +1,9 @@
-import argparse
 import os
 import sys
+import struct
+import argparse
 
 from OpenSSL import crypto
-
 from ota_image_generator import printOTADescriptorImageStruct \
     , generateOTADescriptorImage
 from util import validateFilePath \
@@ -54,7 +54,7 @@ def printFactoryImageStruct(processedImagePath, trailerSize, numLinesImageConten
 
         print(subCuttingLine + " signature size " + subCuttingLine)
         byte = f.read(4)
-        print(format32BitHexStr(hex(int.from_bytes(byte, "little"))))
+        print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])))
 
         byte = f.read()
         print(subCuttingLine + " signature " + subCuttingLine)
@@ -214,7 +214,7 @@ def addFactoryMagicCode(inputImagePath, outputPath):
     magicCode = bytearray("@AFRTOS".encode('ASCII'))
 
     # end byte is 0xFC
-    endByte = bytes.fromhex("FC")
+    endByte = bytearray.fromhex("FC")
 
     magicCode.extend(endByte)
 

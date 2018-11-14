@@ -253,6 +253,8 @@ static CK_RV prvGetCertificateHandle( CK_FUNCTION_LIST_PTR pxFunctionList,
     return xResult;
 }
 
+/* Note that this function mallocs a buffer for the certificate to reside in,
+ * and it is the responsibility of the caller to free the buffer. */
 static CK_RV prvGetCertificate( const char * pcLabelName,
                                 uint8_t ** ppucData,
                                 uint32_t * pulDataSize )
@@ -297,32 +299,37 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
         xTemplate.type = CKA_VALUE;
         xTemplate.pValue = NULL;
         xResult = xFunctionList->C_GetAttributeValue( xSession, xHandle, &xTemplate, xCount );
-    }
-
-    if( xResult == CKR_OK )
-    {
-        pucCert = pvPortMalloc( xTemplate.ulValueLen );
-    }
-
-    if( ( xResult == CKR_OK ) && ( pucCert == NULL ) )
-    {
-        xResult = CKR_HOST_MEMORY;
-    }
-
-    if( xResult == CKR_OK )
-    {
-        xTemplate.pValue = pucCert;
-        xResult = xFunctionList->C_GetAttributeValue( xSession, xHandle, &xTemplate, xCount );
 
         if( xResult == CKR_OK )
         {
-            *ppucData = pucCert;
-            *pulDataSize = xTemplate.ulValueLen;
+            pucCert = pvPortMalloc( xTemplate.ulValueLen );
         }
-        else
+
+        if( ( xResult == CKR_OK ) && ( pucCert == NULL ) )
         {
-            vPortFree( pucCert );
+            xResult = CKR_HOST_MEMORY;
         }
+
+        if( xResult == CKR_OK )
+        {
+            xTemplate.pValue = pucCert;
+            xResult = xFunctionList->C_GetAttributeValue( xSession, xHandle, &xTemplate, xCount );
+
+            if( xResult == CKR_OK )
+            {
+                *ppucData = pucCert;
+                *pulDataSize = xTemplate.ulValueLen;
+            }
+            else
+            {
+                vPortFree( pucCert );
+            }
+        }
+    }
+    else /* Certificate was not found. */
+    {
+        *ppucData = NULL;
+        *pulDataSize = 0;
     }
 
     if( xSessionOpen == CK_TRUE )
@@ -339,8 +346,11 @@ u8 * prvPAL_ReadAndAssumeCertificate( const u8 * const pucCertName,
     uint8_t * pucCertData;
     uint32_t ulCertSize;
     uint8_t * pucSignerCert = NULL;
+    CK_RV xResult;
 
-    if( prvGetCertificate( ( const char * ) pucCertName, &pucSignerCert, ulSignerCertSize ) == CKR_OK )
+    xResult = prvGetCertificate( ( const char * ) pucCertName, &pucSignerCert, ulSignerCertSize );
+
+    if( ( xResult == CKR_OK ) && ( pucSignerCert != NULL ) )
     {
         ESP_LOGI( TAG, "Using cert with label: %s OK\r\n", ( const char * ) pucCertName );
     }
