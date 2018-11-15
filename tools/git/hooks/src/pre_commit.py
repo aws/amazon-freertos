@@ -100,6 +100,8 @@ def is_ignored_file_pattern(file_name):
 
 
 def check_secrets(changed_files):
+    if not changed_files:
+        return []
     if subprocess.call("git secrets --scan " + " ".join(changed_files), shell=True):
         return ['git_secrets']
     return []
