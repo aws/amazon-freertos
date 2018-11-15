@@ -1,2 +1,3 @@
-New-Item -ItemType HardLink -Name ../../../.git/hooks/pre-commit -Value src/pre_commit.py
-New-Item -ItemType HardLink -Name ../../../.git/hooks/commit-msg -Value src/commit_msg.py
+Remove-Item -Recurse -Force ..\..\..\.git\hooks\*
+cmd /c mklink ..\..\..\.git\hooks\pre-commit ..\..\tools\git\hooks\src\pre_commit.py
+cmd /c mklink ..\..\..\.git\hooks\commit-msg ..\..\tools\git\hooks\src\commit_msg.py
