@@ -324,6 +324,9 @@ typedef struct tskTaskControlBlock
 	#if( configUSE_TASK_NOTIFICATIONS == 1 )
 		volatile uint32_t ulNotifiedValue;
 		volatile uint8_t ucNotifyState;
+	#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+		volatile uint8_t ucListeningChannels;
+	#endif
 	#endif
 
 	/* See the comments above the definition of
@@ -4551,7 +4554,11 @@ TickType_t uxReturn;
 
 #if( configUSE_TASK_NOTIFICATIONS == 1 )
 
+#if(configUSE_TASK_NOTIFICATION_CHANNELS == 1)
+	BaseType_t xTaskNotifyWaitChannels( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait, uint8_t ucListeningChannels)
+#else
 	BaseType_t xTaskNotifyWait( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait )
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
 	{
 	BaseType_t xReturn;
 
@@ -4567,6 +4574,10 @@ TickType_t uxReturn;
 
 				/* Mark this task as waiting for a notification. */
 				pxCurrentTCB->ucNotifyState = taskWAITING_NOTIFICATION;
+#if(configUSE_TASK_NOTIFICATION_CHANNELS == 1)
+				/* Mark this task as waiting for a notification on some channels. */
+				pxCurrentTCB->ucListeningChannels = ucListeningChannels;
+#endif
 
 				if( xTicksToWait > ( TickType_t ) 0 )
 				{
@@ -4631,7 +4642,11 @@ TickType_t uxReturn;
 
 #if( configUSE_TASK_NOTIFICATIONS == 1 )
 
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+	BaseType_t xTaskGenericNotifyChannels( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue, uint8_t ucNotifyChannels )
+#else
 	BaseType_t xTaskGenericNotify( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue )
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
 	{
 	TCB_t * pxTCB;
 	BaseType_t xReturn = pdPASS;
@@ -4642,6 +4657,10 @@ TickType_t uxReturn;
 
 		taskENTER_CRITICAL();
 		{
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+		if((pxTCB->ucListeningChannels & ucNotifyChannels) != 0)
+		{
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
 			if( pulPreviousNotificationValue != NULL )
 			{
 				*pulPreviousNotificationValue = pxTCB->ulNotifiedValue;
@@ -4726,6 +4745,15 @@ TickType_t uxReturn;
 			{
 				mtCOVERAGE_TEST_MARKER();
 			}
+
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+		}
+		else
+		{
+			/* The value could not be written to the task. */
+			xReturn = pdFAIL;
+		}
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
 		}
 		taskEXIT_CRITICAL();
 
@@ -4737,7 +4765,11 @@ TickType_t uxReturn;
 
 #if( configUSE_TASK_NOTIFICATIONS == 1 )
 
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+	BaseType_t xTaskGenericNotifyChannelsFromISR( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue, BaseType_t *pxHigherPriorityTaskWoken, uint8_t ucNotifyChannels )
+#else
 	BaseType_t xTaskGenericNotifyFromISR( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue, BaseType_t *pxHigherPriorityTaskWoken )
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
 	{
 	TCB_t * pxTCB;
 	uint8_t ucOriginalNotifyState;
@@ -4768,6 +4800,10 @@ TickType_t uxReturn;
 
 		uxSavedInterruptStatus = portSET_INTERRUPT_MASK_FROM_ISR();
 		{
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+		if((pxTCB->ucListeningChannels & ucNotifyChannels) != 0)
+		{
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
 			if( pulPreviousNotificationValue != NULL )
 			{
 				*pulPreviousNotificationValue = pxTCB->ulNotifiedValue;
@@ -4850,6 +4886,14 @@ TickType_t uxReturn;
 					mtCOVERAGE_TEST_MARKER();
 				}
 			}
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+		}
+		else
+		{
+			/* The value could not be written to the task. */
+			xReturn = pdFAIL;
+		}
+#endif
 		}
 		portCLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedInterruptStatus );
 
