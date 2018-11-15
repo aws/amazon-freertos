@@ -23,8 +23,7 @@ def commit_is_ready(file_names=""):
     if not file_names:
         file_names = get_modified_files()
 
-    existing_files = filter(file_exists, file_names)
-    source_file_names = filter(file_is_checkable, existing_files)
+    files_to_check = [f for f in file_names if file_exists(f) and file_is_checkable(f)]
 
     checks = [
         check_secrets,
@@ -33,7 +32,7 @@ def commit_is_ready(file_names=""):
         check_whitespace,
     ]
     for check in checks:
-        failed_files = check(source_file_names)
+        failed_files = check(files_to_check)
         if failed_files:
             return failed_files
     return []
