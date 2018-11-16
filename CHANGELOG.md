@@ -9,10 +9,13 @@
 #### Microchip "OTA Demo" Factory Image Script
 - Fix post-build command and python script for generating OTA factory image for Mac users.
 
+#### Device Defender Agent V1.0.2
+- Update formatting and build warnings.
+
 #### OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
 - Fix bug in retrieving code signature verification certificate.
 
-####  OTA PAL for Curiosity PIC32MZEF V1.0.2
+#### OTA PAL for Curiosity PIC32MZEF V1.0.2
 - Fix bug in retrieving code signature verification certificate.
 
 ## V1.4.3 11/07/2018
