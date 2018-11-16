@@ -1991,7 +1991,7 @@ BaseType_t xTaskGenericNotifyFromISR( TaskHandle_t xTaskToNotify, uint32_t ulVal
  */
 #if(configUSE_TASK_NOTIFICATION_CHANNELS == 1)
 BaseType_t xTaskNotifyWaitChannels( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait, uint8_t ucListeningChannels) PRIVILEGED_FUNCTION;
-#define xTaskNotifyWait( ulBitsToClearOnEntry, ulBitsToClearOnExit, pulNotificationValue, xTicksToWait ) xTaskNotifyWaitChannels( ( ulBitsToClearOnEntry ), ( ulBitsToClearOnExit ),  ( pulNotificationValue ), ( xTicksToWait ), pdNOTIFICATION_CHANNEL_ALL)
+#define xTaskNotifyWait( ulBitsToClearOnEntry, ulBitsToClearOnExit, pulNotificationValue, xTicksToWait ) xTaskNotifyWaitChannels( ( ulBitsToClearOnEntry ), ( ulBitsToClearOnExit ),  ( pulNotificationValue ), ( xTicksToWait ), pdNOTIFICATION_CHANNEL_RESERVED)
 #else
 BaseType_t xTaskNotifyWait( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 #endif
