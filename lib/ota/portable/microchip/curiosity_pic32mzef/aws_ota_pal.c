@@ -552,32 +552,37 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
         xTemplate.type = CKA_VALUE;
         xTemplate.pValue = NULL;
         xResult = xFunctionList->C_GetAttributeValue( xSession, xHandle, &xTemplate, xCount );
-    }
-
-    if( xResult == CKR_OK )
-    {
-        pucCert = pvPortMalloc( xTemplate.ulValueLen );
-    }
-
-    if( ( xResult == CKR_OK ) && ( pucCert == NULL ) )
-    {
-        xResult = CKR_HOST_MEMORY;
-    }
-
-    if( xResult == CKR_OK )
-    {
-        xTemplate.pValue = pucCert;
-        xResult = xFunctionList->C_GetAttributeValue( xSession, xHandle, &xTemplate, xCount );
 
         if( xResult == CKR_OK )
         {
-            *ppucData = pucCert;
-            *pulDataSize = xTemplate.ulValueLen;
+            pucCert = pvPortMalloc( xTemplate.ulValueLen );
         }
-        else
+
+        if( ( xResult == CKR_OK ) && ( pucCert == NULL ) )
         {
-            vPortFree( pucCert );
+            xResult = CKR_HOST_MEMORY;
         }
+
+        if( xResult == CKR_OK )
+        {
+            xTemplate.pValue = pucCert;
+            xResult = xFunctionList->C_GetAttributeValue( xSession, xHandle, &xTemplate, xCount );
+
+            if( xResult == CKR_OK )
+            {
+                *ppucData = pucCert;
+                *pulDataSize = xTemplate.ulValueLen;
+            }
+            else
+            {
+                vPortFree( pucCert );
+            }
+        }
+    }
+    else /* Certificate was not found. */
+    {
+        *ppucData = NULL;
+        *pulDataSize = 0;
     }
 
     if( xSessionOpen == CK_TRUE )
@@ -599,8 +604,11 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     uint8_t * pucCertData;
     uint32_t ulCertSize;
     uint8_t * pucSignerCert = NULL;
+    CK_RV xResult;
 
-    if( prvGetCertificate( ( const char * ) pucCertName, &pucSignerCert, &ulCertSize ) == CKR_OK )
+    xResult = prvGetCertificate( ( const char * ) pucCertName, &pucSignerCert, ulSignerCertSize );
+
+    if( ( xResult == CKR_OK ) && ( pucSignerCert != NULL ) )
     {
         OTA_LOG_L1( "[%s] Using cert with label: %s OK\r\n", OTA_METHOD_NAME, ( const char * ) pucCertName );
     }

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi for Infineon XMC4800 IoT Kit V1.0.0
+ * Amazon FreeRTOS Wi-Fi for Infineon XMC4800 IoT Connectivity Kit V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Copyright (c) 2018, Infineon Technologies AG

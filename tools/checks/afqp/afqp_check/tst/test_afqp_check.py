@@ -134,6 +134,7 @@ def test_get_license_match_error():
 
 
 license_path = 'a/b/c/aws_ota_pal.c'
+
 license_path_config = 'a/b/c/aws_ota_agent_config.h'
 
 license_no_errors = \
@@ -141,7 +142,7 @@ license_no_errors = \
     Copyright (C) <year> Amazon.com, Inc. or its affiliates.  All Rights Reserved.\n
     Permission is hereby granted, free of charge, to any person obtaining a copy 
     of\n""".replace('<year>', str(datetime.now().year))
-
+    
 license_no_errors_config = \
     """/*\nAmazon FreeRTOS V1.0.0
     Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.\n
@@ -176,9 +177,9 @@ def test_get_copyright_errors(input_license, license_path, is_config, expected_n
 def test_get_line_number():
     with open('tst/.project_compliant', 'r') as f:
         lines = f.readlines()
-    assert afqp_check.get_line_number(lines, 'aws_demos') == 3
-    assert afqp_check.get_line_number(lines, '<name>lib/aws</name>') == 50
-    assert afqp_check.get_line_number(lines, '<name>lib/aws/tls/aws_tls.c</name>') == 175
+    assert afqp_check._get_line_number(lines, 'aws_demos') == 3
+    assert afqp_check._get_line_number(lines, '<name>lib/aws</name>') == 50
+    assert afqp_check._get_line_number(lines, '<name>lib/aws/tls/aws_tls.c</name>') == 175
 
 
 get_eclipse_project_errors_params = [
@@ -194,14 +195,14 @@ get_eclipse_project_errors_params = [
 ]
 @pytest.mark.parametrize('test_file_path, expected_num_errors', get_eclipse_project_errors_params)
 def test_get_eclipse_project_errors(test_file_path, expected_num_errors):
-    results = afqp_check.get_eclipse_project_errors(test_file_path)
+    results, dummy_set = afqp_check.get_eclipse_project_errors(test_file_path)
     assert len(results) == expected_num_errors
     for result in results:
         assert result.type == 'error', '({}, {})'.format(result.type, result.info)
 
 
 eclipse_check_params = [
-    (afqp_check.AFR_ROOT, '', 'ti', 'cc3220_launchpad', 'ccs', 0),
+    (afqp_check.AFR_ROOT, '', 'ti', 'cc3220_launchpad', 'ccs', 2),
     (afqp_check.AFR_ROOT, '', 'st', 'stm32l475_discovery', 'ac6', 0),
     (afqp_check.AFR_ROOT, '', 'infineon', 'xmc4800_iotkit', 'dave4', 0),
     (afqp_check.AFR_ROOT, '', 'nxp', 'lpc54018iotmodule', 'mcuxpresso', 0),
@@ -211,3 +212,13 @@ eclipse_check_params = [
 def test_eclipse_check(root, project_path, vendor, board, ide, expected_num_errors):
     results = afqp_check.check_eclipse(root, project_path, vendor, board, ide)
     assert len(results) == expected_num_errors
+
+
+get_eclipse_cproject_errors_params = [
+    ('tst/.cproject_compliant', 0),
+    ('tst/.cproject_four_different_roots', 4)
+]
+@pytest.mark.parametrize('test_file_path, expected_num_warnings', get_eclipse_cproject_errors_params)
+def test_get_eclipse_cproject_errors(test_file_path, expected_num_warnings):
+    results = afqp_check.get_eclipse_cproject_errors(test_file_path, 'AFR_ROOT')
+    assert len(results) == expected_num_warnings

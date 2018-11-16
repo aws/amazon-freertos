@@ -29,7 +29,7 @@
 uint32_t UptimeSecondsGet( void )
 {
     /* #error Return uptime in seconds since the last reset or power on event */
-    return -1;
+    return UINT32_MAX;
 }
 
 void UptimeRefresh( void )

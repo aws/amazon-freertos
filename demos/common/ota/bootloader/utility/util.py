@@ -93,7 +93,7 @@ def toLitteEndianByte(hexStr):
     byteData = binascii.unhexlify(hexStr)
 
     # convert to unsigned int
-    x = int.from_bytes(byteData, byteorder='big', signed=False)
+    x = struct.unpack('>I', byteData)[0]
 
     # pack it into little endian format
     return struct.pack('<I', x)
@@ -114,7 +114,7 @@ def printHeaderFromLittleEndian(imagePath, numLines):
         while time > 0:
             byte = f.read(4)  # 32 bit machine uses 4 bytes
             time -= 1
-            print(format32BitHexStr(hex(int.from_bytes(byte, "little"))))
+            print(format32BitHexStr(hex(struct.unpack('<I', byte)[0])))
 
     finally:
         f.close()
