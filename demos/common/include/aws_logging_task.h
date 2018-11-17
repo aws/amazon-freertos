@@ -26,11 +26,17 @@
 #ifndef AWS_LOGGING_TASK_H
 #define AWS_LOGGING_TASK_H
 
+#ifndef INC_FREERTOS_H
+    #error "include FreeRTOS.h must appear in source files before include aws_logging_task.h"
+#endif
+
 /*
  * Called once to create the logging task and queue.  Must be called before any
  * calls to vLoggingPrintf().
-*/
-BaseType_t xLoggingTaskInitialize( uint16_t usStackSize, UBaseType_t uxPriority, UBaseType_t uxQueueLength );
+ */
+BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
+                                   UBaseType_t uxPriority,
+                                   UBaseType_t uxQueueLength );
 
 /*
  * Uses the same semantics as printf().  How the print is performed depends on
@@ -39,6 +45,7 @@ BaseType_t xLoggingTaskInitialize( uint16_t usStackSize, UBaseType_t uxPriority,
  * output in the background should the output device be too slow for output to
  * be performed inline.
  */
-void vLoggingPrintf( const char *pcFormat, ... );
+void vLoggingPrintf( const char * pcFormat,
+                     ... );
 
 #endif /* AWS_LOGGING_TASK_H */
