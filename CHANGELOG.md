@@ -1,5 +1,23 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.4 11/15/2018
+### Updates
+
+#### Device Defender Demo V1.4.4
+- Remove warnings in Device Defender Demo build.
+
+#### Microchip "OTA Demo" Factory Image Script
+- Fix post-build command and python script for generating OTA factory image for Mac users.
+
+#### Device Defender Agent V1.0.2
+- Update formatting and build warnings.
+
+#### OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
+- Fix bug in retrieving code signature verification certificate.
+
+#### OTA PAL for Curiosity PIC32MZEF V1.0.2
+- Fix bug in retrieving code signature verification certificate.
+
 ## V1.4.3 11/07/2018
 ### New Features
 
