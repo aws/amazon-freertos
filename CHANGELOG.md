@@ -1,6 +1,6 @@
 # Change Log for Amazon FreeRTOS
 
-## V1.4.4 11/15/2018
+## V1.4.4 11/19/2018
 ### Updates
 
 #### Device Defender Demo V1.4.4
