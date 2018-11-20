@@ -1,0 +1,4 @@
+jobos: ubuntu16
+cbmcflags:        '=--object-bits;7;--unwind;0;--unwindset;prvParseDNSReply.0:6,prvParseDNSReply.1:12;--unwinding-assertions;--32;--bounds-check;--pointer-check='
+goto: ParseDNSReply.goto
+expected: SUCCESSFUL
