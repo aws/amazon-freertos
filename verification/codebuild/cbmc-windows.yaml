@@ -1,0 +1,94 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+    S3Bucket:
+        Type: "AWS::S3::Bucket"
+        Properties:
+            BucketName: !Sub '${AWS::AccountId}-cbmc-build'
+
+    CodeBuildRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    Effect: Allow
+                    Principal:
+                        Service: codebuild.amazonaws.com
+                    Action: "sts:AssumeRole"
+            RoleName: "codebuild-role"
+            Policies:
+                - PolicyName: "codebuild-policy"
+                  PolicyDocument:
+                    Version: 2012-10-17
+                    Statement:
+                        - Action:
+                            - "s3:PutObject"
+                          Effect: Allow
+                          Resource: !Join ["/", [!GetAtt S3Bucket.Arn, "*"]]
+                        - Action:
+                            - "logs:CreateLogGroup"
+                            - "logs:CreateLogStream"
+                            - "logs:PutLogEvents"
+                          Effect: Allow
+                          Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*'
+
+    CBMCBuild:
+        Type: "AWS::CodeBuild::Project"
+        Properties:
+            Artifacts:
+                Type: S3
+                Location: !Ref S3Bucket
+                Name: cbmc
+                NamespaceType: NONE
+            Environment:
+                ComputeType: BUILD_GENERAL1_LARGE
+                Image: aws/codebuild/windows-base:1.0
+                Type: WINDOWS_CONTAINER
+            Name: goto-cl-manual-build
+            ServiceRole: !Ref CodeBuildRole
+            Cache:
+                Type: S3
+                Location: !Join ["/", [!GetAtt S3Bucket.Arn, "cbmc-build-cache"]]
+            Source:
+                BuildSpec: |
+                    version: 0.2
+                    phases:
+                        install:
+                            commands:
+                                - choco install cyg-get -y --no-progress
+                                - cyg-get bash patch bison flex make wget
+                                - nuget install clcache -OutputDirectory "C:\tools" -ExcludeVersion -Version 4.1.0
+                        build:
+                            commands:
+                                - git rev-parse --short HEAD > COMMIT_INFO
+                                - |
+                                  $env:Path = "C:\tools\cygwin\bin;$env:Path"
+                                  bash -c "make -C src minisat2-download DOWNLOADER=wget"
+                                - |
+                                  $env:Path = "C:\tools\cygwin\bin;C:\tools\clcache\clcache-4.1.0;$env:Path"
+                                  $env:CLCACHE_DIR = "C:\clcache"
+                                  $env:CLCACHE_BASEDIR = (Get-Item -Path ".\").FullName
+                                  cmd /c 'call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64 && bash -c "make CXX=clcache.exe -j8 -C src BUILD_ENV=MSVC"'
+                                - |
+                                  # display cache stats
+                                  $env:Path = "C:\tools\cygwin\bin;C:\tools\clcache\clcache-4.1.0;$env:Path"
+                                  $env:CLCACHE_DIR = "C:\clcache"
+                                  cmd /c 'clcache -s'
+
+                    artifacts:
+                        files:
+                            - src/cbmc/cbmc.exe
+                            - src/goto-cc/goto-cc.exe
+                            - src/goto-analyzer/goto-analyzer.exe
+                            - src/goto-instrument/goto-instrument.exe
+                            - src/goto-diff/goto-diff.exe
+                            - COMMIT_INFO
+                        discard-paths: yes
+                    cache:
+                        paths:
+                              - 'C:\clcache\**\*'
+                Type: GITHUB
+                Location: https://github.com/diffblue/cbmc
+                GitCloneDepth: 5

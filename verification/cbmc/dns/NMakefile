@@ -1,0 +1,64 @@
+# NMAKE file for building the DNS harness
+
+!include Makefile.local
+
+RM=del
+
+INC = \
+	-I$(FREERTOS)/demos/pc/windows/common/win_pcap  \
+	-I$(FREERTOS)/demos/pc/windows/common/config_files  \
+	-I$(FREERTOS)/demos/pc/windows/common/application_code/include  \
+	-I$(FREERTOS)/demos/common/include  \
+	-I$(FREERTOS)/lib/include  \
+	-I$(FREERTOS)/lib/include/private  \
+	-I$(FREERTOS)/lib/FreeRTOS/include  \
+	-I$(FREERTOS)/lib/FreeRTOS/portable/MSVC-MingW \
+	-I$(FREERTOS)/lib/FreeRTOS-Plus-TCP/include \
+	-I$(FREERTOS)/lib/FreeRTOS-Plus-TCP/Source/portable/BufferManagement \
+	-I$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/portable/Compiler/MSVC \
+	-I$(FREERTOS)/lib/ota/portable/pc/windows  \
+	-I$(FREERTOS)/lib/third_party/mbedtls/include  \
+	-I$(FREERTOS)/lib/third_party/tracealyzer_recorder/Include  \
+	-I$(FREERTOS)/lib/third_party/jsmn  \
+	-I$(FREERTOS)/lib/third_party/pkcs11  \
+	-I$(FREERTOS)/lib/third_party/tinycbor  \
+	-I. \
+
+default: $(ENTRY).goto
+
+install-cbmc:
+	aws s3 sync $(CBMC_S3) $(CBMC_BIN)
+	copy $(CBMC_BIN)/goto-cc.exe $(CBMC_BIN)/goto-cl.exe
+	copy $(CBMC_BIN)/goto-cc.exe $(CBMC_BIN)/goto-link.exe
+
+$(FREERTOS_BIN)\$(FREERTOS_GOTO):
+	cd /d $(FREERTOS_BIN) && build
+
+$(FREERTOS_GOTO): $(FREERTOS_BIN)\$(FREERTOS_GOTO)
+	copy $** $@
+
+$(HARNESS).goto: $(HARNESS).c
+	$(GOTO_CC) -c $(INC) -Fo$@ $**
+
+$(ENTRY)1.goto: $(FREERTOS_GOTO) $(HARNESS).goto
+	$(GOTO_CC) --function $(HARNESS_ENTRY) -Fe$@ $**
+
+$(ENTRY)2.goto: $(ENTRY)1.goto
+	 $(GOTO_INSTRUMENT) --drop-unused-functions $** $@
+
+$(ENTRY)3.goto: $(ENTRY)2.goto
+	 $(GOTO_INSTRUMENT) $(ABSTRACTIONS) --add-library $** $@
+
+$(ENTRY).goto: $(ENTRY)3.goto
+	copy $** $@
+
+push: $(ENTRY).goto
+	scp $** $(SCP_DEST)
+
+clean:
+	$(RM) *~
+	$(RM) $(ENTRY)*.goto $(HARNESS).goto
+	$(RM) $(FREERTOS_GOTO)
+
+veryclean: clean
+	cd /d $(FREERTOS_BIN) && clean

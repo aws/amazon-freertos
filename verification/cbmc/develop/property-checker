@@ -1,0 +1,209 @@
+#!/usr/bin/env python
+
+"""FreeRTOS property regression testing."""
+
+import subprocess
+import argparse
+
+CONFIG = {
+    "CheckOptions": {
+        "makefile": "Makefile-CheckOptions",
+        "parameters": [],
+        "flags": [],
+    },
+    "CheckOptionsOuter": {
+        "makefile": "Makefile-CheckOptionsOuter",
+        "parameters": [],
+        "flags": [],
+    },
+    "CheckOptionsInner": {
+        "makefile": "Makefile-CheckOptionsInner",
+        "parameters": [],
+        "flags": [],
+    },
+
+    "ProcessDHCPReplies": {
+        "makefile": "Makefile-ProcessDHCPReplies",
+        "parameters": [
+            ["BUFFER_SIZE", 242, 300]
+        ],
+        "flags": ["CFLAGS2=-DEXACT_SIZE"]
+    },
+
+    "ParseDNSReply": {
+        "makefile": "Makefile-ParseDNSReply",
+        "parameters": [
+            ["NETWORK_BUFFER_SIZE", 0, 40]
+        ],
+        "flags": ["CFLAGS2=-DEXACT_SIZE"]
+    },
+    "ReadNameField": {
+        "makefile": "Makefile-ReadNameField",
+        "parameters": [
+            ["NETWORK_BUFFER_SIZE", 0, 10],
+            ["NAME_SIZE", 0, 5]
+        ],
+        "flags": ["CFLAGS2=-DEXACT_SIZE"]
+    },
+    "SkipNameField": {
+        "makefile": "Makefile-SkipNameField",
+        "parameters": [
+            ["NETWORK_BUFFER_SIZE", 0, 30]
+        ],
+        "flags": ["CFLAGS2=-DEXACT_SIZE"]
+    },
+}
+
+def command_line_parser():
+    """Create the command line parser."""
+    parser = argparse.ArgumentParser(
+        description='FreeRTOS regression testing'
+    )
+    parser.add_argument(
+        '--entry',
+        metavar='ENTRY',
+        help='The entry point to test'
+    )
+    parser.add_argument(
+        '--begin-buffer-size',
+        type=int,
+        metavar='N',
+        help='Initial value of NETWORK_BUFFER_SIZE parameter'
+    )
+    parser.add_argument(
+        '--end-buffer-size',
+        type=int,
+        metavar='N',
+        help='Final value of NETWORK_BUFFER_SIZE parameter'
+    )
+    parser.add_argument(
+        '--begin-name-size',
+        type=int,
+        metavar='N',
+        help='Initial value of NAME_SIZE parameter'
+    )
+    parser.add_argument(
+        '--end-name-size',
+        type=int,
+        metavar='N',
+        help='Final value of NAME_SIZE parameter'
+    )
+    return parser
+
+def config_lookup(config, args):
+    "Construct the checking configuration from the default configuration."
+
+    entry = args.entry
+    makefile = config[entry]["makefile"]
+    parameters = config[entry]["parameters"]
+    flags = config[entry]["flags"]
+
+    params = []
+    for param in parameters:
+        if param[0] in ['BUFFER_SIZE', 'NETWORK_BUFFER_SIZE']:
+            params.append(
+                [param[0],
+                 args.begin_buffer_size or param[1],
+                 args.end_buffer_size or param[2]
+                ]
+                )
+            continue
+        if param[0] in ['NAME_SIZE']:
+            params.append([
+                param[0],
+                args.begin_name_size or param[1],
+                args.end_name_size or param[2]
+                ])
+            continue
+
+    return (entry, makefile, params, flags)
+
+def property_check_values(entry, makefile, values, makeflags):
+    "Property checking for an entry point and  specific parameter values."
+
+    makedefs = ['{}={}'.format(val[0], val[1]) for val in values]
+    print "{}: {}".format(entry, ' '.join(makedefs))
+
+    cmd = ['make', '-f', makefile, 'veryclean']
+    subprocess.check_output(cmd)
+
+    cmd = ['make', '-f', makefile, 'cbmc'] + makedefs + makeflags
+    subprocess.check_output(cmd)
+    successful = False
+    with open('cbmc.txt') as handle:
+        for line in handle:
+            if not line.startswith('VERIFICATION'):
+                continue
+            successful = 'SUCCESSFUL' in line
+            print line.strip()
+            break
+
+    cmd = ['make', '-f', makefile, 'veryclean']
+    subprocess.check_output(cmd)
+
+    print
+
+    return successful
+
+def property_check_ranges(entry, makefile, ranges, flags, values=None):
+    "Property checking for an entry point and ranges of parameter values."
+
+    values = values or []
+    failures = []
+    if ranges:
+        (name, begin, end) = ranges[0]
+        for value in range(begin, end+1):
+            fails = property_check_ranges(entry,
+                                          makefile,
+                                          ranges[1:],
+                                          flags,
+                                          values + [(name, value)]
+                                         )
+            failures = failures + fails
+        return failures
+
+    if not property_check_values(entry, makefile, values, flags):
+        return [[value[1] for value in values]]
+
+    return []
+
+def check_entry(entry, makefile, ranges, flags):
+    "Property checking for an entry point."
+
+    if not ranges:
+        if property_check_values(entry, makefile, [], flags):
+            print "{}: Verification succeeded.".format(entry)
+            return True
+        print "{}: Verification failed.".format(entry)
+        return False
+
+    failures = property_check_ranges(entry, makefile, ranges, flags)
+
+    if not failures:
+        print "{}: Verification succeeded.".format(entry)
+        return True
+
+    def make_tuple(values):
+        "Make a tuple from a list of values."
+
+        strings = [str(value) for value in values]
+        if len(strings) == 1:
+            return strings[0]
+        return "({})".format(', '.join(strings))
+
+    tuples = [make_tuple(fail) for fail in failures]
+    names = make_tuple([rng[0] for rng in ranges])
+    print ("{}: Verification failed for {} = {}."
+           .format(entry, names, ', '.join(tuples)))
+    return False
+
+def main():
+    "Do property checking."
+
+    parser = command_line_parser()
+    args = parser.parse_args()
+    (entry, makefile, parameters, flags) = config_lookup(CONFIG, args)
+    check_entry(entry, makefile, parameters, flags)
+
+if __name__ == "__main__":
+    main()

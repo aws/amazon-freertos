@@ -1,0 +1,98 @@
+################################################################
+# FreeRTOS
+
+# Root of FreeRTOS source tree (top directory of git repository)
+# FREERTOS=../../..
+FREERTOS=../../..
+
+# Name of goto binary
+# FREERTOS_GOTO=aws_demos.goto
+FREERTOS_GOTO=aws_demos.goto
+
+# Directory containing goto binary
+# FREERTOS_BIN=..\..\visualstudio
+FREERTOS_BIN=..\..\visualstudio
+
+################################################################
+# CBMC
+
+# S3 bucket containing CBMC binaries built by code build
+# CBMC_S3=s3://723634282280-cbmc-build/cbmc
+CBMC_S3=s3://723634282280-cbmc-build/cbmc
+
+# Directory containing CBMC binaries
+# CBMC_BIN=d:\tuttle\bin
+CBMC_BIN=d:\tuttle\bin
+
+# CBMC binaries
+CBMC=cbmc
+GOTO_CC=goto-cl
+GOTO_INSTRUMENT=goto-instrument
+GOTO_ANALYZER=goto-analyzer
+
+################################################################
+
+# $(HARNESS).c is the CBMC harness
+# HARNESS=harness
+HARNESS=harness
+
+# $(HARNESS_ENTRY) is the harness function caled by CBMC
+# HARNESS_ENTRY=$(HARNESS)
+HARNESS_ENTRY=$(HARNESS)
+
+# $(ENTRY).goto is the final linked goto program for CBMC
+# ENTRY=ParseDNSReply
+ENTRY=ParseDNSReply
+
+# Copy linked goto binary to this linux location via scp
+# SCP_DEST=ubuntu14:freertos/verification/cbmc/dns
+SCP_DEST=ubuntu14:freertos/verification/cbmc/dns
+
+################################################################
+# Packaging
+
+#DATE=$(shell date +%Y%m%d)
+
+# CBMC
+
+# $(CBMC_PKG).tar.gz is the name of the packaeg
+CBMC_PKG=cbmc-$(DATE)
+
+# $(CBMC_ROOT) is the top directory of the git repository
+CBMC_ROOT=~/CBMC
+
+# $(CBMC_S3) is the S3 bucket for the package
+CBMC_S3=s3://cbmc/package
+
+# CBMC Batch
+
+# $(BATCH_PKG).tar.gz is the name of the packaeg
+BATCH_PKG=cbmc-batch-$(DATE)
+
+# $(BATCH_ROOT) is the top directory of the git repository
+BATCH_ROOT=~/cbmc-batch
+
+# $(BATCH_S3) is the S3 bucket for the package
+BATCH_S3=s3://cbmc/package
+
+# CBMC Viewer
+
+# $(VIEWER_PKG).tar.gz is the name of the packaeg
+VIEWER_PKG=cbmc-viewer-$(DATE)
+
+# $(VIEWER_ROOT) is the top directory of the git repository
+VIEWER_ROOT=~/cbmc-viewer
+
+# $(VIEWER_S3) is the S3 bucket for the package
+VIEWER_S3=s3://cbmc/package
+
+# FreeRTOS
+
+# $(FREERTOS_PKG).tar.gz is the name of the package
+FREERTOS_PKG=freertos-$(DATE)
+
+# $(FREERTOS_ROOT) is the top directory of the git repository
+#FREERTOS_ROOT=$(abspath $(FREERTOS))
+
+# $(FREERTOS_S3) is the S3 bucket for the package
+FREERTOS_S3=s3://cbmc
