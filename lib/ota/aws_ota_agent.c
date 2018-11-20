@@ -1323,6 +1323,7 @@ static void prvOTAUpdateTask( void* pvUnused )
 							{
 							    if ( C != NULL )
 							    {
+								( void ) prvSetImageStateWithReason ( eOTA_ImageState_Aborted, kOTA_Err_UserAbort );
 							        ( void ) prvOTA_Close( C );      /* Abort the existing OTA and ignore impossible false result by design. */
 							    }
 							    C = prvProcessOTAJobMsg( (const char*) xMsgMetaData.pxPubData.pvData,   /*lint !e9079 pointer to void is OK to cast to the real type. */

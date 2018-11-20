@@ -49,7 +49,10 @@ def main():
                 header_file.write("\n" + indentation)
             else:
                 header_file.write(" ")
-            header_file.write("0x{:02x},".format(b))
+            if sys.version_info[0] == 2:
+                header_file.write("0x{:02x},".format(ord(b)))
+            else:
+                header_file.write("0x{:02x},".format(b))
         header_file.write("\n" + indentation + end)
         header_file.write(var_length_name + str(len(pubkeybytes)) + ";")
 	

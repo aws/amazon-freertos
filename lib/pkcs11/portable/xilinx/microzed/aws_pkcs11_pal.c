@@ -2,7 +2,7 @@
 *
 * Copyright (C) 2018 Xilinx, Inc.  All rights reserved.
 *
-* Amazon FreeRTOS PKCS #11 PAL for Xilinx Zynq MicroZed V1.0.0
+* Amazon FreeRTOS PKCS #11 PAL for Xilinx Avnet MicroZed V1.0.0
 * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy

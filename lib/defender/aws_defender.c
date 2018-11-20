@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.1
+ * Amazon FreeRTOS Device Defender Agent V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,24 +39,24 @@ typedef enum
     eDefenderTrue = 1,
 } DEFENDERBool_t;
 
-/* Marks that the agent has been asked to stop by the application */
+/* Marks that the agent has been asked to stop by the application. */
 static DEFENDERBool_t xDefenderKill;
-/* IoT endpoint used for connecting to the DD service */
+/* Endpoint used for connecting to the AWS IoT Device Defender service. */
 static char const * const pcDefenderMQTTEndpoint =
     clientcredentialMQTT_BROKER_ENDPOINT;
-/* Status of last report sent */
+/* Status of last report sent. */
 static DefenderReportStatus_t eDefenderReportStatus;
-/* Set of agent states */
-static DefenderState_t (* DEFENDER_States[ eDefenderStateCount ])( void ) = { 0 };
-/* The current state */
+/* Set of agent states. */
+static DefenderState_t ( * DEFENDER_States[ eDefenderStateCount ] )( void ) = { 0 };
+/* The current state. */
 static DefenderState_t eDefenderState;
-/* Period between reports */
+/* Period between reports. */
 static uint32_t ulDelayPeriodSec = 300;
-/* Handle for the MQTT agent */
+/* Handle for the MQTT agent. */
 static MQTTAgentHandle_t xDefenderMQTTAgent;
-/* Handle for the agent task */
+/* Handle for the agent task. */
 static TaskHandle_t xDefenderTaskHandle = NULL;
-/* Timeout period for MQTT connections */
+/* Timeout period for MQTT connections. */
 static TickType_t xMQTTTimeoutPeriodTicks = pdMS_TO_TICKS( 10U * 1000U );
 
 /**
@@ -229,22 +229,29 @@ static DefenderState_t prvStateConnectMqtt( void )
     /*Assign MQTT connection parameters*/
     MQTTAgentConnectParams_t xDefenderConParams =
     {
-        .pcURL              = pcDefenderMQTTEndpoint,
+        .pcURL              = NULL,
         .xFlags             = mqttagentREQUIRE_TLS,
         .xURLIsIPAddress    = pdFALSE,
         .usPort             = clientcredentialMQTT_BROKER_PORT,
         .pucClientId        = ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-        .usClientIdLength   = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME ),
+        .usClientIdLength   = 0,
         .xSecuredConnection = pdTRUE,
         .pvUserData         = NULL,
         .pxCallback         = NULL,
         .pcCertificate      = NULL,
         .ulCertificateSize  = 0,
     };
+    MQTTAgentReturnCode_t xConnectResult = 0;
+
+    /* Initialize non-static field values. */
+    xDefenderConParams.pcURL = pcDefenderMQTTEndpoint;
+    xDefenderConParams.usClientIdLength =
+        ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
+
     /*Connect to the endpoint*/
-    MQTTAgentReturnCode_t xConnectResult =
-        MQTT_AGENT_Connect( xDefenderMQTTAgent, &xDefenderConParams,
-                            xMQTTTimeoutPeriodTicks );
+    xConnectResult = MQTT_AGENT_Connect( xDefenderMQTTAgent,
+                                         &xDefenderConParams,
+                                         xMQTTTimeoutPeriodTicks );
 
     if( eMQTTAgentSuccess != xConnectResult )
     {
@@ -276,14 +283,21 @@ static DEFENDERBool_t prvSubscribeToAcceptCbor( void )
                          "/defender/metrics/cbor/accepted";
     MQTTAgentSubscribeParams_t xSubParams =
     {
-        .pucTopic                 = pucTopic,
-        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
+        .pucTopic                 = NULL,
+        .usTopicLength            = 0,
         .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
         .pxPublishCallback        = xAcceptCallback,
     };
-    MQTTAgentReturnCode_t xSubResult = MQTT_AGENT_Subscribe(
-        xDefenderMQTTAgent, &xSubParams, xMQTTTimeoutPeriodTicks );
+    MQTTAgentReturnCode_t xSubResult = 0;
+
+    /* Initialize non-static field values. */
+    xSubParams.pucTopic = pucTopic;
+    xSubParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
+
+    xSubResult = MQTT_AGENT_Subscribe( xDefenderMQTTAgent,
+                                       &xSubParams,
+                                       xMQTTTimeoutPeriodTicks );
 
     DEFENDERBool_t xError = eMQTTAgentSuccess != xSubResult;
 
@@ -293,6 +307,9 @@ static DEFENDERBool_t prvSubscribeToAcceptCbor( void )
 static MQTTBool_t xAcceptCallback( void * pxPvPublishCallbackContext,
                                    MQTTPublishData_t const * pxPublishData )
 {
+    ( void ) pxPvPublishCallbackContext;
+    ( void ) pxPublishData;
+
     eDefenderReportStatus = eDefenderRepSuccess;
 
     return eMQTTFalse;
@@ -305,14 +322,21 @@ static DEFENDERBool_t prvSubscribeToRejectCbor( void )
                          "/defender/metrics/cbor/rejected";
     MQTTAgentSubscribeParams_t xSubParams =
     {
-        .pucTopic                 = pucTopic,
-        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
+        .pucTopic                 = NULL,
+        .usTopicLength            = 0,
         .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
         .pxPublishCallback        = prvRejectCallback,
     };
-    MQTTAgentReturnCode_t xSubResult = MQTT_AGENT_Subscribe(
-        xDefenderMQTTAgent, &xSubParams, xMQTTTimeoutPeriodTicks );
+    MQTTAgentReturnCode_t xSubResult = 0;
+
+    /* Initialize non-static field values. */
+    xSubParams.pucTopic = pucTopic;
+    xSubParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
+
+    xSubResult = MQTT_AGENT_Subscribe( xDefenderMQTTAgent,
+                                       &xSubParams,
+                                       xMQTTTimeoutPeriodTicks );
 
     DEFENDERBool_t xError = eMQTTAgentSuccess != xSubResult;
 
@@ -322,6 +346,9 @@ static DEFENDERBool_t prvSubscribeToRejectCbor( void )
 static MQTTBool_t prvRejectCallback( void * pxPvPublishCallbackContext,
                                      MQTTPublishData_t const * pxPublishData )
 {
+    ( void ) pxPvPublishCallbackContext;
+    ( void ) pxPublishData;
+
     eDefenderReportStatus = eDefenderRepRejected;
 
     return eMQTTFalse;
@@ -355,23 +382,31 @@ static DefenderState_t prvStateCreateReport( void )
 
 static DEFENDERBool_t prvPublishCborToDevDef( CBORHandle_t xReport )
 {
+    MQTTAgentPublishParams_t xPubRecParams =
+    {
+        .pucTopic      = NULL,
+        .usTopicLength = 0,
+        .xQoS          = eMQTTQoS0,
+        .pvData        = NULL,
+        .ulDataLength  = 0,
+    };
     uint8_t * pucTopic = ( uint8_t * )
                          "$aws/things/"
                          clientcredentialIOT_THING_NAME
                          "/defender/metrics/cbor";
     uint8_t const * pucBuffer = CBOR_GetRawBuffer( xReport );
     int32_t lBufLen = CBOR_GetBufferSize( xReport );
+    MQTTAgentReturnCode_t xPublishResult = 0;
 
-    MQTTAgentPublishParams_t xPubRecParams =
-    {
-        .pucTopic      = pucTopic,
-        .usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic ),
-        .xQoS          = eMQTTQoS0,
-        .pvData        = pucBuffer,
-        .ulDataLength  = lBufLen,
-    };
-    MQTTAgentReturnCode_t xPublishResult = MQTT_AGENT_Publish(
-        xDefenderMQTTAgent, &xPubRecParams, xMQTTTimeoutPeriodTicks );
+    /* Initialize non-static field values. */
+    xPubRecParams.pucTopic = pucTopic;
+    xPubRecParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
+    xPubRecParams.pvData = pucBuffer;
+    xPubRecParams.ulDataLength = lBufLen;
+
+    xPublishResult = MQTT_AGENT_Publish( xDefenderMQTTAgent,
+                                         &xPubRecParams,
+                                         xMQTTTimeoutPeriodTicks );
 
     if( eMQTTAgentSuccess != xPublishResult )
     {
@@ -412,16 +447,16 @@ static DefenderState_t prvStateSleep( void )
     static TickType_t xWakeTick;
     TickType_t const xCurrentTick = xTaskGetTickCount();
     TickType_t const xActivePeriod = ( xCurrentTick - xWakeTick );
-    int32_t const lPeriodMS = ( ulDelayPeriodSec * 1000 );
-    TickType_t const xPeriodTicks = pdMS_TO_TICKS( lPeriodMS );
-    int32_t lSleepPeriod = ( xPeriodTicks - xActivePeriod );
+    uint32_t const ulPeriodMS = ( ulDelayPeriodSec * 1000 );
+    TickType_t const xPeriodTicks = pdMS_TO_TICKS( ulPeriodMS );
+    uint32_t ulSleepPeriod = ( xPeriodTicks - xActivePeriod );
 
-    if( lSleepPeriod > ulDelayPeriodSec )
+    if( ulSleepPeriod > ulDelayPeriodSec )
     {
-        lSleepPeriod = 1;
+        ulSleepPeriod = 1;
     }
 
-    vTaskDelay( lSleepPeriod );
+    vTaskDelay( ulSleepPeriod );
 
     xWakeTick = xTaskGetTickCount();
 

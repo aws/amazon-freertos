@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.1
+ * Amazon FreeRTOS Device Defender Agent V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,7 +29,7 @@
 uint32_t UptimeSecondsGet( void )
 {
     /* #error Return uptime in seconds since the last reset or power on event */
-    return -1;
+    return UINT32_MAX;
 }
 
 void UptimeRefresh( void )

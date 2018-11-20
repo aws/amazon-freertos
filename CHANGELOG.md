@@ -1,10 +1,28 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.4 11/19/2018
+### Updates
+
+#### Device Defender Demo V1.4.4
+- Remove warnings in Device Defender Demo build.
+
+#### Microchip "OTA Demo" Factory Image Script
+- Fix post-build command and python script for generating OTA factory image for Mac users.
+
+#### Device Defender Agent V1.0.2
+- Update formatting and build warnings.
+
+#### OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
+- Fix bug in retrieving code signature verification certificate.
+
+#### OTA PAL for Curiosity PIC32MZEF V1.0.2
+- Fix bug in retrieving code signature verification certificate.
+
 ## V1.4.3 11/07/2018
 ### New Features
 
-#### New Board: Xilinx Zynq MicroZed
-- Update Amazon FreeRTOS with port files, demo projects, and tests for the Xilinx Zynq MicroZed.
+#### New Board: Xilinx Zynq-7000 based MicroZed Industrial IoT Bundle
+- Update Amazon FreeRTOS with port files, demo projects, and tests for the Xilinx Zynq-7000 based MicroZed Industrial IoT Bundle
 
 ### Updates
 
@@ -15,16 +33,17 @@
 - Minor bug fixes.
 
 #### FreeRTOS+TCP V2.0.8
-- Update the Zynq portable layer for receive descriptor alignment.
+- Update the Zynq-7000 portable layer for receive descriptor alignment.
 
 #### PKCS #11 Updates
-Applications calling into PKCS #11 functions directly (rather than using indirectly via an Amazon provided secure sockets or TLS layer) may experience breaking changes. These changes have been made as part of an on-going effort to more closely align the PKCS #11 implementation with the PKCS #11 standard, respond to feedback from users and partners, and move towards a smoother prototype-to-production workflow.
+Update mbedTLS-based PKCS #11, and PKCS #11 PAL. These changes have been made to more closely align with the PKCS #11 standard, respond to feedback from users and partners, and make it easy for users to go to production from a prototype.
+Applications calling into PKCS #11 functions directly (rather than indirectly via an Amazon provided secure sockets or TLS layer) may experience breaking changes. 
 
 ##### mbedTLS-based PKCS #11
-- C_Initialize has been modified to handle initialization of randomness in an effort to minimize entropy generation (or seed access) everytime sessions are created and destroyed.  To protect random values, thread safety has been enabled in mbedTLS.
-- C_SignInit and C_VerifyInit have been modified to utilize the key handle that is passed in, rather than the first key found in order to comply with the PKCS #11 standard.
-- C_FindObject APIs will no longer instantiate keys from the aws_clientcredential_keys.h header file if keys are not found. This removes the dependency of PKCS #11 on values that will be unique per-device (a transition step for enabling production-scale provisioning). Note that calling vDevModeKeyProvisioning() is now necessary to provision the device.
-- C_FindObject PKCS #11 objects may be looked up by CKA_LABEL in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
+- C_Initialize handles initialization of randomness in an effort to minimize entropy generation (or seed access) every time sessions are created and destroyed.  To protect random values, thread safety has been enabled in mbedTLS.
+- C_SignInit and C_VerifyInit utilize the key handle that is passed in, rather than the first key found in order to comply with the PKCS #11 standard
+- C_FindObject APIs no longer instantiate keys from the aws_clientcredential_keys.h header file if keys are not found. This removes the dependency of PKCS #11 on values that will be unique per-device (a transition step for enabling production-scale provisioning). Note that calling vDevModeKeyProvisioning() is now necessary to provision the device.
+- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
 - C_FindObject and C_GetAttributeValue accept different attribute arguments.
 - C_CreateObject requires DER encoded certificates and keys instead of PEM formatted and object attributes required for creating objects have changed.  Note that vDevModeKeyProvisioning() has been updated to supply required attributes and convert inputs from DER to PEM if necessary.
 - C_GenerateKeyPair now stores keys in non-volatile memory.
@@ -56,9 +75,9 @@ Applications calling into PKCS #11 functions directly (rather than using indirec
 
 #### Secure Socket for FreeRTOS+TCP V1.1.4
 - Minor update to handle PKCS #11 error codes.
-- Formatting updates.
+- Update formatting.
 
-#### Secure Sockets for Infineon XMC4800 IoT Kit V1.0.1
+#### Secure Sockets for Infineon XMC4800 IoT Connectivity Kit V1.0.1
 - Fix the license header from Secure Socket to Secure Sockets.
 
 #### Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 4

@@ -20,8 +20,12 @@ Update PORTABLE_LAYER_PATHS in src/afqp_check.py, if applicable.
     * Return *error* for each missing Amazon FreeRTOS copyright.
     * Return *error* for incorrect copyright year.
     * Return *error* for incorrect versions on ported files.
-* Check for a compliant Eclipse file.
-
+* Check for a compliant Eclipse project.
+    * Return *error* for naming demo project anything other than "**aws_demos**" in the **.project** file.
+    * Return *error* for multiple project roots defined in the ide's **.project** file.
+    * Return *error" for each missing **\<locationURI\>** tag in the linked resource in the **.project** file.
+    * Return *warning* for each include path in the **.cproject** not extending from the single root variable defined in the **.project**.
+    
 #### Testing
 Run **pytest** from this directory (tools/checks/afqp/afqp_check)
 
