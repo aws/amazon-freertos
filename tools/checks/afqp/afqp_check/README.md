@@ -1,30 +1,25 @@
 ### Amazon FreeRTOS Qualifcation Program (AFQP) Check
 
-#### Update to Directory Structure
-Update src/ rules.cfg with the names of files and directories of importance.
-Update AFR_ROOT in src/afqp_check.py for updated relative path from tools/checks/afqp/afqp_check.
-Update PORTABLE_LAYER_PATHS in src/afqp_check.py, if applicable.
-
 #### Dependencies
 * Python 2.7+ or Python 3+
 
 #### Usage
 The default Amazon FreeRTOS source root is relative to tools/checks/afqp/afqp_check. This can be changed with the --root option.
-**Non-eclipse based IDE projects.**
-```
-cd <AFR_ROOT>/tools/checks/afqp/afqp_check
-python src/afqp_check.py --vendor <vendor_folder_name> --board <board_folder_name> --ide <ide_folder_name> 
-```
-**Eclipse based IDE projects.**
-```
-cd <AFR_ROOT>/tools/checks/afqp/afqp_check
-python src/afqp_check.py --vendor <vendor_folder_name> --board <board_folder_name> --ide <ide_folder_name>  --eclipse
-```
-If the eclipse project files are not located directly under <AFR_ROOT>/demos/vendor/board/ide, then you must specify the location relative to <AFR_ROOT>/demos/vendor/board/ide.
-```
-cd <AFR_ROOT>/tools/checks/afqp/afqp_check
-python src/afqp_check.py --vendor <vendor_folder_name> --board <board_folder_name> --ide <ide_folder_name>  --eclipse --project aws_demos
-```
+* **Non-eclipse based IDE projects.**
+    ```
+    cd <AFR_ROOT>/tools/checks/afqp/afqp_check
+    python src/afqp_check.py --vendor <vendor_folder_name> --board <board_folder_name> --ide <ide_folder_name> 
+    ```
+* **Eclipse based IDE projects.**
+    ```
+    cd <AFR_ROOT>/tools/checks/afqp/afqp_check
+    python src/afqp_check.py --vendor <vendor_folder_name> --board <board_folder_name> --ide <ide_folder_name>  --eclipse
+    ```
+    If the eclipse project files are not located directly under <AFR_ROOT>/demos/vendor/board/ide, then you must specify the location relative to <AFR_ROOT>/demos/vendor/board/ide.
+    ```
+    cd <AFR_ROOT>/tools/checks/afqp/afqp_check
+    python src/afqp_check.py --vendor <vendor_folder_name> --board <board_folder_name> --ide <ide_folder_name>  --eclipse --project aws_demos
+    ```
 
 #### The Checks
 * Check for required AFQP files:
