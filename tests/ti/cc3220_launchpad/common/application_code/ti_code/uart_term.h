@@ -7,8 +7,7 @@
 
 //Defines
 
-/* UART_PRINT is undefined so that test output is not clobbered. */
-#define UART_PRINT
+#define UART_PRINT Report
 #define DBG_PRINT  Report
 #define ERR_PRINT(x) Report("Error [%d] at line [%d] in function [%s]  \n\r",x,__LINE__,__FUNCTION__)
 

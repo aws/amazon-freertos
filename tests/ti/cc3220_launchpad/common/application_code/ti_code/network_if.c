@@ -58,6 +58,12 @@
 #include "network_if.h"
 #include "uart_term.h"
 
+/* Redefine UART_PRINT to no-op so that test output is not clobbered. */
+#ifdef UART_PRINT
+#undef UART_PRINT
+#define UART_PRINT(X, ...) do {} while(0)
+#endif
+
 //*****************************************************************************
 //                          LOCAL DEFINES
 //*****************************************************************************
@@ -524,7 +530,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
                 ucRecvdAPDetails = 0;
 
                 UART_PRINT("\n\r\n\rPlease enter the AP(open) SSID name # ");
-                
+
                 /* Get the AP name to connect over the UART                       */
                 lRetVal = GetCmd(acCmdStore, sizeof(acCmdStore));
                 if (lRetVal > 0)
@@ -589,7 +595,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
             /* Send the information                                                   */
             UART_PRINT("Device IP Address is %d.%d.%d.%d \n\r\n\r", SL_IPV4_BYTE(ulIP, 3), SL_IPV4_BYTE(ulIP, 2), SL_IPV4_BYTE(ulIP, 1), SL_IPV4_BYTE(ulIP, 0));
             return 0;
-            
+
     #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
         }
         else {
