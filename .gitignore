@@ -1,3 +1,6 @@
 # Ignore uncrustify backups
 *.unc*
 doc/html/*
+
+# Ignore top-level build dir
+/build*/
