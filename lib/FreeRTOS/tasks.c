@@ -4577,6 +4577,20 @@ TickType_t uxReturn;
 
 		taskENTER_CRITICAL();
 		{
+
+#if(configUSE_TASK_NOTIFICATION_CHANNELS == 1)
+			if( pxCurrentTCB->ucNotifyState == taskNOTIFICATION_RECEIVED )
+			{
+				/* Pending notification. If it's not coming from a
+					 listening channel, ignore it. */
+				uint8_t still_listening_on = pxCurrentTCB->ucNotifiedChannels & ucListeningChannels;
+				if(!still_listening_on){
+					pxCurrentTCB->ucNotifyState = taskWAITING_NOTIFICATION;
+				}
+
+			}
+#endif
+
 			/* Only block if a notification is not already pending. */
 			if( pxCurrentTCB->ucNotifyState != taskNOTIFICATION_RECEIVED )
 			{
@@ -4671,7 +4685,7 @@ TickType_t uxReturn;
 		taskENTER_CRITICAL();
 		{
 #if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
-    	uint8_t matching_channels = pxTCB->ucListeningChannels & ucNotifyChannelsMask; 
+    uint8_t matching_channels = pxTCB->ucListeningChannels & ucNotifyChannelsMask; 
 		if(matching_channels)
 		{
 			pxTCB->ucNotifiedChannels = matching_channels;
