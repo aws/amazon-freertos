@@ -92,7 +92,13 @@ function(afr_get_metadata arg_out_var arg_metadata_type arg_metadata_name)
     set(__target_name AFR_metadata::${arg_metadata_type}::${AFR_BOARD_NAME})
     set(__prop_name AFR_METADATA_${arg_metadata_type}_${arg_metadata_name})
 
-    get_target_property(__prop_val ${__target_name} ${__prop_name})
+    if(TARGET ${__target_name})
+        get_target_property(__prop_val ${__target_name} ${__prop_name})
+    endif()
+
+    if(NOT __prop_val)
+        set(__prop_val "UNKNOWN")
+    endif()
 
     set(${arg_out_var} ${__prop_val} PARENT_SCOPE)
 endfunction()
