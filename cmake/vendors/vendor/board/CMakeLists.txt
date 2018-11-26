@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(amazon-freertos)
-
 # These Amazon FreeRTOS related global variables are available to use.
 # AFR_ROOT_DIR          Amazon FreeRTOS source root.
 # AFR_MODULES_DIR       Amazon FreeRTOS modules root.
@@ -37,17 +35,17 @@ project(amazon-freertos)
 # OCW metadata
 # -------------------------------------------------------------------------------------------------
 # Provide metadata for listing on Amazon FreeRTOS console.
-# afr_set_board_metadata(NAME "")
-# afr_set_board_metadata(DISPLAY_NAME "")
-# afr_set_board_metadata(DESCRIPTION "")
-# afr_set_board_metadata(VENDOR_NAME "")
-# afr_set_board_metadata(FAMILY_NAME "")
-# afr_set_board_metadata(DATA_RAM_MEMORY "")
-# afr_set_board_metadata(PROGRAM_MEMORY "")
-# afr_set_board_metadata(CODE_SIGNER "")
-# afr_set_board_metadata(SUPPORTED_IDE "")
-# afr_set_board_metadata(IDE_<IDE_ID>_NAME "")
-# afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
+afr_set_board_metadata(NAME "board")
+afr_set_board_metadata(DISPLAY_NAME "Board")
+afr_set_board_metadata(DESCRIPTION "Template Board for AmazonFreeRTOS")
+afr_set_board_metadata(VENDOR_NAME "Vendor")
+afr_set_board_metadata(FAMILY_NAME "Family")
+afr_set_board_metadata(DATA_RAM_MEMORY "0")
+afr_set_board_metadata(PROGRAM_MEMORY "0")
+afr_set_board_metadata(CODE_SIGNER "")
+afr_set_board_metadata(SUPPORTED_IDE "")
+afr_set_board_metadata(IDE_<IDE_ID>_NAME "")
+afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
