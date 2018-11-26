@@ -10,7 +10,7 @@ else()
 endif()
 
 # -------------------------------------------------------------------------------------------------
-# OCW metadata
+# Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(NAME "TI-CC3220SF-LAUNCHXL")
 afr_set_board_metadata(DISPLAY_NAME "CC3220SF-LAUNCHXL")

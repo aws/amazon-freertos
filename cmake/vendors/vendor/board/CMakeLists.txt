@@ -32,7 +32,7 @@ cmake_minimum_required(VERSION 3.13)
 # afr_glob_src(headers DIRECTORY "${some_path}" EXTENSIONS h)
 
 # -------------------------------------------------------------------------------------------------
-# OCW metadata
+# Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 # Provide metadata for listing on Amazon FreeRTOS console.
 afr_set_board_metadata(NAME "board")
