@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(amazon-freertos)
-
 set(simplelink_dir "${AFR_3RDPARTY_DIR}/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04")
 set(board_demos_dir "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/common")
 set(board_tests_dir "${AFR_ROOT_DIR}/tests/ti/cc3220_launchpad/common")

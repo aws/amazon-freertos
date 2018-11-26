@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
+project(amazon-freertos VERSION 1.4.4)
+
 # Import global configurations.
 include("cmake/afr.cmake")
 
@@ -40,8 +42,11 @@ afr_resolve_dependencies()
 # -------------------------------------------------------------------------------------------------
 message("")
 message("====================Configuration for Amazon FreeRTOS====================")
+message("  Version:                 v${PROJECT_VERSION}")
+message("  Git version:             ${AFR_VERSION_VCS}")
 
 # ================ Target microcontroller =================
+message("")
 message("Target microcontroller:")
 
 afr_get_board_metadata(vendor_name VENDOR_NAME)

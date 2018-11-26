@@ -1,5 +1,7 @@
-# Enable assembly.
-enable_language(ASM)
+# Enable assembly if we're cross compiling.
+if(CMAKE_CROSSCOMPILING)
+    enable_language(ASM)
+endif()
 
 # Do not prefix the output library file.
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
@@ -12,6 +14,17 @@ set(AFR_MODULES_DIR "${AFR_ROOT_DIR}/lib" CACHE INTERNAL "Amazon FreeRTOS module
 set(AFR_DEMOS_DIR "${AFR_ROOT_DIR}/demos/common" CACHE INTERNAL "Amazon FreeRTOS demos root.")
 set(AFR_TESTS_DIR "${AFR_ROOT_DIR}/tests/common" CACHE INTERNAL "Amazon FreeRTOS tests root.")
 set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/third_party" CACHE INTERNAL "3rdparty libraries root.")
+
+# Detect commit version if we're in a Git repository.
+set(AFR_VERSION_VCS "Unknown" CACHE INTERNAL "")
+find_package(Git)
+if(Git_FOUND)
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" "describe" WORKING_DIRECTORY "${AFR_ROOT_DIR}"
+        OUTPUT_VARIABLE __version OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    set(AFR_VERSION_VCS "${__version}" CACHE INTERNAL "")
+endif()
 
 # If we're cross compiling to a board, set "AFR_TOOLCHAIN" to the file name of CMAKE_TOOLCHAIN_FILE,
 # otherwise, set it to compiler id in lower case.
