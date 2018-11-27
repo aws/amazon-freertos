@@ -20,7 +20,7 @@ set(AFR_VERSION_VCS "Unknown" CACHE INTERNAL "")
 find_package(Git)
 if(Git_FOUND)
     execute_process(
-        COMMAND "${GIT_EXECUTABLE}" "describe" WORKING_DIRECTORY "${AFR_ROOT_DIR}"
+        COMMAND "${GIT_EXECUTABLE}" "describe" "--always" WORKING_DIRECTORY "${AFR_ROOT_DIR}"
         OUTPUT_VARIABLE __version OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     set(AFR_VERSION_VCS "${__version}" CACHE INTERNAL "")
