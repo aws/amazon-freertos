@@ -9,8 +9,7 @@ This is a beta branch, only the following platforms, with corresponding demos ar
 - B-L475E-IOT01A (WIFI not supported): 
     * vStartMQTTBLEEchoDemo 
 
-For BLE to work the end point need to be defined in demos\common\include\aws_clientcredential.h
-A thing name of less than 23 character also needs to be provided.
+For BLE to work, define the endpoint in ```demos\common\include\aws_clientcredential.h``` and a _thing name_ of 23 characters or less. 
 	
 ## Getting Started
 
@@ -43,9 +42,10 @@ The following MCU boards are supported for Amazon FreeRTOS:
 7. **Xilinx** - [Xilinx Zynq-7000 based MicroZed Industrial IoT Bundle](http://www.zedboard.org/product/microzed-iiot-bundle-afreertos)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_xilinx.html)
     * IDE: [Xilinx SDK](https://www.xilinx.com/products/design-tools/embedded-software/sdk.html)
+    
+## Windows Simulator
+To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator. Please see the [Windows Simulator Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html).
 
-**Windows Simulator**
-To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
-* Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
-* [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
-* IDE: [Visual Studio Community Edition](https://www.visualstudio.com/downloads/)
+### Requirements
+* Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection. 
+* [Visual Studio Community Edition](https://www.visualstudio.com/downloads/).
