@@ -1,3 +1,17 @@
+## NOTE
+This is a beta branch, only the following platforms, with corresponding demos are tested:
+- esp32_devkitc_esp_wrover_kit:
+    * vStartMQTTBLEEchoDemo
+    * vStartMQTTv4Demo  
+	* WIFI provisioning (added as a BLE service)
+- nrf52840-dk (WIFI not supported):
+    * vStartMQTTBLEEchoDemo  
+- B-L475E-IOT01A (WIFI not supported): 
+    * vStartMQTTBLEEchoDemo 
+
+For BLE to work the end point need to be defined in demos\common\include\aws_clientcredential.h
+A thing name of less than 23 character also needs to be provided.
+	
 ## Getting Started
 
 For more information on Amazon FreeRTOS, refer to the [Getting Started section of Amazon FreeRTOS webpage](https://aws.amazon.com/freertos).

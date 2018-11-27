@@ -24,6 +24,7 @@
  */
 
 /* FreeRTOS includes. */
+#include <aws_ble.h>
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -32,6 +33,7 @@
 #include "aws_dev_mode_key_provisioning.h"
 
 /* AWS System includes. */
+#include "bt_hal_manager.h"
 #include "aws_system_init.h"
 #include "aws_logging_task.h"
 #include "aws_wifi.h"
@@ -43,13 +45,28 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
-
-/* Application version info. */
+#include "esp_gap_ble_api.h"
+#include "esp_bt.h"
+#include "esp_bt_main.h"
+#include "bt_hal_manager_adapter_ble.h"
+#include "bt_hal_manager.h"
+#include "bt_hal_gatt_server.h"
+#include "semphr.h"
+#include "driver/uart.h"
 #include "aws_application_version.h"
+#include "aws_iot_network.h"
+#include "aws_iot_network_manager.h"
+
+
+#if BLE_ENABLED
+#include "aws_ble_config.h"
+#include "aws_ble_services_init.h"
+#include "aws_ble_wifi_provisioning.h"
+#endif
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
-#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
+#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
 #define mainDEVICE_NICK_NAME                "Espressif_Demo"
 
 /* Declare the firmware version structure for all to see. */
@@ -59,9 +76,17 @@ const AppVersion32_t xAppFirmwareVersion = {
    .u.x.usBuild = APP_VERSION_BUILD,
 };
 
+typedef struct{
+	uint32_t ulPassKey;
+	BTBdaddr_t xAdress;
+} BLEPassKeyConfirm_t;
+
+QueueHandle_t spp_uart_queue = NULL;
+QueueHandle_t xNumericComparisonQueue = NULL;
+
 /* Static arrays for FreeRTOS+TCP stack initialization for Ethernet network connections
- * are use are below. If you are using an Ethernet connection on your MCU device it is 
- * recommended to use the FreeRTOS+TCP stack. The default values are defined in 
+ * are use are below. If you are using an Ethernet connection on your MCU device it is
+ * recommended to use the FreeRTOS+TCP stack. The default values are defined in
  * FreeRTOSConfig.h. */
 
 /* Default MAC address configuration.  The demo creates a virtual network
@@ -119,14 +144,24 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
 void vApplicationDaemonTaskStartupHook( void );
 
 /**
- * @brief Connects to WiFi.
- */
-static void prvWifiConnect( void );
-
-/**
  * @brief Initializes the board.
  */
 static void prvMiscInitialization( void );
+
+#if BLE_ENABLED
+/* Initializes bluetooth */
+static esp_err_t prvBLEStackInit( void );
+static BTStatus_t prvBLEInit( void );
+
+#if( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
+static void spp_uart_init(void);
+
+/** UART Task, used to get user input for this like numeric comparison in BLE */
+void uart_task(void *pvParameters);
+void prvNumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey );
+
+#endif
+#endif
 /*-----------------------------------------------------------*/
 
 /**
@@ -134,10 +169,11 @@ static void prvMiscInitialization( void );
  */
 int app_main( void )
 {
-    /* Perform any hardware initialization that does not require the RTOS to be
-     * running.  */
-    prvMiscInitialization();
-    	/* Create tasks that are not dependent on the WiFi being initialized. */
+	uint32_t ulEnabledNetworks;
+	 /* Perform any hardware initialization that does not require the RTOS to be
+	     * running.  */
+
+	/* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
 							tskIDLE_PRIORITY + 5,
 							mainLOGGING_MESSAGE_QUEUE_LENGTH );
@@ -147,16 +183,45 @@ int app_main( void )
             ucDNSServerAddress,
             ucMACAddress );
 
+    prvMiscInitialization();
+
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Connect to the wifi before running the demos */
-        prvWifiConnect();
 
         /* A simple example to demonstrate key and certificate provisioning in
         * microcontroller flash using PKCS#11 interface. This should be replaced
         * by production ready key provisioning mechanism. */
         vDevModeKeyProvisioning();
 
+#if BLE_ENABLED
+        /* Initialize BLE. */
+        if( prvBLEInit() != eBTStatusSuccess )
+        {
+        	configPRINTF(("Failed to initialize the bluetooth stack\n "));
+        	while( 1 )
+        	{
+
+        	}
+        }
+#endif
+        if( AwsIotNetworkManager_Init() != pdPASS )
+        {
+        	configPRINTF(("Failed to initialize the network manager \n "));
+        	while( 1 )
+        	{
+
+        	}
+        }
+
+        ulEnabledNetworks = AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
+        if( ( ulEnabledNetworks & configENABLED_NETWORKS ) !=  configENABLED_NETWORKS )
+        {
+        	configPRINTF(("Failed to enable all the networks, enabled networks: %08x\n ", ulEnabledNetworks ));
+        	while( 1 )
+        	{
+
+        	}
+        }
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }
@@ -166,7 +231,6 @@ int app_main( void )
      * startup hook. */
     // Following is taken care by initialization code in ESP IDF
     // vTaskStartScheduler();
-
     return 0;
 }
 
@@ -174,14 +238,25 @@ int app_main( void )
 
 static void prvMiscInitialization( void )
 {
+
+
 	// Initialize NVS
 	esp_err_t ret = nvs_flash_init();
-	if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
+	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 		ESP_ERROR_CHECK(nvs_flash_erase());
 		ret = nvs_flash_init();
 	}
 	ESP_ERROR_CHECK( ret );
+
+#if( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
+       /* Create a queue that will pass in the code to the UART task and wait validation from the user. */
+       xNumericComparisonQueue = xQueueCreate( 1, sizeof( BLEPassKeyConfirm_t ) );
+       spp_uart_init();
+#endif
 }
+
+
+
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void )
@@ -189,49 +264,159 @@ void vApplicationDaemonTaskStartupHook( void )
 }
 /*-----------------------------------------------------------*/
 
-void prvWifiConnect( void )
+#if BLE_ENABLED
+static esp_err_t prvBLEStackInit( void )
 {
-    WIFINetworkParams_t xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
+    /* Initialize BLE */
+    esp_err_t xRet = ESP_OK;
+    esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
-    xWifiStatus = WIFI_On();
 
-    if( xWifiStatus == eWiFiSuccess )
+    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
+
+    xRet = esp_bt_controller_init( &xBtCfg );
+
+    if( xRet == ESP_OK )
     {
-        configPRINTF( ( "WiFi module initialized. Connecting to AP %s...\r\n", clientcredentialWIFI_SSID ) );
+        xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
     }
     else
     {
-        configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
-
-        while( 1 )
-        {
-        }
+        configPRINTF( ( "Failed to initialize bt controller, err = %d", xRet ) );
     }
 
-    /* Setup parameters. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-
-    xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-    if( xWifiStatus == eWiFiSuccess )
+    if( xRet == ESP_OK )
     {
-        configPRINTF( ( "WiFi Connected to AP. Creating tasks which use network...\r\n" ) );
+        xRet = esp_bluedroid_init();
     }
     else
     {
-        configPRINTF( ( "WiFi failed to connect to AP.\r\n" ) );
-
-        portDISABLE_INTERRUPTS();
-        while( 1 )
-        {
-        }
+        configPRINTF( ( "Failed to initialize bluedroid stack, err = %d", xRet ) );
     }
+
+    return xRet;
 }
+
+
+void prvBLEGAPPairingStateChangedCb( BTStatus_t xStatus,
+                                     BTBdaddr_t * pxRemoteBdAddr,
+                                     BTSecurityLevel_t xSecurityLevel,
+                                     BTAuthFailureReason_t xReason )
+{
+}
+
+
+static BTStatus_t prvBLEInit( void )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+    BLEEventsCallbacks_t xEventCb;
+    BTUuid_t xServerUUID =
+    {
+        .ucType   = eBTuuidType128,
+        .uu.uu128 = bleconfigSERVER_UUID
+    };
+
+
+#if ( bleconfigENABLE_BONDING == 1 )
+    const bool bIsBondable = true;
+#else
+    const bool bIsBondable = false;
+#endif
+
+#if ( bleconfigENABLE_SECURE_CONNECTION == 1 )
+    const bool bSecureConnection = true;
+#else
+    const bool bSecureConnection = false;
+#endif
+    const uint32_t usMtu = bleconfigPREFERRED_MTU_SIZE;
+    const BTIOtypes_t xIO = eBTIODisplayYesNo;
+    size_t xNumProperties;
+    const BTInterface_t * pxIface;
+
+    BTProperty_t xDeviceProperties[] =
+    {
+        {
+            .xType = eBTpropertyBdname,
+            .xLen = strlen( bleconfigDEVICE_NAME ),
+            .pvVal = ( void * ) bleconfigDEVICE_NAME
+        },
+        {
+            .xType = eBTpropertyBondable,
+            .xLen = 1,
+            .pvVal = ( void * ) &bIsBondable
+        },
+		{
+			.xType = eBTpropertySecureConnectionOnly,
+			.xLen = 1,
+			.pvVal = ( void * ) &bSecureConnection
+		},
+		{
+			.xType = eBTpropertyIO,
+			.xLen = 1,
+			.pvVal = ( void * ) &xIO
+		},
+        {
+            .xType = eBTpropertyLocalMTUSize,
+            .xLen = 1,
+            .pvVal = ( void * ) &usMtu
+        }
+    };
+
+    xNumProperties = sizeof( xDeviceProperties ) / sizeof ( xDeviceProperties[0] );
+
+
+    /* Initialize BLE Stack */
+    if( prvBLEStackInit() != ESP_OK )
+    {
+        xStatus = eBTStatusFail;
+    }
+
+    if( xStatus == eBTStatusSuccess )
+    {
+    	pxIface = BTGetBluetoothInterface();
+    	if( pxIface  != NULL )
+    	{
+    		xStatus = pxIface->pxEnable(0);
+    	}
+    	else
+    	{
+    		xStatus = eBTStatusFail;
+    	}
+    }
+    /* Initialize BLE Middle ware */
+    if( xStatus == eBTStatusSuccess )
+    {
+        xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
+    }
+
+    if( xStatus == eBTStatusSuccess )
+    {
+    	 xEventCb.pxGAPPairingStateChangedCb = &prvBLEGAPPairingStateChangedCb;
+    	 xStatus = BLE_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
+    }
+
+#if ( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
+    if( xStatus == eBTStatusSuccess )
+    {
+    	xEventCb.pxNumericComparisonCb = &prvNumericComparisonCb;
+    	xStatus = BLE_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
+    }
+#endif
+
+    /* Initialize BLE Services */
+    if( xStatus == eBTStatusSuccess )
+    {
+        /*Initialize bluetooth services */
+        if( BLE_SERVICES_Init() != pdPASS )
+        {
+            xStatus = eBTStatusFail;
+        }
+    }
+
+    return xStatus;
+}
+#endif
+
 /*-----------------------------------------------------------*/
 /* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
  * implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
@@ -291,7 +476,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
 const char * pcApplicationHostnameHook( void )
 {
-    /* This function will be called during the DHCP: the machine will be registered 
+    /* This function will be called during the DHCP: the machine will be registered
      * with an IP address plus this name. */
     return clientcredentialIOT_THING_NAME;
 }
@@ -402,3 +587,84 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send(&evt);
     }
 }
+
+#if ( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
+
+void prvNumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey)
+{
+	BLEPassKeyConfirm_t xPassKeyConfirm;
+
+	if(pxRemoteBdAddr != NULL)
+	{
+		xPassKeyConfirm.ulPassKey = ulPassKey;
+		memcpy(&xPassKeyConfirm.xAdress, pxRemoteBdAddr, sizeof(BTBdaddr_t));
+
+		xQueueSend(xNumericComparisonQueue, (void * )&xPassKeyConfirm, (portTickType)portMAX_DELAY);
+	}
+}
+
+void uart_task(void *pvParameters)
+{
+    uart_event_t xEvent;
+	BLEPassKeyConfirm_t xPassKeyConfirm;
+    uint8_t * pucTemp = NULL;
+    TickType_t xAuthTimeout = pdMS_TO_TICKS( bleconfigNUMERIC_COMPARISON_TIMEOUT_SEC * 1000 );
+
+    for (;;) {
+    	if (xQueueReceive(xNumericComparisonQueue, (void * )&xPassKeyConfirm, (portTickType) xAuthTimeout ))
+    	{
+			configPRINTF(("Numeric comparison:%ld\n", xPassKeyConfirm.ulPassKey ));
+			configPRINTF(("Press 'y' to confirm\n"));
+			/* Waiting for UART event. */
+			if (xQueueReceive(spp_uart_queue, (void * )&xEvent, (portTickType) xAuthTimeout )) {
+				switch (xEvent.type) {
+				//Event of UART receving data
+				case UART_DATA:
+					if (xEvent.size) {
+						pucTemp = (uint8_t *)malloc(sizeof(uint8_t)*xEvent.size);
+						if(pucTemp == NULL){
+							configPRINTF(("Malloc failed in main.c\n"));
+							break;
+						}
+						memset(pucTemp,0x0,xEvent.size);
+						uart_read_bytes(UART_NUM_0,pucTemp,xEvent.size,portMAX_DELAY);
+						if(pucTemp[0] == 'y')
+						{
+							BLE_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, true);
+						}else
+						{
+							BLE_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, false);
+						}
+
+						free(pucTemp);
+					}
+					break;
+				default:
+					break;
+				}
+			}
+    	}
+    }
+    vTaskDelete(NULL);
+}
+
+static void spp_uart_init(void)
+{
+    uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_RTS,
+        .rx_flow_ctrl_thresh = 122,
+    };
+
+    /* Set UART parameters */
+    uart_param_config(UART_NUM_0, &uart_config);
+    //Set UART pins
+    uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    //Install UART driver, and get the queue.
+    uart_driver_install(UART_NUM_0, 4096, 8192, 10,&spp_uart_queue,0);
+    xTaskCreate(uart_task, "uTask", 2048, (void*)UART_NUM_0, 8, NULL);
+}
+#endif

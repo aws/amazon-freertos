@@ -94,6 +94,11 @@
 /* Needed for POSIX/pthread. */
 #define configUSE_APPLICATION_TASK_TAG           1
 
+#ifdef PTHREAD_STACK_MIN
+#undef PTHREAD_STACK_MIN
+#endif
+#define PTHREAD_STACK_MIN                       ( 16 * ( configMINIMAL_STACK_SIZE ) )
+
 /* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */
 #ifndef __ASSEMBLER__ /* Ensure stdint is only used by the compiler, and not the assembler. */
@@ -173,7 +178,7 @@ function. */
 #define INCLUDE_xTaskGetSchedulerState              1
 #define INCLUDE_xTaskGetIdleTaskHandle              0
 #define INCLUDE_eTaskGetState                       1
-#define INCLUDE_xSemaphoreGetMutexHolder            0
+#define INCLUDE_xSemaphoreGetMutexHolder            1
 #define INCLUDE_xTaskGetCurrentTaskHandle           1
 
 /* The address of an echo server that will be used by the two demo echo client

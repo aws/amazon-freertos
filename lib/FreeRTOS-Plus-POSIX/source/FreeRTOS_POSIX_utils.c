@@ -36,6 +36,15 @@
 #include "FreeRTOS_POSIX/errno.h"
 #include "FreeRTOS_POSIX/utils.h"
 
+/* Define the conversion constants if they are undefined. Conversion constants
+ * may be undefined if the FreeRTOS+POSIX time header isn't used. */
+#ifndef NANOSECONDS_PER_SECOND
+    #define NANOSECONDS_PER_SECOND     ( 1000000000LL )                                /**< Nanoseconds per second. */
+#endif
+#ifndef NANOSECONDS_PER_TICK
+    #define NANOSECONDS_PER_TICK       ( NANOSECONDS_PER_SECOND / configTICK_RATE_HZ ) /**< Nanoseconds per FreeRTOS tick. */
+#endif
+
 /*-----------------------------------------------------------*/
 
 size_t UTILS_strnlen( const char * const pcString,

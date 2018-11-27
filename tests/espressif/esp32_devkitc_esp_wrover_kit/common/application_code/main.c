@@ -42,9 +42,15 @@
 #include "aws_test_utils.h"
 
 
+#include "esp_gap_ble_api.h"
+#include "esp_bt.h"
+#include "esp_bt_main.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
+#include "bt_hal_manager_adapter_ble.h"
+#include "bt_hal_manager.h"
+#include "bt_hal_gatt_server.h"
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
@@ -56,8 +62,8 @@
 
 
 /* Static arrays for FreeRTOS+TCP stack initialization for Ethernet network connections
- * are use are below. If you are using an Ethernet connection on your MCU device it is 
- * recommended to use the FreeRTOS+TCP stack. The default values are defined in 
+ * are use are below. If you are using an Ethernet connection on your MCU device it is
+ * recommended to use the FreeRTOS+TCP stack. The default values are defined in
  * FreeRTOSConfig.h. */
 
 /* Default MAC address configuration.  The demo creates a virtual network
@@ -109,10 +115,13 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR3
 };
 
+/* Initializes bluetooth */
+static esp_err_t prvBLEStackInit( void );
+
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
+ * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
- * function. If you are not using Wi-Fi, this hook can be disabled by setting 
+ * function. If you are not using Wi-Fi, this hook can be disabled by setting
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
  */
 void vApplicationDaemonTaskStartupHook( void );
@@ -151,21 +160,24 @@ int app_main( void )
 
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Connect to the wifi before running the tests. */
-        prvWifiConnect();
+        if( prvBLEStackInit() == eBTStatusSuccess )
+        {
+            /* Connect to the wifi before running the tests. */
+            prvWifiConnect();
 
-        /* A simple example to demonstrate key and certificate provisioning in
-         * microcontroller flash using PKCS#11 interface. This should be replaced
-         * by production ready key provisioning mechanism. */
-        vDevModeKeyProvisioning();
+            /* A simple example to demonstrate key and certificate provisioning in
+            * microcontroller flash using PKCS#11 interface. This should be replaced
+            * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning();
 
-        /* Create the task to run unit tests. */
-        xTaskCreate( TEST_RUNNER_RunTests_task,
-                "RunTests_task",
-                mainTEST_RUNNER_TASK_STACK_SIZE,
-                NULL,
-                tskIDLE_PRIORITY + 5,
-                NULL );
+            /* Create the task to run unit tests. */
+            xTaskCreate( TEST_RUNNER_RunTests_task,
+                    "RunTests_task",
+                    mainTEST_RUNNER_TASK_STACK_SIZE,
+                    NULL,
+                    tskIDLE_PRIORITY + 5,
+                    NULL );
+        }
     }
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
@@ -182,7 +194,7 @@ static void prvMiscInitialization( void )
 {
  	// Initialize NVS
 	esp_err_t ret = nvs_flash_init();
-	if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
+	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 		ESP_ERROR_CHECK(nvs_flash_erase());
 		ret = nvs_flash_init();
 	}
@@ -308,7 +320,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
 const char * pcApplicationHostnameHook( void )
 {
-    /* This function will be called during the DHCP: the machine will be registered 
+    /* This function will be called during the DHCP: the machine will be registered
      * with an IP address plus this name. */
     return clientcredentialIOT_THING_NAME;
 }
@@ -404,4 +416,39 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         evt.event_info.got_ip.ip_info.gw.addr = ulGatewayAddress;
         esp_event_send(&evt);
     }
+}
+
+static esp_err_t prvBLEStackInit( void )
+{
+
+	// Initialize BLE
+	esp_err_t xRet = ESP_OK;
+	esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+
+
+    ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
+
+    xRet = esp_bt_controller_init(&xBtCfg);
+
+    if( xRet == ESP_OK )
+    {
+    	xRet = esp_bt_controller_enable(ESP_BT_MODE_BLE);
+    }
+    else
+    {
+	    configPRINTF(( "Failed to initialize bt controller, err = %d", xRet ));
+    }
+
+    if( xRet == ESP_OK )
+    {
+    	xRet = esp_bluedroid_init();
+    }
+    else
+    {
+	    configPRINTF(( "Failed to initialize bluedroid stack, err = %d", xRet ));
+    }
+
+
+    return xRet;
+
 }

@@ -68,7 +68,7 @@ int UTILS_AbsoluteTimespecToTicks( const struct timespec * const pxAbsoluteTime,
  * @brief Converts a struct timespec to FreeRTOS ticks.
  *
  * @param[in] pxTimespec The timespec to convert.
- * @param[out] Where the result of the conversion is stored. The result is rounded
+ * @param[out] pxResult Where the result of the conversion is stored. The result is rounded
  * up for fractional ticks.
  *
  * @return 0 on success. Otherwise, EINVAL for invalid parameters.
@@ -127,14 +127,14 @@ int UTILS_TimespecSubtract( struct timespec * const pxResult,
                             const struct timespec * const y );
 
 /**
-* @brief Checks that a timespec conforms to POSIX.
-*
-* A valid timespec must have 0 <= tv_nsec < 1000000000.
-*
-* @param[in] pxTimespec The timespec to validate.
-*
-* @return true if the pxTimespec is valid, false otherwise.
-*/
-bool UTILS_ValidateTimespec(const struct timespec * const pxTimespec);
+ * @brief Checks that a timespec conforms to POSIX.
+ *
+ * A valid timespec must have 0 <= tv_nsec < 1000000000.
+ *
+ * @param[in] pxTimespec The timespec to validate.
+ *
+ * @return true if the pxTimespec is valid, false otherwise.
+ */
+bool UTILS_ValidateTimespec( const struct timespec * const pxTimespec );
 
 #endif /* ifndef _FREERTOS_POSIX_UTILS_ */

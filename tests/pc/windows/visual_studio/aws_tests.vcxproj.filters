@@ -118,9 +118,6 @@
     <Filter Include="application_code\common_tests\framework">
       <UniqueIdentifier>{6aa135b8-67c7-40e2-b9ba-93f069c40c56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\aws\bufferpool">
-      <UniqueIdentifier>{8a41eccb-2acf-4721-ba83-e33c8522dd2c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="lib\aws\utils">
       <UniqueIdentifier>{ade27d3b-2828-409d-85fc-cb5e2c59a225}</UniqueIdentifier>
     </Filter>
@@ -192,6 +189,30 @@
     </Filter>
     <Filter Include="application_code\common_tests\memory_leak">
       <UniqueIdentifier>{5131d122-df24-4aef-9924-853498fadda5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application_code\common_tests\mqtt\unit">
+      <UniqueIdentifier>{565c33e1-c40a-45ae-a07f-82efa7578f2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application_code\common_tests\mqtt\system">
+      <UniqueIdentifier>{87001728-fd40-406a-b004-109fdd110072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\utils\platform">
+      <UniqueIdentifier>{70015b7b-7f25-4e17-bedf-bfa7cd8a2c19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\include\platform">
+      <UniqueIdentifier>{114f86ff-f967-4afa-b76d-87b69fe456e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\common">
+      <UniqueIdentifier>{7a31096f-c0b3-423c-9f49-a51986239fcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\utils\platform\static_memory">
+      <UniqueIdentifier>{2f95de8a-8e74-4f71-bf72-75c34566b3d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application_code\common_tests\shadow\unit">
+      <UniqueIdentifier>{5412ec93-74d4-4817-ac03-e548e0514f7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application_code\common_tests\shadow\system">
+      <UniqueIdentifier>{d00529e5-94b5-438c-aad1-016c8d3bb9c9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -471,9 +492,6 @@
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_TCP_WIN.h">
       <Filter>lib\aws\FreeRTOS-Plus-TCP\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\config_files\aws_bufferpool_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
     <ClInclude Include="..\common\config_files\aws_demo_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
@@ -576,9 +594,6 @@
     <ClInclude Include="..\..\..\..\lib\include\timers.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_bufferpool.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_default_root_certificates.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
@@ -597,9 +612,6 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_agent_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_buffer.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
@@ -610,9 +622,6 @@
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_config_defaults.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_json.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_pal.h">
@@ -780,8 +789,53 @@
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\semaphore.h">
       <Filter>lib\aws\include\FreeRTOS_POSIX</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_mqtt.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging_setup.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_mqtt_internal.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_queue.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network_afr.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_threads.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h">
+      <Filter>lib\aws\include\FreeRTOS_POSIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_iot_config_common.h">
+      <Filter>application_code\common_tests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\config_files\aws_iot_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_shadow.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_shadow_internal.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_json_utils.h">
+      <Filter>lib\aws\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1010,14 +1064,8 @@
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_greengrass_discovery.c">
       <Filter>lib\aws\greengrass</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow_json.c">
-      <Filter>lib\aws\shadow</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow.c">
       <Filter>lib\aws\shadow</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_lib.c">
-      <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborpretty.c">
       <Filter>lib\third_party\tinycbor</Filter>
@@ -1082,9 +1130,6 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c">
-      <Filter>lib\aws\bufferpool</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_entropy_hardware_poll.c">
       <Filter>application_code\common_tests\pkcs11</Filter>
     </ClCompile>
@@ -1129,9 +1174,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\greengrass\aws_test_helper_secure_connect.c">
       <Filter>application_code\common_tests\greengrass</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_lib.c">
-      <Filter>application_code\common_tests\mqtt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_agent.c">
       <Filter>application_code\common_tests\ota</Filter>
@@ -1316,6 +1358,98 @@
     <ClCompile Include="..\..\..\common\memory_leak\aws_memory_leak.c">
       <Filter>application_code\common_tests\memory_leak</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_clock_posix.c">
+      <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_network_afr.c">
+      <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_threads_posix.c">
+      <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_api.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_operation.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_queue_access.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_serialize.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_subscription.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_validate.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_unistd.c">
+      <Filter>lib\aws\FreeRTOS-Plus-POSIX\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c">
+      <Filter>lib\aws\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\aws_iot_queue.c">
+      <Filter>lib\aws\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_api.c">
+      <Filter>application_code\common_tests\mqtt\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_receive.c">
+      <Filter>application_code\common_tests\mqtt\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_subscription.c">
+      <Filter>application_code\common_tests\mqtt\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_validate.c">
+      <Filter>application_code\common_tests\mqtt\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\system\aws_iot_tests_mqtt_system.c">
+      <Filter>application_code\common_tests\mqtt\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\posix\aws_test_posix_unistd.c">
+      <Filter>application_code\common_tests\posix</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_common_posix.c">
+      <Filter>lib\aws\utils\platform\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_mqtt_posix.c">
+      <Filter>lib\aws\utils\platform\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\test_runner\aws_iot_tests_network_afr.c">
+      <Filter>application_code\common_tests\test_runner</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_api.c">
+      <Filter>lib\aws\shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_operation.c">
+      <Filter>lib\aws\shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_parser.c">
+      <Filter>lib\aws\shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_subscription.c">
+      <Filter>lib\aws\shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\aws_iot_json_utils.c">
+      <Filter>lib\aws\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\shadow\system\aws_iot_tests_shadow_system.c">
+      <Filter>application_code\common_tests\shadow\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\shadow\unit\aws_iot_tests_shadow_parser.c">
+      <Filter>application_code\common_tests\shadow\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\shadow\unit\aws_iot_tests_shadow_api.c">
+      <Filter>application_code\common_tests\shadow\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_shadow_posix.c">
+      <Filter>lib\aws\utils\platform\static_memory</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
     </ClCompile>

@@ -79,7 +79,7 @@ const AppVersion32_t xAppFirmwareVersion =
 };
 
 /* The length of the logging task's queue to hold messages. */
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 31 )
 
 /* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */

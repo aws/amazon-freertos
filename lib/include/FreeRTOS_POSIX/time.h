@@ -38,7 +38,7 @@
 #include "FreeRTOS_POSIX/signal.h"
 
 /**
- * @defgroup Unit conversion constants.
+ * @name Unit conversion constants.
  */
 /**@{ */
 #define MICROSECONDS_PER_SECOND    ( 1000000LL )                                   /**< Microseconds per second. */
@@ -47,7 +47,7 @@
 /**@} */
 
 /**
- * @defgroup Clock identifiers.
+ * @name Clock identifiers.
  */
 /**@{ */
 #define CLOCK_REALTIME     0     /**< The identifier of the system-wide clock measuring real time. */
@@ -55,57 +55,74 @@
 /**@} */
 
 /**
- * @brief A number used to convert the value returned by the clock() function into seconds.
+ * @name A number used to convert the value returned by the clock() function into seconds.
  */
+/**@{ */
 #define CLOCKS_PER_SEC    ( ( clock_t ) configTICK_RATE_HZ )
+/**@} */
 
 /**
- * @brief Flag indicating time is absolute.
+ * @name Flag indicating time is absolute.
  *
  * For functions taking timer objects, this refers to the clock associated with the timer.
  */
+/**@{ */
 #define TIMER_ABSTIME     0x01
+/**@} */
 
 #if !defined( posixconfigENABLE_TIMESPEC ) || ( posixconfigENABLE_TIMESPEC == 1 )
+
+/**
+ * @brief represents an elapsed time
+ */
     struct timespec
     {
-        time_t tv_sec; /* Seconds. */
-        long tv_nsec;  /* Nanoseconds. */
+        time_t tv_sec;     /**< Seconds. */
+        long tv_nsec;      /**< Nanoseconds. */
     };
 #endif
 
 #if !defined( posixconfigENABLE_ITIMERSPEC ) || ( posixconfigENABLE_ITIMERSPEC == 1 )
+
+/**
+ * @brief timer
+ */
     struct itimerspec
     {
-        struct timespec it_interval; /* Timer period. */
-        struct timespec it_value;    /* Timer expiration. */
+        struct timespec it_interval;     /**< Timer period. */
+        struct timespec it_value;        /**< Timer expiration. */
     };
 #endif
 
 #if !defined( posixconfigENABLE_TM ) || ( posixconfigENABLE_TM == 1 )
+
+/**
+ * @brief calendar representation of time
+ */
     struct tm
     {
-        time_t tm_tick; /* FreeRTOS tick count. */
-        int tm_sec;     /* Seconds [0,60]. Not used. */
-        int tm_min;     /* Minutes [0,59]. Not used. */
-        int tm_hour;    /* Hour [0,23]. Not used. */
-        int tm_mday;    /* Day of month [1,31]. Not used. */
-        int tm_mon;     /* Month of year [0,11]. Not used. */
-        int tm_year;    /* Years since 1900. Not used. */
-        int tm_wday;    /* Day of week [0,6] (Sunday=0). Not used. */
-        int tm_yday;    /* Day of year [0,365]. Not used. */
-        int tm_isdst;   /* Daylight Savings flag. Not used. */
+        time_t tm_tick;     /**< FreeRTOS tick count. */
+        int tm_sec;         /**< Seconds [0,60]. Not used. */
+        int tm_min;         /**< Minutes [0,59]. Not used. */
+        int tm_hour;        /**< Hour [0,23]. Not used. */
+        int tm_mday;        /**< Day of month [1,31]. Not used. */
+        int tm_mon;         /**< Month of year [0,11]. Not used. */
+        int tm_year;        /**< Years since 1900. Not used. */
+        int tm_wday;        /**< Day of week [0,6] (Sunday=0). Not used. */
+        int tm_yday;        /**< Day of year [0,365]. Not used. */
+        int tm_isdst;       /**< Daylight Savings flag. Not used. */
     };
-#endif
+#endif /* if !defined( posixconfigENABLE_TM ) || ( posixconfigENABLE_TM == 1 ) */
 
 /**
  * @brief Report CPU time used.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock.html
  *
- * @note This function reports the number of FreeRTOS ticks since the scheduler
- * was started minus the ticks spent in the idle task. It does NOT report the
- * number of ticks spent by the calling thread.
+ * @return  The number of FreeRTOS ticks since the scheduler
+ * was started minus the ticks spent in the idle task.
+ *
+ * @note This function does NOT report the number of ticks spent by the calling thread.
  */
 clock_t clock( void );
 
@@ -114,8 +131,10 @@ clock_t clock( void );
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock_getcpuclockid.html
  *
- * @note This function is currently unsupported. It will always return -1 and
- * set errno to EPERM.
+ * @retval EPERM
+ *
+ * @note This function is currently unsupported.
+ *
  */
 int clock_getcpuclockid( pid_t pid,
                          clockid_t * clock_id );
@@ -125,8 +144,10 @@ int clock_getcpuclockid( pid_t pid,
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock_getres.html
  *
- * @note clock_id is ignored; this function returns the resolution of the FreeRTOS
- * tick count.
+ * @note clock_id is ignored
+ * @note This function stores the resolution of the FreeRTOS tick count in the object res points to.
+ *
+ * @retval 0 - Upon successful execution
  */
 int clock_getres( clockid_t clock_id,
                   struct timespec * res );
@@ -136,8 +157,10 @@ int clock_getres( clockid_t clock_id,
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock_gettime.html
  *
- * @note clock_id is ignored; this function returns the FreeRTOS tick count.
- * Also, this function does not check for overflows of time_t.
+ * @note clock_id is ignored
+ * @note  this function does not check for overflows of time_t.
+ *
+ * @retval 0 - Upon successful completion.
  */
 int clock_gettime( clockid_t clock_id,
                    struct timespec * tp );
@@ -147,10 +170,12 @@ int clock_gettime( clockid_t clock_id,
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock_nanosleep.html
  *
- * @note clock_id is ignored; this function uses the FreeRTOS tick count as its
- * clock. rmtp is also ignored, as signals are not implemented. flags is ignored
- * if INCLUDE_vTaskDelayUntil is 0, i.e. the FreeRTOS function vTaskDelayUntil
- * isn't available.
+ * @note clock_id is ignored, as this function uses the FreeRTOS tick count as its clock.
+ * @note flags is ignored, if INCLUDE_vTaskDelayUntil is 0. i.e. the FreeRTOS function vTaskDelayUntil isn't available.
+ * @note rmtp is also ignored, as signals are not implemented.
+ *
+ * @retval 0 - Upon successful completion.
+ * @retval EINVAL - The rqtp argument specified a nanosecond value less than zero or greater than or equal to 1000 million.
  */
 int clock_nanosleep( clockid_t clock_id,
                      int flags,
@@ -162,9 +187,9 @@ int clock_nanosleep( clockid_t clock_id,
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock_settime.html
  *
- * @note This function is currently unsupported, as FreeRTOS does not provide
- * a function to modify the tick count. It will always return -1 and set errno
- * to EPERM.
+ * @retval -1 with errno set to EPERM.
+ *
+ * @note This function is currently unsupported, as FreeRTOS does not provide a function to modify the tick count.
  */
 int clock_settime( clockid_t clock_id,
                    const struct timespec * tp );
@@ -174,8 +199,16 @@ int clock_settime( clockid_t clock_id,
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/localtime_r.html
  *
- * @note This function only stores the time as tm.tm_tick. All other members of
+ * @note timer is ignored
+ *
+ * @note This function can only store the time as tm.tm_tick. All other members of
  * the struct will be set to 0.
+ *
+ * @note In order to store tm.tm_tick in result, posixconfgENABLE_TM needs to be set to 1.
+ * See FreeRTOS_POSIX_portable_default.h for porting configurations.
+ *
+ * @return Upon successful completion, returns a pointer points to the object holding structure of type tm.
+ * @return If any error, rutrns NULL, with errno set to ENOTSUP.
  */
 struct tm * localtime_r( const time_t * timer,
                          struct tm * result );
@@ -186,6 +219,10 @@ struct tm * localtime_r( const time_t * timer,
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/nanosleep.html
  *
  * @note rmtp is ignored, as signals are not implemented.
+ *
+ * @retval 0 - Upon successful completion.
+ * @retval -1 - The rqtp argument is invalid OR the rqtp argument specified a nanosecond value less than zero or greater than or equal to 1000 million.
+ *
  */
 int nanosleep( const struct timespec * rqtp,
                struct timespec * rmtp );
@@ -196,6 +233,10 @@ int nanosleep( const struct timespec * rqtp,
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html
  *
  * @note format is ignored.
+ *
+ * @retval the number of bytes placed into the array pointed to by s,
+ * if the total number of resulting bytes including the terminating null byte is not more than maxsize.
+ * @retval 0, otherwise. In this case, the array pointed to by s contains partially copied data.
  */
 size_t strftime( char * s,
                  size_t maxsize,
@@ -207,8 +248,9 @@ size_t strftime( char * s,
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/time.html
  *
- * @note This function returns the FreeRTOS tick count, not the seconds since
- * UNIX epoch.
+ * @note This function returns the FreeRTOS tick count, not the seconds since UNIX epoch.
+ *
+ * @retval FreeRTOS tick count - upon successful completion
  */
 time_t time( time_t * tloc );
 
@@ -217,9 +259,17 @@ time_t time( time_t * tloc );
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_create.html
  *
- * @note clock_id is ignored; this function used the FreeRTOS tick count as its
- * clock. Because signals are currently unimplemented, evp.sigev_notify must be
- * set to SIGEV_THREAD.
+ * @note clock_id is ignored, as this function used the FreeRTOS tick count as its clock.
+ * @note evp.sigev_notify must be set to SIGEV_THREAD, since signals are currently not supported.
+ *
+ * @retval 0 - Upon successful completion, with location referenced by timerid updated.
+ * @retval -1 - If an error occurs. errno is also set.
+ *
+ * @sideeffect Possible errno values
+ * <br>
+ * ENOTSUP - If evp is NULL OR evp->sigen_notify == SIGEV_SIGNAL.
+ * <br>
+ * EAGAIN - The system lacks sufficient signal queuing resources to honor the request.
  */
 int timer_create( clockid_t clockid,
                   struct sigevent * evp,
@@ -229,6 +279,8 @@ int timer_create( clockid_t clockid,
  * @brief Delete a per-process timer.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_delete.html
+ *
+ * @retval 0 - Upon successful completion.
  */
 int timer_delete( timer_t timerid );
 
@@ -237,7 +289,7 @@ int timer_delete( timer_t timerid );
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_getoverrun.html
  *
- * Signals are not implemented, so this function will always return 0.
+ * @retval 0 - Always return 0, since signals are not supported.
  */
 int timer_getoverrun( timer_t timerid );
 
@@ -245,6 +297,8 @@ int timer_getoverrun( timer_t timerid );
  * @brief Get the amount of time until the timer expires.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_gettime.html
+ *
+ * @retval 0 - Upon successful completion.
  */
 int timer_gettime( timer_t timerid,
                    struct itimerspec * value );
@@ -253,6 +307,14 @@ int timer_gettime( timer_t timerid,
  * @brief Set the time until the next expiration of the timer.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_settime.html
+ *
+ * @retval 0 - Upon successful completion.
+ * @retval -1 - An error occured, errno is also set.
+ *
+ * @sideeffect Possible errno values
+ * <br>
+ * EINVAL - A value structure specified a nanosecond value less than zero or greater than or equal to 1000 million,
+ * AND the it_value member of that structure did not specify zero seconds and nanoseconds.
  */
 int timer_settime( timer_t timerid,
                    int flags,

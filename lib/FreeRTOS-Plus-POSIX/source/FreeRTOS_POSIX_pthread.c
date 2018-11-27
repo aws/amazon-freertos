@@ -130,19 +130,13 @@ static void prvRunThread( void * pxArg )
 
 int pthread_attr_destroy( pthread_attr_t * attr )
 {
-    int iStatus = 0;
-
     /* Free the attributes object if not NULL. */
-    if( attr != NULL )
+    if ( attr != NULL )
     {
         vPortFree( *attr );
     }
-    else
-    {
-        iStatus = EINVAL;
-    }
 
-    return iStatus;
+    return 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -186,12 +180,13 @@ int pthread_attr_getstacksize( const pthread_attr_t * attr,
 int pthread_attr_init( pthread_attr_t * attr )
 {
     int iStatus = 0;
+    pthread_attr_t * pxAttr = NULL;
 
     /* Allocate memory for a new thread attributes object. */
-    *attr = pvPortMalloc( sizeof( pthread_attr_internal_t ) );
+    pxAttr = ( pthread_attr_t * ) pvPortMalloc( sizeof( pthread_attr_internal_t ) );
 
     /* Check that thread attributes object was successfully allocated. */
-    if( attr == NULL )
+    if( pxAttr == NULL )
     {
         iStatus = ENOMEM;
     }
@@ -199,8 +194,11 @@ int pthread_attr_init( pthread_attr_t * attr )
     /* Copy the default values into the new thread attributes object. */
     if( iStatus == 0 )
     {
-        *( ( pthread_attr_internal_t * ) ( *attr ) ) = xDefaultThreadAttributes;
+        *( ( pthread_attr_internal_t * ) pxAttr ) = xDefaultThreadAttributes;
     }
+
+    
+    *attr = pxAttr;
 
     return iStatus;
 }
@@ -375,15 +373,7 @@ int pthread_getschedparam( pthread_t thread,
 int pthread_equal( pthread_t t1,
                    pthread_t t2 )
 {
-    int iStatus = 0;
-
-    /* Compare the thread IDs. */
-    if( ( t1 != NULL ) && ( t2 != NULL ) )
-    {
-        iStatus = ( t1 == t2 );
-    }
-
-    return iStatus;
+    return t1 == t2;
 }
 
 /*-----------------------------------------------------------*/

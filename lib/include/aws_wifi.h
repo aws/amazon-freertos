@@ -39,6 +39,7 @@
 
 /* Wi-Fi configuration includes. */
 #include "aws_wifi_config.h"
+#include "aws_iot_network.h"
 
 /**
  * @brief Return code denoting API status.
@@ -468,10 +469,19 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 
 
 /**
+ * @brief Registers application handler for network state change events
+ * @param[in] xCallback Application Handler for network state change
+ * @param[in] pvContext Context passed in as it is to the application handler
+ * @return
+ */
+WIFIReturnCode_t WIFI_RegisterStateChangeCallback( AwsIotNetworkStateChangeCb_t xCallback, void* pvContext );
+
+/**
  * @brief Check if the Wi-Fi is connected.
  *
  * @return pdTRUE if the link is up, pdFalse otherwise.
  */
 BaseType_t WIFI_IsConnected( void );
+
 
 #endif /* _AWS_WIFI_H_ */

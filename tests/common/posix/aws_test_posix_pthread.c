@@ -77,6 +77,71 @@ static void * prvComputeSquareThread( void * pvArgs )
 
 /*-----------------------------------------------------------*/
 
+static void * prvSelfJoinThread( void * pvArgs )
+{
+    /* Join self. */
+    *( ( int * ) pvArgs ) = pthread_join( pthread_self(), NULL );
+
+    return NULL;
+}
+
+/*-----------------------------------------------------------*/
+
+static void * prvLowPriorTaskThread( void * pvArgs )
+{
+    int iStatus = 0;
+    pthread_mutex_t * pxMutex = ( pthread_mutex_t * ) pvArgs;
+    struct sched_param xSchedParamDefault = { 0 }, xSchedParamHighPrior = { 0 }, xSchedParamTemp;
+    int schedPolicy = 0;
+    struct timespec xDelay =
+    {
+        .tv_sec  = 0,
+        .tv_nsec = posixtestPTHREAD_DETACHED_WAIT_MILLISECONDS
+    };
+
+    /* Lock mutex. */
+    pthread_mutex_lock( pxMutex );
+
+    /* Save current scheduling policy and prioirty. */
+    iStatus = pthread_getschedparam( pthread_self(),
+                                     &schedPolicy,
+                                     &xSchedParamDefault );
+    TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+    /* In this application scenario, we know this thread is of lowest priority.
+     * Bump to ceiling to avoid blocking threads of higher priority waiting for this mutex.
+     * Refer to https://www.freertos.org/RTOS-task-priority.html
+     */
+    xSchedParamHighPrior.sched_priority = sched_get_priority_max( SCHED_OTHER );
+
+    iStatus = pthread_setschedparam( pthread_self(),
+                                     schedPolicy,
+                                     &xSchedParamHighPrior );
+    TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+    pthread_getschedparam( pthread_self(),
+                           &schedPolicy,
+                           &xSchedParamTemp );
+    TEST_ASSERT_EQUAL_INT( xSchedParamHighPrior.sched_priority, xSchedParamTemp.sched_priority );
+
+    /* Perform predefine routine, where in this test... let's wait a little bit. */
+    nanosleep( &xDelay, NULL );
+
+    /* Reset priority to previous value. */
+    iStatus = pthread_setschedparam( pthread_self(),
+                                     schedPolicy,
+                                     &xSchedParamDefault );
+    TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+    /* Release mutex. */
+    pthread_mutex_unlock( pxMutex );
+
+    return NULL;
+}
+
+
+/*-----------------------------------------------------------*/
+
 static void * prvUnlockMutexThread( void * pvArgs )
 {
     pthread_mutex_t * pxMutex = ( pthread_mutex_t * ) pvArgs;
@@ -286,9 +351,11 @@ TEST_TEAR_DOWN( Full_POSIX_PTHREAD )
 TEST_GROUP_RUNNER( Full_POSIX_PTHREAD )
 {
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_create_join );
+    RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_create_not_enough_memory );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_attr_init_destroy );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_mutex_lock_unlock );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_mutex_trylock_timedlock );
+    RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_schedparam_priority_bump );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_barrier );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_cond_signal );
     RUN_TEST_CASE( Full_POSIX_PTHREAD, pthread_cond_broadcast );
@@ -300,6 +367,7 @@ TEST( Full_POSIX_PTHREAD, pthread_create_join )
 {
     int iStatus = 0;
     volatile int iNumberToSquare = 5;
+    volatile int iJoinStatus = 0;
     volatile BaseType_t xAttrInitDone = pdFALSE;
     void * pvThreadReturnValue = NULL;
     pthread_t xNewThread = NULL;
@@ -353,6 +421,51 @@ TEST( Full_POSIX_PTHREAD, pthread_create_join )
 
         TEST_ASSERT_EQUAL_INT( 625, iNumberToSquare );
         TEST_ASSERT_EQUAL_PTR( &iNumberToSquare, pvThreadReturnValue );
+
+        /* Join self shall result deadlock in our implementation. */
+        iStatus = pthread_attr_setdetachstate( &xThreadAttr, PTHREAD_CREATE_JOINABLE );
+        iStatus = pthread_create( &xNewThread, &xThreadAttr, prvSelfJoinThread, ( void * ) &iJoinStatus );
+        iStatus = pthread_join( xNewThread, NULL );
+
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+        TEST_ASSERT_EQUAL_INT( EDEADLK, iJoinStatus );
+    }
+
+    /* Destroy the thread attribute object if it was created. */
+    if( xAttrInitDone == pdTRUE )
+    {
+        ( void ) pthread_attr_destroy( &xThreadAttr );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_PTHREAD, pthread_create_not_enough_memory )
+{
+    int iStatus = 0;
+    pthread_attr_t xThreadAttr;
+    pthread_t xNewThread = NULL;
+    volatile BaseType_t xAttrInitDone = pdFALSE;
+    volatile int iNumberToSquare = 5;
+
+    if( TEST_PROTECT() )
+    {
+        /* Create a pthread_attr_t. */
+        iStatus = pthread_attr_init( &xThreadAttr );
+        TEST_ASSERT_EQUAL_INT_MESSAGE( 0,
+                                       iStatus,
+                                       "pthread_attr_init failed!" );
+
+        xAttrInitDone = pdTRUE;
+
+        /* Set stack size to a ridiculous number. */
+        iStatus = pthread_attr_setstacksize( &xThreadAttr, ( 1 << ( 8 * sizeof( size_t ) - 1 ) ) );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+        iStatus = pthread_create( &xNewThread, &xThreadAttr, prvComputeSquareThread, ( void * ) &iNumberToSquare );
+        TEST_ASSERT_EQUAL_INT_MESSAGE( EAGAIN,
+                                       iStatus,
+                                       "Expect thread creation to fail with unrealistic stack size requested." );
     }
 
     /* Destroy the thread attribute object if it was created. */
@@ -368,6 +481,8 @@ TEST( Full_POSIX_PTHREAD, pthread_attr_init_destroy )
 {
     int iStatus = 0;
     size_t xStackSize1 = 0, xStackSize2 = 0;
+    int xDetachState1 = 0;
+    struct sched_param xSchedParam1 = { 0 }, xSchedParam2 = { 0 };
     volatile BaseType_t xAttrInitDone = pdFALSE;
     pthread_attr_t xAttr;
 
@@ -380,19 +495,67 @@ TEST( Full_POSIX_PTHREAD, pthread_attr_init_destroy )
                                        "pthread_attr_init failed!" );
         xAttrInitDone = pdTRUE;
 
-        /* Check we can get and set the stack size. */
+        /* Get default stack size. */
         iStatus = pthread_attr_getstacksize( &xAttr, &xStackSize1 );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
-        iStatus = pthread_attr_setstacksize( &xAttr, xStackSize1 );
-        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+        /* Boundary checks -- invalid stack size. */
+        iStatus = pthread_attr_setstacksize( &xAttr, 0 );
+        TEST_ASSERT_EQUAL_INT( EINVAL, iStatus );
+
+        iStatus = pthread_attr_setstacksize( &xAttr, ( PTHREAD_STACK_MIN - 1 ) );
+        TEST_ASSERT_EQUAL_INT( EINVAL, iStatus );
+
+        /* Get stack size again. Stack size shall remain unchanged. */
         iStatus = pthread_attr_getstacksize( &xAttr, &xStackSize2 );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
         TEST_ASSERT_EQUAL_INT( xStackSize2, xStackSize1 );
 
-        /* Attempt to set an invalid stack size. */
-        xStackSize1 = PTHREAD_STACK_MIN - 1;
-        iStatus = pthread_attr_setstacksize( &xAttr, xStackSize1 );
+        /* Set stack size and validate. */
+        iStatus = pthread_attr_setstacksize( &xAttr, xStackSize1 * 2 );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+        iStatus = pthread_attr_getstacksize( &xAttr, &xStackSize2 );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+        TEST_ASSERT_EQUAL_INT( xStackSize2, xStackSize1 * 2 );
+
+        /* Get default detach state. And per Open Group default shall be PTHREAD_CREATE_JOINABLE. */
+        iStatus = pthread_attr_getdetachstate( &xAttr, &xDetachState1 );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+        TEST_ASSERT_EQUAL_INT( xDetachState1, PTHREAD_CREATE_JOINABLE );
+
+        /* Boundary check -- invalid detach state. */
+        iStatus = pthread_attr_setdetachstate( &xAttr, -1 );
         TEST_ASSERT_EQUAL_INT( EINVAL, iStatus );
+
+        /* Get detach state again. Detach state shall remain unchanged. */
+        iStatus = pthread_attr_getdetachstate( &xAttr, &xDetachState1 );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+        TEST_ASSERT_EQUAL_INT( xDetachState1, PTHREAD_CREATE_JOINABLE );
+
+        /* Get default sched param. */
+        iStatus = pthread_attr_getschedparam( &xAttr, &xSchedParam1 );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+        /* Boundary checks -- invalid sched param. */
+        iStatus = pthread_attr_setschedparam( &xAttr, NULL );
+        TEST_ASSERT_EQUAL_INT( EINVAL, iStatus );
+
+        xSchedParam2.sched_priority = -1;
+        iStatus = pthread_attr_setschedparam( &xAttr, &xSchedParam2 );
+        TEST_ASSERT_EQUAL_INT( ENOTSUP, iStatus );
+
+        xSchedParam2.sched_priority = sched_get_priority_max( SCHED_OTHER ) + 1;
+        iStatus = pthread_attr_setschedparam( &xAttr, &xSchedParam2 );
+        TEST_ASSERT_EQUAL_INT( ENOTSUP, iStatus );
+
+        /* Get sched param again. Sched param shall remain unchanged. */
+        iStatus = pthread_attr_getschedparam( &xAttr, &xSchedParam2 );
+        TEST_ASSERT_EQUAL( xSchedParam1.sched_priority, xSchedParam2.sched_priority );
+
+        /* Set sched param. */
+        xSchedParam2.sched_priority = SCHED_OTHER;
+        iStatus = pthread_attr_setschedparam( &xAttr, &xSchedParam2 );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
     }
 
     /* Destroy the thread attribute object if it was created. */
@@ -466,6 +629,44 @@ TEST( Full_POSIX_PTHREAD, pthread_mutex_trylock_timedlock )
     if( xMutexCreated == pdTRUE )
     {
         ( void ) pthread_mutex_destroy( &xMutex );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_PTHREAD, pthread_schedparam_priority_bump )
+{
+    int iStatus = 0;
+    pthread_attr_t xThreadAttrDefaultPrior;
+    pthread_t xNewThread = NULL;
+    volatile BaseType_t xAttrInitDone = pdFALSE;
+
+    /* Test the NORMAL (DEFAULT) mutex type. */
+    pthread_mutex_t xMutex = PTHREAD_MUTEX_INITIALIZER;
+
+    if( TEST_PROTECT() )
+    {
+        /* Create a pthread_attr_t. */
+        iStatus = pthread_attr_init( &xThreadAttrDefaultPrior );
+        TEST_ASSERT_EQUAL_INT_MESSAGE( 0,
+                                       iStatus,
+                                       "pthread_attr_init failed!" );
+
+        xAttrInitDone = pdTRUE;
+
+        iStatus = pthread_create( &xNewThread, &xThreadAttrDefaultPrior, prvLowPriorTaskThread, ( void * ) &xMutex );
+        TEST_ASSERT_EQUAL_INT_MESSAGE( 0,
+                                       iStatus,
+                                       "Thread creation failed!" );
+
+        iStatus = pthread_join( xNewThread, NULL );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+    }
+
+    /* Destroy the thread attribute object if it was created. */
+    if( xAttrInitDone == pdTRUE )
+    {
+        ( void ) pthread_attr_destroy( &xThreadAttrDefaultPrior );
     }
 }
 
@@ -606,11 +807,16 @@ TEST( Full_POSIX_PTHREAD, pthread_cond_signal )
 
 TEST( Full_POSIX_PTHREAD, pthread_cond_broadcast )
 {
-    int i = 0, iCondBroadcastStatus = 0;
-    pthread_cond_t xCond = PTHREAD_COND_INITIALIZER;
+    int i = 0, iCondBroadcastStatus = 0, iStatus = 0;
+    pthread_cond_t xCond = NULL;
+    pthread_condattr_t xCondAttr = { 0 };
     pthread_t xThreads[ posixtestPTHREAD_COND_BROADCAST_NUMBER_OF_THREADS ];
     BaseType_t xThreadsCreated[ posixtestPTHREAD_COND_BROADCAST_NUMBER_OF_THREADS ] = { pdFALSE };
     intptr_t xThreadReturnValues[ posixtestPTHREAD_COND_BROADCAST_NUMBER_OF_THREADS ] = { 0 };
+
+    /* Initialize pthread_cond_t */
+    iStatus = pthread_cond_init( &xCond, &xCondAttr );
+    TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
     /* Create the threads that wait for pthread_cond_broadcast. */
     for( i = 0; i < posixtestPTHREAD_COND_BROADCAST_NUMBER_OF_THREADS; i++ )
@@ -645,6 +851,10 @@ TEST( Full_POSIX_PTHREAD, pthread_cond_broadcast )
         TEST_ASSERT_EQUAL( pdTRUE, xThreadsCreated[ i ] );
         TEST_ASSERT_EQUAL_INT( 0, ( int ) xThreadReturnValues[ i ] );
     }
+
+    /* destroy pthread_cond_t */
+    iStatus = pthread_cond_destroy( &xCond );
+    TEST_ASSERT_EQUAL_INT( 0, iStatus );
 }
 
 /*-----------------------------------------------------------*/

@@ -5,6 +5,8 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/shadow \
         $(AMAZON_FREERTOS_LIB_DIR)/greengrass \
         $(AMAZON_FREERTOS_LIB_DIR)/utils \
+        $(AMAZON_FREERTOS_LIB_DIR)/common \
+        $(AMAZON_FREERTOS_LIB_DIR)/utils/platform \
         $(AMAZON_FREERTOS_LIB_DIR)/bufferpool \
         $(AMAZON_FREERTOS_LIB_DIR)/tls \
         $(AMAZON_FREERTOS_LIB_DIR)/ota \
@@ -20,18 +22,25 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/BufferManagement \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/esp32 \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source \
+        $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy \
+        $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif \
+        $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/device_information \
+        $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/mqtt_ble \
+        $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/wifi_provisioning \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/jsmn \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor
 
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/include \
                              $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
-                             $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include \
                              $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include/portable/espressif/esp32_devkitc_esp_wrover_kit \
+                             $(AMAZON_FREERTOS_LIB_DIR)/include/bluetooth_low_energy \
+                             $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif \
                              $(AMAZON_FREERTOS_LIB_DIR)/third_party/jsmn \
                              $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor
 
 COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/BufferManagement/BufferAllocation_1.o \
                         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread.o \
+                        $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_cond.o \
                         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_mutex.o \
                         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_sched.o
 
@@ -40,14 +49,20 @@ COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/demo_runner \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/shadow \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt_v4 \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt_v4/network/bluetooth \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/greengrass_connectivity \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/tcp \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/ota \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/common/ble \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/common/network_manager \
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/common/include
 endif
 
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11 $(AMAZON_FREERTOS_LIB_DIR)/ota/portable/espressif/esp32_devkitc_esp_wrover_kit
+
+CFLAGS += -DAWS_IOT_CONFIG_FILE="\"aws_iot_config.h\""
 
 lib/greengrass/aws_greengrass_discovery.o: CFLAGS+=-Wno-format
 demos/common/logging/aws_logging_task_dynamic_buffers.o: CFLAGS+=-Wno-format -Wno-uninitialized

@@ -27,7 +27,7 @@ NVS operates on key-value pairs. Keys are ASCII strings, maximum key length is c
 -  variable length binary data (blob)
 
 .. note::
-   String and blob values are currently limited to 1984 bytes. For strings, this includes the null terminator.
+   String values are currently limited to 4000 bytes. This includes the null terminator. Blob values are limited to 508000 bytes or (97.6% of the partition size - 4000) bytes whichever is lower.
 
 Additional types, such as ``float`` and ``double`` may be added later.
 
@@ -49,17 +49,7 @@ Security, tampering, and robustness
 
 NVS library doesn't implement tamper prevention measures. It is possible for anyone with physical access to the flash chip to alter, erase, or add key-value pairs.
 
-NVS is compatible with the ESP32 flash encryption system, and it can store  key-value pairs in an encrypted form. Some metadata, like page state and write/erase flags of individual entries can not be encrypted as they are represented as bits of flash memory for efficient access and manipulation. Flash encryption can prevent some forms of modification:
-
-- replacing keys or values with arbitrary data
-- changing data types of values
-
-The following forms of modification are still possible when flash encryption is used:
-
-- erasing a page completely, removing all key-value pairs which were stored in that page
-- corrupting data in a page, which will cause the page to be erased automatically when such condition is detected
-- rolling back the contents of flash memory to an earlier snapshot
-- merging two snapshots of flash memory, rolling back some key-value pairs to an earlier state (although this is possible to mitigate with the current design — TODO)
+NVS is not currently compatible with the ESP32 flash encryption system.
 
 The library does try to recover from conditions when flash memory is in an inconsistent state. In particular, one should be able to power off the device at any point and time and then power it back on. This should not result in loss of data, expect for the new key-value pair if it was being written at the moment of power off. The library should also be able to initialize properly with any random data present in flash memory.
 
@@ -158,21 +148,25 @@ Erased (2'b00)
 Structure of entry
 ^^^^^^^^^^^^^^^^^^
 
-For values of primitive types (currently integers from 1 to 8 bytes long), entry holds one key-value pair. For string and blob types, entry holds part of the whole key-value pair. In case when a key-value pair spans multiple entries, all entries are stored in the same page.
+For values of primitive types (currently integers from 1 to 8 bytes long), entry holds one key-value pair. For string and blob types, entry holds part of the whole key-value pair. For strings, in case when a key-value pair spans multiple entries, all entries are stored in the same page. Blobs are allowed to span over multiple pages by dividing them into smaller chunks. For the purpose tracking these chunks, an additional fixed length metadata entry is stored called "blob index" entry. Earlier format of blobs are still supported (can be read and modified). However, once the blobs are modified, they are stored using the new format.
 
 ::
 
-    +--------+----------+----------+---------+-----------+---------------+----------+
-    | NS (1) | Type (1) | Span (1) | Rsv (1) | CRC32 (4) |    Key (16)   | Data (8) |
-    +--------+----------+----------+---------+-----------+---------------+----------+
+    +--------+----------+----------+----------------+-----------+---------------+----------+
+    | NS (1) | Type (1) | Span (1) | ChunkIndex (1) | CRC32 (4) |    Key (16)   | Data (8) |
+    +--------+----------+----------+----------------+-----------+---------------+----------+
 
-                                                   +--------------------------------+
-                             +->    Fixed length:  | Data (8)                       |
-                             |                     +--------------------------------+
-              Data format ---+
-                             |                     +----------+---------+-----------+
-                             +-> Variable length:  | Size (2) | Rsv (2) | CRC32 (4) |
-                                                   +----------+---------+-----------+
+                                             Primitive  +--------------------------------+                        
+                                            +-------->  |     Data (8)                   |                        
+                                            | Types     +--------------------------------+
+                       +-> Fixed length --                                                                 
+                       |                    |           +---------+--------------+---------------+-------+
+                       |                    +-------->  | Size(4) | ChunkCount(1)| ChunkStart(1) | Rsv(2)|
+        Data format ---+                    Blob Index  +---------+--------------+---------------+-------+
+                       |
+                       |                             +----------+---------+-----------+ 
+                       +->   Variable length   -->   | Size (2) | Rsv (2) | CRC32 (4) |
+                            (Strings, Blob Data)     +----------+---------+-----------+
 
 
 Individual fields in entry structure have the following meanings:
@@ -186,8 +180,8 @@ Type
 Span
     Number of entries used by this key-value pair. For integer types, this is equal to 1. For strings and blobs this depends on value length.
 
-Rsv
-    Unused field, should be ``0xff``.
+ChunkIndex
+    Used to store index of the blob-data chunk for blob types. For other types, this should be ``0xff``.
 
 CRC32
     Checksum calculated over all the bytes in this entry, except for the CRC32 field itself.
@@ -196,13 +190,26 @@ Key
     Zero-terminated ASCII string containing key name. Maximum string length is 15 bytes, excluding zero terminator.
 
 Data
-    For integer types, this field contains the value itself. If the value itself is shorter than 8 bytes it is padded to the right, with unused bytes filled with ``0xff``. For string and blob values, these 8 bytes hold additional data about the value, described next:
+    For integer types, this field contains the value itself. If the value itself is shorter than 8 bytes it is padded to the right, with unused bytes filled with ``0xff``. 
 
-Size
-    (Only for strings and blobs.) Size, in bytes, of actual data. For strings, this includes zero terminator.
+    For "blob index" entry, these 8 bytes hold the following information about data-chunks:
 
-CRC32
-    (Only for strings and blobs.) Checksum calculated over all bytes of data.
+    - Size
+        (Only for blob index.) Size, in bytes, of complete blob data.
+
+    - ChunkCount 
+        (Only for blob index.) Total number of blob-data chunks into which the blob was divided during storage. 
+     
+    - ChunkStart 
+        (Only for blob index.) ChunkIndex of the first blob-data chunk of this blob. Subsequent chunks have chunkIndex incrementely allocated (step of 1). 
+
+    For string and blob data chunks, these 8 bytes hold additional data about the value, described next:
+  
+    - Size
+        (Only for strings and blobs.) Size, in bytes, of actual data. For strings, this includes zero terminator.
+
+    - CRC32
+        (Only for strings and blobs.) Checksum calculated over all bytes of data.
 
 Variable length values (strings and blobs) are written into subsequent entries, 32 bytes per entry. `Span` field of the first entry indicates how many entries are used.
 
@@ -230,5 +237,5 @@ Item hash list
 
 To reduce the number of reads performed from flash memory, each member of Page class maintains a list of pairs: (item index; item hash). This list makes searches much quicker. Instead of iterating over all entries, reading them from flash one at a time, ``Page::findItem`` first performs search for item hash in the hash list. This gives the item index within the page, if such an item exists. Due to a hash collision it is possible that a different item will be found. This is handled by falling back to iteration over items in flash.
 
-Each node in hash list contains a 24-bit hash and 8-bit item index. Hash is calculated based on item namespace and key name. CRC32 is used for calculation, result is truncated to 24 bits. To reduce overhead of storing 32-bit entries in a linked list, list is implemented as a doubly-linked list of arrays. Each array holds 29 entries, for the total size of 128 bytes, together with linked list pointers and 32-bit count field. Minimal amount of extra RAM useage per page is therefore 128 bytes, maximum is 640 bytes.
+Each node in hash list contains a 24-bit hash and 8-bit item index. Hash is calculated based on item namespace, key name and ChunkIndex. CRC32 is used for calculation, result is truncated to 24 bits. To reduce overhead of storing 32-bit entries in a linked list, list is implemented as a doubly-linked list of arrays. Each array holds 29 entries, for the total size of 128 bytes, together with linked list pointers and 32-bit count field. Minimal amount of extra RAM useage per page is therefore 128 bytes, maximum is 640 bytes.
 

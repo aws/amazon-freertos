@@ -1,5 +1,11 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.4 BLE-Beta v0.9.0 11/26/2018
+### Updates
+
+#### BLE-Beta
+- BLE API for Amazon FreeRTOS 1.4.4
+
 ## V1.4.4 11/19/2018
 ### Updates
 

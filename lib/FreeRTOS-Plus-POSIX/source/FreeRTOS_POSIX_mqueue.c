@@ -517,7 +517,7 @@ mqd_t mq_open( const char * name,
     /* Check attributes, if given. */
     if( xMessageQueue == NULL )
     {
-        if( ( attr != NULL ) && ( ( attr->mq_maxmsg < 0 ) || ( attr->mq_msgsize < 0 ) ) )
+        if( ( oflag & O_CREAT ) && ( attr != NULL ) && ( ( attr->mq_maxmsg <= 0 ) || ( attr->mq_msgsize <= 0 ) ) )
         {
             /* Invalid mq_attr.mq_maxmsg or mq_attr.mq_msgsize. */
             errno = EINVAL;
@@ -716,7 +716,7 @@ ssize_t mq_timedreceive( mqd_t mqdes,
 int mq_timedsend( mqd_t mqdes,
                   const char * msg_ptr,
                   size_t msg_len,
-                  unsigned int msg_prio,
+                  unsigned msg_prio,
                   const struct timespec * abstime )
 {
     int iStatus = 0, iCalculateTimeoutReturn = 0;
@@ -832,7 +832,7 @@ int mq_unlink( const char * name )
     if( prvValidateQueueName( name, &xNameSize ) == pdFALSE )
     {
         /* Error with mq name. */
-        errno = ENAMETOOLONG;
+        errno = EINVAL;
         iStatus = -1;
     }
 

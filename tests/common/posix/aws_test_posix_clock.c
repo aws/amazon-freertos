@@ -97,7 +97,9 @@ TEST_TEAR_DOWN( Full_POSIX_CLOCK )
 
 TEST_GROUP_RUNNER( Full_POSIX_CLOCK )
 {
+    RUN_TEST_CASE( Full_POSIX_CLOCK, clock );
     RUN_TEST_CASE( Full_POSIX_CLOCK, clock_gettime_nanosleep );
+    RUN_TEST_CASE( Full_POSIX_CLOCK, clock_getcpuclockid );
     RUN_TEST_CASE( Full_POSIX_CLOCK, clock_getres );
     RUN_TEST_CASE( Full_POSIX_CLOCK, clock_nanosleep_absolute );
     RUN_TEST_CASE( Full_POSIX_CLOCK, clock_nanosleep_min_resolution );
@@ -105,9 +107,20 @@ TEST_GROUP_RUNNER( Full_POSIX_CLOCK )
     RUN_TEST_CASE( Full_POSIX_CLOCK, clock_nanosleep_absolute_in_past );
     RUN_TEST_CASE( Full_POSIX_CLOCK, nanosleep );
     RUN_TEST_CASE( Full_POSIX_CLOCK, nanosleep_invalid_params );
+    RUN_TEST_CASE( Full_POSIX_CLOCK, clock_settime );
     RUN_TEST_CASE( Full_POSIX_CLOCK, localtime_r );
     RUN_TEST_CASE( Full_POSIX_CLOCK, strftime );
     RUN_TEST_CASE( Full_POSIX_CLOCK, time );
+}
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_CLOCK, clock )
+{
+    clock_t xCpuTime = clock();
+
+    /* Verify that at least large than 0. */
+    TEST_ASSERT_TRUE( 0 < xCpuTime );
 }
 
 /*-----------------------------------------------------------*/
@@ -124,6 +137,20 @@ TEST( Full_POSIX_CLOCK, clock_gettime_nanosleep )
     TEST_ASSERT_TRUE( 0 <= xElapsedTime.tv_sec );
     TEST_ASSERT_TRUE( 1 > xElapsedTime.tv_sec );
     TEST_ASSERT_TRUE( 1000000 <= xElapsedTime.tv_nsec );
+}
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_CLOCK, clock_getcpuclockid )
+{
+    clockid_t xClockId = 0;
+
+    /* Per Open group, if pid is zero, this function shall return the clock ID
+     * of the CPU-time clock of the process making the call, in clock_id. */
+    pid_t xPid = 0;
+
+    /* clock_getcpuclockid is unsupported and shall always return EPERM. */
+    TEST_ASSERT_EQUAL_INT( EPERM, clock_getcpuclockid( xPid, &xClockId ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -277,6 +304,18 @@ TEST( Full_POSIX_CLOCK, nanosleep_invalid_params )
     TEST_ASSERT_EQUAL_INT( -1, nanosleep( &xSleepTime, NULL ) );
     TEST_ASSERT_EQUAL_INT( EINVAL, errno );
 }
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_CLOCK, clock_settime )
+{
+    struct timespec xTime = { .tv_sec = 0, .tv_nsec = 0 };
+
+    /* clock_settime is unsupported and shall always return -q with errno set to EPERM. */
+    TEST_ASSERT_EQUAL_INT( -1, clock_settime( CLOCK_REALTIME, &xTime ) );
+    TEST_ASSERT_EQUAL_INT( EPERM, errno );
+}
+
 
 /*-----------------------------------------------------------*/
 

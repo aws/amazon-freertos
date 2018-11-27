@@ -21,8 +21,8 @@ extern "C"
 {
 #endif
 
-#define ESP_PARTITION_TABLE_ADDR 0x8000
 #define ESP_PARTITION_MAGIC 0x50AA
+#define ESP_PARTITION_MAGIC_MD5 0xEBEB
 
 /* Reserve last 3 bits to accomodate different OTA states */
 typedef enum {
@@ -41,6 +41,7 @@ typedef struct {
     uint32_t ota_flags;         /* Reserved 4 bytes for ota flags - rollback feature */
     uint32_t crc;               /* CRC32 of ota_seq field only */
 } esp_ota_select_entry_t;
+
 
 typedef struct {
     uint32_t offset;

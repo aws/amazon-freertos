@@ -11,7 +11,6 @@ endif
 
 ifndef IDF_PATH
 export IDF_PATH := $(AMAZON_FREERTOS_PATH)/lib/third_party/mcu_vendor/espressif/esp-idf
-endif
 
 export AMAZON_FREERTOS_ENABLE_UNIT_TEST := 1
 
@@ -20,4 +19,10 @@ EXTRA_COMPONENT_DIRS := $(AMAZON_FREERTOS_PATH)/tests/espressif/esp32_devkitc_es
 CFLAGS += -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS -DUNITY_INCLUDE_CONFIG_H
 
 include $(IDF_PATH)/make/project.mk
+
+else
+$(error ERROR: IDF_PATH is defined in your environement, it will not point to lib/third_party/mcu_vendor/espressif/esp-idf. To remove the variable run the command "unset IDF_PATH")
+endif
+
+
 

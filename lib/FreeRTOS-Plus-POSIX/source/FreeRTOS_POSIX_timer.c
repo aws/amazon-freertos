@@ -42,13 +42,9 @@
 /* FreeRTOS timer include. */
 #include "timers.h"
 
-/**
- * @defgroup Timespec zero check macros.
- */
-/**@{ */
+/* Timespec zero check macros. */
 #define TIMESPEC_IS_ZERO( xTimespec )        ( xTimespec.tv_sec == 0 && xTimespec.tv_nsec == 0 ) /**< Check for 0. */
 #define TIMESPEC_IS_NOT_ZERO( xTimespec )    ( !( TIMESPEC_IS_ZERO( xTimespec ) ) )              /**< Check for not 0. */
-/**@} */
 
 /**
  * @brief Internal timer structure.
@@ -175,15 +171,19 @@ int timer_delete( timer_t timerid )
     /* The value of the timer ID, set in timer_create, should not be NULL. */
     configASSERT( pxTimer != NULL );
 
-    /* Stop the FreeRTOS timer. Because the timer is statically allocated, no call
-     * to xTimerDelete is necessary. The timer is stopped so that it's not referenced
-     * anywhere. xTimerStop will not fail when it has unlimited block time. */
-    ( void ) xTimerStop( xTimerHandle, portMAX_DELAY );
-
-    /* Wait until the timer stop command is processed. */
-    while( xTimerIsTimerActive( xTimerHandle ) == pdTRUE )
+    if( xTimerIsTimerActive( xTimerHandle ) == pdTRUE )
     {
-        vTaskDelay( 1 );
+        /* Stop the FreeRTOS timer. Because the timer is statically allocated, no call
+         * to xTimerDelete is necessary. The timer is stopped so that it's not referenced
+         * anywhere. xTimerStop will not fail when it has unlimited block time. */
+        ( void ) xTimerStop( xTimerHandle, portMAX_DELAY );
+
+
+        /* Wait until the timer stop command is processed. */
+        while( xTimerIsTimerActive( xTimerHandle ) == pdTRUE )
+        {
+            vTaskDelay( 100 );
+        }
     }
 
     /* Free the memory in use by the timer. */

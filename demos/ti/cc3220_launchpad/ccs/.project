@@ -81,6 +81,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/bufferpool</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/common</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/common</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/greengrass</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/greengrass</locationURI>
@@ -171,6 +176,11 @@
 			<locationURI>BASE_DIR_ROOT/demos/common/mqtt/aws_hello_world.c</locationURI>
 		</link>
 		<link>
+			<name>application_code/common_demos/source/aws_iot_mqtt_v4_demo.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/mqtt_v4/aws_iot_mqtt_v4_demo.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_demos/source/aws_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
@@ -179,6 +189,11 @@
 			<name>application_code/common_demos/source/aws_ota_update_demo.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/ota/aws_ota_update_demo.c</locationURI>
+		</link>
+		<link>
+			<name>application_code/common_demos/source/aws_posix_demo.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/posix/aws_posix_demo.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_shadow_lightbulb_on_off.c</name>

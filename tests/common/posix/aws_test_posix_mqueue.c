@@ -83,6 +83,7 @@ TEST_TEAR_DOWN( Full_POSIX_MQUEUE )
 TEST_GROUP_RUNNER( Full_POSIX_MQUEUE )
 {
     RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_open_unlink_defaults );
+    RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_open_unlink_pending_removal );
     RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_open_unlink_attr );
     RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_open_unlink_twice );
     RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_open_unlink_two_queues );
@@ -91,8 +92,10 @@ TEST_GROUP_RUNNER( Full_POSIX_MQUEUE )
     RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_unlink_invalid_params );
     RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_getattr );
     RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_send_receive );
-    /*RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_send_receive_invalidParams ); */
+    RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_send_receive_invalid_params );
+    RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_timed_send_receive_invalid_timespec );
     RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_send_receive_nonblock );
+    RUN_TEST_CASE( Full_POSIX_MQUEUE, mq_send_receive_block_timeout );
 }
 
 /*-----------------------------------------------------------*/
@@ -119,6 +122,46 @@ TEST( Full_POSIX_MQUEUE, mq_open_unlink_defaults )
         /* Close and unlink queue. */
         iStatus = mq_close( xMqId );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
+        iStatus = mq_unlink( pcNameBuffer );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+    }
+
+    /* Clean up resources in case any assert was triggered. */
+    ( void ) mq_close( xMqId );
+    ( void ) mq_unlink( pcNameBuffer );
+}
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_MQUEUE, mq_open_unlink_pending_removal )
+{
+    int iStatus = 0;
+    volatile mqd_t xMqId = posixtestMQ_INVALID_MQD;
+    char pcNameBuffer[ NAME_MAX + 2 ] = { 0 };
+
+    /* Fill name buffer with non-zero value. */
+    memset( pcNameBuffer, 'c', NAME_MAX + 2 );
+
+    /* Add the / and null-terminator to create a valid mq name. */
+    pcNameBuffer[ 0 ] = '/';
+    pcNameBuffer[ NAME_MAX + 1 ] = '\0';
+
+    if( TEST_PROTECT() )
+    {
+        /* Create queue with system default attributes. */
+        xMqId = mq_open( pcNameBuffer, O_CREAT, posixtestMQ_DEFAULT_MODE, NULL );
+        TEST_ASSERT_NOT_EQUAL( posixtestMQ_INVALID_MQD, xMqId );
+
+        /* Close but do not unlink queue. */
+        iStatus = mq_close( xMqId );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+        /* Attemp to open the same queue with system default attributes. */
+        xMqId = mq_open( pcNameBuffer, O_CREAT, posixtestMQ_DEFAULT_MODE, NULL );
+        TEST_ASSERT_EQUAL( posixtestMQ_INVALID_MQD, xMqId );
+        TEST_ASSERT_EQUAL_INT( EINVAL, errno );
+
+        /* Now we are done testing, unlink. */
         iStatus = mq_unlink( pcNameBuffer );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
     }
@@ -343,7 +386,7 @@ TEST( Full_POSIX_MQUEUE, mq_unlink_invalid_params )
     /* Try to unlink a message queue whose name is longer than NAME_MAX. */
     iStatus = mq_unlink( pcNameBuffer );
     TEST_ASSERT_EQUAL_INT( -1, iStatus );
-    TEST_ASSERT_EQUAL_INT( ENAMETOOLONG, errno );
+    TEST_ASSERT_EQUAL_INT( EINVAL, errno );
 
     /* Try to unlink a queue that doesn't exist. */
     iStatus = mq_unlink( posixtestMQ_DEFAULT_NAME );
@@ -475,7 +518,7 @@ TEST( Full_POSIX_MQUEUE, mq_send_receive_invalid_params )
 
     if( TEST_PROTECT() )
     {
-        /* Create queue with default parameters. */
+        /* Create a blocking queue with default parameters. */
         xMqId = mq_open( posixtestMQ_DEFAULT_NAME,
                          O_CREAT | O_RDWR,
                          posixtestMQ_DEFAULT_MODE,
@@ -502,6 +545,43 @@ TEST( Full_POSIX_MQUEUE, mq_send_receive_invalid_params )
 }
 
 /*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_MQUEUE, mq_timed_send_receive_invalid_timespec )
+{
+    int iStatus = 0;
+    volatile mqd_t xMqId = posixtestMQ_INVALID_MQD;
+    char pcReceiveBuffer[ posixtestMQ_SMALL_MESSAGE_SIZE ] = { 0 };
+    struct timespec xSndRcvDelay = { 0 };
+
+    if( TEST_PROTECT() )
+    {
+        /* Create a blocking queue with default parameters. */
+        xMqId = mq_open( posixtestMQ_DEFAULT_NAME,
+                         O_CREAT | O_RDWR,
+                         posixtestMQ_DEFAULT_MODE,
+                         &xDefaultQueueAttr );
+        TEST_ASSERT_NOT_EQUAL( posixtestMQ_INVALID_MQD, xMqId );
+
+        /* Prep invalid timeout. */
+        xSndRcvDelay.tv_nsec = NANOSECONDS_PER_SECOND;
+
+        /* Attempt to send a message with invalid timeout. */
+        iStatus = mq_timedsend( xMqId, posixtestMQ_SMALL_MESSAGE, posixtestMQ_SMALL_MESSAGE_SIZE, 0, &xSndRcvDelay );
+        TEST_ASSERT_EQUAL_INT( -1, iStatus );
+        TEST_ASSERT_EQUAL_INT( EINVAL, errno );
+
+        /* Attempt to receive a message with invalid timeout. */
+        iStatus = mq_timedreceive( xMqId, pcReceiveBuffer, posixtestMQ_SMALL_MESSAGE_SIZE, NULL, &xSndRcvDelay );
+        TEST_ASSERT_EQUAL_INT( -1, iStatus );
+        TEST_ASSERT_EQUAL_INT( EINVAL, errno );
+    }
+
+    ( void ) mq_close( xMqId );
+    ( void ) mq_unlink( posixtestMQ_DEFAULT_NAME );
+}
+
+/*-----------------------------------------------------------*/
+
 
 TEST( Full_POSIX_MQUEUE, mq_send_receive_nonblock )
 {
@@ -542,6 +622,77 @@ TEST( Full_POSIX_MQUEUE, mq_send_receive_nonblock )
         /* The final mq_send in the do-while should have failed with EAGAIN
          * because queue was full. */
         TEST_ASSERT_EQUAL_INT( EAGAIN, errno );
+    }
+
+    /* Clean up resources used by test. */
+    ( void ) mq_close( xMqId );
+    ( void ) mq_unlink( posixtestMQ_DEFAULT_NAME );
+}
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_MQUEUE, mq_send_receive_block_timeout )
+{
+    int iStatus = 0;
+    volatile mqd_t xMqId = posixtestMQ_INVALID_MQD;
+    char pcReceiveBuffer[ posixtestMQ_SMALL_MESSAGE_SIZE ] = { 0 };
+
+    struct mq_attr xQueueOneMsgAttr =
+    {
+        .mq_flags   = 0,
+        .mq_maxmsg  = 1,
+        .mq_msgsize = posixtestMQ_SMALL_MESSAGE_SIZE,
+        .mq_curmsgs = 0
+    };
+
+    /* 0.1 second delay. */
+    const long iSndRcvDelayNanoSec = 100000000L;
+    struct timespec xSndRcvTimeout = { 0 };
+
+    if( TEST_PROTECT() )
+    {
+        /* Create blocking queue, which can take maximum 1 message. */
+        xMqId = mq_open( posixtestMQ_DEFAULT_NAME,
+                         O_CREAT | O_RDWR,
+                         posixtestMQ_DEFAULT_MODE,
+                         &xQueueOneMsgAttr );
+        TEST_ASSERT_NOT_EQUAL( posixtestMQ_INVALID_MQD, xMqId );
+
+        /* Setup receive delay. */
+        ( void ) clock_gettime( CLOCK_REALTIME, &xSndRcvTimeout );
+        xSndRcvTimeout.tv_nsec += iSndRcvDelayNanoSec;
+
+        /* Receive from empty queue. */
+        iStatus = mq_timedreceive( xMqId,
+                                   pcReceiveBuffer,
+                                   posixtestMQ_SMALL_MESSAGE_SIZE,
+                                   0,
+                                   &xSndRcvTimeout );
+
+        TEST_ASSERT_EQUAL_INT( -1, iStatus );
+        TEST_ASSERT_EQUAL_INT( ETIMEDOUT, errno );
+
+        /* Send the first message to queue. */
+        iStatus = mq_send( xMqId,
+                           posixtestMQ_SMALL_MESSAGE,
+                           posixtestMQ_SMALL_MESSAGE_SIZE,
+                           0 );
+
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+        /* Setup send delay. */
+        ( void ) clock_gettime( CLOCK_REALTIME, &xSndRcvTimeout );
+        xSndRcvTimeout.tv_nsec += iSndRcvDelayNanoSec;
+
+        /* Send again, which is supposed to fail. */
+        iStatus = mq_timedsend( xMqId,
+                                posixtestMQ_SMALL_MESSAGE,
+                                posixtestMQ_SMALL_MESSAGE_SIZE,
+                                0,
+                                &xSndRcvTimeout );
+
+        TEST_ASSERT_EQUAL_INT( -1, iStatus );
+        TEST_ASSERT_EQUAL_INT( ETIMEDOUT, errno );
     }
 
     /* Clean up resources used by test. */

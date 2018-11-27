@@ -414,7 +414,7 @@ TEST( Full_POSIX_STRESS, mqueue )
 
     struct mq_attr xQueueAttributes =
     {
-        .mq_flags   =                                   0,
+        .mq_flags   = 0,
         .mq_maxmsg  = posixconfigMQ_MAX_MESSAGES,
         .mq_msgsize = posixtestMQUEUE_STRESS_MESSAGE_SIZE,
         .mq_curmsgs = 0

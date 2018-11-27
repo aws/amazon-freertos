@@ -3,7 +3,6 @@
 #
 config*
 *.d
-*.o
 *.lex.c
 *.tab.c
 *.tab.h
@@ -12,12 +11,15 @@ zconf.hash.c
 gconf.glade.h
 *.pot
 *.mo
+*.o
 
 #
 # configuration programs
 #
 conf
+conf-idf
 mconf
+mconf-idf
 nconf
 qconf
 gconf

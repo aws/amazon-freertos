@@ -34,13 +34,10 @@
 #define _FREERTOS_POSIX_SCHED_H_
 
 /**
- * @defgroup Scheduling policies.
+ * @name Scheduling Policies
  */
 /**@{ */
-#define SCHED_FIFO        0 /**< First in-first out (FIFO) scheduling policy. */
-#define SCHED_RR          1 /**< Round robin scheduling policy. */
-#define SCHED_SPORADIC    2 /**< Sporadic server scheduling policy. */
-#define SCHED_OTHER       3 /**< Another scheduling policy. */
+#define SCHED_OTHER    0    /**< Another scheduling policy. */
 /**@} */
 
 /**
@@ -49,7 +46,7 @@
  */
 struct sched_param
 {
-    int sched_priority; /**< Process or thread execution scheduling priority. */
+    int sched_priority;     /**< Process or thread execution scheduling priority. */
 };
 
 /**
@@ -58,6 +55,11 @@ struct sched_param
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sched_get_priority_max.html
  *
  * @note policy is ignored.
+ *
+ * @return the maxium priority value (0-based) system configuration allows.
+ * <br>
+ * e.g. if configMAX_PRIORITIES == 7, this function returns (configMAX_PRIORITIES - 1).
+ * configMAX_PRIORITIES is configured in appication FreeRTOSConfig.h file.
  */
 int sched_get_priority_max( int policy );
 
@@ -65,6 +67,8 @@ int sched_get_priority_max( int policy );
  * @brief Yield the processor.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sched_yield.html
+ *
+ * @retval 0 - Upon successful completion
  */
 int sched_yield( void );
 

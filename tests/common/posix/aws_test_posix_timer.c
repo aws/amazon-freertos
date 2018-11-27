@@ -140,6 +140,7 @@ TEST_GROUP_RUNNER( Full_POSIX_TIMER )
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_settime_abstime_in_past );
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_settime_ovalue );
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_periodic );
+    RUN_TEST_CASE( Full_POSIX_TIMER, timer_getoverrun );
 }
 
 /*-----------------------------------------------------------*/
@@ -583,4 +584,14 @@ TEST( Full_POSIX_TIMER, timer_periodic )
     {
         ( void ) timer_delete( xTimer );
     }
+}
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_TIMER, timer_getoverrun )
+{
+    timer_t xTimer = NULL;
+
+    /* timer_getoverrun is unsupported and always returns 0. */
+    TEST_ASSERT_EQUAL_INT( 0, timer_getoverrun( xTimer ) );
 }
