@@ -5,6 +5,23 @@ use the [`CMakeLists.txt`](../vendors/vendor/board/CMakeLists.txt) template to c
 listfile file in the `<ROOT>/cmake/vendors/<vendor_name>/<board_name>` directory. **Note that you**
 **need to have some basic knowledge of CMake to follow this document**.
 
+## Table of contents
+
+- [CMake listfile Template](#cmake-listfile-template)
+  - [Amazon FreeRTOS Console Metadata](#amazon-freertos-console-metadata)
+  - [Compiler Settings](#compiler-settings)
+  - [Amazon FreeRTOS Portable Layers](#amazon-freertos-portable-layers)
+    - [Kernel porting target](#kernel-porting-target)
+    - [Other modules](#other-modules)
+  - [Amazon FreeRTOS Demos and Tests](#amazon-freertos-demos-and-tests)
+- [Build and Test Amazon FreeRTOS with CMake](#build-and-test-amazon-freertos-with-cmake)
+  - [Prerequisites](#prerequisites)
+    - [CMake](#cmake)
+    - [Native build system](#native-build-system)
+  - [Setting up toolchain file](#setting-up-toolchain-file)
+  - [Configure CMake build for Amazon FreeRTOS](#configure-cmake-build-for-amazon-freertos)
+  - [Build Amazon FreeRTOS](#build-amazon-freertos)
+
 ## CMake listfile Template
 
 The [`CMakeLists.txt`](../vendors/vendor/board/CMakeLists.txt) template file is divided into four
