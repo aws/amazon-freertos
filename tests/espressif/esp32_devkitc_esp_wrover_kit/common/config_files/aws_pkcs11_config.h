@@ -33,12 +33,6 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
-/**
- * @brief File storage location definitions.
- */
-//#define pkcs11configFILE_NAME_CLIENT_CERTIFICATE    "ESP_P11_Cert"
-//#define pkcs11configFILE_NAME_KEY                   "ESP_P11_Key"
-
 /* A non-standard version of C_INITIALIZE should be used by this port. */
 /* #define pkcs11configC_INITIALIZE_ALT */
 

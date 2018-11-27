@@ -1288,6 +1288,11 @@ static void prvProcessNetworkDownEvent( void )
 	}
 	#endif
 
+	/* Per the ARP Cache Validation section of https://tools.ietf.org/html/rfc1122, 
+	treat network down as a "delivery problem" and flush the ARP cache for this
+	interface. */
+	FreeRTOS_ClearARP( );
+
 	/* The network has been disconnected (or is being initialised for the first
 	time).  Perform whatever hardware processing is necessary to bring it up
 	again, or wait for it to be available again.  This is hardware dependent. */
