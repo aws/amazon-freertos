@@ -1,7 +1,7 @@
 # Amazon FreeRTOS CMake porting guide
 
-A CMake listfile is required to list a newly qualified board on the Amazon FreeRTOS console.
-Use the [`CMakeLists.txt`](../vendors/vendor/board/CMakeLists.txt) template to create a new CMake
+A CMake listfile is required to list a newly qualified board on the Amazon FreeRTOS console. Please
+use the [`CMakeLists.txt`](../vendors/vendor/board/CMakeLists.txt) template to create a new CMake
 listfile file in the `<ROOT>/cmake/vendors/<vendor_name>/<board_name>` directory. **Note that you**
 **need to have some basic knowledge of CMake to follow this document**.
 
@@ -32,7 +32,7 @@ afr_mcu_port(<module_name> [<DEPENDS> [items1...]])
 
 The first section of the template file defines the metadata that is required to display a board's
 data in the Amazon FreeRTOS console. Use the function `afr_set_board_metadata(<name> <value>)` to
-define each variable listed in the template:
+define each field listed in the template:
 
 ```cmake
 afr_set_board_metadata(ID "board")
@@ -44,16 +44,16 @@ afr_set_board_metadata(DATA_RAM_MEMORY "0")
 afr_set_board_metadata(PROGRAM_MEMORY "0")
 afr_set_board_metadata(CODE_SIGNER "")
 afr_set_board_metadata(SUPPORTED_IDE "")
-afr_set_board_metadata(IDE_<IDE_ID>_NAME "")
-afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
+afr_set_board_metadata(IDE_<ID>_NAME "")
+afr_set_board_metadata(IDE_<ID>_COMPILERS "")
 ```
 
-Define each variable according to the following variable descriptions:
+Define each field according to the following descriptions:
 
 - `ID` - ID for the board to uniquely identify it.
 - `DISPLAY_NAME` - Name of the board displayed on the Amazon FreeRTOS Console.
 - `DESCRIPTION` - Short description of the board on the Amazon FreeRTOS Console.
-- `VENDOR_NAME`- Name of the vendor for the board.
+- `VENDOR_NAME` - Name of the vendor for the board.
 - `FAMILY_NAME` - Family of the board.
 - `DATA_RAM_MEMORY` - RAM size in suffixed with units (for example: KB).
 - `PROGRAM_MEMORY` - Program memory size suffixed with units (for example: MB).
@@ -67,10 +67,10 @@ Define each variable according to the following variable descriptions:
 
 ### Compiler Settings
 
-The second section of the CMake file defines the compiler settings. We require you to use
+The second section of the template file defines the compiler settings. We require you to use
 `afr_mcu_port` with a special name `compiler` to create a target `AFR::compiler::mcu_port` which
 holds the compiler settings information. Under the hood, the kernel will publicly link to this
-INTERFACE target so that the compiler settings are transitively populated to all modules. Please
+`INTERFACE` target so that the compiler settings are transitively populated to all modules. Please
 use standard CMake built-in functions to provide compiler settings. You can find an example for the
 TI CC3220 Launchpad in `<ROOT>/cmake/vendors/ti/cc3220_launchpad/CMakeLists.txt`.
 
@@ -93,9 +93,9 @@ the target definition from another location:
 afr_mcu_port(compiler DEPENDS <your_target>)
 ```
 
-When you call `afr_mcu_port` with `DEPENDS`,
-`target_link_libraries(AFR::compiler::mcu_port INTERFACE <your_targets>)` is called for you so that
-the compiler settings are transitively populated to the required target.
+When you call `afr_mcu_port` with `DEPENDS`, it will call
+`target_link_libraries(AFR::<module_name>::mcu_port INTERFACE <your_targets>)` for you so that your
+compiler settings are populated to the required `AFR::compiler::mcu_port` target.
 
 If you support multiple compilers, you can use the `AFR_TOOLCHAIN` variable to dynamically select
 the compiler settings. This variable is set to the name of the compiler that you are using, which
@@ -111,46 +111,43 @@ else()
 endif()
 ```
 
-You might need more advanced control over your compiler settings to do things like set compiler
-flags based on programming language, or to change settings for release and debug configurations.
-You can use [CMake generator expressions](
-https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html).
-
-For example,
+If you need more advanced control over your compiler settings to do things like set compiler
+flags based on programming language, or to change settings for release and debug configurations,
+you can use [CMake generator expressions](
+https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html). These expressions
+are not evaluated at the configuration stage when CMake is reading all the listfiles, but at the
+generation stage when CMake finishes reading listfiles and is generating build files for the target
+build system. Here's an example,
 
 ```cmake
 set(common_flags "-foo")
 set(c_flags "-foo-c")
 set(asm_flags "-foo-asm")
-# This will only have effect on C files.
 target_compile_options(
     my_compiler_settings INTERFACE
-    $<$<COMPILE_LANGUAGE:C>:${common_flags} ${c_flags}>
-)
-# This will only have effect on ASM files.
-target_compile_options(
-    my_compiler_settings INTERFACE
-    $<$<COMPILE_LANGUAGE:ASM>:${common_flags} ${asm_flags}>
+    $<$<COMPILE_LANGUAGE:C>:${common_flags} ${c_flags}> # This only have effect on C files.
+    $<$<COMPILE_LANGUAGE:ASM>:${common_flags} ${asm_flags}> # This only have effect on ASM files.
 )
 ```
 
 ### Amazon FreeRTOS Portable Layers
 
-The third section of the template defines all of the portable layer targets for Amazon FreeRTOS
-modules. **The only required part is to use the `afr_mcu_port(<module_name>)` function to define the
-portable layer targets for the modules you're planning to implement.** You're free to use any
-CMake functions as long as the target `AFR::<module_name>::mcu_port` created from `afr_mcu_port` can
-provide the information we need to build the corresponding Amazon FreeRTOS module.
+The third section of the template file defines all of the portable layer targets for Amazon FreeRTOS
+modules. **The only requirement is to use the `afr_mcu_port(<module_name>)` function to define
+portable layer target for every Amazon FreeRTOS module you're planning to implement.** You're free
+to use any CMake functions as long as the target `AFR::<module_name>::mcu_port` created from
+`afr_mcu_port` provides the information we need to build the corresponding Amazon FreeRTOS module.
 
- The `afr_mcu_port` function creates a [GLOBAL INTERFACE IMPORTED target](
+ The `afr_mcu_port` function creates a [GLOBAL INTERFACE IMPORTED library target](
 https://cmake.org/cmake/help/latest/command/add_library.html?#interface-libraries) with the name
-`AFR:<module_name>::mcu_port`. `GLOBAL` allows us to reference the target in our CMake
+`AFR::<module_name>::mcu_port`. `GLOBAL` allows us to reference the target in our CMake
 listfiles. `INTERFACE` specifies that it should not be built as a standalone target/library, and
-will be compiled into the corresponding Amazon FreeRTOS module. And `IMPORTED` allows us to create
-a target name with namespace (double colon) like `AFR::kernel::port`.
+will be compiled into the corresponding Amazon FreeRTOS module. And `IMPORTED` allows us to use
+namespace (double colon) in the target name like `AFR::kernel::mcu_port`.
 
-All modules without corresponding portable layer targets are disabled by default. If you run the
-CMake file without defining any portable layer targets, you should see the following output:
+All modules without corresponding portable layer targets are disabled by default. If you run CMake
+to configure Amazon FreeRTOS without defining any portable layer target, you should see the
+following output:
 
 ```txt
 Amazon FreeRTOS modules:
@@ -163,22 +160,26 @@ Amazon FreeRTOS modules:
 ```
 
 As you update the `CMakeLists.txt` file with porting layer targets, corresponding Amazon FreeRTOS
-module wll be enabled. You should also be able to build any Amazon FreeRTOS modules whose dependency
-requirements are satisfied. For example, if MQTT is enabled, Shadow will also be enabled.
+modules wll be enabled. You should also be able to build any Amazon FreeRTOS module whose dependency
+requirements are satisfied. For example, if MQTT is enabled, Shadow will also be enabled since it
+only depends on MQTT.
 
 **Note:** The kernel dependency is a minimum requirement. The CMake configuration will fail if the
 kernel dependency is not satisfied.
 
 #### Kernel porting target
 
-The kernel target depends on FreeRTOS and on your driver code. Define your driver code target first
-if it needs to be compiled from source. You can define your driver code as a `STATIC` library target
-or as a CMake `INTERFACE` library target:
+The kernel target depends on FreeRTOS, your driver code and compiler settings. Compiler settings are
+already covered in the second section. We require you to use `afr_mcu_port` with the module name
+`kernel` to create the required portable layer target `AFR::kernel::mcu_port`, and provides the rest
+dependency information, FreeRTOS portable layer and driver code information, to this target. Here's
+a simple example,
+
+**Create a `STATIC` library target for the driver code:**
 
 ```cmake
-add_library(my_board_driver STATIC
-    ${driver_sources}
-)
+add_library(my_board_driver STATIC ${driver_sources})
+
 # Use your compiler settings
 target_link_libraries(
     my_board_driver
@@ -186,12 +187,25 @@ target_link_libraries(
 # Or use the target we defined for you.
 #   PRIVATE AFR::compiler::mcu_port
 )
+
+target_include_directories(
+    my_board_driver
+    PRIVATE "<include_dirs_for_private_usage>"
+    PUBLIC "<include_dirs_for_public_interface>"
+)
 ```
 
-**Note**: `INTERFACE` library target does not have a build output, in this case your driver code
+Or an `INTERFACE` library target:
+
+```cmake
+# No need to specify compiler settings since kernel target has them.
+add_library(my_board_driver INTERFACE ${driver_sources})
+```
+
+**Note**: `INTERFACE` library target does not have a build output, in this case the driver code
 will be compiled into the kernel library.
 
-Configure the FreeRTOS portable layer separately:
+**Configure the FreeRTOS portable layer:**
 
 ```cmake
 add_library(freertos_port INTERFACE)
@@ -210,10 +224,10 @@ target_include_directories(
 )
 ```
 
-After you have configured your driver code and the FreeRTOS portable layer, define the kernel
-portable layer:
+**Create the kernel portable layer target:**
 
 ```cmake
+# Bring in driver code and freertos portable layer dependency.
 afr_mcu_port(kernel DEPENDS my_board_driver freertos_port)
 
 # If you need to specify additional configurations, use standard CMake functions with
@@ -233,7 +247,7 @@ target_link_libraries(
 After the kernel portable layer is configured, you can compile the kernel as a static library. To
 test the configuration, you can write a simple hello world application to consume it and make the
 LED lights on your board blink. More details on how to build and test are covered in
-[Build and Test Amazon FreeRTOS with CMake](build-and-test-amazon-freertos-with-cmake).
+[Build and Test Amazon FreeRTOS with CMake](#build-and-test-amazon-freertos-with-cmake).
 
 ```cmake
 add_executable(
@@ -277,7 +291,7 @@ target_link_libraries(
 ```
 
 Take Secure Sockets module as another example. This module depends on TLS, making the portable layer
-target for this module is slightly more complicated than Wi-Fi. Amazon FreeRTOS provides a default
+target for this module slightly more complicated than Wi-Fi. Amazon FreeRTOS provides a default
 TLS implementation based on mbedtls:
 
 ```cmake
@@ -296,7 +310,7 @@ You can optionally remove the `target_link_libraries()` call if your hardware is
 by itself.
 
 Note that we use the standard CMake function `target_link_libraries` to state that the portable
-layer depends on AFR::tls in the example above. You can reference all Amazon FreeRTOS modules by
+layer depends on `AFR::tls` in the example above. You can reference all Amazon FreeRTOS modules by
 using their target name `AFR::<module_name>`. For example, you can use the same syntax to also
 depend on FreeRTOS-Plus-TCP:
 
@@ -311,8 +325,10 @@ target_link_libraries(
 ### Amazon FreeRTOS Demos and Tests
 
 This section defines the demo and test targets for Amazon FreeRTOS. All available demos and tests
-are automatically enabled. You need to provide other project settings such as linker scripts
-and post build commands.
+are automatically enabled. You need to define an executable target with `add_executable` and use
+`aws_tests` or `aws_demos` as the target name depending on whether you're compiling tests or not.
+You may also need to provide additional project settings such as linker scripts and post build
+commands.
 
 ```cmake
 if(AFR_IS_TESTING)
@@ -330,10 +346,16 @@ https://cmake.org/cmake/help/latest/command/add_custom_command.html). You need t
 signature, for example:
 
 ```cmake
+# This should run an external command "command --arg1 --arg2".
 add_custom_command(
     TARGET ${exe_target} POST_BUILD COMMAND "command" "--arg1" "--arg2"
 )
 ```
+
+**Note:** CMake itself supports many common operations in a platform independent way, like creating
+directories, copying files, etc. Check the reference [here](
+https://cmake.org/cmake/help/latest/manual/cmake.1.html#command-line-tool-mode) for more
+information. You can reference CMake itself with the built-in variable `${CMAKE_COMMAND}`.
 
 ## Build and Test Amazon FreeRTOS with CMake
 
@@ -342,8 +364,9 @@ add_custom_command(
 #### CMake
 
 **CMake Version 3.13 or higher is required**. You can download the binary distribution from
-[CMake's official website](https://cmake.org/download/), or you can install with your OS package manager.
-Make sure that you add the CMake executable to the PATH environment variable.
+[CMake's official website](https://cmake.org/download/), or you can install with your OS package
+manager. Add the CMake executable to the `PATH` environment variable if you need to use it from
+command line.
 
 #### Native build system
 
@@ -357,7 +380,7 @@ port of Makefile, see [Equation](http://www.equation.com/servlet/equation.cmd?fa
 By default, CMake targets your host OS as the target system. To use CMake for cross-compiling
 instead, you need to provide a toolchain file that specifies the compiler you want to use.
 Some examples can be found in `<ROOT>/cmake/toolchains`. If you're using a different compiler than
-the one that we already defined, you need to write this toolchain file first.
+what we already provide, you need to write this toolchain file first.
 
 ### Configure CMake build for Amazon FreeRTOS
 
@@ -379,21 +402,72 @@ ROOT_DIR
 `-- CMakeLists.txt
 ```
 
-Assuming you have GCC for ARM installed, and it's in your system PATH. For CLI instruction, issue
+Assuming you have GCC for ARM installed, and it's in your system `PATH`. For CLI instruction, issue
 the following command from the command line:
 
 ```sh
-cmake -DAFR_BOARD=vendor.board -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-gcc.cmake -S . -B build
+# Substitute <vendor> and <board> with the folder names you created for your board. If you don't
+# specify AFR_BOARD, we will use the template board by default.
+cmake -DAFR_BOARD=<vendor>.<board> -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-gcc.cmake -S . -B build
+```
+
+If you didn't add your compiler to the `PATH` environment variable, you can use `AFR_TOOLCHAIN_PATH`
+to provide a search path. CMake will search that directory and its `bin` sub-folder:
+
+```sh
+cmake -DAFR_BOARD=<vendor>.<board> -DAFR_TOOLCHAIN_PATH=<path_to_your_compiler> \
+-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-gcc.cmake -S . -B build
 ```
 
 If you are using the CMake GUI interface, do the following instead:
 
 1. From the GUI, choose **Configure**.
 1. Choose **Specify toolchain file for cross-compiling**.
+1. Select a build system from the **Specify the build generator for this project** dropdown list.
 1. Choose the toolchain file, for example `<AFR_ROOT>/cmake/toolchains/arm-gcc.cmake`, and then
-    choose **Finish**.
-
-<img src="img/cmake-0.png" alt="CMake main window"/>
+   click **Finish**.
 
 After you complete the configuration from the GUI, you should see a window that looks like this:
-<img src="img/cmake-1.png" alt="CMake main window"/>
+<img src="img/cmake-0.png" alt="CMake main window"/>
+
+You should also see a pop up window that says "Error in configuration process". This is because we
+default to the template board, which doesn't provide any portable layer target. Now, from the
+dropdown box of `AFR_BOARD`, select your board, which should match the folder names you created, and
+click **Configure** again. If you've finished the compiler settings and the `kernel` portable layer,
+you can click the **Generate** button.
+
+### Build Amazon FreeRTOS
+
+If you pass above steps without any error, you can proceed to the build part. Open your terminal and
+issue the following command:
+
+```sh
+# Substitute <build_dir> with the build directory. In the example above, we created a folder
+# called "build" inside the source directory.
+cmake --build <build_dir>
+```
+
+Equivalently, call the native build system command, if it's `make`:
+
+```sh
+cd <build_dir>
+make
+```
+
+You might also want to take advantage of all your CPU cores:
+
+```sh
+cmake --build <build_dir> --parallel 8
+make -j8
+```
+
+Or to build specific targets:
+
+```sh
+# The target name for Amazon FreeRTOS is afr_<module_name>, e.g., afr_kernel, afr_mqtt.
+cmake --build <build_dir> --parallel 8 --target afr_kernel
+make -j8 afr_kernel
+```
+
+Check the CMake official document to see more information about the [build tool mode](
+https://cmake.org/cmake/help/latest/manual/cmake.1.html#build-tool-mode).
