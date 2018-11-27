@@ -10,6 +10,8 @@ This is a beta branch, only the following platforms, with corresponding demos ar
     * vStartMQTTBLEEchoDemo 
 
 For BLE to work, define the endpoint in ```demos\common\include\aws_clientcredential.h``` and a _thing name_ of 23 characters or less. 
+
+BLE devices with no WiFi or Ethernet capabilities can interact with the MQTT message broker for AWS IoT using a proxy device. Please refer to the [iOS](https://github.com/aws/amazon-freertos-ble-ios-sdk) and [Android](https://github.com/aws/amazon-freertos-ble-android-sdk) SDK for Amazon FreeRTOS to learn more. 
 	
 ## Getting Started
 
