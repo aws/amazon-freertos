@@ -2,13 +2,11 @@
 # Utilities
 # -------------------------------------------------------------------------------------------------
 function(afr_get_boards arg_boards)
-    file(GLOB __vendors "cmake/vendors/*")
+    set(vendors_dir "${CMAKE_CURRENT_SOURCE_DIR}/cmake/vendors")
+    file(GLOB __vendors RELATIVE "${vendors_dir}" "${vendors_dir}/*")
     foreach(__vendor IN LISTS __vendors)
-        file(GLOB __boards "${__vendor}/*")
+        file(GLOB __boards RELATIVE "${vendors_dir}/${__vendor}" "${vendors_dir}/${__vendor}/*")
         foreach(__board IN LISTS __boards)
-            get_filename_component(__vendor "${__board}" DIRECTORY)
-            get_filename_component(__vendor "${__vendor}" NAME)
-            get_filename_component(__board "${__board}" NAME)
             list(APPEND ${arg_boards} "${__vendor}.${__board}")
         endforeach()
     endforeach()
