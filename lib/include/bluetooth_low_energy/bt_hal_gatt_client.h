@@ -27,8 +27,7 @@
 /**
  * @file bt_hal_gatt_client.h
  *
- * @brief ACE BT GATT Client provides the interfaces to control the Bluetooth device.
- * ,local device control and device discovery functionalities
+ * @brief BT GATT Server provides the interfaces to use Bluetooth GATT client feature
  * USAGE
  * -----
  *
@@ -232,7 +231,7 @@ typedef struct
     BTServicesAddedCallback_t pxServicesAddedCb;
 } BTGattClientCallbacks_t;
 
-/** Represents the standard ACE BT-GATT client interface. */
+/** Represents the standard  BT-GATT client interface. */
 
 typedef struct
 {

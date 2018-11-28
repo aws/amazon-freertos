@@ -26,7 +26,7 @@
 /**
  * @file bt_hal_manager_types.h
  *
- * @brief ACE BT HAL provides the interfaces to control the Bluetooth power states
+ * @brief This BT HAL provides the interfaces to control the Bluetooth power states
  * ,local device control and device discovery functionalities
  * USAGE
  * -----
@@ -136,4 +136,4 @@ typedef enum
     eBTIOKeyboardDisplay, /**< Keyboard and Display. */
 } BTIOtypes_t;
 
-#endif /* ACE_SDK_HAL_BTTYPES_H_ */
+#endif /* _BT_HAL_MANAGER_TYPES_H_ */
