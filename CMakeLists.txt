@@ -42,7 +42,7 @@ afr_resolve_dependencies()
 # -------------------------------------------------------------------------------------------------
 message("")
 message("====================Configuration for Amazon FreeRTOS====================")
-message("  Version:                 v${PROJECT_VERSION}")
+message("  Version:                 ${AFR_VERSION}")
 message("  Git version:             ${AFR_VERSION_VCS}")
 
 # ================ Target microcontroller =================

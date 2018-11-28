@@ -15,10 +15,12 @@ set(AFR_DEMOS_DIR "${AFR_ROOT_DIR}/demos/common" CACHE INTERNAL "Amazon FreeRTOS
 set(AFR_TESTS_DIR "${AFR_ROOT_DIR}/tests/common" CACHE INTERNAL "Amazon FreeRTOS tests root.")
 set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/third_party" CACHE INTERNAL "3rdparty libraries root.")
 
-# Detect commit version if we're in a Git repository.
+# Set regular version and Git commit version.
+set(AFR_VERSION "v${PROJECT_VERSION}")
 set(AFR_VERSION_VCS "Unknown" CACHE INTERNAL "")
+# Check if we're in a Git repository.
 find_package(Git)
-if(Git_FOUND)
+if(Git_FOUND AND EXISTS "${AFR_ROOT_DIR}/.git")
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" "describe" "--always" WORKING_DIRECTORY "${AFR_ROOT_DIR}"
         OUTPUT_VARIABLE __version OUTPUT_STRIP_TRAILING_WHITESPACE
