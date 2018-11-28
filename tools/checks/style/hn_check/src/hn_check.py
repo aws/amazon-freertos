@@ -233,8 +233,7 @@ def get_base_prefix(type_name):
 def get_identifier_prefix(identifier):
     direct_identifier = re.sub(r"^p+", "", identifier)
     indirection = "p" * (len(identifier) - len(direct_identifier))
-    for key in TYPE_PREFIXES:
-        prefix = TYPE_PREFIXES[key]
+    for prefix in TYPE_PREFIXES.values():
         if re.match(r"^" + prefix + r"[0-9,A-Z]", direct_identifier):
             return indirection + prefix
     return ''
