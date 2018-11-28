@@ -505,7 +505,7 @@ typedef struct
     BTPhyUpdatedCallback_t pxPhyUpdatedCb;
 } BTBleAdapterCallbacks_t;
 
-/** Represents the standard ACE BT-GATT client interface. */
+/** Represents the standard BT-GATT client interface. */
 
 /**
  * @brief BLE adapter API.

@@ -613,7 +613,7 @@ typedef struct
                                                  BTSecurityLevel_t xSecurityLevel,
                                                  bool bBonding );
 
-    /*ACEBT_TODO : Handle out of band pairing in better way */
+    /* TODO:Handle out of band pairing in better way */
 
     /**
      * @brief Cancels an on going bonding procedure for the given device.

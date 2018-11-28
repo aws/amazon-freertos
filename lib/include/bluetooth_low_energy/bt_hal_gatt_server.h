@@ -27,8 +27,7 @@
 /**
  * @file bt_hal_gatt_server.h
  *
- * @brief ACE BT GATT Server provides the interfaces to control the Bluetooth device.
- * ,local device control and device discovery functionalities
+ * @brief BT GATT Server provides the interfaces to use Bluetooth GATT server feature
  *
  * Before calling any GATT server function, the Generic Access Profile needs to be initialized (see bt_hal_manager.h and bt_hal_manager_adapter*.h).
  * bt_hal_manager.h give the starting point.
@@ -400,7 +399,7 @@ typedef struct
     BTMtuChangedCallback_t pxMtuChangedCb;
 } BTGattServerCallbacks_t;
 
-/** Represents the standard ACE BT-GATT server interface. */
+/** Represents the standard BT-GATT server interface. */
 typedef struct
 {
     /**

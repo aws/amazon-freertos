@@ -25,15 +25,15 @@
 
 
 
-#ifndef ACEHAL_BT_HAL_AVSRC_PROFILE_H
-#define ACEHAL_BT_HAL_AVSRC_PROFILE_H
+#ifndef BT_HAL_AVSRC_PROFILE_H
+#define BT_HAL_AVSRC_PROFILE_H
 
 #include <stdint.h>
 #include "bt_hal_gatt_types.h"
 #include "hardware/bluetooth.h"
 #include "hardware/bt_av.h"
 
-/* Bluetooth AV connection states */
+/** Bluetooth AV connection states */
 typedef enum
 {
     eBTAvsrcConnectionStateDisconnected = 0,
@@ -42,7 +42,7 @@ typedef enum
     eBTAvsrcConnectionStateDisconnecting
 } BTAvConnectionState_t;
 
-/* Bluetooth AV datapath states */
+/** Bluetooth AV data path states */
 typedef enum
 {
     eBTAvsrcAudioStateRemoteSuspend = 0,
@@ -50,10 +50,11 @@ typedef enum
     eBTAvsrcAudioStateStarted,
 } BTAvAudioState_t;
 
+/** Callback invoked in to notifiy AV connection state change */
 typedef void (* BTAvsrcConnectionStateCallback_t)( BTAvConnectionState_t xState,
                                                    BTBdaddr_t * pxBdAddr );
 
-
+/** Callback invoked in to notifiy AV Audio state change */
 typedef void (* BTAvsrcAudioStateCallback_t)( BTAvAudioState_t xState,
                                               BTBdaddr_t * pxBdAddr );
 
@@ -64,43 +65,40 @@ typedef struct
     BTAvsrcAudioStateCallback_t xAudioStateCback;
 } BTAvsrcCallbacks_t;
 
-/** Represents the standard SAL device management interface. */
+/** Represents the standard AV connection interface. */
 typedef struct
 {
-    /** Set this to size of  aceBtHal_avsrc_interface_t*/
+    /** Set this to size of  BTAvsrcInterface_t*/
     size_t xSize;
 
     /**
-     * Initializes ACE SAL A2DP module.
-     *
-     * @param callbacks, aceBtHal_avsrc_callbacks_t callbacks.
+     * @brief Initializes A2DP module.
+     * @param[in] callbacks, BTAvsrcCallbacks_t callbacks.
      * @return  BTHAL_STATUS_SUCCESS if init is successful. Or any other error code
      */
     BTStatus_t ( * pxAvsrcInit )( BTAvsrcCallbacks_t * pxCallbacks );
 
     /**
-     * Cleans to ACE SAL A2DP module
-     *
+     * @brief Cleans up A2DP module
      * @param None
      * @return  BT_STATUS_SUCCESS if cleanup is successful
      */
     BTStatus_t ( * pxAvsrcCleanup )();
 
     /**
-     * Starts connect for A2DP Source profile
-     *
-     * @param : aceBtHal_bdaddr_t :BT Address of remote device
+     * @brief Starts connect for A2DP Source profile
+     * @param[in] BTBdaddr_t :BT Address of remote device
      * @return BTHAL_STATUS_SUCCESS if the operation is successful, else error code.
      */
     BTStatus_t ( * pxAvsrcConnect )( BTBdaddr_t * pxRemote_addr );
 
     /**
-     * Starts disconnect for A2DP Source profile
+     * @brief Starts disconnect for A2DP Source profile
      *
-     * @param : aceBtHal_bdaddr_t :BT Address of remote device
+     * @param[in] BTBdaddr_t :BT Address of remote device
      * @return BTHAL_STATUS_SUCCESS if the operation is successful, else error code.
      */
     BTStatus_t ( * pxAvsrcDisconnect )( BTBdaddr_t * pxRemote_addr );
 } BTAvsrcInterface_t;
 
-#endif /* ACEHAL_BT_A2DP_PROFILE_H */
+#endif /* BT_HAL_AVSRC_PROFILE_H */

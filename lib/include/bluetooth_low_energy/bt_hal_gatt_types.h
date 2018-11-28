@@ -27,8 +27,7 @@
 /**
  * @file bt_hal_gatt_types.h
  *
- * @brief ACE BT HAL provides the interfaces to control the Bluetooth power states
- * ,local device control and device discovery functionalities
+ * @brief T HAL provides the standard defintions used by BT GATT interfaces.
  * USAGE
  * -----
  *
