@@ -16,45 +16,45 @@ function(afr_get_boards arg_boards)
     set(${arg_boards} "${${arg_boards}}" PARENT_SCOPE)
 endfunction()
 
-function(afr_cache_append cache_var)
+function(afr_cache_append arg_cache_var)
     if(AFR_DEBUG_CMAKE)
-        # Verify ${cache_var} is indeed a cache entry.
-        get_property(__type CACHE ${cache_var} PROPERTY TYPE)
+        # Verify ${arg_cache_var} is indeed a cache entry.
+        get_property(__type CACHE ${arg_cache_var} PROPERTY TYPE)
         if(NOT __type)
-            message(FATAL_ERROR "${cache_var} is not a cache entry.")
+            message(FATAL_ERROR "${arg_cache_var} is not a cache entry.")
         endif()
 
         # Check duplicate.
         foreach(__item IN ITEMS ${ARGN})
-            if(${__item} IN_LIST ${cache_var})
-                message(WARNING "Item ${__item} already in list ${cache_var}.")
+            if(${__item} IN_LIST ${arg_cache_var})
+                message(WARNING "Item ${__item} already in list ${arg_cache_var}.")
             endif()
         endforeach()
     endif()
 
-    list(APPEND ${cache_var} ${ARGN})
-    get_property(__docstring CACHE ${cache_var} PROPERTY HELPSTRING)
-    set(${cache_var} "${${cache_var}}" CACHE INTERNAL "${__docstring}")
+    list(APPEND ${arg_cache_var} ${ARGN})
+    get_property(__docstring CACHE ${arg_cache_var} PROPERTY HELPSTRING)
+    set(${arg_cache_var} "${${arg_cache_var}}" CACHE INTERNAL "${__docstring}")
 endfunction()
 
-function(afr_cache_remove cache_var)
+function(afr_cache_remove arg_cache_var)
     if(AFR_DEBUG_CMAKE)
-        # Verify ${cache_var} is indeed a cache entry.
-        get_property(__type CACHE ${cache_var} PROPERTY TYPE)
+        # Verify ${arg_cache_var} is indeed a cache entry.
+        get_property(__type CACHE ${arg_cache_var} PROPERTY TYPE)
         if(NOT __type)
-            message(FATAL_ERROR "${cache_var} is not a cache entry.")
+            message(FATAL_ERROR "${arg_cache_var} is not a cache entry.")
         endif()
     endif()
 
     if(ARGN)
-        list(REMOVE_ITEM ${cache_var} ${ARGN})
-        get_property(__docstring CACHE ${cache_var} PROPERTY HELPSTRING)
-        set(${cache_var} "${${cache_var}}" CACHE INTERNAL "${__docstring}")
+        list(REMOVE_ITEM ${arg_cache_var} ${ARGN})
+        get_property(__docstring CACHE ${arg_cache_var} PROPERTY HELPSTRING)
+        set(${arg_cache_var} "${${arg_cache_var}}" CACHE INTERNAL "${__docstring}")
     endif()
 endfunction()
 
 # Gather files under a folder.
-function(afr_glob_files out_files)
+function(afr_glob_files arg_files)
     cmake_parse_arguments(
         PARSE_ARGV 1
         "ARG"               # Prefix results with "ARG_".
@@ -91,11 +91,11 @@ function(afr_glob_files out_files)
     endforeach()
 
     # Set output variable.
-    set(${out_files} "${__file_list}" PARENT_SCOPE)
+    set(${arg_files} "${__file_list}" PARENT_SCOPE)
 endfunction()
 
 # Gather source files under a folder.
-function(afr_glob_src out_files)
+function(afr_glob_src arg_files)
     cmake_parse_arguments(
         PARSE_ARGV 1
         "ARG"                   # Prefix results with "ARG_".
@@ -117,13 +117,13 @@ function(afr_glob_src out_files)
     endforeach()
 
     if(ARG_RECURSE)
-        afr_glob_files(${out_files} RECURSE DIRECTORY ${ARG_DIRECTORY} GLOBS "${__glob_list}")
+        afr_glob_files(${arg_files} RECURSE DIRECTORY ${ARG_DIRECTORY} GLOBS "${__glob_list}")
     else()
-        afr_glob_files(${out_files} DIRECTORY ${ARG_DIRECTORY} GLOBS "${__glob_list}")
+        afr_glob_files(${arg_files} DIRECTORY ${ARG_DIRECTORY} GLOBS "${__glob_list}")
     endif()
 
     # Set output variable.
-    set(${out_files} "${${out_files}}" PARENT_SCOPE)
+    set(${arg_files} "${${arg_files}}" PARENT_SCOPE)
 endfunction()
 
 # Create a target to print the generator expression.
