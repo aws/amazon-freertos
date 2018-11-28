@@ -33,6 +33,7 @@
 #include <string.h>
 #include "FreeRTOS.h"
 #include "event_groups.h"
+#include "aws_doubly_linked_list.h"
 #include "semphr.h"
 #include "aws_ble.h"
 /* Test framework includes. */
@@ -131,6 +132,14 @@ typedef enum{
 
 #define QUEUE_LENGTH    20
 #define ITEM_SIZE       sizeof( void *)
+
+/* Creating a waiting queue, were all events that are not immediatly expected are pushed too */
+typedef struct{
+	Link_t xNextQueueItem;
+	void * pxNextQueuedItem;
+} xWaitingEvents_t;
+static Link_t xWaitingEventQueue;
+/* Tests are waiting event on callback queue, if an unexpected event comes, it is added to the waiting queue to be processed later. */
 static QueueHandle_t xCallbackQueue;
 
 static BTInterface_t* pxBTInterface;
@@ -1469,11 +1478,14 @@ void prvGroupInit()
    /* Create a queue for callbacks. */
 	xCallbackQueue = xQueueCreate( QUEUE_LENGTH,
 								 ITEM_SIZE);
+	listINIT_HEAD(&xWaitingEventQueue);
 }
 
 void prvGroupFree()
 {
 	void * pvPtr;
+	Link_t *pxTmpLink;
+	xWaitingEvents_t * pxTmpEvent;
 
 	do{
 		if( xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) 0 ) == pdPASS)
@@ -1483,11 +1495,21 @@ void prvGroupFree()
 		{
 			break;
 		}
-	}while(1);/* Delete all objects in the queue */
+	}while(1);/* Delete all objects in the queue. */
 
 	vQueueDelete(xCallbackQueue);
 
-	/* Initialize event group before tests */
+
+	/* Remove everything in the waiting list that was not used. */
+	listFOR_EACH( pxTmpLink, &( xWaitingEventQueue ) )
+	{
+		pxTmpEvent = listCONTAINER( pxTmpLink, xWaitingEvents_t, xNextQueueItem );
+		listREMOVE(pxTmpLink);
+		vPortFree(pxTmpEvent);
+	}
+
+
+	/* Initialize event group before tests. */
 	if(xBLEState == eBTstateOn)
 	{
 		pxBTInterface->pxDisable(0);
@@ -1934,34 +1956,62 @@ void prvRequestWriteCb( uint16_t usConnId,
 */
 }
 
+/* This function first check if an event is waiting in the list. If not, it will go and wait on the queue.
+ * When an event is received on the queue, if it is not the expected event, it goes on the waiting list.
+ */
 BTStatus_t prvWaitEventFromQueue( BLEHALEventsInternals_t xEventName, void * pxMessage, size_t xMessageLength, TickType_t xTestWait)
 {
 	BLEHALEventsInternals_t xEvent;
 	BTStatus_t xStatus = eBTStatusSuccess;
-	void * pvPtr;
+	void * pvPtr = NULL;
+	Link_t *pxTmpLink;
+	xWaitingEvents_t * pxTmpEvent;
 
-	do{
-		/* TODO check event list here */
-		if( xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) xTestWait ) == pdPASS)
+
+	/* Search for event in the waiting list */
+	listFOR_EACH( pxTmpLink, &( xWaitingEventQueue ) )
+	{
+		pxTmpEvent = listCONTAINER( pxTmpLink, xWaitingEvents_t, xNextQueueItem );
+		if(*((BLEHALEventsInternals_t *)pxTmpEvent->pxNextQueuedItem) == xEventName)
 		{
-			xEvent = *((BLEHALEventsInternals_t *)pvPtr);
+			pvPtr = pxTmpEvent->pxNextQueuedItem;
+			listREMOVE(pxTmpLink);
+			vPortFree(pxTmpEvent);
+			break;/* If the right event is received, exit. */
+		}
+	}
 
-			if(xEvent == xEventName){
-				configPRINTF(("removing event %d in queue\n", xEvent));
-				memcpy(pxMessage, pvPtr, xMessageLength);
-				vPortFree(pvPtr);
-				break;/* If the right event is received, exit. */
+	/* If event is not waiting then wait for it. */
+	if(pvPtr == NULL)
+	{
+		do{
+			/* TODO check event list here */
+			if( xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) xTestWait ) == pdPASS)
+			{
+				xEvent = *((BLEHALEventsInternals_t *)pvPtr);
+
+				if(xEvent == xEventName){
+					break;/* If the right event is received, exit. */
+				}else
+				{
+					/* If this is not the event, push it to the waiting list */
+					pxTmpEvent = pvPortMalloc(sizeof(xWaitingEvents_t));
+					pxTmpEvent->pxNextQueuedItem = pvPtr;
+					listADD(&xWaitingEventQueue, &pxTmpEvent->xNextQueueItem );
+				}
 			}else
 			{
-				/* @TODO bad way to handle event. Should push unused event to a list. That list would be checked before pending on the queue.*/
-				xQueueSendToBack(xCallbackQueue, &pvPtr, ( TickType_t ) xTestWait );
+				xStatus = eBTStatusFail;
 			}
-		}else
-		{
-			xStatus = eBTStatusFail;
-		}
 
-	}while(xStatus == eBTStatusSuccess);/* If there is an error exit */
+		}while(xStatus == eBTStatusSuccess);/* If there is an error exit */
+	}
+
+	if(xStatus == eBTStatusSuccess)
+	{
+		memcpy(pxMessage, pvPtr, xMessageLength);
+		vPortFree(pvPtr);
+	}
 
 	return xStatus;
 }
