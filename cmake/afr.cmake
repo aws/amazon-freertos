@@ -32,13 +32,14 @@ endif()
 # otherwise, set it to compiler id in lower case.
 if(CMAKE_TOOLCHAIN_FILE)
     get_filename_component(__toolchain "${CMAKE_TOOLCHAIN_FILE}" NAME_WE)
+    set(CMAKE_TOOLCHAIN_FILE "${CMAKE_TOOLCHAIN_FILE}" CACHE INTERNAL "")
 elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
     set(__toolchain "gcc")
 else()
     set(__toolchain "${CMAKE_C_COMPILER_ID}")
     string(TOLOWER "${__toolchain}" __toolchain)
 endif()
-set(AFR_TOOLCHAIN ${__toolchain} CACHE STRING "Toolchain to build Amazon FreeRTOS.")
+set(AFR_TOOLCHAIN ${__toolchain} CACHE INTERNAL "Toolchain to build Amazon FreeRTOS.")
 
 # Provide an option to enable tests. Also set an helper variable to use in generator expression.
 option(AFR_ENABLE_TESTS "Build tests for Amazon FreeRTOS. Requires recompiling whole library." OFF)
