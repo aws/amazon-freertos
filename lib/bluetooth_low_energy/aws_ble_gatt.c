@@ -231,31 +231,31 @@ void prvServiceClean( BLEServiceListElement_t * pxServiceElem )
             vPortFree( pxServiceElem->pxAttributesPtr );
         }
 
-        if( pxServiceElem->pxService->pxCharacteristics != NULL )
-        {
-            for( xCharId = 0; xCharId < pxServiceElem->pxService->xNbCharacteristics; xCharId++ )
-            {
-                if( pxServiceElem->pxService->pxCharacteristics[ xCharId ].pxDescriptors != NULL )
-                {
-                    vPortFree( pxServiceElem->pxService->pxCharacteristics[ xCharId ].pxDescriptors );
-                }
-            }
-
-            vPortFree( pxServiceElem->pxService->pxCharacteristics );
-        }
-
-        if( pxServiceElem->pxService->pxDescriptors != NULL )
-        {
-            vPortFree( pxServiceElem->pxService->pxDescriptors );
-        }
-
-        if( pxServiceElem->pxService->pxIncludedServices != NULL )
-        {
-            vPortFree( pxServiceElem->pxService->pxIncludedServices );
-        }
-
         if( pxServiceElem->pxService != NULL )
         {
+			if( pxServiceElem->pxService->pxCharacteristics != NULL )
+			{
+				for( xCharId = 0; xCharId < pxServiceElem->pxService->xNbCharacteristics; xCharId++ )
+				{
+					if( pxServiceElem->pxService->pxCharacteristics[ xCharId ].pxDescriptors != NULL )
+					{
+						vPortFree( pxServiceElem->pxService->pxCharacteristics[ xCharId ].pxDescriptors );
+					}
+				}
+
+				vPortFree( pxServiceElem->pxService->pxCharacteristics );
+			}
+
+			if( pxServiceElem->pxService->pxDescriptors != NULL )
+			{
+				vPortFree( pxServiceElem->pxService->pxDescriptors );
+			}
+
+			if( pxServiceElem->pxService->pxIncludedServices != NULL )
+			{
+				vPortFree( pxServiceElem->pxService->pxIncludedServices );
+			}
+
             vPortFree( pxServiceElem->pxService );
         }
 
@@ -927,31 +927,35 @@ BTStatus_t BLE_AddService( BLEService_t * pxService )
             memcpy( pxSrvcId.xId.xUuid.uu.uu128, pxService->xAttributeData.xUuid.uu.uu128, bt128BIT_UUID_LEN );
             pxServiceElem = prvGetLastAddedServiceElem();
 
-            if( pxService->xServiceType == eBTServiceTypePrimary )
+            if(pxServiceElem != NULL)
             {
-                pxServiceElem->pxAttributesPtr[ xAttributeCounter ].xAttributeType = eBTDbPrimaryService;
-            }
-            else
+				if( pxService->xServiceType == eBTServiceTypePrimary )
+				{
+					pxServiceElem->pxAttributesPtr[ xAttributeCounter ].xAttributeType = eBTDbPrimaryService;
+				}
+				else
+				{
+					pxServiceElem->pxAttributesPtr[ xAttributeCounter ].xAttributeType = eBTDbSecondaryService;
+				}
+
+				pxServiceElem->pxAttributesPtr[ xAttributeCounter++ ].pxService = pxService;
+
+				/* Create Service. Start handle is 0 so the number of handle is usEndHandle + 1.
+				 * The real handle is assigned in the callback of that call.*/
+				xBTInterface.pxGattServerInterface->pxAddService( xBTInterface.ucServerIf,
+																  &pxSrvcId,
+																  pxServiceElem->usEndHandle + 1 );
+				xEventGroupWaitBits( ( EventGroupHandle_t ) &xBTInterface.xWaitOperationComplete,
+									 1 << eBLEHALEventSeviceAddedCb,
+									 pdTRUE,
+									 pdTRUE,
+									 portMAX_DELAY );
+
+				xStatus = xBTInterface.xCbStatus;
+            }else
             {
-                pxServiceElem->pxAttributesPtr[ xAttributeCounter ].xAttributeType = eBTDbSecondaryService;
+                xStatus = eBTStatusFail;
             }
-
-            {
-            }
-            pxServiceElem->pxAttributesPtr[ xAttributeCounter++ ].pxService = pxService;
-
-            /* Create Service. Start handle is 0 so the number of handle is usEndHandle + 1.
-             * The real handle is assigned in the callback of that call.*/
-            xBTInterface.pxGattServerInterface->pxAddService( xBTInterface.ucServerIf,
-                                                              &pxSrvcId,
-                                                              pxServiceElem->usEndHandle + 1 );
-            xEventGroupWaitBits( ( EventGroupHandle_t ) &xBTInterface.xWaitOperationComplete,
-                                 1 << eBLEHALEventSeviceAddedCb,
-								 pdTRUE,
-								 pdTRUE,
-                                 portMAX_DELAY );
-
-            xStatus = xBTInterface.xCbStatus;
 
             /* Create Characteristics and associated descriptors. */
             if( xStatus == eBTStatusSuccess )

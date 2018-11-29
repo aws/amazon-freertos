@@ -253,6 +253,8 @@ static void vServiceStartedCb( BTStatus_t xStatus,
 {
     MqttBLEService_t * pxMQTTService = prxGetServiceInstance( pxService );
 
+    configASSERT( ( pxMQTTService != NULL ) );
+
     if( xStatus == eBTStatusSuccess )
     {
         pxMQTTService->bIsInit = true;
@@ -1008,60 +1010,67 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
 {
     MqttBLEService_t * pxService = ( MqttBLEService_t * ) pvConnection;
     size_t xSendLen, xRemainingLen = xMessageLength;
-    TickType_t xRemainingTime = pxService->xConnection.xSendTimeout;
+    TickType_t xRemainingTime;
     TimeOut_t xTimeout;
     uint8_t * pucData;
 
 
     vTaskSetTimeOutState( &xTimeout );
 
-    if( ( pxService != NULL ) && ( pxService->bIsEnabled ) && ( pxService->xConnection.pxMqttConnection != NULL ) )
+    if( pxService != NULL )
     {
-        if( xMessageLength < ( size_t ) mqttBLETRANSFER_LEN( usBLEConnMTU ) )
-        {
-            if( prxSendNotification( pxService, eMQTTBLETXMessage, ( uint8_t *) pvMessage, xMessageLength ) == pdTRUE )
-            {
-                xRemainingLen = 0;
-            }
-        }
-        else
-        {
-            if( xSemaphoreTake( pxService->xConnection.xSendLock, xRemainingTime ) == pdPASS )
-            {
-            	xSendLen = ( size_t ) mqttBLETRANSFER_LEN( usBLEConnMTU );
-                pucData = ( uint8_t *) pvMessage;
+    	xRemainingTime = pxService->xConnection.xSendTimeout;
+    	if(( pxService->bIsEnabled ) && ( pxService->xConnection.pxMqttConnection != NULL ))
+		{
+			if( xMessageLength < ( size_t ) mqttBLETRANSFER_LEN( usBLEConnMTU ) )
+			{
+				if( prxSendNotification( pxService, eMQTTBLETXMessage, ( uint8_t *) pvMessage, xMessageLength ) == pdTRUE )
+				{
+					xRemainingLen = 0;
+				}
+			}
+			else
+			{
+				if( xSemaphoreTake( pxService->xConnection.xSendLock, xRemainingTime ) == pdPASS )
+				{
+					xSendLen = ( size_t ) mqttBLETRANSFER_LEN( usBLEConnMTU );
+					pucData = ( uint8_t *) pvMessage;
 
-                if( prxSendNotification( pxService, eMQTTBLETXLargeMessage, pucData, xSendLen ) == pdTRUE )
-                {
-                    xRemainingLen = xRemainingLen - xSendLen;
-                    pucData += xSendLen;
+					if( prxSendNotification( pxService, eMQTTBLETXLargeMessage, pucData, xSendLen ) == pdTRUE )
+					{
+						xRemainingLen = xRemainingLen - xSendLen;
+						pucData += xSendLen;
 
-                    while( xRemainingLen > 0 )
-                    {
-                        if( xTaskCheckForTimeOut( &xTimeout, &xRemainingTime ) == pdTRUE )
-                        {
-                            xStreamBufferReset( pxService->xConnection.xSendBuffer );
-                            xSemaphoreGive( pxService->xConnection.xSendLock );
-                            break;
-                        }
+						while( xRemainingLen > 0 )
+						{
+							if( xTaskCheckForTimeOut( &xTimeout, &xRemainingTime ) == pdTRUE )
+							{
+								xStreamBufferReset( pxService->xConnection.xSendBuffer );
+								xSemaphoreGive( pxService->xConnection.xSendLock );
+								break;
+							}
 
-                        if( xRemainingLen < mqttBLETX_BUFFER_SIZE )
-                        {
-                        	xSendLen = xRemainingLen;
-                        }
-                        else
-                        {
-                        	xSendLen = mqttBLETX_BUFFER_SIZE;
-                        }
+							if( xRemainingLen < mqttBLETX_BUFFER_SIZE )
+							{
+								xSendLen = xRemainingLen;
+							}
+							else
+							{
+								xSendLen = mqttBLETX_BUFFER_SIZE;
+							}
 
-                        xSendLen = xStreamBufferSend( pxService->xConnection.xSendBuffer, pucData, xSendLen, xRemainingTime );
-                        xRemainingLen -= xSendLen;
-                        pucData += xSendLen;
+							xSendLen = xStreamBufferSend( pxService->xConnection.xSendBuffer, pucData, xSendLen, xRemainingTime );
+							xRemainingLen -= xSendLen;
+							pucData += xSendLen;
 
-                    }
-                }
-            }
-        }
+						}
+					}
+				}
+			}
+		}else
+	    {
+	        configPRINTF( ( "Failed to send notification, mqtt proxy state:%d \n", pxService->bIsEnabled ) );
+	    }
     }
     else
     {
