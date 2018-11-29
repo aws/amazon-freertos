@@ -23,7 +23,7 @@
  */
 static const char *TAG = "bootloader_mmap";
 
-static spi_flash_mmap_memory_t map;
+static spi_flash_mmap_handle_t map;
 
 const void *bootloader_mmap(uint32_t src_addr, uint32_t size)
 {
@@ -36,7 +36,8 @@ const void *bootloader_mmap(uint32_t src_addr, uint32_t size)
     size += (src_addr - src_page);
     esp_err_t err = spi_flash_mmap(src_page, size, SPI_FLASH_MMAP_DATA, &result, &map);
     if (err != ESP_OK) {
-        result = NULL;
+        ESP_LOGE(TAG, "spi_flash_mmap failed: 0x%x", err);
+        return NULL;
     }
     return (void *)((intptr_t)result + (src_addr - src_page));
 }
@@ -266,7 +267,7 @@ esp_err_t bootloader_flash_erase_range(uint32_t start_addr, uint32_t size)
 
     esp_rom_spiflash_result_t rc = ESP_ROM_SPIFLASH_RESULT_OK;
     for (size_t sector = start; sector != end && rc == ESP_ROM_SPIFLASH_RESULT_OK; ) {
-        if (sector % sectors_per_block == 0 && end - sector > sectors_per_block) {
+        if (sector % sectors_per_block == 0 && end - sector >= sectors_per_block) {
             rc = esp_rom_spiflash_erase_block(sector / sectors_per_block);
             sector += sectors_per_block;
         } else {

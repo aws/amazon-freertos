@@ -29,6 +29,7 @@
 #include "esp_intr.h"
 #include "esp_attr.h"
 #include "esp_intr_alloc.h"
+#include "esp_ipc.h"
 #include <limits.h>
 #include <assert.h>
 
@@ -194,10 +195,10 @@ static void insert_vector_desc(vector_desc_t *to_insert)
         prev=vd;
         vd=vd->next;
     }
-    if (vd==NULL && prev==NULL) {
+    if ((vector_desc_head==NULL) || (prev==NULL)) {
         //First item
+        to_insert->next = vd;
         vector_desc_head=to_insert;
-        vector_desc_head->next=NULL;
     } else {
         prev->next=to_insert;
         to_insert->next=vd;
@@ -709,9 +710,11 @@ esp_err_t esp_intr_free(intr_handle_t handle)
 {
     bool free_shared_vector=false;
     if (!handle) return ESP_ERR_INVALID_ARG;
-    //This routine should be called from the interrupt the task is scheduled on.
-    if (handle->vector_desc->cpu!=xPortGetCoreID()) return ESP_ERR_INVALID_ARG;
-
+    //Assign this routine to the core where this interrupt is allocated on.
+    if (handle->vector_desc->cpu!=xPortGetCoreID()) {
+        esp_err_t ret = esp_ipc_call_blocking(handle->vector_desc->cpu, (esp_ipc_func_t)&esp_intr_free, (void *)handle);
+        return ret == ESP_OK ? ESP_OK : ESP_FAIL;
+    }
     portENTER_CRITICAL(&spinlock);
     esp_intr_disable(handle);
     if (handle->vector_desc->flags&VECDESC_FL_SHARED) {
@@ -806,27 +809,10 @@ esp_err_t IRAM_ATTR esp_intr_enable(intr_handle_t handle)
     return ESP_OK;
 }
 
-#define port_enter_critical(x) do { \
-    if (xPortInIsrContext()) {      \
-        portENTER_CRITICAL_ISR(x);  \
-    } else {                        \
-        portENTER_CRITICAL(x);      \
-    }                               \
-} while (0);
-
-#define port_exit_critical(x) do {  \
-    if (xPortInIsrContext()) {      \
-        portEXIT_CRITICAL_ISR(x);   \
-    } else {                        \
-        portEXIT_CRITICAL(x);       \
-    }                               \
-} while (0);
-
 esp_err_t IRAM_ATTR esp_intr_disable(intr_handle_t handle)
 {
     if (!handle) return ESP_ERR_INVALID_ARG;
-
-    port_enter_critical(&spinlock);
+    portENTER_CRITICAL(&spinlock);
     int source;
     bool disabled = 1;
     if (handle->shared_vector_desc) {
@@ -854,12 +840,12 @@ esp_err_t IRAM_ATTR esp_intr_disable(intr_handle_t handle)
     } else {
         //Disable using per-cpu regs
         if (handle->vector_desc->cpu!=xPortGetCoreID()) {
-            port_exit_critical(&spinlock);
+            portEXIT_CRITICAL(&spinlock);
             return ESP_ERR_INVALID_ARG; //Can only enable these ints on this cpu
         }
         ESP_INTR_DISABLE(handle->vector_desc->intno);
     }
-    port_exit_critical(&spinlock);
+    portEXIT_CRITICAL(&spinlock);
     return ESP_OK;
 }
 
