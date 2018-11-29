@@ -44,7 +44,10 @@ Using this switch reduces the amount of call stack memory used by uECC, since le
 translations are required. 
 Note that this will *only* work on native little-endian processors and it will treat the uint8_t
 arrays passed into the public API as word arrays, therefore requiring the provided byte arrays 
-to be word aligned on architectures that do not support unaligned accesses. */
+to be word aligned on architectures that do not support unaligned accesses.
+IMPORTANT: Keys and signatures generated with uECC_VLI_NATIVE_LITTLE_ENDIAN=1 are incompatible
+with keys and signatures generated with uECC_VLI_NATIVE_LITTLE_ENDIAN=0; all parties must use
+the same endianness. */
 #ifndef uECC_VLI_NATIVE_LITTLE_ENDIAN
     #define uECC_VLI_NATIVE_LITTLE_ENDIAN 0
 #endif

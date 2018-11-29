@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Espressif Systems (Shanghai) PTE LTD
+// Copyright 2015-2018 Espressif Systems (Shanghai) PTE LTD
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
 #include <string.h>
 #include "driver/spi_common.h"
 #include "driver/spi_slave.h"
-#include "soc/gpio_sig_map.h"
-#include "soc/spi_reg.h"
 #include "soc/dport_reg.h"
-#include "soc/spi_struct.h"
+#include "soc/spi_periph.h"
 #include "rom/ets_sys.h"
 #include "esp_types.h"
 #include "esp_attr.h"
@@ -50,13 +48,14 @@ static const char *SPI_TAG = "spi_slave";
 #define VALID_HOST(x) (x>SPI_HOST && x<=VSPI_HOST)
 
 typedef struct {
+    int id;
     spi_slave_interface_config_t cfg;
     intr_handle_t intr;
     spi_dev_t *hw;
     spi_slave_transaction_t *cur_trans;
     lldesc_t *dmadesc_tx;
     lldesc_t *dmadesc_rx;
-    bool no_gpio_matrix;
+    uint32_t flags;
     int max_transfer_sz;
     QueueHandle_t trans_queue;
     QueueHandle_t ret_queue;
@@ -70,9 +69,32 @@ static spi_slave_t *spihost[3];
 
 static void IRAM_ATTR spi_intr(void *arg);
 
+static inline bool bus_is_iomux(spi_slave_t *host)
+{
+    return host->flags&SPICOMMON_BUSFLAG_NATIVE_PINS;
+}
+
+static void freeze_cs(spi_slave_t *host)
+{
+    gpio_matrix_in(GPIO_FUNC_IN_HIGH, spi_periph_signal[host->id].spics_in, false);
+}
+
+// Use this function instead of cs_initial to avoid overwrite the output config
+// This is used in test by internal gpio matrix connections
+static inline void restore_cs(spi_slave_t *host)
+{
+    if (bus_is_iomux(host)) {
+        gpio_iomux_in(host->cfg.spics_io_num, spi_periph_signal[host->id].spics_in);
+    } else {
+        gpio_matrix_in(host->cfg.spics_io_num, spi_periph_signal[host->id].spics_in, false);
+    }
+}
+
 esp_err_t spi_slave_initialize(spi_host_device_t host, const spi_bus_config_t *bus_config, const spi_slave_interface_config_t *slave_config, int dma_chan)
 {
-    bool native, spi_chan_claimed, dma_chan_claimed;
+    bool spi_chan_claimed, dma_chan_claimed;
+    esp_err_t ret = ESP_OK;
+    esp_err_t err;
     //We only support HSPI/VSPI, period.
     SPI_CHECK(VALID_HOST(host), "invalid host", ESP_ERR_INVALID_ARG);
     SPI_CHECK( dma_chan >= 0 && dma_chan <= 2, "invalid dma channel", ESP_ERR_INVALID_ARG );
@@ -89,14 +111,23 @@ esp_err_t spi_slave_initialize(spi_host_device_t host, const spi_bus_config_t *b
     }
 
     spihost[host] = malloc(sizeof(spi_slave_t));
-    if (spihost[host] == NULL) goto nomem;
+    if (spihost[host] == NULL) {
+        ret = ESP_ERR_NO_MEM;
+        goto cleanup;
+    }
     memset(spihost[host], 0, sizeof(spi_slave_t));
     memcpy(&spihost[host]->cfg, slave_config, sizeof(spi_slave_interface_config_t));
+    spihost[host]->id = host;
 
-    spicommon_bus_initialize_io(host, bus_config, dma_chan, SPICOMMON_BUSFLAG_SLAVE, &native);
-    gpio_set_direction(slave_config->spics_io_num, GPIO_MODE_INPUT);
-    spicommon_cs_initialize(host, slave_config->spics_io_num, 0, native == false);
-    spihost[host]->no_gpio_matrix = native;
+    err = spicommon_bus_initialize_io(host, bus_config, dma_chan, SPICOMMON_BUSFLAG_SLAVE|bus_config->flags, &spihost[host]->flags);
+    if (err!=ESP_OK) {
+        ret = err;
+        goto cleanup;
+    }
+    spicommon_cs_initialize(host, slave_config->spics_io_num, 0, !bus_is_iomux(spihost[host]));
+    // The slave DMA suffers from unexpected transactions. Forbid reading if DMA is enabled by disabling the CS line.
+    if (dma_chan != 0) freeze_cs(spihost[host]);
+
     spihost[host]->dma_chan = dma_chan;
     if (dma_chan != 0) {
         //See how many dma descriptors we need and allocate them
@@ -105,16 +136,20 @@ esp_err_t spi_slave_initialize(spi_host_device_t host, const spi_bus_config_t *b
         spihost[host]->max_transfer_sz = dma_desc_ct * SPI_MAX_DMA_LEN;
         spihost[host]->dmadesc_tx = heap_caps_malloc(sizeof(lldesc_t) * dma_desc_ct, MALLOC_CAP_DMA);
         spihost[host]->dmadesc_rx = heap_caps_malloc(sizeof(lldesc_t) * dma_desc_ct, MALLOC_CAP_DMA);
-        if (!spihost[host]->dmadesc_tx || !spihost[host]->dmadesc_rx) goto nomem;
+        if (!spihost[host]->dmadesc_tx || !spihost[host]->dmadesc_rx) {
+            ret = ESP_ERR_NO_MEM;
+            goto cleanup;
+        }
     } else {
         //We're limited to non-DMA transfers: the SPI work registers can hold 64 bytes at most.
         spihost[host]->max_transfer_sz = 16 * 4;
     }
 #ifdef CONFIG_PM_ENABLE
-    esp_err_t err = esp_pm_lock_create(ESP_PM_APB_FREQ_MAX, 0, "spi_slave",
+    err = esp_pm_lock_create(ESP_PM_APB_FREQ_MAX, 0, "spi_slave",
             &spihost[host]->pm_lock);
     if (err != ESP_OK) {
-        goto nomem;
+        ret = err;
+        goto cleanup;
     }
     // Lock APB frequency while SPI slave driver is in use
     esp_pm_lock_acquire(spihost[host]->pm_lock);
@@ -123,9 +158,16 @@ esp_err_t spi_slave_initialize(spi_host_device_t host, const spi_bus_config_t *b
     //Create queues
     spihost[host]->trans_queue = xQueueCreate(slave_config->queue_size, sizeof(spi_slave_transaction_t *));
     spihost[host]->ret_queue = xQueueCreate(slave_config->queue_size, sizeof(spi_slave_transaction_t *));
-    if (!spihost[host]->trans_queue || !spihost[host]->ret_queue) goto nomem;
+    if (!spihost[host]->trans_queue || !spihost[host]->ret_queue) {
+        ret = ESP_ERR_NO_MEM;
+        goto cleanup;
+    }
 
-    esp_intr_alloc(spicommon_irqsource_for_host(host), ESP_INTR_FLAG_INTRDISABLED, spi_intr, (void *)spihost[host], &spihost[host]->intr);
+    err = esp_intr_alloc(spicommon_irqsource_for_host(host), ESP_INTR_FLAG_INTRDISABLED, spi_intr, (void *)spihost[host], &spihost[host]->intr);
+    if (err != ESP_OK) {
+        ret = err;
+        goto cleanup;
+    }
     spihost[host]->hw = spicommon_hw_for_host(host);
 
     //Configure slave
@@ -166,7 +208,6 @@ esp_err_t spi_slave_initialize(spi_host_device_t host, const spi_bus_config_t *b
         spihost[host]->hw->ctrl2.miso_delay_mode = nodelay ? 0 : 2;
     }
 
-
     //Reset DMA
     spihost[host]->hw->dma_conf.val |= SPI_OUT_RST | SPI_IN_RST | SPI_AHBM_RST | SPI_AHBM_FIFO_RST;
     spihost[host]->hw->dma_out_link.start = 0;
@@ -191,7 +232,7 @@ esp_err_t spi_slave_initialize(spi_host_device_t host, const spi_bus_config_t *b
 
     return ESP_OK;
 
-nomem:
+cleanup:
     if (spihost[host]) {
         if (spihost[host]->trans_queue) vQueueDelete(spihost[host]->trans_queue);
         if (spihost[host]->ret_queue) vQueueDelete(spihost[host]->ret_queue);
@@ -208,7 +249,7 @@ nomem:
     spihost[host] = NULL;
     spicommon_periph_free(host);
     spicommon_dma_chan_free(dma_chan);
-    return ESP_ERR_NO_MEM;
+    return ret;
 }
 
 esp_err_t spi_slave_free(spi_host_device_t host)
@@ -325,11 +366,14 @@ static void IRAM_ATTR spi_intr(void *arg)
     if (!host->hw->slave.trans_done) return;
 
     if (host->cur_trans) {
+        // When DMA is enabled, the slave rx dma suffers from unexpected transactions. Forbid reading until transaction ready.
+        if (host->dma_chan != 0) freeze_cs(host);
+
         //when data of cur_trans->length are all sent, the slv_rdata_bit
         //will be the length sent-1 (i.e. cur_trans->length-1 ), otherwise 
         //the length sent.
         host->cur_trans->trans_len = host->hw->slv_rd_bit.slv_rdata_bit;
-        if ( host->cur_trans->trans_len == host->cur_trans->length - 1 ) {
+        if (host->cur_trans->trans_len == host->cur_trans->length - 1) {
             host->cur_trans->trans_len++;
         }
 
@@ -432,6 +476,9 @@ static void IRAM_ATTR spi_intr(void *arg)
         host->hw->miso_dlen.usr_miso_dbitlen = trans->length - 1;
         host->hw->user.usr_mosi = (trans->tx_buffer == NULL) ? 0 : 1;
         host->hw->user.usr_miso = (trans->rx_buffer == NULL) ? 0 : 1;
+
+        //The slave rx dma get disturbed by unexpected transaction. Only connect the CS when slave is ready.
+        if (host->dma_chan != 0) restore_cs(host);
 
         //Kick off transfer
         host->hw->cmd.usr = 1;

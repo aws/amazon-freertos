@@ -29,6 +29,7 @@
 #include "soc/io_mux_reg.h"
 #include "soc/rtc_cntl_reg.h"
 #include "soc/timer_group_reg.h"
+#include "soc/efuse_reg.h"
 
 #include "driver/rtc_io.h"
 
@@ -61,6 +62,7 @@
 #include "esp_panic.h"
 #include "esp_core_dump.h"
 #include "esp_app_trace.h"
+#include "esp_dbg_stubs.h"
 #include "esp_efuse.h"
 #include "esp_spiram.h"
 #include "esp_clk_internal.h"
@@ -100,6 +102,9 @@ static const char* TAG = "cpu_start";
 struct object { long placeholder[ 10 ]; };
 void __register_frame_info (const void *begin, struct object *ob);
 extern char __eh_frame[];
+
+//If CONFIG_SPIRAM_IGNORE_NOTFOUND is set and external RAM is not found or errors out on testing, this is set to false.
+static bool s_spiram_okay=true;
 
 /*
  * We arrive here after the bootloader finished loading the program from flash. The hardware is mostly uninitialized,
@@ -148,14 +153,24 @@ void IRAM_ATTR call_start_cpu0()
 #if CONFIG_SPIRAM_BOOT_INIT
     esp_spiram_init_cache();
     if (esp_spiram_init() != ESP_OK) {
+#if CONFIG_SPIRAM_IGNORE_NOTFOUND
+        ESP_EARLY_LOGI(TAG, "Failed to init external RAM; continuing without it.");
+        s_spiram_okay = false;
+#else
         ESP_EARLY_LOGE(TAG, "Failed to init external RAM!");
         abort();
+#endif
     }
 #endif
 
     ESP_EARLY_LOGI(TAG, "Pro cpu up.");
 
 #if !CONFIG_FREERTOS_UNICORE
+    if (REG_GET_BIT(EFUSE_BLK0_RDATA3_REG, EFUSE_RD_CHIP_VER_DIS_APP_CPU)) {
+        ESP_EARLY_LOGE(TAG, "Running on single core chip, but application is built with dual core support.");
+        ESP_EARLY_LOGE(TAG, "Please enable CONFIG_FREERTOS_UNICORE option in menuconfig.");
+        abort();
+    }
     ESP_EARLY_LOGI(TAG, "Starting app cpu, entry point is %p", call_start_cpu1);
     //Flush and enable icache for APP CPU
     Cache_Flush(1);
@@ -183,10 +198,12 @@ void IRAM_ATTR call_start_cpu0()
 
 
 #if CONFIG_SPIRAM_MEMTEST
-    bool ext_ram_ok=esp_spiram_test();
-    if (!ext_ram_ok) {
-        ESP_EARLY_LOGE(TAG, "External RAM failed memory test!");
-        abort();
+    if (s_spiram_okay) {
+        bool ext_ram_ok=esp_spiram_test();
+        if (!ext_ram_ok) {
+            ESP_EARLY_LOGE(TAG, "External RAM failed memory test!");
+            abort();
+        }
     }
 #endif
 
@@ -253,23 +270,25 @@ void start_cpu0_default(void)
     esp_err_t err;
     esp_setup_syscall_table();
 
+    if (s_spiram_okay) {
 #if CONFIG_SPIRAM_BOOT_INIT && (CONFIG_SPIRAM_USE_CAPS_ALLOC || CONFIG_SPIRAM_USE_MALLOC)
-    esp_err_t r=esp_spiram_add_to_heapalloc();
-    if (r != ESP_OK) {
-        ESP_EARLY_LOGE(TAG, "External RAM could not be added to heap!");
-        abort();
-    }
+        esp_err_t r=esp_spiram_add_to_heapalloc();
+        if (r != ESP_OK) {
+            ESP_EARLY_LOGE(TAG, "External RAM could not be added to heap!");
+            abort();
+        }
 #if CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL
-    r=esp_spiram_reserve_dma_pool(CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL);
-    if (r != ESP_OK) {
-        ESP_EARLY_LOGE(TAG, "Could not reserve internal/DMA pool!");
-        abort();
-    }
+        r=esp_spiram_reserve_dma_pool(CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL);
+        if (r != ESP_OK) {
+            ESP_EARLY_LOGE(TAG, "Could not reserve internal/DMA pool!");
+            abort();
+        }
 #endif
 #if CONFIG_SPIRAM_USE_MALLOC
-    heap_caps_malloc_extmem_enable(CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL);
+        heap_caps_malloc_extmem_enable(CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL);
 #endif
 #endif
+    }
 
 //Enable trace memory and immediately start trace.
 #if CONFIG_ESP32_TRAX
@@ -322,6 +341,9 @@ void start_cpu0_default(void)
 #endif
 #if CONFIG_SYSVIEW_ENABLE
     SEGGER_SYSVIEW_Conf();
+#endif
+#if CONFIG_ESP32_DEBUG_STUBS_ENABLE
+    esp_dbg_stubs_init();
 #endif
     err = esp_pthread_init();
     assert(err == ESP_OK && "Failed to init pthread module!");

@@ -147,7 +147,7 @@ esp_err_t esp_efuse_mac_get_default(uint8_t* mac)
 esp_err_t system_efuse_read_mac(uint8_t *mac) __attribute__((alias("esp_efuse_mac_get_default")));
 esp_err_t esp_efuse_read_mac(uint8_t *mac) __attribute__((alias("esp_efuse_mac_get_default")));
 
-esp_err_t esp_derive_mac(uint8_t* local_mac, const uint8_t* universal_mac)
+esp_err_t esp_derive_local_mac(uint8_t* local_mac, const uint8_t* universal_mac)
 {
     uint8_t idx;
 
@@ -201,7 +201,7 @@ esp_err_t esp_read_mac(uint8_t* mac, esp_mac_type_t type)
             mac[5] += 1;
         }
         else if (UNIVERSAL_MAC_ADDR_NUM == TWO_UNIVERSAL_MAC_ADDR) {
-            esp_derive_mac(mac, efuse_mac);
+            esp_derive_local_mac(mac, efuse_mac);
         }
         break;
     case ESP_MAC_BT:
@@ -220,7 +220,7 @@ esp_err_t esp_read_mac(uint8_t* mac, esp_mac_type_t type)
         }
         else if (UNIVERSAL_MAC_ADDR_NUM == TWO_UNIVERSAL_MAC_ADDR) {
             efuse_mac[5] += 1;
-            esp_derive_mac(mac, efuse_mac);
+            esp_derive_local_mac(mac, efuse_mac);
         }
         break;
     default:
@@ -327,7 +327,7 @@ void IRAM_ATTR esp_restart_noos()
 
     // Reset timer/spi/uart
     DPORT_SET_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG,
-            DPORT_TIMERS_RST | DPORT_SPI_RST_1 | DPORT_UART_RST);
+            DPORT_TIMERS_RST | DPORT_SPI01_RST | DPORT_UART_RST);
     DPORT_REG_WRITE(DPORT_PERIP_RST_EN_REG, 0);
 
     // Set CPU back to XTAL source, no PLL, same as hard reset
@@ -379,9 +379,10 @@ const char* esp_get_idf_version(void)
 
 static void get_chip_info_esp32(esp_chip_info_t* out_info)
 {
-    out_info->model = CHIP_ESP32;
     uint32_t reg = REG_READ(EFUSE_BLK0_RDATA3_REG);
     memset(out_info, 0, sizeof(*out_info));
+    
+    out_info->model = CHIP_ESP32;
     if ((reg & EFUSE_RD_CHIP_VER_REV1_M) != 0) {
         out_info->revision = 1;
     }

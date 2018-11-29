@@ -3071,6 +3071,7 @@ static int trex_charnode(TRex *exp,TRexBool isclass)
 					exp->_p++;
 					return node;
 				} //else default
+				/* falls through */
 			default:
 				t = *exp->_p; exp->_p++;
 				return trex_newnode(exp,t);
@@ -4535,9 +4536,9 @@ static
 void arg_print_gnuswitch(FILE *fp, struct arg_hdr * *table)
 {
     int tabindex;
-    char *format1 = " -%c";
-    char *format2 = " [-%c";
-    char *suffix = "";
+    const char *format1 = " -%c";
+    const char *format2 = " [-%c";
+    const char *suffix = "";
 
     /* print all mandatory switches that are without argument values */
     for(tabindex = 0;
