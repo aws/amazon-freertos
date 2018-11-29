@@ -656,7 +656,7 @@ TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xPairingStateChangedEvent.xStatus);
 	TEST_ASSERT_EQUAL(0, memcmp(&xPairingStateChangedEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
-	TEST_ASSERT_EQUAL(eBTSecLevelUnauthenticatedPairing, xPairingStateChangedEvent.xSecurityLevel);
+	TEST_ASSERT_EQUAL(eBTSecLevelSecureConnect, xPairingStateChangedEvent.xSecurityLevel);
 
 	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
