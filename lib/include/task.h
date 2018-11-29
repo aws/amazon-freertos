@@ -2132,6 +2132,11 @@ void vTaskNotifyGiveFromISR( TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPri
  */
 uint32_t ulTaskNotifyTake( BaseType_t xClearCountOnExit, TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 
+void const* pvTaskNotifyWaitMessage(size_t* xNotifiedMessageSize, TickType_t xTicksToWait );
+void vTaskNotifySendMessage( TaskHandle_t xTaskToNotify, void const* pvNotifiedMessage, size_t xNotifiedMessageSize);
+void vTaskNotifySendMessageFromISR( TaskHandle_t xTaskToNotify, void const* pvNotifiedMessage, size_t xNotifiedMessageSize, BaseType_t *pxHigherPriorityTaskWoken );
+
+
 /**
  * task. h
  * <PRE>BaseType_t xTaskNotifyStateClear( TaskHandle_t xTask );</pre>
