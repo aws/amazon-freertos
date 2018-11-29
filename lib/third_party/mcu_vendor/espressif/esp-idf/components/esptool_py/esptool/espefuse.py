@@ -25,27 +25,29 @@ import time
 
 import esptool
 
-# Table of efuse values - (category, block, word in block, mask, write disable bit, read disable bit, register name, type, description)
+# Table of efuse values - (category, block, word in block, mask, write disable bit, read disable bit, type, description)
 # Match values in efuse_reg.h & Efuse technical reference chapter
 EFUSES = [
-    ('WR_DIS',               "efuse",    0, 0, 0x0000FFFF, 1, None, "int", "Efuse write disable mask"),
-    ('RD_DIS',               "efuse",    0, 0, 0x000F0000, 0, None, "int", "Efuse read disablemask"),
-    ('FLASH_CRYPT_CNT',      "security", 0, 0, 0x0FF00000, 2, None, "bitcount", "Flash encryption mode counter"),
-    ('MAC',                  "identity", 0, 1, 0xFFFFFFFF, 3, None, "mac", "MAC Address"),
-    ('XPD_SDIO_FORCE',       "config",   0, 4, 1 << 16,    5, None, "flag", "Ignore MTDI pin (GPIO12) for VDD_SDIO on reset"),
-    ('XPD_SDIO_REG',         "config",   0, 4, 1 << 14,    5, None, "flag", "If XPD_SDIO_FORCE, enable VDD_SDIO reg on reset"),
-    ('XPD_SDIO_TIEH',        "config",   0, 4, 1 << 15,    5, None, "flag", "If XPD_SDIO_FORCE & XPD_SDIO_REG, 1=3.3V 0=1.8V"),
-    ('SPI_PAD_CONFIG_CLK',   "config",   0, 5, 0x1F << 0,  6, None, "spipin", "Override SD_CLK pad (GPIO6/SPICLK)"),
-    ('SPI_PAD_CONFIG_Q',     "config",   0, 5, 0x1F << 5,  6, None, "spipin", "Override SD_DATA_0 pad (GPIO7/SPIQ)"),
-    ('SPI_PAD_CONFIG_D',     "config",   0, 5, 0x1F << 10, 6, None, "spipin", "Override SD_DATA_1 pad (GPIO8/SPID)"),
-    ('SPI_PAD_CONFIG_HD',    "config",   0, 3, 0x1F << 4,  3, None, "spipin", "Override SD_DATA_2 pad (GPIO9/SPIHD)"),
-    ('SPI_PAD_CONFIG_CS0',   "config",   0, 5, 0x1F << 15, 6, None, "spipin", "Override SD_CMD pad (GPIO11/SPICS0)"),
+    ('WR_DIS',               "efuse",    0, 0, 0x0000FFFF, 1,  None, "int", "Efuse write disable mask"),
+    ('RD_DIS',               "efuse",    0, 0, 0x000F0000, 0,  None, "int", "Efuse read disablemask"),
+    ('FLASH_CRYPT_CNT',      "security", 0, 0, 0x0FF00000, 2,  None, "bitcount", "Flash encryption mode counter"),
+    ('MAC',                  "identity", 0, 1, 0xFFFFFFFF, 3,  None, "mac", "MAC Address"),
+    ('XPD_SDIO_FORCE',       "config",   0, 4, 1 << 16,    5,  None, "flag", "Ignore MTDI pin (GPIO12) for VDD_SDIO on reset"),
+    ('XPD_SDIO_REG',         "config",   0, 4, 1 << 14,    5,  None, "flag", "If XPD_SDIO_FORCE, enable VDD_SDIO reg on reset"),
+    ('XPD_SDIO_TIEH',        "config",   0, 4, 1 << 15,    5,  None, "flag", "If XPD_SDIO_FORCE & XPD_SDIO_REG, 1=3.3V 0=1.8V"),
+    ('SPI_PAD_CONFIG_CLK',   "config",   0, 5, 0x1F << 0,  6,  None, "spipin", "Override SD_CLK pad (GPIO6/SPICLK)"),
+    ('SPI_PAD_CONFIG_Q',     "config",   0, 5, 0x1F << 5,  6,  None, "spipin", "Override SD_DATA_0 pad (GPIO7/SPIQ)"),
+    ('SPI_PAD_CONFIG_D',     "config",   0, 5, 0x1F << 10, 6,  None, "spipin", "Override SD_DATA_1 pad (GPIO8/SPID)"),
+    ('SPI_PAD_CONFIG_HD',    "config",   0, 3, 0x1F << 4,  6,  None, "spipin", "Override SD_DATA_2 pad (GPIO9/SPIHD)"),
+    ('SPI_PAD_CONFIG_CS0',   "config",   0, 5, 0x1F << 15, 6,  None, "spipin", "Override SD_CMD pad (GPIO11/SPICS0)"),
     ('FLASH_CRYPT_CONFIG',   "security", 0, 5, 0x0F << 28, 10, 3, "int", "Flash encryption config (key tweak bits)"),
-    ('CHIP_VERSION',         "identity", 0, 3, 0x0F << 12, 0,  0, "int", "Chip version"),
-    ('CHIP_PACKAGE',         "identity", 0, 3, 0x07 << 9,  0,  0, "int", "Chip package identifier"),
+    ('CHIP_VER_REV1',        "identity", 0, 3, 1 << 15,    3,  None, "flag", "Silicon Revision 1"),
+    ('BLK3_PART_RESERVE',    "calibration", 0, 3, 1 << 14, 10, 3, "flag", "BLOCK3 partially served for ADC calibration data"),
+    ('CHIP_VERSION',         "identity", 0, 3, 0x03 << 12, 3,  None, "int", "Reserved for future chip versions"),
+    ('CHIP_PACKAGE',         "identity", 0, 3, 0x07 << 9,  3,  None, "int", "Chip package identifier"),
     ('CODING_SCHEME',        "efuse",    0, 6, 0x3,        10, 3, "int", "Efuse variable block length scheme"),
     ('CONSOLE_DEBUG_DISABLE',"security", 0, 6, 1 << 2,     15, None, "flag", "Disable ROM BASIC interpreter fallback"),
-    ('DISABLE_SDIO_HOST',    "config",   0, 6, 1 << 3,     None, None, "flag", "Disable SDIO host"),
+    ('DISABLE_SDIO_HOST',    "config",   0, 6, 1 << 3,   None, None, "flag", "Disable SDIO host"),
     ('ABS_DONE_0',           "security", 0, 6, 1 << 4,     12, None, "flag", "secure boot enabled for bootloader"),
     ('ABS_DONE_1',           "security", 0, 6, 1 << 5,     13, None, "flag", "secure boot abstract 1 locked"),
     ('JTAG_DISABLE',         "security", 0, 6, 1 << 6,     14, None, "flag", "Disable JTAG"),
@@ -53,15 +55,24 @@ EFUSES = [
     ('DISABLE_DL_DECRYPT',   "security", 0, 6, 1 << 8,     15, None, "flag", "Disable flash decryption in UART bootloader"),
     ('DISABLE_DL_CACHE',     "security", 0, 6, 1 << 9,     15, None, "flag", "Disable flash cache in UART bootloader"),
     ('KEY_STATUS',           "efuse",    0, 6, 1 << 10,    10, 3, "flag", "Usage of efuse block 3 (reserved)"),
+    ('ADC_VREF',             "calibration", 0, 4,0x1F << 8,0, None, "vref", "Voltage reference calibration"),
     ('BLK1',                 "security", 1, 0, 0xFFFFFFFF, 7,  0, "keyblock", "Flash encryption key"),
     ('BLK2',                 "security", 2, 0, 0xFFFFFFFF, 8,  1, "keyblock", "Secure boot key"),
     ('BLK3',                 "security", 3, 0, 0xFFFFFFFF, 9,  2, "keyblock", "Variable Block 3"),
 ]
 
-# Offsets and lengths of each of the 4 efuse blocks
+# if BLK3_PART_RESERVE is set, these efuse fields are in BLK3:
+BLK3_PART_EFUSES = [
+    ('ADC1_TP_LOW',  "calibration", 3, 3, 0x7F << 0,   9, 2, "adc_tp", "ADC1 150mV reading"),
+    ('ADC1_TP_HIGH', "calibration", 3, 3, 0x1FF << 7,  9, 2, "adc_tp", "ADC1 850mV reading"),
+    ('ADC2_TP_LOW',  "calibration", 3, 3, 0x7F << 16,  9, 2, "adc_tp", "ADC2 150mV reading"),
+    ('ADC2_TP_HIGH', "calibration", 3, 3, 0x1FF << 23, 9, 2, "adc_tp", "ADC2 850mV reading"),
+]
+
+# Offsets and lengths of each of the 4 efuse blocks in register space
 #
 # These offsets/lens are for esptool.read_efuse(X) which takes
-# a word offset not a byte offset.
+# a word offset (into registers) not a byte offset.
 EFUSE_BLOCK_OFFS = [0, 14, 22, 30]
 EFUSE_BLOCK_LEN  = [7, 8, 8, 8]
 
@@ -74,8 +85,16 @@ EFUSE_CMD_WRITE = 0x2
 EFUSE_CMD_READ  = 0x1
 # address of first word of write registers for each efuse
 EFUSE_REG_WRITE = [0x3FF5A01C, 0x3FF5A098, 0x3FF5A0B8, 0x3FF5A0D8]
+# 3/4 Coding scheme warnings registers
+EFUSE_REG_DEC_STATUS = 0x3FF5A11C
+EFUSE_REG_DEC_STATUS_MASK = 0xFFF
 
 EFUSE_BURN_TIMEOUT = 0.250  # seconds
+
+
+# Coding Scheme values
+CODING_SCHEME_NONE = 0
+CODING_SCHEME_34 = 1
 
 
 def confirm(action, args):
@@ -100,38 +119,82 @@ def efuse_write_reg_addr(block, word):
     return EFUSE_REG_WRITE[block] + (4 * word)
 
 
-def efuse_perform_write(esp):
-    """ Write the values in the efuse write registers to
-    the efuse hardware, then refresh the efuse read registers.
+class EspEfuses(object):
     """
-    esp.write_reg(EFUSE_REG_CONF, EFUSE_CONF_WRITE)
-    esp.write_reg(EFUSE_REG_CMD, EFUSE_CMD_WRITE)
+    Wrapper object to manage the efuse fields in a connected ESP bootloader
+    """
+    def __init__(self, esp):
+        self._esp = esp
+        self._efuses = [EfuseField.from_tuple(self, efuse) for efuse in EFUSES]
+        if self["BLK3_PART_RESERVE"].get():
+            # add these BLK3 efuses, if the BLK3_PART_RESERVE flag is set...
+            self._efuses += [EfuseField.from_tuple(self, efuse) for efuse in BLK3_PART_EFUSES]
 
-    def wait_idle():
-        deadline = time.time() + EFUSE_BURN_TIMEOUT
-        while time.time() < deadline:
-            if esp.read_reg(EFUSE_REG_CMD) == 0:
-                return
-        raise esptool.FatalError("Timed out waiting for Efuse controller command to complete")
-    wait_idle()
-    esp.write_reg(EFUSE_REG_CONF, EFUSE_CONF_READ)
-    esp.write_reg(EFUSE_REG_CMD, EFUSE_CMD_READ)
-    wait_idle()
+        self.coding_scheme = self["CODING_SCHEME"].get()
+
+    def __getitem__(self, efuse_name):
+        """ Return the efuse field with the given name """
+        for e in self._efuses:
+            if efuse_name == e.register_name:
+                return e
+        raise KeyError
+
+    def __iter__(self):
+        return self._efuses.__iter__()
+
+    def write_efuses(self):
+        """ Write the values in the efuse write registers to
+        the efuse hardware, then refresh the efuse read registers.
+        """
+        self._esp.write_reg(EFUSE_REG_CONF, EFUSE_CONF_WRITE)
+        self._esp.write_reg(EFUSE_REG_CMD, EFUSE_CMD_WRITE)
+
+        def wait_idle():
+            deadline = time.time() + EFUSE_BURN_TIMEOUT
+            while time.time() < deadline:
+                if self._esp.read_reg(EFUSE_REG_CMD) == 0:
+                    return
+            raise esptool.FatalError("Timed out waiting for Efuse controller command to complete")
+        wait_idle()
+        self._esp.write_reg(EFUSE_REG_CONF, EFUSE_CONF_READ)
+        self._esp.write_reg(EFUSE_REG_CMD, EFUSE_CMD_READ)
+        wait_idle()
+
+    def read_efuse(self, addr):
+        return self._esp.read_efuse(addr)
+
+    def read_reg(self, addr):
+        return self._esp.read_reg(addr)
+
+    def write_reg(self, addr, value):
+        return self._esp.write_reg(addr, value)
+
+    def get_coding_scheme_warnings(self):
+        """ Check if the coding scheme has detected any errors.
+        Meaningless for default coding scheme (0)
+        """
+        return self.read_reg(EFUSE_REG_DEC_STATUS) & EFUSE_REG_DEC_STATUS_MASK
+
+    def get_block_len(self):
+        """ Return the length of BLK1, BLK2, BLK3 in bytes """
+        return 24 if self.coding_scheme == CODING_SCHEME_34 else 32
 
 
 class EfuseField(object):
     @staticmethod
-    def from_tuple(esp, efuse_tuple):
+    def from_tuple(parent, efuse_tuple):
         category = efuse_tuple[7]
         return {
             "mac": EfuseMacField,
             "keyblock": EfuseKeyblockField,
             "spipin": EfuseSpiPinField,
-        }.get(category, EfuseField)(esp, *efuse_tuple)
+            "vref": EfuseVRefField,
+            "adc_tp": EfuseAdcPointCalibration,
+        }.get(category, EfuseField)(parent, *efuse_tuple)
 
-    def __init__(self, esp, register_name, category, block, word, mask, write_disable_bit, read_disable_bit, efuse_type, description):
+    def __init__(self, parent, register_name, category, block, word, mask, write_disable_bit, read_disable_bit, efuse_type, description):
         self.category = category
-        self.esp = esp
+        self.parent = parent
         self.block = block
         self.word = word
         self.data_reg_offs = EFUSE_BLOCK_OFFS[self.block] + self.word
@@ -152,7 +215,7 @@ class EfuseField(object):
 
         Returns a simple integer or (for some subclasses) a bitstring.
         """
-        value = self.esp.read_efuse(self.data_reg_offs)
+        value = self.parent.read_efuse(self.data_reg_offs)
         return (value & self.mask) >> self.shift
 
     def get(self):
@@ -163,42 +226,42 @@ class EfuseField(object):
         """ Return true if the efuse is readable by software """
         if self.read_disable_bit is None:
             return True  # read cannot be disabled
-        value = (self.esp.read_efuse(0) >> 16) & 0xF  # RD_DIS values
+        value = (self.parent.read_efuse(0) >> 16) & 0xF  # RD_DIS values
         return (value & (1 << self.read_disable_bit)) == 0
 
     def disable_read(self):
         if self.read_disable_bit is None:
             raise esptool.FatalError("This efuse cannot be read-disabled")
         rddis_reg_addr = efuse_write_reg_addr(0, 0)
-        self.esp.write_reg(rddis_reg_addr, 1 << (16 + self.read_disable_bit))
-        efuse_perform_write(self.esp)
+        self.parent.write_reg(rddis_reg_addr, 1 << (16 + self.read_disable_bit))
+        self.parent.write_efuses()
         return self.get()
 
     def is_writeable(self):
         if self.write_disable_bit is None:
             return True  # write cannot be disabled
-        value = self.esp.read_efuse(0) & 0xFFFF   # WR_DIS values
+        value = self.parent.read_efuse(0) & 0xFFFF   # WR_DIS values
         return (value & (1 << self.write_disable_bit)) == 0
 
     def disable_write(self):
         wrdis_reg_addr = efuse_write_reg_addr(0, 0)
-        self.esp.write_reg(wrdis_reg_addr, 1 << self.write_disable_bit)
-        efuse_perform_write(self.esp)
+        self.parent.write_reg(wrdis_reg_addr, 1 << self.write_disable_bit)
+        self.parent.write_efuses()
         return self.get()
 
     def burn(self, new_value):
         raw_value = (new_value << self.shift) & self.mask
         # don't both reading old value as we can only set bits 0->1
         write_reg_addr = efuse_write_reg_addr(self.block, self.word)
-        self.esp.write_reg(write_reg_addr, raw_value)
-        efuse_perform_write(self.esp)
+        self.parent.write_reg(write_reg_addr, raw_value)
+        self.parent.write_efuses()
         return self.get()
 
 
 class EfuseMacField(EfuseField):
     def get_raw(self):
         # MAC values are high half of second efuse word, then first efuse word
-        words = [self.esp.read_efuse(self.data_reg_offs + word) for word in [1,0]]
+        words = [self.parent.read_efuse(self.data_reg_offs + word) for word in [1,0]]
         # endian-swap into a bitstring
         bitstring = struct.pack(">II", *words)
         return bitstring[2:]  # trim 2 byte CRC from the beginning
@@ -219,7 +282,7 @@ class EfuseMacField(EfuseField):
         raise esptool.FatalError("Writing MAC address is not supported")
 
     def get_stored_crc(self):
-        return (self.esp.read_efuse(self.data_reg_offs + 1) >> 16) & 0xFF
+        return (self.parent.read_efuse(self.data_reg_offs + 1) >> 16) & 0xFF
 
     def calc_crc(self):
         """
@@ -241,24 +304,70 @@ class EfuseMacField(EfuseField):
 
 class EfuseKeyblockField(EfuseField):
     def get_raw(self):
-        words = [self.esp.read_efuse(self.data_reg_offs + word) for word in range(8)]
-        # Reading EFUSE registers to a key string:
-        # endian swap each word, and also reverse
-        # the overall word order.
-        bitstring = struct.pack(">" + ("I" * 8), *words[::-1])
-        return bitstring
+        words = self.get_words()
+        return struct.pack("<" + ("I" * len(words)), *words)
+
+    def get_key(self):
+        # Keys are stored in reverse byte order
+        result = self.get_raw()
+        result = result[::-1]
+        return result
+
+    def get_words(self):
+        num_words = self.parent.get_block_len() // 4
+        return [self.parent.read_efuse(self.data_reg_offs + word) for word in range(num_words)]
 
     def get(self):
         return hexify(self.get_raw(), " ")
 
+    def apply_34_encoding(self, inbits):
+        """ Takes 24 byte sequence to be represented in 3/4 encoding,
+            returns 8 words suitable for writing "encoded" to an efuse block
+        """
+        def popcnt(b):
+            """ Return number of "1" bits set in 'b' """
+            return len([x for x in bin(b) if x == "1"])
+
+        outbits = b""
+        while len(inbits) > 0:  # process in chunks of 6 bytes
+            bits = inbits[0:6]
+            inbits = inbits[6:]
+            xor_res = 0
+            mul_res = 0
+            index = 1
+            for b in struct.unpack("B" * 6, bits):
+                xor_res ^= b
+                mul_res += index * popcnt(b)
+                index += 1
+            outbits += bits
+            outbits += struct.pack("BB", xor_res, mul_res)
+        return struct.unpack("<" + "I" * (len(outbits) // 4), outbits)
+
+    def burn_key(self, new_value):
+            new_value = new_value[::-1]  # AES keys are stored in reverse order in efuse
+            return self.burn(new_value)
+
     def burn(self, new_value):
-        words = struct.unpack(">" + ("I" * 8), new_value)  # endian-swap
-        words = words[::-1]  # reverse from natural key order
-        write_reg_addr = efuse_write_reg_addr(self.block, self.word)
+        key_len = self.parent.get_block_len()
+        if len(new_value) != key_len:
+            raise RuntimeError("Invalid new value length for key block (%d), %d is required" % len(new_value), key_len)
+
+        if self.parent.coding_scheme == CODING_SCHEME_34:
+            words = self.apply_34_encoding(new_value)
+        else:
+            words = struct.unpack("<" + ("I" * 8), new_value)
+        return self.burn_words(words)
+
+    def burn_words(self, words, word_offset=0):
+        write_reg_addr = efuse_write_reg_addr(self.block, self.word + word_offset)
         for word in words:
-            self.esp.write_reg(write_reg_addr, word)
+            self.parent.write_reg(write_reg_addr, word)
             write_reg_addr += 4
-        efuse_perform_write(self.esp)
+        warnings_before = self.parent.get_coding_scheme_warnings()
+        self.parent.write_efuses()
+        warnings_after = self.parent.get_coding_scheme_warnings()
+        if warnings_after & ~warnings_before != 0:
+            print("WARNING: Burning efuse block added coding scheme warnings 0x%x -> 0x%x. Encoding bug?" % (warnings_before, warnings_after))
         return self.get()
 
 
@@ -279,6 +388,45 @@ class EfuseSpiPinField(EfuseField):
         return super(EfuseSpiPinField, self).burn(new_value)
 
 
+class EfuseVRefField(EfuseField):
+    VREF_OFFSET = 1100  # ideal efuse value in mV
+    VREF_STEP_SIZE = 7  # 1 count in efuse == 7mV
+    VREF_SIGN_BIT = 0x10
+    VREF_MAG_BITS = 0x0F
+
+    def get(self):
+        val = self.get_raw()
+        # sign-magnitude format
+        if (val & self.VREF_SIGN_BIT):
+            val = -(val & self.VREF_MAG_BITS)
+        else:
+            val = (val & self.VREF_MAG_BITS)
+        val *= self.VREF_STEP_SIZE
+        return self.VREF_OFFSET + val
+
+    def burn(self, new_value):
+        raise RuntimeError("Writing to VRef is not supported.")
+
+
+class EfuseAdcPointCalibration(EfuseField):
+    TP_OFFSET = {  # See TP_xxxx_OFFSET in esp_adc_cal.c in ESP-IDF
+        "ADC1_TP_LOW":  278,
+        "ADC2_TP_LOW":  421,
+        "ADC1_TP_HIGH": 3265,
+        "ADC2_TP_HIGH": 3406,
+    }
+    SIGN_BIT = (0x40, 0x100)  # LOW, HIGH (2s complement format)
+    STEP_SIZE = 4
+
+    def get(self):
+        idx = 0 if self.register_name.endswith("LOW") else 1
+        sign_bit = self.SIGN_BIT[idx]
+        offset = self.TP_OFFSET[self.register_name]
+        raw = self.get_raw()
+        delta = (raw & (sign_bit - 1)) - (raw & sign_bit)
+        return offset + (delta * self.STEP_SIZE)
+
+
 def dump(esp, _efuses, args):
     """ Dump raw efuse data registers """
     for block in range(len(EFUSE_BLOCK_OFFS)):
@@ -289,6 +437,9 @@ def dump(esp, _efuses, args):
 
 def summary(esp, efuses, args):
     """ Print a human-readable summary of efuse contents """
+    ROW_FORMAT = "%-22s %-50s%s= %s %s %s"
+    print(ROW_FORMAT.replace("-50", "-12") % ("EFUSE_NAME", "Description", "", "[Meaningful Value]", "[Readable/Writeable]", "(Hex Value)"))
+    print("-" * 88)
     for category in set(e.category for e in efuses):
         print("%s fuses:" % category.title())
         for e in (e for e in efuses if e.category == category):
@@ -307,11 +458,13 @@ def summary(esp, efuses, args):
             else:
                 perms = "-/-"
             value = str(e.get())
-            print("%-22s %-50s%s= %s %s %s" % (e.register_name, e.description, "\n  " if len(value) > 20 else "", value, perms, raw))
+            if not readable:
+                value = value.replace("0", "?")
+            print(ROW_FORMAT % (e.register_name, e.description, "\n  " if len(value) > 20 else "", value, perms, raw))
         print("")
-    sdio_force = _get_efuse(efuses, "XPD_SDIO_FORCE")
-    sdio_tieh = _get_efuse(efuses, "XPD_SDIO_TIEH")
-    sdio_reg = _get_efuse(efuses, "XPD_SDIO_REG")
+    sdio_force = efuses["XPD_SDIO_FORCE"]
+    sdio_tieh = efuses["XPD_SDIO_TIEH"]
+    sdio_reg = efuses["XPD_SDIO_REG"]
     if sdio_force.get() == 0:
         print("Flash voltage (VDD_SDIO) determined by GPIO12 on reset (High for 1.8V, Low/NC for 3.3V).")
     elif sdio_reg.get() == 0:
@@ -320,10 +473,13 @@ def summary(esp, efuses, args):
         print("Flash voltage (VDD_SDIO) set to 1.8V by efuse.")
     else:
         print("Flash voltage (VDD_SDIO) set to 3.3V by efuse.")
+    warnings = efuses.get_coding_scheme_warnings()
+    if warnings:
+        print("WARNING: Coding scheme has encoding bit error warnings (0x%x)" % warnings)
 
 
 def burn_efuse(esp, efuses, args):
-    efuse = _get_efuse(efuses, args.efuse_name)
+    efuse = efuses[args.efuse_name]
     old_value = efuse.get()
     if efuse.efuse_type == "flag":
         if args.new_value not in [None, 1]:
@@ -358,7 +514,7 @@ def burn_efuse(esp, efuses, args):
 
 
 def read_protect_efuse(esp, efuses, args):
-    efuse = _get_efuse(efuses, args.efuse_name)
+    efuse = efuses[args.efuse_name]
     if not efuse.is_readable():
         print("Efuse %s is already read protected" % efuse.register_name)
     else:
@@ -369,10 +525,10 @@ def read_protect_efuse(esp, efuses, args):
         efuse.disable_read()
 
 
-def write_protect_efuse(esp, efuses,args):
-    efuse = _get_efuse(efuses, args.efuse_name)
+def write_protect_efuse(esp, efuses, args):
+    efuse = efuses[args.efuse_name]
     if not efuse.is_writeable():
-        print("Efuse %s is already write protected" % efuse.register_name)
+        print("]fuse %s is already write protected" % efuse.register_name)
     else:
         # make full list of which efuses will be disabled (ie share a write disable bit)
         all_disabling = [e for e in efuses if e.write_disable_bit == efuse.write_disable_bit]
@@ -392,18 +548,21 @@ def burn_key(esp, efuses, args):
     else:
         raise RuntimeError("args.block argument not in list!")
 
+    num_bytes = efuses.get_block_len()
+
     # check keyfile
     keyfile = args.keyfile
     keyfile.seek(0,2)  # seek t oend
     size = keyfile.tell()
     keyfile.seek(0)
-    if size != 32:
-        raise esptool.FatalError("Incorrect key file size %d. Key file must be 32 bytes (256 bits) of raw binary key data." % size)
+    if size != num_bytes:
+        raise esptool.FatalError("Incorrect key file size %d. Key file must be %d bytes (%d bits) of raw binary key data." %
+                                 (size, num_bytes, num_bytes * 8))
 
     # check existing data
     efuse = [e for e in efuses if e.register_name == "BLK%d" % block_num][0]
     original = efuse.get_raw()
-    EMPTY_KEY = b'\x00' * 32
+    EMPTY_KEY = b'\x00' * num_bytes
     if original != EMPTY_KEY:
         if not args.force_write_always:
             raise esptool.FatalError("Key block already has value %s." % efuse.get())
@@ -421,8 +580,8 @@ def burn_key(esp, efuses, args):
         msg += "The key block will be read and write protected (no further changes or readback)"
     confirm(msg, args)
 
-    new_value = keyfile.read(32)
-    new = efuse.burn(new_value)
+    new_value = keyfile.read(num_bytes)
+    new = efuse.burn_key(new_value)
     print("Burned key data. New value: %s" % (new,))
     if not args.no_protect_key:
         print("Disabling read/write to key efuse block...")
@@ -436,10 +595,49 @@ def burn_key(esp, efuses, args):
         print("Key is left unprotected as per --no-protect-key argument.")
 
 
+def burn_block_data(esp, efuses, args):
+    num_bytes = efuses.get_block_len()
+    offset = args.offset
+    data = args.datafile.read()
+
+    if offset >= num_bytes:
+        raise RuntimeError("Invalid offset: Key block only holds %d bytes." % num_bytes)
+    if len(data) > num_bytes - offset:
+        raise RuntimeError("Data will not fit: Key block size %d bytes, data file is %d bytes" % (num_bytes, len(data)))
+    if efuses.coding_scheme == CODING_SCHEME_34:
+        if offset % 6 != 0:
+            raise RuntimeError("Device has 3/4 Coding Scheme. Can only write at offsets which are a multiple of 6.")
+        if len(data) % 6 != 0:
+            raise RuntimeError("Device has 3/4 Coding Scheme. Can only write data lengths which are a multiple of 6 (data is %d bytes)" % len(data))
+
+    efuse = [e for e in efuses if e.register_name == args.block.upper()][0]
+
+    if not args.force_write_always and \
+       efuse.get_raw() != b'\x00' * num_bytes:
+        raise esptool.FatalError("Efuse block already has values written.")
+
+    if efuses.coding_scheme == CODING_SCHEME_NONE:
+        pad = offset % 4
+        if pad != 0:  # left-pad to a word boundary
+            data = (b'\x00' * pad) + data
+            offset -= pad
+        pad = len(data) % 4
+        if pad != 0:  # right-pad to a word boundary
+            data += (b'\x00' * (4 - pad))
+        words = struct.unpack("<" + "I" * (len(data) // 4), data)
+        word_offset = offset // 4
+    else:  # CODING_SCHEME_34
+        words = efuse.apply_34_encoding(data)
+        word_offset = (offset // 6) * 2
+
+    confirm("Burning efuse %s (%s) with %d bytes of data at offset %d in the block" % (efuse.register_name, efuse.description, len(data), offset), args)
+    efuse.burn_words(words, word_offset)
+
+
 def set_flash_voltage(esp, efuses, args):
-    sdio_force = _get_efuse(efuses, "XPD_SDIO_FORCE")
-    sdio_tieh = _get_efuse(efuses, "XPD_SDIO_TIEH")
-    sdio_reg = _get_efuse(efuses, "XPD_SDIO_REG")
+    sdio_force = efuses["XPD_SDIO_FORCE"]
+    sdio_tieh = efuses["XPD_SDIO_TIEH"]
+    sdio_reg = efuses["XPD_SDIO_REG"]
 
     # check efuses aren't burned in a way which makes this impossible
     if args.voltage == 'OFF' and sdio_reg.get() != 0:
@@ -476,7 +674,25 @@ The following efuses are burned: XPD_SDIO_FORCE, XPD_SDIO_REG, XPD_SDIO_TIEH.
     print("VDD_SDIO setting complete.")
 
 
-def hexify(bitstring, separator):
+def adc_info(esp, efuses, args):
+    adc_vref = efuses["ADC_VREF"]
+    blk3_reserve = efuses["BLK3_PART_RESERVE"]
+
+    vref_raw = adc_vref.get_raw()
+    if vref_raw == 0:
+        print("ADC VRef calibration: None (1100mV nominal)")
+    else:
+        print("ADC VRef calibration: %dmV" % adc_vref.get())
+
+    if blk3_reserve.get():
+        print("ADC readings stored in efuse BLK3:")
+        print("    ADC1 Low reading  (150mV): %d" % efuses["ADC1_TP_LOW"].get())
+        print("    ADC1 High reading (850mV): %d" % efuses["ADC1_TP_HIGH"].get())
+        print("    ADC2 Low reading  (150mV): %d" % efuses["ADC2_TP_LOW"].get())
+        print("    ADC2 High reading (850mV): %d" % efuses["ADC2_TP_HIGH"].get())
+
+
+def hexify(bitstring, separator=""):
     try:
         as_bytes = tuple(ord(b) for b in bitstring)
     except TypeError:  # python 3, items in bitstring already ints
@@ -484,8 +700,18 @@ def hexify(bitstring, separator):
     return separator.join(("%02x" % b) for b in as_bytes)
 
 
+def arg_auto_int(x):
+    return int(x, 0)
+
+
 def main():
     parser = argparse.ArgumentParser(description='espefuse.py v%s - ESP32 efuse get/set tool' % esptool.__version__, prog='espefuse')
+
+    parser.add_argument(
+        '--baud', '-b',
+        help='Serial port baud rate used when flashing/reading',
+        type=arg_auto_int,
+        default=os.environ.get('ESPTOOL_BAUD', esptool.ESPLoader.ESP_ROM_BAUD))
 
     parser.add_argument(
         '--port', '-p',
@@ -495,11 +721,15 @@ def main():
     parser.add_argument(
         '--before',
         help='What to do before connecting to the chip',
-        choices=['default_reset', 'no_reset', 'esp32r1'],
+        choices=['default_reset', 'no_reset', 'esp32r1', 'no_reset_no_sync'],
         default='default_reset')
 
     parser.add_argument('--do-not-confirm',
                         help='Do not pause for confirmation before permanently writing efuses. Use with caution.', action='store_true')
+
+    def add_force_write_always(p):
+        p.add_argument('--force-write-always', help="Write the efuse even if it looks like it's already been written, or is write protected. " +
+                       "Note that this option can't disable write protection, or clear any bit which has already been set.", action='store_true')
 
     subparsers = parser.add_subparsers(
         dest='operation',
@@ -529,17 +759,28 @@ def main():
                               help='Burn a 256-bit AES key to EFUSE BLK1,BLK2 or BLK3 (flash_encryption, secure_boot).')
     p.add_argument('--no-protect-key', help='Disable default read- and write-protecting of the key. ' +
                    'If this option is not set, once the key is flashed it cannot be read back or changed.', action='store_true')
-    p.add_argument('--force-write-always', help="Write the key even if it looks like it's already been written, or is write protected. " +
-                   "Note that this option can't disable write protection, or clear any bit which has already been set.", action='store_true')
+    add_force_write_always(p)
     p.add_argument('block', help='Key block to burn. "flash_encryption" is an alias for BLK1, ' +
                    '"secure_boot" is an alias for BLK2.', choices=["secure_boot", "flash_encryption","BLK1","BLK2","BLK3"])
     p.add_argument('keyfile', help='File containing 256 bits of binary key data', type=argparse.FileType('rb'))
+
+    p = subparsers.add_parser('burn_block_data',
+                              help="Burn non-key data to EFUSE BLK1, BLK2 or BLK3. " +
+                              " Don't use this command to burn key data for Flash Encryption or Secure Boot, " +
+                              "as the byte order of keys is swapped (use burn_key).")
+    p.add_argument('--offset', '-o', help='Byte offset in the efuse block', type=int, default=0)
+    add_force_write_always(p)
+    p.add_argument('block', help='Efuse block to burn.', choices=["BLK1","BLK2","BLK3"])
+    p.add_argument('datafile', help='File containing data to burn into the efuse block', type=argparse.FileType('rb'))
 
     p = subparsers.add_parser('set_flash_voltage',
                               help='Permanently set the internal flash voltage regulator to either 1.8V, 3.3V or OFF. ' +
                               'This means GPIO12 can be high or low at reset without changing the flash voltage.')
     p.add_argument('voltage', help='Voltage selection',
                    choices=['1.8V', '3.3V', 'OFF'])
+
+    p = subparsers.add_parser('adc_info',
+                              help='Display information about ADC calibration data stored in efuse.')
 
     args = parser.parse_args()
     print('espefuse.py v%s' % esptool.__version__)
@@ -550,16 +791,12 @@ def main():
     # each 'operation' is a module-level function of the same name
     operation_func = globals()[args.operation]
 
-    esp = esptool.ESP32ROM(args.port)
+    esp = esptool.ESP32ROM(args.port, baud=args.baud)
     esp.connect(args.before)
 
     # dict mapping register name to its efuse object
-    efuses = [EfuseField.from_tuple(esp, efuse) for efuse in EFUSES]
+    efuses = EspEfuses(esp)
     operation_func(esp, efuses, args)
-
-
-def _get_efuse(efuses, efuse_name):
-    return [e for e in efuses if efuse_name == e.register_name][0]
 
 
 def _main():

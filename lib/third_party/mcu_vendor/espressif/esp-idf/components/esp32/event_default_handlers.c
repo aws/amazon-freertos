@@ -41,7 +41,7 @@ static const char* TAG = "event";
 do{\
     esp_err_t __err = (api_call);\
     if ((ret) != __err) {\
-        ESP_LOGE(TAG, "%s %d %s ret=%d", __FUNCTION__, __LINE__, (info), __err);\
+        ESP_LOGE(TAG, "%s %d %s ret=0x%X", __FUNCTION__, __LINE__, (info), __err);\
         return __err;\
     }\
 } while(0)
@@ -103,7 +103,7 @@ esp_err_t system_event_eth_connected_handle_default(system_event_t *event)
 
         tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_ETH, &eth_ip);
 
-        if (!(ip4_addr_isany_val(eth_ip.ip) || ip4_addr_isany_val(eth_ip.netmask) || ip4_addr_isany_val(eth_ip.gw))) {
+        if (!(ip4_addr_isany_val(eth_ip.ip) || ip4_addr_isany_val(eth_ip.netmask))) {
             system_event_t evt;
 
             //notify event
@@ -214,7 +214,7 @@ esp_err_t system_event_sta_connected_handle_default(system_event_t *event)
         tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &sta_ip);
         tcpip_adapter_get_old_ip_info(TCPIP_ADAPTER_IF_STA, &sta_old_ip);
 
-        if (!(ip4_addr_isany_val(sta_ip.ip) || ip4_addr_isany_val(sta_ip.netmask) || ip4_addr_isany_val(sta_ip.gw))) {
+        if (!(ip4_addr_isany_val(sta_ip.ip) || ip4_addr_isany_val(sta_ip.netmask))) {
             system_event_t evt;
 
             evt.event_id = SYSTEM_EVENT_STA_GOT_IP;
@@ -332,6 +332,10 @@ static esp_err_t esp_system_event_debug(system_event_t *event)
         system_event_ap_stadisconnected_t *stadisconnected = &event->event_info.sta_disconnected;
         ESP_LOGD(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED, mac:" MACSTR ", aid:%d", \
                    MAC2STR(stadisconnected->mac), stadisconnected->aid);
+        break;
+    }
+    case SYSTEM_EVENT_AP_STAIPASSIGNED: {
+        ESP_LOGD(TAG, "SYSTEM_EVENT_AP_STAIPASSIGNED");
         break;
     }
     case SYSTEM_EVENT_AP_PROBEREQRECVED: {

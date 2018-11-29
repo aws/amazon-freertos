@@ -8,6 +8,10 @@
 #if (defined(_WIN32) || defined(_WIN64))
 /* Windows */
 
+// use pragma syntax to prevent tweaking the linker script for getting CryptXYZ function
+#pragma comment(lib, "crypt32.lib")
+#pragma comment(lib, "advapi32.lib")
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <wincrypt.h>

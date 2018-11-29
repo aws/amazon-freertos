@@ -20,13 +20,6 @@ config ESP32_DEFAULT_CPU_FREQ_MHZ
     default 160 if ESP32_DEFAULT_CPU_FREQ_160
     default 240 if ESP32_DEFAULT_CPU_FREQ_240
 
-config MEMMAP_SMP
-    bool "Reserve memory for two cores"
-    default "y"
-    help
-        The ESP32 contains two cores. If you plan to only use one, you can disable this item
-        to save some memory. (ToDo: Make this automatically depend on unicore support)
-
 config SPIRAM_SUPPORT
     bool "Support for external, SPI-connected RAM"
     default "n"
@@ -45,6 +38,15 @@ config SPIRAM_BOOT_INIT
         have specific requirements, you'll want to leave this enabled so memory allocated
         during boot-up can also be placed in SPI RAM.
 
+config SPIRAM_IGNORE_NOTFOUND
+    bool "Ignore PSRAM when not found"
+    default "n"
+    depends on SPIRAM_BOOT_INIT
+    help
+        Normally, if psram initialization is enabled during compile time but not found at runtime, it
+        is seen as an error making the ESP32 panic. If this is enabled, the ESP32 will keep on
+        running but will not add the (non-existing) RAM to any allocator.
+
 choice SPIRAM_USE
     prompt "SPI RAM access method"
     default SPIRAM_USE_MALLOC
@@ -60,6 +62,7 @@ config SPIRAM_USE_CAPS_ALLOC
     bool "Make RAM allocatable using heap_caps_malloc(..., MALLOC_CAP_SPIRAM)"
 config SPIRAM_USE_MALLOC
     bool "Make RAM allocatable using malloc() as well"
+    select SUPPORT_STATIC_ALLOCATION
 endchoice
 
 choice SPIRAM_TYPE
@@ -100,6 +103,7 @@ endchoice
 config SPIRAM_MEMTEST
     bool "Run memory test on SPI RAM initialization"
     default "y"
+    depends on SPIRAM_BOOT_INIT
     help
         Runs a rudimentary memory test on initialization. Aborts when memory test fails. Disable this for
         slightly faster startop.
@@ -187,7 +191,7 @@ config ESP32_TRAX
 config ESP32_TRAX_TWOBANKS
     bool "Reserve memory for tracing both pro as well as app cpu execution"
     default "n"
-    depends on ESP32_TRAX && MEMMAP_SMP
+    depends on ESP32_TRAX && !FREERTOS_UNICORE
     select MEMMAP_TRACEMEM_TWOBANKS
     help
         The ESP32 contains a feature which allows you to trace the execution path the processor
@@ -281,7 +285,7 @@ config SYSTEM_EVENT_QUEUE_SIZE
 
 config SYSTEM_EVENT_TASK_STACK_SIZE
     int "Event loop task stack size"
-    default 2048
+    default 2304
     help
         Config system event task stack size in different application.
 
@@ -508,6 +512,13 @@ config ESP32_DEBUG_OCDAWARE
         The FreeRTOS panic and unhandled exception handers can detect a JTAG OCD debugger and
         instead of panicking, have the debugger stop on the offending instruction.
 
+config ESP32_DEBUG_STUBS_ENABLE
+    bool "OpenOCD debug stubs"
+    default OPTIMIZATION_LEVEL_DEBUG    
+    depends on !ESP32_TRAX
+    help
+        Debug stubs are used by OpenOCD to execute pre-compiled onboard code which does some useful debugging, 
+        e.g. GCOV data dump.
 
 config INT_WDT
     bool "Interrupt watchdog"
@@ -681,7 +692,8 @@ endchoice
 
 config ESP32_RTC_CLK_CAL_CYCLES
     int "Number of cycles for RTC_SLOW_CLK calibration"
-    default 1024
+    default 3000 if ESP32_RTC_CLOCK_SOURCE_EXTERNAL_CRYSTAL
+    default 1024 if ESP32_RTC_CLOCK_SOURCE_INTERNAL_RC
     range 0 125000
     help
         When the startup code initializes RTC_SLOW_CLK, it can perform
@@ -694,8 +706,27 @@ config ESP32_RTC_CLK_CAL_CYCLES
         When this option is set to 0, clock calibration will not be performed at
         startup, and approximate clock frequencies will be assumed:
 
-        - 150000 Hz if internal RC oscillator is used as clock source
-        - 32768 Hz if the 32k crystal oscillator is used
+        - 150000 Hz if internal RC oscillator is used as clock source. For this use value 1024.
+        - 32768 Hz if the 32k crystal oscillator is used. For this use value 3000 or more.
+          In case more value will help improve the definition of the launch of the crystal.
+          If the crystal could not start, it will be switched to internal RC.
+
+config ESP32_RTC_XTAL_BOOTSTRAP_CYCLES
+    int "Bootstrap cycles for external 32kHz crystal"
+    depends on ESP32_RTC_CLOCK_SOURCE_EXTERNAL_CRYSTAL
+    default 5
+    range 0 32768
+    help
+        To reduce the startup time of an external RTC crystal, 
+        we bootstrap it with a 32kHz square wave for a fixed number of cycles. 
+        Setting 0 will disable bootstrapping (if disabled, the crystal may take 
+        longer to start up or fail to oscillate under some conditions).
+        
+        If this value is too high, a faulty crystal may initially start and then fail. 
+        If this value is too low, an otherwise good crystal may not start.
+        
+        To accurately determine if the crystal has started, 
+        set a larger "Number of cycles for RTC_SLOW_CLK calibration" (about 3000).
 
 config ESP32_DEEP_SLEEP_WAKEUP_DELAY
     int "Extra delay in deep sleep wake stub (in us)"
@@ -792,6 +823,16 @@ config COMPATIBLE_PRE_V2_1_BOOTLOADERS
 
         Enabling this setting adds approximately 1KB to the app's IRAM usage.
 
+config ESP_ERR_TO_NAME_LOOKUP
+    bool "Enable lookup of error code strings"
+    default "y"
+    help
+        Functions esp_err_to_name() and esp_err_to_name_r() return string
+        representations of error codes from a pre-generated lookup table.
+        This option can be used to turn off the use of the look-up table in
+        order to save memory but this comes at the price of sacrificing
+        distinguishable (meaningful) output string representations.
+
 endmenu  # ESP32-Specific
 
 menu Wi-Fi
@@ -799,12 +840,40 @@ menu Wi-Fi
 config SW_COEXIST_ENABLE
     bool "Software controls WiFi/Bluetooth coexistence"
     depends on BT_ENABLED
-    default n
+    default y
     help
         If enabled, WiFi & Bluetooth coexistence is controlled by software rather than hardware.
         Recommended for heavy traffic scenarios. Both coexistence configuration options are
         automatically managed, no user intervention is required.
 
+choice SW_COEXIST_PREFERENCE
+    prompt "WiFi/Bluetooth coexistence performance preference"
+    depends on SW_COEXIST_ENABLE
+    default SW_COEXIST_PREFERENCE_BALANCE
+    help
+        Choose Bluetooth/WiFi/Balance for different preference.
+        If choose WiFi, it will make WiFi performance better. Such, keep WiFi Audio more fluent.
+        If choose Bluetooth, it will make Bluetooth performance better. Such, keep Bluetooth(A2DP) Audio more fluent.
+        If choose Balance, the performance of WiFi and bluetooth will be balance. It's default. Normally, just choose balance, the A2DP audio can play fluently, too.
+        Except config preference in menuconfig, you can also call esp_coex_preference_set() dynamically.
+
+config SW_COEXIST_PREFERENCE_WIFI
+    bool "WiFi"
+
+config SW_COEXIST_PREFERENCE_BT
+    bool "Bluetooth(include BR/EDR and BLE)"
+
+config SW_COEXIST_PREFERENCE_BALANCE
+    bool "Balance"
+
+endchoice
+
+config SW_COEXIST_PREFERENCE_VALUE
+    int
+    depends on SW_COEXIST_ENABLE
+    default 0 if SW_COEXIST_PREFERENCE_WIFI
+    default 1 if SW_COEXIST_PREFERENCE_BT
+    default 2 if SW_COEXIST_PREFERENCE_BALANCE
 
 config ESP32_WIFI_STATIC_RX_BUFFER_NUM
     int "Max number of WiFi static RX buffers"
@@ -894,6 +963,14 @@ config ESP32_WIFI_DYNAMIC_TX_BUFFER_NUM
         can deliver frames faster than WiFi layer can transmit. In these cases, we may run out of TX
         buffers.
 
+config ESP32_WIFI_CSI_ENABLED
+    bool "WiFi CSI(Channel State Information)"
+    default n
+    help
+        Select this option to enable CSI(Channel State Information) feature. CSI takes about 
+        CONFIG_ESP32_WIFI_STATIC_RX_BUFFER_NUM KB of RAM. If CSI is not used, it is better to disable 
+        this feature in order to save memory.
+
 config ESP32_WIFI_AMPDU_TX_ENABLED
     bool "WiFi AMPDU TX"
     default y
@@ -934,6 +1011,38 @@ config ESP32_WIFI_NVS_ENABLED
     default y
     help
         Select this option to enable WiFi NVS flash
+
+choice ESP32_WIFI_TASK_CORE_ID
+    depends on !FREERTOS_UNICORE
+    prompt "WiFi Task Core ID"
+    default ESP32_WIFI_TASK_PINNED_TO_CORE_0
+    help
+        Pinned WiFi task to core 0 or core 1.
+
+config ESP32_WIFI_TASK_PINNED_TO_CORE_0
+    bool "Core 0"
+config ESP32_WIFI_TASK_PINNED_TO_CORE_1
+    bool "Core 1"
+endchoice
+
+config ESP32_WIFI_SOFTAP_BEACON_MAX_LEN
+    int "Max length of WiFi SoftAP Beacon"
+    range 752 1256
+    default 752
+    help
+        ESP-MESH utilizes beacon frames to detect and resolve root node conflicts (see documentation). However the default
+        length of a beacon frame can simultaneously hold only five root node identifier structures, meaning that a root node
+        conflict of up to five nodes can be detected at one time. In the occurence of more root nodes conflict involving more
+        than five root nodes, the conflict resolution process will detect five of the root nodes, resolve the conflict, and　
+        re-detect more root nodes. This process will repeat until all root node conflicts are resolved. However this process
+        can generally take a very long time.
+
+        To counter this situation, the beacon frame length can be increased such that more root nodes can be detected simultaneously.
+        Each additional root node will require 36 bytes and should be added ontop of the default beacon frame length of
+        752 bytes. For example, if you want to detect 10 root nodes simultaneously, you need to set the beacon frame length as　
+        932 (752+36*5).
+
+        Setting a longer beacon length also assists with debugging as the conflicting root nodes can be identified more quickly.
 
 endmenu  # Wi-Fi
 

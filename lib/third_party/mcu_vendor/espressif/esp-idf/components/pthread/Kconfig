@@ -13,4 +13,16 @@ config ESP32_PTHREAD_TASK_STACK_SIZE_DEFAULT
     help
         Stack size used to create new tasks with default pthread parameters.
 
+config PTHREAD_STACK_MIN
+    int "Minimum allowed pthread stack size"
+    default 768
+    help
+        Minimum allowed pthread stack size set in attributes passed to pthread_create
+
+config PTHREAD_MUTEX_TIMEDLOCK
+    bool "Support for mutex timed lock"
+    default n
+    help
+        Adds API for pthread mutex timed lock
+
 endmenu

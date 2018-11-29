@@ -96,6 +96,12 @@ TEST_CASE("(WL) can lseek", "[fatfs][wear_levelling]")
     test_teardown();
 }
 
+TEST_CASE("(WL) can truncate", "[fatfs][wear_levelling]")
+{
+    test_setup();
+    test_fatfs_truncate_file("/spiflash/truncate.txt");
+    test_teardown();
+}
 
 TEST_CASE("(WL) stat returns correct values", "[fatfs][wear_levelling]")
 {
@@ -146,7 +152,7 @@ TEST_CASE("(WL) multiple tasks can use same volume", "[fatfs][wear_levelling]")
     test_teardown();
 }
 
-TEST_CASE("(WL) write/read speed test", "[fatfs][wear_levelling]")
+TEST_CASE("(WL) write/read speed test", "[fatfs][wear_levelling][timeout=60]")
 {
     /* Erase partition before running the test to get consistent results */
     const esp_partition_t* part = get_test_data_partition();
@@ -175,3 +181,25 @@ TEST_CASE("(WL) write/read speed test", "[fatfs][wear_levelling]")
     free(buf);
     test_teardown();
 }
+
+/*
+ * In FatFs menuconfig, set CONFIG_FATFS_API_ENCODING to UTF-8 and set the
+ * Codepage to CP936 (Simplified Chinese) in order to run the following tests.
+ * Ensure that the text editor is UTF-8 compatible when compiling these tests.
+ */
+#if defined(CONFIG_FATFS_API_ENCODING_UTF_8) && (CONFIG_FATFS_CODEPAGE == 936)
+TEST_CASE("(WL) can read file with UTF-8 encoded strings", "[fatfs][wear_levelling]")
+{
+    test_setup();
+    test_fatfs_create_file_with_text("/spiflash/测试文件.txt", fatfs_test_hello_str_utf);
+    test_fatfs_read_file_utf_8("/spiflash/测试文件.txt");
+    test_teardown();
+}
+
+TEST_CASE("(WL) opendir, readdir, rewinddir, seekdir work as expected using UTF-8 encoded strings", "[fatfs][wear_levelling]")
+{
+    test_setup();
+    test_fatfs_opendir_readdir_rewinddir_utf_8("/spiflash/目录");
+    test_teardown();
+}
+#endif

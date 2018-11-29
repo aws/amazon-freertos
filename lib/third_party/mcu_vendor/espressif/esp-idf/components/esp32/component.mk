@@ -5,13 +5,16 @@
 COMPONENT_SRCDIRS := . hwcrypto
 LIBS ?=
 ifndef CONFIG_NO_BLOBS
-LIBS += core rtc net80211 pp wpa smartconfig coexist wps wpa2 espnow phy
+LIBS += core rtc net80211 pp wpa smartconfig coexist wps wpa2 espnow phy mesh
 endif
 
 #Linker scripts used to link the final application.
 #Warning: These linker scripts are only used when the normal app is compiled; the bootloader
 #specifies its own scripts.
 LINKER_SCRIPTS += esp32.common.ld esp32.rom.ld esp32.peripherals.ld
+
+#Force pure functions from libgcc.a to be linked from ROM
+LINKER_SCRIPTS += esp32.rom.libgcc.ld
 
 #SPI-RAM incompatible functions can be used in when the SPI RAM 
 #workaround is not enabled.

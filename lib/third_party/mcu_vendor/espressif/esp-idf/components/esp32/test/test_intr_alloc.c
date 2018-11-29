@@ -16,6 +16,7 @@
 #include "soc/dport_reg.h"
 #include "soc/io_mux_reg.h"
 #include "esp_intr_alloc.h"
+#include "driver/periph_ctrl.h"
 #include "driver/timer.h"
 
 
@@ -230,7 +231,7 @@ TEST_CASE("Can allocate IRAM int only with an IRAM handler", "[esp32]")
 }
 
 
-#include "soc/spi_struct.h"
+#include "soc/spi_periph.h"
 typedef struct {
     bool flag1;
     bool flag2;
@@ -266,9 +267,8 @@ TEST_CASE("allocate 2 handlers for a same source and remove the later one","[esp
     intr_alloc_test_ctx_t ctx = {false, false, false, false };
     intr_handle_t handle1, handle2;
 
-    //enable spi
-    DPORT_SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN );
-    DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST);
+    //enable HSPI(spi2)
+    periph_module_enable(PERIPH_HSPI_MODULE);
 
     esp_err_t r;
     r=esp_intr_alloc(ETS_SPI2_INTR_SOURCE, ESP_INTR_FLAG_SHARED, int_handler1, &ctx, &handle1);
@@ -297,3 +297,41 @@ TEST_CASE("allocate 2 handlers for a same source and remove the later one","[esp
     TEST_ASSERT( ctx.flag3 && !ctx.flag4 );
     printf("test passed.\n");
 }
+
+#ifndef CONFIG_FREERTOS_UNICORE
+
+void isr_free_task(void *param)
+{
+    esp_err_t ret = ESP_FAIL;
+    intr_handle_t *test_handle = (intr_handle_t *)param;
+    if(*test_handle != NULL) {
+        ret = esp_intr_free(*test_handle);
+        if(ret == ESP_OK) {
+            *test_handle = NULL;
+        }
+    }
+    vTaskDelete(NULL);
+}
+
+void isr_alloc_free_test(void)
+{
+    intr_handle_t test_handle = NULL;
+    esp_err_t ret = esp_intr_alloc(ETS_SPI2_INTR_SOURCE, 0, int_handler1, NULL, &test_handle);
+    if(ret != ESP_OK) {
+        printf("alloc isr handle fail\n");
+    } else {
+        printf("alloc isr handle on core %d\n",esp_intr_get_cpu(test_handle));
+    }
+    TEST_ASSERT(ret == ESP_OK);
+    xTaskCreatePinnedToCore(isr_free_task, "isr_free_task", 1024*2, (void *)&test_handle, 10, NULL, !xPortGetCoreID());
+    vTaskDelay(1000/portTICK_RATE_MS);
+    TEST_ASSERT(test_handle == NULL);
+    printf("test passed\n");
+}
+
+TEST_CASE("alloc and free isr handle on different core", "[esp32]")
+{
+    isr_alloc_free_test();
+}
+
+#endif

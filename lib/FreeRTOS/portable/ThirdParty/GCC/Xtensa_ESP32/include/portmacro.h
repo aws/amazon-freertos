@@ -74,12 +74,12 @@ extern "C" {
 
 #include <stdint.h>
 
-#include <xtensa/tie/xt_core.h>
 #include <xtensa/hal.h>
 #include <xtensa/config/core.h>
 #include <xtensa/config/system.h>	/* required for XSHAL_CLIB */
 #include <xtensa/xtruntime.h>
 #include "esp_timer.h"              /* required for FreeRTOS run time stats */
+#include "esp_system.h"
 
 
 #include <esp_heap_caps.h>
