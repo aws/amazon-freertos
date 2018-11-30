@@ -62,6 +62,9 @@
 #include "string.h"
 #include "stdio.h"
 
+//#include "ctime.h"
+
+
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -250,7 +253,7 @@ static void prvPublishNextMessage( BaseType_t xMessageNumber )
     /* Create the message that will be published, which is of the form "Hello World n"
      * where n is a monotonically increasing number. Note that snprintf appends
      * terminating null character to the cDataBuffer. */
-    ( void ) snprintf( cDataBuffer, echoMAX_DATA_LENGTH, "Hello World %d", ( int ) xMessageNumber );
+    ( void ) snprintf( cDataBuffer, echoMAX_DATA_LENGTH, "{\"message\":\"%d\"}", ( int ) xMessageNumber );
 
     /* Setup the publish parameters. */
     memset( &( xPublishParameters ), 0x00, sizeof( xPublishParameters ) );
@@ -480,9 +483,12 @@ static void prvMQTTConnectAndPublishTask( void * pvParameters )
 
     if( xReturned == pdPASS )
     {
+//        srand((unsigned)time(0));
+
         /* MQTT client is now connected to a broker.  Publish a message
          * every five seconds until a minute has elapsed. */
-        for( xX = 0; xX < xIterationsInAMinute; xX++ )
+//        for( xX = 0; xX < xIterationsInAMinute; xX++ )
+        for( xX = 0; ; xX++ )
         {
             prvPublishNextMessage( xX );
 
