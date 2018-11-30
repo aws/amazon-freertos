@@ -494,6 +494,9 @@
       <file file_name="../common/config_files/FreeRTOSIPConfig.h" />
       <file file_name="../common/config_files/sdk_config.h" />
       <file file_name="../common/config_files/aws_iot_config.h" />
+      <file file_name="../common/config_files/aws_iot_network_config.h" />
+      <file file_name="../common/config_files/aws_ble_config.h" />
+      <file file_name="../common/config_files/aws_bufferpool_config.h" />
     </folder>
   </project>
   <configuration
