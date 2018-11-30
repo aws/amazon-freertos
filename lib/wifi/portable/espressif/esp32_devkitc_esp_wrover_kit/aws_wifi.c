@@ -49,6 +49,7 @@ const int AP_STOPPED_BIT = BIT4;
 const int ESPTOUCH_DONE_BIT = BIT5;
 static bool wifi_conn_state;
 static bool wifi_ap_state;
+static bool wifi_ap_not_found;
 
 #define WIFI_FLASH_NS     "WiFi"
 #define MAX_WIFI_KEY_WIDTH         ( 5 )
@@ -79,6 +80,9 @@ static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAP
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
+    /* For accessing reason codes in case of disconnection */
+    system_event_info_t *info = &event->event_info;
+
     switch(event->event_id) {
         case SYSTEM_EVENT_STA_START:
             ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
@@ -98,7 +102,27 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             }
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED");
+            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
+            wifi_ap_not_found = false;
+
+            /* Set code corresponding to the reason for disconnection */
+            switch (info->disconnected.reason) {
+                case WIFI_REASON_AUTH_EXPIRE:
+                case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT:
+                case WIFI_REASON_BEACON_TIMEOUT:
+                case WIFI_REASON_AUTH_FAIL:
+                case WIFI_REASON_ASSOC_FAIL:
+                case WIFI_REASON_HANDSHAKE_TIMEOUT:
+                    ESP_LOGD(TAG, "STA Auth Error");
+                    break;
+                case WIFI_REASON_NO_AP_FOUND:
+                    ESP_LOGD(TAG, "STA AP Not found");
+                    wifi_ap_not_found = true;
+                    break;
+                default:
+                    break;
+            }
+
             wifi_conn_state = false;
             xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
             xEventGroupSetBits(wifi_event_group, DISCONNECTED_BIT);
