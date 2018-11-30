@@ -30,7 +30,6 @@ SECTIONS
   .iram_loader.text :
   {
     . = ALIGN (16);
-    _stext = .;
     _loader_text_start = ABSOLUTE(.);
     *(.stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
      *(.iram1 .iram1.*) /* catch stray IRAM_ATTR */
@@ -49,11 +48,11 @@ SECTIONS
     *libbootloader_support.a:secure_boot_signatures.*(.literal .text .literal.* .text.*)
     *libmicro-ecc.a:*.*(.literal .text .literal.* .text.*)
     *libspi_flash.a:*.*(.literal .text .literal.* .text.*)
+    *libsoc.a:rtc_wdt.*(.literal .text .literal.* .text.*)
     *(.fini.literal)
     *(.fini)
     *(.gnu.version)
     _loader_text_end = ABSOLUTE(.);
-    _etext = .;
   } > iram_loader_seg
 
   .iram.text :
