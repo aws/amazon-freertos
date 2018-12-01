@@ -80,6 +80,8 @@ endfunction()
 # Convenient function to set board metadata.
 function(afr_set_board_metadata arg_metadata_name arg_metadata_val)
     afr_set_metadata(BOARD ${arg_metadata_name} "${arg_metadata_val}" ${ARGN})
+    set(__metadata_file "${CMAKE_BINARY_DIR}/metadata/board.txt")
+    file(APPEND "${__metadata_file}" "${arg_metadata_name}: ${arg_metadata_val}\n")
 endfunction()
 
 # Convenient function to set library metadata.
