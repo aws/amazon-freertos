@@ -1,6 +1,10 @@
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS metadata
 # -------------------------------------------------------------------------------------------------
+# Clean the output metadata files from the build folder.
+set(AFR_METADATA_OUTPUT_DIR "${CMAKE_BINARY_DIR}/metadata" CACHE INTERNAL "")
+file(REMOVE_RECURSE "${AFR_METADATA_OUTPUT_DIR}")
+
 # =============== Helper functions ===============
 # Define a metadata property. This will define a CMake target property. If INHERITED option is
 # given, will also define a directory property, get_property() command will chain up to the
@@ -80,7 +84,7 @@ endfunction()
 # Convenient function to set board metadata.
 function(afr_set_board_metadata arg_metadata_name arg_metadata_val)
     afr_set_metadata(BOARD ${arg_metadata_name} "${arg_metadata_val}" ${ARGN})
-    set(__metadata_file "${CMAKE_BINARY_DIR}/metadata/board.txt")
+    set(__metadata_file "${AFR_METADATA_OUTPUT_DIR}/board.txt")
     file(APPEND "${__metadata_file}" "${arg_metadata_name}: ${arg_metadata_val}\n")
 endfunction()
 
