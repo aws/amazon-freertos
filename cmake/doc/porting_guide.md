@@ -376,32 +376,18 @@ information. You can reference CMake itself with the built-in variable `${CMAKE_
 
 ## Build and Test Amazon FreeRTOS with CMake
 
-### Prerequisites
-
-#### CMake
-
-**CMake Version 3.13 or higher is required**. You can download the binary distribution from
-[CMake's official website](https://cmake.org/download/), or you can install with your OS package
-manager. Add the CMake executable to the `PATH` environment variable if you need to use it from
-command line.
-
-#### Native build system
-
-CMake can target many native build systems. Generally you can choose Makefile or
-[Ninja](https://github.com/ninja-build/ninja/releases). You can get Makefile and Ninja
-from any package manager on Linux or Mac OS. Ninja has native support on Windows. For a Windows
-port of Makefile, see [Equation](http://www.equation.com/servlet/equation.cmd?fa=make).
-
-### Setting up toolchain file
+### Setting up the toolchain file
 
 By default, CMake targets your host OS as the target system. To use CMake for cross-compiling
 instead, you need to provide a toolchain file that specifies the compiler you want to use.
 Some examples can be found in `<ROOT>/cmake/toolchains`. If you're using a different compiler than
 what we already provide, you need to write this toolchain file first.
 
-### Configure CMake build for Amazon FreeRTOS
+### Build Amazon FreeRTOS
 
-Verify that your directory structure looks similar to the following:
+Follow this [README.md](../README.md) under the cmake folder. Make sure your directory structure is
+correct, it is required that you put the `CMakeLists.txt` file and the toolchain file under the
+expected location:
 
 ```txt
 ROOT_DIR
@@ -409,82 +395,12 @@ ROOT_DIR
 |   |-- vendors
 |   |   `-- <vendor_name>
 |   |       `-- <board_name>
-|   |           `-- CMakeLists.txt
+|   |           `-- CMakeLists.txt [REQUIRED]
 |   `-- toolchains
-|       `-- <toolchain_name>.cmake
+|       `-- <toolchain_name>.cmake [REQUIRED]
 |
 |-- lib
 |-- demos
 |-- tests
 `-- CMakeLists.txt
 ```
-
-Assuming you have GCC for ARM installed, and it's in your system `PATH`. For CLI instruction, issue
-the following command from the command line:
-
-```sh
-# Substitute <vendor> and <board> with the folder names you created for your board. If you don't
-# specify AFR_BOARD, we will use the template board by default.
-cmake -DAFR_BOARD=<vendor>.<board> -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-gcc.cmake -S . -B build
-```
-
-If you didn't add your compiler to the `PATH` environment variable, you can use `AFR_TOOLCHAIN_PATH`
-to provide a search path. CMake will search that directory and its `bin` sub-folder:
-
-```sh
-cmake -DAFR_BOARD=<vendor>.<board> -DAFR_TOOLCHAIN_PATH=<path_to_your_compiler> \
--DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-gcc.cmake -S . -B build
-```
-
-If you are using the CMake GUI interface, do the following instead:
-
-1. From the GUI, choose **Configure**.
-1. Choose **Specify toolchain file for cross-compiling**.
-1. Select a build system from the **Specify the build generator for this project** dropdown list.
-1. Choose the toolchain file, for example `<AFR_ROOT>/cmake/toolchains/arm-gcc.cmake`, and then
-   click **Finish**.
-
-After you complete the configuration from the GUI, you should see a window that looks like this:
-<img src="img/cmake-0.png" alt="CMake main window"/>
-
-You should also see a pop up window that says "Error in configuration process". This is because we
-default to the template board, which doesn't provide any portable layer target. Now, from the
-dropdown box of `AFR_BOARD`, select your board, which should match the folder names you created, and
-click **Configure** again. If you've finished the compiler settings and the `kernel` portable layer,
-you can click the **Generate** button.
-
-### Build Amazon FreeRTOS
-
-If you pass above steps without any error, you can proceed to the build part. Open your terminal and
-issue the following command:
-
-```sh
-# Substitute <build_dir> with the build directory. In the example above, we created a folder
-# called "build" inside the source directory.
-cmake --build <build_dir>
-```
-
-Equivalently, call the native build system command, if it's `make`:
-
-```sh
-cd <build_dir>
-make
-```
-
-You might also want to take advantage of all your CPU cores:
-
-```sh
-cmake --build <build_dir> --parallel 8
-make -j8
-```
-
-Or to build specific targets:
-
-```sh
-# The target name for Amazon FreeRTOS is afr_<module_name>, e.g., afr_kernel, afr_mqtt.
-cmake --build <build_dir> --parallel 8 --target afr_kernel
-make -j8 afr_kernel
-```
-
-Check the CMake official document to see more information about the [build tool mode](
-https://cmake.org/cmake/help/latest/manual/cmake.1.html#build-tool-mode).
