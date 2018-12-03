@@ -29,12 +29,12 @@
 		<link>
 			<name>application_code</name>
 			<type>2</type>
-			<locationURI>AFR_HOME/demos/infineon/xmc4800_iotkit/common/application_code</locationURI>
+			<locationURI>AFR_HOME/demos/infineon/xmc4800_iotkit_trustx/common/application_code</locationURI>
 		</link>
 		<link>
 			<name>config_files</name>
 			<type>2</type>
-			<locationURI>AFR_HOME/demos/infineon/xmc4800_iotkit/common/config_files</locationURI>
+			<locationURI>AFR_HOME/demos/infineon/xmc4800_iotkit_trustx/common/config_files</locationURI>
 		</link>
 		<link>
 			<name>lib</name>
