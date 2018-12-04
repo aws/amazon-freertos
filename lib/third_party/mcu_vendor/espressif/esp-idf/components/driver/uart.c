@@ -51,8 +51,21 @@ static const char* UART_TAG = "uart";
 
 #define UART_ENTER_CRITICAL_ISR(mux)    portENTER_CRITICAL_ISR(mux)
 #define UART_EXIT_CRITICAL_ISR(mux)     portEXIT_CRITICAL_ISR(mux)
-#define UART_ENTER_CRITICAL(mux)    portENTER_CRITICAL(mux)
-#define UART_EXIT_CRITICAL(mux)     portEXIT_CRITICAL(mux)
+
+#define UART_ENTER_CRITICAL(mux)    ({ \
+        if (xPortInIsrContext()) { \
+            portENTER_CRITICAL_ISR(mux); \
+        } else { \
+           portENTER_CRITICAL(mux); \
+        } \
+})
+#define UART_EXIT_CRITICAL(mux)    ({ \
+        if (xPortInIsrContext()) { \
+            portEXIT_CRITICAL_ISR(mux); \
+        } else { \
+           portEXIT_CRITICAL(mux); \
+        } \
+})
 
 typedef struct {
     uart_event_type_t type;        /*!< UART TX data type */

@@ -965,7 +965,6 @@ void smp_proc_pairing_cmpl(tSMP_CB *p_cb)
     evt_data.cmplt.auth_mode = 0;
     if (p_cb->status == SMP_SUCCESS) {
         evt_data.cmplt.sec_level = p_cb->sec_level;
-        evt_data.cmplt.auth_mode = p_cb->auth_mode;
     }
 
     evt_data.cmplt.is_pair_cancel  = FALSE;
@@ -983,6 +982,9 @@ void smp_proc_pairing_cmpl(tSMP_CB *p_cb)
 
     if (p_cb->role == HCI_ROLE_SLAVE) {
         p_rec = btm_find_dev (p_cb->pairing_bda);
+        if(p_rec && p_cb->status == SMP_SUCCESS) {
+            evt_data.cmplt.auth_mode = p_rec->ble.auth_mode;
+        }
         if(p_rec && p_rec->ble.skip_update_conn_param) {
             //clear flag
             p_rec->ble.skip_update_conn_param = false;
