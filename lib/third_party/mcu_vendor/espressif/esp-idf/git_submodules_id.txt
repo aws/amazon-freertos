@@ -1,8 +1,8 @@
- 607d2ce34b78b165c5f1ef240cb2bf7bce9bcfe7 esp-idf
+ 9cb46edfcab2f054629ee1eec8973476b4e09258 esp-idf
  8bf852db77c360eebfa4b800754fdb90e29ea43e components/aws_iot/aws-iot-device-sdk-embedded-C (v2.1.1-39-g8bf852d)
- 3de0bcb653dfd734004949f72b696099d149e983 components/bt/lib (remotes/origin/release/v3.1)
+ bb2c94d0577fd5447159242ad3dbcc1e8cdcdc3f components/bt/lib (remotes/origin/release/v3.1)
  6468887a12666f88b8704d797fc176cd4f40ee4c components/coap/libcoap (v4.1.1-401-g6468887)
- 2f8ef5712308787f9378865543696a7c185a7d49 components/esp32/lib (remotes/origin/release/v3.1)
+ 2f8ef5712308787f9378865543696a7c185a7d49 components/esp32/lib (heads/master-16-g2f8ef57)
  9fbe1eec656dc69942f5163cc6cc79c33d5aad64 components/esptool_py/esptool (v2.5.1-10-g9fbe1ee)
  7cc52f60356909b3dd260304c7c50c0693699353 components/json/cJSON (v1.7.1)
  70170c28c844a4786e75efc626e1aeebc93caebc components/libsodium/libsodium (1.0.12)
