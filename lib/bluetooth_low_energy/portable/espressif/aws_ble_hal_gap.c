@@ -294,6 +294,7 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     uint8_t xKeySize = 16;
     uint8_t xInitKey = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
     uint8_t xRspKey = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
+	uint8_t xAuthOption;
     esp_ble_auth_req_t xAuthReq;
 
     /* set default properties */
@@ -324,6 +325,12 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     {
         xAuthReq = prvConvertPropertiesToESPAuth(xProperties.bBondable);
         xESPstatus = esp_ble_gap_set_security_param( ESP_BLE_SM_AUTHEN_REQ_MODE, &xAuthReq, sizeof( uint8_t ) );
+
+        if( xESPstatus == ESP_OK )
+        {
+        	xAuthOption = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_ENABLE;
+        	xESPstatus = esp_ble_gap_set_security_param(ESP_BLE_SM_ONLY_ACCEPT_SPECIFIED_SEC_AUTH, &xAuthOption, sizeof(uint8_t));
+        }
     }
 
     if( xESPstatus == ESP_OK )
