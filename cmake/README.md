@@ -47,7 +47,7 @@ any of them.
 #### Commandline instructions
 
 You can use `VENDOR` and `BOARD` to specify which MCU you are targeting, and `COMPILER` to tell
-which compiler you want to use. For example,
+which compiler you want to use. For example, issue the following command from the root directory.
 
 ```sh
 # `-S` and `-B` options tell CMake where our source code is and where to
