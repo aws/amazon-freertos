@@ -59,11 +59,9 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # Normally the portable layer for kernel should be vendor's driver code.
 afr_mcu_port(kernel)
-afr_glob_src(ti_code_src DIRECTORY "${board_dir}/application_code/ti_code")
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
-        ${ti_code_src}
         "${simplelink_dir}/kernel/freertos/dpl/ClockP_freertos.c"
         "${simplelink_dir}/kernel/freertos/dpl/DebugP_freertos.c"
         "${simplelink_dir}/kernel/freertos/dpl/HwiPCC32XX_freertos.c"
@@ -143,7 +141,12 @@ else()
     set(exe_target aws_demos)
 endif()
 
-add_executable(${exe_target} "${board_dir}/application_code/main.c")
+afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/ti_code")
+add_executable(
+    ${exe_target}
+    ${board_code_src}
+    "${board_dir}/application_code/main.c"
+)
 target_link_libraries(
     ${exe_target}
     PRIVATE
