@@ -9,6 +9,14 @@ except ImportError:
   import gobject as GObject
 
 mainloop = GObject.MainLoop()
+testResult = None 
+
+def discoveryStoppedCb(testDevice = None):
+	global testResult
+	testResult = False
+	if testDevice == None:
+		testResult = True
+	mainloop.quit()	
 
 class runTest:
 	DUT_GENERIC_STRING = "hello"
@@ -41,6 +49,7 @@ class runTest:
 	TEST_NAME_PREFIX = "RaspberryPI"
 
 	ADVERTISEMENT_TEST_TIMEOUT = 120
+	STOP_ADVERTISEMENT_TEST_TIMEOUT = 3000 #3 seconds
 	SIMPLE_CONNECTION_TEST_TIMEOUT = 120
 	SERVICE_DISCOVERY_TEST_TIMEOUT = 120
 	PAIRING_TEST_TIMEOUT = 120
@@ -50,6 +59,15 @@ class runTest:
 	numberOfFailedTests = 0
 
 	testDevice = []
+
+	@staticmethod
+	def stopAdvertisement(scan_filter):
+		timerHandle = GObject.timeout_add(runTest.STOP_ADVERTISEMENT_TEST_TIMEOUT, discoveryStoppedCb)
+		bleAdapter.setDiscoveryFilter(scan_filter)
+		bleAdapter.startDiscovery(discoveryStoppedCb)#wait for DUT to start advertising
+		mainloop.run()
+		runTest.submitTestResult(testResult, runTest.stopAdvertisement)
+		bleAdapter.stopDiscovery()
 
 	@staticmethod
 	def reconnectWhileNotBonded():
@@ -298,7 +316,8 @@ class runTest:
 			runTest.pairing: "_pairing",
 			runTest.disconnect: "_disconnect",
 			runTest.reconnectWhileBonded: "_reconnectWhileBonded",
-			runTest.reconnectWhileNotBonded: "_reconnectWhileNotBonded"
+			runTest.reconnectWhileNotBonded: "_reconnectWhileNotBonded",
+			runTest.stopAdvertisement: "_stopAdvertisement"
     	}
 		
 		runTest.numberOfTests += 1

@@ -69,6 +69,10 @@ def main():
 
 	bleAdapter.gatt.updateLocalAttributeTable()
 
+	#Check device not present. After discovery of services, advertisement should have stopped.
+	runTest.stopAdvertisement(scan_filter)
+
+
 	#Change MTU size
 	#bleAdapter.readLocalMTU()
 
@@ -145,4 +149,3 @@ def errorConnectCb():
 	print("Connection error")
 	sys.stdout.flush()
 	connectEvent.put(0)
-

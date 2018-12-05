@@ -634,6 +634,8 @@ typedef struct
      *
      * @brief Start advertisements to listen for incoming connections.
      *
+     * Triggers BTAdvStartCallback_t.
+     *
      * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp
      * @return Returns eBTStatusSuccess on successful call.
      */
@@ -737,6 +739,8 @@ typedef struct
     /**
      *
      * @brief Set the advertising data or scan response data.
+     *
+     * Triggers BTSetAdvDataCallback_t.
      *
      * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
      * @param[in] pxParams Advertisement parameters.

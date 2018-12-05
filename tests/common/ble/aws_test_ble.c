@@ -588,6 +588,10 @@ void prvWaitConnection(bool bConnected)
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(bConnected, xConnectionEvent.bConnected);
 	TEST_ASSERT_EQUAL(ucBLEServerIf, xConnectionEvent.ucServerIf);
+
+	/* Stop advertisement. */
+	xStatus = pxBTLeAdapterInterface->pxStopAdv(ucBLEAdapterIf);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 }
 TEST( Full_BLE, BLE_Connection_Mode1Level2 )
 {
