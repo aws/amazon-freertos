@@ -38,65 +38,45 @@
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief First parameter to #_shadowSubscription_compare.
+ */
 typedef struct _thingName
 {
-    const char * pThingName;
-    size_t thingNameLength;
+    const char * pThingName; /**< @brief Thing Name to compare. */
+    size_t thingNameLength;  /**< @brief Length of `pThingName`. */
 } _thingName_t;
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Get the value of #_shadowSubscription_t.pNext.
+ * @brief Compare two #_shadowSubscription_t by Thing Name.
  *
- * @param[in] pPointer Pointer to a #_shadowSubscription_t.
+ * @param[in] pArgument Pointer to a #_thingName_t.
+ * @param[in] pData Pointer to a #_shadowSubscription_t containing the Thing
+ * Name to check.
  *
- * @return Value of the pPointer's `pNext` pointer.
+ * @return `true` if the Thing Names match; `false` otherwise.
  *
- * @note The arguments of this function are of type `void*` for compatibility with
- * an #AwsIotListParams_t.
+ * @note The arguments of this function are of type `void*` for compatibility
+ * with @ref list_function_findfirstmatch.
  */
-static inline void * _shadowSubscription_getNext( void * pPointer );
-
-/**
- * @brief Get the value of #_shadowSubscription_t.pPrevious.
- *
- * @param[in] pPointer Pointer to a #_shadowSubscription_t.
- *
- * @return Value of the pPointer's `pPrevious` pointer.
- *
- * @note The arguments of this function are of type `void*` for compatibility with
- * an #AwsIotListParams_t.
- */
-static inline void * _shadowSubscription_getPrev( void * pPointer );
-
-/**
- * @brief Set #_shadowSubscription_t.pNext.
- *
- * @param[in] pPointer Pointer to a #_shadowSubscription_t.
- * @param[in] pValue Value to assign to the next pointer.
- *
- * @note The arguments of this function are of type `void*` for compatibility with
- * an #AwsIotListParams_t.
- */
-static inline void _shadowSubscription_setNext( void * pPointer,
-                                                void * pValue );
-
-/**
- * @brief Set #_shadowSubscription_t.pPrevious.
- *
- * @param[in] pPointer Pointer to a #_shadowSubscription_t.
- * @param[in] pValue Value to assign to the previous pointer.
- *
- * @note The arguments of this function are of type `void*` for compatibility with
- * an #AwsIotListParams_t.
- */
-static inline void _shadowSubscription_setPrev( void * pPointer,
-                                                void * pValue );
-
 static inline bool _shadowSubscription_compare( void * pArgument,
                                                 void * pData );
 
+/**
+ * @brief Modify Shadow subscriptions, either by unsubscribing or subscribing.
+ *
+ * @param[in] mqttConnection The MQTT connection to use.
+ * @param[in] pTopicFilter The topic filter to modify.
+ * @param[in] topicFilterLength The length of `pTopicFilter`.
+ * @param[in] callback The callback function to execute for an incoming message.
+ * @param[in] mqttOperation Either @ref mqtt_function_timedsubscribe or @ref
+ * mqtt_function_timedunsubscribe.
+ *
+ * @return #AWS_IOT_SHADOW_STATUS_PENDING on success; otherwise
+ * #AWS_IOT_SHADOW_NO_MEMORY or #AWS_IOT_SHADOW_MQTT_ERROR.
+ */
 static AwsIotShadowError_t _modifyOperationSubscriptions( AwsIotMqttConnection_t mqttConnection,
                                                           const char * const pTopicFilter,
                                                           uint16_t topicFilterLength,
@@ -105,45 +85,10 @@ static AwsIotShadowError_t _modifyOperationSubscriptions( AwsIotMqttConnection_t
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief List of active Shadow subscriptions objects.
+ */
 AwsIotList_t _AwsIotShadowSubscriptions = { 0 };
-
-/*-----------------------------------------------------------*/
-
-static inline void * _shadowSubscription_getNext( void * pPointer )
-{
-    _shadowSubscription_t * pSubscription = ( _shadowSubscription_t * ) pPointer;
-
-    return ( void * ) ( pSubscription->pNext );
-}
-
-/*-----------------------------------------------------------*/
-
-static inline void * _shadowSubscription_getPrev( void * pPointer )
-{
-    _shadowSubscription_t * pSubscription = ( _shadowSubscription_t * ) pPointer;
-
-    return ( void * ) ( pSubscription->pPrevious );
-}
-
-/*-----------------------------------------------------------*/
-
-static inline void _shadowSubscription_setNext( void * pPointer,
-                                                void * pValue )
-{
-    _shadowSubscription_t * pSubscription = ( _shadowSubscription_t * ) pPointer;
-
-    pSubscription->pNext = ( _shadowSubscription_t * ) pValue;
-}
-
-/*-----------------------------------------------------------*/
-
-static inline void _shadowSubscription_setPrev( void * pPointer,
-                                                void * pValue )
-{
-    _shadowSubscription_t * pSubscription = ( _shadowSubscription_t * ) pPointer;
-
-    pSubscription->pPrevious = ( _shadowSubscription_t * ) pValue;
-}
 
 /*-----------------------------------------------------------*/
 
@@ -198,7 +143,7 @@ static AwsIotShadowError_t _modifyOperationSubscriptions( AwsIotMqttConnection_t
                                 &subscription,
                                 1,
                                 0,
-                                _AwsIotShadowMqttTimeout );
+                                _AwsIotShadowMqttTimeoutMs );
 
     /* Check the result of the MQTT operation. */
     if( mqttStatus != AWS_IOT_MQTT_SUCCESS )
@@ -230,28 +175,6 @@ static AwsIotShadowError_t _modifyOperationSubscriptions( AwsIotMqttConnection_t
 
 /*-----------------------------------------------------------*/
 
-AwsIotShadowError_t AwsIotShadowInternal_CreateSubscriptionList( void )
-{
-    const AwsIotListParams_t listParams =
-    {
-        .getNext = _shadowSubscription_getNext,
-        .getPrev = _shadowSubscription_getPrev,
-        .setNext = _shadowSubscription_setNext,
-        .setPrev = _shadowSubscription_setPrev
-    };
-
-    /* Create the Shadow subscription list. */
-    if( AwsIotList_Create( &_AwsIotShadowSubscriptions,
-                           &listParams ) == false )
-    {
-        return AWS_IOT_SHADOW_INIT_FAILED;
-    }
-
-    return AWS_IOT_SHADOW_SUCCESS;
-}
-
-/*-----------------------------------------------------------*/
-
 _shadowSubscription_t * AwsIotShadowInternal_FindSubscription( const char * const pThingName,
                                                                size_t thingNameLength )
 {
@@ -263,8 +186,8 @@ _shadowSubscription_t * AwsIotShadowInternal_FindSubscription( const char * cons
     };
 
     /* Search the list for an existing subscription for Thing Name. */
-    pSubscription = AwsIotList_FindFirstMatch( &_AwsIotShadowSubscriptions,
-                                               _AwsIotShadowSubscriptions.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _AwsIotShadowSubscriptions.pHead,
+                                               _SHADOW_SUBSCRIPTION_LINK_OFFSET,
                                                &thingName,
                                                _shadowSubscription_compare );
 
@@ -285,7 +208,8 @@ _shadowSubscription_t * AwsIotShadowInternal_FindSubscription( const char * cons
 
             /* Add the new subscription to the subscription list. */
             AwsIotList_InsertHead( &_AwsIotShadowSubscriptions,
-                                   pSubscription );
+                                   &( pSubscription->link ),
+                                   _SHADOW_SUBSCRIPTION_LINK_OFFSET );
 
             AwsIotLogDebug( "Created new Shadow subscriptions object for %.*s.",
                             thingNameLength,
@@ -361,7 +285,9 @@ void AwsIotShadowInternal_RemoveSubscription( _shadowSubscription_t * const pSub
 
     /* No Shadow operation subscription references or active Shadow callbacks.
      * Remove the subscription object. */
-    AwsIotList_Remove( &_AwsIotShadowSubscriptions, pSubscription );
+    AwsIotList_Remove( &_AwsIotShadowSubscriptions,
+                       &( pSubscription->link ),
+                       _SHADOW_SUBSCRIPTION_LINK_OFFSET );
 
     AwsIotLogDebug( "Removed subscription object for %.*s.",
                     pSubscription->thingNameLength,
@@ -628,8 +554,8 @@ AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( AwsIotMqttConnec
     AwsIotMutex_Lock( &( _AwsIotShadowSubscriptions.mutex ) );
 
     /* Search the list for an existing subscription for Thing Name. */
-    pSubscription = AwsIotList_FindFirstMatch( &_AwsIotShadowSubscriptions,
-                                               _AwsIotShadowSubscriptions.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _AwsIotShadowSubscriptions.pHead,
+                                               _SHADOW_SUBSCRIPTION_LINK_OFFSET,
                                                &thingName,
                                                _shadowSubscription_compare );
 

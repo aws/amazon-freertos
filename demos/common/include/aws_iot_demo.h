@@ -51,13 +51,19 @@
 #endif
 
 #define _LIBRARY_LOG_NAME    ( "DEMO" )
-#include "private/aws_iot_logging_setup.h"
+#include "aws_iot_logging_setup.h"
 
 /*----------------------------- Demo functions ------------------------------*/
 
 /* See aws_iot_demo_mqtt.c for documentation of this function. */
-int AwsIotDemo_Mqtt( bool awsIotMqttMode,
-                     AwsIotMqttConnection_t * const pMqttConnection,
-                     const AwsIotMqttNetIf_t * const pNetworkInterface );
+int AwsIotDemo_RunMqttDemo( bool awsIotMqttMode,
+                            const char * const pClientIdentifier,
+                            AwsIotMqttConnection_t * const pMqttConnection,
+                            const AwsIotMqttNetIf_t * const pNetworkInterface );
+
+/* See aws_iot_demo_shadow.c for documentation of this function. */
+int AwsIotDemo_RunShadowDemo( const char * const pThingName,
+                              AwsIotMqttConnection_t * const pMqttConnection,
+                              const AwsIotMqttNetIf_t * const pNetworkInterface );
 
 #endif /* ifndef _AWS_IOT_DEMO_H_ */

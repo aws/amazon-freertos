@@ -146,14 +146,6 @@ bool AwsIotMqttInternal_ValidateConnect( const AwsIotMqttConnectInfo_t * const p
     /* Check for compatibility with the AWS IoT MQTT service limits. */
     if( pConnectInfo->awsIotMqttMode == true )
     {
-        /* AWS IoT only supports clean sessions. */
-        if( pConnectInfo->cleanSession == false )
-        {
-            AwsIotLogError( "AWS IoT only supports \"Clean Session\" connections." );
-
-            return false;
-        }
-
         /* Check that client identifier is within the service limit. */
         if( pConnectInfo->clientIdentifierLength > _AWS_IOT_MQTT_SERVER_MAX_CLIENTID )
         {

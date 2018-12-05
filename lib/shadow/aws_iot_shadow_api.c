@@ -40,11 +40,12 @@
 
 /* Require logging to be enabled for the MQTT library if logging is enabled for
  * the Shadow library. */
-#if ( ( AWS_IOT_LOG_LEVEL_MQTT == AWS_IOT_LOG_NONE ) ||                                         \
-    ( !defined( AWS_IOT_LOG_LEVEL_MQTT ) && !defined( AWS_IOT_LOG_LEVEL_GLOBAL ) ) ||           \
-    ( !defined( AWS_IOT_LOG_LEVEL_MQTT ) && AWS_IOT_LOG_LEVEL_GLOBAL == AWS_IOT_LOG_NONE ) ) && \
-    ( _LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE )
-    #error "Shadow library logging requires MQTT library logging to be enabled."
+#if !defined( AWS_IOT_LOG_LEVEL_MQTT ) || AWS_IOT_LOG_LEVEL_MQTT == AWS_IOT_LOG_NONE
+    #if !defined( AWS_IOT_LOG_LEVEL_GLOBAL ) || AWS_IOT_LOG_LEVEL_GLOBAL == AWS_IOT_LOG_NONE
+        #if _LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
+            #error "Shadow library logging requires MQTT library logging to be enabled."
+        #endif
+    #endif
 #endif
 
 /* Validate Shadow configuration settings. */
@@ -57,6 +58,18 @@
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Checks Thing Name and flags parameters passed to Shadow API functions.
+ *
+ * @param[in] type The Shadow API function type.
+ * @param[in] pThingName Thing Name passed to Shadow API function.
+ * @param[in] thingNameLength Length of `pThingName`.
+ * @param[in] flags Flags passed to Shadow API function.
+ * @param[in] pCallbackInfo Callback info passed to Shadow API function.
+ * @param[in] pReference Reference pointer passed to Shadow API function.
+ *
+ * @return #AWS_IOT_SHADOW_SUCCESS or #AWS_IOT_SHADOW_BAD_PARAMETER.
+ */
 static AwsIotShadowError_t _validateThingNameFlags( _shadowOperationType_t type,
                                                     const char * const pThingName,
                                                     size_t thingNameLength,
@@ -64,38 +77,94 @@ static AwsIotShadowError_t _validateThingNameFlags( _shadowOperationType_t type,
                                                     const AwsIotShadowCallbackInfo_t * const pCallbackInfo,
                                                     const AwsIotShadowReference_t * const pReference );
 
+/**
+ * @brief Checks document info parameter passed to Shadow API functions.
+ *
+ * @param[in] type The Shadow API function type.
+ * @param[in] flags Flags passed to Shadow API function.
+ * @param[in] pDocumentInfo Document info passed to Shadow API function.
+ *
+ * @return #AWS_IOT_SHADOW_SUCCESS or #AWS_IOT_SHADOW_BAD_PARAMETER.
+ */
 static AwsIotShadowError_t _validateDocumentInfo( _shadowOperationType_t type,
                                                   uint32_t flags,
                                                   const AwsIotShadowDocumentInfo_t * pDocumentInfo );
 
+/**
+ * @brief Common function for setting Shadow callbacks.
+ *
+ * @param[in] mqttConnection The MQTT connection to use.
+ * @param[in] type Type of Shadow callback.
+ * @param[in] pThingName Thing Name for Shadow callback.
+ * @param[in] thingNameLength Length of `pThingName`.
+ * @param[in] pCallbackInfo Callback information to set.
+ *
+ * @return #AWS_IOT_SHADOW_SUCCESS, #AWS_IOT_SHADOW_BAD_PARAMETER,
+ * #AWS_IOT_SHADOW_NO_MEMORY, or #AWS_IOT_SHADOW_MQTT_ERROR.
+ */
 static AwsIotShadowError_t _setCallbackCommon( AwsIotMqttConnection_t mqttConnection,
                                                _shadowCallbackType_t type,
                                                const char * const pThingName,
                                                size_t thingNameLength,
-                                               const AwsIotShadowCallbackInfo_t * const pCallbackInfo,
-                                               uint64_t timeoutMs );
+                                               const AwsIotShadowCallbackInfo_t * const pCallbackInfo );
 
+/**
+ * @brief Change the subscriptions for Shadow callbacks, either by subscribing
+ * or unsubscribing.
+ *
+ * @param[in] mqttConnection The MQTT connection to use.
+ * @param[in] type Type of Shadow callback.
+ * @param[in] pSubscription Shadow subscriptions object for callback.
+ * @param[in] mqttOperation Either @ref mqtt_function_timedsubscribe or
+ * @ref mqtt_function_timedunsubscribe.
+ */
 static AwsIotShadowError_t _modifyCallbackSubscriptions( AwsIotMqttConnection_t mqttConnection,
                                                          _shadowCallbackType_t type,
                                                          _shadowSubscription_t * const pSubscription,
-                                                         uint64_t timeoutMs,
                                                          _mqttOperationFunction_t mqttOperation );
 
+/**
+ * @brief Common function for incoming Shadow callbacks.
+ *
+ * @param[in] type Shadow callback type.
+ * @param[in] pSubscription Shadow subscriptions object for callback.
+ * @param[in] pMessage The received Shadow callback document (as an MQTT PUBLISH
+ * message).
+ */
 static void _callbackWrapperCommon( _shadowCallbackType_t type,
                                     const _shadowSubscription_t * const pSubscription,
                                     AwsIotMqttCallbackParam_t * const pMessage );
 
+/**
+ * @brief Invoked when a document is received on the Shadow DELTA callback.
+ *
+ * @param[in] pArgument Ignored.
+ * @param[in] pMessage The received DELTA document (as an MQTT PUBLISH message).
+ */
 static void _deltaCallbackWrapper( void * pArgument,
                                    AwsIotMqttCallbackParam_t * const pMessage );
 
+/**
+ * @brief Invoked when a document is received on the Shadow UPDATED callback.
+ *
+ * @param[in] pArgument Ignored.
+ * @param[in] pMessage The received UPDATED document (as an MQTT PUBLISH message).
+ */
 static void _updatedCallbackWrapper( void * pArgument,
                                      AwsIotMqttCallbackParam_t * const pMessage );
 
 /*-----------------------------------------------------------*/
 
-uint64_t _AwsIotShadowMqttTimeout = AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS;
+/**
+ * @brief Timeout used for MQTT operations.
+ */
+uint64_t _AwsIotShadowMqttTimeoutMs = AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS;
 
 #if _LIBRARY_LOG_LEVEL > _AWS_IOT_LOG_NONE
+
+/**
+ * @brief Printable names for the Shadow callbacks.
+ */
     const char * const _pAwsIotShadowCallbackNames[] =
     {
         "DELTA",
@@ -251,8 +320,7 @@ static AwsIotShadowError_t _setCallbackCommon( AwsIotMqttConnection_t mqttConnec
                                                _shadowCallbackType_t type,
                                                const char * const pThingName,
                                                size_t thingNameLength,
-                                               const AwsIotShadowCallbackInfo_t * const pCallbackInfo,
-                                               uint64_t timeoutMs )
+                                               const AwsIotShadowCallbackInfo_t * const pCallbackInfo )
 {
     AwsIotShadowError_t status = AWS_IOT_SHADOW_SUCCESS;
     _shadowSubscription_t * pSubscription = NULL;
@@ -318,7 +386,6 @@ static AwsIotShadowError_t _setCallbackCommon( AwsIotMqttConnection_t mqttConnec
                 ( void ) _modifyCallbackSubscriptions( mqttConnection,
                                                        type,
                                                        pSubscription,
-                                                       timeoutMs,
                                                        AwsIotMqtt_TimedUnsubscribe );
 
                 /* Check if this subscription object can be removed. */
@@ -340,7 +407,6 @@ static AwsIotShadowError_t _setCallbackCommon( AwsIotMqttConnection_t mqttConnec
                 status = _modifyCallbackSubscriptions( mqttConnection,
                                                        type,
                                                        pSubscription,
-                                                       timeoutMs,
                                                        AwsIotMqtt_TimedSubscribe );
             }
             /* Do nothing; set return value to success. */
@@ -361,7 +427,6 @@ static AwsIotShadowError_t _setCallbackCommon( AwsIotMqttConnection_t mqttConnec
 static AwsIotShadowError_t _modifyCallbackSubscriptions( AwsIotMqttConnection_t mqttConnection,
                                                          _shadowCallbackType_t type,
                                                          _shadowSubscription_t * const pSubscription,
-                                                         uint64_t timeoutMs,
                                                          _mqttOperationFunction_t mqttOperation )
 {
     AwsIotShadowError_t status = AWS_IOT_SHADOW_SUCCESS;
@@ -373,15 +438,15 @@ static AwsIotShadowError_t _modifyCallbackSubscriptions( AwsIotMqttConnection_t 
     /* Lookup table for Shadow callback suffixes. */
     const char * const pCallbackSuffix[ _SHADOW_CALLBACK_COUNT ] =
     {
-        _SHADOW_DELTA_SUFFIX,   /* Delta callback. */
-        _SHADOW_UPDATED_SUFFIX  /* Updated callback. */
+        _SHADOW_DELTA_SUFFIX,  /* Delta callback. */
+        _SHADOW_UPDATED_SUFFIX /* Updated callback. */
     };
 
     /* Lookup table for Shadow callback suffix lengths. */
     const uint16_t pCallbackSuffixLength[ _SHADOW_CALLBACK_COUNT ] =
     {
-        _SHADOW_DELTA_SUFFIX_LENGTH,   /* Delta callback. */
-        _SHADOW_UPDATED_SUFFIX_LENGTH  /* Updated callback. */
+        _SHADOW_DELTA_SUFFIX_LENGTH,  /* Delta callback. */
+        _SHADOW_UPDATED_SUFFIX_LENGTH /* Updated callback. */
     };
 
     /* Lookup table for Shadow callback function wrappers. */
@@ -434,7 +499,7 @@ static AwsIotShadowError_t _modifyCallbackSubscriptions( AwsIotMqttConnection_t 
                                 &subscription,
                                 1,
                                 0,
-                                timeoutMs );
+                                _AwsIotShadowMqttTimeoutMs );
 
     /* Check the result of the MQTT operation. */
     if( mqttStatus != AWS_IOT_MQTT_SUCCESS )
@@ -503,7 +568,7 @@ static void _callbackWrapperCommon( _shadowCallbackType_t type,
 
     /* Invoke the callback function. */
     pSubscription->callbacks[ type ].function( pSubscription->callbacks[ type ].param1,
-                                                          &callbackParam );
+                                               &callbackParam );
 }
 
 /*-----------------------------------------------------------*/
@@ -524,10 +589,10 @@ static void _updatedCallbackWrapper( void * pArgument,
 
 /*-----------------------------------------------------------*/
 
-AwsIotShadowError_t AwsIotShadow_Init( uint64_t mqttTimeout )
+AwsIotShadowError_t AwsIotShadow_Init( uint64_t mqttTimeoutMs )
 {
     /* Create the Shadow pending operation list. */
-    if( AwsIotShadowInternal_CreatePendingOperationList() != AWS_IOT_SHADOW_SUCCESS )
+    if( AwsIotList_Create( &_AwsIotShadowPendingOperations ) == false )
     {
         AwsIotLogError( "Failed to create Shadow pending operation list." );
 
@@ -535,7 +600,7 @@ AwsIotShadowError_t AwsIotShadow_Init( uint64_t mqttTimeout )
     }
 
     /* Create the Shadow subscription list. */
-    if( AwsIotShadowInternal_CreateSubscriptionList() != AWS_IOT_SHADOW_SUCCESS )
+    if( AwsIotList_Create( &_AwsIotShadowSubscriptions ) == false )
     {
         AwsIotLogError( "Failed to create Shadow subscription list." );
         AwsIotList_Destroy( &_AwsIotShadowPendingOperations );
@@ -544,9 +609,9 @@ AwsIotShadowError_t AwsIotShadow_Init( uint64_t mqttTimeout )
     }
 
     /* Save the MQTT timeout option. */
-    if( mqttTimeout != 0 )
+    if( mqttTimeoutMs != 0 )
     {
-        _AwsIotShadowMqttTimeout = mqttTimeout;
+        _AwsIotShadowMqttTimeoutMs = mqttTimeoutMs;
     }
 
     AwsIotLogInfo( "Shadow library successfully initialized." );
@@ -561,6 +626,7 @@ void AwsIotShadow_Cleanup( void )
     /* Remove and free all items in the Shadow pending operation list, then destroy
      * the list. */
     AwsIotList_RemoveAllMatches( &_AwsIotShadowPendingOperations,
+                                 _SHADOW_OPERATION_LINK_OFFSET,
                                  NULL,
                                  NULL,
                                  AwsIotShadowInternal_DestroyOperation );
@@ -569,13 +635,14 @@ void AwsIotShadow_Cleanup( void )
     /* Remove and free all items in the Shadow subscription list, then destroy
      * the list. */
     AwsIotList_RemoveAllMatches( &_AwsIotShadowSubscriptions,
+                                 _SHADOW_SUBSCRIPTION_LINK_OFFSET,
                                  NULL,
                                  NULL,
                                  AwsIotShadowInternal_DestroySubscription );
     AwsIotList_Destroy( &_AwsIotShadowSubscriptions );
 
     /* Restore the default MQTT timeout. */
-    _AwsIotShadowMqttTimeout = AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS;
+    _AwsIotShadowMqttTimeoutMs = AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS;
 
     AwsIotLogInfo( "Shadow library cleanup done." );
 }
@@ -989,7 +1056,9 @@ AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowReference_t reference,
 
     /* Remove the completed operation from the pending operation list. */
     AwsIotMutex_Lock( &( _AwsIotShadowPendingOperations.mutex ) );
-    AwsIotList_Remove( &_AwsIotShadowPendingOperations, pOperation );
+    AwsIotList_Remove( &_AwsIotShadowPendingOperations,
+                       &( pOperation->link ),
+                       _SHADOW_OPERATION_LINK_OFFSET );
     AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
 
     /* Decrement the reference count. This also removes subscriptions if the
@@ -1019,8 +1088,7 @@ AwsIotShadowError_t AwsIotShadow_SetDeltaCallback( AwsIotMqttConnection_t mqttCo
                                                    const char * const pThingName,
                                                    size_t thingNameLength,
                                                    uint32_t flags,
-                                                   const AwsIotShadowCallbackInfo_t * const pDeltaCallback,
-                                                   uint64_t timeoutMs )
+                                                   const AwsIotShadowCallbackInfo_t * const pDeltaCallback )
 {
     /* Flags are currently not used by this function. */
     ( void ) flags;
@@ -1029,8 +1097,7 @@ AwsIotShadowError_t AwsIotShadow_SetDeltaCallback( AwsIotMqttConnection_t mqttCo
                                _DELTA_CALLBACK,
                                pThingName,
                                thingNameLength,
-                               pDeltaCallback,
-                               timeoutMs );
+                               pDeltaCallback );
 }
 
 /*-----------------------------------------------------------*/
@@ -1039,8 +1106,7 @@ AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( AwsIotMqttConnection_t mqtt
                                                      const char * const pThingName,
                                                      size_t thingNameLength,
                                                      uint32_t flags,
-                                                     const AwsIotShadowCallbackInfo_t * const pUpdatedCallback,
-                                                     uint64_t timeoutMs )
+                                                     const AwsIotShadowCallbackInfo_t * const pUpdatedCallback )
 {
     /* Flags are currently not used by this function. */
     ( void ) flags;
@@ -1049,8 +1115,7 @@ AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( AwsIotMqttConnection_t mqtt
                                _UPDATED_CALLBACK,
                                pThingName,
                                thingNameLength,
-                               pUpdatedCallback,
-                               timeoutMs );
+                               pUpdatedCallback );
 }
 
 /*-----------------------------------------------------------*/

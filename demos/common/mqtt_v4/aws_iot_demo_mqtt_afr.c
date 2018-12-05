@@ -36,15 +36,15 @@
 #include "aws_iot_mqtt.h"
 
 /* Platform layer includes. */
-#include "platform/aws_iot_network_afr.h"
+#include "platform/aws_iot_network.h"
 
 /*-----------------------------------------------------------*/
 
 static void _mqttDemoTask( void * argument )
 {
     int status = 0;
-    AwsIotNetworkConnection_t networkConnection = AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER;
-    AwsIotNetworkConnectParams_t connectParams = AWS_IOT_NETWORK_AFR_CONNECT_PARAMS_INITIALIZER;
+    AwsIotNetworkConnection_t networkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
+    AwsIotNetworkTlsInfo_t tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
     AwsIotMqttConnection_t mqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
     AwsIotMqttNetIf_t networkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
 
@@ -54,39 +54,37 @@ static void _mqttDemoTask( void * argument )
     /* This function parses arguments and establishes the network connection
      * before running the MQTT demo. */
 
-    /* Set the endpoint for the MQTT demo. By default, the demo uses a secured
-     * connection. */
-    connectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
-    connectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-    connectParams.flags = AWS_IOT_NETWORK_AFR_FLAG_SECURED;
+    /* Use the default root CA provided with Amazon FreeRTOS. */
+    tlsInfo.pRootCa = NULL;
+    tlsInfo.rootCaLength = 0;
 
-    /* If connecting over port 443, set ALPN flag. */
-    if( connectParams.usPort == securesocketsDEFAULT_TLS_DESTINATION_PORT )
+    /* Set client credentials. */
+    tlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
+    tlsInfo.clientCertLength = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
+    tlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
+    tlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
+
+    /* If not connecting over port 443, disable ALPN. */
+    if( clientcredentialMQTT_BROKER_PORT != 443 )
     {
-        connectParams.flags |= AWS_IOT_NETWORK_AFR_FLAG_ALPN;
+        tlsInfo.pAlpnProtos = NULL;
     }
 
-    /* Override the default root CA certificates by setting pcServerCertificate
-     * and xServerCertificateSize. SNI may need to be disabled if not using the
-     * default certificates. */
-    connectParams.pcServerCertificate = NULL;
-    connectParams.xServerCertificateSize = 0;
-    connectParams.flags |= AWS_IOT_NETWORK_AFR_FLAG_SNI;
-
     /* Establish a TCP connection to the MQTT server. */
-    if( AwsIotNetwork_CreateConnection( &connectParams,
-                                        &networkConnection ) == false )
+    if( AwsIotNetwork_CreateConnection( &networkConnection,
+                                        clientcredentialMQTT_BROKER_ENDPOINT,
+                                        clientcredentialMQTT_BROKER_PORT,
+                                        &tlsInfo ) != AWS_IOT_NETWORK_SUCCESS )
     {
         status = -1;
     }
 
     if( status == 0 )
     {
-        /* Create the task that processes incoming MQTT data. */
-        if( AwsIotNetwork_CreateMqttReceiveTask( networkConnection,
-                                                 &mqttConnection,
-                                                 AWS_IOT_MQTT_RECEIVE_TASK_PRIORITY,
-                                                 AWS_IOT_NETWORK_RECEIVE_BUFFER_SIZE ) == false )
+        /* Set the MQTT receive callback. */
+        if( AwsIotNetwork_SetMqttReceiveCallback( networkConnection,
+                                                  &mqttConnection,
+                                                  AwsIotMqtt_ReceiveCallback ) != AWS_IOT_NETWORK_SUCCESS )
         {
             status = -1;
         }
@@ -104,7 +102,7 @@ static void _mqttDemoTask( void * argument )
         if( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS )
         {
             /* Run the MQTT demo. */
-            status = AwsIotDemo_Mqtt( true, &mqttConnection, &networkInterface );
+            status = AwsIotDemo_RunMqttDemo( true, NULL, &mqttConnection, &networkInterface );
 
             /* Clean up the MQTT library. */
             AwsIotMqtt_Cleanup();
@@ -116,7 +114,7 @@ static void _mqttDemoTask( void * argument )
     }
 
     /* Close and destroy the network connection (if it was established). */
-    if( networkConnection != AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER )
+    if( networkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
     {
         /* Note that the MQTT library may have called AwsIotNetwork_CloseConnection.
          * However, AwsIotNetwork_CloseConnection is safe to call on a closed connection.

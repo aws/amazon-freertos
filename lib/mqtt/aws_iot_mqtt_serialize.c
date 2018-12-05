@@ -147,7 +147,11 @@
  * Username for metrics with AWS IoT.
  */
 #if AWS_IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1
-    #define _AWS_IOT_METRICS_USERNAME           ( "?SDK=C&Version=4.0.0b1" )                             /**< @brief Specify "C SDK" and SDK version. */
+    #ifndef AWS_IOT_SDK_VERSION
+        #error "AWS_IOT_SDK_VERSION must be defined."
+    #endif
+
+    #define _AWS_IOT_METRICS_USERNAME           ( "?SDK=C&Version=" AWS_IOT_SDK_VERSION )                /**< @brief Specify "C SDK" and SDK version. */
     #define _AWS_IOT_METRICS_USERNAME_LENGTH    ( ( uint16_t ) sizeof( _AWS_IOT_METRICS_USERNAME ) - 1 ) /**< @brief Length of #_AWS_IOT_METRICS_USERNAME. */
 #endif
 
@@ -1643,7 +1647,7 @@ AwsIotMqttError_t AwsIotMqttInternal_DeserializeSuback( AwsIotMqttConnection_t m
                 /* Remove a rejected subscription from the subscription manager. */
                 AwsIotMqttInternal_RemoveSubscriptionByPacket( pMqttConnection,
                                                                packetIdentifier,
-                                                               ( ssize_t ) i );
+                                                               ( long ) i );
 
                 status = AWS_IOT_MQTT_SERVER_REFUSED;
 

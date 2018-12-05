@@ -312,6 +312,7 @@ TEST_GROUP_RUNNER( MQTT_Unit_API )
 {
     RUN_TEST_CASE( MQTT_Unit_API, ConnectParameters );
     RUN_TEST_CASE( MQTT_Unit_API, ConnectMallocFail );
+    RUN_TEST_CASE( MQTT_Unit_API, ConnectRestoreSessionMallocFail );
     RUN_TEST_CASE( MQTT_Unit_API, DisconnectMallocFail );
     RUN_TEST_CASE( MQTT_Unit_API, PublishQoS0Parameters );
     RUN_TEST_CASE( MQTT_Unit_API, PublishQoS0MallocFail );
@@ -335,6 +336,7 @@ TEST( MQTT_Unit_API, ConnectParameters )
     AwsIotMqttNetIf_t networkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
     AwsIotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
     AwsIotMqttPublishInfo_t willInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    AwsIotMqttSubscription_t subscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
 
     /* Check that the network interface is validated. */
     status = AwsIotMqtt_Connect( &mqttConnection,
@@ -355,6 +357,31 @@ TEST( MQTT_Unit_API, ConnectParameters )
     connectInfo.cleanSession = true;
     connectInfo.pClientIdentifier = _CLIENT_IDENTIFIER;
     connectInfo.clientIdentifierLength = _CLIENT_IDENTIFIER_LENGTH;
+
+    /* AwsIotMqtt_ConnectRestoreSession with bad subscription. */
+    connectInfo.cleanSession = false;
+    status = AwsIotMqtt_ConnectRestoreSession( &mqttConnection,
+                                               &networkInterface,
+                                               &connectInfo,
+                                               NULL,
+                                               &subscription,
+                                               1,
+                                               _TIMEOUT_MS );
+    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_PARAMETER, status );
+
+    /* AwsIotMqtt_ConnectRestoreSession with clean session. */
+    connectInfo.cleanSession = true;
+    subscription.pTopicFilter = _TEST_TOPIC_NAME;
+    subscription.topicFilterLength = _TEST_TOPIC_NAME_LENGTH;
+    subscription.callback.function = _SUBSCRIPTION_CALLBACK;
+    status = AwsIotMqtt_ConnectRestoreSession( &mqttConnection,
+                                               &networkInterface,
+                                               &connectInfo,
+                                               &willInfo,
+                                               &subscription,
+                                               1,
+                                               _TIMEOUT_MS );
+    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_PARAMETER, status );
 
     /* Check that the will info is validated when it's provided. */
     status = AwsIotMqtt_Connect( &mqttConnection,
@@ -418,6 +445,59 @@ TEST( MQTT_Unit_API, ConnectMallocFail )
                                      &connectInfo,
                                      NULL,
                                      _TIMEOUT_MS );
+
+        /* If the return value is timeout, then all memory allocation succeeded
+         * and the loop can exit. The expected return value is timeout (and not
+         * success) because the receive callback is never invoked. */
+        if( status == AWS_IOT_MQTT_TIMEOUT )
+        {
+            break;
+        }
+
+        /* If the return value isn't timeout, check that it is memory allocation
+         * failure. */
+        TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Tests the behavior of @ref mqtt_function_connectrestoresession
+ * when memory allocation fails at various points.
+ */
+TEST( MQTT_Unit_API, ConnectRestoreSessionMallocFail )
+{
+    int i = 0;
+    AwsIotMqttError_t status = AWS_IOT_MQTT_STATUS_PENDING;
+    AwsIotMqttConnection_t mqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+    AwsIotMqttNetIf_t networkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
+    AwsIotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    AwsIotMqttSubscription_t subscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+
+    /* Initialize parameters. */
+    networkInterface.send = _sendSuccess;
+    connectInfo.cleanSession = false;
+    connectInfo.keepAliveSeconds = 100;
+    connectInfo.pClientIdentifier = _CLIENT_IDENTIFIER;
+    connectInfo.clientIdentifierLength = _CLIENT_IDENTIFIER_LENGTH;
+    subscription.pTopicFilter = _TEST_TOPIC_NAME;
+    subscription.topicFilterLength = _TEST_TOPIC_NAME_LENGTH;
+    subscription.callback.function = _SUBSCRIPTION_CALLBACK;
+
+    for( i = 0; ; i++ )
+    {
+        UnityMalloc_MakeMallocFailAfterCount( i );
+
+        /* Call CONNECT with a previous session. Memory allocation will fail at
+         * various times during this call. */
+        status = AwsIotMqtt_ConnectRestoreSession( &mqttConnection,
+                                                   &networkInterface,
+                                                   &connectInfo,
+                                                   NULL,
+                                                   &subscription,
+                                                   1,
+                                                   _TIMEOUT_MS );
 
         /* If the return value is timeout, then all memory allocation succeeded
          * and the loop can exit. The expected return value is timeout (and not
@@ -772,8 +852,8 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
     subscription.topicFilterLength = _TEST_TOPIC_NAME_LENGTH;
     subscription.callback.function = _SUBSCRIPTION_CALLBACK;
 
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS,
-                       AwsIotMqttInternal_CreateSubscriptionList( &( mqttConnection.subscriptionList ) ) );
+    TEST_ASSERT_EQUAL_INT( true,
+                           AwsIotList_Create( &( mqttConnection.subscriptionList ) ) );
 
     if( TEST_PROTECT() )
     {
@@ -808,6 +888,7 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
     }
 
     AwsIotList_RemoveAllMatches( &( mqttConnection.subscriptionList ),
+                                 _SUBSCRIPTION_LINK_OFFSET,
                                  NULL,
                                  NULL,
                                  AwsIotMqtt_FreeSubscription );
@@ -834,8 +915,8 @@ TEST( MQTT_Unit_API, UnsubscribeMallocFail )
     subscription.topicFilterLength = _TEST_TOPIC_NAME_LENGTH;
     subscription.callback.function = _SUBSCRIPTION_CALLBACK;
 
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS,
-                       AwsIotMqttInternal_CreateSubscriptionList( &( mqttConnection.subscriptionList ) ) );
+    TEST_ASSERT_EQUAL_INT( true,
+                           AwsIotList_Create( &( mqttConnection.subscriptionList ) ) );
 
     if( TEST_PROTECT() )
     {
@@ -870,6 +951,7 @@ TEST( MQTT_Unit_API, UnsubscribeMallocFail )
     }
 
     AwsIotList_RemoveAllMatches( &( mqttConnection.subscriptionList ),
+                                 _SUBSCRIPTION_LINK_OFFSET,
                                  NULL,
                                  NULL,
                                  AwsIotMqtt_FreeSubscription );

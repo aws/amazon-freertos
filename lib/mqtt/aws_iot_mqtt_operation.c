@@ -151,7 +151,9 @@ static void _sendThread( void * pArgument )
         AwsIotLogDebug( "Removing oldest operation from MQTT send queue." );
 
         /* Get the oldest operation in the MQTT send queue. */
-        pOperation = AwsIotQueue_RemoveTail( &_AwsIotMqttSendQueue, true );
+        pOperation = AwsIotQueue_RemoveTail( &_AwsIotMqttSendQueue,
+                                             _OPERATION_LINK_OFFSET,
+                                             true );
 
         /* If no operation was received, terminate the loop. */
         if( pOperation == NULL )
@@ -244,7 +246,7 @@ static void _sendThread( void * pArgument )
             /* This function call will not fail because the receive queue has no
              * notification routine. */
             ( void ) AwsIotQueue_InsertHead( &_AwsIotMqttReceiveQueue,
-                                             pOperation );
+                                             &( pOperation->link ) );
         }
 
         /* Notify a waitable operation that the send thread is finished. */
@@ -274,7 +276,9 @@ static void _callbackThread( void * pArgument )
         AwsIotLogDebug( "Removing oldest operation from MQTT callback queue." );
 
         /* Get the oldest operation in the MQTT callback queue. */
-        pOperation = AwsIotQueue_RemoveTail( &_AwsIotMqttCallbackQueue, true );
+        pOperation = AwsIotQueue_RemoveTail( &_AwsIotMqttCallbackQueue,
+                                             _OPERATION_LINK_OFFSET,
+                                             true );
 
         /* If no operation was received, terminate the loop. */
         if( pOperation == NULL )
@@ -390,7 +394,8 @@ static bool _calculateNextPublishRetry( _mqttConnection_t * const pMqttConnectio
 
     /* Peek the current head of the timer event list. If the PUBLISH retry expires
      * sooner, re-arm the timer to expire at the PUBLISH retry's expiration time. */
-    pTimerListHead = pMqttConnection->timerEventList.pHead;
+    pTimerListHead = AwsIotLink_Container( pMqttConnection->timerEventList.pHead,
+                                           _TIMER_EVENT_LINK_OFFSET );
 
     if( ( pTimerListHead == NULL ) ||
         ( pTimerListHead->expirationTime > pPublishRetry->expirationTime ) )
@@ -409,13 +414,78 @@ static bool _calculateNextPublishRetry( _mqttConnection_t * const pMqttConnectio
      * is guaranteed to expire before its expiration time. */
     if( status == true )
     {
-        AwsIotMqttInternal_TimerListInsert( &( pMqttConnection->timerEventList ),
-                                            pPublishRetry );
+        AwsIotList_InsertSorted( &( pMqttConnection->timerEventList ),
+                                 &( pPublishRetry->link ),
+                                 _TIMER_EVENT_LINK_OFFSET,
+                                 AwsIotMqttInternal_TimerEventCompare );
     }
 
     AwsIotMutex_Unlock( &( pMqttConnection->timerEventList.mutex ) );
 
     return status;
+}
+
+/*-----------------------------------------------------------*/
+
+AwsIotMqttError_t AwsIotMqttInternal_CreateQueues( void )
+{
+    AwsIotQueueNotifyParams_t notifyParams = { 0 };
+
+    /* Create the send queue. */
+    notifyParams.notifyRoutine = _sendThread;
+
+    if( AwsIotQueue_Create( &_AwsIotMqttSendQueue,
+                            &notifyParams,
+                            AWS_IOT_MQTT_MAX_SEND_THREADS ) == false )
+    {
+        return AWS_IOT_MQTT_INIT_FAILED;
+    }
+
+    /* Create the receive queue. */
+    if( AwsIotQueue_Create( &_AwsIotMqttReceiveQueue,
+                            NULL,
+                            0 ) == false )
+    {
+        AwsIotQueue_Destroy( &_AwsIotMqttSendQueue );
+
+        return AWS_IOT_MQTT_INIT_FAILED;
+    }
+
+    /* Create the callback queue. */
+    notifyParams.notifyRoutine = _callbackThread;
+
+    if( AwsIotQueue_Create( &_AwsIotMqttCallbackQueue,
+                            &notifyParams,
+                            AWS_IOT_MQTT_MAX_CALLBACK_THREADS ) == false )
+    {
+        AwsIotQueue_Destroy( &_AwsIotMqttSendQueue );
+        AwsIotQueue_Destroy( &_AwsIotMqttReceiveQueue );
+
+        return AWS_IOT_MQTT_INIT_FAILED;
+    }
+
+    return AWS_IOT_MQTT_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+int AwsIotMqttInternal_TimerEventCompare( void * pData1,
+                                          void * pData2 )
+{
+    _mqttTimerEvent_t * pTimerEvent1 = ( _mqttTimerEvent_t * ) pData1,
+        *pTimerEvent2 = ( _mqttTimerEvent_t * ) pData2;
+
+    if( pTimerEvent1->expirationTime < pTimerEvent2->expirationTime )
+    {
+        return -1;
+    }
+
+    if( pTimerEvent1->expirationTime > pTimerEvent2->expirationTime )
+    {
+        return 1;
+    }
+
+    return 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -520,13 +590,14 @@ void AwsIotMqttInternal_DestroyOperation( void * pData )
         AwsIotMutex_Lock( &( pOperation->pMqttConnection->timerEventList.mutex ) );
 
         /* Remove the timer event from the timer event list before freeing it. */
-        if( AwsIotList_FindFirstMatch( &( pOperation->pMqttConnection->timerEventList ),
-                                       pOperation->pMqttConnection->timerEventList.pHead,
+        if( AwsIotList_FindFirstMatch( pOperation->pMqttConnection->timerEventList.pHead,
+                                       _TIMER_EVENT_LINK_OFFSET,
                                        pOperation->pPublishRetry,
                                        NULL ) != NULL )
         {
             AwsIotList_Remove( &( pOperation->pMqttConnection->timerEventList ),
-                               pOperation->pPublishRetry );
+                               &( pOperation->pPublishRetry->link ),
+                               _TIMER_EVENT_LINK_OFFSET );
         }
 
         AwsIotMutex_Unlock( &( pOperation->pMqttConnection->timerEventList.mutex ) );
@@ -559,7 +630,8 @@ void AwsIotMqttInternal_Notify( _mqttOperation_t * const pOperation )
     /* Add the operation to the callback queue if a callback was set. */
     if( pOperation->notify.callback.function != NULL )
     {
-        if( AwsIotQueue_InsertHead( &_AwsIotMqttCallbackQueue, pOperation ) != true )
+        if( AwsIotQueue_InsertHead( &_AwsIotMqttCallbackQueue,
+                                    &( pOperation->link ) ) != true )
         {
             AwsIotLogWarn( "Failed to create new callback thread." );
         }
@@ -569,52 +641,6 @@ void AwsIotMqttInternal_Notify( _mqttOperation_t * const pOperation )
         /* Destroy the operation if no callback was set. */
         AwsIotMqttInternal_DestroyOperation( pOperation );
     }
-}
-
-/*-----------------------------------------------------------*/
-
-AwsIotMqttError_t AwsIotMqttInternal_CreateQueues( void )
-{
-    /* Create the send queue. */
-    if( AwsIotMqttInternal_CreateOperationQueue( &_AwsIotMqttSendQueue,
-                                                 _sendThread,
-                                                 AWS_IOT_MQTT_MAX_SEND_THREADS ) != AWS_IOT_MQTT_SUCCESS )
-    {
-        return AWS_IOT_MQTT_INIT_FAILED;
-    }
-
-    /* Create the receive queue. */
-    if( AwsIotMqttInternal_CreateOperationQueue( &_AwsIotMqttReceiveQueue,
-                                                 NULL,
-                                                 0 ) != AWS_IOT_MQTT_SUCCESS )
-    {
-        AwsIotQueue_Destroy( &_AwsIotMqttSendQueue );
-
-        return AWS_IOT_MQTT_INIT_FAILED;
-    }
-
-    /* Create the callback queue. */
-    if( AwsIotMqttInternal_CreateOperationQueue( &_AwsIotMqttCallbackQueue,
-                                                 _callbackThread,
-                                                 AWS_IOT_MQTT_MAX_CALLBACK_THREADS ) != AWS_IOT_MQTT_SUCCESS )
-    {
-        AwsIotQueue_Destroy( &_AwsIotMqttSendQueue );
-        AwsIotQueue_Destroy( &_AwsIotMqttReceiveQueue );
-
-        return AWS_IOT_MQTT_INIT_FAILED;
-    }
-
-    return AWS_IOT_MQTT_SUCCESS;
-}
-
-/*-----------------------------------------------------------*/
-
-void AwsIotMqttInternal_DestroyQueues( void )
-{
-    /* Destroy the MQTT queues. */
-    AwsIotQueue_Destroy( &_AwsIotMqttSendQueue );
-    AwsIotQueue_Destroy( &_AwsIotMqttReceiveQueue );
-    AwsIotQueue_Destroy( &_AwsIotMqttCallbackQueue );
 }
 
 /*-----------------------------------------------------------*/
@@ -641,6 +667,7 @@ AwsIotMqttError_t AwsIotMqttInternal_OperationFind( AwsIotQueue_t * const pQueue
 
     /* Find the first matching element in the queue. */
     pResult = AwsIotQueue_RemoveFirstMatch( pQueue,
+                                            _OPERATION_LINK_OFFSET,
                                             &param,
                                             _mqttOperation_match );
 
@@ -659,24 +686,6 @@ AwsIotMqttError_t AwsIotMqttInternal_OperationFind( AwsIotQueue_t * const pQueue
 
     AwsIotLogDebug( "Found in-progress operation %s.",
                     AwsIotMqtt_OperationType( operation ) );
-
-    return AWS_IOT_MQTT_SUCCESS;
-}
-
-/*-----------------------------------------------------------*/
-
-AwsIotMqttError_t AwsIotMqttInternal_OperationFindPointer( AwsIotQueue_t * const pQueue,
-                                                           _mqttOperation_t * const pTarget )
-{
-    /* Check if pTarget is in the queue. */
-    _mqttOperation_t * pResult = AwsIotQueue_RemoveFirstMatch( pQueue,
-                                                               pTarget,
-                                                               NULL );
-
-    if( pResult == NULL )
-    {
-        return AWS_IOT_MQTT_BAD_PARAMETER;
-    }
 
     return AWS_IOT_MQTT_SUCCESS;
 }

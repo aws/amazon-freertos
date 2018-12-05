@@ -37,6 +37,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
+/* Platform threads include. */
+#include "platform/aws_iot_threads.h"
+
 /*---------------------------- MQTT handle types ----------------------------*/
 
 /**
@@ -93,8 +96,7 @@ typedef void * AwsIotMqttReference_t;
  * @brief Return codes of [MQTT functions](@ref mqtt_functions).
  *
  * The function @ref mqtt_function_strerror can be used to get a return code's
- * description when [logging is enabled for the MQTT library]
- * (@ref AWS_IOT_LOG_LEVEL_MQTT).
+ * description.
  */
 typedef enum AwsIotMqttError
 {
@@ -181,7 +183,7 @@ typedef enum AwsIotMqttError
     AWS_IOT_MQTT_BAD_RESPONSE,
 
     /**
-     * @brief A blocking operation timed out.
+     * @brief A blocking MQTT operation timed out.
      *
      * Functions that may return this value:
      * - @ref mqtt_function_connect
@@ -227,8 +229,7 @@ typedef enum AwsIotMqttError
  * @brief Types of MQTT operations.
  *
  * The function @ref mqtt_function_operationtype can be used to get an operation
- * type's description when [logging is enabled for the MQTT library]
- * (@ref AWS_IOT_LOG_LEVEL_MQTT).
+ * type's description.
  */
 typedef enum AwsIotMqttOperationType
 {
@@ -280,7 +281,15 @@ typedef struct AwsIotMqttConnectInfo
      */
     bool awsIotMqttMode;
 
-    bool cleanSession;               /**< @brief Whether this connection is a clean session. */
+    /**
+     * @brief Whether this connection is a clean session.
+     *
+     * If this parameter is `false`, the MQTT connection should be established with
+     * @ref mqtt_function_connect. Otherwise, if this parameter is `true`, the MQTT
+     * connection should be established with @ref mqtt_function_connectrestoresession.
+     */
+    bool cleanSession;
+
     uint16_t keepAliveSeconds;       /**< @brief Period of keep-alive messages. Set to 0 to disable keep-alive. */
 
     const char * pClientIdentifier;  /**< @brief MQTT client identifier. */
@@ -883,6 +892,7 @@ typedef struct AwsIotMqttNetIf
  * - @functionname{mqtt_function_cleanup}
  * - @functionname{mqtt_function_receivecallback}
  * - @functionname{mqtt_function_connect}
+ * - @functionname{mqtt_function_connectrestoresession}
  * - @functionname{mqtt_function_disconnect}
  * - @functionname{mqtt_function_subscribe}
  * - @functionname{mqtt_function_timedsubscribe}
@@ -910,6 +920,7 @@ typedef struct AwsIotMqttNetIf
  * @image html mqtt_function_receivecallback_partial.png width=80%
  *
  * @functionpage{AwsIotMqtt_Connect,mqtt,connect}
+ * @functionpage{AwsIotMqtt_ConnectRestoreSession,mqtt,connectrestoresession}
  * @functionpage{AwsIotMqtt_Disconnect,mqtt,disconnect}
  * @functionpage{AwsIotMqtt_Subscribe,mqtt,subscribe}
  * @functionpage{AwsIotMqtt_TimedSubscribe,mqtt,timedsubscribe}
@@ -1025,7 +1036,7 @@ void AwsIotMqtt_Cleanup( void );
  * to `pReceivedData+dataLength` were successfully processed.
  */
 /* @[declare_mqtt_receivecallback] */
-ssize_t AwsIotMqtt_ReceiveCallback( AwsIotMqttConnection_t * pMqttConnection,
+int32_t AwsIotMqtt_ReceiveCallback( AwsIotMqttConnection_t * pMqttConnection,
                                     const void * pReceivedData,
                                     size_t offset,
                                     size_t dataLength,
@@ -1033,7 +1044,7 @@ ssize_t AwsIotMqtt_ReceiveCallback( AwsIotMqttConnection_t * pMqttConnection,
 /* @[declare_mqtt_receivecallback] */
 
 /**
- * @brief Establish an MQTT connection.
+ * @brief Establish a new MQTT connection.
  *
  * This function opens a connection between a new MQTT client and an MQTT server
  * (also called a <i>broker</i>). MQTT connections are established on top of transport
@@ -1041,6 +1052,23 @@ ssize_t AwsIotMqtt_ReceiveCallback( AwsIotMqttConnection_t * pMqttConnection,
  * protocols (such as TLS). The MQTT packet that establishes a connection is called
  * the MQTT CONNECT packet. After @ref mqtt_function_init, this function must be
  * called before any other MQTT library function.
+ *
+ * If [pConnectInfo->cleanSession](@ref AwsIotMqttConnectInfo_t.cleanSession) is `true`,
+ * this function establishes a clean MQTT session. Subscriptions and unacknowledged
+ * PUBLISH messages will be discarded when the connection is closed.
+ *
+ * If [pConnectInfo->cleanSession](@ref AwsIotMqttConnectInfo_t.cleanSession) is `false`,
+ * this function establishes a persistent MQTT session. <b>This function should only
+ * be used to establish a NEW persistent MQTT session</b>, i.e. a persistent
+ * session that has no previous subscriptions. The function @ref
+ * mqtt_function_connectrestoresession should be used to restore an established
+ * persistent session. The flow for using persistent sessions should be:
+ * 1. Establish new persistent session by calling @ref mqtt_function_connect with
+ * [pConnectInfo->cleanSession](@ref AwsIotMqttConnectInfo_t.cleanSession) `= false`.
+ * 2. Disconnect the MQTT connection.
+ * 3. When reconnecting a persistent session, call @ref mqtt_function_connectrestoresession
+ * with [pConnectInfo->cleanSession](@ref AwsIotMqttConnectInfo_t.cleanSession) `= false`
+ * and pass a list of subscriptions used in the persistent session.
  *
  * This MQTT library is network agnostic, meaning it has no knowledge of the
  * underlying network protocol carrying the MQTT packets. It interacts with the
@@ -1089,7 +1117,9 @@ ssize_t AwsIotMqtt_ReceiveCallback( AwsIotMqttConnection_t * pMqttConnection,
  * - #AWS_IOT_MQTT_TIMEOUT
  * - #AWS_IOT_MQTT_SERVER_REFUSED
  *
- * @see @ref mqtt_function_disconnect
+ * @see
+ * @ref mqtt_function_connectrestoresession for the function to restore an
+ * established MQTT persistent session.
  *
  * <b>Example</b>
  * @code{c}
@@ -1125,6 +1155,7 @@ ssize_t AwsIotMqtt_ReceiveCallback( AwsIotMqttConnection_t * pMqttConnection,
  * // AWS_IOT_MQTT_SUCCESS when successful.
  * AwsIotMqttError_t result = AwsIotMqtt_Connect( &mqttConnection,
  *                                                &networkInterface,
+ *                                                &connectInfo,
  *                                                &willInfo,
  *                                                5000 );
  *
@@ -1144,6 +1175,60 @@ AwsIotMqttError_t AwsIotMqtt_Connect( AwsIotMqttConnection_t * pMqttConnection,
                                       const AwsIotMqttPublishInfo_t * const pWillInfo,
                                       uint64_t timeoutMs );
 /* @[declare_mqtt_connect] */
+
+/**
+ * @brief Establish an MQTT connection and restore the subscriptions of a
+ * persistent session.
+ *
+ * Like @ref mqtt_function_connect, this function establishes an MQTT connection
+ * by sending an MQTT CONNECT packet. In addition, this function also restores
+ * the subscription callbacks from a persistent session.
+ *
+ * The subscription list passed to this function must contain subscriptions that
+ * are already present on the MQTT server as part of a persistent session. <b>This
+ * function does not send an MQTT SUBSCRIBE packet.</b> The parameter
+ * [pConnectInfo->cleanSession](@ref AwsIotMqttConnectInfo_t.cleanSession)
+ * must be `false`.
+ *
+ * <b>This function must only be called to restore an established persistent
+ * session</b>. To create a new persistent session, use @ref mqtt_function_connect.
+ *
+ * @param[out] pMqttConnection Set to a newly-initialized MQTT connection handle
+ * if this function succeeds.
+ * @param[in] pNetworkInterface The network `send` and `disconnect` functions that
+ * this MQTT connection will use.
+ * @param[in] pConnectInfo MQTT connection setup parameters.
+ * @param[in] pWillInfo Information on a Last Will and Testament message to be
+ * published if this connection is unexpectedly closed. Optional; pass `NULL` to
+ * ignore.
+ * @param[in] pSessionSubscriptions MQTT subscriptions contained in the persistent
+ * session.
+ * @param[in] sessionSubscriptionsCount The number of persistent session subscriptions.
+ * @param[in] timeoutMs If the MQTT server does not accept the connection within
+ * this timeout, this function returns #AWS_IOT_MQTT_TIMEOUT.
+ *
+ * @return One of the following:
+ * - #AWS_IOT_MQTT_SUCCESS
+ * - #AWS_IOT_MQTT_BAD_PARAMETER
+ * - #AWS_IOT_MQTT_NO_MEMORY
+ * - #AWS_IOT_MQTT_SEND_ERROR
+ * - #AWS_IOT_MQTT_BAD_RESPONSE
+ * - #AWS_IOT_MQTT_TIMEOUT
+ * - #AWS_IOT_MQTT_SERVER_REFUSED
+ *
+ * @see
+ * @ref mqtt_function_connect for the function to establish clean MQTT connections
+ * or new persistent MQTT connections.
+ */
+/* @[declare_mqtt_connectrestoresession] */
+AwsIotMqttError_t AwsIotMqtt_ConnectRestoreSession( AwsIotMqttConnection_t * pMqttConnection,
+                                                    const AwsIotMqttNetIf_t * const pNetworkInterface,
+                                                    const AwsIotMqttConnectInfo_t * const pConnectInfo,
+                                                    const AwsIotMqttPublishInfo_t * const pWillInfo,
+                                                    const AwsIotMqttSubscription_t * const pSessionSubscriptions,
+                                                    size_t sessionSubscriptionsCount,
+                                                    uint64_t timeoutMs );
+/* @[declare_mqtt_connectrestoresession] */
 
 /**
  * @brief Closes an MQTT connection and frees resources.
@@ -1176,8 +1261,6 @@ AwsIotMqttError_t AwsIotMqtt_Connect( AwsIotMqttConnection_t * pMqttConnection,
  * cleanup of the MQTT connection and not send a DISCONNECT packet. This parameter
  * should be `true` if the network goes offline or is otherwise unusable. Otherwise,
  * it should be `false`.
- *
- * @see @ref mqtt_function_connect
  */
 /* @[declare_mqtt_disconnect] */
 void AwsIotMqtt_Disconnect( AwsIotMqttConnection_t mqttConnection,
@@ -1624,11 +1707,6 @@ AwsIotMqttError_t AwsIotMqtt_Wait( AwsIotMqttReference_t reference,
  * @return A read-only string that describes `status`.
  *
  * @warning The string returned by this function must never be modified.
- *
- * @note This function is only available when the log level of the MQTT library
- * (set by either @ref AWS_IOT_LOG_LEVEL_MQTT or @ref AWS_IOT_LOG_LEVEL_GLOBAL)
- * is not #AWS_IOT_LOG_NONE. Using this function when the MQTT library's log level
- * is #AWS_IOT_LOG_NONE will cause a compilation error.
  */
 /* @[declare_mqtt_strerror] */
 const char * AwsIotMqtt_strerror( AwsIotMqttError_t status );
@@ -1648,11 +1726,6 @@ const char * AwsIotMqtt_strerror( AwsIotMqttError_t status );
  * @return A read-only string that describes `operation`.
  *
  * @warning The string returned by this function must never be modified.
- *
- * @note This function is only available when the log level of the MQTT library
- * (set by either @ref AWS_IOT_LOG_LEVEL_MQTT or @ref AWS_IOT_LOG_LEVEL_GLOBAL)
- * is not #AWS_IOT_LOG_NONE. Using this function when the MQTT library's log level
- * is #AWS_IOT_LOG_NONE will cause a compilation error.
  */
 /* @[declare_mqtt_operationtype] */
 const char * AwsIotMqtt_OperationType( AwsIotMqttOperationType_t operation );

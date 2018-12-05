@@ -166,7 +166,8 @@ static void _populateList( void )
                                                                   ( unsigned long ) i );
 
         AwsIotList_InsertHead( &( _connection.subscriptionList ),
-                               pSubscription );
+                               &( pSubscription->link),
+                               _SUBSCRIPTION_LINK_OFFSET );
     }
 }
 
@@ -281,8 +282,8 @@ TEST_GROUP( MQTT_Unit_Subscription );
  */
 TEST_SETUP( MQTT_Unit_Subscription )
 {
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS,
-                       AwsIotMqttInternal_CreateSubscriptionList( &( _connection.subscriptionList ) ) );
+    TEST_ASSERT_EQUAL_INT( true,
+                           AwsIotList_Create( &( _connection.subscriptionList ) ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -293,6 +294,7 @@ TEST_SETUP( MQTT_Unit_Subscription )
 TEST_TEAR_DOWN( MQTT_Unit_Subscription )
 {
     AwsIotList_RemoveAllMatches( &( _connection.subscriptionList ),
+                                 _SUBSCRIPTION_LINK_OFFSET,
                                  NULL,
                                  NULL,
                                  AwsIotMqtt_FreeSubscription );
@@ -332,13 +334,25 @@ TEST( MQTT_Unit_Subscription, ListInsertRemove )
     _mqttSubscription_t node2 = { 0 };
     _mqttSubscription_t node3 = { 0 };
 
-    AwsIotList_InsertHead( &( _connection.subscriptionList ), &node1 );
-    AwsIotList_InsertHead( &( _connection.subscriptionList ), &node2 );
-    AwsIotList_InsertHead( &( _connection.subscriptionList ), &node3 );
+    AwsIotList_InsertHead( &( _connection.subscriptionList ),
+                           &( node1.link ),
+                           _SUBSCRIPTION_LINK_OFFSET );
+    AwsIotList_InsertHead( &( _connection.subscriptionList ),
+                           &( node2.link ),
+                           _SUBSCRIPTION_LINK_OFFSET );
+    AwsIotList_InsertHead( &( _connection.subscriptionList ),
+                           &( node3.link ),
+                           _SUBSCRIPTION_LINK_OFFSET );
 
-    AwsIotList_Remove( &( _connection.subscriptionList ), &node1 );
-    AwsIotList_Remove( &( _connection.subscriptionList ), &node2 );
-    AwsIotList_Remove( &( _connection.subscriptionList ), &node3 );
+    AwsIotList_Remove( &( _connection.subscriptionList ),
+                       &( node1.link ),
+                       _SUBSCRIPTION_LINK_OFFSET );
+    AwsIotList_Remove( &( _connection.subscriptionList ),
+                       &( node2.link ),
+                       _SUBSCRIPTION_LINK_OFFSET );
+    AwsIotList_Remove( &( _connection.subscriptionList ),
+                       &( node3.link ),
+                       _SUBSCRIPTION_LINK_OFFSET );
 
     TEST_ASSERT_EQUAL_PTR( NULL, _connection.subscriptionList.pHead );
 }
@@ -357,8 +371,8 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
     topicMatchParams.topicNameLength = 6;
 
     /* On empty list. */
-    pSubscription = AwsIotList_FindFirstMatch( ( &_connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &topicMatchParams,
                                                AwsIotTestMqtt_topicMatch );
     TEST_ASSERT_EQUAL_PTR( NULL, pSubscription );
@@ -366,8 +380,8 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
     _populateList();
 
     /* Topic filter present. */
-    pSubscription = AwsIotList_FindFirstMatch( ( &_connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &topicMatchParams,
                                                AwsIotTestMqtt_topicMatch );
     TEST_ASSERT_NOT_EQUAL( NULL, pSubscription );
@@ -375,8 +389,8 @@ TEST( MQTT_Unit_Subscription, ListFindByTopicFilter )
     /* Topic filter not present. */
     topicMatchParams.pTopicName = "/notpresent";
     topicMatchParams.topicNameLength = 11;
-    pSubscription = AwsIotList_FindFirstMatch( ( &_connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &topicMatchParams,
                                                AwsIotTestMqtt_topicMatch );
     TEST_ASSERT_EQUAL_PTR( NULL, pSubscription );
@@ -396,8 +410,8 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
     packetMatchParams.order = 0;
 
     /* On empty list. */
-    pSubscription = AwsIotList_FindFirstMatch( &( _connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &packetMatchParams,
                                                AwsIotTestMqtt_packetMatch );
     TEST_ASSERT_EQUAL_PTR( NULL, pSubscription );
@@ -405,16 +419,16 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
     _populateList();
 
     /* Packet and order present. */
-    pSubscription = AwsIotList_FindFirstMatch( &( _connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &packetMatchParams,
                                                AwsIotTestMqtt_packetMatch );
     TEST_ASSERT_NOT_EQUAL( NULL, pSubscription );
 
     /* Packet present, order not present. */
     packetMatchParams.order = _LIST_ITEM_COUNT;
-    pSubscription = AwsIotList_FindFirstMatch( &( _connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &packetMatchParams,
                                                AwsIotTestMqtt_packetMatch );
     TEST_ASSERT_EQUAL_PTR( NULL, pSubscription );
@@ -422,8 +436,8 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
     /* Packet not present, order present. */
     packetMatchParams.packetIdentifier = 0;
     packetMatchParams.order = 0;
-    pSubscription = AwsIotList_FindFirstMatch( &( _connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &packetMatchParams,
                                                AwsIotTestMqtt_packetMatch );
     TEST_ASSERT_EQUAL_PTR( NULL, pSubscription );
@@ -431,8 +445,8 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
     /* Packet and order not present. */
     packetMatchParams.packetIdentifier = 0;
     packetMatchParams.order = _LIST_ITEM_COUNT;
-    pSubscription = AwsIotList_FindFirstMatch( &( _connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &packetMatchParams,
                                                AwsIotTestMqtt_packetMatch );
     TEST_ASSERT_EQUAL_PTR( NULL, pSubscription );
@@ -445,7 +459,7 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
  */
 TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
 {
-    ssize_t i = 0;
+    long i = 0;
 
     /* On empty list (should not crash). */
     AwsIotMqttInternal_RemoveSubscriptionByPacket( &_connection,
@@ -579,8 +593,8 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     topicMatchParams.pTopicName = "/test1";
     topicMatchParams.topicNameLength = 6;
     topicMatchParams.exactMatchOnly = true;
-    pSubscription = AwsIotList_FindFirstMatch( &( _connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &topicMatchParams,
                                                AwsIotTestMqtt_topicMatch );
     TEST_ASSERT_NOT_EQUAL( NULL, pSubscription );
@@ -592,10 +606,12 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     TEST_ASSERT_EQUAL_PTR( &_connection, pSubscription->callback.param1 );
 
     /* Check that a duplicate entry wasn't created. */
-    AwsIotList_Remove( &( _connection.subscriptionList ), pSubscription );
+    AwsIotList_Remove( &( _connection.subscriptionList ),
+                       &( pSubscription->link ),
+                       _SUBSCRIPTION_LINK_OFFSET );
     AwsIotMqtt_FreeSubscription( pSubscription );
-    pSubscription = AwsIotList_FindFirstMatch( &( _connection.subscriptionList ),
-                                               _connection.subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( _connection.subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &topicMatchParams,
                                                AwsIotTestMqtt_topicMatch );
     TEST_ASSERT_EQUAL_PTR( NULL, pSubscription );

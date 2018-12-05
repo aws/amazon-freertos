@@ -66,7 +66,7 @@
 #endif
 
 #define _LIBRARY_LOG_NAME    ( "THREAD" )
-#include "private/aws_iot_logging_setup.h"
+#include "aws_iot_logging_setup.h"
 
 /*
  * Provide default values for undefined memory allocation functions based on

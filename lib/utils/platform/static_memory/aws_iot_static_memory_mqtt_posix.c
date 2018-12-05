@@ -112,10 +112,10 @@ static bool _pInUseMqttConnections[ AWS_IOT_MQTT_CONNECTIONS ] = { 0 };         
 static _mqttConnection_t _pMqttConnections[ AWS_IOT_MQTT_CONNECTIONS ] = { { 0 } };                   /**< @brief MQTT connections. */
 
 static bool _pInUseMqttOperations[ AWS_IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };                 /**< @brief MQTT operation in-use flags. */
-static _mqttOperation_t _pMqttOperations[ AWS_IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { { 0 } };      /**< @brief MQTT operations. */
+static _mqttOperation_t _pMqttOperations[ AWS_IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };          /**< @brief MQTT operations. */
 
 static bool _pInUseMqttTimerEvents[ AWS_IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };                /**< @brief MQTT timer event in-use flags. */
-static _mqttTimerEvent_t _pMqttTimerEvents[ AWS_IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { { 0 } };    /**< @brief MQTT timer events. */
+static _mqttTimerEvent_t _pMqttTimerEvents[ AWS_IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };        /**< @brief MQTT timer events. */
 
 static bool _pInUseMqttSubscriptions[ AWS_IOT_MQTT_SUBSCRIPTIONS ] = { 0 };                           /**< @brief MQTT subscription in-use flags. */
 static char _pMqttSubscriptions[ AWS_IOT_MQTT_SUBSCRIPTIONS ][ _MQTT_SUBSCRIPTION_SIZE ] = { { 0 } }; /**< @brief MQTT subscriptions. */

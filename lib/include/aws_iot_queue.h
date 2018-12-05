@@ -40,35 +40,50 @@
 #include "platform/aws_iot_threads.h"
 
 /**
- * @defgroup queue_datatypes_queuelist Queue and list
- * @brief Structures that represent a queue or list.
+ * @brief Calculates the offset of a link within its containing struct.
  *
- * These structures contain a copy of the [parameter structure]
- * (@ref queue_datatypes_paramstructs) passed to the queue or list creation
- * function. Members of these structures are internal and should only be modified
- * using [queue or list functions](@ref queue_functions). The exception is the
- * `mutex` member, which may be locked as needed to provide thread safety.
+ * @param[in] containerType The name of the containing struct type.
+ * @param[in] linkMember The name of the link member in the containing struct.
+ *
+ * <b>Example</b>
+ * @code{c}
+ * typedef struct Example
+ * {
+ *     int member;
+ *     AwsIotLink_t link1;
+ *     AwsIotLink_t link2;
+ * } Example_t;
+ *
+ * // Calculate offset of link1.
+ * size_t offset = AwsIotLink_Offset( Example_t, link1 );
+ * @endcode
  */
+#define AwsIotLink_Offset( containerType, linkMember ) \
+    ( ( size_t ) &( ( ( containerType * ) 0 )->linkMember ) )
+
+/**
+ * @brief Calculates the starting address of a containing struct.
+ *
+ * @param[in] pLink Pointer to a link member.
+ * @param[in] linkOffset Offset of `pLink` in its container. Use #AwsIotLink_Offset
+ * to calculate.
+ */
+#define AwsIotLink_Container( pLink, linkOffset ) \
+    ( ( void * ) ( ( ( uint8_t * ) ( pLink ) ) - linkOffset ) )
 
 /**
  * @paramstructs{queue,queue}
- *
- * Queue and list parameter structures contain function pointers for accessing
- * the next or previous pointers of a queue element. All of these function
- * pointers must be set before calling a queue or list creation function. These
- * function pointers allow the library to set and query next and previous
- * elements while remaining agnostic to the contents of each element.
  */
 
 /**
  * @ingroup queue_datatypes_paramstructs
- * @brief Configuration parameters of an #AwsIotQueue_t.
+ * @brief Configuration parameters of an #AwsIotQueue_t when using notifications.
  *
  * @paramfor @ref queue_function_create
  *
- * Passed to @ref queue_function_create to configure the new queue.
+ * Passed to @ref queue_function_create to configure a new notification queue.
  */
-typedef struct AwsIotQueueParams
+typedef struct AwsIotQueueNotifyParams
 {
     /**
      * @brief Notification routine to run when data is added to the queue.
@@ -79,24 +94,37 @@ typedef struct AwsIotQueueParams
     AwsIotThreadRoutine_t notifyRoutine;
 
     /**
-     * @brief The argument passed to #AwsIotQueueParams_t.notifyRoutine.
+     * @brief The argument passed to #AwsIotQueueNotifyParams_t.notifyRoutine.
      *
      * This member is not used by any queue function and is intended for
      * application use.
      */
     void * pNotifyArgument;
+} AwsIotQueueNotifyParams_t;
 
-    /* These function pointers provide access to the queue element's next and
-     * previous pointers. */
-    void * ( *getNext )( void * ); /**< @brief Returns the value of the queue element's next pointer. */
-    void * ( *getPrev )( void * ); /**< @brief Returns the value of the queue element's previous pointer. */
-    /** @brief Sets the queue element's next pointer. */
-    void ( * setNext )( void *,
-                        void * );
-    /** @brief Sets the queue element's previous pointer. */
-    void ( * setPrev )( void *,
-                        void * );
-} AwsIotQueueParams_t;
+/**
+ * @defgroup queue_datatypes_queuelist Queue and list
+ * @brief Structures that represent a queue or list.
+ *
+ * Most members of these structures are internal and should only be modified
+ * using [queue or list functions](@ref queue_functions). The exception is the
+ * `mutex` member, which may be locked as needed to provide thread safety.
+ */
+
+/**
+ * @ingroup queue_datatypes_queuelist
+ * @brief Link member placed in structs of a queue or list.
+ *
+ * All elements in a queue or list must contain one of these members. The macro
+ * #AwsIotLink_Offset can be used to calculate the offset of the link member in
+ * its containing struct. The macro #AwsIotLink_Container can be used to calculate
+ * the starting address of the containing struct.
+ */
+typedef struct AwsIotLink
+{
+    struct AwsIotLink * pPrevious; /**< @brief Pointer to previous link. */
+    struct AwsIotLink * pNext;     /**< @brief Pointer to next link. */
+} AwsIotLink_t;
 
 /**
  * @ingroup queue_datatypes_queuelist
@@ -107,35 +135,13 @@ typedef struct AwsIotQueueParams
  */
 typedef struct AwsIotQueue
 {
-    void * pHead;                        /**< @brief Pointer to queue's head. */
-    void * pTail;                        /**< @brief Pointer to queue's tail. */
+    AwsIotLink_t * pHead;                /**< @brief Pointer to queue's head. */
+    AwsIotLink_t * pTail;                /**< @brief Pointer to queue's tail. */
 
     AwsIotMutex_t mutex;                 /**< @brief Protects this queue from concurrent use. */
     AwsIotSemaphore_t notifyThreadCount; /**< @brief Limits the number of concurrent notification threads. */
-    AwsIotQueueParams_t params;          /**< @brief Queue configuration. See #AwsIotQueueParams_t. */
+    AwsIotQueueNotifyParams_t params;    /**< @brief Queue notification configuration. See #AwsIotQueueNotifyParams_t. */
 } AwsIotQueue_t;
-
-/**
- * @ingroup queue_datatypes_paramstructs
- * @brief Configuration parameters of an #AwsIotList_t.
- *
- * @paramfor @ref list_function_create
- *
- * Passed to @ref list_function_create to configure a new list.
- */
-typedef struct AwsIotListParams
-{
-    /* These function pointers provide access to the list element's next and
-     * previous pointers. */
-    void * ( *getNext )( void * ); /**< @brief Returns the value of the list element's next pointer. */
-    void * ( *getPrev )( void * ); /**< @brief Returns the value of the list element's previous pointer. */
-    /** @brief Sets the list element's next pointer. */
-    void ( * setNext )( void *,
-                        void * );
-    /** @brief Sets the list element's previous pointer. */
-    void ( * setPrev )( void *,
-                        void * );
-} AwsIotListParams_t;
 
 /**
  * @ingroup queue_datatypes_queuelist
@@ -147,9 +153,8 @@ typedef struct AwsIotListParams
  */
 typedef struct AwsIotList
 {
-    void * pHead;              /**< @brief Pointer to the list's head. */
-    AwsIotMutex_t mutex;       /**< @brief Protects this list from concurrent use. */
-    AwsIotListParams_t params; /**< @brief List configuration. See #AwsIotListParams_t. */
+    AwsIotLink_t * pHead; /**< @brief Pointer to the list's head. */
+    AwsIotMutex_t mutex;  /**< @brief Protects this list from concurrent use. */
 } AwsIotList_t;
 
 /**
@@ -196,24 +201,25 @@ typedef struct AwsIotList
  * #AwsIotQueue_t before calling any other queue function. This function must
  * not be called on an already-initialized #AwsIotQueue_t.
  *
- * If [pQueueParams->notifyRoutine](@ref AwsIotQueueParams_t.notifyRoutine) is
+ * If [pQueueParams->notifyRoutine](@ref AwsIotQueueNotifyParams_t.notifyRoutine) is
  * not `NULL`, then this function creates a notification queue. A notification
  * queue creates a thread to notify the application that data is available. Up to
  * `maxNotifyThreads` simultaneous threads may be created for a single queue.
  *
  * @param[in] pQueue Pointer to the memory that will hold the new queue.
- * @param[in] pQueueParams Configuration parameters of the new queue.
+ * @param[in] pNotifyParams Parameters for a notification queue. Optional; pass
+ * `NULL` to create a queue that does not have notifications.
  * @param[in] maxNotifyThreads The maximum number of simultaneous notification
  * threads this queue may have. Ignored if [pQueueParams->notifyRoutine]
- * (@ref AwsIotQueueParams_t.notifyRoutine) is `NULL`. This parameter must be
+ * (@ref AwsIotQueueNotifyParams_t.notifyRoutine) is `NULL`. This parameter must be
  * greater than `0` when [pQueueParams->notifyRoutine]
- * (@ref AwsIotQueueParams_t.notifyRoutine) is not `NULL`.
+ * (@ref AwsIotQueueNotifyParams_t.notifyRoutine) is not `NULL`.
  *
  * @return `true` if a queue was successfully created; `false` otherwise.
  */
 /* @[declare_queue_create] */
 bool AwsIotQueue_Create( AwsIotQueue_t * const pQueue,
-                         const AwsIotQueueParams_t * const pQueueParams,
+                         const AwsIotQueueNotifyParams_t * const pNotifyParams,
                          uint32_t maxNotifyThreads );
 /* @[declare_queue_create] */
 
@@ -240,14 +246,14 @@ void AwsIotQueue_Destroy( AwsIotQueue_t * const pQueue );
  *
  * This function places a new element in `pQueue`. New elements are always placed
  * at the head of `pQueue` (FIFO). Data is inserted by setting the [next]
- * (@ref AwsIotQueueParams_t.setNext) and [previous](@ref AwsIotQueueParams_t.setPrev)
- * pointers; no data is copied.
+ * (@ref AwsIotLink_t.pNext) and [previous](@ref AwsIotLink_t.pPrevious) pointers
+ * of a link member; no data is copied.
  *
  * If `pQueue` is a notification queue, a new notification thread will be created
  * (assuming the system has the necessary resources).
  *
  * @param[in] pQueue The queue that will hold the new element.
- * @param[in] pData Pointer to the new element.
+ * @param[in] pLink Pointer to the new element's link member.
  *
  * @return `true` if the new element was successfully inserted and any requested
  * notification was successful. If the maximum number of notification threads
@@ -257,7 +263,7 @@ void AwsIotQueue_Destroy( AwsIotQueue_t * const pQueue );
  */
 /* @[declare_queue_inserthead] */
 bool AwsIotQueue_InsertHead( AwsIotQueue_t * const pQueue,
-                             void * pData );
+                             AwsIotLink_t * const pLink );
 /* @[declare_queue_inserthead] */
 
 /**
@@ -270,6 +276,8 @@ bool AwsIotQueue_InsertHead( AwsIotQueue_t * const pQueue,
  * be `true`. Otherwise, `notifyExitIfEmpty` should be `false`.
  *
  * @param[in] pQueue The queue that holds the element to remove.
+ * @param[in] linkOffset Offset of link members in elements of `pQueue`. Use
+ * #AwsIotLink_Offset to calculate.
  * @param[in] notifyExitIfEmpty If this parameter is `true`, then this function
  * will increment the number of available notification threads and expect the
  * calling thread to exit. This parameter should only be `true` if the calling
@@ -279,6 +287,7 @@ bool AwsIotQueue_InsertHead( AwsIotQueue_t * const pQueue,
  */
 /* @[declare_queue_removetail] */
 void * AwsIotQueue_RemoveTail( AwsIotQueue_t * const pQueue,
+                               size_t linkOffset,
                                bool notifyExitIfEmpty );
 /* @[declare_queue_removetail] */
 
@@ -290,6 +299,8 @@ void * AwsIotQueue_RemoveTail( AwsIotQueue_t * const pQueue,
  * be called multiple times for multiple matching elements.
  *
  * @param[in] pQueue The queue to search.
+ * @param[in] linkOffset Offset of link members in elements of `pQueue`. Use
+ * #AwsIotLink_Offset to calculate.
  * @param[in] pArgument If `shouldRemove` is not `NULL`, this value will be passed as the
  * first argument to `shouldRemove`. If `shouldRemove` is `NULL`, every element in the queue
  * will be compared to this value to find a match.
@@ -300,6 +311,7 @@ void * AwsIotQueue_RemoveTail( AwsIotQueue_t * const pQueue,
  */
 /* @[declare_queue_removefirstmatch] */
 void * AwsIotQueue_RemoveFirstMatch( AwsIotQueue_t * const pQueue,
+                                     size_t linkOffset,
                                      void * pArgument,
                                      bool ( * shouldRemove )( void *, void * ) );
 /* @[declare_queue_removefirstmatch] */
@@ -312,6 +324,8 @@ void * AwsIotQueue_RemoveFirstMatch( AwsIotQueue_t * const pQueue,
  * elements.
  *
  * @param[in] pQueue The queue to search.
+ * @param[in] linkOffset Offset of link members in elements of `pQueue`. Use
+ * #AwsIotLink_Offset to calculate.
  * @param[in] pArgument The first argument passed to `shouldRemove`.
  * @param[in] shouldRemove Function used to determine if an element matches.
  * Pass `NULL` to remove all elements from the queue.
@@ -320,6 +334,7 @@ void * AwsIotQueue_RemoveFirstMatch( AwsIotQueue_t * const pQueue,
  */
 /* @[declare_queue_removeallmatches] */
 void AwsIotQueue_RemoveAllMatches( AwsIotQueue_t * const pQueue,
+                                   size_t linkOffset,
                                    void * pArgument,
                                    bool ( * shouldRemove )( void *, void * ),
                                    void ( * freeElement )( void * ) );
@@ -333,13 +348,11 @@ void AwsIotQueue_RemoveAllMatches( AwsIotQueue_t * const pQueue,
  * be called on an already-initialized #AwsIotList_t.
  *
  * @param[in] pList Pointer to the memory that will hold the new list.
- * @param[in] pListParams Configuration parameters of the new list.
  *
  * @return `true` if a list was successfully created; `false` otherwise.
  */
 /* @[declare_list_create] */
-bool AwsIotList_Create( AwsIotList_t * const pList,
-                      const AwsIotListParams_t * const pListParams );
+bool AwsIotList_Create( AwsIotList_t * const pList );
 /* @[declare_list_create] */
 
 /**
@@ -359,18 +372,21 @@ void AwsIotList_Destroy( AwsIotList_t * const pList );
  * @brief Insert an element at the head of the list.
  *
  * This function places a new element at the head of `pList`. Data is inserted
- * by setting the [next](@ref AwsIotListParams_t.setNext) and [previous]
- * (@ref AwsIotListParams_t.setPrev) pointers; no data is copied.
+ * by setting the [next](@ref AwsIotLink_t.pNext) and [previous]
+ * (@ref AwsIotLink_t.pPrevious) pointers of a link member; no data is copied.
  *
  * @param[in] pList The list that will hold the new element.
- * @param[in] pData Pointer to the new element.
+ * @param[in] pLink Pointer to the new element's link member.
+ * @param[in] linkOffset Offset of `pLink` in its container. Use #AwsIotLink_Offset
+ * to calculate.
  *
  * @note This function should be called with [pList->mutex](@ref AwsIotList_t.mutex)
  * locked if thread safety is needed.
  */
 /* @[declare_list_inserthead] */
 void AwsIotList_InsertHead( AwsIotList_t * const pList,
-                            void * pData );
+                            AwsIotLink_t * const pLink,
+                            size_t linkOffset );
 /* @[declare_list_inserthead] */
 
 /**
@@ -378,11 +394,13 @@ void AwsIotList_InsertHead( AwsIotList_t * const pList,
  *
  * Places an element into a list by sorting it into order. The function
  * `compare` is used to determine where to place the new element. Data is
- * inserted by setting the [next](@ref AwsIotListParams_t.setNext) and
- * [previous](@ref AwsIotListParams_t.setPrev) pointers; no data is copied.
+ * inserted by setting the [next](@ref AwsIotLink_t.pNext) and [previous]
+ * (@ref AwsIotLink_t.pPrevious) pointers of a link member; no data is copied.
  *
  * @param[in] pList The list that will hold the new element.
- * @param[in] pData Pointer to the new element.
+ * @param[in] pLink Pointer to the new element's link member.
+ * @param[in] linkOffset Offset of `pLink` in its container. Use #AwsIotLink_Offset
+ * to calculate.
  * @param[in] compare Determines the order of the list. Returns a negative
  * value if its first argument is less than its second argument; returns
  * zero if its first argument is equal to its second argument; returns a
@@ -393,20 +411,22 @@ void AwsIotList_InsertHead( AwsIotList_t * const pList,
  */
 /* @[declare_list_insertsorted] */
 void AwsIotList_InsertSorted( AwsIotList_t * const pList,
-                              void * pData,
+                              AwsIotLink_t * const pLink,
+                              size_t linkOffset,
                               int ( * compare )( void *, void * ) );
 /* @[declare_list_insertsorted] */
 
 /**
  * @brief Search a list for the first matching element after the start point.
  *
- * This function searches `pList` from `pStartPoint` to the list tail for the
- * first matching element. If a match is found, the matching element is <b>not</b>
+ * This function searches from `pStartPoint` to the list tail for the first
+ * matching element. If a match is found, the matching element is <b>not</b>
  * removed from the list.
  *
- * @param[in] pList The list to search.
  * @param[in] pStartPoint Start point of the search. Pass [pList->pHead]
- * (@ref AwsIotList_t.pHead) to search the entire list.
+ * (@ref AwsIotList_t.pHead) to search an entire list.
+ * @param[in] linkOffset Offset of `pLink` in its container. Use #AwsIotLink_Offset
+ * to calculate.
  * @param[in] pArgument If `compare` is not `NULL`, this value will be passed
  * as the first argument to `compare`. If `compare` is `NULL`, every
  * element in the list will be compared to this value to find a match.
@@ -419,8 +439,8 @@ void AwsIotList_InsertSorted( AwsIotList_t * const pList,
  * locked if thread safety is needed.
  */
 /* @[declare_list_findfirstmatch] */
-void * AwsIotList_FindFirstMatch( AwsIotList_t * const pList,
-                                  void * pStartPoint,
+void * AwsIotList_FindFirstMatch( AwsIotLink_t * const pStartPoint,
+                                  size_t linkOffset,
                                   void * pArgument,
                                   bool ( * compare )( void *, void * ) );
 /* @[declare_list_findfirstmatch] */
@@ -431,16 +451,19 @@ void * AwsIotList_FindFirstMatch( AwsIotList_t * const pList,
  * Remove an element from a list. The given element must be in `pList`; use
  * @ref list_function_findfirstmatch to determine if an element is in `pList`.
  *
- * @param[in] pList The list that holds `pData`.
- * @param[in] pData The element to remove.
+ * @param[in] pList The list that holds the container of `pLink`.
+ * @param[in] pLink The link member of the element to remove.
+ * @param[in] linkOffset Offset of `pLink` in its container. Use #AwsIotLink_Offset
+ * to calculate.
  *
- * @warning Do not pass a `pData` that is not in `pList`.
+ * @warning Do not pass a `pLink` that is not in `pList`.
  * @note This function should be called with [pList->mutex](@ref AwsIotList_t.mutex)
  * locked if thread safety is needed.
  */
 /* @[declare_list_remove] */
 void AwsIotList_Remove( AwsIotList_t * const pList,
-                        void * pData );
+                        AwsIotLink_t * const pLink,
+                        size_t linkOffset );
 /* @[declare_list_remove] */
 
 /**
@@ -451,6 +474,8 @@ void AwsIotList_Remove( AwsIotList_t * const pList,
  * elements.
  *
  * @param[in] pList The list to search.
+ * @param[in] linkOffset Offset of link members in elements of `pList`. Use
+ * #AwsIotLink_Offset to calculate.
  * @param[in] pArgument The first argument passed to `shouldRemove`.
  * @param[in] shouldRemove Function used to determine if an element matches.
  * Pass `NULL` to remove all elements from the list.
@@ -464,6 +489,7 @@ void AwsIotList_Remove( AwsIotList_t * const pList,
  */
 /* @[declare_list_removeallmatches] */
 void AwsIotList_RemoveAllMatches( AwsIotList_t * const pList,
+                                  size_t linkOffset,
                                   void * pArgument,
                                   bool ( * shouldRemove )( void *, void * ),
                                   void ( * freeElement )( void * ) );

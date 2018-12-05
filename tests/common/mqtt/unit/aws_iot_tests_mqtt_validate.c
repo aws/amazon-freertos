@@ -163,12 +163,6 @@ TEST( MQTT_Unit_Validate, ValidateConnectInfo )
 
     /* AWS IoT MQTT service limit tests. */
     #if AWS_IOT_MQTT_MODE == 1
-        /* Unclean session. */
-        connectInfo.cleanSession = false;
-        validateStatus = AwsIotMqttInternal_ValidateConnect( &connectInfo );
-        TEST_ASSERT_EQUAL_INT( false, validateStatus );
-        connectInfo.cleanSession = true;
-
         /* Client identifier too long. */
         connectInfo.clientIdentifierLength = _AWS_IOT_MQTT_SERVER_MAX_CLIENTID + 1;
         validateStatus = AwsIotMqttInternal_ValidateConnect( &connectInfo );

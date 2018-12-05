@@ -54,7 +54,7 @@ typedef struct _topicMatchParams
 typedef struct _packetMatchParams
 {
     uint16_t packetIdentifier; /**< Packet identifier to match. */
-    ssize_t order;             /**< Order to match. Set to `-1` to ignore. */
+    long order;                /**< Order to match. Set to `-1` to ignore. */
 } _packetMatchParams_t;
 
 /*-----------------------------------------------------------*/
@@ -251,8 +251,8 @@ AwsIotMqttError_t AwsIotMqttInternal_AddSubscriptions( _mqttConnection_t * const
         /* Check if this topic filter is already registered. */
         topicMatchParams.pTopicName = pSubscriptionList[ i ].pTopicFilter;
         topicMatchParams.topicNameLength = pSubscriptionList[ i ].topicFilterLength;
-        pNewSubscription = AwsIotList_FindFirstMatch( &( pMqttConnection->subscriptionList ),
-                                                      pMqttConnection->subscriptionList.pHead,
+        pNewSubscription = AwsIotList_FindFirstMatch( pMqttConnection->subscriptionList.pHead,
+                                                      _SUBSCRIPTION_LINK_OFFSET,
                                                       &topicMatchParams,
                                                       _topicMatch );
 
@@ -298,7 +298,8 @@ AwsIotMqttError_t AwsIotMqttInternal_AddSubscriptions( _mqttConnection_t * const
                               pSubscriptionList[ i ].topicFilterLength );
 
             AwsIotList_InsertHead( &( pMqttConnection->subscriptionList ),
-                                   pNewSubscription );
+                                   &( pNewSubscription->link ),
+                                   _SUBSCRIPTION_LINK_OFFSET );
         }
     }
 
@@ -312,7 +313,8 @@ AwsIotMqttError_t AwsIotMqttInternal_AddSubscriptions( _mqttConnection_t * const
 void AwsIotMqttInternal_ProcessPublish( _mqttConnection_t * const pMqttConnection,
                                         AwsIotMqttCallbackParam_t * const pCallbackParam )
 {
-    _mqttSubscription_t * pSubscription = NULL, * pStartPoint = NULL;
+    _mqttSubscription_t * pSubscription = NULL;
+    AwsIotLink_t * pStartPoint = NULL;
     void * pParam1 = NULL;
 
     void ( * callbackFunction )( void *,
@@ -332,8 +334,8 @@ void AwsIotMqttInternal_ProcessPublish( _mqttConnection_t * const pMqttConnectio
     /* Search the subscription list for all matching subscriptions. */
     while( pStartPoint != NULL )
     {
-        pSubscription = AwsIotList_FindFirstMatch( &( pMqttConnection->subscriptionList ),
-                                                   pStartPoint,
+        pSubscription = AwsIotList_FindFirstMatch( pStartPoint,
+                                                   _SUBSCRIPTION_LINK_OFFSET,
                                                    ( void * ) ( &topicMatchParams ),
                                                    _topicMatch );
 
@@ -373,14 +375,15 @@ void AwsIotMqttInternal_ProcessPublish( _mqttConnection_t * const pMqttConnectio
         AwsIotMqtt_Assert( pSubscription->references >= 0 );
 
         /* Restart the search at the next subscription. */
-        pStartPoint = pSubscription->pNext;
+        pStartPoint = pSubscription->link.pNext;
 
         /* Remove this subscription if it has no references and the unsubscribed
          * flag is set. */
         if( ( pSubscription->references == 0 ) && ( pSubscription->unsubscribed == true ) )
         {
             AwsIotList_Remove( &( pMqttConnection->subscriptionList ),
-                               pSubscription );
+                               &( pSubscription->link ),
+                               _SUBSCRIPTION_LINK_OFFSET );
             AwsIotMqtt_FreeSubscription( pSubscription );
         }
     }
@@ -392,7 +395,7 @@ void AwsIotMqttInternal_ProcessPublish( _mqttConnection_t * const pMqttConnectio
 
 void AwsIotMqttInternal_RemoveSubscriptionByPacket( _mqttConnection_t * const pMqttConnection,
                                                     uint16_t packetIdentifier,
-                                                    ssize_t order )
+                                                    long order )
 {
     const _packetMatchParams_t packetMatchParams =
     {
@@ -401,6 +404,7 @@ void AwsIotMqttInternal_RemoveSubscriptionByPacket( _mqttConnection_t * const pM
     };
 
     AwsIotList_RemoveAllMatches( &( pMqttConnection->subscriptionList ),
+                                 _SUBSCRIPTION_LINK_OFFSET,
                                  ( void * ) &packetMatchParams,
                                  _packetMatch,
                                  AwsIotMqtt_FreeSubscription );
@@ -427,8 +431,8 @@ void AwsIotMqttInternal_RemoveSubscriptionByTopicFilter( _mqttConnection_t * con
         topicMatchParams.topicNameLength = pSubscriptionList[ i ].topicFilterLength;
         topicMatchParams.exactMatchOnly = true;
 
-        pSubscription = AwsIotList_FindFirstMatch( &( pMqttConnection->subscriptionList ),
-                                                   pMqttConnection->subscriptionList.pHead,
+        pSubscription = AwsIotList_FindFirstMatch( pMqttConnection->subscriptionList.pHead,
+                                                   _SUBSCRIPTION_LINK_OFFSET,
                                                    &topicMatchParams,
                                                    _topicMatch );
 
@@ -449,7 +453,8 @@ void AwsIotMqttInternal_RemoveSubscriptionByTopicFilter( _mqttConnection_t * con
             {
                 /* No subscription callbacks are using this subscription. Remove it. */
                 AwsIotList_Remove( &( pMqttConnection->subscriptionList ),
-                                   pSubscription );
+                                   &( pSubscription->link ),
+                                   _SUBSCRIPTION_LINK_OFFSET );
                 AwsIotMqtt_FreeSubscription( pSubscription );
             }
         }
@@ -480,8 +485,8 @@ bool AwsIotMqtt_IsSubscribed( AwsIotMqttConnection_t mqttConnection,
     AwsIotMutex_Lock( &( pMqttConnection->subscriptionList.mutex ) );
 
     /* Search for a matching subscription. */
-    pSubscription = AwsIotList_FindFirstMatch( &( pMqttConnection->subscriptionList ),
-                                               pMqttConnection->subscriptionList.pHead,
+    pSubscription = AwsIotList_FindFirstMatch( pMqttConnection->subscriptionList.pHead,
+                                               _SUBSCRIPTION_LINK_OFFSET,
                                                &topicMatchParams,
                                                _topicMatch );
 

@@ -795,19 +795,10 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging_setup.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_mqtt_internal.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_queue.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h">
-      <Filter>lib\aws\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network_afr.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h">
@@ -836,6 +827,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_json_utils.h">
       <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h">
+      <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1373,9 +1373,6 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_operation.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_queue_access.c">
-      <Filter>lib\aws\mqtt</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_serialize.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
@@ -1418,9 +1415,6 @@
     <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_mqtt_posix.c">
       <Filter>lib\aws\utils\platform\static_memory</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\test_runner\aws_iot_tests_network_afr.c">
-      <Filter>application_code\common_tests\test_runner</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_api.c">
       <Filter>lib\aws\shadow</Filter>
     </ClCompile>
@@ -1447,6 +1441,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_shadow_posix.c">
       <Filter>lib\aws\utils\platform\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\test_runner\aws_iot_tests_network.c">
+      <Filter>application_code\common_tests\test_runner</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

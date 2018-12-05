@@ -34,7 +34,7 @@
 #include <string.h>
 
 /* Queue include. */
-#include "private/aws_iot_queue.h"
+#include "aws_iot_queue.h"
 
 /**
  * @def AwsIotQueue_Assert( expression )
@@ -61,27 +61,27 @@
  *
  * This function should be called within a critical section.
  * @param[in] pQueue The queue holding the element to remove.
- * @param[in] pData The element to remove.
+ * @param[in] pLink The element to remove.
  */
 static void _queueRemove( AwsIotQueue_t * const pQueue,
-                          void * pData );
+                          AwsIotLink_t * const pLink );
 
 /*-----------------------------------------------------------*/
 
 static void _queueRemove( AwsIotQueue_t * const pQueue,
-                          void * pData )
+                          AwsIotLink_t * const pLink )
 {
     /* This function should not be called on an empty queue. */
     AwsIotQueue_Assert( pQueue->pHead != NULL && pQueue->pTail != NULL );
 
     /* Check if the head of the queue is being removed. */
-    if( pData == pQueue->pHead )
+    if( pLink == pQueue->pHead )
     {
         /* Queue head should have NULL previous pointer. */
-        AwsIotQueue_Assert( pQueue->params.getPrev( pQueue->pHead ) == NULL );
+        AwsIotQueue_Assert( pQueue->pHead->pPrevious == NULL );
 
         /* Move the queue head. */
-        pQueue->pHead = pQueue->params.getNext( pQueue->pHead );
+        pQueue->pHead = pQueue->pHead->pNext;
 
         /* Check if the queue is now empty. */
         if( pQueue->pHead == NULL )
@@ -93,17 +93,17 @@ static void _queueRemove( AwsIotQueue_t * const pQueue,
         {
             /* If the queue is not empty, set the new head's previous pointer
              * to NULL. */
-            pQueue->params.setPrev( pQueue->pHead, NULL );
+            pQueue->pHead->pPrevious = NULL;
         }
     }
     /* Check if the tail of the queue is being removed. */
-    else if( pData == pQueue->pTail )
+    else if( pLink == pQueue->pTail )
     {
         /* Queue tail should have NULL next pointer. */
-        AwsIotQueue_Assert( pQueue->params.getNext( pQueue->pTail ) == NULL );
+        AwsIotQueue_Assert( pQueue->pTail->pNext == NULL );
 
         /* Move the queue tail. */
-        pQueue->pTail = pQueue->params.getPrev( pQueue->pTail );
+        pQueue->pTail = pQueue->pTail->pPrevious;
 
         /* Check if the queue is now empty. */
         if( pQueue->pTail == NULL )
@@ -115,7 +115,7 @@ static void _queueRemove( AwsIotQueue_t * const pQueue,
         {
             /* If the queue is not empty, set the new tail's next pointer to
              * NULL. */
-            pQueue->params.setNext( pQueue->pTail, NULL );
+            pQueue->pTail->pNext = NULL;
         }
     }
     /* Otherwise, remove from the middle of the queue. */
@@ -123,27 +123,27 @@ static void _queueRemove( AwsIotQueue_t * const pQueue,
     {
         /* Check that pointers in the next and previous elements are correctly
          * set. */
-        AwsIotQueue_Assert( pQueue->params.getNext( pQueue->params.getPrev( pData ) ) == pData );
-        AwsIotQueue_Assert( pQueue->params.getPrev( pQueue->params.getNext( pData ) ) == pData );
+        AwsIotQueue_Assert( pLink->pPrevious->pNext == pLink );
+        AwsIotQueue_Assert( pLink->pNext->pPrevious == pLink );
 
         /* Reassign the pointers in the next and previous elements. */
-        pQueue->params.setNext( pQueue->params.getPrev( pData ), pQueue->params.getNext( pData ) );
-        pQueue->params.setPrev( pQueue->params.getNext( pData ), pQueue->params.getPrev( pData ) );
+        pLink->pPrevious->pNext = pLink->pNext;
+        pLink->pNext->pPrevious = pLink->pPrevious;
     }
 
-    /* Clear the next and previous pointers of pData. */
-    pQueue->params.setPrev( pData, NULL );
-    pQueue->params.setNext( pData, NULL );
+    /* Clear the next and previous pointers of pLink. */
+    pLink->pNext = NULL;
+    pLink->pPrevious = NULL;
 }
 
 /*-----------------------------------------------------------*/
 
 bool AwsIotQueue_Create( AwsIotQueue_t * const pQueue,
-                         const AwsIotQueueParams_t * const pQueueParams,
+                         const AwsIotQueueNotifyParams_t * const pNotifyParams,
                          uint32_t maxNotifyThreads )
 {
-    /* If a notify routine is set, at least 1 notify thread must be allowed. */
-    if( ( pQueueParams->notifyRoutine != NULL ) && ( maxNotifyThreads == 0 ) )
+    /* For a notification queue, at least 1 notify thread must be allowed. */
+    if( ( pNotifyParams != NULL ) && ( maxNotifyThreads == 0 ) )
     {
         return false;
     }
@@ -158,7 +158,7 @@ bool AwsIotQueue_Create( AwsIotQueue_t * const pQueue,
     }
 
     /* If a notification routine is set, create the thread count semaphore. */
-    if( pQueueParams->notifyRoutine != NULL )
+    if( ( pNotifyParams != NULL ) && ( pNotifyParams->notifyRoutine != NULL ) )
     {
         if( AwsIotSemaphore_Create( &( pQueue->notifyThreadCount ),
                                     maxNotifyThreads,
@@ -168,10 +168,10 @@ bool AwsIotQueue_Create( AwsIotQueue_t * const pQueue,
 
             return false;
         }
-    }
 
-    /* Copy the queue params. */
-    pQueue->params = *( pQueueParams );
+        /* Copy the notify params. */
+        pQueue->params = *( pNotifyParams );
+    }
 
     return true;
 }
@@ -209,15 +209,15 @@ void AwsIotQueue_Destroy( AwsIotQueue_t * const pQueue )
 /*-----------------------------------------------------------*/
 
 bool AwsIotQueue_InsertHead( AwsIotQueue_t * const pQueue,
-                             void * pData )
+                             AwsIotLink_t * const pLink )
 {
     bool status = true;
 
     AwsIotMutex_Lock( &( pQueue->mutex ) );
 
-    /* Clear the next and previous pointers of pData. */
-    pQueue->params.setPrev( pData, NULL );
-    pQueue->params.setNext( pData, NULL );
+    /* Clear the next and previous pointers of pLink. */
+    pLink->pNext = NULL;
+    pLink->pPrevious = NULL;
 
     /* Check if the queue is currently empty. */
     if( pQueue->pHead == NULL )
@@ -227,8 +227,8 @@ bool AwsIotQueue_InsertHead( AwsIotQueue_t * const pQueue,
 
         /* Set the head and tail pointer to the new operation. This places the
          * first item in the queue. */
-        pQueue->pHead = pData;
-        pQueue->pTail = pData;
+        pQueue->pHead = pLink;
+        pQueue->pTail = pLink;
     }
     else
     {
@@ -237,9 +237,9 @@ bool AwsIotQueue_InsertHead( AwsIotQueue_t * const pQueue,
 
         /* If the queue is not empty, insert the new operation at the head
          * of the queue. */
-        pQueue->params.setNext( pData, pQueue->pHead );
-        pQueue->params.setPrev( pQueue->pHead, pData );
-        pQueue->pHead = pData;
+        pLink->pNext = pQueue->pHead;
+        pQueue->pHead->pPrevious = pLink;
+        pQueue->pHead = pLink;
     }
 
     /* Create a notification thread if this queue has a notify routine set. */
@@ -249,7 +249,7 @@ bool AwsIotQueue_InsertHead( AwsIotQueue_t * const pQueue,
             ( AwsIot_CreateDetachedThread( pQueue->params.notifyRoutine,
                                            pQueue->params.pNotifyArgument ) == false ) )
         {
-            _queueRemove( pQueue, pData );
+            _queueRemove( pQueue, pLink );
             AwsIotSemaphore_Post( &( pQueue->notifyThreadCount ) );
             status = false;
         }
@@ -263,9 +263,10 @@ bool AwsIotQueue_InsertHead( AwsIotQueue_t * const pQueue,
 /*-----------------------------------------------------------*/
 
 void * AwsIotQueue_RemoveTail( AwsIotQueue_t * const pQueue,
+                               size_t linkOffset,
                                bool notifyExitIfEmpty )
 {
-    void * pResult = NULL;
+    AwsIotLink_t * pResult = NULL;
 
     AwsIotMutex_Lock( &( pQueue->mutex ) );
 
@@ -291,24 +292,28 @@ void * AwsIotQueue_RemoveTail( AwsIotQueue_t * const pQueue,
 
     AwsIotMutex_Unlock( &( pQueue->mutex ) );
 
-    return pResult;
+    return AwsIotLink_Container( pResult, linkOffset );
 }
 
 /*-----------------------------------------------------------*/
 
 void * AwsIotQueue_RemoveFirstMatch( AwsIotQueue_t * const pQueue,
+                                     size_t linkOffset,
                                      void * pArgument,
                                      bool ( *shouldRemove )( void *, void * ) )
 {
-    void * pResult = NULL;
+    AwsIotLink_t * pResult = NULL;
+    void * pLinkContainer = NULL;
 
     AwsIotMutex_Lock( &( pQueue->mutex ) );
 
     /* Iterate through the queue to find the first matching element. */
-    for( pResult = pQueue->pTail; pResult != NULL; pResult = pQueue->params.getPrev( pResult ) )
+    for( pResult = pQueue->pTail; pResult != NULL; pResult = pResult->pPrevious )
     {
-        if( ( ( shouldRemove == NULL ) && ( pArgument == pResult ) ) ||
-            ( ( shouldRemove != NULL ) && ( shouldRemove( pArgument, pResult ) == true ) ) )
+        pLinkContainer = AwsIotLink_Container( pResult, linkOffset );
+
+        if( ( ( shouldRemove == NULL ) && ( pArgument == pLinkContainer ) ) ||
+            ( ( shouldRemove != NULL ) && ( shouldRemove( pArgument, pLinkContainer ) == true ) ) )
         {
             /* If a matching element is found, remove it from the queue. */
             _queueRemove( pQueue, pResult );
@@ -318,17 +323,26 @@ void * AwsIotQueue_RemoveFirstMatch( AwsIotQueue_t * const pQueue,
 
     AwsIotMutex_Unlock( &( pQueue->mutex ) );
 
-    return pResult;
+    /* Element found. */
+    if( pResult != NULL )
+    {
+        return pLinkContainer;
+    }
+
+    /* Element not found. */
+    return NULL;
 }
 
 /*-----------------------------------------------------------*/
 
 void AwsIotQueue_RemoveAllMatches( AwsIotQueue_t * const pQueue,
+                                   size_t linkOffset,
                                    void * pArgument,
                                    bool ( *shouldRemove )( void *, void * ),
                                    void ( *freeElement )( void * ) )
 {
-    void * i = NULL, * pCurrent = NULL;
+    AwsIotLink_t * i = NULL, * pCurrent = NULL;
+    void * pLinkContainer = NULL;
 
     AwsIotMutex_Lock( &( pQueue->mutex ) );
     i = pQueue->pHead;
@@ -338,18 +352,21 @@ void AwsIotQueue_RemoveAllMatches( AwsIotQueue_t * const pQueue,
     {
         /* Save a pointer to the current element and move the iterating pointer. */
         pCurrent = i;
-        i = pQueue->params.getNext( i );
+        i = i->pNext;
+
+        /* Calculate address of link container. */
+        pLinkContainer = AwsIotLink_Container( pCurrent, linkOffset );
 
         /* Check if the current queue element should be removed. */
         if( ( shouldRemove == NULL ) ||
-            ( shouldRemove( pArgument, pCurrent ) == true ) )
+            ( shouldRemove( pArgument, pLinkContainer ) == true ) )
         {
             /* Remove the matched element from the queue and free it. */
             _queueRemove( pQueue, pCurrent );
 
             if( freeElement != NULL )
             {
-                freeElement( pCurrent );
+                freeElement( pLinkContainer );
             }
         }
     }
@@ -359,10 +376,9 @@ void AwsIotQueue_RemoveAllMatches( AwsIotQueue_t * const pQueue,
 
 /*-----------------------------------------------------------*/
 
-bool AwsIotList_Create( AwsIotList_t * const pList,
-                        const AwsIotListParams_t * const pListParams )
+bool AwsIotList_Create( AwsIotList_t * const pList )
 {
-    /* Clear the list data. This the head pointer to NULL. */
+    /* Clear the list data. This sets the head pointer to NULL. */
     ( void ) memset( pList, 0x00, sizeof( AwsIotList_t ) );
 
     /* Create the list mutex. */
@@ -370,9 +386,6 @@ bool AwsIotList_Create( AwsIotList_t * const pList,
     {
         return false;
     }
-
-    /* Copy the list parameters. */
-    pList->params = *( pListParams );
 
     return true;
 }
@@ -391,170 +404,188 @@ void AwsIotList_Destroy( AwsIotList_t * const pList )
 /*-----------------------------------------------------------*/
 
 void AwsIotList_InsertHead( AwsIotList_t * const pList,
-                            void * pData )
+                            AwsIotLink_t * const pLink,
+                            size_t linkOffset )
 {
-    /* Clear the next and previous pointers of pData. */
-    pList->params.setNext( pData, NULL );
-    pList->params.setPrev( pData, NULL );
+    /* Link offset is not used when asserts are off. */
+    ( void ) linkOffset;
 
-    /* pData must not already be in the list. */
-    AwsIotQueue_Assert( AwsIotList_FindFirstMatch( pList,
-                                                   pList->pHead,
-                                                   pData,
+    /* Clear the next and previous pointers of pLink. */
+    pLink->pNext = NULL;
+    pLink->pPrevious = NULL;
+
+    /* Link container must not already be in the list. */
+    AwsIotQueue_Assert( AwsIotList_FindFirstMatch( pList->pHead,
+                                                   linkOffset,
+                                                   AwsIotLink_Container( pLink, linkOffset ),
                                                    NULL ) == NULL );
 
     /* Insert the new node at the list head. */
     if( pList->pHead == NULL )
     {
         /* Set new head if list is empty. */
-        pList->pHead = pData;
+        pList->pHead = pLink;
     }
     else
     {
-        pList->params.setNext( pData, pList->pHead );
-        pList->params.setPrev( pList->pHead, pData );
-        pList->pHead = pData;
+        pLink->pNext = pList->pHead;
+        pList->pHead->pPrevious = pLink;
+        pList->pHead = pLink;
     }
 }
 
 /*-----------------------------------------------------------*/
 
 void AwsIotList_InsertSorted( AwsIotList_t * const pList,
-                              void * pData,
+                              AwsIotLink_t * const pLink,
+                              size_t linkOffset,
                               int ( *compare )( void *, void * ) )
 {
-    void * i = NULL;
+    AwsIotLink_t * i = NULL;
 
-    /* Clear the next and previous pointers of pData. */
-    pList->params.setNext( pData, NULL );
-    pList->params.setPrev( pData, NULL );
+    /* Clear the next and previous pointers of the link. */
+    pLink->pNext = NULL;
+    pLink->pPrevious = NULL;
 
-    /* pData must not already be in the list. */
-    AwsIotQueue_Assert( AwsIotList_FindFirstMatch( pList,
-                                                   pList->pHead,
-                                                   pData,
+    /* Link container must not already be in the list. */
+    AwsIotQueue_Assert( AwsIotList_FindFirstMatch( pList->pHead,
+                                                   linkOffset,
+                                                   AwsIotLink_Container( pLink, linkOffset ),
                                                    NULL ) == NULL );
 
     /* Insert at head if list is empty. */
     if( pList->pHead == NULL )
     {
-        pList->pHead = pData;
+        pList->pHead = pLink;
     }
     /* Check if the head should be replaced. */
-    else if( compare( pData, pList->pHead ) <= 0 )
+    else if( compare( AwsIotLink_Container( pLink, linkOffset ),
+                      AwsIotLink_Container( pList->pHead, linkOffset ) ) <= 0 )
     {
-        pList->params.setNext( pData, pList->pHead );
-        pList->params.setPrev( pList->pHead, pData );
-        pList->pHead = pData;
+        pLink->pNext = pList->pHead;
+        pList->pHead->pPrevious = pLink;
+        pList->pHead = pLink;
     }
     else
     {
-        for( i = pList->pHead; i != NULL; i = pList->params.getNext( i ) )
+        for( i = pList->pHead; i != NULL; i = i->pNext )
         {
             /* Insert at queue tail if there's no next element. */
-            if( pList->params.getNext( i ) == NULL )
+            if( i->pNext == NULL )
             {
-                pList->params.setPrev( pData, i );
-                pList->params.setNext( i, pData );
+                pLink->pPrevious = i;
+                i->pNext = pLink;
                 break;
             }
             /* Check the order of the current and next element. */
-            else if( ( compare( pData, i ) >= 0 ) &&
-                     ( compare( pData, pList->params.getNext( i ) ) < 0 ) )
+            else if( ( compare( AwsIotLink_Container( pLink, linkOffset ),
+                                AwsIotLink_Container( i, linkOffset ) ) >= 0 ) &&
+                     ( compare( AwsIotLink_Container( pLink, linkOffset ),
+                                AwsIotLink_Container( i->pNext, linkOffset ) ) < 0 ) )
             {
-                pList->params.setNext( pData, pList->params.getNext( i ) );
-                pList->params.setPrev( pData, i );
+                pLink->pNext = i->pNext;
+                pLink->pPrevious = i;
 
-                pList->params.setNext( i, pData );
-                pList->params.setPrev( pList->params.getNext( pData ), pData );
+                i->pNext = pLink;
+                pLink->pNext->pPrevious = pLink;
                 break;
             }
         }
 
-        /* Ensure that pData was placed in the list. */
-        AwsIotQueue_Assert( ( pList->params.getNext( pData ) != NULL ) ||
-                            ( pList->params.getPrev( pData ) != NULL ) );
+        /* Ensure that pLink was placed in the list. */
+        AwsIotQueue_Assert( ( pLink->pNext != NULL ) ||
+                            ( pLink->pPrevious != NULL ) );
     }
 }
 
 /*-----------------------------------------------------------*/
 
-void * AwsIotList_FindFirstMatch( AwsIotList_t * const pList,
-                                  void * pStartPoint,
+void * AwsIotList_FindFirstMatch( AwsIotLink_t * const pStartPoint,
+                                  size_t linkOffset,
                                   void * pArgument,
                                   bool ( *compare )( void *, void * ) )
 {
-    void * i = NULL;
+    AwsIotLink_t * i = NULL;
+    void * pLinkContainer = NULL;
 
     /* Iterate through the list to find the first matching element. */
-    for( i = pStartPoint; i != NULL; i = pList->params.getNext( i ) )
+    for( i = pStartPoint; i != NULL; i = i->pNext )
     {
-        if( ( ( compare == NULL ) && ( pArgument == i ) ) ||
-            ( ( compare != NULL ) && ( compare( pArgument, i ) == true ) ) )
+        pLinkContainer = AwsIotLink_Container( i, linkOffset );
+
+        if( ( ( compare == NULL ) && ( pArgument == pLinkContainer ) ) ||
+            ( ( compare != NULL ) && ( compare( pArgument, pLinkContainer ) == true ) ) )
         {
-            break;
+            return pLinkContainer;
         }
     }
 
-    return i;
+    /* Element not found. */
+    AwsIotQueue_Assert( i == NULL );
+
+    return NULL;
 }
 
 /*-----------------------------------------------------------*/
 
 void AwsIotList_Remove( AwsIotList_t * const pList,
-                        void * pData )
+                        AwsIotLink_t * const pLink,
+                        size_t linkOffset )
 {
-    /* This function should not be called with an NULL pData or an empty list. */
-    if( ( pList->pHead == NULL ) || ( pData == NULL ) )
+    /* Link offset is not used when asserts are off. */
+    ( void ) linkOffset;
+
+    /* This function should not be called with an NULL pLink or an empty list. */
+    if( ( pList->pHead == NULL ) || ( pLink == NULL ) )
     {
         return;
     }
 
-    /* pData must be in pList. */
-    AwsIotQueue_Assert( AwsIotList_FindFirstMatch( pList,
-                                                   pList->pHead,
-                                                   pData,
+    /* pLink must be in pList. */
+    AwsIotQueue_Assert( AwsIotList_FindFirstMatch( pList->pHead,
+                                                   linkOffset,
+                                                   AwsIotLink_Container( pLink, linkOffset ),
                                                    NULL ) != NULL );
 
     /* Check if the list head is being removed. */
-    if( pData == pList->pHead )
+    if( pLink == pList->pHead )
     {
         /* Set the next node's previous pointer to NULL. */
-        if( pList->params.getNext( pData ) != NULL )
+        if( pLink->pNext != NULL )
         {
-            pList->params.setPrev( pList->params.getNext( pData ), NULL );
+            pLink->pNext->pPrevious = NULL;
         }
 
         /* Update the head pointer. */
-        pList->pHead = pList->params.getNext( pData );
+        pList->pHead = pLink->pNext;
     }
     else
     {
         /* Update the next node's previous pointer. */
-        if( pList->params.getNext( pData ) != NULL )
+        if( pLink->pNext != NULL )
         {
-            pList->params.setPrev( pList->params.getNext( pData ),
-                                   pList->params.getPrev( pData ) );
+            pLink->pNext->pPrevious = pLink->pPrevious;
         }
 
         /* Update the previous node's next pointer. */
-        pList->params.setNext( pList->params.getPrev( pData ),
-                               pList->params.getNext( pData ) );
+        pLink->pPrevious->pNext = pLink->pNext;
     }
 
-    /* Clear the next and previous pointers of pData. */
-    pList->params.setNext( pData, NULL );
-    pList->params.setPrev( pData, NULL );
+    /* Clear the next and previous pointers of pLink. */
+    pLink->pNext = NULL;
+    pLink->pPrevious = NULL;
 }
 
 /*-----------------------------------------------------------*/
 
 void AwsIotList_RemoveAllMatches( AwsIotList_t * const pList,
+                                  size_t linkOffset,
                                   void * pArgument,
                                   bool ( *shouldRemove )( void *, void * ),
                                   void ( *freeElement )( void * ) )
 {
-    void * i = NULL, * pCurrent = NULL;
+    AwsIotLink_t * i = NULL, * pCurrent = NULL;
+    void * pLinkContainer = NULL;
 
     AwsIotMutex_Lock( &( pList->mutex ) );
     i = pList->pHead;
@@ -564,18 +595,21 @@ void AwsIotList_RemoveAllMatches( AwsIotList_t * const pList,
     {
         /* Save a pointer to the current element and move the iterating pointer. */
         pCurrent = i;
-        i = pList->params.getNext( i );
+        i = i->pNext;
+
+        /* Calculate address of link container. */
+        pLinkContainer = AwsIotLink_Container( pCurrent, linkOffset );
 
         /* Check if the current list element should be removed. */
         if( ( shouldRemove == NULL ) ||
-            ( shouldRemove( pArgument, pCurrent ) == true ) )
+            ( shouldRemove( pArgument, pLinkContainer ) == true ) )
         {
             /* Remove the matched element from the list and free it. */
-            AwsIotList_Remove( pList, pCurrent );
+            AwsIotList_Remove( pList, pCurrent, linkOffset );
 
             if( freeElement != NULL )
             {
-                freeElement( pCurrent );
+                freeElement( pLinkContainer );
             }
         }
     }

@@ -94,11 +94,13 @@
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_json_utils.h" />
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_mqtt.h" />
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h" />
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network_afr.h" />
+    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_threads.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_internals.h" />
@@ -161,9 +163,7 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ggd_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_helper_secure_connect.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging_setup.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_mqtt_internal.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_queue.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_shadow_internal.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_lib_init.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_agent_config_defaults.h" />
@@ -354,7 +354,6 @@
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_helper_secure_connect.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_api.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_operation.c" />
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_queue_access.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_serialize.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_validate.c" />
@@ -492,7 +491,7 @@
     <ClCompile Include="..\..\..\common\shadow\system\aws_iot_tests_shadow_system.c" />
     <ClCompile Include="..\..\..\common\shadow\unit\aws_iot_tests_shadow_api.c" />
     <ClCompile Include="..\..\..\common\shadow\unit\aws_iot_tests_shadow_parser.c" />
-    <ClCompile Include="..\..\..\common\test_runner\aws_iot_tests_network_afr.c" />
+    <ClCompile Include="..\..\..\common\test_runner\aws_iot_tests_network.c" />
     <ClCompile Include="..\..\..\common\test_runner\aws_test_runner.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\cmock\src\cmock.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c" />

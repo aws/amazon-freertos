@@ -50,6 +50,9 @@
 /* FreeRTOS+POSIX include. */
 #include "FreeRTOS_POSIX.h"
 
+/* SDK version. */
+#define AWS_IOT_SDK_VERSION    "4.0.0"
+
 /* Include necessary POSIX headers for platform layer types. */
 #include POSIX_PTHREAD_HEADER
 #include POSIX_SEMAPHORE_HEADER
