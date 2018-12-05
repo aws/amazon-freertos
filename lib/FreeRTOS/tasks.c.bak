@@ -322,9 +322,8 @@ typedef struct tskTaskControlBlock
 	#endif
 
 	#if( configUSE_TASK_NOTIFICATION_MESSAGES == 1 )
-		uint8_t pvNotifiedMessage[configMAX_NOTIFICATION_MESSAGE_SIZE_BYTES];		
+						 uint8_t pvNotifiedMessage[configMAX_NOTIFICATION_MESSAGE_SIZE_BYTES];		
 		volatile size_t	 xNotifiedMessageSize;
-		volatile uint8_t ucPendingMessage;
 	#endif
 
 	#if( configUSE_TASK_NOTIFICATIONS == 1 )
@@ -4954,15 +4953,14 @@ TickType_t uxReturn;
 /*-----------------------------------------------------------*/
 
 #if( configUSE_TASK_NOTIFICATION_MESSAGES == 1 )
-	void const* pvTaskNotifyWaitMessage(size_t* pxNotifiedMessageSize, TickType_t xTicksToWait )
+	void const* pvTaskNotifyWaitMessage(size_t* xNotifiedMessageSize, TickType_t xTicksToWait )
 	{
 	
 		void const* pvReturn = NULL;
-		
 		taskENTER_CRITICAL();
 		{
-			/* Only block if a message is not already pending */
-			if( pxCurrentTCB->ucNotifyState == taskNOT_WAITING_NOTIFICATION )
+			/* Only block if the notification count is not already non-zero. */
+			if( pxCurrentTCB->xNotifiedMessageSize == 0 )
 			{
 				/* Mark this task as waiting for a notification. */
 				pxCurrentTCB->ucNotifyState = taskWAITING_NOTIFICATION;
@@ -4992,32 +4990,30 @@ TickType_t uxReturn;
 
 		taskENTER_CRITICAL();
 		{
-			traceTASK_NOTIFY_TAKE();						
-			
-			/* If ucNotifyValue is set then either the task never entered the
-			blocked state (because a notification was already pending) or the
-			task unblocked because of a notification.  Otherwise the task
-			unblocked because of a timeout. */
-			if( pxCurrentTCB->ucNotifyState != taskNOTIFICATION_RECEIVED )
-			{
-				/* A notification was not received. */
+			traceTASK_NOTIFY_TAKE();			
+			if( pxCurrentTCB->xNotifiedMessageSize == 0 ){
 				pvReturn = NULL;
+			}
+			else{
+				pvReturn = pxCurrentTCB->pvNotifiedMessage;
+				if(xNotifiedMessageSize != NULL){
+					*xNotifiedMessageSize = pxCurrentTCB->xNotifiedMessageSize;
+				}
+			}						
+			
+			if( pvReturn != NULL )
+			{	
+				pxCurrentTCB->xNotifiedMessageSize = 0;
 			}
 			else
 			{
-				pvReturn = pxCurrentTCB->pvNotifiedMessage;
+				if(xNotifiedMessageSize != NULL){
+					*xNotifiedMessageSize = 0;
+				}
+				mtCOVERAGE_TEST_MARKER();
 			}
-			
-			/* Output received message size if wanted*/
-			if( pxNotifiedMessageSize != NULL )
-			{
-				*pxNotifiedMessageSize = pxCurrentTCB->xNotifiedMessageSize;
-			}
-			
-			pxCurrentTCB->xNotifiedMessageSize = 0;
 
 			pxCurrentTCB->ucNotifyState = taskNOT_WAITING_NOTIFICATION;
-			
 		}
 		taskEXIT_CRITICAL();
 	
@@ -5035,9 +5031,6 @@ TickType_t uxReturn;
 	uint8_t ucOriginalNotifyState;
 
 		configASSERT( xTaskToNotify );
-		configASSERT( xNotifiedMessageSize <= configMAX_NOTIFICATION_MESSAGE_SIZE_BYTES );
-		configASSERT( ( pvNotifiedMessage != NULL ) || ( pvNotifiedMessage == NULL && xNotifiedMessageSize == 0  ) );
-		
 		pxTCB = ( TCB_t * ) xTaskToNotify;
 
 		taskENTER_CRITICAL();
@@ -5120,9 +5113,7 @@ TickType_t uxReturn;
 	UBaseType_t uxSavedInterruptStatus;
 
 		configASSERT( xTaskToNotify );
-		configASSERT( xNotifiedMessageSize <= configMAX_NOTIFICATION_MESSAGE_SIZE_BYTES );
-		configASSERT( ( pvNotifiedMessage != NULL ) || ( pvNotifiedMessage == NULL && xNotifiedMessageSize == 0  ) );
-	
+
 		/* RTOS ports that support interrupt nesting have the concept of a
 		maximum	system call (or maximum API call) interrupt priority.
 		Interrupts that are	above the maximum system call priority are keep
