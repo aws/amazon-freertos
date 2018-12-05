@@ -55,6 +55,9 @@ which compiler you want to use. For example, issue the following command from th
 cmake -DVENDOR=ti -DBOARD=cc3220_launchpad -DCOMPILER=arm-ti -S. -Bbuild
 ```
 
+**Note: On Windows, you need to add `-G"Unix Makefiles"` or `-GNinja` to the commandline because
+CMake will use Visual Studio by default on Windows.**
+
 The values of `VENDOR` and `BOARD` must match the folder names under `cmake/vendors`. And the
 value of `COMPILER` must match the file names under `cmake/toolchains`, `CMAKE_TOOLCHAIN_FILE` will
 be set to this file.
