@@ -8,8 +8,16 @@ endif()
 # If not found, issue a fatal message and stop processing. AFR_TOOLCHAIN_PATH can be provided from
 # commandline as additional search path.
 function(afr_find_compiler compiler_path compiler_exe)
-    set(__search_path $ENV{AFR_TOOLCHAIN_PATH} "$ENV{AFR_TOOLCHAIN_PATH}/bin")
-    find_program(${compiler_path} ${compiler_exe} PATHS ${__search_path})
+    # Search user provided path first.
+    find_program(
+        ${compiler_path} ${compiler_exe}
+        PATHS $ENV{AFR_TOOLCHAIN_PATH} PATH_SUFFIXES bin
+        NO_DEFAULT_PATH
+    )
+    # If not then search system paths.
+    if("${${compiler_path}}" STREQUAL "${compiler_path}-NOTFOUND")
+        find_program(${compiler_path} ${compiler_exe})
+    endif()
     if("${${compiler_path}}" STREQUAL "${compiler_path}-NOTFOUND")
         set(AFR_TOOLCHAIN_PATH "" CACHE PATH "Path to search for compiler.")
         message(FATAL_ERROR "Compiler not found, you can specify search path with\
