@@ -526,6 +526,7 @@ TEST_GROUP_RUNNER( Full_BLE )
     RUN_TEST_CASE( Full_BLE, BLE_CreateAttTable_StartService );
 
     RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetProperties );//@TOTO, incomplete
+	RUN_TEST_CASE( Full_BLE, BLE_Connection_RemoveAllBonds );
 
 	RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetAvertisementData );//@TOTO, incomplete
 	RUN_TEST_CASE( Full_BLE, BLE_Advertising_StartAdvertisement );
@@ -556,6 +557,44 @@ TEST_GROUP_RUNNER( Full_BLE )
     prvGroupFree();
 }
 
+void prvRemoveBond(BTBdaddr_t * pxDeviceAddres)
+{
+	BTStatus_t xStatus;
+	BLETESTBondedCallback_t  xBondedEvent;
+
+	xStatus = pxBTInterface->pxRemoveBond(pxDeviceAddres);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
+
+	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xBondedEvent.xStatus);
+	TEST_ASSERT_EQUAL(false, xBondedEvent.bIsBonded);
+	TEST_ASSERT_EQUAL(0, memcmp(&xBondedEvent.xRemoteBdAddr, pxDeviceAddres, sizeof(BTBdaddr_t) ));
+
+}
+
+TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
+{
+	BTProperty_t pxProperty;
+	uint16_t usIndex;
+
+	/* Set the name */
+	pxProperty.xType = eBTpropertyAdapterBondedDevices;
+
+	/* Get bonded devices */
+	prvSetGetProperty(&pxProperty, false);
+
+	for(usIndex = 0; usIndex < pxProperty.xLen; usIndex++)
+	{
+		prvRemoveBond(&((BTBdaddr_t *)pxProperty.pvVal)[usIndex]);
+	}
+
+	/* Get bonded devices. */
+	prvSetGetProperty(&pxProperty, false);
+	/* Check none are left. */
+	TEST_ASSERT_EQUAL(0, pxProperty.xLen);
+}
+
 bool prvGetCheckDeviceBonded(BTBdaddr_t * pxDeviceAddres)
 {
 	BTProperty_t pxProperty;
@@ -578,6 +617,7 @@ bool prvGetCheckDeviceBonded(BTBdaddr_t * pxDeviceAddres)
 
 	return bFoundRemoteDevice;
 }
+
 void prvWaitConnection(bool bConnected)
 {
 	BLETESTConnectionCallback_t xConnectionEvent;
@@ -618,17 +658,8 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
 TEST( Full_BLE, BLE_Connection_RemoveBonding )
 {
 	bool bFoundRemoteDevice;
-	BTStatus_t xStatus;
-	BLETESTBondedCallback_t  xBondedEvent;
 
-	xStatus = pxBTInterface->pxRemoveBond(&xAddressConnectedDevice);
-	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
-
-	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
-	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
-	TEST_ASSERT_EQUAL(eBTStatusSuccess, xBondedEvent.xStatus);
-	TEST_ASSERT_EQUAL(false, xBondedEvent.bIsBonded);
-	TEST_ASSERT_EQUAL(0, memcmp(&xBondedEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
+	prvRemoveBond(&xAddressConnectedDevice);
 
 	bFoundRemoteDevice =  prvGetCheckDeviceBonded(&xAddressConnectedDevice);
 	TEST_ASSERT_EQUAL(false, bFoundRemoteDevice);
