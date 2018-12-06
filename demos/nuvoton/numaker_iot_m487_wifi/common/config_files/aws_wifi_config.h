@@ -34,7 +34,7 @@
 /**
  * @brief Maximum number of sockets that can be created simultaneously.
  */
-#define wificonfigMAX_SOCKETS                 ( 4 )
+#define wificonfigMAX_SOCKETS                 ( 1 )
 
 /**
  * @brief Maximum number of connection retries.
@@ -87,5 +87,10 @@
  * other values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA
  */
 #define wificonfigACCESS_POINT_SECURITY       ( eWiFiSecurityWPA2 )
+
+/**
+ * @brief Maximum size of WiFi AT command data buffer
+ */
+#define wificonfigMAX_AT_COMMAND_SIZE         ( 1024 * 2 )
 
 #endif /* _AWS_WIFI_CONFIG_H_ */
