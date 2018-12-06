@@ -97,6 +97,7 @@ typedef enum{
 #define bletestsSTRINGYFIED_UUID_SIZE 36  /* like "8a7f1168-48af-4efb-83b5-e679f9320002" */
 #define bletestsFULL_PERMISSIONS ( eBTPermRead | eBTPermWrite )
 #define bletestsNB_INCLUDEDSERVICES   1
+#define bletestsCCCD 0x2902
 #define bletestsAPP_UUID                 { 0x11, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define bletestsSERVER_UUID              { 0x22, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define bletestsFREERTOS_SVC_UUID        { 0x5A, 0xDB, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
@@ -113,9 +114,6 @@ typedef enum{
 #define bletestsFREERTOS_CHAR_E_UUID      { 6, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
 #define bletestsFREERTOS_CHAR_F_UUID      { 7, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
 
-
-#define bletestsFREERTOS_CCCD_E_UUID      { 0, 0, 0x29, 0x02, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A } /*Client configuration descriptor for char E. */
-#define bletestsFREERTOS_CCCD_F_UUID      { 0, 0, 0x29, 0x02, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A } /*Client configuration descriptor for char F. */
 #define bletestsFREERTOS_DESCR_A_UUID     { 8, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
 #define bletestsFREERTOS_DESCR_B_UUID     { 9, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
 #define bletestsFREERTOS_DESCR_C_UUID     { 10, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
@@ -1120,7 +1118,15 @@ void prvCreateCharacteristicDescriptor( BLECharacteristicDescr_t * xRefCharDescr
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	TEST_ASSERT_EQUAL(0, memcmp(&xRefCharDescr->xAttributeData.xUuid, &xCbUuid, sizeof(BTUuid_t)));
+	if(xRefCharDescr->xAttributeData.xUuid.ucType == eBTuuidType16)
+	{
+		TEST_ASSERT_EQUAL(eBTuuidType16, xCbUuid.ucType);
+		TEST_ASSERT_EQUAL(xRefCharDescr->xAttributeData.xUuid.uu.uu16, xCbUuid.uu.uu16);
+	}else
+	{
+		TEST_ASSERT_EQUAL(0, memcmp(&xRefCharDescr->xAttributeData.xUuid, &xCbUuid, sizeof(BTUuid_t)));
+	}
+
 	TEST_ASSERT_EQUAL(xRefCharDescr->pxParentService->xAttributeData.xHandle, usCbSrvcHandle);
 	xRefCharDescr->xAttributeData.xHandle = usCbHandle;
 }
@@ -1151,7 +1157,14 @@ void prvCreateCharacteristic( BLECharacteristic_t * xRefChar )
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	TEST_ASSERT_EQUAL(0, memcmp(&xRefChar->xAttributeData.xUuid, &xCbUuid, sizeof(BTUuid_t)));
+	if(xRefChar->xAttributeData.xUuid.ucType == eBTuuidType16)
+	{
+		TEST_ASSERT_EQUAL(eBTuuidType16, xCbUuid.ucType);
+		TEST_ASSERT_EQUAL(xRefChar->xAttributeData.xUuid.uu.uu16, xCbUuid.uu.uu16);
+	}else
+	{
+		TEST_ASSERT_EQUAL(0, memcmp(&xRefChar->xAttributeData.xUuid, &xCbUuid, sizeof(BTUuid_t)));
+	}
 	TEST_ASSERT_EQUAL(xRefChar->pxParentService->xAttributeData.xHandle, usCbSrvcHandle);
 	xRefChar->xAttributeData.xHandle = usCbHandle;
 }
@@ -1390,8 +1403,6 @@ void prvGroupInit()
 	uint8_t tmpCharDescrB[] = bletestsFREERTOS_DESCR_B_UUID;
 	uint8_t tmpCharDescrC[] = bletestsFREERTOS_DESCR_C_UUID;
 	uint8_t tmpCharDescrD[] = bletestsFREERTOS_DESCR_D_UUID;
-	uint8_t tmpCharECCCD[] = bletestsFREERTOS_CCCD_E_UUID;
-	uint8_t tmpCharFCCCD[] = bletestsFREERTOS_CCCD_F_UUID;
 
 	/* Initialize event group before tests. */
 	(void)xEventGroupCreateStatic((EventGroupHandle_t)&xWaitOperationComplete);
@@ -1456,9 +1467,12 @@ void prvGroupInit()
 	memcpy( &xDescriptors[bletestsCHAR_DESCRD].xAttributeData.xUuid.uu.uu128, tmpCharDescrD, bt128BIT_UUID_LEN);
 	memcpy( &xDescriptors[bletestsCHAR_DESCRC].xAttributeData.xUuid.uu.uu128, tmpCharDescrC, bt128BIT_UUID_LEN);
 	memcpy( &xDescriptors[bletestsCHAR_DESCRD].xAttributeData.xUuid.uu.uu128, tmpCharDescrD, bt128BIT_UUID_LEN);
-	memcpy( &xDescriptors[bletestsCCCD_E].xAttributeData.xUuid.uu.uu128, tmpCharECCCD, bt128BIT_UUID_LEN);
-	memcpy( &xDescriptors[bletestsCCCD_F].xAttributeData.xUuid.uu.uu128, tmpCharFCCCD, bt128BIT_UUID_LEN);
 
+	/* Descriptors are only 16 bits */
+	xDescriptors[bletestsCCCD_E].xAttributeData.xUuid.uu.uu16 = bletestsCCCD;
+	xDescriptors[bletestsCCCD_E].xAttributeData.xUuid.ucType = eBTuuidType16;
+	xDescriptors[bletestsCCCD_F].xAttributeData.xUuid.uu.uu16 = bletestsCCCD;
+	xDescriptors[bletestsCCCD_F].xAttributeData.xUuid.ucType = eBTuuidType16;
 
 
 	/* Set permissions. */
