@@ -135,7 +135,7 @@ static bool prbCreateSecureSocketConnection(
         AwsIotMqttConnection_t* pxMqttConnection,
         void **ppvConnection )
 {
-    bool xStatus = false;
+    AwsIotNetworkError_t xStatus = AWS_IOT_NETWORK_SUCCESS;
     static AwsIotNetworkConnection_t xConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
     AwsIotNetworkTlsInfo_t xTlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
     const char* pcHost = clientcredentialMQTT_BROKER_ENDPOINT;
@@ -150,13 +150,19 @@ static bool prbCreateSecureSocketConnection(
     xTlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
     xTlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
 
+    /* Disable ALPN if not using port 443. */
+    if( clientcredentialMQTT_BROKER_PORT != 443 )
+    {
+        xTlsInfo.pAlpnProtos = NULL;
+    }
+
     /* Establish a TCP connection to the MQTT server. */
     xStatus =  AwsIotNetwork_CreateConnection( &xConnection,
     		pcHost,
 			clientcredentialMQTT_BROKER_PORT,
 			&xTlsInfo );
 
-    if( xStatus == true )
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
         /* Create the task that processes incoming MQTT data. */
         xStatus = AwsIotNetwork_SetMqttReceiveCallback(
@@ -165,7 +171,7 @@ static bool prbCreateSecureSocketConnection(
 				AwsIotMqtt_ReceiveCallback );
     }
 
-    if( xStatus == true )
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
         pxNetworkInterface->pDisconnectContext = ( void * ) xConnection;
         pxNetworkInterface->pSendContext = ( void * ) xConnection;
@@ -184,7 +190,7 @@ static bool prbCreateSecureSocketConnection(
 
     }
 
-    return xStatus;
+    return ( xStatus == AWS_IOT_NETWORK_SUCCESS );
 }
 #endif
 
