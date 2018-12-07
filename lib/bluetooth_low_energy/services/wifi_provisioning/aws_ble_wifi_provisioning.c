@@ -558,7 +558,7 @@ static BaseType_t prxHandleListNetworkRequest( uint8_t * pucData,
                     "WifiProvListNetwork",
                     configMINIMAL_STACK_SIZE * 6,
                     pxParams,
-                    tskIDLE_PRIORITY,
+					wifiProvLIST_NETWORK_TASK_PRIORITY,
                     NULL );
             }
 
@@ -683,7 +683,7 @@ static BaseType_t prxHandleSaveNetworkRequest( uint8_t * pucData,
                     "WifiProvAddNetwork",
                     configMINIMAL_STACK_SIZE * 4,
                     pxAddNetworkReq,
-                    tskIDLE_PRIORITY,
+					wifiProvMODIFY_NETWORK_TASK_PRIORITY,
                     NULL );
             }
 
@@ -741,7 +741,7 @@ static BaseType_t prxHandleEditNetworkRequest( uint8_t * pucData,
                     "WifiProvEditNetwork",
                     configMINIMAL_STACK_SIZE * 4,
                     pxEditNetworkReq,
-                    tskIDLE_PRIORITY,
+					wifiProvMODIFY_NETWORK_TASK_PRIORITY,
                     NULL );
             }
 
@@ -789,7 +789,7 @@ static BaseType_t prxHandleDeleteNetworkRequest( uint8_t * pucData,
                     "WifiProvDeleteNetwork",
                     configMINIMAL_STACK_SIZE * 4,
                     pxDeleteNetworkReq,
-                    tskIDLE_PRIORITY,
+					wifiProvMODIFY_NETWORK_TASK_PRIORITY,
                     NULL );
             }
 
@@ -1076,29 +1076,32 @@ void prvListNetworkTask( void * pvParams )
     			prvSendResponse( eListNetworkChar, (uint8_t*)cMesg, ulMsgLen );
     		}
     	}
-    	xSemaphoreGive( xWifiProvService.xLock );
-    }
 
-    memset( xScanResults, 0x00, sizeof( WIFIScanResult_t ) * pxListNetworReq->sMaxNetworks );
-    xRet = WIFI_Scan( xScanResults, pxListNetworReq->sMaxNetworks );
-    if( xRet == eWiFiSuccess )
-    {
-    	xInfo.xIsScan = pdTRUE;
-    	xInfo.xConnected = pdFALSE;
-    	xInfo.sSavedIdx = INVALID_INDEX;
-        for( usIdx = 0; usIdx < pxListNetworReq->sMaxNetworks; usIdx++ )
-        {
-        	if( strlen( xScanResults[ usIdx ].cSSID ) > 0 )
-        	{
-        		xInfo.info.pxScannedNetworkInfo = &xScanResults[ usIdx ];
-        		prvSerializeNetwork( &xInfo, (uint8_t*)cMesg, sizeof( cMesg ), &ulMsgLen );
-        		prvSendResponse( eListNetworkChar, (uint8_t*)cMesg, ulMsgLen );
-        	}
-        }
-    }
-    else
-    {
-        prvSendStatusResponse( eListNetworkChar, xRet );
+    	memset( xScanResults, 0x00, sizeof( WIFIScanResult_t ) * pxListNetworReq->sMaxNetworks );
+    	xRet = WIFI_Scan( xScanResults, pxListNetworReq->sMaxNetworks );
+    	if( xRet == eWiFiSuccess )
+    	{
+    		xInfo.xIsScan = pdTRUE;
+    		xInfo.xConnected = pdFALSE;
+    		xInfo.sSavedIdx = INVALID_INDEX;
+
+    		for( usIdx = 0; usIdx < pxListNetworReq->sMaxNetworks; usIdx++ )
+    		{
+    			if( strlen( xScanResults[ usIdx ].cSSID ) > 0 )
+    			{
+    				xInfo.info.pxScannedNetworkInfo = &xScanResults[ usIdx ];
+    				prvSerializeNetwork( &xInfo, (uint8_t*)cMesg, sizeof( cMesg ), &ulMsgLen );
+    				prvSendResponse( eListNetworkChar, (uint8_t*)cMesg, ulMsgLen );
+    			}
+    		}
+    	}
+    	else
+    	{
+    		prvSendStatusResponse( eListNetworkChar, xRet );
+    	}
+
+
+    	xSemaphoreGive( xWifiProvService.xLock );
     }
 
     vPortFree( pxListNetworReq );
@@ -1203,7 +1206,8 @@ void prvEditNetworkTask( void * pvParams )
 
 void prvConnectAPTask( void * pvParams )
 {
-    WIFIReturnCode_t xRet;
+    WIFIReturnCode_t xConnectionStatus;
+    TickType_t xDelay = pdMS_TO_TICKS( wifiProvSAVED_NETWORKS_CONNECTION_INTERVAL_MS );
 
     ( void ) pvParams;
 
@@ -1211,12 +1215,14 @@ void prvConnectAPTask( void * pvParams )
     {
         if( prvWaitForEvent( eWIFIPROVConnect, portMAX_DELAY ) == pdTRUE )
         {
+        	xConnectionStatus = eWiFiFailure;
             if( xSemaphoreTake( xWifiProvService.xLock, portMAX_DELAY ) == pdPASS )
             {
-            	if( xWifiProvService.usNumNetworks > 0 )
+            	if( ( xWifiProvService.sConnectedIdx == INVALID_INDEX )
+            			&& ( xWifiProvService.usNumNetworks > 0 ) )
             	{
-            		xRet = prvConnectSavedNetwork( xWifiProvService.usNextConnectIdx );
-            		if( xRet == eWiFiSuccess )
+            		xConnectionStatus = prvConnectSavedNetwork( xWifiProvService.usNextConnectIdx );
+            		if( xConnectionStatus == eWiFiSuccess )
             		{
             			prvSetEvent( eWIFIPROVConnected );
             			xWifiProvService.usNextConnectIdx = xWifiProvService.sConnectedIdx;
@@ -1227,7 +1233,15 @@ void prvConnectAPTask( void * pvParams )
             		}
             	}
                 xSemaphoreGive( xWifiProvService.xLock );
+
+
+                if( xConnectionStatus != eWiFiSuccess )
+                {
+                	vTaskDelay( xDelay );
+                }
+
             }
+
         }
     }
 }
@@ -1278,7 +1292,7 @@ BaseType_t WIFI_PROVISION_Init( void )
 
         if( xStatus == pdTRUE )
         {
-            xWifiProvService.xLock = xSemaphoreCreateBinary();
+            xWifiProvService.xLock = xSemaphoreCreateMutex();
 
             if( xWifiProvService.xLock != NULL )
             {
@@ -1304,7 +1318,7 @@ BaseType_t WIFI_PROVISION_Init( void )
                 "WiFiProvConnect",
                 configMINIMAL_STACK_SIZE * 4,
                 NULL,
-                tskIDLE_PRIORITY,
+				wifiProvCONNECT_AP_TASK_PRIORITY,
                 &xWifiProvService.xConnectTask );
         }
     }
