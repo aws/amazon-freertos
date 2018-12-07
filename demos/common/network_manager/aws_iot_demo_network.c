@@ -51,16 +51,36 @@ typedef struct NetworkConnection
     void *pvConnection;
 } NetworkConnection_t;
 
+/**
+ * @brief Callback wrapper which pass a network disconnect event to the demo application.
+ * @param[in] ulNetworkType Type of network to register the callback.
+ * @param[in] xNetworkState State of the network passed in.
+ * @param[in] pvContext Pointer to the application context.
+ */
 static void prvNetworkSubscriptionWrapper ( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext );
 
 #if BLE_ENABLED
-static bool prbCreateMqttBLEConnection(
+/**
+ * @brief Creates a network connection over BLE to transfer MQTT messages.
+ * @param[in] pxNetworkInterface Network Interface for the connection
+ * @param[in] pxMqttConnection Handle to the MQTT
+ * @param[out] ppvConnection Pointer to a connection
+ * @return true if the connection was created successfully
+ */
+static bool prbCreateBLEConnection(
         AwsIotMqttNetIf_t* pxNetworkInterface,
         AwsIotMqttConnection_t* pxMqttConnection,
         void** ppvCpnnection );
 #endif
 
 #if WIFI_ENABLED
+/**
+ * @brief Creates a secure socket Connection
+ * @param[in] pxNetworkInterface Network Interface for the connection.
+ * @param[in] pxMqttConnection Handle to the connection
+ * @param[out] ppvConnection Pointer to the Connection
+ * @return true if the connection was created successfully
+ */
 static bool prbCreateSecureSocketConnection(
         AwsIotMqttNetIf_t* pxNetworkInterface,
         AwsIotMqttConnection_t* pxMqttConnection,
@@ -71,7 +91,9 @@ static uint32_t prxCreateNetworkConnection(
         AwsIotMqttNetIf_t* pxNetworkInterface,
         AwsIotMqttConnection_t* pxMqttConnection,
         void** ppvConnection );
-
+/**
+ * @brief Used to initialize the network interface.
+ */
 static AwsIotMqttNetIf_t xDefaultNetworkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
 
 static uint32_t prxCreateNetworkConnection(
@@ -89,7 +111,7 @@ static uint32_t prxCreateNetworkConnection(
 #if BLE_ENABLED
     if( ( ulConnectedNetworks & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
     {
-        if( prbCreateMqttBLEConnection( pxNetworkInterface, pxMqttConnection, ppvConnection ) == true )
+        if( prbCreateBLEConnection( pxNetworkInterface, pxMqttConnection, ppvConnection ) == true )
         {
             return AWSIOT_NETWORK_TYPE_BLE;
         }
@@ -171,7 +193,7 @@ static bool prbCreateSecureSocketConnection(
 #endif
 
 #if BLE_ENABLED
-static bool prbCreateMqttBLEConnection(
+static bool prbCreateBLEConnection(
         AwsIotMqttNetIf_t* pxNetworkInterface,
         AwsIotMqttConnection_t* pxMqttConnection,
         void** ppvConnection )
@@ -205,13 +227,13 @@ static void prvNetworkSubscriptionWrapper( uint32_t ulNetworkType, AwsIotNetwork
     }
 }
 
-void ulCreateNetworkConnectionWithRetry(
-        uint32_t ulConnIntervalSec,
-        uint32_t ulConnRetryLimit,
-        AwsIotMqttNetIf_t* pxNetworkInterface,
-        AwsIotMqttConnection_t* pxMqttConnection,
-        NetworkDisconnectedCallback_t xDisconnectCallback,
-        AwsIotDemoNetworkConnection_t* pxIotNetworkConnection )
+void AwsIotDemo_CreateNetworkConnection(
+		AwsIotMqttNetIf_t* pxNetworkInterface,
+		AwsIotMqttConnection_t* pxMqttConnection,
+		NetworkDisconnectedCallback_t xDisconnectCallback,
+		AwsIotDemoNetworkConnection_t* pxIotNetworkConnection,
+		uint32_t ulConnIntervalSec,
+		uint32_t ulConnRetryLimit)
 {
     size_t xRetryCount = 0;
     struct timespec xDelay =
@@ -265,7 +287,7 @@ void ulCreateNetworkConnectionWithRetry(
 
 }
 
-uint32_t ulGetConnectedNetworkType( AwsIotDemoNetworkConnection_t xNetworkConnection )
+uint32_t AwsIotDemo_GetNetworkType( AwsIotDemoNetworkConnection_t xNetworkConnection )
 {
     NetworkConnection_t* pxConn = ( NetworkConnection_t* ) xNetworkConnection;
     if( pxConn != NULL )
@@ -276,7 +298,7 @@ uint32_t ulGetConnectedNetworkType( AwsIotDemoNetworkConnection_t xNetworkConnec
     return AWSIOT_NETWORK_TYPE_NONE;
 }
 
-void vDeleteNetworkConnection( AwsIotDemoNetworkConnection_t xNetworkConnection )
+void AwsIotDemo_DeleteNetworkConnection( AwsIotDemoNetworkConnection_t xNetworkConnection )
 {
     NetworkConnection_t* pxNetwork = ( NetworkConnection_t* ) xNetworkConnection;
 

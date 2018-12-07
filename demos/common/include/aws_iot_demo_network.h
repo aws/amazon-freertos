@@ -39,21 +39,49 @@
 
 #include "aws_iot_mqtt.h"
 
+/**
+ * @brief Handle to an IoT network connection used by the demo.
+ */
 typedef void* AwsIotDemoNetworkConnection_t;
 
+/**
+ *  Callback Invoked when the underlying transport is disconnected.
+ *
+ * @param[in] Handle to the IoT Network connection
+ */
 typedef void ( *NetworkDisconnectedCallback_t ) ( AwsIotDemoNetworkConnection_t );
-
-
-void ulCreateNetworkConnectionWithRetry(
-        uint32_t ulConnIntervalSec,
-        uint32_t ulConnRetryLimit,
+/**
+ * @brief Creates an IoT network connection for demo
+ *
+ * Function creates a  IoT network connection which can be then used by demo applications with MQTT library APIs.
+ *
+ * @param[in] pxNetworkInterface Network Interface for the connection
+ * @param[in] pxMqttConnection Handle to the MQTT connection
+ * @param[in] xDisconnectCallback Callback invoked when the underlying network is disconnected.
+ * @param[out] pxIoTNetworkConnection Handle to the Network Connection
+ * @param[in] ulConnRetryIntervalSeconds Connection retry Interval in seconds
+ * @param[in] ulConnRetryLimit Connection Retry limit
+ */
+void AwsIotDemo_CreateNetworkConnection(
         AwsIotMqttNetIf_t* pxNetworkInterface,
         AwsIotMqttConnection_t* pxMqttConnection,
-        NetworkDisconnectedCallback_t xCallback,
-        AwsIotDemoNetworkConnection_t* pxIotNetworkConnection );
+        NetworkDisconnectedCallback_t xDisconnectCallback,
+        AwsIotDemoNetworkConnection_t* pxIoTNetworkConnection,
+        uint32_t ulConnRetryIntervalSeconds,
+        uint32_t ulConnRetryLimit );
 
-uint32_t ulGetConnectedNetworkType( AwsIotDemoNetworkConnection_t xNetworkConnection );
+/**
+ * @brief Get the type of transport associated with the network connection
+ * @param xIoTNetworkConnection Handle to the IoT Network Connection
+ * @return The type of network connection
+ */
+uint32_t AwsIotDemo_GetNetworkType( AwsIotDemoNetworkConnection_t xIoTNetworkConnection );
 
-void vDeleteNetworkConnection( AwsIotDemoNetworkConnection_t xNetworkConnection );
+/**
+ * @brief Deletes an Iot Network Connection.
+ *
+ * @param xIotNetworkConnection
+ */
+void AwsIotDemo_DeleteNetworkConnection( AwsIotDemoNetworkConnection_t xIoTNetworkConnection );
 
 #endif /* AWS_IOT_DEMO_NETWORK_H_ */

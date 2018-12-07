@@ -129,14 +129,13 @@ void vToggleMQTTService( BLEAttribute_t * pxAttribute,
                        BLEAttributeEvent_t * pxEventParam );
 
 /*
- * @brief Resets the send and received buffer for the given MQTT connection.
- * MQTT connection should be closed or the service should be disabled
- * before resetting the buffer.
+ * @brief Resets the send and receive buffer for the given MQTT Service.
+ * Any pending MQTT connection should be closed or the service should be disabled
+ * prior to resetting the buffer.
  *
  * @param[in]  pxService Pointer to the MQTT service.
- * @return Returns pdTRUE if the reset was successful.
  */
-BaseType_t prxResetBuffer( MqttBLEService_t* pxService );
+void prvResetBuffer( MqttBLEService_t* pxService );
 
 /*
  * @brief Gets the characteristic descriptor given a handle.
@@ -385,30 +384,28 @@ static BaseType_t prvInitServiceInstance( uint8_t ucInstId )
     return IS_SUCCESS( xStatus );
 }
 
-BaseType_t prxResetBuffer( MqttBLEService_t* pxService )
+void prvResetBuffer( MqttBLEService_t* pxService )
 {
 
-    BaseType_t xRet = pdFALSE;
-
-    if( !( pxService->bIsEnabled )
-    		|| ( pxService->xConnection.pxMqttConnection == NULL ) )
+    if( !( pxService->bIsEnabled ) || ( pxService->xConnection.pxMqttConnection == NULL ) )
     {
     	/*
-    	 * Try to acquire send lock by blocking for a maximum wait time of "MQTT Send Timeout" time.
-    	 * Waits for any sender threads to complete enqueue of data to be sent.
+    	 * Acquire send lock by blocking for a maximum wait time of send timeout.
+    	 * This will ensure no more sender tasks enqueue the stream buffer.
+    	 * Resets the stream buffer and release the lock.
     	 */
-    	( void ) xSemaphoreTake(
-    			pxService->xConnection.xSendLock,
-				pxService->xConnection.xSendTimeout );
+    	( void ) xSemaphoreTake( pxService->xConnection.xSendLock, pxService->xConnection.xSendTimeout  );
 
-    	/*
-    	 * Reset the stream buffer as there are no senders or receivers
-    	 */
-    	xRet = xStreamBufferReset( pxService->xConnection.xSendBuffer );
+    	( void ) xStreamBufferReset( pxService->xConnection.xSendBuffer );
 
     	( void ) xSemaphoreGive( pxService->xConnection.xSendLock );
 
-    	/* Wait for any receive callback to be completed */
+
+    	/*
+    	 * Wait for completion of any receive callback.
+    	 * Releases any pending receive buffer, Set the buffer to NULL,
+    	 * reset the offset and length of the buffer to zero.
+    	 */
     	( void ) xSemaphoreTake( pxService->xConnection.xRecvLock, portMAX_DELAY );
 
     	if( pxService->xConnection.pRecvBuffer != NULL )
@@ -416,14 +413,14 @@ BaseType_t prxResetBuffer( MqttBLEService_t* pxService )
     		vPortFree( pxService->xConnection.pRecvBuffer );
     		pxService->xConnection.pRecvBuffer = NULL;
     	}
+
     	pxService->xConnection.xRecvOffset = 0;
     	pxService->xConnection.xRecvBufferLen = 0;
-
 
     	( void ) xSemaphoreGive( pxService->xConnection.xRecvLock );
     }
 
-    return xRet;
+
 }
 
 /*-----------------------------------------------------------*/
@@ -472,7 +469,7 @@ void vToggleMQTTService( BLEAttribute_t * pxAttribute,
                     else
                     {
                     	pxService->bIsEnabled = false;
-                        prxResetBuffer( pxService );
+                        prvResetBuffer( pxService );
                     }
 
                     xResp.xEventStatus = eBTStatusSuccess;
@@ -555,10 +552,11 @@ void vTXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
 
     if( pxEventParam->xEventType == eBLERead )
     {
+
         pxReadParam = pxEventParam->pxParamRead;
         xBytesToSend = mqttBLETRANSFER_LEN( usBLEConnMTU );
-        pucData = pvPortMalloc( xBytesToSend );
 
+        pucData = pvPortMalloc( xBytesToSend );
         if( pucData != NULL )
         {
             xBytesToSend = xStreamBufferReceive( pxService->xConnection.xSendBuffer, pucData, xBytesToSend, ( TickType_t ) 0ULL );
@@ -595,8 +593,6 @@ void vRXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
     MqttBLEService_t * pxService;
     BaseType_t xResult = pdTRUE;
     uint8_t *pucBufOffset;
-    int x;
-    uint8_t* pBuf;
 
     configASSERT( ( pxAttribute->xAttributeType == eBTDbCharacteristic ) );
 
@@ -671,16 +667,6 @@ void vRXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
 
         			if( pxWriteParam->xLength < mqttBLETRANSFER_LEN( usBLEConnMTU ) )
         			{
-                                        for ( x =0; x < pxService->xConnection.xRecvOffset; x++ )
-                                        {
-                                            if( pxService->xConnection.pRecvBuffer[x] == '\\' )
-                                            {
-                                                pBuf = ( pxService->xConnection.pRecvBuffer ) + x - 100;
-
-                                                configPRINTF(( "Payload has '\\' at %d, %.*s", x, 200, (char *)pBuf ));
-                                                break;
-                                            }
-                                        }
 
         				( void ) AwsIotMqtt_ReceiveCallback( pxService->xConnection.pxMqttConnection,
         						                pxService->xConnection.pRecvBuffer,
@@ -837,7 +823,7 @@ static void vConnectionCallback( BTStatus_t xStatus,
                 configPRINTF( ( "Disconnect received for MQTT service instance %d\n", ucId ) );
                 pxService->bIsEnabled = false;
                 pxService->xConnection.pxMqttConnection = NULL;
-                prxResetBuffer( pxService );
+                prvResetBuffer( pxService );
             }
         }
     }
@@ -1006,7 +992,7 @@ void AwsIotMqttBLE_DestroyConnection( AwsIotMqttBLEConnection_t xConnection )
     MqttBLEService_t* pxService = ( MqttBLEService_t * ) xConnection;
     if( ( pxService != NULL ) && ( pxService->xConnection.pxMqttConnection == NULL ) )
     {
-        prxResetBuffer( pxService );
+        prvResetBuffer( pxService );
     }
 }
 
@@ -1061,7 +1047,9 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
 
                     while( xRemainingLen > 0 )
                     {
-                        if( xTaskCheckForTimeOut( &xTimeout, &xRemainingTime ) == pdTRUE )
+                        if( !( pxService->bIsEnabled ) ||
+                        		( pxService->xConnection.pxMqttConnection == NULL ) ||
+                        		( xTaskCheckForTimeOut( &xTimeout, &xRemainingTime ) == pdTRUE ) )
                         {
                             xStreamBufferReset( pxService->xConnection.xSendBuffer );
                             xSemaphoreGive( pxService->xConnection.xSendLock );
