@@ -139,7 +139,7 @@ typedef struct{
 static Link_t xWaitingEventQueue;
 /* Tests are waiting event on callback queue, if an unexpected event comes, it is added to the waiting queue to be processed later. */
 static QueueHandle_t xCallbackQueue;
-
+static const char bletestsBADADDRESS[btADDRESS_LEN] =  {0, 0, 0, 0, 0, 0};
 static BTInterface_t* pxBTInterface;
 static BTState_t xBLEState = eBTstateOff;
 static StaticEventGroup_t xWaitOperationComplete;
@@ -626,6 +626,7 @@ void prvWaitConnection(bool bConnected)
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(bConnected, xConnectionEvent.bConnected);
 	TEST_ASSERT_EQUAL(ucBLEServerIf, xConnectionEvent.ucServerIf);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
 
 	/* Stop advertisement. */
 	xStatus = pxBTLeAdapterInterface->pxStopAdv(ucBLEAdapterIf);
@@ -1874,6 +1875,8 @@ void prvConnectionCb ( uint16_t usConnId,
 {
 	BLETESTConnectionCallback_t * pxConnectionCallback = pvPortMalloc(sizeof(BLETESTConnectionCallback_t));
 
+	xCbStatus = eBTStatusSuccess;
+
 	if(pxConnectionCallback != NULL)
 	{
 		pxConnectionCallback->bConnected = bConnected;
@@ -1883,6 +1886,7 @@ void prvConnectionCb ( uint16_t usConnId,
 			memcpy(&xAddressConnectedDevice, pxBda, sizeof(BTBdaddr_t));
 		}else
 		{
+			xCbStatus = eBTStatusFail;
 			memset(&pxConnectionCallback->pxBda, 0, sizeof(BTBdaddr_t));
 			memset(&xAddressConnectedDevice, 0, sizeof(BTBdaddr_t));
 		}
@@ -1914,6 +1918,7 @@ void prvConnParameterUpdateCb (BTStatus_t xStatus,
 	}else
 	{
 		memset(&xCbBda, 0, sizeof(BTBdaddr_t));
+		xCbStatus = eBTStatusFail;
 	}
 	usCbConnInterval = usConnInterval;
 
