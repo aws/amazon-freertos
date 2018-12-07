@@ -539,9 +539,11 @@ TEST_GROUP_RUNNER( Full_BLE )
 	RUN_TEST_CASE( Full_BLE, BLE_Property_ReadCharacteristic);
 	RUN_TEST_CASE( Full_BLE, BLE_Property_ReadDescriptor );
 	RUN_TEST_CASE( Full_BLE, BLE_Property_WriteNoResponse );
+    RUN_TEST_CASE( Full_BLE, BLE_Property_Enable_Indication_Notification );
 	RUN_TEST_CASE( Full_BLE, BLE_Property_Notification );
 	RUN_TEST_CASE( Full_BLE, BLE_Property_Indication );
-
+    RUN_TEST_CASE( Full_BLE, BLE_Property_Disable_Indication_Notification );
+        
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level4 );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteDescr );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteChar );
@@ -820,6 +822,49 @@ void prvSendNotification(BLEAttributeData_t * xAttributeData, bool bConfirm)
 										    bConfirm);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 }
+
+TEST( Full_BLE, BLE_Property_Enable_Indication_Notification )
+{
+    BTStatus_t xStatus;
+    BLETESTwriteAttrCallback_t xWriteEvent;
+
+    /* Wait for the CCCD write events */
+    /* TODO: Test the actual values of events */
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_E ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_F ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+}
+
+TEST( Full_BLE, BLE_Property_Disable_Indication_Notification )
+{
+    BTStatus_t xStatus;
+    BLETESTwriteAttrCallback_t xWriteEvent;
+
+    /* Wait for the CCCD write events */
+    /* TODO: Test the actual values of events */
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_E ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_F ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+}
+
 
 TEST( Full_BLE, BLE_Property_Indication )
 {
@@ -1534,7 +1579,7 @@ void prvGroupInit()
 void prvGroupFree()
 {
 	void * pvPtr;
-	Link_t *pxTmpLink;
+	Link_t *pxLink, *pxTmpLink;
 	xWaitingEvents_t * pxTmpEvent;
 
 	do{
@@ -1551,10 +1596,10 @@ void prvGroupFree()
 
 
 	/* Remove everything in the waiting list that was not used. */
-	listFOR_EACH( pxTmpLink, &( xWaitingEventQueue ) )
+	listFOR_EACH_SAFE( pxLink, pxTmpLink, &( xWaitingEventQueue ) )
 	{
-		pxTmpEvent = listCONTAINER( pxTmpLink, xWaitingEvents_t, xNextQueueItem );
-		listREMOVE(pxTmpLink);
+		pxTmpEvent = listCONTAINER( pxLink, xWaitingEvents_t, xNextQueueItem );
+		listREMOVE(pxLink);
 		vPortFree(pxTmpEvent);
 	}
 
@@ -1918,7 +1963,6 @@ void prvConnParameterUpdateCb (BTStatus_t xStatus,
 	}else
 	{
 		memset(&xCbBda, 0, sizeof(BTBdaddr_t));
-		xCbStatus = eBTStatusFail;
 	}
 	usCbConnInterval = usConnInterval;
 
