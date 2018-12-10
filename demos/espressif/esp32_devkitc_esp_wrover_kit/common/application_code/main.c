@@ -24,7 +24,7 @@
  */
 
 /* FreeRTOS includes. */
-#include <aws_ble.h>
+
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -59,9 +59,11 @@
 
 
 #if BLE_ENABLED
+#include <aws_ble.h>
 #include "aws_ble_config.h"
 #include "aws_ble_services_init.h"
 #include "aws_ble_wifi_provisioning.h"
+#include "aws_ble_numericComparison.h"
 #endif
 
 /* Logging Task Defines. */
@@ -76,13 +78,7 @@ const AppVersion32_t xAppFirmwareVersion = {
    .u.x.usBuild = APP_VERSION_BUILD,
 };
 
-typedef struct{
-	uint32_t ulPassKey;
-	BTBdaddr_t xAdress;
-} BLEPassKeyConfirm_t;
-
 QueueHandle_t spp_uart_queue = NULL;
-QueueHandle_t xNumericComparisonQueue = NULL;
 
 /* Static arrays for FreeRTOS+TCP stack initialization for Ethernet network connections
  * are use are below. If you are using an Ethernet connection on your MCU device it is
@@ -151,16 +147,9 @@ static void prvMiscInitialization( void );
 #if BLE_ENABLED
 /* Initializes bluetooth */
 static esp_err_t prvBLEStackInit( void );
-static BTStatus_t prvBLEInit( void );
 
-#if( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
 static void spp_uart_init(void);
 
-/** UART Task, used to get user input for this like numeric comparison in BLE */
-void uart_task(void *pvParameters);
-void prvNumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey );
-
-#endif
 #endif
 /*-----------------------------------------------------------*/
 
@@ -195,7 +184,7 @@ int app_main( void )
 
 #if BLE_ENABLED
         /* Initialize BLE. */
-        if( prvBLEInit() != eBTStatusSuccess )
+        if( prvBLEStackInit() != eBTStatusSuccess )
         {
         	configPRINTF(("Failed to initialize the bluetooth stack\n "));
         	while( 1 )
@@ -248,11 +237,8 @@ static void prvMiscInitialization( void )
 	}
 	ESP_ERROR_CHECK( ret );
 
-#if( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
-       /* Create a queue that will pass in the code to the UART task and wait validation from the user. */
-       xNumericComparisonQueue = xQueueCreate( 1, sizeof( BLEPassKeyConfirm_t ) );
-       spp_uart_init();
-#endif
+   NumericComparisonInit();
+   spp_uart_init();
 }
 
 
@@ -298,123 +284,6 @@ static esp_err_t prvBLEStackInit( void )
 }
 
 
-void prvBLEGAPPairingStateChangedCb( BTStatus_t xStatus,
-                                     BTBdaddr_t * pxRemoteBdAddr,
-                                     BTSecurityLevel_t xSecurityLevel,
-                                     BTAuthFailureReason_t xReason )
-{
-}
-
-
-static BTStatus_t prvBLEInit( void )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-    BLEEventsCallbacks_t xEventCb;
-    BTUuid_t xServerUUID =
-    {
-        .ucType   = eBTuuidType128,
-        .uu.uu128 = bleconfigSERVER_UUID
-    };
-
-
-#if ( bleconfigENABLE_BONDING == 1 )
-    const bool bIsBondable = true;
-#else
-    const bool bIsBondable = false;
-#endif
-
-#if ( bleconfigENABLE_SECURE_CONNECTION == 1 )
-    const bool bSecureConnection = true;
-#else
-    const bool bSecureConnection = false;
-#endif
-    const uint32_t usMtu = bleconfigPREFERRED_MTU_SIZE;
-    const BTIOtypes_t xIO = eBTIODisplayYesNo;
-    size_t xNumProperties;
-    const BTInterface_t * pxIface;
-
-    BTProperty_t xDeviceProperties[] =
-    {
-        {
-            .xType = eBTpropertyBdname,
-            .xLen = strlen( bleconfigDEVICE_NAME ),
-            .pvVal = ( void * ) bleconfigDEVICE_NAME
-        },
-        {
-            .xType = eBTpropertyBondable,
-            .xLen = 1,
-            .pvVal = ( void * ) &bIsBondable
-        },
-		{
-			.xType = eBTpropertySecureConnectionOnly,
-			.xLen = 1,
-			.pvVal = ( void * ) &bSecureConnection
-		},
-		{
-			.xType = eBTpropertyIO,
-			.xLen = 1,
-			.pvVal = ( void * ) &xIO
-		},
-        {
-            .xType = eBTpropertyLocalMTUSize,
-            .xLen = 1,
-            .pvVal = ( void * ) &usMtu
-        }
-    };
-
-    xNumProperties = sizeof( xDeviceProperties ) / sizeof ( xDeviceProperties[0] );
-
-
-    /* Initialize BLE Stack */
-    if( prvBLEStackInit() != ESP_OK )
-    {
-        xStatus = eBTStatusFail;
-    }
-
-    if( xStatus == eBTStatusSuccess )
-    {
-    	pxIface = BTGetBluetoothInterface();
-    	if( pxIface  != NULL )
-    	{
-    		xStatus = pxIface->pxEnable(0);
-    	}
-    	else
-    	{
-    		xStatus = eBTStatusFail;
-    	}
-    }
-    /* Initialize BLE Middle ware */
-    if( xStatus == eBTStatusSuccess )
-    {
-        xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
-    }
-
-    if( xStatus == eBTStatusSuccess )
-    {
-    	 xEventCb.pxGAPPairingStateChangedCb = &prvBLEGAPPairingStateChangedCb;
-    	 xStatus = BLE_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
-    }
-
-#if ( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
-    if( xStatus == eBTStatusSuccess )
-    {
-    	xEventCb.pxNumericComparisonCb = &prvNumericComparisonCb;
-    	xStatus = BLE_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
-    }
-#endif
-
-    /* Initialize BLE Services */
-    if( xStatus == eBTStatusSuccess )
-    {
-        /*Initialize bluetooth services */
-        if( BLE_SERVICES_Init() != pdPASS )
-        {
-            xStatus = eBTStatusFail;
-        }
-    }
-
-    return xStatus;
-}
 #endif
 
 /*-----------------------------------------------------------*/
@@ -588,66 +457,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     }
 }
 
-#if ( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
-
-void prvNumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey)
-{
-	BLEPassKeyConfirm_t xPassKeyConfirm;
-
-	if(pxRemoteBdAddr != NULL)
-	{
-		xPassKeyConfirm.ulPassKey = ulPassKey;
-		memcpy(&xPassKeyConfirm.xAdress, pxRemoteBdAddr, sizeof(BTBdaddr_t));
-
-		xQueueSend(xNumericComparisonQueue, (void * )&xPassKeyConfirm, (portTickType)portMAX_DELAY);
-	}
-}
-
-void uart_task(void *pvParameters)
-{
-    uart_event_t xEvent;
-	BLEPassKeyConfirm_t xPassKeyConfirm;
-    uint8_t * pucTemp = NULL;
-    TickType_t xAuthTimeout = pdMS_TO_TICKS( bleconfigNUMERIC_COMPARISON_TIMEOUT_SEC * 1000 );
-
-    for (;;) {
-    	if (xQueueReceive(xNumericComparisonQueue, (void * )&xPassKeyConfirm, (portTickType) xAuthTimeout ))
-    	{
-			configPRINTF(("Numeric comparison:%ld\n", xPassKeyConfirm.ulPassKey ));
-			configPRINTF(("Press 'y' to confirm\n"));
-			/* Waiting for UART event. */
-			if (xQueueReceive(spp_uart_queue, (void * )&xEvent, (portTickType) xAuthTimeout )) {
-				switch (xEvent.type) {
-				//Event of UART receving data
-				case UART_DATA:
-					if (xEvent.size) {
-						pucTemp = (uint8_t *)malloc(sizeof(uint8_t)*xEvent.size);
-						if(pucTemp == NULL){
-							configPRINTF(("Malloc failed in main.c\n"));
-							break;
-						}
-						memset(pucTemp,0x0,xEvent.size);
-						uart_read_bytes(UART_NUM_0,pucTemp,xEvent.size,portMAX_DELAY);
-						if(pucTemp[0] == 'y')
-						{
-							BLE_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, true);
-						}else
-						{
-							BLE_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, false);
-						}
-
-						free(pucTemp);
-					}
-					break;
-				default:
-					break;
-				}
-			}
-    	}
-    }
-    vTaskDelete(NULL);
-}
-
 static void spp_uart_init(void)
 {
     uart_config_t uart_config = {
@@ -665,6 +474,34 @@ static void spp_uart_init(void)
     uart_set_pin(UART_NUM_0, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     //Install UART driver, and get the queue.
     uart_driver_install(UART_NUM_0, 4096, 8192, 10,&spp_uart_queue,0);
-    xTaskCreate(uart_task, "uTask", 2048, (void*)UART_NUM_0, 8, NULL);
 }
-#endif
+
+BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
+{
+	uart_event_t xEvent;
+	BaseType_t xReturnMessage = pdFALSE;
+
+	if (xQueueReceive(spp_uart_queue, (void * )&xEvent, (portTickType) xAuthTimeout )) {
+		switch (xEvent.type) {
+		//Event of UART receiving data
+		case UART_DATA:
+			if (xEvent.size) {
+				pxINPUTmessage->pcData = (char *)malloc(sizeof(char)*xEvent.size);
+				if(pxINPUTmessage->pcData != NULL){
+					memset(pxINPUTmessage->pcData,0x0,xEvent.size);
+					uart_read_bytes(UART_NUM_0, (uint8_t *)pxINPUTmessage->pcData,xEvent.size,portMAX_DELAY);
+					xReturnMessage = pdTRUE;
+				}else
+				{
+					configPRINTF(("Malloc failed in main.c\n"));
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	return xReturnMessage;
+}
+

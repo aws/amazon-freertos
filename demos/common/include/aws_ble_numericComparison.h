@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.4.2
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,25 +23,28 @@
  * http://www.FreeRTOS.org
  */
 
+
 /**
- * @file aws_ble_config.h
- * @brief BLE configuration overrides for ESP32 board.
+ * @file aws_iot_network.h
+ * @brief Header file containing the network management APIs
  */
+#ifndef _AWS_BLE_NUMERIC_COMPARISON_H_
+#define _AWS_BLE_NUMERIC_COMPARISON_H_
+
+typedef struct{
+    char * pcData;
+    size_t xDataSize;
+}INPUTMessage_t;
 
 
-#ifndef _AWS_BLE_CONFIG_H_
-#define _AWS_BLE_CONFIG_H_
+extern void BLENumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey);
 
-/* Device name for this peripheral device. */
-#define bleconfigDEVICE_NAME                     "ESP32"
+extern void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
+        BTBdaddr_t * pxRemoteBdAddr,
+        BTSecurityLevel_t xSecurityLevel,
+        BTAuthFailureReason_t xReason );
+extern void NumericComparisonInit(void);
+extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout );
 
-/* Enable WIFI provisioning GATT service. */
-#define bleconfigENABLE_WIFI_PROVISIONING         ( 1 )
 
-/*Preferred MTU size. */
-#define  bleconfigPREFERRED_MTU_SIZE               ( 180 )
-
-/* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
-#include "aws_ble_config_defaults.h"
-
-#endif /* _AWS_BLE_CONFIG_H_ */
+#endif /* _AWS_IOT_NETWORK_MANAGER_H_ */

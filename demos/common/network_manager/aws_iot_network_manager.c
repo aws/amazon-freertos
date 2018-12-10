@@ -28,13 +28,15 @@
  * @file aws_iot_network_manager.c
  * @brief Network manager is used to handled different types of network connections and their connection/disconnection events at the application layer.
  */
-
+#include <string.h>
 #include "aws_iot_demo.h"
 #include "aws_iot_network_manager.h"
 
 #if BLE_ENABLED
 #include "aws_ble_config.h"
 #include "aws_ble.h"
+#include "aws_ble_numericComparison.h"
+#include "aws_ble_services_init.h"
 #if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
 #include "aws_ble_wifi_provisioning.h"
 #endif
@@ -187,6 +189,111 @@ static BLEAdvertismentParams_t xAdvParams =
 
 
 #if BLE_ENABLED
+
+static BTStatus_t prvBLEInit( void )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+    BLEEventsCallbacks_t xEventCb;
+    BTUuid_t xServerUUID =
+    {
+        .ucType   = eBTuuidType128,
+        .uu.uu128 = bleconfigSERVER_UUID
+    };
+
+
+#if ( bleconfigENABLE_BONDING == 1 )
+    const bool bIsBondable = true;
+#else
+    const bool bIsBondable = false;
+#endif
+
+#if ( bleconfigENABLE_SECURE_CONNECTION == 1 )
+    const bool bSecureConnection = true;
+#else
+    const bool bSecureConnection = false;
+#endif
+    const uint32_t usMtu = bleconfigPREFERRED_MTU_SIZE;
+    const BTIOtypes_t xIO = eBTIODisplayYesNo;
+    size_t xNumProperties;
+    const BTInterface_t * pxIface;
+
+    BTProperty_t xDeviceProperties[] =
+    {
+        {
+            .xType = eBTpropertyBdname,
+            .xLen = strlen( bleconfigDEVICE_NAME ),
+            .pvVal = ( void * ) bleconfigDEVICE_NAME
+        },
+        {
+            .xType = eBTpropertyBondable,
+            .xLen = 1,
+            .pvVal = ( void * ) &bIsBondable
+        },
+		{
+			.xType = eBTpropertySecureConnectionOnly,
+			.xLen = 1,
+			.pvVal = ( void * ) &bSecureConnection
+		},
+		{
+			.xType = eBTpropertyIO,
+			.xLen = 1,
+			.pvVal = ( void * ) &xIO
+		},
+        {
+            .xType = eBTpropertyLocalMTUSize,
+            .xLen = 1,
+            .pvVal = ( void * ) &usMtu
+        }
+    };
+
+    xNumProperties = sizeof( xDeviceProperties ) / sizeof ( xDeviceProperties[0] );
+
+    if( xStatus == eBTStatusSuccess )
+    {
+    	pxIface = BTGetBluetoothInterface();
+    	if( pxIface  != NULL )
+    	{
+    		xStatus = pxIface->pxEnable(0);
+    	}
+    	else
+    	{
+    		xStatus = eBTStatusFail;
+    	}
+    }
+    /* Initialize BLE Middle ware */
+    if( xStatus == eBTStatusSuccess )
+    {
+        xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
+    }
+
+    if( xStatus == eBTStatusSuccess )
+    {
+    	 xEventCb.pxGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
+    	 xStatus = BLE_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
+    }
+
+#if ( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
+    if( xStatus == eBTStatusSuccess )
+    {
+    	xEventCb.pxNumericComparisonCb = &BLENumericComparisonCb;
+    	xStatus = BLE_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
+    }
+#endif
+
+    /* Initialize BLE Services */
+    if( xStatus == eBTStatusSuccess )
+    {
+        /*Initialize bluetooth services */
+        if( BLE_SERVICES_Init() != pdPASS )
+        {
+            xStatus = eBTStatusFail;
+        }
+    }
+
+    return xStatus;
+}
+
+
 static bool prvBLEEnable( void )
 {
 	BLEEventsCallbacks_t xEventCb;
@@ -194,6 +301,7 @@ static bool prvBLEEnable( void )
 
 	if( !( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE  ) )
 	{
+		prvBLEInit();
 		/* Register BLE Connection callback */
 		if( xRet == pdTRUE )
 		{
