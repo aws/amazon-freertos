@@ -48,7 +48,7 @@ int mbedtls_ecdh_gen_public( mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp
     uint8_t public_key [200];
     size_t public_key_len = sizeof( public_key );
     optiga_ecc_curve_t curve_id;
-    optiga_key_id_t optiga_key_id = OPTIGA_KEY_STORE_ID_E0F1;
+    optiga_key_id_t optiga_key_id = OPTIGA_KEY_STORE_ID_E0F3;
 
     //checking group against the supported curves of Optiga Trust X
     if ( ( grp->id != MBEDTLS_ECP_DP_SECP256R1 ) &&
@@ -122,7 +122,7 @@ int mbedtls_ecdh_compute_shared( mbedtls_ecp_group *grp, mbedtls_mpi *z,
 		publickey.length = public_key_length + 3;
 
         //Invoke optiga command to generate shared secret and store in the OID/buffer.
-        status = optiga_crypt_ecdh(OPTIGA_KEY_STORE_ID_E0F1,
+        status = optiga_crypt_ecdh(OPTIGA_KEY_STORE_ID_E0F3,
         						   &publickey,
         						   1,
                                    buf);

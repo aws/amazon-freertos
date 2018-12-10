@@ -18,7 +18,7 @@
 /* OPTIGA Trust X defines. */
 #define mainTrustX_TASK_STACK_SIZE     		( configMINIMAL_STACK_SIZE * 8 )
 
-char CLIENT_CERTIFICATE_PEM[1024];
+char CLIENT_CERTIFICATE_PEM[1124];
 uint32_t CLIENT_CERTIFICATE_LENGTH;
 
 // Not used, but required for mbedTLS...
@@ -47,10 +47,10 @@ extern optiga_lib_status_t  example_authenticate_chip(void);
 
 static void read_ifx_cert(void)
 {
-		uint8_t ifx_cert_hex[700];
+		uint8_t ifx_cert_hex[800];
 		uint16_t  ifx_cert_hex_len = sizeof(ifx_cert_hex);
 		size_t  ifx_cert_b64_len = 0;
-		uint8_t ifx_cert_b64_temp[1024];
+		uint8_t ifx_cert_b64_temp[1124];
 		uint16_t offset_to_read = 0;
 		uint16_t offset_to_write = 0;
 		uint16_t size_to_copy = 0;

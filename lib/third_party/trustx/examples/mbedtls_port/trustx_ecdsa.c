@@ -51,7 +51,7 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
     unsigned char *p = der_signature;
     const unsigned char *end = der_signature + dslen;
 
-    if(optiga_crypt_ecdsa_sign((unsigned char *)buf, blen, OPTIGA_KEY_STORE_ID_E0F0, der_signature, &dslen) != OPTIGA_LIB_SUCCESS)
+    if(optiga_crypt_ecdsa_sign((unsigned char *)buf, blen, OPTIGA_KEY_STORE_ID_E0F1, der_signature, &dslen) != OPTIGA_LIB_SUCCESS)
     {
 		ret = MBEDTLS_ERR_PK_BAD_INPUT_DATA;
 		goto cleanup;
