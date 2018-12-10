@@ -30,6 +30,6 @@
     #error "include FreeRTOS.h must appear in source files before include aws_system_init.h"
 #endif
 
-BaseType_t SYSTEM_Init();
+BaseType_t SYSTEM_Init(void);
 
 #endif /* _AWS_SYSTEM_INIT_H_ */

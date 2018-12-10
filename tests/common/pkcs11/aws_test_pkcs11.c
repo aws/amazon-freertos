@@ -1155,6 +1155,9 @@ TEST_GROUP_RUNNER( Full_PKCS11_CryptoOperation )
 
     /* Test key generation. */
     RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_KeyGenerationEcdsaHappyPath );
+
+    /* Re-provision the device with default RSA certs so that subsequent tests are not changed. */
+    vDevModeKeyProvisioning();
 }
 
 TEST_GROUP_RUNNER( Full_PKCS11_GeneralPurpose )
