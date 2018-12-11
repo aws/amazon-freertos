@@ -139,7 +139,7 @@ typedef struct{
 static Link_t xWaitingEventQueue;
 /* Tests are waiting event on callback queue, if an unexpected event comes, it is added to the waiting queue to be processed later. */
 static QueueHandle_t xCallbackQueue;
-
+static const char bletestsBADADDRESS[btADDRESS_LEN] =  {0, 0, 0, 0, 0, 0};
 static BTInterface_t* pxBTInterface;
 static BTState_t xBLEState = eBTstateOff;
 static StaticEventGroup_t xWaitOperationComplete;
@@ -526,6 +526,7 @@ TEST_GROUP_RUNNER( Full_BLE )
     RUN_TEST_CASE( Full_BLE, BLE_CreateAttTable_StartService );
 
     RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetProperties );//@TOTO, incomplete
+	RUN_TEST_CASE( Full_BLE, BLE_Connection_RemoveAllBonds );
 
 	RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetAvertisementData );//@TOTO, incomplete
 	RUN_TEST_CASE( Full_BLE, BLE_Advertising_StartAdvertisement );
@@ -538,9 +539,11 @@ TEST_GROUP_RUNNER( Full_BLE )
 	RUN_TEST_CASE( Full_BLE, BLE_Property_ReadCharacteristic);
 	RUN_TEST_CASE( Full_BLE, BLE_Property_ReadDescriptor );
 	RUN_TEST_CASE( Full_BLE, BLE_Property_WriteNoResponse );
+    RUN_TEST_CASE( Full_BLE, BLE_Property_Enable_Indication_Notification );
 	RUN_TEST_CASE( Full_BLE, BLE_Property_Notification );
 	RUN_TEST_CASE( Full_BLE, BLE_Property_Indication );
-
+    RUN_TEST_CASE( Full_BLE, BLE_Property_Disable_Indication_Notification );
+        
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level4 );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteDescr );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteChar );
@@ -554,6 +557,44 @@ TEST_GROUP_RUNNER( Full_BLE )
 
     RUN_TEST_CASE( Full_BLE, BLE_DeInitialize );
     prvGroupFree();
+}
+
+void prvRemoveBond(BTBdaddr_t * pxDeviceAddres)
+{
+	BTStatus_t xStatus;
+	BLETESTBondedCallback_t  xBondedEvent;
+
+	xStatus = pxBTInterface->pxRemoveBond(pxDeviceAddres);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
+
+	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xBondedEvent.xStatus);
+	TEST_ASSERT_EQUAL(false, xBondedEvent.bIsBonded);
+	TEST_ASSERT_EQUAL(0, memcmp(&xBondedEvent.xRemoteBdAddr, pxDeviceAddres, sizeof(BTBdaddr_t) ));
+
+}
+
+TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
+{
+	BTProperty_t pxProperty;
+	uint16_t usIndex;
+
+	/* Set the name */
+	pxProperty.xType = eBTpropertyAdapterBondedDevices;
+
+	/* Get bonded devices */
+	prvSetGetProperty(&pxProperty, false);
+
+	for(usIndex = 0; usIndex < pxProperty.xLen; usIndex++)
+	{
+		prvRemoveBond(&((BTBdaddr_t *)pxProperty.pvVal)[usIndex]);
+	}
+
+	/* Get bonded devices. */
+	prvSetGetProperty(&pxProperty, false);
+	/* Check none are left. */
+	TEST_ASSERT_EQUAL(0, pxProperty.xLen);
 }
 
 bool prvGetCheckDeviceBonded(BTBdaddr_t * pxDeviceAddres)
@@ -578,6 +619,7 @@ bool prvGetCheckDeviceBonded(BTBdaddr_t * pxDeviceAddres)
 
 	return bFoundRemoteDevice;
 }
+
 void prvWaitConnection(bool bConnected)
 {
 	BLETESTConnectionCallback_t xConnectionEvent;
@@ -586,6 +628,7 @@ void prvWaitConnection(bool bConnected)
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(bConnected, xConnectionEvent.bConnected);
 	TEST_ASSERT_EQUAL(ucBLEServerIf, xConnectionEvent.ucServerIf);
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
 
 	/* Stop advertisement. */
 	xStatus = pxBTLeAdapterInterface->pxStopAdv(ucBLEAdapterIf);
@@ -618,17 +661,8 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
 TEST( Full_BLE, BLE_Connection_RemoveBonding )
 {
 	bool bFoundRemoteDevice;
-	BTStatus_t xStatus;
-	BLETESTBondedCallback_t  xBondedEvent;
 
-	xStatus = pxBTInterface->pxRemoveBond(&xAddressConnectedDevice);
-	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
-
-	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
-	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
-	TEST_ASSERT_EQUAL(eBTStatusSuccess, xBondedEvent.xStatus);
-	TEST_ASSERT_EQUAL(false, xBondedEvent.bIsBonded);
-	TEST_ASSERT_EQUAL(0, memcmp(&xBondedEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
+	prvRemoveBond(&xAddressConnectedDevice);
 
 	bFoundRemoteDevice =  prvGetCheckDeviceBonded(&xAddressConnectedDevice);
 	TEST_ASSERT_EQUAL(false, bFoundRemoteDevice);
@@ -788,6 +822,49 @@ void prvSendNotification(BLEAttributeData_t * xAttributeData, bool bConfirm)
 										    bConfirm);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 }
+
+TEST( Full_BLE, BLE_Property_Enable_Indication_Notification )
+{
+    BTStatus_t xStatus;
+    BLETESTwriteAttrCallback_t xWriteEvent;
+
+    /* Wait for the CCCD write events */
+    /* TODO: Test the actual values of events */
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_E ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_F ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+}
+
+TEST( Full_BLE, BLE_Property_Disable_Indication_Notification )
+{
+    BTStatus_t xStatus;
+    BLETESTwriteAttrCallback_t xWriteEvent;
+
+    /* Wait for the CCCD write events */
+    /* TODO: Test the actual values of events */
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_E ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_F ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+}
+
 
 TEST( Full_BLE, BLE_Property_Indication )
 {
@@ -1502,7 +1579,7 @@ void prvGroupInit()
 void prvGroupFree()
 {
 	void * pvPtr;
-	Link_t *pxTmpLink;
+	Link_t *pxLink, *pxTmpLink;
 	xWaitingEvents_t * pxTmpEvent;
 
 	do{
@@ -1519,10 +1596,10 @@ void prvGroupFree()
 
 
 	/* Remove everything in the waiting list that was not used. */
-	listFOR_EACH( pxTmpLink, &( xWaitingEventQueue ) )
+	listFOR_EACH_SAFE( pxLink, pxTmpLink, &( xWaitingEventQueue ) )
 	{
-		pxTmpEvent = listCONTAINER( pxTmpLink, xWaitingEvents_t, xNextQueueItem );
-		listREMOVE(pxTmpLink);
+		pxTmpEvent = listCONTAINER( pxLink, xWaitingEvents_t, xNextQueueItem );
+		listREMOVE(pxLink);
 		vPortFree(pxTmpEvent);
 	}
 
@@ -1843,6 +1920,8 @@ void prvConnectionCb ( uint16_t usConnId,
 {
 	BLETESTConnectionCallback_t * pxConnectionCallback = pvPortMalloc(sizeof(BLETESTConnectionCallback_t));
 
+	xCbStatus = eBTStatusSuccess;
+
 	if(pxConnectionCallback != NULL)
 	{
 		pxConnectionCallback->bConnected = bConnected;
@@ -1852,6 +1931,7 @@ void prvConnectionCb ( uint16_t usConnId,
 			memcpy(&xAddressConnectedDevice, pxBda, sizeof(BTBdaddr_t));
 		}else
 		{
+			xCbStatus = eBTStatusFail;
 			memset(&pxConnectionCallback->pxBda, 0, sizeof(BTBdaddr_t));
 			memset(&xAddressConnectedDevice, 0, sizeof(BTBdaddr_t));
 		}

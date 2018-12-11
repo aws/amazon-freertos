@@ -90,13 +90,13 @@ def main():
 	runTest.submitTestResult(isTestSuccessFull, runTest.readWriteSimpleConnection)
 
 	#check write without response
-	bleAdapter.setNotificationCallBack(notificationCb)
-	bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID) #subscribe for next test
-	bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
 	isTestSuccessFull = runTest.writeWithoutResponse()
 	runTest.submitTestResult(isTestSuccessFull, runTest.writeWithoutResponse)
 
-	#check notification for DUT_NOTIFY_CHAR_UUID 
+	#check notification for DUT_NOTIFY_CHAR_UUID
+	bleAdapter.setNotificationCallBack(notificationCb)
+	bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID) #subscribe for next test
+	bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
 	mainloop.run()
 	isTestSuccessFull = True
 	runTest.submitTestResult(isTestSuccessFull, runTest.notification)
