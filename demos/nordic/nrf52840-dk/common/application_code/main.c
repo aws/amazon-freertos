@@ -211,20 +211,23 @@ static void conn_params_error_handler( uint32_t nrf_error )
  
 void prvUartEventHandler( app_uart_evt_t * pxEvent )
 {
-    uint8_t ucRxByte = 0;
+    /* Declared as static so it can be pushed into the queue from the ISR. */
+    static volatile uint8_t ucRxByte = 0;
     INPUTMessage_t xInputMessage;
-
+   BaseType_t xHigherPriorityTaskWoken;
     switch( pxEvent->evt_type )
     {
         case APP_UART_DATA_READY:
             app_uart_get( &ucRxByte );
             app_uart_put( ucRxByte );
             
-            xInputMessage.pcData = (uint8_t *)pvPortMalloc(sizeof(uint8_t));
+            xInputMessage.pcData = &ucRxByte;
             xInputMessage.xDataSize = 1;
 
-            xQueueSend(UARTqueue, (void * )&xInputMessage, (portTickType)portMAX_DELAY);
-
+            xQueueSendFromISR(UARTqueue, (void * )&xInputMessage, &xHigherPriorityTaskWoken);
+            /* Now the buffer is empty we can switch context if necessary. */
+            //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
+    
             break;
 
         case APP_UART_COMMUNICATION_ERROR:
@@ -383,13 +386,16 @@ int main( void )
 BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
 {
       BaseType_t xReturnMessage = pdFALSE;
+      INPUTMessage_t xTmpINPUTmessage;
 
-      pxINPUTmessage->pcData = (uint8_t *)pvPortMalloc(sizeof(char));
+      pxINPUTmessage->pcData = (uint8_t *)pvPortMalloc(sizeof(uint8_t));
       pxINPUTmessage->xDataSize = 1;
       if(pxINPUTmessage->pcData != NULL)
       {
-          if (xQueueReceive(UARTqueue, (void * )pxINPUTmessage, (portTickType) xAuthTimeout )) 
+          if (xQueueReceive(UARTqueue, (void * )&xTmpINPUTmessage, (portTickType) xAuthTimeout )) 
           {
+              *pxINPUTmessage->pcData = *xTmpINPUTmessage.pcData;
+              pxINPUTmessage->xDataSize = xTmpINPUTmessage.xDataSize;
               xReturnMessage = pdTRUE;
           }
       }
