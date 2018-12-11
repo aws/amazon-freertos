@@ -55,8 +55,8 @@ void DEMO_RUNNER_RunDemos( void )
 {
     /* vStartDeviceDefenderDemo(); */
     /* vStartGreenGrassDiscoveryTask(); */
-    /* vStartOTAUpdateDemoTask(); */
     vStartMQTTEchoDemo();
+    /* vStartOTAUpdateDemoTask(); */
     /* vStartShadowDemoTasks(); */
     /* vStartSimpleTCPServerTasks(); */
     /* vStartSubpubDemoTasks(); */
