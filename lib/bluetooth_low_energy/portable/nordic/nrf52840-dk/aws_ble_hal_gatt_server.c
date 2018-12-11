@@ -970,27 +970,18 @@ static void prvAFRToNordicCharProp( const BTCharProperties_t * pxAFRCharProps,
 static void prvAFRToNordicReadPerms( const BTCharPermissions_t * pxAFRPermitions,
                                      security_req_t * pxNordicPermitions )
 {
-    switch( *pxAFRPermitions & 0x0003 )
-    {
-        case eBTPermNone:
-            *pxNordicPermitions = SEC_NO_ACCESS;
-            break;
-
-        case eBTPermRead:
+       *pxNordicPermitions = SEC_NO_ACCESS; 
+          /* Select lowest level of permission */
+        if(( *pxAFRPermitions  & eBTPermRead) != 0)
+        {
             *pxNordicPermitions = SEC_OPEN;
-            break;
-
-        case eBTPermReadEncrypted:
-            *pxNordicPermitions = SEC_JUST_WORKS;
-            break;
-
-        case eBTPermReadEncryptedMitm:
-            *pxNordicPermitions = SEC_MITM;
-            break;
-
-        default:
-            *pxNordicPermitions = SEC_NO_ACCESS;
-    }
+        }else if(( *pxAFRPermitions  & eBTPermReadEncrypted) != 0)
+        {
+             *pxNordicPermitions = SEC_JUST_WORKS;
+        }else if(( *pxAFRPermitions  & eBTPermWriteEncryptedMitm) != 0)
+        {
+              *pxNordicPermitions = SEC_MITM;
+        }
 }
 
 /*-----------------------------------------------------------*/
@@ -998,33 +989,22 @@ static void prvAFRToNordicReadPerms( const BTCharPermissions_t * pxAFRPermitions
 static void prvAFRToNordicWritePerms( const BTCharPermissions_t * pxAFRPermitions,
                                       security_req_t * pxNordicPermitions )
 {
-    switch( *pxAFRPermitions & 0x01F0 )
-    {
-        case eBTPermNone:
-            *pxNordicPermitions = SEC_NO_ACCESS;
-            break;
-
-        case eBTPermWrite:
+       *pxNordicPermitions = SEC_NO_ACCESS; 
+          /* Select lowest level of permission */
+        if(( *pxAFRPermitions  & eBTPermWrite) != 0)
+        {
             *pxNordicPermitions = SEC_OPEN;
-            break;
-
-        case eBTPermWriteEncrypted:
-            *pxNordicPermitions = SEC_JUST_WORKS;
-            break;
-
-        case eBTPermWriteEncryptedMitm:
-            *pxNordicPermitions = SEC_MITM;
-            break;
-
-        case eBTPermWriteSigned:
-            *pxNordicPermitions = SEC_SIGNED;
-            break;
-
-        case eBTPermWriteSignedMitm:
-            *pxNordicPermitions = SEC_SIGNED_MITM;
-            break;
-
-        default:
-            *pxNordicPermitions = SEC_NO_ACCESS;
-    }
+        }else if(( *pxAFRPermitions  & eBTPermWriteEncrypted) != 0)
+        {
+             *pxNordicPermitions = SEC_JUST_WORKS;
+        }else if(( *pxAFRPermitions  & eBTPermWriteEncryptedMitm) != 0)
+        {
+              *pxNordicPermitions = SEC_MITM;
+        }else if(( *pxAFRPermitions  & eBTPermWriteSigned) != 0)
+        {
+              *pxNordicPermitions = SEC_MITM;
+        }else if(( *pxAFRPermitions  & eBTPermWriteSignedMitm) != 0)
+        {
+              *pxNordicPermitions = SEC_SIGNED_MITM;
+        }
 }

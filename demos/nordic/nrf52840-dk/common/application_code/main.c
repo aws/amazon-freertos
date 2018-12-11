@@ -360,7 +360,7 @@ static void prvMiscInitialization( void )
 /*-----------------------------------------------------------*/
 void prvStartBLE()
 {
-    xTaskCreate( prvLescTask, "Lesc", 300, NULL, tskIDLE_PRIORITY + 5, NULL );
+    xTaskCreate( prvLescTask, "Lesc", 600, NULL, tskIDLE_PRIORITY + 5, NULL );
 }
 /**
  * @brief Application runtime entry point.
