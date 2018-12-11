@@ -147,6 +147,13 @@
 #define bleconfigENABLE_GATT_DEMO                 ( 0 )
 #endif
 
+/**
+ * @brief Maximum number of device this device can be bonded with.
+ */
+#ifndef bleconfigMAX_BONDED_DEVICES
+#define bleconfigMAX_BONDED_DEVICES                ( 5 )
+#endif
+
 #if ( bleconfigENCRYPTION_REQUIRED == 1  )
 #if ( bleconfigENABLE_NUMERIC_COMPARISON == 1)
 #define bleconfigCHAR_READ_PERM             eBTPermReadEncryptedMitm

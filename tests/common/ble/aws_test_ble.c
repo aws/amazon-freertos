@@ -139,7 +139,6 @@ typedef struct{
 static Link_t xWaitingEventQueue;
 /* Tests are waiting event on callback queue, if an unexpected event comes, it is added to the waiting queue to be processed later. */
 static QueueHandle_t xCallbackQueue;
-static const char bletestsBADADDRESS[btADDRESS_LEN] =  {0, 0, 0, 0, 0, 0};
 static BTInterface_t* pxBTInterface;
 static BTState_t xBLEState = eBTstateOff;
 static StaticEventGroup_t xWaitOperationComplete;
@@ -559,19 +558,19 @@ TEST_GROUP_RUNNER( Full_BLE )
     prvGroupFree();
 }
 
-void prvRemoveBond(BTBdaddr_t * pxDeviceAddres)
+void prvRemoveBond(BTBdaddr_t * pxDeviceAddress)
 {
 	BTStatus_t xStatus;
 	BLETESTBondedCallback_t  xBondedEvent;
 
-	xStatus = pxBTInterface->pxRemoveBond(pxDeviceAddres);
+	xStatus = pxBTInterface->pxRemoveBond(pxDeviceAddress);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xBondedEvent.xStatus);
 	TEST_ASSERT_EQUAL(false, xBondedEvent.bIsBonded);
-	TEST_ASSERT_EQUAL(0, memcmp(&xBondedEvent.xRemoteBdAddr, pxDeviceAddres, sizeof(BTBdaddr_t) ));
+	TEST_ASSERT_EQUAL(0, memcmp(&xBondedEvent.xRemoteBdAddr, pxDeviceAddress, sizeof(BTBdaddr_t) ));
 
 }
 
@@ -597,7 +596,7 @@ TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
 	TEST_ASSERT_EQUAL(0, pxProperty.xLen);
 }
 
-bool prvGetCheckDeviceBonded(BTBdaddr_t * pxDeviceAddres)
+bool prvGetCheckDeviceBonded(BTBdaddr_t * pxDeviceAddress)
 {
 	BTProperty_t pxProperty;
 	uint16_t usIndex;
@@ -610,7 +609,7 @@ bool prvGetCheckDeviceBonded(BTBdaddr_t * pxDeviceAddres)
 
 	for(usIndex = 0; usIndex < pxProperty.xLen; usIndex++)
 	{
-		if( 0 == memcmp(&((BTBdaddr_t *)pxProperty.pvVal)[usIndex], pxDeviceAddres, sizeof(BTBdaddr_t) ))
+		if( 0 == memcmp(&((BTBdaddr_t *)pxProperty.pvVal)[usIndex], pxDeviceAddress, sizeof(BTBdaddr_t) ))
 		{
 			bFoundRemoteDevice = true;
 			break;

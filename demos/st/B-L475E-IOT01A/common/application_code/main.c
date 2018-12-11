@@ -56,6 +56,7 @@
 
 #if BLE_ENABLED
 #include "aws_ble_config.h"
+#include "aws_ble_numericComparison.h"
 #endif
 
 #include "aws_iot_mqtt.h"
@@ -90,7 +91,6 @@ void vApplicationDaemonTaskStartupHook(void);
 
 void prvMiscInitialization(void);
 static BTStatus_t prvBLEStackInit(void);
-static BTStatus_t prvBLEInit( void );
 void vBLE_TickTask(void * pvParameters);
 
 /* USER CODE END PFP */
@@ -391,7 +391,7 @@ void vApplicationDaemonTaskStartupHook(void) {
     /* Initialize BLE. */
 	AwsIotMqtt_Init();
 
-     if( prvBLEInit() != eBTStatusSuccess )
+     if( prvBLEStackInit() != eBTStatusSuccess )
      {
      	configPRINTF(("Failed to initialize the bluetooth stack\n "));
      	while( 1 )
@@ -446,6 +446,7 @@ void prvMiscInitialization(void) {
 	Sdk_Eval_Gpio_Init();
 
 	prvBLEStackInit();
+	NumericComparisonInit();
 
 #if 0 /* SJ: TODO */
 	/* RNG init function. */
@@ -474,27 +475,22 @@ void vOutputChar(const char cChar, const TickType_t xTicksToWait) {
 }
 /*-----------------------------------------------------------*/
 
-// RR 11/21 needed to define this prvNumericComparisonCb - maybe you want to check what to do in this Cb
-void prvNumericComparisonCb (BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey )
+BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
 {
-	uint8_t ucData;
-    TickType_t xAuthTimeout = pdMS_TO_TICKS( bleconfigNUMERIC_COMPARISON_TIMEOUT_SEC * 1000 );
+	BaseType_t xReturnMessage = pdFALSE;
 
-	configPRINTF(("Numeric comparison:%ld\n", ulPassKey ));
-	configPRINTF(("Press 'y' to confirm\n"));
-	HAL_UART_Receive(&xConsoleUart, &ucData, 1, xAuthTimeout);
-
-	if(ucData == 'y')
+	pxINPUTmessage->pcData = (uint8_t *)pvPortMalloc(sizeof(uint8_t));
+	pxINPUTmessage->xDataSize = 1;
+	if(pxINPUTmessage->pcData != NULL)
 	{
-		configPRINTF(("Comparison successful\n"));
-		BLE_ConfirmNumericComparisonKeys(pxRemoteBdAddr, true);
-	}else
-	{
-		configPRINTF(("Comparison failed\n"));
-		BLE_ConfirmNumericComparisonKeys(pxRemoteBdAddr, false);
+		if(HAL_UART_Receive(&xConsoleUart, pxINPUTmessage->pcData, pxINPUTmessage->xDataSize, xAuthTimeout) == HAL_OK)
+		{
+			xReturnMessage = pdTRUE;
+		}
 	}
+
+	return xReturnMessage;
 }
-// RR 11/21
 
 void vMainUARTPrintString(char * pcString) {
 	const uint32_t ulTimeout = 3000UL;
@@ -537,118 +533,6 @@ void assert_failed(uint8_t* file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 
-void prvBLEGAPPairingStateChangedCb( BTStatus_t xStatus,
-                                     BTBdaddr_t * pxRemoteBdAddr,
-                                     BTSecurityLevel_t xSecurityLevel,
-                                     BTAuthFailureReason_t xReason )
-{
-}
-
-
-
-
-static BTStatus_t prvBLEInit( void )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-    BLEEventsCallbacks_t xEventCb;
-    BTUuid_t xServerUUID =
-    {
-        .ucType   = eBTuuidType128,
-        .uu.uu128 = bleconfigSERVER_UUID
-    };
-
-
-#if ( bleconfigENABLE_BONDING == 1 )
-    const bool bIsBondable = true;
-#else
-    const bool bIsBondable = false;
-#endif
-
-#if ( bleconfigENABLE_SECURE_CONNECTION == 1 )
-    const bool bSecureConnection = true;
-#else
-    const bool bSecureConnection = false;
-#endif
-    const uint32_t usMtu = bleconfigPREFERRED_MTU_SIZE;
-    const BTIOtypes_t xIO = eBTIODisplayYesNo; // RR 11/21 modified IO cap from eBTIONone to eBTIODisplayYesNo
-    size_t xNumProperties;
-    const BTInterface_t * pxIface;
-
-    BTProperty_t xDeviceProperties[] =
-    {
-        {
-            .xType = eBTpropertyBdname,
-            .xLen = strlen( bleconfigDEVICE_NAME ),
-            .pvVal = ( void * ) bleconfigDEVICE_NAME
-        },
-        {
-            .xType = eBTpropertyBondable,
-            .xLen = 1,
-            .pvVal = ( void * ) &bIsBondable
-        },
-		{
-			.xType = eBTpropertySecureConnectionOnly,
-			.xLen = 1,
-			.pvVal = ( void * ) &bSecureConnection
-		},
-		{
-			.xType = eBTpropertyIO,
-			.xLen = 1,
-			.pvVal = ( void * ) &xIO
-		},
-        {
-            .xType = eBTpropertyLocalMTUSize,
-            .xLen = 1,
-            .pvVal = ( void * ) &usMtu
-        }
-    };
-
-    xNumProperties = sizeof( xDeviceProperties ) / sizeof ( xDeviceProperties[0] );
-
-    if( xStatus == eBTStatusSuccess )
-    {
-    	pxIface = BTGetBluetoothInterface();
-    	if( pxIface  != NULL )
-    	{
-    		xStatus = pxIface->pxEnable(0);
-    	}
-    	else
-    	{
-    		xStatus = eBTStatusFail;
-    	}
-    }
-    /* Initialize BLE Middle ware */
-    if( xStatus == eBTStatusSuccess )
-    {
-        xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
-    }
-
-    if( xStatus == eBTStatusSuccess )
-    {
-    	 xEventCb.pxGAPPairingStateChangedCb = &prvBLEGAPPairingStateChangedCb;
-    	 xStatus = BLE_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
-    }
-
-#if ( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
-    if( xStatus == eBTStatusSuccess )
-    {
-    	xEventCb.pxNumericComparisonCb = &prvNumericComparisonCb;
-    	xStatus = BLE_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
-    }
-#endif
-
-    /* Initialize BLE Services */
-    if( xStatus == eBTStatusSuccess )
-    {
-        /*Initialize bluetooth services */
-        if( BLE_SERVICES_Init() != pdPASS )
-        {
-            xStatus = eBTStatusFail;
-        }
-    }
-
-    return xStatus;
-}
 
 /**
  * @}

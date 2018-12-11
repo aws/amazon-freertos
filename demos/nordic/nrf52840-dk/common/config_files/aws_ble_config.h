@@ -38,12 +38,10 @@
 /* Enable WIFI provisioning GATT service */
 #define bleconfigENABLE_WIFI_PROVISIONING         ( 0 )
 
+/* MTU size. */
+#define bleconfigPREFERRED_MTU_SIZE         ( 180 )
 
-/* Enable GATT demo service */
-#define bleconfigENABLE_GATT_DEMO         ( 1 )
-
-
-
+/* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "aws_ble_config_defaults.h"
 
 #endif /* _AWS_BLE_CONFIG_H_ */

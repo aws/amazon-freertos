@@ -486,7 +486,7 @@ BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTime
 		//Event of UART receiving data
 		case UART_DATA:
 			if (xEvent.size) {
-				pxINPUTmessage->pcData = (char *)malloc(sizeof(char)*xEvent.size);
+				pxINPUTmessage->pcData = (uint8_t *)malloc(sizeof(uint8_t)*xEvent.size);
 				if(pxINPUTmessage->pcData != NULL){
 					memset(pxINPUTmessage->pcData,0x0,xEvent.size);
 					uart_read_bytes(UART_NUM_0, (uint8_t *)pxINPUTmessage->pcData,xEvent.size,portMAX_DELAY);

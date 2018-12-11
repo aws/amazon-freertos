@@ -32,10 +32,11 @@
 #define _AWS_BLE_NUMERIC_COMPARISON_H_
 
 typedef struct{
-    char * pcData;
+	uint8_t * pcData;
     size_t xDataSize;
 }INPUTMessage_t;
 
+extern QueueHandle_t xNumericComparisonQueue;
 
 extern void BLENumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey);
 
