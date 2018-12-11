@@ -156,6 +156,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/common/ble/aws_ble_gatt_server_demo.c</locationURI>
 		</link>
 		<link>
+			<name>application_code/common_demos/source/aws_ble_numericComparison.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/common/ble/aws_ble_numericComparison.c</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_demos/source/aws_demo_runner.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/common/demo_runner/aws_demo_runner.c</locationURI>

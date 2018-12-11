@@ -33,10 +33,10 @@
     #include AWS_IOT_CONFIG_FILE
 #endif
 
-#include "FreeRTOSConfig.h"
 #include "aws_ble_config.h"
 #include "aws_iot_mqtt_ble.h"
 #include "task.h"
+#include "FreeRTOSConfig.h"
 #include "aws_json_utils.h"
 
 #define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pxCharacteristics[ ch_idx ].xAttributeData.xHandle )
@@ -148,7 +148,7 @@ static MQTTCharacteristicDescr_t prxGetCharDescrFromHandle( BLEService_t * pxSer
  */
 static void vConnectionCallback( BTStatus_t xStatus,
                                  uint16_t usConnId,
-                                 bool xConnected,
+                                 bool bConnected,
                                  BTBdaddr_t * pxRemoteBdAddr );
 
 /*
@@ -487,6 +487,7 @@ void vToggleMQTTService( BLEAttribute_t * pxAttribute,
     }
     else if( pxEventParam->xEventType == eBLERead )
     {
+        xResp.xEventStatus = eBTStatusSuccess;
         xResp.pxAttrData->pucData = ( uint8_t * ) cMsg;
         xResp.xAttrDataOffset = 0;
         xResp.pxAttrData->xSize = snprintf( cMsg, mqttBLESTATE_MSG_LEN, mqttBLESTATE_MESSAGE, pxService->bIsEnabled);
@@ -802,19 +803,19 @@ void vClientCharCfgDescrCallback( BLEAttribute_t * pxAttribute,
 /*-----------------------------------------------------------*/
 
 static void vConnectionCallback( BTStatus_t xStatus,
-        uint16_t usConnId,
-        bool xConnected,
-        BTBdaddr_t * pxRemoteBdAddr )
+                                 uint16_t usConnId,
+                                 bool bConnected,
+                                 BTBdaddr_t * pxRemoteBdAddr )
 {
     uint8_t ucId;
     MqttBLEService_t *pxService;
-
+    
     if( xStatus == eBTStatusSuccess )
     {
         for( ucId = 0; ucId < mqttBLEMAX_SVC_INSTANCES; ucId++ )
         {
             pxService = &xMqttBLEServices[ ucId ];
-            if( xConnected == true )
+            if( bConnected == true )
             {
                 pxService->usBLEConnId = usConnId;
             }

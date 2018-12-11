@@ -44,22 +44,144 @@
 /* Nordic/Segger Includes. */
 #include "ble.h"
 #include "ble_srv_common.h"
+#include "nrf_sdh.h"
+#include "nrf_sdh_ble.h"
 #include "nrf_log.h"
-#include "SEGGER_RTT.h"
+#include "nrf_ble_gatt.h"
 
 /* Nordic port Includes. */
 #include "aws_ble_hal_dis.h"
 
+#define GATT_MAX_ENTITIES    30
 
 uint32_t ulGattServerIFhandle;
 uint16_t g_cccd_handle;
+static ble_gatts_char_handles_t xLastCharAddedHanlde;
 bool bInterfaceCreated = false;
 
 static uint32_t ulGATTEvtMngHandle;
-static BTGattServerCallbacks_t xGattServerCb;
+BTGattServerCallbacks_t xGattServerCb;
+uint16_t usGattConnHandle = 0;
 
-extern ble_cus_t m_cus;
+BLE_CUS_DEF( m_cus );
+NRF_BLE_GATT_DEF( xGattHandler );
 
+bool bGattInitialized = false;
+const uint8_t aws_ble_hal_gatt_serverCCCD_UUID[] = { 0, 0, 0x29, 0x02, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A };
+
+/* This table is needed to overcome a restriction imposed by the softdevice API that all additions of services, characteristics and descriptors must
+ * be sequential, i.e. to add a characteristic to a service you must add it immediately after you added a service. So we fill this table firstly and
+ * we actually add these entities only on prvBTStartService call.
+ *
+ * The culprit is that we need to return the handler for an entity immediately, so in the deferred case we need to maintain our own hadlers and translate them
+ * to softdevice's and back. For this purpose the lookup table is introduced with according functions */
+
+typedef struct
+{
+    ble_uuid_t uuid;
+    union
+    {
+        ble_add_char_params_t char_properties;
+        ble_add_descr_params_t descr_properties;
+    } properties;
+    uint16_t parent_handle;
+    uint16_t handle;
+    BTGattAttributeType_t type;
+} BTGattEntity_t;
+
+typedef struct
+{
+    uint16_t handle;
+    uint16_t softdevice_handle;
+} BTGattMapping_t;
+
+BTGattEntity_t xGattTable[ GATT_MAX_ENTITIES ];
+BTGattMapping_t xGattToSDMapping[ GATT_MAX_ENTITIES ];
+
+uint8_t xGattTableSize = 0;
+
+/* TODO: Maybe implement more efficient functions for mapping  */
+uint8_t xGattMappingTablesSize = 0;
+
+/* Needed to access static gatt handler */
+nrf_ble_gatt_t * prvGetGattHandle()
+{
+    return &xGattHandler;
+}
+
+/**
+ * @brief Returns the softdevice handle for a given inner GATT handle
+ * @param handle inner GATT handle
+ * @return the softdevice handle
+ */
+uint16_t prvGattToSDHandle( uint16_t handle )
+{
+    for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
+    {
+        if( xGattToSDMapping[ i ].handle == handle )
+        {
+            return xGattToSDMapping[ i ].softdevice_handle;
+        }
+    }
+
+    return UINT16_MAX;
+}
+
+/**
+ * @brief Returns the given inner GATT handle for a softdevice handle
+ * @param handle softdevice handle
+ * @return inner GATT handle
+ */
+uint16_t prvGattFromSDHandle( uint16_t handle )
+{
+    for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
+    {
+        if( xGattToSDMapping[ i ].softdevice_handle == handle )
+        {
+            return xGattToSDMapping[ i ].handle;
+        }
+    }
+
+    return UINT16_MAX;
+}
+
+BTGattAttributeType_t prvGattAttributeType( uint16_t handle )
+{
+    for( uint16_t i = 0; i < xGattTableSize; ++i )
+    {
+        if( xGattTable[ i ].handle == handle )
+        {
+            return xGattTable[ i ].type;
+        }
+    }
+}
+
+/**
+ * @brief Translate the given AFR BLE Character properties to a Nordic SDK SoftDevice Character properties
+ * @param Permisions structure @ref BTCharProperties_t
+ * @param Permisions structure @ref ble_gatt_char_props_t
+ */
+static void prvAFRToNordicCharProp( const BTCharProperties_t * pxAFRCharProps,
+                                    ble_gatt_char_props_t * pxNordicCharProps );
+
+/**
+ * @brief Translate the given AFR BLE permisions for read access to a Nordic SDK SoftDevice permitions
+ * @param Permisions structure @ref BTCharPermissions_t
+ * @param Permisions structure @ref security_req_t
+ */
+static void prvAFRToNordicReadPerms( const BTCharPermissions_t * pxAFRPermitions,
+                                     security_req_t * pxNordicPermitions );
+
+/**
+ * @brief Translate the given AFR BLE permisions for write access to a Nordic SDK SoftDevice permitions
+ * @param Permisions structure @ref BTCharPermissions_t
+ * @param Permisions structure @ref security_req_t
+ */
+static void prvAFRToNordicWritePerms( const BTCharPermissions_t * pxAFRPermitions,
+                                      security_req_t * pxNordicPermitions );
+static ret_code_t prvStartServiceAddDescriptors( uint16_t usCurrentCharNumber,
+                                                 uint16_t usCCCDhandle );
+static ret_code_t prvStartServiceAddCharacteristics( uint16_t usCurrentServiceNumber );
 static BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid );
 static BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf );
 static BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks );
@@ -70,6 +192,9 @@ static BTStatus_t prvBTConnect( uint8_t ucServerIf,
 static BTStatus_t prvBTDisconnect( uint8_t ucServerIf,
                                    const BTBdaddr_t * pxBdAddr,
                                    uint16_t usConnId );
+static BTStatus_t prvBTInvokeAttributeUuid( ble_uuid_t * pxServiceUuid,
+                                            BTUuid_t * pxBaseUuid,
+                                            uint8_t * pucUuidType );
 static BTStatus_t prvBTAddService( uint8_t ucServerIf,
                                    BTGattSrvcId_t * pxSrvcId,
                                    uint16_t usNumHandles );
@@ -123,102 +248,6 @@ static BTGattServerInterface_t xGATTserverInterface =
     .pxSendResponse       = prvBTSendResponse
 };
 
-
-/*-----------------------------------------------------------*/
-
-void prvGATTeventHandler( ble_evt_t const * p_ble_evt )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-    BTUuid_t xUuid;
-
-    switch( p_ble_evt->header.evt_id )
-    {
-        case BLE_GAP_EVT_CONNECTED:
-
-            /*SEGGER_RTT_printf( 0, "BLE_GAP_EVT_CONNECTED - connection ID -  %d 0x%x \n\r",
-                               p_ble_evt->evt.gap_evt.conn_handle,
-                               p_ble_evt->evt.gap_evt.conn_handle );*/
-
-            xGattServerCb.pxConnectionCb( p_ble_evt->evt.gap_evt.conn_handle, ulGattServerIFhandle, true, NULL );
-
-            break;
-
-        case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
-
-            if( p_ble_evt->evt.gatts_evt.params.authorize_request.type == BLE_GATTS_AUTHORIZE_TYPE_READ )
-            {
-                /*SEGGER_RTT_printf( 0, "BLE_GATTS_AUTHORIZE_TYPE_READ - handle %d 0x%x\n\r",
-                                   p_ble_evt->evt.gatts_evt.params.authorize_request.request.read.handle,
-                                   p_ble_evt->evt.gatts_evt.params.authorize_request.request.read.handle );*/
-
-                xGattServerCb.pxRequestReadCb( p_ble_evt->evt.gap_evt.conn_handle,
-                                               BLE_GATTS_AUTHORIZE_TYPE_READ,
-                                               NULL,
-                                               p_ble_evt->evt.gatts_evt.params.authorize_request.request.read.handle,
-                                               p_ble_evt->evt.gatts_evt.params.authorize_request.request.read.offset );
-            }
-            else if( p_ble_evt->evt.gatts_evt.params.authorize_request.type == BLE_GATTS_AUTHORIZE_TYPE_WRITE )
-            {
-                /*SEGGER_RTT_printf( 0, "BLE_GATTS_AUTHORIZE_TYPE_WRITE - handle %d 0x%x length %d \n\r",
-                                   p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.handle,
-                                   p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.handle,
-                                   p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.len );*/
-
-                xGattServerCb.pxRequestWriteCb( p_ble_evt->evt.gap_evt.conn_handle,
-                                                BLE_GATTS_AUTHORIZE_TYPE_WRITE,
-                                                NULL,
-                                                p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.handle,
-                                                p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.offset,
-                                                p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.len,
-                                                true,
-                                                false,
-                                                p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.data );
-            }
-            else
-            {
-                SEGGER_RTT_printf( 0, "Error : BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST Invalid \n\r" );
-            }
-
-            break;
-
-        case BLE_GATTS_EVT_WRITE:
-
-            /*SEGGER_RTT_printf( 0, "on handle %d hex %x \n\r",
-                               p_ble_evt->evt.gatts_evt.params.write.handle,
-                               p_ble_evt->evt.gatts_evt.params.write.handle );*/
-
-            xGattServerCb.pxRequestWriteCb( p_ble_evt->evt.gap_evt.conn_handle,
-                                            0,
-                                            NULL,
-                                            p_ble_evt->evt.gatts_evt.params.write.handle,
-                                            p_ble_evt->evt.gatts_evt.params.write.offset,
-                                            p_ble_evt->evt.gatts_evt.params.write.len,
-                                            true,
-                                            false,
-                                            p_ble_evt->evt.gatts_evt.params.write.data );
-
-            break;
-
-        case BLE_GATTS_EVT_HVN_TX_COMPLETE:
-
-            xGattServerCb.pxIndicationSentCb( p_ble_evt->evt.gap_evt.conn_handle, xStatus );
-
-            break;
-
-        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST :
-
-            if( xGattServerCb.pxMtuChangedCb != NULL )
-            {
-                xGattServerCb.pxMtuChangedCb( p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gatts_evt.params.exchange_mtu_request.client_rx_mtu );
-            }
-
-            break;
-
-        default:
-            break;
-    }
-}
-
 /*-----------------------------------------------------------*/
 
 BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid )
@@ -236,6 +265,7 @@ BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
+    xGattServerCb.pxUnregisterServerCb( eBTStatusSuccess, ulGattServerIFhandle );
     return xStatus;
 }
 
@@ -244,6 +274,14 @@ BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf )
 BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    ret_code_t xErrCode = nrf_ble_gatt_init( &xGattHandler, NULL );
+
+    if( xErrCode == NRF_SUCCESS )
+    {
+        bGattInitialized = true;
+    }
+
+    xStatus = BTNRFError( xErrCode );
 
     if( xStatus == eBTStatusSuccess )
     {
@@ -286,44 +324,48 @@ BTStatus_t prvBTAddService( uint8_t ucServerIf,
                             uint16_t usNumHandles )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    ret_code_t xErrCode = NRF_SUCCESS;
 
-    uint32_t err_code;
-    ble_uuid128_t base_uuid;
-    ble_add_char_params_t add_char_params;
-    ble_gatts_attr_md_t cccd_md;
-    ble_gatts_char_handles_t p_char_handle;
-    ble_add_descr_params_t p_descr;
-    uint16_t p_descr_handle;
     ble_uuid_t ble_uuid;
 
-
-    ble_cus_t * p_cus = &m_cus;
-
+    /* Try to use GATT server without observers notification */
+    /* ble_cus_t * p_cus = &m_cus; */
 
     /* Initialize service structure */
-    p_cus->evt_handler = NULL;
-    p_cus->conn_handle = BLE_CONN_HANDLE_INVALID;
+    /* p_cus->evt_handler = NULL; */
+    /* p_cus->conn_handle = BLE_CONN_HANDLE_INVALID; */
 
-    /* Add Service UUID */
-    memcpy( &base_uuid.uuid128, &pxSrvcId->xId.xUuid.uu.uu128, 16 );
-    err_code = sd_ble_uuid_vs_add( &base_uuid, &p_cus->uuid_type );
+    xErrCode = prvAFRUUIDtoNordic( &pxSrvcId->xId.xUuid, &ble_uuid );
 
-
-    ble_uuid.type = p_cus->uuid_type;
-    memcpy( &ble_uuid.uuid, ( ( uint8_t * ) &base_uuid.uuid128 ) + 12, 2 );
-
-    /* Add the Service */
-    err_code = sd_ble_gatts_service_add( BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &p_cus->service_handle );
-
-    if( err_code != NRF_SUCCESS )
+    if( xErrCode == NRF_SUCCESS )
     {
-        SEGGER_RTT_printf( 0, "Error %d in adding service \n\r", err_code );
-        return err_code;
+        if( xGattTableSize == GATT_MAX_ENTITIES - 1 )
+        {
+            xErrCode = NRF_ERROR_NO_MEM;
+        }
+        else
+        {
+            xGattTable[ xGattTableSize ].type = GATT_SERVICE;
+            xGattTable[ xGattTableSize ].parent_handle = 0;
+            xGattTable[ xGattTableSize ].uuid = ble_uuid;
+            xGattTable[ xGattTableSize ].handle = xGattTableSize == 0 ? 1 : xGattTable[ xGattTableSize - 1 ].handle + 1;
+            xGattTableSize += 1;
+        }
     }
 
-    SEGGER_RTT_printf( 0, "Service Added with handle %d %x \n\r ", p_cus->service_handle );
+    BT_NRF_PRINT_ERROR( xGattTableAdd, xErrCode );
 
-    xGattServerCb.pxServiceAddedCb( xStatus, ulGattServerIFhandle, pxSrvcId, p_cus->service_handle );
+    if( xErrCode == NRF_SUCCESS )
+    {
+        if( xGattServerCb.pxServiceAddedCb )
+        {
+            xGattServerCb.pxServiceAddedCb( xStatus, ulGattServerIFhandle, pxSrvcId, xGattTable[ xGattTableSize - 1 ].handle );
+        }
+
+        NRF_LOG_INFO( "Service Added to HAL table with handle %d %x \n\r ", xGattTable[ xGattTableSize - 1 ].handle );
+    }
+
+    xStatus = BTNRFError( xErrCode );
 
     return xStatus;
 }
@@ -348,94 +390,116 @@ BTStatus_t prvBTAddCharacteristic( uint8_t ucServerIf,
                                    BTCharPermissions_t xPermissions )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    ret_code_t xErrCode = NRF_SUCCESS;
     ble_add_char_params_t add_char_params;
-    ble_uuid128_t base_uuid;
-    uint32_t err_code;
-    ble_gatts_char_handles_t char_handle;
+    ble_uuid_t ble_uuid;
 
+    xErrCode = prvAFRUUIDtoNordic( pxUuid, &ble_uuid );
 
-    memset( &add_char_params, 0, sizeof( add_char_params ) );
-
-    if( xProperties & eBTPropRead )
+    if( xErrCode == NRF_SUCCESS )
     {
-        add_char_params.char_props.read = 1;
+        memset( &add_char_params, 0, sizeof( ble_add_char_params_t ) );
+
+        add_char_params.uuid = ble_uuid.uuid;
+        add_char_params.uuid_type = ble_uuid.type;
+
+        prvAFRToNordicCharProp( &xProperties, &add_char_params.char_props );
+
+        if( xProperties & eBTPropExtendedProps )
+        {
+            add_char_params.char_ext_props.reliable_wr = 0; /* NOTE: There is no information in received args */
+            add_char_params.char_ext_props.wr_aux = 0;      /* NOTE: There is no information in received args */
+        }
+
+        add_char_params.max_len = BLE_GATTS_VAR_ATTR_LEN_MAX; /* Was 180 */
+        add_char_params.init_len = sizeof( uint8_t );
+        add_char_params.is_var_len = true;
+        add_char_params.is_value_user = false;        /**< Indicate if the content of the characteristic is to be stored in the application (user) or in the stack.*/
+        add_char_params.p_init_value = NULL;          /**< Initial encoded value of the characteristic.*/
+        add_char_params.p_user_descr = NULL;          /**< Pointer to user descriptor if needed*/
+        add_char_params.p_presentation_format = NULL; /**< Pointer to characteristic format if needed*/
+
+        add_char_params.is_defered_read = true; /* NOTE: This field is set due to client waits for a callback when char is read */
+        add_char_params.is_defered_write = false;
+
+        prvAFRToNordicReadPerms( &xPermissions, &add_char_params.read_access );
+        prvAFRToNordicWritePerms( &xPermissions, &add_char_params.write_access );
+
+        if( xGattTableSize == GATT_MAX_ENTITIES - 1 )
+        {
+            xErrCode = NRF_ERROR_NO_MEM;
+        }
+        else
+        {
+            xGattTable[ xGattTableSize ].type = GATT_CHAR;
+            xGattTable[ xGattTableSize ].parent_handle = UINT16_MAX;
+
+            for( int i = 0; i < xGattTableSize; ++i )
+            {
+                if( ( xGattTable[ i ].type == GATT_SERVICE ) && ( xGattTable[ i ].handle == usServiceHandle ) )
+                {
+                    xGattTable[ xGattTableSize ].parent_handle = xGattTable[ i ].handle;
+                    break;
+                }
+            }
+
+            if( xGattTable[ xGattTableSize ].parent_handle == UINT16_MAX )
+            {
+                xErrCode = NRF_ERROR_INVALID_PARAM;
+            }
+            else
+            {
+                xGattTable[ xGattTableSize ].uuid = ble_uuid;
+                xGattTable[ xGattTableSize ].handle = xGattTableSize == 0 ? 1 : xGattTable[ xGattTableSize - 1 ].handle + 2;
+                xGattTable[ xGattTableSize ].properties.char_properties = add_char_params;
+                xGattTableSize += 1;
+            }
+        }
     }
 
-    if( xProperties & eBTPropWriteNoResponse )
+    BT_NRF_PRINT_ERROR( characteristic_add, xErrCode );
+
+    if( xErrCode == NRF_SUCCESS )
     {
-        add_char_params.char_props.write_wo_resp = 1;
+        NRF_LOG_INFO( "Charachtersitics Added to HAL table with handle %d %x \n\r", xGattTable[ xGattTableSize - 1 ].handle );
+
+        if( xGattServerCb.pxCharacteristicAddedCb )
+        {
+            xGattServerCb.pxCharacteristicAddedCb( xStatus,
+                                                   ulGattServerIFhandle,
+                                                   pxUuid,
+                                                   xGattTable[ xGattTableSize - 1 ].parent_handle,
+                                                   xGattTable[ xGattTableSize - 1 ].handle );
+        }
     }
 
-    if( xProperties & eBTPropWrite )
-    {
-        add_char_params.char_props.write = 1;
-    }
-
-    if( xProperties & eBTPropNotify )
-    {
-        add_char_params.char_props.notify = 1;
-    }
-
-    if( xProperties & eBTPropIndicate )
-    {
-        add_char_params.char_props.indicate = 1;
-    }
-
-    ble_cus_t * p_cus = &m_cus;
-
-    /* Add  UUID */
-    memcpy( &base_uuid.uuid128, &pxUuid->uu.uu128, 16 );
-    err_code = sd_ble_uuid_vs_add( &base_uuid, &p_cus->uuid_type );
-
-    memcpy( &add_char_params.uuid, ( ( uint8_t * ) &base_uuid.uuid128 ) + 12, 2 );
-
-    if( err_code != 0 )
-    {
-        SEGGER_RTT_printf( 0, "Error %d in adding uuid to soft \n\r", err_code );
-    }
-
-    add_char_params.uuid_type = p_cus->uuid_type;
-    add_char_params.max_len = 180;
-    add_char_params.init_len = sizeof( uint8_t );
-    add_char_params.is_var_len = true;
-
-
-    add_char_params.is_defered_read = true;
-    add_char_params.is_defered_write = true;
-
-    add_char_params.read_access = SEC_MITM;
-    add_char_params.write_access = SEC_MITM;
-    add_char_params.cccd_write_access = SEC_MITM;
-
-    err_code = characteristic_add( p_cus->service_handle, &add_char_params, &char_handle );
-
-    if( err_code != 0 )
-    {
-        SEGGER_RTT_printf( 0, "Error %d in adding characteristic \n\r", err_code );
-    }
-
-    xGattServerCb.pxCharacteristicAddedCb( xStatus, ulGattServerIFhandle, pxUuid, p_cus->service_handle, char_handle.value_handle );
-
-    SEGGER_RTT_printf( 0, "Charactersitics Added with handle %d %x \n\r", char_handle.value_handle );
-
-    if( char_handle.cccd_handle != 0 )
-    {
-        g_cccd_handle = char_handle.cccd_handle;
-        SEGGER_RTT_printf( 0, "CCCD Added with handle %d %x \n\r", char_handle.cccd_handle );
-    }
-
-    return xStatus;
+    return BTNRFError( xErrCode );
 }
+
 
 /*-----------------------------------------------------------*/
 
 BTStatus_t prvBTSetVal( BTGattResponse_t * pxValue )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    ble_gatts_value_t xValueParams;
+    ret_code_t xErrCode;
 
+    memset( &xValueParams, 0, sizeof( xValueParams ) );
+    xValueParams.len = pxValue->xAttrValue.xLen;
+    xValueParams.offset = pxValue->xAttrValue.usOffset;
+    xValueParams.p_value = pxValue->xAttrValue.pucValue;
+
+    xErrCode = sd_ble_gatts_value_set( usGattConnHandle, prvGattToSDHandle( pxValue->usHandle ), &xValueParams );
+
+    if( xErrCode != NRF_SUCCESS )
+    {
+        NRF_LOG_ERROR( "Error %d HVX \n\r", xErrCode );
+    }
+    
+    xStatus = BTNRFError( xErrCode );
     return xStatus;
 }
-
 
 /*-----------------------------------------------------------*/
 
@@ -445,23 +509,261 @@ BTStatus_t prvBTAddDescriptor( uint8_t ucServerIf,
                                BTCharPermissions_t xPermissions )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    ret_code_t xErrCode = NRF_SUCCESS;
 
-    xGattServerCb.pxDescriptorAddedCb( xStatus, ulGattServerIFhandle, pxUuid, usServiceHandle, g_cccd_handle );
+    ble_add_descr_params_t xDescrParams;
 
-    g_cccd_handle = 0;
+    memset( &xDescrParams, 0, sizeof( ble_add_descr_params_t ) );
 
+    ble_uuid_t ble_uuid;
+    /* Try to use GATT server without observers notification */
+    /* ble_cus_t * p_cus = &m_cus; */
+    xDescrParams.max_len = BLE_GATTS_VAR_ATTR_LEN_MAX; /* or BLE_GATTS_FIX_ATTR_LEN_MAX or any smaller value * / */
+
+    /* Check if we try to add a CCCD */
+    if( ( pxUuid->ucType == eBTuuidType128 ) && ( memcmp( pxUuid->uu.uu128, aws_ble_hal_gatt_serverCCCD_UUID, 16 ) == 0 ) )
+    {
+        ble_uuid.type = BLE_UUID_TYPE_BLE;
+        ble_uuid.uuid = BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG;
+        xDescrParams.max_len = 50; /* or BLE_GATTS_FIX_ATTR_LEN_MAX or any smaller value * / */
+    }
+    else
+    {
+        xErrCode = prvAFRUUIDtoNordic( pxUuid, &ble_uuid );
+    }
+
+    if( xErrCode == NRF_SUCCESS )
+    {
+        xDescrParams.uuid_type = ble_uuid.type;
+        xDescrParams.uuid = ble_uuid.uuid;
+
+        xDescrParams.is_var_len = true;
+        xDescrParams.max_len = BLE_GATTS_VAR_ATTR_LEN_MAX; /* or BLE_GATTS_FIX_ATTR_LEN_MAX or any smaller value * / */
+        xDescrParams.init_len = sizeof( uint8_t );
+        xDescrParams.is_value_user = false;
+
+        xDescrParams.is_defered_read = true; /* NOTE: This field is set due to client waits for a callback when desc is read */
+        xDescrParams.is_defered_write = false;
+
+        prvAFRToNordicReadPerms( &xPermissions, &xDescrParams.read_access );
+        prvAFRToNordicWritePerms( &xPermissions, &xDescrParams.write_access );
+
+
+/*        if (ble_uuid.type == BLE_UUID_TYPE_BLE && ble_uuid.uuid == BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG) */
+/*        { */
+/*            / * This is a CCCD, it should be open to read * / */
+/*            xDescrParams.read_access = SEC_OPEN; */
+/*        } */
+
+        if( xGattTableSize == GATT_MAX_ENTITIES - 1 )
+        {
+            xErrCode = NRF_ERROR_NO_MEM;
+        }
+        else
+        {
+            xGattTable[ xGattTableSize ].type = GATT_DESCR;
+            /* We sets the parent of the descriptor to be the latest added characteristic which belongs to the given service */
+            xGattTable[ xGattTableSize ].parent_handle = UINT16_MAX;
+            uint16_t usParentNumber = UINT16_MAX;
+
+            for( int16_t i = ( int16_t ) xGattTableSize - 1; i >= 0; --i )
+            {
+                if( ( xGattTable[ i ].type == GATT_CHAR ) && ( xGattTable[ i ].parent_handle == usServiceHandle ) )
+                {
+                    usParentNumber = i;
+                    xGattTable[ xGattTableSize ].parent_handle = xGattTable[ i ].handle;
+                    break;
+                }
+            }
+
+            /* Set the correct permissions for the responding characteristics CCCD
+             * It cannot be SEC_NO_ACCESS as CCCD should always be readable and writable
+             */
+            if( ( ble_uuid.type == BLE_UUID_TYPE_BLE ) &&
+                ( ble_uuid.uuid == BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG ) &&
+                ( usParentNumber != UINT16_MAX ) )
+            {
+                if( xDescrParams.write_access == SEC_NO_ACCESS )
+                {
+                    xGattTable[ usParentNumber ].properties.char_properties.cccd_write_access = MAX( SEC_OPEN, xDescrParams.read_access );
+                }
+                else
+                {
+                    xGattTable[ usParentNumber ].properties.char_properties.cccd_write_access = xDescrParams.write_access;
+                }
+            }
+
+            if( xGattTable[ xGattTableSize ].parent_handle == UINT16_MAX )
+            {
+                xErrCode = NRF_ERROR_INVALID_PARAM;
+            }
+            else
+            {
+                xGattTable[ xGattTableSize ].uuid = ble_uuid;
+                xGattTable[ xGattTableSize ].handle = xGattTableSize == 0 ? 1 : xGattTable[ xGattTableSize - 1 ].handle + 1;
+                xGattTable[ xGattTableSize ].properties.descr_properties = xDescrParams;
+                xGattTableSize += 1;
+            }
+        }
+    }
+
+    BT_NRF_PRINT_ERROR( xGattTableDescr, xErrCode );
+
+    xStatus = BTNRFError( xErrCode );
+
+    if( xStatus == eBTStatusSuccess )
+    {
+       NRF_LOG_INFO( "Descr Added to HAL table with handle %d %x \n\r", xGattTable[ xGattTableSize - 1 ].handle );
+
+        if( xGattServerCb.pxDescriptorAddedCb )
+        {
+            xGattServerCb.pxDescriptorAddedCb( xStatus,
+                                               ulGattServerIFhandle,
+                                               pxUuid,
+                                               usServiceHandle,
+                                               xGattTable[ xGattTableSize - 1 ].handle );
+        }
+    }
 
     return xStatus;
 }
 
 /*-----------------------------------------------------------*/
 
+ret_code_t prvStartServiceAddDescriptors( uint16_t usCurrentCharNumber,
+                                          uint16_t usCCCDhandle )
+{
+    ret_code_t xErrCode = NRF_SUCCESS;
+
+    for( int i = 0; i < xGattTableSize; ++i )
+    {
+        if( ( xGattTable[ i ].type == GATT_DESCR ) && ( xGattTable[ i ].parent_handle == xGattTable[ usCurrentCharNumber ].handle ) ) /* Add descriptors */
+        {
+            /* Check if it is a CCCD handler as for indications and notifications it is registered automatically and we don't need to add it */
+            if( ( usCCCDhandle != BLE_GATT_HANDLE_INVALID ) &&
+                ( xGattTable[ i ].uuid.type == BLE_UUID_TYPE_BLE ) &&
+                ( xGattTable[ i ].uuid.uuid == BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG ) )
+            {
+                xGattToSDMapping[ xGattMappingTablesSize ].handle = xGattTable[ i ].handle;
+                xGattToSDMapping[ xGattMappingTablesSize ].softdevice_handle = usCCCDhandle;
+            }
+            else
+            {
+                /* Non-sequential addition doesn't work in current versions of NRF5 SDK,
+                 * if it is added, replace BLE_GATT_HANDLE_INVALID with (prvGattToSDHandle( xGattTable[ i ].parent_handle) */
+                xErrCode = descriptor_add( BLE_GATT_HANDLE_INVALID,
+                                           &xGattTable[ i ].properties.descr_properties,
+                                           &xGattToSDMapping[ xGattMappingTablesSize ].softdevice_handle );
+                xGattToSDMapping[ xGattMappingTablesSize ].handle = xGattTable[ i ].handle;
+            }
+
+            xGattMappingTablesSize += 1;
+
+            if( xErrCode != NRF_SUCCESS )
+            {
+                break;
+            }
+
+            NRF_LOG_INFO( "Descriptor Added to SD table with handle %d %x \n\r",
+                               xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
+        }
+    }
+
+    BT_NRF_PRINT_ERROR( prvStartServiceAddDescriptors, xErrCode );
+
+    return xErrCode;
+}
+
+ret_code_t prvStartServiceAddCharacteristics( uint16_t usCurrentServiceNumber )
+{
+    ret_code_t xErrCode = NRF_SUCCESS;
+    uint16_t usServiceHandle = xGattTable[ usCurrentServiceNumber ].handle;
+
+    for( int i = 0; i < xGattTableSize; ++i )
+    {
+        if( ( xGattTable[ i ].type == GATT_CHAR ) && ( xGattTable[ i ].parent_handle == usServiceHandle ) )
+        {
+            ble_gatts_char_handles_t sd_handle;
+            uint16_t usSoftDeviceServiceHandle = prvGattToSDHandle( usServiceHandle );
+
+            if( usSoftDeviceServiceHandle == UINT16_MAX )
+            {
+                xErrCode = NRF_ERROR_INVALID_PARAM;
+            }
+            else
+            {
+                xErrCode = characteristic_add( usSoftDeviceServiceHandle,
+                                               &xGattTable[ i ].properties.char_properties,
+                                               &sd_handle );
+                xGattToSDMapping[ xGattMappingTablesSize ].handle = xGattTable[ i ].handle;
+                xGattToSDMapping[ xGattMappingTablesSize ].softdevice_handle = sd_handle.value_handle;
+                xGattMappingTablesSize += 1;
+            }
+
+            if( xErrCode != NRF_SUCCESS )
+            {
+                break;
+            }
+
+            NRF_LOG_INFO( "Charachtersitic Added to SD table with handle %d %x \n\r",
+                               xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
+
+            xErrCode = prvStartServiceAddDescriptors( i, sd_handle.cccd_handle );
+
+            if( xErrCode != NRF_SUCCESS )
+            {
+                break;
+            }
+        }
+    }
+
+    BT_NRF_PRINT_ERROR( prvStartServiceAddCharacteristics, xErrCode );
+
+    return xErrCode;
+}
+
 BTStatus_t prvBTStartService( uint8_t ucServerIf,
                               uint16_t usServiceHandle,
                               BTTransport_t xTransport )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    ret_code_t xErrCode = NRF_SUCCESS;
+    uint16_t usCurrentServiceNumber = UINT16_MAX;
 
+    for( uint16_t i = 0; i < xGattTableSize; ++i )
+    {
+        if( ( xGattTable[ i ].type == GATT_SERVICE ) && ( xGattTable[ i ].handle == usServiceHandle ) )
+        {
+            usCurrentServiceNumber = i;
+            break;
+        }
+    }
+
+    if( usCurrentServiceNumber == UINT16_MAX )
+    {
+        xErrCode = NRF_ERROR_INVALID_PARAM;
+    }
+
+    if( xErrCode == NRF_SUCCESS )
+    {
+        xErrCode = sd_ble_gatts_service_add( BLE_GATTS_SRVC_TYPE_PRIMARY,
+                                             &xGattTable[ usCurrentServiceNumber ].uuid,
+                                             &xGattToSDMapping[ xGattMappingTablesSize ].softdevice_handle );
+        xGattToSDMapping[ xGattMappingTablesSize ].handle = usServiceHandle;
+        xGattMappingTablesSize += 1;
+    }
+
+    BT_NRF_PRINT_ERROR( prvBTStartService, xErrCode );
+
+    if( xErrCode == NRF_SUCCESS )
+    {
+        NRF_LOG_INFO( "Service Added to SD table with handle %d %x \n\r ",
+                           xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
+
+        xErrCode = prvStartServiceAddCharacteristics( usCurrentServiceNumber );
+    }
+
+    xStatus = BTNRFError( xErrCode );
     xGattServerCb.pxServiceStartedCb( xStatus, ucServerIf, usServiceHandle );
 
     return xStatus;
@@ -474,6 +776,13 @@ BTStatus_t prvBTStopService( uint8_t ucServerIf,
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
+    /* It is not supported to stop a GATT service, so we just return success.
+     */
+    if( xGattServerCb.pxServiceStoppedCb )
+    {
+        xGattServerCb.pxServiceStoppedCb( eBTStatusSuccess, ucServerIf, usServiceHandle );
+    }
+
     return xStatus;
 }
 
@@ -483,6 +792,15 @@ BTStatus_t prvBTDeleteService( uint8_t ucServerIf,
                                uint16_t usServiceHandle )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+
+    /* It is not supported to delete service without reenabling the SoftDevice, so we just return success.
+     * https://devzone.nordicsemi.com/f/nordic-q-a/16899/removing-gatt-services
+     * TODO: Wait till this functionality is added
+     */
+    if( xGattServerCb.pxServiceDeletedCb )
+    {
+        xGattServerCb.pxServiceDeletedCb( eBTStatusSuccess, ucServerIf, usServiceHandle );
+    }
 
     return xStatus;
 }
@@ -503,7 +821,7 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
     ble_gatts_hvx_params_t hvx_params;
 
     memset( &hvx_params, 0, sizeof( hvx_params ) );
-    hvx_params.handle = usAttributeHandle;
+    hvx_params.handle = prvGattToSDHandle( usAttributeHandle );
     hvx_params.p_data = pucValue;
     len = xLen;
     hvx_params.p_len = &len;
@@ -521,11 +839,7 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
 
     if( err != 0 )
     {
-        SEGGER_RTT_printf( 0, "Error %d HVX \n\r", err );
-    }
-    else
-    {
-        /*SEGGER_RTT_printf( 0, "prvBTSendIndication - BLE_GATT_HVX_NOTIFICATION length %d \n\r", *(hvx_params.p_len) );*/
+        NRF_LOG_ERROR( 0, "Error %d HVX \n\r", err );
     }
 
     return xStatus;
@@ -539,7 +853,7 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
                               BTGattResponse_t * pxResponse )
 {
     BTStatus_t xReturnStatus = eBTStatusSuccess;
-    uint32_t err;
+    ret_code_t xErrCode = NRF_SUCCESS;
     ble_gatts_rw_authorize_reply_params_t authreply;
 
     ble_gatts_value_t writereply;
@@ -553,18 +867,14 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
             authreply.params.read.offset = pxResponse->xAttrValue.usOffset;
             authreply.params.read.p_data = pxResponse->xAttrValue.pucValue;
 
-            authreply.params.read.update = 1;
-            authreply.params.read.gatt_status = BLE_GATT_STATUS_SUCCESS;
+            authreply.params.read.update = 1; /* NOTE: This flag is considered only on write event */
+            authreply.params.read.gatt_status = xStatus == eBTStatusSuccess ? BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_READ_NOT_PERMITTED;
 
-            err = sd_ble_gatts_rw_authorize_reply( usConnId, &authreply );
+            xErrCode = sd_ble_gatts_rw_authorize_reply( usConnId, &authreply );
 
-            if( err != 0 )
+            if( xErrCode != 0 )
             {
-                SEGGER_RTT_printf( 0, "Error %d prvBTSendResponse - BLE_GATTS_AUTHORIZE_TYPE_READ \n\r", err );
-            }
-            else
-            {
-                /*SEGGER_RTT_printf( 0, "prvBTSendResponse - BLE_GATTS_AUTHORIZE_TYPE_READ length %d \n\r", authreply.params.read.len );*/
+                NRF_LOG_ERROR( "Error %d prvBTSendResponse - BLE_GATTS_AUTHORIZE_TYPE_READ \n\r", xErrCode );
             }
 
             break;
@@ -577,29 +887,31 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
             authreply.params.write.p_data = pxResponse->xAttrValue.pucValue;
 
             authreply.params.write.update = 1;
-            authreply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
+            authreply.params.write.gatt_status = xStatus == eBTStatusSuccess ? BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
 
-            err = sd_ble_gatts_rw_authorize_reply( usConnId, &authreply );
+            xErrCode = sd_ble_gatts_rw_authorize_reply( usConnId, &authreply );
 
-            if( err != 0 )
+            if( xErrCode != NRF_SUCCESS )
             {
-                SEGGER_RTT_printf( 0, "Error %d prvBTSendResponse - BLE_GATTS_AUTHORIZE_TYPE_WRITE \n\r", err );
-            }
-            else
-            {
-                /*SEGGER_RTT_printf( 0, "prvBTSendResponse - BLE_GATTS_AUTHORIZE_TYPE_WRITE length %d \n\r", authreply.params.write.len );*/
+                NRF_LOG_ERROR( "Error %d prvBTSendResponse - BLE_GATTS_AUTHORIZE_TYPE_WRITE \n\r", xErrCode );
             }
 
             break;
 
         case 0:
-
-            /*SEGGER_RTT_printf( 0, "prvBTSendResponse - BLE_GATTS_EVT_WRITE \n\r" );*/
+            xStatus = eBTStatusSuccess;
 
             break;
 
         default:
             ;
+    }
+
+    xReturnStatus = BTNRFError( xErrCode );
+
+    if( xGattServerCb.pxResponseConfirmationCb != NULL )
+    {
+        xGattServerCb.pxResponseConfirmationCb( xStatus, pxResponse->usHandle );
     }
 
     return xReturnStatus;
@@ -610,4 +922,89 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 const void * prvBTGetGattServerInterface()
 {
     return &xGATTserverInterface;
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvAFRToNordicCharProp( const BTCharProperties_t * pxAFRCharProps,
+                                    ble_gatt_char_props_t * pxSoftDevCharProps )
+{
+    if( *pxAFRCharProps & eBTPropBroadcast )
+    {
+        pxSoftDevCharProps->broadcast = 1;
+    }
+
+    if( *pxAFRCharProps & eBTPropRead )
+    {
+        pxSoftDevCharProps->read = 1;
+    }
+
+    if( *pxAFRCharProps & eBTPropWriteNoResponse )
+    {
+        pxSoftDevCharProps->write_wo_resp = 1;
+    }
+
+    if( *pxAFRCharProps & eBTPropWrite )
+    {
+        pxSoftDevCharProps->write = 1;
+    }
+
+    if( *pxAFRCharProps & eBTPropNotify )
+    {
+        pxSoftDevCharProps->notify = 1;
+    }
+
+    if( *pxAFRCharProps & eBTPropIndicate )
+    {
+        pxSoftDevCharProps->indicate = 1;
+    }
+
+    if( *pxAFRCharProps & eBTPropSignedWrite )
+    {
+        pxSoftDevCharProps->auth_signed_wr = 1;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvAFRToNordicReadPerms( const BTCharPermissions_t * pxAFRPermitions,
+                                     security_req_t * pxNordicPermitions )
+{
+       *pxNordicPermitions = SEC_NO_ACCESS; 
+          /* Select lowest level of permission */
+        if(( *pxAFRPermitions  & eBTPermRead) != 0)
+        {
+            *pxNordicPermitions = SEC_OPEN;
+        }else if(( *pxAFRPermitions  & eBTPermReadEncrypted) != 0)
+        {
+             *pxNordicPermitions = SEC_JUST_WORKS;
+        }else if(( *pxAFRPermitions  & eBTPermWriteEncryptedMitm) != 0)
+        {
+              *pxNordicPermitions = SEC_MITM;
+        }
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvAFRToNordicWritePerms( const BTCharPermissions_t * pxAFRPermitions,
+                                      security_req_t * pxNordicPermitions )
+{
+       *pxNordicPermitions = SEC_NO_ACCESS; 
+          /* Select lowest level of permission */
+        if(( *pxAFRPermitions  & eBTPermWrite) != 0)
+        {
+            *pxNordicPermitions = SEC_OPEN;
+        }else if(( *pxAFRPermitions  & eBTPermWriteEncrypted) != 0)
+        {
+             *pxNordicPermitions = SEC_JUST_WORKS;
+        }else if(( *pxAFRPermitions  & eBTPermWriteEncryptedMitm) != 0)
+        {
+              *pxNordicPermitions = SEC_MITM;
+        }else if(( *pxAFRPermitions  & eBTPermWriteSigned) != 0)
+        {
+              *pxNordicPermitions = SEC_MITM;
+        }else if(( *pxAFRPermitions  & eBTPermWriteSignedMitm) != 0)
+        {
+              *pxNordicPermitions = SEC_SIGNED_MITM;
+        }
 }

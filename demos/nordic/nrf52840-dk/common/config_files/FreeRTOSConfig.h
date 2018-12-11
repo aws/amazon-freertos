@@ -34,6 +34,8 @@
 #include "nrf_soc.h"
 #endif
 #include "app_util_platform.h"
+#include "nrf_log.h"
+#include "sys/types.h"
 
 /*-----------------------------------------------------------
  * Possible configurations for system timer
@@ -178,7 +180,8 @@ extern void vLoggingPrint( const char * pcMessage );
 
 /* Map the logging task's printf to the board specific output function. */
 #include <stdio.h> 
-#define configPRINT_STRING( X )    printf( X ); /* FIX ME: Change to your devices console print acceptance function. */
+extern void vUartWrite( uint8_t * pucData );
+#define configPRINT_STRING( X )    vUartWrite( X ) /* FIX ME: Change to your devices console print acceptance function. */
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */ 
 #define configLOGGING_MAX_MESSAGE_LENGTH            100

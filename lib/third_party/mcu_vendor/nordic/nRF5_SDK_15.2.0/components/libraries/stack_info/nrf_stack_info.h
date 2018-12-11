@@ -126,12 +126,16 @@ __STATIC_INLINE size_t nrf_stack_info_get_depth(void)
  */
  __STATIC_INLINE bool nrf_stack_info_overflowed(void)
  {
+#ifndef __FREERTOS
     if (NRF_STACK_INFO_GET_SP() < NRF_STACK_INFO_BASE)
     {
         return true;
     }
-
     return false;
+#else 
+    return false;
+#endif
+
  }
 
 
