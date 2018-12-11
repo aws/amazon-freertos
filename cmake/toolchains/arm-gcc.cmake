@@ -19,9 +19,6 @@ set(CMAKE_CXX_COMPILER_FORCED TRUE)
 get_filename_component(ARM_GCC_BIN "${ARM_GCC_C}" DIRECTORY)
 get_filename_component(CMAKE_FIND_ROOT_PATH "${ARM_GCC_BIN}" DIRECTORY)
 
-# Don't look for executable in target system prefix.
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-
 # Look for includes and libraries only in the target system prefix.
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)

@@ -163,6 +163,9 @@ target_link_libraries(
 
 find_program(gcc_objcopy arm-none-eabi-objcopy)
 find_program(gcc_size arm-none-eabi-size)
+if(NOT gcc_objcopy)
+    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+endif()
 
 set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 add_custom_command(
