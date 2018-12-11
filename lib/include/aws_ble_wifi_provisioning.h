@@ -228,6 +228,32 @@ typedef struct WifiProvService
 #define wifiProvMAX_SAVED_NETWORKS    ( 8 )
 
 /**
+ * @brief Delay between connecting to the saved list of WiFi networks
+ */
+#define wifiProvSAVED_NETWORKS_CONNECTION_INTERVAL_MS ( 1000 )
+
+/**
+ * @brief Base priority for all the tasks
+ */
+#define wifiProvTASK_PRIORITY_BASE      ( tskIDLE_PRIORITY )
+
+/**
+ * @brief Task priority for background task to connect to saved networks.
+ */
+#define wifiProvCONNECT_AP_TASK_PRIORITY  ( wifiProvTASK_PRIORITY_BASE )
+
+/**
+ * @brief Priority for the task to list all the WiFi networks.
+ */
+#define wifiProvLIST_NETWORK_TASK_PRIORITY  ( wifiProvTASK_PRIORITY_BASE + 1 )
+
+/**
+ * @brief Priority for the task to modify WiFi networks.
+ */
+#define wifiProvMODIFY_NETWORK_TASK_PRIORITY  ( wifiProvTASK_PRIORITY_BASE + 2 )
+
+
+/**
  * @brief Initialize the wifi provisioning service.
  *
  * Creates GATT service and characteristics required for WiFi provisioning over BLE. User needs to call it once

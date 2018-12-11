@@ -312,13 +312,13 @@ bool prbOpenMqttConnection( void )
     AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
     bool xStatus = false;
 
-    ulCreateNetworkConnectionWithRetry(
-            echoCONN_RETRY_INTERVAL_SECONDS,
-            echoCONN_RETRY_LIMIT,
+    AwsIotDemo_CreateNetworkConnection(
             &xNetworkInterface,
             &xMqttConnection,
             prvOnNetworkDisconnect,
-            &xNetworkConnection );
+            &xNetworkConnection,
+            echoCONN_RETRY_INTERVAL_SECONDS,
+            echoCONN_RETRY_LIMIT );
 
     if( xNetworkConnection != NULL )
     {
@@ -327,7 +327,7 @@ bool prbOpenMqttConnection( void )
         * a proxy device as intermediary. So set .awsIotMqttMode to false. Disable keep alive
         * by setting keep alive seconds to zero.
         */
-        if( ulGetConnectedNetworkType( xNetworkConnection ) == AWSIOT_NETWORK_TYPE_BLE )
+        if( AwsIotDemo_GetNetworkType( xNetworkConnection ) == AWSIOT_NETWORK_TYPE_BLE )
         {
             xConnectInfo.awsIotMqttMode = false;
             xConnectInfo.keepAliveSeconds = 0;
@@ -361,6 +361,12 @@ bool prbOpenMqttConnection( void )
             }
         }
 
+        if( xStatus == false )
+        {
+        	/* Close the MQTT connection to perform any cleanup */
+        	prvCloseMqttConnection( true );
+        }
+
     }
 
     return xStatus;
@@ -378,7 +384,7 @@ void prvCloseMqttConnection( bool bSendDisconnect )
     /* Delete the network connection */
     if( xNetworkConnection != NULL )
     {
-        vDeleteNetworkConnection( xNetworkConnection );
+    	AwsIotDemo_DeleteNetworkConnection( xNetworkConnection );
         xNetworkConnection = NULL;
     }
 }
@@ -415,25 +421,22 @@ void* prvPublishMessageThread( void* pvParam )
             if( xError == AWS_IOT_MQTT_SUCCESS)
             {
                 AwsIotLogInfo( "Sent: %.*s", xMessageLength, cMessage );
-                ulMessageID = ( ulMessageID + 1 );
+                ulMessageID++;
                 ( void ) clock_nanosleep( CLOCK_REALTIME, 0, &xMsgInterval, NULL );
             }
             else
             {
-                AwsIotLogInfo("Failed to send %.*s, error = %s",
-                        xMessageLength,
-                        cMessage,
-                        AwsIotMqtt_strerror( xError ));
-
                 if( ( xError == AWS_IOT_MQTT_NO_MEMORY ) || ( xError == AWS_IOT_MQTT_BAD_PARAMETER ) )
                 {
-                    /* Publish failed due to a bad packet or out of memory error */
+                	AwsIotLogError( "Failed to publish Message, error = %s", AwsIotMqtt_strerror( xError ) );
                     break;
                 }
-
-                /* Publish failed due to a timeout. Reopen the Mqtt connection */
-                prvCloseMqttConnection(false );
-                xConnected = prbOpenMqttConnection();
+                else
+                {
+                	/* Publish failed due to a timeout. Reopen the Mqtt connection */
+                	prvCloseMqttConnection(false );
+                	xConnected = prbOpenMqttConnection();
+                }
             }
         }
         else
