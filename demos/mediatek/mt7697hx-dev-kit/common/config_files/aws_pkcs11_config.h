@@ -32,11 +32,6 @@
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
 
-/**
- * @brief File storage location definitions.
- */
-#define pkcs11configFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
-#define pkcs11configFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 
 /* A non-standard version of C_INITIALIZE should be used by this port. */
 /* #define pkcs11configC_INITIALIZE_ALT */
