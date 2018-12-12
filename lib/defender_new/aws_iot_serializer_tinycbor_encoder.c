@@ -1,6 +1,5 @@
 #include "aws_iot_serializer.h"
 #include "cbor.h"
-#include "FreeRTOSConfig.h"
 
 #define _noCborError( error )                                ( ( ( error ) == CborNoError ) || ( ( error ) == CborErrorOutOfMemory ) )
 
@@ -29,8 +28,6 @@ static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t 
                                                 const char * pKey,
                                                 AwsIotSerializerScalarData_t scalarData);
 
-static void _print( uint8_t * pDataBuffer,
-                    size_t dataSize );
 
 AwsIotSerializerEncodeInterface_t _AwsIotSerializerCborEncoder =
 {
@@ -45,10 +42,6 @@ AwsIotSerializerEncodeInterface_t _AwsIotSerializerCborEncoder =
     .appendKeyValue           = _appendKeyValue,
 };
 
-AwsIotSerializerDecodeInterface_t _AwsIotSerializerCborDecoder =
-{
-    .print = _print
-};
 
 /*-----------------------------------------------------------*/
 
@@ -132,20 +125,20 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
         /* using CborIndefiniteLength so that numbers of items are not pre-known */
         switch( pNewEncoderObject->type )
         {
-            case AWS_IOT_SERIALIZER_OBJECT_MAP:
+            case AWS_IOT_SERIALIZER_CONTAINER_MAP:
                 cborError = cbor_encoder_create_map( pOuterEncoder, pInnerEncoder, length );
                 break;
 
-            case AWS_IOT_SERIALIZER_OBJECT_ARRAY:
+            case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
                 cborError = cbor_encoder_create_array( pOuterEncoder, pInnerEncoder, length );
                 break;
 
-            case AWS_IOT_SERIALIZER_OBJECT_NONE:
+            case AWS_IOT_SERIALIZER_CONTAINER_STREAM:
                 /* no action is required. */
                 break;
 
             default:
-                returnError = AWS_IOT_SERIALIZER_NOT_SUPPORTED;
+                returnError = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
         }
 
         if( _noCborError( cborError ) )
@@ -210,7 +203,9 @@ static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t 
 static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                         AwsIotSerializerScalarData_t scalarData)
 {
-    AwsIotSerializerError_t returnError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+    
+	
+	AwsIotSerializerError_t returnError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
     CborError cborError;
 
     CborEncoder * pCborEncoder = _castEncoderObjectToCborEncoder( pEncoderObject );
@@ -222,7 +217,7 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
             break;
 
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
-            cborError = cbor_encode_text_stringz( pCborEncoder, scalarData.value.pTextString );
+            cborError = cbor_encode_text_stringz( pCborEncoder, scalarData.value.pByteString );
             break;
 
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
@@ -230,7 +225,7 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
             break;
 
         default:
-            returnError = AWS_IOT_SERIALIZER_NOT_SUPPORTED;
+            returnError = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
     }
 
     if( _noCborError( cborError ) )
@@ -258,21 +253,16 @@ static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t 
     return returnError;
 }
 
-/*-----------------------------------------------------------*/
 
-static void _print( uint8_t * pDataBuffer,
-                    size_t dataSize )
+
+static AwsIotSerializerDataType_t _decodeToSerializerType(CborType type)
 {
-    CborParser cborParser;
-    CborValue cborValue;
-
-    cbor_parser_init(
-        pDataBuffer,
-        dataSize,
-        0,
-        &cborParser,
-        &cborValue );
-
-    /* output to standard out */
-    cbor_value_to_pretty( stdout, &cborValue );
+	switch (type) {
+	case CborIntegerType: return AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+	case CborByteStringType: return AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
+	case CborTextStringType: return AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
+		case CborArrayType : return AWS_IOT_SERIALIZER_CONTAINER_ARRAY;
+		case	CborMapType: return AWS_IOT_SERIALIZER_CONTAINER_MAP;
+		default: return AWS_IOT_SERIALIZER_UNDEFINED;
+	}
 }
