@@ -1022,7 +1022,6 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
     TimeOut_t xTimeout;
     uint8_t * pucData;
 
-
     vTaskSetTimeOutState( &xTimeout );
 
     if( ( pxService != NULL ) && ( pxService->bIsEnabled ) && ( pxService->xConnection.pxMqttConnection != NULL ) )
@@ -1032,6 +1031,9 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
             if( prxSendNotification( pxService, eMQTTBLETXMessage, ( uint8_t *) pvMessage, xMessageLength ) == pdTRUE )
             {
                 xRemainingLen = 0;
+            }else
+            {
+                 configPRINTF( ( "Failed to send notify\n") );
             }
         }
         else
@@ -1071,6 +1073,9 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
                         pucData += xSendLen;
 
                     }
+                }else
+                {
+                      configPRINTF( ( "Failed to send notify\n") );
                 }
             }
         }

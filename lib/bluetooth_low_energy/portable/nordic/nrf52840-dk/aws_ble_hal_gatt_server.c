@@ -978,7 +978,7 @@ static void prvAFRToNordicReadPerms( const BTCharPermissions_t * pxAFRPermitions
         }else if(( *pxAFRPermitions  & eBTPermReadEncrypted) != 0)
         {
              *pxNordicPermitions = SEC_JUST_WORKS;
-        }else if(( *pxAFRPermitions  & eBTPermWriteEncryptedMitm) != 0)
+        }else if(( *pxAFRPermitions  & eBTPermReadEncryptedMitm) != 0)
         {
               *pxNordicPermitions = SEC_MITM;
         }

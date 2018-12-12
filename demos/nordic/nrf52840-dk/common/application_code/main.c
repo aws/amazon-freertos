@@ -141,7 +141,7 @@ static void prvLescTask( void * params )
     for( ; ; )
     {
         nrf_ble_lesc_request_handler();
-        vTaskDelay( 10 );
+        vTaskDelay( 50 );
     }
 }
 /*-----------------------------------------------------------*/
@@ -360,7 +360,7 @@ static void prvMiscInitialization( void )
 /*-----------------------------------------------------------*/
 void prvStartBLE()
 {
-    xTaskCreate( prvLescTask, "Lesc", 600, NULL, tskIDLE_PRIORITY + 5, NULL );
+    xTaskCreate( prvLescTask, "Lesc", 1600, NULL, tskIDLE_PRIORITY + 5, NULL );
 }
 /**
  * @brief Application runtime entry point.

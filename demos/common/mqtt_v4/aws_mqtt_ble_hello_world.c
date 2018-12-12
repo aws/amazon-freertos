@@ -73,7 +73,7 @@
  * @brief Dimension of the character array buffers used to hold data (strings in
  * this case) that is published to and received from the MQTT broker (in the cloud).
  */
-#define echoMAX_DATA_LENGTH            20
+#define echoMAX_DATA_LENGTH            (sizeof(echoDATA))
 
 /**
  * @brief The string appended to messages that are echoed back to the MQTT broker.
@@ -100,7 +100,7 @@
 
 #define echoCONN_RETRY_LIMIT               ( 100 )
 
-#define echoTASK_STACK_SIZE                ( configMINIMAL_STACK_SIZE * 8 )
+#define echoTASK_STACK_SIZE                ( configMINIMAL_STACK_SIZE * 7 +  echoMAX_DATA_LENGTH )
 
 /*-----------------------------------------------------------*/
 /**

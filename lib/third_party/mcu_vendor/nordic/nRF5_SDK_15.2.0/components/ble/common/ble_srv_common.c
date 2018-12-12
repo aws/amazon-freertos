@@ -139,8 +139,10 @@ uint32_t characteristic_add(uint16_t                   service_handle,
     char_uuid.uuid = p_char_props->uuid;
 
     memset(&attr_md, 0, sizeof(ble_gatts_attr_md_t));
+
     set_security_req(p_char_props->read_access, &attr_md.read_perm);
-    set_security_req(p_char_props->write_access, & attr_md.write_perm);
+    set_security_req(p_char_props->write_access, &attr_md.write_perm);
+
     attr_md.rd_auth    = (p_char_props->is_defered_read ? 1 : 0);
     attr_md.wr_auth    = (p_char_props->is_defered_write ? 1 : 0);
     attr_md.vlen       = (p_char_props->is_var_len ? 1 : 0);
