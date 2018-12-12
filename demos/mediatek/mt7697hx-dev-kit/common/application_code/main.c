@@ -53,8 +53,6 @@
 
 #define WIFI_FW_DEBUG_LOG_PORT
 
-#define MTK_DEBUGGER    0
-
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
@@ -96,11 +94,6 @@ static void prvMiscInitialization( void );
  */
 int main( void )
 {
-
-    #if MTK_DEBUGGER == 1
-        { volatile int wait_ice = 1 ; while ( wait_ice ) ; }
-    #endif
-
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
@@ -191,10 +184,6 @@ void vApplicationDaemonTaskStartupHook( void )
     else
     {
         configPRINTF( ( "SYSTEM_Init failed\n" ) );
-
-        while( 1 )
-        {
-        }
     }
 }
 

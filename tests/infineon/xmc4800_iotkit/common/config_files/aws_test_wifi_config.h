@@ -33,12 +33,12 @@
 /**
  * @brief The task stack size used in all Wi-Fi multi-task tests.
  */
-#define testwifiTASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )    /* FIX ME. */
+#define testwifiTASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )
 
 /**
  * @brief The task priority used in all Wi-Fi mulit-task tests. 
  */
-#define testwifiTASK_PRIORITY               ( tskIDLE_PRIORITY )                /* FIX ME. */
+#define testwifiTASK_PRIORITY               ( tskIDLE_PRIORITY )
 
 
 #define testwifiCONNECTION_DELAY    pdMS_TO_TICKS( 4000 )
