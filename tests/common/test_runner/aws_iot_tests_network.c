@@ -20,19 +20,14 @@
  */
 
 /**
- * @file aws_iot_mqtt_tests_network_afr.c
- * @brief Common network function implementations for the MQTT system tests.
+ * @file aws_iot_tests_network.c
+ * @brief Common network function implementations for the tests.
  */
 
 /* Build using a config header, if provided. */
 #ifdef AWS_IOT_CONFIG_FILE
     #include AWS_IOT_CONFIG_FILE
 #endif
-
-/* Amazon FreeRTOS includes. */
-#include "FreeRTOS.h"
-#include "aws_secure_sockets.h"
-#include "aws_clientcredential.h"
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -42,12 +37,12 @@
 #include "aws_iot_mqtt.h"
 
 /* Platform layer includes. */
-#include "platform/aws_iot_network_afr.h"
+#include "platform/aws_iot_network.h"
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Network interface setup function for the MQTT tests.
+ * @brief Network interface setup function for the tests.
  *
  * Creates a global network connection to be used by the tests.
  * @return true if setup succeeded; false otherwise.
@@ -57,16 +52,17 @@
 bool AwsIotTest_NetworkSetup( void );
 
 /**
- * @brief Network interface cleanup function for the MQTT tests.
+ * @brief Network interface cleanup function for the tests.
  *
  * @see #AwsIotTest_NetworkSetup
  */
 void AwsIotTest_NetworkCleanup( void );
 
 /**
- * @brief Network interface connect function for the MQTT tests.
+ * @brief Network interface connect function for the tests.
  *
- * Creates a new network connection.
+ * Creates a new network connection for use with MQTT.
+ *
  * @param[out] pNewConnection The handle by which this new connection will be referenced.
  * @param[in] pMqttConnection The MQTT connection associated with the new network connection.
  *
@@ -76,7 +72,7 @@ bool AwsIotTest_NetworkConnect( void ** const pNewConnection,
                                 AwsIotMqttConnection_t * pMqttConnection );
 
 /**
- * @brief Network interface close connection function for the MQTT tests.
+ * @brief Network interface close connection function for the tests.
  *
  * @param[in] pDisconnectContext The connection to close. Pass NULL to close
  * the global network connection created by #AwsIotTest_NetworkSetup.
@@ -84,7 +80,7 @@ bool AwsIotTest_NetworkConnect( void ** const pNewConnection,
 void AwsIotTest_NetworkClose( void * pDisconnectContext );
 
 /**
- * @brief Network interface cleanup function for the MQTT tests.
+ * @brief Network interface cleanup function for the tests.
  *
  * @param[in] pNetworkConnection The connection to destroy.
  */
@@ -95,7 +91,7 @@ void AwsIotTest_NetworkDestroy( void * pNetworkConnection );
 /**
  * @brief The network connection shared among the tests.
  */
-static AwsIotNetworkConnection_t _networkConnection = AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER;
+static AwsIotNetworkConnection_t _networkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
 
 /**
  * @brief The MQTT network interface shared among the tests.
@@ -111,33 +107,43 @@ AwsIotMqttConnection_t _AwsIotTestMqttConnection = AWS_IOT_MQTT_CONNECTION_INITI
 
 bool AwsIotTest_NetworkSetup( void )
 {
-    /* Establish the global network connection. */
-    bool xStatus = AwsIotTest_NetworkConnect( &_networkConnection,
-                                              &_AwsIotTestMqttConnection );
-
-    /* Set the members of the connection interface. */
-    if( xStatus == true )
+    /* Initialize the network library. */
+    if( AwsIotNetwork_Init() != AWS_IOT_NETWORK_SUCCESS )
     {
-        _AwsIotTestNetworkInterface.pDisconnectContext = ( void * ) _networkConnection;
-        _AwsIotTestNetworkInterface.pSendContext = ( void * ) _networkConnection;
-        _AwsIotTestNetworkInterface.disconnect = AwsIotTest_NetworkClose;
-        _AwsIotTestNetworkInterface.send = AwsIotNetwork_Send;
+        return false;
     }
 
-    return xStatus;
+    if( AwsIotTest_NetworkConnect( &_networkConnection,
+                                   &_AwsIotTestMqttConnection ) == false )
+    {
+        AwsIotNetwork_Cleanup();
+
+        return false;
+    }
+
+    /* Set the members of the network interface. */
+    _AwsIotTestNetworkInterface.pDisconnectContext = NULL;
+    _AwsIotTestNetworkInterface.disconnect = AwsIotTest_NetworkClose;
+    _AwsIotTestNetworkInterface.pSendContext = ( void * ) _networkConnection;
+    _AwsIotTestNetworkInterface.send = AwsIotNetwork_Send;
+
+    return true;
 }
 
 /*-----------------------------------------------------------*/
 
 void AwsIotTest_NetworkCleanup( void )
 {
-    /* Close the global network connection. */
-    if( _networkConnection != NULL )
+    /* Close the TCP connection to the server. */
+    if( _networkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
     {
         AwsIotTest_NetworkClose( NULL );
         AwsIotTest_NetworkDestroy( _networkConnection );
-        _networkConnection = NULL;
+        _networkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
     }
+
+    /* Clean up the network library. */
+    AwsIotNetwork_Cleanup();
 
     /* Clear the network interface. */
     ( void ) memset( &_AwsIotTestNetworkInterface, 0x00, sizeof( AwsIotMqttNetIf_t ) );
@@ -148,59 +154,74 @@ void AwsIotTest_NetworkCleanup( void )
 bool AwsIotTest_NetworkConnect( void ** const pNewConnection,
                                 AwsIotMqttConnection_t * pMqttConnection )
 {
-    bool xStatus = true;
-    AwsIotNetworkConnection_t xNewConnection = AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER;
-    AwsIotNetworkConnectParams_t connectParams = AWS_IOT_NETWORK_AFR_CONNECT_PARAMS_INITIALIZER;
+    AwsIotNetworkConnection_t newConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
+    AwsIotNetworkTlsInfo_t * pTlsInfo = NULL;
 
-    /* Establish network connection. */
-    connectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
-    connectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-    connectParams.flags = AWS_IOT_NETWORK_AFR_FLAG_SECURED |
-                          AWS_IOT_NETWORK_AFR_FLAG_SNI;
+    /* Set up TLS if the endpoint is secured. These tests should always use ALPN. */
+    #if AWS_IOT_TEST_SECURED_CONNECTION == 1
+        AwsIotNetworkTlsInfo_t tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
+        pTlsInfo = &tlsInfo;
 
-    if( connectParams.usPort == securesocketsDEFAULT_TLS_DESTINATION_PORT )
+        /* Set credentials for secured connection. Lengths are optional on some
+         * platforms and only set if needed. */
+        tlsInfo.pRootCa = AWS_IOT_TEST_ROOT_CA;
+        tlsInfo.pClientCert = AWS_IOT_TEST_CLIENT_CERT;
+        tlsInfo.pPrivateKey = AWS_IOT_TEST_PRIVATE_KEY;
+
+        #ifdef AWS_IOT_TEST_ROOT_CA_LENGTH
+            tlsInfo.rootCaLength = AWS_IOT_TEST_ROOT_CA_LENGTH;
+        #endif
+
+        #ifdef AWS_IOT_TEST_CLIENT_CERT_LENGTH
+            tlsInfo.clientCertLength = AWS_IOT_TEST_CLIENT_CERT_LENGTH;
+        #endif
+
+        #ifdef AWS_IOT_TEST_PRIVATE_KEY_LENGTH
+            tlsInfo.privateKeyLength = AWS_IOT_TEST_PRIVATE_KEY_LENGTH;
+        #endif
+    #endif /* if AWS_IOT_TEST_SECURED_CONNECTION == 0 */
+
+    /* Open a connection to the test server. */
+    if( AwsIotNetwork_CreateConnection( &newConnection,
+                                        AWS_IOT_TEST_SERVER,
+                                        AWS_IOT_TEST_PORT,
+                                        pTlsInfo ) != AWS_IOT_NETWORK_SUCCESS )
     {
-        connectParams.flags |= AWS_IOT_NETWORK_AFR_FLAG_ALPN;
+        return false;
     }
 
-    xStatus = AwsIotNetwork_CreateConnection( &connectParams, &xNewConnection );
-
-    /* Set MQTT receive callback. */
-    if( xStatus == true )
+    /* Set the MQTT receive callback. */
+    if( AwsIotNetwork_SetMqttReceiveCallback( newConnection,
+                                              pMqttConnection,
+                                              AwsIotMqtt_ReceiveCallback ) != AWS_IOT_NETWORK_SUCCESS )
     {
-        xStatus = AwsIotNetwork_CreateMqttReceiveTask( xNewConnection,
-                                                       pMqttConnection,
-                                                       AWS_IOT_MQTT_RECEIVE_TASK_PRIORITY,
-                                                       AWS_IOT_NETWORK_RECEIVE_BUFFER_SIZE );
+        AwsIotNetwork_CloseConnection( newConnection );
+        AwsIotNetwork_DestroyConnection( newConnection );
+        *pNewConnection = NULL;
 
-        if( xStatus == false )
-        {
-            AwsIotNetwork_CloseConnection( xNewConnection );
-            AwsIotNetwork_DestroyConnection( xNewConnection );
-        }
-        else
-        {
-            *pNewConnection = ( void * ) xNewConnection;
-        }
+        return false;
     }
 
-    return xStatus;
+    /* Set the output parameter. */
+    *pNewConnection = ( void * ) newConnection;
+
+    return true;
 }
 
 /*-----------------------------------------------------------*/
 
 void AwsIotTest_NetworkClose( void * pDisconnectContext )
 {
-    AwsIotNetworkConnection_t xConnection = ( AwsIotNetworkConnection_t ) pDisconnectContext;
+    AwsIotNetworkConnection_t networkConnection = ( AwsIotNetworkConnection_t ) pDisconnectContext;
 
-    /* Close the provided network handle; if that is NULL, close the
+    /* Close the provided network handle; if that is uninitialized, close the
      * global network handle. */
-    if( ( xConnection != NULL ) &&
-        ( xConnection != _networkConnection ) )
+    if( ( networkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER ) &&
+        ( networkConnection != _networkConnection ) )
     {
-        AwsIotNetwork_CloseConnection( xConnection );
+        AwsIotNetwork_CloseConnection( networkConnection );
     }
-    else
+    else if( _networkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
     {
         AwsIotNetwork_CloseConnection( _networkConnection );
     }
@@ -210,22 +231,20 @@ void AwsIotTest_NetworkClose( void * pDisconnectContext )
 
 void AwsIotTest_NetworkDestroy( void * pNetworkConnection )
 {
-    AwsIotNetworkConnection_t xConnection = ( AwsIotNetworkConnection_t ) pNetworkConnection;
+    AwsIotNetworkConnection_t networkConnection = ( AwsIotNetworkConnection_t ) pNetworkConnection;
 
-    /* Destroy the provided network handle; if that is NULL, destroy the
-     * global network handle. */
-    if( ( xConnection != NULL ) &&
-        ( xConnection != _networkConnection ) )
+    if( ( networkConnection != NULL ) &&
+        ( networkConnection != _networkConnection ) )
     {
         /* Wrap the network interface's destroy function. */
         AwsIotNetwork_DestroyConnection( ( AwsIotNetworkConnection_t ) pNetworkConnection );
     }
     else
     {
-        if( _networkConnection != AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER )
+        if( _networkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
         {
             AwsIotNetwork_DestroyConnection( ( AwsIotNetworkConnection_t ) _networkConnection );
-            _networkConnection = AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER;
+            _networkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
         }
     }
 }

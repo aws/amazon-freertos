@@ -57,6 +57,9 @@
 #include POSIX_PTHREAD_HEADER
 #include POSIX_SEMAPHORE_HEADER
 
+/* SDK version. */
+#define AWS_IOT_SDK_VERSION       "4.0.0"
+
 /* Platform layer types. */
 #define AWS_IOT_TIMER_TYPE        void *
 #define AWS_IOT_MUTEX_TYPE        pthread_mutex_t
@@ -173,7 +176,15 @@
     #define AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS    ( 5000 )
 #endif
 
-/* Set Shadow tests Thing Name. */
-#define AWS_IOT_TEST_SHADOW_THING_NAME    clientcredentialIOT_THING_NAME
+/* Set test credentials and Thing Name. */
+#define AWS_IOT_TEST_SERVER                clientcredentialMQTT_BROKER_ENDPOINT
+#define AWS_IOT_TEST_PORT                  443
+#define AWS_IOT_TEST_SECURED_CONNECTION    1
+#define AWS_IOT_TEST_ROOT_CA               NULL
+#define AWS_IOT_TEST_CLIENT_CERT           clientcredentialCLIENT_CERTIFICATE_PEM
+#define AWS_IOT_TEST_CLIENT_CERT_LENGTH    clientcredentialCLIENT_CERTIFICATE_LENGTH
+#define AWS_IOT_TEST_PRIVATE_KEY           clientcredentialCLIENT_PRIVATE_KEY_PEM
+#define AWS_IOT_TEST_PRIVATE_KEY_LENGTH    clientcredentialCLIENT_PRIVATE_KEY_LENGTH
+#define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
 
 #endif /* ifndef _AWS_IOT_CONFIG_COMMON_H_ */

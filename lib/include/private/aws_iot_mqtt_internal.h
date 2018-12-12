@@ -37,7 +37,7 @@
 #include "aws_iot_mqtt.h"
 
 /* Queue include. */
-#include "private/aws_iot_queue.h"
+#include "aws_iot_queue.h"
 
 /* Platform clock include. */
 #include "platform/aws_iot_clock.h"
@@ -72,7 +72,7 @@
 #endif
 
 #define _LIBRARY_LOG_NAME    ( "MQTT" )
-#include "private/aws_iot_logging_setup.h"
+#include "aws_iot_logging_setup.h"
 
 /*
  * Provide default values for undefined memory allocation functions based on
@@ -282,15 +282,30 @@
 /*---------------------- MQTT internal data structures ----------------------*/
 
 /**
+ * @brief The offset of `link` in #_mqttSubscription_t.
+ */
+#define _SUBSCRIPTION_LINK_OFFSET    AwsIotLink_Offset( _mqttSubscription_t, link )
+
+ /**
+  * @brief The offset of `link` in #_mqttTimerEvent_t.
+  */
+#define _TIMER_EVENT_LINK_OFFSET     AwsIotLink_Offset( _mqttTimerEvent_t, link )
+
+/**
+ * @brief The offset of `link` in #_mqttOperation_t.
+ */
+#define _OPERATION_LINK_OFFSET       AwsIotLink_Offset( _mqttOperation_t, link )
+
+/**
  * @cond DOXYGEN_IGNORE
  * Doxygen should ignore this section.
  *
  * Forward declarations.
  */
-typedef struct _mqttSubscription   _mqttSubscription_t;
-typedef struct _mqttOperation      _mqttOperation_t;
-typedef struct _mqttConnection     _mqttConnection_t;
-typedef struct _mqttTimerEvent     _mqttTimerEvent_t;
+struct _mqttSubscription;
+struct _mqttConnection;
+struct _mqttOperation;
+struct _mqttTimerEvent;
 /** @endcond */
 
 /**
@@ -298,8 +313,7 @@ typedef struct _mqttTimerEvent     _mqttTimerEvent_t;
  */
 typedef struct _mqttSubscription
 {
-    _mqttSubscription_t * pNext;     /**< @brief Next element in the list. */
-    _mqttSubscription_t * pPrevious; /**< @brief Previous element in the list. */
+    AwsIotLink_t link;               /**< @brief List link member. */
 
     int references;                  /**< @brief How many subscription callbacks are using this subscription. */
 
@@ -336,12 +350,12 @@ typedef struct _mqttConnection
     AwsIotMqttNetIf_t network;            /**< @brief Network interface provided to @ref mqtt_function_connect. */
     AwsIotList_t subscriptionList;        /**< @brief Holds subscriptions associated with this connection. */
 
-    AwsIotMutex_t mutex;                  /**< @brief Prevents concurrent threads from modifying connection data. */
-    AwsIotTimer_t timer;                  /**< @brief Expires when a timer event should be processed. */
-    AwsIotList_t timerEventList;          /**< @brief List of active timer events. */
-    uint16_t keepAliveSeconds;            /**< @brief Keep-alive interval. */
-    _mqttOperation_t * pPingreqOperation; /**< @brief PINGREQ operation. Only used if keep-alive is active. */
-    _mqttTimerEvent_t * pKeepAliveEvent;  /**< @brief When to process a keep-alive. Only used if keep-alive is active. */
+    AwsIotMutex_t mutex;                         /**< @brief Prevents concurrent threads from modifying connection data. */
+    AwsIotTimer_t timer;                         /**< @brief Expires when a timer event should be processed. */
+    AwsIotList_t timerEventList;                 /**< @brief List of active timer events. */
+    uint16_t keepAliveSeconds;                   /**< @brief Keep-alive interval. */
+    struct _mqttOperation * pPingreqOperation;   /**< @brief PINGREQ operation. Only used if keep-alive is active. */
+    struct _mqttTimerEvent * pKeepAliveEvent;    /**< @brief When to process a keep-alive. Only used if keep-alive is active. */
 } _mqttConnection_t;
 
 /**
@@ -353,11 +367,10 @@ typedef struct _mqttConnection
 typedef struct _mqttOperation
 {
     /* Pointers to neighboring queue elements. */
-    _mqttOperation_t * pNext;            /**< @brief Next (older) item in the queue. */
-    _mqttOperation_t * pPrevious;        /**< @brief Previous (newer) item in the queue. */
+    AwsIotLink_t link;                   /**< @brief Queue link member. */
 
-    bool incomingPublish;                /**< @brief Set to true if this operation an incoming PUBLISH. */
-    _mqttConnection_t * pMqttConnection; /**< @brief MQTT connection associated with this operation. */
+    bool incomingPublish;                     /**< @brief Set to true if this operation an incoming PUBLISH. */
+    struct _mqttConnection * pMqttConnection; /**< @brief MQTT connection associated with this operation. */
 
     union
     {
@@ -381,19 +394,19 @@ typedef struct _mqttOperation
             } notify;                              /**< @brief How to notify of this operation's completion. */
             AwsIotMqttError_t status;              /**< @brief Result of this operation. This is reported once a response is received. */
 
-            _mqttTimerEvent_t * pPublishRetry;     /**< @brief How an operation will be retried. Only used for QoS 1 or 2 publishes. */
+            struct _mqttTimerEvent * pPublishRetry; /**< @brief How an operation will be retried. Only used for QoS 1 or 2 publishes. */
         };
 
         /* If incomingPublish is true, this struct is valid. */
         struct
         {
             AwsIotMqttPublishInfo_t publishInfo;   /**< @brief Deserialized PUBLISH. */
-            _mqttOperation_t * pNextPublish;       /**< @brief Pointer to the next PUBLISH in the data stream. */
+            struct _mqttOperation * pNextPublish;  /**< @brief Pointer to the next PUBLISH in the data stream. */
             const void * pReceivedData;            /**< @brief Any buffer associated with this PUBLISH that should be freed. */
             void ( * freeReceivedData )( void * ); /**< @brief Function called to free `pReceivedData`. */
         };
     };
-} _mqttOperation_t;
+ } _mqttOperation_t;
 
 /**
  * @brief Represents an operation that is subject to a timer.
@@ -403,11 +416,10 @@ typedef struct _mqttOperation
  */
 typedef struct _mqttTimerEvent
 {
-    _mqttTimerEvent_t * pNext;     /**< @brief Next (later) item in the queue. */
-    _mqttTimerEvent_t * pPrevious; /**< @brief Previous (sooner) item in the queue. */
+    AwsIotLink_t link;             /**< @brief List link member. */
 
-    uint64_t expirationTime;       /**< @brief When this event should be processed. */
-    _mqttOperation_t * pOperation; /**< @brief The MQTT operation associated with this event. */
+    uint64_t expirationTime;            /**< @brief When this event should be processed. */
+    struct _mqttOperation * pOperation; /**< @brief The MQTT operation associated with this event. */
 
     /* Valid members depend on the operation associated with this event
      * (PINGREQ or PUBLISH). The checkPingresp member is valid for PINGREQ,
@@ -487,67 +499,6 @@ bool AwsIotMqttInternal_ValidateSubscriptionList( AwsIotMqttOperationType_t oper
                                                   bool awsIotMqttMode,
                                                   const AwsIotMqttSubscription_t * const pListStart,
                                                   size_t listSize );
-
-/*------------------------ Queue and list functions -------------------------*/
-
-/**
- * @brief Create all the MQTT operation queues. Called by @ref mqtt_function_init
- * when initializing the MQTT library.
- *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_INIT_FAILED.
- */
-AwsIotMqttError_t AwsIotMqttInternal_CreateQueues( void );
-
-/**
- * @brief Free resources taken by #AwsIotMqttInternal_CreateQueues.
- *
- * No parameters, no return values.
- */
-void AwsIotMqttInternal_DestroyQueues( void );
-
-/**
- * @brief Create #_AwsIotMqttSendQueue, #_AwsIotMqttReceiveQueue, or
- * #_AwsIotMqttCallbackQueue.
- *
- * @param[in] pQueue Pointer to the queue to create.
- * @param[in] notifyRoutine The queue's notification routine.
- * @param[in] maxNotifyThreads The maximum number of notification threads.
- *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_INIT_FAILED.
- */
-AwsIotMqttError_t AwsIotMqttInternal_CreateOperationQueue( AwsIotQueue_t * const pQueue,
-                                                           AwsIotThreadRoutine_t notifyRoutine,
-                                                           uint32_t maxNotifyThreads );
-
-/**
- * @brief Create #_mqttConnection_t.subscriptionList.
- *
- * @param[in] pList Pointer to the list to create.
- *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_INIT_FAILED.
- */
-AwsIotMqttError_t AwsIotMqttInternal_CreateSubscriptionList( AwsIotList_t * const pList );
-
-/**
- * @brief Create #_mqttConnection_t.timerEventList.
- *
- * @param[in] pList Pointer to the list to create
- *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_INIT_FAILED.
- */
-AwsIotMqttError_t AwsIotMqttInternal_CreateTimerEventList( AwsIotList_t * const pList );
-
-/**
- * @brief Inserts a timer event into the (sorted) timer list.
- *
- * @param[in] pTimerList The list to modify.
- * @param[in] pTimerEvent The timer event to insert.
- *
- * @note This function must be called with [pTimerList->mutex](@ref AwsIotList_t.mutex)
- * locked.
- */
-void AwsIotMqttInternal_TimerListInsert( AwsIotList_t * const pTimerList,
-                                         _mqttTimerEvent_t * const pTimerEvent );
 
 /*-------------------- MQTT packet serializer functions ---------------------*/
 
@@ -827,6 +778,31 @@ void AwsIotMqttInternal_FreePacket( uint8_t * pPacket );
 /*-------------------- MQTT operation record functions ----------------------*/
 
 /**
+ * @brief Create all the MQTT operation queues. Called by @ref mqtt_function_init
+ * when initializing the MQTT library.
+ *
+ * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_INIT_FAILED.
+ */
+AwsIotMqttError_t AwsIotMqttInternal_CreateQueues( void );
+
+/**
+ * @brief Compare two #_mqttTimerEvent_t by expiration time.
+ *
+ * @param[in] pData1 The first #_mqttTimerEvent_t to compare.
+ * @param[in] pData2 The second #_mqttTimerEvent_t to compare.
+ *
+ * @return
+ * - Negative value if `pData1` is less than `pData2`.
+ * - Zero if `pData1` is equal to `pData2`.
+ * - Positive value if `pData1` is greater than `pData2`.
+ *
+ * @note The arguments of this function are of type `void*` for compatibility with
+ * @ref list_function_insertsorted.
+ */
+int AwsIotMqttInternal_TimerEventCompare( void * pData1,
+                                          void * pData2 );
+
+/**
  * @brief Create a record for a new in-progress MQTT operation.
  *
  * @param[out] pNewOperation Set to point to the new operation on success.
@@ -877,19 +853,6 @@ AwsIotMqttError_t AwsIotMqttInternal_OperationFind( AwsIotQueue_t * const pQueue
                                                     const uint16_t * const pPacketIdentifier,
                                                     _mqttOperation_t ** const pOutput );
 
-/**
- * @brief Search a queue of in-progress MQTT operations using a pointer.
- * Removes the operation from the queue if found.
- *
- * @param[in] pQueue Which queue to search.
- * @param[in] pTarget The operation to look for.
- *
- * @return #AWS_IOT_MQTT_SUCCESS if the `pTarget` points to an in-progress operation,
- * otherwise #AWS_IOT_MQTT_BAD_PARAMETER if not found.
- */
-AwsIotMqttError_t AwsIotMqttInternal_OperationFindPointer( AwsIotQueue_t * const pQueue,
-                                                           _mqttOperation_t * const pTarget );
-
 /*------------------- Subscription management functions ---------------------*/
 
 /**
@@ -931,7 +894,7 @@ void AwsIotMqttInternal_ProcessPublish( _mqttConnection_t * const pMqttConnectio
  */
 void AwsIotMqttInternal_RemoveSubscriptionByPacket( _mqttConnection_t * const pMqttConnection,
                                                     uint16_t packetIdentifier,
-                                                    ssize_t order );
+                                                    long order );
 
 /**
  * @brief Remove an array of subscriptions from the subscription manager by

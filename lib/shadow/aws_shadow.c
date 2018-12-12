@@ -571,6 +571,9 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
     AwsIotShadowCallbackInfo_t callbackInfo = AWS_IOT_MQTT_CALLBACK_INFO_INITIALIZER,
         * pCallbackInfo = NULL;
 
+    /* Shadow v4 does not use a timeout for setting callbacks. */
+    ( void ) xTimeoutTicks;
+
     /* Set the callback functions in the Shadow client. */
     ( void ) xSemaphoreTake( &( pxShadowClient->xCallbackMutex ), portMAX_DELAY );
     pxShadowClient->pcCallbackThingName = pxCallbackParams->pcThingName;
@@ -599,8 +602,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
                                                       pxCallbackParams->pcThingName,
                                                       thingNameLength,
                                                       0,
-                                                      pCallbackInfo,
-                                                      shadowTICKS_TO_MS( xTimeoutTicks ) );
+                                                      pCallbackInfo );
     }
 
     if( xShadowError == AWS_IOT_SHADOW_SUCCESS )
@@ -620,8 +622,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
                                                         pxCallbackParams->pcThingName,
                                                         thingNameLength,
                                                         0,
-                                                        &callbackInfo,
-                                                        shadowTICKS_TO_MS( xTimeoutTicks ) );
+                                                        &callbackInfo );
     }
 
     /* Deleted callback is not supported. */

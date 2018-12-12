@@ -126,9 +126,9 @@ static void _generateParseErrorDocument( char * const pErrorDocument,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Wrapper for parsing Shadow topics and checking the result.
+ * @brief Wrapper for parsing Shadow Thing Names and checking the result.
  */
-static void _parseTopicName( const char * const pTopicName,
+static void _parseThingName( const char * const pTopicName,
                              AwsIotShadowError_t expectedResult,
                              const char * const pExpectedThingName )
 {
@@ -137,7 +137,7 @@ static void _parseTopicName( const char * const pTopicName,
     const char * pThingName = NULL;
     size_t thingNameLength = 0;
 
-    status = AwsIotShadowInternal_ParseTopicName( pTopicName,
+    status = AwsIotShadowInternal_ParseThingName( pTopicName,
                                                   topicNameLength,
                                                   &pThingName,
                                                   &thingNameLength );
@@ -192,7 +192,7 @@ TEST_GROUP_RUNNER( Shadow_Unit_Parser )
     RUN_TEST_CASE( Shadow_Unit_Parser, JsonInvalid );
     RUN_TEST_CASE( Shadow_Unit_Parser, ErrorDocument );
     RUN_TEST_CASE( Shadow_Unit_Parser, ErrorDocumentInvalid );
-    RUN_TEST_CASE( Shadow_Unit_Parser, TopicName );
+    RUN_TEST_CASE( Shadow_Unit_Parser, ThingName );
 }
 
 /*-----------------------------------------------------------*/
@@ -442,30 +442,30 @@ TEST( Shadow_Unit_Parser, ErrorDocumentInvalid )
 /**
  * @brief Tests parsing both valid and invalid Shadow topics.
  */
-TEST( Shadow_Unit_Parser, TopicName )
+TEST( Shadow_Unit_Parser, ThingName )
 {
     /* Valid operation topic. */
-    _parseTopicName( "$aws/things/TEST/shadow/get/accepted",
+    _parseThingName( "$aws/things/TEST/shadow/get/accepted",
                      AWS_IOT_SHADOW_SUCCESS,
                      "TEST" );
 
     /* Valid callback topic. */
-    _parseTopicName( "$aws/things/TEST/shadow/update/delta",
+    _parseThingName( "$aws/things/TEST/shadow/update/delta",
                      AWS_IOT_SHADOW_SUCCESS,
                      "TEST" );
 
     /* Topic too short. */
-    _parseTopicName( "$aws/things/TEST/",
+    _parseThingName( "$aws/things/TEST/",
                      AWS_IOT_SHADOW_BAD_RESPONSE,
                      "TEST" );
 
     /* Incorrect prefix. */
-    _parseTopicName( "$awsshadow/TEST/shadow/update/accepted",
+    _parseThingName( "$awsshadow/TEST/shadow/update/accepted",
                      AWS_IOT_SHADOW_BAD_RESPONSE,
                      "TEST" );
 
     /* Thing Name unterminated. */
-    _parseTopicName( "$aws/things/TESTTESTTESTTESTTESTTEST",
+    _parseThingName( "$aws/things/TESTTESTTESTTESTTESTTEST",
                      AWS_IOT_SHADOW_BAD_RESPONSE,
                      "TESTTESTTESTTESTTESTTEST" );
 }

@@ -39,11 +39,32 @@
 /* JSON utilities include. */
 #include "aws_iot_json_utils.h"
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief The JSON key for the error code in a Shadow error document.
+ */
 #define _ERROR_DOCUMENT_CODE_KEY              "code"
+
+/**
+ * @brief The length of #_ERROR_DOCUMENT_CODE_KEY.
+ */
 #define _ERROR_DOCUMENT_CODE_KEY_LENGTH       ( sizeof( _ERROR_DOCUMENT_CODE_KEY ) - 1 )
+
+/**
+ * @brief The JSON key for the error message in a Shadow error document.
+ */
 #define _ERROR_DOCUMENT_MESSAGE_KEY           "message"
+
+/**
+ * @brief The length of #_ERROR_DOCUMENT_MESSAGE_KEY.
+ */
 #define _ERROR_DOCUMENT_MESSAGE_KEY_LENGTH    ( sizeof( _ERROR_DOCUMENT_MESSAGE_KEY ) - 1 )
 
+/**
+ * @brief The minimum possible length of a Shadow topic name, per the Shadow
+ * spec.
+ */
 #define _MINIMUM_SHADOW_TOPIC_NAME_LENGTH                                 \
     ( _SHADOW_TOPIC_PREFIX_LENGTH +                                       \
       ( uint16_t ) sizeof( _SHADOW_GET_OPERATION_STRING ) +               \
@@ -53,6 +74,14 @@
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Converts a `unsigned long` to an `AwsIotShadowError_t`.
+ *
+ * @param[in] code A value between 400 and 500 to convert.
+ *
+ * @return A corresponding #AwsIotShadowError_t; #AWS_IOT_SHADOW_BAD_RESPONSE
+ * if `code` is unknown.
+ */
 static AwsIotShadowError_t _codeToShadowStatus( unsigned long code );
 
 /*-----------------------------------------------------------*/
@@ -217,7 +246,7 @@ AwsIotShadowError_t AwsIotShadowInternal_ParseErrorDocument( const char * const 
 
 /*-----------------------------------------------------------*/
 
-AwsIotShadowError_t AwsIotShadowInternal_ParseTopicName( const char * const pTopicName,
+AwsIotShadowError_t AwsIotShadowInternal_ParseThingName( const char * const pTopicName,
                                                          uint16_t topicNameLength,
                                                          const char ** const pThingName,
                                                          size_t * const pThingNameLength )

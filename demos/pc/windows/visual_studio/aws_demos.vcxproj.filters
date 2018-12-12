@@ -624,9 +624,6 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_operation.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_queue_access.c">
-      <Filter>lib\aws\mqtt</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_serialize.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
@@ -1250,22 +1247,13 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging_setup.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_mqtt_internal.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_queue.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_mqtt.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h">
-      <Filter>lib\aws\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network_afr.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h">
@@ -1321,6 +1309,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_shadow_internal.h">
       <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h">
+      <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

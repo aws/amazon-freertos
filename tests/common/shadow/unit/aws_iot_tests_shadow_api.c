@@ -132,7 +132,7 @@ static void _receiveThread( void * pArgument )
 {
     uint8_t pReceivedData[ _ACKNOWLEDGEMENT_PACKET_SIZE ] = { 0 };
     size_t receivedDataLength = 0;
-    ssize_t bytesProcessed = 0;
+    int32_t bytesProcessed = 0;
 
     /* Silence warnings about unused parameters. */
     ( void ) pArgument;
@@ -186,7 +186,7 @@ static void _receiveThread( void * pArgument )
                                                  0,
                                                  receivedDataLength,
                                                  NULL );
-    AwsIotShadow_Assert( bytesProcessed == ( ssize_t ) receivedDataLength );
+    AwsIotShadow_Assert( bytesProcessed == ( int32_t ) receivedDataLength );
 
     AwsIotMutex_Unlock( &_lastPacketMutex );
 }
@@ -378,7 +378,7 @@ TEST_GROUP_RUNNER( Shadow_Unit_API )
 TEST( Shadow_Unit_API, Init )
 {
     /* Check that test set up set the default value. */
-    TEST_ASSERT_EQUAL_UINT64( AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS, _AwsIotShadowMqttTimeout );
+    TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS, _AwsIotShadowMqttTimeoutMs );
 
     /* The Shadow library was already initialized by test set up. Clean it up
      * before running this test. */
@@ -386,11 +386,11 @@ TEST( Shadow_Unit_API, Init )
 
     /* Set a MQTT timeout. */
     AwsIotShadow_Init( AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS + 1 );
-    TEST_ASSERT_EQUAL_UINT64( AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS + 1, _AwsIotShadowMqttTimeout );
+    TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS + 1, _AwsIotShadowMqttTimeoutMs );
 
     /* Cleanup should restore the default MQTT timeout. */
     AwsIotShadow_Cleanup();
-    TEST_ASSERT_EQUAL_UINT64( AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS, _AwsIotShadowMqttTimeout );
+    TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS, _AwsIotShadowMqttTimeoutMs );
 
     /* Initialize the Shadow library for test clean up. */
     AwsIotShadow_Init( 0 );

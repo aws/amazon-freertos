@@ -21,7 +21,8 @@
 
 /**
  * @file aws_iot_network_afr.c
- * @brief Implementation of the network-related functions from aws_iot_network_afr.h
+ * @brief Implementation of the network-related functions from aws_iot_network.h
+ * for Amazon FreeRTOS secure sockets.
  */
 
 /* Build using a config header, if provided. */
@@ -33,7 +34,10 @@
 #include <string.h>
 
 /* Platform layer includes. */
-#include "platform/aws_iot_network_afr.h"
+#include "platform/aws_iot_network.h"
+
+/* Amazon FreeRTOS secure sockets include. */
+#include "aws_secure_sockets.h"
 
 /* Configure logs for the functions in this file. */
 #ifdef AWS_IOT_NETWORK_LOG_LEVEL
@@ -47,7 +51,7 @@
 #endif
 
 #define _LIBRARY_LOG_NAME    ( "NET" )
-#include "private/aws_iot_logging_setup.h"
+#include "aws_iot_logging_setup.h"
 
 /**
  * @cond DOXYGEN_IGNORE
@@ -94,10 +98,11 @@
  */
 typedef struct NetworkConnection
 {
-    Socket_t xSocket;                          /**< Socket associated with connection. */
-    StaticEventGroup_t xConnectionFlags;       /**< Tracks whether the connection has been shut down or the receive task has exited. */
-    AwsIotMqttConnection_t * pxMqttConnection; /**< MQTT connection handle associated with network connection. */
-    uint8_t * pucReceiveBuffer;                /**< Buffer to hold incoming network data. */
+    Socket_t xSocket;                                 /**< @brief Socket associated with connection. */
+    StaticEventGroup_t xConnectionFlags;              /**< @brief Tracks whether the connection has been shut down or the receive task has exited. */
+    AwsIotMqttConnection_t * pxMqttConnection;        /**< @brief MQTT connection handle associated with network connection. */
+    uint8_t * pucReceiveBuffer;                       /**< @brief Buffer to hold incoming network data. */
+    AwsIotMqttReceiveCallback_t xMqttReceiveCallback; /**< @brief MQTT receive callback function, if any. */
 } NetworkConnection_t;
 
 /*-----------------------------------------------------------*/
@@ -261,11 +266,11 @@ void prvMqttReceiveTask( void * pvArgument )
         }
 
         /* Pass the received data to the MQTT callback. */
-        xMqttCallbackReturn = AwsIotMqtt_ReceiveCallback( pxConnection->pxMqttConnection,
-                                                          pxConnection->pucReceiveBuffer,
-                                                          0,
-                                                          ( size_t ) lSocketReturn + xProcessOffset,
-                                                          AwsIotNetwork_Free );
+        xMqttCallbackReturn = pxConnection->xMqttReceiveCallback( pxConnection->pxMqttConnection,
+                                                                  pxConnection->pucReceiveBuffer,
+                                                                  0,
+                                                                  ( size_t ) lSocketReturn + xProcessOffset,
+                                                                  AwsIotNetwork_Free );
 
         /* Check for MQTT protocol violation. */
         if( xMqttCallbackReturn == -1 )
@@ -358,26 +363,43 @@ void prvMqttReceiveTask( void * pvArgument )
 
 /*-----------------------------------------------------------*/
 
-bool AwsIotNetwork_CreateConnection( const AwsIotNetworkConnectParams_t * const pxConnectParams,
-                                     AwsIotNetworkConnection_t * pxNewConnection )
+AwsIotNetworkError_t AwsIotNetwork_Init( void )
 {
-    bool xStatus = true;
+    /* No additional initialization is needed on Amazon FreeRTOS. */
+    return AWS_IOT_NETWORK_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+void AwsIotNetwork_Cleanup( void )
+{
+    /* No cleanup is needed on Amazon FreeRTOS. */
+}
+
+/*-----------------------------------------------------------*/
+
+AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t * const pNetworkConnection,
+                                                     const char * const pHostName,
+                                                     uint16_t port,
+                                                     const AwsIotNetworkTlsInfo_t * const pTlsInfo )
+{
+    AwsIotNetworkError_t xStatus = AWS_IOT_NETWORK_SUCCESS;
     NetworkConnection_t * pxConnection = NULL;
     Socket_t xSocket = SOCKETS_INVALID_SOCKET;
     SocketsSockaddr_t xServer = { 0 };
-    size_t xURLLength = strlen( pxConnectParams->pcURL );
+    size_t xHostNameLength = strlen( pHostName );
     const char * ppcALPNProtos[] = { socketsAWS_IOT_ALPN_MQTT };
 
     /* Check URL length. */
-    if( xURLLength > ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
+    if( xHostNameLength > ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
     {
         AwsIotLogError( "URL exceeds %d, which is the maximum allowed length.",
                         securesocketsMAX_DNS_NAME_LENGTH );
-        xStatus = false;
+        xStatus = AWS_IOT_NETWORK_BAD_PARAMETER;
     }
 
     /* Allocate memory for new connection. */
-    if( xStatus == true )
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
         pxConnection = AwsIotNetwork_Malloc( sizeof( NetworkConnection_t ) );
 
@@ -385,7 +407,7 @@ bool AwsIotNetwork_CreateConnection( const AwsIotNetworkConnectParams_t * const 
         {
             AwsIotLogError( "Failed to allocate memory for new network connection." );
 
-            xStatus = false;
+            xStatus = AWS_IOT_NETWORK_NO_MEMORY;
         }
         else
         {
@@ -394,7 +416,7 @@ bool AwsIotNetwork_CreateConnection( const AwsIotNetworkConnectParams_t * const 
     }
 
     /* Create new TCP socket. */
-    if( xStatus == true )
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
         xSocket = SOCKETS_Socket( SOCKETS_AF_INET,
                                   SOCKETS_SOCK_STREAM,
@@ -403,15 +425,14 @@ bool AwsIotNetwork_CreateConnection( const AwsIotNetworkConnectParams_t * const 
         if( xSocket == SOCKETS_INVALID_SOCKET )
         {
             AwsIotLogError( "Failed to create new socket." );
-            xStatus = false;
+            xStatus = AWS_IOT_NETWORK_NO_MEMORY;
         }
     }
 
     /* Set secured option. */
-    if( xStatus == true )
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
-        if( ( pxConnectParams->flags & AWS_IOT_NETWORK_AFR_FLAG_SECURED )
-            == AWS_IOT_NETWORK_AFR_FLAG_SECURED )
+        if( pTlsInfo != NULL )
         {
             if( SOCKETS_SetSockOpt( xSocket,
                                     0,
@@ -420,16 +441,16 @@ bool AwsIotNetwork_CreateConnection( const AwsIotNetworkConnectParams_t * const 
                                     0 ) != SOCKETS_ERROR_NONE )
             {
                 AwsIotLogError( "Failed to set secured option for new connection." );
-                xStatus = false;
+                xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
             }
         }
     }
 
     /* Set ALPN option. */
-    if( xStatus == true )
+    if( ( xStatus == AWS_IOT_NETWORK_SUCCESS ) &&
+        ( pTlsInfo != NULL ) )
     {
-        if( ( pxConnectParams->flags & AWS_IOT_NETWORK_AFR_FLAG_ALPN )
-            == AWS_IOT_NETWORK_AFR_FLAG_ALPN )
+        if( pTlsInfo->pAlpnProtos != NULL )
         {
             if( SOCKETS_SetSockOpt( xSocket,
                                     0,
@@ -438,64 +459,65 @@ bool AwsIotNetwork_CreateConnection( const AwsIotNetworkConnectParams_t * const 
                                     sizeof( ppcALPNProtos ) / sizeof( ppcALPNProtos[ 0 ] ) ) != SOCKETS_ERROR_NONE )
             {
                 AwsIotLogError( "Failed to set ALPN option for new connection." );
-                xStatus = false;
+                xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
             }
         }
     }
 
     /* Set SNI option. */
-    if( xStatus == true )
+    if( ( xStatus == AWS_IOT_NETWORK_SUCCESS ) &&
+        ( pTlsInfo != NULL ) )
     {
-        if( ( pxConnectParams->flags & AWS_IOT_NETWORK_AFR_FLAG_SNI )
-            == AWS_IOT_NETWORK_AFR_FLAG_SNI )
+        if( pTlsInfo->disableSni == false )
         {
             if( SOCKETS_SetSockOpt( xSocket,
                                     0,
                                     SOCKETS_SO_SERVER_NAME_INDICATION,
-                                    pxConnectParams->pcURL,
-                                    xURLLength + 1 ) != SOCKETS_ERROR_NONE )
+                                    pHostName,
+                                    xHostNameLength + 1 ) != SOCKETS_ERROR_NONE )
             {
                 AwsIotLogError( "Failed to set SNI option for new connection." );
-                xStatus = false;
+                xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
             }
         }
     }
 
     /* Set custom server certificate. */
-    if( xStatus == true )
+    if( ( xStatus == AWS_IOT_NETWORK_SUCCESS ) &&
+        ( pTlsInfo != NULL ) )
     {
-        if( pxConnectParams->pcServerCertificate != NULL )
+        if( pTlsInfo->pRootCa != NULL )
         {
             if( SOCKETS_SetSockOpt( xSocket,
                                     0,
                                     SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE,
-                                    pxConnectParams->pcServerCertificate,
-                                    pxConnectParams->xServerCertificateSize ) != SOCKETS_ERROR_NONE )
+                                    pTlsInfo->pRootCa,
+                                    pTlsInfo->rootCaLength ) != SOCKETS_ERROR_NONE )
             {
                 AwsIotLogError( "Failed to set server certificate option for new connection." );
-                xStatus = false;
+                xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
             }
         }
     }
 
     /* Establish connection. */
-    if( xStatus == true )
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
         xServer.ucSocketDomain = SOCKETS_AF_INET;
-        xServer.usPort = SOCKETS_htons( pxConnectParams->usPort );
-        xServer.ulAddress = SOCKETS_GetHostByName( pxConnectParams->pcURL );
+        xServer.usPort = SOCKETS_htons( port );
+        xServer.ulAddress = SOCKETS_GetHostByName( pHostName );
 
         if( SOCKETS_Connect( xSocket,
                              &xServer,
                              sizeof( SocketsSockaddr_t ) ) != SOCKETS_ERROR_NONE )
         {
             AwsIotLogError( "Failed to establish new connection." );
-            xStatus = false;
+            xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
         }
     }
 
     /* Set output parameter. */
-    if( xStatus == true )
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
         /* Initialize connection flags. This function will not fail when its
          * parameter isn't NULL. */
@@ -503,7 +525,7 @@ bool AwsIotNetwork_CreateConnection( const AwsIotNetworkConnectParams_t * const 
 
         AwsIotLogInfo( "New network connection established." );
         pxConnection->xSocket = xSocket;
-        *pxNewConnection = pxConnection;
+        *pNetworkConnection = pxConnection;
     }
     /* Clean up on failure. */
     else
@@ -524,42 +546,42 @@ bool AwsIotNetwork_CreateConnection( const AwsIotNetworkConnectParams_t * const 
 
 /*-----------------------------------------------------------*/
 
-bool AwsIotNetwork_CreateMqttReceiveTask( AwsIotNetworkConnection_t xConnection,
-                                          AwsIotMqttConnection_t * pxMqttConnection,
-                                          UBaseType_t uxPriority,
-                                          size_t xInitialReceiveBufferSize )
+AwsIotNetworkError_t AwsIotNetwork_SetMqttReceiveCallback( AwsIotNetworkConnection_t networkConnection,
+                                                           AwsIotMqttConnection_t * pMqttConnection,
+                                                           AwsIotMqttReceiveCallback_t receiveCallback )
 {
-    bool xStatus = true;
-    NetworkConnection_t * pxConnection = ( NetworkConnection_t * ) xConnection;
+    AwsIotNetworkError_t xStatus = AWS_IOT_NETWORK_SUCCESS;
+    NetworkConnection_t * pxConnection = ( NetworkConnection_t * ) networkConnection;
 
     /* Set the parameters for the receive task. */
-    pxConnection->pxMqttConnection = pxMqttConnection;
+    pxConnection->pxMqttConnection = pMqttConnection;
+    pxConnection->xMqttReceiveCallback = receiveCallback;
 
     /* No receive buffer should be allocated, and no flags should be set. */
     configASSERT( pxConnection->pucReceiveBuffer == NULL );
     configASSERT( xEventGroupGetBits( &( pxConnection->xConnectionFlags ) ) == 0 );
 
     /* Allocate initial network receive buffer. */
-    pxConnection->pucReceiveBuffer = AwsIotNetwork_Malloc( xInitialReceiveBufferSize );
+    pxConnection->pucReceiveBuffer = AwsIotNetwork_Malloc( AWS_IOT_NETWORK_RECEIVE_BUFFER_SIZE );
 
     if( pxConnection->pucReceiveBuffer == NULL )
     {
-        xStatus = false;
+        xStatus = AWS_IOT_NETWORK_NO_MEMORY;
     }
 
     /* Create the receive task. */
-    if( xStatus == true )
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
         if( xTaskCreate( prvMqttReceiveTask,
                          "MqttRecv",
                          AWS_IOT_MQTT_RECEIVE_TASK_STACK_SIZE,
                          pxConnection,
-                         uxPriority,
+                         AWS_IOT_MQTT_RECEIVE_TASK_PRIORITY,
                          NULL ) != pdPASS )
         {
             AwsIotLogError( "Failed to create MQTT receive task." );
             AwsIotNetwork_Free( pxConnection->pucReceiveBuffer );
-            xStatus = false;
+            xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
         }
     }
 
@@ -568,9 +590,9 @@ bool AwsIotNetwork_CreateMqttReceiveTask( AwsIotNetworkConnection_t xConnection,
 
 /*-----------------------------------------------------------*/
 
-void AwsIotNetwork_CloseConnection( AwsIotNetworkConnection_t xConnection )
+void AwsIotNetwork_CloseConnection( AwsIotNetworkConnection_t networkConnection )
 {
-    NetworkConnection_t * pxConnection = ( NetworkConnection_t * ) xConnection;
+    NetworkConnection_t * pxConnection = ( NetworkConnection_t * ) networkConnection;
 
     /* Call Secure Sockets shutdown function to close connection. */
     if( SOCKETS_Shutdown( pxConnection->xSocket,
@@ -586,9 +608,9 @@ void AwsIotNetwork_CloseConnection( AwsIotNetworkConnection_t xConnection )
 
 /*-----------------------------------------------------------*/
 
-void AwsIotNetwork_DestroyConnection( AwsIotNetworkConnection_t xConnection )
+void AwsIotNetwork_DestroyConnection( AwsIotNetworkConnection_t networkConnection )
 {
-    NetworkConnection_t * pxConnection = ( NetworkConnection_t * ) xConnection;
+    NetworkConnection_t * pxConnection = ( NetworkConnection_t * ) networkConnection;
 
     /* Wait for the receive task to exit. */
     ( void ) xEventGroupWaitBits( &( pxConnection->xConnectionFlags ),
@@ -608,18 +630,18 @@ void AwsIotNetwork_DestroyConnection( AwsIotNetworkConnection_t xConnection )
 
 /*-----------------------------------------------------------*/
 
-size_t AwsIotNetwork_Send( void * xConnection,
-                           const void * const pvMessage,
-                           size_t xMessageLength )
+size_t AwsIotNetwork_Send( void * networkConnection,
+                           const void * const pMessage,
+                           size_t messageLength )
 {
-    NetworkConnection_t * pxConnection = ( NetworkConnection_t * ) xConnection;
+    NetworkConnection_t * pxConnection = ( NetworkConnection_t * ) networkConnection;
     int32_t lSocketReturn = 0;
     size_t xReturn = 0;
 
     /* Send the message. */
     lSocketReturn = SOCKETS_Send( pxConnection->xSocket,
-                                  pvMessage,
-                                  xMessageLength,
+                                  pMessage,
+                                  messageLength,
                                   0 );
 
     /* Return the number of bytes sent. */

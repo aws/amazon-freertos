@@ -35,18 +35,74 @@
 /* MQTT include. */
 #include "aws_iot_mqtt.h"
 
+/*--------------------------- Shadow handle types ---------------------------*/
+
+/**
+ * @handles{shadow,Shadow library}
+ */
+
+/**
+ * @ingroup shadow_datatypes_handles
+ * @brief Opaque handle that references an in-progress Shadow operation.
+ */
 typedef void * AwsIotShadowReference_t;
 
+/*------------------------- Shadow enumerated types -------------------------*/
+
+/**
+ * @enums{shadow,Shadow library}
+ */
+
+/**
+ * @ingroup shadow_datatypes_enums
+ * @brief Return codes of [Shadow functions](@ref shadow_functions).
+ *
+ * The function @ref shadow_function_strerror can be used to get a return code's
+ * description when [logging is enabled for the Shadow library]
+ * (@ref AWS_IOT_LOG_LEVEL_SHADOW).
+ */
 typedef enum AwsIotShadowError
 {
+    /**
+     * @brief Shadow operation completed successfully.
+     */
     AWS_IOT_SHADOW_SUCCESS,
+
+    /**
+     * @brief Shadow operation queued, awaiting result.
+     */
     AWS_IOT_SHADOW_STATUS_PENDING,
+
+    /**
+     * @brief Initialization failed.
+     */
     AWS_IOT_SHADOW_INIT_FAILED,
+
+    /**
+     * @brief At least one parameter is invalid.
+     */
     AWS_IOT_SHADOW_BAD_PARAMETER,
+
+    /**
+     * @brief Shadow operation failed because of memory allocation failure.
+     */
     AWS_IOT_SHADOW_NO_MEMORY,
+
+    /**
+     * @brief Shadow operation failed because of failure in MQTT library.
+     */
     AWS_IOT_SHADOW_MQTT_ERROR,
+
+    /**
+     * @brief Reponse received from Shadow service not understood.
+     */
     AWS_IOT_SHADOW_BAD_RESPONSE,
+
+    /**
+     * @brief A blocking Shadow operation timed out.
+     */
     AWS_IOT_SHADOW_TIMEOUT,
+
     AWS_IOT_SHADOW_BAD_REQUEST = 400,
     AWS_IOT_SHADOW_UNAUTHORIZED = 401,
     AWS_IOT_SHADOW_FORBIDDEN = 403,
@@ -186,15 +242,13 @@ AwsIotShadowError_t AwsIotShadow_SetDeltaCallback( AwsIotMqttConnection_t mqttCo
                                                    const char * const pThingName,
                                                    size_t thingNameLength,
                                                    uint32_t flags,
-                                                   const AwsIotShadowCallbackInfo_t * const pDeltaCallback,
-                                                   uint64_t timeoutMs );
+                                                   const AwsIotShadowCallbackInfo_t * const pDeltaCallback );
 
 AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( AwsIotMqttConnection_t mqttConnection,
                                                      const char * const pThingName,
                                                      size_t thingNameLength,
                                                      uint32_t flags,
-                                                     const AwsIotShadowCallbackInfo_t * const pUpdatedCallback,
-                                                     uint64_t timeoutMs );
+                                                     const AwsIotShadowCallbackInfo_t * const pUpdatedCallback );
 
 /* Not safe to call with any in-progress operation. Does not affect callbacks. */
 AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( AwsIotMqttConnection_t mqttConnection,

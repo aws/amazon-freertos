@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Test Runner V1.1.2  
+ * Amazon FreeRTOS Test Runner V1.1.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -98,10 +98,18 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_SHADOWv4_ENABLED == 1 )
+
+        /* The Shadow v4 tests perform their own initialization and cleanup. Clean
+         * up the MQTT library here to avoid memory leaks. */
+        AwsIotMqtt_Cleanup();
+
         RUN_TEST_GROUP( Shadow_Unit_Parser );
         RUN_TEST_GROUP( Shadow_Unit_API );
         RUN_TEST_GROUP( Shadow_System );
-    #endif
+
+        /* Initialize the MQTT library for any tests that come after. */
+        configASSERT( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS );
+    #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
 

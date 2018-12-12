@@ -36,7 +36,7 @@
 
 #if WIFI_ENABLED
 #include "aws_clientcredential.h"
-#include "platform/aws_iot_network_afr.h"
+#include "platform/aws_iot_network.h"
 #endif
 
 #if BLE_ENABLED
@@ -135,60 +135,62 @@ static bool prbCreateSecureSocketConnection(
         AwsIotMqttConnection_t* pxMqttConnection,
         void **ppvConnection )
 {
-    bool xStatus = false;
-    static AwsIotDemoNetworkConnection_t xWifiConnection = AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER;
-    AwsIotNetworkConnectParams_t xConnectParams = AWS_IOT_NETWORK_AFR_CONNECT_PARAMS_INITIALIZER;
+    AwsIotNetworkError_t xStatus = AWS_IOT_NETWORK_SUCCESS;
+    static AwsIotNetworkConnection_t xConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
+    AwsIotNetworkTlsInfo_t xTlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
+    const char* pcHost = clientcredentialMQTT_BROKER_ENDPOINT;
 
-    xConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
-    xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-    xConnectParams.flags = AWS_IOT_NETWORK_AFR_FLAG_SECURED;
-
-    /* If connecting over port 443, set ALPN flag. */
-    if( xConnectParams.usPort == securesocketsDEFAULT_TLS_DESTINATION_PORT )
-    {
-        xConnectParams.flags |= AWS_IOT_NETWORK_AFR_FLAG_ALPN;
-    }
-
-    /* Override the default root CA certificates by setting pcServerCertificate
+    /* Connection Uses default root certificates.
+     * Override the default root CA certificates by setting pcServerCertificate
      * and xServerCertificateSize. SNI may need to be disabled if not using the
      * default certificates. */
-    xConnectParams.pcServerCertificate = NULL;
-    xConnectParams.xServerCertificateSize = 0;
-    xConnectParams.flags |= AWS_IOT_NETWORK_AFR_FLAG_SNI;
+    xTlsInfo.disableSni = false;
+    xTlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
+    xTlsInfo.clientCertLength = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
+    xTlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
+    xTlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
 
-    /* Establish a TCP connection to the MQTT server. */
-    xStatus =  AwsIotNetwork_CreateConnection( &xConnectParams,
-                                        &xWifiConnection );
-
-    if( xStatus == true )
+    /* Disable ALPN if not using port 443. */
+    if( clientcredentialMQTT_BROKER_PORT != 443 )
     {
-        /* Create the task that processes incoming MQTT data. */
-        xStatus = AwsIotNetwork_CreateMqttReceiveTask( xWifiConnection,
-                                                 pxMqttConnection,
-                                                 AWS_IOT_MQTT_RECEIVE_TASK_PRIORITY,
-                                                 AWS_IOT_NETWORK_RECEIVE_BUFFER_SIZE );
+        xTlsInfo.pAlpnProtos = NULL;
     }
 
-    if( xStatus == true )
+    /* Establish a TCP connection to the MQTT server. */
+    xStatus =  AwsIotNetwork_CreateConnection( &xConnection,
+    		pcHost,
+			clientcredentialMQTT_BROKER_PORT,
+			&xTlsInfo );
+
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
-        pxNetworkInterface->pDisconnectContext = ( void * ) xWifiConnection;
-        pxNetworkInterface->pSendContext = ( void * ) xWifiConnection;
+        /* Create the task that processes incoming MQTT data. */
+        xStatus = AwsIotNetwork_SetMqttReceiveCallback(
+        		xConnection,
+				pxMqttConnection,
+				AwsIotMqtt_ReceiveCallback );
+    }
+
+    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
+    {
+        pxNetworkInterface->pDisconnectContext = ( void * ) xConnection;
+        pxNetworkInterface->pSendContext = ( void * ) xConnection;
         pxNetworkInterface->disconnect = AwsIotNetwork_CloseConnection;
         pxNetworkInterface->send = AwsIotNetwork_Send;
 
-        *ppvConnection = ( void* ) xWifiConnection;
+        *ppvConnection = ( void* ) xConnection;
     }
     else
     {
-        if( xWifiConnection != AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER )
+        if( xConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
         {
-            AwsIotNetwork_CloseConnection( xWifiConnection );
-            AwsIotNetwork_DestroyConnection( xWifiConnection );
+            AwsIotNetwork_CloseConnection( xConnection );
+            AwsIotNetwork_DestroyConnection( xConnection );
         }
 
     }
 
-    return xStatus;
+    return ( xStatus == AWS_IOT_NETWORK_SUCCESS );
 }
 #endif
 

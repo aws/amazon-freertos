@@ -31,6 +31,7 @@
 
 /* Standard includes. */
 #include <stdbool.h>
+#include <string.h>
 
 /* Common demo include. */
 #include "aws_iot_demo.h"
@@ -338,6 +339,7 @@ static void _mqttSubscriptionCallback( void * param1,
  * been established.
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
  * MQTT server. Set this to false if using another MQTT server.
+ * @param[in] pClientIdentifier NULL-terminated MQTT client identifier.
  * @param[in] pMqttConnection Pointer to the MQTT connection to use. This MQTT
  * connection must be initialized to AWS_IOT_MQTT_CONNECTION_INITIALIZER.
  * @param[in] pNetworkInterface Pointer to an MQTT network interface to use.
@@ -346,12 +348,14 @@ static void _mqttSubscriptionCallback( void * param1,
  *
  * @return 0 if the demo completes successfully; -1 if some part of it fails.
  */
-int AwsIotDemo_Mqtt( bool awsIotMqttMode,
-                     AwsIotMqttConnection_t * const pMqttConnection,
-                     const AwsIotMqttNetIf_t * const pNetworkInterface )
+int AwsIotDemo_RunMqttDemo( bool awsIotMqttMode,
+                            const char * const pClientIdentifier,
+                            AwsIotMqttConnection_t * const pMqttConnection,
+                            const AwsIotMqttNetIf_t * const pNetworkInterface )
 {
     int status = 0, i = 0;
     intptr_t publishCount = 0;
+    char pClientIdentifierBuffer[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
     char pPublishPayload[ _PUBLISH_PAYLOAD_BUFFER_LENGTH ] = { 0 };
     AwsIotMqttError_t mqttStatus = AWS_IOT_MQTT_STATUS_PENDING;
     AwsIotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
@@ -381,18 +385,19 @@ int AwsIotDemo_Mqtt( bool awsIotMqttMode,
     willInfo.pPayload = _WILL_MESSAGE;
     willInfo.payloadLength = _WILL_MESSAGE_LENGTH;
 
-    /* Use the configuration setting client identifier if defined. Otherwise,
-     * generate a unique client identifier. */
-    #ifdef AWS_IOT_DEMO_MQTT_CLIENT_IDENTIFIER
-        connectInfo.pClientIdentifier = AWS_IOT_DEMO_MQTT_CLIENT_IDENTIFIER;
-        connectInfo.clientIdentifierLength = ( uint16_t ) ( sizeof( AWS_IOT_DEMO_MQTT_CLIENT_IDENTIFIER ) - 1 );
-    #else
-        char pClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
-
+    /* Use the parameter client identifier if provided. Otherwise, generate a
+     * unique client identifier. */
+    if( pClientIdentifier != NULL )
+    {
+        connectInfo.pClientIdentifier = pClientIdentifier;
+        connectInfo.clientIdentifierLength = ( uint16_t ) strlen( pClientIdentifier );
+    }
+    else
+    {
         /* Every active MQTT connection must have a unique client identifier. The demos
          * generate this unique client identifier by appending a timestamp to a common
          * prefix. */
-        status = snprintf( pClientIdentifier,
+        status = snprintf( pClientIdentifierBuffer,
                            _CLIENT_IDENTIFIER_MAX_LENGTH,
                            _CLIENT_IDENTIFIER_PREFIX "%lu",
                            ( long unsigned int ) AwsIotClock_GetTimeMs() );
@@ -406,12 +411,12 @@ int AwsIotDemo_Mqtt( bool awsIotMqttMode,
         else
         {
             /* Set the client identifier buffer and length. */
-            connectInfo.pClientIdentifier = pClientIdentifier;
+            connectInfo.pClientIdentifier = pClientIdentifierBuffer;
             connectInfo.clientIdentifierLength = ( uint16_t ) status;
 
             status = 0;
         }
-    #endif /* ifdef AWS_IOT_DEMO_MQTT_CLIENT_IDENTIFIER */
+    }
 
     if( status == 0 )
     {

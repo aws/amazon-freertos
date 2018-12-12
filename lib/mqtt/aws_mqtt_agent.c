@@ -50,7 +50,10 @@
 #include "aws_iot_mqtt.h"
 
 /* Platform network include. */
-#include "platform/aws_iot_network_afr.h"
+#include "platform/aws_iot_network.h"
+
+/* Credentials include. */
+#include "aws_clientcredential.h"
 
 /*-----------------------------------------------------------*/
 
@@ -502,7 +505,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Create( MQTTAgentHandle_t * const pxMQTTHandle 
         {
             ( void ) memset( pxNewConnection, 0x00, sizeof( MQTTConnection_t ) );
             pxNewConnection->xMQTTConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
-            pxNewConnection->xNetworkConnection = AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER;
+            pxNewConnection->xNetworkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
         }
     }
 
@@ -529,7 +532,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Delete( MQTTAgentHandle_t xMQTTHandle )
         pxConnection->xMQTTConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
     }
 
-    if( pxConnection->xNetworkConnection != AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER )
+    if( pxConnection->xNetworkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
     {
         AwsIotNetwork_DestroyConnection( pxConnection->xNetworkConnection );
         pxConnection->xNetworkConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
@@ -558,7 +561,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     MQTTAgentReturnCode_t xStatus = eMQTTAgentSuccess;
     AwsIotMqttError_t xMqttStatus = AWS_IOT_MQTT_STATUS_PENDING;
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
-    AwsIotNetworkConnectParams_t xNetworkConnectParams = AWS_IOT_NETWORK_AFR_CONNECT_PARAMS_INITIALIZER;
+    AwsIotNetworkTlsInfo_t xTlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER, * pTlsInfo = NULL;
     AwsIotMqttNetIf_t xNetworkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
     AwsIotMqttConnectInfo_t xMqttConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
@@ -566,47 +569,51 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     pxConnection->pxCallback = pxConnectParams->pxCallback;
     pxConnection->pvUserData = pxConnectParams->pvUserData;
 
-    /* Set the member of the network connection parameters. */
-    xNetworkConnectParams.pcURL = pxConnectParams->pcURL;
-    xNetworkConnectParams.usPort = pxConnectParams->usPort;
-    xNetworkConnectParams.pcServerCertificate = pxConnectParams->pcCertificate;
-    xNetworkConnectParams.xServerCertificateSize = ( size_t ) pxConnectParams->ulCertificateSize;
-
-    /* Set the secured option. */
+    /* Set the TLS info for a secured connection. */
     if( ( pxConnectParams->xSecuredConnection == pdTRUE ) ||
         ( ( pxConnectParams->xFlags & mqttagentREQUIRE_TLS ) == mqttagentREQUIRE_TLS ) )
     {
-        xNetworkConnectParams.flags |= AWS_IOT_NETWORK_AFR_FLAG_SECURED;
-    }
+        pTlsInfo = &xTlsInfo;
 
-    /* Set the ALPN option. */
-    if( ( pxConnectParams->xFlags & mqttagentUSE_AWS_IOT_ALPN_443 ) == mqttagentUSE_AWS_IOT_ALPN_443 )
-    {
-        xNetworkConnectParams.flags |= AWS_IOT_NETWORK_AFR_FLAG_ALPN;
-        xNetworkConnectParams.usPort = securesocketsDEFAULT_TLS_DESTINATION_PORT;
-    }
+        /* Set the server certificate. */
+        xTlsInfo.pRootCa = pxConnectParams->pcCertificate;
+        xTlsInfo.rootCaLength = ( size_t ) pxConnectParams->ulCertificateSize;
 
-    /* Use SNI if the provided URL is not an IP address. */
-    if( ( pxConnectParams->xURLIsIPAddress == pdFALSE ) ||
-        ( ( pxConnectParams->xFlags & mqttagentURL_IS_IP_ADDRESS ) == 0 ) )
-    {
-        xNetworkConnectParams.flags |= AWS_IOT_NETWORK_AFR_FLAG_SNI;
+        /* Set client credentials. */
+        xTlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
+        xTlsInfo.clientCertLength = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
+        xTlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
+        xTlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
+
+        /* Disable ALPN if requested. */
+        if( ( pxConnectParams->xFlags & mqttagentUSE_AWS_IOT_ALPN_443 ) == 0 )
+        {
+            xTlsInfo.pAlpnProtos = NULL;
+        }
+
+        /* Disable SNI if requested. */
+        if( ( pxConnectParams->xURLIsIPAddress == pdTRUE ) ||
+            ( ( pxConnectParams->xFlags & mqttagentURL_IS_IP_ADDRESS ) == mqttagentURL_IS_IP_ADDRESS ) )
+        {
+            xTlsInfo.disableSni = true;
+        }
     }
 
     /* Establish the network connection. */
-    if( AwsIotNetwork_CreateConnection( &xNetworkConnectParams,
-                                        &( pxConnection->xNetworkConnection ) ) == false )
+    if( AwsIotNetwork_CreateConnection( &( pxConnection->xNetworkConnection ),
+                                        clientcredentialMQTT_BROKER_ENDPOINT,
+                                        clientcredentialMQTT_BROKER_PORT,
+                                        pTlsInfo ) != AWS_IOT_NETWORK_SUCCESS )
     {
         xStatus = eMQTTAgentFailure;
     }
 
-    /* Create the MQTT receive task. */
+    /* Set the MQTT receive callback. */
     if( xStatus == eMQTTAgentSuccess )
     {
-        if( AwsIotNetwork_CreateMqttReceiveTask( pxConnection->xNetworkConnection,
+        if( AwsIotNetwork_SetMqttReceiveCallback( pxConnection->xNetworkConnection,
                                                  &( pxConnection->xMQTTConnection ),
-                                                 mqttconfigMQTT_TASK_PRIORITY,
-                                                 mqttconfigRX_BUFFER_SIZE ) == false )
+                                                 AwsIotMqtt_ReceiveCallback ) != AWS_IOT_NETWORK_SUCCESS )
         {
             xStatus = eMQTTAgentFailure;
         }
@@ -684,7 +691,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Disconnect( MQTTAgentHandle_t xMQTTHandle,
     /* Check that the connection is established. */
     if( pxConnection->xMQTTConnection != AWS_IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        mqttconfigASSERT( pxConnection->xNetworkConnection != AWS_IOT_NETWORK_AFR_CONNECTION_INITIALIZER );
+        mqttconfigASSERT( pxConnection->xNetworkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER );
 
         /* Call MQTT v4's DISCONNECT function. */
         AwsIotMqtt_Disconnect( pxConnection->xMQTTConnection,

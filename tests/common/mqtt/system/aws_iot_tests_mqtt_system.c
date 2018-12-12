@@ -48,7 +48,10 @@
  * Including stdio.h also brings in unwanted (and conflicting) symbols on some
  * platforms. Therefore, any functions in stdio.h needed in this file have an
  * extern declaration here. */
-extern int snprintf( char *, size_t, const char *, ... );
+extern int snprintf( char *,
+                     size_t,
+                     const char *,
+                     ... );
 /** @endcond */
 
 /*-----------------------------------------------------------*/
@@ -60,10 +63,10 @@ extern int snprintf( char *, size_t, const char *, ... );
  * Provide default values of test configuration constants.
  */
 #ifndef AWS_IOT_TEST_MQTT_TIMEOUT_MS
-    #define AWS_IOT_TEST_MQTT_TIMEOUT_MS                      ( 5000 )
+    #define AWS_IOT_TEST_MQTT_TIMEOUT_MS      ( 5000 )
 #endif
 #ifndef AWS_IOT_TEST_MQTT_TOPIC_PREFIX
-    #define AWS_IOT_TEST_MQTT_TOPIC_PREFIX                    "awsiotmqtttest"
+    #define AWS_IOT_TEST_MQTT_TOPIC_PREFIX    "awsiotmqtttest"
 #endif
 /** @endcond */
 
@@ -482,121 +485,11 @@ TEST_TEAR_DOWN( MQTT_System )
  */
 TEST_GROUP_RUNNER( MQTT_System )
 {
-    RUN_TEST_CASE( MQTT_System, LastWillAndTestament );
     RUN_TEST_CASE( MQTT_System, SubscribePublishWaitQoS0 );
     RUN_TEST_CASE( MQTT_System, SubscribePublishWaitQoS1 );
     RUN_TEST_CASE( MQTT_System, SubscribePublishAsync );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test that a LWT is published if an MQTT connection is unexpectedly closed.
- */
-TEST( MQTT_System, LastWillAndTestament )
-{
-    AwsIotMqttError_t status = AWS_IOT_MQTT_STATUS_PENDING;
-    AwsIotMqttNetIf_t lwtNetIf = _AwsIotTestNetworkInterface;
-    char pLwtListenerClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
-    AwsIotMqttConnection_t lwtListener = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
-    AwsIotMqttConnectInfo_t lwtConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER,
-                            connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    AwsIotMqttSubscription_t willSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-    AwsIotMqttPublishInfo_t willInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    void * pLwtListenerConnection = NULL;
-    AwsIotSemaphore_t waitSem;
-
-    /* Create the wait semaphore. */
-    TEST_ASSERT_EQUAL_INT( true, AwsIotSemaphore_Create( &waitSem, 0, 1 ) );
-
-    /* Generate client identifier for LWT listener. */
-    ( void ) snprintf( pLwtListenerClientIdentifier,
-                       _CLIENT_IDENTIFIER_MAX_LENGTH,
-                       "awslwt%llu",
-                       ( long long unsigned int ) AwsIotClock_GetTimeMs() );
-
-    if( TEST_PROTECT() )
-    {
-        /* Establish an independent MQTT over TCP connection to receive a Last
-         * Will and Testament message. */
-        TEST_ASSERT_EQUAL( true,
-                           AwsIotTest_NetworkConnect( &pLwtListenerConnection,
-                                                      &lwtListener ) );
-
-        if( TEST_PROTECT() )
-        {
-            lwtNetIf.pDisconnectContext = pLwtListenerConnection;
-            lwtNetIf.pSendContext = pLwtListenerConnection;
-            lwtConnectInfo.cleanSession = true;
-            lwtConnectInfo.pClientIdentifier = pLwtListenerClientIdentifier;
-            lwtConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( lwtConnectInfo.pClientIdentifier );
-
-            status = AwsIotMqtt_Connect( &lwtListener,
-                                         &lwtNetIf,
-                                         &lwtConnectInfo,
-                                         NULL,
-                                         AWS_IOT_TEST_MQTT_TIMEOUT_MS );
-            TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-
-            if( TEST_PROTECT() )
-            {
-                /* Register a subscription for the LWT. */
-                willSubscription.pTopicFilter = AWS_IOT_TEST_MQTT_TOPIC_PREFIX "/LastWillAndTestament";
-                willSubscription.topicFilterLength = ( uint16_t ) strlen( willSubscription.pTopicFilter );
-                willSubscription.callback.function = _publishReceived;
-                willSubscription.callback.param1 = &waitSem;
-
-                status = AwsIotMqtt_TimedSubscribe( lwtListener,
-                                                    &willSubscription,
-                                                    1,
-                                                    0,
-                                                    AWS_IOT_TEST_MQTT_TIMEOUT_MS );
-                TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-
-                /* Create a connection that requests the LWT. */
-                connectInfo.cleanSession = true;
-                connectInfo.pClientIdentifier = _pClientIdentifier;
-                connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
-
-                willInfo.pTopicName = AWS_IOT_TEST_MQTT_TOPIC_PREFIX "/LastWillAndTestament";
-                willInfo.topicNameLength = ( uint16_t ) strlen( willInfo.pTopicName );
-                willInfo.pPayload = _pSamplePayload;
-                willInfo.payloadLength = _samplePayloadLength;
-
-                status = AwsIotMqtt_Connect( &_AwsIotTestMqttConnection,
-                                             &_AwsIotTestNetworkInterface,
-                                             &connectInfo,
-                                             &willInfo,
-                                             AWS_IOT_TEST_MQTT_TIMEOUT_MS );
-                TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-
-                /* Abruptly close the MQTT connection. This should cause the LWT
-                 * to be sent to the LWT listener. */
-                AwsIotTest_NetworkClose( NULL );
-                AwsIotMqtt_Disconnect( _AwsIotTestMqttConnection, true );
-                AwsIotTest_NetworkDestroy( NULL );
-
-                /* Check that the LWT was received. */
-                if( AwsIotSemaphore_TimedWait( &waitSem,
-                                               AWS_IOT_TEST_MQTT_TIMEOUT_MS ) == false )
-                {
-                    TEST_FAIL_MESSAGE( "Timed out waiting for Last Will and Testament." );
-                }
-            }
-
-            AwsIotMqtt_Disconnect( lwtListener, false );
-            AwsIotTest_NetworkDestroy( pLwtListenerConnection );
-            pLwtListenerConnection = NULL;
-        }
-
-        if( pLwtListenerConnection != NULL )
-        {
-            AwsIotTest_NetworkClose( pLwtListenerConnection );
-            AwsIotTest_NetworkDestroy( pLwtListenerConnection );
-        }
-    }
-
-    AwsIotSemaphore_Destroy( &waitSem );
+    RUN_TEST_CASE( MQTT_System, LastWillAndTestament );
+    RUN_TEST_CASE( MQTT_System, RestorePreviousSession );
 }
 
 /*-----------------------------------------------------------*/
@@ -735,6 +628,225 @@ TEST( MQTT_System, SubscribePublishAsync )
     }
 
     AwsIotSemaphore_Destroy( &( callbackParam.waitSem ) );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that a LWT is published if an MQTT connection is unexpectedly closed.
+ */
+TEST( MQTT_System, LastWillAndTestament )
+{
+    AwsIotMqttError_t status = AWS_IOT_MQTT_STATUS_PENDING;
+    AwsIotMqttNetIf_t lwtNetIf = _AwsIotTestNetworkInterface;
+    char pLwtListenerClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
+    AwsIotMqttConnection_t lwtListener = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+    AwsIotMqttConnectInfo_t lwtConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER,
+                            connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    AwsIotMqttSubscription_t willSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+    AwsIotMqttPublishInfo_t willInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    void * pLwtListenerConnection = NULL;
+    AwsIotSemaphore_t waitSem;
+
+    /* Create the wait semaphore. */
+    TEST_ASSERT_EQUAL_INT( true, AwsIotSemaphore_Create( &waitSem, 0, 1 ) );
+
+    /* Generate client identifier for LWT listener. */
+    ( void ) snprintf( pLwtListenerClientIdentifier,
+                       _CLIENT_IDENTIFIER_MAX_LENGTH,
+                       "awslwt%llu",
+                       ( long long unsigned int ) AwsIotClock_GetTimeMs() );
+
+    if( TEST_PROTECT() )
+    {
+        /* Establish an independent MQTT over TCP connection to receive a Last
+         * Will and Testament message. */
+        TEST_ASSERT_EQUAL( true,
+                           AwsIotTest_NetworkConnect( &pLwtListenerConnection,
+                                                      &lwtListener ) );
+
+        if( TEST_PROTECT() )
+        {
+            lwtNetIf.pDisconnectContext = pLwtListenerConnection;
+            lwtNetIf.pSendContext = pLwtListenerConnection;
+            lwtConnectInfo.cleanSession = true;
+            lwtConnectInfo.pClientIdentifier = pLwtListenerClientIdentifier;
+            lwtConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( lwtConnectInfo.pClientIdentifier );
+
+            status = AwsIotMqtt_Connect( &lwtListener,
+                                         &lwtNetIf,
+                                         &lwtConnectInfo,
+                                         NULL,
+                                         AWS_IOT_TEST_MQTT_TIMEOUT_MS );
+            TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+
+            if( TEST_PROTECT() )
+            {
+                /* Register a subscription for the LWT. */
+                willSubscription.pTopicFilter = AWS_IOT_TEST_MQTT_TOPIC_PREFIX "/LastWillAndTestament";
+                willSubscription.topicFilterLength = ( uint16_t ) strlen( willSubscription.pTopicFilter );
+                willSubscription.callback.function = _publishReceived;
+                willSubscription.callback.param1 = &waitSem;
+
+                status = AwsIotMqtt_TimedSubscribe( lwtListener,
+                                                    &willSubscription,
+                                                    1,
+                                                    0,
+                                                    AWS_IOT_TEST_MQTT_TIMEOUT_MS );
+                TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+
+                /* Create a connection that requests the LWT. */
+                connectInfo.cleanSession = true;
+                connectInfo.pClientIdentifier = _pClientIdentifier;
+                connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
+
+                willInfo.pTopicName = AWS_IOT_TEST_MQTT_TOPIC_PREFIX "/LastWillAndTestament";
+                willInfo.topicNameLength = ( uint16_t ) strlen( willInfo.pTopicName );
+                willInfo.pPayload = _pSamplePayload;
+                willInfo.payloadLength = _samplePayloadLength;
+
+                status = AwsIotMqtt_Connect( &_AwsIotTestMqttConnection,
+                                             &_AwsIotTestNetworkInterface,
+                                             &connectInfo,
+                                             &willInfo,
+                                             AWS_IOT_TEST_MQTT_TIMEOUT_MS );
+                TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+
+                /* Abruptly close the MQTT connection. This should cause the LWT
+                 * to be sent to the LWT listener. */
+                AwsIotTest_NetworkClose( NULL );
+                AwsIotMqtt_Disconnect( _AwsIotTestMqttConnection, true );
+                AwsIotTest_NetworkDestroy( NULL );
+
+                /* Check that the LWT was received. */
+                if( AwsIotSemaphore_TimedWait( &waitSem,
+                                               AWS_IOT_TEST_MQTT_TIMEOUT_MS ) == false )
+                {
+                    TEST_FAIL_MESSAGE( "Timed out waiting for Last Will and Testament." );
+                }
+            }
+
+            AwsIotMqtt_Disconnect( lwtListener, false );
+            AwsIotTest_NetworkDestroy( pLwtListenerConnection );
+            pLwtListenerConnection = NULL;
+        }
+
+        if( pLwtListenerConnection != NULL )
+        {
+            AwsIotTest_NetworkClose( pLwtListenerConnection );
+            AwsIotTest_NetworkDestroy( pLwtListenerConnection );
+        }
+    }
+
+    AwsIotSemaphore_Destroy( &waitSem );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that subscriptions from a previous session are restored.
+ */
+TEST( MQTT_System, RestorePreviousSession )
+{
+    AwsIotMqttError_t status = AWS_IOT_MQTT_STATUS_PENDING;
+    AwsIotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    AwsIotMqttSubscription_t subscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+    AwsIotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    AwsIotSemaphore_t waitSem;
+
+    /* Create the wait semaphore for operations. */
+    TEST_ASSERT_EQUAL_INT( true, AwsIotSemaphore_Create( &waitSem, 0, 1 ) );
+
+    /* Set the members of the connection info for a persistent session. */
+    connectInfo.cleanSession = false;
+    connectInfo.pClientIdentifier = _pClientIdentifier;
+    connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
+
+    if( TEST_PROTECT() )
+    {
+        /* Establish a persistent MQTT connection. */
+        status = AwsIotMqtt_Connect( &_AwsIotTestMqttConnection,
+                                     &_AwsIotTestNetworkInterface,
+                                     &connectInfo,
+                                     NULL,
+                                     AWS_IOT_TEST_MQTT_TIMEOUT_MS );
+        TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+
+        /* Add a subscription. */
+        subscription.pTopicFilter = AWS_IOT_TEST_MQTT_TOPIC_PREFIX "/RestorePreviousSession";
+        subscription.topicFilterLength = ( uint16_t ) strlen( subscription.pTopicFilter );
+        subscription.callback.param1 = &waitSem;
+        subscription.callback.function = _publishReceived;
+
+        status = AwsIotMqtt_TimedSubscribe( _AwsIotTestMqttConnection,
+                                            &subscription,
+                                            1,
+                                            0,
+                                            AWS_IOT_TEST_MQTT_TIMEOUT_MS );
+        TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+
+        /* Disconnect the MQTT connection and clean up network connection. */
+        AwsIotMqtt_Disconnect( _AwsIotTestMqttConnection, false );
+        AwsIotTest_NetworkCleanup();
+
+        /* Re-establish the network connection. */
+        TEST_ASSERT_EQUAL_INT( true, AwsIotTest_NetworkSetup() );
+
+        /* Re-establish the MQTT connection with a previous session. */
+        connectInfo.cleanSession = false;
+        status = AwsIotMqtt_ConnectRestoreSession( &_AwsIotTestMqttConnection,
+                                                   &_AwsIotTestNetworkInterface,
+                                                   &connectInfo,
+                                                   NULL,
+                                                   &subscription,
+                                                   1,
+                                                   AWS_IOT_TEST_MQTT_TIMEOUT_MS );
+        TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+
+        /* Publish a message to the subscription added in the previous session. */
+        publishInfo.pTopicName = AWS_IOT_TEST_MQTT_TOPIC_PREFIX "/RestorePreviousSession";
+        publishInfo.topicNameLength = ( uint16_t ) strlen( publishInfo.pTopicName );
+        publishInfo.pPayload = _pSamplePayload;
+        publishInfo.payloadLength = _samplePayloadLength;
+
+        status = AwsIotMqtt_TimedPublish( _AwsIotTestMqttConnection,
+                                          &publishInfo,
+                                          0,
+                                          AWS_IOT_TEST_MQTT_TIMEOUT_MS );
+        TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+
+        /* Wait for the message to be received. */
+        if( AwsIotSemaphore_TimedWait( &waitSem,
+                                       AWS_IOT_TEST_MQTT_TIMEOUT_MS ) == false )
+        {
+            TEST_FAIL_MESSAGE( "Timed out waiting for message." );
+        }
+
+        /* Disconnect the MQTT connection. */
+        AwsIotMqtt_Disconnect( _AwsIotTestMqttConnection, false );
+        AwsIotTest_NetworkCleanup();
+    }
+
+    AwsIotSemaphore_Destroy( &waitSem );
+
+    if( TEST_PROTECT() )
+    {
+        /* Re-establish the network connection. */
+        TEST_ASSERT_EQUAL_INT( true, AwsIotTest_NetworkSetup() );
+
+        /* After this test is finished, establish one more connection with a clean
+         * session to clean up persistent sessions on the MQTT server created by this
+         * test. */
+        connectInfo.cleanSession = true;
+        status = AwsIotMqtt_Connect( &_AwsIotTestMqttConnection,
+                                     &_AwsIotTestNetworkInterface,
+                                     &connectInfo,
+                                     NULL,
+                                     AWS_IOT_TEST_MQTT_TIMEOUT_MS );
+        TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+
+        AwsIotMqtt_Disconnect( _AwsIotTestMqttConnection, false );
+    }
 }
 
 /*-----------------------------------------------------------*/

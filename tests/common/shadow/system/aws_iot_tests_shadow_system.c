@@ -608,8 +608,7 @@ TEST( Shadow_System, DeltaCallback )
                                                 AWS_IOT_TEST_SHADOW_THING_NAME,
                                                 _THING_NAME_LENGTH,
                                                 0,
-                                                &deltaCallback,
-                                                AWS_IOT_TEST_SHADOW_TIMEOUT );
+                                                &deltaCallback );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
 
         /* Create a Shadow document with a desired state. */
@@ -641,8 +640,7 @@ TEST( Shadow_System, DeltaCallback )
                                                 AWS_IOT_TEST_SHADOW_THING_NAME,
                                                 _THING_NAME_LENGTH,
                                                 0,
-                                                NULL,
-                                                AWS_IOT_TEST_SHADOW_TIMEOUT );
+                                                NULL );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
 
         /* Remove persistent subscriptions for Shadow Update. */
@@ -685,8 +683,7 @@ TEST( Shadow_System, UpdatedCallback )
                                                   AWS_IOT_TEST_SHADOW_THING_NAME,
                                                   _THING_NAME_LENGTH,
                                                   0,
-                                                  &updatedCallback,
-                                                  AWS_IOT_TEST_SHADOW_TIMEOUT );
+                                                  &updatedCallback );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
 
         /* Create a Shadow document. */
@@ -707,8 +704,7 @@ TEST( Shadow_System, UpdatedCallback )
                                                   AWS_IOT_TEST_SHADOW_THING_NAME,
                                                   _THING_NAME_LENGTH,
                                                   0,
-                                                  NULL,
-                                                  AWS_IOT_TEST_SHADOW_TIMEOUT );
+                                                  NULL );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
     }
 

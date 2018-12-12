@@ -40,86 +40,93 @@
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief First parameter to #_shadowOperation_match.
+ */
 typedef struct _operationMatchParams
 {
-    _shadowOperationType_t type;
-    const char * pThingName;
-    size_t thingNameLength;
-    const char * pDocument;
-    size_t documentLength;
+    _shadowOperationType_t type; /**< @brief DELETE, GET, or UPDATE. */
+    const char * pThingName;     /**< @brief Thing Name of Shadow operation. */
+    size_t thingNameLength;      /**< @brief Length of #_operationMatchParams_t.pThingName. */
+    const char * pDocument;      /**< @brief Shadow UPDATE response document. */
+    size_t documentLength;       /**< @brief Length of #_operationMatchParams_t.pDocument. */
 } _operationMatchParams_t;
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Get the value of #_shadowOperation_t.pNext.
+ * @brief Match a received Shadow response with a Shadow operation awaiting a
+ * response.
  *
- * @param[in] pPointer Pointer to a #_shadowOperation_t.
+ * @param[in] pArgument Pointer to an #_operationMatchParams_t.
+ * @param[in] pData Pointer to a #_shadowOperation_t to check.
  *
- * @return Value of the pPointer's `pNext` pointer.
+ * @return `true` if `pData` matches the received response; `false` otherwise.
  *
- * @note The arguments of this function are of type `void*` for compatibility with
- * an #AwsIotListParams_t.
+ * @note The arguments of this function are of type `void*` for compatibility
+ * with @ref list_function_findfirstmatch.
  */
-static inline void * _shadowOperation_getNext( void * pPointer );
-
-/**
- * @brief Get the value of #_shadowOperation_t.pPrevious.
- *
- * @param[in] pPointer Pointer to a #_shadowOperation_t.
- *
- * @return Value of the pPointer's `pPrevious` pointer.
- *
- * @note The arguments of this function are of type `void*` for compatibility with
- * an #AwsIotListParams_t.
- */
-static inline void * _shadowOperation_getPrev( void * pPointer );
-
-/**
- * @brief Set #_shadowOperation_t.pNext.
- *
- * @param[in] pPointer Pointer to a #_shadowOperation_t.
- * @param[in] pValue Value to assign to the next pointer.
- *
- * @note The arguments of this function are of type `void*` for compatibility with
- * an #AwsIotListParams_t.
- */
-static inline void _shadowOperation_setNext( void * pPointer,
-                                             void * pValue );
-
 static inline bool _shadowOperation_match( void * pArgument,
                                            void * pData );
 
 /**
- * @brief Set #_shadowOperation_t.pPrevious.
+ * @brief Common function for processing received Shadow responses.
  *
- * @param[in] pPointer Pointer to a #_shadowOperation_t.
- * @param[in] pValue Value to assign to the previous pointer.
- *
- * @note The arguments of this function are of type `void*` for compatibility with
- * an #AwsIotListParams_t.
+ * @param[in] type DELETE, GET, or UPDATE.
+ * @param[in] pMessage Received Shadow response (as an MQTT PUBLISH message).
  */
-static inline void _shadowOperation_setPrev( void * pPointer,
-                                             void * pValue );
-
 static void _commonOperationCallback( _shadowOperationType_t type,
                                       AwsIotMqttCallbackParam_t * const pMessage );
 
+/**
+ * @brief Invoked when a Shadow response is received for Shadow DELETE.
+ *
+ * @param[in] pArgument Ignored.
+ * @param[in] pMessage Received Shadow response (as an MQTT PUBLISH message).
+ */
 static void _deleteCallback( void * pArgument,
                              AwsIotMqttCallbackParam_t * const pMessage );
 
+/**
+ * @brief Invoked when a Shadow response is received for a Shadow GET.
+ *
+ * @param[in] pArgument Ignored.
+ * @param[in] pMessage Received Shadow response (as an MQTT PUBLISH message).
+ */
 static void _getCallback( void * pArgument,
                           AwsIotMqttCallbackParam_t * const pMessage );
 
+/**
+ * @brief Process an incoming Shadow document received when a Shadow GET is
+ * accepted.
+ *
+ * @param[in] pOperation The GET operation associated with the incoming Shadow
+ * document.
+ * @param[in] pPublishInfo The received Shadow document (as an MQTT PUBLISH
+ * message).
+ *
+ * @return #AWS_IOT_SHADOW_SUCCESS or #AWS_IOT_SHADOW_NO_MEMORY. Memory allocation
+ * only happens for a waitable `pOperation`.
+ */
 static AwsIotShadowError_t _processAcceptedGet( _shadowOperation_t * const pOperation,
                                                 const AwsIotMqttPublishInfo_t * const pPublishInfo );
 
+/**
+ * @brief Invoked when a Shadow response is received for a Shadow UPDATE.
+ *
+ * @param[in] pArgument Ignored.
+ * @param[in] pMessage Received Shadow response (as an MQTT PUBLISH message).
+ */
 static void _updateCallback( void * pArgument,
                              AwsIotMqttCallbackParam_t * const pMessage );
 
 /*-----------------------------------------------------------*/
 
 #if _LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
+
+/**
+ * @brief Printable names for each of the Shadow operations.
+ */
     const char * const _pAwsIotShadowOperationNames[] =
     {
         "DELETE",
@@ -128,47 +135,13 @@ static void _updateCallback( void * pArgument,
         "SET DELTA",
         "SET UPDATED"
     };
-#endif
+#endif /* if _LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE */
 
+/**
+ * @brief List of active Shadow operations awaiting a response from the Shadow
+ * service.
+ */
 AwsIotList_t _AwsIotShadowPendingOperations = { 0 };
-
-/*-----------------------------------------------------------*/
-
-static inline void * _shadowOperation_getNext( void * pPointer )
-{
-    _shadowOperation_t * pOperation = ( _shadowOperation_t * ) pPointer;
-
-    return ( void * ) ( pOperation->pNext );
-}
-
-/*-----------------------------------------------------------*/
-
-static inline void * _shadowOperation_getPrev( void * pPointer )
-{
-    _shadowOperation_t * pOperation = ( _shadowOperation_t * ) pPointer;
-
-    return ( void * ) ( pOperation->pPrevious );
-}
-
-/*-----------------------------------------------------------*/
-
-static inline void _shadowOperation_setNext( void * pPointer,
-                                             void * pValue )
-{
-    _shadowOperation_t * pOperation = ( _shadowOperation_t * ) pPointer;
-
-    pOperation->pNext = ( _shadowOperation_t * ) pValue;
-}
-
-/*-----------------------------------------------------------*/
-
-static inline void _shadowOperation_setPrev( void * pPointer,
-                                             void * pValue )
-{
-    _shadowOperation_t * pOperation = ( _shadowOperation_t * ) pPointer;
-
-    pOperation->pPrevious = ( _shadowOperation_t * ) pValue;
-}
 
 /*-----------------------------------------------------------*/
 
@@ -249,7 +222,7 @@ static void _commonOperationCallback( _shadowOperationType_t type,
     }
 
     /* Parse the Thing Name from the MQTT topic name. */
-    if( AwsIotShadowInternal_ParseTopicName( pMessage->message.info.pTopicName,
+    if( AwsIotShadowInternal_ParseThingName( pMessage->message.info.pTopicName,
                                              pMessage->message.info.topicNameLength,
                                              &( param.pThingName ),
                                              &( param.thingNameLength ) ) != AWS_IOT_SHADOW_SUCCESS )
@@ -261,8 +234,8 @@ static void _commonOperationCallback( _shadowOperationType_t type,
     AwsIotMutex_Lock( &( _AwsIotShadowPendingOperations.mutex ) );
 
     /* Search for a matching pending operation. */
-    pOperation = AwsIotList_FindFirstMatch( &_AwsIotShadowPendingOperations,
-                                            _AwsIotShadowPendingOperations.pHead,
+    pOperation = AwsIotList_FindFirstMatch( _AwsIotShadowPendingOperations.pHead,
+                                            _SHADOW_OPERATION_LINK_OFFSET,
                                             &param,
                                             _shadowOperation_match );
 
@@ -283,7 +256,9 @@ static void _commonOperationCallback( _shadowOperationType_t type,
         /* Remove a non-waitable operation from the pending operation list. */
         if( ( pOperation->flags & AWS_IOT_SHADOW_FLAG_WAITABLE ) == 0 )
         {
-            AwsIotList_Remove( &_AwsIotShadowPendingOperations, pOperation );
+            AwsIotList_Remove( &_AwsIotShadowPendingOperations,
+                               &( pOperation->link ),
+                               _SHADOW_OPERATION_LINK_OFFSET );
             AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
         }
     }
@@ -433,28 +408,6 @@ static void _updateCallback( void * pArgument,
     ( void ) pArgument;
 
     _commonOperationCallback( _SHADOW_UPDATE, pMessage );
-}
-
-/*-----------------------------------------------------------*/
-
-AwsIotShadowError_t AwsIotShadowInternal_CreatePendingOperationList( void )
-{
-    const AwsIotListParams_t listParams =
-    {
-        .getNext = _shadowOperation_getNext,
-        .getPrev = _shadowOperation_getPrev,
-        .setNext = _shadowOperation_setNext,
-        .setPrev = _shadowOperation_setPrev
-    };
-
-    /* Create the Shadow pending operation list. */
-    if( AwsIotList_Create( &_AwsIotShadowPendingOperations,
-                           &listParams ) == false )
-    {
-        return AWS_IOT_SHADOW_INIT_FAILED;
-    }
-
-    return AWS_IOT_SHADOW_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -780,14 +733,16 @@ AwsIotShadowError_t AwsIotShadowInternal_ProcessOperation( AwsIotMqttConnection_
 
         /* Add Shadow operation to the pending operations list. */
         AwsIotMutex_Lock( &( _AwsIotShadowPendingOperations.mutex ) );
-        AwsIotList_InsertHead( &_AwsIotShadowPendingOperations, pOperation );
+        AwsIotList_InsertHead( &_AwsIotShadowPendingOperations,
+                               &( pOperation->link ),
+                               _SHADOW_OPERATION_LINK_OFFSET );
         AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
 
         /* Publish to the Shadow topic name. */
         publishStatus = AwsIotMqtt_TimedPublish( pOperation->mqttConnection,
                                                  &publishInfo,
                                                  0,
-                                                 _AwsIotShadowMqttTimeout );
+                                                 _AwsIotShadowMqttTimeoutMs );
 
         /* Check for errors from the MQTT publish. */
         if( publishStatus != AWS_IOT_MQTT_SUCCESS )
@@ -821,7 +776,9 @@ AwsIotShadowError_t AwsIotShadowInternal_ProcessOperation( AwsIotMqttConnection_
 
             /* Remove Shadow operation from the pending operations list. */
             AwsIotMutex_Lock( &( _AwsIotShadowPendingOperations.mutex ) );
-            AwsIotList_Remove( &_AwsIotShadowPendingOperations, pOperation );
+            AwsIotList_Remove( &_AwsIotShadowPendingOperations,
+                               &( pOperation->link ),
+                               _SHADOW_OPERATION_LINK_OFFSET );
             AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
         }
         else
