@@ -79,7 +79,7 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
     {
         /* store the CborEncoder pointer to handle */
         pEncoderObject->pHandle = pCborEncoder;
-
+		pEncoderObject->type = AWS_IOT_SERIALIZER_CONTAINER_STREAM;
         cbor_encoder_init( pCborEncoder, pDataBuffer, maxSize, unusedCborFlags );
     }
     else /* malloc failed */
@@ -217,11 +217,11 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
             break;
 
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
-            cborError = cbor_encode_text_stringz( pCborEncoder, scalarData.value.pByteString );
+            cborError = cbor_encode_text_stringz( pCborEncoder, scalarData.value.pString );
             break;
 
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
-            cborError = cbor_encode_byte_string( pCborEncoder, scalarData.value.pByteString, scalarData.value.byteStringLength );
+            cborError = cbor_encode_byte_string( pCborEncoder, scalarData.value.pString, scalarData.value.stringLength );
             break;
 
         default:
@@ -253,16 +253,3 @@ static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t 
     return returnError;
 }
 
-
-
-static AwsIotSerializerDataType_t _decodeToSerializerType(CborType type)
-{
-	switch (type) {
-	case CborIntegerType: return AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-	case CborByteStringType: return AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
-	case CborTextStringType: return AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-		case CborArrayType : return AWS_IOT_SERIALIZER_CONTAINER_ARRAY;
-		case	CborMapType: return AWS_IOT_SERIALIZER_CONTAINER_MAP;
-		default: return AWS_IOT_SERIALIZER_UNDEFINED;
-	}
-}
