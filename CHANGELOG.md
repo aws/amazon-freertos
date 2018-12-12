@@ -252,12 +252,12 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 
 ## V1.2.7 05/31/2018
 
-- Update the Texas Instruments SimpleLink CC3220 SDK from version 1.40.01.00 to version 2.10.00.04.
+- Update the Texas Instruments SimpleLink CC3220SF SDK from version 1.40.01.00 to version 2.10.00.04.
 - Fix the MQTT Echo Demo (Hello World Demo) to avoid truncating received strings.
 - Modify the Getting Started scripts to check if the AWS CLI is configured.
 
 #### Secure Sockets for CC3220SF-LAUNCHXL V1.0.4
-- Update comments for SimpleLink CC3220 SDK version 2.10.00.04.
+- Update comments for SimpleLink CC3220SF SDK version 2.10.00.04.
 
 --------------
 

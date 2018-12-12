@@ -32,7 +32,7 @@
 /**
  * @brief The number of sockets that can be open at one time on a port.
  *
- * The CC3220 supports up to 6 SSL sockets connected at one time.
+ * The CC3220SF supports up to 6 SSL sockets connected at one time.
  */
 #define         integrationtestportableMAX_NUM_UNSECURE_SOCKETS    16
 
