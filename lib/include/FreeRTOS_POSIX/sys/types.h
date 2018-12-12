@@ -68,7 +68,9 @@
  * @brief Used to identify a thread attribute object.
  */
 #if !defined( posixconfigENABLE_PTHREAD_ATTR_T ) || ( posixconfigENABLE_PTHREAD_ATTR_T == 1 )
-    typedef void            * pthread_attr_t;
+    typedef struct pthread_attr {
+        uint32_t ulpthreadAttrStorage;
+    } pthread_attr_t;
 #endif
 
 /**
