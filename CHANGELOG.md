@@ -1,5 +1,34 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.5 12/13/2018
+### New Features
+
+#### New Board: MediaTek MT7697Hx-Dev-Kit
+Update Amazon FreeRTOS with port files, demo projects, and tests for the MediaTek MT7697Hx-Dev-Kit.
+
+### Updates
+
+#### FreeRTOS+TCP V2.0.9
+- Update to flush ARP cache when then network is down.
+
+#### mbedTLS-based PKCS#11 V1.0.6
+- Delete extra include headers.
+
+#### PKCS #11 PAL for MT7697Hx-Dev-Kit V1.0.0
+- Add PKCS #11 support for the MediaTek MT7697Hx-Dev-Kit.
+
+#### Secure Sockets for FreeRTOS+TCP V1.1.5
+- Update documentation.
+
+#### Secure Sockets for lwIP V1.0.0
+- Add Secure Sockets support for lwIP.
+
+#### Wi-Fi for Infineon XMC4800 IoT Connectivity Kit V1.0.1
+- Update documentation.
+
+#### Wi-Fi for MT7697Hx-Dev-Kit V1.0.0
+- Add Wi-Fi support for the MediaTek MT7697Hx-Dev-Kit.
+
 ## V1.4.4 11/19/2018
 ### Updates
 
