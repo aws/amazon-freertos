@@ -4,7 +4,10 @@
 ### New Features
 
 #### New Board: MediaTek MT7697Hx-Dev-Kit
-Update Amazon FreeRTOS with port files, demo projects, and tests for the MediaTek MT7697Hx-Dev-Kit.
+The MediaTek MT7697 System on Chip (SoC) is now qualified for Amazon FreeRTOS. You can take advantage of Amazon FreeRTOS features and benefits using the MediaTek MT7697Hx Development Kit available from MediaTek Labs.  This development board contains the MT7697 SoC, which includes an Arm Cortex-M4 MCU, low power 1T1R 802.11 b/g/n Wi-Fi, Bluetooth 4.2 subsystem and power management unit.
+
+#### lwIP Support
+Amazon FreeRTOS support for the MediaTek MT7697Hx-Dev-Kit includes for the first time support for the Lightweight TCP / IP network stack (lwIP). This flexibility will support customer choice in identifying the best TCP stack solution for IoT devices.
 
 ### Updates
 
