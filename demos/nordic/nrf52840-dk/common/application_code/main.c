@@ -360,7 +360,7 @@ static void prvMiscInitialization( void )
 /*-----------------------------------------------------------*/
 void prvStartBLE()
 {
-    xTaskCreate( prvLescTask, "Lesc", 1600, NULL, tskIDLE_PRIORITY + 5, NULL );
+   //xTaskCreate( prvLescTask, "Lesc", 300, NULL, tskIDLE_PRIORITY, NULL );
 }
 /**
  * @brief Application runtime entry point.
@@ -402,7 +402,16 @@ BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTime
 
       return xReturnMessage;
 }
+/**@brief Clear bond information from persistent storage. */
+static void prvDeleteBonds( void )
+{
+    ret_code_t xErrCode;
 
+    NRF_LOG_INFO( "Erase bonds!" );
+
+    xErrCode = pm_peers_delete();
+    APP_ERROR_CHECK( xErrCode );
+}
 void vApplicationDaemonTaskStartupHook( void )
 {
     uint32_t ulEnabledNetworks;

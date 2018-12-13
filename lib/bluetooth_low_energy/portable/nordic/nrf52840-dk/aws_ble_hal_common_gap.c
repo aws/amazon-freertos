@@ -561,7 +561,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
             break;
 
         case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
-
+            nrf_ble_lesc_request_handler();
             break;
 
         case BLE_GAP_EVT_PASSKEY_DISPLAY:
