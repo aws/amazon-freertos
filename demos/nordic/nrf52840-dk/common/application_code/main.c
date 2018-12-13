@@ -135,17 +135,6 @@ static void prvMiscInitialization( void );
 
 /*-----------------------------------------------------------*/
 
-/** @brief Task for handling LESC events */
-static void prvLescTask( void * params )
-{
-    for( ; ; )
-    {
-        nrf_ble_lesc_request_handler();
-        vTaskDelay( 50 );
-    }
-}
-/*-----------------------------------------------------------*/
-
 void vUartWrite( uint8_t * pucData )
 {
     uint32_t xErrCode;
@@ -358,10 +347,7 @@ static void prvMiscInitialization( void )
     UARTqueue = xQueueCreate( 1, sizeof( INPUTMessage_t ) );
 }
 /*-----------------------------------------------------------*/
-void prvStartBLE()
-{
-   //xTaskCreate( prvLescTask, "Lesc", 300, NULL, tskIDLE_PRIORITY, NULL );
-}
+
 /**
  * @brief Application runtime entry point.
  */
@@ -375,7 +361,7 @@ int main( void )
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-    nrf_sdh_freertos_init( prvStartBLE, NULL );
+    nrf_sdh_freertos_init( NULL, NULL );
     ret_code_t xErrCode = pm_init();
     vTaskStartScheduler();
 
