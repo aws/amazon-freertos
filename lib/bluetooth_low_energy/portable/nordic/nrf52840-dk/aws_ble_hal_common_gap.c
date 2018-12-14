@@ -274,6 +274,12 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
     uint16_t usLocalHandle = 0;
     nrf_ble_gatt_t * xGattHandler = prvGetGattHandle();
 
+    ble_gap_phys_t const xPhys =
+    {
+        .rx_phys = BLE_GAP_PHY_AUTO,
+        .tx_phys = BLE_GAP_PHY_AUTO,
+    };
+
     switch( p_ble_evt->header.evt_id )
     {
         case BLE_GAP_EVT_CONNECTED:
@@ -538,6 +544,13 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
             }
 
             break;
+
+        case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
+       
+            xErrCode = sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &xPhys);
+            APP_ERROR_CHECK(xErrCode);
+            break;
+            
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
 
