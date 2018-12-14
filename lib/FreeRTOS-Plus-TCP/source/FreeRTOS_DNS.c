@@ -817,10 +817,6 @@ DNSMessage_t *pxDNSMessageHeader;
 	/* In this context, 'pxNetworkBuffer->xDataLength' is the
 	length of the UDP payload buffer. */
 	xPlayloadBufferLength = pxNetworkBuffer->xDataLength;
-	if ( xPlayloadBufferLength < sizeof( DNSMessage_t ) )
-	{
-		return pdFAIL;
-	}
 
 	pucUDPPayloadBuffer = pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t );
 	pxDNSMessageHeader = ( DNSMessage_t * ) pucUDPPayloadBuffer;
