@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.2  
+ * Amazon FreeRTOS V1.1.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,7 @@
  * If applicable, the device must be pre-provisioned with this certificate. Please see
  * test/common/ota/test_files for the set of certificates.
  */
-#define otatestpalCERTIFICATE_FILE    "ecdsa-sha256-signer.crt.pem" /* FIX ME. */
+#define otatestpalCERTIFICATE_FILE    "ecdsa-sha256-signer.crt.pem"
 
  /**
  * @brief Some boards have a hard-coded name for the firmware image to boot.
@@ -47,28 +47,28 @@
  * image and the certificates because their non-volatile memory is abstracted by a
  * file system. Set this to 1 if that is the case for your device.
  */
-#define otatestpalUSE_FILE_SYSTEM     1 /* FIX ME. */
+#define otatestpalUSE_FILE_SYSTEM     1
 
 /**
  * @brief 1 if prvPAL_CheckFileSignature is implemented in aws_ota_pal.c.
  */
-#define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1   /* FIX ME. */
+#define otatestpalCHECK_FILE_SIGNATURE_SUPPORTED           1
 
 /**
  * @brief 1 if prvPAL_ReadAndAssumeCertificate is implemented in the aws_ota_pal.c.
  */
-#define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1   /* FIX ME. */
+#define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    1
 
 /**
  * @brief Include of signature testing data applicable to this device.
  */
-#include "aws_test_ota_pal_ecdsa_sha256_signature.h" /* FIX ME. */
+#include "aws_test_ota_pal_ecdsa_sha256_signature.h"
 
 /**
  * @brief Define a valid and invalid signature verification method for this
  * platform (Windows). These are used for generating test JSON docs.
  */
-#define otatestVALID_SIG_METHOD                         "sig-sha256-rsa"    /* FIX ME. */
-#define otatestINVALID_SIG_METHOD                       "sig-sha256-ecdsa"  /* FIX ME. */
+#define otatestVALID_SIG_METHOD                         "sig-sha256-rsa"
+#define otatestINVALID_SIG_METHOD                       "sig-sha256-ecdsa"
 
 #endif /* ifndef _AWS_TEST_OTA_CONFIG_H_ */

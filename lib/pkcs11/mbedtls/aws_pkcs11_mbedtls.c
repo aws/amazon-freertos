@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS mbedTLS-based PKCS#11 V1.0.5
+ * Amazon FreeRTOS mbedTLS-based PKCS#11 V1.0.6
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,10 +33,7 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
-#include "FreeRTOSIPConfig.h"
 #include "aws_pkcs11_config.h"
-#include "task.h"
-#include "semphr.h"
 #include "aws_crypto.h"
 #include "aws_pkcs11.h"
 

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS11 AFQP V1.1.2  
+ * Amazon FreeRTOS PKCS11 AFQP V1.1.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1155,6 +1155,9 @@ TEST_GROUP_RUNNER( Full_PKCS11_CryptoOperation )
 
     /* Test key generation. */
     RUN_TEST_CASE( Full_PKCS11_CryptoOperation, AFQP_KeyGenerationEcdsaHappyPath );
+
+    /* Re-provision the device with default RSA certs so that subsequent tests are not changed. */
+    vDevModeKeyProvisioning();
 }
 
 TEST_GROUP_RUNNER( Full_PKCS11_GeneralPurpose )

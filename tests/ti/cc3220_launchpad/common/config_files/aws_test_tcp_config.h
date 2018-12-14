@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.2  
+ * Amazon FreeRTOS V1.1.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,7 +32,7 @@
 /**
  * @brief The number of sockets that can be open at one time on a port.
  *
- * The CC3220 supports up to 6 SSL sockets connected at one time.
+ * The CC3220SF supports up to 6 SSL sockets connected at one time.
  */
 #define         integrationtestportableMAX_NUM_UNSECURE_SOCKETS    16
 
