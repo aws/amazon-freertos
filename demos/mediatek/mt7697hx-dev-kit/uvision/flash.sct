@@ -1,0 +1,68 @@
+#! armcc -E
+
+;******************************************************************************************
+;ROM_CODE definition: 
+;    - ROM_CODE_BASE: 
+;    - ROM_CODE_SIZE:  20K
+;******************************************************************************************
+#define ROM_CODE_BASE 0x0
+#define ROM_CODE_SIZE 0x00005000
+
+;******************************************************************************************
+;TCMRAM definition: 
+;    - TCMRAM_BASE: 
+;    - TCMRAM_SIZE:  63K
+;******************************************************************************************
+#define TCMRAM_BASE 0x00100000
+#define TCMRAM_SIZE 0x0000FC00
+
+;******************************************************************************************
+;XIP_CODE definition: 
+;    - XIP_CODE_BASE: 
+;    - XIP_CODE_SIZE:  1972K
+;******************************************************************************************
+#define XIP_CODE_BASE 0x10079000
+#define XIP_CODE_SIZE 0x001ED000
+
+;******************************************************************************************
+;SYSRAM definition: 
+;    - SYSRAM_BASE: 
+;    - SYSRAM_SIZE:  251K
+;******************************************************************************************
+#define SYSRAM_BASE 0x20000000
+#define SYSRAM_SIZE 0x0003EC00
+
+;******************************************************************************************
+;STACK definition: 3KB stack size
+;    - STACK_SIZE:   Stack size. The stack is located at the end of SYSRAM.
+;******************************************************************************************
+#define STACK_SIZE -0xC00
+
+
+ROM XIP_CODE_BASE XIP_CODE_SIZE
+{
+  TEXT XIP_CODE_BASE
+  { 
+     *.o (.reset_handler, +First)
+     *(InRoot$$Sections)
+     .ANY (+RO)
+  }
+  
+  TCM TCMRAM_BASE
+  {
+     *(.ramTEXT)
+     *(.tcmBSS)
+  }
+
+  DATA SYSRAM_BASE
+  {
+     *(.isr_vector, +First)
+     .ANY (+RW +ZI)
+  }
+  
+  STACK (SYSRAM_BASE+SYSRAM_SIZE) STACK_SIZE
+  {
+     *(STACK)
+  }
+}
+

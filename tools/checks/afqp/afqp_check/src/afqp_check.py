@@ -221,7 +221,7 @@ def get_copyright_errors(lic, file_path, is_config_file):
         ))
     return errors
 
-
+# Valid portable layer paths to the all current set of portable code.
 PORTABLE_LAYER_PATHS = [
     'lib/pkcs11/portable/{vendor}/{board}/aws_pkcs11_pal.c',
     'lib/wifi/portable/{vendor}/{board}/aws_wifi.c',
@@ -229,8 +229,12 @@ PORTABLE_LAYER_PATHS = [
     'lib/secure_sockets/portable/{vendor}/{board}/aws_secure_sockets.c'
 ]
 
+# Files to ignore in the check_license routine.
 IGNORED_FILES = {
-    "unity_config.h"
+    "unity_config.h",
+    "lwipopts.h",
+    "trcConfig.h",
+    "trcSnapshotConfig.h"
 }
 
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2018 Xilinx, Inc.
- * Amazon FreeRTOS V1.1.2  
+ * Amazon FreeRTOS V1.1.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
