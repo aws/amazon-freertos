@@ -82,8 +82,8 @@ class OtaTestRunner:
                 self._otaProject.setCodesignerCertificate(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
             if self._stageParams:
                 self._otaProject.setOtaDemoRunnerForSNIDisabled()
-                # FIXME: We need all boards to have the same behavior here.
-                if 'ti' in self._boardConfig['name']:
+                # Currently 12/13/2018 only the TI CC3220SF LaunchpadXL needs the Root CA to connect to other internal Amazon development stage endpoints.
+                if 'cc3220' in self._boardConfig['name']:
                     self._otaProject.setOtaUpdateDemoForRootCA()
                     self._otaProject.addRootCAToClientCredentialKeys(self._stageParams['certificate'])
                 else:
