@@ -70,8 +70,6 @@
 
 #define JSON_PRIMITIVE_ARR_LEN( numelems, elemwidth ) ( ( numelems * elemwidth ) +  ( numelems - 1 ) + 2 )
 
-#define BASE64_ENCODED_LENGTH( n )    ( 4 * ( ( ( n ) + 2 ) / 3 ) )
-
 /**
  * @brief Format used for serializing MQTT messages as JSON payloads over BLE.
  */
