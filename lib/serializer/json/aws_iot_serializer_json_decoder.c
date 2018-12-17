@@ -25,15 +25,15 @@
  *
  */
 
- /**
-  *
-  * @file aws_iot_serializer_json_decoder.c
-  * @brief Implements APIs to parse and decode data from JSON format. Supports JSON primitives such as
-  * Numbers, Strings, boolean and null types, container types such as arrays and maps.
-  * A special type called binary string is also supported as a value type. By default
-  * binary strings are base-64 decoded.
-  * The file implements decoder interface in aws_iot_serialize.h.
-  */
+/**
+ *
+ * @file aws_iot_serializer_json_decoder.c
+ * @brief Implements APIs to parse and decode data from JSON format. Supports JSON primitives such as
+ * Numbers, Strings, boolean and null types, container types such as arrays and maps.
+ * A special type called binary string is also supported as a value type. By default
+ * binary strings are base-64 decoded.
+ * The file implements decoder interface in aws_iot_serialize.h.
+ */
 
 #include <string.h>
 
@@ -41,63 +41,67 @@
 #include "aws_iot_serializer.h"
 #include "mbedtls/base64.h"
 
-#define _MINIMUM_CONTAINER_LENGTH            ( 2 )
-#define _JSON_INT64_MAX_LENGTH               ( 20 )
+#define _MINIMUM_CONTAINER_LENGTH    ( 2 )
+#define _JSON_INT64_MAX_LENGTH       ( 20 )
 
 
-#define _STOP_CHAR_ARRAY                  ']'
-#define _STOP_CHAR_MAP                    '}'
+#define _STOP_CHAR_ARRAY             ']'
+#define _STOP_CHAR_MAP               '}'
 
-#define _isValidContainer( decoder )       ( ( decoder ) &&          \
-        ( decoder )->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM &&  \
-        ( decoder )->type <= AWS_IOT_SERIALIZER_CONTAINER_MAP )
+#define _isValidContainer( decoder )                              \
+    ( ( decoder ) &&                                              \
+      ( decoder )->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM && \
+      ( decoder )->type <= AWS_IOT_SERIALIZER_CONTAINER_MAP )
 
 #define _castDecoderObjectToJsonContainer( pDecoderObject )    ( ( pDecoderObject )->pHandle )
 
-#define _castDecoderIteratorToJsonContainer( iterator )       ( ( ( AwsIotSerializerDecoderObject_t *) iterator )->pHandle )
+#define _castDecoderIteratorToJsonContainer( iterator )        ( ( ( AwsIotSerializerDecoderObject_t * ) iterator )->pHandle )
 
-static AwsIotSerializerError_t _init(AwsIotSerializerDecoderObject_t * pDecoderObject,
-    uint8_t * pDataBuffer,
-    size_t maxSize);
+static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      uint8_t * pDataBuffer,
+                                      size_t maxSize );
 
-static AwsIotSerializerError_t _find(AwsIotSerializerDecoderObject_t* pDecoderObject,
-    const char * pKey,
-    AwsIotSerializerDecoderObject_t * pValueObject);
+static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      const char * pKey,
+                                      AwsIotSerializerDecoderObject_t * pValueObject );
 
-static AwsIotSerializerError_t _get(AwsIotSerializerDecoderIterator_t iterator,
-    AwsIotSerializerDecoderObject_t * pValueObject);
+static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
+                                     AwsIotSerializerDecoderObject_t * pValueObject );
 
-static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                       AwsIotSerializerDecoderIterator_t * pIterator);
+static AwsIotSerializerError_t _stepIn( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                        AwsIotSerializerDecoderIterator_t * pIterator );
 
-static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator);
+static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator );
 
-static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator);
+static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator );
 
-static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iterator,
-                                          AwsIotSerializerDecoderObject_t * pDecoderObject );
+static AwsIotSerializerError_t _stepOut( AwsIotSerializerDecoderIterator_t iterator,
+                                         AwsIotSerializerDecoderObject_t * pDecoderObject );
 
 static void _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject );
 
 AwsIotSerializerDecodeInterface_t _AwsIotSerializerJsonDecoder =
 {
-    .init = _init,
-    .find = _find,
-    .stepIn = _stepIn,
+    .init             = _init,
+    .find             = _find,
+    .stepIn           = _stepIn,
     .isEndOfContainer = _isEndOfContainer,
-    .get = _get,
-    .next = _next,
-    .stepOut = _stepOut,
-    .destroy = _destroy
+    .get              = _get,
+    .next             = _next,
+    .stepOut          = _stepOut,
+    .destroy          = _destroy
 };
 
 typedef struct _jsonContainer
 {
-   const char *pStart;
-   size_t length;
+    const char * pStart;
+    size_t length;
 } _jsonContainer_t;
 
-static AwsIotSerializerDataType_t _getTokenType( const char *pBuffer, size_t offset )
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerDataType_t _getTokenType( const char * pBuffer,
+                                                 size_t offset )
 {
     AwsIotSerializerDataType_t tokenType = AWS_IOT_SERIALIZER_UNDEFINED;
 
@@ -106,22 +110,38 @@ static AwsIotSerializerDataType_t _getTokenType( const char *pBuffer, size_t off
         case '{':
             tokenType = AWS_IOT_SERIALIZER_CONTAINER_MAP;
             break;
+
         case '[':
             tokenType = AWS_IOT_SERIALIZER_CONTAINER_ARRAY;
             break;
+
         case '\"':
             tokenType = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
             break;
-        case '-': case '0': case '1' : case '2': case '3' : case '4':
-        case '5': case '6': case '7' : case '8': case '9':
+
+        case '-':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
             tokenType = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
             break;
-        case 't': case 'f':
+
+        case 't':
+        case 'f':
             tokenType = AWS_IOT_SERIALIZER_SCALAR_BOOL;
             break;
-        case 'n' :
+
+        case 'n':
             tokenType = AWS_IOT_SERIALIZER_SCALAR_NULL;
             break;
+
         default:
             tokenType = AWS_IOT_SERIALIZER_UNDEFINED;
             break;
@@ -130,28 +150,38 @@ static AwsIotSerializerDataType_t _getTokenType( const char *pBuffer, size_t off
     return tokenType;
 }
 
-static _jsonContainer_t* _createContainer( const char *pBuffer, const size_t length )
+/*-----------------------------------------------------------*/
+
+static _jsonContainer_t * _createContainer( const char * pBuffer,
+                                            const size_t length )
 {
-    _jsonContainer_t* pContainer = pvPortMalloc(sizeof(_jsonContainer_t));
+    _jsonContainer_t * pContainer = pvPortMalloc( sizeof( _jsonContainer_t ) );
+
     if( pContainer != NULL )
     {
         pContainer->pStart = pBuffer;
         pContainer->length = length;
     }
+
     return pContainer;
 }
 
-static void _skipWhiteSpacesAndDelimeters( const char* pBuffer, const size_t bufLength, size_t *pOffset )
+/*-----------------------------------------------------------*/
+
+static void _skipWhiteSpacesAndDelimeters( const char * pBuffer,
+                                           const size_t bufLength,
+                                           size_t * pOffset )
 {
     size_t offset = *pOffset;
-    for(; offset < bufLength; offset++ )
+
+    for( ; offset < bufLength; offset++ )
     {
-        if( ( pBuffer[offset] != ' ' ) &&
-                ( pBuffer[offset] != '\r' ) &&
-                ( pBuffer[offset] != '\n' ) &&
-                ( pBuffer[offset] != '\t' ) &&
-                ( pBuffer[offset] != ':'  ) &&
-                ( pBuffer[offset] != ','  ) )
+        if( ( pBuffer[ offset ] != ' ' ) &&
+            ( pBuffer[ offset ] != '\r' ) &&
+            ( pBuffer[ offset ] != '\n' ) &&
+            ( pBuffer[ offset ] != '\t' ) &&
+            ( pBuffer[ offset ] != ':' ) &&
+            ( pBuffer[ offset ] != ',' ) )
         {
             break;
         }
@@ -160,180 +190,208 @@ static void _skipWhiteSpacesAndDelimeters( const char* pBuffer, const size_t buf
     *pOffset = offset;
 }
 
-static void parseContainer(
-        const char* pBuffer,
-        const size_t bufLength,
-        size_t *pOffset,
-        const char containerStopChar )
-{
+/*-----------------------------------------------------------*/
 
+static void parseContainer( const char * pBuffer,
+                            const size_t bufLength,
+                            size_t * pOffset,
+                            const char containerStopChar )
+{
     size_t offset = *pOffset;
-    for(; offset < bufLength; offset++ )
+
+    for( ; offset < bufLength; offset++ )
     {
-         if( pBuffer[offset] == containerStopChar )
-         {
-             break;
-         }
-     }
+        if( pBuffer[ offset ] == containerStopChar )
+        {
+            break;
+        }
+    }
+
     *pOffset = offset;
 }
 
-static int64_t parseNumber(
-        const char* pBuffer,
-        const size_t bufLength,
-        size_t *pOffset )
+/*-----------------------------------------------------------*/
+
+static int64_t parseNumber( const char * pBuffer,
+                            const size_t bufLength,
+                            size_t * pOffset )
 {
     size_t offset = *pOffset;
     int64_t val = atoi( pBuffer + offset );
 
-    //Skip -, + or first digit
+    /*Skip -, + or first digit */
     offset++;
 
-    for(; offset < bufLength; offset++ )
+    for( ; offset < bufLength; offset++ )
     {
-         if( ( pBuffer[offset] < '0' ) ||
-             ( pBuffer[offset] > '9' ) )
-         {
-             break;
-         }
-     }
+        if( ( pBuffer[ offset ] < '0' ) ||
+            ( pBuffer[ offset ] > '9' ) )
+        {
+            break;
+        }
+    }
 
     *pOffset = offset;
+
     return val;
 }
 
-static void parseTextString( const char* pBuffer,
+/*-----------------------------------------------------------*/
+
+static void parseTextString( const char * pBuffer,
                              const size_t bufLength,
-                             size_t* pOffset )
+                             size_t * pOffset )
 
 {
     size_t offset = *pOffset;
-    for (; offset < bufLength && pBuffer[offset] != '\"'; offset++) {
+
+    for( ; offset < bufLength && pBuffer[ offset ] != '\"'; offset++ )
+    {
         /* Backslash: Quoted symbol expected */
-        if ( ( offset < bufLength - 1 )
-                && ( pBuffer[ offset ] == '\\' )
-                && ( pBuffer[ offset + 1 ] == '\"' ) ) {
+        if( ( offset < bufLength - 1 ) &&
+            ( pBuffer[ offset ] == '\\' ) &&
+            ( pBuffer[ offset + 1 ] == '\"' ) )
+        {
             offset++;
         }
     }
+
     *pOffset = offset;
 }
 
-static AwsIotSerializerError_t parseTokenValue(
-        const char* pBuffer,
-        const size_t bufLength,
-        size_t *pOffset,
-        AwsIotSerializerDataType_t tokenType,
-        AwsIotSerializerDecoderObject_t* pValue )
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t parseTokenValue( const char * pBuffer,
+                                                const size_t bufLength,
+                                                size_t * pOffset,
+                                                AwsIotSerializerDataType_t tokenType,
+                                                AwsIotSerializerDecoderObject_t * pValue )
 {
     AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
     switch( tokenType )
     {
         case AWS_IOT_SERIALIZER_CONTAINER_MAP:
-        {
-            size_t start = ++(*pOffset), length;
-            parseContainer( pBuffer, bufLength, pOffset, _STOP_CHAR_MAP );
-            length = ( *pOffset - start ) + 1; /* Include MAP stop char in the length */
-            if( pValue )
-            {
-                pValue->type = tokenType;
-                pValue->pHandle = _createContainer( ( pBuffer + start ), length );
-            }
-            (*pOffset)++;  /* Skip past the token */
-            break;
-        }
+           {
+               size_t start = ++( *pOffset ), length;
+               parseContainer( pBuffer, bufLength, pOffset, _STOP_CHAR_MAP );
+               length = ( *pOffset - start ) + 1; /* Include MAP stop char in the length */
+
+               if( pValue )
+               {
+                   pValue->type = tokenType;
+                   pValue->pHandle = _createContainer( ( pBuffer + start ), length );
+               }
+
+               ( *pOffset )++; /* Skip past the token */
+               break;
+           }
+
         case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
-        {
-            size_t start = ++(*pOffset), length;
-            parseContainer( pBuffer, bufLength, pOffset, _STOP_CHAR_ARRAY );
-            length = ( *pOffset - start ) + 1; /* Include array stop char ']' in the length */
-            if( pValue )
-            {
-                pValue->type = tokenType;
-                pValue->pHandle = _createContainer( ( pBuffer + start ), length );
-            }
-            (*pOffset)++;      /* Skip past the token after parsing */
-            break;
-        }
+           {
+               size_t start = ++( *pOffset ), length;
+               parseContainer( pBuffer, bufLength, pOffset, _STOP_CHAR_ARRAY );
+               length = ( *pOffset - start ) + 1; /* Include array stop char ']' in the length */
+
+               if( pValue )
+               {
+                   pValue->type = tokenType;
+                   pValue->pHandle = _createContainer( ( pBuffer + start ), length );
+               }
+
+               ( *pOffset )++; /* Skip past the token after parsing */
+               break;
+           }
+
         case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
-        {
-            int64_t val = parseNumber( pBuffer, bufLength, pOffset );
-            if( pValue )
-            {
-                pValue->type = tokenType;
-                pValue->value.signedInt = val;
-            }
-            break;
-        }
+           {
+               int64_t val = parseNumber( pBuffer, bufLength, pOffset );
+
+               if( pValue )
+               {
+                   pValue->type = tokenType;
+                   pValue->value.signedInt = val;
+               }
+
+               break;
+           }
+
         case AWS_IOT_SERIALIZER_SCALAR_BOOL:
-        {
-            bool val;
-            if( pBuffer[ *pOffset ] == 't' )
-            {
-                val = true;
-                ( *pOffset ) += 5;  /* Skip past the token after parsing  */
-            }
-            else
-            {
-                val = false;
-                ( *pOffset ) += 6;  /* Skip past the token after parsing */
-            }
+           {
+               bool val;
+
+               if( pBuffer[ *pOffset ] == 't' )
+               {
+                   val = true;
+                   ( *pOffset ) += 5; /* Skip past the token after parsing  */
+               }
+               else
+               {
+                   val = false;
+                   ( *pOffset ) += 6; /* Skip past the token after parsing */
+               }
+
+               if( pValue != NULL )
+               {
+                   pValue->type = tokenType;
+                   pValue->value.booleanValue = val;
+               }
+
+               break;
+           }
+
+        case AWS_IOT_SERIALIZER_SCALAR_NULL:
+            *pOffset += 5; /* Skip past the token after parsing */
 
             if( pValue != NULL )
             {
                 pValue->type = tokenType;
-                pValue->value.booleanValue = val;
             }
+
             break;
-        }
-        case AWS_IOT_SERIALIZER_SCALAR_NULL:
-            *pOffset += 5;  /* Skip past the token after parsing */
-            if( pValue != NULL )
-            {
-                pValue->type = tokenType;
-            }
-            break;
+
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
-        {
-            size_t start = ++(*pOffset), length;
-            int decodeRet;
-            parseTextString( pBuffer, bufLength, pOffset );
-            length = (*pOffset) - start;  /* Don't include the last quotes of a string */
-            if( pValue != NULL )
-            {
-                if( pValue->type == AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING )
-                {
-                    decodeRet = mbedtls_base64_decode( ( unsigned char *) (pValue->value.pString ), pValue->value.stringLength,
-                                                       &( pValue->value.stringLength ),
-                                                       ( const unsigned char *) ( pBuffer + start ), length );
+           {
+               size_t start = ++( *pOffset ), length;
+               int decodeRet;
+               parseTextString( pBuffer, bufLength, pOffset );
+               length = ( *pOffset ) - start; /* Don't include the last quotes of a string */
 
+               if( pValue != NULL )
+               {
+                   if( pValue->type == AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING )
+                   {
+                       decodeRet = mbedtls_base64_decode( ( unsigned char * ) ( pValue->value.pString ), pValue->value.stringLength,
+                                                          &( pValue->value.stringLength ),
+                                                          ( const unsigned char * ) ( pBuffer + start ), length );
 
-                    switch( decodeRet )
-                    {
-                        case MBEDTLS_ERR_BASE64_INVALID_CHARACTER:
-                            error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-                            break;
-                        case MBEDTLS_ERR_BASE64_BUFFER_TOO_SMALL:
-                            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
-                            break;
-                        default:
-                            break;
-                    }
+                       switch( decodeRet )
+                       {
+                           case MBEDTLS_ERR_BASE64_INVALID_CHARACTER:
+                               error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                               break;
 
-                }
-                else
-                {
-                    pValue->type = tokenType;
-                    pValue->value.pString = ( uint8_t* )( pBuffer + start );
-                    pValue->value.stringLength = length;
-                }
-            }
-            ;
-            (*pOffset)++;  /* Skip past the token after parsing */
-            break;
-        }
+                           case MBEDTLS_ERR_BASE64_BUFFER_TOO_SMALL:
+                               error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+                               break;
+
+                           default:
+                               break;
+                       }
+                   }
+                   else
+                   {
+                       pValue->type = tokenType;
+                       pValue->value.pString = ( uint8_t * ) ( pBuffer + start );
+                       pValue->value.stringLength = length;
+                   }
+               }
+
+               ( *pOffset )++; /* Skip past the token after parsing */
+               break;
+           }
+
         default:
             error = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
             break;
@@ -342,14 +400,15 @@ static AwsIotSerializerError_t parseTokenValue(
     return error;
 }
 
-static AwsIotSerializerError_t _init(
-        AwsIotSerializerDecoderObject_t * pDecoderObject,
-        uint8_t * pDataBuffer,
-        size_t maxSize )
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      uint8_t * pDataBuffer,
+                                      size_t maxSize )
 {
     AwsIotSerializerDataType_t tokenType;
-    _jsonContainer_t *pContainer;
-    const char *pStart = ( const char *) pDataBuffer;
+    _jsonContainer_t * pContainer;
+    const char * pStart = ( const char * ) pDataBuffer;
     size_t length = strlen( pStart );
 
     length = ( length < maxSize ) ? length : maxSize;
@@ -357,31 +416,32 @@ static AwsIotSerializerError_t _init(
     tokenType = _getTokenType( pStart, 0 );
 
     if( ( ( tokenType != AWS_IOT_SERIALIZER_CONTAINER_MAP ) &&
-            ( tokenType != AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) ) ||
-            ( length < _MINIMUM_CONTAINER_LENGTH ) )
+          ( tokenType != AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) ) ||
+        ( length < _MINIMUM_CONTAINER_LENGTH ) )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    pContainer = _createContainer( pStart + 1 , length - 1 );
+    pContainer = _createContainer( pStart + 1, length - 1 );
+
     if( pContainer == NULL )
     {
         return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
     }
 
     pDecoderObject->type = tokenType;
-    pDecoderObject->pHandle = ( void *) pContainer;
+    pDecoderObject->pHandle = ( void * ) pContainer;
 
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
-static AwsIotSerializerError_t _findKeyValue(
-        _jsonContainer_t *pObject,
-        const char* pKey,
-        size_t keyLength,
-        AwsIotSerializerDecoderObject_t* pValue )
-{
+/*-----------------------------------------------------------*/
 
+static AwsIotSerializerError_t _findKeyValue( _jsonContainer_t * pObject,
+                                              const char * pKey,
+                                              size_t keyLength,
+                                              AwsIotSerializerDecoderObject_t * pValue )
+{
     size_t offset = 0;
     AwsIotSerializerDataType_t tokenType;
     AwsIotSerializerDecoderObject_t key = { .type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING };
@@ -392,7 +452,7 @@ static AwsIotSerializerError_t _findKeyValue(
 
     _skipWhiteSpacesAndDelimeters( pObject->pStart, pObject->length, &offset );
 
-    for(; ( offset < pObject->length ) && ( pObject->pStart[offset] != '}' ) && ( ret == AWS_IOT_SERIALIZER_NOT_FOUND ); )
+    for( ; ( offset < pObject->length ) && ( pObject->pStart[ offset ] != '}' ) && ( ret == AWS_IOT_SERIALIZER_NOT_FOUND ); )
     {
         tokenType = _getTokenType( pObject->pStart, offset );
 
@@ -406,30 +466,30 @@ static AwsIotSerializerError_t _findKeyValue(
             case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
 
                 /* JSON key can only be text string, so return error */
-               if( isValue )
-               {
+                if( isValue )
+                {
+                    /* If key parsed successfully, parse and store the value, else skip past the JSON value */
+                    if( isKeyFound )
+                    {
+                        ret = parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
+                    }
+                    else
+                    {
+                        ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, NULL );
 
-                   /* If key parsed successfully, parse and store the value, else skip past the JSON value */
-                   if( isKeyFound )
-                   {
-                       ret = parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
-                   }
-                   else
-                   {
-                       ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset,tokenType, NULL );
+                        /* Skip any white space characters or delimeters after the token */
+                        _skipWhiteSpacesAndDelimeters( pObject->pStart, pObject->length, &offset );
 
-                       /* Skip any white space characters or delimeters after the token */
-                       _skipWhiteSpacesAndDelimeters( pObject->pStart, pObject->length, &offset );
+                        /* Set isValue to false as we are expecting a key now */
+                        isValue = false;
+                    }
+                }
+                else
+                {
+                    ret = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                }
 
-                       /* Set isValue to false as we are expecting a key now */
-                       isValue = false;
-                   }
-               }
-               else
-               {
-                   ret = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-               }
-               break;
+                break;
 
             case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
 
@@ -440,7 +500,8 @@ static AwsIotSerializerError_t _findKeyValue(
                      * input key provided.
                      */
                     ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, &key );
-                    if( strncmp( pKey, (const char *) key.value.pString, key.value.stringLength ) == 0  )
+
+                    if( strncmp( pKey, ( const char * ) key.value.pString, key.value.stringLength ) == 0 )
                     {
                         isKeyFound = true;
                     }
@@ -454,24 +515,25 @@ static AwsIotSerializerError_t _findKeyValue(
                      * Parser is expecting a value. If key already found, parse and store the value.
                      * Else skip the value.
                      */
-                   if( isKeyFound )
-                   {
-                       /* If key already found, store the string as value, and return success */
-                       ret = parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
-                   }
-                   else
-                   {
-                       /* Skip the value */
-                       ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, NULL );
-                   }
+                    if( isKeyFound )
+                    {
+                        /* If key already found, store the string as value, and return success */
+                        ret = parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
+                    }
+                    else
+                    {
+                        /* Skip the value */
+                        ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, NULL );
+                    }
 
-                   /* Set the isValue to true as the parser expects a key now */
-                   isValue = false;
+                    /* Set the isValue to true as the parser expects a key now */
+                    isValue = false;
                 }
 
                 /* Skip any white space characters or delimeters */
-                _skipWhiteSpacesAndDelimeters( pObject->pStart,  pObject->length, &offset );
+                _skipWhiteSpacesAndDelimeters( pObject->pStart, pObject->length, &offset );
                 break;
+
             default:
                 /* Any other character other than start of a token is an invalid character */
                 ret = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
@@ -489,30 +551,35 @@ static AwsIotSerializerError_t _findKeyValue(
     return ret;
 }
 
-static AwsIotSerializerError_t _find(AwsIotSerializerDecoderObject_t* pDecoderObject,
-    const char * pKey,
-    AwsIotSerializerDecoderObject_t * pValueObject)
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      const char * pKey,
+                                      AwsIotSerializerDecoderObject_t * pValueObject )
 {
-    _jsonContainer_t *pContainer;
+    _jsonContainer_t * pContainer;
 
     if( pDecoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    pContainer = ( _jsonContainer_t *) pDecoderObject->pHandle;
+    pContainer = ( _jsonContainer_t * ) pDecoderObject->pHandle;
+
     return _findKeyValue(
-            pContainer,
-            pKey,
-            strlen( pKey ),
-            pValueObject );
+        pContainer,
+        pKey,
+        strlen( pKey ),
+        pValueObject );
 }
 
-static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                       AwsIotSerializerDecoderIterator_t * pIterator)
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _stepIn( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                        AwsIotSerializerDecoderIterator_t * pIterator )
 {
-    AwsIotSerializerDecoderObject_t* pNewObject;
-    _jsonContainer_t *pContainer, *pNewContainer;
+    AwsIotSerializerDecoderObject_t * pNewObject;
+    _jsonContainer_t * pContainer, * pNewContainer;
     size_t offset = 0;
 
     if( !_isValidContainer( pDecoderObject ) )
@@ -523,21 +590,25 @@ static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDeco
     pContainer = pDecoderObject->pHandle;
 
     _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
+
     if( offset >= pContainer->length )
     {
-         return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+        return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
     }
 
-    pNewContainer = _createContainer( ( pContainer-> pStart + offset ), pContainer->length );
+    pNewContainer = _createContainer( ( pContainer->pStart + offset ), pContainer->length );
+
     if( pNewContainer == NULL )
     {
         return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
     }
 
-    pNewObject = pvPortMalloc( sizeof(AwsIotSerializerDecoderObject_t ));
+    pNewObject = pvPortMalloc( sizeof( AwsIotSerializerDecoderObject_t ) );
+
     if( pNewObject == NULL )
     {
         vPortFree( pNewContainer );
+
         return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
     }
 
@@ -548,43 +619,55 @@ static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDeco
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
-static bool _isEOF( const char* pBuffer, AwsIotSerializerDataType_t containerType )
+/*-----------------------------------------------------------*/
+
+static bool _isEOF( const char * pBuffer,
+                    AwsIotSerializerDataType_t containerType )
 {
     bool isEOF;
 
     switch( containerType )
     {
         case AWS_IOT_SERIALIZER_CONTAINER_MAP:
-            isEOF = ( pBuffer[0] == '}' );
+            isEOF = ( pBuffer[ 0 ] == '}' );
             break;
+
         case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
-            isEOF = ( pBuffer[0] == ']' );
+            isEOF = ( pBuffer[ 0 ] == ']' );
             break;
+
         default:
             isEOF = false;
             break;
     }
+
     return isEOF;
 }
 
-static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator)
+/*-----------------------------------------------------------*/
+
+static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator )
 {
-    AwsIotSerializerDecoderObject_t* pObject = ( AwsIotSerializerDecoderObject_t *) iterator;
-    _jsonContainer_t *pContainer;
+    AwsIotSerializerDecoderObject_t * pObject = ( AwsIotSerializerDecoderObject_t * ) iterator;
+    _jsonContainer_t * pContainer;
 
     if( !_isValidContainer( pObject ) )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
+
     pContainer = pObject->pHandle;
 
     return _isEOF( pContainer->pStart, pObject->type );
 }
 
-static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator, AwsIotSerializerDecoderObject_t * pValueObject )
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
+                                     AwsIotSerializerDecoderObject_t * pValueObject )
 {
-    AwsIotSerializerDecoderObject_t* pDecoder = ( AwsIotSerializerDecoderObject_t * ) iterator;
-    _jsonContainer_t *pContainer;
+    AwsIotSerializerDecoderObject_t * pDecoder = ( AwsIotSerializerDecoderObject_t * ) iterator;
+    _jsonContainer_t * pContainer;
     AwsIotSerializerDataType_t type;
     size_t offset = 0;
 
@@ -595,12 +678,14 @@ static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
 
     pContainer = _castDecoderIteratorToJsonContainer( iterator );
     type = _getTokenType( pContainer->pStart, offset );
+
     if( type == AWS_IOT_SERIALIZER_UNDEFINED )
     {
         return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
     }
 
     parseTokenValue( pContainer->pStart, pContainer->length, &offset, type, pValueObject );
+
     if( offset >= pContainer->length )
     {
         return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
@@ -610,10 +695,12 @@ static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
 }
 
 
-static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator)
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator )
 {
-    AwsIotSerializerDecoderObject_t* pObject = ( AwsIotSerializerDecoderObject_t *) iterator;
-    _jsonContainer_t *pContainer;
+    AwsIotSerializerDecoderObject_t * pObject = ( AwsIotSerializerDecoderObject_t * ) iterator;
+    _jsonContainer_t * pContainer;
     AwsIotSerializerDataType_t type;
     size_t offset = 0;
 
@@ -621,6 +708,7 @@ static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
+
     pContainer = pObject->pHandle;
 
     type = _getTokenType( pContainer->pStart, offset );
@@ -634,15 +722,17 @@ static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator
     }
 
     pContainer->pStart += offset;
+
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
-static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iterator,
-                                          AwsIotSerializerDecoderObject_t * pDecoderObject )
-{
+/*-----------------------------------------------------------*/
 
-    AwsIotSerializerDecoderObject_t* pIterObject = ( AwsIotSerializerDecoderObject_t *) iterator;
-    _jsonContainer_t *pContainer, *pIterContainer;
+static AwsIotSerializerError_t _stepOut( AwsIotSerializerDecoderIterator_t iterator,
+                                         AwsIotSerializerDecoderObject_t * pDecoderObject )
+{
+    AwsIotSerializerDecoderObject_t * pIterObject = ( AwsIotSerializerDecoderObject_t * ) iterator;
+    _jsonContainer_t * pContainer, * pIterContainer;
 
     if( !_isValidContainer( pIterObject ) || !_isValidContainer( pDecoderObject ) )
     {
@@ -656,6 +746,7 @@ static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iter
     {
         return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
     }
+
     pContainer->pStart = ( pIterContainer->pStart + 1 );
 
     vPortFree( pIterContainer );
@@ -663,6 +754,8 @@ static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iter
 
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
+
+/*-----------------------------------------------------------*/
 
 static void _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject )
 {

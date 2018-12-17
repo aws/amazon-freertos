@@ -1,0 +1,24 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Defender"
+
+# Library documentation output directory.
+HTML_OUTPUT = defender
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/defender.tag
+
+# Directories containing library source code.
+INPUT = lib/include/aws_iot_defender.h \
+        lib/include/private/aws_iot_defender_internal.h
+
+# Library file names.
+FILE_PATTERNS = *.h *.c *.txt
+
+EXAMPLE_PATH = lib/include/aws_iot_defender.h
+
+# External tag files required by this library.
+TAGFILES = doc/tag/main.tag=../main \

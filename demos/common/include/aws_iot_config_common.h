@@ -63,9 +63,11 @@
 #define AWS_IOT_SEMAPHORE_TYPE    sem_t
 
 /* Standard library function overrides. */
-#define AwsIotLogging_Puts( str )           configPRINTF( ( "%s\n", str ) )
-#define AwsIotQueue_Assert( expression )    configASSERT( expression )
-#define AwsIotMqtt_Assert( expression )     configASSERT( expression )
+#define AwsIotLogging_Puts( str )              configPRINTF( ( "%s\n", str ) )
+#define AwsIotQueue_Assert( expression )       configASSERT( expression )
+#define AwsIotMqtt_Assert( expression )        configASSERT( expression )
+#define AwsIotDefender_Assert( expression )    configASSERT( expression )
+#define IotMetrics_Assert( expression )        configASSERT( expression )
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef AWS_IOT_STATIC_MEMORY_ONLY
@@ -89,16 +91,24 @@
 /* Memory allocation function configuration for the MQTT library. The MQTT library
  * will be affected by AWS_IOT_STATIC_MEMORY_ONLY. */
 #if AWS_IOT_STATIC_MEMORY_ONLY == 0
-    #define AwsIotMqtt_MallocConnection      pvPortMalloc
-    #define AwsIotMqtt_FreeConnection        vPortFree
-    #define AwsIotMqtt_MallocMessage         pvPortMalloc
-    #define AwsIotMqtt_FreeMessage           vPortFree
-    #define AwsIotMqtt_MallocOperation       pvPortMalloc
-    #define AwsIotMqtt_FreeOperation         vPortFree
-    #define AwsIotMqtt_MallocSubscription    pvPortMalloc
-    #define AwsIotMqtt_FreeSubscription      vPortFree
-    #define AwsIotMqtt_MallocTimerEvent      pvPortMalloc
-    #define AwsIotMqtt_FreeTimerEvent        vPortFree
+    #define AwsIotMqtt_MallocConnection          pvPortMalloc
+    #define AwsIotMqtt_FreeConnection            vPortFree
+    #define AwsIotMqtt_MallocMessage             pvPortMalloc
+    #define AwsIotMqtt_FreeMessage               vPortFree
+    #define AwsIotMqtt_MallocOperation           pvPortMalloc
+    #define AwsIotMqtt_FreeOperation             vPortFree
+    #define AwsIotMqtt_MallocSubscription        pvPortMalloc
+    #define AwsIotMqtt_FreeSubscription          vPortFree
+    #define AwsIotMqtt_MallocTimerEvent          pvPortMalloc
+    #define AwsIotMqtt_FreeTimerEvent            vPortFree
+
+    #define AwsIotDefender_MallocReport          pvPortMalloc
+    #define AwsIotDefender_FreeReport            vPortFree
+    #define AwsIotDefender_MallocTopic           pvPortMalloc
+    #define AwsIotDefender_FreeTopic             vPortFree
+
+    #define AwsIotMetrics_MallocTcpConnection    pvPortMalloc
+    #define AwsIotMetrics_FreeTcpConnection      vPortFree
 #endif /* if AWS_IOT_STATIC_MEMORY_ONLY == 0 */
 
 /* Static memory configuration. */
@@ -170,5 +180,24 @@
 /* Secure Sockets does not support parallel send, so only one send thread is
  * allowed. */
 #define AWS_IOT_MQTT_MAX_SEND_THREADS            ( 1 )
+
+/* Enable metrics on secure sockets. This must be defined to enable socket metrics. */
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+
+/* Enable metrics library assert. */
+#ifndef AWS_IOT_METRICS_ENABLE_ASSERTS
+    #define AWS_IOT_METRICS_ENABLE_ASSERTS    ( 1 )
+#endif
+
+/* Enable defender library assert. */
+#ifndef AWS_IOT_DEFENDER_ENABLE_ASSERTS
+    #define AWS_IOT_DEFENDER_ENABLE_ASSERTS    ( 1 )
+#endif
+
+/* Configuration for defender demo: set format to CBOR. */
+#define AWS_IOT_DEFENDER_FORMAT          AWS_IOT_DEFENDER_FORMAT_CBOR
+
+/* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
+#define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 1 )
 
 #endif /* ifndef _AWS_IOT_CONFIG_COMMON_H_ */

@@ -28,6 +28,7 @@
 /* Library code. */
 extern BaseType_t MQTT_AGENT_Init( void );
 extern BaseType_t SOCKETS_Init( void );
+extern BaseType_t IotMetrics_Init( void );
 
 /*-----------------------------------------------------------*/
 
@@ -43,6 +44,11 @@ BaseType_t SYSTEM_Init()
     if( xResult == pdPASS )
     {
         xResult = SOCKETS_Init();
+    }
+
+    if( xResult == pdPASS )
+    {
+        xResult = IotMetrics_Init();
     }
 
     return xResult;

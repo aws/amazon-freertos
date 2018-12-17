@@ -1,0 +1,78 @@
+# Doxygen layout file for libraries.
+LAYOUT_FILE = doc/config/layout_library.xml
+
+# Documentation output directory.
+OUTPUT_DIRECTORY = doc/output/
+
+# Don't generate LaTeX documentation
+GENERATE_LATEX = NO
+
+# Don't rearrange members in the input files.
+SORT_MEMBER_DOCS = NO
+
+# Configure Doxygen for C.
+OPTIMIZE_OUTPUT_FOR_C = YES
+TYPEDEF_HIDES_STRUCT = YES
+EXTRACT_STATIC = YES
+
+# Disable the tab bar and use treeview instead.
+DISABLE_INDEX = YES
+GENERATE_TREEVIEW = YES
+
+# All files should have unique names, so showing the full path is unnecessary.
+FULL_PATH_NAMES = NO
+
+# Disable the default Doxygen diagrams.
+HAVE_DOT = NO
+
+# Disable the default Doxygen search engine (for now).
+SEARCHENGINE = NO
+
+# Use custom header file, footer file, and stylesheet.
+HTML_HEADER = doc/config/html/header.html
+HTML_FOOTER = doc/config/html/footer.html
+HTML_EXTRA_STYLESHEET = doc/config/html/style.css
+
+# Don't show external pages or groups.
+EXTERNAL_GROUPS = NO
+EXTERNAL_PAGES = NO
+
+# Alias for starting a dependencies section.
+ALIASES += dependencies{2}="@section \1_dependencies Dependencies^^@brief Dependencies of the \1 \2.^^^^"
+
+# Alias for starting a configuration settings page.
+ALIASES += configpage{2}="@page \1_config Configuration \
+@brief Configuration settings of the \1 \2.\n\n@par configpagemarker"
+
+# Aliases for "Possible values", "Recommended values", and "Default values"
+# used in configuration setting pages.
+ALIASES += configpossible="<b>Possible values:</b> "
+ALIASES += configrecommended="<b>Recommended values:</b> "
+ALIASES += configdefault="<b>Default value (if undefined):</b> "
+
+# Alias for starting a constants page.
+ALIASES += constantspage{2}="@page \1_constants Constants^^@brief Defined constants of the \1 \2.^^^^Libraries may @c #`define` constants in their headers with special meanings. This page describes the meanings and uses of any constants defined by the \1 \2. Related constants are shown in a single section on this page.^^"
+
+# Alias for starting a functions page.
+ALIASES += functionspage{2}="@page \1_functions Functions^^@brief Functions of the \1 \2.^^^^The \1 \2 consists of the following functions."
+
+# Alias for listing a single function on a functions page.
+ALIASES += functionname{1}="@subpage \1 <br>^^ @copybrief \1^^"
+
+# Alias for creating a page for a single function.
+ALIASES += functionpage{4}="@page \2_function_\3 \1^^^^@snippet \4 declare_\2_\3^^@copydoc \1"
+
+# Alias for starting a handles group.
+ALIASES += handles{2}="@defgroup \1_datatypes_handles Handles^^@brief Opaque handles of the \1 \2."
+
+# Alias for starting an enum group.
+ALIASES += enums{2}="@defgroup \1_datatypes_enums Enumerated types^^@brief Enumerated types of the \1 \2."
+
+# Alias for starting a parameter structures group.
+ALIASES += paramstructs{1}="@defgroup \1_datatypes_paramstructs Parameter structures^^@brief Structures passed as parameters to [\1 functions](@ref \1_functions)^^^^These structures are passed as parameters to library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
+
+# Alias for starting a return structures group.
+ALIASES += returnstructs{1}="@defgroup \1_datatypes_returnstructs Return structures^^@brief Structures returned from [\1 functions](@ref \1_functions)^^^^These structures are returned from library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
+
+# Alias for "Parameter for".
+ALIASES += paramfor="<b>Parameter for:</b> "

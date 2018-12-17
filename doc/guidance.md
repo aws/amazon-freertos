@@ -1,0 +1,178 @@
+# Overview
+This is about how to use Doxygen to maintain the API documents. There are three parts:
+
+- Doxygen configuration and layout.
+- A separate file to structure the documents
+- Comment properly in source code with Doxygen special commands
+
+# Setup Doxygen
+
+[Doxygen Manual](http://www.stack.nl/~dimitri/doxygen/manual/index.html)
+
+- download and install Doxygen
+- install graphviz
+	- on mac, run "brew install graphviz"
+- goto the root directory of "amazon-freertos-staging" (this will be referenced as $ROOT_AFR_DIR)
+	- cd $ROOT_AFR_DIR
+- run Doxygen command to generate the documents 
+	- doxygen doc/config/main
+	- doxygen doc/config/secure_sockets
+- the entry doc is $ROOT_AFR_DIR/doc/output/main/html, open it with browser and verify it looks good
+
+# Add documents for a new library
+
+**Let's say the library name is "Foo"**
+
+## 1. Doxygen configuration and layout
+
+### create a new configuration file for "Foo"
+
+The new configuration's path is $ROOT_AFR_DIR/doc/config/foo
+
+Copy below as content:
+- [REQUIRED] update the library name accordingly (anywhere appear as "foo" below)
+- [REQUIRED] update "INPUT" configuration
+- [REQUIRED] update "EXAMPLE_PATH" configuraton
+- [OPTIONAL] update "FILE_PATTERNS" configuration if new fiile extension is introduced
+
+
+
+```
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Foo"
+
+# Library documentation output directory.
+HTML_OUTPUT = foo
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/foo.tag
+
+# Directories containing library source code.
+INPUT = [The source files path]
+
+# Library file names.
+FILE_PATTERNS = *.h *.c *.txt
+
+EXAMPLE_PATH = [The source files path]
+
+# External tag files required by this library.
+TAGFILES = doc/tag/main.tag=../main \
+```
+
+## 2. A separate file to structure the documents
+
+The path to put this txt file: $ROOT_AFR_DIR/doc/lib/foo.txt
+
+In the following sections, follow each of them and **append** the content to the txt file.
+
+### denote mainpage
+
+```
+/**
+@mainpage
+*/
+```
+
+### add configuration page
+
+TODO: this section is copy-pasted currently. Need a better way.
+
+```
+/**
+@configpage{Foo,library}
+
+@section ......
+@brief ......
+
+......
+
+@configpossible ......
+@configrecommended ......
+@configdefault ......
+*/
+```
+
+### add constant page
+
+```
+/**
+@constantspage{Foo,library}
+
+@section foo_constants_single Single Value Constants
+- @ref ......
+
+@section foo_constants_multiple Multiple Values Constants
+- @ref ......
+*/
+```
+
+### add function page
+
+```
+/**
+@functionspage{Foo,library}
+- @functionname{foo_function_socket}
+*/
+
+/**
+@functionpage{FOO_func,foo,func,aws_foo.h}
+*/
+```
+
+### add data type page
+
+```
+/**
+@handles{Foo,library}
+
+@paramstructs{Foo}
+*/
+```
+
+## 3. Comment properly in source code with Doxygen special commands
+
+### add @[] declaration block to functions
+
+```
+/* @[declare_foo_func] */
+void FOO_func();
+/* @[declare_foo_func] */
+```
+
+### add @ingroup to data types 
+
+```
+@ingroup Foo_datatypes_handles
+```
+
+```
+@ingroup Foo_datatypes_enums
+```
+
+```
+@ingroup Foo_datatypes_paramstructs
+```
+
+### add @anchor and @name to group of constants
+
+```
+/**
+ * @anchor AGroupOfConstants
+ * @name AGroupOfConstants
+ * ...
+ */
+
+/**@{ */
+
+ #define Constants_1
+ #define Constants_2  
+
+/**@} */
+
+```
+
+

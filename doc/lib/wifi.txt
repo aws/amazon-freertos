@@ -1,0 +1,103 @@
+/**
+@mainpage
+
+The Wi-Fi interface API provides a common abstraction layer that enables applications to communicate with the lower-level wireless stack. Wi-Fi chip sets differ in features, driver implementations, and APIs. The common Wi-Fi interface simplifies application development and porting for all supported Wi-Fi chip sets. The interface provides a primary API for managing all aspects of Wi-Fi devices.
+*/
+
+/**
+@configpage{SecureSockets,library}
+
+@brief The Wi-Fi Management library does not have a configuration file provided, but the following identifiers must be `#define`d in any application using the Wi-Fi Management library.  Example values for these identifiers can be found in aws_wifi_config.h from the AWS FreeRTOS demo for the specific board being used.
+
+Note that some of these identifiers are only utilized by certain ports of the Wi-Fi library and may not have an effect on all boards.
+
+@section wificonfigMAX_CONNECTED_STATIONS
+@brief Maximum number of connected stations in Access Point mode.
+
+__Example value:__ 4
+
+@section wificonfigMAX_NETWORK_PROFILES
+@brief Maximum number of network profiles stored in Non Volatile memory, set to zero if not supported.
+
+__Example value:__ 0
+
+@section wificonfigMAX_SSID_LEN
+@brief Maximum length of SSID for access points (used to allocate memory for SSID strings), not including a NULL terminator.
+
+__Example value:__ 32
+
+@section wificonfigMAX_BSSID_LEN
+@brief Maximum length of BSSID for access points (used to allocate memory for BSSID strings), not including a NULL terminator.
+
+__Example value:__ 6
+
+@section wificonfigMAX_PASSPHRASE_LEN
+@brief Maximum length of passphrase for access points (used to allocate memory for passphrase strings), not including a NULL terminator.
+
+__Example value:__ 32
+
+This length is designated by the Wi-Fi driver as both the WPA PSK and Passphrase length.
+
+@section wificonfigMAX_SEMAPHORE_WAIT_TIME_MS
+@brief Maximum time to wait in milliseconds for obtaining the Wi-Fi semaphore before failing the operation.
+
+__Example value:__ 60000
+
+*/
+
+/**
+@functionspage{WiFi,library}
+- @functionname{wifi_function_wifi_on}
+- @functionname{wifi_function_wifi_off}
+- @functionname{wifi_function_wifi_connectap}
+- @functionname{wifi_function_wifi_disconnect}
+- @functionname{wifi_function_wifi_reset}
+- @functionname{wifi_function_wifi_setmode}
+- @functionname{wifi_function_wifi_getmode}
+- @functionname{wifi_function_wifi_networkadd}
+- @functionname{wifi_function_wifi_networkget}
+- @functionname{wifi_function_wifi_networkdelete}
+- @functionname{wifi_function_wifi_ping}
+- @functionname{wifi_function_wifi_getip}
+- @functionname{wifi_function_wifi_getmac}
+- @functionname{wifi_function_wifi_gethostip}
+- @functionname{wifi_function_wifi_scan}
+- @functionname{wifi_function_wifi_startap}
+- @functionname{wifi_function_wifi_stopap}
+- @functionname{wifi_function_wifi_configureap}
+- @functionname{wifi_function_wifi_setpmmode}
+- @functionname{wifi_function_wifi_getpmmode}
+- @functionname{wifi_function_wifi_isconnected}
+*/
+
+/**
+@functionpage{WIFI_On,wifi,wifi_on,aws_wifi.h}
+@functionpage{WIFI_Off,wifi,wifi_off,aws_wifi.h}
+@functionpage{WIFI_ConnectAP,wifi,wifi_connectap,aws_wifi.h}
+@functionpage{WIFI_Disconnect,wifi,wifi_disconnect,aws_wifi.h}
+@functionpage{WIFI_Reset,wifi,wifi_reset,aws_wifi.h}
+@functionpage{WIFI_SetMode,wifi,wifi_setmode,aws_wifi.h}
+@functionpage{WIFI_GetMode,wifi,wifi_getmode,aws_wifi.h}
+@functionpage{WIFI_NetworkAdd,wifi,wifi_networkadd,aws_wifi.h}
+@functionpage{WIFI_NetworkGet,wifi,wifi_networkget,aws_wifi.h}
+@functionpage{WIFI_NetworkDelete,wifi,wifi_networkdelete,aws_wifi.h}
+@functionpage{WIFI_Ping,wifi,wifi_ping,aws_wifi.h}
+@functionpage{WIFI_GetIP,wifi,wifi_getip,aws_wifi.h}
+@functionpage{WIFI_GetMAC,wifi,wifi_getmac,aws_wifi.h}
+@functionpage{WIFI_GetHostIP,wifi,wifi_gethostip,aws_wifi.h}
+@functionpage{WIFI_Scan,wifi,wifi_scan,aws_wifi.h}
+@functionpage{WIFI_StartAP,wifi,wifi_startap,aws_wifi.h}
+@functionpage{WIFI_StopAP,wifi,wifi_stopap,aws_wifi.h}
+@functionpage{WIFI_ConfigureAP,wifi,wifi_configureap,aws_wifi.h}
+@functionpage{WIFI_SetPMMode,wifi,wifi_setpmmode,aws_wifi.h}
+@functionpage{WIFI_GetPMMode,wifi,wifi_getpmmode,aws_wifi.h}
+@functionpage{WIFI_IsConnected,wifi,wifi_isconnected,aws_wifi.h}
+
+*/
+
+/**
+@enums{WiFi,library}
+
+@paramstructs{WiFi}
+@returnstructs{WiFi}
+*/

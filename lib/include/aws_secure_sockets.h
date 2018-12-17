@@ -52,6 +52,7 @@
 #include <stddef.h>
 #include "aws_secure_sockets_config.h"
 #include "aws_secure_sockets_config_defaults.h"
+#include "aws_secure_sockets_wrapper_metrics.h"
 #include "aws_lib_init.h"
 
 /**

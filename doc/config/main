@@ -1,0 +1,22 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Main"
+
+# Library documentation output directory.
+HTML_OUTPUT = main
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/main.tag
+
+# Input directories.
+INPUT = doc/ \
+        doc/user_guide
+
+# Library file names.
+FILE_PATTERNS = *.txt
+
+# Use the Main page layout file
+LAYOUT_FILE = doc/config/layout_main.xml

@@ -33,11 +33,11 @@
 /* The functions in this file should only exist in static memory only mode, hence
  * the check for AWS_IOT_STATIC_MEMORY_ONLY in the double inclusion guard. */
 #if !defined( _AWS_IOT_STATIC_MEMORY_H_ ) && ( AWS_IOT_STATIC_MEMORY_ONLY == 1 )
-#define _AWS_IOT_STATIC_MEMORY_H_
+    #define _AWS_IOT_STATIC_MEMORY_H_
 
 /* Standard includes. */
-#include <stdbool.h>
-#include <stddef.h>
+    #include <stdbool.h>
+    #include <stddef.h>
 
 /**
  * @functionspage{platform_static_memory,platform static memory component,Static Memory}
@@ -77,7 +77,7 @@
  * @return The size, in bytes, of a single message buffer.
  */
 /* @[declare_platform_static_memory_messagebuffersize] */
-size_t AwsIot_MessageBufferSize( void );
+    size_t AwsIot_MessageBufferSize( void );
 /* @[declare_platform_static_memory_messagebuffersize] */
 
 /**
@@ -95,7 +95,7 @@ size_t AwsIot_MessageBufferSize( void );
  * or no message buffers are available, `NULL` is returned.
  */
 /* @[declare_platform_static_memory_mallocmessagebuffer] */
-void * AwsIot_MallocMessageBuffer( size_t size );
+    void * AwsIot_MallocMessageBuffer( size_t size );
 /* @[declare_platform_static_memory_mallocmessagebuffer] */
 
 /**
@@ -109,7 +109,7 @@ void * AwsIot_MallocMessageBuffer( size_t size );
  * @param[in] ptr Pointer to the message buffer to free.
  */
 /* @[declare_platform_static_memory_freemessagebuffer] */
-void AwsIot_FreeMessageBuffer( void * ptr );
+    void AwsIot_FreeMessageBuffer( void * ptr );
 /* @[declare_platform_static_memory_freemessagebuffer] */
 
 /*----------------------- MQTT connection management ------------------------*/
@@ -132,7 +132,7 @@ void AwsIot_FreeMessageBuffer( void * ptr );
  * @return Pointer to an MQTT connection.
  */
 /* @[declare_platform_static_memory_mallocmqttconnection] */
-void * AwsIot_MallocMqttConnection( size_t size );
+    void * AwsIot_MallocMqttConnection( size_t size );
 /* @[declare_platform_static_memory_mallocmqttconnection] */
 
 /**
@@ -146,7 +146,7 @@ void * AwsIot_MallocMqttConnection( size_t size );
  * @param[in] ptr Pointer to an active MQTT connection to free.
  */
 /* @[declare_platform_static_memory_freemqttconnection] */
-void AwsIot_FreeMqttConnection( void * ptr );
+    void AwsIot_FreeMqttConnection( void * ptr );
 /* @[declare_platform_static_memory_freemqttconnection] */
 
 /*------------------------ MQTT operation management ------------------------*/
@@ -169,7 +169,7 @@ void AwsIot_FreeMqttConnection( void * ptr );
  * @return Pointer to an MQTT operation.
  */
 /* @[declare_platform_static_memory_mallocmqttoperation] */
-void * AwsIot_MallocMqttOperation( size_t size );
+    void * AwsIot_MallocMqttOperation( size_t size );
 /* @[declare_platform_static_memory_mallocmqttoperation] */
 
 /**
@@ -183,7 +183,7 @@ void * AwsIot_MallocMqttOperation( size_t size );
  * @param[in] ptr Pointer to an active MQTT operation to free.
  */
 /* @[declare_platform_static_memory_freemqttoperation] */
-void AwsIot_FreeMqttOperation( void * ptr );
+    void AwsIot_FreeMqttOperation( void * ptr );
 /* @[declare_platform_static_memory_freemqttoperation] */
 
 /*----------------------- MQTT timer event management -----------------------*/
@@ -205,7 +205,7 @@ void AwsIot_FreeMqttOperation( void * ptr );
  * @return Pointer to an MQTT timer event.
  */
 /* @[declare_platform_static_memory_mallocmqtttimerevent] */
-void * AwsIot_MallocMqttTimerEvent( size_t size );
+    void * AwsIot_MallocMqttTimerEvent( size_t size );
 /* @[declare_platform_static_memory_mallocmqtttimerevent] */
 
 /**
@@ -219,7 +219,7 @@ void * AwsIot_MallocMqttTimerEvent( size_t size );
  * @param[in] ptr Pointer to an active MQTT timer event to free.
  */
 /* @[declare_platform_static_memory_freemqtttimerevent] */
-void AwsIot_FreeMqttTimerEvent( void * ptr );
+    void AwsIot_FreeMqttTimerEvent( void * ptr );
 /* @[declare_platform_static_memory_freemqtttimerevent] */
 
 /*---------------------- MQTT subscription management -----------------------*/
@@ -247,7 +247,7 @@ void AwsIot_FreeMqttTimerEvent( void * ptr );
  * are available, `NULL` is returned.
  */
 /* @[declare_platform_static_memory_mallocmqttsubscription] */
-void * AwsIot_MallocMqttSubscription( size_t size );
+    void * AwsIot_MallocMqttSubscription( size_t size );
 /* @[declare_platform_static_memory_mallocmqttsubscription] */
 
 /**
@@ -261,7 +261,7 @@ void * AwsIot_MallocMqttSubscription( size_t size );
  * @param[in] ptr Pointer to an active MQTT subscription to free.
  */
 /* @[declare_platform_static_memory_freemqttsubscription] */
-void AwsIot_FreeMqttSubscription( void * ptr );
+    void AwsIot_FreeMqttSubscription( void * ptr );
 /* @[declare_platform_static_memory_freemqttsubscription] */
 
 /*---------------------- Shadow operation management ------------------------*/
@@ -284,7 +284,7 @@ void AwsIot_FreeMqttSubscription( void * ptr );
  * @return Pointer to a Shadow operation.
  */
 /* @[declare_platform_static_memory_mallocshadowoperation] */
-void * AwsIot_MallocShadowOperation( size_t size );
+    void * AwsIot_MallocShadowOperation( size_t size );
 /* @[declare_platform_static_memory_mallocshadowoperation] */
 
 /**
@@ -298,7 +298,7 @@ void * AwsIot_MallocShadowOperation( size_t size );
  * @param[in] ptr Pointer to an active Shadow operation to free.
  */
 /* @[declare_platform_static_memory_freeshadowoperation] */
-void AwsIot_FreeShadowOperation( void * ptr );
+    void AwsIot_FreeShadowOperation( void * ptr );
 /* @[declare_platform_static_memory_freeshadowoperation] */
 
 /*--------------------- Shadow subscription management ----------------------*/
@@ -326,7 +326,7 @@ void AwsIot_FreeShadowOperation( void * ptr );
  * are available, `NULL` is returned.
  */
 /* @[declare_platform_static_memory_mallocshadowsubscription] */
-void * AwsIot_MallocShadowSubscription( size_t size );
+    void * AwsIot_MallocShadowSubscription( size_t size );
 /* @[declare_platform_static_memory_mallocshadowsubscription] */
 
 /**
@@ -340,7 +340,79 @@ void * AwsIot_MallocShadowSubscription( size_t size );
  * @param[in] ptr Pointer to an active Shadow subscription to free.
  */
 /* @[declare_platform_static_memory_freeshadowsubscription] */
-void AwsIot_FreeShadowSubscription( void * ptr );
+    void AwsIot_FreeShadowSubscription( void * ptr );
 /* @[declare_platform_static_memory_freeshadowsubscription] */
+
+/**
+ * @brief Allocates memory to hold data for a new [Defender report]
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Defender reports.
+ *
+ * @param[in] size Requested size for the report.
+ *
+ * @return Pointer to a Defender report.
+ */
+    void * AwsIot_MallocDefenderReport( size_t size );
+
+/**
+ * @brief Frees an in-use [Defender report]
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Defender reports.
+ *
+ * @param[in] ptr Pointer to an active Defender report to free.
+ */
+    void AwsIot_FreeDefenderReport( void * ptr );
+
+/**
+ * @brief Allocates memory to hold data for a new [Defender topic]
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Defender topic.
+ *
+ * @param[in] size Requested size for the topic.
+ *
+ * @return Pointer to a Defender topic.
+ */
+    void * AwsIot_MallocDefenderTopic( size_t size );
+
+/**
+ * @brief Frees an in-use [Defender topic]
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Defender topics.
+ *
+ * @param[in] ptr Pointer to an active Defender topic to free.
+ */
+    void AwsIot_FreeDefenderTopic( void * ptr );
+
+/**
+ * @brief Allocates memory to hold data for a new [Metrics TCP Connection]
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Metrics TCP Connections.
+ *
+ * @param[in] size Requested size for the Metrics TCP Connections.
+ *
+ * @return Pointer to a Metrics TCP Connection.
+ */
+    void * AwsIot_MallocMetricsTcpConnection( size_t size );
+
+/**
+ * @brief Frees an in-use [Metrics TCP Connection]
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Metrics TCP Connections.
+ *
+ * @param[in] ptr Pointer to an active Metrics TCP Connection to free.
+ */
+    void AwsIot_FreeMetricsTcpConnection( void * ptr );
 
 #endif /* if !defined( _AWS_IOT_STATIC_MEMORY_H_ ) && ( AWS_IOT_STATIC_MEMORY_ONLY == 1 ) */

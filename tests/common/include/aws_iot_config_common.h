@@ -75,6 +75,8 @@
 
 /* It is a known issue that some test cases need configASSERT to map to TEST_ABORT. */
 #define AwsIotSerializer_Assert( expression )    if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Serializer assert failure" )
+#define IotMetrics_Assert( expression )          if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Metrics assert failure" )
+#define AwsIotDefender_Assert( expression )      if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Defender assert failure" )
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef AWS_IOT_STATIC_MEMORY_ONLY
@@ -98,22 +100,31 @@
 /* Memory allocation function configuration for the MQTT library. The MQTT library
  * will be affected by AWS_IOT_STATIC_MEMORY_ONLY. */
 #if AWS_IOT_STATIC_MEMORY_ONLY == 0
-    #define AwsIotMqtt_MallocConnection        pvPortMalloc
-    #define AwsIotMqtt_FreeConnection          vPortFree
-    #define AwsIotMqtt_MallocMessage           pvPortMalloc
-    #define AwsIotMqtt_FreeMessage             vPortFree
-    #define AwsIotMqtt_MallocOperation         pvPortMalloc
-    #define AwsIotMqtt_FreeOperation           vPortFree
-    #define AwsIotMqtt_MallocSubscription      pvPortMalloc
-    #define AwsIotMqtt_FreeSubscription        vPortFree
-    #define AwsIotMqtt_MallocTimerEvent        pvPortMalloc
-    #define AwsIotMqtt_FreeTimerEvent          vPortFree
-    #define AwsIotShadow_MallocOperation       pvPortMalloc
-    #define AwsIotShadow_FreeOperation         vPortFree
-    #define AwsIotShadow_MallocString          pvPortMalloc
-    #define AwsIotShadow_FreeString            vPortFree
-    #define AwsIotShadow_MallocSubscription    pvPortMalloc
-    #define AwsIotShadow_FreeSubscription      vPortFree
+    #define AwsIotMqtt_MallocConnection          pvPortMalloc
+    #define AwsIotMqtt_FreeConnection            vPortFree
+    #define AwsIotMqtt_MallocMessage             pvPortMalloc
+    #define AwsIotMqtt_FreeMessage               vPortFree
+    #define AwsIotMqtt_MallocOperation           pvPortMalloc
+    #define AwsIotMqtt_FreeOperation             vPortFree
+    #define AwsIotMqtt_MallocSubscription        pvPortMalloc
+    #define AwsIotMqtt_FreeSubscription          vPortFree
+    #define AwsIotMqtt_MallocTimerEvent          pvPortMalloc
+    #define AwsIotMqtt_FreeTimerEvent            vPortFree
+
+    #define AwsIotShadow_MallocOperation         pvPortMalloc
+    #define AwsIotShadow_FreeOperation           vPortFree
+    #define AwsIotShadow_MallocString            pvPortMalloc
+    #define AwsIotShadow_FreeString              vPortFree
+    #define AwsIotShadow_MallocSubscription      pvPortMalloc
+    #define AwsIotShadow_FreeSubscription        vPortFree
+
+    #define AwsIotDefender_MallocReport          pvPortMalloc
+    #define AwsIotDefender_FreeReport            vPortFree
+    #define AwsIotDefender_MallocTopic           pvPortMalloc
+    #define AwsIotDefender_FreeTopic             vPortFree
+
+    #define AwsIotMetrics_MallocTcpConnection    pvPortMalloc
+    #define AwsIotMetrics_FreeTcpConnection      vPortFree
 #endif /* if AWS_IOT_STATIC_MEMORY_ONLY == 0 */
 
 /* Settings required to build the libraries for testing. */
@@ -124,7 +135,8 @@
 #define AWS_IOT_SHADOW_ENABLE_ASSERTS               ( 1 )
 #define AWS_IOT_SERIALIZER_ENABLE_ASSERTS           ( 1 )
 #define AWS_IOT_MQTT_MAX_SEND_THREADS               ( 1 )
-
+#define AWS_IOT_METRICS_ENABLE_ASSERTS              ( 1 )
+#define AWS_IOT_DEFENDER_ENABLE_ASSERTS             ( 1 )
 
 /* Static memory configuration. */
 #if AWS_IOT_STATIC_MEMORY_ONLY == 1
@@ -192,5 +204,12 @@
 #define AWS_IOT_TEST_PRIVATE_KEY           clientcredentialCLIENT_PRIVATE_KEY_PEM
 #define AWS_IOT_TEST_PRIVATE_KEY_LENGTH    clientcredentialCLIENT_PRIVATE_KEY_LENGTH
 #define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
+
+/* Enable socket metrics for defender tests. */
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+
+/* Defender library configuration. */
+#define AWS_IOT_DEFENDER_FORMAT          AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 1 )
 
 #endif /* ifndef _AWS_IOT_CONFIG_COMMON_H_ */

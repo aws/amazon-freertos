@@ -1,5 +1,4 @@
 /*
- * Amazon FreeRTOS V1.4.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,19 +17,34 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
  */
-#ifndef _AWS_DEFENDER_DEMO_H_
-#define _AWS_DEFENDER_DEMO_H_
 
-#include "aws_demo.h"
+/* Build using a config header, if provided. */
+#ifdef AWS_IOT_CONFIG_FILE
+    #include AWS_IOT_CONFIG_FILE
+#endif
 
-/* old defender library demo, will be removed */
-demoDECLARE_DEMO( vStartDeviceDefenderDemo );
+/* This file should only be compiled if dynamic memory allocation is forbidden. */
+#if AWS_IOT_STATIC_MEMORY_ONLY == 1
 
-/* new defender library demo */
-demoDECLARE_DEMO( vStartDefenderDemo );
+/* Static memory include. */
+    #include "platform/aws_iot_static_memory.h"
 
-#endif /* end of include guard: _AWS_DEFENDER_DEMO_H_ */
+/* Metrics include. */
+    #include "iot_metrics.h"
+
+/*-----------------------------------------------------------*/
+
+    void * AwsIot_MallocMetricsTcpConnection( size_t size )
+    {
+        IotMetrics_Assert( 0 );
+    }
+
+/*-----------------------------------------------------------*/
+
+    void AwsIot_FreeMetricsTcpConnection( void * ptr )
+    {
+        IotMetrics_Assert( 0 );
+    }
+
+#endif /* if AWS_IOT_STATIC_MEMORY_ONLY == 1 */

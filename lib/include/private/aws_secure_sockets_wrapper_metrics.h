@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.4
+ * Amazon FreeRTOS System Initialization
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,15 +22,21 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-#ifndef _AWS_DEFENDER_DEMO_H_
-#define _AWS_DEFENDER_DEMO_H_
 
-#include "aws_demo.h"
+#ifndef _AWS_SECURE_SOCKETS_WRAPPER_METRICS_
+#define _AWS_SECURE_SOCKETS_WRAPPER_METRICS_
 
-/* old defender library demo, will be removed */
-demoDECLARE_DEMO( vStartDeviceDefenderDemo );
+/* This file redefines Secure Sockets functions to be called through a wrapper macro,
+ * but only if metrics is enabled explicitly. */
+#ifdef AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
 
-/* new defender library demo */
-demoDECLARE_DEMO( vStartDefenderDemo );
+/* This macro is included in aws_secure_socket.c and aws_secure_socket_wrapper_metrics.c.
+It will prevent the redefine in those source files. */
+    #ifndef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
+        #define SOCKETS_Connect     Sockets_MetricsConnect
+        #define SOCKETS_Shutdown    Sockets_MetricsShutdown
+    #endif
 
-#endif /* end of include guard: _AWS_DEFENDER_DEMO_H_ */
+#endif
+
+#endif /* ifndef _AWS_SECURE_SOCKETS_WRAPPER_METRICS_ */
