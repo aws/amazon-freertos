@@ -61,8 +61,8 @@
 
 
 #define _validateSerializerResult( encoder, result )                    \
-        if( ( result == AWS_IOT_SERIALIZER_SUCCESS ) ||                 \
-                ( result ==  AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) )    \
+        if( ( result != AWS_IOT_SERIALIZER_SUCCESS ) &&                 \
+                ( result !=  AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) )    \
         {                                                               \
             _MQTT_BLE_ENCODER.destroy( &xEncoderObj );                  \
             return result;                                              \
@@ -220,7 +220,6 @@ AwsIotSerializerError_t prxSerializeConnect( const AwsIotMqttConnectInfo_t * con
         return xError;
     }
 
-    xConnectMap.type = AWS_IOT_SERIALIZER_CONTAINER_MAP;
     xError = _MQTT_BLE_ENCODER.openContainer(
             &xEncoderObj,
             &xConnectMap,
@@ -233,14 +232,14 @@ AwsIotSerializerError_t prxSerializeConnect( const AwsIotMqttConnectInfo_t * con
     _validateSerializerResult( &xEncoderObj, xError );
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-    xData.value.pStr = ( uint8_t * ) pConnectInfo->pClientIdentifier;
-    xData.value.strLength = pConnectInfo->clientIdentifierLength;
+    xData.value.pString = ( uint8_t * ) pConnectInfo->pClientIdentifier;
+    xData.value.stringLength = pConnectInfo->clientIdentifierLength;
     xError = _MQTT_BLE_ENCODER.appendKeyValue( &xConnectMap, mqttBLECLIENT_ID, xData );
     _validateSerializerResult( &xEncoderObj, xError );
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-    xData.value.pStr = ( uint8_t * ) clientcredentialMQTT_BROKER_ENDPOINT;
-    xData.value.strLength = strlen( clientcredentialMQTT_BROKER_ENDPOINT );
+    xData.value.pString = ( uint8_t * ) clientcredentialMQTT_BROKER_ENDPOINT;
+    xData.value.stringLength = strlen( clientcredentialMQTT_BROKER_ENDPOINT );
     xError = _MQTT_BLE_ENCODER.appendKeyValue( &xConnectMap, mqttBLEBROKER_EP, xData );
     _validateSerializerResult( &xEncoderObj, xError );
 
@@ -250,15 +249,15 @@ AwsIotSerializerError_t prxSerializeConnect( const AwsIotMqttConnectInfo_t * con
     _validateSerializerResult( &xEncoderObj, xError );
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_BOOL;
-    xData.value.boolValue = pConnectInfo->cleanSession;
+    xData.value.booleanValue = pConnectInfo->cleanSession;
     xError = _MQTT_BLE_ENCODER.appendKeyValue( &xConnectMap, mqttBLECLEAN_SESSION, xData );
     _validateSerializerResult( &xEncoderObj, xError );
 
     if( pConnectInfo->pUserName != NULL )
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        xData.value.pStr = ( uint8_t* ) pConnectInfo->pUserName;
-        xData.value.strLength = pConnectInfo->userNameLength;
+        xData.value.pString = ( uint8_t* ) pConnectInfo->pUserName;
+        xData.value.stringLength = pConnectInfo->userNameLength;
         xError = _MQTT_BLE_ENCODER.appendKeyValue( &xConnectMap, mqttBLEUSER, xData );
         _validateSerializerResult( &xEncoderObj, xError );
     }
@@ -309,8 +308,8 @@ AwsIotSerializerError_t prxSerializePublish( const AwsIotMqttPublishInfo_t * con
     _validateSerializerResult( &xEncoderObj, xError );
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
-    xData.value.pStr = ( uint8_t * ) pPublishInfo->pTopicName;
-    xData.value.strLength = pPublishInfo->topicNameLength;
+    xData.value.pString = ( uint8_t * ) pPublishInfo->pTopicName;
+    xData.value.stringLength = pPublishInfo->topicNameLength;
     xError = _MQTT_BLE_ENCODER.appendKeyValue( &xPublishMap, mqttBLETOPIC, xData );
     _validateSerializerResult( &xEncoderObj, xError );
 
@@ -321,8 +320,8 @@ AwsIotSerializerError_t prxSerializePublish( const AwsIotMqttPublishInfo_t * con
 
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
-    xData.value.pStr = ( uint8_t * ) pPublishInfo->pPayload;
-    xData.value.strLength = pPublishInfo->payloadLength;
+    xData.value.pString = ( uint8_t * ) pPublishInfo->pPayload;
+    xData.value.stringLength = pPublishInfo->payloadLength;
     xError = _MQTT_BLE_ENCODER.appendKeyValue( &xPublishMap, mqttBLEPAYLOAD, xData );
     _validateSerializerResult( &xEncoderObj, xError );
 
@@ -438,8 +437,8 @@ AwsIotSerializerError_t prxSerializeSubscribe( const AwsIotMqttSubscription_t * 
     for( usIdx = 0; usIdx < subscriptionCount; usIdx++ )
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
-        xData.value.pStr = ( uint8_t * ) pSubscriptionList[ usIdx ].pTopicFilter;
-        xData.value.strLength = pSubscriptionList[ usIdx ].topicFilterLength;
+        xData.value.pString = ( uint8_t * ) pSubscriptionList[ usIdx ].pTopicFilter;
+        xData.value.stringLength = pSubscriptionList[ usIdx ].topicFilterLength;
         xError = _MQTT_BLE_ENCODER.append( &xSubscriptionArray, xData );
         _validateSerializerResult( &xEncoderObj, xError );
     }
@@ -530,8 +529,8 @@ AwsIotSerializerError_t prxSerializeUnSubscribe( const AwsIotMqttSubscription_t 
     {
 
         xData.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
-        xData.value.pStr = ( uint8_t * ) pSubscriptionList[ usIdx ].pTopicFilter;
-        xData.value.strLength = pSubscriptionList[ usIdx ].topicFilterLength;
+        xData.value.pString = ( uint8_t * ) pSubscriptionList[ usIdx ].pTopicFilter;
+        xData.value.stringLength = pSubscriptionList[ usIdx ].topicFilterLength;
         xError = _MQTT_BLE_ENCODER.append( &xSubscriptionArray, xData );
         _validateSerializerResult( &xEncoderObj, xError );
     }

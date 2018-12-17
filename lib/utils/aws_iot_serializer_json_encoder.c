@@ -76,8 +76,10 @@
 
 #define _jsonIsValidScalar( data ) ( ( (data)->type >= AWS_IOT_SERIALIZER_SCALAR_NULL  ) && ( (data)->type <= AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
 
-#define _jsonIsValidContainer( container ) ( (container != NULL ) && \
-        ( (container)->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM  ) && ( (container)->type <= AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+#define _jsonIsValidContainer( container ) ( \
+        ( container != NULL ) && \
+        ( (container)->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM  ) && \
+        ( (container)->type <= AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
 
 typedef struct _jsonContainer {
         AwsIotSerializerDataType_t containerType;
@@ -222,8 +224,8 @@ static size_t _getValueLength(
         AwsIotSerializerScalarData_t* pScalarValue );
 
 static void _stopContainer( _jsonContainer_t* pContainer, AwsIotSerializerDataType_t containerType );
-static void _appendString( _jsonContainer_t* pContainer, const char* pStr, size_t strLength );
-static void _appendByteString( _jsonContainer_t* pContainer, const char* pStr, size_t strLength );
+static void _appendTextString( _jsonContainer_t* pContainer, const char* pStr, size_t strLength );
+static void _appendByteString( _jsonContainer_t* pContainer, uint8_t* pByteString, size_t stringLength );
 static void _appendInteger( _jsonContainer_t* pContainer, int64_t signedInteger );
 static void _appendBoolean( _jsonContainer_t* pContainer, bool boolValue );
 static void _appendData(_jsonContainer_t* pContainer,  AwsIotSerializerDataType_t dataType, AwsIotSerializerScalarData_t* pScalarData );
@@ -272,13 +274,13 @@ static size_t _getSerializedLength(
         case AWS_IOT_SERIALIZER_CONTAINER_STREAM:
             break;
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
-            return _jsonStringLength( pScalarData->value.strLength );
+            return _jsonStringLength( pScalarData->value.stringLength );
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
-            return _jsonByteStringLength( pScalarData->value.strLength );
+            return _jsonByteStringLength( pScalarData->value.stringLength );
         case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
             return _jsonIntegerLength( pScalarData->value.signedInt );
         case AWS_IOT_SERIALIZER_SCALAR_BOOL:
-            return _jsonBoolLength( pScalarData->value.boolValue );
+            return _jsonBoolLength( pScalarData->value.booleanValue );
         case AWS_IOT_SERIALIZER_SCALAR_NULL:
             return _JSON_NULL_VALUE_LENGTH;
         default:
@@ -320,7 +322,7 @@ static size_t _getValueLength(
     return length;
 }
 
-static void _appendString( _jsonContainer_t* pContainer, const char* pStr, size_t strLength )
+static void _appendTextString( _jsonContainer_t* pContainer, const char* pStr, size_t strLength )
 {
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_STRING_WRAPPER;
     memcpy( ( pContainer->pBuffer +  pContainer->offset ), pStr, strLength );
@@ -328,7 +330,7 @@ static void _appendString( _jsonContainer_t* pContainer, const char* pStr, size_
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_STRING_WRAPPER;
 }
 
-static void _appendByteString( _jsonContainer_t* pContainer, const char* pStr, size_t strLength )
+static void _appendByteString( _jsonContainer_t* pContainer, uint8_t *pByteString, size_t stringLength )
 {
     size_t encodedStrLength = 0;
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_STRING_WRAPPER;
@@ -336,8 +338,8 @@ static void _appendByteString( _jsonContainer_t* pContainer, const char* pStr, s
             ( unsigned char * )( pContainer->pBuffer + pContainer->offset ),
             pContainer->remainingLength,
             &encodedStrLength,
-            ( const unsigned char * ) pStr,
-            strLength );
+            ( const unsigned char * ) pByteString,
+            stringLength );
     pContainer->offset += encodedStrLength;
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_STRING_WRAPPER;
 }
@@ -357,13 +359,16 @@ static void _appendBoolean( _jsonContainer_t* pContainer, bool value )
     }
     else
     {
-        strncpy( ( char* ) &( pContainer->pBuffer[ pContainer->offset ] ), _JSON_BOOL_FALSE, _JSON_BOOL_FALSE_LENGTH );
+        strncpy( ( char* ) _jsonContainerPointer( pContainer ), _JSON_BOOL_FALSE, _JSON_BOOL_FALSE_LENGTH );
         pContainer->offset += _JSON_BOOL_FALSE_LENGTH;
     }
 }
 
 static void _appendData(_jsonContainer_t* pContainer,  AwsIotSerializerDataType_t dataType, AwsIotSerializerScalarData_t* pScalarData )
 {
+    size_t stringLength;
+    char *pString;
+
     switch( dataType )
     {
         case AWS_IOT_SERIALIZER_CONTAINER_MAP:
@@ -373,16 +378,18 @@ static void _appendData(_jsonContainer_t* pContainer,  AwsIotSerializerDataType_
             pContainer->pBuffer[ pContainer->offset++ ] = _JSON_ARRAY_START_CHAR;
             break;
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
-            _appendString( pContainer, (char *) pScalarData->value.pStr, pScalarData->value.strLength );
+            pString = ( char * ) ( pScalarData->value.pString );
+            stringLength = ( pScalarData->value.stringLength == 0 ) ? strlen( pString ): pScalarData->value.stringLength;
+            _appendTextString( pContainer, pString , stringLength );
             break;
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
-            _appendByteString( pContainer, (char *) pScalarData->value.pStr, pScalarData->value.strLength );
+            _appendByteString( pContainer, pScalarData->value.pString, pScalarData->value.stringLength );
             break;
         case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
             _appendInteger( pContainer, pScalarData->value.signedInt );
             break;
         case AWS_IOT_SERIALIZER_SCALAR_BOOL:
-            _appendBoolean( pContainer, pScalarData->value.boolValue );
+            _appendBoolean( pContainer, pScalarData->value.booleanValue );
             break;
         case AWS_IOT_SERIALIZER_SCALAR_NULL:
             strncpy( ( char* ) _jsonContainerPointer( pContainer ), _JSON_NULL_VALUE, _JSON_NULL_VALUE_LENGTH );
@@ -411,7 +418,7 @@ static void _appendJsonKeyValuePair(
     {
         pContainer->pBuffer[ pContainer->offset++ ] = _JSON_VALUE_SEPARATOR;
     }
-    _appendString( pContainer, pcKey, keyLength );
+    _appendTextString( pContainer, pcKey, keyLength );
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_KEY_VALUE_PAIR_SEPARATOR;
     _appendData( pContainer, xValType, pxScalarValue );
 }

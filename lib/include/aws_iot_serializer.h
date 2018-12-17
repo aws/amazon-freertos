@@ -48,11 +48,11 @@
 #define AwsIotSerializer_ScalarSignedInt( signedIntValue )                                                                          \
     ( AwsIotSerializerScalarData_t ) { .value = { .signedInt = ( signedIntValue ) }, .type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT } \
 
-#define AwsIotSerializer_ScalarTextString( pTextStringValue )                                                                            \
-    ( AwsIotSerializerScalarData_t ) { .value = { .pByteString = ( pTextStringValue ), .byteStringLength = 0 }, .type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING } \
+#define AwsIotSerializer_ScalarTextString( pTextStringValue )                                                                                           \
+    ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( ( uint8_t * ) pTextStringValue ), .stringLength = 0 }, .type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING } \
 
-#define AwsIotSerializer_ScalarByteString( pByteStringValue, length )                                                                                                    \
-    ( AwsIotSerializerScalarData_t ) { .value = { .pByteString = ( pByteStringValue ), .byteStringLength = ( length ) }, .type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING } \
+#define AwsIotSerializer_ScalarByteString( pByteStringValue, length )                                                                                            \
+    ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( pByteStringValue ), .stringLength = ( length ) }, .type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING } \
 
 /* error code returned by serializer function interface */
 typedef enum
@@ -93,10 +93,10 @@ typedef struct AwsIotSerializerScalarValue
         int64_t signedInt;
         struct
         {
-            uint8_t * pStr;
-            size_t strLength;
+            uint8_t * pString;
+            size_t stringLength;
         };
-        bool boolValue;
+        bool booleanValue;
     };
 } AwsIotSerializerScalarValue_t;
 
@@ -128,7 +128,7 @@ typedef struct AwsIotSerializerDecoderObject
     };
 } AwsIotSerializerDecoderObject_t;
 
-typedef AwsIotSerializerDecoderObject_t * AwsIotSerializerDecoderIterator_t;
+typedef void * AwsIotSerializerDecoderIterator_t;
 
 /* functions table of encoding */
 typedef struct AwsIotSerializerEncodeInterface
@@ -253,14 +253,14 @@ typedef struct AwsIotSerializerDecodeInterface
      * Get object value
      *
      */
-    AwsIotSerializerError_t ( * get )( AwsIotSerializerDecoderIterator_t * pIterator,
+    AwsIotSerializerError_t ( * get )( AwsIotSerializerDecoderIterator_t iterator,
                                        AwsIotSerializerDecoderObject_t * pValueObject );
 
 	/*
 	 * Find the object value paired to input key
 	 *
 	 */
-    AwsIotSerializerError_t ( * find )( AwsIotSerializerDecoderObject_t * pDecoderObject,
+    AwsIotSerializerError_t ( * find )( AwsIotSerializerDecoderObject_t* pDecoderObject,
                                         const char * pKey,
                                         AwsIotSerializerDecoderObject_t * pValueObject );
 
@@ -269,12 +269,12 @@ typedef struct AwsIotSerializerDecodeInterface
      * Find the next object in the same value and save it to pNewDecoderObject
      *
      */
-    AwsIotSerializerError_t ( * next )( AwsIotSerializerDecoderIterator_t * pIterator);
+    AwsIotSerializerError_t ( * next )( AwsIotSerializerDecoderIterator_t iterator);
 
     /*
      * Check if this is the end of container.
      */
-    uint8_t ( * isEndOfContainer )( AwsIotSerializerDecoderIterator_t * pIterator);
+    bool ( * isEndOfContainer )( AwsIotSerializerDecoderIterator_t iterator);
 
     /*
      * enter the container object and save the first child object to pNewDecoderObject
@@ -288,7 +288,7 @@ typedef struct AwsIotSerializerDecodeInterface
      *
      */
 
-    AwsIotSerializerError_t ( * stepOut )( AwsIotSerializerDecoderIterator_t * pIterator,
+    AwsIotSerializerError_t ( * stepOut )( AwsIotSerializerDecoderIterator_t iterator,
                                            AwsIotSerializerDecoderObject_t * pDecoderObject );
 
     /*
