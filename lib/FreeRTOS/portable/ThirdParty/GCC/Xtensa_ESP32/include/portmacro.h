@@ -282,6 +282,7 @@ static inline void uxPortCompareSet(volatile uint32_t *addr, uint32_t compare, u
         );
 }
 
+void uxPortCompareSetExtram(volatile uint32_t *addr, uint32_t compare, uint32_t *set);
 
 /*-----------------------------------------------------------*/
 
