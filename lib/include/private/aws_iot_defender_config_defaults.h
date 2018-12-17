@@ -22,27 +22,29 @@
 #ifndef _AWS_IOT_DEFENDER_CONFIG_DEFAULT_H_
 #define _AWS_IOT_DEFENDER_CONFIG_DEFAULT_H_
 
+#include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
+
 /* constants */
 #define AWS_IOT_DEFENDER_METRICS_FORMAT_CBOR    1
 
 #define AWS_IOT_DEFENDER_METRICS_FORMAT_JSON    2
 
-/* required configurations */
+/* default configuration */
 #ifndef AWS_IOT_DEFENDER_MQTT_ENDPOINT
-    #error "AWS_IOT_DEFENDER_MQTT_ENDPOINT must be defined."
+    #define AWS_IOT_DEFENDER_MQTT_ENDPOINT    clientcredentialMQTT_BROKER_ENDPOINT
 #endif
 
 #ifndef AWS_IOT_DEFENDER_THING_NAME
-    #error "AWS_IOT_DEFENDER_THING_NAME must be defined."
+    #define AWS_IOT_DEFENDER_THING_NAME    clientcredentialIOT_THING_NAME
 #endif
 
 #ifndef AWS_IOT_DEFENDER_CLIENT_CERTIFICATE_PEM
-    #error "AWS_IOT_DEFENDER_CLIENT_CERTIFICATE_PEM must be defined."
+    #define AWS_IOT_DEFENDER_CLIENT_CERTIFICATE_PEM    keyCLIENT_CERTIFICATE_PEM
 #endif
 
-/* default configurations */
 #ifndef AWS_IOT_DEFENDER_MQTT_BROKER_PORT
-    #define AWS_IOT_DEFENDER_MQTT_BROKER_PORT    ( 8883 )
+    #define AWS_IOT_DEFENDER_MQTT_BROKER_PORT    clientcredentialMQTT_BROKER_PORT
 #endif
 
 #ifndef AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS
