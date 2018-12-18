@@ -93,7 +93,7 @@ typedef struct AwsIotDefenderStartInfo
 {
     AwsIotMqttNetIf_t networkInterface;
     const char * pThingName;
-    size_t thingNameLength;
+    uint16_t thingNameLength;
     AwsIotDefenderCallback_t callback;
 } AwsIotDefenderStartInfo_t;
 
