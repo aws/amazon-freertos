@@ -47,18 +47,15 @@
 #include "aws_iot_serializer.h"
 
 
-#if ( bleConfigENABLE_CBOR_ENCODING == 1 )
+#define _INVALID_MQTT_PACKET_TYPE        ( 0xF0 )
 
+#if ( bleConfigENABLE_CBOR_ENCODING == 1 )
 #define _MQTT_BLE_ENCODER  ( _AwsIotSerializerCborEncoder )
 #define _MQTT_BLE_DECODER  ( _AwsIotSerializerCborDecoder )
-
 #elif ( bleConfigENABLE_JSON_ENCODING == 1 )
-
 #define _MQTT_BLE_ENCODER  ( _AwsIotSerializerJsonEncoder )
 #define _MQTT_BLE_DECODER  ( _AwsIotSerializerJsonDecoder )
-
 #endif
-
 
 #define _validateSerializerResult( encoder, result )                    \
         if( ( result != AWS_IOT_SERIALIZER_SUCCESS ) &&                 \
@@ -660,44 +657,51 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeConnack( const uint8_t * const pConna
                                                          size_t dataLength,
                                                          size_t * const pBytesProcessed )
 {
-	int16_t numTokens;
-	jsmntok_t tokens[ mqttBLEMAX_MESG_TOKENS ];
-	BaseType_t respCodeFound;
-	int16_t respCode;
 
-	numTokens = JsonUtils_Parse( ( const char* ) pConnackStart, dataLength, tokens, mqttBLEMAX_MESG_TOKENS );
+    AwsIotSerializerDecoderObject_t xDecoderObj, xValue = { 0 };
+    AwsIotSerializerError_t xError;
+    AwsIotMqttError_t xConnectionStatus = AWS_IOT_MQTT_SERVER_REFUSED;
+    int64_t respCode;
 
-	if( numTokens <= 0 )
-	{
-		*pBytesProcessed = 0;
-		AwsIotLogError( "Malformed MQTT packet received." );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    xError = _MQTT_BLE_DECODER.init( &xDecoderObj, ( uint8_t * ) pConnackStart, dataLength );
 
-	*pBytesProcessed = tokens[0].end;
+    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        AwsIotLogError( "Malformed CONNACK, decoding the packet failed, decoder error = %d", xError );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	respCodeFound = JsonUtils_GetInt16Value( ( const char *) pConnackStart,
-			tokens,
-			numTokens,
-			mqttBLESTATUS,
-			strlen( mqttBLESTATUS ),
-			&respCode );
+    if( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    {
+        AwsIotLogError( "Invalid CONNACK, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	if( respCodeFound == pdFALSE )
-	{
-		AwsIotLogError( "Malformed CONNACK packet, response code not found" );
+    xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLESTATUS, &xValue );
 
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
+         ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+    {
+        AwsIotLogError( "Invalid CONNACK, response code decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
+    respCode =  xValue.value.signedInt;
+    if( ( respCode == eMQTTBLEStatusConnecting )
+            || ( respCode == eMQTTBLEStatusConnected ) )
+    {
+        AwsIotLogError( "MQTT connection refused, response code %d", respCode  );
+        xConnectionStatus = AWS_IOT_MQTT_SUCCESS;
+    }
+    _MQTT_BLE_DECODER.destroy( &xValue );
+    _MQTT_BLE_DECODER.destroy( &xDecoderObj );
 
-	if( respCode != eMQTTBLEStatusConnecting  && respCode != eMQTTBLEStatusConnected )
-	{
-		AwsIotLogError( "Connection refused by the BLE proxy, response code %d", respCode  );
-		return AWS_IOT_MQTT_SERVER_REFUSED;
-	}
+    ( *pBytesProcessed ) = dataLength;
 
-	return AWS_IOT_MQTT_SUCCESS;
+	return xConnectionStatus;
 }
 
 AwsIotMqttError_t AwsIotMqttBLE_SerializePublish( const AwsIotMqttPublishInfo_t * const pPublishInfo,
@@ -753,101 +757,119 @@ void AwsIotMqttBLE_PublishSetDup( bool awsIotMqttMode, uint8_t * const pPublishP
 	/** TODO: Currently DUP flag is not supported by BLE SDKs **/
 }
 
+/**
+ * @brief Decodes a byte string or text string from CBOR/JSON map.
+ *
+ * Functions copies the decoded string to a new buffer and stores the pointer and length of the decoded buffer.
+ * Decoded buffer needs to be freed using AwsIotMqtt_FreeMessage();
+ * @param[in] pDecoder Pointer to an initialized decoder object containing the map
+
+ * @param pLength Param where the length of the buffer needs to be stored
+ */
+static AwsIotSerializerError_t prxDecodeStringValue(AwsIotSerializerDecoderObject_t* pDecoder,
+                                  const char* pKey,
+                                  AwsIotSerializerDecoderObject_t* pValue)
+{
+
+
+    AwsIotSerializerError_t xError;
+
+    /* First Get the length of the string */
+    pValue->value.pString = NULL;
+    pValue->value.stringLength = 0;
+    xError = _MQTT_BLE_DECODER.find( pDecoder, pKey, pValue );
+    if ( xError == AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        pValue->value.pString = ( uint8_t * ) pvPortMalloc( pValue->value.stringLength );
+        if( pValue->value.pString == NULL )
+        {
+            xError = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+        }
+    }
+    if( xError == AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        xError = _MQTT_BLE_DECODER.find( pDecoder, pKey, pValue );
+    }
+
+    return xError;
+}
+
 AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPublishStart,
                                                          size_t dataLength,
                                                          AwsIotMqttPublishInfo_t * const pOutput,
                                                          uint16_t * const pPacketIdentifier,
                                                          size_t * const pBytesProcessed )
 {
-	int16_t numTokens;
-	jsmntok_t tokens[ mqttBLEMAX_MESG_TOKENS ];
-	BaseType_t result;
 
-	numTokens = JsonUtils_Parse( ( const char* ) pPublishStart, dataLength, tokens, mqttBLEMAX_MESG_TOKENS );
+    AwsIotSerializerDecoderObject_t xDecoderObj, xValue = { 0 };
+    AwsIotSerializerError_t xError;
+    uint8_t *pTopic, *pPayload, *pOutBuffer = ( uint8_t * ) pPublishStart;
+    size_t topicLength, payloadLength;
 
-	if( numTokens <= 0 )
-	{
-		*pBytesProcessed = 0;
-		AwsIotLogError( "Malformed MQTT packet received." );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    xError = _MQTT_BLE_DECODER.init( &xDecoderObj, ( uint8_t * ) pPublishStart, dataLength );
 
-	*pBytesProcessed = tokens[0].end;
+    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        AwsIotLogError( "Decoding PUBLISH packet failed, decoder error = %d", xError );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	result = JsonUtils_GetInt16Value( ( const char* ) pPublishStart,
-			tokens,
-			numTokens, mqttBLEQOS,
-			strlen( mqttBLEQOS ),
-			(int16_t*) &pOutput->QoS );
+    if( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    {
+        AwsIotLogError( "Invalid PUBLISH, should be a map of key value pairs, object type = %d", xDecoderObj.type );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	if( result == pdFALSE )
-	{
-		AwsIotLogError( "Cannot find QoS field in publish packet, identifier:%d", ( *pPacketIdentifier ) );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLEQOS, &xValue );
+    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
+         ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+    {
+        AwsIotLogError( "QOS Value decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	if( pOutput->QoS != 0 )
-	{
-		result = JsonUtils_GetInt16Value( ( const char* ) pPublishStart,
-				tokens,
-				numTokens, mqttBLEMESSAGE_ID,
-				strlen( mqttBLEMESSAGE_ID ),
-				(int16_t*) pPacketIdentifier );
+    xError = prxDecodeStringValue( &xDecoderObj, mqttBLETOPIC, &xValue );
+    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        AwsIotLogError( "Topic value decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
+    pTopic = xValue.value.pString;
+    topicLength = xValue.value.stringLength;
 
-		if( result == pdFALSE )
-		{
-			AwsIotLogError( "Cannot find packet identifier field in publish packet ");
-			return AWS_IOT_MQTT_BAD_RESPONSE;
-		}
-	}
+    xError = prxDecodeStringValue( &xDecoderObj, mqttBLEPAYLOAD, &xValue );
+    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        AwsIotLogError( "Topic value decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	/* Extract published topic */
-	JsonUtils_GetStrValue( ( const char* ) pPublishStart,
-			tokens,
-			numTokens,
-			mqttBLETOPIC,
-			strlen( mqttBLETOPIC ),
-			(const char**) &pOutput->pTopicName,
-			(uint32_t*) &pOutput->topicNameLength );
+    _MQTT_BLE_DECODER.destroy( &xValue );
+    _MQTT_BLE_DECODER.destroy( &xDecoderObj );
 
-	if( pOutput->topicNameLength == 0 )
-	{
-		AwsIotLogError( "Cannot find topic field in publish packet, identifier:%d", ( *pPacketIdentifier ) );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    pPayload = xValue.value.pString;
+    payloadLength = xValue.value.stringLength;
 
-	result = prxDecodeInPlace( ( uint8_t *) pOutput->pTopicName, ( size_t ) pOutput->topicNameLength, ( size_t* ) &pOutput->topicNameLength );
+    memcpy( pOutBuffer, pTopic, topicLength );
+    pOutput->pTopicName = (const char *) pOutBuffer;
+    pOutput->topicNameLength = topicLength;
 
-	if( result == pdFALSE )
-	{
-		AwsIotLogError( "Cannot decode topic field in publish packet, identifier:%d", ( *pPacketIdentifier ) );
-		return AWS_IOT_MQTT_NO_MEMORY;
-	}
-
-	/* Extract published data */
-	JsonUtils_GetStrValue( ( const char* ) pPublishStart,
-			tokens,
-			numTokens,
-			mqttBLEPAYLOAD,
-			strlen( mqttBLEPAYLOAD ),
-			(const char**) &pOutput->pPayload,
-			( uint32_t* ) &pOutput->payloadLength );
-
-	if( pOutput->payloadLength == 0 )
-	{
-		AwsIotLogError( "Cannot find topic field in publish packet, identifier:%d", ( *pPacketIdentifier ) );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
-
-	result = prxDecodeInPlace( ( uint8_t *) pOutput->pPayload, ( size_t ) pOutput->payloadLength, ( size_t * )&pOutput->payloadLength );
-
-	if( result == pdFALSE )
-	{
-		AwsIotLogError( "Cannot decode data in publish packet, identifier:%d", ( *pPacketIdentifier ) );
-		return AWS_IOT_MQTT_NO_MEMORY;
-	}
+    memcpy( ( pOutBuffer + topicLength ), pPayload, payloadLength );
+    pOutput->pPayload = (const char *) ( pOutBuffer + topicLength );
+    pOutput->payloadLength = payloadLength;
 
 	pOutput->retain = false;
+    ( *pBytesProcessed ) = dataLength;
+
+    AwsIotMqtt_FreeMessage( pTopic );
+    AwsIotMqtt_FreeMessage( pPayload );
 
 	return AWS_IOT_MQTT_SUCCESS;
 }
@@ -898,35 +920,45 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePuback( const uint8_t * const pPuback
                                                         uint16_t * const pPacketIdentifier,
                                                         size_t * const pBytesProcessed )
 {
-	int16_t numTokens;
-	jsmntok_t tokens[ mqttBLEMAX_MESG_TOKENS ];
-	BaseType_t result;
 
-	numTokens = JsonUtils_Parse( ( const char* ) pPubackStart, dataLength, tokens, mqttBLEMAX_MESG_TOKENS );
+    AwsIotSerializerDecoderObject_t xDecoderObj, xValue = { 0 };
+    AwsIotSerializerError_t xError;
 
-	if( numTokens <= 0 )
-	{
-		*pBytesProcessed = 0;
-		AwsIotLogError( "Malformed MQTT packet received" );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    xError = _MQTT_BLE_DECODER.init( &xDecoderObj, ( uint8_t * ) pPubackStart, dataLength );
 
-	*pBytesProcessed = tokens[0].end;
+    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        AwsIotLogError( "Malformed PUBACK, decoding the packet failed, decoder error = %d", xError );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	result = JsonUtils_GetInt16Value( ( const char* ) pPubackStart, tokens,
-				numTokens, mqttBLEMESSAGE_ID, strlen( mqttBLEMESSAGE_ID ),
-				( int16_t* ) pPacketIdentifier );
+    if( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    {
+        AwsIotLogError( "Invalid PUBACK, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	if( result == pdFALSE )
-	{
-		AwsIotLogError( "Cannot find packet identifier in PUBACK packet" );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+
+    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
+            ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+    {
+        AwsIotLogError( "Message ID decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
+    *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
+
+    _MQTT_BLE_DECODER.destroy( &xValue );
+    _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+
+    ( *pBytesProcessed ) = dataLength;
 
     return AWS_IOT_MQTT_SUCCESS;
+
 }
-
-
 
 AwsIotMqttError_t AwsIotMqttBLE_SerializeSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
                                                          size_t subscriptionCount,
@@ -980,51 +1012,52 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttCo
                                                         size_t * const pBytesProcessed )
 {
 
-	int16_t numTokens;
-	jsmntok_t tokens[ mqttBLEMAX_MESG_TOKENS ];
-	BaseType_t result;
-	int16_t subscriptionStatus;
-	AwsIotMqttError_t status;
-	_mqttConnection_t * pMqttConnection = ( _mqttConnection_t * ) mqttConnection;
+    AwsIotSerializerDecoderObject_t xDecoderObj, xValue = { 0 };
+    AwsIotSerializerError_t xError;
+    int64_t subscriptionStatus;
+    AwsIotMqttError_t status;
 
-	numTokens = JsonUtils_Parse( ( const char* ) pSubackStart, dataLength, tokens, mqttBLEMAX_MESG_TOKENS );
+    xError = _MQTT_BLE_DECODER.init( &xDecoderObj, ( uint8_t * ) pSubackStart, dataLength );
 
-	if( numTokens <= 0 )
-	{
-		*pBytesProcessed = 0;
-		AwsIotLogError( "Malformed MQTT packet received" );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        AwsIotLogError( "Malformed SUBACK, decoding the packet failed, decoder error = %d", xError );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	*pBytesProcessed = tokens[0].end;
+    if( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    {
+        AwsIotLogError( "Invalid SUBACK, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	result = JsonUtils_GetInt16Value(
-			( const char* ) pSubackStart,
-			tokens,
-			numTokens,
-			mqttBLEMESSAGE_ID,
-			strlen( mqttBLEMESSAGE_ID ),
-			( int16_t* ) pPacketIdentifier );
+    xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
+            ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+    {
+        AwsIotLogError( "Message ID decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
+    *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
 
-	if( result == pdFALSE )
-	{
-		AwsIotLogError( "Cannot find packet identifier field in SUBACK packet" );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLESTATUS, &xValue );
+    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
+            ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+    {
+        AwsIotLogError( "Status code decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
+    subscriptionStatus = ( uint16_t ) xValue.value.signedInt;
 
-	/* Extract the return code from the packet. */
-	result = JsonUtils_GetInt16Value( ( const char* ) pSubackStart,
-			tokens,
-			numTokens,
-			mqttBLESTATUS,
-			strlen( mqttBLESTATUS ),
-			&subscriptionStatus );
+    _MQTT_BLE_DECODER.destroy( &xValue );
+    _MQTT_BLE_DECODER.destroy( &xDecoderObj );
 
-	if( result == pdFALSE )
-	{
-		AwsIotLogError( "Cannot find response status field in SUBACK packet, id:%d", ( *pPacketIdentifier  ) );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    ( *pBytesProcessed ) = dataLength;
 
 	switch( subscriptionStatus )
 	{
@@ -1042,7 +1075,8 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttCo
 				"Topic refused." );
 
 		/* Remove a rejected subscription from the subscription manager. */
-		AwsIotMqttInternal_RemoveSubscriptionByPacket( pMqttConnection,
+		AwsIotMqttInternal_RemoveSubscriptionByPacket(
+		        ( _mqttConnection_t * ) mqttConnection,
 				( *pPacketIdentifier ),
 				0 );
 		status = AWS_IOT_MQTT_SERVER_REFUSED;
@@ -1110,34 +1144,39 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeUnsuback( const uint8_t * const pUnsu
                                                           uint16_t * const pPacketIdentifier,
                                                           size_t * const pBytesProcessed )
 {
-	int16_t numTokens;
-	jsmntok_t tokens[ mqttBLEMAX_MESG_TOKENS ];
-	BaseType_t result;
+    AwsIotSerializerDecoderObject_t xDecoderObj, xValue = { 0 };
+    AwsIotSerializerError_t xError;
 
-	numTokens = JsonUtils_Parse( ( const char* ) pUnsubackStart, dataLength, tokens, mqttBLEMAX_MESG_TOKENS );
+    xError = _MQTT_BLE_DECODER.init( &xDecoderObj, ( uint8_t * ) pUnsubackStart, dataLength );
 
-	if( numTokens <= 0 )
-	{
-		*pBytesProcessed = 0;
-		AwsIotLogError( "Malformed MQTT packet received" );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        AwsIotLogError( "Malformed UNSUBACK, decoding the packet failed, decoder error = %d", xError );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	*pBytesProcessed = tokens[0].end;
+    if( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    {
+        AwsIotLogError( "Invalid UNSUBACK, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
 
-	result = JsonUtils_GetInt16Value(
-			( const char* ) pUnsubackStart,
-			tokens,
-			numTokens,
-			mqttBLEMESSAGE_ID,
-			strlen( mqttBLEMESSAGE_ID ),
-			( int16_t* ) pPacketIdentifier );
+    xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
+            ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+    {
+        AwsIotLogError( "UNSUBACK Message identifier decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return AWS_IOT_MQTT_BAD_RESPONSE;
+    }
+    *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
 
-	if( result == pdFALSE )
-	{
-		AwsIotLogError( "Cannot find packet identifier field in UnSubACK packet" );
-		return AWS_IOT_MQTT_BAD_RESPONSE;
-	}
+    _MQTT_BLE_DECODER.destroy( &xValue );
+    _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+
+    ( *pBytesProcessed ) = dataLength;
 
 	return AWS_IOT_MQTT_SUCCESS;
 }
@@ -1184,36 +1223,41 @@ AwsIotMqttError_t AwsIotMqttBLE_SerializeDisconnect( uint8_t ** const pDisconnec
 uint8_t AwsIotMqttBLE_GetPacketType( const uint8_t * const pPacket, size_t packetSize )
 {
 
-	int16_t numTokens;
-	jsmntok_t tokens[ mqttBLEMAX_MESG_TOKENS ];
-	BaseType_t result;
-	uint16_t packetType;
+    AwsIotSerializerDecoderObject_t xDecoderObj, xValue = { 0 };
+    AwsIotSerializerError_t xError;
+    uint8_t packetType = _INVALID_MQTT_PACKET_TYPE;
 
-	numTokens = JsonUtils_Parse( ( const char* ) pPacket, packetSize, tokens, mqttBLEMAX_MESG_TOKENS );
+    xError = _MQTT_BLE_DECODER.init( &xDecoderObj, ( uint8_t* ) pPacket, packetSize );
 
-	if( numTokens <= 0 )
-	{
-		AwsIotLogError( "Malformed MQTT packet received" );
-		return ( uint8_t ) -1;
-	}
+    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        AwsIotLogError( "Decoding the packet failed, decoder error = %d", xError );
+        return _INVALID_MQTT_PACKET_TYPE;
+    }
 
-	result = JsonUtils_GetInt16Value(
-			( const char* ) pPacket,
-			tokens,
-			numTokens,
-			mqttBLEMSG_TYPE,
-			strlen( mqttBLEMSG_TYPE ),
-			( int16_t* ) &packetType );
+    if( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    {
+        AwsIotLogError( "Invalid packet, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return _INVALID_MQTT_PACKET_TYPE;
+    }
 
-	if( result == pdFALSE )
-	{
-		AwsIotLogError( "No packet type found" );
-		return ( uint8_t ) -1;
-	}
+    xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
+            ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+    {
+        AwsIotLogError( "Packet type decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        _MQTT_BLE_DECODER.destroy( &xValue );
+        _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        return _INVALID_MQTT_PACKET_TYPE;
+    }
+    packetType = ( uint16_t ) xValue.value.signedInt;
+
+    _MQTT_BLE_DECODER.destroy( &xValue );
+    _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+
 	return ( packetType << 4 );
-
 }
-
 
 AwsIotMqttError_t AwsIotMqttBLE_SerializePingreq( uint8_t ** const pPingreqPacket,
                                                        size_t * const pPacketSize )
