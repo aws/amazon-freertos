@@ -19,23 +19,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
- /**
-  * @file aws_iot_defender.h
-  * @brief
-  */
+/**
+ * @file aws_iot_defender.h
+ * @brief
+ */
 
 #ifndef _AWS_IOT_DEFENDER_H_
 #define _AWS_IOT_DEFENDER_H_
 
-  /* Standard includes. */
+/* Standard includes. */
 #include <stdint.h>
+
+/* MQTT include. */
+#include "aws_iot_mqtt.h"
 
 /**
  * This enum type is the ID of metrics. It can be specified in AwsIotDefender_SetMetrics function.
  */
 typedef enum
 {
-	AWS_IOT_DEFENDER_METRIC_TCP_ESTABLISHED_TOTAL,
+    AWS_IOT_DEFENDER_METRIC_TCP_ESTABLISHED_TOTAL,
 } AwsIotDefenderMetric_t;
 
 /**
@@ -43,12 +46,12 @@ typedef enum
  */
 typedef enum
 {
-	AWS_IOT_DEFENDER_SUCCESS = 0,
-	AWS_IOT_DEFENDER_ALREADY_STARTED,
-	AWS_IOT_DEFENDER_PERIOD_TOO_SHORT,
-	AWS_IOT_DEFENDER_NO_MEMORY,
+    AWS_IOT_DEFENDER_SUCCESS = 0,
+    AWS_IOT_DEFENDER_ALREADY_STARTED,
+    AWS_IOT_DEFENDER_PERIOD_TOO_SHORT,
+    AWS_IOT_DEFENDER_NO_MEMORY,
 
-	AWS_IOT_DEFENDER_INTERNAL_FAILURE
+    AWS_IOT_DEFENDER_INTERNAL_FAILURE
 } AwsIotDefenderError_t;
 
 /**
@@ -56,11 +59,11 @@ typedef enum
  */
 typedef enum
 {
-	AWS_IOT_DEFENDER_FAILURE_NONE = 0,
-	AWS_IOT_DEFENDER_FAILURE_MQTT_CONNECTION,
-	AWS_IOT_DEFENDER_FAILURE_MQTT_SUBSCRIPTION,
-	AWS_IOT_DEFENDER_FAILURE_MQTT_PUBLISH,
-	AWS_IOT_DEFENDER_FAILURE_METRICS_REJECTION
+    AWS_IOT_DEFENDER_FAILURE_NONE = 0,
+    AWS_IOT_DEFENDER_FAILURE_MQTT_CONNECTION,
+    AWS_IOT_DEFENDER_FAILURE_MQTT_SUBSCRIPTION,
+    AWS_IOT_DEFENDER_FAILURE_MQTT_PUBLISH,
+    AWS_IOT_DEFENDER_FAILURE_METRICS_REJECTION
 } AwsIotDefenderFailureRootCause_t;
 
 /**
@@ -68,9 +71,9 @@ typedef enum
  */
 typedef struct AwsIotDefenderCallbackInfo
 {
-	const uint8_t * pPayload; /**< The received message if there is. */
-	size_t payloadLength;     /**< Length of the message. */
-	AwsIotDefenderFailureRootCause_t failureRootCause;
+    const uint8_t * pPayload; /**< The received message if there is. */
+    size_t payloadLength;     /**< Length of the message. */
+    AwsIotDefenderFailureRootCause_t failureRootCause;
 } AwsIotDefenderCallbackInfo_t;
 
 /**
@@ -78,9 +81,9 @@ typedef struct AwsIotDefenderCallbackInfo
  */
 typedef struct AwsIotDefenderCallback
 {
-	void * param1;
-	void(*function)(void *,
-		AwsIotDefenderCallbackInfo_t * const);
+    void * param1;
+    void ( * function )( void *,
+                         AwsIotDefenderCallbackInfo_t * const );
 } AwsIotDefenderCallback_t;
 
 /**
@@ -88,9 +91,11 @@ typedef struct AwsIotDefenderCallback
  */
 typedef struct AwsIotDefenderStartInfo
 {
-	AwsIotMqttNetIf_t networkInterface;
-	AwsIotDefenderCallback_t successCallback;
-	AwsIotDefenderCallback_t failureCallback;
+    AwsIotMqttNetIf_t networkInterface;
+    const char * pThingName;
+    size_t thingNameLength;
+    AwsIotDefenderCallback_t successCallback;
+    AwsIotDefenderCallback_t failureCallback;
 } AwsIotDefenderStartInfo_t;
 
 /**
@@ -102,39 +107,39 @@ typedef struct AwsIotDefenderStartInfo
     AwsIotDefender_SetMetrics(                          \
         metricsArray, sizeof( metricsArray ) / sizeof( AwsIotDefenderMetric_t ) )
 
- /**
-  * Set an array of metrics.
-  */
-AwsIotDefenderError_t AwsIotDefender_SetMetrics(const AwsIotDefenderMetric_t * const pMetricsArray,
-	size_t metricsCount);
+/**
+ * Set an array of metrics.
+ */
+AwsIotDefenderError_t AwsIotDefender_SetMetrics( const AwsIotDefenderMetric_t * const pMetricsArray,
+                                                 size_t metricsCount );
 
 /**
  * Start the defender */
-AwsIotDefenderError_t AwsIotDefender_Start(AwsIotDefenderStartInfo_t * pStartInfo);
+AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartInfo );
 
 /**
  * Stop the defender
  */
-AwsIotDefenderError_t AwsIotDefender_Stop(void);
+AwsIotDefenderError_t AwsIotDefender_Stop( void );
 
 /**
  * Set period in seconds.
  */
-AwsIotDefenderError_t AwsIotDefender_SetPeriod(uint64_t periodSeconds);
+AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds );
 
 /**
  * Get period in seconds.
  */
-uint32_t AwsIotDefender_GetPeriod(void);
+uint32_t AwsIotDefender_GetPeriod( void );
 
 /**
  * Return a string that describes AwsIotDefenderError_t
  */
-const char * AwsIotDefender_strerror(AwsIotDefenderError_t error);
+const char * AwsIotDefender_strerror( AwsIotDefenderError_t error );
 
 /**
  * Return a string that describes AwsIotDefenderFailureRootCause_t
  */
-const char * AwsIotDefender_FailureRootCause(AwsIotDefenderFailureRootCause_t failureRootCause);
+const char * AwsIotDefender_FailureRootCause( AwsIotDefenderFailureRootCause_t failureRootCause );
 
 #endif /* end of include guard: _AWS_IOT_DEFENDER_H_ */

@@ -15,10 +15,6 @@
 #define AWS_IOT_DEFENDER_METRICS_FORMAT_JSON    2
 
 /* default configuration */
-#ifndef AWS_IOT_DEFENDER_THING_NAME
-    #define AWS_IOT_DEFENDER_THING_NAME    "paste your thing name"
-#endif
-
 #ifndef AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS
     #define AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS    ( 300 )
 #endif
