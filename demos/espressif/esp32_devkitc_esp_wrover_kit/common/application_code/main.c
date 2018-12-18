@@ -341,30 +341,7 @@ void vApplicationMallocFailedHook()
 {
     configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
 }
-/*-----------------------------------------------------------*/
 
-/**
- * @brief Loop forever if stack overflow is detected.
- *
- * If configCHECK_FOR_STACK_OVERFLOW is set to 1,
- * this hook provides a location for applications to
- * define a response to a stack overflow.
- *
- * Use this hook to help identify that a stack overflow
- * has occurred.
- *
- */
-void vApplicationStackOverflowHook( TaskHandle_t xTask,
-                                    char * pcTaskName )
-{
-    configPRINTF( ( "ERROR: stack overflow with task %s\r\n", pcTaskName ) );
-    portDISABLE_INTERRUPTS();
-
-    /* Loop forever */
-    for( ; ; )
-    {
-    }
-}
 /*-----------------------------------------------------------*/
 extern void esp_vApplicationTickHook();
 void IRAM_ATTR vApplicationTickHook()
