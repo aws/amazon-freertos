@@ -89,9 +89,9 @@
 #define _TOPIC_REJECTED    _TOPIC_PUBLISH "/rejected"
 
 /* common tags in metrics report */
-#define  _HEADER_TAG       AwsIotDefender_SelectTag( "header", "hed" )
-#define  _REPORTID_TAG     AwsIotDefender_SelectTag( "report_id", "rid" )
-#define  _VERSION_TAG      AwsIotDefender_SelectTag( "version", "v" )
-#define  _METRICS_TAG      AwsIotDefender_SelectTag( "metrics", "met" )
+#define  _HEADER_TAG       AwsIotDefenderInternal_SelectTag( "header", "hed" )
+#define  _REPORTID_TAG     AwsIotDefenderInternal_SelectTag( "report_id", "rid" )
+#define  _VERSION_TAG      AwsIotDefenderInternal_SelectTag( "version", "v" )
+#define  _METRICS_TAG      AwsIotDefenderInternal_SelectTag( "metrics", "met" )
 
 #endif /* ifndef _AWS_IOT_DEFENDER_INTERNAL_H_ */
