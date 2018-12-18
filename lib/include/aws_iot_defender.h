@@ -59,12 +59,12 @@ typedef enum
  */
 typedef enum
 {
-    AWS_IOT_DEFENDER_FAILURE_NONE = 0,
-    AWS_IOT_DEFENDER_FAILURE_MQTT_CONNECTION,
-    AWS_IOT_DEFENDER_FAILURE_MQTT_SUBSCRIPTION,
-    AWS_IOT_DEFENDER_FAILURE_MQTT_PUBLISH,
-    AWS_IOT_DEFENDER_FAILURE_METRICS_REJECTION
-} AwsIotDefenderFailureRootCause_t;
+    AWS_IOT_DEFENDER_METRICS_ACCEPTED = 0,
+	AWS_IOT_DEFENDER_METRICS_REJECTED,
+    AWS_IOT_DEFENDER_MQTT_CONNECTION_FAILED,
+    AWS_IOT_DEFENDER_MQTT_SUBSCRIPTION_FAILED,
+    AWS_IOT_DEFENDER_MQTT_PUBLISH_FAILED
+} AwsIotDefenderEventType_t;
 
 /**
  * Callback parameters.
@@ -73,7 +73,7 @@ typedef struct AwsIotDefenderCallbackInfo
 {
     const uint8_t * pPayload; /**< The received message if there is. */
     size_t payloadLength;     /**< Length of the message. */
-    AwsIotDefenderFailureRootCause_t failureRootCause;
+    AwsIotDefenderEventType_t eventType;
 } AwsIotDefenderCallbackInfo_t;
 
 /**
@@ -94,8 +94,7 @@ typedef struct AwsIotDefenderStartInfo
     AwsIotMqttNetIf_t networkInterface;
     const char * pThingName;
     size_t thingNameLength;
-    AwsIotDefenderCallback_t successCallback;
-    AwsIotDefenderCallback_t failureCallback;
+    AwsIotDefenderCallback_t callback;
 } AwsIotDefenderStartInfo_t;
 
 /**
@@ -130,7 +129,7 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds );
 /**
  * Get period in seconds.
  */
-uint32_t AwsIotDefender_GetPeriod( void );
+uint64_t AwsIotDefender_GetPeriod( void );
 
 /**
  * Return a string that describes AwsIotDefenderError_t
@@ -138,8 +137,8 @@ uint32_t AwsIotDefender_GetPeriod( void );
 const char * AwsIotDefender_strerror( AwsIotDefenderError_t error );
 
 /**
- * Return a string that describes AwsIotDefenderFailureRootCause_t
+ * Return a string that describes AwsIotDefenderEventType_t
  */
-const char * AwsIotDefender_FailureRootCause( AwsIotDefenderFailureRootCause_t failureRootCause );
+const char * AwsIotDefender_DescribeEventType( AwsIotDefenderEventType_t eventType );
 
 #endif /* end of include guard: _AWS_IOT_DEFENDER_H_ */
