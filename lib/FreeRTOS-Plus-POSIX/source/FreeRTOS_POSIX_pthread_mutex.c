@@ -138,7 +138,7 @@ int pthread_mutex_init( pthread_mutex_t * mutex,
         /* Otherwise, use provided attributes. */
         else
         {
-            pxMutex->xAttr = *( ( pthread_mutexattr_internal_t * ) ( *attr ) );
+            pxMutex->xAttr = *( ( pthread_mutexattr_internal_t * ) ( attr ) );
         }
 
         /* Call the correct FreeRTOS mutex creation function based on mutex type. */
@@ -309,9 +309,6 @@ int pthread_mutex_unlock( pthread_mutex_t * mutex )
 
 int pthread_mutexattr_destroy( pthread_mutexattr_t * attr )
 {
-    /* Free mutex attributes object. */
-    vPortFree( *attr );
-
     return 0;
 }
 
@@ -320,7 +317,7 @@ int pthread_mutexattr_destroy( pthread_mutexattr_t * attr )
 int pthread_mutexattr_gettype( const pthread_mutexattr_t * attr,
                                int * type )
 {
-    pthread_mutexattr_internal_t * pxAttr = ( pthread_mutexattr_internal_t * ) ( *attr );
+    pthread_mutexattr_internal_t * pxAttr = ( pthread_mutexattr_internal_t * ) ( attr );
 
     *type = pxAttr->iType;
 
@@ -333,19 +330,16 @@ int pthread_mutexattr_init( pthread_mutexattr_t * attr )
 {
     int iStatus = 0;
 
-    /* Allocate memory for new mutex attributes object. */
-    *attr = pvPortMalloc( sizeof( pthread_mutexattr_internal_t ) );
-
     if( attr == NULL )
     {
-        /* No memory. */
-        iStatus = ENOMEM;
+        /* Invalid Attribute. */
+        iStatus = EINVAL;
     }
 
     /* Set the mutex attributes to default values. */
     if( iStatus == 0 )
     {
-        *( ( pthread_mutexattr_internal_t * ) ( *attr ) ) = xDefaultMutexAttributes;
+        *( ( pthread_mutexattr_internal_t * ) ( attr ) ) = xDefaultMutexAttributes;
     }
 
     return iStatus;
@@ -357,7 +351,7 @@ int pthread_mutexattr_settype( pthread_mutexattr_t * attr,
                                int type )
 {
     int iStatus = 0;
-    pthread_mutexattr_internal_t * pxAttr = ( pthread_mutexattr_internal_t * ) ( *attr );
+    pthread_mutexattr_internal_t * pxAttr = ( pthread_mutexattr_internal_t * ) ( attr );
 
     switch( type )
     {
