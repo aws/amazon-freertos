@@ -88,6 +88,7 @@ typedef struct AwsIotDefenderCallback
  */
 typedef struct AwsIotDefenderStartInfo
 {
+	AwsIotMqttNetIf_t networkInterface;
 	AwsIotDefenderCallback_t successCallback;
 	AwsIotDefenderCallback_t failureCallback;
 } AwsIotDefenderStartInfo_t;
