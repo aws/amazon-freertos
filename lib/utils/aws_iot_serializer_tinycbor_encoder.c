@@ -286,8 +286,3 @@ static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t 
 
     return returnError;
 }
-
-
-
-
-

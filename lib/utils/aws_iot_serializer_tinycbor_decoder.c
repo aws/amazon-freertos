@@ -81,6 +81,10 @@ static AwsIotSerializerDataType_t _toSerializerType(CborType type)
 
         return AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
 
+    case CborBooleanType:
+
+        return AWS_IOT_SERIALIZER_SCALAR_BOOL;
+
     case CborByteStringType:
 
         return AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
@@ -111,6 +115,7 @@ static AwsIotSerializerError_t _createDecoderObject(CborValue * pCborValue,
     AwsIotSerializerError_t returnError = AWS_IOT_SERIALIZER_SUCCESS;
 
     AwsIotSerializerDataType_t dataType = _toSerializerType(cbor_value_get_type(pCborValue));
+    CborError cborError;
 
     if (_undefinedType(dataType))
     {
@@ -140,13 +145,41 @@ static AwsIotSerializerError_t _createDecoderObject(CborValue * pCborValue,
         {
             size_t length;
 
+
             /* user doesn't provide the buffer */
             if (pValueObject->value.pString == NULL)
             {
-                /* calculate and save required length to pValueObject */
-                cbor_value_calculate_string_length(pCborValue, &length);
-                pValueObject->value.stringLength = length;
-                returnError = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+
+                if( cbor_value_is_length_known( pCborValue ) )
+                {
+                    /*
+                     * If the length of the CBOR string is known, then its
+                     * a finite length string. We store the pointer to the start of the string
+                     * and length as the length of the string.
+                     *
+                     */
+                    cborError = cbor_value_get_string_length( pCborValue, &length );
+                    if( _noCborError( cborError ) )
+                    {
+                        pValueObject->value.pString = ( cbor_value_get_next_byte( pCborValue ) - length );
+                        pValueObject->value.stringLength = length;
+                    }
+                    else
+                    {
+                        returnError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                    }
+                }
+                else
+                {
+                    /*
+                     * This is an infinite length string.
+                     * Calculate and save required length to pValueObject, leave the pString pointer
+                     * as null so user can allocate the required buffer.
+                     */
+                    cbor_value_calculate_string_length(pCborValue, &length);
+                    pValueObject->value.stringLength = length;
+                    returnError = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+                }
             }
             else /* user provides the buffer */
             {
