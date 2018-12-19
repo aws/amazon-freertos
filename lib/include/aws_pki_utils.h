@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.4
+ * Amazon FreeRTOS
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,27 +23,16 @@
  * http://www.FreeRTOS.org
  */
 
-/**
- * @file aws_pkcs11_config.h
- * @brief PCKS#11 config options.
- */
+#ifndef _AWS_PKI_UTILS_H_
+#define _AWS_PKI_UTILS_H_
 
+int PKI_ConvertPEMToDER( const unsigned char *input, 
+                         size_t ilen,
+                         unsigned char *output, 
+                         size_t *olen );
 
-#ifndef _AWS_PKCS11_CONFIG_H_
-#define _AWS_PKCS11_CONFIG_H_
+int PKI_RSA_RSASSA_PKCS1_v15_Encode( const unsigned char *hash,
+                                     size_t dst_len,
+                                     unsigned char *dst );
 
-/* A non-standard version of C_INITIALIZE should be used by this port. */
-/* #define pkcs11configC_INITIALIZE_ALT */
-
-/**
- * PKCS #11 default user PIN.
- *
- * The PKCS #11 standard specifies the presence of a user PIN. That feature is
- * sensible for applications that have an interactive user interface and memory
- * protections. However, since typical microcontroller applications lack one or 
- * both of those, the user PIN is assumed to be used herein for interoperability 
- * purposes only, and not as a security feature. 
- */
-#define configPKCS11_DEFAULT_USER_PIN "0000"
-
-#endif /* _AWS_PKCS11_CONFIG_H_ include guard. */
+#endif 

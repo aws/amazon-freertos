@@ -533,8 +533,8 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
     CK_C_GetFunctionList pxCkGetFunctionList = NULL;
     static CK_SESSION_HANDLE xPkcs11Session = 0;
     static CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
-    CK_ULONG ulCount = 1;
-    CK_SLOT_ID xSlotId = 0;
+    CK_ULONG ulCount = 0;
+    CK_SLOT_ID *pxSlotIds = NULL;
 
     portENTER_CRITICAL();
 
@@ -554,18 +554,37 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
             xResult = pxPkcs11FunctionList->C_Initialize( NULL );
         }
 
-        /* Get the default slot ID. */
+        /* Get the crypto token slot count. */
         if( ( 0 == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
         {
             xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
-                                                           &xSlotId,
+                                                           NULL,
                                                            &ulCount );
         }
 
+        /* Allocate memory to store the token slots. */
+        if( CKR_OK == xResult )
+        {
+            pxSlotIds = ( CK_SLOT_ID * )pvPortMalloc( sizeof( CK_SLOT_ID ) * ulCount );
+
+            if( NULL == pxSlotIds )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+        }
+
+        /* Get all of the available private key slot identities. */
+        if( CKR_OK == xResult )
+        {
+            xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
+                                                           pxSlotIds,
+                                                           &ulCount );
+        }
+        
         /* Start a session with the PKCS#11 module. */
         if( 0 == xResult )
         {
-            xResult = pxPkcs11FunctionList->C_OpenSession( xSlotId,
+            xResult = pxPkcs11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
                                                            CKF_SERIAL_SESSION,
                                                            NULL,
                                                            NULL,
@@ -574,6 +593,11 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
     }
 
     portEXIT_CRITICAL();
+
+    if( NULL != pxSlotIds )
+    {
+        vPortFree( pxSlotIds );
+    }
 
     /* Output the shared function pointers and session handle. */
     *ppxFunctionList = pxPkcs11FunctionList;

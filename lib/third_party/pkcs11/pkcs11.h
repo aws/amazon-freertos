@@ -263,7 +263,9 @@ extern "C" {
 
 #define CK_PKCS11_FUNCTION_INFO(name) \
   __PASTE(CK_,name) name;
-  
+
+#pragma pack(push, 1)
+
 struct CK_FUNCTION_LIST {
 
   CK_VERSION    version;  /* Cryptoki version */
@@ -274,6 +276,8 @@ struct CK_FUNCTION_LIST {
 #include "pkcs11f.h"
 
 };
+
+#pragma pack(pop)
 
 #undef CK_PKCS11_FUNCTION_INFO
 

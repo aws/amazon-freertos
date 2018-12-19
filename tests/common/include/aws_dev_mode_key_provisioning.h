@@ -41,15 +41,29 @@ void vDevModeKeyProvisioning( void );
 
 void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
 
-CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
-                              CK_SLOT_ID * pxSlotId,
-                              CK_SESSION_HANDLE * pxSession );
+CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
+                            uint8_t * pucPrivateKey,
+                            size_t xPrivateKeyLength,
+                            CK_KEY_TYPE xPrivateKeyType,
+                            uint8_t * pucLabel,
+                            CK_OBJECT_HANDLE_PTR pxObjectHandle );
 
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              uint8_t * pucCertificate,
                              size_t xCertificateLength,
                              uint8_t * pucLabel,
-                             CK_OBJECT_HANDLE_PTR xObjectHandle );
+                             CK_OBJECT_HANDLE_PTR pxObjectHandle );
 
+CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
+                                 uint8_t * pucPrivateKeyLabel,
+                                 uint8_t * pucPublicKeyLabel,
+                                 CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+                                 CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
+
+CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
+    uint8_t * pucPrivateKeyLabel,
+    uint8_t * pucPublicKeyLabel,
+    CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+    CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
 
 #endif /* _AWS_DEV_MODE_KEY_PROVISIONING_H_ */

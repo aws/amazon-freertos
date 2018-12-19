@@ -25,19 +25,19 @@
 
 /**
  * @file aws_test_pkcs11_config.h
- * @brief Port-specific variables for PKCS11 tests. 
+ * @brief Port-specific variables for PKCS11 tests.
  */
 
 #ifndef _AWS_TEST_PKCS11_CONFIG_H_
 #define _AWS_TEST_PKCS11_CONFIG_H_
 
 /**
- * @brief Number of simultaneous tasks for SignVerifyRoundTrip_MultitaskLoop test.
+ * @brief Number of simultaneous tasks for multithreaded tests.
  *
  * Each task consumes both stack and heap space, which may cause memory allocation
  * failures if too many tasks are created.
  */
-#define pkcs11testSIGN_VERIFY_TASK_COUNT    ( 4 )
+#define pkcs11testMULTI_THREAD_TASK_COUNT    ( 4 )
 
 /**
  * @brief The number of iterations in SignVerifyRoundTrip_MultitaskLoop.
@@ -46,7 +46,7 @@
  * boards. Ensure that pkcs11testEVENT_GROUP_TIMEOUT is long enough to accommodate
  * all iterations of the loop.
  */
-#define pkcs11testSIGN_VERIFY_LOOP_COUNT    ( 50 )
+#define pkcs11testMULTI_THREAD_LOOP_COUNT    ( 50 )
 
 /**
  * @brief
@@ -55,5 +55,10 @@
  * this timeout, or the test will fail.
  */
 #define pkcs11testEVENT_GROUP_TIMEOUT_MS    ( pdMS_TO_TICKS( 50000UL ) )
+
+/**
+ * @brief The index of the slot that should be used to open sessions for PKCS #11 tests.
+ */
+#define pkcs11testSLOT_NUMBER               ( 0 )
 
 #endif /* _AWS_TEST_PKCS11_CONFIG_H_ */

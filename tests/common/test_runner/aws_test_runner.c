@@ -116,8 +116,10 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_PKCS11_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_PKCS11_CryptoOperation );
-        RUN_TEST_GROUP( Full_PKCS11_GeneralPurpose );
+        RUN_TEST_GROUP( Full_PKCS11_StartFinish );
+        RUN_TEST_GROUP( Full_PKCS11_NoObject );
+        RUN_TEST_GROUP( Full_PKCS11_RSA );
+        RUN_TEST_GROUP( Full_PKCS11_EC );
     #endif
 
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )

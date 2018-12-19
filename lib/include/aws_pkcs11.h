@@ -51,12 +51,6 @@
 #define pcks11SHA256_DIGEST_LENGTH       32
 
 /**
- * @brief Certificate type definitions.
- */
-#define pkcs11CERTIFICATE_TYPE_USER      1
-#define pkcs11CERTIFICATE_TYPE_ROOT      2
-
-/**
  * @brief Elliptic-curve object identifiers.
  * From https://tools.ietf.org/html/rfc6637#section-11.
  */
@@ -82,13 +76,43 @@ typedef struct PKCS11_KeyTemplate
     CK_ATTRIBUTE xValue;
 } PKCS11_KeyTemplate_t, * PKCS11_KeyTemplatePtr_t;
 
+/* Elliptic Curve Private Key Template
+ * The object class must be the first attribute in the array.
+ * https://www.cryptsoft.com/pkcs11doc/v220/group__SEC__12__3__4__ELLIPTIC__CURVE__PRIVATE__KEY__OBJECTS.html */
+typedef struct PKCS11_PrivateEcKeyTemplate
+{
+    CK_ATTRIBUTE xObjectClass;
+    CK_ATTRIBUTE xKeyType;
+    CK_ATTRIBUTE xLabel;
+    CK_ATTRIBUTE xEcParams;
+    CK_ATTRIBUTE xEcPoint;
+    CK_ATTRIBUTE xTokenObject;
+} PKCS11_PrivateEcKeyTemplate_t, * PKCS11_PrivateEcKeyTemplatePtr_t;
+
+/* RSA Private Key Template
+ * The object class must be the first attribute in the array.
+ * https://www.cryptsoft.com/pkcs11doc/v220/group__SEC__12__1__3__RSA__PRIVATE__KEY__OBJECTS.html */
+typedef struct PKCS11_PrivateRsaKeyTemplate
+{
+    CK_ATTRIBUTE xObjectClass;
+    CK_ATTRIBUTE xKeyType;
+    CK_ATTRIBUTE xLabel;
+    CK_ATTRIBUTE xModulus;
+    CK_ATTRIBUTE xPrivateExponent;
+    CK_ATTRIBUTE xPublicExponent;
+    CK_ATTRIBUTE xTokenObject;
+} PKCS11_PrivateRsaKeyTemplate_t, * PKCS11_PrivateRsaKeyTemplatePtr_t;
+
 /* Certificate Template */
 /* The object class must be the first attribute in the array. */
 typedef struct PKCS11_CertificateTemplate
 {
-    CK_ATTRIBUTE xObjectClass;
+    CK_ATTRIBUTE xObjectClass;     /* required certificate attribute. */
+    CK_ATTRIBUTE xSubject;         /* required certificate attribute. */
+    CK_ATTRIBUTE xCertificateType; /* required certificate attribute. */
+    CK_ATTRIBUTE xValue;           /* required certificate attribute. */
     CK_ATTRIBUTE xLabel;
-    CK_ATTRIBUTE xValue;
+    CK_ATTRIBUTE xTokenObject;
 } PKCS11_CertificateTemplate_t, * PKCS11_CertificateTemplatePtr_t;
 
 
@@ -112,5 +136,22 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
 #define pkcs11configLABEL_ROOT_CERTIFICATE              "Root Cert"
 
 #define pkcs11INVALID_OBJECT_HANDLE                     0
+
+
+/* \brief Initializes the PKCS #11 module and opens a session.
+ *
+ * \param[out]     pxSession   Pointer to the PKCS #11 session handle
+ *                             that is created by this function.
+ *
+ * \return  CKR_OK upon success.  PKCS #11 error code on failure.
+ *          Note that PKCS #11 error codes are positive.
+ */
+CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
+
+
+CK_RV xFindObjectWithLabel( CK_SESSION_HANDLE xSession,
+                            const char * pcLabelName,
+                            CK_OBJECT_HANDLE_PTR pxHandle );
+
 
 #endif /* ifndef _AWS_PKCS11_H_ */
