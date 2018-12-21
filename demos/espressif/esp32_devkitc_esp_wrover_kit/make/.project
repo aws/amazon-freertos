@@ -96,6 +96,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/secure_sockets/portable/freertos_plus_tcp</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/serializer</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/serializer</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/shadow</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/shadow</locationURI>
