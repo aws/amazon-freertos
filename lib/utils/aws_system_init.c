@@ -35,7 +35,7 @@ extern BaseType_t SOCKETS_Init( void );
 /**
  * @brief Initializes Amazon FreeRTOS libraries.
  */
-BaseType_t SYSTEM_Init()
+BaseType_t SYSTEM_Init( void )
 {
     BaseType_t xResult = pdPASS;
 

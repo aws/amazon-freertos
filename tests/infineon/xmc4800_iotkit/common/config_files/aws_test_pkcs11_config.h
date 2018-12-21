@@ -36,7 +36,7 @@
  * Each task consumes both stack and heap space, which may cause memory allocation
  * failures if too many tasks are created. 
  */
-#define pkcs11testSIGN_VERIFY_TASK_COUNT    ( 2 )    /* FIX ME. */
+#define pkcs11testSIGN_VERIFY_TASK_COUNT    ( 2 )
 
 /**
  * @brief The number of iterations in SignVerifyRoundTrip_MultitaskLoop.
@@ -45,7 +45,7 @@
  * boards. Ensure that pkcs11testEVENT_GROUP_TIMEOUT is long enough to accommodate
  * all iterations of the loop.
  */
-#define pkcs11testSIGN_VERIFY_LOOP_COUNT    ( 10 )    /* FIX ME. */
+#define pkcs11testSIGN_VERIFY_LOOP_COUNT    ( 10 )
 
 /**
  * @brief
@@ -53,6 +53,6 @@
  * All tasks of the SignVerifyRoundTrip_MultitaskLoop test must finish within
  * this timeout, or the test will fail.
  */
-#define pkcs11testEVENT_GROUP_TIMEOUT_MS    ( pdMS_TO_TICKS( 1000000UL ) )    /* FIX ME. */
+#define pkcs11testEVENT_GROUP_TIMEOUT_MS    ( pdMS_TO_TICKS( 1000000UL ) )
 
 #endif /* _AWS_TEST_PKCS11_CONFIG_H_ */

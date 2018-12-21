@@ -1,5 +1,37 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.5 12/13/2018
+### New Features
+
+#### New Board: MediaTek MT7697Hx-Dev-Kit
+The MediaTek MT7697 System on Chip (SoC) is now qualified for Amazon FreeRTOS. You can take advantage of Amazon FreeRTOS features and benefits using the MediaTek MT7697Hx Development Kit available from MediaTek Labs.  This development board contains the MT7697 SoC, which includes an Arm Cortex-M4 MCU, low power 1T1R 802.11 b/g/n Wi-Fi, Bluetooth 4.2 subsystem and power management unit.
+
+#### lwIP Support
+Amazon FreeRTOS support for the MediaTek MT7697Hx-Dev-Kit includes for the first time support for the Lightweight TCP / IP network stack (lwIP). This flexibility will support customer choice in identifying the best TCP stack solution for IoT devices.
+
+### Updates
+
+#### FreeRTOS+TCP V2.0.9
+- Update to flush ARP cache when then network is down.
+
+#### mbedTLS-based PKCS#11 V1.0.6
+- Delete extra include headers.
+
+#### PKCS #11 PAL for MT7697Hx-Dev-Kit V1.0.0
+- Add PKCS #11 support for the MediaTek MT7697Hx-Dev-Kit.
+
+#### Secure Sockets for FreeRTOS+TCP V1.1.5
+- Update documentation.
+
+#### Secure Sockets for lwIP V1.0.0
+- Add Secure Sockets support for lwIP.
+
+#### Wi-Fi for Infineon XMC4800 IoT Connectivity Kit V1.0.1
+- Update documentation.
+
+#### Wi-Fi for MT7697Hx-Dev-Kit V1.0.0
+- Add Wi-Fi support for the MediaTek MT7697Hx-Dev-Kit.
+
 ## V1.4.4 11/19/2018
 ### Updates
 
@@ -252,12 +284,12 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 
 ## V1.2.7 05/31/2018
 
-- Update the Texas Instruments SimpleLink CC3220 SDK from version 1.40.01.00 to version 2.10.00.04.
+- Update the Texas Instruments SimpleLink CC3220SF SDK from version 1.40.01.00 to version 2.10.00.04.
 - Fix the MQTT Echo Demo (Hello World Demo) to avoid truncating received strings.
 - Modify the Getting Started scripts to check if the AWS CLI is configured.
 
 #### Secure Sockets for CC3220SF-LAUNCHXL V1.0.4
-- Update comments for SimpleLink CC3220 SDK version 2.10.00.04.
+- Update comments for SimpleLink CC3220SF SDK version 2.10.00.04.
 
 --------------
 

@@ -8,7 +8,7 @@ The default Amazon FreeRTOS source root is relative to tools/checks/afqp/afqp_ch
 * **Non-eclipse based IDE projects.**
     ```
     cd <AFR_ROOT>/tools/checks/afqp/afqp_check
-    python src/afqp_check.py --vendor <vendor_folder_name> --board <board_folder_name> --ide <ide_folder_name> 
+    python src/afqp_check.py --vendor <vendor_folder_name> --board <board_folder_name> --ide <ide_folder_name>
     ```
 * **Eclipse based IDE projects.**
     ```
