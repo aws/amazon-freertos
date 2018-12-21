@@ -18,7 +18,15 @@
 
 /* default configuration */
 #ifndef AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS
-    #define AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS    ( 10U )
+    #define AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS    ( 1U )
+#endif
+
+#ifndef AWS_IOT_DEFENDER_MQTT_SUBSCRIBE_TIMEOUT_SECONDS
+    #define AWS_IOT_DEFENDER_MQTT_SUBSCRIBE_TIMEOUT_SECONDS    ( 1U )
+#endif
+
+#ifndef AWS_IOT_DEFENDER_MQTT_PUBLISH_TIMEOUT_SECONDS
+    #define AWS_IOT_DEFENDER_MQTT_PUBLISH_TIMEOUT_SECONDS    ( 1U )
 #endif
 
 #ifndef AWS_IOT_DEFENDER_FORMAT
@@ -64,20 +72,24 @@
 #endif /* if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR */
 
 /* define topics used by definder */
-#define _TOPIC_PREFIX             "$aws/things/"
+#define _TOPIC_PREFIX                   "$aws/things/"
 
-#define _TOPIC_SUFFIX_PUBLISH     "/defender/metrics/" _FORMAT
+#define _TOPIC_SUFFIX_PUBLISH           "/defender/metrics/" _FORMAT
 
-#define _TOPIC_SUFFIX_ACCEPTED    _TOPIC_SUFFIX_PUBLISH "/accepted"
+#define _TOPIC_SUFFIX_ACCEPTED          _TOPIC_SUFFIX_PUBLISH "/accepted"
 
-#define _TOPIC_SUFFIX_REJECTED    _TOPIC_SUFFIX_PUBLISH "/rejected"
+#define _TOPIC_SUFFIX_REJECTED          _TOPIC_SUFFIX_PUBLISH "/rejected"
 
 /* common tags in metrics report */
-#define  _HEADER_TAG              AwsIotDefenderInternal_SelectTag( "header", "hed" )
-#define  _REPORTID_TAG            AwsIotDefenderInternal_SelectTag( "report_id", "rid" )
-#define  _VERSION_TAG             AwsIotDefenderInternal_SelectTag( "version", "v" )
-#define  _METRICS_TAG             AwsIotDefenderInternal_SelectTag( "metrics", "met" )
+#define  _HEADER_TAG                    AwsIotDefenderInternal_SelectTag( "header", "hed" )
+#define  _REPORTID_TAG                  AwsIotDefenderInternal_SelectTag( "report_id", "rid" )
+#define  _VERSION_TAG                   AwsIotDefenderInternal_SelectTag( "version", "v" )
+#define  _METRICS_TAG                   AwsIotDefenderInternal_SelectTag( "metrics", "met" )
 
-#define _DISABLE_KEEP_ALIVE       0
+#define _KEEP_ALIVE_SECONDS             30
+
+#define _SHORT_RELATIVE_MILLISECONDS    100
+
+#define _DEFENDER_TEST_MODE             true
 
 #endif /* ifndef _AWS_IOT_DEFENDER_INTERNAL_H_ */

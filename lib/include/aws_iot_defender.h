@@ -33,6 +33,9 @@
 /* MQTT include. */
 #include "aws_iot_mqtt.h"
 
+/* Network include. */
+#include "platform/aws_iot_network.h"
+
 /**
  * This enum type is the ID of metrics. It can be specified in AwsIotDefender_SetMetrics function.
  */
@@ -49,6 +52,7 @@ typedef enum
     AWS_IOT_DEFENDER_SUCCESS = 0,
     AWS_IOT_DEFENDER_ALREADY_STARTED,
     AWS_IOT_DEFENDER_PERIOD_TOO_SHORT,
+    AWS_IOT_DEFENDER_PERIOD_TOO_LARGE,
     AWS_IOT_DEFENDER_NO_MEMORY,
 
     AWS_IOT_DEFENDER_INTERNAL_FAILURE
@@ -60,7 +64,9 @@ typedef enum
 typedef enum
 {
     AWS_IOT_DEFENDER_METRICS_ACCEPTED = 0,
-	AWS_IOT_DEFENDER_METRICS_REJECTED,
+    AWS_IOT_DEFENDER_METRICS_REJECTED,
+    AWS_IOT_DEFENDER_NETWORK_CONNECTION_FAILED,
+    AWS_IOT_DEFENDER_NETWORK_SET_CALLBACK_FAILED,
     AWS_IOT_DEFENDER_MQTT_CONNECTION_FAILED,
     AWS_IOT_DEFENDER_MQTT_SUBSCRIPTION_FAILED,
     AWS_IOT_DEFENDER_MQTT_PUBLISH_FAILED
@@ -91,9 +97,15 @@ typedef struct AwsIotDefenderCallback
  */
 typedef struct AwsIotDefenderStartInfo
 {
-    AwsIotMqttNetIf_t networkInterface;
+    const char * pAwsIotEndpoint;
+
+    uint16_t port;
+
+    AwsIotNetworkTlsInfo_t tlsInfo;
+
     const char * pThingName;
     uint16_t thingNameLength;
+
     AwsIotDefenderCallback_t callback;
 } AwsIotDefenderStartInfo_t;
 
