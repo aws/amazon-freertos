@@ -41,8 +41,6 @@
 /* MQTT internal includes. */
 #include "aws_ble_config.h"
 #include "private/aws_iot_mqtt_serialize_ble.h"
-#include "aws_json_utils.h"
-#include "mbedtls/base64.h"
 #include "private/aws_iot_mqtt_internal.h"
 #include "aws_iot_serializer.h"
 
@@ -64,17 +62,6 @@
             _MQTT_BLE_ENCODER.destroy( &xEncoderObj );                  \
             return result;                                              \
         }
-
-/**
- * @brief Does an in place Base64 decoding copying the decoded data back to the input buffer.
- *
- * @param [in]  Pointer to the buffer containing the encoded data.
- * @param [in]  Length of the encoded data
- * @param [out] Length of the decoded data
- *
- * @return pdTRUE if successful, pdFALSE if failed
- */
-BaseType_t  prxDecodeInPlace( uint8_t * const pData, const size_t dataLen, size_t * const pDecodedLen );
 
 /**
  * @brief Guards access to the packet identifier counter.
@@ -168,36 +155,6 @@ static uint16_t prusNextPacketIdentifier( void )
     AwsIotMutex_Unlock( &xPacketIdentifierMutex );
 
     return newPacketIdentifier;
-}
-
-
-/* Do an in place decoding */
-BaseType_t prxDecodeInPlace( uint8_t * const pData, const size_t dataLen, size_t * const pDecodedLen )
-{
-	uint8_t *pDecodeBuffer = NULL;
-	size_t decodedLen;
-
-	(void) mbedtls_base64_decode( NULL, 0, &decodedLen,
-										( const unsigned char *) pData, dataLen );
-
-	AwsIotMqtt_Assert(( decodedLen <= dataLen ));
-
-	pDecodeBuffer = AwsIotMqtt_MallocMessage( decodedLen );
-
-	if( pDecodeBuffer == NULL )
-	{
-		return pdFALSE;
-	}
-
-	(void) mbedtls_base64_decode( pDecodeBuffer, decodedLen, &decodedLen,
-											( const unsigned char *) pData, dataLen );
-
-	memcpy( pData, pDecodeBuffer, decodedLen );
-	*pDecodedLen = decodedLen;
-
-	AwsIotMqtt_FreeMessage( pDecodeBuffer );
-
-	return pdTRUE;
 }
 
 AwsIotSerializerError_t prxSerializeConnect( const AwsIotMqttConnectInfo_t * const pConnectInfo,
@@ -457,7 +414,6 @@ AwsIotSerializerError_t prxSerializeSubscribe( const AwsIotMqttSubscription_t * 
         xError = _MQTT_BLE_ENCODER.append( &xSubscriptionArray, xData );
         _validateSerializerResult( &xEncoderObj, xError );
     }
-
 
     xError = _MQTT_BLE_ENCODER.closeContainer( &xSubscribeMap, &xSubscriptionArray );
     _validateSerializerResult( &xEncoderObj, xError );
