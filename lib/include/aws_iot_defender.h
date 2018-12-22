@@ -21,11 +21,19 @@
 
 /**
  * @file aws_iot_defender.h
- * @brief
+ * @brief User-facing functions and structs of AWS IoT Device Defender libraries
+ *
+ * [Link to AWS documentation](https://docs.aws.amazon.com/iot/latest/developerguide/device-defender-detect.html)
+ *
  */
 
 #ifndef _AWS_IOT_DEFENDER_H_
 #define _AWS_IOT_DEFENDER_H_
+
+/* Build using a config header, if provided. */
+#ifdef AWS_IOT_CONFIG_FILE
+    #include AWS_IOT_CONFIG_FILE
+#endif
 
 /* Standard includes. */
 #include <stdint.h>
@@ -33,33 +41,64 @@
 /* MQTT include. */
 #include "aws_iot_mqtt.h"
 
-/* Network include. */
+/* Platform network include. */
 #include "platform/aws_iot_network.h"
 
+#define AWS_IOT_DEFENDER_METRICS_ALL                          0xffffffff /**< @brief Flag to indicate including all metrics. */
+
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_TOTAL          ( 1 << 0 ) /**< @brief Total count of established TCP connections. */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_LOCAL_PORT     ( 1 << 1 ) /**< @brief Local port number of established TCP connections. */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_REMOTE_ADDR    ( 1 << 2 ) /**< @brief Remote address (IP:port) of established TCP connections. For example, 192.168.0.1:8000. */
+
 /**
- * This enum type is the ID of metrics. It can be specified in AwsIotDefender_SetMetrics function.
+ * @brief Connections metrics including local port number and remote address.
+ */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_CONNS                                                           \
+    ( AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_LOCAL_PORT | AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_REMOTE_ADDR ) \
+
+
+/**
+ * @brief Established connections metrics including connections metrics and total count.
+ */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA                                                      \
+    ( AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_CONNS | AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_TOTAL ) \
+
+#define AWS_IOT_DEFENDER_METRICS_LIS_TCP_TOTAL         ( 1 << 0 ) /**< @brief Total count of listening TCP ports. */
+#define AWS_IOT_DEFENDER_METRICS_LIS_TCP_PORTS_PORT    ( 1 << 1 ) /**< @brief Port number of listening TCP ports. */
+
+/**
+ * @brief Ports metrics including port number.
+ */
+#define AWS_IOT_DEFENDER_METRICS_LIS_TCP_PORTS         ( AWS_IOT_DEFENDER_METRICS_LIS_TCP_PORTS_PORT )
+
+
+#define AWS_IOT_DEFENDER_START_INFO_INITIALIZER        { 0 }
+
+/**
+ * @brief Metrics group options for AwsIotDefender_SetMetrics() function.
  */
 typedef enum
 {
-    AWS_IOT_DEFENDER_METRIC_TCP_ESTABLISHED_TOTAL,
-} AwsIotDefenderMetric_t;
+    AWS_IOT_DEFENDER_METRICS_TCP_CONN,
+    AWS_IOT_DEFENDER_METRICS_LIS_TCP,
+} AwsIotDefenderMetricsGroup_t;
 
 /**
- * Return codes of defender functions.
+ *  @brief Return codes of defender functions.
  */
 typedef enum
 {
     AWS_IOT_DEFENDER_SUCCESS = 0,
+    AWS_IOT_DEFENDER_INVALID_INPUT,
     AWS_IOT_DEFENDER_ALREADY_STARTED,
     AWS_IOT_DEFENDER_PERIOD_TOO_SHORT,
     AWS_IOT_DEFENDER_PERIOD_TOO_LARGE,
-    AWS_IOT_DEFENDER_NO_MEMORY,
-
+    AWS_IOT_DEFENDER_ERROR_NO_MEMORY,
     AWS_IOT_DEFENDER_INTERNAL_FAILURE
 } AwsIotDefenderError_t;
 
 /**
- * Root cause code of failure, used in callback
+ * @brief Event codes passed into AwsIotDefenderCallbackInfo_t
  */
 typedef enum
 {
@@ -69,31 +108,33 @@ typedef enum
     AWS_IOT_DEFENDER_NETWORK_SET_CALLBACK_FAILED,
     AWS_IOT_DEFENDER_MQTT_CONNECTION_FAILED,
     AWS_IOT_DEFENDER_MQTT_SUBSCRIPTION_FAILED,
-    AWS_IOT_DEFENDER_MQTT_PUBLISH_FAILED
+    AWS_IOT_DEFENDER_MQTT_PUBLISH_FAILED,
+    AWS_IOT_DEFENDER_METRICS_SERIALIZATION_FAILED,
+    AWS_IOT_DEFENDER_EVENT_NO_MEMORY
 } AwsIotDefenderEventType_t;
 
 /**
- * Callback parameters.
+ * @brief Callback parameters.
  */
 typedef struct AwsIotDefenderCallbackInfo
 {
-    const uint8_t * pPayload; /**< The received message if there is. */
-    size_t payloadLength;     /**< Length of the message. */
-    AwsIotDefenderEventType_t eventType;
+    const uint8_t * pPayload;            /**< The received message if there is one. */
+    size_t payloadLength;                /**< Length of the message. */
+    AwsIotDefenderEventType_t eventType; /**< Event code. */
 } AwsIotDefenderCallbackInfo_t;
 
 /**
- * Callback handle.
+ * @brief User provided callback handle.
  */
 typedef struct AwsIotDefenderCallback
 {
-    void * param1;
+    void * param1; /**< @brief The first parameter to pass to the callback function. */
     void ( * function )( void *,
                          AwsIotDefenderCallbackInfo_t * const );
 } AwsIotDefenderCallback_t;
 
 /**
- * Parameters of AwsIotDefender_Start function.
+ * @brief Parameters of AwsIotDefender_Start function.
  */
 typedef struct AwsIotDefenderStartInfo
 {
@@ -101,7 +142,7 @@ typedef struct AwsIotDefenderStartInfo
 
     uint16_t port;
 
-    AwsIotNetworkTlsInfo_t tlsInfo;
+    AwsIotNetworkTlsInfo_t * pTlsInfo;
 
     const char * pThingName;
     uint16_t thingNameLength;
@@ -109,47 +150,47 @@ typedef struct AwsIotDefenderStartInfo
     AwsIotDefenderCallback_t callback;
 } AwsIotDefenderStartInfo_t;
 
+
 /**
- * Helper macro for setting an array of metrics.
+ * @brief Set metrics that defender needs to collect for a metrics group.
  *
- * metricsArray: must be a type of array. Do not pass pointer.
+ * @param[in] metricsGroup Metrics group defined in AwsIotDefenderMetricsGroup_t
+ * @param[in] metrics Bit-flag to define what metrics defender needs to collect
  */
-#define AwsIotDefender_SetMetricsHelper( metricsArray ) \
-    AwsIotDefender_SetMetrics(                          \
-        metricsArray, sizeof( metricsArray ) / sizeof( AwsIotDefenderMetric_t ) )
+AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t metricsGroup,
+                                                 uint32_t metrics );
 
 /**
- * Set an array of metrics.
+ * @brief Start the defender agent.
+ *
+ * Periodically, defender agent collects metrics and publish to specifc AWS reserved MQTT topic.
  */
-AwsIotDefenderError_t AwsIotDefender_SetMetrics( const AwsIotDefenderMetric_t * const pMetricsArray,
-                                                 size_t metricsCount );
-
-/**
- * Start the defender */
 AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartInfo );
 
 /**
- * Stop the defender
+ * @brief Stop the defender
  */
 AwsIotDefenderError_t AwsIotDefender_Stop( void );
 
 /**
- * Set period in seconds.
+ * @brief Set period in seconds.
+ *
+ * @param[in] periodSeconds Period is specified in seconds. Mininum is 300 (5 minutes)
  */
 AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds );
 
 /**
- * Get period in seconds.
+ * @brief Get period in seconds.
  */
 uint64_t AwsIotDefender_GetPeriod( void );
 
 /**
- * Return a string that describes AwsIotDefenderError_t
+ * @brief Return a string that describes AwsIotDefenderError_t
  */
 const char * AwsIotDefender_strerror( AwsIotDefenderError_t error );
 
 /**
- * Return a string that describes AwsIotDefenderEventType_t
+ * @brief Return a string that describes AwsIotDefenderEventType_t
  */
 const char * AwsIotDefender_DescribeEventType( AwsIotDefenderEventType_t eventType );
 
