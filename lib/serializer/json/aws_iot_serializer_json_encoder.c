@@ -22,6 +22,16 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+
+/**
+ * @file aws_iot_serializer_json_encoder.c
+ * @brief Implements APIs to serialize data in JSON format. Supports JSON primitives-
+ * Numbers, Strings, boolean and null types, container types - arrays and maps.
+ * A special type called binary string is also supported as a value type. By default
+ * binary strings are base-64 encoded.
+ * The file implements encoder interface in aws_iot_serialize.h.
+ */
+
 #include <string.h>
 #include <stdint.h>
 

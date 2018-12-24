@@ -21,7 +21,20 @@
  *
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
+ *
+ *
  */
+
+ /**
+  *
+  * @file aws_iot_serializer_json_decoder.c
+  * @brief Implements APIs to parse and decode data from JSON format. Supports JSON primitives such as
+  * Numbers, Strings, boolean and null types, container types such as arrays and maps.
+  * A special type called binary string is also supported as a value type. By default
+  * binary strings are base-64 decoded.
+  * The file implements decoder interface in aws_iot_serialize.h.
+  */
+
 #include <string.h>
 
 #include "FreeRTOS.h"
@@ -29,14 +42,14 @@
 #include "mbedtls/base64.h"
 
 #define _MINIMUM_CONTAINER_LENGTH            ( 2 )
+#define _JSON_INT64_MAX_LENGTH               ( 20 )
 
-#define _STOP_CHAR_ARRAY              ']'
-#define _STOP_CHAR_MAP                '}'
 
-#define _JSON_INT_MAX_LENGTH             ( 20 )
+#define _STOP_CHAR_ARRAY                  ']'
+#define _STOP_CHAR_MAP                    '}'
 
-#define _isValidContainer( decoder )       ( ( decoder ) && \
-        ( decoder )->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM && \
+#define _isValidContainer( decoder )       ( ( decoder ) &&          \
+        ( decoder )->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM &&  \
         ( decoder )->type <= AWS_IOT_SERIALIZER_CONTAINER_MAP )
 
 #define _castDecoderObjectToJsonContainer( pDecoderObject )    ( ( pDecoderObject )->pHandle )
@@ -202,7 +215,7 @@ static void parseTextString( const char* pBuffer,
         /* Backslash: Quoted symbol expected */
         if ( ( offset < bufLength - 1 )
                 && ( pBuffer[ offset ] == '\\' )
-                && ( pBuffer[ offset +1 ] == '\"' ) ) {
+                && ( pBuffer[ offset + 1 ] == '\"' ) ) {
             offset++;
         }
     }
@@ -287,16 +300,14 @@ static void parseTokenValue(
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
         {
             size_t start = ++(*pOffset), length;
-            int ret;
             parseTextString( pBuffer, bufLength, pOffset );
             length = (*pOffset) - start;  /* Don't include the last quotes of a string */
             if( pValue != NULL )
             {
                 if( pValue->type == AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING )
                 {
-                    ret = mbedtls_base64_decode( ( unsigned char *) ( pBuffer + start ), length, &length,
+                    ( void ) mbedtls_base64_decode( ( unsigned char *) ( pBuffer + start ), length, &length,
                                        ( const unsigned char *) ( pBuffer + start ), length );
-                    configASSERT( ret == 0 );
                 }
                 pValue->type = tokenType;
                 pValue->value.pString = ( uint8_t* )( pBuffer + start );
@@ -498,7 +509,7 @@ static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDeco
     pContainer = pDecoderObject->pHandle;
 
     _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
-    if( offset > pContainer->length )
+    if( offset >= pContainer->length )
     {
          return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
     }
@@ -518,7 +529,7 @@ static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDeco
 
     pNewObject->type = pDecoderObject->type;
     pNewObject->pHandle = pNewContainer;
-    *pIterator = (AwsIotSerializerDecoderIterator_t*) pNewObject;
+    *pIterator = ( AwsIotSerializerDecoderIterator_t ) pNewObject;
 
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
@@ -609,7 +620,6 @@ static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator
     }
 
     pContainer->pStart += offset;
-
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
 

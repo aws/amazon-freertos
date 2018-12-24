@@ -23,6 +23,15 @@
  * http://www.FreeRTOS.org
  */
 
+ /**
+  * @file aws_iot_serializer_tinycbor_decoder.c
+  * @brief Implements APIs to parse and decode data from CBOR format. The file relies on tiny
+  * CBOR library to parse and decode data from CBOR format. Supports all major data types within
+  * the CBOR format.
+  * The file implements the decoder interface in aws_iot_serialize.h.
+  */
+
+
 #include "FreeRTOS.h"
 #include "aws_iot_serializer.h"
 #include "cbor.h"
@@ -294,8 +303,8 @@ static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDeco
     AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
     CborError cborError;
     _cborDecoder_t *pCborDecoder = _castDecoderObjectToCborValue( pDecoderObject );
-    _cborDecoder_t *pNewCborDecoder = pvPortMalloc( sizeof(CborValue));
-    AwsIotSerializerDecoderObject_t* pNewObject = pvPortMalloc(sizeof(AwsIotSerializerDecoderObject_t));
+    _cborDecoder_t *pNewCborDecoder = pvPortMalloc( sizeof( _cborDecoder_t ));
+    AwsIotSerializerDecoderObject_t* pNewObject = pvPortMalloc( sizeof( AwsIotSerializerDecoderObject_t ) );
 
     pNewCborDecoder->isOutermost = false;
 
@@ -307,7 +316,7 @@ static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDeco
     {
         pNewObject->type = pDecoderObject->type;
         pNewObject->pHandle = ( void *) pNewCborDecoder;
-        *pIterator = pNewObject;
+        *pIterator = ( AwsIotSerializerDecoderIterator_t ) pNewObject;
         error = AWS_IOT_SERIALIZER_SUCCESS;
     }
 
@@ -368,7 +377,7 @@ static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDeco
 
     if( pCborDecoder->isOutermost )
     {
-        vPortFree(  ( void* ) ( pCborDecoder->cborValue.parser ) );
+        vPortFree( ( void* ) ( pCborDecoder->cborValue.parser ) );
     }
     vPortFree( pCborDecoder );
     _castDecoderObjectToCborValue( pDecoderObject ) = NULL;

@@ -23,6 +23,14 @@
  * http://www.FreeRTOS.org
  */
 
+ /**
+  * @file aws_iot_serializer_tinycbor_encoder.c
+  * @brief Implements APIs to serialize data in CBOR format. The file relies on tiny
+  * CBOR library to serialize data into CBOR format. Supports all major data types within
+  * the CBOR format.
+  * The file implements the encoder interface in aws_iot_serialize.h.
+  */
+
 #include "FreeRTOS.h"
 #include "aws_iot_serializer.h"
 #include "cbor.h"
@@ -125,6 +133,7 @@ static AwsIotSerializerError_t _destroy( AwsIotSerializerEncoderObject_t * pEnco
     CborEncoder * pCborEncoder = _castEncoderObjectToCborEncoder( pEncoderObject );
 
     vPortFree( pCborEncoder );
+    _castEncoderObjectToCborEncoder( pEncoderObject ) = NULL;
 
     /* No other error is returned currently. */
     return AWS_IOT_SERIALIZER_SUCCESS;

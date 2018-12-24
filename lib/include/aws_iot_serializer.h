@@ -129,50 +129,52 @@ typedef struct AwsIotSerializerDecoderObject
 
 typedef void * AwsIotSerializerDecoderIterator_t;
 
-/* functions table of encoding */
+/**
+ * @brief Table containing function pointers for encoder APIs.
+ */
 typedef struct AwsIotSerializerEncodeInterface
 {
-    /*
-     *  Return the actual total size after encoding finished.
+    /**
+     * @brief Return the actual total size after encoding finished.
      *
-     *  pEncoderObject: the outermost object pointer; behavior is undefined for any other object
-     *  pDataBuffer: the buffer pointer passed into init; behavior is undefined for any other buffer pointer
+     * @param[in] pEncoderObject: the outermost object pointer; behavior is undefined for any other object
+     * @param[in] pDataBuffer: the buffer pointer passed into init; behavior is undefined for any other buffer pointer
      */
     size_t ( * getEncodedSize )( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                  uint8_t * pDataBuffer );
 
-    /*
-     * Return the extra size needed when the data to encode exceeds the maximum length of underlying buffer.
+    /**
+     * @brief Return the extra size needed when the data to encode exceeds the maximum length of underlying buffer.
      * When no exceeding, this should return 0.
      *
-     * pEncoderObject: the outermost object pointer; behavior is undefined for any other object
+     * @param[in] pEncoderObject: the outermost object pointer; behavior is undefined for any other object
      */
     size_t ( * getExtraBufferSizeNeeded )( AwsIotSerializerEncoderObject_t * pEncoderObject );
 
-    /*
-     * Initialize the object's handle with specified buffer and max size.
+    /**
+     * @brief Initialize the object's handle with specified buffer and max size.
      *
-     * pDataBuffer: the pointer to allocated buffer by user;
+     * @param[in] pDataBuffer: the pointer to allocated buffer by user;
      *              NULL pDataBuffer is valid, used to calculate needed size by calling getExtraBufferSizeNeeded.
-     * maxSize: allocated buffer size
+     * @param[in] maxSize: Allocated buffer size
      */
     AwsIotSerializerError_t ( * init )( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                         uint8_t * pDataBuffer,
                                         size_t maxSize );
 
-    /*
-     * Clean the object's handle
+    /**
+     * @brief Clean the object's handle
      *
-     * pEncoderObject: the outermost object pointer; behavior is undefined for any other object
+     * @param[in] pEncoderObject: the outermost object pointer; behavior is undefined for any other object
      */
     AwsIotSerializerError_t ( * destroy )( AwsIotSerializerEncoderObject_t * pEncoderObject );
 
-    /*
-     * Open a child container object.
+    /**
+     * @brief Open a child container object.
      *
-     * pEncoderObject: the parent object. It must be a container object
-     * pNewEncoderObject: the child object to create. It must be a container object
-     * length: pre-known length of the container or AWS_IOT_SERIALIZER_INDEFINITE_LENGTH
+     * @param[in] pEncoderObject: the parent object. It must be a container object
+     * @param[in] pNewEncoderObject: the child object to create. It must be a container object
+     * @param[in] length: pre-known length of the container or AWS_IOT_SERIALIZER_INDEFINITE_LENGTH
      *         map: the length is number of key-value pairs
      *         array: the length is number of elements
      *         none: the length is unuseful
@@ -181,13 +183,13 @@ typedef struct AwsIotSerializerEncodeInterface
                                                  AwsIotSerializerEncoderObject_t * pNewEncoderObject,
                                                  size_t length );
 
-    /*
-     * Open a child container object with string key.
+    /**
+     * @brief Open a child container object with string key.
      *
-     * pEncoderObject: the parent object. It must be a container object
-     * pNewEncoderObject: the child object to create. It must be a container object
-     * containerType: must be a container type
-     * length: pre-known length of the container or AWS_IOT_SERIALIZER_INDEFINITE_LENGTH
+     * @param[in] pEncoderObject the parent object. It must be a container object
+     * @param[in] pKey Key for the child container
+     * @param[in] pNewEncoderObject the child object to create. It must be a container object
+     * @param[in] length: pre-known length of the container or AWS_IOT_SERIALIZER_INDEFINITE_LENGTH
      *         map: the length is number of key-value pairs
      *         array: the length is number of elements
      *         none: the length is unuseful
@@ -197,67 +199,92 @@ typedef struct AwsIotSerializerEncodeInterface
                                                         AwsIotSerializerEncoderObject_t * pNewEncoderObject,
                                                         size_t length );
 
-    /*
-     * Close a child container object.
+    /**
+     * @brief Close a child container object.
      * pEncoderObject and pNewEncoderObject must be parent-child relationship and are in open state
      *
-     * pEncoderObject: the parent object. It must be a container object
-     * pNewEncoderObject: the child object to create. It must be a container object
+     * @param[in] pEncoderObject: the parent object. It must be a container object
+     * @param[in] pNewEncoderObject: the child object to create. It must be a container object
      */
     AwsIotSerializerError_t ( * closeContainer )( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                   AwsIotSerializerEncoderObject_t * pNewEncoderObject );
 
-    /*
-     * Append a scalar data to a container, with type array or none. Map container is invalid
+    /**
+     * @brief Append a scalar data to a container, with type array or none. Map container is invalid
      *
-     * pEncoderObject: the parent object. It must be a container object, with type array or none.
-     * scalarData: the scalar data to encode
+     * @param[in] pEncoderObject: the parent object. It must be a container object, with type array or none.
+     * @param[in] scalarData: the scalar data to encode
      */
     AwsIotSerializerError_t ( * append )( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                           AwsIotSerializerScalarData_t scalarData );
 
-    /*
-     * Append a key-value pair to a map container. The key is string type and value is a scalar.
+    /**
+     * @brief Append a key-value pair to a map container. The key is string type and value is a scalar.
      *
-     * pEncoderObject: the parent object. It must be a map container object.
-     * pKey: text string representing key
-     * scalarData: the scalar data to encode
+     * @param[in] pEncoderObject: the parent object. It must be a map container object.
+     * @param[in] pKey: text string representing key
+     * @param[in] scalarData: the scalar data to encode
      */
     AwsIotSerializerError_t ( * appendKeyValue )( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                   const char * pKey,
                                                   AwsIotSerializerScalarData_t scalarData );
 } AwsIotSerializerEncodeInterface_t;
 
-/* functions table of decoding
+/**
+ * @brief Table containing function pointers for decoder APIs.
  */
 typedef struct AwsIotSerializerDecodeInterface
 {
-    /*
-     * Init decoder object with specified buffer
+    /**
+     * @brief Initialize decoder object with specified buffer.
      *
-     * pDecoderObject: the object handle for initialization
+     * @param pDecoderObject Pointer to the decoder object allocated by user.
+     * @param pDataBuffer Pointer to the buffer containing data to be decoded.
+     * @param maxSize Maximum length of the buffer containing data to be decoded.
+     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
     AwsIotSerializerError_t ( * init )( AwsIotSerializerDecoderObject_t * pDecoderObject,
                                         uint8_t * pDataBuffer,
                                         size_t maxSize );
 
-    /*
-     * Destroy the object handle
-     *
-     * pDecoderObject: the object handle for destroy
+    /**
+     * @brief Destroy the decoder object handle
+     * @param pDecoderObject Pointer to the decoder object
+     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
     AwsIotSerializerError_t ( * destroy )( AwsIotSerializerDecoderObject_t * pDecoderObject );
 
-    /*
-     * Get object value
+
+    /**
+     * @brief Steps into a container and creates an iterator to traverse through the container.
+     * Container can be of type array, map or stream.
      *
+     * @param[in] pDecoderObject Pointer to the decoder object representing the container
+     * @param[out] pIterator Pointer to iterator which can be used for the traversing the container by calling next()
+     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     */
+     AwsIotSerializerError_t ( * stepIn )( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                           AwsIotSerializerDecoderIterator_t * pIterator);
+
+
+    /**
+     * @brief Gets the object value currently pointed to by an iterator.
+     * @param iterator The iterator handle
+     * @param pValueObject Value of the object pointed to by the iterator.
+     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
     AwsIotSerializerError_t ( * get )( AwsIotSerializerDecoderIterator_t iterator,
                                        AwsIotSerializerDecoderObject_t * pValueObject );
 
-	/*
-	 * Find the object value paired to input key
+	/**
 	 *
+	 * @brief Find an object by key within a container.
+	 * Container should always be of type MAP.
+	 *
+	 * @param[in] pDecoderObject Pointer to the decoder object representing  container
+	 * @param[in] pKey Pointer to the key for which value needs to be found.
+	 * @param[out] pValueObject Pointer to the value object for the key.
+	 * @return AWS_IOT_SERIALIZER_SUCCESS if successful
 	 */
     AwsIotSerializerError_t ( * find )( AwsIotSerializerDecoderObject_t* pDecoderObject,
                                         const char * pKey,
@@ -268,31 +295,42 @@ typedef struct AwsIotSerializerDecodeInterface
      * Find the next object in the same value and save it to pNewDecoderObject
      *
      */
+    /**
+     * @brief Moves the iterator to next object within the container
+     * If the container is a map, it skips either a key or the value at a time.
+     * If the container is an array, it skips by one array element.
+     *
+     * @param[in] iterator Pointer to iterator
+     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     */
     AwsIotSerializerError_t ( * next )( AwsIotSerializerDecoderIterator_t iterator);
 
-    /*
-     * Check if this is the end of container.
+    /**
+     * @brief Function to check if the iterator reached end of container
+     * @param[in] iterator Pointer to iterator for the container
+     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
     bool ( * isEndOfContainer )( AwsIotSerializerDecoderIterator_t iterator);
 
-    /*
-     * enter the container object and save the first child object to pNewDecoderObject
-     *
-     */
-    AwsIotSerializerError_t ( * stepIn )( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                          AwsIotSerializerDecoderIterator_t * pIterator);
 
-    /*
-     * leave the container wrapping pDecoderObject. skip all the same-level objects till leaving.
-     *
-     */
 
+    /**
+       * @brief Steps out of the container by updating the decoder object to next byte position
+       * after the container.
+       * The iterator **should** point to the end of the container when calling this function.
+       *
+       * @param[in] iterator Pointer to iterator for the container.
+       * @param[in] The outer decoder object to the same container.
+       * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+       */
     AwsIotSerializerError_t ( * stepOut )( AwsIotSerializerDecoderIterator_t iterator,
                                            AwsIotSerializerDecoderObject_t * pDecoderObject );
 
-    /*
-     * print a beautiful string to stdout
-     */
+  /**
+   * Pretty format and print the buffer.
+   * @param[in] pDataBuffer Pointer to the buffer
+   * @param[in] dataSize Size of the buffer.
+   */
     void ( * print )( uint8_t * pDataBuffer,
                       size_t dataSize );
 } AwsIotSerializerDecodeInterface_t;
