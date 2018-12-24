@@ -509,7 +509,7 @@ static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDeco
     pContainer = pDecoderObject->pHandle;
 
     _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
-    if( offset >= pContainer->length )
+    if( offset > pContainer->length )
     {
          return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
     }
