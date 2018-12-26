@@ -38,9 +38,11 @@ Functions : random number generator(XorShift method)
 WARNING: The random number generation solution presented in this application is 
     for example purposes only. It is not recommended to go into production with 
     the logic presented here. The current solution takes entropy from the a
-    temperature sensor on the board and from the current system time. for 
+    temperature sensor on the board and from the current system time. For 
     production development, Renesas RX65x customers are recommended to use the 
-    TRNG included in the hardware security IP.
+    TRNG included in the Trusted Secure IP Driver. Please see the following for more information
+    on the Trusted Secure IP Driver: https://www.renesas.com/us/en/products/software-tools/software-os-middleware-driver/security-crypto/trusted-secure-ip-driver.html
+
 ******************************************************************************/
 void get_random_number(uint8_t *data, uint32_t len)
 {
