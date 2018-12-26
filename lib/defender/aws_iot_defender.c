@@ -28,7 +28,7 @@
 /*
  * Small time value to kick off timer immediately.
  */
-#define _DEFENDER_SHORT_RELATIVE_MILLISECONDS    100
+#define _DEFENDER_SHORT_RELATIVE_MILLISECONDS    10
 
 /*
  * This mode is supposed to be used by test, demo or debug.
@@ -86,7 +86,7 @@ static AwsIotTimer_t _metricsPublishTimer;
 /* the timer that disconnect */
 static AwsIotTimer_t _guardTimer;
 
-AwsIotDefenderStartInfo_t _startInfo = { 0 };
+AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
 AwsIotNetworkTlsInfo_t _tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
 
