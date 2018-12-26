@@ -265,7 +265,6 @@ static void parseTokenValue(
                 pValue->type = tokenType;
                 pValue->value.signedInt = val;
             }
-            (*pOffset)++;  /* Skip past the token after parsing */
             break;
         }
         case AWS_IOT_SERIALIZER_SCALAR_BOOL:
@@ -371,7 +370,7 @@ static AwsIotSerializerError_t _findKeyValue(
 
     _skipWhiteSpacesAndDelimeters( pObject->pStart, pObject->length, &offset );
 
-    for(; ( offset < pObject->length ) &&  ( pObject->pStart[offset] != '}' ); )
+    for(; ( offset < pObject->length ) && ( pObject->pStart[offset] != '}' ); )
     {
         tokenType = _getTokenType( pObject->pStart, offset );
 
@@ -397,7 +396,7 @@ static AwsIotSerializerError_t _findKeyValue(
                    /* If the offset went past the buffer, return BUFFER_TOO_SMALL error,
                     *  else return success.
                     */
-                   if( offset > pObject->length )
+                   if( offset >= pObject->length )
                    {
                        return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
                    }
@@ -445,7 +444,7 @@ static AwsIotSerializerError_t _findKeyValue(
                    {
                        /* If key already found, store the string as value, and return success */
                        parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
-                       if( offset > pObject->length )
+                       if( offset >= pObject->length )
                        {
                            return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
                        }
@@ -509,7 +508,7 @@ static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDeco
     pContainer = pDecoderObject->pHandle;
 
     _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
-    if( offset > pContainer->length )
+    if( offset >= pContainer->length )
     {
          return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
     }
@@ -587,7 +586,7 @@ static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
     }
 
     parseTokenValue( pContainer->pStart, pContainer->length, &offset, type, pValueObject );
-    if( offset > pContainer->length )
+    if( offset >= pContainer->length )
     {
         return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
     }
@@ -614,7 +613,7 @@ static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator
     parseTokenValue( pContainer->pStart, pContainer->length, &offset, type, NULL );
     _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
 
-    if( offset > pContainer->length )
+    if( offset >= pContainer->length )
     {
         return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
     }
