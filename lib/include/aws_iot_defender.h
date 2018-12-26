@@ -44,43 +44,43 @@
 /* Platform network include. */
 #include "platform/aws_iot_network.h"
 
-#define AWS_IOT_DEFENDER_METRICS_ALL                          0xffffffff /**< @brief Flag to indicate including all metrics. */
+#define AWS_IOT_DEFENDER_METRICS_ALL                                        0xffffffff /**< @brief Flag to indicate including all metrics. */
 
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_TOTAL          ( 1 << 0 ) /**< @brief Total count of established TCP connections. */
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_LOCAL_PORT     ( 1 << 1 ) /**< @brief Local port number of established TCP connections. */
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_REMOTE_ADDR    ( 1 << 2 ) /**< @brief Remote address (IP:port) of established TCP connections. For example, 192.168.0.1:8000. */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL          ( 1 << 0 ) /**< @brief Total count of established TCP connections. */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_LOCAL_PORT     ( 1 << 1 ) /**< @brief Local port number of established TCP connections. */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR    ( 1 << 2 ) /**< @brief Remote address (IP:port) of established TCP connections. For example, 192.168.0.1:8000. */
 
 /**
  * @brief Connections metrics including local port number and remote address.
  */
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_CONNS                                                           \
-    ( AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_LOCAL_PORT | AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_REMOTE_ADDR ) \
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_CONNECTIONS                                                                   \
+    ( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_LOCAL_PORT | AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR ) \
 
 
 /**
  * @brief Established connections metrics including connections metrics and total count.
  */
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA                                                      \
-    ( AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_CONNS | AWS_IOT_DEFENDER_METRICS_TCP_CONN_ESTA_TOTAL ) \
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED                                                                          \
+    ( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_CONNECTIONS | AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL ) \
 
-#define AWS_IOT_DEFENDER_METRICS_LIS_TCP_TOTAL         ( 1 << 0 ) /**< @brief Total count of listening TCP ports. */
-#define AWS_IOT_DEFENDER_METRICS_LIS_TCP_PORTS_PORT    ( 1 << 1 ) /**< @brief Port number of listening TCP ports. */
+#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_TOTAL    ( 1 << 0 ) /**< @brief Total count of listening TCP ports. */
+#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORT     ( 1 << 1 ) /**< @brief Port number of listening TCP ports. */
 
 /**
  * @brief Ports metrics including port number.
  */
-#define AWS_IOT_DEFENDER_METRICS_LIS_TCP_PORTS         ( AWS_IOT_DEFENDER_METRICS_LIS_TCP_PORTS_PORT )
+#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORTS    ( AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORT )
 
 
-#define AWS_IOT_DEFENDER_START_INFO_INITIALIZER        { 0 }
+#define AWS_IOT_DEFENDER_START_INFO_INITIALIZER         { 0 }
 
 /**
  * @brief Metrics group options for AwsIotDefender_SetMetrics() function.
  */
 typedef enum
 {
-    AWS_IOT_DEFENDER_METRICS_TCP_CONN,
-    AWS_IOT_DEFENDER_METRICS_LIS_TCP,
+    AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS,
+    AWS_IOT_DEFENDER_METRICS_LISTENING_TCP,
 } AwsIotDefenderMetricsGroup_t;
 
 /**
