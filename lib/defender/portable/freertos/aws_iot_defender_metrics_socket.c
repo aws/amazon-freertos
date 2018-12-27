@@ -72,12 +72,12 @@ uint8_t AwsIotDefenderInternal_GetEstablishedConnectionsCount()
 /*-----------------------------------------------------------*/
 
 uint8_t AwsIotDefenderInternal_GetMetricsEstablishedConnections( _defenderMetricsConnection_t * pConnections,
-                                                              uint8_t connectionsLength )
+                                                                 uint8_t connectionsLength )
 {
     ListItem_t * pListItem = listGET_HEAD_ENTRY( &xBoundTCPSocketsList );
     FreeRTOS_Socket_t * pSocket = NULL;
 
-	uint8_t result = 0;
+    uint8_t result = 0;
     uint8_t i = 0;
 
     pListItem = listGET_HEAD_ENTRY( &xBoundTCPSocketsList );
@@ -91,8 +91,8 @@ uint8_t AwsIotDefenderInternal_GetMetricsEstablishedConnections( _defenderMetric
             if( i >= connectionsLength )
             {
                 /* something wrong */
-				result = 1;
-				break;
+                result = 1;
+                break;
             }
 
             pConnections[ i ].localPort = pSocket->usLocalPort;
@@ -105,7 +105,7 @@ uint8_t AwsIotDefenderInternal_GetMetricsEstablishedConnections( _defenderMetric
         pListItem = listGET_NEXT( pListItem );
     }
 
-	return result;
+    return result;
 }
 
 
@@ -119,12 +119,12 @@ uint8_t AwsIotDefenderInternal_GetListeningTcpPortsCount()
 /*-----------------------------------------------------------*/
 
 uint8_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( _defenderMetricsPort_t * pPorts,
-                                                         uint8_t portsLength )
+                                                            uint8_t portsLength )
 {
     ListItem_t * pListItem = listGET_HEAD_ENTRY( &xBoundTCPSocketsList );
     FreeRTOS_Socket_t * pSocket = NULL;
 
-	uint8_t result = 0;
+    uint8_t result = 0;
     uint8_t i = 0;
 
     pListItem = listGET_HEAD_ENTRY( &xBoundTCPSocketsList );
@@ -138,8 +138,8 @@ uint8_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( _defenderMetricsPort
             if( i >= portsLength )
             {
                 /* something wrong */
-				result = 1;
-				break;
+                result = 1;
+                break;
             }
 
             pPorts[ i ].port = pSocket->usLocalPort;
@@ -150,5 +150,5 @@ uint8_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( _defenderMetricsPort
         pListItem = listGET_NEXT( pListItem );
     }
 
-	return result;
+    return result;
 }
