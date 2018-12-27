@@ -34,6 +34,7 @@
 								<option id="gnu.c.compiler.option.debugging.level.722772844" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1847441575" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../lib/FreeRTOS-Plus-POSIX/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/tinycbor}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../lib/FreeRTOS-Plus-POSIX/include/portable/st/stm32l475_discovery&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/config_files}&quot;"/>
