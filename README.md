@@ -32,6 +32,9 @@ The following MCU boards are supported for Amazon FreeRTOS:
 8. **MediaTek** - [MediaTek MT7697Hx Development Kit](https://www.mediatek.com/products/smartHome/mt7697h)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_mediatek.html)
     * IDE: [Keil uVision](http://www2.keil.com/mdk5/install/)
+9. **Renesas** - [Renesas RX65N RSK IoT Module](https://www.renesas.com/us/en/products/software-tools/boards-and-kits/renesas-starter-kits/renesas-starter-kitplus-for-rx65n-2mb.html)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_renesas.html)
+    * IDE: [e2 studio](https://www.renesas.com/us/en/products/software-tools/tools/ide/e2studio.html)
 
 **Windows Simulator**
 To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
