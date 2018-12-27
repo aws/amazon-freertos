@@ -267,6 +267,10 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
             cborError = cbor_encode_boolean( pCborEncoder, scalarData.value.booleanValue );
             break;
 
+        case AWS_IOT_SERIALIZER_SCALAR_NULL:
+            cborError = cbor_encode_null( pCborEncoder );
+            break;
+
         default:
             returnError = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
     }
