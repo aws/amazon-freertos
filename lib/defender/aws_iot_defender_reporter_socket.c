@@ -28,20 +28,25 @@
 /* Secure sockets include. */
 #include "aws_secure_sockets.h"
 
-#define _TCP_CONN_TAG         AwsIotDefenderInternal_SelectTag( "tcp_connections", "tc" )
-#define _EST_CONN_TAG         AwsIotDefenderInternal_SelectTag( "established_connections", "ec" )
-#define _TOTAL_TAG            AwsIotDefenderInternal_SelectTag( "total", "t" )
-#define _CONN_TAG             AwsIotDefenderInternal_SelectTag( "connections", "cs" )
-#define _LOCAL_PORT_TAG       AwsIotDefenderInternal_SelectTag( "local_port", "lp" )
-#define _REMOTE_ADDR_TAG      AwsIotDefenderInternal_SelectTag( "remote_addr", "rad" )
+/* 15 for IP + 1 for ":" + 5 for port + 1 terminator
+ * For example: "192.168.0.1:8000\0"
+ */
+#define _REMOTE_ADDR_LENGTH    22
 
-#define _LIS_TCP_PORTS_TAG    AwsIotDefenderInternal_SelectTag( "listening_tcp_ports", "tp" )
-#define _PORTS_TAG            AwsIotDefenderInternal_SelectTag( "ports", "pts" )
-#define _PORT_TAG             AwsIotDefenderInternal_SelectTag( "port", "pt" )
+#define _TCP_CONN_TAG          AwsIotDefenderInternal_SelectTag( "tcp_connections", "tc" )
+#define _EST_CONN_TAG          AwsIotDefenderInternal_SelectTag( "established_connections", "ec" )
+#define _TOTAL_TAG             AwsIotDefenderInternal_SelectTag( "total", "t" )
+#define _CONN_TAG              AwsIotDefenderInternal_SelectTag( "connections", "cs" )
+#define _LOCAL_PORT_TAG        AwsIotDefenderInternal_SelectTag( "local_port", "lp" )
+#define _REMOTE_ADDR_TAG       AwsIotDefenderInternal_SelectTag( "remote_addr", "rad" )
+
+#define _LIS_TCP_PORTS_TAG     AwsIotDefenderInternal_SelectTag( "listening_tcp_ports", "tp" )
+#define _PORTS_TAG             AwsIotDefenderInternal_SelectTag( "ports", "pts" )
+#define _PORT_TAG              AwsIotDefenderInternal_SelectTag( "port", "pt" )
 
 /*-----------------------------------------------------------*/
 
-AwsIotSerializerError_t AwsIotDefenderInternal_GetTcpConnMetrics( AwsIotSerializerEncoderObject_t * pEncoderObject )
+AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotSerializerEncoderObject_t * pEncoderObject )
 {
     AwsIotSerializerError_t error;
 
@@ -61,8 +66,7 @@ AwsIotSerializerError_t AwsIotDefenderInternal_GetTcpConnMetrics( AwsIotSerializ
 
     _defenderMetricsConnection_t * pConnections = NULL;
 
-    /* 15 for IP + 1 for ":" + 5 for port + 1 terminator */
-    char remoteAddr[ 15 + 1 + 5 + 1 ] = "";
+    char remoteAddr[ _REMOTE_ADDR_LENGTH ] = "";
     char * pRemoteAddr = remoteAddr;
 
     /* "tcp_connections" has only 1 child "established_connections" */
@@ -88,7 +92,7 @@ AwsIotSerializerError_t AwsIotDefenderInternal_GetTcpConnMetrics( AwsIotSerializ
             /* allocated memory for connections metrics */
             if( pConnections != NULL )
             {
-                AwsIotDefenderInternal_GetMetricsEstablishedConnections( pConnections, total );
+                AwsIotDefenderInternal_GetEstablishedConnections( pConnections, total );
 
                 /* create array "connections" under "established_connections" */
                 error = _AwsIotDefenderEncoder.openContainerWithKey( &establishedMap,
@@ -167,7 +171,7 @@ AwsIotSerializerError_t AwsIotDefenderInternal_GetTcpConnMetrics( AwsIotSerializ
 
 /*-----------------------------------------------------------*/
 
-AwsIotSerializerError_t AwsIotDefenderInternal_GetLisTcpMetrics( AwsIotSerializerEncoderObject_t * pEncoderObject )
+AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( AwsIotSerializerEncoderObject_t * pEncoderObject )
 {
     AwsIotSerializerError_t error;
 
@@ -197,7 +201,7 @@ AwsIotSerializerError_t AwsIotDefenderInternal_GetLisTcpMetrics( AwsIotSerialize
 
         if( pPorts != NULL )
         {
-            AwsIotDefenderInternal_GetMetricsListeningTcpPorts( pPorts, total );
+            AwsIotDefenderInternal_GetListeningTcpPorts( pPorts, total );
 
             /* create array "ports" under "listening_tcp_ports". */
             error = _AwsIotDefenderEncoder.openContainerWithKey( &lisTcpPortsMap,

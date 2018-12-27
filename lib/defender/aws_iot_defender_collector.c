@@ -62,16 +62,16 @@ bool AwsIotDefenderInternal_CreateReport( _defenderReport_t * pReport,
 
         if( pReportBuffer != NULL )
         {
-            pReport->pDataBuffer = pReportBuffer;
-            pReport->size = dataSize;
-
             /* second-round serialization to do the actual encoding */
-            if( _serialize( pEncoderObject, pReport->pDataBuffer, pReport->size ) )
+            if( _serialize( pEncoderObject, pReportBuffer, dataSize ) )
             {
+                pReport->pDataBuffer = pReportBuffer;
+                pReport->size = dataSize;
                 result = true;
 
                 /* debug purpose */
                 dataSize = _AwsIotDefenderEncoder.getEncodedSize( pEncoderObject, pReport->pDataBuffer );
+                _AwsIotDefenderDecoder.print( pReport->pDataBuffer, dataSize );
             }
             else
             {
@@ -181,11 +181,11 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                 switch( i )
                 {
                     case AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS:
-                        serializerError = AwsIotDefenderInternal_GetTcpConnMetrics( &metricsMap );
+                        serializerError = AwsIotDefenderInternal_GetMetricsTcpConnections( &metricsMap );
                         break;
 
                     case AWS_IOT_DEFENDER_METRICS_LISTENING_TCP:
-                        serializerError = AwsIotDefenderInternal_GetLisTcpMetrics( &metricsMap );
+                        serializerError = AwsIotDefenderInternal_GetMetricsListeningTcpPorts( &metricsMap );
                         break;
 
                     default:

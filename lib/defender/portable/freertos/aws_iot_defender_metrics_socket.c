@@ -71,7 +71,7 @@ uint8_t AwsIotDefenderInternal_GetEstablishedConnectionsCount()
 
 /*-----------------------------------------------------------*/
 
-uint8_t AwsIotDefenderInternal_GetMetricsEstablishedConnections( _defenderMetricsConnection_t * pConnections,
+uint8_t AwsIotDefenderInternal_GetEstablishedConnections( _defenderMetricsConnection_t * pConnections,
                                                                  uint8_t connectionsLength )
 {
     ListItem_t * pListItem = listGET_HEAD_ENTRY( &xBoundTCPSocketsList );
@@ -118,7 +118,7 @@ uint8_t AwsIotDefenderInternal_GetListeningTcpPortsCount()
 
 /*-----------------------------------------------------------*/
 
-uint8_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( _defenderMetricsPort_t * pPorts,
+uint8_t AwsIotDefenderInternal_GetListeningTcpPorts( _defenderMetricsPort_t * pPorts,
                                                             uint8_t portsLength )
 {
     ListItem_t * pListItem = listGET_HEAD_ENTRY( &xBoundTCPSocketsList );
