@@ -345,7 +345,7 @@ AwsIotSerializerError_t prxSerializePubAck( uint16_t packetIdentifier,
     }
     _MQTT_BLE_ENCODER.destroy( &xEncoderObj );
 
-    return xError;
+    return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
 
@@ -626,6 +626,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeConnack( const uint8_t * const pConna
     if( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
     {
         AwsIotLogError( "Invalid CONNACK, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
+        ( *pBytesProcessed ) = 0;
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
@@ -636,6 +637,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeConnack( const uint8_t * const pConna
          ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
     {
         AwsIotLogError( "Invalid CONNACK, response code decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        ( *pBytesProcessed ) = 0;
         _MQTT_BLE_DECODER.destroy( &xValue );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
         return AWS_IOT_MQTT_BAD_RESPONSE;
@@ -730,6 +732,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPubli
     {
         AwsIotLogError( "Invalid PUBLISH, should be a map of key value pairs, object type = %d", xDecoderObj.type );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
@@ -740,8 +743,10 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPubli
         AwsIotLogError( "QOS Value decode failed, error = %d, decoded value type = %d", xError, xValue.type );
         _MQTT_BLE_DECODER.destroy( &xValue );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
+    pOutput->QoS = xValue.value.signedInt;
 
     xValue.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
     xValue.value.pString = NULL;
@@ -752,6 +757,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPubli
         AwsIotLogError( "Topic value decode failed, error = %d, decoded value type = %d", xError, xValue.type );
         _MQTT_BLE_DECODER.destroy( &xValue );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
     pOutput->pTopicName = ( const char * ) xValue.value.pString;
@@ -763,13 +769,29 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPubli
     xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLEPAYLOAD, &xValue );
     if( xError != AWS_IOT_SERIALIZER_SUCCESS )
     {
-        AwsIotLogError( "Topic value decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+        AwsIotLogError( "Payload value decode failed, error = %d, decoded value type = %d", xError, xValue.type );
         _MQTT_BLE_DECODER.destroy( &xValue );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
     pOutput->pPayload = ( const void * ) xValue.value.pString;
     pOutput->payloadLength = xValue.value.stringLength;
+
+    if( pOutput->QoS != 0 )
+    {
+    	xError = _MQTT_BLE_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+    	if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
+    			( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+    	{
+    		AwsIotLogError( "Message identifier decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+    		_MQTT_BLE_DECODER.destroy( &xValue );
+    		_MQTT_BLE_DECODER.destroy( &xDecoderObj );
+    		( *pBytesProcessed ) = 0;
+    		return AWS_IOT_MQTT_BAD_RESPONSE;
+    	}
+    	*pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
+    }
 
     _MQTT_BLE_DECODER.destroy( &xValue );
     _MQTT_BLE_DECODER.destroy( &xDecoderObj );
@@ -843,6 +865,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePuback( const uint8_t * const pPuback
     {
         AwsIotLogError( "Invalid PUBACK, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
@@ -854,6 +877,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePuback( const uint8_t * const pPuback
         AwsIotLogError( "Message ID decode failed, error = %d, decoded value type = %d", xError, xValue.type );
         _MQTT_BLE_DECODER.destroy( &xValue );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
     *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
@@ -934,6 +958,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttCo
     {
         AwsIotLogError( "Invalid SUBACK, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
@@ -944,6 +969,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttCo
         AwsIotLogError( "Message ID decode failed, error = %d, decoded value type = %d", xError, xValue.type );
         _MQTT_BLE_DECODER.destroy( &xValue );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
     *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
@@ -955,6 +981,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttCo
         AwsIotLogError( "Status code decode failed, error = %d, decoded value type = %d", xError, xValue.type );
         _MQTT_BLE_DECODER.destroy( &xValue );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
     subscriptionStatus = ( uint16_t ) xValue.value.signedInt;
@@ -1062,6 +1089,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeUnsuback( const uint8_t * const pUnsu
     {
         AwsIotLogError( "Invalid UNSUBACK, should be a map of key value pairs, decoded object type = %d", xDecoderObj.type );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
@@ -1072,6 +1100,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeUnsuback( const uint8_t * const pUnsu
         AwsIotLogError( "UNSUBACK Message identifier decode failed, error = %d, decoded value type = %d", xError, xValue.type );
         _MQTT_BLE_DECODER.destroy( &xValue );
         _MQTT_BLE_DECODER.destroy( &xDecoderObj );
+        ( *pBytesProcessed ) = 0;
         return AWS_IOT_MQTT_BAD_RESPONSE;
     }
     *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;

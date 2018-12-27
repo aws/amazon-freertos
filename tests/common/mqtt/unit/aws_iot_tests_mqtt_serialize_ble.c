@@ -637,37 +637,37 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeCONNACK )
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_CONNACK_MESG, mqttBLEMSG_TYPE_CONNACK, eMQTTBLEStatusConnected );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_CONNACK_MESG_LEN, bytesProcessed );
 
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_CONNACK_MESG, mqttBLEMSG_TYPE_CONNACK, eMQTTBLEStatusConnecting );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_CONNACK_MESG_LEN, bytesProcessed );
 
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_CONNACK_MESG, mqttBLEMSG_TYPE_CONNACK, eMQTTBLEStatusConnectionRefused );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_CONNACK_MESG_LEN, bytesProcessed );
 
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_CONNACK_MESG, mqttBLEMSG_TYPE_CONNACK, eMQTTBLEStatusConnectionError );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_CONNACK_MESG_LEN, bytesProcessed );
 
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_CONNACK_MESG, mqttBLEMSG_TYPE_CONNACK, eMQTTBLEStatusDisconnected );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_CONNACK_MESG_LEN, bytesProcessed );
 
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_CONNACK_MESG, mqttBLEMSG_TYPE_CONNACK, eMQTTBLEStatusProtocolError );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_CONNACK_MESG_LEN, bytesProcessed );
 
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_CONNACK_MESG, mqttBLEMSG_TYPE_CONNACK, eMQTTBLEStatusUnknown );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_CONNACK_MESG_LEN, bytesProcessed );
 
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_MALFORMED_MESG );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
@@ -677,7 +677,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeCONNACK )
 	connackLen = snprintf( connack, TEST_CONNACK_MESG_LEN, TEST_CONNACK_MESG_NO_RESP_CODE, mqttBLEMSG_TYPE_CONNACK );
 	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_CONNACK_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
@@ -691,7 +691,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 	publishLen = snprintf( publish, TEST_PUBLISH_MESG_LEN, TEST_PUBLISH_MESG, mqttBLEMSG_TYPE_PUBLISH );
 	status =  AwsIotMqttBLE_DeserializePublish( ( uint8_t* ) publish, TEST_PUBLISH_MESG_LEN, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_PUBLISH_MESG_LEN, bytesProcessed );
 	TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, publishInfo.topicNameLength );
 	TEST_ASSERT_EQUAL(0, strncmp( publishInfo.pTopicName, TEST_TOPIC, TEST_TOPIC_LENGTH ) );
 	TEST_ASSERT_EQUAL_INT( TEST_DATA_LENGTH, publishInfo.payloadLength );
@@ -708,22 +708,22 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 	publishLen = snprintf( publish, TEST_PUBLISH_MESG_LEN, TEST_PUBLISH_MESG_NO_QOS, mqttBLEMSG_TYPE_PUBLISH );
 	status =  AwsIotMqttBLE_DeserializePublish( ( uint8_t* ) publish, TEST_PUBLISH_MESG_LEN, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
 	publishLen = snprintf( publish, TEST_PUBLISH_MESG_LEN, TEST_PUBLISH_MESG_NO_TOPIC, mqttBLEMSG_TYPE_PUBLISH );
 	status =  AwsIotMqttBLE_DeserializePublish( ( uint8_t* ) publish, TEST_PUBLISH_MESG_LEN, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
 	publishLen = snprintf( publish, TEST_PUBLISH_MESG_LEN, TEST_PUBLISH_MESG_NO_MSG_ID, mqttBLEMSG_TYPE_PUBLISH );
 	status =  AwsIotMqttBLE_DeserializePublish( ( uint8_t* ) publish, TEST_PUBLISH_MESG_LEN, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
 	publishLen = snprintf( publish, TEST_PUBLISH_MESG_LEN, TEST_PUBLISH_MESG_NO_DATA, mqttBLEMSG_TYPE_PUBLISH );
 	status =  AwsIotMqttBLE_DeserializePublish( ( uint8_t* ) publish, TEST_PUBLISH_MESG_LEN, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 )
@@ -737,7 +737,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 )
 	publishLen = snprintf( publish, TEST_PUBLISH_MESG_LEN, TEST_PUBLISH_MESG_QOS0, mqttBLEMSG_TYPE_PUBLISH );
 	status =  AwsIotMqttBLE_DeserializePublish( ( uint8_t* ) publish, TEST_PUBLISH_MESG_LEN, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_PUBLISH_MESG_LEN, bytesProcessed );
 	TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, publishInfo.topicNameLength );
 	TEST_ASSERT_EQUAL(0, strncmp( publishInfo.pTopicName, TEST_TOPIC, TEST_TOPIC_LENGTH ) );
 	TEST_ASSERT_EQUAL_INT( TEST_DATA_LENGTH, publishInfo.payloadLength );
@@ -759,7 +759,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
 	subackLen = snprintf( suback, TEST_SUBACK_MESG_LEN, TEST_SUBACK_MESG, mqttBLEMSG_TYPE_SUBACK, TEST_QOS1 );
 	status =  AwsIotMqttBLE_DeserializeSuback( mqttConnection, ( uint8_t* ) suback, TEST_SUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( subackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_SUBACK_MESG_LEN, bytesProcessed );
 	TEST_ASSERT_EQUAL(TEST_PACKET_IDENTIFIER, packetIdentifier );
 
 	subackLen = snprintf( suback, TEST_SUBACK_MESG_LEN, TEST_MALFORMED_MESG );
@@ -770,12 +770,12 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
 	subackLen = snprintf( suback, TEST_SUBACK_MESG_LEN, TEST_SUBACK_MESG_NO_STATUS, mqttBLEMSG_TYPE_SUBACK );
 	status =  AwsIotMqttBLE_DeserializeSuback( mqttConnection, ( uint8_t* ) suback, TEST_SUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( subackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
 	subackLen = snprintf( suback, TEST_SUBACK_MESG_LEN, TEST_SUBACK_MESG_NO_MSG_ID, mqttBLEMSG_TYPE_SUBACK, TEST_QOS1 );
 	status =  AwsIotMqttBLE_DeserializeSuback( mqttConnection, ( uint8_t* ) suback, TEST_SUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( subackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializePUBACK )
@@ -788,8 +788,8 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBACK )
 	pubackLen = snprintf( puback, TEST_PUBUNSUBACK_MESG_LEN, TEST_PUBUNSUBACK_MESG, mqttBLEMSG_TYPE_PUBACK );
 	status =  AwsIotMqttBLE_DeserializePuback( ( uint8_t* ) puback, TEST_PUBUNSUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( pubackLen, bytesProcessed );
-	TEST_ASSERT_EQUAL(TEST_PACKET_IDENTIFIER, packetIdentifier );
+	TEST_ASSERT_EQUAL( TEST_PUBUNSUBACK_MESG_LEN, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
 
 	pubackLen = snprintf( puback, TEST_PUBUNSUBACK_MESG_LEN, TEST_MALFORMED_MESG );
 	status =  AwsIotMqttBLE_DeserializePuback( ( uint8_t* ) puback, TEST_PUBUNSUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
@@ -799,7 +799,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBACK )
 	pubackLen = snprintf( puback, TEST_PUBUNSUBACK_MESG_LEN, TEST_PUBUNSUBACK_MESG_NO_MSG_ID, mqttBLEMSG_TYPE_PUBACK );
 	status =  AwsIotMqttBLE_DeserializePuback( ( uint8_t* ) puback, TEST_PUBUNSUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( pubackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializeUNSUBACK )
@@ -812,8 +812,8 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeUNSUBACK )
 	pubackLen = snprintf( puback, TEST_PUBUNSUBACK_MESG_LEN, TEST_PUBUNSUBACK_MESG, mqttBLEMSG_TYPE_UNSUBACK );
 	status =  AwsIotMqttBLE_DeserializeUnsuback( ( uint8_t* ) puback, TEST_PUBUNSUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( pubackLen, bytesProcessed );
-	TEST_ASSERT_EQUAL(TEST_PACKET_IDENTIFIER, packetIdentifier );
+	TEST_ASSERT_EQUAL( TEST_PUBUNSUBACK_MESG_LEN, bytesProcessed );
+	TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
 
 	pubackLen = snprintf( puback, TEST_PUBUNSUBACK_MESG_LEN, TEST_MALFORMED_MESG );
 	status =  AwsIotMqttBLE_DeserializeUnsuback( ( uint8_t* ) puback, TEST_PUBUNSUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
@@ -823,7 +823,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeUNSUBACK )
 	pubackLen = snprintf( puback, TEST_PUBUNSUBACK_MESG_LEN, TEST_PUBUNSUBACK_MESG_NO_MSG_ID, mqttBLEMSG_TYPE_UNSUBACK );
 	status =  AwsIotMqttBLE_DeserializeUnsuback( ( uint8_t* ) puback, TEST_PUBUNSUBACK_MESG_LEN, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( pubackLen, bytesProcessed );
+	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail )
