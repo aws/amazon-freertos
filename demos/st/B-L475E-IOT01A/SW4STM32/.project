@@ -116,6 +116,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/lib/secure_sockets/portable/st/stm32l475_discovery</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/serializer</name>
+			<type>2</type>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/serializer</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/shadow</name>
 			<type>2</type>
 			<locationURI>AWS_IOT_MCU_ROOT/lib/shadow</locationURI>
@@ -149,6 +154,11 @@
 			<name>lib/third_party/mcu_vendor</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/tinycbor</name>
+			<type>2</type>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/third_party/tinycbor</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_ble_gatt_server_demo.c</name>
