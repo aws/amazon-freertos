@@ -108,7 +108,9 @@ typedef void                * pthread_barrierattr_t;
  * @brief Used to identify a mutex attribute object.
  */
 #if !defined( posixconfigENABLE_PTHREAD_MUTEXATTR_T ) || ( posixconfigENABLE_PTHREAD_MUTEXATTR_T == 1 )
-    typedef void            * pthread_mutexattr_t;
+    typedef struct pthread_mutexattr {
+          uint32_t        ulpthreadMutexAttrStorage;
+    } pthread_mutexattr_t;
 #endif
 
 /**
