@@ -3,8 +3,8 @@
 ## V1.4.6 12/27/2018
 ### New Features
 
-#### New Board: Renesas RX65N RSK IoT Module
-The Renesas RX65N RSK IoT Module is now qualified for Amazon FreeRTOS. This port updates the PKCS #11 portable layer, demo projects, and tests.
+#### New Board: Renesas Starter Kit+ for RX65N-2MB
+The Renesas Starter Kit+ for RX65N-2MB is now qualified for Amazon FreeRTOS. This port updates the PKCS #11 portable layer, demo projects, and tests.
 
 ### Updates
 
@@ -12,16 +12,16 @@ The Renesas RX65N RSK IoT Module is now qualified for Amazon FreeRTOS. This port
 - Improvement to reduce the size of a pthread object and make the object user allocatable from stack.
 
 #### FreeRTOS+TCP V2.0.10
-- Add FreeRTOS+TCP support for the Renesas RX65N RSK IoT Module.
+- Add FreeRTOS+TCP support for the Renesas Starter Kit+ for RX65N-2MB.
 
 #### FreeRTOS Kernel V10.0.1
-- Add FreeRTOS Kernel support for the Renesas RX65N RSK IoT Module.
+- Add FreeRTOS Kernel support for the Renesas Starter Kit+ for RX65N-2MB.
 
 #### PKCS #11 PAL for MT7697Hx-Dev-Kit V1.0.1
 - Update license information.
 
-#### PKCS #11 PAL for Renesas RX65N RSK IoT Module V1.0.0
-- Add PKCS #11 support for the Renesas RX65N RSK IoT Module.
+#### PKCS #11 PAL for Renesas Starter Kit+ for RX65N-2MB V1.0.0
+- Add PKCS #11 support for the Renesas Starter Kit+ for RX65N-2MB.
 
 #### Wi-Fi for MT7697Hx-Dev-Kit V1.0.1
 - Update license information.

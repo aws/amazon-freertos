@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Renesas RX65N RSK IoT Module V1.0.0
+ * Amazon FreeRTOS PKCS #11 PAL for Renesas Starter Kit+ for RX65N-2MB V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
