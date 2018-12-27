@@ -36,7 +36,7 @@ int mbedtls_hardware_poll( void *data,
 Functions : random number generator(XorShift method)
 
 WARNING: The random number generation solution presented in this application is 
-    for example purposes only. It is not recommended to go into production with 
+    for demonstration purposes only. It is not recommended to go into production with 
     the logic presented here. The current solution takes entropy from the a
     temperature sensor on the board and from the current system time. For 
     production development, Renesas RX65x customers are recommended to use the 
