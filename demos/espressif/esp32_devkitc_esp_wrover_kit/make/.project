@@ -96,6 +96,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/secure_sockets/portable/freertos_plus_tcp</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/serializer</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/serializer</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/shadow</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/shadow</locationURI>
@@ -124,6 +129,11 @@
 			<name>lib/third_party/mbedtls</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls</locationURI>
+		</link>
+		<link>
+			<name>lib/third_party/tinycbor</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/tinycbor</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/bluetooth_low_energy/aws_ble_event_manager.c</name>

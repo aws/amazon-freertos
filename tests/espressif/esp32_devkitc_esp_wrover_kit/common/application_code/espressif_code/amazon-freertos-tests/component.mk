@@ -42,6 +42,8 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/wifi_provisioning \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/mqtt_ble \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif \
+        $(AMAZON_FREERTOS_LIB_DIR)/serializer/cbor \
+        $(AMAZON_FREERTOS_LIB_DIR)/serializer/json
 
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/include \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
