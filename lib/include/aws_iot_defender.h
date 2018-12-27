@@ -46,9 +46,9 @@
 
 #define AWS_IOT_DEFENDER_METRICS_ALL                                        0xffffffff /**< @brief Flag to indicate including all metrics. */
 
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL          ( 1 << 0 ) /**< @brief Total count of established TCP connections. */
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_LOCAL_PORT     ( 1 << 1 ) /**< @brief Local port number of established TCP connections. */
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR    ( 1 << 2 ) /**< @brief Remote address (IP:port) of established TCP connections. For example, 192.168.0.1:8000. */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL          0x00000001 /**< @brief Total count of established TCP connections. */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_LOCAL_PORT     0x00000002 /**< @brief Local port number of established TCP connections. */
+#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR    0x00000004 /**< @brief Remote address (IP:port) of established TCP connections. For example, 192.168.0.1:8000. */
 
 /**
  * @brief Connections metrics including local port number and remote address.
@@ -63,8 +63,8 @@
 #define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED                                                                          \
     ( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_CONNECTIONS | AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL ) \
 
-#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_TOTAL    ( 1 << 0 ) /**< @brief Total count of listening TCP ports. */
-#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORT     ( 1 << 1 ) /**< @brief Port number of listening TCP ports. */
+#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_TOTAL    0x00000001 /**< @brief Total count of listening TCP ports. */
+#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORT     0x00000002 /**< @brief Port number of listening TCP ports. */
 
 /**
  * @brief Ports metrics including port number.

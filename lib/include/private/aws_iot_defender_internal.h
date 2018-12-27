@@ -160,12 +160,12 @@ void AwsIotDefenderInternal_DeleteReport( _defenderReport_t * report );
 /**
  * Established TCP connections metrics is added to the encoder object.
  */
-AwsIotSerializerError_t AwsIotDefenderInternal_GetTcpConnMetrics( AwsIotSerializerEncoderObject_t * pEncoderObject );
+AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotSerializerEncoderObject_t * pEncoderObject );
 
 /**
  * Listening TCP ports metrics is added to the encoder object.
  */
-AwsIotSerializerError_t AwsIotDefenderInternal_GetLisTcpMetrics( AwsIotSerializerEncoderObject_t * pEncoderObject );
+AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( AwsIotSerializerEncoderObject_t * pEncoderObject );
 
 /**
  * Build three topics names used by defender library.

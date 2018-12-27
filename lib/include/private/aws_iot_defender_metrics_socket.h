@@ -58,7 +58,7 @@ uint8_t AwsIotDefenderInternal_GetEstablishedConnectionsCount();
 /**
  * @brief Set an array of established connections information.
  */
-uint8_t AwsIotDefenderInternal_GetMetricsEstablishedConnections( _defenderMetricsConnection_t * pConnections,
+uint8_t AwsIotDefenderInternal_GetEstablishedConnections( _defenderMetricsConnection_t * pConnections,
                                                               uint8_t connectionsLength );
 
 /**
@@ -72,7 +72,7 @@ uint8_t AwsIotDefenderInternal_GetListeningTcpPortsCount();
 /**
  * @brief Set an array of listening ports information.
  */
-uint8_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( _defenderMetricsPort_t * pPorts,
+uint8_t AwsIotDefenderInternal_GetListeningTcpPorts( _defenderMetricsPort_t * pPorts,
                                                          uint8_t portsLength );
 
 #endif /* ifndef _AWS_IOT_DEFENDER_METRICS_SOCKET_H_ */
