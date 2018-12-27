@@ -24,12 +24,12 @@
 
 #include "platform/aws_iot_clock.h"
 
-#define  _HEADER_TAG          AwsIotDefenderInternal_SelectTag( "header", "hed" )
-#define  _REPORTID_TAG        AwsIotDefenderInternal_SelectTag( "report_id", "rid" )
-#define  _VERSION_TAG         AwsIotDefenderInternal_SelectTag( "version", "v" )
+#define  _HEADER_TAG      AwsIotDefenderInternal_SelectTag( "header", "hed" )
+#define  _REPORTID_TAG    AwsIotDefenderInternal_SelectTag( "report_id", "rid" )
+#define  _VERSION_TAG     AwsIotDefenderInternal_SelectTag( "version", "v" )
 /* This version is used by defender service to indicate the schema change of report, e.g. adding new field. */
-#define  _VERSION_1_0         "1.0"
-#define  _METRICS_TAG         AwsIotDefenderInternal_SelectTag( "metrics", "met" )
+#define  _VERSION_1_0     "1.0"
+#define  _METRICS_TAG     AwsIotDefenderInternal_SelectTag( "metrics", "met" )
 
 /**
  * Attempt to serialize metrics report with given data buffer.
@@ -97,7 +97,7 @@ void AwsIotDefenderInternal_DeleteReport( _defenderReport_t * report )
 {
     _AwsIotDefenderEncoder.destroy( &( report->object ) );
     vPortFree( report->pDataBuffer );
-	report->pDataBuffer = NULL;
+    report->pDataBuffer = NULL;
     report->size = 0;
 }
 
@@ -130,31 +130,31 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
     {
         /* 2 sub-objects: header, metrics */
         serializerError = _AwsIotDefenderEncoder.openContainer( pEncoderObject,
-                                                  &reportMap,
-                                                  2 );
+                                                                &reportMap,
+                                                                2 );
     }
 
     if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
     {
         /* 2 keys: report_id, version */
         serializerError = _AwsIotDefenderEncoder.openContainerWithKey( &reportMap,
-                                                         _HEADER_TAG,
-                                                         &headerMap,
-                                                         2 );
+                                                                       _HEADER_TAG,
+                                                                       &headerMap,
+                                                                       2 );
     }
 
     if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
     {
         serializerError = _AwsIotDefenderEncoder.appendKeyValue( &headerMap,
-                                                   _REPORTID_TAG,
-                                                   AwsIotSerializer_ScalarSignedInt( AwsIotClock_GetTimeMs() ) );
+                                                                 _REPORTID_TAG,
+                                                                 AwsIotSerializer_ScalarSignedInt( AwsIotClock_GetTimeMs() ) );
     }
 
     if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
     {
         serializerError = _AwsIotDefenderEncoder.appendKeyValue( &headerMap,
-                                                   _VERSION_TAG,
-                                                   AwsIotSerializer_ScalarTextString( _VERSION_1_0 ) );
+                                                                 _VERSION_TAG,
+                                                                 AwsIotSerializer_ScalarTextString( _VERSION_1_0 ) );
     }
 
     if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
@@ -166,9 +166,9 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
     {
         /* length is unknown */
         serializerError = _AwsIotDefenderEncoder.openContainerWithKey( &reportMap,
-                                                         _METRICS_TAG,
-                                                         &metricsMap,
-                                                         AWS_IOT_SERIALIZER_INDEFINITE_LENGTH );
+                                                                       _METRICS_TAG,
+                                                                       &metricsMap,
+                                                                       AWS_IOT_SERIALIZER_INDEFINITE_LENGTH );
     }
 
     if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
