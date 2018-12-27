@@ -44,6 +44,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /* Demo includes */
 #include "aws_demo_runner.h"
+#include "aws_clientcredential.h"
 
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
@@ -115,7 +116,8 @@ static void prvMiscInitialization( void );
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Application runtime entry point.
+ * @brief The application entry point from a power on reset is PowerON_Reset_PC()
+ * in resetprg.c.
  */
 void main( void )
 {
@@ -130,7 +132,6 @@ static void prvMiscInitialization( void )
 {
     /* Initialize UART for serial terminal. */
     uart_config();
-    configPRINT_STRING(("Hello World.\r\n"));
 
     /* Start logging task. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
@@ -154,6 +155,12 @@ void vApplicationDaemonTaskStartupHook( void )
                          ucDNSServerAddress,
                          ucMACAddress );
 
+        /* We should wait for the network to be up before we run any demos. */
+        while( FreeRTOS_IsNetworkUp() == pdFALSE )
+        {
+            vTaskDelay(3000);
+        }
+
         /* Provision the device with AWS certificate and private key. */
         vDevModeKeyProvisioning();
 
@@ -168,6 +175,6 @@ const char * pcApplicationHostnameHook( void )
     /* Assign the name "FreeRTOS" to this network node.  This function will
      * be called during the DHCP: the machine will be registered with an IP
      * address plus this name. */
-    return "RenesasRX_FREERTOS_TCP_TEST";
+    return clientcredentialIOT_THING_NAME;
 }
 /*-----------------------------------------------------------*/
