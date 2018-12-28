@@ -43,7 +43,10 @@
 
 #include "FreeRTOSConfig.h"
 
+#ifndef BYTE_ORDER
 #define BYTE_ORDER  LITTLE_ENDIAN
+#endif
+
 #define LWIP_PLATFORM_BYTESWAP 0
 
 /** @todo fix some warnings: don't use #pragma if compiling with cygwin gcc */

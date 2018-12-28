@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.1
+ * Amazon FreeRTOS+POSIX V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,6 +30,7 @@
 
 /* C standard library includes. */
 #include <stddef.h>
+#include <string.h>
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX.h"
@@ -41,11 +42,15 @@
  */
 typedef struct pthread_attr_internal
 {
-    size_t xStackSize;              /**< Stack size. */
-    int iDetachState;               /**< Detach state: joinable or detached. */
-    struct sched_param xSchedParam; /**< Scheduler parameters. */
+    uint16_t usStackSize;                 /**< Stack size. */
+    uint16_t usSchedPriorityDetachState;  /**< Schedule priority 15 bits (LSB) Detach state: 1 bits (MSB) */
 } pthread_attr_internal_t;
 
+#define pthreadDETACH_STATE_MASK 0x8000
+#define pthreadSCHED_PRIORITY_MASK 0x7FFF
+#define pthreadDETACH_STATE_SHIFT 15
+#define pthreadGET_SCHED_PRIORITY( var ) ( (var)  & (pthreadSCHED_PRIORITY_MASK) )
+#define pthreadIS_JOINABLE( var ) ( ( (var) & (pthreadDETACH_STATE_MASK) ) == pthreadDETACH_STATE_MASK )
 /**
  * @brief Thread object.
  */
@@ -85,9 +90,8 @@ static void prvRunThread( void * pxArg );
  */
 static const pthread_attr_internal_t xDefaultThreadAttributes =
 {
-    .xStackSize   = PTHREAD_STACK_MIN,
-    .iDetachState = PTHREAD_CREATE_JOINABLE,
-    .xSchedParam  = { .sched_priority = tskIDLE_PRIORITY }
+    .usStackSize   = PTHREAD_STACK_MIN,
+    .usSchedPriorityDetachState = ( ( uint16_t ) tskIDLE_PRIORITY & pthreadSCHED_PRIORITY_MASK) | ( PTHREAD_CREATE_JOINABLE << pthreadDETACH_STATE_SHIFT ),
 };
 
 /*-----------------------------------------------------------*/
@@ -97,7 +101,7 @@ static void prvExitThread( void )
     pthread_internal_t * pxThread = ( pthread_internal_t * ) pthread_self();
 
     /* If this thread is joinable, wait for a call to pthread_join. */
-    if( pxThread->xAttr.iDetachState == PTHREAD_CREATE_JOINABLE )
+    if( pthreadIS_JOINABLE( pxThread->xAttr.usSchedPriorityDetachState ) )
     {
         ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxThread->xJoinBarrier );
 
@@ -132,12 +136,7 @@ int pthread_attr_destroy( pthread_attr_t * attr )
 {
     int iStatus = 0;
 
-    /* Free the attributes object if not NULL. */
-    if( attr != NULL )
-    {
-        vPortFree( *attr );
-    }
-    else
+    if( attr == NULL )
     {
         iStatus = EINVAL;
     }
@@ -150,9 +149,16 @@ int pthread_attr_destroy( pthread_attr_t * attr )
 int pthread_attr_getdetachstate( const pthread_attr_t * attr,
                                  int * detachstate )
 {
-    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( *attr );
+    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( attr );
 
-    *detachstate = pxAttr->iDetachState;
+   if ( pthreadIS_JOINABLE( pxAttr->usSchedPriorityDetachState) )
+   {
+       *detachstate = PTHREAD_CREATE_JOINABLE;
+   }
+   else
+   {
+       *detachstate = PTHREAD_CREATE_DETACHED;
+   }
 
     return 0;
 }
@@ -162,9 +168,9 @@ int pthread_attr_getdetachstate( const pthread_attr_t * attr,
 int pthread_attr_getschedparam( const pthread_attr_t * attr,
                                 struct sched_param * param )
 {
-    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( *attr );
+    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( attr );
 
-    *param = pxAttr->xSchedParam;
+    param->sched_priority = ( int ) ( pthreadGET_SCHED_PRIORITY( pxAttr->usSchedPriorityDetachState) );
 
     return 0;
 }
@@ -174,9 +180,9 @@ int pthread_attr_getschedparam( const pthread_attr_t * attr,
 int pthread_attr_getstacksize( const pthread_attr_t * attr,
                                size_t * stacksize )
 {
-    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( *attr );
+    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( attr );
 
-    *stacksize = pxAttr->xStackSize;
+    *stacksize = ( size_t ) pxAttr->usStackSize;
 
     return 0;
 }
@@ -187,19 +193,16 @@ int pthread_attr_init( pthread_attr_t * attr )
 {
     int iStatus = 0;
 
-    /* Allocate memory for a new thread attributes object. */
-    *attr = pvPortMalloc( sizeof( pthread_attr_internal_t ) );
-
-    /* Check that thread attributes object was successfully allocated. */
+    /* Check if the attribute is NULL. */
     if( attr == NULL )
     {
-        iStatus = ENOMEM;
+        iStatus = EINVAL;
     }
 
     /* Copy the default values into the new thread attributes object. */
     if( iStatus == 0 )
     {
-        *( ( pthread_attr_internal_t * ) ( *attr ) ) = xDefaultThreadAttributes;
+        *( ( pthread_attr_internal_t * ) ( attr ) ) = xDefaultThreadAttributes;
     }
 
     return iStatus;
@@ -211,7 +214,7 @@ int pthread_attr_setdetachstate( pthread_attr_t * attr,
                                  int detachstate )
 {
     int iStatus = 0;
-    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( *attr );
+    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( attr );
 
     if( ( detachstate != PTHREAD_CREATE_DETACHED ) && ( detachstate != PTHREAD_CREATE_JOINABLE ) )
     {
@@ -219,7 +222,9 @@ int pthread_attr_setdetachstate( pthread_attr_t * attr,
     }
     else
     {
-        pxAttr->iDetachState = detachstate;
+        /* clear and then set msb bit to detachstate) */
+        pxAttr->usSchedPriorityDetachState &= ~pthreadDETACH_STATE_MASK;
+        pxAttr->usSchedPriorityDetachState |= ( (uint16_t) detachstate << pthreadDETACH_STATE_SHIFT );
     }
 
     return iStatus;
@@ -231,7 +236,7 @@ int pthread_attr_setschedparam( pthread_attr_t * attr,
                                 const struct sched_param * param )
 {
     int iStatus = 0;
-    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( *attr );
+    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( attr );
 
     /* Check for NULL param. */
     if( param == NULL )
@@ -250,7 +255,9 @@ int pthread_attr_setschedparam( pthread_attr_t * attr,
     /* Set the sched_param. */
     if( iStatus == 0 )
     {
-        pxAttr->xSchedParam = *param;
+        /* clear and then set  15 LSB to schedule priority) */
+        pxAttr->usSchedPriorityDetachState &= ~pthreadSCHED_PRIORITY_MASK;
+        pxAttr->usSchedPriorityDetachState |= ( ( uint16_t) param->sched_priority );
     }
 
     return iStatus;
@@ -262,7 +269,7 @@ int pthread_attr_setstacksize( pthread_attr_t * attr,
                                size_t stacksize )
 {
     int iStatus = 0;
-    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( *attr );
+    pthread_attr_internal_t * pxAttr = ( pthread_attr_internal_t * ) ( attr );
 
     if( stacksize < PTHREAD_STACK_MIN )
     {
@@ -270,7 +277,7 @@ int pthread_attr_setstacksize( pthread_attr_t * attr,
     }
     else
     {
-        pxAttr->xStackSize = stacksize;
+        pxAttr->usStackSize = ( uint16_t ) stacksize;
     }
 
     return iStatus;
@@ -285,6 +292,7 @@ int pthread_create( pthread_t * thread,
 {
     int iStatus = 0;
     pthread_internal_t * pxThread = NULL;
+    struct sched_param xSchedParam  = { .sched_priority = tskIDLE_PRIORITY };
 
     /* Allocate memory for new thread object. */
     pxThread = ( pthread_internal_t * ) pvPortMalloc( sizeof( pthread_internal_t ) );
@@ -305,8 +313,11 @@ int pthread_create( pthread_t * thread,
         /* Otherwise, use provided attributes. */
         else
         {
-            pxThread->xAttr = *( ( pthread_attr_internal_t * ) ( *attr ) );
+            pxThread->xAttr = *( ( pthread_attr_internal_t * ) ( attr ) );
         }
+
+        /* Get priority from attributes */
+        xSchedParam.sched_priority =  ( int ) pthreadGET_SCHED_PRIORITY( pxThread->xAttr.usSchedPriorityDetachState );
 
         /* Set argument and start routine. */
         pxThread->xTaskArg = arg;
@@ -314,7 +325,8 @@ int pthread_create( pthread_t * thread,
 
         /* If this thread is joinable, create the synchronization mechanisms for
          * pthread_join. */
-        if( pxThread->xAttr.iDetachState == PTHREAD_CREATE_JOINABLE )
+
+        if( pthreadIS_JOINABLE( pxThread->xAttr.usSchedPriorityDetachState ) )
         {
             /* These calls will not fail when their arguments aren't NULL. */
             ( void ) xSemaphoreCreateMutexStatic( &pxThread->xJoinMutex );
@@ -331,9 +343,9 @@ int pthread_create( pthread_t * thread,
         /* Create the FreeRTOS task that will run the pthread. */
         if( xTaskCreate( prvRunThread,
                          posixconfigPTHREAD_TASK_NAME,
-                         ( uint16_t ) ( pxThread->xAttr.xStackSize / sizeof( StackType_t ) ),
+                         ( uint16_t ) ( pxThread->xAttr.usStackSize / sizeof( StackType_t ) ),
                          ( void * ) pxThread,
-                         pxThread->xAttr.xSchedParam.sched_priority,
+                         xSchedParam.sched_priority,
                          &pxThread->xTaskHandle ) != pdPASS )
         {
             /* Task creation failed, no memory. */
@@ -362,12 +374,13 @@ int pthread_getschedparam( pthread_t thread,
                            int * policy,
                            struct sched_param * param )
 {
+    int iStatus = 0;
     pthread_internal_t * pxThread = ( pthread_internal_t * ) thread;
 
     *policy = SCHED_OTHER;
-    *param = pxThread->xAttr.xSchedParam;
+    param->sched_priority = ( int ) pthreadGET_SCHED_PRIORITY( pxThread->xAttr.usSchedPriorityDetachState );
 
-    return 0;
+    return iStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -409,7 +422,7 @@ int pthread_join( pthread_t pthread,
 
     /* Make sure pthread is joinable. Otherwise, this function would block
      * forever waiting for an unjoinable thread. */
-    if( pxThread->xAttr.iDetachState != PTHREAD_CREATE_JOINABLE )
+    if ( !pthreadIS_JOINABLE( pxThread->xAttr.usSchedPriorityDetachState ) )
     {
         iStatus = EDEADLK;
     }
@@ -486,18 +499,23 @@ int pthread_setschedparam( pthread_t thread,
                            int policy,
                            const struct sched_param * param )
 {
+    int iStatus = 0;
+
     pthread_internal_t * pxThread = ( pthread_internal_t * ) thread;
 
     /* Silence compiler warnings about unused parameters. */
     ( void ) policy;
 
-    /* Copy the give sched_param. */
-    pxThread->xAttr.xSchedParam = *param;
+    /* Copy the given sched_param. */
+    iStatus = pthread_attr_setschedparam( ( pthread_attr_t * ) &pxThread->xAttr, param );
 
-    /* Change the priority of the FreeRTOS task. */
-    vTaskPrioritySet( pxThread->xTaskHandle, pxThread->xAttr.xSchedParam.sched_priority );
+    if ( iStatus == 0 )
+    {
+        /* Change the priority of the FreeRTOS task. */
+        vTaskPrioritySet( pxThread->xTaskHandle, param->sched_priority );
+    }
 
-    return 0;
+    return iStatus;
 }
 
 /*-----------------------------------------------------------*/

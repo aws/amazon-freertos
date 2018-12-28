@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.1
+ * Amazon FreeRTOS+POSIX V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -68,7 +68,9 @@
  * @brief Used to identify a thread attribute object.
  */
 #if !defined( posixconfigENABLE_PTHREAD_ATTR_T ) || ( posixconfigENABLE_PTHREAD_ATTR_T == 1 )
-    typedef void            * pthread_attr_t;
+    typedef struct pthread_attr {
+        uint32_t ulpthreadAttrStorage;
+    } pthread_attr_t;
 #endif
 
 /**
