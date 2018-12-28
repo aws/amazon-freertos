@@ -260,13 +260,13 @@ TEST( Full_POSIX_TIMER, timer_settime_min_resolution )
 
         /* Calculate the elapsed time since the timer was started. Ensure that
          * it's positive. */
-        iStatus = UTILS_TimespecSubtract( &xElapsedTime, &xThreadReturnValues.xExpirationTime, &xStartTime );
+        iStatus = UTILS_TimespecSubtract( &xThreadReturnValues.xExpirationTime, &xStartTime, &xElapsedTime );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
         TEST_ASSERT_TRUE( ( xElapsedTime.tv_sec > 0 ) || ( xElapsedTime.tv_nsec > 0 ) );
 
         /* Ensure the timer did not fire before the minimum sleep resolution. */
-        iStatus = UTILS_TimespecSubtract( &xElapsedTime, &xElapsedTime, &xInterval.it_value );
-        TEST_ASSERT_TRUE( iStatus >= 0 );
+        iStatus = UTILS_TimespecSubtract( &xElapsedTime, &xInterval.it_value, &xElapsedTime );
+        TEST_ASSERT_TRUE( iStatus == 0 );
     }
 
     /* Delete timer. */
@@ -383,8 +383,8 @@ TEST( Full_POSIX_TIMER, timer_settime_abstime )
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
         iStatus = UTILS_TimespecAddNanoseconds( &xAbsoluteTimeout.it_value,
-                                                &xAbsoluteTimeout.it_value,
-                                                posixtestSHORT_TIMER_DELAY_NANOSECONDS );
+                                                posixtestSHORT_TIMER_DELAY_NANOSECONDS,
+                                                &xAbsoluteTimeout.it_value );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
         iStatus = timer_settime( xTimer, TIMER_ABSTIME, &xAbsoluteTimeout, NULL );
@@ -401,7 +401,7 @@ TEST( Full_POSIX_TIMER, timer_settime_abstime )
 
         /* Calculate the difference between the timeout expiration and the absolute
          * timeout. Ensure that it's small and positive. */
-        iStatus = UTILS_TimespecSubtract( &xTimeDifference, &xThreadReturnValues.xExpirationTime, &xAbsoluteTimeout.it_value );
+        iStatus = UTILS_TimespecSubtract( &xThreadReturnValues.xExpirationTime, &xAbsoluteTimeout.it_value, &xTimeDifference );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
         TEST_ASSERT_TRUE( ( xTimeDifference.tv_sec == 0 ) && ( xTimeDifference.tv_nsec >= 0 ) );
     }
@@ -452,7 +452,7 @@ TEST( Full_POSIX_TIMER, timer_settime_abstime_in_past )
 
         /* Calculate the difference between the timeout expiration and the start time.
          * Ensure that it's small and positive. */
-        iStatus = UTILS_TimespecSubtract( &xTimeDifference, &xThreadReturnValues.xExpirationTime, &xStartTime );
+        iStatus = UTILS_TimespecSubtract( &xThreadReturnValues.xExpirationTime, &xStartTime, &xTimeDifference );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
         TEST_ASSERT_TRUE( ( xTimeDifference.tv_sec == 0 ) && ( xTimeDifference.tv_nsec >= 0 ) );
     }

@@ -203,7 +203,17 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
     /* Convert abstime to a delay in TickType_t if provided. */
     if( abstime != NULL )
     {
-        iStatus = UTILS_AbsoluteTimespecToTicks( abstime, &xDelay );
+        struct timespec xCurrentTime = { 0 };
+
+        /* Get current time */
+        if( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 )
+        {
+            iStatus = EINVAL;
+        }
+        else
+        {
+            iStatus = UTILS_AbsoluteTimespecToDeltaTicks( abstime, &xCurrentTime, &xDelay );
+        }
     }
 
     /* Increase the counter of threads blocking on condition variable, then

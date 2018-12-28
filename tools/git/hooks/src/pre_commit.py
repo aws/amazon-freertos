@@ -91,6 +91,7 @@ def is_ignored_file_pattern(file_name):
         "lib/secure_sockets/portable",
         "lib/third_party/",
         "lib/wifi/portable",
+        "tests/common/posix",
     ]
     for ignored_pattern in ignored_patterns:
         if re.findall(ignored_pattern, file_name):

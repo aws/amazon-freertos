@@ -146,7 +146,17 @@ int sem_timedwait( sem_t * sem,
         }
         else
         {
-            iStatus = UTILS_AbsoluteTimespecToTicks( abstime, &xDelay );
+            struct timespec xCurrentTime = { 0 };
+
+            /* Get current time */
+            if( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 )
+            {
+                iStatus = EINVAL;
+            }
+            else
+            {
+                iStatus = UTILS_AbsoluteTimespecToDeltaTicks( abstime, &xCurrentTime, &xDelay );
+            }
 
             /* If abstime was in the past, still attempt to take the semaphore without
              * blocking, per POSIX spec. */
