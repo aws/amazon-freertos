@@ -6,6 +6,8 @@
 #### New Board: Renesas Starter Kit+ for RX65N-2MB
 The Renesas Starter Kit+ for RX65N-2MB is now qualified for Amazon FreeRTOS. This port updates the PKCS #11 portable layer, demo projects, and tests.
 
+Note that the random number generation solution in this port is provided for demonstration purposes only. See the comment in lib/third_party/mcu_vendor/renesas/amazon_freertos_common/entropy_hardware_poll.c for more information.
+
 ### Updates
 
 #### FreeRTOS+POSIX V1.0.2
