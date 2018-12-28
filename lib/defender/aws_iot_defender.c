@@ -45,7 +45,7 @@ static bool isStarted();
 /**
  * Disconnect MQTT and clean up network connection.
  */
-static void _closeAndDestroyConnection();
+static void _closeAndDestroyConnection( void );
 
 /**
  * callback registerd on accept topic.
@@ -86,9 +86,11 @@ static AwsIotTimer_t _metricsPublishTimer;
 /* the timer that disconnect */
 static AwsIotTimer_t _guardTimer;
 
-AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
+static _defenderReport_t _report = { 0 };
 
-AwsIotNetworkTlsInfo_t _tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
+static AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
+
+static AwsIotNetworkTlsInfo_t _tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
 
 /*-----------------------------------------------------------*/
 
@@ -108,6 +110,7 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
     if( metricsGroup >= _DEFENDER_METRICS_GROUP_COUNT )
     {
         error = AWS_IOT_DEFENDER_INVALID_INPUT;
+        AwsIotLogError( "Input metrics group is invalid. Please use AwsIotDefenderMetricsGroup_t data type." );
     }
     else
     {
@@ -160,6 +163,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         if( publishTimerArmSuccess )
         {
             defenderError = AWS_IOT_DEFENDER_SUCCESS;
+            AwsIotLogInfo( "Defender agent has successfully started." );
         }
     }
     else
@@ -191,6 +195,8 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         {
             AwsIotClock_TimerDestroy( &_guardTimer );
         }
+
+        AwsIotLogError( "Defender agent failed to start." );
     }
 
     return defenderError;
@@ -214,6 +220,8 @@ AwsIotDefenderError_t AwsIotDefender_Stop( void )
 
     AwsIotDefenderInternal_DeleteTopicsNames();
 
+    AwsIotLogInfo( "Defender agent has stopped." );
+
     return AWS_IOT_DEFENDER_SUCCESS;
 }
 
@@ -227,11 +235,13 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds )
     if( ( periodSeconds < AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS ) && !_DEFENDER_TEST_MODE )
     {
         defenderError = AWS_IOT_DEFENDER_PERIOD_TOO_SHORT;
+        AwsIotLogError( "Input period is too short. It must be greater than %d seconds.", AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS );
     }
     /* overflow check for period, although this should be a rare case. */
     else if( periodSeconds > _defenderToSeconds( UINT64_MAX ) )
     {
         defenderError = AWS_IOT_DEFENDER_PERIOD_TOO_LARGE;
+        AwsIotLogError( "Input period is too large, which will cause integer overflow." );
     }
     else
     {
@@ -243,12 +253,14 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds )
                                       _DEFENDER_TEST_MODE ? _DEFENDER_SHORT_RELATIVE_MILLISECONDS : _periodMilliSecond, _periodMilliSecond ) )
             {
                 defenderError = AWS_IOT_DEFENDER_SUCCESS;
+                AwsIotLogInfo( "Period has been updated successfully." );
             }
         }
         else
         {
             /* if defender is not started, simply return success */
             defenderError = AWS_IOT_DEFENDER_SUCCESS;
+            AwsIotLogInfo( "Period has been set successfully but defender agent is not started yet." );
         }
     }
 
@@ -270,7 +282,7 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
 
     AwsIotDefenderEventType_t eventType = 0;
     AwsIotDefenderCallbackInfo_t callbackInfo;
-    _defenderReport_t report = { 0 };
+
     AwsIotMqttCallbackInfo_t acceptCallbackInfo = { .function = _acceptCallback, .param1 = NULL };
     AwsIotMqttCallbackInfo_t rejectCallbackInfo = { .function = _rejectCallback, .param1 = NULL };
 
@@ -290,13 +302,10 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
                                                           rejectCallbackInfo,
                                                           &eventType ) )
                 {
-                    if( AwsIotDefenderInternal_CreateReport( &report, &eventType ) )
+                    if( AwsIotDefenderInternal_CreateReport( &_report, &eventType ) )
                     {
-                        AwsIotDefenderInternal_MqttPublish( report.pDataBuffer, report.size, &eventType );
+                        AwsIotDefenderInternal_MqttPublish( _report.pDataBuffer, _report.size, &eventType );
                     }
-
-                    /* delete report regardless. */
-                    AwsIotDefenderInternal_DeleteReport( &report );
                 }
             }
         }
@@ -305,18 +314,21 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
     /* Something is wrong during the metrics publish process. */
     if( eventType != 0 )
     {
-        callbackInfo.eventType = eventType;
-
-        /* no message to be given to user's callback */
-        callbackInfo.pPayload = NULL;
-        callbackInfo.payloadLength = 0;
-
         /* invoke user's callback if there is. */
         if( _startInfo.callback.function != NULL )
         {
+            callbackInfo.eventType = eventType;
+
+            /* no message to be given to user's callback */
+            callbackInfo.pPayload = NULL;
+            callbackInfo.payloadLength = 0;
+            callbackInfo.pMetricsReport = _report.pDataBuffer;
+            callbackInfo.metricsReportLength = _report.size;
+
             _startInfo.callback.function( _startInfo.callback.param1, &callbackInfo );
         }
 
+        AwsIotDefenderInternal_DeleteReport( &_report );
         /* disconnect and destroy immediately. */
         _closeAndDestroyConnection();
     }
@@ -336,20 +348,22 @@ static void _guardTimerExpirationRoutine( void * pArgument )
 void _acceptCallback( void * pArgument,
                       AwsIotMqttCallbackParam_t * const pPublish )
 {
-    ( void ) pArgument;
-    ( void ) pPublish;
+    AwsIotLogInfo( "Metrics report was accepted by defender service." );
 
     AwsIotDefenderCallbackInfo_t callbackInfo;
 
     if( _startInfo.callback.function != NULL )
     {
         callbackInfo.eventType = AWS_IOT_DEFENDER_METRICS_ACCEPTED;
+        callbackInfo.pMetricsReport = _report.pDataBuffer;
+        callbackInfo.metricsReportLength = _report.size;
         callbackInfo.pPayload = pPublish->message.info.pPayload;
         callbackInfo.payloadLength = pPublish->message.info.payloadLength;
 
         _startInfo.callback.function( _startInfo.callback.param1, &callbackInfo );
     }
 
+    AwsIotDefenderInternal_DeleteReport( &_report );
     /* one shot timer */
     AwsIotClock_TimerArm( &_guardTimer, _DEFENDER_SHORT_RELATIVE_MILLISECONDS, 0 );
 }
@@ -359,27 +373,29 @@ void _acceptCallback( void * pArgument,
 void _rejectCallback( void * pArgument,
                       AwsIotMqttCallbackParam_t * const pPublish )
 {
-    ( void ) pArgument;
-    ( void ) pPublish;
+    AwsIotLogError( "Metrics report was rejected by defender service." );
 
     AwsIotDefenderCallbackInfo_t callbackInfo;
 
     if( _startInfo.callback.function != NULL )
     {
         callbackInfo.eventType = AWS_IOT_DEFENDER_METRICS_REJECTED;
+        callbackInfo.pMetricsReport = _report.pDataBuffer;
+        callbackInfo.metricsReportLength = _report.size;
         callbackInfo.pPayload = pPublish->message.info.pPayload;
         callbackInfo.payloadLength = pPublish->message.info.payloadLength;
 
         _startInfo.callback.function( _startInfo.callback.param1, &callbackInfo );
     }
 
+    AwsIotDefenderInternal_DeleteReport( &_report );
     /* one shot timer */
     AwsIotClock_TimerArm( &_guardTimer, _DEFENDER_SHORT_RELATIVE_MILLISECONDS, 0 );
 }
 
 /*-----------------------------------------------------------*/
 
-static void _closeAndDestroyConnection()
+static void _closeAndDestroyConnection( void )
 {
     AwsIotDefenderInternal_MqttDisconnect();
     AwsIotDefenderInternal_NetworkDestroy();

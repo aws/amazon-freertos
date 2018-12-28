@@ -68,10 +68,6 @@ bool AwsIotDefenderInternal_CreateReport( _defenderReport_t * pReport,
                 pReport->pDataBuffer = pReportBuffer;
                 pReport->size = dataSize;
                 result = true;
-
-                /* debug purpose */
-                dataSize = _AwsIotDefenderEncoder.getEncodedSize( pEncoderObject, pReport->pDataBuffer );
-                _AwsIotDefenderDecoder.print( pReport->pDataBuffer, dataSize );
             }
             else
             {
