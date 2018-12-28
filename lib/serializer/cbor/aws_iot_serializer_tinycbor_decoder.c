@@ -64,12 +64,8 @@ static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator);
 
 static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject );
 
-static void _print(uint8_t * pDataBuffer,
-    size_t dataSize);
-
 AwsIotSerializerDecodeInterface_t _AwsIotSerializerCborDecoder =
 {
-    .print = _print,
     .init = _init,
     .get = _get,
     .find = _find,
@@ -384,21 +380,4 @@ static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDeco
 
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
-/*-----------------------------------------------------------*/
 
-static void _print(uint8_t * pDataBuffer,
-    size_t dataSize)
-{
-    CborParser cborParser;
-    CborValue cborValue;
-
-    cbor_parser_init(
-        pDataBuffer,
-        dataSize,
-        0,
-        &cborParser,
-        &cborValue);
-
-    /* output to standard out */
-    cbor_value_to_pretty(stdout, &cborValue);
-}

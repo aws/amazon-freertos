@@ -325,14 +325,6 @@ typedef struct AwsIotSerializerDecodeInterface
        */
     AwsIotSerializerError_t ( * stepOut )( AwsIotSerializerDecoderIterator_t iterator,
                                            AwsIotSerializerDecoderObject_t * pDecoderObject );
-
-  /**
-   * Pretty format and print the buffer.
-   * @param[in] pDataBuffer Pointer to the buffer
-   * @param[in] dataSize Size of the buffer.
-   */
-    void ( * print )( uint8_t * pDataBuffer,
-                      size_t dataSize );
 } AwsIotSerializerDecodeInterface_t;
 
 /* Global reference of CBOR/JSON encoder and decoder. */

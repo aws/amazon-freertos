@@ -79,8 +79,6 @@ static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iter
 
 static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject );
 
-static void _print( uint8_t * pDataBuffer, size_t dataSize );
-
 AwsIotSerializerDecodeInterface_t _AwsIotSerializerJsonDecoder =
 {
     .init = _init,
@@ -90,8 +88,7 @@ AwsIotSerializerDecodeInterface_t _AwsIotSerializerJsonDecoder =
     .get = _get,
     .next = _next,
     .stepOut = _stepOut,
-    .destroy = _destroy,
-    .print = _print
+    .destroy = _destroy
 };
 
 typedef struct _jsonContainer
@@ -665,7 +662,3 @@ static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDeco
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
-static void _print( uint8_t * pDataBuffer, size_t dataSize )
-{
-    configPRINTF(( "%.*s\n", dataSize, ( const char * ) pDataBuffer ));
-}

@@ -39,6 +39,22 @@
 /* Serializer include. */
 #include "aws_iot_serializer.h"
 
+
+/* Configure logs for Defender functions. */
+#ifdef AWS_IOT_LOG_LEVEL_DEFENDER
+    #define _LIBRARY_LOG_LEVEL        AWS_IOT_LOG_LEVEL_DEFENDER
+#else
+    #ifdef AWS_IOT_LOG_LEVEL_GLOBAL
+        #define _LIBRARY_LOG_LEVEL    AWS_IOT_LOG_LEVEL_GLOBAL
+    #else
+        #define _LIBRARY_LOG_LEVEL    AWS_IOT_LOG_NONE
+    #endif
+#endif
+
+
+#define _LIBRARY_LOG_NAME    ( "Defender" )
+#include "aws_iot_logging_setup.h"
+
 /*
  * @brief Format constants: Cbor and Json.
  */

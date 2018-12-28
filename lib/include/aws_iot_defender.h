@@ -118,6 +118,8 @@ typedef enum
  */
 typedef struct AwsIotDefenderCallbackInfo
 {
+    const uint8_t * pMetricsReport;      /**< The published metrics report if there is one. */
+    size_t metricsReportLength;          /**< Length of the published metrics report. */
     const uint8_t * pPayload;            /**< The received message if there is one. */
     size_t payloadLength;                /**< Length of the message. */
     AwsIotDefenderEventType_t eventType; /**< Event code. */
