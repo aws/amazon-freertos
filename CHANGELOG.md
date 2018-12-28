@@ -1,5 +1,32 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.6 12/27/2018
+### New Features
+
+#### New Board: Renesas Starter Kit+ for RX65N-2MB
+The Renesas Starter Kit+ for RX65N-2MB is now qualified for Amazon FreeRTOS. This port updates the PKCS #11 portable layer, demo projects, and tests.
+
+### Updates
+
+#### FreeRTOS+POSIX V1.0.2
+- Improvement to reduce the size of a pthread object and make the object user allocatable from stack.
+
+#### FreeRTOS+TCP V2.0.10
+- Add FreeRTOS+TCP support for the Renesas Starter Kit+ for RX65N-2MB.
+
+#### FreeRTOS Kernel V10.0.1
+- Add FreeRTOS Kernel support for the Renesas Starter Kit+ for RX65N-2MB.
+
+#### PKCS #11 PAL for MT7697Hx-Dev-Kit V1.0.1
+- Update license information.
+
+#### PKCS #11 PAL for Renesas Starter Kit+ for RX65N-2MB V1.0.0
+- Add PKCS #11 support for the Renesas Starter Kit+ for RX65N-2MB. 
+- Note that the random number generation solution in this port is provided for demonstration purposes only. See the comment in lib/third_party/mcu_vendor/renesas/amazon_freertos_common/entropy_hardware_poll.c for more information.
+
+#### Wi-Fi for MT7697Hx-Dev-Kit V1.0.1
+- Update license information.
+
 ## V1.4.5 12/13/2018
 ### New Features
 

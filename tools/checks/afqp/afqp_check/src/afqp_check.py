@@ -329,7 +329,7 @@ def get_eclipse_cproject_errors(cproject_path, afr_root_var):
     on the incude paths. Having multiple root variables may cause project warnings after OCW cleans the project file.
     """
     file_lines = []
-    with open(cproject_path, 'r') as project_file:
+    with open(cproject_path, 'r', encoding='utf-8') as project_file:
         file_lines = project_file.readlines()
 
     errors = []
@@ -346,6 +346,8 @@ def get_eclipse_cproject_errors(cproject_path, afr_root_var):
             elif workspace_ref in value:
                 continue
             else:
+                if value.startswith('\"') and value.endswith('\"'):
+                    value = value[1:-1]
                 error_line = _get_line_number(file_lines, value)
                 errors.append(Error(
                     type='warning',
