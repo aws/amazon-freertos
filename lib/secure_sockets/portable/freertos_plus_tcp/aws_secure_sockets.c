@@ -627,7 +627,7 @@ uint32_t ulRand( void )
     }
 
     /* Check if any of the API calls failed. */
-    if( 0 != xResult )
+    if( CKR_OK != xResult )
     {
         ulRandomValue = 0;
     }

@@ -100,6 +100,8 @@ typedef struct PKCS11_PrivateRsaKeyTemplate
     CK_ATTRIBUTE xModulus;
     CK_ATTRIBUTE xPrivateExponent;
     CK_ATTRIBUTE xPublicExponent;
+    CK_ATTRIBUTE xPrime1;
+    CK_ATTRIBUTE xPrime2;
     CK_ATTRIBUTE xTokenObject;
 } PKCS11_PrivateRsaKeyTemplate_t, * PKCS11_PrivateRsaKeyTemplatePtr_t;
 

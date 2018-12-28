@@ -86,8 +86,8 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
     {
         xResult = pxFunctionList->C_OpenSession( xSlotId,
                                                  CKF_SERIAL_SESSION | CKF_RW_SESSION,
-                                                 NULL,               /* Application defined pointer. */
-                                                 NULL,               /* Callback function. */
+                                                 NULL, /* Application defined pointer. */
+                                                 NULL, /* Callback function. */
                                                  pxSession );
     }
 
@@ -130,16 +130,32 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
         vPortFree( pxSlotId );
     }
 
-    xResult = pxFunctionList->C_Login( *pxSession, 
-                                        CKU_USER, 
-                                        configPKCS11_DEFAULT_USER_PIN, 
-                                        sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
+    xResult = pxFunctionList->C_Login( *pxSession,
+                                       CKU_USER,
+                                       configPKCS11_DEFAULT_USER_PIN,
+                                       sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
 
     return xResult;
 }
 
 /*-----------------------------------------------------------*/
 
+/* @brief Finds an object with a given label if it exists.
+ *
+ *   This function wraps C_FindObjectsInit, C_FindObjects, and C_FindObjectsFinal.
+ *
+ *   \param[in] xSession         A valid PKCS #11 session.
+ *   \param[in] pcLabelName      The label of the object to be found.
+ *   \param[out] pxHandle        Pointer to the handle of the found object,
+ *                               or 0 if no object is found.
+ *   \return CKR_OK if PKCS #11 calls were successful.  PKCS #11
+ *   error code if not.
+ *
+ *   \note This function returns CKR_OK even if an object with the given
+ *   CKA_LABEL is not found.  It is critical that functions verify that
+ *   the object handle value is not equal to 0 (the invalid handle)
+ *   before attempting to use the handle.
+ */
 CK_RV xFindObjectWithLabel( CK_SESSION_HANDLE xSession,
                             const char * pcLabelName,
                             CK_OBJECT_HANDLE_PTR pxHandle )
@@ -173,6 +189,11 @@ CK_RV xFindObjectWithLabel( CK_SESSION_HANDLE xSession,
     if( CK_TRUE == xFindInit )
     {
         xResult = pxFunctionList->C_FindObjectsFinal( xSession );
+    }
+
+    if( ulCount == 0 )
+    {
+        *pxHandle = pkcs11INVALID_OBJECT_HANDLE;
     }
 
     return xResult;
