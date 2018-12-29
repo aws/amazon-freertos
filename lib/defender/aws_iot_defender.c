@@ -253,14 +253,14 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds )
                                       _DEFENDER_TEST_MODE ? _DEFENDER_SHORT_RELATIVE_MILLISECONDS : _periodMilliSecond, _periodMilliSecond ) )
             {
                 defenderError = AWS_IOT_DEFENDER_SUCCESS;
-                AwsIotLogInfo( "Period has been updated successfully." );
+                AwsIotLogInfo( "Period has been updated to %d seconds successfully.", periodSeconds);
             }
         }
         else
         {
             /* if defender is not started, simply return success */
             defenderError = AWS_IOT_DEFENDER_SUCCESS;
-            AwsIotLogInfo( "Period has been set successfully but defender agent is not started yet." );
+            AwsIotLogInfo( "Period has been set to %d seconds successfully but defender agent is not started yet.", periodSeconds);
         }
     }
 
@@ -288,7 +288,7 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
 
     if( AwsIotDefenderInternal_NetworkConnect( _startInfo.pAwsIotEndpoint,
                                                _startInfo.port,
-                                               _startInfo.pTlsInfo,
+                                               &_tlsInfo,
                                                &eventType ) )
     {
         /* SetMqttReceiveCallback must be invoked to have MQTT agent receive response from broker. */
@@ -314,6 +314,7 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
     /* Something is wrong during the metrics publish process. */
     if( eventType != 0 )
     {
+        AwsIotLogInfo("failed.");
         /* invoke user's callback if there is. */
         if( _startInfo.callback.function != NULL )
         {

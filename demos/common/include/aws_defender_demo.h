@@ -27,6 +27,10 @@
 
 #include "aws_demo.h"
 
+/* old defender library demo, will be removed */
 demoDECLARE_DEMO( vStartDeviceDefenderDemo );
+
+/* new defender library demo */
+demoDECLARE_DEMO( vStartDefenderDemo );
 
 #endif /* end of include guard: _AWS_DEFENDER_DEMO_H_ */
