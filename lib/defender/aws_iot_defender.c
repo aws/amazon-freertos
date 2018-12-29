@@ -314,7 +314,6 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
     /* Something is wrong during the metrics publish process. */
     if( eventType != 0 )
     {
-        AwsIotLogInfo("failed.");
         /* invoke user's callback if there is. */
         if( _startInfo.callback.function != NULL )
         {

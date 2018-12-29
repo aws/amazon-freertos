@@ -84,7 +84,7 @@ void _defenderCallback( void * param1,
     /* Print out the sent metrics report if there is. */
     if( pCallbackInfo->pMetricsReport != NULL )
     {
-        AwsIotLogInfo("\nPublished metrics report:");
+        AwsIotLogInfo( "\nPublished metrics report:" );
         _print( pCallbackInfo->pMetricsReport, pCallbackInfo->metricsReportLength );
     }
     else
@@ -94,7 +94,7 @@ void _defenderCallback( void * param1,
 
     if( pCallbackInfo->pPayload != NULL )
     {
-        AwsIotLogInfo("\nReceived MQTT message:");
+        AwsIotLogInfo( "\nReceived MQTT message:" );
         _print( pCallbackInfo->pPayload, pCallbackInfo->payloadLength );
     }
     else
@@ -111,7 +111,7 @@ static void _defenderTask( void * param )
 
     AwsIotNetwork_Init();
 
-    /* create a socket in listening state. */
+    /* create a socket in listening state, on port 10000. */
     _listenSocket( 10000 );
 
     AwsIotLogInfo( "----Device Defender Demo Start----.\r\n" );
@@ -142,7 +142,7 @@ static void _defenderTask( void * param )
 
 static void _startDefender()
 {
-    AwsIotDefenderCallback_t callback = { .function = _defenderCallback,.param1 = NULL };
+    AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .param1 = NULL };
 
     AwsIotNetworkTlsInfo_t tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
     AwsIotNetworkTlsInfo_t * pTlsInfo = &tlsInfo;
@@ -218,6 +218,5 @@ static void _print( uint8_t * pDataBuffer,
 
         /* output to standard out */
         cbor_value_to_pretty( stdout, &cborValue );
-
     #endif /* if ( AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR ) */
 }
