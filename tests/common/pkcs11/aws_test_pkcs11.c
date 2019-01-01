@@ -71,8 +71,9 @@ CK_RV prvBeforeRunningTests( void );
 void prvAfterRunningTests( void );
 
 /* Test buffer size definitions. */
-#define SHA256_DIGEST_SIZE    32
-#define RSA_SIGNATURE_SIZE    256
+#define SHA256_DIGEST_SIZE      32
+#define ECDSA_SIGNATURE_SIZE    64
+#define RSA_SIGNATURE_SIZE      256
 
 /* The StartFinish test group is for General Purpose,
  * Session, Slot, and Token management functions.
@@ -192,6 +193,7 @@ TEST_TEAR_DOWN( Full_PKCS11_EC )
 TEST_GROUP_RUNNER( Full_PKCS11_EC )
 {
     prvBeforeRunningTests();
+    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Sign );
 
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
 
@@ -949,7 +951,7 @@ TEST( Full_PKCS11_RSA, AFQP_FindObject )
 TEST( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue )
 {
 #define MODULUS_LENGTH              256
-#define PUB_EXP_LENGTH              4
+#define PUB_EXP_LENGTH              3
 #define CERTIFICATE_VALUE_LENGTH    949
     CK_RV xResult;
     CK_OBJECT_HANDLE xPrivateKeyHandle;
@@ -1157,6 +1159,80 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
 
     xResult = mbedtls_rsa_pkcs1_verify( &xRsaContext, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 32, xHashedMessage, xSignature );
     TEST_ASSERT_EQUAL_MESSAGE( 0, xResult, "mbedTLS failed to parse valid RSA key (verification)" );
+}
+
+
+/* Valid ECDSA private key. */
+static const char cValidECDSAPrivateKey[] =
+    "-----BEGIN PRIVATE KEY-----\n"
+    "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg8gHhd5ELAooWRQls\n"
+    "PfpcQREiLrvEb3oLioicMYdUmrmhRANCAATFgks3zNgbMWJ7IXg43GTYEJjwjh9B\n"
+    "Ol84nJZJgKpq3zfG00Qqg7EHfcU/bYwlefuuPbhggu7W5EusWQfalxGQ\n"
+    "-----END PRIVATE KEY-----";
+
+/* Valid ECDSA certificate. */
+static const char cValidECDSACertificate[] =
+    "-----BEGIN CERTIFICATE-----\n"
+    "MIIBVDCB+6ADAgECAgkAoJ9fIf9ayYswCgYIKoZIzj0EAwIwHTEbMBkGA1UEAwwS\n"
+    "bm9ib2R5QG5vd2hlcmUuY29tMB4XDTE4MDMwODIyNDIzNFoXDTE5MDMwODIyNDIz\n"
+    "NFowHTEbMBkGA1UEAwwSbm9ib2R5QG5vd2hlcmUuY29tMFkwEwYHKoZIzj0CAQYI\n"
+    "KoZIzj0DAQcDQgAExYJLN8zYGzFieyF4ONxk2BCY8I4fQTpfOJyWSYCqat83xtNE\n"
+    "KoOxB33FP22MJXn7rj24YILu1uRLrFkH2pcRkKMkMCIwCwYDVR0PBAQDAgeAMBMG\n"
+    "A1UdJQQMMAoGCCsGAQUFBwMDMAoGCCqGSM49BAMCA0gAMEUCIQDhXUT02TsIlzBe\n"
+    "Aw9pLCowZ+6dPY1igspplUqZcuDAKQIgN6j5s7x5AudklULRuFyBQBlkVR35IdWs\n"
+    "zu/xp2COg9g=\n"
+    "-----END CERTIFICATE-----";
+
+TEST( Full_PKCS11_EC, AFQP_Sign )
+{
+    CK_RV xResult;
+    CK_OBJECT_HANDLE xPrivateKeyHandle;
+    CK_OBJECT_HANDLE xPublicKeyHandle;
+    /* Note that mbedTLS does not permit a signature on all 0's. */
+    CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0xab };
+    CK_MECHANISM xMechanism;
+    CK_BYTE xSignature[ RSA_SIGNATURE_SIZE ] = { 0 };
+    CK_BYTE xEcPoint[ 256 ] = { 0 };
+    CK_BYTE xEcParams[ 11 ] = { 0 };
+    CK_BYTE xWhatDoesThisBufferDo[ 256 ] = { 0 };
+    CK_ULONG xSignatureLength;
+    CK_ATTRIBUTE xTemplate;
+
+    xResult = xProvisionPrivateKey( xGlobalSession,
+                                    ( uint8_t * ) cValidECDSAPrivateKey,
+                                    sizeof( cValidECDSAPrivateKey ),
+                                    CKK_EC,
+                                    pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                    &xPrivateKeyHandle );
+
+    xMechanism.mechanism = CKM_ECDSA;
+    xMechanism.pParameter = NULL;
+    xMechanism.ulParameterLen = 0;
+    xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit ECDSA." );
+
+    xSignatureLength = sizeof( xSignature );
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, &xSignatureLength );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to ECDSA Sign." );
+
+    /* Verify the signature with mbedTLS */
+    int lMbedTLSResult;
+
+    mbedtls_pk_context xEcdsaContext;
+    mbedtls_pk_init( &xEcdsaContext );
+    lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext, cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
+    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to parse the imported ECDSA private key." );
+
+    mbedtls_ecp_keypair * pxEcdsaContext = ( mbedtls_ecp_keypair * ) xEcdsaContext.pk_ctx;
+    /* An ECDSA signature is comprised of 2 components - R & S. */
+    mbedtls_mpi xR;
+    mbedtls_mpi xS;
+    mbedtls_mpi_init( &xR );
+    mbedtls_mpi_init( &xS );
+    lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
+    lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
+    lMbedTLSResult = mbedtls_ecdsa_verify( &pxEcdsaContext->grp, xHashedMessage, sizeof( xHashedMessage ), &pxEcdsaContext->Q, &xR, &xS );
+    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
 }
 
 TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
