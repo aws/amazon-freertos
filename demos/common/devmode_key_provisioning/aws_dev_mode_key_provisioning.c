@@ -513,6 +513,45 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
+{
+    CK_RV xResult;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_OBJECT_HANDLE xObjectHandle;
+    CK_BYTE * pxLabel;
+    CK_BYTE * pxPkcsLabels[] =
+    {
+        pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+        pkcs11configLABEL_CODE_VERIFICATION_KEY,
+        pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+        pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+    };
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    for( int i = 0; i < 4; i++ )
+    {
+        pxLabel = pxPkcsLabels[ i ];
+        xResult = xFindObjectWithLabel( xSession,
+                                        pxLabel,
+                                        &xObjectHandle );
+
+        if( ( xResult == CKR_OK ) && ( xObjectHandle != pkcs11INVALID_OBJECT_HANDLE ) )
+        {
+            while( ( xResult == CKR_OK ) && ( xObjectHandle != pkcs11INVALID_OBJECT_HANDLE ) )
+            {
+                xResult = pxFunctionList->C_DestroyObject( xSession, xObjectHandle );
+
+                xResult = xFindObjectWithLabel( xSession,
+                                                pxLabel,
+                                                &xObjectHandle );
+            }
+        }
+    }
+
+    return xResult;
+}
+
 /*-----------------------------------------------------------*/
 
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,

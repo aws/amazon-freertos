@@ -55,15 +55,18 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              CK_OBJECT_HANDLE_PTR pxObjectHandle );
 
 CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
-                                 uint8_t * pucPrivateKeyLabel,
-                                 uint8_t * pucPublicKeyLabel,
-                                 CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
-                                 CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
+                                    uint8_t * pucPrivateKeyLabel,
+                                    uint8_t * pucPublicKeyLabel,
+                                    CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+                                    CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
 
 CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
-    uint8_t * pucPrivateKeyLabel,
-    uint8_t * pucPublicKeyLabel,
-    CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
-    CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
+                                   uint8_t * pucPrivateKeyLabel,
+                                   uint8_t * pucPublicKeyLabel,
+                                   CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+                                   CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
+
+CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession );
+
 
 #endif /* _AWS_DEV_MODE_KEY_PROVISIONING_H_ */
