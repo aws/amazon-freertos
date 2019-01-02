@@ -571,7 +571,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         xResult = xProvisionCertificate( xSession,
-                                         pxParams->pcClientCertificate,
+                                         pxParams->pucClientCertificate,
                                          pxParams->ulClientCertificateLength,
                                          ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                                          &xObject );
@@ -580,7 +580,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK )
     {
         xResult = xProvisionPrivateKey( xSession,
-                                        pxParams->pcClientPrivateKey,
+                                        pxParams->pucClientPrivateKey,
                                         pxParams->ulClientPrivateKeyLength,
                                         pxParams->ulClientPrivateKeyType,
                                         ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
@@ -630,9 +630,9 @@ void vDevModeKeyProvisioning( void )
     ProvisioningParams_t xParams;
 
     xParams.ulClientPrivateKeyType = CKK_RSA;
-    xParams.pcClientPrivateKey = ( uint8_t * ) clientcredentialCLIENT_PRIVATE_KEY_PEM;
+    xParams.pucClientPrivateKey = ( uint8_t * ) clientcredentialCLIENT_PRIVATE_KEY_PEM;
     xParams.ulClientPrivateKeyLength = clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
-    xParams.pcClientCertificate = ( uint8_t * ) clientcredentialCLIENT_CERTIFICATE_PEM;
+    xParams.pucClientCertificate = ( uint8_t * ) clientcredentialCLIENT_CERTIFICATE_PEM;
     xParams.ulClientCertificateLength = clientcredentialCLIENT_CERTIFICATE_LENGTH;
 
     vAlternateKeyProvisioning( &xParams );

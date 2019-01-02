@@ -31,9 +31,9 @@
 typedef struct ProvisioningParams_t
 {
     uint32_t ulClientPrivateKeyType;
-    uint8_t * pcClientPrivateKey;
+    uint8_t * pucClientPrivateKey;
     uint32_t ulClientPrivateKeyLength;
-    uint8_t * pcClientCertificate;
+    uint8_t * pucClientCertificate;
     uint32_t ulClientCertificateLength;
 } ProvisioningParams_t;
 
