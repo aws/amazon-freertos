@@ -33,7 +33,7 @@ The following MCU boards are supported for Amazon FreeRTOS:
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_mediatek.html)
     * IDE: [Keil uVision](http://www2.keil.com/mdk5/install/)
 9. **Renesas** - [Renesas Starter Kit+ for RX65N-2MB](https://www.renesas.com/us/en/products/software-tools/boards-and-kits/renesas-starter-kits/renesas-starter-kitplus-for-rx65n-2mb.html)
-    * [Getting Started Guide (Coming Soon)](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_renesas.html)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_renesas.html)
     * IDE: [e2 studio](https://www.renesas.com/us/en/products/software-tools/tools/ide/e2studio.html)
 
 **Windows Simulator**
