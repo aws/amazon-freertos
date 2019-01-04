@@ -1792,7 +1792,29 @@ void vTaskGetRunTimeStats( char *pcWriteBuffer ) PRIVILEGED_FUNCTION; /*lint !e9
  * \defgroup xTaskNotify xTaskNotify
  * \ingroup TaskNotifications
  */
+
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+#define pdNOTIFICATION_CHANNEL_0          0x01
+#define pdNOTIFICATION_CHANNEL_1          0x02
+#define pdNOTIFICATION_CHANNEL_2          0x04
+#define pdNOTIFICATION_CHANNEL_3          0x08
+#define pdNOTIFICATION_CHANNEL_4          0x10
+#define pdNOTIFICATION_CHANNEL_5          0x20
+#define pdNOTIFICATION_CHANNEL_6          0x40
+#define pdNOTIFICATION_CHANNEL_RESERVED   0x80 
+#define pdNOTIFICATION_CHANNEL_ALL        0xFF
+
+uint8_t ucTaskGetCurrentNotifiedChannels( void );
+
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
+
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+BaseType_t xTaskGenericNotifyChannels( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue, uint8_t ucNotifyChannelsMask ) PRIVILEGED_FUNCTION;
+#define xTaskGenericNotify( xTaskToNotify, ulValue, eAction, pulPreviousNotificationValue ) xTaskGenericNotifyChannels( ( xTaskToNotify ), ( ulValue ), ( eAction ), ( pulPreviousNotificationValue ), ( pdNOTIFICATION_CHANNEL_RESERVED ) )
+#define xTaskNotifyChannels( xTaskToNotify, ulValue, eAction, ucNotifyChannelsMask) xTaskGenericNotifyChannels( ( xTaskToNotify ), ( ulValue ), ( eAction ), NULL, ( ucNotifyChannelsMask ) )
+#else
 BaseType_t xTaskGenericNotify( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue ) PRIVILEGED_FUNCTION;
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
 #define xTaskNotify( xTaskToNotify, ulValue, eAction ) xTaskGenericNotify( ( xTaskToNotify ), ( ulValue ), ( eAction ), NULL )
 #define xTaskNotifyAndQuery( xTaskToNotify, ulValue, eAction, pulPreviousNotifyValue ) xTaskGenericNotify( ( xTaskToNotify ), ( ulValue ), ( eAction ), ( pulPreviousNotifyValue ) )
 
@@ -1883,7 +1905,14 @@ BaseType_t xTaskGenericNotify( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNo
  * \defgroup xTaskNotify xTaskNotify
  * \ingroup TaskNotifications
  */
+
+#if( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
+BaseType_t xTaskGenericNotifyChannelsFromISR( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue, BaseType_t *pxHigherPriorityTaskWoken, uint8_t ucNotifyChannelsMask ) PRIVILEGED_FUNCTION;
+#define xTaskGenericNotifyFromISR( xTaskToNotify, ulValue, eAction, pulPreviousNotificationValue, pxHigherPriorityTaskWoken ) xTaskGenericNotifyChannelsFromISR( ( xTaskToNotify ), ( ulValue ), ( eAction ) , ( pulPreviousNotificationValue ), ( pxHigherPriorityTaskWoken ), ( pdNOTIFICATION_CHANNEL_RESERVED ) )
+#define xTaskNotifyChannelsFromISR( xTaskToNotify, ulValue, eAction, pxHigherPriorityTaskWoken, ucNotifyChannelsMask) xTaskGenericNotifyChannelsFromISR( ( xTaskToNotify ), ( ulValue ), ( eAction ), NULL, ( pxHigherPriorityTaskWoken ), ( ucNotifyChannelsMask ) )
+#else
 BaseType_t xTaskGenericNotifyFromISR( TaskHandle_t xTaskToNotify, uint32_t ulValue, eNotifyAction eAction, uint32_t *pulPreviousNotificationValue, BaseType_t *pxHigherPriorityTaskWoken ) PRIVILEGED_FUNCTION;
+#endif /* configUSE_TASK_NOTIFICATION_CHANNELS */
 #define xTaskNotifyFromISR( xTaskToNotify, ulValue, eAction, pxHigherPriorityTaskWoken ) xTaskGenericNotifyFromISR( ( xTaskToNotify ), ( ulValue ), ( eAction ), NULL, ( pxHigherPriorityTaskWoken ) )
 #define xTaskNotifyAndQueryFromISR( xTaskToNotify, ulValue, eAction, pulPreviousNotificationValue, pxHigherPriorityTaskWoken ) xTaskGenericNotifyFromISR( ( xTaskToNotify ), ( ulValue ), ( eAction ), ( pulPreviousNotificationValue ), ( pxHigherPriorityTaskWoken ) )
 
@@ -1960,7 +1989,12 @@ BaseType_t xTaskGenericNotifyFromISR( TaskHandle_t xTaskToNotify, uint32_t ulVal
  * \defgroup xTaskNotifyWait xTaskNotifyWait
  * \ingroup TaskNotifications
  */
+#if(configUSE_TASK_NOTIFICATION_CHANNELS == 1)
+BaseType_t xTaskNotifyWaitChannels( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait, uint8_t ucListeningChannels) PRIVILEGED_FUNCTION;
+#define xTaskNotifyWait( ulBitsToClearOnEntry, ulBitsToClearOnExit, pulNotificationValue, xTicksToWait ) xTaskNotifyWaitChannels( ( ulBitsToClearOnEntry ), ( ulBitsToClearOnExit ),  ( pulNotificationValue ), ( xTicksToWait ), pdNOTIFICATION_CHANNEL_RESERVED)
+#else
 BaseType_t xTaskNotifyWait( uint32_t ulBitsToClearOnEntry, uint32_t ulBitsToClearOnExit, uint32_t *pulNotificationValue, TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
+#endif
 
 /**
  * task. h
@@ -2133,7 +2167,7 @@ void vTaskNotifyGiveFromISR( TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPri
 uint32_t ulTaskNotifyTake( BaseType_t xClearCountOnExit, TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 
 #if( configUSE_TASK_NOTIFICATION_MESSAGES == 1 )
-void const* pvTaskNotifyWaitMessage(size_t* pxNotifiedMessageSize, TickType_t xTicksToWait );
+BaseType_t xTaskNotifyWaitMessage(void* rxMessageBuffer, size_t rxMessageBufferSize, size_t* pxNotifiedMessageSize, TickType_t xTicksToWait );
 void vTaskNotifySendMessage( TaskHandle_t xTaskToNotify, void const* pvNotifiedMessage, size_t xNotifiedMessageSize);
 void vTaskNotifySendMessageFromISR( TaskHandle_t xTaskToNotify, void const* pvNotifiedMessage, size_t xNotifiedMessageSize, BaseType_t *pxHigherPriorityTaskWoken );
 #endif
