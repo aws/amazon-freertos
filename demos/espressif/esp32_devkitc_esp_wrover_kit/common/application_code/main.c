@@ -45,12 +45,14 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
+#if BLE_ENABLED
 #include "esp_gap_ble_api.h"
 #include "esp_bt.h"
 #include "esp_bt_main.h"
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
+#endif
 #include "semphr.h"
 #include "driver/uart.h"
 #include "aws_application_version.h"
@@ -237,8 +239,10 @@ static void prvMiscInitialization( void )
 	}
 	ESP_ERROR_CHECK( ret );
 
+#if BLE_ENABLED
    NumericComparisonInit();
    spp_uart_init();
+#endif
 }
 
 
@@ -457,6 +461,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     }
 }
 
+#if BLE_ENABLED
 static void spp_uart_init(void)
 {
     uart_config_t uart_config = {
@@ -504,4 +509,4 @@ BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTime
 
 	return xReturnMessage;
 }
-
+#endif
