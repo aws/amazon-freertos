@@ -93,6 +93,7 @@ typedef enum
 {
     eBTWriteTypeNoResponse = 0x0001, /**< Write request, do not need response. */
     eBTWriteTypeDefault = 0x0002,    /**< Write request, need a response. */
+    eBTWriteTypePrepare = 0x0003,   /**< Prepared Write request */
     eBTWriteTypeSigned = 0x0004,     /**< Signed Write request, need a response. */
 } BTAttrWriteRequests_t;
 
@@ -164,20 +165,27 @@ typedef struct
     BTUuid_t xUuid;
     BTDbAttributeType_t xType;
     uint16_t usAttributeHandle;
+    BTCharPermissions_t xPermissions;
 
     /*
-     * If |type| is |btDB_PRIMARY_SERVICE|, or
-     * |btDB_SECONDARY_SERVICE|, this contains the start and end attribute
+     * If type is eBTDbPrimaryService, or
+     * eBTDbSecondaryService, this contains the start and end attribute
      * handles.
      */
     uint16_t usStartHandle;
     uint16_t usEndHandle;
 
     /*
-     * If |type| is |btDB_CHARACTERISTIC|, this contains the properties of
+     * If type is eBTDbCharacteristic, this contains the properties of
      * the characteristic.
      */
-    uint8_t ucProperties;
+    BTCharProperties_t xProperties;
+
+    /*
+     * If type is eBTDbIncludedService, this contains the handle of the included service.
+     */
+	uint16_t usIncludedServiceHandle;
+
 } BTGattDbElement_t;
 
 

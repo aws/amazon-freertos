@@ -39,6 +39,7 @@
  */
 
 
+
 #ifndef SDK_CONFIG_H
 #define SDK_CONFIG_H
 // <<< Use Configuration Wizard in Context Menu >>>\n
@@ -103,15 +104,17 @@
 
 // </e>
 
+// <q> NRF_BLE_GATT_ENABLED  - nrf_ble_gatt - GATT module
 
-#ifndef NRF_BLE_LESC_ENABLED
-#define NRF_BLE_LESC_ENABLED 1
-#endif
 
 #ifndef NRF_BLE_GATT_ENABLED
 #define NRF_BLE_GATT_ENABLED 1
 #endif
 
+
+#ifndef NRF_BLE_LESC_ENABLED
+#define NRF_BLE_LESC_ENABLED 1
+#endif
 // <e> NRF_BLE_QWR_ENABLED - nrf_ble_qwr - Queued writes support module (prepare/execute write)
 //==========================================================
 #ifndef NRF_BLE_QWR_ENABLED
@@ -166,7 +169,7 @@
 // <i> Set this to false to save code space if not using the peer rank API.
 
 #ifndef PM_PEER_RANKS_ENABLED
-#define PM_PEER_RANKS_ENABLED 0
+#define PM_PEER_RANKS_ENABLED 1
 #endif
 
 // <q> PM_LESC_ENABLED  - Enable/disable LESC support in Peer Manager.
@@ -319,7 +322,7 @@
 
 
 #ifndef BLE_DIS_ENABLED
-#define BLE_DIS_ENABLED 0
+#define BLE_DIS_ENABLED 1
 #endif
 
 // <q> BLE_GLS_ENABLED  - ble_gls - Glucose Service
@@ -347,229 +350,9 @@
 
 
 #ifndef BLE_HRS_ENABLED
-#define BLE_HRS_ENABLED 0
+#define BLE_HRS_ENABLED 1
 #endif
 
-// <q> BLE_HTS_ENABLED  - ble_hts - Health Thermometer Service
-
-
-#ifndef BLE_HTS_ENABLED
-#define BLE_HTS_ENABLED 0
-#endif
-
-// <q> BLE_IAS_C_ENABLED  - ble_ias_c - Immediate Alert Service Client
-
-
-#ifndef BLE_IAS_C_ENABLED
-#define BLE_IAS_C_ENABLED 0
-#endif
-
-// <e> BLE_IAS_ENABLED - ble_ias - Immediate Alert Service
-//==========================================================
-#ifndef BLE_IAS_ENABLED
-#define BLE_IAS_ENABLED 0
-#endif
-// <e> BLE_IAS_CONFIG_LOG_ENABLED - Enables logging in the module.
-//==========================================================
-#ifndef BLE_IAS_CONFIG_LOG_ENABLED
-#define BLE_IAS_CONFIG_LOG_ENABLED 0
-#endif
-// <o> BLE_IAS_CONFIG_LOG_LEVEL  - Default Severity level
-
-// <0=> Off
-// <1=> Error
-// <2=> Warning
-// <3=> Info
-// <4=> Debug
-
-#ifndef BLE_IAS_CONFIG_LOG_LEVEL
-#define BLE_IAS_CONFIG_LOG_LEVEL 3
-#endif
-
-// <o> BLE_IAS_CONFIG_INFO_COLOR  - ANSI escape code prefix.
-
-// <0=> Default
-// <1=> Black
-// <2=> Red
-// <3=> Green
-// <4=> Yellow
-// <5=> Blue
-// <6=> Magenta
-// <7=> Cyan
-// <8=> White
-
-#ifndef BLE_IAS_CONFIG_INFO_COLOR
-#define BLE_IAS_CONFIG_INFO_COLOR 0
-#endif
-
-// <o> BLE_IAS_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
-
-// <0=> Default
-// <1=> Black
-// <2=> Red
-// <3=> Green
-// <4=> Yellow
-// <5=> Blue
-// <6=> Magenta
-// <7=> Cyan
-// <8=> White
-
-#ifndef BLE_IAS_CONFIG_DEBUG_COLOR
-#define BLE_IAS_CONFIG_DEBUG_COLOR 0
-#endif
-
-// </e>
-
-// </e>
-
-// <q> BLE_LBS_C_ENABLED  - ble_lbs_c - Nordic LED Button Service Client
-
-
-#ifndef BLE_LBS_C_ENABLED
-#define BLE_LBS_C_ENABLED 0
-#endif
-
-// <q> BLE_LBS_ENABLED  - ble_lbs - LED Button Service
-
-
-#ifndef BLE_LBS_ENABLED
-#define BLE_LBS_ENABLED 0
-#endif
-
-// <q> BLE_LLS_ENABLED  - ble_lls - Link Loss Service
-
-
-#ifndef BLE_LLS_ENABLED
-#define BLE_LLS_ENABLED 0
-#endif
-
-// <q> BLE_NUS_C_ENABLED  - ble_nus_c - Nordic UART Central Service
-
-
-#ifndef BLE_NUS_C_ENABLED
-#define BLE_NUS_C_ENABLED 0
-#endif
-
-// <e> BLE_NUS_ENABLED - ble_nus - Nordic UART Service
-//==========================================================
-#ifndef BLE_NUS_ENABLED
-#define BLE_NUS_ENABLED 0
-#endif
-// <e> BLE_NUS_CONFIG_LOG_ENABLED - Enables logging in the module.
-//==========================================================
-#ifndef BLE_NUS_CONFIG_LOG_ENABLED
-#define BLE_NUS_CONFIG_LOG_ENABLED 0
-#endif
-// <o> BLE_NUS_CONFIG_LOG_LEVEL  - Default Severity level
-
-// <0=> Off
-// <1=> Error
-// <2=> Warning
-// <3=> Info
-// <4=> Debug
-
-#ifndef BLE_NUS_CONFIG_LOG_LEVEL
-#define BLE_NUS_CONFIG_LOG_LEVEL 3
-#endif
-
-// <o> BLE_NUS_CONFIG_INFO_COLOR  - ANSI escape code prefix.
-
-// <0=> Default
-// <1=> Black
-// <2=> Red
-// <3=> Green
-// <4=> Yellow
-// <5=> Blue
-// <6=> Magenta
-// <7=> Cyan
-// <8=> White
-
-#ifndef BLE_NUS_CONFIG_INFO_COLOR
-#define BLE_NUS_CONFIG_INFO_COLOR 0
-#endif
-
-// <o> BLE_NUS_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
-
-// <0=> Default
-// <1=> Black
-// <2=> Red
-// <3=> Green
-// <4=> Yellow
-// <5=> Blue
-// <6=> Magenta
-// <7=> Cyan
-// <8=> White
-
-#ifndef BLE_NUS_CONFIG_DEBUG_COLOR
-#define BLE_NUS_CONFIG_DEBUG_COLOR 0
-#endif
-
-// </e>
-
-// </e>
-
-// <q> BLE_RSCS_C_ENABLED  - ble_rscs_c - Running Speed and Cadence Client
-
-
-#ifndef BLE_RSCS_C_ENABLED
-#define BLE_RSCS_C_ENABLED 0
-#endif
-
-// <q> BLE_RSCS_ENABLED  - ble_rscs - Running Speed and Cadence Service
-
-
-#ifndef BLE_RSCS_ENABLED
-#define BLE_RSCS_ENABLED 0
-#endif
-
-// <q> BLE_TPS_ENABLED  - ble_tps - TX Power Service
-
-
-#ifndef BLE_TPS_ENABLED
-#define BLE_TPS_ENABLED 0
-#endif
-
-// </h>
-//==========================================================
-
-// <h> nRF_Core
-
-//==========================================================
-// <e> NRF_MPU_ENABLED - nrf_mpu - Module for MPU
-//==========================================================
-#ifndef NRF_MPU_ENABLED
-#define NRF_MPU_ENABLED 0
-#endif
-// <q> NRF_MPU_CLI_CMDS  - Enable CLI commands specific to the module.
-
-
-#ifndef NRF_MPU_CLI_CMDS
-#define NRF_MPU_CLI_CMDS 0
-#endif
-
-// </e>
-
-// <e> NRF_STACK_GUARD_ENABLED - nrf_stack_guard - Stack guard
-//==========================================================
-#ifndef NRF_STACK_GUARD_ENABLED
-#define NRF_STACK_GUARD_ENABLED 0
-#endif
-// <o> NRF_STACK_GUARD_CONFIG_SIZE  - Size of the stack guard.
-
-// <5=> 32 bytes
-// <6=> 64 bytes
-// <7=> 128 bytes
-// <8=> 256 bytes
-// <9=> 512 bytes
-// <10=> 1024 bytes
-// <11=> 2048 bytes
-// <12=> 4096 bytes
-
-#ifndef NRF_STACK_GUARD_CONFIG_SIZE
-#define NRF_STACK_GUARD_CONFIG_SIZE 7
-#endif
-
-// </e>
 
 // </h>
 //==========================================================
@@ -649,7 +432,7 @@
 // <i> The CC310 hardware-accelerated cryptography backend (only available on nRF52840).
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_CC310_ENABLED
-#define NRF_CRYPTO_BACKEND_CC310_ENABLED 0
+#define NRF_CRYPTO_BACKEND_CC310_ENABLED 1
 #endif
 // <q> NRF_CRYPTO_BACKEND_CC310_AES_CBC_ENABLED  - Enable the AES CBC mode using CC310.
 
@@ -1067,7 +850,7 @@
 // <e> NRF_CRYPTO_BACKEND_MICRO_ECC_ENABLED - Enable the micro-ecc backend.
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_MICRO_ECC_ENABLED
-#define NRF_CRYPTO_BACKEND_MICRO_ECC_ENABLED 1
+#define NRF_CRYPTO_BACKEND_MICRO_ECC_ENABLED 0
 #endif
 // <q> NRF_CRYPTO_BACKEND_MICRO_ECC_ECC_SECP192R1_ENABLED  - Enable secp192r1 (NIST 192-bit) curve
 
@@ -1112,7 +895,7 @@
 // <i> The nRF HW backend provide access to RNG peripheral in nRF5x devices.
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED
-#define NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED 1
+#define NRF_CRYPTO_BACKEND_NRF_HW_RNG_ENABLED 0
 #endif
 // <q> NRF_CRYPTO_BACKEND_NRF_HW_RNG_MBEDTLS_CTR_DRBG_ENABLED  - Enable mbed TLS CTR-DRBG algorithm.
 
@@ -1237,7 +1020,7 @@
 
 //==========================================================
 // <q> NRF_CRYPTO_RNG_STATIC_MEMORY_BUFFERS_ENABLED  - Use static memory buffers for context and temporary init buffer.
- 
+
 
 // <i> Always recommended when using the nRF HW RNG as the context and temporary buffers are small. Consider disabling if using the CC310 RNG in a RAM constrained application. In this case, memory must be provided to nrf_crypto_rng_init, or it can be allocated internally provided that NRF_CRYPTO_ALLOCATOR does not allocate memory on the stack.
 
@@ -1246,7 +1029,7 @@
 #endif
 
 // <q> NRF_CRYPTO_RNG_AUTO_INIT_ENABLED  - Initialize the RNG module automatically when nrf_crypto is initialized.
- 
+
 
 // <i> Automatic initialization is only supported with static or internally allocated context and temporary memory.
 
@@ -1254,6 +1037,7 @@
 #define NRF_CRYPTO_RNG_AUTO_INIT_ENABLED 1
 #endif
 
+// </h>
 //==========================================================
 
 // <h> nRF_DFU
@@ -1263,7 +1047,6 @@
 
 //==========================================================
 // <q> BLE_DFU_ENABLED  - Enable DFU Service.
-
 
 
 #ifndef BLE_DFU_ENABLED
@@ -4302,7 +4085,7 @@
 
 // <o> NRFX_UARTE1_ENABLED - Enable UARTE1 instance
 #ifndef NRFX_UARTE1_ENABLED
-#define NRFX_UARTE1_ENABLED 1
+#define NRFX_UARTE1_ENABLED 0
 #endif
 
 // <o> NRFX_UARTE_DEFAULT_CONFIG_HWFC  - Hardware Flow Control
@@ -5792,17 +5575,9 @@
 // <e> UART1_ENABLED - Enable UART1 instance
 //==========================================================
 #ifndef UART1_ENABLED
-#define UART1_ENABLED 1
+#define UART1_ENABLED 0
 #endif
 // </e>
-
-// <q> UART0_CONFIG_USE_EASY_DMA  - Default setting for using EasyDMA
-
-
-#ifndef UART1_CONFIG_USE_EASY_DMA
-#define UART1_CONFIG_USE_EASY_DMA 1
-#endif
-
 
 // </e>
 
@@ -6098,21 +5873,6 @@
 
 // </e>
 
-// <e> APP_UART_ENABLED - app_uart - UART driver
-//==========================================================
-#ifndef APP_UART_ENABLED
-#define APP_UART_ENABLED 1
-#endif
-// <o> APP_UART_DRIVER_INSTANCE  - UART instance used
-
-// <0=> 0
-
-#ifndef APP_UART_DRIVER_INSTANCE
-#define APP_UART_DRIVER_INSTANCE 0
-#endif
-
-// </e>
-
 // <q> APP_USBD_AUDIO_ENABLED  - app_usbd_audio - USB AUDIO class
 
 
@@ -6259,7 +6019,7 @@
 // <i> Note: This value is not editable in Configuration Wizard.
 // <i> Comma-separated list of supported languages.
 #ifndef APP_USBD_STRINGS_LANGIDS
-#define APP_USBD_STRINGS_LANGIDS APP_USBD_LANG_AND_SUBLANG( APP_USBD_LANG_ENGLISH, APP_USBD_SUBLANG_ENGLISH_US )
+#define APP_USBD_STRINGS_LANGIDS APP_USBD_LANG_AND_SUBLANG(APP_USBD_LANG_ENGLISH, APP_USBD_SUBLANG_ENGLISH_US)
 #endif
 
 // <e> APP_USBD_STRING_ID_MANUFACTURER - Define manufacturer string ID.
@@ -6287,7 +6047,7 @@
 // <i> Setting string to NULL disables that string.
 // <i> The order of manufacturer names must be the same like in @ref APP_USBD_STRINGS_LANGIDS.
 #ifndef APP_USBD_STRINGS_MANUFACTURER
-#define APP_USBD_STRINGS_MANUFACTURER APP_USBD_STRING_DESC( "Nordic Semiconductor" )
+#define APP_USBD_STRINGS_MANUFACTURER APP_USBD_STRING_DESC("Nordic Semiconductor")
 #endif
 
 // </e>
@@ -6311,7 +6071,7 @@
 // <i> Note: This value is not editable in Configuration Wizard.
 // <i> List of product names that is defined the same way like in @ref APP_USBD_STRINGS_MANUFACTURER.
 #ifndef APP_USBD_STRINGS_PRODUCT
-#define APP_USBD_STRINGS_PRODUCT APP_USBD_STRING_DESC( "nRF52 USB Product" )
+#define APP_USBD_STRINGS_PRODUCT APP_USBD_STRING_DESC("nRF52 USB Product")
 #endif
 
 // </e>
@@ -6335,7 +6095,7 @@
 // <i> Note: This value is not editable in Configuration Wizard.
 // <i> Serial number that is defined the same way like in @ref APP_USBD_STRINGS_MANUFACTURER.
 #ifndef APP_USBD_STRING_SERIAL
-#define APP_USBD_STRING_SERIAL APP_USBD_STRING_DESC( "000000000000" )
+#define APP_USBD_STRING_SERIAL APP_USBD_STRING_DESC("000000000000")
 #endif
 
 // </e>
@@ -6359,7 +6119,7 @@
 // <i> Note: This value is not editable in Configuration Wizard.
 // <i> Configuration string that is defined the same way like in @ref APP_USBD_STRINGS_MANUFACTURER.
 #ifndef APP_USBD_STRINGS_CONFIGURATION
-#define APP_USBD_STRINGS_CONFIGURATION APP_USBD_STRING_DESC( "Default configuration" )
+#define APP_USBD_STRINGS_CONFIGURATION APP_USBD_STRING_DESC("Default configuration")
 #endif
 
 // </e>
@@ -6380,7 +6140,7 @@
 // <i>                Then use X(USBD_STRING_WINUSB, =0xEE, (APP_USBD_STRING_DESC(...)))
 // <i> - @c ...     : List of string descriptors for each defined language.
 #ifndef APP_USBD_STRINGS_USER
-#define APP_USBD_STRINGS_USER X( APP_USER_1, , APP_USBD_STRING_DESC( "User 1" ) )
+#define APP_USBD_STRINGS_USER X(APP_USER_1, , APP_USBD_STRING_DESC("User 1"))
 #endif
 
 // </e>
@@ -6452,7 +6212,12 @@
 #define CRC32_ENABLED 0
 #endif
 
+// <q> ECC_ENABLED  - ecc - Elliptic Curve Cryptography Library
 
+
+#ifndef ECC_ENABLED
+#define ECC_ENABLED 0
+#endif
 
 // <e> FDS_ENABLED - fds - Flash data storage module
 //==========================================================
@@ -6692,7 +6457,7 @@
 // <i>  Size of each memory blocks identified as 'small' block. Memory block are recommended to be word-sized.
 
 #ifndef MEMORY_MANAGER_SMALL_BLOCK_SIZE
-#define MEMORY_MANAGER_SMALL_BLOCK_SIZE 8
+#define MEMORY_MANAGER_SMALL_BLOCK_SIZE 32
 #endif
 
 // <o> MEMORY_MANAGER_MEDIUM_BLOCK_COUNT - Size of each memory blocks identified as 'medium' block.  <0-255>
@@ -6706,7 +6471,7 @@
 // <i>  Size of each memory blocks identified as 'medium' block. Memory block are recommended to be word-sized.
 
 #ifndef MEMORY_MANAGER_MEDIUM_BLOCK_SIZE
-#define MEMORY_MANAGER_MEDIUM_BLOCK_SIZE 32
+#define MEMORY_MANAGER_MEDIUM_BLOCK_SIZE 256
 #endif
 
 // <o> MEMORY_MANAGER_LARGE_BLOCK_COUNT - Size of each memory blocks identified as 'large' block.  <0-255>
@@ -6720,7 +6485,7 @@
 // <i>  Size of each memory blocks identified as 'large' block. Memory block are recommended to be word-sized.
 
 #ifndef MEMORY_MANAGER_LARGE_BLOCK_SIZE
-#define MEMORY_MANAGER_LARGE_BLOCK_SIZE 64
+#define MEMORY_MANAGER_LARGE_BLOCK_SIZE 256
 #endif
 
 // <o> MEMORY_MANAGER_XLARGE_BLOCK_COUNT - Size of each memory blocks identified as 'extra large' block.  <0-255>
@@ -6734,7 +6499,7 @@
 // <i>  Size of each memory blocks identified as 'extra large' block. Memory block are recommended to be word-sized.
 
 #ifndef MEMORY_MANAGER_XLARGE_BLOCK_SIZE
-#define MEMORY_MANAGER_XLARGE_BLOCK_SIZE 180
+#define MEMORY_MANAGER_XLARGE_BLOCK_SIZE 1320
 #endif
 
 // <o> MEMORY_MANAGER_XXLARGE_BLOCK_COUNT - Size of each memory blocks identified as 'extra extra large' block.  <0-255>
@@ -6748,7 +6513,7 @@
 // <i>  Size of each memory blocks identified as 'extra extra large' block. Memory block are recommended to be word-sized.
 
 #ifndef MEMORY_MANAGER_XXLARGE_BLOCK_SIZE
-#define MEMORY_MANAGER_XXLARGE_BLOCK_SIZE 576
+#define MEMORY_MANAGER_XXLARGE_BLOCK_SIZE 3444
 #endif
 
 // <o> MEMORY_MANAGER_XSMALL_BLOCK_COUNT - Size of each memory blocks identified as 'extra small' block.  <0-255>
@@ -7219,13 +6984,6 @@
 #define NRF_TWI_MNGR_ENABLED 0
 #endif
 
-// <q> RETARGET_ENABLED  - retarget - Retargeting stdio functions
-
-
-#ifndef RETARGET_ENABLED
-#define RETARGET_ENABLED 1
-#endif
-
 // <q> SLIP_ENABLED  - slip - SLIP encoding and decoding
 
 
@@ -7430,7 +7188,7 @@
 // <e> NRF_LOG_BACKEND_RTT_ENABLED - nrf_log_backend_rtt - Log RTT backend
 //==========================================================
 #ifndef NRF_LOG_BACKEND_RTT_ENABLED
-#define NRF_LOG_BACKEND_RTT_ENABLED 1
+#define NRF_LOG_BACKEND_RTT_ENABLED 0
 #endif
 // <o> NRF_LOG_BACKEND_RTT_TEMP_BUFFER_SIZE - Size of buffer for partially processed strings.
 // <i> Size of the buffer is a trade-off between RAM usage and processing.
@@ -7463,7 +7221,7 @@
 // <e> NRF_LOG_BACKEND_UART_ENABLED - nrf_log_backend_uart - Log UART backend
 //==========================================================
 #ifndef NRF_LOG_BACKEND_UART_ENABLED
-#define NRF_LOG_BACKEND_UART_ENABLED 1
+#define NRF_LOG_BACKEND_UART_ENABLED 0
 #endif
 // <o> NRF_LOG_BACKEND_UART_TX_PIN - UART TX pin
 #ifndef NRF_LOG_BACKEND_UART_TX_PIN
@@ -7500,7 +7258,7 @@
 // <i> longer one will be fragmented.
 
 #ifndef NRF_LOG_BACKEND_UART_TEMP_BUFFER_SIZE
-#define NRF_LOG_BACKEND_UART_TEMP_BUFFER_SIZE 64
+#define NRF_LOG_BACKEND_UART_TEMP_BUFFER_SIZE 128
 #endif
 
 // </e>
@@ -7508,8 +7266,9 @@
 // <e> NRF_LOG_ENABLED - nrf_log - Logger
 //==========================================================
 #ifndef NRF_LOG_ENABLED
-#define NRF_LOG_ENABLED 1
+#define NRF_LOG_ENABLED 0
 #endif
+
 // <h> Log message pool - Configuration of log message pool
 
 //==========================================================
@@ -8738,7 +8497,7 @@
 // <e> UART_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
 #ifndef UART_CONFIG_LOG_ENABLED
-#define UART_CONFIG_LOG_ENABLED 0
+#define UART_CONFIG_LOG_ENABLED 1
 #endif
 // <o> UART_CONFIG_LOG_LEVEL  - Default Severity level
 
@@ -12359,7 +12118,7 @@
 // <i> Requested BLE GAP data length to be negotiated.
 
 #ifndef NRF_SDH_BLE_GAP_DATA_LENGTH
-#define NRF_SDH_BLE_GAP_DATA_LENGTH 251
+#define NRF_SDH_BLE_GAP_DATA_LENGTH 27
 #endif
 
 // <o> NRF_SDH_BLE_PERIPHERAL_LINK_COUNT - Maximum number of peripheral links.
@@ -12388,24 +12147,24 @@
 
 // <o> NRF_SDH_BLE_GATT_MAX_MTU_SIZE - Static maximum MTU size.
 #ifndef NRF_SDH_BLE_GATT_MAX_MTU_SIZE
-#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE 247
+#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE 180
 #endif
 
 // <o> NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE - Attribute Table size in bytes. The size must be a multiple of 4.
 #ifndef NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE
-#define NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE 7000
+#define NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE (1408*6)
 #endif
 
 // <o> NRF_SDH_BLE_VS_UUID_COUNT - The number of vendor-specific UUIDs.
 #ifndef NRF_SDH_BLE_VS_UUID_COUNT
-#define NRF_SDH_BLE_VS_UUID_COUNT 20
+#define NRF_SDH_BLE_VS_UUID_COUNT 15
 #endif
 
 // <q> NRF_SDH_BLE_SERVICE_CHANGED  - Include the Service Changed characteristic in the Attribute Table.
 
 
 #ifndef NRF_SDH_BLE_SERVICE_CHANGED
-#define NRF_SDH_BLE_SERVICE_CHANGED 1
+#define NRF_SDH_BLE_SERVICE_CHANGED 0
 #endif
 
 // </h>
@@ -12564,14 +12323,6 @@
 #ifndef BLE_IAS_C_BLE_OBSERVER_PRIO
 #define BLE_IAS_C_BLE_OBSERVER_PRIO 2
 #endif
-
-// <o> BLE_LESC_OBSERVER_PRIO  
-// <i> Priority with which BLE events are dispatched to the BLE LESC module.
-
-#ifndef BLE_LESC_OBSERVER_PRIO
-#define BLE_LESC_OBSERVER_PRIO 2
-#endif
-
 
 // <o> BLE_LBS_BLE_OBSERVER_PRIO
 // <i> Priority with which BLE events are dispatched to the LED Button Service.
@@ -12887,7 +12638,7 @@
 // <2=> NRF_SDH_DISPATCH_MODEL_POLLING
 
 #ifndef NRF_SDH_DISPATCH_MODEL
-#define NRF_SDH_DISPATCH_MODEL NRF_SDH_DISPATCH_MODEL_POLLING
+#define NRF_SDH_DISPATCH_MODEL 2
 #endif
 
 // </h>
@@ -13082,9 +12833,30 @@
 #define POWER_CONFIG_SOC_OBSERVER_PRIO 0
 #endif
 
+#ifndef APP_UART_ENABLED
+#define APP_UART_ENABLED 1
+#endif
+
+#ifndef APP_UART_DRIVER_INSTANCE
+#define APP_UART_DRIVER_INSTANCE 0
+#endif
+
+#ifndef APP_FIFO_ENABLED
+#define APP_FIFO_ENABLED 1
+#endif
+
+// </h>
+//==========================================================
+
 // </h>
 //==========================================================
 
 
+// </e>
+
+// </h>
+//==========================================================
+
 // <<< end of configuration section >>>
 #endif //SDK_CONFIG_H
+

@@ -245,6 +245,14 @@ typedef enum
     eBTdeviceDevtypeDual,        /**< Device with BLE and BT classic. */
 } BTDeviceType_t;
 
+/** Bluetooth Bond state */
+typedef enum
+{
+    eBTbondStateNone,
+    eBTbondStateBonding,
+    eBTbondStateBonded,
+} BTBondState_t;
+
 /**
  * @brief Bluetooth SSP Bonding Variant.
  */
@@ -312,6 +320,21 @@ typedef void ( * BTRemoteDevicePropertiesCallback_t )( BTStatus_t xStatus,
                                                        BTProperty_t * pxProperties );
 
 /**
+ * @brief Callback Invoked on Pin Request.
+ *
+ * @param[in] pxRemoteBdAddr remote Device address
+ * @param[in] pxBdName remote Device name
+ * @param[in] ulCod cod
+ * @param[in] ucMin16Digit pin
+ */
+/** Bluetooth Legacy PinKey Request callback */
+typedef void (* BTPinRequestCallback_t)( BTBdaddr_t * pxRemoteBdAddr,
+                                         BTBdname_t * pxBdName,
+                                         uint32_t ulCod,
+                                         uint8_t ucMin16Digit );
+
+
+/**
  * @brief Callback Invoked on SSP event.
  *
  * Bluetooth SSP Request callback - Just Works & Numeric Comparison
@@ -339,13 +362,15 @@ typedef void ( * BTSspRequestCallback_t )( BTBdaddr_t * pxRemoteBdAddr,
  *
  * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
  * @param[in] pxRemoteBdAddr Remote device Address.
- * @param[in] xSecurityLevel Security level (mode 1, level 1, 2 ,3 ,4).
+ * @param[in] xState Bonded state value.
  * @param[in] xReason Authentication failure status.
+ * @param[in] xSecurityLevel Security level (mode 1, level 1, 2 ,3 ,4).
  */
 typedef void ( * BTPairingStateChangedCallback_t )( BTStatus_t xStatus,
                                                     BTBdaddr_t * pxRemoteBdAddr,
+                                                    BTBondState_t xState,
                                                     BTSecurityLevel_t xSecurityLevel,
-													BTAuthFailureReason_t xReason );
+                                                    BTAuthFailureReason_t xReason );
 
 /**
  * @brief Callback invoked on pxReadEnergyInfo. Invoked on pxReadEnergyInfo.
@@ -445,6 +470,7 @@ typedef struct
     BTDeviceStateChangedCallback_t pxDeviceStateChangedCb;
     BTDevicePropertiesCallback_t pxAdapterPropertiesCb;
     BTRemoteDevicePropertiesCallback_t pxRemoteDevicePropertiesCb;
+    BTPinRequestCallback_t pxPinRequestCb;
     BTSspRequestCallback_t pxSspRequestCb;
     BTPairingStateChangedCallback_t pxPairingStateChangedCb;
     BTBondedCallback_t pxBondedCb;
@@ -641,10 +667,11 @@ typedef struct
      * @brief Retrieves connection status for a device.
      *
      * @param[in] pxBdAddr BT Address of device.
-     *
+     * @param[in] bConnectionState true if connnected false if not connected
+
      * @return Fail if there is no connection.
      */
-    BTStatus_t ( * pxGetConnectionState )( const BTBdaddr_t * pxBdAddr );
+    BTStatus_t ( * pxGetConnectionState )( const BTBdaddr_t * pxBdAddr , bool * bConnectionState );
 
     /**
      * @brief BT Legacy PinKey Reply.

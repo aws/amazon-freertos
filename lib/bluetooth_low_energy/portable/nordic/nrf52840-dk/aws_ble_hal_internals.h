@@ -37,6 +37,7 @@
 #include "peer_manager.h"
 #include "ble_advertising.h"
 #include "aws_ble_config.h"
+#include "nrf_strerror.h"
 
 typedef enum
 {
@@ -96,7 +97,7 @@ extern ble_gap_sec_params_t xSecurityParameters;
 ret_code_t prvAFRUUIDtoNordic( BTUuid_t * pxAFRUuid,
                                ble_uuid_t * pxNordicUUID );
 
-
+ret_code_t prvStopAdv();
 /**
  * @brief Returns the softdevice handle for a given inner GATT handle
  * @param handle inner GATT handle
