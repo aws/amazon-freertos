@@ -30,6 +30,7 @@
 #define AWS_IOT_LOG_LEVEL_PLATFORM    AWS_IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_NETWORK     AWS_IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_MQTT        AWS_IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_DEFENDER    AWS_IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_DEMO        AWS_IOT_LOG_INFO
 
 /* Include the default configuration file at the bottom of this file. */
