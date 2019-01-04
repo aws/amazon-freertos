@@ -142,7 +142,7 @@ static void _defenderTask( void * param )
 
 static void _startDefender()
 {
-    AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .param1 = NULL };
+    const AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .param1 = NULL };
 
     AwsIotNetworkTlsInfo_t tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
     AwsIotNetworkTlsInfo_t * pTlsInfo = &tlsInfo;
@@ -164,7 +164,7 @@ static void _startDefender()
     }
 
     /* start the defender */
-    AwsIotDefenderStartInfo_t startInfo =
+    const AwsIotDefenderStartInfo_t startInfo =
     {
         .pTlsInfo        = pTlsInfo,
         .pAwsIotEndpoint = clientcredentialMQTT_BROKER_ENDPOINT,
