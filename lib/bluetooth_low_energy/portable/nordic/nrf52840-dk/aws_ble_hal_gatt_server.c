@@ -868,7 +868,13 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
             authreply.params.read.p_data = pxResponse->xAttrValue.pucValue;
 
             authreply.params.read.update = 1; /* NOTE: This flag is considered only on write event */
-            authreply.params.read.gatt_status = xStatus == eBTStatusSuccess ? BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_READ_NOT_PERMITTED;
+            if (xStatus == eBTStatusSuccess){
+                authreply.params.read.gatt_status = BLE_GATT_STATUS_SUCCESS;
+            } 
+            else
+            { 
+                authreply.params.read.gatt_status = BLE_GATT_STATUS_ATTERR_READ_NOT_PERMITTED;
+            }
 
             xErrCode = sd_ble_gatts_rw_authorize_reply( usConnId, &authreply );
 
@@ -887,7 +893,13 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
             authreply.params.write.p_data = pxResponse->xAttrValue.pucValue;
 
             authreply.params.write.update = 1;
-            authreply.params.write.gatt_status = xStatus == eBTStatusSuccess ? BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
+            if (xStatus == eBTStatusSuccess){
+                authreply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
+            } 
+            else
+            { 
+                authreply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
+            }
 
             xErrCode = sd_ble_gatts_rw_authorize_reply( usConnId, &authreply );
 
@@ -970,18 +982,27 @@ static void prvAFRToNordicCharProp( const BTCharProperties_t * pxAFRCharProps,
 static void prvAFRToNordicReadPerms( const BTCharPermissions_t * pxAFRPermitions,
                                      security_req_t * pxNordicPermitions )
 {
-       *pxNordicPermitions = SEC_NO_ACCESS; 
-          /* Select lowest level of permission */
-        if(( *pxAFRPermitions  & eBTPermRead) != 0)
-        {
+    switch( *pxAFRPermitions & 0x0007 )
+    {
+        case eBTPermNone:
+            *pxNordicPermitions = SEC_NO_ACCESS;
+            break;
+
+        case eBTPermRead:
             *pxNordicPermitions = SEC_OPEN;
-        }else if(( *pxAFRPermitions  & eBTPermReadEncrypted) != 0)
-        {
-             *pxNordicPermitions = SEC_JUST_WORKS;
-        }else if(( *pxAFRPermitions  & eBTPermReadEncryptedMitm) != 0)
-        {
-              *pxNordicPermitions = SEC_MITM;
-        }
+            break;
+
+        case eBTPermReadEncrypted:
+            *pxNordicPermitions = SEC_JUST_WORKS;
+            break;
+
+        case eBTPermReadEncryptedMitm:
+            *pxNordicPermitions = SEC_MITM;
+            break;
+
+        default:
+            *pxNordicPermitions = SEC_NO_ACCESS;
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -989,22 +1010,33 @@ static void prvAFRToNordicReadPerms( const BTCharPermissions_t * pxAFRPermitions
 static void prvAFRToNordicWritePerms( const BTCharPermissions_t * pxAFRPermitions,
                                       security_req_t * pxNordicPermitions )
 {
-       *pxNordicPermitions = SEC_NO_ACCESS; 
-          /* Select lowest level of permission */
-        if(( *pxAFRPermitions  & eBTPermWrite) != 0)
-        {
+    switch( *pxAFRPermitions & 0x01F0 )
+    {
+        case eBTPermNone:
+            *pxNordicPermitions = SEC_NO_ACCESS;
+            break;
+
+        case eBTPermWrite:
             *pxNordicPermitions = SEC_OPEN;
-        }else if(( *pxAFRPermitions  & eBTPermWriteEncrypted) != 0)
-        {
-             *pxNordicPermitions = SEC_JUST_WORKS;
-        }else if(( *pxAFRPermitions  & eBTPermWriteEncryptedMitm) != 0)
-        {
-              *pxNordicPermitions = SEC_MITM;
-        }else if(( *pxAFRPermitions  & eBTPermWriteSigned) != 0)
-        {
-              *pxNordicPermitions = SEC_MITM;
-        }else if(( *pxAFRPermitions  & eBTPermWriteSignedMitm) != 0)
-        {
-              *pxNordicPermitions = SEC_SIGNED_MITM;
-        }
+            break;
+
+        case eBTPermWriteEncrypted:
+            *pxNordicPermitions = SEC_JUST_WORKS;
+            break;
+
+        case eBTPermWriteEncryptedMitm:
+            *pxNordicPermitions = SEC_MITM;
+            break;
+
+        case eBTPermWriteSigned:
+            *pxNordicPermitions = SEC_SIGNED;
+            break;
+
+        case eBTPermWriteSignedMitm:
+            *pxNordicPermitions = SEC_SIGNED_MITM;
+            break;
+
+        default:
+            *pxNordicPermitions = SEC_NO_ACCESS;
+    }
 }

@@ -84,7 +84,7 @@ BTStatus_t prvBTPair(const BTBdaddr_t * pxBdAddr, BTTransport_t xTransport, bool
 BTStatus_t prvBTCreateBondOutOfBand(const BTBdaddr_t * pxBdAddr, BTTransport_t xTransport, const BTOutOfBandData_t * pxOobData);
 BTStatus_t prvBTCancelBond(const BTBdaddr_t *pxBdAddr);
 BTStatus_t prvBTRemoveBond(const BTBdaddr_t *pxBdAddr);
-BTStatus_t prvBTGetConnectionState(const BTBdaddr_t *pxBdAddr);
+BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr , bool * bConnectionState );
 BTStatus_t prvBTPinReply(const BTBdaddr_t * pxBdAddr, uint8_t ucAccept, uint8_t ucPinLen, BTPinCode_t * pxPinCode);
 BTStatus_t prvBTSspReply(const BTBdaddr_t * pxBdAddr, BTSspVariant_t xVariant, uint8_t ucAccept, uint32_t ulPasskey);
 BTStatus_t prvBTReadEnergyInfo();
@@ -568,7 +568,7 @@ BTStatus_t prvBTRemoveBond(const BTBdaddr_t *pxBdAddr) {
 	return ret == BLE_STATUS_SUCCESS ? eBTStatusSuccess : eBTStatusFail;
 }
 
-BTStatus_t prvBTGetConnectionState(const BTBdaddr_t *pxBdAddr) {
+BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr , bool * bConnectionState ) {
 	return 0;
 }
 

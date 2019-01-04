@@ -460,6 +460,13 @@ int main( void )
         APP_ERROR_HANDLER( NRF_ERROR_NO_MEM );
     }
 
+    ret_code_t xErrCode = pm_init();
+    if( xErrCode != NRF_SUCCESS )
+    {
+        APP_ERROR_CHECK( xErrCode );
+        while(1);
+    }
+
     vTaskStartScheduler();
 
     for( ; ; )

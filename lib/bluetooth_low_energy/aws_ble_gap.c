@@ -57,8 +57,9 @@ static void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
                              uint32_t ulPassKey );
 static void prvPairingStateChangedCb( BTStatus_t xStatus,
                                       BTBdaddr_t * pxRemoteBdAddr,
+                                      BTBondState_t xState,
                                       BTSecurityLevel_t xSecurityLevel,
-									  BTAuthFailureReason_t xReason );
+				      BTAuthFailureReason_t xReason );
 static void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                                      uint8_t ucAdapter_if,
                                      BTUuid_t * pxAppUuid );
@@ -93,7 +94,6 @@ static BTBleAdapterCallbacks_t xBTBleAdapterCb =
     .pxBleRemoteDevicePropertiesCb   = NULL,
     .pxOpenCb                        = NULL,
     .pxCloseCb                       = NULL,
-    .pxSearchCompleteCb              = NULL,
     .pxReadRemoteRssiCb              = NULL,
     .pxAdvStartCb                    = prvAdvStartCb,
     .pxSetAdvDataCb                  = prvSetAdvDataCb,
@@ -164,8 +164,9 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
 
 void prvPairingStateChangedCb( BTStatus_t xStatus,
                                BTBdaddr_t * pxRemoteBdAddr,
+                               BTBondState_t xState,
                                BTSecurityLevel_t xSecurityLevel,
-							   BTAuthFailureReason_t xReason )
+			       BTAuthFailureReason_t xReason )
 {
     Link_t * pxEventListIndex;
     BLESubscrEventListElement_t * pxEventIndex;
