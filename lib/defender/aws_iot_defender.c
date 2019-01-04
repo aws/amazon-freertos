@@ -28,10 +28,20 @@
 /* Platform thread include. */
 #include "platform/aws_iot_threads.h"
 
+/* POSIX sleep include. */
+#include "FreeRTOS_POSIX/unistd.h"
+
 /*
  * Small time value to kick off timer immediately.
  */
 #define _DEFENDER_SHORT_RELATIVE_MILLISECONDS    10
+
+/*
+ * At the moment AwsIotDefender_Stop function is invoked, the metrics timer callback might be already invoked
+ * but not yet locked the timer semaphore. Therefore, before destroying the semaphore, AwsIotDefender_Stop
+ * sleeps to wait for the metrics timer callback to return due to failed AwsIotSemaphore_TryWait.
+ */
+#define _DEFENDER_STOP_SLEEP_SECONDS             1
 
 /*
  * This mode is supposed to be used by test, demo or debug.
@@ -39,11 +49,6 @@
 #ifndef _DEFENDER_TEST_MODE
     #define _DEFENDER_TEST_MODE    false
 #endif
-
-/**
- * Return the state that whether defender is already started.
- */
-static bool isStarted();
 
 /**
  * Clean up resources in the end of each iteration of timer execution.
@@ -89,21 +94,26 @@ static AwsIotTimer_t _metricsPublishTimer;
 /* the timer that disconnect */
 static AwsIotTimer_t _guardTimer;
 
+/*
+ * This semaphore is to synchronize AwsIotDefender_Stop and metrics timer callback + MQTT callback + guard timer callback.
+ * AwsIotDefender_Stop waits on this semaphore.
+ * Metrics timer callback tries to wait on this semaphore.
+ */
+static AwsIotSemaphore_t _timerSem;
+
+/*
+ * State variable to indicate if defender has been started successfully, initialized to false.
+ * There is no lock to protect it so the functions referencing it are not thread safe.
+ *
+ */
+static bool _started = false;
+
 static _defenderReport_t _report = { 0 };
 
 static AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
 static AwsIotNetworkTlsInfo_t _tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
 
-static AwsIotSemaphore_t _semaphore;
-
-/*-----------------------------------------------------------*/
-
-static bool isStarted()
-{
-    /* if startInfo contains a non-NULL thing name, it implies the defender agent is running. */
-    return _startInfo.pThingName != NULL && _startInfo.thingNameLength > 0;
-}
 
 /*-----------------------------------------------------------*/
 
@@ -136,10 +146,9 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
          publishTimerCreateSuccess = false,
          publishTimerArmSuccess = false,
          guradTimerCreateSuccess = false,
-         semaphoreCreationSuccess = false;
+         timerSempCreateSuccess = false;
 
-    /* if current state is not started */
-    if( !isStarted() )
+    if( !_started )
     {
         /* copy input start info into global variable _startInfo */
         _startInfo = *pStartInfo;
@@ -161,10 +170,10 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         if( guradTimerCreateSuccess )
         {
             /* Create a unlocked binary semaphore. */
-            semaphoreCreationSuccess = AwsIotSemaphore_Create( &_semaphore, 1, 1 );
+            timerSempCreateSuccess = AwsIotSemaphore_Create( &_timerSem, 1, 1 );
         }
 
-        if( semaphoreCreationSuccess )
+        if( timerSempCreateSuccess )
         {
             /* in test mode, the timer is kicked off almost immediately. */
             publishTimerArmSuccess = AwsIotClock_TimerArm( &_metricsPublishTimer,
@@ -174,6 +183,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
         if( publishTimerArmSuccess )
         {
+            _started = true;
             defenderError = AWS_IOT_DEFENDER_SUCCESS;
             AwsIotLogInfo( "Defender agent has successfully started." );
         }
@@ -203,9 +213,9 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
                 AwsIotClock_TimerDestroy( &_guardTimer );
             }
 
-            if( semaphoreCreationSuccess )
+            if( timerSempCreateSuccess )
             {
-                AwsIotSemaphore_Destroy( &_semaphore );
+                AwsIotSemaphore_Destroy( &_timerSem );
             }
 
             AwsIotLogError( "Defender agent failed to start due to error %s.", AwsIotDefender_strerror( defenderError ) );
@@ -221,28 +231,37 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
 /*-----------------------------------------------------------*/
 
-/**
- * TODO: need to think about what happens exactly when timer is destroyed and expiration routine is half-running...
- */
 AwsIotDefenderError_t AwsIotDefender_Stop( void )
 {
-    if( isStarted() )
+    if( !_started )
     {
-        AwsIotSemaphore_Wait( &_semaphore );
-
-        /* reset _startInfo to empty; otherwise next time defender might start with incorrect information. */
-        _startInfo = ( AwsIotDefenderStartInfo_t ) AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
-
-        _tlsInfo = ( AwsIotNetworkTlsInfo_t ) AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
-
-        /* TODO: currently it assumes the connections are disposed properly */
-        AwsIotClock_TimerDestroy( &_metricsPublishTimer );
-        AwsIotClock_TimerDestroy( &_guardTimer );
-
-        AwsIotDefenderInternal_DeleteTopicsNames();
-
-        AwsIotSemaphore_Destroy( &_semaphore );
+        return AWS_IOT_DEFENDER_NOT_STARTED;
     }
+
+    /* 'Stop' function needs to wait for the timers to finish execution if they are in process. */
+    AwsIotSemaphore_Wait( &_timerSem );
+
+    /* Reset _startInfo to empty; otherwise next time defender might start with incorrect information. */
+    _startInfo = ( AwsIotDefenderStartInfo_t ) AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
+
+    /* Reset _tlsInfo to empty; otherwise next time defender might start with incorrect information. */
+    _tlsInfo = ( AwsIotNetworkTlsInfo_t ) AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
+
+    /* Destroying will cancel timers that are active but not in process. */
+    AwsIotClock_TimerDestroy( &_metricsPublishTimer );
+    AwsIotClock_TimerDestroy( &_guardTimer );
+
+    AwsIotDefenderInternal_DeleteTopicsNames();
+
+    /* For the reason of sleeping, see comments on _DEFENDER_STOP_SLEEP_SECONDS.
+     * No need to check return value of sleep.
+     */
+    sleep( _DEFENDER_STOP_SLEEP_SECONDS );
+
+    /* Metrics timer callback should be waiting for _timerSem till now. */
+    AwsIotSemaphore_Destroy( &_timerSem );
+
+    _started = false;
 
     AwsIotLogInfo( "Defender agent has stopped." );
 
@@ -271,7 +290,7 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds )
     {
         _periodMilliSecond = _defenderToMilliseconds( periodSeconds );
 
-        if( isStarted() )
+        if( _started )
         {
             if( AwsIotClock_TimerArm( &_metricsPublishTimer,
                                       _DEFENDER_TEST_MODE ? _DEFENDER_SHORT_RELATIVE_MILLISECONDS : _periodMilliSecond, _periodMilliSecond ) )
@@ -310,6 +329,7 @@ const char * AwsIotDefender_strerror( AwsIotDefenderError_t error )
         "SUCCESS",          /* AWS_IOT_DEFENDER_SUCCESS */
         "INLVALID INPUT",   /* AWS_IOT_DEFENDER_INVALID_INPUT */
         "ALREADY STARTED",  /* AWS_IOT_DEFENDER_ALREADY_STARTED */
+        "NOT STARTED",      /* AWS_IOT_DEFENDER_NOT_STARTED */
         "PERIOD TOO SHORT", /* AWS_IOT_DEFENDER_PERIOD_TOO_SHORT */
         "PERIOD TOO LONG",  /* AWS_IOT_DEFENDER_PERIOD_TOO_LONG */
         "NO MEMORY",        /* AWS_IOT_DEFENDER_ERROR_NO_MEMORY */
@@ -332,11 +352,11 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
 {
     ( void ) pArgument;
 
-    AwsIotLogDebug( "Defender timber callback starts." );
+    AwsIotLogDebug( "Metrics timer callback starts." );
 
-    if( !AwsIotSemaphore_TryWait( &_semaphore ) )
+    if( !AwsIotSemaphore_TryWait( &_timerSem ) )
     {
-        AwsIotLogError( "Defender timber callback fails to acquire the semaphore." );
+        AwsIotLogWarn( "Metrics timer callback fails to acquire the timer semaphore. There is a concurrent 'stop' function invocation." );
 
         return;
     }
@@ -344,8 +364,8 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
     AwsIotDefenderEventType_t eventType = 0;
     AwsIotDefenderCallbackInfo_t callbackInfo;
 
-    AwsIotMqttCallbackInfo_t acceptCallbackInfo = { .function = _acceptCallback, .param1 = NULL };
-    AwsIotMqttCallbackInfo_t rejectCallbackInfo = { .function = _rejectCallback, .param1 = NULL };
+    const AwsIotMqttCallbackInfo_t acceptCallbackInfo = { .function = _acceptCallback, .param1 = NULL };
+    const AwsIotMqttCallbackInfo_t rejectCallbackInfo = { .function = _rejectCallback, .param1 = NULL };
 
     if( AwsIotDefenderInternal_NetworkConnect( _startInfo.pAwsIotEndpoint,
                                                _startInfo.port,
@@ -462,5 +482,10 @@ static void _cleanUpResources( void )
 {
     AwsIotDefenderInternal_MqttDisconnect();
     AwsIotDefenderInternal_NetworkDestroy();
-    AwsIotSemaphore_Post( &_semaphore );
+
+    /* This function indicates the end of each metrics publish iteration.
+     * Therefore that last thing is to post the timer semaphore to wake up
+     * potential threads invoking 'Stop' function.
+     */
+    AwsIotSemaphore_Post( &_timerSem );
 }
