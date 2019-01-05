@@ -38,9 +38,6 @@
 /* Enable WIFI provisioning GATT service. */
 #define bleconfigENABLE_WIFI_PROVISIONING         ( 1 )
 
-/*Preferred MTU size. */
-#define  bleconfigPREFERRED_MTU_SIZE               ( 180 )
-
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "aws_ble_config_defaults.h"
 
