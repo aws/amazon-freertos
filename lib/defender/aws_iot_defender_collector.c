@@ -120,9 +120,11 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
 
     AwsIotSerializerError_t serializerError = AWS_IOT_SERIALIZER_SUCCESS;
 
+    bool ignoreTooSmallBuffer = pDataBuffer == NULL;
+
     serializerError = _AwsIotDefenderEncoder.init( pEncoderObject, pDataBuffer, dataSize );
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
         /* 2 sub-objects: header, metrics */
         serializerError = _AwsIotDefenderEncoder.openContainer( pEncoderObject,
@@ -130,7 +132,7 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                                 2 );
     }
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
         /* 2 keys: report_id, version */
         serializerError = _AwsIotDefenderEncoder.openContainerWithKey( &reportMap,
@@ -139,26 +141,26 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                                        2 );
     }
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
         serializerError = _AwsIotDefenderEncoder.appendKeyValue( &headerMap,
                                                                  _REPORTID_TAG,
                                                                  AwsIotSerializer_ScalarSignedInt( AwsIotClock_GetTimeMs() ) );
     }
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
         serializerError = _AwsIotDefenderEncoder.appendKeyValue( &headerMap,
                                                                  _VERSION_TAG,
                                                                  AwsIotSerializer_ScalarTextString( _VERSION_1_0 ) );
     }
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
         serializerError = _AwsIotDefenderEncoder.closeContainer( &reportMap, &headerMap );
     }
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
         /* length is unknown */
         serializerError = _AwsIotDefenderEncoder.openContainerWithKey( &reportMap,
@@ -167,8 +169,10 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                                        AWS_IOT_SERIALIZER_INDEFINITE_LENGTH );
     }
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
+        AwsIotMutex_Lock(&_AwsIotDefenderMetricsMutex);
+
         for( uint8_t i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
         {
             /* if no specified metircs in this group, simply skip. */
@@ -177,29 +181,36 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                 switch( i )
                 {
                     case AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS:
-                        serializerError = AwsIotDefenderInternal_GetMetricsTcpConnections( &metricsMap );
+                        serializerError = AwsIotDefenderInternal_GetMetricsTcpConnections( &metricsMap, ignoreTooSmallBuffer );
                         break;
 
                     case AWS_IOT_DEFENDER_METRICS_LISTENING_TCP:
-                        serializerError = AwsIotDefenderInternal_GetMetricsListeningTcpPorts( &metricsMap );
+                        serializerError = AwsIotDefenderInternal_GetMetricsListeningTcpPorts( &metricsMap, ignoreTooSmallBuffer); 
                         break;
 
                     default:
                         ;
                 }
             }
+
+            if( !_defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
+            {
+                break;
+            }
         }
+
+        AwsIotMutex_Unlock(&_AwsIotDefenderMetricsMutex);
     }
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
         serializerError = _AwsIotDefenderEncoder.closeContainer( &reportMap, &metricsMap );
     }
 
-    if( serializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
         serializerError = _AwsIotDefenderEncoder.closeContainer( pEncoderObject, &reportMap );
     }
 
-    return serializerError == AWS_IOT_SERIALIZER_SUCCESS;
+    return _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer );
 }

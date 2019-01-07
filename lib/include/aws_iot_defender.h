@@ -44,6 +44,12 @@
 /* Platform network include. */
 #include "platform/aws_iot_network.h"
 
+/*
+ * @brief Format constants: Cbor and Json.
+ */
+#define AWS_IOT_DEFENDER_FORMAT_CBOR                                        1
+#define AWS_IOT_DEFENDER_FORMAT_JSON                                        2
+
 #define AWS_IOT_DEFENDER_METRICS_ALL                                        0xffffffff /**< @brief Flag to indicate including all metrics. */
 
 #define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL          0x00000001 /**< @brief Total count of established TCP connections. */
@@ -159,6 +165,8 @@ typedef struct AwsIotDefenderStartInfo
  *
  * @param[in] metricsGroup Metrics group defined in AwsIotDefenderMetricsGroup_t
  * @param[in] metrics Bit-flag to define what metrics defender needs to collect
+ *
+ * @note This function is thread safe.
  */
 AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t metricsGroup,
                                                  uint32_t metrics );

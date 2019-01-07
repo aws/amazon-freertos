@@ -25,9 +25,6 @@
 /* Platform clock include. */
 #include "platform/aws_iot_clock.h"
 
-/* Platform thread include. */
-#include "platform/aws_iot_threads.h"
-
 /* POSIX sleep include. */
 #include "FreeRTOS_POSIX/unistd.h"
 
@@ -82,6 +79,8 @@ static void _guardTimerExpirationRoutine( void * );
 
 uint32_t _AwsIotDefenderMetricsFlag[ _DEFENDER_METRICS_GROUP_COUNT ];
 
+AwsIotMutex_t _AwsIotDefenderMetricsMutex;
+
 /**
  * Period between reports in milliseconds.
  * Set default value.
@@ -129,7 +128,11 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
     }
     else
     {
+        AwsIotMutex_Lock(&_AwsIotDefenderMetricsMutex);
+
         _AwsIotDefenderMetricsFlag[ metricsGroup ] = metrics;
+
+        AwsIotMutex_Unlock(&_AwsIotDefenderMetricsMutex);
     }
 
     return error;
@@ -146,7 +149,8 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
          publishTimerCreateSuccess = false,
          publishTimerArmSuccess = false,
          guradTimerCreateSuccess = false,
-         timerSempCreateSuccess = false;
+         timerSempCreateSuccess = false,
+         metricsMutexCreateSuccess = false;
 
     if( !_started )
     {
@@ -174,6 +178,11 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         }
 
         if( timerSempCreateSuccess )
+        {
+            metricsMutexCreateSuccess = AwsIotMutex_Create( &_AwsIotDefenderMetricsMutex );
+        }
+
+        if( metricsMutexCreateSuccess )
         {
             /* in test mode, the timer is kicked off almost immediately. */
             publishTimerArmSuccess = AwsIotClock_TimerArm( &_metricsPublishTimer,
@@ -218,6 +227,11 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
                 AwsIotSemaphore_Destroy( &_timerSem );
             }
 
+            if( metricsMutexCreateSuccess )
+            {
+                AwsIotMutex_Destroy( &_AwsIotDefenderMetricsMutex );
+            }
+
             AwsIotLogError( "Defender agent failed to start due to error %s.", AwsIotDefender_strerror( defenderError ) );
         }
     }
@@ -260,6 +274,8 @@ AwsIotDefenderError_t AwsIotDefender_Stop( void )
 
     /* Metrics timer callback should be waiting for _timerSem till now. */
     AwsIotSemaphore_Destroy( &_timerSem );
+
+    AwsIotMutex_Destroy( &_AwsIotDefenderMetricsMutex );
 
     _started = false;
 
