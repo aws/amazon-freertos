@@ -151,6 +151,10 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 #     INTERFACE ${other_targets}
 # )
 
+# If you defined the driver and freertos portable target separately, you can use afr_mcu_port with
+# DEPENDS keyword, e.g.,
+# afr_mcu_port(kernel DEPENDS my_board_driver freertos_port)
+
 # POSIX
 # afr_mcu_port(posix)
 # target_include_directories(
