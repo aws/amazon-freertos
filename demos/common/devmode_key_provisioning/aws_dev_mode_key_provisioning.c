@@ -164,9 +164,9 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
             xPrivateKeyTemplate.xEcParams.type = CKA_EC_PARAMS;
             xPrivateKeyTemplate.xEcParams.pValue = pxEcParams;
             xPrivateKeyTemplate.xEcParams.ulValueLen = EC_PARAMS_LENGTH;
-            xPrivateKeyTemplate.xEcPoint.type = CKA_VALUE;
-            xPrivateKeyTemplate.xEcPoint.pValue = pxD;
-            xPrivateKeyTemplate.xEcPoint.ulValueLen = EC_D_LENGTH;
+            xPrivateKeyTemplate.xValue.type = CKA_VALUE;
+            xPrivateKeyTemplate.xValue.pValue = pxD;
+            xPrivateKeyTemplate.xValue.ulValueLen = EC_D_LENGTH;
             xPrivateKeyTemplate.xTokenObject.type = CKA_TOKEN;
             xPrivateKeyTemplate.xTokenObject.pValue = &xTokenStorage;
             xPrivateKeyTemplate.xTokenObject.ulValueLen = sizeof( xTokenStorage );
@@ -313,6 +313,103 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+
+CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
+                           uint8_t * pucKey,
+                           size_t xKeyLength,
+                           CK_KEY_TYPE xPublicKeyType,
+                           uint8_t * pucPublicKeyLabel,
+                           CK_OBJECT_HANDLE_PTR pxPublicKeyHandle )
+{
+    CK_RV xResult;
+    CK_BBOOL xTrue = CK_TRUE;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_OBJECT_CLASS xClass = CKO_PUBLIC_KEY;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    int lMbedResult = 0;
+    mbedtls_pk_context xMbedPkContext;
+
+    mbedtls_pk_init( &xMbedPkContext );
+    lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucKey, xKeyLength, NULL, 0 );
+
+    if( lMbedResult != 0 )
+    {
+        lMbedResult = mbedtls_pk_parse_public_key( &xMbedPkContext, pucKey, xKeyLength );
+    }
+
+    if( xPublicKeyType == CKK_RSA )
+    {
+        CK_ULONG xModulusBits = 2048;
+        CK_BYTE xPublicExponent[] = { 0x01, 0x00, 0x01 };
+        CK_BYTE xModulus[ MODULUS_LENGTH + 1 ] = { 0 };
+
+        lMbedResult = mbedtls_rsa_export_raw( ( mbedtls_rsa_context * ) xMbedPkContext.pk_ctx,
+                                              ( unsigned char * ) &xModulus, MODULUS_LENGTH + 1,
+                                              NULL, 0,
+                                              NULL, 0,
+                                              NULL, 0,
+                                              NULL, 0 );
+        CK_ATTRIBUTE xPublicKeyTemplate[] =
+        {
+            { CKA_CLASS,           &xClass,           sizeof( CK_OBJECT_CLASS )       },
+            { CKA_KEY_TYPE,        &xPublicKeyType,   sizeof( CK_KEY_TYPE )           },
+            { CKA_TOKEN,           &xTrue,            sizeof( xTrue )                 },
+            { CKA_MODULUS,         &xModulus + 1,     MODULUS_LENGTH                  }, /* Extra byte allocated at beginning for 0 padding. */
+            { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                 },
+            /*{ CKA_MODULUS_BITS,    &xModulusBits,     sizeof( xModulusBits )          }, */
+            { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )       },
+            { CKA_LABEL,           pucPublicKeyLabel, strlen( pucPublicKeyLabel ) + 1 }
+        };
+
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                  ( CK_ATTRIBUTE_PTR ) xPublicKeyTemplate,
+                                                  sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxPublicKeyHandle );
+    }
+    else if( xPublicKeyType == CKK_EC )
+    {
+        CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
+        size_t xLength;
+        CK_BYTE xEcPoint[ 256 ] = { 0 };
+
+        mbedtls_ecdsa_context * pxEcdsaContext;
+        pxEcdsaContext = ( mbedtls_ecdsa_context * ) xMbedPkContext.pk_ctx;
+
+        /* DER encoded EC point. Leave 2 bytes for the tag and length. */
+        lMbedResult = mbedtls_ecp_point_write_binary( &pxEcdsaContext->grp, &pxEcdsaContext->Q,
+                                                      MBEDTLS_ECP_PF_UNCOMPRESSED, &xLength,
+                                                      xEcPoint + 2, sizeof( xEcPoint ) - 2 );
+        xEcPoint[ 0 ] = 0x04; /* Octet string. */
+        xEcPoint[ 1 ] = ( CK_BYTE ) xLength;
+
+        CK_ATTRIBUTE xPublicKeyTemplate[] =
+        {
+            { CKA_CLASS,     &xClass,           sizeof( xClass )                },
+            { CKA_KEY_TYPE,  &xPublicKeyType,   sizeof( xPublicKeyType )        },
+            { CKA_TOKEN,     &xTrue,            sizeof( xTrue )                 },
+            { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                 },
+            { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )             },
+            { CKA_EC_POINT,  xEcPoint,          xLength + 2                     },
+            { CKA_LABEL,     pucPublicKeyLabel, strlen( pucPublicKeyLabel ) + 1 }
+        };
+
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                  ( CK_ATTRIBUTE_PTR ) xPublicKeyTemplate,
+                                                  sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxPublicKeyHandle );
+    }
+    else
+    {
+        xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+        configPRINTF( ( "Invalid key type. Supported options are CKK_RSA and CKK_EC" ) );
+    }
+
+    return xResult;
+}
+
+
 /*-----------------------------------------------------------*/
 
 CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
@@ -378,7 +475,7 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
         CKM_EC_KEY_PAIR_GEN, NULL_PTR, 0
     };
     CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_BYTE xEcParams[] = { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }; /* prime256v1 */
+    CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256; /* prime256v1 */
 
     /*   CK_BYTE xValue[] = { 0x00, 0x04, 0x9e, 0xf3, 0xa6, 0x35, 0xb3,
      *     0xee, 0xff, 0xe6, 0x70, 0x52, 0x72, 0x92, 0x10, 0xf5, 0x39, 0xbb, 0xf7, 0x52, 0xde, 0x34, 0xe1,
@@ -391,10 +488,8 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
     CK_ATTRIBUTE xPublicKeyTemplate[] =
     {
         { CKA_KEY_TYPE,  &xKeyType,         sizeof( xKeyType )              },
-        { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                 }
-        ,
-        { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )             }
-        ,
+        { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                 },
+        { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )             },
         { CKA_LABEL,     pucPublicKeyLabel, strlen( pucPublicKeyLabel ) + 1 }
     };
 

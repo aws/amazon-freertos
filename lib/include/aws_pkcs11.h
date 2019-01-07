@@ -81,12 +81,12 @@ typedef struct PKCS11_KeyTemplate
  * https://www.cryptsoft.com/pkcs11doc/v220/group__SEC__12__3__4__ELLIPTIC__CURVE__PRIVATE__KEY__OBJECTS.html */
 typedef struct PKCS11_PrivateEcKeyTemplate
 {
-    CK_ATTRIBUTE xObjectClass;
-    CK_ATTRIBUTE xKeyType;
-    CK_ATTRIBUTE xLabel;
-    CK_ATTRIBUTE xEcParams;
-    CK_ATTRIBUTE xEcPoint;
-    CK_ATTRIBUTE xTokenObject;
+    CK_ATTRIBUTE xObjectClass; /* CKA_CLASS, set to CKO_PRIVATE_KEY. */
+    CK_ATTRIBUTE xKeyType;     /* CKA_KEY_TYPE, set to CKK_EC. */
+    CK_ATTRIBUTE xLabel;       /* CKA_LABEL. */
+    CK_ATTRIBUTE xEcParams;    /* CKA_EC_PARAMS, the DER encoded OID for the curve. */
+    CK_ATTRIBUTE xValue;       /* CKA_VALUE, the value d, the private value. */
+    CK_ATTRIBUTE xTokenObject; /* CKA_TOKEN.  If true, the value should be persistent. */
 } PKCS11_PrivateEcKeyTemplate_t, * PKCS11_PrivateEcKeyTemplatePtr_t;
 
 /* RSA Private Key Template
@@ -94,15 +94,15 @@ typedef struct PKCS11_PrivateEcKeyTemplate
  * https://www.cryptsoft.com/pkcs11doc/v220/group__SEC__12__1__3__RSA__PRIVATE__KEY__OBJECTS.html */
 typedef struct PKCS11_PrivateRsaKeyTemplate
 {
-    CK_ATTRIBUTE xObjectClass;
-    CK_ATTRIBUTE xKeyType;
-    CK_ATTRIBUTE xLabel;
-    CK_ATTRIBUTE xModulus;
-    CK_ATTRIBUTE xPrivateExponent;
-    CK_ATTRIBUTE xPublicExponent;
-    CK_ATTRIBUTE xPrime1;
-    CK_ATTRIBUTE xPrime2;
-    CK_ATTRIBUTE xTokenObject;
+    CK_ATTRIBUTE xObjectClass;     /* CKA_CLASS, set to CKO_PRIVATE_KEY. */
+    CK_ATTRIBUTE xKeyType;         /* CKA_KEY_TYPE, set to CKK_RSA. */
+    CK_ATTRIBUTE xLabel;           /* CKA_LABEL. */
+    CK_ATTRIBUTE xModulus;         /* CKA_MODULUS, the modulus N */
+    CK_ATTRIBUTE xPrivateExponent; /* CKA_PRIVATE_EXPONENT, the private exponent D */
+    CK_ATTRIBUTE xPublicExponent;  /* CKA_PUBLIC_EXPONENT, the public exponent E */
+    CK_ATTRIBUTE xPrime1;          /* CKA_PRIME_1, P */
+    CK_ATTRIBUTE xPrime2;          /* CKA_PRIME_2, Q */
+    CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN, if true, the value should be persistent. */
 } PKCS11_PrivateRsaKeyTemplate_t, * PKCS11_PrivateRsaKeyTemplatePtr_t;
 
 /* Certificate Template */
@@ -139,6 +139,7 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
 
 #define pkcs11INVALID_OBJECT_HANDLE                     0
 
+#define pkcs11DER_ENCODED_OID_P256                      { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 } /*"\x06\x08\x2a\x86\x48\xce\x3d\x03\x01\x07" */
 
 /* \brief Initializes the PKCS #11 module and opens a session.
  *

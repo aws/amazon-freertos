@@ -44,7 +44,7 @@
 */
 void aws_mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex )
 {
-    if ( mutex->is_valid == 0 )
+    if ( mutex->is_valid != 1 )
     {
         mutex->mutex = xSemaphoreCreateMutex();
 

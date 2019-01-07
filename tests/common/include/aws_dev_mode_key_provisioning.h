@@ -39,7 +39,10 @@ typedef struct ProvisioningParams_t
 
 void vDevModeKeyProvisioning( void );
 
-void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
+void vAlternateKeyProvisioning( ProvisioningParams_t * pxParams );
+
+CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
+                        ProvisioningParams_t * pxParams );
 
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             uint8_t * pucPrivateKey,
@@ -47,6 +50,13 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             CK_KEY_TYPE xPrivateKeyType,
                             uint8_t * pucLabel,
                             CK_OBJECT_HANDLE_PTR pxObjectHandle );
+
+CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
+                           uint8_t * pucKey,
+                           size_t xKeyLength,
+                           CK_KEY_TYPE xPublicKeyType,
+                           uint8_t * pucPublicKeyLabel,
+                           CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
 
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              uint8_t * pucCertificate,
