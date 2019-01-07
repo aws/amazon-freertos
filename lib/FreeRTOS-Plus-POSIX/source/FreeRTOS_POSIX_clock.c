@@ -141,6 +141,7 @@ int clock_nanosleep( clockid_t clock_id,
 {
     int iStatus = 0;
     TickType_t xSleepTime = 0;
+    struct timespec xCurrentTime = { 0 };
 
     /* Silence warnings about unused parameters. */
     ( void ) clock_id;
@@ -153,13 +154,24 @@ int clock_nanosleep( clockid_t clock_id,
         iStatus = EINVAL;
     }
 
+    /* Get current time */
+    if( ( iStatus == 0 ) && ( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 ) )
+    {
+        iStatus = EINVAL;
+    }
+
     if( iStatus == 0 )
     {
         /* Check for absolute time sleep. */
         if( ( flags & TIMER_ABSTIME ) == TIMER_ABSTIME )
         {
+            /* Get current time */
+            if( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 )
+            {
+                iStatus = EINVAL;
+            }
             /* Get number of ticks until absolute time. */
-            if( UTILS_AbsoluteTimespecToTicks( rqtp, &xSleepTime ) == 0 )
+            if( ( iStatus == 0 ) && ( UTILS_AbsoluteTimespecToDeltaTicks( rqtp, &xCurrentTime, &xSleepTime ) == 0 ) )
             {
                 /* Delay until absolute time if vTaskDelayUntil is available. */
                 #if ( INCLUDE_vTaskDelayUntil == 1 )

@@ -172,15 +172,23 @@ static int prvCalculateTickTimeout( long lMessageQueueFlags,
         }
         else
         {
+            struct timespec xCurrentTime = { 0 };
+
             /* Check that the given timespec is valid. */
             if( UTILS_ValidateTimespec( pxAbsoluteTimeout ) == false )
             {
                 iStatus = EINVAL;
             }
 
+            /* Get current time */
+            if( ( iStatus == 0 ) && ( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 ) )
+            {
+                iStatus = EINVAL;
+            }
+
             /* Convert absolute timespec to ticks. */
             if( ( iStatus == 0 ) &&
-                ( UTILS_AbsoluteTimespecToTicks( pxAbsoluteTimeout, pxTimeoutTicks ) != 0 ) )
+                ( UTILS_AbsoluteTimespecToDeltaTicks( pxAbsoluteTimeout, &xCurrentTime, pxTimeoutTicks ) != 0 ) )
             {
                 iStatus = ETIMEDOUT;
             }

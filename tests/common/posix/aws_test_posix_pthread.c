@@ -452,7 +452,7 @@ TEST( Full_POSIX_PTHREAD, pthread_mutex_trylock_timedlock )
 
         /* Set an absolute timeout of 100 ms. */
         ( void ) clock_gettime( CLOCK_REALTIME, &xTimeout );
-        ( void ) UTILS_TimespecAddNanoseconds( &xTimeout, &xTimeout, 100000000LL );
+        ( void ) UTILS_TimespecAddNanoseconds( &xTimeout, 100000000LL, &xTimeout );
 
         /* Attempt to lock mutex with timeout while mutex is still locked. */
         iStatus = pthread_mutex_timedlock( &xMutex, &xTimeout );
@@ -564,7 +564,7 @@ TEST( Full_POSIX_PTHREAD, pthread_cond_signal )
 
         /* Set an absolute timeout of 100 ms. */
         ( void ) clock_gettime( CLOCK_REALTIME, &xWaitTime );
-        ( void ) UTILS_TimespecAddNanoseconds( &xWaitTime, &xWaitTime, 100000000LL );
+        ( void ) UTILS_TimespecAddNanoseconds( &xWaitTime, 100000000LL, &xWaitTime );
 
         /* Waiting on a condition variable that is never signaled should time out. */
         iStatus = pthread_cond_timedwait( &xCond, &xMutex, &xWaitTime );

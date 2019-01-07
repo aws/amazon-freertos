@@ -258,7 +258,29 @@ int timer_settime( timer_t timerid,
             /* Absolute timeout. */
             if( ( flags & TIMER_ABSTIME ) == TIMER_ABSTIME )
             {
-                ( void ) UTILS_AbsoluteTimespecToTicks( &value->it_value, &xNextTimerExpiration );
+                struct timespec xCurrentTime = { 0 };
+
+                /* Get current time */
+                if( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 )
+                {
+                    iStatus = EINVAL;
+                }
+                else
+                {
+                    iStatus = UTILS_AbsoluteTimespecToDeltaTicks( &value->it_value, &xCurrentTime, &xNextTimerExpiration );
+                }
+
+                /* Make sure xNextTimerExpiration is zero in case we got negative time difference */
+                if( iStatus != 0 )
+                {
+                    xNextTimerExpiration = 0;
+
+                    if ( iStatus == ETIMEDOUT )
+                    {
+                        /* Set Status to 0 as absolute time is past is treated as expiry but not an error */
+                        iStatus = 0;
+                    }
+                }
             }
             /* Relative timeout. */
             else

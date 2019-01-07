@@ -197,7 +197,17 @@ int pthread_mutex_timedlock( pthread_mutex_t * mutex,
     /* Convert abstime to a delay in TickType_t if provided. */
     if( abstime != NULL )
     {
-        iStatus = UTILS_AbsoluteTimespecToTicks( abstime, &xDelay );
+        struct timespec xCurrentTime = { 0 };
+
+        /* Get current time */
+        if( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 )
+        {
+            iStatus = EINVAL;
+        }
+        else
+        {
+            iStatus = UTILS_AbsoluteTimespecToDeltaTicks( abstime, &xCurrentTime, &xDelay );
+        }
 
         /* If abstime was in the past, still attempt to lock the mutex without
          * blocking, per POSIX spec. */
