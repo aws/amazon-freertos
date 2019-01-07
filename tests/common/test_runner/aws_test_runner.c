@@ -155,6 +155,11 @@ static void RunTests( void )
         extern void vStartOTAUpdateDemoTask( void );
         vStartOTAUpdateDemoTask();
     #endif
+
+    #if ( testrunnerFULL_HAL_PERF_CNTR == 1 )
+        RUN_TEST_GROUP( Full_HAL_PERF_CNTR );
+    #endif
+
 }
 /*-----------------------------------------------------------*/
 
