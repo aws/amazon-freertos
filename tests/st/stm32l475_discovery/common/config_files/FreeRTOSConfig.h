@@ -72,6 +72,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configOVERRIDE_DEFAULT_TICK_CONFIGURATION    1
 #define configRECORD_STACK_HIGH_ADDRESS              1
 #define configUSE_POSIX_ERRNO                        1
+#define configUSE_HAL_PERF_COUNTER                   1
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                        0
@@ -122,6 +123,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY \
     ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << ( 8 - configPRIO_BITS ) )
+
+/* Performance counter frequency in Hz. */
+#define configHAL_PERF_COUNTER_FREQ                     ( 10000000 )    // 10MHz
+
+/* Performance counter interrupt priority.
+ * Do not disable performance counter interrupt in critical section. */
+#define configHAL_PERF_COUNTER_INTERRUPT_PRIORITY       ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY - 1 )
 
 /* Normal assert() semantics without relying on the provision of an assert.h
  * header file. */
