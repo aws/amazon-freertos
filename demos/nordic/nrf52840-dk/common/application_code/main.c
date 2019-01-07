@@ -145,6 +145,7 @@ void vUartWrite( uint8_t * pucData )
 {
     uint32_t xErrCode;
 
+    SEGGER_RTT_WriteString(0, pucData);
     for( uint32_t i = 0; i < configLOGGING_MAX_MESSAGE_LENGTH; i++ )
     {
         if(pucData[ i ] == 0)
@@ -158,6 +159,8 @@ void vUartWrite( uint8_t * pucData )
             APP_ERROR_CHECK( xErrCode );
         }
     }
+
+    vTaskDelay( 50 );
 }
 
 /*-----------------------------------------------------------*/
