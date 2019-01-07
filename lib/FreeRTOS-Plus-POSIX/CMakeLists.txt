@@ -1,8 +1,38 @@
 afr_module(posix KERNEL)
 
+afr_glob_src(posix_std_headers DIRECTORY "${AFR_MODULES_DIR}/include/FreeRTOS_POSIX" RECURSE)
 afr_module_sources(
+    posix PUBLIC ${posix_std_headers}
+)
+
+# If you need to make sure the this POSIX include dir is put in front of other include directories,
+# you can use generator expression and target_include_directories with BEFORE, e.g.,
+# target_include_directories(
+#     <target> BEFORE
+#     PUBLIC $<TARGET_PROPERTY:AFR::posix,INTERFACE_INCLUDE_DIRECTORIES>
+# )
+afr_module_include_dirs(
+    posix
+    PUBLIC
+        "${AFR_MODULES_DIR}/include/FreeRTOS_POSIX"
+        $<${AFR_IS_TESTING}:$<TARGET_PROPERTY:AFR::posix::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>>
+    PRIVATE
+        $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
+afr_module_dependencies(
     posix
     PRIVATE
+        AFR::posix::mcu_port
+        AFR::compiler::mcu_port
+)
+
+# Link to this INTERFACE target to use the default implementation based on FreeRTOS.
+afr_module(freertos_plus_posix INTERFACE)
+
+afr_module_sources(
+    freertos_plus_posix
+    INTERFACE
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_clock.c"
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_mqueue.c"
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_barrier.c"
@@ -19,33 +49,7 @@ afr_module_sources(
 )
 
 afr_module_include_dirs(
-    posix
-    PUBLIC
+    freertos_plus_posix
+    INTERFACE
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include"
-        $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-        $<${AFR_IS_TESTING}:$<TARGET_PROPERTY:AFR::posix::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>>
-)
-
-afr_module_dependencies(
-    posix
-    PRIVATE AFR::posix::mcu_port
-    PUBLIC AFR::compiler::mcu_port
-)
-
-# Link to this interface target to implicitly use standard POSIX headers from AFR, i.e., you can
-# say #include <pthread.h> instead of #include <FreeRTOS_POSIX/pthread.h>.
-# If you need to make sure it's put in front of other include directories, you can use generator
-# expression and target_include_directories with BEFORE, e.g.,
-# target_include_directories(
-#     <target> BEFORE
-#     PUBLIC $<TARGET_PROPERTY:AFR::use_posix,INTERFACE_INCLUDE_DIRECTORIES>
-# )
-afr_module(use_posix INTERFACE)
-afr_module_include_dirs(
-    use_posix
-    INTERFACE "${AFR_MODULES_DIR}/include/FreeRTOS_POSIX"
-)
-afr_module_dependencies(
-    use_posix
-    INTERFACE AFR::posix
 )

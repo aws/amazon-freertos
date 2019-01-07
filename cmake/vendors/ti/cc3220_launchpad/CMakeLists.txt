@@ -88,7 +88,7 @@ target_include_directories(
 )
 target_link_libraries(
     AFR::kernel::mcu_port
-    INTERFACE AFR::use_posix
+    INTERFACE AFR::posix
 )
 
 # POSIX
@@ -96,6 +96,10 @@ afr_mcu_port(posix)
 target_include_directories(
     AFR::posix::mcu_port
     INTERFACE "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad"
+)
+target_link_libraries(
+    AFR::posix::mcu_port
+    INTERFACE AFR::freertos_plus_posix
 )
 
 # WiFi
