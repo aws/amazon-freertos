@@ -691,24 +691,26 @@ uint32_t AwsIotNetworkManager_WaitForNetworkConnection( void )
 
 uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t ulNetworkTypes )
 {
-	uint32_t ulEnabled = AWSIOT_NETWORK_TYPE_NONE;
+    uint32_t ulEnabled = AWSIOT_NETWORK_TYPE_NONE;
 
-	if( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
-	{
-		if( prvWIFIEnable() == true )
-		{
-			ulEnabled  |= AWSIOT_NETWORK_TYPE_WIFI;
-		}
-	}
-	if( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
-	{
-		if( prvBLEEnable() == true )
-		{
-			ulEnabled |= AWSIOT_NETWORK_TYPE_BLE;
-		}
-	}
+    if( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
+    {
+        if( prvBLEEnable() == true )
+        {
+            ulEnabled |= AWSIOT_NETWORK_TYPE_BLE;
+        }
+    }
 
-	return ulEnabled;
+    if( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
+    {
+        if( prvWIFIEnable() == true )
+        {
+            ulEnabled  |= AWSIOT_NETWORK_TYPE_WIFI;
+        }
+    }
+
+
+    return ulEnabled;
 }
 
 uint32_t AwsIotNetworkManager_DisableNetwork( uint32_t ulNetworkTypes )
