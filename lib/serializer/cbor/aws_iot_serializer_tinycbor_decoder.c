@@ -194,7 +194,7 @@ static AwsIotSerializerError_t _createDecoderObject(_cborDecoder_t * pCborDecode
                      */
                     cbor_value_calculate_string_length(pCborValue, &length);
                     pValueObject->value.stringLength = length;
-                    returnError = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+                    returnError = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
                 }
             }
             else /* user provides the buffer */
