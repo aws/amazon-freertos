@@ -73,7 +73,7 @@
  * @brief Dimension of the character array buffers used to hold data (strings in
  * this case) that is published to and received from the MQTT broker (in the cloud).
  */
-#define echoMAX_DATA_LENGTH            (sizeof(echoDATA))
+#define echoMAX_DATA_LENGTH            ( sizeof( echoDATA ) + 4 )
 
 /**
  * @brief The string appended to messages that are echoed back to the MQTT broker.

@@ -222,13 +222,15 @@ static void parseTextString( const char* pBuffer,
     *pOffset = offset;
 }
 
-static void parseTokenValue(
+static AwsIotSerializerError_t parseTokenValue(
         const char* pBuffer,
         const size_t bufLength,
         size_t *pOffset,
         AwsIotSerializerDataType_t tokenType,
         AwsIotSerializerDecoderObject_t* pValue )
 {
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+
     switch( tokenType )
     {
         case AWS_IOT_SERIALIZER_CONTAINER_MAP:
@@ -299,26 +301,48 @@ static void parseTokenValue(
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
         {
             size_t start = ++(*pOffset), length;
+            int decodeRet;
             parseTextString( pBuffer, bufLength, pOffset );
             length = (*pOffset) - start;  /* Don't include the last quotes of a string */
             if( pValue != NULL )
             {
                 if( pValue->type == AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING )
                 {
-                    ( void ) mbedtls_base64_decode( ( unsigned char *) ( pBuffer + start ), length, &length,
-                                       ( const unsigned char *) ( pBuffer + start ), length );
+                    decodeRet = mbedtls_base64_decode( ( unsigned char *) (pValue->value.pString ), pValue->value.stringLength,
+                                                       &( pValue->value.stringLength ),
+                                                       ( const unsigned char *) ( pBuffer + start ), length );
+
+
+                    switch( decodeRet )
+                    {
+                        case MBEDTLS_ERR_BASE64_INVALID_CHARACTER:
+                            error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                            break;
+                        case MBEDTLS_ERR_BASE64_BUFFER_TOO_SMALL:
+                            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+                            break;
+                        default:
+                            break;
+                    }
+
                 }
-                pValue->type = tokenType;
-                pValue->value.pString = ( uint8_t* )( pBuffer + start );
-                pValue->value.stringLength = length;
+                else
+                {
+                    pValue->type = tokenType;
+                    pValue->value.pString = ( uint8_t* )( pBuffer + start );
+                    pValue->value.stringLength = length;
+                }
             }
             ;
             (*pOffset)++;  /* Skip past the token after parsing */
             break;
         }
         default:
+            error = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
             break;
     }
+
+    return error;
 }
 
 static AwsIotSerializerError_t _init(
@@ -364,13 +388,14 @@ static AwsIotSerializerError_t _findKeyValue(
     size_t offset = 0;
     AwsIotSerializerDataType_t tokenType;
     AwsIotSerializerDecoderObject_t key = { .type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING };
+    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_NOT_FOUND;
 
     bool isValue = false;
     bool isKeyFound = false;
 
     _skipWhiteSpacesAndDelimeters( pObject->pStart, pObject->length, &offset );
 
-    for(; ( offset < pObject->length ) && ( pObject->pStart[offset] != '}' ); )
+    for(; ( offset < pObject->length ) && ( pObject->pStart[offset] != '}' ) && ( ret == AWS_IOT_SERIALIZER_NOT_FOUND ); )
     {
         tokenType = _getTokenType( pObject->pStart, offset );
 
@@ -384,37 +409,29 @@ static AwsIotSerializerError_t _findKeyValue(
             case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
 
                 /* JSON key can only be text string, so return error */
-               if( !isValue )
+               if( isValue )
                {
-                   return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-               }
 
-               /* If key parsed successfully, parse and store the value, else skip past the JSON value */
-               if( isKeyFound )
-               {
-                   parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
-                   /* If the offset went past the buffer, return BUFFER_TOO_SMALL error,
-                    *  else return success.
-                    */
-                   if( offset >= pObject->length )
+                   /* If key parsed successfully, parse and store the value, else skip past the JSON value */
+                   if( isKeyFound )
                    {
-                       return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+                       ret = parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
                    }
                    else
                    {
-                       return AWS_IOT_SERIALIZER_SUCCESS;
+                       ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset,tokenType, NULL );
+
+                       /* Skip any white space characters or delimeters after the token */
+                       _skipWhiteSpacesAndDelimeters( pObject->pStart, pObject->length, &offset );
+
+                       /* Set isValue to false as we are expecting a key now */
+                       isValue = false;
                    }
                }
                else
                {
-                   parseTokenValue( pObject->pStart, pObject->length, &offset,tokenType, NULL );
+                   ret = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
                }
-
-               /* Skip any white space characters or delimeters after the token */
-               _skipWhiteSpacesAndDelimeters( pObject->pStart, pObject->length, &offset );
-
-               /* Set isValue to false as we are expecting a key now */
-               isValue = false;
                break;
 
             case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
@@ -425,8 +442,8 @@ static AwsIotSerializerError_t _findKeyValue(
                      * Parser is expecting a key. Parse the JSON key and compare with the
                      * input key provided.
                      */
-                    parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, &key );
-                    if( strncmp( pKey, (const char *) key.value.pString, key.value.stringLength ) == 0 )
+                    ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, &key );
+                    if( strncmp( pKey, (const char *) key.value.pString, key.value.stringLength ) == 0  )
                     {
                         isKeyFound = true;
                     }
@@ -443,20 +460,12 @@ static AwsIotSerializerError_t _findKeyValue(
                    if( isKeyFound )
                    {
                        /* If key already found, store the string as value, and return success */
-                       parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
-                       if( offset >= pObject->length )
-                       {
-                           return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
-                       }
-                       else
-                       {
-                           return AWS_IOT_SERIALIZER_SUCCESS;
-                       }
+                       ret = parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, pValue );
                    }
                    else
                    {
                        /* Skip the value */
-                       parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, NULL );
+                       ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, NULL );
                    }
 
                    /* Set the isValue to true as the parser expects a key now */
@@ -468,10 +477,19 @@ static AwsIotSerializerError_t _findKeyValue(
                 break;
             default:
                 /* Any other character other than start of a token is an invalid character */
-                return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                ret = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
         }
     }
-    return AWS_IOT_SERIALIZER_NOT_FOUND;
+
+    /*
+     * If offset went past the container during parsing, return error.
+     */
+    if( offset >= pObject->length )
+    {
+        ret = AWS_IOT_SERIALIZER_INVALID_INPUT;
+    }
+
+    return ret;
 }
 
 static AwsIotSerializerError_t _find(AwsIotSerializerDecoderObject_t* pDecoderObject,
