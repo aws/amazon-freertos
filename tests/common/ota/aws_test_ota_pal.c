@@ -79,9 +79,9 @@ static OTA_FileContext_t xOtaFile;
 
 #ifdef CC3220sf
 
-/**
- * @brief In the Texas Instruments CC3220(SF) device, we retrieve the number of security alerts and the threshold.
- */
+    /**
+     * @brief In the Texas Instruments CC3220(SF) device, we retrieve the number of security alerts and the threshold.
+     */
     static void prvShowTiCc3220SecurityAlertCounts()
     {
         int32_t lResult;
@@ -100,10 +100,10 @@ static OTA_FileContext_t xOtaFile;
         }
     }
 
-/**
- * @brief In the Texas Instruments CC3220(SF) device, we need to restore mcuflashimage.bin to factory following tests
- * that increase the number of security alerts.
- */
+    /**
+     * @brief In the Texas Instruments CC3220(SF) device, we need to restore mcuflashimage.bin to factory following tests
+     * that increase the number of security alerts.
+     */
     static void prvResetTiCc3220ToFactoryImage()
     {
         int32_t lResult, lRetVal, lExtendedError;
