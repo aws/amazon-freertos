@@ -1,3 +1,11 @@
+# Common files.
+afr_module(common INTERFACE)
+afr_module_sources(
+    common
+    INTERFACE
+        "${AFR_MODULES_DIR}/include/private/aws_default_root_certificates.h"
+)
+
 # FreeRTOS module.
 afr_module(freertos INTERFACE KERNEL)
 afr_module_sources(
@@ -37,6 +45,7 @@ afr_module(kernel INTERNAL KERNEL)
 afr_module_dependencies(
     kernel
     PRIVATE
+        AFR::common
         AFR::freertos
         AFR::kernel::mcu_port
     PUBLIC

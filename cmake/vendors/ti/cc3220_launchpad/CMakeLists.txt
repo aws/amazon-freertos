@@ -93,9 +93,14 @@ target_link_libraries(
 
 # POSIX
 afr_mcu_port(posix)
+set(posix_port_dir "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad")
+target_sources(
+    AFR::posix::mcu_port
+    INTERFACE "${posix_port_dir}/FreeRTOS_POSIX_portable.h"
+)
 target_include_directories(
     AFR::posix::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad"
+    INTERFACE "${posix_port_dir}"
 )
 target_link_libraries(
     AFR::posix::mcu_port
@@ -113,7 +118,9 @@ target_sources(
 afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/pkcs11/portable/ti/cc3220_launchpad/aws_pkcs11_pal.c"
+    INTERFACE
+        "${AFR_MODULES_DIR}/pkcs11/portable/ti/cc3220_launchpad/aws_pkcs11_pal.c"
+        "${AFR_MODULES_DIR}/include/private/threading_alt.h"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port

@@ -28,7 +28,7 @@ afr_module_dependencies(
 )
 
 # Link to this INTERFACE target to use the default implementation based on FreeRTOS.
-afr_module(freertos_plus_posix INTERFACE)
+afr_module(freertos_plus_posix INTERFACE OPTIONAL)
 
 afr_module_sources(
     freertos_plus_posix
@@ -46,6 +46,7 @@ afr_module_sources(
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_utils.c"
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h"
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h"
 )
 
 afr_module_include_dirs(

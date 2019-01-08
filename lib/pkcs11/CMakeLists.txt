@@ -26,6 +26,7 @@ afr_module(pkcs11_mbedtls INTERFACE)
 afr_module_sources(
     pkcs11_mbedtls INTERFACE
     "${AFR_MODULES_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
+    "${AFR_MODULES_DIR}/include/private/threading_alt.h"
 )
 afr_module_dependencies(
     pkcs11_mbedtls INTERFACE

@@ -34,6 +34,12 @@ add_library(3rdparty::mbedtls ALIAS afr_3rdparty_mbedtls)
 
 # pkcs11 standard header
 afr_3rdparty_module(pkcs11)
+target_sources(
+    3rdparty::pkcs11 INTERFACE
+    "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11.h"
+    "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11f.h"
+    "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11t.h"
+)
 target_include_directories(
     3rdparty::pkcs11 INTERFACE
     "${AFR_3RDPARTY_DIR}/pkcs11"
@@ -41,10 +47,11 @@ target_include_directories(
 
 # tinycbor - CBOR implementation
 afr_3rdparty_module(tinycbor)
-afr_glob_src(tinycbor_src DIRECTORY "${AFR_3RDPARTY_DIR}/tinycbor" RECURSE)
+afr_glob_files(tinycbor_src DIRECTORY "${AFR_3RDPARTY_DIR}/tinycbor" RECURSE)
 target_sources(
     3rdparty::tinycbor INTERFACE
     ${tinycbor_src}
+    "${AFR_3RDPARTY_DIR}/tinycbor/LICENSE"
 )
 target_include_directories(
     3rdparty::tinycbor INTERFACE
