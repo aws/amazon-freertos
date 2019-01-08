@@ -713,6 +713,8 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
 
     if( xResult == CKR_OK )
     {
+        xDestroyCredentials( xSession );
+
         xResult = xProvisionDevice( xSession, xParams );
 
         pxFunctionList->C_CloseSession( xSession );
