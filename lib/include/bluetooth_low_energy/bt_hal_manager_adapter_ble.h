@@ -89,6 +89,8 @@ typedef struct
     uint32_t ulMinInterval;
     uint32_t ulMaxInterval;
     uint8_t ucChannelMap;
+    uint8_t ucTxPower;
+    uint8_t ucTimeout;
     uint8_t ucPrimaryAdvertisingPhy;   /* 5.0 Specific interface */
     uint8_t ucSecondaryAdvertisingPhy; /* 5.0 Specific interface */
     BTAddrType_t xAddrType;
@@ -211,31 +213,6 @@ typedef void (* BTDisconnectCallback_t)( uint16_t usConnId,
                                          BTStatus_t xStatus,
                                          uint8_t ucAdapterIf,
                                          BTBdaddr_t * pxBda );
-
-/**
- *
- * @brief Invoked in response to search_service when the GATT service search
- * has been completed.
- *
- * @param[in] usConnId Connection ID return from BTConnectCallback_t
- * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- */
-typedef void (* BTSearchCompleteCallback_t)( uint16_t usConnId,
-                                             BTStatus_t xStatus );
-
-/**
- *
- * @brief Callback invoked in response to [de]register_for_notification.
- *
- * @param[in] usConnId Connection ID return from BTConnectCallback_t
- * @param[in] ulRegistered
- * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- * @param[in] usHandle
- */
-typedef void (* BTRegisterForNotificationCallback_t)( uint16_t usConnId,
-                                                      uint32_t ulRegistered,
-                                                      BTStatus_t xStatus,
-                                                      uint16_t usHandle );
 
 /** Callback triggered in response to read_remote_rssi */
 typedef void (* BTReadRemoteRssiCallback_t)( uint8_t ucAdapterIf,
@@ -483,7 +460,6 @@ typedef struct
     BTBleRemoteDevicePropertiesCallback_t pxBleRemoteDevicePropertiesCb;
     BTConnectCallback_t pxOpenCb;
     BTDisconnectCallback_t pxCloseCb;
-    BTSearchCompleteCallback_t pxSearchCompleteCb;
     BTReadRemoteRssiCallback_t pxReadRemoteRssiCb;
     BTAdvStartCallback_t pxAdvStartCb;
     BTSetAdvDataCallback_t pxSetAdvDataCb;

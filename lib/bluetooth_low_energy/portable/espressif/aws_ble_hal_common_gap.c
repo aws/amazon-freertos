@@ -68,7 +68,7 @@ BTStatus_t prvBTCreateBondOutOfBand( const BTBdaddr_t * pxBdAddr,
                                      const BTOutOfBandData_t * pxOobData );
 BTStatus_t prvBTCancelBond( const BTBdaddr_t * pxBdAddr );
 BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr );
-BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr );
+BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr , bool * bConnectionState );
 BTStatus_t prvBTPinReply( const BTBdaddr_t * pxBdAddr,
                           uint8_t ucAccept,
                           uint8_t ucPinLen,
@@ -134,6 +134,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
     bool bFoundEvent;
     BTStatus_t xStatus = eBTStatusSuccess;
     BTSecurityLevel_t xSecurityLevel;
+	BTBondState_t xBondedState;
 
     vEVTMNGRgetEventParameters( ulGAPEvtMngHandle, event, &ppvEventParams, &bFoundEvent );
 
@@ -230,7 +231,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
          * case ESP_GAP_BLE_CLEAR_BOND_DEV_COMPLETE_EVT:
          * case ESP_GAP_BLE_GET_BOND_DEV_COMPLETE_EVT:*/
         case ESP_GAP_BLE_AUTH_CMPL_EVT:
-
+            xBondedState = eBTbondStateNone;
 			if( param->ble_security.auth_cmpl.success == true )
 			{
 				xStatus = eBTStatusSuccess;
@@ -238,6 +239,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
 
 				if( xProperties.bBondable == true )
 				{
+					xBondedState = eBTbondStateBonded;
 					if( xBTCallbacks.pxBondedCb != NULL )
 					{
 						xBTCallbacks.pxBondedCb( xStatus,
@@ -256,7 +258,8 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
             {
                 xBTCallbacks.pxPairingStateChangedCb( xStatus,
                                                       ( BTBdaddr_t * ) &param->ble_security.auth_cmpl.bd_addr,
-                                                      xSecurityLevel,
+                                                      xBondedState,
+													  xSecurityLevel,
                                                       0 );
             }
 
@@ -754,7 +757,7 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr )
+BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr , bool * bConnectionState )
 {
     return 0;
 }

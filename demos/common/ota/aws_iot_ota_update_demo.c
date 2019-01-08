@@ -35,7 +35,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * of the real work; checking to see if the message topic is one destined for
  * the OTA agent. If not, it is simply ignored.
  */
-
+/* MQTT include. */
+#include "aws_iot_mqtt.h"
 /* Standard includes. */
 #include <stdio.h>
 #include <string.h>
@@ -45,8 +46,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "task.h"
 #include "semphr.h"
 
-/* MQTT include. */
-#include "aws_mqtt_agent.h"
+
+
+/* Demo network handling */
+#include "aws_iot_demo_network.h"
 
 /* Required to get the broker address and port. */
 #include "aws_clientcredential.h"
@@ -54,6 +57,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* Amazon FreeRTOS OTA agent includes. */
 #include "aws_ota_agent.h"
 
+#include "aws_iot_network.h"
 /* Required for demo task stack and priority */
 #include "aws_ota_update_demo.h"
 #include "aws_demo_config.h"
@@ -63,9 +67,20 @@ static void App_OTACompleteCallback(OTA_JobEvent_t eEvent );
 
 /*-----------------------------------------------------------*/
 
-#define myappONE_SECOND_DELAY_IN_TICKS      pdMS_TO_TICKS( 1000UL )     /* One second delay value for calls to vTaskDelay(). */
-#define myappMAX_AWS_CONNECT_WAIT_IN_TICKS  pdMS_TO_TICKS( 60000UL )    /* Wait a maximum of 60 seconds to connect to the AWS IoT broker. */
-#define myappMAX_AWS_DISCONNECT_WAIT_IN_TICKS pdMS_TO_TICKS( 60000UL )  /* Wait a maximum of 60 seconds to disconnect from the AWS IoT broker. */
+#define otademoCONN_TIMEOUT_MS 2000UL
+
+#define echoCONN_RETRY_INTERVAL_SECONDS    ( 5 )
+
+#define echoCONN_RETRY_LIMIT               ( 100 )
+
+#define echoKEEPALIVE_SECONDS              ( 120 )
+
+#define myappONE_SECOND_DELAY_IN_TICKS  pdMS_TO_TICKS( 1000UL )
+
+static AwsIotMqttNetIf_t xNetworkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
+static AwsIotDemoNetworkConnection_t xNetworkConnection = NULL;
+static AwsIotMqttConnection_t xMqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+
 
 static const char *pcStateStr[eOTA_NumAgentStates] =
 {
@@ -77,8 +92,7 @@ static const char *pcStateStr[eOTA_NumAgentStates] =
 
 void vOTAUpdateDemoTask( void * pvParameters )
 {
-    MQTTAgentConnectParams_t xConnectParams;
-    MQTTAgentHandle_t xMQTTClientHandle;
+    AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;                                                                                                                                                                                                                                                                                                                              
     OTA_State_t eState;
 
 /* Remove compiler warnings about unused parameters. */
@@ -91,27 +105,45 @@ void vOTAUpdateDemoTask( void * pvParameters )
     configPRINTF( ( "Creating MQTT Client...\r\n" ) );
 
     /* Create the MQTT Client. */
-    if( MQTT_AGENT_Create( &( xMQTTClientHandle ) ) == eMQTTAgentSuccess )
+                                                                                                                                                                                                                     
+    AwsIotDemo_CreateNetworkConnection(
+            &xNetworkInterface,
+            &xMqttConnection,
+            NULL,
+            &xNetworkConnection,
+            echoCONN_RETRY_INTERVAL_SECONDS,
+            echoCONN_RETRY_LIMIT );
+
+
+    if( xNetworkConnection != NULL )
     {
         for ( ; ; )
         {
             configPRINTF( ( "Connecting to broker...\r\n" ) );
-            memset( &xConnectParams, 0, sizeof( xConnectParams ) );
-            xConnectParams.pucClientId = ( const uint8_t * ) ( clientcredentialIOT_THING_NAME );
-            xConnectParams.usClientIdLength = sizeof( clientcredentialIOT_THING_NAME ) - 1; /* Length doesn't include trailing 0. */
-            xConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
-            xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-            xConnectParams.pcCertificate = NULL;
-            xConnectParams.ulCertificateSize = 0;
-            xConnectParams.pvUserData = NULL;
-            xConnectParams.pxCallback = NULL;
-            xConnectParams.xFlags = democonfigMQTT_AGENT_CONNECT_FLAGS;
+            memset( &xConnectInfo, 0, sizeof( xConnectInfo ) );
+            if( AwsIotDemo_GetNetworkType( xNetworkConnection ) == AWSIOT_NETWORK_TYPE_BLE )
+            {
+                xConnectInfo.awsIotMqttMode = false;
+                xConnectInfo.keepAliveSeconds = 0;
+            }
+            else
+            {
+                xConnectInfo.awsIotMqttMode = true;
+                xConnectInfo.keepAliveSeconds = echoKEEPALIVE_SECONDS;
+            }
 
+            xConnectInfo.cleanSession = true;
+            xConnectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
+            xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
             /* Connect to the broker. */
-            if( MQTT_AGENT_Connect( xMQTTClientHandle, &( xConnectParams ), myappMAX_AWS_CONNECT_WAIT_IN_TICKS ) == eMQTTAgentSuccess )
+            if( AwsIotMqtt_Connect( &xMqttConnection,
+                &xNetworkInterface,
+                &xConnectInfo,
+                NULL,
+                otademoCONN_TIMEOUT_MS ) == AWS_IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
-                OTA_AgentInit( xMQTTClientHandle, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
+                OTA_AgentInit( xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
 
                 while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_NotReady )
                 {
@@ -120,14 +152,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
                     configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pcStateStr[eState],
                             OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
                 }
-                if ( MQTT_AGENT_Disconnect( xMQTTClientHandle, myappMAX_AWS_DISCONNECT_WAIT_IN_TICKS ) == eMQTTAgentSuccess )
-                {
-                    configPRINTF( ( "Disconnected from MQTT broker\r\n" ) );
-                }
-                else
-                {
-                    configPRINTF( ( "Error trying to disconnect from MQTT broker\r\n" ) );
-                }
+                AwsIotMqtt_Disconnect(xMqttConnection, false);
             }
             else
             {

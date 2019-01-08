@@ -215,6 +215,7 @@ typedef struct
     BTRegisterClientCallback_t pxRegisterClientCb;
     BTConnectCallback_t pxOpenCb;
     BTDisconnectCallback_t pxCloseCb;
+    BTSearchCompleteCallback_t pxSearchCompleteCb;
     BTRegisterForNotificationCallback_t pxRegisterForNotificationCb;
     BTNotifyCallback_t pxNotifyCb;
     BTReadCharacteristicCallback_t pxReadCharacteristicCb;
@@ -246,9 +247,6 @@ typedef struct
      */
     BTStatus_t ( * pxGattClientInit )( const BTGattClientCallbacks_t * pxCallbacks );
 
-    /** Start or stop LE device scanning */
-    BTStatus_t ( * pxScan )( bool bStart );
-
     /** Create a connection to a remote LE or dual-mode device */
     BTStatus_t ( * pxConnect )( uint8_t ucClientIf,
                                 const BTBdaddr_t * pxBdAddr,
@@ -259,12 +257,6 @@ typedef struct
     BTStatus_t ( * pxDisconnect )( uint8_t ucClientIf,
                                    const BTBdaddr_t * pxBdAddr,
                                    uint16_t usConnId );
-
-    /** Start or stop advertisements to listen for incoming connections */
-    /*!!TODO type for AD types */
-    BTStatus_t ( * pxListen )( uint8_t ucClientIf,
-                               bool bStart,
-                               uint16_t usAdvType );
 
     /** Clear the attribute cache for a given device */
     BTStatus_t ( * pxRefresh )( uint8_t ucClientIf,

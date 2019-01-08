@@ -23,6 +23,14 @@
  * http://www.FreeRTOS.org
  */
 
+/**
+ * @file bt_avsrc_profile.h
+ * @brief ACE BT HAL provides the interfaces for A2DP Source profile for local device.
+ * @ingroup ACE_HAL_BLUETOOTH
+ * USAGE
+ * -----
+ *
+ */
 
 
 #ifndef BT_HAL_AVSRC_PROFILE_H
@@ -30,8 +38,6 @@
 
 #include <stdint.h>
 #include "bt_hal_gatt_types.h"
-#include "hardware/bluetooth.h"
-#include "hardware/bt_av.h"
 
 /** Bluetooth AV connection states */
 typedef enum

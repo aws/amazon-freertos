@@ -476,6 +476,24 @@ typedef struct
                                    uint16_t usConnId );
 
     /**
+     * @brief Create a new service with all its components (descriptors/characteristic/included services, etc..).
+     * The service is started automatically.
+     *
+     * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
+     *  after successful pxRegisterServer call.
+     *
+     * @param[in] pxElements database elements of all the services and characteristics.
+     *  Handles value are ignored. They will be returned by the function.
+     *
+     * @param[in] ulElementsCount Total count of all the database elements
+     *
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxAddServiceBlob )( uint8_t ucServerIf,
+                                   BTGattDbElement_t * pxElements,
+                                   uint32_t ulElementsCount);
+
+    /**
      * @brief Create a new service.
      *
      * Triggers BTServiceAddedCallback_t.

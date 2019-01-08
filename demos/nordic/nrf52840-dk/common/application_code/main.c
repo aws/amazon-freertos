@@ -81,9 +81,9 @@
 
 #include <aws_ble.h>
 #include "aws_ble_numericComparison.h"
-
+#include "aws_iot_network_manager.h"
 #include "SEGGER_RTT.h"
-
+#include "aws_application_version.h"
 #if defined( UART_PRESENT )
     #include "nrf_uart.h"
 #endif
@@ -118,6 +118,12 @@
 
 
 QueueHandle_t UARTqueue = NULL;
+const AppVersion32_t xAppFirmwareVersion =
+{
+    .u.x.ucMajor = APP_VERSION_MAJOR,
+    .u.x.ucMinor = APP_VERSION_MINOR,
+    .u.x.usBuild = APP_VERSION_BUILD,
+};
 /* clang-format on */
 
 /**
@@ -139,6 +145,7 @@ void vUartWrite( uint8_t * pucData )
 {
     uint32_t xErrCode;
 
+    SEGGER_RTT_WriteString(0, pucData);
     for( uint32_t i = 0; i < configLOGGING_MAX_MESSAGE_LENGTH; i++ )
     {
         if(pucData[ i ] == 0)
@@ -152,6 +159,8 @@ void vUartWrite( uint8_t * pucData )
             APP_ERROR_CHECK( xErrCode );
         }
     }
+
+    vTaskDelay( 50 );
 }
 
 /*-----------------------------------------------------------*/
@@ -207,10 +216,10 @@ void prvUartEventHandler( app_uart_evt_t * pxEvent )
     switch( pxEvent->evt_type )
     {
         case APP_UART_DATA_READY:
-            app_uart_get( &ucRxByte );
+            app_uart_get( (uint8_t *)&ucRxByte );
             app_uart_put( ucRxByte );
             
-            xInputMessage.pcData = &ucRxByte;
+            xInputMessage.pcData = (uint8_t *)&ucRxByte;
             xInputMessage.xDataSize = 1;
 
             xQueueSendFromISR(UARTqueue, (void * )&xInputMessage, &xHigherPriorityTaskWoken);

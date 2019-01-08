@@ -120,6 +120,7 @@ typedef enum
     eBTProfileInputDevice,     /**< Human Input Device (HID) Host profile. */
     eBTProfileHeadsetClient,   /**< Headset Client (HFP-HF role) profile. */
     eBTProfileGATT,
+    eBTProfileSock,            /** Sockets */
     /* TODO : Add other profiles? */
     eBTProfileMaxID
 } BTProfile_t;

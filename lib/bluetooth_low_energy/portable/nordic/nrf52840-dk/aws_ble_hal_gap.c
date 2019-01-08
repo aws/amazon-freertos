@@ -214,13 +214,13 @@ static void prvOnConnParamsEvt( ble_conn_params_evt_t * pxEvt );
 static void prvConnParamsErrorHandler( uint32_t ulError );
 
 /** @brief BLE advertising event handler type. */
-void prvOnAdvEvt( ble_adv_evt_t const adv_evt );
+static void prvOnAdvEvt( ble_adv_evt_t const adv_evt );
 
 /** @brief BLE advertising error handler type. */
-void prvOnAdvErr( uint32_t nrf_error );
+static void prvOnAdvErr( uint32_t nrf_error );
 
 /** @brief Initialization of the Peer Manager module. */
-ret_code_t prvPeerManagerInit( void );
+static ret_code_t prvPeerManagerInit( void );
 
 /** @breef Frees all memory occupied with ble_advdata_t structure */
 static void prvBTFreeAdvData( ble_advdata_t * xAdvData );
@@ -292,7 +292,7 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     {
         /* Enable BLE stack.*/
         xErrCode = nrf_sdh_ble_enable( &prvRamStart );
-        NRF_LOG_INFO( "The RAM must start at %x, it's size must be %x\n", prvRamStart, 0x20040000 - prvRamStart );
+        printf( "The RAM must start at %x, it's size must be %x\n", prvRamStart, 0x20040000 - prvRamStart );
         BT_NRF_PRINT_ERROR( nrf_sdh_ble_enable, xErrCode );
     }
 

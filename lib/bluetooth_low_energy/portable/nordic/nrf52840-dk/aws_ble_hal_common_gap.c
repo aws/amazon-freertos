@@ -42,6 +42,7 @@
 #include "aws_ble_gap_config.h"
 #include "ble_gap.h"
 #include "ble_gatt.h"
+#include "ble_srv_common.h"
 #include "nrf_log.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
@@ -50,6 +51,7 @@
 #include "security_dispatcher.h"
 #include "fds.h"
 #include "nrf_ble_lesc.h"
+#include "nrf_strerror.h"
 #include "sdk_config.h"
 
 uint32_t ulGAPEvtMngHandle;
@@ -80,7 +82,7 @@ BTStatus_t prvBTCreateBondOutOfBand( const BTBdaddr_t * pxBdAddr,
                                      const BTOutOfBandData_t * pxOobData );
 BTStatus_t prvBTCancelBond( const BTBdaddr_t * pxBdAddr );
 BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr );
-BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr );
+BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr , bool * bConnectionState );
 BTStatus_t prvBTPinReply( const BTBdaddr_t * pxBdAddr,
                           uint8_t ucAccept,
                           uint8_t ucPinLen,
@@ -103,6 +105,7 @@ BTStatus_t prvBTReadRssi( const BTBdaddr_t * pxBdAddr );
 BTStatus_t prvBTGetTxpower( const BTBdaddr_t * pxBdAddr,
                             BTTransport_t xTransport );
 void prvPmEventHandler( const pm_evt_t * event );
+static void prvBTSetSecurityReq(security_req_t xLevel, ble_gap_conn_sec_mode_t * pxPerm, bool bLesc);
 
 const void * prvGetClassicAdapter();
 const void * prvGetLeAdapter();
@@ -217,6 +220,8 @@ ret_code_t xBTGattUpdateMtu( nrf_ble_gatt_t * pxGattHandler,
 
         if( xLink->att_mtu_desired > xLink->att_mtu_effective )
         {
+            configPRINTF(( "Requesting to update ATT MTU to %u bytes on connection 0x%x.",
+                           xLink->att_mtu_desired, usConnHandle ));
 
             xErrCode = sd_ble_gattc_exchange_mtu_request( usConnHandle, xLink->att_mtu_desired );
 
@@ -272,6 +277,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
     BTUuid_t xUuid;
     ret_code_t xErrCode = NRF_SUCCESS;
     uint16_t usLocalHandle = 0;
+    BTBondState_t xBondedState;
     nrf_ble_gatt_t * xGattHandler = prvGetGattHandle();
 
     ble_gap_phys_t const xPhys =
@@ -404,7 +410,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                                                         p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.len,
                                                         IsNeedRsp,
                                                         IsPrep,
-                                                        p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.data );
+                                                        (uint8_t *)p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.data );
                     }
                 }
             }
@@ -465,7 +471,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                                                         p_ble_evt->evt.gatts_evt.params.write.len,
                                                         IsNeedRsp,
                                                         IsPrep,
-                                                        p_ble_evt->evt.gatts_evt.params.write.data );
+                                                        (uint8_t *)p_ble_evt->evt.gatts_evt.params.write.data );
                     }                   
                 }
             }
@@ -560,8 +566,18 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
             if( xBTCallbacks.pxPairingStateChangedCb )
             {
+
+                if(xSecurityParameters.bond == true)
+                {
+                    xBondedState = eBTbondStateNone;
+                }else
+                {
+                    xBondedState = eBTbondStateBonded;
+                }
+
                 xBTCallbacks.pxPairingStateChangedCb( eBTStatusSuccess,
                                                       &xConnectionRemoteAddress,
+                                                      xBondedState,
                                                       p_ble_evt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.lv,
                                                       0
                                                       );
@@ -625,6 +641,33 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
             break;
 
         case BLE_GAP_EVT_AUTH_STATUS:
+            {
+                uint8_t status = p_ble_evt->evt.gap_evt.params.auth_status.auth_status;
+                if(status != 0x00)
+                {
+                    uint8_t error_src = p_ble_evt->evt.gap_evt.params.auth_status.error_src;
+                    NRF_LOG_DEBUG( 0, "AUTH STATUS - status %d 0x%x\n\rERROR SOURCE - error %d 0x%x\n\r",
+                                       status,
+                                       status,
+                                       error_src,
+                                       error_src );
+                    if( xBTCallbacks.pxBondedCb && ( status == 0x85 ) ) /* NOTE: Decode other errors */
+                    {
+                        xBTCallbacks.pxBondedCb( eBTStatusAuthRejected, &xConnectionRemoteAddress, false );
+                    }
+                }
+                else
+                {
+                    if( xBTCallbacks.pxBondedCb )
+                    {
+                        xBTCallbacks.pxBondedCb( eBTStatusSuccess,
+                                                 &xConnectionRemoteAddress,
+                                                 true );
+                    }
+                }
+            }
+            
+            configPRINTF(( "BLE_GAP_EVT_AUTH_STATUS\n" ));
 
             break;
 
@@ -643,7 +686,7 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 
     memset( &xProperties, 0, sizeof( xProperties ) );
     xProperties.xDeviceType = eBTdeviceDevtypeBle;
-    /* Set the device name from the aws_bleconfig.h. We store it without a trailing zero. */
+    /* Set the device name from the aws_ble_config.h. We store it without a trailing zero. */
     xProperties.usDeviceNameLength = sizeof( bleconfigDEVICE_NAME ) - 1;
     xProperties.puDeviceName = ( uint8_t * ) pvPortMalloc( xProperties.usDeviceNameLength );
     xProperties.ulMtu = NRF_SDH_BLE_GATT_MAX_MTU_SIZE;
@@ -872,6 +915,44 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
 
 /*-----------------------------------------------------------*/
 
+static void prvBTSetSecurityReq(security_req_t xLevel, ble_gap_conn_sec_mode_t * pxPerm, bool bLesc)
+{
+
+
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(pxPerm);
+    switch (xLevel)
+    {
+        case SEC_NO_ACCESS:
+            BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(pxPerm);
+        break;
+        case SEC_OPEN:
+            BLE_GAP_CONN_SEC_MODE_SET_OPEN(pxPerm);
+        break;
+        case SEC_JUST_WORKS:
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(pxPerm);
+        break;
+        case SEC_MITM:
+            if ( bLesc )
+            {
+                BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(pxPerm);
+            }
+            else
+            {
+                BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(pxPerm);
+            }
+        break;
+        case SEC_SIGNED:
+            BLE_GAP_CONN_SEC_MODE_SET_SIGNED_NO_MITM(pxPerm);
+        break;
+        case SEC_SIGNED_MITM:
+            BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(pxPerm);
+        break;
+    }
+    return;
+}
+
+/*-----------------------------------------------------------*/
+
 BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -891,11 +972,32 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
                 memcpy( xProperties.puDeviceName, ( pxProperty->pvVal ), xProperties.usDeviceNameLength );
 
                 ble_gap_conn_sec_mode_t xSecurityMode;
-                #if bleconfigREQUIRE_MITM
-                    BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM( &xSecurityMode ); /* TODO: Implement setting security modes */
+                security_req_t xLevel = SEC_NO_ACCESS;
+                bool bLesc;
+               
+                #if ( bleconfigREQUIRE_SIGNED && bleConfigENCRYPTION_REQUIRED ) 
+                /* Mode 2 */
+                    #if bleconfigREQUIRE_MITM
+                        xLevel = SEC_SIGNED_MITM; /* Level 2 */
+                    #else
+                        xLevel = SEC_SIGNED; /* Level 1 */
+                    #endif
                 #else
-                    BLE_GAP_CONN_SEC_MODE_SET_OPEN( &xSecurityMode );
+                /* Mode 1 */
+                    #if ( bleconfigREQUIRE_MITM && bleconfigENABLE_SECURE_CONNECTION ) /* Level 4 */
+                        xLevel = SEC_MITM;
+                        bLesc = true;
+                    #elif bleconfigREQUIRE_MITM  /* Level 3 */
+                        xLevel = SEC_MITM;
+                        bLesc = false;
+                    #elif ( bleConfigENCRYPTION_REQUIRED && ( !bleconfigREQUIRE_MITM ) )  /* Level 2 */
+                        xLevel = SEC_JUST_WORKS;
+                    #else
+                        xLevel = SEC_OPEN;  /* Level 1 */
+                    #endif
                 #endif
+
+                prvBTSetSecurityReq( xLevel, &xSecurityMode, bLesc );
                 xNRFstatus = sd_ble_gap_device_name_set( &xSecurityMode, xProperties.puDeviceName, xProperties.usDeviceNameLength );
 
                 if( xNRFstatus != NRF_SUCCESS )
@@ -1149,7 +1251,7 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
 
     if( ( xBTCallbacks.pxBondedCb != NULL ) )
     {
-        xBTCallbacks.pxBondedCb( xStatus, pxBdAddr, 0 );
+        xBTCallbacks.pxBondedCb( xStatus, (BTBdaddr_t *)pxBdAddr, false );
     }
 
     return xStatus;
@@ -1157,7 +1259,7 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr )
+BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr , bool * bConnectionState )
 {
     return 0;
 }
@@ -1186,7 +1288,6 @@ BTStatus_t prvBTSspReply( const BTBdaddr_t * pxBdAddr,
     switch( xVariant )
     {
         case eBTsspVariantPasskeyConfirmation:
-
             if( ucAccept )
             {
                 xErrCode = sd_ble_gap_auth_key_reply( usGattConnHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL );
@@ -1195,16 +1296,24 @@ BTStatus_t prvBTSspReply( const BTBdaddr_t * pxBdAddr,
             {
                 xErrCode = sd_ble_gap_auth_key_reply( usGattConnHandle, BLE_GAP_AUTH_KEY_TYPE_NONE, NULL );
             }
+            break;
 
-        case eBTsspVariantPasskeyEntry: /* TODO: Implement */
+        case eBTsspVariantPasskeyEntry: 
+            xStatus = eBTStatusUnsupported;
+            break;
+
         case eBTsspVariantPasskeyNotification:
+            xStatus = eBTStatusUnsupported;
             break;
 
         default:
             break;
     }
 
-    BT_NRF_PRINT_ERROR( pm_conn_secure, xErrCode );
+	if( xErrCode != NRF_SUCCESS)
+	{
+	    BT_NRF_PRINT_ERROR( pm_conn_secure, xErrCode );
+	}
 
     if(xErrCode != NRF_SUCCESS)
     {
@@ -1312,7 +1421,6 @@ void prvPmEventHandler( const pm_evt_t * event )
 
             break;
 
-/*            configPRINTF(((  0, "PM_EVT_CONN_SEC_SUCCEEDED\n" ); */
         case PM_EVT_CONN_SEC_CONFIG_REQ:
            /* Repairing attempt between already bonded devices */
            {
@@ -1322,14 +1430,20 @@ void prvPmEventHandler( const pm_evt_t * event )
            break;
 
         case PM_EVT_CONN_SEC_START:
-            /* This is an informational event; no action is needed for the procedure to proceed. */
+/* Consider to rework in case of AWS_BLE API further changes for different security connection establishing variants: */
 /*            configPRINTF((( "PM_EVT_CONN_SEC_START\n" ); */
+/* 2. eBTsspVariantPasskeyEntry for MITM with Display+Yes/No or Display/Keyboard IOCaps */
+/* 3. eBTsspVariantPasskeyNotification for MITM with Display+Yes/No or Display/Keyboard IOCaps */
+/* 4. eBTsspVariantConsent in case of NO MITM (Just Works) without IOCaps (eBTIONone) */
+/*          configPRINTF( "PM_EVT_CONN_SEC_START\n" ); */
             {
                 BTSspVariant_t xPairingVariant = eBTsspVariantConsent;
+/* This is an informational event; no action is needed for the procedure to proceed. */
+/* So, just responce with consent */
                 switch( event->params.conn_sec_start.procedure )
                 {
                     case PM_CONN_SEC_PROCEDURE_ENCRYPTION:
-                        xPairingVariant = eBTsspVariantPasskeyConfirmation;
+                        xPairingVariant = eBTsspVariantConsent;
                         break;
 
                     PM_CONN_SEC_PROCEDURE_BONDING:
@@ -1340,13 +1454,13 @@ void prvPmEventHandler( const pm_evt_t * event )
                         xPairingVariant = eBTsspVariantConsent;
                         break;
                 }
-                /* TODO: Rework for different security levels */
+
                 if( xBTCallbacks.pxSspRequestCb )
                 {
                     xBTCallbacks.pxSspRequestCb( &xConnectionRemoteAddress,
                                                  NULL,
                                                  0,
-                                                 eBTsspVariantConsent,
+                                                 xPairingVariant,
                                                  0 );
                 }
             }
@@ -1365,43 +1479,48 @@ void prvPmEventHandler( const pm_evt_t * event )
                     {
                         xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail,
                                                               &xConnectionRemoteAddress,
+                                                              eBTbondStateNone,
                                                               eBTSecLevelNoSecurity,
                                                               eBTauthFailInsuffSecurity );
                     }
                 }
             }
-
-            /* TODO: Rework for the cases other than just works */
+/* Consider to rework in case of AWS_BLE API further changes for different security connection establishing variants: */
+/* 1. eBTsspVariantPasskeyConfirmation for MITM with Display+Yes/No or Display/Keyboard IOCaps */
+/* 2. eBTsspVariantPasskeyEntry for MITM with Display+Yes/No or Display/Keyboard IOCaps */
+/* 3. eBTsspVariantPasskeyNotification for MITM with Display+Yes/No or Display/Keyboard IOCaps */
+/* 4. eBTsspVariantConsent in case of NO MITM (Just Works) without IOCaps (eBTIONone) */
 /*            if (xBTCallbacks.pxSspRequestCb) { */
 /*                xBTCallbacks.pxSspRequestCb(NULL, */
 /*                                            NULL, */
 /*                                            0, */
-/*                                            eBTsspVariantPasskeyConfirmation, */
+/*                                            eBTsspVariantConsent, */
 /*                                            0); */
 /*            } */
             break;
 
         case PM_EVT_PEER_DATA_UPDATE_SUCCEEDED:
-/*            configPRINTF((( "PM_EVT_PEER_DATA_UPDATE_SUCCEEDED\n" ); */
 
-            if( xBTCallbacks.pxBondedCb )
-            {
-                if( event->params.peer_data_update_succeeded.data_id == PM_PEER_DATA_ID_BONDING )
-                {
-                    if( event->params.peer_data_update_succeeded.action == PM_PEER_DATA_OP_UPDATE ) /* TODO: What is the difference? */
-                    {
-                        xBTCallbacks.pxBondedCb( eBTStatusSuccess,
-                                                 &xConnectionRemoteAddress,
-                                                 true );
-                    }
-                    else
-                    {
-                        xBTCallbacks.pxBondedCb( eBTStatusSuccess,
-                                                 &xConnectionRemoteAddress,
-                                                 true );
-                    }
-                }
-            }
+/* This is an event to inform user application when data was changed after successed write command/request */
+/*            if( xBTCallbacks.pxBondedCb ) */
+/*            { */
+/*                if( event->params.peer_data_update_succeeded.data_id == PM_PEER_DATA_ID_BONDING ) */
+/*                {
+/* NOTE: Responce does not depend on condition */
+/*                    if( event->params.peer_data_update_succeeded.action == PM_PEER_DATA_OP_UPDATE ) */
+/*                    { */
+/*                        xBTCallbacks.pxBondedCb( eBTStatusSuccess, */
+/*                                                 &xConnectionRemoteAddress, */
+/*                                                 true ); */
+/*                    } */
+/*                    else */
+/*                    { */
+/*                        xBTCallbacks.pxBondedCb( eBTStatusSuccess, */
+/*                                                 &xConnectionRemoteAddress, */
+/*                                                 true ); */
+/*                    } */
+/*                } */
+/*            } */
             break;
 
         case PM_EVT_CONN_SEC_SUCCEEDED:
@@ -1411,12 +1530,29 @@ void prvPmEventHandler( const pm_evt_t * event )
         case PM_EVT_CONN_SEC_FAILED:
 /*            configPRINTF((( "PM_EVT_CONN_SEC_FAILED\n" ); */
             configPRINTF(( "Failed to secure connection. Disconnecting." ));
-            err_code = sd_ble_gap_disconnect( event->conn_handle,
-                                              BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION );
-
-            if( err_code != NRF_ERROR_INVALID_STATE )
             {
-                APP_ERROR_CHECK( err_code );
+                uint8_t error_src = event->params.conn_sec_failed.error_src;
+                uint16_t error_code = event->params.conn_sec_failed.error;
+                uint16_t process = event->params.conn_sec_failed.procedure;
+                uint8_t hci_status_code = BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION;
+
+                NRF_LOG_DEBUG( 0, "PM_EVT_CONN_SEC_FAILED src: 0x%x; err: 0x%x; proc: 0x%x\n\r", 
+                                  error_src,
+                                  error_code,
+                                  process );
+                
+                
+                if ( error_code == PM_CONN_SEC_ERROR_PIN_OR_KEY_MISSING )
+                {
+                    hci_status_code = BLE_HCI_STATUS_CODE_PIN_OR_KEY_MISSING;
+                }
+                
+                err_code = sd_ble_gap_disconnect( event->conn_handle, hci_status_code );
+
+                if( err_code != NRF_ERROR_INVALID_STATE )
+                {
+                    APP_ERROR_CHECK( err_code );
+                }
             }
 
             usGattConnHandle = BLE_CONN_HANDLE_INVALID;
