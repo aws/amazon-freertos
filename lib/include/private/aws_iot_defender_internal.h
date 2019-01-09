@@ -39,6 +39,8 @@
 /* Serializer include. */
 #include "aws_iot_serializer.h"
 
+/* Platform thread include. */
+#include "platform/aws_iot_threads.h"
 
 /* Configure logs for Defender functions. */
 #ifdef AWS_IOT_LOG_LEVEL_DEFENDER
@@ -51,15 +53,8 @@
     #endif
 #endif
 
-
 #define _LIBRARY_LOG_NAME    ( "Defender" )
 #include "aws_iot_logging_setup.h"
-
-/*
- * @brief Format constants: Cbor and Json.
- */
-#define AWS_IOT_DEFENDER_FORMAT_CBOR    1
-#define AWS_IOT_DEFENDER_FORMAT_JSON    2
 
 /*
  * @brief Default period constants if users don't provide their own.
@@ -152,6 +147,11 @@
 #define _defenderToMilliseconds( secondValue )    ( secondValue ) * 1000
 #define _defenderToSeconds( millisecondValue )    ( millisecondValue ) / 1000
 
+#define _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer )                                                           \
+    ( ignoreTooSmallBuffer ? serializerError == AWS_IOT_SERIALIZER_SUCCESS || serializerError == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL \
+      : serializerError == AWS_IOT_SERIALIZER_SUCCESS )                                                                              \
+
+
 /**
  * Structure to hold a metrics report.
  */
@@ -176,12 +176,14 @@ void AwsIotDefenderInternal_DeleteReport( _defenderReport_t * report );
 /**
  * Established TCP connections metrics is added to the encoder object.
  */
-AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotSerializerEncoderObject_t * pEncoderObject );
+AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotSerializerEncoderObject_t * pEncoderObject,
+                                                                         bool ignoreTooSmallBuffer );
 
 /**
  * Listening TCP ports metrics is added to the encoder object.
  */
-AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( AwsIotSerializerEncoderObject_t * pEncoderObject );
+AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( AwsIotSerializerEncoderObject_t * pEncoderObject,
+                                                                            bool ignoreTooSmallBuffer );
 
 /**
  * Build three topics names used by defender library.
@@ -237,5 +239,7 @@ void AwsIotDefenderInternal_NetworkDestroy();
  * Array of bit-flag of metrics. The index is enum value of AwsIotDefenderMetricsGroup_t.
  */
 extern uint32_t _AwsIotDefenderMetricsFlag[];
+
+extern AwsIotMutex_t _AwsIotDefenderMetricsMutex;
 
 #endif /* ifndef _AWS_IOT_DEFENDER_INTERNAL_H_ */

@@ -44,6 +44,12 @@
 /* Platform network include. */
 #include "platform/aws_iot_network.h"
 
+/*
+ * @brief Format constants: Cbor and Json.
+ */
+#define AWS_IOT_DEFENDER_FORMAT_CBOR                                        1
+#define AWS_IOT_DEFENDER_FORMAT_JSON                                        2
+
 #define AWS_IOT_DEFENDER_METRICS_ALL                                        0xffffffff /**< @brief Flag to indicate including all metrics. */
 
 #define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL          0x00000001 /**< @brief Total count of established TCP connections. */
@@ -91,8 +97,9 @@ typedef enum
     AWS_IOT_DEFENDER_SUCCESS = 0,
     AWS_IOT_DEFENDER_INVALID_INPUT,
     AWS_IOT_DEFENDER_ALREADY_STARTED,
+    AWS_IOT_DEFENDER_NOT_STARTED,
     AWS_IOT_DEFENDER_PERIOD_TOO_SHORT,
-    AWS_IOT_DEFENDER_PERIOD_TOO_LARGE,
+    AWS_IOT_DEFENDER_PERIOD_TOO_LONG,
     AWS_IOT_DEFENDER_ERROR_NO_MEMORY,
     AWS_IOT_DEFENDER_INTERNAL_FAILURE
 } AwsIotDefenderError_t;
@@ -158,6 +165,8 @@ typedef struct AwsIotDefenderStartInfo
  *
  * @param[in] metricsGroup Metrics group defined in AwsIotDefenderMetricsGroup_t
  * @param[in] metrics Bit-flag to define what metrics defender needs to collect
+ *
+ * @note This function is thread safe.
  */
 AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t metricsGroup,
                                                  uint32_t metrics );
@@ -166,11 +175,18 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
  * @brief Start the defender agent.
  *
  * Periodically, defender agent collects metrics and publish to specifc AWS reserved MQTT topic.
+ *
+ * @warning This function is not thread safe. It should not be used concurrently with
+ * AwsIotDefender_Stop, AwsIotDefender_SetPeriod and other AwsIotDefender_Start functions.
  */
 AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartInfo );
 
 /**
  * @brief Stop the defender
+ *
+ * @warning This function must be called after successfully calling AwsIotDefender_Start.
+ * @warning The period and metrics set previously are unchanged.
+ * @warning This function is not thread safe.
  */
 AwsIotDefenderError_t AwsIotDefender_Stop( void );
 
@@ -178,6 +194,8 @@ AwsIotDefenderError_t AwsIotDefender_Stop( void );
  * @brief Set period in seconds.
  *
  * @param[in] periodSeconds Period is specified in seconds. Mininum is 300 (5 minutes)
+ *
+ * @warning This function is not thread safe.
  */
 AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds );
 
