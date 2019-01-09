@@ -106,12 +106,29 @@ TEST_GROUP( Full_PKCS11_RSA );
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
 
+/* #define PKCS11_TEST_MEMORY_LEAK */
+#ifdef PKCS11_TEST_MEMORY_LEAK
+    BaseType_t xHeapBefore;
+    BaseType_t xHeapAfter;
+#endif
+
 TEST_SETUP( Full_PKCS11_StartFinish )
 {
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapBefore = xPortGetFreeHeapSize();
+    #endif
 }
 
 TEST_TEAR_DOWN( Full_PKCS11_StartFinish )
 {
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapAfter = xPortGetFreeHeapSize();
+        configPRINTF( ( "Heap before %d, Heap After %d, Difference %d \r\n", xHeapBefore, xHeapAfter, ( xHeapAfter - xHeapBefore ) ) );
+    #endif
 }
 
 TEST_GROUP_RUNNER( Full_PKCS11_StartFinish )
@@ -128,6 +145,11 @@ TEST_GROUP_RUNNER( Full_PKCS11_StartFinish )
 
 TEST_SETUP( Full_PKCS11_NoObject )
 {
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapBefore = xPortGetFreeHeapSize();
+    #endif
     CK_RV xResult;
 
     xResult = xInitializePkcs11Session( &xGlobalSession ); /*TODO: update to take a slot*/
@@ -142,6 +164,13 @@ TEST_TEAR_DOWN( Full_PKCS11_NoObject )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to close session." );
     xResult = pxGlobalFunctionList->C_Finalize( NULL );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize session." );
+
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapAfter = xPortGetFreeHeapSize();
+        configPRINTF( ( "Heap before %d, Heap After %d, Difference %d \r\n", xHeapBefore, xHeapAfter, ( xHeapAfter - xHeapBefore ) ) );
+    #endif
 }
 
 
@@ -160,8 +189,13 @@ TEST_GROUP_RUNNER( Full_PKCS11_NoObject )
 
 TEST_SETUP( Full_PKCS11_RSA )
 {
-    CK_RV xResult;
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapBefore = xPortGetFreeHeapSize();
+    #endif
 
+    CK_RV xResult;
     xResult = xInitializePkcs11Session( &xGlobalSession );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 session." );
 }
@@ -175,6 +209,13 @@ TEST_TEAR_DOWN( Full_PKCS11_RSA )
 
     xResult = pxGlobalFunctionList->C_Finalize( NULL );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize session." );
+
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapAfter = xPortGetFreeHeapSize();
+        configPRINTF( ( "Heap before %d, Heap After %d, Difference %d \r\n", xHeapBefore, xHeapAfter, ( xHeapAfter - xHeapBefore ) ) );
+    #endif
 }
 
 TEST_GROUP_RUNNER( Full_PKCS11_RSA )
@@ -193,6 +234,12 @@ TEST_GROUP_RUNNER( Full_PKCS11_RSA )
 
 TEST_SETUP( Full_PKCS11_EC )
 {
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapBefore = xPortGetFreeHeapSize();
+    #endif
+
     CK_RV xResult;
 
     xResult = xInitializePkcs11Session( &xGlobalSession );
@@ -208,6 +255,13 @@ TEST_TEAR_DOWN( Full_PKCS11_EC )
 
     xResult = pxGlobalFunctionList->C_Finalize( NULL );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize session." );
+
+    #ifdef PKCS11_TEST_MEMORY_LEAK
+        /* Give the print buffer time to empty */
+        vTaskDelay( 500 );
+        xHeapAfter = xPortGetFreeHeapSize();
+        configPRINTF( ( "Heap before %d, Heap After %d, Difference %d \r\n", xHeapBefore, xHeapAfter, ( xHeapAfter - xHeapBefore ) ) );
+    #endif
 }
 
 TEST_GROUP_RUNNER( Full_PKCS11_EC )
@@ -1196,15 +1250,20 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     int lMbedTLSResult;
 
     mbedtls_pk_init( &xMbedPkContext );
-    lMbedTLSResult = mbedtls_pk_parse_key( ( mbedtls_pk_context * ) &xMbedPkContext,
-                                           cValidRSAPrivateKey,
-                                           sizeof( cValidRSAPrivateKey ),
-                                           NULL,
-                                           0 );
 
+    if( TEST_PROTECT() )
+    {
+        lMbedTLSResult = mbedtls_pk_parse_key( ( mbedtls_pk_context * ) &xMbedPkContext,
+                                               cValidRSAPrivateKey,
+                                               sizeof( cValidRSAPrivateKey ),
+                                               NULL,
+                                               0 );
 
-    lMbedTLSResult = mbedtls_rsa_pkcs1_verify( xMbedPkContext.pk_ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 32, xHashedMessage, xSignature );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, xResult, "mbedTLS failed to parse valid RSA key (verification)" );
+        lMbedTLSResult = mbedtls_rsa_pkcs1_verify( xMbedPkContext.pk_ctx, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 32, xHashedMessage, xSignature );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, xResult, "mbedTLS failed to parse valid RSA key (verification)" );
+    }
+
+    mbedtls_pk_free( &xMbedPkContext );
 }
 
 TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
@@ -1266,22 +1325,26 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
 
     /* Set up the RSA public key. */
     mbedtls_rsa_init( &xRsaContext, MBEDTLS_RSA_PKCS_V15, 0 );
-    xResult = mbedtls_mpi_read_binary( &xRsaContext.N, xModulus, ulModulusLength );
-    TEST_ASSERT_EQUAL( 0, xResult );
-    xResult = mbedtls_mpi_read_binary( &xRsaContext.E, xExponent, ulExponentLength );
-    TEST_ASSERT_EQUAL( 0, xResult );
-    xRsaContext.len = RSA_SIGNATURE_SIZE;
-    xResult = mbedtls_rsa_check_pubkey( &xRsaContext );
-    TEST_ASSERT_EQUAL( 0, xResult );
-    xResult = mbedtls_rsa_pkcs1_verify( &xRsaContext, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 32, xHashedMessage, xSignature );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, xResult, "mbedTLS failed to parse valid RSA key (verification)" );
 
+    if( TEST_PROTECT() )
+    {
+        xResult = mbedtls_mpi_read_binary( &xRsaContext.N, xModulus, ulModulusLength );
+        TEST_ASSERT_EQUAL( 0, xResult );
+        xResult = mbedtls_mpi_read_binary( &xRsaContext.E, xExponent, ulExponentLength );
+        TEST_ASSERT_EQUAL( 0, xResult );
+        xRsaContext.len = RSA_SIGNATURE_SIZE;
+        xResult = mbedtls_rsa_check_pubkey( &xRsaContext );
+        TEST_ASSERT_EQUAL( 0, xResult );
+        xResult = mbedtls_rsa_pkcs1_verify( &xRsaContext, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 32, xHashedMessage, xSignature );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, xResult, "mbedTLS failed to parse valid RSA key (verification)" );
+        /* Verify the signature with the generated public key. */
+        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit RSA." );
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xPaddedHash, RSA_SIGNATURE_SIZE, xSignature, xSignatureLength );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify RSA." );
+    }
 
-    /* Verify the signature with the generated public key. */
-    xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit RSA." );
-    xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xPaddedHash, RSA_SIGNATURE_SIZE, xSignature, xSignatureLength );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify RSA." );
+    mbedtls_rsa_free( &xRsaContext );
 }
 
 
@@ -1395,19 +1458,27 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
 
     mbedtls_pk_context xEcdsaContext;
     mbedtls_pk_init( &xEcdsaContext );
-    lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext, cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to parse the imported ECDSA private key." );
 
-    mbedtls_ecp_keypair * pxEcdsaContext = ( mbedtls_ecp_keypair * ) xEcdsaContext.pk_ctx;
-    /* An ECDSA signature is comprised of 2 components - R & S. */
-    mbedtls_mpi xR;
-    mbedtls_mpi xS;
-    mbedtls_mpi_init( &xR );
-    mbedtls_mpi_init( &xS );
-    lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
-    lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
-    lMbedTLSResult = mbedtls_ecdsa_verify( &pxEcdsaContext->grp, xHashedMessage, sizeof( xHashedMessage ), &pxEcdsaContext->Q, &xR, &xS );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
+    if( TEST_PROTECT() )
+    {
+        lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext, cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to parse the imported ECDSA private key." );
+
+        mbedtls_ecp_keypair * pxEcdsaContext = ( mbedtls_ecp_keypair * ) xEcdsaContext.pk_ctx;
+        /* An ECDSA signature is comprised of 2 components - R & S. */
+        mbedtls_mpi xR;
+        mbedtls_mpi xS;
+        mbedtls_mpi_init( &xR );
+        mbedtls_mpi_init( &xS );
+        lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
+        lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
+        lMbedTLSResult = mbedtls_ecdsa_verify( &pxEcdsaContext->grp, xHashedMessage, sizeof( xHashedMessage ), &pxEcdsaContext->Q, &xR, &xS );
+        mbedtls_mpi_free( &xR );
+        mbedtls_mpi_free( &xS );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
+    }
+
+    mbedtls_pk_free( &xEcdsaContext );
 }
 
 /*
@@ -1486,29 +1557,38 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     /* Verify the signature with mbedTLS */
     mbedtls_ecdsa_init( &xEcdsaContext );
     mbedtls_ecp_group_init( &xEcdsaContext.grp );
-    lMbedTLSResult = mbedtls_ecp_group_load( &xEcdsaContext.grp, MBEDTLS_ECP_DP_SECP256R1 );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
-    /* The first 2 bytes are for ASN1 type/length encoding. */
-    lMbedTLSResult = mbedtls_ecp_point_read_binary( &xEcdsaContext.grp, &xEcdsaContext.Q, &xEcPoint[ 2 ], xTemplate.ulValueLen - 2 );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
 
-    /* An ECDSA signature is comprised of 2 components - R & S.  C_Sign returns them one after another. */
-    mbedtls_mpi xR;
-    mbedtls_mpi xS;
-    mbedtls_mpi_init( &xR );
-    mbedtls_mpi_init( &xS );
-    lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
-    lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
-    lMbedTLSResult = mbedtls_ecdsa_verify( &xEcdsaContext.grp, xHashedMessage, sizeof( xHashedMessage ), &xEcdsaContext.Q, &xR, &xS );
-    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
+    if( TEST_PROTECT() )
+    {
+        lMbedTLSResult = mbedtls_ecp_group_load( &xEcdsaContext.grp, MBEDTLS_ECP_DP_SECP256R1 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
+        /* The first 2 bytes are for ASN1 type/length encoding. */
+        lMbedTLSResult = mbedtls_ecp_point_read_binary( &xEcdsaContext.grp, &xEcdsaContext.Q, &xEcPoint[ 2 ], xTemplate.ulValueLen - 2 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
 
-    /* Verify the signature with the generated public key. */
-    xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit ECDSA." );
-    xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, xSignatureLength );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify ECDSA." );
+        /* An ECDSA signature is comprised of 2 components - R & S.  C_Sign returns them one after another. */
+        mbedtls_mpi xR;
+        mbedtls_mpi xS;
+        mbedtls_mpi_init( &xR );
+        mbedtls_mpi_init( &xS );
+        lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
+        lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
+        lMbedTLSResult = mbedtls_ecdsa_verify( &xEcdsaContext.grp, xHashedMessage, sizeof( xHashedMessage ), &xEcdsaContext.Q, &xR, &xS );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
+        mbedtls_mpi_free( &xR );
+        mbedtls_mpi_free( &xS ); /* TODO: Won't get cleared by test protect. */
+
+        /* Verify the signature with the generated public key. */
+        xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit ECDSA." );
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, xSignatureLength );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify ECDSA." );
+    }
+
+    mbedtls_ecp_group_free( &xEcdsaContext.grp );
+    mbedtls_ecdsa_free( &xEcdsaContext );
 }
 
 #include "mbedtls/entropy_poll.h"

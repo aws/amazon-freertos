@@ -406,6 +406,8 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
         configPRINTF( ( "Invalid key type. Supported options are CKK_RSA and CKK_EC" ) );
     }
 
+    mbedtls_pk_free( &xMbedPkContext );
+
     return xResult;
 }
 
