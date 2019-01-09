@@ -2900,6 +2900,7 @@ uint16_t xLocalPort;
 uint32_t ulRemoteIP;
 uint16_t xRemotePort;
 uint32_t ulSequenceNumber;
+uint32_t ulAckNumber;
 BaseType_t xResult = pdPASS;
 
 	/* Check for a minimum packet size. */
@@ -2911,6 +2912,7 @@ BaseType_t xResult = pdPASS;
 		ulRemoteIP = FreeRTOS_htonl( pxTCPPacket->xIPHeader.ulSourceIPAddress );
 		xRemotePort = FreeRTOS_htons( pxTCPPacket->xTCPHeader.usSourcePort );
         ulSequenceNumber = FreeRTOS_ntohl( pxTCPPacket->xTCPHeader.ulSequenceNumber );
+        ulAckNumber = FreeRTOS_ntohl( pxTCPPacket->xTCPHeader.ulAckNr );
 
 		/* Find the destination socket, and if not found: return a socket listing to
 		the destination PORT. */
@@ -2992,19 +2994,31 @@ BaseType_t xResult = pdPASS;
 			{
                 FreeRTOS_debug_printf( ( "TCP: RST received from %lxip:%u for %u\n", ulRemoteIP, xRemotePort, xLocalPort ) );
 
-                /* Check whether the packet matches the next expected sequence number.
-                https://tools.ietf.org/html/rfc5961#section-3.2. */
-                if( ulSequenceNumber == pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber )
+                /* Implement https://tools.ietf.org/html/rfc5961#section-3.2. */
+                if( pxSocket->u.xTCP.ucTCPState == eCONNECT_SYN )
                 {
-                    vTCPStateChange( pxSocket, eCLOSED );
+                    /* Per the above RFC, "In the SYN-SENT state ... the RST is 
+                    acceptable if the ACK field acknowledges the SYN." */
+                    if( ulAckNumber == pxSocket->u.xTCP.xTCPWindow.ulOurSequenceNumber )
+                    {
+                        vTCPStateChange( pxSocket, eCLOSED );
+                    }
                 }
-                /* Otherwise, check whether the packet is within the receive window. */
-                else if( ulSequenceNumber > pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber &&
-                         ulSequenceNumber < ( pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber + 
-                                              pxSocket->u.xTCP.xTCPWindow.xSize.ulRxWindowLength ) )
+                else
                 {
-                    /* Send a challenge ACK. */
-                    /* TODO */
+                    /* Check whether the packet matches the next expected sequence number. */
+                    if( ulSequenceNumber == pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber )
+                    {
+                        vTCPStateChange( pxSocket, eCLOSED );
+                    }
+                    /* Otherwise, check whether the packet is within the receive window. */
+                    else if( ulSequenceNumber > pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber &&
+                             ulSequenceNumber < ( pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber +
+                                                  pxSocket->u.xTCP.xTCPWindow.xSize.ulRxWindowLength ) )
+                    {
+                        /* Send a challenge ACK. */
+                        /* TODO */
+                    }
                 }
 
                 /* Otherwise, do nothing. In any case, the packet cannot be handled. */
