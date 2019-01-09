@@ -1,6 +1,6 @@
 <!DOCTYPE CrossStudio_Project_File>
-<solution Name="secure_bootloader_mbr_pca10056" target="8" version="2">
-  <project Name="secure_bootloader_mbr_pca10056">
+<solution Name="bootloader_mbr_pca10056" target="8" version="2">
+  <project Name="bootloader_mbr_pca10056">
     <configuration
       Name="Common"
       arm_architecture="v7EM"
