@@ -20,8 +20,7 @@
  */
 
 /**
- * @file aws_iot_defender_internal.h
- * @brief Internal header of Defender library. This header should not be included in
+ * Internal header of Defender library. This header should not be included in
  * typical application code.
  */
 
@@ -56,57 +55,78 @@
 #define _LIBRARY_LOG_NAME    ( "Defender" )
 #include "aws_iot_logging_setup.h"
 
-/*
+/**
+ * @page Defender_Config Configuration
+ * @brief Configuration settings of the Defender library
+ * @par configpagemarker
+ *
+ * @section AWS_IOT_DEFENDER_FORMAT
+ * @brief Default format for metrics data serialization.
+ *
+ * <b>Possible values:</b>  #AWS_IOT_DEFENDER_FORMAT_CBOR or #AWS_IOT_DEFENDER_FORMAT_JSON <br>
+ * <b>Recommended values:</b> Cbor is more compact than Json, thus more efficient. <br>
+ * <b>Default value (if undefined):</b>  #AWS_IOT_DEFENDER_FORMAT_CBOR <br>
+ *
+ * @section AWS_IOT_DEFENDER_USE_LONG_TAG
+ * @brief Use long tag or short tag for metrics report.
+ *
+ * <b>Possible values:</b>  `0` or `1` <br>
+ * <b>Recommended values:</b> 0 to use short tag to reduce network transmit cost. <br>
+ * <b>Default value (if undefined):</b> `0` <br>
+ *
+ * @section AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS
  * @brief Default period constants if users don't provide their own.
  *
  * If metrics is sent faster than 5 minutes for one "thing", it may be throttled.
+ *
+ * <b>Possible values:</b>  greater than or equal to `300` <br>
+ * <b>Recommended values:</b>  greater than or equal to `300` seconds; defender service might throttle if the period is too short <br>
+ * <b>Default value (if undefined):</b>  `300` <br>
+ *
+ * @section AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS
+ * @brief Default MQTT connect timeout.
+ *
+ * <b>Possible values:</b>  greater than 0 <br>
+ * <b>Default value (if undefined):</b>  `10` <br>
+ *
+ * @section AWS_IOT_DEFENDER_MQTT_SUBSCRIBE_TIMEOUT_SECONDS
+ * @brief Default MQTT subscribe timeout.
+ *
+ * <b>Possible values:</b>  greater than 0 <br>
+ * <b>Default value (if undefined):</b>  `10` <br>
+ *
+ * @section AWS_IOT_DEFENDER_MQTT_PUBLISH_TIMEOUT_SECONDS
+ * @brief Default MQTT publish timeout.
+ *
+ * <b>Possible values:</b>  greater than 0 <br>
+ * <b>Default value (if undefined):</b>  `10` <br>
  */
+
 #ifndef AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS
     #define AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS    ( 300 )
 #endif
 
-/*
- * @brief Default MQTT connect timeout.
- */
 #ifndef AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS
     #define AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS    ( 10U )
 #endif
 
-/*
- * @brief Default MQTT subscribe timeout.
- */
 #ifndef AWS_IOT_DEFENDER_MQTT_SUBSCRIBE_TIMEOUT_SECONDS
     #define AWS_IOT_DEFENDER_MQTT_SUBSCRIBE_TIMEOUT_SECONDS    ( 10U )
 #endif
 
-/*
- * @brief Default MQTT publish timeout.
- */
 #ifndef AWS_IOT_DEFENDER_MQTT_PUBLISH_TIMEOUT_SECONDS
     #define AWS_IOT_DEFENDER_MQTT_PUBLISH_TIMEOUT_SECONDS    ( 10U )
 #endif
 
-/*
- * @brief Default format for metrics data serialization.
- *
- * Set default to Cbor which is more compact than Json.
- */
 #ifndef AWS_IOT_DEFENDER_FORMAT
     #define AWS_IOT_DEFENDER_FORMAT    AWS_IOT_DEFENDER_FORMAT_CBOR
 #endif
 
-/*
- * @brief Default tag option for metrics data.
- *
- * AWS IoT defender service supports both long tag and short tag.
- * Set default to short tag to reduce costs.
- */
 #ifndef AWS_IOT_DEFENDER_USE_LONG_TAG
     #define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 0 )
 #endif
 
-/* Below is INTERNAL used only. */
-/*-----------------------------------------------------------*/
+/*----------------- Below this line is INTERNAL used only --------------------*/
 
 /* This MUST be consistent with enum AwsIotDefenderMetricsGroup_t. */
 #define _DEFENDER_METRICS_GROUP_COUNT    2
@@ -142,11 +162,14 @@
 #endif
 
 /**
- * helper macros to convert seconds to milliseconds and vice versa.
+ * Convert seconds to milliseconds and vice versa.
  */
 #define _defenderToMilliseconds( secondValue )    ( secondValue ) * 1000
 #define _defenderToSeconds( millisecondValue )    ( millisecondValue ) / 1000
 
+/**
+ * Determine if serialization succeeds based on whether ignoring "small buffer" error.
+ */
 #define _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer )                                                           \
     ( ignoreTooSmallBuffer ? serializerError == AWS_IOT_SERIALIZER_SUCCESS || serializerError == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL \
       : serializerError == AWS_IOT_SERIALIZER_SUCCESS )                                                                              \
@@ -157,10 +180,28 @@
  */
 typedef struct _defenderReport
 {
-    AwsIotSerializerEncoderObject_t object; /**< Encoder object handle. */
-    uint8_t * pDataBuffer;                  /**< Raw data buffer to be published with MQTT. */
-    size_t size;                            /**< Raw data size. */
+    AwsIotSerializerEncoderObject_t object; /* Encoder object handle. */
+    uint8_t * pDataBuffer;                  /* Raw data buffer to be published with MQTT. */
+    size_t size;                            /* Raw data size. */
 } _defenderReport_t;
+
+/**
+ * Structure to hold the metrics.
+ */
+typedef struct _defenderMetrics
+{
+    /**
+     * Array of bit-flag of metrics. The index is enum value of AwsIotDefenderMetricsGroup_t.
+     */
+    uint32_t metricsFlag[ _DEFENDER_METRICS_GROUP_COUNT ];
+
+    /**
+     * Mutex to protect _AwsIotDefenderMetricsFlag referenced by:
+     * - metrics timer callback
+     * - SetMetrics API
+     */
+    AwsIotMutex_t mutex;
+} _defenderMetrics_t;
 
 /**
  * Create a report, memory is allocated inside the function.
@@ -169,7 +210,7 @@ bool AwsIotDefenderInternal_CreateReport( _defenderReport_t * pReport,
                                           AwsIotDefenderEventType_t * pEventType );
 
 /**
- * This is invoked when the report is useless. Internally, memory will be freed.
+ * Delete a report when it is useless. Internally, memory will be freed.
  */
 void AwsIotDefenderInternal_DeleteReport( _defenderReport_t * report );
 
@@ -231,15 +272,18 @@ bool AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
                                          size_t dataLength,
                                          AwsIotDefenderEventType_t * pEventType );
 
+/**
+ * Disconnect with AWS MQTT.
+ */
 void AwsIotDefenderInternal_MqttDisconnect();
 
+/**
+ * Destory network connection.
+ */
 void AwsIotDefenderInternal_NetworkDestroy();
 
-/**
- * Array of bit-flag of metrics. The index is enum value of AwsIotDefenderMetricsGroup_t.
- */
-extern uint32_t _AwsIotDefenderMetricsFlag[];
+/*----------------- Below this line are INTERNAL global variables --------------------*/
 
-extern AwsIotMutex_t _AwsIotDefenderMetricsMutex;
+extern _defenderMetrics_t _AwsIotDefenderMetrics;
 
 #endif /* ifndef _AWS_IOT_DEFENDER_INTERNAL_H_ */

@@ -127,7 +127,10 @@ bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
     }
     else
     {
-        *pEventType = AWS_IOT_DEFENDER_NETWORK_CONNECTION_FAILED;
+        if (pEventType != NULL)
+        {
+            *pEventType = AWS_IOT_DEFENDER_NETWORK_CONNECTION_FAILED;
+        }
     }
 
     return connectSuccessful;

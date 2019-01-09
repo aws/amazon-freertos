@@ -171,12 +171,12 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
 
     if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
     {
-        AwsIotMutex_Lock(&_AwsIotDefenderMetricsMutex);
+        AwsIotMutex_Lock( &_AwsIotDefenderMetrics.mutex );
 
         for( uint8_t i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
         {
             /* if no specified metircs in this group, simply skip. */
-            if( _AwsIotDefenderMetricsFlag[ i ] )
+            if( _AwsIotDefenderMetrics.metricsFlag[ i ] )
             {
                 switch( i )
                 {
@@ -185,7 +185,7 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                         break;
 
                     case AWS_IOT_DEFENDER_METRICS_LISTENING_TCP:
-                        serializerError = AwsIotDefenderInternal_GetMetricsListeningTcpPorts( &metricsMap, ignoreTooSmallBuffer); 
+                        serializerError = AwsIotDefenderInternal_GetMetricsListeningTcpPorts( &metricsMap, ignoreTooSmallBuffer );
                         break;
 
                     default:
@@ -199,7 +199,7 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
             }
         }
 
-        AwsIotMutex_Unlock(&_AwsIotDefenderMetricsMutex);
+        AwsIotMutex_Unlock( &_AwsIotDefenderMetrics.mutex );
     }
 
     if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )

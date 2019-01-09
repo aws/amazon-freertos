@@ -77,9 +77,7 @@ static void _guardTimerExpirationRoutine( void * );
 
 /*------------------- Below are global variables. ---------------------------*/
 
-uint32_t _AwsIotDefenderMetricsFlag[ _DEFENDER_METRICS_GROUP_COUNT ];
-
-AwsIotMutex_t _AwsIotDefenderMetricsMutex;
+_defenderMetrics_t _AwsIotDefenderMetrics;
 
 /**
  * Period between reports in milliseconds.
@@ -111,9 +109,6 @@ static _defenderReport_t _report = { 0 };
 
 static AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
-static AwsIotNetworkTlsInfo_t _tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
-
-
 /*-----------------------------------------------------------*/
 
 AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t metricsGroup,
@@ -128,11 +123,11 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
     }
     else
     {
-        AwsIotMutex_Lock(&_AwsIotDefenderMetricsMutex);
+        AwsIotMutex_Lock( &_AwsIotDefenderMetrics.mutex );
 
-        _AwsIotDefenderMetricsFlag[ metricsGroup ] = metrics;
+        _AwsIotDefenderMetrics.metricsFlag[ metricsGroup ] = metrics;
 
-        AwsIotMutex_Unlock(&_AwsIotDefenderMetricsMutex);
+        AwsIotMutex_Unlock( &_AwsIotDefenderMetrics.mutex );
     }
 
     return error;
@@ -142,10 +137,16 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
 
 AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartInfo )
 {
+    if( pStartInfo == NULL )
+    {
+        return AWS_IOT_DEFENDER_INVALID_INPUT;
+    }
+
     AwsIotDefenderError_t defenderError = AWS_IOT_DEFENDER_INTERNAL_FAILURE;
 
     /* initialize flow control states to false. */
-    bool buildTopicsNamesSuccess = false,
+    bool networkConnectSuccess = false,
+         buildTopicsNamesSuccess = false,
          publishTimerCreateSuccess = false,
          publishTimerArmSuccess = false,
          guradTimerCreateSuccess = false,
@@ -154,16 +155,31 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
     if( !_started )
     {
-        /* copy input start info into global variable _startInfo */
-        _startInfo = *pStartInfo;
-        /* copy input tls info into global variable _tlsInfo */
-        _tlsInfo = *( _startInfo.pTlsInfo );
+        /* First, attempt to connect to AWS IoT endpoint to valid input. */
+        networkConnectSuccess = AwsIotDefenderInternal_NetworkConnect( pStartInfo->pAwsIotEndpoint,
+                                                                       pStartInfo->port,
+                                                                       &pStartInfo->tlsInfo,
+                                                                       NULL );
 
-        buildTopicsNamesSuccess = AwsIotDefenderInternal_BuildTopicsNames( _startInfo.pThingName, _startInfo.thingNameLength, &defenderError );
+        if( networkConnectSuccess )
+        {
+            /* copy input start info into global variable _startInfo */
+            _startInfo = *pStartInfo;
+
+            buildTopicsNamesSuccess = AwsIotDefenderInternal_BuildTopicsNames( _startInfo.pThingName,
+                                                                               _startInfo.thingNameLength,
+                                                                               &defenderError );
+        }
+        else
+        {
+            defenderError = AWS_IOT_DEFENDER_CONNECTION_FAILURE;
+        }
 
         if( buildTopicsNamesSuccess )
         {
-            publishTimerCreateSuccess = AwsIotClock_TimerCreate( &_metricsPublishTimer, _metricsPublishTimerExpirationRoutine, NULL );
+            publishTimerCreateSuccess = AwsIotClock_TimerCreate( &_metricsPublishTimer,
+                                                                 _metricsPublishTimerExpirationRoutine,
+                                                                 NULL );
         }
 
         if( publishTimerCreateSuccess )
@@ -179,7 +195,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
         if( timerSempCreateSuccess )
         {
-            metricsMutexCreateSuccess = AwsIotMutex_Create( &_AwsIotDefenderMetricsMutex );
+            metricsMutexCreateSuccess = AwsIotMutex_Create( &_AwsIotDefenderMetrics.mutex );
         }
 
         if( metricsMutexCreateSuccess )
@@ -205,7 +221,10 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
             /* reset _startInfo to empty; otherwise next time defender might start with incorrect information. */
             _startInfo = ( AwsIotDefenderStartInfo_t ) AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
-            _tlsInfo = ( AwsIotNetworkTlsInfo_t ) AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
+            if (networkConnectSuccess)
+            {
+                AwsIotDefenderInternal_NetworkDestroy();
+            }
 
             if( buildTopicsNamesSuccess )
             {
@@ -229,7 +248,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
             if( metricsMutexCreateSuccess )
             {
-                AwsIotMutex_Destroy( &_AwsIotDefenderMetricsMutex );
+                AwsIotMutex_Destroy( &_AwsIotDefenderMetrics.mutex );
             }
 
             AwsIotLogError( "Defender agent failed to start due to error %s.", AwsIotDefender_strerror( defenderError ) );
@@ -258,9 +277,6 @@ AwsIotDefenderError_t AwsIotDefender_Stop( void )
     /* Reset _startInfo to empty; otherwise next time defender might start with incorrect information. */
     _startInfo = ( AwsIotDefenderStartInfo_t ) AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
-    /* Reset _tlsInfo to empty; otherwise next time defender might start with incorrect information. */
-    _tlsInfo = ( AwsIotNetworkTlsInfo_t ) AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
-
     /* Destroying will cancel timers that are active but not in process. */
     AwsIotClock_TimerDestroy( &_metricsPublishTimer );
     AwsIotClock_TimerDestroy( &_guardTimer );
@@ -275,7 +291,7 @@ AwsIotDefenderError_t AwsIotDefender_Stop( void )
     /* Metrics timer callback should be waiting for _timerSem till now. */
     AwsIotSemaphore_Destroy( &_timerSem );
 
-    AwsIotMutex_Destroy( &_AwsIotDefenderMetricsMutex );
+    AwsIotMutex_Destroy( &_AwsIotDefenderMetrics.mutex );
 
     _started = false;
 
@@ -342,14 +358,15 @@ const char * AwsIotDefender_strerror( AwsIotDefenderError_t error )
     /* Lookup table of Defender errors. */
     static const char * pErrorNames[] =
     {
-        "SUCCESS",          /* AWS_IOT_DEFENDER_SUCCESS */
-        "INLVALID INPUT",   /* AWS_IOT_DEFENDER_INVALID_INPUT */
-        "ALREADY STARTED",  /* AWS_IOT_DEFENDER_ALREADY_STARTED */
-        "NOT STARTED",      /* AWS_IOT_DEFENDER_NOT_STARTED */
-        "PERIOD TOO SHORT", /* AWS_IOT_DEFENDER_PERIOD_TOO_SHORT */
-        "PERIOD TOO LONG",  /* AWS_IOT_DEFENDER_PERIOD_TOO_LONG */
-        "NO MEMORY",        /* AWS_IOT_DEFENDER_ERROR_NO_MEMORY */
-        "INTERNAL FAILURE"  /* AWS_IOT_DEFENDER_INTERNAL_FAILURE */
+        "SUCCESS",           /* AWS_IOT_DEFENDER_SUCCESS */
+        "INLVALID INPUT",    /* AWS_IOT_DEFENDER_INVALID_INPUT */
+        "CONNECTION FAILURE" /* AWS_IOT_DEFENDER_CONNECTION_FAILURE */
+        "ALREADY STARTED",   /* AWS_IOT_DEFENDER_ALREADY_STARTED */
+        "NOT STARTED",       /* AWS_IOT_DEFENDER_NOT_STARTED */
+        "PERIOD TOO SHORT",  /* AWS_IOT_DEFENDER_PERIOD_TOO_SHORT */
+        "PERIOD TOO LONG",   /* AWS_IOT_DEFENDER_PERIOD_TOO_LONG */
+        "NO MEMORY",         /* AWS_IOT_DEFENDER_ERROR_NO_MEMORY */
+        "INTERNAL FAILURE"   /* AWS_IOT_DEFENDER_INTERNAL_FAILURE */
     };
 
     /* Check that the parameter is valid. */
@@ -385,7 +402,7 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
 
     if( AwsIotDefenderInternal_NetworkConnect( _startInfo.pAwsIotEndpoint,
                                                _startInfo.port,
-                                               &_tlsInfo,
+                                               &_startInfo.tlsInfo,
                                                &eventType ) )
     {
         /* SetMqttReceiveCallback must be invoked to have MQTT agent receive response from broker. */
