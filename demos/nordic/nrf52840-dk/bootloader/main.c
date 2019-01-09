@@ -41,10 +41,10 @@
 
 /** @file
  *
- * @defgroup bootloader_secure_ble main.c
+ * @defgroup bootloader_ble main.c
  * @{
  * @ingroup dfu_bootloader_api
- * @brief Bootloader project main file for secure DFU.
+ * @brief Bootloader project main file for DFU.
  *
  */
 
