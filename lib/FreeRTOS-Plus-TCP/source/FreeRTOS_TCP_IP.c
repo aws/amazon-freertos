@@ -2899,6 +2899,7 @@ uint32_t ulLocalIP;
 uint16_t xLocalPort;
 uint32_t ulRemoteIP;
 uint16_t xRemotePort;
+uint32_t ulSequenceNumber;
 BaseType_t xResult = pdPASS;
 
 	/* Check for a minimum packet size. */
@@ -2909,6 +2910,7 @@ BaseType_t xResult = pdPASS;
 		xLocalPort = FreeRTOS_htons( pxTCPPacket->xTCPHeader.usDestinationPort );
 		ulRemoteIP = FreeRTOS_htonl( pxTCPPacket->xIPHeader.ulSourceIPAddress );
 		xRemotePort = FreeRTOS_htons( pxTCPPacket->xTCPHeader.usSourcePort );
+        ulSequenceNumber = FreeRTOS_ntohl( pxTCPPacket->xTCPHeader.ulSequenceNumber );
 
 		/* Find the destination socket, and if not found: return a socket listing to
 		the destination PORT. */
@@ -2988,13 +2990,24 @@ BaseType_t xResult = pdPASS;
 			flag. */
 			if( ( ucTCPFlags & ipTCP_FLAG_RST ) != 0u )
 			{
-				/* The target socket is not in a listening state, any RST packet
-				will cause the socket to be closed. */
-				FreeRTOS_debug_printf( ( "TCP: RST received from %lxip:%u for %u\n", ulRemoteIP, xRemotePort, xLocalPort ) );
-				/* _HT_: should indicate that 'ECONNRESET' must be returned to the used during next API. */
-				vTCPStateChange( pxSocket, eCLOSED );
+                FreeRTOS_debug_printf( ( "TCP: RST received from %lxip:%u for %u\n", ulRemoteIP, xRemotePort, xLocalPort ) );
 
-				/* The packet cannot be handled. */
+                /* Check whether the packet matches the next expected sequence number.
+                https://tools.ietf.org/html/rfc5961#section-3.2. */
+                if( ulSequenceNumber == pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber )
+                {
+                    vTCPStateChange( pxSocket, eCLOSED );
+                }
+                /* Otherwise, check whether the packet is within the receive window. */
+                else if( ulSequenceNumber > pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber &&
+                         ulSequenceNumber < ( pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber + 
+                                              pxSocket->u.xTCP.xTCPWindow.xSize.ulRxWindowLength ) )
+                {
+                    /* Send a challenge ACK. */
+                    /* TODO */
+                }
+
+                /* Otherwise, do nothing. In any case, the packet cannot be handled. */
 				xResult = pdFAIL;
 			}
 			else if( ( ( ucTCPFlags & ipTCP_FLAG_CTRL ) == ipTCP_FLAG_SYN ) && ( pxSocket->u.xTCP.ucTCPState >= eESTABLISHED ) )
