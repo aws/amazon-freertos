@@ -95,6 +95,66 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
 }
 
 /*-----------------------------------------------------------*/
+#define CreateMutex    CreateMutex   /* This is a hack because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
+CK_RV prvCreateMutex( CK_VOID_PTR_PTR ppxMutex )
+{
+    SemaphoreHandle_t xMutex;
+    CK_RV xResult;
+
+    xMutex = xSemaphoreCreateMutex();
+
+    if( xMutex == NULL )
+    {
+        xResult = CKR_HOST_MEMORY;
+    }
+    else
+    {
+        *ppxMutex = xMutex;
+        xResult = CKR_OK;
+    }
+
+    return xResult;
+}
+
+CK_RV prvDestroyMutex( CK_VOID_PTR pxMutex )
+{
+    vSemaphoreDelete( ( SemaphoreHandle_t ) pxMutex );
+    return CKR_OK;
+}
+
+CK_RV prvLockMutex( CK_VOID_PTR pxMutex )
+{
+    CK_RV xResult;
+
+    if( xSemaphoreTake( pxMutex, portMAX_DELAY ) )
+    {
+        xResult = CKR_OK;
+    }
+    else
+    {
+        xResult = CKR_CANT_LOCK;
+    }
+
+    return xResult;
+}
+
+CK_RV prvUnlockMutex( CK_VOID_PTR pxMutex )
+{
+    CK_RV xResult;
+
+    if( xSemaphoreGive( pxMutex ) )
+    {
+        xResult = CKR_OK;
+    }
+    else
+    {
+        xResult = CKR_GENERAL_ERROR;
+    }
+
+    return xResult;
+}
+
+
 
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 {
@@ -102,13 +162,22 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
     CK_SLOT_ID * pxSlotId;
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_ULONG xSlotCount;
+    CK_C_INITIALIZE_ARGS xInitArgs;
+
+    xInitArgs.CreateMutex = prvCreateMutex;
+    xInitArgs.DestroyMutex = prvDestroyMutex;
+    xInitArgs.LockMutex = prvLockMutex;
+    xInitArgs.UnlockMutex = prvUnlockMutex;
+    xInitArgs.flags = 0;
+    xInitArgs.pReserved = NULL;
+
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
     /* Initialize the PKCS #11 module. */
     if( xResult == CKR_OK )
     {
-        xResult = pxFunctionList->C_Initialize( NULL );
+        xResult = pxFunctionList->C_Initialize( &xInitArgs );
     }
 
     /* Get a list of slots available. */
