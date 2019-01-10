@@ -35,11 +35,12 @@
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX/time.h"
+#include "FreeRTOS_POSIX_types.h"
 
 /**
  * @brief Semaphore type.
  */
-typedef void * sem_t;
+typedef PosixSemType_t sem_t;
 
 /**
  * @brief Destroy an unnamed semaphore.

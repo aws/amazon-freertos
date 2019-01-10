@@ -133,6 +133,12 @@
 #ifndef posixconfigENABLE_TM
     #define posixconfigENABLE_TM                     1 /**< struct tm in time.h */
 #endif
+#ifndef posixconfigENABLE_SEM_T
+    #define posixconfigENABLE_SEM_T                  1 /**< struct sem_t in semaphore.h */
+#endif
+#ifndef posixconfigENABLE_PTHREAD_BARRIER_T
+    #define posixconfigENABLE_PTHREAD_BARRIER_T      1 /**< pthread_barrier_t in sys/types.h */
+#endif
 /**@} */
 
 #endif /* ifndef _FREERTOS_POSIX_PORTABLE_DEFAULT_H_ */

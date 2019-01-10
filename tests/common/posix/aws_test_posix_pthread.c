@@ -476,7 +476,7 @@ TEST( Full_POSIX_PTHREAD, pthread_barrier )
     int iStatus = 0;
     intptr_t xThreadReturnValue = 0;
     pthread_t xNewThread;
-    pthread_barrier_t xBarrier;
+    pthread_barrier_t xBarrier = { 0 };
 
     /* Ensure that calling pthread_barrier_init with count=0 returns EINVAL. */
     iStatus = pthread_barrier_init( &xBarrier, NULL, 0U );
