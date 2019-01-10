@@ -52,6 +52,6 @@
 #define testrunnerFULL_TLS_ENABLED                 0
 #define testrunnerFULL_POSIX_ENABLED               0
 
-#define testrunnerFULL_HAL_PERF_CNTR               1
+#define testrunnerFULL_HAL_PERFCOUNTER_ENABLED     0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

@@ -156,8 +156,8 @@ static void RunTests( void )
         vStartOTAUpdateDemoTask();
     #endif
 
-    #if ( testrunnerFULL_HAL_PERF_CNTR == 1 )
-        RUN_TEST_GROUP( Full_HAL_PERF_CNTR );
+    #if ( testrunnerFULL_HAL_PERFCOUNTER_ENABLED == 1 )
+        RUN_TEST_GROUP( AWS_HAL_PERFCOUNTER_TEST );
     #endif
 
 }

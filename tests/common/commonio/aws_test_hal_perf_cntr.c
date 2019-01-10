@@ -37,42 +37,129 @@
 /* Driver includes */
 #include "aws_hal_perf_cntr.h"
 
-
-TEST_GROUP( Full_HAL_PERF_CNTR );
+/* FreeRTOS include. */
+#include "FreeRTOS.h"
+#include "task.h"
 
 /*-----------------------------------------------------------*/
 
-TEST_SETUP( Full_HAL_PERF_CNTR )
+#define aws_halperfcountertestINT_MAX_VALUE             ( 0xFFFFFFFFUL )
+
+#define aws_halperfcountertestDEFAULT_DELAY_TIME_MS     ( 1 )
+#define aws_halperfcountertestSEC_TO_MSEC               ( 1000 )
+
+/*-----------------------------------------------------------*/
+
+/* Define Test Group. */
+TEST_GROUP( AWS_HAL_PERFCOUNTER_TEST );
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Setup function called before each test in this group is executed.
+ */
+TEST_SETUP( AWS_HAL_PERFCOUNTER_TEST )
 {
 }
 
 /*-----------------------------------------------------------*/
 
-TEST_TEAR_DOWN( Full_HAL_PERF_CNTR )
+/**
+ * @brief Tear down function called after each test in this group is executed.
+ */
+TEST_TEAR_DOWN( AWS_HAL_PERFCOUNTER_TEST )
 {
 }
 
 /*-----------------------------------------------------------*/
 
-TEST_GROUP_RUNNER( Full_HAL_PERF_CNTR )
+/**
+ * @brief Function to define which tests to execute as part of this group.
+ */
+TEST_GROUP_RUNNER( AWS_HAL_PERFCOUNTER_TEST )
 {
-    RUN_TEST_CASE( Full_HAL_PERF_CNTR, perf_counter_happy_path );
+    RUN_TEST_CASE( AWS_HAL_PERFCOUNTER_TEST, AFQP_AwsHalPerfCounterGetValue );
+    RUN_TEST_CASE( AWS_HAL_PERFCOUNTER_TEST, AFQP_AwsHalPerfCounterGetValueWithDelay );
 }
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_HAL_PERF_CNTR, perf_counter_happy_path )
+/**
+ * @brief Test Function to test aws_hal_perfcounter values
+ *
+ */
+TEST( AWS_HAL_PERFCOUNTER_TEST, AFQP_AwsHalPerfCounterGetValue )
 {
-    uint64_t ullCounterValue1 = 0;
-    uint64_t ullCounterValue2 = 0;
-    uint32_t ulCounterFreq = 0;
+    uint64_t ullCounter1 = 0, ullCounter2 = 0;
 
+    /* Open the interface. */
     aws_hal_perfcounter_open();
-    ullCounterValue1 = aws_hal_perfcounter_get_value();
-    ulCounterFreq = aws_hal_perfcounter_get_frequency_hz();
-    ullCounterValue2 = aws_hal_perfcounter_get_value();
-    aws_hal_perfcounter_close();
 
-    TEST_ASSERT_MESSAGE( ullCounterValue2 > ullCounterValue1, "Performance counter value should grow upwards.");
-    TEST_ASSERT_MESSAGE( ulCounterFreq > 0, "Performance counter value should be at least larger than 0.")
+    /* Get the value from perf counter. */
+    ullCounter1 = aws_hal_perfcounter_get_value();
+
+    /* This is always true. Attempting to space out two reads. */
+    TEST_ASSERT( ullCounter1 >= 0 );
+
+    /* Get the value from perf counter again. */
+    ullCounter2 = aws_hal_perfcounter_get_value();
+
+    /* For reference, to overflow 64-bit with clock running at say GHz, it takes years.
+     * By when it's probably better to fail the test if it takes that long.
+     * Two reads can be equal, depending on what frequency the counter is running at.
+     */
+    TEST_ASSERT_MESSAGE ( ullCounter2 >= ullCounter1, "The value from the second read is expected to be no smaller than the first.");
+
+    /* Close the interface. */
+    aws_hal_perfcounter_close();
 }
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test Function to test aws_hal_perfcounter values with delay inserted.
+ * The delay is used to calculate the next read of perfcounter shall be no smaller than
+ * the delay inserted.
+ *
+ */
+TEST( AWS_HAL_PERFCOUNTER_TEST, AFQP_AwsHalPerfCounterGetValueWithDelay )
+{
+    uint64_t ullCounter1 = 0, ullCounter2 = 0, ullCounterThreshold = 0;
+    uint32_t ulFreq = 0;
+
+    /* Open the interface. */
+    aws_hal_perfcounter_open();
+
+    /* Get counter frequency. */
+    ulFreq = aws_hal_perfcounter_get_frequency_hz();
+
+    /* Get the value from perf counter. */
+    ullCounter1 = aws_hal_perfcounter_get_value();
+
+    /* Delay for 1 msec. */
+    vTaskDelay( aws_halperfcountertestDEFAULT_DELAY_TIME_MS  / portTICK_PERIOD_MS );
+
+    /* Get the value from perf counter again. */
+    ullCounter2 = aws_hal_perfcounter_get_value();
+
+    /* Test has been running for a while now. Reading should not be zero.
+     * If fails --
+     * 1. Timer might not have been started correctly.
+     * 2. Timer frequency might not be realistic. */
+    TEST_ASSERT_MESSAGE( ( ullCounter1 > 0 && ullCounter2 > 0 ) , "Perf counter value did not increase." );
+
+    /* Frequency value should never be zero in any counter configuration. */
+    TEST_ASSERT_MESSAGE( ( ulFreq > 0 ), "Counter frequency is expected to be not zero." );
+
+    /* Convert time elapsed to counter cycles. The result can be zero, if counter is running at unrealistic frequency. */
+    ullCounterThreshold = ( uint64_t ) aws_halperfcountertestDEFAULT_DELAY_TIME_MS * ulFreq / aws_halperfcountertestSEC_TO_MSEC;
+
+    /* Overflow 64-bit is not taken into consideration for similar reason.
+     * See comment in previous test. */
+    TEST_ASSERT_MESSAGE( ( ullCounter2 >= ullCounter1 + ullCounterThreshold ), "Expected the value from the second read to be no smaller than the first. " );
+
+    /* Close the interface. */
+    aws_hal_perfcounter_close();
+}
+
+
