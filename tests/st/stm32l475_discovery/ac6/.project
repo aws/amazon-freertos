@@ -181,11 +181,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/lib/pkcs11/portable/st/stm32l475_discovery</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/portable</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>lib/aws/secure_sockets</name>
 			<type>2</type>
 			<locationURI>AWS_IOT_MCU_ROOT/lib/secure_sockets/portable/st/stm32l475_discovery</locationURI>
@@ -291,19 +286,9 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/include/aws_hal_perf_cntr.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/lib/hal/include/aws_hal_perf_cntr.h</locationURI>
-		</link>
-		<link>
 			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/portable/st</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mbedtls/include</name>
@@ -349,11 +334,6 @@
 			<name>lib/aws/hal/portable/st</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/portable/st/aws_hal_perf_cntr.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/lib/hal/portable/st/aws_hal_perf_cntr.c</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/hal/portable/st/aws_hal_perf_cntr.c</name>

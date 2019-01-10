@@ -73,10 +73,11 @@
 #endif
 
 /**
- * @brief Timer width and counter period.
+ * @brief Timer width, counter period, and loading value.
  */
 #define HW_TIMER_32_WIDTH           ( sizeof( uint32_t ) * 8 )
 #define HW_TIMER_32_CONST_PERIOD    ( INT32_MAX )
+#define HW_TIMER_32_LOADING_VALUE   ( 0x0UL )
 
 
 /*-----------------------------------------------------------*/
@@ -92,7 +93,7 @@ static uint64_t ullTimerOverflow = 0;
 void HAL_TIM_Base_MspInit( TIM_HandleTypeDef * pxTimerHandle )
 {
 
-    if ( TIM5 == pxTimerHandle->Instance )
+    if ( pxTimerHandle->Instance == TIM5 )
     {
         /* Enable timer clock. */
         __HAL_RCC_TIM5_CLK_ENABLE();
@@ -110,7 +111,7 @@ void HAL_TIM_Base_MspInit( TIM_HandleTypeDef * pxTimerHandle )
 
 void HAL_TIM_Base_MspDeInit( TIM_HandleTypeDef * pxTimerHandle )
 {
-    if (TIM5 == pxTimerHandle->Instance )
+    if ( pxTimerHandle->Instance == TIM5 )
     {
         /* Disable counter overflow interrupt. */
         HAL_NVIC_DisableIRQ(TIM5_IRQn);
@@ -178,7 +179,7 @@ void aws_hal_perfcounter_open(void)
     xTimerHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
     xTimerHandle.Init.Period = HW_TIMER_32_CONST_PERIOD;
     xTimerHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-    xTimerHandle.Init.RepetitionCounter = 0x00;
+    xTimerHandle.Init.RepetitionCounter = HW_TIMER_32_LOADING_VALUE;
     xTimerHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
 
     xTimerHandle.Channel = HAL_TIM_ACTIVE_CHANNEL_CLEARED;
@@ -226,6 +227,9 @@ uint32_t aws_hal_perfcounter_get_frequency_hz(void)
 
     /* Get timer clock frequency. */
     ulTimClock = HAL_RCC_GetPCLK1Freq();
+
+    /* Avoid dividing by 0. */
+    configASSERT( ulTimClock > 0 );
 
     return ( ulTimClock / ( uint32_t )( ulTimClock / HAL_PERF_COUNTER_FREQ ) );
 }
