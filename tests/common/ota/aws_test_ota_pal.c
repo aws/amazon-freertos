@@ -78,28 +78,6 @@ static uint8_t ucDummyData[] =
 static OTA_FileContext_t xOtaFile;
 
 #ifdef CC3220sf
-
-    /**
-     * @brief In the Texas Instruments CC3220(SF) device, we retrieve the number of security alerts and the threshold.
-     */
-    static void prvShowTiCc3220SecurityAlertCounts()
-    {
-        int32_t lResult;
-        SlFsControlGetStorageInfoResponse_t xStorageResponseInfo;
-
-        lResult = sl_FsCtl( ( SlFsCtl_e ) SL_FS_CTL_GET_STORAGE_INFO, 0, NULL, NULL, 0, ( _u8 * ) &xStorageResponseInfo, sizeof( SlFsControlGetStorageInfoResponse_t ), NULL );
-
-        if( lResult == 0 )
-        {
-            configPRINTF( ( "Security alert threshold = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlertsThreshold ) );
-            configPRINTF( ( "Current number of alerts = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlerts ) );
-        }
-        else
-        {
-            configPRINTF( ( "sl_FsCtl failed with error code: %d\r\n", lResult ) );
-        }
-    }
-
     /**
      * @brief In the Texas Instruments CC3220(SF) device, we need to restore mcuflashimage.bin to factory following tests
      * that increase the number of security alerts.
