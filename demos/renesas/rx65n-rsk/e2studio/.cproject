@@ -14,7 +14,7 @@
 			</storageModule>
 			<storageModule moduleId="com.renesas.cdt.managedbuild.core.toolchainInfo">
 				<option id="toolchain.id" value="Renesas_RXC"/>
-				<option id="toolchain.version" value="v2.08.00"/>
+				<option id="toolchain.version" value="v3.00.00"/>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration artifactExtension="mot" artifactName="aws_demos" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="Debug on hardware" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;com.renesas.cdt.managedbuild.renesas.core.RenesasCompilerAssemblerErrorParser;com.renesas.cdt.managedbuild.core.buildRunnerErrorParser" id="com.renesas.cdt.managedbuild.renesas.ccrx.hardwaredebug.configuration.216582545" name="HardwareDebug" parent="com.renesas.cdt.managedbuild.renesas.ccrx.hardwaredebug.configuration">
