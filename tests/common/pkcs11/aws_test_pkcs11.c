@@ -547,22 +547,27 @@ TEST( Full_PKCS11_StartFinish, AFQP_InitializeFinalize )
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
 
     CK_RV xResult;
+    CK_C_INITIALIZE_ARGS xInitArgs;
 
     xResult = C_GetFunctionList( &pxFunctionList );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get function list." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxFunctionList, "Invalid function list pointer." );
 
-    /* Ask Bryan --> is the NULL ok here?
-     * Used in his version of aws_dev_mode_key_provisioning but maybe both NULL
-     * and multithread option supported. */
-    xResult = pxFunctionList->C_Initialize( NULL );
+    xInitArgs.CreateMutex = NULL;
+    xInitArgs.DestroyMutex = NULL;
+    xInitArgs.LockMutex = NULL;
+    xInitArgs.UnlockMutex = NULL;
+    xInitArgs.flags = CKF_OS_LOCKING_OK;
+    xInitArgs.pReserved = NULL;
+
+    xResult = pxFunctionList->C_Initialize( &xInitArgs );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
 
     if( TEST_PROTECT() )
     {
         /* Call initialize a second time.  Since this call may be made many times,
          * it is important that PKCS #11 implementations be tolerant of multiple calls. */
-        xResult = pxFunctionList->C_Initialize( NULL );
+        xResult = pxFunctionList->C_Initialize( &xInitArgs );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_CRYPTOKI_ALREADY_INITIALIZED, xResult, "Second PKCS #11 module initialization. " );
 
         /* C_Finalize should fail if pReserved isn't NULL. */
@@ -585,8 +590,16 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
     CK_SLOT_ID * pxSlotId = NULL;
     CK_ULONG xSlotCount = 0;
     CK_ULONG xExtraSlotCount = 0;
+    CK_C_INITIALIZE_ARGS xInitArgs;
 
-    xResult = pxGlobalFunctionList->C_Initialize( NULL );
+    xInitArgs.CreateMutex = NULL;
+    xInitArgs.DestroyMutex = NULL;
+    xInitArgs.LockMutex = NULL;
+    xInitArgs.UnlockMutex = NULL;
+    xInitArgs.flags = CKF_OS_LOCKING_OK;
+    xInitArgs.pReserved = NULL;
+
+    xResult = pxGlobalFunctionList->C_Initialize( &xInitArgs );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module" );
 
     if( TEST_PROTECT() )
@@ -649,10 +662,18 @@ TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
     CK_SESSION_HANDLE xSession = 0;
     CK_BBOOL xSessionOpen = CK_FALSE;
     CK_RV xResult = CKR_OK;
+    CK_C_INITIALIZE_ARGS xInitArgs;
 
     /* Happy path. */
 
-    xResult = pxGlobalFunctionList->C_Initialize( NULL );
+    xInitArgs.CreateMutex = NULL;
+    xInitArgs.DestroyMutex = NULL;
+    xInitArgs.LockMutex = NULL;
+    xInitArgs.UnlockMutex = NULL;
+    xInitArgs.flags = CKF_OS_LOCKING_OK;
+    xInitArgs.pReserved = NULL;
+
+    xResult = pxGlobalFunctionList->C_Initialize( &xInitArgs );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module" );
 
     if( TEST_PROTECT() )
@@ -700,13 +721,21 @@ static void prvInitializeMultiThreadTask( void * pvParameters )
     MultithreadTaskParams_t * pxTaskParams;
     BaseType_t xCount;
     CK_RV xResult;
+    CK_C_INITIALIZE_ARGS xInitArgs;
 
     pxTaskParams = ( MultithreadTaskParams_t * ) pvParameters;
+
+    xInitArgs.CreateMutex = NULL;
+    xInitArgs.DestroyMutex = NULL;
+    xInitArgs.LockMutex = NULL;
+    xInitArgs.UnlockMutex = NULL;
+    xInitArgs.flags = CKF_OS_LOCKING_OK;
+    xInitArgs.pReserved = NULL;
 
     for( xCount = 0; xCount < pkcs11testMULTI_THREAD_LOOP_COUNT; xCount++ )
     {
         /* Code here. */
-        xResult = pxGlobalFunctionList->C_Initialize( NULL );
+        xResult = pxGlobalFunctionList->C_Initialize( &xInitArgs );
 
         if( ( xResult != CKR_OK ) && ( xResult != CKR_CRYPTOKI_ALREADY_INITIALIZED ) )
         {
