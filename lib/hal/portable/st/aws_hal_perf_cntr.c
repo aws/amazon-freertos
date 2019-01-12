@@ -69,14 +69,14 @@
 #ifdef configHAL_PERF_COUNTER_FREQ
     #define HAL_PERF_COUNTER_FREQ       ( configHAL_PERF_COUNTER_FREQ )
 #else
-    #define HAL_PERF_COUNTER_FREQ       ( PERF_COUNTER_FREQ_MAX )
+    #define HAL_PERF_COUNTER_FREQ       ( PERF_COUNTER_FREQ_DEFAULT )
 #endif
 
 /**
  * @brief Timer width, counter period, and loading value.
  */
 #define HW_TIMER_32_WIDTH           ( sizeof( uint32_t ) * 8 )
-#define HW_TIMER_32_CONST_PERIOD    ( INT32_MAX )
+#define HW_TIMER_32_CONST_PERIOD    ( UINT32_MAX )
 #define HW_TIMER_32_LOADING_VALUE   ( 0x0UL )
 
 
@@ -175,7 +175,7 @@ void aws_hal_perfcounter_open(void)
      * .Period is always set to the max value the counter allows.
      * Performance counter resolution is adjusted with .Prescaler.
      */
-    xTimerHandle.Init.Prescaler = ulTimClock / HAL_PERF_COUNTER_FREQ;
+    xTimerHandle.Init.Prescaler = ulTimClock / HAL_PERF_COUNTER_FREQ - 1;
     xTimerHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
     xTimerHandle.Init.Period = HW_TIMER_32_CONST_PERIOD;
     xTimerHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -231,7 +231,7 @@ uint32_t aws_hal_perfcounter_get_frequency_hz(void)
     /* Avoid dividing by 0. */
     configASSERT( ulTimClock > 0 );
 
-    return ( ulTimClock / ( uint32_t )( ulTimClock / HAL_PERF_COUNTER_FREQ ) );
+    return ( ulTimClock / ( xTimerHandle.Init.Prescaler + 1 ) );
 }
 
 /*-----------------------------------------------------------*/
