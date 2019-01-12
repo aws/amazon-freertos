@@ -124,7 +124,7 @@ TEST( AWS_HAL_PERFCOUNTER_TEST, AFQP_AwsHalPerfCounterGetValue )
  */
 TEST( AWS_HAL_PERFCOUNTER_TEST, AFQP_AwsHalPerfCounterGetValueWithDelay )
 {
-    uint64_t ullCounter1 = 0, ullCounter2 = 0, ullCounterThreshold = 0;
+    uint64_t ullCounter1 = 0, ullCounter2 = 0;
     uint32_t ulFreq = 0;
 
     /* Open the interface. */
@@ -136,7 +136,7 @@ TEST( AWS_HAL_PERFCOUNTER_TEST, AFQP_AwsHalPerfCounterGetValueWithDelay )
     /* Get the value from perf counter. */
     ullCounter1 = aws_hal_perfcounter_get_value();
 
-    /* Delay for 1 msec. */
+    /* Delay for AT MOST 1 msec. (Assume no interrupt.) */
     vTaskDelay( aws_halperfcountertestDEFAULT_DELAY_TIME_MS  / portTICK_PERIOD_MS );
 
     /* Get the value from perf counter again. */
@@ -145,21 +145,31 @@ TEST( AWS_HAL_PERFCOUNTER_TEST, AFQP_AwsHalPerfCounterGetValueWithDelay )
     /* Test has been running for a while now. Reading should not be zero.
      * If fails --
      * 1. Timer might not have been started correctly.
-     * 2. Timer frequency might not be realistic. */
+     * 2. Timer frequency might not be realistic.
+     */
     TEST_ASSERT_MESSAGE( ( ullCounter1 > 0 && ullCounter2 > 0 ) , "Perf counter value did not increase." );
 
     /* Frequency value should never be zero in any counter configuration. */
     TEST_ASSERT_MESSAGE( ( ulFreq > 0 ), "Counter frequency is expected to be not zero." );
 
-    /* Convert time elapsed to counter cycles. The result can be zero, if counter is running at unrealistic frequency. */
-    ullCounterThreshold = ( uint64_t ) aws_halperfcountertestDEFAULT_DELAY_TIME_MS * ulFreq / aws_halperfcountertestSEC_TO_MSEC;
+    /* Convert time elapsed to counter cycles. The result can be zero, if counter is running at unrealistic frequency.
+     * Keeping below line for understanding purpose.
+     */
+    // ullCounterThreshold = ( uint64_t ) aws_halperfcountertestDEFAULT_DELAY_TIME_MS * ulFreq / aws_halperfcountertestSEC_TO_MSEC;
 
-    /* Overflow 64-bit is not taken into consideration for similar reason.
-     * See comment in previous test. */
-    TEST_ASSERT_MESSAGE( ( ullCounter2 >= ullCounter1 + ullCounterThreshold ), "Expected the value from the second read to be no smaller than the first. " );
+    /* We can never have a golden assertion here, since --
+     * 1, if no interrupt during vTaskDelay(), this is always true: ullCounter2 <= ullCounter1 + ullCounterThreshold
+     * 2, if interrupt during vTaskDelay(), this is true: ullCounter2 >= ullCounter1 + ullCounterThreshold
+     * The only thing we know for sure is ullCounter2 > ullCounter1. And for most of the time
+     * ullCounter2 ~= ullCounter1 + ullCounterThreshold.
+     *
+     * Note that vTaskDelay() delays AT MOST time specified. This is to meet scheduling deadline.
+     *
+     * Overflow 64-bit is not taken into consideration for similar reason.
+     * See comment in previous test.
+     */
+    TEST_ASSERT_MESSAGE( ( ullCounter2 > ullCounter1 ), "Expected the value from the second read to be larger than the first. " );
 
     /* Close the interface. */
     aws_hal_perfcounter_close();
 }
-
-
