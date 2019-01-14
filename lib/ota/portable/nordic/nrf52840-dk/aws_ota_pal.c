@@ -29,12 +29,15 @@
 
 /* Amazon FreeRTOS include. */
 #include "FreeRTOS.h"
+#include "aws_ota_agent.h"
 #include "aws_ota_pal.h"
 #include "aws_ota_agent_internal.h"
 #include "aws_ota_pal_settings.h"
 
 #include "asn1utility.h"
 
+#include "nrf_mbr.h"
+#include "nrf_sdm.h"
 #include "nrf_nvmc.h"
 #include "nrf_sdh_soc.h"
 #include "nrf_crypto.h"
@@ -44,7 +47,6 @@
 /* Specify the OTA signature algorithm we support on this platform. */
 const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 const char pcOTA_PAL_Magick[ otapalMAGICK_SIZE ] = "@AFRTOS";
-const size_t otapalFLASH_START = ( size_t ) &__reserved_flash_end__;
 const size_t otapalFLASH_END = ( size_t ) &__FLASH_segment_end__;
 
 /* The array that is contains the public key to check signature
@@ -142,11 +144,11 @@ OTA_Err_t prvErasePages(size_t xFrom, size_t xTo)
     size_t ulErasedAddress = (size_t) xFrom;
     OTA_Err_t xStatus = kOTA_Err_None;
     ret_code_t xErrCode = NRF_SUCCESS;
-    while(xStatus == kOTA_Err_None && ulErasedAddress <= (size_t) xTo )
+    while(xStatus == kOTA_Err_None && ulErasedAddress < (size_t) xTo )
     {
         size_t ulErasedPage = ( size_t ) ( ulErasedAddress / NRF_FICR->CODEPAGESIZE );
         ulErasedAddress += NRF_FICR->CODEPAGESIZE;
-        xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS || otapalFLASH_FAILURE );
+        xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
         xErrCode = sd_flash_page_erase( ulErasedPage );
 
         if( xErrCode != NRF_SUCCESS )
@@ -155,7 +157,7 @@ OTA_Err_t prvErasePages(size_t xFrom, size_t xTo)
         }
         else
         {
-            EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS || otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
+            EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
             if( xFlashResult & otapalFLASH_FAILURE )
             {
                 xStatus = kOTA_Err_RxFileCreateFailed;
@@ -329,9 +331,11 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
         }
     }
     /* Read the old image */
-    ImageDescriptor_t * old_descriptor = ( ImageDescriptor_t * ) ( otapalSECOND_BANK_START );
+    /* Right now we always boot from the first bank */
+    /* TODO: Support boot from the second bank */
+    ImageDescriptor_t * old_descriptor = ( ImageDescriptor_t * ) ( otapalFIRST_BANK_START );
     ImageDescriptor_t new_descriptor;
-    /* Check if the correct image is located at the beginning of the second bank */
+    /* Check if the correct image is located at the beginning of the bank */
     if (memcmp(old_descriptor->pMagick, pcOTA_PAL_Magick, otapalMAGICK_SIZE) != 0) {
         xStatus = kOTA_Err_BadImageState;
     }
@@ -363,11 +367,11 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
         /* We don't wont to do anything with flash if it would leave it in the same state as it were */
         if (new_descriptor.usImageFlags != old_descriptor->usImageFlags)
         {
-            xStatus = prvErasePages(otapalSECOND_BANK_START, otapalSECOND_BANK_START + otapalDESCRIPTOR_SIZE);
+            xStatus = prvErasePages(otapalFIRST_BANK_START, otapalFIRST_BANK_START + otapalDESCRIPTOR_SIZE);
         }
     }
     if (xStatus == kOTA_Err_None){
-        xStatus = prvWriteFlash(otapalSECOND_BANK_START, sizeof(new_descriptor), &new_descriptor);
+        xStatus = prvWriteFlash(otapalFIRST_BANK_START, sizeof(new_descriptor), &new_descriptor);
     }
     return xStatus;
 }
@@ -379,7 +383,7 @@ OTA_PAL_ImageState_t prvPAL_GetPlatformImageState( void )
 
     OTA_PAL_ImageState_t xImageState = eOTA_PAL_ImageState_Invalid;
 
-    ImageDescriptor_t * descriptor = ( ImageDescriptor_t * ) ( otapalSECOND_BANK_START );
+    ImageDescriptor_t * descriptor = ( ImageDescriptor_t * ) ( otapalFIRST_BANK_START );
 
     switch( descriptor->usImageFlags )
     {
@@ -439,13 +443,13 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
                           uint32_t ulBlockSize,
                           void * const pacData )
 {
-    xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS || otapalFLASH_FAILURE );
+    xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
     /* Softdevice can write only by 32-bit words */
     ret_code_t xErrCode = sd_flash_write( ( void * ) ulOffset, ( uint32_t const * ) pacData, ulBlockSize / 4 );
 
     if( xErrCode == NRF_SUCCESS )
     {
-        EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS || otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
+        EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
 
         if( xFlashResult & otapalFLASH_FAILURE )
         {

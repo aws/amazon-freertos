@@ -412,6 +412,7 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
                              uint32_t ulPassKey );
 void prvPairingStateChangedCb( BTStatus_t xStatus,
 							   BTBdaddr_t * pxRemoteBdAddr,
+                                                           BTBondState_t xState,
 							   BTSecurityLevel_t xSecurityLevel,
 							   BTAuthFailureReason_t xReason );
 void prvRequestExecWriteCb( uint16_t usConnId,
@@ -446,7 +447,6 @@ static BTBleAdapterCallbacks_t xBTBleAdapterCb =
 	.pxBleRemoteDevicePropertiesCb = NULL,
 	.pxOpenCb = NULL,
 	.pxCloseCb = NULL,
-	.pxSearchCompleteCb = NULL,
 	.pxReadRemoteRssiCb = NULL,
 	.pxAdvStartCb = prvAdvStartCb,
 	.pxSetAdvDataCb = prvSetAdvDataCb,
@@ -2168,9 +2168,10 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
 		xQueueSend( xCallbackQueue, ( void * ) &pxSSPrequestCallback, ( TickType_t ) 0 );
 	}
 }
-
+        
 void prvPairingStateChangedCb( BTStatus_t xStatus,
 							   BTBdaddr_t * pxRemoteBdAddr,
+                                                           BTBondState_t xState,
 							   BTSecurityLevel_t xSecurityLevel,
 							   BTAuthFailureReason_t xReason )
 {

@@ -27,9 +27,10 @@
 
 extern size_t __reserved_flash_end__, __FLASH_segment_end__;
 
-extern const size_t otapalFLASH_START;
+
 extern const size_t otapalFLASH_END;
 
+#define otapalFLASH_START           (SD_SIZE_GET( MBR_SIZE ))
 #define otapalTOPRESERVED           32 * 1024                                                  /* Reserved for bootloader MBR data and user data on top of the flash */
 #define otapalFIRST_BANK_START      ( size_t ) ( otapalFLASH_START )                           /* First bank start address */
 #define otapalSECOND_BANK_END       ( ( size_t ) otapalFLASH_END - otapalTOPRESERVED )         /* Second bank end address */

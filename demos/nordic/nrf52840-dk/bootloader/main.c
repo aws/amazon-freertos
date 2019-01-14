@@ -41,10 +41,10 @@
 
 /** @file
  *
- * @defgroup bootloader_ble main.c
+ * @defgroup bootloader_secure_ble main.c
  * @{
  * @ingroup dfu_bootloader_api
- * @brief Bootloader project main file for DFU.
+ * @brief Bootloader project main file for secure DFU.
  *
  */
 
@@ -63,8 +63,7 @@
 #include <stdint.h>
 
 #define IRQ_ENABLED              0x01 /**< Field identifying if an interrupt is enabled. */
-#define MAX_NUMBER_INTERRUPTS    32   /**< Maximum number of interrupts available. \
-                                       */
+#define MAX_NUMBER_INTERRUPTS    32   /**< Maximum number of interrupts available. */
 
 ret_code_t nrf_bootloader_flash_protect( uint32_t address,
                                          uint32_t size,
@@ -152,7 +151,7 @@ ret_code_t bValidateHeader( uint8_t * address )
 }
 
 /** Boots firmware at specific address */
-void vBoot( uint8_t * address )
+void vBoot( uint32_t address )
 {
     volatile uint32_t xErrCode = 0;
 
@@ -171,13 +170,13 @@ void vBoot( uint8_t * address )
     xErrCode = sd_softdevice_vector_table_base_set( BOOTLOADER_REGION_START );
     APP_ERROR_CHECK( xErrCode );
 
-    xErrCode = sd_softdevice_vector_table_base_set( ( uint32_t ) address );
+    xErrCode = sd_softdevice_vector_table_base_set( address );
 
     /* Either there was no DFU functionality enabled in this project or the DFU */
     /* module detected no ongoing DFU operation and found a valid main */
     /* application. Boot the main application. */
     /* nrf_bootloader_app_start(); */
-    StartApplication( ( uint32_t ) address );
+    StartApplication( address );
 }
 
 /** Erases memory region
@@ -196,14 +195,21 @@ void vEraseRegion( uint8_t * address,
 }
 
 /** Writes the image flag for the second bank */
-void vSetSecondBankFlag( ImageFlags_t xFlag )
+void vSetBankFlag( uint8_t usBank, ImageFlags_t xFlag )
 {
     ImageDescriptor_t new_desciptor;
-
-    memcpy( &new_desciptor, BANK2_DESCRIPTOR, sizeof( new_desciptor ) );
+    size_t ulCodeRegion = CODE_REGION_1_START;
+    ImageDescriptor_t * pxDescriptor = BANK1_DESCRIPTOR;
+    if (usBank == 1) 
+    {
+        ulCodeRegion = CODE_REGION_2_START;
+        pxDescriptor = BANK2_DESCRIPTOR;
+    }
+    
+    memcpy( &new_desciptor, pxDescriptor, sizeof( new_desciptor ) );
     new_desciptor.usImageFlags = xFlag;
-    vEraseRegion( ( uint8_t * ) CODE_REGION_2_START, DESCRIPTOR_SIZE );
-    nrf_nvmc_write_bytes( CODE_REGION_2_START, ( uint8_t * ) &new_desciptor,
+    vEraseRegion( ( uint8_t * ) ulCodeRegion, DESCRIPTOR_SIZE );
+    nrf_nvmc_write_bytes( ulCodeRegion, ( uint8_t * ) &new_desciptor,
                           sizeof( new_desciptor ) );
 }
 
@@ -240,21 +246,31 @@ void vCommitSecondBank()
                           BANK2_DESCRIPTOR->ulStartAddress );
 }
 
+
+#ifdef  __GNUC__ 
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+#endif
+int vBlinkLeds (){
+    nrf_gpio_cfg_output(LED_1);
+    nrf_gpio_cfg_output(LED_2);
+    nrf_gpio_pin_clear(LED_2);
+    nrf_delay_ms(100);
+    for (int i = 0; i < 6; i++) {
+        nrf_gpio_pin_toggle(LED_1);
+        nrf_delay_ms(100);
+    }
+    return 0;
+}
+#ifdef  __GNUC__ 
+#pragma GCC pop_options
+#endif
+
 /**@brief Function for application main entry. */
 int main( void )
 {
     volatile uint32_t xErrCode = 0;
-
-    /* Protect MBR and bootloader code from being overwritten. */
-    xErrCode = nrf_bootloader_flash_protect( 0, MBR_SIZE, false );
-    APP_ERROR_CHECK( xErrCode );
-    xErrCode = nrf_bootloader_flash_protect( BOOTLOADER_START_ADDR,
-                                             BOOTLOADER_SIZE, false );
-    APP_ERROR_CHECK( xErrCode );
-
-    /*    uint32_t err_code = sd_softdevice_disable(); */
-    /*    APP_ERROR_CHECK(err_code); */
-
+    vBlinkLeds();
     bool bBank1AFRHeader =
         ( bValidateHeader( ( uint8_t * ) CODE_REGION_1_START ) == NRF_SUCCESS );
 
@@ -273,7 +289,7 @@ int main( void )
         else
         {
             xErrCode = xVerifyImageSignature( ( uint8_t * ) CODE_REGION_2_START );
-
+            
             if( xErrCode != NRF_SUCCESS ) /* The firmware in the second bank has an
                                            * incorrect signature, erase its header */
             {
@@ -281,21 +297,38 @@ int main( void )
             }
             else
             {
+            /* We cannot boot from the second bank for now so we have to commit the image here. 
+            The bootloader can support booting from any position, but the firmware must be made relocatable
+            Unfortunately, it leaves out the case when developer distributed a bad firmware. 
+            
+            So, ideally, we need to get relocatable firmwares to work */
+
                 switch( BANK2_DESCRIPTOR->usImageFlags )
                 {
                     case IMAGE_FLAG_NEW:
-                        vSetSecondBankFlag( IMAGE_FLAG_COMMIT_PENDING );
-                        vBoot( ( uint8_t * ) BANK2_DESCRIPTOR->ulExecutionAddress );
+                        vCommitSecondBank();
+                        xErrCode = xVerifyImageSignature( ( uint8_t * ) CODE_REGION_1_START );
+                        vSetBankFlag(0, IMAGE_FLAG_COMMIT_PENDING );
+                        if( xErrCode == NRF_SUCCESS )
+                        {
+                            vEraseSecondBank();
+                            vBoot( BANK1_DESCRIPTOR->ulExecutionAddress );
+                        }
+                        else /* Something went wrong, try again */
+                        {
+                            NVIC_SystemReset();
+                        }
                         break;
 
                     case IMAGE_FLAG_VALID:
+                        /* It should be the case in the current setup but we will leave for the future support */
                         vCommitSecondBank();
                         xErrCode = xVerifyImageSignature( ( uint8_t * ) CODE_REGION_1_START );
 
                         if( xErrCode == NRF_SUCCESS )
                         {
                             vEraseSecondBank();
-                            vBoot( ( uint8_t * ) BANK1_DESCRIPTOR->ulExecutionAddress );
+                            vBoot( BANK1_DESCRIPTOR->ulExecutionAddress );
                         }
                         else /* Something went wrong, try again */
                         {
@@ -309,7 +342,7 @@ int main( void )
                         break;
 
                     case IMAGE_FLAG_COMMIT_PENDING:
-
+    
                         /* We should never get here, so something went wrong. Off with the
                          * header! */
                         vEraseSecondBank();
@@ -326,23 +359,53 @@ int main( void )
 
     if( xErrCode == NRF_SUCCESS ) /* We have a firmware in the second bank */
     {
-        xErrCode = xVerifyImageSignature( ( uint8_t * ) CODE_REGION_1_START );
-
-        if( xErrCode != NRF_SUCCESS ) /* The first image is corrupted we have no
-                                       * choice but reboot */
+        xErrCode = 0; xVerifyImageSignature( ( uint8_t * ) CODE_REGION_1_START );
+        /* A whole lot of strange things could prevent setting flag to valid, 
+        so we threat CommitPending as a valid state; Anyway, we have already moved the second bank to the first,
+        so we have no choice than to boot 
+        TODO: Consider the commit pending state a failure for the first bank when we implement the relocatable firmwares 
+        */
+        if( xErrCode != NRF_SUCCESS || (BANK1_DESCRIPTOR->usImageFlags != IMAGE_FLAG_VALID &&
+        BANK1_DESCRIPTOR->usImageFlags != IMAGE_FLAG_COMMIT_PENDING )) 
+        /* The first image is corrupted we have no choice but reboot */
         {
             NVIC_SystemReset();
         }
         else
         {
-            vBoot( ( uint8_t * ) BANK1_DESCRIPTOR->ulExecutionAddress );
+            vBoot( BANK1_DESCRIPTOR->ulExecutionAddress );
         }
     }
     else
     {
+        size_t ulAddress = CODE_REGION_1_START;
         /* We are at the last resort, i.e. we have a classic Nordic firmware, so we
-         * just boot it */
-        vBoot( ( uint8_t * ) CODE_REGION_1_START );
+         * just boot it.
+           Here we have two main cases: 
+            1) The firmware to be loaded is just a nordic firmware which doesn't know anything about AFR OTA
+                Then this image is located at the end of the softdevice and we check the IVT for the correct
+                stack address (STACK_BEGIN).
+            2) The firmware is AFR OTA aware, so at the end of the SD image descritor is located, and the actual 
+            firmware is shifted by its size. This can happen during the debug when the linker script uses address 
+            with offset, but the descriptor is not filled yet */
+
+        if (*(size_t *)(CODE_REGION_1_START + DESCRIPTOR_SIZE) == STACK_BEGIN)
+        {
+            /* The second case */
+            ulAddress = CODE_REGION_1_START + DESCRIPTOR_SIZE;
+        }
+        else
+        {   /* The first case */
+            if (*(size_t *) (CODE_REGION_1_START) == STACK_BEGIN)
+            {
+                ulAddress = CODE_REGION_1_START;
+            }
+            else
+            {
+                NVIC_SystemReset();     
+            }
+        }
+        vBoot( ulAddress );
     }
 }
 

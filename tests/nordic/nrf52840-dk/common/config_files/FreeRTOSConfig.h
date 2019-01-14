@@ -137,6 +137,7 @@ standard names - or at least those used in the unmodified vector table. */
 #define INCLUDE_eTaskGetState                                                     1
 #define INCLUDE_xEventGroupSetBitFromISR                                          1
 #define INCLUDE_xTimerPendFunctionCall                                            1
+#define INCLUDE_xSemaphoreGetMutexHolder                                          1
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"
 function. */
