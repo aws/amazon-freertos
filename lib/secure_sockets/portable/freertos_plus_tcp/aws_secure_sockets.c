@@ -29,7 +29,7 @@
 #include "list.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
-#include "aws_secure_sockets.h"
+#include "aws_secure_sockets_internal.h"
 #include "aws_tls.h"
 #include "task.h"
 #include "aws_pkcs11.h"
@@ -85,7 +85,7 @@ static BaseType_t prvNetworkRecv( void * pvContext,
  * Interface routines.
  */
 
-int32_t SOCKETS_Close( Socket_t xSocket )
+int32_t SocketsInternal_Close( Socket_t xSocket )
 {
     SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket; /*lint !e9087 cast used for portability. */
     uint32_t ulProtocol;
@@ -143,7 +143,7 @@ int32_t SOCKETS_Close( Socket_t xSocket )
 }
 /*-----------------------------------------------------------*/
 
-int32_t SOCKETS_Connect( Socket_t xSocket,
+int32_t SocketsInternal_Connect( Socket_t xSocket,
                          SocketsSockaddr_t * pxAddress,
                          Socklen_t xAddressLength )
 {
@@ -199,13 +199,13 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
 }
 /*-----------------------------------------------------------*/
 
-uint32_t SOCKETS_GetHostByName( const char * pcHostName )
+uint32_t SocketsInternal_GetHostByName( const char * pcHostName )
 {
     return FreeRTOS_gethostbyname( pcHostName );
 }
 /*-----------------------------------------------------------*/
 
-int32_t SOCKETS_Recv( Socket_t xSocket,
+int32_t SocketsInternal_Recv( Socket_t xSocket,
                       void * pvBuffer,
                       size_t xBufferLength,
                       uint32_t ulFlags )
@@ -238,7 +238,7 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
 }
 /*-----------------------------------------------------------*/
 
-int32_t SOCKETS_Send( Socket_t xSocket,
+int32_t SocketsInternal_Send( Socket_t xSocket,
                       const void * pvBuffer,
                       size_t xDataLength,
                       uint32_t ulFlags )
@@ -271,7 +271,7 @@ int32_t SOCKETS_Send( Socket_t xSocket,
 }
 /*-----------------------------------------------------------*/
 
-int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
+int32_t SocketsInternal_SetSockOpt( Socket_t xSocket,
                             int32_t lLevel,
                             int32_t lOptionName,
                             const void * pvOptionValue,
@@ -461,7 +461,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 }
 /*-----------------------------------------------------------*/
 
-int32_t SOCKETS_Shutdown( Socket_t xSocket,
+int32_t SocketsInternal_Shutdown( Socket_t xSocket,
                           uint32_t ulHow )
 {
     int32_t lReturn;
@@ -480,7 +480,7 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 }
 /*-----------------------------------------------------------*/
 
-Socket_t SOCKETS_Socket( int32_t lDomain,
+Socket_t SocketsInternal_Socket( int32_t lDomain,
                          int32_t lType,
                          int32_t lProtocol )
 {
@@ -519,7 +519,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t SOCKETS_Init( void )
+BaseType_t SocketsInternal_Init( void )
 {
     /* Empty initialization for this port. */
     return pdPASS;
