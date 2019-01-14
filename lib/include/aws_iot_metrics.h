@@ -27,6 +27,10 @@
 
 #define IOT_METRICS_TCP_CONNECTION_OFFSET    AwsIotLink_Offset( IotMetricsTcpConnection_t, link )
 
+#ifndef IOT_METRICS_ENABLED
+    #define IOT_METRICS_ENABLED              ( 1 )
+#endif
+
 /**
  * Data handle of TCP connection
  */

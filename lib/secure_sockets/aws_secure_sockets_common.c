@@ -47,16 +47,18 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
 {
     int32_t result = SocketsInternal_Connect( xSocket, pxAddress, xAddressLength );
 
-    if( result == SOCKETS_ERROR_NONE )
-    {
-        IotMetricsTcpConnection_t connection;
-        /* Cast the Socket_t to void pointer as handle. */
-        connection.pHandle = ( void * ) xSocket;
-        connection.remotePort = SOCKETS_ntohs(pxAddress->usPort);
-        connection.remoteIP = pxAddress->ulAddress;
+    #if IOT_METRICS_ENABLED == 1
+        if( result == SOCKETS_ERROR_NONE )
+        {
+            IotMetricsTcpConnection_t connection;
+            /* Cast the Socket_t to void pointer as handle. */
+            connection.pHandle = ( void * ) xSocket;
+            connection.remotePort = SOCKETS_ntohs( pxAddress->usPort );
+            connection.remoteIP = pxAddress->ulAddress;
 
-        IotMetrics_AddTcpConnection( &connection );
-    }
+            IotMetrics_AddTcpConnection( &connection );
+        }
+    #endif /* if IOT_METRICS_ENABLED == 1 */
 
     return result;
 }
@@ -101,10 +103,12 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 {
     int32_t result = SocketsInternal_Shutdown( xSocket, ulHow );
 
-    if( result == SOCKETS_ERROR_NONE )
-    {
-        IotMetrics_RemoveTcpConnection( (void *)xSocket );
-    }
+    #if IOT_METRICS_ENABLED == 1
+        if( result == SOCKETS_ERROR_NONE )
+        {
+            IotMetrics_RemoveTcpConnection( ( void * ) xSocket );
+        }
+    #endif
 
     return result;
 }
@@ -121,7 +125,12 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
 BaseType_t SOCKETS_Init( void )
 {
-    IotMetrics_Init();
+    #if IOT_METRICS_ENABLED == 1
+        if( IotMetrics_Init() == pdFAIL )
+        {
+            return;
+        }
+    #endif
 
     return SocketsInternal_Init();
 }
