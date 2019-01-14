@@ -152,7 +152,10 @@ bool AwsIotDefenderInternal_SetMqttCallback( AwsIotDefenderEventType_t * pEventT
     }
     else
     {
-        *pEventType = AWS_IOT_DEFENDER_NETWORK_SET_CALLBACK_FAILED;
+        if (pEventType != NULL)
+        {
+            *pEventType = AWS_IOT_DEFENDER_NETWORK_SET_CALLBACK_FAILED;
+        }
     }
 
     return setCallbackSuccessful;
@@ -272,6 +275,11 @@ bool AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
 void AwsIotDefenderInternal_MqttDisconnect()
 {
     AwsIotMqtt_Disconnect( _mqttConnection, false );
+}
+
+void AwsIotDefenderInternal_NetworkClose()
+{
+    AwsIotNetwork_CloseConnection( _networkConnection );
 }
 
 /*-----------------------------------------------------------*/

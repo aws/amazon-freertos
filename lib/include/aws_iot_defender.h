@@ -89,15 +89,14 @@
 #define AWS_IOT_DEFENDER_METRICS_ALL                                        0xffffffff /**< Flag to indicate including all metrics. */
 
 #define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL          0x00000001 /**< Total count of established TCP connections. */
-#define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_LOCAL_PORT     0x00000002 /**< Local port number of established TCP connections. */
 #define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR    0x00000004 /**< Remote address (IP:port) of established TCP connections. For example, 192.168.0.1:8000. */
 
 /**
- * Connections metrics including local port number and remote address.
+ * Connections metrics including only remote address. Local port number is not supported.
+ * 
  */
 #define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_CONNECTIONS                                                                   \
-    ( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_LOCAL_PORT | AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR ) \
-
+    ( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR ) \
 
 /**
  * Established connections metrics including connections metrics and total count.
@@ -105,13 +104,6 @@
 #define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED                                                                          \
     ( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_CONNECTIONS | AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL ) \
 
-#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_TOTAL    0x00000001 /**< Total count of listening TCP ports. */
-#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORT     0x00000002 /**< Port number of listening TCP ports. */
-
-/**
- * Ports metrics including port number.
- */
-#define AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORTS    ( AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORT )
 /**@} end of MetricsFlags */
 
 /**
@@ -145,7 +137,6 @@
 typedef enum
 {
     AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS, /**< TCP connection metrics group. */
-    AWS_IOT_DEFENDER_METRICS_LISTENING_TCP,   /**< Listening TCP ports metrics group. */
 } AwsIotDefenderMetricsGroup_t;
 
 /**
@@ -256,7 +247,6 @@ typedef struct AwsIotDefenderStartInfo
  * * On success, #AWS_IOT_DEFENDER_SUCCESS is returned.
  * * If metricsGroup is invalid, #AWS_IOT_DEFENDER_INVALID_INPUT is returned.
  * @note This function is thread safe.
- * @note @ref Defender_function_Stop "AwsIotDefender_Stop" will not clean the metrics to be collected.
  */
 /* @[declare_defender_setmetrics] */
 AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t metricsGroup,
@@ -321,14 +311,7 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
  *     // specify two TCP connections metrics: total count and local port
  *     AwsIotDefenderError_t error = AwsIotDefender_SetMetrics(AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS,
  *                                                             AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL |
- *                                                             AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_LOCAL_PORT );
- *
- *     // specify all metrics of listening tcp ports
- *     if (error == AWS_IOT_DEFENDER_SUCCESS)
- *     {
- *         error = AwsIotDefender_SetMetrics(AWS_IOT_DEFENDER_METRICS_LISTENING_TCP,
- *                                           AWS_IOT_DEFENDER_METRICS_ALL);
- *     }
+ *                                                             AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR );
  *
  *     if (error == AWS_IOT_DEFENDER_SUCCESS)
  *     {
@@ -371,7 +354,6 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
  * * If defender is not started yet, AWS_IOT_DEFENDER_NOT_STARTED is returned.
  *
  * @warning This function must be called after successfully calling @ref Defender_function_Start "AwsIotDefender_Start".
- * @warning The period and metrics set previously are unchanged.
  * @warning This function is not thread safe.
  */
 /* @[declare_defender_stop] */

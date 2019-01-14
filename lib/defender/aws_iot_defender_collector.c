@@ -22,13 +22,14 @@
 /* Defender internal include. */
 #include "private/aws_iot_defender_internal.h"
 
+#include "aws_iot_metrics.h"
+
 #include "platform/aws_iot_clock.h"
 
 #define  _HEADER_TAG      AwsIotDefenderInternal_SelectTag( "header", "hed" )
 #define  _REPORTID_TAG    AwsIotDefenderInternal_SelectTag( "report_id", "rid" )
 #define  _VERSION_TAG     AwsIotDefenderInternal_SelectTag( "version", "v" )
-/* This version is used by defender service to indicate the schema change of report, e.g. adding new field. */
-#define  _VERSION_1_0     "1.0"
+#define  _VERSION_1_0     "1.0" /* Used by defender service to indicate the schema change of report, e.g. adding new field. */
 #define  _METRICS_TAG     AwsIotDefenderInternal_SelectTag( "metrics", "met" )
 
 /**
@@ -122,6 +123,18 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
 
     bool ignoreTooSmallBuffer = pDataBuffer == NULL;
 
+    /* Create callback info of TCP connections. */
+    _defenderMetricsCallbackInfo_t callbackInfo;
+
+    callbackInfo.ignoreTooSmallBuffer = ignoreTooSmallBuffer;
+    callbackInfo.pEncoderObject = &metricsMap;
+
+    /* Create callback of TCP connections. */
+    IotMetricsListCallback_t tcpConnectionscallback;
+
+    tcpConnectionscallback.function = AwsIotDefenderInternal_TcpConnectionsCallback;
+    tcpConnectionscallback.param1 = ( _defenderMetricsCallbackInfo_t * ) &callbackInfo;
+
     serializerError = _AwsIotDefenderEncoder.init( pEncoderObject, pDataBuffer, dataSize );
 
     if( _defenderSerializeSuccess( serializerError, ignoreTooSmallBuffer ) )
@@ -181,11 +194,7 @@ static bool _serialize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                 switch( i )
                 {
                     case AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS:
-                        serializerError = AwsIotDefenderInternal_GetMetricsTcpConnections( &metricsMap, ignoreTooSmallBuffer );
-                        break;
-
-                    case AWS_IOT_DEFENDER_METRICS_LISTENING_TCP:
-                        serializerError = AwsIotDefenderInternal_GetMetricsListeningTcpPorts( &metricsMap, ignoreTooSmallBuffer );
+                        serializerError = ( AwsIotSerializerError_t ) IotMetrics_ProcessTcpConnections( tcpConnectionscallback );
                         break;
 
                     default:

@@ -114,14 +114,15 @@ static AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIA
 AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t metricsGroup,
                                                  uint32_t metrics )
 {
-    AwsIotDefenderError_t error = AWS_IOT_DEFENDER_SUCCESS;
-
     if( metricsGroup >= _DEFENDER_METRICS_GROUP_COUNT )
     {
-        error = AWS_IOT_DEFENDER_INVALID_INPUT;
         AwsIotLogError( "Input metrics group is invalid. Please use AwsIotDefenderMetricsGroup_t data type." );
+
+        return AWS_IOT_DEFENDER_INVALID_INPUT;
     }
-    else
+
+    /* If started, it needs to lock the metrics to protect concurrent read from metrics timer callback. */
+    if( _started )
     {
         AwsIotMutex_Lock( &_AwsIotDefenderMetrics.mutex );
 
@@ -129,8 +130,12 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
 
         AwsIotMutex_Unlock( &_AwsIotDefenderMetrics.mutex );
     }
+    else
+    {
+        _AwsIotDefenderMetrics.metricsFlag[ metricsGroup ] = metrics;
+    }
 
-    return error;
+    return AWS_IOT_DEFENDER_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -159,10 +164,15 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         networkConnectSuccess = AwsIotDefenderInternal_NetworkConnect( pStartInfo->pAwsIotEndpoint,
                                                                        pStartInfo->port,
                                                                        &pStartInfo->tlsInfo,
-                                                                       NULL );
+        /* TODO: this is a hack, set MQTT callback is needed to close network properly. */                                                              NULL );
+        AwsIotDefenderInternal_SetMqttCallback( NULL );
 
         if( networkConnectSuccess )
         {
+            /* Clean the network connection. */
+            AwsIotDefenderInternal_NetworkClose();
+            AwsIotDefenderInternal_NetworkDestroy();
+
             /* copy input start info into global variable _startInfo */
             _startInfo = *pStartInfo;
 
@@ -202,7 +212,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         {
             /* in test mode, the timer is kicked off almost immediately. */
             publishTimerArmSuccess = AwsIotClock_TimerArm( &_metricsPublishTimer,
-                                                           _DEFENDER_TEST_MODE ? _DEFENDER_SHORT_RELATIVE_MILLISECONDS : _periodMilliSecond,
+                                                           _DEFENDER_SHORT_RELATIVE_MILLISECONDS,
                                                            _periodMilliSecond );
         }
 
@@ -221,7 +231,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
             /* reset _startInfo to empty; otherwise next time defender might start with incorrect information. */
             _startInfo = ( AwsIotDefenderStartInfo_t ) AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
-            if (networkConnectSuccess)
+            if( networkConnectSuccess )
             {
                 AwsIotDefenderInternal_NetworkDestroy();
             }
@@ -277,6 +287,18 @@ AwsIotDefenderError_t AwsIotDefender_Stop( void )
     /* Reset _startInfo to empty; otherwise next time defender might start with incorrect information. */
     _startInfo = ( AwsIotDefenderStartInfo_t ) AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
+    /* Reset _periodMilliSecond to default value. */
+    _periodMilliSecond = _defenderToMilliseconds(AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS);
+
+    /* Reset metrics flag array to 0. */
+    for (uint8_t i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++)
+    {
+        _AwsIotDefenderMetrics.metricsFlag[i] = 0;
+    }
+    
+    /* Destroy metrics' mutex. */
+    AwsIotMutex_Destroy(&_AwsIotDefenderMetrics.mutex);
+
     /* Destroying will cancel timers that are active but not in process. */
     AwsIotClock_TimerDestroy( &_metricsPublishTimer );
     AwsIotClock_TimerDestroy( &_guardTimer );
@@ -291,7 +313,7 @@ AwsIotDefenderError_t AwsIotDefender_Stop( void )
     /* Metrics timer callback should be waiting for _timerSem till now. */
     AwsIotSemaphore_Destroy( &_timerSem );
 
-    AwsIotMutex_Destroy( &_AwsIotDefenderMetrics.mutex );
+   
 
     _started = false;
 
@@ -464,6 +486,8 @@ static void _guardTimerExpirationRoutine( void * pArgument )
 void _acceptCallback( void * pArgument,
                       AwsIotMqttCallbackParam_t * const pPublish )
 {
+    (void)pArgument;
+    
     AwsIotLogInfo( "Metrics report was accepted by defender service." );
 
     AwsIotDefenderCallbackInfo_t callbackInfo;

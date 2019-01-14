@@ -22,11 +22,11 @@
 /* Defender internal include. */
 #include "private/aws_iot_defender_internal.h"
 
-/* Specific metrics include. */
-#include "aws_iot_defender_metrics_socket.h"
-
 /* Secure sockets include. */
 #include "aws_secure_sockets.h"
+
+/* Metrics include. */
+#include "aws_iot_metrics.h"
 
 /* 15 for IP + 1 for ":" + 5 for port + 1 terminator
  * For example: "192.168.0.1:8000\0"
@@ -37,18 +37,19 @@
 #define _EST_CONN_TAG          AwsIotDefenderInternal_SelectTag( "established_connections", "ec" )
 #define _TOTAL_TAG             AwsIotDefenderInternal_SelectTag( "total", "t" )
 #define _CONN_TAG              AwsIotDefenderInternal_SelectTag( "connections", "cs" )
-#define _LOCAL_PORT_TAG        AwsIotDefenderInternal_SelectTag( "local_port", "lp" )
 #define _REMOTE_ADDR_TAG       AwsIotDefenderInternal_SelectTag( "remote_addr", "rad" )
 
-#define _LIS_TCP_PORTS_TAG     AwsIotDefenderInternal_SelectTag( "listening_tcp_ports", "tp" )
-#define _PORTS_TAG             AwsIotDefenderInternal_SelectTag( "ports", "pts" )
-#define _PORT_TAG              AwsIotDefenderInternal_SelectTag( "port", "pt" )
 
 /*-----------------------------------------------------------*/
 
-AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                                         bool ignoreTooSmallBuffer )
+void * AwsIotDefenderInternal_TcpConnectionsCallback( void * param1,
+                                                      AwsIotList_t * pTcpConnectionsMetricsList )
 {
+    _defenderMetricsCallbackInfo_t * pCallbackInfo = ( _defenderMetricsCallbackInfo_t * ) param1;
+
+    AwsIotSerializerEncoderObject_t * pEncoderObject = pCallbackInfo->pEncoderObject;
+    bool ignoreTooSmallBuffer = pCallbackInfo->ignoreTooSmallBuffer;
+
     AwsIotSerializerError_t error;
 
     AwsIotSerializerEncoderObject_t tcpConnectionMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
@@ -60,12 +61,7 @@ AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotS
     uint8_t hasEstablishedConnections = ( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED ) > 0;
     uint8_t hasConnections = ( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_CONNECTIONS ) > 0;
     uint8_t hasTotal = ( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL ) > 0;
-    uint8_t hasLocalPort = ( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_LOCAL_PORT ) > 0;
     uint8_t hasRemoteAddr = ( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR ) > 0;
-
-    uint8_t total = AwsIotDefenderInternal_GetEstablishedConnectionsCount();
-
-    _defenderMetricsConnection_t * pConnections = NULL;
 
     char remoteAddr[ _REMOTE_ADDR_LENGTH ] = "";
     char * pRemoteAddr = remoteAddr;
@@ -85,67 +81,56 @@ AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotS
                                                              &establishedMap,
                                                              hasConnections + hasTotal );
 
+        uint8_t total = 0;
+        AwsIotLink_t * pConnectionLink = pTcpConnectionsMetricsList->pHead;
+
+        /* Count total connections. */
+        for( ; pConnectionLink != NULL; pConnectionLink = pConnectionLink->pNext )
+        {
+            total++;
+        }
+
         /* if user specify any metrics under "connections" and there are at least one connection */
         if( hasConnections && ( total > 0 ) && _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
         {
-            pConnections = pvPortMalloc( total * sizeof( _defenderMetricsConnection_t ) );
+            /* create array "connections" under "established_connections" */
+            error = _AwsIotDefenderEncoder.openContainerWithKey( &establishedMap,
+                                                                 _CONN_TAG,
+                                                                 &connectionsArray,
+                                                                 total );
 
-            /* allocated memory for connections metrics */
-            if( pConnections != NULL )
+            if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
             {
-                AwsIotDefenderInternal_GetEstablishedConnections( pConnections, total );
-
-                /* create array "connections" under "established_connections" */
-                error = _AwsIotDefenderEncoder.openContainerWithKey( &establishedMap,
-                                                                     _CONN_TAG,
-                                                                     &connectionsArray,
-                                                                     total );
-
-                if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
+                for( pConnectionLink = pTcpConnectionsMetricsList->pHead; pConnectionLink != NULL; pConnectionLink = pConnectionLink->pNext )
                 {
-                    for( uint8_t i = 0; i < total; i++ )
+                    IotMetricsTcpConnection_t * pConnection = AwsIotLink_Container( pConnectionLink, AwsIotLink_Offset( IotMetricsTcpConnection_t, link ) );
+                    AwsIotSerializerEncoderObject_t connectionMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+
+                    /* open a map under "connections" */
+                    error = _AwsIotDefenderEncoder.openContainer( &connectionsArray,
+                                                                  &connectionMap,
+                                                                  hasRemoteAddr );
+
+                    /* add remote address */
+                    if( hasRemoteAddr && _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
                     {
-                        AwsIotSerializerEncoderObject_t connectionMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+                        SOCKETS_inet_ntoa( pConnection->remoteIP, remoteAddr );
+                        sprintf( remoteAddr, "%s:%d", remoteAddr, pConnection->remotePort );
 
-                        /* open a map under "connections" */
-                        error = _AwsIotDefenderEncoder.openContainer( &connectionsArray,
-                                                                      &connectionMap,
-                                                                      hasLocalPort + hasRemoteAddr );
+                        error = _AwsIotDefenderEncoder.appendKeyValue( &connectionMap, _REMOTE_ADDR_TAG,
+                                                                       AwsIotSerializer_ScalarTextString( pRemoteAddr ) );
+                    }
 
-                        /* add local port */
-                        if( hasLocalPort && _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-                        {
-                            error = _AwsIotDefenderEncoder.appendKeyValue( &connectionMap, _LOCAL_PORT_TAG,
-                                                                           AwsIotSerializer_ScalarSignedInt( pConnections[ i ].localPort ) );
-                        }
-
-                        /* add remote address */
-                        if( hasRemoteAddr && _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-                        {
-                            SOCKETS_inet_ntoa( pConnections[ i ].remoteIP, remoteAddr );
-                            sprintf( remoteAddr, "%s:%d", remoteAddr, pConnections[ i ].remotePort );
-
-                            error = _AwsIotDefenderEncoder.appendKeyValue( &connectionMap, _REMOTE_ADDR_TAG,
-                                                                           AwsIotSerializer_ScalarTextString( pRemoteAddr ) );
-                        }
-
-                        if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-                        {
-                            error = _AwsIotDefenderEncoder.closeContainer( &connectionsArray, &connectionMap );
-                        }
+                    if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
+                    {
+                        error = _AwsIotDefenderEncoder.closeContainer( &connectionsArray, &connectionMap );
                     }
                 }
-
-                if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-                {
-                    error = _AwsIotDefenderEncoder.closeContainer( &establishedMap, &connectionsArray );
-                }
-
-                vPortFree( pConnections );
             }
-            else
+
+            if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
             {
-                error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+                error = _AwsIotDefenderEncoder.closeContainer( &establishedMap, &connectionsArray );
             }
         }
 
@@ -167,95 +152,7 @@ AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotS
         error = _AwsIotDefenderEncoder.closeContainer( pEncoderObject, &tcpConnectionMap );
     }
 
-    return error;
+    /* Cast AwsIotSerializerError_t to void pointer explicitly. */
+    return ( void * ) error;
 }
 
-/*-----------------------------------------------------------*/
-
-AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                                            bool ignoreTooSmallBuffer )
-{
-    AwsIotSerializerError_t error;
-
-    AwsIotSerializerEncoderObject_t lisTcpPortsMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t portsArray = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
-
-    uint32_t lisTcpPortsFlag = _AwsIotDefenderMetrics.metricsFlag[ AWS_IOT_DEFENDER_METRICS_LISTENING_TCP ];
-
-    uint8_t hasPorts = ( lisTcpPortsFlag & AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORTS ) > 0;
-    uint8_t hasPortNumber = ( lisTcpPortsFlag & AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_PORT ) > 0;
-    uint8_t hasTotal = ( lisTcpPortsFlag & AWS_IOT_DEFENDER_METRICS_LISTENING_TCP_TOTAL ) > 0;
-
-    uint8_t total = AwsIotDefenderInternal_GetListeningTcpPortsCount();
-
-    _defenderMetricsPort_t * pPorts = NULL;
-
-    /* create "listening_udp_ports" map. */
-    error = _AwsIotDefenderEncoder.openContainerWithKey( pEncoderObject,
-                                                         _LIS_TCP_PORTS_TAG,
-                                                         &lisTcpPortsMap,
-                                                         hasPorts + hasTotal );
-
-    /* if user specify any metrics under "established_connections" */
-    if( hasPorts && ( total > 0 ) && _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-    {
-        pPorts = pvPortMalloc( total * sizeof( _defenderMetricsPort_t ) );
-
-        if( pPorts != NULL )
-        {
-            AwsIotDefenderInternal_GetListeningTcpPorts( pPorts, total );
-
-            /* create array "ports" under "listening_tcp_ports". */
-            error = _AwsIotDefenderEncoder.openContainerWithKey( &lisTcpPortsMap,
-                                                                 _PORTS_TAG,
-                                                                 &portsArray,
-                                                                 total );
-
-            if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-            {
-                for( uint8_t i = 0; i < total; i++ )
-                {
-                    AwsIotSerializerEncoderObject_t portMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-
-                    /* open a map under "ports" */
-                    error = _AwsIotDefenderEncoder.openContainer( &portsArray,
-                                                                  &portMap,
-                                                                  1 );
-
-                    if( hasPortNumber && _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-                    {
-                        error = _AwsIotDefenderEncoder.appendKeyValue( &portMap, _PORT_TAG,
-                                                                       AwsIotSerializer_ScalarSignedInt( pPorts[ i ].port ) );
-                    }
-
-                    if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-                    {
-                        error = _AwsIotDefenderEncoder.closeContainer( &portsArray, &portMap );
-                    }
-                }
-            }
-
-            if( _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-            {
-                error = _AwsIotDefenderEncoder.closeContainer( &lisTcpPortsMap, &portsArray );
-            }
-
-            vPortFree( pPorts );
-        }
-        else
-        {
-            error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
-        }
-
-        if( hasTotal && _defenderSerializeSuccess( error, ignoreTooSmallBuffer ) )
-        {
-            error = _AwsIotDefenderEncoder.appendKeyValue( &lisTcpPortsMap,
-                                                           _TOTAL_TAG,
-                                                           AwsIotSerializer_ScalarSignedInt( total ) );
-        }
-
-        error = _AwsIotDefenderEncoder.closeContainer( pEncoderObject, &lisTcpPortsMap );
-    }
-
-    return error;
-}

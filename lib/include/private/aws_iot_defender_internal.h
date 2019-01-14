@@ -41,6 +41,8 @@
 /* Platform thread include. */
 #include "platform/aws_iot_threads.h"
 
+#include "aws_iot_queue.h"
+
 /* Configure logs for Defender functions. */
 #ifdef AWS_IOT_LOG_LEVEL_DEFENDER
     #define _LIBRARY_LOG_LEVEL        AWS_IOT_LOG_LEVEL_DEFENDER
@@ -129,7 +131,7 @@
 /*----------------- Below this line is INTERNAL used only --------------------*/
 
 /* This MUST be consistent with enum AwsIotDefenderMetricsGroup_t. */
-#define _DEFENDER_METRICS_GROUP_COUNT    2
+#define _DEFENDER_METRICS_GROUP_COUNT    1
 
 /**
  * Define encoder/decoder based on configuration AWS_IOT_DEFENDER_FORMAT.
@@ -150,7 +152,6 @@
     #error "AWS_IOT_DEFENDER_FORMAT must be either AWS_IOT_DEFENDER_FORMAT_CBOR or AWS_IOT_DEFENDER_FORMAT_JSON."
 
 #endif /* if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR */
-
 
 /**
  * Define a helper macro to select long tag or short tag based on configuration AWS_IOT_DEFENDER_USE_LONG_TAG.
@@ -204,6 +205,15 @@ typedef struct _defenderMetrics
 } _defenderMetrics_t;
 
 /**
+ * Callback parameters passed into IotMetricsListCallback_t.
+ */
+typedef struct _defenderMetricsCallbackInfo
+{
+    bool ignoreTooSmallBuffer;
+    AwsIotSerializerEncoderObject_t * pEncoderObject;
+} _defenderMetricsCallbackInfo_t;
+
+/**
  * Create a report, memory is allocated inside the function.
  */
 bool AwsIotDefenderInternal_CreateReport( _defenderReport_t * pReport,
@@ -214,17 +224,8 @@ bool AwsIotDefenderInternal_CreateReport( _defenderReport_t * pReport,
  */
 void AwsIotDefenderInternal_DeleteReport( _defenderReport_t * report );
 
-/**
- * Established TCP connections metrics is added to the encoder object.
- */
-AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsTcpConnections( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                                         bool ignoreTooSmallBuffer );
-
-/**
- * Listening TCP ports metrics is added to the encoder object.
- */
-AwsIotSerializerError_t AwsIotDefenderInternal_GetMetricsListeningTcpPorts( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                                            bool ignoreTooSmallBuffer );
+void * AwsIotDefenderInternal_TcpConnectionsCallback( void * param1,
+                                                      AwsIotList_t * pTcpConnectionsMetricsList );
 
 /**
  * Build three topics names used by defender library.
@@ -276,6 +277,11 @@ bool AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
  * Disconnect with AWS MQTT.
  */
 void AwsIotDefenderInternal_MqttDisconnect();
+
+/**
+ * Close network connection.
+ */
+void AwsIotDefenderInternal_NetworkClose();
 
 /**
  * Destory network connection.
