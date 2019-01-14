@@ -187,4 +187,11 @@
 #define AWS_IOT_TEST_PRIVATE_KEY_LENGTH    clientcredentialCLIENT_PRIVATE_KEY_LENGTH
 #define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
 
+/* Set format to CBOR */
+#define AWS_IOT_DEFENDER_FORMAT            AWS_IOT_DEFENDER_FORMAT_CBOR
+/* Use long tag better readability while short tag will save network cost. */
+#define AWS_IOT_DEFENDER_USE_LONG_TAG      1
+/* Test mode of defender allows short period. */
+#define _DEFENDER_TEST_MODE                true
+
 #endif /* ifndef _AWS_IOT_CONFIG_COMMON_H_ */
