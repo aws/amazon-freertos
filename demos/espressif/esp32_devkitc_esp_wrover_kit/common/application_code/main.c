@@ -237,8 +237,10 @@ static void prvMiscInitialization( void )
 	}
 	ESP_ERROR_CHECK( ret );
 
+   #if BLE_ENABLED
    NumericComparisonInit();
    spp_uart_init();
+   #endif
 }
 
 
@@ -456,7 +458,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send(&evt);
     }
 }
-
+#if BLE_ENABLED
 static void spp_uart_init(void)
 {
     uart_config_t uart_config = {
@@ -504,4 +506,4 @@ BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTime
 
 	return xReturnMessage;
 }
-
+#endif
