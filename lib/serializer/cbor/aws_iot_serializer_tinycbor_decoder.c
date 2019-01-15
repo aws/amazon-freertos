@@ -23,382 +23,453 @@
  * http://www.FreeRTOS.org
  */
 
- /**
-  * @file aws_iot_serializer_tinycbor_decoder.c
-  * @brief Implements APIs to parse and decode data from CBOR format. The file relies on tiny
-  * CBOR library to parse and decode data from CBOR format. Supports all major data types within
-  * the CBOR format.
-  * The file implements the decoder interface in aws_iot_serialize.h.
-  */
-
+/**
+ * @file aws_iot_serializer_tinycbor_decoder.c
+ * @brief Implements APIs to parse and decode data from CBOR format. The file relies on tiny
+ * CBOR library to parse and decode data from CBOR format. Supports all major data types within
+ * the CBOR format.
+ * The file implements the decoder interface in aws_iot_serialize.h.
+ */
 
 #include "FreeRTOS.h"
 #include "aws_iot_serializer.h"
 #include "cbor.h"
 
-#define _noCborError( error )                              ( ( error == CborNoError ) )
-
-#define _undefinedType( type )                             ( ( type == AWS_IOT_SERIALIZER_UNDEFINED ) )
-
 #define _castDecoderObjectToCborValue( pDecoderObject )    ( ( pDecoderObject )->pHandle )
 
-#define _castDecoderIteratorToCborValue( iterator )       ( ( ( AwsIotSerializerDecoderObject_t *) iterator )->pHandle )
+#define _castDecoderIteratorToCborValue( iterator )        ( ( ( AwsIotSerializerDecoderObject_t * ) iterator )->pHandle )
 
-static AwsIotSerializerError_t _init(AwsIotSerializerDecoderObject_t * pDecoderObject,
-    uint8_t * pDataBuffer,
-    size_t maxSize);
-static AwsIotSerializerError_t _get(AwsIotSerializerDecoderIterator_t iterator,
-    AwsIotSerializerDecoderObject_t * pValueObject);
+#define _isArrayOrMap( dataType )                          ( ( ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) || ( ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
 
-static AwsIotSerializerError_t _find(AwsIotSerializerDecoderObject_t* pDecoderObject,
-    const char * pKey,
-    AwsIotSerializerDecoderObject_t * pValueObject);
-static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                       AwsIotSerializerDecoderIterator_t * pIterator);
-static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iterator,
-                                          AwsIotSerializerDecoderObject_t * pDecoderObject );
+static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      uint8_t * pDataBuffer,
+                                      size_t maxSize );
+static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
+                                     AwsIotSerializerDecoderObject_t * pValueObject );
 
-static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator);
+static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      const char * pKey,
+                                      AwsIotSerializerDecoderObject_t * pValueObject );
+static AwsIotSerializerError_t _stepIn( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                        AwsIotSerializerDecoderIterator_t * pIterator );
+static AwsIotSerializerError_t _stepOut( AwsIotSerializerDecoderIterator_t iterator,
+                                         AwsIotSerializerDecoderObject_t * pDecoderObject );
 
-static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator);
+static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator );
+
+static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator );
 
 static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject );
 
-static void _print(uint8_t * pDataBuffer,
-    size_t dataSize);
 
 AwsIotSerializerDecodeInterface_t _AwsIotSerializerCborDecoder =
 {
-    .print = _print,
-    .init = _init,
-    .get = _get,
-    .find = _find,
-    .stepIn = _stepIn,
-    .stepOut = _stepOut,
-    .next = _next,
+    .init             = _init,
+    .get              = _get,
+    .find             = _find,
+    .stepIn           = _stepIn,
+    .stepOut          = _stepOut,
+    .next             = _next,
     .isEndOfContainer = _isEndOfContainer,
-    .destroy = _destroy
+    .destroy          = _destroy
 };
 
-typedef struct _cborDecoder
+/* Wrapper CborValue with additional fields. */
+typedef struct _cborValueWrapper
 {
-   CborValue cborValue;
-   bool isOutermost;
-} _cborDecoder_t;
+    CborValue cborValue;
+    bool isOutermost;
+} _cborValueWrapper_t;
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerDataType_t _toSerializerType(CborType type)
+static void _translateErrorCode( CborError cborError,
+                                 AwsIotSerializerError_t * pSerializerError )
 {
-    switch (type)
+    /* TODO: assert cborError == 0 || *pSerializerError == 0 */
+
+    /* Only translate if there is no error on serizlier currently. */
+    if( *pSerializerError == AWS_IOT_SERIALIZER_SUCCESS )
     {
-    case CborIntegerType:
+        switch( cborError )
+        {
+            case CborNoError:
+                *pSerializerError = AWS_IOT_SERIALIZER_SUCCESS;
+                break;
 
-        return AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+            case CborErrorOutOfMemory:
+                *pSerializerError = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+                break;
 
-    case CborBooleanType:
-
-        return AWS_IOT_SERIALIZER_SCALAR_BOOL;
-
-    case CborByteStringType:
-
-        return AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
-
-    case CborTextStringType:
-
-        return AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-
-    case CborArrayType:
-
-        return AWS_IOT_SERIALIZER_CONTAINER_ARRAY;
-
-    case CborMapType:
-
-        return AWS_IOT_SERIALIZER_CONTAINER_MAP;
-
-    default:
-
-        return AWS_IOT_SERIALIZER_UNDEFINED;
+            default:
+                *pSerializerError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+        }
     }
 }
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _createDecoderObject(_cborDecoder_t * pCborDecoder,
-    AwsIotSerializerDecoderObject_t * pValueObject)
+static AwsIotSerializerDataType_t _toSerializerType( CborType type )
 {
-    AwsIotSerializerError_t returnError = AWS_IOT_SERIALIZER_SUCCESS;
-    CborValue* pCborValue = &pCborDecoder->cborValue;
-    AwsIotSerializerDataType_t dataType = _toSerializerType(cbor_value_get_type(pCborValue));
-    CborError cborError;
-
-
-    if (_undefinedType(dataType))
+    switch( type )
     {
-        returnError = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
+        case CborIntegerType:
+
+            return AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+
+        case CborBooleanType:
+
+            return AWS_IOT_SERIALIZER_SCALAR_BOOL;
+
+        case CborByteStringType:
+
+            return AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
+
+        case CborTextStringType:
+
+            return AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
+
+        case CborArrayType:
+
+            return AWS_IOT_SERIALIZER_CONTAINER_ARRAY;
+
+        case CborMapType:
+
+            return AWS_IOT_SERIALIZER_CONTAINER_MAP;
+
+        default:
+
+            return AWS_IOT_SERIALIZER_UNDEFINED;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/* Construct DecoderObject based on the wrapper of CborValue. */
+static AwsIotSerializerError_t _createDecoderObject( _cborValueWrapper_t * pCborValueWrapper,
+                                                     AwsIotSerializerDecoderObject_t * pDecoderObject )
+{
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
+
+    CborValue * pCborValue = &pCborValueWrapper->cborValue;
+
+    /* Get serializer data type from CborValue. */
+    AwsIotSerializerDataType_t dataType = _toSerializerType( cbor_value_get_type( pCborValue ) );
+
+    if( dataType == AWS_IOT_SERIALIZER_UNDEFINED )
+    {
+        return AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
     }
     else
     {
-        pValueObject->pHandle = pCborDecoder;
-        pValueObject->type = dataType;
+        /* Set type to decoder object as long as it is defined. */
+        pDecoderObject->type = dataType;
     }
 
-    if (returnError == AWS_IOT_SERIALIZER_SUCCESS)
+    /* If this is a map or array. */
+    if( _isArrayOrMap( dataType ) )
     {
-        switch (pValueObject->type)
+        /* Save to decoder object's handle. */
+        pDecoderObject->pHandle = ( void * ) pCborValueWrapper;
+    }
+    else /* Create scalar object. */
+    {
+        switch( dataType )
         {
-        case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
-        {
-            int i = 0;
-            cbor_value_get_int(pCborValue, &i);
-            pValueObject->value = (AwsIotSerializerScalarValue_t) {
-                .signedInt = i
-            };
-            break;
-        }
+            case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
+               {
+                   int i = 0;
+                   cborError = cbor_value_get_int( pCborValue, &i );
 
-        case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
-        {
-            size_t length;
+                   /* TODO: assert no error on _createDecoderObject */
 
+                   pDecoderObject->value = ( AwsIotSerializerScalarValue_t )
+                   {
+                       .signedInt = i
+                   };
 
-            /* user doesn't provide the buffer */
-            if (pValueObject->value.pString == NULL)
-            {
+                   break;
+               }
 
-                if( cbor_value_is_length_known( pCborValue ) )
-                {
-                    /*
-                     * If the length of the CBOR string is known, then its
-                     * a finite length string. We store the pointer to the start of the string
-                     * and length as the length of the string.
-                     *
-                     */
-                    cborError = cbor_value_get_string_length( pCborValue, &length );
-                    if( _noCborError( cborError ) )
-                    {
-                        pValueObject->value.pString =  ( uint8_t* ) cbor_value_get_next_byte( pCborValue ) - length;
-                        pValueObject->value.stringLength = length;
-                    }
-                    else
-                    {
-                        returnError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-                    }
-                }
-                else
-                {
-                    /*
-                     * This is an infinite length string.
-                     * Calculate and save required length to pValueObject, leave the pString pointer
-                     * as null so user can allocate the required buffer.
-                     */
-                    cbor_value_calculate_string_length(pCborValue, &length);
-                    pValueObject->value.stringLength = length;
-                    returnError = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
-                }
-            }
-            else /* user provides the buffer */
-            {
-                /* copy the string to the buffer */
-                cbor_value_copy_text_string(pCborValue, ( char * ) pValueObject->value.pString, &length, NULL);
-                pValueObject->value.stringLength = length;
-            }
+            case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
+               {
+                   size_t length = 0;
 
-            break;
-        }
+                   /* user doesn't provide the buffer */
+                   if( pDecoderObject->value.pString == NULL )
+                   {
+                       if( cbor_value_is_length_known( pCborValue ) )
+                       {
+                           /*
+                            * If the length of the CBOR string is known, then its
+                            * a finite length string. We store the pointer to the start of the string
+                            * and length as the length of the string.
+                            *
+                            */
+                           cborError = cbor_value_get_string_length( pCborValue, &length );
 
-        case AWS_IOT_SERIALIZER_CONTAINER_MAP:
-        {
-            pValueObject->pHandle = pCborDecoder;
-            break;
-        }
+                           if( cborError == CborNoError )
+                           {
+                               pDecoderObject->value.pString = ( uint8_t * ) cbor_value_get_next_byte( pCborValue ) - length;
+                               pDecoderObject->value.stringLength = length;
+                           }
+                           else
+                           {
+                               returnedError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                           }
+                       }
+                       else
+                       {
+                           /*
+                            * This is an infinite length string.
+                            * Calculate and save required length to pValueObject, leave the pString pointer
+                            * as null so user can allocate the required buffer.
+                            */
+                           cbor_value_calculate_string_length( pCborValue, &length );
+                           pDecoderObject->value.stringLength = length;
+                           returnedError = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+                       }
+                   }
+                   else /* user provides the buffer */
+                   {
+                       length = pDecoderObject->value.stringLength;
+                       /* copy the string to the buffer */
+                       cbor_value_copy_text_string( pCborValue, ( char * ) pDecoderObject->value.pString, &length, NULL );
+                       pDecoderObject->value.stringLength = length;
+                   }
 
-        default:
-            returnError = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
+                   break;
+               }
+
+            default:
+                /* Other scalar types are not supported. */
+                returnedError = AWS_IOT_SERIALIZER_NOT_SUPPORTED;
         }
     }
 
-    return returnError;
+    return returnedError;
 }
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _init(AwsIotSerializerDecoderObject_t * pDecoderObject,
-    uint8_t * pDataBuffer,
-    size_t maxSize)
+static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      uint8_t * pDataBuffer,
+                                      size_t maxSize )
 {
-    CborParser *pCborParser = pvPortMalloc(sizeof(CborValue));
-    _cborDecoder_t * pCborDecoder = pvPortMalloc(sizeof(_cborDecoder_t));
-    AwsIotSerializerError_t returnError = AWS_IOT_SERIALIZER_SUCCESS;
-    CborError cborError;
+    CborParser * pCborParser = pvPortMalloc( sizeof( CborParser ) );
+    _cborValueWrapper_t * pCborValueWrapper = pvPortMalloc( sizeof( _cborValueWrapper_t ) );
+
+    if( ( pCborParser == NULL ) || ( pCborValueWrapper == NULL ) )
+    {
+        vPortFree( pCborParser );
+        vPortFree( pCborValueWrapper );
+
+        return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+    }
+
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
 
     cborError = cbor_parser_init(
         pDataBuffer,
         maxSize,
         0,
         pCborParser,
-        &pCborDecoder->cborValue);
+        &pCborValueWrapper->cborValue );
 
-    if (_noCborError(cborError))
+    /* If init succeeds, create the decoder object. */
+    if( cborError == CborNoError )
     {
-        pCborDecoder->isOutermost = true;
-        _createDecoderObject(pCborDecoder, pDecoderObject);
+        pCborValueWrapper->isOutermost = true;
+
+        returnedError = _createDecoderObject( pCborValueWrapper, pDecoderObject );
     }
-    else
+
+    /* If there is any error or decoder object is a scalar type, free the cbor resources. */
+    if( cborError || returnedError || !_isArrayOrMap( pDecoderObject->type ) )
     {
+        /* pDecoderObject is untouched. */
+
         vPortFree( pCborParser );
-        vPortFree( pCborDecoder );
-        returnError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+        vPortFree( pCborValueWrapper );
     }
 
-    return returnError;
+    _translateErrorCode( cborError, &returnedError );
+
+    return returnedError;
 }
 
 /*-----------------------------------------------------------*/
-
-static AwsIotSerializerError_t _get(AwsIotSerializerDecoderIterator_t iterator,
-    AwsIotSerializerDecoderObject_t * pValueObject)
-{
-    _cborDecoder_t * pCborDecoder = _castDecoderIteratorToCborValue( iterator );
-
-    return _createDecoderObject(pCborDecoder, pValueObject);
-}
-
-/*-----------------------------------------------------------*/
-
-static AwsIotSerializerError_t _find(AwsIotSerializerDecoderObject_t* pDecoderObject,
-    const char * pKey,
-    AwsIotSerializerDecoderObject_t * pValueObject)
-{
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    _cborDecoder_t * pCborDecoder = _castDecoderObjectToCborValue( pDecoderObject );
-    _cborDecoder_t * pNewCborDecoder = _castDecoderObjectToCborValue( pValueObject );
-    CborError cborError;
-
-    if( pNewCborDecoder == NULL )
-    {
-        pNewCborDecoder = pvPortMalloc(sizeof(CborValue));
-        pNewCborDecoder->isOutermost = false;
-    }
-
-    cborError = cbor_value_map_find_value(
-        &pCborDecoder->cborValue,
-        pKey,
-        &pNewCborDecoder->cborValue );
-
-    if( _noCborError( cborError ) )
-    {
-        pValueObject->pHandle = pNewCborDecoder;
-        error = _createDecoderObject(pNewCborDecoder, pValueObject);
-    }
-
-    return error;
-}
-
-
-static AwsIotSerializerError_t  _stepIn( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                       AwsIotSerializerDecoderIterator_t * pIterator)
-{
-
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    CborError cborError;
-    _cborDecoder_t *pCborDecoder = _castDecoderObjectToCborValue( pDecoderObject );
-    _cborDecoder_t *pNewCborDecoder = pvPortMalloc( sizeof( _cborDecoder_t ));
-    AwsIotSerializerDecoderObject_t* pNewObject = pvPortMalloc( sizeof( AwsIotSerializerDecoderObject_t ) );
-
-    pNewCborDecoder->isOutermost = false;
-
-    cborError = cbor_value_enter_container(
-            &pCborDecoder->cborValue,
-            &pNewCborDecoder->cborValue );
-
-    if( _noCborError( cborError ) )
-    {
-        pNewObject->type = pDecoderObject->type;
-        pNewObject->pHandle = ( void *) pNewCborDecoder;
-        *pIterator = ( AwsIotSerializerDecoderIterator_t ) pNewObject;
-        error = AWS_IOT_SERIALIZER_SUCCESS;
-    }
-
-    return error;
-}
-
-static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iterator,
-                                          AwsIotSerializerDecoderObject_t * pDecoderObject )
-{
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    CborError cborError;
-    _cborDecoder_t *pOuterCborDecoder = _castDecoderObjectToCborValue( pDecoderObject );
-    _cborDecoder_t *pInnerCborDecoder = _castDecoderIteratorToCborValue( iterator );
-
-    cborError = cbor_value_leave_container(
-            &pOuterCborDecoder->cborValue,
-            &pInnerCborDecoder->cborValue );
-
-    if( _noCborError( cborError ) )
-    {
-        vPortFree( pInnerCborDecoder );
-        vPortFree( iterator );
-        error = AWS_IOT_SERIALIZER_SUCCESS;
-    }
-
-    return error;
-}
-
-static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator)
-{
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    CborError cborError;
-    _cborDecoder_t* pCborDecoder = _castDecoderIteratorToCborValue( iterator );
-    cborError = cbor_value_advance( &pCborDecoder->cborValue );
-
-    if( _noCborError( cborError ) )
-    {
-        error = AWS_IOT_SERIALIZER_SUCCESS;
-    }
-
-     return error;
-}
-
-static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator)
-{
-    _cborDecoder_t* pCborDecoder = _castDecoderIteratorToCborValue( iterator );
-    return cbor_value_at_end( &pCborDecoder->cborValue );
-}
 
 static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject )
 {
-    _cborDecoder_t* pCborDecoder = _castDecoderObjectToCborValue( pDecoderObject );
+    /* TODO: assert pDecoderObject is a container. */
 
-    if( pCborDecoder == NULL )
+    _cborValueWrapper_t * pCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
+
+    if( pCborValueWrapper == NULL )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    if( pCborDecoder->isOutermost )
+    /* If this is outmost object, the parser's memory needs to be freed. */
+    if( pCborValueWrapper->isOutermost )
     {
-        vPortFree( ( void* ) ( pCborDecoder->cborValue.parser ) );
+        vPortFree( ( void * ) ( pCborValueWrapper->cborValue.parser ) );
     }
-    vPortFree( pCborDecoder );
-    _castDecoderObjectToCborValue( pDecoderObject ) = NULL;
+
+    vPortFree( pCborValueWrapper );
+
+    /* Reset decoder object's handle to NULL. */
+    pDecoderObject->pHandle = NULL;
 
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
+
 /*-----------------------------------------------------------*/
 
-static void _print(uint8_t * pDataBuffer,
-    size_t dataSize)
+static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
+                                     AwsIotSerializerDecoderObject_t * pValueObject )
 {
-    CborParser cborParser;
-    CborValue cborValue;
+    _cborValueWrapper_t * pCborValueWrapper = _castDecoderIteratorToCborValue( iterator );
 
-    cbor_parser_init(
-        pDataBuffer,
-        dataSize,
-        0,
-        &cborParser,
-        &cborValue);
+    return _createDecoderObject( pCborValueWrapper, pValueObject );
+}
 
-    /* output to standard out */
-    cbor_value_to_pretty(stdout, &cborValue);
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      const char * pKey,
+                                      AwsIotSerializerDecoderObject_t * pValueObject )
+{
+    if( pDecoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    {
+        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+    }
+
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
+
+    _cborValueWrapper_t * pCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
+
+    _cborValueWrapper_t * pNewCborValueWrapper = pvPortMalloc( sizeof( _cborValueWrapper_t ) );
+
+    if( pNewCborValueWrapper == NULL )
+    {
+        return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+    }
+
+    /* Set this object not to be outermost one. */
+    pNewCborValueWrapper->isOutermost = false;
+
+    cborError = cbor_value_map_find_value(
+        &pCborValueWrapper->cborValue,
+        pKey,
+        &pNewCborValueWrapper->cborValue );
+
+    if( cborError == CborNoError )
+    {
+        /* If not found the element in map. */
+        if( pNewCborValueWrapper->cborValue.type == CborInvalidType )
+        {
+            /* pValueObject is untouched. */
+
+            returnedError = AWS_IOT_SERIALIZER_NOT_FOUND;
+        }
+        else
+        {
+            returnedError = _createDecoderObject( pNewCborValueWrapper, pValueObject );
+        }
+    }
+
+    _translateErrorCode( cborError, &returnedError );
+
+    return returnedError;
+}
+
+
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _stepIn( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                        AwsIotSerializerDecoderIterator_t * pIterator )
+{
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
+
+    _cborValueWrapper_t * pCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
+    _cborValueWrapper_t * pNewCborValueWrapper = pvPortMalloc( sizeof( _cborValueWrapper_t ) );
+
+    cborError = cbor_value_enter_container(
+        &pCborValueWrapper->cborValue,
+        &pNewCborValueWrapper->cborValue );
+
+    if( cborError == CborNoError )
+    {
+        AwsIotSerializerDecoderObject_t * pNewObject = pvPortMalloc( sizeof( AwsIotSerializerDecoderObject_t ) );
+
+        pNewObject->type = pDecoderObject->type;
+
+        pNewCborValueWrapper->isOutermost = false;
+        pNewObject->pHandle = ( void * ) pNewCborValueWrapper;
+
+        *pIterator = ( AwsIotSerializerDecoderIterator_t ) pNewObject;
+
+        returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    }
+
+    _translateErrorCode( cborError, &returnedError );
+
+    return returnedError;
+}
+
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _stepOut( AwsIotSerializerDecoderIterator_t iterator,
+                                         AwsIotSerializerDecoderObject_t * pDecoderObject )
+{
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
+
+    _cborValueWrapper_t * pOuterCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
+    _cborValueWrapper_t * pInnerCborValueWrapper = _castDecoderIteratorToCborValue( iterator );
+
+    cborError = cbor_value_leave_container(
+        &pOuterCborValueWrapper->cborValue,
+        &pInnerCborValueWrapper->cborValue );
+
+    if( cborError == CborNoError )
+    {
+        vPortFree( pInnerCborValueWrapper );
+        vPortFree( iterator );
+    }
+
+    _translateErrorCode( cborError, &returnedError );
+
+    return returnedError;
+}
+
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator )
+{
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
+
+    _cborValueWrapper_t * pCborValueWrapper = _castDecoderIteratorToCborValue( iterator );
+
+    cborError = cbor_value_advance( &pCborValueWrapper->cborValue );
+
+    _translateErrorCode( cborError, &returnedError );
+
+    return returnedError;
+}
+
+/*-----------------------------------------------------------*/
+
+static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator )
+{
+    _cborValueWrapper_t * pCborValueWrapper = _castDecoderIteratorToCborValue( iterator );
+
+    return cbor_value_at_end( &pCborValueWrapper->cborValue );
 }

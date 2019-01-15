@@ -177,8 +177,9 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
                                                AwsIotSerializerEncoderObject_t * pNewEncoderObject,
                                                size_t length )
 {
-    /* New object must be a container. */
-    if( !AwsIotSerializer_IsContainer( pNewEncoderObject->type ) )
+    /* New object must be a container of map or array. */
+    if( ( pNewEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) &&
+        ( pNewEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
@@ -202,10 +203,6 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
 
             case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
                 cborError = cbor_encoder_create_array( pOuterEncoder, pInnerEncoder, length );
-                break;
-
-            case AWS_IOT_SERIALIZER_CONTAINER_STREAM:
-                /* TODO: figure out what it means to open stream container. */
                 break;
 
             default:

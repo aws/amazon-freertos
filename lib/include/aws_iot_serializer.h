@@ -36,25 +36,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define AWS_IOT_SERIALIZER_INDEFINITE_LENGTH                      0xffffffff
+#define AWS_IOT_SERIALIZER_INDEFINITE_LENGTH                       0xffffffff
 
-#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM   { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_STREAM }
+#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM    { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_STREAM }
 
-#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP      { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_MAP }
+#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP       { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_MAP }
 
-#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY    { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_ARRAY }
+#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY     { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_ARRAY }
+
+#define AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER              { .type = AWS_IOT_SERIALIZER_UNDEFINED, .pHandle = NULL, .value = 0 }
+
+#define AWS_IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER            NULL
 
 /* helper macro to create scalar data */
 #define AwsIotSerializer_ScalarSignedInt( signedIntValue )                                                                          \
     ( AwsIotSerializerScalarData_t ) { .value = { .signedInt = ( signedIntValue ) }, .type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT } \
 
-#define AwsIotSerializer_ScalarTextString( pTextStringValue )                                                                                           \
+#define AwsIotSerializer_ScalarTextString( pTextStringValue )                                                                                                                                  \
     ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( ( uint8_t * ) pTextStringValue ), .stringLength = strlen( pTextStringValue ) }, .type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING } \
 
 #define AwsIotSerializer_ScalarByteString( pByteStringValue, length )                                                                                            \
     ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( pByteStringValue ), .stringLength = ( length ) }, .type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING } \
 
-/* Determin if the data type is a container. */
+/* Determine if the data type is a container. */
 #define AwsIotSerializer_IsContainer( dataType )                                                                                                                      \
     ( ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_STREAM || ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_ARRAY || ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_MAP ) \
 
@@ -66,6 +70,7 @@ typedef enum
     AWS_IOT_SERIALIZER_OUT_OF_MEMORY,
     AWS_IOT_SERIALIZER_INVALID_INPUT,
     AWS_IOT_SERIALIZER_UNDEFINED_TYPE,
+    AWS_IOT_SERIALIZER_NOT_SUPPORTED,
     AWS_IOT_SERIALIZER_NOT_FOUND,
     AWS_IOT_SERIALIZER_INTERNAL_FAILURE
 } AwsIotSerializerError_t;
@@ -77,8 +82,8 @@ typedef enum
 typedef enum
 {
     AWS_IOT_SERIALIZER_UNDEFINED = 0,
-	AWS_IOT_SERIALIZER_SCALAR_NULL,
-	AWS_IOT_SERIALIZER_SCALAR_BOOL,
+    AWS_IOT_SERIALIZER_SCALAR_NULL,
+    AWS_IOT_SERIALIZER_SCALAR_BOOL,
     AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT,
     AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING,
     AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING,
@@ -268,8 +273,8 @@ typedef struct AwsIotSerializerDecodeInterface
      * @param[out] pIterator Pointer to iterator which can be used for the traversing the container by calling next()
      * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
-     AwsIotSerializerError_t ( * stepIn )( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                           AwsIotSerializerDecoderIterator_t * pIterator);
+    AwsIotSerializerError_t ( * stepIn )( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                          AwsIotSerializerDecoderIterator_t * pIterator );
 
 
     /**
@@ -281,17 +286,17 @@ typedef struct AwsIotSerializerDecodeInterface
     AwsIotSerializerError_t ( * get )( AwsIotSerializerDecoderIterator_t iterator,
                                        AwsIotSerializerDecoderObject_t * pValueObject );
 
-	/**
-	 *
-	 * @brief Find an object by key within a container.
-	 * Container should always be of type MAP.
-	 *
-	 * @param[in] pDecoderObject Pointer to the decoder object representing  container
-	 * @param[in] pKey Pointer to the key for which value needs to be found.
-	 * @param[out] pValueObject Pointer to the value object for the key.
-	 * @return AWS_IOT_SERIALIZER_SUCCESS if successful
-	 */
-    AwsIotSerializerError_t ( * find )( AwsIotSerializerDecoderObject_t* pDecoderObject,
+    /**
+     *
+     * @brief Find an object by key within a container.
+     * Container should always be of type MAP.
+     *
+     * @param[in] pDecoderObject Pointer to the decoder object representing  container
+     * @param[in] pKey Pointer to the key for which value needs to be found.
+     * @param[out] pValueObject Pointer to the value object for the key.
+     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     */
+    AwsIotSerializerError_t ( * find )( AwsIotSerializerDecoderObject_t * pDecoderObject,
                                         const char * pKey,
                                         AwsIotSerializerDecoderObject_t * pValueObject );
 
@@ -300,6 +305,7 @@ typedef struct AwsIotSerializerDecodeInterface
      * Find the next object in the same value and save it to pNewDecoderObject
      *
      */
+
     /**
      * @brief Moves the iterator to next object within the container
      * If the container is a map, it skips either a key or the value at a time.
@@ -308,34 +314,34 @@ typedef struct AwsIotSerializerDecodeInterface
      * @param[in] iterator Pointer to iterator
      * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
-    AwsIotSerializerError_t ( * next )( AwsIotSerializerDecoderIterator_t iterator);
+    AwsIotSerializerError_t ( * next )( AwsIotSerializerDecoderIterator_t iterator );
 
     /**
      * @brief Function to check if the iterator reached end of container
      * @param[in] iterator Pointer to iterator for the container
      * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
-    bool ( * isEndOfContainer )( AwsIotSerializerDecoderIterator_t iterator);
+    bool ( * isEndOfContainer )( AwsIotSerializerDecoderIterator_t iterator );
 
 
 
     /**
-       * @brief Steps out of the container by updating the decoder object to next byte position
-       * after the container.
-       * The iterator **should** point to the end of the container when calling this function.
-       *
-       * @param[in] iterator Pointer to iterator for the container.
-       * @param[in] The outer decoder object to the same container.
-       * @return AWS_IOT_SERIALIZER_SUCCESS if successful
-       */
+     * @brief Steps out of the container by updating the decoder object to next byte position
+     * after the container.
+     * The iterator **should** point to the end of the container when calling this function.
+     *
+     * @param[in] iterator Pointer to iterator for the container.
+     * @param[in] The outer decoder object to the same container.
+     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     */
     AwsIotSerializerError_t ( * stepOut )( AwsIotSerializerDecoderIterator_t iterator,
                                            AwsIotSerializerDecoderObject_t * pDecoderObject );
 
-  /**
-   * Pretty format and print the buffer.
-   * @param[in] pDataBuffer Pointer to the buffer
-   * @param[in] dataSize Size of the buffer.
-   */
+    /**
+     * Pretty format and print the buffer.
+     * @param[in] pDataBuffer Pointer to the buffer
+     * @param[in] dataSize Size of the buffer.
+     */
     void ( * print )( uint8_t * pDataBuffer,
                       size_t dataSize );
 } AwsIotSerializerDecodeInterface_t;
