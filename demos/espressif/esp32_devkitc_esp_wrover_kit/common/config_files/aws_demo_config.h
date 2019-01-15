@@ -51,7 +51,7 @@
 #define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY      ( tskIDLE_PRIORITY + 5 )
 
 /* OTA Update task example parameters. */
-#define democonfigOTA_UPDATE_TASK_STACK_SIZE               ( 4 * configMINIMAL_STACK_SIZE )
+#define democonfigOTA_UPDATE_TASK_STACK_SIZE               ( 6 * configMINIMAL_STACK_SIZE )
 #define democonfigOTA_UPDATE_TASK_TASK_PRIORITY            ( tskIDLE_PRIORITY + 5 )
 
 /* Simple TCP Echo Server task example parameters */
