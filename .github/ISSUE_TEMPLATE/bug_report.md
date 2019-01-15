@@ -1,7 +1,8 @@
 ---
 name: Bug report
-about: Create a bug report for the project Amazon FreeRTOS
+about: Create a bug report for Amazon FreeRTOS
 labels: bug
+
 ---
 
 **Describe the bug**
