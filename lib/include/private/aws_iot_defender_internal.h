@@ -43,6 +43,24 @@
 
 #include "aws_iot_queue.h"
 
+/**
+ * @def AwsIotDefender_Assert( expression )
+ * @brief Assertion macro for the Defender library.
+ *
+ * Set @ref AWS_IOT_DEFENDER_ENABLE_ASSERTS to `1` to enable assertions in the Defender
+ * library.
+ *
+ * @param[in] expression Expression to be evaluated.
+ */
+#if AWS_IOT_DEFENDER_ENABLE_ASSERTS == 1
+    #ifndef AwsIotDefender_Assert
+        #include <assert.h>
+        #define AwsIotDefender_Assert( expression )    assert( expression )
+    #endif
+#else
+    #define AwsIotDefender_Assert( expression )
+#endif
+
 /* Configure logs for Defender functions. */
 #ifdef AWS_IOT_LOG_LEVEL_DEFENDER
     #define _LIBRARY_LOG_LEVEL        AWS_IOT_LOG_LEVEL_DEFENDER
@@ -56,6 +74,70 @@
 
 #define _LIBRARY_LOG_NAME    ( "Defender" )
 #include "aws_iot_logging_setup.h"
+
+/*
+ * Provide default values for undefined memory allocation functions based on
+ * the usage of dynamic memory allocation.
+ */
+#if AWS_IOT_STATIC_MEMORY_ONLY == 1
+    #include "platform/aws_iot_static_memory.h"
+
+    /**
+     * @brief Allocate an array of uint8_t. This function should have the same
+     * signature as [malloc]
+     * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+     */
+    #ifndef AwsIotDefender_MallocReport
+        #define AwsIotDefender_MallocReport    AwsIot_MallocDefenderReport
+    #endif
+
+    /**
+     * @brief Free an array of uint8_t. This function should have the same
+     * signature as [free]
+     * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+     */
+    #ifndef AwsIotDefender_FreeReport
+        #define AwsIotDefender_FreeReport    AwsIot_FreeDefenderReport
+    #endif
+
+    /**
+     * @brief Allocate an array of char. This function should have the same
+     * signature as [malloc]
+     * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+     */
+    #ifndef AwsIotDefender_MallocTopic
+        #define AwsIotDefender_MallocTopic    AwsIot_MallocDefenderTopic
+    #endif
+
+    /**
+     * @brief Free an array of char. This function should have the same
+     * signature as [free]
+     * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+     */
+    #ifndef AwsIotDefender_FreeTopic
+        #define AwsIotDefender_FreeTopic    AwsIot_FreeDefenderTopic
+    #endif
+
+#else /* if AWS_IOT_STATIC_MEMORY_ONLY */
+    #include <stdlib.h>
+
+    #ifndef AwsIotDefender_MallocReport
+        #define AwsIotDefender_MallocReport    malloc
+    #endif
+
+    #ifndef AwsIotDefender_FreeReport
+        #define AwsIotDefender_FreeReport    free
+    #endif
+
+    #ifndef AwsIotDefender_MallocTopic
+        #define AwsIotDefender_MallocTopic    malloc
+    #endif
+
+    #ifndef AwsIotDefender_FreeTopic
+        #define AwsIotDefender_FreeTopic    free
+    #endif
+
+#endif /* if AWS_IOT_STATIC_MEMORY_ONLY */
 
 /**
  * @page Defender_Config Configuration
@@ -244,13 +326,12 @@ void AwsIotDefenderInternal_DeleteTopicsNames();
  */
 bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
                                             uint16_t port,
-                                            AwsIotNetworkTlsInfo_t * pTlsInfo,
-                                            AwsIotDefenderEventType_t * pEventType );
+                                            AwsIotNetworkTlsInfo_t * pTlsInfo );
 
 /**
  * Set the network connection to callback MQTT.
  */
-bool AwsIotDefenderInternal_SetMqttCallback( AwsIotDefenderEventType_t * pEventType );
+bool AwsIotDefenderInternal_SetMqttCallback();
 
 /**
  * Connect to AWS with MQTT.

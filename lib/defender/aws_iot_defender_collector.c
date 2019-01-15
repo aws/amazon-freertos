@@ -22,7 +22,7 @@
 /* Defender internal include. */
 #include "private/aws_iot_defender_internal.h"
 
-#include "aws_iot_metrics.h"
+#include "iot_metrics.h"
 
 #include "platform/aws_iot_clock.h"
 
@@ -59,7 +59,7 @@ bool AwsIotDefenderInternal_CreateReport( _defenderReport_t * pReport,
         _AwsIotDefenderEncoder.destroy( pEncoderObject );
 
         /* allocated memory only one time. */
-        pReportBuffer = pvPortMalloc( dataSize * sizeof( uint8_t ) );
+        pReportBuffer = AwsIotDefender_MallocReport( dataSize * sizeof( uint8_t ) );
 
         if( pReportBuffer != NULL )
         {
@@ -93,7 +93,7 @@ bool AwsIotDefenderInternal_CreateReport( _defenderReport_t * pReport,
 void AwsIotDefenderInternal_DeleteReport( _defenderReport_t * report )
 {
     _AwsIotDefenderEncoder.destroy( &( report->object ) );
-    vPortFree( report->pDataBuffer );
+    AwsIotDefender_FreeReport( report->pDataBuffer );
     report->pDataBuffer = NULL;
     report->size = 0;
 }

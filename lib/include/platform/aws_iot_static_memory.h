@@ -343,4 +343,12 @@ void * AwsIot_MallocShadowSubscription( size_t size );
 void AwsIot_FreeShadowSubscription( void * ptr );
 /* @[declare_platform_static_memory_freeshadowsubscription] */
 
+void * AwsIot_MallocDefenderReport(size_t size);
+
+void AwsIot_FreeDefenderReport(void * ptr);
+
+void * AwsIot_MallocDefenderTopic(size_t size);
+
+void AwsIot_FreeDefenderTopic(void * ptr);
+
 #endif /* if !defined( _AWS_IOT_STATIC_MEMORY_H_ ) && ( AWS_IOT_STATIC_MEMORY_ONLY == 1 ) */

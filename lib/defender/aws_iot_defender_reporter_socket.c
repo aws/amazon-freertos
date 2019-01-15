@@ -26,7 +26,7 @@
 #include "aws_secure_sockets.h"
 
 /* Metrics include. */
-#include "aws_iot_metrics.h"
+#include "iot_metrics.h"
 
 /* 15 for IP + 1 for ":" + 5 for port + 1 terminator
  * For example: "192.168.0.1:8000\0"
