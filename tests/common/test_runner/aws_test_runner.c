@@ -155,6 +155,11 @@ static void RunTests( void )
         extern void vStartOTAUpdateDemoTask( void );
         vStartOTAUpdateDemoTask();
     #endif
+
+    #if ( testrunnerFULL_HAL_PERFCOUNTER_ENABLED == 1 )
+        RUN_TEST_GROUP( AWS_HAL_PERFCOUNTER_TEST );
+    #endif
+
 }
 /*-----------------------------------------------------------*/
 
