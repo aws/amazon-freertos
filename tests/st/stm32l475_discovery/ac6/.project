@@ -63,7 +63,7 @@
 		<link>
 			<name>application_code/common_tests/commonio</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/common/commonio</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_tests/crypto</name>
@@ -163,7 +163,7 @@
 		<link>
 			<name>lib/aws/hal</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/hal</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/include</name>
@@ -236,11 +236,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/lib/third_party/unity/extras/fixture/src</locationURI>
 		</link>
 		<link>
-			<name>application_code/common_tests/commonio/aws_test_hal_perf_cntr.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/tests/common/commonio/aws_test_hal_perf_cntr.c</locationURI>
-		</link>
-		<link>
 			<name>application_code/common_tests/greengrass/aws_test_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/tests/common/greengrass/aws_test_greengrass_discovery.c</locationURI>
@@ -274,16 +269,6 @@
 			<name>lib/aws/FreeRTOS-Plus-POSIX/source</name>
 			<type>2</type>
 			<locationURI>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/source</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/hal/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/hal/portable</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
@@ -324,21 +309,6 @@
 			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable_default.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/hal/include/aws_hal_perf_cntr.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/lib/hal/include/aws_hal_perf_cntr.h</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/hal/portable/st</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/hal/portable/st/aws_hal_perf_cntr.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/lib/hal/portable/st/aws_hal_perf_cntr.c</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>

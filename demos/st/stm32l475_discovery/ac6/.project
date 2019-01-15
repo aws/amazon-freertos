@@ -86,6 +86,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/lib/greengrass</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/hal</name>
+			<type>2</type>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/hal</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/include</name>
 			<type>2</type>
 			<locationURI>AWS_IOT_MCU_ROOT/lib/include</locationURI>

@@ -46,8 +46,8 @@
 *          specific details.
 */
 
-#ifndef _AWS_HAL_PERF_CNTR_H_
-#define _AWS_HAL_PERF_CNTR_H_
+#ifndef _AWS_HAL_PERFCOUNTER_H_
+#define _AWS_HAL_PERFCOUNTER_H_
 
 /**
  * @brief Initialize a hardware timer which is to be used as performance counter.
@@ -73,4 +73,4 @@ uint64_t aws_hal_perfcounter_get_value(void);
  */
 uint32_t aws_hal_perfcounter_get_frequency_hz(void);
 
-#endif /* _AWS_HAL_PERF_CNTR_H_ */
+#endif /* _AWS_HAL_PERFCOUNTER_H_ */

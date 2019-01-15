@@ -35,10 +35,8 @@
 #include "stm32l4xx_hal.h"
 
 /* API definition to be implemented in this file. */
-#include "aws_hal_perf_cntr.h"
-
-/* Load FreeRTOS user defined performance counter configurations. */
 #include "FreeRTOSConfig.h"
+#include "aws_hal_perfcounter.h"
 
 /**
  * @brief Default performance counter frequency.
@@ -79,11 +77,10 @@
 #define HW_TIMER_32_CONST_PERIOD    ( UINT32_MAX )
 #define HW_TIMER_32_LOADING_VALUE   ( 0x0UL )
 
-
 /*-----------------------------------------------------------*/
 
 static TIM_HandleTypeDef xTimerHandle = { 0 };
-static uint64_t ullTimerOverflow = 0;
+static uint32_t ulTimerOverflow = 0;
 
 /*-----------------------------------------------------------*/
 /**
@@ -128,7 +125,7 @@ void HAL_TIM_Base_MspDeInit( TIM_HandleTypeDef * pxTimerHandle )
  */
 void HAL_TIM5_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    ullTimerOverflow++;
+    ++ulTimerOverflow;
 }
 
 /*-----------------------------------------------------------*/
@@ -153,7 +150,7 @@ void aws_hal_perfcounter_open(void)
     uint32_t ulTimClock = 0;
 
     /* Clear static variable which tracks total number of timer overflow. */
-    ullTimerOverflow = 0;
+    ulTimerOverflow = 0;
 
     /* Get timer clock frequency. */
     ulTimClock = HAL_RCC_GetPCLK1Freq();
@@ -216,7 +213,7 @@ void aws_hal_perfcounter_close( void)
 
 uint64_t aws_hal_perfcounter_get_value(void)
 {
-    return ( uint64_t ) ( ( ullTimerOverflow << HW_TIMER_32_WIDTH ) | __HAL_TIM_GET_COUNTER( &xTimerHandle ) );
+    return ( ( ( uint64_t ) ulTimerOverflow << HW_TIMER_32_WIDTH ) | __HAL_TIM_GET_COUNTER( &xTimerHandle ) );
 }
 
 /*-----------------------------------------------------------*/
