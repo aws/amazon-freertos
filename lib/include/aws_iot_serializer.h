@@ -31,7 +31,7 @@
 #ifndef AWS_IOT_SERIALIZER_H
 #define AWS_IOT_SERIALIZER_H
 
-
+#include <string.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -49,10 +49,14 @@
     ( AwsIotSerializerScalarData_t ) { .value = { .signedInt = ( signedIntValue ) }, .type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT } \
 
 #define AwsIotSerializer_ScalarTextString( pTextStringValue )                                                                                           \
-    ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( ( uint8_t * ) pTextStringValue ), .stringLength = 0 }, .type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING } \
+    ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( ( uint8_t * ) pTextStringValue ), .stringLength = strlen( pTextStringValue ) }, .type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING } \
 
 #define AwsIotSerializer_ScalarByteString( pByteStringValue, length )                                                                                            \
     ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( pByteStringValue ), .stringLength = ( length ) }, .type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING } \
+
+/* Determin if the data type is a container. */
+#define AwsIotSerializer_IsContainer( dataType )                                                                                                                      \
+    ( ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_STREAM || ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_ARRAY || ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_MAP ) \
 
 /* error code returned by serializer function interface */
 typedef enum
@@ -154,9 +158,10 @@ typedef struct AwsIotSerializerEncodeInterface
     /**
      * @brief Initialize the object's handle with specified buffer and max size.
      *
-     * @param[in] pDataBuffer: the pointer to allocated buffer by user;
-     *              NULL pDataBuffer is valid, used to calculate needed size by calling getExtraBufferSizeNeeded.
-     * @param[in] maxSize: Allocated buffer size
+     * @param[in] pEncoderObject Pointer of Encoder Object. After init, its type will be set to AWS_IOT_SERIALIZER_CONTAINER_STREAM.
+     * @param[in] pDataBuffer Pointer to allocated buffer by user;
+     *            NULL pDataBuffer is valid, used to calculate needed size by calling getExtraBufferSizeNeeded.
+     * @param[in] maxSize Allocated buffer size
      */
     AwsIotSerializerError_t ( * init )( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                         uint8_t * pDataBuffer,
@@ -165,7 +170,7 @@ typedef struct AwsIotSerializerEncodeInterface
     /**
      * @brief Clean the object's handle
      *
-     * @param[in] pEncoderObject: the outermost object pointer; behavior is undefined for any other object
+     * @param[in] pEncoderObject The outermost object pointer; behavior is undefined for any other object
      */
     AwsIotSerializerError_t ( * destroy )( AwsIotSerializerEncoderObject_t * pEncoderObject );
 

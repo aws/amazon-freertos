@@ -23,21 +23,21 @@
  * http://www.FreeRTOS.org
  */
 
- /**
-  * @file aws_iot_serializer_tinycbor_encoder.c
-  * @brief Implements APIs to serialize data in CBOR format. The file relies on tiny
-  * CBOR library to serialize data into CBOR format. Supports all major data types within
-  * the CBOR format.
-  * The file implements the encoder interface in aws_iot_serialize.h.
-  */
+/**
+ * @file aws_iot_serializer_tinycbor_encoder.c
+ * @brief Implements APIs to serialize data in CBOR format. The file relies on tiny
+ * CBOR library to serialize data into CBOR format. Supports all major data types within
+ * the CBOR format.
+ * The file implements the encoder interface in aws_iot_serialize.h.
+ */
 
 #include "FreeRTOS.h"
 #include "aws_iot_serializer.h"
 #include "cbor.h"
 
-#define _noCborError( error )                                ( ( ( error ) == CborNoError ) || ( ( error ) == CborErrorOutOfMemory ) )
-
-#define _castEncoderObjectToCborEncoder( pEncoderObject )    ( pEncoderObject )->pHandle
+/* Translate cbor error to serializer error. */
+static void _translateErrorCode( CborError cborError,
+                                 AwsIotSerializerError_t * pSerializerError );
 
 static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                uint8_t * pDataBuffer );
@@ -57,10 +57,10 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
 static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                 AwsIotSerializerEncoderObject_t * pNewEncoderObject );
 static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                        AwsIotSerializerScalarData_t scalarData);
+                                        AwsIotSerializerScalarData_t scalarData );
 static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                 const char * pKey,
-                                                AwsIotSerializerScalarData_t scalarData);
+                                                AwsIotSerializerScalarData_t scalarData );
 
 
 AwsIotSerializerEncodeInterface_t _AwsIotSerializerCborEncoder =
@@ -76,13 +76,38 @@ AwsIotSerializerEncodeInterface_t _AwsIotSerializerCborEncoder =
     .appendKeyValue           = _appendKeyValue,
 };
 
+/*-----------------------------------------------------------*/
+
+static void _translateErrorCode( CborError cborError,
+                                 AwsIotSerializerError_t * pSerializerError )
+{
+    /* TODO: assert cborError == 0 || *pSerializerError == 0 */
+
+    /* Only translate if there is no error on serizlier currently. */
+    if( *pSerializerError == AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        switch( cborError )
+        {
+            case CborNoError:
+                *pSerializerError = AWS_IOT_SERIALIZER_SUCCESS;
+                break;
+
+            case CborErrorOutOfMemory:
+                *pSerializerError = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+                break;
+
+            default:
+                *pSerializerError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+        }
+    }
+}
 
 /*-----------------------------------------------------------*/
 
 static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                uint8_t * pDataBuffer )
 {
-    CborEncoder * pCborEncoder = _castEncoderObjectToCborEncoder( pEncoderObject );
+    CborEncoder * pCborEncoder = ( CborEncoder * ) pEncoderObject->pHandle;
 
     return cbor_encoder_get_buffer_size( pCborEncoder, pDataBuffer );
 }
@@ -91,7 +116,7 @@ static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject,
 
 static size_t _getExtraBufferSizeNeeded( AwsIotSerializerEncoderObject_t * pEncoderObject )
 {
-    CborEncoder * pCborEncoder = _castEncoderObjectToCborEncoder( pEncoderObject );
+    CborEncoder * pCborEncoder = ( CborEncoder * ) pEncoderObject->pHandle;
 
     return cbor_encoder_get_extra_bytes_needed( pCborEncoder );
 }
@@ -102,38 +127,45 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
                                       uint8_t * pDataBuffer,
                                       size_t maxSize )
 {
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
-    /* unuseful flags for tinycbor init */
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+
+    /* Unused flags for tinycbor init. */
     int unusedCborFlags = 0;
 
     CborEncoder * pCborEncoder = pvPortMalloc( sizeof( CborEncoder ) );
 
-    /* malloc succeeded */
     if( pCborEncoder != NULL )
     {
-        /* store the CborEncoder pointer to handle */
+        /* Store the CborEncoder pointer to handle. */
         pEncoderObject->pHandle = pCborEncoder;
+
+        /* Always set outmost type to AWS_IOT_SERIALIZER_CONTAINER_STREAM. */
         pEncoderObject->type = AWS_IOT_SERIALIZER_CONTAINER_STREAM;
+
+        /* Perfomr the tinycbor init. */
         cbor_encoder_init( pCborEncoder, pDataBuffer, maxSize, unusedCborFlags );
     }
-    else /* malloc failed */
+    else
     {
         /* pEncoderObject is untouched. */
 
-        error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+        returnedError = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
     }
 
-    return error;
+    return returnedError;
 }
 
 /*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject )
 {
-    CborEncoder * pCborEncoder = _castEncoderObjectToCborEncoder( pEncoderObject );
+    CborEncoder * pCborEncoder = ( CborEncoder * ) pEncoderObject->pHandle;
 
+    /* Free the memorry allocated in init function. */
     vPortFree( pCborEncoder );
-    _castEncoderObjectToCborEncoder( pEncoderObject ) = NULL;
+
+    /* Reset pHandle to be NULL. */
+    pEncoderObject->pHandle = NULL;
 
     /* No other error is returned currently. */
     return AWS_IOT_SERIALIZER_SUCCESS;
@@ -145,19 +177,23 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
                                                AwsIotSerializerEncoderObject_t * pNewEncoderObject,
                                                size_t length )
 {
-    AwsIotSerializerError_t returnError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    CborError cborError = CborUnknownError;
+    /* New object must be a container. */
+    if( !AwsIotSerializer_IsContainer( pNewEncoderObject->type ) )
+    {
+        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+    }
 
-    CborEncoder * pOuterEncoder = _castEncoderObjectToCborEncoder( pEncoderObject );
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
+
+    CborEncoder * pOuterEncoder = ( CborEncoder * ) pEncoderObject->pHandle;
     CborEncoder * pInnerEncoder = pvPortMalloc( sizeof( CborEncoder ) );
 
-    /* malloc succeeded */
     if( pInnerEncoder != NULL )
     {
-        /* store the CborEncoder pointer to handle */
+        /* Store the CborEncoder pointer to handle. */
         pNewEncoderObject->pHandle = pInnerEncoder;
 
-        /* using CborIndefiniteLength so that numbers of items are not pre-known */
         switch( pNewEncoderObject->type )
         {
             case AWS_IOT_SERIALIZER_CONTAINER_MAP:
@@ -169,25 +205,23 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
                 break;
 
             case AWS_IOT_SERIALIZER_CONTAINER_STREAM:
-                /* no action is required. */
+                /* TODO: figure out what it means to open stream container. */
                 break;
 
             default:
-                returnError = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
-        }
-
-        if( _noCborError( cborError ) )
-        {
-            returnError = AWS_IOT_SERIALIZER_SUCCESS;
+                /* TODO: add assert false */
+                ;
         }
     }
     else
     {
-        /* pInnerMapObject is untouched. */
-        returnError = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+        /* pEncoderObject is untouched. */
+        returnedError = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
     }
 
-    return returnError;
+    _translateErrorCode( cborError, &returnedError );
+
+    return returnedError;
 }
 
 /*-----------------------------------------------------------*/
@@ -197,16 +231,17 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
                                                       AwsIotSerializerEncoderObject_t * pNewEncoderObject,
                                                       size_t length )
 {
-    AwsIotSerializerScalarData_t keyScalarData = AwsIotSerializer_ScalarTextString(pKey);
+    AwsIotSerializerScalarData_t keyScalarData = AwsIotSerializer_ScalarTextString( pKey );
 
-    AwsIotSerializerError_t returnError = _append( pEncoderObject, keyScalarData );
+    AwsIotSerializerError_t returnedError = _append( pEncoderObject, keyScalarData );
 
-    if( returnError == AWS_IOT_SERIALIZER_SUCCESS )
+    /* Buffer too small is a special error case that serialization should continue. */
+    if( ( returnedError == AWS_IOT_SERIALIZER_SUCCESS ) || ( returnedError == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) )
     {
-        returnError = _openContainer( pEncoderObject, pNewEncoderObject, length );
+        returnedError = _openContainer( pEncoderObject, pNewEncoderObject, length );
     }
 
-    return returnError;
+    return returnedError;
 }
 
 /*-----------------------------------------------------------*/
@@ -214,38 +249,31 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
 static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                 AwsIotSerializerEncoderObject_t * pNewEncoderObject )
 {
-    AwsIotSerializerError_t returnError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    CborError cborError;
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
 
-    CborEncoder * pOuterEncoder = _castEncoderObjectToCborEncoder( pEncoderObject );
-    CborEncoder * pInnerEncoder = _castEncoderObjectToCborEncoder( pNewEncoderObject );
+    CborEncoder * pOuterEncoder = ( CborEncoder * ) pEncoderObject->pHandle;
+    CborEncoder * pInnerEncoder = ( CborEncoder * ) pNewEncoderObject->pHandle;
 
     cborError = cbor_encoder_close_container( pOuterEncoder, pInnerEncoder );
 
-    /* free inner encoder's memory regardless the result of "close container". */
+    /* Free inner encoder's memory regardless the result of "close container". */
     vPortFree( pInnerEncoder );
 
-    if( _noCborError( cborError ) )
-    {
-        returnError = AWS_IOT_SERIALIZER_SUCCESS;
-    }
+    _translateErrorCode( cborError, &returnedError );
 
-    return returnError;
+    return returnedError;
 }
 
 /*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                        AwsIotSerializerScalarData_t scalarData)
+                                        AwsIotSerializerScalarData_t scalarData )
 {
+    AwsIotSerializerError_t returnedError = AWS_IOT_SERIALIZER_SUCCESS;
+    CborError cborError = CborNoError;
 
-
-    AwsIotSerializerError_t returnError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    CborError cborError = CborUnknownError;
-    size_t stringLength;
-    char *pString;
-
-    CborEncoder * pCborEncoder = _castEncoderObjectToCborEncoder( pEncoderObject );
+    CborEncoder * pCborEncoder = ( CborEncoder * ) pEncoderObject->pHandle;
 
     switch( scalarData.type )
     {
@@ -254,9 +282,7 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
             break;
 
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
-            pString = ( char * )( scalarData.value.pString );
-            stringLength = ( scalarData.value.stringLength == 0 ) ? strlen( pString ) : scalarData.value.stringLength;
-            cborError = cbor_encode_text_string( pCborEncoder, pString, stringLength );
+            cborError = cbor_encode_text_string( pCborEncoder, ( char * ) scalarData.value.pString, scalarData.value.stringLength );
             break;
 
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
@@ -272,30 +298,28 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
             break;
 
         default:
-            returnError = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
+            returnedError = AWS_IOT_SERIALIZER_UNDEFINED_TYPE;
     }
 
-    if( _noCborError( cborError ) )
-    {
-        returnError = AWS_IOT_SERIALIZER_SUCCESS;
-    }
+    _translateErrorCode( cborError, &returnedError );
 
-    return returnError;
+    return returnedError;
 }
 
 /*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                 const char * pKey,
-                                                AwsIotSerializerScalarData_t scalarData)
+                                                AwsIotSerializerScalarData_t scalarData )
 {
-    AwsIotSerializerScalarData_t keyScalarData = AwsIotSerializer_ScalarTextString(pKey);
-    AwsIotSerializerError_t returnError = _append( pEncoderObject, keyScalarData );
+    AwsIotSerializerScalarData_t keyScalarData = AwsIotSerializer_ScalarTextString( pKey );
+    AwsIotSerializerError_t returnedError = _append( pEncoderObject, keyScalarData );
 
-    if( returnError == AWS_IOT_SERIALIZER_SUCCESS )
+    /* Buffer too small is a special error case that serialization should continue. */
+    if( ( returnedError == AWS_IOT_SERIALIZER_SUCCESS ) || ( returnedError == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) )
     {
-        returnError = _append( pEncoderObject, scalarData);
+        returnedError = _append( pEncoderObject, scalarData );
     }
 
-    return returnError;
+    return returnedError;
 }
