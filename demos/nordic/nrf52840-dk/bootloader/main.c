@@ -304,7 +304,7 @@ int main( void )
 
     if( bBank2AFRHeader ) /* We have a firmware in the second bank */
     {
-        if( bBank1AFRHeader && ( BANK1_DESCRIPTOR->ulSequenceNumber >=
+        if( bBank1AFRHeader && ( BANK1_DESCRIPTOR->ulSequenceNumber >
                                  BANK2_DESCRIPTOR->ulSequenceNumber ) )
         {
             /** The firmware in the second bank has lower number than the one in the
