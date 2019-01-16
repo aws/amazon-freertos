@@ -79,6 +79,12 @@
 /**@{ */
 #if posixconfigENABLE_PTHREAD_COND_T == 1
     #define PTHREAD_COND_INITIALIZER         FREERTOS_POSIX_COND_INITIALIZER  /**< pthread_cond_t. */
+#else
+    /**
+     * pthread cond initializer place holder for compilation to go through
+     * for the ports that don't define PTHREAD_COND_INITIALIZER (for example: esp)
+     */
+    #define PTHREAD_COND_INITIALIZER  ((pthread_cond_t) 0xFFFFFFFF)
 #endif
 
 #if posixconfigENABLE_PTHREAD_MUTEX_T == 1
