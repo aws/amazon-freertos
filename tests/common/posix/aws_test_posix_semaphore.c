@@ -67,7 +67,7 @@ TEST_GROUP_RUNNER( Full_POSIX_SEMAPHORE )
 TEST( Full_POSIX_SEMAPHORE, sem_wait_trywait )
 {
     int iStatus = 0;
-    sem_t xSemaphore = ( sem_t ) NULL;
+    sem_t xSemaphore = { 0 };
 
     /* Initialize a semaphore with value 1. */
     iStatus = sem_init( &xSemaphore, 0, 1 );
@@ -93,7 +93,7 @@ TEST( Full_POSIX_SEMAPHORE, sem_wait_trywait )
 TEST( Full_POSIX_SEMAPHORE, sem_timedwait )
 {
     int iStatus = 0;
-    sem_t xSemaphore = ( sem_t ) NULL;
+    sem_t xSemaphore = { 0 };
     struct timespec xDelay = { 0 };
 
     /* Initialize a semaphore with value 2. */
@@ -131,7 +131,7 @@ TEST( Full_POSIX_SEMAPHORE, sem_timedwait )
 TEST( Full_POSIX_SEMAPHORE, sem_value )
 {
     int iStatus = 0, iSemaphoreValue = 0;
-    sem_t xSemaphore = ( sem_t ) NULL;
+    sem_t xSemaphore = { 0 };
 
     /* Creating a semaphore with a value more than SEM_VALUE_MAX should fail. */
     iStatus = sem_init( &xSemaphore, 0, SEM_VALUE_MAX + 1 );

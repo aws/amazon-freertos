@@ -33,6 +33,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/includ
 COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/BufferManagement/BufferAllocation_1.o \
                         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread.o \
                         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_mutex.o \
+                        $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_cond.o \
                         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_sched.o
 
 ifndef AMAZON_FREERTOS_ENABLE_UNIT_TEST

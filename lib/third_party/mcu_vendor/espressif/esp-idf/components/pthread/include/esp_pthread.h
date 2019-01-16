@@ -33,3 +33,5 @@ typedef struct esp_pthread_mutex {
         .sem  = NULL,                              \
         .type = PTHREAD_MUTEX_NORMAL               \
     }))
+/** pthread cond initializer place holder */
+#define PTHREAD_COND_INITIALIZER  ((pthread_cond_t) 0xFFFFFFFF)

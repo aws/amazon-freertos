@@ -77,7 +77,9 @@
  * @defgroup Compile-time initializers.
  */
 /**@{ */
-#define PTHREAD_COND_INITIALIZER         FREERTOS_POSIX_COND_INITIALIZER  /**< pthread_cond_t. */
+#if posixconfigENABLE_PTHREAD_COND_T == 1
+    #define PTHREAD_COND_INITIALIZER         FREERTOS_POSIX_COND_INITIALIZER  /**< pthread_cond_t. */
+#endif
 
 #if posixconfigENABLE_PTHREAD_MUTEX_T == 1
     #define PTHREAD_MUTEX_INITIALIZER    FREERTOS_POSIX_MUTEX_INITIALIZER /**< pthread_mutex_t. */

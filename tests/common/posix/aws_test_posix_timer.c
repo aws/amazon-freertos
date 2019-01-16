@@ -72,7 +72,7 @@ typedef struct TimerCallbackThreadReturn
 /**
  * @brief Used to synchronize the timer callback thread and test runner thread.
  */
-static sem_t xSemaphore = NULL;
+static sem_t xSemaphore = { 0 };
 
 /**
  * @brief The default event notification structure.
