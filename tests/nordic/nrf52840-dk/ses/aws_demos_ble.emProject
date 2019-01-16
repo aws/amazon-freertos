@@ -389,7 +389,7 @@
     linker_printf_fmt_level="long"
     linker_printf_width_precision_supported="Yes"
     linker_section_placement_file="flash_placement.xml"
-    linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x26000;FLASH_SIZE=0xda000;RAM_START=0x20004518;RAM_SIZE=0x3Bae8"
+    linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x26000;FLASH_SIZE=0xda000;RAM_START=0x200045F0;RAM_SIZE=0x3BA10"
     linker_section_placements_segments="FLASH RX 0x0 0x100000;RAM RWX 0x20000000 0x40000"
     macros="CMSIS_CONFIG_TOOL=../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0_9412b96/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar;CERT_KEY_SIZE=0x2000"
     project_directory=""
