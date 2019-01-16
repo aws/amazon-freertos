@@ -14,4 +14,4 @@ ret_code_t xCryptoUnInit();
  */
 ret_code_t xVerifyImageSignature( uint8_t * pusImageStart );
 
-#endif
+#endif /* ifndef __CRYPTO_H */

@@ -1,16 +1,16 @@
 #ifndef __BOOTLOADER_H
 #define __BOOTLOADER_H
 
-#define AFR_MAGICK                     "@AFRTOS" /* Magick number for the AFR image */
-#define MAGICK_SIZE                    7 /* sizeof Magick */
-#define SIGNATURE_MAX_SIZE             256 /* Size allocated for signature in the header */
-#define CODE_REGION_1_START            SD_SIZE_GET( MBR_SIZE ) /* Start of the first region*/
-#define CODE_REGION_2_START            0x8F000 /* Start of the second region */
+#define AFR_MAGICK                     "@AFRTOS"                                       /* Magick number for the AFR image */
+#define MAGICK_SIZE                    7                                               /* sizeof Magick */
+#define SIGNATURE_MAX_SIZE             256                                             /* Size allocated for signature in the header */
+#define CODE_REGION_1_START            SD_SIZE_GET( MBR_SIZE )                         /* Start of the first region*/
+#define CODE_REGION_2_START            0x8F000                                         /* Start of the second region */
 #define DESCRIPTOR_SIZE                CODE_PAGE_SIZE
-#define NRF_UICR_BOOT_START_ADDRESS    ( NRF_UICR_BASE + 0x14 ) /* UICR page containing bootloader start address */
+#define NRF_UICR_BOOT_START_ADDRESS    ( NRF_UICR_BASE + 0x14 )                        /* UICR page containing bootloader start address */
 #define BOOTLOADER_REGION_START        ( *( uint32_t * ) NRF_UICR_BOOT_START_ADDRESS ) /* Bootloader start address */
 #define HARDWARE_ID                    0
-#define STACK_BEGIN                    0x20040000    /* Starting address for the stack */
+#define STACK_BEGIN                    0x20040000                                      /* Starting address for the stack */
 typedef struct
 {
     uint8_t pMagick[ MAGICK_SIZE ];           /* 7 byte pattern used to identify if application image is present on the image slot in flash. */
@@ -34,5 +34,15 @@ typedef enum
 
 #define BANK1_DESCRIPTOR    ( ( ImageDescriptor_t * ) CODE_REGION_1_START )
 #define BANK2_DESCRIPTOR    ( ( ImageDescriptor_t * ) CODE_REGION_2_START )
+
+typedef enum
+{
+    LED_BOOT, LED_NO_CORRECT_FIRMWARE
+} LedStatus_t;                                                /* Enum for the status indication */
+
+typedef enum
+{
+    FIRST_BANK, SECOND_BANK
+} Bank_t;                                      /* Enum for the possible banks */
 
 #endif /* __BOOTLOADER_H */
