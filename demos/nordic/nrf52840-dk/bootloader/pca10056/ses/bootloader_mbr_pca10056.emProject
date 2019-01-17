@@ -1,6 +1,6 @@
 <!DOCTYPE CrossStudio_Project_File>
-<solution Name="bootloader_mbr_pca10056" target="8" version="2">
-  <project Name="bootloader_mbr_pca10056">
+<solution Name="secure_bootloader_mbr_pca10056" target="8" version="2">
+  <project Name="secure_bootloader_mbr_pca10056">
     <configuration
       Name="Common"
       arm_architecture="v7EM"
@@ -27,7 +27,7 @@
       linker_printf_fmt_level="long"
       linker_printf_width_precision_supported="Yes"
       linker_section_placement_file="flash_placement.xml"
-      linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0xf8000;FLASH_SIZE=0x6000;RAM_START=0x20000008;RAM_SIZE=0x3fff8"
+      linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0xF8000;FLASH_SIZE=0x6000;RAM_START=0x20000008;RAM_SIZE=0x3fff8"
       linker_section_placements_segments="FLASH RX 0x0 0x100000;RAM RWX 0x20000000 0x40000;uicr_bootloader_start_address RX 0x10001014 0x4;mbr_params_page RX 0x000FE000 0x1000;bootloader_settings_page RX 0x000FF000 0x1000;uicr_mbr_params_page RX 0x10001018 0x4"
       macros="CMSIS_CONFIG_TOOL=../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar"
       project_directory=""
@@ -62,6 +62,7 @@
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/queue/nrf_queue.c" />
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/strerror/nrf_strerror.c" />
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/slip/slip.c" />
+      <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/bootloader/nrf_bootloader_info.c" />
     </folder>
     <folder Name="nRF_Drivers">
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/nrf_soc_nosd/nrf_nvic.c" />
@@ -107,8 +108,7 @@
       </folder>
     </folder>
   </project>
-  <configuration
-    Name="Release"
+  <configuration Name="Release"
     c_preprocessor_definitions="NDEBUG"
-    gcc_optimization_level="Optimize For Size" />
+    gcc_optimization_level="None" />
 </solution>

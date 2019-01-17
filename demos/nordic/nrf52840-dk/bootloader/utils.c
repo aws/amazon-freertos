@@ -72,17 +72,17 @@
  * @param[in]  addr     The address to execute.
  */
 #if defined ( __CC_ARM )
-__ASM void StartApplication(uint32_t start_addr)                                                                                                                                                                       
-{                                                                                                                                                                                                                      
-    LDR   R2, [R0]               ; Get App MSP.                                                                                                                                                                        
+__ASM void StartApplication(uint32_t start_addr)
+{
+    LDR   R2, [R0]               ; Get App MSP.
     MSR   MSP, R2                ; Set the main stack pointer to the applications MSP.
     LDR   R3, [R0, #0x00000004]  ; Get application reset vector address.
-    BX    R3                     ; No return - stack code is now activated only through SVC and plain interrupts.                                                                                                     
+    BX    R3                     ; No return - stack code is now activated only through SVC and plain interrupts.
     ALIGN
 }
 
 #else
-void StartApplication(uint32_t start_addr)
+void vStartApplication(uint32_t start_addr)
 {
     __ASM volatile(
     "LDR   R2, [%0]              \n" //Get App MSP.

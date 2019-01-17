@@ -11,8 +11,8 @@
 #define aws_ble_gap_configADV_INTERVAL                      300                                /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 #define aws_ble_gap_configADV_DURATION                      18000                              /**< The advertising duration (180 seconds) in units of 10 milliseconds. */
 
-#define aws_ble_gap_configMIN_CONN_INTERVAL                 MSEC_TO_UNITS( 100, UNIT_1_25_MS ) /**< Minimum acceptable connection interval (0.5 seconds). */
-#define aws_ble_gap_configMAX_CONN_INTERVAL                 MSEC_TO_UNITS( 200, UNIT_1_25_MS ) /**< Maximum acceptable connection interval (1 second). */
+#define aws_ble_gap_configMIN_CONN_INTERVAL                 MSEC_TO_UNITS( 20, UNIT_1_25_MS ) /**< Minimum acceptable connection interval (0.5 seconds). */
+#define aws_ble_gap_configMAX_CONN_INTERVAL                 MSEC_TO_UNITS( 30, UNIT_1_25_MS ) /**< Maximum acceptable connection interval (1 second). */
 #define aws_ble_gap_configSLAVE_LATENCY                     0                                  /**< Slave latency. */
 #define aws_ble_gap_configCONN_SUP_TIMEOUT                  MSEC_TO_UNITS( 4000, UNIT_10_MS )  /**< Connection supervisory time-out (4 seconds). */
 

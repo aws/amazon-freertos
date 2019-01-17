@@ -15,8 +15,8 @@
       arm_simulator_memory_simulation_parameter="RWX 00000000,00100000,FFFFFFFF;RWX 20000000,00010000,CDCDCDCD"
       arm_target_device_name="nRF52840_xxAA"
       arm_target_interface_type="SWD"
-      c_preprocessor_definitions="NRF52840_XXAA;BOARD_PCA10056;CONFIG_GPIO_AS_PINRESET;ENABLE_DEBUG_LOG_SUPPORT;FLOAT_ABI_HARD;INITIALIZE_USER_SECTIONS;NO_VTOR_CONFIG;NRF_SD_BLE_API_VERSION=6;RETARGET_ENABLED=1;S140;SDK_MUTEX_ENABLE;SOFTDEVICE_PRESENT;SWI_DISABLE0;__FREERTOS;DEBUG_GAP"
-      c_user_include_directories="../common/config_files;../../../common/include;../../../../lib/FreeRTOS/portable/CMSIS/nrf52;../../../../lib/FreeRTOS/portable/GCC/nrf52840-dk;../../../../lib/FreeRTOS-Plus-POSIX/include/portable/nordic/nrf52840-dk;../../../../lib/FreeRTOS-Plus-POSIX/include;../../../../lib/include;../../../../lib/include/FreeRTOS_POSIX/sys;../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk;../../../../lib/include/bluetooth_low_energy;../../../../lib/include/private;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/micro-ecc/micro-ecc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external//mbedtls/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/stack_info;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310_bl;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/mbedtls;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/oberon;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_sw;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_hw;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cifra;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/s140/headers;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain/cmsis/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_advertising;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/nrf_ble_gatt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/nrf_ble_qwr;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_services/ble_bas;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_services/ble_hrs;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_services/ble_dis;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/boards;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/device;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/clock;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/delay;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/gpiote;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/hal;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/rng;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/timer;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/wdt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic_fifo;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic_flags;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/balloc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/bsp;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/button;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/delay;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/experimental_section_vars;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fds;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/hardfault;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/mem_manager;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/memobj;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/mutex;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/queue;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/ringbuf;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/strerror;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/sensorsim;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/timer;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/s140/headers;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain/cmsis/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/fprintf;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/segger_rtt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx/legacy;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/hal;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/nrf_cc310/include;../../../../lib/third_party/jsmn;../../../../lib/third_party/unity/src;../../../../lib/third_party/unity/src;../../../../lib/third_party/unity/extras/fixture/src;../../../../demos/common/include" />
+      c_preprocessor_definitions="NRF52840_XXAA;BOARD_PCA10056;CONFIG_GPIO_AS_PINRESET;ENABLE_DEBUG_LOG_SUPPORT;FLOAT_ABI_HARD;INITIALIZE_USER_SECTIONS;NO_VTOR_CONFIG;NRF_SD_BLE_API_VERSION=6;RETARGET_ENABLED=1;S140;SDK_MUTEX_ENABLE;SOFTDEVICE_PRESENT;SWI_DISABLE0;__FREERTOS;DEBUG_GAP;AWS_IOT_CONFIG_FILE=&quot;aws_iot_config.h&quot;"
+      c_user_include_directories="../common/config_files;../../../common/include;../../../../lib/FreeRTOS/portable/CMSIS/nrf52;../../../../lib/FreeRTOS/portable/GCC/nrf52840-dk;../../../../lib/FreeRTOS-Plus-POSIX/include/portable/nordic/nrf52840-dk;../../../../lib/FreeRTOS-Plus-POSIX/include;../../../../lib/include;../../../../lib/include/FreeRTOS_POSIX;../../../../lib/include/FreeRTOS_POSIX/sys;../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk;../../../../lib/include/bluetooth_low_energy;../../../../lib/include/private;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/micro-ecc/micro-ecc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external//mbedtls/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/stack_info;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310_bl;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/mbedtls;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/oberon;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_sw;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_hw;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cifra;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/s140/headers;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain/cmsis/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_advertising;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/nrf_ble_gatt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/nrf_ble_qwr;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_services/ble_bas;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_services/ble_hrs;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_services/ble_dis;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/boards;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/device;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/clock;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/delay;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/gpiote;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/hal;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/rng;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/timer;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/wdt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic_fifo;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic_flags;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/balloc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/bsp;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/button;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/delay;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/experimental_section_vars;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fds;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/hardfault;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/mem_manager;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/memobj;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/mutex;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/queue;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/ringbuf;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/strerror;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/sensorsim;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/timer;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/s140/headers;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain/cmsis/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/fprintf;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/segger_rtt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx/legacy;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/hal;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/nrf_cc310/include;../../../../lib/third_party/jsmn;../../../../lib/third_party/unity/src;../../../../lib/third_party/unity/src;../../../../lib/third_party/unity/extras/fixture/src;../../../../tests/common/mqtt/access;../../../../demos/common/include" />
     <folder Name="lib">
       <folder Name="aws">
         <folder Name="Bluetooth_low_energy">
@@ -123,6 +123,26 @@
             <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_utils.c" />
           </folder>
         </folder>
+        <folder Name="Mqtt">
+          <file file_name="../../../../lib/mqtt/aws_iot_mqtt_serialize_ble.c" />
+          <file file_name="../../../../lib/mqtt/aws_iot_mqtt_subscription.c" />
+        </folder>
+        <folder Name="Serializer">
+          <folder Name="Json">
+            <file file_name="../../../../lib/serializer/json/aws_iot_serializer_json_decoder.c" />
+            <file file_name="../../../../lib/serializer/json/aws_iot_serializer_json_encoder.c" />
+          </folder>
+        </folder>
+        <folder Name="Utils">
+          <folder Name="Platform">
+            <file file_name="../../../../lib/utils/platform/aws_iot_threads_posix.c" />
+            <file file_name="../../../../lib/utils/platform/aws_iot_clock_posix.c" />
+          </folder>
+        </folder>
+        <folder Name="Common">
+          <file file_name="../../../../lib/common/aws_iot_logging.c" />
+          <file file_name="../../../../lib/common/aws_iot_queue.c" />
+        </folder>
       </folder>
       <folder Name="third_party">
         <folder Name="jsmn">
@@ -134,10 +154,10 @@
         </folder>
         <folder Name="nrf_cc310">
           <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/nrf_cc310/lib/libnrf_cc310_0.9.10.a">
-            <configuration Name="Debug" build_exclude_from_build="Yes" />
+            <configuration Name="Debug" build_exclude_from_build="No" />
           </file>
           <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/nrf_cc310/lib/libnrf_cc310_core_0.9.10.a">
-            <configuration Name="Debug" build_exclude_from_build="Yes" />
+            <configuration Name="Debug" build_exclude_from_build="No" />
           </file>
         </folder>
         <folder Name="uECC">
@@ -147,6 +167,7 @@
           <folder Name="library">
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/mbedtls/library/aes.c" />
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/mbedtls/library/ctr_drbg.c" />
+            <file file_name="../../../../lib/third_party/mbedtls/library/base64.c" />
           </folder>
         </folder>
       </folder>
@@ -230,26 +251,32 @@
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_ecdh.c" />
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_rng.c" />
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_ecc.c">
-              <configuration Name="Debug" build_exclude_from_build="Yes" />
+              <configuration Name="Debug" build_exclude_from_build="No" />
             </file>
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_ecdh.c">
-              <configuration Name="Debug" build_exclude_from_build="Yes" />
+              <configuration Name="Debug" build_exclude_from_build="No" />
             </file>
-            <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_rng.c">
-              <configuration Name="Debug" build_exclude_from_build="Yes" />
+            <file file_name="cc310_backend_rng.c">
+              <configuration Name="Debug" build_exclude_from_build="No" />
             </file>
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_init.c">
-              <configuration Name="Debug" build_exclude_from_build="Yes" />
+              <configuration Name="Debug" build_exclude_from_build="No" />
             </file>
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_shared.c">
-              <configuration Name="Debug" build_exclude_from_build="Yes" />
+              <configuration Name="Debug" build_exclude_from_build="No" />
             </file>
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_mutex.c">
+              <configuration Name="Debug" build_exclude_from_build="No" />
+            </file>
+            <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecc.c">
               <configuration Name="Debug" build_exclude_from_build="Yes" />
             </file>
-            <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecc.c" />
-            <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdh.c" />
-            <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdsa.c" />
+            <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdh.c">
+              <configuration Name="Debug" build_exclude_from_build="Yes" />
+            </file>
+            <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecdsa.c">
+              <configuration Name="Debug" build_exclude_from_build="Yes" />
+            </file>
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng.c" />
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng_mbedtls.c" />
             <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_init.c" />
@@ -326,6 +353,9 @@
         <folder Name="test_runner">
           <file file_name="../../../common/test_runner/aws_test_runner.c" />
         </folder>
+        <folder Name="mqtt">
+          <file file_name="../../../common/mqtt/unit/aws_iot_tests_mqtt_serialize_ble.c" />
+        </folder>
       </folder>
       <folder Name="common_demos">
         <folder Name="logging">
@@ -359,7 +389,7 @@
     linker_printf_fmt_level="long"
     linker_printf_width_precision_supported="Yes"
     linker_section_placement_file="flash_placement.xml"
-    linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x26000;FLASH_SIZE=0xda000;RAM_START=0x200041A0;RAM_SIZE=0x3BE60"
+    linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x26000;FLASH_SIZE=0xda000;RAM_START=0x200045F0;RAM_SIZE=0x3BA10"
     linker_section_placements_segments="FLASH RX 0x0 0x100000;RAM RWX 0x20000000 0x40000"
     macros="CMSIS_CONFIG_TOOL=../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0_9412b96/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar;CERT_KEY_SIZE=0x2000"
     project_directory=""
