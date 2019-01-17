@@ -133,6 +133,7 @@
 
 #ifndef __ASSEMBLER__
 #define BIT(nr)                 (1UL << (nr))
+#define BIT64(nr)               (1ULL << (nr))
 #else
 #define BIT(nr)                 (1 << (nr))
 #endif
@@ -307,7 +308,6 @@
 //(excluding RTC data region, that's checked separately.) See esp_ptr_internal().
 #define SOC_MEM_INTERNAL_LOW        0x3FF90000
 #define SOC_MEM_INTERNAL_HIGH       0x400C2000
-
 
 //Interrupt hardware source table
 //This table is decided by hardware, don't touch this.

@@ -43,7 +43,11 @@ function run_tests()
     print_status "Cloning template from ${ESP_IDF_TEMPLATE_GIT}..."
     git clone ${ESP_IDF_TEMPLATE_GIT} template
     cd template
-    git checkout ${CI_BUILD_REF_NAME} || echo "Using esp-idf-template default branch..."
+    if [ -z $CHECKOUT_REF_SCRIPT ]; then
+        git checkout ${CI_BUILD_REF_NAME} || echo "Using esp-idf-template default branch..."
+    else
+        $CHECKOUT_REF_SCRIPT esp-idf-template
+    fi
 
     print_status "Updating template config..."
     make defconfig || exit $?
@@ -183,6 +187,10 @@ function run_tests()
     assert_rebuilt nvs_flash/src/nvs_api.o
     assert_rebuilt freertos/xtensa_vectors.o
 
+    print_status "print_flash_cmd target should produce one line of output"
+    make
+    test $(make print_flash_cmd V=0 | wc -l | tr -d ' ') -eq 1
+
     print_status "Can include/exclude object files"
     echo "#error This file should not compile" > main/excluded_file.c
     echo "int required_global;" > main/included_file.c
@@ -205,9 +213,30 @@ function run_tests()
     git checkout main/component.mk
     rm -rf extra_source_dir
 
-    print_status "print_flash_cmd target should produce one line of output"
+    print_status "Can build without git installed on system"
+    clean_build_dir
+    # Make provision for getting IDF version
+    echo "custom-version-x.y" > ${IDF_PATH}/version.txt
+    # Hide .gitmodules so that submodule check is avoided
+    [ -f ${IDF_PATH}/.gitmodules ] && mv ${IDF_PATH}/.gitmodules ${IDF_PATH}/.gitmodules_backup
+    # Overload `git` command
+    echo -e '#!/bin/bash\ntouch ${IDF_PATH}/git_invoked' > git
+    chmod +x git
+    OLD_PATH=$PATH
+    export PATH="$PWD:$PATH"
     make
-    test $(make print_flash_cmd V=0 | wc -l | tr -d ' ') -eq 1
+    [ -f ${IDF_PATH}/git_invoked ] && rm ${IDF_PATH}/git_invoked && failure "git should not have been invoked in this case"
+    rm -f ${IDF_PATH}/version.txt git
+    [ -f ${IDF_PATH}/.gitmodules_backup ] && mv ${IDF_PATH}/.gitmodules_backup ${IDF_PATH}/.gitmodules
+    export PATH=$OLD_PATH
+
+    print_status "Build fails if partitions don't fit in flash"
+    cp sdkconfig sdkconfig.bak
+    sed -i "s/CONFIG_ESPTOOLPY_FLASHSIZE.\+//" sdkconfig  # remove all flashsize config
+    echo "CONFIG_ESPTOOLPY_FLASHSIZE_1MB=y" >> sdkconfig     # introduce undersize flash
+    make defconfig || failure "Failed to reconfigure with smaller flash"
+    ( make 2>&1 | grep "does not fit in configured flash size 1MB" ) || failure "Build didn't fail with expected flash size failure message"
+    mv sdkconfig.bak sdkconfig
 
     print_status "All tests completed"
     if [ -n "${FAILURES}" ]; then

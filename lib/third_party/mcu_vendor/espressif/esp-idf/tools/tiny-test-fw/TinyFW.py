@@ -106,6 +106,8 @@ get_passed_cases = TestResult.get_passed_cases
 MANDATORY_INFO = {
     "execution_time": 1,
     "env_tag": "default",
+    "category": "function",
+    "ignore": False,
 }
 
 
@@ -129,14 +131,8 @@ def test_method(**kwargs):
         test_func_file_name = frame[1][1]
 
         case_info = MANDATORY_INFO.copy()
-        case_info["name"] = test_func.__name__
+        case_info["name"] = case_info["ID"] = test_func.__name__
         case_info.update(kwargs)
-
-        # create env instance
-        env_config = DefaultEnvConfig.get_default_config()
-        for key in kwargs:
-            if key in env_config:
-                env_config[key] = kwargs[key]
 
         @functools.wraps(test_func)
         def handle_test(extra_data=None, **overwrite):
@@ -147,12 +143,19 @@ def test_method(**kwargs):
             :param overwrite: args that runner or main want to overwrite
             :return: None
             """
+            # create env instance
+            env_config = DefaultEnvConfig.get_default_config()
+            for key in kwargs:
+                if key in env_config:
+                    env_config[key] = kwargs[key]
+
             env_config.update(overwrite)
             env_inst = Env.Env(**env_config)
             # prepare for xunit test results
             xunit_file = os.path.join(env_inst.app_cls.get_log_folder(env_config["test_suite_name"]),
                                       XUNIT_FILE_NAME)
             XUNIT_RECEIVER.begin_case(test_func.__name__, time.time(), test_func_file_name)
+            result = False
             try:
                 Utility.console_log("starting running test: " + test_func.__name__, color="green")
                 # execute test function
@@ -162,12 +165,11 @@ def test_method(**kwargs):
             except Exception as e:
                 # handle all the exceptions here
                 traceback.print_exc()
-                result = False
                 # log failure
                 XUNIT_RECEIVER.failure(str(e), test_func_file_name)
             finally:
-                # do close all DUTs
-                env_inst.close()
+                # do close all DUTs, if result is False then print DUT debug info
+                env_inst.close(dut_debug=(not result))
             # end case and output result
             XUNIT_RECEIVER.end_case(test_func.__name__, time.time())
             with open(xunit_file, "ab+") as f:
