@@ -77,9 +77,7 @@ static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator
 static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iterator,
                                           AwsIotSerializerDecoderObject_t * pDecoderObject );
 
-static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject );
-
-static void _print( uint8_t * pDataBuffer, size_t dataSize );
+static void _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject );
 
 AwsIotSerializerDecodeInterface_t _AwsIotSerializerJsonDecoder =
 {
@@ -90,8 +88,7 @@ AwsIotSerializerDecodeInterface_t _AwsIotSerializerJsonDecoder =
     .get = _get,
     .next = _next,
     .stepOut = _stepOut,
-    .destroy = _destroy,
-    .print = _print
+    .destroy = _destroy
 };
 
 typedef struct _jsonContainer
@@ -667,11 +664,11 @@ static AwsIotSerializerError_t  _stepOut( AwsIotSerializerDecoderIterator_t iter
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
-static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject )
+static void _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject )
 {
     if( !_isValidContainer( pDecoderObject ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+        return;
     }
 
     if( pDecoderObject->pHandle != NULL )
@@ -679,11 +676,4 @@ static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDeco
         vPortFree( pDecoderObject->pHandle );
         pDecoderObject->pHandle = NULL;
     }
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
-}
-
-static void _print( uint8_t * pDataBuffer, size_t dataSize )
-{
-    configPRINTF(( "%.*s\n", dataSize, ( const char * ) pDataBuffer ));
 }

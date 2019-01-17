@@ -59,8 +59,7 @@ static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator
 
 static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator );
 
-static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject );
-
+static void _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject );
 
 AwsIotSerializerDecodeInterface_t _AwsIotSerializerCborDecoder =
 {
@@ -184,10 +183,7 @@ static AwsIotSerializerError_t _createDecoderObject( _cborValueWrapper_t * pCbor
 
                    /* TODO: assert no error on _createDecoderObject */
 
-                   pDecoderObject->value = ( AwsIotSerializerScalarValue_t )
-                   {
-                       .signedInt = i
-                   };
+                   pDecoderObject->value.signedInt = i;
 
                    break;
                }
@@ -302,16 +298,15 @@ static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoder
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject )
+static void _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject )
 {
-    /* TODO: assert pDecoderObject is a container. */
+    /* If it is not an container, no action. */
+    if( !AwsIotSerializer_IsContainer( pDecoderObject ) )
+    {
+        return;
+    }
 
     _cborValueWrapper_t * pCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
-
-    if( pCborValueWrapper == NULL )
-    {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
 
     /* If this is outmost object, the parser's memory needs to be freed. */
     if( pCborValueWrapper->isOutermost )
@@ -323,8 +318,6 @@ static AwsIotSerializerError_t _destroy( AwsIotSerializerDecoderObject_t * pDeco
 
     /* Reset decoder object's handle to NULL. */
     pDecoderObject->pHandle = NULL;
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/

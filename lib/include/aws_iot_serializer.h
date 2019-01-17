@@ -58,9 +58,12 @@
 #define AwsIotSerializer_ScalarByteString( pByteStringValue, length )                                                                                            \
     ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( pByteStringValue ), .stringLength = ( length ) }, .type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING } \
 
-/* Determine if the data type is a container. */
-#define AwsIotSerializer_IsContainer( dataType )                                                                                                                      \
-    ( ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_STREAM || ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_ARRAY || ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_MAP ) \
+/* Determine if an object is a container. */
+#define AwsIotSerializer_IsContainer( object )                       \
+    ( ( object )                                                     \
+      && ( ( object )->type == AWS_IOT_SERIALIZER_CONTAINER_STREAM   \
+           || ( object )->type == AWS_IOT_SERIALIZER_CONTAINER_ARRAY \
+           || ( object )->type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
 
 /* error code returned by serializer function interface */
 typedef enum
@@ -260,9 +263,8 @@ typedef struct AwsIotSerializerDecodeInterface
     /**
      * @brief Destroy the decoder object handle
      * @param pDecoderObject Pointer to the decoder object
-     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
-    AwsIotSerializerError_t ( * destroy )( AwsIotSerializerDecoderObject_t * pDecoderObject );
+    void ( * destroy )( AwsIotSerializerDecoderObject_t * pDecoderObject );
 
 
     /**
@@ -336,14 +338,6 @@ typedef struct AwsIotSerializerDecodeInterface
      */
     AwsIotSerializerError_t ( * stepOut )( AwsIotSerializerDecoderIterator_t iterator,
                                            AwsIotSerializerDecoderObject_t * pDecoderObject );
-
-    /**
-     * Pretty format and print the buffer.
-     * @param[in] pDataBuffer Pointer to the buffer
-     * @param[in] dataSize Size of the buffer.
-     */
-    void ( * print )( uint8_t * pDataBuffer,
-                      size_t dataSize );
 } AwsIotSerializerDecodeInterface_t;
 
 /* Global reference of CBOR/JSON encoder and decoder. */
