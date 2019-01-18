@@ -116,7 +116,7 @@
       BSP_LED_2_MASK | BSP_LED_3_MASK )                                        /**< Define used for simultaneous operation of all application LEDs. */
 #define LED_BLINK_INTERVAL_MS               ( 300 )                            /**< LED blinking interval. */
 
-
+SemaphoreHandle_t xUARTTxComplete;
 QueueHandle_t UARTqueue = NULL;
 const AppVersion32_t xAppFirmwareVersion =
 {
@@ -152,15 +152,18 @@ void vUartWrite( uint8_t * pucData )
         {
             break;
         }
-        xErrCode = app_uart_put( pucData[ i ] );
 
-        if( ( xErrCode != NRF_SUCCESS ) && ( xErrCode != NRF_ERROR_BUSY ) )
+        do
         {
-            APP_ERROR_CHECK( xErrCode );
-        }
-    }
+            xErrCode = app_uart_put(pucData[ i ]);
+            if(xErrCode == NRF_ERROR_NO_MEM)
+            {
+            xErrCode = 0;
+            }
+        } while( xErrCode == NRF_ERROR_BUSY );
+        xSemaphoreTake(xUARTTxComplete, portMAX_DELAY );
 
-    vTaskDelay( 50 );
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -236,6 +239,10 @@ void prvUartEventHandler( app_uart_evt_t * pxEvent )
             APP_ERROR_HANDLER( pxEvent->data.error_code );
             break;
 
+        case APP_UART_TX_EMPTY:
+             xSemaphoreGiveFromISR(xUARTTxComplete, &xHigherPriorityTaskWoken);
+            break;
+
         default:
             break;
     }
@@ -298,7 +305,7 @@ static void prvUartInit( void )
                         UART_RX_BUF_SIZE,
                         UART_TX_BUF_SIZE,
                         prvUartEventHandler,
-                        APP_IRQ_PRIORITY_LOWEST,
+                        _PRIO_APP_HIGH,
                         xErrCode );
     APP_ERROR_CHECK( xErrCode );
 }
@@ -346,6 +353,7 @@ static void prvTimersInit( void )
 static void prvMiscInitialization( void )
 {
     /* Initialize modules.*/
+    xUARTTxComplete = xSemaphoreCreateBinary();
     prvUartInit();
     prvClockInit();
 

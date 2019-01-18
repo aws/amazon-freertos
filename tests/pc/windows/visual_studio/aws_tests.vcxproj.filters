@@ -214,6 +214,15 @@
     <Filter Include="application_code\common_tests\shadow\system">
       <UniqueIdentifier>{d00529e5-94b5-438c-aad1-016c8d3bb9c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\serializer">
+      <UniqueIdentifier>{437f0bc3-993a-42aa-ba32-82dd3b2aa5fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\serializer\cbor">
+      <UniqueIdentifier>{ae3d49ac-bbca-4c2c-b90b-0712dee8ce10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\serializer\json">
+      <UniqueIdentifier>{f207b132-dfdf-432a-ba29-40d77343918f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -837,6 +846,9 @@
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
@@ -1352,9 +1364,6 @@
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_semaphore.c">
       <Filter>application_code\common_tests\posix</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\demos\common\ota\aws_ota_update_demo.c">
-      <Filter>application_code\common_tests\ota</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\memory_leak\aws_memory_leak.c">
       <Filter>application_code\common_tests\memory_leak</Filter>
     </ClCompile>
@@ -1444,6 +1453,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\test_runner\aws_iot_tests_network.c">
       <Filter>application_code\common_tests\test_runner</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_decoder.c">
+      <Filter>lib\aws\serializer\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_encoder.c">
+      <Filter>lib\aws\serializer\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_decoder.c">
+      <Filter>lib\aws\serializer\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c">
+      <Filter>lib\aws\serializer\json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
