@@ -11,6 +11,7 @@
 #define BOOTLOADER_REGION_START        ( *( uint32_t * ) NRF_UICR_BOOT_START_ADDRESS ) /* Bootloader start address */
 #define HARDWARE_ID                    0
 #define STACK_BEGIN                    0x20040000                                      /* Starting address for the stack */
+#define MAX_PUBLIC_KEY_SIZE            96                                              /* Maximum size of the public key */
 typedef struct
 {
     uint8_t pMagick[ MAGICK_SIZE ];           /* 7 byte pattern used to identify if application image is present on the image slot in flash. */
@@ -38,11 +39,11 @@ typedef enum
 typedef enum
 {
     LED_BOOT, LED_NO_CORRECT_FIRMWARE
-} LedStatus_t;                                                /* Enum for the status indication */
+} LedStatus_t; /* Enum for the status indication */
 
 typedef enum
 {
     FIRST_BANK, SECOND_BANK
-} Bank_t;                                      /* Enum for the possible banks */
+} Bank_t; /* Enum for the possible banks */
 
 #endif /* __BOOTLOADER_H */
