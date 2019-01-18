@@ -43,6 +43,7 @@ extern const size_t otapalFLASH_END;
 #define otapalSIGNATURE_MAX_SIZE    256
 #define otapalMAGICK_SIZE           7
 
+#define otapalMAX_PUBLIC_KEY_SIZE   96 /* Maximum size of the public key */
 typedef enum
 {
     otapalIMAGE_FLAG_NEW = 0xFF,            /* If the application image is running for the first time and never executed before. */
