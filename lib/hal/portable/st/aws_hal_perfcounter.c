@@ -156,7 +156,7 @@ void aws_hal_perfcounter_open(void)
     ulTimClock = HAL_RCC_GetPCLK1Freq();
 
     /* Check user input frequency is valid. */
-    configASSERT( HAL_PERF_COUNTER_FREQ <= ulTimClock );
+    //configASSERT( HAL_PERF_COUNTER_FREQ <= ulTimClock );
 
     /* From STM32L475xx chip datasheet:
      * - TIM2 and TIM5 are 32-bit general purpose timers, while others are all 16-bit.
@@ -226,7 +226,7 @@ uint32_t aws_hal_perfcounter_get_frequency_hz(void)
     ulTimClock = HAL_RCC_GetPCLK1Freq();
 
     /* Avoid dividing by 0. */
-    configASSERT( ulTimClock > 0 );
+    //configASSERT( ulTimClock > 0 );
 
     return ( ulTimClock / ( xTimerHandle.Init.Prescaler + 1 ) );
 }

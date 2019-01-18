@@ -209,6 +209,9 @@
   */
 /* #define USE_FULL_ASSERT    1 */
 
+/* ######################## FreeRTOS Additional ############################ */
+#define USE_HAL_TIM_REGISTER_CALLBACKS    1U
+
 /* Includes ------------------------------------------------------------------*/
 /**
   * @brief Include module's header file 

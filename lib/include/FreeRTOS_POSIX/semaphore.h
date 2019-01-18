@@ -36,6 +36,16 @@
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX/time.h"
 #include "FreeRTOS_POSIX_types.h"
+#include "FreeRTOS_POSIX/tracing.h"
+
+#if ( POSIX_SEMAPHORE_TRACING == 1 )
+    #include <stdint.h>
+
+    void FreeRTOS_POSIX_semaphore_initPerfCounterCycleElapsed( void );
+    void FreeRTOS_POSIX_semaphore_deInitPerfCounterCycleElapsed( void );
+    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed( void );
+    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry( void );
+#endif /* POSIX_SEMAPHORE_TRACING */
 
 /**
  * @brief Semaphore type.

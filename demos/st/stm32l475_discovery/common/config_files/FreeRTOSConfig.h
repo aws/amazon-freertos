@@ -48,7 +48,7 @@
 #define configSUPPORT_STATIC_ALLOCATION              1
 
 #define configUSE_PREEMPTION                         1
-#define configUSE_IDLE_HOOK                          1
+#define configUSE_IDLE_HOOK                          0
 #define configUSE_TICK_HOOK                          0
 #define configUSE_TICKLESS_IDLE                      0
 #define configUSE_DAEMON_TASK_STARTUP_HOOK           1
@@ -61,16 +61,20 @@
 #define configUSE_TRACE_FACILITY                     1
 #define configUSE_16_BIT_TICKS                       0
 #define configIDLE_SHOULD_YIELD                      1
-#define configUSE_MUTEXES                            1
 #define configQUEUE_REGISTRY_SIZE                    8
 #define configCHECK_FOR_STACK_OVERFLOW               2
-#define configUSE_RECURSIVE_MUTEXES                  1
 #define configUSE_MALLOC_FAILED_HOOK                 1
-#define configUSE_APPLICATION_TASK_TAG               0
-#define configUSE_COUNTING_SEMAPHORES                1
 #define configGENERATE_RUN_TIME_STATS                0
 #define configOVERRIDE_DEFAULT_TICK_CONFIGURATION    1
 #define configRECORD_STACK_HIGH_ADDRESS              1
+
+#define configUSE_APPLICATION_TASK_TAG               1
+#define configUSE_MUTEXES                            1
+#define configUSE_RECURSIVE_MUTEXES                  1
+#define configUSE_COUNTING_SEMAPHORES                1
+#define configUSE_POSIX_ERRNO                        1
+
+#define configUSE_HAL_PERF_COUNTER                   1
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                        0
@@ -92,6 +96,8 @@
 #define INCLUDE_vTaskDelayUntil                      1
 #define INCLUDE_vTaskDelay                           1
 #define INCLUDE_xTaskGetSchedulerState               1
+
+#define INCLUDE_xSemaphoreGetMutexHolder             1      /* pthread_mutex_unlock() */
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
@@ -120,6 +126,13 @@
  * See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY \
     ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << ( 8 - configPRIO_BITS ) )
+
+/* Performance counter frequency in Hz. */
+#define configHAL_PERF_COUNTER_FREQ                     ( 10000000 )    // 10MHz
+
+/* Performance counter interrupt priority.
+ * Do not disable performance counter interrupt in critical section. */
+#define configHAL_PERF_COUNTER_INTERRUPT_PRIORITY       ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY - 1 )
 
 /* Normal assert() semantics without relying on the provision of an assert.h
  * header file. */

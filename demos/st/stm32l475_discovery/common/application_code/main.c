@@ -55,6 +55,9 @@
 /* Application version info. */
 #include "aws_application_version.h"
 
+/* Kernel profiling related. */
+#include "kernel_profiling.h"
+
 /* Declare the firmware version structure for all to see. */
 const AppVersion32_t xAppFirmwareVersion =
 {
@@ -68,6 +71,12 @@ const AppVersion32_t xAppFirmwareVersion =
 #define mainLOGGING_TASK_PRIORITY                       ( configMAX_PRIORITIES - 1 )
 #define mainLOGGING_TASK_STACK_SIZE                     ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH                ( 15 )
+
+/* Profiling task priorities.
+ * Depending on what is exactly being profiled, task priorities can be different.
+ * However, you do want to print things on screen. So make it at least lower than log task. */
+#define mainPROFILING_PRODUCER_CONSUMER                 ( mainLOGGING_TASK_PRIORITY - 1 )
+#define ASCII_PAGE_EJECT_DEC    ( 12 )
 
 /* Minimum required WiFi firmware version. */
 #define mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION  ( 3 )
@@ -155,44 +164,16 @@ int main( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    WIFIReturnCode_t xWifiStatus;
+    configPRINTF( ( "%c \r\n", ASCII_PAGE_EJECT_DEC ) );
+    configPRINTF( ( "Entering profiling task.\r\n" ) );
 
-    /* Turn on the WiFi before key provisioning. This is needed because
-     * if we want to use offload SSL, device certificate and key is stored
-     * on the WiFi module during key provisioning which requires the WiFi
-     * module to be initialized. */
-    xWifiStatus = WIFI_On();
+    // Dining philosopher
+    //vKernelProfilingDiningPhilosopher();
 
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "WiFi module initialized.\r\n" ) );
+    // Producer-consumer with mutex
+    vKernelProfilingProducerConsumerMutex( mainPROFILING_PRODUCER_CONSUMER );
 
-        /* A simple example to demonstrate key and certificate provisioning in
-         * microcontroller flash using PKCS#11 interface. This should be replaced
-         * by production ready key provisioning mechanism. */
-        vDevModeKeyProvisioning();
-
-        if( SYSTEM_Init() == pdPASS )
-        {
-            /* Connect to the WiFi before running the demos */
-            prvWifiConnect();
-
-            #ifdef USE_OFFLOAD_SSL
-                /* Check if WiFi firmware needs to be updated. */
-                prvCheckWiFiFirmwareVersion();
-            #endif /* USE_OFFLOAD_SSL */
-
-            /* Start demos. */
-            DEMO_RUNNER_RunDemos();
-        }
-    }
-    else
-    {
-        configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
-
-        /* Stop here if we fail to initialize WiFi. */
-        configASSERT( xWifiStatus == eWiFiSuccess );
-    }
+    configPRINTF( ( "Exiting profiling task.\r\n" ) );
 }
 /*-----------------------------------------------------------*/
 

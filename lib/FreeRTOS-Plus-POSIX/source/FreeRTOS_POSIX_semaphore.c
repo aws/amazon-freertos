@@ -36,6 +36,70 @@
 #include "FreeRTOS_POSIX/errno.h"
 #include "FreeRTOS_POSIX/semaphore.h"
 #include "FreeRTOS_POSIX/utils.h"
+#include "FreeRTOS_POSIX/tracing.h"
+
+
+/**
+ * Enabling semaphore tracing
+ *
+ * @warning No thread guarantee is assured. This is not user interface,
+ * whoever using tracing suppose to control how interfaces are called.
+ *
+ * @warning Performance counter shall be started prior. In this file,
+ * we are only calling aws_hal_perfcounter_get_value().
+ */
+
+#if ( POSIX_SEMAPHORE_TRACING == 1)
+    #include <stdint.h>
+    #include "FreeRTOS_POSIX/pthread.h"
+    #include "aws_hal_perfcounter.h"
+
+
+    uint64_t ullPerfCounterCycleElapsed_timedwait = 0;
+    int iPerfCounterNumOfEntry_timedwait = 0;
+    //pthread_mutex_t xMutexCycleElapsed_timedwait;
+
+    void FreeRTOS_POSIX_semaphore_initPerfCounterCycleElapsed( void )
+    {
+        ullPerfCounterCycleElapsed_timedwait = 0;
+        iPerfCounterNumOfEntry_timedwait = 0;
+        //pthread_mutex_init( &xMutexCycleElapsed_timedwait, NULL );
+    }
+
+    void FreeRTOS_POSIX_semaphore_deInitPerfCounterCycleElapsed( void )
+    {
+        //pthread_mutex_destroy( &xMutexCycleElapsed_timedwait );
+    }
+
+    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed( void )
+    {
+        return ullPerfCounterCycleElapsed_timedwait;
+    }
+
+    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry( void )
+    {
+        return iPerfCounterNumOfEntry_timedwait;
+    }
+
+    void prvTraceFunctionIn( uint64_t * pullCounterValue )
+    {
+        *pullCounterValue = aws_hal_perfcounter_get_value();
+    }
+
+
+    void prvTraceFunctionOut( uint64_t * pullCounterValue )
+    {
+        *pullCounterValue = aws_hal_perfcounter_get_value() - *pullCounterValue;
+
+        /* Increase total time elapsed atomically. */
+        /* pthread_mutex_lock( &xMutexCycleElapsed_timedwait );
+        ullPerfCounterCycleElapsed_timedwait += *pullCounterValue;
+        iPerfCounterNumOfEntry_timedwait++;
+        pthread_mutex_unlock( &xMutexCycleElapsed_timedwait );*/
+        configPRINTF( ( "%s -- time elapsed %u \r\n", __FUNCTION__, *pullCounterValue ) );
+    }
+
+#endif /* POSIX_SEMAPHORE_TRACING */
 
 
 /*-----------------------------------------------------------*/
@@ -110,6 +174,11 @@ int sem_post( sem_t * sem )
 int sem_timedwait( sem_t * sem,
                    const struct timespec * abstime )
 {
+    #if ( POSIX_SEMAPHORE_TRACING == 1 )
+        uint64_t ullInvocationTimeElapsed = 0;
+        prvTraceFunctionIn( &ullInvocationTimeElapsed );
+    #endif /* POSIX_SEMAPHORE_TRACING */
+
     int iStatus = 0;
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
     TickType_t xDelay = portMAX_DELAY;
@@ -165,6 +234,10 @@ int sem_timedwait( sem_t * sem,
     {
         iStatus = 0;
     }
+
+    #if ( POSIX_SEMAPHORE_TRACING == 1 )
+        prvTraceFunctionOut( &ullInvocationTimeElapsed );
+    #endif /* POSIX_SEMAPHORE_TRACING */
 
     return iStatus;
 }

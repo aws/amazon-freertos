@@ -23,17 +23,4 @@
  * http://www.FreeRTOS.org
  */
 
-/**
- * @file FreeRTOS_POSIX_portable.h
- * @brief Port-specific configuration of FreeRTOS+POSIX.
- */
-
-#ifndef _FREERTOS_POSIX_PORTABLE_H_
-#define _FREERTOS_POSIX_PORTABLE_H_
-
-/* This port uses the defaults in FreeRTOS_POSIX_portable_default.h, so this
- * file is empty. */
-#define PTHREAD_STACK_MIN       ( configMINIMAL_STACK_SIZE * 20 )
-
-
-#endif /* _FREERTOS_POSIX_PORTABLE_H_ */
+#define POSIX_SEMAPHORE_TRACING 	( 0 )
