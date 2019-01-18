@@ -37,6 +37,7 @@
 /* Crypto includes. */
 #include "aws_crypto.h"
 #include "aws_clientcredential.h"
+#include "aws_default_root_certificates.h"
 #include "aws_pkcs11.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "aws_test_pkcs11_config.h"
@@ -269,6 +270,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
 {
     prvBeforeRunningTests();
 
+    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject );
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObject );
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValue );
@@ -276,7 +278,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignMultiThread );
+    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
 
 
     prvAfterRunningTests();
@@ -1401,6 +1403,84 @@ void prvProvisionEcTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
     }
 }
 
+TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject )
+{
+    CK_RV xResult;
+    CK_OBJECT_HANDLE xPrivateKeyHandle;
+    CK_OBJECT_HANDLE xPublicKeyHandle;
+    CK_OBJECT_HANDLE xClientCertificateHandle;
+    CK_OBJECT_HANDLE xRootCertificateHandle;
+    CK_OBJECT_HANDLE xCodeSignPublicKeyHandle;
+    CK_OBJECT_HANDLE xJITPCertificateHandle;
+
+
+    xResult = xDestroyCredentials( xGlobalSession );
+    xCurrentCredentials = eNone;
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials in test setup." );
+
+    xResult = xProvisionPrivateKey( xGlobalSession,
+                                    ( uint8_t * ) cValidECDSAPrivateKey,
+                                    sizeof( cValidECDSAPrivateKey ),
+                                    CKK_EC,
+                                    pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                    &xPrivateKeyHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC private key." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle returned for EC private key." );
+
+    xResult = xProvisionPublicKey( xGlobalSession,
+                                   ( uint8_t * ) cValidECDSAPrivateKey,
+                                   sizeof( cValidECDSAPrivateKey ),
+                                   CKK_EC,
+                                   pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                   &xPublicKeyHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC public key." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle returned for EC public key." );
+
+    xResult = xProvisionCertificate( xGlobalSession,
+                                     ( uint8_t * ) cValidECDSACertificate,
+                                     sizeof( cValidECDSACertificate ),
+                                     pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                     &xClientCertificateHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xClientCertificateHandle, "Invalid object handle returned for EC certificate." );
+
+    xResult = xProvisionCertificate( xGlobalSession,
+                                     ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
+                                     tlsATS1_ROOT_CERTIFICATE_LENGTH,
+                                     pkcs11configLABEL_ROOT_CERTIFICATE,
+                                     &xRootCertificateHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create root EC certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Invalid object handle returned for EC root certificate." );
+
+    xResult = xProvisionCertificate( xGlobalSession,
+                                     ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
+                                     tlsATS1_ROOT_CERTIFICATE_LENGTH,
+                                     pkcs11configLABEL_JITP_CERTIFICATE,
+                                     &xJITPCertificateHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create JITP EC certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned for EC JITP certificate." );
+
+    xResult = xProvisionPublicKey( xGlobalSession,
+                                   ( uint8_t * ) cValidECDSAPrivateKey,
+                                   sizeof( cValidECDSAPrivateKey ),
+                                   CKK_EC,
+                                   pkcs11configLABEL_CODE_VERIFICATION_KEY,
+                                   &xCodeSignPublicKeyHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC code sign public key." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCodeSignPublicKeyHandle, "Invalid object handle returned for EC code sign public key." );
+
+    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xRootCertificateHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy root certificate." );
+
+    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xJITPCertificateHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy JITP certificate." );
+
+    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xCodeSignPublicKeyHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy EC code sign public key." );
+
+    xCurrentCredentials = eEllipticCurveTest;
+}
+
 TEST( Full_PKCS11_EC, AFQP_Sign )
 {
     CK_RV xResult;
@@ -2155,7 +2235,7 @@ static void prvECSignVerifyMultiThreadTask( void * pvParameters )
 }
 
 
-TEST( Full_PKCS11_EC, AFQP_SignMultiThread )
+TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
 {
     CK_RV xResult;
     BaseType_t xTaskNumber;

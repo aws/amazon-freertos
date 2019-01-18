@@ -135,6 +135,7 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
 #define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS     "Device Pub TLS Key"
 #define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS    "Device Cert"
 #define pkcs11configLABEL_CODE_VERIFICATION_KEY         "Code Verify Key"
+#define pkcs11configLABEL_JITP_CERTIFICATE              "JITP Cert"
 #define pkcs11configLABEL_ROOT_CERTIFICATE              "Root Cert"
 
 #define pkcs11INVALID_OBJECT_HANDLE                     0
