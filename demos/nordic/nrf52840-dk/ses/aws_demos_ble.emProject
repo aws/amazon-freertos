@@ -529,7 +529,6 @@
         </folder>
       </folder>
       <file file_name="../common/application_code/main.c" />
-      <file file_name="../common/application_code/certificate.c" />
     </folder>
     <folder Name="config_files">
       <file file_name="../common/config_files/aws_demo_config.h" />

@@ -4,11 +4,21 @@
 #include "nrf_crypto_hash.h"
 #include "bootloader.h"
 #include "asn1utility.h"
+#include "aws_ota_codesigner_certificate.h"
 
-extern unsigned char the_public_key[ 91 ];
+#include "mbedtls/base64.h"
+
+ret_code_t xReadCertificate();
+/* Tag by which the beginning of the ECDSA in the public key can be found */
+const char ASN_1_ECDSA_TAG[] = "\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07";
+unsigned char pucPublicKey[ MAX_PUBLIC_KEY_SIZE ];
+size_t ulPublicKeySize = 0;
 
 ret_code_t xCryptoInit()
 {
+    if (xReadCertificate() == NULL){
+        return NRF_ERROR_INTERNAL;
+    }
     return nrf_crypto_init();
 }
 
@@ -16,6 +26,36 @@ ret_code_t xCryptoUnInit()
 {
     return nrf_crypto_uninit();
 }
+
+ret_code_t xReadCertificate(){
+    uint8_t pucDecodedCertificate[512];
+    size_t ulDecodedCertificateSize;
+    /* Skip the "BEGIN CERTIFICATE" */
+    uint8_t* pucCertBegin = strchr (signingcredentialSIGNING_CERTIFICATE_PEM, '\n');
+    if (pucCertBegin == NULL)
+    {
+        return NULL;
+    }
+    pucCertBegin += 1;
+    /* Skip the "END CERTIFICATE" */
+    uint8_t* pucCertEnd = strrchr(pucCertBegin, '\n');
+    if (pucCertEnd == NULL)
+    {
+        return NULL;
+    }
+    mbedtls_base64_decode(pucDecodedCertificate, 0, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
+    mbedtls_base64_decode(pucDecodedCertificate, ulDecodedCertificateSize, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
+    /* Find the tag of the ECDSA public signature*/
+    uint8_t * pucPublicKeyStart = strstr(pucDecodedCertificate, ASN_1_ECDSA_TAG);
+    if (pucPublicKeyStart == NULL) {
+        return NULL;
+    }
+    pucPublicKeyStart -= 4;
+    ulPublicKeySize = pucPublicKeyStart[1] + 2;
+    memcpy(pucPublicKey, pucPublicKeyStart, ulPublicKeySize);
+    return pucPublicKey;
+}
+
 
 ret_code_t xComputeSHA256Hash( void * pvMessage,
                                size_t ulMessageSize,
@@ -62,13 +102,13 @@ ret_code_t xVerifySignature( uint8_t * pusHash,
     memset( &xPublicKey, 0, sizeof( xPublicKey ) );
     memset( &xSignature, 0, sizeof( xSignature ) );
     /* Copy the public key from flash to memory to allow itto be used by CC310*/
-    uint8_t pusPublicKey[ sizeof( the_public_key ) ];
+    uint8_t pucPublicKeyLocal[ MAX_PUBLIC_KEY_SIZE ];
 
     /* The public key comes in the ASN.1 DER format,  and so we need everything
      * except the DER metadata which fortunately in this case is containded in the front part of buffer */
-    memcpy( pusPublicKey, the_public_key + ( sizeof( the_public_key ) - NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE ), sizeof( the_public_key ) );
+    memcpy( pucPublicKeyLocal, pucPublicKey + ( ulPublicKeySize - NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE ), ulPublicKeySize );
     /* Convert the extracted public key to the NRF5 representation */
-    xErrCode = nrf_crypto_ecc_public_key_from_raw( &g_nrf_crypto_ecc_secp256r1_curve_info, &xPublicKey, pusPublicKey, NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE );
+    xErrCode = nrf_crypto_ecc_public_key_from_raw( &g_nrf_crypto_ecc_secp256r1_curve_info, &xPublicKey, pucPublicKeyLocal, NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE );
     /* The signature is also ASN.1 DER encoded, but here we need to decode it properly */
     xErrCode = asn1_decodeSignature( xSignature, pusSignature, pusSignature + ulSignatureSize );
     /* Aand... Verify! */

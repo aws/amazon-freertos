@@ -31,7 +31,6 @@
 #ifndef _ASN1UTILITY_H_
 #define _ASN1UTILITY_H_
 
-#include <tinycrypt/ecc.h>
 /**
  * @brief asn1_getBigInteger.
  * Gets big integer from the data block.
