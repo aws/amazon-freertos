@@ -33,7 +33,7 @@
 
 /* This port uses the defaults in FreeRTOS_POSIX_portable_default.h, so this
  * file is empty. */
-#define PTHREAD_STACK_MIN       ( configMINIMAL_STACK_SIZE * 20 )
+#define PTHREAD_STACK_MIN       ( configMINIMAL_STACK_SIZE * sizeof( uint32_t) * 8 )
 
 
 #endif /* _FREERTOS_POSIX_PORTABLE_H_ */

@@ -109,7 +109,6 @@ static UART_HandleTypeDef xConsoleUart;
 static void SystemClock_Config( void );
 static void Console_UART_Init( void );
 static void RTC_Init( void );
-static void prvWifiConnect( void );
 
 /**
  * @brief Initializes the STM32L475 IoT node board.
@@ -126,17 +125,6 @@ static void prvMiscInitialization( void );
  */
 static void prvInitializeHeap( void );
 
-#ifdef USE_OFFLOAD_SSL
-
-    /**
-     * @brief Checks whether the Inventek module's firmware version needs to be
-     * updated.
-     *
-     * Prints a message to inform the user to update the WiFi firmware.
-     */
-    static void prvCheckWiFiFirmwareVersion( void );
-
-#endif /* USE_OFFLOAD_SSL */
 /*-----------------------------------------------------------*/
 
 /**
@@ -164,7 +152,6 @@ int main( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    configPRINTF( ( "%c \r\n", ASCII_PAGE_EJECT_DEC ) );
     configPRINTF( ( "Entering profiling task.\r\n" ) );
 
     // Dining philosopher
@@ -174,57 +161,6 @@ void vApplicationDaemonTaskStartupHook( void )
     vKernelProfilingProducerConsumerMutex( mainPROFILING_PRODUCER_CONSUMER );
 
     configPRINTF( ( "Exiting profiling task.\r\n" ) );
-}
-/*-----------------------------------------------------------*/
-
-static void prvWifiConnect( void )
-{
-    WIFINetworkParams_t xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
-    uint8_t ucIPAddr[ 4 ];
-
-    /* Setup WiFi parameters to connect to access point. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
-
-    /* Try connecting using provided wifi credentials. */
-    xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "WiFi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        /* Get IP address of the device. */
-        WIFI_GetIP( &ucIPAddr[ 0 ] );
-
-        configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                        ucIPAddr[ 0 ], ucIPAddr[ 1 ], ucIPAddr[ 2 ], ucIPAddr[ 3 ] ) );
-    }
-    else
-    {
-        /* Connection failed configure softAP to allow user to set wifi credentials. */
-        configPRINTF( ( "WiFi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        configPRINTF( ( "Connect to softAP %s using password %s. \r\n",
-                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
-        {
-            configPRINTF( ( "Connect to softAP %s using password %s and configure WiFi. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-        }
-
-        configPRINTF( ( "WiFi configuration successful. \r\n", xNetworkParams.pcSSID ) );
-    }
 }
 /*-----------------------------------------------------------*/
 
@@ -641,77 +577,7 @@ static void prvInitializeHeap( void )
 
     vPortDefineHeapRegions( xHeapRegions );
 }
-/*-----------------------------------------------------------*/
 
-#ifdef USE_OFFLOAD_SSL
-
-    static void prvCheckWiFiFirmwareVersion( void )
-    {
-        int32_t lWicedMajorVersion = 0, lWicedMinorVersion = 0, lWicedPatchVersion = 0, lInventekVersion = 0, lParsedFields = 0;
-        uint8_t ucFirmwareVersion[ ES_WIFI_FW_REV_SIZE ];
-        BaseType_t xNeedsUpdate = pdFALSE;
-
-        if( WIFI_GetFirmwareVersion( &( ucFirmwareVersion[ 0 ] ) ) == eWiFiSuccess )
-        {
-            configPRINTF( ( "WiFi firmware version is: %s\r\n", ( char * ) ucFirmwareVersion ) );
-
-            /* Parse the firmware revision number. */
-            lParsedFields = sscanf( ( char* ) ucFirmwareVersion,
-                                    "C%ld.%ld.%ld.%ld.STM",
-                                    &( lWicedMajorVersion ),
-                                    &( lWicedMinorVersion ),
-                                    &( lWicedPatchVersion ),
-                                    &( lInventekVersion ) );
-
-            /* Check if the firmware version needs to be updated. */
-            if( lParsedFields > 0 )
-            {
-                if( lWicedMajorVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION )
-                {
-                    xNeedsUpdate = pdTRUE;
-                }
-                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
-                          ( lWicedMinorVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) )
-                {
-                    xNeedsUpdate = pdTRUE;
-                }
-                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
-                          ( lWicedMinorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) &&
-                          ( lWicedPatchVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION ) )
-                {
-                    xNeedsUpdate = pdTRUE;
-                }
-                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
-                          ( lWicedMinorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) &&
-                          ( lWicedPatchVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION ) &&
-                          ( lInventekVersion < mainREQUIRED_WIFI_FIRMWARE_INVENTEK_VERSION ) )
-                {
-                    xNeedsUpdate = pdTRUE;
-                }
-
-                /* Print a warning for the user to inform that the WiFi Firmware
-                * needs to be updated. */
-                if( xNeedsUpdate == pdTRUE )
-                {
-                    configPRINTF( ( "[WARN] WiFi firmware needs to be updated.\r\n" ) );
-                }
-                else
-                {
-                    configPRINTF( ( "WiFi firmware is up-to-date.\r\n" ) );
-                }
-            }
-            else
-            {
-                configPRINTF( ( "Failed to parse the WiFi firmware version.\r\n" ) );
-            }
-        }
-        else
-        {
-            configPRINTF( ( "Failed to get WiFi firmware version.\r\n" ) );
-        }
-    }
-
-#endif /* USE_OFFLOAD_SSL */
 /*-----------------------------------------------------------*/
 
 /**

@@ -43,8 +43,11 @@
 
     void FreeRTOS_POSIX_semaphore_initPerfCounterCycleElapsed( void );
     void FreeRTOS_POSIX_semaphore_deInitPerfCounterCycleElapsed( void );
-    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed( void );
-    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry( void );
+    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed_timedwait( void );
+    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry_timedwait( void );
+
+    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed_post( void );
+    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry_post( void );
 #endif /* POSIX_SEMAPHORE_TRACING */
 
 /**

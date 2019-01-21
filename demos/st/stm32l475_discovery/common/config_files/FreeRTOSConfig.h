@@ -80,11 +80,13 @@
 #define configUSE_CO_ROUTINES                        0
 #define configMAX_CO_ROUTINE_PRIORITIES              ( 2 )
 
-/* Software timer definitions. */
+/* Software timer definitions. -- Application start up hook is entered in this task. */
 #define configUSE_TIMERS                             1
 #define configTIMER_TASK_PRIORITY                    ( configMAX_PRIORITIES - 2 )
 #define configTIMER_QUEUE_LENGTH                     10
-#define configTIMER_TASK_STACK_DEPTH                 ( configMINIMAL_STACK_SIZE * 6 )
+//#define configTIMER_TASK_STACK_DEPTH                 ( configMINIMAL_STACK_SIZE * 6 )
+/* Trace which is using uint64_t in start up hook overflows the stack. */
+#define configTIMER_TASK_STACK_DEPTH                 ( configMINIMAL_STACK_SIZE * sizeof(uint32_t) * 8 )
 
 /* Set the following definitions to 1 to include the API function, or zero
  * to exclude the API function. */
@@ -98,6 +100,7 @@
 #define INCLUDE_xTaskGetSchedulerState               1
 
 #define INCLUDE_xSemaphoreGetMutexHolder             1      /* pthread_mutex_unlock() */
+#define INCLUDE_uxTaskGetStackHighWaterMark          1      /* debug purpose. */
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS

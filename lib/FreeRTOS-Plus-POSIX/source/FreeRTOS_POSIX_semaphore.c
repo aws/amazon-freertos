@@ -54,49 +54,103 @@
     #include "FreeRTOS_POSIX/pthread.h"
     #include "aws_hal_perfcounter.h"
 
+    typedef struct tracingData
+    {
+        uint64_t        ullPerfCounter_cycleElapsed;
+        int             iPerfCounter_numOfEntry;
+        pthread_mutex_t xPerfData_mutex;
+    } tracingData_t;
 
-    uint64_t ullPerfCounterCycleElapsed_timedwait = 0;
-    int iPerfCounterNumOfEntry_timedwait = 0;
-    //pthread_mutex_t xMutexCycleElapsed_timedwait;
-
+    /* Private tracing data.
+     * for simplicity, just make two variables and 4 getters to get trace value.
+     */
+    tracingData_t xTracingData_timedwait = { 0 };
+    tracingData_t xTracingData_post = { 0 };
+    /**
+     * @brief Initialize perf counter related
+     *
+     * This interface is called by top application, which intends to
+     * profile interfaces implemented in this file.
+     *
+     * @warning no thread safety is guaranteed.
+     */
     void FreeRTOS_POSIX_semaphore_initPerfCounterCycleElapsed( void )
     {
-        ullPerfCounterCycleElapsed_timedwait = 0;
-        iPerfCounterNumOfEntry_timedwait = 0;
-        //pthread_mutex_init( &xMutexCycleElapsed_timedwait, NULL );
+        /* Init tracing data structure for sem_timedwait(). */
+        xTracingData_timedwait.ullPerfCounter_cycleElapsed = 0;
+        xTracingData_timedwait.iPerfCounter_numOfEntry = 0;
+        xTracingData_timedwait.xPerfData_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+        pthread_mutex_init( &xTracingData_timedwait.xPerfData_mutex, NULL );
+
+        /* Init tracing data structure for sem_post(). */
+        xTracingData_post.ullPerfCounter_cycleElapsed = 0;
+        xTracingData_post.iPerfCounter_numOfEntry = 0;
+        xTracingData_post.xPerfData_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+        pthread_mutex_init( &xTracingData_post.xPerfData_mutex, NULL );
     }
 
+    /**
+     * @brief De-initialize perf counter related.
+     *
+     * This interface must be called by top application, which intends to
+     * profile interfaces implemented in this file.
+     *
+     * @warning no thread safety is guaranteed.
+     */
     void FreeRTOS_POSIX_semaphore_deInitPerfCounterCycleElapsed( void )
     {
-        //pthread_mutex_destroy( &xMutexCycleElapsed_timedwait );
+        /* De-init mutex used for sem_timedwait() tracing. */
+        pthread_mutex_destroy( &xTracingData_timedwait.xPerfData_mutex );
+
+        /* De-init mutex used for sem_post() tracing. */
+        pthread_mutex_destroy( &xTracingData_post.xPerfData_mutex );
     }
 
-    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed( void )
+    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed_timedwait( void )
     {
-        return ullPerfCounterCycleElapsed_timedwait;
+        return xTracingData_timedwait.ullPerfCounter_cycleElapsed;
     }
 
-    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry( void )
+    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry_timedwait( void )
     {
-        return iPerfCounterNumOfEntry_timedwait;
+        return xTracingData_timedwait.iPerfCounter_numOfEntry;
     }
 
-    void prvTraceFunctionIn( uint64_t * pullCounterValue )
+    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed_post( void )
+    {
+        return xTracingData_post.ullPerfCounter_cycleElapsed;
+    }
+
+    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry_post( void )
+    {
+        return xTracingData_post.iPerfCounter_numOfEntry;
+    }
+
+    static void prvTraceFunctionIn( uint64_t * pullCounterValue )
     {
         *pullCounterValue = aws_hal_perfcounter_get_value();
     }
 
 
-    void prvTraceFunctionOut( uint64_t * pullCounterValue )
+    static void prvTraceFunctionOut( uint64_t * pullCounterValue, tracingData_t * pxTracingDataHandle )
     {
         *pullCounterValue = aws_hal_perfcounter_get_value() - *pullCounterValue;
 
         /* Increase total time elapsed atomically. */
-        /* pthread_mutex_lock( &xMutexCycleElapsed_timedwait );
-        ullPerfCounterCycleElapsed_timedwait += *pullCounterValue;
-        iPerfCounterNumOfEntry_timedwait++;
-        pthread_mutex_unlock( &xMutexCycleElapsed_timedwait );*/
-        configPRINTF( ( "%s -- time elapsed %u \r\n", __FUNCTION__, *pullCounterValue ) );
+        pthread_mutex_lock( &pxTracingDataHandle->xPerfData_mutex );
+        pxTracingDataHandle->ullPerfCounter_cycleElapsed += *pullCounterValue;
+        pxTracingDataHandle->iPerfCounter_numOfEntry += 1;;
+        pthread_mutex_unlock( &pxTracingDataHandle->xPerfData_mutex );
+
+        # if ( POSIX_SEMAPHORE_TRACING_VERBOSE == 1 )
+        configPRINTF( ( "%s -- time elapsed %ld, total elapsed %ld, total entry %d\r\n",
+                        __FUNCTION__,
+                        (long)*pullCounterValue,
+                        (long)pxTracingDataHandle->ullPerfCounter_cycleElapsed,
+                        pxTracingDataHandle->iPerfCounter_numOfEntry ) );
+        #endif /* POSIX_SEMAPHORE_TRACING_VERBOSE*/
     }
 
 #endif /* POSIX_SEMAPHORE_TRACING */
@@ -161,10 +215,19 @@ int sem_init( sem_t * sem,
 
 int sem_post( sem_t * sem )
 {
+    #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_POST == 1)
+        uint64_t ullInvocationTimeElapsed = 0;
+        prvTraceFunctionIn( &ullInvocationTimeElapsed );
+    #endif /* POSIX_SEMAPHORE_TRACING */
+
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
     /* Give the semaphore using the FreeRTOS API. */
     ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
+
+    #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_POST == 1)
+        prvTraceFunctionOut( &ullInvocationTimeElapsed, &xTracingData_post );
+    #endif /* POSIX_SEMAPHORE_TRACING */
 
     return 0;
 }
@@ -174,7 +237,7 @@ int sem_post( sem_t * sem )
 int sem_timedwait( sem_t * sem,
                    const struct timespec * abstime )
 {
-    #if ( POSIX_SEMAPHORE_TRACING == 1 )
+    #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_TIMEDWAIT == 1 )
         uint64_t ullInvocationTimeElapsed = 0;
         prvTraceFunctionIn( &ullInvocationTimeElapsed );
     #endif /* POSIX_SEMAPHORE_TRACING */
@@ -235,8 +298,8 @@ int sem_timedwait( sem_t * sem,
         iStatus = 0;
     }
 
-    #if ( POSIX_SEMAPHORE_TRACING == 1 )
-        prvTraceFunctionOut( &ullInvocationTimeElapsed );
+    #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_TIMEDWAIT == 1 )
+        prvTraceFunctionOut( &ullInvocationTimeElapsed, &xTracingData_timedwait );
     #endif /* POSIX_SEMAPHORE_TRACING */
 
     return iStatus;
