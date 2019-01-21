@@ -131,16 +131,10 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
     CK_ATTRIBUTE xLabel;
 } PKCS11_GenerateKeyPrivateTemplate_t, * PKCS11_GenerateKeyPrivateTemplatePtr_t;
 
-#define pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS    "Device Priv TLS Key"
-#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS     "Device Pub TLS Key"
-#define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS    "Device Cert"
-#define pkcs11configLABEL_CODE_VERIFICATION_KEY         "Code Verify Key"
-#define pkcs11configLABEL_JITP_CERTIFICATE              "JITP Cert"
-#define pkcs11configLABEL_ROOT_CERTIFICATE              "Root Cert"
 
-#define pkcs11INVALID_OBJECT_HANDLE                     0
+#define pkcs11INVALID_OBJECT_HANDLE    0
 
-#define pkcs11DER_ENCODED_OID_P256                      { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 } /*"\x06\x08\x2a\x86\x48\xce\x3d\x03\x01\x07" */
+#define pkcs11DER_ENCODED_OID_P256     { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
 
 /* \brief Initializes the PKCS #11 module and opens a session.
  *

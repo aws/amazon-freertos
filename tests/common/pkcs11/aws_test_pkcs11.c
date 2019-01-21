@@ -1261,7 +1261,7 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
 
     xResult = xDestroyCredentials( xGlobalSession );
     xCurrentCredentials = eNone;
-    TEST_ASSERT_EQUAL( CKR_OK, xResult, "Failed to destroy credentials before RSA generate key pair test." );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before RSA generate key pair test." );
 
     xResult = xProvisionGenerateKeyPairRSA( xGlobalSession,
                                             pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
