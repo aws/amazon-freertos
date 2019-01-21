@@ -273,48 +273,7 @@ CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
                                        size_t xCertificateLength,
                                        uint8_t * pucLabel )
 {
-    /* Find the certificate */
-    CK_OBJECT_HANDLE xHandle;
-    CK_RV xResult;
-    CK_FUNCTION_LIST_PTR xFunctionList;
-    CK_SLOT_ID xSlotId;
-    CK_ULONG xCount = 1;
-    CK_SESSION_HANDLE xSession;
-    CK_BBOOL xSessionOpen = CK_FALSE;
 
-    xResult = C_GetFunctionList( &xFunctionList );
-
-    if( CKR_OK == xResult )
-    {
-        xResult = xFunctionList->C_Initialize( NULL );
-    }
-
-    if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
-    {
-        xResult = xFunctionList->C_GetSlotList( CK_TRUE, &xSlotId, &xCount );
-    }
-
-    if( CKR_OK == xResult )
-    {
-        xResult = xFunctionList->C_OpenSession( xSlotId, CKF_SERIAL_SESSION, NULL, NULL, &xSession );
-    }
-
-    if( CKR_OK == xResult )
-    {
-        xSessionOpen = CK_TRUE;
-        xResult = xProvisionCertificate( xSession,
-                                         ( uint8_t * ) pucCertificate,
-                                         xCertificateLength,
-                                         pucLabel,
-                                         &xHandle );
-    }
-
-    if( xSessionOpen == CK_TRUE )
-    {
-        xResult = xFunctionList->C_CloseSession( xSession );
-    }
-
-    return xResult;
 }
 
 /**

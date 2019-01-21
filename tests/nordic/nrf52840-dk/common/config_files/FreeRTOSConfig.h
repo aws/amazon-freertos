@@ -34,7 +34,7 @@
 #include "nrf_soc.h"
 #endif
 #include "app_util_platform.h"
-
+#include "nrf_log.h"
 #include "sys/types.h"
 
 /*-----------------------------------------------------------
@@ -58,15 +58,15 @@
 #define configTICK_SOURCE                                                         FREERTOS_USE_RTC
 
 #define configUSE_PREEMPTION                                                      1
-#define configUSE_PORT_OPTIMISED_TASK_SELECTION                                   1
-#define configUSE_TICKLESS_IDLE                                                   1
+#define configUSE_PORT_OPTIMISED_TASK_SELECTION                                   0
+#define configUSE_TICKLESS_IDLE                                                   0
 #define configUSE_TICKLESS_IDLE_SIMPLE_DEBUG                                      1 /* See into vPortSuppressTicksAndSleep source code for explanation */
 #define configCPU_CLOCK_HZ                                                        ( SystemCoreClock )
-#define configTICK_RATE_HZ                                                        1024
-#define configMAX_PRIORITIES                                                      ( 8 )
-#define configMINIMAL_STACK_SIZE                                                  ( 320 )
-#define configTOTAL_HEAP_SIZE                                                     ( 65535 )
-#define configMAX_TASK_NAME_LEN                                                   ( 10 )
+#define configTICK_RATE_HZ                                                        100
+#define configMAX_PRIORITIES                                                      ( 15 )
+#define configMINIMAL_STACK_SIZE                                                  ( 600 )
+#define configTOTAL_HEAP_SIZE                                                     ( 120000 )
+#define configMAX_TASK_NAME_LEN                                                   ( 15 )
 #define configUSE_16_BIT_TICKS                                                    0
 #define configIDLE_SHOULD_YIELD                                                   1
 #define configUSE_MUTEXES                                                         1
@@ -79,12 +79,12 @@
 #define configUSE_NEWLIB_REENTRANT                                                0
 #define configENABLE_BACKWARD_COMPATIBILITY                                       1
 #define configUSE_DAEMON_TASK_STARTUP_HOOK                                        1
-#define configUSE_POSIX_ERRNO                                                     1
 #define configSUPPORT_STATIC_ALLOCATION                                           1
 #define configUSE_APPLICATION_TASK_TAG                                            1
+#define configUSE_POSIX_ERRNO                                                     1
 
 /* Hook function related definitions. */
-#define configUSE_IDLE_HOOK                                                       1
+#define configUSE_IDLE_HOOK                                                       0
 #define configUSE_TICK_HOOK                                                       0
 #define configCHECK_FOR_STACK_OVERFLOW                                            2
 #define configUSE_MALLOC_FAILED_HOOK                                              1
@@ -101,7 +101,7 @@
 #define configUSE_TIMERS                                                          1
 #define configTIMER_TASK_PRIORITY                                                 ( 2 )
 #define configTIMER_QUEUE_LENGTH                                                  32
-#define configTIMER_TASK_STACK_DEPTH                                              ( 80 )
+#define configTIMER_TASK_STACK_DEPTH                                              ( 1024 )
 
 /* Tickless Idle configuration. */
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP                                     2
@@ -141,7 +141,7 @@ standard names - or at least those used in the unmodified vector table. */
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"
 function. */
-#define configLIBRARY_LOWEST_INTERRUPT_PRIORITY         0xf
+#define configLIBRARY_LOWEST_INTERRUPT_PRIORITY         0x6
 
 /* The highest interrupt priority that can be used by any interrupt service
 routine that makes calls to interrupt safe FreeRTOS API functions.  DO NOT CALL
@@ -180,7 +180,8 @@ extern void vLoggingPrint( const char * pcMessage );
 
 /* Map the logging task's printf to the board specific output function. */
 #include <stdio.h> 
-#define configPRINT_STRING( X )    printf( X ); /* FIX ME: Change to your devices console print acceptance function. */
+extern void vUartWrite( uint8_t * pucData );
+#define configPRINT_STRING( X )    vUartWrite( X ) /* FIX ME: Change to your devices console print acceptance function. */
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */ 
 #define configLOGGING_MAX_MESSAGE_LENGTH            100

@@ -6,8 +6,8 @@
     <ProgramSection alignment="4" load="Yes" name=".init" />
     <ProgramSection alignment="4" load="Yes" name=".init_rodata" />
     <ProgramSection alignment="4" load="Yes" name=".text" />
-    <ProgramSection alignment="4" keep="Yes" load="Yes" name=".sdh_soc_observers" inputsections="*(SORT(.sdh_soc_observers*))" address_symbol="__start_sdh_soc_observers" end_symbol="__stop_sdh_soc_observers" />
     <ProgramSection alignment="4" keep="Yes" load="Yes" name=".sdh_ble_observers" inputsections="*(SORT(.sdh_ble_observers*))" address_symbol="__start_sdh_ble_observers" end_symbol="__stop_sdh_ble_observers" />
+    <ProgramSection alignment="4" keep="Yes" load="Yes" name=".sdh_soc_observers" inputsections="*(SORT(.sdh_soc_observers*))" address_symbol="__start_sdh_soc_observers" end_symbol="__stop_sdh_soc_observers" />
     <ProgramSection alignment="4" keep="Yes" load="Yes" name=".sdh_stack_observers" inputsections="*(SORT(.sdh_stack_observers*))" address_symbol="__start_sdh_stack_observers" end_symbol="__stop_sdh_stack_observers" />
     <ProgramSection alignment="4" keep="Yes" load="Yes" name=".sdh_req_observers" inputsections="*(SORT(.sdh_req_observers*))" address_symbol="__start_sdh_req_observers" end_symbol="__stop_sdh_req_observers" />
     <ProgramSection alignment="4" keep="Yes" load="Yes" name=".sdh_state_observers" inputsections="*(SORT(.sdh_state_observers*))" address_symbol="__start_sdh_state_observers" end_symbol="__stop_sdh_state_observers" />
