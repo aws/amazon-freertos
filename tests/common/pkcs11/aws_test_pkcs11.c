@@ -1259,11 +1259,13 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
     CK_BYTE xPaddedHash[ RSA_SIGNATURE_SIZE ] = { 0 };
     mbedtls_rsa_context xRsaContext;
 
-
+    xResult = xDestroyCredentials( xGlobalSession );
+    xCurrentCredentials = eNone;
+    TEST_ASSERT_EQUAL( CKR_OK, xResult, "Failed to destroy credentials before RSA generate key pair test." );
 
     xResult = xProvisionGenerateKeyPairRSA( xGlobalSession,
-                                            "Amazon FreeRTOS test RSA private",
-                                            "Amazon FreeRTOS test RSA public",
+                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                             &xPrivateKeyHandle,
                                             &xPublicKeyHandle );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
@@ -1564,9 +1566,13 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     mbedtls_ecdsa_context xEcdsaContext;
     uint8_t ucSecp256r1Oid[] = pkcs11DER_ENCODED_OID_P256; /*"\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1; */
 
+    xResult = xDestroyCredentials( xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before Generating Key Pair" );
+    xCurrentCredentials = eNone;
+
     xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
-                                           "Amazon FreeRTOS test ECDSA private",
-                                           "Amazon FreeRTOS test ECDSA public",
+                                           pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                           pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                            &xPrivateKeyHandle,
                                            &xPublicKeyHandle );
 
