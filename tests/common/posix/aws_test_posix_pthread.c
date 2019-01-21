@@ -530,22 +530,13 @@ TEST( Full_POSIX_PTHREAD, pthread_cond_signal )
     int iStatus = 0;
     BaseType_t xMutexCreated = pdFALSE;
     volatile BaseType_t xThreadCreated = pdFALSE;
-#if posixconfigENABLE_PTHREAD_COND_T == 0
-    pthread_cond_t xCond;
-#else
     pthread_cond_t xCond = PTHREAD_COND_INITIALIZER;
-#endif
     pthread_mutexattr_t xMutexAttr;
     pthread_mutex_t xMutex;
     pthread_t xNewThread;
     SignalCondThreadArgs_t xThreadArgs = { 0 };
     struct timespec xWaitTime = { 0 };
 
-#if posixconfigENABLE_PTHREAD_COND_T == 0
-    /* This is for espressif port, it does not implement PTHREAD_COND_INITIALIZER */
-    iStatus = pthread_cond_init( &xCond, NULL );
-    TEST_ASSERT_EQUAL_INT( 0, iStatus );
-#endif
     /* Create an error-checking mutex. This mutex types allows verification
      * of mutex owner. */
     iStatus = pthread_mutexattr_init( &xMutexAttr );
@@ -616,21 +607,11 @@ TEST( Full_POSIX_PTHREAD, pthread_cond_signal )
 TEST( Full_POSIX_PTHREAD, pthread_cond_broadcast )
 {
     int i = 0, iCondBroadcastStatus = 0;
-#if posixconfigENABLE_PTHREAD_COND_T == 0
-    pthread_cond_t xCond;
-    int iStatus = 0;
-#else
     pthread_cond_t xCond = PTHREAD_COND_INITIALIZER;
-#endif
     pthread_t xThreads[ posixtestPTHREAD_COND_BROADCAST_NUMBER_OF_THREADS ];
     BaseType_t xThreadsCreated[ posixtestPTHREAD_COND_BROADCAST_NUMBER_OF_THREADS ] = { pdFALSE };
     intptr_t xThreadReturnValues[ posixtestPTHREAD_COND_BROADCAST_NUMBER_OF_THREADS ] = { 0 };
 
-#if posixconfigENABLE_PTHREAD_COND_T == 0
-    /* This is for espressif port, it does not implement PTHREAD_COND_INITIALIZER */
-    iStatus = pthread_cond_init( &xCond, NULL );
-    TEST_ASSERT_EQUAL_INT( 0, iStatus );
-#endif
     /* Create the threads that wait for pthread_cond_broadcast. */
     for( i = 0; i < posixtestPTHREAD_COND_BROADCAST_NUMBER_OF_THREADS; i++ )
     {
