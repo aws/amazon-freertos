@@ -30,6 +30,9 @@
 /* Credentials include. */
 #include "aws_clientcredential.h"
 
+/* Unity framework includes. */
+#include "unity.h"
+
 /* POSIX header overrides for FreeRTOS+POSIX. */
 #ifndef POSIX_ERRNO_HEADER
     #define POSIX_ERRNO_HEADER        "FreeRTOS_POSIX/errno.h"
@@ -66,9 +69,12 @@
 #define AWS_IOT_SEMAPHORE_TYPE    sem_t
 
 /* Standard library function overrides. */
-#define AwsIotLogging_Puts( str )           configPRINTF( ( "%s\n", str ) )
-#define AwsIotQueue_Assert( expression )    configASSERT( expression )
-#define AwsIotMqtt_Assert( expression )     configASSERT( expression )
+#define AwsIotLogging_Puts( str )                configPRINTF( ( "%s\n", str ) )
+#define AwsIotQueue_Assert( expression )         configASSERT( expression )
+#define AwsIotMqtt_Assert( expression )          configASSERT( expression )
+
+/* It is a known issue that some test cases need configASSERT to map to TEST_ABORT. */
+#define AwsIotSerializer_Assert( expression )    if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Serializer assert failure" )
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef AWS_IOT_STATIC_MEMORY_ONLY
@@ -116,6 +122,7 @@
 #define AWS_IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
 #define AWS_IOT_MQTT_TEST                           ( 1 )
 #define AWS_IOT_SHADOW_ENABLE_ASSERTS               ( 1 )
+#define AWS_IOT_SERIALIZER_ENABLE_ASSERTS           ( 1 )
 
 /* Static memory configuration. */
 #if AWS_IOT_STATIC_MEMORY_ONLY == 1

@@ -76,6 +76,10 @@ TEST_TEAR_DOWN( Full_Serializer_CBOR )
     TEST_ASSERT_NULL( _encoderObject.pHandle );
 }
 
+/* TODO:
+ * - append NULL
+ * - append bool
+ */
 TEST_GROUP_RUNNER( Full_Serializer_CBOR )
 {
     RUN_TEST_CASE( Full_Serializer_CBOR, Encoder_init_with_null_buffer );
@@ -84,6 +88,7 @@ TEST_GROUP_RUNNER( Full_Serializer_CBOR )
     RUN_TEST_CASE( Full_Serializer_CBOR, Encoder_append_text_string );
     RUN_TEST_CASE( Full_Serializer_CBOR, Encoder_append_byte_string );
 
+    RUN_TEST_CASE( Full_Serializer_CBOR, Encoder_open_a_scalar );
     RUN_TEST_CASE( Full_Serializer_CBOR, Encoder_open_map );
     RUN_TEST_CASE( Full_Serializer_CBOR, Encoder_open_array );
 
@@ -93,6 +98,7 @@ TEST_GROUP_RUNNER( Full_Serializer_CBOR )
 
 TEST( Full_Serializer_CBOR, Encoder_init_with_null_buffer )
 {
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
     AwsIotSerializerEncoderObject_t encoderObject = { 0 };
 
     TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
@@ -104,12 +110,20 @@ TEST( Full_Serializer_CBOR, Encoder_init_with_null_buffer )
     /* Assigned value to handle pointer. */
     TEST_ASSERT_NOT_NULL( encoderObject.pHandle );
 
+    /* Append an integer. */
+    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL, _encoder.append( &encoderObject, AwsIotSerializer_ScalarSignedInt( 1 ) ) );
+
+    /* Needed buffer size is 1 to encode integer "1". */
+    TEST_ASSERT_EQUAL( 1, _encoder.getExtraBufferSizeNeeded( &encoderObject ) );
+
     _encoder.destroy( &encoderObject );
+
+    TEST_ASSERT_NULL( encoderObject.pHandle );
 }
 
 TEST( Full_Serializer_CBOR, Encoder_append_integer )
 {
-    int64_t value = 101;
+    int64_t value = 6;
 
     TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
                        _encoder.append( &_encoderObject, AwsIotSerializer_ScalarSignedInt( value ) ) );
@@ -128,6 +142,9 @@ TEST( Full_Serializer_CBOR, Encoder_append_integer )
     TEST_ASSERT_EQUAL( CborNoError, cbor_value_get_int64( &outermostValue, &result ) );
 
     TEST_ASSERT_EQUAL( value, result );
+
+    /* Encoded size is 1. */
+    TEST_ASSERT_EQUAL( 1, _encoder.getEncodedSize( &_encoderObject, _buffer ) );
 }
 
 TEST( Full_Serializer_CBOR, Encoder_append_text_string )
@@ -181,6 +198,14 @@ TEST( Full_Serializer_CBOR, Encoder_append_byte_string )
     TEST_ASSERT_EQUAL( inputLength, outputLength );
 
     TEST_ASSERT_EQUAL( 0, strcmp( inputBytes, outputBytes ) );
+}
+
+TEST( Full_Serializer_CBOR, Encoder_open_a_scalar )
+{
+    AwsIotSerializerEncoderObject_t integerObject = { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT };
+
+    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_INVALID_INPUT,
+                       _encoder.openContainer( &_encoderObject, &integerObject, 1 ) );
 }
 
 TEST( Full_Serializer_CBOR, Encoder_open_map )

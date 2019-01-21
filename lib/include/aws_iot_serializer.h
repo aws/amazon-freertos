@@ -36,6 +36,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/* Build using a config header, if provided. */
+#ifdef AWS_IOT_CONFIG_FILE
+    #include AWS_IOT_CONFIG_FILE
+#endif
+
+#if AWS_IOT_SERIALIZER_ENABLE_ASSERTS == 1
+    #ifndef AwsIotSerializer_Assert
+        #include <assert.h>
+        #define AwsIotSerializer_Assert( expression )    assert( expression )
+    #endif
+#else
+    #define AwsIotSerializer_Assert( expression )
+#endif
+
 #define AWS_IOT_SERIALIZER_INDEFINITE_LENGTH                       0xffffffff
 
 #define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM    { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_STREAM }
@@ -180,7 +194,7 @@ typedef struct AwsIotSerializerEncodeInterface
      *
      * @param[in] pEncoderObject The outermost object pointer; behavior is undefined for any other object
      */
-    AwsIotSerializerError_t ( * destroy )( AwsIotSerializerEncoderObject_t * pEncoderObject );
+    void ( * destroy )( AwsIotSerializerEncoderObject_t * pEncoderObject );
 
     /**
      * @brief Open a child container object.
