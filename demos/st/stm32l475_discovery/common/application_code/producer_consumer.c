@@ -53,7 +53,7 @@
 /*-----------------------------------------------------------*/
 
 #define SHARED_BUFFER_SIZE      ( 10 )
-#define NUM_OF_EXE_ITERATION    ( 1000 )
+#define NUM_OF_EXE_ITERATION    ( 20 )
 
 /*-----------------------------------------------------------*/
 
@@ -99,7 +99,7 @@ static void * prvConsumerThread( void * argv)
     int iTemp = 0;
     int i = 0; /* Read index. */
 
-    while ( i <  NUM_OF_EXE_ITERATION)
+    while ( i <  NUM_OF_EXE_ITERATION )
     {
         sem_wait( &xSemaphore );
         iTemp = pBuffer[ i % SHARED_BUFFER_SIZE ];
@@ -130,6 +130,10 @@ void vKernelProfilingProducerConsumerMutex( int iPriority )
 
         uint64_t ullTimeElapsed_post = 0;
         int iNumOfEntry_post = 0;
+
+        uint64_t ullTimeElapsed_appStart = 0;
+        uint64_t ullTimeElapsed_appEnd = 0;
+        uint32_t ulCounterFreq = 0;
     #endif /* POSIX_SEMAPHORE_TRACING */
 
     #if ( POSIX_SEMAPHORE_TRACING == 1 )
@@ -138,6 +142,9 @@ void vKernelProfilingProducerConsumerMutex( int iPriority )
 
         /* Initializing tracing interfaces. */
         FreeRTOS_POSIX_semaphore_initPerfCounterCycleElapsed();
+
+        /* Time stamp -- app start. */
+        ullTimeElapsed_appStart = aws_hal_perfcounter_get_value();
     #endif /* POSIX_SEMAPHORE_TRACING */
 
     /* Initialize semaphore with 0, since producer has not started. */
@@ -187,17 +194,26 @@ void vKernelProfilingProducerConsumerMutex( int iPriority )
 
     /* Get stat value, and print something on screen. */
     #if ( POSIX_SEMAPHORE_TRACING == 1 )
+        /* Time stamp -- app end. */
+        ullTimeElapsed_appEnd = aws_hal_perfcounter_get_value();
+        ulCounterFreq = aws_hal_perfcounter_get_frequency_hz();
+
+        configPRINTF( ( "%s -- Application total cycle elapsed [%ld], counter frequency [%u]\r\n",
+                         __FUNCTION__,
+                         (long) ( ullTimeElapsed_appEnd - ullTimeElapsed_appStart ) ,
+                         ulCounterFreq ) );
+
         /* Get tracing values. */
         ullTimeElapsed_timedwait = FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed_timedwait();
         iNumOfEntry_timedwait = FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry_timedwait();
 
-        configPRINTF( ( "%s -- sem_timedwait: time elapsed [%ld], number of entry [%d] \r\n",
+        configPRINTF( ( "%s -- sem_timedwait: cycle elapsed [%ld], number of entry [%d] \r\n",
                         __FUNCTION__, (long)ullTimeElapsed_timedwait, iNumOfEntry_timedwait ) );
 
         ullTimeElapsed_post = FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed_post();
         iNumOfEntry_post = FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry_post();
 
-        configPRINTF( ( "%s -- sem_post: time elapsed [%ld], number of entry [%d] \r\n",
+        configPRINTF( ( "%s -- sem_post: cycle elapsed [%ld], number of entry [%d] \r\n",
                         __FUNCTION__, (long)ullTimeElapsed_post, iNumOfEntry_post ) );
 
         /* De-initializing tracing interfaces. */

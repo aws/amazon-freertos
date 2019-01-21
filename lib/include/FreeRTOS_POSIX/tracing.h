@@ -26,14 +26,14 @@
 #ifndef _TRACING_H_
 #define _TRACING_H_
 
-#define POSIX_SEMAPHORE_TRACING                 ( 1 )   /**< Set to 1 to enable POSIX semaphore tracing initialization.
+#define POSIX_SEMAPHORE_TRACING                 ( 0 )   /**< Set to 1 to enable POSIX semaphore tracing initialization.
                                                              With this set to 1 any below set to 0, you could still call the interfaces,
                                                              but the data for corresponding entry will be zero. */
 
 #define POSIX_SEMAPHORE_TRACING_VERBOSE         ( 0 )   /**< Set to 1 to print something to console per profiling iteration. */
 
-#define POSIX_SEMAPHORE_TRACING_TIMEDWAIT       ( 1 )   /**< Set to 1 to optionally profile sem_timedwait(). */
-#define POSIX_SEMAPHORE_TRACING_POST            ( 1 )   /**< Set to 1 to optionally profile sem_post(). */
+#define POSIX_SEMAPHORE_TRACING_TIMEDWAIT       ( 0 )   /**< Set to 1 to optionally profile sem_timedwait(). */
+#define POSIX_SEMAPHORE_TRACING_POST            ( 0 )   /**< Set to 1 to optionally profile sem_post(). */
 
 
 #endif /* _TRACING_H_ */

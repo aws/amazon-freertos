@@ -32,4 +32,6 @@ void vKernelProfilingDiningPhilosopher( void );
 
 void vKernelProfilingProducerConsumerMutex( int iPriority );
 
+void vKernelProfilingMultiProducerConsumerMutex( int iPriority );
+
 #endif /* _KERNEL_PROFILING_H_ */

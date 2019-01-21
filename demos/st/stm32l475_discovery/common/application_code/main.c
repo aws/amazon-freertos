@@ -157,8 +157,11 @@ void vApplicationDaemonTaskStartupHook( void )
     // Dining philosopher
     //vKernelProfilingDiningPhilosopher();
 
-    // Producer-consumer with mutex
-    vKernelProfilingProducerConsumerMutex( mainPROFILING_PRODUCER_CONSUMER );
+    // Producer-consumer with semaphore
+    //vKernelProfilingProducerConsumerMutex( mainPROFILING_PRODUCER_CONSUMER );
+
+    // Multi producer-consumer with semaphore.
+    vKernelProfilingMultiProducerConsumerMutex( mainPROFILING_PRODUCER_CONSUMER );
 
     configPRINTF( ( "Exiting profiling task.\r\n" ) );
 }
