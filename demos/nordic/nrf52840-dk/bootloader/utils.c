@@ -325,5 +325,5 @@ BankState_t xGetBankState( Bank_t xBank )
         }
     }
 
-    return BANK_INVALID;
+    return BANK_NONE;
 }

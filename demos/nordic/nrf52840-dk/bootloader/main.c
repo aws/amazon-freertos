@@ -192,7 +192,7 @@ void vSetBankFlag( uint8_t usBank,
 /** Erases the second bank **/
 void vEraseSecondBank()
 {
-    vEraseRegion( ( uint8_t * ) CODE_REGION_2_START, CODE_REGION_2_START - CODE_REGION_1_START );
+    vEraseRegion( ( uint8_t * ) CODE_REGION_2_START, MAX_FIRMWARE_SIZE );
 }
 
 /** Commits the image from the second bank **/
@@ -281,7 +281,6 @@ int main( void )
     }
 
     xCryptoInit();
-
     BankState_t xBank1State = xGetBankState( FIRST_BANK );
     BankState_t xBank2State = xGetBankState( SECOND_BANK );
 

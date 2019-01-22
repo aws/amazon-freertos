@@ -5,14 +5,22 @@
 #define MAGICK_SIZE                    7                                               /* sizeof Magick */
 #define SIGNATURE_MAX_SIZE             256                                             /* Size allocated for signature in the header */
 #define CODE_REGION_1_START            SD_SIZE_GET( MBR_SIZE )                         /* Start of the first region*/
-#define CODE_REGION_2_START            0x8F000                                         /* Start of the second region */
+#define CODE_REGION_2_START            0x8C000                                         /* Start of the second region */
 #define DESCRIPTOR_SIZE                CODE_PAGE_SIZE
 #define NRF_UICR_BOOT_START_ADDRESS    ( NRF_UICR_BASE + 0x14 )                        /* UICR page containing bootloader start address */
 #define BOOTLOADER_REGION_START        ( *( uint32_t * ) NRF_UICR_BOOT_START_ADDRESS ) /* Bootloader start address */
 #define HARDWARE_ID                    0
 #define STACK_BEGIN                    0x20040000                                      /* Starting address for the stack */
 #define MAX_PUBLIC_KEY_SIZE            96                                              /* Maximum size of the public key */
-#define MAX_FIRMWARE_SIZE              ( CODE_REGION_2_START - CODE_REGION_1_START )   /* Maximum firmware size */
+#define APP_DATA_RESERVED              4096
+#define BOOTLOADER_START               0xF8000
+
+#define SWAP_AREA_SIZE      4                                       /* Number of pages dedicated for swapping */
+#define SWAP_STATUS_PAGE    (( uint8_t * ) ( BOOTLOADER_START - (SWAP_AREA_SIZE + 1) * 0x400 )) /* Page containing status of swapping */
+#define SWAP_AREA_BEGIN     (( uint8_t * ) ( BOOTLOADER_START - SWAP_AREA_SIZE * 0x400 )) /* Pages for swapping data */
+#define CHUNK_SIZE_BYTES    ( SWAP_AREA_SIZE * CODE_PAGE_SIZE)      /* Size of a swapping chunk */
+
+#define MAX_FIRMWARE_SIZE              ( BOOTLOADER_START - (SWAP_AREA_SIZE + 1) * 0x400 - APP_DATA_RESERVED - CODE_REGION_2_START )   /* Maximum firmware size */
 #define MAX_FIRMWARE_PAGES             ( MAX_FIRMWARE_SIZE / CODE_PAGE_SIZE )          /* Maximum firmware size in pages*/
 
 
@@ -51,10 +59,7 @@ typedef enum
     FIRST_BANK, SECOND_BANK
 } Bank_t;                                                           /* Enum for the possible banks */
 
-#define SWAP_STATUS_PAGE    (( uint8_t * ) ( 0x100000 - 31 * 0x400 )) /* Page containing status of swapping */
-#define SWAP_AREA_BEGIN     (( uint8_t * ) ( 0x100000 - 30 * 0x400 )) /* Pages for swapping data */
-#define SWAP_AREA_SIZE      4                                       /* Number of pages dedicated for swapping */
-#define CHUNK_SIZE_BYTES    ( SWAP_AREA_SIZE * CODE_PAGE_SIZE)      /* Size of a swapping chunk */
+
 
 typedef enum                                                        /* Swapping state */
 {
@@ -72,7 +77,8 @@ typedef enum {
     BANK_COMMIT_PENDING,
     BANK_NORDIC,
     BANK_NORDIC_DESCRIPTOR,
-    BANK_INVALID
+    BANK_INVALID,
+    BANK_NONE
 } BankState_t;
 
 #endif /* __BOOTLOADER_H */
