@@ -39,66 +39,69 @@
 #include "aws_iot_serializer.h"
 #include "mbedtls/base64.h"
 
-#define _JSON_OBJECT_START_CHAR      '{'
-#define _JSON_OBJECT_END_CHAR        '}'
+#define _JSON_OBJECT_START_CHAR           '{'
+#define _JSON_OBJECT_END_CHAR             '}'
 
-#define _JSON_ARRAY_START_CHAR       '['
-#define _JSON_ARRAY_END_CHAR         ']'
+#define _JSON_ARRAY_START_CHAR            '['
+#define _JSON_ARRAY_END_CHAR              ']'
 
-#define _JSON_STRING_WRAPPER                 '"'
+#define _JSON_STRING_WRAPPER              '"'
 
-#define _JSON_KEY_VALUE_PAIR_SEPARATOR       ':'
+#define _JSON_KEY_VALUE_PAIR_SEPARATOR    ':'
 
-#define _JSON_VALUE_SEPARATOR                ','
+#define _JSON_VALUE_SEPARATOR             ','
 
-#define _JSON_BOOL_TRUE             "true"
-#define _JSON_BOOL_FALSE            "false"
-#define _JSON_NULL_VALUE            "null"
+#define _JSON_BOOL_TRUE                   "true"
+#define _JSON_BOOL_FALSE                  "false"
+#define _JSON_NULL_VALUE                  "null"
 
-#define _JSON_BOOL_TRUE_LENGTH         ( 4 )
-#define _JSON_BOOL_FALSE_LENGTH        ( 5 )
-#define _JSON_NULL_VALUE_LENGTH        ( 4 )
+#define _JSON_BOOL_TRUE_LENGTH            ( 4 )
+#define _JSON_BOOL_FALSE_LENGTH           ( 5 )
+#define _JSON_NULL_VALUE_LENGTH           ( 4 )
 
-#define _JSON_INT8_LENGTH        ( 4 )
-#define _JSON_INT16_LENGTH       ( 6 )
-#define _JSON_INT32_LENGTH       ( 11 )
-#define _JSON_INT64_LENGTH       ( 20 )
+#define _JSON_INT8_LENGTH                 ( 4 )
+#define _JSON_INT16_LENGTH                ( 6 )
+#define _JSON_INT32_LENGTH                ( 11 )
+#define _JSON_INT64_LENGTH                ( 20 )
 
-#define _jsonIntegerLength( value )      ( \
-        ( value >= INT8_MIN && value <=  INT8_MAX   ) ? _JSON_INT8_LENGTH  :   \
-        ( value >= INT16_MIN && value <=  INT16_MAX ) ? _JSON_INT16_LENGTH :   \
-        ( value >= INT32_MIN && value <=  INT32_MAX ) ? _JSON_INT32_LENGTH :   \
-          _JSON_INT64_LENGTH  )
+#define _jsonIntegerLength( value )                                         \
+    (                                                                       \
+        ( value >= INT8_MIN && value <= INT8_MAX ) ? _JSON_INT8_LENGTH :    \
+        ( value >= INT16_MIN && value <= INT16_MAX ) ? _JSON_INT16_LENGTH : \
+        ( value >= INT32_MIN && value <= INT32_MAX ) ? _JSON_INT32_LENGTH : \
+        _JSON_INT64_LENGTH )
 
-#define _jsonBoolLength( value )     ( ( value == true ) ? _JSON_BOOL_TRUE_LENGTH : _JSON_BOOL_FALSE_LENGTH )
+#define _jsonBoolLength( value )           ( ( value == true ) ? _JSON_BOOL_TRUE_LENGTH : _JSON_BOOL_FALSE_LENGTH )
 
-#define _jsonStringLength( length )     ( ( length ) + 2 )
+#define _jsonStringLength( length )        ( ( length ) + 2 )
 
-#define _base64EncodedLength( length )    ( 4 * ( ( ( length ) + 2 ) / 3 ) )
+#define _base64EncodedLength( length )     ( 4 * ( ( ( length ) + 2 ) / 3 ) )
 
-#define _jsonByteStringLength( length )  ( _jsonStringLength( _base64EncodedLength( length ) ) )
+#define _jsonByteStringLength( length )    ( _jsonStringLength( _base64EncodedLength( length ) ) )
 
-#define _jsonEmptyContainerLength        ( 2 )
+#define _jsonEmptyContainerLength    ( 2 )
 
-#define _jsonKeyValuePairLength( keyLength, valueLength )   ( _jsonStringLength( keyLength ) + 1 + ( valueLength ) )
+#define _jsonKeyValuePairLength( keyLength, valueLength )    ( _jsonStringLength( keyLength ) + 1 + ( valueLength ) )
 
-#define _jsonContainerPointer( pContainer )    (  ( pContainer )->pBuffer + ( pContainer )->offset )
+#define _jsonContainerPointer( pContainer )                  ( ( pContainer )->pBuffer + ( pContainer )->offset )
 
-#define _jsonIsValidScalar( data ) ( ( (data)->type >= AWS_IOT_SERIALIZER_SCALAR_NULL  ) && ( (data)->type <= AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
+#define _jsonIsValidScalar( data )                           ( ( ( data )->type >= AWS_IOT_SERIALIZER_SCALAR_NULL ) && ( ( data )->type <= AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
 
-#define _jsonIsValidContainer( container ) ( \
-        ( container != NULL ) && \
-        ( (container)->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM  ) && \
-        ( (container)->type <= AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+#define _jsonIsValidContainer( container )                                \
+    (                                                                     \
+        ( container != NULL ) &&                                          \
+        ( ( container )->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM ) && \
+        ( ( container )->type <= AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
 
-typedef struct _jsonContainer {
-        AwsIotSerializerDataType_t containerType;
-        bool isEmpty;
-        uint8_t *pBuffer;
-        size_t offset;
-        size_t remainingLength;
-        size_t maxLength;
-        size_t overflowLength;
+typedef struct _jsonContainer
+{
+    AwsIotSerializerDataType_t containerType;
+    bool isEmpty;
+    uint8_t * pBuffer;
+    size_t offset;
+    size_t remainingLength;
+    size_t maxLength;
+    size_t overflowLength;
 } _jsonContainer_t;
 
 /**
@@ -150,7 +153,7 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
  * @param pEncoderObject Pointer to the encoder object
  * @return AWS_IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject );
+static void _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject );
 
 /**
  * @brief Open a new child container within a parent container.
@@ -163,9 +166,9 @@ static AwsIotSerializerError_t _destroy( AwsIotSerializerEncoderObject_t * pEnco
  * @param[in] length Length of the container
  * @return AWS_IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t  _openContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                AwsIotSerializerEncoderObject_t * pNewEncoderObject,
-                                                size_t length );
+static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
+                                               AwsIotSerializerEncoderObject_t * pNewEncoderObject,
+                                               size_t length );
 
 /**
  * @brief Open a new child container as a key value pair within a parent container.
@@ -191,8 +194,8 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
  * @param[in] pNewEncoderObject Object representing the child container
  * @return AWS_IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t  _closeContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                 AwsIotSerializerEncoderObject_t * pNewEncoderObject );
+static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
+                                                AwsIotSerializerEncoderObject_t * pNewEncoderObject );
 
 /**
  * @brief Appends a scalar value to the JSON container
@@ -202,7 +205,7 @@ static AwsIotSerializerError_t  _closeContainer( AwsIotSerializerEncoderObject_t
  * @return AWS_IOT_SERIALIZER_SUCCESS on success
  */
 static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                        AwsIotSerializerScalarData_t scalarData);
+                                        AwsIotSerializerScalarData_t scalarData );
 
 /**
  * @brief Inserts a key value pair to the JSON container.
@@ -213,53 +216,64 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
  */
 static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                 const char * pKey,
-                                                AwsIotSerializerScalarData_t scalarData);
+                                                AwsIotSerializerScalarData_t scalarData );
 
 
-static size_t _getSerializedLength(
-        _jsonContainer_t* pContainer,
-        AwsIotSerializerDataType_t dataType,
-        AwsIotSerializerScalarData_t* pScalarData );
+static size_t _getSerializedLength( _jsonContainer_t * pContainer,
+                                    AwsIotSerializerDataType_t dataType,
+                                    AwsIotSerializerScalarData_t * pScalarData );
 
 
-static size_t _getKeyValueLength(
-        _jsonContainer_t* pContainer,
-        size_t keyLength,
-        AwsIotSerializerDataType_t valueType,
-        AwsIotSerializerScalarData_t* pScalarValue );
+static size_t _getKeyValueLength( _jsonContainer_t * pContainer,
+                                  size_t keyLength,
+                                  AwsIotSerializerDataType_t valueType,
+                                  AwsIotSerializerScalarData_t * pScalarValue );
 
-static size_t _getValueLength(
-        _jsonContainer_t* pContainer,
-        AwsIotSerializerDataType_t valueType,
-        AwsIotSerializerScalarData_t* pScalarValue );
+static size_t _getValueLength( _jsonContainer_t * pContainer,
+                               AwsIotSerializerDataType_t valueType,
+                               AwsIotSerializerScalarData_t * pScalarValue );
 
-static void _stopContainer( _jsonContainer_t* pContainer, AwsIotSerializerDataType_t containerType );
-static void _appendTextString( _jsonContainer_t* pContainer, const char* pStr, size_t strLength );
-static void _appendByteString( _jsonContainer_t* pContainer, uint8_t* pByteString, size_t stringLength );
-static void _appendInteger( _jsonContainer_t* pContainer, int64_t signedInteger );
-static void _appendBoolean( _jsonContainer_t* pContainer, bool boolValue );
-static void _appendData(_jsonContainer_t* pContainer,  AwsIotSerializerDataType_t dataType, AwsIotSerializerScalarData_t* pScalarData );
-static void _appendJsonValue(_jsonContainer_t* pContainer,  AwsIotSerializerDataType_t dataType, AwsIotSerializerScalarData_t* pScalarData );
-static void _appendJsonKeyValuePair(
-        _jsonContainer_t* pContainer,
-        const char * pKey,
-        size_t keyLength,
-        AwsIotSerializerDataType_t valueType,
-        AwsIotSerializerScalarData_t* pScalarValue );
+static void _stopContainer( _jsonContainer_t * pContainer,
+                            AwsIotSerializerDataType_t containerType );
+static void _appendTextString( _jsonContainer_t * pContainer,
+                               const char * pStr,
+                               size_t strLength );
+static void _appendByteString( _jsonContainer_t * pContainer,
+                               uint8_t * pByteString,
+                               size_t stringLength );
+static void _appendInteger( _jsonContainer_t * pContainer,
+                            int64_t signedInteger );
+static void _appendBoolean( _jsonContainer_t * pContainer,
+                            bool boolValue );
+static void _appendData( _jsonContainer_t * pContainer,
+                         AwsIotSerializerDataType_t dataType,
+                         AwsIotSerializerScalarData_t * pScalarData );
+static void _appendJsonValue( _jsonContainer_t * pContainer,
+                              AwsIotSerializerDataType_t dataType,
+                              AwsIotSerializerScalarData_t * pScalarData );
+static void _appendJsonKeyValuePair( _jsonContainer_t * pContainer,
+                                     const char * pKey,
+                                     size_t keyLength,
+                                     AwsIotSerializerDataType_t valueType,
+                                     AwsIotSerializerScalarData_t * pScalarValue );
 
-AwsIotSerializerEncodeInterface_t _AwsIotSerializerJsonEncoder = {
-        .getEncodedSize = _getEncodedSize,
-        .getExtraBufferSizeNeeded = _getExtraBufferSizeNeeded,
-        .init = _init,
-        .destroy = _destroy,
-        .openContainer = _openContainer,
-        .openContainerWithKey = _openContainerWithKey,
-        .closeContainer = _closeContainer,
-        .append = _append,
-        .appendKeyValue = _appendKeyValue
+AwsIotSerializerEncodeInterface_t _AwsIotSerializerJsonEncoder =
+{
+    .getEncodedSize           = _getEncodedSize,
+    .getExtraBufferSizeNeeded = _getExtraBufferSizeNeeded,
+    .init                     = _init,
+    .destroy                  = _destroy,
+    .openContainer            = _openContainer,
+    .openContainerWithKey     = _openContainerWithKey,
+    .closeContainer           = _closeContainer,
+    .append                   = _append,
+    .appendKeyValue           = _appendKeyValue
 };
 
-static void _stopContainer( _jsonContainer_t* pContainer, AwsIotSerializerDataType_t containerType )
+/*-----------------------------------------------------------*/
+
+static void _stopContainer( _jsonContainer_t * pContainer,
+                            AwsIotSerializerDataType_t containerType )
 {
     if( containerType == AWS_IOT_SERIALIZER_CONTAINER_ARRAY )
     {
@@ -270,29 +284,43 @@ static void _stopContainer( _jsonContainer_t* pContainer, AwsIotSerializerDataTy
         pContainer->pBuffer[ pContainer->offset++ ] = _JSON_OBJECT_END_CHAR;
     }
 }
-static size_t _getSerializedLength(
-        _jsonContainer_t* pContainer,
-        AwsIotSerializerDataType_t dataType,
-        AwsIotSerializerScalarData_t* pScalarData )
+/*-----------------------------------------------------------*/
+
+static size_t _getSerializedLength( _jsonContainer_t * pContainer,
+                                    AwsIotSerializerDataType_t dataType,
+                                    AwsIotSerializerScalarData_t * pScalarData )
 
 {
     switch( dataType )
     {
         case AWS_IOT_SERIALIZER_CONTAINER_MAP:
         case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
+
             return _jsonEmptyContainerLength;
+
         case AWS_IOT_SERIALIZER_CONTAINER_STREAM:
             break;
+
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
+
             return _jsonStringLength( pScalarData->value.stringLength );
+
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
+
             return _jsonByteStringLength( pScalarData->value.stringLength );
+
         case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
+
             return _jsonIntegerLength( pScalarData->value.signedInt );
+
         case AWS_IOT_SERIALIZER_SCALAR_BOOL:
+
             return _jsonBoolLength( pScalarData->value.booleanValue );
+
         case AWS_IOT_SERIALIZER_SCALAR_NULL:
+
             return _JSON_NULL_VALUE_LENGTH;
+
         default:
             break;
     }
@@ -300,15 +328,16 @@ static size_t _getSerializedLength(
     return 0;
 }
 
-static size_t _getKeyValueLength(
-        _jsonContainer_t* pContainer,
-        size_t keyLength,
-        AwsIotSerializerDataType_t valueType,
-        AwsIotSerializerScalarData_t* pScalarValue )
+/*-----------------------------------------------------------*/
+
+static size_t _getKeyValueLength( _jsonContainer_t * pContainer,
+                                  size_t keyLength,
+                                  AwsIotSerializerDataType_t valueType,
+                                  AwsIotSerializerScalarData_t * pScalarValue )
 {
     size_t keyValueLength = 0, valueLength;
 
-    valueLength =  _getSerializedLength( pContainer, valueType, pScalarValue );
+    valueLength = _getSerializedLength( pContainer, valueType, pScalarValue );
     keyValueLength = _jsonKeyValuePairLength( keyLength, valueLength );
 
     if( !pContainer->isEmpty )
@@ -319,129 +348,169 @@ static size_t _getKeyValueLength(
     return keyValueLength;
 }
 
-static size_t _getValueLength(
-        _jsonContainer_t* pContainer,
-        AwsIotSerializerDataType_t valueType,
-        AwsIotSerializerScalarData_t* pScalarValue )
+/*-----------------------------------------------------------*/
+
+static size_t _getValueLength( _jsonContainer_t * pContainer,
+                               AwsIotSerializerDataType_t valueType,
+                               AwsIotSerializerScalarData_t * pScalarValue )
 {
     size_t length = _getSerializedLength( pContainer, valueType, pScalarValue );
+
     if( !pContainer->isEmpty )
     {
         length += 1;
     }
+
     return length;
 }
 
-static void _appendTextString( _jsonContainer_t* pContainer, const char* pStr, size_t strLength )
+/*-----------------------------------------------------------*/
+
+static void _appendTextString( _jsonContainer_t * pContainer,
+                               const char * pStr,
+                               size_t strLength )
 {
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_STRING_WRAPPER;
-    memcpy( ( pContainer->pBuffer +  pContainer->offset ), pStr, strLength );
+    memcpy( ( pContainer->pBuffer + pContainer->offset ), pStr, strLength );
     pContainer->offset += strLength;
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_STRING_WRAPPER;
 }
 
-static void _appendByteString( _jsonContainer_t* pContainer, uint8_t *pByteString, size_t stringLength )
+/*-----------------------------------------------------------*/
+
+static void _appendByteString( _jsonContainer_t * pContainer,
+                               uint8_t * pByteString,
+                               size_t stringLength )
 {
     size_t encodedStrLength = 0;
+
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_STRING_WRAPPER;
     mbedtls_base64_encode(
-            ( unsigned char * )( pContainer->pBuffer + pContainer->offset ),
-            pContainer->remainingLength,
-            &encodedStrLength,
-            ( const unsigned char * ) pByteString,
-            stringLength );
+        ( unsigned char * ) ( pContainer->pBuffer + pContainer->offset ),
+        pContainer->remainingLength,
+        &encodedStrLength,
+        ( const unsigned char * ) pByteString,
+        stringLength );
     pContainer->offset += encodedStrLength;
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_STRING_WRAPPER;
 }
 
-static void _appendInteger( _jsonContainer_t* pContainer, int64_t signedInteger )
+/*-----------------------------------------------------------*/
+
+static void _appendInteger( _jsonContainer_t * pContainer,
+                            int64_t signedInteger )
 {
-    size_t len = snprintf( ( char* ) _jsonContainerPointer( pContainer ), pContainer->remainingLength, "%lld", signedInteger );
+    size_t len = snprintf( ( char * ) _jsonContainerPointer( pContainer ), pContainer->remainingLength, "%lld", signedInteger );
+
     pContainer->offset += len;
 }
 
-static void _appendBoolean( _jsonContainer_t* pContainer, bool value )
+/*-----------------------------------------------------------*/
+
+static void _appendBoolean( _jsonContainer_t * pContainer,
+                            bool value )
 {
     if( value == true )
     {
-        strncpy( ( char* ) _jsonContainerPointer( pContainer ), _JSON_BOOL_TRUE, _JSON_BOOL_TRUE_LENGTH );
+        strncpy( ( char * ) _jsonContainerPointer( pContainer ), _JSON_BOOL_TRUE, _JSON_BOOL_TRUE_LENGTH );
         pContainer->offset += _JSON_BOOL_TRUE_LENGTH;
     }
     else
     {
-        strncpy( ( char* ) _jsonContainerPointer( pContainer ), _JSON_BOOL_FALSE, _JSON_BOOL_FALSE_LENGTH );
+        strncpy( ( char * ) _jsonContainerPointer( pContainer ), _JSON_BOOL_FALSE, _JSON_BOOL_FALSE_LENGTH );
         pContainer->offset += _JSON_BOOL_FALSE_LENGTH;
     }
 }
 
-static void _appendData(_jsonContainer_t* pContainer,  AwsIotSerializerDataType_t dataType, AwsIotSerializerScalarData_t* pScalarData )
+/*-----------------------------------------------------------*/
+
+static void _appendData( _jsonContainer_t * pContainer,
+                         AwsIotSerializerDataType_t dataType,
+                         AwsIotSerializerScalarData_t * pScalarData )
 {
     size_t stringLength;
-    char *pString;
+    char * pString;
 
     switch( dataType )
     {
         case AWS_IOT_SERIALIZER_CONTAINER_MAP:
             pContainer->pBuffer[ pContainer->offset++ ] = _JSON_OBJECT_START_CHAR;
             break;
+
         case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
             pContainer->pBuffer[ pContainer->offset++ ] = _JSON_ARRAY_START_CHAR;
             break;
+
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
             pString = ( char * ) ( pScalarData->value.pString );
-            stringLength = ( pScalarData->value.stringLength == 0 ) ? strlen( pString ): pScalarData->value.stringLength;
-            _appendTextString( pContainer, pString , stringLength );
+            stringLength = ( pScalarData->value.stringLength == 0 ) ? strlen( pString ) : pScalarData->value.stringLength;
+            _appendTextString( pContainer, pString, stringLength );
             break;
+
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
             _appendByteString( pContainer, pScalarData->value.pString, pScalarData->value.stringLength );
             break;
+
         case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
             _appendInteger( pContainer, pScalarData->value.signedInt );
             break;
+
         case AWS_IOT_SERIALIZER_SCALAR_BOOL:
             _appendBoolean( pContainer, pScalarData->value.booleanValue );
             break;
+
         case AWS_IOT_SERIALIZER_SCALAR_NULL:
-            strncpy( ( char* ) _jsonContainerPointer( pContainer ), _JSON_NULL_VALUE, _JSON_NULL_VALUE_LENGTH );
+            strncpy( ( char * ) _jsonContainerPointer( pContainer ), _JSON_NULL_VALUE, _JSON_NULL_VALUE_LENGTH );
             break;
+
         default:
             break;
     }
 }
 
-static void _appendJsonValue(_jsonContainer_t* pContainer,  AwsIotSerializerDataType_t xType, AwsIotSerializerScalarData_t* pxScalarData )
+/*-----------------------------------------------------------*/
+
+static void _appendJsonValue( _jsonContainer_t * pContainer,
+                              AwsIotSerializerDataType_t xType,
+                              AwsIotSerializerScalarData_t * pxScalarData )
 {
     if( !pContainer->isEmpty )
     {
         pContainer->pBuffer[ pContainer->offset++ ] = _JSON_VALUE_SEPARATOR;
     }
+
     _appendData( pContainer, xType, pxScalarData );
 }
 
-static void _appendJsonKeyValuePair(
-        _jsonContainer_t* pContainer,
-        const char * pcKey, size_t keyLength,
-        AwsIotSerializerDataType_t xValType,
-        AwsIotSerializerScalarData_t* pxScalarValue )
+/*-----------------------------------------------------------*/
+
+static void _appendJsonKeyValuePair( _jsonContainer_t * pContainer,
+                                     const char * pcKey,
+                                     size_t keyLength,
+                                     AwsIotSerializerDataType_t xValType,
+                                     AwsIotSerializerScalarData_t * pxScalarValue )
 {
     if( !pContainer->isEmpty )
     {
         pContainer->pBuffer[ pContainer->offset++ ] = _JSON_VALUE_SEPARATOR;
     }
+
     _appendTextString( pContainer, pcKey, keyLength );
     pContainer->pBuffer[ pContainer->offset++ ] = _JSON_KEY_VALUE_PAIR_SEPARATOR;
     _appendData( pContainer, xValType, pxScalarValue );
 }
 
+/*-----------------------------------------------------------*/
+
 static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                       uint8_t * pDataBuffer,
                                       size_t maxSize )
 {
-
     _jsonContainer_t * pContainer;
 
     /* Create a new JSON container */
     pContainer = pvPortMalloc( sizeof( _jsonContainer_t ) );
+
     if( pContainer == NULL )
     {
         return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
@@ -458,26 +527,24 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
     pEncoderObject->type = AWS_IOT_SERIALIZER_CONTAINER_STREAM;
 
     /* Store the container pointer within the handle */
-    pEncoderObject->pHandle = ( void* ) pContainer;
+    pEncoderObject->pHandle = ( void * ) pContainer;
 
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
-static AwsIotSerializerError_t _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject )
+/*-----------------------------------------------------------*/
+
+static void _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject )
 {
     _jsonContainer_t * pContainer;
 
-    pContainer = ( _jsonContainer_t *) ( pEncoderObject->pHandle );
-    if( pContainer == NULL  )
-    {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
+    pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
 
     vPortFree( pContainer );
     pEncoderObject->pHandle = NULL;
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
 }
+
+/*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                AwsIotSerializerEncoderObject_t * pNewEncoderObject,
@@ -488,12 +555,12 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
     AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
     if( !_jsonIsValidContainer( pEncoderObject ) ||
-            !_jsonIsValidContainer( pNewEncoderObject ) )
+        !_jsonIsValidContainer( pNewEncoderObject ) )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    pContainer = ( _jsonContainer_t* ) pEncoderObject->pHandle;
+    pContainer = ( _jsonContainer_t * ) pEncoderObject->pHandle;
     serializedLength = _getValueLength( pContainer, pNewEncoderObject->type, NULL );
 
     if( pContainer->remainingLength >= serializedLength )
@@ -510,10 +577,12 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
 
     pContainer->isEmpty = true;
     pContainer->containerType = pNewEncoderObject->type;
-    pNewEncoderObject->pHandle = ( void *) pContainer;
+    pNewEncoderObject->pHandle = ( void * ) pContainer;
 
     return error;
 }
+
+/*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                       const char * pKey,
@@ -525,8 +594,8 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
     size_t serializedLength, keyLength = strlen( pKey );
 
     if( !_jsonIsValidContainer( pEncoderObject ) ||
-            ( pEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP  ) ||
-            !_jsonIsValidContainer( pNewEncoderObject ) )
+        ( pEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) ||
+        !_jsonIsValidContainer( pNewEncoderObject ) )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
@@ -548,25 +617,29 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
 
     pContainer->isEmpty = true;
     pContainer->containerType = pNewEncoderObject->type;
-    pNewEncoderObject->pHandle = ( void* ) pContainer;
+    pNewEncoderObject->pHandle = ( void * ) pContainer;
 
     return error;
 }
+
+/*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                 AwsIotSerializerEncoderObject_t * pNewEncoderObject )
 {
     AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
-    _jsonContainer_t *pContainer;
+    _jsonContainer_t * pContainer;
 
-    if(!_jsonIsValidContainer( pEncoderObject ) ||
-            !_jsonIsValidContainer( pNewEncoderObject ) )
+    if( !_jsonIsValidContainer( pEncoderObject ) ||
+        !_jsonIsValidContainer( pNewEncoderObject ) )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
+
     pContainer = ( _jsonContainer_t * ) ( pNewEncoderObject->pHandle );
+
     if( ( pContainer == NULL ) ||
-            ( pContainer->containerType != pNewEncoderObject->type ) )
+        ( pContainer->containerType != pNewEncoderObject->type ) )
     {
         /* Trying to close a different container than one opened recently */
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
@@ -583,27 +656,29 @@ static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t 
 
     pContainer->containerType = pEncoderObject->type;
     pContainer->isEmpty = false;
-    pEncoderObject->pHandle = (void*) pContainer;
+    pEncoderObject->pHandle = ( void * ) pContainer;
     pNewEncoderObject->pHandle = NULL;
 
     return error;
 }
 
+/*-----------------------------------------------------------*/
+
 static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                        AwsIotSerializerScalarData_t scalarData)
+                                        AwsIotSerializerScalarData_t scalarData )
 {
     AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
-    _jsonContainer_t *pContainer;
+    _jsonContainer_t * pContainer;
     size_t serializedLength;
 
     if( !_jsonIsValidContainer( pEncoderObject ) ||
-            ( pEncoderObject->type  != AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) ||
-            !_jsonIsValidScalar( &scalarData ) )
+        ( pEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) ||
+        !_jsonIsValidScalar( &scalarData ) )
     {
         return AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    pContainer = ( _jsonContainer_t * )( pEncoderObject->pHandle );
+    pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
     serializedLength = _getValueLength( pContainer, scalarData.type, &scalarData );
 
     if( pContainer->remainingLength >= serializedLength )
@@ -623,27 +698,30 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
     return error;
 }
 
+/*-----------------------------------------------------------*/
+
 static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                 const char * pKey,
-                                                AwsIotSerializerScalarData_t scalarData)
+                                                AwsIotSerializerScalarData_t scalarData )
 {
     AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
-    _jsonContainer_t *pContainer;
+    _jsonContainer_t * pContainer;
     size_t serializedLength, keyLength = strlen( pKey );
 
 
     if( !_jsonIsValidContainer( pEncoderObject ) ||
-             ( pEncoderObject->type  != AWS_IOT_SERIALIZER_CONTAINER_MAP ) ||
-             !_jsonIsValidScalar( &scalarData ) )
-     {
-         return AWS_IOT_SERIALIZER_INVALID_INPUT;
-     }
+        ( pEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) ||
+        !_jsonIsValidScalar( &scalarData ) )
+    {
+        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+    }
 
-    pContainer = ( _jsonContainer_t * )( pEncoderObject->pHandle );
+    pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
     serializedLength = _getKeyValueLength( pContainer, keyLength, scalarData.type, &scalarData );
+
     if( pContainer->remainingLength >= serializedLength )
     {
-        _appendJsonKeyValuePair( pContainer, pKey, keyLength, scalarData.type, &scalarData  );
+        _appendJsonKeyValuePair( pContainer, pKey, keyLength, scalarData.type, &scalarData );
         pContainer->remainingLength -= serializedLength;
     }
     else
@@ -658,34 +736,43 @@ static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t 
     return error;
 }
 
-static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject, uint8_t * pDataBuffer )
+/*-----------------------------------------------------------*/
+
+static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject,
+                               uint8_t * pDataBuffer )
 {
     size_t encodedSize = 0;
-    _jsonContainer_t* pContainer = NULL;
+    _jsonContainer_t * pContainer = NULL;
 
     if( _jsonIsValidContainer( pEncoderObject ) )
     {
-        pContainer = ( _jsonContainer_t* ) ( pEncoderObject->pHandle );
+        pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
+
         if( ( pContainer != NULL ) && ( pDataBuffer == pContainer->pBuffer ) )
         {
             encodedSize = pContainer->offset;
         }
     }
+
     return encodedSize;
 }
+
+/*-----------------------------------------------------------*/
 
 static size_t _getExtraBufferSizeNeeded( AwsIotSerializerEncoderObject_t * pEncoderObject )
 {
     size_t extraSizeNeeded = 0;
-    _jsonContainer_t* pContainer = NULL;
+    _jsonContainer_t * pContainer = NULL;
 
     if( _jsonIsValidContainer( pEncoderObject ) )
     {
-        pContainer = ( _jsonContainer_t* ) ( pEncoderObject->pHandle );
+        pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
+
         if( pContainer != NULL )
         {
-            extraSizeNeeded =  pContainer->overflowLength;
+            extraSizeNeeded = pContainer->overflowLength;
         }
     }
+
     return extraSizeNeeded;
 }
