@@ -273,7 +273,7 @@ CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
                                        size_t xCertificateLength,
                                        uint8_t * pucLabel )
 {
-
+    return CKR_OK;
 }
 
 /**
@@ -552,8 +552,12 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteSingleByte )
 {
     OTA_Err_t xOtaStatus;
     int16_t sNumBytesWritten;
+    Sig256_t xSig = { 0 };
+
     uint8_t ucData = 0xAA;
 
+    xOtaFile.pxSignature = &xSig;
+    xOtaFile.pxSignature->usSize = ucInvalidSignatureLength;
     /* TEST: Write a byte of data. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );

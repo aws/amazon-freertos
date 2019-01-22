@@ -569,7 +569,6 @@
           <file file_name="../../../common/ota/aws_test_ota_agent.c" />
           <file file_name="../../../common/ota/aws_test_ota_pal.c" />
         </folder>
-        <folder Name="devmode_key_provisioning" />
       </folder>
       <file file_name="../common/application_code/main.c" />
       <file file_name="../common/application_code/aws_ble_numericComparison.c" />

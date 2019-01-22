@@ -38,6 +38,7 @@
 #include "aws_clientcredential.h"
 #include "aws_ota_agent_internal.h"
 #include "aws_iot_demo_network.h"
+#include "aws_iot_network_manager.h"
 /* MQTT includes. */
 #include "aws_mqtt_agent.h"
 
@@ -129,23 +130,7 @@ TEST_GROUP( Full_OTA_AGENT );
  */
 TEST_SETUP( Full_OTA_AGENT )
 {
-    AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;                                                                                                                                                                                                                                                                                                                              
-
-    /* Create the MQTT Client. */                                                                                                                                                                                                                    
-    AwsIotDemo_CreateNetworkConnection(
-            &xNetworkInterface,
-            &xMqttConnection,
-            NULL,
-            &xNetworkConnection,
-            otatestSHUTDOWN_WAIT,
-            1 );
-
-
-    AwsIotMqtt_Connect( &xMqttConnection,
-        &xNetworkInterface,
-        &xConnectInfo,
-        NULL,
-        otatestSHUTDOWN_WAIT );
+  
 }
 
 /**
@@ -153,28 +138,66 @@ TEST_SETUP( Full_OTA_AGENT )
  */
 TEST_TEAR_DOWN( Full_OTA_AGENT )
 {
-AwsIotMqtt_Disconnect(xMqttConnection, false);
 
-AwsIotDemo_DeleteNetworkConnection(xNetworkConnection);
-  /*  MQTTAgentReturnCode_t xMqttStatus;
-
-   
-    xMqttStatus = MQTT_AGENT_Disconnect( xMQTTClientHandle,
-                                         pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
-
- 
-    xMqttStatus = MQTT_AGENT_Delete( xMQTTClientHandle );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
-
-    xMQTTClientHandle = NULL;*/
 }
-
+    int test1, test2, test3, test4, test5, test6, test7;
 TEST_GROUP_RUNNER( Full_OTA_AGENT )
 {
+  AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    AwsIotMqttError_t xStatus;
+
+    /* Create the MQTT Client. */                                                                                                                                                                                                                    
+    AwsIotDemo_CreateNetworkConnection(
+            &xNetworkInterface,
+            &xMqttConnection,
+            NULL,
+            &xNetworkConnection,
+            5,
+            1000 );
+
+   if( xNetworkConnection != NULL )
+    {
+
+        configPRINTF( ( "Connecting to broker...\r\n" ) );
+        memset( &xConnectInfo, 0, sizeof( xConnectInfo ) );
+        if( AwsIotDemo_GetNetworkType( xNetworkConnection ) == AWSIOT_NETWORK_TYPE_BLE )
+        {
+            xConnectInfo.awsIotMqttMode = false;
+            xConnectInfo.keepAliveSeconds = 0;
+        }
+        else
+        {
+            xConnectInfo.awsIotMqttMode = true;
+            xConnectInfo.keepAliveSeconds = 4;
+        }
+
+        xConnectInfo.cleanSession = true;
+        xConnectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
+        xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+
+        xStatus = AwsIotMqtt_Connect( &xMqttConnection,
+                                      &xNetworkInterface,
+                                      &xConnectInfo,
+                                      NULL,
+                                      otatestSHUTDOWN_WAIT );        
+    }else
+    {
+         configPRINTF( ( "Cannot create network connection\r\n" ) );
+    }
+
     RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_InvalidParams );
+     test1 = xPortGetFreeHeapSize();
+      configPRINTF(("Free HEAP %ld\n", test1 ));
+     
     RUN_TEST_CASE( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close );
+     test4 = xPortGetFreeHeapSize();
+      configPRINTF(("Free HEAP %ld\n", test4 ));  
+      
     RUN_TEST_CASE( Full_OTA_AGENT, prvParseJSONbyModel_Errors );
+
+      AwsIotMqtt_Disconnect(xMqttConnection, false);
+
+  AwsIotDemo_DeleteNetworkConnection(xNetworkConnection);
 }
 
 TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
@@ -208,7 +231,8 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
         vOTACompleteCallback,
         pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, eOtaStatus );
-
+     test2 = xPortGetFreeHeapSize();
+      configPRINTF(("Free HEAP %ld\n", test2 ));  
     /* Test:
      * 1. That in ideal scenario, the JSON gets correctly processed.
      * 2. look for potential memory leak by alloc-dealloc several times.
@@ -305,6 +329,8 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     }
 
     /* Shutdown the OTA agent. */
+         test3 = xPortGetFreeHeapSize();
+      configPRINTF(("Free HEAP %ld\n", test3 )); 
     eOtaStatus = OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_NotReady, eOtaStatus );
 
@@ -323,6 +349,10 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
                        TEST_OTA_prvParseJSONbyModel( otatestLASER_JSON,
                                                      sizeof( otatestLASER_JSON ),
                                                      NULL ) );
+
+     test5 = xPortGetFreeHeapSize();
+      configPRINTF(("Free HEAP %ld\n", test5 ));  
+
     TEST_ASSERT_EQUAL( eDocParseErr_NullBodyPointer,
                        TEST_OTA_prvParseJSONbyModel( otatestLASER_JSON,
                                                      sizeof( otatestLASER_JSON ),
@@ -338,7 +368,8 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     TEST_ASSERT_EQUAL( eDocParseErr_NoTokens, TEST_OTA_prvParseJSONbyModel( otatestLASER_JSON,
                                                                             0,
                                                                             &xDocModel ) );
-
+     test6 = xPortGetFreeHeapSize();
+      configPRINTF(("Free HEAP %ld\n", test6 ));  
     /* Ensure usNumModelParams is rejected if too large. */
     xDocModel.usNumModelParams = ( uint16_t ) ( 0xffffU );
     TEST_ASSERT_EQUAL( eDocParseErr_TooManyParams,
@@ -349,11 +380,12 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     /* Ensure that a JSON document containing duplicate keys is rejected. */
     TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_DUPLICATE,
                                                       sizeof( otatestLASER_JSON_WITH_DUPLICATE ) ) );
-
+  
     /* Ensure that a JSON document containing a mismatched field is rejected. */
     TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_FIELD_MISMATCH,
                                                       sizeof( otatestLASER_JSON_WITH_FIELD_MISMATCH ) ) );
-
+     test7 = xPortGetFreeHeapSize();
+      configPRINTF(("Free HEAP %ld\n", test7 ));
     /* Initialize the OTA Agent for the following test. */
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
                                xMqttConnection,

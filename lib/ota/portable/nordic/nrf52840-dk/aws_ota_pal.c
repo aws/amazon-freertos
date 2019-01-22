@@ -103,7 +103,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
  *
  * @return A number of bytes written or -1 if an error happened.
  */
-static int16_t prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C );
+static void prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C );
 
 /**
  * @brief Sincronously write data to flash
@@ -436,10 +436,11 @@ OTA_PAL_ImageState_t prvPAL_GetPlatformImageState( void )
 }
 /*-----------------------------------------------------------*/
 
-static int16_t prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C )
+static void prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C )
 {
     ImageDescriptor_t xDescriptor;
     ImageDescriptor_t xOldDescriptor;
+    OTA_Err_t xStatus = kOTA_Err_None;
 
     memset( &xDescriptor, 0, sizeof( xDescriptor ) );
 
@@ -463,9 +464,16 @@ static int16_t prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C )
     xDescriptor.ulHardwareID = 0;                                /* TODO: Fill the Hardware ID */
     xDescriptor.usImageFlags = otapalIMAGE_FLAG_NEW;
     xDescriptor.ulSignatureSize = C->pxSignature->usSize;
-    memcpy( &xDescriptor.pSignature, C->pxSignature->ucData, C->pxSignature->usSize );
 
-    return prvWriteFlash( otapalSECOND_BANK_START, sizeof( xDescriptor ), &xDescriptor );
+    if( C->pxSignature != NULL)
+    {
+      if( C->pxSignature->usSize <= kOTA_MaxSignatureSize)
+       {
+          memcpy( &xDescriptor.pSignature, C->pxSignature->ucData, C->pxSignature->usSize );
+       }
+     }
+
+    prvWriteFlash( otapalSECOND_BANK_START, sizeof( xDescriptor ), &xDescriptor );
 }
 
 /*-----------------------------------------------------------*/
