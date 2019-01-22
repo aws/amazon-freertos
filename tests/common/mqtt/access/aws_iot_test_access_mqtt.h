@@ -92,15 +92,15 @@ typedef struct _packetMatchParams
  *
  * @see #_topicMatch.
  */
-bool AwsIotTestMqtt_topicMatch( void * pArgument,
-                                void * pData );
+bool AwsIotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+                                void * pMatch );
 
 /**
  * @brief Test access function for #_packetMatch.
  *
  * @see #_packetMatch.
  */
-bool AwsIotTestMqtt_packetMatch( void * pArgument,
-                                 void * pData );
+bool AwsIotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+                                 void * pMatch );
 
 #endif /* ifndef _AWS_IOT_TEST_ACCESS_MQTT_H_ */

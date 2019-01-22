@@ -85,8 +85,18 @@ extern int snprintf( char *,
 
 /**
  * @brief The maximum length of an MQTT client identifier.
+ *
+ * When @ref AWS_IOT_TEST_MQTT_CLIENT_IDENTIFIER is defined, this value must
+ * accommodate the length of @ref AWS_IOT_TEST_MQTT_CLIENT_IDENTIFIER plus 4
+ * to accommodate the Last Will and Testament test. Otherwise, this value is
+ * set to 24, which is the longest client identifier length an MQTT server is
+ * obligated to accept plus a NULL terminator.
  */
-#define _CLIENT_IDENTIFIER_MAX_LENGTH    ( 23 )
+#ifdef AWS_IOT_TEST_MQTT_CLIENT_IDENTIFIER
+    #define _CLIENT_IDENTIFIER_MAX_LENGTH    ( sizeof( AWS_IOT_TEST_MQTT_CLIENT_IDENTIFIER ) + 4 )
+#else
+    #define _CLIENT_IDENTIFIER_MAX_LENGTH    ( 24 )
+#endif
 
 /*-----------------------------------------------------------*/
 
@@ -456,11 +466,18 @@ TEST_SETUP( MQTT_System )
         TEST_FAIL_MESSAGE( "Failed to initialize MQTT library." );
     }
 
-    /* Generate a new, unique client identifier based on the time. */
-    ( void ) snprintf( _pClientIdentifier,
-                       _CLIENT_IDENTIFIER_MAX_LENGTH,
-                       "aws%llu",
-                       ( long long unsigned int ) AwsIotClock_GetTimeMs() );
+    /* Generate a new, unique client identifier based on the time if no client
+     * identifier is defined. Otherwise, copy the provided client identifier. */
+    #ifndef AWS_IOT_TEST_MQTT_CLIENT_IDENTIFIER
+        ( void ) snprintf( _pClientIdentifier,
+                           _CLIENT_IDENTIFIER_MAX_LENGTH,
+                           "aws%llu",
+                           ( long long unsigned int ) AwsIotClock_GetTimeMs() );
+    #else
+        ( void ) strncpy( _pClientIdentifier,
+                          AWS_IOT_TEST_MQTT_CLIENT_IDENTIFIER,
+                          _CLIENT_IDENTIFIER_MAX_LENGTH );
+    #endif
 }
 
 /*-----------------------------------------------------------*/
@@ -651,11 +668,17 @@ TEST( MQTT_System, LastWillAndTestament )
     /* Create the wait semaphore. */
     TEST_ASSERT_EQUAL_INT( true, AwsIotSemaphore_Create( &waitSem, 0, 1 ) );
 
-    /* Generate client identifier for LWT listener. */
-    ( void ) snprintf( pLwtListenerClientIdentifier,
-                       _CLIENT_IDENTIFIER_MAX_LENGTH,
-                       "awslwt%llu",
-                       ( long long unsigned int ) AwsIotClock_GetTimeMs() );
+    /* Generate a client identifier for LWT listener. */
+    #ifndef AWS_IOT_TEST_MQTT_CLIENT_IDENTIFIER
+        ( void ) snprintf( pLwtListenerClientIdentifier,
+                           _CLIENT_IDENTIFIER_MAX_LENGTH,
+                           "awslwt%llu",
+                           ( long long unsigned int ) AwsIotClock_GetTimeMs() );
+    #else
+        ( void ) strncpy( pLwtListenerClientIdentifier,
+                          AWS_IOT_TEST_MQTT_CLIENT_IDENTIFIER "LWT",
+                          _CLIENT_IDENTIFIER_MAX_LENGTH );
+    #endif
 
     if( TEST_PROTECT() )
     {

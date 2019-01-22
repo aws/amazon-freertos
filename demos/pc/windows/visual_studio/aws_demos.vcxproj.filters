@@ -441,9 +441,6 @@
     <ClCompile Include="..\..\..\common\greengrass_connectivity\aws_greengrass_discovery_demo.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\ota\aws_ota_update_demo.c">
-      <Filter>application_code\common_demos\source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
@@ -613,9 +610,6 @@
       <Filter>lib\aws\FreeRTOS-Plus-POSIX\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c">
-      <Filter>lib\aws\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_queue.c">
       <Filter>lib\aws\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_api.c">
@@ -1313,11 +1307,11 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h">
       <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h">
+      <Filter>lib\aws\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

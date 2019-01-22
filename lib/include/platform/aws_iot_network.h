@@ -285,10 +285,10 @@ void AwsIotNetwork_Cleanup( void );
  *
  * // Returns AWS_IOT_NETWORK_SUCCESS and sets networkConnection when the
  * // connection is established.
- * AwsIotNetworkError_t result = AwsIotNetwork_TcpConnect( &networkConnection,
- *                                                         pHostName,
- *                                                         port,
- *                                                         &tlsInfo );
+ * AwsIotNetworkError_t result = AwsIotNetwork_CreateConnection( &networkConnection,
+ *                                                               pHostName,
+ *                                                               port,
+ *                                                               &tlsInfo );
  *
  * // Do something with the connection...
  *

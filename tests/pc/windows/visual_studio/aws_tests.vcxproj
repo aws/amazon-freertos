@@ -100,6 +100,7 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h" />
@@ -307,7 +308,6 @@
     <ClCompile Include="..\..\..\..\lib\cbor\test\test_aws_cbor_acc.c" />
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_json_utils.c" />
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c" />
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_queue.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
     <ClCompile Include="..\..\..\..\lib\defender\aws_defender.c" />
     <ClCompile Include="..\..\..\..\lib\defender\portable\freertos\aws_defender_cpu.c" />

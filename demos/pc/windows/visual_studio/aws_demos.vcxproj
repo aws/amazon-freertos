@@ -93,7 +93,6 @@
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_string.c" />
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_json_utils.c" />
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c" />
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_queue.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
     <ClCompile Include="..\..\..\..\lib\defender\aws_defender.c" />
     <ClCompile Include="..\..\..\..\lib\defender\portable\freertos\aws_defender_cpu.c" />
@@ -251,7 +250,6 @@
     <ClCompile Include="..\..\..\common\mqtt\aws_subscribe_publish_loop.c" />
     <ClCompile Include="..\..\..\common\mqtt_v4\aws_iot_demo_mqtt.c" />
     <ClCompile Include="..\..\..\common\mqtt_v4\aws_iot_demo_mqtt_afr.c" />
-    <ClCompile Include="..\..\..\common\ota\aws_ota_update_demo.c" />
     <ClCompile Include="..\..\..\common\posix\aws_posix_demo.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c" />
     <ClCompile Include="..\..\..\common\tcp\aws_simple_tcp_echo_server.c" />
@@ -282,7 +280,6 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_json_utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_mqtt.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\errno.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\fcntl.h" />
@@ -295,6 +292,7 @@
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\time.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\utils.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h" />

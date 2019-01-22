@@ -843,13 +843,10 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1398,9 +1395,6 @@
       <Filter>lib\aws\FreeRTOS-Plus-POSIX\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c">
-      <Filter>lib\aws\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_queue.c">
       <Filter>lib\aws\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_api.c">

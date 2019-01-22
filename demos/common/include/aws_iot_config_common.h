@@ -128,9 +128,9 @@
     #define AWS_IOT_NETWORK_SHORT_TIMEOUT_MS       ( 100 )
 #endif
 
-/* Queue library configuration. */
-#ifndef AWS_IOT_QUEUE_ENABLE_ASSERTS
-    #define AWS_IOT_QUEUE_ENABLE_ASSERTS    ( 1 )
+/* Linear containers configuration. */
+#ifndef IOT_CONTAINERS_ENABLE_ASSERTS
+    #define IOT_CONTAINERS_ENABLE_ASSERTS    ( 1 )
 #endif
 
 /* Priority of MQTT receive task. */
@@ -153,9 +153,6 @@
 #ifndef AWS_IOT_MQTT_MAX_CALLBACK_THREADS
     #define AWS_IOT_MQTT_MAX_CALLBACK_THREADS        ( 2 )
 #endif
-#ifndef AWS_IOT_MQTT_MAX_SEND_THREADS
-    #define AWS_IOT_MQTT_MAX_SEND_THREADS            ( 1 )
-#endif
 #ifndef AWS_IOT_MQTT_RESPONSE_WAIT_MS
     #define AWS_IOT_MQTT_RESPONSE_WAIT_MS            ( 1000 )
 #endif
@@ -169,5 +166,9 @@
 /* Required settings for the MQTT demos. */
 #define AWS_IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
 #define AWS_IOT_MQTT_TEST                           ( 0 )
+
+/* Secure Sockets does not support parallel send, so only one send thread is
+ * allowed. */
+#define AWS_IOT_MQTT_MAX_SEND_THREADS            ( 1 )
 
 #endif /* ifndef _AWS_IOT_CONFIG_COMMON_H_ */

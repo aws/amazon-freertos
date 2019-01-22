@@ -36,8 +36,8 @@
 /* Shadow include. */
 #include "aws_iot_shadow.h"
 
-/* Queue include. */
-#include "aws_iot_queue.h"
+/* Linear containers (lists and queues) include. */
+#include "iot_linear_containers.h"
 
 /**
  * @def AwsIotShadow_Assert( expression )
@@ -305,16 +305,6 @@
 /*----------------------- Shadow internal data types ------------------------*/
 
 /**
- * @brief The offset of `link` in #_shadowOperation_t.
- */
-#define _SHADOW_OPERATION_LINK_OFFSET       AwsIotLink_Offset( _shadowOperation_t, link )
-
-/**
- * @brief The offset of `link` in #_shadowSubscription_t.
- */
-#define _SHADOW_SUBSCRIPTION_LINK_OFFSET    AwsIotLink_Offset( _shadowSubscription_t, link )
-
-/**
  * @cond DOXYGEN_IGNORE
  * Doxygen should ignore this section.
  *
@@ -385,7 +375,7 @@ typedef enum _shadowOperationStatus
  */
 typedef struct _shadowOperation
 {
-    AwsIotLink_t link;                     /**< @brief List link member. */
+    IotLink_t link;                     /**< @brief List link member. */
 
     /* Basic operation information. */
     _shadowOperationType_t type;           /**< @brief Operation type. */
@@ -434,7 +424,7 @@ typedef struct _shadowOperation
  */
 typedef struct _shadowSubscription
 {
-    AwsIotLink_t link;    /**< @brief List link member. */
+    IotLink_t link;    /**< @brief List link member. */
 
     int references[ _SHADOW_OPERATION_COUNT ];                      /**< @brief Reference counter for Shadow operation topics. */
     AwsIotShadowCallbackInfo_t callbacks[ _SHADOW_CALLBACK_COUNT ]; /**< @brief Shadow callbacks for this Thing. */
@@ -459,8 +449,10 @@ typedef struct _shadowSubscription
 
 /* Declarations of variables for internal Shadow files. */
 extern uint64_t _AwsIotShadowMqttTimeoutMs;
-extern AwsIotList_t _AwsIotShadowPendingOperations;
-extern AwsIotList_t _AwsIotShadowSubscriptions;
+extern IotListDouble_t _AwsIotShadowPendingOperations;
+extern IotListDouble_t _AwsIotShadowSubscriptions;
+extern AwsIotMutex_t _AwsIotShadowPendingOperationsMutex;
+extern AwsIotMutex_t _AwsIotShadowSubscriptionsMutex;
 
 /*----------------------- Shadow operation functions ------------------------*/
 
@@ -484,7 +476,8 @@ AwsIotShadowError_t AwsIotShadowInternal_CreateOperation( _shadowOperation_t ** 
  * the operation completes.
  *
  * @param[in] pData The operation which completed. This parameter is of type
- * `void*` for compatibility with @ref list_function_removeallmatches.
+ * `void*` to match the signature of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
 void AwsIotShadowInternal_DestroyOperation( void * pData );
 
@@ -580,7 +573,8 @@ void AwsIotShadowInternal_RemoveSubscription( _shadowSubscription_t * const pSub
  * @brief Free resources used for a Shadow subscription object.
  *
  * @param[in] pData The subscription object to destroy. This parameter is of type
- * `void*` for compatibility with @ref list_function_removeallmatches.
+ * `void*` to match the signature of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
 void AwsIotShadowInternal_DestroySubscription( void * pData );
 
