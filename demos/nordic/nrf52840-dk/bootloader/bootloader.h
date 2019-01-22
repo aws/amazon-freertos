@@ -1,6 +1,8 @@
 #ifndef __BOOTLOADER_H
 #define __BOOTLOADER_H
 
+
+
 #define AFR_MAGICK                     "@AFRTOS"                                       /* Magick number for the AFR image */
 #define MAGICK_SIZE                    7                                               /* sizeof Magick */
 #define SIGNATURE_MAX_SIZE             256                                             /* Size allocated for signature in the header */
@@ -12,15 +14,15 @@
 #define HARDWARE_ID                    0
 #define STACK_BEGIN                    0x20040000                                      /* Starting address for the stack */
 #define MAX_PUBLIC_KEY_SIZE            96                                              /* Maximum size of the public key */
-#define APP_DATA_RESERVED              4096
-#define BOOTLOADER_START               0xF8000
+#define APP_DATA_RESERVED              3 * CODE_PAGE_SIZE                              /* Reserve for application data that must be retained */
+#define BOOTLOADER_START               0xF8000                                         /* Starting address of the bootloader */
 
 #define SWAP_AREA_SIZE      4                                       /* Number of pages dedicated for swapping */
-#define SWAP_STATUS_PAGE    (( uint8_t * ) ( BOOTLOADER_START - (SWAP_AREA_SIZE + 1) * 0x400 )) /* Page containing status of swapping */
-#define SWAP_AREA_BEGIN     (( uint8_t * ) ( BOOTLOADER_START - SWAP_AREA_SIZE * 0x400 )) /* Pages for swapping data */
+#define SWAP_STATUS_PAGE    (( uint8_t * ) ( BOOTLOADER_START - APP_DATA_RESERVED - (SWAP_AREA_SIZE + 1) * CODE_PAGE_SIZE )) /* Page containing status of swapping */
+#define SWAP_AREA_BEGIN     (( uint8_t * ) ( BOOTLOADER_START - APP_DATA_RESERVED - SWAP_AREA_SIZE * CODE_PAGE_SIZE )) /* Pages for swapping data */
 #define CHUNK_SIZE_BYTES    ( SWAP_AREA_SIZE * CODE_PAGE_SIZE)      /* Size of a swapping chunk */
 
-#define MAX_FIRMWARE_SIZE              ( BOOTLOADER_START - (SWAP_AREA_SIZE + 1) * 0x400 - APP_DATA_RESERVED - CODE_REGION_2_START )   /* Maximum firmware size */
+#define MAX_FIRMWARE_SIZE              ( BOOTLOADER_START - (SWAP_AREA_SIZE + 1) * CODE_PAGE_SIZE - APP_DATA_RESERVED - CODE_REGION_2_START )   /* Maximum firmware size */
 #define MAX_FIRMWARE_PAGES             ( MAX_FIRMWARE_SIZE / CODE_PAGE_SIZE )          /* Maximum firmware size in pages*/
 
 
@@ -51,7 +53,7 @@ typedef enum
 
 typedef enum
 {
-    LED_BOOT, LED_NO_CORRECT_FIRMWARE
+    LED_BOOT, LED_NO_CORRECT_FIRMWARE, LED_SWAP_IN_PROCESS
 } LedStatus_t; /* Enum for the status indication */
 
 typedef enum

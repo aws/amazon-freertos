@@ -48,17 +48,18 @@
  *
  */
 
-#include "nrf_mbr.h"
-#include "nrf_nvmc.h"
-#include "nrf_sdm.h"
+
 
 #include "app_error.h"
 #include "app_error_weak.h"
 #include "boards.h"
 #include "bootloader.h"
 #include "crypto.h"
-#include "nrf_bootloader.h"
+#include "nrf_mbr.h"
+#include "nrf_nvmc.h"
+#include "nrf_sdm.h"
 #include "nrf_bootloader_info.h"
+#include "nrf_bootloader.h"
 #include "nrf_delay.h"
 #include <stdint.h>
 
@@ -226,45 +227,6 @@ void vCommitSecondBank()
 }
 
 
-#ifdef  __GNUC__
-    #pragma GCC push_options
-    #pragma GCC optimize ("O0")
-#endif
-int vBlinkLeds( LedStatus_t xStatus )
-{
-    nrf_gpio_cfg_output( LED_1 );
-    nrf_gpio_cfg_output( LED_2 );
-    nrf_gpio_pin_set( LED_2 );
-    nrf_gpio_pin_set( LED_1 );
-
-    switch( xStatus )
-    {
-        case LED_BOOT:
-
-            for( int i = 0; i < 4; i++ )
-            {
-                nrf_gpio_pin_toggle( LED_1 );
-                nrf_delay_ms( 100 );
-            }
-
-            break;
-
-        case LED_NO_CORRECT_FIRMWARE:
-
-            for( ; ; )
-            {
-                nrf_gpio_pin_toggle( LED_2 );
-                nrf_delay_ms( 400 );
-            }
-
-            break;
-    }
-
-    return 0;
-}
-#ifdef  __GNUC__
-    #pragma GCC pop_options
-#endif
 
 
 /**@brief Function for application main entry. */
@@ -397,7 +359,7 @@ int main( void )
                 case BANK_NEW:
                     vSwapImages();
                     vSetBankFlag( FIRST_BANK, IMAGE_FLAG_COMMIT_PENDING );
-
+                    break;
                 case BANK_NORDIC:
                 case BANK_NORDIC_DESCRIPTOR:
                 case BANK_COMMIT_PENDING:
@@ -431,9 +393,9 @@ int main( void )
 
     xBank1State = xGetBankState( FIRST_BANK );
 
-    if( ( xBank1State == BANK_VALID ) || ( xBank1State == IMAGE_FLAG_COMMIT_PENDING ) )
+    if( ( xBank1State == BANK_VALID ) || ( xBank1State == BANK_COMMIT_PENDING ) )
     {
-        vBoot( BANK1_DESCRIPTOR->ulExecutionAddress );
+        vBoot( CODE_REGION_1_START + DESCRIPTOR_SIZE );
     }
     else if( xBank1State == BANK_NORDIC )
     {

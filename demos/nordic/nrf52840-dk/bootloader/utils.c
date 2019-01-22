@@ -40,10 +40,12 @@
 #include "sdk_config.h"
 #include <stdint.h>
 #include "nrf.h"
+#include "boards.h"
 #include "nrf_peripherals.h"
 #include "nrf_bootloader_info.h"
 #include "nrf_dfu_types.h"
 #include "nrf_nvmc.h"
+#include "nrf_delay.h"
 #include "nrf_assert.h"
 #include "nrf_log.h"
 #include "sdk_config.h"
@@ -183,15 +185,62 @@ ret_code_t nrf_bootloader_flash_protect( uint32_t address,
     return NRF_SUCCESS;
 }
 
-inline static void vMoveChunk( size_t ulTo,
-                               size_t ulFrom )
+
+
+#ifdef  __GNUC__
+    #pragma GCC push_options
+    #pragma GCC optimize ("O0")
+#endif
+int vBlinkLeds( LedStatus_t xStatus )
 {
-    for( uint8_t i = 0; i < SWAP_AREA_SIZE; ++i )
+    nrf_gpio_cfg_output( LED_1 );
+    nrf_gpio_cfg_output( LED_2 );
+    nrf_gpio_cfg_output( LED_3 );
+    nrf_gpio_pin_set( LED_1 );
+    nrf_gpio_pin_set( LED_2 );
+    switch( xStatus )
     {
-        nrf_nvmc_page_erase( ulTo + i * CODE_PAGE_SIZE );
+        case LED_BOOT:
+
+            for( int i = 0; i < 4; i++ )
+            {
+                nrf_gpio_pin_toggle( LED_1 );
+                nrf_delay_ms( 100 );
+            }
+
+            break;
+
+        case LED_NO_CORRECT_FIRMWARE:
+
+            for( ; ; )
+            {
+                nrf_gpio_pin_toggle( LED_2 );
+                nrf_delay_ms( 400 );
+            }
+
+            break;
+        case LED_SWAP_IN_PROCESS:
+            nrf_gpio_pin_toggle( LED_3 );
+            break;
     }
 
-    nrf_nvmc_write_bytes( ulTo, ( uint8_t * ) ulFrom, CHUNK_SIZE_BYTES );
+    return 0;
+}
+#ifdef  __GNUC__
+    #pragma GCC pop_options
+#endif
+
+inline static void vMoveChunk( size_t ulTo,
+                               size_t ulFrom,
+                               size_t ulChunkPages)
+{
+    for( uint8_t i = 0; i < ulChunkPages; ++i )
+    {
+        uint32_t to = ulTo + i * CODE_PAGE_SIZE;
+        nrf_nvmc_page_erase( to );
+    }
+
+    nrf_nvmc_write_bytes( ulTo, ( uint8_t * ) ulFrom, ulChunkPages * CODE_PAGE_SIZE );
 }
 
 inline static void setSwapState( size_t ulCurrentChunk,
@@ -216,24 +265,31 @@ void vSwapImages()
         }
     }
 
-    nrf_nvmc_write_byte( SWAP_STATUS_PAGE[ 0 ], SWAP_IN_PROGRESS );
+    nrf_nvmc_write_byte( (uint32_t) SWAP_STATUS_PAGE, SWAP_IN_PROGRESS );
 
     /* Do the swapping, make sure that all flags are updated after actual moving is performed */
     while( xSwapState != SWAP_COMPLETED )
     {
+        size_t ulCurrentChunkSize = MIN(SWAP_AREA_SIZE, MAX_FIRMWARE_PAGES - ulCurrentChunk * SWAP_AREA_SIZE);
         switch( SWAP_STATUS_PAGE[ ulCurrentChunk + 1 ] )
         {
             case SWAP_NONE:
-                vMoveChunk( ( uint32_t ) SWAP_AREA_BEGIN, CODE_REGION_1_START + ulCurrentChunk * CHUNK_SIZE_BYTES );
+                vMoveChunk( ( uint32_t ) SWAP_AREA_BEGIN, 
+                            CODE_REGION_1_START + ulCurrentChunk * CHUNK_SIZE_BYTES, ulCurrentChunkSize );
                 setSwapState( ulCurrentChunk, SWAP_FIRST_TO_TEMP );
+                vBlinkLeds(LED_SWAP_IN_PROCESS);
                 break;
 
             case SWAP_FIRST_TO_TEMP:
-                vMoveChunk( CODE_REGION_1_START + ulCurrentChunk * CHUNK_SIZE_BYTES, CODE_REGION_2_START + ulCurrentChunk * CHUNK_SIZE_BYTES );
+                vMoveChunk( CODE_REGION_1_START + ulCurrentChunk * CHUNK_SIZE_BYTES, 
+                            CODE_REGION_2_START + ulCurrentChunk * CHUNK_SIZE_BYTES, ulCurrentChunkSize );
                 setSwapState( ulCurrentChunk, SWAP_SECOND_TO_FIRST );
+                vBlinkLeds(LED_SWAP_IN_PROCESS);
+                break;
 
             case SWAP_SECOND_TO_FIRST:
-                vMoveChunk( CODE_REGION_2_START + ulCurrentChunk * CHUNK_SIZE_BYTES, ( uint32_t ) SWAP_AREA_BEGIN );
+                vMoveChunk( CODE_REGION_2_START + ulCurrentChunk * CHUNK_SIZE_BYTES, 
+                            ( uint32_t ) SWAP_AREA_BEGIN, ulCurrentChunkSize );
                 setSwapState( ulCurrentChunk, SWAP_TEMP_TO_SECOND );
                 ulCurrentChunk += 1;
 
@@ -241,12 +297,15 @@ void vSwapImages()
                 {
                     xSwapState = SWAP_COMPLETED;
                 }
+                vBlinkLeds(LED_SWAP_IN_PROCESS);
+                break;
 
             default:
                 break;
         }
+          
     }
-
+    nrf_gpio_pin_set( LED_3 );
     /* Erase the status page so it would be ready for future swaps */
     nrf_nvmc_page_erase( ( uint32_t ) SWAP_STATUS_PAGE );
 }

@@ -5,7 +5,7 @@
 #include "bootloader.h"
 #include "asn1utility.h"
 #include "aws_ota_codesigner_certificate.h"
-
+#include "nrf_bootloader.h"
 #include "mbedtls/base64.h"
 
 ret_code_t xReadCertificate();
@@ -129,7 +129,7 @@ ret_code_t xVerifyImageSignature( uint8_t * pusImageStart )
 
     ImageDescriptor_t * descriptor = ( ImageDescriptor_t * ) ( pusImageStart );
 
-    xErrCode = xComputeSHA256Hash( ( uint8_t * ) descriptor->ulStartAddress, descriptor->ulEndAddress - descriptor->ulStartAddress, &xHash, &ulHashLength );
+    xErrCode = xComputeSHA256Hash( ( uint8_t * ) pusImageStart + DESCRIPTOR_SIZE, descriptor-> ulEndAddress - descriptor->ulStartAddress, &xHash, &ulHashLength );
     if (xErrCode == NRF_SUCCESS)
     {
         xErrCode = xVerifySignature( ( uint8_t * ) &xHash, ulHashLength, descriptor->pSignature, descriptor->ulSignatureSize );

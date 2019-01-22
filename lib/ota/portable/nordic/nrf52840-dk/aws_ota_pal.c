@@ -456,7 +456,7 @@ static int16_t prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C )
     }
 
     memcpy( &xDescriptor.pMagick, pcOTA_PAL_Magick, otapalMAGICK_SIZE );
-    xDescriptor.ulStartAddress = otapalSECOND_BANK_START + otapalDESCRIPTOR_SIZE;
+    xDescriptor.ulStartAddress = otapalFIRST_BANK_START + otapalDESCRIPTOR_SIZE;
     xDescriptor.ulEndAddress = xDescriptor.ulStartAddress + C->ulFileSize;
     xDescriptor.ulExecutionAddress = xDescriptor.ulStartAddress; /* TODO: Check if this assumption is true */
     xDescriptor.ulHardwareID = 0;                                /* TODO: Fill the Hardware ID */
