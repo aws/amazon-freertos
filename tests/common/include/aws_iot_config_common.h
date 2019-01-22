@@ -111,11 +111,12 @@
 #endif /* if AWS_IOT_STATIC_MEMORY_ONLY == 0 */
 
 /* Settings required to build the libraries for testing. */
-#define AWS_IOT_QUEUE_ENABLE_ASSERTS                ( 1 )
+#define IOT_CONTAINERS_ENABLE_ASSERTS               ( 1 )
 #define AWS_IOT_MQTT_ENABLE_ASSERTS                 ( 1 )
 #define AWS_IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
 #define AWS_IOT_MQTT_TEST                           ( 1 )
 #define AWS_IOT_SHADOW_ENABLE_ASSERTS               ( 1 )
+#define AWS_IOT_MQTT_MAX_SEND_THREADS               ( 1 )
 
 /* Static memory configuration. */
 #if AWS_IOT_STATIC_MEMORY_ONLY == 1
@@ -157,9 +158,6 @@
 #endif
 #ifndef AWS_IOT_MQTT_MAX_CALLBACK_THREADS
     #define AWS_IOT_MQTT_MAX_CALLBACK_THREADS        ( 2 )
-#endif
-#ifndef AWS_IOT_MQTT_MAX_SEND_THREADS
-    #define AWS_IOT_MQTT_MAX_SEND_THREADS            ( 1 )
 #endif
 #ifndef AWS_IOT_MQTT_RESPONSE_WAIT_MS
     #define AWS_IOT_MQTT_RESPONSE_WAIT_MS            ( 1000 )

@@ -107,6 +107,9 @@ typedef enum AwsIotMqttError
      * - @ref mqtt_function_connect
      * - @ref mqtt_function_publish with QoS 0 parameter
      * - @ref mqtt_function_wait
+     * - @ref mqtt_function_timedsubscribe
+     * - @ref mqtt_function_timedunsubscribe
+     * - @ref mqtt_function_timedpublish
      *
      * Will also be the value of an operation completion callback's
      * #AwsIotMqttCallbackParam_t.result when successful.
@@ -119,7 +122,7 @@ typedef enum AwsIotMqttError
      * Functions that may return this value:
      * - @ref mqtt_function_subscribe
      * - @ref mqtt_function_unsubscribe
-     * - @ref mqtt_function_publish with QoS 1 or 2 parameter
+     * - @ref mqtt_function_publish with QoS 1 parameter
      */
     AWS_IOT_MQTT_STATUS_PENDING,
 
@@ -136,9 +139,9 @@ typedef enum AwsIotMqttError
      *
      * Functions that may return this value:
      * - @ref mqtt_function_connect
-     * - @ref mqtt_function_subscribe
-     * - @ref mqtt_function_unsubscribe
-     * - @ref mqtt_function_publish
+     * - @ref mqtt_function_subscribe and @ref mqtt_function_timedsubscribe
+     * - @ref mqtt_function_unsubscribe and @ref mqtt_function_timedunsubscribe
+     * - @ref mqtt_function_publish and @ref mqtt_function_timedpublish
      * - @ref mqtt_function_wait
      */
     AWS_IOT_MQTT_BAD_PARAMETER,
@@ -148,9 +151,9 @@ typedef enum AwsIotMqttError
      *
      * Functions that may return this value:
      * - @ref mqtt_function_connect
-     * - @ref mqtt_function_subscribe
-     * - @ref mqtt_function_unsubscribe
-     * - @ref mqtt_function_publish
+     * - @ref mqtt_function_subscribe and @ref mqtt_function_timedsubscribe
+     * - @ref mqtt_function_unsubscribe and @ref mqtt_function_timedunsubscribe
+     * - @ref mqtt_function_publish and @ref mqtt_function_timedpublish
      */
     AWS_IOT_MQTT_NO_MEMORY,
 
@@ -160,6 +163,9 @@ typedef enum AwsIotMqttError
      * Functions that may return this value:
      * - @ref mqtt_function_connect
      * - @ref mqtt_function_wait
+     * - @ref mqtt_function_timedsubscribe
+     * - @ref mqtt_function_timedunsubscribe
+     * - @ref mqtt_function_timedpublish
      *
      * May also be the value of an operation completion callback's
      * #AwsIotMqttCallbackParam_t.result.
@@ -172,6 +178,9 @@ typedef enum AwsIotMqttError
      * Functions that may return this value:
      * - @ref mqtt_function_connect
      * - @ref mqtt_function_wait
+     * - @ref mqtt_function_timedsubscribe
+     * - @ref mqtt_function_timedunsubscribe
+     * - @ref mqtt_function_timedpublish
      *
      * May also be the value of an operation completion callback's
      * #AwsIotMqttCallbackParam_t.result.
@@ -188,6 +197,9 @@ typedef enum AwsIotMqttError
      * Functions that may return this value:
      * - @ref mqtt_function_connect
      * - @ref mqtt_function_wait
+     * - @ref mqtt_function_timedsubscribe
+     * - @ref mqtt_function_timedunsubscribe
+     * - @ref mqtt_function_timedpublish
      */
     AWS_IOT_MQTT_TIMEOUT,
 
@@ -198,28 +210,31 @@ typedef enum AwsIotMqttError
      * - @ref mqtt_function_connect
      * - @ref mqtt_function_wait, but only when its #AwsIotMqttReference_t parameter
      * is associated with a SUBSCRIBE operation.
+     * - @ref mqtt_function_timedsubscribe
      *
      * May also be the value of an operation completion callback's
      * #AwsIotMqttCallbackParam_t.result for a SUBSCRIBE.
      *
      * @note If this value is returned and multiple subscriptions were passed to
-     * @ref mqtt_function_subscribe, it's still possible that some of the subscriptions
-     * succeeded. This value only signifies that AT LEAST ONE subscription was
-     * rejected. The function @ref mqtt_function_issubscribed can be used to
-     * determine which subscriptions were accepted or rejected.
+     * @ref mqtt_function_subscribe (or @ref mqtt_function_timedsubscribe), it's
+     * still possible that some of the subscriptions succeeded. This value only
+     * signifies that AT LEAST ONE subscription was rejected. The function @ref
+     * mqtt_function_issubscribed can be used to determine which subscriptions
+     * were accepted or rejected.
      */
     AWS_IOT_MQTT_SERVER_REFUSED,
 
     /**
-     * @brief A QoS 1 or 2 PUBLISH received no response and [the retry limit]
+     * @brief A QoS 1 PUBLISH received no response and [the retry limit]
      * (#AwsIotMqttPublishInfo_t.retryLimit) was reached.
      *
      * Functions that may return this value:
      * - @ref mqtt_function_wait, but only when its #AwsIotMqttReference_t parameter
-     * is associated with a QoS 1 or 2 PUBLISH operation
+     * is associated with a QoS 1 PUBLISH operation
+     * - @ref mqtt_function_timedpublish
      *
      * May also be the value of an operation completion callback's
-     * #AwsIotMqttCallbackParam_t.result for a QoS 1 or 2 PUBLISH.
+     * #AwsIotMqttCallbackParam_t.result for a QoS 1 PUBLISH.
      */
     AWS_IOT_MQTT_RETRY_NO_RESPONSE
 } AwsIotMqttError_t;
@@ -315,9 +330,9 @@ typedef struct AwsIotMqttConnectInfo
  * @initializer{AwsIotMqttPublishInfo_t,AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER}
  *
  * #AwsIotMqttPublishInfo_t.retryMs and #AwsIotMqttPublishInfo_t.retryLimit are only
- * relevant to QoS 1 or 2 PUBLISH messages. They are ignored for QoS 0 PUBLISH
- * messages and LWT messages. These members control retransmissions of QoS 1 and
- * QoS 2 messages under the following rules:
+ * relevant to QoS 1 PUBLISH messages. They are ignored for QoS 0 PUBLISH
+ * messages and LWT messages. These members control retransmissions of QoS 1
+ * messages under the following rules:
  * - Retransmission is disabled when #AwsIotMqttPublishInfo_t.retryLimit is 0.
  * After sending the PUBLISH, the library will wait indefinitely for a PUBACK.
  * - If #AwsIotMqttPublishInfo_t.retryLimit is greater than 0, then QoS 1 publishes
@@ -369,7 +384,7 @@ typedef struct AwsIotMqttConnectInfo
  */
 typedef struct AwsIotMqttPublishInfo
 {
-    int QoS;                   /**< @brief QoS of message. Must be 0, 1, or 2. */
+    int QoS;                   /**< @brief QoS of message. Must be 0 or 1. */
     bool retain;               /**< @brief MQTT message retain flag. */
 
     const char * pTopicName;   /**< @brief Topic name of PUBLISH. */
@@ -407,7 +422,7 @@ typedef struct AwsIotMqttPublishInfo
  * the [callback function](@ref AwsIotMqttCallbackInfo_t.function) returns.
  * Therefore, data must be copied if it is needed after the callback function
  * returns.
- * @attention The MQTT library may pass strings that are not NULL-terminated.
+ * @attention The MQTT library may set strings that are not NULL-terminated.
  *
  * @see #AwsIotMqttCallbackInfo_t for the signature of a callback function.
  */
@@ -445,7 +460,7 @@ typedef struct AwsIotMqttCallbackParam
 
 /**
  * @ingroup mqtt_datatypes_paramstructs
- * @brief Information on a user-provided callback.
+ * @brief Information on a user-provided MQTT callback function.
  *
  * @paramfor @ref mqtt_function_subscribe, @ref mqtt_function_unsubscribe,
  * and @ref mqtt_function_publish. Cannot be used with #AWS_IOT_MQTT_FLAG_WAITABLE.
@@ -487,7 +502,8 @@ typedef struct AwsIotMqttCallbackInfo
      * @brief User-provided callback function signature.
      *
      * @param[in] void * #AwsIotMqttCallbackInfo_t.param1
-     * @param[in] AwsIotMqttCallbackParam_t * Details on the outcome of the MQTT operation.
+     * @param[in] AwsIotMqttCallbackParam_t * Details on the outcome of the MQTT operation
+     * or an incoming MQTT PUBLISH.
      *
      * @see #AwsIotMqttCallbackParam_t for more information on the second parameter.
      */
@@ -514,7 +530,7 @@ typedef struct AwsIotMqttCallbackInfo
 typedef struct AwsIotMqttSubscription
 {
     int QoS;                           /**< @brief QoS of messages delivered on subscription.
-                                        * Must be `0`, `1`, or `2`. Ignored by @ref mqtt_function_unsubscribe */
+                                        * Must be `0` or `1`. Ignored by @ref mqtt_function_unsubscribe */
 
     const char * pTopicFilter;         /**< @brief Topic filter of subscription. */
     uint16_t topicFilterLength;        /**< @brief Length of #AwsIotMqttSubscription_t.pTopicFilter. */
@@ -619,7 +635,7 @@ typedef struct AwsIotMqttNetIf
                                              uint16_t * const /* pPacketIdentifier */ );
 
             /**
-             * @brief Set the `DUP` bit in a QoS `1` or `2` PUBLISH packet.
+             * @brief Set the `DUP` bit in a QoS `1` PUBLISH packet.
              * @param[in] bool Specifies if this PUBLISH packet is being sent to
              * an AWS IoT MQTT server.
              * @param[in] uint8_t* Pointer to the PUBLISH packet to modify.
@@ -876,10 +892,10 @@ typedef struct AwsIotMqttNetIf
  * @ref mqtt_function_unsubscribe. If passed to @ref mqtt_function_publish,
  * the parameter [pPublishInfo->QoS](@ref AwsIotMqttPublishInfo_t.QoS) must not be `0`.
  *
- * An #AwsIotMqttReference_t **MUST** be provided if this flag is set. Additionally, an
- * #AwsIotMqttCallbackInfo_t **MUST NOT** be provided.
+ * An #AwsIotMqttReference_t <b>MUST</b> be provided if this flag is set. Additionally, an
+ * #AwsIotMqttCallbackInfo_t <b>MUST NOT</b> be provided.
  *
- * @note If this flag is set, @ref mqtt_function_wait **MUST** be called to clean up
+ * @note If this flag is set, @ref mqtt_function_wait <b>MUST</b> be called to clean up
  * resources.
  */
 #define AWS_IOT_MQTT_FLAG_WAITABLE    ( 0x00000001 )
@@ -1293,6 +1309,9 @@ void AwsIotMqtt_Disconnect( AwsIotMqttConnection_t mqttConnection,
  * a new `pSubscriptionList`. Any topic filters in `pSubscriptionList` that already
  * have a registered callback will be replaced with the new values in `pSubscriptionList`.
  *
+ * @attention QoS 2 subscriptions are currently unsupported. Only 0 or 1 are valid
+ * for subscription QoS.
+ *
  * @param[in] mqttConnection The MQTT connection to use for the subscription.
  * @param[in] pSubscriptionList Pointer to the first element in the array of
  * subscriptions.
@@ -1407,6 +1426,9 @@ AwsIotMqttError_t AwsIotMqtt_Subscribe( AwsIotMqttConnection_t mqttConnection,
  * a server response to the packet. Internally, this function is a call to @ref
  * mqtt_function_subscribe followed by @ref mqtt_function_wait. See @ref
  * mqtt_function_subscribe for more information about the MQTT SUBSCRIBE operation.
+ *
+ * @attention QoS 2 subscriptions are currently unsupported. Only 0 or 1 are valid
+ * for subscription QoS.
  *
  * @param[in] mqttConnection The MQTT connection to use for the subscription.
  * @param[in] pSubscriptionList Pointer to the first element in the array of
@@ -1527,6 +1549,9 @@ AwsIotMqttError_t AwsIotMqtt_TimedUnsubscribe( AwsIotMqttConnection_t mqttConnec
  * it will be retransmitted. See #AwsIotMqttPublishInfo_t for a description
  * of the retransmission strategy.
  *
+ * @attention QoS 2 messages are currently unsupported. Only 0 or 1 are valid
+ * for message QoS.
+ *
  * @param[in] mqttConnection The MQTT connection to use for the publish.
  * @param[in] pPublishInfo MQTT publish parameters.
  * @param[in] flags Flags which modify the behavior of this function. See @ref mqtt_constants_flags.
@@ -1536,9 +1561,9 @@ AwsIotMqttError_t AwsIotMqtt_TimedUnsubscribe( AwsIotMqttConnection_t mqttConnec
  * the publish operation completes.
  *
  * @return This function will return #AWS_IOT_MQTT_STATUS_PENDING upon success for
- * QoS 1 or 2 publishes. For a QoS 0 publish it returns #AWS_IOT_MQTT_SUCCESS upon
+ * QoS 1 publishes. For a QoS 0 publish it returns #AWS_IOT_MQTT_SUCCESS upon
  * success.
- * @return Upon completion of a QoS 1 or 2 publish (either through an
+ * @return Upon completion of a QoS 1 publish (either through an
  * #AwsIotMqttCallbackInfo_t or @ref mqtt_function_wait), the status will be one of:
  * - #AWS_IOT_MQTT_SUCCESS
  * - #AWS_IOT_MQTT_SEND_ERROR
@@ -1551,7 +1576,7 @@ AwsIotMqttError_t AwsIotMqtt_TimedUnsubscribe( AwsIotMqttConnection_t mqttConnec
  * - #AWS_IOT_MQTT_NO_MEMORY
  *
  * @note The parameters `pCallbackInfo` and `pPublishRef` should only be used for QoS
- * 1 or 2 publishes. For QoS 0, they should both be `NULL`.
+ * 1 publishes. For QoS 0, they should both be `NULL`.
  *
  * @see @ref mqtt_function_timedpublish for a blocking variant of this function.
  *
@@ -1613,12 +1638,15 @@ AwsIotMqttError_t AwsIotMqtt_Publish( AwsIotMqttConnection_t mqttConnection,
  * mqtt_function_publish followed by @ref mqtt_function_wait. See @ref
  * mqtt_function_publish for more information about the MQTT PUBLISH operation.
  *
+ * @attention QoS 2 messages are currently unsupported. Only 0 or 1 are valid
+ * for message QoS.
+ *
  * @param[in] mqttConnection The MQTT connection to use for the publish.
  * @param[in] pPublishInfo MQTT publish parameters.
  * @param[in] flags Flags which modify the behavior of this function. See @ref mqtt_constants_flags.
  * Currently, flags are ignored by this function; this parameter is for
  * future-compatibility.
- * @param[in] timeoutMs If the MQTT server does not acknowledge a QoS 1 or 2 PUBLISH
+ * @param[in] timeoutMs If the MQTT server does not acknowledge a QoS 1 PUBLISH
  * within this timeout, this function returns #AWS_IOT_MQTT_TIMEOUT. This parameter
  * is ignored for QoS 0 PUBLISH messages.
  *
@@ -1677,11 +1705,14 @@ AwsIotMqttError_t AwsIotMqtt_TimedPublish( AwsIotMqttConnection_t mqttConnection
  *
  * // Publish should have returned AWS_IOT_MQTT_STATUS_PENDING. The call to wait
  * // returns once the result of the publish is available or the timeout expires.
- * result = AwsIotMqtt_Wait( reference, timeoutMs );
+ * if( result == AWS_IOT_MQTT_STATUS_PENDING )
+ * {
+ *     result = AwsIotMqtt_Wait( reference, timeoutMs );
  *
- * // After the call to wait, the result of the publish is known
- * // (not AWS_IOT_MQTT_STATUS_PENDING).
- * assert( result != AWS_IOT_MQTT_STATUS_PENDING );
+ *     // After the call to wait, the result of the publish is known
+ *     // (not AWS_IOT_MQTT_STATUS_PENDING).
+ *     assert( result != AWS_IOT_MQTT_STATUS_PENDING );
+ * }
  * @endcode
  */
 /* @[declare_mqtt_wait] */

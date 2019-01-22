@@ -840,13 +840,10 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1397,9 +1394,6 @@
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c">
       <Filter>lib\aws\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_queue.c">
-      <Filter>lib\aws\common</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_api.c">
       <Filter>application_code\common_tests\mqtt\unit</Filter>
     </ClCompile>
@@ -1453,18 +1447,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\test_runner\aws_iot_tests_network.c">
       <Filter>application_code\common_tests\test_runner</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_decoder.c">
-      <Filter>lib\aws\serializer\cbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_encoder.c">
-      <Filter>lib\aws\serializer\cbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_decoder.c">
-      <Filter>lib\aws\serializer\json</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c">
-      <Filter>lib\aws\serializer\json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

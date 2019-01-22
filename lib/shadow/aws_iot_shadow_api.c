@@ -38,16 +38,6 @@
 /* JSON utilities include. */
 #include "aws_iot_json_utils.h"
 
-/* Require logging to be enabled for the MQTT library if logging is enabled for
- * the Shadow library. */
-#if !defined( AWS_IOT_LOG_LEVEL_MQTT ) || AWS_IOT_LOG_LEVEL_MQTT == AWS_IOT_LOG_NONE
-    #if !defined( AWS_IOT_LOG_LEVEL_GLOBAL ) || AWS_IOT_LOG_LEVEL_GLOBAL == AWS_IOT_LOG_NONE
-        #if _LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
-            #error "Shadow library logging requires MQTT library logging to be enabled."
-        #endif
-    #endif
-#endif
-
 /* Validate Shadow configuration settings. */
 #if AWS_IOT_SHADOW_ENABLE_ASSERTS != 0 && AWS_IOT_SHADOW_ENABLE_ASSERTS != 1
     #error "AWS_IOT_SHADOW_ENABLE_ASSERTS must be 0 or 1."
@@ -343,7 +333,7 @@ static AwsIotShadowError_t _setCallbackCommon( AwsIotMqttConnection_t mqttConnec
 
     /* Lock the subscription list mutex to check for an existing subscription
      * object. */
-    AwsIotMutex_Lock( &( _AwsIotShadowSubscriptions.mutex ) );
+    AwsIotMutex_Lock( &( _AwsIotShadowSubscriptionsMutex ) );
 
     /* Check for an existing subscription. This function will attempt to allocate
      * a new subscription if not found. */
@@ -379,14 +369,14 @@ static AwsIotShadowError_t _setCallbackCommon( AwsIotMqttConnection_t mqttConnec
                                 thingNameLength,
                                 pThingName );
 
-                /* Clear the callback information and unsubscribe. */
-                ( void ) memset( &( pSubscription->callbacks[ type ] ),
-                                 0x00,
-                                 sizeof( AwsIotShadowCallbackInfo_t ) );
+                /* Unsubscribe, then clear the callback information. */
                 ( void ) _modifyCallbackSubscriptions( mqttConnection,
                                                        type,
                                                        pSubscription,
                                                        AwsIotMqtt_TimedUnsubscribe );
+                ( void ) memset( &( pSubscription->callbacks[ type ] ),
+                                 0x00,
+                                 sizeof( AwsIotShadowCallbackInfo_t ) );
 
                 /* Check if this subscription object can be removed. */
                 AwsIotShadowInternal_RemoveSubscription( pSubscription, NULL );
@@ -417,7 +407,7 @@ static AwsIotShadowError_t _setCallbackCommon( AwsIotMqttConnection_t mqttConnec
         }
     }
 
-    AwsIotMutex_Unlock( &( _AwsIotShadowSubscriptions.mutex ) );
+    AwsIotMutex_Unlock( &( _AwsIotShadowSubscriptionsMutex ) );
 
     return status;
 }
@@ -591,22 +581,26 @@ static void _updatedCallbackWrapper( void * pArgument,
 
 AwsIotShadowError_t AwsIotShadow_Init( uint64_t mqttTimeoutMs )
 {
-    /* Create the Shadow pending operation list. */
-    if( AwsIotList_Create( &_AwsIotShadowPendingOperations ) == false )
+    /* Create the Shadow pending operation list mutex. */
+    if( AwsIotMutex_Create( &( _AwsIotShadowPendingOperationsMutex ) ) == false )
     {
         AwsIotLogError( "Failed to create Shadow pending operation list." );
 
         return AWS_IOT_SHADOW_INIT_FAILED;
     }
 
-    /* Create the Shadow subscription list. */
-    if( AwsIotList_Create( &_AwsIotShadowSubscriptions ) == false )
+    /* Create the Shadow subscription list mutex. */
+    if( AwsIotMutex_Create( &( _AwsIotShadowSubscriptionsMutex ) ) == false )
     {
         AwsIotLogError( "Failed to create Shadow subscription list." );
-        AwsIotList_Destroy( &_AwsIotShadowPendingOperations );
+        AwsIotMutex_Destroy( &_AwsIotShadowPendingOperationsMutex );
 
         return AWS_IOT_SHADOW_INIT_FAILED;
     }
+
+    /* Create Shadow linear containers. */
+    IotListDouble_Create( &( _AwsIotShadowPendingOperations ) );
+    IotListDouble_Create( &( _AwsIotShadowSubscriptions ) );
 
     /* Save the MQTT timeout option. */
     if( mqttTimeoutMs != 0 )
@@ -623,23 +617,23 @@ AwsIotShadowError_t AwsIotShadow_Init( uint64_t mqttTimeoutMs )
 
 void AwsIotShadow_Cleanup( void )
 {
-    /* Remove and free all items in the Shadow pending operation list, then destroy
-     * the list. */
-    AwsIotList_RemoveAllMatches( &_AwsIotShadowPendingOperations,
-                                 _SHADOW_OPERATION_LINK_OFFSET,
-                                 NULL,
-                                 NULL,
-                                 AwsIotShadowInternal_DestroyOperation );
-    AwsIotList_Destroy( &_AwsIotShadowPendingOperations );
+    /* Remove and free all items in the Shadow pending operation list. */
+    AwsIotMutex_Lock( &( _AwsIotShadowPendingOperationsMutex ) );
+    IotListDouble_RemoveAll( &( _AwsIotShadowPendingOperations ),
+                             AwsIotShadowInternal_DestroyOperation,
+                             offsetof( _shadowOperation_t, link ) );
+    AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperationsMutex ) );
 
-    /* Remove and free all items in the Shadow subscription list, then destroy
-     * the list. */
-    AwsIotList_RemoveAllMatches( &_AwsIotShadowSubscriptions,
-                                 _SHADOW_SUBSCRIPTION_LINK_OFFSET,
-                                 NULL,
-                                 NULL,
-                                 AwsIotShadowInternal_DestroySubscription );
-    AwsIotList_Destroy( &_AwsIotShadowSubscriptions );
+    /* Remove and free all items in the Shadow subscription list. */
+    AwsIotMutex_Lock( &( _AwsIotShadowSubscriptionsMutex ) );
+    IotListDouble_RemoveAll( &( _AwsIotShadowSubscriptions ),
+                             AwsIotShadowInternal_DestroySubscription,
+                             offsetof( _shadowSubscription_t, link ) );
+    AwsIotMutex_Unlock( &( _AwsIotShadowSubscriptionsMutex ) );
+
+    /* Destroy Shadow library mutexes. */
+    AwsIotMutex_Destroy( &( _AwsIotShadowPendingOperationsMutex ) );
+    AwsIotMutex_Destroy( &( _AwsIotShadowSubscriptionsMutex ) );
 
     /* Restore the default MQTT timeout. */
     _AwsIotShadowMqttTimeoutMs = AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS;
@@ -1055,22 +1049,21 @@ AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowReference_t reference,
     }
 
     /* Remove the completed operation from the pending operation list. */
-    AwsIotMutex_Lock( &( _AwsIotShadowPendingOperations.mutex ) );
-    AwsIotList_Remove( &_AwsIotShadowPendingOperations,
-                       &( pOperation->link ),
-                       _SHADOW_OPERATION_LINK_OFFSET );
-    AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
+    AwsIotMutex_Lock( &( _AwsIotShadowPendingOperationsMutex ) );
+    IotListDouble_Remove( &( pOperation->link ) );
+    AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperationsMutex ) );
 
     /* Decrement the reference count. This also removes subscriptions if the
      * count reaches 0. */
-    AwsIotMutex_Lock( &_AwsIotShadowSubscriptions.mutex );
+    AwsIotMutex_Lock( &_AwsIotShadowSubscriptionsMutex );
     AwsIotShadowInternal_DecrementReferences( pOperation,
                                               pOperation->pSubscription->pTopicBuffer,
                                               NULL );
-    AwsIotMutex_Unlock( &_AwsIotShadowSubscriptions.mutex );
+    AwsIotMutex_Unlock( &_AwsIotShadowSubscriptionsMutex );
 
     /* Set the output parameters for Shadow GET. */
-    if( pOperation->type == _SHADOW_GET )
+    if( ( pOperation->type == _SHADOW_GET ) &&
+        ( status == AWS_IOT_SHADOW_SUCCESS ) )
     {
         *pShadowDocument = pOperation->get.pDocument;
         *pShadowDocumentLength = pOperation->get.documentLength;
@@ -1116,6 +1109,86 @@ AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( AwsIotMqttConnection_t mqtt
                                pThingName,
                                thingNameLength,
                                pUpdatedCallback );
+}
+
+/*-----------------------------------------------------------*/
+
+const char * AwsIotShadow_strerror( AwsIotShadowError_t status )
+{
+    switch( status )
+    {
+        case AWS_IOT_SHADOW_SUCCESS:
+
+            return "SUCCESS";
+
+        case AWS_IOT_SHADOW_STATUS_PENDING:
+
+            return "STATUS PENDING";
+
+        case AWS_IOT_SHADOW_INIT_FAILED:
+
+            return "INITIALIZATION FAILED";
+
+        case AWS_IOT_SHADOW_BAD_PARAMETER:
+
+            return "BAD PARAMETER";
+
+        case AWS_IOT_SHADOW_NO_MEMORY:
+
+            return "NO MEMORY";
+
+        case AWS_IOT_SHADOW_MQTT_ERROR:
+
+            return "MQTT LIBRARY ERROR";
+
+        case AWS_IOT_SHADOW_BAD_RESPONSE:
+
+            return "BAD RESPONSE RECEIVED";
+
+        case AWS_IOT_SHADOW_TIMEOUT:
+
+            return "TIMEOUT";
+
+        case AWS_IOT_SHADOW_BAD_REQUEST:
+
+            return "REJECTED: 400 BAD REQUEST";
+
+        case AWS_IOT_SHADOW_UNAUTHORIZED:
+
+            return "REJECTED: 401 UNAUTHORIZED";
+
+        case AWS_IOT_SHADOW_FORBIDDEN:
+
+            return "REJECTED: 403 FORBIDDEN";
+
+        case AWS_IOT_SHADOW_NOT_FOUND:
+
+            return "REJECTED: 404 NOT FOUND";
+
+        case AWS_IOT_SHADOW_CONFLICT:
+
+            return "REJECTED: 409 VERSION CONFLICT";
+
+        case AWS_IOT_SHADOW_TOO_LARGE:
+
+            return "REJECTED: 413 PAYLOAD TOO LARGE";
+
+        case AWS_IOT_SHADOW_UNSUPPORTED:
+
+            return "REJECTED: 415 UNSUPPORTED ENCODING";
+
+        case AWS_IOT_SHADOW_TOO_MANY_REQUESTS:
+
+            return "REJECTED: 429 TOO MANY REQUESTS";
+
+        case AWS_IOT_SHADOW_SERVER_ERROR:
+
+            return "500 SERVER ERROR";
+
+        default:
+
+            return "INVALID STATUS";
+    }
 }
 
 /*-----------------------------------------------------------*/

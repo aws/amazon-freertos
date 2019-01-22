@@ -58,16 +58,14 @@ typedef struct _operationMatchParams
  * @brief Match a received Shadow response with a Shadow operation awaiting a
  * response.
  *
- * @param[in] pArgument Pointer to an #_operationMatchParams_t.
- * @param[in] pData Pointer to a #_shadowOperation_t to check.
+ * @param[in] pOperationLink Pointer to the link member of the #_shadowOperation_t
+ * to check.
+ * @param[in] pMatch Pointer to an #_operationMatchParams_t.
  *
- * @return `true` if `pData` matches the received response; `false` otherwise.
- *
- * @note The arguments of this function are of type `void*` for compatibility
- * with @ref list_function_findfirstmatch.
+ * @return `true` if `pMatch` matches the received response; `false` otherwise.
  */
-static inline bool _shadowOperation_match( void * pArgument,
-                                           void * pData );
+static bool _shadowOperation_match( const IotLink_t * pOperationLink,
+                                    void * pMatch );
 
 /**
  * @brief Common function for processing received Shadow responses.
@@ -141,15 +139,22 @@ static void _updateCallback( void * pArgument,
  * @brief List of active Shadow operations awaiting a response from the Shadow
  * service.
  */
-AwsIotList_t _AwsIotShadowPendingOperations = { 0 };
+IotListDouble_t _AwsIotShadowPendingOperations = { 0 };
+
+/**
+ * @brief Protects #_AwsIotShadowPendingOperations from concurrent access.
+ */
+AwsIotMutex_t _AwsIotShadowPendingOperationsMutex;
 
 /*-----------------------------------------------------------*/
 
-static inline bool _shadowOperation_match( void * pArgument,
-                                           void * pData )
+static bool _shadowOperation_match( const IotLink_t * pOperationLink,
+                                    void * pMatch )
 {
-    _operationMatchParams_t * const pParam = ( _operationMatchParams_t * ) pArgument;
-    _shadowOperation_t * const pOperation = ( _shadowOperation_t * ) pData;
+    _shadowOperation_t * const pOperation = IotLink_Container( _shadowOperation_t,
+                                                               pOperationLink,
+                                                               link );
+    _operationMatchParams_t * const pParam = ( _operationMatchParams_t * ) pMatch;
     _shadowSubscription_t * const pSubscription = pOperation->pSubscription;
     const char * pClientToken = NULL;
     size_t clientTokenLength = 0;
@@ -231,20 +236,22 @@ static void _commonOperationCallback( _shadowOperationType_t type,
     }
 
     /* Lock the pending operations list for exclusive access. */
-    AwsIotMutex_Lock( &( _AwsIotShadowPendingOperations.mutex ) );
+    AwsIotMutex_Lock( &( _AwsIotShadowPendingOperationsMutex ) );
 
     /* Search for a matching pending operation. */
-    pOperation = AwsIotList_FindFirstMatch( _AwsIotShadowPendingOperations.pHead,
-                                            _SHADOW_OPERATION_LINK_OFFSET,
-                                            &param,
-                                            _shadowOperation_match );
+    pOperation = IotLink_Container( _shadowOperation_t,
+                                    IotListDouble_FindFirstMatch( &( _AwsIotShadowPendingOperations ),
+                                                                  NULL,
+                                                                  _shadowOperation_match,
+                                                                  &param ),
+                                    link );
 
     /* Find and remove the first Shadow operation of the given type. */
     if( pOperation == NULL )
     {
         /* Operation is not pending. It may have already been processed. Return
          * without doing anything */
-        AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
+        AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperationsMutex ) );
 
         AwsIotLogWarn( "Shadow %s callback received an unknown operation.",
                        _pAwsIotShadowOperationNames[ type ] );
@@ -256,10 +263,8 @@ static void _commonOperationCallback( _shadowOperationType_t type,
         /* Remove a non-waitable operation from the pending operation list. */
         if( ( pOperation->flags & AWS_IOT_SHADOW_FLAG_WAITABLE ) == 0 )
         {
-            AwsIotList_Remove( &_AwsIotShadowPendingOperations,
-                               &( pOperation->link ),
-                               _SHADOW_OPERATION_LINK_OFFSET );
-            AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
+            IotListDouble_Remove( &( pOperation->link ) );
+            AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperationsMutex ) );
         }
     }
 
@@ -327,7 +332,7 @@ static void _commonOperationCallback( _shadowOperationType_t type,
      * this function's completion. */
     if( ( flags & AWS_IOT_SHADOW_FLAG_WAITABLE ) == AWS_IOT_SHADOW_FLAG_WAITABLE )
     {
-        AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
+        AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperationsMutex ) );
     }
 }
 
@@ -634,7 +639,7 @@ AwsIotShadowError_t AwsIotShadowInternal_ProcessOperation( AwsIotMqttConnection_
     }
 
     /* Lock the subscription list mutex for exclusive access. */
-    AwsIotMutex_Lock( &_AwsIotShadowSubscriptions.mutex );
+    AwsIotMutex_Lock( &_AwsIotShadowSubscriptionsMutex );
 
     /* Check for an existing subscription. This function will attempt to allocate
      * a new subscription if not found. */
@@ -687,7 +692,7 @@ AwsIotShadowError_t AwsIotShadowInternal_ProcessOperation( AwsIotMqttConnection_
     }
 
     /* Unlock the Shadow subscription list mutex. */
-    AwsIotMutex_Unlock( &_AwsIotShadowSubscriptions.mutex );
+    AwsIotMutex_Unlock( &_AwsIotShadowSubscriptionsMutex );
 
     /* Check that all memory allocation and subscriptions succeeded. */
     if( status == AWS_IOT_SHADOW_STATUS_PENDING )
@@ -732,11 +737,10 @@ AwsIotShadowError_t AwsIotShadowInternal_ProcessOperation( AwsIotMqttConnection_
         }
 
         /* Add Shadow operation to the pending operations list. */
-        AwsIotMutex_Lock( &( _AwsIotShadowPendingOperations.mutex ) );
-        AwsIotList_InsertHead( &_AwsIotShadowPendingOperations,
-                               &( pOperation->link ),
-                               _SHADOW_OPERATION_LINK_OFFSET );
-        AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
+        AwsIotMutex_Lock( &( _AwsIotShadowPendingOperationsMutex ) );
+        IotListDouble_InsertHead( &( _AwsIotShadowPendingOperations ),
+                                  &( pOperation->link ) );
+        AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperationsMutex ) );
 
         /* Publish to the Shadow topic name. */
         publishStatus = AwsIotMqtt_TimedPublish( pOperation->mqttConnection,
@@ -767,19 +771,17 @@ AwsIotShadowError_t AwsIotShadowInternal_ProcessOperation( AwsIotMqttConnection_
              * count. */
             if( ( pOperation->flags & AWS_IOT_SHADOW_FLAG_KEEP_SUBSCRIPTIONS ) == 0 )
             {
-                AwsIotMutex_Lock( &_AwsIotShadowSubscriptions.mutex );
+                AwsIotMutex_Lock( &_AwsIotShadowSubscriptionsMutex );
                 AwsIotShadowInternal_DecrementReferences( pOperation,
                                                           pTopicBuffer,
                                                           NULL );
-                AwsIotMutex_Unlock( &_AwsIotShadowSubscriptions.mutex );
+                AwsIotMutex_Unlock( &_AwsIotShadowSubscriptionsMutex );
             }
 
             /* Remove Shadow operation from the pending operations list. */
-            AwsIotMutex_Lock( &( _AwsIotShadowPendingOperations.mutex ) );
-            AwsIotList_Remove( &_AwsIotShadowPendingOperations,
-                               &( pOperation->link ),
-                               _SHADOW_OPERATION_LINK_OFFSET );
-            AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperations.mutex ) );
+            AwsIotMutex_Lock( &( _AwsIotShadowPendingOperationsMutex ) );
+            IotListDouble_Remove( &( pOperation->link ) );
+            AwsIotMutex_Unlock( &( _AwsIotShadowPendingOperationsMutex ) );
         }
         else
         {
@@ -822,11 +824,11 @@ void AwsIotShadowInternal_Notify( _shadowOperation_t * const pOperation )
 
     /* Decrement the reference count. This also removes subscriptions if the
      * count reaches 0. */
-    AwsIotMutex_Lock( &_AwsIotShadowSubscriptions.mutex );
+    AwsIotMutex_Lock( &_AwsIotShadowSubscriptionsMutex );
     AwsIotShadowInternal_DecrementReferences( pOperation,
                                               pSubscription->pTopicBuffer,
                                               &pRemovedSubscription );
-    AwsIotMutex_Unlock( &_AwsIotShadowSubscriptions.mutex );
+    AwsIotMutex_Unlock( &_AwsIotShadowSubscriptionsMutex );
 
     /* Set the subscription pointer used for the user callback based on whether
      * a subscription was removed from the list. */

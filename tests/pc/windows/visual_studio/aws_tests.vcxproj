@@ -96,9 +96,9 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_json_utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_mqtt.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h" />
@@ -293,7 +293,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\demos\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
-    <ClCompile Include="..\..\..\..\demos\common\ota\aws_ota_update_demo.c" />
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_demo_logging.c" />
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_entropy_hardware_poll.c" />
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor.c" />
@@ -307,7 +306,6 @@
     <ClCompile Include="..\..\..\..\lib\cbor\test\test_aws_cbor_acc.c" />
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_json_utils.c" />
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c" />
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_queue.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
     <ClCompile Include="..\..\..\..\lib\defender\aws_defender.c" />
     <ClCompile Include="..\..\..\..\lib\defender\portable\freertos\aws_defender_cpu.c" />
