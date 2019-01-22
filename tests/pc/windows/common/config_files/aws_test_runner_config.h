@@ -58,6 +58,7 @@
 #define testrunnerFULL_OTA_AGENT_ENABLED           0
 #define testrunnerFULL_OTA_PAL_ENABLED             0
 #define testrunnerOTA_END_TO_END_ENABLED           0
+#define testrunnerFULL_SERIALIZER_ENABLED          0
 
 /* On systems using FreeRTOS+TCP (such as this one) the TCP segments must be
  * cleaned up before running the memory leak check. */

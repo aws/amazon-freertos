@@ -196,6 +196,11 @@ static void RunTests( void )
         extern void vStartOTAUpdateDemoTask( void );
         vStartOTAUpdateDemoTask();
     #endif
+
+    #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
+        RUN_TEST_GROUP(Full_Serializer_CBOR);
+        RUN_TEST_GROUP(Full_Serializer_JSON);
+    #endif
 }
 /*-----------------------------------------------------------*/
 

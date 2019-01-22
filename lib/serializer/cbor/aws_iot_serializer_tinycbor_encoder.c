@@ -45,7 +45,7 @@ static size_t _getExtraBufferSizeNeeded( AwsIotSerializerEncoderObject_t * pEnco
 static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                       uint8_t * pDataBuffer,
                                       size_t maxSize );
-static AwsIotSerializerError_t _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject );
+static void _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject );
 static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
                                                AwsIotSerializerEncoderObject_t * pNewEncoderObject,
                                                size_t length );
@@ -81,7 +81,10 @@ AwsIotSerializerEncodeInterface_t _AwsIotSerializerCborEncoder =
 static void _translateErrorCode( CborError cborError,
                                  AwsIotSerializerError_t * pSerializerError )
 {
-    /* TODO: assert cborError == 0 || *pSerializerError == 0 */
+    /* This function translate cbor error to serializer error.
+     * It doesn't make sense that both of them are of error (greater than 0).
+     */
+    AwsIotSerializer_Assert( cborError == 0 || *pSerializerError == 0 );
 
     /* Only translate if there is no error on serizlier currently. */
     if( *pSerializerError == AWS_IOT_SERIALIZER_SUCCESS )
@@ -157,7 +160,7 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject )
+static void _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject )
 {
     CborEncoder * pCborEncoder = ( CborEncoder * ) pEncoderObject->pHandle;
 
@@ -166,9 +169,6 @@ static AwsIotSerializerError_t _destroy( AwsIotSerializerEncoderObject_t * pEnco
 
     /* Reset pHandle to be NULL. */
     pEncoderObject->pHandle = NULL;
-
-    /* No other error is returned currently. */
-    return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -206,8 +206,7 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
                 break;
 
             default:
-                /* TODO: add assert false */
-                ;
+                AwsIotSerializer_Assert( 0 );
         }
     }
     else
