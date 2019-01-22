@@ -62,6 +62,9 @@ extern int snprintf( char *,
  *
  * Provide default values for undefined configuration settings.
  */
+#ifndef AWS_IOT_DEMO_MQTT_TOPIC_PREFIX
+    #define AWS_IOT_DEMO_MQTT_TOPIC_PREFIX           "awsiotdemo"
+#endif
 #ifndef AWS_IOT_DEMO_MQTT_PUBLISH_BURST_SIZE
     #define AWS_IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 10 )
 #endif
@@ -89,9 +92,10 @@ extern int snprintf( char *,
 
 /**
  * @brief The longest client identifier that an MQTT server must accept (as defined
- * by the MQTT 3.1.1 spec) is 23 characters.
+ * by the MQTT 3.1.1 spec) is 23 characters. Add 1 to include the length of the NULL
+ * terminator.
  */
-#define _CLIENT_IDENTIFIER_MAX_LENGTH             ( 23 )
+#define _CLIENT_IDENTIFIER_MAX_LENGTH             ( 24 )
 
 /**
  * @brief The keep-alive interval used for this demo.
@@ -111,7 +115,7 @@ extern int snprintf( char *,
  * The MQTT server will publish a message to this topic name if this client is
  * unexpectedly disconnected.
  */
-#define _WILL_TOPIC_NAME                          _CLIENT_IDENTIFIER_PREFIX "/will"
+#define _WILL_TOPIC_NAME                          AWS_IOT_DEMO_MQTT_TOPIC_PREFIX "/will"
 
 /**
  * @brief The length of #_WILL_TOPIC_NAME.
@@ -138,7 +142,7 @@ extern int snprintf( char *,
  *
  * For convenience, all topic filters are the same length.
  */
-#define _TOPIC_FILTER_LENGTH                      ( ( uint16_t ) ( sizeof( _CLIENT_IDENTIFIER_PREFIX "/topic/1" ) - 1 ) )
+#define _TOPIC_FILTER_LENGTH                      ( ( uint16_t ) ( sizeof( AWS_IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/1" ) - 1 ) )
 
 /**
  * @brief Format string of the PUBLISH messages in this demo.
@@ -165,7 +169,7 @@ extern int snprintf( char *,
  * @brief The topic name on which acknowledgement messages for incoming publishes
  * should be published.
  */
-#define _ACKNOWLEDGEMENT_TOPIC_NAME               _CLIENT_IDENTIFIER_PREFIX "/acknowledgements"
+#define _ACKNOWLEDGEMENT_TOPIC_NAME               AWS_IOT_DEMO_MQTT_TOPIC_PREFIX "/acknowledgements"
 
 /**
  * @brief The length of #_ACKNOWLEDGEMENT_TOPIC_NAME.
@@ -196,6 +200,10 @@ static void _operationCompleteCallback( void * param1,
                                         AwsIotMqttCallbackParam_t * const pOperation )
 {
     intptr_t publishCount = ( intptr_t ) param1;
+
+    /* Silence warnings about unused variables. publishCount will not be used if
+     * logging is disabled. */
+    ( void ) publishCount;
 
     /* Print the status of the completed operation. A PUBLISH operation is
      * successful when transmitted over the network. */
@@ -366,10 +374,10 @@ int AwsIotDemo_RunMqttDemo( bool awsIotMqttMode,
     AwsIotSemaphore_t publishesReceived;
     const char * pTopicFilters[ _TOPIC_FILTER_COUNT ] =
     {
-        _CLIENT_IDENTIFIER_PREFIX "/topic/1",
-        _CLIENT_IDENTIFIER_PREFIX "/topic/2",
-        _CLIENT_IDENTIFIER_PREFIX "/topic/3",
-        _CLIENT_IDENTIFIER_PREFIX "/topic/4",
+        AWS_IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/1",
+        AWS_IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/2",
+        AWS_IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/3",
+        AWS_IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/4",
     };
 
     /* Set the common members of the connection info. */

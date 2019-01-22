@@ -41,41 +41,43 @@
  * @brief The type used to represent mutexes. The constant @ref AWS_IOT_MUTEX_TYPE
  * can be used to change the mutex type.
  *
+ * <span style="color:red;font-weight:bold">
+ * This constant will be automatically configured during build and generally
+ * does not need to be defined.
+ * </span>
+ *
  * Mutexes should only be released by the threads that take them.
  *
- * **Example** <br>
+ * <b>Example</b> <br>
  * To change the type of #AwsIotMutex_t to `long`:
  * @code{c}
  * #define AWS_IOT_MUTEX_TYPE    long
  * #include "aws_iot_threads.h"
  * @endcode
  */
-#ifdef AWS_IOT_MUTEX_TYPE
-    typedef AWS_IOT_MUTEX_TYPE AwsIotMutex_t;
-#else
-    typedef void * AwsIotMutex_t;
-#endif
+typedef AWS_IOT_MUTEX_TYPE AwsIotMutex_t;
 
 /**
  * @ingroup platform_datatypes_handles
  * @brief The type used to represent semaphores. The constant
  * @ref AWS_IOT_SEMAPHORE_TYPE be used to change the semaphore type.
  *
+ * <span style="color:red;font-weight:bold">
+ * This constant will be automatically configured during build and generally
+ * does not need to be defined.
+ * </span>
+ *
  * Semaphores must be counting, and any thread may take (wait on) or release
  * (post to) a semaphore.
  *
- * **Example** <br>
+ * <b>Example</b> <br>
  * To change the type of #AwsIotSemaphore_t to `long`:
  * @code{c}
  * #define AWS_IOT_SEMAPHORE_TYPE    long
  * #include "aws_iot_threads.h"
  * @endcode
  */
-#ifdef AWS_IOT_SEMAPHORE_TYPE
-    typedef AWS_IOT_SEMAPHORE_TYPE AwsIotSemaphore_t;
-#else
-    typedef void * AwsIotSemaphore_t;
-#endif
+typedef AWS_IOT_SEMAPHORE_TYPE AwsIotSemaphore_t;
 
 /**
  * @brief Thread routine function.
@@ -134,7 +136,7 @@ typedef void ( * AwsIotThreadRoutine_t )( void * );
  * // Thread routine.
  * void threadRoutine( void * pArgument );
  *
- * // Run threadRoutine in a detached thread:
+ * // Run threadRoutine in a detached thread.
  * if( AwsIot_CreateDetachedThread( threadRoutine, NULL ) == true )
  * {
  *     // Success

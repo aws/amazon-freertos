@@ -362,12 +362,13 @@ static AwsIotMqttError_t _deserializePingresp( const uint8_t * const pPingrespSt
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Reset the status of an #_mqttOperation_t and pushing it to the receive queue.
+ * @brief Reset the status of an #_mqttOperation_t and push it to the queue of
+ * MQTT operations awaiting network response.
  */
 static void _operationResetAndPush( _mqttOperation_t * const pOperation )
 {
     pOperation->status = AWS_IOT_MQTT_STATUS_PENDING;
-    AwsIotQueue_InsertHead( &_AwsIotMqttReceiveQueue, &( pOperation->link ) );
+    IotQueue_Enqueue( &( _IotMqttPendingResponse ), &( pOperation->link ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -421,9 +422,12 @@ static bool _processPublish( const uint8_t * const pPublish,
     }
 
     /* Set the subscription parameter. */
-    if( _pMqttConnection->subscriptionList.pHead != NULL )
+    if( IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) == false )
     {
-        ( ( _mqttSubscription_t * ) ( _pMqttConnection->subscriptionList.pHead ) )->callback.param1 = &invokeCount;
+        _mqttSubscription_t * pSubscription = IotLink_Container( _mqttSubscription_t,
+                                                                 IotListDouble_PeekHead( &( _pMqttConnection->subscriptionList ) ),
+                                                                 link );
+        pSubscription->callback.param1 = &invokeCount;
     }
 
     /* Call the receive callback on pPublish. */
@@ -466,11 +470,9 @@ static void _publishCallback( void * param1,
 {
     AwsIotSemaphore_t * pInvokeCount = ( AwsIotSemaphore_t * ) param1;
 
-    /* QoS 2 is valid for these tests, but not for AWS IoT MQTT servers. Change
-     * the QoS to 0 so that QoS validation passes. */
-    #if _AWS_IOT_MQTT_SERVER == true
-        pPublish->message.info.QoS = 0;
-    #endif
+    /* QoS 2 is valid for these tests, but currently unsupported by the MQTT library.
+     * Change the QoS to 0 so that QoS validation passes. */
+    pPublish->message.info.QoS = 0;
 
     /* Check that the parameters to this function are valid. */
     if( ( AwsIotMqttInternal_ValidatePublish( _AWS_IOT_MQTT_SERVER,
@@ -564,11 +566,6 @@ TEST_SETUP( MQTT_Unit_Receive )
 TEST_TEAR_DOWN( MQTT_Unit_Receive )
 {
     /* Clean up resources taken in test setup. */
-    AwsIotList_RemoveAllMatches( &( _pMqttConnection->subscriptionList ),
-                                 _SUBSCRIPTION_LINK_OFFSET,
-                                 NULL,
-                                 NULL,
-                                 AwsIotMqtt_FreeSubscription );
     AwsIotTestMqtt_destroyMqttConnection( _pMqttConnection );
     AwsIotMqtt_Cleanup();
     AwsIotSemaphore_Destroy( &_mallocSemaphore );
@@ -1033,8 +1030,10 @@ TEST( MQTT_Unit_Receive, PublishValid )
      * all bytes of the PUBLISH should still be processed (should not crash). */
     {
         _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
-        AwsIotMqtt_FreeSubscription( _pMqttConnection->subscriptionList.pHead );
-        _pMqttConnection->subscriptionList.pHead = NULL;
+        IotListDouble_RemoveAll( &( _pMqttConnection->subscriptionList ),
+                                 AwsIotMqtt_FreeSubscription,
+                                 offsetof( _mqttSubscription_t, link ) );
+
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       publishSize,
                                                       ( int32_t ) publishSize,
@@ -1343,6 +1342,12 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
                                                      AWS_IOT_MQTT_STATUS_PENDING ) );
     }
 
+    /* Remove unprocessed PUBLISH if present. */
+    if( IotLink_IsLinked( &( publish.link ) ) == true )
+    {
+        IotQueue_Remove( &( publish.link ) );
+    }
+
     AwsIotSemaphore_Destroy( &( publish.notify.waitSemaphore ) );
 }
 
@@ -1381,12 +1386,14 @@ TEST( MQTT_Unit_Receive, SubackValid )
                                                                                   2 ) );
 
     /* Set orders 2 and 1 for the new subscriptions. */
-    pNewSubscription = AwsIotLink_Container( _pMqttConnection->subscriptionList.pHead,
-                                             _SUBSCRIPTION_LINK_OFFSET );
+    pNewSubscription = IotLink_Container( _mqttSubscription_t,
+                                          IotListDouble_PeekHead( &( _pMqttConnection->subscriptionList ) ),
+                                          link );
     pNewSubscription->packetInfo.order = 2;
 
-    pNewSubscription = AwsIotLink_Container( pNewSubscription->link.pNext,
-                                             _SUBSCRIPTION_LINK_OFFSET );
+    pNewSubscription = IotLink_Container( _mqttSubscription_t,
+                                          pNewSubscription->link.pNext,
+                                          link );
     pNewSubscription->packetInfo.order = 1;
 
     /* Even though no SUBSCRIBE is in the receive queue, all bytes of the SUBACK
@@ -1642,6 +1649,12 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
                                                      unsubackSize,
                                                      -1,
                                                      AWS_IOT_MQTT_STATUS_PENDING ) );
+    }
+
+    /* Remove unprocessed UNSUBSCRIBE if present. */
+    if( IotLink_IsLinked( &( unsubscribe.link ) ) == true )
+    {
+        IotQueue_Remove( &( unsubscribe.link ) );
     }
 
     AwsIotSemaphore_Destroy( &( unsubscribe.notify.waitSemaphore ) );

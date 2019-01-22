@@ -39,7 +39,7 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief First parameter to #_shadowSubscription_compare.
+ * @brief First parameter to #_shadowSubscription_match.
  */
 typedef struct _thingName
 {
@@ -50,19 +50,16 @@ typedef struct _thingName
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Compare two #_shadowSubscription_t by Thing Name.
+ * @brief Match two #_shadowSubscription_t by Thing Name.
  *
- * @param[in] pArgument Pointer to a #_thingName_t.
- * @param[in] pData Pointer to a #_shadowSubscription_t containing the Thing
- * Name to check.
+ * @param[in] pSubscriptionLink Pointer to the link member of a #_shadowSubscription_t
+ * containing the Thing Name to check.
+ * @param[in] pMatch Pointer to a #_thingName_t.
  *
  * @return `true` if the Thing Names match; `false` otherwise.
- *
- * @note The arguments of this function are of type `void*` for compatibility
- * with @ref list_function_findfirstmatch.
  */
-static inline bool _shadowSubscription_compare( void * pArgument,
-                                                void * pData );
+static bool _shadowSubscription_match( const IotLink_t * pSubscriptionLink,
+                                       void * pMatch );
 
 /**
  * @brief Modify Shadow subscriptions, either by unsubscribing or subscribing.
@@ -88,25 +85,33 @@ static AwsIotShadowError_t _modifyOperationSubscriptions( AwsIotMqttConnection_t
 /**
  * @brief List of active Shadow subscriptions objects.
  */
-AwsIotList_t _AwsIotShadowSubscriptions = { 0 };
+IotListDouble_t _AwsIotShadowSubscriptions = { 0 };
+
+/**
+ * @brief Protects #_AwsIotShadowSubscriptions from concurrent access.
+ */
+AwsIotMutex_t _AwsIotShadowSubscriptionsMutex;
 
 /*-----------------------------------------------------------*/
 
-static inline bool _shadowSubscription_compare( void * pArgument,
-                                                void * pData )
+static bool _shadowSubscription_match( const IotLink_t * pSubscriptionLink,
+                                       void * pMatch )
 {
-    const _thingName_t * const pThingName = ( _thingName_t * ) pArgument;
-    const _shadowSubscription_t * const pSubscription = ( _shadowSubscription_t * ) pData;
+    bool match = false;
+    const _shadowSubscription_t * const pSubscription = IotLink_Container( _shadowSubscription_t,
+                                                                           pSubscriptionLink,
+                                                                           link );
+    const _thingName_t * const pThingName = ( _thingName_t * ) pMatch;
 
     if( pThingName->thingNameLength == pSubscription->thingNameLength )
     {
         /* Check for matching Thing Names. */
-        return( strncmp( pThingName->pThingName,
-                         pSubscription->pThingName,
-                         pThingName->thingNameLength ) == 0 );
+        match = ( strncmp( pThingName->pThingName,
+                           pSubscription->pThingName,
+                           pThingName->thingNameLength ) == 0 );
     }
 
-    return false;
+    return match;
 }
 
 /*-----------------------------------------------------------*/
@@ -186,10 +191,12 @@ _shadowSubscription_t * AwsIotShadowInternal_FindSubscription( const char * cons
     };
 
     /* Search the list for an existing subscription for Thing Name. */
-    pSubscription = AwsIotList_FindFirstMatch( _AwsIotShadowSubscriptions.pHead,
-                                               _SHADOW_SUBSCRIPTION_LINK_OFFSET,
-                                               &thingName,
-                                               _shadowSubscription_compare );
+    pSubscription = IotLink_Container( _shadowSubscription_t,
+                                       IotListDouble_FindFirstMatch( &( _AwsIotShadowSubscriptions ),
+                                                                     NULL,
+                                                                     _shadowSubscription_match,
+                                                                     &thingName ),
+                                       link );
 
     /* Check if a subscription was found. */
     if( pSubscription == NULL )
@@ -207,9 +214,8 @@ _shadowSubscription_t * AwsIotShadowInternal_FindSubscription( const char * cons
             ( void ) strncpy( pSubscription->pThingName, pThingName, thingNameLength );
 
             /* Add the new subscription to the subscription list. */
-            AwsIotList_InsertHead( &_AwsIotShadowSubscriptions,
-                                   &( pSubscription->link ),
-                                   _SHADOW_SUBSCRIPTION_LINK_OFFSET );
+            IotListDouble_InsertHead( &( _AwsIotShadowSubscriptions ),
+                                      &( pSubscription->link ) );
 
             AwsIotLogDebug( "Created new Shadow subscriptions object for %.*s.",
                             thingNameLength,
@@ -285,9 +291,7 @@ void AwsIotShadowInternal_RemoveSubscription( _shadowSubscription_t * const pSub
 
     /* No Shadow operation subscription references or active Shadow callbacks.
      * Remove the subscription object. */
-    AwsIotList_Remove( &_AwsIotShadowSubscriptions,
-                       &( pSubscription->link ),
-                       _SHADOW_SUBSCRIPTION_LINK_OFFSET );
+    IotListDouble_Remove( &( pSubscription->link ) );
 
     AwsIotLogDebug( "Removed subscription object for %.*s.",
                     pSubscription->thingNameLength,
@@ -551,13 +555,15 @@ AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( AwsIotMqttConnec
                    thingNameLength,
                    pThingName );
 
-    AwsIotMutex_Lock( &( _AwsIotShadowSubscriptions.mutex ) );
+    AwsIotMutex_Lock( &( _AwsIotShadowSubscriptionsMutex ) );
 
     /* Search the list for an existing subscription for Thing Name. */
-    pSubscription = AwsIotList_FindFirstMatch( _AwsIotShadowSubscriptions.pHead,
-                                               _SHADOW_SUBSCRIPTION_LINK_OFFSET,
-                                               &thingName,
-                                               _shadowSubscription_compare );
+    pSubscription = IotLink_Container( _shadowSubscription_t,
+                                       IotListDouble_FindFirstMatch( &( _AwsIotShadowSubscriptions ),
+                                                                     NULL,
+                                                                     _shadowSubscription_match,
+                                                                     &thingName ),
+                                       link );
 
     /* Unsubscribe from operation subscriptions if found. */
     if( pSubscription != NULL )
@@ -644,7 +650,7 @@ AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( AwsIotMqttConnec
                        pThingName );
     }
 
-    AwsIotMutex_Unlock( &( _AwsIotShadowSubscriptions.mutex ) );
+    AwsIotMutex_Unlock( &( _AwsIotShadowSubscriptionsMutex ) );
 
     /* Check the results of the MQTT unsubscribes. */
     if( removeAcceptedStatus != AWS_IOT_SHADOW_STATUS_PENDING )

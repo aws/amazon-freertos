@@ -211,9 +211,9 @@ bool AwsIotMqttInternal_ValidatePublish( bool awsIotMqttMode,
     }
 
     /* Check for a valid QoS. */
-    if( ( pPublishInfo->QoS < 0 ) || ( pPublishInfo->QoS > 2 ) )
+    if( ( pPublishInfo->QoS < 0 ) || ( pPublishInfo->QoS > 1 ) )
     {
-        AwsIotLogError( "Publish QoS must be either 0, 1, or 2." );
+        AwsIotLogError( "Publish QoS must be either 0 or 1." );
 
         return false;
     }
@@ -238,14 +238,6 @@ bool AwsIotMqttInternal_ValidatePublish( bool awsIotMqttMode,
     /* Check for compatibility with AWS IoT MQTT server. */
     if( awsIotMqttMode == true )
     {
-        /* Check for QoS 2. */
-        if( pPublishInfo->QoS == 2 )
-        {
-            AwsIotLogError( "AWS IoT does not support QoS 2 publishes." );
-
-            return false;
-        }
-
         /* Check for retained message. */
         if( pPublishInfo->retain == true )
         {
@@ -334,9 +326,9 @@ bool AwsIotMqttInternal_ValidateSubscriptionList( AwsIotMqttOperationType_t oper
 
         /* Check for a valid QoS when subscribing. */
         if( ( operation == AWS_IOT_MQTT_SUBSCRIBE ) &&
-            ( ( pListElement->QoS < 0 ) || ( pListElement->QoS > 2 ) ) )
+            ( ( pListElement->QoS < 0 ) || ( pListElement->QoS > 1 ) ) )
         {
-            AwsIotLogError( "Subscription QoS must be either 0, 1, or 2." );
+            AwsIotLogError( "Subscription QoS must be either 0 or 1." );
 
             return false;
         }
@@ -361,14 +353,6 @@ bool AwsIotMqttInternal_ValidateSubscriptionList( AwsIotMqttOperationType_t oper
         /* Check for compatibility with AWS IoT MQTT server. */
         if( awsIotMqttMode == true )
         {
-            /* Check for QoS 2. */
-            if( pListElement->QoS == 2 )
-            {
-                AwsIotLogError( "AWS IoT does not support QoS 2 subscriptions." );
-
-                return false;
-            }
-
             /* Check topic filter length. */
             if( pListElement->topicFilterLength > _AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH )
             {

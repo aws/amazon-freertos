@@ -30,18 +30,18 @@
 
 /*-----------------------------------------------------------*/
 
-bool AwsIotTestMqtt_topicMatch( void * pArgument,
-                                void * pData )
+bool AwsIotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+                                void * pMatch )
 {
-    return _topicMatch( pArgument, pData );
+    return _topicMatch( pSubscriptionLink, pMatch );
 }
 
 /*-----------------------------------------------------------*/
 
-bool AwsIotTestMqtt_packetMatch( void * pArgument,
-                                 void * pData )
+bool AwsIotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+                                 void * pMatch )
 {
-    return _packetMatch( pArgument, pData );
+    return _packetMatch( pSubscriptionLink, pMatch );
 }
 
 /*-----------------------------------------------------------*/

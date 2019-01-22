@@ -852,8 +852,8 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
     subscription.topicFilterLength = _TEST_TOPIC_NAME_LENGTH;
     subscription.callback.function = _SUBSCRIPTION_CALLBACK;
 
-    TEST_ASSERT_EQUAL_INT( true,
-                           AwsIotList_Create( &( mqttConnection.subscriptionList ) ) );
+    TEST_ASSERT_EQUAL_INT( true, AwsIotMutex_Create( &( mqttConnection.subscriptionMutex ) ) );
+    IotListDouble_Create( &( mqttConnection.subscriptionList ) );
 
     if( TEST_PROTECT() )
     {
@@ -884,15 +884,13 @@ TEST( MQTT_Unit_API, SubscribeMallocFail )
         }
 
         /* No lingering subscriptions should be in the MQTT connection. */
-        TEST_ASSERT_EQUAL_PTR( NULL, mqttConnection.subscriptionList.pHead );
+        TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( mqttConnection.subscriptionList ) ) );
     }
 
-    AwsIotList_RemoveAllMatches( &( mqttConnection.subscriptionList ),
-                                 _SUBSCRIPTION_LINK_OFFSET,
-                                 NULL,
-                                 NULL,
-                                 AwsIotMqtt_FreeSubscription );
-    AwsIotList_Destroy( &( mqttConnection.subscriptionList ) );
+    IotListDouble_RemoveAll( &( mqttConnection.subscriptionList ),
+                             AwsIotMqtt_FreeSubscription,
+                             offsetof( _mqttSubscription_t, link ) );
+    AwsIotMutex_Destroy( &( mqttConnection.subscriptionMutex ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -915,8 +913,8 @@ TEST( MQTT_Unit_API, UnsubscribeMallocFail )
     subscription.topicFilterLength = _TEST_TOPIC_NAME_LENGTH;
     subscription.callback.function = _SUBSCRIPTION_CALLBACK;
 
-    TEST_ASSERT_EQUAL_INT( true,
-                           AwsIotList_Create( &( mqttConnection.subscriptionList ) ) );
+    TEST_ASSERT_EQUAL_INT( true, AwsIotMutex_Create( &( mqttConnection.subscriptionMutex ) ) );
+    IotListDouble_Create( &( mqttConnection.subscriptionList ) );
 
     if( TEST_PROTECT() )
     {
@@ -947,15 +945,13 @@ TEST( MQTT_Unit_API, UnsubscribeMallocFail )
         }
 
         /* No lingering subscriptions should be in the MQTT connection. */
-        TEST_ASSERT_EQUAL_PTR( NULL, mqttConnection.subscriptionList.pHead );
+        TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( mqttConnection.subscriptionList ) ) );
     }
 
-    AwsIotList_RemoveAllMatches( &( mqttConnection.subscriptionList ),
-                                 _SUBSCRIPTION_LINK_OFFSET,
-                                 NULL,
-                                 NULL,
-                                 AwsIotMqtt_FreeSubscription );
-    AwsIotList_Destroy( &( mqttConnection.subscriptionList ) );
+    IotListDouble_RemoveAll( &( mqttConnection.subscriptionList ),
+                             AwsIotMqtt_FreeSubscription,
+                             offsetof( _mqttSubscription_t, link ) );
+    AwsIotMutex_Destroy( &( mqttConnection.subscriptionMutex ) );
 }
 
 /*-----------------------------------------------------------*/

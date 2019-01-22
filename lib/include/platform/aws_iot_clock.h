@@ -43,18 +43,19 @@
  * @brief The type used to represent timers. The constant @ref AWS_IOT_TIMER_TYPE
  * can be used to change the timer type.
  *
- * **Example** <br>
+ * <span style="color:red;font-weight:bold">
+ * This constant will be automatically configured during build and generally
+ * does not need to be defined.
+ * </span>
+ *
+ * <b>Example</b> <br>
  * To change the type of #AwsIotTimer_t to `long`:
  * @code{c}
  * #define AWS_IOT_TIMER_TYPE    long
  * #include "aws_iot_clock.h"
  * @endcode
  */
-#ifdef AWS_IOT_TIMER_TYPE
-    typedef AWS_IOT_TIMER_TYPE AwsIotTimer_t;
-#else
-    typedef void * AwsIotTimer_t;
-#endif
+typedef AWS_IOT_TIMER_TYPE AwsIotTimer_t;
 
 /**
  * @functionspage{platform_clock,platform clock component,Clock}
@@ -89,7 +90,7 @@
  * @warning The implementation of this function must not call any [logging functions]
  * (@ref logging_functions).
  *
- * **Example**
+ * <b>Example</b>
  * @code{c}
  * char timestring[ 32 ];
  * size_t timestringLength = 0;
@@ -115,7 +116,7 @@ bool AwsIotClock_GetTimestring( char * const pBuffer,
  *
  * @return The value of the system clock. This function is not expected to fail.
  *
- * **Example**
+ * <b>Example</b>
  * @code{c}
  * // Get current time.
  * uint64_t currentTime = AwsIotClock_GetTimeMs();
@@ -187,7 +188,7 @@ void AwsIotClock_TimerDestroy( AwsIotTimer_t * const pTimer );
  *
  * @see @ref platform_clock_function_timercreate, @ref platform_clock_function_timerdestroy
  *
- * **Example**
+ * <b>Example</b>
  * @code{c}
  *
  * void timerExpirationRoutine( void * pArgument );

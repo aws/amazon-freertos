@@ -52,39 +52,14 @@ typedef struct _operationMatchParam
 /**
  * @brief Match an MQTT operation by type and packet identifier.
  *
- * @param[in] pArgument Pointer to an #_operationMatchParam_t.
- * @param[in] pData Pointer to an #_mqttOperation_t.
+ * @param[in] pOperationLink Pointer to the link member of an #_mqttOperation_t.
+ * @param[in] pMatch Pointer to an #_operationMatchParam_t.
  *
- * @return `true` if `pData` matches the parameters in `pArgument`; `false`
+ * @return `true` if the operation matches the parameters in `pArgument`; `false`
  * otherwise.
- *
- * @note The arguments of this function are of type `void*` for compatibility
- * with @ref queue_function_removefirstmatch.
  */
-static inline bool _mqttOperation_match( void * pArgument,
-                                         void * pData );
-
-/**
- * @brief Send data over the network.
- *
- * Whenever an operation is added to the send queue, a send thread is created.
- * This thread processes operations from the send queue until it is empty. The
- * number of concurrent send threads is limited by @ref AWS_IOT_MQTT_MAX_SEND_THREADS.
- *
- * @param[in] pArgument Not used.
- */
-static void _sendThread( void * pArgument );
-
-/**
- * @brief Invoke user-provided callback functions.
- *
- * Callback functions are invoked in their own thread so they don't block the
- * MQTT library's threads. The number of concurrent callback threads is limited
- * by @ref AWS_IOT_MQTT_MAX_CALLBACK_THREADS.
- *
- * @param[in] pArgument Not used.
- */
-static void _callbackThread( void * pArgument );
+static bool _mqttOperation_match( const IotLink_t * pOperationLink,
+                                  void * pMatch );
 
 /**
  * @brief Calculate the timeout and period of the next PUBLISH retry event.
@@ -101,250 +76,78 @@ static void _callbackThread( void * pArgument );
 static bool _calculateNextPublishRetry( _mqttConnection_t * const pMqttConnection,
                                         _mqttTimerEvent_t * const pPublishRetry );
 
-/*-----------------------------------------------------------*/
-
-/*
- * MQTT operation queues.
+/**
+ * @brief Send the packet associated with an MQTT operation.
+ *
+ * Transmits the MQTT packet from a pending operation to the MQTT server, then
+ * places the operation in the list of MQTT operations awaiting responses from
+ * the server.
+ *
+ * @param[in] pOperation The MQTT operation with the packet to send.
  */
-AwsIotQueue_t _AwsIotMqttSendQueue = { 0 };     /**< @brief Queues data to be sent on the network. */
-AwsIotQueue_t _AwsIotMqttReceiveQueue = { 0 };  /**< @brief Queues responses received from the network. */
-AwsIotQueue_t _AwsIotMqttCallbackQueue = { 0 }; /**< @brief Queues pending user callbacks. */
+static void _invokeSend( _mqttOperation_t * const pOperation );
+
+/**
+ * @brief Invoke user-provided callback functions.
+ *
+ * Invokes callback functions associated with either a completed MQTT operation
+ * or an incoming PUBLISH message.
+ *
+ * @param[in] pOperation The MQTT operation with the callback to invoke.
+ */
+static void _invokeCallback( _mqttOperation_t * const pOperation );
+
+/**
+ * @brief Process an MQTT operation.
+ *
+ * This function is a thread routine that either sends an MQTT packet for
+ * in-progress operations, notifies of an operation's completion, or notifies
+ * of an incoming PUBLISH message.
+ *
+ * @param[in] pArgument The address of either #_IotMqttCallback (to invoke a user
+ * callback) or #_IotMqttSend (to send an MQTT packet).
+ */
+static void _processOperation( void * pArgument );
 
 /*-----------------------------------------------------------*/
 
-static inline bool _mqttOperation_match( void * pArgument,
-                                         void * pData )
-{
-    _mqttOperation_t * pOperation = ( _mqttOperation_t * ) pData;
-    _operationMatchParam_t * pParam = ( _operationMatchParam_t * ) pArgument;
+/**
+ * Queues of MQTT operations waiting to be processed.
+ */
+_mqttOperationQueue_t _IotMqttCallback = { 0 }; /**< @brief Queue of MQTT operations waiting for their callback to be invoked. */
+_mqttOperationQueue_t _IotMqttSend = { 0 };     /**< @brief Queue of MQTT operations waiting to be sent. */
+AwsIotMutex_t _IotMqttQueueMutex;               /**< @brief Protects both #_IotMqttSend and #_IotMqttCallback from concurrent access. */
 
+/* List of MQTT operations awaiting a network response. */
+IotListDouble_t _IotMqttPendingResponse = { 0 }; /**< @brief List of MQTT operations awaiting a response from the MQTT server. */
+AwsIotMutex_t _IotMqttPendingResponseMutex;      /**< @brief Protects #_IotMqttPendingResponse from concurrent access. */
+
+/*-----------------------------------------------------------*/
+
+static bool _mqttOperation_match( const IotLink_t * pOperationLink,
+                                  void * pMatch )
+{
+    bool match = false;
+    _mqttOperation_t * pOperation = IotLink_Container( _mqttOperation_t,
+                                                       pOperationLink,
+                                                       link );
+    _operationMatchParam_t * pParam = ( _operationMatchParam_t * ) pMatch;
+
+    /* Check for matching operations. */
     if( pParam->operation == pOperation->operation )
     {
+        /* Check for matching packet identifiers. */
         if( pParam->pPacketIdentifier == NULL )
         {
-            return true;
+            match = true;
         }
         else
         {
-            return *( pParam->pPacketIdentifier ) == pOperation->packetIdentifier;
+            match = ( *( pParam->pPacketIdentifier ) == pOperation->packetIdentifier );
         }
     }
 
-    return false;
-}
-
-/*-----------------------------------------------------------*/
-
-static void _sendThread( void * pArgument )
-{
-    bool waitableOperation = false;
-    _mqttOperation_t * pOperation = NULL;
-
-    /* Silence warnings about unused parameters. */
-    ( void ) pArgument;
-
-    AwsIotLogDebug( "New send thread started." );
-
-    /* Receive messages from the send queue until the queue is empty. */
-    while( true )
-    {
-        AwsIotLogDebug( "Removing oldest operation from MQTT send queue." );
-
-        /* Get the oldest operation in the MQTT send queue. */
-        pOperation = AwsIotQueue_RemoveTail( &_AwsIotMqttSendQueue,
-                                             _OPERATION_LINK_OFFSET,
-                                             true );
-
-        /* If no operation was received, terminate the loop. */
-        if( pOperation == NULL )
-        {
-            break;
-        }
-
-        AwsIotLogDebug( "Operation %s received from queue. Sending data over network.",
-                        AwsIotMqtt_OperationType( pOperation->operation ) );
-
-        /* The received operation should be waiting for a status and have a valid packet. */
-        AwsIotMqtt_Assert( pOperation->status == AWS_IOT_MQTT_STATUS_PENDING );
-        AwsIotMqtt_Assert( pOperation->pMqttPacket != NULL );
-        AwsIotMqtt_Assert( pOperation->packetSize != 0 );
-
-        /* Check if this is a waitable operation. */
-        waitableOperation = ( ( pOperation->flags & AWS_IOT_MQTT_FLAG_WAITABLE )
-                              == AWS_IOT_MQTT_FLAG_WAITABLE );
-
-        /* Transmit the MQTT packet from the operation over the network. */
-        if( pOperation->pMqttConnection->network.send( pOperation->pMqttConnection->network.pSendContext,
-                                                       pOperation->pMqttPacket,
-                                                       pOperation->packetSize ) != pOperation->packetSize )
-        {
-            /* Transmission failed. */
-            AwsIotLogError( "Failed to send data for operation %s.",
-                            AwsIotMqtt_OperationType( pOperation->operation ) );
-
-            pOperation->status = AWS_IOT_MQTT_SEND_ERROR;
-        }
-        else
-        {
-            /* DISCONNECT operations are considered successful upon successful
-             * transmission. */
-            if( pOperation->operation == AWS_IOT_MQTT_DISCONNECT )
-            {
-                pOperation->status = AWS_IOT_MQTT_SUCCESS;
-            }
-            /* Calculate the details of the next PUBLISH retry event. */
-            else if( pOperation->pPublishRetry != NULL )
-            {
-                /* Only a PUBLISH may have a retry event. */
-                AwsIotMqtt_Assert( pOperation->operation == AWS_IOT_MQTT_PUBLISH_TO_SERVER );
-
-                if( _calculateNextPublishRetry( pOperation->pMqttConnection,
-                                                pOperation->pPublishRetry ) == false )
-                {
-                    /* PUBLISH retry failed to re-arm connection timer. Retransmission
-                     * will not be sent. */
-                    pOperation->status = AWS_IOT_MQTT_SEND_ERROR;
-                }
-            }
-        }
-
-        /* Once the MQTT packet has been sent, it may be freed if it will not be
-         * retransmitted and it's not a PINGREQ. Additionally, the entire operation
-         * may be destroyed if no notification method is set. */
-        if( ( pOperation->pPublishRetry == NULL ) &&
-            ( pOperation->operation != AWS_IOT_MQTT_PINGREQ ) )
-        {
-            /* Choose a free packet function. */
-            void ( * freePacket )( uint8_t * ) = AwsIotMqttInternal_FreePacket;
-
-            #if AWS_IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-                if( pOperation->pMqttConnection->network.freePacket != NULL )
-                {
-                    freePacket = pOperation->pMqttConnection->network.freePacket;
-                }
-            #endif
-
-            freePacket( pOperation->pMqttPacket );
-            pOperation->pMqttPacket = NULL;
-
-            if( ( waitableOperation == false ) &&
-                ( pOperation->notify.callback.function == NULL ) )
-            {
-                AwsIotMqttInternal_DestroyOperation( pOperation );
-                continue;
-            }
-        }
-
-        /* If a status was set by this function, notify of completion. */
-        if( pOperation->status != AWS_IOT_MQTT_STATUS_PENDING )
-        {
-            AwsIotMqttInternal_Notify( pOperation );
-        }
-        /* Otherwise, add the operation to the receive queue. */
-        else
-        {
-            /* This function call will not fail because the receive queue has no
-             * notification routine. */
-            ( void ) AwsIotQueue_InsertHead( &_AwsIotMqttReceiveQueue,
-                                             &( pOperation->link ) );
-        }
-
-        /* Notify a waitable operation that the send thread is finished. */
-        if( waitableOperation == true )
-        {
-            AwsIotSemaphore_Post( &( pOperation->notify.waitSemaphore ) );
-        }
-    }
-
-    AwsIotLogDebug( "Send queue empty. Send thread terminating." );
-}
-
-/*-----------------------------------------------------------*/
-
-static void _callbackThread( void * pArgument )
-{
-    _mqttOperation_t * pOperation = NULL, * i = NULL, * pCurrent = NULL;
-    AwsIotMqttCallbackParam_t callbackParam = { .operation = { 0 } };
-
-    /* Silence warnings about unused parameters. */
-    ( void ) pArgument;
-
-    AwsIotLogDebug( "New callback thread started." );
-
-    while( true )
-    {
-        AwsIotLogDebug( "Removing oldest operation from MQTT callback queue." );
-
-        /* Get the oldest operation in the MQTT callback queue. */
-        pOperation = AwsIotQueue_RemoveTail( &_AwsIotMqttCallbackQueue,
-                                             _OPERATION_LINK_OFFSET,
-                                             true );
-
-        /* If no operation was received, terminate the loop. */
-        if( pOperation == NULL )
-        {
-            break;
-        }
-
-        if( pOperation->incomingPublish == true )
-        {
-            /* Set the pointer to the first PUBLISH. */
-            i = pOperation;
-
-            /* Process each PUBLISH in the operation. */
-            while( i != NULL )
-            {
-                /* Save a pointer to the current PUBLISH and move the iterating
-                 * pointer. */
-                pCurrent = i;
-                i = i->pNextPublish;
-
-                /* Process the current PUBLISH. */
-                if( ( pCurrent->publishInfo.pPayload != NULL ) &&
-                    ( pCurrent->publishInfo.pTopicName != NULL ) )
-                {
-                    callbackParam.message.info = pCurrent->publishInfo;
-
-                    AwsIotMqttInternal_ProcessPublish( pCurrent->pMqttConnection,
-                                                       &callbackParam );
-                }
-
-                /* Free any buffers associated with the current PUBLISH message. */
-                if( pCurrent->freeReceivedData != NULL )
-                {
-                    AwsIotMqtt_Assert( pCurrent->pReceivedData != NULL );
-                    pCurrent->freeReceivedData( ( void * ) pCurrent->pReceivedData );
-                }
-
-                /* Free the current PUBLISH. */
-                AwsIotMqtt_FreeOperation( pCurrent );
-            }
-        }
-        else
-        {
-            /* Operations with no callback should not have been passed to the
-             * callback queue. */
-            AwsIotMqtt_Assert( pOperation->notify.callback.function != NULL );
-
-            AwsIotLogDebug( "Operation %s received from queue. Invoking user callback.",
-                            AwsIotMqtt_OperationType( pOperation->operation ) );
-
-            /* Set callback parameters. */
-            callbackParam.mqttConnection = pOperation->pMqttConnection;
-            callbackParam.operation.type = pOperation->operation;
-            callbackParam.operation.reference = pOperation;
-            callbackParam.operation.result = pOperation->status;
-
-            /* Invoke user callback function. */
-            pOperation->notify.callback.function( pOperation->notify.callback.param1,
-                                                  &callbackParam );
-
-            /* Once the user-provided callback returns, the operation can be destroyed. */
-            AwsIotMqttInternal_DestroyOperation( pOperation );
-        }
-    }
-
-    AwsIotLogDebug( "Callback queue empty. Callback thread terminating." );
+    return match;
 }
 
 /*-----------------------------------------------------------*/
@@ -390,12 +193,14 @@ static bool _calculateNextPublishRetry( _mqttConnection_t * const pMqttConnectio
         }
     }
 
-    AwsIotMutex_Lock( &( pMqttConnection->timerEventList.mutex ) );
+    /* Lock the connection timer mutex to block the timer thread. */
+    AwsIotMutex_Lock( &( pMqttConnection->timerMutex ) );
 
     /* Peek the current head of the timer event list. If the PUBLISH retry expires
      * sooner, re-arm the timer to expire at the PUBLISH retry's expiration time. */
-    pTimerListHead = AwsIotLink_Container( pMqttConnection->timerEventList.pHead,
-                                           _TIMER_EVENT_LINK_OFFSET );
+    pTimerListHead = IotLink_Container( _mqttTimerEvent_t,
+                                        IotListDouble_PeekHead( &( pMqttConnection->timerEventList ) ),
+                                        link );
 
     if( ( pTimerListHead == NULL ) ||
         ( pTimerListHead->expirationTime > pPublishRetry->expirationTime ) )
@@ -414,66 +219,250 @@ static bool _calculateNextPublishRetry( _mqttConnection_t * const pMqttConnectio
      * is guaranteed to expire before its expiration time. */
     if( status == true )
     {
-        AwsIotList_InsertSorted( &( pMqttConnection->timerEventList ),
-                                 &( pPublishRetry->link ),
-                                 _TIMER_EVENT_LINK_OFFSET,
-                                 AwsIotMqttInternal_TimerEventCompare );
+        IotListDouble_InsertSorted( &( pMqttConnection->timerEventList ),
+                                    &( pPublishRetry->link ),
+                                    AwsIotMqttInternal_TimerEventCompare );
     }
 
-    AwsIotMutex_Unlock( &( pMqttConnection->timerEventList.mutex ) );
+    AwsIotMutex_Unlock( &( pMqttConnection->timerMutex ) );
 
     return status;
 }
 
 /*-----------------------------------------------------------*/
 
-AwsIotMqttError_t AwsIotMqttInternal_CreateQueues( void )
+static void _invokeSend( _mqttOperation_t * const pOperation )
 {
-    AwsIotQueueNotifyParams_t notifyParams = { 0 };
+    bool waitableOperation = false;
 
-    /* Create the send queue. */
-    notifyParams.notifyRoutine = _sendThread;
+    AwsIotLogDebug( "Operation %s received from queue. Sending data over network.",
+                    AwsIotMqtt_OperationType( pOperation->operation ) );
 
-    if( AwsIotQueue_Create( &_AwsIotMqttSendQueue,
-                            &notifyParams,
-                            AWS_IOT_MQTT_MAX_SEND_THREADS ) == false )
+    /* Check if this is a waitable operation. */
+    waitableOperation = ( ( pOperation->flags & AWS_IOT_MQTT_FLAG_WAITABLE )
+                          == AWS_IOT_MQTT_FLAG_WAITABLE );
+
+    /* Transmit the MQTT packet from the operation over the network. */
+    if( pOperation->pMqttConnection->network.send( pOperation->pMqttConnection->network.pSendContext,
+                                                   pOperation->pMqttPacket,
+                                                   pOperation->packetSize ) != pOperation->packetSize )
     {
-        return AWS_IOT_MQTT_INIT_FAILED;
+        /* Transmission failed. */
+        AwsIotLogError( "Failed to send data for operation %s.",
+                        AwsIotMqtt_OperationType( pOperation->operation ) );
+
+        pOperation->status = AWS_IOT_MQTT_SEND_ERROR;
+    }
+    else
+    {
+        /* DISCONNECT operations are considered successful upon successful
+         * transmission. */
+        if( pOperation->operation == AWS_IOT_MQTT_DISCONNECT )
+        {
+            pOperation->status = AWS_IOT_MQTT_SUCCESS;
+        }
+        /* Calculate the details of the next PUBLISH retry event. */
+        else if( pOperation->pPublishRetry != NULL )
+        {
+            /* Only a PUBLISH may have a retry event. */
+            AwsIotMqtt_Assert( pOperation->operation == AWS_IOT_MQTT_PUBLISH_TO_SERVER );
+
+            if( _calculateNextPublishRetry( pOperation->pMqttConnection,
+                                            pOperation->pPublishRetry ) == false )
+            {
+                /* PUBLISH retry failed to re-arm connection timer. Retransmission
+                 * will not be sent. */
+                pOperation->status = AWS_IOT_MQTT_SEND_ERROR;
+            }
+        }
     }
 
-    /* Create the receive queue. */
-    if( AwsIotQueue_Create( &_AwsIotMqttReceiveQueue,
-                            NULL,
-                            0 ) == false )
+    /* Once the MQTT packet has been sent, it may be freed if it will not be
+     * retransmitted and it's not a PINGREQ. Additionally, the entire operation
+     * may be destroyed if no notification method is set. */
+    if( ( pOperation->pPublishRetry == NULL ) &&
+        ( pOperation->operation != AWS_IOT_MQTT_PINGREQ ) )
     {
-        AwsIotQueue_Destroy( &_AwsIotMqttSendQueue );
+        /* Choose a free packet function. */
+        void ( * freePacket )( uint8_t * ) = AwsIotMqttInternal_FreePacket;
 
-        return AWS_IOT_MQTT_INIT_FAILED;
+        #if AWS_IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+            if( pOperation->pMqttConnection->network.freePacket != NULL )
+            {
+                freePacket = pOperation->pMqttConnection->network.freePacket;
+            }
+        #endif
+
+        freePacket( pOperation->pMqttPacket );
+        pOperation->pMqttPacket = NULL;
+
+        if( ( waitableOperation == false ) &&
+            ( pOperation->notify.callback.function == NULL ) )
+        {
+            AwsIotMqttInternal_DestroyOperation( pOperation );
+
+            return;
+        }
     }
 
-    /* Create the callback queue. */
-    notifyParams.notifyRoutine = _callbackThread;
-
-    if( AwsIotQueue_Create( &_AwsIotMqttCallbackQueue,
-                            &notifyParams,
-                            AWS_IOT_MQTT_MAX_CALLBACK_THREADS ) == false )
+    /* If a status was set by this function, notify of completion. */
+    if( pOperation->status != AWS_IOT_MQTT_STATUS_PENDING )
     {
-        AwsIotQueue_Destroy( &_AwsIotMqttSendQueue );
-        AwsIotQueue_Destroy( &_AwsIotMqttReceiveQueue );
-
-        return AWS_IOT_MQTT_INIT_FAILED;
+        AwsIotMqttInternal_Notify( pOperation );
+    }
+    /* Otherwise, add operation to the list of MQTT operations pending responses. */
+    else
+    {
+        AwsIotMutex_Lock( &( _IotMqttPendingResponseMutex ) );
+        IotListDouble_InsertTail( &( _IotMqttPendingResponse ), &( pOperation->link ) );
+        AwsIotMutex_Unlock( &( _IotMqttPendingResponseMutex ) );
     }
 
-    return AWS_IOT_MQTT_SUCCESS;
+    /* Notify a waitable operation that it has been sent. */
+    if( waitableOperation == true )
+    {
+        AwsIotSemaphore_Post( &( pOperation->notify.waitSemaphore ) );
+    }
 }
 
 /*-----------------------------------------------------------*/
 
-int AwsIotMqttInternal_TimerEventCompare( void * pData1,
-                                          void * pData2 )
+static void _invokeCallback( _mqttOperation_t * const pOperation )
 {
-    _mqttTimerEvent_t * pTimerEvent1 = ( _mqttTimerEvent_t * ) pData1,
-        *pTimerEvent2 = ( _mqttTimerEvent_t * ) pData2;
+    _mqttOperation_t * i = NULL, * pCurrent = NULL;
+    AwsIotMqttCallbackParam_t callbackParam = { .operation = { 0 } };
+
+    if( pOperation->incomingPublish == true )
+    {
+        /* Set the pointer to the first PUBLISH. */
+        i = pOperation;
+
+        /* Process each PUBLISH in the operation. */
+        while( i != NULL )
+        {
+            /* Save a pointer to the current PUBLISH and move the iterating
+             * pointer. */
+            pCurrent = i;
+            i = i->pNextPublish;
+
+            /* Process the current PUBLISH. */
+            if( ( pCurrent->publishInfo.pPayload != NULL ) &&
+                ( pCurrent->publishInfo.pTopicName != NULL ) )
+            {
+                callbackParam.message.info = pCurrent->publishInfo;
+
+                AwsIotMqttInternal_ProcessPublish( pCurrent->pMqttConnection,
+                                                   &callbackParam );
+            }
+
+            /* Free any buffers associated with the current PUBLISH message. */
+            if( pCurrent->freeReceivedData != NULL )
+            {
+                AwsIotMqtt_Assert( pCurrent->pReceivedData != NULL );
+                pCurrent->freeReceivedData( ( void * ) pCurrent->pReceivedData );
+            }
+
+            /* Free the current PUBLISH. */
+            AwsIotMqtt_FreeOperation( pCurrent );
+        }
+    }
+    else
+    {
+        /* Operations with no callback should not have been passed. */
+        AwsIotMqtt_Assert( pOperation->notify.callback.function != NULL );
+
+        AwsIotLogDebug( "Operation %s received from queue. Invoking user callback.",
+                        AwsIotMqtt_OperationType( pOperation->operation ) );
+
+        /* Set callback parameters. */
+        callbackParam.mqttConnection = pOperation->pMqttConnection;
+        callbackParam.operation.type = pOperation->operation;
+        callbackParam.operation.reference = pOperation;
+        callbackParam.operation.result = pOperation->status;
+
+        /* Invoke user callback function. */
+        pOperation->notify.callback.function( pOperation->notify.callback.param1,
+                                              &callbackParam );
+
+        /* Once the user-provided callback returns, the operation can be destroyed. */
+        AwsIotMqttInternal_DestroyOperation( pOperation );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+static void _processOperation( void * pArgument )
+{
+    _mqttOperation_t * pOperation = NULL;
+    _mqttOperationQueue_t * pQueue = ( _mqttOperationQueue_t * ) pArgument;
+
+    /* There are only two valid values for this function's argument. */
+    AwsIotMqtt_Assert( ( pQueue == &( _IotMqttCallback ) ) ||
+                       ( pQueue == &( _IotMqttSend ) ) );
+
+    AwsIotLogDebug( "New thread for processing MQTT operations started." );
+
+    while( true )
+    {
+        AwsIotLogDebug( "Removing oldest operation from MQTT pending operations." );
+
+        /* Remove the oldest operation from the queue of pending MQTT operations. */
+        AwsIotMutex_Lock( &( _IotMqttQueueMutex ) );
+
+        pOperation = IotLink_Container( _mqttOperation_t,
+                                        IotQueue_Dequeue( &( pQueue->queue ) ),
+                                        link );
+
+        /* If no operation was received, this thread will terminate. Increment
+         * number of available threads. */
+        if( pOperation == NULL )
+        {
+            AwsIotSemaphore_Post( &( pQueue->availableThreads ) );
+        }
+
+        AwsIotMutex_Unlock( &( _IotMqttQueueMutex ) );
+
+        /* Terminate thread if no operation was received. */
+        if( pOperation == NULL )
+        {
+            break;
+        }
+
+        /* Run thread routine based on given queue. */
+        if( pQueue == &( _IotMqttCallback ) )
+        {
+            /* Only incoming PUBLISH messages and completed operations should invoke
+             * the callback routine. */
+            AwsIotMqtt_Assert( ( pOperation->incomingPublish == true ) ||
+                               ( pOperation->status != AWS_IOT_MQTT_STATUS_PENDING ) );
+
+            _invokeCallback( pOperation );
+        }
+        else
+        {
+            /* Only operations with an allocated packet should be sent. */
+            AwsIotMqtt_Assert( pOperation->status == AWS_IOT_MQTT_STATUS_PENDING );
+            AwsIotMqtt_Assert( pOperation->pMqttPacket != NULL );
+            AwsIotMqtt_Assert( pOperation->packetSize != 0 );
+
+            _invokeSend( pOperation );
+        }
+    }
+
+    AwsIotLogDebug( "No more pending operations. Terminating MQTT processing thread." );
+}
+
+/*-----------------------------------------------------------*/
+
+int AwsIotMqttInternal_TimerEventCompare( const IotLink_t * const pTimerEventLink1,
+                                          const IotLink_t * const pTimerEventLink2 )
+{
+    const _mqttTimerEvent_t * pTimerEvent1 = IotLink_Container( _mqttTimerEvent_t,
+                                                                pTimerEventLink1,
+                                                                link );
+    const _mqttTimerEvent_t * pTimerEvent2 = IotLink_Container( _mqttTimerEvent_t,
+                                                                pTimerEventLink2,
+                                                                link );
 
     if( pTimerEvent1->expirationTime < pTimerEvent2->expirationTime )
     {
@@ -587,20 +576,17 @@ void AwsIotMqttInternal_DestroyOperation( void * pData )
     if( ( pOperation->operation == AWS_IOT_MQTT_PUBLISH_TO_SERVER ) &&
         ( pOperation->pPublishRetry != NULL ) )
     {
-        AwsIotMutex_Lock( &( pOperation->pMqttConnection->timerEventList.mutex ) );
+        AwsIotMutex_Lock( &( pOperation->pMqttConnection->timerMutex ) );
 
-        /* Remove the timer event from the timer event list before freeing it. */
-        if( AwsIotList_FindFirstMatch( pOperation->pMqttConnection->timerEventList.pHead,
-                                       _TIMER_EVENT_LINK_OFFSET,
-                                       pOperation->pPublishRetry,
-                                       NULL ) != NULL )
-        {
-            AwsIotList_Remove( &( pOperation->pMqttConnection->timerEventList ),
-                               &( pOperation->pPublishRetry->link ),
-                               _TIMER_EVENT_LINK_OFFSET );
-        }
+        /* Remove the timer event from the timer event list before freeing it.
+         * The return value of this function is not checked because it always
+         * equals the publish retry event or is NULL. */
+        ( void ) IotListDouble_RemoveFirstMatch( &( pOperation->pMqttConnection->timerEventList ),
+                                                 NULL,
+                                                 NULL,
+                                                 pOperation->pPublishRetry );
 
-        AwsIotMutex_Unlock( &( pOperation->pMqttConnection->timerEventList.mutex ) );
+        AwsIotMutex_Unlock( &( pOperation->pMqttConnection->timerMutex ) );
 
         AwsIotMqtt_FreeTimerEvent( pOperation->pPublishRetry );
     }
@@ -617,43 +603,53 @@ void AwsIotMqttInternal_DestroyOperation( void * pData )
 
 /*-----------------------------------------------------------*/
 
-void AwsIotMqttInternal_Notify( _mqttOperation_t * const pOperation )
+AwsIotMqttError_t AwsIotMqttInternal_EnqueueOperation( _mqttOperation_t * const pOperation,
+                                                       _mqttOperationQueue_t * const pQueue )
 {
-    /* If the operation is waiting, post to its wait semaphore and return. */
-    if( ( pOperation->flags & AWS_IOT_MQTT_FLAG_WAITABLE ) == AWS_IOT_MQTT_FLAG_WAITABLE )
-    {
-        AwsIotSemaphore_Post( &( pOperation->notify.waitSemaphore ) );
+    AwsIotMqttError_t status = AWS_IOT_MQTT_SUCCESS;
 
-        return;
-    }
+    /* The given operation must not already be queued. */
+    AwsIotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) == false );
 
-    /* Add the operation to the callback queue if a callback was set. */
-    if( pOperation->notify.callback.function != NULL )
+    /* Check that the queue argument is either the callback queue or send queue. */
+    AwsIotMqtt_Assert( ( pQueue == &( _IotMqttCallback ) ) ||
+                       ( pQueue == &( _IotMqttSend ) ) );
+
+    /* Lock mutex for exclusive access to queues. */
+    AwsIotMutex_Lock( &( _IotMqttQueueMutex ) );
+
+    /* Add operation to queue. */
+    IotQueue_Enqueue( &( pQueue->queue ), &( pOperation->link ) );
+
+    /* Check if a new thread can be created. */
+    if( AwsIotSemaphore_TryWait( &( pQueue->availableThreads ) ) == true )
     {
-        if( AwsIotQueue_InsertHead( &_AwsIotMqttCallbackQueue,
-                                    &( pOperation->link ) ) != true )
+        /* Create new thread. */
+        if( AwsIot_CreateDetachedThread( _processOperation,
+                                         pQueue ) == false )
         {
-            AwsIotLogWarn( "Failed to create new callback thread." );
+            /* New thread could not be created. Remove enqueued operation and
+             * report error. */
+            IotQueue_Remove( &( pOperation->link ) );
+            AwsIotSemaphore_Post( &( pQueue->availableThreads ) );
+            status = AWS_IOT_MQTT_NO_MEMORY;
         }
     }
-    else
-    {
-        /* Destroy the operation if no callback was set. */
-        AwsIotMqttInternal_DestroyOperation( pOperation );
-    }
+
+    AwsIotMutex_Unlock( &( _IotMqttQueueMutex ) );
+
+    return status;
 }
 
 /*-----------------------------------------------------------*/
 
-AwsIotMqttError_t AwsIotMqttInternal_OperationFind( AwsIotQueue_t * const pQueue,
-                                                    AwsIotMqttOperationType_t operation,
-                                                    const uint16_t * const pPacketIdentifier,
-                                                    _mqttOperation_t ** const pOutput )
+_mqttOperation_t * AwsIotMqttInternal_FindOperation( AwsIotMqttOperationType_t operation,
+                                                     const uint16_t * const pPacketIdentifier )
 {
     _mqttOperation_t * pResult = NULL;
     _operationMatchParam_t param = { 0 };
 
-    AwsIotLogDebug( "Searching for in-progress operation %s in MQTT receive queue.",
+    AwsIotLogDebug( "Searching for in-progress operation %s in MQTT operations pending response.",
                     AwsIotMqtt_OperationType( operation ) );
 
     if( pPacketIdentifier != NULL )
@@ -665,29 +661,69 @@ AwsIotMqttError_t AwsIotMqttInternal_OperationFind( AwsIotQueue_t * const pQueue
     param.operation = operation;
     param.pPacketIdentifier = pPacketIdentifier;
 
-    /* Find the first matching element in the queue. */
-    pResult = AwsIotQueue_RemoveFirstMatch( pQueue,
-                                            _OPERATION_LINK_OFFSET,
-                                            &param,
-                                            _mqttOperation_match );
+    /* Find the first matching element in the list. */
+    AwsIotMutex_Lock( &( _IotMqttPendingResponseMutex ) );
+    pResult = IotLink_Container( _mqttOperation_t,
+                                 IotListDouble_RemoveFirstMatch( &( _IotMqttPendingResponse ),
+                                                                 NULL,
+                                                                 _mqttOperation_match,
+                                                                 &param ),
+                                 link );
+    AwsIotMutex_Unlock( &( _IotMqttPendingResponseMutex ) );
 
     /* The result will be NULL if no corresponding operation was found in the
-     * queue. */
+     * list. */
     if( pResult == NULL )
     {
         AwsIotLogDebug( "In-progress operation %s not found.",
                         AwsIotMqtt_OperationType( operation ) );
-
-        return AWS_IOT_MQTT_BAD_PARAMETER;
+    }
+    else
+    {
+        AwsIotLogDebug( "Found in-progress operation %s.",
+                        AwsIotMqtt_OperationType( operation ) );
     }
 
-    /* If a corresponding operation was found, set the output parameter. */
-    *pOutput = pResult;
+    return pResult;
+}
 
-    AwsIotLogDebug( "Found in-progress operation %s.",
-                    AwsIotMqtt_OperationType( operation ) );
+/*-----------------------------------------------------------*/
 
-    return AWS_IOT_MQTT_SUCCESS;
+void AwsIotMqttInternal_Notify( _mqttOperation_t * const pOperation )
+{
+    /* Remove any lingering subscriptions if a SUBSCRIBE failed. Rejected
+     * subscriptions are removed by the deserializer, so not removed here. */
+    if( ( pOperation->operation == AWS_IOT_MQTT_SUBSCRIBE ) &&
+        ( pOperation->status != AWS_IOT_MQTT_SUCCESS ) &&
+        ( pOperation->status != AWS_IOT_MQTT_SERVER_REFUSED ) )
+    {
+        AwsIotMqttInternal_RemoveSubscriptionByPacket( pOperation->pMqttConnection,
+                                                       pOperation->packetIdentifier,
+                                                       -1 );
+    }
+
+    /* If the operation is waitable, post to its wait semaphore and return.
+     * Otherwise, enqueue it for callback. */
+    if( ( pOperation->flags & AWS_IOT_MQTT_FLAG_WAITABLE ) == AWS_IOT_MQTT_FLAG_WAITABLE )
+    {
+        AwsIotSemaphore_Post( &( pOperation->notify.waitSemaphore ) );
+    }
+    else
+    {
+        if( pOperation->notify.callback.function != NULL )
+        {
+            if( AwsIotMqttInternal_EnqueueOperation( pOperation,
+                                                     &( _IotMqttCallback ) ) != AWS_IOT_MQTT_SUCCESS )
+            {
+                AwsIotLogWarn( "Failed to create new callback thread." );
+            }
+        }
+        else
+        {
+            /* Destroy the operation if no callback was set. */
+            AwsIotMqttInternal_DestroyOperation( pOperation );
+        }
+    }
 }
 
 /*-----------------------------------------------------------*/
