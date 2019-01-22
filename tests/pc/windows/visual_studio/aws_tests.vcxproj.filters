@@ -226,6 +226,9 @@
     <Filter Include="application_code\common_tests\serializer">
       <UniqueIdentifier>{63328ee3-6080-46cf-9f66-f8252bc6fb18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\metrics">
+      <UniqueIdentifier>{b454a175-6acd-4b03-8418-ab8368543cc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -849,6 +852,21 @@
     <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_defender.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_defender_internal.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_wrapper_metrics.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_metrics.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
@@ -1468,6 +1486,30 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_json.c">
       <Filter>application_code\common_tests\serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_mqtt.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_collector.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_metrics_posix.c">
+      <Filter>lib\aws\utils\platform\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_defender_posix.c">
+      <Filter>lib\aws\utils\platform\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c">
+      <Filter>lib\aws\metrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c">
+      <Filter>lib\aws\secure_sockets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api.c">
+      <Filter>application_code\common_tests\defender</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -576,8 +576,7 @@ void _rejectCallback( void * pArgument,
 
     AwsIotLogError( "Metrics report was rejected by defender service." );
 
-    /* In rejected case, report and MQTT message must exist. */
-    AwsIotDefender_Assert( AwsIotDefenderInternal_GetReportBuffer() );
+    /* In rejected case, MQTT message must exist. */
     AwsIotDefender_Assert( pPublish->message.info.pPayload );
 
     AwsIotDefenderCallbackInfo_t callbackInfo;

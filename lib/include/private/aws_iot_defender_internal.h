@@ -41,7 +41,8 @@
 /* Platform thread include. */
 #include "platform/aws_iot_threads.h"
 
-#include "aws_iot_queue.h"
+/* Double linked list include. */
+#include "iot_linear_containers.h"
 
 /**
  * @def AwsIotDefender_Assert( expression )

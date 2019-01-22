@@ -145,6 +145,18 @@
     <Filter Include="lib\aws\utils\platform\static_memory">
       <UniqueIdentifier>{5179a7d9-0f4e-4e42-8d0a-04e7e70061af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\serializer">
+      <UniqueIdentifier>{90684f45-2ace-46be-8599-bbff310f87aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\serializer\cbor">
+      <UniqueIdentifier>{2723458c-2f2b-4afe-a111-2d8fc997fea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\serializer\json">
+      <UniqueIdentifier>{720e1616-b32e-4e22-ae4c-5928592c4cce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\aws\metrics">
+      <UniqueIdentifier>{b1d77a3f-e396-4722-94c6-2301cc8b3f37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c">
@@ -668,6 +680,42 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\common\aws_iot_json_utils.c">
       <Filter>lib\aws\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_collector.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_mqtt.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_decoder.c">
+      <Filter>lib\aws\serializer\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_encoder.c">
+      <Filter>lib\aws\serializer\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_decoder.c">
+      <Filter>lib\aws\serializer\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c">
+      <Filter>lib\aws\serializer\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_defender_posix.c">
+      <Filter>lib\aws\utils\platform\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_metrics_posix.c">
+      <Filter>lib\aws\utils\platform\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\defender\aws_iot_demo_defender.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c">
+      <Filter>lib\aws\metrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c">
+      <Filter>lib\aws\secure_sockets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1312,6 +1360,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h">
       <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_defender.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_metrics.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_defender_internal.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_wrapper_metrics.h">
+      <Filter>lib\aws\include\private</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

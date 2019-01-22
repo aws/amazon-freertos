@@ -96,10 +96,9 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_defender.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_json_utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h" />
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_metrics.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_mqtt.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_queue.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h" />

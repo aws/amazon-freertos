@@ -29,7 +29,7 @@
 #define _IOT_METRICS_H_
 
 #include <stdint.h>
-#include "aws_iot_queue.h"
+#include "iot_linear_containers.h"
 
 /**
  * @def IotMetrics_Assert( expression )
@@ -106,7 +106,7 @@ typedef struct IotMetricsTcpConnection
     void * pHandle;
     uint16_t remotePort;
     uint32_t remoteIP;
-    AwsIotLink_t link;
+    IotLink_t link;
 } IotMetricsTcpConnection_t;
 
 /**
@@ -116,7 +116,7 @@ typedef struct IotMetricsListCallback
 {
     void * param1;
     void ( * function )( void * param1,
-                         AwsIotList_t * pMetricsList ); /* pMetricsList is guaranteed a valid metrics list. */
+                         IotListDouble_t * pMetricsList ); /* pMetricsList is guaranteed a valid metrics list. */
 } IotMetricsListCallback_t;
 
 /**

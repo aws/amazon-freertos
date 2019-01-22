@@ -77,7 +77,7 @@ void _defenderCallback( void * param1,
 {
     ( void ) param1;
 
-    AwsIotLogInfo( "User's callback is invoked on event %d.", pCallbackInfo->eventType );
+    AwsIotLogInfo( "User's callback is invoked on event %s.", AwsIotDefender_DescribeEventType( pCallbackInfo->eventType ) );
 
     /* Print out the sent metrics report if there is. */
     if( pCallbackInfo->pMetricsReport != NULL )

@@ -87,7 +87,7 @@ static AwsIotDefenderEventType_t getLatestMetricsData();
 static void freeMetricsData();
 
 static void tcpConnectionsCallback( void * param1,
-                                    AwsIotList_t * pTcpConnectionsMetricsList );
+                                    IotListDouble_t * pTcpConnectionsMetricsList );
 
 static void _serialize();
 
@@ -349,20 +349,14 @@ static void freeMetricsData()
 /*-----------------------------------------------------------*/
 
 static void tcpConnectionsCallback( void * param1,
-                                    AwsIotList_t * pTcpConnectionsMetricsList )
+                                    IotListDouble_t * pTcpConnectionsMetricsList )
 {
     AwsIotDefenderEventType_t * pEventError = ( AwsIotDefenderEventType_t * ) param1;
 
-    uint8_t total = 0;
-    AwsIotLink_t * pConnectionLink = pTcpConnectionsMetricsList->pHead;
+    IotLink_t * pConnectionLink = IotListDouble_PeekHead( pTcpConnectionsMetricsList );
     IotMetricsTcpConnection_t * pConnection = NULL;
-    uint8_t i = 0;
 
-    /* Count total connections. */
-    for( ; pConnectionLink != NULL; pConnectionLink = pConnectionLink->pNext )
-    {
-        total++;
-    }
+    size_t total = IotListDouble_Count( pTcpConnectionsMetricsList );
 
     /* If there is at least one TCP connection. */
     if( total > 0 )
@@ -373,14 +367,20 @@ static void tcpConnectionsCallback( void * param1,
         if( _metrics.tcpConns.pArray != NULL )
         {
             /* Set count only the memory allocation succeeds. */
-            _metrics.tcpConns.count = total;
+            _metrics.tcpConns.count = ( uint8_t ) total;
 
-            for( pConnectionLink = pTcpConnectionsMetricsList->pHead; pConnectionLink != NULL; pConnectionLink = pConnectionLink->pNext )
+            /* At least one element in the list*/
+            AwsIotDefender_Assert( pConnectionLink );
+
+            for( uint8_t i = 0; i < total; i++ )
             {
-                pConnection = AwsIotLink_Container( pConnectionLink, AwsIotLink_Offset( IotMetricsTcpConnection_t, link ) );
+                pConnection = IotLink_Container( IotMetricsTcpConnection_t, pConnectionLink, link );
 
                 /* Copy to new allocated array. */
                 _metrics.tcpConns.pArray[ i++ ] = *pConnection;
+
+                /* Iterate to next one. */
+                pConnectionLink = pConnectionLink->pNext;
             }
         }
         else
