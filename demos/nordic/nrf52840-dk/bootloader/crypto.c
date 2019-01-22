@@ -34,26 +34,26 @@ ret_code_t xReadCertificate(){
     uint8_t* pucCertBegin = strchr (signingcredentialSIGNING_CERTIFICATE_PEM, '\n');
     if (pucCertBegin == NULL)
     {
-        return NULL;
+        return NRF_ERROR_INTERNAL;
     }
     pucCertBegin += 1;
     /* Skip the "END CERTIFICATE" */
     uint8_t* pucCertEnd = strrchr(pucCertBegin, '\n');
     if (pucCertEnd == NULL)
     {
-        return NULL;
+        return NRF_ERROR_INTERNAL;
     }
     mbedtls_base64_decode(pucDecodedCertificate, 0, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     mbedtls_base64_decode(pucDecodedCertificate, ulDecodedCertificateSize, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     /* Find the tag of the ECDSA public signature*/
     uint8_t * pucPublicKeyStart = strstr(pucDecodedCertificate, ASN_1_ECDSA_TAG);
     if (pucPublicKeyStart == NULL) {
-        return NULL;
+        return NRF_ERROR_INTERNAL;
     }
     pucPublicKeyStart -= 4;
     ulPublicKeySize = pucPublicKeyStart[1] + 2;
     memcpy(pucPublicKey, pucPublicKeyStart, ulPublicKeySize);
-    return pucPublicKey;
+    return NRF_SUCCESS;
 }
 
 

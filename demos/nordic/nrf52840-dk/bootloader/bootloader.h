@@ -12,6 +12,11 @@
 #define HARDWARE_ID                    0
 #define STACK_BEGIN                    0x20040000                                      /* Starting address for the stack */
 #define MAX_PUBLIC_KEY_SIZE            96                                              /* Maximum size of the public key */
+#define MAX_FIRMWARE_SIZE              ( CODE_REGION_2_START - CODE_REGION_1_START )   /* Maximum firmware size */
+#define MAX_FIRMWARE_PAGES             ( MAX_FIRMWARE_SIZE / CODE_PAGE_SIZE )          /* Maximum firmware size in pages*/
+
+
+
 typedef struct
 {
     uint8_t pMagick[ MAGICK_SIZE ];           /* 7 byte pattern used to identify if application image is present on the image slot in flash. */
@@ -44,6 +49,30 @@ typedef enum
 typedef enum
 {
     FIRST_BANK, SECOND_BANK
-} Bank_t; /* Enum for the possible banks */
+} Bank_t;                                                           /* Enum for the possible banks */
+
+#define SWAP_STATUS_PAGE    (( uint8_t * ) ( 0x100000 - 31 * 0x400 )) /* Page containing status of swapping */
+#define SWAP_AREA_BEGIN     (( uint8_t * ) ( 0x100000 - 30 * 0x400 )) /* Pages for swapping data */
+#define SWAP_AREA_SIZE      4                                       /* Number of pages dedicated for swapping */
+#define CHUNK_SIZE_BYTES    ( SWAP_AREA_SIZE * CODE_PAGE_SIZE)      /* Size of a swapping chunk */
+
+typedef enum                                                        /* Swapping state */
+{
+    SWAP_NONE = 0xFF,
+    SWAP_FIRST_TO_TEMP = 0xFE,
+    SWAP_SECOND_TO_FIRST = 0xFC,
+    SWAP_TEMP_TO_SECOND = 0xF8,
+    SWAP_COMPLETED = SWAP_TEMP_TO_SECOND,
+    SWAP_IN_PROGRESS = 0x00
+} SwapState_t;
+
+typedef enum {
+    BANK_VALID,
+    BANK_NEW,
+    BANK_COMMIT_PENDING,
+    BANK_NORDIC,
+    BANK_NORDIC_DESCRIPTOR,
+    BANK_INVALID
+} BankState_t;
 
 #endif /* __BOOTLOADER_H */
