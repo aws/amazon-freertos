@@ -28,6 +28,11 @@
  * It updates metrics of sockets in relevant socket functions.
  */
 
+/* Build using a config header, if provided. */
+#ifdef AWS_IOT_CONFIG_FILE
+    #include AWS_IOT_CONFIG_FILE
+#endif
+
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
  * from redefining in aws_secure_sockets_wrapper_metrics.h */
 #define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE

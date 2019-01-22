@@ -13,6 +13,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/crypto \
         $(AMAZON_FREERTOS_LIB_DIR)/wifi/portable/espressif/esp32_devkitc_esp_wrover_kit \
         $(AMAZON_FREERTOS_LIB_DIR)/ota/portable/espressif/esp32_devkitc_esp_wrover_kit \
+        $(AMAZON_FREERTOS_LIB_DIR)/secure_sockets \
         $(AMAZON_FREERTOS_LIB_DIR)/secure_sockets/portable/freertos_plus_tcp \
         $(AMAZON_FREERTOS_LIB_DIR)/pkcs11/portable/espressif/esp32_devkitc_esp_wrover_kit \
         $(AMAZON_FREERTOS_LIB_DIR)/pkcs11/mbedtls \
@@ -27,6 +28,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/device_information \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/mqtt_ble \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/wifi_provisioning \
+        $(AMAZON_FREERTOS_LIB_DIR)/metrics \
         $(AMAZON_FREERTOS_LIB_DIR)/serializer/json \
         $(AMAZON_FREERTOS_LIB_DIR)/serializer/cbor \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/jsmn \
