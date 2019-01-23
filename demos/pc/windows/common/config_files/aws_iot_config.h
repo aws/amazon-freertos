@@ -33,6 +33,9 @@
 #define AWS_IOT_LOG_LEVEL_DEFENDER    AWS_IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_DEMO        AWS_IOT_LOG_INFO
 
+/* Enable metrics on secure sockets. This must be defined to enable socket metrics. */
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+
 /* Include the default configuration file at the bottom of this file. */
 #include "aws_iot_config_common.h"
 

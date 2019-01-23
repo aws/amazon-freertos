@@ -42,7 +42,7 @@
 #define _isArrayOrMap( dataType )                          ( ( ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) || ( ( dataType ) == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
 
 static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                      uint8_t * pDataBuffer,
+                                      const uint8_t * pDataBuffer,
                                       size_t maxSize );
 static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
                                      AwsIotSerializerDecoderObject_t * pValueObject );
@@ -250,7 +250,7 @@ static AwsIotSerializerError_t _createDecoderObject( _cborValueWrapper_t * pCbor
 /*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                      uint8_t * pDataBuffer,
+                                      const uint8_t * pDataBuffer,
                                       size_t maxSize )
 {
     CborParser * pCborParser = pvPortMalloc( sizeof( CborParser ) );

@@ -205,9 +205,6 @@
 #define AWS_IOT_TEST_PRIVATE_KEY_LENGTH    clientcredentialCLIENT_PRIVATE_KEY_LENGTH
 #define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
 
-/* Enable socket metrics for defender tests. */
-#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
-
 /* Defender library configuration. */
 #define AWS_IOT_DEFENDER_FORMAT          AWS_IOT_DEFENDER_FORMAT_CBOR
 #define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 1 )

@@ -271,7 +271,7 @@ typedef struct AwsIotSerializerDecodeInterface
      * @return AWS_IOT_SERIALIZER_SUCCESS if successful
      */
     AwsIotSerializerError_t ( * init )( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                        uint8_t * pDataBuffer,
+                                        const uint8_t * pDataBuffer,
                                         size_t maxSize );
 
     /**
