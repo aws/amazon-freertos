@@ -53,10 +53,10 @@
 /*-----------------------------------------------------------*/
 
 #define SHARED_BUFFER_SIZE      ( 10 )
-#define NUM_OF_PRODUCER         ( 1 )
-#define NUM_OF_CONSUMER         ( 1 )
+#define NUM_OF_PRODUCER         ( 10 )
+#define NUM_OF_CONSUMER         ( 10 )
 
-#define NUM_OF_EXE_ITERATION_PRODUCER ( 10000 )                                                               /* How many iterations EACH producer thread executes. */
+#define NUM_OF_EXE_ITERATION_PRODUCER ( 1000 )                                                               /* How many iterations EACH producer thread executes. */
 #define NUM_OF_EXE_ITERATION_CONSUMER ( NUM_OF_EXE_ITERATION_PRODUCER * NUM_OF_PRODUCER / NUM_OF_CONSUMER )  /* How many iterations EACH consumer thread executes. Fraction is not taken care of. */
 
 /*-----------------------------------------------------------*/
@@ -74,10 +74,10 @@ static sem_t xSemaphore_available;
 static int pBuffer[ SHARED_BUFFER_SIZE ];
 
 static int iWriteIndex;
-static pthread_mutex_t xWriteMutex;
+//static pthread_mutex_t xWriteMutex;           /* Commenting out purely for profiling interest. */
 
 static int iReadIndex;
-static pthread_mutex_t xReadMutex;
+//static pthread_mutex_t xReadMutex;            /* Commenting out purely for profiling interest. */
 
 #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 1 )
     static int iDummyCummulator;
@@ -104,15 +104,12 @@ static void * prvProducerThread( void * pvArgs )
 
         i++;
 
-        #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 0 )
-            pthread_mutex_lock( &xWriteMutex );
-        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
+        /* For producer-consumer to work correctly, you need mutex around below two lines.
+         * Here, not using mutex, for the interest of profiling. */
         pBuffer[ iWriteIndex % SHARED_BUFFER_SIZE ] = iWriteIndex;
         iWriteIndex++;
-        #if (TRACING_DISABLE_MUTEX_AROUND_INDEXES == 0 )
-            pthread_mutex_unlock( &xWriteMutex );
-        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
 
+        /* Below is for debugging purpose, should not enable IO during profiling. */
         //configPRINTF( ( "%s -- Producer[%d] posted. Iteration [%d].\r\n", __FUNCTION__, iThreadId, i ) );
 
         #if ( TRACING_THREAD_PRODUCER == 1 )
@@ -169,19 +166,16 @@ static void * prvConsumerThread( void * pvArgs )
 
         i++;
 
-        #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 0 )
-            pthread_mutex_lock( &xReadMutex );
-        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
+        /* For producer-consumer to work correctly, you need mutex around below two lines.
+         * Here, not using mutex, for the interest of profiling. */
         iTemp = pBuffer[ iReadIndex % SHARED_BUFFER_SIZE ];
         iReadIndex++;
-        #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 0 )
-            pthread_mutex_unlock( &xReadMutex );
-        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
 
+        /* Below is for debugging purpose, should not enable IO during profiling. */
         //configPRINTF( ( "%s -- Consumer[%d] received [%d]. Iteration [%d]\r\n", __FUNCTION__, iThreadId, iTemp, i ) );
-        #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 1 )
-            iDummyCummulator += iTemp;
-        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
+
+        /* For the interest of profiling, do something with the value read from the buffer. */
+        iDummyCummulator += iTemp;
 
         sem_post( &xSemaphore_empty );
     }
@@ -228,11 +222,13 @@ void vKernelProfilingMultiProducerConsumerMutex( int iPriority )
     /* Reset global variables. */
     iReadIndex = 0;
     iWriteIndex = 0;
-    xReadMutex = PTHREAD_MUTEX_INITIALIZER;
-    xWriteMutex = PTHREAD_MUTEX_INITIALIZER;
 
-    pthread_mutex_init( &xReadMutex, NULL );
-    pthread_mutex_init( &xWriteMutex, NULL );
+    /* Commenting out mutex for profiling interest. */
+    //xReadMutex = PTHREAD_MUTEX_INITIALIZER;
+    //xWriteMutex = PTHREAD_MUTEX_INITIALIZER;
+
+    //pthread_mutex_init( &xReadMutex, NULL );
+    //pthread_mutex_init( &xWriteMutex, NULL );
 
     /* Initialize semaphore_empty with 10, since producer has not started. */
     sem_init( &xSemaphore_empty, 0, SHARED_BUFFER_SIZE );

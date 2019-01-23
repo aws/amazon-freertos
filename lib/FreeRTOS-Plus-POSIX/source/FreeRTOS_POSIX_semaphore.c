@@ -38,123 +38,10 @@
 #include "FreeRTOS_POSIX/utils.h"
 #include "FreeRTOS_POSIX/tracing.h"
 
-/**
- * Enabling semaphore tracing
- *
- * @warning No thread guarantee is assured. This is not user interface,
- * whoever using tracing suppose to control how interfaces are called.
- *
- * @warning Performance counter shall be started prior. In this file,
- * we are only calling aws_hal_perfcounter_get_value().
- */
 
-#if ( POSIX_SEMAPHORE_TRACING == 1)
-    #include <stdint.h>
-    #include "FreeRTOS_POSIX/pthread.h"
-    #include "aws_hal_perfcounter.h"
-
-    typedef struct tracingData
-    {
-        uint64_t        ullPerfCounter_cycleElapsed;
-        int             iPerfCounter_numOfEntry;
-        pthread_mutex_t xPerfData_mutex;
-    } tracingData_t;
-
-    /* Private tracing data.
-     * for simplicity, just make two variables and 4 getters to get trace value.
-     */
-    tracingData_t xTracingData_timedwait = { 0 };
-    tracingData_t xTracingData_post = { 0 };
-    /**
-     * @brief Initialize perf counter related
-     *
-     * This interface is called by top application, which intends to
-     * profile interfaces implemented in this file.
-     *
-     * @warning no thread safety is guaranteed.
-     */
-    void FreeRTOS_POSIX_semaphore_initPerfCounterCycleElapsed( void )
-    {
-        /* Init tracing data structure for sem_timedwait(). */
-        xTracingData_timedwait.ullPerfCounter_cycleElapsed = 0;
-        xTracingData_timedwait.iPerfCounter_numOfEntry = 0;
-        xTracingData_timedwait.xPerfData_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-        pthread_mutex_init( &xTracingData_timedwait.xPerfData_mutex, NULL );
-
-        /* Init tracing data structure for sem_post(). */
-        xTracingData_post.ullPerfCounter_cycleElapsed = 0;
-        xTracingData_post.iPerfCounter_numOfEntry = 0;
-        xTracingData_post.xPerfData_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-        pthread_mutex_init( &xTracingData_post.xPerfData_mutex, NULL );
-    }
-
-    /**
-     * @brief De-initialize perf counter related.
-     *
-     * This interface must be called by top application, which intends to
-     * profile interfaces implemented in this file.
-     *
-     * @warning no thread safety is guaranteed.
-     */
-    void FreeRTOS_POSIX_semaphore_deInitPerfCounterCycleElapsed( void )
-    {
-        /* De-init mutex used for sem_timedwait() tracing. */
-        pthread_mutex_destroy( &xTracingData_timedwait.xPerfData_mutex );
-
-        /* De-init mutex used for sem_post() tracing. */
-        pthread_mutex_destroy( &xTracingData_post.xPerfData_mutex );
-    }
-
-    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed_timedwait( void )
-    {
-        return xTracingData_timedwait.ullPerfCounter_cycleElapsed;
-    }
-
-    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry_timedwait( void )
-    {
-        return xTracingData_timedwait.iPerfCounter_numOfEntry;
-    }
-
-    uint64_t FreeRTOS_POSIX_semaphore_getPerfCounterCycleElapsed_post( void )
-    {
-        return xTracingData_post.ullPerfCounter_cycleElapsed;
-    }
-
-    int FreeRTOS_POSIX_semaphore_getPerfCounterNumOfEntry_post( void )
-    {
-        return xTracingData_post.iPerfCounter_numOfEntry;
-    }
-
-    static void prvTraceFunctionIn( uint64_t * pullCounterValue )
-    {
-        *pullCounterValue = aws_hal_perfcounter_get_value();
-    }
-
-
-    static void prvTraceFunctionOut( uint64_t * pullCounterValue, tracingData_t * pxTracingDataHandle )
-    {
-        *pullCounterValue = aws_hal_perfcounter_get_value() - *pullCounterValue;
-
-        /* Increase total time elapsed atomically. */
-        pthread_mutex_lock( &pxTracingDataHandle->xPerfData_mutex );
-        pxTracingDataHandle->ullPerfCounter_cycleElapsed += *pullCounterValue;
-        pxTracingDataHandle->iPerfCounter_numOfEntry += 1;;
-        pthread_mutex_unlock( &pxTracingDataHandle->xPerfData_mutex );
-
-        # if ( POSIX_SEMAPHORE_TRACING_VERBOSE == 1 )
-        configPRINTF( ( "%s -- time elapsed %ld, total elapsed %ld, total entry %d\r\n",
-                        __FUNCTION__,
-                        (long)*pullCounterValue,
-                        (long)pxTracingDataHandle->ullPerfCounter_cycleElapsed,
-                        pxTracingDataHandle->iPerfCounter_numOfEntry ) );
-        #endif /* POSIX_SEMAPHORE_TRACING_VERBOSE*/
-    }
-
-#endif /* POSIX_SEMAPHORE_TRACING */
-
+/* Profiling within profiling -- See how many times program lands in a branch of interest. */
 #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1 )
+
     #include "FreeRTOS_POSIX/pthread.h"
     pthread_mutex_t xBranchMutex_post = PTHREAD_MUTEX_INITIALIZER;
     int iBranchTaken_post;
@@ -268,35 +155,42 @@ int sem_init( sem_t * sem,
 
 int sem_post( sem_t * sem )
 {
+<<<<<<< HEAD
     #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_POST == 1)
         uint64_t ullInvocationTimeElapsed = 0;
         prvTraceFunctionIn( &ullInvocationTimeElapsed );
     #endif /* POSIX_SEMAPHORE_TRACING */
 
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
+=======
+    sem_internal_t * pxSem = ( sem_internal_t * ) ( *sem );
+>>>>>>> This is the exact code used in generating "Profiling -- Synchronization".
 
     #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 || POSIX_SEMAPHORE_IMPLEMENTATION == 2 )
         int32_t previousValue = AwsIotAtomic_Add( &pxSem->value, 1 );
 
         if ( previousValue > 0)
         {
-            /* There isn't any task blocked by this semaphore. */
-#if ( POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1)
-            pthread_mutex_lock( &xBranchMutex_post );
-            iBranchTaken_post++;
-            pthread_mutex_unlock( &xBranchMutex_post);
-#endif /* POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
+            /* There isn't any task blocked by this semaphore. Do nothing. */
+
+            /* Below should NOT be enabled when attempting to get cycle elapsed.
+             * Shall ONLY use below for branch taken stat. */
+            #if ( POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1)
+                pthread_mutex_lock( &xBranchMutex_post );
+                iBranchTaken_post++;
+                pthread_mutex_unlock( &xBranchMutex_post);
+            #endif /* POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
         }
         else
     #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
         {
+            /* @todo With atomic, instead of giving FreeRTOS semaphore,
+             * need to force a reschedule.
+             */
+
             /* Give the semaphore using the FreeRTOS API. */
             ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
         }
-
-    #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_POST == 1)
-        prvTraceFunctionOut( &ullInvocationTimeElapsed, &xTracingData_post );
-    #endif /* POSIX_SEMAPHORE_TRACING */
 
     return 0;
 }
@@ -306,11 +200,6 @@ int sem_post( sem_t * sem )
 int sem_timedwait( sem_t * sem,
                    const struct timespec * abstime )
 {
-    #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_TIMEDWAIT == 1 )
-        uint64_t ullInvocationTimeElapsed = 0;
-        prvTraceFunctionIn( &ullInvocationTimeElapsed );
-    #endif /* POSIX_SEMAPHORE_TRACING */
-
     int iStatus = 0;
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
     TickType_t xDelay = portMAX_DELAY;
@@ -353,15 +242,22 @@ int sem_timedwait( sem_t * sem,
         if ( previousValue > 0 )
         {
             /* There is at least one semaphore, no need to block. */
-#if ( POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1)
-            pthread_mutex_lock( &xBranchMutex_wait );
-            iBranchTaken_wait++;
-            pthread_mutex_unlock( &xBranchMutex_wait);
-#endif /*POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT*/
+
+            /* Below should NOT be enabled when attempting to get cycle elapsed.
+             * Shall ONLY use below for branch taken stat. */
+            #if ( POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1)
+                pthread_mutex_lock( &xBranchMutex_wait );
+                iBranchTaken_wait++;
+                pthread_mutex_unlock( &xBranchMutex_wait);
+            #endif /*POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT*/
         }
         else
     #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
         {
+            /* @todo With atomic, instead of taking FreeRTOS semaphore,
+             * need to put self in "waiting" state, and force a reschedule.
+             */
+
             /* Take the semaphore using the FreeRTOS API. */
             if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxSem->xSemaphore,
                                 xDelay ) != pdTRUE )
@@ -382,10 +278,6 @@ int sem_timedwait( sem_t * sem,
                 iStatus = 0;
             }
         }
-
-    #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_TIMEDWAIT == 1 )
-        prvTraceFunctionOut( &ullInvocationTimeElapsed, &xTracingData_timedwait );
-    #endif /* POSIX_SEMAPHORE_TRACING */
 
     return iStatus;
 }
