@@ -42,6 +42,9 @@ extern const size_t otapalFLASH_END;
 #define otapalDESCRIPTOR_SIZE       NRF_FICR->CODEPAGESIZE                                     /* The size of the firmware descriptor */
 #define otapalMAGICK_SIZE           7
 
+/* This array need to be at most equal to a page. */
+#define otapalSERIALIZING_ARRAY_SIZE 1024 
+
 #define otapalMAX_PUBLIC_KEY_SIZE   96 /* Maximum size of the public key */
 typedef enum
 {

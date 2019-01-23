@@ -158,15 +158,15 @@ TEST_TEAR_DOWN( Full_OTA_PAL )
 
 TEST_GROUP_RUNNER( Full_OTA_PAL )
 {
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature );
     /* RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_NullParameters ); */ /* Not supported yet. */
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten );
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureNoBlockWritten );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureNoBlockWritten );
     #if ( otatestpalUSE_FILE_SYSTEM == 1 )
         RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_NonexistingCodeSignerCertificate );
     #endif
 
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CreateFileForRx_CreateAnyFile );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CreateFileForRx_CreateAnyFile );
     /* RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CreateFileForRx_NullParameters ) */ /* Not supported yet. */
 
     /* Other failure case testing for prvPAL_CreateFileForRx() is not possible
@@ -174,14 +174,14 @@ TEST_GROUP_RUNNER( Full_OTA_PAL )
      * to return failures for creating a new file. */
 
     /* RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_NullFileContext ); */ /* Not supported yet. */
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_OpenFile );
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_FileWithBlockWritten );
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_NullFileHandle );
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_NonExistentFile );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_OpenFile );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_FileWithBlockWritten );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_NullFileHandle );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_Abort_NonExistentFile );
 
     /* RUN_TEST_CASE( Full_OTA_PAL, prvPAL_WriteBlock_NullParameters ); */ /* Not supported yet. */
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_WriteBlock_WriteSingleByte );
-    RUN_TEST_CASE( Full_OTA_PAL, prvPAL_WriteBlock_WriteManyBlocks );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_WriteBlock_WriteSingleByte );
+  RUN_TEST_CASE( Full_OTA_PAL, prvPAL_WriteBlock_WriteManyBlocks );
 
     #ifdef WIN32
         /* This test resets the device so it is not valid for an MCU. */
@@ -558,6 +558,7 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteSingleByte )
 
     xOtaFile.pxSignature = &xSig;
     xOtaFile.pxSignature->usSize = ucInvalidSignatureLength;
+
     /* TEST: Write a byte of data. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
