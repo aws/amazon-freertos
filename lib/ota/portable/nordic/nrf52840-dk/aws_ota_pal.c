@@ -47,7 +47,6 @@
 /* Specify the OTA signature algorithm we support on this platform. */
 const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 const char pcOTA_PAL_Magick[ otapalMAGICK_SIZE ] = "@AFRTOS";
-const size_t otapalFLASH_END = ( size_t ) &__FLASH_segment_end__;
 /* Tag by which the beginning of the ECDSA in the public key can be found */
 const char pcOTA_PAL_ASN_1_ECDSA_TAG[] = "\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07";
 
@@ -457,7 +456,7 @@ static int16_t prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C )
     }
 
     memcpy( &xDescriptor.pMagick, pcOTA_PAL_Magick, otapalMAGICK_SIZE );
-    xDescriptor.ulStartAddress = otapalSECOND_BANK_START + otapalDESCRIPTOR_SIZE;
+    xDescriptor.ulStartAddress = otapalFIRST_BANK_START + otapalDESCRIPTOR_SIZE;
     xDescriptor.ulEndAddress = xDescriptor.ulStartAddress + C->ulFileSize;
     xDescriptor.ulExecutionAddress = xDescriptor.ulStartAddress; /* TODO: Check if this assumption is true */
     xDescriptor.ulHardwareID = 0;                                /* TODO: Fill the Hardware ID */

@@ -5,7 +5,7 @@
 #include "bootloader.h"
 #include "asn1utility.h"
 #include "aws_ota_codesigner_certificate.h"
-
+#include "nrf_bootloader.h"
 #include "mbedtls/base64.h"
 
 ret_code_t xReadCertificate();
@@ -34,26 +34,26 @@ ret_code_t xReadCertificate(){
     uint8_t* pucCertBegin = strchr (signingcredentialSIGNING_CERTIFICATE_PEM, '\n');
     if (pucCertBegin == NULL)
     {
-        return NULL;
+        return NRF_ERROR_INTERNAL;
     }
     pucCertBegin += 1;
     /* Skip the "END CERTIFICATE" */
     uint8_t* pucCertEnd = strrchr(pucCertBegin, '\n');
     if (pucCertEnd == NULL)
     {
-        return NULL;
+        return NRF_ERROR_INTERNAL;
     }
     mbedtls_base64_decode(pucDecodedCertificate, 0, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     mbedtls_base64_decode(pucDecodedCertificate, ulDecodedCertificateSize, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     /* Find the tag of the ECDSA public signature*/
     uint8_t * pucPublicKeyStart = strstr(pucDecodedCertificate, ASN_1_ECDSA_TAG);
     if (pucPublicKeyStart == NULL) {
-        return NULL;
+        return NRF_ERROR_INTERNAL;
     }
     pucPublicKeyStart -= 4;
     ulPublicKeySize = pucPublicKeyStart[1] + 2;
     memcpy(pucPublicKey, pucPublicKeyStart, ulPublicKeySize);
-    return pucPublicKey;
+    return NRF_SUCCESS;
 }
 
 
@@ -129,7 +129,7 @@ ret_code_t xVerifyImageSignature( uint8_t * pusImageStart )
 
     ImageDescriptor_t * descriptor = ( ImageDescriptor_t * ) ( pusImageStart );
 
-    xErrCode = xComputeSHA256Hash( ( uint8_t * ) descriptor->ulStartAddress, descriptor->ulEndAddress - descriptor->ulStartAddress, &xHash, &ulHashLength );
+    xErrCode = xComputeSHA256Hash( ( uint8_t * ) pusImageStart + DESCRIPTOR_SIZE, descriptor-> ulEndAddress - descriptor->ulStartAddress, &xHash, &ulHashLength );
     if (xErrCode == NRF_SUCCESS)
     {
         xErrCode = xVerifySignature( ( uint8_t * ) &xHash, ulHashLength, descriptor->pSignature, descriptor->ulSignatureSize );

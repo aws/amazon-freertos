@@ -48,17 +48,18 @@
  *
  */
 
-#include "nrf_mbr.h"
-#include "nrf_nvmc.h"
-#include "nrf_sdm.h"
+
 
 #include "app_error.h"
 #include "app_error_weak.h"
 #include "boards.h"
 #include "bootloader.h"
 #include "crypto.h"
-#include "nrf_bootloader.h"
+#include "nrf_mbr.h"
+#include "nrf_nvmc.h"
+#include "nrf_sdm.h"
 #include "nrf_bootloader_info.h"
+#include "nrf_bootloader.h"
 #include "nrf_delay.h"
 #include <stdint.h>
 
@@ -69,6 +70,8 @@ ret_code_t nrf_bootloader_flash_protect( uint32_t address,
                                          uint32_t size,
                                          bool read_protect );
 void vStartApplication( uint32_t start_addr );
+void vSwapImages();
+BankState_t xGetBankState( Bank_t xBank );
 
 static void on_error( void )
 {
@@ -121,34 +124,6 @@ void app_error_handler_bare( uint32_t error_code )
     on_error();
 }
 
-/** Check if the magick number of image located at the given is correct */
-bool bMagickCorrect( uint8_t * address )
-{
-    if( memcmp( address, AFR_MAGICK, MAGICK_SIZE ) == 0 )
-    {
-        return true;
-    }
-
-    return false;
-}
-
-/** Checks if the header of image located at the given is correct */
-ret_code_t bValidateHeader( uint8_t * address )
-{
-    ImageDescriptor_t * descriptor = ( ImageDescriptor_t * ) address;
-
-    if( !bMagickCorrect( address ) )
-    {
-        return NRF_ERROR_INVALID_DATA;
-    }
-
-    if( descriptor->ulHardwareID != HARDWARE_ID )
-    {
-        return NRF_ERROR_INVALID_DATA;
-    }
-
-    return NRF_SUCCESS;
-}
 
 /** Boots firmware at specific address */
 void vBoot( uint32_t address )
@@ -215,79 +190,44 @@ void vSetBankFlag( uint8_t usBank,
                           sizeof( new_desciptor ) );
 }
 
-/** Erases the descriptor of the second bank
- *  We do not erase the entire bank to save flash resource
- **/
+/** Erases the second bank **/
 void vEraseSecondBank()
 {
-    vEraseRegion( ( uint8_t * ) CODE_REGION_2_START, DESCRIPTOR_SIZE );
+    vEraseRegion( ( uint8_t * ) CODE_REGION_2_START, MAX_FIRMWARE_SIZE );
 }
 
 /** Commits the image from the second bank **/
 void vCommitSecondBank()
 {
-    vEraseRegion( ( uint8_t * ) CODE_REGION_1_START,
-                  DESCRIPTOR_SIZE + BANK2_DESCRIPTOR->ulEndAddress -
-                  BANK2_DESCRIPTOR->ulStartAddress );
-    ImageDescriptor_t new_desciptor;
-    /* We move image so we need to update addresses */
-    memcpy( &new_desciptor, BANK2_DESCRIPTOR, sizeof( new_desciptor ) );
-    new_desciptor.ulStartAddress = BANK2_DESCRIPTOR->ulStartAddress -
-                                   ( CODE_REGION_2_START - CODE_REGION_1_START );
-    new_desciptor.ulEndAddress = BANK2_DESCRIPTOR->ulEndAddress -
-                                 ( CODE_REGION_2_START - CODE_REGION_1_START );
-    new_desciptor.ulExecutionAddress =
-        BANK2_DESCRIPTOR->ulExecutionAddress -
-        ( CODE_REGION_2_START - CODE_REGION_1_START );
-    nrf_nvmc_write_bytes( CODE_REGION_1_START, ( uint8_t * ) &new_desciptor,
-                          sizeof( new_desciptor ) );
-    /* Copy the firmware */
-    nrf_nvmc_write_bytes( CODE_REGION_1_START + DESCRIPTOR_SIZE,
-                          ( uint8_t * ) CODE_REGION_2_START + DESCRIPTOR_SIZE,
-                          BANK2_DESCRIPTOR->ulEndAddress -
-                          BANK2_DESCRIPTOR->ulStartAddress );
-}
+    BankState_t xBank2State = xGetBankState( SECOND_BANK );
 
-
-#ifdef  __GNUC__
-    #pragma GCC push_options
-    #pragma GCC optimize ("O0")
-#endif
-int vBlinkLeds( LedStatus_t xStatus )
-{
-    nrf_gpio_cfg_output( LED_1 );
-    nrf_gpio_cfg_output( LED_2 );
-    nrf_gpio_pin_set( LED_2 );
-    nrf_gpio_pin_set( LED_1 );
-
-    switch( xStatus )
+    if( ( xBank2State == BANK_NORDIC ) || ( xBank2State == BANK_NORDIC_DESCRIPTOR ) )
     {
-        case LED_BOOT:
-
-            for( int i = 0; i < 4; i++ )
-            {
-                nrf_gpio_pin_toggle( LED_1 );
-                nrf_delay_ms( 100 );
-            }
-
-            break;
-
-        case LED_NO_CORRECT_FIRMWARE:
-
-            for( ; ; )
-            {
-                nrf_gpio_pin_toggle( LED_2 );
-                nrf_delay_ms( 400 );
-            }
-
-            break;
+        /* In the case of a nordic firmware in the second bank we don't know its length, so we copy the whole second bank to the first */
+        vEraseRegion( ( uint8_t * ) CODE_REGION_1_START, CODE_REGION_2_START - CODE_REGION_1_START );
+        /* Copy the firmware */
+        nrf_nvmc_write_bytes( CODE_REGION_1_START,
+                              ( uint8_t * ) CODE_REGION_2_START,
+                              CODE_REGION_2_START - CODE_REGION_1_START );
     }
-
-    return 0;
+    else
+    {
+        vEraseRegion( ( uint8_t * ) CODE_REGION_1_START,
+                      DESCRIPTOR_SIZE + BANK2_DESCRIPTOR->ulEndAddress -
+                      BANK2_DESCRIPTOR->ulStartAddress );
+        /* Copy descriptor */
+        nrf_nvmc_write_bytes( CODE_REGION_1_START, ( uint8_t * ) BANK2_DESCRIPTOR,
+                              sizeof( ImageDescriptor_t ) );
+        /* Copy the firmware */
+        nrf_nvmc_write_bytes( CODE_REGION_1_START + DESCRIPTOR_SIZE,
+                              ( uint8_t * ) CODE_REGION_2_START + DESCRIPTOR_SIZE,
+                              BANK2_DESCRIPTOR->ulEndAddress -
+                              BANK2_DESCRIPTOR->ulStartAddress );
+    }
 }
-#ifdef  __GNUC__
-    #pragma GCC pop_options
-#endif
+
+
+
 
 /**@brief Function for application main entry. */
 int main( void )
@@ -295,136 +235,179 @@ int main( void )
     volatile uint32_t xErrCode = NRF_SUCCESS;
 
     vBlinkLeds( LED_BOOT );
-    bool bBank1AFRHeader =
-        ( bValidateHeader( ( uint8_t * ) CODE_REGION_1_START ) == NRF_SUCCESS );
-    bool bBank2AFRHeader =
-        ( bValidateHeader( ( uint8_t * ) CODE_REGION_2_START ) == NRF_SUCCESS );
 
-    xCryptoInit();
-
-    if( bBank2AFRHeader ) /* We have a firmware in the second bank */
+    /* Make sure that previous swapping completed successfully */
+    if( SWAP_STATUS_PAGE[ 0 ] == SWAP_IN_PROGRESS )
     {
-        if( bBank1AFRHeader && ( BANK1_DESCRIPTOR->ulSequenceNumber >
-                                 BANK2_DESCRIPTOR->ulSequenceNumber ) )
-        {
-            /** The firmware in the second bank has lower number than the one in the
-             * first bank. It is incorrect and the second bank must be cleaned */
-            vEraseSecondBank();
-        }
-        else
-        {
-            xErrCode = xVerifyImageSignature( ( uint8_t * ) CODE_REGION_2_START );
-
-            if( xErrCode != NRF_SUCCESS ) /* The firmware in the second bank has an
-                                           * incorrect signature, erase its header */
-            {
-                vEraseRegion( ( uint8_t * ) CODE_REGION_2_START, DESCRIPTOR_SIZE );
-            }
-            else
-            {
-                /* We cannot boot from the second bank for now so we have to commit the image here.
-                 * The bootloader can support booting from any position, but the firmware must be made relocatable
-                 * Unfortunately, it leaves out the case when developer distributed a bad firmware.
-                 *
-                 * So, ideally, we need to get relocatable firmwares to work */
-
-                switch( BANK2_DESCRIPTOR->usImageFlags )
-                {
-                    case IMAGE_FLAG_NEW:
-
-                    /* In current setup the image in the second bank should not be marked as valid
-                     * but to support the future setups we allow that case */
-                    case IMAGE_FLAG_VALID:
-                        vCommitSecondBank();
-                        /* Check that committing was successfull by checking the signature of the first bank */
-                        xErrCode = xVerifyImageSignature( ( uint8_t * ) CODE_REGION_1_START );
-
-                        if( xErrCode == NRF_SUCCESS )
-                        {
-                            if( BANK2_DESCRIPTOR->usImageFlags == IMAGE_FLAG_NEW )
-                            { /* We need to notify the cloud only in the cases when image is new */
-                                vSetBankFlag( FIRST_BANK, IMAGE_FLAG_COMMIT_PENDING );
-                            }
-
-                            vEraseSecondBank();
-                            vBoot( BANK1_DESCRIPTOR->ulExecutionAddress );
-                        }
-                        else /* Something went wrong, try again */
-                        {
-                            NVIC_SystemReset();
-                        }
-
-                        break;
-
-                    case IMAGE_FLAG_INVALID:
-                        vEraseSecondBank();
-                        break;
-
-                    case IMAGE_FLAG_COMMIT_PENDING:
-
-                        /* We should never get here, so something went wrong. Off with the
-                         * header! */
-                        vEraseSecondBank();
-                        break;
-                }
-            }
-        }
+        vSwapImages();
     }
 
-    /* If we've got here, then the second bank is empty or invalid. */
+    xCryptoInit();
+    BankState_t xBank1State = xGetBankState( FIRST_BANK );
+    BankState_t xBank2State = xGetBankState( SECOND_BANK );
 
-    if( bBank1AFRHeader ) /* We have a firmware in the second bank */
+    switch( xBank1State )
     {
-        xErrCode = xVerifyImageSignature( ( uint8_t * ) CODE_REGION_1_START );
+        case BANK_VALID:
 
-        /* A whole lot of strange things could prevent setting flag to valid,
-         * so we threat CommitPending as a valid state; Anyway, we have already moved the second bank to the first,
-         * so we have no choice than to boot
-         * TODO: Consider the commit pending state a failure for the first bank when we implement the relocatable firmwares
-         */
-        if( ( xErrCode != NRF_SUCCESS ) || ( ( BANK1_DESCRIPTOR->usImageFlags != IMAGE_FLAG_VALID ) &&
-                                             ( BANK1_DESCRIPTOR->usImageFlags != IMAGE_FLAG_COMMIT_PENDING ) ) )
-        /* The first image is corrupted so we have to indicate it by blinking the LED2 */
-        {
-            vBlinkLeds( LED_NO_CORRECT_FIRMWARE ); /* Will blink the LED2 indefinitely */
-        }
-        else
-        {
-            vBoot( BANK1_DESCRIPTOR->ulExecutionAddress );
-        }
+            switch( xBank2State )
+            {
+                case BANK_VALID:
+
+                    if( BANK1_DESCRIPTOR->ulSequenceNumber <= BANK2_DESCRIPTOR->ulSequenceNumber )
+                    { /* We shouldn't get this case, so revert the image */
+                        vCommitSecondBank();
+                        vEraseSecondBank();
+                    }
+                    else
+                    {
+                        /* Happens right after OTA completion, we don't need the image in the second bank anymore */
+                        vEraseSecondBank();
+                    }
+
+                    break;
+
+                case BANK_INVALID:
+                case BANK_COMMIT_PENDING:
+                case BANK_NORDIC:
+                case BANK_NORDIC_DESCRIPTOR:
+                    /* Invalid and not accectable cases, erase the second bank */
+                    vEraseSecondBank();
+                    break;
+
+                case BANK_NEW:
+
+                    if( BANK1_DESCRIPTOR->ulSequenceNumber < BANK2_DESCRIPTOR->ulSequenceNumber )
+                    {
+                        /* Happens after we receive the OTA update, set the correct flag and continue */
+                        vSwapImages();
+                        vSetBankFlag( FIRST_BANK, IMAGE_FLAG_COMMIT_PENDING );
+                    }
+                    else
+                    {
+                        /* New image is older than old? Erase it */
+                        vEraseSecondBank();
+                    }
+
+                    break;
+
+                default:
+                    break;
+            }
+
+            break;
+
+        case BANK_NEW:
+
+            switch( xBank2State )
+            {
+                case BANK_VALID:
+
+                    if( BANK1_DESCRIPTOR->ulSequenceNumber <= BANK2_DESCRIPTOR->ulSequenceNumber )
+                    {
+                        /* Something went wrong, revert to the previous image */
+                        vCommitSecondBank();
+                        vEraseSecondBank();
+                    }
+                    else
+                    {
+                        /* Can happen if the swap was done succesfully but power off happened right before setting the flag. Set the flag */
+                        vSetBankFlag( FIRST_BANK, IMAGE_FLAG_COMMIT_PENDING );
+                    }
+
+                    break;
+
+                default:
+                    /* Can happen if the swap was done succesfully but power off happened right before setting the flag. Set the flag */
+                    vSetBankFlag( FIRST_BANK, IMAGE_FLAG_COMMIT_PENDING );
+                    break;
+            }
+
+            break;
+
+        case BANK_COMMIT_PENDING:
+            /* That state means that loading the new firmware was unsuccesfull or there was power loss before after setting the flag but before booting.
+             * We cannot distinguish these cases but the latter case should not happen often, so it might be simpler to just consider the OTA process failed.
+             * Revert image from the second bank if we have it
+             */
+            switch( xBank2State )
+            {
+                case BANK_VALID:
+                case BANK_NORDIC:
+                case BANK_NORDIC_DESCRIPTOR:
+                    vCommitSecondBank();
+                    vEraseSecondBank();
+                    break;
+
+                default:
+                    vSetBankFlag( FIRST_BANK, IMAGE_FLAG_INVALID );
+                    break;
+            }
+
+            break;
+
+        case BANK_NORDIC:
+        case BANK_NORDIC_DESCRIPTOR:
+            /* Cases for the plain old Nordic image in the first bank. Treat it as a valid image but without checking sequence numbers */
+            switch( xBank2State )
+            {
+                case BANK_VALID:
+                    vCommitSecondBank();
+                    vEraseSecondBank();
+                    break;
+
+                case BANK_NEW:
+                    vSwapImages();
+                    vSetBankFlag( FIRST_BANK, IMAGE_FLAG_COMMIT_PENDING );
+                    break;
+                case BANK_NORDIC:
+                case BANK_NORDIC_DESCRIPTOR:
+                case BANK_COMMIT_PENDING:
+                case BANK_INVALID:
+                    vEraseSecondBank();
+                    break;
+
+                default:
+                    break;
+            }
+
+            break;
+
+        case BANK_INVALID:
+            /* Can happen after failed self-test. Check if we have valid firmware in the second bank and revert to it */
+            switch( xBank2State )
+            {
+                case BANK_VALID:
+                case BANK_NORDIC:
+                case BANK_NORDIC_DESCRIPTOR:
+                    vCommitSecondBank();
+                    vEraseSecondBank();
+                    break;
+
+                default:
+                    break;
+            }
+
+            break;
+    }
+
+    xBank1State = xGetBankState( FIRST_BANK );
+
+    if( ( xBank1State == BANK_VALID ) || ( xBank1State == BANK_COMMIT_PENDING ) )
+    {
+        vBoot( CODE_REGION_1_START + DESCRIPTOR_SIZE );
+    }
+    else if( xBank1State == BANK_NORDIC )
+    {
+        vBoot( CODE_REGION_1_START );
+    }
+    else if( xBank1State == BANK_NORDIC_DESCRIPTOR )
+    {
+        vBoot( CODE_REGION_1_START + DESCRIPTOR_SIZE );
     }
     else
     {
-        size_t ulAddress = CODE_REGION_1_START;
-
-        /* We are at the last resort, i.e. we have a classic Nordic firmware, so we
-         * just boot it.
-         * Here we have two main cases:
-         *  1) The firmware to be loaded is just a nordic firmware which doesn't know anything about AFR OTA
-         *      Then this image is located at the end of the softdevice and we check the IVT for the correct
-         *      stack address (STACK_BEGIN).
-         *  2) The firmware is AFR OTA aware, so at the end of the SD image descritor is located, and the actual
-         *  firmware is shifted by its size. This can happen during the debug when the linker script uses address
-         *  with offset, but the descriptor is not filled yet */
-
-        if( *( size_t * ) ( CODE_REGION_1_START + DESCRIPTOR_SIZE ) == STACK_BEGIN )
-        {
-            /* The second case */
-            ulAddress = CODE_REGION_1_START + DESCRIPTOR_SIZE;
-        }
-        else
-        { /* The first case */
-            if( *( size_t * ) ( CODE_REGION_1_START ) == STACK_BEGIN )
-            {
-                ulAddress = CODE_REGION_1_START;
-            }
-            else
-            {
-                NVIC_SystemReset();
-            }
-        }
-
-        vBoot( ulAddress );
+        vBlinkLeds( LED_NO_CORRECT_FIRMWARE ); /* Will blink the LED2 indefinitely */
     }
 }
 
