@@ -378,7 +378,7 @@ BankState_t xGetBankState( Bank_t xBank )
         {
             return BANK_NORDIC_DESCRIPTOR;
         }
-        else if( *( size_t * ) ( ulCodeStart + DESCRIPTOR_SIZE ) == STACK_BEGIN )
+        else if( *( size_t * ) ( ulCodeStart ) == STACK_BEGIN )
         {
             return BANK_NORDIC;
         }
