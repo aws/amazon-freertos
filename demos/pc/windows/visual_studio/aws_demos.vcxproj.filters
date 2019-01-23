@@ -1157,9 +1157,6 @@
     <ClInclude Include="..\common\config_files\aws_ota_agent_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\include\aws_defender_demo.h">
-      <Filter>application_code\common_demos\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor.h">
       <Filter>lib\aws\cbor</Filter>
     </ClInclude>
