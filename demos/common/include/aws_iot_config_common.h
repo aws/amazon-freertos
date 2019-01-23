@@ -181,9 +181,6 @@
  * allowed. */
 #define AWS_IOT_MQTT_MAX_SEND_THREADS            ( 1 )
 
-/* Enable metrics on secure sockets. This must be defined to enable socket metrics. */
-#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
-
 /* Enable metrics library assert. */
 #ifndef AWS_IOT_METRICS_ENABLE_ASSERTS
     #define AWS_IOT_METRICS_ENABLE_ASSERTS    ( 1 )

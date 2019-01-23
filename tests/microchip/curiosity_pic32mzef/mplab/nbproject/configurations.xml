@@ -11,7 +11,7 @@
           <itemPath>../../../common/crypto/aws_test_crypto.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f2" displayName="defender" projectFiles="true">
-          <itemPath>../../../common/defender/aws_test_defender.c</itemPath>
+          <itemPath>../../../common/defender/aws_iot_tests_defender_api.c</itemPath>
         </logicalFolder>
         <logicalFolder name="framework" displayName="framework" projectFiles="true">
           <itemPath>../../../common/framework/aws_test_framework.c</itemPath>
@@ -142,33 +142,9 @@
           <itemPath>../../../../lib/crypto/aws_crypto.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f3" displayName="defender" projectFiles="true">
-          <logicalFolder name="free_rtos" displayName="free_rtos" projectFiles="true">
-            <itemPath>../../../../lib/defender/portable/freertos/aws_defender_cpu.c</itemPath>
-            <itemPath>../../../../lib/defender/portable/freertos/aws_defender_tcp_conn.c</itemPath>
-            <itemPath>../../../../lib/defender/portable/freertos/aws_defender_uptime.c</itemPath>
-          </logicalFolder>
-          <logicalFolder name="metrics" displayName="metrics" projectFiles="true">
-            <itemPath>../../../../lib/include/private/aws_defender_cpu.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_tcp_conn.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_uptime.h</itemPath>
-          </logicalFolder>
-          <logicalFolder name="report" displayName="report" projectFiles="true">
-            <itemPath>../../../../lib/defender/report/aws_defender_report.c</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_report.h</itemPath>
-            <itemPath>../../../../lib/defender/report/aws_defender_report_cpu.c</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_report_cpu.h</itemPath>
-            <itemPath>../../../../lib/defender/report/aws_defender_report_header.c</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_report_header.h</itemPath>
-            <itemPath>../../../../lib/defender/report/aws_defender_report_tcp_conn.c</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_report_tcp_conn.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_report_types.h</itemPath>
-            <itemPath>../../../../lib/defender/report/aws_defender_report_uptime.c</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_report_uptime.h</itemPath>
-            <itemPath>../../../../lib/include/private/aws_defender_report_utils.h</itemPath>
-          </logicalFolder>
-          <itemPath>../../../../lib/defender/aws_defender.c</itemPath>
-          <itemPath>../../../../lib/include/aws_defender.h</itemPath>
-          <itemPath>../../../../lib/include/private/aws_defender_internals.h</itemPath>
+          <itemPath>../../../../lib/defender/aws_iot_defender_api.c</itemPath>
+          <itemPath>../../../../lib/defender/aws_iot_defender_collector.c</itemPath>
+          <itemPath>../../../../lib/defender/aws_iot_defender_mqtt.c</itemPath>
         </logicalFolder>
         <logicalFolder name="FreeRTOS" displayName="FreeRTOS" projectFiles="true">
           <logicalFolder name="portable" displayName="portable" projectFiles="true">
@@ -1837,7 +1813,7 @@
     <Elem>../../../../lib/cbor/src</Elem>
     <Elem>../../../../lib/FreeRTOS/portable/MemMang</Elem>
     <Elem>../../../../lib/include/FreeRTOS_POSIX</Elem>
-    <Elem>../../../../lib/defender/src</Elem>
+    <Elem>../../../../lib/defender</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -1901,7 +1877,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\common\config_files;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\bsp;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\common\application_code\microchip_code;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\GCC;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\system\common;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\common\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\source;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver\include;..\..\..\..\lib\pkcs11\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\cbor\src;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\defender\portable\freertos;..\..\..\..\lib\defender\metrics;..\..\..\..\lib\defender\report;..\..\..\..\lib\defender\src;..\..\..\..\lib\ota\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\ota;..\..\..\common\ota;..\..\..\..\demos\common\include"/>
+                  value="..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\common\config_files;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\bsp;..\..\..\..\lib\FreeRTOS\portable\MPLAB\PIC32MZ;..\common\application_code\microchip_code;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\GCC;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\system\common;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\common\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\include;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver_extension\driver\source;..\..\..\..\lib\third_party\mcu_vendor\microchip\harmony\v2.05\framework\driver\wifi\wilc1000\wireless_driver\include;..\..\..\..\lib\pkcs11\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\cbor\src;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\defender;..\..\..\..\lib\ota\portable\microchip\curiosity_pic32mzef;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\ota;..\..\..\common\ota;..\..\..\..\demos\common\include"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>

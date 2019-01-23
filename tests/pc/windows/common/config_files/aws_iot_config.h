@@ -32,6 +32,9 @@
 #define AWS_IOT_LOG_LEVEL_MQTT        AWS_IOT_LOG_NONE
 #define AWS_IOT_LOG_LEVEL_DEFENDER    AWS_IOT_LOG_NONE
 
+/* Enable socket metrics for defender tests. */
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+
 /* Include the default configuration file at the bottom of this file. */
 #include "aws_iot_config_common.h"
 

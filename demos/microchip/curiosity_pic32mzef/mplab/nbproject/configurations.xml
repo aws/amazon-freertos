@@ -31,7 +31,7 @@
           <itemPath>../../../common/tcp/aws_tcp_echo_client_single_task.c</itemPath>
           <itemPath>../../../common/logging/aws_logging_task_dynamic_buffers.c</itemPath>
           <itemPath>../../../common/ota/aws_ota_update_demo.c</itemPath>
-          <itemPath>../../../common/defender/aws_defender_demo.c</itemPath>
+          <itemPath>../../../common/defender/aws_iot_demo_defender.c</itemPath>
           <itemPath>../../../common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c</itemPath>
         </logicalFolder>
       </logicalFolder>

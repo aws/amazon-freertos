@@ -58,7 +58,7 @@
 #define _castDecoderIteratorToJsonContainer( iterator )        ( ( ( AwsIotSerializerDecoderObject_t * ) iterator )->pHandle )
 
 static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                      uint8_t * pDataBuffer,
+                                      const uint8_t * pDataBuffer,
                                       size_t maxSize );
 
 static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoderObject,
@@ -403,7 +403,7 @@ static AwsIotSerializerError_t parseTokenValue( const char * pBuffer,
 /*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                      uint8_t * pDataBuffer,
+                                      const uint8_t * pDataBuffer,
                                       size_t maxSize )
 {
     AwsIotSerializerDataType_t tokenType;
