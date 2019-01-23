@@ -33,6 +33,7 @@
 
 /* Amazon FreeRTOS includes. */
 #include "aws_doubly_linked_list.h"
+#include "FreeRTOS_POSIX/tracing.h"
 
 /**
  * @brief Mutex attribute object.
@@ -105,6 +106,10 @@
     typedef struct
     {
         StaticSemaphore_t xSemaphore; /**< FreeRTOS semaphore. */
+
+        #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 )
+          int32_t value;
+        #endif /*POSIX_SEMAPHORE_IMPLEMENTATION*/
     } sem_internal_t;
 #endif
 

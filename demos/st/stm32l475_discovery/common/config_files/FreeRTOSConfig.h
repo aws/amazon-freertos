@@ -135,7 +135,7 @@
 
 /* Performance counter interrupt priority.
  * Do not disable performance counter interrupt in critical section. */
-#define configHAL_PERF_COUNTER_INTERRUPT_PRIORITY       ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY - 1 )
+#define configHAL_PERF_COUNTER_INTERRUPT_PRIORITY       ( configKERNEL_INTERRUPT_PRIORITY + 1 )
 
 /* Normal assert() semantics without relying on the provision of an assert.h
  * header file. */

@@ -53,11 +53,11 @@
 /*-----------------------------------------------------------*/
 
 #define SHARED_BUFFER_SIZE      ( 10 )
-#define NUM_OF_PRODUCER         ( 2 )
-#define NUM_OF_CONSUMER         ( 2 )
+#define NUM_OF_PRODUCER         ( 1 )
+#define NUM_OF_CONSUMER         ( 1 )
 
-#define NUM_OF_EXE_ITERATION_PRODUCER ( 1000 )                                                        /* How many iterations producer thread executes. */
-#define NUM_OF_EXE_ITERATION_CONSUMER ( NUM_OF_EXE_ITERATION_PRODUCER * NUM_OF_PRODUCER / NUM_OF_CONSUMER )  /* How many iterations consumer thread executes. Fraction is not taken care of. */
+#define NUM_OF_EXE_ITERATION_PRODUCER ( 10000 )                                                               /* How many iterations EACH producer thread executes. */
+#define NUM_OF_EXE_ITERATION_CONSUMER ( NUM_OF_EXE_ITERATION_PRODUCER * NUM_OF_PRODUCER / NUM_OF_CONSUMER )  /* How many iterations EACH consumer thread executes. Fraction is not taken care of. */
 
 /*-----------------------------------------------------------*/
 
@@ -65,6 +65,7 @@
 #define TRACING_THREAD_PRODUCER     ( 1 )
 #define TRACING_THREAD_CONSUMER     ( 1 )
 
+#define TRACING_DISABLE_MUTEX_AROUND_INDEXES    ( 1 )       /* This is trying to create bug on purpose! Set to 0 to run classic producer-consumer. */
 /*-----------------------------------------------------------*/
 
 static sem_t xSemaphore_empty;
@@ -77,6 +78,10 @@ static pthread_mutex_t xWriteMutex;
 
 static int iReadIndex;
 static pthread_mutex_t xReadMutex;
+
+#if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 1 )
+    static int iDummyCummulator;
+#endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
 
 /*-----------------------------------------------------------*/
 
@@ -99,12 +104,16 @@ static void * prvProducerThread( void * pvArgs )
 
         i++;
 
-        pthread_mutex_lock( &xWriteMutex );
+        #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 0 )
+            pthread_mutex_lock( &xWriteMutex );
+        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
         pBuffer[ iWriteIndex % SHARED_BUFFER_SIZE ] = iWriteIndex;
         iWriteIndex++;
-        pthread_mutex_unlock( &xWriteMutex );
+        #if (TRACING_DISABLE_MUTEX_AROUND_INDEXES == 0 )
+            pthread_mutex_unlock( &xWriteMutex );
+        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
 
-        configPRINTF( ( "%s -- Producer[%d] posted. Iteration [%d].\r\n", __FUNCTION__, iThreadId, i ) );
+        //configPRINTF( ( "%s -- Producer[%d] posted. Iteration [%d].\r\n", __FUNCTION__, iThreadId, i ) );
 
         #if ( TRACING_THREAD_PRODUCER == 1 )
             ullSingleCycleElapsed = aws_hal_perfcounter_get_value(); /* Temporary value. */
@@ -160,12 +169,19 @@ static void * prvConsumerThread( void * pvArgs )
 
         i++;
 
-        pthread_mutex_lock( &xReadMutex );
+        #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 0 )
+            pthread_mutex_lock( &xReadMutex );
+        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
         iTemp = pBuffer[ iReadIndex % SHARED_BUFFER_SIZE ];
         iReadIndex++;
-        pthread_mutex_unlock( &xReadMutex );
+        #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 0 )
+            pthread_mutex_unlock( &xReadMutex );
+        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
 
-        configPRINTF( ( "%s -- Consumer[%d] received [%d]. Iteration [%d]\r\n", __FUNCTION__, iThreadId, iTemp, i ) );
+        //configPRINTF( ( "%s -- Consumer[%d] received [%d]. Iteration [%d]\r\n", __FUNCTION__, iThreadId, iTemp, i ) );
+        #if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 1 )
+            iDummyCummulator += iTemp;
+        #endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
 
         sem_post( &xSemaphore_empty );
     }
@@ -197,6 +213,11 @@ void vKernelProfilingMultiProducerConsumerMutex( int iPriority )
     int i = 0;
 
     uint64_t ullCycleElapsed = 0;
+
+    /* Tracing within tracing -- branch stat. */
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1 )
+        FreeRTOS_POSIX_semaphore_initBranchTaken();
+    #endif /* POSIX_SEMAPHORE_IMPLEMENTATION && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
 
     /* Initializing performance timer. */
     aws_hal_perfcounter_open();
@@ -277,6 +298,19 @@ void vKernelProfilingMultiProducerConsumerMutex( int iPriority )
 
     /* De-initializing performance timer. */
     aws_hal_perfcounter_close();
+
+    /* Tracing within tracing -- branch stat. */
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1 )
+        int iBranchTaken_post = FreeRTOS_POSIX_semaphore_getBranchTaken_post();
+        int iBranchTaken_wait = FreeRTOS_POSIX_semaphore_getBranchTaken_wait();
+
+        configPRINTF( ( "%s -- total critical section branch taken -- sem_post [%d], sem_wait [%d]\r\n",
+                __FUNCTION__,
+                iBranchTaken_post,
+                iBranchTaken_wait ) );
+
+        FreeRTOS_POSIX_semaphore_deInitBranchTaken();
+    #endif /* POSIX_SEMAPHORE_IMPLEMENTATION && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
 
     configPRINTF( ( "%s -- Stack bytes left [%u]. \r\n", __FUNCTION__, uxTaskGetStackHighWaterMark( NULL ) ) );
     configPRINTF( ( "%s -- Threads finished. Application -- total cycle elapsed [%ld]\r\n", __FUNCTION__, ( long ) ullCycleElapsed ) );

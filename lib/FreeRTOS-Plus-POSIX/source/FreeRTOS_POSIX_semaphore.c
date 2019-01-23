@@ -38,7 +38,6 @@
 #include "FreeRTOS_POSIX/utils.h"
 #include "FreeRTOS_POSIX/tracing.h"
 
-
 /**
  * Enabling semaphore tracing
  *
@@ -155,6 +154,46 @@
 
 #endif /* POSIX_SEMAPHORE_TRACING */
 
+#if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1 )
+    #include "FreeRTOS_POSIX/pthread.h"
+    pthread_mutex_t xBranchMutex_post = PTHREAD_MUTEX_INITIALIZER;
+    int iBranchTaken_post;
+
+    pthread_mutex_t xBranchMutex_wait = PTHREAD_MUTEX_INITIALIZER;
+    int iBranchTaken_wait;
+
+    /**
+     * @brief Initialize related variables.
+     *
+     * @warning Repeated initialization has undefined behavior.
+     * @warning Called by app.
+     */
+    void FreeRTOS_POSIX_semaphore_initBranchTaken( void )
+    {
+        /* Branch stats init. */
+        pthread_mutex_init( &xBranchMutex_post, NULL );
+        iBranchTaken_post = 0;
+
+        pthread_mutex_init( &xBranchMutex_wait, NULL );
+        iBranchTaken_wait = 0;
+    }
+
+    void FreeRTOS_POSIX_semaphore_deInitBranchTaken( void )
+    {
+        pthread_mutex_destroy( &xBranchMutex_post );
+        pthread_mutex_destroy( &xBranchMutex_wait );
+    }
+
+    int FreeRTOS_POSIX_semaphore_getBranchTaken_post( void )
+    {
+        return iBranchTaken_post;
+    }
+
+    int FreeRTOS_POSIX_semaphore_getBranchTaken_wait( void )
+    {
+        return iBranchTaken_wait;
+    }
+#endif /* POSIX_SEMAPHORE_IMPLEMENTATION && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
 
 /*-----------------------------------------------------------*/
 
@@ -176,7 +215,11 @@ int sem_getvalue( sem_t * sem,
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
     /* Get the semaphore count using the FreeRTOS API. */
-    *sval = ( int ) uxSemaphoreGetCount( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 0 )
+        *sval = ( int ) uxSemaphoreGetCount( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
+    #else
+        *sval = pxSem->value;
+    #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
 
     return 0;
 }
@@ -201,11 +244,21 @@ int sem_init( sem_t * sem,
     }
 
 
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 || POSIX_SEMAPHORE_IMPLEMENTATION == 2 )
+        pxSem->value = value;
+    #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
+
     /* Create the FreeRTOS semaphore. This call will not fail because the
      * memory for the semaphore has already been allocated. */
     if( iStatus == 0 )
     {
-        ( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, value, &pxSem->xSemaphore );
+        #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 0)
+            ( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, value, &pxSem->xSemaphore );
+        #else
+            /* If using disabling interrupt or atomic, sem value is handled by pxSem-> value. */
+            ( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, 0, &pxSem->xSemaphore );
+        #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
+        *sem = pxSem;
     }
 
     return iStatus;
@@ -222,8 +275,24 @@ int sem_post( sem_t * sem )
 
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
-    /* Give the semaphore using the FreeRTOS API. */
-    ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 || POSIX_SEMAPHORE_IMPLEMENTATION == 2 )
+        int32_t previousValue = AwsIotAtomic_Add( &pxSem->value, 1 );
+
+        if ( previousValue > 0)
+        {
+            /* There isn't any task blocked by this semaphore. */
+#if ( POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1)
+            pthread_mutex_lock( &xBranchMutex_post );
+            iBranchTaken_post++;
+            pthread_mutex_unlock( &xBranchMutex_post);
+#endif /* POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
+        }
+        else
+    #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
+        {
+            /* Give the semaphore using the FreeRTOS API. */
+            ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
+        }
 
     #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_POST == 1)
         prvTraceFunctionOut( &ullInvocationTimeElapsed, &xTracingData_post );
@@ -278,25 +347,41 @@ int sem_timedwait( sem_t * sem,
         }
     }
 
-    /* Take the semaphore using the FreeRTOS API. */
-    if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxSem->xSemaphore,
-                        xDelay ) != pdTRUE )
-    {
-        if( iStatus == 0 )
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 || POSIX_SEMAPHORE_IMPLEMENTATION == 2 )
+        int32_t previousValue = AwsIotAtomic_Sub( &pxSem->value, 1 );
+
+        if ( previousValue > 0 )
         {
-            errno = ETIMEDOUT;
+            /* There is at least one semaphore, no need to block. */
+#if ( POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1)
+            pthread_mutex_lock( &xBranchMutex_wait );
+            iBranchTaken_wait++;
+            pthread_mutex_unlock( &xBranchMutex_wait);
+#endif /*POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT*/
         }
         else
+    #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
         {
-            errno = iStatus;
-        }
+            /* Take the semaphore using the FreeRTOS API. */
+            if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxSem->xSemaphore,
+                                xDelay ) != pdTRUE )
+            {
+                if( iStatus == 0 )
+                {
+                    errno = ETIMEDOUT;
+                }
+                else
+                {
+                    errno = iStatus;
+                }
 
-        iStatus = -1;
-    }
-    else
-    {
-        iStatus = 0;
-    }
+                iStatus = -1;
+            }
+            else
+            {
+                iStatus = 0;
+            }
+        }
 
     #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_TIMEDWAIT == 1 )
         prvTraceFunctionOut( &ullInvocationTimeElapsed, &xTracingData_timedwait );
