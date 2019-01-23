@@ -51,7 +51,7 @@ const size_t otapalFLASH_END = ( size_t ) &__FLASH_segment_end__;
 /* Tag by which the beginning of the ECDSA in the public key can be found */
 const char pcOTA_PAL_ASN_1_ECDSA_TAG[] = "\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07";
 
-unsigned char pucPublicKey[otapalMAX_PUBLIC_KEY_SIZE];
+uint8_t * pucPublicKey;
 static uint32_t pulSerializingArray[otapalSERIALIZING_ARRAY_SIZE];
 size_t ulPublicKeySize = 0;
 
@@ -134,7 +134,9 @@ ret_code_t prvComputeSHA256Hash( void * pvMessage,
 ret_code_t prvVerifySignature( uint8_t * pusHash,
                                size_t ulHashSize,
                                uint8_t * pusSignature,
-                               size_t ulSignatureSize );
+                               size_t ulSignatureSize,
+                               uint8_t * pucPublicKey,
+                               uint32_t ulPublicKeySize);
 
 /*-----------------------------------------------------------*/
 
@@ -285,7 +287,8 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
     }
     if (xErrCode == NRF_SUCCESS) {
         prvComputeSHA256Hash( (uint8_t *)otapalSECOND_BANK_START + otapalDESCRIPTOR_SIZE, C->ulFileSize, &xHash, &ulHashLength );
-        xErrCode = prvVerifySignature( (uint8_t*) &xHash, ulHashLength, descriptor->pSignature, descriptor->ulSignatureSize );
+        xErrCode = prvVerifySignature( (uint8_t*) &xHash, ulHashLength, descriptor->pSignature, descriptor->ulSignatureSize, pusCertificate, ulCertificateSize );
+        vPortFree( pusCertificate );        
     }
 
     if( xErrCode != NRF_SUCCESS )
@@ -302,6 +305,8 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
 static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
                                                   uint32_t * const ulSignerCertSize )
 {
+    uint8_t * pusCertificate;
+
     DEFINE_OTA_METHOD_NAME( "prvPAL_ReadAndAssumeCertificate" );
     * ulSignerCertSize = sizeof(signingcredentialSIGNING_CERTIFICATE_PEM);
     /* Skip the "BEGIN CERTIFICATE" */
@@ -334,8 +339,14 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     }
     pucPublicKeyStart -= 4; 
     ulPublicKeySize = pucPublicKeyStart[1] + 2;
-    memcpy(pucPublicKey, pucPublicKeyStart, ulPublicKeySize);
+
     vPortFree(pucDecodedCertificate);
+
+    pucPublicKey = pvPortMalloc(ulPublicKeySize);
+    if( pucPublicKey != NULL)
+    {
+        memcpy(pucPublicKey, pucPublicKeyStart, ulPublicKeySize);
+    }
     return pucPublicKey;
 }
 /*-----------------------------------------------------------*/
@@ -595,21 +606,24 @@ ret_code_t prvComputeSHA256Hash( void * pvMessage,
 ret_code_t prvVerifySignature( uint8_t * pusHash,
                                size_t ulHashSize,
                                uint8_t * pusSignature,
-                               size_t ulSignatureSize )
+                               size_t ulSignatureSize,
+                               uint8_t * pucPublicKey,
+                               uint32_t ulPublicKeySize)
 {
     ret_code_t xErrCode;
     nrf_crypto_ecdsa_verify_context_t xVerifyContext;
     nrf_crypto_ecc_public_key_t xPublicKey;
     nrf_crypto_ecdsa_signature_t xSignature;
+    uint8_t * pucTmpPublicKey;
 
     memset( &xPublicKey, 0, sizeof( xPublicKey ) );
     memset( &xSignature, 0, sizeof( xSignature ) );
     
     /* The public key comes in the ASN.1 DER format,  and so we need everything
      * except the DER metadata which fortunately in this case is containded in the front part of buffer */
-    memcpy( pucPublicKey, pucPublicKey + ( ulPublicKeySize - NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE ), ulPublicKeySize );
+    pucTmpPublicKey  = pucPublicKey + ( ulPublicKeySize - NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE );
     /* Convert the extracted public key to the NRF5 representation */
-    xErrCode = nrf_crypto_ecc_public_key_from_raw( &g_nrf_crypto_ecc_secp256r1_curve_info, &xPublicKey, pucPublicKey, NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE );
+    xErrCode = nrf_crypto_ecc_public_key_from_raw( &g_nrf_crypto_ecc_secp256r1_curve_info, &xPublicKey, pucTmpPublicKey, NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE );
     if (xErrCode == NRF_SUCCESS) {
         /* The signature is also ASN.1 DER encoded, but here we need to decode it properly */
         xErrCode = asn1_decodeSignature( xSignature, pusSignature, pusSignature + ulSignatureSize );
@@ -659,7 +673,8 @@ NRF_SDH_SOC_OBSERVER( flash_observer, BLE_DFU_SOC_OBSERVER_PRIO, flash_event_han
 OTA_Err_t testCheckSignature(){
     OTA_FileContext_t C;
     uint32_t ulCertSize = sizeof(signingcredentialSIGNING_CERTIFICATE_PEM);
-    prvPAL_ReadAndAssumeCertificate(signingcredentialSIGNING_CERTIFICATE_PEM, &ulCertSize);
+    uint8_t * pusCertificate = prvPAL_ReadAndAssumeCertificate(signingcredentialSIGNING_CERTIFICATE_PEM, &ulCertSize);
+    vPortFree( pusCertificate ); 
     ImageDescriptor_t * descriptor = ( ImageDescriptor_t * ) ( otapalSECOND_BANK_START );
     C.ulFileSize = descriptor->ulEndAddress - descriptor->ulStartAddress;
     return prvPAL_CheckFileSignature( &C );
