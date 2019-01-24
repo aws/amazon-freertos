@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,22 +23,29 @@
  * http://www.FreeRTOS.org
  */
 
-/**
- * @file aws_bufferpool_config.h
- * @brief Buffer Pool config options.
- */
-
-#ifndef _AWS_BUFFER_POOL_CONFIG_H_
-#define _AWS_BUFFER_POOL_CONFIG_H_
 
 /**
- * @brief The number of buffers in the static buffer pool.
+ * @file aws_iot_network.h
+ * @brief Header file containing the network management APIs
  */
-#define bufferpoolconfigNUM_BUFFERS    ( 8 )
+#ifndef _AWS_BLE_NUMERIC_COMPARISON_H_
+#define _AWS_BLE_NUMERIC_COMPARISON_H_
 
-/**
- * @brief The size of each buffer in the static buffer pool.
- */
-#define bufferpoolconfigBUFFER_SIZE    ( 1048 + 128 )
+typedef struct{
+	uint8_t * pcData;
+    size_t xDataSize;
+}INPUTMessage_t;
 
-#endif /* _AWS_BUFFER_POOL_CONFIG_H_ */
+extern QueueHandle_t xNumericComparisonQueue;
+
+extern void BLENumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey);
+
+extern void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
+        BTBdaddr_t * pxRemoteBdAddr,
+        BTSecurityLevel_t xSecurityLevel,
+        BTAuthFailureReason_t xReason );
+extern void NumericComparisonInit(void);
+extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout );
+
+
+#endif /* _AWS_IOT_NETWORK_MANAGER_H_ */

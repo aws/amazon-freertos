@@ -240,6 +240,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
     /* We use a dummy file name here because closing the system designated bootable
      * image with content that is not runnable may cause issues. */
     xOtaFile.pacFilepath = ( uint8_t * ) ( "test_happy_path_image.bin" );
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -338,6 +339,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignatureKeyInFlash )
      * image with content that is not runnable may cause issues. */
     /* xOtaFile.pacFilepath = otatestpalFIRMWARE_FILE; */
     xOtaFile.pacFilepath = ( uint8_t * ) ( "test_happy_path_image.bin" );
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -375,6 +377,8 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten )
 
     /* Create a local file using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -460,6 +464,8 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_NonexistingCodeSignerCertificate )
 
     /* Create a local file using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -534,6 +540,7 @@ TEST( Full_OTA_PAL, prvPAL_Abort_FileWithBlockWritten )
     OTA_Err_t xOtaStatus;
 
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
 
     /* Create a local file again using the PAL. */
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
@@ -616,7 +623,7 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteManyBlocks )
     int16_t sNumBytesWritten;
 
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
-
+    xOtaFile.ulFileSize = sizeof( ucDummyData )*testotapalNUM_WRITE_BLOCKS;
     /* TEST: Write many bytes of data. */
 
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
@@ -661,6 +668,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_SelfTestImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -700,6 +709,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_InvalidImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -730,6 +741,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_UnknownImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -762,6 +775,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AcceptedImageStateButImageNotCl
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -792,6 +807,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_RejectImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -822,6 +839,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AbortImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -854,6 +873,8 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
     /* TEST: Invalid image returned from prvPAL_GetPlatformImageState(). Using a failure to close. */
     /* Create a local file again using the PAL. */
     xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -947,6 +968,8 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
 
         /* Create a local file using the PAL. */
         xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+        xOtaFile.ulFileSize = sizeof( ucDummyData );
+
         xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
         TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
