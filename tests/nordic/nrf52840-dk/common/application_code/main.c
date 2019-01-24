@@ -413,6 +413,36 @@ static void prvDeleteBonds( void )
 }
 void vApplicationDaemonTaskStartupHook( void )
 {
+    uint32_t ulEnabledNetworks;
+    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
+     * running, here. */
+
+    BaseType_t xStatus = pdFALSE;
+
+    if( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS )
+    {
+        xStatus = pdTRUE;
+    }
+
+     if( AwsIotNetworkManager_Init() != pdPASS )
+     {
+     	configPRINTF(("Failed to initialize the network manager \n "));
+     	while( 1 )
+     	{
+
+     	}
+     }
+
+     ulEnabledNetworks = AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
+     if( ( ulEnabledNetworks & configENABLED_NETWORKS ) !=  configENABLED_NETWORKS )
+     {
+     	configPRINTF(("Failed to enable all the networks, enabled networks: %08x\n ", ulEnabledNetworks ));
+     	while( 1 )
+     	{
+
+     	}
+     }
+
     xTaskCreate( TEST_RUNNER_RunTests_task,
             "RunTests_task",
             mainTEST_RUNNER_TASK_STACK_SIZE,

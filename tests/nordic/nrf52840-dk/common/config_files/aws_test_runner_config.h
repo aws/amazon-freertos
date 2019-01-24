@@ -35,8 +35,8 @@
 #define testrunnerFULL_OTA_CBOR_ENABLED            testrunnerUNSUPPORTED
 
 /* Enable tests by setting defines to 1 */
-#define testrunnerFULL_OTA_AGENT_ENABLED           0
-#define testrunnerFULL_OTA_PAL_ENABLED             1
+#define testrunnerFULL_OTA_AGENT_ENABLED           1
+#define testrunnerFULL_OTA_PAL_ENABLED             0
 #define testrunnerFULL_MQTT_ALPN_ENABLED           0
 #define testrunnerFULL_PKCS11_ENABLED              0
 #define testrunnerFULL_CRYPTO_ENABLED              0

@@ -581,9 +581,9 @@
         <file file_name="../common/application_code/nordic_code/SEGGER_HardFaultHandler.c" />
         <file file_name="../common/application_code/nordic_code/thumb_crt0.s" />
       </folder>
-      <file file_name="../common/application_code/aws_iot_demo_network.c" />
-      <file file_name="../common/application_code/aws_iot_network_manager.c" />
       <file file_name="../common/application_code/fake_PKCS11.c" />
+      <file file_name="../common/application_code/aws_iot_network_manager.c" />
+      <file file_name="../common/application_code/aws_iot_demo_network.c" />
     </folder>
     <folder Name="config_files">
       <file file_name="../common/config_files/aws_ble_config.h" />

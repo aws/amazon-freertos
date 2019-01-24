@@ -37,7 +37,8 @@
 #include "aws_ota_agent.h"
 #include "aws_clientcredential.h"
 #include "aws_ota_agent_internal.h"
-
+#include "aws_iot_demo_network.h"
+#include "aws_iot_network_manager.h"
 /* MQTT includes. */
 #include "aws_mqtt_agent.h"
 
@@ -108,11 +109,10 @@ static const uint8_t otatestSIGNATURE[] =
  */
 #define otatestLASER_JSON_WITH_SELF_TEST         "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"self_test\":\"true\",\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
 
-/**
- * @brief Shared MQTT client handle, used across setup, tests, and teardown.
- * But only used by one test at a time. */
-static MQTTAgentHandle_t xMQTTClientHandle = NULL;
 
+static AwsIotMqttNetIf_t xNetworkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
+static AwsIotDemoNetworkConnection_t xNetworkConnection = NULL;
+static AwsIotMqttConnection_t xMqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
 /**
  * @brief Application-defined callback for the OTA agent.
  */
@@ -130,26 +130,7 @@ TEST_GROUP( Full_OTA_AGENT );
  */
 TEST_SETUP( Full_OTA_AGENT )
 {
-    MQTTAgentReturnCode_t xMqttStatus;
-    MQTTAgentConnectParams_t xConnectParams;
-
-    /* Create the MQTT Client. */
-    xMqttStatus = MQTT_AGENT_Create( &xMQTTClientHandle );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
-
-    /* Connect to the broker. */
-    memset( &xConnectParams, 0, sizeof( xConnectParams ) );
-    xConnectParams.pucClientId = ( const uint8_t * ) ( clientcredentialIOT_THING_NAME );
-    xConnectParams.usClientIdLength = sizeof( clientcredentialIOT_THING_NAME ) - 1; /* Length doesn't include trailing 0. */
-    xConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
-    xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-    xConnectParams.xFlags = mqttagentREQUIRE_TLS;
-    xMqttStatus = MQTT_AGENT_Connect( xMQTTClientHandle,
-                                      &xConnectParams,
-                                      pdMS_TO_TICKS( ( TickType_t ) otatestAGENT_INIT_WAIT ) );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( eMQTTAgentSuccess, xMqttStatus,
-                                   "Failed to connect to the MQTT broker in MQTT_AGENT_Connect() during "
-                                   "TEST_SETUP." );
+  
 }
 
 /**
@@ -157,25 +138,60 @@ TEST_SETUP( Full_OTA_AGENT )
  */
 TEST_TEAR_DOWN( Full_OTA_AGENT )
 {
-    MQTTAgentReturnCode_t xMqttStatus;
 
-    /* Disconnect from the MQTT broker. */
-    xMqttStatus = MQTT_AGENT_Disconnect( xMQTTClientHandle,
-                                         pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
-
-    /* Delete the MQTT handle. */
-    xMqttStatus = MQTT_AGENT_Delete( xMQTTClientHandle );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
-
-    xMQTTClientHandle = NULL;
 }
 
 TEST_GROUP_RUNNER( Full_OTA_AGENT )
 {
+  AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    AwsIotMqttError_t xStatus;
+
+    /* Create the MQTT Client. */                                                                                                                                                                                                                    
+    AwsIotDemo_CreateNetworkConnection(
+            &xNetworkInterface,
+            &xMqttConnection,
+            NULL,
+            &xNetworkConnection,
+            5,
+            1000 );
+
+   if( xNetworkConnection != NULL )
+    {
+
+        configPRINTF( ( "Connecting to broker...\r\n" ) );
+        memset( &xConnectInfo, 0, sizeof( xConnectInfo ) );
+        if( AwsIotDemo_GetNetworkType( xNetworkConnection ) == AWSIOT_NETWORK_TYPE_BLE )
+        {
+            xConnectInfo.awsIotMqttMode = false;
+            xConnectInfo.keepAliveSeconds = 0;
+        }
+        else
+        {
+            xConnectInfo.awsIotMqttMode = true;
+            xConnectInfo.keepAliveSeconds = 4;
+        }
+
+        xConnectInfo.cleanSession = true;
+        xConnectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
+        xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+
+        xStatus = AwsIotMqtt_Connect( &xMqttConnection,
+                                      &xNetworkInterface,
+                                      &xConnectInfo,
+                                      NULL,
+                                      otatestSHUTDOWN_WAIT );        
+    }else
+    {
+         configPRINTF( ( "Cannot create network connection\r\n" ) );
+    }
+
     RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_InvalidParams );
     RUN_TEST_CASE( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close );
     RUN_TEST_CASE( Full_OTA_AGENT, prvParseJSONbyModel_Errors );
+
+      AwsIotMqtt_Disconnect(xMqttConnection, false);
+
+  AwsIotDemo_DeleteNetworkConnection(xNetworkConnection);
 }
 
 TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
@@ -204,7 +220,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
      * so this isn't done in SETUP.  This is done outside of TEST_PROTECT so that
      * this test exits if OTA_AgentInit fails. */
     eOtaStatus = OTA_AgentInit(
-        xMQTTClientHandle,
+        xMqttConnection,
         ( const uint8_t * ) clientcredentialIOT_THING_NAME,
         vOTACompleteCallback,
         pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
@@ -357,7 +373,7 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
 
     /* Initialize the OTA Agent for the following test. */
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
-                               xMQTTClientHandle,
+                               xMqttConnection,
                                ( const uint8_t * ) clientcredentialIOT_THING_NAME,
                                vOTACompleteCallback,
                                pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) ) );
