@@ -49,9 +49,6 @@
 #include "aws_wifi_connect_task.h"
 #endif
 
-#define wifiConnectTASK_PRIORITY          ( tskIDLE_PRIORITY )
-#define wifiConnectTASK_STACK_SIZE        ( configMINIMAL_STACK_SIZE * 7 )
-
 /**
  *  @brief Structure used to store one node representing each subscription.
  */

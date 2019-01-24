@@ -31,6 +31,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "aws_demo_config.h"
 #include "aws_wifi_connect_task.h"
 #include "aws_iot_network_manager.h"
 #include "aws_ble_wifi_provisioning.h"
@@ -46,17 +47,7 @@
 /**
  * @brief Number of retries in connecting to the provisioned networks.
  */
-#define wifiConnectNUM_RETRIES            ( 50 )
-
-/**
- * @brief Task priority of WIFI connect task.
- */
-#define wifiConnectTASK_PRIORITY          ( tskIDLE_PRIORITY )
-
-/**
- * Task stack size of WIFI connect task.
- */
-#define wifiConnectTASK_STACK_SIZE        ( configMINIMAL_STACK_SIZE * 7 )
+#define wifiConnectNUM_RETRIES            ( 500 )
 
 
 /**
@@ -81,101 +72,106 @@ static SubscriptionHandle_t xHandle = NULL;
 
 static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext )
 {
-	if( xNetworkState == eNetworkStateDisabled )
-	{
-		xSemaphoreGive( xWiFiConnectLock );
-	}
+    if( xNetworkState == eNetworkStateDisabled )
+    {
+        xSemaphoreGive( xWiFiConnectLock );
+    }
 }
 
 void prvWiFiConnectTask( void * pvParams )
 {
-	uint16_t ulNumNetworks, ulNetworkIndex, ulNumRetries;
-	TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_MILLISECONDS );
-	BaseType_t xWiFiConnected;
+    uint16_t ulNumNetworks, ulNetworkIndex, ulNumRetries;
+    TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_MILLISECONDS );
+    BaseType_t xWiFiConnected;
 
-	for(;;)
-	{
-		if( xSemaphoreTake( xWiFiConnectLock, portMAX_DELAY ) == pdTRUE )
-		{
-			if( WIFI_IsConnected() == pdFALSE )
-			{
-				xWiFiConnected = pdFALSE;
-				for( ulNumRetries = 0;
-						( ulNumRetries < wifiConnectNUM_RETRIES ) &&
-								( xWiFiConnected == pdFALSE );
-						ulNumRetries++ )
-				{
-					ulNumNetworks = WIFI_PROVISION_GetNumNetworks();
-					for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
-					{
-						xWiFiConnected = WIFI_PROVISION_Connect( ulNetworkIndex );
-						if( xWiFiConnected == pdTRUE )
-						{
-							break;
-						}
-						vTaskDelay( xWifiConnectionDelay );
-					}
-				}
-			}
-		}
-	}
+    for(;;)
+    {
+        if( xSemaphoreTake( xWiFiConnectLock, portMAX_DELAY ) == pdTRUE )
+        {
+            xWiFiConnected = pdFALSE;
+            for( ulNumRetries = 0;
+                    ( ulNumRetries < wifiConnectNUM_RETRIES ) &&
+                            ( xWiFiConnected == pdFALSE );
+                    ulNumRetries++ )
+            {
+                ulNumNetworks = WIFI_PROVISION_GetNumNetworks();
+                for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
+                {
+                    if( WIFI_IsConnected() == pdFALSE )
+                    {
+                        xWiFiConnected = WIFI_PROVISION_Connect( ulNetworkIndex );
+                    }
+                    else
+                    {
+                        xWiFiConnected = pdTRUE;
+                    }
 
-	vTaskDelete( NULL );
+                    if( xWiFiConnected == pdTRUE )
+                    {
+                        break;
+                    }
+                    vTaskDelay( xWifiConnectionDelay );
+                }
+            }
+        }
+    }
+
+    vTaskDelete( NULL );
 }
 
 BaseType_t xWiFiConnectTaskInitialize( void )
 {
-	BaseType_t xRet = pdTRUE;
-	xWiFiConnectLock = xSemaphoreCreateBinary();
-	if( xWiFiConnectLock != NULL )
-	{
-		xRet = xSemaphoreGive( xWiFiConnectLock );
-	}
-	else
-	{
-		xRet = pdFALSE;
-	}
+    BaseType_t xRet = pdTRUE;
+    xWiFiConnectLock = xSemaphoreCreateBinary();
+    if( xWiFiConnectLock != NULL )
+    {
+        xRet = xSemaphoreGive( xWiFiConnectLock );
+    }
+    else
+    {
+        xRet = pdFALSE;
+    }
 
-	if( xRet == pdTRUE )
-	{
+    if( xRet == pdTRUE )
+    {
 
-		xRet = AwsIotNetworkManager_SubscribeForStateChange(
-				AWSIOT_NETWORK_TYPE_WIFI,
-				prvWiFiNetworkStateChangeCallback,
-				NULL,
-				&xHandle );
-	}
+        xRet = AwsIotNetworkManager_SubscribeForStateChange(
+                AWSIOT_NETWORK_TYPE_WIFI,
+                prvWiFiNetworkStateChangeCallback,
+                NULL,
+                &xHandle );
+    }
 
-	if( xRet == pdTRUE )
-	{
-		xRet = xTaskCreate(
-				prvWiFiConnectTask,
-				wifiConnectTASK_NAME,
-				wifiConnectTASK_STACK_SIZE,
-				NULL,
-				wifiConnectTASK_PRIORITY,
-				&xWifiConnectionTask );
-	}
-	return xRet;
+    if( xRet == pdTRUE )
+    {
+        xRet = xTaskCreate(
+                prvWiFiConnectTask,
+                wifiConnectTASK_NAME,
+                democonfigWIFI_CONNECT_TASK_STACK_SIZE,
+                NULL,
+                democonfigWIFI_CONNECT_TASK_PRIORITY,
+                &xWifiConnectionTask );
+    }
+    return xRet;
 }
 
 void vWiFiConnectTaskDestroy( void )
 {
-	if( xHandle != NULL )
-	{
-		AwsIotNetworkManager_RemoveSubscription( xHandle );
-		xHandle = NULL;
-	}
+    if( xHandle != NULL )
+    {
+        AwsIotNetworkManager_RemoveSubscription( xHandle );
+        xHandle = NULL;
+    }
 
-	if( xWifiConnectionTask != NULL )
-	{
-		vTaskDelete( xWifiConnectionTask );
-		xWifiConnectionTask = NULL;
-	}
+    if( xWifiConnectionTask != NULL )
+    {
+        vTaskDelete( xWifiConnectionTask );
+        xWifiConnectionTask = NULL;
+    }
 
-	if( xWiFiConnectLock != NULL )
-	{
-		vSemaphoreDelete( xWiFiConnectLock );
-		xWiFiConnectLock = NULL;
-	}
+    if( xWiFiConnectLock != NULL )
+    {
+        vSemaphoreDelete( xWiFiConnectLock );
+        xWiFiConnectLock = NULL;
+    }
 }
