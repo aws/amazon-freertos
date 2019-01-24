@@ -35,6 +35,7 @@
 #include "aws_ota_pal_settings.h"
 #include "aws_ota_codesigner_certificate.h"
 
+#include "asn1utility.h"
 #include "mbedtls/base64.h"
 #include "nrf_mbr.h"
 #include "nrf_sdm.h"
@@ -43,6 +44,7 @@
 #include "nrf_crypto.h"
 
 #include "event_groups.h"
+
 
 /* Specify the OTA signature algorithm we support on this platform. */
 const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
@@ -322,7 +324,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     {
         return NULL;
     }
-    char *pucDecodedCertificate;
+    uint8_t *pucDecodedCertificate;
     size_t ulDecodedCertificateSize;
     mbedtls_base64_decode(pucDecodedCertificate, 0, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     pucDecodedCertificate = (char*) pvPortMalloc(ulDecodedCertificateSize);

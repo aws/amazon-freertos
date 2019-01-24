@@ -11,6 +11,9 @@
 ret_code_t xReadCertificate();
 /* Tag by which the beginning of the ECDSA in the public key can be found */
 const char ASN_1_ECDSA_TAG[] = "\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07";
+const char CERT_BEGIN[] = "-----BEGIN CERTIFICATE-----";
+const char CERT_END[] = "-----END CERTIFICATE-----";
+
 unsigned char pucPublicKey[ MAX_PUBLIC_KEY_SIZE ];
 size_t ulPublicKeySize = 0;
 
@@ -31,14 +34,14 @@ ret_code_t xReadCertificate(){
     uint8_t pucDecodedCertificate[512];
     size_t ulDecodedCertificateSize;
     /* Skip the "BEGIN CERTIFICATE" */
-    uint8_t* pucCertBegin = strchr (signingcredentialSIGNING_CERTIFICATE_PEM, '\n');
+     uint8_t* pucCertBegin = strstr(signingcredentialSIGNING_CERTIFICATE_PEM, CERT_BEGIN) ;
     if (pucCertBegin == NULL)
     {
         return NRF_ERROR_INTERNAL;
     }
-    pucCertBegin += 1;
+    pucCertBegin += sizeof(CERT_BEGIN);;
     /* Skip the "END CERTIFICATE" */
-    uint8_t* pucCertEnd = strrchr(pucCertBegin, '\n');
+    uint8_t* pucCertEnd = strstr(pucCertBegin, CERT_END);
     if (pucCertEnd == NULL)
     {
         return NRF_ERROR_INTERNAL;
@@ -46,10 +49,20 @@ ret_code_t xReadCertificate(){
     mbedtls_base64_decode(pucDecodedCertificate, 0, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     mbedtls_base64_decode(pucDecodedCertificate, ulDecodedCertificateSize, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     /* Find the tag of the ECDSA public signature*/
-    uint8_t * pucPublicKeyStart = strstr(pucDecodedCertificate, ASN_1_ECDSA_TAG);
-    if (pucPublicKeyStart == NULL) {
-        return NRF_ERROR_INTERNAL;
+    uint8_t * pucPublicKeyStart = pucDecodedCertificate;
+    while (pucPublicKeyStart < pucDecodedCertificate + ulDecodedCertificateSize )
+    {
+        if (memcmp(pucPublicKeyStart, ASN_1_ECDSA_TAG, sizeof(ASN_1_ECDSA_TAG) - 1) == 0)
+        {
+            break;
+        }
+        pucPublicKeyStart ++;
     }
+
+    if (pucPublicKeyStart == pucPublicKeyStart + ulDecodedCertificateSize) {
+        return NULL;
+    }
+
     pucPublicKeyStart -= 4;
     ulPublicKeySize = pucPublicKeyStart[1] + 2;
     memcpy(pucPublicKey, pucPublicKeyStart, ulPublicKeySize);
