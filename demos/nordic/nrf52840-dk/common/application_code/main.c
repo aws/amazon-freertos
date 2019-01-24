@@ -98,8 +98,6 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
 
 /* BLE Lib defines. */
-#define mainBLE_DEVICE_NAME                 "nRF52840-dk"                               /**< Name of device. Will be included in the advertising data. */
-#define mainBLE_MTU                         ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE );
 #define mainBLE_SERVER_UUID                 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 
 /* UART Buffer sizes. */

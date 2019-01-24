@@ -33,7 +33,7 @@
 
 #include "aws_pkcs11.h"
 
-CK_FUNCTION_LIST_PTR xFunctionList;
+CK_FUNCTION_LIST xFunctionList;
 
 static CK_RV prvC_Initialize(CK_VOID_PTR   pInitArgs)
 {
@@ -56,6 +56,11 @@ static CK_RV prvC_OpenSession(  CK_SLOT_ID            slotID,        /* the slot
     return CKR_OK;
 }
 
+static CK_RV prvC_CloseSession( CK_SESSION_HANDLE hSession )
+{
+    return CKR_OK;
+}
+
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                                     uint8_t * pucCodeSignCertificate,
                                     size_t xCertificateLength,
@@ -65,13 +70,13 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     return CKR_OK;
 }
 
-CK_RV C_GetFunctionList(CK_FUNCTION_LIST_PTR * pxFunctionList )
+CK_RV C_GetFunctionList( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 {
-  *pxFunctionList = xFunctionList;
-  xFunctionList->C_Initialize = prvC_Initialize;
-  xFunctionList->C_GetSlotList = prvC_GetSlotList; 
-  xFunctionList->C_OpenSession = prvC_OpenSession;
-
+  *ppxFunctionList = &xFunctionList;
+  xFunctionList.C_Initialize = prvC_Initialize;
+  xFunctionList.C_GetSlotList = prvC_GetSlotList; 
+  xFunctionList.C_OpenSession = prvC_OpenSession;
+  xFunctionList.C_CloseSession = prvC_CloseSession;
   return CKR_OK;
 }
 
