@@ -51,7 +51,6 @@
     </folder>
     <folder Name="nRF_Libraries">
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util/app_error_weak.c" />
-      <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/scheduler/app_scheduler.c" />
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util/app_util_platform.c" />
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crc32/crc32.c" />
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/mem_manager/mem_manager.c" />
@@ -61,7 +60,6 @@
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/memobj/nrf_memobj.c" />
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/queue/nrf_queue.c" />
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/strerror/nrf_strerror.c" />
-      <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/slip/slip.c" />
       <file file_name="../../../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/bootloader/nrf_bootloader_info.c" />
     </folder>
     <folder Name="nRF_Drivers">
