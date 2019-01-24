@@ -143,7 +143,9 @@ int sem_init( sem_t * sem,
             ( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, value, &pxSem->xSemaphore );
         #else
             /* If using disabling interrupt or atomic, sem value is handled by pxSem-> value. */
-            ( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, 0, &pxSem->xSemaphore );
+            //( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, 0, &pxSem->xSemaphore );
+
+            xSemaphoreCreateBinaryStatic( &pxSem->xSemaphore );
         #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
         *sem = pxSem;
     }
@@ -155,16 +157,7 @@ int sem_init( sem_t * sem,
 
 int sem_post( sem_t * sem )
 {
-<<<<<<< HEAD
-    #if ( POSIX_SEMAPHORE_TRACING == 1 && POSIX_SEMAPHORE_TRACING_POST == 1)
-        uint64_t ullInvocationTimeElapsed = 0;
-        prvTraceFunctionIn( &ullInvocationTimeElapsed );
-    #endif /* POSIX_SEMAPHORE_TRACING */
-
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
-=======
-    sem_internal_t * pxSem = ( sem_internal_t * ) ( *sem );
->>>>>>> This is the exact code used in generating "Profiling -- Synchronization".
 
     #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 || POSIX_SEMAPHORE_IMPLEMENTATION == 2 )
         int32_t previousValue = AwsIotAtomic_Add( &pxSem->value, 1 );
@@ -172,22 +165,10 @@ int sem_post( sem_t * sem )
         if ( previousValue > 0)
         {
             /* There isn't any task blocked by this semaphore. Do nothing. */
-
-            /* Below should NOT be enabled when attempting to get cycle elapsed.
-             * Shall ONLY use below for branch taken stat. */
-            #if ( POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1)
-                pthread_mutex_lock( &xBranchMutex_post );
-                iBranchTaken_post++;
-                pthread_mutex_unlock( &xBranchMutex_post);
-            #endif /* POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
         }
         else
     #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
         {
-            /* @todo With atomic, instead of giving FreeRTOS semaphore,
-             * need to force a reschedule.
-             */
-
             /* Give the semaphore using the FreeRTOS API. */
             ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
         }
@@ -242,22 +223,10 @@ int sem_timedwait( sem_t * sem,
         if ( previousValue > 0 )
         {
             /* There is at least one semaphore, no need to block. */
-
-            /* Below should NOT be enabled when attempting to get cycle elapsed.
-             * Shall ONLY use below for branch taken stat. */
-            #if ( POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1)
-                pthread_mutex_lock( &xBranchMutex_wait );
-                iBranchTaken_wait++;
-                pthread_mutex_unlock( &xBranchMutex_wait);
-            #endif /*POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT*/
         }
         else
     #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
         {
-            /* @todo With atomic, instead of taking FreeRTOS semaphore,
-             * need to put self in "waiting" state, and force a reschedule.
-             */
-
             /* Take the semaphore using the FreeRTOS API. */
             if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxSem->xSemaphore,
                                 xDelay ) != pdTRUE )
