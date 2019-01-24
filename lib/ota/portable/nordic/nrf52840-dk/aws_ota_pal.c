@@ -542,11 +542,11 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
         ul32BitBlocksTosend = NRF_FICR->CODEPAGESIZE;
       }
 
-      memcpy(pulSerializingArray, pacData, ulBlockSize); 
+      memcpy(pulSerializingArray, pacData + (ul32BitBlocksSent*4), ul32BitBlocksTosend); 
 
       xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
       /* Softdevice can write only by 32-bit words */
-      ret_code_t xErrCode = sd_flash_write( ( uint32_t * ) ulOffset, pulSerializingArray, ul32BitBlocksTosend );
+      ret_code_t xErrCode = sd_flash_write( ( uint32_t * ) (ulOffset + ul32BitBlocksSent), pulSerializingArray, ul32BitBlocksTosend );
 
       if( xErrCode == NRF_SUCCESS )
       {
