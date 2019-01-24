@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,23 +31,17 @@
 
 #ifndef _AWS_BLE_CONFIG_H_
 #define _AWS_BLE_CONFIG_H_
-
+#include "sdk_config.h"
 /* Device name for this peripheral device */
 #define bleconfigDEVICE_NAME                     "nRF52840"
 
 /* Enable WIFI provisioning GATT service */
 #define bleconfigENABLE_WIFI_PROVISIONING         ( 0 )
 
+/* MTU size. */
+#define bleconfigPREFERRED_MTU_SIZE         ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
 
-/* Enable GATT demo service */
-#define bleconfigENABLE_GATT_DEMO         ( 0 )
-
-/* Should the device disconnect if central tries to connect without MITM protection */
-#define bleconfigREQUIRE_MITM (1)
-
-/* Maximum bonds that the app should be aware of */
-#define bleconfigMAX_BONDS (6)
-
+/* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "aws_ble_config_defaults.h"
 
 #endif /* _AWS_BLE_CONFIG_H_ */

@@ -2,7 +2,7 @@
 #define __AWS_OTA_PAL_SETTINGS
 
 #include "stdint.h"
-
+#include "aws_iot_ota_agent.h"
 /* Number of bytes to represent an component (R,S) of the the curve. */
 #define ECC_NUM_BYTES_PER_SIG_COMPONENT    ( 32U )
 
@@ -39,8 +39,9 @@ extern size_t __reserved_flash_end__, __FLASH_segment_end__;
 #define otapalSECOND_BANK_SIZE       ( otapalSECOND_BANK_END - otapalSECOND_BANK_START )       /*Second bank size */
 
 #define otapalDESCRIPTOR_SIZE        NRF_FICR->CODEPAGESIZE                                    /* The size of the firmware descriptor */
-#define otapalSIGNATURE_MAX_SIZE     256
 #define otapalMAGICK_SIZE            7
+/* This array need to be at most equal to a page. */
+#define otapalSERIALIZING_ARRAY_SIZE 1024 
 
 #define otapalMAX_PUBLIC_KEY_SIZE    96 /* Maximum size of the public key */
 typedef enum
@@ -61,7 +62,7 @@ typedef struct
     uint32_t ulExecutionAddress;                    /* The load/execution address of the application image */
     uint32_t ulHardwareID;                          /* 32 bit ID that can be generated unique for a particular platform */
     uint32_t ulSignatureSize;                       /* Size of the crypto signature being used */
-    uint8_t pSignature[ otapalSIGNATURE_MAX_SIZE ]; /* Crypto signature of the application image excluding the descriptor */
+    uint8_t pSignature[ kOTA_MaxSignatureSize ]; /* Crypto signature of the application image excluding the descriptor */
 } ImageDescriptor_t;
 
 enum FlashEvents_t
