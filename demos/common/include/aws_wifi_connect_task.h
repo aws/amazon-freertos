@@ -37,9 +37,6 @@
 /**
  * @brief Initialize the task which connects to provisioned WiFi networks.
  *
- * @param [in] usStackSize Stack size for the WiFi reconnection task.
- * @param [in] uxPriority Priority for the WIFI reconnection task.
- *
  * @return pdTRUE if task is initialized successfully.
  *
  */
