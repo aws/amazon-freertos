@@ -35,6 +35,7 @@
 #include "aws_ota_pal_settings.h"
 #include "aws_ota_codesigner_certificate.h"
 
+#include "asn1utility.h"
 #include "mbedtls/base64.h"
 #include "nrf_mbr.h"
 #include "nrf_sdm.h"
@@ -44,16 +45,17 @@
 
 #include "event_groups.h"
 
+
 /* Specify the OTA signature algorithm we support on this platform. */
 const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 const char pcOTA_PAL_Magick[ otapalMAGICK_SIZE ] = "@AFRTOS";
+const size_t otapalFLASH_END = ( size_t ) &__FLASH_segment_end__;
 /* Tag by which the beginning of the ECDSA in the public key can be found */
 const char pcOTA_PAL_ASN_1_ECDSA_TAG[] = "\x06\x07\x2A\x86\x48\xCE\x3D\x02\x01\x06\x08\x2A\x86\x48\xCE\x3D\x03\x01\x07";
 
 const char pcOTA_PAL_CERT_BEGIN[] = "-----BEGIN CERTIFICATE-----";
 const char pcOTA_PAL_CERT_END[] = "-----END CERTIFICATE-----";
-uint8_t * pucPublicKey;
-
+static uint32_t pulSerializingArray[otapalSERIALIZING_ARRAY_SIZE];
 size_t ulPublicKeySize = 0;
 
 /* The static functions below (prvPAL_CheckFileSignature and prvPAL_ReadAndAssumeCertificate)
@@ -118,7 +120,7 @@ static ret_code_t prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C );
  */
 static ret_code_t prvWriteFlash( uint32_t ulOffset,
                                  uint32_t ulBlockSize,
-                                 void * const pacData );
+                                 uint8_t * const pacData );
 
 static int prvNextFreeFileHandle = 1;
 static EventGroupHandle_t xFlashEventGrp = NULL;
@@ -193,7 +195,7 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
     if (xStatus == kOTA_Err_None){
         /* Erase the required memory */
         OTA_LOG_L1( "[%s] Erasing the flash memory \n", OTA_METHOD_NAME );
-        xStatus = prvErasePages(otapalSECOND_BANK_START, otapalSECOND_BANK_START + otapalDESCRIPTOR_SIZE + C->ulFileSize);
+        xStatus = prvErasePages(otapalSECOND_BANK_START, otapalSECOND_BANK_END);
         if (xStatus != kOTA_Err_None) 
         {
              OTA_LOG_L1( "[%s] Erasing the flash memory failed with error_code %d\n", OTA_METHOD_NAME, xStatus );
@@ -250,7 +252,9 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
 {
     OTA_Err_t xError;
     ret_code_t xStatus;
+
     DEFINE_OTA_METHOD_NAME( "prvPAL_CloseFile" );
+
     OTA_LOG_L1( "[%s] Erasing the flash memory was successful\n", OTA_METHOD_NAME );
 
     /* Write the image descriptor */
@@ -278,7 +282,6 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
     nrf_crypto_hash_sha256_digest_t xHash;
     size_t ulHashLength = sizeof( xHash );
     ret_code_t xErrCode = NRF_SUCCESS;
-    ImageDescriptor_t * descriptor = ( ImageDescriptor_t * ) ( otapalSECOND_BANK_START );
     uint32_t ulCertificateSize = 0;
     uint8_t *pusCertificate = prvPAL_ReadAndAssumeCertificate (NULL, &ulCertificateSize);
     if (pusCertificate == NULL) {
@@ -286,7 +289,7 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
     }
     if (xErrCode == NRF_SUCCESS) {
         prvComputeSHA256Hash( (uint8_t *)otapalSECOND_BANK_START + otapalDESCRIPTOR_SIZE, C->ulFileSize, &xHash, &ulHashLength );
-        xErrCode = prvVerifySignature( (uint8_t*) &xHash, ulHashLength, descriptor->pSignature, descriptor->ulSignatureSize, pusCertificate, ulCertificateSize );
+        xErrCode = prvVerifySignature( (uint8_t*) &xHash, ulHashLength, C->pxSignature->ucData, C->pxSignature->usSize, pusCertificate, ulCertificateSize );
         vPortFree( pusCertificate );        
     }
 
@@ -304,7 +307,8 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
 static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
                                                   uint32_t * const ulSignerCertSize )
 {
-    uint8_t * pusCertificate;
+    uint8_t * pucPublicKey;
+
     DEFINE_OTA_METHOD_NAME( "prvPAL_ReadAndAssumeCertificate" );
     * ulSignerCertSize = sizeof(signingcredentialSIGNING_CERTIFICATE_PEM);
     /* Skip the "BEGIN CERTIFICATE" */
@@ -320,7 +324,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     {
         return NULL;
     }
-    char *pucDecodedCertificate;
+    uint8_t *pucDecodedCertificate;
     size_t ulDecodedCertificateSize;
     mbedtls_base64_decode(pucDecodedCertificate, 0, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     pucDecodedCertificate = (char*) pvPortMalloc(ulDecodedCertificateSize);
@@ -435,9 +439,8 @@ OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )
             if(xStatus == kOTA_Err_None)
             {
                 xStatus = prvWriteFlash(otapalFIRST_BANK_START, sizeof(new_descriptor), (uint8_t *)&new_descriptor);
+            }
         }
-    }
-
     }
     return xStatus;
 }
@@ -515,24 +518,50 @@ static ret_code_t prvPAL_WriteImageDescriptor( OTA_FileContext_t * const C )
 /* Write a block of data to the specified file. */
 ret_code_t prvWriteFlash( uint32_t ulOffset,
                           uint32_t ulBlockSize,
-                          void * const pacData )
+                          uint8_t * const pacData )
 {
-    uint32_t ulByteIndex, ul32BitBlocksTosend, ulTotal32BitBlocks, ul32BitBlocksSent;
+    uint32_t ul32BitBlocksTosend, ulTotal32BitBlocks, ul32BitBlocksSent;
     ret_code_t xErrCode = NRF_SUCCESS;
-    ulByteIndex = 0;
-    xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
-    /* Softdevice can write only by 32-bit words */
-    xErrCode = sd_flash_write( ( uint32_t * ) ulOffset, pacData, (ulBlockSize + 3)  / 4 );
+    ulTotal32BitBlocks = (ulBlockSize+3)/4;
+    ul32BitBlocksSent = 0;
 
-    if( xErrCode == NRF_SUCCESS )
+
+    while(ul32BitBlocksSent < ulTotal32BitBlocks)
     {
-        EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
+      ul32BitBlocksTosend = 0;
 
-        if( xFlashResult & otapalFLASH_FAILURE )
-        {
-            xErrCode = NRF_ERROR_INTERNAL;
-        }
+      ul32BitBlocksTosend = ulTotal32BitBlocks - ul32BitBlocksSent;
+
+      if(ul32BitBlocksTosend > otapalSERIALIZING_ARRAY_SIZE)
+      {
+        ul32BitBlocksTosend = otapalSERIALIZING_ARRAY_SIZE;
+      }
+
+      if(ul32BitBlocksTosend > NRF_FICR->CODEPAGESIZE)
+      {
+        ul32BitBlocksTosend = NRF_FICR->CODEPAGESIZE;
+      }
+
+      memcpy(pulSerializingArray, pacData + (ul32BitBlocksSent*4), ul32BitBlocksTosend); 
+
+      xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
+      /* Softdevice can write only by 32-bit words */
+      ret_code_t xErrCode = sd_flash_write( ( uint32_t * ) (ulOffset + ul32BitBlocksSent), pulSerializingArray, ul32BitBlocksTosend );
+
+      if( xErrCode == NRF_SUCCESS )
+      {
+          EventBits_t xFlashResult = xEventGroupWaitBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE, pdTRUE, pdFALSE, portMAX_DELAY );
+
+          if( xFlashResult & otapalFLASH_FAILURE )
+          {
+              xErrCode = NRF_ERROR_INTERNAL;
+              break;
+          }
+      }
+      ul32BitBlocksSent += ul32BitBlocksTosend;
+
     }
+
     return xErrCode;
 }
 /*-----------------------------------------------------------*/

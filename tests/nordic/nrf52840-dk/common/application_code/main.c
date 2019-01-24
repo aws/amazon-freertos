@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.2.7
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,72 +23,86 @@
  * http://www.FreeRTOS.org
  */
 
-
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* Test includes */
-#include "aws_test_runner.h"
-
 /* Demo includes */
-#include "aws_demo_runner.h"
+#include "aws_test_runner.h"
 
 /* AWS library includes. */
 #include "aws_system_init.h"
 #include "aws_logging_task.h"
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
-#include "aws_demo_config.h"
-
-/* AWS BLE headers */
-#include "aws_ble.h"
-#include "bt_hal_manager.h"
-#include "bt_hal_manager_adapter_ble.h"
 
 /* Nordic BSP includes */
+#include "bsp.h"
 #include "nordic_common.h"
-#include "nrf.h"
-#include "app_error.h"
-#include "ble.h"
-#include "ble_hci.h"
-#include "ble_srv_common.h"
-#include "ble_advdata.h"
-#include "ble_advertising.h"
-#include "ble_bas.h"
-#include "ble_hrs.h"
-#include "ble_dis.h"
-#include "nrf_ble_qwr.h"
-#include "sensorsim.h"
+#include "nrf_drv_clock.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_soc.h"
 #include "nrf_sdh_ble.h"
 #include "nrf_sdh_freertos.h"
-#include "app_timer.h"
-#include "peer_manager.h"
-#include "peer_manager_handler.h"
-#include "bsp.h"
-#include "bsp_btn_ble.h"
-#include "FreeRTOS.h"
-#include "task.h"
+#include "sensorsim.h"
+#include "ble_srv_common.h"
+#include "ble_advdata.h"
+#include "ble_advertising.h"
 #include "timers.h"
-#include "semphr.h"
-#include "fds.h"
+#include "app_timer.h"
 #include "ble_conn_state.h"
 #include "nrf_drv_clock.h"
 #include "nrf_ble_gatt.h"
-#include "nrf_ble_lesc.h"
+#include "nrf_ble_qwr.h"
+#include "ble_conn_params.h"
+#include "peer_manager.h"
+#include "peer_manager_handler.h"
+#include "fds.h"
+#include "bsp_btn_ble.h"
 
+#include "aws_ble_hal_dis.h"
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
+#include "ble_types.h"
+#include "nrf_ble_lesc.h"
+
+#include "bt_hal_manager_adapter_ble.h"
+#include "bt_hal_manager.h"
+#include "bt_hal_gatt_server.h"
+#include "aws_ble_services_init.h"
+#include "app_uart.h"
+
+/* MQTT v4 include. */
+#include "aws_iot_mqtt.h"
+
+#include <aws_ble.h>
+#include "aws_ble_numericComparison.h"
+#include "SEGGER_RTT.h"
+#include "aws_application_version.h"
+#if defined( UART_PRESENT )
+    #include "nrf_uart.h"
+#endif
+#if defined( UARTE_PRESENT )
+    #include "nrf_uarte.h"
+#endif
 
 /* clang-format off */
+#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 12 )
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
-#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
+#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
+
+/* BLE Lib defines. */
+#define mainBLE_SERVER_UUID                 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
+
+/* UART Buffer sizes. */
+#define UART_TX_BUF_SIZE                    ( 256 )                                 /**< UART TX buffer size. */
+#define UART_RX_BUF_SIZE                    ( 256 )                                 /**< UART RX buffer size. */
 
 /* LED-associated defines */
 #define LED_ONE                             BSP_LED_0_MASK
@@ -97,45 +111,13 @@
 #define LED_FOUR                            BSP_LED_3_MASK
 #define ALL_APP_LED                     \
     ( BSP_LED_0_MASK | BSP_LED_1_MASK | \
-      BSP_LED_2_MASK | BSP_LED_3_MASK )             /**< Define used for simultaneous operation of all application LEDs. */
-#define LED_BLINK_INTERVAL_MS               ( 300 ) /**< LED blinking interval. */
+      BSP_LED_2_MASK | BSP_LED_3_MASK )                                        /**< Define used for simultaneous operation of all application LEDs. */
+#define LED_BLINK_INTERVAL_MS               ( 300 )                            /**< LED blinking interval. */
 
-
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi
- * failure status before blocking indefinitely. */
-#define mainLOGGING_WIFI_STATUS_DELAY      pdMS_TO_TICKS( 1000 )
-
-/* Unit test defines. */
-#define mainTEST_RUNNER_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 16 )
+SemaphoreHandle_t xUARTTxComplete;
+QueueHandle_t UARTqueue = NULL;
 
 /* clang-format on */
-
-
-static bool bRRIntervalEnabled = true; /**< Flag for enabling and disabling the registration of new RR interval measurements (the purpose of disabling this is just to test sending HRM without RR interval data. */
-
-
-static BTInterface_t * pxBTinterface;
-
-static bool erase_bonds;
-
-static void prvAdvertisingStart( void * p_erase_bonds );
-
-static void prvOpenCb( uint16_t usConnId,
-                       BTStatus_t xStatus,
-                       uint8_t ucAdapterIf,
-                       BTBdaddr_t * pxBda )
-{
-    ret_code_t err_code;
-
-    NRF_LOG_INFO( "Connected" );
-    err_code = bsp_indication_set( BSP_INDICATE_CONNECTED );
-    APP_ERROR_CHECK( err_code );
-}
-
-static BTBleAdapterCallbacks_t prvCallbacks =
-{
-    .pxOpenCb = prvOpenCb
-};
 
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
@@ -148,121 +130,115 @@ void vApplicationDaemonTaskStartupHook( void );
 /**
  * @brief Initializes the board.
  */
-static void prvMiscInitialization( bool * );
-
-TaskHandle_t prvLedHandle;
+static void prvMiscInitialization( void );
 
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Task for LED's blinking
- */
-static void prvLedTask( void * parameters )
+void vUartWrite( uint8_t * pucData )
 {
-    ( void * ) parameters;
+    uint32_t xErrCode;
 
-    LEDS_CONFIGURE( ALL_APP_LED );
-    LEDS_OFF( ALL_APP_LED );
-
-    for( ; ; )
+    SEGGER_RTT_WriteString(0, pucData);
+    for( uint32_t i = 0; i < configLOGGING_MAX_MESSAGE_LENGTH; i++ )
     {
-        LEDS_ON( LED_FOUR );
-        vTaskDelay( LED_BLINK_INTERVAL_MS );
-        LEDS_OFF( LED_FOUR );
-        vTaskDelay( LED_BLINK_INTERVAL_MS );
+        if(pucData[ i ] == 0)
+        {
+            break;
+        }
+
+        do
+        {
+            xErrCode = app_uart_put(pucData[ i ]);
+            if(xErrCode == NRF_ERROR_NO_MEM)
+            {
+            xErrCode = 0;
+            }
+        } while( xErrCode == NRF_ERROR_BUSY );
+        xSemaphoreTake(xUARTTxComplete, portMAX_DELAY );
+
     }
 }
 
 /*-----------------------------------------------------------*/
 
-/**@brief Callback function for asserts in the SoftDevice.
- *
- * @details This function will be called in case of an assert in the SoftDevice.
- *
- * @warning This handler is an example only and does not fit a final product. You need to analyze
- *          how your product is supposed to react in case of Assert.
- * @warning On assert from the SoftDevice, the system can only recover on reset.
- *
- * @param[in]   line_num   Line number of the failing ASSERT call.
- * @param[in]   file_name  File name of the failing ASSERT call.
- */
-void assert_nrf_callback( uint16_t line_num,
-                          const uint8_t * p_file_name )
-{
-    app_error_handler( DEAD_BEEF, line_num, p_file_name );
-}
-
-/*-----------------------------------------------------------*/
-
 /**@brief Function for putting the chip into sleep mode.
+ * /**@brief Function for putting the chip into sleep mode
  *
  * @note This function will not return.
  */
-static void prvSleepModeEnter( void )
+static void prvSleeModeEnter( void )
 {
-    ret_code_t err_code;
+    ret_code_t xErrCode;
 
-    err_code = bsp_indication_set( BSP_INDICATE_IDLE );
-    APP_ERROR_CHECK( err_code );
+    xErrCode = bsp_indication_set( BSP_INDICATE_IDLE );
+    APP_ERROR_CHECK( xErrCode );
 
     /* Prepare wakeup buttons. */
-    err_code = bsp_btn_ble_sleep_mode_prepare();
-    APP_ERROR_CHECK( err_code );
+    xErrCode = bsp_btn_ble_sleep_mode_prepare();
+    APP_ERROR_CHECK( xErrCode );
 
     /* Go to system-off mode (this function will not return; wakeup will cause a reset). */
-    err_code = sd_power_system_off();
-    APP_ERROR_CHECK( err_code );
+    xErrCode = sd_power_system_off();
+    APP_ERROR_CHECK( xErrCode );
 }
+
+/*-----------------------------------------------------------*/
+
 
 
 /*-----------------------------------------------------------*/
 
-/**@brief Function for initializing the BLE stack.
+/**@brief Function for handling a Connection Parameters error.
  *
- * @details Initializes the SoftDevice and the BLE event interrupt.
+ * @param[in]   nrf_error   Error code containing information about what went wrong.
  */
-static BTStatus_t prvBLEInit( void )
+static void conn_params_error_handler( uint32_t nrf_error )
 {
-    BTUuid_t xUUID =
+    APP_ERROR_HANDLER( nrf_error );
+}
+
+/*-----------------------------------------------------------*/
+
+/**@brief   Function for handling uart events.
+ *
+ * /**@snippet [Handling the data received over UART] */
+ 
+void prvUartEventHandler( app_uart_evt_t * pxEvent )
+{
+    /* Declared as static so it can be pushed into the queue from the ISR. */
+    static volatile uint8_t ucRxByte = 0;
+    INPUTMessage_t xInputMessage;
+   BaseType_t xHigherPriorityTaskWoken;
+    switch( pxEvent->evt_type )
     {
-        .ucType   = eBTuuidType128,
-        .uu.uu128 = { 0x00,        0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
-    };
+        case APP_UART_DATA_READY:
+            app_uart_get( (uint8_t *)&ucRxByte );
+            app_uart_put( ucRxByte );
+            
+            xInputMessage.pcData = (uint8_t *)&ucRxByte;
+            xInputMessage.xDataSize = 1;
 
-    const bool bIsBondable = false;
-    const bool bIsSecure = true;
+            xQueueSendFromISR(UARTqueue, (void * )&xInputMessage, &xHigherPriorityTaskWoken);
+            /* Now the buffer is empty we can switch context if necessary. */
+            //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
+    
+            break;
 
-    const uint32_t usMtu = 23;
+        case APP_UART_COMMUNICATION_ERROR:
+            APP_ERROR_HANDLER( pxEvent->data.error_communication );
+            break;
 
-    BTProperty_t pxProperties[ 4 ] =
-    {
-        {
-            .xType = eBTpropertyBdname,
-            .xLen = strlen( DEVICE_NAME ),
-            .pvVal = DEVICE_NAME
-        },
-        {
-            .xType = eBTpropertyBondable,
-            .xLen = 1,
-            .pvVal = ( void * ) &bIsBondable
-        },
-        {
-            .xType = eBTpropertyLocalMTUSize,
-            .xLen = 1,
-            .pvVal = ( void * ) &usMtu
-        },
-        {
-            .xType = eBTpropertySecureConnectionOnly,
-            .xLen = 1,
-            .pvVal = ( void * ) &bIsSecure
-        },
-    };
+        case APP_UART_FIFO_ERROR:
+            APP_ERROR_HANDLER( pxEvent->data.error_code );
+            break;
 
-    pxBTinterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    BTStatus_t xStatus = eBTStatusSuccess;
-    xStatus = BLE_Init( &xUUID, pxProperties, 4 );
+        case APP_UART_TX_EMPTY:
+             xSemaphoreGiveFromISR(xUARTTxComplete, &xHigherPriorityTaskWoken);
+            break;
 
-    return xStatus;
+        default:
+            break;
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -271,21 +247,22 @@ static BTStatus_t prvBLEInit( void )
  *
  * @param[in]   event   Event generated by button press.
  */
-static void prvBSPEventHAndler( bsp_event_t event )
+static void prvBSPEventHandler( bsp_event_t xEvent )
 {
-    ret_code_t err_code;
-    BTStatus_t xStatus;
+    ret_code_t xErrCode;
+    const BTInterface_t * pxIface = BTGetBluetoothInterface();
+    const BTBleAdapter_t * pxAdapter = pxIface->pxGetLeAdapter();
 
-    switch( event )
+    switch( xEvent )
     {
         case BSP_EVENT_SLEEP:
-            prvSleepModeEnter();
+            prvSleeModeEnter();
             break;
 
         case BSP_EVENT_DISCONNECT:
-            break;
 
-        case BSP_EVENT_WHITELIST_OFF:
+            pxAdapter->pxDisconnect( 0, NULL, 0 );
+
             break;
 
         default:
@@ -293,64 +270,37 @@ static void prvBSPEventHAndler( bsp_event_t event )
     }
 }
 
-
 /*-----------------------------------------------------------*/
 
-/**@brief Clear bond information from persistent storage. */
-static void prvDeleteBonds( void )
+
+/**@brief  Function for initializing the UART module.
+ */
+static void prvUartInit( void )
 {
-    ret_code_t err_code;
+    uint32_t xErrCode;
 
-    NRF_LOG_INFO( "Erase bonds!" );
-
-    err_code = pm_peers_delete();
-    APP_ERROR_CHECK( err_code );
-}
-
-/*-----------------------------------------------------------*/
-
-void vSetAdvCallback( BTStatus_t xStatus )
-{
-}
-
-/*-----------------------------------------------------------*/
-
-/**@brief Function for initializing the Advertising functionality. */
-static void prvAdvertisingInit( void )
-{
-    BTStatus_t xStatus;
-
-    ble_advertising_init_t init;
-
-    memset( &init, 0, sizeof( init ) );
-    BTUuid_t xHeartRateServiceUUID =
+    app_uart_comm_params_t const xConnParams =
     {
-        .ucType  = eBTuuidType16,
-        .uu.uu16 = BLE_UUID_HEART_RATE_SERVICE
+        .rx_pin_no        = RX_PIN_NUMBER,
+        .tx_pin_no        = TX_PIN_NUMBER,
+        .rts_pin_no       = RTS_PIN_NUMBER,
+        .cts_pin_no       = CTS_PIN_NUMBER,
+        .flow_control     = APP_UART_FLOW_CONTROL_DISABLED,
+        .use_parity       = false,
+        #if defined( UART_PRESENT )
+            .baud_rate    = NRF_UART_BAUDRATE_115200
+        #else
+               .baud_rate = NRF_UARTE_BAUDRATE_115200
+                            #endif
     };
 
-    BTUuid_t xBatteryServiceUUID =
-    {
-        .ucType  = eBTuuidType16,
-        .uu.uu16 = BLE_UUID_BATTERY_SERVICE
-    };
-
-    BLEAdvertismentParams_t xAdvParams =
-    {
-        .bIncludeTxPower    = false,
-        .bIncludeName       = true,
-        .bSetScanRsp        = true,
-        .ulAppearance       = 0,
-        .ulMinInterval      = 0x20,
-        .ulMaxInterval      = 0x40,
-        .usManufacturerLen  = 0,
-        .pcManufacturerData = NULL,
-        .pxUUID1            = &xHeartRateServiceUUID,
-        .pxUUID2            = &xBatteryServiceUUID
-    };
-
-    xStatus = BLE_SetAdvData( BTAdvInd, &xAdvParams, NULL );
-    configASSERT( ( xStatus == eBTStatusSuccess ) );
+    APP_UART_FIFO_INIT( &xConnParams,
+                        UART_RX_BUF_SIZE,
+                        UART_TX_BUF_SIZE,
+                        prvUartEventHandler,
+                        _PRIO_APP_HIGH,
+                        xErrCode );
+    APP_ERROR_CHECK( xErrCode );
 }
 
 /*-----------------------------------------------------------*/
@@ -359,50 +309,11 @@ static void prvAdvertisingInit( void )
  */
 static void prvLogInit( void )
 {
-    ret_code_t err_code = NRF_LOG_INIT( NULL );
+    ret_code_t xErrCode = NRF_LOG_INIT( NULL );
 
-    APP_ERROR_CHECK( err_code );
+    APP_ERROR_CHECK( xErrCode );
 
     NRF_LOG_DEFAULT_BACKENDS_INIT();
-}
-
-/*-----------------------------------------------------------*/
-
-/**@brief Function for initializing buttons and leds.
- *
- * @param[out] p_erase_bonds  Will be true if the clear bonding button was pressed to wake the application up.
- */
-static void prvButtonsLedsInit( bool * p_erase_bonds )
-{
-    ret_code_t err_code;
-    bsp_event_t startup_event;
-
-    err_code = bsp_init( BSP_INIT_LEDS | BSP_INIT_BUTTONS, prvBSPEventHAndler );
-    APP_ERROR_CHECK( err_code );
-
-    err_code = bsp_btn_ble_init( NULL, &startup_event );
-    APP_ERROR_CHECK( err_code );
-
-    *p_erase_bonds = ( startup_event == BSP_EVENT_CLEAR_BONDING_DATA );
-}
-
-/*-----------------------------------------------------------*/
-
-/**@brief Function for starting advertising. */
-static void prvAdvertisingStart( void * p_erase_bonds )
-{
-    BTStatus_t xStatus = BLE_StartAdv( NULL );
-
-    configASSERT( ( xStatus == eBTStatusSuccess ) );
-}
-
-/*-----------------------------------------------------------*/
-
-/**@brief A function which is hooked to idle task.
- * @note Idle hook must be enabled in FreeRTOS configuration (configUSE_IDLE_HOOK).
- */
-void vApplicationIdleHook( void )
-{
 }
 
 /*-----------------------------------------------------------*/
@@ -411,100 +322,100 @@ void vApplicationIdleHook( void )
  */
 static void prvClockInit( void )
 {
-    ret_code_t err_code = nrf_drv_clock_init();
+    ret_code_t xErrCode = nrf_drv_clock_init();
 
-    APP_ERROR_CHECK( err_code );
-}
-
-static void prvLescTask( void * params )
-{
-    for( ; ; )
-    {
-        nrf_ble_lesc_request_handler();
-        vTaskDelay( 10 );
-    }
+    APP_ERROR_CHECK( xErrCode );
 }
 
 /*-----------------------------------------------------------*/
 
-/**@brief Function for application main entry.
+/**@brief Function for the Timer initialization.
+ *
+ * @details Initializes the timer module. This creates and starts application timers.
+ */
+static void prvTimersInit( void )
+{
+    /* Initialize timer module. */
+    ret_code_t xErrCode = app_timer_init();
+
+    APP_ERROR_CHECK( xErrCode );
+}
+
+/*-----------------------------------------------------------*/
+
+static void prvMiscInitialization( void )
+{
+    /* Initialize modules.*/
+    xUARTTxComplete = xSemaphoreCreateBinary();
+    prvUartInit();
+    prvClockInit();
+
+    /* Activate deep sleep mode. */
+    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+    NumericComparisonInit();
+    prvTimersInit();
+    UARTqueue = xQueueCreate( 1, sizeof( INPUTMessage_t ) );
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Application runtime entry point.
  */
 int main( void )
 {
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
-    prvMiscInitialization( &erase_bonds );
-
-    /* Create a FreeRTOS task for the BLE stack.
-     * The task will run advertising_start() before entering its loop. */
+    prvMiscInitialization();
 
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
-                            tskIDLE_PRIORITY + 2,
+                            tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-
     nrf_sdh_freertos_init( NULL, NULL );
-
-    xTaskCreate( prvLescTask, "LESK", 300, NULL, tskIDLE_PRIORITY + 3, NULL );
-
-    BaseType_t xReturned = xTaskCreate( TEST_RUNNER_RunTests_task,
-                                        "RunTests_task",
-                                        mainTEST_RUNNER_TASK_STACK_SIZE,
-                                        NULL,
-                                        tskIDLE_PRIORITY + 1,
-                                        NULL );
-
-    if( xReturned != pdPASS )
-    {
-        NRF_LOG_ERROR( "Tests task not created." );
-        APP_ERROR_HANDLER( NRF_ERROR_NO_MEM );
-    }
-
     ret_code_t xErrCode = pm_init();
-    if( xErrCode != NRF_SUCCESS )
-    {
-        APP_ERROR_CHECK( xErrCode );
-        while(1);
-    }
-
     vTaskStartScheduler();
 
-    for( ; ; )
-    {
-        /*    APP_ERROR_HANDLER(NRF_ERROR_FORBIDDEN);*/
-    }
+    return 0;
 }
-
 /*-----------------------------------------------------------*/
 
-static void prvMiscInitialization( bool * erase_bonds )
+BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
 {
-    /* Initialize modules.*/
-    prvLogInit();
-    prvClockInit();
-    /* Activate deep sleep mode. */
-    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-    prvButtonsLedsInit( erase_bonds );
+      BaseType_t xReturnMessage = pdFALSE;
+      INPUTMessage_t xTmpINPUTmessage;
 
-    /*    application_timers_start();  /* TODO: Find out what's wrong with timers!!*/
+      pxINPUTmessage->pcData = (uint8_t *)pvPortMalloc(sizeof(uint8_t));
+      pxINPUTmessage->xDataSize = 1;
+      if(pxINPUTmessage->pcData != NULL)
+      {
+          if (xQueueReceive(UARTqueue, (void * )&xTmpINPUTmessage, (portTickType) xAuthTimeout )) 
+          {
+              *pxINPUTmessage->pcData = *xTmpINPUTmessage.pcData;
+              pxINPUTmessage->xDataSize = xTmpINPUTmessage.xDataSize;
+              xReturnMessage = pdTRUE;
+          }
+      }
+
+      return xReturnMessage;
 }
-/*-----------------------------------------------------------*/
+/**@brief Clear bond information from persistent storage. */
+static void prvDeleteBonds( void )
+{
+    ret_code_t xErrCode;
 
+    NRF_LOG_INFO( "Erase bonds!" );
+
+    xErrCode = pm_peers_delete();
+    APP_ERROR_CHECK( xErrCode );
+}
 void vApplicationDaemonTaskStartupHook( void )
 {
-    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
-     * running, here. */
-
-/*    NRF_LOG_INFO( "HRS FreeRTOS example started." ); */
-    /* Start FreeRTOS scheduler. */
-
-    #if 0
-        if( SYSTEM_Init() == pdPASS )
-        {
-            /* Start the demo tasks. */
-            DEMO_RUNNER_RunDemos();
-        }
-    #endif
+    xTaskCreate( TEST_RUNNER_RunTests_task,
+            "RunTests_task",
+            mainTEST_RUNNER_TASK_STACK_SIZE,
+            NULL,
+            tskIDLE_PRIORITY,
+            NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -583,11 +494,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
  */
 void vApplicationMallocFailedHook()
 {
-    taskDISABLE_INTERRUPTS();
-
-    for( ; ; )
-    {
-    }
+    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -614,6 +521,29 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 }
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief User defined Idle task function.
+ *
+ * @note Do not make any blocking operations in this function.
+ */
+void vApplicationIdleHook( void )
+{
+    /* FIX ME. If necessary, update to application idle periodic actions. */
+
+    static TickType_t xLastPrint = 0;
+    TickType_t xTimeNow;
+    const TickType_t xPrintFrequency = pdMS_TO_TICKS( 5000 );
+
+    xTimeNow = xTaskGetTickCount();
+
+    if( ( xTimeNow - xLastPrint ) > xPrintFrequency )
+    {
+        configPRINT( "." );
+        xLastPrint = xTimeNow;
+    }
+}
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief User defined assertion call. This function is plugged into configASSERT.

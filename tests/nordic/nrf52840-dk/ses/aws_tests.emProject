@@ -1,0 +1,638 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="aws_tests" target="8" version="2">
+  <project Name="aws_tests">
+    <configuration
+      Name="Common"
+      arm_architecture="v7EM"
+      arm_core_type="Cortex-M4"
+      arm_endian="Little"
+      arm_fp_abi="Hard"
+      arm_fpu_type="FPv4-SP-D16"
+      arm_linker_heap_size="1024"
+      arm_linker_process_stack_size="0"
+      arm_linker_stack_size="1024"
+      arm_linker_treat_warnings_as_errors="No"
+      arm_simulator_memory_simulation_parameter="RWX 00000000,00100000,FFFFFFFF;RWX 20000000,00010000,CDCDCDCD"
+      arm_target_device_name="nRF52840_xxAA"
+      arm_target_interface_type="SWD"
+      asm_additional_options=""
+      c_preprocessor_definitions="NRF52840_XXAA;BOARD_PCA10056;CONFIG_GPIO_AS_PINRESET;ENABLE_DEBUG_LOG_SUPPORT;FLOAT_ABI_HARD;INITIALIZE_USER_SECTIONS;NO_VTOR_CONFIG;NRF_SD_BLE_API_VERSION=6;RETARGET_ENABLED=1;S140;SVC_INTERFACE_CALL_AS_NORMAL_FUNCTION;SDK_MUTEX_ENABLE;SOFTDEVICE_PRESENT;SWI_DISABLE0;AWS_IOT_CONFIG_FILE=&quot;aws_iot_config.h&quot;;__FREERTOS;DEBUG_GAP=1;AMAZON_FREERTOS_ENABLE_UNIT_TESTS"
+      c_user_include_directories="../common/config_files;../common/application_code;../../../common/include;../../../common/ota;../../../../lib/FreeRTOS-Plus-POSIX/include;../../../../lib/FreeRTOS-Plus-POSIX/include/portable/nordic/nrf52840-dk;../../../../lib/third_party/mbedtls/include;../../../../lib/FreeRTOS/portable/CMSIS/nrf52;../../../../lib/FreeRTOS/portable/GCC/nrf52840-dk;../../../../lib/include;../../../../lib/include/bluetooth_low_energy;../../../../lib/include/private;../../../../lib/third_party/pkcs11;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/svc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fifo;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/uart;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/stack_info;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/queue;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_hw;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_sw;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic_flags;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/mutex;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/s140/headers;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_link_ctx_manager;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/sensorsim;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fds;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic_fifo;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_advertising;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain/cmsis/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/config/nrf52840/config;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/boards;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/device;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/clock;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/delay;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/gpiote;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/nrf_ble_gatt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_services/ble_nus;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/nrf_ble_qwr;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/hal;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/rng;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/timer;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/drivers_nrf/wdt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/balloc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/bsp;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/button;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/delay;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/experimental_section_vars;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/hardfault;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/mem_manager;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/memobj;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/ringbuf;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/strerror;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/timer;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cifra;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/common;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/s140/headers;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/mbr/nrf52840/headers;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/micro_ecc;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/mbedtls;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/toolchain/cmsis/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/fprintf;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/nrf_cc310/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/segger_rtt;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310_bl;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/oberon;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx/legacy;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/include;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/hal;../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk;../../../../lib/third_party/tinycrypt/lib/include/;../../../../lib/third_party/tinycrypt/asn1;../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk;../../../../lib/third_party/jsmn;../../../../lib/third_party/tinycbor;../../../common/mqtt/access;../../../../lib/third_party/unity/src;../../../../lib/third_party/unity/extras/fixture/src"
+      gcc_debugging_level="Level 2"
+      linker_printf_fmt_level="long long"
+      linker_scanf_fmt_level="long long" />
+    <folder Name="lib">
+      <folder Name="aws">
+        <folder Name="Bluetooth_low_energy">
+          <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_event_manager.c" />
+          <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_gap.c" />
+          <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_gatt.c" />
+          <folder Name="services">
+            <folder Name="device_information">
+              <file file_name="../../../../lib/bluetooth_low_energy/services/device_information/aws_ble_device_information.c" />
+            </folder>
+            <folder Name="mqtt_ble">
+              <file file_name="../../../../lib/bluetooth_low_energy/services/mqtt_ble/aws_iot_mqtt_ble.c" />
+            </folder>
+          </folder>
+          <folder Name="nordic">
+            <file file_name="../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk/aws_ble_hal_common_gap.c" />
+            <file file_name="../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk/aws_ble_hal_dis.c" />
+            <file file_name="../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk/aws_ble_hal_gap.c" />
+            <file file_name="../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk/aws_ble_hal_gatt_server.c" />
+          </folder>
+        </folder>
+        <folder Name="include">
+          <folder Name="Bluetooth_low_energy">
+            <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_avsrc_profile.h" />
+            <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_gatt_client.h" />
+            <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_gatt_server.h" />
+            <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_gatt_types.h" />
+            <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_manager.h" />
+            <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_manager_adapter_ble.h" />
+            <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_manager_adapter_classic.h" />
+            <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_manager_types.h" />
+          </folder>
+          <folder Name="private">
+            <file file_name="../../../../lib/include/private/aws_ble_event_manager.h" />
+            <file file_name="../../../../lib/include/private/aws_ble_internals.h" />
+            <file file_name="../../../../lib/include/private/aws_default_root_certificates.h" />
+            <file file_name="../../../../lib/include/private/aws_doubly_linked_list.h" />
+            <file file_name="../../../../lib/include/private/aws_ggd_config_defaults.h" />
+            <file file_name="../../../../lib/include/private/aws_helper_secure_connect.h" />
+            <file file_name="../../../../lib/include/private/aws_lib_init.h" />
+            <file file_name="../../../../lib/include/private/aws_mqtt_agent_config_defaults.h" />
+            <file file_name="../../../../lib/include/private/aws_mqtt_config_defaults.h" />
+            <file file_name="../../../../lib/include/private/aws_ota_agent_internal.h" />
+            <file file_name="../../../../lib/include/private/aws_ota_cbor.h" />
+            <file file_name="../../../../lib/include/private/aws_ota_cbor_internal.h" />
+            <file file_name="../../../../lib/include/private/aws_ota_pal.h" />
+            <file file_name="../../../../lib/include/private/aws_ota_types.h" />
+            <file file_name="../../../../lib/include/private/aws_rsprintf.h" />
+            <file file_name="../../../../lib/include/private/aws_secure_sockets_config_defaults.h" />
+            <file file_name="../../../../lib/include/private/aws_shadow_config_defaults.h" />
+            <file file_name="../../../../lib/include/private/aws_shadow_json.h" />
+            <file file_name="../../../../lib/include/private/deprecated_definitions.h" />
+            <file file_name="../../../../lib/include/private/list.h" />
+            <file file_name="../../../../lib/include/private/mpu_wrappers.h" />
+            <file file_name="../../../../lib/include/private/portable.h" />
+            <file file_name="../../../../lib/include/private/projdefs.h" />
+            <file file_name="../../../../lib/include/private/stack_macros.h" />
+            <file file_name="../../../../lib/include/private/aws_iot_queue.h" />
+            <file file_name="../../../../lib/include/private/aws_iot_logging.h" />
+            <file file_name="../../../../lib/include/private/aws_iot_logging_setup.h" />
+            <file file_name="../../../../lib/include/private/aws_ble_config_defaults.h" />
+            <file file_name="../../../../lib/include/private/aws_iot_mqtt_internal.h" />
+          </folder>
+          <file file_name="../../../../lib/include/aws_ble.h" />
+          <file file_name="../../../../lib/include/aws_ble_device_information.h" />
+          <file file_name="../../../../lib/include/aws_ble_services_init.h" />
+          <file file_name="../../../../lib/include/aws_ble_wifi_provisioning.h" />
+          <file file_name="../../../../lib/include/aws_crypto.h" />
+          <file file_name="../../../../lib/include/aws_greengrass_discovery.h" />
+          <file file_name="../../../../lib/include/aws_json_utils.h" />
+          <file file_name="../../../../lib/include/aws_mqtt_agent.h" />
+          <file file_name="../../../../lib/include/aws_mqtt_lib.h" />
+          <file file_name="../../../../lib/include/aws_mqtt_lib_ble.h" />
+          <file file_name="../../../../lib/include/aws_mqtt_proxy.h" />
+          <file file_name="../../../../lib/include/aws_ota_agent.h" />
+          <file file_name="../../../../lib/include/aws_pkcs11.h" />
+          <file file_name="../../../../lib/include/aws_secure_sockets.h" />
+          <file file_name="../../../../lib/include/aws_shadow.h" />
+          <file file_name="../../../../lib/include/aws_system_init.h" />
+          <file file_name="../../../../lib/include/aws_tls.h" />
+          <file file_name="../../../../lib/include/aws_wifi.h" />
+          <file file_name="../../../../lib/include/event_groups.h" />
+          <file file_name="../../../../lib/include/FreeRTOS.h" />
+          <file file_name="../../../../lib/include/message_buffer.h" />
+          <file file_name="../../../../lib/include/queue.h" />
+          <file file_name="../../../../lib/include/semphr.h" />
+          <file file_name="../../../../lib/include/stream_buffer.h" />
+          <file file_name="../../../../lib/include/task.h" />
+          <file file_name="../../../../lib/include/timers.h" />
+          <folder
+            Name="FreeRTOS_POSIX"
+            exclude=""
+            filter=""
+            path="../../../../lib/include/FreeRTOS_POSIX"
+            recurse="Yes" />
+          <file file_name="../../../../lib/include/aws_iot_mqtt.h" />
+          <folder Name="platform">
+            <file file_name="../../../../lib/include/platform/aws_iot_threads.h" />
+            <file file_name="../../../../lib/include/platform/aws_iot_clock.h" />
+            <file file_name="../../../../lib/include/platform/aws_iot_static_memory.h" />
+          </folder>
+          <file file_name="../../../../lib/include/aws_iot_mqtt_ble.h" />
+          <file file_name="../../../../lib/include/aws_iot_ota_agent.h" />
+          <file file_name="../../../../lib/include/iot_linear_containers.h" />
+        </folder>
+        <folder Name="FreeRTOS">
+          <file file_name="../../../../lib/FreeRTOS/event_groups.c" />
+          <file file_name="../../../../lib/FreeRTOS/list.c" />
+          <file file_name="../../../../lib/FreeRTOS/queue.c" />
+          <file file_name="../../../../lib/FreeRTOS/stream_buffer.c" />
+          <file file_name="../../../../lib/FreeRTOS/tasks.c" />
+          <file file_name="../../../../lib/FreeRTOS/timers.c" />
+          <folder Name="portable">
+            <folder Name="GCC">
+              <file file_name="../../../../lib/FreeRTOS/portable/GCC/nrf52840-dk/port.c" />
+              <file file_name="../../../../lib/FreeRTOS/portable/GCC/nrf52840-dk/portmacro.h" />
+            </folder>
+            <folder Name="MemMang">
+              <file file_name="../../../../lib/FreeRTOS/portable/MemMang/heap_4.c" />
+            </folder>
+            <file file_name="../../../../lib/FreeRTOS/portable/CMSIS/nrf52/port_cmsis.c" />
+            <file file_name="../../../../lib/FreeRTOS/portable/CMSIS/nrf52/port_cmsis_systick.c" />
+          </folder>
+        </folder>
+        <folder Name="FreeRTOS-Plus-POSIX">
+          <folder
+            Name="source"
+            exclude=""
+            filter="*.c"
+            path="../../../../lib/FreeRTOS-Plus-POSIX/source"
+            recurse="No" />
+          <folder Name="include">
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/include/portable/nordic/nrf52840-dk/FreeRTOS_POSIX_portable.h" />
+          </folder>
+        </folder>
+        <folder Name="mqtt">
+          <file file_name="../../../../lib/mqtt/aws_iot_mqtt_api.c" />
+          <file file_name="../../../../lib/mqtt/aws_iot_mqtt_operation.c" />
+          <file file_name="../../../../lib/mqtt/aws_iot_mqtt_serialize.c" />
+          <file file_name="../../../../lib/mqtt/aws_iot_mqtt_serialize_ble.c" />
+          <file file_name="../../../../lib/mqtt/aws_iot_mqtt_subscription.c" />
+          <file file_name="../../../../lib/mqtt/aws_iot_mqtt_validate.c" />
+          <file file_name="../../../../lib/mqtt/aws_mqtt_agent.c" />
+        </folder>
+        <folder Name="common">
+          <file file_name="../../../../lib/common/aws_iot_json_utils.c" />
+          <file file_name="../../../../lib/common/aws_iot_logging.c" />
+        </folder>
+        <folder Name="utils">
+          <file file_name="../../../../lib/utils/aws_ble_services_init.c" />
+          <file file_name="../../../../lib/utils/aws_json_utils.c" />
+          <folder Name="platform">
+            <file file_name="../../../../lib/utils/platform/aws_iot_clock_posix.c" />
+            <file file_name="../../../../lib/utils/platform/aws_iot_threads_posix.c" />
+          </folder>
+        </folder>
+        <folder Name="ota">
+          <file file_name="../../../../lib/ota/aws_iot_ota_agent.c" />
+          <folder Name="nordic">
+            <file file_name="../../../../lib/ota/portable/nordic/nrf52840-dk/aws_ota_pal.c" />
+            <file file_name="../../../../lib/ota/portable/nordic/nrf52840-dk/asn1utility.c" />
+            <file file_name="../../../../lib/ota/portable/nordic/nrf52840-dk/asn1utility.h" />
+            <file file_name="../../../../lib/ota/portable/nordic/nrf52840-dk/aws_ota_pal_settings.h" />
+          </folder>
+          <file file_name="../../../../lib/ota/aws_ota_cbor.c" />
+        </folder>
+        <folder Name="serializer">
+          <folder Name="cbor">
+            <file file_name="../../../../lib/serializer/cbor/aws_iot_serializer_tinycbor_decoder.c" />
+            <file file_name="../../../../lib/serializer/cbor/aws_iot_serializer_tinycbor_encoder.c" />
+          </folder>
+          <folder Name="json">
+            <file file_name="../../../../lib/serializer/json/aws_iot_serializer_json_decoder.c" />
+            <file file_name="../../../../lib/serializer/json/aws_iot_serializer_json_encoder.c" />
+          </folder>
+        </folder>
+      </folder>
+      <folder Name="third_party">
+        <folder Name="mbedtls">
+          <folder Name="include">
+            <folder Name="mbedtls">
+              <file file_name="../../../../lib/third_party/mbedtls/include/mbedtls/base64.h" />
+              <file file_name="../../../../lib/third_party/mbedtls/include/mbedtls/config.h" />
+              <file file_name="../../../../lib/third_party/mbedtls/include/mbedtls/platform.h" />
+            </folder>
+          </folder>
+          <folder Name="library">
+            <file file_name="../../../../lib/third_party/mbedtls/library/base64.c" />
+          </folder>
+        </folder>
+        <folder Name="mcu_vendor">
+          <folder Name="nordic">
+            <folder Name="nRF5_SDK_15.2.0">
+              <folder Name="components">
+                <folder Name="boards">
+                  <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/boards/boards.c" />
+                </folder>
+                <folder Name="libraries">
+                  <folder Name="bsp">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/bsp/bsp.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/bsp/bsp_nfc.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/bsp/bsp_btn_ble.c" />
+                  </folder>
+                  <folder Name="crypto">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_aead.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_aes.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_aes_shared.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_ecc.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_ecdh.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_ecdsa.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_eddsa.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_error.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_hash.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_hkdf.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_hmac.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_init.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_rng.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/nrf_crypto_shared.c" />
+                    <folder Name="backend">
+                      <folder Name="cc310">
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_aes.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_aes_aead.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_chacha_poly_aead.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_ecc.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_ecdh.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_ecdsa.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_eddsa.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_hash.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_hmac.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_init.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_mutex.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_rng.c" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/cc310/cc310_backend_shared.c" />
+                      </folder>
+                      <folder Name="nrf_hw">
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng.h" />
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng_mbedtls.h" />
+                      </folder>
+                    </folder>
+                  </folder>
+                  <folder Name="button">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/button/app_button.c" />
+                  </folder>
+                  <folder Name="util">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util/app_error.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util/app_error_weak.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util/app_util_platform.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/util/nrf_assert.c" />
+                  </folder>
+                  <folder Name="fifo">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fifo/app_fifo.c" />
+                  </folder>
+                  <folder Name="scheduler">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/scheduler/app_scheduler.c" />
+                  </folder>
+                  <folder Name="timer">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/timer/app_timer_freertos.c" />
+                  </folder>
+                  <folder Name="uart">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/uart/app_uart_fifo.c" />
+                  </folder>
+                  <folder Name="fds">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fds/fds.c" />
+                  </folder>
+                  <folder Name="hardfault">
+                    <folder Name="nrf52">
+                      <folder Name="handler">
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/hardfault/nrf52/handler/hardfault_handler_gcc.c" />
+                      </folder>
+                    </folder>
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/hardfault/hardfault_implementation.c" />
+                  </folder>
+                  <folder Name="mem_manager">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/mem_manager/mem_manager.c" />
+                  </folder>
+                  <folder Name="atomic_fifo">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic_fifo/nrf_atfifo.c" />
+                  </folder>
+                  <folder Name="atomic_flags">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic_flags/nrf_atflags.c" />
+                  </folder>
+                  <folder Name="atomic">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/atomic/nrf_atomic.c" />
+                  </folder>
+                  <folder Name="balloc">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/balloc/nrf_balloc.c" />
+                  </folder>
+                  <folder Name="fstorage">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage/nrf_fstorage.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/fstorage/nrf_fstorage_sd.c" />
+                  </folder>
+                  <folder Name="log">
+                    <folder Name="src">
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src/nrf_log_backend_rtt.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src/nrf_log_backend_serial.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src/nrf_log_backend_uart.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src/nrf_log_default_backends.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src/nrf_log_frontend.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/log/src/nrf_log_str_formatter.c" />
+                    </folder>
+                  </folder>
+                  <folder Name="memobj">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/memobj/nrf_memobj.c" />
+                  </folder>
+                  <folder Name="queue">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/queue/nrf_queue.c" />
+                  </folder>
+                  <folder Name="ringbuf">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/ringbuf/nrf_ringbuf.c" />
+                  </folder>
+                  <folder Name="strerror">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/strerror/nrf_strerror.c" />
+                  </folder>
+                  <folder Name="sensorsim">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/sensorsim/sensorsim.c" />
+                  </folder>
+                  <folder Name="experimental_section_vars">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/libraries/experimental_section_vars/nrf_section_iter.c" />
+                  </folder>
+                </folder>
+                <folder Name="ble">
+                  <folder Name="common">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/common/ble_advdata.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/common/ble_conn_params.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/common/ble_conn_state.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/common/ble_srv_common.c" />
+                  </folder>
+                  <folder Name="ble_advertising">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_advertising/ble_advertising.c" />
+                  </folder>
+                  <folder Name="ble_link_ctx_manager">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_link_ctx_manager/ble_link_ctx_manager.c" />
+                  </folder>
+                  <folder Name="nrf_ble_gatt">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/nrf_ble_gatt/nrf_ble_gatt.c" />
+                  </folder>
+                  <folder Name="peer_manager">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/gatt_cache_manager.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/gatts_cache_manager.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/id_manager.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/nrf_ble_lesc.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/peer_data_storage.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/peer_database.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/peer_id.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/peer_manager.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/peer_manager_handler.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/pm_buffer.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/security_dispatcher.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/peer_manager/security_manager.c" />
+                  </folder>
+                  <folder Name="nrf_ble_qwr">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/nrf_ble_qwr/nrf_ble_qwr.c" />
+                  </folder>
+                  <folder Name="ble_services">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/ble/ble_services/ble_ipsp/ble_ipsp.c" />
+                  </folder>
+                </folder>
+                <folder Name="softdevice">
+                  <folder Name="common">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/common/nrf_sdh.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/common/nrf_sdh_ble.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/common/nrf_sdh_freertos.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/common/nrf_sdh_soc.c" />
+                  </folder>
+                </folder>
+              </folder>
+              <folder Name="modules">
+                <folder Name="nrfx">
+                  <folder Name="mdk">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk/ses_startup_nrf_common.s" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk/ses_startup_nrf52840.s" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/mdk/system_nrf52.c" />
+                  </folder>
+                  <folder Name="drivers">
+                    <folder Name="src">
+                      <folder Name="prs">
+                        <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/prs/nrfx_prs.c" />
+                      </folder>
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/nrfx_clock.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/nrfx_gpiote.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/nrfx_rng.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/nrfx_saadc.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/nrfx_timer.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/nrfx_uart.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/nrfx_uarte.c" />
+                      <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/drivers/src/nrfx_wdt.c" />
+                    </folder>
+                  </folder>
+                  <folder Name="hal">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/modules/nrfx/hal/nrf_nvmc.c" />
+                  </folder>
+                </folder>
+              </folder>
+              <folder Name="external">
+                <folder Name="nrf_cc310">
+                  <folder Name="lib">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/nrf_cc310/lib/libnrf_cc310_0.9.10.a" />
+                  </folder>
+                </folder>
+                <folder Name="fprintf">
+                  <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/fprintf/nrf_fprintf.c" />
+                  <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/external/fprintf/nrf_fprintf_format.c" />
+                </folder>
+              </folder>
+              <folder Name="integration">
+                <folder Name="nrfx">
+                  <folder Name="legacy">
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx/legacy/nrf_drv_clock.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx/legacy/nrf_drv_rng.c" />
+                    <file file_name="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/integration/nrfx/legacy/nrf_drv_uart.c" />
+                  </folder>
+                </folder>
+              </folder>
+            </folder>
+          </folder>
+        </folder>
+        <folder Name="tracealyzer_recorder">
+          <folder Name="streamports">
+            <folder Name="Jlink_RTT">
+              <file file_name="../../../../lib/third_party/tracealyzer_recorder/streamports/Jlink_RTT/SEGGER_RTT_Printf.c" />
+            </folder>
+          </folder>
+        </folder>
+        <folder Name="jsmn">
+          <file file_name="../../../../lib/third_party/jsmn/jsmn.c" />
+          <file file_name="../../../../lib/third_party/jsmn/jsmn.h" />
+        </folder>
+        <folder Name="tinycbor">
+          <file file_name="../../../../lib/third_party/tinycbor/cborencoder.c" />
+          <file file_name="../../../../lib/third_party/tinycbor/cborencoder_close_container_checked.c" />
+          <file file_name="../../../../lib/third_party/tinycbor/cborerrorstrings.c" />
+          <file file_name="../../../../lib/third_party/tinycbor/cborparser.c" />
+          <file file_name="../../../../lib/third_party/tinycbor/cborparser_dup_string.c" />
+          <file file_name="../../../../lib/third_party/tinycbor/cborpretty.c" />
+        </folder>
+        <folder Name="tinycrypt">
+          <folder Name="asn1">
+            <file file_name="../../../../lib/third_party/tinycrypt/asn1/asn1parse.c" />
+            <file file_name="../../../../lib/third_party/tinycrypt/asn1/asn1.h" />
+          </folder>
+        </folder>
+        <folder Name="unity">
+          <folder Name="extras">
+            <folder Name="fixture">
+              <folder Name="src">
+                <file file_name="../../../../lib/third_party/unity/extras/fixture/src/unity_fixture.c" />
+              </folder>
+            </folder>
+          </folder>
+          <folder Name="src">
+            <file file_name="../../../../lib/third_party/unity/src/unity.c" />
+          </folder>
+        </folder>
+      </folder>
+    </folder>
+    <configuration
+      Name="Debug"
+      arm_linker_heap_size="8192"
+      arm_linker_stack_size="8192"
+      c_user_include_directories="."
+      gcc_debugging_level="Level 3"
+      gcc_dwarf_version="dwarf-4" />
+    <folder Name="application_code">
+      <folder Name="common_tests">
+        <folder Name="ble">
+          <file file_name="../../../common/ble/aws_test_ble.c" />
+        </folder>
+        <folder Name="memory_leak">
+          <file file_name="../../../common/memory_leak/aws_memory_leak.c" />
+        </folder>
+        <folder Name="test_runner">
+          <file file_name="../../../common/test_runner/aws_iot_tests_network.c" />
+          <file file_name="../../../common/test_runner/aws_test_runner.c" />
+        </folder>
+        <folder Name="mqtt">
+          <file file_name="../../../common/mqtt/aws_test_mqtt_agent.c" />
+          <folder Name="system">
+            <file file_name="../../../common/mqtt/system/aws_iot_tests_mqtt_system.c" />
+          </folder>
+          <folder Name="unit">
+            <file file_name="../../../common/mqtt/unit/aws_iot_tests_mqtt_api.c" />
+            <file file_name="../../../common/mqtt/unit/aws_iot_tests_mqtt_receive.c" />
+            <file file_name="../../../common/mqtt/unit/aws_iot_tests_mqtt_serialize_ble.c" />
+            <file file_name="../../../common/mqtt/unit/aws_iot_tests_mqtt_subscription.c" />
+            <file file_name="../../../common/mqtt/unit/aws_iot_tests_mqtt_validate.c" />
+          </folder>
+        </folder>
+        <folder Name="Logging">
+          <file file_name="../../../../demos/common/logging/aws_logging_task_dynamic_buffers.c" />
+        </folder>
+        <folder Name="include">
+          <file file_name="../../../common/include/aws_ble_wifi_prov_test_access_declare.h" />
+          <file file_name="../../../common/include/aws_ble_wifi_prov_test_access_define.h" />
+          <file file_name="../../../common/include/aws_clientcredential.h" />
+          <file file_name="../../../common/include/aws_clientcredential_keys.h" />
+          <file file_name="../../../common/include/aws_dev_mode_key_provisioning.h" />
+          <file file_name="../../../common/include/aws_freertos_tcp_test_access_declare.h" />
+          <file file_name="../../../common/include/aws_freertos_tcp_test_access_dns_define.h" />
+          <file file_name="../../../common/include/aws_freertos_tcp_test_access_tcp_define.h" />
+          <file file_name="../../../common/include/aws_greengrass_discovery_test_access_declare.h" />
+          <file file_name="../../../common/include/aws_greengrass_discovery_test_access_define.h" />
+          <file file_name="../../../common/include/aws_iot_config_common.h" />
+          <file file_name="../../../common/include/aws_logging_task.h" />
+          <file file_name="../../../common/include/aws_mqtt_lib_test_access_declare.h" />
+          <file file_name="../../../common/include/aws_mqtt_lib_test_access_define.h" />
+          <file file_name="../../../common/include/aws_ota_agent_test_access_declare.h" />
+          <file file_name="../../../common/include/aws_ota_agent_test_access_define.h" />
+          <file file_name="../../../common/include/aws_ota_codesigner_certificate.h" />
+          <file file_name="../../../common/include/aws_ota_pal_test_access_declare.h" />
+          <file file_name="../../../common/include/aws_ota_pal_test_access_define.h" />
+          <file file_name="../../../common/include/aws_test_framework.h" />
+          <file file_name="../../../common/include/aws_test_runner.h" />
+          <file file_name="../../../common/include/aws_test_tcp.h" />
+          <file file_name="../../../common/include/aws_test_tls.h" />
+          <file file_name="../../../common/include/aws_test_utils.h" />
+          <file file_name="../../../common/include/aws_unity_config.h" />
+          <file file_name="../../../common/include/aws_application_version.h" />
+        </folder>
+        <folder Name="shadow">
+          <file file_name="../../../common/shadow/aws_test_shadow.c" />
+          <folder Name="system">
+            <file file_name="../../../common/shadow/system/aws_iot_tests_shadow_system.c" />
+          </folder>
+          <folder Name="unit">
+            <file file_name="../../../common/shadow/unit/aws_iot_tests_shadow_api.c" />
+            <file file_name="../../../common/shadow/unit/aws_iot_tests_shadow_parser.c" />
+          </folder>
+        </folder>
+        <folder Name="posix">
+          <file file_name="../../../common/posix/aws_test_posix_clock.c" />
+          <file file_name="../../../common/posix/aws_test_posix_mqueue.c" />
+          <file file_name="../../../common/posix/aws_test_posix_pthread.c" />
+          <file file_name="../../../common/posix/aws_test_posix_semaphore.c" />
+          <file file_name="../../../common/posix/aws_test_posix_stress.c" />
+          <file file_name="../../../common/posix/aws_test_posix_timer.c" />
+          <file file_name="../../../common/posix/aws_test_posix_unistd.c" />
+          <file file_name="../../../common/posix/aws_test_posix_utils.c" />
+        </folder>
+        <folder Name="cbor">
+          <file file_name="../../../common/cbor/aws_test_cbor.c" />
+        </folder>
+        <folder Name="ota">
+          <file file_name="../../../common/ota/aws_test_ota_agent.c" />
+          <file file_name="../../../common/ota/aws_test_ota_pal.c" />
+        </folder>
+      </folder>
+      <file file_name="../common/application_code/main.c" />
+      <file file_name="../common/application_code/aws_ble_numericComparison.c" />
+      <folder Name="nordic_code">
+        <file file_name="../common/application_code/nordic_code/SEGGER_RTT.c" />
+        <file file_name="../common/application_code/nordic_code/SEGGER_RTT.h" />
+        <file file_name="../common/application_code/nordic_code/SEGGER_RTT_Conf.h" />
+        <file file_name="../common/application_code/nordic_code/SEGGER_RTT_Syscalls_SES.c" />
+        <file file_name="../common/application_code/nordic_code/SEGGER_Flash.icf" />
+        <file file_name="../common/application_code/nordic_code/SEGGER_HardFaultHandler.c" />
+        <file file_name="../common/application_code/nordic_code/thumb_crt0.s" />
+      </folder>
+      <file file_name="../common/application_code/fake_PKCS11.c" />
+    </folder>
+    <folder Name="config_files">
+      <file file_name="../common/config_files/aws_ble_config.h" />
+      <file file_name="../common/config_files/aws_bufferpool_config.h" />
+      <file file_name="../common/config_files/aws_ggd_config.h" />
+      <file file_name="../common/config_files/aws_iot_config.h" />
+      <file file_name="../common/config_files/aws_iot_network_config.h" />
+      <file file_name="../common/config_files/aws_mqtt_agent_config.h" />
+      <file file_name="../common/config_files/aws_mqtt_config.h" />
+      <file file_name="../common/config_files/aws_ota_agent_config.h" />
+      <file file_name="../common/config_files/aws_pkcs11_config.h" />
+      <file file_name="../common/config_files/aws_secure_sockets_config.h" />
+      <file file_name="../common/config_files/aws_shadow_config.h" />
+      <file file_name="../common/config_files/aws_test_runner_config.h" />
+      <file file_name="../common/config_files/aws_wifi_config.h" />
+      <file file_name="../common/config_files/FreeRTOSConfig.h" />
+      <file file_name="../common/config_files/FreeRTOSIPConfig.h" />
+      <file file_name="../common/config_files/sdk_config.h" />
+      <file file_name="../common/config_files/unity_config.h" />
+    </folder>
+  </project>
+  <configuration
+    Name="Release"
+    c_preprocessor_definitions="NDEBUG"
+    gcc_debugging_level="None"
+    gcc_omit_frame_pointer="Yes"
+    gcc_optimization_level="None" />
+  <configuration
+    Name="Debug"
+    arm_fp_abi="None"
+    c_preprocessor_definitions="DEBUG; DEBUG_NRF"
+    c_user_include_directories="."
+    gcc_debugging_level="Level 3"
+    gcc_optimization_level="None"
+    link_include_standard_libraries="Yes" />
+  <configuration
+    Name="Common"
+    asm_additional_options=""
+    debug_additional_load_file="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0/components/softdevice/s140/hex/s140_nrf52_6.1.0_softdevice.hex"
+    debug_register_definition_file="../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0_9412b96/svd/nrf52.svd"
+    debug_start_from_entry_point_symbol="No"
+    debug_target_connection="J-Link"
+    gcc_debugging_level="Level 3"
+    gcc_entry_point="Reset_Handler"
+    linker_output_format="hex"
+    linker_printf_fmt_level="long"
+    linker_printf_width_precision_supported="Yes"
+    linker_section_placement_file="flash_placement.xml"
+    linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x26000;FLASH_SIZE=0xda000;RAM_START=0x200046F8;RAM_SIZE=0x3B908"
+    linker_section_placements_segments="FLASH RX 0x0 0x100000;RAM RWX 0x20000000 0x40000"
+    macros="CMSIS_CONFIG_TOOL=../../../../lib/third_party/mcu_vendor/nordic/nRF5_SDK_15.2.0_9412b96/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar;CERT_KEY_SIZE=0x2000"
+    project_directory=""
+    project_type="Executable" />
+</solution>
