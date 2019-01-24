@@ -36,7 +36,6 @@
 
 /**
  * @brief Initialize the task which connects to provisioned WiFi networks.
- * The task is not thread safe.
  *
  * @param [in] usStackSize Stack size for the WiFi reconnection task.
  * @param [in] uxPriority Priority for the WIFI reconnection task.
@@ -48,7 +47,6 @@ BaseType_t xWiFiConnectTaskInitialize( void );
 
 /**
  * @brief Destroys the task for connecting to provisioned WiFi networks its associated data structures.
- * The task is not thread safe.
  */
 void vWiFiConnectTaskDestroy( void );
 
