@@ -217,7 +217,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
 
     /* We use a dummy file name here because closing the system designated bootable
      * image with content that is not runnable may cause issues. */
-    xOtaFile.pacFilepath = ( uint8_t * ) ( "test_happy_path_image.bin" );
+    xOtaFile.pucFilePath = ( uint8_t * ) ( "test_happy_path_image.bin" );
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -234,7 +234,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
         xOtaFile.pxSignature = &xSig;
         xOtaFile.pxSignature->usSize = ucValidSignatureLength;
         memcpy( xOtaFile.pxSignature->ucData, ucValidSignature, ucValidSignatureLength );
-        xOtaFile.pacCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
+        xOtaFile.pucCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
         xOtaStatus = prvPAL_CloseFile( &xOtaFile );
         TEST_ASSERT_EQUAL_INT( kOTA_Err_None, xOtaStatus );
@@ -314,8 +314,8 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignatureKeyInFlash )
 
     /* We use a dummy file name here because closing the system designated bootable
      * image with content that is not runnable may cause issues. */
-    /* xOtaFile.pacFilepath = otatestpalFIRMWARE_FILE; */
-    xOtaFile.pacFilepath = ( uint8_t * ) ( "test_happy_path_image.bin" );
+    /* xOtaFile.pucFilePath = otatestpalFIRMWARE_FILE; */
+    xOtaFile.pucFilePath = ( uint8_t * ) ( "test_happy_path_image.bin" );
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -333,7 +333,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignatureKeyInFlash )
         xOtaFile.pxSignature->usSize = ucValidSignatureLength;
         memcpy( xOtaFile.pxSignature->ucData, ucValidSignature, ucValidSignatureLength );
         /* The PKCS #11 label is used to retrieve the code signing certificate. */
-        xOtaFile.pacCertFilepath = ( uint8_t * ) pkcs11configLABEL_CODE_VERIFICATION_KEY;
+        xOtaFile.pucCertFilepath = ( uint8_t * ) pkcs11configLABEL_CODE_VERIFICATION_KEY;
 
         xOtaStatus = prvPAL_CloseFile( &xOtaFile );
         TEST_ASSERT_EQUAL_INT( kOTA_Err_None, xOtaStatus );
@@ -352,7 +352,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten )
     Sig256_t xSig = { 0 };
 
     /* Create a local file using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -370,7 +370,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten )
         xOtaFile.pxSignature = &xSig;
         xOtaFile.pxSignature->usSize = ucInvalidSignatureLength;
         memcpy( xOtaFile.pxSignature->ucData, ucInvalidSignature, ucInvalidSignatureLength );
-        xOtaFile.pacCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
+        xOtaFile.pucCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
         /* Try to close the file. */
         xOtaStatus = prvPAL_CloseFile( &xOtaFile );
@@ -395,7 +395,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureNoBlockWritten )
     Sig256_t xSig = { 0 };
 
     /* Create a local file using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -403,7 +403,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureNoBlockWritten )
     xOtaFile.pxSignature = &xSig;
     xOtaFile.pxSignature->usSize = ucInvalidSignatureLength;
     memcpy( xOtaFile.pxSignature->ucData, ucInvalidSignature, ucInvalidSignatureLength );
-    xOtaFile.pacCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
+    xOtaFile.pucCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
     /* We still want to close the file if the test fails somewhere here. */
     if( TEST_PROTECT() )
@@ -437,7 +437,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_NonexistingCodeSignerCertificate )
     memset( &xOtaFile, 0, sizeof( xOtaFile ) );
 
     /* Create a local file using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -455,7 +455,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_NonexistingCodeSignerCertificate )
         xOtaFile.pxSignature = &xSig;
         xOtaFile.pxSignature->usSize = ucValidSignatureLength;
         memcpy( xOtaFile.pxSignature->ucData, ucValidSignature, ucValidSignatureLength );
-        xOtaFile.pacCertFilepath = ( uint8_t * ) ( "nonexistingfile.crt" );
+        xOtaFile.pucCertFilepath = ( uint8_t * ) ( "nonexistingfile.crt" );
 
         xOtaStatus = prvPAL_CloseFile( &xOtaFile );
 
@@ -478,7 +478,7 @@ TEST( Full_OTA_PAL, prvPAL_CreateFileForRx_CreateAnyFile )
     memset( &xOtaFile, 0, sizeof( OTA_FileContext_t ) );
 
     /* TEST: Create a local file using the PAL. Verify error in close. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 }
@@ -490,7 +490,7 @@ TEST( Full_OTA_PAL, prvPAL_Abort_OpenFile )
 {
     OTA_Err_t xOtaStatus;
 
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
 
     /* Create a local file using the PAL. */
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
@@ -511,7 +511,7 @@ TEST( Full_OTA_PAL, prvPAL_Abort_FileWithBlockWritten )
 {
     OTA_Err_t xOtaStatus;
 
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
 
     /* Create a local file again using the PAL. */
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
@@ -543,9 +543,9 @@ TEST( Full_OTA_PAL, prvPAL_Abort_NullFileHandle )
 {
     OTA_Err_t xOtaStatus;
 
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
 
-    xOtaFile.iFileHandle = 0;
+    xOtaFile.lFileHandle = 0;
     xOtaStatus = prvPAL_Abort( &xOtaFile );
     TEST_ASSERT_EQUAL_INT( kOTA_Err_None, xOtaStatus );
 }
@@ -557,9 +557,9 @@ TEST( Full_OTA_PAL, prvPAL_Abort_NonExistentFile )
 {
     OTA_Err_t xOtaStatus;
 
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
 
-    xOtaFile.pacFilepath = ( uint8_t * ) ( "nonexistingfile.bin" );
+    xOtaFile.pucFilePath = ( uint8_t * ) ( "nonexistingfile.bin" );
     xOtaStatus = prvPAL_Abort( &xOtaFile );
     TEST_ASSERT_EQUAL_INT( kOTA_Err_None, ( xOtaStatus & ~kOTA_PAL_ErrMask ) );
 }
@@ -574,7 +574,7 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteSingleByte )
     uint8_t ucData = 0xAA;
 
     /* TEST: Write a byte of data. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -593,11 +593,11 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteManyBlocks )
     OTA_Err_t xOtaStatus;
     int16_t sNumBytesWritten;
 
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
 
     /* TEST: Write many bytes of data. */
 
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -638,7 +638,7 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_SelfTestImageState )
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
 
     /* Create a local file again using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -677,7 +677,7 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_InvalidImageState )
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
 
     /* Create a local file again using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -707,7 +707,7 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_UnknownImageState )
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
 
     /* Create a local file again using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -739,7 +739,7 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AcceptedImageStateButImageNotCl
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
 
     /* Create a local file again using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -769,7 +769,7 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_RejectImageState )
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
 
     /* Create a local file again using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -799,7 +799,7 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AbortImageState )
     OTA_ImageState_t eImageState = eOTA_ImageState_Unknown;
 
     /* Create a local file again using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -831,7 +831,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
 
     /* TEST: Invalid image returned from prvPAL_GetPlatformImageState(). Using a failure to close. */
     /* Create a local file again using the PAL. */
-    xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -849,7 +849,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
         xOtaFile.pxSignature = &xSig;
         xOtaFile.pxSignature->usSize = ucInvalidSignatureLength;
         memcpy( xOtaFile.pxSignature->ucData, ucInvalidSignature, ucInvalidSignatureLength );
-        xOtaFile.pacCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
+        xOtaFile.pucCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
         xOtaStatus = prvPAL_CloseFile( &xOtaFile );
 
@@ -924,7 +924,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
         Sig256_t xSig = { 0 };
 
         /* Create a local file using the PAL. */
-        xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+        xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
         xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
         TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -941,7 +941,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
             xOtaFile.pxSignature = &xSig;
             xOtaFile.pxSignature->usSize = ucValidSignatureLength;
             memcpy( xOtaFile.pxSignature->ucData, ucValidSignature, ucValidSignatureLength );
-            xOtaFile.pacCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
+            xOtaFile.pucCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
             xOtaStatus = test_prvPAL_CheckFileSignature( &xOtaFile );
             TEST_ASSERT_EQUAL_INT( kOTA_Err_None, xOtaStatus );
@@ -958,7 +958,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
         Sig256_t xSig = { 0 };
 
         /* Create a local file using the PAL. */
-        xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+        xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
         xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
         TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -976,7 +976,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
             xOtaFile.pxSignature = &xSig;
             xOtaFile.pxSignature->usSize = ucInvalidSignatureLength;
             memcpy( xOtaFile.pxSignature->ucData, ucInvalidSignature, ucInvalidSignatureLength );
-            xOtaFile.pacCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
+            xOtaFile.pucCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
             /* Check the signature. */
             xOtaStatus = test_prvPAL_CheckFileSignature( &xOtaFile );
@@ -995,7 +995,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
         Sig256_t xSig = { 0 };
 
         /* Create a local file using the PAL. */
-        xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+        xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
         xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
         TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -1006,7 +1006,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
             xOtaFile.pxSignature = &xSig;
             xOtaFile.pxSignature->usSize = ucInvalidSignatureLength;
             memcpy( xOtaFile.pxSignature->ucData, ucInvalidSignature, ucInvalidSignatureLength );
-            xOtaFile.pacCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
+            xOtaFile.pucCertFilepath = ( uint8_t * ) otatestpalCERTIFICATE_FILE;
 
             /* Try to close the file. */
             xOtaStatus = prvPAL_CloseFile( &xOtaFile );
@@ -1025,7 +1025,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
         Sig256_t xSig = { 0 };
 
         /* Create a local file using the PAL. */
-        xOtaFile.pacFilepath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+        xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
         xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
         TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -1043,7 +1043,7 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
             xOtaFile.pxSignature = &xSig;
             xOtaFile.pxSignature->usSize = ucValidSignatureLength;
             memcpy( xOtaFile.pxSignature->ucData, ucValidSignature, ucValidSignatureLength );
-            xOtaFile.pacCertFilepath = ( uint8_t * ) ( "nonexistingfile.crt" );
+            xOtaFile.pucCertFilepath = ( uint8_t * ) ( "nonexistingfile.crt" );
 
             xOtaStatus = test_prvPAL_CheckFileSignature( &xOtaFile );
 

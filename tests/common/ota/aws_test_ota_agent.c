@@ -58,7 +58,7 @@
 #define otatestCERT_FILE                  "rsasigner.crt"
 #define otatestATTRIBUTES                 3
 #define otatestFILE_ID                    0
-static const uint8_t otatestSIGNATURE[] =
+static const uint8_t ucOtatestSIGNATURE[] =
 {
     0x38, 0x78, 0xf9, 0xb0, 0xd8, 0xf1, 0xa8, 0xc3, 0x4a, 0xdd, 0x63, 0x44, 0xc1, 0xbc, 0x9f, 0xb3,
     0xf3, 0xde, 0x49, 0x24, 0xb5, 0x93, 0x32, 0xe4, 0x01, 0x0e, 0x0c, 0x4a, 0xed, 0x32, 0x28, 0xd1,
@@ -81,12 +81,12 @@ static const uint8_t otatestSIGNATURE[] =
 /**
  * @brief Job document, with all required fields, that is expected to parse.
  */
-#define otatestLASER_JSON "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+#define otatestLASER_JSON                        "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
 
 /**
  * @brief Job document that is missing a required field.
  */
-#define otatestBAD_LASER_JSON "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestINVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+#define otatestBAD_LASER_JSON                    "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestINVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
 
 /**
  * @brief Has a duplicate JSON field, but otherwise valid.
@@ -197,7 +197,7 @@ TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
 TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 {
     OTA_State_t eOtaStatus;
-    OTA_FileContext_t * pstUpdateFile = NULL;
+    OTA_FileContext_t * pxUpdateFile = NULL;
     uint32_t ulLoopIndex;
 
     /* Initialize the OTA agent. Some tests don't use an initialized OTA Agent,
@@ -223,30 +223,30 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 
         for( ulLoopIndex = 0; ulLoopIndex < otatestMAX_LOOP_MEM_LEAK_CHECK; ulLoopIndex++ )
         {
-            pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
-            TEST_ASSERT_TRUE( pstUpdateFile != NULL );
+            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
+            TEST_ASSERT_TRUE( pxUpdateFile != NULL );
 
             /* Check the various document field conversions. */
-            TEST_ASSERT_EQUAL_STRING( otatestSTREAM_NAME, pstUpdateFile->pacStreamName );
-            TEST_ASSERT_EQUAL( otatestFILE_SIZE, pstUpdateFile->ulFileSize );
-            TEST_ASSERT_EQUAL_STRING( otatestFILE_PATH, pstUpdateFile->pacFilepath );
-            TEST_ASSERT_EQUAL_STRING( otatestCERT_FILE, pstUpdateFile->pacCertFilepath );
-            TEST_ASSERT_EQUAL( otatestATTRIBUTES, pstUpdateFile->ulFileAttributes );
-            TEST_ASSERT_EQUAL( otatestFILE_ID, pstUpdateFile->ulServerFileID );
-            TEST_ASSERT_EQUAL( sizeof( otatestSIGNATURE ), pstUpdateFile->pxSignature->usSize );
-            TEST_ASSERT_EQUAL_MEMORY( otatestSIGNATURE,
-                                      pstUpdateFile->pxSignature->ucData,
-                                      sizeof( otatestSIGNATURE ) );
+            TEST_ASSERT_EQUAL_STRING( otatestSTREAM_NAME, pxUpdateFile->pucStreamName );
+            TEST_ASSERT_EQUAL( otatestFILE_SIZE, pxUpdateFile->ulFileSize );
+            TEST_ASSERT_EQUAL_STRING( otatestFILE_PATH, pxUpdateFile->pucFilePath );
+            TEST_ASSERT_EQUAL_STRING( otatestCERT_FILE, pxUpdateFile->pucCertFilepath );
+            TEST_ASSERT_EQUAL( otatestATTRIBUTES, pxUpdateFile->ulFileAttributes );
+            TEST_ASSERT_EQUAL( otatestFILE_ID, pxUpdateFile->ulServerFileID );
+            TEST_ASSERT_EQUAL( sizeof( ucOtatestSIGNATURE ), pxUpdateFile->pxSignature->usSize );
+            TEST_ASSERT_EQUAL_MEMORY( ucOtatestSIGNATURE,
+                                      pxUpdateFile->pxSignature->ucData,
+                                      sizeof( ucOtatestSIGNATURE ) );
 
-            TEST_OTA_prvOTA_Close( pstUpdateFile );
-            pstUpdateFile = NULL;
+            TEST_OTA_prvOTA_Close( pxUpdateFile );
+            pxUpdateFile = NULL;
         }
     }
 
-    if( pstUpdateFile != NULL )
+    if( pxUpdateFile != NULL )
     {
-        TEST_OTA_prvOTA_Close( pstUpdateFile );
-        pstUpdateFile = NULL;
+        TEST_OTA_prvOTA_Close( pxUpdateFile );
+        pxUpdateFile = NULL;
     }
 
     /* End test. */
@@ -260,14 +260,14 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     {
         if( TEST_PROTECT() )
         {
-            pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestBAD_LASER_JSON, sizeof( otatestBAD_LASER_JSON ) );
-            TEST_ASSERT_TRUE( pstUpdateFile == NULL );
+            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestBAD_LASER_JSON, sizeof( otatestBAD_LASER_JSON ) );
+            TEST_ASSERT_TRUE( pxUpdateFile == NULL );
         }
 
-        if( pstUpdateFile != NULL )
+        if( pxUpdateFile != NULL )
         {
-            TEST_OTA_prvOTA_Close( pstUpdateFile );
-            pstUpdateFile = NULL;
+            TEST_OTA_prvOTA_Close( pxUpdateFile );
+            pxUpdateFile = NULL;
         }
     }
 
@@ -276,33 +276,33 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     /* Test that null is returned if JSON file with incorrect length is passed in parameter.
      * Start test.
      */
-    pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) / 2 );
-    TEST_ASSERT_TRUE( pstUpdateFile == NULL );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) / 2 );
+    TEST_ASSERT_TRUE( pxUpdateFile == NULL );
     /* End test. */
 
     /* Test that null is returned if corrupted JSON file is passed in parameter.
      * Start test.
      */
-    pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestGARBAGE_JSON, sizeof( otatestGARBAGE_JSON ) );
-    TEST_ASSERT_TRUE( pstUpdateFile == NULL );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestGARBAGE_JSON, sizeof( otatestGARBAGE_JSON ) );
+    TEST_ASSERT_TRUE( pxUpdateFile == NULL );
     /* End test. */
 
     /* Test that prvOTA_Close doesn't try to free already freed memory.
      * Start test.
      */
-    pstUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
 
-    if( pstUpdateFile != NULL )
+    if( pxUpdateFile != NULL )
     {
-        vPortFree( pstUpdateFile->pacFilepath );
-        pstUpdateFile->pacFilepath = NULL;
-        vPortFree( pstUpdateFile->pacCertFilepath );
-        pstUpdateFile->pacCertFilepath = NULL;
-        vPortFree( pstUpdateFile->pxSignature );
-        pstUpdateFile->pxSignature = NULL;
-        vPortFree( pstUpdateFile->pacStreamName );
-        pstUpdateFile->pacStreamName = NULL;
-        TEST_OTA_prvOTA_Close( pstUpdateFile );
+        vPortFree( pxUpdateFile->pucFilePath );
+        pxUpdateFile->pucFilePath = NULL;
+        vPortFree( pxUpdateFile->pucCertFilepath );
+        pxUpdateFile->pucCertFilepath = NULL;
+        vPortFree( pxUpdateFile->pxSignature );
+        pxUpdateFile->pxSignature = NULL;
+        vPortFree( pxUpdateFile->pucStreamName );
+        pxUpdateFile->pucStreamName = NULL;
+        TEST_OTA_prvOTA_Close( pxUpdateFile );
     }
 
     /* Shutdown the OTA agent. */
