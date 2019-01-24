@@ -290,41 +290,34 @@ static size_t _getSerializedLength( _jsonContainer_t * pContainer,
                                     AwsIotSerializerScalarData_t * pScalarData )
 
 {
+    size_t length;
     switch( dataType )
     {
         case AWS_IOT_SERIALIZER_CONTAINER_MAP:
         case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
-
-            return _jsonEmptyContainerLength;
-
-        case AWS_IOT_SERIALIZER_CONTAINER_STREAM:
+            length = _jsonEmptyContainerLength;
             break;
-
         case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
-
-            return _jsonStringLength( pScalarData->value.stringLength );
-
+            length = _jsonStringLength( pScalarData->value.stringLength );
+            break;
         case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
-
-            return _jsonByteStringLength( pScalarData->value.stringLength );
-
+            length = _jsonByteStringLength( pScalarData->value.stringLength );
+            break;
         case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
-
-            return _jsonIntegerLength( pScalarData->value.signedInt );
-
+            length = _jsonIntegerLength( pScalarData->value.signedInt );
+            break;
         case AWS_IOT_SERIALIZER_SCALAR_BOOL:
-
-            return _jsonBoolLength( pScalarData->value.booleanValue );
-
+            length = _jsonBoolLength( pScalarData->value.booleanValue );
+            break;
         case AWS_IOT_SERIALIZER_SCALAR_NULL:
-
-            return _JSON_NULL_VALUE_LENGTH;
-
+            length = _JSON_NULL_VALUE_LENGTH;
+            break;
         default:
+            length = 0;
             break;
     }
 
-    return 0;
+    return length;
 }
 
 /*-----------------------------------------------------------*/
@@ -506,29 +499,31 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
                                       size_t maxSize )
 {
     _jsonContainer_t * pContainer;
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
     /* Create a new JSON container */
     pContainer = pvPortMalloc( sizeof( _jsonContainer_t ) );
-
-    if( pContainer == NULL )
+    if( pContainer != NULL )
     {
-        return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+        pContainer->pBuffer = pDataBuffer;
+        pContainer->maxLength = ( pDataBuffer != NULL ) ? maxSize : 0;
+        pContainer->remainingLength = pContainer->maxLength;
+        pContainer->offset = 0;
+        pContainer->overflowLength = 0;
+        pContainer->isEmpty = true;
+
+        /* Set the outermost container default type as stream */
+        pEncoderObject->type = AWS_IOT_SERIALIZER_CONTAINER_STREAM;
+
+        /* Store the container pointer within the handle */
+        pEncoderObject->pHandle = ( void * ) pContainer;
+    }
+    else
+    {
+        error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
     }
 
-    pContainer->pBuffer = pDataBuffer;
-    pContainer->maxLength = ( pDataBuffer != NULL ) ? maxSize : 0;
-    pContainer->remainingLength = pContainer->maxLength;
-    pContainer->offset = 0;
-    pContainer->overflowLength = 0;
-    pContainer->isEmpty = true;
-
-    /* Set the outermost container default type as stream */
-    pEncoderObject->type = AWS_IOT_SERIALIZER_CONTAINER_STREAM;
-
-    /* Store the container pointer within the handle */
-    pEncoderObject->pHandle = ( void * ) pContainer;
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
+    return error;
 }
 
 /*-----------------------------------------------------------*/
@@ -553,30 +548,32 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
     size_t serializedLength = 0;
     AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
-    if( !_jsonIsValidContainer( pEncoderObject ) ||
-        !_jsonIsValidContainer( pNewEncoderObject ) )
+    if( _jsonIsValidContainer( pEncoderObject ) &&
+        _jsonIsValidContainer( pNewEncoderObject ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
+        pContainer = ( _jsonContainer_t * ) pEncoderObject->pHandle;
+        serializedLength = _getValueLength( pContainer, pNewEncoderObject->type, NULL );
 
-    pContainer = ( _jsonContainer_t * ) pEncoderObject->pHandle;
-    serializedLength = _getValueLength( pContainer, pNewEncoderObject->type, NULL );
+        if( pContainer->remainingLength >= serializedLength )
+        {
+            _appendJsonValue( pContainer, pNewEncoderObject->type, NULL );
+            pContainer->remainingLength -= serializedLength;
+        }
+        else
+        {
+            pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
+            pContainer->remainingLength = 0;
+            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        }
 
-    if( pContainer->remainingLength >= serializedLength )
-    {
-        _appendJsonValue( pContainer, pNewEncoderObject->type, NULL );
-        pContainer->remainingLength -= serializedLength;
+        pContainer->isEmpty = true;
+        pContainer->containerType = pNewEncoderObject->type;
+        pNewEncoderObject->pHandle = ( void * ) pContainer;
     }
     else
     {
-        pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
-        pContainer->remainingLength = 0;
-        error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
-
-    pContainer->isEmpty = true;
-    pContainer->containerType = pNewEncoderObject->type;
-    pNewEncoderObject->pHandle = ( void * ) pContainer;
 
     return error;
 }
@@ -592,31 +589,35 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
     _jsonContainer_t * pContainer = NULL;
     size_t serializedLength, keyLength = strlen( pKey );
 
-    if( !_jsonIsValidContainer( pEncoderObject ) ||
-        ( pEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) ||
-        !_jsonIsValidContainer( pNewEncoderObject ) )
+    if( _jsonIsValidContainer( pEncoderObject ) &&
+            _jsonIsValidContainer( pNewEncoderObject ) &&
+            ( pEncoderObject->type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
 
-    pContainer = ( _jsonContainer_t * ) pEncoderObject->pHandle;
-    serializedLength = _getKeyValueLength( pContainer, keyLength, pNewEncoderObject->type, NULL );
 
-    if( pContainer->remainingLength >= serializedLength )
-    {
-        _appendJsonKeyValuePair( pContainer, pKey, keyLength, pNewEncoderObject->type, NULL );
-        pContainer->remainingLength -= serializedLength;
+        pContainer = ( _jsonContainer_t * ) pEncoderObject->pHandle;
+        serializedLength = _getKeyValueLength( pContainer, keyLength, pNewEncoderObject->type, NULL );
+
+        if( pContainer->remainingLength >= serializedLength )
+        {
+            _appendJsonKeyValuePair( pContainer, pKey, keyLength, pNewEncoderObject->type, NULL );
+            pContainer->remainingLength -= serializedLength;
+        }
+        else
+        {
+            pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
+            pContainer->remainingLength = 0;
+            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        }
+
+        pContainer->isEmpty = true;
+        pContainer->containerType = pNewEncoderObject->type;
+        pNewEncoderObject->pHandle = ( void * ) pContainer;
     }
     else
     {
-        pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
-        pContainer->remainingLength = 0;
-        error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
-
-    pContainer->isEmpty = true;
-    pContainer->containerType = pNewEncoderObject->type;
-    pNewEncoderObject->pHandle = ( void * ) pContainer;
 
     return error;
 }
@@ -629,34 +630,29 @@ static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t 
     AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
     _jsonContainer_t * pContainer;
 
-    if( !_jsonIsValidContainer( pEncoderObject ) ||
-        !_jsonIsValidContainer( pNewEncoderObject ) )
+    if( _jsonIsValidContainer( pEncoderObject ) &&
+            _jsonIsValidContainer( pNewEncoderObject ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
 
-    pContainer = ( _jsonContainer_t * ) ( pNewEncoderObject->pHandle );
+        pContainer = ( _jsonContainer_t * ) ( pNewEncoderObject->pHandle );
+        if( pContainer->pBuffer != NULL )
+        {
+            _stopContainer( pContainer, pNewEncoderObject->type );
+        }
+        else
+        {
+            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        }
 
-    if( ( pContainer == NULL ) ||
-        ( pContainer->containerType != pNewEncoderObject->type ) )
-    {
-        /* Trying to close a different container than one opened recently */
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
-
-    if( pContainer->pBuffer != NULL )
-    {
-        _stopContainer( pContainer, pNewEncoderObject->type );
+        pContainer->containerType = pEncoderObject->type;
+        pContainer->isEmpty = false;
+        pEncoderObject->pHandle = ( void * ) pContainer;
+        pNewEncoderObject->pHandle = NULL;
     }
     else
     {
-        error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
-
-    pContainer->containerType = pEncoderObject->type;
-    pContainer->isEmpty = false;
-    pEncoderObject->pHandle = ( void * ) pContainer;
-    pNewEncoderObject->pHandle = NULL;
 
     return error;
 }
@@ -670,29 +666,32 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
     _jsonContainer_t * pContainer;
     size_t serializedLength;
 
-    if( !_jsonIsValidContainer( pEncoderObject ) ||
-        ( pEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) ||
-        !_jsonIsValidScalar( &scalarData ) )
+    if( _jsonIsValidContainer( pEncoderObject ) &&
+            ( pEncoderObject->type == AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) &&
+            _jsonIsValidScalar( &scalarData ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
 
-    pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
-    serializedLength = _getValueLength( pContainer, scalarData.type, &scalarData );
 
-    if( pContainer->remainingLength >= serializedLength )
-    {
-        _appendJsonValue( pContainer, scalarData.type, &scalarData );
-        pContainer->remainingLength -= serializedLength;
+        pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
+        serializedLength = _getValueLength( pContainer, scalarData.type, &scalarData );
+        if( pContainer->remainingLength >= serializedLength )
+        {
+            _appendJsonValue( pContainer, scalarData.type, &scalarData );
+            pContainer->remainingLength -= serializedLength;
+        }
+        else
+        {
+            pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
+            pContainer->remainingLength = 0;
+            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        }
+        pContainer->isEmpty = false;
     }
     else
     {
-        pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
-        pContainer->remainingLength = 0;
-        error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
-    }
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
 
-    pContainer->isEmpty = false;
+    }
 
     return error;
 }
@@ -708,29 +707,32 @@ static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t 
     size_t serializedLength, keyLength = strlen( pKey );
 
 
-    if( !_jsonIsValidContainer( pEncoderObject ) ||
-        ( pEncoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) ||
-        !_jsonIsValidScalar( &scalarData ) )
+    if( _jsonIsValidContainer( pEncoderObject ) &&
+        ( pEncoderObject->type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) &&
+        _jsonIsValidScalar( &scalarData ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
 
-    pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
-    serializedLength = _getKeyValueLength( pContainer, keyLength, scalarData.type, &scalarData );
+        pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
+        serializedLength = _getKeyValueLength( pContainer, keyLength, scalarData.type, &scalarData );
 
-    if( pContainer->remainingLength >= serializedLength )
-    {
-        _appendJsonKeyValuePair( pContainer, pKey, keyLength, scalarData.type, &scalarData );
-        pContainer->remainingLength -= serializedLength;
+        if( pContainer->remainingLength >= serializedLength )
+        {
+            _appendJsonKeyValuePair( pContainer, pKey, keyLength, scalarData.type, &scalarData );
+            pContainer->remainingLength -= serializedLength;
+        }
+        else
+        {
+            pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
+            pContainer->remainingLength = 0;
+            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        }
+
+        pContainer->isEmpty = false;
     }
     else
     {
-        pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
-        pContainer->remainingLength = 0;
-        error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+       error = AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
-
-    pContainer->isEmpty = false;
 
     return error;
 }

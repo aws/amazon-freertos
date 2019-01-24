@@ -401,41 +401,6 @@ static AwsIotSerializerError_t parseTokenValue( const char * pBuffer,
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                      const uint8_t * pDataBuffer,
-                                      size_t maxSize )
-{
-    AwsIotSerializerDataType_t tokenType;
-    _jsonContainer_t * pContainer;
-    const char * pStart = ( const char * ) pDataBuffer;
-    size_t length = strlen( pStart );
-
-    length = ( length < maxSize ) ? length : maxSize;
-
-    tokenType = _getTokenType( pStart, 0 );
-
-    if( ( ( tokenType != AWS_IOT_SERIALIZER_CONTAINER_MAP ) &&
-          ( tokenType != AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) ) ||
-        ( length < _MINIMUM_CONTAINER_LENGTH ) )
-    {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
-    }
-
-    pContainer = _createContainer( pStart + 1, length - 1 );
-
-    if( pContainer == NULL )
-    {
-        return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
-    }
-
-    pDecoderObject->type = tokenType;
-    pDecoderObject->pHandle = ( void * ) pContainer;
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
-}
-
-/*-----------------------------------------------------------*/
-
 static AwsIotSerializerError_t _findKeyValue( _jsonContainer_t * pObject,
                                               const char * pKey,
                                               size_t keyLength,
@@ -550,6 +515,49 @@ static AwsIotSerializerError_t _findKeyValue( _jsonContainer_t * pObject,
     return ret;
 }
 
+
+/*-----------------------------------------------------------*/
+
+static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoderObject,
+                                      const uint8_t * pDataBuffer,
+                                      size_t maxSize )
+{
+    AwsIotSerializerDataType_t tokenType;
+    _jsonContainer_t * pContainer;
+    const char * pStart = ( const char * ) pDataBuffer;
+    size_t length = strlen( pStart );
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+
+    length = ( length < maxSize ) ? length : maxSize;
+
+    tokenType = _getTokenType( pStart, 0 );
+
+    if( ( ( tokenType != AWS_IOT_SERIALIZER_CONTAINER_MAP ) &&
+          ( tokenType != AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) ) ||
+        ( length < _MINIMUM_CONTAINER_LENGTH ) )
+    {
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
+    }
+
+    if( error == AWS_IOT_SERIALIZER_SUCCESS )
+    {
+
+    pContainer = _createContainer( pStart + 1, length - 1 );
+
+    if( pContainer != NULL )
+    {
+        pDecoderObject->type = tokenType;
+        pDecoderObject->pHandle = ( void * ) pContainer;}
+    }
+    else
+    {
+        error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+    }
+
+    return error;
+}
+
+
 /*-----------------------------------------------------------*/
 
 static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoderObject,
@@ -557,19 +565,24 @@ static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoder
                                       AwsIotSerializerDecoderObject_t * pValueObject )
 {
     _jsonContainer_t * pContainer;
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
-    if( pDecoderObject->type != AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    if( pDecoderObject->type == AWS_IOT_SERIALIZER_CONTAINER_MAP )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+
+        pContainer = ( _jsonContainer_t * ) pDecoderObject->pHandle;
+        error = _findKeyValue(
+                pContainer,
+                pKey,
+                strlen( pKey ),
+                pValueObject );
+    }
+    else
+    {
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    pContainer = ( _jsonContainer_t * ) pDecoderObject->pHandle;
-
-    return _findKeyValue(
-        pContainer,
-        pKey,
-        strlen( pKey ),
-        pValueObject );
+    return error;
 }
 
 /*-----------------------------------------------------------*/
@@ -580,42 +593,49 @@ static AwsIotSerializerError_t _stepIn( AwsIotSerializerDecoderObject_t * pDecod
     AwsIotSerializerDecoderObject_t * pNewObject;
     _jsonContainer_t * pContainer, * pNewContainer;
     size_t offset = 0;
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
-    if( !_isValidContainer( pDecoderObject ) )
+    if( _isValidContainer( pDecoderObject ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+        pContainer = pDecoderObject->pHandle;
+
+        _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
+        if( offset >= pContainer->length )
+        {
+            error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+        }
+
+        if( error == AWS_IOT_SERIALIZER_SUCCESS )
+        {
+            pNewContainer = _createContainer( ( pContainer->pStart + offset ), pContainer->length );
+            if( pNewContainer != NULL )
+            {
+                pNewObject = pvPortMalloc( sizeof( AwsIotSerializerDecoderObject_t ) );
+                if( pNewObject != NULL )
+                {
+                    pNewObject->type = pDecoderObject->type;
+                    pNewObject->pHandle = pNewContainer;
+                    *pIterator = ( AwsIotSerializerDecoderIterator_t ) pNewObject;
+                }
+                else
+                {
+                    vPortFree( pNewContainer );
+                    error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+                }
+            }
+            else
+            {
+                error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+            }
+        }
+    }
+    else
+    {
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    pContainer = pDecoderObject->pHandle;
 
-    _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
-
-    if( offset >= pContainer->length )
-    {
-        return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    }
-
-    pNewContainer = _createContainer( ( pContainer->pStart + offset ), pContainer->length );
-
-    if( pNewContainer == NULL )
-    {
-        return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
-    }
-
-    pNewObject = pvPortMalloc( sizeof( AwsIotSerializerDecoderObject_t ) );
-
-    if( pNewObject == NULL )
-    {
-        vPortFree( pNewContainer );
-
-        return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
-    }
-
-    pNewObject->type = pDecoderObject->type;
-    pNewObject->pHandle = pNewContainer;
-    *pIterator = ( AwsIotSerializerDecoderIterator_t ) pNewObject;
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
+    return error;
 }
 
 /*-----------------------------------------------------------*/
@@ -649,15 +669,14 @@ static bool _isEndOfContainer( AwsIotSerializerDecoderIterator_t iterator )
 {
     AwsIotSerializerDecoderObject_t * pObject = ( AwsIotSerializerDecoderObject_t * ) iterator;
     _jsonContainer_t * pContainer;
+    bool ret = false;
 
-    if( !_isValidContainer( pObject ) )
+    if( _isValidContainer( pObject ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+        pContainer = pObject->pHandle;
+        ret = _isEOF( pContainer->pStart, pObject->type );
     }
-
-    pContainer = pObject->pHandle;
-
-    return _isEOF( pContainer->pStart, pObject->type );
+    return ret;
 }
 
 /*-----------------------------------------------------------*/
@@ -669,28 +688,31 @@ static AwsIotSerializerError_t _get( AwsIotSerializerDecoderIterator_t iterator,
     _jsonContainer_t * pContainer;
     AwsIotSerializerDataType_t type;
     size_t offset = 0;
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
-    if( !_isValidContainer( pDecoder ) )
+    if( _isValidContainer( pDecoder ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+        pContainer = _castDecoderIteratorToJsonContainer( iterator );
+        type = _getTokenType( pContainer->pStart, offset );
+        if( type != AWS_IOT_SERIALIZER_UNDEFINED )
+        {
+            parseTokenValue( pContainer->pStart, pContainer->length, &offset, type, pValueObject );
+            if( offset >= pContainer->length )
+            {
+                error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+            }
+        }
+        else
+        {
+            error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+        }
+    }
+    else
+    {
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    pContainer = _castDecoderIteratorToJsonContainer( iterator );
-    type = _getTokenType( pContainer->pStart, offset );
-
-    if( type == AWS_IOT_SERIALIZER_UNDEFINED )
-    {
-        return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    }
-
-    parseTokenValue( pContainer->pStart, pContainer->length, &offset, type, pValueObject );
-
-    if( offset >= pContainer->length )
-    {
-        return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
-    }
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
+    return error;
 }
 
 
@@ -702,27 +724,31 @@ static AwsIotSerializerError_t _next( AwsIotSerializerDecoderIterator_t iterator
     _jsonContainer_t * pContainer;
     AwsIotSerializerDataType_t type;
     size_t offset = 0;
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
-    if( !_isValidContainer( pObject ) )
+    if( _isValidContainer( pObject ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+        pContainer = pObject->pHandle;
+        type = _getTokenType( pContainer->pStart, offset );
+        parseTokenValue( pContainer->pStart, pContainer->length, &offset, type, NULL );
+        _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
+
+        if( offset < pContainer->length )
+        {
+            pContainer->pStart += offset;
+        }
+        else
+        {
+            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+        }
+    }
+    else
+    {
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
+
     }
 
-    pContainer = pObject->pHandle;
-
-    type = _getTokenType( pContainer->pStart, offset );
-
-    parseTokenValue( pContainer->pStart, pContainer->length, &offset, type, NULL );
-    _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
-
-    if( offset >= pContainer->length )
-    {
-        return AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
-    }
-
-    pContainer->pStart += offset;
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
+    return error;
 }
 
 /*-----------------------------------------------------------*/
@@ -732,40 +758,42 @@ static AwsIotSerializerError_t _stepOut( AwsIotSerializerDecoderIterator_t itera
 {
     AwsIotSerializerDecoderObject_t * pIterObject = ( AwsIotSerializerDecoderObject_t * ) iterator;
     _jsonContainer_t * pContainer, * pIterContainer;
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
 
-    if( !_isValidContainer( pIterObject ) || !_isValidContainer( pDecoderObject ) )
+    if( _isValidContainer( pIterObject ) && _isValidContainer( pDecoderObject ) )
     {
-        return AWS_IOT_SERIALIZER_INVALID_INPUT;
+
+        pContainer = pDecoderObject->pHandle;
+        pIterContainer = pIterObject->pHandle;
+        if( _isEOF( pIterContainer->pStart, pIterObject->type ) )
+        {
+            pContainer->pStart = ( pIterContainer->pStart + 1 );
+            vPortFree( pIterContainer );
+            vPortFree( pIterObject );
+        }
+        else
+        {
+            error = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+        }
+    }
+    else
+    {
+        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
     }
 
-    pContainer = pDecoderObject->pHandle;
-    pIterContainer = pIterObject->pHandle;
-
-    if( !_isEOF( pIterContainer->pStart, pIterObject->type ) )
-    {
-        return AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
-    }
-
-    pContainer->pStart = ( pIterContainer->pStart + 1 );
-
-    vPortFree( pIterContainer );
-    vPortFree( pIterObject );
-
-    return AWS_IOT_SERIALIZER_SUCCESS;
+    return error;
 }
 
 /*-----------------------------------------------------------*/
 
 static void _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject )
 {
-    if( !_isValidContainer( pDecoderObject ) )
+    if( _isValidContainer( pDecoderObject ) )
     {
-        return;
-    }
-
-    if( pDecoderObject->pHandle != NULL )
-    {
-        vPortFree( pDecoderObject->pHandle );
-        pDecoderObject->pHandle = NULL;
+        if( pDecoderObject->pHandle != NULL )
+        {
+            vPortFree( pDecoderObject->pHandle );
+            pDecoderObject->pHandle = NULL;
+        }
     }
 }

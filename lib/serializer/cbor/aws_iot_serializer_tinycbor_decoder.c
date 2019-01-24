@@ -209,10 +209,11 @@ static AwsIotSerializerError_t _createDecoderObject( _cborValueWrapper_t * pCbor
                             &next );
                 }
 
-                if ( cborError == CborNoError )
+                if ( cborError != CborNoError )
                 {
 
-                    if( ( pDecoderObject->value.pString == NULL ) &&
+                    if( ( cborError == CborErrorOutOfMemory ) &&
+                            ( pDecoderObject->value.pString == NULL ) &&
                             (  cbor_value_is_length_known( pCborValue ) ) )
 
                     {
@@ -220,17 +221,18 @@ static AwsIotSerializerError_t _createDecoderObject( _cborValueWrapper_t * pCbor
                          * If its a finite length text/byte string, and user have passed a null length buffer,
                          * we avoid copying the string by storing pointer to the start of the string.
                          */
-                        pDecoderObject->value.pString = ( cbor_value_get_next_byte( &next ) - ( pDecoderObject->value.stringLength ) );
+                         pDecoderObject->value.pString = ( uint8_t *)( cbor_value_get_next_byte( &next ) - ( pDecoderObject->value.stringLength ) );
                     }
-                }
-                else
-                {
-                    returnedError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                    else
+                    {
+                        returnedError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+
+                    }
+
                 }
 
                 break;
             }
-
             default:
                 /* Other scalar types are not supported. */
                 returnedError = AWS_IOT_SERIALIZER_NOT_SUPPORTED;
