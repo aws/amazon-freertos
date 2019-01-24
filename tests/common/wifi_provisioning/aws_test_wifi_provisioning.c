@@ -45,7 +45,7 @@
 
 static void prvBLEInitialize( void );
 static void prvBLEDeInitialize( void );
-static void prvResetWiFiSavedNetworks( void );
+static void prvRemoveSavedNetworks( void );
 static void prvGetRealWIFINetwork( WIFINetworkProfile_t *pxNetwork );
 static void prvGetTestWIFINetwork( WIFINetworkProfile_t *pxNetwork, uint16_t usId );
 static BaseType_t prvIsSameNetwork( WIFINetworkProfile_t *pxNetwork1,  WIFINetworkProfile_t *pxNetwork2 );
@@ -73,7 +73,7 @@ TEST_SETUP( Full_WiFi_Provisioning )
 
 TEST_TEAR_DOWN( Full_WiFi_Provisioning )
 {
-	prvResetWiFiSavedNetworks();
+	prvRemoveSavedNetworks();
 }
 
 
@@ -81,7 +81,7 @@ TEST_GROUP_RUNNER( Full_WiFi_Provisioning )
 {
 
 	prvBLEInitialize();
-	prvResetWiFiSavedNetworks();
+	prvRemoveSavedNetworks();
 
     RUN_TEST_CASE( Full_WiFi_Provisioning, WIFI_PROVISION_Init );
     RUN_TEST_CASE( Full_WiFi_Provisioning, WIFI_PROVISION_StartStop );
@@ -91,11 +91,12 @@ TEST_GROUP_RUNNER( Full_WiFi_Provisioning )
     RUN_TEST_CASE( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeNetworkPriority );
     RUN_TEST_CASE( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeConnectedNetworkPriority );
     RUN_TEST_CASE( Full_WiFi_Provisioning, WIFI_PROVISION_DeleteConnectedNetwork );
+    RUN_TEST_CASE( Full_WiFi_Provisioning, WIFI_PROVISION_GetNumNetworks);
     RUN_TEST_CASE( Full_WiFi_Provisioning, WIFI_PROVISION_ConnectSavedNetwork );
     RUN_TEST_CASE( Full_WiFi_Provisioning, WIFI_PROVISION_Deinit );
 
     prvBLEDeInitialize();
-    prvResetWiFiSavedNetworks();
+    prvRemoveSavedNetworks();
 
     TEST_ASSERT_EQUAL( pdPASS, prvConnectRealNetwork() );
 }
@@ -110,14 +111,8 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_Init )
 TEST( Full_WiFi_Provisioning, WIFI_PROVISION_StartStop )
 {
 
-	WIFINetworkProfile_t xNetwork;
 	BaseType_t xStatus = WIFI_PROVISION_Start();
 	TEST_ASSERT_EQUAL( pdPASS, xStatus);
-	if( TEST_PROTECT() )
-	{
-		TEST_ASSERT_EQUAL( pdTRUE, WIFI_PROVISION_IsConnected( 0 ) );
-		TEST_ASSERT_EQUAL( pdFALSE, WIFI_PROVISION_GetConnectedNetwork( &xNetwork ) );
-	}
 	xStatus = WIFI_PROVISION_Stop();
 	TEST_ASSERT_EQUAL( pdPASS, xStatus );
 }
@@ -125,7 +120,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_StartStop )
 TEST( Full_WiFi_Provisioning, WIFI_PROVISION_AddNetwork )
 {
 
-	WIFINetworkProfile_t xNetwork;
+	WIFINetworkProfile_t xNetwork = { 0 };
 	WIFIReturnCode_t xStatus;
 
 
@@ -137,12 +132,10 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_AddNetwork )
 		xStatus = test_AddNewNetwork( &xNetwork );
 
 		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
-		TEST_ASSERT_EQUAL( pdTRUE, WIFI_PROVISION_IsConnected( 0 ) );
-
 		/* Verify that the network is connected */
-		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
 		memset(&xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
-		TEST_ASSERT_EQUAL( pdTRUE, WIFI_PROVISION_GetConnectedNetwork( &xNetwork ) );
+		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
+		TEST_ASSERT_EQUAL( pdTRUE, test_GetConnectedNetwork( &xNetwork ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cSSID, clientcredentialWIFI_SSID, sizeof( clientcredentialWIFI_SSID ) ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
@@ -165,7 +158,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_AddNetwork )
 TEST( Full_WiFi_Provisioning, WIFI_PROVISION_GetSavedNetwork )
 {
 
-	WIFINetworkProfile_t xNetwork;
+	WIFINetworkProfile_t xNetwork = { 0 };
 	WIFIReturnCode_t xStatus;
 
 	WIFI_PROVISION_Start();
@@ -175,8 +168,6 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_GetSavedNetwork )
 		prvGetRealWIFINetwork( &xNetwork );
 		xStatus = test_AppendNetwork( &xNetwork );
 		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
-
-		/* Verify we are able to get saved network */
 		memset(&xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
 		TEST_ASSERT_EQUAL( eWiFiSuccess, test_GetSavedNetwork(0, &xNetwork ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
@@ -251,10 +242,10 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeNetworkPriority )
 			TEST_ASSERT_EQUAL( pdTRUE,  xStatus );
 		}
 
-		/* Change priority of network2 from 0 to 2 */
+		/* Change priority of network from 0 to 2 */
 		TEST_ASSERT_EQUAL( eWiFiSuccess, test_MoveNetwork( 0, 2 ));
 
-		/* Verify Network2 is at storage index 0  */
+		/* Verify the Network is at storage index 0  */
 		prvGetTestWIFINetwork(&xTestProfile, 2);
 		TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, 0 ) );
 		xStatus = prvIsSameNetwork( &xNetwork, &xTestProfile );
@@ -313,12 +304,14 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeConnectedNetworkPriority )
 		/* Add real network */
 		prvGetRealWIFINetwork( &xNetwork );
 		xStatus = test_AddNewNetwork( &xNetwork );
+
+
 		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
-		TEST_ASSERT_EQUAL( pdTRUE, WIFI_PROVISION_IsConnected( 0 ) );
+		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
 
 		/*Verify the connected network */
 		memset(&xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
-		TEST_ASSERT_EQUAL( pdTRUE, WIFI_PROVISION_GetConnectedNetwork( &xNetwork ) );
+		TEST_ASSERT_EQUAL( pdTRUE, test_GetConnectedNetwork( &xNetwork ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cSSID, clientcredentialWIFI_SSID, sizeof( clientcredentialWIFI_SSID ) ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
@@ -328,15 +321,16 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeConnectedNetworkPriority )
 		/* Change priority of connected network from 0 to 2 */
 		TEST_ASSERT_EQUAL( eWiFiSuccess, test_MoveNetwork( 0, 2 ));
 
-		/*Verify its connected and connected network remains same */
+		/*Verify WiFi is connected and connected network remains same */
 		memset(&xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
 		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
-		TEST_ASSERT_EQUAL( pdTRUE, WIFI_PROVISION_GetConnectedNetwork( &xNetwork ) );
+		TEST_ASSERT_EQUAL( pdTRUE, test_GetConnectedNetwork( &xNetwork ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cSSID, clientcredentialWIFI_SSID, sizeof( clientcredentialWIFI_SSID ) ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cPassword, clientcredentialWIFI_PASSWORD, sizeof( clientcredentialWIFI_PASSWORD ) ) );
 		TEST_ASSERT_EQUAL_INT32( clientcredentialWIFI_SECURITY, xNetwork.xSecurity );
+
 	}
 
     WIFI_PROVISION_Stop();
@@ -356,15 +350,55 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_DeleteConnectedNetwork )
 		prvGetRealWIFINetwork( &xNetwork );
 		xStatus = test_AddNewNetwork( &xNetwork );
 		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
-		TEST_ASSERT_EQUAL( pdTRUE, WIFI_PROVISION_IsConnected( 0 ) );
+		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
 
 		/* Delete the WiFi Network */
 		xStatus = test_PopNetwork( 0, NULL );
 		/*Verify there is no connected network */
-		TEST_ASSERT_EQUAL( pdFALSE, WIFI_PROVISION_GetConnectedNetwork( &xNetwork ) );
+		TEST_ASSERT_EQUAL( pdFALSE, test_GetConnectedNetwork( &xNetwork ) );
 	}
 
     WIFI_PROVISION_Stop();
+}
+
+TEST( Full_WiFi_Provisioning, WIFI_PROVISION_GetNumNetworks )
+{
+
+	WIFINetworkProfile_t xNetwork = { 0 };
+	WIFIReturnCode_t xStatus;
+
+	WIFI_PROVISION_Start();
+
+	if( TEST_PROTECT() )
+	{
+		//Add 1 network
+		prvGetTestWIFINetwork(&xNetwork, 0);
+		xStatus = test_AppendNetwork( &xNetwork );
+		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
+		TEST_ASSERT_EQUAL( 1, WIFI_PROVISION_GetNumNetworks() );
+
+		//Add 2 networks
+		prvGetTestWIFINetwork(&xNetwork, 1);
+		xStatus = test_AppendNetwork( &xNetwork );
+		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
+		TEST_ASSERT_EQUAL( 2, WIFI_PROVISION_GetNumNetworks() );
+
+		//Move Networks
+		TEST_ASSERT_EQUAL( eWiFiSuccess, test_MoveNetwork( 0, 1 ));
+		TEST_ASSERT_EQUAL( 2, WIFI_PROVISION_GetNumNetworks() );
+
+		//Delete Network 1
+		xStatus = test_PopNetwork( 0, NULL );
+		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
+		TEST_ASSERT_EQUAL( 1, WIFI_PROVISION_GetNumNetworks() );
+
+		//Delete Network 2
+		xStatus = test_PopNetwork( 0, NULL );
+		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
+		TEST_ASSERT_EQUAL( 0, WIFI_PROVISION_GetNumNetworks() );
+	}
+
+	WIFI_PROVISION_Stop();
 }
 
 TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ConnectSavedNetwork )
@@ -375,33 +409,32 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ConnectSavedNetwork )
 	BaseType_t xResult;
 	int x;
 
-
 	xStatus = WIFI_Disconnect();
 	TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
 
-	/* Add dummy networks */
-	for( x = 0; x < 2; x++ )
-	{
-		prvGetTestWIFINetwork(&xNetwork, x);
-		xStatus = test_AppendNetwork( &xNetwork );
-		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
-	}
-
-	/* Add real network */
-	prvGetRealWIFINetwork( &xNetwork );
-	xStatus = test_AppendNetwork( &xNetwork );
-	TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
-
 	WIFI_PROVISION_Start();
-
 	if( TEST_PROTECT() )
 	{
 
-		/* Wait for maximum WIFI connect time to be connected  */
-		xResult = WIFI_PROVISION_IsConnected( testMAXWIFI_WAIT_TIME );
+		/* Add dummy networks */
+		for( x = 0; x < 2; x++ )
+		{
+			prvGetTestWIFINetwork(&xNetwork, x);
+			xStatus = test_AppendNetwork( &xNetwork );
+			TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
+		}
+
+		/* Add real network */
+		prvGetRealWIFINetwork( &xNetwork );
+		xStatus = test_AppendNetwork( &xNetwork );
+		TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus);
+		TEST_ASSERT_EQUAL( 3, WIFI_PROVISION_GetNumNetworks() );
+
+		/* Connect to real network */
+		xResult = WIFI_PROVISION_Connect( 0 );
 		TEST_ASSERT_EQUAL( pdTRUE, xResult );
 		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
-		xResult = WIFI_PROVISION_GetConnectedNetwork( &xNetwork );
+		xResult = test_GetConnectedNetwork( &xNetwork );
 		TEST_ASSERT_EQUAL( pdTRUE, xResult );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cSSID, clientcredentialWIFI_SSID, sizeof( clientcredentialWIFI_SSID ) ) );
@@ -501,12 +534,23 @@ static void prvGetTestWIFINetwork( WIFINetworkProfile_t *pxNetwork, uint16_t usI
 	pxNetwork->xSecurity = clientcredentialWIFI_SECURITY;
 }
 
-static void prvResetWiFiSavedNetworks( void )
+static void prvRemoveSavedNetworks( void )
 {
-	uint16_t usIndex;
+	uint16_t usNumNetworks = wifiProvMAX_SAVED_NETWORKS;
+	WIFIReturnCode_t xRet;
+	WIFINetworkProfile_t xProfile;
 
-	for( usIndex = 0; usIndex < wifiProvMAX_SAVED_NETWORKS; usIndex++ )
+	while( usNumNetworks > 0 )
 	{
-		( void )WIFI_NetworkDelete( usIndex );
+		xRet = WIFI_NetworkGet( &xProfile, 0 );
+		if( xRet == eWiFiSuccess )
+		{
+			WIFI_NetworkDelete( 0 );
+		}
+		else
+		{
+			break;
+		}
+		usNumNetworks--;
 	}
 }

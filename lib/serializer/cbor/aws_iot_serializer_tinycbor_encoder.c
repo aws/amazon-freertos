@@ -31,7 +31,6 @@
  * The file implements the encoder interface in aws_iot_serialize.h.
  */
 
-#include "FreeRTOS.h"
 #include "aws_iot_serializer.h"
 #include "cbor.h"
 

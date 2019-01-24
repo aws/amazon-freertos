@@ -35,7 +35,6 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "FreeRTOS.h"
 #include "aws_iot_serializer.h"
 #include "mbedtls/base64.h"
 

@@ -214,10 +214,8 @@ typedef struct WifiProvService
     EventGroupHandle_t xEventGroup;
     SemaphoreHandle_t xLock;
     uint16_t usNumNetworks;
-    uint16_t usNextConnectIdx;
     int16_t sConnectedIdx;
     BaseType_t xInit;
-    TaskHandle_t xConnectTask;
 } WifiProvService_t;
 
 #define wifiProvIS_SUCCESS( btstatus )    ( ( btstatus ) == eBTStatusSuccess )
@@ -236,11 +234,6 @@ typedef struct WifiProvService
  * @brief Base priority for all the tasks
  */
 #define wifiProvTASK_PRIORITY_BASE      ( tskIDLE_PRIORITY )
-
-/**
- * @brief Task priority for background task to connect to saved networks.
- */
-#define wifiProvCONNECT_AP_TASK_PRIORITY  ( wifiProvTASK_PRIORITY_BASE )
 
 /**
  * @brief Priority for the task to list all the WiFi networks.
@@ -266,36 +259,53 @@ BaseType_t WIFI_PROVISION_Init( void );
 
 /**
  * @brief Starts WiFi provisioning service.
+ * Starts the BLE service to provision new WIFI networks. Registers a callback invoked whenever a new network is provisioned.
  *
- *  Starts background task to connect to one of the configured WiFi networks, if its not already connected.
  *
  * @return pdTRUE if successfully started
  *         pdFALSE if start failed
  */
 BaseType_t WIFI_PROVISION_Start( void );
 
+
 /**
+ * @brief Gets the total number of provisioned networks.
  *
- **@brief Blocks until WiFi is connected or given wait time is reached.
  *
- * @param[in] xWaitTicks Time in FreeRTOS ticks to wait until the WiFi is connected.
- * @return pdTRUE if the WiFi is connected
- *         pdFALSE if the WiFi provisioning is in progress even after specified wait time has reached or has failed.
- *
+ * @return Number of provisioned networks
  */
-BaseType_t WIFI_PROVISION_IsConnected( uint32_t xWaitTicks );
-
+uint16_t WIFI_PROVISION_GetNumNetworks( void );
 
 /**
- * @brief Gets the connected network profile.
- * @param[out] pxNetwork The network profile for the connected network
- * @return pdTRUE if network is connected and the connected network profile is found.
- *         pdFALSE if the network is not connected.
+ * @brief Connects to one of the saved networks in priority order.
+ *
+ * Example usage of this API to connect to provisioned networks in priority order:
+   <pre>
+
+   uint16_t usNumNetworks =  WIFI_PROVISION_GetNumNetworks(); //Gets the number of provisioned networks
+   uint16_t usPriority;
+   TickType_t  xNetworkConnectionDelay = pdMS_TO_TICKS( 1000 ); //1 Second delay
+
+   for( usPriority = 0; usPriority < usNumNetworks; usPriority++ ) //Priority is always in descending order/0 being highest priority.
+   {
+        xRet = WIFI_PROVISION_Connect( usPriority );
+        if( xRet == pdTRUE )
+        {
+            break;
+        }
+        vTaskDelay( xNetworkConnectionDelay );
+   }
+   </pre>
+ *
+ * @return Returns the connected network index in the flash.
  */
-BaseType_t WIFI_PROVISION_GetConnectedNetwork( WIFINetworkProfile_t * pxNetwork );
+BaseType_t WIFI_PROVISION_Connect( uint16_t ulNetworkIndex );
+
+
+
 
 /**
- * @brief Stops WIFI provisioning service
+ * @brief Stops WIFI provisioning BLE service
  *
  * Stops GATT service, Pauses the background task which connects to saved WiFi networks.
  *
