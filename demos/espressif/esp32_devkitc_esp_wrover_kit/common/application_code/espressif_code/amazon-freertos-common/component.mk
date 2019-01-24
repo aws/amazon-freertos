@@ -61,6 +61,7 @@ COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/ota \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/ble \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/network_manager \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/common/wifi_provisioning
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/common/include
 endif

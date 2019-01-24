@@ -91,4 +91,16 @@ WIFIReturnCode_t test_ConnectSavedNetwork( uint16_t usIndex )
 	return prvConnectSavedNetwork( usIndex );
 }
 
+BaseType_t test_GetConnectedNetwork( WIFINetworkProfile_t * pxNetwork )
+{
+    BaseType_t xRet = pdFALSE;
+    if( prvGetSavedNetwork( xWifiProvService.sConnectedIdx, pxNetwork ) == eWiFiSuccess )
+    {
+    	xRet = pdTRUE;
+    }
+
+    return xRet;
+
+}
+
 #endif /* AWS_BLE_WIFI_PROV_TEST_ACCESS_DEFINE_H_ */

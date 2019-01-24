@@ -64,4 +64,6 @@ WIFIReturnCode_t test_ConnectSavedNetwork( uint16_t usIndex );
 
 WIFIReturnCode_t test_GetSavedNetwork( uint16_t usIndex, WIFINetworkProfile_t *pxProfile );
 
+BaseType_t test_GetConnectedNetwork( WIFINetworkProfile_t * pxNetwork );
+
 #endif /* AWS_BLE_WIFI_PROV_TEST_ACCESS_DECLARE_H_ */

@@ -37,15 +37,17 @@
 #include "aws_ble.h"
 #include "aws_ble_numericComparison.h"
 #include "aws_ble_services_init.h"
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
-#include "aws_ble_wifi_provisioning.h"
-#endif
+
 #endif
 #if WIFI_ENABLED
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
 #endif
 
+#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
+#include "aws_ble_wifi_provisioning.h"
+#include "aws_wifi_connect_task.h"
+#endif
 
 /**
  *  @brief Structure used to store one node representing each subscription.
@@ -88,7 +90,7 @@ static bool prvBLEDisable( void );
  *
  * @return true if WIFI is enabled successfully.
  */
-static bool prvWIFIEnable( void );
+static BaseType_t prxWIFIEnable( void );
 
 /**
  * @brief Function used to disable a WIFI network.
@@ -148,7 +150,7 @@ static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkStat
  * Connects to the WIFI using credentials configured statically
  * @return true if connected successfully.
  */
-static bool prvWifiConnect( void );
+static BaseType_t prxWifiConnect( void );
 #endif
 #endif
 
@@ -461,7 +463,7 @@ static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkStat
 }
 
 #if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
-static bool prvWifiConnect( void )
+static BaseType_t prxWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
@@ -480,40 +482,45 @@ static bool prvWifiConnect( void )
 #endif
 
 
-static bool prvWIFIEnable( void )
+static BaseType_t prxWIFIEnable( void )
 {
-    bool xRet = false;
+	BaseType_t xRet = pdFALSE;
 
     if( !( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_WIFI  ) )
     {
 
         if( WIFI_On() == eWiFiSuccess )
         {
-            xRet = true;
+            xRet = pdTRUE;
         }
 
-        if( xRet == true )
+        if( xRet == pdTRUE )
         {
             if( WIFI_RegisterStateChangeCallback( prvWiFiConnectionCallback, NULL ) != eWiFiSuccess )
             {
-                xRet = false;
+                xRet = pdFALSE;
             }
         }
 
 #if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
-        if( xRet == true )
+        if( xRet == pdTRUE )
         {
-            xRet = prvWifiConnect();
+            xRet = prxWifiConnect();
         }
 #else
-        WIFI_PROVISION_Start();
+        if ( xRet == pdTRUE )
+        {
+        	xRet = WIFI_PROVISION_Start();
+        }
+        if( xRet == pdTRUE )
+        {
+        	xRet = xWiFiConnectTaskInitialize();
+        }
 #endif
-
-        if( xRet == true )
+        if( xRet == pdTRUE )
         {
             ulEnabledNetworks |= AWSIOT_NETWORK_TYPE_WIFI;
         }
-
 
     }
     return xRet;
@@ -523,6 +530,8 @@ static bool prvWIFIDisable( void )
     bool xRet = false;
     if( ( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_WIFI  ) == AWSIOT_NETWORK_TYPE_WIFI )
     {
+    	vWiFiConnectTaskDestroy();
+
         if( WIFI_IsConnected() == pdTRUE )
         {
             if( WIFI_Disconnect() == eWiFiSuccess )
@@ -543,7 +552,7 @@ static bool prvWIFIDisable( void )
 }
 
 #else
-static bool prvWIFIEnable( void )
+static BaseType_t prxWIFIEnable( void )
 {
 	return false;
 }
@@ -703,7 +712,7 @@ uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t ulNetworkTypes )
 
     if( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
     {
-        if( prvWIFIEnable() == true )
+        if( prxWIFIEnable() == pdTRUE )
         {
             ulEnabled  |= AWSIOT_NETWORK_TYPE_WIFI;
         }
