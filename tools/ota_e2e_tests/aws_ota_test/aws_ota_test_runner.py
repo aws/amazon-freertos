@@ -24,6 +24,7 @@ http://www.FreeRTOS.org
 
 """
 import os
+import traceback
 from .aws_flash_serial_comm import FlashSerialComm
 from .aws_ota_project import OtaAfrProject
 from .aws_ota_aws_agent import OtaAwsAgent
@@ -56,8 +57,6 @@ class OtaTestRunner:
         self._boardConfig = boardConfig
         self._stageParams = stageParams
         self._otaConfig = boardConfig['ota_config']
-        
-        # Initialize all objects needed by test cases.
         self._flashComm = FlashSerialComm(boardConfig['flash_config'], boardConfig['flash_config']['output'], self._otaConfig['device_firmware_file_name'])
         self._otaProject = OtaAfrProject(os.path.join(boardConfig['afr_root'], boardConfig['demos_or_tests']), boardConfig['vendor_board_path'], boardConfig['build_config'])
         self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig['aws_ota_update_role_arn'], self._otaConfig['aws_s3_bucket_name'], stageParams, True)
