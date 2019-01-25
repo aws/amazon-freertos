@@ -38,7 +38,7 @@ INC += \
 	-I$(FREERTOS)/lib/defender/src \
 	-I$(FREERTOS)/lib/defender/src/metrics \
 	-I$(FREERTOS)/lib/defender/src/report \
-	-I./include \
+	-I../include \
 
 DEF += \
 	-D_DEBUG \
