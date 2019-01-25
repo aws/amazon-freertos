@@ -202,7 +202,7 @@ def otaTestMain():
             threads.append(Thread(
                 target=getBoardOtaTestResult, \
                 args=(boardConfig, stageParams, boardToResults[boardConfig['name']])
-            ))               
+            ))
         else:
             getBoardOtaTestResult(boardConfig, stageParams, boardToResults[boardConfig['name']])
         
