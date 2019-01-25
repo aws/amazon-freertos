@@ -53,10 +53,10 @@
 /*-----------------------------------------------------------*/
 
 #define SHARED_BUFFER_SIZE      ( 10 )
-#define NUM_OF_PRODUCER         ( 1 )
-#define NUM_OF_CONSUMER         ( 1 )
+#define NUM_OF_PRODUCER         ( 10 )
+#define NUM_OF_CONSUMER         ( 10 )
 
-#define NUM_OF_EXE_ITERATION_PRODUCER ( 10000 )                                                               /* How many iterations EACH producer thread executes. */
+#define NUM_OF_EXE_ITERATION_PRODUCER ( 1000 )                                                               /* How many iterations EACH producer thread executes. */
 #define NUM_OF_EXE_ITERATION_CONSUMER ( NUM_OF_EXE_ITERATION_PRODUCER * NUM_OF_PRODUCER / NUM_OF_CONSUMER )  /* How many iterations EACH consumer thread executes. Fraction is not taken care of. */
 
 /*-----------------------------------------------------------*/
@@ -64,6 +64,8 @@
 /* Tracing related definition. */
 #define TRACING_THREAD_PRODUCER     ( 1 )
 #define TRACING_THREAD_CONSUMER     ( 1 )
+
+#define TRACING_DISABLE_MUTEX_AROUND_INDEXES    ( 1 )       /* This is trying to create bug on purpose! Set to 0 to run classic producer-consumer. */
 /*-----------------------------------------------------------*/
 
 static sem_t xSemaphore_empty;
@@ -72,9 +74,14 @@ static sem_t xSemaphore_available;
 static int pBuffer[ SHARED_BUFFER_SIZE ];
 
 static int iWriteIndex;
-static int iReadIndex;
+//static pthread_mutex_t xWriteMutex;           /* Commenting out purely for profiling interest. */
 
-static int iDummyCummulator;
+static int iReadIndex;
+//static pthread_mutex_t xReadMutex;            /* Commenting out purely for profiling interest. */
+
+#if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 1 )
+    static int iDummyCummulator;
+#endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
 
 /*-----------------------------------------------------------*/
 
@@ -105,15 +112,17 @@ static void * prvProducerThread( void * pvArgs )
         /* Below is for debugging purpose, should not enable IO during profiling. */
         //configPRINTF( ( "%s -- Producer[%d] posted. Iteration [%d].\r\n", __FUNCTION__, iThreadId, i ) );
 
-        /* Time stamp 1 -- time since counter starts */
-        ullSingleCycleElapsed = aws_hal_perfcounter_get_value(); /* Temporary value. */
+        #if ( TRACING_THREAD_PRODUCER == 1 )
+            ullSingleCycleElapsed = aws_hal_perfcounter_get_value(); /* Temporary value. */
+        #endif /* TRACING_THREAD_PRODUCER */
 
         sem_post( &xSemaphore_available );
 
-        /* Time stamp 2 -- time since time stamp 1. */
-        ullSingleCycleElapsed = aws_hal_perfcounter_get_value() - ullSingleCycleElapsed;
-        ullTotalCycleElapsed += ullSingleCycleElapsed;
-        iNumOfEntry++;
+        #if ( TRACING_THREAD_PRODUCER == 1 )
+            ullSingleCycleElapsed = aws_hal_perfcounter_get_value() - ullSingleCycleElapsed;
+            ullTotalCycleElapsed += ullSingleCycleElapsed;
+            iNumOfEntry++;
+        #endif /* TRACING_THREAD_PRODUCER */
     }
 
     configPRINTF( ( "%s -- Producer[%i] -- sem_post() total cycle elapsed [%ld], number of entry [%d].\r\n",
@@ -134,22 +143,26 @@ static void * prvConsumerThread( void * pvArgs )
     int iTemp = 0;
     int i = 0; /* Read index. */
 
-    /* Thread specific counters. No need for synchronization. */
-    uint64_t ullTotalCycleElapsed = 0;
-    uint64_t ullSingleCycleElapsed = 0;
-    int iNumOfEntry = 0;
+    #if ( TRACING_THREAD_CONSUMER == 1 )
+        /* Thread specific counters. No need for synchronization. */
+        uint64_t ullTotalCycleElapsed = 0;
+        uint64_t ullSingleCycleElapsed = 0;
+        int iNumOfEntry = 0;
+    #endif /* TRACING_THREAD_CONSUMER */
 
     while ( i <  NUM_OF_EXE_ITERATION_CONSUMER )
     {
-        /* Time stamp 1 -- time since counter starts. */
-        ullSingleCycleElapsed = aws_hal_perfcounter_get_value(); /* Temporary value. */
+        #if ( TRACING_THREAD_CONSUMER == 1 )
+            ullSingleCycleElapsed = aws_hal_perfcounter_get_value(); /* Temporary value. */
+        #endif /* TRACING_THREAD_PRODUCER */
 
         sem_wait( &xSemaphore_available );
 
-        /* Time stamp 2 -- time since time stamp 1. */
-        ullSingleCycleElapsed = aws_hal_perfcounter_get_value() - ullSingleCycleElapsed;
-        ullTotalCycleElapsed += ullSingleCycleElapsed;
-        iNumOfEntry++;
+        #if ( TRACING_THREAD_CONSUMER == 1 )
+            ullSingleCycleElapsed = aws_hal_perfcounter_get_value() - ullSingleCycleElapsed;
+            ullTotalCycleElapsed += ullSingleCycleElapsed;
+            iNumOfEntry++;
+        #endif /* TRACING_THREAD_CONSUMER */
 
         i++;
 
@@ -195,6 +208,11 @@ void vKernelProfilingMultiProducerConsumerMutex( int iPriority )
 
     uint64_t ullCycleElapsed = 0;
 
+    /* Tracing within tracing -- branch stat. */
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1 )
+        FreeRTOS_POSIX_semaphore_initBranchTaken();
+    #endif /* POSIX_SEMAPHORE_IMPLEMENTATION && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
+
     /* Initializing performance timer. */
     aws_hal_perfcounter_open();
 
@@ -204,6 +222,13 @@ void vKernelProfilingMultiProducerConsumerMutex( int iPriority )
     /* Reset global variables. */
     iReadIndex = 0;
     iWriteIndex = 0;
+
+    /* Commenting out mutex for profiling interest. */
+    //xReadMutex = PTHREAD_MUTEX_INITIALIZER;
+    //xWriteMutex = PTHREAD_MUTEX_INITIALIZER;
+
+    //pthread_mutex_init( &xReadMutex, NULL );
+    //pthread_mutex_init( &xWriteMutex, NULL );
 
     /* Initialize semaphore_empty with 10, since producer has not started. */
     sem_init( &xSemaphore_empty, 0, SHARED_BUFFER_SIZE );
@@ -269,6 +294,19 @@ void vKernelProfilingMultiProducerConsumerMutex( int iPriority )
 
     /* De-initializing performance timer. */
     aws_hal_perfcounter_close();
+
+    /* Tracing within tracing -- branch stat. */
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT == 1 )
+        int iBranchTaken_post = FreeRTOS_POSIX_semaphore_getBranchTaken_post();
+        int iBranchTaken_wait = FreeRTOS_POSIX_semaphore_getBranchTaken_wait();
+
+        configPRINTF( ( "%s -- total critical section branch taken -- sem_post [%d], sem_wait [%d]\r\n",
+                __FUNCTION__,
+                iBranchTaken_post,
+                iBranchTaken_wait ) );
+
+        FreeRTOS_POSIX_semaphore_deInitBranchTaken();
+    #endif /* POSIX_SEMAPHORE_IMPLEMENTATION && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
 
     configPRINTF( ( "%s -- Stack bytes left [%u]. \r\n", __FUNCTION__, uxTaskGetStackHighWaterMark( NULL ) ) );
     configPRINTF( ( "%s -- Threads finished. Application -- total cycle elapsed [%ld]\r\n", __FUNCTION__, ( long ) ullCycleElapsed ) );
