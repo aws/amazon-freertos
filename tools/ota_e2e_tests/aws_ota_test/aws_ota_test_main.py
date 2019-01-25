@@ -27,7 +27,6 @@ import os
 import json
 import sys
 import argparse
-import traceback
 from threading import Thread
 from functools import reduce
 from operator import add
@@ -199,17 +198,13 @@ def otaTestMain():
         if boardConfig['exclude']:
             continue
         boardToResults[boardConfig['name']] = []
-        try:
-            if args.separateThreads == True:
-                threads.append(Thread(
-                    target=getBoardOtaTestResult, \
-                    args=(boardConfig, stageParams, boardToResults[boardConfig['name']])
-                ))
-            else:
-                getBoardOtaTestResult(boardConfig, stageParams, boardToResults[boardConfig['name']])
-        except:
-            print(traceback.format_exc())
-            sys.exit(-1)
+        if args.separateThreads == True:
+            threads.append(Thread(
+                target=getBoardOtaTestResult, \
+                args=(boardConfig, stageParams, boardToResults[boardConfig['name']])
+            ))
+        else:
+            getBoardOtaTestResult(boardConfig, stageParams, boardToResults[boardConfig['name']])
         
     for i in range(len(threads)):
         threads[i].start()
