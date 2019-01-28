@@ -36,7 +36,6 @@
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
-#include "aws_ble_event_manager.h"
 #include "aws_ble_hal_internals.h"
 
 #define APP_ID    0
@@ -44,6 +43,7 @@
 static uint32_t ulGATTEvtMngHandle;
 
 static BTGattServerCallbacks_t xGattServerCb;
+static BTUuid_t xServerUuidCb;
 
 uint32_t ulGattServerIFhandle;
 bool bInterfaceCreated = false;
@@ -169,52 +169,53 @@ void prvGATTeventHandler( esp_gatts_cb_event_t event,
                           esp_ble_gatts_cb_param_t * param )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    void * pvEventParams = NULL;
-    bool bFoundEvent;
     BTUuid_t xUuid;
-
-    vEVTMNGRgetEventParameters( ulGATTEvtMngHandle, event, &pvEventParams, &bFoundEvent );
+    BTGattSrvcId_t xGattSrvcId;
 
     switch( event )
     {
         case ESP_GATTS_REG_EVT:
+			ulGattServerIFhandle = gatts_if;
 
-            if( bFoundEvent == true )
-            {
-                ulGattServerIFhandle = gatts_if;
+			if( xGattServerCb.pxRegisterServerCb != NULL )
+			{
+				if( param->reg.status != ESP_OK )
+				{
+					xStatus = eBTStatusFail;
+					bInterfaceCreated = false;
+				}
+				else
+				{
+					bInterfaceCreated = true;
+				}
 
-                if( xGattServerCb.pxRegisterServerCb != NULL )
-                {
-                    if( param->reg.status != ESP_OK )
-                    {
-                        xStatus = eBTStatusFail;
-                        bInterfaceCreated = false;
-                    }
-                    else
-                    {
-                        bInterfaceCreated = true;
-                    }
-
-                    xGattServerCb.pxRegisterServerCb( xStatus, ulGattServerIFhandle, ( BTUuid_t * ) pvEventParams );
-                }
-            }
+				xGattServerCb.pxRegisterServerCb( xStatus, ulGattServerIFhandle, &xServerUuidCb );
+			}
 
             break;
 
         case ESP_GATTS_CREATE_EVT:
 
-            if( bFoundEvent == true )
-            {
-                if( xGattServerCb.pxServiceAddedCb != NULL )
-                {
-                    if( param->create.status != ESP_OK )
-                    {
-                        xStatus = eBTStatusFail;
-                    }
+			if( xGattServerCb.pxServiceAddedCb != NULL )
+			{
+				if( param->create.status != ESP_OK )
+				{
+					xStatus = eBTStatusFail;
+				}
 
-                    xGattServerCb.pxServiceAddedCb( xStatus, ulGattServerIFhandle, ( BTGattSrvcId_t * ) pvEventParams, param->create.service_handle );
-                }
-            }
+				xGattSrvcId.xId.ucInstId = param->create.service_id.id.inst_id;
+				prvCopyFromESPUUI(&xGattSrvcId.xId.xUuid,  &param->create.service_id.id.uuid);
+
+				if( param->create.service_id.is_primary == true )
+				{
+					xGattSrvcId.xServiceType = eBTServiceTypePrimary;
+				}else
+				{
+					xGattSrvcId.xServiceType = eBTServiceTypeSecondary;
+				}
+
+				xGattServerCb.pxServiceAddedCb( xStatus, ulGattServerIFhandle, &xGattSrvcId, param->create.service_handle );
+			}
 
             break;
 
@@ -410,11 +411,6 @@ void prvGATTeventHandler( esp_gatts_cb_event_t event,
         default:
             break;
     }
-
-    if( pvEventParams != NULL )
-    {
-        ( void ) vPortFree( pvEventParams );
-    }
 }
 
 /*-----------------------------------------------------------*/
@@ -430,12 +426,10 @@ BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid )
 
         if( pxAPPuuid != NULL )
         {
-            memcpy( pxAPPuuid, pxUuid, sizeof( BTUuid_t ) );
-            vEVTMNGRsetEventParameters( ulGATTEvtMngHandle, ESP_GATTS_REG_EVT, pxAPPuuid );
+            memcpy( &xServerUuidCb, pxUuid, sizeof( BTUuid_t ) );
 
             if( esp_ble_gatts_app_register( APP_ID ) != ESP_OK )
             {
-                vEVTMNGRremoveLastEvent( ulGATTEvtMngHandle, ESP_GATTS_REG_EVT );
                 xStatus = eBTStatusFail;
             }
         }
@@ -480,22 +474,15 @@ BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    if( vEVTMNGRgetNewInstance( &ulGATTEvtMngHandle, ESP_GATTS_SET_ATTR_VAL_EVT + 1 ) != pdPASS )
-    {
-        xStatus = eBTStatusFail;
-    }
 
-    if( xStatus == eBTStatusSuccess )
-    {
-        if( pxCallbacks != NULL )
-        {
-            xGattServerCb = *pxCallbacks;
-        }
-        else
-        {
-            xStatus = eBTStatusParamInvalid;
-        }
-    }
+	if( pxCallbacks != NULL )
+	{
+		xGattServerCb = *pxCallbacks;
+	}
+	else
+	{
+		xStatus = eBTStatusParamInvalid;
+	}
 
     if( xStatus == eBTStatusSuccess )
     {
@@ -536,7 +523,6 @@ BTStatus_t prvBTAddService( uint8_t ucServerIf,
     esp_gatt_srvc_id_t xService;
     esp_err_t xESPstatus = ESP_OK;
     BTStatus_t xStatus = eBTStatusSuccess;
-    BTGattSrvcId_t * pParam;
 
     if( pxSrvcId->xServiceType == eBTServiceTypePrimary )
     {
@@ -551,31 +537,13 @@ BTStatus_t prvBTAddService( uint8_t ucServerIf,
 
     prvCopytoESPUUID( &xService.id.uuid, &pxSrvcId->xId.xUuid );
 
-    pParam = pvPortMalloc( sizeof( BTGattSrvcId_t ) );
 
-    if( pParam != NULL )
-    {
-        *pParam = *pxSrvcId;
+    xESPstatus = esp_ble_gatts_create_service( ucServerIf, &xService, usNumHandles );
 
-        if( vEVTMNGRsetEventParameters( ulGATTEvtMngHandle, ESP_GATTS_CREATE_EVT, ( void * ) pParam ) != pdPASS )
-        {
-            xStatus = eBTStatusFail;
-        }
-        else
-        {
-            xESPstatus = esp_ble_gatts_create_service( ucServerIf, &xService, usNumHandles );
-
-            if( xESPstatus != ESP_OK )
-            {
-                vEVTMNGRremoveLastEvent( ulGATTEvtMngHandle, ESP_GATTS_CREATE_EVT );
-                xStatus = eBTStatusFail;
-            }
-        }
-    }
-    else
-    {
-        xStatus = eBTStatusNoMem;
-    }
+	if( xESPstatus != ESP_OK )
+	{
+		xStatus = eBTStatusFail;
+	}
 
     return xStatus;
 }

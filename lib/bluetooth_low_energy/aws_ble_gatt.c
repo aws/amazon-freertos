@@ -763,144 +763,146 @@ BTStatus_t BLE_CreateService( BLEService_t ** ppxService,
     uint16_t usNumAttributes;
     size_t xCharId;
 
-    if( ppxService == NULL )
+    if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
-        xStatus = eBTStatusParamInvalid;
-    }
 
-    /* Create a space in the list for the service. */
-    if( xStatus == eBTStatusSuccess )
-    {
-        pxNewElem = pvPortMalloc( sizeof( BLEServiceListElement_t ) );
-        memset( pxNewElem, 0, sizeof( BLEServiceListElement_t ) );
-
-        if( pxNewElem != NULL )
+        if( ppxService == NULL )
         {
-            if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
+            xStatus = eBTStatusParamInvalid;
+        }
+
+        /* Create a space in the list for the service. */
+        if( xStatus == eBTStatusSuccess )
+        {
+            pxNewElem = pvPortMalloc( sizeof( BLEServiceListElement_t ) );
+            memset( pxNewElem, 0, sizeof( BLEServiceListElement_t ) );
+
+            if( pxNewElem != NULL )
             {
-                /* Compute the total number of handles
-                 * Multiply characteristics by 2 since they need a declaration. */
-                usNumAttributes = xNbCharacteristic * 2
-                                  + xNbDescriptors
-                                  + xNbIncludedServices + 1;
 
-                pxNewElem->usStartHandle = 0;
-                pxNewElem->usEndHandle = usNumAttributes - 1;
-                pxNewElem->pxAttributesPtr = pvPortMalloc( usNumAttributes * sizeof( BLEAttribute_t ) );
+                    /* Compute the total number of handles
+                     * Multiply characteristics by 2 since they need a declaration. */
+                    usNumAttributes = xNbCharacteristic * 2
+                                      + xNbDescriptors
+                                      + xNbIncludedServices + 1;
 
-                if( pxNewElem->pxAttributesPtr != NULL )
-                {
-                    memset( pxNewElem->pxAttributesPtr, 0, sizeof( BLEAttribute_t ) * usNumAttributes );
-                    listADD( &xBTInterface.xServiceListHead, &pxNewElem->xServiceList );
-                }
-                else
-                {
-                    xStatus = eBTStatusNoMem;
-                }
+                    pxNewElem->usStartHandle = 0;
+                    pxNewElem->usEndHandle = usNumAttributes - 1;
+                    pxNewElem->pxAttributesPtr = pvPortMalloc( usNumAttributes * sizeof( BLEAttribute_t ) );
 
-                xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
+                    if( pxNewElem->pxAttributesPtr != NULL )
+                    {
+                        memset( pxNewElem->pxAttributesPtr, 0, sizeof( BLEAttribute_t ) * usNumAttributes );
+                        listADD( &xBTInterface.xServiceListHead, &pxNewElem->xServiceList );
+                    }
+                    else
+                    {
+                        xStatus = eBTStatusNoMem;
+                    }
             }
             else
             {
                 xStatus = eBTStatusFail;
             }
         }
-        else
-        {
-            xStatus = eBTStatusFail;
-        }
-    }
 
-    /* Allocate Memory for the service. */
-    if( xStatus == eBTStatusSuccess )
-    {
-        *ppxService = pvPortMalloc( sizeof( BLEService_t ) );
-        memset( *ppxService, 0, sizeof( BLEService_t ) );
-
-        if( *ppxService == NULL )
+        /* Allocate Memory for the service. */
+        if( xStatus == eBTStatusSuccess )
         {
-            xStatus = eBTStatusNoMem;
-        }
-        else
-        {
-            /* Add newly created service to the list. */
-            pxNewElem->pxService = *ppxService;
-            ( *ppxService )->xNbCharacteristics = xNbCharacteristic;
-            ( *ppxService )->xNbDescriptors = xNbDescriptors;
-            ( *ppxService )->xNbIncludedServices = xNbIncludedServices;
-            ( *ppxService )->pxCharacteristics = NULL;
-            ( *ppxService )->pxDescriptors = NULL;
-            ( *ppxService )->pxIncludedServices = NULL;
+            *ppxService = pvPortMalloc( sizeof( BLEService_t ) );
+            memset( *ppxService, 0, sizeof( BLEService_t ) );
 
-            if( xNbCharacteristic > 0 )
+            if( *ppxService == NULL )
             {
-                ( *ppxService )->pxCharacteristics = pvPortMalloc( sizeof( BLECharacteristic_t ) * xNbCharacteristic );
+                xStatus = eBTStatusNoMem;
+            }
+            else
+            {
+                /* Add newly created service to the list. */
+                pxNewElem->pxService = *ppxService;
+                ( *ppxService )->xNbCharacteristics = xNbCharacteristic;
+                ( *ppxService )->xNbDescriptors = xNbDescriptors;
+                ( *ppxService )->xNbIncludedServices = xNbIncludedServices;
+                ( *ppxService )->pxCharacteristics = NULL;
+                ( *ppxService )->pxDescriptors = NULL;
+                ( *ppxService )->pxIncludedServices = NULL;
 
-                if( ( *ppxService )->pxCharacteristics != NULL )
+                if( xNbCharacteristic > 0 )
                 {
-                    memset( ( *ppxService )->pxCharacteristics, 0, sizeof( BLECharacteristic_t ) * xNbCharacteristic );
+                    ( *ppxService )->pxCharacteristics = pvPortMalloc( sizeof( BLECharacteristic_t ) * xNbCharacteristic );
 
-                    for( xCharId = 0; xCharId < xNbCharacteristic; xCharId++ )
+                    if( ( *ppxService )->pxCharacteristics != NULL )
                     {
-                        if( xNumDescrsPerChar[ xCharId ] > 0 )
-                        {
-                            ( *ppxService )->pxCharacteristics[ xCharId ].pxDescriptors = pvPortMalloc( sizeof( BLECharacteristicDescr_t * ) * xNumDescrsPerChar[ xCharId ] );
+                        memset( ( *ppxService )->pxCharacteristics, 0, sizeof( BLECharacteristic_t ) * xNbCharacteristic );
 
-                            if( ( *ppxService )->pxCharacteristics[ xCharId ].pxDescriptors == NULL )
+                        for( xCharId = 0; xCharId < xNbCharacteristic; xCharId++ )
+                        {
+                            if( xNumDescrsPerChar[ xCharId ] > 0 )
                             {
-                                xStatus = eBTStatusNoMem;
-                                break;
+                                ( *ppxService )->pxCharacteristics[ xCharId ].pxDescriptors = pvPortMalloc( sizeof( BLECharacteristicDescr_t * ) * xNumDescrsPerChar[ xCharId ] );
+
+                                if( ( *ppxService )->pxCharacteristics[ xCharId ].pxDescriptors == NULL )
+                                {
+                                    xStatus = eBTStatusNoMem;
+                                    break;
+                                }
+                                else
+                                {
+                                    memset( ( *ppxService )->pxCharacteristics[ xCharId ].pxDescriptors, 0, sizeof( BLECharacteristicDescr_t * ) * xNumDescrsPerChar[ xCharId ] );
+                                }
                             }
                             else
                             {
-                                memset( ( *ppxService )->pxCharacteristics[ xCharId ].pxDescriptors, 0, sizeof( BLECharacteristicDescr_t * ) * xNumDescrsPerChar[ xCharId ] );
+                                ( *ppxService )->pxCharacteristics[ xCharId ].pxDescriptors = NULL;
                             }
                         }
-                        else
-                        {
-                            ( *ppxService )->pxCharacteristics[ xCharId ].pxDescriptors = NULL;
-                        }
+                    }
+                    else
+                    {
+                        xStatus = eBTStatusNoMem;
                     }
                 }
-                else
-                {
-                    xStatus = eBTStatusNoMem;
-                }
-            }
 
-            if( ( xNbDescriptors > 0 ) && ( xStatus == eBTStatusSuccess ) )
-            {
-                ( *ppxService )->pxDescriptors = pvPortMalloc( sizeof( BLECharacteristicDescr_t ) * xNbDescriptors );
+                if( ( xNbDescriptors > 0 ) && ( xStatus == eBTStatusSuccess ) )
+                {
+                    ( *ppxService )->pxDescriptors = pvPortMalloc( sizeof( BLECharacteristicDescr_t ) * xNbDescriptors );
 
-                if( ( *ppxService )->pxDescriptors != NULL )
-                {
-                    memset( ( *ppxService )->pxDescriptors, 0, sizeof( BLECharacteristicDescr_t ) * xNbDescriptors );
+                    if( ( *ppxService )->pxDescriptors != NULL )
+                    {
+                        memset( ( *ppxService )->pxDescriptors, 0, sizeof( BLECharacteristicDescr_t ) * xNbDescriptors );
+                    }
+                    else
+                    {
+                        xStatus = eBTStatusNoMem;
+                    }
                 }
-                else
-                {
-                    xStatus = eBTStatusNoMem;
-                }
-            }
 
-            if( ( xNbIncludedServices > 0 ) && ( xStatus == eBTStatusSuccess ) )
-            {
-                ( *ppxService )->pxIncludedServices = pvPortMalloc( sizeof( BLEService_t * ) * xNbIncludedServices );
+                if( ( xNbIncludedServices > 0 ) && ( xStatus == eBTStatusSuccess ) )
+                {
+                    ( *ppxService )->pxIncludedServices = pvPortMalloc( sizeof( BLEService_t * ) * xNbIncludedServices );
 
-                if( ( *ppxService )->pxIncludedServices != NULL )
-                {
-                    memset( ( *ppxService )->pxIncludedServices, 0, sizeof( BLEService_t * ) * xNbIncludedServices );
-                }
-                else
-                {
-                    xStatus = eBTStatusNoMem;
+                    if( ( *ppxService )->pxIncludedServices != NULL )
+                    {
+                        memset( ( *ppxService )->pxIncludedServices, 0, sizeof( BLEService_t * ) * xNbIncludedServices );
+                    }
+                    else
+                    {
+                        xStatus = eBTStatusNoMem;
+                    }
                 }
             }
         }
-    }
 
-    if( xStatus != eBTStatusSuccess )
+        if( xStatus != eBTStatusSuccess )
+        {
+            prvServiceClean( pxNewElem );
+        }
+
+        xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
+    }
+    else
     {
-        prvServiceClean( pxNewElem );
+        xStatus = eBTStatusFail;
     }
 
     return xStatus;

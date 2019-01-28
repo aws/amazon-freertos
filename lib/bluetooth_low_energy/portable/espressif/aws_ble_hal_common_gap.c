@@ -30,7 +30,6 @@
 
 #include <string.h>
 #include "FreeRTOS.h"
-#include "aws_ble_event_manager.h"
 #include "esp_bt.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatt_common_api.h"
@@ -130,13 +129,9 @@ static BTInterface_t xBTinterface =
 void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
                          esp_ble_gap_cb_param_t * param )
 {
-    void * ppvEventParams = NULL;
-    bool bFoundEvent;
     BTStatus_t xStatus = eBTStatusSuccess;
     BTSecurityLevel_t xSecurityLevel;
 	BTBondState_t xBondedState;
-
-    vEVTMNGRgetEventParameters( ulGAPEvtMngHandle, event, &ppvEventParams, &bFoundEvent );
 
     switch( event )
     {
@@ -320,10 +315,6 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
             break;
     }
 
-    if( ppvEventParams != NULL )
-    {
-        ( void ) vPortFree( ppvEventParams );
-    }
 }
 
 /*
