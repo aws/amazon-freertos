@@ -136,7 +136,7 @@ static bool prbCreateSecureSocketConnection(
         void **ppvConnection )
 {
     AwsIotNetworkError_t xStatus = AWS_IOT_NETWORK_SUCCESS;
-    static AwsIotNetworkConnection_t xConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
+    AwsIotNetworkConnection_t xConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
     AwsIotNetworkTlsInfo_t xTlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
     const char* pcHost = clientcredentialMQTT_BROKER_ENDPOINT;
 
@@ -201,7 +201,7 @@ static bool prbCreateBLEConnection(
         void** ppvConnection )
 {
     bool xStatus = false;
-    static AwsIotMqttBLEConnection_t xBLEConnection = AWS_IOT_MQTT_BLE_CONNECTION_INITIALIZER;
+    AwsIotMqttBLEConnection_t xBLEConnection = AWS_IOT_MQTT_BLE_CONNECTION_INITIALIZER;
 
     if( AwsIotMqttBLE_CreateConnection( pxMqttConnection, &xBLEConnection ) == pdTRUE )
     {

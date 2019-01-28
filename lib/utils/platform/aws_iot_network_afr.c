@@ -40,11 +40,11 @@
 #include "aws_secure_sockets.h"
 
 /* Configure logs for the functions in this file. */
-#ifdef AWS_IOT_NETWORK_LOG_LEVEL
-    #define _LIBRARY_LOG_LEVEL        AWS_IOT_NETWORK_LOG_LEVEL
+#ifdef AWS_IOT_LOG_LEVEL_NETWORK
+    #define _LIBRARY_LOG_LEVEL        AWS_IOT_LOG_LEVEL_NETWORK
 #else
-    #ifdef AWS_IOT_GLOBAL_LOG_LEVEL
-        #define _LIBRARY_LOG_LEVEL    AWS_IOT_GLOBAL_LOG_LEVEL
+    #ifdef AWS_IOT_LOG_LEVEL_GLOBAL
+        #define _LIBRARY_LOG_LEVEL    AWS_IOT_LOG_LEVEL_GLOBAL
     #else
         #define _LIBRARY_LOG_LEVEL    AWS_IOT_LOG_NONE
     #endif
