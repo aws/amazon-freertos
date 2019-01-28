@@ -37,9 +37,7 @@
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
-#include "aws_ble_event_manager.h"
 #include "aws_ble_hal_internals.h"
-#include "aws_ble_event_manager.h"
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 static esp_ble_adv_params_t xAdv_params;
@@ -301,19 +299,6 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
     xProperties.bBondable = true;
     xProperties.bSecureConnectionOnly = true;
     xProperties.xPropertyIO = eBTIODisplayYesNo;
-
-    if( vEVTMNGRinitialize() != pdPASS )
-    {
-        xESPstatus = ESP_FAIL;
-    }
-
-    if( xESPstatus == ESP_OK )
-    {
-        if( vEVTMNGRgetNewInstance( &ulGAPEvtMngHandle, ESP_GAP_BLE_EVT_MAX ) != pdPASS )
-        {
-            xESPstatus = ESP_FAIL;
-        }
-    }
 
     if( xESPstatus == ESP_OK )
     {

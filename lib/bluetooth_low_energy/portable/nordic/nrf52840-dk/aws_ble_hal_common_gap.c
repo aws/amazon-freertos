@@ -33,7 +33,6 @@
 
 #include "FreeRTOS.h"
 
-#include "aws_ble_event_manager.h"
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
