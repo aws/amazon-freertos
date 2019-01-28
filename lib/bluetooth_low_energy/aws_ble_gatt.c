@@ -297,16 +297,19 @@ BaseType_t prvGetAttributeFromHandle( uint16_t usAttrHandle,
     BaseType_t bFoundService = pdFAIL;
 
     /* The service that was just added is the last in the list */
-/* TODO ADD A MUTEX */
-    listFOR_EACH( pxTmpElem, &xBTInterface.xServiceListHead )
+    if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
-        pxServiceElem = listCONTAINER( pxTmpElem, BLEServiceListElement_t, xServiceList );
-
-        if( ( usAttrHandle >= pxServiceElem->usStartHandle ) && ( usAttrHandle <= pxServiceElem->usEndHandle ) )
+        listFOR_EACH( pxTmpElem, &xBTInterface.xServiceListHead )
         {
-            bFoundService = pdPASS;
-            break;
+            pxServiceElem = listCONTAINER( pxTmpElem, BLEServiceListElement_t, xServiceList );
+
+            if( ( usAttrHandle >= pxServiceElem->usStartHandle ) && ( usAttrHandle <= pxServiceElem->usEndHandle ) )
+            {
+                bFoundService = pdPASS;
+                break;
+            }
         }
+        xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
     }
 
     if( bFoundService == pdPASS )
