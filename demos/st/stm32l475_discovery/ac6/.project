@@ -46,19 +46,9 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>application_code/kernel_profiling.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/st/stm32l475_discovery/common/application_code/kernel_profiling.c</locationURI>
-		</link>
-		<link>
 			<name>application_code/kernel_profiling.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/st/stm32l475_discovery/common/application_code/kernel_profiling.h</locationURI>
-		</link>
-		<link>
-			<name>application_code/producer_consumer.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/st/stm32l475_discovery/common/application_code/producer_consumer.c</locationURI>
 		</link>
 		<link>
 			<name>lib/aws</name>

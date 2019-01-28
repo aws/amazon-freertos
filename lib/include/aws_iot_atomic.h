@@ -21,73 +21,158 @@
 
 /**
  * @file aws_iot_atomic.h
- * @brief Declares atomic operations data structures and functions.
+ * @brief FreeRTOS atomic operations.
  */
 
 #ifndef _AWS_IOT_ATOMIC_H_
 #define _AWS_IOT_ATOMIC_H_
 
-/* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
-#endif
-
 /* Standard includes. */
-#include <stdbool.h>
 #include <stdint.h>
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 
-#define AWS_IOT_ATOMIC_NATIVE_IMPLEMENTATION 0
+#define AWS_IOT_ATOMIC_NATIVE_IMPLEMENTATION    ( 1 )
 
-#if AWS_IOT_ATOMIC_NATIVE_IMPLEMENTATION == 1
+#if ( AWS_IOT_ATOMIC_NATIVE_IMPLEMENTATION == 1 )
 
-int32_t AwsIotAtomic_Add( int32_t volatile * pTarget, int32_t value )
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Atomic Compare and Swap
+ *
+ * Wait for value in memory location to be equal to comparand, and write new value to the location.
+ *
+ * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
+ * @param[in] value     If condition meets, write this value to memory.
+ * @param[in] comparand Swap condition, checks and waits for *pTarget to be equal to comparand.
+ *
+ * @returns previous *pTarget value.
+ *
+ * @note This function guarantees to add value to *pTarget upon exit.
+ */
+static inline int32_t AwsIotAtomic_CompareAndSwap( int32_t volatile * pTarget, int32_t value, int32_t comparand )
 {
-    int32_t current;
+    int32_t current, result;
 
-    /*
-    __asm__ __volatile__( <ASm code here> );
-    */
+    asm volatile(
+            "1:     mov     %[result], #0 \n"                   /* Clear [result] */
+            "       ldrex   %[current], [%[mem]] \n"            /* Load *pTarget value into [current]. Exclusive access starts. */
+            "       teq     %[current], %[comparand] \n"        /* Compare and set zero flag upon equal. */
+            "       strexeq %[result], %[value], [%[mem]]\n"    /* Succeed to write back into *pTarget with result=0, or fail with res=1. Exclusive access ends. */
+            "       teq     %[result], #0\n"                    /* Check whether exclusive write back succeeded. */
+            "       bne     1b\n"                               /* If exclusive write back failed, start over. */
+            : [result] "=&r" (result), [current] "=&r" (current)
+            : [mem] "r" (pTarget), [value] "Ir" (value), [comparand] "r" (comparand)
+            : "memory", "cc");              /* "memory" prevent compiler optimization; condition flag is modified. */
 
     return current;
 }
 
-int32_t AwsIotAtomic_Sub( int32_t volatile * pTarget, int32_t value )
-{
-    int32_t current;
+/*-----------------------------------------------------------*/
 
-    /*
-    __asm__ __volatile__( <ASm code here> );
-    */
+/**
+ * @brief Atomic add
+ *
+ * @param[out] pTarget  Pointer to memory location from where value is to be loaded and written back to.
+ * @param[in] value     Value to be added to *pTarget.
+ *
+ * @return previous *pTarget value.
+ *
+ * @note This function guarantees to add value to *pTarget upon exit.
+ */
+static inline int32_t AwsIotAtomic_Add( int32_t volatile * pTarget, int32_t value )
+{
+    int32_t current, result, sum;
+
+    asm volatile(
+            "1:     ldrex   %[current], [%[mem]]\n"
+            "       add     %[sum], %[current], %[value]\n"
+            "       strex   %[result], %[sum], [%[mem]]\n"
+            "       teq     %[result], #0\n"
+            "       bne     1b\n"
+            : [result] "=&r" (result), [current] "=&r" (current), [sum] "=&r" (sum), "+Qo" (*pTarget)
+            : [mem] "r" (pTarget), [value] "Ir" (value)
+            : "memory", "cc");
 
     return current;
 }
 
-int32_t AwsIotAtomic_Swap( int32_t volatile * pTarget, int32_t value )
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Atomic subtract
+ *
+ * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
+ * @param[in] value     Value to be subtract from *pTarget.
+ *
+ * @return previous *pTarget value.
+ *
+ * @note This function guarantees to subtract from *pTarget upon exit.
+ */
+static inline int32_t AwsIotAtomic_Sub( int32_t volatile * pTarget, int32_t value )
 {
-    int32_t current;
+    int32_t current, result, sum;
 
-    /*
-    __asm__ __volatile__( <ASm code here> );
-    */
+        asm volatile(
+                "1:     ldrex   %[current], [%[mem]]\n"
+                "       sub     %[sum], %[current], %[value]\n"
+                "       strex   %[result], %[sum], [%[mem]]\n"
+                "       teq     %[result], #0\n"
+                "       bne     1b\n"
+                : [result] "=&r" (result), [current] "=&r" (current), [sum] "=&r" (sum), "+Qo" (*pTarget)
+                : [mem] "r" (pTarget), [value] "Ir" (value)
+                : "memory", "cc");
 
-    return current;
+        return current;
 }
 
-int32_t AwsIotAtomic_CompareAndSwap( int32_t volatile * pTarget, int32_t value, int32_t comparand )
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Atomic swap.
+ *
+ * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
+ * @param[in] value     Value to be written to *pTarget.
+ *
+ * @return previous *pTarget value.
+ *
+ * @note This function guarantees to write value to *pTarget.
+ */
+
+static inline int32_t AwsIotAtomic_Swap( int32_t volatile * pTarget, int32_t value )
 {
-    int32_t current;
+    int32_t current, result;
 
-    /*
-    __asm__ __volatile__( <ASm code here> );
-    */
+        asm volatile(
+                "1:     mov     %[result], #0 \n"
+                "       ldrex   %[current], [%[mem]] \n"
+                "       strex %[result], %[value], [%[mem]]\n"
+                "       teq     %[result], #0\n"
+                "       bne     1b\n"
+                : [result] "=&r" (result), [current] "=&r" (current)
+                : [mem] "r" (pTarget), [value] "Ir" (value)
+                : "memory", "cc");
 
-    return current;
+        return current;
 }
 
 #else
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Pseudo atomic add.
+ *
+ * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
+ * @param[in] value     Value to be added to *pTarget.
+ *
+ * @return calculated result.
+ *
+ * @note The exact behavior of this function may be port dependent.
+ * https://www.freertos.org/taskENTER_CRITICAL_taskEXIT_CRITICAL.html
+ */
 
 int32_t AwsIotAtomic_Add( int32_t volatile * pTarget, int32_t value )
 {
@@ -104,6 +189,19 @@ int32_t AwsIotAtomic_Add( int32_t volatile * pTarget, int32_t value )
     return current;
 }
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Pseudo atomic subtraction.
+ *
+ * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
+ * @param[in] value     Value to be subtract from *pTarget.
+ *
+ * @return calculated result.
+ *
+ * @note The exact behavior of this function may be port dependent.
+ * https://www.freertos.org/taskENTER_CRITICAL_taskEXIT_CRITICAL.html
+ */
 int32_t AwsIotAtomic_Sub( int32_t volatile * pTarget, int32_t value )
 {
     int32_t current;
@@ -119,6 +217,20 @@ int32_t AwsIotAtomic_Sub( int32_t volatile * pTarget, int32_t value )
     return current;
 }
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Pseudo atomic swap.
+ *
+ * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
+ * @param[in] value     Value to be written to *pTarget.
+ *
+ * @return value
+ *
+ * @note The exact behavior of this function may be port dependent.
+ * https://www.freertos.org/taskENTER_CRITICAL_taskEXIT_CRITICAL.html
+ */
+
 int32_t AwsIotAtomic_Swap( int32_t volatile * pTarget, int32_t value )
 {
     int32_t current;
@@ -133,6 +245,22 @@ int32_t AwsIotAtomic_Swap( int32_t volatile * pTarget, int32_t value )
 
     return current;
 }
+
+/*-----------------------------------------------------------*/
+/**
+ * @brief Pseudo atomic compare and swap.
+ *
+ * Disabling interrupt before writing new value to the designated memory location.
+ *
+ * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
+ * @param[in] value     If condition meets, write this value to memory.
+ * @param[in] comparand Swap condition, checks and waits for *pTarget to be equal to comparand.
+ *
+ * @returns value.
+ *
+ * @note The exact behavior of this function may be port dependent.
+ * https://www.freertos.org/taskENTER_CRITICAL_taskEXIT_CRITICAL.html
+ */
 
 int32_t AwsIotAtomic_CompareAndSwap( int32_t volatile * pTarget, int32_t value, int32_t comparand )
 {
@@ -152,6 +280,7 @@ int32_t AwsIotAtomic_CompareAndSwap( int32_t volatile * pTarget, int32_t value, 
     return current;
 }
 
-#endif
+#endif /* AWS_IOT_ATOMIC_NATIVE_IMPLEMENTATION */
 
-#endif /* ifndef _AWS_IOT_ATOMIC_H_ */
+
+#endif /* _AWS_IOT_ATOMIC_H_ */
