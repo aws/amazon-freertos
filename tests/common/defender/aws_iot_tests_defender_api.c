@@ -19,6 +19,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#ifdef AWS_IOT_CONFIG_FILE
+    #include AWS_IOT_CONFIG_FILE
+#endif
+
 #include <string.h>
 #include "FreeRTOS.h"
 
