@@ -530,8 +530,9 @@ static bool prvWIFIDisable( void )
     bool xRet = false;
     if( ( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_WIFI  ) == AWSIOT_NETWORK_TYPE_WIFI )
     {
+#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
     	vWiFiConnectTaskDestroy();
-
+#endif
         if( WIFI_IsConnected() == pdTRUE )
         {
             if( WIFI_Disconnect() == eWiFiSuccess )
