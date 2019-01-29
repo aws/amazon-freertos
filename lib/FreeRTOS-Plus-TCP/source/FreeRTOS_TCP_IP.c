@@ -235,6 +235,12 @@ static void prvCheckOptions( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescripto
 static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pucPtr, const unsigned char ** const pucLast, UBaseType_t *uxNewMSS, FreeRTOS_Socket_t ** const pxSocket, TCPWindow_t ** const pxTCPWindow);
 
 /*
+ * Skip past TCP header options when doing Selective ACK, until there are no
+ * more options left.
+ */
+static void prvSkipPastRemainingOptions( const unsigned char ** const pucPtr, FreeRTOS_Socket_t ** const pxSocket, unsigned char * const pucLen );
+
+/*
  * Set the initial properties in the options fields, like the preferred
  * value of MSS and whether SACK allowed.  Will be transmitted in the state
  * 'eCONNECT_SYN'.
@@ -1285,6 +1291,22 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pu
 
 					while( len >= 8 )
 					{
+						prvSkipPastRemainingOptions( pucPtr, pxSocket, &len );
+					}
+					/* len should be 0 by now. */
+				}
+			}
+			#endif	/* ipconfigUSE_TCP_WIN == 1 */
+
+			( *pucPtr ) += len;
+		}
+		return pdTRUE;
+	}
+
+/*-----------------------------------------------------------*/
+
+static void prvSkipPastRemainingOptions( const unsigned char ** const pucPtr, FreeRTOS_Socket_t ** const pxSocket, unsigned char * const pucLen )
+{
 					uint32_t ulFirst = ulChar2u32( ( *pucPtr ) );
 					uint32_t ulLast  = ulChar2u32( ( *pucPtr ) + 4 );
 					uint32_t ulCount = ulTCPWindowTxSack( &( *pxSocket )->u.xTCP.xTCPWindow, ulFirst, ulLast );
@@ -1320,17 +1342,8 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pu
 							#endif /* ipconfigUSE_CALLBACKS == 1  */
 						}
 						( *pucPtr ) += 8;
-						len -= 8;
+						( *pucLen ) -= 8;
 					}
-					/* len should be 0 by now. */
-				}
-			}
-			#endif	/* ipconfigUSE_TCP_WIN == 1 */
-
-			( *pucPtr ) += len;
-		}
-		return pdTRUE;
-	}
 
 /*-----------------------------------------------------------*/
 
