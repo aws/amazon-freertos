@@ -45,7 +45,8 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif \
         $(AMAZON_FREERTOS_LIB_DIR)/metrics \
         $(AMAZON_FREERTOS_LIB_DIR)/serializer/cbor \
-        $(AMAZON_FREERTOS_LIB_DIR)/serializer/json
+        $(AMAZON_FREERTOS_LIB_DIR)/serializer/json \
+        $(AMAZON_FREERTOS_LIB_DIR)/defender
 
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/include \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
@@ -94,7 +95,8 @@ COMPONENT_SRCDIRS += ../.. \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/mqtt/unit \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/mqtt/system \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/shadow/unit \
-        $(AMAZON_FREERTOS_TESTS_DIR)/common/shadow/system
+        $(AMAZON_FREERTOS_TESTS_DIR)/common/shadow/system \
+        $(AMAZON_FREERTOS_TESTS_DIR)/common/defender
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/common/include \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/src \
