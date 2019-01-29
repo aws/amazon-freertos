@@ -232,7 +232,7 @@ static void prvCheckOptions( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescripto
  * the header. This function returns pdTRUE or pdFALSE depending on whether the
  * caller should continue to parse more header options or break the loop.
  */
-static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pucPtr, const unsigned char ** const pucLast, UBaseType_t *uxNewMSS, FreeRTOS_Socket_t ** const pxSocket, TCPWindow_t ** const pxTCPWindow);
+static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pucPtr, const unsigned char ** const pucLast, FreeRTOS_Socket_t ** const pxSocket, TCPWindow_t ** const pxTCPWindow);
 
 /*
  * Skip past TCP header options when doing Selective ACK, until there are no
@@ -1153,7 +1153,6 @@ TCPHeader_t * pxTCPHeader;
 const unsigned char *pucPtr;
 const unsigned char *pucLast;
 TCPWindow_t *pxTCPWindow;
-UBaseType_t uxNewMSS;
 BaseType_t should_continue_loop;
 
 	pxTCPPacket = ( TCPPacket_t * ) ( pxNetworkBuffer->pucEthernetBuffer );
@@ -1175,14 +1174,15 @@ BaseType_t should_continue_loop;
 	should_continue_loop = pdTRUE;
 	while( ( pucPtr < pucLast ) && ( should_continue_loop == pdTRUE ) )
 	{
-		should_continue_loop = prvSingleStepTCPHeaderOptions( &pucPtr, &pucLast, &uxNewMSS, &pxSocket, &pxTCPWindow );
+		should_continue_loop = prvSingleStepTCPHeaderOptions( &pucPtr, &pucLast, &pxSocket, &pxTCPWindow );
 	}
 }
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pucPtr, const unsigned char ** const pucLast, UBaseType_t *uxNewMSS, FreeRTOS_Socket_t ** const pxSocket, TCPWindow_t ** const pxTCPWindow)
+static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pucPtr, const unsigned char ** const pucLast, FreeRTOS_Socket_t ** const pxSocket, TCPWindow_t ** const pxTCPWindow)
 {
+		UBaseType_t uxNewMSS;
 		UBaseType_t xRemainingOptionsBytes = ( *pucLast ) - ( *pucPtr );
 
 		if( ( *pucPtr )[ 0 ] == TCP_OPT_END )
@@ -1228,35 +1228,35 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pu
 			/* An MSS option with the correct option length.  FreeRTOS_htons()
 			is not needed here because usChar2u16() already returns a host
 			endian number. */
-			( *uxNewMSS ) = usChar2u16( ( *pucPtr ) + 2 );
+			uxNewMSS = usChar2u16( ( *pucPtr ) + 2 );
 
-			if( ( *pxSocket )->u.xTCP.usInitMSS != ( *uxNewMSS ) )
+			if( ( *pxSocket )->u.xTCP.usInitMSS != uxNewMSS )
 			{
 				/* Perform a basic check on the the new MSS. */
-				if( ( *uxNewMSS ) == 0 )
+				if( uxNewMSS == 0 )
 				{
 					return pdFALSE;
 				}
 
-				FreeRTOS_debug_printf( ( "MSS change %u -> %lu\n", ( *pxSocket )->u.xTCP.usInitMSS, ( *uxNewMSS ) ) );
+				FreeRTOS_debug_printf( ( "MSS change %u -> %lu\n", ( *pxSocket )->u.xTCP.usInitMSS, uxNewMSS ) );
 			}
 
-			if( ( *pxSocket )->u.xTCP.usInitMSS > ( *uxNewMSS ) )
+			if( ( *pxSocket )->u.xTCP.usInitMSS > uxNewMSS )
 			{
 				/* our MSS was bigger than the MSS of the other party: adapt it. */
 				( *pxSocket )->u.xTCP.bits.bMssChange = pdTRUE_UNSIGNED;
-				if( ( ( *pxTCPWindow ) != NULL ) && ( ( *pxSocket )->u.xTCP.usCurMSS > ( *uxNewMSS ) ) )
+				if( ( ( *pxTCPWindow ) != NULL ) && ( ( *pxSocket )->u.xTCP.usCurMSS > uxNewMSS ) )
 				{
 					/* The peer advertises a smaller MSS than this socket was
 					using.  Use that as well. */
-					FreeRTOS_debug_printf( ( "Change mss %d => %lu\n", ( *pxSocket )->u.xTCP.usCurMSS, ( *uxNewMSS ) ) );
-					( *pxSocket )->u.xTCP.usCurMSS = ( uint16_t ) ( *uxNewMSS );
+					FreeRTOS_debug_printf( ( "Change mss %d => %lu\n", ( *pxSocket )->u.xTCP.usCurMSS, uxNewMSS ) );
+					( *pxSocket )->u.xTCP.usCurMSS = ( uint16_t ) uxNewMSS;
 				}
-				( *pxTCPWindow )->xSize.ulRxWindowLength = ( ( uint32_t ) ( *uxNewMSS ) ) * ( ( *pxTCPWindow )->xSize.ulRxWindowLength / ( ( uint32_t ) ( *uxNewMSS ) ) );
-				( *pxTCPWindow )->usMSSInit = ( uint16_t ) ( *uxNewMSS );
-				( *pxTCPWindow )->usMSS = ( uint16_t ) ( *uxNewMSS );
-				( *pxSocket )->u.xTCP.usInitMSS = ( uint16_t ) ( *uxNewMSS );
-				( *pxSocket )->u.xTCP.usCurMSS = ( uint16_t ) ( *uxNewMSS );
+				( *pxTCPWindow )->xSize.ulRxWindowLength = ( ( uint32_t ) uxNewMSS ) * ( ( *pxTCPWindow )->xSize.ulRxWindowLength / ( ( uint32_t ) uxNewMSS ) );
+				( *pxTCPWindow )->usMSSInit = ( uint16_t ) uxNewMSS;
+				( *pxTCPWindow )->usMSS = ( uint16_t ) uxNewMSS;
+				( *pxSocket )->u.xTCP.usInitMSS = ( uint16_t ) uxNewMSS;
+				( *pxSocket )->u.xTCP.usCurMSS = ( uint16_t ) uxNewMSS;
 			}
 
 			#if( ipconfigUSE_TCP_WIN != 1 )
