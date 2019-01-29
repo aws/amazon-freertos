@@ -300,10 +300,22 @@ static bool prvBLEEnable( void )
 {
 	BLEEventsCallbacks_t xEventCb;
 	BaseType_t xRet = pdTRUE;
+	static bool bInitBLE = false;
+	BTStatus_t xStatus;
 
 	if( !( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE  ) )
 	{
-		prvBLEInit();
+		if( bInitBLE == false )
+		{
+			xStatus = prvBLEInit();
+			if( xStatus == eBTStatusSuccess )
+			{
+				bInitBLE = true;
+			}else
+			{
+				xRet = pdFALSE;
+			}
+		}
 		/* Register BLE Connection callback */
 		if( xRet == pdTRUE )
 		{
@@ -530,9 +542,8 @@ static bool prvWIFIDisable( void )
     bool xRet = false;
     if( ( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_WIFI  ) == AWSIOT_NETWORK_TYPE_WIFI )
     {
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
     	vWiFiConnectTaskDestroy();
-#endif
+
         if( WIFI_IsConnected() == pdTRUE )
         {
             if( WIFI_Disconnect() == eWiFiSuccess )
