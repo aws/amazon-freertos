@@ -542,16 +542,17 @@ static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoder
     if( error == AWS_IOT_SERIALIZER_SUCCESS )
     {
 
-    pContainer = _createContainer( pStart + 1, length - 1 );
+        pContainer = _createContainer( pStart + 1, length - 1 );
 
-    if( pContainer != NULL )
-    {
-        pDecoderObject->type = tokenType;
-        pDecoderObject->pHandle = ( void * ) pContainer;}
-    }
-    else
-    {
-        error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+        if( pContainer != NULL )
+        {
+            pDecoderObject->type = tokenType;
+            pDecoderObject->pHandle = ( void * ) pContainer;
+        }
+        else
+        {
+            error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+        }
     }
 
     return error;
@@ -569,7 +570,6 @@ static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoder
 
     if( pDecoderObject->type == AWS_IOT_SERIALIZER_CONTAINER_MAP )
     {
-
         pContainer = ( _jsonContainer_t * ) pDecoderObject->pHandle;
         error = _findKeyValue(
                 pContainer,
