@@ -169,7 +169,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_DEFENDER );
+        RUN_TEST_GROUP(Full_OTA_DEFENDER);
     #endif
 
     #if ( testrunnerFULL_POSIX_ENABLED == 1 )

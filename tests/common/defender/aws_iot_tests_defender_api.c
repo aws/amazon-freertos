@@ -93,9 +93,9 @@ static void _verifyCallbackFunction( void * param1,
 
 static void _resetCalbackInfo();
 
-TEST_GROUP( Full_DEFENDER );
+TEST_GROUP( Full_OTA_DEFENDER );
 
-TEST_SETUP( Full_DEFENDER )
+TEST_SETUP( Full_OTA_DEFENDER )
 {
     /* Reset test callback. */
     _testCallback = ( AwsIotDefenderCallback_t ) {
@@ -129,7 +129,7 @@ TEST_SETUP( Full_DEFENDER )
     }
 }
 
-TEST_TEAR_DOWN( Full_DEFENDER )
+TEST_TEAR_DOWN( Full_OTA_DEFENDER )
 {
     AwsIotDefender_Stop();
 
@@ -142,14 +142,14 @@ TEST_TEAR_DOWN( Full_DEFENDER )
     _resetCalbackInfo();
 }
 
-TEST_GROUP_RUNNER( Full_DEFENDER )
+TEST_GROUP_RUNNER( Full_OTA_DEFENDER )
 {
     /*
      * Setup: none
      * Action: call Start API with invliad IoT endpoint
      * Expectation: Start API returns network connection failure
      */
-    RUN_TEST_CASE( Full_DEFENDER, Start_with_wrong_network_information );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, Start_with_wrong_network_information );
 
     /*
      * Setup: defender not started yet
@@ -158,7 +158,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * - SetMetrics API return invalid input
      * - global metrics flag array are untouched
      */
-    RUN_TEST_CASE( Full_DEFENDER, SetMetrics_with_invalid_metrics_group );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, SetMetrics_with_invalid_metrics_group );
 
     /*
      * Setup: defender not started yet
@@ -167,7 +167,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * - SetMetrics API return success
      * - global metrics flag array are updated correctly
      */
-    RUN_TEST_CASE( Full_DEFENDER, SetMetrics_with_TCP_connections_all );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, SetMetrics_with_TCP_connections_all );
 
     /*
      * Setup: defender is started
@@ -176,7 +176,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * - SetMetrics API return success
      * - global metrics flag array are updated correctly
      */
-    RUN_TEST_CASE( Full_DEFENDER, SetMetrics_after_defender_started );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, SetMetrics_after_defender_started );
 
     /*
      * Setup: defender not started yet
@@ -184,7 +184,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * Expectation:
      * - SetPeriod API return "period too short" error
      */
-    RUN_TEST_CASE( Full_DEFENDER, SetPeriod_too_short );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, SetPeriod_too_short );
 
     /*
      * Setup: defender not started yet
@@ -192,7 +192,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * Expectation:
      * - SetPeriod API return success
      */
-    RUN_TEST_CASE( Full_DEFENDER, SetPeriod_with_proper_value );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, SetPeriod_with_proper_value );
 
     /*
      * Setup: defender is started
@@ -200,28 +200,28 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * Expectation:
      * - SetPeriod API return success
      */
-    RUN_TEST_CASE( Full_DEFENDER, SetPeriod_after_started );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, SetPeriod_after_started );
 
     /*
      * Setup: kept from publishing metrics report
      * Action: call Start API with correct network information
      * Expectation: Start API return success
      */
-    RUN_TEST_CASE( Full_DEFENDER, Start_should_return_success );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, Start_should_return_success );
 
     /*
      * Setup: call Start API the first time; kept from publishing metrics report
      * Action: call Start API second time
      * Expectation: Start API return "already started" error
      */
-    RUN_TEST_CASE( Full_DEFENDER, Start_should_return_err_if_already_started );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, Start_should_return_err_if_already_started );
 
     /*
      * Setup: not set any metrics; register test callback
      * Action: call Start API
      * Expectation: metrics are accepted by defender service
      */
-    RUN_TEST_CASE( Full_DEFENDER, Metrics_empty_are_published );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, Metrics_empty_are_published );
 
     /*
      * Setup: set "tcp connections" with "all metrics"; register test callback
@@ -230,7 +230,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * - metrics are accepted by defender service
      * - verify metrics report has correct content
      */
-    RUN_TEST_CASE( Full_DEFENDER, Metrics_TCP_connections_all_are_published );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, Metrics_TCP_connections_all_are_published );
 
     /*
      * Setup: set "tcp connections" with "total count"; register test callback
@@ -239,7 +239,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * - metrics are accepted by defender service
      * - verify metrics report has correct content
      */
-    RUN_TEST_CASE( Full_DEFENDER, Metrics_TCP_connections_total_are_published );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, Metrics_TCP_connections_total_are_published );
 
     /*
      * Setup: set "tcp connections" with "remote address"; register test callback
@@ -248,7 +248,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * - metrics are accepted by defender service
      * - verify metrics report has correct content
      */
-    RUN_TEST_CASE( Full_DEFENDER, Metrics_TCP_connections_remote_addr_are_published );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, Metrics_TCP_connections_remote_addr_are_published );
 
     /*
      * Setup: set "tcp connections" with "total count"; register test callback; call Start API
@@ -257,10 +257,10 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
      * - metrics are accepted by defender service in both times
      * - verify metrics report has correct content respectively in both times
      */
-    RUN_TEST_CASE( Full_DEFENDER, Restart_and_updated_metrics_are_published );
+    RUN_TEST_CASE( Full_OTA_DEFENDER, Restart_and_updated_metrics_are_published );
 }
 
-TEST( Full_DEFENDER, SetMetrics_with_invalid_metrics_group )
+TEST( Full_OTA_DEFENDER, SetMetrics_with_invalid_metrics_group )
 {
     /* Input a dummy, invalid metrics group. */
     AwsIotDefenderError_t error = AwsIotDefender_SetMetrics( 10000,
@@ -276,7 +276,7 @@ TEST( Full_DEFENDER, SetMetrics_with_invalid_metrics_group )
     }
 }
 
-TEST( Full_DEFENDER, SetMetrics_with_TCP_connections_all )
+TEST( Full_OTA_DEFENDER, SetMetrics_with_TCP_connections_all )
 {
     /* Set "all metrics" for TCP connections metrics group. */
     AwsIotDefenderError_t error = AwsIotDefender_SetMetrics( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS,
@@ -287,7 +287,7 @@ TEST( Full_DEFENDER, SetMetrics_with_TCP_connections_all )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_METRICS_ALL, _AwsIotDefenderMetrics.metricsFlag[ AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS ] );
 }
 
-TEST( Full_DEFENDER, SetMetrics_after_defender_started )
+TEST( Full_OTA_DEFENDER, SetMetrics_after_defender_started )
 {
     _publishMetricsNotNeeded();
 
@@ -304,7 +304,7 @@ TEST( Full_DEFENDER, SetMetrics_after_defender_started )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_METRICS_ALL, _AwsIotDefenderMetrics.metricsFlag[ AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS ] );
 }
 
-TEST( Full_DEFENDER, Start_with_wrong_network_information )
+TEST( Full_OTA_DEFENDER, Start_with_wrong_network_information )
 {
     /* Given a dummy IoT endpoint to fail network connection. */
     _startInfo.pAwsIotEndpoint = "dummy endpoint";
@@ -314,7 +314,7 @@ TEST( Full_DEFENDER, Start_with_wrong_network_information )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_CONNECTION_FAILURE, error );
 }
 
-TEST( Full_DEFENDER, Start_should_return_success )
+TEST( Full_OTA_DEFENDER, Start_should_return_success )
 {
     _publishMetricsNotNeeded();
 
@@ -323,7 +323,7 @@ TEST( Full_DEFENDER, Start_should_return_success )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 }
 
-TEST( Full_DEFENDER, Start_should_return_err_if_already_started )
+TEST( Full_OTA_DEFENDER, Start_should_return_err_if_already_started )
 {
     _publishMetricsNotNeeded();
 
@@ -337,7 +337,7 @@ TEST( Full_DEFENDER, Start_should_return_err_if_already_started )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_ALREADY_STARTED, error );
 }
 
-TEST( Full_DEFENDER, Metrics_empty_are_published )
+TEST( Full_OTA_DEFENDER, Metrics_empty_are_published )
 {
     AwsIotDefenderError_t error;
 
@@ -354,7 +354,7 @@ TEST( Full_DEFENDER, Metrics_empty_are_published )
     _verification();
 }
 
-TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published )
+TEST( Full_OTA_DEFENDER, Metrics_TCP_connections_all_are_published )
 {
     AwsIotDefenderError_t error;
 
@@ -378,7 +378,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published )
     _verification();
 }
 
-TEST( Full_DEFENDER, Metrics_TCP_connections_total_are_published )
+TEST( Full_OTA_DEFENDER, Metrics_TCP_connections_total_are_published )
 {
     AwsIotDefenderError_t error;
 
@@ -402,7 +402,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_total_are_published )
     _verification();
 }
 
-TEST( Full_DEFENDER, Metrics_TCP_connections_remote_addr_are_published )
+TEST( Full_OTA_DEFENDER, Metrics_TCP_connections_remote_addr_are_published )
 {
     AwsIotDefenderError_t error;
 
@@ -426,7 +426,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_remote_addr_are_published )
     _verification();
 }
 
-TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
+TEST( Full_OTA_DEFENDER, Restart_and_updated_metrics_are_published )
 {
     /* Set "total count" for TCP connections metrics group. */
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS,
@@ -462,19 +462,19 @@ TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
     _verification();
 }
 
-TEST( Full_DEFENDER, SetPeriod_too_short )
+TEST( Full_OTA_DEFENDER, SetPeriod_too_short )
 {
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_PERIOD_TOO_SHORT, AwsIotDefender_SetPeriod( 299 ) );
 }
 
-TEST( Full_DEFENDER, SetPeriod_with_proper_value )
+TEST( Full_OTA_DEFENDER, SetPeriod_with_proper_value )
 {
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_SetPeriod( 301 ) );
 
     TEST_ASSERT_EQUAL( 301, AwsIotDefender_GetPeriod() );
 }
 
-TEST( Full_DEFENDER, SetPeriod_after_started )
+TEST( Full_OTA_DEFENDER, SetPeriod_after_started )
 {
     _publishMetricsNotNeeded();
 
