@@ -47,12 +47,59 @@
  *
  * @brief UUID of Amazon FreeRTOS Device Information Service.
  *
- * This 128 bit UUID will be advertised by all Amazon FreeRTOS devices. The companion IOS/Android SDK filters Amazon FreeRTOS devices
+ * This 128 bit UUID used by all Amazon FreeRTOS for devices information.
  * using this UUID.
  *
  */
 #define bleconfigDEVICE_INFO_SERVICE_UUID   { 0x00, 0xFF, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
 
+/**
+ *
+ * @brief Define the UUID that is going to be advertised.
+ *
+ */
+#if (!defined(bleconfigADVERTISING_UUID)) || ( !defined(bleconfigADVERTISING_UUID_SIZE))
+	#ifdef bleconfigADVERTISING_UUID
+	#error "bleconfigADVERTISING_UUID_SIZE need to be defined"
+	#endif
+	#ifdef bleconfigADVERTISING_UUID_SIZE
+	#error "bleconfigADVERTISING_UUID need to be defined"
+	#endif
+#define bleconfigADVERTISING_UUID bleconfigDEVICE_INFO_SERVICE_UUID
+#define bleconfigADVERTISING_UUID_SIZE 16
+#endif
+
+
+/**
+ * @brief Define the Advertising interval.
+ *
+ */
+#if (!defined(bleconfigADVERTISING_INTERVAL_MIN)) || ( !defined(bleconfigADVERTISING_INTERVAL_MAX))
+	#ifdef bleconfigADVERTISING_INTERVAL_MIN
+	#error "bleconfigADVERTISING_INTERVAL_MAX need to be defined"
+	#endif
+	#ifdef bleconfigADVERTISING_INTERVAL_MAX
+	#error "bleconfigADVERTISING_INTERVAL_MIN need to be defined"
+	#endif
+#define bleconfigADVERTISING_INTERVAL_MIN 0x20
+#define bleconfigADVERTISING_INTERVAL_MAX 0x40
+#endif
+
+/**
+ * @brief Appearance of the device when advertising.
+ *
+ */
+#ifndef bleconfigADVERTISING_APPEARANCE
+#define bleconfigADVERTISING_APPEARANCE 0
+#endif
+
+/**
+ * @brief Supported input/output of the device.
+ * This define needs to be of type BTIOtypes_t.
+ */
+#ifndef bleconfigINPUT_OUTPUT
+#define bleconfigINPUT_OUTPUT eBTIODisplayYesNo
+#endif
 
 /**
  *

@@ -164,21 +164,27 @@ static StateChangeSubscriptionList_t xSubscriptionList =
 static uint32_t ulEnabledNetworks = AWSIOT_NETWORK_TYPE_NONE;
 static uint32_t ulConnectedNetworks = AWSIOT_NETWORK_TYPE_NONE;
 static SemaphoreHandle_t xConnectionSemaphore = NULL;
-
 #if BLE_ENABLED
+#if (bleconfigADVERTISING_UUID_SIZE == 2)
+#define BT_ADV_UUID_TYPE	eBTuuidType16
+#else
+#define BT_ADV_UUID_TYPE	eBTuuidType128
+#endif
+
 static BTUuid_t xAdvUUID =
 {
-	.uu.uu128 = bleconfigDEVICE_INFO_SERVICE_UUID,
-	.ucType   = eBTuuidType128
+	.uu.uu128 = bleconfigADVERTISING_UUID,
+	.ucType   =  BT_ADV_UUID_TYPE
+
 };
 static BLEAdvertismentParams_t xAdvParams =
 {
     .bIncludeTxPower    = true,
     .bIncludeName       = true,
     .bSetScanRsp        = false,
-    .ulAppearance       = 0,
-    .ulMinInterval      = 0x20,
-    .ulMaxInterval      = 0x40,
+    .ulAppearance       = bleconfigADVERTISING_APPEARANCE,
+    .ulMinInterval      = bleconfigADVERTISING_INTERVAL_MIN,
+    .ulMaxInterval      = bleconfigADVERTISING_INTERVAL_MAX,
     .usServiceDataLen   = 0,
     .pcServiceData      = NULL,
     .usManufacturerLen  = 0,
@@ -187,10 +193,8 @@ static BLEAdvertismentParams_t xAdvParams =
     .pxUUID2            = NULL
 };
 
-#endif
 
 
-#if BLE_ENABLED
 
 static BTStatus_t prvBLEInit( void )
 {
@@ -215,7 +219,7 @@ static BTStatus_t prvBLEInit( void )
     const bool bSecureConnection = false;
 #endif
     const uint32_t usMtu = bleconfigPREFERRED_MTU_SIZE;
-    const BTIOtypes_t xIO = eBTIODisplayYesNo;
+    const BTIOtypes_t xIO = bleconfigINPUT_OUTPUT;
     size_t xNumProperties;
 
     BTProperty_t xDeviceProperties[] =
