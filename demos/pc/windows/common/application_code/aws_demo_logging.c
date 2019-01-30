@@ -347,6 +347,7 @@ static void prvLoggingPrintf( BaseType_t xFormatted,
 			xLength2 = snprintf(
 	            cPrintString + xLength,
 				dlMAX_PRINT_STRING_LENGTH - xLength,
+				"%s",
 				pcFormat );
 		}
 
