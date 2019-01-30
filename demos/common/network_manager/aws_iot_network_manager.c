@@ -301,6 +301,7 @@ static bool prvBLEEnable( void )
 	BLEEventsCallbacks_t xEventCb;
 	BaseType_t xRet = pdTRUE;
 	static bool bInitBLE = false;
+	static bool bSetAdv = false;
 	BTStatus_t xStatus;
 
 	if( !( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE  ) )
@@ -316,6 +317,13 @@ static bool prvBLEEnable( void )
 				xRet = pdFALSE;
 			}
 		}
+		else
+		{
+		    if( BLE_ON() != eBTStatusSuccess )
+		    {
+		        xRet = pdFALSE;
+		    }
+		}
 		/* Register BLE Connection callback */
 		if( xRet == pdTRUE )
 		{
@@ -328,16 +336,32 @@ static bool prvBLEEnable( void )
 
 		if( xRet == pdTRUE )
 		{
-			xAdvParams.bSetScanRsp = false;
-			if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
-			{
-				xRet = pdFALSE;
-			}
+		    if( bSetAdv == false )
+		    {
+
+		        xAdvParams.bSetScanRsp = false;
+		        if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
+		        {
+		            xRet = pdFALSE;
+		        }
+		        else
+		        {
+		            bSetAdv = true;
+		        }
+		    }
+		    else
+		    {
+		        if( BLE_StartAdv( prvStartAdvCallback ) != eBTStatusSuccess )
+		        {
+		            xRet = pdFALSE;
+		        }
+		    }
+
 		}
 
 		if( xRet == pdTRUE )
 		{
-                    ulEnabledNetworks |= AWSIOT_NETWORK_TYPE_BLE;
+		    ulEnabledNetworks |= AWSIOT_NETWORK_TYPE_BLE;
 		}
 	}
 
@@ -353,7 +377,7 @@ static bool prvBLEDisable( void )
 
 	if( ( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
 	{
-                ulEnabledNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
+	    ulEnabledNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
 
 		xEventCb.pxConnectionCb = prvBLEConnectionCallback;
 		if( BLE_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
@@ -689,10 +713,14 @@ BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandl
 	return xRet;
 }
 
-
 uint32_t AwsIotNetworkManager_GetConfiguredNetworks( void )
 {
 	return configENABLED_NETWORKS;
+}
+
+uint32_t AwsIotNetworkManager_GetEnabledNetworks( void )
+{
+    return ulEnabledNetworks;
 }
 
 uint32_t AwsIotNetworkManager_GetConnectedNetworks( void )
@@ -708,7 +736,6 @@ uint32_t AwsIotNetworkManager_WaitForNetworkConnection( void )
     }
     return ulConnectedNetworks;
 }
-
 
 uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t ulNetworkTypes )
 {

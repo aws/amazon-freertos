@@ -327,27 +327,12 @@ BTStatus_t BLE_ConnParameterUpdateRequest( const BTBdaddr_t * pxBdAddr,
 
 BTStatus_t BLE_ON( void )
 {
-	BTStatus_t xStatus = eBTStatusFail;
-    if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
-    {
-    	xStatus = xBTInterface.pxBTInterface->pxEnable(0);
-    	xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
-    }
-
-    return xStatus;
+	return  xBTInterface.pxBTInterface->pxEnable(0);
 }
 
 BTStatus_t BLE_OFF( void )
 {
-	BTStatus_t xStatus = eBTStatusFail;
-
-    if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
-    {
-    	xStatus = xBTInterface.pxBTInterface->pxDisable();
-    	xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
-    }
-
-    return xStatus;
+	return xBTInterface.pxBTInterface->pxDisable();
 }
 
 BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,

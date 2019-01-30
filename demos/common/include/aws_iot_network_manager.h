@@ -91,6 +91,13 @@ uint32_t AwsIotNetworkManager_WaitForNetworkConnection( void );
  */
 uint32_t AwsIotNetworkManager_GetConfiguredNetworks( void );
 
+
+/**
+ * @brief Get the networks which are enabled currently.
+ * @return Flags indicating all enabled networks.
+ */
+uint32_t AwsIotNetworkManager_GetEnabledNetworks( void );
+
 /**
  * API to enable network manager for different networks
  * @param ulNetworkTypes Network types

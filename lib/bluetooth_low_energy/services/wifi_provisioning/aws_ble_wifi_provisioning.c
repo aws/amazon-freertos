@@ -1278,6 +1278,35 @@ BaseType_t WIFI_PROVISION_Connect( uint16_t usNetworkIndex )
 	return xRet;
 }
 
+
+BaseType_t WIFI_PROVISION_EraseAllNetworks( void )
+{
+
+    BaseType_t xRet = pdTRUE;
+    WIFIReturnCode_t xWiFiRet;
+
+    if( xSemaphoreTake( xWifiProvService.xLock, portMAX_DELAY ) == pdPASS )
+    {
+        while( xWifiProvService.usNumNetworks > 0 )
+        {
+            xWiFiRet = prvPopNetwork( 0, NULL );
+            if( xWiFiRet != eWiFiSuccess )
+            {
+                xRet = pdFALSE;
+                configPRINTF(( "Failed to delete network \n" ));
+                break;
+            }
+        }
+        xSemaphoreGive( xWifiProvService.xLock );
+    }
+    else
+    {
+        xRet = pdFALSE;
+    }
+
+    return xRet;
+}
+
 /*-----------------------------------------------------------*/
 
 BaseType_t WIFI_PROVISION_Stop( void )
