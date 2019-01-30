@@ -1,0 +1,32 @@
+#
+# Symbol regular expression pattern matching.
+# Each line is a regular expression that is evaluated as qr/LINE/.
+#
+
+# These symbols can't be globalized due to name clashes.
+^IRQ_MODE$
+^SVC_MODE$
+
+# Will be auto-abandoned due to WICED_DISABLE_STDIO.
+^wiced_uart_init$
+^platform_stdio_init$
+^platform_stdio_read$
+^platform_stdio_write$
+
+# Abandon due to dependencies with WICED_DISABLE_STDIO.
+# Add __sinit(_REENT) in _start without auto-abandonment.
+^__sinit$
+^__sread$
+^_read_r$
+^_read$
+^__swrite$
+^_write_r$
+^_write$
+
+# Vectors provided by application (aid with debugging).
+^irq_vector_prefetch_abort$
+^irq_vector_fast_interrupt$
+^irq_vector_undefined_instruction$
+^irq_vector_software_interrupt$
+^irq_vector_reserved$
+^irq_vector_data_abort$

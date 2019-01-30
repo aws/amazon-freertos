@@ -1,0 +1,9 @@
+WicedFS_Unit_Test - Unit Test Tool for Wiced Read Only File-System
+=====================================================================
+
+This directory contains source code for a unit test tool which verifies the functionality of the WicedFS API.
+
+The makefile generates two executables - with and without 64-bit support. (64 Bit support is required for files over 2GB)
+
+The tool provides 100% code test coverage for WicedFS.
+
