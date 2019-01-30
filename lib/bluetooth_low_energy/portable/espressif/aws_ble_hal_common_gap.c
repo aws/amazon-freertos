@@ -430,13 +430,9 @@ BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    if( esp_bt_controller_enable( ESP_BT_MODE_BLE ) != ESP_OK )
+    if( esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED )
     {
-        xStatus = eBTStatusFail;
-    }
-    if( xStatus == eBTStatusSuccess )
-    {
-        if( esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED )
+        if( esp_bt_controller_enable( ESP_BT_MODE_BLE ) != ESP_OK )
         {
             xStatus = eBTStatusFail;
         }
@@ -458,17 +454,10 @@ BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 BTStatus_t prvBTDisable()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    esp_bt_controller_status_t xControllerStatus;
 
-    if( esp_bt_controller_disable() != ESP_OK )
+    if( esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED )
     {
-        xStatus = eBTStatusFail;
-    }
-
-    if( xStatus == eBTStatusSuccess )
-    {
-        xControllerStatus = esp_bt_controller_get_status();
-        if( xControllerStatus != ESP_BT_CONTROLLER_STATUS_INITED )
+        if( esp_bt_controller_disable() != ESP_OK )
         {
             xStatus = eBTStatusFail;
         }

@@ -37,7 +37,6 @@
 #include "aws_ble.h"
 #include "aws_ble_numericComparison.h"
 #include "aws_ble_services_init.h"
-
 #endif
 #if WIFI_ENABLED
 #include "aws_wifi.h"
@@ -186,7 +185,6 @@ static BLEAdvertismentParams_t xAdvParams =
     .pxUUID1           = &xAdvUUID,
     .pxUUID2            = NULL
 };
-
 #endif
 
 
@@ -284,7 +282,6 @@ static bool prvBLEEnable( void )
 	BLEEventsCallbacks_t xEventCb;
 	BaseType_t xRet = pdTRUE;
 	static bool bInitBLE = false;
-	static bool bSetAdv =  false;
 	BTStatus_t xStatus;
 
 	if( !( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE  ) )
@@ -320,24 +317,10 @@ static bool prvBLEEnable( void )
 
 		if( xRet == pdTRUE )
 		{
-		    if( bSetAdv == false )
+		    xAdvParams.bSetScanRsp = false;
+		    if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
 		    {
-		        xAdvParams.bSetScanRsp = false;
-		        if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
-		        {
-		            xRet = pdFALSE;
-		        }
-		        else
-		        {
-		            bSetAdv = true;
-		        }
-		    }
-		    else
-		    {
-		        if( BLE_StartAdv( prvStartAdvCallback ) != eBTStatusSuccess )
-		        {
-		            xRet = pdFALSE;
-		        }
+		        xRet = pdFALSE;
 		    }
 		}
 
@@ -359,8 +342,6 @@ static bool prvBLEDisable( void )
 
 	if( ( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
 	{
-	    ulEnabledNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
-
 		xEventCb.pxConnectionCb = prvBLEConnectionCallback;
 		if( BLE_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
 		{
@@ -383,6 +364,11 @@ static bool prvBLEDisable( void )
 			}
 		}
 
+		if( xRet == true )
+		{
+		    ulEnabledNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
+		    ulConnectedNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
+		}
 	}
 
 	return xRet;
@@ -564,6 +550,12 @@ static bool prvWIFIDisable( void )
                 xRet = false;
             }
         }
+
+        if( xRet == true )
+        {
+            ulConnectedNetworks &= ~AWSIOT_NETWORK_TYPE_WIFI;
+            ulEnabledNetworks &= ~AWSIOT_NETWORK_TYPE_WIFI;
+        }
     }
 
     return xRet;
@@ -685,7 +677,7 @@ BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandl
 				listREMOVE( pxLink );
 				vPortFree( ppxSubscription );
 				xRet = pdTRUE;
-                                break;
+				break;
 			}
 
 		}

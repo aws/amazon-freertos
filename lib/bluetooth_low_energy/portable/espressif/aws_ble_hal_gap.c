@@ -478,7 +478,14 @@ BTStatus_t prvBTDisconnect( uint8_t ucAdapterIf,
                             const BTBdaddr_t * pxBdAddr,
                             uint16_t usConnId )
 {
-    BTStatus_t xStatus = eBTStatusUnsupported;
+    BTStatus_t xStatus = eBTStatusSuccess;
+    esp_bd_addr_t xAddr = { 0 };
+
+    memcpy( xAddr, pxBdAddr->ucAddress, ESP_BD_ADDR_LEN );
+    if( esp_ble_gap_disconnect( xAddr ) != ESP_OK )
+    {
+        xStatus = eBTStatusFail;
+    }
 
     return xStatus;
 }

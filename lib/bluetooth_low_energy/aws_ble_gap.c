@@ -327,12 +327,37 @@ BTStatus_t BLE_ConnParameterUpdateRequest( const BTBdaddr_t * pxBdAddr,
 
 BTStatus_t BLE_ON( void )
 {
-	return xBTInterface.pxBTInterface->pxEnable(0);
+    /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
+    /* xBTInterface.pxBTInterface->pxEnable(0); */
+	return eBTStatusSuccess;
 }
 
 BTStatus_t BLE_OFF( void )
 {
-	return xBTInterface.pxBTInterface->pxDisable();
+    BTStatus_t xStatus = eBTStatusSuccess;
+    Link_t  *pxConnectionListHead,  *pxConnectionListElem, *pxTemp;
+    BLEConnectionInfoListElement_t * pxConnInfo;
+
+    xStatus = BLE_GetConnectionInfoList( &pxConnectionListHead );
+    if( xStatus == eBTStatusSuccess )
+    {
+        listFOR_EACH_SAFE( pxConnectionListElem, pxTemp, pxConnectionListHead )
+        {
+            pxConnInfo = listCONTAINER( pxConnectionListElem, BLEConnectionInfoListElement_t, xConnectionList );
+            xStatus = xBTInterface.pxBTLeAdapterInterface->pxDisconnect(
+                    xBTInterface.ucAdapterIf,
+                    &pxConnInfo->pxRemoteBdAddr,
+                    pxConnInfo->usConnId );
+            if( xStatus != eBTStatusSuccess )
+            {
+                break;
+            }
+        }
+    }
+
+    /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
+    /* xBTInterface.pxBTInterface->pxDisable(); */
+	return xStatus;
 }
 
 BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
