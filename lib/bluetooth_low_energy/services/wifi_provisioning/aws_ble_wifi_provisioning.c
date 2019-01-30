@@ -1292,8 +1292,8 @@ BaseType_t WIFI_PROVISION_EraseAllNetworks( void )
             xWiFiRet = prvPopNetwork( 0, NULL );
             if( xWiFiRet != eWiFiSuccess )
             {
+                configPRINTF(( "Failed to delete WIFI network, error = %d\n", xWiFiRet ));
                 xRet = pdFALSE;
-                configPRINTF(( "Failed to delete network \n" ));
                 break;
             }
         }

@@ -327,7 +327,7 @@ BTStatus_t BLE_ConnParameterUpdateRequest( const BTBdaddr_t * pxBdAddr,
 
 BTStatus_t BLE_ON( void )
 {
-	return  xBTInterface.pxBTInterface->pxEnable(0);
+	return xBTInterface.pxBTInterface->pxEnable(0);
 }
 
 BTStatus_t BLE_OFF( void )

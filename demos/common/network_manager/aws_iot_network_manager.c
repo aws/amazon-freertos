@@ -217,7 +217,6 @@ static BTStatus_t prvBLEInit( void )
     const uint32_t usMtu = bleconfigPREFERRED_MTU_SIZE;
     const BTIOtypes_t xIO = eBTIODisplayYesNo;
     size_t xNumProperties;
-    const BTInterface_t * pxIface;
 
     BTProperty_t xDeviceProperties[] =
     {
@@ -250,23 +249,7 @@ static BTStatus_t prvBLEInit( void )
 
     xNumProperties = sizeof( xDeviceProperties ) / sizeof ( xDeviceProperties[0] );
 
-    if( xStatus == eBTStatusSuccess )
-    {
-    	pxIface = BTGetBluetoothInterface();
-    	if( pxIface  != NULL )
-    	{
-    		xStatus = pxIface->pxEnable(0);
-    	}
-    	else
-    	{
-    		xStatus = eBTStatusFail;
-    	}
-    }
-    /* Initialize BLE Middle ware */
-    if( xStatus == eBTStatusSuccess )
-    {
-        xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
-    }
+    xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
 
     if( xStatus == eBTStatusSuccess )
     {
@@ -301,7 +284,7 @@ static bool prvBLEEnable( void )
 	BLEEventsCallbacks_t xEventCb;
 	BaseType_t xRet = pdTRUE;
 	static bool bInitBLE = false;
-	static bool bSetAdv = false;
+	static bool bSetAdv =  false;
 	BTStatus_t xStatus;
 
 	if( !( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE  ) )
@@ -312,7 +295,8 @@ static bool prvBLEEnable( void )
 			if( xStatus == eBTStatusSuccess )
 			{
 				bInitBLE = true;
-			}else
+			}
+			else
 			{
 				xRet = pdFALSE;
 			}
@@ -338,7 +322,6 @@ static bool prvBLEEnable( void )
 		{
 		    if( bSetAdv == false )
 		    {
-
 		        xAdvParams.bSetScanRsp = false;
 		        if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
 		        {
@@ -356,7 +339,6 @@ static bool prvBLEEnable( void )
 		            xRet = pdFALSE;
 		        }
 		    }
-
 		}
 
 		if( xRet == pdTRUE )
