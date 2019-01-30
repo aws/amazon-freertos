@@ -302,6 +302,13 @@ uint16_t WIFI_PROVISION_GetNumNetworks( void );
 BaseType_t WIFI_PROVISION_Connect( uint16_t ulNetworkIndex );
 
 
+/**
+ * @brief Erase all wifi networks.
+ *
+ * @return pdTRUE if success.
+ */
+
+BaseType_t WIFI_PROVISION_EraseAllNetworks( void );
 
 
 /**

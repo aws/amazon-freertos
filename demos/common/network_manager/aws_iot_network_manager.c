@@ -37,7 +37,6 @@
 #include "aws_ble.h"
 #include "aws_ble_numericComparison.h"
 #include "aws_ble_services_init.h"
-
 #endif
 #if WIFI_ENABLED
 #include "aws_wifi.h"
@@ -152,6 +151,7 @@ static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkStat
  */
 static BaseType_t prxWifiConnect( void );
 #endif
+
 #endif
 
 
@@ -166,19 +166,28 @@ static uint32_t ulConnectedNetworks = AWSIOT_NETWORK_TYPE_NONE;
 static SemaphoreHandle_t xConnectionSemaphore = NULL;
 
 #if BLE_ENABLED
+
+#if (bleconfigADVERTISING_UUID_SIZE == 2)
+#define BT_ADV_UUID_TYPE	eBTuuidType16
+#else
+#define BT_ADV_UUID_TYPE	eBTuuidType128
+#endif
+
 static BTUuid_t xAdvUUID =
 {
-	.uu.uu128 = bleconfigDEVICE_INFO_SERVICE_UUID,
-	.ucType   = eBTuuidType128
+	.uu.uu128 = bleconfigADVERTISING_UUID,
+	.ucType   =  BT_ADV_UUID_TYPE
+
 };
+
 static BLEAdvertismentParams_t xAdvParams =
 {
     .bIncludeTxPower    = true,
     .bIncludeName       = true,
     .bSetScanRsp        = false,
-    .ulAppearance       = 0,
-    .ulMinInterval      = 0x20,
-    .ulMaxInterval      = 0x40,
+    .ulAppearance       = bleconfigADVERTISING_APPEARANCE,
+    .ulMinInterval      = bleconfigADVERTISING_INTERVAL_MIN,
+    .ulMaxInterval      = bleconfigADVERTISING_INTERVAL_MAX,
     .usServiceDataLen   = 0,
     .pcServiceData      = NULL,
     .usManufacturerLen  = 0,
@@ -186,11 +195,6 @@ static BLEAdvertismentParams_t xAdvParams =
     .pxUUID1           = &xAdvUUID,
     .pxUUID2            = NULL
 };
-
-#endif
-
-
-#if BLE_ENABLED
 
 static BTStatus_t prvBLEInit( void )
 {
@@ -215,9 +219,8 @@ static BTStatus_t prvBLEInit( void )
     const bool bSecureConnection = false;
 #endif
     const uint32_t usMtu = bleconfigPREFERRED_MTU_SIZE;
-    const BTIOtypes_t xIO = eBTIODisplayYesNo;
+    const BTIOtypes_t xIO = bleconfigINPUT_OUTPUT;
     size_t xNumProperties;
-    const BTInterface_t * pxIface;
 
     BTProperty_t xDeviceProperties[] =
     {
@@ -250,23 +253,7 @@ static BTStatus_t prvBLEInit( void )
 
     xNumProperties = sizeof( xDeviceProperties ) / sizeof ( xDeviceProperties[0] );
 
-    if( xStatus == eBTStatusSuccess )
-    {
-    	pxIface = BTGetBluetoothInterface();
-    	if( pxIface  != NULL )
-    	{
-    		xStatus = pxIface->pxEnable(0);
-    	}
-    	else
-    	{
-    		xStatus = eBTStatusFail;
-    	}
-    }
-    /* Initialize BLE Middle ware */
-    if( xStatus == eBTStatusSuccess )
-    {
-        xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
-    }
+    xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
 
     if( xStatus == eBTStatusSuccess )
     {
@@ -311,10 +298,18 @@ static bool prvBLEEnable( void )
 			if( xStatus == eBTStatusSuccess )
 			{
 				bInitBLE = true;
-			}else
+			}
+			else
 			{
 				xRet = pdFALSE;
 			}
+		}
+		else
+		{
+		    if( BLE_ON() != eBTStatusSuccess )
+		    {
+		        xRet = pdFALSE;
+		    }
 		}
 		/* Register BLE Connection callback */
 		if( xRet == pdTRUE )
@@ -328,16 +323,16 @@ static bool prvBLEEnable( void )
 
 		if( xRet == pdTRUE )
 		{
-			xAdvParams.bSetScanRsp = false;
-			if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
-			{
-				xRet = pdFALSE;
-			}
+		    xAdvParams.bSetScanRsp = false;
+		    if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
+		    {
+		        xRet = pdFALSE;
+		    }
 		}
 
 		if( xRet == pdTRUE )
 		{
-                    ulEnabledNetworks |= AWSIOT_NETWORK_TYPE_BLE;
+		    ulEnabledNetworks |= AWSIOT_NETWORK_TYPE_BLE;
 		}
 	}
 
@@ -353,8 +348,6 @@ static bool prvBLEDisable( void )
 
 	if( ( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
 	{
-                ulEnabledNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
-
 		xEventCb.pxConnectionCb = prvBLEConnectionCallback;
 		if( BLE_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
 		{
@@ -377,6 +370,11 @@ static bool prvBLEDisable( void )
 			}
 		}
 
+		if( xRet == true )
+		{
+		    ulEnabledNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
+		    ulConnectedNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
+		}
 	}
 
 	return xRet;
@@ -558,6 +556,12 @@ static bool prvWIFIDisable( void )
                 xRet = false;
             }
         }
+
+        if( xRet == true )
+        {
+            ulConnectedNetworks &= ~AWSIOT_NETWORK_TYPE_WIFI;
+            ulEnabledNetworks &= ~AWSIOT_NETWORK_TYPE_WIFI;
+        }
     }
 
     return xRet;
@@ -679,7 +683,7 @@ BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandl
 				listREMOVE( pxLink );
 				vPortFree( ppxSubscription );
 				xRet = pdTRUE;
-                                break;
+				break;
 			}
 
 		}
@@ -689,10 +693,14 @@ BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandl
 	return xRet;
 }
 
-
 uint32_t AwsIotNetworkManager_GetConfiguredNetworks( void )
 {
 	return configENABLED_NETWORKS;
+}
+
+uint32_t AwsIotNetworkManager_GetEnabledNetworks( void )
+{
+    return ulEnabledNetworks;
 }
 
 uint32_t AwsIotNetworkManager_GetConnectedNetworks( void )
@@ -708,7 +716,6 @@ uint32_t AwsIotNetworkManager_WaitForNetworkConnection( void )
     }
     return ulConnectedNetworks;
 }
-
 
 uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t ulNetworkTypes )
 {

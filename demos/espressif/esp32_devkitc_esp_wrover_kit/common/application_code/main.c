@@ -282,6 +282,12 @@ static esp_err_t prvBLEStackInit( void )
         configPRINTF( ( "Failed to initialize bluedroid stack, err = %d", xRet ) );
     }
 
+    if( xRet == ESP_OK )
+    {
+        xRet = esp_bluedroid_enable();
+    }
+
+
     return xRet;
 }
 

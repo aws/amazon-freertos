@@ -327,27 +327,37 @@ BTStatus_t BLE_ConnParameterUpdateRequest( const BTBdaddr_t * pxBdAddr,
 
 BTStatus_t BLE_ON( void )
 {
-	BTStatus_t xStatus = eBTStatusFail;
-    if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
-    {
-    	xStatus = xBTInterface.pxBTInterface->pxEnable(0);
-    	xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
-    }
-
-    return xStatus;
+    /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
+    /* xBTInterface.pxBTInterface->pxEnable(0); */
+	return eBTStatusSuccess;
 }
 
 BTStatus_t BLE_OFF( void )
 {
-	BTStatus_t xStatus = eBTStatusFail;
+    BTStatus_t xStatus = eBTStatusSuccess;
+    Link_t  *pxConnectionListHead,  *pxConnectionListElem, *pxTemp;
+    BLEConnectionInfoListElement_t * pxConnInfo;
 
-    if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
+    xStatus = BLE_GetConnectionInfoList( &pxConnectionListHead );
+    if( xStatus == eBTStatusSuccess )
     {
-    	xStatus = xBTInterface.pxBTInterface->pxDisable();
-    	xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
+        listFOR_EACH_SAFE( pxConnectionListElem, pxTemp, pxConnectionListHead )
+        {
+            pxConnInfo = listCONTAINER( pxConnectionListElem, BLEConnectionInfoListElement_t, xConnectionList );
+            xStatus = xBTInterface.pxBTLeAdapterInterface->pxDisconnect(
+                    xBTInterface.ucAdapterIf,
+                    &pxConnInfo->pxRemoteBdAddr,
+                    pxConnInfo->usConnId );
+            if( xStatus != eBTStatusSuccess )
+            {
+                break;
+            }
+        }
     }
 
-    return xStatus;
+    /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
+    /* xBTInterface.pxBTInterface->pxDisable(); */
+	return xStatus;
 }
 
 BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
