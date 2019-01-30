@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 Intel Corporation
+** Copyright (C) 2017 Intel Corporation
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to deal
@@ -33,18 +33,15 @@
 #ifndef _DEFAULT_SOURCE
 #  define _DEFAULT_SOURCE
 #endif
-#include <assert.h>
-#include <float.h>
+#ifndef assert
+#  include <assert.h>
+#endif
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
 #ifndef __cplusplus
 #  include <stdbool.h>
-#endif
-
-#ifdef __F16C__
-#  include <immintrin.h>
 #endif
 
 #if __STDC_VERSION__ >= 201112L || __cplusplus >= 201103L || __cpp_static_assert >= 200410
@@ -59,6 +56,12 @@
 #else
 /* use the definition from cbor.h */
 #  define inline    CBOR_INLINE
+#endif
+
+#ifdef NDEBUG
+#  define cbor_assert(cond)     do { if (!(cond)) unreachable(); } while (0)
+#else
+#  define cbor_assert(cond)     assert(cond)
 #endif
 
 #ifndef STRINGIFY
@@ -77,14 +80,18 @@
 #endif
 #define DBL_DECIMAL_DIG_STR     STRINGIFY(DBL_DECIMAL_DIG)
 
+#if defined(__GNUC__) && defined(__i386__) && !defined(__iamcu__)
+#  define CBOR_INTERNAL_API_CC          __attribute__((regparm(3)))
+#elif defined(_MSC_VER) && defined(_M_IX86)
+#  define CBOR_INTERNAL_API_CC          __fastcall
+#else
+#  define CBOR_INTERNAL_API_CC
+#endif
+
 #ifndef __has_builtin
 #  define __has_builtin(x)  0
 #endif
 
-
-/* Disable this optimization for TI ARM compiler v18 or higher because it has some issues
-with these intrinsics. */
-#if !defined(__TI_COMPILER_VERSION__) || __TI_COMPILER_VERSION__ < 18000000
 #if (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)) || \
     (__has_builtin(__builtin_bswap64) && __has_builtin(__builtin_bswap32))
 #  if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -99,7 +106,7 @@ with these intrinsics. */
 #      define cbor_ntohs    __builtin_bswap16
 #      define cbor_htons    __builtin_bswap16
 #    else
-#      define cbor_ntohs(x) (((uint16_t)x >> 8) | ((uint16_t)x << 8))
+#      define cbor_ntohs(x) (((uint16_t)(x) >> 8) | ((uint16_t)(x) << 8))
 #      define cbor_htons    cbor_ntohs
 #    endif
 #  else
@@ -114,6 +121,7 @@ with these intrinsics. */
 #  include <sys/byteorder.h>
 #elif defined(_MSC_VER)
 /* MSVC, which implies Windows, which implies little-endian and sizeof(long) == 4 */
+#  include <stdlib.h>
 #  define cbor_ntohll       _byteswap_uint64
 #  define cbor_htonll       _byteswap_uint64
 #  define cbor_ntohl        _byteswap_ulong
@@ -121,34 +129,34 @@ with these intrinsics. */
 #  define cbor_ntohs        _byteswap_ushort
 #  define cbor_htons        _byteswap_ushort
 #endif
-#endif
 #ifndef cbor_ntohs
-#   define cbor_ntohs(x) (((uint16_t)x >> 8) | ((uint16_t)x << 8))
-#   define cbor_htons    cbor_ntohs
-//#  include <netinet/in.h>
-//#  define cbor_ntohs        ntohs
-//#  define cbor_htons        htons
+#  include <arpa/inet.h>
+#  define cbor_ntohs        ntohs
+#  define cbor_htons        htons
 #endif
 #ifndef cbor_ntohl
-//#  include <netinet/in.h>
-//#  define cbor_ntohl        ntohl
-//#  define cbor_htonl        htonl
-#  	define cbor_ntohl(x)     ((((uint32_t)x >> 24) & 0xff) | (((uint32_t)x >> 8) & 0xff00) | (((uint32_t)x & 0xff00) << 8) | (((uint32_t)x & 0xff) << 24))
-#  	define cbor_htonl        cbor_ntohl
+#  include <arpa/inet.h>
+#  define cbor_ntohl        ntohl
+#  define cbor_htonl        htonl
 #endif
 #ifndef cbor_ntohll
 #  define cbor_ntohll       ntohll
 #  define cbor_htonll       htonll
 /* ntohll isn't usually defined */
 #  ifndef ntohll
-#    if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#    if (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || \
+    (defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && __BYTE_ORDER == __BIG_ENDIAN) || \
+    (defined(BYTE_ORDER) && defined(BIG_ENDIAN) && BYTE_ORDER == BIG_ENDIAN) || \
+    (defined(_BIG_ENDIAN) && !defined(_LITTLE_ENDIAN)) || (defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__)) || \
+    defined(__ARMEB__) || defined(__MIPSEB__) || defined(__s390__) || defined(__sparc__)
 #      define ntohll
 #      define htonll
-#    elif defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#    elif (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || \
+    (defined(__BYTE_ORDER) && defined(__LITTLE_ENDIAN) && __BYTE_ORDER == __LITTLE_ENDIAN) || \
+    (defined(BYTE_ORDER) && defined(LITTLE_ENDIAN) && BYTE_ORDER == LITTLE_ENDIAN) || \
+    defined(_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN__) || defined(__ARMEL__) || defined(__MIPSEL__) || \
+    defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__) || defined(__amd64)
 #      define ntohll(x)       ((ntohl((uint32_t)(x)) * UINT64_C(0x100000000)) + (ntohl((x) >> 32)))
-#      define htonll          ntohll
-#	elif __little_endian__ == 1
-#      define ntohll(x)       ((cbor_ntohl(((uint32_t)(x))) * UINT64_C(0x100000000)) + (cbor_ntohl(((x) >> 32))))
 #      define htonll          ntohll
 #    else
 #      error "Unable to determine byte order!"
@@ -182,11 +190,6 @@ with these intrinsics. */
 #  define unreachable() do {} while (0)
 #endif
 
-#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !defined(__clang__) && \
-    (__GNUC__ * 100 + __GNUC_MINOR__ >= 404)
-#  pragma GCC optimize("-ffunction-sections")
-#endif
-
 static inline bool add_check_overflow(size_t v1, size_t v2, size_t *r)
 {
 #if ((defined(__GNUC__) && (__GNUC__ >= 5)) && !defined(__INTEL_COMPILER)) || __has_builtin(__builtin_add_overflow)
@@ -198,40 +201,5 @@ static inline bool add_check_overflow(size_t v1, size_t v2, size_t *r)
 #endif
 }
 
-static inline unsigned short encode_half(double val)
-{
-#ifdef __F16C__
-    return _cvtss_sh(val, 3);
-#else
-    uint64_t v;
-    memcpy(&v, &val, sizeof(v));
-    int sign = v >> 63 << 15;
-    int exp = (v >> 52) & 0x7ff;
-    int mant = v << 12 >> 12 >> (53-11);    /* keep only the 11 most significant bits of the mantissa */
-    exp -= 1023;
-    if (exp == 1024) {
-        /* infinity or NaN */
-        exp = 16;
-        mant >>= 1;
-    } else if (exp >= 16) {
-        /* overflow, as largest number */
-        exp = 15;
-        mant = 1023;
-    } else if (exp >= -14) {
-        /* regular normal */
-    } else if (exp >= -24) {
-        /* subnormal */
-        mant |= 1024;
-        mant >>= -(exp + 14);
-        exp = -15;
-    } else {
-        /* underflow, make zero */
-        return 0;
-    }
-
-    /* safe cast here as bit operations above guarantee not to overflow */
-    return (unsigned short)(sign | ((exp + 15) << 10) | mant);
-#endif
-}
-
 #endif /* COMPILERSUPPORT_H */
+
