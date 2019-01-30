@@ -41,4 +41,13 @@ void vLoggingInit( BaseType_t xLogToStdout,
                    uint32_t ulRemoteIPAddress,
                    uint16_t usRemotePort );
 
+/* Write logging to stdout, to be called by FreeRTOS tasks only.
+Each line will be preceded by the name of the task and a time-stamp. */
+void vLoggingPrintf( const char * pcFormat,
+                     ... );
+
+/* Write logging to stdout, to be called by FreeRTOS tasks only.
+No stamps will be printed, just the bare message. */
+void vLoggingPrint( const char * pcFormat );
+
 #endif /* AWS_DEMO_LOGGING_H */

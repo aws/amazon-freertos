@@ -113,6 +113,13 @@ static DWORD WINAPI prvWin32LoggingThread( void * pvParam );
 static void prvCreatePrintSocket( void * pvParameter1,
                                   uint32_t ulParameter2 );
 
+/*
+ * Write a messages to stdout, either with or without a time-stamp.
+ * A Windows thread will finally call printf() and fflush().
+ */
+
+static int prvLoggingPrintf( BaseType_t xFormatted, const char *pcFormat, va_list xArgs );
+
 /*-----------------------------------------------------------*/
 
 /* Windows event used to wake the Win32 thread which performs any logging that
@@ -273,12 +280,28 @@ static void prvCreatePrintSocket( void * pvParameter1,
 void vLoggingPrintf( const char * pcFormat,
                      ... )
 {
+	va_list xArgs;
+	va_start( xArgs, pcFormat );
+	prvLoggingPrintf( pdTRUE, pcFormat, xArgs );
+	va_end( xArgs );
+}
+/*-----------------------------------------------------------*/
+
+void vLoggingPrint( const char * pcFormat )
+{
+	prvLoggingPrintf( pdFALSE, pcFormat, NULL );
+}
+/*-----------------------------------------------------------*/
+
+static int prvLoggingPrintf( BaseType_t xFormatted,
+							 const char *pcFormat,
+							 va_list xArgs )
+{
     char cPrintString[ dlMAX_PRINT_STRING_LENGTH ];
     char cOutputString[ dlMAX_PRINT_STRING_LENGTH ];
     char * pcSource, * pcTarget, * pcBegin;
     size_t xLength, xLength2, rc;
     static BaseType_t xMessageNumber = 0;
-    va_list args;
     uint32_t ulIPAddress;
     const char * pcTaskName;
     const char * pcNoTask = "None";
@@ -289,9 +312,6 @@ void vLoggingPrintf( const char * pcFormat,
         ( xDiskFileLoggingUsed != pdFALSE ) ||
         ( xUDPLoggingUsed != pdFALSE ) )
     {
-        /* There are a variable number of parameters. */
-        va_start( args, pcFormat );
-
         /* Additional info to place at the start of the log. */
         if( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
         {
@@ -302,7 +322,7 @@ void vLoggingPrintf( const char * pcFormat,
             pcTaskName = pcNoTask;
         }
 
-        if( strcmp( pcFormat, "\n" ) != 0 )
+        if( ( strcmp( pcFormat, "\n" ) != 0 ) && ( xFormatted != pdFALSE ) )
         {
             xLength = snprintf( cPrintString, dlMAX_PRINT_STRING_LENGTH, "%lu %lu [%s] ",
                                 xMessageNumber++,
@@ -314,12 +334,21 @@ void vLoggingPrintf( const char * pcFormat,
             xLength = 0;
             memset( cPrintString, 0x00, dlMAX_PRINT_STRING_LENGTH );
         }
-
-        xLength2 = vsnprintf(
-            cPrintString + xLength,
-            dlMAX_PRINT_STRING_LENGTH - xLength,
-            pcFormat,
-            args );
+		if( xArgs != NULL )
+		{
+			xLength2 = vsnprintf(
+	            cPrintString + xLength,
+				dlMAX_PRINT_STRING_LENGTH - xLength,
+				pcFormat,
+				xArgs );
+		}
+		else
+		{
+			xLength2 = snprintf(
+	            cPrintString + xLength,
+				dlMAX_PRINT_STRING_LENGTH - xLength,
+				pcFormat );
+		}
 
         if( xLength2 < 0 )
         {
@@ -329,7 +358,6 @@ void vLoggingPrintf( const char * pcFormat,
         }
 
         xLength += xLength2;
-        va_end( args );
 
         /* For ease of viewing, copy the string into another buffer, converting
          * IP addresses to dot notation on the way. */
@@ -463,13 +491,6 @@ void vLoggingPrintf( const char * pcFormat,
             }
         }
     }
-}
-/*-----------------------------------------------------------*/
-
-void vLoggingPrint( const char * pcMessage )
-{
-    printf( "%s", pcMessage );
-    fflush(stdout);
 }
 /*-----------------------------------------------------------*/
 
