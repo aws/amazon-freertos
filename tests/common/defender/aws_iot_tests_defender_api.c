@@ -43,9 +43,12 @@
 #define _WAIT_STATE_TOTAL_SECONDS             5
 
 /* Time interval for defender agent to publish metrics. It will be throttled if too frequent.
- * TODO: add "retry on throttle logic"
  */
-#define _DEFENDER_PUBLISH_INTERVAL_SECONDS    8
+#define _DEFENDER_PUBLISH_INTERVAL_SECONDS    30
+
+#define _PAYLOAD_MAX_SIZE                     100
+
+#define _METRICS_MAX_SIZE                     200
 
 /* Define a decoder based on chosen format. */
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
@@ -64,19 +67,23 @@ static const AwsIotDefenderCallback_t _EMPTY_CALLBACK = { .function = NULL, .par
 
 /*------------------ global variables -----------------------------*/
 
+static uint8_t _payloadBuffer[ _PAYLOAD_MAX_SIZE ];
+static uint8_t _metricsBuffer[ _METRICS_MAX_SIZE ];
+
 static AwsIotDefenderCallback_t _testCallback;
 
 static AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
-static bool _reportAccepted;
-static bool _reportRejected;
+static AwsIotDefenderCallbackInfo_t _callbackInfo;
 
 /*------------------ functions -----------------------------*/
 
-static bool _waitForMetricsAcceptedWithRetry( uint32_t timeoutSec );
-
 /* Indicate this test doesn't actually publish report. */
 static void _publishMetricsNotNeeded();
+
+static void _waitForMetricsAccepted( uint32_t timeoutSec );
+
+static void _verification();
 
 static void _verifyAcceptedMessage( AwsIotDefenderCallbackInfo_t * const pCallbackInfo );
 
@@ -87,12 +94,13 @@ static void _verifyTcpConections( AwsIotSerializerDecoderObject_t * pMetricsObje
 static void _verifyCallbackFunction( void * param1,
                                      AwsIotDefenderCallbackInfo_t * const pCallbackInfo );
 
+static void _resetCalbackInfo();
+
 TEST_GROUP( Full_DEFENDER );
 
 TEST_SETUP( Full_DEFENDER )
 {
-    _reportAccepted = false;
-    _reportRejected = false;
+    _resetCalbackInfo();
 
     /* Reset test callback. */
     _testCallback = ( AwsIotDefenderCallback_t ) {
@@ -130,7 +138,8 @@ TEST_TEAR_DOWN( Full_DEFENDER )
 {
     AwsIotDefender_Stop();
 
-    if( _reportAccepted || _reportRejected )
+    /* Actually get defender callback. */
+    if( _callbackInfo.eventType != -1 )
     {
         sleep( _DEFENDER_PUBLISH_INTERVAL_SECONDS );
     }
@@ -343,8 +352,9 @@ TEST( Full_DEFENDER, Metrics_empty_are_published )
 
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
-    /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAcceptedWithRetry( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+
+    _verification();
 }
 
 TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published )
@@ -366,7 +376,9 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAcceptedWithRetry( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+
+    _verification();
 }
 
 TEST( Full_DEFENDER, Metrics_TCP_connections_total_are_published )
@@ -388,7 +400,9 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_total_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAcceptedWithRetry( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+
+    _verification();
 }
 
 TEST( Full_DEFENDER, Metrics_TCP_connections_remote_addr_are_published )
@@ -410,7 +424,9 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_remote_addr_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAcceptedWithRetry( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+
+    _verification();
 }
 
 TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
@@ -426,9 +442,14 @@ TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_Start( &_startInfo ) );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAcceptedWithRetry( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+
+    _verification();
 
     AwsIotDefender_Stop();
+
+    /* Reset _callbackInfo before restarting. */
+    _resetCalbackInfo();
 
     sleep( _DEFENDER_PUBLISH_INTERVAL_SECONDS );
 
@@ -439,7 +460,9 @@ TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_Start( &_startInfo ) );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAcceptedWithRetry( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+
+    _verification();
 }
 
 TEST( Full_DEFENDER, SetPeriod_too_short )
@@ -471,16 +494,22 @@ TEST( Full_DEFENDER, SetPeriod_after_started )
 static void _verifyCallbackFunction( void * param1,
                                      AwsIotDefenderCallbackInfo_t * const pCallbackInfo )
 {
-    TEST_ASSERT_NOT_NULL( pCallbackInfo );
-
-    _reportRejected = pCallbackInfo->eventType == AWS_IOT_DEFENDER_METRICS_REJECTED;
-
-    if( pCallbackInfo->eventType == AWS_IOT_DEFENDER_METRICS_ACCEPTED )
+    /* Copy data from pCallbackInfo to _callbackInfo. */
+    if( pCallbackInfo != NULL )
     {
-        _verifyAcceptedMessage( pCallbackInfo );
-        //_verifyMetricsReport( pCallbackInfo );
+        _callbackInfo.eventType = pCallbackInfo->eventType;
+        _callbackInfo.metricsReportLength = pCallbackInfo->metricsReportLength;
+        _callbackInfo.payloadLength = pCallbackInfo->payloadLength;
 
-        _reportAccepted = true;
+        if( _callbackInfo.payloadLength > 0 )
+        {
+            memcpy( ( uint8_t * ) _callbackInfo.pPayload, pCallbackInfo->pPayload, _callbackInfo.payloadLength );
+        }
+
+        if( _callbackInfo.metricsReportLength > 0 )
+        {
+            memcpy( ( uint8_t * ) _callbackInfo.pMetricsReport, pCallbackInfo->pMetricsReport, _callbackInfo.metricsReportLength );
+        }
     }
 }
 
@@ -494,44 +523,59 @@ static void _publishMetricsNotNeeded()
 
 /*-----------------------------------------------------------*/
 
-static bool _waitForMetricsAcceptedWithRetry( uint32_t timeoutSec )
+static void _resetCalbackInfo()
 {
-    uint32_t totalTime = 0;
-    uint8_t retry = 0;
-    uint32_t localMetricsFlag[ _DEFENDER_METRICS_GROUP_COUNT ];
+    /* Clean data buffer. */
+    memset( _payloadBuffer, 0, _PAYLOAD_MAX_SIZE );
+    memset( _metricsBuffer, 0, _METRICS_MAX_SIZE );
 
-    /*_AwsIotDefenderMetrics.metricsFlag */
+    /* Reset callback info. */
+    _callbackInfo = ( AwsIotDefenderCallbackInfo_t ) {
+        .pMetricsReport = _metricsBuffer,
+        .metricsReportLength = 0,
+        .pPayload = _payloadBuffer,
+        .payloadLength = 0,
+        .eventType = -1 /* Initialize to -1 to indicate there is no event. */
+    };
+}
 
-    while( !_reportAccepted )
+/*-----------------------------------------------------------*/
+
+static void _waitForMetricsAccepted( uint32_t timeoutSec )
+{
+    uint32_t maxIterations = timeoutSec / _WAIT_STATE_INTERVAL_SECONDS;
+    uint32_t iter = 1;
+
+    /* Wait for an valid event type to be set. */
+    while( _callbackInfo.eventType != AWS_IOT_DEFENDER_METRICS_ACCEPTED )
     {
-        if( totalTime >= timeoutSec )
+        if( iter > maxIterations )
         {
-            return false;
+            /* Timeout. */
+            break;
         }
 
-        /* TODO: only retry if it is throttle. */
-        if( _reportRejected )
+        /* Event type is not set yet. */
+        if( _callbackInfo.eventType == -1 )
         {
-            retry++;
-
-            memcpy( localMetricsFlag, _AwsIotDefenderMetrics.metricsFlag, sizeof( localMetricsFlag ) );
-            /* Restart defender agent. */
-            AwsIotDefender_Stop();
-            memcpy( _AwsIotDefenderMetrics.metricsFlag, localMetricsFlag, sizeof( localMetricsFlag ) );
-
-            TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_Start( &_startInfo ) );
-
-            totalTime = 0;
-            sleep( _DEFENDER_PUBLISH_INTERVAL_SECONDS * retry );
-        }
-        else
-        {
-            totalTime += _WAIT_STATE_INTERVAL_SECONDS;
             sleep( _WAIT_STATE_INTERVAL_SECONDS );
         }
+        /* An unexpected error event happened. */
+        else
+        {
+            break;
+        }
     }
+}
 
-    return true;
+/*-----------------------------------------------------------*/
+
+static void _verification()
+{
+    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_METRICS_ACCEPTED, _callbackInfo.eventType );
+
+    _verifyAcceptedMessage( &_callbackInfo );
+    _verifyMetricsReport( &_callbackInfo );
 }
 
 /*-----------------------------------------------------------*/
@@ -561,7 +605,7 @@ static void _verifyAcceptedMessage( AwsIotDefenderCallbackInfo_t * const pCallba
 
     TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, statusObject.type );
 
-    TEST_ASSERT_EQUAL( 0, strncmp( statusObject.value.pString, "ACCEPTED", statusObject.value.stringLength));
+    TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) statusObject.value.pString, "ACCEPTED", statusObject.value.stringLength ) );
 }
 
 /*-----------------------------------------------------------*/
