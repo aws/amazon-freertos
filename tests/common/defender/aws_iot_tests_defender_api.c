@@ -44,7 +44,11 @@
 
 /* Time interval for defender agent to publish metrics. It will be throttled if too frequent.
  */
-#define _DEFENDER_PUBLISH_INTERVAL_SECONDS    20
+#define _DEFENDER_PUBLISH_INTERVAL_SECONDS    30
+
+#define _PAYLOAD_MAX_SIZE                     100
+
+#define _METRICS_MAX_SIZE                     200
 
 /* Define a decoder based on chosen format. */
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
@@ -63,15 +67,14 @@ static const AwsIotDefenderCallback_t _EMPTY_CALLBACK = { .function = NULL, .par
 
 /*------------------ global variables -----------------------------*/
 
+static uint8_t _payloadBuffer[ _PAYLOAD_MAX_SIZE ];
+static uint8_t _metricsBuffer[ _METRICS_MAX_SIZE ];
+
 static AwsIotDefenderCallback_t _testCallback;
 
 static AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
-static AwsIotDefenderCallbackInfo_t _callbackInfo =
-{
-    0,
-    .eventType = -1 /* Initialize with an invalid event type. */
-};
+static AwsIotDefenderCallbackInfo_t _callbackInfo;
 
 /*------------------ functions -----------------------------*/
 
@@ -97,6 +100,8 @@ TEST_GROUP( Full_DEFENDER );
 
 TEST_SETUP( Full_DEFENDER )
 {
+    _resetCalbackInfo();
+
     /* Reset test callback. */
     _testCallback = ( AwsIotDefenderCallback_t ) {
         .function = _verifyCallbackFunction, .param1 = NULL
@@ -138,8 +143,6 @@ TEST_TEAR_DOWN( Full_DEFENDER )
     {
         sleep( _DEFENDER_PUBLISH_INTERVAL_SECONDS );
     }
-
-    _resetCalbackInfo();
 }
 
 TEST_GROUP_RUNNER( Full_DEFENDER )
@@ -491,7 +494,7 @@ TEST( Full_DEFENDER, SetPeriod_after_started )
 static void _verifyCallbackFunction( void * param1,
                                      AwsIotDefenderCallbackInfo_t * const pCallbackInfo )
 {
-    /* Copy and malloc data from pCallbackInfo to _callbackInfo. */
+    /* Copy data from pCallbackInfo to _callbackInfo. */
     if( pCallbackInfo != NULL )
     {
         _callbackInfo.eventType = pCallbackInfo->eventType;
@@ -500,19 +503,11 @@ static void _verifyCallbackFunction( void * param1,
 
         if( _callbackInfo.payloadLength > 0 )
         {
-            _callbackInfo.pPayload = AwsIotTest_Malloc( _callbackInfo.payloadLength );
-
-            TEST_ASSERT_NOT_NULL( _callbackInfo.pPayload );
-
             memcpy( ( uint8_t * ) _callbackInfo.pPayload, pCallbackInfo->pPayload, _callbackInfo.payloadLength );
         }
 
         if( _callbackInfo.metricsReportLength > 0 )
         {
-            _callbackInfo.pMetricsReport = AwsIotTest_Malloc( _callbackInfo.metricsReportLength );
-
-            TEST_ASSERT_NOT_NULL( _callbackInfo.pMetricsReport );
-
             memcpy( ( uint8_t * ) _callbackInfo.pMetricsReport, pCallbackInfo->pMetricsReport, _callbackInfo.metricsReportLength );
         }
     }
@@ -530,12 +525,17 @@ static void _publishMetricsNotNeeded()
 
 static void _resetCalbackInfo()
 {
-    AwsIotTest_Free( ( uint8_t * ) _callbackInfo.pPayload );
-    AwsIotTest_Free( ( uint8_t * ) _callbackInfo.pMetricsReport );
+    /* Clean data buffer. */
+    memset( _payloadBuffer, 0, _PAYLOAD_MAX_SIZE );
+    memset( _metricsBuffer, 0, _METRICS_MAX_SIZE );
 
+    /* Reset callback info. */
     _callbackInfo = ( AwsIotDefenderCallbackInfo_t ) {
-        0,
-        .eventType = -1
+        .pMetricsReport = _metricsBuffer,
+        .metricsReportLength = 0,
+        .pPayload = _payloadBuffer,
+        .payloadLength = 0,
+        .eventType = -1 /* Initialize to -1 to indicate there is no event. */
     };
 }
 
@@ -605,7 +605,7 @@ static void _verifyAcceptedMessage( AwsIotDefenderCallbackInfo_t * const pCallba
 
     TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, statusObject.type );
 
-    TEST_ASSERT_EQUAL( 0, strncmp( statusObject.value.pString, "ACCEPTED", statusObject.value.stringLength ) );
+    TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) statusObject.value.pString, "ACCEPTED", statusObject.value.stringLength ) );
 }
 
 /*-----------------------------------------------------------*/
