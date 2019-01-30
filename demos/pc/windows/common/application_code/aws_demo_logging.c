@@ -118,7 +118,7 @@ static void prvCreatePrintSocket( void * pvParameter1,
  * A Windows thread will finally call printf() and fflush().
  */
 
-static int prvLoggingPrintf( BaseType_t xFormatted, const char *pcFormat, va_list xArgs );
+static void prvLoggingPrintf( BaseType_t xFormatted, const char *pcFormat, va_list xArgs );
 
 /*-----------------------------------------------------------*/
 
@@ -293,7 +293,7 @@ void vLoggingPrint( const char * pcFormat )
 }
 /*-----------------------------------------------------------*/
 
-static int prvLoggingPrintf( BaseType_t xFormatted,
+static void prvLoggingPrintf( BaseType_t xFormatted,
 							 const char *pcFormat,
 							 va_list xArgs )
 {
