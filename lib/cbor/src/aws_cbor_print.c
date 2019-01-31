@@ -49,7 +49,7 @@ static char * CBOR_CatKeyValue( char * pcStr,
  *
  * @note str will get reallocated if there is insufficient space for the key.
  *
- * Reads the key from the CBOR structure and concatonates it to the str.  It
+ * Reads the key from the CBOR structure and concatenates it to the str.  It
  * will also append a ":".
  *
  * @param  str       Destination string
@@ -95,7 +95,7 @@ static char * CBOR_IntAsString( CBORHandle_t xCborData );
  * space.
  *
  * @param  dest Pointer to destination string.
- * @note The dest pointer may be eallocated, so the user must use the returned
+ * @note The dest pointer may be reallocated, so the user must use the returned
  *     pointer
  * @param  src  [description]
  * @param  len  [description]

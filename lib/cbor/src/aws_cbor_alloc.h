@@ -30,7 +30,7 @@
 /**
  * @file
  *
- * Function pointers to allocators for compatability with some embedded
+ * Function pointers to allocators for compatibility with some embedded
  * platforms and RTOSes (e.g. FreeRTOS).
  *
  * @code
