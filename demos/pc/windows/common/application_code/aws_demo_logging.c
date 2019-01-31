@@ -466,10 +466,13 @@ void vLoggingPrintf( const char * pcFormat,
 }
 /*-----------------------------------------------------------*/
 
+/* On the Windows Simulator platform, this wrapper function must still call 
+into the logging thread, above. Otherwise, we're making a Win32 call directly
+from a FreeRTOS task, which can block and result in the FreeRTOS scheduler 
+being bypassed. */
 void vLoggingPrint( const char * pcMessage )
 {
-    printf( "%s", pcMessage );
-    fflush(stdout);
+    vLoggingPrintf( pcMessage );
 }
 /*-----------------------------------------------------------*/
 
