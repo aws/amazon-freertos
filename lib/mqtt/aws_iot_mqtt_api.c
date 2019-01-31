@@ -2249,10 +2249,12 @@ AwsIotMqttError_t AwsIotMqtt_Wait( AwsIotMqttReference_t reference,
                 status = AWS_IOT_MQTT_TIMEOUT;
 
                 /* A timed out operation may still pending a network response. */
+                AwsIotMutex_Lock(&_IotMqttPendingResponseMutex);
                 ( void ) IotListDouble_RemoveFirstMatch( &( _IotMqttPendingResponse ),
                                                          NULL,
                                                          NULL,
                                                          pOperation );
+                AwsIotMutex_Unlock(&_IotMqttPendingResponseMutex);
             }
             else
             {

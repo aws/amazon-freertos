@@ -160,6 +160,21 @@
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/bluetooth_low_energy/services</locationURI>
 		</link>
+		<link>
+			<name>lib/aws/ota/aws_iot_ota_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/ota/aws_iot_ota_agent.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/ota/aws_ota_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_agent.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/ota/aws_ota_cbor.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_cbor.c</locationURI>
+		</link>
 	</linkedResources>
 	<filteredResources>
 		<filter>

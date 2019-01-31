@@ -5,6 +5,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/shadow \
         $(AMAZON_FREERTOS_LIB_DIR)/greengrass \
         $(AMAZON_FREERTOS_LIB_DIR)/utils \
+        $(AMAZON_FREERTOS_LIB_DIR)/utils/taskpool \
         $(AMAZON_FREERTOS_LIB_DIR)/common \
         $(AMAZON_FREERTOS_LIB_DIR)/utils/platform \
         $(AMAZON_FREERTOS_LIB_DIR)/bufferpool \
