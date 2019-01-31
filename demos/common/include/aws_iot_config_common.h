@@ -197,4 +197,8 @@
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
 #define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 1 )
 
+/* Task pool configuration. */
+#define AWS_IOT_TASKPOOL_THREADS_STACK_SIZE ( 5 * configMINIMAL_STACK_SIZE )
+#define AWS_IOT_TASKPOOL_THREADS_PRIORITY ( 6 )
+
 #endif /* ifndef _AWS_IOT_CONFIG_COMMON_H_ */

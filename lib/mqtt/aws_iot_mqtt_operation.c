@@ -35,6 +35,8 @@
 /* MQTT internal include. */
 #include "private/aws_iot_mqtt_internal.h"
 
+#include "aws_iot_taskpool.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -107,7 +109,7 @@ static void _invokeCallback( _mqttOperation_t * const pOperation );
  * @param[in] pArgument The address of either #_IotMqttCallback (to invoke a user
  * callback) or #_IotMqttSend (to send an MQTT packet).
  */
-static void _processOperation( void * pArgument );
+static void _processOperation( AwsIotTaskPool_t * pTaskPool, AwsIotTaskPoolJob_t * pJob, void * pArgument );
 
 /*-----------------------------------------------------------*/
 
@@ -391,7 +393,7 @@ static void _invokeCallback( _mqttOperation_t * const pOperation )
 
 /*-----------------------------------------------------------*/
 
-static void _processOperation( void * pArgument )
+static void _processOperation( AwsIotTaskPool_t * pTaskPool, AwsIotTaskPoolJob_t * pJob, void * pArgument )
 {
     _mqttOperation_t * pOperation = NULL;
     _mqttOperationQueue_t * pQueue = ( _mqttOperationQueue_t * ) pArgument;
@@ -448,6 +450,9 @@ static void _processOperation( void * pArgument )
             _invokeSend( pOperation );
         }
     }
+
+    AwsIotTaskPool_DestroyJob(pJob);
+    vPortFree(pJob);
 
     AwsIotLogDebug( "No more pending operations. Terminating MQTT processing thread." );
 }
@@ -607,6 +612,18 @@ AwsIotMqttError_t AwsIotMqttInternal_EnqueueOperation( _mqttOperation_t * const 
                                                        _mqttOperationQueue_t * const pQueue )
 {
     AwsIotMqttError_t status = AWS_IOT_MQTT_SUCCESS;
+    AwsIotTaskPoolError_t taskPoolStatus = AWS_IOT_TASKPOOL_SUCCESS;
+
+    AwsIotTaskPoolJob_t * pJob = pvPortMalloc( sizeof(AwsIotTaskPoolJob_t));
+    
+    if( pJob == NULL )
+    {
+        return AWS_IOT_MQTT_NO_MEMORY;
+    }
+
+    /* Create task pool job. This should never fail when parameters are valid. */
+    taskPoolStatus = AwsIotTaskPool_CreateJob(_processOperation, pQueue, pJob );
+    AwsIotMqtt_Assert( taskPoolStatus == AWS_IOT_TASKPOOL_SUCCESS );
 
     /* The given operation must not already be queued. */
     AwsIotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) == false );
@@ -624,16 +641,9 @@ AwsIotMqttError_t AwsIotMqttInternal_EnqueueOperation( _mqttOperation_t * const 
     /* Check if a new thread can be created. */
     if( AwsIotSemaphore_TryWait( &( pQueue->availableThreads ) ) == true )
     {
-        /* Create new thread. */
-        if( AwsIot_CreateDetachedThread( _processOperation,
-                                         pQueue ) == false )
-        {
-            /* New thread could not be created. Remove enqueued operation and
-             * report error. */
-            IotQueue_Remove( &( pOperation->link ) );
-            AwsIotSemaphore_Post( &( pQueue->availableThreads ) );
-            status = AWS_IOT_MQTT_NO_MEMORY;
-        }
+        /* Schedule job. This should never fail when parameters are valid. */
+        taskPoolStatus = AwsIotTaskPool_Schedule( AWS_IOT_TASKPOOL_SYSTEM_TASKPOOL, pJob );
+        AwsIotMqtt_Assert( taskPoolStatus == AWS_IOT_TASKPOOL_SUCCESS );
     }
 
     AwsIotMutex_Unlock( &( _IotMqttQueueMutex ) );
