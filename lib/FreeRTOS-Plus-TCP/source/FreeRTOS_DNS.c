@@ -809,25 +809,17 @@ static uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen )
 
 uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
-uint8_t *pucUDPPayloadBuffer;
-size_t xPlayloadBufferLength;
 DNSMessage_t *pxDNSMessageHeader;
 
-	xPlayloadBufferLength = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
-	if ( xPlayloadBufferLength < sizeof( DNSMessage_t ) )
-	{
-		return pdFAIL;
-	}
+    if( pxNetworkBuffer->xDataLength >= sizeof( DNSMessage_t ) )
+    {
+        pxDNSMessageHeader = 
+            ( DNSMessage_t * )( pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t ) );
 
-	pucUDPPayloadBuffer = pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t );
-	pxDNSMessageHeader = ( DNSMessage_t * ) pucUDPPayloadBuffer;
-
-	if( pxNetworkBuffer->xDataLength > sizeof( UDPPacket_t ) )
-	{
-		prvParseDNSReply( pucUDPPayloadBuffer,
-			xPlayloadBufferLength,
-			( uint32_t )pxDNSMessageHeader->usIdentifier );
-	}
+        prvParseDNSReply( ( uint8_t * )pxDNSMessageHeader,
+                          pxNetworkBuffer->xDataLength,
+                          ( uint32_t )pxDNSMessageHeader->usIdentifier );
+    }
 
 	/* The packet was not consumed. */
 	return pdFAIL;
@@ -841,12 +833,11 @@ DNSMessage_t *pxDNSMessageHeader;
 	UDPPacket_t *pxUDPPacket = ( UDPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
 	uint8_t *pucUDPPayloadBuffer = pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t );
 
-		if( pxNetworkBuffer->xDataLength > sizeof( UDPPacket_t) )
-		{
-			prvTreatNBNS( pucUDPPayloadBuffer,
-						  pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t ),
-						  pxUDPPacket->xIPHeader.ulSourceIPAddress );
-		}
+        /* The network buffer data length has already been set to the 
+        length of the UDP payload. */
+		prvTreatNBNS( pucUDPPayloadBuffer,
+						pxNetworkBuffer->xDataLength,
+						pxUDPPacket->xIPHeader.ulSourceIPAddress );
 
 		/* The packet was not consumed. */
 		return pdFAIL;
