@@ -146,10 +146,27 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
  */
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
 
+/*
+ * \brief Searches for an object with a matching label and class provided.
+ *
+ *   \param[in]  xSession       An open PKCS #11 session.
+ *   \param[in]  pcLabelName    A pointer to the object's label (CKA_LABEL).
+ *   \param[in]  xClass         The class (CKA_CLASS) of the object.
+ *                              ex: CKO_PUBLIC_KEY, CKO_PRIVATE_KEY, CKO_CERTIFICATE
+ *   \param[out] pxHandle       Pointer to the location where the handle of
+ *                              the found object should be placed.
+ *
+ * \note If no matching object is found, pxHandle will point
+ * to an object with handle 0 (Invalid Object Handle).
+ *
+ * \note This function assumes that there is only one
+ * object that meets the CLASS/LABEL criteria.
+ */
 
-CK_RV xFindObjectWithLabel( CK_SESSION_HANDLE xSession,
-                            const char * pcLabelName,
-                            CK_OBJECT_HANDLE_PTR pxHandle );
+CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
+                                    const char * pcLabelName,
+                                    CK_OBJECT_CLASS xClass,
+                                    CK_OBJECT_HANDLE_PTR pxHandle );
 
 
 #endif /* ifndef _AWS_PKCS11_H_ */

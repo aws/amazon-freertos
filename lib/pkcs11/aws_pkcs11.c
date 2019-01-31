@@ -96,8 +96,8 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
 
 /*-----------------------------------------------------------*/
 #ifdef CreateMutex
-#undef CreateMutex
-#define CreateMutex    CreateMutex   /* This is a hack because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
+    #undef CreateMutex
+    #define CreateMutex    CreateMutex /* This is a hack because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
 #endif
 
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
@@ -169,25 +169,27 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
  *   the object handle value is not equal to 0 (the invalid handle)
  *   before attempting to use the handle.
  */
-CK_RV xFindObjectWithLabel( CK_SESSION_HANDLE xSession,
-                            const char * pcLabelName,
-                            CK_OBJECT_HANDLE_PTR pxHandle )
+CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
+                                    const char * pcLabelName,
+                                    CK_OBJECT_CLASS xClass,
+                                    CK_OBJECT_HANDLE_PTR pxHandle )
 {
-    CK_ATTRIBUTE xTemplate;
     CK_RV xResult = CKR_OK;
     CK_ULONG ulCount = 0;
     CK_BBOOL xFindInit = CK_FALSE;
     CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_ATTRIBUTE xTemplate[ 2 ] =
+    {
+        { CKA_LABEL, pcLabelName, strlen( pcLabelName ) + 1 },
+        { CKA_CLASS, &xClass,     sizeof( CK_OBJECT_CLASS ) }
+    };
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
     /* Get the certificate handle. */
     if( 0 == xResult )
     {
-        xTemplate.type = CKA_LABEL;
-        xTemplate.ulValueLen = strlen( pcLabelName ) + 1;
-        xTemplate.pValue = ( char * ) pcLabelName;
-        xResult = pxFunctionList->C_FindObjectsInit( xSession, &xTemplate, 1 );
+        xResult = pxFunctionList->C_FindObjectsInit( xSession, xTemplate, sizeof( xTemplate ) / sizeof( CK_ATTRIBUTE ) );
     }
 
     if( 0 == xResult )

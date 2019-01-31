@@ -399,31 +399,35 @@ void prvFindObjectTest( void )
     CK_OBJECT_HANDLE xTestObjectHandle;
 
     /* Happy Path - Find a previously created object. */
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                    &xPrivateKeyHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            CKO_PRIVATE_KEY,
+                                            &xPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find private key after closing and reopening a session." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle found for  private key." );
 
     /*         TODO: Add the code sign key and root ca. */
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                                    &xPublicKeyHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                            CKO_PUBLIC_KEY,
+                                            &xPublicKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find public key after closing and reopening a session." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPublicKeyHandle, "Invalid object handle found for public key key." );
 
 
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                    &xCertificateHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                            CKO_CERTIFICATE,
+                                            &xCertificateHandle );
 
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find certificate after closing and reopening a session." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for certificate." );
 
     /* Try to find an object that has never been created. */
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    "This label doesn't exist",
-                                    &xTestObjectHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            "This label doesn't exist",
+                                            CKO_PUBLIC_KEY,
+                                            &xTestObjectHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Incorrect error code finding object that doesn't exist" );
     TEST_ASSERT_EQUAL_MESSAGE( pkcs11INVALID_OBJECT_HANDLE, xTestObjectHandle, "Incorrect error code finding object that doesn't exist" );
 
@@ -431,24 +435,27 @@ void prvFindObjectTest( void )
     xCurrentCredentials = eStateUnknown;
     xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error destroying private key" );
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                    &xPrivateKeyHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            CKO_PRIVATE_KEY,
+                                            &xPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failure searching for destroyed object." );
     TEST_ASSERT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Object found after it was destroyed." );
 
     /* Make sure the certificate can still be found. */
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                    &xCertificateHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                            CKO_CERTIFICATE,
+                                            &xCertificateHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find certificate after destroying private key." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for certificate." );
 
     xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xCertificateHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error destroying public key" );
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                    &xPrivateKeyHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                            CKO_CERTIFICATE,
+                                            &xPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failure searching for destroyed object." );
     TEST_ASSERT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Object found after it was destroyed." );
 }
@@ -1041,11 +1048,11 @@ void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
     }
     else
     {
-        xResult = xFindObjectWithLabel( xGlobalSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxPrivateKeyHandle );
+        xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, pxPrivateKeyHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA private key." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, pxPrivateKeyHandle, "Invalid object handle found for RSA private key." );
 
-        xResult = xFindObjectWithLabel( xGlobalSession, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, pxCertificateHandle );
+        xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_CERTIFICATE, pxCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA certificate." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, pxCertificateHandle, "Invalid object handle found for RSA certificate." );
     }
@@ -1071,17 +1078,19 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectFindObject )
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
 
     /* Find the newly created private key. */
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                    &xFoundPrivateKeyHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            CKO_PRIVATE_KEY,
+                                            &xFoundPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA private key." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xFoundPrivateKeyHandle, "Invalid object handle found for RSA private key." );
     TEST_ASSERT_EQUAL_MESSAGE( xPrivateKeyHandle, xFoundPrivateKeyHandle, "Private key handle found does not match private key handle created." );
 
     /* Find the newly created certificate. */
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                    &xFoundCertificateHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                            CKO_CERTIFICATE,
+                                            &xFoundCertificateHandle );
 
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA certificate." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for RSA certificate." );
@@ -1091,15 +1100,17 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectFindObject )
     xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
     xResult = xInitializePkcs11Session( &xGlobalSession );
 
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                    &xFoundPrivateKeyHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            CKO_PRIVATE_KEY,
+                                            &xFoundPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA private key after closing and reopening a session." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xFoundPrivateKeyHandle, "Invalid object handle found for RSA private key." );
 
-    xResult = xFindObjectWithLabel( xGlobalSession,
-                                    pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                    &xFoundCertificateHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession,
+                                            pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                            CKO_CERTIFICATE,
+                                            &xFoundCertificateHandle );
 
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA certificate after closing and reopening a session." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for RSA certificate." );
@@ -1391,15 +1402,15 @@ void prvProvisionEcTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
     }
     else
     {
-        xResult = xFindObjectWithLabel( xGlobalSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxPrivateKeyHandle );
+        xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, pxPrivateKeyHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find EC private key." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, *pxPrivateKeyHandle, "Invalid object handle found for EC private key." );
 
-        xResult = xFindObjectWithLabel( xGlobalSession, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, pxCertificateHandle );
+        xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_CERTIFICATE, pxCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find EC certificate." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, *pxCertificateHandle, "Invalid object handle found for EC certificate." );
 
-        xResult = xFindObjectWithLabel( xGlobalSession, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxPublicKeyHandle );
+        xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, pxPublicKeyHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find EC public key." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, *pxPublicKeyHandle, "Invalid object handle found for EC public key." );
     }
@@ -1927,7 +1938,7 @@ static void prvFindObjectMultiThreadTask( void * pvParameters )
     for( xCount = 0; xCount < pkcs11testMULTI_THREAD_LOOP_COUNT; xCount++ )
     {
         configPRINTF( ( "Count %d \r\n", xCount ) );
-        xResult = xFindObjectWithLabel( xSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, &xHandle );
+        xResult = xFindObjectWithLabelAndClass( xSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xHandle );
 
         if( xResult != CKR_OK )
         {
@@ -1941,7 +1952,7 @@ static void prvFindObjectMultiThreadTask( void * pvParameters )
             break;
         }
 
-        xResult = xFindObjectWithLabel( xSession, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xHandle );
+        xResult = xFindObjectWithLabelAndClass( xSession, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_CERTIFICATE, &xHandle );
 
         if( xResult != CKR_OK )
         {
@@ -2059,8 +2070,8 @@ static void prvECGetAttributeValueMultiThreadTask( void * pvParameters )
 
     memcpy( &xSession, pxMultiTaskParam->pvTaskData, sizeof( CK_SESSION_HANDLE ) );
 
-    xResult = xFindObjectWithLabel( xSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, &xPrivateKey );
-    xResult = xFindObjectWithLabel( xSession, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xCertificate );
+    xResult = xFindObjectWithLabelAndClass( xSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xPrivateKey );
+    xResult = xFindObjectWithLabelAndClass( xSession, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_CERTIFICATE, &xCertificate );
 
     for( xCount = 0; xCount < pkcs11testMULTI_THREAD_LOOP_COUNT; xCount++ )
     {

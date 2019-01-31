@@ -481,9 +481,10 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     }
 
     /* Get the handle of the device private key. */
-    xResult = xFindObjectWithLabel( pxCtx->xP11Session,
-                                    pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                    &pxCtx->xP11PrivateKey );
+    xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
+                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            CKO_PRIVATE_KEY,
+                                            &pxCtx->xP11PrivateKey );
 
     if( pxCtx->xP11PrivateKey == pkcs11INVALID_OBJECT_HANDLE )
     {
@@ -531,9 +532,10 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     if( xResult == CKR_OK )
     {
         /* Get the handle of the device client certificate. */
-        xResult = xFindObjectWithLabel( pxCtx->xP11Session,
-                                        pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                        &xCertObj );
+        xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
+                                                pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                                CKO_CERTIFICATE,
+                                                &xCertObj );
     }
 
     if( xCertObj == pkcs11INVALID_OBJECT_HANDLE )

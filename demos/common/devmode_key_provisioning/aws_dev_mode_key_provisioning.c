@@ -623,15 +623,24 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
         pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
         pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
     };
+    CK_OBJECT_CLASS xClass[] =
+    {
+        CKO_CERTIFICATE,
+        CKO_PUBLIC_KEY,
+        CKO_PRIVATE_KEY,
+        CKO_PUBLIC_KEY
+    };
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
     for( int i = 0; i < 4; i++ )
     {
         pxLabel = pxPkcsLabels[ i ];
-        xResult = xFindObjectWithLabel( xSession,
-                                        pxLabel,
-                                        &xObjectHandle );
+
+        xResult = xFindObjectWithLabelAndClass( xSession,
+                                                pxLabel,
+                                                xClass[ i ],
+                                                &xObjectHandle );
 
         if( ( xResult == CKR_OK ) && ( xObjectHandle != pkcs11INVALID_OBJECT_HANDLE ) )
         {
@@ -639,9 +648,10 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
             {
                 xResult = pxFunctionList->C_DestroyObject( xSession, xObjectHandle );
 
-                xResult = xFindObjectWithLabel( xSession,
-                                                pxLabel,
-                                                &xObjectHandle );
+                xResult = xFindObjectWithLabelAndClass( xSession,
+                                                        pxLabel,
+                                                        xClass[ i ],
+                                                        &xObjectHandle );
             }
         }
     }
