@@ -615,10 +615,15 @@ AwsIotMqttError_t AwsIotMqttInternal_EnqueueOperation( _mqttOperation_t * const 
     AwsIotTaskPoolError_t taskPoolStatus = AWS_IOT_TASKPOOL_SUCCESS;
 
     AwsIotTaskPoolJob_t * pJob = pvPortMalloc( sizeof(AwsIotTaskPoolJob_t));
-    AwsIotMqtt_Assert(pJob!=NULL);
+    
+    if( pJob == NULL )
+    {
+        return AWS_IOT_MQTT_NO_MEMORY;
+    }
 
+    /* Create task pool job. This should never fail when parameters are valid. */
     taskPoolStatus = AwsIotTaskPool_CreateJob(_processOperation, pQueue, pJob );
-
+    AwsIotMqtt_Assert( taskPoolStatus == AWS_IOT_TASKPOOL_SUCCESS );
 
     /* The given operation must not already be queued. */
     AwsIotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) == false );
@@ -636,7 +641,9 @@ AwsIotMqttError_t AwsIotMqttInternal_EnqueueOperation( _mqttOperation_t * const 
     /* Check if a new thread can be created. */
     if( AwsIotSemaphore_TryWait( &( pQueue->availableThreads ) ) == true )
     {
-        AwsIotTaskPool_Schedule( AWS_IOT_TASKPOOL_SYSTEM_TASKPOOL, pJob );
+        /* Schedule job. This should never fail when parameters are valid. */
+        taskPoolStatus = AwsIotTaskPool_Schedule( AWS_IOT_TASKPOOL_SYSTEM_TASKPOOL, pJob );
+        AwsIotMqtt_Assert( taskPoolStatus == AWS_IOT_TASKPOOL_SUCCESS );
     }
 
     AwsIotMutex_Unlock( &( _IotMqttQueueMutex ) );
