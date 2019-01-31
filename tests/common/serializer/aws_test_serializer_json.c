@@ -105,7 +105,7 @@ TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
     TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL,
                        _encoder.closeContainer( &encoderObject, &arrayObject ) );
 
-    /* Needed 4 bytes for integer 1 (over-calcualted). */
+    /* Needed 4 bytes for integer 1 (over-calculated). */
     TEST_ASSERT_EQUAL( 6, _encoder.getExtraBufferSizeNeeded( &encoderObject ) );
 
     _encoder.destroy( &encoderObject );
