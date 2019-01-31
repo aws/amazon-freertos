@@ -34,95 +34,8 @@
 #include <windows.h>
 
 
-/* Threading mutex implementations for SoftHSM */
-#include "mbedtls/threading.h"
-#include "threading_alt.h"
 
-/**
-* @brief Implementation of mbedtls_mutex_init for thread-safety.
-*
-*/
-void aws_mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex )
-{
-    if ( mutex->is_valid != 1 )
-    {
-        mutex->mutex = xSemaphoreCreateMutex();
 
-        if ( mutex->mutex != NULL )
-        {
-            mutex->is_valid = 1;
-        }
-        else
-        {
-            //PKCS11_PRINT( ("Failed to initialize mbedTLS mutex.\r\n") );
-        }
-    }
-}
-
-/**
-* @brief Implementation of mbedtls_mutex_free for thread-safety.
-*
-*/
-void aws_mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex )
-{
-    if ( mutex->is_valid == 1 )
-    {
-        vSemaphoreDelete( mutex->mutex );
-        mutex->is_valid = 0;
-    }
-}
-
-/**
-* @brief Implementation of mbedtls_mutex_lock for thread-safety.
-*
-* @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
-* MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
-*/
-int aws_mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex )
-{
-    int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
-
-    if ( mutex->is_valid == 1 )
-    {
-        if ( xSemaphoreTake( mutex->mutex, portMAX_DELAY ) )
-        {
-            ret = 0;
-        }
-        else
-        {
-            ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
-            //PKCS11_PRINT( ("Failed to obtain mbedTLS mutex.\r\n") );
-        }
-    }
-
-    return ret;
-}
-
-/**
-* @brief Implementation of mbedtls_mutex_unlock for thread-safety.
-*
-* @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
-* MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
-*/
-int aws_mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex )
-{
-    int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
-
-    if ( mutex->is_valid == 1 )
-    {
-        if ( xSemaphoreGive( mutex->mutex ) )
-        {
-            ret = 0;
-        }
-        else
-        {
-            ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
-            //PKCS11_PRINT( ("Failed to unlock mbedTLS mutex.\r\n") );
-        }
-    }
-
-    return ret;
-}
 
 typedef CK_RV(__stdcall * getFunctionListDll)(CK_FUNCTION_LIST_PTR_PTR);
 
@@ -141,15 +54,6 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetFunctionList)(CK_FUNCTION_LIST_PTR_PTR ppxFunctio
     {
         return CKR_FUNCTION_FAILED;
     }
-
-    /* Ensure that the FreeRTOS heap is used. */
-    CRYPTO_ConfigureHeap();
-
-    /* Configure mbedtls to use FreeRTOS mutexes. */
-    mbedtls_threading_set_alt( aws_mbedtls_mutex_init,
-        aws_mbedtls_mutex_free,
-        aws_mbedtls_mutex_lock,
-        aws_mbedtls_mutex_unlock );
 
     return pFunc(ppxFunctionList);
 }

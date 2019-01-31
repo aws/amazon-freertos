@@ -153,8 +153,10 @@ TEST_SETUP( Full_PKCS11_NoObject )
     #endif
     CK_RV xResult;
 
-    xResult = xInitializePkcs11Session( &xGlobalSession ); /*TODO: update to take a slot*/
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 session." );
+    xResult = xInitializePKCS11();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
+    xResult = xInitializePkcs11Session( &xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
 }
 
 TEST_TEAR_DOWN( Full_PKCS11_NoObject )
@@ -197,8 +199,10 @@ TEST_SETUP( Full_PKCS11_RSA )
     #endif
 
     CK_RV xResult;
+    xResult = xInitializePKCS11();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
     xResult = xInitializePkcs11Session( &xGlobalSession );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 session." );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
 }
 
 TEST_TEAR_DOWN( Full_PKCS11_RSA )
@@ -243,9 +247,10 @@ TEST_SETUP( Full_PKCS11_EC )
     #endif
 
     CK_RV xResult;
-
+    xResult = xInitializePKCS11();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
     xResult = xInitializePkcs11Session( &xGlobalSession );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 session." );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
 }
 
 TEST_TEAR_DOWN( Full_PKCS11_EC )
@@ -854,11 +859,10 @@ TEST( Full_PKCS11_NoObject, AFQP_GenerateRandom )
         if( NULL != pxGlobalFunctionList )
         {
             ( void ) pxGlobalFunctionList->C_CloseSession( xGlobalSession );
-            ( void ) pxGlobalFunctionList->C_Finalize( NULL );
         }
     }
 
-    /* Re-initialize PKCS #11. */
+    /* Re-open PKCS #11 session. */
     xResult = xInitializePkcs11Session( &xGlobalSession );
 
     if( CKR_OK == xResult )

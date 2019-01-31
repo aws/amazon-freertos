@@ -100,12 +100,10 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
     #define CreateMutex    CreateMutex /* This is a hack because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
 #endif
 
-CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
+CK_RV xInitializePKCS11( void )
 {
     CK_RV xResult;
-    CK_SLOT_ID * pxSlotId;
     CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_ULONG xSlotCount;
     CK_C_INITIALIZE_ARGS xInitArgs;
 
     xInitArgs.CreateMutex = NULL;
@@ -119,10 +117,22 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
     xResult = C_GetFunctionList( &pxFunctionList );
 
     /* Initialize the PKCS #11 module. */
-    if( xResult == CKR_OK )
+    if ( xResult == CKR_OK )
     {
         xResult = pxFunctionList->C_Initialize( &xInitArgs );
     }
+
+    return xResult;
+}
+
+CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
+{
+    CK_RV xResult;
+    CK_SLOT_ID * pxSlotId;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_ULONG xSlotCount;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
 
     /* Get a list of slots available. */
     if( ( xResult == CKR_OK ) || ( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED ) )
@@ -180,7 +190,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_ATTRIBUTE xTemplate[ 2 ] =
     {
-        { CKA_LABEL, pcLabelName, strlen( pcLabelName ) + 1 },
+        { CKA_LABEL, (char *) pcLabelName, strlen( pcLabelName ) + 1 },
         { CKA_CLASS, &xClass,     sizeof( CK_OBJECT_CLASS ) }
     };
 

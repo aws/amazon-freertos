@@ -37,6 +37,11 @@
 #define cryptoSHA256_DIGEST_BYTES    32
 
 /**
+ * @brief Initializes the heap and threading functions for cryptography libraries.
+ */
+void CRYPTO_Init( void );
+
+/**
  * @brief Configures crypto library heap callouts so that the FreeRTOS heap is
  * used instead of the C runtime heap. Skipping this call is likely to cause
  * runtime memory corruption in the application.

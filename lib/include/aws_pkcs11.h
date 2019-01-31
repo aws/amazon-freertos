@@ -136,6 +136,8 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
 
 #define pkcs11DER_ENCODED_OID_P256     { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
 
+CK_RV xInitializePKCS11( void );
+
 /* \brief Initializes the PKCS #11 module and opens a session.
  *
  * \param[out]     pxSession   Pointer to the PKCS #11 session handle

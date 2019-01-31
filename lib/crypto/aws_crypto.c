@@ -40,6 +40,10 @@
 /* C runtime includes. */
 #include <string.h>
 
+/* Threading mutex implementations for SoftHSM */
+#include "mbedtls/threading.h"
+#include "threading_alt.h"
+
 /**
  * @brief Internal signature verification context structure
  */
@@ -144,9 +148,109 @@ static BaseType_t prvVerifySignature( char * pcSignerCertificate,
 void CRYPTO_ConfigureHeap( void )
 {
     /*
-     * Ensure that the FreeRTOS heap is used
+     * Ensure that the FreeRTOS heap is used.
      */
     mbedtls_platform_set_calloc_free( prvCalloc, vPortFree ); /*lint !e534 This function always return 0. */
+}
+
+
+/* Threading mutex implementations for mbedTLS. */
+#include "mbedtls/threading.h"
+#include "threading_alt.h"
+
+/**
+ * @brief Implementation of mbedtls_mutex_init for thread-safety.
+ *
+ */
+void aws_mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex )
+{
+    if( mutex->is_valid != 1 )
+    {
+        mutex->mutex = xSemaphoreCreateMutex();
+
+        if( mutex->mutex != NULL )
+        {
+            mutex->is_valid = 1;
+        }
+        else
+        {
+            /*PKCS11_PRINT( ("Failed to initialize mbedTLS mutex.\r\n") ); */
+        }
+    }
+}
+
+/**
+ * @brief Implementation of mbedtls_mutex_free for thread-safety.
+ *
+ */
+void aws_mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex )
+{
+    if( mutex->is_valid == 1 )
+    {
+        vSemaphoreDelete( mutex->mutex );
+        mutex->is_valid = 0;
+    }
+}
+
+/**
+ * @brief Implementation of mbedtls_mutex_lock for thread-safety.
+ *
+ * @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
+ * MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
+ */
+int aws_mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex )
+{
+    int lRet = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
+
+    if( mutex->is_valid == 1 )
+    {
+        if( xSemaphoreTake( mutex->mutex, portMAX_DELAY ) )
+        {
+            lRet = 0;
+        }
+        else
+        {
+            lRet = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
+            /*PKCS11_PRINT( ("Failed to obtain mbedTLS mutex.\r\n") ); */
+        }
+    }
+
+    return lRet;
+}
+
+/**
+ * @brief Implementation of mbedtls_mutex_unlock for thread-safety.
+ *
+ * @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
+ * MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
+ */
+int aws_mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex )
+{
+    int lRet = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
+
+    if( mutex->is_valid == 1 )
+    {
+        if( xSemaphoreGive( mutex->mutex ) )
+        {
+            lRet = 0;
+        }
+        else
+        {
+            lRet = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
+            /*PKCS11_PRINT( ("Failed to unlock mbedTLS mutex.\r\n") ); */
+        }
+    }
+
+    return lRet;
+}
+
+void CRYPTO_ConfigureThreading( void )
+{
+    /* Configure mbedtls to use FreeRTOS mutexes. */
+    mbedtls_threading_set_alt( aws_mbedtls_mutex_init,
+                               aws_mbedtls_mutex_free,
+                               aws_mbedtls_mutex_lock,
+                               aws_mbedtls_mutex_unlock );
 }
 
 /**
@@ -157,7 +261,7 @@ BaseType_t CRYPTO_SignatureVerificationStart( void ** ppvContext,
                                               BaseType_t xHashAlgorithm )
 {
     BaseType_t xResult = pdTRUE;
-    SignatureVerificationStatePtr_t pxCtx = NULL;
+    SignatureVerificationState_t * pxCtx = NULL;
 
     /*
      * Allocate the context
@@ -196,6 +300,12 @@ BaseType_t CRYPTO_SignatureVerificationStart( void ** ppvContext,
     return xResult;
 }
 
+void CRYPTO_Init( void )
+{
+    CRYPTO_ConfigureHeap();
+    CRYPTO_ConfigureThreading();
+}
+
 /**
  * @brief Adds bytes to an in-progress hash for subsequent signature
  * verification.
@@ -204,7 +314,7 @@ void CRYPTO_SignatureVerificationUpdate( void * pvContext,
                                          const uint8_t * pucData,
                                          size_t xDataLength )
 {
-    SignatureVerificationStatePtr_t pxCtx = ( SignatureVerificationStatePtr_t ) pvContext; /*lint !e9087 Allow casting void* to other types. */
+    SignatureVerificationState_t * pxCtx = ( SignatureVerificationStatePtr_t ) pvContext; /*lint !e9087 Allow casting void* to other types. */
 
     /*
      * Add the data to the hash of the requested type

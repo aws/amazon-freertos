@@ -47,6 +47,7 @@
 #include "FreeRTOS_DHCP.h"
 #include "aws_demo_logging.h"
 #include "aws_system_init.h"
+#include "aws_crypto.h"
 
 #include "aws_dev_mode_key_provisioning.h"
 
@@ -145,6 +146,11 @@ int main( void )
         0,
         0 );
 
+    /* Initialize cryptography.  This must be run before
+     * the IP initialization since IPInit depends on generating randomness. */
+    CRYPTO_Init(); /* Initializes mbedTLS heap and threading. */
+    xInitializePKCS11();
+
     /* Initialize the network interface.
      *
      ***NOTE*** Tasks that use the network are created in the network event hook
@@ -160,7 +166,6 @@ int main( void )
         ucDNSServerAddress,
         ucMACAddress );
 
-    /* Initialize AWS system libraries. */
     SYSTEM_Init();
 
     vDevModeKeyProvisioning();
