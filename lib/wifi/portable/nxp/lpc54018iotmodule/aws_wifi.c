@@ -369,7 +369,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     const TickType_t connect_timeout = pdMS_TO_TICKS( 30000UL );
     const TickType_t dhcp_timeout = pdMS_TO_TICKS( 20000UL );
     uint32_t tmp_ip4_addr = 0, tmp_ip4_mask = 0, tmp_ip4_gw = 0;
-    static uint8_t ucDhcpSuccessful = 0;
+    uint8_t ucDhcpSuccessful = 0;
 
     /* Check initialization */
     if (!g_wifi_is_on)
