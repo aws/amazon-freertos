@@ -2412,22 +2412,25 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	'*pxLength' will contain the number of bytes that may be written. */
 	uint8_t *FreeRTOS_get_tx_head( Socket_t xSocket, BaseType_t *pxLength )
 	{
-	uint8_t *pucReturn;
+    uint8_t *pucReturn = NULL;
 	FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
-	StreamBuffer_t *pxBuffer = pxSocket->u.xTCP.txStream;
+	StreamBuffer_t *pxBuffer = NULL;
 
-		if( pxBuffer != NULL )
-		{
-		BaseType_t xSpace = ( BaseType_t ) uxStreamBufferGetSpace( pxBuffer );
-		BaseType_t xRemain = ( BaseType_t ) ( pxBuffer->LENGTH - pxBuffer->uxHead );
+        *pxLength = 0;
 
-			*pxLength = FreeRTOS_min_BaseType( xSpace, xRemain );
-			pucReturn = pxBuffer->ucArray + pxBuffer->uxHead;
-		}
-		else
-		{
-			*pxLength = 0;
-			pucReturn = NULL;
+        /* Confirm that this is a TCP socket before dereferencing structure
+        member pointers. */
+        if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_TCP, pdFALSE ) == pdTRUE )
+        {
+            pxBuffer = pxSocket->u.xTCP.txStream;
+            if( pxBuffer != NULL )
+            {
+            BaseType_t xSpace = ( BaseType_t )uxStreamBufferGetSpace( pxBuffer );
+            BaseType_t xRemain = ( BaseType_t )( pxBuffer->LENGTH - pxBuffer->uxHead );
+
+                *pxLength = FreeRTOS_min_BaseType( xSpace, xRemain );
+                pucReturn = pxBuffer->ucArray + pxBuffer->uxHead;
+            }
 		}
 
 		return pucReturn;
@@ -2860,12 +2863,20 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 #if( ipconfigUSE_TCP == 1 )
 
-	const struct xSTREAM_BUFFER *FreeRTOS_get_rx_buf( Socket_t xSocket )
-	{
-	FreeRTOS_Socket_t *pxSocket = (FreeRTOS_Socket_t *)xSocket;
+    const struct xSTREAM_BUFFER *FreeRTOS_get_rx_buf( Socket_t xSocket )
+    {
+    FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * )xSocket;
+    struct xSTREAM_BUFFER *pxReturn = NULL;
 
-		return pxSocket->u.xTCP.rxStream;
-	}
+        /* Confirm that this is a TCP socket before dereferencing structure
+        member pointers. */
+        if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_TCP, pdFALSE ) == pdTRUE )
+        {
+            pxReturn = pxSocket->u.xTCP.rxStream;
+        }
+
+        return pxReturn;
+    }
 
 #endif /* ipconfigUSE_TCP */
 /*-----------------------------------------------------------*/
