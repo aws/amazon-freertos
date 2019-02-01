@@ -68,6 +68,7 @@
 #define AwsIotMqtt_Assert( expression )        configASSERT( expression )
 #define AwsIotDefender_Assert( expression )    configASSERT( expression )
 #define IotMetrics_Assert( expression )        configASSERT( expression )
+#define AwsIotDemo_Assert( expression )        configASSERT( expression )
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef AWS_IOT_STATIC_MEMORY_ONLY
@@ -179,7 +180,7 @@
 
 /* Secure Sockets does not support parallel send, so only one send thread is
  * allowed. */
-#define AWS_IOT_MQTT_MAX_SEND_THREADS            ( 1 )
+#define AWS_IOT_MQTT_MAX_SEND_THREADS               ( 1 )
 
 /* Enable metrics library assert. */
 #ifndef AWS_IOT_METRICS_ENABLE_ASSERTS

@@ -127,7 +127,7 @@ uint8_t * AwsIotDefenderInternal_GetReportBuffer()
 size_t AwsIotDefenderInternal_GetReportBufferSize()
 {
     /* Encoder might over-calculate the needed size. Therefor encoded size might be smaller than buffer size: _report.size. */
-    return _AwsIotDefenderEncoder.getEncodedSize(&_report.object, _report.pDataBuffer);
+    return _AwsIotDefenderEncoder.getEncodedSize( &_report.object, _report.pDataBuffer );
 }
 
 /*-----------------------------------------------------------*/
@@ -378,7 +378,7 @@ static void tcpConnectionsCallback( void * param1,
                 pConnection = IotLink_Container( IotMetricsTcpConnection_t, pConnectionLink, link );
 
                 /* Copy to new allocated array. */
-                _metrics.tcpConns.pArray[ i++ ] = *pConnection;
+                _metrics.tcpConns.pArray[ i ] = *pConnection;
 
                 /* Iterate to next one. */
                 pConnectionLink = pConnectionLink->pNext;
