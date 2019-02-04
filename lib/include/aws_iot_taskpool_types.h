@@ -348,12 +348,4 @@ typedef struct AwsIotTaskPoolJob
 #define AWS_IOT_TASKPOOL_INITIALIZER                 { 0 }                                                                                                                                  /**< @brief Initializer for a #AwsIotTaskPoolJob_t. */
 /* @[define_taskpool_initializers] */
 
-/**
-* @brief Allows the use of the handle to the system task pool.
-*
-* @warning The task pool handle is not valid unless @ref taskpool_function_createsystemtaskpool is 
-* called before the handle is used.
-*/
-#define AWS_IOT_TASKPOOL_SYSTEM_TASKPOOL    ( AwsIotTaskPool_GetSystemTaskPool( ) )
-
 #endif /* ifndef _AWS_IOT_TASKPOOL_TYPES_H_ */
