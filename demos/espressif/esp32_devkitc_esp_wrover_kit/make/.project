@@ -91,6 +91,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/mqtt</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/ota</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/secure_sockets</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/secure_sockets/portable/freertos_plus_tcp</locationURI>
