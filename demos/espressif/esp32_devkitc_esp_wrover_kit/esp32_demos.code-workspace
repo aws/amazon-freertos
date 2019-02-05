@@ -1,0 +1,30 @@
+{
+	"folders": [
+		{
+			"name": "common demos",
+			"path": "../../../demos/common"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../lib"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+
+			/* Hacky fix: exclude all portable directories not starting with 'e'. */
+			"**/portable/[!e]*": true
+		},
+		"files.associations": {
+			"freertos.h": "c",
+			"task.h": "c"
+		}
+	}
+}
