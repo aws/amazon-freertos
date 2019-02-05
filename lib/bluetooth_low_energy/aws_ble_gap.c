@@ -138,7 +138,7 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
                       BTSspVariant_t xPairingVariant,
                       uint32_t ulPassKey )
 {
-    Link_t * pxEventListIndex;
+    IotLink_t * pxEventListIndex;
     BLESubscrEventListElement_t * pxEventIndex;
 
     if(xPairingVariant == eBTsspVariantPasskeyConfirmation)
@@ -147,9 +147,9 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
 		if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
 		{
 			/* Get the event associated to the callback */
-			listFOR_EACH( pxEventListIndex, &xBTInterface.xSubscrEventListHead[ eBLENumericComparisonCallback ] )
-			{
-				pxEventIndex = listCONTAINER( pxEventListIndex, BLESubscrEventListElement_t, xEventList );
+            for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLENumericComparisonCallback ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLENumericComparisonCallback ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
+            {
+                pxEventIndex = IotLink_Container(BLESubscrEventListElement_t, pxEventListIndex, xEventList );
 				pxEventIndex->xSubscribedEventCb.pxNumericComparisonCb( pxRemoteBdAddr, ulPassKey );
 			}
 			xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
@@ -168,15 +168,15 @@ void prvPairingStateChangedCb( BTStatus_t xStatus,
                                BTSecurityLevel_t xSecurityLevel,
 			       BTAuthFailureReason_t xReason )
 {
-    Link_t * pxEventListIndex;
+    IotLink_t * pxEventListIndex;
     BLESubscrEventListElement_t * pxEventIndex;
 
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        listFOR_EACH( pxEventListIndex, &xBTInterface.xSubscrEventListHead[ eBLEPairingStateChanged ] )
+        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLEPairingStateChanged ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLEPairingStateChanged ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
         {
-            pxEventIndex = listCONTAINER( pxEventListIndex, BLESubscrEventListElement_t, xEventList );
+            pxEventIndex = IotLink_Container(BLESubscrEventListElement_t, pxEventListIndex, xEventList );
             pxEventIndex->xSubscribedEventCb.pxGAPPairingStateChangedCb( xStatus, pxRemoteBdAddr, xSecurityLevel, xReason );
         }
         xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
@@ -221,15 +221,15 @@ void prvBondedCb( BTStatus_t xStatus,
                   BTBdaddr_t * pxRemoteBdAddr,
                   bool bIsBonded )
 {
-    Link_t * pxEventListIndex;
+    IotLink_t * pxEventListIndex;
     BLESubscrEventListElement_t * pxEventIndex;
 
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        listFOR_EACH( pxEventListIndex, &xBTInterface.xSubscrEventListHead[ eBLEBonded ] )
+        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLEBonded ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLEBonded ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
         {
-            pxEventIndex = listCONTAINER( pxEventListIndex, BLESubscrEventListElement_t, xEventList );
+            pxEventIndex = IotLink_Container(BLESubscrEventListElement_t, pxEventListIndex, xEventList );
             pxEventIndex->xSubscribedEventCb.pxBondedCb( xStatus, pxRemoteBdAddr, bIsBonded );
         }
         xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
@@ -458,13 +458,13 @@ BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
 
     if( xStatus == eBTStatusSuccess )
     {
-        listINIT_HEAD( &xBTInterface.xServiceListHead );
-        listINIT_HEAD( &xBTInterface.xConnectionListHead );
-
+        IotListDouble_Create( &xBTInterface.xServiceListHead );
+        IotListDouble_Create( &xBTInterface.xConnectionListHead );
+ 
         /* Initialize the event list. */
         for( usIndex = 0; usIndex < eNbEvents; usIndex++ )
         {
-            listINIT_HEAD( &xBTInterface.xSubscrEventListHead[ usIndex ] );
+            IotListDouble_Create( &xBTInterface.xSubscrEventListHead[ usIndex ] );
         }
 
         xEventGroupWaitBits( ( EventGroupHandle_t ) &xBTInterface.xWaitOperationComplete,
@@ -516,8 +516,8 @@ BTStatus_t BLE_RegisterEventCb( BLEEvents_t xEvent,
             if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
             {
                 pxNewEvent->xSubscribedEventCb = xBLEEventsCallbacks;
-                listADD( &xBTInterface.xSubscrEventListHead[ xEvent ],
-                         &pxNewEvent->xEventList );
+                IotListDouble_InsertHead( &xBTInterface.xSubscrEventListHead[ xEvent ],
+                                          &pxNewEvent->xEventList );
 
                 xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
             }
@@ -537,14 +537,14 @@ BTStatus_t BLE_UnRegisterEventCb( BLEEvents_t xEvent,
 {
     BTStatus_t xStatus = eBTStatusFail;
     BLESubscrEventListElement_t * pxEventIndex;
-    Link_t * pxEventListIndex;
+    IotLink_t * pxEventListIndex;
 
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        listFOR_EACH( pxEventListIndex, &xBTInterface.xSubscrEventListHead[ xEvent ] )
+        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ xEvent ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ xEvent ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
         {
-            pxEventIndex = listCONTAINER( pxEventListIndex, BLESubscrEventListElement_t, xEventList );
+            pxEventIndex = IotLink_Container(BLESubscrEventListElement_t, pxEventListIndex, xEventList );
 
             if( xBLEEventsCallbacks.pvPtr == pxEventIndex->xSubscribedEventCb.pvPtr )
             {
@@ -556,7 +556,7 @@ BTStatus_t BLE_UnRegisterEventCb( BLEEvents_t xEvent,
         /* If the event is found, free the remove it (safely) from the list and free it */
         if( xStatus == eBTStatusSuccess )
         {
-            listREMOVE( &pxEventIndex->xEventList );
+            IotListDouble_Remove( &pxEventIndex->xEventList );
             vPortFree( pxEventIndex );
         }
 

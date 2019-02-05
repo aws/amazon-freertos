@@ -27,11 +27,6 @@
 #ifndef _IOT_LINEAR_CONTAINERS_H_
 #define _IOT_LINEAR_CONTAINERS_H_
 
-/* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
-#endif
-
 /* Standard includes. */
 #include <stdbool.h>
 #include <stddef.h>

@@ -37,6 +37,7 @@
 #include "bt_hal_gatt_server.h"
 #include "bt_hal_gatt_types.h"
 #include "aws_doubly_linked_list.h"
+#include "iot_linear_containers.h"
 
 /**
  * @brief Structure containing all advertisement parameters.
@@ -78,7 +79,8 @@ typedef struct
  */
 typedef struct
 {
-    Link_t xConnectionList;
+    IotLink_t xConnectionList;
+
     BLEConnectionParam_t xConnectionParams; /**< Connection parameters. */
     uint16_t usConnId;                      /**< Connection Id. */
     BTBdaddr_t pxRemoteBdAddr;              /**< Remote device address. */
@@ -612,7 +614,7 @@ BTStatus_t BLE_SendResponse( BLEEventResponse_t * pxResp,
  * @param[out] pxConnectionList Returns the head of the connection list.
  * @return Returns eBTStatusSuccess on successful call.
  */
-BTStatus_t BLE_GetConnectionInfoList( Link_t ** ppxConnectionInfoList );
+BTStatus_t BLE_GetConnectionInfoList( IotLink_t ** ppxConnectionInfoList );
 
 /**
  * @brief Get connection info for a specific connection ID.
