@@ -335,13 +335,14 @@ BTStatus_t BLE_ON( void )
 BTStatus_t BLE_OFF( void )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    Link_t  *pxConnectionListHead,  *pxConnectionListElem, *pxTemp;
+    IotLink_t  *pxConnectionListHead,  *pxConnectionListElem;
     BLEConnectionInfoListElement_t * pxConnInfo;
 
     xStatus = BLE_GetConnectionInfoList( &pxConnectionListHead );
     if( xStatus == eBTStatusSuccess )
     {
-        listFOR_EACH_SAFE( pxConnectionListElem, pxTemp, pxConnectionListHead )
+        /* Get the event associated to the callback */
+        for( ( pxConnectionListElem ) = pxConnectionListHead->pNext; ( pxConnectionListElem ) != ( pxConnectionListHead ); ( pxConnectionListElem ) = ( pxConnectionListElem )->pNext )
         {
             pxConnInfo = listCONTAINER( pxConnectionListElem, BLEConnectionInfoListElement_t, xConnectionList );
             xStatus = xBTInterface.pxBTLeAdapterInterface->pxDisconnect(

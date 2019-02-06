@@ -47,12 +47,12 @@
  * @brief Service and characteristic UUIDs used by MQTT proxy service.
  */
 #define mqttBLESERVICE_UUID			      { 0x00, 0xFF, 0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9 }
-#define mqttBLECHAR_UUID_BASE	          { 0x00, 0x00, 0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9 }
-#define mqttBLECHAR_CONTROL_UUID          ( 0xFF01 )
-#define mqttBLECHAR_TX_MESG_UUID		  ( 0xFF02 )
-#define mqttBLECHAR_RX_MESG_UUID		  ( 0xFF03 )
-#define mqttBLECHAR_TX_LARGE_MESG_UUID    ( 0xFF04 )
-#define mqttBLECHAR_RX_LARGE_MESG_UUID    ( 0xFF05 )
+#define mqttBLECHAR_UUID_MASK	          0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9
+#define mqttBLECHAR_CONTROL_UUID          {0x01, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_TX_MESG_UUID          {0x02, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_RX_MESG_UUID	  {0x03, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_TX_LARGE_MESG_UUID    {0x04, 0xFF, mqttBLECHAR_UUID_MASK }
+#define mqttBLECHAR_RX_LARGE_MESG_UUID    {0x05, 0xFF, mqttBLECHAR_UUID_MASK }
 
 /**
  * @brief Client Characteristic configuration Descriptor UUID.
@@ -70,14 +70,18 @@
 /**
  * @brief Characteristics used by MQTT Service.
  */
-typedef enum
-{
-	eMQTTBLEControl = 0,    //!< eMQTTBLEControl Characteristic to enable/disable transferring data over MQTT service
-	eMQTTBLETXMessage,      //!< eMQTTBLETXMessage Characteristic to send notification containing a message to MQTT broker
-	eMQTTBLERXMessage,      //!< eMQTTBLERXMessage Characteristic to receive a message from MQTT broker
-	eMQTTBLETXLargeMessage, //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
-	eMQTTBLERXLargeMessage  //!< eMQTTBLERXLargeMessage Characteristic to receive large message (> BLE MTU Size) from MQTT broker
-} MQTTBLECharacteristic_t;
+
+typedef enum {
+  eMQTTBLE_SERVICE,
+  eMQTTBLE_CHAR_CONTROL,                //!< eMQTTBLEControl Characteristic to enable/disable transferring data over MQTT service
+  eMQTTBLE_CHAR_TX_MESG,                //!< eMQTTBLETXMessage Characteristic to send notification containing a message to MQTT broker
+  eMQTTBLE_CHAR_DESCR_TX_MESG,          //!< eMQTTBLE_CHAR_DESCR_TX_MESG Characteristic descriptor
+  eMQTTBLE_CHAR_RX_MESG,                //!< eMQTTBLERXMessage Characteristic to receive a message from MQTT broker
+  eMQTTBLE_CHAR_TX_LARGE_MESG,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
+  eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic descripto
+  eMQTTBLE_CHAR_RX_LARGE,                    //!  eMQTTBLERXLargeMessage Characteristic to receive large message (> BLE MTU Size) from MQTT broke
+  eMQTTBLE_NUMBER                       //!< eMQTTBLEAttributes_t Number of attributes in eMQTT service
+} MQTTBLEAttributes_t;
 
 /**
  * Descriptors used by MQTT service
@@ -154,7 +158,7 @@ typedef void* AwsIotMqttBLEConnection_t;
  */
 typedef struct MqttBLEService
 {
-	BLEService_t* pxService;
+	BLEService_t* pxServicePtr;
 	uint16_t usDescrVal[ mqttBLENUM_CHAR_DESCRS ];
 	uint16_t usBLEConnId;
         bool bIsInit;

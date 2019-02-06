@@ -478,6 +478,8 @@ typedef struct
     /**
      * @brief Create a new service with all its components (descriptors/characteristic/included services, etc..).
      * The service is started automatically.
+     * @Warning: Not all platform supports changes to the attribute table while connected.
+     * It should be checked that calling this API while connected  is supported by the vendor's API.
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
@@ -490,13 +492,14 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxAddServiceBlob )( uint8_t ucServerIf,
-                                   BTGattDbElement_t * pxElements,
-                                   uint32_t ulElementsCount);
+                                   BLEService_t * pxService);
 
     /**
      * @brief Create a new service.
      *
      * Triggers BTServiceAddedCallback_t.
+     * @Warning: Not all platform supports changes to the attribute table while connected.
+     * It should be checked that calling this API while connected  is supported by the vendor's API.e
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
@@ -515,6 +518,8 @@ typedef struct
      * @brief Assign an included service to it's parent service.
      *
      * Triggers BTIncludedServiceAddedCallback_t.
+     * @Warning: Not all platform supports changes to the attribute table while connected.
+     * It should be checked that calling this API while connected  is supported by the vendor's API.
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
@@ -535,6 +540,8 @@ typedef struct
      * Characteristics are created in order in which the function pxAddCharacteristic is called.
      * Descriptor created will belong to the characteristic that was created last.
      * Triggers BTCharacteristicAddedCallback_t.
+     * @Warning: Not all platform supports changes to the attribute table while connected.
+     * It should be checked that calling this API while connected  is supported by the vendor's API.
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
@@ -573,6 +580,8 @@ typedef struct
      * The descriptor will belong to the first characteristic above it in the attribute table for that service.
      * @WARNING: CCCD need to be created first so they are just below their respective characteristics.
      * Since some stacks will add them automatically right after the characteristic.
+     * @Warning: Not all platform supports changes to the attribute table while connected.
+     * It should be checked that calling this API while connected  is supported by the vendor's API.
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
@@ -629,6 +638,8 @@ typedef struct
      * @brief Delete a local service.
      *
      * Triggers BTServiceDeletedCallback_t.
+     * @Warning: Not all platform supports changes to the attribute table while connected.
+     * It should be checked that calling this API while connected  is supported by the vendor's API.
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.

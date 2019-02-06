@@ -57,18 +57,17 @@ typedef struct {
 
 typedef struct{
 	IotLink_t xServiceList;
-	BLEAttribute_t * pxAttributesPtr;
 	BLEService_t * pxService;
-	uint16_t usStartHandle;
+    BLEAttributeEventCallback_t * pxEventsCallbacks;
 	uint16_t usEndHandle;
 }BLEServiceListElement_t;
 
 typedef enum{
 	eBLEHALEventServerRegisteredCb,
-	eBLEHALEventCharAddedCb,
-	eBLEHALEventSeviceAddedCb,
-	eBLEHALEventCharDescrAddedCb,
-	eBLEHALEventIncludedServiceAdded,
+	eBLEHALEventAttributeAddedCb,
+	eBLEHALEventServiceStartedCb,
+	eBLEHALEventServiceStoppedCb,
+	eBLEHALEventServiceDeletedCb,
 	eBLEHALEventRegisterBleAdapterCb,
 	eBLEHALEventAdapterPropertiesCb,
 	eBLENbHALEvents,
@@ -92,12 +91,9 @@ typedef struct{
 	/*  @TODO pending indication response with a global only works for one simultaneous connection */
 	uint16_t usHandlePendingIndicationResponse;
 	uint8_t ucServerIf;
-
     IotListDouble_t xServiceListHead;
-	IotListDouble_t xConnectionListHead;
-	
-	IotListDouble_t xSubscrEventListHead[eNbEvents];    /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */
-	
+	IotListDouble_t xConnectionListHead;	
+	IotListDouble_t xSubscrEventListHead[eNbEvents];    /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */	
 	uint16_t usHandlePendingPrepareWrite;
 	BLEInternalEventsCallbacks_t pxBLEEventsCallbacks;
 	BTInterface_t * pxBTInterface;

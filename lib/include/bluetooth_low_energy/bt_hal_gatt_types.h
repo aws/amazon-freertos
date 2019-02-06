@@ -159,34 +159,76 @@ typedef enum
     eBTDbDescriptor,         /**< Characteristic descriptor. */
 } BTDbAttributeType_t;
 
+
+typedef struct BLEService               BLEService_t;
+
+/**
+ * @brief Structure describing a characteristic.
+ */
+typedef struct 
+{
+    BTUuid_t xUuid;    /**< Attribute UUID*/
+    BTCharProperties_t xProperties;                       /**< Characteristic properties. */
+    BTCharPermissions_t xPermissions;                     /**< Characteristic permissions. */
+}BLECharacteristic_t;
+
+/**
+ * @brief Structure describing a characteristic descriptor.
+ */
 typedef struct
 {
-    uint16_t usId;
-    BTUuid_t xUuid;
-    BTDbAttributeType_t xType;
-    uint16_t usAttributeHandle;
-    BTCharPermissions_t xPermissions;
+    BTUuid_t xUuid;    /**< Attribute UUID*/
+    BTCharPermissions_t xPermissions;                     /**< Descriptor permissions. */
+}BLECharacteristicDescr_t;
 
-    /*
-     * If type is eBTDbPrimaryService, or
-     * eBTDbSecondaryService, this contains the start and end attribute
-     * handles.
+/**
+ * @brief  Structure describing an included service.
      */
-    uint16_t usStartHandle;
-    uint16_t usEndHandle;
+typedef struct 
+{
+    BTUuid_t xUuid;    /**< Attribute UUID*/
+    BLEService_t * pxPtrToService;                        /**< Pointer to the service being included. */
+}BLEIncludedService_t;
 
-    /*
-     * If type is eBTDbCharacteristic, this contains the properties of
-     * the characteristic.
+/**
+ * @brief  Structure describing a service UUID.
      */
-    BTCharProperties_t xProperties;
+typedef BTUuid_t BLEServiceUUID_t;
 
-    /*
-     * If type is eBTDbIncludedService, this contains the handle of the included service.
+/**
+ * @brief Generic BLE attribute.
      */
-	uint16_t usIncludedServiceHandle;
+typedef struct 
+{
+    BTDbAttributeType_t xAttributeType; /**< Type of attribute. */
+    union
+    {  
+        BLEServiceUUID_t xServiceUUID;                 /**< UUID of the service. */
+        BLECharacteristic_t xCharacteristic;           /**< Characteristic. */
+        BLECharacteristicDescr_t xCharacteristicDescr; /**< Descriptor. */
+        BLEIncludedService_t xIncludedService;         /**< Included service. */
+    };
+}BLEAttribute_t;
 
-} BTGattDbElement_t;
+/**
+ * @brief Structure describing a service.
+ * Note, handles are allocated separatly so the attribute array can be allocated in ROM. 
+ * pxHandlesBuffer has to dimensions: x and y [x][y] .
+ * x : Number of copies of the service
+ * y : needs to be equal to xNumberOfAttributes
+ *
+ * That structure has been constructed with the intent of putting most
+ * of it in ROM. The whole structure can be put in ROM. If copies are needed then only pxBLEAttributes can be constant.
+ * The fitst attribute is the UUID of the service.
+ */
+struct BLEService
+{            
+    uint8_t ucInstId;                          /**< Service Instance ID. */
+    BTGattServiceTypes_t xType;                /**< Sercice type. */   
+    size_t xNumberOfAttributes;                /**< Number of attributes. */
+    uint16_t * pusHandlesBuffer;               /**< Array of handles, mapping to pxBLEAttributes. */
+    BLEAttribute_t * pxBLEAttributes;          /**< Array of attribute, can be allocated in ROM. */
+} ;
 
 
 #endif /* _BT_HAL_GATT_TYPES_H_ */

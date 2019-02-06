@@ -176,12 +176,9 @@
             <file file_name="../../../../lib/utils/platform/aws_iot_clock_posix.c" />
             <file file_name="../../../../lib/utils/platform/aws_iot_threads_posix.c" />
           </folder>
-          <folder
-            Name="taskpool"
-            exclude=""
-            filter="*.*"
-            path="../../../../lib/utils/taskpool"
-            recurse="No" />
+          <folder Name="taskpool">
+            <file file_name="C:/public/amazon-freertos/lib/utils/taskpool/aws_iot_taskpool.c" />
+          </folder>
         </folder>
         <folder Name="ota">
           <file file_name="../../../../lib/ota/aws_iot_ota_agent.c" />
@@ -513,7 +510,9 @@
           <file file_name="../common/application_code/nordic_code/thumb_crt0.s" />
         </folder>
         <folder Name="ble">
-          <file file_name="../../../common/ble/aws_ble_gatt_server_demo.c" />
+          <file file_name="../../../common/ble/aws_ble_gatt_server_demo.c">
+            <configuration Name="Debug" build_exclude_from_build="Yes" />
+          </file>
           <file file_name="../../../common/ble/aws_ble_numericComparison.c" />
         </folder>
         <folder Name="demo_runner">

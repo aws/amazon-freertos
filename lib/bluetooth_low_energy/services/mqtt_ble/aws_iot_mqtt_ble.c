@@ -39,13 +39,128 @@
 #include "FreeRTOSConfig.h"
 #include "aws_json_utils.h"
 
-#define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pxCharacteristics[ ch_idx ].xAttributeData.xHandle )
-#define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxCharacteristics[ ch_idx ].xAttributeData.xUuid )
-#define DESCR_HANDLE( svc, descr_idx )    ( ( svc )->pxDescriptors[ descr_idx ].xAttributeData.xHandle )
+#define mqttBLECHAR_CONTROL_UUID_TYPE \
+{ \
+    .uu.uu128 = mqttBLECHAR_CONTROL_UUID,\
+    .ucType   = eBTuuidType128 \
+}
+#define mqttBLECHAR_TX_MESG_UUID_TYPE \
+{  \
+    .uu.uu128 = mqttBLECHAR_TX_MESG_UUID,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_RX_MESG_UUID_TYPE \
+{\
+    .uu.uu128 = mqttBLECHAR_RX_MESG_UUID,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE \
+{\
+    .uu.uu128 = mqttBLECHAR_TX_LARGE_MESG_UUID,\
+    .ucType  = eBTuuidType128\
+}
+
+#define mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE \
+{\
+    .uu.uu128 = mqttBLECHAR_RX_LARGE_MESG_UUID,\
+    .ucType  = eBTuuidType128\
+}
+#define mqttBLECCFG_UUID_TYPE \
+{\
+    .uu.uu16 = mqttBLECCFG_UUID,\
+    .ucType  = eBTuuidType16\
+}
+/**
+ * @brief UUID for Device Information Service.
+ *
+ * This UUID is used in advertisement for the companion apps to discover and connect to the device.
+ */
+#define mqttBLESERVICE_UUID_TYPE \
+{ \
+    .uu.uu128 = mqttBLESERVICE_UUID,\
+    .ucType   = eBTuuidType128\
+}
+
+static uint16_t pusHandlesBuffer[mqttBLEMAX_SVC_INSTANCES][eMQTTBLE_NUMBER];
+
+#define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
+#define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
+#define DESCR_HANDLE( svc, descr_idx )    ( ( svc )->pusHandlesBuffer[descr_idx] )
+
+
 /*-----------------------------------------------------------------------------------------------------*/
 static MqttBLEService_t xMqttBLEServices[ mqttBLEMAX_SVC_INSTANCES ] = { 0 };
+static BLEService_t xBLEServices[ mqttBLEMAX_SVC_INSTANCES ] = { 0 };
 
-static SemaphoreHandle_t xServiceInitLock;
+static const BLEAttribute_t pxAttributeTable[] = {
+     {    
+          .xServiceUUID = mqttBLESERVICE_UUID_TYPE
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = mqttBLECHAR_CONTROL_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM ),
+              .xProperties = ( eBTPropRead | eBTPropWrite )
+          }
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = mqttBLECHAR_TX_MESG_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM ),
+              .xProperties = (  eBTPropRead | eBTPropNotify  )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristic = 
+         {
+             .xUuid = mqttBLECCFG_UUID_TYPE,
+             .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )
+          }
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = mqttBLECHAR_RX_MESG_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM ),
+              .xProperties = ( eBTPropRead | eBTPropWrite )
+          }
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = mqttBLECHAR_TX_LARGE_MESG_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM ),
+              .xProperties = ( eBTPropRead | eBTPropNotify )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristic = 
+         {
+             .xUuid = mqttBLECCFG_UUID_TYPE,
+             .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )
+          }
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = mqttBLECHAR_RX_LARGE_MESG_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM ),
+              .xProperties = ( eBTPropRead | eBTPropWrite )
+          }
+     }
+};
+
 
 /**
  * Variable stores the MTU Size for the BLE connection.
@@ -57,12 +172,12 @@ static uint16_t usBLEConnMTU;
 /*
  * @brief Creates and starts  a GATT service instance.
  */
-static BaseType_t prvInitServiceInstance( uint8_t ucInstId );
+static BaseType_t prvInitServiceInstance( BLEService_t * pxService );
 
 /*
  * @brief Gets an MQTT proxy service instance given a GATT service.
  */
-static MqttBLEService_t * prxGetServiceInstance( BLEService_t * pxService );
+static MqttBLEService_t * prxGetServiceInstance( uint16_t usHandle );
 
 
 /**
@@ -89,44 +204,38 @@ static void vServiceStartedCb( BTStatus_t xStatus,
 /*
  * @brief Callback to register for events (read) on TX message characteristic.
  */
-void vTXMesgCharCallback( BLEAttribute_t * pxAttribute,
-                          BLEAttributeEvent_t * pxEventParam );
+void vTXMesgCharCallback( BLEAttributeEvent_t * pxEventParam );
 
 /*
  * @brief Callback to register for events (write) on RX message characteristic.
  *
  */
-void vRXMesgCharCallback( BLEAttribute_t * pxAttribute,
-                          BLEAttributeEvent_t * pxEventParam );
+void vRXMesgCharCallback( BLEAttributeEvent_t * pxEventParam );
 
 /*
  * @brief Callback to register for events (read) on TX large message characteristic.
  * Buffers a large message and sends the message in chunks of size MTU at a time as response
  * to the read request. Keeps the buffer until last message is read.
  */
-void vTXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
-                               BLEAttributeEvent_t * pxEventParam );
+void vTXLargeMesgCharCallback( BLEAttributeEvent_t * pxEventParam );
 
 /*
  * @brief Callback to register for events (write) on RX large message characteristic.
  * Copies the individual write packets into a buffer untill a packet less than BLE MTU size
  * is received. Sends the buffered message to the MQTT layer.
  */
-void vRXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
-                               BLEAttributeEvent_t * pxEventParam );
+void vRXLargeMesgCharCallback( BLEAttributeEvent_t * pxEventParam );
 
 /*
  * @brief Callback for Client Characteristic Configuration Descriptor events.
  */
-void vClientCharCfgDescrCallback( BLEAttribute_t * pxAttribute,
-                                  BLEAttributeEvent_t * pxEventParam );
+void vClientCharCfgDescrCallback( BLEAttributeEvent_t * pxEventParam );
 
 /*
  * @brief This is the callback to the control characteristic. It is used to toggle ( turn on/off)
  * MQTT proxy service by the BLE IOS/Android app.
  */
-void vToggleMQTTService( BLEAttribute_t * pxAttribute,
-                       BLEAttributeEvent_t * pxEventParam );
+void vToggleMQTTService( BLEAttributeEvent_t * pxEventParam );
 
 /*
  * @brief Resets the send and receive buffer for the given MQTT Service.
@@ -136,12 +245,6 @@ void vToggleMQTTService( BLEAttribute_t * pxAttribute,
  * @param[in]  pxService Pointer to the MQTT service.
  */
 void prvResetBuffer( MqttBLEService_t* pxService );
-
-/*
- * @brief Gets the characteristic descriptor given a handle.
- */
-static MQTTCharacteristicDescr_t prxGetCharDescrFromHandle( BLEService_t * pxService,
-                                                   uint16_t usHandle );
 
 /*
  * @brief Callback for BLE connect/disconnect. Toggles the Proxy state to off on a BLE disconnect.
@@ -163,35 +266,30 @@ static void vMTUChangedCallback( uint16_t usConnId,
 extern int snprintf( char *, size_t, const char *, ... );
 /*------------------------------------------------------------------------------------*/
 
-
-/*-----------------------------------------------------------*/
-
-static MQTTCharacteristicDescr_t prxGetCharDescrFromHandle( BLEService_t * pxService,
-                                                   uint16_t usHandle )
-{
-    uint8_t ucId;
-
-    for( ucId = 0; ucId < mqttBLENUM_CHAR_DESCRS; ucId++ )
-    {
-        if( pxService->pxDescriptors[ ucId ].xAttributeData.xHandle == usHandle )
+static const BLEAttributeEventCallback_t pxCallBackArray[eMQTTBLE_NUMBER] =
         {
-            break;
-        }
-    }
-
-    return ( MQTTCharacteristicDescr_t ) ucId;
-}
+  NULL,
+  vToggleMQTTService,
+  vTXMesgCharCallback,
+  vClientCharCfgDescrCallback,
+  vRXMesgCharCallback,
+  vTXLargeMesgCharCallback,
+  vClientCharCfgDescrCallback,
+  vRXLargeMesgCharCallback
+};
 
 /*-----------------------------------------------------------*/
 
-static MqttBLEService_t * prxGetServiceInstance( BLEService_t * pxBLEService )
+static MqttBLEService_t * prxGetServiceInstance( uint16_t usHandle )
 {
     uint8_t ucId;
     MqttBLEService_t * pxMQTTSvc = NULL;
 
     for( ucId = 0; ucId < mqttBLEMAX_SVC_INSTANCES; ucId++ )
     {
-        if( xMqttBLEServices[ ucId ].pxService == pxBLEService )
+        /* Check that the handle is included in the service. */
+        if(( usHandle > pusHandlesBuffer[ucId][0] )&&
+          (usHandle <= pusHandlesBuffer[ucId][eMQTTBLE_NUMBER - 1]))
         {
             pxMQTTSvc = &xMqttBLEServices[ ucId ];
             break;
@@ -204,7 +302,7 @@ static MqttBLEService_t * prxGetServiceInstance( BLEService_t * pxBLEService )
 /*-----------------------------------------------------------*/
 
 static BaseType_t prxSendNotification( MqttBLEService_t * pxMQTTService,
-                                MQTTBLECharacteristic_t xCharacteristic,
+                                MQTTBLEAttributes_t xCharacteristic,
                                 uint8_t * pucData,
                                 size_t xLen )
 {
@@ -212,8 +310,8 @@ static BaseType_t prxSendNotification( MqttBLEService_t * pxMQTTService,
     BLEEventResponse_t xResp;
     BaseType_t xStatus = pdFALSE;
 
-    xAttrData.xHandle = CHAR_HANDLE( pxMQTTService->pxService, xCharacteristic );
-    xAttrData.xUuid = CHAR_UUID( pxMQTTService->pxService, xCharacteristic );
+    xAttrData.xHandle = CHAR_HANDLE( pxMQTTService->pxServicePtr, xCharacteristic );
+    xAttrData.xUuid = CHAR_UUID( pxMQTTService->pxServicePtr, xCharacteristic );
     xAttrData.pucData = pucData;
     xAttrData.xSize = xLen;
     xResp.pxAttrData = &xAttrData;
@@ -256,132 +354,31 @@ static uint8_t * prvReallocBuffer( uint8_t * pucOldBuffer,
     return pucNewBuffer;
 }
 
-
-static void vServiceStartedCb( BTStatus_t xStatus,
-                               BLEService_t * pxService )
-{
-    MqttBLEService_t * pxMQTTService = prxGetServiceInstance( pxService );
-
-    if( xStatus == eBTStatusSuccess )
-    {
-        pxMQTTService->bIsInit = true;
-    }
-    else
-    {
-        pxMQTTService->bIsInit = false;
-    }
-
-    ( void ) xSemaphoreGive( xServiceInitLock );
-}
-
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvInitServiceInstance( uint8_t ucInstId )
+static BaseType_t prvInitServiceInstance( BLEService_t * pxService )
 {
     BTStatus_t xStatus;
-    BTUuid_t xServiceUUID =
-    {
-        .uu.uu128 = mqttBLESERVICE_UUID,
-        .ucType   = eBTuuidType128
-    };
-    BTUuid_t xCharUUID =
-    {
-        .uu.uu128 = mqttBLECHAR_UUID_BASE,
-        .ucType   = eBTuuidType128
-    };
-    BTUuid_t xClientCharCfgUUID =
-    {
-        .uu.uu16 = mqttBLECCFG_UUID,
-        .ucType  = eBTuuidType16
-    };
-    BLEService_t * pxBLEService = NULL;
-    size_t xNumDescrsPerChar[ mqttBLENUM_CHARS ] = { 0, 1, 0, 1, 0 };
+    BaseType_t xResult = pdFAIL;
+    BLEEventsCallbacks_t xCallback;
 
-    xStatus = BLE_CreateService( &xMqttBLEServices[ ucInstId ].pxService, mqttBLENUM_CHARS, mqttBLENUM_CHAR_DESCRS, xNumDescrsPerChar, mqttBLENUM_INCLUDED_SERVICES );
-
+      xStatus = BLE_CreateService( pxService, (BLEAttributeEventCallback_t *)pxCallBackArray );
     if( xStatus == eBTStatusSuccess )
     {
-        pxBLEService = xMqttBLEServices[ ucInstId ].pxService;
-        configASSERT( pxBLEService->xNbCharacteristics == mqttBLENUM_CHARS );
-        configASSERT( pxBLEService->xNbDescriptors == mqttBLENUM_CHAR_DESCRS );
-        configASSERT( pxBLEService->xNbIncludedServices == mqttBLENUM_INCLUDED_SERVICES );
-
-        pxBLEService->xAttributeData.xUuid = xServiceUUID;
-
-        xCharUUID.uu.uu16 = mqttBLECHAR_CONTROL_UUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLEControl ].xAttributeData.xUuid = xCharUUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLEControl ].xAttributeData.pucData = NULL;
-        pxBLEService->pxCharacteristics[ eMQTTBLEControl ].xAttributeData.xSize = 0;
-        pxBLEService->pxCharacteristics[ eMQTTBLEControl ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-        pxBLEService->pxCharacteristics[ eMQTTBLEControl ].xProperties = ( eBTPropRead | eBTPropWrite );
-        pxBLEService->pxCharacteristics[ eMQTTBLEControl ].pxAttributeEventCallback = vToggleMQTTService;
-        pxBLEService->pxCharacteristics[ eMQTTBLEControl ].xNbDescriptors = 0;
-        pxBLEService->pxCharacteristics[ eMQTTBLEControl ].pxDescriptors = NULL;
-
-        pxBLEService->pxDescriptors[ eMQTTBLETXMessageDescr ].xAttributeData.xUuid = xClientCharCfgUUID;
-        pxBLEService->pxDescriptors[ eMQTTBLETXMessageDescr ].xAttributeData.pucData = ( uint8_t * ) &xMqttBLEServices[ ucInstId ].usDescrVal[ eMQTTBLETXMessageDescr ];
-        pxBLEService->pxDescriptors[ eMQTTBLETXMessageDescr ].xAttributeData.xSize = 2;
-        pxBLEService->pxDescriptors[ eMQTTBLETXMessageDescr ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-        pxBLEService->pxDescriptors[ eMQTTBLETXMessageDescr ].pxAttributeEventCallback = vClientCharCfgDescrCallback;
-
-        xCharUUID.uu.uu16 = mqttBLECHAR_TX_MESG_UUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXMessage ].xAttributeData.xUuid = xCharUUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXMessage ].xAttributeData.pucData = NULL;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXMessage ].xAttributeData.xSize = 0;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXMessage ].xPermissions = ( bleconfigCHAR_READ_PERM );
-        pxBLEService->pxCharacteristics[ eMQTTBLETXMessage ].xProperties = ( eBTPropRead | eBTPropNotify );
-        pxBLEService->pxCharacteristics[ eMQTTBLETXMessage ].pxAttributeEventCallback = vTXMesgCharCallback;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXMessage ].xNbDescriptors = 1;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXMessage ].pxDescriptors[ 0 ] = &pxBLEService->pxDescriptors[ eMQTTBLETXMessageDescr ];
-
-        xCharUUID.uu.uu16 = mqttBLECHAR_RX_MESG_UUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXMessage ].xAttributeData.xUuid = xCharUUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXMessage ].xAttributeData.pucData = NULL;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXMessage ].xAttributeData.xSize = 0;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXMessage ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-        pxBLEService->pxCharacteristics[ eMQTTBLERXMessage ].xProperties = ( eBTPropRead | eBTPropWrite );
-        pxBLEService->pxCharacteristics[ eMQTTBLERXMessage ].pxAttributeEventCallback = vRXMesgCharCallback;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXMessage ].xNbDescriptors = 0;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXMessage ].pxDescriptors = NULL;
-
-        pxBLEService->pxDescriptors[ eMQTTBLETXLargeMessageDescr ].xAttributeData.xUuid = xClientCharCfgUUID;
-        pxBLEService->pxDescriptors[ eMQTTBLETXLargeMessageDescr ].xAttributeData.pucData = ( uint8_t * ) &xMqttBLEServices[ ucInstId ].usDescrVal[ eMQTTBLETXLargeMessageDescr ];
-        pxBLEService->pxDescriptors[ eMQTTBLETXLargeMessageDescr ].xAttributeData.xSize = 2;
-        pxBLEService->pxDescriptors[ eMQTTBLETXLargeMessageDescr ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-        pxBLEService->pxDescriptors[ eMQTTBLETXLargeMessageDescr ].pxAttributeEventCallback = vClientCharCfgDescrCallback;
-
-        xCharUUID.uu.uu16 = mqttBLECHAR_TX_LARGE_MESG_UUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXLargeMessage ].xAttributeData.xUuid = xCharUUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXLargeMessage ].xAttributeData.pucData = NULL;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXLargeMessage ].xAttributeData.xSize = 0;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXLargeMessage ].xPermissions = ( bleconfigCHAR_READ_PERM );
-        pxBLEService->pxCharacteristics[ eMQTTBLETXLargeMessage ].xProperties = ( eBTPropRead | eBTPropNotify );
-        pxBLEService->pxCharacteristics[ eMQTTBLETXLargeMessage ].pxAttributeEventCallback = vTXLargeMesgCharCallback;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXLargeMessage ].xNbDescriptors = 1;
-        pxBLEService->pxCharacteristics[ eMQTTBLETXLargeMessage ].pxDescriptors[ 0 ] = &pxBLEService->pxDescriptors[ eMQTTBLETXLargeMessageDescr ];
-
-        xCharUUID.uu.uu16 = mqttBLECHAR_RX_LARGE_MESG_UUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXLargeMessage ].xAttributeData.xUuid = xCharUUID;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXLargeMessage ].xAttributeData.pucData = NULL;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXLargeMessage ].xAttributeData.xSize = 0;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXLargeMessage ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-        pxBLEService->pxCharacteristics[ eMQTTBLERXLargeMessage ].xProperties = ( eBTPropRead | eBTPropWrite );
-        pxBLEService->pxCharacteristics[ eMQTTBLERXLargeMessage ].pxAttributeEventCallback = vRXLargeMesgCharCallback;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXLargeMessage ].xNbDescriptors = 0;
-        pxBLEService->pxCharacteristics[ eMQTTBLERXLargeMessage ].pxDescriptors = NULL;
-
-        pxBLEService->xServiceType = eBTServiceTypePrimary;
-        pxBLEService->ucInstId = ucInstId;
-
-        xStatus = BLE_AddService( pxBLEService );
+          xResult = pdPASS;
     }
 
-    if( xStatus == eBTStatusSuccess )
+      if( xResult == pdPASS )
+{
+              xCallback.pxConnectionCb = vConnectionCallback;
+
+              if( BLE_RegisterEventCb( eBLEConnection, xCallback ) != eBTStatusSuccess )
     {
-        xStatus = BLE_StartService( pxBLEService, vServiceStartedCb );
+                      xResult = pdFAIL;
+    }
     }
 
-    return IS_SUCCESS( xStatus );
+    return xResult;
 }
 
 void prvResetBuffer( MqttBLEService_t* pxService )
@@ -425,8 +422,7 @@ void prvResetBuffer( MqttBLEService_t* pxService )
 
 /*-----------------------------------------------------------*/
 
-void vToggleMQTTService( BLEAttribute_t * pxAttribute,
-                       BLEAttributeEvent_t * pxEventParam )
+void vToggleMQTTService( BLEAttributeEvent_t * pxEventParam )
 {
     BLEWriteEventParams_t * pxWriteParam;
     BLEAttributeData_t xAttrData = { 0 };
@@ -437,20 +433,17 @@ void vToggleMQTTService( BLEAttribute_t * pxAttribute,
     BaseType_t xResult;
     char cMsg[ mqttBLESTATE_MSG_LEN + 1 ];
 
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbCharacteristic ) );
-
-    pxService = prxGetServiceInstance( pxAttribute->pxCharacteristic->pxParentService );
-    configASSERT( ( pxService != NULL ) );
-
     xResp.pxAttrData = &xAttrData;
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = pxAttribute->pxCharacteristic->xAttributeData.xHandle;
 
     if( ( pxEventParam->xEventType == eBLEWrite ) || ( pxEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pxEventParam->pxParamWrite;
+        xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
+        pxService = prxGetServiceInstance( pxWriteParam->usAttrHandle );
+        configASSERT( ( pxService != NULL ) );
 
         if( !pxWriteParam->bIsPrep )
         {
@@ -487,6 +480,10 @@ void vToggleMQTTService( BLEAttribute_t * pxAttribute,
     }
     else if( pxEventParam->xEventType == eBLERead )
     {
+        pxService = prxGetServiceInstance( pxEventParam->pxParamRead->usAttrHandle );
+        configASSERT( ( pxService != NULL ) );
+
+        xResp.pxAttrData->xHandle =pxEventParam->pxParamRead->usAttrHandle;
         xResp.xEventStatus = eBTStatusSuccess;
         xResp.pxAttrData->pucData = ( uint8_t * ) cMsg;
         xResp.xAttrDataOffset = 0;
@@ -496,28 +493,21 @@ void vToggleMQTTService( BLEAttribute_t * pxAttribute,
 }
 /*-----------------------------------------------------------*/
 
-void vTXMesgCharCallback( BLEAttribute_t * pxAttribute,
-                          BLEAttributeEvent_t * pxEventParam )
+void vTXMesgCharCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEReadEventParams_t * pxReadParam;
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
-    MqttBLEService_t * pxMQTTService;
-
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbCharacteristic ) );
-
-    pxMQTTService = prxGetServiceInstance( pxAttribute->pxCharacteristic->pxParentService );
-    configASSERT( ( pxMQTTService != NULL ) );
 
     xResp.pxAttrData = &xAttrData;
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = CHAR_HANDLE( pxMQTTService->pxService, eMQTTBLETXMessage );
 
     if( pxEventParam->xEventType == eBLERead )
     {
         pxReadParam = pxEventParam->pxParamRead;
+        xResp.pxAttrData->xHandle = pxEventParam->pxParamRead->usAttrHandle;
         xResp.pxAttrData->pucData = NULL;
         xResp.pxAttrData->xSize = 0;
         xResp.xAttrDataOffset = 0;
@@ -529,8 +519,7 @@ void vTXMesgCharCallback( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vTXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
-                               BLEAttributeEvent_t * pxEventParam )
+void vTXLargeMesgCharCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEReadEventParams_t * pxReadParam;
     BLEAttributeData_t xAttrData = { 0 };
@@ -539,9 +528,13 @@ void vTXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
     size_t xBytesToSend = 0;
     uint8_t * pucData;
 
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbCharacteristic ) );
 
-    pxService = prxGetServiceInstance( pxAttribute->pxCharacteristic->pxParentService );
+    if( pxEventParam->xEventType == eBLERead )
+    {
+
+        pxReadParam = pxEventParam->pxParamRead;
+        
+        pxService = prxGetServiceInstance( pxReadParam->usAttrHandle );
     configASSERT( ( pxService != NULL ) );
 
 
@@ -549,12 +542,7 @@ void vTXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = pxAttribute->pxCharacteristic->xAttributeData.xHandle;
-
-    if( pxEventParam->xEventType == eBLERead )
-    {
-
-        pxReadParam = pxEventParam->pxParamRead;
+        xResp.pxAttrData->xHandle = pxReadParam->usAttrHandle;
         xBytesToSend = mqttBLETRANSFER_LEN( usBLEConnMTU );
 
         pucData = pvPortMalloc( xBytesToSend );
@@ -585,8 +573,7 @@ void vTXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vRXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
-                               BLEAttributeEvent_t * pxEventParam )
+void vRXLargeMesgCharCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEWriteEventParams_t * pxWriteParam;
     BLEAttributeData_t xAttrData = { 0 };
@@ -595,21 +582,20 @@ void vRXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
     BaseType_t xResult = pdTRUE;
     uint8_t *pucBufOffset;
 
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbCharacteristic ) );
-
-    pxService = prxGetServiceInstance( pxAttribute->pxCharacteristic->pxParentService );
-    configASSERT( ( pxService != NULL ) );
-
     xResp.pxAttrData = &xAttrData;
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = pxAttribute->pxCharacteristic->xAttributeData.xHandle;
-    xResp.pxAttrData->xUuid = pxAttribute->pxCharacteristic->xAttributeData.xUuid;
 
     if( ( pxEventParam->xEventType == eBLEWrite ) || ( pxEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pxEventParam->pxParamWrite;
+        pxService = prxGetServiceInstance( pxWriteParam->usAttrHandle );
+        configASSERT( ( pxService != NULL ) );
+
+        xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
+        
+        xResp.pxAttrData->xUuid = CHAR_UUID( pxService->pxServicePtr, eMQTTBLE_CHAR_RX_LARGE );
 
         if( ( !pxWriteParam->bIsPrep ) &&
         		( pxService->xConnection.pxMqttConnection != NULL ) &&
@@ -699,29 +685,25 @@ void vRXLargeMesgCharCallback( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vRXMesgCharCallback( BLEAttribute_t * pxAttribute,
-                          BLEAttributeEvent_t * pxEventParam )
+void vRXMesgCharCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEWriteEventParams_t * pxWriteParam;
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
     MqttBLEService_t * pxService;
 
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbCharacteristic ) );
-
-    pxService = prxGetServiceInstance( pxAttribute->pxCharacteristic->pxParentService );
-    configASSERT( ( pxService != NULL ) );
-
     xResp.pxAttrData = &xAttrData;
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = pxAttribute->pxCharacteristic->xAttributeData.xHandle;
-    xResp.pxAttrData->xUuid = pxAttribute->pxCharacteristic->xAttributeData.xUuid;
 
     if( ( pxEventParam->xEventType == eBLEWrite ) || ( pxEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pxEventParam->pxParamWrite;
+        pxService = prxGetServiceInstance( pxWriteParam->usAttrHandle );
+        configASSERT( ( pxService != NULL ) );
+        xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
+        xResp.pxAttrData->xUuid = CHAR_UUID( pxService->pxServicePtr, eMQTTBLE_CHAR_RX_LARGE );
 
         if( ( !pxWriteParam->bIsPrep ) &&
                		( pxService->xConnection.pxMqttConnection != NULL ) &&
@@ -747,38 +729,38 @@ void vRXMesgCharCallback( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vClientCharCfgDescrCallback( BLEAttribute_t * pxAttribute,
-                                  BLEAttributeEvent_t * pxEventParam )
+void vClientCharCfgDescrCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEWriteEventParams_t * pxWriteParam;
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
     MqttBLEService_t * pxMQTTService;
     uint16_t usCCFGValue;
-    MQTTCharacteristicDescr_t xDescr;
-
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbDescriptor ) );
-
-    pxMQTTService = prxGetServiceInstance( pxAttribute->pxCharacteristicDescr->pxParentService );
-    configASSERT( ( pxMQTTService != NULL ) );
-
-    xDescr = prxGetCharDescrFromHandle( pxMQTTService->pxService, pxAttribute->pxCharacteristicDescr->xAttributeData.xHandle );
-    configASSERT( ( xDescr < mqttBLENUM_CHAR_DESCRS ) );
 
     xResp.pxAttrData = &xAttrData;
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = DESCR_HANDLE( pxMQTTService->pxService, eMQTTBLETXMessageDescr );
 
     if( ( pxEventParam->xEventType == eBLEWrite ) || ( pxEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pxEventParam->pxParamWrite;
+        xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
+        pxMQTTService = prxGetServiceInstance( pxWriteParam->usAttrHandle );
+        configASSERT( ( pxMQTTService != NULL ) );
 
         if( pxWriteParam->xLength == 2 )
         {
             usCCFGValue = ( pxWriteParam->pucValue[ 1 ] << 8 ) | pxWriteParam->pucValue[ 0 ];
-            pxMQTTService->usDescrVal[ xDescr ] = usCCFGValue;
+
+            if( pxEventParam->pxParamWrite->usAttrHandle == pxMQTTService->pxServicePtr->pusHandlesBuffer[eMQTTBLE_CHAR_DESCR_TX_MESG])
+            {
+                 pxMQTTService->usDescrVal[ eMQTTBLETXMessageDescr ] = usCCFGValue;
+            }else 
+            {
+                 pxMQTTService->usDescrVal[ eMQTTBLETXLargeMessageDescr ] = usCCFGValue;
+            }
+            
             xResp.xEventStatus = eBTStatusSuccess;
         }
 
@@ -792,8 +774,19 @@ void vClientCharCfgDescrCallback( BLEAttribute_t * pxAttribute,
     }
     else if( pxEventParam->xEventType == eBLERead )
     {
+        pxMQTTService = prxGetServiceInstance( pxWriteParam->usAttrHandle );
+        configASSERT( ( pxMQTTService != NULL ) );
+
+        xResp.pxAttrData->xHandle = pxEventParam->pxParamRead->usAttrHandle;
         xResp.xEventStatus = eBTStatusSuccess;
-        xResp.pxAttrData->pucData = ( uint8_t * ) &pxMQTTService->usDescrVal[ xDescr ];
+        if( pxEventParam->pxParamWrite->usAttrHandle == pxMQTTService->pxServicePtr->pusHandlesBuffer[eMQTTBLE_CHAR_DESCR_TX_MESG])
+        {
+            xResp.pxAttrData->pucData = ( uint8_t * ) &pxMQTTService->usDescrVal[ eMQTTBLETXMessageDescr ];
+        }else 
+        {
+            xResp.pxAttrData->pucData = ( uint8_t * ) &pxMQTTService->usDescrVal[ eMQTTBLETXLargeMessageDescr ];
+        }
+
         xResp.pxAttrData->xSize = 2;
         xResp.xAttrDataOffset = 0;
         BLE_SendResponse( &xResp, pxEventParam->pxParamRead->usConnId, pxEventParam->pxParamRead->ulTransId );
@@ -845,6 +838,14 @@ static void vMTUChangedCallback( uint16_t usConnId,
 }
 
 /*-----------------------------------------------------------*/
+static BLEService_t xMQTTService = 
+{
+  .xNumberOfAttributes = eMQTTBLE_NUMBER,
+  .ucInstId = 0,
+  .xType = eBTServiceTypePrimary,
+  .pusHandlesBuffer = pusHandlesBuffer[0],
+  .pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable
+};
 
 BaseType_t AwsIotMqttBLE_Init( void )
 {
@@ -853,29 +854,26 @@ BaseType_t AwsIotMqttBLE_Init( void )
     BLEEventsCallbacks_t xCallback;
     MqttBLEService_t *pxService;
 
-    xServiceInitLock = xSemaphoreCreateBinary();
     usBLEConnMTU = mqttBLEDEFAULT_MTU_SIZE;
 
     for( ucId = 0; ucId < mqttBLEMAX_SVC_INSTANCES; ucId++ )
     {
-        xRet = prvInitServiceInstance( ucId );
         pxService = &xMqttBLEServices[ ucId ];
 
-        if( xRet == pdPASS )
-        {
-            xRet = xSemaphoreTake( xServiceInitLock, portMAX_DELAY );
-        }
+        /* Initialize service */
+        pxService->bIsInit = false;
+        pxService->bIsEnabled = false;
+        pxService->pxServicePtr = &xBLEServices[ucId];
+        pxService->pxServicePtr->pusHandlesBuffer = pusHandlesBuffer[ucId];
+        pxService->pxServicePtr->ucInstId = ucId;
+        pxService->pxServicePtr->xNumberOfAttributes = eMQTTBLE_NUMBER;
+        pxService->pxServicePtr->pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable;
+
+        xRet = prvInitServiceInstance( pxService->pxServicePtr );
 
         if( xRet == pdPASS )
         {
-            if( pxService->bIsInit == false )
-            {
-                xRet = pdFAIL;
-            }
-        }
-
-        if( xRet == pdPASS )
-        {
+            pxService->bIsInit = true;
             xCallback.pxConnectionCb = vConnectionCallback;
 
             if( BLE_RegisterEventCb( eBLEConnection, xCallback ) != eBTStatusSuccess )
@@ -1028,7 +1026,7 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
     {
         if( xMessageLength < ( size_t ) mqttBLETRANSFER_LEN( usBLEConnMTU ) )
         {
-            if( prxSendNotification( pxService, eMQTTBLETXMessage, ( uint8_t *) pvMessage, xMessageLength ) == pdTRUE )
+            if( prxSendNotification( pxService, eMQTTBLE_CHAR_TX_MESG, ( uint8_t *) pvMessage, xMessageLength ) == pdTRUE )
             {
                 xRemainingLen = 0;
             }else
@@ -1043,7 +1041,7 @@ size_t AwsIotMqttBLE_Send( void* pvConnection, const void * const pvMessage, siz
                 xSendLen = ( size_t ) mqttBLETRANSFER_LEN( usBLEConnMTU );
                 pucData = ( uint8_t *) pvMessage;
 
-                if( prxSendNotification( pxService, eMQTTBLETXLargeMessage, pucData, xSendLen ) == pdTRUE )
+                if( prxSendNotification( pxService, eMQTTBLE_CHAR_TX_LARGE_MESG, pucData, xSendLen ) == pdTRUE )
                 {
                     xRemainingLen = xRemainingLen - xSendLen;
                     pucData += xSendLen;
