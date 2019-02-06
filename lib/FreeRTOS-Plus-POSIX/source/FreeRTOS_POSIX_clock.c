@@ -49,9 +49,9 @@ extern int snprintf( char * s,
 
 clock_t clock( void )
 {
-    /* Return the amount of time since the scheduler started that wasn't spent
-     * in the idle task. */
-    return ( clock_t ) ( xTaskGetTickCount() - xTaskGetIdleTickCount() );
+    /* This function is currently unsupported. It will always return -1. */
+
+    return ( clock_t ) -1;
 }
 
 /*-----------------------------------------------------------*/
