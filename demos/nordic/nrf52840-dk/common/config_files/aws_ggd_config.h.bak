@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,25 +23,24 @@
  * http://www.FreeRTOS.org
  */
 
+
 /**
- * @file aws_ble_config.h
- * @brief BLE configuration overrides for ESP32 board.
+ * @file aws_ggd_config.h
+ * @brief GGD config options.
  */
 
+#ifndef _AWS_GGD_CONFIG_H_
+#define _AWS_GGD_CONFIG_H_
 
-#ifndef _AWS_BLE_CONFIG_H_
-#define _AWS_BLE_CONFIG_H_
-#include "sdk_config.h"
-/* Device name for this peripheral device */
-#define bleconfigDEVICE_NAME                     "nRF52840"
 
-/* Enable WIFI provisioning GATT service */
-#define bleconfigENABLE_WIFI_PROVISIONING         ( 0 )
+/**
+ * @brief The number of your network interface here.
+ */
+#define ggdconfigCORE_NETWORK_INTERFACE     ( 0 )
 
-/* MTU size. */
-#define bleconfigPREFERRED_MTU_SIZE         ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
+/**
+ * @brief Size of the array used by jsmn to store the tokens.
+ */
+#define ggdconfigJSON_MAX_TOKENS            ( 128 )
 
-/* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
-#include "aws_ble_config_defaults.h"
-
-#endif /* _AWS_BLE_CONFIG_H_ */
+#endif /* _AWS_GGD_CONFIG_H_ */

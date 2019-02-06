@@ -84,6 +84,7 @@
 #include "aws_iot_network_manager.h"
 #include "SEGGER_RTT.h"
 #include "aws_application_version.h"
+#include "aws_iot_taskpool.h"
 #if defined( UART_PRESENT )
     #include "nrf_uart.h"
 #endif
@@ -350,6 +351,7 @@ static void prvTimersInit( void )
 
 static void prvMiscInitialization( void )
 {
+    nrf_sdh_enable_request();
     /* Initialize modules.*/
     xUARTTxComplete = xSemaphoreCreateBinary();
     prvUartInit();
@@ -416,15 +418,22 @@ static void prvDeleteBonds( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     uint32_t ulEnabledNetworks;
+    AwsIotTaskPoolInfo_t taskPool = AWS_IOT_TASKPOOL_INFO_INITIALIZER_SMALL;
     /* FIX ME: Perform any hardware initialization, that require the RTOS to be
      * running, here. */
 
     BaseType_t xStatus = pdFALSE;
 
-    if( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS )
+    xStatus = ( AwsIotTaskPool_CreateSystemTaskPool( &taskPool ) == AWS_IOT_TASKPOOL_SUCCESS );
+
+     if( xStatus == pdPASS )
     {
-        xStatus = pdTRUE;
+      if( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS )
+      {
+          xStatus = pdTRUE;
+      }
     }
+
 
      if( AwsIotNetworkManager_Init() != pdPASS )
      {

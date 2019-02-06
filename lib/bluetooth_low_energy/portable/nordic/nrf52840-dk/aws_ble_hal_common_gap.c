@@ -729,14 +729,6 @@ BTStatus_t prvBtManagerCleanup()
 BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    uint32_t xNRFstatus = 0;
-
-    xNRFstatus = nrf_sdh_enable_request();
-
-    if( xNRFstatus != NRF_SUCCESS )
-    {
-        xStatus = eBTStatusFail;
-    }
 
     /** If status is ok and callback is set, trigger the callback.
      *  If status is fail, not need to trig a callback as original call failed.

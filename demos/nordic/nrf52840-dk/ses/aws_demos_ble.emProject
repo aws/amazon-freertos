@@ -176,6 +176,12 @@
             <file file_name="../../../../lib/utils/platform/aws_iot_clock_posix.c" />
             <file file_name="../../../../lib/utils/platform/aws_iot_threads_posix.c" />
           </folder>
+          <folder
+            Name="taskpool"
+            exclude=""
+            filter="*.*"
+            path="../../../../lib/utils/taskpool"
+            recurse="No" />
         </folder>
         <folder Name="ota">
           <file file_name="../../../../lib/ota/aws_iot_ota_agent.c" />

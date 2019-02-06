@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS V1.2.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,24 +24,15 @@
  */
 
 /**
- * @file aws_ble_config.h
- * @brief BLE configuration overrides for ESP32 board.
+ * @file aws_pkcs11_config.h
+ * @brief PCKS#11 config options.
  */
 
 
-#ifndef _AWS_BLE_CONFIG_H_
-#define _AWS_BLE_CONFIG_H_
-#include "sdk_config.h"
-/* Device name for this peripheral device */
-#define bleconfigDEVICE_NAME                     "nRF52840"
+#ifndef _AWS_PKCS11_CONFIG_H_
+#define _AWS_PKCS11_CONFIG_H_
 
-/* Enable WIFI provisioning GATT service */
-#define bleconfigENABLE_WIFI_PROVISIONING         ( 0 )
+/* A non-standard version of C_INITIALIZE should be used by this port. */
+/* #define pkcs11configC_INITIALIZE_ALT */
 
-/* MTU size. */
-#define bleconfigPREFERRED_MTU_SIZE         ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
-
-/* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
-#include "aws_ble_config_defaults.h"
-
-#endif /* _AWS_BLE_CONFIG_H_ */
+#endif /* _AWS_PKCS11_CONFIG_H_ include guard. */
