@@ -29,6 +29,11 @@
 #define _IOT_METRICS_H_
 
 #include <stdint.h>
+
+#ifdef AWS_IOT_CONFIG_FILE
+    #include AWS_IOT_CONFIG_FILE
+#endif
+
 #include "iot_linear_containers.h"
 
 /**

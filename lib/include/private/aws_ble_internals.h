@@ -32,6 +32,7 @@
 #define _AWS_BLE_INTERNALS_H_
 
 #include "aws_doubly_linked_list.h"
+#include "iot_linear_containers.h"
 
 /* Place holder for saving Char descriptors into memory. */
 typedef struct {
@@ -55,7 +56,7 @@ typedef struct {
 /* End of place holder. */
 
 typedef struct{
-	Link_t xServiceList;
+	IotLink_t xServiceList;
 	BLEAttribute_t * pxAttributesPtr;
 	BLEService_t * pxService;
 	uint16_t usStartHandle;
@@ -80,7 +81,7 @@ typedef struct
 }BLEInternalEventsCallbacks_t;
 
 typedef struct{
-	Link_t xEventList;
+	IotLink_t xEventList;
 	BLEEventsCallbacks_t xSubscribedEventCb;
 }BLESubscrEventListElement_t;
 
@@ -91,9 +92,12 @@ typedef struct{
 	/*  @TODO pending indication response with a global only works for one simultaneous connection */
 	uint16_t usHandlePendingIndicationResponse;
 	uint8_t ucServerIf;
-	Link_t xServiceListHead;
-	Link_t xConnectionListHead;
-	Link_t xSubscrEventListHead[eNbEvents];    /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */
+
+    IotListDouble_t xServiceListHead;
+	IotListDouble_t xConnectionListHead;
+	
+	IotListDouble_t xSubscrEventListHead[eNbEvents];    /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */
+	
 	uint16_t usHandlePendingPrepareWrite;
 	BLEInternalEventsCallbacks_t pxBLEEventsCallbacks;
 	BTInterface_t * pxBTInterface;

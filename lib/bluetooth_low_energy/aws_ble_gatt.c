@@ -28,7 +28,7 @@
  * @brief BLE GATT API.
  */
 
-#include "string.h"
+#include <string.h>
 #include "FreeRTOS.h"
 #include "event_groups.h"
 #include "semphr.h"
@@ -37,6 +37,7 @@
 #include "bt_hal_gatt_server.h"
 #include "aws_ble.h"
 #include "aws_ble_internals.h"
+
 
 static void vServerRegisteredCb( BTStatus_t xStatus,
                                  uint8_t ucServerIf,
@@ -223,8 +224,8 @@ void prvServiceClean( BLEServiceListElement_t * pxServiceElem )
 
     if( pxServiceElem != NULL )
     {
-        listREMOVE( &pxServiceElem->xServiceList );
-
+        IotListDouble_Remove( &pxServiceElem->xServiceList );
+        
         /* Delete service from memory */
         if( pxServiceElem->pxAttributesPtr != NULL )
         {
@@ -292,17 +293,16 @@ void prvTriggerAttriButeCallback( BLEAttribute_t * pxAttribute,
 BaseType_t prvGetAttributeFromHandle( uint16_t usAttrHandle,
                                       BLEAttribute_t * pxAttribute )
 {
-    Link_t * pxTmpElem;
+    IotLink_t * pxTmpElem;
     BLEServiceListElement_t * pxServiceElem;
     BaseType_t bFoundService = pdFAIL;
 
     /* The service that was just added is the last in the list */
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
-        listFOR_EACH( pxTmpElem, &xBTInterface.xServiceListHead )
+        for( ( pxTmpElem ) = xBTInterface.xServiceListHead.pNext; ( pxTmpElem ) != ( &xBTInterface.xServiceListHead ); ( pxTmpElem ) = ( pxTmpElem )->pNext )
         {
-            pxServiceElem = listCONTAINER( pxTmpElem, BLEServiceListElement_t, xServiceList );
-
+            pxServiceElem = IotLink_Container( BLEServiceListElement_t, pxTmpElem, xServiceList );
             if( ( usAttrHandle >= pxServiceElem->usStartHandle ) && ( usAttrHandle <= pxServiceElem->usEndHandle ) )
             {
                 bFoundService = pdPASS;
@@ -350,7 +350,8 @@ void vConnectionCb( uint16_t usConnId,
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLEConnectionInfoListElement_t * pxConnInfoListElem;
-    Link_t * pxEventListIndex;
+    IotLink_t * pxEventListIndex;
+
     BLESubscrEventListElement_t * pxEventIndex;
 
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
@@ -367,7 +368,7 @@ void vConnectionCb( uint16_t usConnId,
                 memcpy( &pxConnInfoListElem->pxRemoteBdAddr, pxBda, sizeof( BTBdaddr_t ) );
                 pxConnInfoListElem->usConnId = usConnId;
 
-                listADD( &xBTInterface.xConnectionListHead, &pxConnInfoListElem->xConnectionList );
+                IotListDouble_InsertHead(&xBTInterface.xConnectionListHead, &pxConnInfoListElem->xConnectionList);
             }
             else
             {
@@ -381,15 +382,15 @@ void vConnectionCb( uint16_t usConnId,
             if( xStatus == eBTStatusSuccess )
             {
                 /* Remove connection from the list safely */
-                listREMOVE( &pxConnInfoListElem->xConnectionList );
+                IotListDouble_Remove( &pxConnInfoListElem->xConnectionList );
                 vPortFree( pxConnInfoListElem );
             }
         }
 
         /* Get the event associated to the callback */
-        listFOR_EACH( pxEventListIndex, &xBTInterface.xSubscrEventListHead[ eBLEConnection ] )
+        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLEConnection ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLEConnection ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
         {
-            pxEventIndex = listCONTAINER( pxEventListIndex, BLESubscrEventListElement_t, xEventList );
+            pxEventIndex = IotLink_Container( BLESubscrEventListElement_t, pxEventListIndex, xEventList );
             pxEventIndex->xSubscribedEventCb.pxConnectionCb( xStatus, usConnId, bConnected, pxBda );
         }
         ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
@@ -403,9 +404,10 @@ BLEServiceListElement_t * prvGetLastAddedServiceElem( void )
     BLEServiceListElement_t * pxServiceElem = NULL;
 
     /* The service that was just added is the first in the list */
-    if( !listIS_EMPTY( &xBTInterface.xServiceListHead ) )
+    if( !IotListDouble_IsEmpty( &xBTInterface.xServiceListHead ) )
+    
     {
-        pxServiceElem = listCONTAINER( xBTInterface.xServiceListHead.pxNext, BLEServiceListElement_t, xServiceList );
+        pxServiceElem = IotLink_Container( BLEServiceListElement_t, xBTInterface.xServiceListHead.pNext, xServiceList );
     }
 
     return pxServiceElem;
@@ -415,14 +417,13 @@ BLEServiceListElement_t * prvGetLastAddedServiceElem( void )
 
 BLEServiceListElement_t * prvGetServiceListElemFromHandle( uint16_t usSrvcHandle )
 {
-    Link_t * pxTmpElem;
+    IotLink_t * pxTmpElem;
     BLEServiceListElement_t * pxServiceElem = NULL;
 
-    /* Remove service from service list */
-    listFOR_EACH( pxTmpElem, &xBTInterface.xServiceListHead )
+    /* Find service in the service list matching handle */
+    for( ( pxTmpElem ) = xBTInterface.xServiceListHead.pNext; ( pxTmpElem ) != ( &xBTInterface.xServiceListHead ); ( pxTmpElem ) = ( pxTmpElem )->pNext )
     {
-    	pxServiceElem = listCONTAINER( pxTmpElem, BLEServiceListElement_t, xServiceList );
-
+        pxServiceElem = IotLink_Container( BLEServiceListElement_t, pxTmpElem, xServiceList );
     	if( pxServiceElem->pxService->xAttributeData.xHandle == usSrvcHandle )
     	{
     		break;
@@ -695,15 +696,15 @@ void vExecWriteCb( uint16_t usConnId,
 void vMtuChangedCb( uint16_t usConnId,
                     uint16_t usMtu )
 {
-    Link_t * pxEventListIndex;
+    IotLink_t * pxEventListIndex;
     BLESubscrEventListElement_t * pxEventIndex;
 
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        listFOR_EACH( pxEventListIndex, &xBTInterface.xSubscrEventListHead[ eBLEMtuChanged ] )
+        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLEMtuChanged ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLEMtuChanged ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
         {
-            pxEventIndex = listCONTAINER( pxEventListIndex, BLESubscrEventListElement_t, xEventList );
+            pxEventIndex = IotLink_Container( BLESubscrEventListElement_t, pxEventListIndex, xEventList );
             pxEventIndex->xSubscribedEventCb.pxMtuChangedCb( usConnId, usMtu );
         }
         xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
@@ -796,7 +797,7 @@ BTStatus_t BLE_CreateService( BLEService_t ** ppxService,
                     if( pxNewElem->pxAttributesPtr != NULL )
                     {
                         memset( pxNewElem->pxAttributesPtr, 0, sizeof( BLEAttribute_t ) * usNumAttributes );
-                        listADD( &xBTInterface.xServiceListHead, &pxNewElem->xServiceList );
+                        IotListDouble_InsertHead(&xBTInterface.xServiceListHead, &pxNewElem->xServiceList);
                     }
                     else
                     {
@@ -1141,7 +1142,7 @@ BTStatus_t BLE_SendResponse( BLEEventResponse_t * pxResp,
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t BLE_GetConnectionInfoList( Link_t ** ppxConnectionInfoList )
+BTStatus_t BLE_GetConnectionInfoList( IotLink_t ** ppxConnectionInfoList )
 {
     *ppxConnectionInfoList = &xBTInterface.xConnectionListHead;
 
@@ -1155,11 +1156,11 @@ BTStatus_t BLE_GetConnectionInfo( uint16_t usConnId,
 {
     BTStatus_t xStatus = eBTStatusFail;
     BLEConnectionInfoListElement_t * pxConnInfoListElem;
-    Link_t * pxConnListIndex;
+    IotLink_t * pxConnListIndex;
 
-    listFOR_EACH( pxConnListIndex, &xBTInterface.xConnectionListHead )
+    for( ( pxConnListIndex ) = xBTInterface.xConnectionListHead.pNext; ( pxConnListIndex ) != ( &xBTInterface.xConnectionListHead ); ( pxConnListIndex ) = ( pxConnListIndex )->pNext )
     {
-        pxConnInfoListElem = listCONTAINER( pxConnListIndex, BLEConnectionInfoListElement_t, xConnectionList );
+        pxConnInfoListElem = IotLink_Container( BLEConnectionInfoListElement_t, pxConnListIndex, xConnectionList );
 
         if( usConnId == pxConnInfoListElem->usConnId )
         {
