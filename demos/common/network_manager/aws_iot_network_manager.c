@@ -29,6 +29,7 @@
  * @brief Network manager is used to handled different types of network connections and their connection/disconnection events at the application layer.
  */
 #include <string.h>
+
 #include "aws_iot_demo.h"
 #include "aws_iot_network_manager.h"
 
@@ -50,9 +51,33 @@
 
 #include "aws_iot_taskpool.h"
 
+/**
+ * @brief Maximum number of concurrent network events which can be queued for a network type.
+ */
+#define _MAX_CONCURRENT_NETWORK_EVENTS    ( 8 )
 
 /**
- *  @brief Structure used to store one node representing each subscription.
+ * @brief Initializer for a Taskpool task.
+ */
+#define _TASK_INITIALIZER              { .status = AWS_IOT_TASKPOOL_STATUS_UNDEFINED }
+
+/**
+ * @brief Initializer for WiFi Network Info structure.
+ */
+#define _NETWORK_INFO_WIFI            { .ulNetworkType = AWSIOT_NETWORK_TYPE_WIFI, .xTasks = { _TASK_INITIALIZER } }
+
+/**
+ * @brief Initializer for BLE Network Info structure.
+ */
+#define _NETWORK_INFO_BLE             { .ulNetworkType = AWSIOT_NETWORK_TYPE_BLE, .xTasks = { _TASK_INITIALIZER } }
+
+/**
+ * @brief Macro checks if task is free ( Not Scheduled/Completed/Failed )
+ */
+#define _TASK_FREE( xTaskStatus )      ( ( xTaskStatus != AWS_IOT_TASKPOOL_STATUS_SCHEDULED ) && ( xTaskStatus != AWS_IOT_TASKPOOL_STATUS_EXECUTING ) )
+
+/**
+ *  @brief Structure used to store the user subscription information.
  */
 typedef struct NMSubscriptionInfo
 {
@@ -62,15 +87,29 @@ typedef struct NMSubscriptionInfo
     void *pvContext;
 } NMSubscriptionInfo_t;
 
+/**
+ * @brief Stores the context which will be used for network state change event callback tasks.
+ */
+typedef struct NMNetworkEventTasksContext
+{
+    AwsIotNetworkState_t xNewtorkEvent;
+    uint32_t ulNetworkType;
+} NMNetworkEventTaskContext_t;
+
+/**
+ * @brief Structure wraps the information used by Network Manager for a network type.
+ */
 typedef struct NMNetworkInfo
 {
     Link_t xNetworkList;
     uint32_t ulNetworkType;
     AwsIotNetworkState_t xNetworkState;
+    AwsIotTaskPoolJob_t xTasks[ _MAX_CONCURRENT_NETWORK_EVENTS ];
+    NMNetworkEventTaskContext_t xTaskContexts[ _MAX_CONCURRENT_NETWORK_EVENTS ];
 } NMNetworkInfo_t;
 
 /**
- * @brief Network Manager Info structure containing list of networks and list of subscriptions.
+ * @brief Network Manager Info structure containing list of networks and the list of subscriptions.
  */
 typedef struct NetworkManagerInfo
 {
@@ -84,9 +123,7 @@ typedef struct NetworkManagerInfo
 
 #if BLE_ENABLED
 
-NMNetworkInfo_t xBLENetworkInfo = {
-    .ulNetworkType = AWSIOT_NETWORK_TYPE_BLE
-};
+NMNetworkInfo_t xBLENetworkInfo = _NETWORK_INFO_BLE;
 
 /**
  * @brief Function used to enable a BLE network.
@@ -143,9 +180,7 @@ static void prvSetScanRespCallback( BTStatus_t xStatus );
 
 #if WIFI_ENABLED
 
-NMNetworkInfo_t xWiFiNetworkInfo = {
-    .ulNetworkType = AWSIOT_NETWORK_TYPE_WIFI
-};
+NMNetworkInfo_t xWiFiNetworkInfo = _NETWORK_INFO_WIFI;
 
 /**
  * @brief Function used to enable a WIFI network.
@@ -179,17 +214,13 @@ static BaseType_t prxWifiConnect( void );
 #endif
 #endif
 
-/**
- * @brief Function goes through the list of subscriptions and invoke the network state change subscription callbacks.
- * @param ulNetworkType Type of the network for which the state changed
- * @param xState The new state of the network.
- */
-static void prvInvokeNetworkStateChangeCallbacks( uint32_t ulNetworkType, AwsIotNetworkState_t xState );
+
+static void prvInvokeUserCallbackRoutine( NMNetworkInfo_t* pxNetwork, AwsIotNetworkState_t xNetworkEvent );
+
+static void prvUserCallbackRoutine( struct AwsIotTaskPool * pTaskPool, struct AwsIotTaskPoolJob * pJob, void * pUserContext );
 
 
 static NetworkManagerInfo_t xNetworkManagerInfo = { 0 };
-
-
 
 #if BLE_ENABLED
 
@@ -424,6 +455,8 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
 {
 
 
+    AwsIotNetworkState_t xPrevState = xBLENetworkInfo.xNetworkState;
+
     if( xConnected == true )
     {
     	AwsIotLogInfo ( "BLE Connected to remote device, connId = %d\n", usConnId );
@@ -433,16 +466,18 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
     else
     {
         AwsIotLogInfo ( "BLE disconnected with remote device, connId = %d \n", usConnId );
-        prvInvokeNetworkStateChangeCallbacks( AWSIOT_NETWORK_TYPE_BLE, eNetworkStateDisabled );
-        if( xBLENetworkInfo.xNetworkState == eNetworkStateEnabled )
-        {
-            xBLENetworkInfo.xNetworkState = eNetworkStateDisabled;
-            ( void ) BLE_StartAdv( prvStartAdvCallback );
-        }
 
+        if( xBLENetworkInfo.xNetworkState != eNetworkStateUnknown )
+        {
+            BLE_StartAdv( prvStartAdvCallback );
+            xBLENetworkInfo.xNetworkState = eNetworkStateDisabled;
+        }
     }
 
-    prvInvokeNetworkStateChangeCallbacks( AWSIOT_NETWORK_TYPE_BLE, xBLENetworkInfo.xNetworkState );
+    if( xPrevState != xBLENetworkInfo.xNetworkState )
+    {
+        prvInvokeUserCallbackRoutine( &xBLENetworkInfo, xBLENetworkInfo.xNetworkState  );
+    }
 }
 
 #endif
@@ -451,10 +486,11 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
 #if WIFI_ENABLED
 static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState, void *pvContext )
 {
-    ( void ) ulNetworkType;
-    ( void ) pvContext;
-    xWiFiNetworkInfo.xNetworkState = xState;
-    prvInvokeNetworkStateChangeCallbacks( AWSIOT_NETWORK_TYPE_WIFI, xState );
+    if( xState != xWiFiNetworkInfo.xNetworkState )
+    {
+        xWiFiNetworkInfo.xNetworkState = xState;
+        prvInvokeUserCallbackRoutine( &xWiFiNetworkInfo, xWiFiNetworkInfo.xNetworkState );
+    }
 }
 
 #if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
@@ -542,22 +578,100 @@ static BaseType_t prxWIFIDisable( void )
 
 /*-----------------------------------------------------------*/
 
-static void prvInvokeNetworkStateChangeCallbacks( uint32_t ulNetworkType, AwsIotNetworkState_t xState )
+static void prvInvokeUserCallbackRoutine( NMNetworkInfo_t* pxNetwork, AwsIotNetworkState_t xNetworkEvent )
 {
-	Link_t *pxLink;
-	NMSubscriptionInfo_t* pxSubscription;
+    uint16_t usIdx;
+    AwsIotTaskPoolError_t xError;
+    AwsIotTaskPoolJob_t* pxTask;
+    AwsIotTaskPoolJobStatus_t xTaskStatus;
+    NMNetworkEventTaskContext_t *pxTaskContext;
 
-	( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
-	listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
-	{
-		pxSubscription = listCONTAINER( pxLink, NMSubscriptionInfo_t, xSubscriptionList );
-		if( ( pxSubscription->ulNetworkTypes & ulNetworkType ) == ulNetworkType )
-		{
-			pxSubscription->xCallback( ulNetworkType, xState, pxSubscription->pvContext );
-		}
-	}
-	( void ) xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
+
+    for( usIdx = 0; usIdx < _MAX_CONCURRENT_NETWORK_EVENTS; usIdx++ )
+    {
+        pxTask = &( pxNetwork->xTasks[usIdx] );
+        xError = AwsIotTaskPool_GetStatus( pxTask, &xTaskStatus );
+        if( xError == AWS_IOT_TASKPOOL_SUCCESS )
+        {
+            if( _TASK_FREE( xTaskStatus ) )
+            {
+                pxTaskContext = &( pxNetwork->xTaskContexts[ usIdx ] );
+                pxTaskContext->ulNetworkType = pxNetwork->ulNetworkType;
+                pxTaskContext->xNewtorkEvent = xNetworkEvent;
+
+                if( xTaskStatus == AWS_IOT_TASKPOOL_STATUS_UNDEFINED )
+                {
+                    xError = AwsIotTaskPool_CreateJob(
+                            prvUserCallbackRoutine,
+                            pxTaskContext,
+                            pxTask );
+                }
+
+                if( xError == AWS_IOT_TASKPOOL_SUCCESS )
+                {
+                    xError = AwsIotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, pxTask );
+                }
+
+                if( xError != AWS_IOT_TASKPOOL_SUCCESS )
+                {
+                    AwsIotLogError( "Cannot schedule network event for processing,"
+                            " network type = %d, event = %d, error = %d.",
+                            pxNetwork-> ulNetworkType,
+                            xNetworkEvent,
+                            xError );
+                }
+
+                break;
+            }
+        }
+    }
+
+    if( usIdx == _MAX_CONCURRENT_NETWORK_EVENTS )
+    {
+        AwsIotLogError( "Cannot schedule network event for processing,"
+                " network type = %d, event = %d, error = MAX Concurrent events limit ( %d ) reached.",
+                pxNetwork-> ulNetworkType,
+                xNetworkEvent,
+                _MAX_CONCURRENT_NETWORK_EVENTS );
+    }
 }
+
+
+static void prvUserCallbackRoutine(
+        struct AwsIotTaskPool * pTaskPool,
+        struct AwsIotTaskPoolJob * pJob,
+        void * pUserContext )
+{
+
+    NMNetworkEventTaskContext_t* pxContext = ( NMNetworkEventTaskContext_t* ) pUserContext;
+    Link_t* pxLink;
+    NMSubscriptionInfo_t* pxSubscription;
+    BaseType_t xResult = pdTRUE;
+    uint32_t ulNetworkType;
+
+    configASSERT( pxContext != NULL );
+
+    ulNetworkType = pxContext->ulNetworkType;
+
+    xResult = xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
+    if( xResult == pdTRUE )
+    {
+        listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
+        {
+            pxSubscription = listCONTAINER( pxLink, NMSubscriptionInfo_t, xSubscriptionList );
+            if( ( pxSubscription->ulNetworkTypes & ulNetworkType ) == ulNetworkType )
+            {
+                pxSubscription->xCallback(
+                        ulNetworkType,
+                        pxContext->xNewtorkEvent,
+                        pxSubscription->pvContext );
+            }
+        }
+        ( void ) xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
+    }
+
+}
+
 
 /*-----------------------------------------------------------*/
 
@@ -648,21 +762,21 @@ BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandl
 
 	if( xNetworkManagerInfo.xIsInit )
 	{
-                ppxSubscription = ( NMSubscriptionInfo_t* ) xHandle;
-		( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
-		listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
-		{
-			pxListItem = listCONTAINER( pxLink, NMSubscriptionInfo_t, xSubscriptionList );
-			if( pxListItem == ppxSubscription )
-			{
-				listREMOVE( pxLink );
-				vPortFree( ppxSubscription );
-				xRet = pdTRUE;
-				break;
-			}
+	    ppxSubscription = ( NMSubscriptionInfo_t* ) xHandle;
+	    ( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
+	    listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
+	    {
+	        pxListItem = listCONTAINER( pxLink, NMSubscriptionInfo_t, xSubscriptionList );
+	        if( pxListItem == ppxSubscription )
+	        {
+	            listREMOVE( pxLink );
+	            vPortFree( ppxSubscription );
+	            xRet = pdTRUE;
+	            break;
+	        }
 
-		}
-		( void ) xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
+	    }
+	    ( void ) xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
 	}
 
 	return xRet;
