@@ -71,7 +71,7 @@
 #define configUSE_QUEUE_SETS                       0
 #define configUSE_TIME_SLICING                     0
 #define configUSE_NEWLIB_REENTRANT                 0
-#define configENABLE_BACKWARD_COMPATIBILITY        0
+#define configENABLE_BACKWARD_COMPATIBILITY        1
 #define configUSE_TASK_FPU_SUPPORT                 0
 #define configUSE_POSIX_ERRNO                      1
 
