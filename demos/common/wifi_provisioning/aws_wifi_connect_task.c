@@ -95,22 +95,29 @@ void prvWiFiConnectTask( void * pvParams )
                     ulNumRetries++ )
             {
                 ulNumNetworks = WIFI_PROVISION_GetNumNetworks();
-                for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
+                if( ulNumNetworks > 0 )
                 {
-                    if( WIFI_IsConnected() == pdFALSE )
+                    for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
                     {
-                        xWiFiConnected = WIFI_PROVISION_Connect( ulNetworkIndex );
-                    }
-                    else
-                    {
-                        xWiFiConnected = pdTRUE;
-                    }
+                        if( WIFI_IsConnected() == pdFALSE )
+                        {
+                            xWiFiConnected = WIFI_PROVISION_Connect( ulNetworkIndex );
+                        }
+                        else
+                        {
+                            xWiFiConnected = pdTRUE;
+                        }
 
-                    if( xWiFiConnected == pdTRUE )
-                    {
-                        break;
+                        if( xWiFiConnected == pdTRUE )
+                        {
+                            break;
+                        }
+                        vTaskDelay( xWifiConnectionDelay );
                     }
-                    vTaskDelay( xWifiConnectionDelay );
+                }
+                else
+                {
+                    break;
                 }
             }
         }
