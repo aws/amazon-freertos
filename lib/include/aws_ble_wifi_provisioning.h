@@ -42,12 +42,12 @@
 /**
  * @brief GATT Service, characteristic and descriptor UUIDs used by the WiFi provisioning service.
  */
-#define wifiProvSVC_UUID_BASE               { 0x00, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }
-#define wifiProvSVC_UUID                    ( 0xFF00 )
-#define wifiProvLIST_NETWORK_CHAR_UUID      ( 0xFF01 )
-#define wifiProvSAVE_NETWORK_CHAR_UUID      ( 0xFF02 )
-#define wifiProvEDIT_NETWORK_CHAR_UUID      ( 0xFF03 )
-#define wifiProvDELETE_NETWORK_CHAR_UUID    ( 0xFF04 )
+#define wifiProvSVC_UUID_MASK               0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31
+#define wifiProvSVC_UUID                    {0x00, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvLIST_NETWORK_CHAR_UUID      {0x01, 0xFF, wifiProvSVC_UUID_MASK})
+#define wifiProvSAVE_NETWORK_CHAR_UUID      {0x02, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvEDIT_NETWORK_CHAR_UUID      {0x03, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvDELETE_NETWORK_CHAR_UUID    {0x04, 0xFF, wifiProvSVC_UUID_MASK}
 #define wifiProvCLIENT_CHAR_CFG_UUID        ( 0x2902 )
 
 /**

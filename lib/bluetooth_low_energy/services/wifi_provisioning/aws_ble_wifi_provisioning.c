@@ -37,9 +37,9 @@
 #include "aws_json_utils.h"
 
 
-#define ATTR_DATA( svc, attrType )      ( ( svc )->pxGattService->pxCharacteristics[ attrType ].xAttributeData )
-#define ATTR_HANDLE( svc, attrType )    ( ( ATTR_DATA( svc, attrType ) ).xHandle )
-#define ATTR_UUID( svc, attrType )      ( ( ATTR_DATA( svc, attrType ) ).xUuid )
+#define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
+#define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
+#define DESCR_HANDLE( svc, descr_idx )    ( ( svc )->pusHandlesBuffer[descr_idx] )
 
 /*---------------------------------------------------------------------------------------------------------*/
 
@@ -229,6 +229,99 @@ static void vServiceDeletedCb( BTStatus_t xStatus,
 }
 
 /*-----------------------------------------------------------*/
+/**
+ * @brief UUID for Device Information Service.
+ *
+ * This UUID is used in advertisement for the companion apps to discover and connect to the device.
+ */
+#define wifiProvLIST_NETWORK_CHAR_UUID_TYPE \
+{ \
+    .uu.uu128 = wifiProvLIST_NETWORK_CHAR_UUID,\
+    .ucType   = eBTuuidType128\
+}
+
+#define wifiProvSAVE_NETWORK_CHAR_UUID_TYPE \
+{ \
+    .uu.uu128 = wifiProvSAVE_NETWORK_CHAR_UUID,\
+    .ucType   = eBTuuidType128\
+}
+
+#define wifiProvEDIT_NETWORK_CHAR_UUID_TYPE \
+{ \
+    .uu.uu128 = wifiProvEDIT_NETWORK_CHAR_UUID,\
+    .ucType   = eBTuuidType128\
+}
+
+#define wifiProvDELETE_NETWORK_CHAR_UUID_TYPE \
+{ \
+    .uu.uu128 = wifiProvDELETE_NETWORK_CHAR_UUID,\
+    .ucType   = eBTuuidType128\
+}
+
+#define wifiProvCLIENT_CHAR_CFG_UUID_TYPE \
+{ \
+    .uu.uu16 = wifiProvCLIENT_CHAR_CFG_UUID,\
+    .ucType   = eBTuuidType16\
+}
+
+
+#define wifiProvSVC_UUID_TYPE \
+{ \
+    .uu.uu128 = wifiProvSVC_UUID,\
+    .ucType   = eBTuuidType128\
+}
+
+
+
+#define wifiProvSVC_UUID                    {0x00, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvLIST_NETWORK_CHAR_UUID      {0x01, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvSAVE_NETWORK_CHAR_UUID      {0x02, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvEDIT_NETWORK_CHAR_UUID      {0x03, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvDELETE_NETWORK_CHAR_UUID    {0x04, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvCLIENT_CHAR_CFG_UUID        ( 0x2902 )
+
+typedef enum {
+  bledeviceinfoATTR_SERVICE,
+  bledeviceinfoATTR_CHAR_END_POINT,
+  bledeviceinfoATTR_CHAR_VERSION,
+  bledeviceinfoATTR_CHAR_MTU,
+  bledeviceinfoATTR_CHAR_DESCR_MTU,
+  bledeviceinfoATTR_NUMBER
+} bledeviceinfoAttr_t;
+
+static uint16_t usHandlesBuffer[bledeviceinfoATTR_NUMBER];
+
+static const BLEAttribute_t pxAttributeTable[] = {
+     {
+         .xServiceUUID =  xDeviceInfoSvcUUID
+     },
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic =
+         {
+              .xUuid = deviceInfoCHAR_VERSION_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM ),
+              .xProperties = ( eBTPropRead )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristic =
+         {
+             .xUuid = deviceInfoCLIENT_CHAR_CFG_UUID_TYPE,
+             .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )
+          }
+     }
+};
+
+static const BLEService_t xWIFIProvisionningService =
+{
+  .xNumberOfAttributes = bledeviceinfoATTR_NUMBER,
+  .ucInstId = 0,
+  .xType = eBTServiceTypePrimary,
+  .pusHandlesBuffer = usHandlesBuffer,
+  .pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable
+};
 
 BaseType_t prxInitGATTService( void )
 {
@@ -276,11 +369,6 @@ BaseType_t prxInitGATTService( void )
         pxGattService->pxCharacteristics[ eListNetworkChar ].xNbDescriptors = 1;
         pxGattService->pxCharacteristics[ eListNetworkChar ].pxDescriptors[ 0 ] = &pxGattService->pxDescriptors[ eListNetworkCharCCFGDescr ];
 
-        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].xAttributeData.xUuid = xClientCharCfgUUID;
-        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].xAttributeData.pucData = NULL;
-        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].xAttributeData.xSize = 0;
-        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].pxAttributeEventCallback = vClientCharCfgDescrCallback;
 
         xUUID.uu.uu16 = wifiProvSAVE_NETWORK_CHAR_UUID;
         pxGattService->pxCharacteristics[ eSaveNetworkChar ].xAttributeData.xUuid = xUUID;
@@ -291,6 +379,12 @@ BaseType_t prxInitGATTService( void )
         pxGattService->pxCharacteristics[ eSaveNetworkChar ].pxAttributeEventCallback = vCharacteristicCallback;
         pxGattService->pxCharacteristics[ eSaveNetworkChar ].xNbDescriptors = 1;
         pxGattService->pxCharacteristics[ eSaveNetworkChar ].pxDescriptors[ 0 ] = &pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ];
+
+        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].xAttributeData.xUuid = xClientCharCfgUUID;
+        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].xAttributeData.pucData = NULL;
+        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].xAttributeData.xSize = 0;
+        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
+        pxGattService->pxDescriptors[ eSaveNetworkCharCCFGDescr ].pxAttributeEventCallback = vClientCharCfgDescrCallback;
 
         pxGattService->pxDescriptors[ eEditNetworkCharCCFGDescr ].xAttributeData.xUuid = xClientCharCfgUUID;
         pxGattService->pxDescriptors[ eEditNetworkCharCCFGDescr ].xAttributeData.pucData = NULL;
@@ -308,11 +402,6 @@ BaseType_t prxInitGATTService( void )
         pxGattService->pxCharacteristics[ eEditNetworkChar ].xNbDescriptors = 1;
         pxGattService->pxCharacteristics[ eEditNetworkChar ].pxDescriptors[ 0 ] = &pxGattService->pxDescriptors[ eEditNetworkCharCCFGDescr ];
 
-        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].xAttributeData.xUuid = xClientCharCfgUUID;
-        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].xAttributeData.pucData = NULL;
-        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].xAttributeData.xSize = 0;
-        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].pxAttributeEventCallback = vClientCharCfgDescrCallback;
 
         xUUID.uu.uu16 = wifiProvDELETE_NETWORK_CHAR_UUID;
         pxGattService->pxCharacteristics[ eDeleteNetworkChar ].xAttributeData.xUuid = xUUID;
@@ -323,6 +412,13 @@ BaseType_t prxInitGATTService( void )
         pxGattService->pxCharacteristics[ eDeleteNetworkChar ].pxAttributeEventCallback = vCharacteristicCallback;
         pxGattService->pxCharacteristics[ eDeleteNetworkChar ].xNbDescriptors = 1;
         pxGattService->pxCharacteristics[ eDeleteNetworkChar ].pxDescriptors[ 0 ] = &pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ];
+
+        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].xAttributeData.xUuid = xClientCharCfgUUID;
+        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].xAttributeData.pucData = NULL;
+        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].xAttributeData.xSize = 0;
+        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
+        pxGattService->pxDescriptors[ eDeleteNetworkCharCCFGDescr ].pxAttributeEventCallback = vClientCharCfgDescrCallback;
+
 
         pxGattService->xServiceType = eBTServiceTypePrimary;
 
