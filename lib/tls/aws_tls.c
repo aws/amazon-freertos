@@ -801,11 +801,12 @@ BaseType_t TLS_Send( void * pvContext,
                 /* Sent data, so update the tally and keep looping. */
                 xWritten += ( size_t ) xResult;
             }
-            else if( 0 == xResult )
+            else if( ( 0 == xResult ) || ( -pdFREERTOS_ERRNO_ENOSPC == xResult ) )
             {
-                /* No data sent (and no error). The secure sockets
+                /* No data sent. The secure sockets
                  * API supports non-blocking send, so stop the loop but don't
                  * flag an error. */
+                xResult = 0;
                 break;
             }
             else if( MBEDTLS_ERR_SSL_WANT_WRITE != xResult )
