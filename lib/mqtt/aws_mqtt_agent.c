@@ -857,6 +857,7 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
     size_t xURLLength;
     MQTTBrokerConnection_t * pxConnection = &( xMQTTConnections[ pxEventData->uxBrokerNumber ] );
     char * ppcAlpns[] = { socketsAWS_IOT_ALPN_MQTT };
+    TickType_t xMqttTimeout;
 
     /* Should not get here if the socket used to communicate with the
      * broker is already connected. */
@@ -968,6 +969,19 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
                                              SOCKETS_SO_NONBLOCK,
                                              NULL /* Unused. */,
                                              0 /* Unused. */ );
+
+                /* Set the Send Timeout of Socket to mqttconfigTCP_SEND_TIMEOUT_MS to block on sends. */
+
+                xMqttTimeout = pdMS_TO_TICKS( mqttconfigTCP_SEND_TIMEOUT_MS );
+
+                if( SOCKETS_SetSockOpt( pxConnection->xSocket,
+                                        0,
+                                        SOCKETS_SO_SNDTIMEO,
+                                        &xMqttTimeout,
+                                        sizeof( TickType_t ) ) != SOCKETS_ERROR_NONE )
+                {
+                    xStatus = pdFAIL;
+                }
             }
             else
             {
@@ -1467,7 +1481,7 @@ static void prvInitiateMQTTSubscribe( MQTTEventData_t * const pxEventData )
     /* Store notification data. */
     pxNotificationData = prvStoreNotificationData( pxConnection, pxEventData );
 
-    /* If a free buffer was not available to store the	notification data
+    /* If a free buffer was not available to store the  notification data
      * (i.e. mqttconfigMAX_PARALLEL_OPS tasks are already in progress), fail
      * immediately. */
     if( pxNotificationData != NULL )
@@ -1522,7 +1536,7 @@ static void prvInitiateMQTTUnSubscribe( MQTTEventData_t * const pxEventData )
     /* Store notification data. */
     pxNotificationData = prvStoreNotificationData( pxConnection, pxEventData );
 
-    /* If a free buffer was not available to store the	notification data
+    /* If a free buffer was not available to store the  notification data
      * (i.e. mqttconfigMAX_PARALLEL_OPS tasks are already in progress), fail
      * immediately. */
     if( pxNotificationData != NULL )
