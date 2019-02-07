@@ -578,10 +578,10 @@ BTStatus_t prvAddServiceToList( BLEService_t * pxService,
 
     /* Create a space in the list for the service. */
     pxNewElem = pvPortMalloc( sizeof( BLEServiceListElement_t ) );
-    memset( pxNewElem, 0, sizeof( BLEServiceListElement_t ) );
 
     if( pxNewElem != NULL )
     {
+    	memset( pxNewElem, 0, sizeof( BLEServiceListElement_t ) );
         pxNewElem->pxEventsCallbacks = pxEventsCallbacks;
         pxNewElem->pxService = pxService;
 
