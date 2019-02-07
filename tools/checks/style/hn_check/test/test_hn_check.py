@@ -139,12 +139,29 @@ count_indirection_params = [
     ("int x[2]", 0),
     ("int x[2][3]", 0),
     ("int * x[2][3]", 1),
+    ("CK_FUNCTION_LIST_PTR", 1),
+    ("CK_FUNCTION_LIST_PTR *", 2),
+    ("CK_FUNCTION_LIST_PTR_PTR", 2),
 ]
 @pytest.mark.parametrize("input, expected", count_indirection_params)
 def test_count_indirection(input, expected):
     result = hn_check.count_indirection(input)
     assert expected == result
 
+# PKCS #11 indirection only counts indirection from _PTR
+# in type name, and not due to *
+count_pkcs11_indirection_params = [
+    ("int x", 0),
+    ("int * x", 0),
+    ("int ** x", 0),
+    ("CK_FUNCTION_LIST_PTR", 1),
+    ("CK_FUNCTION_LIST_PTR *", 1),
+    ("CK_FUNCTION_LIST_PTR_PTR", 2),
+]
+@pytest.mark.parametrize("input, expected", count_pkcs11_indirection_params)
+def test_count_pkcs11_indirection(input, expected):
+    result = hn_check.count_pkcs11_indirection(input)
+    assert expected == result
 
 get_prefix_params = [
     ("char * topic;", "pc"),
@@ -195,6 +212,7 @@ get_identifier_prefix_params = [
     ("success", ""),
     ("sVar", "s"),
     ("xVar", "x"),
+    ("px123", "px"),
 ]
 @pytest.mark.parametrize("input, expected", get_identifier_prefix_params)
 def test_get_identifier_prefix(input, expected):

@@ -63,6 +63,13 @@
 #define pkcs11ELLIPTIC_CURVE_NISTP256    "1.2.840.10045.3.1.7"
 
 /* Bring in the public header. */
+
+/* Undefine the macro for Keil Compiler to avoid conflict */
+#if defined( __PASTE ) && defined( __CC_ARM )
+/* ARM RCVT stdint.h has a duplicate definition with PKCS #11. */
+#undef __PASTE
+#endif
+
 #include "pkcs11.h"
 
 /* Key Template */

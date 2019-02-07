@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.0
+ * Amazon FreeRTOS+POSIX V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,31 +35,24 @@
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX/time.h"
+#include "FreeRTOS_POSIX_types.h"
 
 /**
  * @brief Semaphore type.
  */
-typedef void * sem_t;
+typedef PosixSemType_t sem_t;
 
 /**
  * @brief Destroy an unnamed semaphore.
  *
- * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_destroy.html
- *
- * @retval 0 - upon successful completion
- *
- * @note Semaphore is destroyed regardless of whether there is any thread currently blocked on this semaphore.
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_destroy.html
  */
 int sem_destroy( sem_t * sem );
 
 /**
  * @brief Get the value of a semaphore.
  *
- * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_getvalue.html
- *
- * @retval 0 - Upon successful completion
- *
- * @note If sem is locked, then the object to which sval points is set to zero.
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_getvalue.html
  */
 int sem_getvalue( sem_t * sem,
                   int * sval );
@@ -67,18 +60,9 @@ int sem_getvalue( sem_t * sem,
 /**
  * @brief Initialize an unnamed semaphore.
  *
- * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_init.html
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_init.html
  *
  * @note pshared is ignored. Semaphores will always be considered "shared".
- *
- * @retval 0 - upon successful completion
- * @retval -1 - otherwise. System error variable errno is also set in this case.
- *
- * @sideeffect Possible errno values
- * <br>
- * EINVAL -  The value argument exceeds {SEM_VALUE_MAX}.
- * <br>
- * ENOSPC - A resource required to initialize the semaphore has been exhausted.
  */
 int sem_init( sem_t * sem,
               int pshared,
@@ -87,28 +71,14 @@ int sem_init( sem_t * sem,
 /**
  * @brief Unlock a semaphore.
  *
- * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_post.html
- *
- * @retval 0 - upon successful completion
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_post.html
  */
 int sem_post( sem_t * sem );
 
 /**
  * @brief Lock a semaphore with timeout.
  *
- * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_timedwait.html
- *
- * @retval 0 - upon successful completion
- * @retval -1 - otherwise. System error variable errno is also set in this case.
- *
- * @sideeffect Possible errno values
- * <br>
- * EINVAL - parameter specified a nanoseconds field value less than zero or greater
- * than or equal to 1000 million
- * <br>
- * ETIMEDOUT - The semaphore could not be locked before the specified timeout expired.
- *
- * @note Deadlock detection is not implemented.
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_timedwait.html
  */
 int sem_timedwait( sem_t * sem,
                    const struct timespec * abstime );
@@ -116,24 +86,14 @@ int sem_timedwait( sem_t * sem,
 /**
  * @brief Lock a semaphore if available.
  *
- * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_trywait.html
- *
- * @retval 0 - upon successful completion
- * @retval -1 - otherwise. System error variable errno is also set in this case.
- *
- * @sideeffect Possible errno values
- * <br>
- * EAGAIN - The semaphore was already locked, so it cannot be immediately locked by the sem_trywait() operation.
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_trywait.html
  */
 int sem_trywait( sem_t * sem );
 
 /**
  * @brief Lock a semaphore.
  *
- * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_wait.html
- *
- * @retval 0 - upon successful completion
- * @retval -1 - otherwise. System error variable errno is also set in this case.
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sem_wait.html
  *
  * @note Deadlock detection is not implemented.
  */

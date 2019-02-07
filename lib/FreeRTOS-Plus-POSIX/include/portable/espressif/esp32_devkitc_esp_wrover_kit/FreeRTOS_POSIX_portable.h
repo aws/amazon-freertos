@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.1
+ * Amazon FreeRTOS+POSIX V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,6 +45,10 @@
 #define posixconfigENABLE_TIMESPEC               0
 #define posixconfigENABLE_ITIMERSPEC             0
 
+/* ESP-IDF already provides the header sched.h. Exclude FreeRTOS+POSIX sched.h by
+ * defining its double inclusion guard. */
+#define _FREERTOS_POSIX_SCHED_H_
+
 /* Use the FreeRTOS+POSIX time.h header instead of the ESP-IDF time.h. Disable
  * ESP-IDF time.h by defining its double inclusion guard. */
 #define _TIME_H_
@@ -52,11 +56,5 @@
 /* Disable the timer_t type defined by ESP-IDF. */
 #define __timer_t_defined
 #include <sys/types.h>
-
-/* ESP-IDF already provides the header sched.h. Exclude FreeRTOS+POSIX sched.h by
- * defining its double inclusion guard. */
-#define _FREERTOS_POSIX_SCHED_H_
-#define _POSIX_PRIORITY_SCHEDULING
-#include <sched.h>
 
 #endif /* _FREERTOS_POSIX_PORTABLE_H_ */

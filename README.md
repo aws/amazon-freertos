@@ -1,18 +1,3 @@
-## NOTE
-This is a beta branch, only the following platforms, with corresponding demos are tested:
-- esp32_devkitc_esp_wrover_kit:
-    * vStartMQTTBLEEchoDemo
-    * vStartMQTTv4Demo  
-	* WIFI provisioning (added as a BLE service)
-- nrf52840-dk (WIFI not supported):
-    * vStartMQTTBLEEchoDemo  
-- B-L475E-IOT01A (WIFI not supported): 
-    * vStartMQTTBLEEchoDemo 
-
-For BLE to work, define the endpoint in ```demos\common\include\aws_clientcredential.h``` and a _thing name_ of 23 characters or less. 
-
-BLE devices with no WiFi or Ethernet capabilities can interact with the MQTT message broker for AWS IoT using a proxy device. Please refer to the [iOS](https://github.com/aws/amazon-freertos-ble-ios-sdk) and [Android](https://github.com/aws/amazon-freertos-ble-android-sdk) SDK for Amazon FreeRTOS to learn more. 
-	
 ## Getting Started
 
 For more information on Amazon FreeRTOS, refer to the [Getting Started section of Amazon FreeRTOS webpage](https://aws.amazon.com/freertos).
@@ -44,10 +29,15 @@ The following MCU boards are supported for Amazon FreeRTOS:
 7. **Xilinx** - [Xilinx Zynq-7000 based MicroZed Industrial IoT Bundle](http://www.zedboard.org/product/microzed-iiot-bundle-afreertos)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_xilinx.html)
     * IDE: [Xilinx SDK](https://www.xilinx.com/products/design-tools/embedded-software/sdk.html)
-    
-## Windows Simulator
-To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator. Please see the [Windows Simulator Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html).
+8. **MediaTek** - [MediaTek MT7697Hx Development Kit](https://www.mediatek.com/products/smartHome/mt7697h)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_mediatek.html)
+    * IDE: [Keil uVision](http://www2.keil.com/mdk5/install/)
+9. **Renesas** - [Renesas Starter Kit+ for RX65N-2MB](https://www.renesas.com/us/en/products/software-tools/boards-and-kits/renesas-starter-kits/renesas-starter-kitplus-for-rx65n-2mb.html)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_renesas.html)
+    * IDE: [e2 studio](https://www.renesas.com/us/en/products/software-tools/tools/ide/e2studio.html)
 
-### Requirements
-* Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection. 
-* [Visual Studio Community Edition](https://www.visualstudio.com/downloads/).
+**Windows Simulator**
+To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
+* Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
+* [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
+* IDE: [Visual Studio Community Edition](https://www.visualstudio.com/downloads/)

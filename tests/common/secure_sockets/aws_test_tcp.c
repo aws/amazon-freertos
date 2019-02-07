@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets AFQP V1.1.2  
+ * Amazon FreeRTOS Secure Sockets AFQP V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1739,7 +1739,7 @@ TEST( Full_TCP, AFQP_SOCKETS_Socket_InvalidInputParams )
 
 static void prvSOCKETS_Socket_InvalidTooManySockets( Server_t xConn )
 {
-    #if !defined( WIN32 ) && !defined( PIC32MZ ) && !defined( ESP32 ) && !defined( ZYNQ7000 ) /* Socket can be created as much as there is memory */
+    #if !defined( WIN32 ) && !defined( PIC32MZ ) && !defined( ESP32 ) && !defined( ZYNQ7000 ) && !defined( __RX ) /* Socket can be created as much as there is memory */
         BaseType_t xResult;
         Socket_t xCreatedSockets[ integrationtestportableMAX_NUM_UNSECURE_SOCKETS ];
         BaseType_t xSocketsCreated;

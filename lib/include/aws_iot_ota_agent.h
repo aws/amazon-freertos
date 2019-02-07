@@ -46,7 +46,7 @@
 
 /* The OTA signature algorithm string is specified by the PAL. */
 #define OTA_FILE_SIG_KEY_STR_MAX_LENGTH 32
-extern const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ];
+extern const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ];
 
 /**
  * @brief Special OTA Agent printing definition.
@@ -81,7 +81,8 @@ extern const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ]
  * 
  * @note There is currently support only for a single OTA context.
  */
-typedef enum {
+typedef enum
+{
     eOTA_AgentState_Unknown = -1,       /*!< The OTA agent state is not yet known. */
 	eOTA_AgentState_NotReady = 0,       /*!< The OTA agent task is not running. */
 	eOTA_AgentState_Ready = 1,          /*!< The OTA agent task is running and ready to transfer. */
@@ -94,7 +95,8 @@ typedef enum {
 
 #define kOTA_MaxSignatureSize           256     /* Max bytes supported for a file signature (2048 bit RSA is 256 bytes). */
 
-typedef struct {
+typedef struct
+{
     uint16_t    usSize;                         /* Size, in bytes, of the signature. */
     uint8_t     ucData[kOTA_MaxSignatureSize];  /* The binary signature data. */
 } Sig256_t;
@@ -169,7 +171,8 @@ typedef uint32_t OTA_Err_t;
  *
  * See the OTA_ImageState_t type for more information.
  */
-typedef enum {
+typedef enum
+{
 	eOTA_JobEvent_Activate = 0,             /*!< OTA receive is authenticated and ready to activate. */
 	eOTA_JobEvent_Fail = 1,                 /*!< OTA receive failed. Unable to use this update. */
 	eOTA_JobEvent_StartTest = 2,            /*!< OTA job is now in self test, perform user tests. */
@@ -191,7 +194,8 @@ typedef enum {
  * If you want to abort an active OTA transfer, you may do so by calling the API
  * OTA_SetImageState( eOTA_ImageState_Aborted ).
  */
-typedef enum {
+typedef enum
+{
     eOTA_ImageState_Unknown = 0,    /*!< The initial state of the OTA MCU Image. */
     eOTA_ImageState_Testing = 1,    /*!< The state of the OTA MCU Image post successful download and reboot. */
     eOTA_ImageState_Accepted = 2,   /*!< The state of the OTA MCU Image post successful download and successful self_test. */
@@ -208,32 +212,31 @@ typedef enum {
  * Information about an OTA Update file that is to be streamed. This structure is filled in from a 
  * job notification MQTT message. Currently only one file context can be streamed at time. 
  */
-typedef struct {
-
-    uint8_t        *pacFilepath;        /*!< Local file pathname. */
-    union {
-									
-        int32_t     iFileHandle;        /*!< Device internal file pointer or handle.
+typedef struct
+{
+    uint8_t * pucFilePath; /*!< Local file pathname. */
+    union
+    {
+        int32_t lFileHandle;      /*!< Device internal file pointer or handle.
 	                                     * File type is handle after file is open for write. */
 #if WIN32
-        FILE       *pstFile;            /*!< File type is stdio FILE structure after file is open for write. */
+            FILE * pxFile;       /*!< File type is stdio FILE structure after file is open for write. */
 #endif
 		uint8_t    *pucFile;            /*!< File type is RAM/Flash image pointer after file is open for write. */
 	};
-	TimerHandle_t   pvRequestTimer;     /*!< The request timer associated with this OTA context. */
+    TimerHandle_t xRequestTimer; /*!< The request timer associated with this OTA context. */
 	uint32_t        ulFileSize;         /*!< The size of the file in bytes. */
 	uint32_t        ulBlocksRemaining;  /*!< How many blocks remain to be received (a code optimization). */
 	uint32_t        ulFileAttributes;   /*!< Flags specific to the file being received (e.g. secure, bundle, archive). */
 	uint32_t        ulServerFileID;     /*!< The file is referenced by this numeric ID in the OTA job. */
 	uint32_t        ulRequestMomentum;  /*!< The number of stream requests published before a response was received. */
-	uint8_t        *pacJobName;         /*!< The job name associated with this file from the job service. */
-	uint8_t        *pacStreamName;      /*!< The stream associated with this file from the OTA service. */
+    uint8_t * pucJobName;         /*!< The job name associated with this file from the job service. */
+    uint8_t * pucStreamName;      /*!< The stream associated with this file from the OTA service. */
     Sig256_t       *pxSignature;        /*!< Pointer to the file's signature structure. */
-    uint8_t        *pacRxBlockBitmap;   /*!< Bitmap of blocks received (for de-duping and missing block request). */
-    uint8_t        *pacCertFilepath;    /*!< Pathname of the certificate file used to validate the receive file. */
+    uint8_t * pucRxBlockBitmap;   /*!< Bitmap of blocks received (for de-duping and missing block request). */
+    uint8_t * pucCertFilepath;    /*!< Pathname of the certificate file used to validate the receive file. */
     uint32_t        ulUpdaterVersion;   /*!< Used by OTA self-test detection, the version of FW that did the update. */
-    bool_t          bIsInSelfTest;      /*!< True if the job is in self test mode. */
-
+    bool_t xIsInSelfTest;         /*!< True if the job is in self test mode. */
 } OTA_FileContext_t;
 
 
@@ -280,7 +283,7 @@ typedef void (*pxOTACompleteCallback_t)( OTA_JobEvent_t eEvent );
  * OTA Agent may exist.
  * 
  * @param[in] pvClient The messaging protocol client context (e.g. an MQTT context).
- * @param[in] pcThingName A pointer to a C string holding the Thing name.
+ * @param[in] pucThingName A pointer to a C string holding the Thing name.
  * @param[in] xFunc Static callback function for when an OTA job is complete. This function will have
  * input of the state of the OTA image after download and during self-test.
  * @param[in] xTicksToWait The number of ticks to wait until the OTA Task signals that it is ready.
@@ -291,7 +294,10 @@ typedef void (*pxOTACompleteCallback_t)( OTA_JobEvent_t eEvent );
  * If the agent was successfully initialized and ready to operate, the state will be
  * eOTA_AgentState_Ready. Otherwise, it will be one of the other OTA_State_t enum values.
  */
-OTA_State_t OTA_AgentInit( void *pvClient, const uint8_t *pcThingName, pxOTACompleteCallback_t xFunc, TickType_t xTicksToWait );
+OTA_State_t OTA_AgentInit( void * pvClient,
+                           const uint8_t * pucThingName,
+                           pxOTACompleteCallback_t xFunc,
+                           TickType_t xTicksToWait );
 
 /**
  * @brief Signal to the OTA Agent to shut down.
@@ -404,5 +410,4 @@ uint32_t OTA_GetPacketsProcessed( void );
  */
 uint32_t OTA_GetPacketsDropped( void );
 
-/* _AWS_OTA_AGENT_H_ */
-#endif
+#endif /* ifndef _AWS_OTA_AGENT_H_ */

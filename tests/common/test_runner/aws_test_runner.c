@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Test Runner V1.1.2
+ * Amazon FreeRTOS Test Runner V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,12 +31,6 @@
 
 /* Test runner interface includes. */
 #include "aws_test_runner.h"
-
-/* MQTT v4 header must be included if its tests are enabled. */
-#if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-    #include AWS_IOT_CONFIG_FILE
-    #include "aws_iot_mqtt.h"
-#endif
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -77,10 +71,6 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_WiFi );
     #endif
 
-    #if ( testrunnnerFULL_WIFI_PROVISIONING_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_WiFi_Provisioning );
-    #endif
-
     #if ( testrunnerFULL_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_TCP );
     #endif
@@ -97,35 +87,9 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_Shadow );
     #endif
 
-    #if ( testrunnerFULL_SHADOWv4_ENABLED == 1 )
-
-        /* The Shadow v4 tests perform their own initialization and cleanup. Clean
-         * up the MQTT library here to avoid memory leaks. */
-        AwsIotMqtt_Cleanup();
-
-        RUN_TEST_GROUP( Shadow_Unit_Parser );
-        RUN_TEST_GROUP( Shadow_Unit_API );
-        RUN_TEST_GROUP( Shadow_System );
-
-        /* Initialize the MQTT library for any tests that come after. */
-        configASSERT( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS );
-    #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
-
-    #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-
-        /* The MQTT v4 tests perform their own initialization and cleanup. Clean
-         * up the MQTT library here to avoid memory leaks. */
-        AwsIotMqtt_Cleanup();
-
-        RUN_TEST_GROUP( MQTT_Unit_Validate );
-        RUN_TEST_GROUP( MQTT_Unit_Subscription );
-        RUN_TEST_GROUP( MQTT_Unit_Receive );
-        RUN_TEST_GROUP( MQTT_Unit_API );
-        RUN_TEST_GROUP( MQTT_System );
-
-        /* Initialize the MQTT library for any tests that come after. */
-        configASSERT( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS );
-    #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
+    #if ( testrunnerFULL_MQTT_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_MQTT );
+    #endif
 
     #if ( testrunnerFULL_MQTT_STRESS_TEST_ENABLED == 1 )
         RUN_TEST_GROUP( Full_MQTT_Agent_Stress_Tests );
@@ -154,6 +118,7 @@ static void RunTests( void )
     #if ( testrunnerFULL_PKCS11_ENABLED == 1 )
         RUN_TEST_GROUP( Full_PKCS11_CryptoOperation );
         RUN_TEST_GROUP( Full_PKCS11_GeneralPurpose );
+
     #endif
 
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )
@@ -170,7 +135,6 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
         RUN_TEST_GROUP( Full_DEFENDER );
-        RUN_TEST_GROUP( Full_DEFENDER_OLD );
     #endif
 
     #if ( testrunnerFULL_POSIX_ENABLED == 1 )
@@ -180,13 +144,7 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_POSIX_SEMAPHORE );
         RUN_TEST_GROUP( Full_POSIX_TIMER );
         RUN_TEST_GROUP( Full_POSIX_UTILS );
-        RUN_TEST_GROUP( Full_POSIX_UNISTD );
         RUN_TEST_GROUP( Full_POSIX_STRESS );
-    #endif
-
-    #if ( testrunnerFULL_BLE_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
-        RUN_TEST_GROUP( Full_BLE );
     #endif
 
     #if ( testrunnerFULL_FREERTOS_TCP_ENABLED == 1 )
@@ -196,11 +154,6 @@ static void RunTests( void )
     #if ( testrunnerOTA_END_TO_END_ENABLED == 1 )
         extern void vStartOTAUpdateDemoTask( void );
         vStartOTAUpdateDemoTask();
-    #endif
-
-    #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
-        RUN_TEST_GROUP(Full_Serializer_CBOR);
-        RUN_TEST_GROUP(Full_Serializer_JSON);
     #endif
 }
 /*-----------------------------------------------------------*/

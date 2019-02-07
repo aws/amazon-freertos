@@ -27,6 +27,10 @@
 #ifndef __AWS__TLS__H__
 #define __AWS__TLS__H__
 
+#ifndef INC_FREERTOS_H
+    #error "include FreeRTOS.h must appear in source files before include aws_tls.h"
+#endif
+
 /**
  * @brief Defines callback type for receiving bytes from the network.
  *
