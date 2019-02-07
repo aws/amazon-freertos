@@ -36,9 +36,9 @@
  * @brief  GATT service, characteristics and descriptor UUIDs used by the sample.
  */
 #define gattDemoSVC_UUID 	        { 0x00, 0xFF, 0x69, 0xD6, 0xC6, 0xBF, 0x14, 0x90, 0x25, 0x41, 0xE7, 0x49, 0xE3, 0xD9, 0xF2, 0xC6 }
-#define gattDemoCHAR_UUID_BASE	    { 0x00, 0x00, 0x69, 0xD6, 0xC6, 0xBF, 0x14, 0x90, 0x25, 0x41, 0xE7, 0x49, 0xE3, 0xD9, 0xF2, 0xC6 }
-#define gattDemoCHAR_COUNTER_UUID       ( 0xFF01 )
-#define gattDemoCHAR_CONTROL_UUID		( 0xFF02 )
+#define gattDemoCHAR_UUID_MASK	    0x69, 0xD6, 0xC6, 0xBF, 0x14, 0x90, 0x25, 0x41, 0xE7, 0x49, 0xE3, 0xD9, 0xF2, 0xC6 
+#define gattDemoCHAR_COUNTER_UUID       {0x01, 0xFF , gattDemoCHAR_UUID_MASK}
+#define gattDemoCHAR_CONTROL_UUID       {0x02, 0xFF , gattDemoCHAR_UUID_MASK}
 #define gattDemoCLIENT_CHAR_CFG_UUID	( 0x2902 )
 
 /**
@@ -60,17 +60,12 @@
  */
 typedef enum
 {
-	egattDemoCharCounter = 0,   /**< Keeps track of a counter value which is incremented periodically and optionally sent as notification to a GATT client */
-	egattDemoCharControl        /**< Accepts commands from a GATT client to stop/start/reset the counter value */
-} eGattDemoChar_t;
-
-/**
- * @brief Descriptor used by the GATT sample service.
- */
-typedef enum
-{
-	egattDemoCharCounterCCFGDESCR = 0, /**< Client characteristic configuration descriptor used by the GATT client to enable notifications on Counter characteristic */
-} eGattDemoCharDescr_t;
+        egattDemoService = 0,        /**< SGatt demo service. */
+	egattDemoCharCounter,       /**< Keeps track of a counter value which is incremented periodically and optionally sent as notification to a GATT client */
+	egattDemoCharDescrCounter, /**< Client characteristic configuration descriptor used by the GATT client to enable notifications on Counter characteristic */
+	egattDemoCharControl,        /**< Accepts commands from a GATT client to stop/start/reset the counter value */
+        egattDemoNbAttributes
+} eGattDemoAttributes_t;
 
 /**
  * @brief Events generated for the commands sent from GATT client over Control characteristic

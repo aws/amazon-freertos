@@ -59,7 +59,7 @@ static void prvPairingStateChangedCb( BTStatus_t xStatus,
                                       BTBdaddr_t * pxRemoteBdAddr,
                                       BTBondState_t xState,
                                       BTSecurityLevel_t xSecurityLevel,
-				      BTAuthFailureReason_t xReason );
+                                      BTAuthFailureReason_t xReason );
 static void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                                      uint8_t ucAdapter_if,
                                      BTUuid_t * pxAppUuid );
@@ -141,22 +141,23 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
     IotLink_t * pxEventListIndex;
     BLESubscrEventListElement_t * pxEventIndex;
 
-    if(xPairingVariant == eBTsspVariantPasskeyConfirmation)
+    if( xPairingVariant == eBTsspVariantPasskeyConfirmation )
     {
-    	/* If confirmation is needed, trigger the hooks on the APP side. */
-		if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
-		{
-			/* Get the event associated to the callback */
-            for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLENumericComparisonCallback ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLENumericComparisonCallback ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
+        /* If confirmation is needed, trigger the hooks on the APP side. */
+        if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
+        {
+            /* Get the event associated to the callback */
+            IotContainers_ForEach( &xBTInterface.xSubscrEventListHead[ eBLENumericComparisonCallback ], pxEventListIndex )
             {
-                pxEventIndex = IotLink_Container(BLESubscrEventListElement_t, pxEventListIndex, xEventList );
-				pxEventIndex->xSubscribedEventCb.pxNumericComparisonCb( pxRemoteBdAddr, ulPassKey );
-			}
-			xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
-		}
-    }else
+                pxEventIndex = IotLink_Container( BLESubscrEventListElement_t, pxEventListIndex, xEventList );
+                pxEventIndex->xSubscribedEventCb.pxNumericComparisonCb( pxRemoteBdAddr, ulPassKey );
+            }
+            xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
+        }
+    }
+    else
     {
-    	xBTInterface.pxBTInterface->pxSspReply( pxRemoteBdAddr, eBTsspVariantConsent, true, 0 );
+        xBTInterface.pxBTInterface->pxSspReply( pxRemoteBdAddr, eBTsspVariantConsent, true, 0 );
     }
 }
 
@@ -166,7 +167,7 @@ void prvPairingStateChangedCb( BTStatus_t xStatus,
                                BTBdaddr_t * pxRemoteBdAddr,
                                BTBondState_t xState,
                                BTSecurityLevel_t xSecurityLevel,
-			       BTAuthFailureReason_t xReason )
+                               BTAuthFailureReason_t xReason )
 {
     IotLink_t * pxEventListIndex;
     BLESubscrEventListElement_t * pxEventIndex;
@@ -174,11 +175,12 @@ void prvPairingStateChangedCb( BTStatus_t xStatus,
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLEPairingStateChanged ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLEPairingStateChanged ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
+        IotContainers_ForEach( &xBTInterface.xSubscrEventListHead[ eBLEPairingStateChanged ], pxEventListIndex )
         {
-            pxEventIndex = IotLink_Container(BLESubscrEventListElement_t, pxEventListIndex, xEventList );
+            pxEventIndex = IotLink_Container( BLESubscrEventListElement_t, pxEventListIndex, xEventList );
             pxEventIndex->xSubscribedEventCb.pxGAPPairingStateChangedCb( xStatus, pxRemoteBdAddr, xSecurityLevel, xReason );
         }
+
         xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
     }
 }
@@ -227,11 +229,12 @@ void prvBondedCb( BTStatus_t xStatus,
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLEBonded ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLEBonded ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
+        IotContainers_ForEach( &xBTInterface.xSubscrEventListHead[ eBLEBonded ], pxEventListIndex )
         {
-            pxEventIndex = IotLink_Container(BLESubscrEventListElement_t, pxEventListIndex, xEventList );
+            pxEventIndex = IotLink_Container( BLESubscrEventListElement_t, pxEventListIndex, xEventList );
             pxEventIndex->xSubscribedEventCb.pxBondedCb( xStatus, pxRemoteBdAddr, bIsBonded );
         }
+
         xSemaphoreGive( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex );
     }
 }
@@ -328,26 +331,33 @@ BTStatus_t BLE_ConnParameterUpdateRequest( const BTBdaddr_t * pxBdAddr,
 BTStatus_t BLE_ON( void )
 {
     /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
+
     /* xBTInterface.pxBTInterface->pxEnable(0); */
-	return eBTStatusSuccess;
+    return eBTStatusSuccess;
 }
+
+/*-----------------------------------------------------------*/
 
 BTStatus_t BLE_OFF( void )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    Link_t  *pxConnectionListHead,  *pxConnectionListElem, *pxTemp;
+    IotLink_t * pxConnectionListHead, * pxConnectionListElem;
+    IotLink_t * pTempLink;
     BLEConnectionInfoListElement_t * pxConnInfo;
 
     xStatus = BLE_GetConnectionInfoList( &pxConnectionListHead );
+
     if( xStatus == eBTStatusSuccess )
     {
-        listFOR_EACH_SAFE( pxConnectionListElem, pxTemp, pxConnectionListHead )
+        /* Get the event associated to the callback */
+    	IotContainers_ForEachSafe( pxConnectionListHead, pxConnectionListElem, pTempLink )
         {
             pxConnInfo = listCONTAINER( pxConnectionListElem, BLEConnectionInfoListElement_t, xConnectionList );
             xStatus = xBTInterface.pxBTLeAdapterInterface->pxDisconnect(
-                    xBTInterface.ucAdapterIf,
-                    &pxConnInfo->pxRemoteBdAddr,
-                    pxConnInfo->usConnId );
+                xBTInterface.ucAdapterIf,
+                &pxConnInfo->pxRemoteBdAddr,
+                pxConnInfo->usConnId );
+
             if( xStatus != eBTStatusSuccess )
             {
                 break;
@@ -356,9 +366,12 @@ BTStatus_t BLE_OFF( void )
     }
 
     /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
+
     /* xBTInterface.pxBTInterface->pxDisable(); */
-	return xStatus;
+    return xStatus;
 }
+
+/*-----------------------------------------------------------*/
 
 BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
                      const BTProperty_t * pxProperty,
@@ -397,8 +410,8 @@ BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
         xBTInterface.pxBTLeAdapterInterface->pxRegisterBleApp( pxAppUuid );
         xEventGroupWaitBits( ( EventGroupHandle_t ) &xBTInterface.xWaitOperationComplete,
                              1 << eBLEHALEventRegisterBleAdapterCb,
-							 pdTRUE,
-							 pdTRUE,
+                             pdTRUE,
+                             pdTRUE,
                              portMAX_DELAY );
 
         xStatus = xBTInterface.xCbStatus;
@@ -414,8 +427,8 @@ BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
             {
                 xEventGroupWaitBits( ( EventGroupHandle_t ) &xBTInterface.xWaitOperationComplete,
                                      1 << eBLEHALEventAdapterPropertiesCb,
-									 pdTRUE,
-									 pdTRUE,
+                                     pdTRUE,
+                                     pdTRUE,
                                      portMAX_DELAY );
 
                 xStatus = xBTInterface.xCbStatus;
@@ -460,7 +473,7 @@ BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
     {
         IotListDouble_Create( &xBTInterface.xServiceListHead );
         IotListDouble_Create( &xBTInterface.xConnectionListHead );
- 
+
         /* Initialize the event list. */
         for( usIndex = 0; usIndex < eNbEvents; usIndex++ )
         {
@@ -469,8 +482,8 @@ BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
 
         xEventGroupWaitBits( ( EventGroupHandle_t ) &xBTInterface.xWaitOperationComplete,
                              1 << eBLEHALEventServerRegisteredCb,
-							 pdTRUE,
-							 pdTRUE,
+                             pdTRUE,
+                             pdTRUE,
                              portMAX_DELAY );
 
         xStatus = xBTInterface.xCbStatus;
@@ -479,18 +492,21 @@ BTStatus_t BLE_Init( BTUuid_t * pxAppUuid,
     return xStatus;
 }
 
-BTStatus_t BLE_ConfirmNumericComparisonKeys( BTBdaddr_t * pxBdAddr, bool bKeyAccepted )
+/*-----------------------------------------------------------*/
+
+BTStatus_t BLE_ConfirmNumericComparisonKeys( BTBdaddr_t * pxBdAddr,
+                                             bool bKeyAccepted )
 {
-	return xBTInterface.pxBTInterface->pxSspReply( pxBdAddr,
-									       	       eBTsspVariantPasskeyConfirmation,
-										           bKeyAccepted,
-		                                           0 );
+    return xBTInterface.pxBTInterface->pxSspReply( pxBdAddr,
+                                                   eBTsspVariantPasskeyConfirmation,
+                                                   bKeyAccepted,
+                                                   0 );
 }
 /*-----------------------------------------------------------*/
 
 BTStatus_t BLE_RemoveBond( const BTBdaddr_t * pxBdAddr )
 {
-    return  xBTInterface.pxBTInterface->pxRemoveBond( pxBdAddr );;
+    return xBTInterface.pxBTInterface->pxRemoveBond( pxBdAddr );
 }
 
 /* @TODO Implement real registration unregistration */
@@ -542,9 +558,9 @@ BTStatus_t BLE_UnRegisterEventCb( BLEEvents_t xEvent,
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ xEvent ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ xEvent ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
+        IotContainers_ForEach( &xBTInterface.xSubscrEventListHead[ xEvent ], pxEventListIndex )
         {
-            pxEventIndex = IotLink_Container(BLESubscrEventListElement_t, pxEventListIndex, xEventList );
+            pxEventIndex = IotLink_Container( BLESubscrEventListElement_t, pxEventListIndex, xEventList );
 
             if( xBLEEventsCallbacks.pvPtr == pxEventIndex->xSubscribedEventCb.pvPtr )
             {

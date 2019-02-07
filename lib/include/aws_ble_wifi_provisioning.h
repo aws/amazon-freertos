@@ -42,12 +42,12 @@
 /**
  * @brief GATT Service, characteristic and descriptor UUIDs used by the WiFi provisioning service.
  */
-#define wifiProvSVC_UUID_BASE               { 0x00, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }
-#define wifiProvSVC_UUID                    ( 0xFF00 )
-#define wifiProvLIST_NETWORK_CHAR_UUID      ( 0xFF01 )
-#define wifiProvSAVE_NETWORK_CHAR_UUID      ( 0xFF02 )
-#define wifiProvEDIT_NETWORK_CHAR_UUID      ( 0xFF03 )
-#define wifiProvDELETE_NETWORK_CHAR_UUID    ( 0xFF04 )
+#define wifiProvSVC_UUID_MASK               0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31
+#define wifiProvSVC_UUID                    {0x00, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvLIST_NETWORK_CHAR_UUID      {0x01, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvSAVE_NETWORK_CHAR_UUID      {0x02, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvEDIT_NETWORK_CHAR_UUID      {0x03, 0xFF, wifiProvSVC_UUID_MASK}
+#define wifiProvDELETE_NETWORK_CHAR_UUID    {0x04, 0xFF, wifiProvSVC_UUID_MASK}
 #define wifiProvCLIENT_CHAR_CFG_UUID        ( 0x2902 )
 
 /**
@@ -62,12 +62,17 @@
  */
 typedef enum
 {
-    eListNetworkChar = 0, /**< eListNetworkChar Used by the GATT client to list the saved networks and scanned networks */
+	eWifiProvService = 0,  /**< eWifiProvService WIFI provisioning service */
+    eListNetworkChar, /**< eListNetworkChar Used by the GATT client to list the saved networks and scanned networks */
+    eListNetworkCharDescr, /**< eListNetworkCharCCFGDescr Client Characteristic Configuration descriptor to enable notifications to send List Network response */
     eSaveNetworkChar,     /**< eSaveNetworkChar Used by the GATT client to provision a new WiFi network on the device */
+    eSaveNetworkCharDescr,     /**< eSaveNetworkCharCCFGDescr Client Characteristic Configuration descriptor to enable notifications to send Save Network response */
     eEditNetworkChar,     /**< eEditNetworkChar Used by the GATT client to change the priority order of the saved networks on the device */
-    eDeleteNetworkChar,   /**< eDeleteNetworkChar Used by the GATT client to delete the saved WiFi network on the device */
-    eMaxChars             /**< eMaxChars */
-} WifiProvCharacteristic_t;
+    eEditNetworkCharDescr,     /**< eEditNetworkCharCCFGDescr Client Characteristic Configuration descriptor to enable notifications to send Edit Network response */
+	eDeleteNetworkChar,   /**< eDeleteNetworkChar Used by the GATT client to delete the saved WiFi network on the device */
+    eDeleteNetworkCharDescr,   /**< eDeleteNetworkCharCCFGDescr Client Characteristic Configuration descriptor to enable notifications to send Delete Network response */
+	eNbAttributes             /**< Number of attributes in the enum. */
+} WifiProvAttributes_t;
 
 /**
  * @brief GATT descriptors used by the WiFi provisioning service.
@@ -192,15 +197,13 @@ typedef struct WifiNetworkInfo
  */
 typedef enum
 {
-    eWIFIPROVStarted = 0x01,   /**< eWIFIPROVInit  Initialized the WiFi provisioning service */                                              //!< eWIFIPROVStarted
-    eWIFIPROVConnect = 0x02,   /**< eWIFIPROVConnect Set When WiFi provisioning service connects to one of the saved networks in the flash *///!< eWIFIPROVConnect
-    eWIFIPROVConnected = 0x04, /**< eWIFIPROVConnected Set when successfully connected to a WiFi Network */                                  //!< eWIFIPROVConnected
-    eWIFIPROVStopped = 0x08,   /**<  eWIFIProvStopped Set when WiFi provisioning is stopped */                                               //!< eWIFIPROVStopped
-    eWIFIPROVDeleted = 0x10,   /**<  eWIFIProvStopped Set when WiFi provisioning is deleted */                                               //!< eWIFIPROVDeleted
-    eWIFIPROVFailed = 0x20     /**< eWIFIPROVFailed Set When WiFi provisioning failed */                                                     //!< eWIFIPROVFailed
+    eWIFIPROVConnect = 0x01,   /**< eWIFIPROVConnect Set When WiFi provisioning service connects to one of the saved networks in the flash *///!< eWIFIPROVConnect
+    eWIFIPROVConnected = 0x02, /**< eWIFIPROVConnected Set when successfully connected to a WiFi Network */                                  //!< eWIFIPROVConnected
+    eWIFIPROVDeleted = 0x4,   /**<  eWIFIProvStopped Set when WiFi provisioning is deleted */                                               //!< eWIFIPROVDeleted
+    eWIFIPROVFailed = 0x8     /**< eWIFIPROVFailed Set When WiFi provisioning failed */                                                     //!< eWIFIPROVFailed
 } WifiProvEvent_t;
 
-#define ALL_EVENTS    ( eWIFIPROVStarted | eWIFIPROVConnect | eWIFIPROVConnected | eWIFIPROVStopped | eWIFIPROVDeleted | eWIFIPROVFailed )
+#define ALL_EVENTS    (  eWIFIPROVConnect | eWIFIPROVConnected | eWIFIPROVDeleted | eWIFIPROVFailed )
 
 
 /**
@@ -211,7 +214,6 @@ typedef struct WifiProvService
     struct BLEService * pxGattService;
     uint16_t usNotifyClientEnabled;
     uint16_t usBLEConnId;
-    EventGroupHandle_t xEventGroup;
     SemaphoreHandle_t xLock;
     uint16_t usNumNetworks;
     int16_t sConnectedIdx;
@@ -256,17 +258,6 @@ typedef struct WifiProvService
  *         pdFALSE if the initialization failed.
  */
 BaseType_t WIFI_PROVISION_Init( void );
-
-/**
- * @brief Starts WiFi provisioning service.
- * Starts the BLE service to provision new WIFI networks. Registers a callback invoked whenever a new network is provisioned.
- *
- *
- * @return pdTRUE if successfully started
- *         pdFALSE if start failed
- */
-BaseType_t WIFI_PROVISION_Start( void );
-
 
 /**
  * @brief Gets the total number of provisioned networks.

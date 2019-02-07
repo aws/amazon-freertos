@@ -518,10 +518,6 @@ static BaseType_t prxWIFIEnable( void )
             xRet = prxWifiConnect();
         }
 #else
-        if ( xRet == pdTRUE )
-        {
-        	xRet = WIFI_PROVISION_Start();
-        }
         if( xRet == pdTRUE )
         {
         	xRet = xWiFiConnectTaskInitialize();

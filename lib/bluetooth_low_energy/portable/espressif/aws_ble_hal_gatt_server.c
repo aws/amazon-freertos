@@ -40,8 +40,6 @@
 
 #define APP_ID    0
 
-static uint32_t ulGATTEvtMngHandle;
-
 static BTGattServerCallbacks_t xGattServerCb;
 static BTUuid_t xServerUuidCb;
 

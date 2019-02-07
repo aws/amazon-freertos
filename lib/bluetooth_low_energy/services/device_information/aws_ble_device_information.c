@@ -41,7 +41,6 @@
 
 /*------------------------------------------------------------------------------------*/
 extern int snprintf( char *, size_t, const char *, ... );
-static SemaphoreHandle_t xServiceInitLock;
 static DeviceInfoService_t xService =
 {
     .pxBLEService = NULL,
@@ -50,16 +49,99 @@ static DeviceInfoService_t xService =
     .usCCFGVal    = { 0 }
 };
 
+#define deviceInfoCHAR_VERSION_UUID_TYPE \
+{ \
+    .uu.uu128 = deviceInfoCHAR_VERSION_UUID,\
+    .ucType   = eBTuuidType128 \
+}
+#define deviceInfoBROKER_ENDPOINT_UUID_TYPE \
+{  \
+    .uu.uu128 = deviceInfoBROKER_ENDPOINT_UUID,\
+    .ucType  = eBTuuidType128\
+}
+#define deviceInfoCLIENT_CHAR_CFG_UUID_TYPE \
+{\
+    .uu.uu16 = deviceInfoCLIENT_CHAR_CFG_UUID,\
+    .ucType  = eBTuuidType16\
+}
+#define deviceInfoCHAR_MTU_UUID_TYPE \
+{\
+    .uu.uu128 = deviceInfoCHAR_MTU_UUID,\
+    .ucType  = eBTuuidType128\
+}
 /**
  * @brief UUID for Device Information Service.
  *
  * This UUID is used in advertisement for the companion apps to discover and connect to the device.
  */
-const BTUuid_t xDeviceInfoSvcUUID =
+#define xDeviceInfoSvcUUID \
+{ \
+    .uu.uu128 = bleconfigDEVICE_INFO_SERVICE_UUID,\
+    .ucType   = eBTuuidType128\
+}
+
+
+typedef enum {
+  bledeviceinfoATTR_SERVICE,
+  bledeviceinfoATTR_CHAR_END_POINT,
+  bledeviceinfoATTR_CHAR_VERSION,
+  bledeviceinfoATTR_CHAR_MTU,
+  bledeviceinfoATTR_CHAR_DESCR_MTU,
+  bledeviceinfoATTR_NUMBER
+} bledeviceinfoAttr_t;
+
+static uint16_t usHandlesBuffer[bledeviceinfoATTR_NUMBER];
+
+static const BLEAttribute_t pxAttributeTable[] = {
+     {    
+         .xServiceUUID =  xDeviceInfoSvcUUID
+     },
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = deviceInfoCHAR_VERSION_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM ),
+              .xProperties = ( eBTPropRead )
+          }
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = deviceInfoBROKER_ENDPOINT_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM ),
+              .xProperties = ( eBTPropRead )
+          }
+     },
 {
-    .uu.uu128 = bleconfigDEVICE_INFO_SERVICE_UUID,
-    .ucType   = eBTuuidType128
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = deviceInfoCHAR_MTU_UUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM ),
+              .xProperties = ( eBTPropRead | eBTPropNotify )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = deviceInfoCLIENT_CHAR_CFG_UUID_TYPE,
+             .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )
+          }
+     }
 };
+
+static const BLEService_t xDeviceInformationService = 
+{
+  .xNumberOfAttributes = bledeviceinfoATTR_NUMBER,
+  .ucInstId = 0,
+  .xType = eBTServiceTypePrimary,
+  .pusHandlesBuffer = usHandlesBuffer,
+  .pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable
+};
+
 
 /**
  * @brief Client Characteristic Configuration descriptor callback for MTU characteristic
@@ -69,8 +151,7 @@ const BTUuid_t xDeviceInfoSvcUUID =
  * @param[in] pxAttribute Client Characteristic Configuration descriptor attribute
  * @param[in] pxEventParam Write/Read request param to the attribute
  */
-void vDeviceInfoCCFGCallback( BLEAttribute_t * pxAttribute,
-                              BLEAttributeEvent_t * pxEventParam );
+void vDeviceInfoCCFGCallback( BLEAttributeEvent_t * pxEventParam );
 
 /**
  * @brief Callback invoked when GATT client reads MTU characteristic
@@ -81,8 +162,7 @@ void vDeviceInfoCCFGCallback( BLEAttribute_t * pxAttribute,
  * @param[in] pxEventParam Write/Read request param to the attribute
  *
  */
-void vDeviceInfoMTUCharCallback( BLEAttribute_t * pxAttribute,
-                                 BLEAttributeEvent_t * pxEventParam );
+void vDeviceInfoMTUCharCallback( BLEAttributeEvent_t * pxEventParam );
 
 /**
  * @brief Callback invoked when GATT client reads Broker Endpoint Characteristic
@@ -93,8 +173,7 @@ void vDeviceInfoMTUCharCallback( BLEAttribute_t * pxAttribute,
  * @param[in] pxEventParam Write/Read request param to the attribute
  *
  */
-void vDeviceInfoBrokerEndpointCharCallback( BLEAttribute_t * pxAttribute,
-                                            BLEAttributeEvent_t * pxEventParam );
+void vDeviceInfoBrokerEndpointCharCallback( BLEAttributeEvent_t * pxEventParam );
 
 /**
  * @brief Callback invoked when GATT client reads the device version Characteristic
@@ -105,8 +184,7 @@ void vDeviceInfoBrokerEndpointCharCallback( BLEAttribute_t * pxAttribute,
  * @param[in] pxEventParam Write/Read request param to the attribute
  *
  */
-void vDeviceInfoVersionCharCallback( BLEAttribute_t * pxAttribute,
-                                        BLEAttributeEvent_t * pxEventParam );
+void vDeviceInfoVersionCharCallback( BLEAttributeEvent_t * pxEventParam );
 
 /**
  * @brief Callback invoked MTU for the BLE connection changes.
@@ -136,100 +214,30 @@ static void vConnectionCallback( BTStatus_t xStatus,
                                  bool bConnected,
                                  BTBdaddr_t * pxRemoteBdAddr );
 
-/*-----------------------------------------------------------*/
 
-static void vServiceStartedCb( BTStatus_t xStatus,
-                               BLEService_t * pxService )
-{
-    if( xStatus == eBTStatusSuccess )
+static const BLEAttributeEventCallback_t pxCallBackArray[bledeviceinfoATTR_NUMBER] =
     {
-        ( void ) xSemaphoreGive( xServiceInitLock );
-    }
-}
+  NULL,
+  vDeviceInfoVersionCharCallback,
+  vDeviceInfoBrokerEndpointCharCallback,
+  vDeviceInfoMTUCharCallback,
+  vDeviceInfoCCFGCallback
+};
+
 
 /*-----------------------------------------------------------*/
 
 BaseType_t AFRDeviceInfoSvc_Init( void )
 {
     BTStatus_t xStatus;
-    BaseType_t xResult = pdFALSE;
-    BTUuid_t xCharUUID =
-    {
-        .uu.uu128 = deviceInfoCHAR_UUID_BASE,
-        .ucType   = eBTuuidType128
-    };
-    BTUuid_t xClientCharCfgUUID =
-    {
-        .uu.uu16 = deviceInfoCLIENT_CHAR_CFG_UUID,
-        .ucType  = eBTuuidType16
-    };
+    BaseType_t xResult = pdFAIL;
     BLEEventsCallbacks_t xCallback;
-    size_t xNumDescrsPerChar[ deviceInfoMAX_CHARS ] = { 0, 0, 1 };
 
-    xServiceInitLock = xSemaphoreCreateBinary();
-
-    if( xServiceInitLock != NULL )
-    {
-        xStatus = BLE_CreateService( &xService.pxBLEService, deviceInfoMAX_CHARS, deviceInfoMAX_CHARS, xNumDescrsPerChar, deviceInfoMAX_INC_SVCS );
-
+    /* Select the handle buffer. */
+    xStatus = BLE_CreateService( (BLEService_t *)&xDeviceInformationService, (BLEAttributeEventCallback_t *)pxCallBackArray );
         if( xStatus == eBTStatusSuccess )
         {
-            configASSERT( xService.pxBLEService->xNbCharacteristics == deviceInfoMAX_CHARS );
-            configASSERT( xService.pxBLEService->xNbDescriptors == deviceInfoMAX_CHARS );
-            configASSERT( xService.pxBLEService->xNbIncludedServices == deviceInfoMAX_INC_SVCS );
-
-            xService.pxBLEService->xAttributeData.xUuid = xDeviceInfoSvcUUID;
-
-            xCharUUID.uu.uu16 = deviceInfoCHAR_VERSION_UUID;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoVersionChar ].xAttributeData.xUuid = xCharUUID;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoVersionChar ].xAttributeData.pucData = NULL;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoVersionChar ].xAttributeData.xSize = 0;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoVersionChar ].xPermissions = ( bleconfigCHAR_READ_PERM );
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoVersionChar ].xProperties = ( eBTPropRead );
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoVersionChar ].pxAttributeEventCallback = vDeviceInfoVersionCharCallback;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoVersionChar ].xNbDescriptors = 0;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoVersionChar ].pxDescriptors = NULL;
-
-            xCharUUID.uu.uu16 = deviceInfoBROKER_ENDPOINT_UUID;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMQTTBrokerEndpointChar ].xAttributeData.xUuid = xCharUUID;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMQTTBrokerEndpointChar ].xAttributeData.pucData = NULL;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMQTTBrokerEndpointChar ].xAttributeData.xSize = 0;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMQTTBrokerEndpointChar ].xPermissions = ( bleconfigCHAR_READ_PERM );
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMQTTBrokerEndpointChar ].xProperties = ( eBTPropRead );
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMQTTBrokerEndpointChar ].pxAttributeEventCallback = vDeviceInfoBrokerEndpointCharCallback;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMQTTBrokerEndpointChar ].xNbDescriptors = 0;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMQTTBrokerEndpointChar ].pxDescriptors = NULL;
-
-            xService.pxBLEService->pxDescriptors[ eDeviceInfoMtuCharDescr ].xAttributeData.xUuid = xClientCharCfgUUID;
-            xService.pxBLEService->pxDescriptors[ eDeviceInfoMtuCharDescr ].xAttributeData.pucData = ( uint8_t * ) &xService.usCCFGVal[ eDeviceInfoMtuCharDescr ];
-            xService.pxBLEService->pxDescriptors[ eDeviceInfoMtuCharDescr ].xAttributeData.xSize = 2;
-            xService.pxBLEService->pxDescriptors[ eDeviceInfoMtuCharDescr ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-            xService.pxBLEService->pxDescriptors[ eDeviceInfoMtuCharDescr ].pxAttributeEventCallback = vDeviceInfoCCFGCallback;
-
-            xCharUUID.uu.uu16 = deviceInfoCHAR_MTU_UUID;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].xAttributeData.xUuid = xCharUUID;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].xAttributeData.pucData = NULL;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].xAttributeData.xSize = 0;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].xPermissions = ( bleconfigCHAR_READ_PERM );
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].xProperties = ( eBTPropRead | eBTPropNotify );
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].pxAttributeEventCallback = vDeviceInfoMTUCharCallback;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].xNbDescriptors = 1;
-            xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].pxDescriptors[ 0 ] = &xService.pxBLEService->pxDescriptors[ eDeviceInfoMtuCharDescr ];
-
-            xService.pxBLEService->xServiceType = eBTServiceTypePrimary;
-            xService.pxBLEService->ucInstId = 0;
-
-            xStatus = BLE_AddService( xService.pxBLEService );
-        }
-
-        if( xStatus == eBTStatusSuccess )
-        {
-            xStatus = BLE_StartService( xService.pxBLEService, vServiceStartedCb );
-        }
-
-        if( xStatus == eBTStatusSuccess )
-        {
-            xResult = xSemaphoreTake( xServiceInitLock, portMAX_DELAY );
+        xResult = pdPASS;
         }
 
         if( xResult == pdPASS )
@@ -251,15 +259,13 @@ BaseType_t AFRDeviceInfoSvc_Init( void )
         		xResult = pdFAIL;
         	}
         }
-    }
 
     return xResult;
 }
 
 /*-----------------------------------------------------------*/
 
-void vDeviceInfoCCFGCallback( BLEAttribute_t * pxAttribute,
-                              BLEAttributeEvent_t * pxEventParam )
+void vDeviceInfoCCFGCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEWriteEventParams_t * pxWriteParam;
     BLEAttributeData_t xAttrData = { 0 };
@@ -269,12 +275,12 @@ void vDeviceInfoCCFGCallback( BLEAttribute_t * pxAttribute,
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = pxAttribute->pxCharacteristicDescr->xAttributeData.xHandle;
+
 
     if( ( pxEventParam->xEventType == eBLEWrite ) || ( pxEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pxEventParam->pxParamWrite;
-
+        xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
         if( pxWriteParam->xLength == 2 )
         {
             xService.usCCFGVal[ eDeviceInfoMtuCharDescr ] = ( pxWriteParam->pucValue[ 1 ] << 8 ) | pxWriteParam->pucValue[ 0 ];
@@ -292,6 +298,7 @@ void vDeviceInfoCCFGCallback( BLEAttribute_t * pxAttribute,
     else if( pxEventParam->xEventType == eBLERead )
     {
         xResp.xEventStatus = eBTStatusSuccess;
+        xResp.pxAttrData->xHandle = pxEventParam->pxParamRead->usAttrHandle;
         xResp.pxAttrData->pucData = ( uint8_t * ) &xService.usCCFGVal[ eDeviceInfoMtuCharDescr ];
         xResp.pxAttrData->xSize = 2;
         xResp.xAttrDataOffset = 0;
@@ -301,8 +308,7 @@ void vDeviceInfoCCFGCallback( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vDeviceInfoBrokerEndpointCharCallback( BLEAttribute_t * pxAttribute,
-                                            BLEAttributeEvent_t * pxEventParam )
+void vDeviceInfoBrokerEndpointCharCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
@@ -314,7 +320,6 @@ void vDeviceInfoBrokerEndpointCharCallback( BLEAttribute_t * pxAttribute,
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = pxAttribute->pxCharacteristicDescr->xAttributeData.xHandle;
 
     if( pxEventParam->xEventType == eBLERead )
     {
@@ -327,6 +332,7 @@ void vDeviceInfoBrokerEndpointCharCallback( BLEAttribute_t * pxAttribute,
                                   clientcredentialMQTT_BROKER_ENDPOINT );
 
             {
+                xResp.pxAttrData->xHandle = pxEventParam->pxParamRead->usAttrHandle;
                 xResp.xEventStatus = eBTStatusSuccess;
                 xResp.pxAttrData->pucData = pucData;
                 xResp.pxAttrData->xSize = ulSendLen;
@@ -345,8 +351,7 @@ void vDeviceInfoBrokerEndpointCharCallback( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vDeviceInfoVersionCharCallback( BLEAttribute_t * pxAttribute,
-                                        BLEAttributeEvent_t * pxEventParam )
+void vDeviceInfoVersionCharCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
@@ -358,7 +363,6 @@ void vDeviceInfoVersionCharCallback( BLEAttribute_t * pxAttribute,
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = pxAttribute->pxCharacteristicDescr->xAttributeData.xHandle;
 
     if( pxEventParam->xEventType == eBLERead )
     {
@@ -371,6 +375,7 @@ void vDeviceInfoVersionCharCallback( BLEAttribute_t * pxAttribute,
                                   tskKERNEL_VERSION_NUMBER );
 
             {
+                xResp.pxAttrData->xHandle = pxEventParam->pxParamRead->usAttrHandle;
                 xResp.xEventStatus = eBTStatusSuccess;
                 xResp.pxAttrData->pucData = pucData;
                 xResp.pxAttrData->xSize = ulSendLen;
@@ -390,8 +395,7 @@ void vDeviceInfoVersionCharCallback( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vDeviceInfoMTUCharCallback( BLEAttribute_t * pxAttribute,
-                                 BLEAttributeEvent_t * pxEventParam )
+void vDeviceInfoMTUCharCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
@@ -403,11 +407,11 @@ void vDeviceInfoMTUCharCallback( BLEAttribute_t * pxAttribute,
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = pxAttribute->pxCharacteristicDescr->xAttributeData.xHandle;
 
     if( pxEventParam->xEventType == eBLERead )
     {
         xResp.xEventStatus = eBTStatusSuccess;
+        xResp.pxAttrData->xHandle = pxEventParam->pxParamRead->usAttrHandle;
         xResp.pxAttrData->pucData = ( uint8_t * ) cMTUMsg;
         xResp.pxAttrData->xSize = ulSendLen;
         xResp.xAttrDataOffset = 0;
@@ -430,8 +434,8 @@ static void vMTUChangedCallback( uint16_t usConnId,
         xService.usBLEMtu = usMtu;
         ulSendLen = snprintf( cMTUMsg, deviceInfoMTU_MSG_LEN, deviceInfoMTU_MSG_FORMAT, usMtu );
 
-        xAttrData.xHandle = xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].xAttributeData.xHandle;
-        xAttrData.xUuid = xService.pxBLEService->pxCharacteristics[ eDeviceInfoMtuChar ].xAttributeData.xUuid;
+        xAttrData.xHandle = xDeviceInformationService.pusHandlesBuffer[bledeviceinfoATTR_CHAR_MTU];
+        xAttrData.xUuid = xDeviceInformationService.pxBLEAttributes[bledeviceinfoATTR_CHAR_MTU].xCharacteristic.xUuid;
         xAttrData.pucData = ( uint8_t * ) cMTUMsg;
         xAttrData.xSize = ulSendLen;
 

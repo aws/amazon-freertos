@@ -1271,7 +1271,6 @@ static void prvOTAPublishCallback( void * pvCallbackContext,
 
     BaseType_t xReturn;
     OTA_PubMsg_t xMsg;
-    configPRINTF(("OTAprvOTAPublishCallback : Available Heap Space: %d\n", esp_get_free_heap_size()));
 
     /* If we're running the OTA task, send publish messages to it for processing. */
     if( xOTA_Agent.xOTA_EventFlags != NULL )

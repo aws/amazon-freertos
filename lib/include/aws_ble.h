@@ -103,13 +103,8 @@ typedef enum
     eBLEIndicationConfirmReceived, /**< Received confirm to indication from remote device. */
 } BLEAttributeEventType_t;
 
-typedef struct BLEService               BLEService_t;
-typedef struct BLECharacteristic        BLECharacteristic_t;
-typedef struct BLECharacteristicDescr   BLECharacteristicDescr_t;
-typedef struct BLEIncludedService       BLEIncludedService_t;
-typedef struct BLEAttribute             BLEAttribute_t;
 typedef struct BLEAttributeEvent        BLEAttributeEvent_t;
-typedef void                            * BLEAttributeHandle_t;
+
 
 /**
  *
@@ -118,90 +113,8 @@ typedef void                            * BLEAttributeHandle_t;
  * @param[in] pxAttribute Pointer to the attribute being accessed.
  * @param[in] pxEventParam Pointer to the event data.
  */
-typedef void (* BLEAttributeEventCallback_t)( BLEAttribute_t * pxAttribute,
-                                              BLEAttributeEvent_t * pxEventParam );
-/************************************************************/
+typedef void (* BLEAttributeEventCallback_t)( BLEAttributeEvent_t * pxEventParam );
 
-/**
- * @brief Basic info contained in an attribute.
- * This is common to all attributes.
- */
-typedef struct
-{
-    size_t xSize;      /**< Size of data field. */
-    uint8_t * pucData; /**< Attribute data field. */
-    BTUuid_t xUuid;    /**< Attribute UUID*/
-    size_t xHandle;    /**< Attribute handle. Note, this field is Auto filled(field during BLE_AddService call). */
-} BLEAttributeData_t;
-
-/**
- * @brief Structure describing a service.
- */
-struct BLEService
-{
-    BLEAttributeData_t xAttributeData;         /**< Service attribute. */
-    BLECharacteristic_t * pxCharacteristics;   /**< Pointer to characteristics contained in the service. */
-    size_t xNbCharacteristics;                 /**< Number of characteristics. Since the middleware has the knowledge, this is auto filled when BLE_CreateService is called. */
-    BLECharacteristicDescr_t * pxDescriptors;  /**< Pointer to descriptors contained in the service. */
-    size_t xNbDescriptors;                     /**< Number of descriptors. Since the middleware has the knowledge, this is auto filled when BLE_CreateService is called. */
-    BLEIncludedService_t * pxIncludedServices; /**< Pointer to included services contained in the service. */
-    size_t xNbIncludedServices;                /**< Number of included services. Since the middleware has the knowledge, this is auto filled when BLE_CreateService is called. */
-    BTGattServiceTypes_t xServiceType;         /**< Type of service (primary, secondary). */
-    uint8_t ucInstId;                          /**< Instance ID. */
-};
-
-/**
- * @brief Structure describing a characteristic.
- */
-struct BLECharacteristic
-{
-    BLEAttributeData_t xAttributeData;                    /**< Characteristic attribute. */
-    BLEService_t * pxParentService;                       /**< Pointer to service containing the characteristic.Since the middleware has the knowledge, this is auto filled when BLE_AddService is called. */
-    BLECharacteristicDescr_t ** pxDescriptors;            /**< Array of Descriptors contained in that characteristics. */
-    size_t xNbDescriptors;                                /**< Number of descriptors contained in that characteristic. */
-    BTCharProperties_t xProperties;                       /**< Characteristic properties. */
-    BTCharPermissions_t xPermissions;                     /**< Characteristic permissions. */
-    BLEAttributeEventCallback_t pxAttributeEventCallback; /**< Callback triggered when attribute is being accessed. */
-};
-
-/**
- * @brief Structure describing a characteristic descriptor.
- */
-struct BLECharacteristicDescr
-{
-    BLEAttributeData_t xAttributeData;                    /**< Descriptor attribute. */
-    BLEService_t * pxParentService;                       /**< Pointer to service containing the descriptor. Since the middleware has the knowledge, this is auto filled when BLE_AddService is called. */
-    BLECharacteristic_t * pxParentCharacteristic;         /**< Pointer to characteristic containing the descriptor. Since the middleware has the knowledge, this is auto filled when BLE_AddService is called. */
-    BTCharPermissions_t xPermissions;                     /**< Descriptor permissions. */
-    BLEAttributeEventCallback_t pxAttributeEventCallback; /**< Callback triggered when attribute is being accessed. */
-};
-
-/**
- * @brief  Structure describing an included service.
- */
-struct BLEIncludedService
-{
-    BLEAttributeData_t xAttributeData;                    /**< Included service attribute. */
-    BLEService_t * pxParentService;                       /**< Pointer to service containing the included service. Since the middleware has the knowledge, this is auto filled when BLE_AddService is called. */
-    BLEService_t * pxPtrToService;                        /**< Pointer to the service being included. */
-    BLEAttributeEventCallback_t pxAttributeEventCallback; /**< Callback triggered when attribute is being accessed. */
-};
-
-/**
- * @brief Generic BLE attribute.
- */
-struct BLEAttribute
-{
-    BTDbAttributeType_t xAttributeType; /**< Type of attribute. */
-    union
-    {
-        BLEService_t * pxService;                         /**< Pointer to the relevant attribute structure. */
-        BLECharacteristic_t * pxCharacteristic;           /**< Pointer to the relevant attribute structure. */
-        BLECharacteristicDescr_t * pxCharacteristicDescr; /**< Pointer to the relevant attribute structure. */
-        BLEIncludedService_t * pxIncludedService;         /**< Pointer to the relevant attribute structure. */
-        void * pxCharDeclaration;                         /**< Generic pointer for operations. */
-    };
-};
 /************************************************************/
 
 /**
@@ -212,7 +125,7 @@ typedef struct
     uint16_t usConnId;            /**< Connection ID. */
     uint32_t ulTransId;           /**< Transaction ID. */
     BTBdaddr_t * pxRemoteBdAddr;  /**< Remote device address. */
-    BLEAttribute_t * pxAttribute; /**< Pointer to attribute being accessed. */
+    uint16_t usAttrHandle;        /**< Param handle. */
     uint16_t usOffset;            /**< Read offset. */
 } BLEReadEventParams_t;
 
@@ -224,11 +137,12 @@ typedef struct
     uint16_t usConnId;            /**< Connection ID. */
     uint32_t ulTransId;           /**< Transaction ID. */
     BTBdaddr_t * pxRemoteBdAddr;  /**< Remote device address. */
-    BLEAttribute_t * pxAttribute; /**< Pointer to attribute being accessed. */
+    uint16_t usAttrHandle;        /**< Param handle. */
     uint16_t usOffset;            /**< Write offset. */
+    size_t xLength;               /**< Data length. */
+    bool bNeedRsp;                /**< Need to respond. */
     bool bIsPrep;                 /**< Set to true if it is a prepare write. */
     uint8_t * pucValue;           /**< Data to write. */
-    size_t xLength;               /**< Data length. */
 } BLEWriteEventParams_t;
 
 /**
@@ -239,7 +153,6 @@ typedef struct
     uint16_t usConnId;            /**< Connection ID. */
     uint32_t ulTransId;           /**< Transaction ID. */
     BTBdaddr_t * pxRemoteBdAddr;  /**< Remote device address. */
-    BLEAttribute_t * pxAttribute; /**< Pointer to attribute being accessed. */
     bool bExecWrite;              /**< Execute Write command. */
 } BLEExecWriteEventParams_t;
 
@@ -249,7 +162,7 @@ typedef struct
 typedef struct
 {
     BTStatus_t xStatus;           /**< Reported status. */
-    BLEAttribute_t * pxAttribute; /**< Pointer to attribute being accessed. */
+    uint16_t usHandle;            /**< Param handle. */
 } BLERespConfirmEventParams_t;
 
 /**
@@ -278,6 +191,17 @@ struct BLEAttributeEvent
     };
 };
 /************************************************************/
+/**
+ * @brief Basic info contained in an attribute.
+ * This is common to all attributes.
+ */
+typedef struct
+{
+    size_t xSize;      /**< Size of data field. */
+    uint8_t * pucData; /**< Attribute data field. */
+    BTUuid_t xUuid;    /**< Attribute UUID*/
+    size_t xHandle;    /**< Attribute handle. Note, this field is Auto filled(field during BLE_AddService call). */
+} BLEAttributeData_t;
 
 /**
  * @brief .
@@ -290,34 +214,6 @@ typedef struct
     BTRspErrorStatus_t xRspErrorStatus; /**< Response error status. */
 } BLEEventResponse_t;
 /************************************************************/
-
-/**
- * @brief Callback triggered when a service has been started. Invoked on BLE_StartService.
- *
- * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- * @param[in] pxService Pointer to the service structure.
- */
-typedef void (* BLEServiceStartedCallback_t)( BTStatus_t xStatus,
-                                              BLEService_t * pxService );
-
-/**
- * @brief Callback triggered when a service has been deleted. Invoked on BLE_DeleteService.
- *
- * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- * @param[in] usAttributeDataHandle Handle of the deleted service.
- */
-typedef void (* BLEServiceDeletedCallback_t)( BTStatus_t xStatus,
-                                              uint16_t usAttributeDataHandle );
-
-/**
- * @brief Callback triggered when a service has been stopped. Invoked on BLE_StopService.
- *
- * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- * @param[in] pxService Pointer to service structure.
- */
-typedef void (* BLEServiceStoppedCallback_t)( BTStatus_t xStatus,
-                                              BLEService_t * pxService );
-
 
 /**
  * @brief Callback invoked when the MTU for a given connection changes.
@@ -531,54 +427,17 @@ BTStatus_t BLE_RemoveBond( const BTBdaddr_t * pxRemoteBdAddr );
  *
  * @param[out] ppxService Pointer to the memory allocated.
  * @param[in] xNbCharacteristic Number of characteristics in the service.
- * @param[in] xNbDescriptors Number of descriptors in the service.
- * @param[in] xNumDescrsPerChar Array the specify sequentially the number of descriptors per characteristic.
- * @param[in] xNbIncludedServices Number of included services in the service.
  * @return Returns eBTStatusSuccess on successful call.
  */
-BTStatus_t BLE_CreateService( BLEService_t ** ppxService,
-                              size_t xNbCharacteristic,
-                              size_t xNbDescriptors,
-                              size_t xNumDescrsPerChar[],
-                              size_t xNbIncludedServices );
-
-/**
- * @brief Add a new service.
- *
- * @param[in] pxService Pointer to the service to add.
- * @return Returns eBTStatusSuccess on successful call.
- */
-BTStatus_t BLE_AddService( BLEService_t * pxService );
-
-/**
- * @brief Start a local service.
- *
- * @param[in] pxService Pointer to the service to start.
- * @param[in] pxCallback Callback returning status of the operation.
- * @return Returns eBTStatusSuccess on successful call.
- */
-BTStatus_t BLE_StartService( BLEService_t * pxService,
-                             BLEServiceStartedCallback_t pxCallback );
-
-/**
- * @brief  Stop a local service.
- *
- * @param[in] pxService Pointer to the service to stop.
- * @param[in] pxCallback Callback returning status of the operation.
- * @return Returns eBTStatusSuccess on successful call.
- */
-BTStatus_t BLE_StopService( BLEService_t * pxService,
-                            BLEServiceStoppedCallback_t pxCallback );
+BTStatus_t BLE_CreateService( BLEService_t * pxService, BLEAttributeEventCallback_t pxEventsCallbacks[]);
 
 /**
  * @brief Delete a local service.
  *
  * @param[in] pxService Pointer to the service to delete.
- * @param[in] pxCallback Callback returning status of the operation.
  * @return Returns eBTStatusSuccess on successful call.
  */
-BTStatus_t BLE_DeleteService( BLEService_t * pxService,
-                              BLEServiceDeletedCallback_t pxCallback );
+BTStatus_t BLE_DeleteService( BLEService_t * pxService);
 
 /**
  * @brief Send value indication to a remote device.
