@@ -148,6 +148,9 @@
     <Filter Include="lib\aws\metrics">
       <UniqueIdentifier>{b1d77a3f-e396-4722-94c6-2301cc8b3f37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\utils\taskpool">
+      <UniqueIdentifier>{28b6177e-d0ab-47e7-820a-eaf1b6b7b0fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c">
@@ -677,6 +680,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c">
       <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_v1.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\taskpool\aws_iot_taskpool.c">
+      <Filter>lib\aws\utils\taskpool</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\defender\aws_iot_demo_defender_v1.c">
+      <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1297,6 +1309,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_wrapper_metrics.h">
       <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_defender.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_taskpool.h">
+      <Filter>lib\aws\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

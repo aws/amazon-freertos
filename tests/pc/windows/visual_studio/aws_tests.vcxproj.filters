@@ -220,6 +220,9 @@
     <Filter Include="lib\aws\metrics">
       <UniqueIdentifier>{b454a175-6acd-4b03-8418-ab8368543cc9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\utils\taskpool">
+      <UniqueIdentifier>{49e54a6e-02ff-4c70-9bc5-5db01510871a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -820,6 +823,12 @@
       <Filter>lib\aws\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_defender.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_taskpool.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1435,6 +1444,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c">
       <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_v1.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api_v1.c">
+      <Filter>application_code\common_tests\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\taskpool\aws_iot_taskpool.c">
+      <Filter>lib\aws\utils\taskpool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
