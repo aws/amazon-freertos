@@ -35,10 +35,72 @@
 #include "task.h"
 #include "semphr.h"
 
-/**
- * @brief BLE GATT service structure.
- */
-BLEService_t * pxGattDemoService;
+
+
+#define xServiceUUID_TYPE \
+{\
+    .uu.uu128 = gattDemoSVC_UUID, \
+    .ucType   = eBTuuidType128 \
+}
+#define xCharCounterUUID_TYPE \
+{\
+    .uu.uu128 = gattDemoCHAR_COUNTER_UUID,\
+    .ucType   = eBTuuidType128\
+}
+#define xCharControlUUID_TYPE \
+{\
+    .uu.uu128 = gattDemoCHAR_CONTROL_UUID,\
+    .ucType   = eBTuuidType128\
+}
+#define xClientCharCfgUUID_TYPE \
+{\
+    .uu.uu16 = gattDemoCLIENT_CHAR_CFG_UUID,\
+    .ucType  = eBTuuidType16\
+}
+
+static uint16_t usHandlesBuffer[egattDemoNbAttributes];
+
+
+static const BLEAttribute_t pxAttributeTable[] = {
+     {    
+         .xServiceUUID =  xServiceUUID_TYPE
+     },
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = xCharCounterUUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM ),
+              .xProperties = ( eBTPropRead | eBTPropNotify )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristic = 
+         {
+             .xUuid = xClientCharCfgUUID_TYPE,
+             .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )
+          }
+     },
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = xCharControlUUID_TYPE,
+              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  ),
+              .xProperties = ( eBTPropRead | eBTPropWrite )
+          }
+     }
+};
+
+static const BLEService_t xGattDemoService = 
+{
+  .xNumberOfAttributes = egattDemoNbAttributes,
+  .ucInstId = 0,
+  .xType = eBTServiceTypePrimary,
+  .pusHandlesBuffer = usHandlesBuffer,
+  .pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable
+};
 
 /**
  * @brief Task used to update the counter periodically.
@@ -65,16 +127,9 @@ BaseType_t xNotifyCounterUpdate = pdFALSE;
  */
 uint16_t usBLEConnectionID;
 
-/**
- * Semaphore for waiting to start the BLE service.
- */
-SemaphoreHandle_t xServiceStarted;
-BaseType_t xSvcStartedStatus = pdFALSE;
 
-
-#define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pxCharacteristics[ ch_idx ].xAttributeData.xHandle )
-#define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxCharacteristics[ ch_idx ].xAttributeData.xUuid )
-#define DESCR_HANDLE( svc, descr_idx )    ( ( svc )->pxDescriptors[ descr_idx ].xAttributeData.xHandle )
+#define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
+#define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
 
 /**
  * @brief Callback indicating the GATT service has started.
@@ -96,8 +151,7 @@ static BaseType_t prxWaitForServiceInit( void );
  * @param[in] pxAttribute Attribute structure for the characteristic
  * @param pxEventParam Event param for the read Request.
  */
-void vReadCounter( BLEAttribute_t * pxAttribute,
-                   BLEAttributeEvent_t * pxEventParam );
+void vReadCounter( BLEAttributeEvent_t * pxEventParam );
 
 /**
  * @brief Callback to receive write request from a GATT client to set the counter status.
@@ -107,8 +161,7 @@ void vReadCounter( BLEAttribute_t * pxAttribute,
  * @param pxAttribute
  * @param pxEventParam
  */
-void vWriteCommand( BLEAttribute_t * pxAttribute,
-                    BLEAttributeEvent_t * pxEventParam );
+void vWriteCommand( BLEAttributeEvent_t * pxEventParam );
 
 /**
  * @brief Callback to enable notification when GATT client writes a value to the Client Characteristic
@@ -118,8 +171,7 @@ void vWriteCommand( BLEAttribute_t * pxAttribute,
  * @param pxEventParam Write/Read event parametes
  */
 
-void vEnableNotification( BLEAttribute_t * pxAttribute,
-                          BLEAttributeEvent_t * pxEventParam );
+void vEnableNotification( BLEAttributeEvent_t * pxEventParam );
 
 /**
  * @brief Task used to update the counter value periodically
@@ -147,30 +199,13 @@ static void vConnectionCallback( BTStatus_t xStatus,
                                  BTBdaddr_t * pxRemoteBdAddr );
 /* ---------------------------------------------------------------------------------------*/
 
-
-static BaseType_t prxWaitForServiceInit( void )
-{
-    ( void ) xSemaphoreTake( xServiceStarted, portMAX_DELAY );
-
-    return xSvcStartedStatus;
-}
-
-/*-----------------------------------------------------------*/
-
-static void vServiceStartedCb( BTStatus_t xStatus,
-                               BLEService_t * pxService )
-{
-    if( xStatus == eBTStatusSuccess )
+static const BLEAttributeEventCallback_t pxCallBackArray[egattDemoNbAttributes] =
     {
-        xSvcStartedStatus = pdTRUE;
-    }
-    else
-    {
-        xSvcStartedStatus = pdFALSE;
-    }
-
-    xSemaphoreGive( xServiceStarted );
-}
+  NULL,
+  vReadCounter,
+  vEnableNotification,
+  vWriteCommand
+};
 
 /*-----------------------------------------------------------*/
 
@@ -182,8 +217,8 @@ void vCounterUpdateTaskFunction( void * pvParams )
     BLEEventResponse_t xResp;
     uint32_t ulSetBits = 0;
 
-    xAttrData.xHandle = CHAR_HANDLE( pxGattDemoService, egattDemoCharCounter );
-    xAttrData.xUuid = CHAR_UUID( pxGattDemoService, egattDemoCharCounter );
+    xAttrData.xHandle = CHAR_HANDLE( &xGattDemoService, egattDemoCharCounter );
+    xAttrData.xUuid = CHAR_UUID( &xGattDemoService, egattDemoCharCounter );
     xResp.pxAttrData = &xAttrData;
     xResp.xAttrDataOffset = 0;
     xResp.xEventStatus = eBTStatusSuccess;
@@ -230,81 +265,13 @@ BaseType_t vGattDemoSvcInit( void )
 {
     BaseType_t xRet = pdFALSE;
     BTStatus_t xStatus;
-    BTUuid_t xServiceUUID =
-    {
-        .uu.uu128 = gattDemoSVC_UUID,
-        .ucType   = eBTuuidType128
-    };
-    BTUuid_t xCharUUID =
-    {
-        .uu.uu128 = gattDemoCHAR_UUID_BASE,
-        .ucType   = eBTuuidType128
-    };
-
-    BTUuid_t xClientCharCfgUUID =
-    {
-        .uu.uu16 = gattDemoCLIENT_CHAR_CFG_UUID,
-        .ucType  = eBTuuidType16
-    };
-    size_t xNumDescrsPerChar[ gattDemoNUM_CHARS ] = { 1, 0 };
     BLEEventsCallbacks_t xCallback;
 
-    xServiceStarted = xSemaphoreCreateBinary();
-
-    if( xServiceStarted != NULL )
+    /* Select the handle buffer. */
+    xStatus = BLE_CreateService( (BLEService_t *)&xGattDemoService, (BLEAttributeEventCallback_t *)pxCallBackArray );
+    if( xStatus == eBTStatusSuccess )
     {
-        xStatus = BLE_CreateService( &pxGattDemoService, gattDemoNUM_CHARS, gattDemoNUM_CHAR_DESCRS, xNumDescrsPerChar, gattDemoNUM_INCLUDED_SERVICES );
-
-        if( xStatus == eBTStatusSuccess )
-        {
-            configASSERT( pxGattDemoService->xNbCharacteristics == gattDemoNUM_CHARS );
-            configASSERT( pxGattDemoService->xNbDescriptors == gattDemoNUM_CHAR_DESCRS );
-            configASSERT( pxGattDemoService->xNbIncludedServices == gattDemoNUM_INCLUDED_SERVICES );
-
-
-            pxGattDemoService->xAttributeData.xUuid = xServiceUUID;
-
-            pxGattDemoService->pxDescriptors[ egattDemoCharCounterCCFGDESCR ].xAttributeData.xUuid = xClientCharCfgUUID;
-            pxGattDemoService->pxDescriptors[ egattDemoCharCounterCCFGDESCR ].xAttributeData.pucData = NULL;
-            pxGattDemoService->pxDescriptors[ egattDemoCharCounterCCFGDESCR ].xAttributeData.xSize = 0;
-            pxGattDemoService->pxDescriptors[ egattDemoCharCounterCCFGDESCR ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-            pxGattDemoService->pxDescriptors[ egattDemoCharCounterCCFGDESCR ].pxAttributeEventCallback = vEnableNotification;
-
-            xCharUUID.uu.uu16 = gattDemoCHAR_COUNTER_UUID;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharCounter ].xAttributeData.xUuid = xCharUUID;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharCounter ].xAttributeData.pucData = NULL;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharCounter ].xAttributeData.xSize = 0;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharCounter ].xPermissions = ( bleconfigCHAR_READ_PERM );
-            pxGattDemoService->pxCharacteristics[ egattDemoCharCounter ].xProperties = ( eBTPropRead | eBTPropNotify );
-            pxGattDemoService->pxCharacteristics[ egattDemoCharCounter ].pxAttributeEventCallback = vReadCounter;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharCounter ].xNbDescriptors = 1;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharCounter ].pxDescriptors[ 0 ] = &pxGattDemoService->pxDescriptors[ egattDemoCharCounterCCFGDESCR ];
-
-            xCharUUID.uu.uu16 = gattDemoCHAR_CONTROL_UUID;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharControl ].xAttributeData.xUuid = xCharUUID;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharControl ].xAttributeData.pucData = NULL;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharControl ].xAttributeData.xSize = 0;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharControl ].xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM );
-            pxGattDemoService->pxCharacteristics[ egattDemoCharControl ].xProperties = ( eBTPropRead | eBTPropWrite );
-            pxGattDemoService->pxCharacteristics[ egattDemoCharControl ].pxAttributeEventCallback = vWriteCommand;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharControl ].xNbDescriptors = 0;
-            pxGattDemoService->pxCharacteristics[ egattDemoCharControl ].pxDescriptors = NULL;
-
-            pxGattDemoService->xServiceType = eBTServiceTypePrimary;
-            pxGattDemoService->ucInstId = 0;
-
-            xStatus = BLE_AddService( pxGattDemoService );
-        }
-
-        if( xStatus == eBTStatusSuccess )
-        {
-            xStatus = BLE_StartService( pxGattDemoService, vServiceStartedCb );
-        }
-
-        if( xStatus == eBTStatusSuccess )
-        {
-            xRet = prxWaitForServiceInit();
-        }
+        xRet = pdTRUE;
     }
 
     if( xRet == pdTRUE )
@@ -347,24 +314,21 @@ void vGattDemoSvcStop( void )
 
 /*-----------------------------------------------------------*/
 
-void vReadCounter( BLEAttribute_t * pxAttribute,
-                   BLEAttributeEvent_t * pxEventParam )
+void vReadCounter( BLEAttributeEvent_t * pxEventParam )
 {
     BLEReadEventParams_t * pxReadParam;
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
 
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbCharacteristic ) );
-
     xResp.pxAttrData = &xAttrData;
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = CHAR_HANDLE( pxGattDemoService, egattDemoCharCounter );
 
     if( pxEventParam->xEventType == eBLERead )
     {
         pxReadParam = pxEventParam->pxParamRead;
+        xResp.pxAttrData->xHandle = pxReadParam->usAttrHandle;
         xResp.pxAttrData->pucData = ( uint8_t * ) &ulCounter;
         xResp.pxAttrData->xSize = sizeof( ulCounter );
         xResp.xAttrDataOffset = 0;
@@ -375,25 +339,23 @@ void vReadCounter( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vWriteCommand( BLEAttribute_t * pxAttribute,
-                    BLEAttributeEvent_t * pxEventParam )
+void vWriteCommand( BLEAttributeEvent_t * pxEventParam )
 {
     BLEWriteEventParams_t * pxWriteParam;
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
     uint8_t ucEvent;
 
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbCharacteristic ) );
-
     xResp.pxAttrData = &xAttrData;
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = CHAR_HANDLE( pxGattDemoService, egattDemoCharControl );
 
     if( ( pxEventParam->xEventType == eBLEWrite ) || ( pxEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pxEventParam->pxParamWrite;
+        xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
+
 
         if( pxWriteParam->xLength == 1 )
         {
@@ -414,26 +376,25 @@ void vWriteCommand( BLEAttribute_t * pxAttribute,
 
 /*-----------------------------------------------------------*/
 
-void vEnableNotification( BLEAttribute_t * pxAttribute,
-                          BLEAttributeEvent_t * pxEventParam )
+void vEnableNotification( BLEAttributeEvent_t * pxEventParam )
 {
     BLEWriteEventParams_t * pxWriteParam;
     BLEAttributeData_t xAttrData = { 0 };
     BLEEventResponse_t xResp;
     uint16_t ucCCFGValue;
 
-    configASSERT( ( pxAttribute->xAttributeType == eBTDbDescriptor ) );
-
 
     xResp.pxAttrData = &xAttrData;
     xResp.xRspErrorStatus = eBTRspErrorNone;
     xResp.xEventStatus = eBTStatusFail;
     xResp.xAttrDataOffset = 0;
-    xResp.pxAttrData->xHandle = DESCR_HANDLE( pxGattDemoService, egattDemoCharCounterCCFGDESCR );
-
+ 
     if( ( pxEventParam->xEventType == eBLEWrite ) || ( pxEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pxEventParam->pxParamWrite;
+
+
+        xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
 
         if( pxWriteParam->xLength == 2 )
         {

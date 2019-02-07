@@ -838,14 +838,6 @@ static void vMTUChangedCallback( uint16_t usConnId,
 }
 
 /*-----------------------------------------------------------*/
-static BLEService_t xMQTTService = 
-{
-  .xNumberOfAttributes = eMQTTBLE_NUMBER,
-  .ucInstId = 0,
-  .xType = eBTServiceTypePrimary,
-  .pusHandlesBuffer = pusHandlesBuffer[0],
-  .pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable
-};
 
 BaseType_t AwsIotMqttBLE_Init( void )
 {
