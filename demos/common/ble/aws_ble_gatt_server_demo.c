@@ -76,7 +76,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbDescriptor,
-         .xCharacteristic = 
+         .xCharacteristicDescr =
          {
              .xUuid = xClientCharCfgUUID_TYPE,
              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )
@@ -130,20 +130,6 @@ uint16_t usBLEConnectionID;
 
 #define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
 #define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
-
-/**
- * @brief Callback indicating the GATT service has started.
- * @param xStatus[in] Status of the start operation
- * @param pxService[in] Pointer to the Gatt service
- */
-static void vServiceStartedCb( BTStatus_t xStatus,
-                               BLEService_t * pxService );
-
-/**
- * Function to wait for initialization of GATT service.
- * @return pdTRUE if service initialized successfully, pdFALSE otherwise.
- */
-static BaseType_t prxWaitForServiceInit( void );
 
 /**
  * @brief Callback to read request from a GATT client on the Counter value characteristic.

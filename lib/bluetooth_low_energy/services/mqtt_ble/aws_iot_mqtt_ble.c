@@ -118,7 +118,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbDescriptor,
-         .xCharacteristic = 
+         .xCharacteristicDescr =
          {
              .xUuid = mqttBLECCFG_UUID_TYPE,
              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )
@@ -144,7 +144,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbDescriptor,
-         .xCharacteristic = 
+         .xCharacteristicDescr =
          {
              .xUuid = mqttBLECCFG_UUID_TYPE,
              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )
@@ -195,11 +195,6 @@ static uint8_t * prvReallocBuffer( uint8_t * pucOldBuffer,
                                           size_t xOldBufferSize,
                                           size_t xNewBufferSize );
 
-/*
- * @brief Callback to indicate that the service instance has started.
- */
-static void vServiceStartedCb( BTStatus_t xStatus,
-                               BLEService_t * pxService );
 
 /*
  * @brief Callback to register for events (read) on TX message characteristic.
@@ -774,7 +769,7 @@ void vClientCharCfgDescrCallback( BLEAttributeEvent_t * pxEventParam )
     }
     else if( pxEventParam->xEventType == eBLERead )
     {
-        pxMQTTService = prxGetServiceInstance( pxWriteParam->usAttrHandle );
+        pxMQTTService = prxGetServiceInstance( pxEventParam->pxParamRead->usAttrHandle );
         configASSERT( ( pxMQTTService != NULL ) );
 
         xResp.pxAttrData->xHandle = pxEventParam->pxParamRead->usAttrHandle;

@@ -125,7 +125,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbDescriptor,
-         .xCharacteristic = 
+         .xCharacteristicDescr =
          {
              .xUuid = deviceInfoCLIENT_CHAR_CFG_UUID_TYPE,
              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM )

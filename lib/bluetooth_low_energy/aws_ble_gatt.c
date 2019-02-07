@@ -147,7 +147,8 @@ BLEServiceListElement_t * prvGetServiceListElemFromHandle( uint16_t usHandle )
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Remove service from service list */
-        IotContainers_ForEach( &xBTInterface.xServiceListHead, pxTmpElem )
+       // IotContainers_ForEach( &xBTInterface.xServiceListHead, pxTmpElem )
+		 for( ( pxTmpElem ) = xBTInterface.xServiceListHead.pNext; ( pxTmpElem ) != ( &xBTInterface.xServiceListHead ); ( pxTmpElem ) = ( pxTmpElem )->pNext )
         {
             pxServiceElem = IotLink_Container( BLEServiceListElement_t, pxTmpElem, xServiceList );
 
@@ -552,7 +553,6 @@ static void vResponseConfirmationCb( BTStatus_t xStatus,
 static void vIndicationSentCb( uint16_t usConnId,
                                BTStatus_t xStatus )
 {
-    BLEAttribute_t xAttribute;
     BLEIndicationSentEventParams_t xIndicationSentParam;
     BLEAttributeEvent_t xEventParam;
     BLEAttributeEventCallback_t xEventsCallbacks;
@@ -574,7 +574,6 @@ BTStatus_t prvAddServiceToList( BLEService_t * pxService,
                                 BLEAttributeEventCallback_t pxEventsCallbacks[] )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    BLEServiceListElement_t * pxServiceElem;
     BLEServiceListElement_t * pxNewElem;
 
     /* Create a space in the list for the service. */
@@ -597,10 +596,29 @@ BTStatus_t prvAddServiceToList( BLEService_t * pxService,
         xStatus = eBTStatusNoMem;
     }
 
-    return eBTStatusSuccess;
+    return xStatus;
 }
 
 /*-----------------------------------------------------------*/
+size_t prvComputeNumberOfHandles( BLEService_t * pxService )
+{
+	size_t xIndex;
+	size_t nbHandles = 0;
+
+	for(xIndex = 0; xIndex < pxService->xNumberOfAttributes; xIndex++ )
+	{
+		/* Increment by 2 to account for characteristic declaration */
+		if(pxService->pxBLEAttributes[xIndex].xAttributeType == eBTDbCharacteristic)
+		{
+			nbHandles += 2;
+		}else
+		{
+			nbHandles++;
+		}
+	}
+
+	return nbHandles;
+}
 
 BTStatus_t prvCreateAttributes( BLEService_t * pxService )
 {
@@ -608,6 +626,7 @@ BTStatus_t prvCreateAttributes( BLEService_t * pxService )
     BLEAttribute_t * pxCurrentAtrribute;
     BTStatus_t xStatus = eBTStatusFail;
     BTGattSrvcId_t xTmpService;
+    size_t nbHandles;
 
     for( usAttributes = 0; usAttributes < pxService->xNumberOfAttributes; usAttributes++ )
     {
@@ -622,9 +641,10 @@ BTStatus_t prvCreateAttributes( BLEService_t * pxService )
                 xTmpService.xId.ucInstId = pxService->ucInstId;
                 xTmpService.xId.xUuid = pxService->pxBLEAttributes[ 0 ].xServiceUUID;
                 xTmpService.xServiceType = pxService->xType;
+                nbHandles = prvComputeNumberOfHandles(pxService);
                 xStatus = xBTInterface.pxGattServerInterface->pxAddService( xBTInterface.ucServerIf,
                                                                             &xTmpService,
-                                                                            pxService->xNumberOfAttributes );
+																			nbHandles );
 
                 break;
 
@@ -660,6 +680,11 @@ BTStatus_t prvCreateAttributes( BLEService_t * pxService )
                                  pdTRUE,
                                  pdTRUE,
                                  portMAX_DELAY );
+            if(xBTInterface.xCbStatus != eBTStatusSuccess)
+            {
+            	xStatus = xBTInterface.xCbStatus;
+            	break;
+            }
         }
         else
         {
