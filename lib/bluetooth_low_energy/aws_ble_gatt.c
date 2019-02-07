@@ -147,7 +147,7 @@ BLEServiceListElement_t * prvGetServiceListElemFromHandle( uint16_t usHandle )
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Remove service from service list */
-        for( ( pxTmpElem ) = xBTInterface.xServiceListHead.pNext; ( pxTmpElem ) != ( &xBTInterface.xServiceListHead ); ( pxTmpElem ) = ( pxTmpElem )->pNext )
+        IotContainers_ForEach( &xBTInterface.xServiceListHead, pxTmpElem )
         {
             pxServiceElem = IotLink_Container( BLEServiceListElement_t, pxTmpElem, xServiceList );
 
@@ -260,7 +260,7 @@ void vConnectionCb( uint16_t usConnId,
         }
 
         /* Get the event associated to the callback */
-        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLEConnection ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLEConnection ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
+        IotContainers_ForEach( &xBTInterface.xSubscrEventListHead[ eBLEConnection ], pxEventListIndex )
         {
             pxEventIndex = IotLink_Container( BLESubscrEventListElement_t, pxEventListIndex, xEventList );
             pxEventIndex->xSubscribedEventCb.pxConnectionCb( xStatus, usConnId, bConnected, pxBda );
@@ -516,7 +516,7 @@ void vMtuChangedCb( uint16_t usConnId,
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        for( ( pxEventListIndex ) = xBTInterface.xSubscrEventListHead[ eBLEMtuChanged ].pNext; ( pxEventListIndex ) != ( &xBTInterface.xSubscrEventListHead[ eBLEMtuChanged ] ); ( pxEventListIndex ) = ( pxEventListIndex )->pNext )
+        IotContainers_ForEach( &xBTInterface.xSubscrEventListHead[ eBLEMtuChanged ], pxEventListIndex )
         {
             pxEventIndex = IotLink_Container( BLESubscrEventListElement_t, pxEventListIndex, xEventList );
             pxEventIndex->xSubscribedEventCb.pxMtuChangedCb( usConnId, usMtu );
@@ -833,7 +833,7 @@ BTStatus_t BLE_GetConnectionInfo( uint16_t usConnId,
 
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &xBTInterface.xThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
-        for( ( pxConnListIndex ) = xBTInterface.xConnectionListHead.pNext; ( pxConnListIndex ) != ( &xBTInterface.xConnectionListHead ); ( pxConnListIndex ) = ( pxConnListIndex )->pNext )
+        IotContainers_ForEach( &xBTInterface.xConnectionListHead, pxConnListIndex )
         {
             pxConnInfoListElem = IotLink_Container( BLEConnectionInfoListElement_t, pxConnListIndex, xConnectionList );
 
