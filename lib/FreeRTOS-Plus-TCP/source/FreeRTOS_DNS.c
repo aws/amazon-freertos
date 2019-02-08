@@ -446,7 +446,7 @@ TickType_t xIdentifier = 0;
 	/* Generate a unique identifier. */
 	if( 0 == ulIPAddress )
 	{
-		xIdentifier = ( TickType_t )ipconfigRAND32( );
+		xIdentifier = ( TickType_t )ipconfigRAND32( ) & 0xFFFF;
 	}
 
 	#if( ipconfigDNS_USE_CALLBACKS != 0 )
