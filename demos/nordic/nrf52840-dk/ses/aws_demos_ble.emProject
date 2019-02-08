@@ -177,7 +177,7 @@
             <file file_name="../../../../lib/utils/platform/aws_iot_threads_posix.c" />
           </folder>
           <folder Name="taskpool">
-            <file file_name="C:/public/amazon-freertos/lib/utils/taskpool/aws_iot_taskpool.c" />
+            <file file_name="../../../../lib/utils/taskpool/aws_iot_taskpool.c" />
           </folder>
         </folder>
         <folder Name="ota">

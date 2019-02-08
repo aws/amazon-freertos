@@ -47,7 +47,7 @@
 
 
 /* Specify the OTA signature algorithm we support on this platform. */
-const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
+const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 const char pcOTA_PAL_Magick[ otapalMAGICK_SIZE ] = "@AFRTOS";
 const size_t otapalFLASH_END = ( size_t ) &__FLASH_segment_end__;
 /* Tag by which the beginning of the ECDSA in the public key can be found */
@@ -175,7 +175,7 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
 {
     DEFINE_OTA_METHOD_NAME( "prvPAL_CreateFileForRx" );
     ret_code_t xErrCode;
-    C->iFileHandle = prvNextFreeFileHandle;
+    C->lFileHandle = prvNextFreeFileHandle;
     OTA_Err_t xStatus = kOTA_Err_None;
     /* Check that the second bank size is big enough to contain the new firmware */
     if( C->ulFileSize > otapalSECOND_BANK_SIZE )
@@ -210,7 +210,7 @@ OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C )
 {
     DEFINE_OTA_METHOD_NAME( "prvPAL_Abort" );
 
-    C->iFileHandle = ( int32_t ) NULL;
+    C->lFileHandle = ( int32_t ) NULL;
     /* Delete the event group */
     if( xFlashEventGrp != NULL )
     {

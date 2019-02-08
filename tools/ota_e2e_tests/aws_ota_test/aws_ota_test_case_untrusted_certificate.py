@@ -63,7 +63,7 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
         )
         # Create a job.
         if self._otaAwsAgent._stageParams:
-            jobId = self._otaAwsAgent.createOtaUpdate(
+            otaUpdateId = self._otaAwsAgent.createOtaUpdate(
                 deploymentFiles = [
                     {
                         'fileName': os.path.basename(self._otaConfig['ota_firmware_file_path']),

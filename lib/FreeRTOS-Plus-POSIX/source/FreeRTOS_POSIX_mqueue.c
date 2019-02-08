@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.1
+ * Amazon FreeRTOS+POSIX V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -172,15 +172,23 @@ static int prvCalculateTickTimeout( long lMessageQueueFlags,
         }
         else
         {
+            struct timespec xCurrentTime = { 0 };
+
             /* Check that the given timespec is valid. */
             if( UTILS_ValidateTimespec( pxAbsoluteTimeout ) == false )
             {
                 iStatus = EINVAL;
             }
 
+            /* Get current time */
+            if( ( iStatus == 0 ) && ( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 ) )
+            {
+                iStatus = EINVAL;
+            }
+
             /* Convert absolute timespec to ticks. */
             if( ( iStatus == 0 ) &&
-                ( UTILS_AbsoluteTimespecToTicks( pxAbsoluteTimeout, pxTimeoutTicks ) != 0 ) )
+                ( UTILS_AbsoluteTimespecToDeltaTicks( pxAbsoluteTimeout, &xCurrentTime, pxTimeoutTicks ) != 0 ) )
             {
                 iStatus = ETIMEDOUT;
             }
@@ -517,7 +525,7 @@ mqd_t mq_open( const char * name,
     /* Check attributes, if given. */
     if( xMessageQueue == NULL )
     {
-        if( ( oflag & O_CREAT ) && ( attr != NULL ) && ( ( attr->mq_maxmsg <= 0 ) || ( attr->mq_msgsize <= 0 ) ) )
+        if( ( attr != NULL ) && ( ( attr->mq_maxmsg < 0 ) || ( attr->mq_msgsize < 0 ) ) )
         {
             /* Invalid mq_attr.mq_maxmsg or mq_attr.mq_msgsize. */
             errno = EINVAL;
@@ -716,7 +724,7 @@ ssize_t mq_timedreceive( mqd_t mqdes,
 int mq_timedsend( mqd_t mqdes,
                   const char * msg_ptr,
                   size_t msg_len,
-                  unsigned msg_prio,
+                  unsigned int msg_prio,
                   const struct timespec * abstime )
 {
     int iStatus = 0, iCalculateTimeoutReturn = 0;
@@ -832,7 +840,7 @@ int mq_unlink( const char * name )
     if( prvValidateQueueName( name, &xNameSize ) == pdFALSE )
     {
         /* Error with mq name. */
-        errno = EINVAL;
+        errno = ENAMETOOLONG;
         iStatus = -1;
     }
 

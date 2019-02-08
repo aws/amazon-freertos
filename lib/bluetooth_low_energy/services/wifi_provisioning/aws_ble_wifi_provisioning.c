@@ -330,6 +330,19 @@ static WifiProvAttributes_t prxGetCharFromHandle( uint16_t usHandle )
 
 /*-----------------------------------------------------------*/
 
+BaseType_t WIFI_PROVISION_Start( void )
+{
+    BaseType_t xRet = pdFALSE;
+
+    if( xWifiProvService.xInit == pdTRUE )
+    {
+    	xWifiProvService.usNumNetworks = prvGetNumSavedNetworks();
+    	xRet = pdTRUE;
+    }
+
+    return xRet;
+}
+
 void vCharacteristicCallback( BLEAttributeEvent_t * pxEventParam )
 {
     BLEWriteEventParams_t * pxWriteParam;

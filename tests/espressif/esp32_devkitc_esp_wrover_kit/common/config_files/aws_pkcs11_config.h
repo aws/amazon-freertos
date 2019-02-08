@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.2  
+ * Amazon FreeRTOS V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,12 +32,6 @@
 
 #ifndef _AWS_PKCS11_CONFIG_H_
 #define _AWS_PKCS11_CONFIG_H_
-
-/**
- * @brief File storage location definitions.
- */
-//#define pkcs11configFILE_NAME_CLIENT_CERTIFICATE    "ESP_P11_Cert"
-//#define pkcs11configFILE_NAME_KEY                   "ESP_P11_Key"
 
 /* A non-standard version of C_INITIALIZE should be used by this port. */
 /* #define pkcs11configC_INITIALIZE_ALT */

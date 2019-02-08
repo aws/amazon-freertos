@@ -260,6 +260,16 @@ typedef struct WifiProvService
 BaseType_t WIFI_PROVISION_Init( void );
 
 /**
+ * @brief Starts WiFi provisioning service.
+ * Starts the BLE service to provision new WIFI networks. Registers a callback invoked whenever a new network is provisioned.
+ *
+ *
+ * @return pdTRUE if successfully started
+ *         pdFALSE if start failed
+ */
+BaseType_t WIFI_PROVISION_Start( void );
+
+/**
  * @brief Gets the total number of provisioned networks.
  *
  *

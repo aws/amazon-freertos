@@ -571,7 +571,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
 
             for( ulIndex = 0; ulIndex < OTA_MAX_FILES; ulIndex++ )
             {
-                xOTA_Agent.pxOTA_Files[ ulIndex ].pacFilepath = NULL;
+                xOTA_Agent.pxOTA_Files[ ulIndex ].pucFilePath = NULL;
             }
 
             xReturn = xTaskCreate( prvOTAUpdateTask, "OTA Task", otaconfigSTACK_SIZE, NULL, otaconfigAGENT_PRIORITY, &pxOTA_TaskHandle );
@@ -1194,7 +1194,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                     ( int32_t ) C->ulServerFileID,
                     ( int32_t ) ( OTA_FILE_BLOCK_SIZE & 0x7fffffffUL ), /* Mask to keep lint happy. It's still a constant. */
                     0,
-                    C->pacRxBlockBitmap,
+                    C->pucRxBlockBitmap,
                     ulBitmapLen ) )
             {
                 ulMsgSizeToPublish = ( uint32_t ) xMsgSizeFromStream;
@@ -1209,7 +1209,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                                                     sizeof( pcTopicBuffer ),
                                                     pcOTA_GetStream_TopicTemplate,
                                                     xOTA_Agent.pcThingName,
-                                                    ( const char * ) C->pacStreamName );
+                                                    ( const char * ) C->pucStreamName );
 
                 if( ( ulTopicLen > 0U ) && ( ulTopicLen < sizeof( pcTopicBuffer ) ) )
                 {
@@ -1651,22 +1651,22 @@ static void prvStartRequestTimer( OTA_FileContext_t * C )
 
     BaseType_t xTimerStarted = pdFALSE;
 
-    if( C->pvRequestTimer == NULL )
+    if( C->xRequestTimer == NULL )
     {
-        C->pvRequestTimer = xTimerCreate( pcTimerName,
+        C->xRequestTimer = xTimerCreate( pcTimerName,
                                           pdMS_TO_TICKS( otaconfigFILE_REQUEST_WAIT_MS ),
                                           pdFALSE,
                                           ( void * ) C, /*lint !e9087 Using the file context as the timer ID does not cause undefined behavior. */
                                           prvRequestTimer_Callback );
 
-        if( C->pvRequestTimer != NULL )
+        if( C->xRequestTimer != NULL )
         {
-            xTimerStarted = xTimerStart( C->pvRequestTimer, 0 );
+            xTimerStarted = xTimerStart( C->xRequestTimer, 0 );
         }
     }
     else
     {
-        xTimerStarted = xTimerReset( C->pvRequestTimer, portMAX_DELAY );
+        xTimerStarted = xTimerReset( C->xRequestTimer, portMAX_DELAY );
     }
 
     if( xTimerStarted == pdTRUE )
@@ -1686,9 +1686,9 @@ static void prvStopRequestTimer( OTA_FileContext_t * C )
 {
     DEFINE_OTA_METHOD_NAME( "prvStopRequestTimer" );
 
-    if( C->pvRequestTimer != NULL )
+    if( C->xRequestTimer != NULL )
     {
-        ( void ) xTimerStop( C->pvRequestTimer, 0 );
+        ( void ) xTimerStop( C->xRequestTimer, 0 );
         OTA_LOG_L1( "[%s] Stopping file request timer.\r\n", OTA_METHOD_NAME );
     }
 }
@@ -1707,30 +1707,30 @@ static bool_t prvOTA_Close( OTA_FileContext_t * const C )
     if( C != NULL )
     {
         /* Stop and delete any existing transfer request timer. */
-        if( C->pvRequestTimer != NULL )
+        if( C->xRequestTimer != NULL )
         {
-            ( void ) xTimerStop( C->pvRequestTimer, 0 );
-            ( void ) xTimerDelete( C->pvRequestTimer, 0 );
-            C->pvRequestTimer = NULL;
+            ( void ) xTimerStop( C->xRequestTimer, 0 );
+            ( void ) xTimerDelete( C->xRequestTimer, 0 );
+            C->xRequestTimer = NULL;
         }
 
-        if( C->pacStreamName != NULL )
+        if( C->pucStreamName != NULL )
         {
             ( void ) prvUnSubscribeFromDataStream( C ); /* Unsubscribe from the data stream if needed. */
-            vPortFree( C->pacStreamName );              /* Free any previously allocated stream name memory. */
-            C->pacStreamName = NULL;
+            vPortFree( C->pucStreamName );              /* Free any previously allocated stream name memory. */
+            C->pucStreamName = NULL;
         }
 
-        if( C->pacJobName != NULL )
+        if( C->pucJobName != NULL )
         {
-            vPortFree( C->pacJobName ); /* Free the job name memory. */
-            C->pacJobName = NULL;
+            vPortFree( C->pucJobName ); /* Free the job name memory. */
+            C->pucJobName = NULL;
         }
 
-        if( C->pacRxBlockBitmap != NULL )
+        if( C->pucRxBlockBitmap != NULL )
         {
-            vPortFree( C->pacRxBlockBitmap ); /* Free the previously allocated block bitmap. */
-            C->pacRxBlockBitmap = NULL;
+            vPortFree( C->pucRxBlockBitmap ); /* Free the previously allocated block bitmap. */
+            C->pucRxBlockBitmap = NULL;
         }
 
         if( C->pxSignature != NULL )
@@ -1739,16 +1739,16 @@ static bool_t prvOTA_Close( OTA_FileContext_t * const C )
             C->pxSignature = NULL;
         }
 
-        if( C->pacFilepath != NULL )
+        if( C->pucFilePath != NULL )
         {
-            vPortFree( C->pacFilepath ); /* Free the file path name string memory. */
-            C->pacFilepath = NULL;
+            vPortFree( C->pucFilePath ); /* Free the file path name string memory. */
+            C->pucFilePath = NULL;
         }
 
-        if( C->pacCertFilepath != NULL )
+        if( C->pucCertFilepath != NULL )
         {
-            vPortFree( C->pacCertFilepath ); /* Free the certificate path name string memory. */
-            C->pacCertFilepath = NULL;
+            vPortFree( C->pucCertFilepath ); /* Free the certificate path name string memory. */
+            C->pucCertFilepath = NULL;
         }
 
         /* Abort any active file access and release the file resource, if needed. */
@@ -1768,7 +1768,7 @@ static OTA_FileContext_t * prvGetFreeContext( void )
     uint32_t ulIndex = 0U;
     OTA_FileContext_t * C = NULL;
 
-    while( ( ulIndex < OTA_MAX_FILES ) && ( xOTA_Agent.pxOTA_Files[ ulIndex ].pacFilepath != NULL ) )
+    while( ( ulIndex < OTA_MAX_FILES ) && ( xOTA_Agent.pxOTA_Files[ ulIndex ].pucFilePath != NULL ) )
     {
         ulIndex++;
     }
@@ -2235,19 +2235,19 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     {
         { pcOTA_JSON_ClientTokenKey,   OTA_JOB_PARAM_OPTIONAL, { ( uint32_t ) &xOTA_Agent.pcClientTokenFromJob }, eModelParamType_StringInDoc, JSMN_STRING    }, /*lint !e9078 !e923 Get address of token as value. */
         { pcOTA_JSON_ExecutionKey,     OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
-        { pcOTA_JSON_JobIDKey,         OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pacJobName )    }, eModelParamType_StringCopy,  JSMN_STRING    },
+        { pcOTA_JSON_JobIDKey,         OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pucJobName )    }, eModelParamType_StringCopy,  JSMN_STRING    },
         { pcOTA_JSON_StatusDetailsKey, OTA_JOB_PARAM_OPTIONAL, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
-        { pcOTA_JSON_SelfTestKey,      OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, bIsInSelfTest ) }, eModelParamType_Ident,       JSMN_STRING    },
+        { pcOTA_JSON_SelfTestKey,      OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, xIsInSelfTest ) }, eModelParamType_Ident,       JSMN_STRING    },
         { pcOTA_JSON_UpdatedByKey,     OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, ulUpdaterVersion )}, eModelParamType_UInt32,      JSMN_STRING    },
         { pcOTA_JSON_JobDocKey,        OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
         { pcOTA_JSON_OTAUnitKey,       OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Object,      JSMN_OBJECT    },
-        { pcOTA_JSON_StreamNameKey,    OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pacStreamName ) }, eModelParamType_StringCopy,  JSMN_STRING    },
+        { pcOTA_JSON_StreamNameKey,    OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pucStreamName ) }, eModelParamType_StringCopy,  JSMN_STRING    },
         { pcOTA_JSON_FileGroupKey,     OTA_JOB_PARAM_REQUIRED, { OTA_DONT_STORE_PARAM                          }, eModelParamType_Array,       JSMN_ARRAY     },
-        { pcOTA_JSON_FilePathKey,      OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pacFilepath )   }, eModelParamType_StringCopy,  JSMN_STRING    },
+        { pcOTA_JSON_FilePathKey,      OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pucFilePath )   }, eModelParamType_StringCopy,  JSMN_STRING    },
         { pcOTA_JSON_FileSizeKey,      OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, ulFileSize )    }, eModelParamType_UInt32,      JSMN_PRIMITIVE },
         { pcOTA_JSON_FileIDKey,        OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, ulServerFileID )}, eModelParamType_UInt32,      JSMN_PRIMITIVE },
-        { pcOTA_JSON_FileCertNameKey,  OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pacCertFilepath )}, eModelParamType_StringCopy,  JSMN_STRING    },
-        { pcOTA_JSON_FileSignatureKey, OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pxSignature )   }, eModelParamType_SigBase64,   JSMN_STRING    },
+        { pcOTA_JSON_FileCertNameKey,  OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pucCertFilepath )}, eModelParamType_StringCopy,  JSMN_STRING    },
+        { cOTA_JSON_FileSignatureKey, OTA_JOB_PARAM_REQUIRED, { OFFSET_OF( OTA_FileContext_t, pxSignature )   }, eModelParamType_SigBase64,   JSMN_STRING    },
         { pcOTA_JSON_FileAttributeKey, OTA_JOB_PARAM_OPTIONAL, { OFFSET_OF( OTA_FileContext_t, ulFileAttributes )}, eModelParamType_UInt32,      JSMN_PRIMITIVE },
     };
 
@@ -2287,10 +2287,10 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             /* We already checked for missing parameters so we SHOULD have a job name in the context. */
             else if( xOTA_Agent.pcOTA_Singleton_ActiveJobName != NULL )
             {
-                if( C->pacJobName != NULL )
+                if( C->pucJobName != NULL )
                 {
-                    /* C->pacJobName is guaranteed to be zero terminated. */
-                    if( strcmp( ( char * ) xOTA_Agent.pcOTA_Singleton_ActiveJobName, ( char * ) C->pacJobName ) != 0 )
+                    /* C->pucJobName is guaranteed to be zero terminated. */
+                    if( strcmp( ( char * ) xOTA_Agent.pcOTA_Singleton_ActiveJobName, ( char * ) C->pucJobName ) != 0 )
                     {
                         OTA_LOG_L1( "[%s] Busy with existing job. Ignoring.\r\n", OTA_METHOD_NAME );
                         eErr = eOTA_JobParseErr_BusyWithExistingJob;
@@ -2298,8 +2298,8 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                     else
                     { /* The same job is being reported so free the duplicate job name from the context. */
                         OTA_LOG_L1( "[%s] Superfluous report of current job.\r\n", OTA_METHOD_NAME );
-                        vPortFree( C->pacJobName );
-                        C->pacJobName = NULL;
+                        vPortFree( C->pucJobName );
+                        C->pucJobName = NULL;
                         eErr = eOTA_JobParseErr_BusyWithSameJob;
                     }
                 }
@@ -2311,8 +2311,8 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             }
             else
             { /* Assume control of the job name from the context. */
-                xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pacJobName;
-                C->pacJobName = NULL;
+                xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
+                C->pucJobName = NULL;
             }
 
             if( eErr == eOTA_JobParseErr_None )
@@ -2329,7 +2329,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                  * test or an incorrect image was sent by the OTA
                  * operator.
                  */
-                if( C->bIsInSelfTest == ( bool_t ) pdTRUE )
+                if( C->xIsInSelfTest == ( bool_t ) pdTRUE )
                 {
                     OTA_LOG_L1( "[%s] In self test mode.\r\n", OTA_METHOD_NAME );
 
@@ -2401,12 +2401,12 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
         {
             /* If job parsing failed AND there's a job ID, update the job state to FAILED with
              * a reason code.  Without a job ID, we can't update the status in the job service. */
-            if( C->pacJobName != NULL )
+            if( C->pucJobName != NULL )
             {
                 OTA_LOG_L1( "[%s] Rejecting job due to OTA_JobParseErr_t %d\r\n", OTA_METHOD_NAME, eErr );
                 /* Assume control of the job name from the context. */
-                xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pacJobName;
-                C->pacJobName = NULL;
+                xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
+                C->pucJobName = NULL;
                 prvUpdateJobStatus( NULL, eJobStatus_FailedWithVal, ( int32_t ) kOTA_Err_JobParserError, ( int32_t ) eErr );
                 /* We don't need the job name memory anymore since we're done with this job. */
                 vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
@@ -2451,10 +2451,10 @@ static OTA_FileContext_t * prvProcessOTAJobMsg( const char * pcRawMsg,
 
     if( ( pstUpdateFile != NULL ) && ( prvInSelftest() == false ) )
     {
-        if( pstUpdateFile->pacRxBlockBitmap != NULL )
+        if( pstUpdateFile->pucRxBlockBitmap != NULL )
         {
-            vPortFree( pstUpdateFile->pacRxBlockBitmap ); /* Free any previously allocated bitmap. */
-            pstUpdateFile->pacRxBlockBitmap = NULL;
+            vPortFree( pstUpdateFile->pucRxBlockBitmap ); /* Free any previously allocated bitmap. */
+            pstUpdateFile->pucRxBlockBitmap = NULL;
         }
 
         /* Calculate how many bytes we need in our bitmap for tracking received blocks.
@@ -2462,14 +2462,14 @@ static OTA_FileContext_t * prvProcessOTAJobMsg( const char * pcRawMsg,
 
         ulNumBlocks = ( pstUpdateFile->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;
         ulBitmapLen = ( ulNumBlocks + ( BITS_PER_BYTE - 1U ) ) >> LOG2_BITS_PER_BYTE;
-        pstUpdateFile->pacRxBlockBitmap = ( uint8_t * ) pvPortMalloc( ulBitmapLen ); /*lint !e9079 FreeRTOS malloc port returns void*. */
+        pstUpdateFile->pucRxBlockBitmap = ( uint8_t * ) pvPortMalloc( ulBitmapLen ); /*lint !e9079 FreeRTOS malloc port returns void*. */
 
-        if( pstUpdateFile->pacRxBlockBitmap != NULL )
+        if( pstUpdateFile->pucRxBlockBitmap != NULL )
         {
             if( ( BaseType_t ) ( prvSubscribeToDataStream( pstUpdateFile ) ) == pdTRUE )
             {
                 /* Set all bits in the bitmap to the erased state (we use 1 for erased just like flash memory). */
-                memset( pstUpdateFile->pacRxBlockBitmap, ( int ) OTA_ERASED_BLOCKS_VAL, ulBitmapLen );
+                memset( pstUpdateFile->pucRxBlockBitmap, ( int ) OTA_ERASED_BLOCKS_VAL, ulBitmapLen );
 
                 /* Mark as used any pages in the bitmap that are out of range, based on the file size.
                  * This keeps us from requesting those pages during retry processing or if using a windowed
@@ -2483,7 +2483,7 @@ static OTA_FileContext_t * prvProcessOTAJobMsg( const char * pcRawMsg,
 
                 for( ulIndex = 0U; ulIndex < ulNumOutOfRange; ulIndex++ )
                 {
-                    pstUpdateFile->pacRxBlockBitmap[ ulBitmapLen - 1U ] &= ~ulBit;
+                    pstUpdateFile->pucRxBlockBitmap[ ulBitmapLen - 1U ] &= ~ulBit;
                     ulBit >>= 1U;
                 }
 
@@ -2550,7 +2550,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
             *pxCloseResult = kOTA_Err_GenericIngestError; /* Default to a generic ingest function error until we prove success. */
 
             /* If we have a block bitmap available then process the message. */
-            if( C->pacRxBlockBitmap && ( C->ulBlocksRemaining > 0U ) )
+            if( C->pucRxBlockBitmap && ( C->ulBlocksRemaining > 0U ) )
             {
                 /* Reset or start the firmware request timer. */
                 prvStartRequestTimer( C );
@@ -2585,7 +2585,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                         /* Calculate byte offset into bitmap. */
                         uint32_t ulByte = ulBlockIndex >> LOG2_BITS_PER_BYTE;
 
-                        if( ( C->pacRxBlockBitmap[ ulByte ] & ulBitMask ) == 0U ) /* If we've already received this block... */
+                        if( ( C->pucRxBlockBitmap[ ulByte ] & ulBitMask ) == 0U ) /* If we've already received this block... */
                         {
                             OTA_LOG_L1( "[%s] block %u is a DUPLICATE. %u blocks remaining.\r\n", OTA_METHOD_NAME,
                                         ulBlockIndex,
@@ -2606,7 +2606,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                                 }
                                 else
                                 {
-                                    C->pacRxBlockBitmap[ ulByte ] &= ~ulBitMask; /* Mark this block as received in our bitmap. */
+                                    C->pucRxBlockBitmap[ ulByte ] &= ~ulBitMask; /* Mark this block as received in our bitmap. */
                                     C->ulBlocksRemaining--;
                                     eIngestResult = eIngest_Result_Accepted_Continue;
                                     *pxCloseResult = kOTA_Err_None; /* This is a success path. */
@@ -2622,8 +2622,8 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                             {
                                 OTA_LOG_L1( "[%s] Received final expected block of file.\r\n", OTA_METHOD_NAME );
                                 prvStopRequestTimer( C );         /* Don't request any more since we're done. */
-                                vPortFree( C->pacRxBlockBitmap ); /* Free the bitmap now that we're done with the download. */
-                                C->pacRxBlockBitmap = NULL;
+                                vPortFree( C->pucRxBlockBitmap ); /* Free the bitmap now that we're done with the download. */
+                                C->pucRxBlockBitmap = NULL;
 
                                 if( C->pucFile != NULL )
                                 {
@@ -2780,7 +2780,7 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
                                                                            sizeof( pcOTA_RxStreamTopic ),
                                                                            pcOTA_StreamData_TopicTemplate,
                                                                            xOTA_Agent.pcThingName,
-                                                                           ( const char * ) C->pacStreamName );
+                                                                           ( const char * ) C->pucStreamName );
 
     if( ( stOTAUpdateDataSubscription.topicFilterLength > 0U ) && ( stOTAUpdateDataSubscription.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
     {
@@ -2828,7 +2828,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
                                                            sizeof( pcOTA_RxStreamTopic ),
                                                            pcOTA_StreamData_TopicTemplate,
                                                            xOTA_Agent.pcThingName,
-                                                           ( const char * ) C->pacStreamName );
+                                                           ( const char * ) C->pucStreamName );
 
         if( ( stUnSub.topicFilterLength > 0U ) && ( stUnSub.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
         {

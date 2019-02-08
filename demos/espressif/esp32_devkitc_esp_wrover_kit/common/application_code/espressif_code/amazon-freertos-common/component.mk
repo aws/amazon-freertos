@@ -37,6 +37,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
 
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/include \
                              $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
+                             $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include \
                              $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include/portable/espressif/esp32_devkitc_esp_wrover_kit \
                              $(AMAZON_FREERTOS_LIB_DIR)/include/bluetooth_low_energy \
                              $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif \
