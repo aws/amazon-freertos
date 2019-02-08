@@ -111,7 +111,7 @@ typedef enum
  */
 typedef struct DeviceInfoService
 {
-    BLEService_t * pxBLEService;
+    BTService_t * pxBLEService;
     uint16_t usCCFGVal[ deviceInfoMAX_DESCRS ];
     uint16_t usBLEConnId;
     uint16_t usBLEMtu;

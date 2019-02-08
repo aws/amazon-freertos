@@ -34,7 +34,7 @@
 #include "sdk_config.h"
 /* Device name for this peripheral device */
 #define bleconfigDEVICE_NAME                     "nRF52840"
-
+#define bleconfigENABLE_GATT_DEMO 1
 /* Enable WIFI provisioning GATT service */
 #define bleconfigENABLE_WIFI_PROVISIONING         ( 0 )
 

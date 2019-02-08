@@ -92,9 +92,9 @@ static uint16_t pusHandlesBuffer[mqttBLEMAX_SVC_INSTANCES][eMQTTBLE_NUMBER];
 
 /*-----------------------------------------------------------------------------------------------------*/
 static MqttBLEService_t xMqttBLEServices[ mqttBLEMAX_SVC_INSTANCES ] = { 0 };
-static BLEService_t xBLEServices[ mqttBLEMAX_SVC_INSTANCES ] = { 0 };
+static BTService_t xBLEServices[ mqttBLEMAX_SVC_INSTANCES ] = { 0 };
 
-static const BLEAttribute_t pxAttributeTable[] = {
+static const BTAttribute_t pxAttributeTable[] = {
      {    
           .xServiceUUID = mqttBLESERVICE_UUID_TYPE
      },
@@ -172,7 +172,7 @@ static uint16_t usBLEConnMTU;
 /*
  * @brief Creates and starts  a GATT service instance.
  */
-static BaseType_t prvInitServiceInstance( BLEService_t * pxService );
+static BaseType_t prvInitServiceInstance( BTService_t * pxService );
 
 /*
  * @brief Gets an MQTT proxy service instance given a GATT service.
@@ -351,7 +351,7 @@ static uint8_t * prvReallocBuffer( uint8_t * pucOldBuffer,
 
 /*-----------------------------------------------------------*/
 
-static BaseType_t prvInitServiceInstance( BLEService_t * pxService )
+static BaseType_t prvInitServiceInstance( BTService_t * pxService )
 {
     BTStatus_t xStatus;
     BaseType_t xResult = pdFAIL;
@@ -854,7 +854,7 @@ BaseType_t AwsIotMqttBLE_Init( void )
         pxService->pxServicePtr->pusHandlesBuffer = pusHandlesBuffer[ucId];
         pxService->pxServicePtr->ucInstId = ucId;
         pxService->pxServicePtr->xNumberOfAttributes = eMQTTBLE_NUMBER;
-        pxService->pxServicePtr->pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable;
+        pxService->pxServicePtr->pxBLEAttributes = (BTAttribute_t *)pxAttributeTable;
 
         xRet = prvInitServiceInstance( pxService->pxServicePtr );
 
