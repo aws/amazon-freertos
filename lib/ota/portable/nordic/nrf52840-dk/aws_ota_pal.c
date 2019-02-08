@@ -520,33 +520,29 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
                           uint32_t ulBlockSize,
                           uint8_t * const pacData )
 {
-    uint32_t ul32BitBlocksTosend, ulTotal32BitBlocks, ul32BitBlocksSent;
+    uint32_t ulByteSent, ulByteToSend;
     ret_code_t xErrCode = NRF_SUCCESS;
-    ulTotal32BitBlocks = (ulBlockSize+3)/4;
-    ul32BitBlocksSent = 0;
 
-
-    while(ul32BitBlocksSent < ulTotal32BitBlocks)
+    ulByteSent = 0;
+    while(ulByteSent < ulBlockSize)
     {
-      ul32BitBlocksTosend = 0;
+      ulByteToSend = ulBlockSize - ulByteSent;
 
-      ul32BitBlocksTosend = ulTotal32BitBlocks - ul32BitBlocksSent;
-
-      if(ul32BitBlocksTosend > otapalSERIALIZING_ARRAY_SIZE)
+      if(ulByteToSend > otapalSERIALIZING_ARRAY_SIZE*4)
       {
-        ul32BitBlocksTosend = otapalSERIALIZING_ARRAY_SIZE;
+        ulByteToSend = otapalSERIALIZING_ARRAY_SIZE*4;
       }
 
-      if(ul32BitBlocksTosend > NRF_FICR->CODEPAGESIZE)
+      if(ulByteToSend > NRF_FICR->CODEPAGESIZE)
       {
-        ul32BitBlocksTosend = NRF_FICR->CODEPAGESIZE;
+        ulByteToSend = NRF_FICR->CODEPAGESIZE*4;
       }
 
-      memcpy(pulSerializingArray, pacData + (ul32BitBlocksSent*4), ul32BitBlocksTosend*4); 
+      memcpy(pulSerializingArray, pacData + ulByteSent, ulByteToSend); 
 
       xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
       /* Softdevice can write only by 32-bit words */
-      ret_code_t xErrCode = sd_flash_write( ( uint32_t * ) (ulOffset + ul32BitBlocksSent), pulSerializingArray, ul32BitBlocksTosend );
+      ret_code_t xErrCode = sd_flash_write( ( uint32_t * ) (ulOffset + ulByteSent), pulSerializingArray, (ulByteToSend+3)/4);
 
       if( xErrCode == NRF_SUCCESS )
       {
@@ -558,7 +554,8 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
               break;
           }
       }
-      ul32BitBlocksSent += ul32BitBlocksTosend;
+
+      ulByteSent += ulByteToSend;
 
     }
 
