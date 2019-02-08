@@ -297,7 +297,7 @@ static BaseType_t prvCreateClientAndConnectToBroker( BaseType_t xUseAlpn )
         TEST_ASSERT_EQUAL_INT( xReturned, eMQTTAgentSuccess );
 
         /* Take the semaphore to ensure the message is Received. */
-        if( pdFALSE == xSemaphoreTake( &xSemaphore, mqttagenttestTIMEOUT ) )
+        if( pdFALSE == xSemaphoreTake( ( QueueHandle_t ) &( xSemaphore ), mqttagenttestTIMEOUT ) )
         {
             TEST_FAIL();
         }

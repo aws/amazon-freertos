@@ -269,7 +269,7 @@ static MQTTBool_t prvMQTTStringPublishCallback( void * pvCallbackContext,
     }
 
     /* Unblock the task as the callback has executed. */
-    ( void ) xEventGroupSetBits( &( pxUserData->xWakeUpEventGroup ), 1 );
+    ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pxUserData->xWakeUpEventGroup ), 1 );
 
     /* We do not want to take the ownership of buffer. */
     return xTakeOwnership;
@@ -306,7 +306,7 @@ static MQTTBool_t prvMQTTUint32PublishCallback( void * pvCallbackContext,
     }
 
     /* Unblock the task as the callback has executed. */
-    ( void ) xEventGroupSetBits( &( pxUserData->xWakeUpEventGroup ), 1 );
+    ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pxUserData->xWakeUpEventGroup ), 1 );
 
     /* We do not want to take the ownership of buffer. */
     return xTakeOwnership;
@@ -373,7 +373,7 @@ static BaseType_t prvUint32PublishSubscribe( MQTTAgentConnectParams_t * pxConnec
                     /* The event callback will set bit 0 in this event group when it executes,
                      * until then wait here. At this time this demo does not have more than one
                      * message outstanding at a time. */
-                    if( xEventGroupWaitBits( &( pxUserData->xWakeUpEventGroup ),
+                    if( xEventGroupWaitBits( ( EventGroupHandle_t ) &( pxUserData->xWakeUpEventGroup ),
                                              1,
                                              pdTRUE,
                                              pdTRUE,
@@ -504,7 +504,7 @@ static BaseType_t prvStringPublishSubscribe( MQTTAgentConnectParams_t * pxConnec
 
             /* The event callback will set bit 0 in this event group when it executes,
              * until then wait here. */
-            if( xEventGroupWaitBits( &( pxUserData->xWakeUpEventGroup ),
+            if( xEventGroupWaitBits( ( EventGroupHandle_t ) &( pxUserData->xWakeUpEventGroup ),
                                      1,
                                      pdTRUE,
                                      pdTRUE,
@@ -539,7 +539,7 @@ static BaseType_t prvStringPublishSubscribe( MQTTAgentConnectParams_t * pxConnec
 
             /* The event callback will set bit 0 in this event group when it executes,
              * until then wait here. */
-            if( xEventGroupWaitBits( &( pxUserData->xWakeUpEventGroup ),
+            if( xEventGroupWaitBits( ( EventGroupHandle_t ) &( pxUserData->xWakeUpEventGroup ),
                                      1,
                                      pdTRUE,
                                      pdTRUE,
