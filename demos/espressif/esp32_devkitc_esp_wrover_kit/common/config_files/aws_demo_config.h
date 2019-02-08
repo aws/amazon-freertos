@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.6
+ * Amazon FreeRTOS V1.4.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,6 +53,22 @@
 /* OTA Update task example parameters. */
 #define democonfigOTA_UPDATE_TASK_STACK_SIZE               ( 6 * configMINIMAL_STACK_SIZE )
 #define democonfigOTA_UPDATE_TASK_TASK_PRIORITY            ( tskIDLE_PRIORITY + 5 )
+
+/* Combined demo task example parameters. */
+#define democonfigCOMBINED_OTA_TASK_STACK_SIZE          ( 3 * configMINIMAL_STACK_SIZE )
+#define democonfigCOMBINED_OTA_TASK_PRIORITY            ( tskIDLE_PRIORITY )
+
+/* Combined demo task example parameters. */
+#define democonfigBLE_BUTTON_TASK_STACK_SIZE            ( 3 * configMINIMAL_STACK_SIZE )
+#define democonfigBLE_BUTTON_TASK_PRIORITY              ( tskIDLE_PRIORITY )
+
+/* Combined demo task example parameters. */
+#define democonfigMQTT_PUB_TASK_STACK_SIZE               ( 6 * configMINIMAL_STACK_SIZE )
+#define democonfigMQTT_PUB_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
+
+/* Combined demo task example parameters. */
+#define democonfigPRODUCER_TASK_STACK_SIZE              ( 3 * configMINIMAL_STACK_SIZE )
+#define democonfigPRODUCER_TASK_PRIORITY                ( tskIDLE_PRIORITY )
 
 /* Simple TCP Echo Server task example parameters */
 #define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 8 )
