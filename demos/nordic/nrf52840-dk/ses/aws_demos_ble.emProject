@@ -511,7 +511,7 @@
         </folder>
         <folder Name="ble">
           <file file_name="../../../common/ble/aws_ble_gatt_server_demo.c">
-            <configuration Name="Debug" build_exclude_from_build="Yes" />
+            <configuration Name="Debug" build_exclude_from_build="No" />
           </file>
           <file file_name="../../../common/ble/aws_ble_numericComparison.c" />
         </folder>

@@ -570,7 +570,7 @@ static void vIndicationSentCb( uint16_t usConnId,
 }
 
 /*-----------------------------------------------------------*/
-BTStatus_t prvAddServiceToList( BLEService_t * pxService,
+BTStatus_t prvAddServiceToList( BTService_t * pxService,
                                 BLEAttributeEventCallback_t pxEventsCallbacks[] )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -600,7 +600,7 @@ BTStatus_t prvAddServiceToList( BLEService_t * pxService,
 }
 
 /*-----------------------------------------------------------*/
-size_t prvComputeNumberOfHandles( BLEService_t * pxService )
+size_t prvComputeNumberOfHandles( BTService_t * pxService )
 {
 	size_t xIndex;
 	size_t nbHandles = 0;
@@ -620,10 +620,10 @@ size_t prvComputeNumberOfHandles( BLEService_t * pxService )
 	return nbHandles;
 }
 
-BTStatus_t prvCreateAttributes( BLEService_t * pxService )
+BTStatus_t prvCreateAttributes( BTService_t * pxService )
 {
     uint16_t usAttributes = 0;
-    BLEAttribute_t * pxCurrentAtrribute;
+    BTAttribute_t * pxCurrentAtrribute;
     BTStatus_t xStatus = eBTStatusFail;
     BTGattSrvcId_t xTmpService;
     size_t nbHandles;
@@ -697,7 +697,7 @@ BTStatus_t prvCreateAttributes( BLEService_t * pxService )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t BLE_CreateService( BLEService_t * pxService,
+BTStatus_t BLE_CreateService( BTService_t * pxService,
                               BLEAttributeEventCallback_t pxEventsCallbacks[] )
 {
     BTStatus_t xStatus = eBTStatusParamInvalid;
@@ -741,7 +741,7 @@ BTStatus_t BLE_CreateService( BLEService_t * pxService,
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t BLE_DeleteService( BLEService_t * pxService )
+BTStatus_t BLE_DeleteService( BTService_t * pxService )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 

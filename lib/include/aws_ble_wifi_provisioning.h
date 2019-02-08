@@ -211,7 +211,7 @@ typedef enum
  */
 typedef struct WifiProvService
 {
-    struct BLEService * pxGattService;
+    struct BTService * pxGattService;
     uint16_t usNotifyClientEnabled;
     uint16_t usBLEConnId;
     SemaphoreHandle_t xLock;

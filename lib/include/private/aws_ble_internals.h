@@ -51,13 +51,13 @@ typedef struct {
 
 typedef struct {
 	Link_t xCharacDescrList;
-	BLECharacteristicDescr_t * pxCharDescr;
+	BTCharacteristicDescr_t * pxCharDescr;
 }BLECharDescriptorListElement_t;
 /* End of place holder. */
 
 typedef struct{
 	IotLink_t xServiceList;
-	BLEService_t * pxService;
+	BTService_t * pxService;
     BLEAttributeEventCallback_t * pxEventsCallbacks;
 	uint16_t usEndHandle;
 }BLEServiceListElement_t;
