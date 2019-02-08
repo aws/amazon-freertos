@@ -42,12 +42,12 @@
 /**
  * @brief Delay in milliseconds between connecting to the provisioned WiFi networks.
  */
-#define wifiConnectDELAY_MILLISECONDS     ( 1000 )
+#define wifiConnectDELAY_SECONDS     ( 60 )
 
 /**
  * @brief Number of retries in connecting to the provisioned networks.
  */
-#define wifiConnectNUM_RETRIES            ( 500 )
+#define wifiConnectNUM_RETRIES            ( 30 )
 
 
 /**
@@ -81,7 +81,7 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNet
 void prvWiFiConnectTask( void * pvParams )
 {
     uint16_t ulNumNetworks, ulNetworkIndex, ulNumRetries;
-    TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_MILLISECONDS );
+    TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_SECONDS * 1000 );
     BaseType_t xWiFiConnected;
 
     for(;;)
