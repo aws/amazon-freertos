@@ -542,7 +542,7 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
         ul32BitBlocksTosend = NRF_FICR->CODEPAGESIZE;
       }
 
-      memcpy(pulSerializingArray, pacData + (ul32BitBlocksSent*4), ul32BitBlocksTosend); 
+      memcpy(pulSerializingArray, pacData + (ul32BitBlocksSent*4), ul32BitBlocksTosend*4); 
 
       xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
       /* Softdevice can write only by 32-bit words */

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA AFQP V1.1.4
+ * Amazon FreeRTOS OTA AFQP V1.1.2  
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -78,10 +78,32 @@ static uint8_t ucDummyData[] =
 static OTA_FileContext_t xOtaFile;
 
 #ifdef CC3220sf
-    /**
-     * @brief In the Texas Instruments CC3220(SF) device, we need to restore mcuflashimage.bin to factory following tests
-     * that increase the number of security alerts.
-     */
+
+/**
+ * @brief In the Texas Instruments CC3220(SF) device, we retrieve the number of security alerts and the threshold.
+ */
+    static void prvShowTiCc3220SecurityAlertCounts()
+    {
+        int32_t lResult;
+        SlFsControlGetStorageInfoResponse_t xStorageResponseInfo;
+
+        lResult = sl_FsCtl( ( SlFsCtl_e ) SL_FS_CTL_GET_STORAGE_INFO, 0, NULL, NULL, 0, ( _u8 * ) &xStorageResponseInfo, sizeof( SlFsControlGetStorageInfoResponse_t ), NULL );
+
+        if( lResult == 0 )
+        {
+            configPRINTF( ( "Security alert threshold = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlertsThreshold ) );
+            configPRINTF( ( "Current number of alerts = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlerts ) );
+        }
+        else
+        {
+            configPRINTF( ( "sl_FsCtl failed with error code: %d\r\n", lResult ) );
+        }
+    }
+
+/**
+ * @brief In the Texas Instruments CC3220(SF) device, we need to restore mcuflashimage.bin to factory following tests
+ * that increase the number of security alerts.
+ */
     static void prvResetTiCc3220ToFactoryImage()
     {
         int32_t lResult, lRetVal, lExtendedError;
@@ -218,6 +240,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
     /* We use a dummy file name here because closing the system designated bootable
      * image with content that is not runnable may cause issues. */
     xOtaFile.pucFilePath = ( uint8_t * ) ( "test_happy_path_image.bin" );
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -316,6 +339,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignatureKeyInFlash )
      * image with content that is not runnable may cause issues. */
     /* xOtaFile.pucFilePath = otatestpalFIRMWARE_FILE; */
     xOtaFile.pucFilePath = ( uint8_t * ) ( "test_happy_path_image.bin" );
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -353,6 +377,8 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_InvalidSignatureBlockWritten )
 
     /* Create a local file using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -438,6 +464,8 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_NonexistingCodeSignerCertificate )
 
     /* Create a local file using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -512,6 +540,7 @@ TEST( Full_OTA_PAL, prvPAL_Abort_FileWithBlockWritten )
     OTA_Err_t xOtaStatus;
 
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
 
     /* Create a local file again using the PAL. */
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
@@ -594,7 +623,7 @@ TEST( Full_OTA_PAL, prvPAL_WriteBlock_WriteManyBlocks )
     int16_t sNumBytesWritten;
 
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
-
+    xOtaFile.ulFileSize = sizeof( ucDummyData )*testotapalNUM_WRITE_BLOCKS;
     /* TEST: Write many bytes of data. */
 
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
@@ -639,6 +668,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_SelfTestImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -678,6 +709,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_InvalidImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -708,6 +741,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_UnknownImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -740,6 +775,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AcceptedImageStateButImageNotCl
 
     /* Create a local file again using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -770,6 +807,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_RejectImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -800,6 +839,8 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AbortImageState )
 
     /* Create a local file again using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -832,6 +873,8 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
     /* TEST: Invalid image returned from prvPAL_GetPlatformImageState(). Using a failure to close. */
     /* Create a local file again using the PAL. */
     xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+    xOtaFile.ulFileSize = sizeof( ucDummyData );
+
     xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
     TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
@@ -925,6 +968,8 @@ TEST( Full_OTA_PAL, prvPAL_GetPlatformImageState_InvalidImageStateFromFileCloseF
 
         /* Create a local file using the PAL. */
         xOtaFile.pucFilePath = ( uint8_t * ) otatestpalFIRMWARE_FILE;
+        xOtaFile.ulFileSize = sizeof( ucDummyData );
+
         xOtaStatus = prvPAL_CreateFileForRx( &xOtaFile );
         TEST_ASSERT_EQUAL( kOTA_Err_None, xOtaStatus );
 
