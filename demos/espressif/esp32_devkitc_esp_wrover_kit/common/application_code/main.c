@@ -24,6 +24,7 @@
  */
 
 /* FreeRTOS includes. */
+
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -64,8 +65,6 @@
 #include "aws_ble_wifi_provisioning.h"
 #include "aws_ble_numericComparison.h"
 #endif
-
-
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
@@ -159,8 +158,7 @@ static void spp_uart_init(void);
  */
 int app_main( void )
 {
-	uint32_t ulEnabledNetworks = AWSIOT_NETWORK_TYPE_NONE;
-
+	uint32_t ulEnabledNetworks;
 	 /* Perform any hardware initialization that does not require the RTOS to be
 	     * running.  */
 
@@ -195,7 +193,6 @@ int app_main( void )
         	}
         }
 #endif
-
         if( AwsIotNetworkManager_Init() != pdPASS )
         {
         	configPRINTF(("Failed to initialize the network manager \n "));
@@ -206,7 +203,7 @@ int app_main( void )
         }
 
         ulEnabledNetworks = AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
-        if( ulEnabledNetworks != configENABLED_NETWORKS )
+        if( ( ulEnabledNetworks & configENABLED_NETWORKS ) !=  configENABLED_NETWORKS )
         {
         	configPRINTF(("Failed to enable all the networks, enabled networks: %08x\n ", ulEnabledNetworks ));
         	while( 1 )
