@@ -176,50 +176,53 @@ int app_main( void )
 
     if( SYSTEM_Init() == pdPASS )
     {
-
         /* A simple example to demonstrate key and certificate provisioning in
         * microcontroller flash using PKCS#11 interface. This should be replaced
         * by production ready key provisioning mechanism. */
         vDevModeKeyProvisioning();
 
-#if BLE_ENABLED
+
         /* Initialize BLE. */
         if( prvBLEStackInit() != eBTStatusSuccess )
         {
-        	configPRINTF(("Failed to initialize the bluetooth stack\n "));
-        	while( 1 )
-        	{
+            configPRINTF(("Failed to initialize the bluetooth stack\n "));
+            while( 1 )
+            {
 
-        	}
+            }
         }
-#endif
+
         if( AwsIotNetworkManager_Init() != pdPASS )
         {
-        	configPRINTF(("Failed to initialize the network manager \n "));
-        	while( 1 )
-        	{
+            configPRINTF(("Failed to initialize the network manager \n "));
+            while( 1 )
+            {
 
-        	}
+            }
         }
 
         ulEnabledNetworks = AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
         if( ( ulEnabledNetworks & configENABLED_NETWORKS ) !=  configENABLED_NETWORKS )
         {
-        	configPRINTF(("Failed to enable all the networks, enabled networks: %08x\n ", ulEnabledNetworks ));
-        	while( 1 )
-        	{
+            configPRINTF(("Failed to enable all the networks, enabled networks: %08x\n ", ulEnabledNetworks ));
+            while( 1 )
+            {
 
-        	}
+            }
         }
+            configPRINTF(("Main pre DEMO_RUNNER_RunDemos:Available Heap Space: %d\n", esp_get_free_heap_size()));
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }
 
-    /* Start the scheduler.  Initialization that requires the OS to be running,
-     * including the WiFi initialization, is performed in the RTOS daemon task
-     * startup hook. */
-    // Following is taken care by initialization code in ESP IDF
-    // vTaskStartScheduler();
+
+#if 1
+    while (true) {
+    	configPRINTF(("Available Heap Space: %d\n", esp_get_free_heap_size()));
+        vTaskDelay( 3* pdMS_TO_TICKS( 1000UL )  );
+        }
+#endif
+
     return 0;
 }
 
