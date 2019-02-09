@@ -28,6 +28,8 @@
 #ifndef _KERNEL_PROFILING_H_
 #define _KERNEL_PROFILING_H_
 
-void vKernelProfilingMultiProducerConsumerMutex( int iPriority );
+void vKernelProfilingMultiProducerConsumerSemaphore( int iPriority );
+
+void vKernelProfilingStepDisassembly_sem_post( int iPriority );
 
 #endif /* _KERNEL_PROFILING_H_ */

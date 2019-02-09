@@ -31,12 +31,16 @@
 
 #include <stdint.h>
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 /* ST HAL APIs to be called in this file. */
 #include "stm32l4xx_hal.h"
 
 /* API definition to be implemented in this file. */
 #include "FreeRTOSConfig.h"
 #include "aws_hal_perfcounter.h"
+
 
 /**
  * @brief Default performance counter frequency.
@@ -213,7 +217,14 @@ void aws_hal_perfcounter_close( void)
 
 uint64_t aws_hal_perfcounter_get_value(void)
 {
-    return ( ( ( uint64_t ) ulTimerOverflow << HW_TIMER_32_WIDTH ) | __HAL_TIM_GET_COUNTER( &xTimerHandle ) );
+    uint64_t ullTempResult = 0;
+
+    // Assembling overflow value with current counter value should be an atomic operation.
+    taskENTER_CRITICAL();
+        ullTempResult = ( ( uint64_t ) ulTimerOverflow << HW_TIMER_32_WIDTH ) | __HAL_TIM_GET_COUNTER( &xTimerHandle );
+    taskEXIT_CRITICAL();
+
+    return ullTempResult;
 }
 
 /*-----------------------------------------------------------*/

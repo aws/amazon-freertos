@@ -53,19 +53,12 @@
 /*-----------------------------------------------------------*/
 
 #define SHARED_BUFFER_SIZE      ( 10 )
-#define NUM_OF_PRODUCER         ( 10 )
-#define NUM_OF_CONSUMER         ( 10 )
+#define NUM_OF_PRODUCER         ( 8 )
+#define NUM_OF_CONSUMER         ( 8 )
 
-#define NUM_OF_EXE_ITERATION_PRODUCER ( 1000 )                                                               /* How many iterations EACH producer thread executes. */
+#define NUM_OF_EXE_ITERATION_PRODUCER ( 12500 )                                                             /* How many iterations EACH producer thread executes. */
 #define NUM_OF_EXE_ITERATION_CONSUMER ( NUM_OF_EXE_ITERATION_PRODUCER * NUM_OF_PRODUCER / NUM_OF_CONSUMER )  /* How many iterations EACH consumer thread executes. Fraction is not taken care of. */
 
-/*-----------------------------------------------------------*/
-
-/* Tracing related definition. */
-#define TRACING_THREAD_PRODUCER     ( 1 )
-#define TRACING_THREAD_CONSUMER     ( 1 )
-
-#define TRACING_DISABLE_MUTEX_AROUND_INDEXES    ( 1 )       /* This is trying to create bug on purpose! Set to 0 to run classic producer-consumer. */
 /*-----------------------------------------------------------*/
 
 static sem_t xSemaphore_empty;
@@ -79,23 +72,15 @@ static int iWriteIndex;
 static int iReadIndex;
 //static pthread_mutex_t xReadMutex;            /* Commenting out purely for profiling interest. */
 
-#if ( TRACING_DISABLE_MUTEX_AROUND_INDEXES == 1 )
-    static int iDummyCummulator;
-#endif /* TRACING_DISABLE_MUTEX_AROUND_INDEXES */
+// This is a dummy variable to prevent compiler optimization, Do something with the value.
+static int iDummyCummulator;
 
 /*-----------------------------------------------------------*/
 
 static void * prvProducerThread( void * pvArgs )
 {
     int iThreadId = *( int * ) pvArgs;
-    int i = 0;  /* Write index. */
-
-    #if ( TRACING_THREAD_PRODUCER == 1 )
-        /* Thread specific counters. No need for synchronization. */
-        uint64_t ullTotalCycleElapsed = 0;
-        uint64_t ullSingleCycleElapsed = 0;
-        int iNumOfEntry = 0;
-    #endif /* TRACING_THREAD_PRODUCER */
+    int i = 0;  /* Local counter. */
 
     /* Grab mutex, load the buffer, and release the mutex. */
     while ( i < NUM_OF_EXE_ITERATION_PRODUCER )
@@ -114,25 +99,11 @@ static void * prvProducerThread( void * pvArgs )
         /* Below is for debugging purpose, should not enable IO during profiling. */
         //configPRINTF( ( "%s -- Producer[%d] posted. Iteration [%d].\r\n", __FUNCTION__, iThreadId, i ) );
 
-        #if ( TRACING_THREAD_PRODUCER == 1 )
-            ullSingleCycleElapsed = aws_hal_perfcounter_get_value(); /* Temporary value. */
-        #endif /* TRACING_THREAD_PRODUCER */
-
         sem_post( &xSemaphore_available );
-
-        #if ( TRACING_THREAD_PRODUCER == 1 )
-            ullSingleCycleElapsed = aws_hal_perfcounter_get_value() - ullSingleCycleElapsed;
-            ullTotalCycleElapsed += ullSingleCycleElapsed;
-            iNumOfEntry++;
-        #endif /* TRACING_THREAD_PRODUCER */
     }
 
-    configPRINTF( ( "%s -- Producer[%i] -- sem_post() total cycle elapsed [%ld], number of entry [%d].\r\n",
-                    __FUNCTION__,
-                    iThreadId,
-                    ( long )ullTotalCycleElapsed,
-                    iNumOfEntry ) );
-    configPRINTF( ( "%s -- Stack bytes left [%u]. \r\n", __FUNCTION__, uxTaskGetStackHighWaterMark( NULL ) ) );
+    configPRINTF( ( "%s -- Thread ID [%d], number of entry [%d], stack bytes left [%u]. \r\n",
+            __FUNCTION__, iThreadId, i, uxTaskGetStackHighWaterMark( NULL ) ) );
 
     return ( void * ) NULL;
 }
@@ -143,28 +114,11 @@ static void * prvConsumerThread( void * pvArgs )
 {
     int iThreadId = *( int * ) pvArgs;
     int iTemp = 0;
-    int i = 0; /* Read index. */
-
-    #if ( TRACING_THREAD_CONSUMER == 1 )
-        /* Thread specific counters. No need for synchronization. */
-        uint64_t ullTotalCycleElapsed = 0;
-        uint64_t ullSingleCycleElapsed = 0;
-        int iNumOfEntry = 0;
-    #endif /* TRACING_THREAD_CONSUMER */
+    int i = 0; /* Local counter. */
 
     while ( i <  NUM_OF_EXE_ITERATION_CONSUMER )
     {
-        #if ( TRACING_THREAD_CONSUMER == 1 )
-            ullSingleCycleElapsed = aws_hal_perfcounter_get_value(); /* Temporary value. */
-        #endif /* TRACING_THREAD_PRODUCER */
-
         sem_wait( &xSemaphore_available );
-
-        #if ( TRACING_THREAD_CONSUMER == 1 )
-            ullSingleCycleElapsed = aws_hal_perfcounter_get_value() - ullSingleCycleElapsed;
-            ullTotalCycleElapsed += ullSingleCycleElapsed;
-            iNumOfEntry++;
-        #endif /* TRACING_THREAD_CONSUMER */
 
         i++;
 
@@ -184,19 +138,15 @@ static void * prvConsumerThread( void * pvArgs )
         sem_post( &xSemaphore_empty );
     }
 
-    configPRINTF( ( "%s -- Consumer[%i] -- sem_wait() total cycle elapsed [%ld], number of entry [%d].\r\n",
-                        __FUNCTION__,
-                        iThreadId,
-                        ( long )ullTotalCycleElapsed,
-                        iNumOfEntry ) );
-    configPRINTF( ( "%s -- Stack bytes left [%u]. \r\n", __FUNCTION__, uxTaskGetStackHighWaterMark( NULL ) ) );
+    configPRINTF( ( "%s -- Thread ID [%d], number of entry [%d], stack bytes left [%u]. \r\n",
+                __FUNCTION__, iThreadId, i, uxTaskGetStackHighWaterMark( NULL ) ) );
 
     return ( void * ) NULL;
 }
 
 /*-----------------------------------------------------------*/
 
-void vKernelProfilingMultiProducerConsumerMutex( int iPriority )
+void vKernelProfilingMultiProducerConsumerSemaphore( int iPriority )
 {
 
     pthread_t pxProducer[NUM_OF_PRODUCER];
@@ -312,7 +262,7 @@ void vKernelProfilingMultiProducerConsumerMutex( int iPriority )
         FreeRTOS_POSIX_semaphore_deInitBranchTaken();
     #endif /* POSIX_SEMAPHORE_IMPLEMENTATION && POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT */
 
-    configPRINTF( ( "%s -- Stack bytes left [%u]. \r\n", __FUNCTION__, uxTaskGetStackHighWaterMark( NULL ) ) );
-    configPRINTF( ( "%s -- Threads finished. Application -- total cycle elapsed [%ld]\r\n", __FUNCTION__, ( long ) ullCycleElapsed ) );
+    configPRINTF( ( "%s -- Main thread stack bytes left [%u]. \r\n", __FUNCTION__, uxTaskGetStackHighWaterMark( NULL ) ) );
+    configPRINTF( ( "%s -- Threads finished. Application -- total cycle elapsed [%lld]\r\n", __FUNCTION__, ( long long unsigned ) ullCycleElapsed ) );
 
 }

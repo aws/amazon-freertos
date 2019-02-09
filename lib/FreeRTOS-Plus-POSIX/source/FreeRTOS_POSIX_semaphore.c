@@ -175,10 +175,6 @@ int sem_post( sem_t * sem )
         else
     #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
         {
-            /* @todo With atomic, instead of giving FreeRTOS semaphore,
-             * need to force a reschedule.
-             */
-
             /* Give the semaphore using the FreeRTOS API. */
             ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
         }
@@ -245,10 +241,6 @@ int sem_timedwait( sem_t * sem,
         else
     #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
         {
-            /* @todo With atomic, instead of taking FreeRTOS semaphore,
-             * need to put self in "waiting" state, and force a reschedule.
-             */
-
             /* Take the semaphore using the FreeRTOS API. */
             if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxSem->xSemaphore,
                                 xDelay ) != pdTRUE )

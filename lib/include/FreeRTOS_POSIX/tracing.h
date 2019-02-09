@@ -27,11 +27,10 @@
 #define _TRACING_H_
 
 /******** Attempt to go atomic ********/
-#define POSIX_SEMAPHORE_IMPLEMENTATION          ( 1 )   /**< Set to value {0, 1, 2, 3} to select implementation.
+#define POSIX_SEMAPHORE_IMPLEMENTATION          ( 1 )   /**< Set to value {0, 1} to select implementation.
                                                              0 - original implementation,
-                                                             1 - critical section (possibly by disabling interrupt) + xSemaphoreGive()/xSemaphoreTake(),
-                                                             2 - atomic with assembly.
-                                                             3 - */
+                                                             1 - atomic (also see AWS_IOT_ATOMIC_NATIVE_IMPLEMENTATION in aws_iot_atomic.h)
+                                                             */
 #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 )
     #define POSIX_SEMAPHORE_IMPLEMENTATION_BRANCH_STAT  ( 0 )   /**< Set to 1 to see how many times we ended up executing FreeRTOS interfaces,
                                                                      instead of disabling interrupt. */
