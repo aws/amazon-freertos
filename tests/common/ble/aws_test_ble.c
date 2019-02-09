@@ -388,8 +388,8 @@ static const BTAttribute_t pxAttributeTableB[] = {
          .xCharacteristic = 
          {
               .xUuid = bletestsFREERTOS_CHAR_C_UUID,
-              .xPermissions = ( bletestsFULL_PERMISSIONS ),
-              .xProperties = ( eBTPermReadEncrypted |  eBTPermWriteEncrypted )
+              .xPermissions = ( eBTPermReadEncrypted |  eBTPermWriteEncrypted ),
+              .xProperties = eBTPropRead|eBTPropWrite
           }
      },
      {
@@ -1337,11 +1337,11 @@ void prvStartService( BTService_t * xRefSrvc )
 
 TEST( Full_BLE, BLE_CreateAttTable_StartService )
 {
-	/* Start service B */
-	prvStartService(&xSrvcB);
-
 	/* Start service A */
 	prvStartService(&xSrvcA);
+
+	/* Start service B */
+	prvStartService(&xSrvcB);
 }
 
 TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
@@ -1439,9 +1439,9 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateCharacteristics )
 	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_C);
 	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_D);
 	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_E);
-	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CCCD_E);
+	prvCreateCharacteristicDescriptor(&xSrvcB, bletestATTR_SRVCB_CCCD_E);
         prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_F);
-	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CCCD_F);
+	prvCreateCharacteristicDescriptor(&xSrvcB, bletestATTR_SRVCB_CCCD_F);
 
 	prvCreateCharacteristic(&xSrvcA, bletestATTR_SRVCA_CHAR_A);
 }
@@ -1486,7 +1486,10 @@ void prvCreateService(BTService_t * xRefSrvc )
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	TEST_ASSERT_EQUAL(0,memcmp(&xCbSrvcId, xRefSrvc, sizeof(BTGattSrvcId_t)));
+	TEST_ASSERT_EQUAL(0,memcmp(&xCbSrvcId.xId.xUuid, &xRefSrvc->pxBLEAttributes[0].xServiceUUID, sizeof(BTUuid_t)));
+	TEST_ASSERT_EQUAL(xRefSrvc->ucInstId, xCbSrvcId.xId.ucInstId);
+	TEST_ASSERT_EQUAL(xRefSrvc->xType, xCbSrvcId.xServiceType);
+
 	xRefSrvc->pusHandlesBuffer[0] = usCbSrvcHandle;
 }
 
