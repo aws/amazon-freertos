@@ -1,4 +1,4 @@
-*
+ /*
  * Amazon FreeRTOS Test Runner V1.1.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
