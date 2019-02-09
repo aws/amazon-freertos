@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.8
+ * FreeRTOS+TCP V2.0.10
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -373,10 +373,11 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 	/*-----------------------------------------------------------*/
 
 	/* A DNS reply was received, see if there is any matching entry and
-	call the handler. */
-	static void vDNSDoCallback( TickType_t xIdentifier, const char *pcName, uint32_t ulIPAddress );
-	static void vDNSDoCallback( TickType_t xIdentifier, const char *pcName, uint32_t ulIPAddress )
+	call the handler.  Returns pdTRUE if xIdentifier was recognised. */
+	static BaseType_t xDNSDoCallback( TickType_t xIdentifier, const char *pcName, uint32_t ulIPAddress );
+	static BaseType_t xDNSDoCallback( TickType_t xIdentifier, const char *pcName, uint32_t ulIPAddress )
 	{
+		BaseType_t xResult = pdFALSE;
 		const ListItem_t *pxIterator;
 		const MiniListItem_t* xEnd = ( const MiniListItem_t* )listGET_END_MARKER( &xCallbackList );
 
@@ -396,11 +397,13 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 					{
 						vIPSetDnsTimerEnableState( pdFALSE );
 					}
+					xResult = pdTRUE;
 					break;
 				}
 			}
 		}
 		xTaskResumeAll();
+		return xResult;
 	}
 
 #endif	/* ipconfigDNS_USE_CALLBACKS != 0 */
@@ -437,7 +440,7 @@ TickType_t xIdentifier = 0;
 			}
 			else
 			{
-				/* prvGetHostByName will be called to start a DNS lookup */
+				/* prvGetHostByName will be called to start a DNS lookup. */
 			}
 		}
 	}
@@ -446,7 +449,13 @@ TickType_t xIdentifier = 0;
 	/* Generate a unique identifier. */
 	if( 0 == ulIPAddress )
 	{
-		xIdentifier = ( TickType_t )ipconfigRAND32( );
+		/* DNS identifiers are 16-bit. */
+		xIdentifier = ( TickType_t )( ipconfigRAND32( ) & 0xffff );
+		/* An identifier with value 0 will be treated as: "no identifier". */
+		if( xIdentifier == 0 )
+		{
+			xIdentifier = 1;
+		}
 	}
 
 	#if( ipconfigDNS_USE_CALLBACKS != 0 )
@@ -567,7 +576,7 @@ TickType_t xWriteTimeOut_ms = ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME;
 					if( lBytes > 0 )
 					{
 						/* The reply was received.  Process it. */
-						ulIPAddress = prvParseDNSReply( pucUDPPayloadBuffer, lBytes, xIdentifier );
+						ulIPAddress = prvParseDNSReply( pucUDPPayloadBuffer, ( size_t )lBytes, xIdentifier );
 
 						/* Finished with the buffer.  The zero copy interface
 						is being used, so the buffer must be freed by the
@@ -587,6 +596,12 @@ TickType_t xWriteTimeOut_ms = ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME;
 					releasing the zero copy - it must be released here. */
 					FreeRTOS_ReleaseUDPPayloadBuffer( ( void * ) pucUDPPayloadBuffer );
 				}
+			}
+			if( xReadTimeOut_ms == 0u )
+			{
+				/* This DNS lookup is asynchronous, using a call-back:
+				send the request only once. */
+				break;
 			}
 		}
 
@@ -809,25 +824,14 @@ static uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen )
 
 uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
-uint8_t *pucUDPPayloadBuffer;
-size_t xPlayloadBufferLength;
 DNSMessage_t *pxDNSMessageHeader;
 
-	xPlayloadBufferLength = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
-	if ( xPlayloadBufferLength < sizeof( DNSMessage_t ) )
-	{
-		return pdFAIL;
-	}
+	pxDNSMessageHeader =
+		( DNSMessage_t * )( pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t ) );
 
-	pucUDPPayloadBuffer = pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t );
-	pxDNSMessageHeader = ( DNSMessage_t * ) pucUDPPayloadBuffer;
-
-	if( pxNetworkBuffer->xDataLength > sizeof( UDPPacket_t ) )
-	{
-		prvParseDNSReply( pucUDPPayloadBuffer,
-			xPlayloadBufferLength,
-			( uint32_t )pxDNSMessageHeader->usIdentifier );
-	}
+	prvParseDNSReply( ( uint8_t * )pxDNSMessageHeader,
+					  pxNetworkBuffer->xDataLength,
+					  ( uint32_t )0u );
 
 	/* The packet was not consumed. */
 	return pdFAIL;
@@ -841,12 +845,11 @@ DNSMessage_t *pxDNSMessageHeader;
 	UDPPacket_t *pxUDPPacket = ( UDPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
 	uint8_t *pucUDPPayloadBuffer = pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t );
 
-		if( pxNetworkBuffer->xDataLength > sizeof( UDPPacket_t) )
-		{
-			prvTreatNBNS( pucUDPPayloadBuffer,
-						  pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t ),
-						  pxUDPPacket->xIPHeader.ulSourceIPAddress );
-		}
+		/* The network buffer data length has already been set to the
+		length of the UDP payload. */
+		prvTreatNBNS( pucUDPPayloadBuffer,
+					  pxNetworkBuffer->xDataLength,
+					  pxUDPPacket->xIPHeader.ulSourceIPAddress );
 
 		/* The packet was not consumed. */
 		return pdFAIL;
@@ -886,7 +889,6 @@ uint16_t x, usDataLength, usQuestions;
 	/* Parse the DNS message header. */
 	pxDNSMessageHeader = ( DNSMessage_t * ) pucUDPPayloadBuffer;
 
-	if( pxDNSMessageHeader->usIdentifier == ( uint16_t ) xIdentifier )
 	{
 		/* Start at the first byte after the header. */
 		pucByte = pucUDPPayloadBuffer + sizeof( DNSMessage_t );
@@ -999,17 +1001,42 @@ uint16_t x, usDataLength, usQuestions;
 								pucByte + sizeof( DNSAnswerRecord_t ),
 								sizeof( uint32_t ) );
 
-						#if( ipconfigUSE_DNS_CACHE == 1 )
-						{
-							prvProcessDNSCache( pcName, &ulIPAddress, pxDNSAnswerRecord->ulTTL, pdFALSE );
-						}
-						#endif /* ipconfigUSE_DNS_CACHE */
 						#if( ipconfigDNS_USE_CALLBACKS != 0 )
 						{
 							/* See if any asynchronous call was made to FreeRTOS_gethostbyname_a() */
-							vDNSDoCallback( ( TickType_t ) pxDNSMessageHeader->usIdentifier, pcName, ulIPAddress );
+							if( xDNSDoCallback( ( TickType_t ) pxDNSMessageHeader->usIdentifier, pcName, ulIPAddress ) != pdFALSE )
+							{
+								/* This device has requested this DNS look-up.
+								The result may be added to the DNS cache. */
+								xIdentifier = pxDNSMessageHeader->usIdentifier;
+							}
 						}
 						#endif	/* ipconfigDNS_USE_CALLBACKS != 0 */
+						#if( ipconfigUSE_DNS_CACHE == 1 )
+						{
+						BaseType_t xIdExpected;
+							if( ( xIdentifier != 0 ) && ( pxDNSMessageHeader->usIdentifier == ( uint16_t ) xIdentifier ) )
+							{
+								xIdExpected = pdTRUE;
+							}
+							else
+							{
+								xIdExpected = pdFALSE;
+							}
+							/* The reply will only be added to the DNS cache in case the
+							request was issued by this device. */
+							if( xIdExpected != pdFALSE )
+							{
+								prvProcessDNSCache( pcName, &ulIPAddress, pxDNSAnswerRecord->ulTTL, pdFALSE );
+							}
+							FreeRTOS_printf( ( "DNS[0x%04X]: The answer to '%s' (%xip) will%s be stored\n",
+								( unsigned )pxDNSMessageHeader->usIdentifier,
+								pcName,
+								( unsigned )FreeRTOS_ntohl( ulIPAddress ),
+								xIdExpected ? "" : " NOT" ) );
+
+						}
+						#endif /* ipconfigUSE_DNS_CACHE */
 					}
 
 					pucByte += sizeof( DNSAnswerRecord_t ) + sizeof( uint32_t );
@@ -1340,7 +1367,7 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 	{
 	BaseType_t x;
 	BaseType_t xFound = pdFALSE;
-	uint32_t ulCurrentTimeSeconds = ( xTaskGetTickCount() / portTICK_PERIOD_MS ) / 1000;
+	uint32_t ulCurrentTimeSeconds = ( xTaskGetTickCount() / portTICK_PERIOD_MS ) / 1000UL;
 	static BaseType_t xFreeEntry = 0;
 
 		/* For each entry in the DNS cache table. */
