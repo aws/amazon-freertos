@@ -91,7 +91,7 @@ static WifiProvService_t xWifiProvService = { 0 };
 
 static uint16_t usHandlesBuffer[eNbAttributes];
 
-static const BLEAttribute_t pxAttributeTable[] = {
+static const BTAttribute_t pxAttributeTable[] = {
      {
          .xServiceUUID =  wifiProvSVC_UUID_TYPE
      },
@@ -165,13 +165,13 @@ static const BLEAttribute_t pxAttributeTable[] = {
 	 }
 };
 
-static const BLEService_t xWIFIProvisionningService =
+static const BTService_t xWIFIProvisionningService =
 {
   .xNumberOfAttributes = eNbAttributes,
   .ucInstId = 0,
   .xType = eBTServiceTypePrimary,
   .pusHandlesBuffer = usHandlesBuffer,
-  .pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable
+  .pxBLEAttributes = (BTAttribute_t *)pxAttributeTable
 };
 /*
  * @brief Callback registered for BLE write and read events received for each characteristic.
@@ -302,7 +302,7 @@ BaseType_t prxInitGATTService( void )
     BaseType_t xResult = pdFAIL;
 
     /* Select the handle buffer. */
-    xStatus = BLE_CreateService( (BLEService_t *)&xWIFIProvisionningService, (BLEAttributeEventCallback_t *)pxCallBackArray );
+    xStatus = BLE_CreateService( (BTService_t *)&xWIFIProvisionningService, (BLEAttributeEventCallback_t *)pxCallBackArray );
 	if( xStatus == eBTStatusSuccess )
 	{
 		xResult = pdPASS;
@@ -1178,7 +1178,7 @@ BaseType_t WIFI_PROVISION_Init( void )
 
         if( xStatus == pdTRUE )
         {
-        	xWifiProvService.pxGattService = ( BLEService_t *)&xWIFIProvisionningService;
+        	xWifiProvService.pxGattService = ( BTService_t *)&xWIFIProvisionningService;
             xStatus = prxInitGATTService();
         }
         if( xStatus == pdTRUE )

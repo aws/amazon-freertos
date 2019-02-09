@@ -158,7 +158,7 @@ typedef void* AwsIotMqttBLEConnection_t;
  */
 typedef struct MqttBLEService
 {
-	BLEService_t* pxServicePtr;
+	BTService_t* pxServicePtr;
 	uint16_t usDescrVal[ mqttBLENUM_CHAR_DESCRS ];
 	uint16_t usBLEConnId;
         bool bIsInit;

@@ -172,7 +172,7 @@ typedef struct
 {
     uint16_t usConnId;            /**< Connection ID. */
     BTStatus_t xStatus;           /**< Reported status. */
-    BLEAttribute_t * pxAttribute; /**< Pointer to attribute being accessed. */
+    BTAttribute_t * pxAttribute; /**< Pointer to attribute being accessed. */
 } BLEIndicationSentEventParams_t;
 
 /**
@@ -429,7 +429,7 @@ BTStatus_t BLE_RemoveBond( const BTBdaddr_t * pxRemoteBdAddr );
  * @param[in] xNbCharacteristic Number of characteristics in the service.
  * @return Returns eBTStatusSuccess on successful call.
  */
-BTStatus_t BLE_CreateService( BLEService_t * pxService, BLEAttributeEventCallback_t pxEventsCallbacks[]);
+BTStatus_t BLE_CreateService( BTService_t * pxService, BLEAttributeEventCallback_t pxEventsCallbacks[]);
 
 /**
  * @brief Delete a local service.
@@ -437,7 +437,7 @@ BTStatus_t BLE_CreateService( BLEService_t * pxService, BLEAttributeEventCallbac
  * @param[in] pxService Pointer to the service to delete.
  * @return Returns eBTStatusSuccess on successful call.
  */
-BTStatus_t BLE_DeleteService( BLEService_t * pxService);
+BTStatus_t BLE_DeleteService( BTService_t * pxService);
 
 /**
  * @brief Send value indication to a remote device.

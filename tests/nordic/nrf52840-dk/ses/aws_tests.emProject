@@ -24,7 +24,6 @@
     <folder Name="lib">
       <folder Name="aws">
         <folder Name="Bluetooth_low_energy">
-          <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_event_manager.c" />
           <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_gap.c" />
           <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_gatt.c" />
           <folder Name="services">

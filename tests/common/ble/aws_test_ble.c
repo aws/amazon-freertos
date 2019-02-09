@@ -40,29 +40,6 @@
 #include "unity_fixture.h"
 #include "unity.h"
 
-enum
-{
-	bletestsCHARA,
-	bletestsCHARB,
-	bletestsCHARC,
-	bletestsCHARD,
-	bletestsCHARE,
-	bletestsCHARF,
-	bletestsNB_CHARACTERISTICS
-};
-
-
-enum
-{
-	bletestsCHAR_DESCRA,
-	bletestsCHAR_DESCRB,
-	bletestsCHAR_DESCRC,
-	bletestsCHAR_DESCRD,
-	bletestsCCCD_E,
-	bletestsCCCD_F,
-	bletestsNB_CHARACTERISTICS_DESCRIPTORS
-};
-
 
 typedef enum{
 	eBLEHALEventServerRegisteredCb = 0,
@@ -97,27 +74,92 @@ typedef enum{
 #define bletestsSTRINGYFIED_UUID_SIZE 36  /* like "8a7f1168-48af-4efb-83b5-e679f9320002" */
 #define bletestsFULL_PERMISSIONS ( eBTPermRead | eBTPermWrite )
 #define bletestsNB_INCLUDEDSERVICES   1
-#define bletestsCCCD 0x2902
+
 #define bletestsAPP_UUID                 { 0x11, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define bletestsSERVER_UUID              { 0x22, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define bletestsFREERTOS_SVC_UUID        { 0x5A, 0xDB, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
 
+#define bletestsCCCD \
+{\
+    .uu.uu16 = 0x2902,\
+    .ucType  = eBTuuidType16\
+}
 
-#define bletestsFREERTOS_SVC_A_UUID      { 0x00, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }
-#define  bletestsFREERTOS_CHAR_DUMMY_UUID { 0x01, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }
+#define bletestsFREERTOS_SVC_A_UUID \
+{ \
+    .uu.uu128 = { 0x00, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 },\
+    .ucType   = eBTuuidType128 \
+}
 
-#define bletestsFREERTOS_SVC_B_UUID      { 1, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_CHAR_A_UUID      { 2, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_CHAR_B_UUID      { 3, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_CHAR_C_UUID      { 4, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_CHAR_D_UUID      { 5, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_CHAR_E_UUID      { 6, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_CHAR_F_UUID      { 7, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
+#define bletestsFREERTOS_CHAR_DUMMY_UUID \
+{ \
+    .uu.uu128 = { 0x01, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 },\
+    .ucType   = eBTuuidType128 \
+}
 
-#define bletestsFREERTOS_DESCR_A_UUID     { 8, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_DESCR_B_UUID     { 9, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_DESCR_C_UUID     { 10, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
-#define bletestsFREERTOS_DESCR_D_UUID     { 11, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
+#define bletestsFREERTOS_SVC_B_UUID \
+{ \
+    .uu.uu128 =  { 1, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}
+ 
+#define bletestsFREERTOS_CHAR_A_UUID \
+{ \
+    .uu.uu128 = { 2, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}
+   
+#define bletestsFREERTOS_CHAR_B_UUID \
+{ \
+    .uu.uu128 = { 3, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}   
+
+#define bletestsFREERTOS_CHAR_C_UUID \
+{ \
+    .uu.uu128 = { 4, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}
+
+#define bletestsFREERTOS_CHAR_D_UUID \
+{ \
+    .uu.uu128 = { 5, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}
+
+#define bletestsFREERTOS_CHAR_E_UUID \
+{ \
+    .uu.uu128 = { 6, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}
+
+#define bletestsFREERTOS_CHAR_F_UUID \
+{ \
+    .uu.uu128 = { 7, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+} 
+    
+#define bletestsFREERTOS_DESCR_A_UUID \
+{ \
+    .uu.uu128 = { 8, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}  
+#define bletestsFREERTOS_DESCR_B_UUID \
+{ \
+    .uu.uu128 = { 9, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}
+#define bletestsFREERTOS_DESCR_C_UUID \
+{ \
+    .uu.uu128 = { 10, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}
+#define bletestsFREERTOS_DESCR_D_UUID \
+{ \
+    .uu.uu128 = { 11, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A },\
+    .ucType   = eBTuuidType128 \
+}
+
 
 #define bletestsDEVICE_NAME             "BT"
 #define bletestsMAX_PROPERTY_SIZE       30
@@ -246,42 +288,186 @@ typedef struct{
 	bool bIsBonded;
 }BLETESTBondedCallback_t;
 
-BLEService_t xSrvcA ={
-		.xAttributeData.xUuid.ucType = eBTuuidType128,
-		.xAttributeData.xUuid.uu.uu128 = bletestsFREERTOS_SVC_A_UUID,
-		.pxCharacteristics = NULL,
-		.xNbCharacteristics = 1, /* one fake characteristic */
-		.xNbDescriptors = 0,
-		.pxDescriptors = NULL,
-		.pxIncludedServices = NULL,
-		.xNbIncludedServices = 0,
-		.xServiceType = eBTServiceTypePrimary,
-		.ucInstId = 0
+typedef enum {
+  bletestATTR_SRVCA_SERVICE,
+  bletestATTR_SRVCA_CHAR_A,
+  bletestATTR_SRVCA_NUMBER
+} bletestAttSrvA_t;
+static uint16_t usHandlesBufferA[bletestATTR_SRVCA_NUMBER];
+
+static const BTAttribute_t pxAttributeTableA[] = {
+     {    
+         .xServiceUUID =  bletestsFREERTOS_SVC_A_UUID
+     },
+     {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = bletestsFREERTOS_CHAR_DUMMY_UUID,
+              .xPermissions = ( bletestsFULL_PERMISSIONS ),
+              .xProperties = ( eBTPropRead|eBTPropWrite )
+          }
+     }
 };
 
-
-BLECharacteristic_t       xCharacteristicts[bletestsNB_CHARACTERISTICS];
-BLECharacteristicDescr_t  xDescriptors[bletestsNB_CHARACTERISTICS_DESCRIPTORS];
-uint8_t ucResponseBufferChar[bletestsNB_CHARACTERISTICS][bletestsSTRINGYFIED_UUID_SIZE];
-uint8_t ucResponseBufferDescr[bletestsNB_CHARACTERISTICS_DESCRIPTORS][bletestsSTRINGYFIED_UUID_SIZE];
-BLEIncludedService_t xIncludedServiceA;
-
-
-/* Dummy for service A */
-BLECharacteristic_t xDummyCharacteristic;
-
-BLEService_t xSrvcB ={
-		.xAttributeData.xUuid.ucType = eBTuuidType128,
-		.xAttributeData.xUuid.uu.uu128 = bletestsFREERTOS_SVC_B_UUID,
-		.pxCharacteristics = xCharacteristicts,
-		.xNbCharacteristics = bletestsNB_CHARACTERISTICS,
-		.pxDescriptors = xDescriptors,
-		.xNbDescriptors = bletestsNB_CHARACTERISTICS_DESCRIPTORS,
-		.pxIncludedServices = &xIncludedServiceA,
-		.xNbIncludedServices = bletestsNB_INCLUDEDSERVICES,
-		.xServiceType = eBTServiceTypePrimary,
-		.ucInstId = 0
+BTService_t xSrvcA = {
+  .ucInstId = 0,                      
+  .xType = eBTServiceTypePrimary,                
+  .xNumberOfAttributes = bletestATTR_SRVCA_NUMBER,         
+  .pusHandlesBuffer = usHandlesBufferA,            
+  .pxBLEAttributes = ( BTAttribute_t * )pxAttributeTableA          
 };
+
+typedef enum {
+  bletestATTR_SRVCB_SERVICE,
+  bletestATTR_SRVCB_CHAR_A,
+  bletestATTR_SRVCB_CHAR_DESCR_A,
+  bletestATTR_SRVCB_CHAR_B,
+  bletestATTR_SRVCB_CHAR_DESCR_B,
+  bletestATTR_SRVCB_CHAR_C,
+  bletestATTR_SRVCB_CHAR_DESCR_C,
+  bletestATTR_SRVCB_CHAR_D,
+  bletestATTR_SRVCB_CHAR_DESCR_D,
+  bletestATTR_SRVCB_CHAR_E,
+  bletestATTR_SRVCB_CCCD_E,
+  bletestATTR_SRVCB_CHAR_F,
+  bletestATTR_SRVCB_CCCD_F,
+  bletestATTR_INCLUDED_SERVICE,
+  bletestATTR_SRVCB_NUMBER
+} bletestAttSrvB_t;
+
+typedef struct{
+	size_t xLength;
+	uint8_t ucBuffer[bletestsSTRINGYFIED_UUID_SIZE];
+} response_t;
+	
+response_t ucRespBuffer[bletestATTR_SRVCB_NUMBER];
+
+static uint16_t usHandlesBufferB[bletestATTR_SRVCB_NUMBER];
+
+static const BTAttribute_t pxAttributeTableB[] = {
+     {    
+         .xServiceUUID =  bletestsFREERTOS_SVC_B_UUID
+     },
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = bletestsFREERTOS_CHAR_A_UUID,
+              .xPermissions = ( bletestsFULL_PERMISSIONS ),
+              .xProperties = ( eBTPropRead|eBTPropWrite )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = bletestsFREERTOS_DESCR_A_UUID,
+             .xPermissions = ( eBTPermRead| eBTPermWrite )
+          }
+     },
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = bletestsFREERTOS_CHAR_B_UUID,
+              .xPermissions = ( eBTPermReadEncryptedMitm | eBTPermWriteEncryptedMitm ),
+              .xProperties = ( eBTPropRead|eBTPropWrite )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = bletestsFREERTOS_DESCR_B_UUID,
+             .xPermissions = ( eBTPermReadEncryptedMitm | eBTPermWriteEncryptedMitm )
+          }
+     },
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = bletestsFREERTOS_CHAR_C_UUID,
+              .xPermissions = ( bletestsFULL_PERMISSIONS ),
+              .xProperties = ( eBTPermReadEncrypted |  eBTPermWriteEncrypted )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = bletestsFREERTOS_DESCR_C_UUID,
+             .xPermissions = ( eBTPermReadEncrypted |  eBTPermWriteEncrypted )
+          }
+     }, 
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = bletestsFREERTOS_CHAR_D_UUID,
+              .xPermissions = ( bletestsFULL_PERMISSIONS ),
+              .xProperties = ( eBTPropWriteNoResponse )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = bletestsFREERTOS_DESCR_D_UUID,
+             .xPermissions = ( eBTPermRead )
+          }
+     }, 
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = bletestsFREERTOS_CHAR_E_UUID,
+              .xPermissions = ( bletestsFULL_PERMISSIONS ),
+              .xProperties = ( eBTPropNotify )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = bletestsCCCD,
+             .xPermissions = ( eBTPermRead| eBTPermWrite )
+          }
+     }, 
+    {
+         .xAttributeType = eBTDbCharacteristic,
+         .xCharacteristic = 
+         {
+              .xUuid = bletestsFREERTOS_CHAR_F_UUID,
+              .xPermissions = ( bletestsFULL_PERMISSIONS ),
+              .xProperties = ( eBTPropIndicate )
+          }
+     },
+     {
+         .xAttributeType = eBTDbDescriptor,
+         .xCharacteristicDescr =
+         {
+             .xUuid = bletestsCCCD,
+             .xPermissions = ( eBTPermRead| eBTPermWrite )
+          }
+     },
+     {
+         .xAttributeType = eBTDbIncludedService,
+         .xIncludedService = {
+            .xUuid = bletestsFREERTOS_SVC_A_UUID,
+            .pxPtrToService = &xSrvcA
+         }
+     }
+};
+
+BTService_t xSrvcB = {
+  .ucInstId = 0,                     
+  .xType = eBTServiceTypePrimary,                
+  .xNumberOfAttributes = bletestATTR_SRVCB_NUMBER,         
+  .pusHandlesBuffer = usHandlesBufferB,            
+  .pxBLEAttributes = ( BTAttribute_t * )pxAttributeTableB          
+};
+
 
 BTGattAdvertismentParams_t xAdvertisementConfigA =
 {
@@ -327,11 +513,11 @@ const TickType_t BLE_TESTS_WAIT = pdMS_TO_TICKS( 60000 ); /* Wait 60s max */
 static void prvSetGetProperty( BTProperty_t * pxProperty, bool bIsSet );
 static void prvStartAdvertisement(void);
 static BTStatus_t prvWaitEventFromQueue( BLEHALEventsInternals_t xEventName, void * pxMessage, size_t xMessageLength, TickType_t xTestWai);
-static void prvWriteCheckAndResponse(BLEAttributeData_t * xAttributeData,
+static void prvWriteCheckAndResponse(bletestAttSrvB_t xAttribute,
 							bool bNeedRsp,
 							bool IsPrep,
 							uint16_t usOffset);
-static void prvReadCheckAndResponse(BLEAttributeData_t * xAttributeData);
+static void prvReadCheckAndResponse(bletestAttSrvB_t xAttribute);
 static void prvGroupInit( );
 static void prvDeviceStateChangedCb( BTState_t xState );
 static void prvGroupFree();
@@ -699,7 +885,7 @@ TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 	TEST_ASSERT_EQUAL(true, xBondedEvent.bIsBonded);
 	TEST_ASSERT_EQUAL(0, memcmp(&xBondedEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
 
-	prvWriteCheckAndResponse(&xCharacteristicts[bletestsCHARB].xAttributeData,
+	prvWriteCheckAndResponse(bletestATTR_SRVCB_CHAR_B,
 							 true,
 							 false,
 							 0);
@@ -713,7 +899,7 @@ TEST( Full_BLE, BLE_Connection_Disconnect )
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteDescr )
 {
-	prvWriteCheckAndResponse(&xDescriptors[bletestsCHAR_DESCRB].xAttributeData,
+	prvWriteCheckAndResponse(bletestATTR_SRVCB_CHAR_DESCR_B,
 							 true,
 							 false,
 							 0);
@@ -721,7 +907,7 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteDescr )
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteChar )
 {
-	prvWriteCheckAndResponse(&xCharacteristicts[bletestsCHARB].xAttributeData,
+	prvWriteCheckAndResponse(bletestATTR_SRVCB_CHAR_B,
 							 true,
 							 false,
 							 0);
@@ -763,14 +949,14 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
 	TEST_ASSERT_EQUAL(true, xBondedEvent.bIsBonded);
 	TEST_ASSERT_EQUAL(0, memcmp(&xBondedEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
 
-	prvWriteCheckAndResponse(&xCharacteristicts[bletestsCHARB].xAttributeData,
+	prvWriteCheckAndResponse(bletestATTR_SRVCB_CHAR_B,
 							 true,
 							 false,
 							 0);
 }
 
 
-void prvWriteCheckAndResponse(BLEAttributeData_t * xAttributeData,
+void prvWriteCheckAndResponse(bletestAttSrvB_t xAttribute,
 							bool bNeedRsp,
 							bool IsPrep,
 							uint16_t usOffset)
@@ -785,7 +971,7 @@ void prvWriteCheckAndResponse(BLEAttributeData_t * xAttributeData,
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(IsPrep, xWriteEvent.bIsPrep);
 	TEST_ASSERT_EQUAL(bNeedRsp, xWriteEvent.bNeedRsp);
-	TEST_ASSERT_EQUAL(xAttributeData->xHandle, xWriteEvent.usAttrHandle);
+	TEST_ASSERT_EQUAL(usHandlesBufferB[xAttribute], xWriteEvent.usAttrHandle);
 	TEST_ASSERT_EQUAL(usBLEConnId, xWriteEvent.usConnId);
 	TEST_ASSERT_EQUAL(0, memcmp(&xWriteEvent.xBda, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
 	TEST_ASSERT_EQUAL(usOffset, xWriteEvent.usOffset);
@@ -797,27 +983,27 @@ void prvWriteCheckAndResponse(BLEAttributeData_t * xAttributeData,
 		xGattResponse.xAttrValue.usHandle = xWriteEvent.usAttrHandle;
 		xGattResponse.xAttrValue.usOffset = xWriteEvent.usOffset;
 		xGattResponse.xAttrValue.xLen = xWriteEvent.xLength;
-		xAttributeData->xSize = xWriteEvent.xLength;
-		memcpy(xAttributeData->pucData, xWriteEvent.ucValue, xWriteEvent.xLength);
-		xGattResponse.xAttrValue.pucValue = xAttributeData->pucData;
+		ucRespBuffer[xAttribute].xLength = xWriteEvent.xLength;
+		memcpy(ucRespBuffer[xAttribute].ucBuffer, xWriteEvent.ucValue, xWriteEvent.xLength);
+		xGattResponse.xAttrValue.pucValue =ucRespBuffer[xAttribute].ucBuffer;
 		xStatus = pxGattServerInterface->pxSendResponse(xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse);
 		TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 		xStatus = prvWaitEventFromQueue(eBLEHALEventConfimCb, (void *)&xConfirmEvent, sizeof(BLETESTconfirmCallback_t), BLE_TESTS_WAIT);
 		TEST_ASSERT_EQUAL(eBTStatusSuccess,xConfirmEvent.xStatus);
-		TEST_ASSERT_EQUAL(xAttributeData->xHandle, xConfirmEvent.usAttrHandle);
+		TEST_ASSERT_EQUAL(usHandlesBufferB[xAttribute], xConfirmEvent.usAttrHandle);
 	}
 }
 
-void prvSendNotification(BLEAttributeData_t * xAttributeData, bool bConfirm)
+void prvSendNotification(bletestAttSrvB_t xAttribute, bool bConfirm)
 {
 	BTStatus_t xStatus;
 
 	xStatus = pxGattServerInterface->pxSendIndication( ucBLEServerIf,
-											xAttributeData->xHandle,
+											usHandlesBufferB[xAttribute],
 											usBLEConnId,
-											xAttributeData->xSize,
-										    xAttributeData->pucData,
+											ucRespBuffer[xAttribute].xLength,
+										    ucRespBuffer[xAttribute].ucBuffer,
 										    bConfirm);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 }
@@ -832,13 +1018,14 @@ TEST( Full_BLE, BLE_Property_Enable_Indication_Notification )
     xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
 
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_E ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    
+    TEST_ASSERT_EQUAL( usHandlesBufferB[bletestATTR_SRVCB_CCCD_E], xWriteEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_F ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usHandlesBufferB[bletestATTR_SRVCB_CCCD_F], xWriteEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 }
@@ -853,13 +1040,13 @@ TEST( Full_BLE, BLE_Property_Disable_Indication_Notification )
     xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
 
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_E ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usHandlesBufferB[bletestATTR_SRVCB_CCCD_E], xWriteEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( xDescriptors[ bletestsCCCD_F ].xAttributeData.xHandle, xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( usHandlesBufferB[bletestATTR_SRVCB_CCCD_F], xWriteEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 }
@@ -870,10 +1057,10 @@ TEST( Full_BLE, BLE_Property_Indication )
 	BTStatus_t xStatus;
 	BLETESTindicateCallback_t xIndicateEvent;
 
-	memcpy(xCharacteristicts[bletestsCHARF].xAttributeData.pucData, bletestsDEFAULT_CHAR_VALUE, sizeof(bletestsDEFAULT_CHAR_VALUE) - 1);
-	xCharacteristicts[bletestsCHARF].xAttributeData.xSize = sizeof(bletestsDEFAULT_CHAR_VALUE) - 1;
+	memcpy(ucRespBuffer[bletestATTR_SRVCB_CHAR_F].ucBuffer, bletestsDEFAULT_CHAR_VALUE, sizeof(bletestsDEFAULT_CHAR_VALUE) - 1);
+	ucRespBuffer[bletestATTR_SRVCB_CHAR_F].xLength = sizeof(bletestsDEFAULT_CHAR_VALUE) - 1;
 
-	prvSendNotification(&xCharacteristicts[bletestsCHARF].xAttributeData, true);
+	prvSendNotification(bletestATTR_SRVCB_CHAR_F, true);
 	xStatus = prvWaitEventFromQueue(eBLEHALEventIndicateCb, (void *) &xIndicateEvent, sizeof(BLETESTindicateCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(usBLEConnId, xIndicateEvent.usConnId);
@@ -885,10 +1072,10 @@ TEST( Full_BLE, BLE_Property_Notification )
 {
 	void * pvPtr;
 
-	memcpy(xCharacteristicts[bletestsCHARE].xAttributeData.pucData, bletestsDEFAULT_CHAR_VALUE, sizeof(bletestsDEFAULT_CHAR_VALUE) - 1);
-	xCharacteristicts[bletestsCHARE].xAttributeData.xSize = sizeof(bletestsDEFAULT_CHAR_VALUE) - 1;
+	memcpy(ucRespBuffer[bletestATTR_SRVCB_CHAR_E].ucBuffer, bletestsDEFAULT_CHAR_VALUE, sizeof(bletestsDEFAULT_CHAR_VALUE) - 1);
+	ucRespBuffer[bletestATTR_SRVCB_CHAR_E].xLength = sizeof(bletestsDEFAULT_CHAR_VALUE) - 1;
 
-	prvSendNotification(&xCharacteristicts[bletestsCHARE].xAttributeData, false);
+	prvSendNotification(bletestATTR_SRVCB_CHAR_E, false);
 	/* Wait a possible confirm for 2 max connections interval */
 	xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) bletestsMAX_CONNECTION_INTERVAL*2 );
 	vPortFree(pvPtr);
@@ -896,13 +1083,13 @@ TEST( Full_BLE, BLE_Property_Notification )
 
 TEST( Full_BLE, BLE_Property_WriteNoResponse )
 {
-	prvWriteCheckAndResponse(&xCharacteristicts[bletestsCHARD].xAttributeData,
+	prvWriteCheckAndResponse(bletestATTR_SRVCB_CHAR_D,
 							 false,
 							 false,
 							 0);
 }
 
-void prvReadCheckAndResponse(BLEAttributeData_t * xAttributeData)
+void prvReadCheckAndResponse(bletestAttSrvB_t xAttribute)
 {
 	BLETESTreadAttrCallback_t xReadEvent;
 	BTGattResponse_t xGattResponse;
@@ -911,7 +1098,7 @@ void prvReadCheckAndResponse(BLEAttributeData_t * xAttributeData)
 
 	xStatus = prvWaitEventFromQueue(eBLEHALEventReadAttrCb, (void *) &xReadEvent, sizeof(BLETESTreadAttrCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
-	TEST_ASSERT_EQUAL(xAttributeData->xHandle, xReadEvent.usAttrHandle);
+	TEST_ASSERT_EQUAL(usHandlesBufferB[xAttribute], xReadEvent.usAttrHandle);
 	TEST_ASSERT_EQUAL(usBLEConnId, xReadEvent.usConnId);
 	TEST_ASSERT_EQUAL(0,xReadEvent.usOffset);
 	TEST_ASSERT_EQUAL(0, memcmp(&xReadEvent.xBda, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
@@ -919,28 +1106,28 @@ void prvReadCheckAndResponse(BLEAttributeData_t * xAttributeData)
 	xGattResponse.usHandle = xReadEvent.usAttrHandle;
 	xGattResponse.xAttrValue.usHandle = xReadEvent.usAttrHandle;
 	xGattResponse.xAttrValue.usOffset = xReadEvent.usOffset;
-	xGattResponse.xAttrValue.xLen = xAttributeData->xSize;
-	xGattResponse.xAttrValue.pucValue = xAttributeData->pucData;
+	xGattResponse.xAttrValue.xLen = ucRespBuffer[xAttribute].xLength;
+	xGattResponse.xAttrValue.pucValue = ucRespBuffer[xAttribute].ucBuffer;
 	pxGattServerInterface->pxSendResponse(xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse);
 
 	xStatus = prvWaitEventFromQueue(eBLEHALEventConfimCb, (void *)&xConfirmEvent, sizeof(BLETESTconfirmCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess,xConfirmEvent.xStatus);
-	TEST_ASSERT_EQUAL(xAttributeData->xHandle, xConfirmEvent.usAttrHandle);
+	TEST_ASSERT_EQUAL(usHandlesBufferB[xAttribute], xConfirmEvent.usAttrHandle);
 }
 
 TEST( Full_BLE, BLE_Property_ReadDescriptor )
 {
-	prvReadCheckAndResponse(&xDescriptors[bletestsCHAR_DESCRA].xAttributeData);
+	prvReadCheckAndResponse(bletestATTR_SRVCB_CHAR_DESCR_A);
 }
 
 TEST( Full_BLE, BLE_Property_ReadCharacteristic )
 {
-	prvReadCheckAndResponse(&xCharacteristicts[bletestsCHARA].xAttributeData);
+	prvReadCheckAndResponse(bletestATTR_SRVCB_CHAR_A);
 }
 
 TEST( Full_BLE, BLE_Property_WriteDescriptor )
 {
-	prvWriteCheckAndResponse(&xDescriptors[bletestsCHAR_DESCRA].xAttributeData,
+	prvWriteCheckAndResponse(bletestATTR_SRVCB_CHAR_DESCR_A,
 							 true,
 							 false,
 							 0);
@@ -948,7 +1135,7 @@ TEST( Full_BLE, BLE_Property_WriteDescriptor )
 
 TEST( Full_BLE, BLE_Property_WriteCharacteristic )
 {
-	prvWriteCheckAndResponse(&xCharacteristicts[bletestsCHARA].xAttributeData,
+	prvWriteCheckAndResponse(bletestATTR_SRVCB_CHAR_A,
 							 true,
 							 false,
 							 0);
@@ -1066,7 +1253,7 @@ TEST( Full_BLE, BLE_Advertising_SetAvertisementData )
 	prvSetAdvertisement(&xAdvertisementConfigB,
 						usServiceDataLen,
 						pcServiceData,
-						&xSrvcB.xAttributeData.xUuid,
+						&xSrvcB.pxBLEAttributes[0].xServiceUUID,
 						xNbServices	);
 }
 
@@ -1131,12 +1318,12 @@ TEST( Full_BLE, BLE_Advertising_SetProperties )
 	//@TODOprvSetGetProperty(&pxProperty, false);
 }
 
-void prvStartService( BLEService_t * xRefSrvc )
+void prvStartService( BTService_t * xRefSrvc )
 {
 	BTStatus_t xStatus = eBTStatusSuccess;
 
 	xCbStatus = eBTStatusFail;
-	xStatus = pxGattServerInterface->pxStartService(ucBLEServerIf, xRefSrvc->xAttributeData.xHandle, BTTransportLe);
+	xStatus = pxGattServerInterface->pxStartService(ucBLEServerIf, xRefSrvc->pusHandlesBuffer[0], BTTransportLe);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 	xEventGroupWaitBits((EventGroupHandle_t)&xWaitOperationComplete,
@@ -1145,7 +1332,7 @@ void prvStartService( BLEService_t * xRefSrvc )
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	TEST_ASSERT_EQUAL(xRefSrvc->xAttributeData.xHandle, usCbSrvcHandle);
+	TEST_ASSERT_EQUAL(xRefSrvc->pusHandlesBuffer[0], usCbSrvcHandle);
 }
 
 TEST( Full_BLE, BLE_CreateAttTable_StartService )
@@ -1163,8 +1350,8 @@ TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
 
 	xCbStatus = eBTStatusFail;
 	xStatus = pxGattServerInterface->pxAddIncludedService(ucBLEServerIf,
-														  xIncludedServiceA.pxParentService->xAttributeData.xHandle,
-													      xSrvcA.xAttributeData.xHandle);
+							      xSrvcB.pusHandlesBuffer[0],
+							      xSrvcA.pusHandlesBuffer[0]);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 	xEventGroupWaitBits((EventGroupHandle_t)&xWaitOperationComplete,
@@ -1173,19 +1360,19 @@ TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	TEST_ASSERT_EQUAL(xIncludedServiceA.pxParentService->xAttributeData.xHandle, usCbSrvcHandle);
-	xIncludedServiceA.xAttributeData.xHandle = usCbHandle;
+	TEST_ASSERT_EQUAL(xSrvcB.pusHandlesBuffer[0], usCbSrvcHandle);
+	xSrvcB.pusHandlesBuffer[bletestATTR_INCLUDED_SERVICE] = usCbHandle;
 }
 
-void prvCreateCharacteristicDescriptor( BLECharacteristicDescr_t * xRefCharDescr )
+void prvCreateCharacteristicDescriptor( BTService_t * xSrvc, int xAttribute )
 {
 	BTStatus_t xStatus = eBTStatusSuccess;
 
 	xCbStatus = eBTStatusFail;
 	xStatus = pxGattServerInterface->pxAddDescriptor(ucBLEServerIf,
-													 xRefCharDescr->pxParentService->xAttributeData.xHandle,
-													 &xRefCharDescr->xAttributeData.xUuid,
-													 xRefCharDescr->xPermissions);
+                                                         xSrvc->pusHandlesBuffer[0],
+                                                         &xSrvc->pxBLEAttributes[xAttribute].xCharacteristicDescr.xUuid,
+                                                         xSrvc->pxBLEAttributes[xAttribute].xCharacteristicDescr.xPermissions);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 	xEventGroupWaitBits((EventGroupHandle_t)&xWaitOperationComplete,
@@ -1194,37 +1381,37 @@ void prvCreateCharacteristicDescriptor( BLECharacteristicDescr_t * xRefCharDescr
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	if(xRefCharDescr->xAttributeData.xUuid.ucType == eBTuuidType16)
+	if(xSrvc->pxBLEAttributes[xAttribute].xCharacteristicDescr.xUuid.ucType == eBTuuidType16)
 	{
 		TEST_ASSERT_EQUAL(eBTuuidType16, xCbUuid.ucType);
-		TEST_ASSERT_EQUAL(xRefCharDescr->xAttributeData.xUuid.uu.uu16, xCbUuid.uu.uu16);
+		TEST_ASSERT_EQUAL(xSrvc->pxBLEAttributes[xAttribute].xCharacteristicDescr.xUuid.uu.uu16, xCbUuid.uu.uu16);
 	}else
 	{
-		TEST_ASSERT_EQUAL(0, memcmp(&xRefCharDescr->xAttributeData.xUuid, &xCbUuid, sizeof(BTUuid_t)));
+		TEST_ASSERT_EQUAL(0, memcmp(&xSrvc->pxBLEAttributes[xAttribute].xCharacteristicDescr.xUuid, &xCbUuid, sizeof(BTUuid_t)));
 	}
 
-	TEST_ASSERT_EQUAL(xRefCharDescr->pxParentService->xAttributeData.xHandle, usCbSrvcHandle);
-	xRefCharDescr->xAttributeData.xHandle = usCbHandle;
+	TEST_ASSERT_EQUAL(xSrvc->pusHandlesBuffer[0], usCbSrvcHandle);
+	xSrvc->pusHandlesBuffer[xAttribute] = usCbHandle;
 }
 
 TEST( Full_BLE, BLE_CreateAttTable_Descriptors )
 {
-	prvCreateCharacteristicDescriptor(&xDescriptors[bletestsCHAR_DESCRA]);
-	prvCreateCharacteristicDescriptor(&xDescriptors[bletestsCHAR_DESCRB]);
-	prvCreateCharacteristicDescriptor(&xDescriptors[bletestsCHAR_DESCRC]);
-	prvCreateCharacteristicDescriptor(&xDescriptors[bletestsCHAR_DESCRD]);
+	prvCreateCharacteristicDescriptor(&xSrvcB, bletestATTR_SRVCB_CHAR_DESCR_A );
+	prvCreateCharacteristicDescriptor(&xSrvcB, bletestATTR_SRVCB_CHAR_DESCR_B );
+	prvCreateCharacteristicDescriptor(&xSrvcB, bletestATTR_SRVCB_CHAR_DESCR_C );
+	prvCreateCharacteristicDescriptor(&xSrvcB, bletestATTR_SRVCB_CHAR_DESCR_D );
 }
 
-void prvCreateCharacteristic( BLECharacteristic_t * xRefChar )
+void prvCreateCharacteristic( BTService_t * xSrvc, int xAttribute )
 {
 	BTStatus_t xStatus = eBTStatusSuccess;
 
 	xCbStatus = eBTStatusFail;
 	xStatus = pxGattServerInterface->pxAddCharacteristic(ucBLEServerIf,
-														   xRefChar->pxParentService->xAttributeData.xHandle,
-														   &xRefChar->xAttributeData.xUuid,
-														   xRefChar->xProperties,
-														   xRefChar->xPermissions);
+                                                               xSrvc->pusHandlesBuffer[0],
+                                                               &xSrvc->pxBLEAttributes[xAttribute].xCharacteristic.xUuid,
+                                                               xSrvc->pxBLEAttributes[xAttribute].xCharacteristic.xProperties,
+                                                               xSrvc->pxBLEAttributes[xAttribute].xCharacteristic.xPermissions);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 	xEventGroupWaitBits((EventGroupHandle_t)&xWaitOperationComplete,
@@ -1233,43 +1420,64 @@ void prvCreateCharacteristic( BLECharacteristic_t * xRefChar )
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	if(xRefChar->xAttributeData.xUuid.ucType == eBTuuidType16)
+	if(xSrvc->pxBLEAttributes[xAttribute].xCharacteristic.xUuid.ucType == eBTuuidType16)
 	{
 		TEST_ASSERT_EQUAL(eBTuuidType16, xCbUuid.ucType);
-		TEST_ASSERT_EQUAL(xRefChar->xAttributeData.xUuid.uu.uu16, xCbUuid.uu.uu16);
+		TEST_ASSERT_EQUAL(xSrvc->pxBLEAttributes[xAttribute].xCharacteristic.xUuid.uu.uu16, xCbUuid.uu.uu16);
 	}else
 	{
-		TEST_ASSERT_EQUAL(0, memcmp(&xRefChar->xAttributeData.xUuid, &xCbUuid, sizeof(BTUuid_t)));
+		TEST_ASSERT_EQUAL(0, memcmp(&xSrvc->pxBLEAttributes[xAttribute].xCharacteristic.xUuid, &xCbUuid, sizeof(BTUuid_t)));
 	}
-	TEST_ASSERT_EQUAL(xRefChar->pxParentService->xAttributeData.xHandle, usCbSrvcHandle);
-	xRefChar->xAttributeData.xHandle = usCbHandle;
+	TEST_ASSERT_EQUAL(xSrvc->pusHandlesBuffer[0], usCbSrvcHandle);
+	xSrvc->pusHandlesBuffer[xAttribute] = usCbHandle;
 }
 
 TEST( Full_BLE, BLE_CreateAttTable_CreateCharacteristics )
 {
-	prvCreateCharacteristic(&xCharacteristicts[bletestsCHARA]);
-	prvCreateCharacteristic(&xCharacteristicts[bletestsCHARB]);
-	prvCreateCharacteristic(&xCharacteristicts[bletestsCHARC]);
-	prvCreateCharacteristic(&xCharacteristicts[bletestsCHARD]);
-	prvCreateCharacteristic(&xCharacteristicts[bletestsCHARE]);
-	prvCreateCharacteristicDescriptor(&xDescriptors[bletestsCCCD_E]); /* CCCD need to be create first */
-	prvCreateCharacteristic(&xCharacteristicts[bletestsCHARF]);
-	prvCreateCharacteristicDescriptor(&xDescriptors[bletestsCCCD_F]); /* CCCD need to be create first */
+	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_A);
+	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_B);
+	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_C);
+	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_D);
+	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_E);
+	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CCCD_E);
+        prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CHAR_F);
+	prvCreateCharacteristic(&xSrvcB, bletestATTR_SRVCB_CCCD_F);
 
-	prvCreateCharacteristic(&xDummyCharacteristic);
+	prvCreateCharacteristic(&xSrvcA, bletestATTR_SRVCA_CHAR_A);
 }
 
-void prvCreateService(BTGattSrvcId_t * pxSrvcToCreate, BLEService_t * xRefSrvc )
+static size_t prvComputeNumberOfHandles( BTService_t * pxService )
 {
-	BTStatus_t xStatus = eBTStatusSuccess;
-	uint16_t usNumHandles = xRefSrvc->xNbCharacteristics*2 + xRefSrvc->xNbDescriptors + xRefSrvc->xNbIncludedServices + 1;
+	size_t xIndex;
+	size_t nbHandles = 0;
 
-	pxSrvcToCreate->xId.ucInstId = xRefSrvc->ucInstId;
-	memcpy(&pxSrvcToCreate->xId.xUuid, &xRefSrvc->xAttributeData.xUuid, sizeof(BTUuid_t));
-	pxSrvcToCreate->xServiceType = xRefSrvc->xServiceType;
+	for(xIndex = 0; xIndex < pxService->xNumberOfAttributes; xIndex++ )
+	{
+		/* Increment by 2 to account for characteristic declaration */
+		if(pxService->pxBLEAttributes[xIndex].xAttributeType == eBTDbCharacteristic)
+		{
+			nbHandles += 2;
+		}else
+		{
+			nbHandles++;
+		}
+	}
+
+	return nbHandles;
+}
+
+void prvCreateService(BTService_t * xRefSrvc )
+{
+        BTGattSrvcId_t xSrvcId;
+	BTStatus_t xStatus = eBTStatusSuccess;
+	uint16_t usNumHandles = prvComputeNumberOfHandles(xRefSrvc);
+
+        xSrvcId.xId.ucInstId = xRefSrvc->ucInstId;
+        xSrvcId.xId.xUuid = xRefSrvc->pxBLEAttributes[ 0 ].xServiceUUID;
+        xSrvcId.xServiceType = xRefSrvc->xType;
 	xCbStatus = eBTStatusFail;
 
-	xStatus = pxGattServerInterface->pxAddService(ucBLEServerIf, pxSrvcToCreate, usNumHandles);
+	xStatus = pxGattServerInterface->pxAddService(ucBLEServerIf, &xSrvcId, usNumHandles);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 	xEventGroupWaitBits((EventGroupHandle_t)&xWaitOperationComplete,
@@ -1278,19 +1486,17 @@ void prvCreateService(BTGattSrvcId_t * pxSrvcToCreate, BLEService_t * xRefSrvc )
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	TEST_ASSERT_EQUAL(0,memcmp(&xCbSrvcId, pxSrvcToCreate, sizeof(BTGattSrvcId_t)));
-	xRefSrvc->xAttributeData.xHandle = usCbSrvcHandle;
+	TEST_ASSERT_EQUAL(0,memcmp(&xCbSrvcId, xRefSrvc, sizeof(BTGattSrvcId_t)));
+	xRefSrvc->pusHandlesBuffer[0] = usCbSrvcHandle;
 }
 
 TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
 {
-	BTGattSrvcId_t xSrvcId;
-
 	/* Create service A */
-	prvCreateService(&xSrvcId, &xSrvcA);
+	prvCreateService(&xSrvcA);
 
 	/* Create service B */
-	prvCreateService(&xSrvcId, &xSrvcB);
+	prvCreateService(&xSrvcB);
 }
 
 TEST( Full_BLE, BLE_Initialize_BLE_GATT )
@@ -1361,12 +1567,12 @@ TEST( Full_BLE, BLE_Initialize_BLE_GAP )
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
 }
 
-void prvStopAndDeleteService(BLEService_t * xRefSrvc)
+void prvStopAndDeleteService(BTService_t * xRefSrvc)
 {
 	BTStatus_t xStatus = eBTStatusSuccess;
 
 	xCbStatus = eBTStatusFail;
-	xStatus = pxGattServerInterface->pxStopService(ucBLEServerIf, xRefSrvc->xAttributeData.xHandle);
+	xStatus = pxGattServerInterface->pxStopService(ucBLEServerIf, xRefSrvc->pusHandlesBuffer[0]);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 	xEventGroupWaitBits((EventGroupHandle_t)&xWaitOperationComplete,
@@ -1375,10 +1581,10 @@ void prvStopAndDeleteService(BLEService_t * xRefSrvc)
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	TEST_ASSERT_EQUAL(xRefSrvc->xAttributeData.xHandle, usCbSrvcHandle);
+	TEST_ASSERT_EQUAL( xRefSrvc->pusHandlesBuffer[0], usCbSrvcHandle);
 
 	xCbStatus = eBTStatusFail;
-	xStatus = pxGattServerInterface->pxDeleteService(ucBLEServerIf, xRefSrvc->xAttributeData.xHandle);
+	xStatus = pxGattServerInterface->pxDeleteService(ucBLEServerIf,  xRefSrvc->pusHandlesBuffer[0]);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
 	xEventGroupWaitBits((EventGroupHandle_t)&xWaitOperationComplete,
@@ -1387,7 +1593,7 @@ void prvStopAndDeleteService(BLEService_t * xRefSrvc)
 						pdTRUE,
 						BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xCbStatus);
-	TEST_ASSERT_EQUAL(xRefSrvc->xAttributeData.xHandle, usCbSrvcHandle);
+	TEST_ASSERT_EQUAL( xRefSrvc->pusHandlesBuffer[0], usCbSrvcHandle);
 }
 
 TEST( Full_BLE, BLE_DeInitialize )
@@ -1467,109 +1673,13 @@ void prvDeviceStateChangedCb( BTState_t xState )
 
 void prvGroupInit()
 {
-	uint16_t usIndex;
-	uint8_t tmpCharA[] = bletestsFREERTOS_CHAR_A_UUID;
-	uint8_t tmpCharB[] = bletestsFREERTOS_CHAR_B_UUID;
-	uint8_t tmpCharC[] = bletestsFREERTOS_CHAR_C_UUID;
-	uint8_t tmpCharD[] = bletestsFREERTOS_CHAR_D_UUID;
-	uint8_t tmpCharE[] = bletestsFREERTOS_CHAR_E_UUID;
-	uint8_t tmpCharF[] = bletestsFREERTOS_CHAR_F_UUID;
-	uint8_t tmpCharDummy[] = bletestsFREERTOS_CHAR_DUMMY_UUID;
-	uint8_t tmpCharDescrA[] = bletestsFREERTOS_DESCR_A_UUID;
-	uint8_t tmpCharDescrB[] = bletestsFREERTOS_DESCR_B_UUID;
-	uint8_t tmpCharDescrC[] = bletestsFREERTOS_DESCR_C_UUID;
-	uint8_t tmpCharDescrD[] = bletestsFREERTOS_DESCR_D_UUID;
-
 	/* Initialize event group before tests. */
 	(void)xEventGroupCreateStatic((EventGroupHandle_t)&xWaitOperationComplete);
-
-	/**
-	 * Section initializing Characteristics.
-	 */
-	memset(xCharacteristicts, 0, sizeof(BLECharacteristic_t)*bletestsNB_CHARACTERISTICS);
-	memset(&xDummyCharacteristic, 0, sizeof(BLECharacteristic_t));
-
-	for(usIndex = 0; usIndex< bletestsNB_CHARACTERISTICS; usIndex++)
-	{
-		xCharacteristicts[usIndex].xAttributeData.xUuid.ucType = eBTuuidType128;
-		xCharacteristicts[usIndex].pxParentService = &xSrvcB;
-		xCharacteristicts[usIndex].xPermissions = bletestsFULL_PERMISSIONS;
-		xCharacteristicts[usIndex].xAttributeData.pucData = ucResponseBufferChar[usIndex];
-	}
-	xDummyCharacteristic.xAttributeData.xUuid.ucType = eBTuuidType128;
-	xDummyCharacteristic.pxParentService = &xSrvcA;
-	xDummyCharacteristic.xPermissions = bletestsFULL_PERMISSIONS;
-
-	/* Copy uuid. */
-	memcpy( &xCharacteristicts[bletestsCHARA].xAttributeData.xUuid.uu.uu128, tmpCharA, bt128BIT_UUID_LEN);
-	memcpy( &xCharacteristicts[bletestsCHARB].xAttributeData.xUuid.uu.uu128, tmpCharB, bt128BIT_UUID_LEN);
-	memcpy( &xCharacteristicts[bletestsCHARC].xAttributeData.xUuid.uu.uu128, tmpCharC, bt128BIT_UUID_LEN);
-	memcpy( &xCharacteristicts[bletestsCHARD].xAttributeData.xUuid.uu.uu128, tmpCharD, bt128BIT_UUID_LEN);
-	memcpy( &xCharacteristicts[bletestsCHARE].xAttributeData.xUuid.uu.uu128, tmpCharE, bt128BIT_UUID_LEN);
-	memcpy( &xCharacteristicts[bletestsCHARF].xAttributeData.xUuid.uu.uu128, tmpCharF, bt128BIT_UUID_LEN);
-	memcpy( &xDummyCharacteristic.xAttributeData.xUuid.uu.uu128, tmpCharDummy, bt128BIT_UUID_LEN);
-
-	/* Set properties. */
-	xCharacteristicts[bletestsCHARA].xProperties = eBTPropRead|eBTPropWrite;
-	xCharacteristicts[bletestsCHARB].xProperties = eBTPropRead|eBTPropWrite;
-	xCharacteristicts[bletestsCHARC].xProperties = eBTPropRead|eBTPropWrite;
-	xCharacteristicts[bletestsCHARD].xProperties = eBTPropWriteNoResponse;
-	xCharacteristicts[bletestsCHARE].xProperties = eBTPropNotify;
-	xCharacteristicts[bletestsCHARF].xProperties = eBTPropIndicate;
-	xDummyCharacteristic.xProperties = eBTPropRead|eBTPropWrite;
-
-	/* Set response buffer. */
-
-
-	/* Set permissions */
-	xCharacteristicts[bletestsCHARB].xPermissions = eBTPermReadEncryptedMitm | eBTPermWriteEncryptedMitm;
-	xCharacteristicts[bletestsCHARC].xPermissions = eBTPermReadEncrypted |  eBTPermWriteEncrypted;
-	/**
-	 * Section initializing Descriptors.
-	 */
-	memset(xDescriptors, 0, sizeof(BLECharacteristicDescr_t)*bletestsNB_CHARACTERISTICS_DESCRIPTORS);
-
-	for(usIndex = 0; usIndex< bletestsNB_CHARACTERISTICS_DESCRIPTORS; usIndex++)
-	{
-		xDescriptors[usIndex].xAttributeData.xUuid.ucType = eBTuuidType128;
-		xDescriptors[usIndex].pxParentService = &xSrvcB;
-		xDescriptors[usIndex].xAttributeData.pucData = ucResponseBufferDescr[usIndex];
-	}
-
-	/* Copy uuid. */
-	memcpy( &xDescriptors[bletestsCHAR_DESCRA].xAttributeData.xUuid.uu.uu128, tmpCharDescrA, bt128BIT_UUID_LEN);
-	memcpy( &xDescriptors[bletestsCHAR_DESCRB].xAttributeData.xUuid.uu.uu128, tmpCharDescrB, bt128BIT_UUID_LEN);
-	memcpy( &xDescriptors[bletestsCHAR_DESCRC].xAttributeData.xUuid.uu.uu128, tmpCharDescrC, bt128BIT_UUID_LEN);
-	memcpy( &xDescriptors[bletestsCHAR_DESCRD].xAttributeData.xUuid.uu.uu128, tmpCharDescrD, bt128BIT_UUID_LEN);
-	memcpy( &xDescriptors[bletestsCHAR_DESCRC].xAttributeData.xUuid.uu.uu128, tmpCharDescrC, bt128BIT_UUID_LEN);
-	memcpy( &xDescriptors[bletestsCHAR_DESCRD].xAttributeData.xUuid.uu.uu128, tmpCharDescrD, bt128BIT_UUID_LEN);
-
-	/* Descriptors are only 16 bits */
-	xDescriptors[bletestsCCCD_E].xAttributeData.xUuid.uu.uu16 = bletestsCCCD;
-	xDescriptors[bletestsCCCD_E].xAttributeData.xUuid.ucType = eBTuuidType16;
-	xDescriptors[bletestsCCCD_F].xAttributeData.xUuid.uu.uu16 = bletestsCCCD;
-	xDescriptors[bletestsCCCD_F].xAttributeData.xUuid.ucType = eBTuuidType16;
-
-
-	/* Set permissions. */
-	xDescriptors[bletestsCHAR_DESCRA].xPermissions = eBTPermRead| eBTPermWrite;
-	xDescriptors[bletestsCHAR_DESCRB].xPermissions = eBTPermReadEncryptedMitm | eBTPermWriteEncryptedMitm;
-	xDescriptors[bletestsCHAR_DESCRC].xPermissions = eBTPermReadEncrypted |  eBTPermWriteEncrypted;
-	xDescriptors[bletestsCHAR_DESCRD].xPermissions =  eBTPermRead;
-	xDescriptors[bletestsCCCD_E].xPermissions =  eBTPermRead| eBTPermWrite;
-	xDescriptors[bletestsCCCD_F].xPermissions =  eBTPermRead| eBTPermWrite;
-	/**
-	 * Section included service.
-	 */
-	memset(&xIncludedServiceA, 0, sizeof(BLEIncludedService_t));
-	xIncludedServiceA.pxParentService  = &xSrvcB;
-	xIncludedServiceA.pxPtrToService = &xSrvcA;
 
 	/* Assign a buffer to property Cb */
 	xCbProperties.pvVal = ucCbPropertyBuffer;
 
-
-   /* Create a queue for callbacks. */
+        /* Create a queue for callbacks. */
 	xCallbackQueue = xQueueCreate( QUEUE_LENGTH,
 								 ITEM_SIZE);
 	listINIT_HEAD(&xWaitingEventQueue);
