@@ -69,11 +69,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "aws_ota_agent.h"
 #include "driver/gpio.h"
 
- /* TODO: Remove all TODOS before handing off to Manish for integration. */
-
 /**
  * @brief Transport types supported for MQTT Echo demo.
- * TODO: BLE is not here, the BLE on/off triggers MQTT reconnect, which we do not want.
+ * BLE is not here, the BLE on/off triggers MQTT reconnect, which we do not want.
  */
 #define demoNETWORK_TYPES          ( AWSIOT_NETWORK_TYPE_WIFI )
 
@@ -326,6 +324,7 @@ void vOtaTask( void * pvParameters )
 {
     OTA_State_t otaState = eOTA_AgentState_Unknown;
     OTA_State_t otaLastState = eOTA_AgentState_Unknown;
+    uint32_t noSocketCounter = 0;
     bool otaInited = false;
     TickType_t otaInitDelay  = pdMS_TO_TICKS( demoOTA_INIT_DELAY);
     TickType_t otaDelay  = pdMS_TO_TICKS( demoOTA_DELAY );
@@ -390,6 +389,7 @@ void vOtaTask( void * pvParameters )
                     AwsIotLogInfo("vOtaTask: Socket is connected. Unexpected state change\n");
                 }
             }
+            noSocketCounter = 0;
         }
         else 
         {
@@ -405,10 +405,13 @@ void vOtaTask( void * pvParameters )
             }
             else
             {
-                AwsIotLogInfo( "vOtaTask: waiting for socket to connect\n" );
+                if (!(noSocketCounter % 30))
+                {
+                    AwsIotLogInfo( "vOtaTask: waiting for socket to connect\n" );
+                 }   
                 vTaskDelay( otaInitDelay  );
             }
-
+            noSocketCounter++;
         } 
         vTaskDelay( otaDelay  );
         otaLastState = otaState;
@@ -477,7 +480,7 @@ void vBLEButtonTask(void * pvParameters )
             }
             else 
             {
-                /* TODO: Once BLE starts, WiFi can be reprovisioned which triggers a WiFi disconnect call back. */
+                /* Once BLE starts, WiFi can be reprovisioned which triggers a WiFi disconnect call back. */
                 AwsIotLogInfo( "vBLEButtonTask: BLE Button ON\n");
                 AwsIotNetworkManager_EnableNetwork(AWSIOT_NETWORK_TYPE_BLE);
             }
@@ -489,6 +492,7 @@ void vBLEButtonTask(void * pvParameters )
 void vProducerTask(void * pvParameters )
 {
     uint16_t counter = 0;
+    uint16_t failCounter = 0;
     TickType_t qsendDelay = pdMS_TO_TICKS( demoQUEUE_SEND );
     /* Create the queue used to pass data to publish task. */
     AwsIotLogInfo( "vProducerTask: start task\n" );
@@ -496,10 +500,15 @@ void vProducerTask(void * pvParameters )
     {
         if( xQueueSend( xTelemetryQueue, &counter, pdMS_TO_TICKS(1000) ) != pdPASS )
         {
-            AwsIotLogError(( "vProducerTask: Failed to send data to TelemetryQueue\n" ) );
+            if (!failCounter % 20)
+            {
+                AwsIotLogError(( "vProducerTask: Failed to send data to TelemetryQueue\n" ) );
+            }
+            failCounter++;
         }
         else 
         {
+            failCounter = 0;
             ++counter;
         }   
         /*AwsIotLogInfo( "vProducerTask: produced %d\n", (int) counter);*/
@@ -900,13 +909,6 @@ void vStartCombinedDemo( void )
             AwsIotLogError(( "vStartCombinedDemo: Creating xNetworkAvailableLock failed."));
             xRet = pdFALSE;
         }
-#ifdef SAVE_SHOULD_NOT_NEED_THIS
-        else 
-        {
-            /* TODO: WiFI is started before vStartCombinedDemo(); therefore, this Give is required. */
-            xSemaphoreGive(xNetworkAvailableLock);
-        }
-#endif
     }
 
     if (xRet == pdTRUE )
