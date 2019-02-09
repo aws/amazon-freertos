@@ -537,7 +537,8 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
       {
         ulByteToSend = NRF_FICR->CODEPAGESIZE*4;
       }
-
+       /* clear buffer to avoid garbage. */
+      pulSerializingArray[(ulByteToSend+3)/4] = 0;
       memcpy(pulSerializingArray, pacData + ulByteSent, ulByteToSend); 
 
       xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
