@@ -975,6 +975,10 @@ static BaseType_t prvSetupConnection( const MQTTEventData_t * const pxEventData 
                 prvGracefulSocketClose( pxConnection );
             }
         }
+        else
+        {
+            xStatus = pdFAIL;
+        }
     }
     else
     {
