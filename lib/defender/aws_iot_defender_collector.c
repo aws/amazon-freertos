@@ -230,6 +230,7 @@ static void _serialize()
                                                         : assertSuccess;
 
     uint8_t metricsGroupCount = 0;
+    uint8_t i = 0;
 
     serializerError = _AwsIotDefenderEncoder.init( pEncoderObject, _report.pDataBuffer, _report.size );
     assertNoError( serializerError );
@@ -262,7 +263,7 @@ static void _serialize()
     assertNoError( serializerError );
 
     /* Count how many metrics groups user specified. */
-    for( uint8_t i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
+    for( i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
     {
         metricsGroupCount += _metricsFlagSnapshot[ i ] > 0;
     }
@@ -274,7 +275,7 @@ static void _serialize()
                                                                    metricsGroupCount );
     assertNoError( serializerError );
 
-    for( uint8_t i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
+    for( i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
     {
         /* Skip if this metrics group has 0 metrics flag. */
         if( _metricsFlagSnapshot[ i ] )
@@ -358,6 +359,7 @@ static void tcpConnectionsCallback( void * param1,
     IotMetricsTcpConnection_t * pConnection = NULL;
 
     size_t total = IotListDouble_Count( pTcpConnectionsMetricsList );
+    uint8_t i = 0;
 
     /* If there is at least one TCP connection. */
     if( total > 0 )
@@ -373,7 +375,7 @@ static void tcpConnectionsCallback( void * param1,
             /* At least one element in the list*/
             AwsIotDefender_Assert( pConnectionLink );
 
-            for( uint8_t i = 0; i < total; i++ )
+            for( i = 0; i < total; i++ )
             {
                 pConnection = IotLink_Container( IotMetricsTcpConnection_t, pConnectionLink, link );
 
@@ -415,6 +417,8 @@ static void _serializeTcpConnections( AwsIotSerializerEncoderObject_t * pMetrics
     char remoteAddr[ _REMOTE_ADDR_LENGTH ] = "";
     char * pRemoteAddr = remoteAddr;
 
+    uint8_t i = 0;
+
     void (* assertNoError)( AwsIotSerializerError_t ) = _report.pDataBuffer == NULL ? assertSuccessOrBufferToSmall
                                                         : assertSuccess;
 
@@ -447,7 +451,7 @@ static void _serializeTcpConnections( AwsIotSerializerEncoderObject_t * pMetrics
                                                                            _metrics.tcpConns.count );
             assertNoError( serializerError );
 
-            for( uint8_t i = 0; i < _metrics.tcpConns.count; i++ )
+            for( i = 0; i < _metrics.tcpConns.count; i++ )
             {
                 AwsIotSerializerEncoderObject_t connectionMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
 

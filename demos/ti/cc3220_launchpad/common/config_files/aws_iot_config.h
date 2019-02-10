@@ -26,10 +26,12 @@
 #define _AWS_IOT_CONFIG_H_
 
 /* Library logging configuration. */
-#define AWS_IOT_GLOBAL_LOG_LEVEL      AWS_IOT_LOG_INFO
-#define AWS_IOT_PLATFORM_LOG_LEVEL    AWS_IOT_LOG_INFO
-#define AWS_IOT_NETWORK_LOG_LEVEL     AWS_IOT_LOG_INFO
-#define AWS_IOT_MQTT_LOG_LEVEL        AWS_IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_GLOBAL      AWS_IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_PLATFORM    AWS_IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_NETWORK     AWS_IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_MQTT        AWS_IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_DEFENDER    AWS_IOT_LOG_DEBUG
+#define AWS_IOT_LOG_LEVEL_DEMO        AWS_IOT_LOG_INFO
 
 /* Include the default configuration file at the bottom of this file. */
 #include "aws_iot_config_common.h"

@@ -35,6 +35,7 @@
  * The file implements decoder interface in aws_iot_serialize.h.
  */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "aws_iot_serializer.h"

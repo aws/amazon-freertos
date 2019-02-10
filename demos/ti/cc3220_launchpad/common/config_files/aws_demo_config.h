@@ -78,4 +78,8 @@
 /* Send AWS IoT MQTT traffic encrypted. */
 #define democonfigMQTT_AGENT_CONNECT_FLAGS          	     ( mqttagentREQUIRE_TLS )
 
+/* Defender task example parameters. */
+#define democonfigDEFENDER_TASK_STACK_SIZE                   ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigDEFENDER_TASK_PRIORITY                     ( tskIDLE_PRIORITY )
+
 #endif /* _AWS_DEMO_CONFIG_H_ */

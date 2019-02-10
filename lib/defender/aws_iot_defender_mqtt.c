@@ -112,6 +112,8 @@ bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
                                             uint16_t port,
                                             AwsIotNetworkTlsInfo_t * pTlsInfo )
 {
+    _networkConnection = ( AwsIotNetworkConnection_t ) AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
+
     return AwsIotNetwork_CreateConnection( &_networkConnection,
                                            pAwsIotEndpoint,
                                            port,

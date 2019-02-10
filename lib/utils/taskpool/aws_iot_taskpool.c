@@ -892,11 +892,13 @@ static bool _shutdownInProgress( const AwsIotTaskPool_t * const pTaskPool )
 
 static void _signalShutdown( AwsIotTaskPool_t * const pTaskPool, uint32_t threads )
 {
+    uint32_t count = 0;
+    
     /* Set the exit condition. */
     pTaskPool->maxThreads = 0;
 
     /* Broadcast to all active threads to wake-up. Active threads do check the exit condition right after wakein up. */
-    for ( uint32_t count = 0; count < threads; ++count )
+    for ( ; count < threads; ++count )
     {
         AwsIotSemaphore_Post( &pTaskPool->dispatchSignal );
     }
