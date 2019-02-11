@@ -50,7 +50,7 @@
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #include "FreeRTOS_DHCP.h"
-#include "aws_demo_logging.h"
+#include "aws_logging_task.h"
 #include "aws_system_init.h"
 #include "aws_demo_runner.h"
 #include "aws_application_version.h"
@@ -68,6 +68,10 @@ const AppVersion32_t xAppFirmwareVersion = {
  * using DHCP. */
 #define mainHOST_NAME           "RTOSDemo"
 #define mainDEVICE_NICK_NAME    "windows_demo"
+
+/* Logging thread parameters. */
+#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
 /*-----------------------------------------------------------*/
 
@@ -264,24 +268,16 @@ void vApplicationMallocFailedHook()
 
 static void prvMiscInitialisation( void )
 {
-    uint32_t ulLoggingIPAddress;
-
     /* Initialise the trace recorder and create the label used to post user
      * events to the trace recording on each tick interrupt. */
     vTraceEnable( TRC_START );
 
     /* Initialise the logging library. */
-    ulLoggingIPAddress = FreeRTOS_inet_addr_quick(
-        configECHO_SERVER_ADDR0,
-        configECHO_SERVER_ADDR1,
-        configECHO_SERVER_ADDR2,
-        configECHO_SERVER_ADDR3 );
-    vLoggingInit(
-        xLogToStdout,
-        xLogToFile,
-        xLogToUDP,
-        ulLoggingIPAddress,
-        configPRINT_PORT );
+    /* Start logging task. */
+    xLoggingTaskInitialize(
+        mainLOGGING_TASK_STACK_SIZE,
+        tskIDLE_PRIORITY,
+        mainLOGGING_MESSAGE_QUEUE_LENGTH);
 }
 /*-----------------------------------------------------------*/
 

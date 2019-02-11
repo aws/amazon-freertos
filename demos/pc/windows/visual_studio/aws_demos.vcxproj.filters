@@ -441,9 +441,6 @@
     <ClCompile Include="..\..\..\common\mqtt\aws_subscribe_publish_loop.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\application_code\aws_demo_logging.c">
-      <Filter>application_code</Filter>
-    </ClCompile>
     <ClCompile Include="..\common\application_code\aws_entropy_hardware_poll.c">
       <Filter>application_code</Filter>
     </ClCompile>
@@ -566,6 +563,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
       <Filter>lib\third_party\mbedtls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\logging\aws_logging_task_dynamic_buffers.c">
+      <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -868,9 +868,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\common\include\aws_tcp_echo_client_single_tasks.h">
       <Filter>application_code\common_demos\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\application_code\aws_demo_logging.h">
-      <Filter>application_code</Filter>
     </ClInclude>
     <ClInclude Include="..\common\application_code\stdbool.h">
       <Filter>application_code</Filter>
