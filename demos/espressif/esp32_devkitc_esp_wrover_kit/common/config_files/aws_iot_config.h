@@ -38,6 +38,8 @@
 /* Set the MQTT v4 demo publish burst size. */
 #define AWS_IOT_DEMO_MQTT_PUBLISH_BURST_SIZE    ( 2 )
 
+#define AWS_IOT_MQTT_RESPONSE_WAIT_MS           (10000)
+
 /* Define additional serializer initialization functions for the BLE Module on ESP. */
 extern bool AwsIotMqttBLE_InitSerialize( void );
 extern void AwsIotMqttBLE_CleanupSerialize( void );

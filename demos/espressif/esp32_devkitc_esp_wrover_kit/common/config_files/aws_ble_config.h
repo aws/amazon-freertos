@@ -37,6 +37,12 @@
 
 /* Enable WIFI provisioning GATT service. */
 #define bleconfigENABLE_WIFI_PROVISIONING         ( 1 )
+#define bleconfigENABLE_GATT_DEMO                 ( 1 )
+
+/* Disable numeric comparison */
+#define bleconfigENABLE_NUMERIC_COMPARISON        ( 0 )
+#define bleconfigENABLE_SECURE_CONNECTION         ( 0 )
+#define bleconfigINPUT_OUTPUT                     ( eBTIONone )
 
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "aws_ble_config_defaults.h"
