@@ -75,8 +75,8 @@
 #define OTA_UNSUBSCRIBE_WAIT_TICKS         pdMS_TO_TICKS( OTA_UNSUBSCRIBE_WAIT_MS )
 #define OTA_PUBLISH_WAIT_TICKS             pdMS_TO_TICKS( OTA_SUBSCRIBE_WAIT_TICKS )
 #define OTA_MAX_STREAM_REQUEST_MOMENTUM    32U              /* Max number of stream requests allowed without a response before we abort. */
-#define OTA_MAX_PUBLISH_RETRIES            3                /* Max number of publish retries */
-#define OTA_RETRY_DELAY_MS                 1000UL           /* Delay between publish retries */
+#define OTA_MAX_PUBLISH_RETRIES            0                /* Max number of publish retries */
+#define OTA_RETRY_DELAY_MS                 0UL              /* Delay between publish retries */
 #define U32_MAX_PLACES                     10U              /* Maximum number of output digits of an unsigned long value. */
 
 /* OTA Agent task event flags. */
