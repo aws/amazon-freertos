@@ -50,12 +50,12 @@
 /* Testing configurations defintions. */
 
 /* The number of times to retry a WiFi Connect if it fails. */
-#define testwifiCONNECTION_RETRY_TIMES      3
+#define testwifiCONNECTION_RETRY_TIMES    3
 /* The initial delay between connection attempts that multiplies with each attempt. */
-#define testwifiCONNECTION_RETRY_DELAY      250
+#define testwifiCONNECTION_RETRY_DELAY    250
 
 /* The number of times to loop in the WiFiConnectionLoop test. */
-#define testwifiCONNECTION_LOOP_TIMES    3
+#define testwifiCONNECTION_LOOP_TIMES     3
 
 /* The delay in ms between connection and disconnection. This can be configured
  * in aws_test_wifi_config.h for your specific platform. */
@@ -118,14 +118,15 @@
 #endif
 
 /* String for round-trip testing. */
-#define testwifiROUND_TRIP_TEST_STRING                  "abcd"
+#define testwifiROUND_TRIP_TEST_STRING                    "abcd"
 /* Arbitrary max length for the round trip string. */
-#define testwifiROUND_TRIP_TEST_STRING_MAX_LENGTH       32
+#define testwifiROUND_TRIP_TEST_STRING_MAX_LENGTH         32
 /* The amount of times to retry the socket connect in the round trip test. */
-#define testwifiROUND_TRIP_TEST_RETRY_CONNECTION_TIMES  6
-/* The delay in milliseconds that is multiplied during exponential retires of the socket 
+#define testwifiROUND_TRIP_TEST_RETRY_CONNECTION_TIMES    6
+
+/* The delay in milliseconds that is multiplied during exponential retires of the socket
  * connection in the round trip test. This is to prevent network congestion. */
-#define testwifiROUND_TRIP_TEST_RETRY_DELAY_MS          150
+#define testwifiROUND_TRIP_TEST_RETRY_DELAY_MS            150
 
 /* Socket receive and send timeouts for the loopback test. These can be
  * configured in aws_test_wifi_config.h*/
@@ -178,7 +179,7 @@ typedef struct
 {
     uint16_t usTaskId;
     WIFIReturnCode_t xWiFiStatus;
-    char cStatusMsg[100];        /* A status message associated with the WiFi return code. This is needed until there are more error return codes. */
+    char cStatusMsg[ 100 ]; /* A status message associated with the WiFi return code. This is needed until there are more error return codes. */
     TaskHandle_t xTaskHandle;
 } testwifiTaskParams_t;
 
@@ -388,7 +389,7 @@ static BaseType_t prvRoundTripTest( void )
         xEchoServerSockaddr.ucSocketDomain = SOCKETS_AF_INET;
 
         RETRY_EXPONENTIAL( xSocketResult = SOCKETS_Connect( xSocket, &xEchoServerSockaddr,
-                                           sizeof( xEchoServerSockaddr ) ),
+                                                            sizeof( xEchoServerSockaddr ) ),
                            SOCKETS_ERROR_NONE,
                            ulInitialRetryPeriodMs,
                            xMaxRetries );
@@ -2244,7 +2245,7 @@ static void prvConnectionTask( void * pvParameters )
      * complete. */
     pxTaskParams = ( testwifiTaskParams_t * ) ( pvParameters );
     pxTaskParams->xWiFiStatus = eWiFiFailure;
-    memset(pxTaskParams->cStatusMsg, 0, sizeof(pxTaskParams->cStatusMsg));
+    memset( pxTaskParams->cStatusMsg, 0, sizeof( pxTaskParams->cStatusMsg ) );
 
     for( ulIndex = 0; ulIndex < testwifiCONNECTION_LOOP_TIMES; ulIndex++ )
     {
@@ -2253,12 +2254,12 @@ static void prvConnectionTask( void * pvParameters )
 
         if( xWiFiConnectStatus != eWiFiSuccess )
         {
-            snprintf( pxTaskParams->cStatusMsg,  
-                     sizeof( pxTaskParams->cStatusMsg ),
-                     "Task %d failed to connect to the AP %s with error code %d.\r\n",
-                     pxTaskParams->usTaskId, 
-                     xTestNetworkParams.pcSSID,
-                     xWiFiConnectStatus );
+            snprintf( pxTaskParams->cStatusMsg,
+                      sizeof( pxTaskParams->cStatusMsg ),
+                      "Task %d failed to connect to the AP %s with error code %d.\r\n",
+                      pxTaskParams->usTaskId,
+                      xTestNetworkParams.pcSSID,
+                      xWiFiConnectStatus );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
             break;
         }
@@ -2272,7 +2273,7 @@ static void prvConnectionTask( void * pvParameters )
 
         if( xWiFiConnectStatus != eWiFiSuccess )
         {
-            snprintf( pxTaskParams->cStatusMsg, 
+            snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
                       "Task %d failed to connect to the AP %s with error code %d.\r\n",
                       pxTaskParams->usTaskId, xClientNetworkParams.pcSSID,
@@ -2286,20 +2287,20 @@ static void prvConnectionTask( void * pvParameters )
 
         /* Wait for the other tasks to finish connecting. */
         if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
-            xEventGroupSync(
-                xTaskConnectDisconnectSyncEventGroupHandle,
-                ( 0x1
-                    << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
-                testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
-                                                  * task. */
-                testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK )
+            ( xEventGroupSync(
+                  xTaskConnectDisconnectSyncEventGroupHandle,
+                  ( 0x1
+                      << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
+                  testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
+                                                    * task. */
+                  testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK ) )
         {
-            snprintf( pxTaskParams->cStatusMsg, 
+            snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
                       "Task %d timeout waiting for the other task to finish "
                       "connection.\r\n",
-                      pxTaskParams->usTaskId);
-                    
+                      pxTaskParams->usTaskId );
+
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
             break;
         }
@@ -2324,22 +2325,22 @@ static void prvConnectionTask( void * pvParameters )
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
                       "Task %d failed the round-trip test after connect.\r\n",
-                      pxTaskParams->usTaskId);
+                      pxTaskParams->usTaskId );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
             break;
         }
 
         /* Wait for the other tasks before moving on to disconnecting. */
         if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
-            xEventGroupSync(
-                xTaskConnectDisconnectSyncEventGroupHandle, /* The event group used
-                                                             * for the rendezvous.
-                                                             */
-                ( 0x1
-                    << pxTaskParams->usTaskId ),            /* Set our task ID when we are done. */
-                testwifiTASK_FINISH_MASK,                   /* Wait for both our task and the other
-                                                             * task. */
-                testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK )
+            ( xEventGroupSync(
+                  xTaskConnectDisconnectSyncEventGroupHandle, /* The event group used
+                                                               * for the rendezvous.
+                                                               */
+                  ( 0x1
+                      << pxTaskParams->usTaskId ),            /* Set our task ID when we are done. */
+                  testwifiTASK_FINISH_MASK,                   /* Wait for both our task and the other
+                                                               * task. */
+                  testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK ) )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
@@ -2368,13 +2369,13 @@ static void prvConnectionTask( void * pvParameters )
 
         /* Wait for the other tasks. */
         if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
-            xEventGroupSync(
-                xTaskConnectDisconnectSyncEventGroupHandle,
-                ( 0x1
-                    << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
-                testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
-                                                  * task. */
-                testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK )
+            ( xEventGroupSync(
+                  xTaskConnectDisconnectSyncEventGroupHandle,
+                  ( 0x1
+                      << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
+                  testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
+                                                    * task. */
+                  testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK ) )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
@@ -2415,13 +2416,13 @@ static void prvConnectionTask( void * pvParameters )
 
         /* Wait for the other tasks. */
         if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
-            xEventGroupSync(
-                xTaskConnectDisconnectSyncEventGroupHandle,
-                ( 0x1
-                    << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
-                testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
-                                                  * task. */
-                testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK )
+            ( xEventGroupSync(
+                  xTaskConnectDisconnectSyncEventGroupHandle,
+                  ( 0x1
+                      << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
+                  testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
+                                                    * task. */
+                  testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK ) )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
@@ -2443,7 +2444,7 @@ static void prvConnectionTask( void * pvParameters )
     if( xTaskFinishEventGroupHandle != NULL )
     {
         xEventGroupSetBits( xTaskFinishEventGroupHandle,
-                        ( 1 << pxTaskParams->usTaskId ) );
+                            ( 1 << pxTaskParams->usTaskId ) );
     }
 
     vTaskDelete( NULL ); /* Delete this task. */
