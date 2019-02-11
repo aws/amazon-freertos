@@ -282,8 +282,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\demos\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
+    <ClCompile Include="..\..\..\..\demos\common\logging\aws_logging_task_dynamic_buffers.c" />
     <ClCompile Include="..\..\..\..\demos\common\ota\aws_ota_update_demo.c" />
-    <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_demo_logging.c" />
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_entropy_hardware_poll.c" />
     <ClCompile Include="..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c" />
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor.c" />

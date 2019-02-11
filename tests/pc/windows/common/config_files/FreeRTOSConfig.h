@@ -139,6 +139,17 @@ void vLoggingPrintf( char const * pcFormat,
 extern void vLoggingPrint( const char * pcMessage );
 #define configPRINT( X )    vLoggingPrint( X )
 
+/* Map the logging task's printf to the board specific output function. */
+#define configPRINT_STRING( x )    printf( x );
+
+/* Sets the length of the buffers into which logging messages are written - so
+ * also defines the maximum length of each log message. */
+#define configLOGGING_MAX_MESSAGE_LENGTH            1028
+
+ /* Set to 1 to prepend each log message with a message number, the task name,
+  * and a time stamp. */
+#define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
+
 /* Application specific definitions follow. **********************************/
 
 /* If configINCLUDE_DEMO_DEBUG_STATS is set to one, then a few basic IP trace

@@ -45,7 +45,7 @@
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #include "FreeRTOS_DHCP.h"
-#include "aws_demo_logging.h"
+#include "aws_logging_task.h"
 #include "aws_system_init.h"
 
 #include "aws_dev_mode_key_provisioning.h"
@@ -62,6 +62,11 @@
 
 #define TEST_RUNNER_TASK_STACK_SIZE    10000
 #define FIRST_EXCEPTION_HANDLER        1
+
+/* Logging thread parameters. */
+#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
+
 /* Windows-NT VectoredHandler callback function. */
 static LONG CALLBACK prvExceptionHandler( _In_ PEXCEPTION_POINTERS ExceptionInfo );
 jmp_buf xMark; /* Address for long jump to jump to. */
@@ -137,13 +142,12 @@ int main( void )
 
     vTraceEnable( TRC_START );
 
-    /* Initialize logging for libraries that depend on it. */
-    vLoggingInit(
-        pdTRUE,
-        pdFALSE,
-        pdFALSE,
-        0,
-        0 );
+    /* Initialise the logging library. */
+    /* Start logging task. */
+    xLoggingTaskInitialize(
+        mainLOGGING_TASK_STACK_SIZE,
+        tskIDLE_PRIORITY,
+        mainLOGGING_MESSAGE_QUEUE_LENGTH);
 
     /* Initialize the network interface.
      *

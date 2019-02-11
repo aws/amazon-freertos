@@ -193,6 +193,9 @@
     <Filter Include="application_code\common_tests\memory_leak">
       <UniqueIdentifier>{5131d122-df24-4aef-9924-853498fadda5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="application_code\common_tests\logging">
+      <UniqueIdentifier>{2063179e-d128-4e96-8c6a-fa91144372d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -1097,9 +1100,6 @@
     <ClCompile Include="..\common\application_code\main.c">
       <Filter>application_code</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_demo_logging.c">
-      <Filter>application_code</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW\port.c">
       <Filter>lib\aws\FreeRTOS\portable\MSVC-Ming</Filter>
     </ClCompile>
@@ -1318,6 +1318,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\demos\common\logging\aws_logging_task_dynamic_buffers.c">
+      <Filter>application_code\common_tests\logging</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
