@@ -280,9 +280,9 @@ err:
 /*-----------------------------------------------------------*/
 
 #define CHECK_VALID_SSID_LEN(x) \
-        ((x) > 0 && (x) <=  wificonfigMAX_SSID_LEN)
+        ((x) > 0 && (x) < wificonfigMAX_SSID_LEN)
 #define CHECK_VALID_PASSPHRASE_LEN(x) \
-        ((x) > 0 && (x) <= wificonfigMAX_PASSPHRASE_LEN)
+        ((x) > 0 && (x) < wificonfigMAX_PASSPHRASE_LEN)
 
 WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
@@ -314,9 +314,9 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         }
 
         /* Security is wildcard, only ssid/password is required */
-        strlcpy((char *) &wifi_config.sta.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        strlcpy((char *) &wifi_config.sta.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength + 1);
         if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength);
+            strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength + 1);
         }
 
         ret = esp_wifi_set_mode(WIFI_MODE_STA);
