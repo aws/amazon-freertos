@@ -31,11 +31,6 @@
 #ifndef _AWS_BLE_INTERNALS_H_
 #define _AWS_BLE_INTERNALS_H_
 
-/* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE /* Lines between #ifdef/#endif are indented. */
-#endif
-
 #include "iot_linear_containers.h"
 
 /* Place holder for saving Char descriptors into memory. */
