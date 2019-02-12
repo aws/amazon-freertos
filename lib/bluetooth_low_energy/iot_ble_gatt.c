@@ -254,7 +254,6 @@ void _connectionCb( uint16_t connId,
             if( pConnInfoListElem != NULL )
             {
                 /* Initialize the new connection element */
-                listINIT_HEAD( &pConnInfoListElem->clientCharDescrListHead );
                 memcpy( &pConnInfoListElem->remoteBdAddr, pBda, sizeof( BTBdaddr_t ) );
                 pConnInfoListElem->connId = connId;
 

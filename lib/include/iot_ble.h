@@ -85,7 +85,7 @@ typedef struct
     BTBdaddr_t remoteBdAddr;              /**< Remote device address. */
     bool isBonded;                         /**< True if device is bonded. */
     BTSecurityLevel_t securityLevel;       /**< Security level of the connection. */
-    Link_t clientCharDescrListHead;        /**< Head of CCD list. */
+    IotLink_t clientCharDescrListHead;        /**< Head of CCD list. */
 } IotBleConnectionInfoListElement_t;
 
 /**
