@@ -110,6 +110,6 @@ typedef struct{
 }_bleInterface_t;
 extern _bleInterface_t _BTInterface;
 
-extern BTGattServerCallbacks_t BTGattServerCb;
+extern BTGattServerCallbacks_t _BTGattServerCb;
 
 #endif

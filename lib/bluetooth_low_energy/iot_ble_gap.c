@@ -418,14 +418,14 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
                              pdTRUE,
                              portMAX_DELAY );
 
-        status = _BTInterface.xCbStatus;
+        status = _BTInterface.cbStatus;
     }
 
     if( status == eBTStatusSuccess )
     {
         for( index = 0; index < nbProperties; index++ )
         {
-            status = _BTInterface.p_BTInterface->pxSetDeviceProperty( &pProperty[ index ] );
+            status = _BTInterface.pBTInterface->pxSetDeviceProperty( &pProperty[ index ] );
 
             if( status == eBTStatusSuccess )
             {
@@ -435,7 +435,7 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
                                      pdTRUE,
                                      portMAX_DELAY );
 
-                status = _BTInterface.xCbStatus;
+                status = _BTInterface.cbStatus;
             }
             else
             {
@@ -447,13 +447,13 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
     /* Initialize the GATT server. */
     if( status == eBTStatusSuccess )
     {
-        _BTInterface.pxGattServerInterface = ( BTGattServerInterface_t * ) _BTInterface.pxBTLeAdapterInterface->ppvGetGattServerInterface();
+        _BTInterface.pGattServerInterface = ( BTGattServerInterface_t * ) _BTInterface.pBTLeAdapterInterface->ppvGetGattServerInterface();
 
-        if( _BTInterface.pxGattServerInterface != NULL )
+        if( _BTInterface.pGattServerInterface != NULL )
         {
-            if( _BTInterface.pxGattServerInterface->pxGattServerInit( &xBTGattServerCb ) == eBTStatusSuccess )
+            if( _BTInterface.pGattServerInterface->pxGattServerInit( &_BTGattServerCb ) == eBTStatusSuccess )
             {
-                status = _BTInterface.pxGattServerInterface->pxRegisterServer( pAppUuid );
+                status = _BTInterface.pGattServerInterface->pxRegisterServer( pAppUuid );
             }
             else
             {
@@ -475,13 +475,13 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
 
     if( status == eBTStatusSuccess )
     {
-        IotListDouble_Create( &_BTInterface.xServiceListHead );
-        IotListDouble_Create( &_BTInterface.xConnectionListHead );
+        IotListDouble_Create( &_BTInterface.serviceListHead );
+        IotListDouble_Create( &_BTInterface.connectionListHead );
 
         /* Initialize the event list. */
         for( index = 0; index < eNbEvents; index++ )
         {
-            IotListDouble_Create( &_BTInterface.xSubscrEventListHead[ index ] );
+            IotListDouble_Create( &_BTInterface.subscrEventListHead[ index ] );
         }
 
         xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
@@ -490,7 +490,7 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
                              pdTRUE,
                              portMAX_DELAY );
 
-        status = _BTInterface.xCbStatus;
+        status = _BTInterface.cbStatus;
     }
 
     return status;
@@ -501,7 +501,7 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
 BTStatus_t IotBle_ConfirmNumericComparisonKeys( BTBdaddr_t * pBdAddr,
                                              bool keyAccepted )
 {
-    return _BTInterface.p_BTInterface->pxSspReply( pBdAddr,
+    return _BTInterface.pBTInterface->pxSspReply( pBdAddr,
                                                    eBTsspVariantPasskeyConfirmation,
                                                    keyAccepted,
                                                    0 );
@@ -510,7 +510,7 @@ BTStatus_t IotBle_ConfirmNumericComparisonKeys( BTBdaddr_t * pBdAddr,
 
 BTStatus_t IotBle_RemoveBond( const BTBdaddr_t * pBdAddr )
 {
-    return _BTInterface.p_BTInterface->pxRemoveBond( pBdAddr );
+    return _BTInterface.pBTInterface->pxRemoveBond( pBdAddr );
 }
 
 /* @TODO Implement real registration unregistration */
@@ -535,9 +535,9 @@ BTStatus_t IotBle_RegisterEventCb( IotBleEvents_t xEvent,
         {
             if( xSemaphoreTake( ( SemaphoreHandle_t ) &_BTInterface.threadSafetyMutex, portMAX_DELAY ) == pdPASS )
             {
-                pNewEvent->xSubscribedEventCb = xBLEEventsCallbacks;
-                IotListDouble_InsertHead( &_BTInterface.xSubscrEventListHead[ xEvent ],
-                                          &pNewEvent->xEventList );
+                pNewEvent->subscribedEventCb = xBLEEventsCallbacks;
+                IotListDouble_InsertHead( &_BTInterface.subscrEventListHead[ xEvent ],
+                                          &pNewEvent->eventList );
 
                 xSemaphoreGive( ( SemaphoreHandle_t ) &_BTInterface.threadSafetyMutex );
             }
@@ -562,11 +562,11 @@ BTStatus_t IotBle_UnRegisterEventCb( IotBleEvents_t event,
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &_BTInterface.threadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
         /* Get the event associated to the callback */
-        IotContainers_ForEach( &_BTInterface.xSubscrEventListHead[ event ], pEventListIndex )
+        IotContainers_ForEach( &_BTInterface.subscrEventListHead[ event ], pEventListIndex )
         {
-            pEventIndex = IotLink_Container( _bleSubscrEventListElement_t, pEventListIndex, xEventList );
+            pEventIndex = IotLink_Container( _bleSubscrEventListElement_t, pEventListIndex, eventList );
 
-            if( bleEventsCallbacks.pvPtr == pEventIndex->xSubscribedEventCb.pvPtr )
+            if( bleEventsCallbacks.pvPtr == pEventIndex->subscribedEventCb.pvPtr )
             {
                 status = eBTStatusSuccess;
                 break;
@@ -576,7 +576,7 @@ BTStatus_t IotBle_UnRegisterEventCb( IotBleEvents_t event,
         /* If the event is found, free the remove it (safely) from the list and free it */
         if( status == eBTStatusSuccess )
         {
-            IotListDouble_Remove( &pEventIndex->xEventList );
+            IotListDouble_Remove( &pEventIndex->eventList );
             vPortFree( pEventIndex );
         }
 

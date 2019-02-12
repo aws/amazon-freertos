@@ -118,7 +118,7 @@ static void _responseConfirmationCb( BTStatus_t status,
 static void _indicationSentCb( uint16_t connId,
                                BTStatus_t status );
 
-BTGattServerCallbacks_t xBTGattServerCb =
+BTGattServerCallbacks_t _BTGattServerCb =
 {
     .pxRegisterServerCb       = _serverRegisteredCb,
     .pxUnregisterServerCb     = _serverUnregisteredCb,
