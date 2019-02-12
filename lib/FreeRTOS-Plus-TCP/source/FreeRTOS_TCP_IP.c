@@ -1185,6 +1185,7 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 	UBaseType_t uxNewMSS;
 	UBaseType_t xRemainingOptionsBytes = ( *ppucLast ) - ( *ppucPtr );
 	BaseType_t xRet = pdTrue;
+	unsigned char ucLen;
 
 	if( ( *ppucPtr )[ 0 ] == TCP_OPT_END )
 	{
@@ -1272,7 +1273,7 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 	{
 		/* All other options have a length field, so that we easily
 		can skip past them. */
-		unsigned char ucLen = ( *ppucPtr )[ 1 ];
+		ucLen = ( *ppucPtr )[ 1 ];
 		if( ( ucLen < 2 ) || ( ucLen > xRemainingOptionsBytes ) )
 		{
 			/* If the length field is too small or too big, the options are
