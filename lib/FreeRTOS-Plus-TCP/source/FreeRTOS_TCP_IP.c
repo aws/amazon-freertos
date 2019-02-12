@@ -1272,8 +1272,8 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 	{
 		/* All other options have a length field, so that we easily
 		can skip past them. */
-		unsigned char len = ( *ppucPtr )[ 1 ];
-		if( ( len < 2 ) || ( len > xRemainingOptionsBytes ) )
+		unsigned char ucLen = ( *ppucPtr )[ 1 ];
+		if( ( ucLen < 2 ) || ( ucLen > xRemainingOptionsBytes ) )
 		{
 			/* If the length field is too small or too big, the options are
 			 * malformed, don't process them further.
@@ -1289,19 +1289,19 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 			 */
 			if( ( *ppucPtr )[0] == TCP_OPT_SACK_A )
 			{
-				len -= 2;
+				ucLen -= 2;
 				( *ppucPtr ) += 2;
 
-				while( len >= 8 )
+				while( ucLen >= 8 )
 				{
-					prvSkipPastRemainingOptions( ppucPtr, ppxSocket, &len );
+					prvSkipPastRemainingOptions( ppucPtr, ppxSocket, &ucLen );
 				}
-				/* len should be 0 by now. */
+				/* ucLen should be 0 by now. */
 			}
 		}
 		#endif	/* ipconfigUSE_TCP_WIN == 1 */
 
-		( *ppucPtr ) += len;
+		( *ppucPtr ) += ucLen;
 	}
 	return xRet;
 }
