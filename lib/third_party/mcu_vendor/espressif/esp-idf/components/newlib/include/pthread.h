@@ -114,10 +114,8 @@ int	_EXFUN(pthread_cond_destroy, (pthread_cond_t *__mutex));
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
  */
  
-#ifndef PTHREAD_COND_INITIALIZER
 #define PTHREAD_COND_INITIALIZER  ((pthread_cond_t) 0xFFFFFFFF)
-#endif
-
+ 
 /* Broadcasting and Signaling a Condition, P1003.1c/Draft 10, p. 101 */
  
 int	_EXFUN(pthread_cond_signal, (pthread_cond_t *__cond));
