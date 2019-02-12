@@ -31,35 +31,34 @@
 #ifndef _AWS_BLE_INTERNALS_H_
 #define _AWS_BLE_INTERNALS_H_
 
-#include "aws_doubly_linked_list.h"
 #include "iot_linear_containers.h"
 
 /* Place holder for saving Char descriptors into memory. */
 typedef struct {
-	uint8_t ucData;
-	BTUuid_t xCharDescrUuid;
-	BTUuid_t xParentServiceUuid;
-	BTUuid_t xParentCharacteristicUuid;
-	uint8_t ucInstId;
-}BLECharDescriptorReccord_t;
+	uint8_t data;
+	BTUuid_t charDescrUuid;
+	BTUuid_t parentServiceUuid;
+	BTUuid_t parentCharacteristicUuid;
+	uint8_t instId;
+}_bleCharDescriptorReccord_t;
 
 typedef struct {
-	BTBdaddr_t pxBdAddr;
-	size_t xCharDescriptorListSize;
-	BLECharDescriptorReccord_t pxCharDescriptorList[];
-}BLEBondingDataFile_t;
+	BTBdaddr_t bdAddr;
+	size_t charDescriptorListSize;
+	_bleCharDescriptorReccord_t pCharDescriptorList[];
+}_bleBondingDataFile_t;
 
 typedef struct {
-	Link_t xCharacDescrList;
-	BTCharacteristicDescr_t * pxCharDescr;
-}BLECharDescriptorListElement_t;
+	IotLink_t characDescrList;
+	BTCharacteristicDescr_t * pCharDescr;
+}_bleCharDescriptorListElement_t;
 /* End of place holder. */
 
 typedef struct{
-	IotLink_t xServiceList;
-	BTService_t * pxService;
-    BLEAttributeEventCallback_t * pxEventsCallbacks;
-	uint16_t usEndHandle;
+	IotLink_t serviceList;
+	BTService_t * pService;
+    IotBleAttributeEventCallback_t * pEventsCallbacks;
+	uint16_t endHandle;
 }BLEServiceListElement_t;
 
 typedef enum{
@@ -71,41 +70,41 @@ typedef enum{
 	eBLEHALEventRegisterBleAdapterCb,
 	eBLEHALEventAdapterPropertiesCb,
 	eBLENbHALEvents,
-}BLEHALEventsInternals_t;
+}_bleHALEventsInternals_t;
 
 typedef struct
 {
-	BLEStartAdvCallback_t pxStartAdvCb;
-	BLESetAdvDataCallback_t pxSetAdvDataCb;
-}BLEInternalEventsCallbacks_t;
+	IotBle_StartAdvCallback_t pStartAdvCb;
+	IotBle_SetAdvDataCallback_t pSetAdvDataCb;
+}_bleInternalEventsCallbacks_t;
 
 typedef struct{
-	IotLink_t xEventList;
-	BLEEventsCallbacks_t xSubscribedEventCb;
-}BLESubscrEventListElement_t;
+	IotLink_t eventList;
+	IotBleEventsCallbacks_t subscribedEventCb;
+}_bleSubscrEventListElement_t;
 
 typedef struct{
-	void * pxPendingServiceEvent;
+	void * pPendingServiceEvent;
 
 	/*  @TODO prepare write works for only on  one simultaneous connection */
 	/*  @TODO pending indication response with a global only works for one simultaneous connection */
-	uint16_t usHandlePendingIndicationResponse;
-	uint8_t ucServerIf;
-    IotListDouble_t xServiceListHead;
-	IotListDouble_t xConnectionListHead;	
-	IotListDouble_t xSubscrEventListHead[eNbEvents];    /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */	
-	uint16_t usHandlePendingPrepareWrite;
-	BLEInternalEventsCallbacks_t pxBLEEventsCallbacks;
-	BTInterface_t * pxBTInterface;
-	BTBleAdapter_t * pxBTLeAdapterInterface;
-	BTGattServerInterface_t * pxGattServerInterface;
-	uint8_t ucAdapterIf;
-	StaticSemaphore_t xThreadSafetyMutex;
-	StaticEventGroup_t xWaitOperationComplete;
-	BTStatus_t xCbStatus;
-}BLEInterface_t;
-extern BLEInterface_t xBTInterface;
+	uint16_t handlePendingIndicationResponse;
+	uint8_t serverIf;
+    IotListDouble_t serviceListHead;
+	IotListDouble_t connectionListHead;	
+	IotListDouble_t subscrEventListHead[eNbEvents];    /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */	
+	uint16_t handlePendingPrepareWrite;
+	_bleInternalEventsCallbacks_t pBLEEventsCallbacks;
+	BTInterface_t * pBTInterface;
+	BTBleAdapter_t * pBTLeAdapterInterface;
+	BTGattServerInterface_t * pGattServerInterface;
+	uint8_t adapterIf;
+	StaticSemaphore_t threadSafetyMutex;
+	StaticEventGroup_t waitOperationComplete;
+	BTStatus_t cbStatus;
+}_bleInterface_t;
+extern _bleInterface_t _BTInterface;
 
-extern BTGattServerCallbacks_t xBTGattServerCb;
+extern BTGattServerCallbacks_t _BTGattServerCb;
 
 #endif

@@ -36,7 +36,7 @@
 #include "task.h"
 #include "event_groups.h"
 #include "semphr.h"
-#include "aws_ble.h"
+#include "iot_ble.h"
 #include "aws_wifi.h"
 
 /**

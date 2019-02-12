@@ -38,7 +38,7 @@
 
 #include "stream_buffer.h"
 #include "semphr.h"
-#include "aws_ble.h"
+#include "iot_ble.h"
 #include "aws_iot_mqtt.h"
 #include "aws_iot_mqtt_serialize_ble.h"
 
@@ -113,7 +113,7 @@ typedef enum
 /**
  * @brief Default MTU size for the BLE connection
  */
-#define mqttBLEDEFAULT_MTU_SIZE 			( bleconfigPREFERRED_MTU_SIZE )
+#define mqttBLEDEFAULT_MTU_SIZE 			( IOT_BLE_PREFERRED_MTU_SIZE )
 
 /**
  * @brief Maximum bytes which can be transferred at a time through the BLE connection.

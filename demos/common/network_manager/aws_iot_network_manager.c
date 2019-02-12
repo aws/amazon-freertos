@@ -33,8 +33,8 @@
 #include "aws_iot_network_manager.h"
 
 #if BLE_ENABLED
-#include "aws_ble_config.h"
-#include "aws_ble.h"
+#include "iot_ble_config.h"
+#include "iot_ble.h"
 #include "aws_ble_numericComparison.h"
 #include "aws_ble_services_init.h"
 #endif
@@ -43,7 +43,7 @@
 #include "aws_clientcredential.h"
 #endif
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
 #include "aws_ble_wifi_provisioning.h"
 #include "aws_wifi_connect_task.h"
 #endif
@@ -110,12 +110,12 @@ static void prvInvokeNetworkStateChangeCallbacks( uint32_t ulNetworkType, AwsIot
 /**
  * @brief Callback invoked when a BLE network connects or disconnects.
  * @param xStatus[in] Whether the operation was successful or not.
- * @param usConnId[in] Connection id of the connection
+ * @param connId[in] Connection id of the connection
  * @param xConnected[in] true if its connected, false if its disconnected.
  * @param pxBda[in] Address of the remote device connected/disconnected.
  */
 static void prvBLEConnectionCallback( BTStatus_t xStatus,
-                             uint16_t usConnId,
+                             uint16_t connId,
                              bool xConnected,
                              BTBdaddr_t * pxBda );
 /**
@@ -144,7 +144,7 @@ static void prvSetScanRespCallback( BTStatus_t xStatus );
  * @param pvContext User context passed as it is to the callback
  */
 static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState, void *pvContext );
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
 /**
  * Connects to the WIFI using credentials configured statically
  * @return true if connected successfully.
@@ -167,7 +167,7 @@ static SemaphoreHandle_t xConnectionSemaphore = NULL;
 
 #if BLE_ENABLED
 
-#if (bleconfigADVERTISING_UUID_SIZE == 2)
+#if (IOT_BLE_ADVERTISING_UUID_SIZE == 2)
 #define BT_ADV_UUID_TYPE	eBTuuidType16
 #else
 #define BT_ADV_UUID_TYPE	eBTuuidType128
@@ -175,59 +175,59 @@ static SemaphoreHandle_t xConnectionSemaphore = NULL;
 
 static BTUuid_t xAdvUUID =
 {
-	.uu.uu128 = bleconfigADVERTISING_UUID,
+	.uu.uu128 = IOT_BLE_ADVERTISING_UUID,
 	.ucType   =  BT_ADV_UUID_TYPE
 
 };
 
-static BLEAdvertismentParams_t xAdvParams =
+static IotBleAdvertismentParams_t xAdvParams =
 {
-    .bIncludeTxPower    = true,
-    .bIncludeName       = true,
-    .bSetScanRsp        = false,
-    .ulAppearance       = bleconfigADVERTISING_APPEARANCE,
-    .ulMinInterval      = bleconfigADVERTISING_INTERVAL_MIN,
-    .ulMaxInterval      = bleconfigADVERTISING_INTERVAL_MAX,
-    .usServiceDataLen   = 0,
-    .pcServiceData      = NULL,
-    .usManufacturerLen  = 0,
-    .pcManufacturerData = NULL,
-    .pxUUID1           = &xAdvUUID,
-    .pxUUID2            = NULL
+    .includeTxPower    = true,
+    .includeName       = true,
+    .setScanRsp        = false,
+    .appearance       = IOT_BLE_ADVERTISING_APPEARANCE,
+    .minInterval      = IOT_BLE_ADVERTISING_INTERVAL_MIN,
+    .maxInterval      = bleconfigADVERTISING_INTERVAL_MAX,
+    .serviceDataLen   = 0,
+    .pServiceData      = NULL,
+    .manufacturerLen  = 0,
+    .pManufacturerData = NULL,
+    .pUUID1           = &xAdvUUID,
+    .pUUID2            = NULL
 };
 
 static BTStatus_t prvBLEInit( void )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    BLEEventsCallbacks_t xEventCb;
+    IotBleEventsCallbacks_t xEventCb;
     BTUuid_t xServerUUID =
     {
         .ucType   = eBTuuidType128,
-        .uu.uu128 = bleconfigSERVER_UUID
+        .uu.uu128 = IOT_BLE_SERVER_UUID
     };
 
 
-#if ( bleconfigENABLE_BONDING == 1 )
+#if ( IOT_BLE_ENABLE_BONDING == 1 )
     const bool bIsBondable = true;
 #else
     const bool bIsBondable = false;
 #endif
 
-#if ( bleconfigENABLE_SECURE_CONNECTION == 1 )
+#if ( IOT_BLE_ENABLE_SECURE_CONNECTION == 1 )
     const bool bSecureConnection = true;
 #else
     const bool bSecureConnection = false;
 #endif
-    const uint32_t usMtu = bleconfigPREFERRED_MTU_SIZE;
-    const BTIOtypes_t xIO = bleconfigINPUT_OUTPUT;
+    const uint32_t usMtu = IOT_BLE_PREFERRED_MTU_SIZE;
+    const BTIOtypes_t xIO = IOT_BLE_INPUT_OUTPUT;
     size_t xNumProperties;
 
     BTProperty_t xDeviceProperties[] =
     {
         {
             .xType = eBTpropertyBdname,
-            .xLen = strlen( bleconfigDEVICE_NAME ),
-            .pvVal = ( void * ) bleconfigDEVICE_NAME
+            .xLen = strlen( IOT_BLE_DEVICE_NAME ),
+            .pvVal = ( void * ) IOT_BLE_DEVICE_NAME
         },
         {
             .xType = eBTpropertyBondable,
@@ -253,19 +253,19 @@ static BTStatus_t prvBLEInit( void )
 
     xNumProperties = sizeof( xDeviceProperties ) / sizeof ( xDeviceProperties[0] );
 
-    xStatus = BLE_Init( &xServerUUID, xDeviceProperties, xNumProperties );
+    xStatus = IotBle_Init( &xServerUUID, xDeviceProperties, xNumProperties );
 
     if( xStatus == eBTStatusSuccess )
     {
-    	 xEventCb.pxGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
-    	 xStatus = BLE_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
+    	 xEventCb.pGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
+    	 xStatus = IotBle_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
     }
 
-#if ( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
+#if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
     if( xStatus == eBTStatusSuccess )
     {
-    	xEventCb.pxNumericComparisonCb = &BLENumericComparisonCb;
-    	xStatus = BLE_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
+    	xEventCb.pNumericComparisonCb = &BLENumericComparisonCb;
+    	xStatus = IotBle_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
     }
 #endif
 
@@ -285,7 +285,7 @@ static BTStatus_t prvBLEInit( void )
 
 static bool prvBLEEnable( void )
 {
-	BLEEventsCallbacks_t xEventCb;
+	IotBleEventsCallbacks_t xEventCb;
 	BaseType_t xRet = pdTRUE;
 	static bool bInitBLE = false;
 	BTStatus_t xStatus;
@@ -306,7 +306,7 @@ static bool prvBLEEnable( void )
 		}
 		else
 		{
-		    if( BLE_ON() != eBTStatusSuccess )
+		    if( IotBle_On() != eBTStatusSuccess )
 		    {
 		        xRet = pdFALSE;
 		    }
@@ -314,8 +314,8 @@ static bool prvBLEEnable( void )
 		/* Register BLE Connection callback */
 		if( xRet == pdTRUE )
 		{
-			xEventCb.pxConnectionCb = prvBLEConnectionCallback;
-			if( BLE_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
+			xEventCb.pConnectionCb = prvBLEConnectionCallback;
+			if( IotBle_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
 			{
 				xRet = pdFALSE;
 			}
@@ -323,8 +323,8 @@ static bool prvBLEEnable( void )
 
 		if( xRet == pdTRUE )
 		{
-		    xAdvParams.bSetScanRsp = false;
-		    if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
+		    xAdvParams.setScanRsp = false;
+		    if( IotBle_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
 		    {
 		        xRet = pdFALSE;
 		    }
@@ -344,19 +344,19 @@ static bool prvBLEEnable( void )
 static bool prvBLEDisable( void )
 {
 	bool xRet = true;
-	BLEEventsCallbacks_t xEventCb;
+	IotBleEventsCallbacks_t xEventCb;
 
 	if( ( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
 	{
-		xEventCb.pxConnectionCb = prvBLEConnectionCallback;
-		if( BLE_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
+		xEventCb.pConnectionCb = prvBLEConnectionCallback;
+		if( IotBle_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
 		{
 			xRet = false;
 		}
 
 		if( xRet == true )
 		{
-			if( BLE_StopAdv() != eBTStatusSuccess )
+			if( IotBle_StopAdv() != eBTStatusSuccess )
 			{
 				xRet = false;
 			}
@@ -364,7 +364,7 @@ static bool prvBLEDisable( void )
 
 		if( xRet == true )
 		{
-			if( BLE_OFF() != eBTStatusSuccess )
+			if( IotBle_Off() != eBTStatusSuccess )
 			{
 				xRet = false;
 			}
@@ -394,7 +394,7 @@ static void prvSetScanRespCallback( BTStatus_t xStatus )
     if( xStatus == eBTStatusSuccess )
     {
         AwsIotLogInfo( "Successfully set the scan Response data \n");
-        ( void ) BLE_StartAdv( prvStartAdvCallback );
+        ( void ) IotBle_StartAdv( prvStartAdvCallback );
     }
 }
 
@@ -404,35 +404,35 @@ static void prvSetAdvCallback( BTStatus_t xStatus )
     if( xStatus == eBTStatusSuccess )
     {
     	/* Set the scan response */
-    	xAdvParams.bSetScanRsp = true;
-        ( void ) BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetScanRespCallback );
+    	xAdvParams.setScanRsp = true;
+        ( void ) IotBle_SetAdvData( BTAdvInd, &xAdvParams, prvSetScanRespCallback );
     }
 }
 
 static void prvBLEConnectionCallback( BTStatus_t xStatus,
-                             uint16_t usConnId,
+                             uint16_t connId,
                              bool xConnected,
                              BTBdaddr_t * pxBda )
 {
 
     if( xConnected == true )
     {
-    	AwsIotLogInfo ( "BLE Connected to remote device, connId = %d\n", usConnId );
+    	AwsIotLogInfo ( "BLE Connected to remote device, connId = %d\n", connId );
     	ulConnectedNetworks |= AWSIOT_NETWORK_TYPE_BLE;
     	prvInvokeNetworkStateChangeCallbacks( AWSIOT_NETWORK_TYPE_BLE, eNetworkStateEnabled );
         ( void ) xSemaphoreGive( xConnectionSemaphore );
-        BLE_StopAdv();
+        IotBle_StopAdv();
 
 
     }
     else
     {
-        AwsIotLogInfo ( "BLE disconnected with remote device, connId = %d \n", usConnId );
+        AwsIotLogInfo ( "BLE disconnected with remote device, connId = %d \n", connId );
         ulConnectedNetworks &= ~AWSIOT_NETWORK_TYPE_BLE;
         prvInvokeNetworkStateChangeCallbacks( AWSIOT_NETWORK_TYPE_BLE, eNetworkStateDisabled );
         if( ( ulEnabledNetworks &  AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
         {
-            ( void ) BLE_StartAdv( prvStartAdvCallback );
+            ( void ) IotBle_StartAdv( prvStartAdvCallback );
         }
 
     }
@@ -472,7 +472,7 @@ static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkStat
     prvInvokeNetworkStateChangeCallbacks( AWSIOT_NETWORK_TYPE_WIFI, xState );
 }
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
 static BaseType_t prxWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
@@ -512,7 +512,7 @@ static BaseType_t prxWIFIEnable( void )
             }
         }
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
         if( xRet == pdTRUE )
         {
             xRet = prxWifiConnect();
@@ -542,7 +542,7 @@ static bool prvWIFIDisable( void )
     if( ( ulEnabledNetworks & AWSIOT_NETWORK_TYPE_WIFI  ) == AWSIOT_NETWORK_TYPE_WIFI )
     {
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     	vWiFiConnectTaskDestroy();
 #endif
 

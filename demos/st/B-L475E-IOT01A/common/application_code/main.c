@@ -33,7 +33,7 @@
 #include "SDK_EVAL_Gpio.h"
 
 /* FreeRTOS includes */
-#include <aws_ble.h>
+#include <iot_ble.h>
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -55,7 +55,7 @@
 #include "aws_iot_network_manager.h"
 
 #if BLE_ENABLED
-#include "aws_ble_config.h"
+#include "iot_ble_config.h"
 #include "aws_ble_numericComparison.h"
 #endif
 

@@ -35,7 +35,7 @@
 #include "event_groups.h"
 #include "aws_doubly_linked_list.h"
 #include "semphr.h"
-#include "aws_ble.h"
+#include "iot_ble.h"
 /* Test framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"

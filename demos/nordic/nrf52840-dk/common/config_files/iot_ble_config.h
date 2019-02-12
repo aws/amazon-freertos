@@ -23,16 +23,25 @@
  * http://www.FreeRTOS.org
  */
 
+/**
+ * @file iot_ble_config.h
+ * @brief BLE configuration overrides for ESP32 board.
+ */
+
+
 #ifndef _AWS_BLE_CONFIG_H_
 #define _AWS_BLE_CONFIG_H_
-
+#include "sdk_config.h"
 /* Device name for this peripheral device */
-#define bleconfigDEVICE_NAME                     "ESP32"
-
+#define IOT_BLE_DEVICE_NAME                     "nRF52840"
+#define IOT_BLE_ENABLE_GATT_DEMO 1
 /* Enable WIFI provisioning GATT service */
-#define bleconfigENABLE_WIFI_PROVISIONING         ( 1 )
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
 
+/* MTU size. */
+#define IOT_BLE_PREFERRED_MTU_SIZE         ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
 
-#include "aws_ble_config_defaults.h"
+/* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
+#include "iot_ble_config_defaults.h"
 
 #endif /* _AWS_BLE_CONFIG_H_ */

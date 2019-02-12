@@ -31,17 +31,17 @@
 #ifndef AWS_BLE_DEVICE_INFORMATION_H_
 #define AWS_BLE_DEVICE_INFORMATION_H_
 
-#include "aws_ble.h"
-#include "aws_ble_config.h"
+#include "iot_ble.h"
+#include "iot_ble_config.h"
 
 
 /**
  * @brief Service, characteristic and descriptor UUIDS for Device information Service
  */
-#define deviceInfoCHAR_UUID_BASE          bleconfigDEVICE_INFO_SERVICE_UUID
-#define deviceInfoCHAR_VERSION_UUID       { 0x01, 0xFF, bleconfigDEVICE_INFO_SERVICE_UUID_MASK }
-#define deviceInfoBROKER_ENDPOINT_UUID    { 0x02, 0xFF, bleconfigDEVICE_INFO_SERVICE_UUID_MASK }
-#define deviceInfoCHAR_MTU_UUID           { 0x03, 0xFF, bleconfigDEVICE_INFO_SERVICE_UUID_MASK } 
+#define deviceInfoCHAR_UUID_BASE          IOT_BLE_DEVICE_INFO_SERVICE_UUID
+#define deviceInfoCHAR_VERSION_UUID       { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
+#define deviceInfoBROKER_ENDPOINT_UUID    { 0x02, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
+#define deviceInfoCHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK } 
 #define deviceInfoCLIENT_CHAR_CFG_UUID    0x2902 
 
 /**

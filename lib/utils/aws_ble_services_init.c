@@ -23,18 +23,18 @@
  * http://www.FreeRTOS.org
  */
 #include "FreeRTOS.h"
-#include "aws_ble_config.h"
+#include "iot_ble_config.h"
 #include "aws_ble_services_init.h"
 
 extern BaseType_t AFRDeviceInfoSvc_Init( void );
 
-#if( bleconfigENABLE_GATT_DEMO == 1 )
+#if( IOT_BLE_ENABLE_GATT_DEMO == 1 )
 extern BaseType_t vGattDemoSvcInit( void );
 #endif
 
 extern BaseType_t AwsIotMqttBLE_Init( void );
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
 extern BaseType_t WIFI_PROVISION_Init( void );
 #endif
 
@@ -50,7 +50,7 @@ BaseType_t BLE_SERVICES_Init()
 
     xResult = AFRDeviceInfoSvc_Init();
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     if( xResult == pdPASS )
     {
         xResult = WIFI_PROVISION_Init();
@@ -62,7 +62,7 @@ BaseType_t BLE_SERVICES_Init()
         xResult = AwsIotMqttBLE_Init();
     }
 
-#if( bleconfigENABLE_GATT_DEMO == 1 )
+#if( IOT_BLE_ENABLE_GATT_DEMO == 1 )
     if( xResult == pdPASS )
     {
         xResult = vGattDemoSvcInit();

@@ -38,7 +38,7 @@
 /* Test framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"
-#include "aws_ble.h"
+#include "iot_ble.h"
 
 #define testSERVER_UUID                 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define testNETWORK                "testNetwork%d"
