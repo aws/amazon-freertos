@@ -80,7 +80,7 @@
             <file file_name="../../../../lib/include/private/aws_iot_logging.h" />
             <file file_name="../../../../lib/include/private/iot_ble_config_defaults.h" />
           </folder>
-          <file file_name="../../../../lib/include/aws_ble.h" />
+          <file file_name="../../../../lib/include/iot_ble.h" />
           <file file_name="../../../../lib/include/aws_ble_device_information.h" />
           <file file_name="../../../../lib/include/aws_ble_services_init.h" />
           <file file_name="../../../../lib/include/aws_ble_wifi_provisioning.h" />

@@ -79,7 +79,7 @@
 /* MQTT v4 include. */
 #include "aws_iot_mqtt.h"
 
-#include <aws_ble.h>
+#include <iot_ble.h>
 #include "aws_ble_numericComparison.h"
 #include "SEGGER_RTT.h"
 #include "aws_application_version.h"
