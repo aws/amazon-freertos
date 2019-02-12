@@ -36,7 +36,7 @@
 #include "nrf_ble_gatt.h"
 #include "peer_manager.h"
 #include "ble_advertising.h"
-#include "aws_ble_config.h"
+#include "iot_ble_config.h"
 #include "nrf_strerror.h"
 
 typedef enum
@@ -65,7 +65,7 @@ typedef struct
 } BTConnectionParams_t;
 
 extern BTConnectionParams_t xLatestDesiredConnectionParams;
-extern uint8_t pucBondedAddresses[ 6 * bleconfigMAX_BONDED_DEVICES ];
+extern uint8_t pucBondedAddresses[ 6 * IOT_BLE_MAX_BONDED_DEVICES ];
 extern uint32_t ulGAPEvtMngHandle;
 extern BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 extern uint32_t ulGattServerIFhandle;

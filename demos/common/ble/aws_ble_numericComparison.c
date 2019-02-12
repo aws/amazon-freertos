@@ -2,8 +2,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
-#include "aws_ble.h"
-#include "aws_ble_config.h"
+#include "iot_ble.h"
+#include "iot_ble_config.h"
 #include "aws_ble_numericComparison.h"
 
 typedef struct{
@@ -37,7 +37,7 @@ void userInputTask(void *pvParameters)
 {
 	INPUTMessage_t xINPUTmessage;
     BLEPassKeyConfirm_t xPassKeyConfirm;
-    TickType_t xAuthTimeout = pdMS_TO_TICKS( bleconfigNUMERIC_COMPARISON_TIMEOUT_SEC * 1000 );
+    TickType_t xAuthTimeout = pdMS_TO_TICKS( IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC * 1000 );
 
     for (;;) {
     	if (xQueueReceive(xNumericComparisonQueue, (void * )&xPassKeyConfirm, portMAX_DELAY ))
@@ -49,11 +49,11 @@ void userInputTask(void *pvParameters)
                     if((xINPUTmessage.pcData[0] == 'y')||(xINPUTmessage.pcData[0] == 'Y'))
                     {
                     	configPRINTF(("Key accepted\n"));
-                        BLE_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, true);
+                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, true);
                     }else
                     {
                     	configPRINTF(("Key Rejected\n"));
-                        BLE_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, false);
+                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, false);
 
                     }
 
@@ -68,7 +68,7 @@ void NumericComparisonInit(void)
 {
 
 
-	#if( bleconfigENABLE_NUMERIC_COMPARISON == 1 )
+	#if( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
     /* Create a queue that will pass in the code to the UART task and wait validation from the user. */
     xNumericComparisonQueue = xQueueCreate( 1, sizeof( BLEPassKeyConfirm_t ) );
     xTaskCreate(userInputTask, "InputTask", 2048, NULL, 0, NULL);

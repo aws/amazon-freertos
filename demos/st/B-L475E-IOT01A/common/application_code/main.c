@@ -55,7 +55,7 @@
 #include "aws_iot_network_manager.h"
 
 #if BLE_ENABLED
-#include "aws_ble_config.h"
+#include "iot_ble_config.h"
 #include "aws_ble_numericComparison.h"
 #endif
 

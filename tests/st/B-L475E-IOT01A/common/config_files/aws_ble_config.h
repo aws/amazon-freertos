@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_config.h
+ * @file iot_ble_config.h
  * @brief BLE configuration overrides for ESP32 board.
  */
 
@@ -33,12 +33,12 @@
 #define _AWS_BLE_CONFIG_H_
 
 /* Device name for this peripheral device */
-#define bleconfigDEVICE_NAME                     "ST"
+#define IOT_BLE_DEVICE_NAME                     "ST"
 
 /* Enable WIFI provisioning GATT service */
-#define bleconfigENABLE_WIFI_PROVISIONING         ( 1 )
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 1 )
 
 
-#include "aws_ble_config_defaults.h"
+#include "iot_ble_config_defaults.h"
 
 #endif /* _AWS_BLE_CONFIG_H_ */

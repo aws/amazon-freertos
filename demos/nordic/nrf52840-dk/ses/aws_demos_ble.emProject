@@ -24,8 +24,6 @@
     <folder Name="lib">
       <folder Name="aws">
         <folder Name="Bluetooth_low_energy">
-          <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_gap.c" />
-          <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_gatt.c" />
           <folder Name="services">
             <folder Name="device_information">
               <file file_name="../../../../lib/bluetooth_low_energy/services/device_information/aws_ble_device_information.c" />
@@ -41,6 +39,8 @@
             <file file_name="../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk/aws_ble_hal_gatt_server.c" />
             <file file_name="../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk/aws_ble_gap_config.h" />
           </folder>
+          <file file_name="../../../../lib/bluetooth_low_energy/iot_ble_gap.c" />
+          <file file_name="../../../../lib/bluetooth_low_energy/iot_ble_gatt.c" />
         </folder>
         <folder Name="include">
           <folder Name="Bluetooth_low_energy">
@@ -54,7 +54,6 @@
             <file file_name="../../../../lib/include/bluetooth_low_energy/bt_hal_manager_types.h" />
           </folder>
           <folder Name="private">
-            <file file_name="../../../../lib/include/private/aws_ble_event_manager.h" />
             <file file_name="../../../../lib/include/private/aws_ble_internals.h" />
             <file file_name="../../../../lib/include/private/aws_default_root_certificates.h" />
             <file file_name="../../../../lib/include/private/aws_doubly_linked_list.h" />
@@ -78,10 +77,8 @@
             <file file_name="../../../../lib/include/private/portable.h" />
             <file file_name="../../../../lib/include/private/projdefs.h" />
             <file file_name="../../../../lib/include/private/stack_macros.h" />
-            <file file_name="../../../../lib/include/private/aws_iot_queue.h" />
             <file file_name="../../../../lib/include/private/aws_iot_logging.h" />
-            <file file_name="../../../../lib/include/private/aws_iot_logging_setup.h" />
-            <file file_name="../../../../lib/include/private/aws_ble_config_defaults.h" />
+            <file file_name="../../../../lib/include/private/iot_ble_config_defaults.h" />
           </folder>
           <file file_name="../../../../lib/include/aws_ble.h" />
           <file file_name="../../../../lib/include/aws_ble_device_information.h" />
@@ -547,8 +544,8 @@
       <file file_name="../common/config_files/FreeRTOSIPConfig.h" />
       <file file_name="../common/config_files/sdk_config.h" />
       <file file_name="../common/config_files/aws_iot_config.h" />
-      <file file_name="../common/config_files/aws_ble_config.h" />
       <file file_name="../common/config_files/aws_iot_network_config.h" />
+      <file file_name="../common/config_files/iot_ble_config.h" />
     </folder>
   </project>
   <configuration

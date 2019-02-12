@@ -80,7 +80,7 @@
             <file file_name="../../../../lib/include/private/aws_iot_queue.h" />
             <file file_name="../../../../lib/include/private/aws_iot_logging.h" />
             <file file_name="../../../../lib/include/private/aws_iot_logging_setup.h" />
-            <file file_name="../../../../lib/include/private/aws_ble_config_defaults.h" />
+            <file file_name="../../../../lib/include/private/iot_ble_config_defaults.h" />
             <file file_name="../../../../lib/include/private/aws_iot_mqtt_internal.h" />
           </folder>
           <file file_name="../../../../lib/include/aws_ble.h" />
@@ -583,7 +583,7 @@
       <file file_name="../common/application_code/fake_PKCS11.c" />
     </folder>
     <folder Name="config_files">
-      <file file_name="../common/config_files/aws_ble_config.h" />
+      <file file_name="../common/config_files/iot_ble_config.h" />
       <file file_name="../common/config_files/aws_bufferpool_config.h" />
       <file file_name="../common/config_files/aws_ggd_config.h" />
       <file file_name="../common/config_files/aws_iot_config.h" />
