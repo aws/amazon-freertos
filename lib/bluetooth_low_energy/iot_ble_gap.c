@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_BLE.c
+ * @file iot_ble_gap.c
  * @brief BLE GAP API.
  */
 

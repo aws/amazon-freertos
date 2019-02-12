@@ -28,7 +28,11 @@
  * @brief BLE Gatt service for WiFi provisioning
  */
 
-#include <aws_ble.h>
+#ifdef AWS_IOT_CONFIG_FILE
+    #include AWS_IOT_CONFIG_FILE
+#endif
+
+#include "iot_ble.h"
 #include <string.h>
 
 #include "iot_ble_config.h"
@@ -302,7 +306,7 @@ BaseType_t prxInitGATTService( void )
     BaseType_t xResult = pdFAIL;
 
     /* Select the handle buffer. */
-    xStatus = IotBleCreateService( (BTService_t *)&xWIFIProvisionningService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
+    xStatus = IotBle_CreateService( (BTService_t *)&xWIFIProvisionningService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
 	if( xStatus == eBTStatusSuccess )
 	{
 		xResult = pdPASS;
@@ -852,13 +856,13 @@ void prvSendResponse( WifiProvAttributes_t xCharacteristic, uint8_t* pucData, si
 	IotBleEventResponse_t xResp = { 0 };
 
 	xAttrData.handle = ATTR_HANDLE( xWifiProvService.pxGattService, xCharacteristic );
-	xAttrData.xUuid = ATTR_UUID( xWifiProvService.pxGattService, xCharacteristic );
+	xAttrData.uuid = ATTR_UUID( xWifiProvService.pxGattService, xCharacteristic );
 	xResp.attrDataOffset = 0;
 	xResp.pAttrData = &xAttrData;
 	xResp.rspErrorStatus = eBTRspErrorNone;
 
-	xAttrData.pucData = pucData;
-	xAttrData.xSize = xLen;
+	xAttrData.pData = pucData;
+	xAttrData.size = xLen;
 
 	( void ) IotBle_SendIndication( &xResp, xWifiProvService.usBLEConnId, false );
 }
@@ -1248,7 +1252,7 @@ BaseType_t WIFI_PROVISION_Delete( void )
 {
 	BaseType_t xRet = pdFALSE;
 
-    if( BLE_DeleteService( xWifiProvService.pxGattService ) == eBTStatusSuccess )
+    if( IotBle_DeleteService( xWifiProvService.pxGattService ) == eBTStatusSuccess )
     {
     	xRet = pdTRUE;
     }

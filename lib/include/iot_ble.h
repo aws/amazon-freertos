@@ -24,8 +24,8 @@
  */
 
 /**
- * @file aws_BLE.h
- * @brief BLE GAP API.
+ * @file iot_ble.h
+ * @brief BLE GAP and GATT API.
  */
 
 #ifndef _AWS_BLE_H_
