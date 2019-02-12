@@ -1184,24 +1184,25 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 {
 	UBaseType_t uxNewMSS;
 	UBaseType_t xRemainingOptionsBytes = ( *ppucLast ) - ( *ppucPtr );
+	BaseType_t xRet = pdTrue;
 
 	if( ( *ppucPtr )[ 0 ] == TCP_OPT_END )
 	{
 		/* End of options. */
-		return pdFALSE;
+		xRet = pdFALSE;
 	}
 	if( ( *ppucPtr )[ 0 ] == TCP_OPT_NOOP)
 	{
 		/* NOP option, inserted to make the length a multiple of 4. */
 		( *ppucPtr )++;
-		return pdTRUE;
+		xRet = pdTRUE;
 	}
 
 	/* Any other well-formed option must be at least two bytes: the option
 	type byte followed by a length byte. */
 	if( xRemainingOptionsBytes < 2 )
 	{
-		return pdFALSE;
+		xRet = pdFALSE;
 	}
 #if( ipconfigUSE_TCP_WIN != 0 )
 	else if( ( *ppucPtr )[ 0 ] == TCP_OPT_WSOPT )
@@ -1209,7 +1210,7 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 		/* Confirm that the option fits in the remaining buffer space. */
 		if( ( xRemainingOptionsBytes < TCP_OPT_WSOPT_LEN ) || ( ( *ppucPtr )[ 1 ] != TCP_OPT_WSOPT_LEN ) )
 		{
-			return pdFALSE;
+			xRet = pdFALSE;
 		}
 
 		( *ppxSocket )->u.xTCP.ucPeerWinScaleFactor = ( *ppucPtr )[ 2 ];
@@ -1222,7 +1223,7 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 		/* Confirm that the option fits in the remaining buffer space. */
 		if( ( xRemainingOptionsBytes < TCP_OPT_MSS_LEN )|| ( ( *ppucPtr )[ 1 ] != TCP_OPT_MSS_LEN ) )
 		{
-			return pdFALSE;
+			xRet = pdFALSE;
 		}
 
 		/* An MSS option with the correct option length.  FreeRTOS_htons()
@@ -1235,7 +1236,7 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 			/* Perform a basic check on the the new MSS. */
 			if( uxNewMSS == 0 )
 			{
-				return pdFALSE;
+				xRet = pdFALSE;
 			}
 
 			FreeRTOS_debug_printf( ( "MSS change %u -> %lu\n", ( *ppxSocket )->u.xTCP.usInitMSS, uxNewMSS ) );
@@ -1261,7 +1262,7 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 
 		#if( ipconfigUSE_TCP_WIN != 1 )
 			/* Without scaled windows, MSS is the only interesting option. */
-			return pdFALSE;
+			xRet = pdFALSE;
 		#else
 			/* Or else we continue to check another option: selective ACK. */
 			( *ppucPtr ) += TCP_OPT_MSS_LEN;
@@ -1277,7 +1278,7 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 			/* If the length field is too small or too big, the options are
 			 * malformed, don't process them further.
 			 */
-			return pdFALSE;
+			xRet = pdFALSE;
 		}
 
 		#if( ipconfigUSE_TCP_WIN == 1 )
@@ -1302,7 +1303,7 @@ static BaseType_t prvSingleStepTCPHeaderOptions( const unsigned char ** const pp
 
 		( *ppucPtr ) += len;
 	}
-	return pdTRUE;
+	return xRet;
 }
 
 /*-----------------------------------------------------------*/
