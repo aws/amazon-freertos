@@ -67,7 +67,7 @@
 #define OTA_MAX_JSON_STR_LEN               256U             /* Limit our JSON string compares to something small to avoid going into the weeds. */
 #define OTA_ERASED_BLOCKS_VAL              0xffU            /* The starting state of a group of erased blocks in the Rx block bitmap. */
 #define OTA_MAX_FILES                      1U               /* [MUST REMAIN 1! Future support.] Maximum number of concurrent OTA files. */
-#define OTA_NUM_MSG_Q_ENTRIES              6U               /* Maximum number of entries in the OTA message queue. */
+#define OTA_NUM_MSG_Q_ENTRIES              2U               /* Maximum number of entries in the OTA message queue. */
 #define OTA_SUBSCRIBE_WAIT_MS              30000UL
 #define OTA_UNSUBSCRIBE_WAIT_MS            1000UL
 #define OTA_PUBLISH_WAIT_MS                10000UL
@@ -112,12 +112,13 @@ typedef enum
     eOTA_PubMsgType_Stream   /* Messages on the topic are stream messages. */
 } OTA_PubMsgType_t;
 
+#define OTA_DATA_BLOCK_SIZE         ((1<<otaconfigLOG2_FILE_BLOCK_SIZE) + 30) /* header is 19 bytes .*/
 
 typedef struct
 {
     struct
     {
-        uint8_t vData[1<<otaconfigLOG2_FILE_BLOCK_SIZE];
+        uint8_t vData[OTA_DATA_BLOCK_SIZE];
         uint32_t ulDataLength;
         bool      bBufferUsed;
     } pxPubData; /* The MQTT publish data. */
@@ -256,10 +257,11 @@ static const char pcOTA_JobStatus_SucceededStrTemplate[] = "\"reason\":\"%s v%u.
 static const char pcOTA_JobStatus_ReasonValTemplate[] = "\"reason\":\"0x%08x: 0x%08x\"}}";
 static const char pcOTA_String_Receive[] = "receive";
 
-/* The array to use as the queue's data area. This is an array of
- * OTA MQTT message data structures (OTA_PubMsg_t metadata).
- * Also only created once. */
-static OTA_PubMsg_t ucQueueData[ OTA_NUM_MSG_Q_ENTRIES ];
+/* Array containing pointer to the OTA publish buffers. They are used to Queue the pointers from the callback to the main task. */
+static OTA_PubMsg_t * xQueueData[ OTA_NUM_MSG_Q_ENTRIES ];
+
+/* The array to use to push data from QMTT callback. */
+static OTA_PubMsg_t xPublishBuffers[ OTA_NUM_MSG_Q_ENTRIES ];
 
 /* Flag for self-test mode. */
 static bool_t xInSelfTest = false;
@@ -568,7 +570,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
             xOTA_Agent.pvPubSubClient = pvClient;             /* Save the current pub/sub client as specified by the user. */
 
             /* Create the queue used to pass MQTT publish messages to the OTA task. */
-            xOTA_Agent.xOTA_MsgQ = xQueueCreateStatic( ( UBaseType_t ) OTA_NUM_MSG_Q_ENTRIES, ( UBaseType_t ) sizeof( OTA_PubMsg_t *), ( uint8_t * ) ucQueueData, &xStaticQueue );
+            xOTA_Agent.xOTA_MsgQ = xQueueCreateStatic( ( UBaseType_t ) OTA_NUM_MSG_Q_ENTRIES, ( UBaseType_t ) sizeof( OTA_PubMsg_t *), ( uint8_t * ) xQueueData, &xStaticQueue );
             configASSERT( xOTA_Agent.xOTA_MsgQ );
 
             xOTA_Agent.xOTA_ThreadSafetyMutex = xSemaphoreCreateMutex();
@@ -737,6 +739,7 @@ static void prvOTAPubMessageFree( OTA_PubMsg_t * pxPubMsg )
 	if( xSemaphoreTake(xOTA_Agent.xOTA_ThreadSafetyMutex, portMAX_DELAY) == pdPASS)
 	{
 		pxPubMsg->pxPubData.bBufferUsed = false;
+		xSemaphoreGive(xOTA_Agent.xOTA_ThreadSafetyMutex);
 	}
 }
 
@@ -750,10 +753,10 @@ static OTA_PubMsg_t * prvOTAPubMessageGet(void)
 	{
 		for(ulIndex = 0; ulIndex <OTA_NUM_MSG_Q_ENTRIES; ulIndex++ )
 		{
-			if( ucQueueData[ulIndex].pxPubData.bBufferUsed == false )
+			if( xPublishBuffers[ulIndex].pxPubData.bBufferUsed == false )
 			{
-				ucQueueData[ulIndex].pxPubData.bBufferUsed = true;
-				pxOTAFreeMsg = &ucQueueData[ulIndex];
+				xPublishBuffers[ulIndex].pxPubData.bBufferUsed = true;
+				pxOTAFreeMsg = &xPublishBuffers[ulIndex];
 				break;
 			}
 		}
@@ -1289,15 +1292,6 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
 }
 //[OTA_NUM_MSG_Q_ENTRIES]
 
-/* This function is called whenever we receive a MQTT publish message on one of our OTA topics. */
-typedef struct {
-	uint32_t ulBufferUsed;
-	uint32_t ulDataLength;
-	uint8_t pucData[1<<otaconfigLOG2_FILE_BLOCK_SIZE];
-}OTA_PublishBuffers_t;
-OTA_PublishBuffers_t xOTAPublishBuffers[OTA_NUM_MSG_Q_ENTRIES][1<<otaconfigLOG2_FILE_BLOCK_SIZE];
-
-
 static void prvOTAPublishCallback( void * pvCallbackContext,
                                    AwsIotMqttCallbackParam_t * const pxPublishData )
 {
@@ -1306,6 +1300,11 @@ static void prvOTAPublishCallback( void * pvCallbackContext,
     BaseType_t xReturn;
     OTA_PubMsg_t * pxMsg;
 
+	if( pxPublishData->message.info.payloadLength > OTA_DATA_BLOCK_SIZE)
+    {
+       OTA_LOG_L1( "Error: buffers are too small %d to contains the payload %d.\r\n", OTA_DATA_BLOCK_SIZE ,  pxPublishData->message.info.payloadLength   );
+	   return;
+	}
     /* If we're running the OTA task, send publish messages to it for processing. */
     if( xOTA_Agent.xOTA_EventFlags != NULL )
     {
@@ -1321,6 +1320,7 @@ static void prvOTAPublishCallback( void * pvCallbackContext,
 			if ( ( int32_t ) pvCallbackContext == eOTA_PubMsgType_Stream){
 				OTA_LOG_L2( "[%s] Stream Received.\r\n", OTA_METHOD_NAME );
 				}
+
 
 			memcpy( pxMsg->pxPubData.vData, pxPublishData->message.info.pPayload, pxMsg->pxPubData.ulDataLength );
 			xReturn = xQueueSendToBack( xOTA_Agent.xOTA_MsgQ, &pxMsg, ( TickType_t ) 0 );
