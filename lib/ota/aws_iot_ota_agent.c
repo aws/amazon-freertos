@@ -740,6 +740,10 @@ static void prvOTAPubMessageFree( OTA_PubMsg_t * pxPubMsg )
 	{
 		pxPubMsg->pxPubData.bBufferUsed = false;
 		xSemaphoreGive(xOTA_Agent.xOTA_ThreadSafetyMutex);
+	}else
+	{
+		OTA_LOG_L1( "Error: Could not take semaphore for freeing message buffer.\r\n" );
+		configASSERT( false );
 	}
 }
 
@@ -1290,8 +1294,8 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
 
     return xErr;
 }
-//[OTA_NUM_MSG_Q_ENTRIES]
 
+/* This function is called whenever we receive a MQTT publish message on one of our OTA topics. */
 static void prvOTAPublishCallback( void * pvCallbackContext,
                                    AwsIotMqttCallbackParam_t * const pxPublishData )
 {
@@ -1341,7 +1345,6 @@ static void prvOTAPublishCallback( void * pvCallbackContext,
         {
         	xOTA_Agent.xStatistics.ulOTA_PacketsDropped++;
         	OTA_LOG_L1( "Error: Could not get a free buffer to copy callback data.\r\n" );
-        	xReturn = pdFAIL;
         }
     }
     else
