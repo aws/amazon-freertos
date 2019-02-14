@@ -50,6 +50,122 @@
     #define AwsIotSerializer_Assert( expression )
 #endif
 
+/*
+ * Provide default values for undefined memory allocation functions based on
+ * the usage of dynamic memory allocation.
+ */
+#if AWS_IOT_STATIC_MEMORY_ONLY == 1
+    #include "platform/aws_iot_static_memory.h"
+
+/**
+ * @brief Allocate an array of uint8_t. This function should have the same
+ * signature as [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+ */
+    #ifndef AwsIotSerializer_MallocCborEncoder
+        #define AwsIotSerializer_MallocCborEncoder    AwsIot_MallocSerializerCborEncoder
+    #endif
+
+/**
+ * @brief Free an array of uint8_t. This function should have the same
+ * signature as [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+ */
+    #ifndef AwsIotSerializer_FreeCborEncoder
+        #define AwsIotSerializer_FreeCborEncoder    AwsIot_FreeSerializerCborEncoder
+    #endif
+
+/**
+ * @brief Allocate an array of uint8_t. This function should have the same
+ * signature as [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+ */
+    #ifndef AwsIotSerializer_MallocCborParser
+        #define AwsIotSerializer_MallocCborParser    AwsIot_MallocSerializerCborParser
+    #endif
+
+/**
+ * @brief Free an array of uint8_t. This function should have the same
+ * signature as [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+ */
+    #ifndef AwsIotSerializer_FreeCborParser
+        #define AwsIotSerializer_FreeCborParser    AwsIot_FreeSerializerCborParser
+    #endif
+
+/**
+ * @brief Allocate an array of uint8_t. This function should have the same
+ * signature as [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+ */
+    #ifndef AwsIotSerializer_MallocCborValue
+        #define AwsIotSerializer_MallocCborValue    AwsIot_MallocSerializerCborValue
+    #endif
+
+/**
+ * @brief Free an array of uint8_t. This function should have the same
+ * signature as [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+ */
+    #ifndef AwsIotSerializer_FreeCborValue
+        #define AwsIotSerializer_FreeCborValue    AwsIot_FreeSerializerCborValue
+    #endif
+
+/**
+ * @brief Allocate an array of uint8_t. This function should have the same
+ * signature as [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+ */
+    #ifndef AwsIotSerializer_MallocDecoderObject
+        #define AwsIotSerializer_MallocDecoderObject    AwsIot_MallocSerializerDecoderObject
+    #endif
+
+/**
+ * @brief Free an array of uint8_t. This function should have the same
+ * signature as [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+ */
+    #ifndef AwsIotSerializer_FreeCborValue
+        #define AwsIotSerializer_FreeCborValue    AwsIot_FreeSerializerCborValue
+    #endif
+
+#else /* if AWS_IOT_STATIC_MEMORY_ONLY */
+    #include <stdlib.h>
+
+    #ifndef AwsIotSerializer_MallocCborEncoder
+        #define AwsIotSerializer_MallocCborEncoder    malloc
+    #endif
+
+    #ifndef AwsIotSerializer_FreeCborEncoder
+        #define AwsIotSerializer_FreeCborEncoder    free
+    #endif
+
+    #ifndef AwsIotSerializer_MallocCborParser
+        #define AwsIotSerializer_MallocCborParser    malloc
+    #endif
+
+    #ifndef AwsIotSerializer_FreeCborParser
+        #define AwsIotSerializer_FreeCborParser    free
+    #endif
+
+    #ifndef AwsIotSerializer_MallocCborValue
+        #define AwsIotSerializer_MallocCborValue    malloc
+    #endif
+
+    #ifndef AwsIotSerializer_FreeCborValue
+        #define AwsIotSerializer_FreeCborValue    free
+    #endif
+
+    #ifndef AwsIotSerializer_MallocDecoderObject
+        #define AwsIotSerializer_MallocDecoderObject    malloc
+    #endif
+
+    #ifndef AwsIotSerializer_FreeDecoderObject
+        #define AwsIotSerializer_FreeDecoderObject    free
+    #endif
+
+#endif /* if AWS_IOT_STATIC_MEMORY_ONLY */
+
 #define AWS_IOT_SERIALIZER_INDEFINITE_LENGTH                       0xffffffff
 
 #define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM    { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_STREAM }

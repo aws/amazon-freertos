@@ -248,13 +248,13 @@ static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoder
                                       const uint8_t * pDataBuffer,
                                       size_t maxSize )
 {
-    CborParser * pCborParser = pvPortMalloc( sizeof( CborParser ) );
-    _cborValueWrapper_t * pCborValueWrapper = pvPortMalloc( sizeof( _cborValueWrapper_t ) );
+    CborParser * pCborParser = AwsIotSerializer_MallocCborParser( sizeof( CborParser ) );
+    _cborValueWrapper_t * pCborValueWrapper = AwsIotSerializer_MallocCborValue( sizeof( _cborValueWrapper_t ) );
 
     if( ( pCborParser == NULL ) || ( pCborValueWrapper == NULL ) )
     {
-        vPortFree( pCborParser );
-        vPortFree( pCborValueWrapper );
+        AwsIotSerializer_FreeCborParser( pCborParser );
+        AwsIotSerializer_FreeCborValue( pCborValueWrapper );
 
         return AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
     }
@@ -282,8 +282,8 @@ static AwsIotSerializerError_t _init( AwsIotSerializerDecoderObject_t * pDecoder
     {
         /* pDecoderObject is untouched. */
 
-        vPortFree( pCborParser );
-        vPortFree( pCborValueWrapper );
+        AwsIotSerializer_FreeCborParser( pCborParser );
+        AwsIotSerializer_FreeCborValue( pCborValueWrapper );
     }
 
     _translateErrorCode( cborError, &returnedError );
@@ -306,10 +306,10 @@ static void _destroy( AwsIotSerializerDecoderObject_t * pDecoderObject )
     /* If this is outmost object, the parser's memory needs to be freed. */
     if( pCborValueWrapper->isOutermost )
     {
-        vPortFree( ( void * ) ( pCborValueWrapper->cborValue.parser ) );
+        AwsIotSerializer_FreeCborParser( ( void * ) ( pCborValueWrapper->cborValue.parser ) );
     }
 
-    vPortFree( pCborValueWrapper );
+    AwsIotSerializer_FreeCborValue( pCborValueWrapper );
 
     /* Reset decoder object's handle to NULL. */
     pDecoderObject->pHandle = NULL;
@@ -341,7 +341,7 @@ static AwsIotSerializerError_t _find( AwsIotSerializerDecoderObject_t * pDecoder
 
     _cborValueWrapper_t * pCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
 
-    _cborValueWrapper_t * pNewCborValueWrapper = pvPortMalloc( sizeof( _cborValueWrapper_t ) );
+    _cborValueWrapper_t * pNewCborValueWrapper = AwsIotSerializer_MallocCborValue( sizeof( _cborValueWrapper_t ) );
 
     if( pNewCborValueWrapper == NULL )
     {
@@ -386,7 +386,7 @@ static AwsIotSerializerError_t _stepIn( AwsIotSerializerDecoderObject_t * pDecod
     CborError cborError = CborNoError;
 
     _cborValueWrapper_t * pCborValueWrapper = _castDecoderObjectToCborValue( pDecoderObject );
-    _cborValueWrapper_t * pNewCborValueWrapper = pvPortMalloc( sizeof( _cborValueWrapper_t ) );
+    _cborValueWrapper_t * pNewCborValueWrapper = AwsIotSerializer_MallocCborValue( sizeof( _cborValueWrapper_t ) );
 
     cborError = cbor_value_enter_container(
         &pCborValueWrapper->cborValue,
@@ -394,7 +394,7 @@ static AwsIotSerializerError_t _stepIn( AwsIotSerializerDecoderObject_t * pDecod
 
     if( cborError == CborNoError )
     {
-        AwsIotSerializerDecoderObject_t * pNewObject = pvPortMalloc( sizeof( AwsIotSerializerDecoderObject_t ) );
+        AwsIotSerializerDecoderObject_t * pNewObject = AwsIotSerializer_MallocDecoderObject( sizeof( AwsIotSerializerDecoderObject_t ) );
 
         pNewObject->type = pDecoderObject->type;
 
@@ -428,8 +428,8 @@ static AwsIotSerializerError_t _stepOut( AwsIotSerializerDecoderIterator_t itera
 
     if( cborError == CborNoError )
     {
-        vPortFree( pInnerCborValueWrapper );
-        vPortFree( iterator );
+        AwsIotSerializer_FreeCborValue( pInnerCborValueWrapper );
+        AwsIotSerializer_FreeDecoderObject( iterator );
     }
 
     _translateErrorCode( cborError, &returnedError );

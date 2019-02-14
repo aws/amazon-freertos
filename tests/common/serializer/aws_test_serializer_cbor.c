@@ -29,16 +29,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* FreeRTOS includes. */
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "semphr.h"
-
-/* AWS includes. */
-#include "aws_clientcredential.h"
-#include "aws_shadow.h"
-
 /* Unity framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"
