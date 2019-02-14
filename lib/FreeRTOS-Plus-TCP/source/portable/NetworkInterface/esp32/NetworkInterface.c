@@ -82,8 +82,11 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
 void vNetworkNotifyIFDown()
 {
     IPStackEvent_t xRxEvent = { eNetworkDownEvent, NULL };
-    xInterfaceState = INTERFACE_DOWN;
-    xSendEventStructToIPTask( &xRxEvent, 0 );
+    if( xInterfaceState != INTERFACE_DOWN )
+    {
+        xInterfaceState = INTERFACE_DOWN;
+        xSendEventStructToIPTask( &xRxEvent, 0 );
+    }
 }
 
 void vNetworkNotifyIFUp()
