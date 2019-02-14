@@ -252,6 +252,14 @@ class runTest:
 	def simpleConnection(isConnected):
 		return isConnected
 
+	@staticmethod
+	def removeIndication(isSuccessfull):
+		return isSuccessfull
+
+	@staticmethod
+	def removeNotification(isSuccessfull):
+		return isSuccessfull
+
  	@staticmethod
 	def advertisement(testDevice):
 
@@ -311,6 +319,8 @@ class runTest:
 			runTest.writeWithoutResponse: "_writeWithoutResponse",
 			runTest.notification:"_notification",
 			runTest.indication:"_indication",
+			runTest.removeNotification:"_removeNotification",
+			runTest.removeIndication:"_removeIndication",
 			runTest.readWriteProtectedAttributesWhileNotPaired:"_readWriteProtectedAttributesWhileNotPaired",
 			runTest.readWriteProtectedAttributesWhilePaired:"_readWriteProtectedAttributesWhilePaired",
 			runTest.pairing: "_pairing",

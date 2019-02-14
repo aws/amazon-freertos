@@ -457,7 +457,7 @@ static void prvBLEInitialize( void )
 	BTStatus_t xStatus;
 	TEST_ASSERT_NOT_EQUAL( NULL, BTGetBluetoothInterface() );
 	BTGetBluetoothInterface()->pxEnable( 0 );
-	xStatus = BLE_Init( &xServerUUID, NULL, 0 );
+	xStatus = IotBle_Init( &xServerUUID, NULL, 0 );
 	TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
