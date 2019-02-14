@@ -68,7 +68,14 @@ typedef enum{
 	eBLEHALEventRequestExecWriteCb = 23,
 	eBLEHALEventBondedCb = 24,
 	eBLENbHALEvents,
-}BLEHALEventsInternals_t;
+}BLEHALEventsTypes_t;
+
+typedef struct{
+	BLEHALEventsTypes_t xEventTypes;
+    int32_t lHandle;
+} BLEHALEventsInternals_t;
+
+#define NO_HANDLE -1
 
 #define bletestsDEFAULT_CHAR_VALUE "hello"
 #define bletestsSTRINGYFIED_UUID_SIZE 36  /* like "8a7f1168-48af-4efb-83b5-e679f9320002" */
@@ -512,7 +519,7 @@ const TickType_t BLE_TESTS_WAIT = pdMS_TO_TICKS( 60000 ); /* Wait 60s max */
 
 static void prvSetGetProperty( BTProperty_t * pxProperty, bool bIsSet );
 static void prvStartAdvertisement(void);
-static BTStatus_t prvWaitEventFromQueue( BLEHALEventsInternals_t xEventName, void * pxMessage, size_t xMessageLength, TickType_t xTestWai);
+static BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName, int32_t lhandle, void * pxMessage, size_t xMessageLength, TickType_t xTestWai);
 static void prvWriteCheckAndResponse(bletestAttSrvB_t xAttribute,
 							bool bNeedRsp,
 							bool IsPrep,
@@ -750,7 +757,7 @@ void prvRemoveBond(BTBdaddr_t * pxDeviceAddress)
 	xStatus = pxBTInterface->pxRemoveBond(pxDeviceAddress);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, NO_HANDLE, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xBondedEvent.xStatus);
 	TEST_ASSERT_EQUAL(false, xBondedEvent.bIsBonded);
@@ -807,7 +814,7 @@ void prvWaitConnection(bool bConnected)
 {
 	BLETESTConnectionCallback_t xConnectionEvent;
 	BTStatus_t xStatus;
-	xStatus = prvWaitEventFromQueue(eBLEHALEventConnectionCb, (void *)&xConnectionEvent, sizeof(BLETESTConnectionCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventConnectionCb, NO_HANDLE, (void *)&xConnectionEvent, sizeof(BLETESTConnectionCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(bConnected, xConnectionEvent.bConnected);
 	TEST_ASSERT_EQUAL(ucBLEServerIf, xConnectionEvent.ucServerIf);
@@ -826,7 +833,7 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
 	prvStartAdvertisement();
 	prvWaitConnection(true);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventSSPrequestCb, (void *)&xSSPrequestEvent, sizeof(BLETESTsspRequestCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventSSPrequestCb, NO_HANDLE, (void *)&xSSPrequestEvent, sizeof(BLETESTsspRequestCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(0, memcmp(&xSSPrequestEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
 	TEST_ASSERT_EQUAL(eBTsspVariantConsent , xSSPrequestEvent.xPairingVariant);
@@ -834,7 +841,7 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
 	xStatus = pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventPairingStateChangedCb, (void *)&xPairingStateChangedEvent, sizeof(BLETESTPairingStateChangedCallback_t), bletestWAIT_MODE1_LEVEL2_QUERY);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventPairingStateChangedCb, NO_HANDLE, (void *)&xPairingStateChangedEvent, sizeof(BLETESTPairingStateChangedCallback_t), bletestWAIT_MODE1_LEVEL2_QUERY);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);/* Pairing should never come since it is secure connection only */
 	TEST_ASSERT_EQUAL(eBTStatusFail, xPairingStateChangedEvent.xStatus);/* Pairing should never come since it is secure connection only */
 	/* @TODO add correct flag */
@@ -871,13 +878,13 @@ TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 	prvStartAdvertisement();
 	prvWaitConnection(true);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventPairingStateChangedCb, (void *)&xPairingStateChangedEvent, sizeof(BLETESTPairingStateChangedCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventPairingStateChangedCb, NO_HANDLE, (void *)&xPairingStateChangedEvent, sizeof(BLETESTPairingStateChangedCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xPairingStateChangedEvent.xStatus);
 	TEST_ASSERT_EQUAL(0, memcmp(&xPairingStateChangedEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
 	TEST_ASSERT_EQUAL(eBTSecLevelSecureConnect, xPairingStateChangedEvent.xSecurityLevel);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, NO_HANDLE,  (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xBondedEvent.xStatus);
 	TEST_ASSERT_EQUAL(true, xBondedEvent.bIsBonded);
@@ -919,7 +926,7 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
 	BLETESTBondedCallback_t  xBondedEvent;
 
 	/* Wait secure connection. Secure connection is triggered by writting to bletestsCHARB. */
-	xStatus = prvWaitEventFromQueue(eBLEHALEventSSPrequestCb, (void *)&xSSPrequestEvent, sizeof(BLETESTsspRequestCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventSSPrequestCb, NO_HANDLE, (void *)&xSSPrequestEvent, sizeof(BLETESTsspRequestCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(0, memcmp(&xSSPrequestEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
 	TEST_ASSERT_EQUAL(eBTsspVariantConsent , xSSPrequestEvent.xPairingVariant);
@@ -927,7 +934,7 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
 	xStatus = pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventSSPrequestCb, (void *)&xSSPrequestEvent, sizeof(BLETESTsspRequestCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventSSPrequestCb, NO_HANDLE, (void *)&xSSPrequestEvent, sizeof(BLETESTsspRequestCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(0, memcmp(&xSSPrequestEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
 	TEST_ASSERT_EQUAL(eBTsspVariantPasskeyConfirmation , xSSPrequestEvent.xPairingVariant);
@@ -935,13 +942,13 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
 	xStatus = pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantPasskeyConfirmation, true, 0 );
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventPairingStateChangedCb, (void *)&xPairingStateChangedEvent, sizeof(BLETESTPairingStateChangedCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventPairingStateChangedCb, NO_HANDLE, (void *)&xPairingStateChangedEvent, sizeof(BLETESTPairingStateChangedCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xPairingStateChangedEvent.xStatus);
 	TEST_ASSERT_EQUAL(0, memcmp(&xPairingStateChangedEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof(BTBdaddr_t) ));
 	TEST_ASSERT_EQUAL(eBTSecLevelSecureConnect, xPairingStateChangedEvent.xSecurityLevel);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventBondedCb, NO_HANDLE, (void *)&xBondedEvent, sizeof(BLETESTBondedCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xBondedEvent.xStatus);
 	TEST_ASSERT_EQUAL(true, xBondedEvent.bIsBonded);
@@ -965,7 +972,7 @@ void prvWriteCheckAndResponse(bletestAttSrvB_t xAttribute,
 	BTStatus_t xStatus;
 
 	/* Wait write event on char A*/
-	xStatus = prvWaitEventFromQueue(eBLEHALEventWriteAttrCb, (void *)&xWriteEvent, sizeof(BLETESTwriteAttrCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventWriteAttrCb, usHandlesBufferB[xAttribute], (void *)&xWriteEvent, sizeof(BLETESTwriteAttrCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(IsPrep, xWriteEvent.bIsPrep);
 	TEST_ASSERT_EQUAL(bNeedRsp, xWriteEvent.bNeedRsp);
@@ -987,7 +994,7 @@ void prvWriteCheckAndResponse(bletestAttSrvB_t xAttribute,
 		xStatus = pxGattServerInterface->pxSendResponse(xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse);
 		TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
-		xStatus = prvWaitEventFromQueue(eBLEHALEventConfimCb, (void *)&xConfirmEvent, sizeof(BLETESTconfirmCallback_t), BLE_TESTS_WAIT);
+		xStatus = prvWaitEventFromQueue(eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, (void *)&xConfirmEvent, sizeof(BLETESTconfirmCallback_t), BLE_TESTS_WAIT);
 		TEST_ASSERT_EQUAL(eBTStatusSuccess,xConfirmEvent.xStatus);
 		TEST_ASSERT_EQUAL(usHandlesBufferB[xAttribute], xConfirmEvent.usAttrHandle);
 	}
@@ -1013,7 +1020,7 @@ void checkNotificationIndication( bletestAttSrvB_t xAttribute, bool enable)
     BLETESTwriteAttrCallback_t xWriteEvent;
 	BLETESTconfirmCallback_t xConfirmEvent;
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[xAttribute], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[xAttribute], xWriteEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( usBLEConnId, xWriteEvent.usConnId );
@@ -1035,7 +1042,7 @@ void checkNotificationIndication( bletestAttSrvB_t xAttribute, bool enable)
 	pxGattServerInterface->pxSendResponse(xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventConfimCb, (void *)&xConfirmEvent, sizeof(BLETESTconfirmCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, (void *)&xConfirmEvent, sizeof(BLETESTconfirmCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess,xConfirmEvent.xStatus);
 	TEST_ASSERT_EQUAL(usHandlesBufferB[xAttribute], xConfirmEvent.usAttrHandle);
 }
@@ -1062,7 +1069,7 @@ TEST( Full_BLE, BLE_Property_Indication )
 	ucRespBuffer[bletestATTR_SRVCB_CHAR_F].xLength = sizeof(bletestsDEFAULT_CHAR_VALUE) - 1;
 
 	prvSendNotification(bletestATTR_SRVCB_CHAR_F, true);
-	xStatus = prvWaitEventFromQueue(eBLEHALEventIndicateCb, (void *) &xIndicateEvent, sizeof(BLETESTindicateCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventIndicateCb, NO_HANDLE, (void *) &xIndicateEvent, sizeof(BLETESTindicateCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(usBLEConnId, xIndicateEvent.usConnId);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xIndicateEvent.xStatus);
@@ -1097,7 +1104,7 @@ void prvReadCheckAndResponse(bletestAttSrvB_t xAttribute)
 	BLETESTconfirmCallback_t xConfirmEvent;
 	BTStatus_t xStatus;
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventReadAttrCb, (void *) &xReadEvent, sizeof(BLETESTreadAttrCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventReadAttrCb, usHandlesBufferB[xAttribute], (void *) &xReadEvent, sizeof(BLETESTreadAttrCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus);
 	TEST_ASSERT_EQUAL(usHandlesBufferB[xAttribute], xReadEvent.usAttrHandle);
 	TEST_ASSERT_EQUAL(usBLEConnId, xReadEvent.usConnId);
@@ -1111,7 +1118,7 @@ void prvReadCheckAndResponse(bletestAttSrvB_t xAttribute)
 	xGattResponse.xAttrValue.pucValue = ucRespBuffer[xAttribute].ucBuffer;
 	pxGattServerInterface->pxSendResponse(xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse);
 
-	xStatus = prvWaitEventFromQueue(eBLEHALEventConfimCb, (void *)&xConfirmEvent, sizeof(BLETESTconfirmCallback_t), BLE_TESTS_WAIT);
+	xStatus = prvWaitEventFromQueue(eBLEHALEventConfimCb, usHandlesBufferB[xAttribute], (void *)&xConfirmEvent, sizeof(BLETESTconfirmCallback_t), BLE_TESTS_WAIT);
 	TEST_ASSERT_EQUAL(eBTStatusSuccess,xConfirmEvent.xStatus);
 	TEST_ASSERT_EQUAL(usHandlesBufferB[xAttribute], xConfirmEvent.usAttrHandle);
 }
@@ -2041,7 +2048,8 @@ void prvConnectionCb ( uint16_t usConnId,
 		}
 		pxConnectionCallback->ucServerIf = ucServerIf;
 		pxConnectionCallback->usConnId = usConnId;
-		pxConnectionCallback->xEvent = eBLEHALEventConnectionCb;
+		pxConnectionCallback->xEvent.xEventTypes = eBLEHALEventConnectionCb;
+		pxConnectionCallback->xEvent.lHandle = NO_HANDLE;
 		usBLEConnId = usConnId;
 		xQueueSend( xCallbackQueue, ( void * ) &pxConnectionCallback, ( TickType_t ) 0 );
 	}
@@ -2094,7 +2102,8 @@ void prvRequestReadCb( uint16_t usConnId,
 		}
 		pxreadAttrCallback->usAttrHandle = usAttrHandle;
 		pxreadAttrCallback->usOffset = usOffset;
-		pxreadAttrCallback->xEvent = eBLEHALEventReadAttrCb;
+		pxreadAttrCallback->xEvent.xEventTypes = eBLEHALEventReadAttrCb;
+		pxreadAttrCallback->xEvent.lHandle = usAttrHandle;
 
 		xQueueSend( xCallbackQueue, ( void * ) &pxreadAttrCallback, ( TickType_t ) 0 );
 	}
@@ -2136,7 +2145,8 @@ void prvRequestWriteCb( uint16_t usConnId,
 		{
 			memset( pxWriteAttrCallback->ucValue , 0, bletestsSTRINGYFIED_UUID_SIZE);
 		}
-		pxWriteAttrCallback->xEvent = eBLEHALEventWriteAttrCb;
+		pxWriteAttrCallback->xEvent.xEventTypes = eBLEHALEventWriteAttrCb;
+		pxWriteAttrCallback->xEvent.lHandle = usAttrHandle;
 
 		xQueueSend( xCallbackQueue, ( void * ) &pxWriteAttrCallback, ( TickType_t ) 0 );
 	}
@@ -2161,7 +2171,7 @@ void prvRequestWriteCb( uint16_t usConnId,
 /* This function first check if an event is waiting in the list. If not, it will go and wait on the queue.
  * When an event is received on the queue, if it is not the expected event, it goes on the waiting list.
  */
-BTStatus_t prvWaitEventFromQueue( BLEHALEventsInternals_t xEventName, void * pxMessage, size_t xMessageLength, TickType_t xTestWait)
+BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName, int32_t lhandle, void * pxMessage, size_t xMessageLength, TickType_t xTestWait)
 {
 	BLEHALEventsInternals_t xEvent;
 	BTStatus_t xStatus = eBTStatusSuccess;
@@ -2174,7 +2184,8 @@ BTStatus_t prvWaitEventFromQueue( BLEHALEventsInternals_t xEventName, void * pxM
 	listFOR_EACH( pxTmpLink, &( xWaitingEventQueue ) )
 	{
 		pxTmpEvent = listCONTAINER( pxTmpLink, xWaitingEvents_t, xNextQueueItem );
-		if(*((BLEHALEventsInternals_t *)pxTmpEvent->pxNextQueuedItem) == xEventName)
+		if((((BLEHALEventsInternals_t *)pxTmpEvent->pxNextQueuedItem)->xEventTypes == xEventName)&&
+				(((BLEHALEventsInternals_t *)pxTmpEvent->pxNextQueuedItem)->lHandle == lhandle))
 		{
 			pvPtr = pxTmpEvent->pxNextQueuedItem;
 			listREMOVE(pxTmpLink);
@@ -2192,7 +2203,7 @@ BTStatus_t prvWaitEventFromQueue( BLEHALEventsInternals_t xEventName, void * pxM
 			{
 				xEvent = *((BLEHALEventsInternals_t *)pvPtr);
 
-				if(xEvent == xEventName){
+				if((xEvent.xEventTypes == xEventName)&&(xEvent.lHandle == lhandle)){
 					break;/* If the right event is received, exit. */
 				}else
 				{
@@ -2225,7 +2236,8 @@ void prvIndicationSentCb( uint16_t usConnId,
 
 	if(pxIndicateCallback != NULL)
 	{
-		pxIndicateCallback->xEvent = eBLEHALEventIndicateCb;
+		pxIndicateCallback->xEvent.xEventTypes = eBLEHALEventIndicateCb;
+		pxIndicateCallback->xEvent.lHandle = NO_HANDLE;
 		pxIndicateCallback->usConnId = usConnId;
 		pxIndicateCallback->xStatus = xStatus;
 
@@ -2240,7 +2252,8 @@ void prvResponseConfirmationCb( BTStatus_t xStatus,
 
 	if(pxConfirmCallback != NULL)
 	{
-		pxConfirmCallback->xEvent = eBLEHALEventConfimCb;
+		pxConfirmCallback->xEvent.xEventTypes = eBLEHALEventConfimCb;
+		pxConfirmCallback->xEvent.lHandle = usHandle;
 		pxConfirmCallback->usAttrHandle = usHandle;
 		pxConfirmCallback->xStatus = xStatus;
 
@@ -2269,7 +2282,8 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
 		pxSSPrequestCallback->ulCod = ulCod;
 		pxSSPrequestCallback->xPairingVariant = xPairingVariant;
 		pxSSPrequestCallback->ulPassKey = ulPassKey;
-		pxSSPrequestCallback->xEvent = eBLEHALEventSSPrequestCb;
+		pxSSPrequestCallback->xEvent.xEventTypes = eBLEHALEventSSPrequestCb;
+		pxSSPrequestCallback->xEvent.lHandle = NO_HANDLE;
 		xQueueSend( xCallbackQueue, ( void * ) &pxSSPrequestCallback, ( TickType_t ) 0 );
 	}
 }
@@ -2284,7 +2298,8 @@ void prvPairingStateChangedCb( BTStatus_t xStatus,
 
 	if(pxPairingStateChangedCallback != NULL)
 	{
-		pxPairingStateChangedCallback->xEvent = eBLEHALEventPairingStateChangedCb;
+		pxPairingStateChangedCallback->xEvent.xEventTypes = eBLEHALEventPairingStateChangedCb;
+		pxPairingStateChangedCallback->xEvent.lHandle = NO_HANDLE;
 		pxPairingStateChangedCallback->xStatus = xStatus;
 		if(pxRemoteBdAddr != NULL)
 		{
@@ -2308,7 +2323,8 @@ void prvRequestExecWriteCb( uint16_t usConnId,
 
 	if(pxRequestExecWriteCallback != NULL)
 	{
-		pxRequestExecWriteCallback->xEvent = eBLEHALEventRequestExecWriteCb;
+		pxRequestExecWriteCallback->xEvent.xEventTypes = eBLEHALEventRequestExecWriteCb;
+		pxRequestExecWriteCallback->xEvent.lHandle = NO_HANDLE;
 		pxRequestExecWriteCallback->ulTransId = ulTransId;
 		pxRequestExecWriteCallback->usConnId = usConnId;
 		if(pxBda != NULL)
@@ -2341,7 +2357,8 @@ void prvBondedCb( BTStatus_t xStatus,
 			memset(&pxBondedCallback->xRemoteBdAddr, 0, sizeof(BTBdaddr_t));
 		}
 		pxBondedCallback->xStatus = xStatus;
-		pxBondedCallback->xEvent = eBLEHALEventBondedCb;
+		pxBondedCallback->xEvent.xEventTypes = eBLEHALEventBondedCb;
+		pxBondedCallback->xEvent.lHandle = NO_HANDLE;
 
 		xQueueSend( xCallbackQueue, ( void * ) &pxBondedCallback, ( TickType_t ) 0 );
 	}

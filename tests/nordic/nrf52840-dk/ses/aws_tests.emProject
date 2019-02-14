@@ -24,8 +24,6 @@
     <folder Name="lib">
       <folder Name="aws">
         <folder Name="Bluetooth_low_energy">
-          <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_gap.c" />
-          <file file_name="../../../../lib/bluetooth_low_energy/aws_ble_gatt.c" />
           <folder Name="services">
             <folder Name="device_information">
               <file file_name="../../../../lib/bluetooth_low_energy/services/device_information/aws_ble_device_information.c" />
@@ -40,6 +38,8 @@
             <file file_name="../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk/aws_ble_hal_gap.c" />
             <file file_name="../../../../lib/bluetooth_low_energy/portable/nordic/nrf52840-dk/aws_ble_hal_gatt_server.c" />
           </folder>
+          <file file_name="../../../../lib/bluetooth_low_energy/iot_ble_gap.c" />
+          <file file_name="../../../../lib/bluetooth_low_energy/iot_ble_gatt.c" />
         </folder>
         <folder Name="include">
           <folder Name="Bluetooth_low_energy">
