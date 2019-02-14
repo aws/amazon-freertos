@@ -93,20 +93,26 @@ def main():
 	isTestSuccessFull = runTest.writeWithoutResponse()
 	runTest.submitTestResult(isTestSuccessFull, runTest.writeWithoutResponse)
 
-	#check notification for DUT_NOTIFY_CHAR_UUID
+	#Enable and receive notification and indication then disable.
 	bleAdapter.setNotificationCallBack(notificationCb)
 	bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID) #subscribe for next test
 	bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
-	mainloop.run()
+
 	isTestSuccessFull = True
+	mainloop.run()
 	runTest.submitTestResult(isTestSuccessFull, runTest.notification)
 
-	#check indication,  wait for DUT_INDICATE_CHAR_UUID
-	mainloop.run()
 	isTestSuccessFull = True
+	mainloop.run()
 	runTest.submitTestResult(isTestSuccessFull, runTest.indication) 
-	bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe 
-	bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID, subscribe = False) #unsubscribe
+
+	isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe 
+	isTestSuccessFull = True
+	runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
+
+	isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID, subscribe = False) #unsubscribe
+	isTestSuccessFull = True
+	runTest.submitTestResult(isTestSuccessFull, runTest.removeIndication)
 
 	#Check writing to protected characteristic triggers pairing
 	isTestSuccessFull = runTest.pairing()
