@@ -459,7 +459,6 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
-
     	ret = esp_wifi_get_mode( &xCurMode );
     	if (ret != ESP_OK) {
         		ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
@@ -495,6 +494,16 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     		// Wait for wifi started event
     		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
     	}
+        
+        if ( wifi_conn_state == false && wifi_ap_not_found == true )
+        {
+            /* It seems that WiFi needs explicit disassoc before scan request post
+             * attempt to connect to invalid network name or SSID.
+             */
+            esp_wifi_disconnect();
+            xEventGroupWaitBits(wifi_event_group, DISCONNECTED_BIT, pdTRUE, pdFALSE, 30);
+        }
+
 
     	ret = esp_wifi_scan_start(&scanConf, true);
         if (ret == ESP_OK)
