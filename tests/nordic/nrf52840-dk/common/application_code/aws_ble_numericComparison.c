@@ -75,11 +75,11 @@ void userInputTask(void *pvParameters)
                     if((xINPUTmessage.pcData[0] == 'y')||(xINPUTmessage.pcData[0] == 'Y'))
                     {
                     	configPRINTF(("Key accepted\n"));
-                        IotBleConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, true);
+                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, true);
                     }else
                     {
                     	configPRINTF(("Key Rejected\n"));
-                        IotBleConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, false);
+                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, false);
 
                     }
 
