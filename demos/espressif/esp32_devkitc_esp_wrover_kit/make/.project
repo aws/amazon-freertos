@@ -141,19 +141,19 @@
 			<locationURI>BASE_DIR_ROOT/lib/third_party/tinycbor</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/bluetooth_low_energy/aws_ble_gap.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/bluetooth_low_energy/aws_ble_gap.c</locationURI>
-		</link>
-		<link>
-			<name>lib/aws/bluetooth_low_energy/aws_ble_gatt.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/bluetooth_low_energy/aws_ble_gatt.c</locationURI>
-		</link>
-		<link>
 			<name>lib/aws/bluetooth_low_energy/espressif</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/bluetooth_low_energy/portable/espressif</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/bluetooth_low_energy/iot_ble_gap.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/bluetooth_low_energy/iot_ble_gap.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/bluetooth_low_energy/iot_ble_gatt.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/bluetooth_low_energy/iot_ble_gatt.c</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/bluetooth_low_energy/services</name>
