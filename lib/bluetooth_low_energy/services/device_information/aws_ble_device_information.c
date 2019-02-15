@@ -35,7 +35,7 @@
 
 #include "iot_ble_config.h"
 #include "FreeRTOS.h"
-#include "aws_ble_device_information.h"
+#include "iot_ble_device_information.h"
 #include "semphr.h"
 #include "aws_json_utils.h"
 #include "aws_clientcredential.h"
@@ -231,38 +231,30 @@ static const IotBleAttributeEventCallback_t pxCallBackArray[bledeviceinfoATTR_NU
 
 BaseType_t AFRDeviceInfoSvc_Init( void )
 {
-    BTStatus_t xStatus;
-    BaseType_t xResult = pdFAIL;
+    BTStatus_t xStatus = eBTStatusFail;
+    BaseType_t error = pdFAIL;
     IotBleEventsCallbacks_t xCallback;
 
     /* Select the handle buffer. */
     xStatus = IotBle_CreateService( (BTService_t *)&xDeviceInformationService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
-        if( xStatus == eBTStatusSuccess )
-        {
-        xResult = pdPASS;
-        }
 
-        if( xResult == pdPASS )
-        {
-            xCallback.pMtuChangedCb = vMTUChangedCallback;
+	if( xStatus == eBTStatusSuccess )
+	{
+		xCallback.pMtuChangedCb = vMTUChangedCallback;
+		xStatus = IotBle_RegisterEventCb( eBLEMtuChanged, xCallback );
+	}
 
-            if( IotBle_RegisterEventCb( eBLEMtuChanged, xCallback ) != eBTStatusSuccess )
-            {
-                xResult = pdFALSE;
-            }
-        }
+	if( xStatus == eBTStatusSuccess )
+	{
+		xCallback.pConnectionCb = vConnectionCallback;
+		xStatus = IotBle_RegisterEventCb( eBLEConnection, xCallback );
+	}
 
-        if( xResult == pdPASS )
-        {
-        	xCallback.pConnectionCb = vConnectionCallback;
-
-        	if( IotBle_RegisterEventCb( eBLEConnection, xCallback ) != eBTStatusSuccess )
-        	{
-        		xResult = pdFAIL;
-        	}
-        }
-
-    return xResult;
+	if( xStatus == eBTStatusSuccess )
+	{
+		error = pdPASS;
+	}
+    return error;
 }
 
 /*-----------------------------------------------------------*/
