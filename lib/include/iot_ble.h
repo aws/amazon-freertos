@@ -36,6 +36,7 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "bt_hal_gatt_types.h"
+#include "iot_ble_config.h"
 #include "iot_linear_containers.h"
 
 /**
@@ -236,20 +237,6 @@ typedef void (* IotBle_ConnectionCallback_t)( BTStatus_t status,
                                           BTBdaddr_t * pRemoteBdAddr );
 
 /**
- * @brief  Callback indicating the status of a listen() operation. Invoked on BLE_StartAdv.
- *
- * @param[in] status Returns eBTStatusSuccess if operation succeeded.
- */
-typedef void (* IotBle_StartAdvCallback_t)( BTStatus_t status );
-
-/**
- * @brief Callback for set adv callback. Invoked on BLE_SetAdvData.
- *
- * @param[in] status Returns eBTStatusSuccess if operation succeeded.
- */
-typedef void (* IotBle_SetAdvDataCallback_t) ( BTStatus_t status );
-
-/**
  * @brief  Callback invoked on BLE_ConnParameterUpdateRequest from remote device.
  *
  * @param[in] status Returns eBTStatusSuccess if operation succeeded.
@@ -334,6 +321,13 @@ typedef union
     void * pvPtr;                                                           /**< Used for generic operations. */
 } IotBleEventsCallbacks_t;
 
+/**
+ * @brief that implementation of this function need to be given when IOT_BLE_ADD_CUSTOM_SERVICES is true
+ * and when the user needs to add his own services
+ */
+#if (IOT_BLE_ADD_CUSTOM_SERVICES == 1)
+void IotBle_AddCustomServicesCb(void);
+#endif
 
 /**
  * @brief Stop advertisements to listen for incoming connections.
@@ -345,22 +339,10 @@ BTStatus_t IotBle_StopAdv( void );
 /**
  * @brief Start advertisements to listen for incoming connections.
  *
- * @param[in] pStartAdvCb Callback returning status of the operation.
  * @return Returns eBTStatusSuccess on successful call.
  */
-BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb );
+BTStatus_t IotBle_StartAdv( void );
 
-/**
- * @brief Set the advertising data or scan response data.
- *
- * @param[in] advertisingEventProperties Type of advertisement.
- * @param[in] pAdvParams Advertisement parameters.
- * @param[in] pSetAdvDataCb Callback returning status of the operation.
- * @return Returns eBTStatusSuccess on successful call.
- */
-BTStatus_t IotBle_SetAdvData( BTAdvProperties_t advertisingEventProperties,
-                           IotBleAdvertismentParams_t * pAdvParams,
-                           IotBle_SetAdvDataCallback_t pSetAdvDataCb );
 
 /**
  * @brief Request an update of the connection parameters.
@@ -373,17 +355,12 @@ BTStatus_t IotBle_ConnParameterUpdateRequest( const BTBdaddr_t * pRemoteBdAddr,
                                            IotBleConnectionParam_t * pConnectionParam );
 
 /**
- * @brief Starting point. Initialize the BLE stack.
+ * @brief Starting point. Initialize the BLE stack and its services.
  * Low level function BLE pEnable is not called. It is up to the application to decide when BLE should be started.
  *
- * @param[in] pAppUuid APP UUID
- * @param[in] pProperty Pointer to a property array that the user wishes to set.
- * @param[in] nbProperties Number of property in the array.
  * @return Returns eBTStatusSuccess on successful call.
  */
-BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
-                     const BTProperty_t * pProperty,
-                     size_t nbProperties );
+BTStatus_t IotBle_Init( void );
 
 /**
  * @brief Used to route event to whatever service requests it.
@@ -493,6 +470,7 @@ BTStatus_t IotBle_GetConnectionInfo( uint16_t connId,
  * @return Returns eBTStatusSuccess on successful call.
  */
 BTStatus_t IotBle_ConfirmNumericComparisonKeys( BTBdaddr_t * pBdAddr, bool keyAccepted );
+
 
 /**
  * Turns on the BLE radio

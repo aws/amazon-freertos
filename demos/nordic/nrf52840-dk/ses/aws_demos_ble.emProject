@@ -168,7 +168,6 @@
           path="../../../../lib/common"
           recurse="No" />
         <folder Name="utils">
-          <file file_name="../../../../lib/utils/aws_ble_services_init.c" />
           <file file_name="../../../../lib/utils/aws_json_utils.c" />
           <folder Name="platform">
             <file file_name="../../../../lib/utils/platform/aws_iot_clock_posix.c" />

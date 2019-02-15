@@ -40,9 +40,95 @@
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
+#include "iot_ble_config.h"
 #include "iot_ble.h"
 #include "iot_ble_internal.h"
+#include "iot_ble_device_information.h"
+#include "iot_ble_wifi_provisioning.h"
+#include "iot_ble_mqtt.h"
 
+#if (IOT_BLE_ADVERTISING_UUID_SIZE == 2)
+#define BT_ADV_UUID_TYPE	eBTuuidType16
+#else
+#define BT_ADV_UUID_TYPE	eBTuuidType128
+#endif
+
+static const BTUuid_t _advUUID =
+{
+	.uu.uu128 = IOT_BLE_ADVERTISING_UUID,
+	.ucType   =  BT_ADV_UUID_TYPE
+};
+static const BTUuid_t _serverUUID =
+{
+    .ucType   = eBTuuidType128,
+    .uu.uu128 = IOT_BLE_SERVER_UUID
+};
+static const IotBleAdvertismentParams_t _scanRespParams =
+{
+    .includeTxPower    = false,
+    .includeName       = true,
+    .setScanRsp        = true,
+    .appearance       = IOT_BLE_ADVERTISING_APPEARANCE,
+    .minInterval      = IOT_BLE_ADVERTISING_INTERVAL_MIN,
+    .maxInterval      = IOT_BLE_ADVERTISING_INTERVAL_MAX,
+    .serviceDataLen   = 0,
+    .pServiceData      = NULL,
+    .manufacturerLen  = 0,
+    .pManufacturerData = NULL,
+    .pUUID1           = NULL,
+    .pUUID2            = NULL
+};
+
+static const IotBleAdvertismentParams_t _advParams =
+{
+    .includeTxPower    = true,
+    .includeName       = false,
+    .setScanRsp        = false,
+    .appearance       = IOT_BLE_ADVERTISING_APPEARANCE,
+    .minInterval      = IOT_BLE_ADVERTISING_INTERVAL_MIN,
+    .maxInterval      = IOT_BLE_ADVERTISING_INTERVAL_MAX,
+    .serviceDataLen   = 0,
+    .pServiceData      = NULL,
+    .manufacturerLen  = 0,
+    .pManufacturerData = NULL,
+    .pUUID1           = (BTUuid_t *)&_advUUID,
+    .pUUID2            = NULL
+};
+
+
+const uint32_t usMtu = IOT_BLE_PREFERRED_MTU_SIZE;
+const BTIOtypes_t xIO = IOT_BLE_INPUT_OUTPUT;
+const bool bIsBondable = IOT_BLE_ENABLE_BONDING;
+const bool bSecureConnection = IOT_BLE_ENABLE_SECURE_CONNECTION;
+
+const BTProperty_t _deviceProperties[] =
+{
+    {
+        .xType = eBTpropertyBdname,
+        .xLen = sizeof( IOT_BLE_DEVICE_NAME )-1,
+        .pvVal = ( void * ) IOT_BLE_DEVICE_NAME
+    },
+    {
+        .xType = eBTpropertyBondable,
+        .xLen = 1,
+        .pvVal = ( void * ) &bIsBondable
+    },
+	{
+		.xType = eBTpropertySecureConnectionOnly,
+		.xLen = 1,
+		.pvVal = ( void * ) &bSecureConnection
+	},
+	{
+		.xType = eBTpropertyIO,
+		.xLen = 1,
+		.pvVal = ( void * ) &xIO
+	},
+    {
+        .xType = eBTpropertyLocalMTUSize,
+        .xLen = 1,
+        .pvVal = ( void * ) &usMtu
+    }
+};
 
 /* 2 is the Maximum number of UUID that can be advertised in the same advertisement message */
 #define _BLE_MAX_UUID_PER_ADV_MESSAGE    2
@@ -74,7 +160,7 @@ static void _bondedCb( BTStatus_t status,
                          BTBdaddr_t * pRemoteBdAddr,
                          bool isBonded );
 
-static BTCallbacks_t xBTManagerCb =
+static const BTCallbacks_t _BTManagerCb =
 {
     .pxDeviceStateChangedCb     = _deviceStateChangedCb,
     .pxAdapterPropertiesCb      = _adapterPropertiesCb,
@@ -90,7 +176,7 @@ static BTCallbacks_t xBTManagerCb =
     .pxSlaveSecurityRequestCb   = NULL,
 };
 
-static BTBleAdapterCallbacks_t xBTBleAdapterCb =
+static const BTBleAdapterCallbacks_t _BTBleAdapterCb =
 {
     .pxRegisterBleAdapterCb          = _registerBleAdapterCb,
     .pxScanResultCb                  = NULL,
@@ -205,20 +291,16 @@ void _registerBleAdapterCb( BTStatus_t status,
 void _advStartCb( BTStatus_t status,
                     uint32_t serverIf )
 {
-    if( _BTInterface.pBLEEventsCallbacks.pStartAdvCb != NULL )
-    {
-        _BTInterface.pBLEEventsCallbacks.pStartAdvCb( status );
-    }
+    _BTInterface.cbStatus = status;
+    ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete, 1 << eBLEHALEventAdvAndScanRespCb );
 }
 
 /*-----------------------------------------------------------*/
 
 void _setAdvDataCb( BTStatus_t status )
 {
-    if( _BTInterface.pBLEEventsCallbacks.pSetAdvDataCb != NULL )
-    {
-        _BTInterface.pBLEEventsCallbacks.pSetAdvDataCb( status );
-    }
+    _BTInterface.cbStatus = status;
+    ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete, 1 << eBLEHALEventAdvAndScanRespCb );
 }
 
 /*-----------------------------------------------------------*/
@@ -243,14 +325,112 @@ void _bondedCb( BTStatus_t status,
     }
 }
 
+
+BTStatus_t _StartAllServices()
+{
+	BTStatus_t status = eBTStatusSuccess;
+	BaseType_t error;
+
+	error = AFRDeviceInfoSvc_Init();
+
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+    if( error == pdPASS )
+    {
+    	error = WIFI_PROVISION_Init();
+    }
+#endif
+
+    if( error == pdPASS )
+    {
+    	error = AwsIotMqttBLE_Init();
+    }
+
+    if(error != pdPASS)
+    {
+    	status = eBTStatusFail;
+    }
+
+#if (IOT_BLE_ADD_CUSTOM_SERVICES == 1)
+    IotBle_AddCustomServicesCb();
+#endif
+
+    return status;
+}
 /*-----------------------------------------------------------*/
 
-BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb )
+BTStatus_t _setAdvData(IotBleAdvertismentParams_t * pAdvParams)
+{
+	BTStatus_t status = eBTStatusSuccess;
+	BTGattAdvertismentParams_t pParams;
+	size_t countService = 0;
+	BTUuid_t pServiceUuide[ _BLE_MAX_UUID_PER_ADV_MESSAGE ];
+
+	pParams.bIncludeName = pAdvParams->includeName;
+	pParams.bIncludeTxPower = pAdvParams->includeTxPower;
+	pParams.bSetScanRsp = pAdvParams->setScanRsp;
+
+	pParams.ulAppearance = pAdvParams->appearance;
+	pParams.ulMaxInterval = pAdvParams->maxInterval;
+	pParams.ulMinInterval = pAdvParams->minInterval;
+	pParams.usAdvertisingEventProperties = BTAdvInd;
+
+	pParams.xAddrType = BTAddrTypePublic;
+	pParams.ucChannelMap = 0;
+	pParams.ucPrimaryAdvertisingPhy = 0;
+	pParams.ucSecondaryAdvertisingPhy = 0;
+
+	/* If service UUID 1 is not NULL then put it inside the advertisement message */
+	if( pAdvParams->pUUID1 != NULL )
+	{
+		memcpy( &pServiceUuide[ countService++ ], pAdvParams->pUUID1, sizeof( BTUuid_t ) );
+	}
+
+	/* If service UUID 2 is not NULL then put it inside the advertisement message */
+	if( pAdvParams->pUUID2 != NULL )
+	{
+		memcpy( &pServiceUuide[ countService++ ], pAdvParams->pUUID2, sizeof( BTUuid_t ) );
+	}
+
+	status = _BTInterface.pBTLeAdapterInterface->pxSetAdvData( _BTInterface.adapterIf,
+																 &pParams,
+																 pAdvParams->manufacturerLen,
+																 pAdvParams->pManufacturerData,
+																 0,
+																 NULL,
+																 pServiceUuide,
+																 countService );
+	/* For for configure operation to complete. */
+    if(status == eBTStatusSuccess)
+    {
+        xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
+                             1 << eBLEHALEventAdvAndScanRespCb,
+                             pdTRUE,
+                             pdTRUE,
+                             portMAX_DELAY );
+
+        status = _BTInterface.cbStatus;
+    }
+
+	return status;
+}
+
+BTStatus_t IotBle_StartAdv( void )
 {
     BTStatus_t status = eBTStatusSuccess;
 
-    _BTInterface.pBLEEventsCallbacks.pStartAdvCb = pStartAdvCb;
+
     status = _BTInterface.pBTLeAdapterInterface->pxStartAdv( _BTInterface.adapterIf );
+	/* For for configure operation to complete. */
+    if(status == eBTStatusSuccess)
+    {
+        xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
+                             1 << eBLEHALEventAdvAndScanRespCb,
+                             pdTRUE,
+                             pdTRUE,
+                             portMAX_DELAY );
+
+        status = _BTInterface.cbStatus;
+    }
 
     return status;
 }
@@ -262,58 +442,6 @@ BTStatus_t IotBle_StopAdv( void )
     BTStatus_t status = eBTStatusSuccess;
 
     status = _BTInterface.pBTLeAdapterInterface->pxStopAdv( _BTInterface.adapterIf );
-
-    return status;
-}
-
-/*-----------------------------------------------------------*/
-
-BTStatus_t IotBle_SetAdvData( BTAdvProperties_t advertisingEventProperties,
-                           IotBleAdvertismentParams_t * pAdvParams,
-                           IotBle_SetAdvDataCallback_t pSetAdvDataCb )
-{
-    BTStatus_t status = eBTStatusSuccess;
-    BTGattAdvertismentParams_t pParams;
-    size_t countService = 0;
-    BTUuid_t pServiceUuide[ _BLE_MAX_UUID_PER_ADV_MESSAGE ];
-
-    _BTInterface.pBLEEventsCallbacks.pSetAdvDataCb = pSetAdvDataCb;
-
-    pParams.bIncludeName = pAdvParams->includeName;
-    pParams.bIncludeTxPower = pAdvParams->includeTxPower;
-    pParams.bSetScanRsp = pAdvParams->setScanRsp;
-
-    pParams.ulAppearance = pAdvParams->appearance;
-    pParams.ulMaxInterval = pAdvParams->maxInterval;
-    pParams.ulMinInterval = pAdvParams->minInterval;
-    pParams.usAdvertisingEventProperties = advertisingEventProperties;
-
-    pParams.xAddrType = BTAddrTypePublic;
-    pParams.ucChannelMap = 0;
-    pParams.ucPrimaryAdvertisingPhy = 0;
-    pParams.ucSecondaryAdvertisingPhy = 0;
-
-    /* If service UUID 1 is not NULL then put it inside the advertisement message */
-    if( pAdvParams->pUUID1 != NULL )
-    {
-        memcpy( &pServiceUuide[ countService++ ], pAdvParams->pUUID1, sizeof( BTUuid_t ) );
-    }
-
-    /* If service UUID 2 is not NULL then put it inside the advertisement message */
-    if( pAdvParams->pUUID2 != NULL )
-    {
-        memcpy( &pServiceUuide[ countService++ ], pAdvParams->pUUID2, sizeof( BTUuid_t ) );
-    }
-
-    status = _BTInterface.pBTLeAdapterInterface->pxSetAdvData( _BTInterface.adapterIf,
-                                                                 &pParams,
-                                                                 pAdvParams->manufacturerLen,
-                                                                 pAdvParams->pManufacturerData,
-                                                                 0,
-                                                                 NULL,
-                                                                 pServiceUuide,
-                                                                 countService );
-
 
     return status;
 }
@@ -377,22 +505,21 @@ BTStatus_t IotBle_Off( void )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
-                     const BTProperty_t * pProperty,
-                     size_t nbProperties )
+BTStatus_t IotBle_Init( void )
 {
     BTStatus_t status = eBTStatusSuccess;
     uint16_t index;
 
+
+    uint32_t nbProperties = sizeof( _deviceProperties ) / sizeof ( _deviceProperties[0] );
     _BTInterface.pBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
 
-    if( ( _BTInterface.pBTInterface != NULL ) &&
-        ( pAppUuid != NULL ) )
+    if( _BTInterface.pBTInterface != NULL )
     {
         ( void ) xSemaphoreCreateMutexStatic( &_BTInterface.threadSafetyMutex );
         ( void ) xEventGroupCreateStatic( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete );
 
-        status = _BTInterface.pBTInterface->pxBtManagerInit( &xBTManagerCb );
+        status = _BTInterface.pBTInterface->pxBtManagerInit( &_BTManagerCb );
         _BTInterface.pBTLeAdapterInterface = ( BTBleAdapter_t * ) _BTInterface.pBTInterface->pxGetLeAdapter();
     }
     else
@@ -402,30 +529,34 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
 
     if( ( _BTInterface.pBTLeAdapterInterface != NULL ) && ( status == eBTStatusSuccess ) )
     {
-        status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &xBTBleAdapterCb );
+        status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &_BTBleAdapterCb );
     }
     else
     {
         status = eBTStatusFail;
     }
 
+    /* Register application. */
     if( status == eBTStatusSuccess )
     {
-        _BTInterface.pBTLeAdapterInterface->pxRegisterBleApp( pAppUuid );
-        xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
-                             1 << eBLEHALEventRegisterBleAdapterCb,
-                             pdTRUE,
-                             pdTRUE,
-                             portMAX_DELAY );
-
-        status = _BTInterface.cbStatus;
+    	status = _BTInterface.pBTLeAdapterInterface->pxRegisterBleApp( (BTUuid_t * )&_serverUUID );
+    	if( status == eBTStatusSuccess )
+    	{
+			xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
+								 1 << eBLEHALEventRegisterBleAdapterCb,
+								 pdTRUE,
+								 pdTRUE,
+								 portMAX_DELAY );
+	        status = _BTInterface.cbStatus;
+    	}
     }
 
+    /* Set GAP properties. */
     if( status == eBTStatusSuccess )
     {
         for( index = 0; index < nbProperties; index++ )
         {
-            status = _BTInterface.pBTInterface->pxSetDeviceProperty( &pProperty[ index ] );
+            status = _BTInterface.pBTInterface->pxSetDeviceProperty( &_deviceProperties[ index ] );
 
             if( status == eBTStatusSuccess )
             {
@@ -453,7 +584,17 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
         {
             if( _BTInterface.pGattServerInterface->pxGattServerInit( &_BTGattServerCb ) == eBTStatusSuccess )
             {
-                status = _BTInterface.pGattServerInterface->pxRegisterServer( pAppUuid );
+                status = _BTInterface.pGattServerInterface->pxRegisterServer( (BTUuid_t * )&_serverUUID );
+                if(status == eBTStatusSuccess)
+                {
+                    xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
+                                         1 << eBLEHALEventServerRegisteredCb,
+                                         pdTRUE,
+                                         pdTRUE,
+                                         portMAX_DELAY );
+
+                    status = _BTInterface.cbStatus;
+                }
             }
             else
             {
@@ -473,6 +614,7 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
         status = eBTStatusParamInvalid;
     }
 
+    /* Initialize lists. */
     if( status == eBTStatusSuccess )
     {
         IotListDouble_Create( &_BTInterface.serviceListHead );
@@ -483,14 +625,29 @@ BTStatus_t IotBle_Init( BTUuid_t * pAppUuid,
         {
             IotListDouble_Create( &_BTInterface.subscrEventListHead[ index ] );
         }
+    }
 
-        xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
-                             1 << eBLEHALEventServerRegisteredCb,
-                             pdTRUE,
-                             pdTRUE,
-                             portMAX_DELAY );
+    /* Start services. */
+    if( status == eBTStatusSuccess )
+    {
+    	status = _StartAllServices();
+    }
 
-        status = _BTInterface.cbStatus;
+
+    /* Initialize advertisement and scan response. */
+    if( status == eBTStatusSuccess )
+    {
+    	status = _setAdvData(( IotBleAdvertismentParams_t *)&_advParams);
+    	if( status == eBTStatusSuccess )
+    	{
+    		status = _setAdvData(( IotBleAdvertismentParams_t *)&_scanRespParams);
+    	}
+    }
+
+    /* Start advertisement. */
+    if( status == eBTStatusSuccess )
+    {
+    	IotBle_StartAdv();
     }
 
     return status;
