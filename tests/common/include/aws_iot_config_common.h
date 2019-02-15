@@ -100,31 +100,41 @@
 /* Memory allocation function configuration for the MQTT library. The MQTT library
  * will be affected by AWS_IOT_STATIC_MEMORY_ONLY. */
 #if AWS_IOT_STATIC_MEMORY_ONLY == 0
-    #define AwsIotMqtt_MallocConnection          pvPortMalloc
-    #define AwsIotMqtt_FreeConnection            vPortFree
-    #define AwsIotMqtt_MallocMessage             pvPortMalloc
-    #define AwsIotMqtt_FreeMessage               vPortFree
-    #define AwsIotMqtt_MallocOperation           pvPortMalloc
-    #define AwsIotMqtt_FreeOperation             vPortFree
-    #define AwsIotMqtt_MallocSubscription        pvPortMalloc
-    #define AwsIotMqtt_FreeSubscription          vPortFree
-    #define AwsIotMqtt_MallocTimerEvent          pvPortMalloc
-    #define AwsIotMqtt_FreeTimerEvent            vPortFree
+    #define AwsIotMqtt_MallocConnection             pvPortMalloc
+    #define AwsIotMqtt_FreeConnection               vPortFree
+    #define AwsIotMqtt_MallocMessage                pvPortMalloc
+    #define AwsIotMqtt_FreeMessage                  vPortFree
+    #define AwsIotMqtt_MallocOperation              pvPortMalloc
+    #define AwsIotMqtt_FreeOperation                vPortFree
+    #define AwsIotMqtt_MallocSubscription           pvPortMalloc
+    #define AwsIotMqtt_FreeSubscription             vPortFree
+    #define AwsIotMqtt_MallocTimerEvent             pvPortMalloc
+    #define AwsIotMqtt_FreeTimerEvent               vPortFree
 
-    #define AwsIotShadow_MallocOperation         pvPortMalloc
-    #define AwsIotShadow_FreeOperation           vPortFree
-    #define AwsIotShadow_MallocString            pvPortMalloc
-    #define AwsIotShadow_FreeString              vPortFree
-    #define AwsIotShadow_MallocSubscription      pvPortMalloc
-    #define AwsIotShadow_FreeSubscription        vPortFree
+    #define AwsIotShadow_MallocOperation            pvPortMalloc
+    #define AwsIotShadow_FreeOperation              vPortFree
+    #define AwsIotShadow_MallocString               pvPortMalloc
+    #define AwsIotShadow_FreeString                 vPortFree
+    #define AwsIotShadow_MallocSubscription         pvPortMalloc
+    #define AwsIotShadow_FreeSubscription           vPortFree
 
-    #define AwsIotDefender_MallocReport          pvPortMalloc
-    #define AwsIotDefender_FreeReport            vPortFree
-    #define AwsIotDefender_MallocTopic           pvPortMalloc
-    #define AwsIotDefender_FreeTopic             vPortFree
+    #define AwsIotDefender_MallocReport             pvPortMalloc
+    #define AwsIotDefender_FreeReport               vPortFree
+    #define AwsIotDefender_MallocTopic              pvPortMalloc
+    #define AwsIotDefender_FreeTopic                vPortFree
 
-    #define AwsIotMetrics_MallocTcpConnection    pvPortMalloc
-    #define AwsIotMetrics_FreeTcpConnection      vPortFree
+    #define AwsIotMetrics_MallocTcpConnection       pvPortMalloc
+    #define AwsIotMetrics_FreeTcpConnection         vPortFree
+
+    #define AwsIotSerializer_MallocCborEncoder      pvPortMalloc
+    #define AwsIotSerializer_FreeCborEncoder        vPortFree
+    #define AwsIotSerializer_MallocCborParser       pvPortMalloc
+    #define AwsIotSerializer_FreeCborParser         vPortFree
+    #define AwsIotSerializer_MallocCborValue        pvPortMalloc
+    #define AwsIotSerializer_FreeCborValue          vPortFree
+    #define AwsIotSerializer_MallocDecoderObject    pvPortMalloc
+    #define AwsIotSerializer_FreeDecoderObject      vPortFree
+
 #endif /* if AWS_IOT_STATIC_MEMORY_ONLY == 0 */
 
 /* Settings required to build the libraries for testing. */
@@ -195,22 +205,22 @@
 #endif
 
 /* Set test credentials and Thing Name. */
-#define AWS_IOT_TEST_SERVER                clientcredentialMQTT_BROKER_ENDPOINT
-#define AWS_IOT_TEST_PORT                  443
-#define AWS_IOT_TEST_SECURED_CONNECTION    1
-#define AWS_IOT_TEST_ROOT_CA               NULL
-#define AWS_IOT_TEST_CLIENT_CERT           clientcredentialCLIENT_CERTIFICATE_PEM
-#define AWS_IOT_TEST_CLIENT_CERT_LENGTH    clientcredentialCLIENT_CERTIFICATE_LENGTH
-#define AWS_IOT_TEST_PRIVATE_KEY           clientcredentialCLIENT_PRIVATE_KEY_PEM
-#define AWS_IOT_TEST_PRIVATE_KEY_LENGTH    clientcredentialCLIENT_PRIVATE_KEY_LENGTH
-#define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
+#define AWS_IOT_TEST_SERVER                    clientcredentialMQTT_BROKER_ENDPOINT
+#define AWS_IOT_TEST_PORT                      443
+#define AWS_IOT_TEST_SECURED_CONNECTION        1
+#define AWS_IOT_TEST_ROOT_CA                   NULL
+#define AWS_IOT_TEST_CLIENT_CERT               clientcredentialCLIENT_CERTIFICATE_PEM
+#define AWS_IOT_TEST_CLIENT_CERT_LENGTH        clientcredentialCLIENT_CERTIFICATE_LENGTH
+#define AWS_IOT_TEST_PRIVATE_KEY               clientcredentialCLIENT_PRIVATE_KEY_PEM
+#define AWS_IOT_TEST_PRIVATE_KEY_LENGTH        clientcredentialCLIENT_PRIVATE_KEY_LENGTH
+#define AWS_IOT_TEST_SHADOW_THING_NAME         clientcredentialIOT_THING_NAME
 
 /* Defender library configuration. */
-#define AWS_IOT_DEFENDER_FORMAT          AWS_IOT_DEFENDER_FORMAT_CBOR
-#define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 1 )
+#define AWS_IOT_DEFENDER_FORMAT                AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_USE_LONG_TAG          ( 1 )
 
 /* Task pool configuration. */
-#define AWS_IOT_TASKPOOL_THREADS_STACK_SIZE ( 5 * configMINIMAL_STACK_SIZE )
-#define AWS_IOT_TASKPOOL_THREADS_PRIORITY ( 6 )
+#define AWS_IOT_TASKPOOL_THREADS_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
+#define AWS_IOT_TASKPOOL_THREADS_PRIORITY      ( 6 )
 
 #endif /* ifndef _AWS_IOT_CONFIG_COMMON_H_ */
