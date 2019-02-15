@@ -180,10 +180,26 @@ static BTUuid_t xAdvUUID =
 
 };
 
+static IotBleAdvertismentParams_t xScanRespParams =
+{
+    .includeTxPower    = false,
+    .includeName       = true,
+    .setScanRsp        = true,
+    .appearance       = IOT_BLE_ADVERTISING_APPEARANCE,
+    .minInterval      = IOT_BLE_ADVERTISING_INTERVAL_MIN,
+    .maxInterval      = bleconfigADVERTISING_INTERVAL_MAX,
+    .serviceDataLen   = 0,
+    .pServiceData      = NULL,
+    .manufacturerLen  = 0,
+    .pManufacturerData = NULL,
+    .pUUID1           = NULL,
+    .pUUID2            = NULL
+};
+
 static IotBleAdvertismentParams_t xAdvParams =
 {
     .includeTxPower    = true,
-    .includeName       = true,
+    .includeName       = false,
     .setScanRsp        = false,
     .appearance       = IOT_BLE_ADVERTISING_APPEARANCE,
     .minInterval      = IOT_BLE_ADVERTISING_INTERVAL_MIN,
@@ -323,7 +339,6 @@ static bool prvBLEEnable( void )
 
 		if( xRet == pdTRUE )
 		{
-		    xAdvParams.setScanRsp = false;
 		    if( IotBle_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
 		    {
 		        xRet = pdFALSE;
@@ -404,8 +419,7 @@ static void prvSetAdvCallback( BTStatus_t xStatus )
     if( xStatus == eBTStatusSuccess )
     {
     	/* Set the scan response */
-    	xAdvParams.setScanRsp = true;
-        ( void ) IotBle_SetAdvData( BTAdvInd, &xAdvParams, prvSetScanRespCallback );
+        ( void ) IotBle_SetAdvData( BTAdvInd, &xScanRespParams, prvSetScanRespCallback );
     }
 }
 
