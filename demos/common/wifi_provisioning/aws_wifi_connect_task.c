@@ -42,12 +42,12 @@
 /**
  * @brief Delay in milliseconds between connecting to the provisioned WiFi networks.
  */
-#define wifiConnectDELAY_SECONDS     ( 60 )
+#define wifiConnectDELAY_SECONDS     ( 1 )
 
 /**
  * @brief Number of retries in connecting to the provisioned networks.
  */
-#define wifiConnectNUM_RETRIES            ( 30 )
+#define wifiConnectNUM_RETRIES            ( 360 )
 
 
 /**
