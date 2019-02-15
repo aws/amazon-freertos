@@ -185,6 +185,13 @@ static void vConnectionCallback( BTStatus_t xStatus,
                                  BTBdaddr_t * pxRemoteBdAddr );
 /* ---------------------------------------------------------------------------------------*/
 
+#if (IOT_BLE_ADD_CUSTOM_SERVICES == 1)
+void IotBle_AddCustomServicesCb(void)
+{
+	vGattDemoSvcInit();
+}
+#endif
+
 static const IotBleAttributeEventCallback_t pxCallBackArray[egattDemoNbAttributes] =
     {
   NULL,
@@ -288,7 +295,7 @@ BaseType_t vGattDemoSvcInit( void )
 
 void vGattDemoSvcStart( void )
 {
-    ( void ) xTaskNotify( xCounterUpdateTask, EVENT_BIT( eGattDemoStart ), eSetBits );
+	( void ) xTaskNotify( xCounterUpdateTask, EVENT_BIT( eGattDemoStart ), eSetBits );
 }
 
 /*-----------------------------------------------------------*/

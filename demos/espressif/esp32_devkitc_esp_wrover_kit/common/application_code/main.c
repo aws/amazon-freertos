@@ -59,10 +59,9 @@
 
 
 #if BLE_ENABLED
-#include <iot_ble.h>
+#include "iot_ble.h"
 #include "iot_ble_config.h"
-#include "aws_ble_services_init.h"
-#include "aws_ble_wifi_provisioning.h"
+#include "iot_ble_wifi_provisioning.h"
 #include "aws_ble_numericComparison.h"
 #endif
 

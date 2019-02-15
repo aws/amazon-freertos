@@ -69,14 +69,10 @@ typedef enum{
 	eBLEHALEventServiceDeletedCb,
 	eBLEHALEventRegisterBleAdapterCb,
 	eBLEHALEventAdapterPropertiesCb,
+	eBLEHALEventAdvAndScanRespCb,
 	eBLENbHALEvents,
 }_bleHALEventsInternals_t;
 
-typedef struct
-{
-	IotBle_StartAdvCallback_t pStartAdvCb;
-	IotBle_SetAdvDataCallback_t pSetAdvDataCb;
-}_bleInternalEventsCallbacks_t;
 
 typedef struct{
 	IotLink_t eventList;
@@ -94,7 +90,6 @@ typedef struct{
 	IotListDouble_t connectionListHead;	
 	IotListDouble_t subscrEventListHead[eNbEvents];    /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */	
 	uint16_t handlePendingPrepareWrite;
-	_bleInternalEventsCallbacks_t pBLEEventsCallbacks;
 	BTInterface_t * pBTInterface;
 	BTBleAdapter_t * pBTLeAdapterInterface;
 	BTGattServerInterface_t * pGattServerInterface;
@@ -105,6 +100,7 @@ typedef struct{
 }_bleInterface_t;
 extern _bleInterface_t _BTInterface;
 
-extern BTGattServerCallbacks_t _BTGattServerCb;
+extern const BTGattServerCallbacks_t _BTGattServerCb;
+
 
 #endif
