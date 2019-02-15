@@ -34,10 +34,11 @@
 #endif
 
 #include "iot_ble_config.h"
-#include "aws_iot_mqtt_ble.h"
+#include "iot_ble_mqtt.h"
 #include "task.h"
 #include "FreeRTOSConfig.h"
 #include "aws_json_utils.h"
+
 
 #define mqttBLECHAR_CONTROL_UUID_TYPE \
 { \
@@ -168,11 +169,6 @@ static const BTAttribute_t pxAttributeTable[] = {
 static uint16_t usBLEConnMTU;
 
 /*------------------------------------------------------------------------------------------------------*/
-
-/*
- * @brief Creates and starts  a GATT service instance.
- */
-static BaseType_t prvInitServiceInstance( BTService_t * pxService );
 
 /*
  * @brief Gets an MQTT proxy service instance given a GATT service.
@@ -350,31 +346,6 @@ static uint8_t * prvReallocBuffer( uint8_t * pucOldBuffer,
 }
 
 /*-----------------------------------------------------------*/
-
-static BaseType_t prvInitServiceInstance( BTService_t * pxService )
-{
-    BTStatus_t xStatus;
-    BaseType_t xResult = pdFAIL;
-    IotBleEventsCallbacks_t xCallback;
-
-      xStatus = IotBle_CreateService( pxService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
-    if( xStatus == eBTStatusSuccess )
-    {
-          xResult = pdPASS;
-    }
-
-      if( xResult == pdPASS )
-{
-              xCallback.pConnectionCb = vConnectionCallback;
-
-              if( IotBle_RegisterEventCb( eBLEConnection, xCallback ) != eBTStatusSuccess )
-    {
-                      xResult = pdFAIL;
-    }
-    }
-
-    return xResult;
-}
 
 void prvResetBuffer( MqttBLEService_t* pxService )
 {
@@ -836,10 +807,11 @@ static void vMTUChangedCallback( uint16_t connId,
 
 BaseType_t AwsIotMqttBLE_Init( void )
 {
-    BaseType_t xRet;
     uint8_t ucId;
     IotBleEventsCallbacks_t xCallback;
     MqttBLEService_t *pxService;
+    BTStatus_t status = eBTStatusFail;
+    BaseType_t error = pdFAIL;
 
     usBLEConnMTU = mqttBLEDEFAULT_MTU_SIZE;
 
@@ -856,29 +828,29 @@ BaseType_t AwsIotMqttBLE_Init( void )
         pxService->pxServicePtr->xNumberOfAttributes = eMQTTBLE_NUMBER;
         pxService->pxServicePtr->pxBLEAttributes = (BTAttribute_t *)pxAttributeTable;
 
-        xRet = prvInitServiceInstance( pxService->pxServicePtr );
+        status = IotBle_CreateService( pxService->pxServicePtr, (IotBleAttributeEventCallback_t *)pxCallBackArray );
 
-        if( xRet == pdPASS )
+    	if( status == eBTStatusSuccess )
+    	{
+    		xCallback.pConnectionCb = vConnectionCallback;
+    		status = IotBle_RegisterEventCb( eBLEConnection, xCallback );
+    	}
+
+    	if( status == eBTStatusSuccess )
         {
             pxService->bIsInit = true;
             xCallback.pConnectionCb = vConnectionCallback;
 
-            if( IotBle_RegisterEventCb( eBLEConnection, xCallback ) != eBTStatusSuccess )
-            {
-                xRet = pdFAIL;
-            }
+            status = IotBle_RegisterEventCb( eBLEConnection, xCallback );
         }
 
-        if( xRet == pdPASS )
+    	if( status == eBTStatusSuccess )
         {
             xCallback.pMtuChangedCb = vMTUChangedCallback;
-            if( IotBle_RegisterEventCb( eBLEMtuChanged, xCallback ) != eBTStatusSuccess )
-            {
-                xRet = pdFALSE;
-            }
+            status = IotBle_RegisterEventCb( eBLEMtuChanged, xCallback );
         }
 
-        if( xRet == pdPASS )
+    	if( status == eBTStatusSuccess )
         {
             pxService->xConnection.xSendTimeout = pdMS_TO_TICKS( mqttBLEDEFAULT_SEND_TIMEOUT_MS );
             pxService->xConnection.xSendLock = xSemaphoreCreateBinary();
@@ -888,11 +860,11 @@ BaseType_t AwsIotMqttBLE_Init( void )
             }
             else
             {
-                xRet = pdFAIL;
+            	status = eBTStatusFail;
             }
         }
 
-        if( xRet == pdPASS )
+    	if( status == eBTStatusSuccess )
         {
         	pxService->xConnection.xRecvLock = xSemaphoreCreateBinary();
         	if( pxService->xConnection.xRecvLock != NULL )
@@ -901,22 +873,22 @@ BaseType_t AwsIotMqttBLE_Init( void )
         	}
         	else
         	{
-        		xRet = pdFAIL;
+            	status = eBTStatusFail;
         	}
 
         }
 
-        if( xRet == pdPASS )
+        if( status == pdPASS )
         {
         	pxService->xConnection.xSendBuffer = xStreamBufferCreate( mqttBLETX_BUFFER_SIZE, mqttBLEDEFAULT_MTU_SIZE );
 
             if(pxService->xConnection.xSendBuffer == NULL )
             {
-                xRet = pdFALSE;
+            	status = eBTStatusFail;
             }
         }
 
-        if( xRet == pdFALSE )
+        if( status != eBTStatusSuccess )
         {
             if( pxService->xConnection.xSendLock != NULL )
             {
@@ -937,7 +909,11 @@ BaseType_t AwsIotMqttBLE_Init( void )
         }
     }
 
-    return xRet;
+    if(status == eBTStatusSuccess)
+    {
+    	error = pdPASS;
+    }
+    return error;
 }
 
 /*-----------------------------------------------------------*/

@@ -36,10 +36,12 @@
 #include <string.h>
 
 #include "iot_ble_config.h"
-#include "aws_ble_wifi_provisioning.h"
+#include "iot_ble_wifi_provisioning.h"
 #include "semphr.h"
 #include "aws_json_utils.h"
 
+#define JSON_STR( x )    STR( x )
+#define STR( x )         # x
 
 #define ATTR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
 #define ATTR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
@@ -188,11 +190,6 @@ static void vCharacteristicCallback( IotBleAttributeEvent_t * pEventParam );
 static void vClientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
- * @brief Function used to create and initialize BLE service.
- */
-static BaseType_t prxInitGATTService( void );
-
-/*
  * @brief Parses List Network request params and creates task to list networks.
  */
 static BaseType_t prxHandleListNetworkRequest( uint8_t * pucData,
@@ -297,23 +294,6 @@ static const IotBleAttributeEventCallback_t pxCallBackArray[eNbAttributes] =
   vCharacteristicCallback,
   vClientCharCfgDescrCallback
 };
-
-
-
-BaseType_t prxInitGATTService( void )
-{
-    BTStatus_t xStatus;
-    BaseType_t xResult = pdFAIL;
-
-    /* Select the handle buffer. */
-    xStatus = IotBle_CreateService( (BTService_t *)&xWIFIProvisionningService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
-	if( xStatus == eBTStatusSuccess )
-	{
-		xResult = pdPASS;
-	}
-
-    return xResult;
-}
 
 /*-----------------------------------------------------------*/
 
@@ -1164,7 +1144,8 @@ void prvEditNetworkTask( void * pvParams )
 
 BaseType_t WIFI_PROVISION_Init( void )
 {
-    BaseType_t xStatus = pdTRUE;
+	BTStatus_t status = eBTStatusSuccess;
+	BTStatus_t error = pdFAIL;
 
     if( xWifiProvService.xInit == pdFALSE )
     {
@@ -1177,15 +1158,15 @@ BaseType_t WIFI_PROVISION_Init( void )
 		}
 		else
 		{
-			xStatus = pdFALSE;
+			status = eBTStatusFail;
 		}
 
-        if( xStatus == pdTRUE )
+        if( status == eBTStatusSuccess )
         {
         	xWifiProvService.pxGattService = ( BTService_t *)&xWIFIProvisionningService;
-            xStatus = prxInitGATTService();
+        	status = IotBle_CreateService( (BTService_t *)&xWIFIProvisionningService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
         }
-        if( xStatus == pdTRUE )
+        if( status == eBTStatusSuccess )
         {
         	xWifiProvService.sConnectedIdx = INVALID_INDEX;
         	xWifiProvService.xInit = pdTRUE;
@@ -1193,10 +1174,15 @@ BaseType_t WIFI_PROVISION_Init( void )
     }
     else
     {
-        xStatus = pdFALSE;
+    	status = eBTStatusFail;
     }
 
-    return xStatus;
+    if(status == eBTStatusSuccess)
+    {
+    	error = pdPASS;
+    }
+
+    return error;
 }
 
 /*-----------------------------------------------------------*/

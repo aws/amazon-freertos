@@ -34,7 +34,7 @@
 #include "aws_demo_config.h"
 #include "aws_wifi_connect_task.h"
 #include "aws_iot_network_manager.h"
-#include "aws_ble_wifi_provisioning.h"
+#include "iot_ble_wifi_provisioning.h"
 
 
 #define wifiConnectTASK_NAME              "WiFiConnectTask"

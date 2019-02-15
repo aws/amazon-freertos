@@ -82,27 +82,27 @@ typedef enum
 #define deviceInfoVerison              "version"
 #define deviceInfoBROKER_ENDPOIINT     "brokerEndpoint"
 
-#define JSON_STR( x )    STR( x )
-#define STR( x )         # x
+#define deviceInfoJSON_STR( x )    deviceInfoSTR( x )
+#define deviceInfoSTR( x )         # x
 
 /**
  * JSON format for serializing the response payloads
  */
 #define deviceInfoMTU_MSG_FORMAT    \
     "{"                             \
-    JSON_STR( deviceInfoMTU ) ":%d" \
+    deviceInfoJSON_STR( deviceInfoMTU ) ":%d" \
                               "}"
 #define deviceInfoMTU_MSG_LEN               ( sizeof( deviceInfoMTU_MSG_FORMAT ) + deviceInfoMTU_WIDTH )
 
 #define deviceInfoVERSION_MSG_FORMAT                \
     "{"                                             \
-    JSON_STR( deviceInfoVerison      ) ":\"%.*s\""  \
+    deviceInfoJSON_STR( deviceInfoVerison      ) ":\"%.*s\""  \
                                      "}"
 #define deviceInfoVERSION_MSG_LEN      ( sizeof( deviceInfoVERSION_MSG_FORMAT ) )
 
 #define deviceInfoBROKERENDPOINT_MSG_FORMAT            \
     "{"                                                \
-    JSON_STR( deviceInfoBROKER_ENDPOIINT ) ":\"%.*s\"" \
+    deviceInfoJSON_STR( deviceInfoBROKER_ENDPOIINT ) ":\"%.*s\"" \
                                            "}"
 #define deviceInfoBROKERENDPOINT_MSG_LEN    ( sizeof( deviceInfoBROKERENDPOINT_MSG_FORMAT ) )
 
@@ -122,7 +122,7 @@ typedef struct DeviceInfoService
  *
  * @return pdTRUE if the service is initialized successfully, pdFALSE otherwise
  */
-BaseType_t AFRDeviceInfoSvc_Init( void );
+extern BaseType_t AFRDeviceInfoSvc_Init( void );
 
 
 #endif /* AWS_BLE_DEVICE_INFORMATION_H_ */

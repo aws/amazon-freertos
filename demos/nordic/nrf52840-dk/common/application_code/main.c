@@ -73,7 +73,6 @@
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
-#include "aws_ble_services_init.h"
 #include "app_uart.h"
 
 /* MQTT v4 include. */

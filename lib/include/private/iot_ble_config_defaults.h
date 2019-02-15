@@ -86,7 +86,7 @@
 	#error "IOT_BLE_ADVERTISING_INTERVAL_MIN need to be defined"
 	#endif
 #define IOT_BLE_ADVERTISING_INTERVAL_MIN 0x20
-#define bleconfigADVERTISING_INTERVAL_MAX 0x40
+#define IOT_BLE_ADVERTISING_INTERVAL_MAX 0x40
 #endif
 
 /**
@@ -187,15 +187,11 @@
     #define IOT_BLE_MAX_NETWORK                  ( 50 )
 #endif
 
-
 /**
- * @brief Enable sample GATT service
- *
- * By default the GATT demo service will be enabled.
- *
+ * @brief Set to true if user wants to add its own custom services.
  */
-#ifndef IOT_BLE_ENABLE_GATT_DEMO
-#define IOT_BLE_ENABLE_GATT_DEMO                 ( 0 )
+#ifndef IOT_BLE_ADD_CUSTOM_SERVICES
+    #define IOT_BLE_ADD_CUSTOM_SERVICES        ( 0 )
 #endif
 
 /**
