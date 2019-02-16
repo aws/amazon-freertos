@@ -117,6 +117,11 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
                              uint16_t connId,
                              bool xConnected,
                              BTBdaddr_t * pxBda );
+/**
+ * @brief Callback invoked if advertisement started
+ * @param xStatus[in] Status of the start advertisement operation.
+ */
+static void prvStartAdvCallback( BTStatus_t xStatus );
 #endif
 
 #if WIFI_ENABLED
@@ -247,6 +252,14 @@ static bool prvBLEDisable( void )
 	return xRet;
 }
 
+static void prvStartAdvCallback( BTStatus_t xStatus )
+{
+    if( xStatus == eBTStatusSuccess )
+    {
+        AwsIotLogInfo ( "Started advertisement. Listening for a BLE Connection.\n" );
+    }
+}
+
 static void prvBLEConnectionCallback( BTStatus_t xStatus,
                              uint16_t connId,
                              bool xConnected,
@@ -270,7 +283,7 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
         prvInvokeNetworkStateChangeCallbacks( AWSIOT_NETWORK_TYPE_BLE, eNetworkStateDisabled );
         if( ( ulEnabledNetworks &  AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
         {
-            ( void ) IotBle_StartAdv( );
+            ( void ) IotBle_StartAdv( prvStartAdvCallback );
         }
 
     }

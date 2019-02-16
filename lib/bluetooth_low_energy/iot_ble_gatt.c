@@ -234,6 +234,28 @@ void _serverUnregisteredCb( BTStatus_t status,
 
 /*-----------------------------------------------------------*/
 
+BTStatus_t _getConnectionInfo( uint16_t connId,
+                                  IotBleConnectionInfoListElement_t ** pvConnectionInfo )
+{
+    BTStatus_t status = eBTStatusFail;
+    IotBleConnectionInfoListElement_t * pConnInfoListElem;
+    IotLink_t * pConnListIndex;
+
+    IotContainers_ForEach( &_BTInterface.connectionListHead, pConnListIndex )
+    {
+        pConnInfoListElem = IotLink_Container( IotBleConnectionInfoListElement_t, pConnListIndex, connectionList );
+
+        if( connId == pConnInfoListElem->connId )
+        {
+            status = eBTStatusSuccess;
+            *pvConnectionInfo = pConnInfoListElem;
+            break;
+        }
+    }
+
+    return status;
+}
+
 void _connectionCb( uint16_t connId,
                     uint8_t serverIf,
                     bool connected,
@@ -266,7 +288,7 @@ void _connectionCb( uint16_t connId,
         }
         else
         {
-            status = IotBle_GetConnectionInfo( connId, &pConnInfoListElem );
+            status = _getConnectionInfo( connId, &pConnInfoListElem );
 
             if( status == eBTStatusSuccess )
             {
@@ -869,23 +891,10 @@ BTStatus_t IotBle_GetConnectionInfo( uint16_t connId,
                                   IotBleConnectionInfoListElement_t ** pvConnectionInfo )
 {
     BTStatus_t status = eBTStatusFail;
-    IotBleConnectionInfoListElement_t * pConnInfoListElem;
-    IotLink_t * pConnListIndex;
 
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &_BTInterface.threadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
-        IotContainers_ForEach( &_BTInterface.connectionListHead, pConnListIndex )
-        {
-            pConnInfoListElem = IotLink_Container( IotBleConnectionInfoListElement_t, pConnListIndex, connectionList );
-
-            if( connId == pConnInfoListElem->connId )
-            {
-                status = eBTStatusSuccess;
-                *pvConnectionInfo = pConnInfoListElem;
-                break;
-            }
-        }
-
+    	status = _getConnectionInfo(connId, pvConnectionInfo);
         xSemaphoreGive( ( SemaphoreHandle_t ) &_BTInterface.threadSafetyMutex );
     }
 

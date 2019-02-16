@@ -831,12 +831,6 @@ BaseType_t AwsIotMqttBLE_Init( void )
         status = IotBle_CreateService( pxService->pxServicePtr, (IotBleAttributeEventCallback_t *)pxCallBackArray );
 
     	if( status == eBTStatusSuccess )
-    	{
-    		xCallback.pConnectionCb = vConnectionCallback;
-    		status = IotBle_RegisterEventCb( eBLEConnection, xCallback );
-    	}
-
-    	if( status == eBTStatusSuccess )
         {
             pxService->bIsInit = true;
             xCallback.pConnectionCb = vConnectionCallback;
@@ -878,7 +872,7 @@ BaseType_t AwsIotMqttBLE_Init( void )
 
         }
 
-        if( status == pdPASS )
+        if( status == eBTStatusSuccess )
         {
         	pxService->xConnection.xSendBuffer = xStreamBufferCreate( mqttBLETX_BUFFER_SIZE, mqttBLEDEFAULT_MTU_SIZE );
 

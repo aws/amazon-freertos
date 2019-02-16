@@ -44,23 +44,24 @@
  *
  * Note: The size of the advertisement message is limited, it is up to the application to make sure everything fits in the advertisement message.
  * For example, with BT 5.0 spec, Advertising 2 UUID of 128 bits, will consume all the advertisement message space (32 bytes).
- *
+ * @Warning: Blocking API should not be called from a callback.
  */
 typedef struct
 {
-    bool includeTxPower;       /**< Include Tx Power in advertisement message. */
-    bool includeName;          /**< Include device name in advertisement message. */
-    bool setScanRsp;           /**< Set to true if the user wishes to set up a scan response instead of an advertisement message. */
+
     uint32_t appearance;      /**< Appearance. */
     uint32_t minInterval;     /**< Minimum connection interval. */
     uint32_t maxInterval;     /**< Maximum connection interval. */
-    uint16_t manufacturerLen; /**< Length of manufacturer data. */
     char * pManufacturerData;  /**< Manufacturer data */
-    uint16_t serviceDataLen;  /**< Service data length */
     char * pServiceData;	    /**< Service data */
     BTUuid_t * pUUID1;         /**< First UUID to advertise. */
     BTUuid_t * pUUID2;         /**< Second UUID to advertise. */
-} IotBleAdvertismentParams_t;
+    uint16_t manufacturerLen; /**< Length of manufacturer data. */
+    uint16_t serviceDataLen;  /**< Service data length */
+    bool includeTxPower;       /**< Include Tx Power in advertisement message. */
+    bool includeName;          /**< Include device name in advertisement message. */
+    bool setScanRsp;           /**< Set to true if the user wishes to set up a scan response instead of an advertisement message. */
+} IotBleAdvertisementParams_t;
 
 /**
  * @brief Connection parameters.
@@ -80,13 +81,12 @@ typedef struct
 typedef struct
 {
     IotLink_t connectionList;
-
     IotBleConnectionParam_t connectionParams; /**< Connection parameters. */
-    uint16_t connId;                      /**< Connection Id. */
     BTBdaddr_t remoteBdAddr;              /**< Remote device address. */
-    bool isBonded;                         /**< True if device is bonded. */
     BTSecurityLevel_t securityLevel;       /**< Security level of the connection. */
     IotLink_t clientCharDescrListHead;        /**< Head of CCD list. */
+    uint16_t connId;                      /**< Connection Id. */
+    bool isBonded;                         /**< True if device is bonded. */
 } IotBleConnectionInfoListElement_t;
 
 /**
@@ -134,15 +134,15 @@ typedef struct
  */
 typedef struct
 {
-    uint16_t connId;            /**< Connection ID. */
     uint32_t transId;           /**< Transaction ID. */
     BTBdaddr_t * pRemoteBdAddr;  /**< Remote device address. */
+    uint8_t * pValue;           /**< Data to write. */
+    size_t length;               /**< Data length. */
+    uint16_t connId;            /**< Connection ID. */
     uint16_t attrHandle;        /**< Param handle. */
     uint16_t offset;            /**< Write offset. */
-    size_t length;               /**< Data length. */
     bool needRsp;                /**< Need to respond. */
     bool isPrep;                 /**< Set to true if it is a prepare write. */
-    uint8_t * pValue;           /**< Data to write. */
 } IotBleWriteEventParams_t;
 
 /**
@@ -150,9 +150,9 @@ typedef struct
  */
 typedef struct
 {
-    uint16_t connId;            /**< Connection ID. */
     uint32_t transId;           /**< Transaction ID. */
     BTBdaddr_t * pRemoteBdAddr;  /**< Remote device address. */
+    uint16_t connId;            /**< Connection ID. */
     bool execWrite;              /**< Execute Write command. */
 } IotBleExecWriteEventParams_t;
 
@@ -170,9 +170,9 @@ typedef struct
  */
 typedef struct
 {
+    BTAttribute_t * pAttribute; /**< Pointer to attribute being accessed. */
     uint16_t connId;            /**< Connection ID. */
     BTStatus_t status;           /**< Reported status. */
-    BTAttribute_t * pAttribute; /**< Pointer to attribute being accessed. */
 } IotBleIndicationSentEventParams_t;
 
 /**
@@ -180,7 +180,6 @@ typedef struct
  */
 struct IotBleAttributeEvent
 {
-    IotBleAttributeEventType_t xEventType; /**< Event type (read/write/...). */
     union
     {
         IotBleReadEventParams_t * pParamRead;                     /**< Read event. */
@@ -189,6 +188,7 @@ struct IotBleAttributeEvent
         IotBleRespConfirmEventParams_t * pParamRespConfim;        /**<Response confirm event. */
         IotBleIndicationSentEventParams_t * pParamIndicationSent; /**< Indication event. */
     };
+    IotBleAttributeEventType_t xEventType; /**< Event type (read/write/...). */
 };
 /************************************************************/
 /**
@@ -236,6 +236,12 @@ typedef void (* IotBle_ConnectionCallback_t)( BTStatus_t status,
                                           bool connected,
                                           BTBdaddr_t * pRemoteBdAddr );
 
+/**
+ * @brief  Callback indicating the status of a listen() operation. Invoked on BLE_StartAdv.
+ *
+ * @param[in] status Returns eBTStatusSuccess if operation succeeded.
+ */
+typedef void (* IotBle_StartAdvCallback_t)( BTStatus_t status );
 /**
  * @brief  Callback invoked on BLE_ConnParameterUpdateRequest from remote device.
  *
@@ -321,6 +327,7 @@ typedef union
     void * pvPtr;                                                           /**< Used for generic operations. */
 } IotBleEventsCallbacks_t;
 
+
 /**
  * @brief that implementation of this function need to be given when IOT_BLE_ADD_CUSTOM_SERVICES is true
  * and when the user needs to add his own services
@@ -341,7 +348,7 @@ BTStatus_t IotBle_StopAdv( void );
  *
  * @return Returns eBTStatusSuccess on successful call.
  */
-BTStatus_t IotBle_StartAdv( void );
+BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb );
 
 
 /**
@@ -470,7 +477,6 @@ BTStatus_t IotBle_GetConnectionInfo( uint16_t connId,
  * @return Returns eBTStatusSuccess on successful call.
  */
 BTStatus_t IotBle_ConfirmNumericComparisonKeys( BTBdaddr_t * pBdAddr, bool keyAccepted );
-
 
 /**
  * Turns on the BLE radio
