@@ -63,7 +63,7 @@ static const BTUuid_t _serverUUID =
     .ucType   = eBTuuidType128,
     .uu.uu128 = IOT_BLE_SERVER_UUID
 };
-static const IotBleAdvertismentParams_t _scanRespParams =
+static const IotBleAdvertisementParams_t _scanRespParams =
 {
     .includeTxPower    = false,
     .includeName       = true,
@@ -79,7 +79,7 @@ static const IotBleAdvertismentParams_t _scanRespParams =
     .pUUID2            = NULL
 };
 
-static const IotBleAdvertismentParams_t _advParams =
+static const IotBleAdvertisementParams_t _advParams =
 {
     .includeTxPower    = true,
     .includeName       = false,
@@ -326,7 +326,7 @@ void _bondedCb( BTStatus_t status,
 }
 
 
-BTStatus_t _StartAllServices()
+BTStatus_t _startAllServices()
 {
 	BTStatus_t status = eBTStatusSuccess;
 	BaseType_t error;
@@ -358,7 +358,7 @@ BTStatus_t _StartAllServices()
 }
 /*-----------------------------------------------------------*/
 
-BTStatus_t _setAdvData(IotBleAdvertismentParams_t * pAdvParams)
+BTStatus_t _setAdvData(IotBleAdvertisementParams_t * pAdvParams)
 {
 	BTStatus_t status = eBTStatusSuccess;
 	BTGattAdvertismentParams_t pParams;
@@ -399,38 +399,17 @@ BTStatus_t _setAdvData(IotBleAdvertismentParams_t * pAdvParams)
 																 NULL,
 																 pServiceUuide,
 																 countService );
-	/* For for configure operation to complete. */
-    if(status == eBTStatusSuccess)
-    {
-        xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
-                             1 << eBLEHALEventAdvAndScanRespCb,
-                             pdTRUE,
-                             pdTRUE,
-                             portMAX_DELAY );
 
-        status = _BTInterface.cbStatus;
-    }
 
 	return status;
 }
 
-BTStatus_t IotBle_StartAdv( void )
+BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb )
 {
     BTStatus_t status = eBTStatusSuccess;
 
-
+    _BTInterface.pStartAdvCb = pStartAdvCb;
     status = _BTInterface.pBTLeAdapterInterface->pxStartAdv( _BTInterface.adapterIf );
-	/* For for configure operation to complete. */
-    if(status == eBTStatusSuccess)
-    {
-        xEventGroupWaitBits( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete,
-                             1 << eBLEHALEventAdvAndScanRespCb,
-                             pdTRUE,
-                             pdTRUE,
-                             portMAX_DELAY );
-
-        status = _BTInterface.cbStatus;
-    }
 
     return status;
 }
@@ -630,24 +609,24 @@ BTStatus_t IotBle_Init( void )
     /* Start services. */
     if( status == eBTStatusSuccess )
     {
-    	status = _StartAllServices();
+    	status = _startAllServices();
     }
 
 
     /* Initialize advertisement and scan response. */
     if( status == eBTStatusSuccess )
     {
-    	status = _setAdvData(( IotBleAdvertismentParams_t *)&_advParams);
+    	status = _setAdvData(( IotBleAdvertisementParams_t *)&_advParams);
     	if( status == eBTStatusSuccess )
     	{
-    		status = _setAdvData(( IotBleAdvertismentParams_t *)&_scanRespParams);
+    		status = _setAdvData(( IotBleAdvertisementParams_t *)&_scanRespParams);
     	}
     }
 
     /* Start advertisement. */
     if( status == eBTStatusSuccess )
     {
-    	IotBle_StartAdv();
+    	IotBle_StartAdv(NULL);
     }
 
     return status;
