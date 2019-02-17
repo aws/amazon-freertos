@@ -96,7 +96,7 @@ typedef enum
 /**
  * @brief Used to set and retrieve the state of BLE proxy.
  */
-#define mqttBLEPARAM_STATE             "ps"
+#define mqttBLEPARAM_STATE             "l"
 
 #define mqttBLE_NUM_CONTROL_MESG_PARAMS  ( 1 )
 
