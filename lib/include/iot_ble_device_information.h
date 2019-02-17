@@ -32,7 +32,6 @@
 #define AWS_BLE_DEVICE_INFORMATION_H_
 
 #include "iot_ble.h"
-#include "iot_ble_config.h"
 
 
 /**
@@ -47,7 +46,7 @@
 /**
  * @brief Number of characteristics, descriptors and included services for Device Information Service
  */
-#define deviceInfoMAX_CHARS               3
+#define deviceInfoMAX_CHARS               4
 #define deviceInfoMAX_DESCRS              1
 #define deviceInfoMAX_INC_SVCS            0
 
@@ -59,6 +58,7 @@ typedef enum
     eDeviceInfoVersionChar = 0,         /**< eDeviceInfoVersionChar Exposes the services version for the device */
     eDeviceInfoMQTTBrokerEndpointChar, /**< eDeviceInfoMQTTBrokerEndpointChar Exposes the IOT broker endpoint with which the device is provisioned */
     eDeviceInfoMtuChar,                /**< eDeviceInfoMtuChar Expose the BLE MTU for the device */
+    eDeviceInfoEncodingChar,           /**< eDeviceInfoEncodingChar Tells what type of encoding is used by the device. */
 } DeviceInfoCharacteristic_t;
 
 /**
@@ -71,40 +71,13 @@ typedef enum
 
 /**
  *
- * JSON tokens used within the messages exchanged between GATT client and Server.
+ * Device information characteristics width.
  *
  */
 
 #define INT_MAX_WIDTH                  ( 6 )
 #define deviceInfoMTU_WIDTH            ( INT_MAX_WIDTH )
 #define deviceInfoVERSION_WIDTH        ( INT_MAX_WIDTH )
-#define deviceInfoMTU                  "mtu"
-#define deviceInfoVerison              "version"
-#define deviceInfoBROKER_ENDPOIINT     "brokerEndpoint"
-
-#define deviceInfoJSON_STR( x )    deviceInfoSTR( x )
-#define deviceInfoSTR( x )         # x
-
-/**
- * JSON format for serializing the response payloads
- */
-#define deviceInfoMTU_MSG_FORMAT    \
-    "{"                             \
-    deviceInfoJSON_STR( deviceInfoMTU ) ":%d" \
-                              "}"
-#define deviceInfoMTU_MSG_LEN               ( sizeof( deviceInfoMTU_MSG_FORMAT ) + deviceInfoMTU_WIDTH )
-
-#define deviceInfoVERSION_MSG_FORMAT                \
-    "{"                                             \
-    deviceInfoJSON_STR( deviceInfoVerison      ) ":\"%.*s\""  \
-                                     "}"
-#define deviceInfoVERSION_MSG_LEN      ( sizeof( deviceInfoVERSION_MSG_FORMAT ) )
-
-#define deviceInfoBROKERENDPOINT_MSG_FORMAT            \
-    "{"                                                \
-    deviceInfoJSON_STR( deviceInfoBROKER_ENDPOIINT ) ":\"%.*s\"" \
-                                           "}"
-#define deviceInfoBROKERENDPOINT_MSG_LEN    ( sizeof( deviceInfoBROKERENDPOINT_MSG_FORMAT ) )
 
 /**
  * @brief Structure used for Device Information Service
@@ -116,6 +89,7 @@ typedef struct DeviceInfoService
     uint16_t usBLEConnId;
     uint16_t usBLEMtu;
 } DeviceInfoService_t;
+
 
 /**
  * @Brief Creates and starts Amazon FreeRTOS device information service

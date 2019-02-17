@@ -35,6 +35,7 @@
 #include <string.h>
 
 #include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
 
 #include "stream_buffer.h"
 #include "semphr.h"
@@ -80,7 +81,7 @@ typedef enum {
   eMQTTBLE_CHAR_TX_LARGE_MESG,               //!< eMQTTBLETXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker
   eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG,    //!< eMQTTBLE_CHAR_DESCR_TX_LARGE_MESG Characteristic descripto
   eMQTTBLE_CHAR_RX_LARGE,                    //!  eMQTTBLERXLargeMessage Characteristic to receive large message (> BLE MTU Size) from MQTT broke
-  eMQTTBLE_NUMBER                       //!< eMQTTBLEAttributes_t Number of attributes in eMQTT service
+  eMQTTBLE_NUM_ATTRIBUTES                       //!< eMQTTBLEAttributes_t Number of attributes in eMQTT service
 } MQTTBLEAttributes_t;
 
 /**
@@ -95,20 +96,9 @@ typedef enum
 /**
  * @brief Used to set and retrieve the state of BLE proxy.
  */
-#define mqttBLESTATE              "proxyState"
-#define mqttBLEMAX_TOKENS         ( 3 )
+#define mqttBLEPARAM_STATE             "ps"
 
-#define JSON_STR(x)		STR(x)
-#define STR(x)		#x
-
-/**
- * JSON message format for enabling/disabling MQTT proxy.
- */
-#define mqttBLESTATE_MESSAGE 	   	            \
-		"{"      							    \
-	    JSON_STR(mqttBLESTATE)":%d" 		    \
-		"}"
-#define mqttBLESTATE_MSG_LEN ( sizeof( mqttBLESTATE_MESSAGE ) )
+#define mqttBLE_NUM_CONTROL_MESG_PARAMS  ( 1 )
 
 /**
  * @brief Default MTU size for the BLE connection

@@ -36,8 +36,8 @@
 #include "iot_ble_config.h"
 #include "iot_ble_mqtt.h"
 #include "task.h"
-#include "FreeRTOSConfig.h"
-#include "aws_json_utils.h"
+
+#include "aws_iot_serializer.h"
 
 
 #define mqttBLECHAR_CONTROL_UUID_TYPE \
@@ -84,7 +84,11 @@
     .ucType   = eBTuuidType128\
 }
 
-static uint16_t pusHandlesBuffer[mqttBLEMAX_SVC_INSTANCES][eMQTTBLE_NUMBER];
+#define IS_VALID_SERIALIZER_RET( ret, pxSerializerBuf )                                \
+    (  ( ret == AWS_IOT_SERIALIZER_SUCCESS ) ||                                        \
+          (  ( !pxSerializerBuf ) && ( ret == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
+
+static uint16_t pusHandlesBuffer[mqttBLEMAX_SVC_INSTANCES][eMQTTBLE_NUM_ATTRIBUTES];
 
 #define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
 #define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
@@ -195,38 +199,43 @@ static uint8_t * prvReallocBuffer( uint8_t * pucOldBuffer,
 /*
  * @brief Callback to register for events (read) on TX message characteristic.
  */
-void vTXMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void vTXMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Callback to register for events (write) on RX message characteristic.
  *
  */
-void vRXMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void vRXMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Callback to register for events (read) on TX large message characteristic.
  * Buffers a large message and sends the message in chunks of size MTU at a time as response
  * to the read request. Keeps the buffer until last message is read.
  */
-void vTXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void vTXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Callback to register for events (write) on RX large message characteristic.
  * Copies the individual write packets into a buffer untill a packet less than BLE MTU size
  * is received. Sends the buffered message to the MQTT layer.
  */
-void vRXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void vRXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Callback for Client Characteristic Configuration Descriptor events.
  */
 void vClientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam );
 
+
+static BaseType_t prxGetMqttStateFromMessage( uint8_t* pucMessage, size_t xMessageLen, BaseType_t *pxState );
+
+static BaseType_t prxSerializeMqttControlMessage(  BaseType_t xState, uint8_t* pucBuffer, size_t* pxLength );
+
 /*
  * @brief This is the callback to the control characteristic. It is used to toggle ( turn on/off)
  * MQTT proxy service by the BLE IOS/Android app.
  */
-void vToggleMQTTService( IotBleAttributeEvent_t * pEventParam );
+static void vToggleMQTTService( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Resets the send and receive buffer for the given MQTT Service.
@@ -235,7 +244,7 @@ void vToggleMQTTService( IotBleAttributeEvent_t * pEventParam );
  *
  * @param[in]  pxService Pointer to the MQTT service.
  */
-void prvResetBuffer( MqttBLEService_t* pxService );
+static void prvResetBuffer( MqttBLEService_t* pxService );
 
 /*
  * @brief Callback for BLE connect/disconnect. Toggles the Proxy state to off on a BLE disconnect.
@@ -257,7 +266,7 @@ static void vMTUChangedCallback( uint16_t connId,
 extern int snprintf( char *, size_t, const char *, ... );
 /*------------------------------------------------------------------------------------*/
 
-static const IotBleAttributeEventCallback_t pxCallBackArray[eMQTTBLE_NUMBER] =
+static const IotBleAttributeEventCallback_t pxCallBackArray[eMQTTBLE_NUM_ATTRIBUTES] =
         {
   NULL,
   vToggleMQTTService,
@@ -280,7 +289,7 @@ static MqttBLEService_t * prxGetServiceInstance( uint16_t usHandle )
     {
         /* Check that the handle is included in the service. */
         if(( usHandle > pusHandlesBuffer[ucId][0] )&&
-          (usHandle <= pusHandlesBuffer[ucId][eMQTTBLE_NUMBER - 1]))
+          (usHandle <= pusHandlesBuffer[ucId][eMQTTBLE_NUM_ATTRIBUTES - 1]))
         {
             pxMQTTSvc = &xMqttBLEServices[ ucId ];
             break;
@@ -386,6 +395,88 @@ void prvResetBuffer( MqttBLEService_t* pxService )
 
 }
 
+
+
+static BaseType_t prxGetMqttStateFromMessage( uint8_t* pucMessage, size_t xMessageLen, BaseType_t *pxState )
+{
+    AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
+    AwsIotSerializerError_t xRet = AWS_IOT_SERIALIZER_SUCCESS;
+    BaseType_t xResult = pdTRUE;
+
+    xRet = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( uint8_t * ) pucMessage, xMessageLen );
+
+    if( ( xRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
+            ( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    {
+        configPRINTF(( "Failed to initialize the decoder, error = %d, object type = %d\n", xRet, xDecoderObj.type ));
+        xResult = pdFALSE;
+    }
+
+    if( xResult == pdTRUE )
+    {
+        xRet = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEPARAM_STATE, &xValue );
+        if( ( xRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
+                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        {
+            configPRINTF(( "Failed to get state parameter, error = %d, value type = %d\n", xRet, xValue.type ));
+            xResult = pdFALSE;
+        }
+        else
+        {
+            *pxState  = ( BaseType_t ) xValue.value.signedInt;
+        }
+    }
+
+    IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+
+    return xResult;
+}
+
+static BaseType_t prxSerializeMqttControlMessage(  BaseType_t xState, uint8_t* pucBuffer, size_t* pxLength )
+{
+    AwsIotSerializerEncoderObject_t xContainer = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
+    AwsIotSerializerEncoderObject_t xStateMesgMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    AwsIotSerializerScalarData_t xValue = { 0 };
+    AwsIotSerializerError_t xRet = AWS_IOT_SERIALIZER_SUCCESS;
+    BaseType_t xResult = pdFALSE;
+    size_t xLength = *pxLength;
+
+    xRet = IOT_BLE_MESG_ENCODER.init( &xContainer, pucBuffer, xLength );
+    if( xRet == AWS_IOT_SERIALIZER_SUCCESS )
+    {
+        xRet = IOT_BLE_MESG_ENCODER.openContainer( &xContainer, &xStateMesgMap, mqttBLE_NUM_CONTROL_MESG_PARAMS );
+    }
+
+    if( IS_VALID_SERIALIZER_RET( xRet, pucBuffer ) )
+    {
+        xValue.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        xValue.value.signedInt = xState;
+        xRet = IOT_BLE_MESG_ENCODER.appendKeyValue( &xStateMesgMap, mqttBLEPARAM_STATE, xValue );
+    }
+
+    if( IS_VALID_SERIALIZER_RET( xRet, pucBuffer ) )
+    {
+        xRet = IOT_BLE_MESG_ENCODER.closeContainer( &xContainer, &xStateMesgMap );
+    }
+
+    if( IS_VALID_SERIALIZER_RET( xRet, pucBuffer ) )
+    {
+        if( pucBuffer == NULL )
+        {
+            *pxLength = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &xContainer );
+        }
+        else
+        {
+            *pxLength = IOT_BLE_MESG_ENCODER.getEncodedSize( &xContainer, pucBuffer );
+        }
+
+        IOT_BLE_MESG_ENCODER.destroy( &xContainer );
+        xResult = pdTRUE;
+    }
+
+    return xResult;
+}
+
 /*-----------------------------------------------------------*/
 
 void vToggleMQTTService( IotBleAttributeEvent_t * pEventParam )
@@ -394,10 +485,10 @@ void vToggleMQTTService( IotBleAttributeEvent_t * pEventParam )
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
     MqttBLEService_t * pxService;
-    jsmntok_t xTokens[ mqttBLEMAX_TOKENS ];
-    int16_t sNumTokens, sProxyEnable;
+    BaseType_t xProxyEnable;
     BaseType_t xResult;
-    char cMsg[ mqttBLESTATE_MSG_LEN + 1 ];
+    uint8_t *pucMesg = NULL;
+    size_t xMesgLen = 0;
 
     xResp.pAttrData = &xAttrData;
     xResp.rspErrorStatus = eBTRspErrorNone;
@@ -413,26 +504,21 @@ void vToggleMQTTService( IotBleAttributeEvent_t * pEventParam )
 
         if( !pxWriteParam->isPrep )
         {
-            sNumTokens = JsonUtils_Parse( ( const char * ) pxWriteParam->pValue, pxWriteParam->length, xTokens, mqttBLEMAX_TOKENS );
+            xResult = prxGetMqttStateFromMessage( pxWriteParam->pValue, pxWriteParam->length, &xProxyEnable );
 
-            if( sNumTokens > 0 )
+            if( xResult == pdTRUE )
             {
-                xResult = JsonUtils_GetInt16Value( ( const char * ) pxWriteParam->pValue, xTokens, sNumTokens, mqttBLESTATE, strlen( mqttBLESTATE ), &sProxyEnable );
-
-                if( xResult == pdTRUE )
+                if( xProxyEnable == pdTRUE )
                 {
-                    if( sProxyEnable == pdTRUE )
-                    {
-                    	pxService->bIsEnabled = true;
-                    }
-                    else
-                    {
-                    	pxService->bIsEnabled = false;
-                        prvResetBuffer( pxService );
-                    }
-
-                    xResp.eventStatus = eBTStatusSuccess;
+                    pxService->bIsEnabled = true;
                 }
+                else
+                {
+                    pxService->bIsEnabled = false;
+                    prvResetBuffer( pxService );
+                }
+
+                xResp.eventStatus = eBTStatusSuccess;
             }
         }
 
@@ -449,12 +535,31 @@ void vToggleMQTTService( IotBleAttributeEvent_t * pEventParam )
         pxService = prxGetServiceInstance( pEventParam->pParamRead->attrHandle );
         configASSERT( ( pxService != NULL ) );
 
-        xResp.pAttrData->handle =pEventParam->pParamRead->attrHandle;
-        xResp.eventStatus = eBTStatusSuccess;
-        xResp.pAttrData->pData = ( uint8_t * ) cMsg;
-        xResp.attrDataOffset = 0;
-        xResp.pAttrData->size = snprintf( cMsg, mqttBLESTATE_MSG_LEN, mqttBLESTATE_MESSAGE, pxService->bIsEnabled);
-        IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
+        xResult = prxSerializeMqttControlMessage( ( BaseType_t ) pxService->bIsEnabled, NULL, &xMesgLen );
+        if( xResult == pdTRUE )
+        {
+            pucMesg = pvPortMalloc( xMesgLen );
+            if( pucMesg != NULL )
+            {
+                xResult = prxSerializeMqttControlMessage( ( BaseType_t ) pxService->bIsEnabled, pucMesg, &xMesgLen );
+            }
+            else
+            {
+                configPRINTF(( "Failed to allocate memory to send state message\n" ));
+                xResult = pdFALSE;
+            }
+        }
+        if( xResult == pdTRUE )
+        {
+
+
+            xResp.pAttrData->handle =pEventParam->pParamRead->attrHandle;
+            xResp.eventStatus = eBTStatusSuccess;
+            xResp.pAttrData->pData = ( uint8_t * ) pucMesg;
+            xResp.attrDataOffset = 0;
+            xResp.pAttrData->size = xMesgLen;
+            IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
+        }
     }
 }
 /*-----------------------------------------------------------*/
@@ -825,7 +930,7 @@ BaseType_t AwsIotMqttBLE_Init( void )
         pxService->pxServicePtr = &xBLEServices[ucId];
         pxService->pxServicePtr->pusHandlesBuffer = pusHandlesBuffer[ucId];
         pxService->pxServicePtr->ucInstId = ucId;
-        pxService->pxServicePtr->xNumberOfAttributes = eMQTTBLE_NUMBER;
+        pxService->pxServicePtr->xNumberOfAttributes = eMQTTBLE_NUM_ATTRIBUTES;
         pxService->pxServicePtr->pxBLEAttributes = (BTAttribute_t *)pxAttributeTable;
 
         status = IotBle_CreateService( pxService->pxServicePtr, (IotBleAttributeEventCallback_t *)pxCallBackArray );

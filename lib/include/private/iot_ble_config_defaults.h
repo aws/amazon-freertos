@@ -213,8 +213,8 @@
 #define IOT_BLE_CHAR_READ_PERM             eBTPermRead
 #define IOT_BLE_CHAR_WRITE_PERM            eBTPermWrite
 #endif
-#define IOT_BLE_ENABLE_JSON_ENCODING           ( 1 )
 
-#define IOT_BLE_ENABLE_CBOR_ENCODING           ( 0 )
+#define IOT_BLE_MESG_ENCODER           ( _AwsIotSerializerCborEncoder )
+#define IOT_BLE_MESG_DECODER           ( _AwsIotSerializerCborDecoder )
 
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */

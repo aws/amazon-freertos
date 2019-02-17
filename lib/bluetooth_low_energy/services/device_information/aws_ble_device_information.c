@@ -37,9 +37,11 @@
 #include "FreeRTOS.h"
 #include "iot_ble_device_information.h"
 #include "semphr.h"
-#include "aws_json_utils.h"
 #include "aws_clientcredential.h"
 #include "task.h"
+
+#define INT64_WIDTH                         ( 20 )
+#define MAX_INTEGER_BUFFER_WIDTH            ( INT64_WIDTH + 1 )
 
 /*------------------------------------------------------------------------------------*/
 extern int snprintf( char *, size_t, const char *, ... );
@@ -47,7 +49,7 @@ static DeviceInfoService_t xService =
 {
     .pxBLEService = NULL,
     .usBLEConnId  = 65535,
-    .usBLEMtu     =     0,
+    .usBLEMtu     = 0,
     .usCCFGVal    = { 0 }
 };
 
@@ -177,9 +179,9 @@ void vDeviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam );
  */
 void vDeviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam );
 
+
 /**
- * @brief Callback invoked when GATT client reads the device version Characteristic
- *
+ * @brief Callback invoked when GATT client reads the encoding Characteristic
  * Returns the version for the device in a JSON payload as response.
  *
  * @param[in] pxAttribute Device version characteristic attribute
@@ -274,7 +276,8 @@ void vDeviceInfoCCFGCallback( IotBleAttributeEvent_t * pEventParam )
     if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pEventParam->pParamWrite;
-        xResp.pAttrData->handle = pxWriteParam->attrHandle;
+        xAttrData.handle = pxWriteParam->attrHandle;
+
         if( pxWriteParam->length == 2 )
         {
             xService.usCCFGVal[ eDeviceInfoMtuCharDescr ] = ( pxWriteParam->pValue[ 1 ] << 8 ) | pxWriteParam->pValue[ 0 ];
@@ -283,19 +286,21 @@ void vDeviceInfoCCFGCallback( IotBleAttributeEvent_t * pEventParam )
 
         if( pEventParam->xEventType == eBLEWrite )
         {
-            xResp.pAttrData->pData = pxWriteParam->pValue;
-            xResp.pAttrData->size = pxWriteParam->length;
+            xAttrData.pData = pxWriteParam->pValue;
+            xAttrData.size = pxWriteParam->length;
             xResp.attrDataOffset = pxWriteParam->offset;
             IotBle_SendResponse( &xResp, pxWriteParam->connId, pxWriteParam->transId );
         }
     }
     else if( pEventParam->xEventType == eBLERead )
     {
-        xResp.eventStatus = eBTStatusSuccess;
-        xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-        xResp.pAttrData->pData = ( uint8_t * ) &xService.usCCFGVal[ eDeviceInfoMtuCharDescr ];
-        xResp.pAttrData->size = 2;
+
+        xAttrData.handle = pEventParam->pParamRead->attrHandle;
+        xAttrData.pData = ( uint8_t * ) &xService.usCCFGVal[ eDeviceInfoMtuCharDescr ];
+        xAttrData.size = 2;
         xResp.attrDataOffset = 0;
+        xResp.eventStatus = eBTStatusSuccess;
+
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
@@ -306,40 +311,21 @@ void vDeviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam
 {
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
-    uint32_t ulMsgLen = deviceInfoBROKERENDPOINT_MSG_LEN + sizeof( clientcredentialMQTT_BROKER_ENDPOINT ) + 1;
-    uint8_t * pucData;
-    uint32_t ulSendLen;
 
-    xResp.pAttrData = &xAttrData;
-    xResp.rspErrorStatus = eBTRspErrorNone;
-    xResp.eventStatus = eBTStatusFail;
-    xResp.attrDataOffset = 0;
+
 
     if( pEventParam->xEventType == eBLERead )
     {
-        pucData = pvPortMalloc( ulMsgLen );
+        xAttrData.handle = pEventParam->pParamRead->attrHandle;
+        xAttrData.pData = ( uint8_t *) clientcredentialMQTT_BROKER_ENDPOINT;
+        xAttrData.size = strlen(  clientcredentialMQTT_BROKER_ENDPOINT );
 
-        if( pucData != NULL )
-        {
-            ulSendLen = snprintf( ( char * ) pucData, ulMsgLen, deviceInfoBROKERENDPOINT_MSG_FORMAT,
-                                  strlen( clientcredentialMQTT_BROKER_ENDPOINT ),
-                                  clientcredentialMQTT_BROKER_ENDPOINT );
+        xResp.pAttrData = &xAttrData;
+        xResp.attrDataOffset = 0;
+        xResp.eventStatus = eBTStatusSuccess;
+        xResp.rspErrorStatus = eBTRspErrorNone;
 
-            {
-                xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-                xResp.eventStatus = eBTStatusSuccess;
-                xResp.pAttrData->pData = pucData;
-                xResp.pAttrData->size = ulSendLen;
-                xResp.attrDataOffset = 0;
-                IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
-            }
-
-            vPortFree( pucData );
-        }
-        else
-        {
-            configPRINTF( ( "Cannot allocate memory for sending Broker endpoint response \n" ) );
-        }
+        IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
 
@@ -349,43 +335,24 @@ void vDeviceInfoVersionCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
-    uint32_t ulMsgLen = deviceInfoVERSION_MSG_LEN + strlen( tskKERNEL_VERSION_NUMBER ) + 1;
-    uint8_t * pucData;
-    uint32_t ulSendLen;
 
-    xResp.pAttrData = &xAttrData;
-    xResp.rspErrorStatus = eBTRspErrorNone;
-    xResp.eventStatus = eBTStatusFail;
-    xResp.attrDataOffset = 0;
 
     if( pEventParam->xEventType == eBLERead )
     {
-        pucData = pvPortMalloc( ulMsgLen );
 
-        if( pucData != NULL )
-        {
-            ulSendLen = snprintf( ( char * ) pucData, ulMsgLen, deviceInfoVERSION_MSG_FORMAT,
-                                  strlen( tskKERNEL_VERSION_NUMBER ),
-                                  tskKERNEL_VERSION_NUMBER );
+        xAttrData.handle = pEventParam->pParamRead->attrHandle;
+        xAttrData.pData = ( uint8_t* ) tskKERNEL_VERSION_NUMBER;
+        xAttrData.size = strlen( tskKERNEL_VERSION_NUMBER );
 
-            {
-                xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-                xResp.eventStatus = eBTStatusSuccess;
-                xResp.pAttrData->pData = pucData;
-                xResp.pAttrData->size = ulSendLen;
-                xResp.attrDataOffset = 0;
-                IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
-            }
+        xResp.pAttrData = &xAttrData;
+        xResp.attrDataOffset = 0;
+        xResp.eventStatus = eBTStatusSuccess;
+        xResp.rspErrorStatus = eBTRspErrorNone;
 
-            vPortFree( pucData );
-        }
-        else
-        {
-            configPRINTF( ( "Cannot allocate memory for sending Broker endpoint response \n" ) );
-        }
+
+        IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
-
 
 /*-----------------------------------------------------------*/
 
@@ -393,22 +360,21 @@ void vDeviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
-    char cMTUMsg[ deviceInfoMTU_MSG_LEN + 1 ] = { 0 };
-    uint32_t ulSendLen;
-
-    ulSendLen = snprintf( cMTUMsg, deviceInfoMTU_MSG_LEN, deviceInfoMTU_MSG_FORMAT, xService.usBLEMtu );
-    xResp.pAttrData = &xAttrData;
-    xResp.rspErrorStatus = eBTRspErrorNone;
-    xResp.eventStatus = eBTStatusFail;
-    xResp.attrDataOffset = 0;
+    char cMessage[ MAX_INTEGER_BUFFER_WIDTH  ] = { 0 };
+    size_t xMessageLen;
 
     if( pEventParam->xEventType == eBLERead )
     {
-        xResp.eventStatus = eBTStatusSuccess;
-        xResp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-        xResp.pAttrData->pData = ( uint8_t * ) cMTUMsg;
-        xResp.pAttrData->size = ulSendLen;
+        xMessageLen = snprintf( cMessage, MAX_INTEGER_BUFFER_WIDTH, "%d", xService.usBLEMtu );
+
+        xAttrData.handle = pEventParam->pParamRead->attrHandle;
+        xAttrData.pData = ( uint8_t* ) cMessage;
+        xAttrData.size = xMessageLen;
+
+        xResp.pAttrData = &xAttrData;
         xResp.attrDataOffset = 0;
+        xResp.eventStatus = eBTStatusSuccess;
+        xResp.rspErrorStatus = eBTRspErrorNone;
         IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
@@ -420,18 +386,19 @@ static void vMTUChangedCallback( uint16_t connId,
 {
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp = { 0 };
-    char cMTUMsg[ deviceInfoMTU_MSG_LEN + 1 ] = { 0 };
-    uint32_t ulSendLen;
+    char cMessage[ MAX_INTEGER_BUFFER_WIDTH  ] = { 0 };
+    size_t xMessageLen;
+
 
     if( usMtu != xService.usBLEMtu )
     {
         xService.usBLEMtu = usMtu;
-        ulSendLen = snprintf( cMTUMsg, deviceInfoMTU_MSG_LEN, deviceInfoMTU_MSG_FORMAT, usMtu );
-
+        xMessageLen = snprintf( cMessage, MAX_INTEGER_BUFFER_WIDTH, "%d", xService.usBLEMtu );
+        
         xAttrData.handle = xDeviceInformationService.pusHandlesBuffer[bledeviceinfoATTR_CHAR_MTU];
         xAttrData.uuid = xDeviceInformationService.pxBLEAttributes[bledeviceinfoATTR_CHAR_MTU].xCharacteristic.xUuid;
-        xAttrData.pData = ( uint8_t * ) cMTUMsg;
-        xAttrData.size = ulSendLen;
+        xAttrData.pData = ( uint8_t* ) cMessage;
+        xAttrData.size = xMessageLen;
 
         xResp.attrDataOffset = 0;
         xResp.eventStatus = eBTStatusSuccess;
