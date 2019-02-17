@@ -47,6 +47,9 @@
 /* Application version info. */
 #include "aws_application_version.h"
 
+/* Header file for profiling. */
+#include "kernel_profiling.h"
+
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
@@ -59,69 +62,10 @@ const AppVersion32_t xAppFirmwareVersion = {
    .u.x.usBuild = APP_VERSION_BUILD,
 };
 
-/* Static arrays for FreeRTOS+TCP stack initialization for Ethernet network connections
- * are use are below. If you are using an Ethernet connection on your MCU device it is 
- * recommended to use the FreeRTOS+TCP stack. The default values are defined in 
- * FreeRTOSConfig.h. */
-
-/* Default MAC address configuration.  The demo creates a virtual network
- * connection that uses this MAC address by accessing the raw Ethernet data
- * to and from a real network connection on the host PC.  See the
- * configNETWORK_INTERFACE_TO_USE definition for information on how to configure
- * the real network connection to use. */
-uint8_t ucMACAddress[ 6 ] =
-{
-    configMAC_ADDR0,
-    configMAC_ADDR1,
-    configMAC_ADDR2,
-    configMAC_ADDR3,
-    configMAC_ADDR4,
-    configMAC_ADDR5
-};
-
-/* The default IP and MAC address used by the demo.  The address configuration
- * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
- * 1 but a DHCP server could not be contacted.  See the online documentation for
- * more information.  In both cases the node can be discovered using
- * "ping RTOSDemo". */
-static const uint8_t ucIPAddress[ 4 ] =
-{
-    configIP_ADDR0,
-    configIP_ADDR1,
-    configIP_ADDR2,
-    configIP_ADDR3
-};
-static const uint8_t ucNetMask[ 4 ] =
-{
-    configNET_MASK0,
-    configNET_MASK1,
-    configNET_MASK2,
-    configNET_MASK3
-};
-static const uint8_t ucGatewayAddress[ 4 ] =
-{
-    configGATEWAY_ADDR0,
-    configGATEWAY_ADDR1,
-    configGATEWAY_ADDR2,
-    configGATEWAY_ADDR3
-};
-static const uint8_t ucDNSServerAddress[ 4 ] =
-{
-    configDNS_SERVER_ADDR0,
-    configDNS_SERVER_ADDR1,
-    configDNS_SERVER_ADDR2,
-    configDNS_SERVER_ADDR3
-};
-
 /**
  * @brief Application task startup hook.
  */
 void vApplicationDaemonTaskStartupHook( void );
-
-/**
- * @brief Connects to WiFi.
- */
-static void prvWifiConnect( void );
 
 /**
  * @brief Initializes the board.
@@ -141,24 +85,15 @@ int app_main( void )
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
 							tskIDLE_PRIORITY + 5,
 							mainLOGGING_MESSAGE_QUEUE_LENGTH );
-    FreeRTOS_IPInit( ucIPAddress,
-            ucNetMask,
-            ucGatewayAddress,
-            ucDNSServerAddress,
-            ucMACAddress );
 
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Connect to the wifi before running the demos */
-        prvWifiConnect();
+        configPRINTF( ( "Producer-consumer test case starts.\n\r" ) );
 
-        /* A simple example to demonstrate key and certificate provisioning in
-        * microcontroller flash using PKCS#11 interface. This should be replaced
-        * by production ready key provisioning mechanism. */
-        vDevModeKeyProvisioning();
+        vKernelProfilingMultiProducerConsumerSemaphore( tskIDLE_PRIORITY + 4 );
 
-        /* Run all demos. */
-        DEMO_RUNNER_RunDemos();
+        configPRINTF( ( "Producer-consumer test case ends.\n\r" ) );
+
     }
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
@@ -187,51 +122,7 @@ static void prvMiscInitialization( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
 }
-/*-----------------------------------------------------------*/
 
-void prvWifiConnect( void )
-{
-    WIFINetworkParams_t xNetworkParams;
-    WIFIReturnCode_t xWifiStatus;
-
-    xWifiStatus = WIFI_On();
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "WiFi module initialized. Connecting to AP %s...\r\n", clientcredentialWIFI_SSID ) );
-    }
-    else
-    {
-        configPRINTF( ( "WiFi module failed to initialize.\r\n" ) );
-
-        while( 1 )
-        {
-        }
-    }
-
-    /* Setup parameters. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-
-    xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "WiFi Connected to AP. Creating tasks which use network...\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "WiFi failed to connect to AP.\r\n" ) );
-
-        portDISABLE_INTERRUPTS();
-        while( 1 )
-        {
-        }
-    }
-}
 /*-----------------------------------------------------------*/
 /* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
  * implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
