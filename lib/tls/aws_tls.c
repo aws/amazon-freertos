@@ -52,6 +52,16 @@
 #include <time.h>
 #include <stdio.h>
 
+#ifdef MBEDTLS_DEBUG_C
+    /* Support for writing to SSLKEYLOGFILE for Wireshark TLS decryption. */
+    typedef struct {
+        FILE * xKeyLogFile;
+        int lInClientRandom : 1;
+        int lInMasterSecret : 1;
+        int lHexdumpLinesToProces;
+    } TLSKeyLogDebugContext_t;
+#endif
+
 /**
  * @brief Internal context structure.
  *
@@ -91,6 +101,9 @@ typedef struct TLSContext
     mbedtls_x509_crt xMbedX509Cli;
     mbedtls_pk_context xMbedPkCtx;
     mbedtls_pk_info_t xMbedPkInfo;
+    #ifdef MBEDTLS_DEBUG_C
+        TLSKeyLogDebugContext_t xKeyLogDebugCtx;
+    #endif
 
     /* PKCS#11. */
     CK_FUNCTION_LIST_PTR xP11FunctionList;
@@ -506,6 +519,69 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
+
+#ifdef MBEDTLS_DEBUG_C
+    /* Write to SSLKEYLOGFILE or stderr to support Wireshark TLS packet decryption. */
+    void vKeyLogDebugCallback( void *ctx, int level,
+                                const char *file, int line,
+                                const char *str )
+    {
+        TLSKeyLogDebugContext_t *xKeyLogDebugContext = (TLSKeyLogDebugContext_t *) ctx;
+
+        ((void) level); ((void) file); ((void) line);
+
+        if (strstr(str, "dumping 'client hello, random bytes' (32 bytes)")) {
+            xKeyLogDebugContext->lInClientRandom = 1;
+            xKeyLogDebugContext->lHexdumpLinesToProces = 2;
+            fputs("CLIENT_RANDOM ", xKeyLogDebugContext->xKeyLogFile);
+            return;
+        } else if (strstr(str, "dumping 'master secret' (48 bytes)")) {
+            xKeyLogDebugContext->lInMasterSecret = 1;
+            xKeyLogDebugContext->lHexdumpLinesToProces = 3;
+            fputc(' ', xKeyLogDebugContext->xKeyLogFile);
+            return;
+        } else if ((!xKeyLogDebugContext->lInClientRandom && !xKeyLogDebugContext->lInMasterSecret) ||
+                xKeyLogDebugContext->lHexdumpLinesToProces == 0) {
+            return;
+        }
+
+        /* Parse "0000:  64 df 18 71 ca 4a 4b e4 63 87 2a ef 5f 29 ca ff  ..." */
+        str = strstr(str, ":  ");
+        if (!str || strlen(str) < 3 + 3*16) {
+            goto reset;         /* not the expected hex buffer */
+        }
+        str += 3;               /* skip over ":  " */
+
+        /* Process sequences of "hh " */
+        for (int i = 0; i < 3 * 16; i += 3) {
+            char c1 = str[i], c2 = str[i + 1], c3 = str[i + 2];
+            if ((('0' <= c1 && c1 <= '9') || ('a' <= c1 && c1 <= 'f')) &&
+                (('0' <= c2 && c2 <= '9') || ('a' <= c2 && c2 <= 'f')) &&
+                c3 == ' ') {
+                fputc(c1, xKeyLogDebugContext->xKeyLogFile);
+                fputc(c2, xKeyLogDebugContext->xKeyLogFile);
+            } else {
+                goto reset;     /* unexpected non-hex char */
+            }
+        }
+
+        if (--xKeyLogDebugContext->lHexdumpLinesToProces != 0 || !xKeyLogDebugContext->lInMasterSecret) {
+            return;             /* line is not yet finished. */
+        }
+
+    reset:
+        xKeyLogDebugContext->lHexdumpLinesToProces = 0;
+        xKeyLogDebugContext->lInClientRandom = xKeyLogDebugContext->lInMasterSecret = 0;
+        fputc('\n', xKeyLogDebugContext->xKeyLogFile);   /* finish key log line */
+        fflush(xKeyLogDebugContext->xKeyLogFile);
+    }
+
+#endif /* ifdef MBEDTLS_DEBUG_C */
+
+/*-----------------------------------------------------------*/
+
+
 /*
  * Interface routines.
  */
@@ -675,6 +751,30 @@ BaseType_t TLS_Connect( void * pvContext )
          * runtime configuration should use verbose output. */
         mbedtls_ssl_conf_dbg( &pxCtx->xMbedSslConfig, prvTlsDebugPrint, NULL );
         mbedtls_debug_set_threshold( tlsDEBUG_VERBOSE );
+        /* Wireshark debugging support on the Windows Simulator.
+         * When https://github.com/ARMmbed/mbedtls/issues/1504 is implemented consider
+         * deleting this code. To give proper credit, this code is adapted from: 
+         * https://github.com/Lekensteyn/mbedtls/commit/68aea15. */
+        #ifdef WIN32
+            {
+                /* On windows an environment variable value has a maximum size
+                 * of 32,627 characters, including the null-terminating character. */ 
+                char cKeyLogFileName[32767];
+                unsigned int ulReturnValue = GetEnvironmentVariable(
+                    "SSLKEYLOGFILE",
+                    cKeyLogFileName,
+                    sizeof(cKeyLogFileName));
+                if (ulReturnValue > 0) {
+                    pxCtx->xKeyLogDebugCtx.xKeyLogFile = fopen(cKeyLogFileName, "a");
+                } else {
+                    pxCtx->xKeyLogDebugCtx.xKeyLogFile = stderr;
+                }
+            }
+
+            if (pxCtx->xKeyLogDebugCtx.xKeyLogFile) {
+                mbedtls_ssl_conf_dbg( &pxCtx->xMbedSslConfig, vKeyLogDebugCallback, &pxCtx->xKeyLogDebugCtx );
+            }
+        #endif
     #endif
 
     if( 0 == xResult )
