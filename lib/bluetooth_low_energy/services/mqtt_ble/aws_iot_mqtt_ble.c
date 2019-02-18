@@ -652,6 +652,7 @@ void vRXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     MqttBLEService_t * pxService;
     BaseType_t xResult = pdTRUE;
     uint8_t *pucBufOffset;
+    uint8_t ucRet;
 
     xResp.pAttrData = &xAttrData;
     xResp.rspErrorStatus = eBTRspErrorNone;
@@ -746,9 +747,9 @@ void vRXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         if( pEventParam->xEventType == eBLEWrite )
         {
-            xResp.attrDataOffset = pxWriteParam->offset;
-            xResp.pAttrData->pData = pxWriteParam->pValue;
-            xResp.pAttrData->size = pxWriteParam->length;
+            xResp.attrDataOffset = 0;
+            xResp.pAttrData->pData = &ucRet;
+            xResp.pAttrData->size = 1;
             IotBle_SendResponse( &xResp, pxWriteParam->connId, pxWriteParam->transId );
         }
     }
@@ -762,6 +763,7 @@ void vRXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     IotBleAttributeData_t xAttrData = { 0 };
     IotBleEventResponse_t xResp;
     MqttBLEService_t * pxService;
+    uint8_t ucRet = 0;
 
     xResp.pAttrData = &xAttrData;
     xResp.rspErrorStatus = eBTRspErrorNone;
@@ -790,9 +792,9 @@ void vRXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         if( pEventParam->xEventType == eBLEWrite )
         {
-            xResp.attrDataOffset = pxWriteParam->offset;
-            xResp.pAttrData->pData = pxWriteParam->pValue;
-            xResp.pAttrData->size = pxWriteParam->length;
+            xResp.attrDataOffset = 0;
+            xResp.pAttrData->pData = &ucRet;
+            xResp.pAttrData->size = 1;
             IotBle_SendResponse( &xResp, pxWriteParam->connId, pxWriteParam->transId );
         }
     }

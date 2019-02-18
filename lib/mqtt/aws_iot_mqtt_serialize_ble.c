@@ -66,7 +66,7 @@
             return result;                                              \
         }
 
-#define _NUM_DEFAULT_CONNECT_PARMAS           ( 5 )
+#define _NUM_CONNECT_PARMAS                   ( 4 )
 #define _NUM_DEFAULT_PUBLISH_PARMAS           ( 4 )
 #define _NUM_PUBACK_PARMAS                    ( 2 )
 #define _NUM_SUBACK_PARAMS                    ( 4 )
@@ -87,10 +87,6 @@
  */
 static uint16_t prusNextPacketIdentifier( void );
 
-static inline uint16_t prusGetNumConnectParams( const AwsIotMqttConnectInfo_t * const pConnect )
-{
-   return ( pConnect->pUserName != NULL ) ?  ( _NUM_DEFAULT_CONNECT_PARMAS + 1 ) : _NUM_DEFAULT_CONNECT_PARMAS;
-}
 
 static inline uint16_t prusGetNumPublishParams( const AwsIotMqttPublishInfo_t * const pPublish )
 {
@@ -185,7 +181,6 @@ static AwsIotSerializerError_t prxSerializeConnect( const AwsIotMqttConnectInfo_
     AwsIotSerializerEncoderObject_t xEncoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
     AwsIotSerializerEncoderObject_t xConnectMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
     AwsIotSerializerScalarData_t xData = { 0 };
-    uint16_t ulNumConnectParams = prusGetNumConnectParams( pConnectInfo);
 
     xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pSize );
     if( xError != AWS_IOT_SERIALIZER_SUCCESS )
@@ -196,7 +191,7 @@ static AwsIotSerializerError_t prxSerializeConnect( const AwsIotMqttConnectInfo_
     xError = IOT_BLE_MESG_ENCODER.openContainer(
             &xEncoderObj,
             &xConnectMap,
-            ulNumConnectParams );
+            _NUM_CONNECT_PARMAS );
     _validateSerializerResult( &xEncoderObj, xError );
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
@@ -565,45 +560,6 @@ static AwsIotSerializerError_t prxSerializeDisconnect( uint8_t * const pBuffer,
     return AWS_IOT_SERIALIZER_SUCCESS;
 }
 
-AwsIotSerializerError_t prxDecodeBinaryString( AwsIotSerializerDecoderObject_t* pxDecoderObject,
-                                        const char* pKey,
-                                        const uint8_t **pValue,
-                                        size_t* pValueLength,
-                                        BaseType_t* pxIsMemAllocated )
-{
-    AwsIotSerializerError_t xRet;
-    AwsIotSerializerDecoderObject_t xValue =
-    {
-        .type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING,
-        .value.pString = NULL,
-        .value.stringLength = 0
-    };
-
-    *pxIsMemAllocated = pdFALSE;
-
-    xRet = IOT_BLE_MESG_DECODER.find( pxDecoderObject, pKey, &xValue );
-    if( xRet == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL )
-    {
-        xValue.value.pString = AwsIotMqtt_MallocMessage( xValue.value.stringLength );
-        if( xValue.value.pString != NULL )
-        {
-            *pxIsMemAllocated = pdTRUE;
-            xRet = IOT_BLE_MESG_DECODER.find( pxDecoderObject, pKey, &xValue );
-        }
-        else
-        {
-            xRet = AWS_IOT_MQTT_NO_MEMORY;
-        }
-    }
-
-    if( xRet == AWS_IOT_SERIALIZER_SUCCESS )
-    {
-        *pValue = xValue.value.pString;
-        *pValueLength = xValue.value.stringLength;
-    }
-
-    return xRet;
-}
 
 bool AwsIotMqttBLE_InitSerialize( void )
 {
@@ -767,8 +723,6 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPubli
     AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     AwsIotSerializerError_t xSerializerRet;
     AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
-    BaseType_t xTopicAllocated = pdFALSE, xPayloadAllocated = pdFALSE;
-    uint8_t *pCopyDest = ( uint8_t *) pPublishStart;
 
     xSerializerRet = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( uint8_t * ) pPublishStart, dataLength );
     if ( (xSerializerRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
@@ -815,15 +769,20 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPubli
 
     if( xRet == AWS_IOT_MQTT_SUCCESS )
     {
-        xSerializerRet = prxDecodeBinaryString( &xDecoderObj,
-                                        mqttBLEPAYLOAD,
-                                        ( const uint8_t** ) &pOutput->pPayload,
-                                        &pOutput->payloadLength,
-                                        &xPayloadAllocated );
-        if( xSerializerRet != AWS_IOT_SERIALIZER_SUCCESS )
+        xValue.value.pString = NULL;
+        xValue.value.stringLength = 0;
+        xSerializerRet = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEPAYLOAD, &xValue );
+
+        if( ( xSerializerRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
+                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
         {
             AwsIotLogError( "Payload value decode failed, error = %d", xSerializerRet );
             xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+        }
+        else
+        {
+            pOutput->pPayload = ( const char* ) xValue.value.pString;
+            pOutput->payloadLength = xValue.value.stringLength;
         }
     }
 
@@ -856,26 +815,6 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPubli
     }
 
     IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
-
-    /* if the topic is allocated, then copy it back to the packet and free the topic buffer */
-    if( xTopicAllocated == pdTRUE )
-    {
-       memcpy( pCopyDest, ( void* ) pOutput->pTopicName, pOutput->topicNameLength );
-       AwsIotMqtt_FreeMessage( ( void * ) pOutput->pTopicName );
-
-       pOutput->pTopicName = ( const char * ) pCopyDest;
-       pCopyDest += pOutput->topicNameLength;
-    }
-
-    /* if the payload is allocated, then copy it back to the packet and free the topic buffer */
-    if( xPayloadAllocated == pdTRUE )
-    {
-        memcpy( pCopyDest, ( void* ) pOutput->pPayload, pOutput->payloadLength );
-        AwsIotMqtt_FreeMessage( ( void * ) pOutput->pPayload );
-
-        pOutput->pPayload = ( const char * ) pCopyDest;
-        pCopyDest += pOutput->payloadLength;
-    }
 
     return xRet;
 }
@@ -1251,6 +1190,7 @@ uint8_t AwsIotMqttBLE_GetPacketType( const uint8_t * const pPacket, size_t packe
         return _INVALID_MQTT_PACKET_TYPE;
     }
     packetType = ( uint16_t ) xValue.value.signedInt;
+
 
     IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
 
