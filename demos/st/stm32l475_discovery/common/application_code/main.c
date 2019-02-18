@@ -155,7 +155,7 @@ void vApplicationDaemonTaskStartupHook( void )
     configPRINTF( ( "Entering profiling task.\r\n" ) );
 
     // Multi producer-consumer with semaphore.
-    vKernelProfilingMultiProducerConsumerMutex( mainPROFILING_PRODUCER_CONSUMER );
+    vKernelProfilingMultiProducerConsumerSemaphore( mainPROFILING_PRODUCER_CONSUMER );
 
     configPRINTF( ( "Exiting profiling task.\r\n" ) );
 }

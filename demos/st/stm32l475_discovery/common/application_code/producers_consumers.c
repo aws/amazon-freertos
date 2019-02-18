@@ -53,10 +53,10 @@
 /*-----------------------------------------------------------*/
 
 #define SHARED_BUFFER_SIZE      ( 10 )
-#define NUM_OF_PRODUCER         ( 8 )
-#define NUM_OF_CONSUMER         ( 8 )
+#define NUM_OF_PRODUCER         ( 10 )
+#define NUM_OF_CONSUMER         ( 10 )
 
-#define NUM_OF_EXE_ITERATION_PRODUCER ( 12500 )                                                             /* How many iterations EACH producer thread executes. */
+#define NUM_OF_EXE_ITERATION_PRODUCER ( 10000 )                                                             /* How many iterations EACH producer thread executes. */
 #define NUM_OF_EXE_ITERATION_CONSUMER ( NUM_OF_EXE_ITERATION_PRODUCER * NUM_OF_PRODUCER / NUM_OF_CONSUMER )  /* How many iterations EACH consumer thread executes. Fraction is not taken care of. */
 
 /*-----------------------------------------------------------*/
@@ -67,10 +67,10 @@ static sem_t xSemaphore_available;
 static int pBuffer[ SHARED_BUFFER_SIZE ];
 
 static int iWriteIndex;
-//static pthread_mutex_t xWriteMutex;           /* Commenting out purely for profiling interest. */
+static pthread_mutex_t xWriteMutex;           /* Commenting out purely for profiling interest. */
 
 static int iReadIndex;
-//static pthread_mutex_t xReadMutex;            /* Commenting out purely for profiling interest. */
+static pthread_mutex_t xReadMutex;            /* Commenting out purely for profiling interest. */
 
 // This is a dummy variable to prevent compiler optimization, Do something with the value.
 static int iDummyCummulator;
@@ -91,10 +91,10 @@ static void * prvProducerThread( void * pvArgs )
 
         /* For producer-consumer to work correctly, you need mutex around below two lines.
          * Here, not using mutex, for the interest of profiling. */
-        //pthread_mutex_lock( &xWriteMutex );
+        pthread_mutex_lock( &xWriteMutex );
         pBuffer[ iWriteIndex % SHARED_BUFFER_SIZE ] = iWriteIndex;
         iWriteIndex++;
-        //pthread_mutex_unlock( &xWriteMutex );
+        pthread_mutex_unlock( &xWriteMutex );
 
         /* Below is for debugging purpose, should not enable IO during profiling. */
         //configPRINTF( ( "%s -- Producer[%d] posted. Iteration [%d].\r\n", __FUNCTION__, iThreadId, i ) );
@@ -124,10 +124,10 @@ static void * prvConsumerThread( void * pvArgs )
 
         /* For producer-consumer to work correctly, you need mutex around below two lines.
          * Here, not using mutex, for the interest of profiling. */
-        //pthread_mutex_lock( &xReadMutex );
+        pthread_mutex_lock( &xReadMutex );
         iTemp = pBuffer[ iReadIndex % SHARED_BUFFER_SIZE ];
         iReadIndex++;
-        //pthread_mutex_unlock( &xReadMutex );
+        pthread_mutex_unlock( &xReadMutex );
 
         /* Below is for debugging purpose, should not enable IO during profiling. */
         //configPRINTF( ( "%s -- Consumer[%d] received [%d]. Iteration [%d]\r\n", __FUNCTION__, iThreadId, iTemp, i ) );
@@ -138,8 +138,8 @@ static void * prvConsumerThread( void * pvArgs )
         sem_post( &xSemaphore_empty );
     }
 
-    configPRINTF( ( "%s -- Thread ID [%d], number of entry [%d], stack bytes left [%u]. \r\n",
-                __FUNCTION__, iThreadId, i, uxTaskGetStackHighWaterMark( NULL ) ) );
+    configPRINTF( ( "%s -- Thread ID [%d], number of entry [%d], stack bytes left [%u]. Last iteration received [%d]\r\n",
+                __FUNCTION__, iThreadId, i, uxTaskGetStackHighWaterMark( NULL ), iTemp ) );
 
     return ( void * ) NULL;
 }
@@ -178,11 +178,11 @@ void vKernelProfilingMultiProducerConsumerSemaphore( int iPriority )
     iWriteIndex = 0;
 
     /* Commenting out mutex for profiling interest. */
-    //xReadMutex = PTHREAD_MUTEX_INITIALIZER;
-    //xWriteMutex = PTHREAD_MUTEX_INITIALIZER;
+    xReadMutex = PTHREAD_MUTEX_INITIALIZER;
+    xWriteMutex = PTHREAD_MUTEX_INITIALIZER;
 
-    //pthread_mutex_init( &xReadMutex, NULL );
-    //pthread_mutex_init( &xWriteMutex, NULL );
+    pthread_mutex_init( &xReadMutex, NULL );
+    pthread_mutex_init( &xWriteMutex, NULL );
 
     /* Initialize semaphore_empty with 10, since producer has not started. */
     sem_init( &xSemaphore_empty, 0, SHARED_BUFFER_SIZE );

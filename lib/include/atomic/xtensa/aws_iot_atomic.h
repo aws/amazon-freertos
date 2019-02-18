@@ -98,6 +98,10 @@ static inline void * IotAtomic_SwapPointers_32( void * volatile * ppDestination,
  * @param[in] pExchange     	 If condition meets, write this value to memory.
  * @param[in] pComparand 		 Swap condition, checks and waits for *ppDestination to be equal to *pComparand.
  * 
+ * @return The initial value of *ppDestination.
+ * 
+ * @note This function guarantees to swap *ppDestination with *pExchange upon exit.
+ * 
  * @todo To be implemented.
  */
 static inline void * IotAtomic_CompareSwapPointers_32( void * volatile * ppDestination, void * pExchange, void * pComparand )
