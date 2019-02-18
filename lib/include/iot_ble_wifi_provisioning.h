@@ -90,7 +90,7 @@ typedef enum
 /**
  * @brief Tokens used within the JSON messages exchanged between GATT client and server.
  */
-#define wifiProvMAX_TOKENS          ( 12 )
+#define wifiProvMAX_TOKENS          ( 14 )
 #define wifiProvMAX_NETWORKS_KEY    "maxNetworks"
 #define wifiProvSCAN_TIMEOUT_KEY    "timeout"
 #define wifiProvKEY_MGMT_KEY        "security"
