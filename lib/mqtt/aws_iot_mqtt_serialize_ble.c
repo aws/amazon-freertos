@@ -717,7 +717,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeConnack( const uint8_t * const pConna
                                                          size_t * const pBytesProcessed )
 {
 
-    AwsIotSerializerDecoderObject_t xDecoderObj, xValue = { 0 };
+    AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     AwsIotSerializerError_t xError;
     AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
     int64_t respCode = 0L;

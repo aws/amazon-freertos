@@ -32,8 +32,8 @@
 #include <stddef.h>
 #include <string.h>
 #include "FreeRTOS.h"
-#include "aws_ble_wifi_provisioning.h"
-#include "aws_ble_wifi_prov_test_access_declare.h"
+#include "iot_ble_wifi_provisioning.h"
+#include "iot_ble_wifi_prov_test_access_declare.h"
 #include "aws_clientcredential.h"
 /* Test framework includes. */
 #include "unity_fixture.h"
@@ -457,7 +457,7 @@ static void prvBLEInitialize( void )
 	BTStatus_t xStatus;
 	TEST_ASSERT_NOT_EQUAL( NULL, BTGetBluetoothInterface() );
 	BTGetBluetoothInterface()->pxEnable( 0 );
-	xStatus = IotBle_Init( &xServerUUID, NULL, 0 );
+	xStatus = IotBle_Init();
 	TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 

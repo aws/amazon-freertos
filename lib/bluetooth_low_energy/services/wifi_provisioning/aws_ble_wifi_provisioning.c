@@ -1620,5 +1620,5 @@ BaseType_t WIFI_PROVISION_Delete( void )
 
 /* Provide access to private members for testing. */
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-    #include "aws_ble_wifi_prov_test_access_define.h"
+    #include "iot_ble_wifi_prov_test_access_define.h"
 #endif
