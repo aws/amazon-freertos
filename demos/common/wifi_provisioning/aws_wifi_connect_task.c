@@ -34,7 +34,7 @@
 #include "aws_demo_config.h"
 #include "aws_wifi_connect_task.h"
 #include "aws_iot_network_manager.h"
-#include "aws_ble_wifi_provisioning.h"
+#include "iot_ble_wifi_provisioning.h"
 
 
 #define wifiConnectTASK_NAME              "WiFiConnectTask"
@@ -44,10 +44,6 @@
  */
 #define wifiConnectDELAY_SECONDS     ( 1 )
 
-/**
- * @brief Number of retries in connecting to the provisioned networks.
- */
-#define wifiConnectNUM_RETRIES            ( 360 )
 
 
 /**
@@ -80,7 +76,7 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNet
 
 void prvWiFiConnectTask( void * pvParams )
 {
-    uint16_t ulNumNetworks, ulNetworkIndex, ulNumRetries;
+    uint16_t ulNumNetworks, ulNetworkIndex;
     TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_SECONDS * 1000 );
     BaseType_t xWiFiConnected;
 

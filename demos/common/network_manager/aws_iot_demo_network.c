@@ -38,7 +38,7 @@
 #endif
 
 #if BLE_ENABLED
-#include "aws_iot_mqtt_ble.h"
+#include "iot_ble_mqtt.h"
 #endif
 
 

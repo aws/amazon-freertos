@@ -167,11 +167,18 @@ typedef enum AwsIotTaskPoolError
 */
 typedef enum AwsIotTaskPoolJobStatus
 {
+
+    /**
+     * @brief Job status is undefined.
+     *
+     */
+    AWS_IOT_TASKPOOL_STATUS_UNDEFINED = 0,
+
     /**
     * @brief Job is ready to be scheduled.
     *
     */
-    AWS_IOT_TASKPOOL_STATUS_READY = 0,
+    AWS_IOT_TASKPOOL_STATUS_READY,
 
     /**
     * @brief Job has been queued for execution.
@@ -195,13 +202,7 @@ typedef enum AwsIotTaskPoolJobStatus
     * @brief Job has been canceled before it was executed.
     *
     */
-    AWS_IOT_TASKPOOL_STATUS_CANCELED,
-
-    /**
-    * @brief Job status is undefined.
-    *
-    */
-    AWS_IOT_TASKPOOL_STATUS_UNDEFINED,
+    AWS_IOT_TASKPOOL_STATUS_CANCELED
 
 } AwsIotTaskPoolJobStatus_t;
 

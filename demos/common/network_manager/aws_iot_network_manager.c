@@ -162,17 +162,6 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
 
 static void prvStartAdvCallback( BTStatus_t xStatus );
 
-/**
- * @brief Callback invoked if advertisement data is set.
- * @param xStatus[in] Status of the set advertisement data operation.
- */
-static void prvSetAdvCallback( BTStatus_t xStatus );
-
-/**
- * @brief Callback invoked after the scan response is set.
- * @param xStatus[in] Status of scan response set operation.
- */
-static void prvSetScanRespCallback( BTStatus_t xStatus );
 
 #endif
 
@@ -203,7 +192,7 @@ static BaseType_t prxWIFIDisable( void );
  */
 static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState, void *pvContext );
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
 /**
  * Connects to the WIFI using credentials configured statically
  * @return true if connected successfully.
@@ -223,7 +212,7 @@ static AwsIotTaskPoolError_t prxScheduleSubscriptionTask(
 static void prvUserCallbackRoutine( struct AwsIotTaskPool * pTaskPool, struct AwsIotTaskPoolJob * pJob, void * pUserContext );
 
 
-static NetworkManagerInfo_t xNetworkManagerInfo = { .xCallbackTasks = { 0 } };
+static NetworkManagerInfo_t xNetworkManagerInfo = { 0 };
 
 
 
@@ -328,13 +317,13 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
 
     if( xConnected == true )
     {
-        AwsIotLogInfo ( "BLE Connected to remote device, connId = %d\n", usConnId );
+        AwsIotLogInfo ( "BLE Connected to remote device, connId = %d\n", connId );
         IotBle_StopAdv();
         xBLENetworkInfo.xNetworkState = eNetworkStateEnabled;
     }
     else
     {
-        AwsIotLogInfo ( "BLE disconnected with remote device, connId = %d \n", usConnId );
+        AwsIotLogInfo ( "BLE disconnected with remote device, connId = %d \n", connId );
 
         if( xBLENetworkInfo.xNetworkState != eNetworkStateUnknown )
         {
@@ -361,7 +350,7 @@ static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkStat
     }
 }
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
 static BaseType_t prxWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
@@ -398,7 +387,7 @@ static BaseType_t prxWIFIEnable( void )
         }
     }
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 0 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
     if( xRet == pdTRUE )
     {
         xRet = prxWifiConnect();
@@ -420,7 +409,7 @@ static BaseType_t prxWIFIDisable( void )
 {
     BaseType_t xRet = pdFALSE;
 
-#if ( bleconfigENABLE_WIFI_PROVISIONING == 1 )
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     vWiFiConnectTaskDestroy();
 #endif
 
@@ -526,7 +515,7 @@ static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t 
             if( xError !=  AWS_IOT_TASKPOOL_SUCCESS )
             {
                 AwsIotLogError( "Failed to invoke subscription for"
-                        " network type = %d, event = %d, error = %d, %d.",
+                        " network type = %d, event = %d, error = %d.",
                         ulNetworkType,
                         xNetworkEvent,
                         xError );
@@ -728,7 +717,7 @@ uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t ulNetworkTypes )
 {
     uint32_t ulRet = AWSIOT_NETWORK_TYPE_NONE;
 
-#ifdef BLE_ENABLED
+#if BLE_ENABLED
     if( ( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE ) &&
            ( xBLENetworkInfo.xNetworkState == eNetworkStateUnknown ) )
     {
@@ -740,7 +729,7 @@ uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t ulNetworkTypes )
     }
 #endif
 
-#ifdef WIFI_ENABLED
+#if WIFI_ENABLED
 
     if( ( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI ) &&
            ( xWiFiNetworkInfo.xNetworkState == eNetworkStateUnknown ) )
@@ -760,7 +749,7 @@ uint32_t AwsIotNetworkManager_DisableNetwork( uint32_t ulNetworkTypes )
 {
     uint32_t ulRet = AWSIOT_NETWORK_TYPE_NONE;
 
-#ifdef WIFI_ENABLED
+#if WIFI_ENABLED
     if( ( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI ) &&
            ( xWiFiNetworkInfo.xNetworkState != eNetworkStateUnknown ) )
     {
@@ -772,7 +761,7 @@ uint32_t AwsIotNetworkManager_DisableNetwork( uint32_t ulNetworkTypes )
     }
 #endif
 
-#ifdef BLE_ENABLED
+#if BLE_ENABLED
     if( ( ( ulNetworkTypes & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE ) &&
            ( xBLENetworkInfo.xNetworkState != eNetworkStateUnknown ) )
     {
