@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS mbedTLS-based PKCS#11 V1.0.6
+ * Amazon FreeRTOS mbedTLS-based PKCS#11 V1.0.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
