@@ -112,7 +112,6 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
                 case WIFI_REASON_BEACON_TIMEOUT:
                 case WIFI_REASON_AUTH_FAIL:
                 case WIFI_REASON_AUTH_LEAVE:
-                case WIFI_REASON_AUTH_EXPIRE:
                 case WIFI_REASON_ASSOC_FAIL:
                 case WIFI_REASON_HANDSHAKE_TIMEOUT:
                     ESP_LOGD(TAG, "STA Auth Error");

@@ -45,12 +45,6 @@
 #define wifiConnectDELAY_SECONDS     ( 1 )
 
 /**
- * @brief Number of retries in connecting to the provisioned networks.
- */
-#define wifiConnectNUM_RETRIES            ( 360 )
-
-
-/**
  * @brief Task for WiFi Reconnection. The task loops through the provisioned wifi networks in priority order
  * until retry limit is reached or a network is connected. Task gets triggered on every WiFi disconnection.
  */
@@ -80,7 +74,7 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNet
 
 void prvWiFiConnectTask( void * pvParams )
 {
-    uint16_t ulNumNetworks, ulNetworkIndex, ulNumRetries;
+    uint16_t ulNumNetworks, ulNetworkIndex;
     TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_SECONDS * 1000 );
     BaseType_t xWiFiConnected;
 
@@ -89,10 +83,7 @@ void prvWiFiConnectTask( void * pvParams )
         if( xSemaphoreTake( xWiFiConnectLock, portMAX_DELAY ) == pdTRUE )
         {
             xWiFiConnected = pdFALSE;
-            for( ulNumRetries = 0;
-                    ( ulNumRetries < wifiConnectNUM_RETRIES ) &&
-                            ( xWiFiConnected == pdFALSE );
-                    ulNumRetries++ )
+            while( xWiFiConnected == pdFALSE )
             {
                 ulNumNetworks = WIFI_PROVISION_GetNumNetworks();
                 if( ulNumNetworks > 0 )
