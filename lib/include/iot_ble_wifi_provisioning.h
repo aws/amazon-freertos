@@ -156,7 +156,7 @@ typedef struct WifiNetworkInfo
 	WIFISecurity_t xSecurity;
 	int8_t cRSSI;
 	bool ucHidden;
-	uint8_t ucConnected;
+	bool ucConnected;
     int32_t sSavedIdx;
 } WifiNetworkInfo_t;
 

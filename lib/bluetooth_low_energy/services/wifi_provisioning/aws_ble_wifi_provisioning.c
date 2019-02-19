@@ -50,7 +50,7 @@
 static WifiProvService_t xWifiProvService = { 0 };
 
 #define STORAGE_INDEX( priority )    ( xWifiProvService.usNumNetworks - priority - 1 )
-#define NETWORK_INFO_DEFAULT_PARAMS        { .xStatus = eWiFiSuccess, .cRSSI = wifiProvINVALID_NETWORK_RSSI, .ucConnected = 0, .sSavedIdx = wifiProvINVALID_NETWORK_INDEX }
+#define NETWORK_INFO_DEFAULT_PARAMS        { .xStatus = eWiFiSuccess, .cRSSI = wifiProvINVALID_NETWORK_RSSI, .ucConnected = false, .sSavedIdx = wifiProvINVALID_NETWORK_INDEX }
 /*---------------------------------------------------------------------------------------------------------*/
 /**
  * @brief UUID for Device Information Service.
@@ -113,7 +113,7 @@ static const BTAttribute_t pxAttributeTable[] = {
          .xAttributeType = eBTDbDescriptor,
          .xCharacteristicDescr =
          {
-             .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
+             .xUuid = wifiProvCLIENT_CHAR_CFG_UUID_TYPE,
              .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  )
           }
      },
@@ -130,7 +130,7 @@ static const BTAttribute_t pxAttributeTable[] = {
 		 .xAttributeType = eBTDbDescriptor,
 		 .xCharacteristicDescr =
 		 {
-			 .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
+			 .xUuid = wifiProvCLIENT_CHAR_CFG_UUID_TYPE,
 			 .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  )
 		  }
 	 },
@@ -147,7 +147,7 @@ static const BTAttribute_t pxAttributeTable[] = {
 		 .xAttributeType = eBTDbDescriptor,
 		 .xCharacteristicDescr =
 		 {
-			 .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
+			 .xUuid = wifiProvCLIENT_CHAR_CFG_UUID_TYPE,
 			 .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  )
 		  }
 	 },
@@ -164,7 +164,7 @@ static const BTAttribute_t pxAttributeTable[] = {
 		 .xAttributeType = eBTDbDescriptor,
 		 .xCharacteristicDescr =
 		 {
-			 .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
+			 .xUuid = wifiProvCLIENT_CHAR_CFG_UUID_TYPE,
 			 .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  )
 		  }
 	 }
@@ -1000,8 +1000,8 @@ AwsIotSerializerError_t prxSerializeNetwork( WifiNetworkInfo_t *pxNetworkInfo, u
 
     if( IS_VALID_SERIALIZER_RET( xRet, pucBuffer ) )
     {
-        xValue.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xValue.value.signedInt = pxNetworkInfo->ucConnected;
+        xValue.type = AWS_IOT_SERIALIZER_SCALAR_BOOL;
+        xValue.value.booleanValue = pxNetworkInfo->ucConnected;
         xRet = IOT_BLE_MESG_ENCODER.appendKeyValue( &xNetworkMap, wifiProvCONNECTED_KEY, xValue );
     }
 
@@ -1305,7 +1305,8 @@ static void prvSendSavedNetwork( WIFINetworkProfile_t *pxSavedNetwork, uint16_t 
     xNetworkInfo.xSSIDLength = pxSavedNetwork->ucSSIDLength;
     xNetworkInfo.pucBSSID = pxSavedNetwork->ucBSSID;
     xNetworkInfo.xBSSIDLength = wificonfigMAX_BSSID_LEN;
-    xNetworkInfo.ucConnected = ( xWifiProvService.sConnectedIdx == usIdx ) ? 1 : 0;
+    xNetworkInfo.ucConnected = ( xWifiProvService.sConnectedIdx == usIdx );
+    xNetworkInfo.xSecurity = pxSavedNetwork->xSecurity;
     xNetworkInfo.sSavedIdx = ( int32_t ) usIdx;
 
     xSerializerRet = prxSerializeNetwork( &xNetworkInfo, NULL, &xMessageLen );
