@@ -26,119 +26,89 @@
 
 /**
  * @file aws_iot_demo_network.c
- * @brief File can handle multiple networks and has function to create and destroy network connections for mqtt demos.
+ * @brief Contains implementation for network creation and teardown functions for handling different types of network connections
  */
 #include "aws_iot_demo.h"
 #include "aws_iot_network_manager.h"
 #include "aws_iot_demo_network.h"
-#include "platform/aws_iot_clock.h"
-#include "FreeRTOS_POSIX/time.h"
 
 #if WIFI_ENABLED
-#include "aws_clientcredential.h"
 #include "platform/aws_iot_network.h"
+#include "aws_clientcredential.h"
 #endif
 
 #if BLE_ENABLED
-#include "iot_ble_mqtt.h"
+#include "aws_iot_mqtt_ble.h"
 #endif
 
-typedef struct NetworkConnection
-{
-    uint32_t ulType;
-    SubscriptionHandle_t xDisconnectCbSubscription;
-    NetworkDisconnectedCallback_t xDisconnectCallback;
-    void *pvConnection;
-} NetworkConnection_t;
-
-/**
- * @brief Callback wrapper which pass a network disconnect event to the demo application.
- * @param[in] ulNetworkType Type of network to register the callback.
- * @param[in] xNetworkState State of the network passed in.
- * @param[in] pvContext Pointer to the application context.
- */
-static void prvNetworkSubscriptionWrapper ( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext );
 
 #if BLE_ENABLED
 /**
- * @brief Creates a network connection over BLE to transfer MQTT messages.
- * @param[in] pxNetworkInterface Network Interface for the connection
- * @param[in] pxMqttConnection Handle to the MQTT
- * @param[out] ppvConnection Pointer to a connection
+ * @brief Creates a network connection over BLE transport type to transfer MQTT messages.
  * @return true if the connection was created successfully
  */
-static bool prbCreateBLEConnection(
-        AwsIotMqttNetIf_t* pxNetworkInterface,
-        AwsIotMqttConnection_t* pxMqttConnection,
-        void** ppvCpnnection );
+static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkContext );
 #endif
 
 #if WIFI_ENABLED
 /**
- * @brief Creates a secure socket Connection
- * @param[in] pxNetworkInterface Network Interface for the connection.
- * @param[in] pxMqttConnection Handle to the connection
- * @param[out] ppvConnection Pointer to the Connection
- * @return true if the connection was created successfully
+ * @brief Creates a secure socket Connection over TCP/IP transport type.
+ *
+ * @param[in] pxNetworkContext Network context for the connection.
+ * @return pdTRUE if the connection is created successfully
  */
-static bool prbCreateSecureSocketConnection(
-        AwsIotMqttNetIf_t* pxNetworkInterface,
-        AwsIotMqttConnection_t* pxMqttConnection,
-        void **ppvConnection );
+static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext );
 #endif
 
-static uint32_t prxCreateNetworkConnection(
-        AwsIotMqttNetIf_t* pxNetworkInterface,
-        AwsIotMqttConnection_t* pxMqttConnection,
-        void** ppvConnection );
+/**
+ * @brief Creates a network connection to one of the preferred networks
+ * @param pxNetworkContext Pointer to the user supplied network context.
+ * @param ulPreferredNetworks OR separated flag of preferred neworks.
+ * @return
+ */
+static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkContext, uint32_t ulNetworkTypes );
+
 /**
  * @brief Used to initialize the network interface.
  */
 static AwsIotMqttNetIf_t xDefaultNetworkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
 
-static uint32_t prxCreateNetworkConnection(
-        AwsIotMqttNetIf_t* pxNetworkInterface,
-        AwsIotMqttConnection_t* pxMqttConnection,
-        void** ppvConnection )
+static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkContext, uint32_t ulNetworkTypes )
 {
-    uint32_t ulConnectedNetworks = AwsIotNetworkManager_GetConnectedNetworks();
-    if( ulConnectedNetworks == AWSIOT_NETWORK_TYPE_NONE )
-    {
-        ulConnectedNetworks = AwsIotNetworkManager_WaitForNetworkConnection();
-    }
-    ( *pxNetworkInterface ) = xDefaultNetworkInterface;
+    uint32_t ulConnectedNetworks =
+            ( AwsIotNetworkManager_GetConnectedNetworks() & ulNetworkTypes );
 
 #if BLE_ENABLED
     if( ( ulConnectedNetworks & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
     {
-        if( prbCreateBLEConnection( pxNetworkInterface, pxMqttConnection, ppvConnection ) == true )
+        if( prxCreateBLEConnection( pxNetworkContext ) == pdTRUE )
         {
             return AWSIOT_NETWORK_TYPE_BLE;
         }
     }
 #endif
+
 #if WIFI_ENABLED
     if( ( ulConnectedNetworks & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
     {
-        if( prbCreateSecureSocketConnection( pxNetworkInterface, pxMqttConnection, ppvConnection ) == true )
+        if( prxCreateSecureSocketConnection( pxNetworkContext ) == pdTRUE )
         {
             return AWSIOT_NETWORK_TYPE_WIFI;
         }
     }
 #endif
+
     return AWSIOT_NETWORK_TYPE_NONE;
 }
 
 #if WIFI_ENABLED
-static bool prbCreateSecureSocketConnection(
-        AwsIotMqttNetIf_t* pxNetworkInterface,
-        AwsIotMqttConnection_t* pxMqttConnection,
-        void **ppvConnection )
+static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext )
 {
     AwsIotNetworkError_t xStatus = AWS_IOT_NETWORK_SUCCESS;
+
     AwsIotNetworkConnection_t xConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
     AwsIotNetworkTlsInfo_t xTlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
-    const char* pcHost = clientcredentialMQTT_BROKER_ENDPOINT;
+    AwsIotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
 
     /* Connection Uses default root certificates.
      * Override the default root CA certificates by setting pcServerCertificate
@@ -158,27 +128,28 @@ static bool prbCreateSecureSocketConnection(
 
     /* Establish a TCP connection to the MQTT server. */
     xStatus =  AwsIotNetwork_CreateConnection( &xConnection,
-    		pcHost,
-			clientcredentialMQTT_BROKER_PORT,
-			&xTlsInfo );
+            clientcredentialMQTT_BROKER_ENDPOINT,
+            clientcredentialMQTT_BROKER_PORT,
+            &xTlsInfo );
 
     if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
         /* Create the task that processes incoming MQTT data. */
         xStatus = AwsIotNetwork_SetMqttReceiveCallback(
-        		xConnection,
-				pxMqttConnection,
-				AwsIotMqtt_ReceiveCallback );
+                xConnection,
+                &pxNetworkContext->xMqttConnection,
+                AwsIotMqtt_ReceiveCallback );
     }
 
     if( xStatus == AWS_IOT_NETWORK_SUCCESS )
     {
-        pxNetworkInterface->pDisconnectContext = ( void * ) xConnection;
-        pxNetworkInterface->pSendContext = ( void * ) xConnection;
-        pxNetworkInterface->disconnect = AwsIotNetwork_CloseConnection;
-        pxNetworkInterface->send = AwsIotNetwork_Send;
+        ( *pxNetworkIface ) = xDefaultNetworkInterface;
+        pxNetworkIface->pSendContext = ( void * ) xConnection;
+        pxNetworkIface->send = AwsIotNetwork_Send;
+        pxNetworkIface->pDisconnectContext = pxNetworkContext;
+        pxNetworkIface->disconnect = pxNetworkContext->xDisconnectCallback;
 
-        *ppvConnection = ( void* ) xConnection;
+        pxNetworkContext->pvNetworkConnection = ( void* ) xConnection;
     }
     else
     {
@@ -195,136 +166,90 @@ static bool prbCreateSecureSocketConnection(
 #endif
 
 #if BLE_ENABLED
-static bool prbCreateBLEConnection(
-        AwsIotMqttNetIf_t* pxNetworkInterface,
-        AwsIotMqttConnection_t* pxMqttConnection,
-        void** ppvConnection )
+static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkContext )
 {
-    bool xStatus = false;
+    BaseType_t xStatus = pdFALSE;
     AwsIotMqttBLEConnection_t xBLEConnection = AWS_IOT_MQTT_BLE_CONNECTION_INITIALIZER;
+    AwsIotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
 
-    if( AwsIotMqttBLE_CreateConnection( pxMqttConnection, &xBLEConnection ) == pdTRUE )
+    if( AwsIotMqttBLE_CreateConnection( &pxNetworkContext->xMqttConnection, &xBLEConnection ) == pdTRUE )
     {
-        AWS_IOT_MQTT_BLE_INIT_SERIALIZER( pxNetworkInterface );
-        pxNetworkInterface->send          = AwsIotMqttBLE_Send;
-        pxNetworkInterface->pSendContext  = ( void * ) xBLEConnection;
-        pxNetworkInterface->pDisconnectContext = ( void * ) xBLEConnection;
-        pxNetworkInterface->disconnect = AwsIotMqttBLE_CloseConnection;
+        ( *pxNetworkIface ) = xDefaultNetworkInterface;
+        AWS_IOT_MQTT_BLE_INIT_SERIALIZER( pxNetworkIface );
+        pxNetworkIface->send          = AwsIotMqttBLE_Send;
+        pxNetworkIface->pSendContext  = ( void * ) xBLEConnection;
+        pxNetworkIface->pDisconnectContext = pxNetworkContext;
+        pxNetworkIface->disconnect = pxNetworkContext->xDisconnectCallback;
 
-        *ppvConnection = ( void* ) xBLEConnection;
-        xStatus = true;
+        pxNetworkContext->pvNetworkConnection = ( void* ) xBLEConnection;
+        xStatus = pdTRUE;
     }
     return xStatus;
 }
 #endif
 
 
-static void prvNetworkSubscriptionWrapper( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext )
+BaseType_t xMqttDemoCreateNetworkConnection(
+        MqttConnectionContext_t* pxConnection,
+        uint32_t ulNetworkTypes,
+        uint32_t ulConnRetryIntervalSeconds,
+        uint32_t ulConnRetryLimit )
 {
-    NetworkConnection_t* pxConn = ( NetworkConnection_t* ) pvContext;
+    size_t xTriesLeft = ( ulConnRetryLimit + 1 );
+    BaseType_t xRet = pdFALSE;
+    TickType_t xRetryDelay = pdMS_TO_TICKS( ulConnRetryIntervalSeconds * 1000 );
 
-    if( ( xNetworkState == eNetworkStateDisabled ) && ( pxConn != NULL ) )
+    while ( xTriesLeft > 0 )
     {
-       pxConn->xDisconnectCallback( ( AwsIotDemoNetworkConnection_t ) pxConn->pvConnection );
-    }
-}
+        pxConnection->ulNetworkType = prxCreateNetworkConnection( pxConnection, ulNetworkTypes );
 
-void AwsIotDemo_CreateNetworkConnection(
-		AwsIotMqttNetIf_t* pxNetworkInterface,
-		AwsIotMqttConnection_t* pxMqttConnection,
-		NetworkDisconnectedCallback_t xDisconnectCallback,
-		AwsIotDemoNetworkConnection_t* pxIotNetworkConnection,
-		uint32_t ulConnIntervalSec,
-		uint32_t ulConnRetryLimit)
-{
-    size_t xRetryCount = 0;
-    struct timespec xDelay =
-    {
-        .tv_sec = ulConnIntervalSec,
-        .tv_nsec = 0
-    };
-    uint32_t ulConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
-    void *pvConnection = NULL;
-    NetworkConnection_t* pxNetwork = NULL;
-
-    while ( xRetryCount < ulConnRetryLimit )
-    {
-        ulConnectedNetwork = prxCreateNetworkConnection( pxNetworkInterface, pxMqttConnection, &pvConnection );
-        if( ulConnectedNetwork != AWSIOT_NETWORK_TYPE_NONE )
+        if( pxConnection->ulNetworkType != AWSIOT_NETWORK_TYPE_NONE )
         {
-            pxNetwork = pvPortMalloc( sizeof( NetworkConnection_t ) );
-            if( pxNetwork != NULL )
+            xRet = pdTRUE;
+            break;
+        }
+        else
+        {
+            xTriesLeft--;
+            if( xTriesLeft > 0 )
             {
-                pxNetwork->pvConnection = pvConnection;
-                pxNetwork->ulType = ulConnectedNetwork;
-                if( xDisconnectCallback != NULL )
-                {
-                    AwsIotNetworkManager_SubscribeForStateChange(
-                            ulConnectedNetwork,
-                            prvNetworkSubscriptionWrapper,
-                            pxNetwork,
-                            &( pxNetwork->xDisconnectCbSubscription ) );
-                    pxNetwork->xDisconnectCallback = xDisconnectCallback;
-                }
-                else
-                {
-                    pxNetwork->xDisconnectCallback = NULL;
-                    pxNetwork->xDisconnectCbSubscription = NULL;
-                }
-                break;
-            }
-            else
-            {
-                AwsIotLogInfo(( "Failed to allocate memory for a new connection" ));
-                break;
+                vTaskDelay( xRetryDelay );
             }
         }
-        else if ( ( ++xRetryCount ) < ulConnRetryLimit )
-        {
-            ( void ) clock_nanosleep( CLOCK_REALTIME, 0, &xDelay, NULL );
-        }
     }
 
-    *pxIotNetworkConnection = ( AwsIotDemoNetworkConnection_t ) pxNetwork;
-
+    return xRet;
 }
 
-uint32_t AwsIotDemo_GetNetworkType( AwsIotDemoNetworkConnection_t xNetworkConnection )
+void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkContext )
 {
-    NetworkConnection_t* pxConn = ( NetworkConnection_t* ) xNetworkConnection;
-    if( pxConn != NULL )
-    {
-        return pxConn->ulType;
-    }
+    BaseType_t xDeleted = pdFALSE;
 
-    return AWSIOT_NETWORK_TYPE_NONE;
-}
-
-void AwsIotDemo_DeleteNetworkConnection( AwsIotDemoNetworkConnection_t xNetworkConnection )
-{
-    NetworkConnection_t* pxNetwork = ( NetworkConnection_t* ) xNetworkConnection;
-
-    if( pxNetwork != NULL )
+    if( pxNetworkContext != NULL )
     {
 
 #if BLE_ENABLED
-        if( pxNetwork->ulType == AWSIOT_NETWORK_TYPE_BLE )
+        if( pxNetworkContext->ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
         {
-            AwsIotMqttBLE_CloseConnection( ( AwsIotMqttBLEConnection_t ) pxNetwork->pvConnection );
-            AwsIotMqttBLE_DestroyConnection( ( AwsIotMqttBLEConnection_t ) pxNetwork->pvConnection );
+            AwsIotMqttBLE_CloseConnection( ( AwsIotMqttBLEConnection_t ) pxNetworkContext->pvNetworkConnection );
+            AwsIotMqttBLE_DestroyConnection( ( AwsIotMqttBLEConnection_t ) pxNetworkContext->pvNetworkConnection );
+            xDeleted = pdTRUE;
         }
 #endif
 #if WIFI_ENABLED
-        if( pxNetwork->ulType  == AWSIOT_NETWORK_TYPE_WIFI )
+        if(  pxNetworkContext->ulNetworkType  == AWSIOT_NETWORK_TYPE_WIFI )
         {
-            AwsIotNetwork_CloseConnection( ( AwsIotDemoNetworkConnection_t ) pxNetwork->pvConnection );
-            AwsIotNetwork_DestroyConnection( ( AwsIotDemoNetworkConnection_t ) pxNetwork->pvConnection );
+            AwsIotNetwork_CloseConnection( ( AwsIotNetworkConnection_t ) pxNetworkContext->pvNetworkConnection );
+            AwsIotNetwork_DestroyConnection( ( AwsIotNetworkConnection_t ) pxNetworkContext->pvNetworkConnection );
+            xDeleted = pdTRUE;
         }
 #endif
-        if( pxNetwork->xDisconnectCbSubscription != AWSIOT_NETWORK_SUBSCRIPTION_HANDLE_INITIALIZER )
+
+        if( xDeleted )
         {
-            AwsIotNetworkManager_RemoveSubscription( pxNetwork->xDisconnectCbSubscription );
+            pxNetworkContext->pvNetworkConnection = NULL;
+            pxNetworkContext->ulNetworkType = AWSIOT_NETWORK_TYPE_NONE;
         }
-        vPortFree( pxNetwork );
+
     }
 }

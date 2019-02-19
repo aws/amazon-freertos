@@ -26,7 +26,8 @@
 
 /**
  * @file aws_iot_mqtt_demo_network.h
- * @brief Containis functions for handling network connections for MQTT demo
+ * @brief Contains network creation and teardown functions for handling different types of network connections
+ * for MQTT demos.
  */
 #ifndef AWS_IOT_DEMO_NETWORK_H_
 #define AWS_IOT_DEMO_NETWORK_H_
@@ -37,51 +38,43 @@
     #include AWS_IOT_CONFIG_FILE
 #endif
 
+#include "FreeRTOS.h"
 #include "aws_iot_mqtt.h"
 
-/**
- * @brief Handle to an IoT network connection used by the demo.
- */
-typedef void* AwsIotDemoNetworkConnection_t;
+
+typedef struct MqttConnectionContext
+{
+    void *pvNetworkConnection;
+    uint32_t ulNetworkType;
+    AwsIotMqttNetIf_t xNetworkInterface;
+    void ( * xDisconnectCallback ) ( void *) ;
+    AwsIotMqttConnection_t xMqttConnection;
+} MqttConnectionContext_t;
+
 
 /**
- *  Callback Invoked when the underlying transport is disconnected.
- *
- * @param[in] Handle to the IoT Network connection
- */
-typedef void ( *NetworkDisconnectedCallback_t ) ( AwsIotDemoNetworkConnection_t );
-/**
- * @brief Creates an IoT network connection for demo
+ * @brief Creates an IoT network connection for demo.
  *
  * Function creates a  IoT network connection which can be then used by demo applications with MQTT library APIs.
+ * IOT network connection is an abstraction over an BLE or WIFI connection.
  *
- * @param[in] pxNetworkInterface Network Interface for the connection
- * @param[in] pxMqttConnection Handle to the MQTT connection
- * @param[in] xDisconnectCallback Callback invoked when the underlying network is disconnected.
- * @param[out] pxIoTNetworkConnection Handle to the Network Connection
- * @param[in] ulConnRetryIntervalSeconds Connection retry Interval in seconds
- * @param[in] ulConnRetryLimit Connection Retry limit
+ * @param pxNetworkConnection Pointer to the network connection context passed from user.
+ * @param ulPreferredNetworks OR separated flags indicating preferred network types.
+ * @param ulConnRetryIntervalSeconds Retry interval for creating a connection.
+ * @param ulConnRetryLimit Retry limit for creating a connection.
+ * @return pdTRUE if network is created successfully.
  */
-void AwsIotDemo_CreateNetworkConnection(
-        AwsIotMqttNetIf_t* pxNetworkInterface,
-        AwsIotMqttConnection_t* pxMqttConnection,
-        NetworkDisconnectedCallback_t xDisconnectCallback,
-        AwsIotDemoNetworkConnection_t* pxIoTNetworkConnection,
+BaseType_t xMqttDemoCreateNetworkConnection(
+        MqttConnectionContext_t* pxNetworkContext,
+        uint32_t ulNetworkTypes,
         uint32_t ulConnRetryIntervalSeconds,
         uint32_t ulConnRetryLimit );
 
 /**
- * @brief Get the type of transport associated with the network connection
- * @param xIoTNetworkConnection Handle to the IoT Network Connection
- * @return The type of network connection
- */
-uint32_t AwsIotDemo_GetNetworkType( AwsIotDemoNetworkConnection_t xIoTNetworkConnection );
-
-/**
- * @brief Deletes an Iot Network Connection.
+ * @brief Deletes a Network Connection.
  *
- * @param xIotNetworkConnection
+ * @param pxNetworkConnection pointer to the network connection context.
  */
-void AwsIotDemo_DeleteNetworkConnection( AwsIotDemoNetworkConnection_t xIoTNetworkConnection );
+void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkConnection );
 
 #endif /* AWS_IOT_DEMO_NETWORK_H_ */
