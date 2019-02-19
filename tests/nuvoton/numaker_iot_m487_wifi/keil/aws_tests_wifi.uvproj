@@ -375,7 +375,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
-              <Define>MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\" RVDS_ARMCM4_NUC4xx __LITTLE_ENDIAN__ AMAZON_FREERTOS_ENABLE_UNIT_TESTS M487</Define>
+              <Define>MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\" UNITY_INCLUDE_CONFIG_H RVDS_ARMCM4_NUC4xx __LITTLE_ENDIAN__ AMAZON_FREERTOS_ENABLE_UNIT_TESTS M487</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\include\FreeRTOS_POSIX;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Include;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\inc;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\middleware\wifi_esp8266;..\..\..\..\tests\common\include;..\..\..\..\lib\FreeRTOS\portable\RVDS\ARM_CM4F;..\;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\protocols\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\M487;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\Keil;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\CMSIS\Include;..\common\config_files;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\mbedtls\\library;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\nuvoton\m480;..\common\application_code\nuvoton_code</IncludePath>
             </VariousControls>
