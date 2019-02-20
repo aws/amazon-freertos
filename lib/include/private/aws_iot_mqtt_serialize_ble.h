@@ -82,12 +82,12 @@
 typedef enum {
 
 	IOT_BLE_MQTT_STATUS_UNKNOWN = 0,        //!< IOT_BLE_MQTT_STATUS_UNKNOWN  Connection status unknown by the SDK.
-	IOT_BLE_MQTT_StatusConnecting,         //!< IOT_BLE_MQTT_StatusConnecting SDK has sent CONNECT request to server and waiting for the response.
-	IOT_BLE_MQTT_StatusConnected,          //!< IOT_BLE_MQTT_StatusConnected  SDK is connected to the MQTT server.
-	IOT_BLE_MQTT_StatusDisconnected,       //!< IOT_BLE_MQTT_StatusDisconnected SDK is disconnected with the MQTT server.
-	IOT_BLE_MQTT_StatusConnectionRefused,  //!< IOT_BLE_MQTT_StatusConnectionRefused Server refused connection with the SDK.
-	IOT_BLE_MQTT_StatusConnectionError,    //!< IOT_BLE_MQTT_StatusConnectionError Internal error while connecting to the server.
-	IOT_BLE_MQTT_StatusProtocolError       //!< IOT_BLE_MQTT_StatusProtocolError CONNECT message from the device was malformed.
+	IOT_BLE_MQTT_STATUS_CONNECTING,         //!< IOT_BLE_MQTT_STATUS_CONNECTING SDK has sent CONNECT request to server and waiting for the response.
+	IOT_BLE_MQTT_STATUS_CONNECTED,          //!< IOT_BLE_MQTT_STATUS_CONNECTED  SDK is connected to the MQTT server.
+	IOT_BLE_MQTT_STATUS_DISCONNECTED,       //!< IOT_BLE_MQTT_STATUS_DISCONNECTED SDK is disconnected with the MQTT server.
+	IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED,  //!< IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED Server refused connection with the SDK.
+	IOT_BLE_MQTT_STATUS_CONNECTION_ERROR,    //!< IOT_BLE_MQTT_STATUS_CONNECTION_ERROR Internal error while connecting to the server.
+	IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR       //!< IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR CONNECT message from the device was malformed.
 } MQTTBLEConnectStatus_t;
 /** @} */
 

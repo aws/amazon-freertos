@@ -747,8 +747,8 @@ AwsIotMqttError_t IotBleMqtt_DeserializeConnack( const uint8_t * const pConnackS
         {
 
             respCode =  decoderValue.value.signedInt;
-            if( ( respCode != IOT_BLE_MQTT_StatusConnecting )
-                    && ( respCode != IOT_BLE_MQTT_StatusConnected ) )
+            if( ( respCode != IOT_BLE_MQTT_STATUS_CONNECTING )
+                    && ( respCode != IOT_BLE_MQTT_STATUS_CONNECTED ) )
             {
                 ret = AWS_IOT_MQTT_SERVER_REFUSED;
             }

@@ -35,10 +35,10 @@
 #define AWS_IOT_LOG_LEVEL_SHADOW      AWS_IOT_LOG_NONE
 
 /* Define additional serializer initialization functions for the BLE Module on ESP. */
-extern bool AwsIotMqttBLE_InitSerialize( void );
-extern void AwsIotMqttBLE_CleanupSerialize( void );
-#define AwsIotMqttInternal_InitSerializeAdditional AwsIotMqttBLE_InitSerialize
-#define AwsIotMqttInternal_CleanupSerializeAdditional AwsIotMqttBLE_CleanupSerialize
+extern bool IotBleMqtt_InitSerialize( void );
+extern void IotBleMqtt_CleanupSerialize( void );
+#define AwsIotMqttInternal_InitSerializeAdditional IotBleMqtt_InitSerialize
+#define AwsIotMqttInternal_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
 
 /* Include the default configuration file at the bottom of this file. */
 #include "aws_iot_config_common.h"

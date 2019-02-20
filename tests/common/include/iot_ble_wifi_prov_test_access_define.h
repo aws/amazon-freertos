@@ -35,71 +35,71 @@
 
 
 
-BaseType_t test_HandleListNetworkRequest( uint8_t * pucData,
-                                               size_t xLength )
+BaseType_t test_HandleListNetworkRequest( uint8_t * data,
+                                               size_t length )
 {
-	return prxHandleListNetworkRequest( pucData, xLength );
+	return _handleListNetworkRequest( data, length );
 }
 
-BaseType_t test_HandleSaveNetworkRequest( uint8_t * pucData,
-                                               size_t xLength )
+BaseType_t test_HandleSaveNetworkRequest( uint8_t * data,
+                                               size_t length )
 {
-	return prxHandleSaveNetworkRequest( pucData, xLength );
-}
-
-
-BaseType_t test_HandleEditNetworkRequest( uint8_t * pucData,
-                                               size_t xLength )
-{
-	return prxHandleEditNetworkRequest( pucData, xLength );
+	return _handleSaveNetworkRequest( data, length );
 }
 
 
-BaseType_t test_HandleDeleteNetworkRequest( uint8_t * pucData,
-                                                 size_t xLength )
+BaseType_t test_HandleEditNetworkRequest( uint8_t * data,
+                                               size_t length )
 {
-	return prxHandleDeleteNetworkRequest( pucData, xLength );
+	return _handleEditNetworkRequest( data, length );
 }
 
-WIFIReturnCode_t test_AppendNetwork( WIFINetworkProfile_t * pxProfile )
+
+BaseType_t test_HandleDeleteNetworkRequest( uint8_t * data,
+                                                 size_t length )
 {
-	return prvAppendNetwork( pxProfile );
+	return _handleDeleteNetworkRequest( data, length );
 }
 
-WIFIReturnCode_t test_AddNewNetwork( WIFINetworkProfile_t * pxProfile )
+WIFIReturnCode_t test_AppendNetwork( WIFINetworkProfile_t * pProfile )
 {
-	return prvAddNewNetwork( pxProfile );
+	return _appendNetwork( pProfile );
 }
 
-WIFIReturnCode_t test_PopNetwork( uint16_t usIndex, WIFINetworkProfile_t * pxProfile  )
+WIFIReturnCode_t test_AddNewNetwork( WIFINetworkProfile_t * pProfile, bool connect )
 {
-	return prvPopNetwork( usIndex, pxProfile );
+	return _addNewNetwork( pProfile, connect );
+}
+
+WIFIReturnCode_t test_PopNetwork( uint16_t index, WIFINetworkProfile_t * pProfile  )
+{
+	return _popNetwork( index, pProfile );
 }
 
 WIFIReturnCode_t test_MoveNetwork( uint16_t usCurrentIndex, uint16_t usNewIndex )
 {
-	return prvMoveNetwork( usCurrentIndex, usNewIndex );
+	return _moveNetwork( usCurrentIndex, usNewIndex );
 }
 
-WIFIReturnCode_t test_GetSavedNetwork( uint16_t usIndex, WIFINetworkProfile_t *pxProfile )
+WIFIReturnCode_t test_GetSavedNetwork( uint16_t index, WIFINetworkProfile_t *pProfile )
 {
-	return prvGetSavedNetwork( usIndex, pxProfile );
+	return _getSavedNetwork( index, pProfile );
 }
 
-WIFIReturnCode_t test_ConnectSavedNetwork( uint16_t usIndex )
+WIFIReturnCode_t test_ConnectSavedNetwork( uint16_t index )
 {
-	return prvConnectSavedNetwork( usIndex );
+	return _connectSavedNetwork( index );
 }
 
-BaseType_t test_GetConnectedNetwork( WIFINetworkProfile_t * pxNetwork )
+BaseType_t test_GetConnectedNetwork( WIFINetworkProfile_t * pNetwork )
 {
-    BaseType_t xRet = pdFALSE;
-    if( prvGetSavedNetwork( xWifiProvService.sConnectedIdx, pxNetwork ) == eWiFiSuccess )
+    BaseType_t ret = pdFALSE;
+    if( _getSavedNetwork( WifiProvService.connectedIdx, pNetwork ) == eWiFiSuccess )
     {
-    	xRet = pdTRUE;
+    	ret = pdTRUE;
     }
 
-    return xRet;
+    return ret;
 
 }
 
