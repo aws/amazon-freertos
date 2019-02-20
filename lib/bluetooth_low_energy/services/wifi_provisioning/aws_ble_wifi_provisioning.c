@@ -1327,7 +1327,7 @@ static void prvSendSavedNetwork( WIFINetworkProfile_t *pxSavedNetwork, uint16_t 
     AwsIotSerializerError_t xSerializerRet;
 
     xNetworkInfo.pcSSID = pxSavedNetwork->cSSID;
-    xNetworkInfo.xSSIDLength = pxSavedNetwork->ucSSIDLength;
+    xNetworkInfo.xSSIDLength = pxSavedNetwork->ucSSIDLength - 1;
     xNetworkInfo.pucBSSID = pxSavedNetwork->ucBSSID;
     xNetworkInfo.xBSSIDLength = wificonfigMAX_BSSID_LEN;
     xNetworkInfo.ucConnected = ( xWifiProvService.sConnectedIdx == usIdx );

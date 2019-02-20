@@ -203,7 +203,7 @@ static AwsIotSerializerError_t _createDecoderObject( _cborValueWrapper_t * pCbor
                    cborError = cbor_value_get_int( pCborValue, &i );
                    if( cborError == CborNoError )
                    {
-                       pDecoderObject->value.booleanValue = i;
+                       pDecoderObject->value.signedInt = i;
                    }
                    else
                    {
