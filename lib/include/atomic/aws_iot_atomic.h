@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,123 +32,237 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
+#include "task.h"
+
+
+/*----------------------------- Swap && CAS ------------------------------*/
 
 /**
- * @brief Pseudo atomic add.
+ * Atomic compare-and-swap
  *
- * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
- * @param[in] value     Value to be added to *pTarget.
+ * @brief Performs an atomic compare-and-swap operation on the specified values.
  *
- * @return calculated result.
+ * @param[in, out] pDestination  Pointer to memory location from where value is to be loaded and checked.
+ * @param[in] ulExchange         If condition meets, write this value to memory.
+ * @param[in] ulComparand        Swap condition, checks and waits for *pDestination to be equal to ulComparand.
  *
- * @note The exact behavior of this function may be port dependent.
- * https://www.freertos.org/taskENTER_CRITICAL_taskEXIT_CRITICAL.html
+ * @return The initial value of *pDestination.
+ *
+ * @note This function guarantees to swap *pDestination with ulExchange upon exit.
  */
-
-int32_t AwsIotAtomic_Add( int32_t volatile * pTarget, int32_t value )
+static inline uint32_t IotAtomic_CompareAndSwap_32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
 {
     int32_t current;
+    UBaseType_t temp;
 
-    portENTER_CRITICAL( );
+    temp = taskENTER_CRITICAL_FROM_ISR( );
 
-    current = *pTarget;
+    current = *pDestination;
 
-    *pTarget += value;
-
-    portEXIT_CRITICAL( );
-
-    return current;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Pseudo atomic subtraction.
- *
- * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
- * @param[in] value     Value to be subtract from *pTarget.
- *
- * @return calculated result.
- *
- * @note The exact behavior of this function may be port dependent.
- * https://www.freertos.org/taskENTER_CRITICAL_taskEXIT_CRITICAL.html
- */
-int32_t AwsIotAtomic_Sub( int32_t volatile * pTarget, int32_t value )
-{
-    int32_t current;
-
-    portENTER_CRITICAL( );
-
-    current = *pTarget;
-
-    *pTarget -= value;
-
-    portEXIT_CRITICAL( );
-
-    return current;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Pseudo atomic swap.
- *
- * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
- * @param[in] value     Value to be written to *pTarget.
- *
- * @return value
- *
- * @note The exact behavior of this function may be port dependent.
- * https://www.freertos.org/taskENTER_CRITICAL_taskEXIT_CRITICAL.html
- */
-
-int32_t AwsIotAtomic_Swap( int32_t volatile * pTarget, int32_t value )
-{
-    int32_t current;
-
-    portENTER_CRITICAL( );
-
-    current = *pTarget;
-
-    *pTarget = value;
-
-    portEXIT_CRITICAL( );
-
-    return current;
-}
-
-/*-----------------------------------------------------------*/
-/**
- * @brief Pseudo atomic compare and swap.
- *
- * Disabling interrupt before writing new value to the designated memory location.
- *
- * @param[in] pTarget   Pointer to memory location from where value is to be loaded and checked.
- * @param[in] value     If condition meets, write this value to memory.
- * @param[in] comparand Swap condition, checks and waits for *pTarget to be equal to comparand.
- *
- * @returns value.
- *
- * @note The exact behavior of this function may be port dependent.
- * https://www.freertos.org/taskENTER_CRITICAL_taskEXIT_CRITICAL.html
- */
-
-int32_t AwsIotAtomic_CompareAndSwap( int32_t volatile * pTarget, int32_t value, int32_t comparand )
-{
-    int32_t current;
-
-    portENTER_CRITICAL( );
-
-    current = *pTarget;
-
-    if ( *pTarget == comparand )
+    if ( *pDestination == ulComparand )
     {
-        *pTarget = value;
+        *pDestination = ulExchange;
     }
 
-    portEXIT_CRITICAL( );
+    taskEXIT_CRITICAL_FROM_ISR( temp );
 
     return current;
 }
+
+/**
+ * Atomic swap (pointers)
+ *
+ * @brief Atomically sets the address pointed to by *ppDestination to the value of *pExchange.
+ *
+ * @param[in, out] ppDestination  Pointer to memory location from where a pointer value is to be loaded and writen back to.
+ * @param[in] pExchange           Pointer value to be written to *ppDestination.
+ *
+ * @return The initial value of *ppDestination.
+ *
+ * @note This function guarantees to swap *ppDestination with *pExchange upon exit.
+ */
+static inline void * IotAtomic_SwapPointers_32( void * volatile * ppDestination, void * pExchange )
+{
+    //todo
+    return NULL;
+}
+
+/**
+ * Atomic compare-and-swap (pointers)
+ *
+ * @brief Performs an atomic compare-and-swap operation on the specified pointer values.
+ *
+ * @param[in, out] ppDestination Pointer to memory location from where a pointer value is to be loaded and checked.
+ * @param[in] pExchange          If condition meets, write this value to memory.
+ * @param[in] pComparand         Swap condition, checks and waits for *ppDestination to be equal to *pComparand.
+ *
+ * @return The initial value of *ppDestination.
+ *
+ * @note This function guarantees to swap *ppDestination with *pExchange upon exit.
+ */
+static inline void * IotAtomic_CompareAndSwapPointers_32( void * volatile * ppDestination, void * pExchange, void * pComparand )
+{
+    //todo
+    return NULL;
+}
+
+
+/*----------------------------- Arithmetic ------------------------------*/
+
+/**
+ * Atomic add
+ *
+ * @brief Adds count to the value of the specified 32-bit variable as an atomic operation.
+ *
+ * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
+ * @param[in] lCount       Value to be added to *pAddend.
+ *
+ * @return previous *pAddend value.
+ *
+ * @note This function guarantees to add value to *pAddend upon exit.
+ */
+static inline int32_t IotAtomic_Add_32( int32_t volatile * pAddend, int32_t lCount )
+{
+    int32_t current;
+    UBaseType_t temp;
+
+    temp = taskENTER_CRITICAL_FROM_ISR( );
+
+    current = *pAddend;
+
+    *pAddend += lCount;
+
+    taskEXIT_CRITICAL_FROM_ISR( temp );
+
+    return current;
+}
+
+/**
+ * Atomic sub
+ *
+ * @brief Subtracts count from the value of the specified 32-bit variable as an atomic operation.
+ *
+ * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
+ * @param[in] lCount       Value to be subtract from *pAddend.
+ *
+ * @return previous *pAddend value.
+ *
+ * @note This function guarantees to subtract value from *pAddend upon exit.
+ */
+static inline int32_t IotAtomic_Subtract_32( int32_t volatile * pAddend, int32_t lCount )
+{
+    int32_t current;
+    UBaseType_t temp;
+
+    temp = taskENTER_CRITICAL_FROM_ISR();
+
+    current = *pAddend;
+
+    *pAddend -= lCount;
+
+    taskEXIT_CRITICAL_FROM_ISR( temp );
+
+    return current;
+}
+
+/**
+ * Atomic increment
+ *
+ * @brief Increments the value of the specified 32-bit variable as an atomic operation.
+ *
+ * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
+ *
+ * @return *pAddend value before increment.
+ *
+ * @note This function guarantees to subtract value from *pAddend upon exit.
+ */
+static inline int32_t IotAtomic_Increment_32( int32_t volatile * pAddend )
+{
+    //todo
+    return 0;
+}
+
+/**
+ * Atomic decrement
+ *
+ * @brief Decrements the value of the specified 32-bit variable as an atomic operation.
+ *
+ * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
+ *
+ * @return *pAddend value before decrement.
+ *
+ * @note This function guarantees to subtract value from *pAddend upon exit.
+ */
+static inline int32_t IotAtomic_Decrement_32( int32_t volatile * pAddend )
+{
+    //todo
+    return 0;
+}
+
+/*----------------------------- Bitwise Logical ------------------------------*/
+
+/**
+ * Atomic OR
+ *
+ * @brief Performs an atomic OR operation on the specified values.
+ *
+ * @param [in, out] pDestination Pointer to memory location from where value is to be loaded and written back to.
+ * @param [in] ulValue           Value to be ORed with *pDestination.
+ *
+ * @return The original value of *pDestination.
+ */
+static inline uint32_t IotAtomic_OR_32( uint32_t volatile * pDestination, uint32_t ulValue )
+{
+    //todo
+    return 0;
+}
+
+/**
+ * Atomic AND
+ *
+ * @brief Performs an atomic AND operation on the specified values.
+ *
+ * @param [in, out] pDestination Pointer to memory location from where value is to be loaded and written back to.
+ * @param [in] ulValue           Value to be ANDed with *pDestination.
+ *
+ * @return The original value of *pDestination.
+ */
+static inline uint32_t IotAtomic_AND_32( uint32_t volatile * pDestination, uint32_t ulValue )
+{
+    //todo
+    return 0;
+}
+
+/**
+ * Atomic NAND
+ *
+ * @brief Performs an atomic NAND operation on the specified values.
+ *
+ * @param [in, out] pDestination Pointer to memory location from where value is to be loaded and written back to.
+ * @param [in] ulValue           Value to be NANDed with *pDestination.
+ *
+ * @return The original value of *pDestination.
+ */
+static inline uint32_t IotAtomic_NAND_32( uint32_t volatile * pDestination, uint32_t ulValue )
+{
+    //todo
+    return 0;
+}
+
+/**
+ * Atomic XOR
+ * @brief Performs an atomic XOR operation on the specified values.
+ *
+ * @param [in, out] pDestination Pointer to memory location from where value is to be loaded and written back to.
+ * @param [in] ulValue           Value to be XORed with *pDestination.
+ *
+ * @return The original value of *pDestination.
+ */
+static inline uint32_t IotAtomic_XOR_32( uint32_t volatile * pDestination, uint32_t ulValue )
+{
+    //todo
+    return 0;
+}
+
 
 #endif /* _AWS_IOT_ATOMIC_H_ */

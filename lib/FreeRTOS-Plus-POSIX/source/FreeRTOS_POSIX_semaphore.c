@@ -132,7 +132,7 @@ int sem_init( sem_t * sem,
     }
 
 
-    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 || POSIX_SEMAPHORE_IMPLEMENTATION == 2 )
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 )
         pxSem->value = value;
     #endif /* POSIX_SEMAPHORE_IMPLEMENTATION */
 
@@ -157,13 +157,13 @@ int sem_post( sem_t * sem )
 {
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
-    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 || POSIX_SEMAPHORE_IMPLEMENTATION == 2 )
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 )
         int32_t previousValue = IotAtomic_Add_32( &pxSem->value, 1 );
         
         // Alternatively, you can use below. Performance to be measured. 
         //int32_t previousValue = IotAtomic_Increment_32( &pxSem->value);
 
-        if ( previousValue > 0)
+        if ( previousValue >= 0)
         {
             /* There isn't any task blocked by this semaphore. Do nothing. */
 
@@ -226,7 +226,7 @@ int sem_timedwait( sem_t * sem,
         }
     }
 
-    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 || POSIX_SEMAPHORE_IMPLEMENTATION == 2 )
+    #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1  )
         int32_t previousValue = IotAtomic_Subtract_32( &pxSem->value, 1 );
         
         // Alternatively, you can use below. Performance to be measured.

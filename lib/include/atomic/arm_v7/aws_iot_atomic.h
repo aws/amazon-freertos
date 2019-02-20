@@ -45,17 +45,15 @@
  *
  * @note This function guarantees to swap *pDestination with ulExchange upon exit.
  */
-static inline __attribute__((always_inline)) uint32_t IotAtomic_CompareSwap_32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
+static inline __attribute__((always_inline)) uint32_t IotAtomic_CompareAndSwap_32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
 {
     uint32_t current, result;
 
     __asm__ __volatile__(
             "1:     mov     %[result], #0\n"                    /* Clear [result] */
-            "       clrex\n"                                    /* Clear exclusive access status. */
             "       ldrex   %[current], [%[mem]]\n"             /* Load *pDestination value into [current]. Exclusive access starts. */
             "       teq     %[current], %[comparand]\n"         /* Compare and set zero flag upon equal. */
             "       strexeq %[result], %[value], [%[mem]]\n"    /* Succeed to write back into *pDestination with result=0, or fail with result=1. Exclusive access ends. */
-            "       clrex\n"                                    /* Clear exclusive access status. */
             "       teq     %[result], #0\n"                    /* Check whether exclusive write back succeeded. */
             "       bne     1b\n"                               /* If exclusive write back failed, start over. */
             : [result] "=&r" (result), [current] "=&r" (current)
@@ -104,7 +102,7 @@ static inline __attribute__((always_inline)) void * IotAtomic_SwapPointers_32( v
  *
  * @todo To be implemented.
  */
-static inline __attribute__((always_inline)) void * IotAtomic_CompareSwapPointers_32( void * volatile * ppDestination, void * pExchange, void * pComparand )
+static inline __attribute__((always_inline)) void * IotAtomic_CompareAndSwapPointers_32( void * volatile * ppDestination, void * pExchange, void * pComparand )
 {
     // @todo
     return NULL;
@@ -128,11 +126,9 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Add_32( int32_t v
     int32_t current, result, sum;
 
     __asm__ __volatile__(
-            "1:     clrex\n"
-            "       ldrex   %[current], [%[mem]]\n"
+            "1:     ldrex   %[current], [%[mem]]\n"
             "       add     %[sum], %[current], %[value]\n"
             "       strex   %[result], %[sum], [%[mem]]\n"
-            "       clrex\n"
             "       teq     %[result], #0\n"
             "       bne     1b\n"
             : [result] "=&r" (result), [current] "=&r" (current), [sum] "=&r" (sum)
@@ -161,11 +157,9 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Subtract_32( int3
     int32_t current, result, sum;
 
     __asm__ __volatile__(
-            "1:     clrex\n"
-            "       ldrex   %[current], [%[mem]]\n"
+            "1:     ldrex   %[current], [%[mem]]\n"
             "       sub     %[sum], %[current], %[value]\n"
             "       strex   %[result], %[sum], [%[mem]]\n"
-            "       clrex\n"
             "       teq     %[result], #0\n"
             "       bne     1b\n"
             : [result] "=&r" (result), [current] "=&r" (current), [sum] "=&r" (sum)
@@ -193,11 +187,9 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Increment_32( int
     int32_t current, result, sum;
 
     __asm__ __volatile__(
-            "1:     clrex\n"
-            "       ldrex   %[current], [%[mem]]\n"
+            "1:     ldrex   %[current], [%[mem]]\n"
             "       add     %[sum], %[current], %[value]\n"
             "       strex   %[result], %[sum], [%[mem]]\n"
-            "       clrex\n"
             "       teq     %[result], #0\n"
             "       bne     1b\n"
             : [result] "=&r" (result), [current] "=&r" (current), [sum] "=&r" (sum)
@@ -225,11 +217,9 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Decrement_32( int
     int32_t current, result, sum;
 
     __asm__ __volatile__(
-            "1:     clrex\n"
-            "       ldrex   %[current], [%[mem]]\n"
+            "1:     ldrex   %[current], [%[mem]]\n"
             "       sub     %[sum], %[current], %[value]\n"
             "       strex   %[result], %[sum], [%[mem]]\n"
-            "       clrex\n"
             "       teq     %[result], #0\n"
             "       bne     1b\n"
             : [result] "=&r" (result), [current] "=&r" (current), [sum] "=&r" (sum)
@@ -256,11 +246,9 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_OR_32( uint32_t 
     uint32_t current, repeat, result;
 
     __asm__ __volatile__(
-            "1:     clrex\n"
-            "       ldrex   %[current], [%[mem]]\n"
+            "1:     ldrex   %[current], [%[mem]]\n"
             "       orr     %[result], %[current], %[value]\n"
             "       strex   %[repeat], %[result], [%[mem]]\n"
-            "       clrex\n"
             "       teq     %[repeat], #0\n"
             "       bne     1b\n"
             : [repeat] "=&r" (repeat), [current] "=&r" (current), [result] "=&r" (result)
@@ -287,11 +275,9 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_AND_32( uint32_t
     uint32_t current, repeat, result;
 
     __asm__ __volatile__(
-            "1:     clrex\n"
-            "       ldrex   %[current], [%[mem]]\n"
+            "1:     ldrex   %[current], [%[mem]]\n"
             "       and     %[result], %[current], %[value]\n"
             "       strex   %[repeat], %[result], [%[mem]]\n"
-            "       clrex\n"
             "       teq     %[repeat], #0\n"
             "       bne     1b\n"
             : [repeat] "=&r" (repeat), [current] "=&r" (current), [result] "=&r" (result)
@@ -318,12 +304,10 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_NAND_32( uint32_
     uint32_t current, repeat, result;
 
     __asm__ __volatile__(
-            "1:     clrex\n"
-            "       ldrex   %[current], [%[mem]]\n"
+            "1:     ldrex   %[current], [%[mem]]\n"
             "       and     %[result], %[current], %[value]\n"
             "       xor     %[result], %[result], #0xffffffff\n"
             "       strex   %[repeat], %[result], [%[mem]]\n"
-            "       clrex\n"
             "       teq     %[repeat], #0\n"
             "       bne     1b\n"
             : [repeat] "=&r" (repeat), [current] "=&r" (current), [result] "=&r" (result)
@@ -349,11 +333,9 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_XOR_32( uint32_t
     uint32_t current, repeat, result;
 
     __asm__ __volatile__(
-            "1:     clrex\n"
-            "       ldrex   %[current], [%[mem]]\n"
+            "1:     ldrex   %[current], [%[mem]]\n"
             "       eor     %[result], %[current], %[value]\n"
             "       strex   %[repeat], %[result], [%[mem]]\n"
-            "       clrex\n"
             "       teq     %[repeat], #0\n"
             "       bne     1b\n"
             : [repeat] "=&r" (repeat), [current] "=&r" (current), [result] "=&r" (result)

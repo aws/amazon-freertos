@@ -21,10 +21,9 @@
 
 /**
  * @file aws_iot_atomic.h
- * @brief FreeRTOS atomic operations for Xtensa GCC port. 
- * @note This requires XCHAL_HAVE_S32C1I is set in Xtensa ISA configuration file. 
- * @reference As an example, see 
- * https://github.com/aws/amazon-freertos/blob/master/lib/third_party/mcu_vendor/espressif/esp-idf/components/esp32/include/xtensa/config/core-isa.h
+ * @brief FreeRTOS atomic operations with GCC built in _atomic.
+ * 
+ * @reference https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
  */
 
 #ifndef _AWS_IOT_ATOMIC_H_
@@ -50,22 +49,10 @@
  */
 static inline __attribute__((always_inline)) uint32_t IotAtomic_CompareAndSwap_32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
 {
-    uint32_t result;
-    __asm__ __volatile__ (
-        "1: l32i %[result], %[set], 0\n"        /* Load [set] value to [result]. */ 
-        "   wsr.scompare1 %[cond]\n"            /* Write test condition to special register. Exclusive access starts. */
-        "   s32c1i %[result], %[mem], 0\n"      /* If *pDestination meets test condition, store [result] to *pDestination, 
-                                                    and load [result] with scompare1. */
-        "   bne %[result], %[cond], 1b\n"       /* If s32c1i was not successful, retry. Exclusive access ends. */
-        : [result] "=&r" (result)
-        : [mem] "r" (pDestination), [set] "r" (ulExchange), [cond] "r" (ulComparand)
-        : "memory"
-    );
-
-    return result;
+    uint32_t ulPreValue = *pDestination;
+    while (false == __atomic_compare_exchange(pDestination, &ulComparand, &ulExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)); 
+    return ulPreValue;
 }
-
-/*-----------------------------------------------------------*/
 
 /**
  * Atomic swap (pointers)
@@ -78,16 +65,8 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_CompareAndSwap_3
  * @return The initial value of *ppDestination.
  * 
  * @note This function guarantees to swap *ppDestination with *pExchange upon exit.
- * 
- * @todo To be implemented.
  */
-static inline void * IotAtomic_SwapPointers_32( void * volatile * ppDestination, void * pExchange )
-{
-    //@todo
-    return NULL;
-}
-
-/*-----------------------------------------------------------*/
+static inline __attribute__((always_inline)) void * IotAtomic_SwapPointers_32( void * volatile * ppDestination, void * pExchange );
 
 /**
  * Atomic compare-and-swap (pointers)
@@ -97,18 +76,13 @@ static inline void * IotAtomic_SwapPointers_32( void * volatile * ppDestination,
  * @param[in, out] ppDestination Pointer to memory location from where a pointer value is to be loaded and checked.
  * @param[in] pExchange     	 If condition meets, write this value to memory.
  * @param[in] pComparand 		 Swap condition, checks and waits for *ppDestination to be equal to *pComparand.
- * 
+ *
  * @return The initial value of *ppDestination.
  * 
  * @note This function guarantees to swap *ppDestination with *pExchange upon exit.
- * 
- * @todo To be implemented.
  */
-static inline void * IotAtomic_CompareAndSwapPointers_32( void * volatile * ppDestination, void * pExchange, void * pComparand )
-{
-    //@todo
-    return NULL;
-}
+static inline __attribute__((always_inline)) void * IotAtomic_CompareAndSwapPointers_32( void * volatile * ppDestination, void * pExchange, void * pComparand );
+
 
 /*----------------------------- Arithmetic ------------------------------*/
 
@@ -126,22 +100,8 @@ static inline void * IotAtomic_CompareAndSwapPointers_32( void * volatile * ppDe
  */
 static inline __attribute__((always_inline)) int32_t IotAtomic_Add_32( int32_t volatile * pAddend, int32_t lCount )
 {
-    int32_t current, sum;
-
-    __asm__ __volatile__ (
-        "1: l32i %[current], %[mem], 0\n"
-        "   wsr.scompare1  %[current]\n"
-        "   add  %[sum], %[current], %[value]\n"
-        "   s32c1i %[sum], %[mem], 0\n" 
-        "   bne %[sum], %[current], 1b\n"
-        : [current] "=&r" (current), [sum] "=&r" (sum)
-        : [mem] "r" (pAddend), [value] "r" (lCount)
-        : "memory");
-
-    return current;
+    return __atomic_fetch_add(pAddend, lCount, __ATOMIC_SEQ_CST);
 }
-
-/*-----------------------------------------------------------*/
 
 /**
  * Atomic sub
@@ -157,22 +117,8 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Add_32( int32_t v
  */
 static inline __attribute__((always_inline)) int32_t IotAtomic_Subtract_32( int32_t volatile * pAddend, int32_t lCount )
 {
-    int32_t current, sum;
-
-    __asm__ __volatile__ (
-        "1: l32i %[current], %[mem], 0\n"
-        "   wsr.scompare1  %[current]\n"
-        "   sub  %[sum], %[current], %[value]\n"
-        "   s32c1i %[sum], %[mem], 0\n"
-        "   bne %[sum], %[current], 1b\n"
-        : [current] "=&r" (current), [sum] "=&r" (sum)
-        : [mem] "r" (pAddend), [value] "r" (lCount)
-        : "memory");
-
-    return current;
+    return __atomic_fetch_sub(pAddend, lCount, __ATOMIC_SEQ_CST);
 }
-
-/*-----------------------------------------------------------*/
 
 /**
  * Atomic increment
@@ -187,22 +133,8 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Subtract_32( int3
  */
 static inline __attribute__((always_inline)) int32_t IotAtomic_Increment_32( int32_t volatile * pAddend )
 {
-    int32_t current, sum;
-
-    __asm__ __volatile__ (
-        "1: l32i %[current], %[mem], 0\n"
-        "   wsr.scompare1  %[current]\n"
-        "   addi  %[sum], %[current], 1\n"
-        "   s32c1i %[sum], %[mem], 0\n" 
-        "   bne %[sum], %[current], 1b\n"
-        : [current] "=&r" (current), [sum] "=&r" (sum)
-        : [mem] "r" (pAddend)
-        : "memory");
-
-    return current;
+    return __atomic_fetch_add(pAddend, 1, __ATOMIC_SEQ_CST);
 }
-
-/*-----------------------------------------------------------*/
 
 /**
  * Atomic decrement
@@ -217,19 +149,7 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Increment_32( int
  */
 static inline __attribute__((always_inline)) int32_t IotAtomic_Decrement_32( int32_t volatile * pAddend )
 {
-    int32_t current, sum;
-
-    __asm__ __volatile__ (
-        "1: l32i %[current], %[mem], 0\n"
-        "   wsr.scompare1  %[current]\n"
-        "   addi  %[sum], %[current], -1\n"
-        "   s32c1i %[sum], %[mem], 0\n" 
-        "   bne %[sum], %[current], 1b\n"
-        : [current] "=&r" (current), [sum] "=&r" (sum)
-        : [mem] "r" (pAddend)
-        : "memory");
-
-    return current;
+    return __atomic_fetch_sub(pAddend, 1, __ATOMIC_SEQ_CST);
 }
 
 /*----------------------------- Bitwise Logical ------------------------------*/
@@ -246,22 +166,8 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Decrement_32( int
  */
 static inline __attribute__((always_inline)) uint32_t IotAtomic_OR_32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-    uint32_t current, result;
-
-    __asm__ __volatile__ (
-        "1: l32i %[current], %[mem], 0\n"
-        "   wsr.scompare1  %[current]\n"
-        "   or  %[result], %[current], %[value]\n"
-        "   s32c1i %[result], %[mem], 0\n"
-        "   bne %[result], %[current], 1b\n"
-        : [current] "=&r" (current), [result] "=&r" (result)
-        : [mem] "r" (pDestination), [value] "r" (ulValue)
-        : "memory");
-
-    return current;
+    return __atomic_fetch_or(pDestination, ulValue, __ATOMIC_SEQ_CST);
 }
-
-/*-----------------------------------------------------------*/
 
 /**
  * Atomic AND
@@ -275,22 +181,8 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_OR_32( uint32_t 
  */
 static inline __attribute__((always_inline)) uint32_t IotAtomic_AND_32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-    uint32_t current, result;
-
-    __asm__ __volatile__ (
-        "1: l32i %[current], %[mem], 0\n"
-        "   wsr.scompare1  %[current]\n"
-        "   and  %[result], %[current], %[value]\n"
-        "   s32c1i %[result], %[mem], 0\n"
-        "   bne %[result], %[current], 1b\n"
-        : [current] "=&r" (current), [result] "=&r" (result)
-        : [mem] "r" (pDestination), [value] "r" (ulValue)
-        : "memory");
-
-    return current;
+    return __atomic_fetch_and(pDestination, ulValue, __ATOMIC_SEQ_CST);
 }
-
-/*-----------------------------------------------------------*/
 
 /**
  * Atomic NAND
@@ -304,23 +196,8 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_AND_32( uint32_t
  */
 static inline __attribute__((always_inline)) uint32_t IotAtomic_NAND_32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-    uint32_t current, result;
-
-    __asm__ __volatile__ (
-        "1: l32i %[current], %[mem], 0\n"
-        "   wsr.scompare1  %[current]\n"
-        "   and  %[result], %[current], %[value]\n"
-        "   xor %[result], %[result], %[immediate]"
-        "   s32c1i %[result], %[mem], 0\n"
-        "   bne %[result], %[current], 1b\n"
-        : [current] "=&r" (current), [result] "=&r" (result)
-        : [mem] "r" (pDestination), [value] "r" (ulValue), [immediate] "i" (0xffffffff)
-        : "memory");
-
-    return current;
+    return __atomic_fetch_nand(pDestination, ulValue, __ATOMIC_SEQ_CST);
 }
-
-/*-----------------------------------------------------------*/
 
 /**
  * Atomic XOR
@@ -333,19 +210,7 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_NAND_32( uint32_
  */
 static inline __attribute__((always_inline)) uint32_t IotAtomic_XOR_32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-    uint32_t current, result;
-
-    __asm__ __volatile__ (
-        "1: l32i %[current], %[mem], 0\n"
-        "   wsr.scompare1  %[current]\n"
-        "   xor  %[result], %[current], %[value]\n"
-        "   s32c1i %[result], %[mem], 0\n"
-        "   bne %[result], %[current], 1b\n"
-        : [current] "=&r" (current), [result] "=&r" (result)
-        : [mem] "r" (pDestination), [value] "r" (ulValue)
-        : "memory");
-
-    return current;
+    return __atomic_fetch_xor(pDestination, ulValue, __ATOMIC_SEQ_CST);
 }
 
 #endif /* _AWS_IOT_ATOMIC_H_ */
