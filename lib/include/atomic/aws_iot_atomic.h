@@ -50,7 +50,7 @@
  *
  * @note This function guarantees to swap *pDestination with ulExchange upon exit.
  */
-static inline uint32_t IotAtomic_CompareAndSwap_32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
+static portFORCE_INLINE uint32_t IotAtomic_CompareAndSwap_32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
 {
     int32_t current;
     UBaseType_t temp;
@@ -121,7 +121,7 @@ static inline void * IotAtomic_CompareAndSwapPointers_32( void * volatile * ppDe
  *
  * @note This function guarantees to add value to *pAddend upon exit.
  */
-static inline int32_t IotAtomic_Add_32( int32_t volatile * pAddend, int32_t lCount )
+static portFORCE_INLINE int32_t IotAtomic_Add_32( int32_t volatile * pAddend, int32_t lCount )
 {
     int32_t current;
     UBaseType_t temp;
@@ -149,7 +149,7 @@ static inline int32_t IotAtomic_Add_32( int32_t volatile * pAddend, int32_t lCou
  *
  * @note This function guarantees to subtract value from *pAddend upon exit.
  */
-static inline int32_t IotAtomic_Subtract_32( int32_t volatile * pAddend, int32_t lCount )
+static portFORCE_INLINE int32_t IotAtomic_Subtract_32( int32_t volatile * pAddend, int32_t lCount )
 {
     int32_t current;
     UBaseType_t temp;
