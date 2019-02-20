@@ -245,7 +245,7 @@ WIFIReturnCode_t prvConnectNetwork( WIFINetworkProfile_t * pxProfile );
 
 WIFIReturnCode_t prvConnectSavedNetwork( uint16_t usIndex );
 
-WIFIReturnCode_t prvAddNewNetwork( WIFINetworkProfile_t * pxProfile );
+WIFIReturnCode_t prvAddNewNetwork( WIFINetworkProfile_t * pxProfile, bool xConnect );
 
 
 static AwsIotSerializerError_t prxSerializeNetwork( WifiNetworkInfo_t *pxNetworkInfo, uint8_t *pucBuffer, size_t *pxLength );
@@ -716,6 +716,27 @@ static BaseType_t prxDeserializeAddNetworkRequest( uint8_t * pucData, size_t xLe
                 configPRINTF(( "Network index parameter ( %d ) is out of range.\n", xValue.value.signedInt ));
                 xResult = pdFALSE;
             }
+        }
+    }
+
+    if( xResult == pdTRUE )
+    {
+        xRet = IOT_BLE_MESG_DECODER.find( &xDecoderObj, wifiProvCONNECT_KEY, &xValue );
+        if( ( xRet == AWS_IOT_SERIALIZER_SUCCESS ) &&
+                ( xValue.type == AWS_IOT_SERIALIZER_SCALAR_BOOL ) )
+        {
+            pxAddNetworkRequest->xConnect = xValue.value.booleanValue;
+        }
+        else if( xRet == AWS_IOT_SERIALIZER_NOT_FOUND )
+        {
+            configPRINTF(( "No connect flag specified, using default value connect: %d\n", wifiProvDEFAULT_ALWAYS_CONNECT ));
+            pxAddNetworkRequest->xConnect = wifiProvDEFAULT_ALWAYS_CONNECT;
+
+        }
+        else
+        {
+            configPRINTF(( "Error in getting connect flag, error = %d, value type = %d\n", xRet, xValue.type ));
+            xResult = pdFALSE;
         }
     }
 
@@ -1233,15 +1254,19 @@ WIFIReturnCode_t prvConnectNetwork( WIFINetworkProfile_t * pxProfile )
     return xRet;
 }
 
-WIFIReturnCode_t prvAddNewNetwork( WIFINetworkProfile_t * pxProfile )
+WIFIReturnCode_t prvAddNewNetwork( WIFINetworkProfile_t * pxProfile, bool xConnect )
 {
-    WIFIReturnCode_t xRet;
+    WIFIReturnCode_t xRet = eWiFiSuccess;
 
-    xRet = prvConnectNetwork( pxProfile );
+    if( xConnect == true )
+    {
+        xRet = prvConnectNetwork( pxProfile );
+    }
     if( xRet == eWiFiSuccess )
     {
     	xRet = prvAppendNetwork( pxProfile );
-    	if( xRet == eWiFiSuccess )
+    	if( ( xRet == eWiFiSuccess )
+    	        && ( xConnect == true ) )
     	{
     		xWifiProvService.sConnectedIdx = 0;
     	}
@@ -1443,7 +1468,7 @@ void prvAddNetworkTask( void * pvParams )
         }
         else
         {
-        	xRet = prvAddNewNetwork( &pxAddNetworkReq->xNetwork );
+        	xRet = prvAddNewNetwork( &pxAddNetworkReq->xNetwork, pxAddNetworkReq->xConnect );
         }
         xSemaphoreGive( xWifiProvService.xLock );
     }

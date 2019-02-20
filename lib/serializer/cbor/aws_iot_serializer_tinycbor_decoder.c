@@ -181,15 +181,34 @@ static AwsIotSerializerError_t _createDecoderObject( _cborValueWrapper_t * pCbor
     {
         switch( dataType )
         {
+
+            case AWS_IOT_SERIALIZER_SCALAR_BOOL:
+            {
+                bool value = false;
+                cborError = cbor_value_get_boolean( pCborValue, &( value ));
+                if( cborError == CborNoError )
+                {
+                    pDecoderObject->value.booleanValue = value;
+                }
+                else
+                {
+                    returnedError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                }
+                break;
+            }
+
             case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
                {
                    int i = 0;
                    cborError = cbor_value_get_int( pCborValue, &i );
-
-                   /* TODO: assert no error on _createDecoderObject */
-
-                   pDecoderObject->value.signedInt = i;
-
+                   if( cborError == CborNoError )
+                   {
+                       pDecoderObject->value.booleanValue = i;
+                   }
+                   else
+                   {
+                       returnedError = AWS_IOT_SERIALIZER_INTERNAL_FAILURE;
+                   }
                    break;
                }
 
