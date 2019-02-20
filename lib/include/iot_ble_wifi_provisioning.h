@@ -34,7 +34,6 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#include "event_groups.h"
 #include "semphr.h"
 #include "iot_ble.h"
 #include "aws_wifi.h"
@@ -88,55 +87,24 @@ typedef enum
 
 
 /**
- * @brief Tokens used within the JSON messages exchanged between GATT client and server.
+ * @brief Parameters used in WIFI provisioning message serialization. 
  */
-#define wifiProvMAX_TOKENS          ( 14 )
-#define wifiProvMAX_NETWORKS_KEY    "maxNetworks"
-#define wifiProvSCAN_TIMEOUT_KEY    "timeout"
-#define wifiProvKEY_MGMT_KEY        "security"
-#define wifiProvSSID_KEY            "ssid"
-#define wifiProvBSSID_KEY           "bssid"
-#define wifiFREQ_KEY                "freqMhz"
-#define wifiRSSI_KEY                "rssi"
-#define wifiProvPSK_KEY             "psk"
-#define wifiProvSTATUS_KEY          "status"
-#define wifiProvHIDDEN_KEY          "hidden"
-#define wifiProvCONNECTED_KEY       "connected"
-#define wifiProvINDEX_KEY           "index"
-#define wifiProvNEWINDEX_KEY        "newIndex"
-#define wifiProvTRUE                "true"
-#define wifiProvFALSE               "false"
-#define wifiProvUINT16_MAX_WIDTH    ( 5 )
-#define wifiProvBSSID_MAX_LEN       ( 17 )
+#define wifiProvMAX_NETWORKS_KEY    "h"
+#define wifiProvSCAN_TIMEOUT_KEY    "t"
+#define wifiProvKEY_MGMT_KEY        "q"
+#define wifiProvSSID_KEY            "r"
+#define wifiProvBSSID_KEY           "b"
+#define wifiRSSI_KEY                "p"
+#define wifiProvPSK_KEY             "m"
+#define wifiProvSTATUS_KEY          "s"
+#define wifiProvHIDDEN_KEY          "f"
+#define wifiProvCONNECTED_KEY       "e"
+#define wifiProvINDEX_KEY           "g"
+#define wifiProvNEWINDEX_KEY        "j"
 
+#define wifiProvNUM_NETWORK_INFO_MESG_PARAMS  ( 8 )
 
-/**
- * @brief Format of the JSON messages sent from GATT client to server
- */
-#define wifiProvLISTNETWORK_RSP_FORMAT         \
-    "{"                                        \
-    JSON_STR( wifiProvSTATUS_KEY ) ":%d,"      \
-    JSON_STR( wifiProvSSID_KEY ) ":\"%.*s\","  \
-    JSON_STR( wifiProvBSSID_KEY ) ":\"%.*s\"," \
-    JSON_STR( wifiProvKEY_MGMT_KEY ) ":%d,"    \
-    JSON_STR( wifiProvHIDDEN_KEY ) ":%s,"      \
-    JSON_STR( wifiRSSI_KEY ) ":%d,"            \
-    JSON_STR( wifiProvCONNECTED_KEY ) ":%s,"   \
-    JSON_STR( wifiProvINDEX_KEY ) ":%d"        \
-                                  "}"
-#define wifProvLIST_NETWORK_RSP_LEN              \
-    (                                            \
-        sizeof( wifiProvLISTNETWORK_RSP_FORMAT ) \
-        + wificonfigMAX_SSID_LEN                 \
-        + wifiProvBSSID_MAX_LEN                  \
-        + ( 6 * wifiProvUINT16_MAX_WIDTH ) )     \
-
-#define wifiProvSTATUS_RSP_FORMAT        \
-    "{"                                  \
-    JSON_STR( wifiProvSTATUS_KEY ) ":%d" \
-                                   "}"
-#define wifiProvSTATUS_RSP_FORMAT_LEN    ( sizeof( wifiProvSTATUS_RSP_FORMAT ) + wifiProvUINT16_MAX_WIDTH )
-
+#define wifiProvNUM_STATUS_MESG_PARAMS        ( 1 )
 
 /**
  * @brief List Network request sent by the GATT client to list saved and scanned networks.
@@ -180,15 +148,16 @@ typedef struct DeleteNetworkRequest
 
 typedef struct WifiNetworkInfo
 {
-	BaseType_t xIsScan;
-	int16_t sSavedIdx;
-	BaseType_t xConnected;
-
-	union {
-		WIFINetworkProfile_t* pxSavedNetworkInfo;
-		WIFIScanResult_t* pxScannedNetworkInfo;
-	} info;
-
+    WIFIReturnCode_t xStatus;
+	const char* pcSSID;
+	size_t xSSIDLength;
+	const uint8_t* pucBSSID;
+	size_t xBSSIDLength;
+	WIFISecurity_t xSecurity;
+	int8_t cRSSI;
+	bool ucHidden;
+	bool ucConnected;
+    int32_t sSavedIdx;
 } WifiNetworkInfo_t;
 
 /**
@@ -203,7 +172,6 @@ typedef enum
 } WifiProvEvent_t;
 
 #define ALL_EVENTS    (  eWIFIPROVConnect | eWIFIPROVConnected | eWIFIPROVDeleted | eWIFIPROVFailed )
-
 
 /**
  * @brief Structure used for WiFi provisioning service.
@@ -220,6 +188,13 @@ typedef struct WifiProvService
 } WifiProvService_t;
 
 #define wifiProvIS_SUCCESS( btstatus )    ( ( btstatus ) == eBTStatusSuccess )
+
+
+#define wifiProvINVALID_NETWORK_RSSI      ( -100 )
+
+
+#define wifiProvINVALID_NETWORK_INDEX     ( -1 )
+
 
 /**
  * @brief Maximum number of WiFi networks that can be provisioned

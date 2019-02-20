@@ -25,13 +25,13 @@
 
 
 /**
- * @file aws_ble_wifi_prov_test_access_define.h
+ * @file iot_ble_wifi_prov_test_access_define.h
  * @brief Definitions for functions that access private methods in aws_ble_wifi_provisioning.c
  *
  * Required to test the private methods in  aws_ble_wifi_provisioning.c
  */
-#ifndef AWS_BLE_WIFI_PROV_TEST_ACCESS_DEFINE_H_
-#define AWS_BLE_WIFI_PROV_TEST_ACCESS_DEFINE_H_
+#ifndef IOT_BLE_WIFI_PROV_TEST_ACCESS_DEFINE_H_
+#define IOT_BLE_WIFI_PROV_TEST_ACCESS_DEFINE_H_
 
 
 
@@ -103,4 +103,4 @@ BaseType_t test_GetConnectedNetwork( WIFINetworkProfile_t * pxNetwork )
 
 }
 
-#endif /* AWS_BLE_WIFI_PROV_TEST_ACCESS_DEFINE_H_ */
+#endif /* IOT_BLE_WIFI_PROV_TEST_ACCESS_DEFINE_H_ */

@@ -71,3 +71,4 @@ static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "Paste AWS IoT Broker
 #define clientcredentialWIFI_SECURITY   eWiFiSecurityWPA2
 
 #endif
+
