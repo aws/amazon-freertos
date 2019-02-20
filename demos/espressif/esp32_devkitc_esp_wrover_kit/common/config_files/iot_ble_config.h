@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_config.h
+ * @file iot_ble_config.h
  * @brief BLE configuration overrides for ESP32 board.
  */
 
@@ -33,18 +33,18 @@
 #define _AWS_BLE_CONFIG_H_
 
 /* Device name for this peripheral device. */
-#define bleconfigDEVICE_NAME                     "ESP32"
+#define IOT_BLE_DEVICE_NAME                     "ESP32"
 
 /* Enable WIFI provisioning GATT service. */
-#define bleconfigENABLE_WIFI_PROVISIONING         ( 1 )
-#define bleconfigENABLE_GATT_DEMO                 ( 1 )
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 1 )
+#define IOT_BLE_ENABLE_GATT_DEMO                 ( 0 )
 
 /* Disable numeric comparison */
-#define bleconfigENABLE_NUMERIC_COMPARISON        ( 0 )
-#define bleconfigENABLE_SECURE_CONNECTION         ( 0 )
-#define bleconfigINPUT_OUTPUT                     ( eBTIONone )
+#define IOT_BLE_ENABLE_NUMERIC_COMPARISON        ( 0 )
+#define IOT_BLE_ENABLE_SECURE_CONNECTION         ( 0 )
+#define IOT_BLE_INPUT_OUTPUT                     ( eBTIONone )
 
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
-#include "aws_ble_config_defaults.h"
+#include "iot_ble_config_defaults.h"
 
 #endif /* _AWS_BLE_CONFIG_H_ */

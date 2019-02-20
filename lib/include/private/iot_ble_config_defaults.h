@@ -25,15 +25,15 @@
 
 
 /**
- * @file aws_ble_config_defaults.h
+ * @file iot_ble_config_defaults.h
  * @brief BLE config options.
  *
  * Ensures that the config options for BLE are set to sensible
  * default values if the user does not provide one.
  */
 
-#ifndef _AWS_BLE_CONFIG_DEFAULTS_H_
-#define _AWS_BLE_CONFIG_DEFAULTS_H_
+#ifndef _IOT_BLE_CONFIG_DEFAULTS_H_
+#define _IOT_BLE_CONFIG_DEFAULTS_H_
 
 /**
  * @brief UUID used to uniquely identify a GATT server instance
@@ -41,7 +41,7 @@
  * Currently only one server instance is supported.
  *
  */
-#define bleconfigSERVER_UUID                { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
+#define IOT_BLE_SERVER_UUID                { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 
 /**
  *
@@ -53,24 +53,24 @@
  * The UUID is defined as a base + a mask. The mask is used to compute all the 128 bit UUIDs in the attribute table
  *
  */
- #define bleconfigDEVICE_INFO_SERVICE_BASE_UUID    0x00, 0xFF
- #define bleconfigDEVICE_INFO_SERVICE_UUID_MASK    0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A
- #define bleconfigDEVICE_INFO_SERVICE_UUID  {bleconfigDEVICE_INFO_SERVICE_BASE_UUID, bleconfigDEVICE_INFO_SERVICE_UUID_MASK }
+ #define IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID    0x00, 0xFF
+ #define IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK    0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A
+ #define IOT_BLE_DEVICE_INFO_SERVICE_UUID  {IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
 
 /**
  *
  * @brief Define the UUID that is going to be advertised.
  *
  */
-#if (!defined(bleconfigADVERTISING_UUID)) || ( !defined(bleconfigADVERTISING_UUID_SIZE))
-	#ifdef bleconfigADVERTISING_UUID
-	#error "bleconfigADVERTISING_UUID_SIZE need to be defined"
+#if (!defined(IOT_BLE_ADVERTISING_UUID)) || ( !defined(IOT_BLE_ADVERTISING_UUID_SIZE))
+	#ifdef IOT_BLE_ADVERTISING_UUID
+	#error "IOT_BLE_ADVERTISING_UUID_SIZE need to be defined"
 	#endif
-	#ifdef bleconfigADVERTISING_UUID_SIZE
-	#error "bleconfigADVERTISING_UUID need to be defined"
+	#ifdef IOT_BLE_ADVERTISING_UUID_SIZE
+	#error "IOT_BLE_ADVERTISING_UUID need to be defined"
 	#endif
-#define bleconfigADVERTISING_UUID bleconfigDEVICE_INFO_SERVICE_UUID
-#define bleconfigADVERTISING_UUID_SIZE 16
+#define IOT_BLE_ADVERTISING_UUID IOT_BLE_DEVICE_INFO_SERVICE_UUID
+#define IOT_BLE_ADVERTISING_UUID_SIZE 16
 #endif
 
 
@@ -78,31 +78,31 @@
  * @brief Define the Advertising interval.
  *
  */
-#if (!defined(bleconfigADVERTISING_INTERVAL_MIN)) || ( !defined(bleconfigADVERTISING_INTERVAL_MAX))
-	#ifdef bleconfigADVERTISING_INTERVAL_MIN
+#if (!defined(IOT_BLE_ADVERTISING_INTERVAL_MIN)) || ( !defined(bleconfigADVERTISING_INTERVAL_MAX))
+	#ifdef IOT_BLE_ADVERTISING_INTERVAL_MIN
 	#error "bleconfigADVERTISING_INTERVAL_MAX need to be defined"
 	#endif
 	#ifdef bleconfigADVERTISING_INTERVAL_MAX
-	#error "bleconfigADVERTISING_INTERVAL_MIN need to be defined"
+	#error "IOT_BLE_ADVERTISING_INTERVAL_MIN need to be defined"
 	#endif
-#define bleconfigADVERTISING_INTERVAL_MIN 0x20
-#define bleconfigADVERTISING_INTERVAL_MAX 0x40
+#define IOT_BLE_ADVERTISING_INTERVAL_MIN 0x20
+#define IOT_BLE_ADVERTISING_INTERVAL_MAX 0x40
 #endif
 
 /**
  * @brief Appearance of the device when advertising.
  *
  */
-#ifndef bleconfigADVERTISING_APPEARANCE
-#define bleconfigADVERTISING_APPEARANCE 0
+#ifndef IOT_BLE_ADVERTISING_APPEARANCE
+#define IOT_BLE_ADVERTISING_APPEARANCE 0
 #endif
 
 /**
  * @brief Supported input/output of the device.
  * This define needs to be of type BTIOtypes_t.
  */
-#ifndef bleconfigINPUT_OUTPUT
-#define bleconfigINPUT_OUTPUT eBTIODisplayYesNo
+#ifndef IOT_BLE_INPUT_OUTPUT
+#define IOT_BLE_INPUT_OUTPUT eBTIODisplayYesNo
 #endif
 
 /**
@@ -110,8 +110,8 @@
  * @brief Device name as it appears on the BLE network.
  *
  */
-#ifndef bleconfigDEVICE_NAME
-#define bleconfigDEVICE_NAME                      "BLE"
+#ifndef IOT_BLE_DEVICE_NAME
+#define IOT_BLE_DEVICE_NAME                      "BLE"
 #endif
 
 /**
@@ -121,8 +121,8 @@
  * of the negotiated values.
  *
  */
-#ifndef bleconfigPREFERRED_MTU_SIZE
-#define bleconfigPREFERRED_MTU_SIZE               ( 512 )
+#ifndef IOT_BLE_PREFERRED_MTU_SIZE
+#define IOT_BLE_PREFERRED_MTU_SIZE               ( 512 )
 #endif
 
 /**
@@ -130,8 +130,8 @@
  *
  * By default bonding will be enabled on all device.
  */
-#ifndef bleconfigENABLE_BONDING
-#define bleconfigENABLE_BONDING                   ( 1 )
+#ifndef IOT_BLE_ENABLE_BONDING
+#define IOT_BLE_ENABLE_BONDING                   ( 1 )
 #endif
 
 /**
@@ -139,8 +139,8 @@
  *
  * By default secure connection will be enable on all device.
  */
-#ifndef bleconfigENABLE_SECURE_CONNECTION
-#define bleconfigENABLE_SECURE_CONNECTION         ( 1 )
+#ifndef IOT_BLE_ENABLE_SECURE_CONNECTION
+#define IOT_BLE_ENABLE_SECURE_CONNECTION         ( 1 )
 #endif
 
 /* Config if set, requires encryption to access services and characteristics */
@@ -148,25 +148,25 @@
 /**
  * @brief Configuration to force encryption to access all characteristics of services.
  */
-#ifndef bleconfigENCRYPTION_REQUIRED
-#define bleconfigENCRYPTION_REQUIRED              ( 1 )
+#ifndef IOT_BLE_ENCRYPTION_REQUIRED
+#define IOT_BLE_ENCRYPTION_REQUIRED              ( 1 )
 #endif
 
 /**
  * @brief Configuration to enable numeric comparison for authentication.
  *
- * If the configuration is set to 0 and #bleconfigENABLE_SECURE_CONNECTION is set to 1, then
+ * If the configuration is set to 0 and #IOT_BLE_ENABLE_SECURE_CONNECTION is set to 1, then
  * device will use just works pairing.
  */
-#ifndef bleconfigENABLE_NUMERIC_COMPARISON
-#define bleconfigENABLE_NUMERIC_COMPARISON        ( 1 )
+#ifndef IOT_BLE_ENABLE_NUMERIC_COMPARISON
+#define IOT_BLE_ENABLE_NUMERIC_COMPARISON        ( 1 )
 #endif
 
 /**
  * @brief Timeout in seconds used for BLE numeric comparison.
  */
-#ifndef bleconfigNUMERIC_COMPARISON_TIMEOUT_SEC
-#define bleconfigNUMERIC_COMPARISON_TIMEOUT_SEC   ( 30 )
+#ifndef IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC
+#define IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC   ( 30 )
 #endif
 
 /**
@@ -174,8 +174,8 @@
  *
  * By default WIFI provisioning will be disabled.
  */
-#ifndef bleconfigENABLE_WIFI_PROVISIONING
-#define bleconfigENABLE_WIFI_PROVISIONING         ( 0 )
+#ifndef IOT_BLE_ENABLE_WIFI_PROVISIONING
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
 #endif
 
 /**
@@ -183,42 +183,38 @@
  *
  * A higher number will consume more stack space. The size increase in multiple of sizeof(WIFIScanResult_t)
  */
-#ifndef bleconfigMAX_NETWORK
-    #define bleconfigMAX_NETWORK                  ( 50 )
+#ifndef IOT_BLE_MAX_NETWORK
+    #define IOT_BLE_MAX_NETWORK                  ( 50 )
 #endif
 
-
 /**
- * @brief Enable sample GATT service
- *
- * By default the GATT demo service will be enabled.
- *
+ * @brief Set to true if user wants to add its own custom services.
  */
-#ifndef bleconfigENABLE_GATT_DEMO
-#define bleconfigENABLE_GATT_DEMO                 ( 0 )
+#ifndef IOT_BLE_ADD_CUSTOM_SERVICES
+    #define IOT_BLE_ADD_CUSTOM_SERVICES        ( 0 )
 #endif
 
 /**
  * @brief Maximum number of device this device can be bonded with.
  */
-#ifndef bleconfigMAX_BONDED_DEVICES
-#define bleconfigMAX_BONDED_DEVICES                ( 5 )
+#ifndef IOT_BLE_MAX_BONDED_DEVICES
+#define IOT_BLE_MAX_BONDED_DEVICES                ( 5 )
 #endif
 
-#if ( bleconfigENCRYPTION_REQUIRED == 1  )
-#if ( bleconfigENABLE_NUMERIC_COMPARISON == 1)
-#define bleconfigCHAR_READ_PERM             eBTPermReadEncryptedMitm
-#define bleconfigCHAR_WRITE_PERM            eBTPermWriteEncryptedMitm
+#if ( IOT_BLE_ENCRYPTION_REQUIRED == 1  )
+#if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1)
+#define IOT_BLE_CHAR_READ_PERM             eBTPermReadEncryptedMitm
+#define IOT_BLE_CHAR_WRITE_PERM            eBTPermWriteEncryptedMitm
 #else
-#define bleconfigCHAR_READ_PERM             eBTPermReadEncrypted
-#define bleconfigCHAR_WRITE_PERM            eBTPermWriteEncrypted
+#define IOT_BLE_CHAR_READ_PERM             eBTPermReadEncrypted
+#define IOT_BLE_CHAR_WRITE_PERM            eBTPermWriteEncrypted
 #endif
 #else
-#define bleconfigCHAR_READ_PERM             eBTPermRead
-#define bleconfigCHAR_WRITE_PERM            eBTPermWrite
+#define IOT_BLE_CHAR_READ_PERM             eBTPermRead
+#define IOT_BLE_CHAR_WRITE_PERM            eBTPermWrite
 #endif
-#define bleConfigENABLE_JSON_ENCODING           ( 1 )
+#define IOT_BLE_ENABLE_JSON_ENCODING           ( 1 )
 
-#define bleConfigENABLE_CBOR_ENCODING           ( 0 )
+#define IOT_BLE_ENABLE_CBOR_ENCODING           ( 0 )
 
-#endif /* _AWS_BLE_CONFIG_DEFAULTS_H_ */
+#endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */

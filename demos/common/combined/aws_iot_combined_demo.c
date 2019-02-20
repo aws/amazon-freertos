@@ -230,14 +230,15 @@ static SubscriptionHandle_t xSubscriptionHandle = AWSIOT_NETWORK_SUBSCRIPTION_HA
 /**
  * @brief Structure which holds the context for an MQTT connection within Demo.
  */
-static MqttConnectionContext_t xConnection =
-{
-     .pvNetworkConnection = NULL,
-     .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
-     .xNetworkInterface   = AWS_IOT_MQTT_NETIF_INITIALIZER,
-     .xMqttConnection     = AWS_IOT_MQTT_CONNECTION_INITIALIZER,
-     .xDisconnectCallback = prvNetworkDisconnectCallback
-};
+static AwsIotMqttConnection_t xMqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+/*
+* @brief Underlying network interface used for the MQTT connection.
+*/
+static AwsIotMqttNetIf_t xNetworkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
+/**
+* @brief Underlying network Connection used for the MQTT connection.
+*/
+static AwsIotDemoNetworkConnection_t xNetworkConnection = NULL;
 
 /**
  * @brief Semaphore to indicate a new network is available.
@@ -345,7 +346,7 @@ void vOtaTask( void * pvParameters )
                 AwsIotLogInfo( "vOtaTask: Socket just connected, initing OTA\n" );
                 xSemaphoreTake(xOtaProtocolUsingSocket, portMAX_DELAY);
                 AwsIotLogInfo( "vOtaTask: initing OTA, after take semaphore\n" );
-                if (OTA_AgentInit(xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 ) == eOTA_AgentState_Ready)
+                if (OTA_AgentInit(xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 ) == eOTA_AgentState_Ready)
                 {
                     AwsIotLogInfo( "vOtaTask: initing OTA, after init\n" );
                     otaInited = true;
@@ -537,7 +538,7 @@ AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
     if( demoMQTT_QOS == 0 )
     {
         xStatus = AwsIotMqtt_Publish(
-                xConnection.xMqttConnection,
+        		xMqttConnection,
                 &xPublishInfo,
                 0,
                 NULL,
@@ -547,7 +548,7 @@ AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
     {
         /* PUBLISH a message with timeout */
         xStatus = AwsIotMqtt_TimedPublish(
-            xConnection.xMqttConnection,
+        		xMqttConnection,
             &xPublishInfo,
             0,
             demoPUBLISH_TIMEOUT_DELAY_MS );
@@ -557,7 +558,7 @@ AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
     else if( demoMQTT_QOS == 2 )
     {
         xStatus = AwsIotMqtt_Publish(
-                xConnection.xMqttConnection,
+        		xMqttConnection,
                 &xPublishInfo,
                 AWS_IOT_MQTT_FLAG_WAITABLE,
                 NULL,
@@ -617,12 +618,13 @@ static BaseType_t prxCreateNetworkConnection( void )
         xSemaphoreTake( xNetworkAvailableLock, portMAX_DELAY );
     }
 
-    /* At least one network type is available. Connect to the network type. */
-    xRet = xMqttDemoCreateNetworkConnection(
-            &xConnection,
-            demoNETWORK_TYPES,
-            demoCONNECTION_RETRY_INTERVAL_SECONDS,
-            demoCONNECTION_RETRY_LIMIT );
+    AwsIotDemo_CreateNetworkConnection(
+            &xNetworkInterface,
+            &xMqttConnection,
+			prvNetworkDisconnectCallback,
+            &xNetworkConnection,
+			demoCONNECTION_RETRY_INTERVAL_SECONDS,
+			demoCONNECTION_RETRY_LIMIT );
 
     return xRet;
 }
@@ -630,7 +632,7 @@ static BaseType_t prxCreateNetworkConnection( void )
 
 static BaseType_t prxReCreateConnection( void )
 {
-    vMqttDemoDeleteNetworkConnection( &xConnection );
+	AwsIotDemo_DeleteNetworkConnection( &xNetworkConnection );
     return prxCreateNetworkConnection();
 }
 
@@ -640,7 +642,7 @@ static AwsIotMqttError_t prxOpenMqttConnection(void)
     AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
     AwsIotMqttError_t xMqttStatus;
 
-    if( xConnection.ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
+    if( AwsIotNetworkManager_GetConnectedNetworks() == AWSIOT_NETWORK_TYPE_BLE )
     {
         xConnectInfo.awsIotMqttMode = false;
         xConnectInfo.keepAliveSeconds = 0;
@@ -657,8 +659,8 @@ static AwsIotMqttError_t prxOpenMqttConnection(void)
 
     /* Connect to the IoT broker endpoint */
     xMqttStatus = AwsIotMqtt_Connect(
-            &( xConnection.xMqttConnection ),
-            &( xConnection.xNetworkInterface ),
+            &( xMqttConnection ),
+            &( xNetworkInterface ),
             &xConnectInfo,
             NULL,
             demoMQTT_OPERATION_TIMEOUT_MS );
@@ -694,7 +696,7 @@ static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe
     if( xSubscribe )
     {
         xMqttStatus = AwsIotMqtt_Subscribe(
-                xConnection.xMqttConnection,
+                xMqttConnection,
                 &xSubscription,
                 1,
                 AWS_IOT_MQTT_FLAG_WAITABLE,
@@ -704,7 +706,7 @@ static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe
     else
     {
         xMqttStatus = AwsIotMqtt_Unsubscribe(
-                xConnection.xMqttConnection,
+                xMqttConnection,
                 &xSubscription,
                 1,
                 AWS_IOT_MQTT_FLAG_WAITABLE,
@@ -723,10 +725,10 @@ static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe
 void prvCloseMqttConnection( BaseType_t xCleanupOnly )
 {
     /* Close the MQTT connection either by sending a DISCONNECT operation or not */
-    if( xConnection.xMqttConnection != AWS_IOT_MQTT_CONNECTION_INITIALIZER )
+    if( xMqttConnection != AWS_IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        AwsIotMqtt_Disconnect( xConnection.xMqttConnection, xCleanupOnly );
-        xConnection.xMqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+        AwsIotMqtt_Disconnect( xMqttConnection, xCleanupOnly );
+        xMqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
     }
 }
 
@@ -749,10 +751,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
         /* If the publish task is already connected to this network, set connected network flag to none,
          * to trigger a reconnect.
          */
-        if( xConnection.ulNetworkType == ulNetworkType )
-        {
-            xNetworkConnected = pdFALSE;
-        }
+        xNetworkConnected = pdFALSE;
     }
 }
 
@@ -880,7 +879,7 @@ void vMqttPubTask( void * pvParam  )
 
     if( xNetworkConnected != pdFALSE )
     {
-        vMqttDemoDeleteNetworkConnection( &xConnection );
+    	AwsIotDemo_DeleteNetworkConnection( xNetworkConnection );
     }
 
     AwsIotLogInfo( "vMqttPubTask: stop task\n" );

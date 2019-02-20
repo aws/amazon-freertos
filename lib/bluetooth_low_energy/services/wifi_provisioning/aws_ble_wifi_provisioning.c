@@ -28,14 +28,20 @@
  * @brief BLE Gatt service for WiFi provisioning
  */
 
-#include <aws_ble.h>
+#ifdef AWS_IOT_CONFIG_FILE
+    #include AWS_IOT_CONFIG_FILE
+#endif
+
+#include "iot_ble.h"
 #include <string.h>
 
-#include "aws_ble_config.h"
-#include "aws_ble_wifi_provisioning.h"
+#include "iot_ble_config.h"
+#include "iot_ble_wifi_provisioning.h"
 #include "semphr.h"
 #include "aws_json_utils.h"
 
+#define JSON_STR( x )    STR( x )
+#define STR( x )         # x
 
 #define ATTR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
 #define ATTR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
@@ -91,7 +97,7 @@ static WifiProvService_t xWifiProvService = { 0 };
 
 static uint16_t usHandlesBuffer[eNbAttributes];
 
-static const BLEAttribute_t pxAttributeTable[] = {
+static const BTAttribute_t pxAttributeTable[] = {
      {
          .xServiceUUID =  wifiProvSVC_UUID_TYPE
      },
@@ -100,7 +106,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
          .xCharacteristic =
          {
               .xUuid = wifiProvLIST_NETWORK_CHAR_UUID_TYPE,
-              .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  ),
+              .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  ),
               .xProperties = ( eBTPropRead | eBTPropWrite | eBTPropNotify )
           }
      },
@@ -109,7 +115,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
          .xCharacteristicDescr =
          {
              .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
-             .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  )
+             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  )
           }
      },
 	{
@@ -117,7 +123,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
 		 .xCharacteristic =
 		 {
 			  .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
-			  .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  ),
+			  .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  ),
 			  .xProperties = ( eBTPropRead | eBTPropWrite | eBTPropNotify )
 		  }
 	 },
@@ -126,7 +132,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
 		 .xCharacteristicDescr =
 		 {
 			 .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
-			 .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  )
+			 .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  )
 		  }
 	 },
 	{
@@ -134,7 +140,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
 		 .xCharacteristic =
 		 {
 			  .xUuid = wifiProvEDIT_NETWORK_CHAR_UUID_TYPE,
-			  .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  ),
+			  .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  ),
 			  .xProperties = ( eBTPropRead | eBTPropWrite | eBTPropNotify )
 		  }
 	 },
@@ -143,7 +149,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
 		 .xCharacteristicDescr =
 		 {
 			 .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
-			 .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  )
+			 .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  )
 		  }
 	 },
 	{
@@ -151,7 +157,7 @@ static const BLEAttribute_t pxAttributeTable[] = {
 		 .xCharacteristic =
 		 {
 			  .xUuid = wifiProvDELETE_NETWORK_CHAR_UUID_TYPE,
-			  .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  ),
+			  .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  ),
 			  .xProperties = ( eBTPropRead | eBTPropWrite | eBTPropNotify )
 		  }
 	 },
@@ -160,33 +166,28 @@ static const BLEAttribute_t pxAttributeTable[] = {
 		 .xCharacteristicDescr =
 		 {
 			 .xUuid = wifiProvSAVE_NETWORK_CHAR_UUID_TYPE,
-			 .xPermissions = ( bleconfigCHAR_READ_PERM | bleconfigCHAR_WRITE_PERM  )
+			 .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  )
 		  }
 	 }
 };
 
-static const BLEService_t xWIFIProvisionningService =
+static const BTService_t xWIFIProvisionningService =
 {
   .xNumberOfAttributes = eNbAttributes,
   .ucInstId = 0,
   .xType = eBTServiceTypePrimary,
   .pusHandlesBuffer = usHandlesBuffer,
-  .pxBLEAttributes = (BLEAttribute_t *)pxAttributeTable
+  .pxBLEAttributes = (BTAttribute_t *)pxAttributeTable
 };
 /*
  * @brief Callback registered for BLE write and read events received for each characteristic.
  */
-static void vCharacteristicCallback( BLEAttributeEvent_t * pxEventParam );
+static void vCharacteristicCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Callback registered for client characteristic configuration descriptors.
  */
-static void vClientCharCfgDescrCallback( BLEAttributeEvent_t * pxEventParam );
-
-/*
- * @brief Function used to create and initialize BLE service.
- */
-static BaseType_t prxInitGATTService( void );
+static void vClientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Parses List Network request params and creates task to list networks.
@@ -281,7 +282,7 @@ void prvSendResponse( WifiProvAttributes_t xCharacteristic, uint8_t* pucData, si
 /*-----------------------------------------------------------*/
 
 
-static const BLEAttributeEventCallback_t pxCallBackArray[eNbAttributes] =
+static const IotBleAttributeEventCallback_t pxCallBackArray[eNbAttributes] =
 {
   NULL,
   vCharacteristicCallback,
@@ -293,23 +294,6 @@ static const BLEAttributeEventCallback_t pxCallBackArray[eNbAttributes] =
   vCharacteristicCallback,
   vClientCharCfgDescrCallback
 };
-
-
-
-BaseType_t prxInitGATTService( void )
-{
-    BTStatus_t xStatus;
-    BaseType_t xResult = pdFAIL;
-
-    /* Select the handle buffer. */
-    xStatus = BLE_CreateService( (BLEService_t *)&xWIFIProvisionningService, (BLEAttributeEventCallback_t *)pxCallBackArray );
-	if( xStatus == eBTStatusSuccess )
-	{
-		xResult = pdPASS;
-	}
-
-    return xResult;
-}
 
 /*-----------------------------------------------------------*/
 
@@ -343,45 +327,45 @@ BaseType_t WIFI_PROVISION_Start( void )
     return xRet;
 }
 
-void vCharacteristicCallback( BLEAttributeEvent_t * pxEventParam )
+void vCharacteristicCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    BLEWriteEventParams_t * pxWriteParam;
-    BLEReadEventParams_t * pxReadParam;
+    IotBleWriteEventParams_t * pxWriteParam;
+    IotBleReadEventParams_t * pxReadParam;
     BaseType_t xResult = pdFAIL;
 
-    BLEAttributeData_t xAttrData = { 0 };
-    BLEEventResponse_t xResp =
+    IotBleAttributeData_t xAttrData = { 0 };
+    IotBleEventResponse_t xResp =
     {
-        .xEventStatus    = eBTStatusFail,
-        .xRspErrorStatus = eBTRspErrorNone
+        .eventStatus    = eBTStatusFail,
+        .rspErrorStatus = eBTRspErrorNone
     };
     WifiProvAttributes_t xChar;
 
-    xResp.pxAttrData = &xAttrData;
+    xResp.pAttrData = &xAttrData;
 
-    if( pxEventParam->xEventType == eBLEWrite )
+    if( pEventParam->xEventType == eBLEWrite )
     {
-        pxWriteParam = pxEventParam->pxParamWrite;
-        xWifiProvService.usBLEConnId = pxWriteParam->usConnId;
+        pxWriteParam = pEventParam->pParamWrite;
+        xWifiProvService.usBLEConnId = pxWriteParam->connId;
 
-        xChar = prxGetCharFromHandle( pxWriteParam->usAttrHandle );
+        xChar = prxGetCharFromHandle( pxWriteParam->attrHandle );
 
         switch( xChar )
         {
             case eListNetworkChar:
-                xResult = prxHandleListNetworkRequest( pxWriteParam->pucValue, pxWriteParam->xLength );
+                xResult = prxHandleListNetworkRequest( pxWriteParam->pValue, pxWriteParam->length );
                 break;
 
             case eSaveNetworkChar:
-                xResult = prxHandleSaveNetworkRequest( pxWriteParam->pucValue, pxWriteParam->xLength );
+                xResult = prxHandleSaveNetworkRequest( pxWriteParam->pValue, pxWriteParam->length );
                 break;
 
             case eEditNetworkChar:
-                xResult = prxHandleEditNetworkRequest( pxWriteParam->pucValue, pxWriteParam->xLength );
+                xResult = prxHandleEditNetworkRequest( pxWriteParam->pValue, pxWriteParam->length );
                 break;
 
             case eDeleteNetworkChar:
-                xResult = prxHandleDeleteNetworkRequest( pxWriteParam->pucValue, pxWriteParam->xLength );
+                xResult = prxHandleDeleteNetworkRequest( pxWriteParam->pValue, pxWriteParam->length );
                 break;
 
             case eNbAttributes:
@@ -392,68 +376,68 @@ void vCharacteristicCallback( BLEAttributeEvent_t * pxEventParam )
 
         if( xResult == pdPASS )
         {
-            xResp.xEventStatus = eBTStatusSuccess;
+            xResp.eventStatus = eBTStatusSuccess;
         }
 
-        xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
-        xResp.pxAttrData->pucData = pxWriteParam->pucValue;
-        xResp.pxAttrData->xSize = pxWriteParam->xLength;
-        xResp.xAttrDataOffset = pxWriteParam->usOffset;
-        BLE_SendResponse( &xResp, pxWriteParam->usConnId, pxWriteParam->ulTransId );
+        xResp.pAttrData->handle = pxWriteParam->attrHandle;
+        xResp.pAttrData->pData = pxWriteParam->pValue;
+        xResp.pAttrData->size = pxWriteParam->length;
+        xResp.attrDataOffset = pxWriteParam->offset;
+        IotBle_SendResponse( &xResp, pxWriteParam->connId, pxWriteParam->transId );
     }
-    else if( pxEventParam->xEventType == eBLERead )
+    else if( pEventParam->xEventType == eBLERead )
     {
-        pxReadParam = pxEventParam->pxParamRead;
-        xResp.pxAttrData->xHandle = pxReadParam->usAttrHandle;
-        xResp.pxAttrData->pucData = NULL;
-        xResp.pxAttrData->xSize = 0;
-        xResp.xAttrDataOffset = 0;
-        xResp.xEventStatus = eBTStatusSuccess;
-        BLE_SendResponse( &xResp, pxReadParam->usConnId, pxReadParam->ulTransId );
+        pxReadParam = pEventParam->pParamRead;
+        xResp.pAttrData->handle = pxReadParam->attrHandle;
+        xResp.pAttrData->pData = NULL;
+        xResp.pAttrData->size = 0;
+        xResp.attrDataOffset = 0;
+        xResp.eventStatus = eBTStatusSuccess;
+        IotBle_SendResponse( &xResp, pxReadParam->connId, pxReadParam->transId );
     }
 }
 
 /*-----------------------------------------------------------*/
 
-static void vClientCharCfgDescrCallback( BLEAttributeEvent_t * pxEventParam )
+static void vClientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    BLEWriteEventParams_t * pxWriteParam;
-    BLEReadEventParams_t * pxReadParam;
+    IotBleWriteEventParams_t * pxWriteParam;
+    IotBleReadEventParams_t * pxReadParam;
 
-    BLEAttributeData_t xAttrData = { 0 };
-    BLEEventResponse_t xResp =
+    IotBleAttributeData_t xAttrData = { 0 };
+    IotBleEventResponse_t xResp =
     {
-        .xEventStatus    = eBTStatusSuccess,
-        .xRspErrorStatus = eBTRspErrorNone
+        .eventStatus    = eBTStatusSuccess,
+        .rspErrorStatus = eBTRspErrorNone
     };
 
-    xResp.pxAttrData = &xAttrData;
+    xResp.pAttrData = &xAttrData;
 
-    if( pxEventParam->xEventType == eBLEWrite )
+    if( pEventParam->xEventType == eBLEWrite )
     {
-        pxWriteParam = pxEventParam->pxParamWrite;
+        pxWriteParam = pEventParam->pParamWrite;
 
-        if( pxWriteParam->xLength == 2 )
+        if( pxWriteParam->length == 2 )
         {
-            xWifiProvService.usNotifyClientEnabled = ( pxWriteParam->pucValue[ 1 ] << 8 ) | pxWriteParam->pucValue[ 0 ];
-            xWifiProvService.usBLEConnId = pxWriteParam->usConnId;
-            xResp.pxAttrData->xHandle = pxWriteParam->usAttrHandle;
-            xResp.pxAttrData->pucData = pxWriteParam->pucValue;
-            xResp.pxAttrData->xSize = pxWriteParam->xLength;
-            xResp.xAttrDataOffset = pxWriteParam->usOffset;
+            xWifiProvService.usNotifyClientEnabled = ( pxWriteParam->pValue[ 1 ] << 8 ) | pxWriteParam->pValue[ 0 ];
+            xWifiProvService.usBLEConnId = pxWriteParam->connId;
+            xResp.pAttrData->handle = pxWriteParam->attrHandle;
+            xResp.pAttrData->pData = pxWriteParam->pValue;
+            xResp.pAttrData->size = pxWriteParam->length;
+            xResp.attrDataOffset = pxWriteParam->offset;
         }
 
-        BLE_SendResponse( &xResp, pxWriteParam->usConnId, pxWriteParam->ulTransId );
+        IotBle_SendResponse( &xResp, pxWriteParam->connId, pxWriteParam->transId );
     }
-    else if( pxEventParam->xEventType == eBLERead )
+    else if( pEventParam->xEventType == eBLERead )
     {
-        pxReadParam = pxEventParam->pxParamRead;
-        xResp.pxAttrData->xHandle = pxReadParam->usAttrHandle;
-        xResp.pxAttrData->pucData = ( uint8_t * ) &xWifiProvService.usNotifyClientEnabled;
-        xResp.pxAttrData->xSize = 2;
-        xResp.xAttrDataOffset = 0;
-        xResp.xEventStatus = eBTStatusSuccess;
-        BLE_SendResponse( &xResp, pxReadParam->usConnId, pxReadParam->ulTransId );
+        pxReadParam = pEventParam->pParamRead;
+        xResp.pAttrData->handle = pxReadParam->attrHandle;
+        xResp.pAttrData->pData = ( uint8_t * ) &xWifiProvService.usNotifyClientEnabled;
+        xResp.pAttrData->size = 2;
+        xResp.attrDataOffset = 0;
+        xResp.eventStatus = eBTStatusSuccess;
+        IotBle_SendResponse( &xResp, pxReadParam->connId, pxReadParam->transId );
     }
 }
 
@@ -503,10 +487,10 @@ static BaseType_t prxHandleListNetworkRequest( uint8_t * pucData,
 
             if( xStatus == pdTRUE )
             {
-                if(pxParams->sMaxNetworks > bleconfigMAX_NETWORK )
+                if(pxParams->sMaxNetworks > IOT_BLE_MAX_NETWORK )
                 {
-                    configPRINTF(("Too many network request: %d, expected at most %d\n", pxParams->sMaxNetworks, bleconfigMAX_NETWORK));
-                    pxParams->sMaxNetworks = bleconfigMAX_NETWORK;
+                    configPRINTF(("Too many network request: %d, expected at most %d\n", pxParams->sMaxNetworks, IOT_BLE_MAX_NETWORK));
+                    pxParams->sMaxNetworks = IOT_BLE_MAX_NETWORK;
                 }
                 else if ( pxParams->sMaxNetworks <= 0 )
                 {
@@ -848,19 +832,19 @@ void prvSendStatusResponse( WifiProvAttributes_t xCharacteristic,
 
 void prvSendResponse( WifiProvAttributes_t xCharacteristic, uint8_t* pucData, size_t xLen )
 {
-	BLEAttributeData_t xAttrData = { 0 };
-	BLEEventResponse_t xResp = { 0 };
+	IotBleAttributeData_t xAttrData = { 0 };
+	IotBleEventResponse_t xResp = { 0 };
 
-	xAttrData.xHandle = ATTR_HANDLE( xWifiProvService.pxGattService, xCharacteristic );
-	xAttrData.xUuid = ATTR_UUID( xWifiProvService.pxGattService, xCharacteristic );
-	xResp.xAttrDataOffset = 0;
-	xResp.pxAttrData = &xAttrData;
-	xResp.xRspErrorStatus = eBTRspErrorNone;
+	xAttrData.handle = ATTR_HANDLE( xWifiProvService.pxGattService, xCharacteristic );
+	xAttrData.uuid = ATTR_UUID( xWifiProvService.pxGattService, xCharacteristic );
+	xResp.attrDataOffset = 0;
+	xResp.pAttrData = &xAttrData;
+	xResp.rspErrorStatus = eBTRspErrorNone;
 
-	xAttrData.pucData = pucData;
-	xAttrData.xSize = xLen;
+	xAttrData.pData = pucData;
+	xAttrData.size = xLen;
 
-	( void ) BLE_SendIndication( &xResp, xWifiProvService.usBLEConnId, false );
+	( void ) IotBle_SendIndication( &xResp, xWifiProvService.usBLEConnId, false );
 }
 
 /*-----------------------------------------------------------*/
@@ -1160,7 +1144,8 @@ void prvEditNetworkTask( void * pvParams )
 
 BaseType_t WIFI_PROVISION_Init( void )
 {
-    BaseType_t xStatus = pdTRUE;
+	BTStatus_t status = eBTStatusSuccess;
+	BTStatus_t error = pdFAIL;
 
     if( xWifiProvService.xInit == pdFALSE )
     {
@@ -1173,15 +1158,15 @@ BaseType_t WIFI_PROVISION_Init( void )
 		}
 		else
 		{
-			xStatus = pdFALSE;
+			status = eBTStatusFail;
 		}
 
-        if( xStatus == pdTRUE )
+        if( status == eBTStatusSuccess )
         {
-        	xWifiProvService.pxGattService = ( BLEService_t *)&xWIFIProvisionningService;
-            xStatus = prxInitGATTService();
+        	xWifiProvService.pxGattService = ( BTService_t *)&xWIFIProvisionningService;
+        	status = IotBle_CreateService( (BTService_t *)&xWIFIProvisionningService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
         }
-        if( xStatus == pdTRUE )
+        if( status == eBTStatusSuccess )
         {
         	xWifiProvService.sConnectedIdx = INVALID_INDEX;
         	xWifiProvService.xInit = pdTRUE;
@@ -1189,10 +1174,15 @@ BaseType_t WIFI_PROVISION_Init( void )
     }
     else
     {
-        xStatus = pdFALSE;
+    	status = eBTStatusFail;
     }
 
-    return xStatus;
+    if(status == eBTStatusSuccess)
+    {
+    	error = pdPASS;
+    }
+
+    return error;
 }
 
 /*-----------------------------------------------------------*/
@@ -1248,7 +1238,7 @@ BaseType_t WIFI_PROVISION_Delete( void )
 {
 	BaseType_t xRet = pdFALSE;
 
-    if( BLE_DeleteService( xWifiProvService.pxGattService ) == eBTStatusSuccess )
+    if( IotBle_DeleteService( xWifiProvService.pxGattService ) == eBTStatusSuccess )
     {
     	xRet = pdTRUE;
     }

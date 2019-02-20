@@ -36,7 +36,7 @@
 #include "task.h"
 #include "event_groups.h"
 #include "semphr.h"
-#include "aws_ble.h"
+#include "iot_ble.h"
 #include "aws_wifi.h"
 
 /**
@@ -108,8 +108,7 @@ typedef enum
 #define wifiProvFALSE               "false"
 #define wifiProvUINT16_MAX_WIDTH    ( 5 )
 #define wifiProvBSSID_MAX_LEN       ( 17 )
-#define JSON_STR( x )    STR( x )
-#define STR( x )         # x
+
 
 /**
  * @brief Format of the JSON messages sent from GATT client to server
@@ -211,7 +210,7 @@ typedef enum
  */
 typedef struct WifiProvService
 {
-    struct BLEService * pxGattService;
+    struct BTService * pxGattService;
     uint16_t usNotifyClientEnabled;
     uint16_t usBLEConnId;
     SemaphoreHandle_t xLock;
@@ -328,5 +327,6 @@ BaseType_t WIFI_PROVISION_Stop( void );
  * @return pdTRUE if delete succeeds, pdFALSE otherwise
  */
 BaseType_t WIFI_PROVISION_Delete( void );
+
 
 #endif /* _AWS_BLE_WIFI_PROVISIONING_H_ */

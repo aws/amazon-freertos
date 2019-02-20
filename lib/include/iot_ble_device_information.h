@@ -31,17 +31,17 @@
 #ifndef AWS_BLE_DEVICE_INFORMATION_H_
 #define AWS_BLE_DEVICE_INFORMATION_H_
 
-#include "aws_ble.h"
-#include "aws_ble_config.h"
+#include "iot_ble.h"
+#include "iot_ble_config.h"
 
 
 /**
  * @brief Service, characteristic and descriptor UUIDS for Device information Service
  */
-#define deviceInfoCHAR_UUID_BASE          bleconfigDEVICE_INFO_SERVICE_UUID
-#define deviceInfoCHAR_VERSION_UUID       { 0x01, 0xFF, bleconfigDEVICE_INFO_SERVICE_UUID_MASK }
-#define deviceInfoBROKER_ENDPOINT_UUID    { 0x02, 0xFF, bleconfigDEVICE_INFO_SERVICE_UUID_MASK }
-#define deviceInfoCHAR_MTU_UUID           { 0x03, 0xFF, bleconfigDEVICE_INFO_SERVICE_UUID_MASK } 
+#define deviceInfoCHAR_UUID_BASE          IOT_BLE_DEVICE_INFO_SERVICE_UUID
+#define deviceInfoCHAR_VERSION_UUID       { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
+#define deviceInfoBROKER_ENDPOINT_UUID    { 0x02, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
+#define deviceInfoCHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK } 
 #define deviceInfoCLIENT_CHAR_CFG_UUID    0x2902 
 
 /**
@@ -82,27 +82,27 @@ typedef enum
 #define deviceInfoVerison              "version"
 #define deviceInfoBROKER_ENDPOIINT     "brokerEndpoint"
 
-#define JSON_STR( x )    STR( x )
-#define STR( x )         # x
+#define deviceInfoJSON_STR( x )    deviceInfoSTR( x )
+#define deviceInfoSTR( x )         # x
 
 /**
  * JSON format for serializing the response payloads
  */
 #define deviceInfoMTU_MSG_FORMAT    \
     "{"                             \
-    JSON_STR( deviceInfoMTU ) ":%d" \
+    deviceInfoJSON_STR( deviceInfoMTU ) ":%d" \
                               "}"
 #define deviceInfoMTU_MSG_LEN               ( sizeof( deviceInfoMTU_MSG_FORMAT ) + deviceInfoMTU_WIDTH )
 
 #define deviceInfoVERSION_MSG_FORMAT                \
     "{"                                             \
-    JSON_STR( deviceInfoVerison      ) ":\"%.*s\""  \
+    deviceInfoJSON_STR( deviceInfoVerison      ) ":\"%.*s\""  \
                                      "}"
 #define deviceInfoVERSION_MSG_LEN      ( sizeof( deviceInfoVERSION_MSG_FORMAT ) )
 
 #define deviceInfoBROKERENDPOINT_MSG_FORMAT            \
     "{"                                                \
-    JSON_STR( deviceInfoBROKER_ENDPOIINT ) ":\"%.*s\"" \
+    deviceInfoJSON_STR( deviceInfoBROKER_ENDPOIINT ) ":\"%.*s\"" \
                                            "}"
 #define deviceInfoBROKERENDPOINT_MSG_LEN    ( sizeof( deviceInfoBROKERENDPOINT_MSG_FORMAT ) )
 
@@ -111,7 +111,7 @@ typedef enum
  */
 typedef struct DeviceInfoService
 {
-    BLEService_t * pxBLEService;
+    BTService_t * pxBLEService;
     uint16_t usCCFGVal[ deviceInfoMAX_DESCRS ];
     uint16_t usBLEConnId;
     uint16_t usBLEMtu;
@@ -122,7 +122,7 @@ typedef struct DeviceInfoService
  *
  * @return pdTRUE if the service is initialized successfully, pdFALSE otherwise
  */
-BaseType_t AFRDeviceInfoSvc_Init( void );
+extern BaseType_t AFRDeviceInfoSvc_Init( void );
 
 
 #endif /* AWS_BLE_DEVICE_INFORMATION_H_ */

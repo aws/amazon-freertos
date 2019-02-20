@@ -39,7 +39,7 @@
 #include "FreeRTOS.h"
 
 /* MQTT internal includes. */
-#include "aws_ble_config.h"
+#include "iot_ble_config.h"
 #include "private/aws_iot_mqtt_serialize_ble.h"
 #include "private/aws_iot_mqtt_internal.h"
 #include "aws_iot_serializer.h"
@@ -47,10 +47,10 @@
 
 #define _INVALID_MQTT_PACKET_TYPE        ( 0xF0 )
 
-#if ( bleConfigENABLE_CBOR_ENCODING == 1 )
+#if ( IOT_BLE_ENABLE_CBOR_ENCODING == 1 )
 #define _MQTT_BLE_ENCODER  ( _AwsIotSerializerCborEncoder )
 #define _MQTT_BLE_DECODER  ( _AwsIotSerializerCborDecoder )
-#elif ( bleConfigENABLE_JSON_ENCODING == 1 )
+#elif ( IOT_BLE_ENABLE_JSON_ENCODING == 1 )
 #define _MQTT_BLE_ENCODER  ( _AwsIotSerializerJsonEncoder )
 #define _MQTT_BLE_DECODER  ( _AwsIotSerializerJsonDecoder )
 #endif

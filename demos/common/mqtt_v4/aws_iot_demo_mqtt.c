@@ -157,13 +157,13 @@ extern int snprintf( char *,
 /**
  * @brief The maximum number of times each PUBLISH in this demo will be retried.
  */
-#define _PUBLISH_RETRY_LIMIT                      ( 0 )
+#define _PUBLISH_RETRY_LIMIT                      ( 10 )
 
 /**
  * @brief A PUBLISH message is retried if no response is received within this
  * time.
  */
-#define _PUBLISH_RETRY_MS                         ( 0 )
+#define _PUBLISH_RETRY_MS                         ( 1000 )
 
 /**
  * @brief The topic name on which acknowledgement messages for incoming publishes

@@ -37,8 +37,7 @@
 /**
  * @brief Tokens used within JSON payloads for MQTT messages.
  */
-#define JSON_STR(x)   STR(x)
-#define STR(x)  #x
+
 
 #define mqttBLETRUE		            "true"
 #define mqttBLEFALSE		        "false"
@@ -63,8 +62,8 @@
 
 #define mqttBLEMAX_MESG_TOKENS    ( 16 )
 
-#define JSON_STR(x)		STR(x)
-#define STR(x)		    #x
+#define mqttBLEJSON_STR(x)		mqttBLESTR(x)
+#define mqttBLESTR(x)		    #x
 
 #define JSON_STR_ARR_LEN( numelems ) ( ( numelems * 2 ) + ( numelems - 1 ) + 2 )
 
@@ -75,12 +74,12 @@
  */
 #define mqttBLECONNECT_MSG_FORMAT                    \
 		"{"                                               \
-	    JSON_STR( mqttBLEMSG_TYPE )":%hu,"           \
-        JSON_STR( mqttBLECLIENT_ID )":\"%.*s\","     \
-        JSON_STR( mqttBLEBROKER_EP )":\"%.*s\","     \
-		JSON_STR( mqttBLEBROKER_PORT )":%hu,"        \
-		JSON_STR( mqttBLEUSER )":\"%.*s\","          \
-		JSON_STR( mqttBLECLEAN_SESSION )":%s"        \
+	    mqttBLEJSON_STR( mqttBLEMSG_TYPE )":%hu,"           \
+        mqttBLEJSON_STR( mqttBLECLIENT_ID )":\"%.*s\","     \
+        mqttBLEJSON_STR( mqttBLEBROKER_EP )":\"%.*s\","     \
+		mqttBLEJSON_STR( mqttBLEBROKER_PORT )":%hu,"        \
+		mqttBLEJSON_STR( mqttBLEUSER )":\"%.*s\","          \
+		mqttBLEJSON_STR( mqttBLECLEAN_SESSION )":%s"        \
 		"}"
 
 #define mqttBLECONNECT_MSG_LEN( pConnectInfo )          \
@@ -94,11 +93,11 @@
 
 #define mqttBLEPUBLISH_MSG_HEADER                      \
 		"{" 								                \
-	    JSON_STR( mqttBLEMSG_TYPE )":%hu," 		    \
-        JSON_STR( mqttBLETOPIC )":\"%.*s\","  	        \
-		JSON_STR( mqttBLEQOS )":%hu,"					\
-		JSON_STR( mqttBLEMESSAGE_ID )":%hu,"			\
-		JSON_STR( mqttBLEPAYLOAD )":\""
+	    mqttBLEJSON_STR( mqttBLEMSG_TYPE )":%hu," 		    \
+        mqttBLEJSON_STR( mqttBLETOPIC )":\"%.*s\","  	        \
+		mqttBLEJSON_STR( mqttBLEQOS )":%hu,"					\
+		mqttBLEJSON_STR( mqttBLEMESSAGE_ID )":%hu,"			\
+		mqttBLEJSON_STR( mqttBLEPAYLOAD )":\""
 
 #define mqttBLEPUBLISH_MSG_TRAILER     "\"}"
 
@@ -112,10 +111,10 @@
 
 #define mqttBLESUBSCRIBE_MSG_FORMAT                \
 		"{"                                             \
-	    JSON_STR( mqttBLEMSG_TYPE )":%d,"          \
-        JSON_STR( mqttBLETOPIC_LIST )":%.*s,"      \
-		JSON_STR( mqttBLEQOS_LIST )":%.*s,"        \
-		JSON_STR( mqttBLEMESSAGE_ID )":%d"         \
+	    mqttBLEJSON_STR( mqttBLEMSG_TYPE )":%d,"          \
+        mqttBLEJSON_STR( mqttBLETOPIC_LIST )":%.*s,"      \
+		mqttBLEJSON_STR( mqttBLEQOS_LIST )":%.*s,"        \
+		mqttBLEJSON_STR( mqttBLEMESSAGE_ID )":%d"         \
 		"}"
 
 #define mqttBLESUBSCRIBE_MSG_LEN( topicArrLen, qosArrLen ) \
@@ -127,9 +126,9 @@
 
 #define mqttBLEUNSUBSCRIBE_MSG_FORMAT         \
 		"{"                                        \
-	    JSON_STR( mqttBLEMSG_TYPE )":%d,"     \
-        JSON_STR( mqttBLETOPIC_LIST )":%.*s,"      \
-		JSON_STR( mqttBLEMESSAGE_ID )":%d"    \
+	    mqttBLEJSON_STR( mqttBLEMSG_TYPE )":%d,"     \
+        mqttBLEJSON_STR( mqttBLETOPIC_LIST )":%.*s,"      \
+		mqttBLEJSON_STR( mqttBLEMESSAGE_ID )":%d"    \
 		"}"
 #define mqttBLEUNSUBSCRIBE_MSG_LEN( topicArrLen )   \
 	    ( sizeof( mqttBLEUNSUBSCRIBE_MSG_FORMAT )   \
@@ -139,7 +138,7 @@
 
 #define mqttBLEDISCONNECT_MSG_FORMAT	    \
 		"{" 							        \
-	     JSON_STR( mqttBLEMSG_TYPE )":%d" 	\
+	     mqttBLEJSON_STR( mqttBLEMSG_TYPE )":%d" 	\
 		"}"
 
 #define mqttBLEDISCONNECT_MSG_LEN           \
@@ -148,8 +147,8 @@
 
 #define mqttBLEPUBACK_MSG_FORMAT            \
 		"{"                                      \
-	     JSON_STR( mqttBLEMSG_TYPE )":%d,"  \
-		 JSON_STR( mqttBLEMESSAGE_ID )":%d" \
+	     mqttBLEJSON_STR( mqttBLEMSG_TYPE )":%d,"  \
+		 mqttBLEJSON_STR( mqttBLEMESSAGE_ID )":%d" \
 		"}"
 #define mqttBLEPUBACK_MSG_LEN                   \
 	    ( sizeof( mqttBLEPUBACK_MSG_FORMAT )    \

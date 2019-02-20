@@ -78,6 +78,13 @@ BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandl
  */
 uint32_t AwsIotNetworkManager_GetConnectedNetworks( void );
 
+
+/**
+ * @brief Blocks for atleast one network connection. Returns back the connected networks on atleast one successful connection.
+ * @return Network Types of all connected networks.
+ */
+uint32_t AwsIotNetworkManager_WaitForNetworkConnection( void );
+
 /**
  * @brief Gets all supported networks
  * @return Flags indicating all configured networks
