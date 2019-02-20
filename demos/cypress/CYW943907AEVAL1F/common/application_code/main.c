@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS V1.4.7
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -45,9 +45,9 @@
 
 /* Declare the firmware version structure for all to see. */
 const AppVersion32_t xAppFirmwareVersion = {
-	.u.x.ucMajor = APP_VERSION_MAJOR,
-	.u.x.ucMinor = APP_VERSION_MINOR,
-	.u.x.usBuild = APP_VERSION_BUILD,
+    .u.x.ucMajor = APP_VERSION_MAJOR,
+    .u.x.ucMinor = APP_VERSION_MINOR,
+    .u.x.usBuild = APP_VERSION_BUILD,
 };
 
 /* Logging Task Defines. */
@@ -62,7 +62,7 @@ const AppVersion32_t xAppFirmwareVersion = {
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 16 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
-#define mainDEVICE_NICK_NAME				"cypress_demo" /* FIX ME.*/
+#define mainDEVICE_NICK_NAME                "cypress_demo"
 
 /* DNS addresses used seed in PRNG seed generation
  * 7 total addresses to for 7 DNS queries
@@ -77,60 +77,6 @@ static const char *pcDnsNames[] = {
         "www.a9.com"
 };
 
-#if 0
-/* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network
- * connections are declared below. If you are using an Ethernet connection on your MCU
- * device it is recommended to use the FreeRTOS+TCP stack. The default values are
- * defined in FreeRTOSConfig.h. */
-
-/* Default MAC address configuration.  The application creates a virtual network
- * connection that uses this MAC address by accessing the raw Ethernet data
- * to and from a real network connection on the host PC.  See the
- * configNETWORK_INTERFACE_TO_USE definition for information on how to configure
- * the real network connection to use. */
-const uint8_t ucMACAddress[ 6 ] =
-{
-    configMAC_ADDR0,
-    configMAC_ADDR1,
-    configMAC_ADDR2,
-    configMAC_ADDR3,
-    configMAC_ADDR4,
-    configMAC_ADDR5
-};
-
-/* The default IP and MAC address used by the application.  The address configuration
- * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
- * 1 but a DHCP server could not be contacted.  See the online documentation for
- * more information. */
-static const uint8_t ucIPAddress[ 4 ] =
-{
-    configIP_ADDR0,
-    configIP_ADDR1,
-    configIP_ADDR2,
-    configIP_ADDR3
-};
-static const uint8_t ucNetMask[ 4 ] =
-{
-    configNET_MASK0,
-    configNET_MASK1,
-    configNET_MASK2,
-    configNET_MASK3
-};
-static const uint8_t ucGatewayAddress[ 4 ] =
-{
-    configGATEWAY_ADDR0,
-    configGATEWAY_ADDR1,
-    configGATEWAY_ADDR2,
-    configGATEWAY_ADDR3
-};
-static const uint8_t ucDNSServerAddress[ 4 ] =
-{
-    configDNS_SERVER_ADDR0,
-    configDNS_SERVER_ADDR1,
-    configDNS_SERVER_ADDR2,
-    configDNS_SERVER_ADDR3
-};
-#endif
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
@@ -139,15 +85,6 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
  */
 void vApplicationDaemonTaskStartupHook( void );
 
-/**
- * @brief Application IP network event hook called by the FreeRTOS+TCP stack for
- * applications using Ethernet. If you are not using Ethernet and the FreeRTOS+TCP stack,
- * start network dependent applications in vApplicationDaemonTaskStartupHook after the
- * network status is up.
- */
-#if 0
-void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent );
-#endif
 /**
  * @brief Connects to Wi-Fi.
  */
@@ -189,15 +126,6 @@ int main( void )
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-    /* FIX ME: If you are using Ethernet network connections and the FreeRTOS+TCP stack,
-     * uncomment the initialization function, FreeRTOS_IPInit(), below. */
-    /*FreeRTOS_IPInit( ucIPAddress,
-     *                 ucNetMask,
-     *                 ucGatewayAddress,
-     *                 ucDNSServerAddress,
-     *                 ucMACAddress );
-     */
-
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the Wi-Fi initialization, is performed in the RTOS daemon task
      * startup hook. */
@@ -209,7 +137,7 @@ int main( void )
 
 static void prvMiscInitialization( void )
 {
-    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be
+    /* Perform any hardware initializations, that don't require the RTOS to be
      * running, here.
      */
     configPRINT_STRING(( "Test Message" ));
@@ -221,118 +149,86 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
+    /* Perform any hardware initialization, that require the RTOS to be
      * running, here. */
     wiced_init();
 
-    /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to
-     * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries
-     * have been imported into the project. If you are not using Wi-Fi, see the
-     * vApplicationIPNetworkEventHook function. */
-    #if 1
-        if( SYSTEM_Init() == pdPASS )
-        {
-            /* Connect to the Wi-Fi before running the tests. */
-            prvWifiConnect();
-
-            /* Generate seed for PRNG */
-            prvGenerateRandomSeed();
-
-            /* Provision the device with AWS certificate and private key. */
-            vDevModeKeyProvisioning();
-
-            /* Start the demo tasks. */
-            DEMO_RUNNER_RunDemos();
-        }
-    #endif /* if 0 */
-}
-/*-----------------------------------------------------------*/
-#if 0
-void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
-{
-    /* FIX ME: If your application is using Ethernet network connections and the
-     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the
-     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been
-     * imported into the project. If you are not using Ethernet see the
-     * vApplicationDaemonTaskStartupHook function. */
-    #if 0
-    static BaseType_t xTasksAlreadyCreated = pdFALSE;
-
-    /* If the network has just come up...*/
-    if( eNetworkEvent == eNetworkUp )
+    /* Initialize the AWS Libraries system. */
+    if( SYSTEM_Init() == pdPASS )
     {
-        if( ( xTasksAlreadyCreated == pdFALSE ) && ( SYSTEM_Init() == pdPASS ) )
-        {
-            DEMO_RUNNER_RunDemos();
-            xTasksAlreadyCreated = pdTRUE;
-        }
+        /* Connect to the Wi-Fi before running the demos. */
+        prvWifiConnect();
+
+        /* Generate seed for PRNG */
+        prvGenerateRandomSeed();
+
+        /* Provision the device with AWS certificate and private key. */
+        vDevModeKeyProvisioning();
+
+        /* Start the demo tasks. */
+        DEMO_RUNNER_RunDemos();
     }
-    #endif /* if 0 */
 }
-#endif
 /*-----------------------------------------------------------*/
 
 void prvWifiConnect( void )
 {
-    /* FIX ME: Delete surrounding compiler directives when the Wi-Fi library is ported. */
-    #if 1
-        WIFINetworkParams_t xNetworkParams;
-        WIFIReturnCode_t xWifiStatus;
-        uint8_t ucTempIp[4] = { 0 };
+    WIFINetworkParams_t xNetworkParams;
+    WIFIReturnCode_t xWifiStatus;
+    uint8_t ucTempIp[4] = { 0 };
 
-        xWifiStatus = WIFI_On();
+    xWifiStatus = WIFI_On();
 
-        if( xWifiStatus == eWiFiSuccess )
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
+    }
+    else
+    {
+        configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
+
+        /* Delay to allow the lower priority logging task to print the above status.
+         * The while loop below will block the above printing. */
+        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
+
+        while( 1 )
         {
-            configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
         }
-        else
+    }
+
+    /* Setup parameters. */
+    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
+    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
+    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
+    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
+    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+    xNetworkParams.cChannel = 0;
+
+    xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
+
+    if( xWifiStatus == eWiFiSuccess )
+    {
+        configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
+
+        xWifiStatus = WIFI_GetIP( ucTempIp );
+        if ( eWiFiSuccess == xWifiStatus )
         {
-            configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
-
-            /* Delay to allow the lower priority logging task to print the above status.
-             * The while loop below will block the above printing. */
-            vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-            while( 1 )
-            {
-            }
+            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
+                            ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
         }
+    }
+    else
+    {
+        configPRINTF( ( "Wi-Fi failed to connect to AP.\r\n" ) );
 
-        /* Setup parameters. */
-        xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-        xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-        xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-        xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-        xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-        xNetworkParams.cChannel = 0;
+        /* Delay to allow the lower priority logging task to print the above status.
+         * The while loop below will block the above printing. */
+        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
-        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
-
-        if( xWifiStatus == eWiFiSuccess )
+        while( 1 )
         {
-            configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
-
-            xWifiStatus = WIFI_GetIP( ucTempIp );
-            if ( eWiFiSuccess == xWifiStatus )
-            {
-                configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
-            }
         }
-        else
-        {
-            configPRINTF( ( "Wi-Fi failed to connect to AP.\r\n" ) );
-
-            /* Delay to allow the lower priority logging task to print the above status.
-             * The while loop below will block the above printing. */
-            vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-            while( 1 )
-            {
-            }
-        }
-    #endif /* if 0 */
+    }
 }
 /*-----------------------------------------------------------*/
 static void prvGenerateRandomSeed()
@@ -514,31 +410,31 @@ void vApplicationIdleHook( void )
  * See FreeRTOSConfig.h to define configASSERT to something different.
  */
 void vAssertCalled(const char * pcFile,
-	uint32_t ulLine)
+    uint32_t ulLine)
 {
     /* FIX ME. If necessary, update to applicable assertion routine actions. */
 
-	const uint32_t ulLongSleep = 1000UL;
-	volatile uint32_t ulBlockVariable = 0UL;
-	volatile char * pcFileName = (volatile char *)pcFile;
-	volatile uint32_t ulLineNumber = ulLine;
+    const uint32_t ulLongSleep = 1000UL;
+    volatile uint32_t ulBlockVariable = 0UL;
+    volatile char * pcFileName = (volatile char *)pcFile;
+    volatile uint32_t ulLineNumber = ulLine;
 
-	(void)pcFileName;
-	(void)ulLineNumber;
+    (void)pcFileName;
+    (void)ulLineNumber;
 
-	printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
-	fflush(stdout);
+    printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
+    fflush(stdout);
 
-	/* Setting ulBlockVariable to a non-zero value in the debugger will allow
-	* this function to be exited. */
-	taskDISABLE_INTERRUPTS();
-	{
-		while (ulBlockVariable == 0UL)
-		{
-			vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
-		}
-	}
-	taskENABLE_INTERRUPTS();
+    /* Setting ulBlockVariable to a non-zero value in the debugger will allow
+    * this function to be exited. */
+    taskDISABLE_INTERRUPTS();
+    {
+        while (ulBlockVariable == 0UL)
+        {
+            vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
+        }
+    }
+    taskENABLE_INTERRUPTS();
 }
 /*-----------------------------------------------------------*/
 
