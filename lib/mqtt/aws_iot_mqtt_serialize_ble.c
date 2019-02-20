@@ -51,9 +51,9 @@
 #define _INVALID_MQTT_PACKET_TYPE        ( 0xF0 )
 
 
-#define IS_VALID_SERIALIZER_RET( ret, pxSerializerBuf )                                \
+#define _IS_VALID_SERIALIZER_RET( ret, pSerializerBuf )                                \
     (  ( ret == AWS_IOT_SERIALIZER_SUCCESS ) ||                                        \
-          (  ( !pxSerializerBuf ) && ( ret == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
+          (  ( !pSerializerBuf ) && ( ret == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
 
 #define _NUM_CONNECT_PARMAS                   ( 4 )
 #define _NUM_DEFAULT_PUBLISH_PARMAS           ( 4 )
@@ -74,41 +74,41 @@
  *
  * @return Identifier for the MQTT message
  */
-static uint16_t prusNextPacketIdentifier( void );
+static uint16_t _nextPacketIdentifier( void );
 
 
-static inline uint16_t prusGetNumPublishParams( const AwsIotMqttPublishInfo_t * const pPublish )
+static inline uint16_t _getNumPublishParams( const AwsIotMqttPublishInfo_t * const pPublish )
 {
    return ( pPublish->QoS > 0 ) ?  ( _NUM_DEFAULT_PUBLISH_PARMAS + 1 ) : _NUM_DEFAULT_PUBLISH_PARMAS;
 }
 
-static AwsIotSerializerError_t prxSerializeConnect( const AwsIotMqttConnectInfo_t * const pConnectInfo,
+static AwsIotSerializerError_t _serializeConnect( const AwsIotMqttConnectInfo_t * const pConnectInfo,
                                        const AwsIotMqttPublishInfo_t * const pWillInfo,
                                        uint8_t* const pBuffer,
                                        size_t* const pSize );
-static AwsIotSerializerError_t prxSerializePublish( const AwsIotMqttPublishInfo_t * const pPublishInfo,
+static AwsIotSerializerError_t _serializePublish( const AwsIotMqttPublishInfo_t * const pPublishInfo,
                                                   uint8_t * pBuffer,
                                                   size_t  * pSize,
                                                   uint16_t packetIdentifier );
-static AwsIotSerializerError_t prxSerializePubAck( uint16_t packetIdentifier,
+static AwsIotSerializerError_t _serializePubAck( uint16_t packetIdentifier,
                                       uint8_t * pBuffer,
                                       size_t  * pSize );
 
 
 
-static AwsIotSerializerError_t prxSerializeSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
+static AwsIotSerializerError_t _serializeSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
                                                size_t subscriptionCount,
                                                uint8_t * const pBuffer,
                                                size_t * const pSize,
                                                uint16_t packetIdentifier );
 
-static AwsIotSerializerError_t prxSerializeUnSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
+static AwsIotSerializerError_t _serializeUnSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
                                                size_t subscriptionCount,
                                                uint8_t * const pBuffer,
                                                size_t * const pSize,
                                                uint16_t packetIdentifier );
 
-static AwsIotSerializerError_t prxSerializeDisconnect( uint8_t * const pBuffer,
+static AwsIotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
                                                 size_t * const pSize );
 
 #if _LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
@@ -126,7 +126,7 @@ static const AwsIotLogConfig_t _logHideAll =
 #endif
 
 
-static AwsIotMutex_t xPacketIdentifierMutex;
+static AwsIotMutex_t _packetIdentifierMutex;
 
 
 /* Declaration of snprintf. The header stdio.h is not included because it
@@ -138,14 +138,14 @@ extern int snprintf( char * s,
 
 /*-----------------------------------------------------------*/
 
-static uint16_t prusNextPacketIdentifier( void )
+static uint16_t _nextPacketIdentifier( void )
 {
     static uint16_t nextPacketIdentifier = 1;
     uint16_t newPacketIdentifier = 0;
 
     /* Lock the packet identifier mutex so that only one thread may read and
          * modify nextPacketIdentifier. */
-     AwsIotMutex_Lock( &xPacketIdentifierMutex );
+     AwsIotMutex_Lock( &_packetIdentifierMutex );
 
     /* Read the next packet identifier. */
     newPacketIdentifier = nextPacketIdentifier;
@@ -156,279 +156,279 @@ static uint16_t prusNextPacketIdentifier( void )
     nextPacketIdentifier = ( uint16_t ) ( nextPacketIdentifier + ( ( uint16_t ) 2 ) );
 
     /* Unlock the packet identifier mutex. */
-    AwsIotMutex_Unlock( &xPacketIdentifierMutex );
+    AwsIotMutex_Unlock( &_packetIdentifierMutex );
 
     return newPacketIdentifier;
 }
 
-static AwsIotSerializerError_t prxSerializeConnect( const AwsIotMqttConnectInfo_t * const pConnectInfo,
+static AwsIotSerializerError_t _serializeConnect( const AwsIotMqttConnectInfo_t * const pConnectInfo,
                                        const AwsIotMqttPublishInfo_t * const pWillInfo,
                                        uint8_t* const pBuffer,
                                        size_t* const pSize )
 {
-    AwsIotSerializerError_t xError = AWS_IOT_SERIALIZER_SUCCESS;
-    AwsIotSerializerEncoderObject_t xEncoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
-    AwsIotSerializerEncoderObject_t xConnectMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerScalarData_t xData = { 0 };
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    AwsIotSerializerEncoderObject_t encoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
+    AwsIotSerializerEncoderObject_t connectMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    AwsIotSerializerScalarData_t data = { 0 };
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pSize );
-    if( xError == AWS_IOT_SERIALIZER_SUCCESS )
+    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+    if( error == AWS_IOT_SERIALIZER_SUCCESS )
     {
 
-        xError = IOT_BLE_MESG_ENCODER.openContainer(
-                &xEncoderObj,
-                &xConnectMap,
+        error = IOT_BLE_MESG_ENCODER.openContainer(
+                &encoderObj,
+                &connectMap,
                 _NUM_CONNECT_PARMAS );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = mqttBLEMSG_TYPE_CONNECT;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnectMap, mqttBLEMSG_TYPE, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_CONNECT;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_MSG_TYPE, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        xData.value.pString = ( uint8_t * ) pConnectInfo->pClientIdentifier;
-        xData.value.stringLength = pConnectInfo->clientIdentifierLength;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnectMap, mqttBLECLIENT_ID, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
+        data.value.pString = ( uint8_t * ) pConnectInfo->pClientIdentifier;
+        data.value.stringLength = pConnectInfo->clientIdentifierLength;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_CLIENT_ID, data );
     }
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        xData.value.pString = ( uint8_t * ) clientcredentialMQTT_BROKER_ENDPOINT;
-        xData.value.stringLength = strlen( clientcredentialMQTT_BROKER_ENDPOINT );
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnectMap, mqttBLEBROKER_EP, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
+        data.value.pString = ( uint8_t * ) clientcredentialMQTT_BROKER_ENDPOINT;
+        data.value.stringLength = strlen( clientcredentialMQTT_BROKER_ENDPOINT );
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_BROKER_EP, data );
     }
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_BOOL;
-        xData.value.booleanValue = pConnectInfo->cleanSession;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnectMap, mqttBLECLEAN_SESSION, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_BOOL;
+        data.value.booleanValue = pConnectInfo->cleanSession;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &connectMap, IOT_BLE_MQTT_CLEAN_SESSION, data );
     }
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xConnectMap );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &connectMap );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         if( pBuffer == NULL )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &xEncoderObj );
+            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
         }
         else
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
         }
 
-        IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
-        xError = AWS_IOT_SERIALIZER_SUCCESS;
+        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
+        error = AWS_IOT_SERIALIZER_SUCCESS;
 
     }
 
-    return xError;
+    return error;
 }
 
-static AwsIotSerializerError_t prxSerializePublish( const AwsIotMqttPublishInfo_t * const pPublishInfo,
+static AwsIotSerializerError_t _serializePublish( const AwsIotMqttPublishInfo_t * const pPublishInfo,
                                                   uint8_t * pBuffer,
                                                   size_t  * pSize,
                                                   uint16_t packetIdentifier )
 {
-    AwsIotSerializerError_t xError = AWS_IOT_SERIALIZER_SUCCESS;
-    AwsIotSerializerEncoderObject_t xEncoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
-    AwsIotSerializerEncoderObject_t xPublishMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerScalarData_t xData = { 0 };
-    uint16_t usNumPublishParams = prusGetNumPublishParams( pPublishInfo );
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    AwsIotSerializerEncoderObject_t encoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
+    AwsIotSerializerEncoderObject_t publishMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    AwsIotSerializerScalarData_t data = { 0 };
+    uint16_t numPublishParams = _getNumPublishParams( pPublishInfo );
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pSize );
+    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
 
-    if( xError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( error == AWS_IOT_SERIALIZER_SUCCESS )
     {
 
 
-        xError = IOT_BLE_MESG_ENCODER.openContainer(
-                &xEncoderObj,
-                &xPublishMap,
-                usNumPublishParams );
+        error = IOT_BLE_MESG_ENCODER.openContainer(
+                &encoderObj,
+                &publishMap,
+                numPublishParams );
     }
 
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = mqttBLEMSG_TYPE_PUBLISH;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPublishMap, mqttBLEMSG_TYPE, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_PUBLISH;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_MSG_TYPE, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-        xData.value.pString = ( uint8_t * ) pPublishInfo->pTopicName;
-        xData.value.stringLength = pPublishInfo->topicNameLength;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPublishMap, mqttBLETOPIC, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
+        data.value.pString = ( uint8_t * ) pPublishInfo->pTopicName;
+        data.value.stringLength = pPublishInfo->topicNameLength;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_TOPIC, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
 
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = pPublishInfo->QoS;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPublishMap, mqttBLEQOS, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = pPublishInfo->QoS;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_QOS, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
-        xData.value.pString = ( uint8_t * ) pPublishInfo->pPayload;
-        xData.value.stringLength = pPublishInfo->payloadLength;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPublishMap, mqttBLEPAYLOAD, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
+        data.value.pString = ( uint8_t * ) pPublishInfo->pPayload;
+        data.value.stringLength = pPublishInfo->payloadLength;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_PAYLOAD, data );
     }
 
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         if( pPublishInfo->QoS != 0 )
         {
-            xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-            xData.value.signedInt = packetIdentifier;
-            xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPublishMap, mqttBLEMESSAGE_ID, xData );
+            data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+            data.value.signedInt = packetIdentifier;
+            error = IOT_BLE_MESG_ENCODER.appendKeyValue( &publishMap, IOT_BLE_MQTT_MESSAGE_ID, data );
 
         }
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
 
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xPublishMap );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &publishMap );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         if( pBuffer == NULL )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &xEncoderObj );
+            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
 
         }
         else
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
         }
-        IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
-        xError = AWS_IOT_SERIALIZER_SUCCESS;
+        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
+        error = AWS_IOT_SERIALIZER_SUCCESS;
     }
 
 
-    return xError;
+    return error;
 }
 
-static AwsIotSerializerError_t prxSerializePubAck( uint16_t packetIdentifier,
+static AwsIotSerializerError_t _serializePubAck( uint16_t packetIdentifier,
                                       uint8_t * pBuffer,
                                       size_t  * pSize )
 
 {
-    AwsIotSerializerError_t xError = AWS_IOT_SERIALIZER_SUCCESS;
-    AwsIotSerializerEncoderObject_t xEncoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
-    AwsIotSerializerEncoderObject_t xPubAckMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerScalarData_t xData = { 0 };
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    AwsIotSerializerEncoderObject_t encoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
+    AwsIotSerializerEncoderObject_t pubAckMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    AwsIotSerializerScalarData_t data = { 0 };
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pSize );
+    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
 
-    if( xError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( error == AWS_IOT_SERIALIZER_SUCCESS )
     {
 
-        xError = IOT_BLE_MESG_ENCODER.openContainer(
-                &xEncoderObj,
-                &xPubAckMap,
+        error = IOT_BLE_MESG_ENCODER.openContainer(
+                &encoderObj,
+                &pubAckMap,
                 _NUM_PUBACK_PARMAS );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = mqttBLEMSG_TYPE_PUBACK;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubAckMap, mqttBLEMSG_TYPE, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_PUBACK;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &pubAckMap, IOT_BLE_MQTT_MSG_TYPE, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = packetIdentifier;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubAckMap, mqttBLEMESSAGE_ID, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = packetIdentifier;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &pubAckMap, IOT_BLE_MQTT_MESSAGE_ID, data );
     }
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xPubAckMap );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &pubAckMap );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         if( pBuffer == NULL )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &xEncoderObj );
+            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
         }
         else
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
         }
-        IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
-        xError = AWS_IOT_SERIALIZER_SUCCESS;
+        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
+        error = AWS_IOT_SERIALIZER_SUCCESS;
     }
 
-    return xError;
+    return error;
 }
 
 
-static AwsIotSerializerError_t prxSerializeSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
+static AwsIotSerializerError_t _serializeSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
                                                size_t subscriptionCount,
                                                uint8_t * const pBuffer,
                                                size_t * const pSize,
                                                uint16_t packetIdentifier )
 {
-    AwsIotSerializerError_t xError = AWS_IOT_SERIALIZER_SUCCESS;
-    AwsIotSerializerEncoderObject_t xEncoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
-    AwsIotSerializerEncoderObject_t xSubscribeMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t xSubscriptionArray = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
-    AwsIotSerializerScalarData_t xData = { 0 };
-    uint16_t usIdx;
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    AwsIotSerializerEncoderObject_t encoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM ;
+    AwsIotSerializerEncoderObject_t subscribeMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    AwsIotSerializerEncoderObject_t subscriptionArray = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    AwsIotSerializerScalarData_t data = { 0 };
+    uint16_t idx;
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pSize );
+    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
 
-    if( xError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( error == AWS_IOT_SERIALIZER_SUCCESS )
     {
-        xError = IOT_BLE_MESG_ENCODER.openContainer(
-                &xEncoderObj,
-                &xSubscribeMap,
+        error = IOT_BLE_MESG_ENCODER.openContainer(
+                &encoderObj,
+                &subscribeMap,
                 _NUM_SUBACK_PARAMS );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = mqttBLEMSG_TYPE_SUBSCRIBE;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubscribeMap, mqttBLEMSG_TYPE, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &subscribeMap, IOT_BLE_MQTT_MSG_TYPE, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
 
-        xError = IOT_BLE_MESG_ENCODER.openContainerWithKey(
-                &xSubscribeMap,
-                mqttBLETOPIC_LIST,
-                &xSubscriptionArray,
+        error = IOT_BLE_MESG_ENCODER.openContainerWithKey(
+                &subscribeMap,
+                IOT_BLE_MQTT_TOPIC_LIST,
+                &subscriptionArray,
                 subscriptionCount );
     }
 
-    for( usIdx = 0; usIdx < subscriptionCount; usIdx++ )
+    for( idx = 0; idx < subscriptionCount; idx++ )
     {
-        if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+        if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
         {
-            xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-            xData.value.pString = ( uint8_t * ) pSubscriptionList[ usIdx ].pTopicFilter;
-            xData.value.stringLength = pSubscriptionList[ usIdx ].topicFilterLength;
-            xError = IOT_BLE_MESG_ENCODER.append( &xSubscriptionArray, xData );
+            data.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
+            data.value.pString = ( uint8_t * ) pSubscriptionList[ idx ].pTopicFilter;
+            data.value.stringLength = pSubscriptionList[ idx ].topicFilterLength;
+            error = IOT_BLE_MESG_ENCODER.append( &subscriptionArray, data );
         }
         else
         {
@@ -436,30 +436,30 @@ static AwsIotSerializerError_t prxSerializeSubscribe( const AwsIotMqttSubscripti
         }
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xSubscribeMap, &xSubscriptionArray );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &subscribeMap, &subscriptionArray );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
 
-        xError = IOT_BLE_MESG_ENCODER.openContainerWithKey(
-                &xSubscribeMap,
-                mqttBLEQOS_LIST,
-                &xSubscriptionArray,
+        error = IOT_BLE_MESG_ENCODER.openContainerWithKey(
+                &subscribeMap,
+                IOT_BLE_MQTT_QOS_LIST,
+                &subscriptionArray,
                 subscriptionCount );
     }
 
 
-    for( usIdx = 0; usIdx < subscriptionCount; usIdx++ )
+    for( idx = 0; idx < subscriptionCount; idx++ )
     {
-        if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+        if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
         {
 
-            xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-            xData.value.signedInt = pSubscriptionList[ usIdx ].QoS;
-            xError = IOT_BLE_MESG_ENCODER.append( &xSubscriptionArray, xData );
+            data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+            data.value.signedInt = pSubscriptionList[ idx ].QoS;
+            error = IOT_BLE_MESG_ENCODER.append( &subscriptionArray, data );
         }
         else
         {
@@ -467,90 +467,90 @@ static AwsIotSerializerError_t prxSerializeSubscribe( const AwsIotMqttSubscripti
         }
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xSubscribeMap, &xSubscriptionArray );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &subscribeMap, &subscriptionArray );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
 
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = packetIdentifier;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubscribeMap, mqttBLEMESSAGE_ID, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = packetIdentifier;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &subscribeMap, IOT_BLE_MQTT_MESSAGE_ID, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xSubscribeMap );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &subscribeMap );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         if( pBuffer == NULL )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &xEncoderObj );
+            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
         }
         else
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
         }
 
-        IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
-        xError = AWS_IOT_SERIALIZER_SUCCESS;
+        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
+        error = AWS_IOT_SERIALIZER_SUCCESS;
     }
-    return xError;
+    return error;
 }
 
-static AwsIotSerializerError_t prxSerializeUnSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
+static AwsIotSerializerError_t _serializeUnSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
                                                size_t subscriptionCount,
                                                uint8_t * const pBuffer,
                                                size_t * const pSize,
                                                uint16_t packetIdentifier )
 {
-    AwsIotSerializerError_t xError = AWS_IOT_SERIALIZER_SUCCESS;
-    AwsIotSerializerEncoderObject_t xEncoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    AwsIotSerializerEncoderObject_t xSubscribeMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t xSubscriptionArray = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
-    AwsIotSerializerScalarData_t xData = { 0 };
-    uint16_t usIdx;
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    AwsIotSerializerEncoderObject_t encoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
+    AwsIotSerializerEncoderObject_t subscribeMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    AwsIotSerializerEncoderObject_t subscriptionArray = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    AwsIotSerializerScalarData_t data = { 0 };
+    uint16_t idx;
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pSize );
+    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
 
-    if( xError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( error == AWS_IOT_SERIALIZER_SUCCESS )
     {
 
-        xError = IOT_BLE_MESG_ENCODER.openContainer(
-                &xEncoderObj,
-                &xSubscribeMap,
+        error = IOT_BLE_MESG_ENCODER.openContainer(
+                &encoderObj,
+                &subscribeMap,
                 _NUM_UNSUBACK_PARAMS );
     }
 
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = mqttBLEMSG_TYPE_UNSUBSCRIBE;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubscribeMap, mqttBLEMSG_TYPE, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &subscribeMap, IOT_BLE_MQTT_MSG_TYPE, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.openContainerWithKey (
-                &xSubscribeMap,
-                mqttBLETOPIC_LIST,
-                &xSubscriptionArray,
+        error = IOT_BLE_MESG_ENCODER.openContainerWithKey (
+                &subscribeMap,
+                IOT_BLE_MQTT_TOPIC_LIST,
+                &subscriptionArray,
                 subscriptionCount );
     }
 
-    for( usIdx = 0; usIdx < subscriptionCount; usIdx++ )
+    for( idx = 0; idx < subscriptionCount; idx++ )
     {
-        if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+        if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
         {
-            xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
-            xData.value.pString = ( uint8_t * ) pSubscriptionList[ usIdx ].pTopicFilter;
-            xData.value.stringLength = pSubscriptionList[ usIdx ].topicFilterLength;
-            xError = IOT_BLE_MESG_ENCODER.append( &xSubscriptionArray, xData );
+            data.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
+            data.value.pString = ( uint8_t * ) pSubscriptionList[ idx ].pTopicFilter;
+            data.value.stringLength = pSubscriptionList[ idx ].topicFilterLength;
+            error = IOT_BLE_MESG_ENCODER.append( &subscriptionArray, data );
         }
         else
         {
@@ -558,146 +558,146 @@ static AwsIotSerializerError_t prxSerializeUnSubscribe( const AwsIotMqttSubscrip
         }
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xSubscribeMap, &xSubscriptionArray );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &subscribeMap, &subscriptionArray );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = packetIdentifier;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubscribeMap, mqttBLEMESSAGE_ID, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = packetIdentifier;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &subscribeMap, IOT_BLE_MQTT_MESSAGE_ID, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xSubscribeMap );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &subscribeMap );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         if( pBuffer == NULL )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &xEncoderObj );
+            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
 
         }
         else
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
         }
-        IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
-        xError = AWS_IOT_SERIALIZER_SUCCESS;
+        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
+        error = AWS_IOT_SERIALIZER_SUCCESS;
     }
 
-    return xError;
+    return error;
 }
 
-static AwsIotSerializerError_t prxSerializeDisconnect( uint8_t * const pBuffer,
+static AwsIotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
                                                 size_t * const pSize )
 {
-    AwsIotSerializerError_t xError = AWS_IOT_SERIALIZER_SUCCESS;
-    AwsIotSerializerEncoderObject_t xEncoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    AwsIotSerializerEncoderObject_t xDisconnectMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerScalarData_t xData = { 0 };
+    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    AwsIotSerializerEncoderObject_t encoderObj = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
+    AwsIotSerializerEncoderObject_t disconnectMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    AwsIotSerializerScalarData_t data = { 0 };
 
-    xError = IOT_BLE_MESG_ENCODER.init( &xEncoderObj, pBuffer, *pSize );
+    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
 
-    if( xError == AWS_IOT_SERIALIZER_SUCCESS )
+    if( error == AWS_IOT_SERIALIZER_SUCCESS )
     {
-        xError = IOT_BLE_MESG_ENCODER.openContainer(
-                &xEncoderObj,
-                &xDisconnectMap,
+        error = IOT_BLE_MESG_ENCODER.openContainer(
+                &encoderObj,
+                &disconnectMap,
                 _NUM_DISCONNECT_PARAMS );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        xData.value.signedInt = mqttBLEMSG_TYPE_DISCONNECT;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xDisconnectMap, mqttBLEMSG_TYPE, xData );
+        data.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_DISCONNECT;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &disconnectMap, IOT_BLE_MQTT_MSG_TYPE, data );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
-        xError = IOT_BLE_MESG_ENCODER.closeContainer( &xEncoderObj, &xDisconnectMap );
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &disconnectMap );
     }
 
-    if( IS_VALID_SERIALIZER_RET( xError, pBuffer ) )
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         if( pBuffer == NULL )
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &xEncoderObj );
+            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
         }
         else
         {
-            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &xEncoderObj, pBuffer );
+            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
         }
-        IOT_BLE_MESG_ENCODER.destroy( &xEncoderObj );
-        xError = AWS_IOT_SERIALIZER_SUCCESS;
+        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
+        error = AWS_IOT_SERIALIZER_SUCCESS;
     }
 
-    return xError;
+    return error;
 }
 
 
-bool AwsIotMqttBLE_InitSerialize( void )
+bool IotBleMqtt_InitSerialize( void )
 {
 	/* Create the packet identifier mutex. */
-	return AwsIotMutex_Create( &xPacketIdentifierMutex );
+	return AwsIotMutex_Create( &_packetIdentifierMutex );
 }
 
-void AwsIotMqttBLE_CleanupSerialize( void )
+void IotBleMqtt_CleanupSerialize( void )
 {
 	/* Destroy the packet identifier mutex */
-	AwsIotMutex_Destroy( &xPacketIdentifierMutex );
+	AwsIotMutex_Destroy( &_packetIdentifierMutex );
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_SerializeConnect( const AwsIotMqttConnectInfo_t * const pConnectInfo,
+AwsIotMqttError_t IotBleMqtt_SerializeConnect( const AwsIotMqttConnectInfo_t * const pConnectInfo,
                                                            const AwsIotMqttPublishInfo_t * const pWillInfo,
                                                            uint8_t ** const pConnectPacket,
                                                            size_t * const pPacketSize )
 {
 	uint8_t * pBuffer = NULL;
-	size_t xBufLen = 0;
-	AwsIotSerializerError_t xError;
-	AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+	size_t bufLen = 0;
+	AwsIotSerializerError_t error;
+	AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
 
-	xError = prxSerializeConnect( pConnectInfo, pWillInfo, NULL, &xBufLen );
-	if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+	error = _serializeConnect( pConnectInfo, pWillInfo, NULL, &bufLen );
+	if( error != AWS_IOT_SERIALIZER_SUCCESS )
 	{
-	    AwsIotLogError( "Failed to find length of serialized CONNECT message, error = %d", xError );
-	    xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+	    AwsIotLogError( "Failed to find length of serialized CONNECT message, error = %d", error );
+	    ret = AWS_IOT_MQTT_BAD_PARAMETER;
 	}
 
-	if( xRet == AWS_IOT_MQTT_SUCCESS )
+	if( ret == AWS_IOT_MQTT_SUCCESS )
 	{
 
-	    pBuffer = AwsIotMqtt_MallocMessage( xBufLen );
+	    pBuffer = AwsIotMqtt_MallocMessage( bufLen );
 
 	    /* If Memory cannot be allocated log an error and return */
 	    if( pBuffer == NULL )
 	    {
 	        AwsIotLogError( "Failed to allocate memory for CONNECT packet." );
-	        xRet =  AWS_IOT_MQTT_NO_MEMORY;
+	        ret =  AWS_IOT_MQTT_NO_MEMORY;
 	    }
 	}
 
-	if( xRet == AWS_IOT_MQTT_SUCCESS )
+	if( ret == AWS_IOT_MQTT_SUCCESS )
 	{
-	    xError = prxSerializeConnect( pConnectInfo, pWillInfo, pBuffer, &xBufLen );
-	    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+	    error = _serializeConnect( pConnectInfo, pWillInfo, pBuffer, &bufLen );
+	    if( error != AWS_IOT_SERIALIZER_SUCCESS )
 	    {
-	        AwsIotLogError( "Failed to serialize CONNECT message, error = %d", xError );
-	        xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+	        AwsIotLogError( "Failed to serialize CONNECT message, error = %d", error );
+	        ret = AWS_IOT_MQTT_BAD_PARAMETER;
 	    }
 	}
 
-	if( xRet == AWS_IOT_MQTT_SUCCESS )
+	if( ret == AWS_IOT_MQTT_SUCCESS )
 	{
 	    *pConnectPacket = pBuffer;
-	    *pPacketSize = xBufLen;
+	    *pPacketSize = bufLen;
 	}
 	else
 	{
@@ -709,110 +709,110 @@ AwsIotMqttError_t AwsIotMqttBLE_SerializeConnect( const AwsIotMqttConnectInfo_t 
 	    }
 	}
 
-    return xRet;
+    return ret;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_DeserializeConnack( const uint8_t * const pConnackStart,
+AwsIotMqttError_t IotBleMqtt_DeserializeConnack( const uint8_t * const pConnackStart,
                                                          size_t dataLength,
                                                          size_t * const pBytesProcessed )
 {
 
-    AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    AwsIotSerializerError_t xError;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
+    AwsIotSerializerError_t error;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
     int64_t respCode = 0L;
 
     ( *pBytesProcessed ) = 0;
 
-    xError = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( uint8_t * ) pConnackStart, dataLength );
-    if( ( xError != AWS_IOT_SERIALIZER_SUCCESS )
-            || ( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pConnackStart, dataLength );
+    if( ( error != AWS_IOT_SERIALIZER_SUCCESS )
+            || ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        AwsIotLogError( "Malformed CONNACK, decoding the packet failed, decoder error = %d, type: %d", xError, xDecoderObj.type );
-        xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+        AwsIotLogError( "Malformed CONNACK, decoding the packet failed, decoder error = %d, type: %d", error, decoderObj.type );
+        ret = AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
 
-        xError = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLESTATUS, &xValue );
-        if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_STATUS, &decoderValue );
+        if ( ( error != AWS_IOT_SERIALIZER_SUCCESS ) ||
+                ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            AwsIotLogError( "Invalid CONNACK, response code decode failed, error = %d, decoded value type = %d", xError, xValue.type );
-            xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+            AwsIotLogError( "Invalid CONNACK, response code decode failed, error = %d, decoded value type = %d", error, decoderValue.type );
+            ret = AWS_IOT_MQTT_BAD_RESPONSE;
         }
         else
         {
 
-            respCode =  xValue.value.signedInt;
-            if( ( respCode != eMQTTBLEStatusConnecting )
-                    && ( respCode != eMQTTBLEStatusConnected ) )
+            respCode =  decoderValue.value.signedInt;
+            if( ( respCode != IOT_BLE_MQTT_StatusConnecting )
+                    && ( respCode != IOT_BLE_MQTT_StatusConnected ) )
             {
-                xRet = AWS_IOT_MQTT_SERVER_REFUSED;
+                ret = AWS_IOT_MQTT_SERVER_REFUSED;
             }
 
             ( *pBytesProcessed ) = dataLength;
         }
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
-    return xRet;
+    return ret;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_SerializePublish( const AwsIotMqttPublishInfo_t * const pPublishInfo,
+AwsIotMqttError_t IotBleMqtt_SerializePublish( const AwsIotMqttPublishInfo_t * const pPublishInfo,
                                                   uint8_t ** const pPublishPacket,
                                                   size_t * const pPacketSize,
                                                   uint16_t * const pPacketIdentifier )
 {
 
     uint8_t * pBuffer = NULL;
-    size_t xBufLen = 0;
+    size_t bufLen = 0;
     uint16_t usPacketIdentifier = 0;
-    AwsIotSerializerError_t xError;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    AwsIotSerializerError_t error;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
     if( pPublishInfo->QoS != 0 )
     {
-        usPacketIdentifier = prusNextPacketIdentifier();
+        usPacketIdentifier = _nextPacketIdentifier();
     }
 
-    xError = prxSerializePublish( pPublishInfo, NULL, &xBufLen, usPacketIdentifier );
-    if( xError != AWS_IOT_SERIALIZER_SUCCESS  )
+    error = _serializePublish( pPublishInfo, NULL, &bufLen, usPacketIdentifier );
+    if( error != AWS_IOT_SERIALIZER_SUCCESS  )
     {
-        AwsIotLogError( "Failed to find size of serialized PUBLISH message, error = %d", xError );
-        xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+        AwsIotLogError( "Failed to find size of serialized PUBLISH message, error = %d", error );
+        ret = AWS_IOT_MQTT_BAD_PARAMETER;
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
 
-        pBuffer = AwsIotMqtt_MallocMessage( xBufLen );
+        pBuffer = AwsIotMqtt_MallocMessage( bufLen );
         /* If Memory cannot be allocated log an error and return */
         if( pBuffer == NULL )
         {
             AwsIotLogError( "Failed to allocate memory for PUBLISH packet." );
-            xRet =  AWS_IOT_MQTT_NO_MEMORY;
+            ret =  AWS_IOT_MQTT_NO_MEMORY;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
 
-        xError = prxSerializePublish( pPublishInfo, pBuffer, &xBufLen, usPacketIdentifier );
-        if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+        error = _serializePublish( pPublishInfo, pBuffer, &bufLen, usPacketIdentifier );
+        if( error != AWS_IOT_SERIALIZER_SUCCESS )
         {
-            AwsIotLogError( "Failed to serialize PUBLISH message, error = %d", xError );
-            xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+            AwsIotLogError( "Failed to serialize PUBLISH message, error = %d", error );
+            ret = AWS_IOT_MQTT_BAD_PARAMETER;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
         *pPublishPacket = pBuffer;
-        *pPacketSize = xBufLen;
+        *pPacketSize = bufLen;
         *pPacketIdentifier = usPacketIdentifier;
     }
     else
@@ -825,106 +825,106 @@ AwsIotMqttError_t AwsIotMqttBLE_SerializePublish( const AwsIotMqttPublishInfo_t 
         *pPacketSize = 0;
     }
 
-    return xRet;
+    return ret;
 }
 
-void AwsIotMqttBLE_PublishSetDup( bool awsIotMqttMode, uint8_t * const pPublishPacket, uint16_t * const pNewPacketIdentifier )
+void IotBleMqtt_PublishSetDup( bool awsIotMqttMode, uint8_t * const pPublishPacket, uint16_t * const pNewPacketIdentifier )
 {
 	/** TODO: Currently DUP flag is not supported by BLE SDKs **/
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPublishStart,
+AwsIotMqttError_t IotBleMqtt_DeserializePublish( const uint8_t * const pPublishStart,
                                                          size_t dataLength,
                                                          AwsIotMqttPublishInfo_t * const pOutput,
                                                          uint16_t * const pPacketIdentifier,
                                                          size_t * const pBytesProcessed )
 {
 
-    AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
+    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     AwsIotSerializerError_t xSerializerRet;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
-    xSerializerRet = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( uint8_t * ) pPublishStart, dataLength );
+    xSerializerRet = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pPublishStart, dataLength );
     if ( (xSerializerRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
-            ( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+            ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
     {
 
-        AwsIotLogError( "Decoding PUBLISH packet failed, decoder error = %d, object type = %d", xSerializerRet, xDecoderObj.type );
-        xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+        AwsIotLogError( "Decoding PUBLISH packet failed, decoder error = %d, object type = %d", xSerializerRet, decoderObj.type );
+        ret = AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        xSerializerRet = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEQOS, &xValue );
+        xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_QOS, &decoderValue );
         if ( ( xSerializerRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                 ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+                 ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            AwsIotLogError( "QOS Value decode failed, error = %d, decoded value type = %d", xSerializerRet, xValue.type );
-            xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+            AwsIotLogError( "QOS Value decode failed, error = %d, decoded value type = %d", xSerializerRet, decoderValue.type );
+            ret = AWS_IOT_MQTT_BAD_RESPONSE;
         }
         else
         {
-            pOutput->QoS = xValue.value.signedInt;
+            pOutput->QoS = decoderValue.value.signedInt;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        xValue.value.pString = NULL;
-        xValue.value.stringLength = 0;
-        xSerializerRet = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLETOPIC, &xValue );
+        decoderValue.value.pString = NULL;
+        decoderValue.value.stringLength = 0;
+        xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_TOPIC, &decoderValue );
 
         if( ( xSerializerRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
+                ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
         {
             AwsIotLogError( "Topic value decode failed, error = %d", xSerializerRet );
-            xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+            ret = AWS_IOT_MQTT_BAD_RESPONSE;
         }
         else
         {
-            pOutput->pTopicName = ( const char* ) xValue.value.pString;
-            pOutput->topicNameLength = xValue.value.stringLength;
+            pOutput->pTopicName = ( const char* ) decoderValue.value.pString;
+            pOutput->topicNameLength = decoderValue.value.stringLength;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        xValue.value.pString = NULL;
-        xValue.value.stringLength = 0;
-        xSerializerRet = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEPAYLOAD, &xValue );
+        decoderValue.value.pString = NULL;
+        decoderValue.value.stringLength = 0;
+        xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_PAYLOAD, &decoderValue );
 
         if( ( xSerializerRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
+                ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
         {
             AwsIotLogError( "Payload value decode failed, error = %d", xSerializerRet );
-            xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+            ret = AWS_IOT_MQTT_BAD_RESPONSE;
         }
         else
         {
-            pOutput->pPayload = ( const char* ) xValue.value.pString;
-            pOutput->payloadLength = xValue.value.stringLength;
+            pOutput->pPayload = ( const char* ) decoderValue.value.pString;
+            pOutput->payloadLength = decoderValue.value.stringLength;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
         if( pOutput->QoS != 0 )
         {
-            xSerializerRet = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+            xSerializerRet = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
             if ( ( xSerializerRet != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                    ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+                    ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
             {
-                AwsIotLogError( "Message identifier decode failed, error = %d, decoded value type = %d", xSerializerRet, xValue.type );
-                xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+                AwsIotLogError( "Message identifier decode failed, error = %d, decoded value type = %d", xSerializerRet, decoderValue.type );
+                ret = AWS_IOT_MQTT_BAD_RESPONSE;
             }
             else
             {
-                *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
+                *pPacketIdentifier = ( uint16_t ) decoderValue.value.signedInt;
             }
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS  )
+    if( ret == AWS_IOT_MQTT_SUCCESS  )
     {
         *pBytesProcessed = dataLength;
         pOutput->retain = false;
@@ -934,58 +934,58 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePublish( const uint8_t * const pPubli
         *pBytesProcessed = 0;
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
-    return xRet;
+    return ret;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_SerializePuback( uint16_t packetIdentifier,
+AwsIotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
                                                       uint8_t ** const pPubackPacket,
                                                       size_t * const pPacketSize )
 {
     uint8_t * pBuffer = NULL;
-    size_t xBufLen = 0;
-    AwsIotSerializerError_t xError;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    size_t bufLen = 0;
+    AwsIotSerializerError_t error;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
-    xError = prxSerializePubAck( packetIdentifier, NULL, &xBufLen );
+    error = _serializePubAck( packetIdentifier, NULL, &bufLen );
 
-    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    if( error != AWS_IOT_SERIALIZER_SUCCESS )
     {
-        AwsIotLogError( "Failed to find size of serialized PUBACK message, error = %d", xError );
-        xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+        AwsIotLogError( "Failed to find size of serialized PUBACK message, error = %d", error );
+        ret = AWS_IOT_MQTT_BAD_PARAMETER;
     }
 
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        pBuffer = AwsIotMqtt_MallocMessage( xBufLen );
+        pBuffer = AwsIotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
         if( pBuffer == NULL )
         {
             AwsIotLogError( "Failed to allocate memory for PUBACK packet, packet identifier = %d", packetIdentifier );
-            xRet = AWS_IOT_MQTT_NO_MEMORY;
+            ret = AWS_IOT_MQTT_NO_MEMORY;
         }
     }
 
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        xError = prxSerializePubAck( packetIdentifier, pBuffer, &xBufLen );
+        error = _serializePubAck( packetIdentifier, pBuffer, &bufLen );
 
-        if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+        if( error != AWS_IOT_SERIALIZER_SUCCESS )
         {
-            AwsIotLogError( "Failed to find size of serialized PUBACK message, error = %d", xError );
-            xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+            AwsIotLogError( "Failed to find size of serialized PUBACK message, error = %d", error );
+            ret = AWS_IOT_MQTT_BAD_PARAMETER;
         }
     }
 
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
         *pPubackPacket = pBuffer;
-        *pPacketSize = xBufLen;
+        *pPacketSize = bufLen;
     }
     else
     {
@@ -998,48 +998,48 @@ AwsIotMqttError_t AwsIotMqttBLE_SerializePuback( uint16_t packetIdentifier,
         *pPacketSize = 0;
     }
 
-	return xRet;
+	return ret;
 
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_DeserializePuback( const uint8_t * const pPubackStart,
+AwsIotMqttError_t IotBleMqtt_DeserializePuback( const uint8_t * const pPubackStart,
                                                         size_t dataLength,
                                                         uint16_t * const pPacketIdentifier,
                                                         size_t * const pBytesProcessed )
 {
 
-    AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    AwsIotSerializerError_t xError;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
+    AwsIotSerializerError_t error;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
-    xError = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( uint8_t * ) pPubackStart, dataLength );
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pPubackStart, dataLength );
 
-    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS )
-            || ( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    if ( ( error != AWS_IOT_SERIALIZER_SUCCESS )
+            || ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        AwsIotLogError( "Malformed PUBACK, decoding the packet failed, decoder error = %d", xError );
-        xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+        AwsIotLogError( "Malformed PUBACK, decoding the packet failed, decoder error = %d", error );
+        ret = AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
 
-        xError = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
 
-        if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if ( ( error != AWS_IOT_SERIALIZER_SUCCESS ) ||
+                ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            AwsIotLogError( "Message ID decode failed, error = %d, decoded value type = %d", xError, xValue.type );
-            xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+            AwsIotLogError( "Message ID decode failed, error = %d, decoded value type = %d", error, decoderValue.type );
+            ret = AWS_IOT_MQTT_BAD_RESPONSE;
         }
         else
         {
-            *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
+            *pPacketIdentifier = ( uint16_t ) decoderValue.value.signedInt;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
         ( *pBytesProcessed ) = dataLength;
     }
@@ -1048,59 +1048,59 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializePuback( const uint8_t * const pPuback
         ( *pBytesProcessed )  = 0;
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
     return AWS_IOT_MQTT_SUCCESS;
 
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_SerializeSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
+AwsIotMqttError_t IotBleMqtt_SerializeSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
                                                          size_t subscriptionCount,
                                                          uint8_t ** const pSubscribePacket,
                                                          size_t * const pPacketSize,
                                                          uint16_t * const pPacketIdentifier )
 {
     uint8_t * pBuffer = NULL;
-    size_t xBufLen = 0;
+    size_t bufLen = 0;
     uint16_t usPacketIdentifier = 0;
-    AwsIotSerializerError_t xError;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    AwsIotSerializerError_t error;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
-    usPacketIdentifier = prusNextPacketIdentifier();
+    usPacketIdentifier = _nextPacketIdentifier();
 
-    xError = prxSerializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &xBufLen, usPacketIdentifier );
-    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    error = _serializeSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, usPacketIdentifier );
+    if( error != AWS_IOT_SERIALIZER_SUCCESS )
     {
-        AwsIotLogError( "Failed to find serialized length of SUBSCRIBE message, error = %d", xError );
-        xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+        AwsIotLogError( "Failed to find serialized length of SUBSCRIBE message, error = %d", error );
+        ret = AWS_IOT_MQTT_BAD_PARAMETER;
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        pBuffer = AwsIotMqtt_MallocMessage( xBufLen );
+        pBuffer = AwsIotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
         if( pBuffer == NULL )
         {
             AwsIotLogError( "Failed to allocate memory for SUBSCRIBE message." );
-            xRet = AWS_IOT_MQTT_NO_MEMORY;
+            ret = AWS_IOT_MQTT_NO_MEMORY;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        xError = prxSerializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &xBufLen, usPacketIdentifier );
-        if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+        error = _serializeSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, usPacketIdentifier );
+        if( error != AWS_IOT_SERIALIZER_SUCCESS )
         {
-            AwsIotLogError( "Failed to serialize SUBSCRIBE message, error = %d", xError );
-            xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+            AwsIotLogError( "Failed to serialize SUBSCRIBE message, error = %d", error );
+            ret = AWS_IOT_MQTT_BAD_PARAMETER;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
         *pSubscribePacket = pBuffer;
-        *pPacketSize = xBufLen;
+        *pPacketSize = bufLen;
         *pPacketIdentifier = usPacketIdentifier;
     }
     else
@@ -1114,60 +1114,60 @@ AwsIotMqttError_t AwsIotMqttBLE_SerializeSubscribe( const AwsIotMqttSubscription
         *pPacketSize = 0;
     }
 
-    return xRet;
+    return ret;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttConnection,
+AwsIotMqttError_t IotBleMqtt_DeserializeSuback( AwsIotMqttConnection_t mqttConnection,
                                                         const uint8_t * const pSubackStart,
                                                         size_t dataLength,
                                                         uint16_t * const pPacketIdentifier,
                                                         size_t * const pBytesProcessed )
 {
 
-    AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    AwsIotSerializerError_t xError;
+    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
+    AwsIotSerializerError_t error;
     int64_t subscriptionStatus;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
     ( *pBytesProcessed ) = 0;
 
-    xError = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( uint8_t * ) pSubackStart, dataLength );
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pSubackStart, dataLength );
 
-    if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS )
-            || ( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    if ( ( error != AWS_IOT_SERIALIZER_SUCCESS )
+            || ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        AwsIotLogError( "Malformed SUBACK, decoding the packet failed, decoder error = %d, type: %d", xError, xDecoderObj.type );
-        xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+        AwsIotLogError( "Malformed SUBACK, decoding the packet failed, decoder error = %d, type: %d", error, decoderObj.type );
+        ret = AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
 
-        xError = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
-        if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
+        if ( ( error != AWS_IOT_SERIALIZER_SUCCESS ) ||
+                ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            AwsIotLogError( "Message ID decode failed, error = %d, decoded value type = %d", xError, xValue.type );
-            xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+            AwsIotLogError( "Message ID decode failed, error = %d, decoded value type = %d", error, decoderValue.type );
+            ret = AWS_IOT_MQTT_BAD_RESPONSE;
         }
         else
         {
-            *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
+            *pPacketIdentifier = ( uint16_t ) decoderValue.value.signedInt;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        xError = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLESTATUS, &xValue );
-        if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_STATUS, &decoderValue );
+        if ( ( error != AWS_IOT_SERIALIZER_SUCCESS ) ||
+                ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            AwsIotLogError( "Status code decode failed, error = %d, decoded value type = %d", xError, xValue.type );
-            xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+            AwsIotLogError( "Status code decode failed, error = %d, decoded value type = %d", error, decoderValue.type );
+            ret = AWS_IOT_MQTT_BAD_RESPONSE;
         }
         else
         {
-            subscriptionStatus = ( uint16_t ) xValue.value.signedInt;
+            subscriptionStatus = ( uint16_t ) decoderValue.value.signedInt;
             switch( subscriptionStatus )
             {
                 case 0x00:
@@ -1176,7 +1176,7 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttCo
                     AwsIotLog( AWS_IOT_LOG_DEBUG,
                                &_logHideAll,
                                "Topic accepted, max QoS %hhu.", subscriptionStatus );
-                    xRet = AWS_IOT_MQTT_SUCCESS;
+                    ret = AWS_IOT_MQTT_SUCCESS;
                     break;
                 case 0x80:
                     AwsIotLog( AWS_IOT_LOG_DEBUG,
@@ -1188,14 +1188,14 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttCo
                             ( _mqttConnection_t * ) mqttConnection,
                             ( *pPacketIdentifier ),
                             0 );
-                    xRet = AWS_IOT_MQTT_SERVER_REFUSED;
+                    ret = AWS_IOT_MQTT_SERVER_REFUSED;
                     break;
                 default:
                     AwsIotLog( AWS_IOT_LOG_DEBUG,
                                &_logHideAll,
                                "Bad SUBSCRIBE status %hhu.", subscriptionStatus );
 
-                    xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+                    ret = AWS_IOT_MQTT_BAD_RESPONSE;
                     break;
             }
 
@@ -1204,12 +1204,12 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeSuback( AwsIotMqttConnection_t mqttCo
 
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
-	return xRet;
+	return ret;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_SerializeUnsubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
+AwsIotMqttError_t IotBleMqtt_SerializeUnsubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
 		size_t subscriptionCount,
 		uint8_t ** const pUnsubscribePacket,
 		size_t * const pPacketSize,
@@ -1217,46 +1217,46 @@ AwsIotMqttError_t AwsIotMqttBLE_SerializeUnsubscribe( const AwsIotMqttSubscripti
 {
 
 	uint8_t * pBuffer = NULL;
-    size_t xBufLen = 0;
+    size_t bufLen = 0;
     uint16_t usPacketIdentifier = 0;
-    AwsIotSerializerError_t xError;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    AwsIotSerializerError_t error;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
-    usPacketIdentifier = prusNextPacketIdentifier();
+    usPacketIdentifier = _nextPacketIdentifier();
 
-    xError = prxSerializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &xBufLen, usPacketIdentifier );
-    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+    error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, NULL, &bufLen, usPacketIdentifier );
+    if( error != AWS_IOT_SERIALIZER_SUCCESS )
     {
-        AwsIotLogError( "Failed to find serialized length of UNSUBSCRIBE message, error = %d", xError );
-        xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+        AwsIotLogError( "Failed to find serialized length of UNSUBSCRIBE message, error = %d", error );
+        ret = AWS_IOT_MQTT_BAD_PARAMETER;
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        pBuffer = AwsIotMqtt_MallocMessage( xBufLen );
+        pBuffer = AwsIotMqtt_MallocMessage( bufLen );
 
         /* If Memory cannot be allocated log an error and return */
         if( pBuffer == NULL )
         {
             AwsIotLogError( "Failed to allocate memory for UNSUBSCRIBE message." );
-            xRet = AWS_IOT_MQTT_NO_MEMORY;
+            ret = AWS_IOT_MQTT_NO_MEMORY;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        xError = prxSerializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &xBufLen, usPacketIdentifier );
-        if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+        error = _serializeUnSubscribe( pSubscriptionList, subscriptionCount, pBuffer, &bufLen, usPacketIdentifier );
+        if( error != AWS_IOT_SERIALIZER_SUCCESS )
         {
-            AwsIotLogError( "Failed to serialize UNSUBSCRIBE message, error = %d", xError );
-            xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+            AwsIotLogError( "Failed to serialize UNSUBSCRIBE message, error = %d", error );
+            ret = AWS_IOT_MQTT_BAD_PARAMETER;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
         *pUnsubscribePacket = pBuffer;
-        *pPacketSize = xBufLen;
+        *pPacketSize = bufLen;
         *pPacketIdentifier = usPacketIdentifier;
     }
     else
@@ -1270,43 +1270,43 @@ AwsIotMqttError_t AwsIotMqttBLE_SerializeUnsubscribe( const AwsIotMqttSubscripti
         *pPacketSize = 0;
     }
 
-    return xRet;
+    return ret;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_DeserializeUnsuback( const uint8_t * const pUnsubackStart,
+AwsIotMqttError_t IotBleMqtt_DeserializeUnsuback( const uint8_t * const pUnsubackStart,
                                                           size_t dataLength,
                                                           uint16_t * const pPacketIdentifier,
                                                           size_t * const pBytesProcessed )
 {
-    AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    AwsIotSerializerError_t xError;
-    AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
+    AwsIotSerializerError_t error;
+    AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
-    xError = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( uint8_t * ) pUnsubackStart, dataLength );
-    if( ( xError != AWS_IOT_SERIALIZER_SUCCESS )
-            || ( xDecoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pUnsubackStart, dataLength );
+    if( ( error != AWS_IOT_SERIALIZER_SUCCESS )
+            || ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        AwsIotLogError( "Malformed UNSUBACK, decoding the packet failed, decoder error = %d, type:%d ", xError, xDecoderObj.type );
-        xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+        AwsIotLogError( "Malformed UNSUBACK, decoding the packet failed, decoder error = %d, type:%d ", error, decoderObj.type );
+        ret = AWS_IOT_MQTT_BAD_RESPONSE;
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
-        xError = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
-        if ( ( xError != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( xValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MESSAGE_ID, &decoderValue );
+        if ( ( error != AWS_IOT_SERIALIZER_SUCCESS ) ||
+                ( decoderValue.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            AwsIotLogError( "UNSUBACK Message identifier decode failed, error = %d, decoded value type = %d", xError, xValue.type );
-            xRet = AWS_IOT_MQTT_BAD_RESPONSE;
+            AwsIotLogError( "UNSUBACK Message identifier decode failed, error = %d, decoded value type = %d", error, decoderValue.type );
+            ret = AWS_IOT_MQTT_BAD_RESPONSE;
 
         }
         else
         {
-            *pPacketIdentifier = ( uint16_t ) xValue.value.signedInt;
+            *pPacketIdentifier = ( uint16_t ) decoderValue.value.signedInt;
         }
     }
 
-    if( xRet == AWS_IOT_MQTT_SUCCESS )
+    if( ret == AWS_IOT_MQTT_SUCCESS )
     {
         ( *pBytesProcessed ) = dataLength;
     }
@@ -1315,53 +1315,53 @@ AwsIotMqttError_t AwsIotMqttBLE_DeserializeUnsuback( const uint8_t * const pUnsu
         ( *pBytesProcessed ) = 0;
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
 	return AWS_IOT_MQTT_SUCCESS;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
+AwsIotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
                                                           size_t * const pPacketSize )
 {
 	uint8_t *pBuffer = NULL;
-	size_t xBufLen = 0;
-	AwsIotSerializerError_t xError;
-	AwsIotMqttError_t xRet = AWS_IOT_MQTT_SUCCESS;
+	size_t bufLen = 0;
+	AwsIotSerializerError_t error;
+	AwsIotMqttError_t ret = AWS_IOT_MQTT_SUCCESS;
 
-	xError = prxSerializeDisconnect( NULL, &xBufLen);
-	if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+	error = _serializeDisconnect( NULL, &bufLen);
+	if( error != AWS_IOT_SERIALIZER_SUCCESS )
 	{
-	    AwsIotLogError( "Failed to find serialized length of DISCONNECT message, error = %d", xError );
-	    xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+	    AwsIotLogError( "Failed to find serialized length of DISCONNECT message, error = %d", error );
+	    ret = AWS_IOT_MQTT_BAD_PARAMETER;
 	}
 
-	if( xRet == AWS_IOT_MQTT_SUCCESS )
+	if( ret == AWS_IOT_MQTT_SUCCESS )
 	{
-	    pBuffer = AwsIotMqtt_MallocMessage( xBufLen );
+	    pBuffer = AwsIotMqtt_MallocMessage( bufLen );
 
 	    /* If Memory cannot be allocated log an error and return */
 	    if( pBuffer == NULL )
 	    {
 	        AwsIotLogError( "Failed to allocate memory for DISCONNECT message." );
-	        xRet = AWS_IOT_MQTT_NO_MEMORY;
+	        ret = AWS_IOT_MQTT_NO_MEMORY;
 	    }
 	}
 
 
-	if( xRet == AWS_IOT_MQTT_SUCCESS )
+	if( ret == AWS_IOT_MQTT_SUCCESS )
 	{
-	    xError = prxSerializeDisconnect( pBuffer, &xBufLen );
-	    if( xError != AWS_IOT_SERIALIZER_SUCCESS )
+	    error = _serializeDisconnect( pBuffer, &bufLen );
+	    if( error != AWS_IOT_SERIALIZER_SUCCESS )
 	    {
-	        AwsIotLogError( "Failed to serialize DISCONNECT message, error = %d", xError );
-	        xRet = AWS_IOT_MQTT_BAD_PARAMETER;
+	        AwsIotLogError( "Failed to serialize DISCONNECT message, error = %d", error );
+	        ret = AWS_IOT_MQTT_BAD_PARAMETER;
 	    }
 	}
 
-	if( xRet == AWS_IOT_MQTT_SUCCESS )
+	if( ret == AWS_IOT_MQTT_SUCCESS )
 	{
 	    *pDisconnectPacket = pBuffer;
-	    *pPacketSize = xBufLen;
+	    *pPacketSize = bufLen;
 	}
 	else
 	{
@@ -1374,62 +1374,62 @@ AwsIotMqttError_t AwsIotMqttBLE_SerializeDisconnect( uint8_t ** const pDisconnec
 	    *pPacketSize = 0;
 	}
 
-	return xRet;
+	return ret;
 }
 
 
-uint8_t AwsIotMqttBLE_GetPacketType( const uint8_t * const pPacket, size_t packetSize )
+uint8_t IotBleMqtt_GetPacketType( const uint8_t * const pPacket, size_t packetSize )
 {
 
-    AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
-    AwsIotSerializerError_t xError;
+    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
+    AwsIotSerializerError_t error;
     uint8_t value, packetType = _INVALID_MQTT_PACKET_TYPE;
 
-    xError = IOT_BLE_MESG_DECODER.init( &xDecoderObj, ( uint8_t* ) pPacket, packetSize );
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* ) pPacket, packetSize );
 
-    if( ( xError == AWS_IOT_SERIALIZER_SUCCESS )
-            && ( xDecoderObj.type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( ( error == AWS_IOT_SERIALIZER_SUCCESS )
+            && ( decoderObj.type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
     {
 
-        xError = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+        error = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_MSG_TYPE, &decoderValue );
 
-        if ( ( xError == AWS_IOT_SERIALIZER_SUCCESS ) &&
-                ( xValue.type == AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if ( ( error == AWS_IOT_SERIALIZER_SUCCESS ) &&
+                ( decoderValue.type == AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            value = ( uint16_t ) xValue.value.signedInt;
+            value = ( uint16_t ) decoderValue.value.signedInt;
 
             /** Left shift by 4 bits as MQTT library expects packet type to be upper 4 bits **/
             packetType = value << 4;
         }
         else
         {
-            AwsIotLogError( "Packet type decode failed, error = %d, decoded value type = %d", xError, xValue.type );
+            AwsIotLogError( "Packet type decode failed, error = %d, decoded value type = %d", error, decoderValue.type );
         }
     }
     else
     {
-        AwsIotLogError( "Decoding the packet failed, decoder error = %d, type = %d", xError, xDecoderObj.type );
+        AwsIotLogError( "Decoding the packet failed, decoder error = %d, type = %d", error, decoderObj.type );
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
+    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
     return packetType;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_SerializePingreq( uint8_t ** const pPingreqPacket,
+AwsIotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
                                                        size_t * const pPacketSize )
 {
     return AWS_IOT_MQTT_NO_MEMORY;
 }
 
-AwsIotMqttError_t AwsIotMqttBLE_DeserializePingresp( const uint8_t * const pPingrespStart,
+AwsIotMqttError_t IotBleMqtt_DeserializePingresp( const uint8_t * const pPingrespStart,
                                                           size_t dataLength,
                                                           size_t * const pBytesProcessed )
 {
     return AWS_IOT_MQTT_BAD_RESPONSE;
 }
 
-void AwsIotMqttBLE_FreePacket( uint8_t * pPacket )
+void IotBleMqtt_FreePacket( uint8_t * pPacket )
 {
     AwsIotMqtt_FreeMessage( pPacket );
 }
