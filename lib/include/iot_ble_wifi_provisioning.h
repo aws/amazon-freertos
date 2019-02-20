@@ -101,10 +101,13 @@ typedef enum
 #define wifiProvCONNECTED_KEY       "e"
 #define wifiProvINDEX_KEY           "g"
 #define wifiProvNEWINDEX_KEY        "j"
+#define wifiProvCONNECT_KEY         "y"
 
 #define wifiProvNUM_NETWORK_INFO_MESG_PARAMS  ( 8 )
 
 #define wifiProvNUM_STATUS_MESG_PARAMS        ( 1 )
+
+#define wifiProvDEFAULT_ALWAYS_CONNECT        ( true )
 
 /**
  * @brief List Network request sent by the GATT client to list saved and scanned networks.
@@ -122,6 +125,7 @@ typedef struct AddNetworkRequest
 {
     WIFINetworkProfile_t xNetwork; /**< The configuration for the new WIFI network */
     int16_t sSavedIdx;             /**< Index if its an already saved WIFI network in the flash */
+    bool xConnect;
 } AddNetworkRequest_t;
 
 /**

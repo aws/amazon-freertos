@@ -42,12 +42,8 @@
 /**
  * @brief Delay in milliseconds between connecting to the provisioned WiFi networks.
  */
-#define wifiConnectDELAY_MILLISECONDS     ( 1000 )
+#define wifiConnectDELAY_SECONDS     ( 1 )
 
-/**
- * @brief Number of retries in connecting to the provisioned networks.
- */
-#define wifiConnectNUM_RETRIES            ( 500 )
 
 
 /**
@@ -80,8 +76,8 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNet
 
 void prvWiFiConnectTask( void * pvParams )
 {
-    uint16_t ulNumNetworks, ulNetworkIndex, ulNumRetries;
-    TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_MILLISECONDS );
+    uint16_t ulNumNetworks, ulNetworkIndex;
+    TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_SECONDS * 1000 );
     BaseType_t xWiFiConnected;
 
     for(;;)
@@ -89,28 +85,32 @@ void prvWiFiConnectTask( void * pvParams )
         if( xSemaphoreTake( xWiFiConnectLock, portMAX_DELAY ) == pdTRUE )
         {
             xWiFiConnected = pdFALSE;
-            for( ulNumRetries = 0;
-                    ( ulNumRetries < wifiConnectNUM_RETRIES ) &&
-                            ( xWiFiConnected == pdFALSE );
-                    ulNumRetries++ )
+            while( xWiFiConnected == pdFALSE )
             {
                 ulNumNetworks = WIFI_PROVISION_GetNumNetworks();
-                for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
+                if( ulNumNetworks > 0 )
                 {
-                    if( WIFI_IsConnected() == pdFALSE )
+                    for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
                     {
-                        xWiFiConnected = WIFI_PROVISION_Connect( ulNetworkIndex );
-                    }
-                    else
-                    {
-                        xWiFiConnected = pdTRUE;
-                    }
+                        if( WIFI_IsConnected() == pdFALSE )
+                        {
+                            xWiFiConnected = WIFI_PROVISION_Connect( ulNetworkIndex );
+                        }
+                        else
+                        {
+                            xWiFiConnected = pdTRUE;
+                        }
 
-                    if( xWiFiConnected == pdTRUE )
-                    {
-                        break;
+                        if( xWiFiConnected == pdTRUE )
+                        {
+                            break;
+                        }
+                        vTaskDelay( xWifiConnectionDelay );
                     }
-                    vTaskDelay( xWifiConnectionDelay );
+                }
+                else
+                {
+                    break;
                 }
             }
         }
