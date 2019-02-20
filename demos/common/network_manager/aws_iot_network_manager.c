@@ -395,7 +395,7 @@ static BaseType_t prxWIFIEnable( void )
 #else
     if ( xRet == pdTRUE )
     {
-        xRet = WIFI_PROVISION_Start();
+        xRet = IotBleWifiProv_Start();
     }
     if( xRet == pdTRUE )
     {

@@ -331,18 +331,18 @@ BTStatus_t _startAllServices()
 	BTStatus_t status = eBTStatusSuccess;
 	BaseType_t error;
 
-	error = AFRDeviceInfoSvc_Init();
+	error = IotBleDeviceInfo_SvcInit();
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     if( error == pdPASS )
     {
-    	error = WIFI_PROVISION_Init();
+    	error = IotBleWifiProv_Init();
     }
 #endif
 
     if( error == pdPASS )
     {
-    	error = AwsIotMqttBLE_Init();
+    	error = IotBleMqtt_Init();
     }
 
     if(error != pdPASS)

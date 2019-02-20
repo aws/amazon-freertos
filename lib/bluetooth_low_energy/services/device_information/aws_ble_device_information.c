@@ -45,32 +45,32 @@
 
 /*------------------------------------------------------------------------------------*/
 extern int snprintf( char *, size_t, const char *, ... );
-static DeviceInfoService_t xService =
+static IotBleDeviceInfoService_t _service =
 {
-    .pxBLEService = NULL,
-    .usBLEConnId  = 65535,
-    .usBLEMtu     = 0,
-    .usCCFGVal    = { 0 }
+    .pBLEService = NULL,
+    .BLEConnId  = 65535,
+    .BLEMtu     = 0,
+    .CCFGVal    = { 0 }
 };
 
-#define deviceInfoCHAR_VERSION_UUID_TYPE \
+#define IOT_BLE_DEVICE_INFO_VERSION_UUID_TYPE \
 { \
-    .uu.uu128 = deviceInfoCHAR_VERSION_UUID,\
+    .uu.uu128 = IOT_BLE_DEVICE_INFO_VERSION_UUID,\
     .ucType   = eBTuuidType128 \
 }
-#define deviceInfoBROKER_ENDPOINT_UUID_TYPE \
+#define IOT_BLE_DEVICE_INFO_BROKER_ENDPOINT_UUID_TYPE \
 {  \
-    .uu.uu128 = deviceInfoBROKER_ENDPOINT_UUID,\
+    .uu.uu128 = IOT_BLE_DEVICE_INFO_BROKER_ENDPOINT_UUID,\
     .ucType  = eBTuuidType128\
 }
-#define deviceInfoCLIENT_CHAR_CFG_UUID_TYPE \
+#define IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID_TYPE \
 {\
-    .uu.uu16 = deviceInfoCLIENT_CHAR_CFG_UUID,\
+    .uu.uu16 = IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID,\
     .ucType  = eBTuuidType16\
 }
-#define deviceInfoCHAR_MTU_UUID_TYPE \
+#define IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID_TYPE \
 {\
-    .uu.uu128 = deviceInfoCHAR_MTU_UUID,\
+    .uu.uu128 = IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID,\
     .ucType  = eBTuuidType128\
 }
 /**
@@ -86,17 +86,17 @@ static DeviceInfoService_t xService =
 
 
 typedef enum {
-  bledeviceinfoATTR_SERVICE,
-  bledeviceinfoATTR_CHAR_END_POINT,
-  bledeviceinfoATTR_CHAR_VERSION,
-  bledeviceinfoATTR_CHAR_MTU,
-  bledeviceinfoATTR_CHAR_DESCR_MTU,
-  bledeviceinfoATTR_NUMBER
-} bledeviceinfoAttr_t;
+  _ATTR_SERVICE,
+  _ATTR_CHAR_END_POINT,
+  _ATTR_CHAR_VERSION,
+  _ATTR_CHAR_MTU,
+  _ATTR_CHAR_DESCR_MTU,
+  _ATTR_NUMBER
+} _attr_t;
 
-static uint16_t usHandlesBuffer[bledeviceinfoATTR_NUMBER];
+static uint16_t _handlesBuffer[_ATTR_NUMBER];
 
-static const BTAttribute_t pxAttributeTable[] = {
+static const BTAttribute_t _pAttributeTable[] = {
      {    
          .xServiceUUID =  xDeviceInfoSvcUUID
      },
@@ -104,7 +104,7 @@ static const BTAttribute_t pxAttributeTable[] = {
          .xAttributeType = eBTDbCharacteristic,
          .xCharacteristic = 
          {
-              .xUuid = deviceInfoCHAR_VERSION_UUID_TYPE,
+              .xUuid = IOT_BLE_DEVICE_INFO_VERSION_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
               .xProperties = ( eBTPropRead )
           }
@@ -113,7 +113,7 @@ static const BTAttribute_t pxAttributeTable[] = {
          .xAttributeType = eBTDbCharacteristic,
          .xCharacteristic = 
          {
-              .xUuid = deviceInfoBROKER_ENDPOINT_UUID_TYPE,
+              .xUuid = IOT_BLE_DEVICE_INFO_BROKER_ENDPOINT_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
               .xProperties = ( eBTPropRead )
           }
@@ -122,7 +122,7 @@ static const BTAttribute_t pxAttributeTable[] = {
          .xAttributeType = eBTDbCharacteristic,
          .xCharacteristic = 
          {
-              .xUuid = deviceInfoCHAR_MTU_UUID_TYPE,
+              .xUuid = IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
               .xProperties = ( eBTPropRead | eBTPropNotify )
           }
@@ -131,19 +131,19 @@ static const BTAttribute_t pxAttributeTable[] = {
          .xAttributeType = eBTDbDescriptor,
          .xCharacteristicDescr =
          {
-             .xUuid = deviceInfoCLIENT_CHAR_CFG_UUID_TYPE,
+             .xUuid = IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID_TYPE,
              .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
           }
      }
 };
 
-static const BTService_t xDeviceInformationService = 
+static const BTService_t _deviceInformationService = 
 {
-  .xNumberOfAttributes = bledeviceinfoATTR_NUMBER,
+  .xNumberOfAttributes = _ATTR_NUMBER,
   .ucInstId = 0,
   .xType = eBTServiceTypePrimary,
-  .pusHandlesBuffer = usHandlesBuffer,
-  .pxBLEAttributes = (BTAttribute_t *)pxAttributeTable
+  .pusHandlesBuffer = _handlesBuffer,
+  .pxBLEAttributes = (BTAttribute_t *)_pAttributeTable
 };
 
 
@@ -152,43 +152,39 @@ static const BTService_t xDeviceInformationService =
  *
  * Enables notification to send MTU changed information to the GATT client
  *
- * @param[in] pxAttribute Client Characteristic Configuration descriptor attribute
  * @param[in] pEventParam Write/Read request param to the attribute
  */
-void vDeviceInfoCCFGCallback( IotBleAttributeEvent_t * pEventParam );
+static void _deviceInfoCCFGCallback( IotBleAttributeEvent_t * pEventParam );
 
 /**
  * @brief Callback invoked when GATT client reads MTU characteristic
  *
  * Returns the MTU value in JSON payload as response.
  *
- * @param[in] pxAttribute MTU characteristic attribute
  * @param[in] pEventParam Write/Read request param to the attribute
  *
  */
-void vDeviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void _deviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /**
  * @brief Callback invoked when GATT client reads Broker Endpoint Characteristic
  *
  * Returns the IOT Broker Endpoint provisioned for the device in a JSON payload as response.
  *
- * @param[in] pxAttribute Broker Endpoint characteristic attribute
  * @param[in] pEventParam Write/Read request param to the attribute
  *
  */
-void vDeviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void _deviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 
 /**
  * @brief Callback invoked when GATT client reads the encoding Characteristic
  * Returns the version for the device in a JSON payload as response.
  *
- * @param[in] pxAttribute Device version characteristic attribute
  * @param[in] pEventParam Write/Read request param to the attribute
  *
  */
-void vDeviceInfoVersionCharCallback( IotBleAttributeEvent_t * pEventParam );
+static void _deviceInfoVersionCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /**
  * @brief Callback invoked MTU for the BLE connection changes.
@@ -208,51 +204,51 @@ static void vMTUChangedCallback( uint16_t connId,
  *
  * Stores the connection ID of the BLE client for sending notifications.
  *
- * @param xStatus BLE status of the operation
+ * @param status BLE status of the operation
  * @param connId Connection ID for the connection
  * @param bConnected Is Connected or disconnected
  * @param pxRemoteBdAddr Remote address of the client
  */
-static void vConnectionCallback( BTStatus_t xStatus,
+static void vConnectionCallback( BTStatus_t status,
                                  uint16_t connId,
                                  bool bConnected,
                                  BTBdaddr_t * pxRemoteBdAddr );
 
 
-static const IotBleAttributeEventCallback_t pxCallBackArray[bledeviceinfoATTR_NUMBER] =
+static const IotBleAttributeEventCallback_t pxCallBackArray[_ATTR_NUMBER] =
     {
   NULL,
-  vDeviceInfoVersionCharCallback,
-  vDeviceInfoBrokerEndpointCharCallback,
-  vDeviceInfoMTUCharCallback,
-  vDeviceInfoCCFGCallback
+  _deviceInfoVersionCharCallback,
+  _deviceInfoBrokerEndpointCharCallback,
+  _deviceInfoMTUCharCallback,
+  _deviceInfoCCFGCallback
 };
 
 
 /*-----------------------------------------------------------*/
 
-BaseType_t AFRDeviceInfoSvc_Init( void )
+BaseType_t IotBleDeviceInfo_SvcInit( void )
 {
-    BTStatus_t xStatus = eBTStatusFail;
+    BTStatus_t status = eBTStatusFail;
     BaseType_t error = pdFAIL;
-    IotBleEventsCallbacks_t xCallback;
+    IotBleEventsCallbacks_t callback;
 
     /* Select the handle buffer. */
-    xStatus = IotBle_CreateService( (BTService_t *)&xDeviceInformationService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
+    status = IotBle_CreateService( (BTService_t *)&_deviceInformationService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
 
-	if( xStatus == eBTStatusSuccess )
+	if( status == eBTStatusSuccess )
 	{
-		xCallback.pMtuChangedCb = vMTUChangedCallback;
-		xStatus = IotBle_RegisterEventCb( eBLEMtuChanged, xCallback );
+		callback.pMtuChangedCb = vMTUChangedCallback;
+		status = IotBle_RegisterEventCb( eBLEMtuChanged, callback );
 	}
 
-	if( xStatus == eBTStatusSuccess )
+	if( status == eBTStatusSuccess )
 	{
-		xCallback.pConnectionCb = vConnectionCallback;
-		xStatus = IotBle_RegisterEventCb( eBLEConnection, xCallback );
+		callback.pConnectionCb = vConnectionCallback;
+		status = IotBle_RegisterEventCb( eBLEConnection, callback );
 	}
 
-	if( xStatus == eBTStatusSuccess )
+	if( status == eBTStatusSuccess )
 	{
 		error = pdPASS;
 	}
@@ -261,121 +257,121 @@ BaseType_t AFRDeviceInfoSvc_Init( void )
 
 /*-----------------------------------------------------------*/
 
-void vDeviceInfoCCFGCallback( IotBleAttributeEvent_t * pEventParam )
+void _deviceInfoCCFGCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    IotBleWriteEventParams_t * pxWriteParam;
-    IotBleAttributeData_t xAttrData = { 0 };
-    IotBleEventResponse_t xResp;
+    IotBleWriteEventParams_t * pWriteParam;
+    IotBleAttributeData_t attrData = { 0 };
+    IotBleEventResponse_t resp;
 
-    xResp.pAttrData = &xAttrData;
-    xResp.rspErrorStatus = eBTRspErrorNone;
-    xResp.eventStatus = eBTStatusFail;
-    xResp.attrDataOffset = 0;
+    resp.pAttrData = &attrData;
+    resp.rspErrorStatus = eBTRspErrorNone;
+    resp.eventStatus = eBTStatusFail;
+    resp.attrDataOffset = 0;
 
 
     if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
-        pxWriteParam = pEventParam->pParamWrite;
-        xAttrData.handle = pxWriteParam->attrHandle;
+        pWriteParam = pEventParam->pParamWrite;
+        attrData.handle = pWriteParam->attrHandle;
 
-        if( pxWriteParam->length == 2 )
+        if( pWriteParam->length == 2 )
         {
-            xService.usCCFGVal[ eDeviceInfoMtuCharDescr ] = ( pxWriteParam->pValue[ 1 ] << 8 ) | pxWriteParam->pValue[ 0 ];
-            xResp.eventStatus = eBTStatusSuccess;
+            _service.CCFGVal[ IOT_BLE_DEVICE_INFO_MTU_CHAR_DESCR ] = ( pWriteParam->pValue[ 1 ] << 8 ) | pWriteParam->pValue[ 0 ];
+            resp.eventStatus = eBTStatusSuccess;
         }
 
         if( pEventParam->xEventType == eBLEWrite )
         {
-            xAttrData.pData = pxWriteParam->pValue;
-            xAttrData.size = pxWriteParam->length;
-            xResp.attrDataOffset = pxWriteParam->offset;
-            IotBle_SendResponse( &xResp, pxWriteParam->connId, pxWriteParam->transId );
+            attrData.pData = pWriteParam->pValue;
+            attrData.size = pWriteParam->length;
+            resp.attrDataOffset = pWriteParam->offset;
+            IotBle_SendResponse( &resp, pWriteParam->connId, pWriteParam->transId );
         }
     }
     else if( pEventParam->xEventType == eBLERead )
     {
 
-        xAttrData.handle = pEventParam->pParamRead->attrHandle;
-        xAttrData.pData = ( uint8_t * ) &xService.usCCFGVal[ eDeviceInfoMtuCharDescr ];
-        xAttrData.size = 2;
-        xResp.attrDataOffset = 0;
-        xResp.eventStatus = eBTStatusSuccess;
+        attrData.handle = pEventParam->pParamRead->attrHandle;
+        attrData.pData = ( uint8_t * ) &_service.CCFGVal[ IOT_BLE_DEVICE_INFO_MTU_CHAR_DESCR ];
+        attrData.size = 2;
+        resp.attrDataOffset = 0;
+        resp.eventStatus = eBTStatusSuccess;
 
-        IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
+        IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
 
 /*-----------------------------------------------------------*/
 
-void vDeviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam )
+void _deviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    IotBleAttributeData_t xAttrData = { 0 };
-    IotBleEventResponse_t xResp;
+    IotBleAttributeData_t attrData = { 0 };
+    IotBleEventResponse_t resp;
 
 
 
     if( pEventParam->xEventType == eBLERead )
     {
-        xAttrData.handle = pEventParam->pParamRead->attrHandle;
-        xAttrData.pData = ( uint8_t *) clientcredentialMQTT_BROKER_ENDPOINT;
-        xAttrData.size = strlen(  clientcredentialMQTT_BROKER_ENDPOINT );
+        attrData.handle = pEventParam->pParamRead->attrHandle;
+        attrData.pData = ( uint8_t *) clientcredentialMQTT_BROKER_ENDPOINT;
+        attrData.size = strlen(  clientcredentialMQTT_BROKER_ENDPOINT );
 
-        xResp.pAttrData = &xAttrData;
-        xResp.attrDataOffset = 0;
-        xResp.eventStatus = eBTStatusSuccess;
-        xResp.rspErrorStatus = eBTRspErrorNone;
+        resp.pAttrData = &attrData;
+        resp.attrDataOffset = 0;
+        resp.eventStatus = eBTStatusSuccess;
+        resp.rspErrorStatus = eBTRspErrorNone;
 
-        IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
+        IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
 
 /*-----------------------------------------------------------*/
 
-void vDeviceInfoVersionCharCallback( IotBleAttributeEvent_t * pEventParam )
+void _deviceInfoVersionCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    IotBleAttributeData_t xAttrData = { 0 };
-    IotBleEventResponse_t xResp;
+    IotBleAttributeData_t attrData = { 0 };
+    IotBleEventResponse_t resp;
 
 
     if( pEventParam->xEventType == eBLERead )
     {
 
-        xAttrData.handle = pEventParam->pParamRead->attrHandle;
-        xAttrData.pData = ( uint8_t* ) tskKERNEL_VERSION_NUMBER;
-        xAttrData.size = strlen( tskKERNEL_VERSION_NUMBER );
+        attrData.handle = pEventParam->pParamRead->attrHandle;
+        attrData.pData = ( uint8_t* ) tskKERNEL_VERSION_NUMBER;
+        attrData.size = strlen( tskKERNEL_VERSION_NUMBER );
 
-        xResp.pAttrData = &xAttrData;
-        xResp.attrDataOffset = 0;
-        xResp.eventStatus = eBTStatusSuccess;
-        xResp.rspErrorStatus = eBTRspErrorNone;
+        resp.pAttrData = &attrData;
+        resp.attrDataOffset = 0;
+        resp.eventStatus = eBTStatusSuccess;
+        resp.rspErrorStatus = eBTRspErrorNone;
 
 
-        IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
+        IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
 
 /*-----------------------------------------------------------*/
 
-void vDeviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
+void _deviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    IotBleAttributeData_t xAttrData = { 0 };
-    IotBleEventResponse_t xResp;
-    char cMessage[ MAX_INTEGER_BUFFER_WIDTH  ] = { 0 };
-    size_t xMessageLen;
+    IotBleAttributeData_t attrData = { 0 };
+    IotBleEventResponse_t resp;
+    char pMessage[ MAX_INTEGER_BUFFER_WIDTH  ] = { 0 };
+    size_t pMessageLen;
 
     if( pEventParam->xEventType == eBLERead )
     {
-        xMessageLen = snprintf( cMessage, MAX_INTEGER_BUFFER_WIDTH, "%d", xService.usBLEMtu );
+        pMessageLen = snprintf( pMessage, MAX_INTEGER_BUFFER_WIDTH, "%d", _service.BLEMtu );
 
-        xAttrData.handle = pEventParam->pParamRead->attrHandle;
-        xAttrData.pData = ( uint8_t* ) cMessage;
-        xAttrData.size = xMessageLen;
+        attrData.handle = pEventParam->pParamRead->attrHandle;
+        attrData.pData = ( uint8_t* ) pMessage;
+        attrData.size = pMessageLen;
 
-        xResp.pAttrData = &xAttrData;
-        xResp.attrDataOffset = 0;
-        xResp.eventStatus = eBTStatusSuccess;
-        xResp.rspErrorStatus = eBTRspErrorNone;
-        IotBle_SendResponse( &xResp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
+        resp.pAttrData = &attrData;
+        resp.attrDataOffset = 0;
+        resp.eventStatus = eBTStatusSuccess;
+        resp.rspErrorStatus = eBTRspErrorNone;
+        IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }
 
@@ -384,41 +380,41 @@ void vDeviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
 static void vMTUChangedCallback( uint16_t connId,
                                  uint16_t usMtu )
 {
-    IotBleAttributeData_t xAttrData = { 0 };
-    IotBleEventResponse_t xResp = { 0 };
-    char cMessage[ MAX_INTEGER_BUFFER_WIDTH  ] = { 0 };
-    size_t xMessageLen;
+    IotBleAttributeData_t attrData = { 0 };
+    IotBleEventResponse_t resp = { 0 };
+    char pMessage[ MAX_INTEGER_BUFFER_WIDTH  ] = { 0 };
+    size_t pMessageLen;
 
 
-    if( usMtu != xService.usBLEMtu )
+    if( usMtu != _service.BLEMtu )
     {
-        xService.usBLEMtu = usMtu;
-        xMessageLen = snprintf( cMessage, MAX_INTEGER_BUFFER_WIDTH, "%d", xService.usBLEMtu );
+        _service.BLEMtu = usMtu;
+        pMessageLen = snprintf( pMessage, MAX_INTEGER_BUFFER_WIDTH, "%d", _service.BLEMtu );
         
-        xAttrData.handle = xDeviceInformationService.pusHandlesBuffer[bledeviceinfoATTR_CHAR_MTU];
-        xAttrData.uuid = xDeviceInformationService.pxBLEAttributes[bledeviceinfoATTR_CHAR_MTU].xCharacteristic.xUuid;
-        xAttrData.pData = ( uint8_t* ) cMessage;
-        xAttrData.size = xMessageLen;
+        attrData.handle = _deviceInformationService.pusHandlesBuffer[_ATTR_CHAR_MTU];
+        attrData.uuid = _deviceInformationService.pxBLEAttributes[_ATTR_CHAR_MTU].xCharacteristic.xUuid;
+        attrData.pData = ( uint8_t* ) pMessage;
+        attrData.size = pMessageLen;
 
-        xResp.attrDataOffset = 0;
-        xResp.eventStatus = eBTStatusSuccess;
-        xResp.pAttrData = &xAttrData;
-        xResp.rspErrorStatus = eBTRspErrorNone;
+        resp.attrDataOffset = 0;
+        resp.eventStatus = eBTStatusSuccess;
+        resp.pAttrData = &attrData;
+        resp.rspErrorStatus = eBTRspErrorNone;
 
-        ( void ) IotBle_SendIndication( &xResp, xService.usBLEConnId, false );
+        ( void ) IotBle_SendIndication( &resp, _service.BLEConnId, false );
     }
 }
 
-static void vConnectionCallback( BTStatus_t xStatus,
+static void vConnectionCallback( BTStatus_t status,
                                  uint16_t connId,
                                  bool bConnected,
                                  BTBdaddr_t * pxRemoteBdAddr )
 {
-	if( xStatus == eBTStatusSuccess )
+	if( status == eBTStatusSuccess )
     {
     	if( bConnected == true )
     	{
-    		xService.usBLEConnId = connId;
+    		_service.BLEConnId = connId;
     	}
     }
 }

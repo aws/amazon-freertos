@@ -169,14 +169,14 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
 static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkContext )
 {
     BaseType_t xStatus = pdFALSE;
-    AwsIotMqttBLEConnection_t xBLEConnection = AWS_IOT_MQTT_BLE_CONNECTION_INITIALIZER;
+    IotBleMqttConnection_t xBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
     AwsIotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
 
-    if( AwsIotMqttBLE_CreateConnection( &pxNetworkContext->xMqttConnection, &xBLEConnection ) == pdTRUE )
+    if( IotBleMqtt_CreateConnection( &pxNetworkContext->xMqttConnection, &xBLEConnection ) == pdTRUE )
     {
         ( *pxNetworkIface ) = xDefaultNetworkInterface;
         AWS_IOT_MQTT_BLE_INIT_SERIALIZER( pxNetworkIface );
-        pxNetworkIface->send          = AwsIotMqttBLE_Send;
+        pxNetworkIface->send          = IotBleMqtt_Send;
         pxNetworkIface->pSendContext  = ( void * ) xBLEConnection;
         pxNetworkIface->pDisconnectContext = pxNetworkContext;
         pxNetworkIface->disconnect = pxNetworkContext->xDisconnectCallback;
@@ -231,8 +231,8 @@ void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkContext
 #if BLE_ENABLED
         if( pxNetworkContext->ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
         {
-            AwsIotMqttBLE_CloseConnection( ( AwsIotMqttBLEConnection_t ) pxNetworkContext->pvNetworkConnection );
-            AwsIotMqttBLE_DestroyConnection( ( AwsIotMqttBLEConnection_t ) pxNetworkContext->pvNetworkConnection );
+            IotBleMqtt_CloseConnection( ( IotBleMqttConnection_t ) pxNetworkContext->pvNetworkConnection );
+            IotBleMqtt_DestroyConnection( ( IotBleMqttConnection_t ) pxNetworkContext->pvNetworkConnection );
             xDeleted = pdTRUE;
         }
 #endif
