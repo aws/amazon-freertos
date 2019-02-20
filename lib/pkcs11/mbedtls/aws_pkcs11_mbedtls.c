@@ -90,7 +90,9 @@ typedef struct P11Session
     CK_BBOOL xFindObjectComplete;
     uint8_t * xFindObjectLabel;
     uint8_t xFindObjectLabelLength;
+    SemaphoreHandle_t xVerifyMutex; /* Protects the verification key from being modified while in use. */
     mbedtls_pk_context xVerifyKey;
+    SemaphoreHandle_t xSignMutex;   /* Protects the signing key from being modified while in use. */
     mbedtls_pk_context xSignKey;
     mbedtls_sha256_context xSHA256Context;
 } P11Session_t, * P11SessionPtr_t;
@@ -149,99 +151,6 @@ extern void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucBuffer,
 /*-----------------------------------------------------------*/
 
 
-
-/*-----------------------------------------------------------*/
-/*--------- mbedTLS threading functions for FreeRTOS --------*/
-/*--------------- See MBEDTLS_THREADING_ALT -----------------*/
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Implementation of mbedtls_mutex_init for thread-safety.
- *
- */
-void aws_mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex )
-{
-    if( mutex->is_valid == 0 )
-    {
-        mutex->mutex = xSemaphoreCreateMutex();
-
-        if( mutex->mutex != NULL )
-        {
-            mutex->is_valid = 1;
-        }
-        else
-        {
-            PKCS11_PRINT( ( "Failed to initialize mbedTLS mutex.\r\n" ) );
-        }
-    }
-}
-
-/**
- * @brief Implementation of mbedtls_mutex_free for thread-safety.
- *
- */
-void aws_mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex )
-{
-    if( mutex->is_valid == 1 )
-    {
-        vSemaphoreDelete( mutex->mutex );
-        mutex->is_valid = 0;
-    }
-}
-
-/**
- * @brief Implementation of mbedtls_mutex_lock for thread-safety.
- *
- * @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
- * MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
- */
-int aws_mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex )
-{
-    int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
-
-    if( mutex->is_valid == 1 )
-    {
-        if( xSemaphoreTake( mutex->mutex, portMAX_DELAY ) )
-        {
-            ret = 0;
-        }
-        else
-        {
-            ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
-            PKCS11_PRINT( ( "Failed to obtain mbedTLS mutex.\r\n" ) );
-        }
-    }
-
-    return ret;
-}
-
-/**
- * @brief Implementation of mbedtls_mutex_unlock for thread-safety.
- *
- * @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
- * MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
- */
-int aws_mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex )
-{
-    int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
-
-    if( mutex->is_valid == 1 )
-    {
-        if( xSemaphoreGive( mutex->mutex ) )
-        {
-            ret = 0;
-        }
-        else
-        {
-            ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
-            PKCS11_PRINT( ( "Failed to unlock mbedTLS mutex.\r\n" ) );
-        }
-    }
-
-    return ret;
-}
-
-/*-----------------------------------------------------------*/
 
 /**
  * @brief Maps an opaque caller session handle into its internal state structure.
@@ -334,6 +243,8 @@ static CK_FUNCTION_LIST prvP11FunctionList =
 
 /*-----------------------------------------------------------*/
 
+/* Note: Before prvMbedTLS_Initialize can be called, CRYPTO_Init()
+ * must be called to initialize the mbedTLS mutex & heap management functions. */
 CK_RV prvMbedTLS_Initialize( void )
 {
     CK_RV xResult = CKR_OK;
@@ -345,15 +256,6 @@ CK_RV prvMbedTLS_Initialize( void )
 
     if( xResult == CKR_OK )
     {
-        /* Ensure that the FreeRTOS heap is used. */
-        CRYPTO_ConfigureHeap();
-
-        /* Configure mbedtls to use FreeRTOS mutexes. */
-        mbedtls_threading_set_alt( aws_mbedtls_mutex_init,
-                                   aws_mbedtls_mutex_free,
-                                   aws_mbedtls_mutex_lock,
-                                   aws_mbedtls_mutex_unlock );
-
         /* Initialze the entropy source and DRBG for the PKCS#11 module */
         mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
         mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
@@ -518,15 +420,28 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         {
             xResult = CKR_HOST_MEMORY;
         }
-    }
 
-    /*
-     * Zero out the session structure.
-     */
+        /*
+         * Zero out the session structure.
+         */
+        if( CKR_OK == xResult )
+        {
+            memset( pxSessionObj, 0, sizeof( P11Session_t ) );
+        }
 
-    if( CKR_OK == xResult )
-    {
-        memset( pxSessionObj, 0, sizeof( P11Session_t ) );
+        pxSessionObj->xSignMutex = xSemaphoreCreateMutex();
+
+        if( NULL == pxSessionObj->xSignMutex )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+
+        pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
+
+        if( NULL == pxSessionObj->xVerifyMutex )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
     }
 
     if( CKR_OK == xResult )
@@ -581,10 +496,20 @@ CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
             mbedtls_pk_free( &pxSession->xSignKey );
         }
 
+        if( NULL != pxSession->xSignMutex )
+        {
+            vSemaphoreDelete( pxSession->xSignMutex );
+        }
+
         /* Free the public key context if it exists. */
         if( NULL != pxSession->xVerifyKey.pk_ctx )
         {
             mbedtls_pk_free( &pxSession->xVerifyKey );
+        }
+
+        if( NULL != pxSession->xVerifyMutex )
+        {
+            vSemaphoreDelete( pxSession->xVerifyMutex );
         }
 
         if( NULL != &pxSession->xSHA256Context )
@@ -1219,28 +1144,37 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
         if( xResult == CKR_OK )
         {
-            /* Free the private key context if it exists.
-             * TODO: Check if the key is the same as was used previously. */
-            if( NULL != pxSession->xSignKey.pk_ctx )
+            if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, portMAX_DELAY ) )
             {
-                mbedtls_pk_free( &pxSession->xSignKey );
-            }
+                /* Free the private key context if it exists.
+                 * TODO: Check if the key is the same as was used previously. */
+                if( NULL != pxSession->xSignKey.pk_ctx )
+                {
+                    mbedtls_pk_free( &pxSession->xSignKey );
+                }
 
-            mbedtls_pk_init( &pxSession->xSignKey );
+                mbedtls_pk_init( &pxSession->xSignKey );
 
-            if( 0 == mbedtls_pk_parse_key( &pxSession->xSignKey, keyData, ulKeyDataLength, NULL, 0 ) )
-            {
-                /* TODO: Check the mechanism.  Note: Currently, mechanism is being set to CKM_SHA256, rather than
-                 * CKM_RSA_PKCS
-                 * CKM_SHA256_RSA_PKCS
-                 * CKM_ECDSA
-                 * Calling function does not know whether key is RSA or ECDSA.
-                 * xKeyType = mbedtls_pk_get_type( &pxSession->xSignKey );
-                 */
+                if( 0 == mbedtls_pk_parse_key( &pxSession->xSignKey, keyData, ulKeyDataLength, NULL, 0 ) )
+                {
+                    /* TODO: Check the mechanism.  Note: Currently, mechanism is being set to CKM_SHA256, rather than
+                     * CKM_RSA_PKCS
+                     * CKM_SHA256_RSA_PKCS
+                     * CKM_ECDSA
+                     * Calling function does not know whether key is RSA or ECDSA.
+                     * xKeyType = mbedtls_pk_get_type( &pxSession->xSignKey );
+                     */
+                }
+                else
+                {
+                    xResult = CKR_KEY_HANDLE_INVALID;
+                }
+
+                xSemaphoreGive( pxSession->xSignMutex );
             }
             else
             {
-                xResult = CKR_KEY_HANDLE_INVALID;
+                xResult = CKR_CANT_LOCK;
             }
         }
 
@@ -1292,18 +1226,27 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
             if( CKR_OK == xResult )
             {
-                BaseType_t x = mbedtls_pk_sign( &pxSessionObj->xSignKey,
-                                                MBEDTLS_MD_SHA256,
-                                                pucData,
-                                                ulDataLen,
-                                                pucSignature,
-                                                ( size_t * ) pulSignatureLen,
-                                                mbedtls_ctr_drbg_random,
-                                                &xP11Context.xMbedDrbgCtx );
-
-                if( x != CKR_OK )
+                if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
                 {
-                    xResult = CKR_FUNCTION_FAILED;
+                    BaseType_t x = mbedtls_pk_sign( &pxSessionObj->xSignKey,
+                                                    MBEDTLS_MD_SHA256,
+                                                    pucData,
+                                                    ulDataLen,
+                                                    pucSignature,
+                                                    ( size_t * ) pulSignatureLen,
+                                                    mbedtls_ctr_drbg_random,
+                                                    &xP11Context.xMbedDrbgCtx );
+
+                    if( x != CKR_OK )
+                    {
+                        xResult = CKR_FUNCTION_FAILED;
+                    }
+
+                    xSemaphoreGive( pxSessionObj->xSignMutex );
+                }
+                else
+                {
+                    xResult = CKR_CANT_LOCK;
                 }
             }
         }
@@ -1348,21 +1291,30 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        /* Free the public key context if it exists.
-         * TODO: Check if the key is the same as used by last verify operation. */
-        if( NULL != pxSession->xVerifyKey.pk_ctx )
+        if( pdTRUE == xSemaphoreTake( pxSession->xVerifyMutex, portMAX_DELAY ) )
         {
-            mbedtls_pk_free( &pxSession->xVerifyKey );
-        }
-
-        mbedtls_pk_init( &pxSession->xVerifyKey );
-
-        if( 0 != mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, keyData, ulKeyDataLength ) )
-        {
-            if( 0 != mbedtls_pk_parse_key( &pxSession->xVerifyKey, keyData, ulKeyDataLength, NULL, 0 ) )
+            /* Free the public key context if it exists.
+             * TODO: Check if the key is the same as used by last verify operation. */
+            if( NULL != pxSession->xVerifyKey.pk_ctx )
             {
-                xResult = CKR_KEY_HANDLE_INVALID;
+                mbedtls_pk_free( &pxSession->xVerifyKey );
             }
+
+            mbedtls_pk_init( &pxSession->xVerifyKey );
+
+            if( 0 != mbedtls_pk_parse_public_key( &pxSession->xVerifyKey, keyData, ulKeyDataLength ) )
+            {
+                if( 0 != mbedtls_pk_parse_key( &pxSession->xVerifyKey, keyData, ulKeyDataLength, NULL, 0 ) )
+                {
+                    xResult = CKR_KEY_HANDLE_INVALID;
+                }
+            }
+
+            xSemaphoreGive( pxSession->xVerifyMutex );
+        }
+        else
+        {
+            xResult = CKR_CANT_LOCK;
         }
 
         PKCS11_PAL_GetObjectValueCleanup( keyData, ulKeyDataLength );
@@ -1396,18 +1348,27 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     {
         pxSessionObj = prvSessionPointerFromHandle( xSession ); /*lint !e9072 It's OK to have different parameter name. */
 
-        /* Verify the signature. If a public key is present, use it. */
-        if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
+        if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
         {
-            if( 0 != mbedtls_pk_verify( &pxSessionObj->xVerifyKey,
-                                        MBEDTLS_MD_SHA256,
-                                        pucData,
-                                        ulDataLen,
-                                        pucSignature,
-                                        ulSignatureLen ) )
+            /* Verify the signature. If a public key is present, use it. */
+            if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
             {
-                xResult = CKR_SIGNATURE_INVALID;
+                if( 0 != mbedtls_pk_verify( &pxSessionObj->xVerifyKey,
+                                            MBEDTLS_MD_SHA256,
+                                            pucData,
+                                            ulDataLen,
+                                            pucSignature,
+                                            ulSignatureLen ) )
+                {
+                    xResult = CKR_SIGNATURE_INVALID;
+                }
             }
+
+            xSemaphoreGive( pxSessionObj->xVerifyMutex );
+        }
+        else
+        {
+            xResult = CKR_CANT_LOCK;
         }
 
         /* TODO: Deleted else. */

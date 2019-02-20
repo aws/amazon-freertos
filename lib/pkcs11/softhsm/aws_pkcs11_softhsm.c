@@ -26,16 +26,10 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
-#include "aws_pkcs11_config.h"
 #include "task.h"
-#include "aws_crypto.h"
 #include "aws_pkcs11.h"
 
 #include <windows.h>
-
-
-
-
 
 typedef CK_RV(__stdcall * getFunctionListDll)(CK_FUNCTION_LIST_PTR_PTR);
 
