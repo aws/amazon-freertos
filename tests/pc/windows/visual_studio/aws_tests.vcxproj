@@ -93,6 +93,7 @@
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_string.h" />
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h" />
+    <ClInclude Include="..\..\..\..\lib\include\aws_pki_utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_internals.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_cpu.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_tcp_conn.h" />
@@ -343,6 +344,7 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\aws_pkcs11.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
@@ -432,6 +434,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcKernelPort.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcSnapshotRecorder.c" />
     <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\aws_pki_utils.c" />
     <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c" />
     <ClCompile Include="..\..\..\common\cbor\aws_test_cbor.c" />
     <ClCompile Include="..\..\..\common\crypto\aws_test_crypto.c" />

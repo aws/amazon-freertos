@@ -783,6 +783,9 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_pki_utils.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
@@ -1318,6 +1321,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\pkcs11\aws_pkcs11.c">
+      <Filter>lib\aws\pkcs11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\aws_pki_utils.c">
+      <Filter>lib\aws\utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
