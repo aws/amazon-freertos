@@ -248,7 +248,7 @@ static BTUuid_t xAdvUUID =
 static BLEAdvertismentParams_t xAdvParams =
 {
     .bIncludeTxPower    = true,
-    .bIncludeName       = true,
+    .bIncludeName       = false,
     .bSetScanRsp        = false,
     .ulAppearance       = bleconfigADVERTISING_APPEARANCE,
     .ulMinInterval      = bleconfigADVERTISING_INTERVAL_MIN,
@@ -258,6 +258,22 @@ static BLEAdvertismentParams_t xAdvParams =
     .usManufacturerLen  = 0,
     .pcManufacturerData = NULL,
     .pxUUID1           = &xAdvUUID,
+    .pxUUID2            = NULL
+};
+
+static BLEAdvertismentParams_t xScanRespParams =
+{
+    .bIncludeTxPower    = false,
+    .bIncludeName       = true,
+    .bSetScanRsp        = true,
+    .ulAppearance       = bleconfigADVERTISING_APPEARANCE,
+    .ulMinInterval      = bleconfigADVERTISING_INTERVAL_MIN,
+    .ulMaxInterval      = bleconfigADVERTISING_INTERVAL_MIN,
+    .usServiceDataLen   = 0,
+    .pcServiceData      = NULL,
+    .usManufacturerLen  = 0,
+    .pcManufacturerData = NULL,
+    .pxUUID1           = NULL,
     .pxUUID2            = NULL
 };
 
@@ -386,7 +402,6 @@ static BaseType_t prxBLEEnable( void )
 
 	if( xRet == pdTRUE )
 	{
-	    xAdvParams.bSetScanRsp = false;
 	    if( BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetAdvCallback ) != eBTStatusSuccess )
 	    {
 	        xRet = pdFALSE;
@@ -452,7 +467,7 @@ static void prvSetAdvCallback( BTStatus_t xStatus )
     {
     	/* Set the scan response */
     	xAdvParams.bSetScanRsp = true;
-        ( void ) BLE_SetAdvData( BTAdvInd, &xAdvParams, prvSetScanRespCallback );
+        ( void ) BLE_SetAdvData( BTAdvInd, &xScanRespParams, prvSetScanRespCallback );
     }
 }
 

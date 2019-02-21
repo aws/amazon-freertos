@@ -216,6 +216,28 @@ void vServerUnregisteredCb( BTStatus_t xStatus,
 
 /*-----------------------------------------------------------*/
 
+BTStatus_t prvGetConnectionInfo( uint16_t usConnId,
+                                  BLEConnectionInfoListElement_t ** ppvConnectionInfo )
+{
+    BTStatus_t xStatus = eBTStatusFail;
+    BLEConnectionInfoListElement_t * pxConnInfoListElem;
+    IotLink_t * pxConnListIndex;
+
+	IotContainers_ForEach( &xBTInterface.xConnectionListHead, pxConnListIndex )
+	{
+		pxConnInfoListElem = IotLink_Container( BLEConnectionInfoListElement_t, pxConnListIndex, xConnectionList );
+
+		if( usConnId == pxConnInfoListElem->usConnId )
+		{
+			xStatus = eBTStatusSuccess;
+			*ppvConnectionInfo = pxConnInfoListElem;
+			break;
+		}
+	}
+
+    return xStatus;
+}
+
 void vConnectionCb( uint16_t usConnId,
                     uint8_t ucServerIf,
                     bool bConnected,
@@ -250,7 +272,7 @@ void vConnectionCb( uint16_t usConnId,
         }
         else
         {
-            xStatus = BLE_GetConnectionInfo( usConnId, &pxConnInfoListElem );
+            xStatus = prvGetConnectionInfo( usConnId, &pxConnInfoListElem );
 
             if( xStatus == eBTStatusSuccess )
             {
