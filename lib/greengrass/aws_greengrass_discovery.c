@@ -228,6 +228,7 @@ BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
     GGD_HostAddressData_t xHostAddressData;
     char *pcHttpGetRequest = NULL;
     uint32_t ulHttpGetLength = 0;
+    uint32_t ulCharsWritten = 0;
     BaseType_t xStatus;
 
     configASSERT( pxSocket != NULL );
@@ -255,21 +256,29 @@ BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
         }
         else
         {
-            sprintf( pcHttpGetRequest, 
-                     ggdCLOUD_DISCOVERY_ADDRESS, 
-                     clientcredentialIOT_THING_NAME );
-            pcHttpGetRequest[ ulHttpGetLength - 1] = '\0';
-
-            /* Send HTTP request over secure connection (HTTPS) to get the GGC JSON file. */
-            xStatus = GGD_SecureConnect_Send( pcHttpGetRequest,
-                                              strlen( pcHttpGetRequest ),
-                                              *pxSocket );
-
-            if( xStatus == pdFAIL )
+            ulCharsWritten = snprintf( pcHttpGetRequest, 
+                                       ulHttpGetLength,
+                                       ggdCLOUD_DISCOVERY_ADDRESS, 
+                                       clientcredentialIOT_THING_NAME );
+            if( ulCharsWritten >= ulHttpGetLength )
             {
-                /* Don't forget to close the connection. */
-                GGD_SecureConnect_Disconnect( pxSocket );
-                ggdconfigPRINT( "JSON request failed\r\n" );
+                xStatus = pdFAIL;
+            }
+            else
+            {
+                pcHttpGetRequest[ulHttpGetLength - 1] = '\0';
+
+                /* Send HTTP request over secure connection (HTTPS) to get the GGC JSON file. */
+                xStatus = GGD_SecureConnect_Send( pcHttpGetRequest,
+                                                  ulCharsWritten,
+                                                  *pxSocket );
+
+                if( xStatus == pdFAIL )
+                {
+                    /* Don't forget to close the connection. */
+                    GGD_SecureConnect_Disconnect( pxSocket );
+                    ggdconfigPRINT( "JSON request failed\r\n" );
+                }
             }
         }
     }
