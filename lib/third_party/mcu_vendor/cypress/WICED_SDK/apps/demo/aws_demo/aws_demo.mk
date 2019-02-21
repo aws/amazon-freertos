@@ -58,6 +58,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/common/include \
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)demos/cypress/$(PLATFORM)/common/application_code/main.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/logging/aws_logging_task_dynamic_buffers.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/demo_runner/aws_demo_runner.c \
+                      $(AMAZON_FREERTOS_PATH)demos/common/mqtt/aws_subscribe_publish_loop.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/mqtt/aws_hello_world.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/shadow/aws_shadow_lightbulb_on_off.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c \

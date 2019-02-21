@@ -657,12 +657,14 @@ static void prvSubscribePublishDemo( MQTTAgentHandle_t xMQTTClientHandle,
 
     if( xResult == pdPASS )
     {
+        #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
         /* Report on space efficiency of this demo task. */
         vTaskGetInfo( NULL, &xTaskStatus, pdTRUE, eInvalid );
         configPRINTF(
             ( "Heap low-water mark %u, Stack high-water mark %u.\r\n",
               xPortGetMinimumEverFreeHeapSize(),
               xTaskStatus.usStackHighWaterMark ) );
+        #endif      
         configPRINTF( ( "All the MQTT tests passed! \r\n" ) );
     }
     else

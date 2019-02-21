@@ -198,6 +198,11 @@
 			<locationURI>BASE_DIR_ROOT/demos/common/include/aws_hello_world.h</locationURI>
 		</link>
 		<link>
+			<name>application_code/common_demos/include/aws_subscribe_publish_loop.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/include/aws_subscribe_publish_loop.h</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_demos/include/aws_logging_task.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/include/aws_logging_task.h</locationURI>
@@ -215,7 +220,67 @@
 		<link>
 			<name>lib/aws/FreeRTOS</name>
 			<type>2</type>
-			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS</locationURI>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/event_groups.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS/event_groups.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/list.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS/list.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/queue.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS/queue.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/stream_buffer.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS/stream_buffer.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/tasks.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS/tasks.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/timers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS/timers.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/portable</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/portable/MemMang</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/portable/MemMang/heap_4.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS/portable/MemMang/heap_4.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/portable/ThirdParty</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/portable/ThirdParty/GCC</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS/portable/ThirdParty/GCC/Wiced_CY</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS/portable/ThirdParty/GCC/Wiced_CY</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/bufferpool</name>
@@ -235,7 +300,107 @@
 		<link>
 			<name>lib/aws/include</name>
 			<type>2</type>
-			<locationURI>BASE_DIR_ROOT/lib/include</locationURI>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/private</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/private</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_appversion32.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_appversion32.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_crypto.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_crypto.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_greengrass_discovery.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_greengrass_discovery.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_mqtt_agent.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_mqtt_agent.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_mqtt_lib.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_mqtt_lib.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_pkcs11.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_shadow.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_shadow.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_system_init.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_tls.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_tls.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/aws_wifi.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/aws_wifi.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/event_groups.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/event_groups.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/FreeRTOS.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/FreeRTOS.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/message_buffer.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/message_buffer.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/queue.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/queue.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/semphr.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/semphr.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/stream_buffer.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/stream_buffer.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/task.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/task.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/include/timers.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/include/timers.h</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/mqtt</name>
@@ -371,6 +536,11 @@
 			<name>application_code/common_demos/source/aws_hello_world.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/mqtt/aws_hello_world.c</locationURI>
+		</link>
+		<link>
+			<name>application_code/common_demos/source/aws_subscribe_publish_loop.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/common/mqtt/aws_subscribe_publish_loop.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_logging_task_dynamic_buffers.c</name>
