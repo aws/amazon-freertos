@@ -149,24 +149,6 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         case SYSTEM_EVENT_AP_STADISCONNECTED:
             ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
             break;
-        case SYSTEM_EVENT_AP_START:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
-            wifi_ap_state = true;
-            xEventGroupClearBits(wifi_event_group, AP_STOPPED_BIT);
-            xEventGroupSetBits(wifi_event_group, AP_STARTED_BIT);
-            break;
-        case SYSTEM_EVENT_AP_STOP:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
-            wifi_ap_state = false;
-            xEventGroupClearBits(wifi_event_group, AP_STARTED_BIT);
-            xEventGroupSetBits(wifi_event_group, AP_STOPPED_BIT);
-            break;
-        case SYSTEM_EVENT_AP_STACONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STACONNECTED");
-            break;
-        case SYSTEM_EVENT_AP_STADISCONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
-            break;
         default:
             break;
     }
