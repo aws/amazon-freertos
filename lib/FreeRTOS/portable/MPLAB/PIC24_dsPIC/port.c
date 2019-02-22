@@ -108,7 +108,7 @@ UBaseType_t uxCriticalNesting = 0xef;
 							"POP.D	W0						\n"																\
 							"POP	SR						  " );
 		#endif /* __HAS_EDS__ */
-#endif /* MPLAB_PIC24_PORT */
+#endif /* defined( __PIC24E__ ) || defined ( __PIC24F__ ) || defined( __PIC24FK__ ) || defined( __PIC24H__ ) */
 
 #if defined( __dsPIC30F__ ) || defined( __dsPIC33F__ )
 
@@ -142,7 +142,7 @@ UBaseType_t uxCriticalNesting = 0xef;
 						"POP.D	W0						\n"																\
 						"POP	SR						  " );
 
-#endif /* MPLAB_DSPIC_PORT */
+#endif /* defined( __dsPIC30F__ ) || defined( __dsPIC33F__ ) */
 
 #ifndef portRESTORE_CONTEXT
 	#error Unrecognised device selected
@@ -184,7 +184,7 @@ const StackType_t xInitialStack[] =
 	0xabac, /* TBLPAG */
 
 	/* dsPIC specific registers. */
-	#ifdef MPLAB_DSPIC_PORT
+	#if defined( __dsPIC30F__ ) || defined( __dsPIC33F__ )
 		0x0202, /* ACCAL */
 		0x0303, /* ACCAH */
 		0x0404, /* ACCAU */
@@ -196,7 +196,7 @@ const StackType_t xInitialStack[] =
 		0x1010, /* DOSTARTH */
 		0x1110, /* DOENDL */
 		0x1212, /* DOENDH */
-	#endif
+	#endif /* defined( __dsPIC30F__ ) || defined( __dsPIC33F__ ) */
 };
 
 	/* Setup the stack as if a yield had occurred.
