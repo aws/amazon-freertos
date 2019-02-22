@@ -401,7 +401,7 @@ static uint8_t * _encodeRemainingLength( uint8_t * pDestination,
 
 static IotMqttError_t _decodeRemainingLength( const uint8_t * pSource,
                                               const uint8_t ** pEnd,
-                                              size_t * const pLength )
+                                              size_t * pLength )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     uint8_t encodedByte = 0;

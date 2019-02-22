@@ -1721,7 +1721,7 @@ IotMqttError_t IotMqtt_Wait( IotMqttReference_t reference,
                 if( pOperation->operation == IOT_MQTT_SUBSCRIBE )
                 {
                     IotLogDebug( "(MQTT connection %p, SUBSCRIBE operation %p) Cleaning up"
-                                 " subscriptions of timed-out SUBSCRIBE."
+                                 " subscriptions of timed-out SUBSCRIBE.",
                                  pMqttConnection,
                                  pOperation );
 
@@ -1743,7 +1743,7 @@ IotMqttError_t IotMqtt_Wait( IotMqttReference_t reference,
             }
 
             IotLogInfo( "(MQTT connection %p, %s operation %p) Wait complete with result %s.",
-                        pMqttConnection
+                        pMqttConnection,
                         IotMqtt_OperationType( pOperation->operation ),
                         pOperation,
                         IotMqtt_strerror( status ) );
