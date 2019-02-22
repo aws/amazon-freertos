@@ -142,7 +142,7 @@ license_no_errors = \
     Copyright (C) <year> Amazon.com, Inc. or its affiliates.  All Rights Reserved.\n
     Permission is hereby granted, free of charge, to any person obtaining a copy 
     of\n""".replace('<year>', str(datetime.now().year))
-    
+ 
 license_no_errors_config = \
     """/*\nAmazon FreeRTOS V1.0.0
     Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.\n

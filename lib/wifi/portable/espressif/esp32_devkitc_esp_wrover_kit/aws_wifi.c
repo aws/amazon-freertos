@@ -149,6 +149,24 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         case SYSTEM_EVENT_AP_STADISCONNECTED:
             ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
             break;
+        case SYSTEM_EVENT_AP_START:
+            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+            wifi_ap_state = true;
+            xEventGroupClearBits(wifi_event_group, AP_STOPPED_BIT);
+            xEventGroupSetBits(wifi_event_group, AP_STARTED_BIT);
+            break;
+        case SYSTEM_EVENT_AP_STOP:
+            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+            wifi_ap_state = false;
+            xEventGroupClearBits(wifi_event_group, AP_STARTED_BIT);
+            xEventGroupSetBits(wifi_event_group, AP_STOPPED_BIT);
+            break;
+        case SYSTEM_EVENT_AP_STACONNECTED:
+            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STACONNECTED");
+            break;
+        case SYSTEM_EVENT_AP_STADISCONNECTED:
+            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
+            break;
         default:
             break;
     }
@@ -443,7 +461,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     esp_err_t ret;
     wifi_mode_t xCurMode;
 
-    if (pxBuffer == NULL) {
+    if (pxBuffer == NULL || ucNumNetworks == 0) {
         return eWiFiFailure;
     }
 
@@ -494,7 +512,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     		// Wait for wifi started event
     		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
     	}
-        
+
         if ( wifi_conn_state == false && wifi_ap_not_found == true )
         {
             /* It seems that WiFi needs explicit disassoc before scan request post

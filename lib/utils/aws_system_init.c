@@ -38,7 +38,7 @@ extern BaseType_t IotMetrics_Init( void );
 /**
  * @brief Initializes Amazon FreeRTOS libraries.
  */
-BaseType_t SYSTEM_Init()
+BaseType_t SYSTEM_Init( void )
 {
     BaseType_t xResult = pdPASS;
     AwsIotTaskPoolInfo_t taskPool = AWS_IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;

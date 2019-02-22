@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V10.0.1
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V10.1.1
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -163,7 +163,7 @@ BaseType_t xRunningPrivileged = xPortRaisePrivilege();
 /*-----------------------------------------------------------*/
 
 #if ( INCLUDE_uxTaskPriorityGet == 1 )
-	UBaseType_t MPU_uxTaskPriorityGet( TaskHandle_t pxTask )
+	UBaseType_t MPU_uxTaskPriorityGet( const TaskHandle_t pxTask )
 	{
 	UBaseType_t uxReturn;
 	BaseType_t xRunningPrivileged = xPortRaisePrivilege();
@@ -632,12 +632,12 @@ BaseType_t xReturn;
 }
 /*-----------------------------------------------------------*/
 
-void* MPU_xQueueGetMutexHolder( QueueHandle_t xSemaphore )
+TaskHandle_t MPU_xQueueGetMutexHolder( QueueHandle_t xSemaphore )
 {
 BaseType_t xRunningPrivileged = xPortRaisePrivilege();
 void * xReturn;
 
-	xReturn = ( void * ) xQueueGetMutexHolder( xSemaphore );
+	xReturn = xQueueGetMutexHolder( xSemaphore );
 	vPortResetPrivilege( xRunningPrivileged );
 	return xReturn;
 }
@@ -1130,6 +1130,18 @@ size_t xReturn;
 BaseType_t xRunningPrivileged = xPortRaisePrivilege();
 
 	xReturn = xStreamBufferSendFromISR( xStreamBuffer, pvTxData, xDataLengthBytes, pxHigherPriorityTaskWoken );
+	vPortResetPrivilege( xRunningPrivileged );
+
+	return xReturn;
+}
+/*-----------------------------------------------------------*/
+
+size_t MPU_xStreamBufferNextMessageLengthBytes( StreamBufferHandle_t xStreamBuffer )
+{
+size_t xReturn;
+BaseType_t xRunningPrivileged = xPortRaisePrivilege();
+
+	xReturn = xStreamBufferNextMessageLengthBytes( xStreamBuffer );
 	vPortResetPrivilege( xRunningPrivileged );
 
 	return xReturn;

@@ -252,7 +252,7 @@ static void prvWifiConnect(void)
     xWifiStatus = WIFI_On();
     if (xWifiStatus == eWiFiSuccess)
     {
-        configPRINTF(("Wi-Fi module initialized. Connecting to AP...\r\n"));
+        configPRINTF(("Wi-Fi module initialized. Connecting to AP %s...\r\n", xNetworkParams.pcSSID));
     }
     else
     {
@@ -279,7 +279,7 @@ static void prvWifiConnect(void)
     }
     else
     {
-        configPRINTF(("Wi-Fi failed to connect to AP.\r\n"));
+        configPRINTF(("Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID));
 
         /* Delay to allow the lower priority logging task to print the above status. */
         vTaskDelay(pdMS_TO_TICKS(mainLOGGING_WIFI_STATUS_DELAY));
