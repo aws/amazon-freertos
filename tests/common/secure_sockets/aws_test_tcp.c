@@ -1890,11 +1890,11 @@ static void prvConnect_InvalidAddressLength( Server_t xConn,
 
     if( TEST_PROTECT() )
     {
+        xEchoServerAddress.ucLength = ( uint8_t ) ulAddressLength;
+        xEchoServerAddress.ucSocketDomain = ( uint8_t ) SOCKETS_AF_INET;
+
         if( xConn == eNonsecure )
         {
-            xEchoServerAddress.ucLength = ( uint8_t ) sizeof( SocketsSockaddr_t );
-            xEchoServerAddress.ucSocketDomain = ( uint8_t ) SOCKETS_AF_INET;
-
             /* Populate the non-secure echo server address. */
             xEchoServerAddress.ulAddress = SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0,
                                                                     tcptestECHO_SERVER_ADDR1,
