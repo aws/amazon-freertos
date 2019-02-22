@@ -25,8 +25,8 @@
  */
 
 /* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 /* Standard includes. */
@@ -37,7 +37,7 @@
 #include "private/aws_iot_shadow_internal.h"
 
 /* JSON utilities include. */
-#include "aws_iot_json_utils.h"
+#include "iot_json_utils.h"
 
 /*-----------------------------------------------------------*/
 
@@ -135,8 +135,8 @@ static AwsIotShadowError_t _codeToShadowStatus( unsigned long code )
 
 /*-----------------------------------------------------------*/
 
-_shadowOperationStatus_t AwsIotShadowInternal_ParseShadowStatus( const char * const pTopicName,
-                                                                 size_t topicNameLength )
+_shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * const pTopicName,
+                                                          size_t topicNameLength )
 {
     const char * pSuffixStart = NULL;
 
@@ -186,25 +186,25 @@ _shadowOperationStatus_t AwsIotShadowInternal_ParseShadowStatus( const char * co
 
 /*-----------------------------------------------------------*/
 
-AwsIotShadowError_t AwsIotShadowInternal_ParseErrorDocument( const char * const pErrorDocument,
-                                                             size_t errorDocumentLength )
+AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * const pErrorDocument,
+                                                      size_t errorDocumentLength )
 {
     const char * pCode = NULL, * pMessage = NULL;
     size_t codeLength = 0, messageLength = 0;
     unsigned long code = 0;
 
     /* Parse the code from the error document. */
-    if( AwsIotJsonUtils_FindJsonValue( pErrorDocument,
-                                       errorDocumentLength,
-                                       _ERROR_DOCUMENT_CODE_KEY,
-                                       _ERROR_DOCUMENT_CODE_KEY_LENGTH,
-                                       &pCode,
-                                       &codeLength ) == false )
+    if( IotJsonUtils_FindJsonValue( pErrorDocument,
+                                    errorDocumentLength,
+                                    _ERROR_DOCUMENT_CODE_KEY,
+                                    _ERROR_DOCUMENT_CODE_KEY_LENGTH,
+                                    &pCode,
+                                    &codeLength ) == false )
     {
         /* Error parsing JSON document, or no "code" key was found. */
-        AwsIotLogWarn( "Failed to parse code from error document.\n%.*s",
-                       errorDocumentLength,
-                       pErrorDocument );
+        IotLogWarn( "Failed to parse code from error document.\n%.*s",
+                    errorDocumentLength,
+                    pErrorDocument );
 
         return AWS_IOT_SHADOW_BAD_RESPONSE;
     }
@@ -218,24 +218,24 @@ AwsIotShadowError_t AwsIotShadowInternal_ParseErrorDocument( const char * const 
 
     /* Parse the error message and print it. An error document must always contain
      * a message. */
-    if( AwsIotJsonUtils_FindJsonValue( pErrorDocument,
-                                       errorDocumentLength,
-                                       _ERROR_DOCUMENT_MESSAGE_KEY,
-                                       _ERROR_DOCUMENT_MESSAGE_KEY_LENGTH,
-                                       &pMessage,
-                                       &messageLength ) == true )
+    if( IotJsonUtils_FindJsonValue( pErrorDocument,
+                                    errorDocumentLength,
+                                    _ERROR_DOCUMENT_MESSAGE_KEY,
+                                    _ERROR_DOCUMENT_MESSAGE_KEY_LENGTH,
+                                    &pMessage,
+                                    &messageLength ) == true )
     {
-        AwsIotLogWarn( "Code %lu: %.*s.",
-                       code,
-                       messageLength,
-                       pMessage );
+        IotLogWarn( "Code %lu: %.*s.",
+                    code,
+                    messageLength,
+                    pMessage );
     }
     else
     {
-        AwsIotLogWarn( "Code %lu; failed to parse message from error document.\n%.*s",
-                       code,
-                       errorDocumentLength,
-                       pErrorDocument );
+        IotLogWarn( "Code %lu; failed to parse message from error document.\n%.*s",
+                    code,
+                    errorDocumentLength,
+                    pErrorDocument );
 
         /* An error document must contain a message; if it does not, then it is invalid. */
         return AWS_IOT_SHADOW_BAD_RESPONSE;
@@ -246,10 +246,10 @@ AwsIotShadowError_t AwsIotShadowInternal_ParseErrorDocument( const char * const 
 
 /*-----------------------------------------------------------*/
 
-AwsIotShadowError_t AwsIotShadowInternal_ParseThingName( const char * const pTopicName,
-                                                         uint16_t topicNameLength,
-                                                         const char ** const pThingName,
-                                                         size_t * const pThingNameLength )
+AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * const pTopicName,
+                                                  uint16_t topicNameLength,
+                                                  const char ** const pThingName,
+                                                  size_t * const pThingNameLength )
 {
     const char * pThingNameStart = NULL;
     size_t thingNameLength = 0;
