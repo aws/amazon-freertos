@@ -73,7 +73,7 @@ TEST_GROUP( MQTT_Unit_BLE_Serialize );
 
 TEST_SETUP( MQTT_Unit_BLE_Serialize )
 {
-	serializeInit = AwsIotMqttBLE_InitSerialize();
+	serializeInit = IotBleMqtt_InitSerialize();
 	TEST_ASSERT_EQUAL( true, serializeInit  );
 }
 
@@ -83,7 +83,7 @@ TEST_TEAR_DOWN( MQTT_Unit_BLE_Serialize )
 {
 	if( serializeInit == true )
 	{
-		AwsIotMqttBLE_CleanupSerialize();
+		IotBleMqtt_CleanupSerialize();
 	}
 }
 
@@ -134,7 +134,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT )
 
 	if( TEST_PROTECT() )
 	{
-		status = AwsIotMqttBLE_SerializeConnect( &connectInfo, NULL, ( uint8_t**) &pMesg, &bufLen );
+		status = IotBleMqtt_SerializeConnect( &connectInfo, NULL, ( uint8_t**) &pMesg, &bufLen );
 		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
@@ -145,31 +145,31 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT )
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-		TEST_ASSERT_EQUAL( mqttBLEMSG_TYPE_CONNECT, xValue.value.signedInt );
+		TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_CONNECT, xValue.value.signedInt );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLECLIENT_ID, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_CLIENT_ID, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
         TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.value.pString, TEST_CLIENTID,xValue.value.stringLength ) );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEBROKER_EP, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_BROKER_EP, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
         TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.value.pString, clientcredentialMQTT_BROKER_ENDPOINT,xValue.value.stringLength ) );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLECLEAN_SESSION, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_CLEAN_SESSION, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_BOOL, xValue.type );
         TEST_ASSERT_EQUAL( true, xValue.value.booleanValue );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLECLIENT_ID, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_CLIENT_ID, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
         TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.value.pString, TEST_CLIENTID,xValue.value.stringLength ) );
@@ -180,7 +180,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 
 }
@@ -206,7 +206,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH )
 
 	if( TEST_PROTECT() )
 	{
-		status = AwsIotMqttBLE_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
+		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
 		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
@@ -217,31 +217,31 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH )
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-		TEST_ASSERT_EQUAL( mqttBLEMSG_TYPE_PUBLISH, xValue.value.signedInt );
+		TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBLISH, xValue.value.signedInt );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLETOPIC, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
 		TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.value.pString, TEST_TOPIC, xValue.value.stringLength ) );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEPAYLOAD, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_PAYLOAD, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING, xValue.type );
 		TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.value.pString, TEST_DATA,xValue.value.stringLength ) );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEQOS, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_QOS, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
 		TEST_ASSERT_EQUAL( TEST_QOS1, xValue.value.signedInt );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MESSAGE_ID, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
 		TEST_ASSERT_EQUAL( packetIdentifier, xValue.value.signedInt );
@@ -251,7 +251,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -276,7 +276,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
 
 	if( TEST_PROTECT() )
 	{
-		status = AwsIotMqttBLE_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
+		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
 		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
@@ -287,25 +287,25 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( mqttBLEMSG_TYPE_PUBLISH, xValue.value.signedInt );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBLISH, xValue.value.signedInt );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLETOPIC, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, xValue.type );
         TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.value.pString, TEST_TOPIC, xValue.value.stringLength ) );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEPAYLOAD, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_PAYLOAD, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING, xValue.type );
         TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) xValue.value.pString, TEST_DATA,xValue.value.stringLength ) );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEQOS, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_QOS, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
         TEST_ASSERT_EQUAL( TEST_QOS0, xValue.value.signedInt );
@@ -315,7 +315,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -338,7 +338,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
 
 	if( TEST_PROTECT() )
 	{
-		status = AwsIotMqttBLE_SerializeSubscribe( subscriptionList, 2, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
+		status = IotBleMqtt_SerializeSubscribe( subscriptionList, 2, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
 		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
@@ -349,25 +349,25 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-		TEST_ASSERT_EQUAL( mqttBLEMSG_TYPE_SUBSCRIBE, xValue.value.signedInt );
+		TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE, xValue.value.signedInt );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MESSAGE_ID, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
         TEST_ASSERT_EQUAL( packetIdentifier, xValue.value.signedInt );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLETOPIC_LIST, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC_LIST, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
 		IOT_BLE_MESG_DECODER.destroy( &xValue );
 
 		xValue.value.signedInt = 0;
-		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEQOS_LIST, &xValue );
+		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_QOS_LIST, &xValue );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
 		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
 		IOT_BLE_MESG_DECODER.destroy( &xValue );
@@ -377,7 +377,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -400,7 +400,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
 
 	if( TEST_PROTECT() )
 	{
-		status = AwsIotMqttBLE_SerializeUnsubscribe( subscriptionList, 2, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
+		status = IotBleMqtt_SerializeUnsubscribe( subscriptionList, 2, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
 		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
@@ -411,19 +411,19 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( mqttBLEMSG_TYPE_UNSUBSCRIBE, xValue.value.signedInt );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE, xValue.value.signedInt );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MESSAGE_ID, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
         TEST_ASSERT_EQUAL( packetIdentifier, xValue.value.signedInt );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLETOPIC_LIST, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC_LIST, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
         IOT_BLE_MESG_DECODER.destroy( &xValue );
@@ -433,7 +433,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -448,7 +448,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK )
 
 	if( TEST_PROTECT() )
 	{
-		status = AwsIotMqttBLE_SerializePuback( TEST_PACKET_IDENTIFIER, ( uint8_t**) &pMesg, &bufLen );
+		status = IotBleMqtt_SerializePuback( TEST_PACKET_IDENTIFIER, ( uint8_t**) &pMesg, &bufLen );
 		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
@@ -458,13 +458,13 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK )
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( mqttBLEMSG_TYPE_PUBACK, xValue.value.signedInt );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_PUBACK, xValue.value.signedInt );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMESSAGE_ID, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MESSAGE_ID, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
         TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, xValue.value.signedInt );
@@ -474,7 +474,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -488,7 +488,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT )
 
 	if( TEST_PROTECT() )
 	{
-		status = AwsIotMqttBLE_SerializeDisconnect( ( uint8_t**) &pMesg, &bufLen );
+		status = IotBleMqtt_SerializeDisconnect( ( uint8_t**) &pMesg, &bufLen );
 		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
@@ -498,17 +498,17 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT )
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, xDecoderObj.type );
 
         xValue.value.signedInt = 0;
-        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, mqttBLEMSG_TYPE, &xValue );
+        xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_MSG_TYPE, &xValue );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, xResult );
         TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, xValue.type );
-        TEST_ASSERT_EQUAL( mqttBLEMSG_TYPE_DISCONNECT, xValue.value.signedInt );
+        TEST_ASSERT_EQUAL( IOT_BLE_MQTT_MSG_TYPE_DISCONNECT, xValue.value.signedInt );
 
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
 	}
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -529,15 +529,15 @@ static void prvCreateCONNACKPacket( uint8_t *pBuffer, size_t* pLength, int64_t r
     TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.signedInt = mqttBLEMSG_TYPE_CONNACK;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnAackMap, mqttBLEMSG_TYPE, xData );
+    xData.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_CONNACK;
+    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnAackMap, IOT_BLE_MQTT_MSG_TYPE, xData );
     TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
 
     if(respCode != -1 )
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
         xData.value.signedInt = respCode;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnAackMap, mqttBLESTATUS, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xConnAackMap, IOT_BLE_MQTT_STATUS, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -557,60 +557,60 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeCONNACK )
 	uint8_t connack[ TEST_MESG_LEN ] = { 0 };
 	size_t connackLen = TEST_MESG_LEN , bytesProcessed;
 
-	prvCreateCONNACKPacket(connack, &connackLen,  eMQTTBLEStatusConnected );
+	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_CONNECTED );
 
-	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
+	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
 
 	connackLen = TEST_MESG_LEN;
 	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  eMQTTBLEStatusConnecting );
-	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
+	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_CONNECTING );
+	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
 
 	connackLen = TEST_MESG_LEN;
 	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  eMQTTBLEStatusConnectionRefused );
-	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
+	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED );
+	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
 	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
 
 	connackLen = TEST_MESG_LEN;
 	    bytesProcessed = 0;
-	    prvCreateCONNACKPacket(connack, &connackLen,  eMQTTBLEStatusDisconnected );
-	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
+	    prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_DISCONNECTED );
+	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
 	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
 
 
 	connackLen = TEST_MESG_LEN;
 	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  eMQTTBLEStatusProtocolError );
-	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
+	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR );
+	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
 	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
 
 	connackLen = TEST_MESG_LEN;
 	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  eMQTTBLEStatusUnknown );
-	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
+	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_UNKNOWN );
+	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
 	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
 
 	/** Empty message **/
 	memset( connack, 0x00, TEST_MESG_LEN );
-	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, TEST_MESG_LEN, &bytesProcessed );
+	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, TEST_MESG_LEN, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
     /** Tampered message **/
 	connackLen = TEST_MESG_LEN;
 	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  eMQTTBLEStatusConnected );
+	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_CONNECTED );
 	connack[0] = 0x00; //Not valid cbor
-    status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
+    status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
     TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
     TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
@@ -618,7 +618,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeCONNACK )
     connackLen = TEST_MESG_LEN;
     bytesProcessed = 0;
     prvCreateCONNACKPacket(connack, &connackLen,  -1 );
-	status =  AwsIotMqttBLE_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
+	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
@@ -648,8 +648,8 @@ static void prvCreatePUBLISHPacket( uint8_t *pBuffer,
 
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.signedInt = mqttBLEMSG_TYPE_PUBLISH;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, mqttBLESTATUS, xData );
+    xData.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_PUBLISH;
+    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_STATUS, xData );
     TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
 
 
@@ -658,7 +658,7 @@ static void prvCreatePUBLISHPacket( uint8_t *pBuffer,
         xData.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
         xData.value.pString = ( uint8_t * )pTopic;
         xData.value.stringLength = topicLen;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, mqttBLETOPIC, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_TOPIC, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -667,7 +667,7 @@ static void prvCreatePUBLISHPacket( uint8_t *pBuffer,
         xData.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
         xData.value.pString = ( uint8_t * )pPayload;
         xData.value.stringLength = payloadLen;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, mqttBLEPAYLOAD, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_PAYLOAD, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -675,7 +675,7 @@ static void prvCreatePUBLISHPacket( uint8_t *pBuffer,
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
         xData.value.signedInt = qos;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, mqttBLEQOS, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_QOS, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -683,7 +683,7 @@ static void prvCreatePUBLISHPacket( uint8_t *pBuffer,
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
         xData.value.signedInt = packetId;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, mqttBLEMESSAGE_ID, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubMap, IOT_BLE_MQTT_MESSAGE_ID, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -713,7 +713,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 	                        TEST_QOS1,
 	                        TEST_PACKET_IDENTIFIER );
 
-	status =  AwsIotMqttBLE_DeserializePublish(  publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
+	status =  IotBleMqtt_DeserializePublish(  publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 	TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
 	TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, publishInfo.topicNameLength );
@@ -735,7 +735,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 	                            TEST_QOS1,
 	                            TEST_PACKET_IDENTIFIER );
 	publish[0] = 0x00;
-	status =  AwsIotMqttBLE_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
+	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
@@ -749,7 +749,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
                                 TEST_DATA_LENGTH,
                                 -1,
                                 TEST_PACKET_IDENTIFIER );
-	status =  AwsIotMqttBLE_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
+	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
@@ -763,7 +763,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 	                        TEST_DATA_LENGTH,
 	                        TEST_QOS1,
 	                        TEST_PACKET_IDENTIFIER );
-	status =  AwsIotMqttBLE_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
+	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
@@ -777,7 +777,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 	                        TEST_DATA_LENGTH,
 	                        TEST_QOS1,
 	                        -1 );
-	status =  AwsIotMqttBLE_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
+	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
@@ -791,7 +791,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 	                        0,
 	                        TEST_QOS1,
 	                        TEST_PACKET_IDENTIFIER );
-	status =  AwsIotMqttBLE_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
+	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
@@ -813,7 +813,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 )
                             TEST_QOS0,
                             -1 );
 
-    status =  AwsIotMqttBLE_DeserializePublish(  publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
+    status =  IotBleMqtt_DeserializePublish(  publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
     TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
     TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
     TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, publishInfo.topicNameLength );
@@ -845,8 +845,8 @@ static void prvCreateSUBACKPacket(  uint8_t *pBuffer,
 
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.signedInt = mqttBLEMSG_TYPE_SUBACK;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, mqttBLESTATUS, xData );
+    xData.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_SUBACK;
+    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, IOT_BLE_MQTT_STATUS, xData );
     TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
 
 
@@ -854,7 +854,7 @@ static void prvCreateSUBACKPacket(  uint8_t *pBuffer,
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
         xData.value.signedInt = status;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, mqttBLESTATUS, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, IOT_BLE_MQTT_STATUS, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -862,7 +862,7 @@ static void prvCreateSUBACKPacket(  uint8_t *pBuffer,
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
         xData.value.signedInt = packetId;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, mqttBLEMESSAGE_ID, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xSubackMap, IOT_BLE_MQTT_MESSAGE_ID, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -884,7 +884,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
 	uint16_t packetIdentifier;
 
 	prvCreateSUBACKPacket( suback, &subackLen, TEST_QOS1, TEST_PACKET_IDENTIFIER );
-	status =  AwsIotMqttBLE_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
+	status =  IotBleMqtt_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 	TEST_ASSERT_EQUAL( subackLen, bytesProcessed );
 	TEST_ASSERT_EQUAL(TEST_PACKET_IDENTIFIER, packetIdentifier );
@@ -893,7 +893,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
 	subackLen = TEST_MESG_LEN, bytesProcessed = 0;
     prvCreateSUBACKPacket( suback, &subackLen, TEST_QOS1, TEST_PACKET_IDENTIFIER );
     suback[0] = 0x00;
-	status =  AwsIotMqttBLE_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
+	status =  IotBleMqtt_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
@@ -902,7 +902,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
     subackLen = TEST_MESG_LEN, bytesProcessed = 0;
     prvCreateSUBACKPacket( suback, &subackLen, -1, TEST_PACKET_IDENTIFIER );
     suback[0] = 0x00;
-    status =  AwsIotMqttBLE_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
+    status =  IotBleMqtt_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
     TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
     TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
@@ -910,7 +910,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
     subackLen = TEST_MESG_LEN, bytesProcessed = 0;
     prvCreateSUBACKPacket( suback, &subackLen, TEST_QOS1, -1 );
     suback[0] = 0x00;
-    status =  AwsIotMqttBLE_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
+    status =  IotBleMqtt_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
     TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
     TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
@@ -935,15 +935,15 @@ static void prvCreatePUBACKPacket(  uint8_t *pBuffer,
 
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.signedInt = mqttBLEMSG_TYPE_PUBACK;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubackMap, mqttBLESTATUS, xData );
+    xData.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_PUBACK;
+    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubackMap, IOT_BLE_MQTT_STATUS, xData );
     TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
 
     if( packetId != -1 )
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
         xData.value.signedInt = packetId;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubackMap, mqttBLEMESSAGE_ID, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xPubackMap, IOT_BLE_MQTT_MESSAGE_ID, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -965,7 +965,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBACK )
 	uint16_t packetIdentifier;
 
 	prvCreatePUBACKPacket( puback, &pubackLen, TEST_PACKET_IDENTIFIER );
-	status =  AwsIotMqttBLE_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
+	status =  IotBleMqtt_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
 	TEST_ASSERT_EQUAL( pubackLen, bytesProcessed );
 	TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
@@ -974,14 +974,14 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBACK )
 	pubackLen = TEST_MESG_LEN, bytesProcessed = 0;
 	prvCreatePUBACKPacket( puback, &pubackLen, TEST_PACKET_IDENTIFIER );
 	puback[0] = 0x00;
-	status =  AwsIotMqttBLE_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
+	status =  IotBleMqtt_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
 	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
 	/** No message id */
     pubackLen = TEST_MESG_LEN, bytesProcessed = 0;
     prvCreatePUBACKPacket( puback, &pubackLen, -1 );
-    status =  AwsIotMqttBLE_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
+    status =  IotBleMqtt_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
     TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
     TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
@@ -1007,15 +1007,15 @@ static void prvCreateUNSUBACKPacket( uint8_t *pBuffer,
 
 
     xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
-    xData.value.signedInt = mqttBLEMSG_TYPE_UNSUBACK;
-    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xUnsubackMap, mqttBLESTATUS, xData );
+    xData.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_UNSUBACK;
+    xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xUnsubackMap, IOT_BLE_MQTT_STATUS, xData );
     TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
 
     if( packetId != -1 )
     {
         xData.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
         xData.value.signedInt = packetId;
-        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xUnsubackMap, mqttBLEMESSAGE_ID, xData );
+        xError = IOT_BLE_MESG_ENCODER.appendKeyValue( &xUnsubackMap, IOT_BLE_MQTT_MESSAGE_ID, xData );
         TEST_ASSERT_EQUAL( xError, AWS_IOT_SERIALIZER_SUCCESS );
     }
 
@@ -1036,7 +1036,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeUNSUBACK )
     uint16_t packetIdentifier;
 
     prvCreateUNSUBACKPacket( unsuback, &unsubackLen, TEST_PACKET_IDENTIFIER );
-    status =  AwsIotMqttBLE_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
+    status =  IotBleMqtt_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
     TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
     TEST_ASSERT_EQUAL( unsubackLen, bytesProcessed );
     TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
@@ -1045,14 +1045,14 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializeUNSUBACK )
     unsubackLen = TEST_MESG_LEN, bytesProcessed = 0;
     prvCreatePUBACKPacket( unsuback, &unsubackLen, TEST_PACKET_IDENTIFIER );
     unsuback[0] = 0x00;
-    status =  AwsIotMqttBLE_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
+    status =  IotBleMqtt_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
     TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
     TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
     /** No message id */
     unsubackLen = TEST_MESG_LEN, bytesProcessed = 0;
     prvCreatePUBACKPacket( unsuback, &unsubackLen, -1 );
-    status =  AwsIotMqttBLE_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
+    status =  IotBleMqtt_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
     TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
     TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
@@ -1074,7 +1074,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail )
 	if( TEST_PROTECT() )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 0 );
-		status = AwsIotMqttBLE_SerializeConnect( &connectInfo, NULL, ( uint8_t**) &pMesg, &bufLen );
+		status = IotBleMqtt_SerializeConnect( &connectInfo, NULL, ( uint8_t**) &pMesg, &bufLen );
 		if( status != AWS_IOT_MQTT_SUCCESS )
 		{
 			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
@@ -1083,7 +1083,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -1107,7 +1107,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_MallocFail )
 	if( TEST_PROTECT() )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 1 );
-		status = AwsIotMqttBLE_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
+		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
 		if( status != AWS_IOT_MQTT_SUCCESS )
 		{
 			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
@@ -1116,7 +1116,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_MallocFail )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -1136,7 +1136,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE_MallocFail )
 	if( TEST_PROTECT() )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 1 );
-		status = AwsIotMqttBLE_SerializeSubscribe( &subscription, 1, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
+		status = IotBleMqtt_SerializeSubscribe( &subscription, 1, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
 		if( status != AWS_IOT_MQTT_SUCCESS )
 		{
 			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
@@ -1145,7 +1145,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE_MallocFail )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -1158,7 +1158,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK_MallocFail )
 	if( TEST_PROTECT() )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 0 );
-		status = AwsIotMqttBLE_SerializePuback( TEST_PACKET_IDENTIFIER, ( uint8_t**) &pMesg, &bufLen );
+		status = IotBleMqtt_SerializePuback( TEST_PACKET_IDENTIFIER, ( uint8_t**) &pMesg, &bufLen );
 		if( status != AWS_IOT_MQTT_SUCCESS )
 		{
 			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
@@ -1167,7 +1167,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK_MallocFail )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -1186,7 +1186,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE_MallocFail )
 	if( TEST_PROTECT() )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 1 );
-		status = AwsIotMqttBLE_SerializeUnsubscribe( &subscription, 1, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
+		status = IotBleMqtt_SerializeUnsubscribe( &subscription, 1, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
 		if( status != AWS_IOT_MQTT_SUCCESS )
 		{
 			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
@@ -1194,7 +1194,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE_MallocFail )
 	}
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
 
@@ -1207,7 +1207,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT_MallocFail )
 	if( TEST_PROTECT() )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 0 );
-		status = AwsIotMqttBLE_SerializeDisconnect( ( uint8_t**) &pMesg, &bufLen );
+		status = IotBleMqtt_SerializeDisconnect( ( uint8_t**) &pMesg, &bufLen );
 		if( status != AWS_IOT_MQTT_SUCCESS )
 		{
 			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
@@ -1216,6 +1216,6 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT_MallocFail )
 
 	if( status == AWS_IOT_MQTT_SUCCESS )
 	{
-		AwsIotMqttBLE_FreePacket( ( uint8_t* )pMesg );
+		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
 }
