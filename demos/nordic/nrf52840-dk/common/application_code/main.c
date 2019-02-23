@@ -417,7 +417,7 @@ static void prvDeleteBonds( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     uint32_t ulEnabledNetworks;
-    AwsIotTaskPoolInfo_t taskPool = AWS_IOT_TASKPOOL_INFO_INITIALIZER_SMALL;
+    AwsIotTaskPoolInfo_t taskPool = AWS_IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;
     /* FIX ME: Perform any hardware initialization, that require the RTOS to be
      * running, here. */
 
