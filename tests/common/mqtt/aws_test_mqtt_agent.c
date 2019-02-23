@@ -75,7 +75,7 @@
 
 
 /* TCP Echo Client tasks multitask example parameters. */
-#define  mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 4 )
+#define  mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 6 )
 #define  mqttagenttestMULTI_TASK_TEST_TASKS_PRIORITY      ( tskIDLE_PRIORITY )
 
 
