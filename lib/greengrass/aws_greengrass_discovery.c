@@ -68,9 +68,8 @@
 /**
  * @brief HTTP command to retrieve JSON file from the Cloud.
  */
-#define ggdCLOUD_DISCOVERY_ADDRESS    \
-    "GET /greengrass/discover/thing/" \
-    clientcredentialIOT_THING_NAME    \
+#define ggdCLOUD_DISCOVERY_ADDRESS      \
+    "GET /greengrass/discover/thing/%s" \
     " HTTP/1.1\r\n\r\n"
 
 #define ggJSON_CONVERTION_RADIX    10
@@ -227,6 +226,9 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer, /*lint !e971 can use cha
 BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
 {
     GGD_HostAddressData_t xHostAddressData;
+    char *pcHttpGetRequest = NULL;
+    uint32_t ulHttpGetLength = 0;
+    uint32_t ulCharsWritten = 0;
     BaseType_t xStatus;
 
     configASSERT( pxSocket != NULL );
@@ -244,21 +246,50 @@ BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
 
     if( xStatus == pdPASS )
     {
-        /* Send HTTP request over secure connection (HTTPS) to get the GGC JSON file. */
-        xStatus = GGD_SecureConnect_Send( ggdCLOUD_DISCOVERY_ADDRESS,
-                                          ( uint32_t ) sizeof( ggdCLOUD_DISCOVERY_ADDRESS ) - 1,
-                                          *pxSocket );
-
-        if( xStatus == pdFAIL )
+        /* Build the HTTP GET request string that is specific to this host. */
+        ulHttpGetLength = 1 + strlen( ggdCLOUD_DISCOVERY_ADDRESS ) + 
+                          strlen( clientcredentialIOT_THING_NAME );
+        pcHttpGetRequest = pvPortMalloc( ulHttpGetLength );
+        if( NULL == pcHttpGetRequest )
         {
-            /* Don't forget to close the connection. */
-            GGD_SecureConnect_Disconnect( pxSocket );
-            ggdconfigPRINT( "JSON request failed\r\n" );
+            xStatus = pdFAIL;
+        }
+        else
+        {
+            ulCharsWritten = snprintf( pcHttpGetRequest, 
+                                       ulHttpGetLength,
+                                       ggdCLOUD_DISCOVERY_ADDRESS, 
+                                       clientcredentialIOT_THING_NAME );
+            if( ulCharsWritten >= ulHttpGetLength )
+            {
+                xStatus = pdFAIL;
+            }
+            else
+            {
+                pcHttpGetRequest[ulHttpGetLength - 1] = '\0';
+
+                /* Send HTTP request over secure connection (HTTPS) to get the GGC JSON file. */
+                xStatus = GGD_SecureConnect_Send( pcHttpGetRequest,
+                                                  ulCharsWritten,
+                                                  *pxSocket );
+
+                if( xStatus == pdFAIL )
+                {
+                    /* Don't forget to close the connection. */
+                    GGD_SecureConnect_Disconnect( pxSocket );
+                    ggdconfigPRINT( "JSON request failed\r\n" );
+                }
+            }
         }
     }
     else
     {
         ggdconfigPRINT( "JSON request could not connect to end point\r\n" );
+    }
+
+    if( NULL != pcHttpGetRequest )
+    {
+        vPortFree( pcHttpGetRequest );
     }
 
     return xStatus;
