@@ -1,8 +1,8 @@
 #include "iot_metrics.h"
-#include "platform/aws_iot_threads.h"
+#include "platform/iot_threads.h"
 
 static IotListDouble_t _connectionsList = IOT_LIST_DOUBLE_INITIALIZER;
-static AwsIotMutex_t _mutex;
+static IotMutex_t _mutex;
 
 /* Compare function to identify the TCP connection data handle. */
 static bool _tcpConnectionMatch( const IotLink_t * pLink,
@@ -25,7 +25,7 @@ BaseType_t IotMetrics_Init()
 {
     BaseType_t result = pdFAIL;
 
-    if( AwsIotMutex_Create( &_mutex ) )
+    if( IotMutex_Create( &_mutex, false ) )
     {
         IotListDouble_Create( &_connectionsList );
         result = pdPASS;
@@ -41,7 +41,7 @@ void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection )
     IotMetrics_Assert( pTcpConnection != NULL );
     IotMetrics_Assert( pTcpConnection->pHandle != NULL );
 
-    AwsIotMutex_Lock( &_mutex );
+    IotMutex_Lock( &_mutex );
 
     /* Only add if it doesn't exist in the connectionsList. */
     if( IotListDouble_FindFirstMatch( &_connectionsList,
@@ -61,7 +61,7 @@ void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection )
         }
     }
 
-    AwsIotMutex_Unlock( &_mutex );
+    IotMutex_Unlock( &_mutex );
 }
 
 /*-----------------------------------------------------------*/
@@ -70,7 +70,7 @@ void IotMetrics_RemoveTcpConnection( void * pTcpConnectionHandle )
 {
     IotMetrics_Assert( pTcpConnectionHandle != NULL );
 
-    AwsIotMutex_Lock( &_mutex );
+    IotMutex_Lock( &_mutex );
 
     IotLink_t * pFoundConnectionLink = IotListDouble_RemoveFirstMatch( &_connectionsList,
                                                                        NULL,
@@ -82,7 +82,7 @@ void IotMetrics_RemoveTcpConnection( void * pTcpConnectionHandle )
         AwsIotMetrics_FreeTcpConnection( IotLink_Container( IotMetricsTcpConnection_t, pFoundConnectionLink, link ) );
     }
 
-    AwsIotMutex_Unlock( &_mutex );
+    IotMutex_Unlock( &_mutex );
 }
 
 /*-----------------------------------------------------------*/
@@ -95,10 +95,10 @@ void IotMetrics_ProcessTcpConnections( IotMetricsListCallback_t tcpConnectionsCa
         return;
     }
 
-    AwsIotMutex_Lock( &_mutex );
+    IotMutex_Lock( &_mutex );
 
     /* Execute the callback function. */
     tcpConnectionsCallback.function( tcpConnectionsCallback.param1, &_connectionsList );
 
-    AwsIotMutex_Unlock( &_mutex );
+    IotMutex_Unlock( &_mutex );
 }

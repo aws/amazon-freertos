@@ -151,6 +151,16 @@ int pthread_attr_setschedparam( pthread_attr_t * attr,
                                 const struct sched_param * param );
 
 /**
+ * @brief Set the schedpolicy attribute.
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_setschedpolicy.html
+ *
+ * @note This function is a stub and always returns 0.
+ */
+int pthread_attr_setschedpolicy( pthread_attr_t *attr,
+                                 int policy );
+
+/**
  * @brief Set stacksize attribute.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_setstacksize.html

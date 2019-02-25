@@ -20,39 +20,36 @@
  */
 
 /**
- * @file aws_iot_network_afr.c
- * @brief Implementation of the network-related functions from aws_iot_network.h
+ * @file iot_network_afr.c
+ * @brief Implementation of the network-related functions from iot_network_afr.h
  * for Amazon FreeRTOS secure sockets.
  */
 
 /* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 /* Standard includes. */
 #include <string.h>
 
-/* Platform layer includes. */
-#include "platform/aws_iot_network.h"
-
-/* Amazon FreeRTOS secure sockets include. */
-#include "aws_secure_sockets.h"
+/* Amazon FreeRTOS network include. */
+#include "platform/iot_network_afr.h"
 
 /* Configure logs for the functions in this file. */
-#ifdef AWS_IOT_LOG_LEVEL_NETWORK
-    #define _LIBRARY_LOG_LEVEL        AWS_IOT_LOG_LEVEL_NETWORK
+#ifdef IOT_LOG_LEVEL_NETWORK
+    #define _LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_NETWORK
 #else
-    #ifdef AWS_IOT_LOG_LEVEL_GLOBAL
-        #define _LIBRARY_LOG_LEVEL    AWS_IOT_LOG_LEVEL_GLOBAL
+    #ifdef IOT_LOG_LEVEL_GLOBAL
+        #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
     #else
-        #define _LIBRARY_LOG_LEVEL    AWS_IOT_LOG_NONE
+        #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
     #endif
 #endif
 
 #define _LIBRARY_LOG_NAME    ( "NET" )
-#include "aws_iot_logging_setup.h"
-
+#include "iot_logging_setup.h"
+#if 0
 /**
  * @cond DOXYGEN_IGNORE
  * Doxygen should ignore this section.
@@ -654,3 +651,42 @@ size_t AwsIotNetwork_Send( void * networkConnection,
 }
 
 /*-----------------------------------------------------------*/
+#endif
+
+IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
+                                        void * pCredentialInfo,
+                                        void * const pConnection )
+{
+    return IOT_NETWORK_FAILURE;
+}
+
+IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
+                                                    IotNetworkReceiveCallback_t receiveCallback,
+                                                    void * pContext )
+{
+    return IOT_NETWORK_FAILURE;
+}
+
+size_t IotNetworkAfr_Send( void * pConnection,
+                           const uint8_t * pMessage,
+                           size_t messageLength )
+{
+    return IOT_NETWORK_FAILURE;
+}
+
+size_t IotNetworkAfr_Receive( void * pConnection,
+                              uint8_t * pBuffer,
+                              size_t bytesRequested )
+{
+    return IOT_NETWORK_FAILURE;
+}
+
+IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
+{
+    return IOT_NETWORK_FAILURE;
+}
+
+IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection )
+{
+    return IOT_NETWORK_FAILURE;
+}

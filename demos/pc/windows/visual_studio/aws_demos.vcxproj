@@ -41,7 +41,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\common\config_files;..\common\application_code\include;..\..\..\..\demos\common\include;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\ota\portable\pc\windows;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\tracealyzer_recorder\Include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\third_party\win_pcap;..\..\..\..\lib\cbor\src;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\pc\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;AWS_IOT_CONFIG_FILE="aws_iot_config.h";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;IOT_CONFIG_FILE="iot_demo_config.h";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>
       </MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -91,13 +91,15 @@
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_mem.c" />
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_print.c" />
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor_string.c" />
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_json_utils.c" />
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c" />
+    <ClCompile Include="..\..\..\..\lib\common\iot_common.c" />
+    <ClCompile Include="..\..\..\..\lib\common\iot_json_utils.c" />
+    <ClCompile Include="..\..\..\..\lib\common\iot_logging.c" />
+    <ClCompile Include="..\..\..\..\lib\common\iot_taskpool.c" />
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\aws_iot_static_memory_shadow.c" />
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_common.c" />
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_mqtt.c" />
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_taskpool.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_collector.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_mqtt.c" />
-    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_v1.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_clock.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_mqueue.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_pthread.c" />
@@ -131,12 +133,13 @@
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_greengrass_discovery.c" />
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_helper_secure_connect.c" />
     <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c" />
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_api.c" />
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_operation.c" />
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_serialize.c" />
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_subscription.c" />
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_validate.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_agent.c" />
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_api.c" />
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_network.c" />
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_operation.c" />
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_serialize.c" />
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_subscription.c" />
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_validate.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
@@ -238,23 +241,16 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcSnapshotRecorder.c" />
     <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c" />
     <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_clock_posix.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_network_afr.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_threads_posix.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_common_posix.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_defender_posix.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_metrics_posix.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_mqtt_posix.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\taskpool\aws_iot_taskpool.c" />
-    <ClCompile Include="..\..\..\common\defender\aws_iot_demo_defender.c" />
-    <ClCompile Include="..\..\..\common\defender\aws_iot_demo_defender_v1.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_posix.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_network_afr.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_posix.c" />
     <ClCompile Include="..\..\..\common\demo_runner\aws_demo_runner.c" />
     <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\common\greengrass_connectivity\aws_greengrass_discovery_demo.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_hello_world.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_subscribe_publish_loop.c" />
-    <ClCompile Include="..\..\..\common\mqtt_v4\aws_iot_demo_mqtt.c" />
-    <ClCompile Include="..\..\..\common\mqtt_v4\aws_iot_demo_mqtt_afr.c" />
+    <ClCompile Include="..\..\..\common\mqtt_v4\iot_demo_mqtt_afr.c" />
+    <ClCompile Include="..\..\..\common\mqtt_v4\iot_demo_mqtt.c" />
     <ClCompile Include="..\..\..\common\posix\aws_posix_demo.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c" />
     <ClCompile Include="..\..\..\common\tcp\aws_simple_tcp_echo_server.c" />
@@ -283,12 +279,8 @@
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\pc\windows\FreeRTOS_POSIX_portable.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_defender.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_json_utils.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_mqtt.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_shadow.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_taskpool.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\errno.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\fcntl.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\mqueue.h" />
@@ -302,10 +294,6 @@
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_metrics.h" />
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h" />
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h" />
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h" />
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_threads.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOSIPConfigDefaults.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_ARP.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_DHCP.h" />
@@ -335,14 +323,17 @@
     <ClInclude Include="..\..\..\..\lib\include\event_groups.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS.h" />
     <ClInclude Include="..\..\..\..\lib\include\message_buffer.h" />
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_clock.h" />
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_network.h" />
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_network_afr.h" />
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_platform_types_posix.h" />
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_threads.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_default_root_certificates.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_doubly_linked_list.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ggd_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_greengrass_lib_private.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_helper_secure_connect.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_defender_internal.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_mqtt_internal.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_shadow_internal.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_lib_init.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_agent_config_defaults.h" />
@@ -355,6 +346,11 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_pal.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_types.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\deprecated_definitions.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_error.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_logging.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_mqtt_internal.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_static_memory.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_taskpool_internal.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\list.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\mpu_wrappers.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\portable.h" />
@@ -365,6 +361,8 @@
     <ClInclude Include="..\..\..\..\lib\include\stream_buffer.h" />
     <ClInclude Include="..\..\..\..\lib\include\task.h" />
     <ClInclude Include="..\..\..\..\lib\include\timers.h" />
+    <ClInclude Include="..\..\..\..\lib\include\types\iot_platform_types.h" />
+    <ClInclude Include="..\..\..\..\lib\include\types\iot_taskpool_types.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\jsmn\jsmn.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\aes.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\aesni.h" />
@@ -450,8 +448,6 @@
     <ClInclude Include="..\..\..\common\include\aws_demo_runner.h" />
     <ClInclude Include="..\..\..\common\include\aws_greengrass_discovery_demo.h" />
     <ClInclude Include="..\..\..\common\include\aws_hello_world.h" />
-    <ClInclude Include="..\..\..\common\include\aws_iot_config_common.h" />
-    <ClInclude Include="..\..\..\common\include\aws_iot_demo.h" />
     <ClInclude Include="..\..\..\common\include\aws_logging_task.h" />
     <ClInclude Include="..\..\..\common\include\aws_ota_update_demo.h" />
     <ClInclude Include="..\..\..\common\include\aws_posix_demo.h" />
@@ -459,12 +455,13 @@
     <ClInclude Include="..\..\..\common\include\aws_simple_tcp_echo_server.h" />
     <ClInclude Include="..\..\..\common\include\aws_subscribe_publish_loop.h" />
     <ClInclude Include="..\..\..\common\include\aws_tcp_echo_client_single_tasks.h" />
+    <ClInclude Include="..\..\..\common\include\iot_config_common.h" />
+    <ClInclude Include="..\..\..\common\include\iot_demo.h" />
     <ClInclude Include="..\common\application_code\aws_demo_logging.h" />
     <ClInclude Include="..\common\application_code\stdbool.h" />
     <ClInclude Include="..\common\application_code\unistd.h" />
     <ClInclude Include="..\common\config_files\aws_demo_config.h" />
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
-    <ClInclude Include="..\common\config_files\aws_iot_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
     <ClInclude Include="..\common\config_files\aws_ota_agent_config.h" />
@@ -473,6 +470,7 @@
     <ClInclude Include="..\common\config_files\aws_shadow_config.h" />
     <ClInclude Include="..\common\config_files\FreeRTOSConfig.h" />
     <ClInclude Include="..\common\config_files\FreeRTOSIPConfig.h" />
+    <ClInclude Include="..\common\config_files\iot_demo_config.h" />
     <ClInclude Include="..\common\config_files\trcConfig.h" />
     <ClInclude Include="..\common\config_files\trcSnapshotConfig.h" />
   </ItemGroup>

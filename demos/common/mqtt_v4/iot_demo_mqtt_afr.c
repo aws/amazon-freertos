@@ -33,20 +33,22 @@
 #include "FreeRTOS.h"
 
 /* MQTT include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
-/* Platform layer includes. */
-#include "platform/aws_iot_network.h"
+/* Amazon FreeRTOS network abstraction include. */
+#include "platform/iot_network_afr.h"
 
 /*-----------------------------------------------------------*/
 
 static void _mqttDemoTask( void * argument )
 {
     int status = 0;
-    AwsIotNetworkConnection_t networkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
-    AwsIotNetworkTlsInfo_t tlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
-    AwsIotMqttConnection_t mqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
-    AwsIotMqttNetIf_t networkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
+    bool networkCreated = false;
+    IotNetworkConnectionAfr_t networkConnection = IOT_NETWORK_CONNECTION_AFR_INITIALIZER;
+    IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+    IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+    IotMqttNetIf_t networkInterface = IOT_MQTT_NETIF_INITIALIZER;
 
     /* Silence warnings about unused parameters. */
     ( void ) argument;
@@ -54,37 +56,30 @@ static void _mqttDemoTask( void * argument )
     /* This function parses arguments and establishes the network connection
      * before running the MQTT demo. */
 
-    /* Use the default root CA provided with Amazon FreeRTOS. */
-    tlsInfo.pRootCa = NULL;
-    tlsInfo.rootCaLength = 0;
-
-    /* Set client credentials. */
-    tlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
-    tlsInfo.clientCertLength = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
-    tlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    tlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
-
     /* If not connecting over port 443, disable ALPN. */
     if( clientcredentialMQTT_BROKER_PORT != 443 )
     {
-        tlsInfo.pAlpnProtos = NULL;
+        credentials.pAlpnProtos = NULL;
     }
 
     /* Establish a TCP connection to the MQTT server. */
-    if( AwsIotNetwork_CreateConnection( &networkConnection,
-                                        clientcredentialMQTT_BROKER_ENDPOINT,
-                                        clientcredentialMQTT_BROKER_PORT,
-                                        &tlsInfo ) != AWS_IOT_NETWORK_SUCCESS )
+    if( IotNetworkAfr_Create( &serverInfo,
+                              &credentials,
+                              &networkConnection ) != IOT_NETWORK_SUCCESS )
     {
         status = -1;
+    }
+    else
+    {
+        networkCreated = true;
     }
 
     if( status == 0 )
     {
         /* Set the MQTT receive callback. */
-        if( AwsIotNetwork_SetMqttReceiveCallback( networkConnection,
-                                                  &mqttConnection,
-                                                  AwsIotMqtt_ReceiveCallback ) != AWS_IOT_NETWORK_SUCCESS )
+        if( IotNetworkAfr_SetReceiveCallback( &networkConnection,
+                                              IotMqtt_ReceiveCallback,
+                                              &mqttConnection ) != IOT_NETWORK_SUCCESS )
         {
             status = -1;
         }
@@ -93,19 +88,19 @@ static void _mqttDemoTask( void * argument )
     if( status == 0 )
     {
         /* Set the members of the network interface used by the MQTT connection. */
-        networkInterface.pDisconnectContext = ( void * ) networkConnection;
-        networkInterface.pSendContext = ( void * ) networkConnection;
-        networkInterface.disconnect = AwsIotNetwork_CloseConnection;
-        networkInterface.send = AwsIotNetwork_Send;
+        networkInterface.pDisconnectContext = ( void * ) &networkConnection;
+        networkInterface.pSendContext = ( void * ) &networkConnection;
+        networkInterface.disconnect = IotNetworkAfr_Close;
+        networkInterface.send = IotNetworkAfr_Send;
 
         /* Initialize the MQTT library. */
-        if( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS )
+        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
         {
             /* Run the MQTT demo. */
-            status = AwsIotDemo_RunMqttDemo( true, NULL, &mqttConnection, &networkInterface );
+            status = IotDemo_RunMqttDemo( true, NULL, &mqttConnection, &networkInterface );
 
             /* Clean up the MQTT library. */
-            AwsIotMqtt_Cleanup();
+            IotMqtt_Cleanup();
         }
         else
         {
@@ -114,28 +109,28 @@ static void _mqttDemoTask( void * argument )
     }
 
     /* Close and destroy the network connection (if it was established). */
-    if( networkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
+    if( networkCreated == true )
     {
-        /* Note that the MQTT library may have called AwsIotNetwork_CloseConnection.
-         * However, AwsIotNetwork_CloseConnection is safe to call on a closed connection.
-         * On the other hand, AwsIotNetwork_DestroyConnection must only be called ONCE.
+        /* Note that the MQTT library may have called IotNetworkAfr_Close.
+         * However, IotNetworkAfr_Close is safe to call on a closed connection.
+         * On the other hand, IotNetworkAfr_Destroy must only be called ONCE.
          */
-        AwsIotNetwork_CloseConnection( networkConnection );
-        AwsIotNetwork_DestroyConnection( networkConnection );
+        IotNetworkAfr_Close( &networkConnection );
+        IotNetworkAfr_Destroy( &networkConnection );
     }
 
     /* Log the demo status. */
     if( status == 0 )
     {
-        AwsIotLogInfo( "Demo completed successfully." );
+        IotLogInfo( "Demo completed successfully." );
     }
     else
     {
-        AwsIotLogError( "Error running demo, status %d.", status );
+        IotLogError( "Error running demo, status %d.", status );
     }
 
-    AwsIotLogInfo( "Demo minimum ever free heap: %lu bytes.",
-                   ( unsigned long ) xPortGetMinimumEverFreeHeapSize() );
+    IotLogInfo( "Demo minimum ever free heap: %lu bytes.",
+                ( unsigned long ) xPortGetMinimumEverFreeHeapSize() );
 
     vTaskDelete( NULL );
 }

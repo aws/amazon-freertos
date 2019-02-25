@@ -538,7 +538,7 @@ void IotSemaphore_Destroy( IotSemaphore_t * const pSemaphore )
 
 /*-----------------------------------------------------------*/
 
-void IotSemaphore_Wait( IotSemaphore_t * pSemaphore )
+void IotSemaphore_Wait( IotSemaphore_t * const pSemaphore )
 {
     IotLogDebug( "Waiting on semaphore %p.", pSemaphore );
 

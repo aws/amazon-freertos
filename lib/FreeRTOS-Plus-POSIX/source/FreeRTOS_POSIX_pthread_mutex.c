@@ -320,6 +320,8 @@ int pthread_mutex_unlock( pthread_mutex_t * mutex )
 
 int pthread_mutexattr_destroy( pthread_mutexattr_t * attr )
 {
+    ( void ) attr;
+
     return 0;
 }
 

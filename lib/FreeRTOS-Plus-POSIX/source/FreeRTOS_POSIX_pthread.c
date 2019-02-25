@@ -265,6 +265,18 @@ int pthread_attr_setschedparam( pthread_attr_t * attr,
 
 /*-----------------------------------------------------------*/
 
+int pthread_attr_setschedpolicy( pthread_attr_t *attr,
+                                 int policy )
+{
+    /* Silence warnings about unused parameters. */
+    ( void ) attr;
+    ( void ) policy;
+
+    return 0;
+}
+
+/*-----------------------------------------------------------*/
+
 int pthread_attr_setstacksize( pthread_attr_t * attr,
                                size_t stacksize )
 {

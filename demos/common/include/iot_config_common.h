@@ -53,6 +53,9 @@
 /* FreeRTOS+POSIX include. */
 #include "FreeRTOS_POSIX.h"
 
+/* Use POSIX platform types on FreeRTOS. */
+#include "platform/iot_platform_types_posix.h"
+
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
 
