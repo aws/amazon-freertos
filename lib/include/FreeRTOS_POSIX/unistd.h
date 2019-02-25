@@ -33,7 +33,7 @@
 #ifndef _FREERTOS_POSIX_UNISTD_H_
 #define _FREERTOS_POSIX_UNISTD_H_
 
-#include "sys/types.h"
+#include "FreeRTOS_POSIX/sys/types.h"
 
 /**
  * @brief Suspend execution for an interval of time.
