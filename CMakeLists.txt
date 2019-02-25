@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(amazon-freertos VERSION 1.4.4)
+project(amazon-freertos VERSION 1.4.7)
 
 # Import global configurations.
 include("cmake/afr.cmake")
