@@ -10,3 +10,4 @@ xtensa-esp32-elf-objcopy --redefine-sym printf=pp_printf libpp.a
 xtensa-esp32-elf-objcopy --redefine-sym printf=net80211_printf libnet80211.a 
 xtensa-esp32-elf-objcopy --redefine-sym printf=core_printf libcore.a 
 xtensa-esp32-elf-objcopy --redefine-sym ets_printf=core_printf libcore.a 
+xtensa-esp32-elf-objcopy --redefine-sym ets_printf=coexist_printf libcoexist.a

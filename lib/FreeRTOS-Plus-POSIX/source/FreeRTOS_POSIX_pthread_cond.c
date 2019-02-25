@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -82,7 +82,7 @@ static void prvInitializeStaticCond( pthread_cond_internal_t * pxCond )
 int pthread_cond_broadcast( pthread_cond_t * cond )
 {
     int i = 0;
-    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( *cond );
+    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
 
     /* If the cond is uninitialized, perform initialization. */
     prvInitializeStaticCond( pxCond );
@@ -110,12 +110,11 @@ int pthread_cond_broadcast( pthread_cond_t * cond )
 
 int pthread_cond_destroy( pthread_cond_t * cond )
 {
-    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( *cond );
+    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
 
     /* Free all resources in use by the cond. */
     vSemaphoreDelete( ( SemaphoreHandle_t ) &pxCond->xCondMutex );
     vSemaphoreDelete( ( SemaphoreHandle_t ) &pxCond->xCondWaitSemaphore );
-    vPortFree( pxCond );
 
     return 0;
 }
@@ -126,12 +125,10 @@ int pthread_cond_init( pthread_cond_t * cond,
                        const pthread_condattr_t * attr )
 {
     int iStatus = 0;
-    pthread_cond_internal_t * pxCond = NULL;
+    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) cond;
 
     /* Silence warnings about unused parameters. */
     ( void ) attr;
-
-    pxCond = pvPortMalloc( sizeof( pthread_cond_internal_t ) );
 
     if( pxCond == NULL )
     {
@@ -146,9 +143,6 @@ int pthread_cond_init( pthread_cond_t * cond,
         ( void ) xSemaphoreCreateMutexStatic( &pxCond->xCondMutex );
         ( void ) xSemaphoreCreateCountingStatic( INT_MAX, 0U, &pxCond->xCondWaitSemaphore );
         pxCond->iWaitingThreads = 0;
-
-        /* Set the output. */
-        *cond = pxCond;
     }
 
     return iStatus;
@@ -158,7 +152,7 @@ int pthread_cond_init( pthread_cond_t * cond,
 
 int pthread_cond_signal( pthread_cond_t * cond )
 {
-    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( *cond );
+    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
 
     /* If the cond is uninitialized, perform initialization. */
     prvInitializeStaticCond( pxCond );
@@ -194,7 +188,7 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
                             const struct timespec * abstime )
 {
     int iStatus = 0;
-    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( *cond );
+    pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
     TickType_t xDelay = portMAX_DELAY;
 
     /* If the cond is uninitialized, perform initialization. */
@@ -203,7 +197,17 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
     /* Convert abstime to a delay in TickType_t if provided. */
     if( abstime != NULL )
     {
-        iStatus = UTILS_AbsoluteTimespecToTicks( abstime, &xDelay );
+        struct timespec xCurrentTime = { 0 };
+
+        /* Get current time */
+        if( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 )
+        {
+            iStatus = EINVAL;
+        }
+        else
+        {
+            iStatus = UTILS_AbsoluteTimespecToDeltaTicks( abstime, &xCurrentTime, &xDelay );
+        }
     }
 
     /* Increase the counter of threads blocking on condition variable, then

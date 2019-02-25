@@ -93,12 +93,13 @@ class OtaTestCase( object ):
         """Run this OTA test case.
         """
         print('---------- Running '+ self._boardConfig['name'] + ' : ' + self._name + ' ----------')
-        # Run the implemented setup.
-        self.setup()
 
         # Run the implemented runTest function
         logAppendage = ''
         try:
+            # Run the implemented setup.
+            self.setup()
+            # Run the actual test.
             testResult = self.run()
         except Exception:
             logAppendage = traceback.format_exc()

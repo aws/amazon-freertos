@@ -592,8 +592,8 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     /* Test OTA agent data block handling internals. Needs to be read/write
      * since we read it back in order to ensure that the blocks are hashed in
      * order. */
-    xOTAFileContext.pstFile = fopen( "testOtaFile.bin", "w+b" );
-    TEST_ASSERT_NOT_NULL( xOTAFileContext.pstFile );
+    xOTAFileContext.pxFile = fopen( "testOtaFile.bin", "w+b" );
+    TEST_ASSERT_NOT_NULL( xOTAFileContext.pxFile );
     xOTAFileContext.ulBlocksRemaining =
         xOTAFileContext.ulFileSize / OTA_FILE_BLOCK_SIZE;
     if( 0 != xOTAFileContext.ulFileSize % OTA_FILE_BLOCK_SIZE )
@@ -602,11 +602,11 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     }
 
     xBlockBitmapSize = 1 + ( xOTAFileContext.ulFileSize / BITS_PER_BYTE );
-    xOTAFileContext.pacRxBlockBitmap = pvPortMalloc( xBlockBitmapSize );
-    TEST_ASSERT_NOT_NULL( xOTAFileContext.pacRxBlockBitmap );
-    memset( xOTAFileContext.pacRxBlockBitmap, 0xFF, xBlockBitmapSize );
+    xOTAFileContext.pucRxBlockBitmap = pvPortMalloc( xBlockBitmapSize );
+    TEST_ASSERT_NOT_NULL( xOTAFileContext.pucRxBlockBitmap );
+    memset( xOTAFileContext.pucRxBlockBitmap, 0xFF, xBlockBitmapSize );
 
-    xOTAFileContext.pacCertFilepath = "rsasigner.crt";
+    xOTAFileContext.pucCertFilepath = "rsasigner.crt";
     xOTAFileContext.pxSignature = &xSig;
     memcpy( xOTAFileContext.pxSignature->ucData, ucSignature, sizeof( ucSignature ) );
     xOTAFileContext.pxSignature->usSize = sizeof( ucSignature );
@@ -652,9 +652,9 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     }
 
     /* Clean-up. */
-    if( NULL != xOTAFileContext.pstFile )
+    if( NULL != xOTAFileContext.pxFile )
     {
-        fclose( xOTAFileContext.pstFile );
+        fclose( xOTAFileContext.pxFile );
     }
 
     if( NULL != pucInFile )

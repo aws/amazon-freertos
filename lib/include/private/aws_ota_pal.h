@@ -45,7 +45,7 @@ typedef enum {
  * 
  * @note The input OTA_FileContext_t C is checked for NULL by the OTA agent before this
  * function is called. 
- * This function may be called before the file is opened, so the file pointer C->iFileHandle may be NULL 
+ * This function may be called before the file is opened, so the file pointer C->lFileHandle may be NULL 
  * when this function is called.
  * 
  * @param[in] C OTA file context information.
@@ -64,9 +64,12 @@ OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C );
  * 
  * @note Opens the file indicated in the OTA file context in the MCU file system.
  * 
+ * @note The previous image may be present in the designated image download partition or file, so the partition or file
+ * must be completely erased or overwritten in this routine.
+ * 
  * @note The input OTA_FileContext_t C is checked for NULL by the OTA agent before this
  * function is called. 
- * The device file path is a required field in the OTA job document, so C->pacFilepath is 
+ * The device file path is a required field in the OTA job document, so C->pucFilePath is 
  * checked for NULL by the OTA agent before this function is called.
  * 
  * @param[in] C OTA file context information.
@@ -86,9 +89,9 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C );
  * @note The input OTA_FileContext_t C is checked for NULL by the OTA agent before this
  * function is called. This function is called only at the end of block ingestion.
  * prvPAL_CreateFileForRx() must succeed before this function is reached, so 
- * C->iFileHandle(or C->pucFile) is never NULL. 
+ * C->lFileHandle(or C->pucFile) is never NULL. 
  * The certificate path on the device is a required job document field in the OTA Agent, 
- * so C->pacCertFilepath is never NULL.
+ * so C->pucCertFilepath is never NULL.
  * The file signature key is required job document field in the OTA Agent, so C->pxSignature will
  * never be NULL.
  * 

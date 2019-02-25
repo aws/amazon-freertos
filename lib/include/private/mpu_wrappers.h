@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V10.0.1
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V10.1.1
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -142,6 +142,7 @@ only for ports that are using the MPU. */
 		#define xStreamBufferSend						MPU_xStreamBufferSend
 		#define xStreamBufferSendFromISR				MPU_xStreamBufferSendFromISR
 		#define xStreamBufferReceive					MPU_xStreamBufferReceive
+		#define xStreamBufferNextMessageLengthBytes		MPU_xStreamBufferNextMessageLengthBytes
 		#define xStreamBufferReceiveFromISR				MPU_xStreamBufferReceiveFromISR
 		#define vStreamBufferDelete						MPU_vStreamBufferDelete
 		#define xStreamBufferIsFull						MPU_xStreamBufferIsFull

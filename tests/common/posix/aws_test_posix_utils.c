@@ -33,10 +33,12 @@
 
 /* C standard library includes. */
 #include <string.h>
+#include <stddef.h>
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX.h"
 #include "FreeRTOS_POSIX/utils.h"
+#include "FreeRTOS_POSIX/errno.h"
 
 /* Test framework includes. */
 #include "unity_fixture.h"
@@ -64,6 +66,9 @@ TEST_GROUP_RUNNER( Full_POSIX_UTILS )
     RUN_TEST_CASE( Full_POSIX_UTILS, UTILS_TimespecSubtract );
     RUN_TEST_CASE( Full_POSIX_UTILS, UTILS_TimespecAddNanoseconds );
     RUN_TEST_CASE( Full_POSIX_UTILS, UTILS_strnlen );
+    RUN_TEST_CASE( Full_POSIX_UTILS, UTILS_TimespecCompare );
+    RUN_TEST_CASE( Full_POSIX_UTILS, UTILS_TimespecToTicks );
+    RUN_TEST_CASE( Full_POSIX_UTILS, UTILS_AbsoluteTimespecToDeltaTicks )
 }
 
 /*-----------------------------------------------------------*/
@@ -75,23 +80,23 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAdd )
     struct timespec y = { .tv_sec = 0, .tv_nsec = 0 };
 
     /* Check return value with NULL parameters. */
-    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAdd( NULL, &x, &y ) );
-    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAdd( &xResult, NULL, &y ) );
-    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAdd( &xResult, &x, NULL ) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAdd( &x, &y, NULL ) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAdd( NULL, &y, &xResult ) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAdd( &x, NULL, &xResult ) );
 
     /* Simple timespec add. */
     x.tv_sec = 1;
     y.tv_sec = 2;
     x.tv_nsec = 3;
     y.tv_nsec = 4;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAdd( &xResult, &x, &y ) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAdd( &x, &y, &xResult ) );
     TEST_ASSERT_EQUAL_INT( 3, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 7, xResult.tv_nsec );
 
     /* Add timespec with carry. */
     x.tv_sec = y.tv_sec = 0;
     x.tv_nsec = y.tv_nsec = 600000000;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAdd( &xResult, &x, &y ) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAdd( &x, &y, &xResult ) );
     TEST_ASSERT_EQUAL_INT( 1, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 200000000, xResult.tv_nsec );
 
@@ -100,7 +105,7 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAdd )
     x.tv_nsec = 0;
     y.tv_sec = -6;
     y.tv_nsec = 100000000;
-    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &xResult, &x, &y ) );
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &x, &y, &xResult ) );
     TEST_ASSERT_EQUAL_INT( -1, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 100000000, xResult.tv_nsec );
 
@@ -108,16 +113,14 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAdd )
     x.tv_sec = y.tv_sec = 1;
     x.tv_nsec = 100000000;
     y.tv_nsec = -2100000000;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAdd( &xResult, &x, &y ) );
-    TEST_ASSERT_EQUAL_INT( 0, xResult.tv_sec );
-    TEST_ASSERT_EQUAL_INT( 0, xResult.tv_nsec );
+    /* should return 1 for negative value */
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &x, &y,  &xResult ) );
 
     /* Add non-compliant timespec where y.tv_nsec > 1 billion. */
     x.tv_sec = y.tv_sec = 0;
     x.tv_nsec = y.tv_nsec = 2100000000;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAdd( &xResult, &x, &y ) );
-    TEST_ASSERT_EQUAL_INT( 4, xResult.tv_sec );
-    TEST_ASSERT_EQUAL_INT( 200000000, xResult.tv_nsec );
+    /* Overflow should be indicated by returning 1 */
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &x, &y, &xResult ) );
 
     /* Test for correct xResult even with pointer aliasing. */
     x.tv_sec = x.tv_nsec = 5;
@@ -135,31 +138,29 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecSubtract )
     struct timespec y = { .tv_sec = 0, .tv_nsec = 0 };
 
     /* Check return value with NULL parameters. */
-    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecSubtract( NULL, &x, &y ) );
-    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecSubtract( &xResult, NULL, &y ) );
-    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecSubtract( &xResult, &x, NULL ) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecSubtract( &x, &y, NULL ) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecSubtract( NULL, &y, &xResult ) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecSubtract( &x, NULL, &xResult ) );
 
     /* Subtract timespec.tv_sec where x > y. */
     x.tv_sec = 5;
     y.tv_sec = 3;
     x.tv_nsec = y.tv_nsec = 0;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &xResult, &x, &y ) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &x, &y, &xResult ) );
     TEST_ASSERT_EQUAL_INT( 2, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 0, xResult.tv_nsec );
 
     /* Subtract timespec.tv_sec where x < y. */
-    x.tv_sec = -5;
+    x.tv_sec = 1;
     y.tv_sec = 3;
     x.tv_nsec = y.tv_nsec = 0;
-    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecSubtract( &xResult, &x, &y ) );
-    TEST_ASSERT_EQUAL_INT( -8, xResult.tv_sec );
-    TEST_ASSERT_EQUAL_INT( 0, xResult.tv_nsec );
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecSubtract( &x, &y, &xResult ) );
 
     /* Subtract timespec.tv_nsec where x > y. */
     x.tv_sec = y.tv_sec = 0;
     x.tv_nsec = 5;
     y.tv_nsec = 3;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &xResult, &x, &y ) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &x, &y,  &xResult ) );
     TEST_ASSERT_EQUAL_INT( 0, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 2, xResult.tv_nsec );
 
@@ -167,26 +168,20 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecSubtract )
     x.tv_sec = y.tv_sec = 0;
     x.tv_nsec = 0;
     y.tv_nsec = 5;
-    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecSubtract( &xResult, &x, &y ) );
-    TEST_ASSERT_EQUAL_INT( -1, xResult.tv_sec );
-    TEST_ASSERT_EQUAL_INT( 999999995, xResult.tv_nsec );
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecSubtract( &x, &y, &xResult ) );
 
     /* Subtract non-compliant timespec where x.tv_nsec < 0. */
     x.tv_sec = y.tv_sec = 0;
     x.tv_nsec = -5; /* Equivalent to tv_sec = -1, tv_nsec = 999999995. */
     y.tv_nsec = 3;
-    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecSubtract( &xResult, &x, &y ) );
-    TEST_ASSERT_EQUAL_INT( -1, xResult.tv_sec );
-    TEST_ASSERT_EQUAL_INT( 999999992, xResult.tv_nsec );
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecSubtract( &x, &y, &xResult ) );
 
-    /* Subtact non-compliant timespec where y.tv_nsec > 1 billion. */
+    /* Subtract non-compliant timespec where y.tv_nsec > 1 billion. */
     x.tv_sec = 1;
     y.tv_sec = 0;
     x.tv_nsec = 0;
     y.tv_nsec = 2100000000; /* Equivalent to tv_sec = 2, tv_nsec = 100000000. */
-    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecSubtract( &xResult, &x, &y ) );
-    TEST_ASSERT_EQUAL_INT( -2, xResult.tv_sec );
-    TEST_ASSERT_EQUAL_INT( 900000000, xResult.tv_nsec );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecSubtract( &x, &y, &xResult ) );
 
     /* Test for correct xResult even with pointer aliasing. */
     x.tv_sec = x.tv_nsec = 5;
@@ -204,14 +199,14 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAddNanoseconds )
     int64_t nanosec = 0;
 
     /* Check return value with NULL parameters. */
-    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAddNanoseconds( NULL, &x, nanosec ) );
-    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAddNanoseconds( &xResult, NULL, nanosec ) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAddNanoseconds( &x, nanosec, NULL ) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecAddNanoseconds( NULL, nanosec, &xResult ) );
 
     /* Test with nanosec positive. */
     x.tv_sec = 5;
     x.tv_nsec = 500000000;
     nanosec = 4500000000LL;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAddNanoseconds( &xResult, &x, nanosec ) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAddNanoseconds( &x, nanosec, &xResult ) );
     TEST_ASSERT_EQUAL_INT( 10, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 0, xResult.tv_nsec );
 
@@ -219,15 +214,13 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAddNanoseconds )
     x.tv_sec = 5;
     x.tv_nsec = 500000000;
     nanosec = -9500000000LL;
-    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAddNanoseconds( &xResult, &x, nanosec ) );
-    TEST_ASSERT_EQUAL_INT( -4, xResult.tv_sec );
-    TEST_ASSERT_EQUAL_INT( 0, xResult.tv_nsec );
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAddNanoseconds( &x, nanosec, &xResult ) );
 
     /* Test for correct xResult even with pointer aliasing. */
     x.tv_sec = x.tv_nsec = 5;
-    nanosec = -5000000005;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAddNanoseconds( &x, &x, nanosec ) );
-    TEST_ASSERT_EQUAL_INT( 0, x.tv_sec );
+    nanosec = 4999999995;
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecAddNanoseconds( &x, nanosec, &x ) );
+    TEST_ASSERT_EQUAL_INT( 10, x.tv_sec );
     TEST_ASSERT_EQUAL_INT( 0, x.tv_nsec );
 }
 
@@ -252,6 +245,87 @@ TEST( Full_POSIX_UTILS, UTILS_strnlen )
 
     /* Check for correct value even when maxlen > len. */
     TEST_ASSERT_EQUAL_UINT32( len, UTILS_strnlen( pcString, len + 1UL ) );
+}
+
+/*-----------------------------------------------------------*/
+
+TEST( Full_POSIX_UTILS,  UTILS_TimespecCompare )
+{
+    struct timespec xTimeX = { .tv_sec = 0, .tv_nsec = 0 };
+    struct timespec xTimeY = { .tv_sec = 0, .tv_nsec = 0 };
+
+    /* Check return value with NULL parameters. */
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecCompare( NULL, NULL) );
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecCompare( NULL, &xTimeY ) );
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecCompare( &xTimeX, NULL ) );
+
+    /* check equal value */
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecCompare( &xTimeX, &xTimeY) );
+
+    /* check greater value */
+    xTimeX.tv_nsec = 1;
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecCompare( &xTimeX, &xTimeY ) );
+    xTimeX.tv_sec = 1;
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecCompare( &xTimeX, &xTimeY ) );
+
+    /* check less than value */
+    xTimeY.tv_sec = 1;
+    xTimeY.tv_nsec = 2;
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecCompare( &xTimeX, &xTimeY ) );
+    xTimeX.tv_sec = 0;
+    TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecCompare( &xTimeX, &xTimeY ) );
+}
+
+/*-----------------------------------------------------------*/
+
+TEST(  Full_POSIX_UTILS, UTILS_TimespecToTicks )
+{
+    struct timespec xTimeX = { .tv_sec = 0, .tv_nsec = 0 };
+    TickType_t xResult;
+
+    /* Check return value with NULL parameters. */
+    TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_TimespecToTicks( NULL, &xResult ) );
+    TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_TimespecToTicks( &xTimeX, NULL ) );
+
+    /* Check return value with invalid parameters */
+    xTimeX.tv_nsec = NANOSECONDS_PER_SECOND + 1;
+    TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_TimespecToTicks( &xTimeX, &xResult ) );
+    xTimeX.tv_nsec = -1;
+    TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_TimespecToTicks( &xTimeX, &xResult ) );
+
+    /* Check return value and results with valid parameters*/
+    xTimeX.tv_sec = 1;
+    xTimeX.tv_nsec = NANOSECONDS_PER_TICK + 1;
+    TickType_t xExpectedVal = xTimeX.tv_sec * configTICK_RATE_HZ + 2;
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecToTicks( &xTimeX, &xResult ) );
+    TEST_ASSERT_EQUAL_INT( ( int ) xExpectedVal, ( int ) xResult );
+}
+
+/*-----------------------------------------------------------*/
+
+TEST(  Full_POSIX_UTILS, UTILS_AbsoluteTimespecToDeltaTicks )
+{
+    struct timespec xTimeX = { .tv_sec = 0, .tv_nsec = 0 };
+    struct timespec xTimeY = { .tv_sec = 0, .tv_nsec = 0 };
+    TickType_t xResult;
+
+    /* Check return value with NULL parameters. */
+    TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_AbsoluteTimespecToDeltaTicks( &xTimeX, &xTimeY, NULL ) );
+    TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_AbsoluteTimespecToDeltaTicks( NULL, &xTimeY, &xResult ) );
+    TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_AbsoluteTimespecToDeltaTicks( &xTimeX, NULL, &xResult ) );
+
+    /* Check return value with for the event in the past */
+    xTimeY.tv_sec = 1;
+    TEST_ASSERT_EQUAL_INT( ETIMEDOUT, UTILS_AbsoluteTimespecToDeltaTicks( &xTimeX, &xTimeY, &xResult ) );
+
+    /* check return value for positive delta */
+    xTimeX.tv_sec = 2;
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_AbsoluteTimespecToDeltaTicks( &xTimeX, &xTimeY, &xResult ) );
+
+    /* check return value for invalid nano seconds */
+    xTimeY.tv_nsec = NANOSECONDS_PER_SECOND + 1;
+    TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_AbsoluteTimespecToDeltaTicks( &xTimeX, &xTimeY, &xResult ) );
+
 }
 
 /*-----------------------------------------------------------*/

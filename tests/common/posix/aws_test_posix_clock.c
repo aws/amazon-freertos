@@ -74,7 +74,7 @@ static void prvClockSleep( const struct timespec * const pxSleepTime,
     TEST_ASSERT_EQUAL_INT( true, UTILS_ValidateTimespec( &xEndTime ) );
 
     /* Verify that xEndTime > xStartTime. Also calculates elapsed time. */
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( pxElapsedTime, &xEndTime, &xStartTime ) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &xEndTime, &xStartTime, pxElapsedTime ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -153,7 +153,7 @@ TEST( Full_POSIX_CLOCK, clock_nanosleep_absolute )
     TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
     /* Wake up 5 ms from now. */
-    iStatus = UTILS_TimespecAddNanoseconds( &xWakeTime, &xWakeTime, 5000000 );
+    iStatus = UTILS_TimespecAddNanoseconds( &xWakeTime, 5000000, &xWakeTime );
     TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
     prvClockSleep( &xWakeTime, &xElapsedTime, TIMER_ABSTIME );
@@ -185,8 +185,8 @@ TEST( Full_POSIX_CLOCK, clock_nanosleep_min_resolution )
      * sleep for smaller than the minimum resolution slept for the minimum
      * resolution. */
     TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &xElapsedTime,
-                                                      &xElapsedTime,
-                                                      &xResolution ) );
+                                                      &xResolution,
+                                                      &xElapsedTime ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -223,7 +223,7 @@ TEST( Full_POSIX_CLOCK, clock_nanosleep_absolute_in_past )
     TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
     /* Set a timeout 5 ms in the past. */
-    iStatus = UTILS_TimespecAddNanoseconds( &xWakeTime, &xWakeTime, -5000000 );
+    iStatus = UTILS_TimespecAddNanoseconds( &xWakeTime, -5000000, &xWakeTime );
     TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
     prvClockSleep( &xWakeTime, &xElapsedTime, TIMER_ABSTIME );
@@ -254,7 +254,7 @@ TEST( Full_POSIX_CLOCK, nanosleep )
     TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
     /* Verify that xEndTime > xStartTime. Also calculates elapsed time. */
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &xElapsedTime, &xEndTime, &xStartTime ) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &xEndTime, &xStartTime, &xElapsedTime ) );
 
     /* Verify that at least 1 ms elapsed. */
     TEST_ASSERT_TRUE( 0 <= xElapsedTime.tv_sec );

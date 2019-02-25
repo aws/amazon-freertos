@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,24 +37,15 @@
 #include "FreeRTOS_POSIX/semaphore.h"
 #include "FreeRTOS_POSIX/utils.h"
 
-/**
- * @brief Semaphore type.
- */
-typedef struct
-{
-    StaticSemaphore_t xSemaphore; /**< FreeRTOS semaphore. */
-} sem_internal_t;
-
 
 /*-----------------------------------------------------------*/
 
 int sem_destroy( sem_t * sem )
 {
-    sem_internal_t * pxSem = ( sem_internal_t * ) ( *sem );
+    sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
     /* Free the resources in use by the semaphore. */
     vSemaphoreDelete( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
-    vPortFree( pxSem );
 
     return 0;
 }
@@ -64,7 +55,7 @@ int sem_destroy( sem_t * sem )
 int sem_getvalue( sem_t * sem,
                   int * sval )
 {
-    sem_internal_t * pxSem = ( sem_internal_t * ) ( *sem );
+    sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
     /* Get the semaphore count using the FreeRTOS API. */
     *sval = ( int ) uxSemaphoreGetCount( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
@@ -79,7 +70,7 @@ int sem_init( sem_t * sem,
               unsigned value )
 {
     int iStatus = 0;
-    sem_internal_t * pxSem = NULL;
+    sem_internal_t * pxSem =  ( sem_internal_t * ) ( sem );
 
     /* Silence warnings about unused parameters. */
     ( void ) pshared;
@@ -91,24 +82,12 @@ int sem_init( sem_t * sem,
         iStatus = -1;
     }
 
-    /* Allocate memory for a new semaphore. */
-    if( iStatus == 0 )
-    {
-        pxSem = pvPortMalloc( sizeof( sem_internal_t ) );
-
-        if( pxSem == NULL )
-        {
-            errno = ENOSPC;
-            iStatus = -1;
-        }
-    }
 
     /* Create the FreeRTOS semaphore. This call will not fail because the
      * memory for the semaphore has already been allocated. */
     if( iStatus == 0 )
     {
         ( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, value, &pxSem->xSemaphore );
-        *sem = pxSem;
     }
 
     return iStatus;
@@ -118,7 +97,7 @@ int sem_init( sem_t * sem,
 
 int sem_post( sem_t * sem )
 {
-    sem_internal_t * pxSem = ( sem_internal_t * ) ( *sem );
+    sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
     /* Give the semaphore using the FreeRTOS API. */
     ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
@@ -132,7 +111,7 @@ int sem_timedwait( sem_t * sem,
                    const struct timespec * abstime )
 {
     int iStatus = 0;
-    sem_internal_t * pxSem = ( sem_internal_t * ) ( *sem );
+    sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
     TickType_t xDelay = portMAX_DELAY;
 
     if( abstime != NULL )
@@ -146,7 +125,17 @@ int sem_timedwait( sem_t * sem,
         }
         else
         {
-            iStatus = UTILS_AbsoluteTimespecToTicks( abstime, &xDelay );
+            struct timespec xCurrentTime = { 0 };
+
+            /* Get current time */
+            if( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 )
+            {
+                iStatus = EINVAL;
+            }
+            else
+            {
+                iStatus = UTILS_AbsoluteTimespecToDeltaTicks( abstime, &xCurrentTime, &xDelay );
+            }
 
             /* If abstime was in the past, still attempt to take the semaphore without
              * blocking, per POSIX spec. */

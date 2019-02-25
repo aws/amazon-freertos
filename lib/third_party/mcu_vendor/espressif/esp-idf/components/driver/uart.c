@@ -29,6 +29,7 @@
 #include "soc/uart_struct.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
+#include "driver/uart_select.h"
 
 #define XOFF (char)0x13
 #define XON (char)0x11
@@ -43,6 +44,8 @@ static const char* UART_TAG = "uart";
 #define UART_EMPTY_THRESH_DEFAULT  (10)
 #define UART_FULL_THRESH_DEFAULT  (120)
 #define UART_TOUT_THRESH_DEFAULT   (10)
+#define UART_CLKDIV_FRAG_BIT_WIDTH  (3)
+#define UART_TOUT_REF_FACTOR_DEFAULT (UART_CLK_FREQ/(REF_CLK_FREQ<<UART_CLKDIV_FRAG_BIT_WIDTH))
 #define UART_TX_IDLE_NUM_DEFAULT   (0)
 #define UART_PATTERN_DET_QLEN_DEFAULT (10)
 
@@ -100,12 +103,14 @@ typedef struct {
     uint8_t tx_brk_flg;                 /*!< Flag to indicate to send a break signal in the end of the item sending procedure */
     uint8_t tx_brk_len;                 /*!< TX break signal cycle length/number */
     uint8_t tx_waiting_brk;             /*!< Flag to indicate that TX FIFO is ready to send break signal after FIFO is empty, do not push data into TX FIFO right now.*/
+    uart_select_notif_callback_t uart_select_notif_callback; /*!< Notification about select() events */
 } uart_obj_t;
 
 static uart_obj_t *p_uart_obj[UART_NUM_MAX] = {0};
 /* DRAM_ATTR is required to avoid UART array placed in flash, due to accessed from ISR */
 static DRAM_ATTR uart_dev_t* const UART[UART_NUM_MAX] = {&UART0, &UART1, &UART2};
 static portMUX_TYPE uart_spinlock[UART_NUM_MAX] = {portMUX_INITIALIZER_UNLOCKED, portMUX_INITIALIZER_UNLOCKED, portMUX_INITIALIZER_UNLOCKED};
+static portMUX_TYPE uart_selectlock = portMUX_INITIALIZER_UNLOCKED;
 
 esp_err_t uart_set_word_length(uart_port_t uart_num, uart_word_length_t data_bit)
 {
@@ -210,7 +215,11 @@ esp_err_t uart_get_baudrate(uart_port_t uart_num, uint32_t* baudrate)
     UART_ENTER_CRITICAL(&uart_spinlock[uart_num]);
     uint32_t clk_div = (UART[uart_num]->clk_div.div_int << 4) | UART[uart_num]->clk_div.div_frag;
     UART_EXIT_CRITICAL(&uart_spinlock[uart_num]);
-    (*baudrate) = ((UART_CLK_FREQ) << 4) / clk_div;
+    uint32_t uart_clk_freq = esp_clk_apb_freq();
+    if(UART[uart_num]->conf0.tick_ref_always_on == 0) {
+        uart_clk_freq = REF_CLK_FREQ;
+    }
+    (*baudrate) = ((uart_clk_freq) << 4) / clk_div;
     return ESP_OK;
 }
 
@@ -317,6 +326,25 @@ esp_err_t uart_disable_intr_mask(uart_port_t uart_num, uint32_t disable_mask)
     return ESP_OK;
 }
 
+static esp_err_t uart_disable_intr_mask_from_isr(uart_port_t uart_num, uint32_t disable_mask)
+{
+    UART_CHECK((uart_num < UART_NUM_MAX), "uart_num error", ESP_FAIL);
+    UART_ENTER_CRITICAL_ISR(&uart_spinlock[uart_num]);
+    CLEAR_PERI_REG_MASK(UART_INT_ENA_REG(uart_num), disable_mask);
+    UART_EXIT_CRITICAL_ISR(&uart_spinlock[uart_num]);
+    return ESP_OK;
+}
+
+static esp_err_t uart_enable_intr_mask_from_isr(uart_port_t uart_num, uint32_t enable_mask)
+{
+    UART_CHECK((uart_num < UART_NUM_MAX), "uart_num error", ESP_FAIL);
+    UART_ENTER_CRITICAL_ISR(&uart_spinlock[uart_num]);
+    SET_PERI_REG_MASK(UART_INT_CLR_REG(uart_num), enable_mask);
+    SET_PERI_REG_MASK(UART_INT_ENA_REG(uart_num), enable_mask);
+    UART_EXIT_CRITICAL_ISR(&uart_spinlock[uart_num]);
+    return ESP_OK;
+}
+
 static esp_err_t uart_pattern_link_free(uart_port_t uart_num)
 {
     UART_CHECK((p_uart_obj[uart_num]), "uart driver error", ESP_FAIL);
@@ -406,6 +434,19 @@ int uart_pattern_pop_pos(uart_port_t uart_num)
     if (pat_pos != NULL && pat_pos->rd != pat_pos->wr) {
         pos = pat_pos->data[pat_pos->rd];
         uart_pattern_dequeue(uart_num);
+    }
+    UART_EXIT_CRITICAL(&uart_spinlock[uart_num]);
+    return pos;
+}
+
+int uart_pattern_get_pos(uart_port_t uart_num)
+{
+    UART_CHECK((p_uart_obj[uart_num]), "uart driver error", (-1));
+    UART_ENTER_CRITICAL(&uart_spinlock[uart_num]);
+    uart_pat_rb_t* pat_pos = &p_uart_obj[uart_num]->rx_pattern_pos;
+    int pos = -1;
+    if (pat_pos != NULL && pat_pos->rd != pat_pos->wr) {
+        pos = pat_pos->data[pat_pos->rd];
     }
     UART_EXIT_CRITICAL(&uart_spinlock[uart_num]);
     return pos;
@@ -631,6 +672,9 @@ esp_err_t uart_param_config(uart_port_t uart_num, const uart_config_t *uart_conf
     r = uart_set_tx_idle_num(uart_num, UART_TX_IDLE_NUM_DEFAULT);
     if (r != ESP_OK) return r;
     r = uart_set_stop_bits(uart_num, uart_config->stop_bits);
+    //A hardware reset does not reset the fifo,
+    //so we need to reset the fifo manually.
+    uart_reset_rx_fifo(uart_num);
     return r;
 }
 
@@ -641,7 +685,13 @@ esp_err_t uart_intr_config(uart_port_t uart_num, const uart_intr_config_t *intr_
     UART_ENTER_CRITICAL(&uart_spinlock[uart_num]);
     UART[uart_num]->int_clr.val = UART_INTR_MASK;
     if(intr_conf->intr_enable_mask & UART_RXFIFO_TOUT_INT_ENA_M) {
-        UART[uart_num]->conf1.rx_tout_thrhd = ((intr_conf->rx_timeout_thresh) & UART_RX_TOUT_THRHD_V);
+        //Hardware issue workaround: when using ref_tick, the rx timeout threshold needs increase to 10 times.
+        //T_ref = T_apb * APB_CLK/(REF_TICK << CLKDIV_FRAG_BIT_WIDTH)
+        if(UART[uart_num]->conf0.tick_ref_always_on == 0) {
+            UART[uart_num]->conf1.rx_tout_thrhd = ((intr_conf->rx_timeout_thresh * UART_TOUT_REF_FACTOR_DEFAULT) & UART_RX_TOUT_THRHD_V);
+        } else {
+            UART[uart_num]->conf1.rx_tout_thrhd = ((intr_conf->rx_timeout_thresh) & UART_RX_TOUT_THRHD_V);
+        }
         UART[uart_num]->conf1.rx_tout_en = 1;
     } else {
         UART[uart_num]->conf1.rx_tout_en = 0;
@@ -692,7 +742,7 @@ static void uart_rx_intr_handler_default(void *param)
         uart_event.type = UART_EVENT_MAX;
         if(uart_intr_status & UART_TXFIFO_EMPTY_INT_ST_M) {
             uart_clear_intr_status(uart_num, UART_TXFIFO_EMPTY_INT_CLR_M);
-            uart_disable_intr_mask(uart_num, UART_TXFIFO_EMPTY_INT_ENA_M);
+            uart_disable_intr_mask_from_isr(uart_num, UART_TXFIFO_EMPTY_INT_ENA_M);
             if(p_uart->tx_waiting_brk) {
                 continue;
             }
@@ -724,7 +774,6 @@ static void uart_rx_intr_handler_default(void *param)
                                 p_uart->tx_ptr = NULL;
                                 p_uart->tx_len_tot = p_uart->tx_head->tx_data.size;
                                 if(p_uart->tx_head->type == UART_DATA_BREAK) {
-                                    p_uart->tx_len_tot = p_uart->tx_head->tx_data.size;
                                     p_uart->tx_brk_flg = 1;
                                     p_uart->tx_brk_len = p_uart->tx_head->tx_data.brk_len;
                                 }
@@ -764,7 +813,7 @@ static void uart_rx_intr_handler_default(void *param)
                             p_uart->tx_ptr = NULL;
                             //Sending item done, now we need to send break if there is a record.
                             //Set TX break signal after FIFO is empty
-                            if(p_uart->tx_brk_flg == 1 && p_uart->tx_len_tot == 0) {
+                            if(p_uart->tx_len_tot == 0 && p_uart->tx_brk_flg == 1) {
                                 UART_ENTER_CRITICAL_ISR(&uart_spinlock[uart_num]);
                                 uart_reg->int_ena.tx_brk_done = 0;
                                 uart_reg->idle_conf.tx_brk_num = p_uart->tx_brk_len;
@@ -773,6 +822,8 @@ static void uart_rx_intr_handler_default(void *param)
                                 uart_reg->int_ena.tx_brk_done = 1;
                                 UART_EXIT_CRITICAL_ISR(&uart_spinlock[uart_num]);
                                 p_uart->tx_waiting_brk = 1;
+                                //do not enable TX empty interrupt
+                                en_tx_flg = false;
                             } else {
                                 //enable TX empty interrupt
                                 en_tx_flg = true;
@@ -785,7 +836,7 @@ static void uart_rx_intr_handler_default(void *param)
                 }
                 if (en_tx_flg) {
                     uart_clear_intr_status(uart_num, UART_TXFIFO_EMPTY_INT_CLR_M);
-                    uart_enable_intr_mask(uart_num, UART_TXFIFO_EMPTY_INT_ENA_M);
+                    uart_enable_intr_mask_from_isr(uart_num, UART_TXFIFO_EMPTY_INT_ENA_M);
                 }
             }
         }
@@ -818,12 +869,17 @@ static void uart_rx_intr_handler_default(void *param)
                     uart_clear_intr_status(uart_num, UART_RXFIFO_TOUT_INT_CLR_M | UART_RXFIFO_FULL_INT_CLR_M);
                     uart_event.type = UART_DATA;
                     uart_event.size = rx_fifo_len;
+                    UART_ENTER_CRITICAL_ISR(&uart_selectlock);
+                    if (p_uart->uart_select_notif_callback) {
+                        p_uart->uart_select_notif_callback(uart_num, UART_SELECT_READ_NOTIF, &HPTaskAwoken);
+                    }
+                    UART_EXIT_CRITICAL_ISR(&uart_selectlock);
                 }
                 p_uart->rx_stash_len = rx_fifo_len;
                 //If we fail to push data to ring buffer, we will have to stash the data, and send next time.
                 //Mainly for applications that uses flow control or small ring buffer.
                 if(pdFALSE == xRingbufferSendFromISR(p_uart->rx_ring_buf, p_uart->rx_data_buf, p_uart->rx_stash_len, &HPTaskAwoken)) {
-                    uart_disable_intr_mask(uart_num, UART_RXFIFO_TOUT_INT_ENA_M | UART_RXFIFO_FULL_INT_ENA_M);
+                    uart_disable_intr_mask_from_isr(uart_num, UART_RXFIFO_TOUT_INT_ENA_M | UART_RXFIFO_FULL_INT_ENA_M);
                     if (uart_event.type == UART_PATTERN_DET) {
                         if (rx_fifo_len < pat_num) {
                             //some of the characters are read out in last interrupt
@@ -837,7 +893,7 @@ static void uart_rx_intr_handler_default(void *param)
                                             p_uart->rx_buffered_len + pat_idx);
                         }
                         if ((p_uart->xQueueUart != NULL) && (pdFALSE == xQueueSendFromISR(p_uart->xQueueUart, (void * )&uart_event, &HPTaskAwoken))) {
-                            ESP_EARLY_LOGW(UART_TAG, "UART event queue full");
+                            ESP_EARLY_LOGV(UART_TAG, "UART event queue full");
                         }
                     }
                     uart_event.type = UART_BUFFER_FULL;
@@ -860,7 +916,7 @@ static void uart_rx_intr_handler_default(void *param)
                     portYIELD_FROM_ISR() ;
                 }
             } else {
-                uart_disable_intr_mask(uart_num, UART_RXFIFO_FULL_INT_ENA_M | UART_RXFIFO_TOUT_INT_ENA_M);
+                uart_disable_intr_mask_from_isr(uart_num, UART_RXFIFO_FULL_INT_ENA_M | UART_RXFIFO_TOUT_INT_ENA_M);
                 uart_clear_intr_status(uart_num, UART_RXFIFO_FULL_INT_CLR_M | UART_RXFIFO_TOUT_INT_CLR_M);
                 if(uart_intr_status & UART_AT_CMD_CHAR_DET_INT_ST_M) {
                     uart_reg->int_clr.at_cmd_char_det = 1;
@@ -876,15 +932,30 @@ static void uart_rx_intr_handler_default(void *param)
             uart_reg->int_clr.rxfifo_ovf = 1;
             UART_EXIT_CRITICAL_ISR(&uart_spinlock[uart_num]);
             uart_event.type = UART_FIFO_OVF;
+            UART_ENTER_CRITICAL_ISR(&uart_selectlock);
+            if (p_uart->uart_select_notif_callback) {
+                p_uart->uart_select_notif_callback(uart_num, UART_SELECT_ERROR_NOTIF, &HPTaskAwoken);
+            }
+            UART_EXIT_CRITICAL_ISR(&uart_selectlock);
         } else if(uart_intr_status & UART_BRK_DET_INT_ST_M) {
             uart_reg->int_clr.brk_det = 1;
             uart_event.type = UART_BREAK;
         } else if(uart_intr_status & UART_FRM_ERR_INT_ST_M) {
             uart_reg->int_clr.frm_err = 1;
             uart_event.type = UART_FRAME_ERR;
+            UART_ENTER_CRITICAL_ISR(&uart_selectlock);
+            if (p_uart->uart_select_notif_callback) {
+                p_uart->uart_select_notif_callback(uart_num, UART_SELECT_ERROR_NOTIF, &HPTaskAwoken);
+            }
+            UART_EXIT_CRITICAL_ISR(&uart_selectlock);
         } else if(uart_intr_status & UART_PARITY_ERR_INT_ST_M) {
             uart_reg->int_clr.parity_err = 1;
             uart_event.type = UART_PARITY_ERR;
+            UART_ENTER_CRITICAL_ISR(&uart_selectlock);
+            if (p_uart->uart_select_notif_callback) {
+                p_uart->uart_select_notif_callback(uart_num, UART_SELECT_ERROR_NOTIF, &HPTaskAwoken);
+            }
+            UART_EXIT_CRITICAL_ISR(&uart_selectlock);
         } else if(uart_intr_status & UART_TX_BRK_DONE_INT_ST_M) {
             UART_ENTER_CRITICAL_ISR(&uart_spinlock[uart_num]);
             uart_reg->conf0.txd_brk = 0;
@@ -904,13 +975,13 @@ static void uart_rx_intr_handler_default(void *param)
                 }
             }
         } else if(uart_intr_status & UART_TX_BRK_IDLE_DONE_INT_ST_M) {
-            uart_disable_intr_mask(uart_num, UART_TX_BRK_IDLE_DONE_INT_ENA_M);
+            uart_disable_intr_mask_from_isr(uart_num, UART_TX_BRK_IDLE_DONE_INT_ENA_M);
             uart_clear_intr_status(uart_num, UART_TX_BRK_IDLE_DONE_INT_CLR_M);
         } else if(uart_intr_status & UART_AT_CMD_CHAR_DET_INT_ST_M) {
             uart_reg->int_clr.at_cmd_char_det = 1;
             uart_event.type = UART_PATTERN_DET;
         } else if(uart_intr_status & UART_TX_DONE_INT_ST_M) {
-            uart_disable_intr_mask(uart_num, UART_TX_DONE_INT_ENA_M);
+            uart_disable_intr_mask_from_isr(uart_num, UART_TX_DONE_INT_ENA_M);
             uart_clear_intr_status(uart_num, UART_TX_DONE_INT_CLR_M);
             xSemaphoreGiveFromISR(p_uart_obj[uart_num]->tx_done_sem, &HPTaskAwoken);
             if(HPTaskAwoken == pdTRUE) {
@@ -923,7 +994,7 @@ static void uart_rx_intr_handler_default(void *param)
 
         if(uart_event.type != UART_EVENT_MAX && p_uart->xQueueUart) {
             if (pdFALSE == xQueueSendFromISR(p_uart->xQueueUart, (void * )&uart_event, &HPTaskAwoken)) {
-                ESP_EARLY_LOGW(UART_TAG, "UART event queue full");
+                ESP_EARLY_LOGV(UART_TAG, "UART event queue full");
             }
             if(HPTaskAwoken == pdTRUE) {
                 portYIELD_FROM_ISR() ;
@@ -1119,8 +1190,8 @@ int uart_read_bytes(uart_port_t uart_num, uint8_t* buf, uint32_t length, TickTyp
                 if(res == pdTRUE) {
                     UART_ENTER_CRITICAL(&uart_spinlock[uart_num]);
                     p_uart_obj[uart_num]->rx_buffered_len += p_uart_obj[uart_num]->rx_stash_len;
-                    UART_EXIT_CRITICAL(&uart_spinlock[uart_num]);
                     p_uart_obj[uart_num]->rx_buffer_full_flg = false;
+                    UART_EXIT_CRITICAL(&uart_spinlock[uart_num]);
                     uart_enable_rx_intr(p_uart_obj[uart_num]->uart_num);
                 }
             }
@@ -1165,6 +1236,14 @@ esp_err_t uart_flush_input(uart_port_t uart_num)
         }
         data = (uint8_t*) xRingbufferReceive(p_uart->rx_ring_buf, &size, (portTickType) 0);
         if(data == NULL) {
+            if( p_uart_obj[uart_num]->rx_buffered_len != 0 ) {
+                ESP_LOGE(UART_TAG, "rx_buffered_len error");
+                p_uart_obj[uart_num]->rx_buffered_len = 0;
+            }
+            //We also need to clear the `rx_buffer_full_flg` here.
+            UART_ENTER_CRITICAL(&uart_spinlock[uart_num]);
+            p_uart_obj[uart_num]->rx_buffer_full_flg = false;
+            UART_EXIT_CRITICAL(&uart_spinlock[uart_num]);
             break;
         }
         UART_ENTER_CRITICAL(&uart_spinlock[uart_num]);
@@ -1177,8 +1256,8 @@ esp_err_t uart_flush_input(uart_port_t uart_num)
             if(res == pdTRUE) {
                 UART_ENTER_CRITICAL(&uart_spinlock[uart_num]);
                 p_uart_obj[uart_num]->rx_buffered_len += p_uart_obj[uart_num]->rx_stash_len;
-                UART_EXIT_CRITICAL(&uart_spinlock[uart_num]);
                 p_uart_obj[uart_num]->rx_buffer_full_flg = false;
+                UART_EXIT_CRITICAL(&uart_spinlock[uart_num]);
             }
         }
     }
@@ -1242,6 +1321,7 @@ esp_err_t uart_driver_install(uart_port_t uart_num, int rx_buffer_size, int tx_b
             p_uart_obj[uart_num]->tx_ring_buf = NULL;
             p_uart_obj[uart_num]->tx_buf_size = 0;
         }
+        p_uart_obj[uart_num]->uart_select_notif_callback = NULL;
     } else {
         ESP_LOGE(UART_TAG, "UART driver already installed");
         return ESP_FAIL;
@@ -1328,4 +1408,16 @@ esp_err_t uart_driver_delete(uart_port_t uart_num)
        }
     }
     return ESP_OK;
+}
+
+void uart_set_select_notif_callback(uart_port_t uart_num, uart_select_notif_callback_t uart_select_notif_callback)
+{
+    if (uart_num < UART_NUM_MAX && p_uart_obj[uart_num]) {
+        p_uart_obj[uart_num]->uart_select_notif_callback = (uart_select_notif_callback_t) uart_select_notif_callback;
+    }
+}
+
+portMUX_TYPE *uart_get_selectlock()
+{
+    return &uart_selectlock;
 }

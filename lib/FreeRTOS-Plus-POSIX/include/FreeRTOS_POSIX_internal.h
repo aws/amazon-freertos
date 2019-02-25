@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,55 +45,81 @@
 #endif
 
 #if posixconfigENABLE_PTHREAD_MUTEX_T == 1
-/**
- * @brief Mutex.
- */
-typedef struct pthread_mutex_internal
-{
-    BaseType_t xIsInitialized;          /**< Set to pdTRUE if this mutex is initialized, pdFALSE otherwise. */
-    StaticSemaphore_t xMutex;           /**< FreeRTOS mutex. */
-    TaskHandle_t xTaskOwner;            /**< Owner; used for deadlock detection and permission checks. */
-    pthread_mutexattr_internal_t xAttr; /**< Mutex attributes. */
-} pthread_mutex_internal_t;
+    /**
+     * @brief Mutex.
+     */
+    typedef struct pthread_mutex_internal
+    {
+        BaseType_t xIsInitialized;          /**< Set to pdTRUE if this mutex is initialized, pdFALSE otherwise. */
+        StaticSemaphore_t xMutex;           /**< FreeRTOS mutex. */
+        TaskHandle_t xTaskOwner;            /**< Owner; used for deadlock detection and permission checks. */
+        pthread_mutexattr_internal_t xAttr; /**< Mutex attributes. */
+    } pthread_mutex_internal_t;
 
-/**
- * @brief Compile-time initializer of pthread_mutex_internal_t.
- */
-#define FREERTOS_POSIX_MUTEX_INITIALIZER \
-    ( &( ( pthread_mutex_internal_t )    \
-    {                                    \
-        .xIsInitialized = pdFALSE,       \
-        .xMutex = { { 0 } },             \
-        .xTaskOwner = NULL,              \
-        .xAttr = { .iType = 0 }          \
-    }                                    \
-         )                               \
-    )
+    /**
+     * @brief Compile-time initializer of pthread_mutex_internal_t.
+     */
+    #define FREERTOS_POSIX_MUTEX_INITIALIZER \
+        ( ( ( pthread_mutex_internal_t )     \
+        {                                    \
+            .xIsInitialized = pdFALSE,       \
+            .xMutex = { { 0 } },             \
+            .xTaskOwner = NULL,              \
+            .xAttr = { .iType = 0 }          \
+        }                                    \
+          )                                  \
+        )
 #endif
 
-/**
- * @brief Condition variable.
- */
-typedef struct pthread_cond_internal
-{
-    BaseType_t xIsInitialized;            /**< Set to pdTRUE if this condition variable is initialized, pdFALSE otherwise. */
-    StaticSemaphore_t xCondMutex;         /**< Prevents concurrent accesses to iWaitingThreads. */
-    StaticSemaphore_t xCondWaitSemaphore; /**< Threads block on this semaphore in pthread_cond_wait. */
-    int iWaitingThreads;                  /**< The number of threads currently waiting on this condition variable. */
-} pthread_cond_internal_t;
+#if posixconfigENABLE_PTHREAD_COND_T == 1
+    /**
+     * @brief Condition variable.
+     */
+    typedef struct pthread_cond_internal
+    {
+        BaseType_t xIsInitialized;            /**< Set to pdTRUE if this condition variable is initialized, pdFALSE otherwise. */
+        StaticSemaphore_t xCondMutex;         /**< Prevents concurrent accesses to iWaitingThreads. */
+        StaticSemaphore_t xCondWaitSemaphore; /**< Threads block on this semaphore in pthread_cond_wait. */
+        int iWaitingThreads;                  /**< The number of threads currently waiting on this condition variable. */
+    } pthread_cond_internal_t;
 
-/**
- * @brief Compile-time initializer of pthread_cond_internal_t.
- */
-#define FREERTOS_POSIX_COND_INITIALIZER \
-    ( &( ( pthread_cond_internal_t )    \
-    {                                   \
-        .xIsInitialized = pdFALSE,      \
-        .xCondMutex = { { 0 } },        \
-        .xCondWaitSemaphore = { { 0 } },\
-        .iWaitingThreads = 0            \
-    }                                   \
-         )                              \
-    )
+    /**
+     * @brief Compile-time initializer of pthread_cond_internal_t.
+     */
+    #define FREERTOS_POSIX_COND_INITIALIZER \
+        ( ( ( pthread_cond_internal_t )     \
+        {                                   \
+            .xIsInitialized = pdFALSE,      \
+            .xCondMutex = { { 0 } },        \
+            .xCondWaitSemaphore = { { 0 } },\
+            .iWaitingThreads = 0            \
+        }                                   \
+          )                                 \
+        )
+#endif
+
+#if posixconfigENABLE_SEM_T == 1
+    /**
+     * @brief Semaphore type.
+     */
+    typedef struct
+    {
+        StaticSemaphore_t xSemaphore; /**< FreeRTOS semaphore. */
+    } sem_internal_t;
+#endif
+
+#if posixconfigENABLE_PTHREAD_BARRIER_T == 1
+    /**
+     * @brief Barrier object.
+     */
+    typedef struct pthread_barrier_internal
+    {
+        unsigned uThreadCount;                   /**< Current number of threads that have entered barrier. */
+        unsigned uThreshold;                     /**< The count argument of pthread_barrier_init. */
+        StaticSemaphore_t xThreadCountMutex;     /**< Guards access to uThreadCount. */
+        StaticSemaphore_t xThreadCountSemaphore; /**< Prevents more than uThreshold threads from exiting pthread_barrier_wait at once. */
+        StaticEventGroup_t xBarrierEventGroup;   /**< FreeRTOS event group that blocks to wait on threads entering barrier. */
+    } pthread_barrier_internal_t;
+#endif
 
 #endif /* _FREERTOS_POSIX_INTERNAL_H_ */

@@ -18,6 +18,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/unistd.h>
+#include <errno.h>
 #include "unity.h"
 #include "esp_log.h"
 #include "esp_system.h"
@@ -29,6 +30,7 @@
 #include "test_fatfs_common.h"
 
 const char* fatfs_test_hello_str = "Hello, World!\n";
+const char* fatfs_test_hello_str_utf = "世界，你好！\n";
 
 void test_fatfs_create_file_with_text(const char* name, const char* text)
 {
@@ -84,6 +86,17 @@ void test_fatfs_read_file(const char* filename)
     TEST_ASSERT_EQUAL(0, fclose(f));
 }
 
+void test_fatfs_read_file_utf_8(const char* filename)
+{
+    FILE* f = fopen(filename, "r");
+    TEST_ASSERT_NOT_NULL(f);
+    char buf[64] = { 0 };   //Doubled buffer size to allow for longer UTF-8 strings
+    int cb = fread(buf, 1, sizeof(buf), f);
+    TEST_ASSERT_EQUAL(strlen(fatfs_test_hello_str_utf), cb);
+    TEST_ASSERT_EQUAL(0, strcmp(fatfs_test_hello_str_utf, buf));
+    TEST_ASSERT_EQUAL(0, fclose(f));
+}
+
 void test_fatfs_open_max_files(const char* filename_prefix, size_t files_count)
 {
     FILE** files = calloc(files_count, sizeof(FILE*));
@@ -121,6 +134,81 @@ void test_fatfs_lseek(const char* filename)
     TEST_ASSERT_EQUAL(18, fread(buf, 1, sizeof(buf), f));
     const char ref_buf[] = "0123456789\n\0\0\0abc\n";
     TEST_ASSERT_EQUAL_INT8_ARRAY(ref_buf, buf, sizeof(ref_buf) - 1);
+
+    TEST_ASSERT_EQUAL(0, fclose(f));
+}
+
+void test_fatfs_truncate_file(const char* filename)
+{
+    int read = 0;
+    int truncated_len = 0;
+
+    const char input[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char output[sizeof(input)];
+
+    FILE* f = fopen(filename, "wb");
+
+    TEST_ASSERT_NOT_NULL(f);
+    TEST_ASSERT_EQUAL(strlen(input), fprintf(f, input));
+
+    TEST_ASSERT_EQUAL(0, fclose(f));
+
+
+    // Extending file beyond size is not supported
+    TEST_ASSERT_EQUAL(-1, truncate(filename, strlen(input) + 1));
+    TEST_ASSERT_EQUAL(errno, EPERM);
+
+    TEST_ASSERT_EQUAL(-1, truncate(filename, -1));
+    TEST_ASSERT_EQUAL(errno, EPERM);
+
+
+    // Truncating should succeed
+    const char truncated_1[] = "ABCDEFGHIJ";
+    truncated_len = strlen(truncated_1);
+
+    TEST_ASSERT_EQUAL(0, truncate(filename, truncated_len));
+
+    f = fopen(filename, "rb");
+    TEST_ASSERT_NOT_NULL(f);
+    
+    memset(output, 0, sizeof(output));
+    read = fread(output, 1, sizeof(output), f);
+    
+    TEST_ASSERT_EQUAL(truncated_len, read);
+    TEST_ASSERT_EQUAL_STRING_LEN(truncated_1, output, truncated_len);
+
+    TEST_ASSERT_EQUAL(0, fclose(f));
+
+
+    // Once truncated, the new file size should be the basis 
+    // whether truncation should succeed or not
+    TEST_ASSERT_EQUAL(-1, truncate(filename, truncated_len + 1));
+    TEST_ASSERT_EQUAL(EPERM, errno);
+
+    TEST_ASSERT_EQUAL(-1, truncate(filename, strlen(input)));
+    TEST_ASSERT_EQUAL(EPERM, errno);
+
+    TEST_ASSERT_EQUAL(-1, truncate(filename, strlen(input) + 1));
+    TEST_ASSERT_EQUAL(EPERM, errno);
+
+    TEST_ASSERT_EQUAL(-1, truncate(filename, -1));
+    TEST_ASSERT_EQUAL(EPERM, errno);
+
+
+    // Truncating a truncated file should succeed
+    const char truncated_2[] = "ABCDE";
+    truncated_len = strlen(truncated_2);
+
+    TEST_ASSERT_EQUAL(0, truncate(filename, truncated_len));
+
+    f = fopen(filename, "rb");
+    TEST_ASSERT_NOT_NULL(f);
+    
+    memset(output, 0, sizeof(output));
+    read = fread(output, 1, sizeof(output), f);
+    
+    TEST_ASSERT_EQUAL(truncated_len, read);
+    TEST_ASSERT_EQUAL_STRING_LEN(truncated_2, output, truncated_len);
 
     TEST_ASSERT_EQUAL(0, fclose(f));
 }
@@ -182,7 +270,7 @@ void test_fatfs_link_rename(const char* filename_prefix)
 
     FILE* f = fopen(name_src, "w+");
     TEST_ASSERT_NOT_NULL(f);
-    char* str = "0123456789";
+    const char* str = "0123456789";
     for (int i = 0; i < 4000; ++i) {
         TEST_ASSERT_NOT_EQUAL(EOF, fputs(str, f));
     }
@@ -337,6 +425,85 @@ void test_fatfs_opendir_readdir_rewinddir(const char* dir_prefix)
     TEST_ASSERT_EQUAL(0, closedir(dir));
 }
 
+void test_fatfs_opendir_readdir_rewinddir_utf_8(const char* dir_prefix)
+{
+    char name_dir_inner_file[64];
+    char name_dir_inner[64];
+    char name_dir_file3[64];
+    char name_dir_file2[64];
+    char name_dir_file1[64];
+
+    snprintf(name_dir_inner_file, sizeof(name_dir_inner_file), "%s/内部目录/内部文件.txt", dir_prefix);
+    snprintf(name_dir_inner, sizeof(name_dir_inner), "%s/内部目录", dir_prefix);
+    snprintf(name_dir_file3, sizeof(name_dir_file3), "%s/文件三.bin", dir_prefix);
+    snprintf(name_dir_file2, sizeof(name_dir_file2), "%s/文件二.txt", dir_prefix);
+    snprintf(name_dir_file1, sizeof(name_dir_file1), "%s/文件一.txt", dir_prefix);
+
+    unlink(name_dir_inner_file);
+    rmdir(name_dir_inner);
+    unlink(name_dir_file1);
+    unlink(name_dir_file2);
+    unlink(name_dir_file3);
+    rmdir(dir_prefix);
+
+    TEST_ASSERT_EQUAL(0, mkdir(dir_prefix, 0755));
+    test_fatfs_create_file_with_text(name_dir_file1, "一号\n");
+    test_fatfs_create_file_with_text(name_dir_file2, "二号\n");
+    test_fatfs_create_file_with_text(name_dir_file3, "\0一\0二\0三");
+    TEST_ASSERT_EQUAL(0, mkdir(name_dir_inner, 0755));
+    test_fatfs_create_file_with_text(name_dir_inner_file, "三号\n");
+
+    DIR* dir = opendir(dir_prefix);
+    TEST_ASSERT_NOT_NULL(dir);
+    int count = 0;
+    const char* names[4];
+    while(count < 4) {
+        struct dirent* de = readdir(dir);
+        if (!de) {
+            break;
+        }
+        printf("found '%s'\n", de->d_name);
+        if (strcasecmp(de->d_name, "文件一.txt") == 0) {
+            TEST_ASSERT_TRUE(de->d_type == DT_REG);
+            names[count] = "文件一.txt";
+            ++count;
+        } else if (strcasecmp(de->d_name, "文件二.txt") == 0) {
+            TEST_ASSERT_TRUE(de->d_type == DT_REG);
+            names[count] = "文件二.txt";
+            ++count;
+        } else if (strcasecmp(de->d_name, "内部目录") == 0) {
+            TEST_ASSERT_TRUE(de->d_type == DT_DIR);
+            names[count] = "内部目录";
+            ++count;
+        } else if (strcasecmp(de->d_name, "文件三.bin") == 0) {
+            TEST_ASSERT_TRUE(de->d_type == DT_REG);
+            names[count] = "文件三.bin";
+            ++count;
+        } else {
+            TEST_FAIL_MESSAGE("unexpected directory entry");
+        }
+    }
+    TEST_ASSERT_EQUAL(count, 4);
+
+    rewinddir(dir);
+    struct dirent* de = readdir(dir);
+    TEST_ASSERT_NOT_NULL(de);
+    TEST_ASSERT_EQUAL(0, strcasecmp(de->d_name, names[0]));
+    seekdir(dir, 3);
+    de = readdir(dir);
+    TEST_ASSERT_NOT_NULL(de);
+    TEST_ASSERT_EQUAL(0, strcasecmp(de->d_name, names[3]));
+    seekdir(dir, 1);
+    de = readdir(dir);
+    TEST_ASSERT_NOT_NULL(de);
+    TEST_ASSERT_EQUAL(0, strcasecmp(de->d_name, names[1]));
+    seekdir(dir, 2);
+    de = readdir(dir);
+    TEST_ASSERT_NOT_NULL(de);
+    TEST_ASSERT_EQUAL(0, strcasecmp(de->d_name, names[2]));
+
+    TEST_ASSERT_EQUAL(0, closedir(dir));
+}
 
 typedef struct {
     const char* filename;
@@ -411,8 +578,9 @@ void test_fatfs_concurrent(const char* filename_prefix)
 
     const int cpuid_0 = 0;
     const int cpuid_1 = portNUM_PROCESSORS - 1;
-    xTaskCreatePinnedToCore(&read_write_task, "rw1", 2048, &args1, 3, NULL, cpuid_0);
-    xTaskCreatePinnedToCore(&read_write_task, "rw2", 2048, &args2, 3, NULL, cpuid_1);
+    const int stack_size = 4096;
+    xTaskCreatePinnedToCore(&read_write_task, "rw1", stack_size, &args1, 3, NULL, cpuid_0);
+    xTaskCreatePinnedToCore(&read_write_task, "rw2", stack_size, &args2, 3, NULL, cpuid_1);
 
     xSemaphoreTake(args1.done, portMAX_DELAY);
     printf("f1 done\n");
@@ -428,10 +596,10 @@ void test_fatfs_concurrent(const char* filename_prefix)
 
     printf("reading f1 and f2, writing f3 and f4\n");
 
-    xTaskCreatePinnedToCore(&read_write_task, "rw3", 2048, &args3, 3, NULL, cpuid_1);
-    xTaskCreatePinnedToCore(&read_write_task, "rw4", 2048, &args4, 3, NULL, cpuid_0);
-    xTaskCreatePinnedToCore(&read_write_task, "rw1", 2048, &args1, 3, NULL, cpuid_0);
-    xTaskCreatePinnedToCore(&read_write_task, "rw2", 2048, &args2, 3, NULL, cpuid_1);
+    xTaskCreatePinnedToCore(&read_write_task, "rw3", stack_size, &args3, 3, NULL, cpuid_1);
+    xTaskCreatePinnedToCore(&read_write_task, "rw4", stack_size, &args4, 3, NULL, cpuid_0);
+    xTaskCreatePinnedToCore(&read_write_task, "rw1", stack_size, &args1, 3, NULL, cpuid_0);
+    xTaskCreatePinnedToCore(&read_write_task, "rw2", stack_size, &args2, 3, NULL, cpuid_1);
 
     xSemaphoreTake(args1.done, portMAX_DELAY);
     printf("f1 done\n");
@@ -451,7 +619,6 @@ void test_fatfs_concurrent(const char* filename_prefix)
     vSemaphoreDelete(args3.done);
     vSemaphoreDelete(args4.done);
 }
-
 
 void test_fatfs_rw_speed(const char* filename, void* buf, size_t buf_size, size_t file_size, bool write)
 {
@@ -483,4 +650,3 @@ void test_fatfs_rw_speed(const char* filename, void* buf, size_t buf_size, size_
             (write)?"Wrote":"Read", file_size, buf_size, t_s * 1e3,
                     file_size / (1024.0f * 1024.0f * t_s));
 }
-

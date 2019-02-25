@@ -11,6 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// This module implements pthread API on top of FreeRTOS. API is implemented to the level allowing
+// libstdcxx threading framework to operate correctly. So not all original pthread routines are supported.
+//
 
 #include <time.h>
 #include <errno.h>
@@ -24,7 +28,6 @@
 
 #include "pthread_internal.h"
 #include "esp_pthread.h"
-
 #include <pthread.h>
 
 #define LOG_LOCAL_LEVEL CONFIG_LOG_DEFAULT_LEVEL
@@ -52,21 +55,31 @@ typedef struct esp_pthread_entry {
 typedef struct {
     void *(*func)(void *);  ///< user task entry
     void *arg;              ///< user task argument
+    esp_pthread_cfg_t cfg;  ///< pthread configuration
 } esp_pthread_task_arg_t;
-
 
 static SemaphoreHandle_t s_threads_mux  = NULL;
 static portMUX_TYPE s_mutex_init_lock   = portMUX_INITIALIZER_UNLOCKED;
 static SLIST_HEAD(esp_thread_list_head, esp_pthread_entry) s_threads_list
                                         = SLIST_HEAD_INITIALIZER(s_threads_list);
+static pthread_key_t s_pthread_cfg_key;
 
 
 static int IRAM_ATTR pthread_mutex_lock_internal(esp_pthread_mutex_t *mux, TickType_t tmo);
 
+static void esp_pthread_cfg_key_destructor(void *value)
+{
+    free(value);
+}
+
 esp_err_t esp_pthread_init(void)
 {
+    if (pthread_key_create(&s_pthread_cfg_key, esp_pthread_cfg_key_destructor) != 0) {
+        return ESP_ERR_NO_MEM;
+    }
     s_threads_mux = xSemaphoreCreateMutex();
     if (s_threads_mux == NULL) {
+        pthread_key_delete(s_pthread_cfg_key);
         return ESP_ERR_NO_MEM;
     }
     return ESP_OK;
@@ -116,6 +129,34 @@ static void pthread_delete(esp_pthread_t *pthread)
     free(pthread);
 }
 
+
+/* Call this function to configure pthread stacks in Pthreads */
+esp_err_t esp_pthread_set_cfg(const esp_pthread_cfg_t *cfg)
+{
+    /* If a value is already set, update that value */
+    esp_pthread_cfg_t *p = pthread_getspecific(s_pthread_cfg_key);
+    if (!p) {
+        p = malloc(sizeof(esp_pthread_cfg_t));
+        if (!p) {
+            return ESP_ERR_NO_MEM;
+        }
+    }
+    *p = *cfg;
+    pthread_setspecific(s_pthread_cfg_key, p);
+    return 0;
+}
+
+esp_err_t esp_pthread_get_cfg(esp_pthread_cfg_t *p)
+{
+    esp_pthread_cfg_t *cfg = pthread_getspecific(s_pthread_cfg_key);
+    if (cfg) {
+        *p = *cfg;
+        return ESP_OK;
+    }
+    memset(p, 0, sizeof(*p));
+    return ESP_ERR_NOT_FOUND;
+}
+
 static void pthread_task_func(void *arg)
 {
     void *rval = NULL;
@@ -126,6 +167,10 @@ static void pthread_task_func(void *arg)
     // wait for start
     xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
 
+    if (task_arg->cfg.inherit_cfg) {
+        /* If inherit option is set, then do a set_cfg() ourselves for future forks */
+        esp_pthread_set_cfg(&task_arg->cfg);
+    }
     ESP_LOGV(TAG, "%s START %p", __FUNCTION__, task_arg->func);
     rval = task_arg->func(task_arg->arg);
     ESP_LOGV(TAG, "%s END %p", __FUNCTION__, task_arg->func);
@@ -156,6 +201,17 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 
     uint32_t stack_size = CONFIG_ESP32_PTHREAD_TASK_STACK_SIZE_DEFAULT;
     BaseType_t prio = CONFIG_ESP32_PTHREAD_TASK_PRIO_DEFAULT;
+
+    esp_pthread_cfg_t *pthread_cfg = pthread_getspecific(s_pthread_cfg_key);
+    if (pthread_cfg) {
+        if (pthread_cfg->stack_size) {
+            stack_size = pthread_cfg->stack_size;
+        }
+        if (pthread_cfg->prio && pthread_cfg->prio < configMAX_PRIORITIES) {
+            prio = pthread_cfg->prio;
+        }
+        task_arg->cfg = *pthread_cfg;
+    }
 
     if (attr) {
         /* Overwrite attributes */
@@ -370,14 +426,16 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void))
         return EINVAL;
     }
 
-    // Check if once_control belongs to internal DRAM for uxPortCompare to succeed
-    if (!esp_ptr_internal(once_control)) {
-        ESP_LOGE(TAG, "%s: once_control should belong to internal DRAM region!", __FUNCTION__);
-        return EINVAL;
-    }
-
     uint32_t res = 1;
-    uxPortCompareSet((uint32_t *) &once_control->init_executed, 0, &res);
+#if defined(CONFIG_SPIRAM_SUPPORT)
+    if (esp_ptr_external_ram(once_control)) {
+        uxPortCompareSetExtram((uint32_t *) &once_control->init_executed, 0, &res);
+    } else {
+#endif
+        uxPortCompareSet((uint32_t *) &once_control->init_executed, 0, &res);
+#if defined(CONFIG_SPIRAM_SUPPORT)
+    }
+#endif
     // Check if compare and set was successful
     if (res == 0) {
         ESP_LOGV(TAG, "%s: call init_routine %p", __FUNCTION__, once_control);
@@ -490,13 +548,22 @@ static int IRAM_ATTR pthread_mutex_lock_internal(esp_pthread_mutex_t *mux, TickT
 
 static int pthread_mutex_init_if_static(pthread_mutex_t *mutex)
 {
+    int res = 0;
+#if ((!defined(__cplusplus)) && (CONFIG_SUPPORT_STATIC_ALLOCATION == 1))
     esp_pthread_mutex_t *mux = (esp_pthread_mutex_t *)*mutex;
     if ((mux->sem == NULL) && (mux->type == PTHREAD_MUTEX_NORMAL)) {
         portENTER_CRITICAL(&s_mutex_init_lock);
         mux->sem = xSemaphoreCreateMutexStatic(&mux->sembuf);
         portEXIT_CRITICAL(&s_mutex_init_lock);
     }
-    return 0;
+#else
+    if ((intptr_t) *mutex == PTHREAD_MUTEX_INITIALIZER) {
+        portENTER_CRITICAL(&s_mutex_init_lock);
+        res = pthread_mutex_init(mutex, NULL);
+        portEXIT_CRITICAL(&s_mutex_init_lock);
+    }
+#endif
+    return res;
 }
 
 int IRAM_ATTR pthread_mutex_lock(pthread_mutex_t *mutex)
@@ -511,6 +578,7 @@ int IRAM_ATTR pthread_mutex_lock(pthread_mutex_t *mutex)
     return pthread_mutex_lock_internal((esp_pthread_mutex_t *)*mutex, portMAX_DELAY);
 }
 
+#if CONFIG_PTHREAD_MUTEX_TIMEDLOCK
 int IRAM_ATTR pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *timeout)
 {
     if (!mutex) {
@@ -532,6 +600,7 @@ int IRAM_ATTR pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct times
     }
     return res;
 }
+#endif /* CONFIG_PTHREAD_MUTEX_TIMEDLOCK */
 
 int IRAM_ATTR pthread_mutex_trylock(pthread_mutex_t *mutex)
 {

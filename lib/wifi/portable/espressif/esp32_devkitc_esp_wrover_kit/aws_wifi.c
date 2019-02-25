@@ -1,6 +1,6 @@
 // Copyright 2018 Espressif Systems (Shanghai) PTE LTD
 //
-// Amazon FreeRTOS Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.0
+// Amazon FreeRTOS Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
 // Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,13 +34,20 @@
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #include "semphr.h"
+#include "esp_smartconfig.h"
 
 static const char *TAG = "WIFI";
 static EventGroupHandle_t wifi_event_group;
 const int CONNECTED_BIT = BIT0;
 const int DISCONNECTED_BIT = BIT1;
 const int STARTED_BIT = BIT2;
+
+const int AP_STARTED_BIT = BIT3;
+const int AP_STOPPED_BIT = BIT4;
+const int ESPTOUCH_DONE_BIT = BIT5;
 static bool wifi_conn_state;
+static bool wifi_ap_state;
+static bool wifi_ap_not_found;
 
 /**
  * @brief Semaphore for WiFI module.
@@ -55,6 +62,9 @@ static const TickType_t xSemaphoreWaitTicks = pdMS_TO_TICKS( wificonfigMAX_SEMAP
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
+    /* For accessing reason codes in case of disconnection */
+    system_event_info_t *info = &event->event_info;
+
     switch(event->event_id) {
         case SYSTEM_EVENT_STA_START:
             ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
@@ -70,16 +80,135 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED");
+            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
+            wifi_ap_not_found = false;
+
+            /* Set code corresponding to the reason for disconnection */
+            switch (info->disconnected.reason) {
+                case WIFI_REASON_AUTH_EXPIRE:
+                case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT:
+                case WIFI_REASON_BEACON_TIMEOUT:
+                case WIFI_REASON_AUTH_FAIL:
+                case WIFI_REASON_ASSOC_FAIL:
+                case WIFI_REASON_HANDSHAKE_TIMEOUT:
+                    ESP_LOGD(TAG, "STA Auth Error");
+                    break;
+                case WIFI_REASON_NO_AP_FOUND:
+                    ESP_LOGD(TAG, "STA AP Not found");
+                    wifi_ap_not_found = true;
+                    break;
+                default:
+                    break;
+            }
+
             wifi_conn_state = false;
             xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
             xEventGroupSetBits(wifi_event_group, DISCONNECTED_BIT);
+            break;
+        case SYSTEM_EVENT_AP_START:
+            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+            wifi_ap_state = true;
+            xEventGroupClearBits(wifi_event_group, AP_STOPPED_BIT);
+            xEventGroupSetBits(wifi_event_group, AP_STARTED_BIT);
+            break;
+        case SYSTEM_EVENT_AP_STOP:
+            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
+            wifi_ap_state = false;
+            xEventGroupClearBits(wifi_event_group, AP_STARTED_BIT);
+            xEventGroupSetBits(wifi_event_group, AP_STOPPED_BIT);
+            break;
+        case SYSTEM_EVENT_AP_STACONNECTED:
+            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STACONNECTED");
+            break;
+        case SYSTEM_EVENT_AP_STADISCONNECTED:
+            ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
             break;
         default:
             break;
     }
     return ESP_OK;
 }
+/*-----------------------------------------------------------*/
+
+static void sc_callback(smartconfig_status_t status, void *pdata)
+{
+    switch (status) {
+        case SC_STATUS_WAIT:
+            ESP_LOGI(TAG, "SC_STATUS_WAIT");
+            break;
+        case SC_STATUS_FIND_CHANNEL:
+            ESP_LOGI(TAG, "SC_STATUS_FINDING_CHANNEL");
+            break;
+        case SC_STATUS_GETTING_SSID_PSWD:
+            ESP_LOGI(TAG, "SC_STATUS_GETTING_SSID_PSWD");
+            break;
+        case SC_STATUS_LINK:
+            ESP_LOGI(TAG, "SC_STATUS_LINK");
+            wifi_config_t *wifi_config = pdata;
+            ESP_LOGI(TAG, "SSID:%s", wifi_config->sta.ssid);
+            ESP_LOGI(TAG, "PASSWORD:%s", wifi_config->sta.password);
+            esp_wifi_set_config(ESP_IF_WIFI_STA, wifi_config);
+            esp_wifi_connect();
+            break;
+        case SC_STATUS_LINK_OVER:
+            ESP_LOGI(TAG, "SC_STATUS_LINK_OVER");
+            if (pdata != NULL) {
+                uint8_t phone_ip[4] = { 0 };
+                memcpy(phone_ip, (uint8_t* )pdata, 4);
+                ESP_LOGI(TAG, "IP: %d.%d.%d.%d\n", phone_ip[0], phone_ip[1], phone_ip[2], phone_ip[3]);
+            }
+            xEventGroupSetBits(wifi_event_group, ESPTOUCH_DONE_BIT);
+            break;
+        default:
+            break;
+    }
+}
+
+WIFIReturnCode_t WIFI_Provision()
+{
+    WIFIReturnCode_t wifi_ret = eWiFiFailure;
+    esp_err_t ret;
+
+    /* Try to acquire the semaphore. */
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        ret = esp_wifi_set_mode(WIFI_MODE_STA);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+
+        ret = esp_wifi_start();
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+
+        // Wait for wifi started event
+        xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+        esp_smartconfig_set_type(SC_TYPE_ESPTOUCH);
+        ret = esp_smartconfig_start(sc_callback);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to start smartconfig %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+
+        // Wait for wifi connected or disconnected event
+        xEventGroupWaitBits(wifi_event_group, ESPTOUCH_DONE_BIT | DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+        esp_smartconfig_stop();
+        if (wifi_conn_state == true) {
+            wifi_ret = eWiFiSuccess;
+        }
+        /* Return the semaphore. */
+        xSemaphoreGive( xWiFiSem );
+    }
+
+    return wifi_ret;
+}
+
 /*-----------------------------------------------------------*/
 
 BaseType_t WIFI_IsConnected( void )
@@ -272,7 +401,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
 
-    if (pxBuffer == NULL) {
+    if (pxBuffer == NULL || ucNumNetworks == 0) {
         return eWiFiFailure;
     }
 
@@ -286,6 +415,15 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
+        if ( wifi_conn_state == false && wifi_ap_not_found == true )
+        {
+            /* It seems that WiFi needs explicit disassoc before scan request post
+             * attempt to connect to invalid network name or SSID.
+             */
+            esp_wifi_disconnect();
+            xEventGroupWaitBits(wifi_event_group, DISCONNECTED_BIT, pdTRUE, pdFALSE, 30);
+        }
+
         esp_err_t ret = esp_wifi_scan_start(&scanConf, true);
         if (ret == ESP_OK)
         {
@@ -497,32 +635,230 @@ WIFIReturnCode_t WIFI_GetHostIP( char * pcHost,
 
 WIFIReturnCode_t WIFI_StartAP( void )
 {
-    return eWiFiNotSupported;
+    WIFIReturnCode_t wifi_ret = eWiFiFailure;
+    if ( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        if (wifi_ap_state == true) {
+            xSemaphoreGive( xWiFiSem );
+            return eWiFiSuccess;
+        }
+        esp_err_t ret = esp_wifi_start();
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+        // Wait for wifi started event
+        xEventGroupWaitBits(wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+        wifi_ret = eWiFiSuccess;
+    }
+    return wifi_ret;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_StopAP( void )
 {
-    return eWiFiNotSupported;
+     WIFIReturnCode_t xRetVal = eWiFiFailure;
+
+    /* Try to acquire the semaphore. */
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        // Check if AP is already stopped
+        if (wifi_ap_state == false) {
+            xSemaphoreGive( xWiFiSem );
+            return eWiFiSuccess;
+        }
+
+        esp_err_t ret = esp_wifi_stop();
+        if (ret == ESP_OK)
+        {
+            // Wait for ap disconnected event
+            xEventGroupWaitBits(wifi_event_group, AP_STOPPED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+            xRetVal = eWiFiSuccess;
+        }
+        /* Return the semaphore. */
+        xSemaphoreGive( xWiFiSem );
+    }
+    else
+    {
+        xRetVal = eWiFiTimeout;
+    }
+    return xRetVal;
 }
 /*-----------------------------------------------------------*/
 
+static esp_err_t WIFI_SetSecurity( WIFISecurity_t securityMode, wifi_auth_mode_t * authmode)
+{
+    switch( securityMode )
+    {
+        case eWiFiSecurityOpen:
+            *authmode = WIFI_AUTH_OPEN;
+            break;
+        case eWiFiSecurityWEP:
+            *authmode = WIFI_AUTH_WEP;
+            break;
+        case eWiFiSecurityWPA:
+            *authmode = WIFI_AUTH_WPA_PSK;
+            break;
+        case eWiFiSecurityWPA2:
+            *authmode = WIFI_AUTH_WPA2_PSK;
+            break;
+        case eWiFiSecurityNotSupported:
+            return ESP_FAIL;
+            break;
+    }
+    return ESP_OK;
+}
+
 WIFIReturnCode_t WIFI_ConfigureAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
-    return eWiFiNotSupported;
+    wifi_config_t wifi_config = { 0 };
+    esp_err_t ret;
+    WIFIReturnCode_t wifi_ret = eWiFiFailure;
+
+    if (pxNetworkParams == NULL || pxNetworkParams->pcSSID == NULL
+            || (pxNetworkParams->xSecurity != eWiFiSecurityOpen && pxNetworkParams->pcPassword == NULL)) {
+        return wifi_ret;
+    }
+
+    if (!CHECK_VALID_SSID_LEN(pxNetworkParams->ucSSIDLength) ||
+        (pxNetworkParams->xSecurity != eWiFiSecurityOpen && !CHECK_VALID_PASSPHRASE_LEN(pxNetworkParams->ucPasswordLength))) {
+        return wifi_ret;
+    }
+
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        // Check if AP is already started
+        if (wifi_ap_state == true) {
+            esp_err_t ret = esp_wifi_stop();
+            if (ret == ESP_OK)
+            {
+                // Wait for AP stopped event
+                xEventGroupWaitBits(wifi_event_group, AP_STOPPED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+            }
+        }
+
+        /* ssid/password is required */
+        strlcpy((char *) &wifi_config.ap.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
+            strlcpy((char *) &wifi_config.ap.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength);
+        }
+
+        ret = WIFI_SetSecurity(pxNetworkParams->xSecurity, &wifi_config.ap.authmode);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Invalid security mode %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+
+        ret = esp_wifi_set_mode(WIFI_MODE_AP);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+
+        ret = esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+
+        wifi_ret = eWiFiSuccess;
+        /* Return the semaphore. */
+        xSemaphoreGive( xWiFiSem );
+    }
+
+    return wifi_ret;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_SetPMMode( WIFIPMMode_t xPMModeType,
                                  const void * pvOptionValue )
 {
-    return eWiFiNotSupported;
+    esp_err_t ret;
+    WIFIReturnCode_t wifi_ret = eWiFiFailure;
+    wifi_ps_type_t wifi_pm_mode = WIFI_PS_NONE;
+
+    configASSERT( pvOptionValue != NULL );
+
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        switch (xPMModeType)
+        {
+            case eWiFiPMNormal:
+                wifi_pm_mode = WIFI_PS_MIN_MODEM;
+                break;
+            case eWiFiPMLowPower:
+                wifi_pm_mode = WIFI_PS_MAX_MODEM;
+                break;
+            case eWiFiPMAlwaysOn:
+                wifi_pm_mode = WIFI_PS_NONE;
+                break;
+            case eWiFiPMNotSupported:
+                return eWiFiNotSupported;
+                break;
+        }
+        ret = esp_wifi_set_ps( wifi_pm_mode );
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to set wifi power mode %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+        wifi_ret = eWiFiSuccess;
+        xSemaphoreGive( xWiFiSem );
+    }
+    else
+    {
+        wifi_ret = eWiFiTimeout;
+    }
+    return wifi_ret;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
                                  void * pvOptionValue )
 {
-    return eWiFiNotSupported;
+    esp_err_t ret;
+    WIFIReturnCode_t wifi_ret = eWiFiFailure;
+    wifi_ps_type_t wifi_pm_mode;
+
+    configASSERT( pxPMModeType != NULL );
+    configASSERT( pvOptionValue != NULL );
+
+    if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    {
+        ret = esp_wifi_get_ps( &wifi_pm_mode );
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to set wifi power mode %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+        else{
+            switch ( wifi_pm_mode )
+            {
+                case WIFI_PS_NONE:
+                    *pxPMModeType = eWiFiPMAlwaysOn;
+                    break;
+                case WIFI_PS_MIN_MODEM:
+                    *pxPMModeType = eWiFiPMNormal;
+                    break;
+                case WIFI_PS_MAX_MODEM:
+                    *pxPMModeType = eWiFiPMLowPower;
+                    break;
+                default:
+                    *pxPMModeType = eWiFiPMNotSupported;
+                    break;
+            }
+            wifi_ret = eWiFiSuccess;
+            xSemaphoreGive( xWiFiSem );
+        }
+    }
+    else
+    {
+        wifi_ret = eWiFiTimeout;
+    }
+    return wifi_ret;
 }
 /*-----------------------------------------------------------*/

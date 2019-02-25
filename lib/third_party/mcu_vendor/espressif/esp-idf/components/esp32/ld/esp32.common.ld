@@ -10,8 +10,8 @@ SECTIONS
   {
     . = ALIGN(4);
     *(.rtc.literal .rtc.text)
-    *rtc_wake_stub*.o(.literal .text .literal.* .text.*)
-  } >rtc_iram_seg
+    *rtc_wake_stub*.*(.literal .text .literal.* .text.*)
+  } > rtc_iram_seg
 
   /* RTC slow memory holds RTC wake stub
      data/rodata, including from any source file
@@ -22,7 +22,7 @@ SECTIONS
     _rtc_data_start = ABSOLUTE(.);
     *(.rtc.data)
     *(.rtc.rodata)
-    *rtc_wake_stub*.o(.data .rodata .data.* .rodata.* .bss .bss.*)
+    *rtc_wake_stub*.*(.data .rodata .data.* .rodata.* .bss .bss.*)
     _rtc_data_end = ABSOLUTE(.);
   } > rtc_slow_seg
 
@@ -30,9 +30,23 @@ SECTIONS
   .rtc.bss (NOLOAD) :
   {
     _rtc_bss_start = ABSOLUTE(.);
-    *rtc_wake_stub*.o(.bss .bss.*)
-    *rtc_wake_stub*.o(COMMON)
+    *rtc_wake_stub*.*(.bss .bss.*)
+    *rtc_wake_stub*.*(COMMON)
     _rtc_bss_end = ABSOLUTE(.);
+  } > rtc_slow_seg
+
+  /* This section holds data that should not be initialized at power up 
+     and will be retained during deep sleep. The section located in 
+     RTC SLOW Memory area. User data marked with RTC_NOINIT_ATTR will be placed
+     into this section. See the file "esp_attr.h" for more information.
+  */
+  .rtc_noinit (NOLOAD):
+  {
+    . = ALIGN(4);
+    _rtc_noinit_start = ABSOLUTE(.);
+    *(.rtc_noinit .rtc_noinit.*)
+    . = ALIGN(4) ;
+    _rtc_noinit_end = ABSOLUTE(.);
   } > rtc_slow_seg
 
   /* Send .iram0 code to iram */
@@ -83,22 +97,22 @@ SECTIONS
     _iram_text_start = ABSOLUTE(.);
     *(.iram1 .iram1.*)
     *libfreertos.a:(.literal .text .literal.* .text.*)
-    *libheap.a:multi_heap.o(.literal .text .literal.* .text.*)
-    *libheap.a:multi_heap_poisoning.o(.literal .text .literal.* .text.*)
-    *libesp32.a:panic.o(.literal .text .literal.* .text.*)
-    *libesp32.a:core_dump.o(.literal .text .literal.* .text.*)
+    *libheap.a:multi_heap.*(.literal .text .literal.* .text.*)
+    *libheap.a:multi_heap_poisoning.*(.literal .text .literal.* .text.*)
+    *libesp32.a:panic.*(.literal .text .literal.* .text.*)
+    *libesp32.a:core_dump.*(.literal .text .literal.* .text.*)
     *libapp_trace.a:(.literal .text .literal.* .text.*)
-    *libxtensa-debug-module.a:eri.o(.literal .text .literal.* .text.*)
+    *libxtensa-debug-module.a:eri.*(.literal .text .literal.* .text.*)
     *librtc.a:(.literal .text .literal.* .text.*)
     *libsoc.a:(.literal .text .literal.* .text.*)
     *libhal.a:(.literal .text .literal.* .text.*)
-    *libgcc.a:lib2funcs.o(.literal .text .literal.* .text.*)
-    *libspi_flash.a:spi_flash_rom_patch.o(.literal .text .literal.* .text.*)
+    *libgcc.a:lib2funcs.*(.literal .text .literal.* .text.*)
+    *libspi_flash.a:spi_flash_rom_patch.*(.literal .text .literal.* .text.*)
     *libgcov.a:(.literal .text .literal.* .text.*)
     INCLUDE esp32.spiram.rom-functions-iram.ld
     _iram_text_end = ABSOLUTE(.);
   } > iram0_0_seg
-
+  
   .dram0.data :
   {
     _data_start = ABSOLUTE(.);
@@ -114,16 +128,31 @@ SECTIONS
     *(.gnu.linkonce.s2.*)
     *(.jcr)
     *(.dram1 .dram1.*)
-    *libesp32.a:panic.o(.rodata .rodata.*)
-    *libsoc.a:rtc_clk.o(.rodata .rodata.*)
+    *libesp32.a:panic.*(.rodata .rodata.*)
+    *libphy.a:(.rodata .rodata.*)
+    *libsoc.a:rtc_clk.*(.rodata .rodata.*)
     *libapp_trace.a:(.rodata .rodata.*)
     *libgcov.a:(.rodata .rodata.*)
-    *libheap.a:multi_heap.o(.rodata .rodata.*)
-    *libheap.a:multi_heap_poisoning.o(.rodata .rodata.*)
+    *libheap.a:multi_heap.*(.rodata .rodata.*)
+    *libheap.a:multi_heap_poisoning.*(.rodata .rodata.*)
     INCLUDE esp32.spiram.rom-functions-dram.ld
     _data_end = ABSOLUTE(.);
     . = ALIGN(4);
-  } >dram0_0_seg
+  } > dram0_0_seg
+
+  /*This section holds data that should not be initialized at power up.
+    The section located in Internal SRAM memory region. The macro _NOINIT
+    can be used as attribute to place data into this section.
+    See the esp_attr.h file for more information.
+  */
+  .noinit (NOLOAD):
+  {
+    . = ALIGN(4);
+    _noinit_start = ABSOLUTE(.);
+    *(.noinit .noinit.*) 
+    . = ALIGN(4) ;
+    _noinit_end = ABSOLUTE(.);
+  } > dram0_0_seg
 
   /* Shared RAM */
   .dram0.bss (NOLOAD) :
@@ -146,8 +175,9 @@ SECTIONS
     *(COMMON)
     . = ALIGN (8);
     _bss_end = ABSOLUTE(.);
+    /* The heap starts right after end of this section */
     _heap_start = ABSOLUTE(.);
-  } >dram0_0_seg
+  } > dram0_0_seg
 
   .flash.rodata :
   {
@@ -168,13 +198,13 @@ SECTIONS
     . = (. + 7) & ~ 3;
     /*  C++ constructor and destructor tables, properly ordered:  */
     __init_array_start = ABSOLUTE(.);
-    KEEP (*crtbegin.o(.ctors))
-    KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
+    KEEP (*crtbegin.*(.ctors))
+    KEEP (*(EXCLUDE_FILE (*crtend.*) .ctors))
     KEEP (*(SORT(.ctors.*)))
     KEEP (*(.ctors))
     __init_array_end = ABSOLUTE(.);
-    KEEP (*crtbegin.o(.dtors))
-    KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
+    KEEP (*crtbegin.*(.dtors))
+    KEEP (*(EXCLUDE_FILE (*crtend.*) .dtors))
     KEEP (*(SORT(.dtors.*)))
     KEEP (*(.dtors))
     /*  C++ exception handlers table:  */
@@ -192,6 +222,13 @@ SECTIONS
     *(.lit4.*)
     *(.gnu.linkonce.lit4.*)
     _lit4_end = ABSOLUTE(.);
+    . = ALIGN(4);
+    _thread_local_start = ABSOLUTE(.);
+    *(.tdata)
+    *(.tdata.*)
+    *(.tbss)
+    *(.tbss.*)
+    _thread_local_end = ABSOLUTE(.);
     . = ALIGN(4);
   } >drom0_0_seg
 

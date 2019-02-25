@@ -37,6 +37,10 @@ LONGER_BINARY_TABLE += b"\xAA\x50\x10\x00" + \
                        b"\x00\x10\x00\x00" + \
                        b"second" + (b"\0"*10) + \
                        b"\x00\x00\x00\x00"
+# MD5 checksum
+LONGER_BINARY_TABLE += b"\xEB\xEB" + b"\xFF" * 14
+LONGER_BINARY_TABLE += b'\xf9\xbd\x06\x1b\x45\x68\x6f\x86\x57\x1a\x2c\xd5\x2a\x1d\xa6\x5b'
+# empty partition
 LONGER_BINARY_TABLE += b"\xFF" * 32
 
 
@@ -168,12 +172,14 @@ first, 0x30, 0xEE, 0x100400, 0x300000
 """
         t = PartitionTable.from_csv(csv)
         tb = _strip_trailing_ffs(t.to_binary())
-        self.assertEqual(len(tb), 64)
+        self.assertEqual(len(tb), 64+32)
         self.assertEqual(b'\xAA\x50', tb[0:2]) # magic
         self.assertEqual(b'\x30\xee', tb[2:4]) # type, subtype
         eo, es = struct.unpack("<LL", tb[4:12])
         self.assertEqual(eo, 0x100400) # offset
         self.assertEqual(es, 0x300000) # size
+        self.assertEqual(b"\xEB\xEB" + b"\xFF" * 14, tb[32:48])
+        self.assertEqual(b'\x43\x03\x3f\x33\x40\x87\x57\x51\x69\x83\x9b\x40\x61\xb1\x27\x26', tb[48:64])
 
     def test_multiple_entries(self):
         csv = """
@@ -182,7 +188,7 @@ second,0x31, 0xEF,         , 0x100000
 """
         t = PartitionTable.from_csv(csv)
         tb = _strip_trailing_ffs(t.to_binary())
-        self.assertEqual(len(tb), 96)
+        self.assertEqual(len(tb), 96+32)
         self.assertEqual(b'\xAA\x50', tb[0:2])
         self.assertEqual(b'\xAA\x50', tb[32:34])
 
@@ -349,6 +355,54 @@ app,app, factory, 32K, 1M
             t = PartitionTable.from_csv(csv)
             t.verify()
 
+
+class PartToolTests(unittest.TestCase):
+
+    def _run_parttool(self, csvcontents, args):
+        csvpath = tempfile.mktemp()
+        with open(csvpath, "w") as f:
+            f.write(csvcontents)
+        try:
+            return subprocess.check_output([sys.executable, "../parttool.py"] + args.split(" ") + [ csvpath ]).strip()
+        finally:
+            os.remove(csvpath)
+
+    def test_find_basic(self):
+        csv = """
+nvs,      data, nvs,     0x9000,  0x4000
+otadata,  data, ota,     0xd000,  0x2000
+phy_init, data, phy,     0xf000,  0x1000
+factory,  app, factory, 0x10000,  1M
+        """
+        rpt = lambda args: self._run_parttool(csv, args)
+
+        self.assertEqual(
+            rpt("--type data --subtype nvs --offset"), "0x9000")
+        self.assertEqual(
+            rpt("--type data --subtype nvs --size"), "0x4000")
+        self.assertEqual(
+            rpt("--partition-name otadata --offset"), "0xd000")
+        self.assertEqual(
+            rpt("--default-boot-partition --offset"), "0x10000")
+
+    def test_fallback(self):
+        csv = """
+nvs,      data, nvs,     0x9000,  0x4000
+otadata,  data, ota,     0xd000,  0x2000
+phy_init, data, phy,     0xf000,  0x1000
+ota_0,  app,    ota_0,   0x30000,  1M
+ota_1,  app,    ota_1,          ,  1M
+        """
+        rpt = lambda args: self._run_parttool(csv, args)
+
+        self.assertEqual(
+            rpt("--type app --subtype ota_1 --offset"), "0x130000")
+        self.assertEqual(
+            rpt("--default-boot-partition --offset"), "0x30000")  # ota_0
+        csv_mod = csv.replace("ota_0", "ota_2")
+        self.assertEqual(
+            self._run_parttool(csv_mod, "--default-boot-partition --offset"),
+            "0x130000")  # now default is ota_1
 
 if __name__ =="__main__":
     unittest.main()

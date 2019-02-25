@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,6 +36,9 @@
 /* C standard library includes. */
 #include <stdint.h>
 
+/* FreeRTOS types include */
+#include "FreeRTOS_POSIX_types.h"
+
 /**
  * @brief Used for system times in clock ticks or CLOCKS_PER_SEC.
  */
@@ -68,15 +71,15 @@
  * @brief Used to identify a thread attribute object.
  */
 #if !defined( posixconfigENABLE_PTHREAD_ATTR_T ) || ( posixconfigENABLE_PTHREAD_ATTR_T == 1 )
-    typedef struct pthread_attr {
-        uint32_t ulpthreadAttrStorage;
-    } pthread_attr_t;
+    typedef PthreadAttrType_t pthread_attr_t;
 #endif
 
 /**
  * @brief Used to identify a barrier.
  */
-typedef void                * pthread_barrier_t;
+#if !defined( posixconfigENABLE_PTHREAD_BARRIER_T ) || ( posixconfigENABLE_PTHREAD_BARRIER_T == 1 )
+    typedef PthreadBarrierType_t pthread_barrier_t;
+#endif
 
 /**
  * @brief Used to define a barrier attributes object.
@@ -87,7 +90,7 @@ typedef void                * pthread_barrierattr_t;
  * @brief Used for condition variables.
  */
 #if !defined( posixconfigENABLE_PTHREAD_COND_T ) || ( posixconfigENABLE_PTHREAD_COND_T == 1 )
-    typedef void            * pthread_cond_t;
+    typedef  PthreadCondType_t  pthread_cond_t;
 #endif
 
 /**
@@ -101,14 +104,14 @@ typedef void                * pthread_barrierattr_t;
  * @brief Used for mutexes.
  */
 #if !defined( posixconfigENABLE_PTHREAD_MUTEX_T ) || ( posixconfigENABLE_PTHREAD_MUTEX_T == 1 )
-    typedef void            * pthread_mutex_t;
+    typedef PthreadMutexType_t  pthread_mutex_t;
 #endif
 
 /**
  * @brief Used to identify a mutex attribute object.
  */
 #if !defined( posixconfigENABLE_PTHREAD_MUTEXATTR_T ) || ( posixconfigENABLE_PTHREAD_MUTEXATTR_T == 1 )
-    typedef void            * pthread_mutexattr_t;
+    typedef PthreadMutexAttrType_t  pthread_mutexattr_t;
 #endif
 
 /**

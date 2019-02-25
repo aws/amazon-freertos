@@ -33,10 +33,15 @@ The following MCU boards are supported for Amazon FreeRTOS:
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_mediatek.html)
     * IDE: [Keil uVision](http://www2.keil.com/mdk5/install/)
 9. **Renesas** - [Renesas Starter Kit+ for RX65N-2MB](https://www.renesas.com/us/en/products/software-tools/boards-and-kits/renesas-starter-kits/renesas-starter-kitplus-for-rx65n-2mb.html)
-    * [Getting Started Guide (Coming Soon)](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_renesas.html)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_renesas.html)
     * IDE: [e2 studio](https://www.renesas.com/us/en/products/software-tools/tools/ide/e2studio.html)
-
-**Windows Simulator**
+10. **Cypress CYW54907** - [Cypress CYW954907AEVAL1F Evaluation Kit](https://www.cypress.com/documentation/development-kitsboards/cyw954907aeval1f-evaluation-kit)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_54.html)
+    * IDE: [WICED Studio](https://community.cypress.com/community/wiced-wifi)
+11. **Cypress CYW43907** - [Cypress CYW943907AEVAL1F Evaluation Kit](https://www.cypress.com/documentation/development-kitsboards/cyw943907aeval1f-evaluation-kit)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_43.html)
+    * IDE: [WICED Studio](https://community.cypress.com/community/wiced-wifi)
+12. **Windows Simulator**
 To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
 * Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
 * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)

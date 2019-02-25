@@ -60,7 +60,7 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
         )
         if self._otaAwsAgent._stageParams:
             # Create a job.
-            jobId = self._otaAwsAgent.createOtaUpdate(
+            otaUpdateId = self._otaAwsAgent.createOtaUpdate(
                 deploymentFiles = [
                     {
                         'fileName': self._otaConfig['device_firmware_file_name'],

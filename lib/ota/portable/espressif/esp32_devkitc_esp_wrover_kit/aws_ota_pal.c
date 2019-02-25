@@ -1,7 +1,7 @@
 /*
  * Copyright 2018 Espressif Systems (Shanghai) PTE LTD
  *
- * Amazon FreeRTOS OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
+ * Amazon FreeRTOS OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,7 +68,7 @@ static esp_ota_context_t ota_ctx;
 static const char * TAG = "ota_pal";
 
 /* Specify the OTA signature algorithm we support on this platform. */
-const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
+const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 
 static CK_RV prvGetCertificateHandle( CK_FUNCTION_LIST_PTR pxFunctionList,
                                       CK_SESSION_HANDLE xSession,
@@ -178,7 +178,7 @@ OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C )
 /* Attempt to create a new receive file for the file chunks as they come in. */
 OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
 {
-    if( ( NULL == C ) || ( NULL == C->pacFilepath ) )
+    if( ( NULL == C ) || ( NULL == C->pucFilePath ) )
     {
         return kOTA_Err_RxFileCreateFailed;
     }
@@ -396,7 +396,7 @@ OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
         return kOTA_Err_SignatureCheckFailed;
     }
 
-    pucSignerCert = prvPAL_ReadAndAssumeCertificate( ( const u8 * const ) C->pacCertFilepath, &ulSignerCertSize );
+    pucSignerCert = prvPAL_ReadAndAssumeCertificate( ( const u8 * const ) C->pucCertFilepath, &ulSignerCertSize );
 
     if( pucSignerCert == NULL )
     {

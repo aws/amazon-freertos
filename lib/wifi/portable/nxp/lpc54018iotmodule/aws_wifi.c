@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi for LPC54018 IoT Module V1.0.2
+ * Amazon FreeRTOS Wi-Fi for LPC54018 IoT Module V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -306,9 +306,9 @@ WIFIReturnCode_t WIFI_On( void )
 {
     A_STATUS result;
 
-    /* Prevent re-initialization */
+    /* Prevent re-initialization. WiFi is aleady on this is successful. */
     if (g_wifi_is_on)
-        return eWiFiFailure;
+        return eWiFiSuccess;
 
     /* Initialize Wi-Fi shield */
     result = (A_STATUS)WIFISHIELD_Init();
@@ -369,6 +369,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     const TickType_t connect_timeout = pdMS_TO_TICKS( 30000UL );
     const TickType_t dhcp_timeout = pdMS_TO_TICKS( 20000UL );
     uint32_t tmp_ip4_addr = 0, tmp_ip4_mask = 0, tmp_ip4_gw = 0;
+    uint8_t ucDhcpSuccessful = 0;
 
     /* Check initialization */
     if (!g_wifi_is_on)
@@ -469,13 +470,13 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             }
 
             g_expected_event = expected_event_connect;
-            /* Commit settings to Wi-Fi module */
+            /* Commit settings to Wi-Fi module. Calling this function starts the connection process. */
             if (A_OK != qcom_commit(g_devid))
             {
                 break;
             }
 
-            /* Wait for callback, that is invoked from 'driver_task' context */
+            /* Wait for callback, that is invoked from 'driver_task' context. This callback sets g_connected to connected (1) or disconnected (0). */
             if (pdTRUE != xSemaphoreTake(g_connect_semaph, connect_timeout))
             {
                 break;
@@ -519,9 +520,14 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             {
                 break;
             }
+            /* Otherwise after all is said and done the DHCP request is successful. */
+            else
+            {
+                ucDhcpSuccessful = 1;
+            }
 
-            /* Everything is OK */
-            status = g_connected ? eWiFiSuccess : eWiFiFailure;
+            /* Everything is OK. We connected to the AP and got an IP address with DHCP. */
+            status = ( g_connected && ucDhcpSuccessful ) ? eWiFiSuccess : eWiFiFailure;
         } while (0);
 
         /* Release semaphore */

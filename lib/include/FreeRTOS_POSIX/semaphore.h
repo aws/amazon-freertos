@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,11 +35,12 @@
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX/time.h"
+#include "FreeRTOS_POSIX_types.h"
 
 /**
  * @brief Semaphore type.
  */
-typedef void * sem_t;
+typedef PosixSemType_t sem_t;
 
 /**
  * @brief Destroy an unnamed semaphore.
