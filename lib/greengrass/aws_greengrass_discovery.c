@@ -50,6 +50,7 @@
 /* Standard includes. */
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 /**
  * @brief Discovery: Strings for JSON file parsing.
