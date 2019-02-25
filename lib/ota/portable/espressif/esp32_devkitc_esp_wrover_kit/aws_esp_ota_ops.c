@@ -158,7 +158,7 @@ esp_err_t aws_esp_ota_write(esp_ota_handle_t handle, const void *data, uint32_t 
     }
 
     //if go to here ,means don't find the handle
-    ESP_LOGE(TAG,"not found the handle")
+    ESP_LOGE(TAG,"not found the handle");
     return ESP_ERR_INVALID_ARG;
 }
 
@@ -433,7 +433,7 @@ static const esp_partition_t *_esp_get_otadata_partition(uint32_t *offset, ota_s
             memcpy(entry, &s_ota_select[1], sizeof(ota_select));
             *offset = SPI_FLASH_SEC_SIZE;
             ESP_LOGI(TAG, "[1] aflags/seq:0x%x/0x%x, pflags/seq:0x%x/0x%x",
-                            s_ota_select[1].ota_flags, gen_1_seq, s_ota_select[0].ota_flags, gen_0_seq)
+                            s_ota_select[1].ota_flags, gen_1_seq, s_ota_select[0].ota_flags, gen_0_seq);
         }
     } else {
         ESP_LOGE(TAG, "no otadata partition found");

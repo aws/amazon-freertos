@@ -1,6 +1,6 @@
 // Copyright 2018 Espressif Systems (Shanghai) PTE LTD
 //
-// Amazon FreeRTOS PKCS #11 PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
+// Amazon FreeRTOS PKCS #11 PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
 // Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,15 +33,17 @@
 #include <string.h>
 
 #include "esp_log.h"
-#include "esp_spiffs.h"
-#include "sys/stat.h"
+#include "esp_flash_encrypt.h"
+#include "nvs_flash.h"
 
-static const char * TAG = "PKCS11";
+#define NVS_PART_NAME "storage"
+#define NAMESPACE "creds"
+static const char *TAG = "PKCS11";
 
 #define pkcsFLASH_PARTITION                      "storage"
-#define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
-#define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
-#define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
+#define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "P11_Cert"
+#define pkcs11palFILE_NAME_KEY                   "P11_Key"
+#define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "P11_CSK"
 
 enum eObjectHandles
 {
@@ -51,72 +53,59 @@ enum eObjectHandles
     eAwsDeviceCertificate,
     eAwsCodeSigningKey
 };
-
 /*-----------------------------------------------------------*/
 
-static void initialize_spiffs()
+static void initialize_nvs_partition()
 {
-    static bool spiffs_inited = false;
-
-    ESP_LOGI( TAG, "Initializing SPIFFS" );
+    static bool nvs_inited;
 
     portENTER_CRITICAL();
-    if ( spiffs_inited == true )
-    {
+    if (nvs_inited == true) {
         portEXIT_CRITICAL();
         return;
     }
 
-    esp_vfs_spiffs_conf_t conf =
-    {
-        .base_path = "/spiffs",
-        .partition_label = pkcsFLASH_PARTITION,
-        .max_files = 5,
-        .format_if_mount_failed = true
-    };
+    ESP_LOGI(TAG, "Initializing NVS partition: \"%s\"", NVS_PART_NAME);
 
-    /* Use settings defined above to initialize and mount SPIFFS filesystem. */
-    /* Note: esp_vfs_spiffs_register is an all-in-one convenience function. */
-    esp_err_t ret = esp_vfs_spiffs_register( &conf );
 
-    if ( ret == ESP_OK )
-    {
-        spiffs_inited = true;
+
+#if CONFIG_NVS_ENCRYPTION
+    if (esp_flash_encryption_enabled()) {
+        const esp_partition_t *key_part = esp_partition_find_first(
+                ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS, NULL);
+        assert(key_part && "NVS key partition not found");
+
+        nvs_sec_cfg_t cfg;
+        esp_err_t err = nvs_flash_read_security_cfg(key_part, &cfg);
+        if (err == ESP_ERR_NVS_KEYS_NOT_INITIALIZED) {
+            ESP_LOGI(TAG, "NVS key partition empty, generating keys");
+            nvs_flash_generate_keys(key_part, &cfg);
+        } else {
+            ESP_ERROR_CHECK(err);
+        }
+
+        esp_err_t ret = nvs_flash_secure_init_partition(NVS_PART_NAME, &cfg);
+        if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+            ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PART_NAME));
+            ret = nvs_flash_secure_init_partition(NVS_PART_NAME, &cfg);
+        }
+        ESP_ERROR_CHECK(ret);
+    } else {
+#endif // CONFIG_NVS_ENCRYPTION
+        esp_err_t ret = nvs_flash_init_partition(NVS_PART_NAME);
+        if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+            ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PART_NAME));
+            ret = nvs_flash_init_partition(NVS_PART_NAME);
+        }
+        ESP_ERROR_CHECK(ret);
+#if CONFIG_NVS_ENCRYPTION
     }
+#endif // CONFIG_NVS_ENCRYPTION
+    nvs_inited = true;
     portEXIT_CRITICAL();
 
-    if( ret != ESP_OK )
-    {
-        if( ret == ESP_FAIL )
-        {
-            ESP_LOGE( TAG, "Failed to mount or format filesystem" );
-        }
-        else if( ret == ESP_ERR_NOT_FOUND )
-        {
-            ESP_LOGE( TAG, "Failed to find SPIFFS partition" );
-        }
-        else
-        {
-            ESP_LOGE( TAG, "Failed to initialize SPIFFS (%d)", ret );
-        }
-
-        return;
-    }
-
-
-    size_t total = 0, used = 0;
-    ret = esp_spiffs_info( pkcsFLASH_PARTITION, &total, &used );
-
-    if( ret != ESP_OK )
-    {
-        ESP_LOGE( TAG, "Failed to get SPIFFS partition information" );
-    }
-    else
-    {
-        ESP_LOGI( TAG, "Partition size: total: %d, used: %d", total, used );
-    }
+    return;
 }
-
 
 /* Converts a label to its respective filename and handle. */
 void prvLabelToFilenameHandle( uint8_t * pcLabel,
@@ -177,11 +166,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize )
 {
-    initialize_spiffs();
-
-    FILE * fp;
-    char fname[ 32 ];
-
+    initialize_nvs_partition();
 
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
@@ -191,32 +176,22 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                               &pcFileName,
                               &xHandle );
 
-    ESP_LOGD( TAG, "Writing file %s, %d bytes", pcFileName, ulDataSize );
-    snprintf( fname, sizeof( fname ), "/spiffs/%s", pcFileName );
-    fp = fopen( fname, "w+" );
-
-    if( fp == NULL )
-    {
+    ESP_LOGD(TAG, "Writing file %s, %d bytes", pcFileName, ulDataSize);
+    nvs_handle handle;
+    esp_err_t err = nvs_open_from_partition(NVS_PART_NAME, NAMESPACE, NVS_READWRITE, &handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "failed nvs open %d", err);
         return eInvalidHandle;
     }
 
-    int written_size = 0;
-    int bytes = 256;
-
-    while( written_size < ulDataSize )
-    {
-        if( bytes > ( ulDataSize - written_size ) )
-        {
-            bytes = ulDataSize - written_size;
-        }
-
-        int len = fwrite( pucData, 1, bytes, fp );
-        pucData += len;
-        written_size += len;
+    err = nvs_set_blob(handle, pcFileName, pucData, ulDataSize);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "failed nvs set blob %d", err);
+        nvs_close(handle);
+        return eInvalidHandle;
     }
 
-    fclose( fp );
-
+    nvs_close(handle);
     return xHandle;
 }
 
@@ -237,10 +212,9 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pcLabel,
                                         uint8_t usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
-    char fname[ 32 ];
     char * pcFileName = NULL;
 
-    initialize_spiffs();
+    initialize_nvs_partition();
 
     /* Translate from the PKCS#11 label to local storage file name. */
     prvLabelToFilenameHandle( pcLabel,
@@ -249,16 +223,22 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pcLabel,
 
     if( pcFileName != NULL )
     {
-        ESP_LOGD( TAG, "Reading file %s", pcFileName );
-        snprintf( fname, sizeof( fname ), "/spiffs/%s", pcFileName );
+        ESP_LOGD( TAG, "Finding file %s", pcFileName );
+        nvs_handle handle;
+        esp_err_t err = nvs_open_from_partition(NVS_PART_NAME, NAMESPACE, NVS_READONLY, &handle);
+        if (err != ESP_OK) {
+            /* This can happen if namespace doesn't exist yet, so no files stored */
+            ESP_LOGD(TAG, "failed nvs open %d", err);
+            return eInvalidHandle;
+        }
 
-        /* Check if destination file exists. */
-        struct stat st;
-
-        if( stat( fname, &st ) != 0 )
-        {
+        size_t required_size = 0;
+        err = nvs_get_blob(handle, pcFileName, NULL, &required_size);
+        if (err != ESP_OK || required_size == 0) {
+            ESP_LOGE(TAG, "failed nvs get file size %d %d", err, required_size);
             xHandle = eInvalidHandle;
         }
+        nvs_close(handle);
     }
 
     return xHandle;
@@ -294,10 +274,8 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                  uint32_t * pulDataSize,
                                  CK_BBOOL * pIsPrivate )
 {
-    initialize_spiffs();
+    initialize_nvs_partition();
 
-    FILE * fp;
-    char fname[ 32 ];
     char * pcFileName = NULL;
     CK_RV ulReturn = CKR_OK;
 
@@ -327,61 +305,44 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         ulReturn = CKR_OBJECT_HANDLE_INVALID;
     }
 
-    if( ulReturn == CKR_OK )
+    if (ulReturn == CKR_OK)
     {
-        ESP_LOGD( TAG, "Reading file %s", pcFileName );
-        snprintf( fname, sizeof( fname ), "/spiffs/%s", pcFileName );
-
-        /* Check if destination file exists before renaming */
-        struct stat st;
-
-        if( stat( fname, &st ) != 0 )
-        {
+        ESP_LOGD(TAG, "Reading file %s", pcFileName);
+        nvs_handle handle;
+        esp_err_t err = nvs_open_from_partition(NVS_PART_NAME, NAMESPACE, NVS_READONLY, &handle);
+        if (err != ESP_OK) {
+            /* This can happen if namespace doesn't exist yet, so no files stored */
+            ESP_LOGD(TAG, "failed nvs open %d", err);
             return CKR_OBJECT_HANDLE_INVALID;
         }
 
-        uint8_t * data = pvPortMalloc( st.st_size );
-
-        if( data == NULL )
-        {
-            ESP_LOGE( TAG, "malloc failed" );
-
-            return CKR_HOST_MEMORY;
+        size_t required_size = 0;
+        err = nvs_get_blob(handle, pcFileName, NULL, &required_size);
+        if (err != ESP_OK || required_size == 0) {
+            ESP_LOGE(TAG, "failed nvs get file size %d %d", err, required_size);
+            ulReturn = CKR_OBJECT_HANDLE_INVALID;
+            goto done;
         }
 
+        uint8_t *data = pvPortMalloc(required_size);
+        if (data == NULL) {
+            ESP_LOGE(TAG, "malloc failed");
+            ulReturn = CKR_HOST_MEMORY;
+            goto done;
+        }
         *ppucData = data;
 
-        fp = fopen( fname, "r" );
-
-        if( fp == NULL )
-        {
-            vPortFree( data );
-            return CKR_FUNCTION_FAILED;
+        err = nvs_get_blob(handle, pcFileName, data, &required_size);
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "failed nvs get file %d", err);
+            vPortFree(data);
+            ulReturn = CKR_FUNCTION_FAILED;
+            goto done;
         }
 
-        int read_size = 0;
-        int bytes = 256;
-
-        while( read_size < st.st_size )
-        {
-            if( bytes > ( st.st_size - read_size ) )
-            {
-                bytes = st.st_size - read_size;
-            }
-
-            int len = fread( data, 1, bytes, fp );
-
-            if( len == 0 )
-            {
-                break;
-            }
-
-            data += len;
-            read_size += len;
-        }
-
-        *pulDataSize = st.st_size;
-        fclose( fp );
+        *pulDataSize = required_size;
+done:
+        nvs_close(handle);
     }
 
     return ulReturn;

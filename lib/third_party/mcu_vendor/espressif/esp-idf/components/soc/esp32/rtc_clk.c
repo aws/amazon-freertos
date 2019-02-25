@@ -19,6 +19,7 @@
 #include "rom/ets_sys.h"
 #include "rom/rtc.h"
 #include "rom/uart.h"
+#include "rom/gpio.h"
 #include "soc/rtc.h"
 #include "soc/rtc_cntl_reg.h"
 #include "soc/rtc_io_reg.h"
@@ -97,9 +98,17 @@ static const char* TAG = "rtc_clk";
 #define DIG_DBIAS_XTAL      RTC_CNTL_DBIAS_1V10
 #define DIG_DBIAS_2M        RTC_CNTL_DBIAS_1V00
 
+/* PLL currently enabled, if any */
+typedef enum {
+    RTC_PLL_NONE,
+    RTC_PLL_320M,
+    RTC_PLL_480M
+} rtc_pll_t;
+static rtc_pll_t s_cur_pll = RTC_PLL_NONE;
 
+/* Current CPU frequency; saved in a variable for faster freq. switching */
 static rtc_cpu_freq_t s_cur_freq = RTC_CPU_FREQ_XTAL;
-static int s_pll_freq = 0;
+
 
 static void rtc_clk_32k_enable_internal(int dac, int dres, int dbias)
 {
@@ -122,11 +131,37 @@ void rtc_clk_32k_enable(bool enable)
     }
 }
 
-void rtc_clk_32k_bootstrap()
+/* Helping external 32kHz crystal to start up.
+ * External crystal connected to outputs GPIO32 GPIO33.
+ * Forms N pulses with a frequency of about 32KHz on the outputs of the crystal.
+ */
+void rtc_clk_32k_bootstrap(uint32_t cycle)
 {
+    if (cycle){
+        const uint32_t pin_32 = 32;
+        const uint32_t pin_33 = 33;
+        const uint32_t mask_32 = (1 << (pin_32 - 32));
+        const uint32_t mask_33 = (1 << (pin_33 - 32));
+
+        gpio_pad_select_gpio(pin_32);
+        gpio_pad_select_gpio(pin_33);
+        gpio_output_set_high(mask_32, mask_33, mask_32 | mask_33, 0);
+
+        const uint32_t delay_us = (1000000 / RTC_SLOW_CLK_FREQ_32K / 2);
+        while(cycle){
+            gpio_output_set_high(mask_32, mask_33, mask_32 | mask_33, 0);
+            ets_delay_us(delay_us);
+            gpio_output_set_high(mask_33, mask_32, mask_32 | mask_33, 0);
+            ets_delay_us(delay_us);
+            cycle--;
+        }
+        gpio_output_set_high(0, 0, 0, mask_32 | mask_33); // disable pins
+    }
+
     CLEAR_PERI_REG_MASK(RTC_IO_XTAL_32K_PAD_REG, RTC_IO_XPD_XTAL_32K);
     SET_PERI_REG_MASK(RTC_IO_XTAL_32K_PAD_REG, RTC_IO_X32P_RUE | RTC_IO_X32N_RDE);
     ets_delay_us(XTAL_32K_BOOTSTRAP_TIME_US);
+
     rtc_clk_32k_enable_internal(XTAL_32K_BOOTSTRAP_DAC_VAL,
             XTAL_32K_BOOTSTRAP_DRES_VAL, XTAL_32K_BOOTSTRAP_DBIAS_VAL);
 }
@@ -207,6 +242,10 @@ void rtc_clk_apll_enable(bool enable, uint32_t sdm0, uint32_t sdm1, uint32_t sdm
 void rtc_clk_slow_freq_set(rtc_slow_freq_t slow_freq)
 {
     REG_SET_FIELD(RTC_CNTL_CLK_CONF_REG, RTC_CNTL_ANA_CLK_RTC_SEL, slow_freq);
+
+    REG_SET_FIELD(RTC_CNTL_CLK_CONF_REG, RTC_CNTL_DIG_XTAL32K_EN,
+            (slow_freq == RTC_SLOW_FREQ_32K_XTAL) ? 1 : 0);
+
     ets_delay_us(DELAY_SLOW_CLK_SWITCH);
 }
 
@@ -365,8 +404,9 @@ static void rtc_clk_cpu_freq_to_xtal()
 static void rtc_clk_cpu_freq_to_pll(rtc_cpu_freq_t cpu_freq)
 {
     int freq = 0;
-    if ((cpu_freq == RTC_CPU_FREQ_240M && s_pll_freq == 320) ||
-        (cpu_freq != RTC_CPU_FREQ_240M && s_pll_freq == 240)) {
+    if (s_cur_pll == RTC_PLL_NONE ||
+        (cpu_freq == RTC_CPU_FREQ_240M && s_cur_pll == RTC_PLL_320M) ||
+        (cpu_freq != RTC_CPU_FREQ_240M && s_cur_pll == RTC_PLL_480M)) {
         /* need to switch PLLs, fall back to full implementation */
         rtc_clk_cpu_freq_set(cpu_freq);
         return;
@@ -402,6 +442,7 @@ void rtc_clk_cpu_freq_set_fast(rtc_cpu_freq_t cpu_freq)
         rtc_clk_cpu_freq_to_xtal();
     } else if (cpu_freq > RTC_CPU_FREQ_XTAL) {
         rtc_clk_cpu_freq_to_pll(cpu_freq);
+        rtc_clk_wait_for_slow_cycle();
     }
 }
 
@@ -423,7 +464,7 @@ void rtc_clk_cpu_freq_set(rtc_cpu_freq_t cpu_freq)
     SET_PERI_REG_MASK(RTC_CNTL_OPTIONS0_REG,
             RTC_CNTL_BB_I2C_FORCE_PD | RTC_CNTL_BBPLL_FORCE_PD |
             RTC_CNTL_BBPLL_I2C_FORCE_PD);
-    s_pll_freq = 0;
+    s_cur_pll = RTC_PLL_NONE;
     rtc_clk_apb_freq_update(xtal_freq * MHZ);
 
     /* is APLL under force power down? */
@@ -451,15 +492,15 @@ void rtc_clk_cpu_freq_set(rtc_cpu_freq_t cpu_freq)
         if (cpu_freq == RTC_CPU_FREQ_80M) {
             DPORT_REG_SET_FIELD(DPORT_CPU_PER_CONF_REG, DPORT_CPUPERIOD_SEL, 0);
             ets_update_cpu_frequency(80);
-            s_pll_freq = 320;
+            s_cur_pll = RTC_PLL_320M;
         } else if (cpu_freq == RTC_CPU_FREQ_160M) {
             DPORT_REG_SET_FIELD(DPORT_CPU_PER_CONF_REG, DPORT_CPUPERIOD_SEL, 1);
             ets_update_cpu_frequency(160);
-            s_pll_freq = 320;
+            s_cur_pll = RTC_PLL_320M;
         } else if (cpu_freq == RTC_CPU_FREQ_240M) {
             DPORT_REG_SET_FIELD(DPORT_CPU_PER_CONF_REG, DPORT_CPUPERIOD_SEL, 2);
             ets_update_cpu_frequency(240);
-            s_pll_freq = 480;
+            s_cur_pll = RTC_PLL_480M;
         }
         REG_SET_FIELD(RTC_CNTL_CLK_CONF_REG, RTC_CNTL_SOC_CLK_SEL, RTC_CNTL_SOC_CLK_SEL_PLL);
         rtc_clk_wait_for_slow_cycle();

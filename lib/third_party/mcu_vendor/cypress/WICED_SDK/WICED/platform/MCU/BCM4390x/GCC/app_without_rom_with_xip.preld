@@ -1,0 +1,216 @@
+/*
+ * $ Copyright Cypress Semiconductor $
+ */
+
+/* Mapping of platform interrupts over the top of generic versions */
+
+reset_handler = _low_start;
+
+/* Force system to reset via ROM bootloader & serial flash.  This works around A0 issue that FLOPS is not reset by SRSTn */
+irq_instruction_vector_low_reset = 0xB03EF000;
+
+/* DMA descriptors table must be within single 64KB page, and last descriptor must have EOT flag. Let's put all out descriptors in single page and avoid last descriptor. */
+DMA_DESCRIPTORS_SIZE = (64 * 1024 - 16);
+
+
+ENTRY( _low_start );
+
+INCLUDE GCC_app_without_rom_memory.ld
+MEMORY
+{
+    FLASH            (rwx)  : ORIGIN = LINKER_SFLASH_XIP_ADDR, LENGTH = LINKER_SFLASH_XIP_LENGTH
+}
+
+SECTIONS
+{
+    .always_on_ram.xip_remove :
+    {
+        . = ALIGN(4);
+
+        KEEP(*(.rodata.tinybl*))
+        *(.deep_sleep_saved_vars.*)
+    } > AONRAM
+
+    .text.xip_remove :
+    {
+        . = ALIGN(32);
+        *(.ram_function.*)
+        KEEP(*(.text.vectors_veneer))
+        *\SPI_Flash_43909_Library_*.a:*.o (.text.*)
+        *\43909_Peripheral_Drivers.a:platform_spi_flash.o (.text.*)
+        *\MCU_BCM4390x.a:exception_handlers.o (.text.*)
+        *\libc.a:lib_a-memcpy*.o (.text .text.*)
+        . = ALIGN(4);
+    } > SRAM
+
+   .dma (NOLOAD) : /* Zero initialised memory used DMA descriptors */
+    {
+        . = ALIGN(32);
+
+        link_dma_location = .;
+        *(.dma.*)
+        link_dma_end = ALIGN(4);
+
+        ASSERT((. <= ORIGIN(SRAM) + DMA_DESCRIPTORS_SIZE), "Need to define second DMA page");
+    } > SRAM
+
+    .text :
+    {
+        . = ALIGN(32);
+
+        link_code_location = .;
+        KEEP(*(.text.startup)) /* has to be first */
+        *(.text .text.* .gnu.linkonce.t.*)
+        *(.sleep_event_handlers.*)
+        KEEP(*(.text.vPortSVCHandler    .text.xPortPendSVHandler .text.xPortSysTickHandler ))
+        KEEP(*(.text.__tx_SVCallHandler .text.__tx_PendSVHandler .text.__tx_SysTickHandler ))
+        KEEP(*(.text.platform_tick_isr ))
+        KEEP(*(.text.irq ))
+        KEEP(*(.text.sdio_rtos_irq .text.sdio_irq ))
+        KEEP(*(.text.uart_rtos_irq .text.uart_irq ))
+        KEEP(*(.text.dma_rtos_irq  .text.dma_irq  ))
+        KEEP(*(.text.gpio_rtos_irq .text.gpio_irq ))
+        KEEP(*(.text.dbg_watchdog_rtos_irq  .text.dbg_watchdog_irq  ))
+        KEEP(*(.text.usart1_rtos_irq .text.usart1_irq ))
+        KEEP(*(.text.usart2_rtos_irq .text.usart2_irq ))
+        KEEP(*(.text.usart1_tx_dma_rtos_irq .text.usart1_tx_dma_irq ))
+        KEEP(*(.text.usart2_tx_dma_rtos_irq .text.usart2_tx_dma_irq ))
+        KEEP(*(.text.usart1_rx_dma_rtos_irq .text.usart1_rx_dma_irq ))
+        KEEP(*(.text.usart2_rx_dma_rtos_irq .text.usart2_rx_dma_irq ))
+        link_code_end = .;
+    } > FLASH
+
+    .rodata.xip_remove :
+    {
+        . = ALIGN(32);
+        *(.ram_rodata.*)
+        */SPI_Flash_43909_Library_*.a:*.o (.rodata .rodata.*)
+        */libraries/43909_Peripheral_Drivers.a:platform_spi_flash.o (.rodata .rodata.*)
+        . = ALIGN(4);
+     } > SRAM
+
+    .rodata :
+    {
+        . = ALIGN(32);
+
+        link_const_variable_data_location = .;
+        *(.rodata .rodata.* .gnu.linkonce.r.*)
+        link_const_variable_data_end = .;
+
+        . = ALIGN(4);
+
+        link_sleep_event_registrations_location = .;
+        KEEP(*(.sleep_event_registrations.*))
+        link_sleep_event_registrations_end = .;
+
+        . = ALIGN(4);
+
+        link_constructors_location = .;
+        KEEP(*(.preinit_array))
+        KEEP(*(.init_array))
+        KEEP (*crtbegin.o(.ctors))
+        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP (*(SORT(.ctors.*)))
+        KEEP (*crtend.o(.ctors))
+        link_constructors_end = .;
+
+        . = ALIGN(4);
+
+        link_destructors_location = .;
+        KEEP (*crtbegin.o(.dtors))
+        KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
+        KEEP (*(SORT(.dtors.*)))
+        KEEP (*crtend.o(.dtors))
+        link_destructors_end = .;
+    } > FLASH
+
+    .vectors_copyfrom.xip_remove :
+    {
+        link_interrupt_vectors_copyfrom = LOADADDR(.vectors_copyfrom.xip_remove);
+        KEEP(*(.vectors_copyfrom))
+    } > FLOPS AT > SRAM
+
+	.ARM.exidx :
+    {
+        __exidx_start = ALIGN(4);
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+        __exidx_end = .;
+    } > FLASH
+
+    .ARM.extab :
+    {
+        __extab_start = ALIGN(4);    
+        *(.ARM.extab*)
+        __extab_end = .;
+    } > FLASH
+
+
+
+    .data.xip_remove : /* Contains the non-zero initialised global variables */
+    {
+        . = ALIGN(32);
+
+        *(.data*)
+        . = ALIGN(4);
+    } > SRAM
+
+    .bss.xip_remove : /* Zero initialised memory used for zero initialised variables */
+    {
+        . = ALIGN(4);
+
+        link_bss_location = .;
+        *(.ccm)
+        *(.bss*)
+        *(COMMON)
+        link_bss_end = ALIGN(4);
+    } > SRAM
+
+    .stack_start.xip_remove :
+    {
+        . = ALIGN(8);
+
+        link_stack_location = .;
+        *(.stack)
+        . = MAX(link_stack_location + START_STACK_SIZE , .);
+        link_stack_end = ALIGN(8);
+    } > SRAM
+
+    .stack_isr.xip_remove :
+    {
+        . = ALIGN(8);
+
+        link_stack_isr_location = .;
+        . = . + link_stack_isr_location + SYS_STACK_SIZE + IRQ_STACK_SIZE + FIQ_STACK_SIZE + 3 * 8;
+        link_stack_isr_end = ALIGN(8);
+    } > SRAM
+
+
+	INCLUDE GCC/ddr.ld
+    /DISCARD/ :
+    {
+        *(.ARM.attributes*)
+        *(.comment)
+        *(.init)
+        *(.preinit)
+        *(.fini)
+        *(.fini_array)
+        *(.gnu.linkonce.armexidx.*)
+        *(.eh_frame_hdr)
+        *(.eh_frame)
+        *(.gnu.linkonce.armextab.*)
+        *(.v4_bx)
+        *(.vfp11_veneer)
+        *(.gcc_except_table)
+        *(.eh_frame_hdr)
+        *(.eh_frame)
+        *(.glue*)
+    }
+}
+
+/* Declare libc Heap to start at end of allocated RAM and end at top of RAM, aligned 8 byte */
+PROVIDE( _heap = link_stack_isr_end );
+PROVIDE( _eheap = ALIGN( ORIGIN( SRAM ) + LENGTH( SRAM ) - 8, 8 ) );
+
+/* Declare ThreadX free memory (passed to app as tx_application_define() func's argument) */
+PROVIDE( __RAM_segment_used_end__ = link_stack_isr_end );
+

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT AFQP V1.1.3
+ * Amazon FreeRTOS MQTT AFQP V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -297,7 +297,7 @@ static BaseType_t prvCreateClientAndConnectToBroker( BaseType_t xUseAlpn )
         TEST_ASSERT_EQUAL_INT( xReturned, eMQTTAgentSuccess );
 
         /* Take the semaphore to ensure the message is Received. */
-        if( pdFALSE == xSemaphoreTake( &xSemaphore, mqttagenttestTIMEOUT ) )
+        if( pdFALSE == xSemaphoreTake( ( QueueHandle_t ) &( xSemaphore ), mqttagenttestTIMEOUT ) )
         {
             TEST_FAIL();
         }

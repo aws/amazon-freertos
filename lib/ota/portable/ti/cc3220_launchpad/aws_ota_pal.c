@@ -1,5 +1,5 @@
 /*
-Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V1.0.0
+Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V1.0.1
 Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <ti/devices/cc32xx/driverlib/prcm.h>
 
 /* Specify the OTA signature algorithm we support on this platform. */
-const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha1-rsa";
+const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha1-rsa";
 
 #define OTA_VENDOR_TOKEN            1952007250UL                    /* This is our specific file token for OTA updates. */
 #define OTA_MAX_MCU_IMAGE_SIZE      (512UL * 1024UL)                /* Maximum allowed size of an MCU update image for this platform. */
@@ -111,7 +111,7 @@ static void prvRollbackRxFile(OTA_FileContext_t *C)
     FsControl.IncludeFilters = 0U;
     lResult = sl_FsCtl( SL_FS_CTL_ROLLBACK,
                         OTA_VENDOR_TOKEN,
-                        ( _u8* ) C->pacFilepath,
+                        ( _u8* ) C->pucFilePath,
                         ( _u8* ) &FsControl,
                         ( _u16 ) sizeof( SlFsControl_t ),
                         ( _u8* ) NULL,
@@ -119,11 +119,11 @@ static void prvRollbackRxFile(OTA_FileContext_t *C)
                         ( _u32* ) &ulNewToken );
     if (lResult != 0)
     {
-        OTA_LOG_L1( "[%s] File %s rollback failed (%d).\r\n", OTA_METHOD_NAME, C->pacFilepath, lResult );
+        OTA_LOG_L1( "[%s] File %s rollback failed (%d).\r\n", OTA_METHOD_NAME, C->pucFilePath, lResult );
     }
     else
     {
-        OTA_LOG_L1( "[%s] File %s rolled back.\r\n", OTA_METHOD_NAME, C->pacFilepath );
+        OTA_LOG_L1( "[%s] File %s rolled back.\r\n", OTA_METHOD_NAME, C->pucFilePath );
     }
 }
 
@@ -140,10 +140,10 @@ OTA_Err_t prvPAL_Abort(OTA_FileContext_t *C)
 	OTA_Err_t xReturnCode = kOTA_Err_None;
 
     /* Check for null file handle since the agent may legitimately call this before a file is opened. */
-	if (C->iFileHandle != ( int32_t ) NULL)
+	if (C->lFileHandle != ( int32_t ) NULL)
 	{
-		lResult = sl_FsClose( C->iFileHandle, ( _u8* ) NULL, ( _u8* ) pcTI_AbortSig, CONST_STRLEN( pcTI_AbortSig ) );
-		C->iFileHandle = ( int32_t ) NULL;
+		lResult = sl_FsClose( C->lFileHandle, ( _u8* ) NULL, ( _u8* ) pcTI_AbortSig, CONST_STRLEN( pcTI_AbortSig ) );
+		C->lFileHandle = ( int32_t ) NULL;
 		if ( lResult != 0 )
 		{
 			xReturnCode = ( uint32_t ) kOTA_Err_FileAbort | ( ( ( uint32_t ) lResult ) & ( uint32_t ) kOTA_PAL_ErrMask);
@@ -173,7 +173,7 @@ OTA_Err_t prvPAL_CreateFileForRx(OTA_FileContext_t *C)
     int32_t     lResult, lRetry;
     OTA_Err_t   xReturnCode = kOTA_Err_Uninitialized;
 
-    C->iFileHandle = ( int32_t ) NULL;
+    C->lFileHandle = ( int32_t ) NULL;
     if ( C->ulFileSize <= OTA_MAX_MCU_IMAGE_SIZE )
     {
         lResult = prvCreateBootInfoFile();
@@ -187,11 +187,11 @@ OTA_Err_t prvPAL_CreateFileForRx(OTA_FileContext_t *C)
                           SL_FS_CREATE_SECURE | SL_FS_CREATE_VENDOR_TOKEN |
                           SL_FS_CREATE_MAX_SIZE( OTA_MAX_MCU_IMAGE_SIZE ) );
                 /* The file remains open until the OTA agent calls prvPAL_CloseFile() after transfer or failure. */
-                lResult = sl_FsOpen( ( _u8* ) C->pacFilepath, ( _u32 ) ulFlags, ( _u32* ) &ulToken );
+                lResult = sl_FsOpen( ( _u8* ) C->pucFilePath, ( _u32 ) ulFlags, ( _u32* ) &ulToken );
                 if ( lResult > 0 )
                 {
                     OTA_LOG_L1("[%s] Receive file created. Token: %u\r\n", OTA_METHOD_NAME, ulToken);
-                    C->iFileHandle = lResult;
+                    C->lFileHandle = lResult;
                     xReturnCode = kOTA_Err_None;
                 }
                 else {
@@ -302,7 +302,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t *C )
 
 	/* Let SimpleLink API handle error checks so we get an error code for free. */
 	OTA_LOG_L1( "[%s] Authenticating and closing file.\r\n", OTA_METHOD_NAME );
-	lResult = ( int32_t ) sl_FsClose( ( _i32 ) ( C->iFileHandle ), C->pacCertFilepath, C->pxSignature->ucData, ( _u32 ) ( C->pxSignature->usSize ) );
+	lResult = ( int32_t ) sl_FsClose( ( _i32 ) ( C->lFileHandle ), C->pucCertFilepath, C->pxSignature->ucData, ( _u32 ) ( C->pxSignature->usSize ) );
 
 	switch ( lResult )
 	{
@@ -512,7 +512,7 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C, uint32_t ulOffset, uint8
 
 	for ( ulRetry = 0UL; ulRetry <= OTA_MAX_PAL_WRITE_RETRIES; ulRetry++ )
 	{
-		lResult = sl_FsWrite( C->iFileHandle, ulOffset + ulWritten, &pcData[ ulWritten ], ulBlockSize );
+		lResult = sl_FsWrite( C->lFileHandle, ulOffset + ulWritten, &pcData[ ulWritten ], ulBlockSize );
 		if ( lResult >= 0 )
 		{
 		    if ( ulBlockSize == ( uint32_t) lResult )   /* If we wrote all of the bytes requested, we're done. */

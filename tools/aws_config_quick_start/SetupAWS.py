@@ -73,7 +73,7 @@ def update_credential_file():
     with open('configure.json') as file:
         json_text = json.load(file)
 
-    afr_source_dir = json_text['afr_source_dir']
+    afr_source_dir = os.path.expanduser(json_text['afr_source_dir'])
     thing_name = json_text['thing_name']
     wifi_ssid = json_text['wifi_ssid']
     wifi_passwd = json_text['wifi_password']
@@ -139,7 +139,7 @@ def cleanup_creds():
     with open('configure.json') as file:
         json_text = json.load(file)
 
-    afr_source_dir = json_text['afr_source_dir']
+    afr_source_dir = os.path.expanduser(json_text['afr_source_dir'])
     # Cleanup modified 'aws_clientcredential.h' file
     misc.cleanup_client_credential_file(afr_source_dir)
 
