@@ -152,7 +152,7 @@ typedef void                * pthread_barrierattr_t;
 /**
  * @brief Used for file sizes.
  */
-#if !defined( posixconfigUSING_FILESYSTEM ) || ( posixconfigUSING_FILESYSTEM == 1 )
+#if !defined( posixconfigENABLE_OFF_T ) || ( posixconfigENABLE_OFF_T == 1 )
     typedef long int        off_t;
 #endif
 
