@@ -154,10 +154,6 @@ typedef void                * pthread_barrierattr_t;
  */
 #if !defined( posixconfigUSING_FILESYSTEM ) || ( posixconfigUSING_FILESYSTEM == 1 )
     typedef long int        off_t;
-    // POSIX Macro definitions required for file seeking.
-    #define SEEK_SET (0)
-    #define SEEK_CUR (1)
-    #define SEEK_END (2)
 #endif
 
 #endif /* ifndef _FREERTOS_POSIX_TYPES_H_ */
