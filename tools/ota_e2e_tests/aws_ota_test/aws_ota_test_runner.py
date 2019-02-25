@@ -143,5 +143,17 @@ class OtaTestRunner:
     def __cleanup(self):
         """Free resources used by the OTA agent and the flash serial object.
         """
-        self._otaAwsAgent.cleanup()
-        self._flashComm.cleanup()
+        # We will want to close the serial flash thread first so that there are no outstanding threads
+        # in case cleaning AWS Resources causes exceptions.
+        try:
+            self._flashComm.cleanup()
+        except:
+            # We still want to clean up AWS resources if the serial thread fails to cleanup. So just
+            # print the exception here.
+            print(e)
+
+        try:
+            self._otaAwsAgent.cleanup()
+        except Exception as e:
+            print(e)
+            raise
