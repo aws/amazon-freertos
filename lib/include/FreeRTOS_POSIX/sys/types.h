@@ -153,7 +153,7 @@ typedef void                * pthread_barrierattr_t;
  * @brief Used for file sizes.
  */
 #if !defined( posixconfigUSING_FILESYSTEM ) || ( posixconfigUSING_FILESYSTEM == 1 )
-    typedef int64_t         off_t;
+    typedef long int        off_t;
     // POSIX Macro definitions required for file seeking.
     #define SEEK_SET (0)
     #define SEEK_CUR (1)
