@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow Demo V1.4.6
+ * Amazon FreeRTOS Shadow Demo V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

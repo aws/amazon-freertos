@@ -1,0 +1,4 @@
+LwIP version 1.3.2 downloaded from http://ftp.twaren.net/Unix/NonGNU/lwip/lwip-1.3.2.zip on 6 Oct 2010
+LwIP version 1.4.0.rc1 downloaded from http://download.savannah.gnu.org/releases/lwip/lwip-1.4.0.rc1.zip on 3rd Feb 2011
+LwIP version 2.0.0 downloaded from http://download.savannah.nongnu.org/releases/lwip/lwip-2.0.2.zip on on 13th Mar 2017
+LwIP version 2.0.3 downloaded from https://git.savannah.nongnu.org/git/lwip.git(STABLE-2_0_3_RELEASE) on 13th Mar 2018

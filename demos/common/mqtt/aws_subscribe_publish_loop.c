@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.6
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -657,12 +657,14 @@ static void prvSubscribePublishDemo( MQTTAgentHandle_t xMQTTClientHandle,
 
     if( xResult == pdPASS )
     {
+        #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
         /* Report on space efficiency of this demo task. */
         vTaskGetInfo( NULL, &xTaskStatus, pdTRUE, eInvalid );
         configPRINTF(
             ( "Heap low-water mark %u, Stack high-water mark %u.\r\n",
               xPortGetMinimumEverFreeHeapSize(),
               xTaskStatus.usStackHighWaterMark ) );
+        #endif      
         configPRINTF( ( "All the MQTT tests passed! \r\n" ) );
     }
     else
