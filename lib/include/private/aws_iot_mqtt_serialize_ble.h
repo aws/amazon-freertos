@@ -32,7 +32,7 @@
 #ifndef IOT_BLE_MQTT_SERIALIZE_H
 #define IOT_BLE_MQTT_SERIALIZE_H
 
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 #include "aws_clientcredential.h"
 
 /**
