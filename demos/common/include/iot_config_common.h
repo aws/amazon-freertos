@@ -136,14 +136,14 @@
     #define IOT_CONTAINERS_ENABLE_ASSERTS    ( 1 )
 #endif
 
-/* Priority of MQTT receive task. */
-#ifndef IOT_MQTT_RECEIVE_TASK_PRIORITY
-    #define IOT_MQTT_RECEIVE_TASK_PRIORITY    ( tskIDLE_PRIORITY )
+/* Priority of network receive task. */
+#ifndef IOT_NETWORK_RECEIVE_TASK_PRIORITY
+    #define IOT_NETWORK_RECEIVE_TASK_PRIORITY    ( tskIDLE_PRIORITY )
 #endif
 
-/* Stack size of the MQTT receive task. */
-#ifndef IOT_MQTT_RECEIVE_TASK_STACK_SIZE
-    #define IOT_MQTT_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
+/* Stack size of the network receive task. */
+#ifndef IOT_NETWORK_RECEIVE_TASK_STACK_SIZE
+    #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
 #endif
 
 /* MQTT library configuration. */
@@ -175,9 +175,9 @@
 #endif
 
 /* Configuration for defender demo: set format to CBOR. */
-#define AWS_IOT_DEFENDER_FORMAT                AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_FORMAT          AWS_IOT_DEFENDER_FORMAT_CBOR
 
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
-#define AWS_IOT_DEFENDER_USE_LONG_TAG          ( 1 )
+#define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 1 )
 
 #endif /* ifndef _IOT_CONFIG_COMMON_H_ */
