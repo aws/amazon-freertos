@@ -38,7 +38,7 @@
 
 /* defender internally manages network and mqtt connection */
 static AwsIotNetworkConnection_t _networkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
-static AwsIotMqttConnection_t _mqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+static IotMqttConnection_t _mqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
 
 static char * _pPublishTopic = NULL;
 
@@ -134,7 +134,7 @@ bool AwsIotDefenderInternal_MqttConnect( const char * pThingName,
                                          uint16_t thingNameLength )
 {
     AwsIotMqttNetIf_t networkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
-    AwsIotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    IotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
     networkInterface.pDisconnectContext = ( void * ) _networkConnection;
     networkInterface.pSendContext = ( void * ) _networkConnection;
@@ -160,7 +160,7 @@ bool AwsIotDefenderInternal_MqttSubscribe( AwsIotMqttCallbackInfo_t acceptCallba
                                            AwsIotMqttCallbackInfo_t rejectCallback )
 {
     /* subscribe to two topics: accept and reject. */
-    AwsIotMqttSubscription_t subscriptions[ 2 ] = { AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+    IotMqttSubscription_t subscriptions[ 2 ] = { AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     subscriptions[ 0 ].QoS = 0;
     subscriptions[ 0 ].pTopicFilter = _pAcceptTopic;
@@ -186,7 +186,7 @@ bool AwsIotDefenderInternal_MqttSubscribe( AwsIotMqttCallbackInfo_t acceptCallba
 bool AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
                                          size_t dataLength )
 {
-    AwsIotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    IotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
     publishInfo.QoS = 0;
     publishInfo.pTopicName = _pPublishTopic;

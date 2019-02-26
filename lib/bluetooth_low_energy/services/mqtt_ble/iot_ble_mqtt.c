@@ -1019,7 +1019,7 @@ BaseType_t IotBleMqtt_Init( void )
 
 /*-----------------------------------------------------------*/
 
-BaseType_t IotBleMqtt_CreateConnection( AwsIotMqttConnection_t* pMqttConnection, IotBleMqttConnection_t* pConnection )
+BaseType_t IotBleMqtt_CreateConnection( IotMqttConnection_t* pMqttConnection, IotBleMqttConnection_t* pConnection )
 {
     BaseType_t ret = pdFALSE;
     IotBleMqttService_t* pService;

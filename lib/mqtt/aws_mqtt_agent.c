@@ -647,7 +647,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     /* Add a subscription to "#" to support the global callback when subscription
      * manager is disabled. */
     #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 0 )
-        AwsIotMqttSubscription_t xGlobalSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+        IotMqttSubscription_t xGlobalSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
         AwsIotMqttReference_t xGlobalSubscriptionRef = AWS_IOT_MQTT_REFERENCE_INITIALIZER;
 
         if( xStatus == eMQTTAgentSuccess )

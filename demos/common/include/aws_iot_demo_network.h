@@ -48,7 +48,7 @@ typedef struct MqttConnectionContext
     uint32_t ulNetworkType;
     AwsIotMqttNetIf_t xNetworkInterface;
     void ( * xDisconnectCallback ) ( void *) ;
-    AwsIotMqttConnection_t xMqttConnection;
+    IotMqttConnection_t xMqttConnection;
 } MqttConnectionContext_t;
 
 

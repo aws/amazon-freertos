@@ -319,7 +319,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C );
 
 /* Publish a message using the platforms PubSub mechanism. */
 
-static AwsIotMqttError_t prvPublishMessage( void * pvClient,
+static IotMqttError_t prvPublishMessage( void * pvClient,
                                             const char * const pacTopic,
                                             uint16_t usTopicLen,
                                             char * pcMsg,
@@ -682,7 +682,7 @@ OTA_Err_t OTA_CheckForUpdate( void )
 
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
     static uint32_t ulReqCounter = 0;
-    AwsIotMqttError_t eResult;
+    IotMqttError_t eResult;
     uint32_t ulMsgLen;
     uint16_t usTopicLen;
     OTA_Err_t xError = kOTA_Err_Uninitialized;
@@ -1037,7 +1037,7 @@ static void prvUpdateJobStatus( OTA_FileContext_t * C,
     DEFINE_OTA_METHOD_NAME( "prvUpdateJobStatus" );
 
     uint32_t ulTopicLen, ulNumBlocks, ulReceived, ulMsgSize;
-    AwsIotMqttError_t eResult;
+    IotMqttError_t eResult;
     uint8_t eQOS;
     char pcMsg[ OTA_STATUS_MSG_MAX_SIZE ];
     char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
@@ -1208,7 +1208,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
     uint32_t ulMsgSizeToPublish;
     size_t xMsgSizeFromStream;
     uint32_t ulNumBlocks, ulBitmapLen, ulTopicLen;
-    AwsIotMqttError_t eResult;
+    IotMqttError_t eResult;
     OTA_Err_t xErr = kOTA_Err_None;
     char pcMsg[ OTA_REQUEST_MSG_MAX_SIZE ];
     char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
@@ -2750,7 +2750,7 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
 
     bool_t bResult = pdFALSE;
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
-    AwsIotMqttSubscription_t stJobsSubscription;
+    IotMqttSubscription_t stJobsSubscription;
 
     /* Clear subscription struct and set common parameters for job topics used by OTA. */
     memset( &stJobsSubscription, 0, sizeof( stJobsSubscription ) );
@@ -2814,7 +2814,7 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
 
     bool_t bResult = pdFALSE;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
-    AwsIotMqttSubscription_t stOTAUpdateDataSubscription;
+    IotMqttSubscription_t stOTAUpdateDataSubscription;
 
     memset( &stOTAUpdateDataSubscription, 0, sizeof( stOTAUpdateDataSubscription ) );
     stOTAUpdateDataSubscription.QoS = 0;
@@ -2858,7 +2858,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
 {
     DEFINE_OTA_METHOD_NAME( "prvUnSubscribeFromDataStream" );
 
-    AwsIotMqttSubscription_t stUnSub;
+    IotMqttSubscription_t stUnSub;
 
     bool_t bResult = pdFALSE;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
@@ -2908,7 +2908,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 {
     DEFINE_OTA_METHOD_NAME( "prvUnSubscribeFromJobNotificationTopic" );
 
-    AwsIotMqttSubscription_t stUnSub;
+    IotMqttSubscription_t stUnSub;
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
 
     /* Try to unsubscribe from the first of two job topics. */
@@ -2961,15 +2961,15 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 
 /* Publish a message to the specified client/topic at the given QOS. */
 
-static AwsIotMqttError_t prvPublishMessage( void * const pvClient,
+static IotMqttError_t prvPublishMessage( void * const pvClient,
                                             const char * const pacTopic,
                                             uint16_t usTopicLen,
                                             char * pcMsg,
                                             uint32_t ulMsgSize,
                                             int eQOS )
 {
-    AwsIotMqttError_t eResult;
-    AwsIotMqttPublishInfo_t xPublishParams;
+    IotMqttError_t eResult;
+    IotMqttPublishInfo_t xPublishParams;
 
     xPublishParams.pTopicName = ( const char * ) pacTopic;
     xPublishParams.topicNameLength = usTopicLen;

@@ -56,7 +56,7 @@ AwsIotMqttNetIf_t* AwsIotMqtt_CreateNetIface( void );
  * @return true if the connection succeeded, false if otherwise
  */
 bool AwsIotMqtt_OpenConnection( AwsIotMqttNetIf_t* pxNetIf,
-		AwsIotMqttConnection_t* pxMqttConnection,
+		IotMqttConnection_t* pxMqttConnection,
 		size_t xRetryLimit,
 		size_t xRetryIntervalMS,
 		void** pConnection );

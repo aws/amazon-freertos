@@ -208,7 +208,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
         if( timerSempCreateSuccess )
         {
-            metricsMutexCreateSuccess = AwsIotMutex_Create( &_AwsIotDefenderMetrics.mutex );
+            metricsMutexCreateSuccess = IotMutex_Create( &_AwsIotDefenderMetrics.mutex );
         }
 
         if( metricsMutexCreateSuccess )

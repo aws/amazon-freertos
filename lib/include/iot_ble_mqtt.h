@@ -137,7 +137,7 @@ typedef struct IotBleMqttConnectionType
 	size_t recvBufferLen;
 	size_t recvOffset;
 	SemaphoreHandle_t recvLock;
-	AwsIotMqttConnection_t* pMqttConnection;
+	IotMqttConnection_t* pMqttConnection;
 } IotBleMqttConnectionType_t;
 
 typedef void*  IotBleMqttConnection_t;
@@ -206,7 +206,7 @@ BaseType_t IotBleMqtt_Init( void );
  * @return pdTRUE If the operation is successful
  *         pdFALSE If the operation failed
  */
-BaseType_t IotBleMqtt_CreateConnection( AwsIotMqttConnection_t* pMqttConnection,  IotBleMqttConnection_t* pConnection );
+BaseType_t IotBleMqtt_CreateConnection( IotMqttConnection_t* pMqttConnection,  IotBleMqttConnection_t* pConnection );
 
 /**
  * @brief Sets the send timeout for the BLE network connection.

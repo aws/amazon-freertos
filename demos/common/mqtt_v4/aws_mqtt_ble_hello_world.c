@@ -152,7 +152,7 @@ static void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPubl
  *
  * @return true if all the steps succeeded.
  */
- static AwsIotMqttError_t prxOpenMqttConnection( void );
+ static IotMqttError_t prxOpenMqttConnection( void );
 
  /**
   * @brief Subscribes or unsubscribes to the demo topic.
@@ -160,7 +160,7 @@ static void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPubl
   *
   * @return true if operation was successful.
   */
- static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe );
+ static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe );
 
 /**
  * @brief Closes an MQTT connection with the broker endpoint.
@@ -180,7 +180,7 @@ static void prvCloseMqttConnection( BaseType_t bCleanupOnly );
  * @param xLength Length of the message
  * @return AWS_IOT_MQTT_SUCCESS if the publish was successful.
  */
-static AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength );
+static IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength );
 
 /**
  * @brief Main task used to publish MQTT messages to the cloud. Tasks waits for a network connection,
@@ -238,11 +238,11 @@ static SemaphoreHandle_t xNetworkAvailableLock = NULL;
 static BaseType_t xNetworkConnected = pdFALSE;
 
 
-AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
+IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
 {
-    AwsIotMqttPublishInfo_t xPublishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    IotMqttPublishInfo_t xPublishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
     AwsIotMqttReference_t xOperationLock = AWS_IOT_MQTT_REFERENCE_INITIALIZER;
-    AwsIotMqttError_t xStatus;
+    IotMqttError_t xStatus;
 
     xPublishInfo.QoS = echoDemoMQTT_QOS;
     xPublishInfo.pTopicName = echoDemoMQTT_TOPIC;
@@ -285,7 +285,7 @@ void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPublishPara
     size_t xAckPos, xPayloadLen = pxPublishParam->message.info.payloadLength;
     const char *pcPayload = ( const char *) pxPublishParam->message.info.pPayload;
     char cAck[ echoDemoACK_DATA_LENGTH ] = { 0 };
-    AwsIotMqttError_t xStatus;
+    IotMqttError_t xStatus;
 
     /* User parameters are not used */
     ( void ) pvUserParam;
@@ -374,11 +374,11 @@ static BaseType_t prxReCreateConnection( void )
     return prxCreateNetworkConnection();
 }
 
-static AwsIotMqttError_t prxOpenMqttConnection()
+static IotMqttError_t prxOpenMqttConnection()
 {
 
-    AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    AwsIotMqttError_t xMqttStatus;
+    IotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    IotMqttError_t xMqttStatus;
 
     if( xConnection.ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
     {
@@ -419,11 +419,11 @@ static AwsIotMqttError_t prxOpenMqttConnection()
     return xMqttStatus;
 }
 
-static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
+static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
 {
     AwsIotMqttReference_t xOperationLock = AWS_IOT_MQTT_REFERENCE_INITIALIZER;
-    AwsIotMqttSubscription_t xSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-    AwsIotMqttError_t xMqttStatus;
+    IotMqttSubscription_t xSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+    IotMqttError_t xMqttStatus;
 
     xSubscription.QoS = echoDemoMQTT_QOS;
     xSubscription.callback.function = prvEchoMessage;
@@ -481,7 +481,7 @@ void prvMqttPublishTask( void* pvParam )
     TickType_t xPublishRetryDelay = pdMS_TO_TICKS( echoDemoPUBLISH_TIMEOUT_DELAY_MS );
     TickType_t xPublishDelay = pdMS_TO_TICKS( echoDemoPUBLISH_INTERVAL_MS );
 
-    AwsIotMqttError_t xMqttStatus = AWS_IOT_MQTT_SUCCESS ;
+    IotMqttError_t xMqttStatus = AWS_IOT_MQTT_SUCCESS ;
 
     /* Avoid compiler warnings about the parameters */
     (void ) pvParam;

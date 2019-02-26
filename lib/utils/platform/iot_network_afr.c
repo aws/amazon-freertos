@@ -97,7 +97,7 @@ typedef struct NetworkConnection
 {
     Socket_t xSocket;                                 /**< @brief Socket associated with connection. */
     StaticEventGroup_t xConnectionFlags;              /**< @brief Tracks whether the connection has been shut down or the receive task has exited. */
-    AwsIotMqttConnection_t * pxMqttConnection;        /**< @brief MQTT connection handle associated with network connection. */
+    IotMqttConnection_t * pxMqttConnection;        /**< @brief MQTT connection handle associated with network connection. */
     uint8_t * pucReceiveBuffer;                       /**< @brief Buffer to hold incoming network data. */
     AwsIotMqttReceiveCallback_t xMqttReceiveCallback; /**< @brief MQTT receive callback function, if any. */
 } NetworkConnection_t;
@@ -544,7 +544,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
 /*-----------------------------------------------------------*/
 
 AwsIotNetworkError_t AwsIotNetwork_SetMqttReceiveCallback( AwsIotNetworkConnection_t networkConnection,
-                                                           AwsIotMqttConnection_t * pMqttConnection,
+                                                           IotMqttConnection_t * pMqttConnection,
                                                            AwsIotMqttReceiveCallback_t receiveCallback )
 {
     AwsIotNetworkError_t xStatus = AWS_IOT_NETWORK_SUCCESS;

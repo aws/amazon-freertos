@@ -115,8 +115,8 @@ void IotBleMqtt_CleanupSerialize( void );
  *
  * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
  */
-AwsIotMqttError_t IotBleMqtt_SerializeConnect( const AwsIotMqttConnectInfo_t * const pConnectInfo,
-                                                           const AwsIotMqttPublishInfo_t * const pWillInfo,
+IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const pConnectInfo,
+                                                           const IotMqttPublishInfo_t * const pWillInfo,
                                                            uint8_t ** const pConnectPacket,
                                                            size_t * const pPacketSize );
 
@@ -132,7 +132,7 @@ AwsIotMqttError_t IotBleMqtt_SerializeConnect( const AwsIotMqttConnectInfo_t * c
  * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
  *
  */
-AwsIotMqttError_t IotBleMqtt_DeserializeConnack( const uint8_t * const pConnackStart,
+IotMqttError_t IotBleMqtt_DeserializeConnack( const uint8_t * const pConnackStart,
                                                          size_t dataLength,
                                                          size_t * const pBytesProcessed );
 
@@ -151,7 +151,7 @@ AwsIotMqttError_t IotBleMqtt_DeserializeConnack( const uint8_t * const pConnackS
  * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
  *
  */
-AwsIotMqttError_t IotBleMqtt_SerializePublish( const AwsIotMqttPublishInfo_t * const pPublishInfo,
+IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const pPublishInfo,
                                                        uint8_t ** const pPublishPacket,
                                                        size_t * const pPacketSize,
                                                        uint16_t * const pPacketIdentifier );
@@ -181,9 +181,9 @@ void IotBleMqtt_PublishSetDup( bool awsIotMqttMode, uint8_t * const pPublishPack
  * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
  *
  */
-AwsIotMqttError_t IotBleMqtt_DeserializePublish( const uint8_t * const pPublishStart,
+IotMqttError_t IotBleMqtt_DeserializePublish( const uint8_t * const pPublishStart,
                                                          size_t dataLength,
-                                                         AwsIotMqttPublishInfo_t * const pOutput,
+                                                         IotMqttPublishInfo_t * const pOutput,
                                                          uint16_t * const pPacketIdentifier,
                                                          size_t * const pBytesProcessed );
 
@@ -200,7 +200,7 @@ AwsIotMqttError_t IotBleMqtt_DeserializePublish( const uint8_t * const pPublishS
  * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
  *
  */
-AwsIotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
+IotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
                                                       uint8_t ** const pPubackPacket,
                                                       size_t * const pPacketSize );
 /**
@@ -216,7 +216,7 @@ AwsIotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
  * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
  *
  */
-AwsIotMqttError_t IotBleMqtt_DeserializePuback( const uint8_t * const pPubackStart,
+IotMqttError_t IotBleMqtt_DeserializePuback( const uint8_t * const pPubackStart,
                                                         size_t dataLength,
                                                         uint16_t * const pPacketIdentifier,
                                                         size_t * const pBytesProcessed );
@@ -235,7 +235,7 @@ AwsIotMqttError_t IotBleMqtt_DeserializePuback( const uint8_t * const pPubackSta
  * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
  *
  */
-AwsIotMqttError_t IotBleMqtt_SerializeSubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
+IotMqttError_t IotBleMqtt_SerializeSubscribe( const IotMqttSubscription_t * const pSubscriptionList,
                                                          size_t subscriptionCount,
                                                          uint8_t ** const pSubscribePacket,
                                                          size_t * const pPacketSize,
@@ -255,7 +255,7 @@ AwsIotMqttError_t IotBleMqtt_SerializeSubscribe( const AwsIotMqttSubscription_t 
  * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
  *
  */
-AwsIotMqttError_t IotBleMqtt_DeserializeSuback( AwsIotMqttConnection_t mqttConnection,
+IotMqttError_t IotBleMqtt_DeserializeSuback( IotMqttConnection_t mqttConnection,
                                                         const uint8_t * const pSubackStart,
                                                         size_t dataLength,
                                                         uint16_t * const pPacketIdentifier,
@@ -274,7 +274,7 @@ AwsIotMqttError_t IotBleMqtt_DeserializeSuback( AwsIotMqttConnection_t mqttConne
  * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
  *
  */
-AwsIotMqttError_t IotBleMqtt_SerializeUnsubscribe( const AwsIotMqttSubscription_t * const pSubscriptionList,
+IotMqttError_t IotBleMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * const pSubscriptionList,
 		size_t subscriptionCount,
 		uint8_t ** const pUnsubscribePacket,
 		size_t * const pPacketSize,
@@ -294,7 +294,7 @@ AwsIotMqttError_t IotBleMqtt_SerializeUnsubscribe( const AwsIotMqttSubscription_
  * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
  *
  */
-AwsIotMqttError_t IotBleMqtt_DeserializeUnsuback( const uint8_t * const pUnsubackStart,
+IotMqttError_t IotBleMqtt_DeserializeUnsuback( const uint8_t * const pUnsubackStart,
                                                           size_t dataLength,
                                                           uint16_t * const pPacketIdentifier,
                                                           size_t * const pBytesProcessed );
@@ -309,7 +309,7 @@ AwsIotMqttError_t IotBleMqtt_DeserializeUnsuback( const uint8_t * const pUnsubac
  * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
  *
  */
-AwsIotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
+IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
                                                           size_t * const pPacketSize );
 
 /**
@@ -320,7 +320,7 @@ AwsIotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPa
  *
  * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY
  */
-AwsIotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
+IotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
                                                        size_t * const pPacketSize );
 /**
  *
@@ -331,7 +331,7 @@ AwsIotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
  * @param[out] pBytesProcessed Number of bytes parsed
  * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE
  */
-AwsIotMqttError_t IotBleMqtt_DeserializePingresp( const uint8_t * const pPingrespStart,
+IotMqttError_t IotBleMqtt_DeserializePingresp( const uint8_t * const pPingrespStart,
                                                           size_t dataLength,
                                                           size_t * const pBytesProcessed );
 
