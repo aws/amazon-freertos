@@ -189,8 +189,8 @@ typedef struct ShadowOperationParams
     uint8_t ucKeepSubscriptions;
 
     /**
-     * @brief MQTT QoS when publishing from the Shadow Client @b to the Shadow Service.
-     * @note The Shadow services always publishes to the Shadow Client with QoS 1. */
+     * @brief MQTT qos when publishing from the Shadow Client @b to the Shadow Service.
+     * @note The Shadow services always publishes to the Shadow Client with qos 1. */
     MQTTQoS_t xQoS;
 } ShadowOperationParams_t;
 

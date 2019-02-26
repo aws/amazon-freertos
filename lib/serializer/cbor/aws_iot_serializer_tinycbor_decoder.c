@@ -31,7 +31,7 @@
  * The file implements the decoder interface in aws_iot_serialize.h.
  */
 
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 #include "cbor.h"
 
 #define _castDecoderObjectToCborValue( pDecoderObject )    ( ( pDecoderObject )->pHandle )

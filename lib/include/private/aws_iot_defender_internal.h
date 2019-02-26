@@ -36,7 +36,7 @@
 #include "aws_iot_defender.h"
 
 /* Serializer include. */
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 
 /* Platform thread include. */
 #include "platform/aws_iot_threads.h"
@@ -222,14 +222,14 @@
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
 
     #define _DEFENDER_FORMAT          "cbor"
-    #define _AwsIotDefenderEncoder    _AwsIotSerializerCborEncoder /**< Global defined in aws_iot_serializer.h . */
-    #define _AwsIotDefenderDecoder    _AwsIotSerializerCborDecoder /**< Global defined in aws_iot_serializer.h . */
+    #define _AwsIotDefenderEncoder    _AwsIotSerializerCborEncoder /**< Global defined in iot_serializer.h . */
+    #define _AwsIotDefenderDecoder    _AwsIotSerializerCborDecoder /**< Global defined in iot_serializer.h . */
 
 #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
 
     #define _DEFENDER_FORMAT          "json"
-    #define _AwsIotDefenderEncoder    _AwsIotSerializerJsonEncoder /**< Global defined in aws_iot_serializer.h . */
-    #define _AwsIotDefenderDecoder    _AwsIotSerializerJsonDecoder /**< Global defined in aws_iot_serializer.h . */
+    #define _AwsIotDefenderEncoder    _AwsIotSerializerJsonEncoder /**< Global defined in iot_serializer.h . */
+    #define _AwsIotDefenderDecoder    _AwsIotSerializerJsonDecoder /**< Global defined in iot_serializer.h . */
 
 #else /* if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR */
     #error "AWS_IOT_DEFENDER_FORMAT must be either AWS_IOT_DEFENDER_FORMAT_CBOR or AWS_IOT_DEFENDER_FORMAT_JSON."

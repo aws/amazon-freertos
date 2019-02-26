@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_iot_mqtt_serialize_ble.h
+ * @file iot_mqtt_serialize_ble.h
  * @brief File contains serializer and deserializer APIS for sending and receiving MQTT messages
  * over BLE using a companion device SDK.
  */

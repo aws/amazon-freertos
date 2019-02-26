@@ -23,7 +23,7 @@
  * http://www.FreeRTOS.org
  */
 /* MQTT includes. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /* Standard library includes. */
 #include <string.h>
@@ -360,7 +360,7 @@ static bool_t prvOTA_Close( OTA_FileContext_t * const C );
 /* Called when a MQTT message is received on an OTA agent topic of interest. */
 
 static void prvOTAPublishCallback( void * pvCallbackContext,
-                                   AwsIotMqttCallbackParam_t * const pxPublishData );
+                                   IotMqttCallbackParam_t * const pxPublishData );
 
 /* Update the job status topic with our progress of the OTA transfer. */
 
@@ -1297,7 +1297,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
 
 /* This function is called whenever we receive a MQTT publish message on one of our OTA topics. */
 static void prvOTAPublishCallback( void * pvCallbackContext,
-                                   AwsIotMqttCallbackParam_t * const pxPublishData )
+                                   IotMqttCallbackParam_t * const pxPublishData )
 {
     DEFINE_OTA_METHOD_NAME_L2( "prvOTAPublishCallback" );
 
@@ -2754,7 +2754,7 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
 
     /* Clear subscription struct and set common parameters for job topics used by OTA. */
     memset( &stJobsSubscription, 0, sizeof( stJobsSubscription ) );
-    stJobsSubscription.QoS = 1;
+    stJobsSubscription.qos = 1;
     stJobsSubscription.pTopicFilter = ( const char * ) pcJobTopic;         /* Point to local string storage. Built below. */
     stJobsSubscription.callback.param1 = ( void * ) eOTA_PubMsgType_Job;      /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stJobsSubscription.callback.function = prvOTAPublishCallback;
@@ -2766,7 +2766,7 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
     if( ( stJobsSubscription.topicFilterLength > 0U ) && ( stJobsSubscription.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
         /* Subscribe to the first of two jobs topics. */
-        if( AwsIotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
+        if( IotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
                                        &stJobsSubscription,
                                        1, /* Subscriptions count */
                                        0, /* flags */
@@ -2785,7 +2785,7 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
             if( ( stJobsSubscription.topicFilterLength > 0U ) && ( stJobsSubscription.topicFilterLength < sizeof( pcJobTopic ) ) )
             {
                 /* Subscribe to the second of two jobs topics. */
-                if( AwsIotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
+                if( IotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
                                                &stJobsSubscription,
                                                1, /* Subscriptions count */
                                                0, /* flags */
@@ -2817,7 +2817,7 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
     IotMqttSubscription_t stOTAUpdateDataSubscription;
 
     memset( &stOTAUpdateDataSubscription, 0, sizeof( stOTAUpdateDataSubscription ) );
-    stOTAUpdateDataSubscription.QoS = 0;
+    stOTAUpdateDataSubscription.qos = 0;
     stOTAUpdateDataSubscription.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
     stOTAUpdateDataSubscription.callback.param1 = ( void * ) eOTA_PubMsgType_Stream;            /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stOTAUpdateDataSubscription.callback.function = prvOTAPublishCallback;
@@ -2829,7 +2829,7 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
 
     if( ( stOTAUpdateDataSubscription.topicFilterLength > 0U ) && ( stOTAUpdateDataSubscription.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
     {
-        if( AwsIotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
+        if( IotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
                                        &stOTAUpdateDataSubscription,
                                        1, /* Subscriptions count */
                                        0, /* flags */
@@ -2863,7 +2863,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
     bool_t bResult = pdFALSE;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
 
-    stUnSub.QoS = 0;
+    stUnSub.qos = 0;
 
     if( C != NULL )
     {
@@ -2879,7 +2879,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
         {
             stUnSub.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
 
-            if( AwsIotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
+            if( IotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
                                              &stUnSub,
                                              1, /* Subscriptions count */
                                              0, /* flags */
@@ -2912,7 +2912,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
 
     /* Try to unsubscribe from the first of two job topics. */
-    stUnSub.QoS = 0;
+    stUnSub.qos = 0;
     stUnSub.pTopicFilter = ( const char * ) pcJobTopic;         /* Point to local string storage. Built below. */
     stUnSub.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
                                                        sizeof( pcJobTopic ),
@@ -2921,7 +2921,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 
     if( ( stUnSub.topicFilterLength > 0U ) && ( stUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
-        if( AwsIotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
+        if( IotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
                                          &stUnSub,
                                          1, /* Subscriptions count */
                                          0, /* flags */
@@ -2943,7 +2943,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 
     if( ( stUnSub.topicFilterLength > 0U ) && ( stUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
-        if( AwsIotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
+        if( IotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
                                          &stUnSub,
                                          1, /* Subscriptions count */
                                          0, /* flags */
@@ -2973,14 +2973,14 @@ static IotMqttError_t prvPublishMessage( void * const pvClient,
 
     xPublishParams.pTopicName = ( const char * ) pacTopic;
     xPublishParams.topicNameLength = usTopicLen;
-    xPublishParams.QoS = eQOS;
+    xPublishParams.qos = eQOS;
     xPublishParams.pPayload = pcMsg;
     xPublishParams.payloadLength = ulMsgSize;
     xPublishParams.retryLimit = OTA_MAX_PUBLISH_RETRIES;
     xPublishParams.retryMs = OTA_RETRY_DELAY_MS;
     xPublishParams.retain = false;
     
-    eResult = AwsIotMqtt_TimedPublish( pvClient, &xPublishParams, 0, OTA_PUBLISH_WAIT_MS );
+    eResult = IotMqtt_TimedPublish( pvClient, &xPublishParams, 0, OTA_PUBLISH_WAIT_MS );
 
     if( eResult != IOT_MQTT_SUCCESS )
     {

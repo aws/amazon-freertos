@@ -149,34 +149,6 @@ bool Iot_CreateDetachedThread( IotThreadRoutine_t threadRoutine,
 
     IotLogDebug( "Creating new thread." );
 
-    /* Check priority if a non-default scheduling priority is given. */
-    if( priority != IOT_THREAD_DEFAULT_PRIORITY )
-    {
-        if( priority < 0 )
-        {
-            IotLogError( "Priority %ld is not valid for a new thread.",
-                         ( long int ) priority );
-            status = false;
-        }
-        else if( ( int ) priority < sched_get_priority_min( SCHED_RR ) )
-        {
-            IotLogError( "Priority %ld is less than minimum allowed %d.",
-                         sched_get_priority_min( SCHED_RR ) );
-            status = false;
-        }
-        else if( ( int ) priority > sched_get_priority_max( SCHED_RR ) )
-        {
-            IotLogError( "Priority %ld is greater than maximum allowed %d.",
-                         sched_get_priority_max( SCHED_RR ) );
-            status = false;
-        }
-        else
-        {
-            IotLogInfo( "New thread will have priority %ld with SCHED_RR policy.",
-                        ( long int ) priority );
-        }
-    }
-
     /* Check stack size if a non-default value is given. */
     if( status == true )
     {

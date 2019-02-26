@@ -33,7 +33,7 @@
 #define AWS_MQTT_NETWORK_IFACE_H_
 
 /* MQTT include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /**
  * @brief Creates the Network interface for MQTT connection.

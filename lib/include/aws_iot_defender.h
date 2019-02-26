@@ -56,7 +56,7 @@
 #include <stdint.h>
 
 /* MQTT include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /* Platform network include. */
 #include "platform/aws_iot_network.h"

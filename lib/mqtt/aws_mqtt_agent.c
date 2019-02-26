@@ -654,7 +654,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
         {
             xGlobalSubscription.pTopicFilter = "#";
             xGlobalSubscription.topicFilterLength = 1;
-            xGlobalSubscription.QoS = 0;
+            xGlobalSubscription.qos = 0;
             xGlobalSubscription.callback.param1 = pxConnection;
             xGlobalSubscription.callback.function = prvPublishCallbackWrapper;
 

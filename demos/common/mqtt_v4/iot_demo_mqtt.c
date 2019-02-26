@@ -250,7 +250,7 @@ static void _mqttSubscriptionCallback( void * param1,
                 "Subscription topic filter: %.*s\n"
                 "Publish topic name: %.*s\n"
                 "Publish retain flag: %d\n"
-                "Publish QoS: %d\n"
+                "Publish qos: %d\n"
                 "Publish payload: %.*s",
                 pPublish->message.topicFilterLength,
                 pPublish->message.pTopicFilter,
@@ -314,7 +314,7 @@ static void _mqttSubscriptionCallback( void * param1,
              * neither a callback nor IOT_MQTT_FLAG_WAITABLE is set. However,
              * the MQTT library will still guarantee at-least-once delivery (subject
              * to the retransmission strategy) because the acknowledgement message is
-             * sent at QoS 1. */
+             * sent at qos 1. */
             if( IotMqtt_Publish( pPublish->mqttConnection,
                                  &acknowledgementInfo,
                                  0,

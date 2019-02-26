@@ -449,7 +449,7 @@ typedef struct AwsIotShadowDocumentInfo
     const char * pThingName; /**< @brief The Thing Name associated with this Shadow document. */
     size_t thingNameLength;  /**< @brief Length of #AwsIotShadowDocumentInfo_t.pThingName. */
 
-    IotMqttQos_t qos;        /**< @brief QoS when sending a Shadow get or update message. See #IotMqttPublishInfo_t.qos. */
+    IotMqttQos_t qos;        /**< @brief qos when sending a Shadow get or update message. See #IotMqttPublishInfo_t.qos. */
     uint32_t retryLimit;     /**< @brief Maximum number of retries for a Shadow get or update message. See #IotMqttPublishInfo_t.retryLimit. */
     uint64_t retryMs;        /**< @brief First retry time for a Shadow get or update message. See IotMqttPublishInfo_t.retryMs. */
 

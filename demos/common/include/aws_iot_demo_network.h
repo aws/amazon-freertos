@@ -39,7 +39,7 @@
 #endif
 
 #include "FreeRTOS.h"
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 
 typedef struct MqttConnectionContext

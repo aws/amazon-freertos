@@ -36,7 +36,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * the OTA agent. If not, it is simply ignored.
  */
 /* MQTT include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 /* Standard includes. */
 #include <stdio.h>
 #include <string.h>

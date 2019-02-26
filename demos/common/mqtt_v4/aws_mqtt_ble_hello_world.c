@@ -50,7 +50,7 @@
 #include "task.h"
 
 /* MQTT library includes */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /* Network connection includes */
 #include "aws_iot_network_manager.h"
@@ -120,7 +120,7 @@
  * @param pvUserParam[in] User param for the callback
  * @param pxPublishParam[in] Publish param which contains the topic, the payload and other details.
  */
-static void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPublishParam );
+static void prvEchoMessage( void* pvUserParam, IotMqttCallbackParam_t* pxPublishParam );
 
 
 /**
@@ -244,7 +244,7 @@ IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
     AwsIotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
     IotMqttError_t xStatus;
 
-    xPublishInfo.QoS = echoDemoMQTT_QOS;
+    xPublishInfo.qos = echoDemoMQTT_QOS;
     xPublishInfo.pTopicName = echoDemoMQTT_TOPIC;
     xPublishInfo.topicNameLength = strlen( echoDemoMQTT_TOPIC );
 
@@ -279,7 +279,7 @@ IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
     return xStatus;
 }
 
-void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPublishParam )
+void prvEchoMessage( void* pvUserParam, IotMqttCallbackParam_t* pxPublishParam )
 {
 
     size_t xAckPos, xPayloadLen = pxPublishParam->message.info.payloadLength;
@@ -425,7 +425,7 @@ static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
     IotMqttSubscription_t xSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttError_t xMqttStatus;
 
-    xSubscription.QoS = echoDemoMQTT_QOS;
+    xSubscription.qos = echoDemoMQTT_QOS;
     xSubscription.callback.function = prvEchoMessage;
     xSubscription.callback.param1 = NULL;
     xSubscription.pTopicFilter = echoDemoMQTT_TOPIC;

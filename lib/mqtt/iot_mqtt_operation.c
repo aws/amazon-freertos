@@ -1195,7 +1195,7 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
 
 void _IotMqtt_Notify( _mqttOperation_t * pOperation )
 {
-    IotMqttError_t status = IOT_MQTT_SUCCESS;
+    IotMqttError_t status = IOT_MQTT_SCHEDULING_ERROR;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
     /* Check if operation is waitable. */
@@ -1225,65 +1225,65 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
         _EMPTY_ELSE_MARKER;
     }
 
-    /* Check if a callback function is set. */
-    if( pOperation->notify.callback.function != NULL )
+    /* For a waitable operation, post to the wait semaphore. */
+    if( waitable == true )
     {
-        /* A waitable operation may not have a callback. */
-        IotMqtt_Assert( waitable == false );
+        IotSemaphore_Post( &( pOperation->notify.waitSemaphore ) );
 
-        /* Non-waitable operation should have job reference of 1. */
-        IotMqtt_Assert( pOperation->jobReference == 1 );
-
-        IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-
-        /* Schedule an invocation of the callback. */
-        status = _IotMqtt_ScheduleOperation( pOperation,
-                                             _IotMqtt_ProcessCompletedOperation,
-                                             0 );
-
-        if( status != IOT_MQTT_SUCCESS )
-        {
-            IotLogDebug( "(MQTT connection %p, %s operation %p) Callback scheduled.",
-                         pOperation->pMqttConnection,
-                         IotMqtt_OperationType( pOperation->operation ),
-                         pOperation );
-
-            /* A completed operation should not be linked. */
-            IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) == false );
-
-            /* Place the scheduled operation back in the list of operations pending
-             * processing. */
-            IotListDouble_InsertHead( &( pMqttConnection->pendingProcessing ),
-                                      &( pOperation->link ) );
-        }
-        else
-        {
-            IotLogWarn( "(MQTT connection %p, %s operation %p) Failed to schedule callback.",
-                        pOperation->pMqttConnection,
-                        IotMqtt_OperationType( pOperation->operation ),
-                        pOperation );
-        }
-
-        IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+        IotLogDebug( "(MQTT connection %p, %s operation %p) Waitable operation "
+                     "notified of completion.",
+                     pOperation->pMqttConnection,
+                     IotMqtt_OperationType( pOperation->operation ),
+                     pOperation );
     }
     else
     {
-        /* For a waitable operation, post to the wait semaphore. */
-        if( waitable == true )
-        {
-            IotSemaphore_Post( &( pOperation->notify.waitSemaphore ) );
+        /* Non-waitable operation should have job reference of 1. */
+        IotMqtt_Assert( pOperation->jobReference == 1 );
 
-            IotLogDebug( "(MQTT connection %p, %s operation %p) Waitable operation "
-                         "notified of completion.",
-                         pOperation->pMqttConnection,
-                         IotMqtt_OperationType( pOperation->operation ),
-                         pOperation );
+        /* Schedule an invocation of the callback. */
+        if( pOperation->notify.callback.function != NULL )
+        {
+            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+
+            status = _IotMqtt_ScheduleOperation( pOperation,
+                                                 _IotMqtt_ProcessCompletedOperation,
+                                                 0 );
+
+            if( status == IOT_MQTT_SUCCESS )
+            {
+                IotLogDebug( "(MQTT connection %p, %s operation %p) Callback scheduled.",
+                             pOperation->pMqttConnection,
+                             IotMqtt_OperationType( pOperation->operation ),
+                             pOperation );
+
+                /* A completed operation should not be linked. */
+                IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) == false );
+
+                /* Place the scheduled operation back in the list of operations pending
+                 * processing. */
+                IotListDouble_InsertHead( &( pMqttConnection->pendingProcessing ),
+                                          &( pOperation->link ) );
+            }
+            else
+            {
+                IotLogWarn( "(MQTT connection %p, %s operation %p) Failed to schedule callback.",
+                            pOperation->pMqttConnection,
+                            IotMqtt_OperationType( pOperation->operation ),
+                            pOperation );
+            }
+
+            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
         }
         else
         {
             _EMPTY_ELSE_MARKER;
         }
+    }
 
+    /* Operations that weren't scheduled may be destroyed. */
+    if( status == IOT_MQTT_SCHEDULING_ERROR )
+    {
         /* Decrement reference count of operations with no callback. */
         if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )
         {
@@ -1293,6 +1293,10 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
         {
             _EMPTY_ELSE_MARKER;
         }
+    }
+    else
+    {
+        IotMqtt_Assert( status == IOT_MQTT_SUCCESS );
     }
 }
 

@@ -49,13 +49,13 @@ static void _cleanUpResources( void );
  * callback registerd on accept topic.
  */
 void _acceptCallback( void * pArgument,
-                      AwsIotMqttCallbackParam_t * const pPublish );
+                      IotMqttCallbackParam_t * const pPublish );
 
 /**
  * callback registerd on reject topic.
  */
 void _rejectCallback( void * pArgument,
-                      AwsIotMqttCallbackParam_t * const pPublish );
+                      IotMqttCallbackParam_t * const pPublish );
 
 /**
  * callback registerd on metrics publish timer.
@@ -536,7 +536,7 @@ static void _guardTimerExpirationRoutine( void * pArgument )
 /*-----------------------------------------------------------*/
 
 void _acceptCallback( void * pArgument,
-                      AwsIotMqttCallbackParam_t * const pPublish )
+                      IotMqttCallbackParam_t * const pPublish )
 {
     ( void ) pArgument;
 
@@ -570,7 +570,7 @@ void _acceptCallback( void * pArgument,
 /*-----------------------------------------------------------*/
 
 void _rejectCallback( void * pArgument,
-                      AwsIotMqttCallbackParam_t * const pPublish )
+                      IotMqttCallbackParam_t * const pPublish )
 {
     ( void ) pArgument;
 

@@ -37,7 +37,7 @@
 #include "iot_ble_mqtt.h"
 #include "task.h"
 
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 
 
 #define IOT_BLE_MQTT_CHAR_CONTROL_UUID_TYPE \

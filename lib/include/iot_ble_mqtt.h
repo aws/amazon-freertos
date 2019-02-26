@@ -40,8 +40,8 @@
 #include "stream_buffer.h"
 #include "semphr.h"
 #include "iot_ble.h"
-#include "aws_iot_mqtt.h"
-#include "aws_iot_mqtt_serialize_ble.h"
+#include "iot_mqtt.h"
+#include "iot_mqtt_serialize_ble.h"
 
 
 /**

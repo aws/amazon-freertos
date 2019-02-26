@@ -181,7 +181,7 @@ typedef struct MQTTAgentPublishParams
 {
     const uint8_t * pucTopic; /**< The topic string on which the message should be published. */
     uint16_t usTopicLength;   /**< The length of the topic. */
-    MQTTQoS_t xQoS;           /**< Quality of Service (QoS). */
+    MQTTQoS_t xQoS;           /**< Quality of Service (qos). */
     const void * pvData;      /**< The data to publish. This data is copied into the MQTT buffers and therefore the user can free the buffer after the MQTT_AGENT_Publish call returns. */
     uint32_t ulDataLength;    /**< Length of the data. */
 } MQTTAgentPublishParams_t;
