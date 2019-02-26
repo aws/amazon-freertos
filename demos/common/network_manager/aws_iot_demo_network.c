@@ -71,7 +71,7 @@ static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkCo
 /**
  * @brief Used to initialize the network interface.
  */
-static AwsIotMqttNetIf_t xDefaultNetworkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
+static AwsIotMqttNetIf_t xDefaultNetworkInterface = IOT_MQTT_NETIF_INITIALIZER;
 
 static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkContext, uint32_t ulNetworkTypes )
 {
@@ -175,7 +175,7 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
     if( IotBleMqtt_CreateConnection( &pxNetworkContext->xMqttConnection, &xBLEConnection ) == pdTRUE )
     {
         ( *pxNetworkIface ) = xDefaultNetworkInterface;
-        AWS_IOT_MQTT_BLE_INIT_SERIALIZER( pxNetworkIface );
+        IOT_MQTT_BLE_INIT_SERIALIZER( pxNetworkIface );
         pxNetworkIface->send          = IotBleMqtt_Send;
         pxNetworkIface->pSendContext  = ( void * ) xBLEConnection;
         pxNetworkIface->pDisconnectContext = pxNetworkContext;

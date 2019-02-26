@@ -165,7 +165,7 @@ typedef struct  IotBleMqttService
 #define IS_SUCCESS( status )			( status == eBTStatusSuccess )
 
 
-#define AWS_IOT_MQTT_BLE_INIT_SERIALIZER( pNetworkInterface )                             \
+#define IOT_MQTT_BLE_INIT_SERIALIZER( pNetworkInterface )                             \
 do                                                                                         \
 {                                                                                          \
     ( pNetworkInterface )->serialize.connect       = IotBleMqtt_SerializeConnect;      \

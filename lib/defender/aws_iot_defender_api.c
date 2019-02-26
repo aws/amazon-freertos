@@ -111,7 +111,7 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
 {
     if( metricsGroup >= _DEFENDER_METRICS_GROUP_COUNT )
     {
-        AwsIotLogError( "Input metrics group is invalid. Please use AwsIotDefenderMetricsGroup_t data type." );
+        IotLogError( "Input metrics group is invalid. Please use AwsIotDefenderMetricsGroup_t data type." );
 
         return AWS_IOT_DEFENDER_INVALID_INPUT;
     }
@@ -119,18 +119,18 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
     /* If started, it needs to lock the metrics to protect concurrent read from metrics timer callback. */
     if( _started )
     {
-        AwsIotMutex_Lock( &_AwsIotDefenderMetrics.mutex );
+        IotMutex_Lock( &_AwsIotDefenderMetrics.mutex );
 
         _AwsIotDefenderMetrics.metricsFlag[ metricsGroup ] = metrics;
 
-        AwsIotMutex_Unlock( &_AwsIotDefenderMetrics.mutex );
+        IotMutex_Unlock( &_AwsIotDefenderMetrics.mutex );
     }
     else
     {
         _AwsIotDefenderMetrics.metricsFlag[ metricsGroup ] = metrics;
     }
 
-    AwsIotLogInfo( "Metrics are successfully updated." );
+    IotLogInfo( "Metrics are successfully updated." );
 
     return AWS_IOT_DEFENDER_SUCCESS;
 }
@@ -143,7 +143,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         ( pStartInfo->pAwsIotEndpoint == NULL ) ||
         ( pStartInfo->pThingName == NULL ) )
     {
-        AwsIotLogError( "Input start info is invalid." );
+        IotLogError( "Input start info is invalid." );
 
         return AWS_IOT_DEFENDER_INVALID_INPUT;
     }
@@ -223,7 +223,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         {
             _started = true;
             defenderError = AWS_IOT_DEFENDER_SUCCESS;
-            AwsIotLogInfo( "Defender agent has successfully started." );
+            IotLogInfo( "Defender agent has successfully started." );
         }
 
         /* Do the cleanup jobs if not success.
@@ -256,10 +256,10 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
             if( metricsMutexCreateSuccess )
             {
-                AwsIotMutex_Destroy( &_AwsIotDefenderMetrics.mutex );
+                IotMutex_Destroy( &_AwsIotDefenderMetrics.mutex );
             }
 
-            AwsIotLogError( "Defender agent failed to start due to error %s.", AwsIotDefender_strerror( defenderError ) );
+            IotLogError( "Defender agent failed to start due to error %s.", AwsIotDefender_strerror( defenderError ) );
         }
     }
     else
@@ -276,7 +276,7 @@ void AwsIotDefender_Stop( void )
 {
     if( !_started )
     {
-        AwsIotLogWarn( "Defender has not started yet." );
+        IotLogWarn( "Defender has not started yet." );
 
         return;
     }
@@ -294,7 +294,7 @@ void AwsIotDefender_Stop( void )
     memset( _AwsIotDefenderMetrics.metricsFlag, 0, sizeof( _AwsIotDefenderMetrics.metricsFlag ) );
 
     /* Destroy metrics' mutex. */
-    AwsIotMutex_Destroy( &_AwsIotDefenderMetrics.mutex );
+    IotMutex_Destroy( &_AwsIotDefenderMetrics.mutex );
 
     /* Destroying will cancel timers that are active but not in process. */
     AwsIotClock_TimerDestroy( &_metricsPublishTimer );
@@ -312,7 +312,7 @@ void AwsIotDefender_Stop( void )
 
     _started = false;
 
-    AwsIotLogInfo( "Defender agent has stopped." );
+    IotLogInfo( "Defender agent has stopped." );
 }
 
 /*-----------------------------------------------------------*/
@@ -328,7 +328,7 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds )
     if( periodSeconds < AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS )
     {
         defenderError = AWS_IOT_DEFENDER_PERIOD_TOO_SHORT;
-        AwsIotLogError( "Input period is too short. It must be greater than %d seconds.", AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS );
+        IotLogError( "Input period is too short. It must be greater than %d seconds.", AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS );
     }
     else
     {
@@ -340,14 +340,14 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds )
             if( AwsIotClock_TimerArm( &_metricsPublishTimer, _periodMilliSecond, _periodMilliSecond ) )
             {
                 defenderError = AWS_IOT_DEFENDER_SUCCESS;
-                AwsIotLogInfo( "Period has been updated to %d seconds successfully.", periodSeconds );
+                IotLogInfo( "Period has been updated to %d seconds successfully.", periodSeconds );
             }
         }
         else
         {
             /* if defender is not started, simply return success */
             defenderError = AWS_IOT_DEFENDER_SUCCESS;
-            AwsIotLogInfo( "Period has been set to %d seconds successfully but defender agent is not started yet.", periodSeconds );
+            IotLogInfo( "Period has been set to %d seconds successfully but defender agent is not started yet.", periodSeconds );
         }
     }
 
@@ -426,11 +426,11 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
 {
     ( void ) pArgument;
 
-    AwsIotLogDebug( "Metrics timer callback starts." );
+    IotLogDebug( "Metrics timer callback starts." );
 
     if( !AwsIotSemaphore_TryWait( &_timerSem ) )
     {
-        AwsIotLogDebug( "Metrics timer callback fails to acquire the timer semaphore. There must be a concurrent 'stop' function invocation." );
+        IotLogDebug( "Metrics timer callback fails to acquire the timer semaphore. There must be a concurrent 'stop' function invocation." );
 
         return;
     }
@@ -467,7 +467,7 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
                         if( AwsIotDefenderInternal_MqttPublish( AwsIotDefenderInternal_GetReportBuffer(),
                                                                 AwsIotDefenderInternal_GetReportBufferSize() ) )
                         {
-                            AwsIotLogDebug( "Metrics report has been published successfully." );
+                            IotLogDebug( "Metrics report has been published successfully." );
                         }
                         else
                         {
@@ -521,7 +521,7 @@ static void _metricsPublishTimerExpirationRoutine( void * pArgument )
         _cleanUpResources();
     }
 
-    AwsIotLogDebug( "Defender timber callback ends." );
+    IotLogDebug( "Defender timber callback ends." );
 }
 
 /*-----------------------------------------------------------*/
@@ -540,7 +540,7 @@ void _acceptCallback( void * pArgument,
 {
     ( void ) pArgument;
 
-    AwsIotLogInfo( "Metrics report was accepted by defender service." );
+    IotLogInfo( "Metrics report was accepted by defender service." );
 
     /* In accepted case, report and MQTT message must exist. */
     AwsIotDefender_Assert( AwsIotDefenderInternal_GetReportBuffer() );
@@ -574,7 +574,7 @@ void _rejectCallback( void * pArgument,
 {
     ( void ) pArgument;
 
-    AwsIotLogError( "Metrics report was rejected by defender service." );
+    IotLogError( "Metrics report was rejected by defender service." );
 
     /* In rejected case, MQTT message must exist. */
     AwsIotDefender_Assert( pPublish->message.info.pPayload );

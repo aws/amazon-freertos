@@ -257,7 +257,7 @@ void prvMqttReceiveTask( void * pvArgument )
 
         if( lSocketReturn <= 0 )
         {
-            AwsIotLogError( "No data could be read from the socket. Returned %ld.",
+            IotLogError( "No data could be read from the socket. Returned %ld.",
                             lSocketReturn );
             break;
         }
@@ -272,18 +272,18 @@ void prvMqttReceiveTask( void * pvArgument )
         /* Check for MQTT protocol violation. */
         if( xMqttCallbackReturn == -1 )
         {
-            AwsIotLogError( "MQTT protocol violation encountered." );
+            IotLogError( "MQTT protocol violation encountered." );
             break;
         }
         /* If 0 bytes were processed, the receive buffer is too small for a complete MQTT packet. */
         else if( xMqttCallbackReturn == 0 )
         {
-            AwsIotLogDebug( "Receive buffer too small. Allocating larger buffer." );
+            IotLogDebug( "Receive buffer too small. Allocating larger buffer." );
 
             /* Check that it's possible to allocate a larger buffer. */
             if( xReceiveBufferSize * 2 < xReceiveBufferSize )
             {
-                AwsIotLogError( "No larger receive buffer can be allocated." );
+                IotLogError( "No larger receive buffer can be allocated." );
 
                 break;
             }
@@ -309,7 +309,7 @@ void prvMqttReceiveTask( void * pvArgument )
         /* If the entire buffer wasn't processed, then it contains a partial packet at the end. */
         else if( xMqttCallbackReturn < ( ssize_t ) lSocketReturn + ( ssize_t ) xProcessOffset )
         {
-            AwsIotLogDebug( "MQTT library processed %ld of %ld bytes.",
+            IotLogDebug( "MQTT library processed %ld of %ld bytes.",
                             ( long int ) xMqttCallbackReturn,
                             ( long int ) lSocketReturn + ( long int ) xProcessOffset );
 
@@ -343,7 +343,7 @@ void prvMqttReceiveTask( void * pvArgument )
         }
     }
 
-    AwsIotLogDebug( "MQTT receive task terminating." );
+    IotLogDebug( "MQTT receive task terminating." );
 
     /* If a receive buffer is allocated, free it. */
     if( pxConnection->pucReceiveBuffer != NULL )
@@ -390,7 +390,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
     /* Check URL length. */
     if( xHostNameLength > ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
     {
-        AwsIotLogError( "URL exceeds %d, which is the maximum allowed length.",
+        IotLogError( "URL exceeds %d, which is the maximum allowed length.",
                         securesocketsMAX_DNS_NAME_LENGTH );
         xStatus = AWS_IOT_NETWORK_BAD_PARAMETER;
     }
@@ -402,7 +402,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
 
         if( pxConnection == NULL )
         {
-            AwsIotLogError( "Failed to allocate memory for new network connection." );
+            IotLogError( "Failed to allocate memory for new network connection." );
 
             xStatus = AWS_IOT_NETWORK_NO_MEMORY;
         }
@@ -421,7 +421,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
 
         if( xSocket == SOCKETS_INVALID_SOCKET )
         {
-            AwsIotLogError( "Failed to create new socket." );
+            IotLogError( "Failed to create new socket." );
             xStatus = AWS_IOT_NETWORK_NO_MEMORY;
         }
     }
@@ -437,7 +437,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
                                     NULL,
                                     0 ) != SOCKETS_ERROR_NONE )
             {
-                AwsIotLogError( "Failed to set secured option for new connection." );
+                IotLogError( "Failed to set secured option for new connection." );
                 xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
             }
         }
@@ -455,7 +455,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
                                     ppcALPNProtos,
                                     sizeof( ppcALPNProtos ) / sizeof( ppcALPNProtos[ 0 ] ) ) != SOCKETS_ERROR_NONE )
             {
-                AwsIotLogError( "Failed to set ALPN option for new connection." );
+                IotLogError( "Failed to set ALPN option for new connection." );
                 xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
             }
         }
@@ -473,7 +473,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
                                     pHostName,
                                     xHostNameLength + 1 ) != SOCKETS_ERROR_NONE )
             {
-                AwsIotLogError( "Failed to set SNI option for new connection." );
+                IotLogError( "Failed to set SNI option for new connection." );
                 xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
             }
         }
@@ -491,7 +491,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
                                     pTlsInfo->pRootCa,
                                     pTlsInfo->rootCaLength ) != SOCKETS_ERROR_NONE )
             {
-                AwsIotLogError( "Failed to set server certificate option for new connection." );
+                IotLogError( "Failed to set server certificate option for new connection." );
                 xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
             }
         }
@@ -508,7 +508,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
                              &xServer,
                              sizeof( SocketsSockaddr_t ) ) != SOCKETS_ERROR_NONE )
         {
-            AwsIotLogError( "Failed to establish new connection." );
+            IotLogError( "Failed to establish new connection." );
             xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
         }
     }
@@ -520,7 +520,7 @@ AwsIotNetworkError_t AwsIotNetwork_CreateConnection( AwsIotNetworkConnection_t *
          * parameter isn't NULL. */
         ( void ) xEventGroupCreateStatic( &( pxConnection->xConnectionFlags ) );
 
-        AwsIotLogInfo( "New network connection established." );
+        IotLogInfo( "New network connection established." );
         pxConnection->xSocket = xSocket;
         *pNetworkConnection = pxConnection;
     }
@@ -571,12 +571,12 @@ AwsIotNetworkError_t AwsIotNetwork_SetMqttReceiveCallback( AwsIotNetworkConnecti
     {
         if( xTaskCreate( prvMqttReceiveTask,
                          "MqttRecv",
-                         AWS_IOT_MQTT_RECEIVE_TASK_STACK_SIZE,
+                         IOT_MQTT_RECEIVE_TASK_STACK_SIZE,
                          pxConnection,
-                         AWS_IOT_MQTT_RECEIVE_TASK_PRIORITY,
+                         IOT_MQTT_RECEIVE_TASK_PRIORITY,
                          NULL ) != pdPASS )
         {
-            AwsIotLogError( "Failed to create MQTT receive task." );
+            IotLogError( "Failed to create MQTT receive task." );
             AwsIotNetwork_Free( pxConnection->pucReceiveBuffer );
             xStatus = AWS_IOT_NETWORK_SYSTEM_ERROR;
         }
@@ -595,7 +595,7 @@ void AwsIotNetwork_CloseConnection( AwsIotNetworkConnection_t networkConnection 
     if( SOCKETS_Shutdown( pxConnection->xSocket,
                           SOCKETS_SHUT_RDWR ) != SOCKETS_ERROR_NONE )
     {
-        AwsIotLogWarn( "Failed to close connection." );
+        IotLogWarn( "Failed to close connection." );
     }
 
     /* Set the shutdown flag. */
@@ -619,7 +619,7 @@ void AwsIotNetwork_DestroyConnection( AwsIotNetworkConnection_t networkConnectio
     /* Call Secure Sockets close function to free resources. */
     if( SOCKETS_Close( pxConnection->xSocket ) != SOCKETS_ERROR_NONE )
     {
-        AwsIotLogWarn( "Failed to destroy connection." );
+        IotLogWarn( "Failed to destroy connection." );
     }
 
     AwsIotNetwork_Free( pxConnection );

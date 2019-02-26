@@ -395,7 +395,7 @@ void vEnableNotification( IotBleAttributeEvent_t * pEventParam )
 
             if( ucCCFGValue == ( uint16_t ) ENABLE_NOTIFICATION )
             {
-                AwsIotLogInfo( "Enabled Notification for Read Characteristic\n" );
+                IotLogInfo( "Enabled Notification for Read Characteristic\n" );
                 xNotifyCounterUpdate = pdTRUE;
                 usBLEConnectionID = pxWriteParam->connId;
             }
@@ -429,7 +429,7 @@ static void vConnectionCallback( BTStatus_t xStatus,
     {
         if( connId == usBLEConnectionID )
         {
-            AwsIotLogInfo( " Disconnected from BLE device. Stopping the counter update \n");
+            IotLogInfo( " Disconnected from BLE device. Stopping the counter update \n");
             vGattDemoSvcStop();
         }
     }

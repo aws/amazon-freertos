@@ -90,8 +90,8 @@ static MqttConnectionContext_t xConnection =
 {
      .pvNetworkConnection = NULL,
      .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
-     .xNetworkInterface   = AWS_IOT_MQTT_NETIF_INITIALIZER,
-     .xMqttConnection     = AWS_IOT_MQTT_CONNECTION_INITIALIZER,
+     .xNetworkInterface   = IOT_MQTT_NETIF_INITIALIZER,
+     .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
      .xDisconnectCallback = prvNetworkDisconnectCallback
 };
 
@@ -179,7 +179,7 @@ static const char *pcStateStr[eOTA_NumAgentStates] =
 
 void vOTAUpdateDemoTask( void * pvParameters )
 {
-    IotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;                                                                                                                                                                                                                                                                                                                              
+    IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;                                                                                                                                                                                                                                                                                                                              
     OTA_State_t eState;
 
 /* Remove compiler warnings about unused parameters. */
@@ -221,7 +221,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
                 &( xConnection.xNetworkInterface ),
                 &xConnectInfo,
                 NULL,
-                otademoCONN_TIMEOUT_MS ) == AWS_IOT_MQTT_SUCCESS )
+                otademoCONN_TIMEOUT_MS ) == IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
                 OTA_AgentInit( xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );

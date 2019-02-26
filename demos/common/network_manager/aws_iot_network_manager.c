@@ -302,7 +302,7 @@ static void prvStartAdvCallback( BTStatus_t xStatus )
 {
     if( xStatus == eBTStatusSuccess )
     {
-        AwsIotLogInfo ( "Started advertisement. Listening for a BLE Connection.\n" );
+        IotLogInfo ( "Started advertisement. Listening for a BLE Connection.\n" );
     }
 }
 
@@ -317,13 +317,13 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
 
     if( xConnected == true )
     {
-        AwsIotLogInfo ( "BLE Connected to remote device, connId = %d\n", connId );
+        IotLogInfo ( "BLE Connected to remote device, connId = %d\n", connId );
         IotBle_StopAdv();
         xBLENetworkInfo.xNetworkState = eNetworkStateEnabled;
     }
     else
     {
-        AwsIotLogInfo ( "BLE disconnected with remote device, connId = %d \n", connId );
+        IotLogInfo ( "BLE disconnected with remote device, connId = %d \n", connId );
 
         if( xBLENetworkInfo.xNetworkState != eNetworkStateUnknown )
         {
@@ -514,7 +514,7 @@ static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t 
             xError = prxScheduleSubscriptionTask( pxSubscription, ulNetworkType, xNetworkEvent );
             if( xError !=  AWS_IOT_TASKPOOL_SUCCESS )
             {
-                AwsIotLogError( "Failed to invoke subscription for"
+                IotLogError( "Failed to invoke subscription for"
                         " network type = %d, event = %d, error = %d.",
                         ulNetworkType,
                         xNetworkEvent,
@@ -549,7 +549,7 @@ static void prvUserCallbackRoutine( struct AwsIotTaskPool * pTaskPool, struct Aw
         xError = AwsIotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxNextTask->xJob );
         if( xError !=  AWS_IOT_TASKPOOL_SUCCESS )
         {
-            AwsIotLogError( "Failed to invoke subscription for"
+            IotLogError( "Failed to invoke subscription for"
                     " network type = %d, event = %d, error = %d.",
                     pxNextTask->ulNetworkType,
                     pxNextTask->xNewtorkEvent,
@@ -628,12 +628,12 @@ BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes
         }
         else
         {
-            AwsIotLogInfo(" Not enough memory to add new subscription \n");
+            IotLogInfo(" Not enough memory to add new subscription \n");
         }
     }
     else
     {
-        AwsIotLogInfo( "Subscription List not initialized \n");
+        IotLogInfo( "Subscription List not initialized \n");
     }
     return xRet;
 }

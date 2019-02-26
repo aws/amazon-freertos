@@ -113,7 +113,7 @@ void IotBleMqtt_CleanupSerialize( void );
  * @param[out] pConnectPacket The buffer containing the serialized data.
  * @param[in] pPacketSize The Size of the serialized data.
  *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
+ * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  */
 IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const pConnectInfo,
                                                            const IotMqttPublishInfo_t * const pWillInfo,
@@ -129,7 +129,7 @@ IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const p
  * @param[in] dataLength Length of buffer containing the CONNACK message.
  * @param[out] pBytesProcessed Length of the CONNACK message parsed.
  *
- * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
+ * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
 IotMqttError_t IotBleMqtt_DeserializeConnack( const uint8_t * const pConnackStart,
@@ -148,7 +148,7 @@ IotMqttError_t IotBleMqtt_DeserializeConnack( const uint8_t * const pConnackStar
  * @param[out] pPacketSize Length of the serialized PUBLISH message.
  * @param[out] pPacketIdentifier Unique Identifier for the PUBLISH message.
  *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
+ * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  *
  */
 IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const pPublishInfo,
@@ -178,7 +178,7 @@ void IotBleMqtt_PublishSetDup( bool awsIotMqttMode, uint8_t * const pPublishPack
  * @param[out] pPacketIdentifier Unique identifier for the PUBLISH message.
  * @param[out] pBytesProcessed Length of the PUBLISH message parsed.
  *
- * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
+ * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
 IotMqttError_t IotBleMqtt_DeserializePublish( const uint8_t * const pPublishStart,
@@ -197,7 +197,7 @@ IotMqttError_t IotBleMqtt_DeserializePublish( const uint8_t * const pPublishStar
  * @param[out] pPubackPacket Pointer to the start of the PUBACK message.
  * @param[out] pPacketSize Length of the PUBACK message.
  *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
+ * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  *
  */
 IotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
@@ -213,7 +213,7 @@ IotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
  * @param[out] pPacketIdentifier Unique identifier for the PUBACK message.
  * @param[out] pBytesProcessed Length of the PUBACK message parsed.
  *
- * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
+ * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
 IotMqttError_t IotBleMqtt_DeserializePuback( const uint8_t * const pPubackStart,
@@ -232,7 +232,7 @@ IotMqttError_t IotBleMqtt_DeserializePuback( const uint8_t * const pPubackStart,
  * @param[out] pPacketSize Length of the SUBSCRIBE message.
  * @param[out] pPacketIdentifier Unique identifier for the SUBSCRIBE message.
  *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
+ * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  *
  */
 IotMqttError_t IotBleMqtt_SerializeSubscribe( const IotMqttSubscription_t * const pSubscriptionList,
@@ -252,7 +252,7 @@ IotMqttError_t IotBleMqtt_SerializeSubscribe( const IotMqttSubscription_t * cons
  * @param[out] pPacketIdentifier Unique identifier for the SUBACK message.
  * @param[out] pBytesProcessed Length of the SUBACK message parsed.
  *
- * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
+ * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
 IotMqttError_t IotBleMqtt_DeserializeSuback( IotMqttConnection_t mqttConnection,
@@ -271,7 +271,7 @@ IotMqttError_t IotBleMqtt_DeserializeSuback( IotMqttConnection_t mqttConnection,
  * @param[out] pPacketSize Length of the UNSUBSCRIBE message.
  * @param[out] pPacketIdentifier Unique identifier for the UNSUBSCRIBE message.
  *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
+ * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  *
  */
 IotMqttError_t IotBleMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * const pSubscriptionList,
@@ -291,7 +291,7 @@ IotMqttError_t IotBleMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * co
  * @param[out] pPacketIdentifier Unique identifier for the UNSUBACK message.
  * @param[out] pBytesProcessed Length of the SUBACK message parsed.
  *
- * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE.
+ * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
 IotMqttError_t IotBleMqtt_DeserializeUnsuback( const uint8_t * const pUnsubackStart,
@@ -306,7 +306,7 @@ IotMqttError_t IotBleMqtt_DeserializeUnsuback( const uint8_t * const pUnsubackSt
  * @param[out] pDisconnectPacket Pointer to the DISCONNECT message
  * @param[out] pPacketSize Length of the DISCONNECT message.
  *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY.
+ * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  *
  */
 IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
@@ -318,7 +318,7 @@ IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacke
  * @param[out]  pPingreqPacket Pointer to the PING request packet
  * @param[out]  pPacketSize Size of the PING request packet
  *
- * @return #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_NO_MEMORY
+ * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY
  */
 IotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
                                                        size_t * const pPacketSize );
@@ -329,7 +329,7 @@ IotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
  * @param[in] pPingrespStart Pointer to start of buffer containing PING response
  * @param[in] dataLength Length of the buffer containing PING response
  * @param[out] pBytesProcessed Number of bytes parsed
- * @return  #AWS_IOT_MQTT_SUCCESS or #AWS_IOT_MQTT_BAD_RESPONSE
+ * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE
  */
 IotMqttError_t IotBleMqtt_DeserializePingresp( const uint8_t * const pPingrespStart,
                                                           size_t dataLength,
@@ -353,4 +353,4 @@ uint8_t IotBleMqtt_GetPacketType( const uint8_t * const pPacket, size_t packetSi
  */
 void IotBleMqtt_FreePacket( uint8_t * pPacket );
 
-#endif /* AWS_IOT_MQTT_SERIALIZE_BLE_H */
+#endif /* IOT_MQTT_SERIALIZE_BLE_H */

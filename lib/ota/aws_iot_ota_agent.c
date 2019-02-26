@@ -714,7 +714,7 @@ OTA_Err_t OTA_CheckForUpdate( void )
             ulMsgLen,
             1 );
 
-        if( eResult != AWS_IOT_MQTT_SUCCESS )
+        if( eResult != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] Failed to publish MQTT message.\r\n", OTA_METHOD_NAME );
             xError = kOTA_Err_PublishFailed;
@@ -1178,7 +1178,7 @@ static void prvUpdateJobStatus( OTA_FileContext_t * C,
                 ulMsgSize,
                 eQOS );
 
-            if( eResult != AWS_IOT_MQTT_SUCCESS )
+            if( eResult != IOT_MQTT_SUCCESS )
             {
                 OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
             }
@@ -1255,7 +1255,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                         ulMsgSizeToPublish,
                         0 );
 
-                    if( eResult != AWS_IOT_MQTT_SUCCESS )
+                    if( eResult != IOT_MQTT_SUCCESS )
                     {
                         OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
                         /* Don't return an error. Let max momentum catch it since this may be intermittent. */
@@ -2770,7 +2770,7 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
                                        &stJobsSubscription,
                                        1, /* Subscriptions count */
                                        0, /* flags */
-                                       OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                       OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
         }
@@ -2789,7 +2789,7 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
                                                &stJobsSubscription,
                                                1, /* Subscriptions count */
                                                0, /* flags */
-                                               OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                               OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
                 {
                     OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
                 }
@@ -2833,7 +2833,7 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
                                        &stOTAUpdateDataSubscription,
                                        1, /* Subscriptions count */
                                        0, /* flags */
-                                       OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                       OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stOTAUpdateDataSubscription.pTopicFilter );
         }
@@ -2883,7 +2883,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
                                              &stUnSub,
                                              1, /* Subscriptions count */
                                              0, /* flags */
-                                             OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                             OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
             {
                 OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, pcOTA_RxStreamTopic );
             }
@@ -2925,7 +2925,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
                                          &stUnSub,
                                          1, /* Subscriptions count */
                                          0, /* flags */
-                                         OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                         OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] FAIL: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
@@ -2947,7 +2947,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
                                          &stUnSub,
                                          1, /* Subscriptions count */
                                          0, /* flags */
-                                         OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                         OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] FAIL: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
@@ -2982,7 +2982,7 @@ static IotMqttError_t prvPublishMessage( void * const pvClient,
     
     eResult = AwsIotMqtt_TimedPublish( pvClient, &xPublishParams, 0, OTA_PUBLISH_WAIT_MS );
 
-    if( eResult != AWS_IOT_MQTT_SUCCESS )
+    if( eResult != IOT_MQTT_SUCCESS )
     {
         xOTA_Agent.xStatistics.ulOTA_PublishFailures++; /* Track how many publish failures we've had. */
     }

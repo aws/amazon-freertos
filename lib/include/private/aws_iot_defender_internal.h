@@ -267,7 +267,7 @@ typedef struct _defenderMetrics
      * - metrics timer callback
      * - SetMetrics API
      */
-    AwsIotMutex_t mutex;
+    IotMutex_t mutex;
 } _defenderMetrics_t;
 
 /**

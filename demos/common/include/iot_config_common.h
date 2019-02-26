@@ -147,8 +147,8 @@
 #endif
 
 /* MQTT library configuration. */
-#ifndef AWS_IOT_MQTT_ENABLE_METRICS
-    #define AWS_IOT_MQTT_ENABLE_METRICS    ( 1 )
+#ifndef IOT_MQTT_ENABLE_METRICS
+    #define IOT_MQTT_ENABLE_METRICS    ( 1 )
 #endif
 #ifndef IOT_MQTT_ENABLE_ASSERTS
     #define IOT_MQTT_ENABLE_ASSERTS        ( 1 )

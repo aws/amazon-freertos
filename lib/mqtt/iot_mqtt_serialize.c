@@ -152,7 +152,7 @@
 /*
  * Username for metrics with AWS IoT.
  */
-#if AWS_IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1
+#if IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1
     #ifndef IOT_SDK_VERSION
         #error "IOT_SDK_VERSION must be defined."
     #endif
@@ -527,7 +527,7 @@ static bool _connectPacketSize( const IotMqttConnectInfo_t * pConnectInfo,
      * or the user-provided username. */
     if( pConnectInfo->awsIotMqttMode == true )
     {
-        #if AWS_IOT_MQTT_ENABLE_METRICS == 1
+        #if IOT_MQTT_ENABLE_METRICS == 1
             connectPacketSize += _AWS_IOT_METRICS_USERNAME_LENGTH + sizeof( uint16_t );
         #endif
     }
@@ -853,7 +853,7 @@ IotMqttError_t _IotMqtt_SerializeConnect( const IotMqttConnectInfo_t * pConnectI
     {
         /* Set the username flag for AWS IoT metrics. The AWS IoT MQTT server
          * never uses a password. */
-        #if AWS_IOT_MQTT_ENABLE_METRICS == 1
+        #if IOT_MQTT_ENABLE_METRICS == 1
             _UINT8_SET_BIT( connectFlags, _MQTT_CONNECT_FLAG_USERNAME );
         #endif
     }
@@ -947,9 +947,9 @@ IotMqttError_t _IotMqtt_SerializeConnect( const IotMqttConnectInfo_t * pConnectI
      * AWS IoT MQTT server. */
     if( pConnectInfo->awsIotMqttMode == true )
     {
-        #if AWS_IOT_MQTT_ENABLE_METRICS == 1
+        #if IOT_MQTT_ENABLE_METRICS == 1
             IotLogInfo( "Anonymous metrics (SDK language, SDK version) will be provided to AWS IoT. "
-                        "Recompile with AWS_IOT_MQTT_ENABLE_METRICS set to 0 to disable." );
+                        "Recompile with IOT_MQTT_ENABLE_METRICS set to 0 to disable." );
 
             pBuffer = _encodeString( pBuffer,
                                      _AWS_IOT_METRICS_USERNAME,
