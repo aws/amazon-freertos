@@ -28,8 +28,8 @@
  * @brief BLE GATT API.
  */
 
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 #include <string.h>
