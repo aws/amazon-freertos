@@ -21,8 +21,8 @@
 
 /* This file contains default configuration settings for the tests on FreeRTOS. */
 
-#ifndef _AWS_IOT_CONFIG_COMMON_H_
-#define _AWS_IOT_CONFIG_COMMON_H_
+#ifndef _IOT_CONFIG_COMMON_H_
+#define _IOT_CONFIG_COMMON_H_
 
 /* FreeRTOS+POSIX include. */
 #include "FreeRTOS_POSIX.h"
@@ -56,22 +56,16 @@
     #define POSIX_UNISTD_HEADER       "FreeRTOS_POSIX/unistd.h"
 #endif
 
-/* Include necessary POSIX headers for platform layer types. */
-#include POSIX_PTHREAD_HEADER
-#include POSIX_SEMAPHORE_HEADER
+/* Use POSIX types on FreeRTOS. */
+#include "platform/iot_platform_types_posix.h"
 
 /* SDK version. */
-#define AWS_IOT_SDK_VERSION       "4.0.0"
-
-/* Platform layer types. */
-#define AWS_IOT_TIMER_TYPE        void *
-#define AWS_IOT_MUTEX_TYPE        pthread_mutex_t
-#define AWS_IOT_SEMAPHORE_TYPE    sem_t
+#define IOT_SDK_VERSION    "4.0.0"
 
 /* Standard library function overrides. */
-#define AwsIotLogging_Puts( str )                configPRINTF( ( "%s\n", str ) )
-#define AwsIotQueue_Assert( expression )         configASSERT( expression )
-#define AwsIotMqtt_Assert( expression )          configASSERT( expression )
+#define IotLogging_Puts( str )                   configPRINTF( ( "%s\n", str ) )
+#define IotContainers_Assert( expression )       configASSERT( expression )
+#define IotMqtt_Assert( expression )             configASSERT( expression )
 
 /* It is a known issue that some test cases need configASSERT to map to TEST_ABORT. */
 #define AwsIotSerializer_Assert( expression )    if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Serializer assert failure" )
@@ -79,37 +73,35 @@
 #define AwsIotDefender_Assert( expression )      if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Defender assert failure" )
 
 /* Control the usage of dynamic memory allocation. */
-#ifndef AWS_IOT_STATIC_MEMORY_ONLY
-    #define AWS_IOT_STATIC_MEMORY_ONLY    ( 0 )
+#ifndef IOT_STATIC_MEMORY_ONLY
+    #define IOT_STATIC_MEMORY_ONLY    ( 0 )
 #endif
 
 /* Memory allocation configuration. Note that these functions will not be affected
- * by AWS_IOT_STATIC_MEMORY_ONLY. */
-#define AwsIotNetwork_Malloc    pvPortMalloc
-#define AwsIotNetwork_Free      vPortFree
-#define AwsIotClock_Malloc      pvPortMalloc
-#define AwsIotClock_Free        vPortFree
-#define AwsIotThreads_Malloc    pvPortMalloc
-#define AwsIotThreads_Free      vPortFree
-#define AwsIotLogging_Malloc    pvPortMalloc
-#define AwsIotLogging_Free      vPortFree
-/* #define AwsIotLogging_StaticBufferSize */
-#define AwsIotTest_Malloc       pvPortMalloc
-#define AwsIotTest_Free         vPortFree
+ * by IOT_STATIC_MEMORY_ONLY. */
+#define IotNetwork_Malloc    pvPortMalloc
+#define IotNetwork_Free      vPortFree
+#define IotClock_Malloc      pvPortMalloc
+#define IotClock_Free        vPortFree
+#define IotThreads_Malloc    pvPortMalloc
+#define IotThreads_Free      vPortFree
+#define IotLogging_Malloc    pvPortMalloc
+#define IotLogging_Free      vPortFree
+/* #define IotLogging_StaticBufferSize */
+#define IotTest_Malloc       pvPortMalloc
+#define IotTest_Free         vPortFree
 
 /* Memory allocation function configuration for the MQTT library. The MQTT library
- * will be affected by AWS_IOT_STATIC_MEMORY_ONLY. */
-#if AWS_IOT_STATIC_MEMORY_ONLY == 0
-    #define AwsIotMqtt_MallocConnection             pvPortMalloc
-    #define AwsIotMqtt_FreeConnection               vPortFree
-    #define AwsIotMqtt_MallocMessage                pvPortMalloc
-    #define AwsIotMqtt_FreeMessage                  vPortFree
-    #define AwsIotMqtt_MallocOperation              pvPortMalloc
-    #define AwsIotMqtt_FreeOperation                vPortFree
-    #define AwsIotMqtt_MallocSubscription           pvPortMalloc
-    #define AwsIotMqtt_FreeSubscription             vPortFree
-    #define AwsIotMqtt_MallocTimerEvent             pvPortMalloc
-    #define AwsIotMqtt_FreeTimerEvent               vPortFree
+ * will be affected by IOT_STATIC_MEMORY_ONLY. */
+#if IOT_STATIC_MEMORY_ONLY == 0
+    #define IotMqtt_MallocConnection                pvPortMalloc
+    #define IotMqtt_FreeConnection                  vPortFree
+    #define IotMqtt_MallocMessage                   pvPortMalloc
+    #define IotMqtt_FreeMessage                     vPortFree
+    #define IotMqtt_MallocOperation                 pvPortMalloc
+    #define IotMqtt_FreeOperation                   vPortFree
+    #define IotMqtt_MallocSubscription              pvPortMalloc
+    #define IotMqtt_FreeSubscription                vPortFree
 
     #define AwsIotShadow_MallocOperation            pvPortMalloc
     #define AwsIotShadow_FreeOperation              vPortFree
@@ -135,68 +127,80 @@
     #define AwsIotSerializer_MallocDecoderObject    pvPortMalloc
     #define AwsIotSerializer_FreeDecoderObject      vPortFree
 
-#endif /* if AWS_IOT_STATIC_MEMORY_ONLY == 0 */
+#endif /* if IOT_STATIC_MEMORY_ONLY == 0 */
 
 /* Settings required to build the libraries for testing. */
-#define IOT_CONTAINERS_ENABLE_ASSERTS               ( 1 )
-#define AWS_IOT_MQTT_ENABLE_ASSERTS                 ( 1 )
-#define AWS_IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
-#define AWS_IOT_MQTT_TEST                           ( 1 )
-#define AWS_IOT_SHADOW_ENABLE_ASSERTS               ( 1 )
-#define AWS_IOT_SERIALIZER_ENABLE_ASSERTS           ( 1 )
-#define AWS_IOT_MQTT_MAX_SEND_THREADS               ( 1 )
-#define AWS_IOT_METRICS_ENABLE_ASSERTS              ( 1 )
-#define AWS_IOT_DEFENDER_ENABLE_ASSERTS             ( 1 )
+#define IOT_CONTAINERS_ENABLE_ASSERTS           ( 1 )
+#define IOT_MQTT_ENABLE_ASSERTS                 ( 1 )
+#define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
+#define IOT_MQTT_TEST                           ( 1 )
+#define AWS_IOT_SHADOW_ENABLE_ASSERTS           ( 1 )
+#define AWS_IOT_SERIALIZER_ENABLE_ASSERTS       ( 1 )
+#define AWS_IOT_MQTT_MAX_SEND_THREADS           ( 1 )
+#define AWS_IOT_METRICS_ENABLE_ASSERTS          ( 1 )
+#define AWS_IOT_DEFENDER_ENABLE_ASSERTS         ( 1 )
 
 /* Static memory configuration. */
-#if AWS_IOT_STATIC_MEMORY_ONLY == 1
-    #ifndef AWS_IOT_MESSAGE_BUFFERS
-        #define AWS_IOT_MESSAGE_BUFFERS        ( 8 )
+#if IOT_STATIC_MEMORY_ONLY == 1
+    #ifndef IOT_MESSAGE_BUFFERS
+        #define IOT_MESSAGE_BUFFERS        ( 8 )
     #endif
-    #ifndef AWS_IOT_MESSAGE_BUFFER_SIZE
-        #define AWS_IOT_MESSAGE_BUFFER_SIZE    ( 4096 )
+    #ifndef IOT_MESSAGE_BUFFER_SIZE
+        #define IOT_MESSAGE_BUFFER_SIZE    ( 4096 )
     #endif
-    #ifndef AWS_IOT_MQTT_CONNECTIONS
-        #define AWS_IOT_MQTT_CONNECTIONS       ( 2 )
+    #ifndef IOT_MQTT_CONNECTIONS
+        #define IOT_MQTT_CONNECTIONS       ( 2 )
     #endif
-    #ifndef AWS_IOT_MQTT_SUBSCRIPTIONS
-        #define AWS_IOT_MQTT_SUBSCRIPTIONS     ( 16 )
+    #ifndef IOT_MQTT_SUBSCRIPTIONS
+        #define IOT_MQTT_SUBSCRIPTIONS     ( 16 )
     #endif
-#endif /* if AWS_IOT_STATIC_MEMORY_ONLY == 1 */
+#endif /* if IOT_STATIC_MEMORY_ONLY == 1 */
 
 /* Platform network configuration. */
-#ifndef AWS_IOT_NETWORK_RECEIVE_BUFFER_SIZE
-    #define AWS_IOT_NETWORK_RECEIVE_BUFFER_SIZE    ( 4 )
+#ifndef IOT_NETWORK_RECEIVE_BUFFER_SIZE
+    #define IOT_NETWORK_RECEIVE_BUFFER_SIZE    ( 4 )
 #endif
-#ifndef AWS_IOT_NETWORK_SHORT_TIMEOUT_MS
-    #define AWS_IOT_NETWORK_SHORT_TIMEOUT_MS       ( 100 )
+#ifndef IOT_NETWORK_SHORT_TIMEOUT_MS
+    #define IOT_NETWORK_SHORT_TIMEOUT_MS       ( 100 )
 #endif
 
 /* Priority of MQTT receive task. */
-#ifndef AWS_IOT_MQTT_RECEIVE_TASK_PRIORITY
-    #define AWS_IOT_MQTT_RECEIVE_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
+#ifndef IOT_NETWORK_RECEIVE_TASK_PRIORITY
+    #define IOT_NETWORK_RECEIVE_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 #endif
 
 /* Stack size of the MQTT receive task. */
-#ifndef AWS_IOT_MQTT_RECEIVE_TASK_STACK_SIZE
-    #define AWS_IOT_MQTT_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
+#ifndef IOT_NETWORK_RECEIVE_TASK_STACK_SIZE
+    #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
 #endif
+
+/* Use Amazon FreeRTOS Secure Sockets network for tests. */
+#define IOT_TEST_NETWORK_HEADER    "platform/iot_network_afr.h"
+
+/* Forward declarations of network types used in the tests. */
+typedef struct IotNetworkConnectionAfr    IotTestNetworkConnection_t;
+typedef struct IotNetworkServerInfoAfr    IotTestNetworkServerInfo_t;
+typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
+
+/* Define test network initializers. */
+#define IOT_TEST_NETWORK_INTERFACE                  IOT_NETWORK_INTERFACE_AFR
+#define IOT_TEST_NETWORK_CONNECTION_INITIALIZER     IOT_NETWORK_CONNECTION_AFR_INITIALIZER
+#define IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER    AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER
+#define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER    AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER
+
+/* Network initialization and cleanup functions are not needed on FreeRTOS. */
+#define IotTestNetwork_Init()       IOT_NETWORK_SUCCESS
+#define IotTestNetwork_Cleanup()    IOT_NETWORK_SUCCESS
 
 /* MQTT library configuration. */
 #ifndef AWS_IOT_MQTT_ENABLE_METRICS
-    #define AWS_IOT_MQTT_ENABLE_METRICS              ( 1 )
+    #define AWS_IOT_MQTT_ENABLE_METRICS    ( 1 )
 #endif
-#ifndef AWS_IOT_MQTT_MAX_CALLBACK_THREADS
-    #define AWS_IOT_MQTT_MAX_CALLBACK_THREADS        ( 2 )
+#ifndef IOT_MQTT_RESPONSE_WAIT_MS
+    #define IOT_MQTT_RESPONSE_WAIT_MS      ( 1000 )
 #endif
-#ifndef AWS_IOT_MQTT_RESPONSE_WAIT_MS
-    #define AWS_IOT_MQTT_RESPONSE_WAIT_MS            ( 1000 )
-#endif
-#ifndef AWS_IOT_MQTT_RETRY_MS_CEILING
-    #define AWS_IOT_MQTT_RETRY_MS_CEILING            ( 60000 )
-#endif
-#ifndef AWS_IOT_MQTT_TIMER_EVENT_THRESHOLD_MS
-    #define AWS_IOT_MQTT_TIMER_EVENT_THRESHOLD_MS    ( 100 )
+#ifndef IOT_MQTT_RETRY_MS_CEILING
+    #define IOT_MQTT_RETRY_MS_CEILING      ( 60000 )
 #endif
 
 /* Shadow library configuration. */
@@ -205,14 +209,14 @@
 #endif
 
 /* Set test credentials and Thing Name. */
-#define AWS_IOT_TEST_SERVER                    clientcredentialMQTT_BROKER_ENDPOINT
-#define AWS_IOT_TEST_PORT                      443
-#define AWS_IOT_TEST_SECURED_CONNECTION        1
-#define AWS_IOT_TEST_ROOT_CA                   NULL
-#define AWS_IOT_TEST_CLIENT_CERT               clientcredentialCLIENT_CERTIFICATE_PEM
-#define AWS_IOT_TEST_CLIENT_CERT_LENGTH        clientcredentialCLIENT_CERTIFICATE_LENGTH
-#define AWS_IOT_TEST_PRIVATE_KEY               clientcredentialCLIENT_PRIVATE_KEY_PEM
-#define AWS_IOT_TEST_PRIVATE_KEY_LENGTH        clientcredentialCLIENT_PRIVATE_KEY_LENGTH
+#define IOT_TEST_SERVER                        clientcredentialMQTT_BROKER_ENDPOINT
+#define IOT_TEST_PORT                          443
+#define IOT_TEST_SECURED_CONNECTION            1
+#define IOT_TEST_ROOT_CA                       NULL
+#define IOT_TEST_CLIENT_CERT                   clientcredentialCLIENT_CERTIFICATE_PEM
+#define IOT_TEST_CLIENT_CERT_LENGTH            clientcredentialCLIENT_CERTIFICATE_LENGTH
+#define IOT_TEST_PRIVATE_KEY                   clientcredentialCLIENT_PRIVATE_KEY_PEM
+#define IOT_TEST_PRIVATE_KEY_LENGTH            clientcredentialCLIENT_PRIVATE_KEY_LENGTH
 #define AWS_IOT_TEST_SHADOW_THING_NAME         clientcredentialIOT_THING_NAME
 
 /* Defender library configuration. */
@@ -223,4 +227,4 @@
 #define AWS_IOT_TASKPOOL_THREADS_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
 #define AWS_IOT_TASKPOOL_THREADS_PRIORITY      ( 6 )
 
-#endif /* ifndef _AWS_IOT_CONFIG_COMMON_H_ */
+#endif /* ifndef _IOT_CONFIG_COMMON_H_ */
