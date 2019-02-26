@@ -20,33 +20,26 @@
  */
 
 /**
- * @file aws_iot_test_access_mqtt.h
+ * @file iot_test_access_mqtt.h
  * @brief Declares the functions that provide access to the internal functions
  * and variables of the MQTT library.
  */
 
-#ifndef _AWS_IOT_TEST_ACCESS_MQTT_H_
-#define _AWS_IOT_TEST_ACCESS_MQTT_H_
+#ifndef _IOT_TEST_ACCESS_MQTT_H_
+#define _IOT_TEST_ACCESS_MQTT_H_
 
-/*--------------------------- aws_iot_mqtt_api.c ---------------------------*/
+/*--------------------------- iot_mqtt_api.c ---------------------------*/
 
 /**
  * @brief Test access function for #_createMqttConnection.
  *
  * @see #_createMqttConnection.
  */
-_mqttConnection_t * AwsIotTestMqtt_createMqttConnection( bool awsIotMqttMode,
-                                                         const AwsIotMqttNetIf_t * const pNetworkInterface,
-                                                         uint16_t keepAliveSeconds );
+_mqttConnection_t * IotTestMqtt_createMqttConnection( bool awsIotMqttMode,
+                                                      const IotMqttNetIf_t * pNetworkInterface,
+                                                      uint16_t keepAliveSeconds );
 
-/**
- * @brief Test access function for #_destroyMqttConnection.
- *
- * @see #_destroyMqttConnection.
- */
-void AwsIotTestMqtt_destroyMqttConnection( _mqttConnection_t * const pMqttConnection );
-
-/*------------------------- aws_iot_mqtt_serialize.c ------------------------*/
+/*------------------------- iot_mqtt_serialize.c ------------------------*/
 
 /*
  * Macros for reading the high and low byte of a 2-byte unsigned int.
@@ -68,13 +61,13 @@ void AwsIotTestMqtt_destroyMqttConnection( _mqttConnection_t * const pMqttConnec
  *
  * @see #_decodeRemainingLength.
  */
-AwsIotMqttError_t AwsIotTestMqtt_decodeRemainingLength( const uint8_t * pSource,
-                                                        const uint8_t ** const pEnd,
-                                                        size_t * const pLength );
+IotMqttError_t IotTestMqtt_decodeRemainingLength( const uint8_t * pSource,
+                                                  const uint8_t ** pEnd,
+                                                  size_t * pLength );
 
-/*----------------------- aws_iot_mqtt_subscription.c -----------------------*/
+/*----------------------- iot_mqtt_subscription.c -----------------------*/
 
-/* Internal data structures of aws_iot_mqtt_subscription.c, redefined for the tests. */
+/* Internal data structures of iot_mqtt_subscription.c, redefined for the tests. */
 typedef struct _topicMatchParams
 {
     const char * pTopicName;
@@ -84,7 +77,7 @@ typedef struct _topicMatchParams
 typedef struct _packetMatchParams
 {
     uint16_t packetIdentifier;
-    long order;
+    int32_t order;
 } _packetMatchParams_t;
 
 /**
@@ -92,15 +85,15 @@ typedef struct _packetMatchParams
  *
  * @see #_topicMatch.
  */
-bool AwsIotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
-                                void * pMatch );
+bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+                             void * pMatch );
 
 /**
  * @brief Test access function for #_packetMatch.
  *
  * @see #_packetMatch.
  */
-bool AwsIotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
-                                 void * pMatch );
+bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+                              void * pMatch );
 
-#endif /* ifndef _AWS_IOT_TEST_ACCESS_MQTT_H_ */
+#endif /* ifndef _IOT_TEST_ACCESS_MQTT_H_ */

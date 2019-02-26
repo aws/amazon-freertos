@@ -160,11 +160,6 @@ int main( void )
         ucDNSServerAddress,
         ucMACAddress );
 
-    /* Initialize AWS system libraries. */
-    SYSTEM_Init();
-
-    vDevModeKeyProvisioning();
-
     vTaskStartScheduler();
 
     return 0;
@@ -178,6 +173,11 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     /* If the network has just come up...*/
     if( ( eNetworkEvent == eNetworkUp ) && ( xTasksAlreadyCreated == pdFALSE ) )
     {
+        /* Initialize AWS system libraries. */
+        SYSTEM_Init();
+
+        vDevModeKeyProvisioning();
+
         xTaskCreate( TEST_RUNNER_RunTests_task,
                      "TestRunner",
                      TEST_RUNNER_TASK_STACK_SIZE,

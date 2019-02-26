@@ -34,8 +34,8 @@
 
 /* MQTT v4 header must be included if its tests are enabled. */
 #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-    #include AWS_IOT_CONFIG_FILE
-    #include "aws_iot_mqtt.h"
+    #include IOT_CONFIG_FILE
+    #include "iot_mqtt.h"
 #endif
 
 /* FreeRTOS includes. */
@@ -115,7 +115,7 @@ static void RunTests( void )
 
         /* The MQTT v4 tests perform their own initialization and cleanup. Clean
          * up the MQTT library here to avoid memory leaks. */
-        AwsIotMqtt_Cleanup();
+        IotMqtt_Cleanup();
 
         RUN_TEST_GROUP( MQTT_Unit_Validate );
         RUN_TEST_GROUP( MQTT_Unit_Subscription );
@@ -124,7 +124,7 @@ static void RunTests( void )
         RUN_TEST_GROUP( MQTT_System );
 
         /* Initialize the MQTT library for any tests that come after. */
-        configASSERT( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS );
+        configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTT_STRESS_TEST_ENABLED == 1 )

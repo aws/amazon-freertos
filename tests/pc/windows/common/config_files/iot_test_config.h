@@ -19,29 +19,19 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * @file aws_iot_test_access_mqtt_subscription.c
- * @brief Provides access to the internal functions and variables of
- * aws_iot_mqtt_subscription.c
- *
- * This file should only be included at the bottom of aws_iot_mqtt_subscription.c
- * and never compiled by itself.
- */
+/* This file contains configuration settings for the tests on FreeRTOS running
+ * on Windows Simulator. */
 
-/*-----------------------------------------------------------*/
+#ifndef _IOT_TEST_CONFIG_H_
+#define _IOT_TEST_CONFIG_H_
 
-bool AwsIotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
-                                void * pMatch )
-{
-    return _topicMatch( pSubscriptionLink, pMatch );
-}
+/* Library logging configuration. */
+#define IOT_LOG_LEVEL_GLOBAL    IOT_LOG_NONE
 
-/*-----------------------------------------------------------*/
+/* Enable socket metrics for defender tests. */
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
 
-bool AwsIotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
-                                 void * pMatch )
-{
-    return _packetMatch( pSubscriptionLink, pMatch );
-}
+/* Include the default configuration file at the bottom of this file. */
+#include "iot_config_common.h"
 
-/*-----------------------------------------------------------*/
+#endif /* ifndef _IOT_TEST_CONFIG_H_ */

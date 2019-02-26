@@ -20,19 +20,19 @@
  */
 
 /**
- * @file aws_iot_test_access_mqtt_serialize.c
+ * @file iot_test_access_mqtt_serialize.c
  * @brief Provides access to the internal functions and variables of
- * aws_iot_mqtt_serialize.c
+ * iot_mqtt_serialize.c
  *
- * This file should only be included at the bottom of aws_iot_mqtt_serialize.c
+ * This file should only be included at the bottom of iot_mqtt_serialize.c
  * and never compiled by itself.
  */
 
 /*-----------------------------------------------------------*/
 
-AwsIotMqttError_t AwsIotTestMqtt_decodeRemainingLength( const uint8_t * pSource,
-                                                        const uint8_t ** const pEnd,
-                                                        size_t * const pLength )
+IotMqttError_t IotTestMqtt_decodeRemainingLength( const uint8_t * pSource,
+                                                  const uint8_t ** pEnd,
+                                                  size_t * pLength )
 {
     return _decodeRemainingLength( pSource, pEnd, pLength );
 }
