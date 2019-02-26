@@ -29,7 +29,7 @@
 #include "string.h"
 
 /* Demo configuration includes. */
-#include "aws_iot_demo.h"
+#include "iot_demo.h"
 #include "aws_demo_config.h"
 #include "aws_clientcredential.h"
 

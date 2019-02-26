@@ -28,12 +28,12 @@
  * @file aws_iot_demo_network.c
  * @brief Contains implementation for network creation and teardown functions for handling different types of network connections
  */
-#include "aws_iot_demo.h"
+#include "iot_demo.h"
 #include "aws_iot_network_manager.h"
 #include "aws_iot_demo_network.h"
 
 #if WIFI_ENABLED
-#include "platform/aws_iot_network.h"
+#include "platform/iot_network.h"
 #include "aws_clientcredential.h"
 #endif
 
@@ -71,7 +71,7 @@ static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkCo
 /**
  * @brief Used to initialize the network interface.
  */
-static AwsIotMqttNetIf_t xDefaultNetworkInterface = IOT_MQTT_NETIF_INITIALIZER;
+static IotMqttNetIf_t xDefaultNetworkInterface = IOT_MQTT_NETIF_INITIALIZER;
 
 static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkContext, uint32_t ulNetworkTypes )
 {
@@ -108,7 +108,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
 
     AwsIotNetworkConnection_t xConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
     AwsIotNetworkTlsInfo_t xTlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
-    AwsIotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
+    IotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
 
     /* Connection Uses default root certificates.
      * Override the default root CA certificates by setting pcServerCertificate
@@ -170,7 +170,7 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 {
     BaseType_t xStatus = pdFALSE;
     IotBleMqttConnection_t xBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
-    AwsIotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
+    IotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
 
     if( IotBleMqtt_CreateConnection( &pxNetworkContext->xMqttConnection, &xBLEConnection ) == pdTRUE )
     {

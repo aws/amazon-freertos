@@ -227,7 +227,7 @@ IotTaskPoolError_t IotTaskPool_CreateJob( const IotTaskPoolRoutine_t userCallbac
  * @param[in] pTaskPool A handle to the task pool for which to create a recyclable job.
  * @param[in] userCallback A user-specified callback for the job.
  * @param[in] pUserContext A user-specified context for the callback.
- * @param[out] ppJob A pointer to an instance of @ref AwsIotTaskPoolJob_t that will be initialized when this
+ * @param[out] ppJob A pointer to an instance of @ref IotTaskPoolJob_t that will be initialized when this
  * function returns succesfully. This handle can be used to inspect the job status with
  * @ref IotTaskPool_GetStatus or cancel the job with @ref IotTaskPool_TryCancel, etc....
  *

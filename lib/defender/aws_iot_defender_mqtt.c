@@ -133,7 +133,7 @@ bool AwsIotDefenderInternal_SetMqttCallback()
 bool AwsIotDefenderInternal_MqttConnect( const char * pThingName,
                                          uint16_t thingNameLength )
 {
-    AwsIotMqttNetIf_t networkInterface = IOT_MQTT_NETIF_INITIALIZER;
+    IotMqttNetIf_t networkInterface = IOT_MQTT_NETIF_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
     networkInterface.pDisconnectContext = ( void * ) _networkConnection;
@@ -147,7 +147,7 @@ bool AwsIotDefenderInternal_MqttConnect( const char * pThingName,
     connectInfo.pClientIdentifier = pThingName;
     connectInfo.clientIdentifierLength = thingNameLength;
 
-    return AwsIotMqtt_Connect( &_mqttConnection,
+    return IotMqtt_Connect( &_mqttConnection,
                                &networkInterface,
                                &connectInfo,
                                NULL,
@@ -204,7 +204,7 @@ bool AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
 
 void AwsIotDefenderInternal_MqttDisconnect()
 {
-    AwsIotMqtt_Disconnect( _mqttConnection, false );
+    IotMqtt_Disconnect( _mqttConnection, false );
 }
 
 /*-----------------------------------------------------------*/

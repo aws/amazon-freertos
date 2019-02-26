@@ -726,8 +726,8 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         			if( pWriteParam->length < IOT_BLE_MQTT_TRANSFER_LEN( BLEConnMTU ) )
         			{
-
-        				( void ) AwsIotMqtt_ReceiveCallback( pService->connection.pMqttConnection,
+        				( void ) IotMqtt_ReceiveCallback( pService->connection.pMqttConnection,
+        						                &pService->connection,
         						                pService->connection.pRecvBuffer,
         										0,
 												pService->connection.recvOffset,
@@ -782,7 +782,8 @@ void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
                		( pService->connection.pMqttConnection != NULL ) &&
        				( pService->isEnabled ) )
         {
-        		( void ) AwsIotMqtt_ReceiveCallback( pService->connection.pMqttConnection,
+        		( void ) IotMqtt_ReceiveCallback( pService->connection.pMqttConnection,
+        				 &pService->connection,
         				( const void * ) pWriteParam->pValue,
 						0,
 						pWriteParam->length,

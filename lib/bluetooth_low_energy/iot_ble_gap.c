@@ -453,7 +453,6 @@ BTStatus_t IotBle_Off( void )
 {
     BTStatus_t status = eBTStatusSuccess;
     IotLink_t * pConnectionListHead, * pConnectionListElem;
-    IotLink_t * pTempLink;
     IotBleConnectionInfoListElement_t * pConnInfo;
 
     status = IotBle_GetConnectionInfoList( &pConnectionListHead );
@@ -461,7 +460,7 @@ BTStatus_t IotBle_Off( void )
     if( status == eBTStatusSuccess )
     {
         /* Get the event associated to the callback */
-    	IotContainers_ForEachSafe( pConnectionListHead, pConnectionListElem, pTempLink )
+    	IotContainers_ForEach( pConnectionListHead, pConnectionListElem )
         {
             pConnInfo = listCONTAINER( pConnectionListElem, IotBleConnectionInfoListElement_t, connectionList );
             status = _BTInterface.pBTLeAdapterInterface->pxDisconnect(
@@ -496,7 +495,7 @@ BTStatus_t IotBle_Init( void )
     if( _BTInterface.pBTInterface != NULL )
     {
         ( void ) xSemaphoreCreateMutexStatic( &_BTInterface.threadSafetyMutex );
-        ( void ) xEventGroupCreateStatic( ( EventGroupHandle_t ) &_BTInterface.waitOperationComplete );
+        ( void ) xEventGroupCreateStatic( ( StaticEventGroup_t * ) &_BTInterface.waitOperationComplete );
 
         status = _BTInterface.pBTInterface->pxBtManagerInit( &_BTManagerCb );
         _BTInterface.pBTLeAdapterInterface = ( BTBleAdapter_t * ) _BTInterface.pBTInterface->pxGetLeAdapter();

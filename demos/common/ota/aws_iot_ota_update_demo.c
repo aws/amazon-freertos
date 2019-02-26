@@ -35,6 +35,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * of the real work; checking to see if the message topic is one destined for
  * the OTA agent. If not, it is simply ignored.
  */
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
+
 /* MQTT include. */
 #include "iot_mqtt.h"
 /* Standard includes. */
@@ -217,10 +221,9 @@ void vOTAUpdateDemoTask( void * pvParameters )
             xConnectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
             xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
             /* Connect to the broker. */
-            if( AwsIotMqtt_Connect( &( xConnection.xMqttConnection ),
+            if( IotMqtt_Connect( &( xConnection.xMqttConnection ),
                 &( xConnection.xNetworkInterface ),
                 &xConnectInfo,
-                NULL,
                 otademoCONN_TIMEOUT_MS ) == IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
@@ -233,7 +236,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
                     configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pcStateStr[eState],
                             OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
                 }
-                AwsIotMqtt_Disconnect( xConnection.xMqttConnection, false);
+                IotMqtt_Disconnect( xConnection.xMqttConnection, false);
             }
             else
             {

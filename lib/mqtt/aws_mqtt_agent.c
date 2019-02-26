@@ -648,7 +648,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
      * manager is disabled. */
     #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 0 )
         IotMqttSubscription_t xGlobalSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-        AwsIotMqttReference_t xGlobalSubscriptionRef = IOT_MQTT_REFERENCE_INITIALIZER;
+        IotMqttReference_t xGlobalSubscriptionRef = IOT_MQTT_REFERENCE_INITIALIZER;
 
         if( xStatus == eMQTTAgentSuccess )
         {
@@ -658,7 +658,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
             xGlobalSubscription.callback.param1 = pxConnection;
             xGlobalSubscription.callback.function = prvPublishCallbackWrapper;
 
-            xMqttStatus = AwsIotMqtt_Subscribe( pxConnection->xMQTTConnection,
+            xMqttStatus = IotMqtt_Subscribe( pxConnection->xMQTTConnection,
                                                 &xGlobalSubscription,
                                                 1,
                                                 IOT_MQTT_FLAG_WAITABLE,
@@ -670,7 +670,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
         /* Wait for the subscription to "#" to complete. */
         if( xStatus == eMQTTAgentSuccess )
         {
-            xMqttStatus = AwsIotMqtt_Wait( xGlobalSubscriptionRef,
+            xMqttStatus = IotMqtt_Wait( xGlobalSubscriptionRef,
                                            mqttTICKS_TO_MS( xTimeoutTicks ) );
             xStatus = prvConvertReturnCode( xMqttStatus );
         }

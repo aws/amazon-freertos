@@ -24,7 +24,9 @@
 		},
 		"files.associations": {
 			"freertos.h": "c",
-			"task.h": "c"
+			"task.h": "c",
+			"aws_iot_network_manager.h": "c",
+			"network.h": "c"
 		}
 	}
 }

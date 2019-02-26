@@ -41,7 +41,7 @@
 #include "semphr.h"
 #include "iot_ble.h"
 #include "iot_mqtt.h"
-#include "iot_mqtt_serialize_ble.h"
+#include "iot_ble_mqtt_serialize.h"
 
 
 /**

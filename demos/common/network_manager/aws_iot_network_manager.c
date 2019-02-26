@@ -29,13 +29,13 @@
  * @brief Network manager is used to handled different types of network connections and their connection/disconnection events at the application layer.
  */
 #include <string.h>
-#include "aws_iot_demo.h"
+#include "iot_demo.h"
 #include "aws_iot_network_manager.h"
 
 #if BLE_ENABLED
 #include "iot_ble_config.h"
 #include "iot_ble.h"
-#include "aws_ble_numericComparison.h"
+#include <iot_ble_numericComparison.h>
 #endif
 #if WIFI_ENABLED
 #include "aws_wifi.h"
@@ -47,7 +47,7 @@
 #include "aws_wifi_connect_task.h"
 #endif
 
-#include "aws_iot_taskpool.h"
+#include "iot_taskpool.h"
 
 /**
  * @brief Maximum number of concurrent network events which can be queued for a network type.
@@ -77,7 +77,7 @@
  */
 typedef struct NMCallbackExecutionContext
 {
-    AwsIotTaskPoolJob_t xJob;
+    IotTaskPoolJob_t xJob;
     AwsIotNetworkStateChangeCb_t xUserCallback;
     void *pvUserContext;
     AwsIotNetworkState_t xNewtorkEvent;
@@ -117,7 +117,7 @@ typedef struct NetworkManagerInfo
     SemaphoreHandle_t xSubscriptionLock;
     Link_t xSubscriptionListHead;
     Link_t xNetworkListHead;
-    AwsIotTaskPool_t* pxTaskPool;
+    IotTaskPool_t* pxTaskPool;
     NMCallbackExecutionContext_t xCallbackTasks[ _MAX_CONCURRENT_CALLBACKS ];
     bool xIsInit;
 } NetworkManagerInfo_t;

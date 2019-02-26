@@ -20,7 +20,7 @@
  */
 
 /**
- * @file iot_network.h
+ * @file aws_iot_network.h
  * @brief Abstraction of network functions used by libraries in this SDK.
  */
 

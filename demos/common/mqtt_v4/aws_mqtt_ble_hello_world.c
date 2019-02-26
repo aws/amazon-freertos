@@ -40,7 +40,7 @@
 #include <string.h>
 
 /* Build using a config header, if provided. */
-#include "aws_iot_demo.h"
+#include "iot_demo.h"
 
 /*
  * FreeRTOS includes.
@@ -241,7 +241,7 @@ static BaseType_t xNetworkConnected = pdFALSE;
 IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
 {
     IotMqttPublishInfo_t xPublishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    AwsIotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
+    IotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
     IotMqttError_t xStatus;
 
     xPublishInfo.qos = echoDemoMQTT_QOS;
@@ -255,7 +255,7 @@ IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
 
     if( echoDemoMQTT_QOS == 0 )
     {
-        xStatus = AwsIotMqtt_Publish(
+        xStatus = IotMqtt_Publish(
                 xConnection.xMqttConnection,
                 &xPublishInfo,
                 0,
@@ -264,7 +264,7 @@ IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
     }
     else if( echoDemoMQTT_QOS == 1 || echoDemoMQTT_QOS == 2 )
     {
-        xStatus = AwsIotMqtt_Publish(
+        xStatus = IotMqtt_Publish(
                 xConnection.xMqttConnection,
                 &xPublishInfo,
                 IOT_MQTT_FLAG_WAITABLE,
@@ -272,7 +272,7 @@ IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
                 &xOperationLock );
         if( xStatus == IOT_MQTT_STATUS_PENDING )
         {
-            xStatus = AwsIotMqtt_Wait( xOperationLock, echoDemoMQTT_OPERATION_TIMEOUT_MS );
+            xStatus = IotMqtt_Wait( xOperationLock, echoDemoMQTT_OPERATION_TIMEOUT_MS );
         }
     }
 
@@ -302,7 +302,7 @@ void prvEchoMessage( void* pvUserParam, IotMqttCallbackParam_t* pxPublishParam )
             xStatus = prxPublishMQTTMessage( cAck, strlen( cAck ) );
             if( xStatus != IOT_MQTT_SUCCESS )
             {
-                IotLogInfo(" Failed to send ACK Message, reason: %s.", AwsIotMqtt_strerror( xStatus ));
+                IotLogInfo(" Failed to send ACK Message, reason: %s.", IotMqtt_strerror( xStatus ));
             }
             else
             {
@@ -396,11 +396,10 @@ static IotMqttError_t prxOpenMqttConnection()
     xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
 
     /* Connect to the IoT broker endpoint */
-    xMqttStatus = AwsIotMqtt_Connect(
+    xMqttStatus = IotMqtt_Connect(
             &( xConnection.xMqttConnection ),
             &( xConnection.xNetworkInterface ),
             &xConnectInfo,
-            NULL,
             echoDemoMQTT_OPERATION_TIMEOUT_MS );
 
 
@@ -421,7 +420,7 @@ static IotMqttError_t prxOpenMqttConnection()
 
 static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
 {
-    AwsIotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
+    IotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
     IotMqttSubscription_t xSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttError_t xMqttStatus;
 
@@ -433,7 +432,7 @@ static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
 
     if( xSubscribe )
     {
-        xMqttStatus = AwsIotMqtt_Subscribe(
+        xMqttStatus = IotMqtt_Subscribe(
                 xConnection.xMqttConnection,
                 &xSubscription,
                 1,
@@ -443,7 +442,7 @@ static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
     }
     else
     {
-        xMqttStatus = AwsIotMqtt_Unsubscribe(
+        xMqttStatus = IotMqtt_Unsubscribe(
                 xConnection.xMqttConnection,
                 &xSubscription,
                 1,
@@ -455,7 +454,7 @@ static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
 
     if( xMqttStatus == IOT_MQTT_STATUS_PENDING )
     {
-        xMqttStatus = AwsIotMqtt_Wait( xOperationLock, echoDemoMQTT_OPERATION_TIMEOUT_MS );
+        xMqttStatus = IotMqtt_Wait( xOperationLock, echoDemoMQTT_OPERATION_TIMEOUT_MS );
     }
 
     return xMqttStatus;
@@ -466,7 +465,7 @@ void prvCloseMqttConnection( BaseType_t xCleanupOnly )
     /* Close the MQTT connection either by sending a DISCONNECT operation or not */
     if( xConnection.xMqttConnection != IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        AwsIotMqtt_Disconnect( xConnection.xMqttConnection, xCleanupOnly );
+        IotMqtt_Disconnect( xConnection.xMqttConnection, xCleanupOnly );
         xConnection.xMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
     }
 }
@@ -514,10 +513,10 @@ void prvMqttPublishTask( void* pvParam )
                         ulPublishRetriesLeft = echoDemoPUBLISH_TIMEOUT_RETRIES;
                         vTaskDelay( xPublishDelay );
                     }
-                    else if( ( xMqttStatus == IOT_MQTT_SEND_ERROR  )
+                    else if( ( xMqttStatus == IOT_MQTT_NETWORK_ERROR  )
                             || ( xMqttStatus == IOT_MQTT_TIMEOUT ) )
                     {
-                        IotLogInfo( "Published failed, reason: %s.",  AwsIotMqtt_strerror( xMqttStatus ) );
+                        IotLogInfo( "Published failed, reason: %s.",  IotMqtt_strerror( xMqttStatus ) );
 
                         if( ulPublishRetriesLeft > 0 )
                         {
@@ -534,7 +533,7 @@ void prvMqttPublishTask( void* pvParam )
                     }
                     else
                     {
-                        IotLogError( "Publish failed due to reason: %s, exiting demo.", AwsIotMqtt_strerror( xMqttStatus ) );
+                        IotLogError( "Publish failed due to reason: %s, exiting demo.", IotMqtt_strerror( xMqttStatus ) );
                         break;
                     }
                 }

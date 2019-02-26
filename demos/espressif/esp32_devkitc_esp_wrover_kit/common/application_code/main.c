@@ -22,7 +22,9 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
 /* FreeRTOS includes. */
 
 #include "FreeRTOS.h"
@@ -54,7 +56,7 @@
 #include "semphr.h"
 #include "driver/uart.h"
 #include "aws_application_version.h"
-#include "aws_iot_network.h"
+#include "iot_network_manager.h"
 #include "aws_iot_network_manager.h"
 
 
@@ -62,7 +64,7 @@
 #include "iot_ble.h"
 #include "iot_ble_config.h"
 #include "iot_ble_wifi_provisioning.h"
-#include "aws_ble_numericComparison.h"
+#include <iot_ble_numericComparison.h>
 #endif
 
 /* Logging Task Defines. */
