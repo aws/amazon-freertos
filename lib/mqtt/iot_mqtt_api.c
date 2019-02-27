@@ -506,7 +506,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        _EMPTY_ELSE_MARKER; 
     }
 
     /* Check that a reference pointer is provided for a waitable operation. */
@@ -1135,7 +1135,15 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
     /* Read the connection status. */
     IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
     disconnected = pMqttConnection->disconnected;
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+
+    /* Attempt cancel and destroy each operation in the connection's lists. */
+    IotListDouble_RemoveAll( &( pMqttConnection->pendingProcessing ),
+                             _mqttOperation_tryDestroy,
+                             offsetof( _mqttOperation_t, link ) );
+
+    IotListDouble_RemoveAll( &( pMqttConnection->pendingResponse ),
+                             _mqttOperation_tryDestroy,
+                             offsetof( _mqttOperation_t, link ) );
 
     /* Only send a DISCONNECT packet if the connection is active and the "cleanup only"
      * option is false. */
@@ -1242,20 +1250,8 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
     /* Close the underlying network connection. This also cleans up keep-alive. */
     _IotMqtt_CloseNetworkConnection( pMqttConnection );
 
-    /* Check if the connection may be destroyed. */
-    IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-
     /* At this point, the connection should be marked disconnected. */
     IotMqtt_Assert( pMqttConnection->disconnected == true );
-
-    /* Attempt cancel and destroy each operation in the connection's lists. */
-    IotListDouble_RemoveAll( &( pMqttConnection->pendingProcessing ),
-                             _mqttOperation_tryDestroy,
-                             offsetof( _mqttOperation_t, link ) );
-
-    IotListDouble_RemoveAll( &( pMqttConnection->pendingResponse ),
-                             _mqttOperation_tryDestroy,
-                             offsetof( _mqttOperation_t, link ) );
 
     IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
 

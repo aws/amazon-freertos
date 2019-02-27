@@ -266,7 +266,7 @@ static void _networkReceiveTask( void * pArgument )
         /* Block and wait for data from the socket. */
         socketStatus = _readSocket( pNetworkConnection,
                                     pNetworkConnection->pReceiveBuffer + processOffset,
-                                    receiveBufferSize );
+                                    receiveBufferSize - processOffset );
 
         if( socketStatus <= 0 )
         {
