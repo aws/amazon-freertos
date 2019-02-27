@@ -70,7 +70,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 static void App_OTACompleteCallback(OTA_JobEvent_t eEvent );
 
 static BaseType_t prxCreateNetworkConnection( void );
-static void prvNetworkDisconnectCallback( void* pvContext );
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext );
 static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext );
 
 /*-----------------------------------------------------------*/
@@ -143,10 +143,12 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
 }
 
 
-static void prvNetworkDisconnectCallback( void* pvContext )
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext )
 {
     ( void ) pvContext;
     xNetworkConnected = pdFALSE;
+
+    return IOT_NETWORK_SUCCESS;
 }
 
 static BaseType_t prxCreateNetworkConnection( void )

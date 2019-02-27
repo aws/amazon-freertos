@@ -462,7 +462,7 @@ BTStatus_t IotBle_Off( void )
         /* Get the event associated to the callback */
     	IotContainers_ForEach( pConnectionListHead, pConnectionListElem )
         {
-            pConnInfo = listCONTAINER( pConnectionListElem, IotBleConnectionInfoListElement_t, connectionList );
+            pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnectionListElem, connectionList );
             status = _BTInterface.pBTLeAdapterInterface->pxDisconnect(
                 _BTInterface.adapterIf,
                 &pConnInfo->remoteBdAddr,

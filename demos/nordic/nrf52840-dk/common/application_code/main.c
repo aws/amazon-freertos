@@ -76,14 +76,14 @@
 #include "app_uart.h"
 
 /* MQTT v4 include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 #include "iot_ble.h"
-#include "aws_ble_numericComparison.h"
+#include "iot_ble_numericComparison.h"
 #include "aws_iot_network_manager.h"
 #include "SEGGER_RTT.h"
 #include "aws_application_version.h"
-#include "aws_iot_taskpool.h"
+#include "iot_taskpool.h"
 #if defined( UART_PRESENT )
     #include "nrf_uart.h"
 #endif
@@ -417,17 +417,17 @@ static void prvDeleteBonds( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     uint32_t ulEnabledNetworks;
-    AwsIotTaskPoolInfo_t taskPool = AWS_IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;
+    IotTaskPoolInfo_t taskPool = IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;
     /* FIX ME: Perform any hardware initialization, that require the RTOS to be
      * running, here. */
 
     BaseType_t xStatus = pdFALSE;
 
-    xStatus = ( AwsIotTaskPool_CreateSystemTaskPool( &taskPool ) == AWS_IOT_TASKPOOL_SUCCESS );
+    xStatus = ( IotTaskPool_CreateSystemTaskPool( &taskPool ) == IOT_TASKPOOL_SUCCESS );
 
      if( xStatus == pdPASS )
     {
-      if( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS )
+      if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
       {
           xStatus = pdTRUE;
       }

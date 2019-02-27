@@ -81,6 +81,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/common</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/common</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/include</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/include</locationURI>
