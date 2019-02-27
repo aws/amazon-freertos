@@ -26,10 +26,10 @@
         <folder Name="Bluetooth_low_energy">
           <folder Name="services">
             <folder Name="device_information">
-              <file file_name="../../../../lib/bluetooth_low_energy/services/device_information/aws_ble_device_information.c" />
+              <file file_name="../../../../lib/bluetooth_low_energy/services/device_information/iot_ble_device_information.c" />
             </folder>
             <folder Name="mqtt_ble">
-              <file file_name="../../../../lib/bluetooth_low_energy/services/mqtt_ble/aws_iot_mqtt_ble.c" />
+              <file file_name="../../../../lib/bluetooth_low_energy/services/mqtt_ble/iot_ble_mqtt.c" />
             </folder>
           </folder>
           <folder Name="nordic">
@@ -172,7 +172,6 @@
           <file file_name="../../../../lib/common/aws_iot_logging.c" />
         </folder>
         <folder Name="utils">
-          <file file_name="../../../../lib/utils/aws_ble_services_init.c" />
           <file file_name="../../../../lib/utils/aws_json_utils.c" />
           <folder Name="platform">
             <file file_name="../../../../lib/utils/platform/aws_iot_clock_posix.c" />
