@@ -52,7 +52,7 @@
 /**
  * @brief Maximum number of concurrent network events which can be queued for a network type.
  */
-#define _MAX_CONCURRENT_CALLBACKS    ( 8 )
+#define _MAX_CONCURRENT_JOBS    ( 4 )
 
 /**
  * @brief Initializer for WiFi Network Info structure.
@@ -65,20 +65,11 @@
 #define _NETWORK_INFO_BLE             { .ulNetworkType = AWSIOT_NETWORK_TYPE_BLE, .xNetworkState = eNetworkStateUnknown }
 
 /**
- * @brief Macro checks if task is free ( Not Scheduled/Completed/Failed )
- */
-#define _TASK_POOL_JOB_FREE( xTaskStatus )      (                \
-        ( xTaskStatus != IOT_TASKPOOL_STATUS_READY )      && \
-        ( xTaskStatus != IOT_TASKPOOL_STATUS_SCHEDULED )  && \
-        ( xTaskStatus != IOT_TASKPOOL_STATUS_EXECUTING ) )
-
-/**
  * @brief User callback execution context used by task pool job.
  */
 typedef struct NMCallbackExecutionContext
 {
     IotTaskPoolJob_t xJob;
-    AwsIotNetworkStateChangeCb_t xUserCallback;
     void *pvUserContext;
     AwsIotNetworkState_t xNewtorkEvent;
     uint32_t ulNetworkType;
@@ -118,7 +109,7 @@ typedef struct NetworkManagerInfo
     Link_t xSubscriptionListHead;
     Link_t xNetworkListHead;
     IotTaskPool_t* pxTaskPool;
-    NMCallbackExecutionContext_t xCallbackTasks[ _MAX_CONCURRENT_CALLBACKS ];
+    NMCallbackExecutionContext_t xJobs[ _MAX_CONCURRENT_JOBS ];
     bool xIsInit;
 } NetworkManagerInfo_t;
 
@@ -203,11 +194,6 @@ static BaseType_t prxWifiConnect( void );
 #endif
 
 static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkEvent );
-
-static IotTaskPoolError_t prxScheduleSubscriptionTask(
-        NMSubscription_t* pxSubscription,
-        uint32_t ulNetworkType,
-        AwsIotNetworkState_t xNetworkEvent );
 
 static void prvUserCallbackRoutine( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
 
@@ -435,127 +421,70 @@ static BaseType_t prxWIFIDisable( void )
 
 /*-----------------------------------------------------------*/
 
-/*-----------------------------------------------------------*/
-
-static IotTaskPoolError_t prxScheduleSubscriptionTask(
-        NMSubscription_t* pxSubscription,
-        uint32_t ulNetworkType,
-        AwsIotNetworkState_t xNetworkEvent )
+static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkEvent )
 {
     uint16_t usIdx;
     IotTaskPoolError_t xError = IOT_TASKPOOL_NO_MEMORY;
     IotTaskPoolJobStatus_t xTaskStatus;
-    NMCallbackExecutionContext_t *pxTask, *pxFreeTask = NULL, *pxActiveTask = NULL;
+    NMCallbackExecutionContext_t *pxTask;
 
-    for( usIdx = 0; usIdx < _MAX_CONCURRENT_CALLBACKS; usIdx++ )
+    /* Search for a free job. */
+    for( usIdx = 0; usIdx < _MAX_CONCURRENT_JOBS; usIdx++ )
     {
-        pxTask = &( xNetworkManagerInfo.xCallbackTasks[usIdx] );
+        pxTask = &( xNetworkManagerInfo.xJobs[usIdx] );
         ( void ) IotTaskPool_GetStatus( xNetworkManagerInfo.pxTaskPool, &pxTask->xJob, &xTaskStatus );
-        if( _TASK_POOL_JOB_FREE( xTaskStatus ) )
+        if( xTaskStatus == IOT_TASKPOOL_STATUS_READY )
         {
-            if( pxFreeTask == NULL )
-            {
-                pxFreeTask = pxTask;
-            }
-        }
-        else
-        {
-            if( ( pxTask->xUserCallback == pxSubscription->xUserCallback )
-                    && ( pxTask->pvUserContext == pxSubscription->pvUserContext )
-                    && ( pxTask->pxNextTask == NULL ) )
-            {
-                pxActiveTask = pxTask;
-            }
+        	pxTask->ulNetworkType = ulNetworkType;
+        	pxTask->xNewtorkEvent = xNetworkEvent;
+        	pxTask->pvUserContext = pxTask;
+
+            xError = IotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxTask->xJob );
+            break;
         }
     }
 
-
-    if( pxFreeTask != NULL )
+    if(xError != IOT_TASKPOOL_SUCCESS)
     {
-        pxFreeTask->ulNetworkType = ulNetworkType;
-        pxFreeTask->xNewtorkEvent = xNetworkEvent;
-        pxFreeTask->pvUserContext = pxSubscription->pvUserContext;
-        pxFreeTask->xUserCallback = pxSubscription->xUserCallback;
-
-        xError = IotTaskPool_CreateJob( prvUserCallbackRoutine,
-                                           pxFreeTask,
-                                           &pxFreeTask->xJob );
-
-        if( xError == IOT_TASKPOOL_SUCCESS )
-        {
-            if( pxActiveTask != NULL )
-            {
-                pxActiveTask->pxNextTask = pxFreeTask;
-            }
-            else
-            {
-                xError = IotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxFreeTask->xJob );
-            }
-        }
+    	if(usIdx != _MAX_CONCURRENT_JOBS)
+    	{
+    		IotLogError(" Could not invoke subscription, error %d returned. \n", xError);
+    	}else
+    	{
+    		IotLogError(" Could not invoke subscription, no job were ready.\n", xError);
+    	}
     }
-
-    return xError;
-}
-
-
-static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkEvent )
-{
-
-    Link_t* pxLink = NULL;
-    NMSubscription_t* pxSubscription = NULL;
-    IotTaskPoolError_t xError;
-
-    ( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
-    listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
-    {
-        pxSubscription = listCONTAINER( pxLink, NMSubscription_t, xSubscriptionList );
-        if( ( pxSubscription->ulNetworkTypes & ulNetworkType ) == ulNetworkType )
-        {
-            xError = prxScheduleSubscriptionTask( pxSubscription, ulNetworkType, xNetworkEvent );
-            if( xError !=  IOT_TASKPOOL_SUCCESS )
-            {
-                IotLogError( "Failed to invoke subscription for"
-                        " network type = %d, event = %d, error = %d.",
-                        ulNetworkType,
-                        xNetworkEvent,
-                        xError );
-                break;
-            }
-        }
-    }
-    ( void ) xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
 }
 
 
 
 static void prvUserCallbackRoutine( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
 {
-
+    Link_t* pxLink = NULL;
+    NMSubscription_t* pxSubscription = NULL;
     NMCallbackExecutionContext_t* pxContext = ( NMCallbackExecutionContext_t* ) pUserContext;
-    NMCallbackExecutionContext_t* pxNextTask = NULL;
-    IotTaskPoolError_t xError;
+    IotTaskPoolError_t xError = IOT_TASKPOOL_NO_MEMORY;
 
     configASSERT( pxContext != NULL );
-    pxContext->xUserCallback( pxContext->ulNetworkType, pxContext->xNewtorkEvent, pxContext->pvUserContext );
-    if( xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY ) == pdTRUE )
+
+    ( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
+    listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
     {
-        pxNextTask = pxContext->pxNextTask;
-        pxContext->pxNextTask = NULL;
-        xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
+        pxSubscription = listCONTAINER( pxLink, NMSubscription_t, xSubscriptionList );
+        pxSubscription->xUserCallback(pxContext->ulNetworkType, pxContext->xNewtorkEvent, pxSubscription->pvUserContext);
+
     }
 
-    if( pxNextTask != NULL)
+    /* Job completed, ready again to be used. */
+    xError = IotTaskPool_CreateJob( prvUserCallbackRoutine,
+    		                                pxContext,
+											&pxContext->xJob );
+    if(xError != IOT_TASKPOOL_SUCCESS)
     {
-        xError = IotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxNextTask->xJob );
-        if( xError !=  IOT_TASKPOOL_SUCCESS )
-        {
-            IotLogError( "Failed to invoke subscription for"
-                    " network type = %d, event = %d, error = %d.",
-                    pxNextTask->ulNetworkType,
-                    pxNextTask->xNewtorkEvent,
-                    xError );
-        }
+    	IotLogError(" Could not invoke subscription, error %d returned \n", xError);
     }
+
+    ( void ) xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
 }
 
 /*-----------------------------------------------------------*/
@@ -564,13 +493,39 @@ static void prvUserCallbackRoutine( struct IotTaskPool * pTaskPool, struct IotTa
 BaseType_t AwsIotNetworkManager_Init( void )
 {
     BaseType_t xRet = pdTRUE;
+    NMCallbackExecutionContext_t *pxTask;
+    uint16_t usIdx;
+    IotTaskPoolError_t xError = IOT_TASKPOOL_NO_MEMORY;
+
+
     if( !xNetworkManagerInfo.xIsInit )
     {
         xNetworkManagerInfo.xSubscriptionLock = xSemaphoreCreateMutex();
+
         if( xNetworkManagerInfo.xSubscriptionLock == NULL )
         {
             xRet = pdFALSE;
         }
+
+        if( xRet == pdTRUE )
+        {
+			/* Set all job to ready at initialization. */
+			for( usIdx = 0; usIdx < _MAX_CONCURRENT_JOBS; usIdx++ )
+			{
+				pxTask = &( xNetworkManagerInfo.xJobs[usIdx] );
+
+				xError = IotTaskPool_CreateJob( prvUserCallbackRoutine,
+														pxTask,
+														&pxTask->xJob );
+				if(xError != IOT_TASKPOOL_SUCCESS)
+				{
+					xRet = pdFALSE;
+					IotLogError(" Could not initialize task pool job array, error %d returned \n", xError);
+					break;
+				}
+			}
+        }
+
         if( xRet == pdTRUE )
         {
             xNetworkManagerInfo.pxTaskPool = IOT_SYSTEM_TASKPOOL;
