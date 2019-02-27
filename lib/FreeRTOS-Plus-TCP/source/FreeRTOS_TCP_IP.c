@@ -678,7 +678,7 @@ static void prvTCPReturnPacket( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescri
 TCPPacket_t * pxTCPPacket;
 IPHeader_t *pxIPHeader;
 EthernetHeader_t *pxEthernetHeader;
-uint32_t ulFrontSpace, ulSpace, ulSourceAddress, ulWinSize;
+uint32_t ulFrontSpace, ulSpace, ulSourceAddress, ulWinSize, ulOutstanding;
 TCPWindow_t *pxTCPWindow;
 NetworkBufferDescriptor_t xTempBuffer;
 /* For sending, a pseudo network buffer will be used, as explained above. */
@@ -738,7 +738,16 @@ NetworkBufferDescriptor_t xTempBuffer;
 			}
 
 			/* Take the minimum of the RX buffer space and the RX window size. */
-			ulSpace = FreeRTOS_min_uint32( pxSocket->u.xTCP.ulRxCurWinSize, pxTCPWindow->xSize.ulRxWindowLength );
+			ulOutstanding = pxTCPWindow->rx.ulHighestSequenceNumber - pxTCPWindow->rx.ulCurrentSequenceNumber;
+			if( pxTCPWindow->xSize.ulRxWindowLength >= ulOutstanding )
+			{
+				ulSpace = pxTCPWindow->xSize.ulRxWindowLength - ulOutstanding;
+				ulSpace = FreeRTOS_min_uint32( ulSpace, ulFrontSpace );
+			}
+			else
+			{
+				ulSpace = 0ul;
+			}
 
 			if( ( pxSocket->u.xTCP.bits.bLowWater != pdFALSE_UNSIGNED ) || ( pxSocket->u.xTCP.bits.bRxStopped != pdFALSE_UNSIGNED ) )
 			{
@@ -1091,9 +1100,6 @@ uint32_t ulInitialSequenceNumber = 0;
 
 		/* Set the values of usInitMSS / usCurMSS for this socket. */
 		prvSocketSetMSS( pxSocket );
-
-		/* For now this is also the advertised window size. */
-		pxSocket->u.xTCP.ulRxCurWinSize = pxSocket->u.xTCP.usInitMSS;
 
 		/* The initial sequence numbers at our side are known.  Later
 		vTCPWindowInit() will be called to fill in the peer's sequence numbers, but
@@ -2521,7 +2527,6 @@ TCPPacket_t *pxTCPPacket = ( TCPPacket_t * ) ( (*ppxNetworkBuffer)->pucEthernetB
 TCPHeader_t *pxTCPHeader = &pxTCPPacket->xTCPHeader;
 TCPWindow_t *pxTCPWindow = &pxSocket->u.xTCP.xTCPWindow;
 /* Find out what window size we may advertised. */
-uint32_t ulFrontSpace;
 int32_t lRxSpace;
 #if( ipconfigUSE_TCP_WIN == 1 )
 	#if( ipconfigTCP_ACK_EARLIER_PACKET == 0 )
@@ -2530,20 +2535,6 @@ int32_t lRxSpace;
 		int32_t lMinLength;
 	#endif
 #endif
-	pxSocket->u.xTCP.ulRxCurWinSize = pxTCPWindow->xSize.ulRxWindowLength -
-									 ( pxTCPWindow->rx.ulHighestSequenceNumber - pxTCPWindow->rx.ulCurrentSequenceNumber );
-
-	/* Free space in rxStream. */
-	if( pxSocket->u.xTCP.rxStream != NULL )
-	{
-		ulFrontSpace = ( uint32_t ) uxStreamBufferFrontSpace( pxSocket->u.xTCP.rxStream );
-	}
-	else
-	{
-		ulFrontSpace = ( uint32_t ) pxSocket->u.xTCP.uxRxStreamSize;
-	}
-
-	pxSocket->u.xTCP.ulRxCurWinSize = FreeRTOS_min_uint32( ulFrontSpace, pxSocket->u.xTCP.ulRxCurWinSize );
 
 	/* Set the time-out field, so that we'll be called by the IP-task in case no
 	next message will be received. */
