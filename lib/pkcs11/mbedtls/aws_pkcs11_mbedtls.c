@@ -77,6 +77,19 @@ typedef struct P11Struct_t
 
 static P11Struct_t xP11Context;
 
+/**
+ * @brief Structure for saving Find Object template information
+ *
+ * This structure is malloc'ed in FindObjectsInit, used to find a
+ * match in FindObjects, and freed in FindObjectsFinal.
+ */
+typedef struct FindObjectTemplate_t
+{
+    char cLabel[ pkcs11MAX_LABEL_LENGTH ];
+    CK_BBOOL xLabelIsValid;
+    CK_OBJECT_CLASS xClass;
+    CK_BBOOL xClassIsValid;
+} FindObjectTemplate_t;
 
 /**
  * @brief Session structure.
@@ -88,14 +101,15 @@ typedef struct P11Session
     CK_MECHANISM_TYPE xOperationInProgress;
     CK_BBOOL xFindObjectInit;
     CK_BBOOL xFindObjectComplete;
-    uint8_t * xFindObjectLabel;
+    FindObjectTemplate_t * xFindObjectTemplate; /* Pointer to the template of the search in progress. */
     uint8_t xFindObjectLabelLength;
-    SemaphoreHandle_t xVerifyMutex; /* Protects the verification key from being modified while in use. */
+    SemaphoreHandle_t xVerifyMutex;             /* Protects the verification key from being modified while in use. */
     mbedtls_pk_context xVerifyKey;
-    SemaphoreHandle_t xSignMutex;   /* Protects the signing key from being modified while in use. */
+    SemaphoreHandle_t xSignMutex;               /* Protects the signing key from being modified while in use. */
     mbedtls_pk_context xSignKey;
     mbedtls_sha256_context xSHA256Context;
 } P11Session_t, * P11SessionPtr_t;
+
 
 /**
  * @brief Cryptoki module attribute definitions.
@@ -125,6 +139,11 @@ typedef struct P11Session
 extern CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                                uint8_t * pucData,
                                                uint32_t ulDataSize );
+
+/**
+ * @brief Delete an object from NVM.
+ */
+extern CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
 
 /**
  *   @brief Look up an object handle using it's label.
@@ -185,18 +204,18 @@ static CK_FUNCTION_LIST prvP11FunctionList =
     NULL, /*C_SetPIN*/
     C_OpenSession,
     C_CloseSession,
-    NULL, /*C_CloseAllSessions*/
-    NULL, /*C_GetSessionInfo*/
-    NULL, /*C_GetOperationState*/
-    NULL, /*C_SetOperationState*/
-    NULL, /*C_Login*/
-    NULL, /*C_Logout*/
+    NULL,    /*C_CloseAllSessions*/
+    NULL,    /*C_GetSessionInfo*/
+    NULL,    /*C_GetOperationState*/
+    NULL,    /*C_SetOperationState*/
+    C_Login, /*C_Login*/
+    NULL,    /*C_Logout*/
     C_CreateObject,
-    NULL, /*C_CopyObject*/
+    NULL,    /*C_CopyObject*/
     C_DestroyObject,
-    NULL, /*C_GetObjectSize*/
+    NULL,    /*C_GetObjectSize*/
     C_GetAttributeValue,
-    NULL, /*C_SetAttributeValue*/
+    NULL,    /*C_SetAttributeValue*/
     C_FindObjectsInit,
     C_FindObjects,
     C_FindObjectsFinal,
@@ -397,6 +416,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
     ( void ) ( pvApplication );
     ( void ) ( xNotify );
 
+    /* Check that the PKCS #11 module is initialized. */
+    if( xP11Context.xIsInitialized != CK_TRUE )
+    {
+        xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
+    }
+
     /* Check arguments. */
     if( NULL == pxSession )
     {
@@ -525,6 +550,17 @@ CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
     }
 
     return xResult;
+}
+
+CK_DEFINE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
+                                      CK_USER_TYPE userType,
+                                      CK_UTF8CHAR_PTR pPin,
+                                      CK_ULONG ulPinLen )
+{
+    /* THIS FUNCTION IS NOT IMPLEMENTED FOR MBEDTLS-BASED PORTS.
+     * If login capability is required, implement it here.
+     * Defined for compatibility with other PKCS #11 ports. */
+    return CKR_OK;
 }
 
 /**
@@ -716,6 +752,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
     /* TODO: Delete objects from NVM. */
     ( void ) xSession;
     ( void ) xObject;
+
+    PKCS11_PAL_DestroyObject( xObject );
     return CKR_OK;
 }
 
@@ -850,6 +888,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+
+
 /**
  * @brief Begin an enumeration sequence for the objects of the specified type.
  */
@@ -859,54 +899,76 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
 {
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_RV xResult = CKR_OK;
+    FindObjectTemplate_t * pxFindObjectInfo;
 
 
-    /*
-     * Check parameters.
-     */
-    if( NULL == pxTemplate )
+    if( ( pxSession == NULL ) || ( pxSession->xOpened != CK_TRUE ) )
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+        configPRINTF( ( "Invalid session. \r\n" ) );
+    }
+    else if( pxSession->xFindObjectTemplate != NULL )
+    {
+        xResult = CKR_OPERATION_ACTIVE;
+        configPRINTF( ( "Find object operation already in progress. \r\n" ) );
+    }
+    else if( NULL == pxTemplate )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
-    else if( ulCount != 1 )
+    else if( ( ulCount != 1 ) && ( ulCount != 2 ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        configPRINTF( ( "Find objects can only filter by one attribute. " ) );
+        configPRINTF( ( "Find objects can only filter by one attribute. \r\n" ) );
     }
-    else
+
+    /* Malloc space to save template information. */
+    if( xResult == CKR_OK )
     {
-        /* Copy the label to be looked up into the PKCS#11 session context. */
-        if( pxTemplate->type == CKA_LABEL )
+        pxFindObjectInfo = pvPortMalloc( sizeof( FindObjectTemplate_t ) );
+        pxSession->xFindObjectTemplate = pxFindObjectInfo;
+
+        if( pxFindObjectInfo == NULL )
         {
-            pxSession->xFindObjectInit = CK_TRUE;
-            pxSession->xFindObjectComplete = CK_FALSE;
-
-            /* Make sure the reported buffer length is not super huge. */
-            if( pxTemplate->ulValueLen < UCHAR_MAX )
-            {
-                pxSession->xFindObjectLabel = pvPortMalloc( pxTemplate->ulValueLen );
-
-                if( pxSession->xFindObjectLabel != NULL )
-                {
-                    memcpy( pxSession->xFindObjectLabel,
-                            pxTemplate->pValue,
-                            pxTemplate->ulValueLen );
-                    pxSession->xFindObjectLabelLength = ( uint8_t ) pxTemplate->ulValueLen;
-                }
-                else
-                {
-                    xResult = CKR_HOST_MEMORY;
-                }
-            }
-            else
-            {
-                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-            }
+            xResult = CKR_HOST_MEMORY;
         }
-        else
+    }
+
+    /* Unpack provided template and store information serially. */
+    if( xResult == CKR_OK )
+    {
+        memset( pxFindObjectInfo, 0, sizeof( FindObjectTemplate_t ) );
+
+        for( int i = 0; i < ulCount; i++ )
         {
-            PKCS11_PRINT( ( "Finding objects is only supported by LABEL.\r\n" ) );
-            xResult = CKR_ATTRIBUTE_TYPE_INVALID;
+            CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+            switch( xAttribute.type )
+            {
+                case ( CKA_LABEL ):
+
+                    if( xAttribute.ulValueLen < pkcs11MAX_LABEL_LENGTH )
+                    {
+                        memcpy( pxFindObjectInfo->cLabel, xAttribute.pValue, xAttribute.ulValueLen );
+                        pxFindObjectInfo->xLabelIsValid = CK_TRUE;
+                    }
+                    else
+                    {
+                        configPRINTF( ( "Label exceeds maximum object label length (%d) \r\n", pkcs11MAX_LABEL_LENGTH ) );
+                        xResult = CKR_TEMPLATE_INCONSISTENT;
+                    }
+                    break;
+
+                case ( CKA_CLASS ):
+                    memcpy( pxFindObjectInfo->xClass, xAttribute.pValue, sizeof( CK_OBJECT_CLASS ) );
+                    pxFindObjectInfo->xClassIsValid = CK_TRUE;
+                    break;
+
+                default:
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                    configPRINTF( ( "Find objects only supported by label and/or class" ) );
+                    break;
+            }
         }
     }
 

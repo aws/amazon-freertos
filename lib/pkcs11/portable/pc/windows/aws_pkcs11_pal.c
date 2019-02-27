@@ -55,7 +55,9 @@ enum eObjectHandles
     eAwsDevicePrivateKey = 1,
     eAwsDevicePublicKey,
     eAwsDeviceCertificate,
-    eAwsCodeSigningKey
+    eAwsCodeSigningKey,
+    eAwsTrustedServerCertificate,
+    eAwsJITPCertificate
 };
 
 /*-----------------------------------------------------------*/
@@ -121,6 +123,59 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
     }
 }
 
+void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
+                          char ** pcFileName )
+{
+    switch( pxHandle )
+    {
+        case ( eAwsDeviceCertificate ):
+            *pcFileName = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+            break;
+
+        case ( eAwsDevicePrivateKey ):
+            *pcFileName = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+            break;
+
+        case ( eAwsDevicePublicKey ):
+            *pcFileName = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+            break;
+
+        case ( eAwsCodeSigningKey ):
+            *pcFileName = pkcs11configLABEL_CODE_VERIFICATION_KEY;
+            break;
+
+        case ( eAwsTrustedServerCertificate ):
+            *pcFileName = pkcs11configLABEL_ROOT_CERTIFICATE;
+            break;
+
+        case ( eAwsJITPCertificate ):
+            *pcFileName = pkcs11configLABEL_JITP_CERTIFICATE;
+            break;
+
+        default:
+            *pcFileName = NULL;
+            break;
+    }
+}
+
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    char * pcFileName;
+    CK_RV xResult;
+
+    prvHandleToFileName( xHandle, &pcFileName );
+
+    if( DeleteFileA( pcFileName ) )
+    {
+        xResult = CKR_OK;
+    }
+    else
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
+    }
+
+    return xResult;
+}
 
 /**
  * @brief Saves an object in non-volatile storage.

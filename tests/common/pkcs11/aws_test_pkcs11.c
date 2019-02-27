@@ -564,7 +564,7 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
 
         /* When a NULL slot pointer is passed in,
          *  the number of slots should be updated. */
-        xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, &xSlotCount );
+         xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, &xSlotCount );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot count" );
         TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xSlotCount, "Slot count incorrectly updated" );
 
@@ -580,8 +580,6 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
          * in the C_OpenSession tests. */
 
         /* Off the happy path. */
-
-        vPortFree( pxSlotId );
         xExtraSlotCount = xSlotCount + 1;
         pvPortMalloc( sizeof( CK_SLOT_ID ) * xExtraSlotCount );
 
@@ -595,8 +593,6 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
         xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, pxSlotId, &xSlotCount );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_BUFFER_TOO_SMALL, xResult, "Negative Test: Improper handling of too-small slot buffer" );
 
-        /* Passing NULL as pulCount isn't valid. */
-        TEST_ASSERT_EQUAL( CKR_ARGUMENTS_BAD, pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, NULL ) );
     }
 
     if( pxSlotId != NULL )
@@ -662,7 +658,7 @@ TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
 
     /* Negative tests */
 
-    /* Try to open a session without having initialize the module. */
+    /* Try to open a session without having initialized the module. */
     xResult = pxGlobalFunctionList->C_OpenSession( xSlotId,
                                                    CKF_SERIAL_SESSION, /* This flag is mandatory for PKCS #11 legacy reasons. */
                                                    NULL,               /* Application defined pointer. */
