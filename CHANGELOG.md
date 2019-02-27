@@ -1,5 +1,71 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.7 02/18/2019
+### New Features
+### New Boards: Cypress CYW43907 and CYW54907
+- Cypress boards CYW54907 and CYW43907 are now qualified for Amazon FreeRTOS.
+
+#### FreeRTOS Kernel V10.1.1
+- Kernel version for Amazon FreeRTOS is updated to 10.1.1.
+- Update all object handles (TaskHandle_t, QueueHandle_t, etc.) to be unique types instead of void pointers, improving type safety.
+- Add Xtensa port.
+- Updated to the latest trace recorder code.
+- Update lint checked MISRA compliance to use the latest MISRA standard.
+- Add configUSE_POSIX_ERRNO to enable per task POSIX style errno functionality.
+
+### Updates
+
+#### FreeRTOS+POSIX V1.0.3
+- Use stack based alloaction for POSIX types. Stack based allocation will reduce heap fragmentation.
+- Fixed potential overflow in Posix timespec utils.
+- Stopped Posix timer spawnning thread every time it is invoked.
+- Unlock and update owner atomically, while unlocking mutex.
+
+#### MQTT Agent V1.1.4
+- Bug fix: MQTT agent tries to setup a connection with the MQTT broker when the socket does not exist.
+
+####  Upgrading ESP-IDF to 3.1.1
+- ESP-IDF upgraded to 3.1.1.
+
+#### OTA PAL for Curiosity PIC32MZEF V1.0.3
+- Rename variables to comply with style guidelines.
+
+#### OTA PAL for Windows Simulator V1.0.2
+- Rename variables to comply with style guidelines.
+
+#### OTA PAL for CC3220SF-LAUNCHXL V1.0.1
+- Rename variables to comply with style guidelines.
+
+#### OTA Agent V1.0.1
+- Rename variables to comply with style guidelines.
+
+#### PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.0
+- Added as part of Cypress CYW43907 board port. 
+- Note that the random number generation solution in this port is provided for demonstration purposes only. See the comment in lib/pkcs11/portable/cypress/CYW943907AEVAL1F/hw_poll.c.
+
+#### PKCS #11 PAL for Cypress CYW954907AEVAL1F development kit V1.0.0
+- Added as part of Cypress CYW54907 board port.
+- Note that the random number generation solution in this port is provided for demonstration purposes only. See the comment in lib/pkcs11/portable/cypress/CYW954907AEVAL1F/hw_poll.c
+
+#### PKCS #11 PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
+- Updated as part of Updrade to ESP-IDF to 3.1.1.
+
+#### mbedTLS-based PKCS#11 V1.0.7
+- Bug Fix: Multi-threaded use of PKCS #11 Sign/Verify could cause key corruption.
+
+#### Wi-Fi for Cypress CYW943907AEVAL1F development kit V1.0.0
+- Added as part of Cypress CYW43907 board port.
+
+#### Wi-Fi for Cypress CYW954907AEVAL1F development kit V1.0.0
+- Added as part of Cypress CYW54907 board port.
+
+#### Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
+- Update as part of Updrade to ESP-IDF to 3.1.1.
+
+#### Wi-Fi for LPC54018 IoT Module V1.0.3
+- Bug fix: Update WIFI init API to return success if WIFI module was already successfully initialized.
+- Bug fix: Update WIFI AP connection API for NXP to check if DHCP was successful.
+
 ## V1.4.6 12/27/2018
 ### New Features
 

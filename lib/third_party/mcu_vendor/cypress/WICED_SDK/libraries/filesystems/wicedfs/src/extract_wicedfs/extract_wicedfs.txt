@@ -1,0 +1,9 @@
+Extract_WicedFS - Image Extraction Tool for Wiced Read Only File-System
+================================================================
+
+This directory contains source code for a tool which can extract files/directories from a WicedFS filesystem image file.
+
+The makefile generates two executables - with and without 64-bit support. (64 Bit support is required for files over 2GB)
+
+The tool takes an existing WicedFS filesystme image file and creates a directory tree on the host PC containting the
+files within the WicedFS filesystem.

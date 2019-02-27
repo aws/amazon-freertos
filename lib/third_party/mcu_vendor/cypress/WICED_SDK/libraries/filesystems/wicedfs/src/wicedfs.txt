@@ -1,0 +1,70 @@
+WicedFS - Wiced Read Only File-System
+======================================
+Version 1
+
+This was developed because the major open source read-only filesystems are all GPL licensed. (RomFS, CramFS, SquashFS)
+
+The filesystem supports unlimited directories, unlimited files per directory, unlimited filename lengths,
+large files (>4GB), unlimited simultaneously open file handles, and multiple simultaneous filesystems.
+It is designed to have a very small compiled code size.
+
+
+File System User API
+====================
+
+The API has been written to be very similar to the standard C functions (fopen/fread/fwrite/fclose) but has
+minor changes to avoid the need for dynamic memory allocations, and to allow simultaneous filesystems.
+
+Currently Directories are separated by a forward slash '/'
+
+Please see wiced_fs.h for details of the API.
+
+
+
+File System Interface to Hardware
+=================================
+
+The interface to the underlying hardware is via a read function defined by wicedfs_read_func_t (see wicedfs.h).
+
+If 64 bit file locations/lengths are required, then WICEDFS_64BIT_LENGTHS should be globally defined.
+
+
+File System Structure
+=====================
+
+All binary values are stored in little-endian format (i.e. LSB first)
+
+
+Filesystem header  ( wicedfs_filesystem_header_t )
+-----------------
+
+Magic Number          - 4 bytes - 'B', 'R', 'C', 'M'
+Version               - 4 bytes - First version: 1
+Root Directory Offset - 8 bytes - int64_t Offset to the start of the Directory Header for the root directory (from the start of this filesystem header).
+
+
+Directory Header  ( wicedfs_dir_header_t )
+----------------
+
+File Table Offset  - 8 bytes       - uint64_t Offset to the start of the file entry list for this directory ( file list is of type wicedfs_file_header_t[] )
+Num Files          - 4 bytes       - Number of files in this directory
+File Header size   - 4 bytes       - Number of bytes used by each file entry in the file list (this is variable to accommodate any filename size, and alignment)
+File name size     - 4 bytes       - Number of bytes per file entry used for the filename.
+File table         - Variable size - A list of File headers. Files must be in strict UTF-8 sort order. The entry size and count must match the values above.
+
+
+File Table header  ( wicedfs_file_header_t )
+-----------------
+
+Type/Flags/Permissions - 4 bytes       - Currently the following types are defined:
+                                                                                    WICEDFS_TYPE_DIR   0
+                                                                                    WICEDFS_TYPE_FILE  1
+                                                                                    WICEDFS_TYPE_LINK  2
+Offset                 - 8 bytes       - Offset from the start of this file header.
+                                             If the Type is WICEDFS_TYPE_FILE,  then this is the start of the file data
+                                             If the Type is WICEDFS_TYPE_DIR,  then this is the start of a Directory Header for the subdirectory
+Size                   - 8 bytes       - Size of the data for this entry - Only relevant for Type = WICEDFS_TYPE_FILE
+Name                   - Variable Size - File/Directory name. Null padded to length specified in "File Name Size" field in Directory Header
+                                         Filenames are stored in UTF-8, and there are no disallowed characters.
+
+

@@ -809,27 +809,10 @@ esp_err_t IRAM_ATTR esp_intr_enable(intr_handle_t handle)
     return ESP_OK;
 }
 
-#define port_enter_critical(x) do { \
-    if (xPortInIsrContext()) {      \
-        portENTER_CRITICAL_ISR(x);  \
-    } else {                        \
-        portENTER_CRITICAL(x);      \
-    }                               \
-} while (0);
-
-#define port_exit_critical(x) do {  \
-    if (xPortInIsrContext()) {      \
-        portEXIT_CRITICAL_ISR(x);   \
-    } else {                        \
-        portEXIT_CRITICAL(x);       \
-    }                               \
-} while (0);
-
 esp_err_t IRAM_ATTR esp_intr_disable(intr_handle_t handle)
 {
     if (!handle) return ESP_ERR_INVALID_ARG;
-
-    port_enter_critical(&spinlock);
+    portENTER_CRITICAL(&spinlock);
     int source;
     bool disabled = 1;
     if (handle->shared_vector_desc) {
@@ -857,12 +840,12 @@ esp_err_t IRAM_ATTR esp_intr_disable(intr_handle_t handle)
     } else {
         //Disable using per-cpu regs
         if (handle->vector_desc->cpu!=xPortGetCoreID()) {
-            port_exit_critical(&spinlock);
+            portEXIT_CRITICAL(&spinlock);
             return ESP_ERR_INVALID_ARG; //Can only enable these ints on this cpu
         }
         ESP_INTR_DISABLE(handle->vector_desc->intno);
     }
-    port_exit_critical(&spinlock);
+    portEXIT_CRITICAL(&spinlock);
     return ESP_OK;
 }
 

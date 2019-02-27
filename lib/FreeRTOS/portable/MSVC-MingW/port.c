@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V10.0.1
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V10.1.1
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -410,19 +410,16 @@ CONTEXT xContext;
 			that is already in the running state. */
 			if( pvOldCurrentTCB != pxCurrentTCB )
 			{
-				/* Suspend the old thread, if it still exists. */
+				/* Suspend the old thread. */
 				pxThreadState = ( xThreadState *) *( ( size_t * ) pvOldCurrentTCB );
-                if( NULL != pxThreadState->pvThread )
-                {
-                    SuspendThread( pxThreadState->pvThread );
+				SuspendThread( pxThreadState->pvThread );
 
-                    /* Ensure the thread is actually suspended by performing a
-                    synchronous operation that can only complete when the thread is
-                    actually suspended.  The below code asks for dummy register
-                    data. */
-                    xContext.ContextFlags = CONTEXT_INTEGER;
-                    ( void )GetThreadContext( pxThreadState->pvThread, &xContext );
-                }
+				/* Ensure the thread is actually suspended by performing a
+				synchronous operation that can only complete when the thread is
+				actually suspended.  The below code asks for dummy register
+				data. */
+				xContext.ContextFlags = CONTEXT_INTEGER;
+				( void ) GetThreadContext( pxThreadState->pvThread, &xContext );
 
 				/* Obtain the state of the task now selected to enter the
 				Running state. */
@@ -511,8 +508,7 @@ uint32_t ulErrorCode;
 
 void vPortEndScheduler( void )
 {
-	/* This function IS NOT TESTED! */
-	TerminateProcess( GetCurrentProcess(), 0 );
+	exit( 0 );
 }
 /*-----------------------------------------------------------*/
 
