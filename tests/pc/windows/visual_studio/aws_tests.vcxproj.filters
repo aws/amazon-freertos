@@ -205,9 +205,6 @@
     <Filter Include="lib\aws\serializer\json">
       <UniqueIdentifier>{f207b132-dfdf-432a-ba29-40d77343918f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="application_code\common_tests\serializer">
-      <UniqueIdentifier>{63328ee3-6080-46cf-9f66-f8252bc6fb18}</UniqueIdentifier>
-    </Filter>
     <Filter Include="lib\aws\metrics">
       <UniqueIdentifier>{b454a175-6acd-4b03-8418-ab8368543cc9}</UniqueIdentifier>
     </Filter>
@@ -1363,12 +1360,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c">
       <Filter>lib\aws\serializer\json</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_cbor.c">
-      <Filter>application_code\common_tests\serializer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_json.c">
-      <Filter>application_code\common_tests\serializer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c">
       <Filter>lib\aws\metrics</Filter>
