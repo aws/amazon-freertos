@@ -95,7 +95,7 @@ BaseType_t BOOT_FLASH_ReadPartitionTable( BOOTPartition_Info_t * xPartitionInfo 
     uint8_t i;
 
     xPartitionInfo->ucNumOfApps = 0;
-    
+
     for( i = 0; i < ( sizeof( axPartitonTable ) / sizeof( FLASHPartition_t ) ); i++ )
     {
         switch( axPartitonTable[ i ].ucPartitionType )

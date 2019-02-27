@@ -47,7 +47,7 @@ static char const * const pcDefenderMQTTEndpoint =
 /* Status of last report sent. */
 static DefenderReportStatus_t eDefenderReportStatus;
 /* Set of agent states. */
-static DefenderState_t ( * DEFENDER_States[ eDefenderStateCount ] )( void ) = { 0 };
+static DefenderState_t ( * DEFENDER_States[ eDefenderStateCount ] ) ( void ) = { 0 };
 /* The current state. */
 static DefenderState_t eDefenderState;
 /* Period between reports. */
@@ -493,7 +493,8 @@ DefenderReportStatus_t DEFENDER_ReportStatusGet( void )
     do
     {
         xReportStatus = eDefenderReportStatus;
-    } while( xReportStatus != eDefenderReportStatus );
+    }
+    while( xReportStatus != eDefenderReportStatus );
 
     return xReportStatus;
 }

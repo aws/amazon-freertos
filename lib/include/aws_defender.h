@@ -161,7 +161,6 @@ char const * DEFENDER_ErrAsString( DefenderErr_t /*eErrNum*/ );
  *
  * @return Pointer to a string literal
  */
-char const *
-    DEFENDER_ReportStatusAsString( DefenderReportStatus_t /*eStatusNum*/ );
+char const * DEFENDER_ReportStatusAsString( DefenderReportStatus_t /*eStatusNum*/ );
 
 #endif /* end of include guard: AWS_DEFENDER_H */
