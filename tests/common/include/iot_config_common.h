@@ -81,8 +81,6 @@
  * by IOT_STATIC_MEMORY_ONLY. */
 #define IotNetwork_Malloc    pvPortMalloc
 #define IotNetwork_Free      vPortFree
-#define IotClock_Malloc      pvPortMalloc
-#define IotClock_Free        vPortFree
 #define IotThreads_Malloc    pvPortMalloc
 #define IotThreads_Free      vPortFree
 #define IotLogging_Malloc    pvPortMalloc
