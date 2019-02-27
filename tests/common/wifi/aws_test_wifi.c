@@ -513,7 +513,8 @@ static BaseType_t prvRoundTripTest( void )
              * this delay will not be necessary as FreeRTOS_recv() will place the RTOS
              * task into the Blocked state anyway. */
             vTaskDelay( 250 );
-        } while( ( xTaskGetTickCount() - xTimeOnEnteringShutdown ) < xRxTimeOut );
+        }
+        while( ( xTaskGetTickCount() - xTimeOnEnteringShutdown ) < xRxTimeOut );
 
         if( xSocketResult != SOCKETS_ERROR_NONE )
         {

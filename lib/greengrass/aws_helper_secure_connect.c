@@ -218,9 +218,8 @@ void GGD_SecureConnect_Disconnect( Socket_t * pxSocket )
 
     #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
         {
-            configPRINTF( (
-                              "Stack high watermark for discovery helper task: %u.\r\n",
-                              uxTaskGetStackHighWaterMark( NULL ) ) );
+            configPRINTF( ( "Stack high watermark for discovery helper task: %u.\r\n",
+                            uxTaskGetStackHighWaterMark( NULL ) ) );
         }
     #endif
 }

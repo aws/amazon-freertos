@@ -42,7 +42,7 @@
  * callback.
  */
 #ifndef mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT
-    #define mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT            ( 1 )
+    #define mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT    ( 1 )
 #endif
 
 /**
@@ -56,7 +56,7 @@
  * of length more than the maximum specified here.
  */
 #ifndef mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH
-    #define mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH     ( 128 )
+    #define mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH    ( 128 )
 #endif
 
 /**
