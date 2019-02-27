@@ -307,7 +307,7 @@ static void prvEchoClientTask( void * pvParameters )
                 /* If an error occurred it will be latched in xReceivedBytes,
                  * otherwise xReceived bytes will be just that - the number of
                  * bytes received from the echo server. */
-                if( xReceivedBytes > 0 )
+                if( xReceivedBytes == xTransmitted )
                 {
                     /* Compare the transmitted string to the received string. */
                     configASSERT( strncmp( pcReceivedString, pcTransmittedString, xTransmitted ) == 0 );
@@ -334,6 +334,11 @@ static void prvEchoClientTask( void * pvParameters )
                 }
                 else
                 {
+                    /* The received length did not match the transmitted
+                     * length. */
+                    ulTxRxFailures[ xInstance ]++;
+                    configPRINTF( ( "ERROR: xTransmitted %d xReceivedBytes %d \r\n",
+						(int)xTransmitted, (int)xReceivedBytes ) );
                     /* Timed out without receiving anything? */
                     break;
                 }
