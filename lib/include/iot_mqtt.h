@@ -1240,7 +1240,7 @@ int32_t IotMqtt_ReceiveCallback( void * pMqttConnection,
  * <b>Example</b>
  * @code{c}
  * // An initialized and connected network connection.
- * IotNetworkConnection_t pNetworkConnection;
+ * IotNetworkConnectionAfr_t pNetworkConnection;
  *
  * // Parameters to MQTT connect.
  * IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;

@@ -1077,7 +1077,7 @@ BaseType_t IotBleMqtt_SetSendTimeout( IotBleMqttConnection_t xConnection, uint16
 
 /*-----------------------------------------------------------*/
 
-size_t IotBleMqtt_Send( void* pvConnection, const void * const pvMessage, size_t messageLength )
+size_t IotBleMqtt_Send( void* pvConnection, const uint8_t * const pvMessage, size_t messageLength )
 {
     IotBleMqttService_t * pService = ( IotBleMqttService_t * ) pvConnection;
     size_t sendLen, remainingLen = messageLength;

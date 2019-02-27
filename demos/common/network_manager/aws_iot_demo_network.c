@@ -31,11 +31,9 @@
 #include "iot_demo.h"
 #include "aws_iot_network_manager.h"
 #include "aws_iot_demo_network.h"
+#include "platform/iot_network_afr.h"
 
-#if WIFI_ENABLED
-#include "platform/iot_network.h"
-#include "aws_clientcredential.h"
-#endif
+#include "private/iot_error.h"
 
 #if BLE_ENABLED
 #include "iot_ble_mqtt.h"
@@ -104,64 +102,59 @@ static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkCo
 #if WIFI_ENABLED
 static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext )
 {
-    AwsIotNetworkError_t xStatus = AWS_IOT_NETWORK_SUCCESS;
-
-    AwsIotNetworkConnection_t xConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
-    AwsIotNetworkTlsInfo_t xTlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER;
+    _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
+    BaseType_t xNetworkCreated = pdFALSE;
+    IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
+    static IotNetworkConnectionAfr_t xConnection;
+    IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     IotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
-
-    /* Connection Uses default root certificates.
-     * Override the default root CA certificates by setting pcServerCertificate
-     * and xServerCertificateSize. SNI may need to be disabled if not using the
-     * default certificates. */
-    xTlsInfo.disableSni = false;
-    xTlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
-    xTlsInfo.clientCertLength = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
-    xTlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    xTlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
-
+    
     /* Disable ALPN if not using port 443. */
     if( clientcredentialMQTT_BROKER_PORT != 443 )
     {
-        xTlsInfo.pAlpnProtos = NULL;
+        xCredentials.pAlpnProtos = NULL;
     }
 
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  AwsIotNetwork_CreateConnection( &xConnection,
-            clientcredentialMQTT_BROKER_ENDPOINT,
-            clientcredentialMQTT_BROKER_PORT,
-            &xTlsInfo );
+    xStatus =  IotNetworkAfr_Create(&xServerInfo, &xCredentials, &xConnection);
 
-    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
+    if( xStatus != IOT_NETWORK_SUCCESS )
     {
-        /* Create the task that processes incoming MQTT data. */
-        xStatus = AwsIotNetwork_SetMqttReceiveCallback(
-                xConnection,
-                &pxNetworkContext->xMqttConnection,
-                AwsIotMqtt_ReceiveCallback );
-    }
-
-    if( xStatus == AWS_IOT_NETWORK_SUCCESS )
-    {
-        ( *pxNetworkIface ) = xDefaultNetworkInterface;
-        pxNetworkIface->pSendContext = ( void * ) xConnection;
-        pxNetworkIface->send = AwsIotNetwork_Send;
-        pxNetworkIface->pDisconnectContext = pxNetworkContext;
-        pxNetworkIface->disconnect = pxNetworkContext->xDisconnectCallback;
-
-        pxNetworkContext->pvNetworkConnection = ( void* ) xConnection;
+        _IOT_SET_AND_GOTO_CLEANUP( pdFALSE );
     }
     else
     {
-        if( xConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
-        {
-            AwsIotNetwork_CloseConnection( xConnection );
-            AwsIotNetwork_DestroyConnection( xConnection );
-        }
+        xNetworkCreated = pdTRUE;
+    }    
 
+    /* Create the task that processes incoming MQTT data. */
+    xStatus = IotNetworkAfr_SetReceiveCallback( &xConnection, IotMqtt_ReceiveCallback, &pxNetworkContext->xMqttConnection);
+
+    if( xStatus != IOT_NETWORK_SUCCESS )
+    {
+        _IOT_SET_AND_GOTO_CLEANUP( pdFALSE );
     }
 
-    return ( xStatus == AWS_IOT_NETWORK_SUCCESS );
+    ( *pxNetworkIface ) = xDefaultNetworkInterface;
+    pxNetworkIface->pSendContext = ( void * ) &xConnection;
+    pxNetworkIface->send = IotNetworkAfr_Send;
+    pxNetworkIface->pDisconnectContext = pxNetworkContext;
+    pxNetworkIface->disconnect = pxNetworkContext->xDisconnectCallback;
+    pxNetworkContext->pvNetworkConnection = ( void* ) &xConnection;
+
+    _IOT_FUNCTION_CLEANUP_BEGIN();
+
+    if( status != pdTRUE )
+    {
+        if( xNetworkCreated == pdTRUE )
+        {
+            IotNetworkAfr_Close( &xConnection );
+            IotNetworkAfr_Destroy( &xConnection );
+        }
+    }
+
+    _IOT_FUNCTION_CLEANUP_END();
 }
 #endif
 
@@ -231,16 +224,16 @@ void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkContext
 #if BLE_ENABLED
         if( pxNetworkContext->ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
         {
-            IotBleMqtt_CloseConnection( ( IotBleMqttConnection_t ) pxNetworkContext->pvNetworkConnection );
-            IotBleMqtt_DestroyConnection( ( IotBleMqttConnection_t ) pxNetworkContext->pvNetworkConnection );
+            IotBleMqtt_CloseConnection(  pxNetworkContext->pvNetworkConnection );
+            IotBleMqtt_DestroyConnection( pxNetworkContext->pvNetworkConnection );
             xDeleted = pdTRUE;
         }
 #endif
 #if WIFI_ENABLED
         if(  pxNetworkContext->ulNetworkType  == AWSIOT_NETWORK_TYPE_WIFI )
         {
-            AwsIotNetwork_CloseConnection( ( AwsIotNetworkConnection_t ) pxNetworkContext->pvNetworkConnection );
-            AwsIotNetwork_DestroyConnection( ( AwsIotNetworkConnection_t ) pxNetworkContext->pvNetworkConnection );
+            IotNetworkAfr_Close(  pxNetworkContext->pvNetworkConnection );
+            IotNetworkAfr_Destroy( pxNetworkContext->pvNetworkConnection );
             xDeleted = pdTRUE;
         }
 #endif

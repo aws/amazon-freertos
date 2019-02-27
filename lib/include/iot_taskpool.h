@@ -87,7 +87,7 @@
  * This function does not allocate memory to hold the task pool data structures and state, but it
  * may allocate memory to hold the dependent entities and data structures, e.g. the threads of the task
  * pool. The system task pool handle is recoverable for later use by calling (@ref taskpool_function_getsystemtaskpool) or
- * the shortcut @ref IOT_TASKPOOL_SYSTEM_TASKPOOL.
+ * the shortcut @ref IOT_SYSTEM_TASKPOOL.
  *
  * @param[in] pInfo A pointer to the task pool initialization data.
  *
@@ -108,7 +108,7 @@ IotTaskPoolError_t IotTaskPool_CreateSystemTaskPool( const IotTaskPoolInfo_t * c
  * @brief Retrieves the one and only instance of a system task pool
  *
  * This function retrieves the sytem task pool created with (@ref taskpool_function_createsystemtaskpool), and it is functionally
- * equivalent to using the shortcut @ref AWS_IOT_TASKPOOL_SYSTEM_TASKPOOL.
+ * equivalent to using the shortcut @ref IOT_SYSTEM_TASKPOOL.
  *
  * @return The system task pool handle.
  *
@@ -187,7 +187,7 @@ IotTaskPoolError_t IotTaskPool_Destroy( IotTaskPool_t * pTaskPool );
  * @return One of the following:
  * - #IOT_TASKPOOL_SUCCESS
  * - #IOT_TASKPOOL_BAD_PARAMETER
- * - #AWS_IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS
+ * - #IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS
  *
  */
 /* @[declare_taskpool_setmaxthreads] */
@@ -233,8 +233,8 @@ IotTaskPoolError_t IotTaskPool_CreateJob( const IotTaskPoolRoutine_t userCallbac
  *
  * @return One of the following:
  * - #IOT_TASKPOOL_SUCCESS
- * - #AWS_IOT_TASKPOOL_BAD_PARAMETER
- * - #AWS_IOT_TASKPOOL_NO_MEMORY
+ * - #IOT_TASKPOOL_BAD_PARAMETER
+ * - #IOT_TASKPOOL_NO_MEMORY
  * - #IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS
  *
  * @note This function will not allocate memory.
@@ -252,7 +252,7 @@ IotTaskPoolError_t IotTaskPool_CreateRecyclableJob( IotTaskPool_t * const pTaskP
 /**
  * @brief This function uninitializes a job.
  *
- * This function will destroy a job created with @ref AwsIotTaskPool_CreateJob or @ref AwsIotTaskPool_CreateRecyclableJob.
+ * This function will destroy a job created with @ref IotTaskPool_CreateJob or @ref AwsIotTaskPool_CreateRecyclableJob.
  * A job should not be destroyed twice. A job that was previously scheduled but has not completed yet should not be destroyed,
  * but rather the application should attempt to cancel it first by calling @ref AwsIotTaskPool_TryCancel.
  * An attempt to destroy a job that was scheduled but not yet executed or canceled, may result in a

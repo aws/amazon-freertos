@@ -116,7 +116,6 @@ void IotBleMqtt_CleanupSerialize( void );
  * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  */
 IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const pConnectInfo,
-                                                           const IotMqttPublishInfo_t * const pWillInfo,
                                                            uint8_t ** const pConnectPacket,
                                                            size_t * const pPacketSize );
 

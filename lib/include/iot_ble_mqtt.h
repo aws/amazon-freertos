@@ -246,6 +246,6 @@ void IotBleMqtt_DestroyConnection(  IotBleMqttConnection_t connection );
  * @param[in] messageLength Length of the message to be transferred
  * @return Number of bytes of data transferred.
  */
-size_t IotBleMqtt_Send( void* pvConnection, const void * const pvMessage, size_t messageLength );
+size_t IotBleMqtt_Send( void* pvConnection, const uint8_t * const pvMessage, size_t messageLength );
 
 #endif /* IOT_BLE_MQTT_H */

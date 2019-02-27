@@ -141,7 +141,7 @@ DefenderErr_t DEFENDER_Start( void )
     /* Use compile-time network information. */
     AwsIotDefenderStartInfo_t startInfo =
     {
-        .tlsInfo         = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER,
+        .tlsInfo         = IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER,
         .pAwsIotEndpoint = clientcredentialMQTT_BROKER_ENDPOINT,
         .port            = clientcredentialMQTT_BROKER_PORT,
         .pThingName      = clientcredentialIOT_THING_NAME,
@@ -155,9 +155,9 @@ DefenderErr_t DEFENDER_Start( void )
 
     /* Set client credentials. */
     startInfo.tlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
-    startInfo.tlsInfo.clientCertLength = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
+    startInfo.tlsInfo.clientCertSize = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
     startInfo.tlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    startInfo.tlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
+    startInfo.tlsInfo.privateKeySize = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
 
     /* If not connecting over port 443, disable ALPN. */
     if( clientcredentialMQTT_BROKER_PORT != 443 )

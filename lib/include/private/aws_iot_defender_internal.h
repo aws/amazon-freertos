@@ -306,7 +306,7 @@ void AwsIotDefenderInternal_DeleteTopicsNames();
  */
 bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
                                             uint16_t port,
-                                            AwsIotNetworkTlsInfo_t * pTlsInfo );
+                                            IotNetworkCredentialsAfr_t * pTlsInfo );
 
 /**
  * Set the network connection to callback MQTT.

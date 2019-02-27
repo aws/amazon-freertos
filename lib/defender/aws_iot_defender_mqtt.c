@@ -37,7 +37,7 @@
 #define _TOPIC_SUFFIX_REJECTED               _TOPIC_SUFFIX_PUBLISH "/rejected"
 
 /* defender internally manages network and mqtt connection */
-static AwsIotNetworkConnection_t _networkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
+static IotNetworkConnectionAfr_t _networkConnection = IOT_NETWORK_CONNECTION_AFR_INITIALIZER;
 static IotMqttConnection_t _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
 static char * _pPublishTopic = NULL;
@@ -110,12 +110,12 @@ void AwsIotDefenderInternal_DeleteTopicsNames()
 
 bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
                                             uint16_t port,
-                                            AwsIotNetworkTlsInfo_t * pTlsInfo )
+                                            IotNetworkCredentialsAfr_t * pTlsInfo )
 {
-    return AwsIotNetwork_CreateConnection( &_networkConnection,
+    return IotNetwork_CreateConnection( &_networkConnection,
                                            pAwsIotEndpoint,
                                            port,
-                                           pTlsInfo ) == AWS_IOT_NETWORK_SUCCESS;
+                                           pTlsInfo ) == IOT_NETWORK_SUCCESS;
 }
 
 /**
@@ -123,9 +123,9 @@ bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
  */
 bool AwsIotDefenderInternal_SetMqttCallback()
 {
-    return AwsIotNetwork_SetMqttReceiveCallback( _networkConnection,
+    return IotNetwork_SetMqttReceiveCallback( _networkConnection,
                                                  &_mqttConnection,
-                                                 AwsIotMqtt_ReceiveCallback ) == AWS_IOT_NETWORK_SUCCESS;
+                                                 AwsIotMqtt_ReceiveCallback ) == IOT_NETWORK_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -139,7 +139,7 @@ bool AwsIotDefenderInternal_MqttConnect( const char * pThingName,
     networkInterface.pDisconnectContext = ( void * ) _networkConnection;
     networkInterface.pSendContext = ( void * ) _networkConnection;
     networkInterface.disconnect = AwsIotNetwork_CloseConnection;
-    networkInterface.send = AwsIotNetwork_Send;
+    networkInterface.send = IotNetworkAfr_Send;
 
     /* Set the members of the connection info (password and username not used). */
     connectInfo.cleanSession = true;

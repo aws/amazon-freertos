@@ -200,7 +200,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
  *
  * @param xConnection The handle for the connection to the network.
  */
-static void prvNetworkDisconnectCallback( void* pvContext );
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext );
 
 /* Declaration of snprintf. The header stdio.h is not included because it
  * includes conflicting symbols on some platforms. */
@@ -338,10 +338,12 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
     }
 }
 
-static void prvNetworkDisconnectCallback( void* pvContext )
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext )
 {
     ( void ) pvContext;
     xNetworkConnected = pdFALSE;
+
+    return IOT_NETWORK_SUCCESS;
 }
 
 static BaseType_t prxCreateNetworkConnection( void )

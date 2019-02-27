@@ -81,7 +81,6 @@ static inline uint16_t _getNumPublishParams( const IotMqttPublishInfo_t * const 
 }
 
 static AwsIotSerializerError_t _serializeConnect( const IotMqttConnectInfo_t * const pConnectInfo,
-                                       const IotMqttPublishInfo_t * const pWillInfo,
                                        uint8_t* const pBuffer,
                                        size_t* const pSize );
 static AwsIotSerializerError_t _serializePublish( const IotMqttPublishInfo_t * const pPublishInfo,
@@ -160,7 +159,6 @@ static uint16_t _nextPacketIdentifier( void )
 }
 
 static AwsIotSerializerError_t _serializeConnect( const IotMqttConnectInfo_t * const pConnectInfo,
-                                       const IotMqttPublishInfo_t * const pWillInfo,
                                        uint8_t* const pBuffer,
                                        size_t* const pSize )
 {
@@ -652,7 +650,6 @@ void IotBleMqtt_CleanupSerialize( void )
 }
 
 IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const pConnectInfo,
-                                                           const IotMqttPublishInfo_t * const pWillInfo,
                                                            uint8_t ** const pConnectPacket,
                                                            size_t * const pPacketSize )
 {
@@ -662,7 +659,7 @@ IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const p
 	IotMqttError_t ret = IOT_MQTT_SUCCESS;
 
 
-	error = _serializeConnect( pConnectInfo, pWillInfo, NULL, &bufLen );
+	error = _serializeConnect( pConnectInfo, NULL, &bufLen );
 	if( error != AWS_IOT_SERIALIZER_SUCCESS )
 	{
 	    IotLogError( "Failed to find length of serialized CONNECT message, error = %d", error );
@@ -684,7 +681,7 @@ IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const p
 
 	if( ret == IOT_MQTT_SUCCESS )
 	{
-	    error = _serializeConnect( pConnectInfo, pWillInfo, pBuffer, &bufLen );
+	    error = _serializeConnect( pConnectInfo, pBuffer, &bufLen );
 	    if( error != AWS_IOT_SERIALIZER_SUCCESS )
 	    {
 	        IotLogError( "Failed to serialize CONNECT message, error = %d", error );

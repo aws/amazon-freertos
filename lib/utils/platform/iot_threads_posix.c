@@ -224,44 +224,6 @@ bool Iot_CreateDetachedThread( IotThreadRoutine_t threadRoutine,
                 }
             }
 
-            /* Set scheduler policy and priority if given. */
-            if( status == true )
-            {
-                if( priority != IOT_THREAD_DEFAULT_PRIORITY )
-                {
-                    struct sched_param schedulerParam =
-                    {
-                        .sched_priority = ( int ) priority
-                    };
-
-                    /* Set scheduler policy SCHED_RR. */
-                    posixErrno = pthread_attr_setschedpolicy( &threadAttributes,
-                                                              SCHED_RR );
-
-                    if( posixErrno != 0 )
-                    {
-                        IotLogError( "Failed to set scheduling policy SCHED_RR." );
-
-                        status = false;
-                    }
-
-                    /* Set scheduler priority. */
-                    if( status == true )
-                    {
-                        posixErrno = pthread_attr_setschedparam( &threadAttributes,
-                                                                 &schedulerParam );
-
-                        if( posixErrno != 0 )
-                        {
-                            IotLogError( "Failed to set scheduling priority %d.",
-                                         schedulerParam.sched_priority );
-
-                            status = false;
-                        }
-                    }
-                }
-            }
-
             if( status == false )
             {
                 ( void ) pthread_attr_destroy( &threadAttributes );
