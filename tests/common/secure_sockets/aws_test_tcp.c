@@ -1199,7 +1199,8 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             }
 
             xEndTime = xTaskGetTickCount();
-        } while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
+        }
+        while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
 
         TEST_ASSERT_EQUAL_INT32_MESSAGE( xMessageLength, xNumBytesReceived, "Data was not received \r\n" );
 
@@ -1641,7 +1642,7 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_SendRecv_VaryLength )
     prvSOCKETS_SendRecv_VaryLength( eSecure );
 }
 
-/*/ *-----------------------------------------------------------* / */
+/*-----------------------------------------------------------*/
 
 static void prvSOCKETS_Socket_InvalidInputParams( Server_t xConn )
 {

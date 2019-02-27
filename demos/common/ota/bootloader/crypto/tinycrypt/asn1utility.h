@@ -42,9 +42,9 @@
  * @param[in] - pucEnd - end of the data
  * @return - pdTRUE On success , pdFALSE
  */
- BaseType_t asn1_getBigInteger( uint8_t * pucInt,
-                                uint8_t ** ppucStart,
-                                uint8_t * pucEnd );
+BaseType_t asn1_getBigInteger( uint8_t * pucInt,
+                               uint8_t ** ppucStart,
+                               uint8_t * pucEnd );
 
 /**
  * @brief asn1_decodeSignature.
@@ -57,5 +57,5 @@
 BaseType_t asn1_decodeSignature( uint8_t * pucSignature,
                                  uint8_t * pucStart,
                                  uint8_t * pucEnd );
-						  
-#endif
+
+#endif /* ifndef _ASN1UTILITY_H_ */

@@ -35,25 +35,25 @@
 #include "aws_ota_agent_config.h"
 #include "jsmn.h"
 
-#define LOG2_BITS_PER_BYTE      3UL                             /* Log base 2 of bits per byte. */
-#define BITS_PER_BYTE           ( 1UL << LOG2_BITS_PER_BYTE )   /* Number of bits in a byte. This is used by the block bitmap implementation. */
-#define OTA_FILE_BLOCK_SIZE     ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE ) /* Data section size of the file data block message (excludes the header). */
+#define LOG2_BITS_PER_BYTE     3UL                                      /* Log base 2 of bits per byte. */
+#define BITS_PER_BYTE          ( 1UL << LOG2_BITS_PER_BYTE )            /* Number of bits in a byte. This is used by the block bitmap implementation. */
+#define OTA_FILE_BLOCK_SIZE    ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE ) /* Data section size of the file data block message (excludes the header). */
 
 typedef enum
 {
-    eIngest_Result_FileComplete = -1,      /* The file transfer is complete and the signature check passed. */
-    eIngest_Result_SigCheckFail = -2,      /* The file transfer is complete but the signature check failed. */
-    eIngest_Result_FileCloseFail = -3,     /* There was a problem trying to close the receive file. */
-    eIngest_Result_NullContext = -4,       /* The specified OTA context pointer is null. */
-    eIngest_Result_BadFileHandle = -5,     /* The receive file pointer is invalid. */
-    eIngest_Result_UnexpectedBlock = -6,   /* We were asked to ingest a block but weren't expecting one. */
-    eIngest_Result_BlockOutOfRange = -7,   /* The received block is out of the expected range. */
-    eIngest_Result_BadData = -8,           /* The data block from the server was malformed. */
-    eIngest_Result_WriteBlockFailed = -9,  /* The PAL layer failed to write the file block. */
-    eIngest_Result_NullResultPointer = -10,/* The pointer to the close result pointer was null. */
-    eIngest_Result_Uninitialized = -127,   /* Software BUG: We forgot to set the result code. */
-    eIngest_Result_Accepted_Continue = 0,  /* The block was accepted and we're expecting more. */
-    eIngest_Result_Duplicate_Continue = 1, /* The block was a duplicate but that's OK. Continue. */
+    eIngest_Result_FileComplete = -1,       /* The file transfer is complete and the signature check passed. */
+    eIngest_Result_SigCheckFail = -2,       /* The file transfer is complete but the signature check failed. */
+    eIngest_Result_FileCloseFail = -3,      /* There was a problem trying to close the receive file. */
+    eIngest_Result_NullContext = -4,        /* The specified OTA context pointer is null. */
+    eIngest_Result_BadFileHandle = -5,      /* The receive file pointer is invalid. */
+    eIngest_Result_UnexpectedBlock = -6,    /* We were asked to ingest a block but weren't expecting one. */
+    eIngest_Result_BlockOutOfRange = -7,    /* The received block is out of the expected range. */
+    eIngest_Result_BadData = -8,            /* The data block from the server was malformed. */
+    eIngest_Result_WriteBlockFailed = -9,   /* The PAL layer failed to write the file block. */
+    eIngest_Result_NullResultPointer = -10, /* The pointer to the close result pointer was null. */
+    eIngest_Result_Uninitialized = -127,    /* Software BUG: We forgot to set the result code. */
+    eIngest_Result_Accepted_Continue = 0,   /* The block was accepted and we're expecting more. */
+    eIngest_Result_Duplicate_Continue = 1,  /* The block was a duplicate but that's OK. Continue. */
 } IngestResult_t;
 
 /* Generic JSON document parser errors. */

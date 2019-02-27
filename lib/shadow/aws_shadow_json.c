@@ -193,8 +193,9 @@ static int16_t prvParseJSON( const char * const pcDoc,
                                       shadowconfigJSON_JSMN_TOKENS );
 
     /* Report errors in JSON parsing. */
-    if ( sReturn < 0 ) {
-      Shadow_json_debug_printf( ( "[Shadow JSON]: Error parsing JSON: JSMN error code %d\r\n", sReturn ) );
+    if( sReturn < 0 )
+    {
+        Shadow_json_debug_printf( ( "[Shadow JSON]: Error parsing JSON: JSMN error code %d\r\n", sReturn ) );
     }
 
     return sReturn;

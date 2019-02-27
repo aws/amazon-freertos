@@ -1918,7 +1918,8 @@ static uint8_t prvEncodeRemainingLength( uint32_t ulRemainingLength,
             ucBytesWritten = 0;
             break;
         }
-    } while( ulRemainingLength > ( uint32_t ) 0 );
+    }
+    while( ulRemainingLength > ( uint32_t ) 0 );
 
     return ucBytesWritten;
 }

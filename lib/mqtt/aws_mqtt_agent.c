@@ -236,7 +236,7 @@ typedef struct MQTTBrokerConnection
 
 #else
     static const char cUserName[] = "";
-#endif
+#endif /* if ( mqttconfigENABLE_METRICS == 1 ) */
 
 /**
  * @brief The length of the above username.
@@ -1389,7 +1389,7 @@ static void prvInitiateMQTTConnect( MQTTEventData_t * const pxEventData )
         {
             #if ( mqttconfigENABLE_METRICS == 1 )
                 mqttconfigDEBUG_LOG( ( "Anonymous metrics will be collected. Recompile with"
-                                "mqttconfigENABLE_METRICS set to 0 to disable.\r\n" ) );
+                                       "mqttconfigENABLE_METRICS set to 0 to disable.\r\n" ) );
             #endif
 
             /* Setup connect parameters and call the Core library connect function. */
