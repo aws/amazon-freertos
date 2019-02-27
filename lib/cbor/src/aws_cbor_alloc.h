@@ -43,10 +43,10 @@
 /** Defaults to \c malloc from \b stdlib.h */
 extern void *( *pxCBOR_malloc )( size_t );
 /** Defaults to \c free from \b stdlib.h */
-extern void (* pxCBOR_free)( void * );
+extern void ( * pxCBOR_free )( void * );
 /** Defaults to \c realloc from \b stdlib.h */
-extern void *(* pxCBOR_realloc)( void *,
-                                 size_t );
+extern void *( * pxCBOR_realloc )( void *,
+                                   size_t );
 
 /**
  * @brief Implementation of realloc for platforms that lack realloc (e.g.

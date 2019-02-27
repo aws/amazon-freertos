@@ -271,7 +271,9 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          size_t xHashLen,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
-                                         int ( *piRng )( void *, unsigned char *, size_t ), /*lint !e955 This parameter is unused. */
+                                         int ( * piRng )( void *,
+                                                          unsigned char *,
+                                                          size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
     BaseType_t xResult = 0;
@@ -616,7 +618,8 @@ BaseType_t TLS_Connect( void * pvContext )
             xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
                                               ( const unsigned char * ) tlsATS1_ROOT_CERTIFICATE_PEM,
                                               tlsATS1_ROOT_CERTIFICATE_LENGTH );
-            if ( 0 == xResult )
+
+            if( 0 == xResult )
             {
                 xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
                                                   ( const unsigned char * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,

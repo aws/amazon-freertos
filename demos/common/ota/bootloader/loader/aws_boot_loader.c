@@ -23,9 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-
-
-
 /**
  * @file aws_boot_loader.c
  * @brief Application loader implementation.
@@ -58,7 +55,7 @@ static const void * pvDefaultExecAddress;
  *
  * @return Returns the new state of bootloader.
  */
-typedef BOOTState_t (* BootStateFunction_t)( void );
+typedef BOOTState_t ( * BootStateFunction_t )( void );
 
 /* Bootloader Initialize. */
 static BOOTState_t prvBOOT_Init( void );
@@ -192,15 +189,17 @@ static BOOTState_t prvBOOT_Init( void )
      * Initialize the crypto library.
      */
     #if ( bootconfigENABLE_CRYPTO_SIGNATURE_VERIFICATION == 1 )
-        if( pdTRUE == BOOT_CRYPTO_Init() )
         {
-            BOOT_LOG_L1( "[%s] Crypto initialized.\r\n", BOOT_METHOD_NAME );
-            xReturnState = eBootStateValidation;
-        }
-        else
-        {
-            BOOT_LOG_L1( "[%s] Crypto initialization failed.\r\n", BOOT_METHOD_NAME );
-            xReturnState = eBootStateError;
+            if( pdTRUE == BOOT_CRYPTO_Init() )
+            {
+                BOOT_LOG_L1( "[%s] Crypto initialized.\r\n", BOOT_METHOD_NAME );
+                xReturnState = eBootStateValidation;
+            }
+            else
+            {
+                BOOT_LOG_L1( "[%s] Crypto initialization failed.\r\n", BOOT_METHOD_NAME );
+                xReturnState = eBootStateError;
+            }
         }
     #else /* if ( bootconfigENABLE_CRYPTO_SIGNATURE_VERIFICATION == 1 ) */
         {
@@ -254,7 +253,7 @@ static BOOTState_t prvBOOT_ValidateImages( void )
                  * The image failed validation so invalidate it by erasing header
                  * and erasing bank if full erase is set in config.
                  */
-                BOOT_LOG_L1( "[%s] Validation failed for image at 0x%08x \r\n", BOOT_METHOD_NAME, xPartitionInfo.paxOTAAppDescriptor[ ucIndex ]);
+                BOOT_LOG_L1( "[%s] Validation failed for image at 0x%08x \r\n", BOOT_METHOD_NAME, xPartitionInfo.paxOTAAppDescriptor[ ucIndex ] );
 
                 if( pdPASS != prvInvalidateImage( xPartitionInfo.paxOTAAppDescriptor[ ucIndex ] ) )
                 {
@@ -331,12 +330,12 @@ static BOOTState_t prvBOOT_ExecuteImage( void )
     xCopyDescriptor = *pxAppDescriptorExec;
     ucImageFlags = pxAppDescriptorExec->xImageHeader.ucImageFlags;
 
-    if( ucImageFlags == ( uint8_t )eBootImageFlagValid )
+    if( ucImageFlags == ( uint8_t ) eBootImageFlagValid )
     {
         /* This is a valid image. */
         xReturn = pdTRUE;
     }
-    else if( ucImageFlags == (uint8_t) eBootImageFlagNew )
+    else if( ucImageFlags == ( uint8_t ) eBootImageFlagNew )
     {
         /* This is the first launch of this image, set the status to commit pending. */
         xCopyDescriptor.xImageHeader.ucImageFlags = eBootImageFlagCommitPending;
@@ -414,7 +413,7 @@ static BOOTState_t prvBOOT_Error( void )
     DEFINE_BOOT_METHOD_NAME( "prvBOOT_Error" );
 
     BOOT_LOG_L1( "[%s] No valid image found.\r\n", BOOT_METHOD_NAME );
-    
+
     /* Nothing to Boot, notify error. */
     BOOT_PAL_NotifyBootError();
 }
@@ -433,13 +432,13 @@ static BaseType_t prvValidateImage( const BOOTImageDescriptor_t * pxAppDescripto
 
     /* Get the image flags.*/
     uint8_t ucImageFlags = pxAppDescriptor->xImageHeader.ucImageFlags;
-    
+
     /* Get Flash bank area. */
-    uint8_t u8FlashAreaID = BOOT_FLASH_GetFlashArea(pxAppDescriptor);
-    
+    uint8_t u8FlashAreaID = BOOT_FLASH_GetFlashArea( pxAppDescriptor );
+
     BOOT_LOG_L1( "\n[%s] Validating image at Bank : %d\r\n",
-                  BOOT_METHOD_NAME,
-                  u8FlashAreaID );
+                 BOOT_METHOD_NAME,
+                 u8FlashAreaID );
 
     /**
      *  Check if valid magic code is present for the application image.
@@ -466,7 +465,7 @@ static BaseType_t prvValidateImage( const BOOTImageDescriptor_t * pxAppDescripto
      */
     if( xReturn == pdTRUE )
     {
-        if( ( ucImageFlags != (uint8_t) eBootImageFlagNew ) && ( ucImageFlags != (uint8_t) eBootImageFlagValid ) )
+        if( ( ucImageFlags != ( uint8_t ) eBootImageFlagNew ) && ( ucImageFlags != ( uint8_t ) eBootImageFlagValid ) )
         {
             /* Image probably failed the validation, can not run this image. */
             BOOT_LOG_L1( "[%s] Invalid image flags: 0x%02x at: 0x%08x\r\n",
@@ -514,17 +513,19 @@ static BaseType_t prvValidateImage( const BOOTImageDescriptor_t * pxAppDescripto
      *  Validate the addresses.
      */
     #if ( bootconfigENABLE_ADDRESS_VALIDATION == 1 )
-        if( xReturn == pdTRUE )
         {
-            if( pdTRUE == BOOT_FLASH_ValidateAddress( pxAppDescriptor ) )
+            if( xReturn == pdTRUE )
             {
-                BOOT_LOG_L1( "[%s] Addresses are valid.\r\n", BOOT_METHOD_NAME );
-                xReturn = pdTRUE;
-            }
-            else
-            {
-                BOOT_LOG_L1( "[%s]  Addresses are not valid.\r\n", BOOT_METHOD_NAME );
-                xReturn = pdFALSE;
+                if( pdTRUE == BOOT_FLASH_ValidateAddress( pxAppDescriptor ) )
+                {
+                    BOOT_LOG_L1( "[%s] Addresses are valid.\r\n", BOOT_METHOD_NAME );
+                    xReturn = pdTRUE;
+                }
+                else
+                {
+                    BOOT_LOG_L1( "[%s]  Addresses are not valid.\r\n", BOOT_METHOD_NAME );
+                    xReturn = pdFALSE;
+                }
             }
         }
     #else /* if ( bootconfigENABLE_ADDRESS_VALIDATION == 1 ) */
@@ -537,38 +538,40 @@ static BaseType_t prvValidateImage( const BOOTImageDescriptor_t * pxAppDescripto
      * Verify the crypto signature of application image.
      */
     #if ( bootconfigENABLE_CRYPTO_SIGNATURE_VERIFICATION == 1 )
-        if( xReturn == pdTRUE )
         {
-            /* Start address of the application image after header. */
-            pucStartAddress = ( uint8_t * ) pxAppDescriptor;
-            pucStartAddress = pucStartAddress + sizeof( BOOTImageHeader_t );
-
-            /* Size of the application. */
-            ulSizeApp = pxAppDescriptor->pvEndAddress - pxAppDescriptor->pvStartAddress;
-
-            /* Application trailer. */
-            pucTrailerAddress = pucStartAddress + ulSizeApp;
-            
-            /* Align it to BOOT_QUAD_WORD_SIZE. */
-            if ( ( (uint32_t) pucTrailerAddress % BOOT_QUAD_WORD_SIZE) != 0)
+            if( xReturn == pdTRUE )
             {
-                pucTrailerAddress += BOOT_QUAD_WORD_SIZE - ( (uint32_t)pucTrailerAddress % BOOT_QUAD_WORD_SIZE );
-            }
+                /* Start address of the application image after header. */
+                pucStartAddress = ( uint8_t * ) pxAppDescriptor;
+                pucStartAddress = pucStartAddress + sizeof( BOOTImageHeader_t );
 
-            pxImgTrailer = ( BOOTImageTrailer_t * ) pucTrailerAddress;
+                /* Size of the application. */
+                ulSizeApp = pxAppDescriptor->pvEndAddress - pxAppDescriptor->pvStartAddress;
 
-            if( pdTRUE == BOOT_CRYPTO_Verify( pucStartAddress,
-                                              ulSizeApp,
-                                              pxImgTrailer->aucSignature,
-                                              pxImgTrailer->ulSignatureSize ) )
-            {
-                BOOT_LOG_L1( "[%s] Crypto signature is valid.\r\n", BOOT_METHOD_NAME );
-                xReturn = pdTRUE;
-            }
-            else
-            {
-                BOOT_LOG_L1( "[%s] Crypto signature is not valid.\r\n", BOOT_METHOD_NAME );
-                xReturn = pdFALSE;
+                /* Application trailer. */
+                pucTrailerAddress = pucStartAddress + ulSizeApp;
+
+                /* Align it to BOOT_QUAD_WORD_SIZE. */
+                if( ( ( uint32_t ) pucTrailerAddress % BOOT_QUAD_WORD_SIZE ) != 0 )
+                {
+                    pucTrailerAddress += BOOT_QUAD_WORD_SIZE - ( ( uint32_t ) pucTrailerAddress % BOOT_QUAD_WORD_SIZE );
+                }
+
+                pxImgTrailer = ( BOOTImageTrailer_t * ) pucTrailerAddress;
+
+                if( pdTRUE == BOOT_CRYPTO_Verify( pucStartAddress,
+                                                  ulSizeApp,
+                                                  pxImgTrailer->aucSignature,
+                                                  pxImgTrailer->ulSignatureSize ) )
+                {
+                    BOOT_LOG_L1( "[%s] Crypto signature is valid.\r\n", BOOT_METHOD_NAME );
+                    xReturn = pdTRUE;
+                }
+                else
+                {
+                    BOOT_LOG_L1( "[%s] Crypto signature is not valid.\r\n", BOOT_METHOD_NAME );
+                    xReturn = pdFALSE;
+                }
             }
         }
     #else /* if ( bootconfigENABLE_CRYPTO_SIGNATURE_VERIFICATION == 1 ) */
@@ -587,7 +590,7 @@ static BaseType_t prvInvalidateImage( const BOOTImageDescriptor_t * pxAppDescrip
     DEFINE_BOOT_METHOD_NAME( "prvInvalidateImage" );
 
     BaseType_t xReturn = pdFALSE;
-    
+
     /* Erase the header first. */
     xReturn = BOOT_FLASH_EraseHeader( pxAppDescriptor );
 
