@@ -729,8 +729,8 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         				( void ) IotMqtt_ReceiveCallback( pService->connection.pMqttConnection,
         						                &pService->connection,
         						                pService->connection.pRecvBuffer,
-        										0,
 												pService->connection.recvOffset,
+        										0,
         										vPortFree );
 
         				pService->connection.pRecvBuffer = NULL;
@@ -785,8 +785,8 @@ void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         		( void ) IotMqtt_ReceiveCallback( pService->connection.pMqttConnection,
         				 &pService->connection,
         				( const void * ) pWriteParam->pValue,
-						0,
 						pWriteParam->length,
+						0,
 						NULL );
         		resp.eventStatus = eBTStatusSuccess;
         }
