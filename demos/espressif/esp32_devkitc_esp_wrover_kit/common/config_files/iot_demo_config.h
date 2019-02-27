@@ -30,10 +30,11 @@
 /* MQTT demo configuration. */
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
 #define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
+#define IOT_DEMO_MQTT_RESPONSE_WAIT_MS           (10000)
 
 /* Global logging configuration. */
 #define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
-#define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO
+#define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_DEBUG
 
 /* Uncomment one of these definitions to override the log level configuration for
  * a specific library. */
