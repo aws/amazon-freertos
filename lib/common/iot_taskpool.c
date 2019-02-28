@@ -241,7 +241,7 @@ static IotTaskPoolError_t _trySafeExtraction( IotTaskPool_t * const pTaskPool,
 /** @endcond */
 
 /* ---------------------------------------------------------------------------------------------- */
-int test;
+
 IotTaskPool_t * IotTaskPool_GetSystemTaskPool()
 {
     return &_IotSystemTaskPool;
@@ -1019,7 +1019,6 @@ static void _taskPoolWorker( void * pUserContext )
             /* If there is indeed a job, then update status under lock, and release the lock before processing the job. */
             if( pFirst != NULL )
             {
-                test--;
                 /* Extract the job from its link. */
                 pJob = IotLink_Container( IotTaskPoolJob_t, pFirst, link );
 
@@ -1070,7 +1069,6 @@ static void _taskPoolWorker( void * pUserContext )
                 }
                 else
                 {
-                    test--;
                     pJob = IotLink_Container( IotTaskPoolJob_t, pItem, link );
                 }
 
@@ -1289,9 +1287,6 @@ static IotTaskPoolError_t _scheduleInternal( IotTaskPool_t * const pTaskPool,
     {
         /* Append the job to the dispatch queue. */
         IotQueue_Enqueue( &pTaskPool->dispatchQueue, &pJob->link );
-        test++;
-        configPRINTF(("TaskPool queue size: %lu, test %d\r\n", IotListDouble_Count( &(pTaskPool->dispatchQueue)), test));
-
         /* Signal a worker to pick up the job. */
         IotSemaphore_Post( &pTaskPool->dispatchSignal );
     }
