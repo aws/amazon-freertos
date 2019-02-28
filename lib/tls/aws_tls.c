@@ -180,7 +180,7 @@ static int prvGenerateRandomBytes( void * pvCtx,
                                    size_t xRandomLength )
 {
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
-    CK_RV xResult;
+    BaseType_t xResult;
 
     xResult = pxCtx->xP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
 
@@ -280,7 +280,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          size_t xHashLen,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
-                                         int ( * piRng )( void *,
+                                         int ( *piRng )( void *,
                                                          unsigned char *,
                                                          size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
