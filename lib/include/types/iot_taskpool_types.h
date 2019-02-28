@@ -353,6 +353,14 @@ typedef struct IotTaskPoolJob
 /* @[define_taskpool_initializers] */
 
 /**
+* @brief Schedules a job to execute immediately.
+*
+* @warning This flag may cause the task pool to create a worker to serve the job immediately, and
+* therefore using this flag may incur in additinal memory usage.
+*/
+#define IOT_TASKPOOL_JOB_HIGH_PRIORITY    0x00000001
+
+/**
  * @brief Allows the use of the handle to the system task pool.
  *
  * @warning The task pool handle is not valid unless @ref taskpool_function_createsystemtaskpool is

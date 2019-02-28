@@ -439,7 +439,7 @@ static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t 
         	pxTask->xNewtorkEvent = xNetworkEvent;
         	pxTask->pvUserContext = pxTask;
 
-            xError = IotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxTask->xJob );
+            xError = IotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxTask->xJob, 0 );
             break;
         }
     }

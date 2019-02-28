@@ -87,7 +87,7 @@
  * This function does not allocate memory to hold the task pool data structures and state, but it
  * may allocate memory to hold the dependent entities and data structures, e.g. the threads of the task
  * pool. The system task pool handle is recoverable for later use by calling (@ref taskpool_function_getsystemtaskpool) or
- * the shortcut @ref IOT_SYSTEM_TASKPOOL.
+ * the shortcut @ref IOT_TASKPOOL_SYSTEM_TASKPOOL.
  *
  * @param[in] pInfo A pointer to the task pool initialization data.
  *
@@ -108,7 +108,7 @@ IotTaskPoolError_t IotTaskPool_CreateSystemTaskPool( const IotTaskPoolInfo_t * c
  * @brief Retrieves the one and only instance of a system task pool
  *
  * This function retrieves the sytem task pool created with (@ref taskpool_function_createsystemtaskpool), and it is functionally
- * equivalent to using the shortcut @ref IOT_SYSTEM_TASKPOOL.
+ * equivalent to using the shortcut @ref AWS_IOT_TASKPOOL_SYSTEM_TASKPOOL.
  *
  * @return The system task pool handle.
  *
@@ -187,7 +187,7 @@ IotTaskPoolError_t IotTaskPool_Destroy( IotTaskPool_t * pTaskPool );
  * @return One of the following:
  * - #IOT_TASKPOOL_SUCCESS
  * - #IOT_TASKPOOL_BAD_PARAMETER
- * - #IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS
+ * - #AWS_IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS
  *
  */
 /* @[declare_taskpool_setmaxthreads] */
@@ -227,14 +227,14 @@ IotTaskPoolError_t IotTaskPool_CreateJob( const IotTaskPoolRoutine_t userCallbac
  * @param[in] pTaskPool A handle to the task pool for which to create a recyclable job.
  * @param[in] userCallback A user-specified callback for the job.
  * @param[in] pUserContext A user-specified context for the callback.
- * @param[out] ppJob A pointer to an instance of @ref IotTaskPoolJob_t that will be initialized when this
+ * @param[out] ppJob A pointer to an instance of @ref AwsIotTaskPoolJob_t that will be initialized when this
  * function returns succesfully. This handle can be used to inspect the job status with
  * @ref IotTaskPool_GetStatus or cancel the job with @ref IotTaskPool_TryCancel, etc....
  *
  * @return One of the following:
  * - #IOT_TASKPOOL_SUCCESS
- * - #IOT_TASKPOOL_BAD_PARAMETER
- * - #IOT_TASKPOOL_NO_MEMORY
+ * - #AWS_IOT_TASKPOOL_BAD_PARAMETER
+ * - #AWS_IOT_TASKPOOL_NO_MEMORY
  * - #IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS
  *
  * @note This function will not allocate memory.
@@ -252,7 +252,7 @@ IotTaskPoolError_t IotTaskPool_CreateRecyclableJob( IotTaskPool_t * const pTaskP
 /**
  * @brief This function uninitializes a job.
  *
- * This function will destroy a job created with @ref IotTaskPool_CreateJob or @ref AwsIotTaskPool_CreateRecyclableJob.
+ * This function will destroy a job created with @ref AwsIotTaskPool_CreateJob or @ref AwsIotTaskPool_CreateRecyclableJob.
  * A job should not be destroyed twice. A job that was previously scheduled but has not completed yet should not be destroyed,
  * but rather the application should attempt to cancel it first by calling @ref AwsIotTaskPool_TryCancel.
  * An attempt to destroy a job that was scheduled but not yet executed or canceled, may result in a
@@ -321,6 +321,7 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  * @param[in] pTaskPool A handle to the task pool that must have been previously initialized with.
  * a call to @ref taskpool_function_create.
  * @param[in] pJob A job to schedule for execution. This must be first initialized with a call to @ref taskpool_function_createjob.
+ * @param[in] flags Flags to be passed by the user, e.g. to identify the job as high priority by specifying #IOT_TASKPOOL_JOB_HIGH_PRIORITY.
  *
  * @return One of the following:
  * - #IOT_TASKPOOL_SUCCESS
@@ -401,7 +402,8 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  */
 /* @[declare_taskpool_schedule] */
 IotTaskPoolError_t IotTaskPool_Schedule( IotTaskPool_t * const pTaskPool,
-                                         IotTaskPoolJob_t * const pJob );
+                                         IotTaskPoolJob_t * const pJob,
+                                         uint32_t flags );
 /* @[declare_taskpool_schedule] */
 
 /**
