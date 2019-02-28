@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V10.1.1
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V10.2.0
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -64,22 +64,23 @@ defining trmTIMER_SERVICE_TASK_NAME in FreeRTOSConfig.h. */
 	#define configTIMER_SERVICE_TASK_NAME "Tmr Svc"
 #endif
 
+/* Bit definitions used in the ucStatus member of a timer structure. */
+#define tmrSTATUS_IS_ACTIVE					( ( uint8_t ) 0x01 )
+#define tmrSTATUS_IS_STATICALLY_ALLOCATED	( ( uint8_t ) 0x02 )
+#define tmrSTATUS_IS_AUTORELOAD				( ( uint8_t ) 0x04 )
+
 /* The definition of the timers themselves. */
 typedef struct tmrTimerControl /* The old naming convention is used to prevent breaking kernel aware debuggers. */
 {
 	const char				*pcTimerName;		/*<< Text name.  This is not used by the kernel, it is included simply to make debugging easier. */ /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
 	ListItem_t				xTimerListItem;		/*<< Standard linked list item as used by all kernel features for event management. */
 	TickType_t				xTimerPeriodInTicks;/*<< How quickly and often the timer expires. */
-	UBaseType_t				uxAutoReload;		/*<< Set to pdTRUE if the timer should be automatically restarted once expired.  Set to pdFALSE if the timer is, in effect, a one-shot timer. */
 	void 					*pvTimerID;			/*<< An ID to identify the timer.  This allows the timer to be identified when the same callback is used for multiple timers. */
 	TimerCallbackFunction_t	pxCallbackFunction;	/*<< The function that will be called when the timer expires. */
 	#if( configUSE_TRACE_FACILITY == 1 )
 		UBaseType_t			uxTimerNumber;		/*<< An ID assigned by trace tools such as FreeRTOS+Trace */
 	#endif
-
-	#if( ( configSUPPORT_STATIC_ALLOCATION == 1 ) && ( configSUPPORT_DYNAMIC_ALLOCATION == 1 ) )
-		uint8_t 			ucStaticallyAllocated; /*<< Set to pdTRUE if the timer was created statically so no attempt is made to free the memory again if the timer is later deleted. */
-	#endif
+	uint8_t 				ucStatus;			/*<< Holds bits to say if the timer was statically allocated or not, and if it is active or not. */
 } xTIMER;
 
 /* The old xTIMER name is maintained above then typedefed to the new Timer_t
@@ -127,7 +128,7 @@ which static variables must be declared volatile. */
 
 /* The list in which active timers are stored.  Timers are referenced in expire
 time order, with the nearest expiry time at the front of the list.  Only the
-timer service task is allowed to access these lists. 
+timer service task is allowed to access these lists.
 xActiveTimerList1 and xActiveTimerList2 could be at function scope but that
 breaks some kernel aware debuggers, and debuggers that reply on removing the
 static qualifier. */
@@ -165,7 +166,7 @@ static void prvCheckForValidListAndQueue( void ) PRIVILEGED_FUNCTION;
  * task.  Other tasks communicate with the timer service task using the
  * xTimerQueue queue.
  */
-static void prvTimerTask( void *pvParameters ) PRIVILEGED_FUNCTION;
+static portTASK_FUNCTION_PROTO( prvTimerTask, pvParameters ) PRIVILEGED_FUNCTION;
 
 /*
  * Called by the timer service task to interpret and process a command it
@@ -290,22 +291,17 @@ BaseType_t xReturn = pdFAIL;
 
 		if( pxNewTimer != NULL )
 		{
+			/* Status is thus far zero as the timer is not created statically
+			and has not been started.  The autoreload bit may get set in
+			prvInitialiseNewTimer. */
+			pxNewTimer->ucStatus = 0x00;
 			prvInitialiseNewTimer( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction, pxNewTimer );
-
-			#if( configSUPPORT_STATIC_ALLOCATION == 1 )
-			{
-				/* Timers can be created statically or dynamically, so note this
-				timer was created dynamically in case the timer is later
-				deleted. */
-				pxNewTimer->ucStaticallyAllocated = pdFALSE;
-			}
-			#endif /* configSUPPORT_STATIC_ALLOCATION */
 		}
 
 		return pxNewTimer;
 	}
 
-#endif /* configSUPPORT_STATIC_ALLOCATION */
+#endif /* configSUPPORT_DYNAMIC_ALLOCATION */
 /*-----------------------------------------------------------*/
 
 #if( configSUPPORT_STATIC_ALLOCATION == 1 )
@@ -336,15 +332,12 @@ BaseType_t xReturn = pdFAIL;
 
 		if( pxNewTimer != NULL )
 		{
-			prvInitialiseNewTimer( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction, pxNewTimer );
+			/* Timers can be created statically or dynamically so note this
+			timer was created statically in case it is later deleted.  The
+			autoreload bit may get set in prvInitialiseNewTimer(). */
+			pxNewTimer->ucStatus = tmrSTATUS_IS_STATICALLY_ALLOCATED;
 
-			#if( configSUPPORT_DYNAMIC_ALLOCATION == 1 )
-			{
-				/* Timers can be created statically or dynamically so note this
-				timer was created statically in case it is later deleted. */
-				pxNewTimer->ucStaticallyAllocated = pdTRUE;
-			}
-			#endif /* configSUPPORT_DYNAMIC_ALLOCATION */
+			prvInitialiseNewTimer( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction, pxNewTimer );
 		}
 
 		return pxNewTimer;
@@ -373,10 +366,13 @@ static void prvInitialiseNewTimer(	const char * const pcTimerName,			/*lint !e97
 		parameters. */
 		pxNewTimer->pcTimerName = pcTimerName;
 		pxNewTimer->xTimerPeriodInTicks = xTimerPeriodInTicks;
-		pxNewTimer->uxAutoReload = uxAutoReload;
 		pxNewTimer->pvTimerID = pvTimerID;
 		pxNewTimer->pxCallbackFunction = pxCallbackFunction;
 		vListInitialiseItem( &( pxNewTimer->xTimerListItem ) );
+		if( uxAutoReload != pdFALSE )
+		{
+			pxNewTimer->ucStatus |= tmrSTATUS_IS_AUTORELOAD;
+		}
 		traceTIMER_CREATE( pxNewTimer );
 	}
 }
@@ -443,6 +439,26 @@ Timer_t *pxTimer = xTimer;
 }
 /*-----------------------------------------------------------*/
 
+void vTimerSetReloadMode( TimerHandle_t xTimer, const UBaseType_t uxAutoReload )
+{
+Timer_t * pxTimer =  xTimer;
+
+	configASSERT( xTimer );
+	taskENTER_CRITICAL();
+	{
+		if( uxAutoReload != pdFALSE )
+		{
+			pxTimer->ucStatus |= tmrSTATUS_IS_AUTORELOAD;
+		}
+		else
+		{
+			pxTimer->ucStatus &= ~tmrSTATUS_IS_AUTORELOAD;
+		}
+	}
+	taskEXIT_CRITICAL();
+}
+/*-----------------------------------------------------------*/
+
 TickType_t xTimerGetExpiryTime( TimerHandle_t xTimer )
 {
 Timer_t * pxTimer =  xTimer;
@@ -475,7 +491,7 @@ Timer_t * const pxTimer = ( Timer_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxCurrentTi
 
 	/* If the timer is an auto reload timer then calculate the next
 	expiry time and re-insert the timer in the list of active timers. */
-	if( pxTimer->uxAutoReload == ( UBaseType_t ) pdTRUE )
+	if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) != 0 )
 	{
 		/* The timer is inserted into a list using a time relative to anything
 		other than the current time.  It will therefore be inserted into the
@@ -495,6 +511,7 @@ Timer_t * const pxTimer = ( Timer_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxCurrentTi
 	}
 	else
 	{
+		pxTimer->ucStatus &= ~tmrSTATUS_IS_ACTIVE;
 		mtCOVERAGE_TEST_MARKER();
 	}
 
@@ -503,7 +520,7 @@ Timer_t * const pxTimer = ( Timer_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxCurrentTi
 }
 /*-----------------------------------------------------------*/
 
-static void prvTimerTask( void *pvParameters )
+static portTASK_FUNCTION( prvTimerTask, pvParameters )
 {
 TickType_t xNextExpireTime;
 BaseType_t xListWasEmpty;
@@ -751,11 +768,12 @@ TickType_t xTimeNow;
 			switch( xMessage.xMessageID )
 			{
 				case tmrCOMMAND_START :
-			    case tmrCOMMAND_START_FROM_ISR :
-			    case tmrCOMMAND_RESET :
-			    case tmrCOMMAND_RESET_FROM_ISR :
+				case tmrCOMMAND_START_FROM_ISR :
+				case tmrCOMMAND_RESET :
+				case tmrCOMMAND_RESET_FROM_ISR :
 				case tmrCOMMAND_START_DONT_TRACE :
 					/* Start or restart a timer. */
+					pxTimer->ucStatus |= tmrSTATUS_IS_ACTIVE;
 					if( prvInsertTimerInActiveList( pxTimer,  xMessage.u.xTimerParameters.xMessageValue + pxTimer->xTimerPeriodInTicks, xTimeNow, xMessage.u.xTimerParameters.xMessageValue ) != pdFALSE )
 					{
 						/* The timer expired before it was added to the active
@@ -763,7 +781,7 @@ TickType_t xTimeNow;
 						pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer );
 						traceTIMER_EXPIRED( pxTimer );
 
-						if( pxTimer->uxAutoReload == ( UBaseType_t ) pdTRUE )
+						if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) != 0 )
 						{
 							xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND_START_DONT_TRACE, xMessage.u.xTimerParameters.xMessageValue + pxTimer->xTimerPeriodInTicks, NULL, tmrNO_DELAY );
 							configASSERT( xResult );
@@ -782,12 +800,13 @@ TickType_t xTimeNow;
 
 				case tmrCOMMAND_STOP :
 				case tmrCOMMAND_STOP_FROM_ISR :
-					/* The timer has already been removed from the active list.
-					There is nothing to do here. */
+					/* The timer has already been removed from the active list. */
+					pxTimer->ucStatus &= ~tmrSTATUS_IS_ACTIVE;
 					break;
 
 				case tmrCOMMAND_CHANGE_PERIOD :
 				case tmrCOMMAND_CHANGE_PERIOD_FROM_ISR :
+					pxTimer->ucStatus |= tmrSTATUS_IS_ACTIVE;
 					pxTimer->xTimerPeriodInTicks = xMessage.u.xTimerParameters.xMessageValue;
 					configASSERT( ( pxTimer->xTimerPeriodInTicks > 0 ) );
 
@@ -801,28 +820,27 @@ TickType_t xTimeNow;
 					break;
 
 				case tmrCOMMAND_DELETE :
-					/* The timer has already been removed from the active list,
-					just free up the memory if the memory was dynamically
-					allocated. */
-					#if( ( configSUPPORT_DYNAMIC_ALLOCATION == 1 ) && ( configSUPPORT_STATIC_ALLOCATION == 0 ) )
+					#if ( configSUPPORT_DYNAMIC_ALLOCATION == 1 )
 					{
-						/* The timer can only have been allocated dynamically -
-						free it again. */
-						vPortFree( pxTimer );
-					}
-					#elif( ( configSUPPORT_DYNAMIC_ALLOCATION == 1 ) && ( configSUPPORT_STATIC_ALLOCATION == 1 ) )
-					{
-						/* The timer could have been allocated statically or
-						dynamically, so check before attempting to free the
-						memory. */
-						if( pxTimer->ucStaticallyAllocated == ( uint8_t ) pdFALSE )
+						/* The timer has already been removed from the active list,
+						just free up the memory if the memory was dynamically
+						allocated. */
+						if( ( pxTimer->ucStatus & tmrSTATUS_IS_STATICALLY_ALLOCATED ) == ( uint8_t ) 0 )
 						{
 							vPortFree( pxTimer );
 						}
 						else
 						{
-							mtCOVERAGE_TEST_MARKER();
+							pxTimer->ucStatus &= ~tmrSTATUS_IS_ACTIVE;
 						}
+					}
+					#else
+					{
+						/* If dynamic allocation is not enabled, the memory
+						could not have been dynamically allocated. So there is
+						no need to free the memory - just mark the timer as
+						"not active". */
+						pxTimer->ucStatus &= ~tmrSTATUS_IS_ACTIVE;
 					}
 					#endif /* configSUPPORT_DYNAMIC_ALLOCATION */
 					break;
@@ -861,7 +879,7 @@ BaseType_t xResult;
 		have not yet been switched. */
 		pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer );
 
-		if( pxTimer->uxAutoReload == ( UBaseType_t ) pdTRUE )
+		if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) != 0 )
 		{
 			/* Calculate the reload value, and if the reload value results in
 			the timer going into the same timer list then it has already expired
@@ -948,7 +966,7 @@ static void prvCheckForValidListAndQueue( void )
 
 BaseType_t xTimerIsTimerActive( TimerHandle_t xTimer )
 {
-BaseType_t xTimerIsInActiveList;
+BaseType_t xReturn;
 Timer_t *pxTimer = xTimer;
 
 	configASSERT( xTimer );
@@ -956,21 +974,18 @@ Timer_t *pxTimer = xTimer;
 	/* Is the timer in the list of active timers? */
 	taskENTER_CRITICAL();
 	{
-		/* Checking to see if it is in the NULL list in effect checks to see if
-		it is referenced from either the current or the overflow timer lists in
-		one go, but the logic has to be reversed, hence the '!'. */
-		if( listIS_CONTAINED_WITHIN( NULL, &( pxTimer->xTimerListItem ) ) == pdTRUE )
+		if( ( pxTimer->ucStatus & tmrSTATUS_IS_ACTIVE ) == 0 )
 		{
-			xTimerIsInActiveList = pdFALSE;
+			xReturn = pdFALSE;
 		}
 		else
 		{
-			xTimerIsInActiveList = pdTRUE;
+			xReturn = pdTRUE;
 		}
 	}
 	taskEXIT_CRITICAL();
 
-	return xTimerIsInActiveList;
+	return xReturn;
 } /*lint !e818 Can't be pointer to const due to the typedef. */
 /*-----------------------------------------------------------*/
 
