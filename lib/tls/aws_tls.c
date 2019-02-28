@@ -180,8 +180,17 @@ static int prvGenerateRandomBytes( void * pvCtx,
                                    size_t xRandomLength )
 {
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
+    CK_RV xResult;
 
-    return ( int ) pxCtx->xP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
+    xResult = pxCtx->xP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
+
+    if( xResult != 0 )
+    {
+        TLS_PRINT( ( "ERROR: Failed to generate random bytes %d \r\n", xResult ) );
+        xResult = TLS_ERROR_RNG;
+    }
+
+    return xResult;
 }
 
 /**
@@ -272,8 +281,8 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
                                          int ( * piRng )( void *,
-                                                          unsigned char *,
-                                                          size_t ), /*lint !e955 This parameter is unused. */
+                                                         unsigned char *,
+                                                         size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
     BaseType_t xResult = 0;
@@ -303,7 +312,8 @@ static int prvPrivateKeySigningCallback( void * pvContext,
 
     if( xResult != 0 )
     {
-        configPRINTF( ( "Failure in signing callback: %d \r\n", xResult ) );
+        TLS_PRINT( ( "ERROR: Failure in signing callback: %d \r\n", xResult ) );
+        xResult = TLS_ERROR_SIGN;
     }
 
     return xResult;
@@ -503,6 +513,11 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     if( NULL != pxCertificate )
     {
         vPortFree( pxCertificate );
+    }
+
+    if( CKR_OK != xResult )
+    {
+        TLS_PRINT( ( "ERROR: Loading credentials from flash into TLS context failed with error %d.\r\n", xResult ) );
     }
 
     return xResult;
@@ -721,6 +736,12 @@ BaseType_t TLS_Connect( void * pvContext )
     if( 0 == xResult )
     {
         pxCtx->xTLSHandshakeSuccessful = pdTRUE;
+    }
+    else if( xResult > 0 )
+    {
+        TLS_PRINT( ( "ERROR: TLS_Connect failed with error code %d \r\n", xResult ) );
+        /* Convert PKCS #11 failures to a negative error code. */
+        xResult = TLS_ERROR_HANDSHAKE_FAILED;
     }
 
     /* Free up allocated memory. */
