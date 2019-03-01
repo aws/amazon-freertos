@@ -32,6 +32,20 @@
 #endif
 
 /**
+ * @defgroup TlsErrors TLS Error Codes
+ * @brief Error codes returned by the TLS API.
+ *
+ * Note that TLS API may also propagate port-specific
+ * error codes, or codes from mbedTLS.
+ */
+/**@{ */
+#define TLS_ERROR_HANDSHAKE_FAILED    ( -2001 )   /*!< Error in handshake. */
+#define TLS_ERROR_RNG                 ( -2002 )   /*!< Error in RNG. */
+#define TLS_ERROR_SIGN                ( -2003 )   /*!< Error in sign operation. */
+
+/**@} */
+
+/**
  * @brief Defines callback type for receiving bytes from the network.
  *
  * @param[in] pvCallerContext Opaque context handle provided by caller.
