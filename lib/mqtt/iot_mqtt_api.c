@@ -756,20 +756,7 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
 IotMqttError_t IotMqtt_Init( void )
 {
     _IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
-    bool taskPoolCreated = false, connectMutexCreated = false;
-    const IotTaskPoolInfo_t taskPoolInfo = IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;
-
-    /* Create MQTT library task pool. */
-    if( IotTaskPool_Create( &taskPoolInfo, IOT_SYSTEM_TASKPOOL ) != IOT_TASKPOOL_SUCCESS )
-    {
-        IotLogError( "Failed to initialize MQTT library task pool." );
-
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_INIT_FAILED );
-    }
-    else
-    {
-        taskPoolCreated = true;
-    }
+    bool connectMutexCreated = false;
 
     /* Create CONNECT mutex. */
     connectMutexCreated = IotMutex_Create( &( _connectMutex ), false );
@@ -804,15 +791,6 @@ IotMqttError_t IotMqtt_Init( void )
 
     if( status != IOT_MQTT_SUCCESS )
     {
-        if( taskPoolCreated == true )
-        {
-            IotTaskPool_Destroy( IOT_SYSTEM_TASKPOOL );
-        }
-        else
-        {
-            _EMPTY_ELSE_MARKER;
-        }
-
         if( connectMutexCreated == true )
         {
             IotMutex_Destroy( &( _connectMutex ) );
@@ -834,9 +812,6 @@ IotMqttError_t IotMqtt_Init( void )
 
 void IotMqtt_Cleanup()
 {
-    /* Clean up MQTT library task pool. */
-    IotTaskPool_Destroy( IOT_SYSTEM_TASKPOOL );
-
     /* Clean up MQTT serializer. */
     _IotMqtt_CleanupSerialize();
 

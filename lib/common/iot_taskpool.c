@@ -968,6 +968,7 @@ static void _taskPoolWorker( void * pUserContext )
     /* Extract pTaskPool pointer from context. */
     IotTaskPool_Assert( pUserContext != NULL );
     IotTaskPool_t * pTaskPool = ( IotTaskPool_t * ) pUserContext;
+    bool shouldExit = false;
 
     /* Signal that this worker completed initialization and it is ready to receive notifications. */
     IotSemaphore_Post( &pTaskPool->startStopSignal );
@@ -980,7 +981,6 @@ static void _taskPoolWorker( void * pUserContext )
     {
         IotLink_t * pFirst = NULL;
         IotTaskPoolJob_t * pJob = NULL;
-        bool shouldExit = false;
 
         /* Wait on incoming notifications... */
         IotSemaphore_Wait( &pTaskPool->dispatchSignal );
@@ -1079,15 +1079,25 @@ static void _taskPoolWorker( void * pUserContext )
         }
 
         /* We  check whether this thread needs to exit or not at the end of the outer loop, so
-         * we can support the case for scheduling 'high prioroty' jobs that exceed the
+         * we can support the case for scheduling 'high priority' jobs that exceed the
          * max threads quota. */
         _TASKPOOL_ENTER_CRITICAL_SECTION;
         {
             if( pTaskPool->activeThreads > pTaskPool->maxThreads )
             {
-                shouldExit = true;
-
                 IotLogDebug( "Worker thread exiting because maximum quota was exceeded." );
+
+				/* Decrease the number of active threads. */
+				pTaskPool->activeThreads--;
+
+				_TASKPOOL_EXIT_CRITICAL_SECTION;
+
+				/* Signal that this worker is exiting. */
+				IotSemaphore_Post( &pTaskPool->startStopSignal );
+
+				/* Abandon the OUTER LOOP. */
+				break;
+
             }
         }
         _TASKPOOL_EXIT_CRITICAL_SECTION;
