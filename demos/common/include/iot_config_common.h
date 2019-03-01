@@ -138,7 +138,7 @@
 
 /* Priority of network receive task. */
 #ifndef IOT_NETWORK_RECEIVE_TASK_PRIORITY
-    #define IOT_NETWORK_RECEIVE_TASK_PRIORITY    ( tskIDLE_PRIORITY )
+    #define IOT_NETWORK_RECEIVE_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 #endif
 
 /* Stack size of the network receive task. */
