@@ -213,7 +213,7 @@ void vOtaTask( void * pvParameters );
  *
  * @param pvContext The handle for the connection to the network.
  */
-static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext );
+static IotNetworkError_t prvMQTTDisconnectCallback( void* pvContext );
 
 /* Declaration of snprintf. The header stdio.h is not included because it
  * includes conflicting symbols on some platforms. */
@@ -236,7 +236,7 @@ static MqttConnectionContext_t xConnection =
      .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
      .xNetworkInterface   = IOT_MQTT_NETIF_INITIALIZER,
      .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
-     .xDisconnectCallback = prvNetworkDisconnectCallback
+     .xDisconnectCallback = prvMQTTDisconnectCallback
 };
 
 /**
@@ -755,7 +755,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
     }
 }
 
-static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext )
+static IotNetworkError_t prvMQTTDisconnectCallback( void* pvContext )
 {
     ( void ) pvContext;
     xNetworkConnected = pdFALSE;
@@ -827,7 +827,6 @@ void vMqttPubTask( void * pvParam  )
                         {
                             IotLogInfo( "vMqttPubTask: publish TIMEOUT error\n");
                             vTaskDelay( xPublishRetryDelay );
-                            publishRetries--;
                         }
                         else if( ( xMqttStatus == IOT_MQTT_NO_MEMORY ) || ( xMqttStatus == IOT_MQTT_BAD_PARAMETER ) )
                         {

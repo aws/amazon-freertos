@@ -526,7 +526,7 @@ uint16_t smp_get_auth_mode (tSMP_ASSO_MODEL model)
         auth = 0;
     }
     return auth;
-}
+} 
 
 /*******************************************************************************
 ** Function     smp_proc_pair_cmd
@@ -735,7 +735,7 @@ void smp_process_pairing_public_key(tSMP_CB *p_cb, tSMP_INT_DATA *p_data)
 
     STREAM_TO_ARRAY(p_cb->peer_publ_key.x, p, BT_OCTET32_LEN);
     STREAM_TO_ARRAY(p_cb->peer_publ_key.y, p, BT_OCTET32_LEN);
-    /* In order to prevent the x and y coordinates of the public key from being modified,
+    /* In order to prevent the x and y coordinates of the public key from being modified, 
        we need to check whether the x and y coordinates are on the given elliptic curve. */
     if (!ECC_CheckPointIsInElliCur_P256((Point *)&p_cb->peer_publ_key)) {
         SMP_TRACE_ERROR("%s, Invalid Public key.", __func__);
@@ -1935,10 +1935,10 @@ void smp_link_encrypted(BD_ADDR bda, UINT8 encr_enable)
         }
 
         smp_sm_event(&smp_cb, SMP_ENCRYPTED_EVT, &encr_enable);
-    }
-    else if(p_dev_rec && !p_dev_rec->enc_init_by_we){
+    } 
+    else if(p_dev_rec && !p_dev_rec->enc_init_by_we){ 
 
-        /*
+        /* 
         if enc_init_by_we is false, it means that client initiates encryption before slave calls esp_ble_set_encryption()
         we need initiate pairing_bda and p_cb->role then encryption, for example iPhones
         */

@@ -19,7 +19,6 @@ extern "C" {
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
-#include "rom/queue.h"
 #include "sdkconfig.h"
 
 #define _POSIX_TIMEOUTS     // For pthread_mutex_timedlock
@@ -34,23 +33,7 @@ extern "C" {
         .sem  = NULL,                                 \
         .type = PTHREAD_MUTEX_NORMAL                  \
     }))
-
-#define PTHREAD_COND_INITIALIZER                     \
-    ((pthread_cond_t) &((esp_pthread_cond_t) { \
-        .lock  = 0,                               \
-    }))
-
 #endif
-
-typedef struct esp_pthread_cond_waiter {
-    SemaphoreHandle_t   wait_sem;           ///< task specific semaphore to wait on
-    TAILQ_ENTRY(esp_pthread_cond_waiter) link;  ///< stash on the list of semaphores to be notified
-} esp_pthread_cond_waiter_t;
-
-typedef struct esp_pthread_cond {
-    _lock_t lock;                      ///< lock that protects the list of semaphores
-    TAILQ_HEAD(, esp_pthread_cond_waiter) waiter_list;  ///< head of the list of semaphores
-} esp_pthread_cond_t;
 
 /** pthread mutex FreeRTOS wrapper */
 typedef struct {
