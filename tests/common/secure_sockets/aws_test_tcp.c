@@ -1538,7 +1538,7 @@ static void prvTestSOCKETS_Recv_ByteByByte( Server_t xConn )
     }
 
     /* Close this socket before looping back to create another. */
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Failed received\r\n" );
+    TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Failed received" );
     xResult = prvShutdownHelper( xSocket );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to shutdown" );
 
