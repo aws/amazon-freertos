@@ -52,7 +52,8 @@ void TcpConnRefresh( void )
 
             return;
         }
-    } while( lTCPConnCount[ 0 ] != lTCPConnCount[ 1 ] );
+    }
+    while( lTCPConnCount[ 0 ] != lTCPConnCount[ 1 ] );
 
     lDefenderTCPConnCount = lTCPConnCount[ 0 ];
 }

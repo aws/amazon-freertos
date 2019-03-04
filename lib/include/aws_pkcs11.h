@@ -66,8 +66,8 @@
 
 /* Undefine the macro for Keil Compiler to avoid conflict */
 #if defined( __PASTE ) && defined( __CC_ARM )
-/* ARM RCVT stdint.h has a duplicate definition with PKCS #11. */
-#undef __PASTE
+    /* ARM RCVT stdint.h has a duplicate definition with PKCS #11. */
+    #undef __PASTE
 #endif
 
 #include "pkcs11.h"

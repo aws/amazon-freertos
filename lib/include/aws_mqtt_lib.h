@@ -319,8 +319,8 @@ typedef struct MQTTCallbackParams
  * the callback is over. The user should return the buffer whenever done by calling the
  * MQTT_ReturnBuffer API.
  */
-typedef MQTTBool_t ( * MQTTEventCallback_t ) ( void * pvCallbackContext,
-                                               const MQTTEventCallbackParams_t * const pxParams );
+typedef MQTTBool_t ( * MQTTEventCallback_t )( void * pvCallbackContext,
+                                              const MQTTEventCallbackParams_t * const pxParams );
 
 /**
  * @brief Signature of the user supplied topic specific publish callback which gets called
@@ -348,8 +348,8 @@ typedef MQTTBool_t ( * MQTTEventCallback_t ) ( void * pvCallbackContext,
  */
 #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
 
-    typedef MQTTBool_t ( * MQTTPublishCallback_t ) ( void * pvPublishCallbackContext,
-                                                     const MQTTPublishData_t * const pxPublishData );
+    typedef MQTTBool_t ( * MQTTPublishCallback_t )( void * pvPublishCallbackContext,
+                                                    const MQTTPublishData_t * const pxPublishData );
 
 #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
 
@@ -365,9 +365,9 @@ typedef MQTTBool_t ( * MQTTEventCallback_t ) ( void * pvCallbackContext,
  *
  * @return The number of bytes actually transmitted.
  */
-typedef uint32_t ( * MQTTSend_t ) ( void * pvSendContext,
-                                    const uint8_t * const pucData,
-                                    uint32_t ulDataLength );
+typedef uint32_t ( * MQTTSend_t )( void * pvSendContext,
+                                   const uint8_t * const pucData,
+                                   uint32_t ulDataLength );
 
 /**
  * @brief Signature of the callback to get the current tick count.
@@ -378,7 +378,7 @@ typedef uint32_t ( * MQTTSend_t ) ( void * pvSendContext,
  *
  * @param[out] pxCurrentTickCount The output parameter to receive the current tick count.
  */
-typedef void ( * MQTTGetTicks_t ) ( uint64_t * pxCurrentTickCount );
+typedef void ( * MQTTGetTicks_t )( uint64_t * pxCurrentTickCount );
 
 /**
  * @brief Signature of the callback supplied by the user as part
@@ -396,7 +396,7 @@ typedef void ( * MQTTGetTicks_t ) ( uint64_t * pxCurrentTickCount );
  *
  * @return The pointer to the buffer if one is available, NULL otherwise.
  */
-typedef uint8_t * ( * MQTTGetFreeBuffer_t ) ( uint32_t * pulBufferLength );
+typedef uint8_t * ( * MQTTGetFreeBuffer_t )( uint32_t * pulBufferLength );
 
 /**
  * @brief Signature of the callback supplied by the user as part
@@ -408,7 +408,7 @@ typedef uint8_t * ( * MQTTGetFreeBuffer_t ) ( uint32_t * pulBufferLength );
  *
  * @param[in] pucBuffer The buffer to return.
  */
-typedef void ( * MQTTReturnBuffer_t ) ( uint8_t * pucBuffer );
+typedef void ( * MQTTReturnBuffer_t )( uint8_t * pucBuffer );
 
 /**
  * @brief Represents a subscription entry in the subscription manager.

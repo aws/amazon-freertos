@@ -115,8 +115,8 @@
 #define shadowDemoRECV_QUEUE_WAIT_TICKS      500
 #define shadowDemoUPDATE_QUEUE_LENGTH        democonfigSHADOW_DEMO_NUM_TASKS * 2
 
-/* The maximum amount of time tasks will wait for their updates to process.
- * Tasks should not continue executing until their updates have processed.*/
+/* The maximum amount of time tasks will wait for their updates to process. Tasks
+ * should not continue executing until their updates have processed.*/
 #define shadowDemoNOTIFY_WAIT_MS             pdMS_TO_TICKS( ( 100000UL ) )
 
 /* An element of the Shadow update queue. */
