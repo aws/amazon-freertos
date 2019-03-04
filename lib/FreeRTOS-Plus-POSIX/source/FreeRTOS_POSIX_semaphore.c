@@ -37,7 +37,8 @@
 #include "FreeRTOS_POSIX/semaphore.h"
 #include "FreeRTOS_POSIX/utils.h"
 #include "FreeRTOS_POSIX/tracing.h"
-#include "aws_iot_atomic.h"
+
+#include "atomic.h"
 
 
 /* Profiling within profiling -- See how many times program lands in a branch of interest. */
@@ -158,10 +159,10 @@ int sem_post( sem_t * sem )
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
     #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1 )
-        int32_t previousValue = IotAtomic_Add_32( &pxSem->value, 1 );
+        int32_t previousValue = Atomic_Add_i32( &pxSem->value, 1 );
         
         // Alternatively, you can use below. Performance to be measured. 
-        //int32_t previousValue = IotAtomic_Increment_32( &pxSem->value);
+        //int32_t previousValue = Atomic_Increment_i32( &pxSem->value);
 
         if ( previousValue >= 0)
         {
@@ -227,10 +228,10 @@ int sem_timedwait( sem_t * sem,
     }
 
     #if ( POSIX_SEMAPHORE_IMPLEMENTATION == 1  )
-        int32_t previousValue = IotAtomic_Subtract_32( &pxSem->value, 1 );
+        int32_t previousValue = Atomic_Subtract_i32( &pxSem->value, 1 );
         
         // Alternatively, you can use below. Performance to be measured.
-        //int32_t previousValue = IotAtomic_Decrement_32( &pxSem->value);
+        //int32_t previousValue = Atomic_Decrement_i32( &pxSem->value);
 
         if ( previousValue > 0 )
         {

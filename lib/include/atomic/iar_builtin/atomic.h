@@ -21,16 +21,43 @@
 
 /**
  * @file aws_iot_atomic.h
- * @brief FreeRTOS atomic operations with GCC built in _atomic.
+ * @brief FreeRTOS atomic operations with IAR built-in intrinsics.
  * 
- * @reference https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
+ * @note Users are encouraged to use atomic implementation with "disabling interrupts" 
+ *       on ports compiling with IAR. For atomic implementation with IAR intrinsics, 
+ *       known limitations/questions at this point:
+ * 
+ *       - Missing documentation from IAR about intrinsics we are calling. 
+ *         To be specific,
+ *          atomic_fetch_{add, sub, and, or, xor}(), 
+ *          atomic_compare_exchange_strong(),
+ *          atomic_exchange().
+ *         pending: 
+ *          Confirm stdatomic.h is good to use, from other than compiler itself.  
+ * 
+ *       - Atomic compare-and-swap and swap are not implemented, in the  
+ *         absence of documentation for atomic types. e.g. When calling 
+ *         atomic_compare_exchange_strong() from IotAtomic_CompareAndSwap_u32()
+ *         what to cast (uint32_t *) to? (atomic_uint *), (atomic_uint_least32_t *)
+ *         (atomic_int_fast32_t *), or (atomic_uintptr_t *)?
+ * 
+ *       - Atomic NAND cannot be implemented with given intrinsics. See @warning
+ *         in IotAtomic_NAND_u32() API doc.
+ * 
+ * @refernece [IAR C/C++ Development Guide Compiling and Linking]
+ *            (http://ftp.iar.se/WWWfiles/arm/webic/doc/EWARM_DevelopmentGuide.ENU.pdf) 
+ *            section "Atomic Operations". 
  */
 
-#ifndef _AWS_IOT_ATOMIC_H_
-#define _AWS_IOT_ATOMIC_H_
+#ifndef ATOMIC_H
+#define ATOMIC_H
+
+/* IAR compiler include. */
+#include <stdatomic.h>
 
 /* Standard includes. */
 #include <stdint.h>
+#include <stdbool.h>
 
 /*----------------------------- Swap && CAS ------------------------------*/
 
@@ -41,18 +68,13 @@
  *
  * @param[in, out] pDestination  Pointer to memory location from where value is to be loaded and checked.
  * @param[in] ulExchange     	 If condition meets, write this value to memory.
- * @param[in] ulComparand 		 Swap condition, checks and waits for *pDestination to be equal to ulComparand.
+ * @param[in] ulComparand 	 Swap condition, checks and waits for *pDestination to be equal to ulComparand.
  *
  * @return The initial value of *pDestination.
  * 
  * @note This function guarantees to swap *pDestination with ulExchange upon exit.
  */
-static inline __attribute__((always_inline)) uint32_t IotAtomic_CompareAndSwap_32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
-{
-    uint32_t ulPreValue = *pDestination;
-    while (false == __atomic_compare_exchange(pDestination, &ulComparand, &ulExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)); 
-    return ulPreValue;
-}
+static inline __attribute__((always_inline)) uint32_t IotAtomic_CompareAndSwap_u32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand );
 
 /**
  * Atomic swap (pointers)
@@ -66,7 +88,7 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_CompareAndSwap_3
  * 
  * @note This function guarantees to swap *ppDestination with *pExchange upon exit.
  */
-static inline __attribute__((always_inline)) void * IotAtomic_SwapPointers_32( void * volatile * ppDestination, void * pExchange );
+static inline __attribute__((always_inline)) void * IotAtomic_SwapPointers_p32( void * volatile * ppDestination, void * pExchange );
 
 /**
  * Atomic compare-and-swap (pointers)
@@ -81,8 +103,7 @@ static inline __attribute__((always_inline)) void * IotAtomic_SwapPointers_32( v
  * 
  * @note This function guarantees to swap *ppDestination with *pExchange upon exit.
  */
-static inline __attribute__((always_inline)) void * IotAtomic_CompareAndSwapPointers_32( void * volatile * ppDestination, void * pExchange, void * pComparand );
-
+static inline __attribute__((always_inline)) void * IotAtomic_CompareAndSwapPointers_p32( void * volatile * ppDestination, void * pExchange, void * pComparand );
 
 /*----------------------------- Arithmetic ------------------------------*/
 
@@ -98,9 +119,9 @@ static inline __attribute__((always_inline)) void * IotAtomic_CompareAndSwapPoin
  * 
  * @note This function guarantees to add value to *pAddend upon exit.
  */
-static inline __attribute__((always_inline)) int32_t IotAtomic_Add_32( int32_t volatile * pAddend, int32_t lCount )
+static inline __attribute__((always_inline)) int32_t IotAtomic_Add_i32( int32_t volatile * pAddend, int32_t lCount )
 {
-    return __atomic_fetch_add(pAddend, lCount, __ATOMIC_SEQ_CST);
+  return atomic_fetch_add(pAddend, lCount);
 }
 
 /**
@@ -115,9 +136,9 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Add_32( int32_t v
  * 
  * @note This function guarantees to subtract value from *pAddend upon exit.
  */
-static inline __attribute__((always_inline)) int32_t IotAtomic_Subtract_32( int32_t volatile * pAddend, int32_t lCount )
+static inline __attribute__((always_inline)) int32_t IotAtomic_Subtract_i32( int32_t volatile * pAddend, int32_t lCount )
 {
-    return __atomic_fetch_sub(pAddend, lCount, __ATOMIC_SEQ_CST);
+  return atomic_fetch_sub(pAddend, lCount);
 }
 
 /**
@@ -131,9 +152,9 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Subtract_32( int3
  * 
  * @note This function guarantees to subtract value from *pAddend upon exit.
  */
-static inline __attribute__((always_inline)) int32_t IotAtomic_Increment_32( int32_t volatile * pAddend )
+static inline __attribute__((always_inline)) int32_t IotAtomic_Increment_i32( int32_t volatile * pAddend )
 {
-    return __atomic_fetch_add(pAddend, 1, __ATOMIC_SEQ_CST);
+  return atomic_fetch_add(pAddend, 1);
 }
 
 /**
@@ -147,9 +168,9 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Increment_32( int
  * 
  * @note This function guarantees to subtract value from *pAddend upon exit.
  */
-static inline __attribute__((always_inline)) int32_t IotAtomic_Decrement_32( int32_t volatile * pAddend )
+static inline __attribute__((always_inline)) int32_t IotAtomic_Decrement_i32( int32_t volatile * pAddend )
 {
-    return __atomic_fetch_sub(pAddend, 1, __ATOMIC_SEQ_CST);
+  return atomic_fetch_sub(pAddend, 1);
 }
 
 /*----------------------------- Bitwise Logical ------------------------------*/
@@ -164,9 +185,9 @@ static inline __attribute__((always_inline)) int32_t IotAtomic_Decrement_32( int
  *
  * @return The original value of *pDestination.
  */
-static inline __attribute__((always_inline)) uint32_t IotAtomic_OR_32( uint32_t volatile * pDestination, uint32_t ulValue )
+static inline __attribute__((always_inline)) uint32_t IotAtomic_OR_u32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-    return __atomic_fetch_or(pDestination, ulValue, __ATOMIC_SEQ_CST);
+  return atomic_fetch_or(pDestination, ulValue);
 }
 
 /**
@@ -179,9 +200,9 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_OR_32( uint32_t 
  * 
  * @return The original value of *pDestination.
  */
-static inline __attribute__((always_inline)) uint32_t IotAtomic_AND_32( uint32_t volatile * pDestination, uint32_t ulValue )
+static inline __attribute__((always_inline)) uint32_t IotAtomic_AND_u32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-    return __atomic_fetch_and(pDestination, ulValue, __ATOMIC_SEQ_CST);
+  return atomic_fetch_and(pDestination, ulValue);
 }
 
 /**
@@ -193,11 +214,13 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_AND_32( uint32_t
  * @param [in] ulValue			 Value to be NANDed with *pDestination. 
  *
  * @return The original value of *pDestination.
+ * 
+ * @warning Atomic NAND cannot be guaranteed to be correctly compiled with IAR intrinsics. (There is no atomic_fetch_nand.)
+ *          options 1: !(A & B) = !A || !B
+ *          options 2: !(A & B) = (A & B ) ^ 0xFFFFFFFF (For 32-bit)
+ *          Both above cannot be done with given interface definitions.
  */
-static inline __attribute__((always_inline)) uint32_t IotAtomic_NAND_32( uint32_t volatile * pDestination, uint32_t ulValue )
-{
-    return __atomic_fetch_nand(pDestination, ulValue, __ATOMIC_SEQ_CST);
-}
+static inline __attribute__((always_inline)) uint32_t IotAtomic_NAND_u32( uint32_t volatile * pDestination, uint32_t ulValue );
 
 /**
  * Atomic XOR
@@ -208,9 +231,11 @@ static inline __attribute__((always_inline)) uint32_t IotAtomic_NAND_32( uint32_
  *
  * @return The original value of *pDestination.
  */
-static inline __attribute__((always_inline)) uint32_t IotAtomic_XOR_32( uint32_t volatile * pDestination, uint32_t ulValue )
+static inline __attribute__((always_inline)) uint32_t IotAtomic_XOR_u32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-    return __atomic_fetch_xor(pDestination, ulValue, __ATOMIC_SEQ_CST);
+  return atomic_fetch_xor(pDestination, ulValue);
 }
 
-#endif /* _AWS_IOT_ATOMIC_H_ */
+#endif /* ATOMIC_H */
+
+

@@ -155,7 +155,12 @@ void vApplicationDaemonTaskStartupHook( void )
     configPRINTF( ( "Entering profiling task.\r\n" ) );
 
     // Multi producer-consumer with semaphore.
-    vKernelProfilingMultiProducerConsumerSemaphore( mainPROFILING_PRODUCER_CONSUMER );
+    //vKernelProfilingMultiProducerConsumerSemaphore( mainPROFILING_PRODUCER_CONSUMER );
+
+    // Atomic test out. This is mostly to see objdump.
+    vKernelAtomicTryout_CAS_happy_path();
+    vKernelAtomicTryout_Arithmetic_happy_path();
+    vKernelAtomicTryout_Bitwise_happy_path();
 
     configPRINTF( ( "Exiting profiling task.\r\n" ) );
 }

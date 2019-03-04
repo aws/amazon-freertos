@@ -32,4 +32,9 @@ void vKernelProfilingMultiProducerConsumerSemaphore( int iPriority );
 
 void vKernelProfilingStepDisassembly_sem_post( int iPriority );
 
+void vKernelAtomicTryout_CAS_happy_path(void);
+void vKernelAtomicTryout_Arithmetic_happy_path(void);
+void vKernelAtomicTryout_Bitwise_happy_path(void);
+
+
 #endif /* _KERNEL_PROFILING_H_ */

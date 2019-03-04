@@ -76,6 +76,10 @@
 
 #define configUSE_HAL_PERF_COUNTER                   1
 
+#define configUSE_ATOMIC_INSTRUCTION                 1      /* if 0 or not defined, port uses disabling global
+                                                               interrupt to ensure atomic operation.
+                                                               if 1, port uses atomic instruction. */
+
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                        0
 #define configMAX_CO_ROUTINE_PRIORITIES              ( 2 )
