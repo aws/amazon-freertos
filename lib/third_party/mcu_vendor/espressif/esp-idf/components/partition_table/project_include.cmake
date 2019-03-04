@@ -1,4 +1,4 @@
-if(NOT BOOTLOADER_BUILD)
+if(NOT BOOTLOADER_BUILD AND IDF_BUILD_ARTIFACTS)
 
 set(PARTITION_TABLE_OFFSET ${CONFIG_PARTITION_TABLE_OFFSET})
 
@@ -6,7 +6,8 @@ set(PARTITION_TABLE_OFFSET ${CONFIG_PARTITION_TABLE_OFFSET})
 # absolute path
 if(CONFIG_PARTITION_TABLE_CUSTOM)
     # Custom filename expands any path relative to the project
-    get_filename_component(PARTITION_CSV_PATH "${CONFIG_PARTITION_TABLE_FILENAME}" ABSOLUTE BASE_DIR "${PROJECT_PATH}")
+    get_filename_component(PARTITION_CSV_PATH "${CONFIG_PARTITION_TABLE_FILENAME}"
+                            ABSOLUTE BASE_DIR "${IDF_PROJECT_PATH}")
 
     if(NOT EXISTS "${PARTITION_CSV_PATH}")
         message(WARNING "Partition table CSV file ${PARTITION_CSV_PATH} not found. "
@@ -37,18 +38,24 @@ function(get_partition_info variable get_part_info_args)
         OUTPUT_VARIABLE result
         RESULT_VARIABLE exit_code
         OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(NOT ${exit_code} EQUAL 0)
+    if(NOT ${exit_code} EQUAL 0 AND NOT ${exit_code} EQUAL 1)
         # can't fail here as it would prevent the user from running 'menuconfig' again
-        message(WARNING "parttool.py execution failed, problem with partition CSV file (see above)")
+        message(WARNING "parttool.py execution failed (${result}), problem with partition CSV file (see above)")
     endif()
     set(${variable} ${result} PARENT_SCOPE)
 endfunction()
 
 if(CONFIG_ESP32_PHY_INIT_DATA_IN_PARTITION)
     get_partition_info(PHY_PARTITION_OFFSET "--type data --subtype phy --offset")
-    set(PHY_PARTITION_BIN_FILE "${CMAKE_BINARY_DIR}/esp32/phy_init_data.bin")
+    set(PHY_PARTITION_BIN_FILE "esp32/phy_init_data.bin")
 endif()
 
 get_partition_info(APP_PARTITION_OFFSET "--default-boot-partition --offset")
 
+get_partition_info(OTADATA_PARTITION_OFFSET "--type data --subtype ota --offset")
+
+get_partition_info(OTADATA_PARTITION_SIZE "--type data --subtype ota --size")
+
 endif()
+
+set(BOOTLOADER_OFFSET 0x1000)
