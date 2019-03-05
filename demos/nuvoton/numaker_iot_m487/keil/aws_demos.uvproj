@@ -1226,6 +1226,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\third_party\mbedtls\library\xtea.c</FilePath>
             </File>
+            <File>
+              <FileName>platform_util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\platform_util.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

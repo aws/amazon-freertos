@@ -46,12 +46,23 @@
 /* flash driver includes. */
 #include "NuMicro.h"
 
-#define pkcs11FILE_NAME_PUBLISHER_CERTIFICATE    "FreeRTOS_Publisher_Certificate.dat"
-#define pkcs11FILE_NAME_PUBLISHER_KEY            "FreeRTOS_Publisher_Key.dat"
+//#define pkcs11FILE_NAME_PUBLISHER_CERTIFICATE    "FreeRTOS_Publisher_Certificate.dat"
+//#define pkcs11FILE_NAME_PUBLISHER_KEY            "FreeRTOS_Publisher_Key.dat"
+#define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
+#define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
+#define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
 
 #define pkcs11OBJECT_CERTIFICATE_MAX_SIZE    2048
 #define pkcs11OBJECT_FLASH_CERT_PRESENT      ( 0x1A2B3C4DUL )
 
+enum eObjectHandles
+{
+    eInvalidHandle = 0, /* From PKCS #11 spec: 0 is never a valid object handle.*/
+    eAwsDevicePrivateKey = 1,
+    eAwsDevicePublicKey,
+    eAwsDeviceCertificate,
+    eAwsCodeSigningKey
+};
 
 /**
  * @brief Structure for certificates/key storage.
@@ -68,8 +79,10 @@ typedef struct
 {
     uint32_t DeviceCertificate;
     uint32_t DeviceKey;
-    uint32_t PublisherCertificate;
-    uint32_t PublisherKey;
+//    uint32_t PublisherCertificate;
+//    uint32_t PublisherKey;
+    uint32_t CodeSignKey;
+    uint32_t ReserveKey;
 } P11KeyConfig_t;
 
 /**
@@ -125,6 +138,52 @@ static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
     
 }
 
+
+/* Converts a label to its respective filename and handle. */
+static void prvLabelToFilenameHandle( uint8_t * pcLabel,
+                               char ** pcFileName,
+                               CK_OBJECT_HANDLE_PTR pHandle )
+{
+    if( pcLabel != NULL )
+    {
+        /* Translate from the PKCS#11 label to local storage file name. */
+        if( 0 == memcmp( pcLabel,
+                         &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                         sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
+            *pHandle = eAwsDeviceCertificate;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                              sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_KEY;
+            *pHandle = eAwsDevicePrivateKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                              sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+        {
+            *pcFileName = pkcs11palFILE_NAME_KEY;
+            *pHandle = eAwsDevicePublicKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_CODE_VERIFICATION_KEY,
+                              sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
+        {
+            *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+            *pHandle = eAwsCodeSigningKey;
+        }
+        else
+        {
+            *pcFileName = NULL;
+            *pHandle = eInvalidHandle;
+        }
+    }
+}
+
+
 /**
  * @brief Writes a file to local storage.
  *
@@ -137,7 +196,7 @@ static CK_RV prvFLASH_update(uint32_t u32StartAddr, uint8_t * pucData, uint32_t 
  * @return pdTRUE if data was saved successfully to file,
  * pdFALSE otherwise.
  */
-BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
+static BaseType_t prvFLASH_SaveFile( char * pcFileName,
                                 uint8_t * pucData,
                                 uint32_t ulDataSize )
 {
@@ -161,24 +220,24 @@ BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
     FMC_Open();                        /* Enable FMC ISP function */
     FMC_ENABLE_AP_UPDATE();            /* Enable APROM update. */
 
-    if( strcmp( pcFileName, pkcs11configFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
+    if( strcmp( pcFileName, pkcs11palFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
     {
         certFlashAddr = P11KeyConfig.DeviceCertificate;
     }
-    else if( strcmp( pcFileName, pkcs11configFILE_NAME_KEY ) == 0 )
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_KEY ) == 0 )
     {
         certFlashAddr = P11KeyConfig.DeviceKey;
     }
-    else if( strcmp( pcFileName, pkcs11FILE_NAME_PUBLISHER_CERTIFICATE ) == 0 )
+    else if( strcmp( pcFileName, pkcs11palFILE_CODE_SIGN_PUBLIC_KEY ) == 0 )
     {
-        certFlashAddr = P11KeyConfig.PublisherCertificate;        
+        certFlashAddr = P11KeyConfig.CodeSignKey;
     }
-    else if( strcmp( pcFileName, pkcs11FILE_NAME_PUBLISHER_KEY ) == 0 )
+    else
     {
-        certFlashAddr = P11KeyConfig.PublisherKey;
+        certFlashAddr = NULL;
     }
 
-    if( certFlashAddr !=0 )
+    if( certFlashAddr != NULL )
     {
         xBytesWritten = prvFLASH_update( certFlashAddr, pucData, ulDataSize );
         if( xBytesWritten == ulDataSize )
@@ -206,7 +265,7 @@ BaseType_t PKCS11_PAL_SaveFile( char * pcFileName,
  * @return pdTRUE if data was retrieved successfully from files,
  * pdFALSE otherwise.
  */
-BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
+static BaseType_t prvFLASH_ReadFile( char * pcFileName,
                                 uint8_t ** ppucData,
                                 uint32_t * pulDataSize )
 {
@@ -217,21 +276,17 @@ BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
     /*
      * Read client certificate.
      */
-    if( strcmp( pcFileName, pkcs11configFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
+    if( strcmp( pcFileName, pkcs11palFILE_NAME_CLIENT_CERTIFICATE ) == 0 )
     {
         pCertFlash = (P11CertData_t *)P11KeyConfig.DeviceCertificate;
     }
-    else if( strcmp( pcFileName, pkcs11configFILE_NAME_KEY ) == 0 )
+    else if( strcmp( pcFileName, pkcs11palFILE_NAME_KEY ) == 0 )
     {
         pCertFlash = (P11CertData_t *)P11KeyConfig.DeviceKey;
     }
-    else if( strcmp( pcFileName, pkcs11FILE_NAME_PUBLISHER_CERTIFICATE ) == 0 )
+    else if( strcmp( pcFileName, pkcs11palFILE_CODE_SIGN_PUBLIC_KEY ) == 0 )
     {
-        pCertFlash = (P11CertData_t *)P11KeyConfig.PublisherCertificate;        
-    }
-    else if( strcmp( pcFileName, pkcs11FILE_NAME_PUBLISHER_KEY ) == 0 )
-    {
-        pCertFlash = (P11CertData_t *)P11KeyConfig.PublisherKey;
+        pCertFlash = (P11CertData_t *)P11KeyConfig.CodeSignKey;        
     }
 
     if( ( pCertFlash !=0 ) && ( pCertFlash->ulDeviceCertificateMark == pkcs11OBJECT_FLASH_CERT_PRESENT ) )
@@ -246,26 +301,6 @@ BaseType_t PKCS11_PAL_ReadFile( char * pcFileName,
     
     return xResult;
 }
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Cleanup after ReadFile.
- *
- * @param[in] pucBuffer The buffer to free.
- * @param[in] ulBufferSize The length of the above buffer.
- */
-void PKCS11_PAL_ReleaseFileData( uint8_t * pucBuffer,
-                                 uint32_t ulBufferSize )
-{
-    /* Unused parameters. */
-    ( void ) pucBuffer;
-    ( void ) ulBufferSize;
-
-    /* Since no buffer was allocated on heap, there is no cleanup
-     * to be done. */
-}
-/*-----------------------------------------------------------*/
-
 
 /**
 * @brief Writes a file to local storage.
@@ -282,7 +317,23 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
     uint8_t * pucData,
     uint32_t ulDataSize )
 {
-    CK_OBJECT_HANDLE xHandle = 0;
+    char                *pcFileName = NULL;
+    CK_OBJECT_HANDLE    xHandle     = eInvalidHandle;
+
+    /* Converts a label to its respective filename and handle. */
+
+    prvLabelToFilenameHandle( pxLabel->pValue, &pcFileName, &xHandle );
+
+    /* If your project requires additional PKCS#11 objects, add them here. */
+
+    if( pcFileName != NULL )
+    {
+        if( prvFLASH_SaveFile( pcFileName, pucData, ulDataSize ) == pdFALSE )
+        {
+            xHandle = eInvalidHandle;
+        }
+    }
+
     return xHandle;
 }
 
@@ -302,9 +353,32 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
     uint8_t usLength )
 {
-    CK_OBJECT_HANDLE xHandle = 0;
+    uint8_t     **ppucData;
+    uint32_t    dataSize;  
+    /* Avoid compiler warnings about unused variables. */
+    ( void ) usLength;
+  
+    CK_OBJECT_HANDLE xHandle = eInvalidHandle;
+    char * pcFileName = NULL;
+
+    /* Converts a label to its respective filename and handle. */
+    prvLabelToFilenameHandle( pLabel,
+                              &pcFileName,
+                              &xHandle );
+
+    if( pcFileName != NULL )
+    {
+        /* Check if object exists/has been created before returning. */
+
+        if( pdTRUE != prvFLASH_ReadFile( pcFileName, ppucData, &dataSize) )
+        {
+            xHandle = eInvalidHandle;
+        }
+    }
+
     return xHandle;
 }
+
 
 /**
 * @brief Gets the value of an object in storage, by handle.
@@ -334,8 +408,47 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     uint32_t * pulDataSize,
     CK_BBOOL * pIsPrivate )
 {
-    CK_RV xReturn = CKR_OK;
-    return xReturn;
+
+    CK_RV ulReturn = CKR_OK;
+    char        *pcFileName     = NULL;
+    uint8_t     *pucData;
+
+    if( xHandle == eAwsDeviceCertificate )
+    {
+        pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsDevicePrivateKey )
+    {
+        pcFileName = pkcs11palFILE_NAME_KEY;
+        *pIsPrivate = CK_TRUE;
+    }
+    else if( xHandle == eAwsDevicePublicKey )
+    {
+        /* Public and private key are stored together in same file. */
+        pcFileName = pkcs11palFILE_NAME_KEY;
+        *pIsPrivate = CK_FALSE;
+    }
+    else if( xHandle == eAwsCodeSigningKey )
+    {
+        pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
+        *pIsPrivate = CK_FALSE;
+    }
+    else
+    {
+        ulReturn = CKR_KEY_HANDLE_INVALID;
+    }
+
+    if( pcFileName != NULL )
+    {
+        /* Check if object exists/has been created before returning. */
+
+        if( pdTRUE != prvFLASH_ReadFile( pcFileName, ppucData, pulDataSize) )
+        {
+            xHandle = eInvalidHandle;
+        }
+    }
+    return ulReturn;
 }
 
 
@@ -350,7 +463,12 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
     uint32_t ulDataSize )
 {
-    
+    /* Unused parameters. */
+    ( void ) pucData;
+    ( void ) ulDataSize;
+
+    /* Since no buffer was allocated on heap, there is no cleanup
+     * to be done. */    
 }
 
 
