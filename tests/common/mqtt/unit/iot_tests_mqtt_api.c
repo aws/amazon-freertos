@@ -43,6 +43,7 @@
 #else
     #include <unistd.h>
 #endif
+#include "iot_taskpool.h"
 
 /* MQTT internal include. */
 #include "private/iot_mqtt_internal.h"
@@ -550,8 +551,9 @@ TEST( MQTT_Unit_API, OperationCreateDestroy )
     TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS, IotTaskPool_CreateJob( _decrementReferencesJob,
                                                                     pOperation,
                                                                     &( pOperation->job ) ) );
-    TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS, IotTaskPool_Schedule( &( _IotMqttTaskPool ),
-                                                                   &( pOperation->job ) ) );
+    TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS, IotTaskPool_Schedule(  IOT_SYSTEM_TASKPOOL,
+                                                                   &( pOperation->job ),
+																   0 ));
 
     /* Wait for the job to complete. */
     IotSemaphore_Wait( &( pOperation->notify.waitSemaphore ) );
@@ -1322,9 +1324,9 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
 
     /* Schedule the initial PINGREQ. */
     TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS,
-                       IotTaskPool_ScheduleDeferred( &( _IotMqttTaskPool ),
+                       IotTaskPool_ScheduleDeferred(IOT_SYSTEM_TASKPOOL,
                                                      &( pMqttConnection->keepAliveJob ),
-                                                     pMqttConnection->nextKeepAliveMs ) );
+                                                     pMqttConnection->nextKeepAliveMs));
 
     /* Sleep to allow ample time for periodic PINGREQ sends and PINGRESP responses. */
     sleep( sleepTime );
@@ -1367,7 +1369,7 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
 
         /* Schedule the initial PINGREQ. */
         TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS,
-                           IotTaskPool_ScheduleDeferred( &( _IotMqttTaskPool ),
+                           IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
                                                          &( pMqttConnection->keepAliveJob ),
                                                          _SHORT_KEEP_ALIVE_MS ) );
 

@@ -19,28 +19,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* This file contains configuration settings for the tests on FreeRTOS running
- * on ESP. */
+/* This file contains configuration settings for the demos. */
 
+#ifndef _IOT_TEST_CONFIG_H_
+#define _IOT_TEST_CONFIG_H_
+
+/* Standard include. */
 #include <stdbool.h>
 
-#ifndef _AWS_IOT_CONFIG_H_
-#define _AWS_IOT_CONFIG_H_
+/* Uncomment one of these definitions to override the log level configuration for
+ * a specific library. */
+#define IOT_LOG_LEVEL_PLATFORM               IOT_LOG_INFO
+#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO
+#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO
 
-/* Library logging configuration. */
-#define AWS_IOT_LOG_LEVEL_GLOBAL      AWS_IOT_LOG_NONE
-#define AWS_IOT_LOG_LEVEL_PLATFORM    AWS_IOT_LOG_NONE
-#define AWS_IOT_LOG_LEVEL_NETWORK     AWS_IOT_LOG_NONE
-#define AWS_IOT_LOG_LEVEL_MQTT        AWS_IOT_LOG_NONE
-#define AWS_IOT_LOG_LEVEL_SHADOW      AWS_IOT_LOG_NONE
 
-/* Define additional serializer initialization functions for the BLE Module on ESP. */
-extern bool IotBleMqtt_InitSerialize( void );
-extern void IotBleMqtt_CleanupSerialize( void );
-#define AwsIotMqttInternal_InitSerializeAdditional IotBleMqtt_InitSerialize
-#define AwsIotMqttInternal_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
+/* Include the common configuration file for FreeRTOS. */
+#include "iot_config_common.h"
 
-/* Include the default configuration file at the bottom of this file. */
-#include "aws_iot_config_common.h"
-
-#endif /* ifndef _AWS_IOT_CONFIG_H_ */
+#endif /* ifndef _IOT_TEST_CONFIG_H_ */

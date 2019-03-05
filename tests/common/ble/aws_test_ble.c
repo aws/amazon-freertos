@@ -35,11 +35,24 @@
 #include "event_groups.h"
 #include "aws_doubly_linked_list.h"
 #include "semphr.h"
-#include "iot_ble.h"
+#include "bt_hal_manager_adapter_ble.h"
+#include "bt_hal_manager.h"
+#include "bt_hal_gatt_server.h"
+#include "bt_hal_gatt_types.h"
 /* Test framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"
 
+/**
+ * @brief Connection parameters.
+ */
+typedef struct
+{
+    uint32_t minInterval; /**< Minimum connection interval. */
+    uint32_t maxInterval; /**< Maximum connection interval. */
+    uint32_t latency;     /**< Slave latency. */
+    uint32_t timeout;     /**< Connection timeout. */
+} IotBleConnectionParam_t;
 
 typedef enum{
 	eBLEHALEventServerRegisteredCb = 0,
@@ -1676,7 +1689,7 @@ void prvDeviceStateChangedCb( BTState_t xState )
 void prvGroupInit()
 {
 	/* Initialize event group before tests. */
-	(void)xEventGroupCreateStatic((EventGroupHandle_t)&xWaitOperationComplete);
+	(void)xEventGroupCreateStatic((StaticEventGroup_t *)&xWaitOperationComplete);
 
 	/* Assign a buffer to property Cb */
 	xCbProperties.pvVal = ucCbPropertyBuffer;

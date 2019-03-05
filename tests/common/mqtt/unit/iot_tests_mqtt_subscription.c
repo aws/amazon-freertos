@@ -939,7 +939,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
     #endif
 
     /* The MQTT task pool must support at least 3 threads for this test to run successfully. */
-    TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS, IotTaskPool_SetMaxThreads( &( _IotMqttTaskPool ), 4 ) );
+    TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS, IotTaskPool_SetMaxThreads( IOT_SYSTEM_TASKPOOL, 4 ) );
 
     TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &waitSem, 0, 3 ) );
 

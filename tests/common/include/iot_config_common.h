@@ -149,6 +149,9 @@
     #ifndef IOT_MQTT_CONNECTIONS
         #define IOT_MQTT_CONNECTIONS       ( 2 )
     #endif
+    #ifndef IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS
+        #define IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS    ( 10 )
+    #endif
     #ifndef IOT_MQTT_SUBSCRIPTIONS
         #define IOT_MQTT_SUBSCRIPTIONS     ( 16 )
     #endif
@@ -156,18 +159,23 @@
 
 /* Platform network configuration. */
 #ifndef IOT_NETWORK_RECEIVE_BUFFER_SIZE
-    #define IOT_NETWORK_RECEIVE_BUFFER_SIZE    ( 4 )
+    #define IOT_NETWORK_RECEIVE_BUFFER_SIZE    ( 1024 )
 #endif
 #ifndef IOT_NETWORK_SHORT_TIMEOUT_MS
     #define IOT_NETWORK_SHORT_TIMEOUT_MS       ( 100 )
 #endif
 
-/* Priority of MQTT receive task. */
+/* Linear containers configuration. */
+#ifndef IOT_CONTAINERS_ENABLE_ASSERTS
+    #define IOT_CONTAINERS_ENABLE_ASSERTS    ( 1 )
+#endif
+
+/* Priority of network receive task. */
 #ifndef IOT_NETWORK_RECEIVE_TASK_PRIORITY
     #define IOT_NETWORK_RECEIVE_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
 #endif
 
-/* Stack size of the MQTT receive task. */
+/* Stack size of the network receive task. */
 #ifndef IOT_NETWORK_RECEIVE_TASK_STACK_SIZE
     #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
 #endif
@@ -188,11 +196,14 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 
 /* Network initialization and cleanup functions are not needed on FreeRTOS. */
 #define IotTestNetwork_Init()       IOT_NETWORK_SUCCESS
-#define IotTestNetwork_Cleanup()    IOT_NETWORK_SUCCESS
+#define IotTestNetwork_Cleanup()    
 
 /* MQTT library configuration. */
-#ifndef AWS_IOT_MQTT_ENABLE_METRICS
-    #define AWS_IOT_MQTT_ENABLE_METRICS    ( 1 )
+#ifndef IOT_MQTT_ENABLE_METRICS
+    #define IOT_MQTT_ENABLE_METRICS    ( 1 )
+#endif
+#ifndef IOT_MQTT_ENABLE_ASSERTS
+    #define IOT_MQTT_ENABLE_ASSERTS        ( 1 )
 #endif
 #ifndef IOT_MQTT_RESPONSE_WAIT_MS
     #define IOT_MQTT_RESPONSE_WAIT_MS      ( 1000 )
@@ -217,12 +228,10 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 #define IOT_TEST_PRIVATE_KEY_LENGTH            clientcredentialCLIENT_PRIVATE_KEY_LENGTH
 #define AWS_IOT_TEST_SHADOW_THING_NAME         clientcredentialIOT_THING_NAME
 
-/* Defender library configuration. */
+/* Configuration for defender demo: set format to CBOR. */
 #define AWS_IOT_DEFENDER_FORMAT                AWS_IOT_DEFENDER_FORMAT_CBOR
-#define AWS_IOT_DEFENDER_USE_LONG_TAG          ( 1 )
 
-/* Task pool configuration. */
-#define AWS_IOT_TASKPOOL_THREADS_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
-#define AWS_IOT_TASKPOOL_THREADS_PRIORITY      ( 6 )
+/* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
+#define AWS_IOT_DEFENDER_USE_LONG_TAG          ( 1 )
 
 #endif /* ifndef _IOT_CONFIG_COMMON_H_ */

@@ -225,12 +225,12 @@ static BaseType_t prxBLEEnable( void )
         xStatus = IotBle_On();
     }
     /* Register BLE Connection callback */
-    if( xRet == pdTRUE )
+    if( xStatus == eBTStatusSuccess )
     {
         xEventCb.pConnectionCb = prvBLEConnectionCallback;
         if( IotBle_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
         {
-            xRet = pdFALSE;
+        	xStatus = eBTStatusFail;
         }
     }
 
@@ -247,7 +247,10 @@ static BaseType_t prxBLEEnable( void )
         xStatus = IotBle_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
     }
 #endif
-
+    if( xStatus != eBTStatusSuccess)
+    {
+    	xRet = pdFALSE;
+    }
 
     return xRet;
 }
@@ -391,6 +394,7 @@ static BaseType_t prxWIFIEnable( void )
 
     return xRet;
 }
+
 static BaseType_t prxWIFIDisable( void )
 {
     BaseType_t xRet = pdFALSE;
