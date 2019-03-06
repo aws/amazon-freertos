@@ -132,6 +132,9 @@ extern IotMqttConnection_t _IotTestMqttConnection;
 
 /*-----------------------------------------------------------*/
 
+
+
+
 /**
  * @brief Filler text to publish.
  */
@@ -141,7 +144,13 @@ static const char _pSamplePayload[] =
     "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
     "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu"
     " fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in"
-    " culpa qui officia deserunt mollit anim id est laborum.";
+    " culpa qui officia deserunt mollit anim id est laborum."
+	"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"
+	" incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis "
+	"nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
+	"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu"
+	" fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in"
+	" culpa qui officia deserunt mollit anim id est laborum.";
 
 /**
  * @brief Length of #_pSamplePayload.
@@ -151,18 +160,18 @@ static const size_t _samplePayloadLength = sizeof( _pSamplePayload ) - 1;
 /**
  * @brief Buffer holding the client identifier used for the tests.
  */
-static char _pClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
+char _pClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
 
 /*
  * Track if the serializer overrides were called for a test.
  */
-static bool _freePacketOverride = false;            /**< @brief Tracks if #_freePacket was called. */
-static bool _connectSerializerOverride = false;     /**< @brief Tracks if #_connectSerializerOverride was called. */
-static bool _publishSerializerOverride = false;     /**< @brief Tracks if #_publishSerializerOverride was called. */
-static bool _pubackSerializerOverride = false;      /**< @brief Tracks if #_pubackSerializerOverride was called. */
-static bool _subscribeSerializerOverride = false;   /**< @brief Tracks if #_subscribeSerializerOverride was called. */
-static bool _unsubscribeSerializerOverride = false; /**< @brief Tracks if #_unsubscribeSerializerOverride was called. */
-static bool _disconnectSerializerOverride = false;  /**< @brief Tracks if #_disconnectSerializerOverride was called. */
+static bool _freePacketOverride = true;            /**< @brief Tracks if #_freePacket was called. */
+static bool _connectSerializerOverride = true;     /**< @brief Tracks if #_connectSerializerOverride was called. */
+static bool _publishSerializerOverride = true;     /**< @brief Tracks if #_publishSerializerOverride was called. */
+static bool _pubackSerializerOverride = true;      /**< @brief Tracks if #_pubackSerializerOverride was called. */
+static bool _subscribeSerializerOverride = true;   /**< @brief Tracks if #_subscribeSerializerOverride was called. */
+static bool _unsubscribeSerializerOverride = true; /**< @brief Tracks if #_unsubscribeSerializerOverride was called. */
+static bool _disconnectSerializerOverride = true;  /**< @brief Tracks if #_disconnectSerializerOverride was called. */
 
 /*-----------------------------------------------------------*/
 
@@ -279,6 +288,15 @@ static IotMqttError_t _serializeDisconnect( uint8_t ** pDisconnectPacket,
     return _IotMqtt_SerializeDisconnect( pDisconnectPacket,
                                          pPacketSize );
 }
+
+#define _INIT_SERIALIZER( pNetworkInterface )                             \
+    ( pNetworkInterface )->serialize.connect       = _serializeConnect;      \
+    ( pNetworkInterface )->serialize.publish       = _serializePublish;      \
+    ( pNetworkInterface )->serialize.puback        = _serializePuback;       \
+    ( pNetworkInterface )->serialize.subscribe     = _serializeSubscribe;    \
+    ( pNetworkInterface )->serialize.unsubscribe   = _serializeUnsubscribe;  \
+    ( pNetworkInterface )->serialize.disconnect    = _serializeDisconnect;   \
+    ( pNetworkInterface )->freePacket              = _freePacket;
 
 /*-----------------------------------------------------------*/
 
@@ -407,23 +425,13 @@ static void _reentrantCallback( void * pArgument,
 /**
  * @brief Run the subscribe-publish-wait tests at various QoS.
  */
-static void _subscribePublishWait( IotMqttQos_t qos )
+void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetIf_t * pNetworkInterface )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-    IotMqttNetIf_t networkInterface = _IotTestNetworkInterface;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
     IotSemaphore_t waitSem;
-
-    /* Set the serializer overrides. */
-    networkInterface.freePacket = _freePacket;
-    networkInterface.serialize.connect = _serializeConnect;
-    networkInterface.serialize.publish = _serializePublish;
-    networkInterface.serialize.puback = _serializePuback;
-    networkInterface.serialize.subscribe = _serializeSubscribe;
-    networkInterface.serialize.unsubscribe = _serializeUnsubscribe;
-    networkInterface.serialize.disconnect = _serializeDisconnect;
 
     /* Create the wait semaphore. */
     TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &waitSem, 0, 1 ) );
@@ -437,7 +445,7 @@ static void _subscribePublishWait( IotMqttQos_t qos )
 
         /* Establish the MQTT connection. */
         status = IotMqtt_Connect( &_IotTestMqttConnection,
-                                  &networkInterface,
+        		                  pNetworkInterface,
                                   &connectInfo,
                                   IOT_TEST_MQTT_TIMEOUT_MS );
         TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
@@ -512,19 +520,7 @@ static void _subscribePublishWait( IotMqttQos_t qos )
     }
 }
 
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test group for MQTT system tests.
- */
-TEST_GROUP( MQTT_System );
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test setup for MQTT system tests.
- */
-TEST_SETUP( MQTT_System )
+void IotTestMqtt_Setup(void)
 {
     /* Clear the serializer override flags. */
     _freePacketOverride = false;
@@ -561,12 +557,7 @@ TEST_SETUP( MQTT_System )
     #endif
 }
 
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test tear down for MQTT system tests.
- */
-TEST_TEAR_DOWN( MQTT_System )
+void IotTestMqtt_TearDown(void)
 {
     /* Clean up the MQTT library. */
     IotMqtt_Cleanup();
@@ -574,6 +565,32 @@ TEST_TEAR_DOWN( MQTT_System )
     /* Clean up the network stack. */
     IotTest_NetworkCleanup();
     _IotTestMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test group for MQTT system tests.
+ */
+TEST_GROUP( MQTT_System );
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test setup for MQTT system tests.
+ */
+TEST_SETUP( MQTT_System )
+{
+	IotTestMqtt_Setup();
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test tear down for MQTT system tests.
+ */
+TEST_TEAR_DOWN( MQTT_System )
+{
+	IotTestMqtt_TearDown();
 }
 
 /*-----------------------------------------------------------*/
@@ -600,7 +617,10 @@ TEST_GROUP_RUNNER( MQTT_System )
  */
 TEST( MQTT_System, SubscribePublishWaitQoS0 )
 {
-    _subscribePublishWait( IOT_MQTT_QOS_0 );
+	IotMqttNetIf_t networkInterface;
+
+	_INIT_SERIALIZER( &networkInterface );
+	IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_0, &networkInterface );
 }
 
 /*-----------------------------------------------------------*/
@@ -610,7 +630,10 @@ TEST( MQTT_System, SubscribePublishWaitQoS0 )
  */
 TEST( MQTT_System, SubscribePublishWaitQoS1 )
 {
-    _subscribePublishWait( IOT_MQTT_QOS_1 );
+	IotMqttNetIf_t networkInterface;
+
+	_INIT_SERIALIZER( &networkInterface );
+	IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_1, &networkInterface );
 }
 
 /*-----------------------------------------------------------*/

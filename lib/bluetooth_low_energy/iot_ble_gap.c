@@ -454,25 +454,36 @@ BTStatus_t IotBle_Off( void )
     BTStatus_t status = eBTStatusSuccess;
     IotLink_t * pConnectionListHead, * pConnectionListElem;
     IotBleConnectionInfoListElement_t * pConnInfo;
+    BTBdaddr_t bdAddr;
+    uint16_t connId;
 
     status = IotBle_GetConnectionInfoList( &pConnectionListHead );
 
     if( status == eBTStatusSuccess )
     {
-        /* Get the event associated to the callback */
-    	IotContainers_ForEach( pConnectionListHead, pConnectionListElem )
-        {
-            pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnectionListElem, connectionList );
-            status = _BTInterface.pBTLeAdapterInterface->pxDisconnect(
-                _BTInterface.adapterIf,
-                &pConnInfo->remoteBdAddr,
-                pConnInfo->connId );
+    	do{
+			pConnInfo = NULL;
+			if( xSemaphoreTake( ( SemaphoreHandle_t ) &_BTInterface.threadSafetyMutex, portMAX_DELAY ) == pdPASS )
+			{
+				/* Get the event associated to the callback */
+				IotContainers_ForEach( pConnectionListHead, pConnectionListElem )
+				{
+					pConnInfo = IotLink_Container( IotBleConnectionInfoListElement_t, pConnectionListElem, connectionList );
+					memcpy(&bdAddr, &pConnInfo->remoteBdAddr, sizeof(BTBdaddr_t));
+					connId = pConnInfo->connId;
+					break;
+				}
 
-            if( status != eBTStatusSuccess )
-            {
-                break;
-            }
-        }
+				( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &_BTInterface.threadSafetyMutex );
+			}
+
+			if(pConnInfo != NULL)
+			{
+				(void)_BTInterface.pBTLeAdapterInterface->pxDisconnect(_BTInterface.adapterIf,
+																			&bdAddr,
+																			connId );
+			}
+    	}while(pConnInfo != NULL);
     }
 
     /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */

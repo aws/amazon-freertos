@@ -166,8 +166,6 @@ typedef struct  IotBleMqttService
 
 
 #define IOT_MQTT_BLE_INIT_SERIALIZER( pNetworkInterface )                             \
-do                                                                                         \
-{                                                                                          \
     ( pNetworkInterface )->serialize.connect       = IotBleMqtt_SerializeConnect;      \
     ( pNetworkInterface )->serialize.publish       = IotBleMqtt_SerializePublish;      \
     ( pNetworkInterface )->serialize.publishSetDup = IotBleMqtt_PublishSetDup;         \
@@ -181,8 +179,7 @@ do                                                                              
     ( pNetworkInterface )->deserialize.publish     = IotBleMqtt_DeserializePublish;    \
     ( pNetworkInterface )->deserialize.puback      = IotBleMqtt_DeserializePuback;     \
     ( pNetworkInterface )->deserialize.suback      = IotBleMqtt_DeserializeSuback;     \
-    ( pNetworkInterface )->deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback;   \
-} while( 0 );
+    ( pNetworkInterface )->deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback;
 
 
 /**

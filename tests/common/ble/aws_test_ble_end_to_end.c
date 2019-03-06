@@ -37,22 +37,36 @@
 #include "iot_ble.h"
 #include "iot_ble_mqtt.h"
 #include "iot_ble_config.h"
+#include "platform/iot_clock.h"
 #include "platform/iot_network_afr.h"
 /* Test framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"
 
+/**
+ * @brief The maximum length of an MQTT client identifier.
+ *
+ * When @ref IOT_TEST_MQTT_CLIENT_IDENTIFIER is defined, this value must
+ * accommodate the length of @ref IOT_TEST_MQTT_CLIENT_IDENTIFIER plus 4
+ * to accommodate the Last Will and Testament test. Otherwise, this value is
+ * set to 24, which is the longest client identifier length an MQTT server is
+ * obligated to accept plus a NULL terminator.
+ */
+#ifdef IOT_TEST_MQTT_CLIENT_IDENTIFIER
+    #define _CLIENT_IDENTIFIER_MAX_LENGTH    ( sizeof( IOT_TEST_MQTT_CLIENT_IDENTIFIER ) + 4 )
+#else
+    #define _CLIENT_IDENTIFIER_MAX_LENGTH    ( 24 )
+#endif
 
-typedef struct MqttConnectionContext
-{
-    void *pNetworkConnection;
-    uint32_t networkType;
-    IotMqttNetIf_t networkInterface;
-    IotNetworkError_t ( * pDisconnectCallback ) ( void *) ;
-    IotMqttConnection_t mqttConnection;
-} MqttConnectionContext_t;
-static MqttConnectionContext_t   networkContext;
+extern IotMqttNetIf_t _IotTestNetworkInterface;
+extern IotMqttConnection_t _IotTestMqttConnection;
+extern char _pClientIdentifier[];
 
+IotBleMqttConnection_t _mqttBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
+
+
+extern void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetIf_t * pNetworkInterface );
+extern void IotTestMqtt_TearDown(void);
 
 static void _BLEConnectionCallback( BTStatus_t status,
                              uint16_t connId,
@@ -137,29 +151,36 @@ static BaseType_t _BLEDisable( void )
 	return ret;
 }
 
-static BaseType_t _createBLEConnection(MqttConnectionContext_t   * pNetworkContext)
+
+static BaseType_t _removeBLEConnection()
+{
+	return _BLEDisable();
+}
+
+
+static BaseType_t _createBLEConnection()
 {
     BaseType_t status = pdFALSE;
-    IotBleMqttConnection_t BLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
-    IotMqttNetIf_t* pNetworkIface = &( pNetworkContext->networkInterface );
-    IotMqttNetIf_t defaultNetworkInterface = IOT_MQTT_NETIF_INITIALIZER;
-    size_t triesLeft = ( 60 );
+    size_t triesLeft = ( 200 );
     TickType_t retryDelay = pdMS_TO_TICKS( 1000 );
+
+    /* Initialize the MQTT library. */
+    if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
+    {
+        TEST_FAIL_MESSAGE( "Failed to initialize MQTT library." );
+    }
 
     _BLEEnable();
 
     while ( triesLeft > 0 )
     {
-		if( IotBleMqtt_CreateConnection( &pNetworkContext->mqttConnection, &BLEConnection ) == pdTRUE )
+		if( IotBleMqtt_CreateConnection( &_IotTestMqttConnection,  &_mqttBLEConnection ) == pdTRUE )
 		{
-			( *pNetworkIface ) = defaultNetworkInterface;
-			IOT_MQTT_BLE_INIT_SERIALIZER( pNetworkIface );
-			pNetworkIface->send          = IotBleMqtt_Send;
-			pNetworkIface->pSendContext  = ( void * ) BLEConnection;
-			pNetworkIface->pDisconnectContext = pNetworkContext;
-			pNetworkIface->disconnect = pNetworkContext->pDisconnectCallback;
-
-			pNetworkContext->pNetworkConnection = ( void* ) BLEConnection;
+			IOT_MQTT_BLE_INIT_SERIALIZER( &_IotTestNetworkInterface );
+			_IotTestNetworkInterface.send          = IotBleMqtt_Send;
+			_IotTestNetworkInterface.pSendContext  = ( void * ) _mqttBLEConnection;
+			_IotTestNetworkInterface.pDisconnectContext = NULL;
+			_IotTestNetworkInterface.disconnect = _BLEConnectionCallback;
 			status = pdTRUE;
 			break;
 		}else
@@ -170,32 +191,41 @@ static BaseType_t _createBLEConnection(MqttConnectionContext_t   * pNetworkConte
     }
     return status;
 }
-
-static BaseType_t _destroyBLEConnection(MqttConnectionContext_t   * pNetworkContext)
-{
-	return _BLEDisable();
-}
-
 /*-----------------------------------------------------------*/
-
+TEST_GROUP( Full_BLE_END_TO_END );
 
 /*-----------------------------------------------------------*/
 
 TEST_SETUP( Full_BLE_END_TO_END )
 {
+    /* Generate a new, unique client identifier based on the time if no client
+     * identifier is defined. Otherwise, copy the provided client identifier. */
+    ( void ) snprintf( _pClientIdentifier,
+                       _CLIENT_IDENTIFIER_MAX_LENGTH,
+                       "iot%llu",
+                       ( long long unsigned int ) IotClock_GetTimeMs() );
 }
 
 /*-----------------------------------------------------------*/
 
 TEST_TEAR_DOWN( Full_BLE_END_TO_END )
 {
+    /* Clean up the MQTT library. */
+    IotMqtt_Cleanup();
 }
 
 /*-----------------------------------------------------------*/
 
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END )
 {
-	(void)_createBLEConnection(&networkContext);
-	RUN_TEST_GROUP( Full_MQTT_Agent_Stress_Tests );
-	(void)_destroyBLEConnection(&networkContext);
+    _createBLEConnection();
+
+    RUN_TEST_CASE( Full_BLE_END_TO_END, IotTest_SubscribePublishWait );
+
+	_removeBLEConnection();
+}
+
+TEST( Full_BLE_END_TO_END, IotTest_SubscribePublishWait )
+{
+	IotTestMqtt_SubscribePublishWait(IOT_MQTT_QOS_1, &_IotTestNetworkInterface);
 }

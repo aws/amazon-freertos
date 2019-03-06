@@ -190,6 +190,10 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_BLE );
     #endif
 
+#if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
+    RUN_TEST_GROUP( Full_BLE_END_TO_END );
+#endif
+
     #if ( testrunnerFULL_FREERTOS_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_FREERTOS_TCP );
     #endif

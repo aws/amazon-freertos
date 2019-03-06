@@ -34,6 +34,10 @@
 #define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO
 
+extern bool IotBleMqtt_InitSerialize( void );
+extern void IotBleMqtt_CleanupSerialize( void );
+#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
+#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
