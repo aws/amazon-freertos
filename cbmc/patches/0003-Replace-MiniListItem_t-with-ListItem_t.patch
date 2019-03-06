@@ -1,7 +1,7 @@
-From 9c88092ea1232f3c05f3833fe6c68ca835aa8428 Mon Sep 17 00:00:00 2001
+From a81bec40a58ce45101adcea98239964da5826ec1 Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Thu, 31 Jan 2019 15:15:43 -0800
-Subject: [PATCH 2/8] Replace MiniListItem_t with ListItem_t
+Subject: [PATCH 3/4] Replace MiniListItem_t with ListItem_t
 
 MiniListItem_t is intended to be the last element of a linked list. It
 saves space by having a payload but no `next' pointer, since there is no
@@ -9,7 +9,7 @@ next element. CBMC gets confused when it sees a list of ListItem_ts with
 a smaller MiniListItem_t at the end, so this commit makes the last
 element of lists a ListItem_t instead.
 
-TODO is there a CBMC issue for this?
+This patch should be removed soon: It is for a CBMC issue being fixed now.
 ---
  lib/include/private/list.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
