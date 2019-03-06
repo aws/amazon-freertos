@@ -1,9 +1,9 @@
-From e4832314aa5a010ff379a2008923ef23a639fe45 Mon Sep 17 00:00:00 2001
+From b7fbcc3979324838ec240b28717bfd7918bbb388 Mon Sep 17 00:00:00 2001
 From: Kareem Khazem <karkhaz@amazon.com>
 Date: Thu, 31 Jan 2019 15:07:52 -0800
-Subject: [PATCH 1/8] Change FreeRTOS_IP_Private.h union to struct
+Subject: [PATCH 2/4] Change FreeRTOS_IP_Private.h union to struct
 
-This is to deal with a CBMC bug. TODO which one?
+This patch should be removed soon: It is for a CBMC issue being fixed now.
 ---
  lib/FreeRTOS-Plus-TCP/include/FreeRTOS_IP_Private.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
