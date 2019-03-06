@@ -38,6 +38,8 @@
 #include "FreeRTOSIPConfig.h"
 #include "aws_pkcs11.h"
 #include "aws_pkcs11_config.h"
+#include "aws_pkcs11_mbedtls.h"
+#include "aws_pkcs11_pal.h"
 
 
 /* C runtime includes. */
@@ -48,6 +50,9 @@
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
 #define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 #define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
+#define pkcs11palFILE_DEVICE_PUBLIC_KEY          "FreeRTOS_P11_PubKey.dat"
+#define pkcs11palFILE_TRUSTED_ROOT               "FreeRTOS_P11_TrustedRoot.dat"
+#define pkcs11palFILE_JITP                       "FreeRTOS_P11_JITP.dat"
 
 enum eObjectHandles
 {
@@ -129,27 +134,27 @@ void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
     switch( pxHandle )
     {
         case ( eAwsDeviceCertificate ):
-            *pcFileName = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+            *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
             break;
 
         case ( eAwsDevicePrivateKey ):
-            *pcFileName = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+            *pcFileName = pkcs11palFILE_NAME_KEY;
             break;
 
         case ( eAwsDevicePublicKey ):
-            *pcFileName = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+            *pcFileName = pkcs11palFILE_DEVICE_PUBLIC_KEY;
             break;
 
         case ( eAwsCodeSigningKey ):
-            *pcFileName = pkcs11configLABEL_CODE_VERIFICATION_KEY;
+            *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
             break;
 
         case ( eAwsTrustedServerCertificate ):
-            *pcFileName = pkcs11configLABEL_ROOT_CERTIFICATE;
+            *pcFileName = pkcs11palFILE_TRUSTED_ROOT;
             break;
 
         case ( eAwsJITPCertificate ):
-            *pcFileName = pkcs11configLABEL_JITP_CERTIFICATE;
+            *pcFileName = pkcs11palFILE_JITP;
             break;
 
         default:
@@ -189,7 +194,7 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
  * @return The object handle if successful.
  * eInvalidHandle = 0 if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize )
 {
@@ -200,7 +205,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pxLabel->pValue,
+    prvLabelToFilenameHandle( pxTemplate->cLabel,
                               &pcFileName,
                               &xHandle );
 
@@ -252,7 +257,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * Port-specific object handle retrieval.
  *
  *
- * @param[in] pLabel         Pointer to the label of the object
+ * @param[in] pxTemplate     Pointer to the template of the object
  *                           who's handle should be found.
  * @param[in] usLength       The length of the label, in bytes.
  *
@@ -260,17 +265,13 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
-                                        uint8_t usLength )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
 {
-    /* Avoid compiler warnings about unused variables. */
-    ( void ) usLength;
-
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pLabel,
+    prvLabelToFilenameHandle( pxTemplate->cLabel,
                               &pcFileName,
                               &xHandle );
 

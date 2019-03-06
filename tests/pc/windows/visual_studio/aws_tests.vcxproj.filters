@@ -786,6 +786,12 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_pki_utils.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_pkcs11_mbedtls.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_pkcs11_pal.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">

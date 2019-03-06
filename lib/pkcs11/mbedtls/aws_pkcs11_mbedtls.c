@@ -36,6 +36,8 @@
 #include "aws_pkcs11_config.h"
 #include "aws_crypto.h"
 #include "aws_pkcs11.h"
+#include "aws_pkcs11_mbedtls.h"
+#include "aws_pkcs11_pal.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/pk.h"
@@ -77,19 +79,7 @@ typedef struct P11Struct_t
 
 static P11Struct_t xP11Context;
 
-/**
- * @brief Structure for saving Find Object template information
- *
- * This structure is malloc'ed in FindObjectsInit, used to find a
- * match in FindObjects, and freed in FindObjectsFinal.
- */
-typedef struct FindObjectTemplate_t
-{
-    char cLabel[ pkcs11MAX_LABEL_LENGTH ];
-    CK_BBOOL xLabelIsValid;
-    CK_OBJECT_CLASS xClass;
-    CK_BBOOL xClassIsValid;
-} FindObjectTemplate_t;
+
 
 /**
  * @brief Session structure.
@@ -101,11 +91,11 @@ typedef struct P11Session
     CK_MECHANISM_TYPE xOperationInProgress;
     CK_BBOOL xFindObjectInit;
     CK_BBOOL xFindObjectComplete;
-    FindObjectTemplate_t * xFindObjectTemplate; /* Pointer to the template of the search in progress. */
+    SearchableAttributes_t * xFindObjectTemplate; /* Pointer to the template of the search in progress. Should be NULL if no search in progres. */
     uint8_t xFindObjectLabelLength;
-    SemaphoreHandle_t xVerifyMutex;             /* Protects the verification key from being modified while in use. */
+    SemaphoreHandle_t xVerifyMutex;               /* Protects the verification key from being modified while in use. */
     mbedtls_pk_context xVerifyKey;
-    SemaphoreHandle_t xSignMutex;               /* Protects the signing key from being modified while in use. */
+    SemaphoreHandle_t xSignMutex;                 /* Protects the signing key from being modified while in use. */
     mbedtls_pk_context xSignKey;
     mbedtls_sha256_context xSHA256Context;
 } P11Session_t, * P11SessionPtr_t;
@@ -128,44 +118,6 @@ typedef struct P11Session
 #define pkcs11GENERATE_KEY_PAIR_ECPARAMS_ATTRIBUTE_INDEX    1
 
 
-/*-----------------------------------------------------------*/
-/*------------ Port Specific File Access API ----------------*/
-/*--------- See aws_pkcs11_pal.c for definitions ------------*/
-/*-----------------------------------------------------------*/
-
-/**
- *  @brief Save an object to storage.
- */
-extern CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
-                                               uint8_t * pucData,
-                                               uint32_t ulDataSize );
-
-/**
- * @brief Delete an object from NVM.
- */
-extern CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
-
-/**
- *   @brief Look up an object handle using it's label.
- */
-extern CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
-                                               uint8_t usLength );
-
-/**
- *   @brief Get the value of an object.
- *   @note  Buffers may be allocated by this call, and should be
- *          freed up by calling PKCS11_PAL_GetObjectValueCleanup().
- */
-extern BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                             uint8_t ** ppucData,
-                                             uint32_t * pulDataSize,
-                                             CK_BBOOL * xIsPrivate );
-
-/**
- *  @brief Free the buffer allocated in PKCS11_PAL_GetObjectValue() (see PAL).
- */
-extern void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucBuffer,
-                                              uint32_t ulBufferSize );
 
 /*-----------------------------------------------------------*/
 
@@ -290,6 +242,55 @@ CK_RV prvMbedTLS_Initialize( void )
         else
         {
             xP11Context.xIsInitialized = CK_TRUE;
+        }
+    }
+
+    return xResult;
+}
+
+
+
+CK_RV xCreateSearchableAttributeTemplate( SearchableAttributes_t * pxFindObjectInfo,
+                                          CK_ATTRIBUTE_PTR pxTemplate,
+                                          CK_ULONG ulCount )
+{
+    CK_RV xResult = CKR_OK;
+
+    /* Unpack provided template and store information serially. */
+    if( xResult == CKR_OK )
+    {
+        for( int i = 0; i < ulCount; i++ )
+        {
+            CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+            switch( xAttribute.type ) /* TODO: Are we concerned about a template with the same attribute in it twice? */
+            {
+                case ( CKA_LABEL ):
+
+                    if( xAttribute.ulValueLen < pkcs11MAX_LABEL_LENGTH )
+                    {
+                        memcpy( pxFindObjectInfo->cLabel, xAttribute.pValue, xAttribute.ulValueLen );
+                        pxFindObjectInfo->xLabelIsValid = CK_TRUE;
+                    }
+                    else
+                    {
+                        configPRINTF( ( "Label exceeds maximum object label length (%d) \r\n", pkcs11MAX_LABEL_LENGTH ) );
+                        xResult = CKR_TEMPLATE_INCONSISTENT;
+                    }
+
+                    break;
+
+                case ( CKA_CLASS ):
+                    memcpy( &pxFindObjectInfo->xClass, xAttribute.pValue, sizeof( CK_OBJECT_CLASS ) );
+                    pxFindObjectInfo->xClassIsValid = CK_TRUE;
+                    break;
+
+                default:
+                    /* Do nothing.  It is one of the other attributes. */
+                    /*xResult = CKR_TEMPLATE_INCONSISTENT; */
+                    /*configPRINTF( ("Find objects only supported by label and/or class") ); */
+                    break;
+            }
         }
     }
 
@@ -563,6 +564,235 @@ CK_DEFINE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
     return CKR_OK;
 }
 
+
+CK_RV prvCreateCertificate( SearchableAttributes_t * pxSearchable,
+                            CK_ATTRIBUTE_PTR pxTemplate,
+                            CK_ULONG ulCount,
+                            CK_OBJECT_HANDLE_PTR pxObject )
+{
+    SearchableAttributes_t xAttributes;
+    CK_RV xResult = CKR_OK;
+    CK_BYTE_PTR pxCertificateValue = NULL;
+    CK_ULONG xCertificateLength = 0;
+
+    /* Search for the pointer to the certificate VALUE. */
+    for( int i = 0; i < ulCount; i++ )
+    {
+        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+        if( xAttribute.type == CKA_VALUE )
+        {
+            pxCertificateValue = xAttribute.pValue;
+            xCertificateLength = xAttribute.ulValueLen;
+        }
+    }
+
+    if( pxCertificateValue == NULL )
+    {
+        xResult = CKR_TEMPLATE_INCOMPLETE;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        *pxObject = PKCS11_PAL_SaveObject( pxSearchable, pxCertificateValue, xCertificateLength );
+
+        if( *pxObject == 0 ) /*Invalid handle. */
+        {
+            xResult = CKR_DEVICE_MEMORY;
+        }
+    }
+
+    return xResult;
+}
+
+CK_RV prvWriteKey()
+{
+}
+
+CK_RV prvCreateEcPrivateKey( SearchableAttributes_t * pxSearchable,
+                             CK_ATTRIBUTE_PTR pxTemplate,
+                             CK_ULONG ulCount,
+                             CK_OBJECT_HANDLE_PTR pxObject )
+{
+}
+
+#include "mbedtls/pk.h"
+#include "mbedtls/pk_internal.h"
+CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
+                              SearchableAttributes_t * pxSearchable,
+                              CK_ATTRIBUTE_PTR pxTemplate,
+                              CK_ULONG ulCount,
+                              CK_OBJECT_HANDLE_PTR pxObject )
+{
+    CK_RV xResult = CKR_OK;
+    mbedtls_rsa_context * pxRsaContext;
+    mbedtls_rsa_context xRsaCtx;
+    int lMbedReturn = 0;
+
+    pxRsaContext = &xRsaCtx;
+    mbedtls_rsa_init( pxRsaContext, MBEDTLS_RSA_PKCS_V15, 0 /*ignored.*/ );
+    /* Get the memory management of this context right in the morning. */
+
+    /* Parse template and collect the relevant parts. */
+    for( int i = 0; i < ulCount; i++ )
+    {
+        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+        switch( xAttribute.type )
+        {
+            case ( CKA_TOKEN ):
+            case ( CKA_CLASS ):
+            case ( CKA_LABEL ):
+            case ( CKA_KEY_TYPE ):
+
+                /* Do nothing.
+                 * At this time there is only token object support.
+                 * Key type was checked previously.
+                 * CLASS and LABEL have already been parsed into the Searchable Attributes. */
+                break;
+
+            case ( CKA_MODULUS ):
+                lMbedReturn |= mbedtls_rsa_import_raw( pxRsaContext,
+                                                       xAttribute.pValue, xAttribute.ulValueLen, /* N */
+                                                       NULL, 0,                                  /* P */
+                                                       NULL, 0,                                  /* Q */
+                                                       NULL, 0,                                  /* D */
+                                                       NULL, 0 );                                /* E */
+                break;
+
+            case ( CKA_PUBLIC_EXPONENT ):
+                lMbedReturn |= mbedtls_rsa_import_raw( pxRsaContext,
+                                                       NULL, 0,                                    /* N */
+                                                       NULL, 0,                                    /* P */
+                                                       NULL, 0,                                    /* Q */
+                                                       NULL, 0,                                    /* D */
+                                                       xAttribute.pValue, xAttribute.ulValueLen ); /* E */
+                break;
+
+            case ( CKA_PRIME_1 ):
+                lMbedReturn |= mbedtls_rsa_import_raw( pxRsaContext,
+                                                       NULL, 0,                                  /* N */
+                                                       xAttribute.pValue, xAttribute.ulValueLen, /* P */
+                                                       NULL, 0,                                  /* Q */
+                                                       NULL, 0,                                  /* D */
+                                                       NULL, 0 );                                /* E */
+                break;
+
+            case ( CKA_PRIME_2 ):
+                lMbedReturn |= mbedtls_rsa_import_raw( pxRsaContext,
+                                                       NULL, 0,                                  /* N */
+                                                       NULL, 0,                                  /* P */
+                                                       xAttribute.pValue, xAttribute.ulValueLen, /* Q */
+                                                       NULL, 0,                                  /* D */
+                                                       NULL, 0 );                                /* E */
+                break;
+
+            case ( CKA_PRIVATE_EXPONENT ):
+                lMbedReturn |= mbedtls_rsa_import_raw( pxRsaContext,
+                                                       NULL, 0,                                  /* N */
+                                                       NULL, 0,                                  /* P */
+                                                       NULL, 0,                                  /* Q */
+                                                       xAttribute.pValue, xAttribute.ulValueLen, /* D */
+                                                       NULL, 0 );                                /* E */
+                break;
+
+            default:
+                PKCS11_PRINT( ( "Unknown attribute found for RSA private key. %d \r\n", xAttribute.type ) );
+                xResult = CKR_TEMPLATE_INCONSISTENT;
+                break;
+        }
+    }
+
+    if( lMbedReturn != 0 )
+    {
+        xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+    }
+
+    /****************************************************************/
+
+#define MAX_LENGTH_KEY    3000
+    mbedtls_pk_context xMbedContext;
+    int lDerKeyLength;
+    CK_BYTE_PTR pxDerKey = NULL;
+
+    mbedtls_pk_init( &xMbedContext );
+
+    xMbedContext.pk_info = &mbedtls_rsa_info;
+    xMbedContext.pk_ctx = pxRsaContext;
+
+    if( xResult == CKR_OK )
+    {
+        pxDerKey = pvPortMalloc( MAX_LENGTH_KEY );
+
+        if( pxDerKey == NULL )
+        {
+            xResult = CKR_DEVICE_MEMORY;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        lDerKeyLength = mbedtls_pk_write_key_der( &xMbedContext, pxDerKey, MAX_LENGTH_KEY );
+
+        if( lDerKeyLength < 0 )
+        {
+            xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        *pxObject = PKCS11_PAL_SaveObject( pxSearchable,
+                                           pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
+                                           lDerKeyLength );
+
+        if( *pxObject == 0 )
+        {
+            xResult = CKR_DEVICE_MEMORY;
+        }
+    }
+
+    if( pxDerKey != NULL )
+    {
+        vPortFree( pxDerKey );
+    }
+
+    return xResult;
+}
+
+CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
+                           CK_ATTRIBUTE_PTR pxTemplate,
+                           CK_ULONG ulCount,
+                           CK_OBJECT_HANDLE_PTR pxObject )
+{
+    /* TODO: How long is a typical RSA key anyhow?  */
+#define MAX_LENGTH_KEY    3000
+    mbedtls_pk_context xMbedContext;
+    int lDerKeyLength;
+    CK_BYTE_PTR pxDerKey = NULL;
+    CK_RV xResult = CKR_OK;
+
+    mbedtls_pk_init( &xMbedContext );
+
+    /* RSA or Elliptic Curve? */
+    /* TODO: I could actually check the attributes.*/
+    if( ulCount > 6 )
+    {
+        xResult = prvCreateRsaPrivateKey( ( mbedtls_rsa_context ** ) xMbedContext.pk_ctx,
+                                          pxSearchable,
+                                          pxTemplate,
+                                          ulCount,
+                                          pxObject );
+    }
+    else
+    {
+        xResult = prvCreateEcPrivateKey( pxSearchable, pxTemplate, ulCount, pxObject );
+    }
+
+    return xResult;
+}
+
+
 /**
  * @brief Provides import and storage of a single client certificate and
  * associated private key.
@@ -573,11 +803,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                              CK_OBJECT_HANDLE_PTR pxObject )
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
+    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     void * pvContext = NULL;
     int32_t lMbedTLSParseResult = ~0;
     PKCS11_KeyTemplatePtr_t pxKeyTemplate = NULL;
+    SearchableAttributes_t xSearchable;
     PKCS11_CertificateTemplatePtr_t pxCertificateTemplate = NULL;
     CK_ATTRIBUTE_PTR pxObjectClassAttribute = pxTemplate;
+    CK_OBJECT_CLASS xClass;
 
     /* Avoid warnings about unused parameters. */
     ( void ) xSession;
@@ -585,158 +818,45 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
     /*
      * Check parameters.
      */
-    if( ( pkcs11CREATE_OBJECT_MIN_ATTRIBUTE_COUNT > ulCount ) ||
-        ( NULL == pxTemplate ) ||
+    if( pxSession->xOpened != CK_TRUE )
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+    }
+
+    if( ( NULL == pxTemplate ) ||
         ( NULL == pxObject ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    /* The PKCS#11 spec allows attributes to be in any order, but to simplify
-     *  code, CKA_CLASS is required to be the first attribute in the template. */
-    if( CKR_OK == xResult )
+    if( xResult == CKR_OK )
     {
-        if( ( pxObjectClassAttribute->type != CKA_CLASS ) ||
-            ( pxObjectClassAttribute->ulValueLen != sizeof( CK_OBJECT_CLASS ) ) )
+        xResult = xCreateSearchableAttributeTemplate( &xSearchable, pxTemplate, ulCount );
+
+        if( xSearchable.xClassIsValid != CK_TRUE )
         {
-            xResult = CKR_ARGUMENTS_BAD;
+            xResult = CKR_TEMPLATE_INCOMPLETE;
         }
     }
 
-    /*
-     * Handle the object by class.
-     */
-
-    if( CKR_OK == xResult )
+    if( xResult == CKR_OK )
     {
-        switch( *( ( uint32_t * ) pxObjectClassAttribute->pValue ) )
+        switch( xSearchable.xClass )
         {
             case CKO_CERTIFICATE:
-
-                pxCertificateTemplate = ( PKCS11_CertificateTemplatePtr_t ) pxTemplate;
-
-                /* Validate the attribute count for this object class. */
-                if( sizeof( PKCS11_CertificateTemplate_t ) / sizeof( CK_ATTRIBUTE ) != ulCount )
-                {
-                    xResult = CKR_ARGUMENTS_BAD;
-                    break;
-                }
-
-                /* Validate the attribute template. */
-                if( ( CKA_VALUE != pxCertificateTemplate->xValue.type ) ||
-                    ( CKA_LABEL != pxCertificateTemplate->xLabel.type ) )
-                {
-                    xResult = CKR_ARGUMENTS_BAD;
-                    break;
-                }
-
-                /* Verify that the given certificate can be parsed. */
-                pvContext = pvPortMalloc( sizeof( mbedtls_x509_crt ) );
-
-                if( NULL != pvContext )
-                {
-                    mbedtls_x509_crt_init( ( mbedtls_x509_crt * ) pvContext );
-                    lMbedTLSParseResult = mbedtls_x509_crt_parse( ( mbedtls_x509_crt * ) pvContext,
-                                                                  pxCertificateTemplate->xValue.pValue,
-                                                                  pxCertificateTemplate->xValue.ulValueLen );
-                    mbedtls_x509_crt_free( ( mbedtls_x509_crt * ) pvContext );
-                    vPortFree( pvContext );
-                }
-                else
-                {
-                    xResult = CKR_HOST_MEMORY;
-                    break;
-                }
-
-                if( 0 != lMbedTLSParseResult )
-                {
-                    xResult = CKR_ARGUMENTS_BAD;
-                    break;
-                }
-
-                /* Write the certificate to NVM. */
-                if( 0 == ( *pxObject = PKCS11_PAL_SaveObject( &pxCertificateTemplate->xLabel,
-                                                              pxCertificateTemplate->xValue.pValue,
-                                                              pxCertificateTemplate->xValue.ulValueLen ) ) )
-                {
-                    xResult = CKR_DEVICE_ERROR;
-                    break;
-                }
-
+                xResult = prvCreateCertificate( &xSearchable, pxTemplate, ulCount, pxObject );
                 break;
 
             case CKO_PRIVATE_KEY:
+                xResult = prvCreatePrivateKey( &xSearchable, pxTemplate, ulCount, pxObject );
+                break;
+
             case CKO_PUBLIC_KEY:
-
-                /* Cast the template for easy field access. */
-                pxKeyTemplate = ( PKCS11_KeyTemplatePtr_t ) pxTemplate;
-
-                /* Validate the attribute count for this object class. */
-                if( ( sizeof( PKCS11_KeyTemplate_t ) / sizeof( CK_ATTRIBUTE ) ) != ulCount )
-                {
-                    xResult = CKR_ARGUMENTS_BAD;
-                    break;
-                }
-
-                /* Confirm that the template is formatted as expected for a private key. */
-                if( ( CKA_VALUE != pxKeyTemplate->xValue.type ) ||
-                    ( CKA_KEY_TYPE != pxKeyTemplate->xKeyType.type ) ||
-                    ( CKA_LABEL != pxKeyTemplate->xLabel.type ) )
-                {
-                    xResult = CKR_ATTRIBUTE_TYPE_INVALID;
-                    break;
-                }
-
-                /* Verify that the given key can be parsed. */
-                pvContext = pvPortMalloc( sizeof( mbedtls_pk_context ) );
-
-                if( NULL != pvContext )
-                {
-                    mbedtls_pk_init( ( mbedtls_pk_context * ) pvContext );
-
-                    if( *( uint32_t * ) pxKeyTemplate->xObjectClass.pValue == CKO_PRIVATE_KEY )
-                    {
-                        lMbedTLSParseResult = mbedtls_pk_parse_key( ( mbedtls_pk_context * ) pvContext,
-                                                                    pxKeyTemplate->xValue.pValue,
-                                                                    pxKeyTemplate->xValue.ulValueLen,
-                                                                    NULL,
-                                                                    0 );
-                    }
-                    else
-                    {
-                        lMbedTLSParseResult = mbedtls_pk_parse_public_key( ( mbedtls_pk_context * ) pvContext,
-                                                                           pxKeyTemplate->xValue.pValue,
-                                                                           pxKeyTemplate->xValue.ulValueLen );
-                    }
-
-                    mbedtls_pk_free( ( mbedtls_pk_context * ) pvContext );
-                    vPortFree( pvContext );
-                }
-                else
-                {
-                    xResult = CKR_HOST_MEMORY;
-                    break;
-                }
-
-                if( 0 != lMbedTLSParseResult )
-                {
-                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                    break;
-                }
-
-                /* Save the key to NVM. */
-                if( 0 == ( *pxObject = PKCS11_PAL_SaveObject( &pxKeyTemplate->xLabel,
-                                                              pxKeyTemplate->xValue.pValue,
-                                                              pxKeyTemplate->xValue.ulValueLen ) ) )
-                {
-                    xResult = CKR_DEVICE_ERROR;
-                    break;
-                }
-
                 break;
 
             default:
-                xResult = CKR_ARGUMENTS_BAD;
+                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                break;
         }
     }
 
@@ -899,9 +1019,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
 {
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_RV xResult = CKR_OK;
-    FindObjectTemplate_t * pxFindObjectInfo;
+    SearchableAttributes_t * pxFindObjectInfo = NULL;
 
-
+    /* Check inputs. */
     if( ( pxSession == NULL ) || ( pxSession->xOpened != CK_TRUE ) )
     {
         xResult = CKR_SESSION_HANDLE_INVALID;
@@ -925,10 +1045,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     /* Malloc space to save template information. */
     if( xResult == CKR_OK )
     {
-        pxFindObjectInfo = pvPortMalloc( sizeof( FindObjectTemplate_t ) );
+        pxFindObjectInfo = pvPortMalloc( sizeof( SearchableAttributes_t ) );
         pxSession->xFindObjectTemplate = pxFindObjectInfo;
 
-        if( pxFindObjectInfo == NULL )
+        if( pxFindObjectInfo != NULL )
+        {
+            memset( pxFindObjectInfo, 0, sizeof( SearchableAttributes_t ) );
+        }
+        else
         {
             xResult = CKR_HOST_MEMORY;
         }
@@ -937,38 +1061,16 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     /* Unpack provided template and store information serially. */
     if( xResult == CKR_OK )
     {
-        memset( pxFindObjectInfo, 0, sizeof( FindObjectTemplate_t ) );
+        xResult = xCreateSearchableAttributeTemplate( pxFindObjectInfo, pxTemplate, ulCount );
+    }
 
-        for( int i = 0; i < ulCount; i++ )
+    /* Clean up memory if there was an error parsing the template. */
+    if( xResult != CKR_OK )
+    {
+        if( pxFindObjectInfo != NULL )
         {
-            CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
-
-            switch( xAttribute.type )
-            {
-                case ( CKA_LABEL ):
-
-                    if( xAttribute.ulValueLen < pkcs11MAX_LABEL_LENGTH )
-                    {
-                        memcpy( pxFindObjectInfo->cLabel, xAttribute.pValue, xAttribute.ulValueLen );
-                        pxFindObjectInfo->xLabelIsValid = CK_TRUE;
-                    }
-                    else
-                    {
-                        configPRINTF( ( "Label exceeds maximum object label length (%d) \r\n", pkcs11MAX_LABEL_LENGTH ) );
-                        xResult = CKR_TEMPLATE_INCONSISTENT;
-                    }
-                    break;
-
-                case ( CKA_CLASS ):
-                    memcpy( pxFindObjectInfo->xClass, xAttribute.pValue, sizeof( CK_OBJECT_CLASS ) );
-                    pxFindObjectInfo->xClassIsValid = CK_TRUE;
-                    break;
-
-                default:
-                    xResult = CKR_TEMPLATE_INCONSISTENT;
-                    configPRINTF( ( "Find objects only supported by label and/or class" ) );
-                    break;
-            }
+            vPortFree( pxFindObjectInfo );
+            pxSession->xFindObjectTemplate = NULL;
         }
     }
 
@@ -997,14 +1099,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         xDone = pdTRUE;
     }
 
-    if( ( pdFALSE == xDone ) &&
-        ( ( CK_BBOOL ) CK_FALSE == pxSession->xFindObjectInit ) )
+    if( pxSession->xFindObjectTemplate == NULL )
     {
         xResult = CKR_OPERATION_NOT_INITIALIZED;
         xDone = pdTRUE;
     }
 
-    if( ( pdFALSE == xDone ) && ( 0u == ulMaxObjectCount ) )
+    if( 0u == ulMaxObjectCount )
     {
         xResult = CKR_ARGUMENTS_BAD;
         xDone = pdTRUE;
@@ -1019,7 +1120,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
 
     if( ( pdFALSE == xDone ) )
     {
-        *pxObject = PKCS11_PAL_FindObject( pxSession->xFindObjectLabel, pxSession->xFindObjectLabelLength );
+        *pxObject = PKCS11_PAL_FindObject( pxSession->xFindObjectTemplate );
 
         if( *pxObject != 0 ) /* 0 is always an invalid handle. */
         {
@@ -1028,7 +1129,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         }
         else
         {
-            PKCS11_PRINT( ( "ERROR: Object with label %s not found. \r\n", ( char * ) pxSession->xFindObjectLabel ) );
+            PKCS11_PRINT( ( "ERROR: Object with label %s not found. \r\n", ( char * ) pxSession->xFindObjectTemplate ) );
             xResult = CKR_FUNCTION_FAILED;
         }
     }
@@ -1047,21 +1148,23 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
     /*
      * Check parameters.
      */
+    if( pxSession->xOpened != CK_TRUE )
+    {
+        xResult = CKR_SESSION_HANDLE_INVALID;
+    }
 
-    if( ( CK_BBOOL ) CK_FALSE == pxSession->xFindObjectInit )
+    if( pxSession->xFindObjectTemplate == NULL )
     {
         xResult = CKR_OPERATION_NOT_INITIALIZED;
     }
-    else
+
+    if( xResult == CKR_OK )
     {
         /*
          * Clean-up find objects state.
          */
-
-        pxSession->xFindObjectInit = CK_FALSE;
-        pxSession->xFindObjectComplete = CK_FALSE;
-        vPortFree( pxSession->xFindObjectLabel );
-        pxSession->xFindObjectLabelLength = 0;
+        vPortFree( pxSession->xFindObjectTemplate );
+        pxSession->xFindObjectTemplate = NULL;
     }
 
     return xResult;

@@ -159,6 +159,8 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_buffer.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_pkcs11_mbedtls.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_pkcs11_pal.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_json.h" />
