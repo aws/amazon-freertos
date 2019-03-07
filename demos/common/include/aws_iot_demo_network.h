@@ -46,7 +46,7 @@ typedef struct MqttConnectionContext
 {
     void *pvNetworkConnection;
     uint32_t ulNetworkType;
-    IotMqttNetIf_t xNetworkInterface;
+    IotMqttNetworkInfo_t xNetworkInfo;
     IotNetworkError_t ( * xDisconnectCallback ) ( void *) ;
     IotMqttConnection_t xMqttConnection;
 } MqttConnectionContext_t;
