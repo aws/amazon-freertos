@@ -87,11 +87,31 @@ const IotNetworkInterface_t _IotNetworkAfr =
  */
 static void _networkReceiveTask( void * pArgument )
 {
+    int32_t socketStatus = 0;
+
     /* Cast network connection to the correct type. */
     IotNetworkConnectionAfr_t * pNetworkConnection = pArgument;
 
     while( true )
     {
+        /* No buffered byte should be in the connection. */
+        configASSERT( pNetworkConnection->bufferedByteValid == false );
+
+        /* Block and wait for 1 byte of data. This simulates the behavior of poll().
+         * THIS IS A TEMPORARY WORKAROUND AND DOES NOT PROVIDE THREAD-SAFETY AGAINST
+         * MULTIPLE CALLS OF RECEIVE. */
+        socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
+                                     &( pNetworkConnection->bufferedByte ),
+                                     1,
+                                     0 );
+
+        if( socketStatus <= 0 )
+        {
+            break;
+        }
+
+        pNetworkConnection->bufferedByteValid = true;
+
         /* Invoke the network callback. */
         pNetworkConnection->receiveCallback( pNetworkConnection,
                                              pNetworkConnection->pReceiveContext );
@@ -201,10 +221,11 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
 {
     _IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
     Socket_t tcpSocket = SOCKETS_INVALID_SOCKET;
-    int32_t connectStatus = SOCKETS_ERROR_NONE;
+    int32_t socketStatus = SOCKETS_ERROR_NONE;
     SocketsSockaddr_t serverAddress = { 0 };
     EventGroupHandle_t pConnectionFlags = NULL;
     SemaphoreHandle_t pConnectionMutex = NULL;
+    const TickType_t receiveTimeout = 0;
 
     /* Cast function parameters to correct types. */
     const IotNetworkServerInfoAfr_t * pServerInfo = pConnectionInfo;
@@ -252,13 +273,26 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     serverAddress.usPort = SOCKETS_htons( pServerInfo->port );
     serverAddress.ulAddress = SOCKETS_GetHostByName( pServerInfo->pHostName );
 
-    connectStatus = SOCKETS_Connect( tcpSocket,
-                                     &serverAddress,
-                                     sizeof( SocketsSockaddr_t ) );
+    socketStatus = SOCKETS_Connect( tcpSocket,
+                                    &serverAddress,
+                                    sizeof( SocketsSockaddr_t ) );
 
-    if( connectStatus != SOCKETS_ERROR_NONE )
+    if( socketStatus != SOCKETS_ERROR_NONE )
     {
         IotLogError( "Failed to establish new connection." );
+        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+    }
+
+    /* Set an infinite timeout for receive. */
+    socketStatus = SOCKETS_SetSockOpt( tcpSocket,
+                                       0,
+                                       SOCKETS_SO_RCVTIMEO,
+                                       &receiveTimeout,
+                                       sizeof( TickType_t ) );
+
+    if( socketStatus != SOCKETS_ERROR_NONE )
+    {
+        IotLogError( "Failed to set socket receive timeout." );
         _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
@@ -366,8 +400,54 @@ size_t IotNetworkAfr_Receive( void * pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested )
 {
-    /* Not implemented yet, return 0. */
-    return 0;
+    int32_t socketStatus = 0;
+    size_t bytesReceived = 0, remainingBytes = bytesRequested;
+
+    /* Cast network connection to the correct type. */
+    IotNetworkConnectionAfr_t * pNetworkConnection = pConnection;
+
+    /* Write the buffered byte. THIS IS A TEMPORARY WORKAROUND AND ASSUMES THIS
+     * FUNCTION IS ALWAYS CALLED FROM THE RECEIVE CALLBACK. */
+    if( pNetworkConnection->bufferedByteValid == true )
+    {
+        *pBuffer = pNetworkConnection->bufferedByte;
+        socketStatus = 1;
+        remainingBytes--;
+        pNetworkConnection->bufferedByteValid = false;
+    }
+
+    /* Block and wait for incoming data. */
+    if( remainingBytes > 0 )
+    {
+        socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
+                                     pBuffer + socketStatus,
+                                     remainingBytes,
+                                     0 );
+    }
+
+    if( socketStatus <= 0 )
+    {
+        IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
+    }
+    else
+    {
+        bytesReceived = ( size_t ) socketStatus;
+        configASSERT( bytesReceived <= bytesRequested );
+
+        if( bytesReceived < bytesRequested )
+        {
+            IotLogWarn( "Receive requested %lu bytes, but %lu bytes received instead.",
+                        ( unsigned long ) bytesRequested,
+                        ( unsigned long ) bytesReceived );
+        }
+        else
+        {
+            IotLogDebug( "Successfully received %lu bytes.",
+                         ( unsigned long ) bytesRequested );
+        }
+    }
+
+    return bytesReceived;
 }
 
 /*-----------------------------------------------------------*/

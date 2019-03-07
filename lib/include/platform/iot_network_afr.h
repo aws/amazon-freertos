@@ -57,6 +57,8 @@ typedef struct IotNetworkConnectionAfr
     StaticEventGroup_t connectionFlags;          /**< @brief Synchronizes with the receive task. */
     IotNetworkReceiveCallback_t receiveCallback; /**< @brief Network receive callback, if any. */
     void * pReceiveContext;                      /**< @brief The context for the receive callback. */
+    bool bufferedByteValid;                      /**< @brief Used to determine if the buffered byte is valid. */
+    uint8_t bufferedByte;                        /**< @brief A single byte buffered from a receive, since AFR Secure Sockets does not have poll(). */
 } IotNetworkConnectionAfr_t;
 
 /**
