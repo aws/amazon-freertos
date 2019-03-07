@@ -162,6 +162,8 @@ void vApplicationDaemonTaskStartupHook( void )
     vKernelAtomicTryout_Arithmetic_happy_path();
     vKernelAtomicTryout_Bitwise_happy_path();
 
+    vKernelAtomicTryout_CAS_fail_to_swap();
+
     configPRINTF( ( "Exiting profiling task.\r\n" ) );
 }
 /*-----------------------------------------------------------*/

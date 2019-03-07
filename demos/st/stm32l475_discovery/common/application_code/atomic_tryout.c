@@ -37,6 +37,10 @@
  *       - casting. (e.g. we are only supporting 32-bit. give some example. )
  */
 
+/* These two must be included before atomic.h. FreeRTOSConfig.h is included from FreeRTOS.h. */
+#include "FreeRTOS.h"
+#include "portmacro.h"
+
 #include "atomic.h"
 #include "kernel_profiling.h"
 
@@ -65,7 +69,7 @@ void vKernelAtomicTryout_CAS_happy_path( void )
     uint32_t ulCasDestination_32;
     uint32_t ulCasComparator_32;
     uint32_t ulCasNewValue_32 ;
-    uint32_t ulReturnValue;
+    bool     bExecutinoStatus;
 
     uint32_t *pSwapDestination_32;
     uint32_t *pSwapNewValue_32;
@@ -79,7 +83,7 @@ void vKernelAtomicTryout_CAS_happy_path( void )
     uint8_t *pReturnValue_8 = NULL;
 
     /* asm (built-in function) implementation --
-     * Check objdump -- in loop, value is reloaded each iteration, comparator is reloaded each iteration .
+     * Check objdump -- in loop, value is reloaded each iteration, comparator is NOT reloaded each iteration .
      * Check functionality -- swapped.
      *
      * disabling interrupt implementation --
@@ -92,30 +96,28 @@ void vKernelAtomicTryout_CAS_happy_path( void )
     ulCasDestination_32 = MAGIC_NUMBER_32BIT_1;
     ulCasComparator_32 = MAGIC_NUMBER_32BIT_1;
     ulCasNewValue_32 = MAGIC_NUMBER_32BIT_2;
-    ulReturnValue = 0;
 
     __asm__ __volatile__("atomic_cas_1: nop");
-    ulReturnValue = Atomic_CompareAndSwap_u32( &ulCasDestination_32, ulCasNewValue_32, ulCasComparator_32);
+    bExecutinoStatus = Atomic_CompareAndSwap_u32( &ulCasDestination_32, ulCasNewValue_32, ulCasComparator_32);
     __asm__ __volatile__("atomic_cas_1_end: nop");
 
-    configPRINTF( ( "%s -- CAS (diff location). swapped? [%s], returned old value? [%s].\r\n",
+    configPRINTF( ( "%s -- CAS (diff location). swapped? [%s], returned swap status? [%s].\r\n",
                     __FUNCTION__,
                     ( ulCasDestination_32 == ulCasNewValue_32 ? "true" : "false" ),
-                    ( ulReturnValue == MAGIC_NUMBER_32BIT_1 ? "true" : "false" )
+                    ( bExecutinoStatus ? "true" : "false" )
                 ) );
 
     // #2 -- CAS, comparator from the same mem location.
     ulCasDestination_32 = MAGIC_NUMBER_32BIT_1;
-    ulReturnValue = 0;
 
     __asm__ __volatile__("atomic_cas_2: nop");
-    ulReturnValue = Atomic_CompareAndSwap_u32( &ulCasDestination_32, MAGIC_NUMBER_32BIT_2, ulCasDestination_32);
+    bExecutinoStatus = Atomic_CompareAndSwap_u32( &ulCasDestination_32, MAGIC_NUMBER_32BIT_2, ulCasDestination_32);
     __asm__ __volatile__("atomic_cas_2_end: nop");
 
-    configPRINTF( ( "%s -- CAS (same location). swapped? [%s], returned old value? [%s].\r\n",
+    configPRINTF( ( "%s -- CAS (same location). swapped? [%s], returned swap status? [%s].\r\n",
                     __FUNCTION__,
                     ( ulCasDestination_32 == MAGIC_NUMBER_32BIT_2 ? "true" : "false" ),
-                    ( ulReturnValue == MAGIC_NUMBER_32BIT_1 ? "true" : "false" )
+                    ( bExecutinoStatus ? "true" : "false" )
                 ) );
 
     // #3 -- swap
@@ -152,16 +154,15 @@ void vKernelAtomicTryout_CAS_happy_path( void )
     // #5 -- CAS pointers.
     pSwapDestination_32 = &ulCasDestination_32;
     pSwapNewValue_32 = &ulCasNewValue_32;
-    pReturnValue_32 = NULL;
 
     __asm__ __volatile__("atomic_CAS_pointers: nop");
-    pReturnValue_32 = Atomic_CompareAndSwapPointers_p32( (void **)&pSwapDestination_32, pSwapNewValue_32, &ulCasDestination_32);
+    bExecutinoStatus = Atomic_CompareAndSwapPointers_p32( (void **)&pSwapDestination_32, pSwapNewValue_32, &ulCasDestination_32);
     __asm__ __volatile__("atomic_CAS_pointers_end: nop");
 
-    configPRINTF( ( "%s -- CAS pointers (same location). swapped? [%s], returned old value? [%s].\r\n",
+    configPRINTF( ( "%s -- CAS pointers (same location). swapped? [%s], returned swap status? [%s].\r\n",
                         __FUNCTION__,
                         ( (intptr_t)pSwapDestination_32 == (intptr_t)pSwapNewValue_32 ? "true" : "false" ),
-                        ( (intptr_t)pReturnValue_32 == (intptr_t)&ulCasDestination_32 ? "true" : "false" )
+                        ( bExecutinoStatus ? "true" : "false" )
                     ) );
 
     return;
@@ -326,3 +327,48 @@ void vKernelAtomicTryout_Bitwise_happy_path(void)
 
 }
 
+
+void vKernelAtomicTryout_CAS_fail_to_swap(void)
+{
+    uint32_t ulCasDestination_32;
+    uint32_t ulCasComparator_32;
+    uint32_t ulCasNewValue_32 ;
+    bool bExecutinoStatus;
+
+    uint32_t *pCasDestination_32;
+    uint32_t *pCasComparator_32;
+    uint32_t *pCasNewValue_32;
+
+    // #1 -- CAS, not equal, don't swap.
+    ulCasDestination_32 = MAGIC_NUMBER_32BIT_1;
+    ulCasComparator_32 = MAGIC_NUMBER_32BIT_2;
+    ulCasNewValue_32 = MAGIC_NUMBER_32BIT_3;
+
+    __asm__ __volatile__("atomic_cas_neq: nop");
+    bExecutinoStatus = Atomic_CompareAndSwap_u32( &ulCasDestination_32, ulCasNewValue_32, ulCasComparator_32);
+    __asm__ __volatile__("atomic_cas_neq_end: nop");
+
+    configPRINTF( ( "%s -- CAS (not equal). Not swapped? [%s] (value 0x%08x), returned swap status \"false\"? [%s].\r\n",
+                    __FUNCTION__,
+                    ( ulCasDestination_32 == MAGIC_NUMBER_32BIT_1 ? "true" : "false" ),
+                    ulCasDestination_32,
+                    ( !bExecutinoStatus ? "true" : "false" )
+                ) );
+
+
+    // #2 -- CAS, pointers not equal, don't swap.
+    pCasDestination_32 = &ulCasDestination_32;
+    pCasComparator_32 = &ulCasComparator_32;
+    pCasNewValue_32 = &ulCasNewValue_32;
+
+    __asm__ __volatile__("atomic_cas_pointers_neq: nop");
+    bExecutinoStatus = Atomic_CompareAndSwapPointers_p32( (void **)&pCasDestination_32, pCasNewValue_32, pCasComparator_32);
+    __asm__ __volatile__("atomic_cas_pointers_neq_end: nop");
+
+    configPRINTF( ( "%s -- CAS (pointers not equal). Not swapped? [%s] (addr 0x%08x), returned swap status \"false\"? [%s].\r\n",
+                    __FUNCTION__,
+                    ( (intptr_t)pCasDestination_32 == (intptr_t)&ulCasDestination_32 ? "true" : "false" ),
+                    (intptr_t)pCasDestination_32,
+                    ( !bExecutinoStatus ? "true" : "false" )
+                ) );
+}

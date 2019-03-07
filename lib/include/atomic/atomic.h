@@ -20,30 +20,50 @@
  */
 
 /**
- * @file aws_iot_atomic.h
- * @brief FreeRTOS atomic operations with disabling interrupts globally.
+ * @file atomic.h
+ * @brief FreeRTOS atomic operation support.
+ *
+ * Two implementations of atomic are given in this header file:
+ * 1. Disabling interrupt globally.
+ * 2. ISA native atomic support.
+ * The former is available to all ports (compiler-architecture combination),
+ * while the latter is only available to ports compiling with GCC compiler.
+ *
+ * User can select with implementation to use by:
+ * including FreeRTOSConfig.h before atomic.h,
+ * and then setting/clearing configUSE_ATOMIC_INSTRUCTION in FreeRTOSConfig.h.
+ *
+ * Define AND set configUSE_ATOMIC_INSTRUCTION to 1 for ISA native atomic support.
+ * Undefine OR clear configUSE_ATOMIC_INSTRUCTION for disabling global interrupt implementation.
  */
 
 #ifndef ATOMIC_H
 #define ATOMIC_H
 
+#ifndef INC_FREERTOS_H
+    #error "include FreeRTOS.h must appear in source files before include atomic.h"
+#endif
+
+#ifndef PORTMACRO_H
+    #error "include portmacro.h must appear in source files before include atomic.h"
+#endif
+
 /* Standard includes. */
 #include <stdint.h>
+#include <stdbool.h>
 
-/* Check which atomic implementation to use. */
-#include "FreeRTOSConfig.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
 
-    #include <stdbool.h>
-
-    #define portFORCE_INLINE  inline __attribute__((always_inline))
+    /* This branch is for GCC compiler and GCC compiler only. */
+    #ifndef portFORCE_INLINE
+        #define portFORCE_INLINE  inline __attribute__((always_inline))
+    #endif
 
 #else
-
-    /* FreeRTOS includes. */
-    #include "FreeRTOS.h"
-    #include "portmacro.h"
 
     /* Port specific definitions --
      * how to enter/exit critical section from atomic.
@@ -78,41 +98,35 @@
  * @param[in] ulExchange         If condition meets, write this value to memory.
  * @param[in] ulComparand        Swap condition, checks and waits for *pDestination to be equal to ulComparand.
  *
- * @return The initial value of *pDestination.
+ * @return bool True for swapped, false for not swapped.
  *
- * @warning This function does NOT guarantee to swap *pDestination with ulExchange upon exit.
- *          It's up to caller to check the return value, and decide whether to retry.
+ * @note This function only swaps *pDestination with ulExchange, if previous *pDestination value equals ulComparand.
  */
-static portFORCE_INLINE uint32_t Atomic_CompareAndSwap_u32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
+static portFORCE_INLINE bool Atomic_CompareAndSwap_u32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
 {
-    uint32_t ulPreValue;
 
 #if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
-
-    do
-    {
-        ulPreValue = *pDestination;
-    }
-    while (false == __atomic_compare_exchange(pDestination, &ulComparand, &ulExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST));
+    return __atomic_compare_exchange( pDestination, &ulComparand, &ulExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST );
 
 #else
 
+    bool bExecutionStatus = false;
     CriticalSessionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
-    ulPreValue = *pDestination;
-
     if ( *pDestination == ulComparand )
     {
         *pDestination = ulExchange;
+        bExecutionStatus = true;
     }
 
     ATOMIC_EXIT_CRITICAL( temp );
 
+    return bExecutionStatus;
+
 #endif
 
-    return ulPreValue;
 }
 
 /**
@@ -124,8 +138,6 @@ static portFORCE_INLINE uint32_t Atomic_CompareAndSwap_u32( uint32_t volatile * 
  * @param[in] pExchange           Pointer value to be written to *ppDestination.
  *
  * @return The initial value of *ppDestination.
- *
- * @note This function guarantees to swap *ppDestination with *pExchange upon exit.
  */
 static portFORCE_INLINE void * Atomic_SwapPointers_p32( void * volatile * ppDestination, void * pExchange )
 {
@@ -161,41 +173,34 @@ static portFORCE_INLINE void * Atomic_SwapPointers_p32( void * volatile * ppDest
  * @param[in] pExchange          If condition meets, write this value to memory.
  * @param[in] pComparand         Swap condition, checks and waits for *ppDestination to be equal to *pComparand.
  *
- * @return The initial value of *ppDestination.
+ * @return bool True for swapped, false for not swapped.
  *
- * @note This function does NOT guarantee to swap *ppDestination with *pExchange upon exit.
- *       It's up to caller to check the return value, and decide whether to retry.
+ * @note This function only swaps *ppDestination with pExchange, if previous *ppDestination value equals pComparand.
  */
-static portFORCE_INLINE void * Atomic_CompareAndSwapPointers_p32( void * volatile * ppDestination, void * pExchange, void * pComparand )
+static portFORCE_INLINE bool Atomic_CompareAndSwapPointers_p32( void * volatile * ppDestination, void * pExchange, void * pComparand )
 {
-    void * pPrevValue;
 
 #if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
-
-    do
-    {
-        pPrevValue = *ppDestination;
-    }
-    while( false == __atomic_compare_exchange( ppDestination, &pComparand, &pExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST ) );
+    return __atomic_compare_exchange( ppDestination, &pComparand, &pExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST );
 
 #else
 
+    bool bExecutionStatus = false;
     CriticalSessionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
-    pPrevValue = *ppDestination;
-
     if ( *ppDestination == pComparand )
     {
         *ppDestination = pExchange;
+        bExecutionStatus = true;
     }
 
     ATOMIC_EXIT_CRITICAL( temp );
+    return bExecutionStatus;
 
 #endif
 
-    return pPrevValue;
 }
 
 
@@ -210,8 +215,6 @@ static portFORCE_INLINE void * Atomic_CompareAndSwapPointers_p32( void * volatil
  * @param[in] lCount       Value to be added to *pAddend.
  *
  * @return previous *pAddend value.
- *
- * @note This function guarantees to add value to *pAddend upon exit.
  */
 static portFORCE_INLINE int32_t Atomic_Add_i32( int32_t volatile * pAddend, int32_t lCount )
 {
@@ -246,8 +249,6 @@ static portFORCE_INLINE int32_t Atomic_Add_i32( int32_t volatile * pAddend, int3
  * @param[in] lCount       Value to be subtract from *pAddend.
  *
  * @return previous *pAddend value.
- *
- * @note This function guarantees to subtract value from *pAddend upon exit.
  */
 static portFORCE_INLINE int32_t Atomic_Subtract_i32( int32_t volatile * pAddend, int32_t lCount )
 {
@@ -281,8 +282,6 @@ static portFORCE_INLINE int32_t Atomic_Subtract_i32( int32_t volatile * pAddend,
  * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
  *
  * @return *pAddend value before increment.
- *
- * @note This function guarantees to subtract value from *pAddend upon exit.
  */
 static portFORCE_INLINE int32_t Atomic_Increment_i32( int32_t volatile * pAddend )
 {
@@ -316,8 +315,6 @@ static portFORCE_INLINE int32_t Atomic_Increment_i32( int32_t volatile * pAddend
  * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
  *
  * @return *pAddend value before decrement.
- *
- * @note This function guarantees to subtract value from *pAddend upon exit.
  */
 static portFORCE_INLINE int32_t Atomic_Decrement_i32( int32_t volatile * pAddend )
 {
@@ -479,5 +476,9 @@ static portFORCE_INLINE uint32_t Atomic_XOR_u32( uint32_t volatile * pDestinatio
 
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ATOMIC_H */

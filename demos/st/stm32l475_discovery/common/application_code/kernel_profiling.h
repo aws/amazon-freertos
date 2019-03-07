@@ -28,13 +28,18 @@
 #ifndef _KERNEL_PROFILING_H_
 #define _KERNEL_PROFILING_H_
 
+// classical producer-consumer.
 void vKernelProfilingMultiProducerConsumerSemaphore( int iPriority );
 
+// manual experiment.
 void vKernelProfilingStepDisassembly_sem_post( int iPriority );
 
+// atomic test cases.
 void vKernelAtomicTryout_CAS_happy_path(void);
 void vKernelAtomicTryout_Arithmetic_happy_path(void);
 void vKernelAtomicTryout_Bitwise_happy_path(void);
+
+void vKernelAtomicTryout_CAS_fail_to_swap(void);
 
 
 #endif /* _KERNEL_PROFILING_H_ */
