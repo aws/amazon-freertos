@@ -133,15 +133,6 @@ static size_t prvSendWrapper( void * pConnection,
                               size_t messageLength );
 
 /**
- * @brief The receive function set in the network interface.
- *
- * @see #IotNetworkAfr_Receive
- */
-static size_t prvReceiveWrapper( void * pConnection,
-                                 uint8_t * pBuffer,
-                                 size_t bytesRequested );
-
-/**
  * @brief The network close function set in network interface.
  *
  * Wraps the network stack's close function and calls an MQTT v1 disconnect
@@ -217,7 +208,7 @@ static const IotNetworkInterface_t xNetworkInterface =
     .create             = NULL,
     .setReceiveCallback = prvSetReceiveCallbackWrapper,
     .send               = prvSendWrapper,
-    .receive            = prvReceiveWrapper,
+    .receive            = IotNetworkAfr_Receive,
     .close              = prvCloseWrapper,
     .destroy            = NULL
 };
@@ -375,6 +366,7 @@ static IotNetworkError_t prvSetReceiveCallbackWrapper( void * pConnection,
 }
 
 /*-----------------------------------------------------------*/
+
 static size_t prvSendWrapper( void * pConnection,
                               const uint8_t * pMessage,
                               size_t messageLength )
@@ -384,19 +376,6 @@ static size_t prvSendWrapper( void * pConnection,
     return IotNetworkAfr_Send( &( pxConnection->xNetworkConnection ),
                                pMessage,
                                messageLength );
-}
-
-/*-----------------------------------------------------------*/
-
-static size_t prvReceiveWrapper( void * pConnection,
-                                 uint8_t * pBuffer,
-                                 size_t bytesRequested )
-{
-    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pConnection;
-
-    return IotNetworkAfr_Receive( &( pxConnection->xNetworkConnection ),
-                                  pBuffer,
-                                  bytesRequested );
 }
 
 /*-----------------------------------------------------------*/
