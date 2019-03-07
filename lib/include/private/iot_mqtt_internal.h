@@ -36,9 +36,6 @@
 /* Linear containers (lists and queues) include. */
 #include "iot_linear_containers.h"
 
-/* Platform layer types include. */
-#include "types/iot_platform_types.h"
-
 /* MQTT include. */
 #include "iot_mqtt.h"
 
@@ -197,8 +194,8 @@
  *
  * Provide default values for undefined configuration constants.
  */
-#ifndef IOT_MQTT_ENABLE_METRICS
-    #define IOT_MQTT_ENABLE_METRICS             ( 1 )
+#ifndef AWS_IOT_MQTT_ENABLE_METRICS
+    #define AWS_IOT_MQTT_ENABLE_METRICS             ( 1 )
 #endif
 #ifndef IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES
     #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 0 )
@@ -258,19 +255,44 @@
 #define _MQTT_PACKET_TYPE_PINGRESP                              ( ( uint8_t ) 0xd0U ) /**< @brief PINGRESP (server-to-client). */
 #define _MQTT_PACKET_TYPE_DISCONNECT                            ( ( uint8_t ) 0xe0U ) /**< @brief DISCONNECT (client-to-server). */
 
+/**
+ * @brief A value that represents an invalid remaining length.
+ *
+ * This value is greater than what is allowed by the MQTT specification.
+ */
+#define _MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
+
 /*---------------------- MQTT internal data structures ----------------------*/
 
 /**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Forward declarations.
+ * @brief Represents an MQTT connection.
  */
-struct _mqttSubscription;
-struct _mqttConnection;
-struct _mqttOperation;
-struct _mqttTimerEvent;
-/** @endcond */
+typedef struct _mqttConnection
+{
+    bool awsIotMqttMode;                             /**< @brief Specifies if this connection is to an AWS IoT MQTT server. */
+    void * pNetworkConnection;                       /**< @brief References the transport-layer network connection. */
+    const IotNetworkInterface_t * pNetworkInterface; /**< @brief Network interface provided to @ref mqtt_function_connect. */
+
+    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+        const IotMqttSerializer_t * pSerializer; /**< @brief MQTT packet serializer overrides. */
+    #endif
+
+    bool disconnected;                 /**< @brief Tracks if this connection has been disconnected. */
+    IotMutex_t referencesMutex;        /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
+    int32_t references;                /**< @brief Counts callbacks and operations using this connection. */
+    IotListDouble_t pendingProcessing; /**< @brief List of operations waiting to be processed by a task pool routine. */
+    IotListDouble_t pendingResponse;   /**< @brief List of processed operations awaiting a server response. */
+
+    IotListDouble_t subscriptionList;  /**< @brief Holds subscriptions associated with this connection. */
+    IotMutex_t subscriptionMutex;      /**< @brief Grants exclusive access to the subscription list. */
+
+    bool keepAliveFailure;             /**< @brief Failure flag for keep-alive operation. */
+    uint32_t keepAliveMs;              /**< @brief Keep-alive interval in milliseconds. Its max value (per spec) is 65,535,000. */
+    uint64_t nextKeepAliveMs;          /**< @brief Relative delay for next keep-alive job. */
+    IotTaskPoolJob_t keepAliveJob;     /**< @brief Task pool job for processing this connection's keep-alive. */
+    uint8_t * pPingreqPacket;          /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
+    size_t pingreqPacketSize;          /**< @brief The size of an allocated PINGREQ packet. */
+} _mqttConnection_t;
 
 /**
  * @brief Represents a subscription stored in an MQTT connection.
@@ -305,31 +327,6 @@ typedef struct _mqttSubscription
 } _mqttSubscription_t;
 
 /**
- * @brief Internal structure to hold data on an MQTT connection.
- */
-typedef struct _mqttConnection
-{
-    bool awsIotMqttMode;               /**< @brief Specifies if this connection is to an AWS IoT MQTT server. */
-    IotMqttNetIf_t network;            /**< @brief Network interface provided to @ref mqtt_function_connect. */
-
-    bool disconnected;                 /**< @brief Tracks if this connection has been disconnected. */
-    IotMutex_t referencesMutex;        /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
-    int32_t references;                /**< @brief Counts callbacks and operations using this connection. */
-    IotListDouble_t pendingProcessing; /**< @brief List of operations waiting to be processed by a task pool routine. */
-    IotListDouble_t pendingResponse;   /**< @brief List of processed operations awaiting a server response. */
-
-    IotListDouble_t subscriptionList;  /**< @brief Holds subscriptions associated with this connection. */
-    IotMutex_t subscriptionMutex;      /**< @brief Grants exclusive access to #_mqttConnection_t.subscriptionList. */
-
-    bool keepAliveFailure;             /**< @brief Failure flag for keep-alive operation. */
-    uint32_t keepAliveMs;              /**< @brief Keep-alive interval in milliseconds. Its max value (per spec) is 65,535,000. */
-    uint64_t nextKeepAliveMs;          /**< @brief Relative delay for next keep-alive job. */
-    IotTaskPoolJob_t keepAliveJob;     /**< @brief Task pool job for processing this connection's keep-alive. */
-    uint8_t * pPingreqPacket;          /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
-    size_t pingreqPacketSize;          /**< @brief The size of an allocated PINGREQ packet. */
-} _mqttConnection_t;
-
-/**
  * @brief Internal structure representing a single MQTT operation, such as
  * CONNECT, SUBSCRIBE, PUBLISH, etc.
  *
@@ -338,12 +335,12 @@ typedef struct _mqttConnection
 typedef struct _mqttOperation
 {
     /* Pointers to neighboring queue elements. */
-    IotLink_t link;                           /**< @brief List link member. */
+    IotLink_t link;                      /**< @brief List link member. */
 
-    bool incomingPublish;                     /**< @brief Set to true if this operation an incoming PUBLISH. */
-    struct _mqttConnection * pMqttConnection; /**< @brief MQTT connection associated with this operation. */
+    bool incomingPublish;                /**< @brief Set to true if this operation an incoming PUBLISH. */
+    _mqttConnection_t * pMqttConnection; /**< @brief MQTT connection associated with this operation. */
 
-    IotTaskPoolJob_t job;                     /**< @brief Task pool job associated with this operation. */
+    IotTaskPoolJob_t job;                /**< @brief Task pool job associated with this operation. */
 
     union
     {
@@ -357,8 +354,9 @@ typedef struct _mqttOperation
             uint16_t packetIdentifier;        /**< @brief The packet identifier used with this operation. */
 
             /* Serialized packet and size. */
-            uint8_t * pMqttPacket; /**< @brief The MQTT packet to send over the network. */
-            size_t packetSize;     /**< @brief Size of `pMqttPacket`. */
+            uint8_t * pMqttPacket;           /**< @brief The MQTT packet to send over the network. */
+            uint8_t * pPacketIdentifierHigh; /**< @brief The location of the high byte of the packet identifier in the MQTT packet. */
+            size_t packetSize;               /**< @brief Size of `pMqttPacket`. */
 
             /* How to notify of an operation's completion. */
             union
@@ -379,24 +377,42 @@ typedef struct _mqttOperation
         /* If incomingPublish is true, this struct is valid. */
         struct
         {
-            IotMqttPublishInfo_t publishInfo;      /**< @brief Deserialized PUBLISH. */
-            struct _mqttOperation * pNextPublish;  /**< @brief Pointer to the next PUBLISH in the data stream. */
-            const void * pReceivedData;            /**< @brief Any buffer associated with this PUBLISH that should be freed. */
-            void ( * freeReceivedData )( void * ); /**< @brief Function called to free `pReceivedData`. */
+            IotMqttPublishInfo_t publishInfo; /**< @brief Deserialized PUBLISH. */
+            const void * pReceivedData;       /**< @brief Any buffer associated with this PUBLISH that should be freed. */
         };
     };
 } _mqttOperation_t;
 
-/*-------------------- MQTT struct validation functions ---------------------*/
-
 /**
- * @brief Check that an #IotMqttNetIf_t is valid.
+ * @brief Represents an MQTT packet received from the network.
  *
- * @param[in] pNetworkInterface The #IotMqttNetIf_t to validate.
- *
- * @return `true` if `pNetworkInterface` is valid; `false` otherwise.
+ * This struct is used to hold parameters for the deserializers so that all
+ * deserializers have the same function signature.
  */
-bool _IotMqtt_ValidateNetIf( const IotMqttNetIf_t * pNetworkInterface );
+typedef struct _mqttPacket
+{
+    union
+    {
+        /**
+         * @brief (Input) MQTT connection associated with this packet. Only used
+         * when deserializing SUBACKs.
+         */
+        _mqttConnection_t * pMqttConnection;
+
+        /**
+         * @brief (Output) Operation representing an incoming PUBLISH. Only used
+         * when deserializing PUBLISHes.
+         */
+        _mqttOperation_t * pIncomingPublish;
+    };
+
+    uint8_t * pRemainingData;  /**< @brief (Input) The remaining data in MQTT packet. */
+    size_t remainingLength;    /**< @brief (Input) Length of the remaining data in the MQTT packet. */
+    uint16_t packetIdentifier; /**< @brief (Output) MQTT packet identifier. */
+    uint8_t type;              /**< @brief (Input) A value identifying the packet type. */
+} _mqttPacket_t;
+
+/*-------------------- MQTT struct validation functions ---------------------*/
 
 /**
  * @brief Check that an #IotMqttConnectInfo_t is valid.
@@ -463,18 +479,31 @@ IotMqttError_t _IotMqtt_InitSerialize( void );
 void _IotMqtt_CleanupSerialize( void );
 
 /**
- * @brief Get the MQTT packet type from a stream of bytes.
+ * @brief Get the MQTT packet type from a stream of bytes off the network.
  *
- * @param[in] pPacket Pointer to the beginning of the byte stream.
- * @param[in] packetSize Size of the byte stream.
+ * @param[in] pNetworkConnection Reference to the network connection.
+ * @param[in] pNetworkInterface Function pointers used to interact with the
+ * network.
  *
  * @return One of the server-to-client MQTT packet types.
  *
  * @note This function is only used for incoming packets, and may not work
  * correctly for outgoing packets.
  */
-uint8_t _IotMqtt_GetPacketType( const uint8_t * pPacket,
-                                size_t packetSize );
+uint8_t _IotMqtt_GetPacketType( void * pNetworkConnection,
+                                const IotNetworkInterface_t * pNetworkInterface );
+
+/**
+ * @brief Get the remaining length from a stream of bytes off the network.
+ *
+ * @param[in] pNetworkConnection Reference to the network connection.
+ * @param[in] pNetworkInterface Function pointers used to interact with the
+ * network.
+ *
+ * @return The remaining length; #_MQTT_REMAINING_LENGTH_INVALID on error.
+ */
+size_t _IotMqtt_GetRemainingLength( void * pNetworkConnection,
+                                    const IotNetworkInterface_t * pNetworkInterface );
 
 /**
  * @brief Generate a CONNECT packet from the given parameters.
@@ -494,18 +523,14 @@ IotMqttError_t _IotMqtt_SerializeConnect( const IotMqttConnectInfo_t * pConnectI
  *
  * Converts the packet from a stream of bytes to an #IotMqttError_t. Also
  * prints out debug log messages about the packet.
- * @param[in] pConnackStart Pointer to the start of a CONNACK packet.
- * @param[in] dataLength Length of the data stream after `pConnackStart`.
- * @param[out] pBytesProcessed The number of bytes in the data stream processed
- * by this function. For CONNACK, this is always 4.
+ *
+ * @param[in,out] pConnack Pointer to an MQTT packet struct representing a CONNACK.
  *
  * @return #IOT_MQTT_SUCCESS if CONNACK specifies that CONNECT was accepted;
  * #IOT_MQTT_SERVER_REFUSED if CONNACK specifies that CONNECT was rejected;
  * #IOT_MQTT_BAD_RESPONSE if the CONNACK packet doesn't follow MQTT spec.
  */
-IotMqttError_t _IotMqtt_DeserializeConnack( const uint8_t * pConnackStart,
-                                            size_t dataLength,
-                                            size_t * pBytesProcessed );
+IotMqttError_t _IotMqtt_DeserializeConnack( _mqttPacket_t * pConnack );
 
 /**
  * @brief Generate a PUBLISH packet from the given parameters.
@@ -514,20 +539,22 @@ IotMqttError_t _IotMqtt_DeserializeConnack( const uint8_t * pConnackStart,
  * @param[out] pPublishPacket Where the PUBLISH packet is written.
  * @param[out] pPacketSize Size of the packet written to `pPublishPacket`.
  * @param[out] pPacketIdentifier The packet identifier generated for this PUBLISH.
+ * @param[out] pPacketIdentifierHigh Where the high byte of the packet identifier
+ * is written.
  *
  * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  */
 IotMqttError_t _IotMqtt_SerializePublish( const IotMqttPublishInfo_t * pPublishInfo,
                                           uint8_t ** pPublishPacket,
                                           size_t * pPacketSize,
-                                          uint16_t * pPacketIdentifier );
+                                          uint16_t * pPacketIdentifier,
+                                          uint8_t ** pPacketIdentifierHigh );
 
 /**
  * @brief Set the DUP bit in a QoS 1 PUBLISH packet.
  *
- * @param[in] awsIotMqttMode Specifies if this PUBLISH packet is being sent to
- * an AWS IoT MQTT server.
  * @param[in] pPublishPacket Pointer to the PUBLISH packet to modify.
+ * @param[in] pPacketIdentifierHigh The high byte of any packet identifier to modify.
  * @param[out] pNewPacketIdentifier Since AWS IoT does not support the DUP flag,
  * a new packet identifier is generated and should be written here. This parameter
  * is only used when connected to an AWS IoT MQTT server.
@@ -535,8 +562,8 @@ IotMqttError_t _IotMqtt_SerializePublish( const IotMqttPublishInfo_t * pPublishI
  * @note See #IotMqttPublishInfo_t for caveats with retransmission to the
  * AWS IoT MQTT server.
  */
-void _IotMqtt_PublishSetDup( bool awsIotMqttMode,
-                             uint8_t * pPublishPacket,
+void _IotMqtt_PublishSetDup( uint8_t * pPublishPacket,
+                             uint8_t * pPacketIdentifierHigh,
                              uint16_t * pNewPacketIdentifier );
 
 /**
@@ -546,21 +573,12 @@ void _IotMqtt_PublishSetDup( bool awsIotMqttMode,
  * extracts the packet identifier. Also prints out debug log messages about the
  * packet.
  *
- * @param[in] pPublishStart Pointer to the start of a PUBLISH packet.
- * @param[in] dataLength Length of the data stream after `pPublishStart`.
- * @param[out] pOutput Where the deserialized PUBLISH will be written.
- * @param[out] pPacketIdentifier The packet identifier in the PUBLISH.
- * @param[out] pBytesProcessed The number of bytes in the data stream processed
- * by this function.
+ * @param[in,out] pPublish Pointer to an MQTT packet struct representing a PUBLISH.
  *
  * @return #IOT_MQTT_SUCCESS if PUBLISH is valid; #IOT_MQTT_BAD_RESPONSE
  * if the PUBLISH packet doesn't follow MQTT spec.
  */
-IotMqttError_t _IotMqtt_DeserializePublish( const uint8_t * pPublishStart,
-                                            size_t dataLength,
-                                            IotMqttPublishInfo_t * pOutput,
-                                            uint16_t * pPacketIdentifier,
-                                            size_t * pBytesProcessed );
+IotMqttError_t _IotMqtt_DeserializePublish( _mqttPacket_t * pPublish );
 
 /**
  * @brief Generate a PUBACK packet for the given packet identifier.
@@ -581,19 +599,12 @@ IotMqttError_t _IotMqtt_SerializePuback( uint16_t packetIdentifier,
  * Converts the packet from a stream of bytes to an #IotMqttError_t and extracts
  * the packet identifier. Also prints out debug log messages about the packet.
  *
- * @param[in] pPubackStart Pointer to the start of a PUBACK packet.
- * @param[in] dataLength Length of the data stream after `pPubackStart`.
- * @param[out] pPacketIdentifier The packet identifier in the PUBACK.
- * @param[out] pBytesProcessed The number of bytes in the data stream processed
- * by this function. For PUBACK, this is always 4.
+ * @param[in,out] pPuback Pointer to an MQTT packet struct representing a PUBACK.
  *
  * @return #IOT_MQTT_SUCCESS if PUBACK is valid; #IOT_MQTT_BAD_RESPONSE
  * if the PUBACK packet doesn't follow MQTT spec.
  */
-IotMqttError_t _IotMqtt_DeserializePuback( const uint8_t * pPubackStart,
-                                           size_t dataLength,
-                                           uint16_t * pPacketIdentifier,
-                                           size_t * pBytesProcessed );
+IotMqttError_t _IotMqtt_DeserializePuback( _mqttPacket_t * pPuback );
 
 /**
  * @brief Generate a SUBSCRIBE packet from the given parameters.
@@ -618,22 +629,12 @@ IotMqttError_t _IotMqtt_SerializeSubscribe( const IotMqttSubscription_t * pSubsc
  * Converts the packet from a stream of bytes to an #IotMqttError_t and extracts
  * the packet identifier. Also prints out debug log messages about the packet.
  *
- * @param[in] mqttConnection The MQTT connection associated with the subscription.
- * Rejected topic filters are removed from this connection.
- * @param[in] pSubackStart Pointer to the start of a SUBACK packet.
- * @param[in] dataLength Length of the data stream after `pSubackStart`.
- * @param[out] pPacketIdentifier The packet identifier in the SUBACK.
- * @param[out] pBytesProcessed The number of bytes in the data stream processed by
- * this function.
+ * @param[in,out] pSuback Pointer to an MQTT packet struct representing a SUBACK.
  *
  * @return #IOT_MQTT_SUCCESS if SUBACK is valid; #IOT_MQTT_BAD_RESPONSE
  * if the SUBACK packet doesn't follow MQTT spec.
  */
-IotMqttError_t _IotMqtt_DeserializeSuback( IotMqttConnection_t mqttConnection,
-                                           const uint8_t * pSubackStart,
-                                           size_t dataLength,
-                                           uint16_t * pPacketIdentifier,
-                                           size_t * pBytesProcessed );
+IotMqttError_t _IotMqtt_DeserializeSuback( _mqttPacket_t * pSuback );
 
 /**
  * @brief Generate an UNSUBSCRIBE packet from the given parameters.
@@ -658,19 +659,12 @@ IotMqttError_t _IotMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * pSub
  * Converts the packet from a stream of bytes to an #IotMqttError_t and extracts
  * the packet identifier. Also prints out debug log messages about the packet.
  *
- * @param[in] pUnsubackStart Pointer to the start of an UNSUBACK packet.
- * @param[in] dataLength Length of the data stream after `pUnsubackStart`.
- * @param[out] pPacketIdentifier The packet identifier in the UNSUBACK.
- * @param[out] pBytesProcessed The number of bytes in the data stream processed by
- * this function. For UNSUBACK, this is always 4.
+ * @param[in,out] pUnsuback Pointer to an MQTT packet struct representing an UNSUBACK.
  *
  * @return #IOT_MQTT_SUCCESS if UNSUBACK is valid; #IOT_MQTT_BAD_RESPONSE
  * if the UNSUBACK packet doesn't follow MQTT spec.
  */
-IotMqttError_t _IotMqtt_DeserializeUnsuback( const uint8_t * pUnsubackStart,
-                                             size_t dataLength,
-                                             uint16_t * pPacketIdentifier,
-                                             size_t * pBytesProcessed );
+IotMqttError_t _IotMqtt_DeserializeUnsuback( _mqttPacket_t * pUnsuback );
 
 /**
  * @brief Generate a PINGREQ packet.
@@ -688,17 +682,13 @@ IotMqttError_t _IotMqtt_SerializePingreq( uint8_t ** pPingreqPacket,
  *
  * Converts the packet from a stream of bytes to an #IotMqttError_t. Also
  * prints out debug log messages about the packet.
- * @param[in] pPingrespStart Pointer to the start of a PINGRESP packet.
- * @param[in] dataLength Length of the data stream after `pPingrespStart`.
- * @param[out] pBytesProcessed The number of bytes in the data stream processed by
- * this function. For PINGRESP, this is always 2.
+ *
+ * @param[in,out] pPingresp Pointer to an MQTT packet struct representing a PINGRESP.
  *
  * @return #IOT_MQTT_SUCCESS if PINGRESP is valid; #IOT_MQTT_BAD_RESPONSE
  * if the PINGRESP packet doesn't follow MQTT spec.
  */
-IotMqttError_t _IotMqtt_DeserializePingresp( const uint8_t * pPingrespStart,
-                                             size_t dataLength,
-                                             size_t * pBytesProcessed );
+IotMqttError_t _IotMqtt_DeserializePingresp( _mqttPacket_t * pPingresp );
 
 /**
  * @brief Generate a DISCONNECT packet.
@@ -760,7 +750,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation );
 /**
  * @brief Task pool routine for processing an MQTT connection's keep-alive.
  *
- * @param[in] pTaskPool Pointer to #_IotMqttTaskPool.
+ * @param[in] pTaskPool Pointer to the system task pool.
  * @param[in] pKeepAliveJob Pointer the an MQTT connection's keep-alive job.
  * @param[in] pContext Pointer to an MQTT connection, passed as an opaque context.
  */
@@ -771,7 +761,7 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t * pTaskPool,
 /**
  * @brief Task pool routine for processing an incoming PUBLISH message.
  *
- * @param[in] pTaskPool Pointer to #_IotMqttTaskPool.
+ * @param[in] pTaskPool Pointer to the system task pool.
  * @param[in] pPublishJob Pointer to the incoming PUBLISH operation's job.
  * @param[in] pContext Pointer to the incoming PUBLISH operation, passed as an
  * opaque context.
@@ -783,7 +773,7 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t * pTaskPool,
 /**
  * @brief Task pool routine for processing an MQTT operation to send.
  *
- * @param[in] pTaskPool Pointer to #_IotMqttTaskPool.
+ * @param[in] pTaskPool Pointer to the system task pool.
  * @param[in] pSendJob Pointer to an operation's job.
  * @param[in] pContext Pointer to the operation to send, passed as an opaque
  * context.
@@ -795,7 +785,7 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
 /**
  * @brief Task pool routine for processing a completed MQTT operation.
  *
- * @param[in] pTaskPool Pointer to #_IotMqttTaskPool.
+ * @param[in] pTaskPool Pointer to the system task pool.
  * @param[in] pOperationJob Pointer to the completed operation's job.
  * @param[in] pContext Pointer to the completed operation, passed as an opaque
  * context.
@@ -920,6 +910,21 @@ bool _IotMqtt_IncrementConnectionReferences( _mqttConnection_t * pMqttConnection
  * @param[in] pMqttConnection The referenced MQTT connection.
  */
 void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection );
+
+/**
+ * @brief Read the next available byte on a network connection.
+ *
+ * @param[in] pNetworkConnection Reference to the network connection.
+ * @param[in] pNetworkInterface Function pointers used to interact with the
+ * network.
+ * @param[out] pIncomingByte The byte read from the network.
+ *
+ * @return `true` if a byte was successfully received from the network; `false`
+ * otherwise.
+ */
+bool _IotMqtt_GetNextByte( void * pNetworkConnection,
+                           const IotNetworkInterface_t * pNetworkInterface,
+                           uint8_t * pIncomingByte );
 
 /**
  * @brief Closes the network connection associated with an MQTT connection.

@@ -45,11 +45,11 @@
  * - @functionname{static_memory_function_cleanup}
  * - @functionname{static_memory_function_messagebuffersize}
  * - @functionname{static_memory_function_mallocmessagebuffer}
+ * - @functionname{static_memory_function_freemessagebuffer}
  * - @functionname{static_memory_function_malloctaskpooljob}
  * - @functionname{static_memory_function_freetaskpooljob}
  * - @functionname{static_memory_function_malloctaskpooltimerevent}
  * - @functionname{static_memory_function_freetaskpooltimerevent}
- * - @functionname{static_memory_function_freemessagebuffer}
  * - @functionname{static_memory_function_mallocmqttconnection}
  * - @functionname{static_memory_function_freemqttconnection}
  * - @functionname{static_memory_function_mallocmqttoperation}

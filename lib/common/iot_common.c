@@ -33,6 +33,9 @@
 /* Static memory include (if dynamic memory allocation is disabled). */
 #include "private/iot_static_memory.h"
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
     #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
@@ -47,50 +50,59 @@
 
 bool IotCommon_Init( void )
 {
-    bool status = true;
-
-    /* Create system task pool. */
-    if( status == true )
-    {
-        IotTaskPoolInfo_t taskPoolInfo = IOT_TASKPOOL_INFO_INITIALIZER_LARGE;
-
-        if( IotTaskPool_CreateSystemTaskPool( &taskPoolInfo ) != IOT_TASKPOOL_SUCCESS )
-        {
-            IotLogError( "Failed to create system task pool." );
-
-            status = false;
-        }
-    }
+    _IOT_FUNCTION_ENTRY( bool, true );
+    IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
+    IotTaskPoolInfo_t taskPoolInfo = IOT_TASKPOOL_INFO_INITIALIZER_LARGE;
 
     /* Initialize static memory if dynamic memory allocation is disabled. */
     #if IOT_STATIC_MEMORY_ONLY == 1
-        status = IotStaticMemory_Init();
+        bool staticMemoryInitialized = IotStaticMemory_Init();
 
-        if( status == false )
+        if( staticMemoryInitialized == false )
         {
             IotLogError( "Failed to initialize static memory." );
-            IotTaskPool_Destroy( IOT_SYSTEM_TASKPOOL );
+            _IOT_GOTO_CLEANUP();
         }
     #endif
 
-    if( status == true )
+    /* Create system task pool. */
+    taskPoolStatus = IotTaskPool_CreateSystemTaskPool( &taskPoolInfo );
+
+    if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
+    {
+        IotLogError( "Failed to create system task pool." );
+        _IOT_SET_AND_GOTO_CLEANUP( false );
+    }
+
+    _IOT_FUNCTION_CLEANUP_BEGIN();
+
+    if( status == false )
+    {
+        #if IOT_STATIC_MEMORY_ONLY == 1
+            if( staticMemoryInitialized == true )
+            {
+                IotStaticMemory_Cleanup();
+            }
+        #endif
+    }
+    else
     {
         IotLogInfo( "Common libraries successfully initialized." );
     }
 
-    return status;
+    _IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
 
 void IotCommon_Cleanup( void )
 {
+    IotTaskPool_Destroy( IOT_SYSTEM_TASKPOOL );
+
     /* Cleanup static memory if dynamic memory allocation is disabled. */
     #if IOT_STATIC_MEMORY_ONLY == 1
         IotStaticMemory_Cleanup();
     #endif
-
-    IotTaskPool_Destroy( IOT_SYSTEM_TASKPOOL );
 
     IotLogInfo( "Common libraries cleanup done." );
 }

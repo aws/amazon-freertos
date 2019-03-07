@@ -41,6 +41,9 @@
 /* JSON utilities include. */
 #include "iot_json_utils.h"
 
+/* MQTT include. */
+#include "iot_mqtt.h"
+
 /* Validate Shadow configuration settings. */
 #if AWS_IOT_SHADOW_ENABLE_ASSERTS != 0 && AWS_IOT_SHADOW_ENABLE_ASSERTS != 1
     #error "AWS_IOT_SHADOW_ENABLE_ASSERTS must be 0 or 1."

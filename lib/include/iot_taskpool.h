@@ -51,7 +51,7 @@
  * - @functionname{taskpool_function_setmaxthreads}
  * - @functionname{taskpool_function_createjob}
  * - @functionname{taskpool_function_createrecyclablejob}
- * - @functionname{taskpool_function_destroyjob}
+ * - @functionname{taskpool_function_destroyrecyclablejob}
  * - @functionname{taskpool_function_recyclejob}
  * - @functionname{taskpool_function_schedule}
  * - @functionname{taskpool_function_scheduledeferred}
@@ -67,7 +67,7 @@
  * @functionpage{IotTaskPool_SetMaxThreads,taskpool,setmaxthreads}
  * @functionpage{IotTaskPool_CreateJob,taskpool,createjob}
  * @functionpage{IotTaskPool_CreateJob,taskpool,createrecyclablejob}
- * @functionpage{IotTaskPool_DestroyJob,taskpool,destroyjob}
+ * @functionpage{IotTaskPool_DestroyRecyclableJob,taskpool,destroyrecyclablejob}
  * @functionpage{IotTaskPool_RecycleJob,taskpool,recyclejob}
  * @functionpage{IotTaskPool_Schedule,taskpool,schedule}
  * @functionpage{IotTaskPool_ScheduleDeferred,taskpool,scheduledeferred}
@@ -252,7 +252,7 @@ IotTaskPoolError_t IotTaskPool_CreateRecyclableJob( IotTaskPool_t * const pTaskP
 /**
  * @brief This function uninitializes a job.
  *
- * This function will destroy a job created with @ref AwsIotTaskPool_CreateJob or @ref AwsIotTaskPool_CreateRecyclableJob.
+ * This function will destroy a job created with @ref AwsIotTaskPool_CreateRecyclableJob.
  * A job should not be destroyed twice. A job that was previously scheduled but has not completed yet should not be destroyed,
  * but rather the application should attempt to cancel it first by calling @ref AwsIotTaskPool_TryCancel.
  * An attempt to destroy a job that was scheduled but not yet executed or canceled, may result in a
@@ -264,17 +264,21 @@ IotTaskPoolError_t IotTaskPool_CreateRecyclableJob( IotTaskPool_t * const pTaskP
  * @return One of the following:
  * - #IOT_TASKPOOL_SUCCESS
  * - #IOT_TASKPOOL_BAD_PARAMETER
+ * - #IOT_TASKPOOL_ILLEGAL_OPERATION
  * - #AWS_IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS
  *
  * @warning The task pool will try and prevent destroying jobs that are currently queued for execution, but does
- * not enforce strict ordering of operations. It is up to the user to make sure @ref IotTaskPool_DestroyJob is not called
+ * not enforce strict ordering of operations. It is up to the user to make sure @ref IotTaskPool_DestroyRecyclableJob is not called
  * our of order.
  *
+ * @warning Calling this function on job that was not previously created with @ref AwsIotTaskPool_CreateRecyclableJob 
+ * will result in a @ref AWS_IOT_TASKPOOL_ILLEGAL_OPERATION error.
+ *
  */
-/* @[declare_taskpool_destroyjob] */
-IotTaskPoolError_t IotTaskPool_DestroyJob( IotTaskPool_t * const pTaskPool,
-                                           IotTaskPoolJob_t * const pJob );
-/* @[declare_taskpool_destroyjob] */
+/* @[declare_taskpool_destroyrecyclablejob] */
+IotTaskPoolError_t IotTaskPool_DestroyRecyclableJob( IotTaskPool_t * const pTaskPool,
+                                                     IotTaskPoolJob_t * const pJob );
+/* @[declare_taskpool_destroyrecyclablejob] */
 
 /**
  * @brief Rrecycles a job into the task pool job cache.
@@ -302,7 +306,7 @@ IotTaskPoolError_t IotTaskPool_DestroyJob( IotTaskPool_t * const pTaskPool,
  * error.
  *
  * @warning This function should be used to recycle a job in the task pool cache when after the job executed.
- * Failing to call either this function or @ref IotTaskPool_DestroyJob will result is a memory leak. Statically
+ * Failing to call either this function or @ref IotTaskPool_DestroyRecyclableJob will result is a memory leak. Statically
  * alloted jobs do not need to be recycled or destroyed.
  *
  */
@@ -320,7 +324,7 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  *
  * @param[in] pTaskPool A handle to the task pool that must have been previously initialized with.
  * a call to @ref taskpool_function_create.
- * @param[in] pJob A job to schedule for execution. This must be first initialized with a call to @ref taskpool_function_createjob.
+ * @param[in] pJob A job to schedule for execution. This must be first initialized with a call to @ref taskpool_function_createjob. 
  * @param[in] flags Flags to be passed by the user, e.g. to identify the job as high priority by specifying #IOT_TASKPOOL_JOB_HIGH_PRIORITY.
  *
  * @return One of the following:
@@ -353,9 +357,6 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  *     JobUserContext_t * pUserContext = ( JobUserContext_t * )context;
  *
  *     pUserContext->counter++;
- *
- *     // Destroy the job.
- *     IotTaskPool_DestroyJob( pTaskPool, pJob );
  * }
  *
  * void TaskPoolExample( )
@@ -394,8 +395,6 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  *     // ... Perform other operations ...
  *     //
  *
- *
- *     IotTaskPool_DestroyJob( pTaskPool, pJob );
  *     IotTaskPool_Destroy( pTaskPool );
  * }
  * @endcode
@@ -463,7 +462,7 @@ IotTaskPoolError_t IotTaskPool_GetStatus( IotTaskPool_t * const pTaskPool,
  *
  * A job can be canceled only if it is not yet executing, i.e. if its status is
  * @ref IOT_TASKPOOL_STATUS_READY or @ref IOT_TASKPOOL_STATUS_SCHEDULED. Calling
- * @ref IotTaskPool_TryCancel on a job whose status is @ref IOT_TASKPOOL_STATUS_EXECUTING,
+ * @ref IotTaskPool_TryCancel on a job whose status is @ref IOT_TASKPOOL_STATUS_COMPLETED,
  * or @AWS_IOT_TASKPOOL_STATUS_CANCELED will yield a @AWS_IOT_TASKPOOL_CANCEL_FAILED return result.
  *
  * @param[in] pTaskPool A handle to the task pool that must have been previously initialized with

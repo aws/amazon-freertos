@@ -178,7 +178,7 @@ typedef enum IotTaskPoolJobStatus
      * @brief Job is executing.
      *
      */
-    IOT_TASKPOOL_STATUS_EXECUTING,
+    IOT_TASKPOOL_STATUS_COMPLETED,
 
     /**
      * @brief Job has been canceled before executing.

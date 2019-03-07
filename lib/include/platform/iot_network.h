@@ -20,7 +20,7 @@
  */
 
 /**
- * @file aws_iot_network.h
+ * @file iot_network.h
  * @brief Abstraction of network functions used by libraries in this SDK.
  */
 
@@ -80,55 +80,13 @@ typedef enum IotNetworkError
  * A function with this signature may be set with @ref platform_network_function_setreceivecallback
  * to be invoked when data is available on the network.
  *
- * An important concept associated with this function is <i>buffer ownership</i>.
- * Normally, once `pReceivedData` is passed to this function, it is considered
- * property of the library that set the receive callback. <b>The network stack
- *  must keep `pReceivedData` valid  and in-scope even after this function returns</b>,
- * and must not make any changes to `pReceivedData` until `freeReceivedData` is called
- * (which transfers ownership of `pReceivedData` back to the network stack).
- *
- * <b>If `freeReceivedData` is `NULL`, then ownership of `pReceivedData` will always
- * revert to the network stack as soon as the library's callback function returns.</b>
- * In this scenario, the library must copy any data it requires out of `pReceivedData`.
- * Therefore, passing `NULL` for `freeReceivedData` may increase memory usage.
- *
- * @param[in] pContext The third argument passed to @ref platform_network_function_setreceivecallback.
- * @param[in] pConnection The connection on which data was received, defined by
+ * @param[in] pConnection The connection on which data is available, defined by
  * the network stack.
- * @param[in] pReceivedData Buffer holding data received from the network. This buffer
- * must remain valid and in-scope until `freeReceivedData` is called if this function
- * returns a value of `dataLength-offset`.
- * @param[in] receivedDataLength The length of the buffer `pReceivedData`.
- * @param[in] offset The offset (in bytes) into `pReceivedData` where the received data
- * begins. The received data ranges from `pReceivedData+offset` to `pReceivedData+dataLength`.
- * Pass `0` to start from the beginning of `pReceivedData`.
- * @param[in] freeReceivedData The function to call when finished with `pReceivedData`.
- * Its parameter must be `pReceivedData`. Pass `NULL` to ignore.
- *
- * @return
- * The network stack must respond to this function's return value as follows:
- * - This function returns `-1` to indicate a fatal, unrecoverable error. The network
- * connection should no longer be used. The receive callback will not call `freeReceivedData`
- * if it returns `-1`.
- * - This function returns a positive value less than `dataLength-offset` to indicate
- * that the received data was incomplete in some way. The network stack should keep
- * the data in `pReceivedBuffer` and wait more data to arrive. The receive callback should
- * be called again with this additional data. The receive callback will not call
- * `freeReceivedData` in this case.
- * - This function returns `dataLength-offset` to indicate all received data was
- * processed. The buffer `pReceivedData` must remain valid and in-scope until
- * `freeReceivedData` is called.
- *
- * @attention The function @ref platform_network_function_receive must not be
- * called if a receive callback is active!
+ * @param[in] pContext The third argument passed to @ref platform_network_function_setreceivecallback.
  */
 /* @[declare_platform_network_receivecallback] */
-typedef int32_t ( * IotNetworkReceiveCallback_t )( void * pContext,
-                                                   void * pConnection,
-                                                   const uint8_t * pReceivedData,
-                                                   size_t receivedDataLength,
-                                                   size_t offset,
-                                                   void ( * freeReceivedData )( void * ) );
+typedef void ( * IotNetworkReceiveCallback_t )( void * pConnection,
+                                                void * pContext );
 /* @[declare_platform_network_receivecallback] */
 
 /**
@@ -156,7 +114,7 @@ typedef struct IotNetworkInterface
     /* @[declare_platform_network_create] */
     IotNetworkError_t ( * create )( void * pConnectionInfo,
                                     void * pCredentialInfo,
-                                    void * const pConnection );
+                                    void * pConnection );
     /* @[declare_platform_network_create] */
 
     /**
@@ -179,9 +137,6 @@ typedef struct IotNetworkInterface
      * @param[in] pContext A value to pass as the first parameter to the receive callback.
      *
      * @return Any #IotNetworkError_t, as defined by the network stack.
-     *
-     * @attention @ref platform_network_function_receive must not be called if
-     * a receive callback is set!
      *
      * @see platform_network_function_receivecallback
      */
@@ -226,13 +181,10 @@ typedef struct IotNetworkInterface
      *
      * @return The number of bytes successfully received. This should be
      * `bytesRequested` when successful. Any other value may indicate an error.
-     *
-     * @attention This function must not be called if a
-     * [receive callback](@ref platform_network_function_receivecallback) is active!
      */
     /* @[declare_platform_network_receive] */
     size_t ( * receive )( void * pConnection,
-                          uint8_t * const pBuffer,
+                          uint8_t * pBuffer,
                           size_t bytesRequested );
     /* @[declare_platform_network_receive] */
 

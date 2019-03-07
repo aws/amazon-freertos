@@ -47,7 +47,6 @@ static void _mqttDemoTask( void * argument )
     IotNetworkConnectionAfr_t networkConnection = IOT_NETWORK_CONNECTION_AFR_INITIALIZER;
     IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
-    IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
     IotMqttNetIf_t networkInterface = IOT_MQTT_NETIF_INITIALIZER;
 
     /* Silence warnings about unused parameters. */
@@ -76,17 +75,6 @@ static void _mqttDemoTask( void * argument )
 
     if( status == 0 )
     {
-        /* Set the MQTT receive callback. */
-        if( IotNetworkAfr_SetReceiveCallback( &networkConnection,
-                                              IotMqtt_ReceiveCallback,
-                                              &mqttConnection ) != IOT_NETWORK_SUCCESS )
-        {
-            status = -1;
-        }
-    }
-
-    if( status == 0 )
-    {
         /* Set the members of the network interface used by the MQTT connection. */
         networkInterface.pDisconnectContext = ( void * ) &networkConnection;
         networkInterface.pSendContext = ( void * ) &networkConnection;
@@ -97,7 +85,7 @@ static void _mqttDemoTask( void * argument )
         if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
         {
             /* Run the MQTT demo. */
-            status = IotDemo_RunMqttDemo( true, NULL, &mqttConnection, &networkInterface );
+            status = IotDemo_RunMqttDemo( true, NULL, &networkInterface );
 
             /* Clean up the MQTT library. */
             IotMqtt_Cleanup();

@@ -39,6 +39,9 @@
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 
+/* MQTT include. */
+#include "iot_mqtt.h"
+
 /*-----------------------------------------------------------*/
 
 /**

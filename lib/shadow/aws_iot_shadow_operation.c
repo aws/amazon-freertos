@@ -41,6 +41,9 @@
 /* JSON utils include. */
 #include "iot_json_utils.h"
 
+/* MQTT include. */
+#include "iot_mqtt.h"
+
 /*-----------------------------------------------------------*/
 
 /**

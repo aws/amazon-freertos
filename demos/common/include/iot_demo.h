@@ -58,12 +58,10 @@
 /* See iot_demo_mqtt.c for documentation of this function. */
 int IotDemo_RunMqttDemo( bool awsIotMqttMode,
                          const char * const pClientIdentifier,
-                         IotMqttConnection_t * const pMqttConnection,
-                         const IotMqttNetIf_t * const pNetworkInterface );
+                         const IotMqttNetworkInfo_t * const pNetworkInfo );
 
 /* See aws_iot_demo_shadow.c for documentation of this function. */
 int AwsIotDemo_RunShadowDemo( const char * const pThingName,
-                              IotMqttConnection_t * const pMqttConnection,
-                              const IotMqttNetIf_t * const pNetworkInterface );
+                              const IotMqttNetworkInfo_t * const pNetworkInfo );
 
 #endif /* ifndef _IOT_DEMO_H_ */
