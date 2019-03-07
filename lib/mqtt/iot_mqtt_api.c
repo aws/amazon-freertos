@@ -651,7 +651,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     if( status != IOT_MQTT_SUCCESS )
     {
         IotLogError( "(MQTT connection %p) Failed to schedule %s for sending.",
-                     pMqttConnection,
+                     mqttConnection,
                      IotMqtt_OperationType( operation ) );
 
         if( operation == IOT_MQTT_SUBSCRIBE )
@@ -685,7 +685,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
         status = IOT_MQTT_STATUS_PENDING;
 
         IotLogInfo( "(MQTT connection %p) %s operation scheduled.",
-                    pMqttConnection,
+                    mqttConnection,
                     IotMqtt_OperationType( operation ) );
     }
 

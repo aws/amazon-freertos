@@ -1307,6 +1307,9 @@
     <ClInclude Include="..\..\..\..\lib\include\platform\iot_network_afr.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\types\iot_mqtt_types.h">
+      <Filter>lib\aws\include\types</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">

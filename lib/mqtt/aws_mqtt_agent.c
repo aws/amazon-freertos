@@ -115,15 +115,42 @@ static void prvPublishCallbackWrapper( void * pvParameter,
                                        IotMqttCallbackParam_t * const xPublish );
 
 /**
- * @brief The disconnect function set in network interfaces.
+ * @brief The set receive callback function set in the network interface.
  *
- * Wraps the network stack's disconnect function and calls an MQTT v1 disconnect
+ * @see #IotNetworkAfr_SetReceiveCallback
+ */
+static IotNetworkError_t prvSetReceiveCallbackWrapper( void * pConnection,
+                                                       IotNetworkReceiveCallback_t receiveCallback,
+                                                       void * pContext );
+
+/**
+ * @brief The send function set in the network interface.
+ *
+ * @see #IotNetworkAfr_Send
+ */
+static size_t prvSendWrapper( void * pConnection,
+                              const uint8_t * pMessage,
+                              size_t messageLength );
+
+/**
+ * @brief The receive function set in the network interface.
+ *
+ * @see #IotNetworkAfr_Receive
+ */
+static size_t prvReceiveWrapper( void * pConnection,
+                                 uint8_t * pBuffer,
+                                 size_t bytesRequested );
+
+/**
+ * @brief The network close function set in network interface.
+ *
+ * Wraps the network stack's close function and calls an MQTT v1 disconnect
  * callback.
  * @param[in] pvDisconnectHandle The MQTT connection being disconnected.
  *
  * @return Always returns #IOT_NETWORK_SUCCESS.
  */
-static IotNetworkError_t prvDisconnectWrapper( void * pvDisconnectHandle );
+static IotNetworkError_t prvCloseWrapper( void * pvDisconnectHandle );
 
 #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
 
@@ -178,6 +205,22 @@ static IotNetworkError_t prvDisconnectWrapper( void * pvDisconnectHandle );
  * mqttconfigMAX_BROKERS;
  */
 static UBaseType_t uxAvailableBrokers = mqttconfigMAX_BROKERS;
+
+/**
+ * @brief A network interface to use.
+ *
+ * Wraps the network interface's functions. The create and destroy functions
+ * are not used.
+ */
+static const IotNetworkInterface_t xNetworkInterface =
+{
+    .create             = NULL,
+    .setReceiveCallback = prvSetReceiveCallbackWrapper,
+    .send               = prvSendWrapper,
+    .receive            = prvReceiveWrapper,
+    .close              = prvCloseWrapper,
+    .destroy            = NULL
+};
 
 /*-----------------------------------------------------------*/
 
@@ -320,7 +363,45 @@ static void prvPublishCallbackWrapper( void * pvParameter,
 
 /*-----------------------------------------------------------*/
 
-static IotNetworkError_t prvDisconnectWrapper( void * pvDisconnectHandle )
+static IotNetworkError_t prvSetReceiveCallbackWrapper( void * pConnection,
+                                                       IotNetworkReceiveCallback_t receiveCallback,
+                                                       void * pContext )
+{
+    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pConnection;
+
+    return IotNetworkAfr_SetReceiveCallback( &( pxConnection->xNetworkConnection ),
+                                             receiveCallback,
+                                             pContext );
+}
+
+/*-----------------------------------------------------------*/
+static size_t prvSendWrapper( void * pConnection,
+                              const uint8_t * pMessage,
+                              size_t messageLength )
+{
+    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pConnection;
+
+    return IotNetworkAfr_Send( &( pxConnection->xNetworkConnection ),
+                               pMessage,
+                               messageLength );
+}
+
+/*-----------------------------------------------------------*/
+
+static size_t prvReceiveWrapper( void * pConnection,
+                                 uint8_t * pBuffer,
+                                 size_t bytesRequested )
+{
+    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pConnection;
+
+    return IotNetworkAfr_Receive( &( pxConnection->xNetworkConnection ),
+                                  pBuffer,
+                                  bytesRequested );
+}
+
+/*-----------------------------------------------------------*/
+
+static IotNetworkError_t prvCloseWrapper( void * pvDisconnectHandle )
 {
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pvDisconnectHandle;
     IotNetworkError_t xNetworkStatus = IOT_NETWORK_SUCCESS;
@@ -567,7 +648,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
     IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER, * pxCredentials = NULL;
-    IotMqttNetIf_t xNetworkInterface = IOT_MQTT_NETIF_INITIALIZER;
+    IotMqttNetworkInfo_t xNetworkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t xMqttConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
     /* Copy the global callback and parameter. */
@@ -605,30 +686,18 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     {
         xStatus = eMQTTAgentFailure;
     }
-
-    /* Set the MQTT receive callback. */
-    if( xStatus == eMQTTAgentSuccess )
+    else
     {
-        if( IotNetworkAfr_SetReceiveCallback( &( pxConnection->xNetworkConnection ),
-                                              IotMqtt_ReceiveCallback,
-                                              &( pxConnection->xMQTTConnection ) ) != IOT_NETWORK_SUCCESS )
-        {
-            xStatus = eMQTTAgentFailure;
-        }
-        else
-        {
-            pxConnection->xNetworkConnectionCreated = pdTRUE;
-        }
+        pxConnection->xNetworkConnectionCreated = pdTRUE;
     }
 
     /* Establish the MQTT connection. */
     if( xStatus == eMQTTAgentSuccess )
     {
-        /* Set the members of the MQTT network interface. */
-        xNetworkInterface.pDisconnectContext = ( void * ) pxConnection;
-        xNetworkInterface.pSendContext = ( void * ) &( pxConnection->xNetworkConnection );
-        xNetworkInterface.disconnect = prvDisconnectWrapper;
-        xNetworkInterface.send = IotNetworkAfr_Send;
+        /* Set the members of the network info. */
+        xNetworkInfo.createNetworkConnection = false;
+        xNetworkInfo.pNetworkConnection = pxConnection;
+        xNetworkInfo.pNetworkInterface = &xNetworkInterface;
 
         /* Set the members of the MQTT connect info. */
         xMqttConnectInfo.cleanSession = true;
@@ -637,10 +706,10 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
         xMqttConnectInfo.keepAliveSeconds = mqttconfigKEEP_ALIVE_INTERVAL_SECONDS;
 
         /* Call MQTT v4's CONNECT function. */
-        xMqttStatus = IotMqtt_Connect( &( pxConnection->xMQTTConnection ),
-                                       &xNetworkInterface,
+        xMqttStatus = IotMqtt_Connect( &xNetworkInfo,
                                        &xMqttConnectInfo,
-                                       mqttTICKS_TO_MS( xTimeoutTicks ) );
+                                       mqttTICKS_TO_MS( xTimeoutTicks ),
+                                       &( pxConnection->xMQTTConnection ) );
         xStatus = prvConvertReturnCode( xMqttStatus );
     }
 
@@ -659,11 +728,11 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
             xGlobalSubscription.callback.function = prvPublishCallbackWrapper;
 
             xMqttStatus = IotMqtt_Subscribe( pxConnection->xMQTTConnection,
-                                                &xGlobalSubscription,
-                                                1,
-                                                IOT_MQTT_FLAG_WAITABLE,
-                                                NULL,
-                                                &xGlobalSubscriptionRef );
+                                             &xGlobalSubscription,
+                                             1,
+                                             IOT_MQTT_FLAG_WAITABLE,
+                                             NULL,
+                                             &xGlobalSubscriptionRef );
             xStatus = prvConvertReturnCode( xMqttStatus );
         }
 
@@ -671,7 +740,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
         if( xStatus == eMQTTAgentSuccess )
         {
             xMqttStatus = IotMqtt_Wait( xGlobalSubscriptionRef,
-                                           mqttTICKS_TO_MS( xTimeoutTicks ) );
+                                        mqttTICKS_TO_MS( xTimeoutTicks ) );
             xStatus = prvConvertReturnCode( xMqttStatus );
         }
     #endif /* if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 ) */

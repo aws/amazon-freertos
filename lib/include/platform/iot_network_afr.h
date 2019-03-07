@@ -55,8 +55,6 @@ typedef struct IotNetworkConnectionAfr
     Socket_t socket;                             /**< @brief Amazon FreeRTOS Secure Sockets handle. */
     StaticSemaphore_t socketMutex;               /**< @brief Prevents concurrent threads from sending on a socket. */
     StaticEventGroup_t connectionFlags;          /**< @brief Synchronizes with the receive task. */
-
-    uint8_t * pReceiveBuffer;                    /**< @brief Buffer for incoming data. */
     IotNetworkReceiveCallback_t receiveCallback; /**< @brief Network receive callback, if any. */
     void * pReceiveContext;                      /**< @brief The context for the receive callback. */
 } IotNetworkConnectionAfr_t;

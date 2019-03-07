@@ -361,6 +361,7 @@
     <ClInclude Include="..\..\..\..\lib\include\stream_buffer.h" />
     <ClInclude Include="..\..\..\..\lib\include\task.h" />
     <ClInclude Include="..\..\..\..\lib\include\timers.h" />
+    <ClInclude Include="..\..\..\..\lib\include\types\iot_mqtt_types.h" />
     <ClInclude Include="..\..\..\..\lib\include\types\iot_platform_types.h" />
     <ClInclude Include="..\..\..\..\lib\include\types\iot_taskpool_types.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\jsmn\jsmn.h" />

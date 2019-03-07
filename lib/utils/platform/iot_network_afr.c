@@ -54,32 +54,6 @@
 #include "iot_logging_setup.h"
 
 /**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Provide default implementations of the memory allocation functions and
- * default values for undefined configuration constants.
- */
-#ifndef IotNetwork_Malloc
-    #define IotNetwork_Malloc    pvPortMalloc
-#endif
-#ifndef IotNetwork_Free
-    #define IotNetwork_Free      vPortFree
-#endif
-
-/* Provide default values for undefined configuration constants. */
-#ifndef IOT_NETWORK_RECEIVE_BUFFER_SIZE
-    #define IOT_NETWORK_RECEIVE_BUFFER_SIZE    ( 1024 )
-#endif
-#ifndef IOT_NETWORK_SHORT_TIMEOUT_MS
-    #define IOT_NETWORK_SHORT_TIMEOUT_MS       ( 100 )
-#endif
-#ifndef IOT_NETWORK_SHUTDOWN_POLL_MS
-    #define IOT_NETWORK_SHUTDOWN_POLL_MS       ( 1000 )
-#endif
-/** @endcond */
-
-/**
  * @brief The event group bit to set when a connection's socket is shut down.
  */
 #define _FLAG_SHUTDOWN               ( 1 )
@@ -107,143 +81,6 @@ const IotNetworkInterface_t _IotNetworkAfr =
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Reallocate a network receive buffer; data is also copied from the old
- * buffer into the new buffer.
- *
- * @param[in] pOldBuffer The current network receive buffer.
- * @param[in] oldBufferSize The size (in bytes) of `pOldBuffer`.
- * @param[in] newBufferSize Requested size of the reallocated buffer.
- * @param[in] copyOffset The offset in `pOldBuffer` from which data should be
- * copied into the new buffer.
- *
- * @return Pointer to a new, reallocated buffer; `NULL` if buffer reallocation
- * failed.
- */
-static uint8_t * _reallocReceiveBuffer( uint8_t * pOldBuffer,
-                                        size_t oldBufferSize,
-                                        size_t newBufferSize,
-                                        size_t copyOffset )
-{
-    uint8_t * pNewBuffer = NULL;
-
-    /* This function should not be called with a smaller new buffer size or a
-     * copy offset greater than the old buffer size. */
-    configASSERT( newBufferSize >= oldBufferSize );
-    configASSERT( copyOffset < oldBufferSize );
-
-    /* Allocate a larger receive buffer. */
-    pNewBuffer = IotNetwork_Malloc( newBufferSize );
-
-    /* Copy data into the new buffer. */
-    if( pNewBuffer != NULL )
-    {
-        ( void ) memcpy( pNewBuffer,
-                         pOldBuffer + copyOffset,
-                         oldBufferSize - copyOffset );
-    }
-
-    /* Free the old buffer. */
-    IotNetwork_Free( pOldBuffer );
-
-    return pNewBuffer;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Block on a socket and wait for incoming data.
- *
- * This function is simulates the use of `poll` on a socket, then reads the data
- * available.
- *
- * @param[in] pNetworkConnection The connection to receive data from.
- * @param[out] pReceiveBuffer The buffer into which the received data will be placed.
- * @param[in] receiveBufferSize The size of `pReceiveBuffer`.
- *
- * @return The number of bytes read into `pReceiveBuffer`; a negative value on error.
- */
-static int32_t _readSocket( IotNetworkConnectionAfr_t * pNetworkConnection,
-                            uint8_t * pReceiveBuffer,
-                            size_t receiveBufferSize )
-{
-    _IOT_FUNCTION_ENTRY( int32_t, 0 );
-    TickType_t receiveTimeout = 0;
-    EventBits_t connectionFlags = 0;
-
-    /* Set a long timeout to wait for either a byte to be received or for
-     * a socket shutdown. */
-    receiveTimeout = pdMS_TO_TICKS( IOT_NETWORK_SHUTDOWN_POLL_MS );
-
-    status = SOCKETS_SetSockOpt( pNetworkConnection->socket,
-                                 0,
-                                 SOCKETS_SO_RCVTIMEO,
-                                 &receiveTimeout,
-                                 sizeof( TickType_t ) );
-
-    if( status != SOCKETS_ERROR_NONE )
-    {
-        _IOT_GOTO_CLEANUP();
-    }
-
-    /* Block until a single byte is received from the socket or the socket
-     * is shut down. */
-    while( ( status = SOCKETS_Recv( pNetworkConnection->socket,
-                                    pReceiveBuffer,
-                                    1,
-                                    0 ) ) == 0 )
-    {
-        /* Read the current connection flags. */
-        connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) );
-
-        /* Check the shutdown flag. */
-        if( ( connectionFlags & _FLAG_SHUTDOWN ) == _FLAG_SHUTDOWN )
-        {
-            _IOT_SET_AND_GOTO_CLEANUP( SOCKETS_ECLOSED );
-        }
-    }
-
-    /* Check for a socket error from the receive of 1 byte. */
-    if( status < 0 )
-    {
-        _IOT_GOTO_CLEANUP();
-    }
-
-    /* A single byte should have been read. */
-    configASSERT( status == 1 );
-
-    /* Once a single byte is successfully read from the socket, set a short timeout
-     * to read the rest of the data. */
-    receiveTimeout = pdMS_TO_TICKS( IOT_NETWORK_SHORT_TIMEOUT_MS );
-
-    status = SOCKETS_SetSockOpt( pNetworkConnection->socket,
-                                 0,
-                                 SOCKETS_SO_RCVTIMEO,
-                                 &receiveTimeout,
-                                 sizeof( TickType_t ) );
-
-    if( status != SOCKETS_ERROR_NONE )
-    {
-        _IOT_GOTO_CLEANUP();
-    }
-
-    /* Read all data currently available on the socket. */
-    status = SOCKETS_Recv( pNetworkConnection->socket,
-                           pReceiveBuffer + 1,
-                           receiveBufferSize - 1,
-                           0 );
-
-    /* Add the length of the single byte initially read when successful. */
-    if( status >= 0 )
-    {
-        status++;
-    }
-
-    _IOT_FUNCTION_EXIT_NO_CLEANUP();
-}
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Task routine that waits on incoming network data.
  *
  * @param[in] pArgument The network connection.
@@ -252,115 +89,15 @@ static void _networkReceiveTask( void * pArgument )
 {
     /* Cast network connection to the correct type. */
     IotNetworkConnectionAfr_t * pNetworkConnection = pArgument;
-    int32_t socketStatus = SOCKETS_ERROR_NONE, callbackStatus = 0;
-    size_t processOffset = 0, receiveBufferSize = IOT_NETWORK_RECEIVE_BUFFER_SIZE;
-
-    /* A receive buffer should have been allocated. */
-    configASSERT( pNetworkConnection->pReceiveBuffer != NULL );
 
     while( true )
     {
-        /* An offset larger than the buffer size should not have been calculated. */
-        configASSERT( processOffset < receiveBufferSize );
-
-        /* Block and wait for data from the socket. */
-        socketStatus = _readSocket( pNetworkConnection,
-                                    pNetworkConnection->pReceiveBuffer + processOffset,
-                                    receiveBufferSize - processOffset );
-
-        if( socketStatus <= 0 )
-        {
-            IotLogWarn( "No data could be received. Socket read returned %ld.",
-                        socketStatus );
-
-            break;
-        }
-
         /* Invoke the network callback. */
-        callbackStatus = pNetworkConnection->receiveCallback( pNetworkConnection->pReceiveContext,
-                                                              pNetworkConnection,
-                                                              pNetworkConnection->pReceiveBuffer,
-                                                              ( size_t ) socketStatus + processOffset,
-                                                              0,
-                                                              IotNetwork_Free );
-
-        /* Check the receive callback return value. */
-        if( callbackStatus == -1 )
-        {
-            /* Error in callback; exit receive task. */
-            break;
-        }
-        else if( callbackStatus == 0 )
-        {
-            IotLogDebug( "Receive buffer too small. Allocating larger buffer." );
-
-            /* Check that it's possible to allocate a larger buffer (overflow check). */
-            if( receiveBufferSize * 2 < receiveBufferSize )
-            {
-                IotLogError( "No larger receive buffer can be allocated." );
-
-                break;
-            }
-
-            /* Allocate a larger receive buffer. */
-            pNetworkConnection->pReceiveBuffer = _reallocReceiveBuffer( pNetworkConnection->pReceiveBuffer,
-                                                                        receiveBufferSize,
-                                                                        receiveBufferSize * 2,
-                                                                        0 );
-
-            /* Update buffer offset and size. */
-            if( pNetworkConnection->pReceiveBuffer != NULL )
-            {
-                processOffset = receiveBufferSize;
-                receiveBufferSize *= 2;
-            }
-            else
-            {
-                IotLogError( "No larger receive buffer can be allocated." );
-
-                break;
-            }
-        }
-        else if( callbackStatus < socketStatus + ( int32_t ) processOffset )
-        {
-            IotLogDebug( "Network receive callback processed %ld of %ld bytes.",
-                         ( long int ) callbackStatus,
-                         ( long int ) socketStatus + ( long int ) processOffset );
-
-            /* Allocate a new buffer and copy the unprocessed data to the beginning. */
-            pNetworkConnection->pReceiveBuffer = _reallocReceiveBuffer( pNetworkConnection->pReceiveBuffer,
-                                                                        receiveBufferSize,
-                                                                        receiveBufferSize,
-                                                                        ( size_t ) callbackStatus );
-
-            if( pNetworkConnection->pReceiveBuffer == NULL )
-            {
-                break;
-            }
-
-            processOffset = ( size_t ) socketStatus + processOffset - ( size_t ) callbackStatus;
-        }
-        else
-        {
-            /* If this block is reached, then the entire buffer was successfully processed. */
-            pNetworkConnection->pReceiveBuffer = IotNetwork_Malloc( receiveBufferSize );
-
-            if( pNetworkConnection->pReceiveBuffer == NULL )
-            {
-                break;
-            }
-
-            processOffset = 0;
-        }
+        pNetworkConnection->receiveCallback( pNetworkConnection,
+                                             pNetworkConnection->pReceiveContext );
     }
 
     IotLogDebug( "Network receive task terminating." );
-
-    /* If a receive buffer is allocated, free it. */
-    if( pNetworkConnection->pReceiveBuffer != NULL )
-    {
-        IotNetwork_Free( pNetworkConnection->pReceiveBuffer );
-    }
 
     /* Set the flag to indicate that the receive task has exited. */
     ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
@@ -562,7 +299,7 @@ IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext )
 {
-    _IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
+    IotNetworkError_t status = IOT_NETWORK_SUCCESS;
 
     /* Cast network connection to the correct type. */
     IotNetworkConnectionAfr_t * pNetworkConnection = pConnection;
@@ -571,19 +308,8 @@ IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
     pNetworkConnection->receiveCallback = receiveCallback;
     pNetworkConnection->pReceiveContext = pContext;
 
-    /* No receive buffer should be allocated, and no flags should be set. */
-    configASSERT( pNetworkConnection->pReceiveBuffer == NULL );
+    /* No flags should be set. */
     configASSERT( xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) ) == 0 );
-
-    /* Allocate initial network receive buffer. */
-    pNetworkConnection->pReceiveBuffer = IotNetwork_Malloc( IOT_NETWORK_RECEIVE_BUFFER_SIZE );
-
-    if( pNetworkConnection->pReceiveBuffer == NULL )
-    {
-        IotLogError( "Failed to allocate network receive buffer." );
-
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_NO_MEMORY );
-    }
 
     /* Create task that waits for incoming data. */
     if( xTaskCreate( _networkReceiveTask,
@@ -595,21 +321,10 @@ IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
     {
         IotLogError( "Failed to create network receive task." );
 
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+        status = IOT_NETWORK_SYSTEM_ERROR;
     }
 
-    /* Clean up on failure. */
-    _IOT_FUNCTION_CLEANUP_BEGIN();
-
-    if( status != IOT_NETWORK_SUCCESS )
-    {
-        if( pNetworkConnection->pReceiveBuffer != NULL )
-        {
-            IotNetwork_Free( pNetworkConnection->pReceiveBuffer );
-        }
-    }
-
-    _IOT_FUNCTION_CLEANUP_END();
+    return status;
 }
 
 /*-----------------------------------------------------------*/
