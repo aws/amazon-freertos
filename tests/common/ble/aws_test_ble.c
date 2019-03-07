@@ -1092,14 +1092,16 @@ TEST( Full_BLE, BLE_Property_Indication )
 TEST( Full_BLE, BLE_Property_Notification )
 {
 	void * pvPtr;
+	BaseType_t xStatus;
 
 	memcpy(ucRespBuffer[bletestATTR_SRVCB_CHAR_E].ucBuffer, bletestsDEFAULT_CHAR_VALUE, sizeof(bletestsDEFAULT_CHAR_VALUE) - 1);
 	ucRespBuffer[bletestATTR_SRVCB_CHAR_E].xLength = sizeof(bletestsDEFAULT_CHAR_VALUE) - 1;
 
 	prvSendNotification(bletestATTR_SRVCB_CHAR_E, false);
 	/* Wait a possible confirm for 2 max connections interval */
-	xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) bletestsMAX_CONNECTION_INTERVAL*2 );
+	xStatus = xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) bletestsMAX_CONNECTION_INTERVAL*2 );
 	vPortFree(pvPtr);
+	TEST_ASSERT_EQUAL(pdFALSE, xStatus);
 }
 
 TEST( Full_BLE, BLE_Property_WriteNoResponse )

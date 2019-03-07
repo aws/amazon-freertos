@@ -69,7 +69,17 @@ static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkCo
 /**
  * @brief Used to initialize the network interface.
  */
-static IotMqttNetIf_t xDefaultNetworkInterface = IOT_MQTT_NETIF_INITIALIZER;
+static IotMqttNetworkInfo_t xDefaultNetworkInterface = IOT_MQTT_NETWORK_INFO_INITIALIZER;
+
+static IotNetworkInterface_t xNetworkInterface =
+{
+		.create = NULL,
+		.send = IotNetworkAfr_Send,
+		.receive = IotNetworkAfr_Receive,
+		.setReceiveCallback = IotNetworkAfr_SetReceiveCallback,
+		.close = NULL,
+		.destroy = NULL
+};
 
 static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkContext, uint32_t ulNetworkTypes )
 {
@@ -108,7 +118,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     static IotNetworkConnectionAfr_t xConnection;
     IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
-    IotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
+    IotMqttNetworkInfo_t* pxNetworkIface = &( pxNetworkContext->xNetworkInfo );
     
     /* Disable ALPN if not using port 443. */
     if( clientcredentialMQTT_BROKER_PORT != 443 )
@@ -126,21 +136,14 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     else
     {
         xNetworkCreated = pdTRUE;
-    }    
-
-    /* Create the task that processes incoming MQTT data. */
-    xStatus = IotNetworkAfr_SetReceiveCallback( &xConnection, IotMqtt_ReceiveCallback, &pxNetworkContext->xMqttConnection);
-
-    if( xStatus != IOT_NETWORK_SUCCESS )
-    {
-        _IOT_SET_AND_GOTO_CLEANUP( pdFALSE );
     }
 
+    xNetworkInterface.close = pxNetworkContext->xDisconnectCallback;
+
     ( *pxNetworkIface ) = xDefaultNetworkInterface;
-    pxNetworkIface->pSendContext = ( void * ) &xConnection;
-    pxNetworkIface->send = IotNetworkAfr_Send;
-    pxNetworkIface->pDisconnectContext = pxNetworkContext;
-    pxNetworkIface->disconnect = pxNetworkContext->xDisconnectCallback;
+    pxNetworkIface->createNetworkConnection = false;
+    pxNetworkIface->pNetworkConnection = &xConnection;
+    pxNetworkIface->pNetworkInterface = &xNetworkInterface;
     pxNetworkContext->pvNetworkConnection = ( void* ) &xConnection;
 
     _IOT_FUNCTION_CLEANUP_BEGIN();
@@ -163,7 +166,7 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 {
     BaseType_t xStatus = pdFALSE;
     IotBleMqttConnection_t xBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
-    IotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
+    /*IotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
 
     if( IotBleMqtt_CreateConnection( &pxNetworkContext->xMqttConnection, &xBLEConnection ) == pdTRUE )
     {
@@ -176,7 +179,7 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 
         pxNetworkContext->pvNetworkConnection = ( void* ) xBLEConnection;
         xStatus = pdTRUE;
-    }
+    }*/
     return xStatus;
 }
 #endif

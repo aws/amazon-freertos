@@ -45,28 +45,7 @@
 #include "iot_serializer.h"
 #include "private/iot_ble_mqtt_serialize.h"
 #include "private/iot_mqtt_internal.h"
-typedef struct _mqttPacket
-{
-    union
-    {
-        /**
-         * @brief (Input) MQTT connection associated with this packet. Only used
-         * when deserializing SUBACKs.
-         */
-        _mqttConnection_t * pMqttConnection;
 
-        /**
-         * @brief (Output) Operation representing an incoming PUBLISH. Only used
-         * when deserializing PUBLISHes.
-         */
-        _mqttOperation_t * pIncomingPublish;
-    };
-
-    uint8_t * pRemainingData;  /**< @brief (Input) The remaining data in MQTT packet. */
-    size_t remainingLength;    /**< @brief (Input) Length of the remaining data in the MQTT packet. */
-    uint16_t packetIdentifier; /**< @brief (Output) MQTT packet identifier. */
-    uint8_t type;              /**< @brief (Input) A value identifying the packet type. */
-} _mqttPacket_t;
 #define _INVALID_MQTT_PACKET_TYPE        ( 0xF0 )
 
 

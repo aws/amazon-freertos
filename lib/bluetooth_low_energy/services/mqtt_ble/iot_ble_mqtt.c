@@ -726,12 +726,8 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         			if( pWriteParam->length < IOT_BLE_MQTT_TRANSFER_LEN( BLEConnMTU ) )
         			{
-        				( void ) IotMqtt_ReceiveCallback( pService->connection.pMqttConnection,
-        						                &pService->connection,
-        						                pService->connection.pRecvBuffer,
-												pService->connection.recvOffset,
-        										0,
-        										vPortFree );
+        				IotMqtt_ReceiveCallback( &pService->connection,
+        						                 pService->connection.pMqttConnection );
 
         				pService->connection.pRecvBuffer = NULL;
         				pService->connection.recvBufferLen = 0;
@@ -782,12 +778,8 @@ void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
                		( pService->connection.pMqttConnection != NULL ) &&
        				( pService->isEnabled ) )
         {
-        		( void ) IotMqtt_ReceiveCallback( pService->connection.pMqttConnection,
-        				 &pService->connection,
-        				( const void * ) pWriteParam->pValue,
-						pWriteParam->length,
-						0,
-						NULL );
+        		( void ) IotMqtt_ReceiveCallback( &pService->connection,
+        				                        pService->connection.pMqttConnection );
         		resp.eventStatus = eBTStatusSuccess;
         }
 

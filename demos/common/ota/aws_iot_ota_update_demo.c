@@ -94,7 +94,7 @@ static MqttConnectionContext_t xConnection =
 {
      .pvNetworkConnection = NULL,
      .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
-     .xNetworkInterface   = IOT_MQTT_NETIF_INITIALIZER,
+     .xNetworkInfo   = IOT_MQTT_NETWORK_INFO_INITIALIZER,
      .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
      .xDisconnectCallback = prvNetworkDisconnectCallback
 };
@@ -223,10 +223,9 @@ void vOTAUpdateDemoTask( void * pvParameters )
             xConnectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
             xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
             /* Connect to the broker. */
-            if( IotMqtt_Connect( &( xConnection.xMqttConnection ),
-                &( xConnection.xNetworkInterface ),
+            if( IotMqtt_Connect( &( xConnection.xNetworkInfo ),
                 &xConnectInfo,
-                otademoCONN_TIMEOUT_MS ) == IOT_MQTT_SUCCESS )
+                otademoCONN_TIMEOUT_MS,&( xConnection.xMqttConnection ) ) == IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
                 OTA_AgentInit( xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );

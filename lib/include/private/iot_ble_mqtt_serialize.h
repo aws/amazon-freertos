@@ -32,7 +32,7 @@
 #ifndef IOT_BLE_MQTT_SERIALIZE_H
 #define IOT_BLE_MQTT_SERIALIZE_H
 
-#include "iot_mqtt.h"
+#include "types/iot_mqtt_types.h"
 #include "aws_clientcredential.h"
 
 /**
@@ -131,9 +131,7 @@ IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const p
  * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
-IotMqttError_t IotBleMqtt_DeserializeConnack( const uint8_t * const pConnackStart,
-                                                         size_t dataLength,
-                                                         size_t * const pBytesProcessed );
+IotMqttError_t IotBleMqtt_DeserializeConnack( struct _mqttPacket * pConnack );
 
 
 
@@ -180,11 +178,7 @@ void IotBleMqtt_PublishSetDup( bool awsIotMqttMode, uint8_t * const pPublishPack
  * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
-IotMqttError_t IotBleMqtt_DeserializePublish( const uint8_t * const pPublishStart,
-                                                         size_t dataLength,
-                                                         IotMqttPublishInfo_t * const pOutput,
-                                                         uint16_t * const pPacketIdentifier,
-                                                         size_t * const pBytesProcessed );
+IotMqttError_t IotBleMqtt_DeserializePublish( struct _mqttPacket * pConnack);
 
 
 /**
@@ -215,10 +209,7 @@ IotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
  * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
-IotMqttError_t IotBleMqtt_DeserializePuback( const uint8_t * const pPubackStart,
-                                                        size_t dataLength,
-                                                        uint16_t * const pPacketIdentifier,
-                                                        size_t * const pBytesProcessed );
+IotMqttError_t IotBleMqtt_DeserializePuback( struct _mqttPacket * pConnack );
 
 /**
  * @brief Serialize the SUBSCRIBE message sent to MQTT BLE Proxy.
@@ -254,11 +245,7 @@ IotMqttError_t IotBleMqtt_SerializeSubscribe( const IotMqttSubscription_t * cons
  * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
-IotMqttError_t IotBleMqtt_DeserializeSuback( IotMqttConnection_t mqttConnection,
-                                                        const uint8_t * const pSubackStart,
-                                                        size_t dataLength,
-                                                        uint16_t * const pPacketIdentifier,
-                                                        size_t * const pBytesProcessed );
+IotMqttError_t IotBleMqtt_DeserializeSuback( struct _mqttPacket * pConnack );
 /**
  * @brief Serialize the UNSUBSCRIBE message sent to MQTT BLE Proxy.
  *
@@ -293,10 +280,7 @@ IotMqttError_t IotBleMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * co
  * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
-IotMqttError_t IotBleMqtt_DeserializeUnsuback( const uint8_t * const pUnsubackStart,
-                                                          size_t dataLength,
-                                                          uint16_t * const pPacketIdentifier,
-                                                          size_t * const pBytesProcessed );
+IotMqttError_t IotBleMqtt_DeserializeUnsuback( struct _mqttPacket * pConnack );
 /**
  * @brief Serialize the DISCONNECT message sent to MQTT BLE Proxy.
  *
@@ -330,9 +314,7 @@ IotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
  * @param[out] pBytesProcessed Number of bytes parsed
  * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE
  */
-IotMqttError_t IotBleMqtt_DeserializePingresp( const uint8_t * const pPingrespStart,
-                                                          size_t dataLength,
-                                                          size_t * const pBytesProcessed );
+IotMqttError_t IotBleMqtt_DeserializePingresp( struct _mqttPacket * pConnack );
 
 /**
  * @brief Gets the packet type from the packet

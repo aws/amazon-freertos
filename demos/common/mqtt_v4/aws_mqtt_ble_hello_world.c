@@ -221,7 +221,7 @@ static MqttConnectionContext_t xConnection =
 {
      .pvNetworkConnection = NULL,
      .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
-     .xNetworkInterface   = IOT_MQTT_NETIF_INITIALIZER,
+     .xNetworkInfo   = IOT_MQTT_NETWORK_INFO_INITIALIZER,
      .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
      .xDisconnectCallback = prvNetworkDisconnectCallback
 };
@@ -399,10 +399,10 @@ static IotMqttError_t prxOpenMqttConnection()
 
     /* Connect to the IoT broker endpoint */
     xMqttStatus = IotMqtt_Connect(
-            &( xConnection.xMqttConnection ),
-            &( xConnection.xNetworkInterface ),
+    		 &( xConnection.xNetworkInfo ),
             &xConnectInfo,
-            echoDemoMQTT_OPERATION_TIMEOUT_MS );
+            echoDemoMQTT_OPERATION_TIMEOUT_MS,
+            &( xConnection.xMqttConnection ));
 
 
     if( xMqttStatus == IOT_MQTT_SUCCESS )

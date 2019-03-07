@@ -44,6 +44,7 @@
 #define IOT_BLE_ENABLE_SECURE_CONNECTION         ( 0 )
 #define IOT_BLE_INPUT_OUTPUT                     ( eBTIONone )
 
+#define IOT_BLE_ENCRYPTION_REQUIRED               ( 0 )
 
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
