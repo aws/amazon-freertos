@@ -1507,8 +1507,6 @@ static void prvOTAUpdateTask( void * pvUnused )
 
                                         if( xResult == eIngest_Result_FileComplete )
                                         {
-                                        	configPRINTF(("DONE\n"));
-                                        	while(1){};
                                             /* File receive is complete and authenticated. Update the job status with the self_test ready identifier. */
                                             prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_SigCheckPassed, ( int32_t ) NULL );
                                         }
