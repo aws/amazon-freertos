@@ -605,7 +605,7 @@ int IotDemo_RunMqttDemo( bool awsIotMqttMode,
                     }
 
                     IotLogInfo( "%d publishes received.",
-                                IOT_DEMO_MQTT_PUBLISH_BURST_SIZE );
+                                i );
                 }
 
                 /* Stop publishing if there was an error. */
