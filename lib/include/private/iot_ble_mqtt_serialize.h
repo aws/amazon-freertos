@@ -151,7 +151,8 @@ IotMqttError_t IotBleMqtt_DeserializeConnack( struct _mqttPacket * pConnack );
 IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const pPublishInfo,
                                                        uint8_t ** const pPublishPacket,
                                                        size_t * const pPacketSize,
-                                                       uint16_t * const pPacketIdentifier );
+                                                       uint16_t * const pPacketIdentifier,
+													   uint8_t ** pPacketIdentifierHigh );
 
 /**
  * @brief Set the DUP flag to indicate its a duplicate QoS1/QoS2 message.
@@ -161,7 +162,7 @@ IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const p
  * @param[in] pPublishOperation The operation containing the PUBLISH message.
  *
  */
-void IotBleMqtt_PublishSetDup( bool awsIotMqttMode, uint8_t * const pPublishPacket, uint16_t * const pNewPacketIdentifier );
+void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket, uint8_t * pPacketIdentifierHigh, uint16_t * const pNewPacketIdentifier );
 
 
 /**
@@ -324,7 +325,7 @@ IotMqttError_t IotBleMqtt_DeserializePingresp( struct _mqttPacket * pConnack );
  * @param[in] packetSize length of the buffer containing the packet
  * @return Packet type for the packet
  */
-uint8_t IotBleMqtt_GetPacketType( const uint8_t * const pPacket, size_t packetSize );
+uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInterface_t * pNetworkInterface );
 
 
 /**

@@ -33,6 +33,9 @@
 #include <stdarg.h>
 #include <string.h>
 
+/* Common include. */
+#include "iot_common.h"
+
 /**
  * @cond DOXYGEN_IGNORE
  * Doxygen should ignore this section.

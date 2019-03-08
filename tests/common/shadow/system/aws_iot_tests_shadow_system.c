@@ -32,6 +32,9 @@
 /* Standard includes. */
 #include <string.h>
 
+/* Common include. */
+#include "iot_common.h"
+
 /* Shadow internal include. */
 #include "private/aws_iot_shadow_internal.h"
 
@@ -40,6 +43,9 @@
 
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
+
+/* MQTT include. */
+#include "iot_mqtt.h"
 
 /* Test framework includes. */
 #include "unity_fixture.h"
@@ -121,7 +127,7 @@ extern void IotTest_NetworkCleanup( void );
 
 /* Network variables used by the tests, declared in one of the test network
  * function files. */
-extern IotMqttNetIf_t _IotTestNetworkInterface;
+extern IotMqttNetworkInfo_t _IotTestNetworkInfo;
 extern IotMqttConnection_t _IotTestMqttConnection;
 
 /**
@@ -426,6 +432,12 @@ TEST_SETUP( Shadow_System )
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
 
+    /* Initialize common components. */
+    if( IotCommon_Init() == false )
+    {
+        TEST_FAIL_MESSAGE( "Failed to initialize common components." );
+    }
+
     /* Set up the network stack. */
     if( IotTest_NetworkSetup() == false )
     {
@@ -451,10 +463,10 @@ TEST_SETUP( Shadow_System )
     connectInfo.keepAliveSeconds = IOT_TEST_MQTT_SHORT_KEEPALIVE_INTERVAL_S;
 
     /* Establish an MQTT connection. */
-    if( IotMqtt_Connect( &_IotTestMqttConnection,
-                         &_IotTestNetworkInterface,
+    if( IotMqtt_Connect( &_IotTestNetworkInfo,
                          &connectInfo,
-                         AWS_IOT_TEST_SHADOW_TIMEOUT ) != IOT_MQTT_SUCCESS )
+                         AWS_IOT_TEST_SHADOW_TIMEOUT,
+                         &_IotTestMqttConnection ) != IOT_MQTT_SUCCESS )
     {
         TEST_FAIL_MESSAGE( "Failed to establish MQTT connection for Shadow tests." );
     }
@@ -499,9 +511,11 @@ TEST_TEAR_DOWN( Shadow_System )
     /* Clean up the network stack. */
     IotTest_NetworkCleanup();
 
+    /* Clean up common components. */
+    IotCommon_Cleanup();
+
     /* Clean up the MQTT library. */
     IotMqtt_Cleanup();
-    _IotTestMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 }
 
 /*-----------------------------------------------------------*/

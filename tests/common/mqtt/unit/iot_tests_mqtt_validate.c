@@ -32,6 +32,9 @@
 /* Standard includes. */
 #include <string.h>
 
+/* Common include. */
+#include "iot_common.h"
+
 /* MQTT internal include. */
 #include "private/iot_mqtt_internal.h"
 
@@ -78,6 +81,7 @@ TEST_GROUP( MQTT_Unit_Validate );
  */
 TEST_SETUP( MQTT_Unit_Validate )
 {
+    TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
 }
 
 /*-----------------------------------------------------------*/
@@ -87,6 +91,7 @@ TEST_SETUP( MQTT_Unit_Validate )
  */
 TEST_TEAR_DOWN( MQTT_Unit_Validate )
 {
+    IotCommon_Cleanup();
 }
 
 /*-----------------------------------------------------------*/
@@ -96,54 +101,10 @@ TEST_TEAR_DOWN( MQTT_Unit_Validate )
  */
 TEST_GROUP_RUNNER( MQTT_Unit_Validate )
 {
-    RUN_TEST_CASE( MQTT_Unit_Validate, ValidateNetIf );
     RUN_TEST_CASE( MQTT_Unit_Validate, ValidateConnectInfo );
     RUN_TEST_CASE( MQTT_Unit_Validate, ValidatePublish );
     RUN_TEST_CASE( MQTT_Unit_Validate, ValidateReference );
     RUN_TEST_CASE( MQTT_Unit_Validate, ValidateSubscriptionList );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test validation of an #IotMqttNetIf_t.
- */
-TEST( MQTT_Unit_Validate, ValidateNetIf )
-{
-    bool validateStatus = false;
-    IotMqttNetIf_t networkInterface = IOT_MQTT_NETIF_INITIALIZER;
-
-    /* NULL parameter. */
-    validateStatus = _IotMqtt_ValidateNetIf( NULL );
-    TEST_ASSERT_EQUAL_INT( false, validateStatus );
-
-    /* Uninitialized parameter. */
-    validateStatus = _IotMqtt_ValidateNetIf( &networkInterface );
-    TEST_ASSERT_EQUAL_INT( false, validateStatus );
-
-    /* Uninitialized disconnect function is allowed. */
-    networkInterface.send = _FUNCTION_POINTER;
-    validateStatus = _IotMqtt_ValidateNetIf( &networkInterface );
-    TEST_ASSERT_EQUAL_INT( true, validateStatus );
-
-    /* Check serializer override function pointers. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        /* No freePacket function with serializer. */
-        networkInterface.serialize.disconnect = _FUNCTION_POINTER;
-        validateStatus = _IotMqtt_ValidateNetIf( &networkInterface );
-        TEST_ASSERT_EQUAL_INT( false, validateStatus );
-        networkInterface.serialize.disconnect = NULL;
-
-        /* No freePacket function with deserializer. */
-        networkInterface.deserialize.pingresp = _FUNCTION_POINTER;
-        validateStatus = _IotMqtt_ValidateNetIf( &networkInterface );
-        TEST_ASSERT_EQUAL_INT( false, validateStatus );
-
-        /* freePacket function pointer set. */
-        networkInterface.freePacket = _FUNCTION_POINTER;
-        validateStatus = _IotMqtt_ValidateNetIf( &networkInterface );
-        TEST_ASSERT_EQUAL_INT( true, validateStatus );
-    #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 }
 
 /*-----------------------------------------------------------*/
@@ -155,6 +116,8 @@ TEST( MQTT_Unit_Validate, ValidateConnectInfo )
 {
     bool validateStatus = false;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
+
+    connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
 
     /* NULL parameter. */
     validateStatus = _IotMqtt_ValidateConnect( NULL );

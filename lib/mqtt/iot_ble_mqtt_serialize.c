@@ -754,7 +754,8 @@ IotMqttError_t IotBleMqtt_DeserializeConnack( _mqttPacket_t * pConnack )
 IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const pPublishInfo,
                                                   uint8_t ** const pPublishPacket,
                                                   size_t * const pPacketSize,
-                                                  uint16_t * const pPacketIdentifier )
+                                                  uint16_t * const pPacketIdentifier,
+												  uint8_t ** pPacketIdentifierHigh )
 {
 
     uint8_t * pBuffer = NULL;
@@ -762,6 +763,8 @@ IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const p
     uint16_t usPacketIdentifier = 0;
     AwsIotSerializerError_t error;
     IotMqttError_t ret = IOT_MQTT_SUCCESS;
+
+    (void)pPacketIdentifierHigh;
 
     if( pPublishInfo->qos != 0 )
     {
@@ -817,7 +820,7 @@ IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const p
     return ret;
 }
 
-void IotBleMqtt_PublishSetDup( bool awsIotMqttMode, uint8_t * const pPublishPacket, uint16_t * const pNewPacketIdentifier )
+void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket, uint8_t * pPacketIdentifierHigh, uint16_t * const pNewPacketIdentifier  )
 {
 	/** TODO: Currently DUP flag is not supported by BLE SDKs **/
 }
@@ -1326,13 +1329,13 @@ IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacke
 }
 
 
-uint8_t IotBleMqtt_GetPacketType( const uint8_t * const pPacket, size_t packetSize )
+uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInterface_t * pNetworkInterface )
 {
 
-    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
+   AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     AwsIotSerializerError_t error;
     uint8_t value, packetType = _INVALID_MQTT_PACKET_TYPE;
-
+    /*
     error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* ) pPacket, packetSize );
 
     if( ( error == AWS_IOT_SERIALIZER_SUCCESS )
@@ -1344,10 +1347,10 @@ uint8_t IotBleMqtt_GetPacketType( const uint8_t * const pPacket, size_t packetSi
         if ( ( error == AWS_IOT_SERIALIZER_SUCCESS ) &&
                 ( decoderValue.type == AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            value = ( uint16_t ) decoderValue.value.signedInt;
+            value = ( uint16_t ) decoderValue.value.signedInt;*/
 
             /** Left shift by 4 bits as MQTT library expects packet type to be upper 4 bits **/
-            packetType = value << 4;
+/*            packetType = value << 4;
         }
         else
         {
@@ -1359,7 +1362,7 @@ uint8_t IotBleMqtt_GetPacketType( const uint8_t * const pPacket, size_t packetSi
         IotLogError( "Decoding the packet failed, decoder error = %d, type = %d", error, decoderObj.type );
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
+    IOT_BLE_MESG_DECODER.destroy( &decoderObj );*/
 
     return packetType;
 }

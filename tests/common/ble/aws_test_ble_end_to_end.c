@@ -58,14 +58,17 @@
     #define _CLIENT_IDENTIFIER_MAX_LENGTH    ( 24 )
 #endif
 
-extern IotMqttNetIf_t _IotTestNetworkInterface;
+extern IotMqttNetworkInfo_t _IotTestNetworkInfo;
 extern IotMqttConnection_t _IotTestMqttConnection;
+static IotBleMqttConnection_t _mqttBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
+static const IotNetworkInterface_t * const _pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
+
 extern char _pClientIdentifier[];
 
-IotBleMqttConnection_t _mqttBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
 
 
-extern void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetIf_t * pNetworkInterface );
+
+extern void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * _IotTestNetworkInfo );
 extern void IotTestMqtt_TearDown(void);
 
 static void _BLEConnectionCallback( BTStatus_t status,
@@ -163,6 +166,7 @@ static BaseType_t _createBLEConnection()
     BaseType_t status = pdFALSE;
     size_t triesLeft = ( 200 );
     TickType_t retryDelay = pdMS_TO_TICKS( 1000 );
+    IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
 
     /* Initialize the MQTT library. */
     if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
@@ -176,11 +180,14 @@ static BaseType_t _createBLEConnection()
     {
 		if( IotBleMqtt_CreateConnection( &_IotTestMqttConnection,  &_mqttBLEConnection ) == pdTRUE )
 		{
-			IOT_MQTT_BLE_INIT_SERIALIZER( &_IotTestNetworkInterface );
-			_IotTestNetworkInterface.send          = IotBleMqtt_Send;
-			_IotTestNetworkInterface.pSendContext  = ( void * ) _mqttBLEConnection;
-			_IotTestNetworkInterface.pDisconnectContext = NULL;
-			_IotTestNetworkInterface.disconnect = _BLEConnectionCallback;
+			IOT_MQTT_BLE_INIT_SERIALIZER( &serializer );
+
+
+		    _IotTestNetworkInfo.createNetworkConnection = false;
+		    _IotTestNetworkInfo.pNetworkConnection = &_mqttBLEConnection;
+		    _IotTestNetworkInfo.pNetworkInterface = _pNetworkInterface;
+		    _IotTestNetworkInfo.pMqttSerializer = &serializer;
+
 			status = pdTRUE;
 			break;
 		}else
@@ -227,5 +234,5 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END )
 
 TEST( Full_BLE_END_TO_END, IotTest_SubscribePublishWait )
 {
-	IotTestMqtt_SubscribePublishWait(IOT_MQTT_QOS_1, &_IotTestNetworkInterface);
+	IotTestMqtt_SubscribePublishWait(IOT_MQTT_QOS_1, &_IotTestNetworkInfo);
 }

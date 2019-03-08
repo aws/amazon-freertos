@@ -165,21 +165,21 @@ typedef struct  IotBleMqttService
 #define IS_SUCCESS( status )			( status == eBTStatusSuccess )
 
 
-#define IOT_MQTT_BLE_INIT_SERIALIZER( pNetworkInterface )                             \
-    ( pNetworkInterface )->serialize.connect       = IotBleMqtt_SerializeConnect;      \
-    ( pNetworkInterface )->serialize.publish       = IotBleMqtt_SerializePublish;      \
-    ( pNetworkInterface )->serialize.publishSetDup = IotBleMqtt_PublishSetDup;         \
-    ( pNetworkInterface )->serialize.puback        = IotBleMqtt_SerializePuback;       \
-    ( pNetworkInterface )->serialize.subscribe     = IotBleMqtt_SerializeSubscribe;    \
-    ( pNetworkInterface )->serialize.unsubscribe   = IotBleMqtt_SerializeUnsubscribe;  \
-    ( pNetworkInterface )->serialize.disconnect    = IotBleMqtt_SerializeDisconnect;   \
-    ( pNetworkInterface )->freePacket              = IotBleMqtt_FreePacket;            \
-    ( pNetworkInterface )->getPacketType           = IotBleMqtt_GetPacketType;         \
-    ( pNetworkInterface )->deserialize.connack     = IotBleMqtt_DeserializeConnack;    \
-    ( pNetworkInterface )->deserialize.publish     = IotBleMqtt_DeserializePublish;    \
-    ( pNetworkInterface )->deserialize.puback      = IotBleMqtt_DeserializePuback;     \
-    ( pNetworkInterface )->deserialize.suback      = IotBleMqtt_DeserializeSuback;     \
-    ( pNetworkInterface )->deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback;
+#define IOT_MQTT_BLE_INIT_SERIALIZER( pSerializer )                             \
+    ( pSerializer )->serialize.connect       = IotBleMqtt_SerializeConnect;      \
+    ( pSerializer )->serialize.publish       = IotBleMqtt_SerializePublish;      \
+    ( pSerializer )->serialize.publishSetDup = IotBleMqtt_PublishSetDup;         \
+    ( pSerializer )->serialize.puback        = IotBleMqtt_SerializePuback;       \
+    ( pSerializer )->serialize.subscribe     = IotBleMqtt_SerializeSubscribe;    \
+    ( pSerializer )->serialize.unsubscribe   = IotBleMqtt_SerializeUnsubscribe;  \
+    ( pSerializer )->serialize.disconnect    = IotBleMqtt_SerializeDisconnect;   \
+    ( pSerializer )->freePacket              = IotBleMqtt_FreePacket;            \
+    ( pSerializer )->getPacketType           = IotBleMqtt_GetPacketType;         \
+    ( pSerializer )->deserialize.connack     = IotBleMqtt_DeserializeConnack;    \
+    ( pSerializer )->deserialize.publish     = IotBleMqtt_DeserializePublish;    \
+    ( pSerializer )->deserialize.puback      = IotBleMqtt_DeserializePuback;     \
+    ( pSerializer )->deserialize.suback      = IotBleMqtt_DeserializeSuback;     \
+    ( pSerializer )->deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback;
 
 
 /**

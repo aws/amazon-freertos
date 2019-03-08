@@ -32,6 +32,9 @@
 /* Standard includes. */
 #include <string.h>
 
+/* Common include. */
+#include "iot_common.h"
+
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 
@@ -159,9 +162,14 @@ extern int snprintf( char *,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Tracks whether the global MQTT connection has been created.
+ */
+static bool _connectionCreated = false;
+
+/**
  * @brief The MQTT connection shared by all tests.
  */
-static _mqttConnection_t * _pMqttConnection = NULL;
+static _mqttConnection_t * _pMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
 /**
  * @brief Synchronizes threads in the multithreaded test.
@@ -370,16 +378,24 @@ TEST_GROUP( MQTT_Unit_Subscription );
  */
 TEST_SETUP( MQTT_Unit_Subscription )
 {
-    IotMqttNetIf_t networkInterface = IOT_MQTT_NETIF_INITIALIZER;
+    static IotNetworkInterface_t networkInterface = { 0 };
+    IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
+
+    /* Initialize common components. */
+    TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
+
+    networkInfo.pNetworkInterface = &networkInterface;
 
     /* Initialize the MQTT library. */
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 
-    /* Create an MQTT connection with an empty network interface. */
+    /* Create an MQTT connection with empty network info. */
     _pMqttConnection = IotTestMqtt_createMqttConnection( _AWS_IOT_MQTT_SERVER,
-                                                         &networkInterface,
+                                                         &networkInfo,
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
+
+    _connectionCreated = true;
 }
 
 /*-----------------------------------------------------------*/
@@ -390,13 +406,14 @@ TEST_SETUP( MQTT_Unit_Subscription )
 TEST_TEAR_DOWN( MQTT_Unit_Subscription )
 {
     /* Destroy the MQTT connection used for the tests. */
-    if( _pMqttConnection != NULL )
+    if( _connectionCreated == true )
     {
         IotMqtt_Disconnect( _pMqttConnection, true );
-        _pMqttConnection = NULL;
+        _connectionCreated = false;
     }
 
-    /* Clean up the MQTT library. */
+    /* Clean up libraries. */
+    IotCommon_Cleanup();
     IotMqtt_Cleanup();
 }
 
@@ -858,6 +875,9 @@ TEST( MQTT_Unit_Subscription, ProcessPublish )
                                                   &subscription,
                                                   1 ) );
 
+    /* Increment connection reference count for processing subscription callbacks. */
+    TEST_ASSERT_EQUAL_INT( true, _IotMqtt_IncrementConnectionReferences( _pMqttConnection ) );
+
     /* Find the subscription and invoke its callback. */
     _IotMqtt_InvokeSubscriptionCallback( _pMqttConnection,
                                          &callbackParam );
@@ -906,6 +926,9 @@ TEST( MQTT_Unit_Subscription, ProcessPublishMultiple )
                                                   1,
                                                   &( subscription[ 0 ] ),
                                                   3 ) );
+
+    /* Increment connection reference count for processing subscription callbacks. */
+    TEST_ASSERT_EQUAL_INT( true, _IotMqtt_IncrementConnectionReferences( _pMqttConnection ) );
 
     /* Invoke subscription callbacks. */
     _IotMqtt_InvokeSubscriptionCallback( _pMqttConnection,
@@ -980,6 +1003,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         /* Schedule 3 callback invocations for the incoming PUBLISH. */
         for( i = 0; i < 3; i++ )
         {
+            TEST_ASSERT_EQUAL_INT( true, _IotMqtt_IncrementConnectionReferences( _pMqttConnection ) );
             TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _IotMqtt_ScheduleOperation( pIncomingPublish[ i ],
                                                                              _IotMqtt_ProcessIncomingPublish,
                                                                              0 ) );
@@ -1004,9 +1028,9 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->referencesMutex ),
                                                     &( _pMqttConnection->references ),
                                                     2 + keepAliveReference ) );
-        TEST_ASSERT_EQUAL_INT32( true, _waitForCount( &( _pMqttConnection->subscriptionMutex ),
-                                                      &( pSubscription->references ),
-                                                      2 ) );
+        TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->subscriptionMutex ),
+                                                    &( pSubscription->references ),
+                                                    2 ) );
 
         /* Shut down the MQTT connection. */
         IotMqtt_Disconnect( _pMqttConnection, true );
@@ -1016,8 +1040,15 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         IotSemaphore_Post( &waitSem );
         IotSemaphore_Post( &waitSem );
 
-        /* Clear the MQTT connection pointer so test cleanup does not double-free it. */
-        _pMqttConnection = NULL;
+        TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->referencesMutex ),
+                                                            &( _pMqttConnection->references ),
+                                                            0 + keepAliveReference ) );
+                TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->subscriptionMutex ),
+                                                            &( pSubscription->references ),
+                                                            0 ) );
+
+        /* Clear the MQTT connection flag so test cleanup does not double-free it. */
+        _connectionCreated = false;
     }
 
     IotSemaphore_Destroy( &waitSem );
