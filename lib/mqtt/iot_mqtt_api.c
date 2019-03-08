@@ -965,9 +965,13 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     }
 
     /* Set the MQTT receive callback. */
-    networkStatus = pNewMqttConnection->pNetworkInterface->setReceiveCallback( pNetworkConnection,
-                                                                               IotMqtt_ReceiveCallback,
-                                                                               pNewMqttConnection );
+    networkStatus = IOT_NETWORK_SUCCESS;
+    if( pNewMqttConnection->pNetworkInterface->setReceiveCallback != NULL )
+    {
+		networkStatus = pNewMqttConnection->pNetworkInterface->setReceiveCallback( pNetworkConnection,
+																				   IotMqtt_ReceiveCallback,
+																				   pNewMqttConnection );
+    }
 
     if( networkStatus != IOT_NETWORK_SUCCESS )
     {
