@@ -165,7 +165,7 @@ int app_main( void )
 
 	/* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
-							tskIDLE_PRIORITY,
+							tskIDLE_PRIORITY+5,
 							mainLOGGING_MESSAGE_QUEUE_LENGTH );
     FreeRTOS_IPInit( ucIPAddress,
             ucNetMask,

@@ -587,7 +587,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
             if( xReturn == pdPASS )
             {
                 /* Wait for the OTA agent to be ready if requested. */
-                while( ( xTicksToWait-- > 0U ) && ( xOTA_Agent.eState != eOTA_AgentState_Ready ) )
+                while( ( xTicksToWait-- > 0U ) && ( xOTA_Agent.eState == eOTA_AgentState_NotReady ) )
                 {
                     vTaskDelay( 1 );
                 }
@@ -603,7 +603,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
         }
     }
 
-    if( xOTA_Agent.eState == eOTA_AgentState_Ready )
+    if( xOTA_Agent.eState != eOTA_AgentState_NotReady  )
     {
         OTA_LOG_L1( "[%s] Ready.\r\n", OTA_METHOD_NAME );
     }
@@ -1507,6 +1507,8 @@ static void prvOTAUpdateTask( void * pvUnused )
 
                                         if( xResult == eIngest_Result_FileComplete )
                                         {
+                                        	configPRINTF(("DONE\n"));
+                                        	while(1){};
                                             /* File receive is complete and authenticated. Update the job status with the self_test ready identifier. */
                                             prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_SigCheckPassed, ( int32_t ) NULL );
                                         }
@@ -2883,7 +2885,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
                                              &stUnSub,
                                              1, /* Subscriptions count */
                                              0, /* flags */
-                                             OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
+											 OTA_UNSUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
             {
                 OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, pcOTA_RxStreamTopic );
             }
@@ -2909,6 +2911,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
     DEFINE_OTA_METHOD_NAME( "prvUnSubscribeFromJobNotificationTopic" );
 
     IotMqttSubscription_t stUnSub;
+    IotMqttReference_t unsubscribeRef[ 2 ] = { NULL };
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
 
     /* Try to unsubscribe from the first of two job topics. */
@@ -2921,11 +2924,12 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 
     if( ( stUnSub.topicFilterLength > 0U ) && ( stUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
-        if( IotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
-                                         &stUnSub,
-                                         1, /* Subscriptions count */
-                                         0, /* flags */
-                                         OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
+        if( IotMqtt_Unsubscribe( xOTA_Agent.pvPubSubClient,
+                                 &stUnSub,
+                                 1, /* Subscriptions count */
+                                 IOT_MQTT_FLAG_WAITABLE, /* flags */
+								 NULL,
+                                 &( unsubscribeRef[ 0]) ) != IOT_MQTT_STATUS_PENDING )
         {
             OTA_LOG_L1( "[%s] FAIL: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
@@ -2943,11 +2947,12 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 
     if( ( stUnSub.topicFilterLength > 0U ) && ( stUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
-        if( IotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
-                                         &stUnSub,
-                                         1, /* Subscriptions count */
-                                         0, /* flags */
-                                         OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
+        if( IotMqtt_Unsubscribe( xOTA_Agent.pvPubSubClient,
+                                 &stUnSub,
+                                 1, /* Subscriptions count */
+                                 IOT_MQTT_FLAG_WAITABLE, /* flags */
+								 NULL,
+                                 &( unsubscribeRef[ 1]) ) != IOT_MQTT_STATUS_PENDING )
         {
             OTA_LOG_L1( "[%s] FAIL: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
@@ -2955,6 +2960,15 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
         {
             OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
+    }
+
+    if( unsubscribeRef[0] != NULL)
+    {
+    	IotMqtt_Wait( unsubscribeRef[ 0 ], OTA_UNSUBSCRIBE_WAIT_MS);
+    }
+    if( unsubscribeRef[1] != NULL)
+    {
+    	IotMqtt_Wait( unsubscribeRef[ 1 ], OTA_UNSUBSCRIBE_WAIT_MS);
     }
 }
 

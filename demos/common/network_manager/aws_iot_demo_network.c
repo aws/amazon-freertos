@@ -207,9 +207,14 @@ BaseType_t xMqttDemoCreateNetworkConnection(
         else
         {
             xTriesLeft--;
+
             if( xTriesLeft > 0 )
             {
+            	configPRINTF(("Failed to connect to network, %d retries left\n", xTriesLeft));
                 vTaskDelay( xRetryDelay );
+            }else
+            {
+            	configPRINTF(("Failed to connect to network, no more retry\n"));
             }
         }
     }

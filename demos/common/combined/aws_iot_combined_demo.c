@@ -354,13 +354,14 @@ void vOtaTask( void * pvParameters )
                 xSemaphoreTake( xOtaProtocolUsingSocket, portMAX_DELAY );
                 IotLogInfo( "vOtaTask: initing OTA, after take semaphore\n" );
 
-                if( OTA_AgentInit( xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 ) == eOTA_AgentState_Ready )
+                if( OTA_AgentInit( xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 ) != eOTA_AgentState_NotReady )
                 {
                     IotLogInfo( "vOtaTask: initing OTA, after init\n" );
                     otaInited = true;
                 }
                 else
                 {
+                	IotLogInfo( "vOtaTask: Failed to init\n" );
                     xSemaphoreGive( xOtaProtocolUsingSocket );
                 }
             }
@@ -800,6 +801,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType,
          */
         if( xConnection.ulNetworkType == ulNetworkType )
         {
+        	configPRINTF(("NETWORK DISCONNECTED\n"));
             xNetworkConnected = pdFALSE;
         }
     }
@@ -811,6 +813,7 @@ static IotNetworkError_t prvMQTTDisconnectCallback( void * pvContext )
 {
     ( void ) pvContext;
     xNetworkConnected = pdFALSE;
+    configPRINTF(("NETWORK DISCONNECTED\n"));
 
     return IOT_NETWORK_SUCCESS;
 }
