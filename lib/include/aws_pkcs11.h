@@ -97,6 +97,7 @@ typedef struct PKCS11_PrivateRsaKeyTemplate
     CK_ATTRIBUTE xObjectClass;     /* CKA_CLASS, set to CKO_PRIVATE_KEY. */
     CK_ATTRIBUTE xKeyType;         /* CKA_KEY_TYPE, set to CKK_RSA. */
     CK_ATTRIBUTE xLabel;           /* CKA_LABEL. */
+    CK_ATTRIBUTE xCanSign;         /* CKA_SIGN. */
     CK_ATTRIBUTE xModulus;         /* CKA_MODULUS, the modulus N */
     CK_ATTRIBUTE xPrivateExponent; /* CKA_PRIVATE_EXPONENT, the private exponent D */
     CK_ATTRIBUTE xPublicExponent;  /* CKA_PUBLIC_EXPONENT, the public exponent E */

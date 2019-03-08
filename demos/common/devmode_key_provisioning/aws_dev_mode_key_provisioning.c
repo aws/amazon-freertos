@@ -187,7 +187,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
     if( xPrivateKeyType == CKK_RSA )
     {
         PKCS11_PrivateRsaKeyTemplate_t xPrivateKeyTemplate;
-
+        CK_BBOOL xTrue = CK_TRUE;
         CK_BYTE * pxModulus;
         CK_BYTE * pxE;
         CK_BYTE * pxD;
@@ -247,6 +247,9 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
             xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
             xPrivateKeyTemplate.xLabel.pValue = ( CK_VOID_PTR ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
             xPrivateKeyTemplate.xLabel.ulValueLen = ( CK_ULONG ) sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
+            xPrivateKeyTemplate.xCanSign.type = CKA_SIGN;
+            xPrivateKeyTemplate.xCanSign.pValue = &xTrue;
+            xPrivateKeyTemplate.xCanSign.ulValueLen = sizeof( CK_BBOOL );
             xPrivateKeyTemplate.xModulus.type = CKA_MODULUS;
             xPrivateKeyTemplate.xModulus.pValue = pxModulus + 1;
             xPrivateKeyTemplate.xModulus.ulValueLen = MODULUS_LENGTH;

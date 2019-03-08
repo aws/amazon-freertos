@@ -720,6 +720,10 @@ TEST( Full_PKCS11_StartFinish, AFQP_InitializeMultiThread )
     xResult = pxGlobalFunctionList->C_Finalize( NULL );
     /* TODO: Does there need to be one call for each call to initialize? */
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Finalize failed in InitializeMultiThread test" );
+
+    /* Re-initialize the PKCS #11 module to put the module back in a good state. */
+    xResult = pxGlobalFunctionList->C_Initialize( &xInitializePKCS11 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to reinitialize the PKCS #11 module" );
 }
 
 
@@ -1211,13 +1215,6 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
 
     CK_ATTRIBUTE xTemplate;
-    CK_BBOOL xTrue = CK_TRUE;
-    xTemplate.type = CKA_SIGN;
-    xTemplate.pValue = &xTrue;
-    xTemplate.ulValueLen = sizeof( CK_BBOOL );
-    xResult = pxGlobalFunctionList->C_SetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create RSA private key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle returned for RSA private key." );
 
     xResult = PKI_RSA_RSASSA_PKCS1_v15_Encode( xHashedMessage, RSA_SIGNATURE_SIZE, xPaddedHash );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );

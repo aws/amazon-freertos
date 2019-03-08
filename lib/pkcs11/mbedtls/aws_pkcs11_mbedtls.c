@@ -614,10 +614,10 @@ CK_RV prvCreateEcPrivateKey( SearchableAttributes_t * pxSearchable,
                              CK_ULONG ulCount,
                              CK_OBJECT_HANDLE_PTR pxObject )
 {
+    CK_RV xResult;
 }
 
-#include "mbedtls/pk.h"
-#include "mbedtls/pk_internal.h"
+
 CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
                               SearchableAttributes_t * pxSearchable,
                               CK_ATTRIBUTE_PTR pxTemplate,
@@ -628,6 +628,7 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     mbedtls_rsa_context * pxRsaContext;
     mbedtls_rsa_context xRsaCtx;
     int lMbedReturn = 0;
+    CK_BBOOL xBool;
 
     pxRsaContext = &xRsaCtx;
     mbedtls_rsa_init( pxRsaContext, MBEDTLS_RSA_PKCS_V15, 0 /*ignored.*/ );
@@ -649,6 +650,17 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
                  * At this time there is only token object support.
                  * Key type was checked previously.
                  * CLASS and LABEL have already been parsed into the Searchable Attributes. */
+                break;
+
+            case ( CKA_SIGN ):
+                memcpy( &xBool, xAttribute.pValue, xAttribute.ulValueLen );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "Only RSA private keys with signing permissions supported. \r\n" ) );
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                }
+
                 break;
 
             case ( CKA_MODULUS ):
@@ -1129,7 +1141,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         }
         else
         {
-            PKCS11_PRINT( ( "ERROR: Object with label %s not found. \r\n", ( char * ) pxSession->xFindObjectTemplate ) );
+            PKCS11_PRINT( ( "ERROR: Object with label '%s' not found. \r\n", ( char * ) pxSession->xFindObjectTemplate ) );
             xResult = CKR_FUNCTION_FAILED;
         }
     }

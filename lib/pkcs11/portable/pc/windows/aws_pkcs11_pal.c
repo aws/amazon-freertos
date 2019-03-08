@@ -187,7 +187,7 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
  *
  * Port-specific file write for cryptographic information.
  *
- * @param[in] pxLabel       The label of the object to be stored.
+ * @param[in] pxTemplate    Structure containing searchable attributes.
  * @param[in] pucData       The object data to be saved
  * @param[in] pulDataSize   Size (in bytes) of object data.
  *
