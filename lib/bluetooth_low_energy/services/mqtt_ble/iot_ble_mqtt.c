@@ -1012,7 +1012,7 @@ BaseType_t IotBleMqtt_Init( void )
 
 /*-----------------------------------------------------------*/
 
-BaseType_t IotBleMqtt_CreateConnection( IotMqttConnection_t* pMqttConnection, IotBleMqttConnection_t* pConnection )
+BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnection )
 {
     BaseType_t ret = pdFALSE;
     IotBleMqttService_t* pService;
@@ -1023,8 +1023,8 @@ BaseType_t IotBleMqtt_CreateConnection( IotMqttConnection_t* pMqttConnection, Io
     	pService = &_mqttBLEServices[ lX ];
         if( ( pService->isEnabled ) && ( pService->connection.pMqttConnection == NULL ) )
         {
-        	pService->connection.pMqttConnection = pMqttConnection;
-        	*pConnection =  ( IotBleMqttConnection_t ) pService;
+        	pService->connection.pMqttConnection = (IotMqttConnection_t *)pMqttConnection;
+        	*((IotBleMqttService_t**)pConnection) =  pService;
         	ret = pdTRUE;
         }
     }
@@ -1034,18 +1034,18 @@ BaseType_t IotBleMqtt_CreateConnection( IotMqttConnection_t* pMqttConnection, Io
 
 /*-----------------------------------------------------------*/
 
-void IotBleMqtt_CloseConnection( IotBleMqttConnection_t xConnection )
+void IotBleMqtt_CloseConnection( void * pConnection )
 {
-    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) xConnection;
+    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) pConnection;
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection != NULL ) )
     {
     	pService->connection.pMqttConnection = NULL;
     }
 }
 
-void IotBleMqtt_DestroyConnection( IotBleMqttConnection_t xConnection )
+void IotBleMqtt_DestroyConnection( void * pConnection )
 {
-    IotBleMqttService_t* pService = ( IotBleMqttService_t * ) xConnection;
+    IotBleMqttService_t* pService = ( IotBleMqttService_t * ) pConnection;
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection == NULL ) )
     {
         _resetBuffer( pService );
@@ -1054,14 +1054,14 @@ void IotBleMqtt_DestroyConnection( IotBleMqttConnection_t xConnection )
 
 /*-----------------------------------------------------------*/
 
-BaseType_t IotBleMqtt_SetSendTimeout( IotBleMqttConnection_t xConnection, uint16_t usTimeoutMS )
+BaseType_t IotBleMqtt_SetSendTimeout( void * pConnection, uint16_t timeoutMS )
 {
     BaseType_t ret = pdFALSE;
-    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) xConnection;
+    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) pConnection;
 
     if( pService != NULL )
     {
-        pService->connection.sendTimeout = pdMS_TO_TICKS( usTimeoutMS );
+        pService->connection.sendTimeout = pdMS_TO_TICKS( timeoutMS );
         ret = pdTRUE;
     }
     return ret;
@@ -1069,9 +1069,9 @@ BaseType_t IotBleMqtt_SetSendTimeout( IotBleMqttConnection_t xConnection, uint16
 
 /*-----------------------------------------------------------*/
 
-size_t IotBleMqtt_Send( void* pvConnection, const uint8_t * const pvMessage, size_t messageLength )
+size_t IotBleMqtt_Send( void* pConnection, const uint8_t * const pMessage, size_t messageLength )
 {
-    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) pvConnection;
+    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) pConnection;
     size_t sendLen, remainingLen = messageLength;
     TickType_t remainingTime = pService->connection.sendTimeout;
     TimeOut_t timeout;
@@ -1083,7 +1083,7 @@ size_t IotBleMqtt_Send( void* pvConnection, const uint8_t * const pvMessage, siz
     {
         if( messageLength < ( size_t ) IOT_BLE_MQTT_TRANSFER_LEN( BLEConnMTU ) )
         {
-            if( _sendNotification( pService, IOT_BLE_MQTT_CHAR_TX_MESG, ( uint8_t *) pvMessage, messageLength ) == pdTRUE )
+            if( _sendNotification( pService, IOT_BLE_MQTT_CHAR_TX_MESG, ( uint8_t *) pMessage, messageLength ) == pdTRUE )
             {
                 remainingLen = 0;
             }else
@@ -1096,7 +1096,7 @@ size_t IotBleMqtt_Send( void* pvConnection, const uint8_t * const pvMessage, siz
             if( xSemaphoreTake( pService->connection.sendLock, remainingTime ) == pdPASS )
             {
                 sendLen = ( size_t ) IOT_BLE_MQTT_TRANSFER_LEN( BLEConnMTU );
-                pData = ( uint8_t *) pvMessage;
+                pData = ( uint8_t *) pMessage;
 
                 if( _sendNotification( pService, IOT_BLE_MQTT_CHAR_TX_LARGE_MESG, pData, sendLen ) == pdTRUE )
                 {

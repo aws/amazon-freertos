@@ -203,7 +203,7 @@ BaseType_t IotBleMqtt_Init( void );
  * @return pdTRUE If the operation is successful
  *         pdFALSE If the operation failed
  */
-BaseType_t IotBleMqtt_CreateConnection( IotMqttConnection_t* pMqttConnection,  IotBleMqttConnection_t* pConnection );
+BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnection );
 
 /**
  * @brief Sets the send timeout for the BLE network connection.
@@ -213,7 +213,7 @@ BaseType_t IotBleMqtt_CreateConnection( IotMqttConnection_t* pMqttConnection,  I
  * @return pdTRUE if the operation is successful
  *         pdFALSE if the operation failed
  */
-BaseType_t IotBleMqtt_SetSendTimeout(  IotBleMqttConnection_t connection, uint16_t timeoutMs );
+BaseType_t IotBleMqtt_SetSendTimeout(  void * pConnection, uint16_t timeoutMs );
 
 /**
  * @brief Closes the BLE network connection
@@ -224,7 +224,7 @@ BaseType_t IotBleMqtt_SetSendTimeout(  IotBleMqttConnection_t connection, uint16
  * @return pdTRUE if the Connection is closed successfully
  *         pdFALSE if the connection is already closed.
  */
-void IotBleMqtt_CloseConnection(  IotBleMqttConnection_t connection );
+void IotBleMqtt_CloseConnection(  void * pConnection );
 
 /**
  *@brief Destroys the BLE network connection
@@ -232,7 +232,7 @@ void IotBleMqtt_CloseConnection(  IotBleMqttConnection_t connection );
  *Function frees the resources associated with the BLE network connection
  * @param connection Handle to the BLE network connection
  */
-void IotBleMqtt_DestroyConnection(  IotBleMqttConnection_t connection );
+void IotBleMqtt_DestroyConnection(  void * pConnection );
 
 
 /**
@@ -243,6 +243,6 @@ void IotBleMqtt_DestroyConnection(  IotBleMqttConnection_t connection );
  * @param[in] messageLength Length of the message to be transferred
  * @return Number of bytes of data transferred.
  */
-size_t IotBleMqtt_Send( void* pvConnection, const uint8_t * const pvMessage, size_t messageLength );
+size_t IotBleMqtt_Send( void* pConnection, const uint8_t * const pMessage, size_t messageLength );
 
 #endif /* IOT_BLE_MQTT_H */

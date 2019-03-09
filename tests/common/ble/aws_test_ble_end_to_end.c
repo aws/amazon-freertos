@@ -37,6 +37,7 @@
 #include "iot_ble.h"
 #include "iot_ble_mqtt.h"
 #include "iot_ble_config.h"
+#include "platform/iot_network_ble.h"
 #include "platform/iot_clock.h"
 #include "platform/iot_network_afr.h"
 /* Test framework includes. */
@@ -58,17 +59,14 @@
     #define _CLIENT_IDENTIFIER_MAX_LENGTH    ( 24 )
 #endif
 
-extern IotMqttNetworkInfo_t _IotTestNetworkInfo;
-extern IotMqttConnection_t _IotTestMqttConnection;
-static IotBleMqttConnection_t _mqttBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
-static const IotNetworkInterface_t * const _pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
-
 extern char _pClientIdentifier[];
 
+IotMqttNetworkInfo_t _IotNetworkInfo;
+IotMqttConnection_t _IotMqttConnection;
+IotBleMqttConnection_t _mqttBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
 
 
-
-extern void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * _IotTestNetworkInfo );
+extern void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * _IotNetworkInfo );
 extern void IotTestMqtt_TearDown(void);
 
 static void _BLEConnectionCallback( BTStatus_t status,
@@ -157,6 +155,8 @@ static BaseType_t _BLEDisable( void )
 
 static BaseType_t _removeBLEConnection()
 {
+	IotNetworkBle_Close(&_mqttBLEConnection);
+	IotNetworkBle_Destroy(&_mqttBLEConnection);
 	return _BLEDisable();
 }
 
@@ -176,17 +176,17 @@ static BaseType_t _createBLEConnection()
 
     _BLEEnable();
 
+
     while ( triesLeft > 0 )
     {
-		if( IotBleMqtt_CreateConnection( &_IotTestMqttConnection,  &_mqttBLEConnection ) == pdTRUE )
+		if( IotNetworkBle_Create( &_IotMqttConnection, NULL,  &_mqttBLEConnection ) == pdTRUE )
 		{
 			IOT_MQTT_BLE_INIT_SERIALIZER( &serializer );
 
-
-		    _IotTestNetworkInfo.createNetworkConnection = false;
-		    _IotTestNetworkInfo.pNetworkConnection = &_mqttBLEConnection;
-		    _IotTestNetworkInfo.pNetworkInterface = _pNetworkInterface;
-		    _IotTestNetworkInfo.pMqttSerializer = &serializer;
+		    _IotNetworkInfo.createNetworkConnection = false;
+		    _IotNetworkInfo.pNetworkConnection = &_mqttBLEConnection;
+		    _IotNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_BLE;
+		    _IotNetworkInfo.pMqttSerializer = &serializer;
 
 			status = pdTRUE;
 			break;
@@ -196,6 +196,8 @@ static BaseType_t _createBLEConnection()
 			vTaskDelay(retryDelay);
 		}
     }
+
+    IotNetworkBle_SetReceiveCallback(&_mqttBLEConnection, NULL, &_IotMqttConnection);
     return status;
 }
 /*-----------------------------------------------------------*/
@@ -234,5 +236,5 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END )
 
 TEST( Full_BLE_END_TO_END, IotTest_SubscribePublishWait )
 {
-	IotTestMqtt_SubscribePublishWait(IOT_MQTT_QOS_1, &_IotTestNetworkInfo);
+	IotTestMqtt_SubscribePublishWait(IOT_MQTT_QOS_1, &_IotNetworkInfo);
 }

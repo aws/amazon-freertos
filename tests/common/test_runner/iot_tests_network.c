@@ -101,7 +101,7 @@ static IotTestNetworkConnection_t _networkConnection = IOT_TEST_NETWORK_CONNECTI
 /**
  * @brief Network interface to use in the tests.
  */
-static const IotNetworkInterface_t * const _pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
+static IotNetworkInterface_t * const _pNetworkInterface;
 
 /**
  * @brief The MQTT network interface shared among the tests.
