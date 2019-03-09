@@ -101,17 +101,17 @@ static void _networkReceiveTask( void * pArgument )
         /* Block and wait for 1 byte of data. This simulates the behavior of poll().
          * THIS IS A TEMPORARY WORKAROUND AND DOES NOT PROVIDE THREAD-SAFETY AGAINST
          * MULTIPLE CALLS OF RECEIVE. */
-		socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
-									 &( pNetworkConnection->bufferedByte ),
-									 1,
-									 0 );
+        socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
+                                     &( pNetworkConnection->bufferedByte ),
+                                     1,
+                                     0 );
 
-		connectionFlags = xEventGroupGetBits( (EventGroupHandle_t)&( pNetworkConnection->connectionFlags ) );
+        connectionFlags = xEventGroupGetBits( (EventGroupHandle_t)&( pNetworkConnection->connectionFlags ) );
 
-		if( (connectionFlags & _FLAG_SHUTDOWN) == _FLAG_SHUTDOWN )
-		{
-			socketStatus = SOCKETS_ECLOSED;
-		}
+        if( (connectionFlags & _FLAG_SHUTDOWN) == _FLAG_SHUTDOWN )
+        {
+            socketStatus = SOCKETS_ECLOSED;
+        }
 
         if( socketStatus <= 0 )
         {
