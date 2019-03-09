@@ -168,6 +168,12 @@ static BaseType_t _createBLEConnection()
     TickType_t retryDelay = pdMS_TO_TICKS( 1000 );
     IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
 
+    /* Initialize common components. */
+    if( IotCommon_Init() == false )
+    {
+        TEST_FAIL_MESSAGE( "Failed to initialize common components." );
+    }
+
     /* Initialize the MQTT library. */
     if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
     {

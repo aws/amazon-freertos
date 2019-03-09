@@ -1036,7 +1036,7 @@ BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnecti
 
 void IotBleMqtt_CloseConnection( void * pConnection )
 {
-    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) pConnection;
+    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection != NULL ) )
     {
     	pService->connection.pMqttConnection = NULL;
@@ -1045,7 +1045,7 @@ void IotBleMqtt_CloseConnection( void * pConnection )
 
 void IotBleMqtt_DestroyConnection( void * pConnection )
 {
-    IotBleMqttService_t* pService = ( IotBleMqttService_t * ) pConnection;
+    IotBleMqttService_t* pService =*(( IotBleMqttService_t ** ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection == NULL ) )
     {
         _resetBuffer( pService );

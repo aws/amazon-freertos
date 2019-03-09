@@ -584,7 +584,6 @@
         </folder>
       </folder>
       <file file_name="../common/application_code/main.c" />
-      <file file_name="../common/application_code/aws_ble_numericComparison.c" />
       <folder Name="nordic_code">
         <file file_name="../common/application_code/nordic_code/SEGGER_RTT.c" />
         <file file_name="../common/application_code/nordic_code/SEGGER_RTT.h" />

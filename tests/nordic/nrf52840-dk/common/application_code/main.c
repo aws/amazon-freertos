@@ -58,7 +58,6 @@
 #include "app_uart.h"
 
 #include <iot_ble.h>
-#include "aws_ble_numericComparison.h"
 #include "SEGGER_RTT.h"
 #include "aws_application_version.h"
 #if defined( UART_PRESENT )
@@ -185,20 +184,14 @@ void prvUartEventHandler( app_uart_evt_t * pxEvent )
 {
     /* Declared as static so it can be pushed into the queue from the ISR. */
     static volatile uint8_t ucRxByte = 0;
-    INPUTMessage_t xInputMessage;
    BaseType_t xHigherPriorityTaskWoken;
     switch( pxEvent->evt_type )
     {
         case APP_UART_DATA_READY:
             app_uart_get( (uint8_t *)&ucRxByte );
             app_uart_put( ucRxByte );
-            
-            xInputMessage.pcData = (uint8_t *)&ucRxByte;
-            xInputMessage.xDataSize = 1;
 
-            xQueueSendFromISR(UARTqueue, (void * )&xInputMessage, &xHigherPriorityTaskWoken);
-            /* Now the buffer is empty we can switch context if necessary. */
-            //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
+       //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
     
             break;
 
@@ -331,9 +324,7 @@ static void prvMiscInitialization( void )
 
     /* Activate deep sleep mode. */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-    NumericComparisonInit();
     prvTimersInit();
-    UARTqueue = xQueueCreate( 1, sizeof( INPUTMessage_t ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -358,25 +349,7 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
-{
-      BaseType_t xReturnMessage = pdFALSE;
-      INPUTMessage_t xTmpINPUTmessage;
 
-      pxINPUTmessage->pcData = (uint8_t *)pvPortMalloc(sizeof(uint8_t));
-      pxINPUTmessage->xDataSize = 1;
-      if(pxINPUTmessage->pcData != NULL)
-      {
-          if (xQueueReceive(UARTqueue, (void * )&xTmpINPUTmessage, (portTickType) xAuthTimeout )) 
-          {
-              *pxINPUTmessage->pcData = *xTmpINPUTmessage.pcData;
-              pxINPUTmessage->xDataSize = xTmpINPUTmessage.xDataSize;
-              xReturnMessage = pdTRUE;
-          }
-      }
-
-      return xReturnMessage;
-}
 /**@brief Clear bond information from persistent storage. */
 static void prvDeleteBonds( void )
 {
