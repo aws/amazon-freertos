@@ -38,8 +38,6 @@
 
 /* Nordic BSP includes */
 #include "bsp.h"
-#include "nordic_common.h"
-#include "nrf_drv_clock.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 #include "nrf_sdh.h"
@@ -47,9 +45,6 @@
 #include "nrf_sdh_ble.h"
 #include "nrf_sdh_freertos.h"
 #include "sensorsim.h"
-#include "ble_srv_common.h"
-#include "ble_advdata.h"
-#include "ble_advertising.h"
 #include "timers.h"
 #include "app_timer.h"
 #include "ble_conn_state.h"
@@ -59,25 +54,8 @@
 #include "ble_conn_params.h"
 #include "peer_manager.h"
 #include "peer_manager_handler.h"
-#include "fds.h"
 #include "bsp_btn_ble.h"
-
-#include "aws_ble_hal_dis.h"
-
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
-#include "ble_types.h"
-#include "nrf_ble_lesc.h"
-
-#include "bt_hal_manager_adapter_ble.h"
-#include "bt_hal_manager.h"
-#include "bt_hal_gatt_server.h"
-#include "aws_ble_services_init.h"
 #include "app_uart.h"
-
-/* MQTT v4 include. */
-#include "aws_iot_mqtt.h"
 
 #include <iot_ble.h>
 #include "aws_ble_numericComparison.h"

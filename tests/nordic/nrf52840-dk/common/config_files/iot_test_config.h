@@ -1,5 +1,4 @@
 /*
- * Amazon FreeRTOS V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,35 +17,29 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
  */
 
+/* This file contains configuration settings for the demos. */
 
-/**
- * @file aws_secure_sockets_config.h
- * @brief Secure sockets configuration options.
- */
+#ifndef _IOT_TEST_CONFIG_H_
+#define _IOT_TEST_CONFIG_H_
 
-#ifndef _AWS_SECURE_SOCKETS_CONFIG_H_
-#define _AWS_SECURE_SOCKETS_CONFIG_H_
+/* Standard include. */
+#include <stdbool.h>
 
-/**
- * @brief Byte order of the target MCU.
- *
- * Valid values are pdLITTLE_ENDIAN and pdBIG_ENDIAN.
- */
-#define socketsconfigBYTE_ORDER              pdLITTLE_ENDIAN
+/* Uncomment one of these definitions to override the log level configuration for
+ * a specific library. */
+#define IOT_LOG_LEVEL_PLATFORM               IOT_LOG_INFO
+#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO
+#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO
 
-/**
- * @brief Default socket send timeout.
- */
-#define socketsconfigDEFAULT_SEND_TIMEOUT    ( 10000 )
+extern bool IotBleMqtt_InitSerialize( void );
+extern void IotBleMqtt_CleanupSerialize( void );
+#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
+#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
 
-/**
- * @brief Default socket receive timeout.
- */
-#define socketsconfigDEFAULT_RECV_TIMEOUT    ( 10000 )
+/* Include the common configuration file for FreeRTOS. */
+#include "iot_config_common.h"
 
-#endif /* _AWS_SECURE_SOCKETS_CONFIG_H_ */
+#endif /* ifndef _IOT_TEST_CONFIG_H_ */

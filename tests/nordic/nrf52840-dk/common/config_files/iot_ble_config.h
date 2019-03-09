@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * Amazon FreeRTOS V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,19 +29,24 @@
  */
 
 
-#ifndef _AWS_BLE_CONFIG_H_
-#define _AWS_BLE_CONFIG_H_
-#include "sdk_config.h"
-/* Device name for this peripheral device */
-#define IOT_BLE_DEVICE_NAME                     "nRF52840"
+#ifndef _IOT_BLE_CONFIG_H_
+#define _IOT_BLE_CONFIG_H_
 
-/* Enable WIFI provisioning GATT service */
+/* Device name for this peripheral device. */
+#define IOT_BLE_DEVICE_NAME                     "ESP32_TEST"
+
+/* Enable WIFI provisioning GATT service. */
 #define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
+#define IOT_BLE_ENABLE_GATT_DEMO                 ( 0 )
 
-/* MTU size. */
-#define IOT_BLE_PREFERRED_MTU_SIZE         ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
+/* Disable numeric comparison */
+#define IOT_BLE_ENABLE_NUMERIC_COMPARISON        ( 0 )
+#define IOT_BLE_ENABLE_SECURE_CONNECTION         ( 0 )
+#define IOT_BLE_INPUT_OUTPUT                     ( eBTIONone )
+
+#define IOT_BLE_ENCRYPTION_REQUIRED               ( 0 )
 
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
 
-#endif /* _AWS_BLE_CONFIG_H_ */
+#endif /* _IOT_BLE_CONFIG_H_ */
