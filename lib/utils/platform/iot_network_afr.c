@@ -409,7 +409,7 @@ size_t IotNetworkAfr_Receive( void * pConnection,
                               size_t bytesRequested )
 {
     int32_t socketStatus = 0;
-    size_t bytesReceived = 0, remainingBytes = bytesRequested;
+    size_t bytesReceived = 0, bytesRemaining = bytesRequested;
 
     /* Cast network connection to the correct type. */
     IotNetworkConnectionAfr_t * pNetworkConnection = pConnection;
@@ -419,40 +419,43 @@ size_t IotNetworkAfr_Receive( void * pConnection,
     if( pNetworkConnection->bufferedByteValid == true )
     {
         *pBuffer = pNetworkConnection->bufferedByte;
-        socketStatus = 1;
-        remainingBytes--;
+        bytesReceived = 1;
+        bytesRemaining--;
         pNetworkConnection->bufferedByteValid = false;
     }
 
     /* Block and wait for incoming data. */
-    if( remainingBytes > 0 )
+    while( bytesRemaining > 0 )
     {
         socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
-                                     pBuffer + socketStatus,
-                                     remainingBytes,
+                                     pBuffer + bytesReceived,
+                                     bytesRemaining,
                                      0 );
-    }
 
-    if( socketStatus <= 0 )
-    {
-        IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
-    }
-    else
-    {
-        bytesReceived = ( size_t ) socketStatus;
-        configASSERT( bytesReceived <= bytesRequested );
-
-        if( bytesReceived < bytesRequested )
+        if( socketStatus <= 0 )
         {
-            IotLogWarn( "Receive requested %lu bytes, but %lu bytes received instead.",
-                        ( unsigned long ) bytesRequested,
-                        ( unsigned long ) bytesReceived );
+            IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
+            break;
         }
         else
         {
-            IotLogDebug( "Successfully received %lu bytes.",
-                         ( unsigned long ) bytesRequested );
+            bytesReceived += ( size_t ) socketStatus;
+            bytesRemaining -= ( size_t ) socketStatus;
+
+            configASSERT( bytesReceived + bytesRemaining == bytesRequested );
         }
+    }
+
+    if( bytesReceived < bytesRequested )
+    {
+        IotLogWarn( "Receive requested %lu bytes, but %lu bytes received instead.",
+                    ( unsigned long ) bytesRequested,
+                    ( unsigned long ) bytesReceived );
+    }
+    else
+    {
+        IotLogDebug( "Successfully received %lu bytes.",
+                     ( unsigned long ) bytesRequested );
     }
 
     return bytesReceived;
