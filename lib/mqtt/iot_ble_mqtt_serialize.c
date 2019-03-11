@@ -60,6 +60,28 @@
 #define _NUM_SUBACK_PARAMS                    ( 4 )
 #define _NUM_UNSUBACK_PARAMS                  ( 3 )
 #define _NUM_DISCONNECT_PARAMS                ( 1 )
+
+
+
+
+const IotMqttSerializer_t IotBleMqttSerializer = {
+    .serialize.connect       = IotBleMqtt_SerializeConnect,
+    .serialize.publish       = IotBleMqtt_SerializePublish,
+    .serialize.publishSetDup = IotBleMqtt_PublishSetDup,
+    .serialize.puback        = IotBleMqtt_SerializePuback,
+    .serialize.subscribe     = IotBleMqtt_SerializeSubscribe,
+    .serialize.unsubscribe   = IotBleMqtt_SerializeUnsubscribe,
+    .serialize.disconnect    = IotBleMqtt_SerializeDisconnect,
+    .freePacket              = IotBleMqtt_FreePacket,
+    .getPacketType           = IotBleMqtt_GetPacketType,
+    .getRemainingLength      = IotBleMqtt_GetRemainingLength,
+    .deserialize.connack     = IotBleMqtt_DeserializeConnack,
+    .deserialize.publish     = IotBleMqtt_DeserializePublish,
+    .deserialize.puback      = IotBleMqtt_DeserializePuback,
+    .deserialize.suback      = IotBleMqtt_DeserializeSuback,
+    .deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback
+};
+
 /**
  * @brief Guards access to the packet identifier counter.
  *

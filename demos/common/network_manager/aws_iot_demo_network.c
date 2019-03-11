@@ -32,7 +32,7 @@
 #include "aws_iot_network_manager.h"
 #include "aws_iot_demo_network.h"
 #include "platform/iot_network_afr.h"
-
+#include "platform/iot_network_ble.h"
 #include "private/iot_error.h"
 
 #if BLE_ENABLED
@@ -165,21 +165,20 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
 static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkContext )
 {
     BaseType_t xStatus = pdFALSE;
-    IotBleMqttConnection_t xBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
-    /*IotMqttNetIf_t* pxNetworkIface = &( pxNetworkContext->xNetworkInterface );
+    IotMqttNetworkInfo_t* pxNetworkInfo = &( pxNetworkContext->xNetworkInfo );
+    static IotBleMqttConnection_t bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
 
-    if( IotBleMqtt_CreateConnection( &pxNetworkContext->xMqttConnection, &xBLEConnection ) == pdTRUE )
+    if( IotBleMqtt_CreateConnection( &pxNetworkContext->xMqttConnection, &bleConnection ) == pdTRUE )
     {
-        ( *pxNetworkIface ) = xDefaultNetworkInterface;
-        IOT_MQTT_BLE_INIT_SERIALIZER( pxNetworkIface );
-        pxNetworkIface->send          = IotBleMqtt_Send;
-        pxNetworkIface->pSendContext  = ( void * ) xBLEConnection;
-        pxNetworkIface->pDisconnectContext = pxNetworkContext;
-        pxNetworkIface->disconnect = pxNetworkContext->xDisconnectCallback;
+    	pxNetworkInfo->createNetworkConnection = false;
+    	pxNetworkInfo->pNetworkConnection = (void *)&bleConnection;
+    	pxNetworkInfo->pNetworkInterface = IOT_NETWORK_INTERFACE_BLE;
+    	pxNetworkInfo->pMqttSerializer = &IotBleMqttSerializer;
 
-        pxNetworkContext->pvNetworkConnection = ( void* ) xBLEConnection;
+        pxNetworkContext->pvNetworkConnection = ( void* ) &bleConnection;
+
         xStatus = pdTRUE;
-    }*/
+    }
     return xStatus;
 }
 #endif

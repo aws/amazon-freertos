@@ -162,7 +162,7 @@ static BaseType_t _removeBLEConnection()
 }
 
 
-static BaseType_t _createBLEConnection(IotMqttSerializer_t * pSerializer)
+static BaseType_t _createBLEConnection()
 {
     BaseType_t status = pdFALSE;
     size_t triesLeft = ( 200 );
@@ -187,12 +187,10 @@ static BaseType_t _createBLEConnection(IotMqttSerializer_t * pSerializer)
     {
 		if( IotNetworkBle_Create( &_IotMqttConnection, NULL,  &_mqttBLEConnection ) == pdTRUE )
 		{
-			IOT_MQTT_BLE_INIT_SERIALIZER( pSerializer );
-
 		    _IotNetworkInfo.createNetworkConnection = false;
 		    _IotNetworkInfo.pNetworkConnection = &_mqttBLEConnection;
 		    _IotNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_BLE;
-		    _IotNetworkInfo.pMqttSerializer = pSerializer;
+		    _IotNetworkInfo.pMqttSerializer = (IotMqttSerializer_t *)&IotBleMqttSerializer;
 
 			status = pdTRUE;
 			break;
@@ -232,9 +230,7 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END )
 
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END )
 {
-    IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
-
-    _createBLEConnection(&serializer);
+    _createBLEConnection();
 
     RUN_TEST_CASE( Full_BLE_END_TO_END, IotTest_SubscribePublishWait );
 

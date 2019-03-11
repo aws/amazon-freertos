@@ -91,6 +91,7 @@ typedef enum {
 } MQTTBLEConnectStatus_t;
 /** @} */
 
+extern const IotMqttSerializer_t IotBleMqttSerializer;
 /**
  * @brief Initializes the serializer for MQTT messages over BLE.
  * @return true or false

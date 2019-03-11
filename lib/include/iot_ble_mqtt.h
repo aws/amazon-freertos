@@ -164,24 +164,6 @@ typedef struct  IotBleMqttService
 #define IS_SUCCESS( status )			( status == eBTStatusSuccess )
 
 
-#define IOT_MQTT_BLE_INIT_SERIALIZER( pSerializer )                             \
-    ( pSerializer )->serialize.connect       = IotBleMqtt_SerializeConnect;      \
-    ( pSerializer )->serialize.publish       = IotBleMqtt_SerializePublish;      \
-    ( pSerializer )->serialize.publishSetDup = IotBleMqtt_PublishSetDup;         \
-    ( pSerializer )->serialize.puback        = IotBleMqtt_SerializePuback;       \
-    ( pSerializer )->serialize.subscribe     = IotBleMqtt_SerializeSubscribe;    \
-    ( pSerializer )->serialize.unsubscribe   = IotBleMqtt_SerializeUnsubscribe;  \
-    ( pSerializer )->serialize.disconnect    = IotBleMqtt_SerializeDisconnect;   \
-    ( pSerializer )->freePacket              = IotBleMqtt_FreePacket;            \
-    ( pSerializer )->getPacketType           = IotBleMqtt_GetPacketType;         \
-    ( pSerializer )->getRemainingLength      = IotBleMqtt_GetRemainingLength;    \
-    ( pSerializer )->deserialize.connack     = IotBleMqtt_DeserializeConnack;    \
-    ( pSerializer )->deserialize.publish     = IotBleMqtt_DeserializePublish;    \
-    ( pSerializer )->deserialize.puback      = IotBleMqtt_DeserializePuback;     \
-    ( pSerializer )->deserialize.suback      = IotBleMqtt_DeserializeSuback;     \
-    ( pSerializer )->deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback;
-
-
 /**
  * @brief Initializes the MQTT service instances.
  *
