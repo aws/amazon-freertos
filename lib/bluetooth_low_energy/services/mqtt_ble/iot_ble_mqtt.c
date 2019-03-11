@@ -386,7 +386,6 @@ void _resetBuffer( IotBleMqttService_t* pService )
     		pService->connection.pRecvBuffer = NULL;
     	}
 
-    	pService->connection.recvOffset = 0;
     	pService->connection.recvBufferLen = 0;
 
     	( void ) xSemaphoreGive( pService->connection.recvLock );
@@ -643,6 +642,53 @@ void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 }
 
 /*-----------------------------------------------------------*/
+BaseType_t _checkAndSizeReceiveBuffer(uint8_t ** pRecvBuffer, uint32_t * bufferLength, uint32_t * bufferOffset, uint32_t rxDataLength)
+{
+    BaseType_t result = pdTRUE;
+
+	/**
+	 * Create a new buffer if the buffer is empty.
+	 */
+	if( *pRecvBuffer == NULL )
+	{
+		*pRecvBuffer = pvPortMalloc( IOT_BLE_MQTT_RX_BUFFER_SIZE );
+		if( *pRecvBuffer != NULL )
+		{
+			*bufferLength = IOT_BLE_MQTT_RX_BUFFER_SIZE;
+
+		}
+		else
+		{
+			result = pdFALSE;
+		}
+	}
+	else
+	{
+		/**
+		 *  If current buffer can't hold the received data, resize the buffer by twicke the current size.
+		 */
+		if( ( *bufferOffset + rxDataLength ) > *bufferLength )
+		{
+			*pRecvBuffer = _reallocBuffer( *pRecvBuffer,
+					*bufferLength,
+					( 2 * *bufferLength ) );
+
+			if( *pRecvBuffer != NULL )
+			{
+				*bufferLength = ( *bufferLength * 2 );
+			}
+			else
+			{
+				/* Free buffer if there is an error */
+				vPortFree(*pRecvBuffer);
+				result = pdFALSE;
+			}
+		}
+	}
+
+	return result;
+}
+
 
 void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
@@ -653,6 +699,9 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     BaseType_t result = pdTRUE;
     uint8_t *pBufOffset;
     uint8_t ret;
+    static uint8_t * recvBuffer = NULL;
+    static uint32_t bufferLength = 0;
+    static uint32_t bufferOffset = 0;
 
     resp.pAttrData = &attrData;
     resp.rspErrorStatus = eBTRspErrorNone;
@@ -675,69 +724,38 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         {
         	if( xSemaphoreTake( pService->connection.recvLock, 0 ) == pdTRUE )
         	{
-        		/**
-        		 * Create a new buffer if the buffer is empty.
-        		 */
-        		if( pService->connection.pRecvBuffer == NULL )
-        		{
-        			pService->connection.pRecvBuffer = pvPortMalloc( IOT_BLE_MQTT_RX_BUFFER_SIZE );
-        			if( pService->connection.pRecvBuffer != NULL )
-        			{
-        				pService->connection.recvBufferLen = IOT_BLE_MQTT_RX_BUFFER_SIZE;
-
-        			}
-        			else
-        			{
-        				result = pdFALSE;
-					}
-        		}
-        		else
-        		{
-        			/**
-        			 *  If current buffer can't hold the received data, resize the buffer by twicke the current size.
-        			 */
-        			if( ( pService->connection.recvOffset + pWriteParam->length ) > pService->connection.recvBufferLen )
-        			{
-        				pService->connection.pRecvBuffer = _reallocBuffer( pService->connection.pRecvBuffer,
-        						pService->connection.recvBufferLen,
-								( 2 * pService->connection.recvBufferLen ) );
-
-        				if( pService->connection.pRecvBuffer != NULL )
-        				{
-        					pService->connection.recvBufferLen = ( pService->connection.recvBufferLen * 2 );
-
-        				}
-        				else
-        				{
-        					result = pdFALSE;
-        				}
-
-        			}
-        		}
+        		result = _checkAndSizeReceiveBuffer(&recvBuffer, &bufferLength, &bufferOffset, pWriteParam->length);
 
         		if( result == pdTRUE )
         		{
         			/**
         			 * Copy the received data into the buffer.
         			 */
-        			pBufOffset = ( uint8_t* ) pService->connection.pRecvBuffer + pService->connection.recvOffset;
+        			pBufOffset = ( uint8_t* ) recvBuffer + bufferOffset;
         			memcpy( pBufOffset, pWriteParam->pValue, pWriteParam->length );
-        			pService->connection.recvOffset += pWriteParam->length;
+        			bufferOffset += pWriteParam->length;
 
         			if( pWriteParam->length < IOT_BLE_MQTT_TRANSFER_LEN( BLEConnMTU ) )
         			{
-        				IotMqtt_ReceiveCallback( &pService->connection,
+        				pService->connection.recvBufferLen = bufferOffset;
+        				pService->connection.pRecvBuffer = recvBuffer;
+
+        				IotMqtt_ReceiveCallback( &pService,
         						                 pService->connection.pMqttConnection );
 
-        				pService->connection.pRecvBuffer = NULL;
-        				pService->connection.recvBufferLen = 0;
-        				pService->connection.recvOffset = 0;
+        				vPortFree( recvBuffer );
+        				recvBuffer = NULL;
+        				bufferLength = 0;
+        				bufferOffset = 0;
         			}
 
         			resp.eventStatus = eBTStatusSuccess;
         		}
 
         		( void ) xSemaphoreGive( pService->connection.recvLock );
+        	}else
+        	{
+        		configPRINTF( ( "Rx large message callback. Failed to get received lock.\n" ) );
         	}
         }
 
@@ -778,9 +796,25 @@ void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
                		( pService->connection.pMqttConnection != NULL ) &&
        				( pService->isEnabled ) )
         {
-        		( void ) IotMqtt_ReceiveCallback( &pService->connection,
+
+        	if( xSemaphoreTake( pService->connection.recvLock, 0 ) == pdTRUE )
+        	{
+        		pService->connection.pRecvBuffer = pWriteParam->pValue;
+    			pService->connection.recvBufferLen = pWriteParam->length;
+
+        		( void ) IotMqtt_ReceiveCallback( &pService,
         				                        pService->connection.pMqttConnection );
-        		resp.eventStatus = eBTStatusSuccess;
+				pService->connection.pRecvBuffer = NULL;
+				pService->connection.recvBufferLen = 0;
+
+        		( void ) xSemaphoreGive( pService->connection.recvLock );
+        	}else
+        	{
+        		configPRINTF( ( "Rx message callback. Failed to get received lock.\n" ) );
+        	}
+
+
+        	resp.eventStatus = eBTStatusSuccess;
         }
 
         if( pEventParam->xEventType == eBLEWrite )
@@ -1045,7 +1079,7 @@ void IotBleMqtt_CloseConnection( void * pConnection )
 
 void IotBleMqtt_DestroyConnection( void * pConnection )
 {
-    IotBleMqttService_t* pService =*(( IotBleMqttService_t ** ) pConnection);
+    IotBleMqttService_t* pService = *(( IotBleMqttService_t ** ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection == NULL ) )
     {
         _resetBuffer( pService );
@@ -1057,7 +1091,7 @@ void IotBleMqtt_DestroyConnection( void * pConnection )
 BaseType_t IotBleMqtt_SetSendTimeout( void * pConnection, uint16_t timeoutMS )
 {
     BaseType_t ret = pdFALSE;
-    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) pConnection;
+    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
 
     if( pService != NULL )
     {
@@ -1067,11 +1101,31 @@ BaseType_t IotBleMqtt_SetSendTimeout( void * pConnection, uint16_t timeoutMS )
     return ret;
 }
 
+size_t  IotBleMqtt_Receive( void * pConnection,
+                              uint8_t * pBuffer,
+                              size_t bytesRequested )
+{
+    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
+
+    memcpy(pBuffer, pService->connection.pRecvBuffer, bytesRequested);
+
+    return bytesRequested;
+}
+
+
+void IotBleMqtt_SetReceiveCallback( void * pConnection,
+                                                    IotNetworkReceiveCallback_t receiveCallback,
+                                                    void * pContext )
+{
+    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
+
+    pService->connection.pMqttConnection = (IotMqttConnection_t *)pContext;
+}
 /*-----------------------------------------------------------*/
 
 size_t IotBleMqtt_Send( void* pConnection, const uint8_t * const pMessage, size_t messageLength )
 {
-    IotBleMqttService_t * pService = ( IotBleMqttService_t * ) pConnection;
+    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
     size_t sendLen, remainingLen = messageLength;
     TickType_t remainingTime = pService->connection.sendTimeout;
     TimeOut_t timeout;

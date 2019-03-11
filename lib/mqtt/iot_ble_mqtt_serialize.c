@@ -40,6 +40,7 @@
 #include "FreeRTOS.h"
 
 /* MQTT internal includes. */
+#include "iot_ble_mqtt.h"
 #include "iot_ble_config.h"
 #include "platform/iot_threads.h"
 #include "iot_serializer.h"
@@ -648,6 +649,7 @@ void IotBleMqtt_CleanupSerialize( void )
 	/* Destroy the packet identifier mutex */
 	IotMutex_Destroy( &_packetIdentifierMutex );
 }
+
 
 IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const pConnectInfo,
                                                            uint8_t ** const pConnectPacket,
@@ -1328,6 +1330,14 @@ IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacke
 	return ret;
 }
 
+size_t IotBleMqtt_GetRemainingLength ( void * pNetworkConnection,
+                                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pNetworkConnection);
+
+    return pService->connection.recvBufferLen;
+}
+
 
 uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInterface_t * pNetworkInterface )
 {
@@ -1335,8 +1345,9 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInt
    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     AwsIotSerializerError_t error;
     uint8_t value, packetType = _INVALID_MQTT_PACKET_TYPE;
-    /*
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* ) pPacket, packetSize );
+    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pNetworkConnection);
+
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* )pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
 
     if( ( error == AWS_IOT_SERIALIZER_SUCCESS )
             && ( decoderObj.type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
@@ -1347,10 +1358,10 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInt
         if ( ( error == AWS_IOT_SERIALIZER_SUCCESS ) &&
                 ( decoderValue.type == AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            value = ( uint16_t ) decoderValue.value.signedInt;*/
+            value = ( uint16_t ) decoderValue.value.signedInt;
 
             /** Left shift by 4 bits as MQTT library expects packet type to be upper 4 bits **/
-/*            packetType = value << 4;
+            packetType = value << 4;
         }
         else
         {
@@ -1362,7 +1373,7 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInt
         IotLogError( "Decoding the packet failed, decoder error = %d, type = %d", error, decoderObj.type );
     }
 
-    IOT_BLE_MESG_DECODER.destroy( &decoderObj );*/
+    IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
     return packetType;
 }

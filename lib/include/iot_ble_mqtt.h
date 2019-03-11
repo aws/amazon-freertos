@@ -135,7 +135,6 @@ typedef struct IotBleMqttConnectionType
 	TickType_t sendTimeout;
 	uint8_t * pRecvBuffer;
 	size_t recvBufferLen;
-	size_t recvOffset;
 	SemaphoreHandle_t recvLock;
 	IotMqttConnection_t* pMqttConnection;
 } IotBleMqttConnectionType_t;
@@ -175,6 +174,7 @@ typedef struct  IotBleMqttService
     ( pSerializer )->serialize.disconnect    = IotBleMqtt_SerializeDisconnect;   \
     ( pSerializer )->freePacket              = IotBleMqtt_FreePacket;            \
     ( pSerializer )->getPacketType           = IotBleMqtt_GetPacketType;         \
+    ( pSerializer )->getRemainingLength      = IotBleMqtt_GetRemainingLength;    \
     ( pSerializer )->deserialize.connack     = IotBleMqtt_DeserializeConnack;    \
     ( pSerializer )->deserialize.publish     = IotBleMqtt_DeserializePublish;    \
     ( pSerializer )->deserialize.puback      = IotBleMqtt_DeserializePuback;     \

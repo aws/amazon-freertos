@@ -34,6 +34,7 @@
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>
+#include "iot_common.h"
 #include "iot_ble.h"
 #include "iot_ble_mqtt.h"
 #include "iot_ble_config.h"
@@ -161,12 +162,11 @@ static BaseType_t _removeBLEConnection()
 }
 
 
-static BaseType_t _createBLEConnection()
+static BaseType_t _createBLEConnection(IotMqttSerializer_t * pSerializer)
 {
     BaseType_t status = pdFALSE;
     size_t triesLeft = ( 200 );
     TickType_t retryDelay = pdMS_TO_TICKS( 1000 );
-    IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
 
     /* Initialize common components. */
     if( IotCommon_Init() == false )
@@ -187,12 +187,12 @@ static BaseType_t _createBLEConnection()
     {
 		if( IotNetworkBle_Create( &_IotMqttConnection, NULL,  &_mqttBLEConnection ) == pdTRUE )
 		{
-			IOT_MQTT_BLE_INIT_SERIALIZER( &serializer );
+			IOT_MQTT_BLE_INIT_SERIALIZER( pSerializer );
 
 		    _IotNetworkInfo.createNetworkConnection = false;
 		    _IotNetworkInfo.pNetworkConnection = &_mqttBLEConnection;
 		    _IotNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_BLE;
-		    _IotNetworkInfo.pMqttSerializer = &serializer;
+		    _IotNetworkInfo.pMqttSerializer = pSerializer;
 
 			status = pdTRUE;
 			break;
@@ -203,7 +203,6 @@ static BaseType_t _createBLEConnection()
 		}
     }
 
-    IotNetworkBle_SetReceiveCallback(&_mqttBLEConnection, NULL, &_IotMqttConnection);
     return status;
 }
 /*-----------------------------------------------------------*/
@@ -233,7 +232,9 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END )
 
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END )
 {
-    _createBLEConnection();
+    IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
+
+    _createBLEConnection(&serializer);
 
     RUN_TEST_CASE( Full_BLE_END_TO_END, IotTest_SubscribePublishWait );
 

@@ -69,12 +69,8 @@ IotNetworkError_t IotNetworkBle_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext )
 {
-	(void)pConnection;
-    (void)receiveCallback;
-    (void)pContext;
-
-    /* pContext contains MQTT connection info. */
-    return IOT_NETWORK_SUCCESS;
+	IotBleMqtt_SetReceiveCallback( pConnection, receiveCallback, pContext );
+	return IOT_NETWORK_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -86,10 +82,7 @@ size_t IotNetworkBle_Receive( void * pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested )
 {
-    size_t bytesReceived = 0;
-
-    /* Receive Doesn't work on BLE. It is coupled with MQTT. Whenever something is received, it is pushed directly to MQTT. */
-    return bytesReceived;
+    return IotBleMqtt_Receive(pConnection, pBuffer, bytesRequested);
 }
 
 

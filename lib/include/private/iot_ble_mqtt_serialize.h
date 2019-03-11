@@ -103,6 +103,33 @@ bool IotBleMqtt_InitSerialize( void );
  */
 void IotBleMqtt_CleanupSerialize( void );
 
+
+/**
+ * @brief Set the new MQTT connection.
+ *
+ * Serialize the CONNECT message parameters into a JSON structure
+ *
+ * @param[in] pConnectInfo MQTT CONNECT parameters.
+ * @param[in] receiveCallback Not used.
+ * @param[in] pContext Contains the new MQTT connection.
+ */
+void IotBleMqtt_SetReceiveCallback( void * pConnection,
+                                    IotNetworkReceiveCallback_t receiveCallback,
+                                    void * pContext );
+
+/**
+ * @brief Set the new MQTT connection.
+ *
+ * Serialize the CONNECT message parameters into a JSON structure
+ *
+ * @param[in] pConnectInfo MQTT CONNECT parameters.
+ * @param[in] pBuffer data to copy.
+ * @param[in] bytesRequested number of bytes to copy.
+ */
+size_t IotBleMqtt_Receive( void * pConnection,
+                           uint8_t * pBuffer,
+                           size_t bytesRequested );
+
 /**
  * @brief Serialize the CONNECT message sent towards MQTT BLE proxy.
  *
@@ -327,6 +354,15 @@ IotMqttError_t IotBleMqtt_DeserializePingresp( struct _mqttPacket * pConnack );
  */
 uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInterface_t * pNetworkInterface );
 
+/**
+ * @brief Gets the payload length
+ *
+ * Parses the JSON packet received and gets the packet type.
+ * @param[in] pPacket Pointer to the start of the packet
+ * @param[in] packetSize length of the buffer containing the packet
+ * @return Packet type for the packet
+ */
+size_t IotBleMqtt_GetRemainingLength ( void * pNetworkConnection, const IotNetworkInterface_t * pNetworkInterface );
 
 /**
  * @brief Frees an MQTT message.
