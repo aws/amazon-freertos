@@ -10,7 +10,8 @@
       <TargetName>aws_tests</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>M487JIDAE</Device>
@@ -55,7 +56,7 @@
           <ListingPath>.\lst\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
-          <CreateBatchFile>0</CreateBatchFile>
+          <CreateBatchFile>1</CreateBatchFile>
           <BeforeCompile>
             <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
@@ -148,7 +149,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>19</TargetSelection>
+          <TargetSelection>20</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -172,7 +173,7 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4106</DriverSelection>
+            <DriverSelection>4107</DriverSelection>
           </Flash1>
           <bUseTDR>0</bUseTDR>
           <Flash2>Bin\Nu_Link.dll</Flash2>
@@ -222,6 +223,7 @@
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
             <RvdsVP>2</RvdsVP>
+            <RvdsMve>0</RvdsMve>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -362,6 +364,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
@@ -374,7 +377,7 @@
               <MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
               <Define>MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\" RVDS_ARMCM4_NUC4xx __LITTLE_ENDIAN__ AMAZON_FREERTOS_ENABLE_UNIT_TESTS M487</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\include\FreeRTOS_POSIX;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Include;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\inc;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\middleware\wifi_esp8266;..\..\..\..\tests\common\include;..\..\..\..\lib\FreeRTOS\portable\RVDS\ARM_CM4F;..\;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\protocols\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\M487;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\Keil;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\CMSIS\Include;..\common\config_files;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\nuvoton\m480;..\common\application_code\nuvoton_code</IncludePath>
+              <IncludePath>..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\include\FreeRTOS_POSIX;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Include;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\inc;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\middleware\wifi_esp8266;..\..\..\..\tests\common\include;..\..\..\..\lib\FreeRTOS\portable\RVDS\ARM_CM4F;..\;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\protocols\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\M487;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\Keil;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\CMSIS\Include;..\common\config_files;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\mbedtls\\library;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\nuvoton\m480;..\common\application_code\nuvoton_code</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -510,6 +513,7 @@
                     <uThumb>2</uThumb>
                     <uSurpInc>2</uSurpInc>
                     <uC99>2</uC99>
+                    <uGnu>2</uGnu>
                     <useXO>2</useXO>
                     <v6Lang>0</v6Lang>
                     <v6LangP>0</v6LangP>
@@ -640,6 +644,7 @@
                     <uThumb>2</uThumb>
                     <uSurpInc>2</uSurpInc>
                     <uC99>2</uC99>
+                    <uGnu>2</uGnu>
                     <useXO>2</useXO>
                     <v6Lang>0</v6Lang>
                     <v6LangP>0</v6LangP>
@@ -785,6 +790,7 @@
                 <uThumb>2</uThumb>
                 <uSurpInc>2</uSurpInc>
                 <uC99>2</uC99>
+                <uGnu>2</uGnu>
                 <useXO>2</useXO>
                 <v6Lang>0</v6Lang>
                 <v6LangP>0</v6LangP>
@@ -938,6 +944,7 @@
                 <uThumb>2</uThumb>
                 <uSurpInc>2</uSurpInc>
                 <uC99>2</uC99>
+                <uGnu>2</uGnu>
                 <useXO>2</useXO>
                 <v6Lang>0</v6Lang>
                 <v6LangP>0</v6LangP>
@@ -1253,6 +1260,11 @@
               <FileName>platform.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\third_party\mbedtls\library\platform.c</FilePath>
+            </File>
+            <File>
+              <FileName>platform_util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\platform_util.c</FilePath>
             </File>
             <File>
               <FileName>ripemd160.c</FileName>
