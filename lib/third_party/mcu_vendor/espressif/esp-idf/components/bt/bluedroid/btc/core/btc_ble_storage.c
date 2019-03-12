@@ -744,7 +744,7 @@ static void _btc_read_le_key(const uint8_t key_type, const size_t key_len, bt_bd
             if (!*device_added) {
                 int auth_mode = 0;
                 if(_btc_storage_get_ble_dev_auth_mode(&bd_addr, &auth_mode) != BT_STATUS_SUCCESS) {
-                    BTC_TRACE_ERROR("%s get auth mode error", __func__);
+                    BTC_TRACE_WARNING("%s Failed to get auth mode from flash, please erase flash and download the firmware again", __func__);
                 }
                 BTA_DmAddBleDevice(bta_bd_addr, addr_type, auth_mode, BT_DEVICE_TYPE_BLE);
                 *device_added = true;
