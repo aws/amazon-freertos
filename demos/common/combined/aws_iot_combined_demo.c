@@ -120,6 +120,8 @@
 
 #define demoOTA_DELAY                            ( 1000 )
 
+#define demoMQTT_INITAL_CONNECT_RETRY_DELAY      ( 5000 )
+
 #define demoBUTTON_DELAY                         ( 1000 )
 
 #define demoQUEUE_SEND                           ( 1000 )
@@ -829,6 +831,7 @@ void vMqttPubTask( void * pvParam )
     size_t xMessageLength;
 
     TickType_t xPublishRetryDelay = pdMS_TO_TICKS( demoPUBLISH_TIMEOUT_DELAY_MS );
+    TickType_t xMqttReconnect = pdMS_TO_TICKS( demoMQTT_INITAL_CONNECT_RETRY_DELAY );
 
     IotMqttError_t xMqttStatus = IOT_MQTT_SUCCESS;
 
@@ -843,94 +846,98 @@ void vMqttPubTask( void * pvParam )
     if( xNetworkConnected != pdFALSE )
     {
         /* Open an MQTT connection */
-        xMqttStatus = prxOpenMqttConnection();
-
-        if( xMqttStatus == IOT_MQTT_SUCCESS )
+        while( (xMqttStatus = prxOpenMqttConnection()) != IOT_MQTT_SUCCESS )
         {
-            /* Start publishing MQTT Messages in a loop */
-            while( 1 )
+            IotLogError( "vMqttPubTask: Mqtt connection failed. Retrying due to error: %d\n", xMqttStatus );
+            prvCloseMqttConnection( pdTRUE );
+            xNetworkConnected = prxReCreateConnection();
+
+            vTaskDelay(xMqttReconnect);
+        }
+
+        /* Start publishing MQTT Messages in a loop */
+        while( 1 )
+        {
+            if( ( xNetworkConnected != pdFALSE ) && ( publishRetries > 0 ) )
             {
-                if( ( xNetworkConnected != pdFALSE ) && ( publishRetries > 0 ) )
+                xSocketConnected = true;
+
+                /* Block to wait for data from publisher. */
+                if( xQueueReceive( xTelemetryQueue, &receiveValue, portMAX_DELAY ) == pdPASS )
                 {
-                    xSocketConnected = true;
+                    /* Set length of receiveValue in cMessage to always be 3 characters.
+                        * Otherwise the prvEchoMessage() does not find the "ACK" string in
+                        * the response, then we get ACKs on ACKs.
+                        */
+                    receiveValue %= 1000;
 
-                    /* Block to wait for data from publisher. */
-                    if( xQueueReceive( xTelemetryQueue, &receiveValue, portMAX_DELAY ) == pdPASS )
+                    xMessageLength = snprintf(
+                        cMessage,
+                        demoPUBLISH_DATA_LENGTH,
+                        demoPUBLISH_DATA,
+                        ( int ) ( receiveValue ) );
+
+                    xMqttStatus = prxPublishMQTTMessage( cMessage, xMessageLength );
+
+                    if( xMqttStatus == IOT_MQTT_SUCCESS )
                     {
-                        /* Set length of receiveValue in cMessage to always be 3 characters.
-                         * Otherwise the prvEchoMessage() does not find the "ACK" string in
-                         * the response, then we get ACKs on ACKs.
-                         */
-                        receiveValue %= 1000;
-
-                        xMessageLength = snprintf(
-                            cMessage,
-                            demoPUBLISH_DATA_LENGTH,
-                            demoPUBLISH_DATA,
-                            ( int ) ( receiveValue ) );
-
-                        xMqttStatus = prxPublishMQTTMessage( cMessage, xMessageLength );
-
-                        if( xMqttStatus == IOT_MQTT_SUCCESS )
-                        {
-                            IotLogInfo( "vMqttPubTask: Pub Thread Sent SUCCESS. Msg=%s, Count = %d",
-                                        cMessage, xMessageLength );
-                            publishRetries = demoPUBLISH_TIMEOUT_RETRIES;
-                        }
-                        else if( xMqttStatus == IOT_MQTT_NETWORK_ERROR )
-                        {
-                            IotLogInfo( "vMqttPubTask: publish SEND ERROR\n" );
-                            publishRetries--;
-                            vTaskDelay( xPublishRetryDelay );
-                        }
-                        else if( xMqttStatus == IOT_MQTT_TIMEOUT )
-                        {
-                            IotLogInfo( "vMqttPubTask: publish TIMEOUT error\n" );
-                            vTaskDelay( xPublishRetryDelay );
-                        }
-                        else if( ( xMqttStatus == IOT_MQTT_NO_MEMORY ) || ( xMqttStatus == IOT_MQTT_BAD_PARAMETER ) )
-                        {
-                            IotLogInfo( "vMqttPubTask:Pub Task Failed to publish Message, error = %s", IotMqtt_strerror( xMqttStatus ) );
-                            break;
-                        }
+                        IotLogInfo( "vMqttPubTask: Pub Thread Sent SUCCESS. Msg=%s, Count = %d",
+                                    cMessage, xMessageLength );
+                        publishRetries = demoPUBLISH_TIMEOUT_RETRIES;
                     }
-                }
-                else
-                {
-                    publishRetries = demoPUBLISH_TIMEOUT_RETRIES;
-
-                    xSocketConnected = false;
-                    IotLogInfo( "vMqttPubTask; Socket connection dropped, reconnect\n" );
-                    xSemaphoreTake( xOtaProtocolUsingSocket, portMAX_DELAY );
-                    IotLogInfo( "vMqttPubTask; Socket connection dropped, have semaphore\n" );
-
-                    /* Recreate the Network Connection */
-                    IotLogError( "vMqttPubTask: reconnecting:: before close ." );
-                    prvCloseMqttConnection( pdTRUE );
-                    IotLogError( "vMqttPubTask: reconnecting: before reconnect." );
-                    xNetworkConnected = prxReCreateConnection();
-
-                    if( xNetworkConnected == pdFALSE )
+                    else if( xMqttStatus == IOT_MQTT_NETWORK_ERROR )
                     {
-                        IotLogError( ( "vMqttPubTask: reconnecting: Failed to reconnect to Network." ) );
+                        IotLogInfo( "vMqttPubTask: publish SEND ERROR\n" );
+                        publishRetries--;
+                        vTaskDelay( xPublishRetryDelay );
+                    }
+                    else if( xMqttStatus == IOT_MQTT_TIMEOUT )
+                    {
+                        IotLogInfo( "vMqttPubTask: publish TIMEOUT error\n" );
+                        vTaskDelay( xPublishRetryDelay );
+                    }
+                    else if( ( xMqttStatus == IOT_MQTT_NO_MEMORY ) || ( xMqttStatus == IOT_MQTT_BAD_PARAMETER ) )
+                    {
+                        IotLogInfo( "vMqttPubTask:Pub Task Failed to publish Message, error = %s", IotMqtt_strerror( xMqttStatus ) );
                         break;
                     }
-
-                    /* Create an MQTT connection over the network connection */
-                    IotLogError( ( "vMqttPubTask: reconnecting: before Open." ) );
-                    xMqttStatus = prxOpenMqttConnection();
-                    IotLogError( ( "vMqttPubTask: reconnecting: after Open." ) );
-
-                    if( xMqttStatus != IOT_MQTT_SUCCESS )
-                    {
-                        IotLogError( ( "vMqttPubTask: reconnecting: Failed to create an MQTT connection." ) );
-                        break;
-                    }
-
-                    xSocketConnected = true;
-                    IotLogInfo( "vMqttPubTask; Socket connection reconnected\n" );
-                    xSemaphoreGive( xOtaProtocolUsingSocket );
                 }
+            }
+            else
+            {
+                publishRetries = demoPUBLISH_TIMEOUT_RETRIES;
+
+                xSocketConnected = false;
+                IotLogInfo( "vMqttPubTask; Socket connection dropped, reconnect\n" );
+                xSemaphoreTake( xOtaProtocolUsingSocket, portMAX_DELAY );
+                IotLogInfo( "vMqttPubTask; Socket connection dropped, have semaphore\n" );
+
+                /* Recreate the Network Connection */
+                IotLogError( "vMqttPubTask: reconnecting:: before close ." );
+                prvCloseMqttConnection( pdTRUE );
+                IotLogError( "vMqttPubTask: reconnecting: before reconnect." );
+                xNetworkConnected = prxReCreateConnection();
+
+                if( xNetworkConnected == pdFALSE )
+                {
+                    IotLogError( ( "vMqttPubTask: reconnecting: Failed to reconnect to Network." ) );
+                    break;
+                }
+
+                /* Create an MQTT connection over the network connection */
+                IotLogError( ( "vMqttPubTask: reconnecting: before Open." ) );
+                xMqttStatus = prxOpenMqttConnection();
+                IotLogError( ( "vMqttPubTask: reconnecting: after Open." ) );
+
+                if( xMqttStatus != IOT_MQTT_SUCCESS )
+                {
+                    IotLogError( ( "vMqttPubTask: reconnecting: Failed to create an MQTT connection." ) );
+                    break;
+                }
+
+                xSocketConnected = true;
+                IotLogInfo( "vMqttPubTask; Socket connection reconnected\n" );
+                xSemaphoreGive( xOtaProtocolUsingSocket );
             }
         }
     }
