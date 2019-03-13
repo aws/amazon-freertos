@@ -37,7 +37,7 @@
 
 #include <string.h>
 
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 #include "mbedtls/base64.h"
 
 #define _MINIMUM_CONTAINER_LENGTH    ( 2 )

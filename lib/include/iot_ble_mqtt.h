@@ -40,8 +40,8 @@
 #include "stream_buffer.h"
 #include "semphr.h"
 #include "iot_ble.h"
-#include "aws_iot_mqtt.h"
-#include "aws_iot_mqtt_serialize_ble.h"
+#include "iot_mqtt.h"
+#include "iot_ble_mqtt_serialize.h"
 
 
 /**
@@ -135,9 +135,8 @@ typedef struct IotBleMqttConnectionType
 	TickType_t sendTimeout;
 	uint8_t * pRecvBuffer;
 	size_t recvBufferLen;
-	size_t recvOffset;
 	SemaphoreHandle_t recvLock;
-	AwsIotMqttConnection_t* pMqttConnection;
+	IotMqttConnection_t* pMqttConnection;
 } IotBleMqttConnectionType_t;
 
 typedef void*  IotBleMqttConnection_t;
@@ -165,26 +164,6 @@ typedef struct  IotBleMqttService
 #define IS_SUCCESS( status )			( status == eBTStatusSuccess )
 
 
-#define AWS_IOT_MQTT_BLE_INIT_SERIALIZER( pNetworkInterface )                             \
-do                                                                                         \
-{                                                                                          \
-    ( pNetworkInterface )->serialize.connect       = IotBleMqtt_SerializeConnect;      \
-    ( pNetworkInterface )->serialize.publish       = IotBleMqtt_SerializePublish;      \
-    ( pNetworkInterface )->serialize.publishSetDup = IotBleMqtt_PublishSetDup;         \
-    ( pNetworkInterface )->serialize.puback        = IotBleMqtt_SerializePuback;       \
-    ( pNetworkInterface )->serialize.subscribe     = IotBleMqtt_SerializeSubscribe;    \
-    ( pNetworkInterface )->serialize.unsubscribe   = IotBleMqtt_SerializeUnsubscribe;  \
-    ( pNetworkInterface )->serialize.disconnect    = IotBleMqtt_SerializeDisconnect;   \
-    ( pNetworkInterface )->freePacket              = IotBleMqtt_FreePacket;            \
-    ( pNetworkInterface )->getPacketType           = IotBleMqtt_GetPacketType;         \
-    ( pNetworkInterface )->deserialize.connack     = IotBleMqtt_DeserializeConnack;    \
-    ( pNetworkInterface )->deserialize.publish     = IotBleMqtt_DeserializePublish;    \
-    ( pNetworkInterface )->deserialize.puback      = IotBleMqtt_DeserializePuback;     \
-    ( pNetworkInterface )->deserialize.suback      = IotBleMqtt_DeserializeSuback;     \
-    ( pNetworkInterface )->deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback;   \
-} while( 0 );
-
-
 /**
  * @brief Initializes the MQTT service instances.
  *
@@ -206,7 +185,7 @@ BaseType_t IotBleMqtt_Init( void );
  * @return pdTRUE If the operation is successful
  *         pdFALSE If the operation failed
  */
-BaseType_t IotBleMqtt_CreateConnection( AwsIotMqttConnection_t* pMqttConnection,  IotBleMqttConnection_t* pConnection );
+BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnection );
 
 /**
  * @brief Sets the send timeout for the BLE network connection.
@@ -216,7 +195,7 @@ BaseType_t IotBleMqtt_CreateConnection( AwsIotMqttConnection_t* pMqttConnection,
  * @return pdTRUE if the operation is successful
  *         pdFALSE if the operation failed
  */
-BaseType_t IotBleMqtt_SetSendTimeout(  IotBleMqttConnection_t connection, uint16_t timeoutMs );
+BaseType_t IotBleMqtt_SetSendTimeout(  void * pConnection, uint16_t timeoutMs );
 
 /**
  * @brief Closes the BLE network connection
@@ -227,7 +206,7 @@ BaseType_t IotBleMqtt_SetSendTimeout(  IotBleMqttConnection_t connection, uint16
  * @return pdTRUE if the Connection is closed successfully
  *         pdFALSE if the connection is already closed.
  */
-void IotBleMqtt_CloseConnection(  IotBleMqttConnection_t connection );
+void IotBleMqtt_CloseConnection(  void * pConnection );
 
 /**
  *@brief Destroys the BLE network connection
@@ -235,7 +214,7 @@ void IotBleMqtt_CloseConnection(  IotBleMqttConnection_t connection );
  *Function frees the resources associated with the BLE network connection
  * @param connection Handle to the BLE network connection
  */
-void IotBleMqtt_DestroyConnection(  IotBleMqttConnection_t connection );
+void IotBleMqtt_DestroyConnection(  void * pConnection );
 
 
 /**
@@ -246,6 +225,6 @@ void IotBleMqtt_DestroyConnection(  IotBleMqttConnection_t connection );
  * @param[in] messageLength Length of the message to be transferred
  * @return Number of bytes of data transferred.
  */
-size_t IotBleMqtt_Send( void* pvConnection, const void * const pvMessage, size_t messageLength );
+size_t IotBleMqtt_Send( void* pConnection, const uint8_t * const pMessage, size_t messageLength );
 
 #endif /* IOT_BLE_MQTT_H */

@@ -35,11 +35,24 @@
 #include "event_groups.h"
 #include "aws_doubly_linked_list.h"
 #include "semphr.h"
-#include "iot_ble.h"
+#include "bt_hal_manager_adapter_ble.h"
+#include "bt_hal_manager.h"
+#include "bt_hal_gatt_server.h"
+#include "bt_hal_gatt_types.h"
 /* Test framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"
 
+/**
+ * @brief Connection parameters.
+ */
+typedef struct
+{
+    uint32_t minInterval; /**< Minimum connection interval. */
+    uint32_t maxInterval; /**< Maximum connection interval. */
+    uint32_t latency;     /**< Slave latency. */
+    uint32_t timeout;     /**< Connection timeout. */
+} IotBleConnectionParam_t;
 
 typedef enum{
 	eBLEHALEventServerRegisteredCb = 0,
@@ -1079,14 +1092,16 @@ TEST( Full_BLE, BLE_Property_Indication )
 TEST( Full_BLE, BLE_Property_Notification )
 {
 	void * pvPtr;
+	BaseType_t xStatus;
 
 	memcpy(ucRespBuffer[bletestATTR_SRVCB_CHAR_E].ucBuffer, bletestsDEFAULT_CHAR_VALUE, sizeof(bletestsDEFAULT_CHAR_VALUE) - 1);
 	ucRespBuffer[bletestATTR_SRVCB_CHAR_E].xLength = sizeof(bletestsDEFAULT_CHAR_VALUE) - 1;
 
 	prvSendNotification(bletestATTR_SRVCB_CHAR_E, false);
 	/* Wait a possible confirm for 2 max connections interval */
-	xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) bletestsMAX_CONNECTION_INTERVAL*2 );
+	xStatus = xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) bletestsMAX_CONNECTION_INTERVAL*2 );
 	vPortFree(pvPtr);
+	TEST_ASSERT_EQUAL(pdFALSE, xStatus);
 }
 
 TEST( Full_BLE, BLE_Property_WriteNoResponse )
@@ -1676,7 +1691,7 @@ void prvDeviceStateChangedCb( BTState_t xState )
 void prvGroupInit()
 {
 	/* Initialize event group before tests. */
-	(void)xEventGroupCreateStatic((EventGroupHandle_t)&xWaitOperationComplete);
+	(void)xEventGroupCreateStatic((StaticEventGroup_t *)&xWaitOperationComplete);
 
 	/* Assign a buffer to property Cb */
 	xCbProperties.pvVal = ucCbPropertyBuffer;

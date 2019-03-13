@@ -29,8 +29,8 @@
  */
 
 
-#ifndef _AWS_BLE_CONFIG_H_
-#define _AWS_BLE_CONFIG_H_
+#ifndef _IOT_BLE_CONFIG_H_
+#define _IOT_BLE_CONFIG_H_
 
 /* Device name for this peripheral device. */
 #define IOT_BLE_DEVICE_NAME                     "ESP32"
@@ -41,4 +41,4 @@
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
 
-#endif /* _AWS_BLE_CONFIG_H_ */
+#endif /* _IOT_BLE_CONFIG_H_ */

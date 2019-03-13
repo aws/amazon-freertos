@@ -35,7 +35,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 #include "mbedtls/base64.h"
 
 #define _JSON_OBJECT_START_CHAR           '{'

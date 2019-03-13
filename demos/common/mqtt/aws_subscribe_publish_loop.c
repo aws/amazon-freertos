@@ -631,7 +631,7 @@ static void prvSubscribePublishDemo( MQTTAgentHandle_t xMQTTClientHandle,
     }
 
     /* Call the functions that subscribe to then publish to topics.  These
-     * include strings and integers, and at QoS 0 and QoS 1. */
+     * include strings and integers, and at qos 0 and qos 1. */
     xResult = prvStringPublishSubscribe( &( xConnectParams ), eMQTTQoS0, xMQTTClientHandle, &( xUserData ) );
     configASSERT( xResult );
 

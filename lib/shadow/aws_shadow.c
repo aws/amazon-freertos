@@ -30,8 +30,8 @@
  */
 
 /* Shadow v4 config file. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 /* C library includes. */
@@ -109,7 +109,7 @@ static void prvUpdatedCallbackWrapper( void * pvArgument,
                                        AwsIotShadowCallbackParam_t * const pxUpdatedDocument );
 
 /* Retrieves the MQTT v4 connection from the MQTT v1 connection handle. */
-extern AwsIotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle );
+extern IotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle );
 
 /*-----------------------------------------------------------*/
 
@@ -195,10 +195,10 @@ static void prvDeltaCallbackWrapper( void * pvArgument,
     char * pcDeltaDocument = NULL;
 
     /* Read the current delta callback. */
-    ( void ) xSemaphoreTake( &( pxShadowClient->xCallbackMutex ), portMAX_DELAY );
+    ( void ) xSemaphoreTake( ( QueueHandle_t ) &( pxShadowClient->xCallbackMutex ), portMAX_DELAY );
     pcCallbackThingName = pxShadowClient->pcCallbackThingName;
     xDeltaCallback = pxShadowClient->xDeltaCallback;
-    ( void ) xSemaphoreGive( &( pxShadowClient->xCallbackMutex ) );
+    ( void ) xSemaphoreGive( ( QueueHandle_t ) &( pxShadowClient->xCallbackMutex ) );
 
     if( xDeltaCallback != NULL )
     {
@@ -238,10 +238,10 @@ static void prvUpdatedCallbackWrapper( void * pvArgument,
     char * pcUpdatedDocument = NULL;
 
     /* Read the current updated callback. */
-    ( void ) xSemaphoreTake( &( pxShadowClient->xCallbackMutex ), portMAX_DELAY );
+    ( void ) xSemaphoreTake( ( QueueHandle_t ) &( pxShadowClient->xCallbackMutex ), portMAX_DELAY );
     pcCallbackThingName = pxShadowClient->pcCallbackThingName;
     xUpdatedCallback = pxShadowClient->xUpdatedCallback;
-    ( void ) xSemaphoreGive( &( pxShadowClient->xCallbackMutex ) );
+    ( void ) xSemaphoreGive( ( QueueHandle_t ) &( pxShadowClient->xCallbackMutex ) );
 
     if( xUpdatedCallback != NULL )
     {
@@ -465,7 +465,7 @@ ShadowReturnCode_t SHADOW_Update( ShadowClientHandle_t xShadowClientHandle,
     AwsIotShadowDocumentInfo_t xUpdateDocument = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
 
     /* Convert parameter structures. */
-    xUpdateDocument.QoS = ( int ) pxUpdateParams->xQoS;
+    xUpdateDocument.qos = ( IotMqttQos_t ) pxUpdateParams->xQoS;
     xUpdateDocument.pThingName = pxUpdateParams->pcThingName;
     xUpdateDocument.thingNameLength = strlen( pxUpdateParams->pcThingName );
     xUpdateDocument.update.pUpdateDocument = pxUpdateParams->pcData;
@@ -499,7 +499,7 @@ ShadowReturnCode_t SHADOW_Get( ShadowClientHandle_t xShadowClientHandle,
     size_t xRetrievedDocumentLength = 0;
 
     /* Convert parameter structures. */
-    xGetDocument.QoS = ( int ) pxGetParams->xQoS;
+    xGetDocument.qos = ( IotMqttQos_t ) pxGetParams->xQoS;
     xGetDocument.pThingName = pxGetParams->pcThingName;
     xGetDocument.thingNameLength = strlen( pxGetParams->pcThingName );
     xGetDocument.get.mallocDocument = pvPortMalloc;
@@ -568,19 +568,19 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
     AwsIotShadowError_t xShadowError = AWS_IOT_SHADOW_SUCCESS;
     ShadowClient_t * pxShadowClient = ( ShadowClient_t * ) xShadowClientHandle;
     size_t thingNameLength = strlen( pxCallbackParams->pcThingName );
-    AwsIotShadowCallbackInfo_t callbackInfo = AWS_IOT_MQTT_CALLBACK_INFO_INITIALIZER,
-        * pCallbackInfo = NULL;
+    AwsIotShadowCallbackInfo_t callbackInfo = AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER,
+                               * pCallbackInfo = NULL;
 
     /* Shadow v4 does not use a timeout for setting callbacks. */
     ( void ) xTimeoutTicks;
 
     /* Set the callback functions in the Shadow client. */
-    ( void ) xSemaphoreTake( &( pxShadowClient->xCallbackMutex ), portMAX_DELAY );
+    ( void ) xSemaphoreTake( ( QueueHandle_t ) &( pxShadowClient->xCallbackMutex ), portMAX_DELAY );
     pxShadowClient->pcCallbackThingName = pxCallbackParams->pcThingName;
     pxShadowClient->xDeletedCallback = pxCallbackParams->xShadowDeletedCallback;
     pxShadowClient->xDeltaCallback = pxCallbackParams->xShadowDeltaCallback;
     pxShadowClient->xUpdatedCallback = pxCallbackParams->xShadowUpdatedCallback;
-    ( void ) xSemaphoreGive( &( pxShadowClient->xCallbackMutex ) );
+    ( void ) xSemaphoreGive( ( QueueHandle_t ) &( pxShadowClient->xCallbackMutex ) );
 
     /* Set the callback parameter. */
     callbackInfo.param1 = pxShadowClient;

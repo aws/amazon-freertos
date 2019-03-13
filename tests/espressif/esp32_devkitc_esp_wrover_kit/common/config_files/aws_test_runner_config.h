@@ -49,11 +49,12 @@
 #define testrunnerFULL_SHADOWv4_ENABLED            0
 #define testrunnerFULL_MQTTv4_ENABLED              0
 #define testrunnerFULL_WIFI_ENABLED                0
-#define testrunnerFULL_MEMORYLEAK_ENABLED          0
+#define testrunnerFULL_MEMORYLEAK_ENABLED          1
 #define testrunnerFULL_TLS_ENABLED                 0
 #define testrunnerFULL_POSIX_ENABLED               0
 #define testrunnerOTA_END_TO_END_ENABLED           0
-#define testrunnerFULL_BLE_ENABLED                 1
+#define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED 1
+#define testrunnerFULL_BLE_ENABLED                 0
 #define testrunnnerFULL_WIFI_PROVISIONING_ENABLED  0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

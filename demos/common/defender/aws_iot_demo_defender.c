@@ -29,7 +29,7 @@
 #include "string.h"
 
 /* Demo configuration includes. */
-#include "aws_iot_demo.h"
+#include "iot_demo.h"
 #include "aws_demo_config.h"
 #include "aws_clientcredential.h"
 
@@ -87,27 +87,27 @@ void _defenderCallback( void * param1,
 {
     ( void ) param1;
 
-    AwsIotLogInfo( "User's callback is invoked on event %s.", AwsIotDefender_DescribeEventType( pCallbackInfo->eventType ) );
+    IotLogInfo( "User's callback is invoked on event %s.", AwsIotDefender_DescribeEventType( pCallbackInfo->eventType ) );
 
     /* Print out the sent metrics report if there is. */
     if( pCallbackInfo->pMetricsReport != NULL )
     {
-        AwsIotLogInfo( "\nPublished metrics report:" );
+        IotLogInfo( "\nPublished metrics report:" );
         _print( pCallbackInfo->pMetricsReport, pCallbackInfo->metricsReportLength );
     }
     else
     {
-        AwsIotLogError( "No metrics report was generated." );
+        IotLogError( "No metrics report was generated." );
     }
 
     if( pCallbackInfo->pPayload != NULL )
     {
-        AwsIotLogInfo( "\nReceived MQTT message:" );
+        IotLogInfo( "\nReceived MQTT message:" );
         _print( pCallbackInfo->pPayload, pCallbackInfo->payloadLength );
     }
     else
     {
-        AwsIotLogError( "No message has been returned from subscribed topic." );
+        IotLogError( "No message has been returned from subscribed topic." );
     }
 }
 
@@ -119,7 +119,7 @@ static void _defenderTask( void * param )
 
     AwsIotNetwork_Init();
 
-    AwsIotLogInfo( "----Device Defender Demo Start----.\r\n" );
+    IotLogInfo( "----Device Defender Demo Start----.\r\n" );
 
     /* Create a socket connected to echo server. */
     Socket_t socket = _createSocketToEchoServer();
@@ -137,7 +137,7 @@ static void _defenderTask( void * param )
     uint32_t ip = SOCKETS_GetHostByName(clientcredentialMQTT_BROKER_ENDPOINT);
     char buffer[16];
     SOCKETS_inet_ntoa(ip, buffer);
-    AwsIotLogInfo("expected ip: %s",buffer);
+    IotLogInfo("expected ip: %s",buffer);
 
     /* Let it run for 3 seconds */
     sleep( 3 );
@@ -149,7 +149,7 @@ static void _defenderTask( void * param )
     SOCKETS_Shutdown( socket, SOCKETS_SHUT_RDWR );
     SOCKETS_Close( socket );
 
-    AwsIotLogInfo( "----Device Defender Demo End----.\r\n" );
+    IotLogInfo( "----Device Defender Demo End----.\r\n" );
 }
 
 /*-----------------------------------------------------------*/
@@ -160,7 +160,7 @@ static void _startDefender()
 
     AwsIotDefenderStartInfo_t startInfo =
     {
-        .tlsInfo         = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER,
+        .tlsInfo         = IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER,
         .pAwsIotEndpoint = clientcredentialMQTT_BROKER_ENDPOINT,
         .port            = clientcredentialMQTT_BROKER_PORT,
         .pThingName      = clientcredentialIOT_THING_NAME,
@@ -174,9 +174,9 @@ static void _startDefender()
 
     /* Set client credentials. */
     startInfo.tlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
-    startInfo.tlsInfo.clientCertLength = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
+    startInfo.tlsInfo.clientCertSize = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
     startInfo.tlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    startInfo.tlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
+    startInfo.tlsInfo.privateKeySize = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
 
     /* If not connecting over port 443, disable ALPN. */
     if( clientcredentialMQTT_BROKER_PORT != 443 )
@@ -236,8 +236,8 @@ static void _print( const uint8_t * pDataBuffer,
 
         /* output to standard out */
         cbor_value_to_pretty( stdout, &cborValue );
-        AwsIotLogInfo( "\r\n" );
+        IotLogInfo( "\r\n" );
     #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
-        AwsIotLogInfo( "%.*s\r\n", dataSize, pDataBuffer );
+        IotLogInfo( "%.*s\r\n", dataSize, pDataBuffer );
     #endif /* if ( AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR ) */
 }

@@ -28,12 +28,12 @@
 #define _AWS_IOT_SHADOW_H_
 
 /* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
-/* MQTT include. */
-#include "aws_iot_mqtt.h"
+/* MQTT types include. */
+#include "types/iot_mqtt_types.h"
 
 /*--------------------------- Shadow handle types ---------------------------*/
 
@@ -102,7 +102,7 @@ typedef enum AwsIotShadowError
      * [AwsIotShadowCallbackParam_t.operation.result](@ref AwsIotShadowCallbackParam_t.result)
      * when successful.
      */
-    AWS_IOT_SHADOW_SUCCESS,
+    AWS_IOT_SHADOW_SUCCESS = 0,
 
     /**
      * @brief Shadow operation queued, awaiting result.
@@ -449,9 +449,9 @@ typedef struct AwsIotShadowDocumentInfo
     const char * pThingName; /**< @brief The Thing Name associated with this Shadow document. */
     size_t thingNameLength;  /**< @brief Length of #AwsIotShadowDocumentInfo_t.pThingName. */
 
-    int QoS;                 /**< @brief QoS when sending a Shadow get or update message. See #AwsIotMqttPublishInfo_t.QoS. */
-    int retryLimit;          /**< @brief Maximum number of retries for a Shadow get or update message. See #AwsIotMqttPublishInfo_t.retryLimit. */
-    uint64_t retryMs;        /**< @brief First retry time for a Shadow get or update message. See #AwsIotMqttPublishInfo_t.retryMs. */
+    IotMqttQos_t qos;        /**< @brief QoS when sending a Shadow get or update message. See #IotMqttPublishInfo_t.qos. */
+    uint32_t retryLimit;     /**< @brief Maximum number of retries for a Shadow get or update message. See #IotMqttPublishInfo_t.retryLimit. */
+    uint64_t retryMs;        /**< @brief First retry time for a Shadow get or update message. See IotMqttPublishInfo_t.retryMs. */
 
     union
     {
@@ -698,7 +698,7 @@ void AwsIotShadow_Cleanup( void );
  * the Delete completes.
  */
 /* @[declare_shadow_delete] */
-AwsIotShadowError_t AwsIotShadow_Delete( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_Delete( IotMqttConnection_t mqttConnection,
                                          const char * const pThingName,
                                          size_t thingNameLength,
                                          uint32_t flags,
@@ -710,7 +710,7 @@ AwsIotShadowError_t AwsIotShadow_Delete( AwsIotMqttConnection_t mqttConnection,
  * @brief Delete a Thing Shadow with a timeout.
  */
 /* @[declare_shadow_timeddelete] */
-AwsIotShadowError_t AwsIotShadow_TimedDelete( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_TimedDelete( IotMqttConnection_t mqttConnection,
                                               const char * const pThingName,
                                               size_t thingNameLength,
                                               uint32_t flags,
@@ -722,7 +722,7 @@ AwsIotShadowError_t AwsIotShadow_TimedDelete( AwsIotMqttConnection_t mqttConnect
  * the Shadow document is received.
  */
 /* @[declare_shadow_get] */
-AwsIotShadowError_t AwsIotShadow_Get( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_Get( IotMqttConnection_t mqttConnection,
                                       const AwsIotShadowDocumentInfo_t * const pGetInfo,
                                       uint32_t flags,
                                       const AwsIotShadowCallbackInfo_t * const pCallbackInfo,
@@ -733,7 +733,7 @@ AwsIotShadowError_t AwsIotShadow_Get( AwsIotMqttConnection_t mqttConnection,
  * @brief Retrieve a Thing Shadow with a timeout.
  */
 /* @[declare_shadow_timedget] */
-AwsIotShadowError_t AwsIotShadow_TimedGet( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_TimedGet( IotMqttConnection_t mqttConnection,
                                            const AwsIotShadowDocumentInfo_t * const pGetInfo,
                                            uint32_t flags,
                                            uint64_t timeoutMs,
@@ -746,7 +746,7 @@ AwsIotShadowError_t AwsIotShadow_TimedGet( AwsIotMqttConnection_t mqttConnection
  * the Shadow Update completes.
  */
 /* @[declare_shadow_update] */
-AwsIotShadowError_t AwsIotShadow_Update( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_Update( IotMqttConnection_t mqttConnection,
                                          const AwsIotShadowDocumentInfo_t * const pUpdateInfo,
                                          uint32_t flags,
                                          const AwsIotShadowCallbackInfo_t * const pCallbackInfo,
@@ -757,7 +757,7 @@ AwsIotShadowError_t AwsIotShadow_Update( AwsIotMqttConnection_t mqttConnection,
  * @brief Send a Thing Shadow update with a timeout.
  */
 /* @[declare_shadow_timedupdate] */
-AwsIotShadowError_t AwsIotShadow_TimedUpdate( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_TimedUpdate( IotMqttConnection_t mqttConnection,
                                               const AwsIotShadowDocumentInfo_t * const pUpdateInfo,
                                               uint32_t flags,
                                               uint64_t timeoutMs );
@@ -1002,7 +1002,7 @@ AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowReference_t reference,
  * @endcode
  */
 /* @[declare_shadow_setdeltacallback] */
-AwsIotShadowError_t AwsIotShadow_SetDeltaCallback( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_SetDeltaCallback( IotMqttConnection_t mqttConnection,
                                                    const char * const pThingName,
                                                    size_t thingNameLength,
                                                    uint32_t flags,
@@ -1013,7 +1013,7 @@ AwsIotShadowError_t AwsIotShadow_SetDeltaCallback( AwsIotMqttConnection_t mqttCo
  * @brief Set a callback to be invoked when a Thing Shadow changes.
  */
 /* @[declare_shadow_setupdatedcallback] */
-AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( IotMqttConnection_t mqttConnection,
                                                      const char * const pThingName,
                                                      size_t thingNameLength,
                                                      uint32_t flags,
@@ -1026,7 +1026,7 @@ AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( AwsIotMqttConnection_t mqtt
  * Not safe to call with any in-progress operation. Does not affect callbacks.
  */
 /* @[declare_shadow_removepersistentsubscriptions] */
-AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( AwsIotMqttConnection_t mqttConnection,
+AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( IotMqttConnection_t mqttConnection,
                                                                 const char * const pThingName,
                                                                 size_t thingNameLength,
                                                                 uint32_t flags );

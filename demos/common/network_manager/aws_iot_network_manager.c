@@ -29,13 +29,13 @@
  * @brief Network manager is used to handled different types of network connections and their connection/disconnection events at the application layer.
  */
 #include <string.h>
-#include "aws_iot_demo.h"
+#include "iot_demo.h"
 #include "aws_iot_network_manager.h"
 
 #if BLE_ENABLED
 #include "iot_ble_config.h"
 #include "iot_ble.h"
-#include "aws_ble_numericComparison.h"
+#include <iot_ble_numericComparison.h>
 #endif
 #if WIFI_ENABLED
 #include "aws_wifi.h"
@@ -47,12 +47,12 @@
 #include "aws_wifi_connect_task.h"
 #endif
 
-#include "aws_iot_taskpool.h"
+#include "iot_taskpool.h"
 
 /**
  * @brief Maximum number of concurrent network events which can be queued for a network type.
  */
-#define _MAX_CONCURRENT_CALLBACKS    ( 8 )
+#define _MAX_CONCURRENT_JOBS    ( 4 )
 
 /**
  * @brief Initializer for WiFi Network Info structure.
@@ -65,20 +65,11 @@
 #define _NETWORK_INFO_BLE             { .ulNetworkType = AWSIOT_NETWORK_TYPE_BLE, .xNetworkState = eNetworkStateUnknown }
 
 /**
- * @brief Macro checks if task is free ( Not Scheduled/Completed/Failed )
- */
-#define _TASK_POOL_JOB_FREE( xTaskStatus )      (                \
-        ( xTaskStatus != AWS_IOT_TASKPOOL_STATUS_READY )      && \
-        ( xTaskStatus != AWS_IOT_TASKPOOL_STATUS_SCHEDULED )  && \
-        ( xTaskStatus != AWS_IOT_TASKPOOL_STATUS_EXECUTING ) )
-
-/**
  * @brief User callback execution context used by task pool job.
  */
 typedef struct NMCallbackExecutionContext
 {
-    AwsIotTaskPoolJob_t xJob;
-    AwsIotNetworkStateChangeCb_t xUserCallback;
+    IotTaskPoolJob_t xJob;
     void *pvUserContext;
     AwsIotNetworkState_t xNewtorkEvent;
     uint32_t ulNetworkType;
@@ -117,8 +108,8 @@ typedef struct NetworkManagerInfo
     SemaphoreHandle_t xSubscriptionLock;
     Link_t xSubscriptionListHead;
     Link_t xNetworkListHead;
-    AwsIotTaskPool_t* pxTaskPool;
-    NMCallbackExecutionContext_t xCallbackTasks[ _MAX_CONCURRENT_CALLBACKS ];
+    IotTaskPool_t* pxTaskPool;
+    NMCallbackExecutionContext_t xJobs[ _MAX_CONCURRENT_JOBS ];
     bool xIsInit;
 } NetworkManagerInfo_t;
 
@@ -204,12 +195,7 @@ static BaseType_t prxWifiConnect( void );
 
 static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkEvent );
 
-static AwsIotTaskPoolError_t prxScheduleSubscriptionTask(
-        NMSubscription_t* pxSubscription,
-        uint32_t ulNetworkType,
-        AwsIotNetworkState_t xNetworkEvent );
-
-static void prvUserCallbackRoutine( struct AwsIotTaskPool * pTaskPool, struct AwsIotTaskPoolJob * pJob, void * pUserContext );
+static void prvUserCallbackRoutine( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
 
 
 static NetworkManagerInfo_t xNetworkManagerInfo = { 0 };
@@ -218,9 +204,57 @@ static NetworkManagerInfo_t xNetworkManagerInfo = { 0 };
 
 #if BLE_ENABLED
 
-static BaseType_t prxBLEEnable( void )
+BaseType_t _registerUnregisterCb(bool unRegister)
 {
     IotBleEventsCallbacks_t xEventCb;
+    BTStatus_t xStatus;
+    BaseType_t ret = pdFALSE;
+
+	xEventCb.pConnectionCb = prvBLEConnectionCallback;
+    if(unRegister == false)
+    {
+		xStatus = IotBle_RegisterEventCb( eBLEConnection, xEventCb );
+    }else
+    {
+		xStatus = IotBle_UnRegisterEventCb( eBLEConnection, xEventCb );
+    }
+
+	xEventCb.pGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
+	if( xStatus == eBTStatusSuccess )
+	{
+		if(unRegister == false)
+		{
+			xStatus = IotBle_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
+		}else
+		{
+			xStatus = IotBle_UnRegisterEventCb( eBLEPairingStateChanged, xEventCb );
+		}
+	}
+
+#if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
+	xEventCb.pNumericComparisonCb = &BLENumericComparisonCb;
+	if( xStatus == eBTStatusSuccess )
+	{
+		if(unRegister == false)
+		{
+			xStatus = IotBle_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
+		}else
+		{
+			xStatus = IotBle_UnRegisterEventCb( eBLENumericComparisonCallback, xEventCb );
+		}
+	}
+#endif
+
+    if(xStatus == eBTStatusSuccess)
+    {
+    	ret = pdTRUE;
+    }
+
+    return ret;
+}
+
+static BaseType_t prxBLEEnable( void )
+{
     BaseType_t xRet = pdTRUE;
     static bool bInitBLE = false;
     BTStatus_t xStatus;
@@ -237,47 +271,26 @@ static BaseType_t prxBLEEnable( void )
     else
     {
         xStatus = IotBle_On();
+        IotBle_StartAdv(NULL);
     }
     /* Register BLE Connection callback */
-    if( xRet == pdTRUE )
-    {
-        xEventCb.pConnectionCb = prvBLEConnectionCallback;
-        if( IotBle_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
-        {
-            xRet = pdFALSE;
-        }
-    }
+    _registerUnregisterCb(false);
 
-    if( xStatus == eBTStatusSuccess )
+    if( xStatus != eBTStatusSuccess)
     {
-        xEventCb.pGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
-        xStatus = IotBle_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
+    	xRet = pdFALSE;
     }
-
-#if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
-    if( xStatus == eBTStatusSuccess )
-    {
-        xEventCb.pNumericComparisonCb = &BLENumericComparisonCb;
-        xStatus = IotBle_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
-    }
-#endif
-
 
     return xRet;
 }
 
 /*-----------------------------------------------------------*/
-
+/* TODO make same function to registere/unregister or risk of memory leak. */
 static BaseType_t prxBLEDisable( void )
 {
     bool xRet = true;
-    IotBleEventsCallbacks_t xEventCb;
 
-    xEventCb.pConnectionCb = prvBLEConnectionCallback;
-    if( IotBle_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
-    {
-        xRet = false;
-    }
+    xRet = _registerUnregisterCb(true);
 
     if( xRet == true )
     {
@@ -302,7 +315,7 @@ static void prvStartAdvCallback( BTStatus_t xStatus )
 {
     if( xStatus == eBTStatusSuccess )
     {
-        AwsIotLogInfo ( "Started advertisement. Listening for a BLE Connection.\n" );
+        IotLogInfo ( "Started advertisement. Listening for a BLE Connection.\n" );
     }
 }
 
@@ -317,13 +330,13 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
 
     if( xConnected == true )
     {
-        AwsIotLogInfo ( "BLE Connected to remote device, connId = %d\n", connId );
+        IotLogInfo ( "BLE Connected to remote device, connId = %d\n", connId );
         IotBle_StopAdv();
         xBLENetworkInfo.xNetworkState = eNetworkStateEnabled;
     }
     else
     {
-        AwsIotLogInfo ( "BLE disconnected with remote device, connId = %d \n", connId );
+        IotLogInfo ( "BLE disconnected with remote device, connId = %d \n", connId );
 
         if( xBLENetworkInfo.xNetworkState != eNetworkStateUnknown )
         {
@@ -405,6 +418,7 @@ static BaseType_t prxWIFIEnable( void )
 
     return xRet;
 }
+
 static BaseType_t prxWIFIDisable( void )
 {
     BaseType_t xRet = pdFALSE;
@@ -435,127 +449,70 @@ static BaseType_t prxWIFIDisable( void )
 
 /*-----------------------------------------------------------*/
 
-/*-----------------------------------------------------------*/
-
-static AwsIotTaskPoolError_t prxScheduleSubscriptionTask(
-        NMSubscription_t* pxSubscription,
-        uint32_t ulNetworkType,
-        AwsIotNetworkState_t xNetworkEvent )
+static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkEvent )
 {
     uint16_t usIdx;
-    AwsIotTaskPoolError_t xError = AWS_IOT_TASKPOOL_NO_MEMORY;
-    AwsIotTaskPoolJobStatus_t xTaskStatus;
-    NMCallbackExecutionContext_t *pxTask, *pxFreeTask = NULL, *pxActiveTask = NULL;
+    IotTaskPoolError_t xError = IOT_TASKPOOL_NO_MEMORY;
+    IotTaskPoolJobStatus_t xTaskStatus;
+    NMCallbackExecutionContext_t *pxTask;
 
-    for( usIdx = 0; usIdx < _MAX_CONCURRENT_CALLBACKS; usIdx++ )
+    /* Search for a free job. */
+    for( usIdx = 0; usIdx < _MAX_CONCURRENT_JOBS; usIdx++ )
     {
-        pxTask = &( xNetworkManagerInfo.xCallbackTasks[usIdx] );
-        ( void ) AwsIotTaskPool_GetStatus( &pxTask->xJob, &xTaskStatus );
-        if( _TASK_POOL_JOB_FREE( xTaskStatus ) )
+        pxTask = &( xNetworkManagerInfo.xJobs[usIdx] );
+        ( void ) IotTaskPool_GetStatus( xNetworkManagerInfo.pxTaskPool, &pxTask->xJob, &xTaskStatus );
+        if( xTaskStatus == IOT_TASKPOOL_STATUS_READY )
         {
-            if( pxFreeTask == NULL )
-            {
-                pxFreeTask = pxTask;
-            }
-        }
-        else
-        {
-            if( ( pxTask->xUserCallback == pxSubscription->xUserCallback )
-                    && ( pxTask->pvUserContext == pxSubscription->pvUserContext )
-                    && ( pxTask->pxNextTask == NULL ) )
-            {
-                pxActiveTask = pxTask;
-            }
+        	pxTask->ulNetworkType = ulNetworkType;
+        	pxTask->xNewtorkEvent = xNetworkEvent;
+        	pxTask->pvUserContext = pxTask;
+
+            xError = IotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxTask->xJob, 0 );
+            break;
         }
     }
 
-
-    if( pxFreeTask != NULL )
+    if(xError != IOT_TASKPOOL_SUCCESS)
     {
-        pxFreeTask->ulNetworkType = ulNetworkType;
-        pxFreeTask->xNewtorkEvent = xNetworkEvent;
-        pxFreeTask->pvUserContext = pxSubscription->pvUserContext;
-        pxFreeTask->xUserCallback = pxSubscription->xUserCallback;
-
-        xError = AwsIotTaskPool_CreateJob( prvUserCallbackRoutine,
-                                           pxFreeTask,
-                                           &pxFreeTask->xJob );
-
-        if( xError == AWS_IOT_TASKPOOL_SUCCESS )
-        {
-            if( pxActiveTask != NULL )
-            {
-                pxActiveTask->pxNextTask = pxFreeTask;
-            }
-            else
-            {
-                xError = AwsIotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxFreeTask->xJob );
-            }
-        }
+    	if(usIdx != _MAX_CONCURRENT_JOBS)
+    	{
+    		IotLogError(" Could not invoke subscription, error %d returned. \n", xError);
+    	}else
+    	{
+    		IotLogError(" Could not invoke subscription, no job were ready.\n", xError);
+    	}
     }
-
-    return xError;
 }
 
 
-static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkEvent )
-{
 
+static void prvUserCallbackRoutine( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
+{
     Link_t* pxLink = NULL;
     NMSubscription_t* pxSubscription = NULL;
-    AwsIotTaskPoolError_t xError;
+    NMCallbackExecutionContext_t* pxContext = ( NMCallbackExecutionContext_t* ) pUserContext;
+    IotTaskPoolError_t xError = IOT_TASKPOOL_NO_MEMORY;
+
+    configASSERT( pxContext != NULL );
 
     ( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
     listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
     {
         pxSubscription = listCONTAINER( pxLink, NMSubscription_t, xSubscriptionList );
-        if( ( pxSubscription->ulNetworkTypes & ulNetworkType ) == ulNetworkType )
-        {
-            xError = prxScheduleSubscriptionTask( pxSubscription, ulNetworkType, xNetworkEvent );
-            if( xError !=  AWS_IOT_TASKPOOL_SUCCESS )
-            {
-                AwsIotLogError( "Failed to invoke subscription for"
-                        " network type = %d, event = %d, error = %d.",
-                        ulNetworkType,
-                        xNetworkEvent,
-                        xError );
-                break;
-            }
-        }
+        pxSubscription->xUserCallback(pxContext->ulNetworkType, pxContext->xNewtorkEvent, pxSubscription->pvUserContext);
+
     }
+
+    /* Job completed, ready again to be used. */
+    xError = IotTaskPool_CreateJob( prvUserCallbackRoutine,
+    		                                pxContext,
+											&pxContext->xJob );
+    if(xError != IOT_TASKPOOL_SUCCESS)
+    {
+    	IotLogError(" Could not invoke subscription, error %d returned \n", xError);
+    }
+
     ( void ) xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
-}
-
-
-
-static void prvUserCallbackRoutine( struct AwsIotTaskPool * pTaskPool, struct AwsIotTaskPoolJob * pJob, void * pUserContext )
-{
-
-    NMCallbackExecutionContext_t* pxContext = ( NMCallbackExecutionContext_t* ) pUserContext;
-    NMCallbackExecutionContext_t* pxNextTask = NULL;
-    AwsIotTaskPoolError_t xError;
-
-    configASSERT( pxContext != NULL );
-    pxContext->xUserCallback( pxContext->ulNetworkType, pxContext->xNewtorkEvent, pxContext->pvUserContext );
-    if( xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY ) == pdTRUE )
-    {
-        pxNextTask = pxContext->pxNextTask;
-        pxContext->pxNextTask = NULL;
-        xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
-    }
-
-    if( pxNextTask != NULL)
-    {
-        xError = AwsIotTaskPool_Schedule( xNetworkManagerInfo.pxTaskPool, &pxNextTask->xJob );
-        if( xError !=  AWS_IOT_TASKPOOL_SUCCESS )
-        {
-            AwsIotLogError( "Failed to invoke subscription for"
-                    " network type = %d, event = %d, error = %d.",
-                    pxNextTask->ulNetworkType,
-                    pxNextTask->xNewtorkEvent,
-                    xError );
-        }
-    }
 }
 
 /*-----------------------------------------------------------*/
@@ -564,16 +521,42 @@ static void prvUserCallbackRoutine( struct AwsIotTaskPool * pTaskPool, struct Aw
 BaseType_t AwsIotNetworkManager_Init( void )
 {
     BaseType_t xRet = pdTRUE;
+    NMCallbackExecutionContext_t *pxTask;
+    uint16_t usIdx;
+    IotTaskPoolError_t xError = IOT_TASKPOOL_NO_MEMORY;
+
+
     if( !xNetworkManagerInfo.xIsInit )
     {
         xNetworkManagerInfo.xSubscriptionLock = xSemaphoreCreateMutex();
+
         if( xNetworkManagerInfo.xSubscriptionLock == NULL )
         {
             xRet = pdFALSE;
         }
+
         if( xRet == pdTRUE )
         {
-            xNetworkManagerInfo.pxTaskPool = AWS_IOT_TASKPOOL_SYSTEM_TASKPOOL;
+			/* Set all job to ready at initialization. */
+			for( usIdx = 0; usIdx < _MAX_CONCURRENT_JOBS; usIdx++ )
+			{
+				pxTask = &( xNetworkManagerInfo.xJobs[usIdx] );
+
+				xError = IotTaskPool_CreateJob( prvUserCallbackRoutine,
+														pxTask,
+														&pxTask->xJob );
+				if(xError != IOT_TASKPOOL_SUCCESS)
+				{
+					xRet = pdFALSE;
+					IotLogError(" Could not initialize task pool job array, error %d returned \n", xError);
+					break;
+				}
+			}
+        }
+
+        if( xRet == pdTRUE )
+        {
+            xNetworkManagerInfo.pxTaskPool = IOT_SYSTEM_TASKPOOL;
             if( xNetworkManagerInfo.pxTaskPool == NULL )
             {
                 xRet = pdFALSE;
@@ -628,12 +611,12 @@ BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes
         }
         else
         {
-            AwsIotLogInfo(" Not enough memory to add new subscription \n");
+            IotLogInfo(" Not enough memory to add new subscription \n");
         }
     }
     else
     {
-        AwsIotLogInfo( "Subscription List not initialized \n");
+        IotLogInfo( "Subscription List not initialized \n");
     }
     return xRet;
 }

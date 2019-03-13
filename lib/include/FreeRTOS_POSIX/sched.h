@@ -53,13 +53,22 @@ struct sched_param
 };
 
 /**
- * @brief Get priority limit.
+ * @brief Get priority limit (max).
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sched_get_priority_max.html
  *
  * @note policy is ignored.
  */
 int sched_get_priority_max( int policy );
+
+/**
+ * @brief Get priority limit (min).
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sched_get_priority_min.html
+ *
+ * @note policy is ignored.
+ */
+int sched_get_priority_min( int policy );
 
 /**
  * @brief Yield the processor.

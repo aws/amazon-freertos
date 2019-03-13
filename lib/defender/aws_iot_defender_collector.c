@@ -306,12 +306,12 @@ static void _serialize()
 static void copyMetricsFlag()
 {
     /* Copy the metrics flags to snapshot so that it is unlocked quicker. */
-    AwsIotMutex_Lock( &_AwsIotDefenderMetrics.mutex );
+    IotMutex_Lock( &_AwsIotDefenderMetrics.mutex );
 
     /* Memory copy from the metricsFlag array to metricsFlagSnapshot array. */
     memcpy( _metricsFlagSnapshot, _AwsIotDefenderMetrics.metricsFlag, sizeof( _metricsFlagSnapshot ) );
 
-    AwsIotMutex_Unlock( &_AwsIotDefenderMetrics.mutex );
+    IotMutex_Unlock( &_AwsIotDefenderMetrics.mutex );
 }
 
 /*-----------------------------------------------------------*/

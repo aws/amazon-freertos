@@ -79,12 +79,6 @@
 /**@{ */
 #if posixconfigENABLE_PTHREAD_COND_T == 1
     #define PTHREAD_COND_INITIALIZER         FREERTOS_POSIX_COND_INITIALIZER  /**< pthread_cond_t. */
-#else
-    /**
-     * pthread cond initializer place holder for compilation to go through
-     * for the ports that don't define PTHREAD_COND_INITIALIZER (for example: esp)
-     */
-    #define PTHREAD_COND_INITIALIZER  ((pthread_cond_t) 0xFFFFFFFF)
 #endif
 
 #if posixconfigENABLE_PTHREAD_MUTEX_T == 1
@@ -149,6 +143,16 @@ int pthread_attr_setdetachstate( pthread_attr_t * attr,
  */
 int pthread_attr_setschedparam( pthread_attr_t * attr,
                                 const struct sched_param * param );
+
+/**
+ * @brief Set the schedpolicy attribute.
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_setschedpolicy.html
+ *
+ * @note This function is a stub and always returns 0.
+ */
+int pthread_attr_setschedpolicy( pthread_attr_t *attr,
+                                 int policy );
 
 /**
  * @brief Set stacksize attribute.

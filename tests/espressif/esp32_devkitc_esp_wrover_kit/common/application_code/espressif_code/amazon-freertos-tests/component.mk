@@ -42,6 +42,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/wifi_provisioning \
+        $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/device_information \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/services/mqtt_ble \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif \
         $(AMAZON_FREERTOS_LIB_DIR)/metrics \
@@ -108,7 +109,7 @@ COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/common/include \
 COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/extras/fixture/src $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11
 
 # Define the board to pass the SOCKETS_Socket_InvalidTooManySockets test.
-CFLAGS += -DESP32 -DAWS_IOT_CONFIG_FILE="\"aws_iot_config.h\""
+CFLAGS += -DIOT_CONFIG_FILE="\"iot_test_config.h\""
 
 tests/common/secure_sockets/aws_test_tcp.o: CFLAGS+=-Wno-uninitialized
 tests/common/wifi/aws_test_wifi.o: CFLAGS+=-Wno-uninitialized

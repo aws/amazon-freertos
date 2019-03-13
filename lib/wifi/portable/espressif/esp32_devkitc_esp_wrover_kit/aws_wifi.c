@@ -49,7 +49,7 @@ const int AP_STOPPED_BIT = BIT4;
 const int ESPTOUCH_DONE_BIT = BIT5;
 static bool wifi_conn_state;
 static bool wifi_ap_state;
-static bool wifi_ap_not_found;
+static bool wifi_auth_failure;
 
 #define WIFI_FLASH_NS     "WiFi"
 #define MAX_WIFI_KEY_WIDTH         ( 5 )
@@ -103,21 +103,24 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
-            wifi_ap_not_found = false;
+            wifi_auth_failure = false;
 
             /* Set code corresponding to the reason for disconnection */
             switch (info->disconnected.reason) {
                 case WIFI_REASON_AUTH_EXPIRE:
+                case WIFI_REASON_ASSOC_EXPIRE:
+                case WIFI_REASON_AUTH_LEAVE:
                 case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT:
                 case WIFI_REASON_BEACON_TIMEOUT:
                 case WIFI_REASON_AUTH_FAIL:
                 case WIFI_REASON_ASSOC_FAIL:
                 case WIFI_REASON_HANDSHAKE_TIMEOUT:
                     ESP_LOGD(TAG, "STA Auth Error");
+                    wifi_auth_failure = true;
                     break;
                 case WIFI_REASON_NO_AP_FOUND:
                     ESP_LOGD(TAG, "STA AP Not found");
-                    wifi_ap_not_found = true;
+                    wifi_auth_failure = true;
                     break;
                 default:
                     break;
@@ -341,9 +344,9 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         }
 
         /* Security is wildcard, only ssid/password is required */
-        strlcpy((char *) &wifi_config.sta.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength);
+        strlcpy((char *) &wifi_config.sta.ssid, pxNetworkParams->pcSSID, pxNetworkParams->ucSSIDLength + 1);
         if (pxNetworkParams->xSecurity != eWiFiSecurityOpen) {
-            strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength);
+            strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength + 1);
         }
 
         ret = esp_wifi_get_mode( &xCurMode );
@@ -495,7 +498,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
     	}
 
-        if ( wifi_conn_state == false && wifi_ap_not_found == true )
+        if ( wifi_conn_state == false && wifi_auth_failure == true )
         {
             /* It seems that WiFi needs explicit disassoc before scan request post
              * attempt to connect to invalid network name or SSID.

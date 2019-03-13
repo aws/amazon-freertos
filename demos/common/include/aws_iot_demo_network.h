@@ -34,21 +34,21 @@
 
 
 
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 #include "FreeRTOS.h"
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 
 typedef struct MqttConnectionContext
 {
     void *pvNetworkConnection;
     uint32_t ulNetworkType;
-    AwsIotMqttNetIf_t xNetworkInterface;
-    void ( * xDisconnectCallback ) ( void *) ;
-    AwsIotMqttConnection_t xMqttConnection;
+    IotMqttNetworkInfo_t xNetworkInfo;
+    IotNetworkError_t ( * xDisconnectCallback ) ( void *) ;
+    IotMqttConnection_t xMqttConnection;
 } MqttConnectionContext_t;
 
 

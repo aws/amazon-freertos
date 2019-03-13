@@ -27,8 +27,8 @@
  * @file aws_device_information.c
  * @brief BLE GATT service to expose Amazon FreeRTOS device information.
  */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 #include <string.h>

@@ -40,7 +40,7 @@
 #include <string.h>
 
 /* Build using a config header, if provided. */
-#include "aws_iot_demo.h"
+#include "iot_demo.h"
 
 /*
  * FreeRTOS includes.
@@ -50,7 +50,7 @@
 #include "task.h"
 
 /* MQTT library includes */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /* Network connection includes */
 #include "aws_iot_network_manager.h"
@@ -120,7 +120,7 @@
  * @param pvUserParam[in] User param for the callback
  * @param pxPublishParam[in] Publish param which contains the topic, the payload and other details.
  */
-static void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPublishParam );
+static void prvEchoMessage( void* pvUserParam, IotMqttCallbackParam_t* pxPublishParam );
 
 
 /**
@@ -152,7 +152,7 @@ static void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPubl
  *
  * @return true if all the steps succeeded.
  */
- static AwsIotMqttError_t prxOpenMqttConnection( void );
+ static IotMqttError_t prxOpenMqttConnection( void );
 
  /**
   * @brief Subscribes or unsubscribes to the demo topic.
@@ -160,7 +160,7 @@ static void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPubl
   *
   * @return true if operation was successful.
   */
- static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe );
+ static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe );
 
 /**
  * @brief Closes an MQTT connection with the broker endpoint.
@@ -178,9 +178,9 @@ static void prvCloseMqttConnection( BaseType_t bCleanupOnly );
  *
  * @param pcMesg Pointer to the message
  * @param xLength Length of the message
- * @return AWS_IOT_MQTT_SUCCESS if the publish was successful.
+ * @return IOT_MQTT_SUCCESS if the publish was successful.
  */
-static AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength );
+static IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength );
 
 /**
  * @brief Main task used to publish MQTT messages to the cloud. Tasks waits for a network connection,
@@ -200,7 +200,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
  *
  * @param xConnection The handle for the connection to the network.
  */
-static void prvNetworkDisconnectCallback( void* pvContext );
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext );
 
 /* Declaration of snprintf. The header stdio.h is not included because it
  * includes conflicting symbols on some platforms. */
@@ -221,8 +221,8 @@ static MqttConnectionContext_t xConnection =
 {
      .pvNetworkConnection = NULL,
      .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
-     .xNetworkInterface   = AWS_IOT_MQTT_NETIF_INITIALIZER,
-     .xMqttConnection     = AWS_IOT_MQTT_CONNECTION_INITIALIZER,
+     .xNetworkInfo   = IOT_MQTT_NETWORK_INFO_INITIALIZER,
+     .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
      .xDisconnectCallback = prvNetworkDisconnectCallback
 };
 
@@ -238,13 +238,13 @@ static SemaphoreHandle_t xNetworkAvailableLock = NULL;
 static BaseType_t xNetworkConnected = pdFALSE;
 
 
-AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
+IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
 {
-    AwsIotMqttPublishInfo_t xPublishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    AwsIotMqttReference_t xOperationLock = AWS_IOT_MQTT_REFERENCE_INITIALIZER;
-    AwsIotMqttError_t xStatus;
+    IotMqttPublishInfo_t xPublishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    IotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
+    IotMqttError_t xStatus;
 
-    xPublishInfo.QoS = echoDemoMQTT_QOS;
+    xPublishInfo.qos = echoDemoMQTT_QOS;
     xPublishInfo.pTopicName = echoDemoMQTT_TOPIC;
     xPublishInfo.topicNameLength = strlen( echoDemoMQTT_TOPIC );
 
@@ -255,7 +255,7 @@ AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
 
     if( echoDemoMQTT_QOS == 0 )
     {
-        xStatus = AwsIotMqtt_Publish(
+        xStatus = IotMqtt_Publish(
                 xConnection.xMqttConnection,
                 &xPublishInfo,
                 0,
@@ -264,28 +264,28 @@ AwsIotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
     }
     else if( echoDemoMQTT_QOS == 1 || echoDemoMQTT_QOS == 2 )
     {
-        xStatus = AwsIotMqtt_Publish(
+        xStatus = IotMqtt_Publish(
                 xConnection.xMqttConnection,
                 &xPublishInfo,
-                AWS_IOT_MQTT_FLAG_WAITABLE,
+                IOT_MQTT_FLAG_WAITABLE,
                 NULL,
                 &xOperationLock );
-        if( xStatus == AWS_IOT_MQTT_STATUS_PENDING )
+        if( xStatus == IOT_MQTT_STATUS_PENDING )
         {
-            xStatus = AwsIotMqtt_Wait( xOperationLock, echoDemoMQTT_OPERATION_TIMEOUT_MS );
+            xStatus = IotMqtt_Wait( xOperationLock, echoDemoMQTT_OPERATION_TIMEOUT_MS );
         }
     }
 
     return xStatus;
 }
 
-void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPublishParam )
+void prvEchoMessage( void* pvUserParam, IotMqttCallbackParam_t* pxPublishParam )
 {
 
     size_t xAckPos, xPayloadLen = pxPublishParam->message.info.payloadLength;
     const char *pcPayload = ( const char *) pxPublishParam->message.info.pPayload;
     char cAck[ echoDemoACK_DATA_LENGTH ] = { 0 };
-    AwsIotMqttError_t xStatus;
+    IotMqttError_t xStatus;
 
     /* User parameters are not used */
     ( void ) pvUserParam;
@@ -293,20 +293,20 @@ void prvEchoMessage( void* pvUserParam, AwsIotMqttCallbackParam_t* pxPublishPara
     xAckPos = xPayloadLen - echoDemoACK_STR_LENGTH;
     if( strncmp( ( pcPayload + xAckPos ), echoDEMO_ACK_STR, echoDemoACK_STR_LENGTH ) != 0 )
     {
-        AwsIotLogInfo( "Received Message: %.*s.", xPayloadLen, pcPayload);
+        IotLogInfo( "Received Message: %.*s.", xPayloadLen, pcPayload);
 
         if( xPayloadLen < echoDemoPUBLISH_DATA_LENGTH )
         {
             memcpy(cAck, pcPayload,  xPayloadLen );
             strcat( cAck, echoDEMO_ACK_STR );
             xStatus = prxPublishMQTTMessage( cAck, strlen( cAck ) );
-            if( xStatus != AWS_IOT_MQTT_SUCCESS )
+            if( xStatus != IOT_MQTT_SUCCESS )
             {
-                AwsIotLogInfo(" Failed to send ACK Message, reason: %s.", AwsIotMqtt_strerror( xStatus ));
+                IotLogInfo(" Failed to send ACK Message, reason: %s.", IotMqtt_strerror( xStatus ));
             }
             else
             {
-                AwsIotLogInfo( "Sent ACK message: %s.\n", cAck );
+                IotLogInfo( "Sent ACK message: %s.\n", cAck );
             }
         }
     }
@@ -338,10 +338,12 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
     }
 }
 
-static void prvNetworkDisconnectCallback( void* pvContext )
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext )
 {
     ( void ) pvContext;
     xNetworkConnected = pdFALSE;
+
+    return IOT_NETWORK_SUCCESS;
 }
 
 static BaseType_t prxCreateNetworkConnection( void )
@@ -353,7 +355,7 @@ static BaseType_t prxCreateNetworkConnection( void )
     if( ( AwsIotNetworkManager_GetConnectedNetworks() & echoDemoNETWORK_TYPES ) == 0 )
     {
         /* Block for a Network Connection. */
-        AwsIotLogInfo( "Waiting for a network connection.");
+        IotLogInfo( "Waiting for a network connection.");
         xSemaphoreTake( xNetworkAvailableLock, portMAX_DELAY );
     }
 
@@ -374,11 +376,11 @@ static BaseType_t prxReCreateConnection( void )
     return prxCreateNetworkConnection();
 }
 
-static AwsIotMqttError_t prxOpenMqttConnection()
+static IotMqttError_t prxOpenMqttConnection()
 {
 
-    AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    AwsIotMqttError_t xMqttStatus;
+    IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    IotMqttError_t xMqttStatus;
 
     if( xConnection.ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
     {
@@ -396,21 +398,20 @@ static AwsIotMqttError_t prxOpenMqttConnection()
     xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
 
     /* Connect to the IoT broker endpoint */
-    xMqttStatus = AwsIotMqtt_Connect(
-            &( xConnection.xMqttConnection ),
-            &( xConnection.xNetworkInterface ),
+    xMqttStatus = IotMqtt_Connect(
+    		 &( xConnection.xNetworkInfo ),
             &xConnectInfo,
-            NULL,
-            echoDemoMQTT_OPERATION_TIMEOUT_MS );
+            echoDemoMQTT_OPERATION_TIMEOUT_MS,
+            &( xConnection.xMqttConnection ));
 
 
-    if( xMqttStatus == AWS_IOT_MQTT_SUCCESS )
+    if( xMqttStatus == IOT_MQTT_SUCCESS )
     {
         /* MQTT Connection succeeded, subscribe to the topic */
         xMqttStatus = prxSubscribeorUnsubscribeToTopic( pdTRUE );
     }
 
-    if( xMqttStatus != AWS_IOT_MQTT_SUCCESS )
+    if( xMqttStatus != IOT_MQTT_SUCCESS )
     {
         /* Close the MQTT connection to perform any cleanup */
         prvCloseMqttConnection( pdFALSE );
@@ -419,13 +420,13 @@ static AwsIotMqttError_t prxOpenMqttConnection()
     return xMqttStatus;
 }
 
-static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
+static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
 {
-    AwsIotMqttReference_t xOperationLock = AWS_IOT_MQTT_REFERENCE_INITIALIZER;
-    AwsIotMqttSubscription_t xSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-    AwsIotMqttError_t xMqttStatus;
+    IotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
+    IotMqttSubscription_t xSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+    IotMqttError_t xMqttStatus;
 
-    xSubscription.QoS = echoDemoMQTT_QOS;
+    xSubscription.qos = echoDemoMQTT_QOS;
     xSubscription.callback.function = prvEchoMessage;
     xSubscription.callback.param1 = NULL;
     xSubscription.pTopicFilter = echoDemoMQTT_TOPIC;
@@ -433,29 +434,29 @@ static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe
 
     if( xSubscribe )
     {
-        xMqttStatus = AwsIotMqtt_Subscribe(
+        xMqttStatus = IotMqtt_Subscribe(
                 xConnection.xMqttConnection,
                 &xSubscription,
                 1,
-                AWS_IOT_MQTT_FLAG_WAITABLE,
+                IOT_MQTT_FLAG_WAITABLE,
                 NULL,
                 &xOperationLock );
     }
     else
     {
-        xMqttStatus = AwsIotMqtt_Unsubscribe(
+        xMqttStatus = IotMqtt_Unsubscribe(
                 xConnection.xMqttConnection,
                 &xSubscription,
                 1,
-                AWS_IOT_MQTT_FLAG_WAITABLE,
+                IOT_MQTT_FLAG_WAITABLE,
                 NULL,
                 &xOperationLock );
 
     }
 
-    if( xMqttStatus == AWS_IOT_MQTT_STATUS_PENDING )
+    if( xMqttStatus == IOT_MQTT_STATUS_PENDING )
     {
-        xMqttStatus = AwsIotMqtt_Wait( xOperationLock, echoDemoMQTT_OPERATION_TIMEOUT_MS );
+        xMqttStatus = IotMqtt_Wait( xOperationLock, echoDemoMQTT_OPERATION_TIMEOUT_MS );
     }
 
     return xMqttStatus;
@@ -464,10 +465,10 @@ static AwsIotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe
 void prvCloseMqttConnection( BaseType_t xCleanupOnly )
 {
     /* Close the MQTT connection either by sending a DISCONNECT operation or not */
-    if( xConnection.xMqttConnection != AWS_IOT_MQTT_CONNECTION_INITIALIZER )
+    if( xConnection.xMqttConnection != IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        AwsIotMqtt_Disconnect( xConnection.xMqttConnection, xCleanupOnly );
-        xConnection.xMqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+        IotMqtt_Disconnect( xConnection.xMqttConnection, xCleanupOnly );
+        xConnection.xMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
     }
 }
 
@@ -481,7 +482,7 @@ void prvMqttPublishTask( void* pvParam )
     TickType_t xPublishRetryDelay = pdMS_TO_TICKS( echoDemoPUBLISH_TIMEOUT_DELAY_MS );
     TickType_t xPublishDelay = pdMS_TO_TICKS( echoDemoPUBLISH_INTERVAL_MS );
 
-    AwsIotMqttError_t xMqttStatus = AWS_IOT_MQTT_SUCCESS ;
+    IotMqttError_t xMqttStatus = IOT_MQTT_SUCCESS ;
 
     /* Avoid compiler warnings about the parameters */
     (void ) pvParam;
@@ -492,7 +493,7 @@ void prvMqttPublishTask( void* pvParam )
     {
         /* Open an MQTT connection */
         xMqttStatus = prxOpenMqttConnection();
-        if( xMqttStatus == AWS_IOT_MQTT_SUCCESS )
+        if( xMqttStatus == IOT_MQTT_SUCCESS )
         {
             /* Start publishing MQTT Messages in a loop */
             while( ulPublishCount < echoDemoMAX_PUBLISH_MESSAGES )
@@ -507,34 +508,34 @@ void prvMqttPublishTask( void* pvParam )
 
                     xMqttStatus = prxPublishMQTTMessage( cMessage, xMessageLength );
 
-                    if( xMqttStatus ==  AWS_IOT_MQTT_SUCCESS )
+                    if( xMqttStatus ==  IOT_MQTT_SUCCESS )
                     {
-                        AwsIotLogInfo( "Published Message: %.*s.", xMessageLength, cMessage );
+                        IotLogInfo( "Published Message: %.*s.", xMessageLength, cMessage );
                         ulPublishCount++;
                         ulPublishRetriesLeft = echoDemoPUBLISH_TIMEOUT_RETRIES;
                         vTaskDelay( xPublishDelay );
                     }
-                    else if( ( xMqttStatus == AWS_IOT_MQTT_SEND_ERROR  )
-                            || ( xMqttStatus == AWS_IOT_MQTT_TIMEOUT ) )
+                    else if( ( xMqttStatus == IOT_MQTT_NETWORK_ERROR  )
+                            || ( xMqttStatus == IOT_MQTT_TIMEOUT ) )
                     {
-                        AwsIotLogInfo( "Published failed, reason: %s.",  AwsIotMqtt_strerror( xMqttStatus ) );
+                        IotLogInfo( "Published failed, reason: %s.",  IotMqtt_strerror( xMqttStatus ) );
 
                         if( ulPublishRetriesLeft > 0 )
                         {
                             ulPublishRetriesLeft--;
-                            AwsIotLogInfo( "Retrying publish, Number of retries left before reconnecting: %d.", ulPublishRetriesLeft );
+                            IotLogInfo( "Retrying publish, Number of retries left before reconnecting: %d.", ulPublishRetriesLeft );
                             vTaskDelay( xPublishRetryDelay );
                         }
                         else
                         {
                             /* Set connected network to none to trigger a reconnection, as at this point we assume network is dead */
-                            AwsIotLogInfo( "Retry failed %d times, recreating the network connection.",echoDemoPUBLISH_TIMEOUT_RETRIES );
+                            IotLogInfo( "Retry failed %d times, recreating the network connection.",echoDemoPUBLISH_TIMEOUT_RETRIES );
                             xNetworkConnected = pdFALSE;
                         }
                     }
                     else
                     {
-                        AwsIotLogError( "Publish failed due to reason: %s, exiting demo.", AwsIotMqtt_strerror( xMqttStatus ) );
+                        IotLogError( "Publish failed due to reason: %s, exiting demo.", IotMqtt_strerror( xMqttStatus ) );
                         break;
                     }
                 }
@@ -546,9 +547,9 @@ void prvMqttPublishTask( void* pvParam )
 
                     /* Create an MQTT connection over the network connection */
                     xMqttStatus = prxOpenMqttConnection();
-                    if( xMqttStatus != AWS_IOT_MQTT_SUCCESS )
+                    if( xMqttStatus != IOT_MQTT_SUCCESS )
                     {
-                        AwsIotLogError("Failed to create an MQTT connection.");
+                        IotLogError("Failed to create an MQTT connection.");
                         break;
                     }
                 }
@@ -556,19 +557,19 @@ void prvMqttPublishTask( void* pvParam )
         }
         else
         {
-            AwsIotLogError("Failed to create an MQTT connection.");
+            IotLogError("Failed to create an MQTT connection.");
         }
 
-        if( xMqttStatus == AWS_IOT_MQTT_SUCCESS )
+        if( xMqttStatus == IOT_MQTT_SUCCESS )
         {
-            AwsIotLogInfo( "Demo successful" );
+            IotLogInfo( "Demo successful" );
             prxSubscribeorUnsubscribeToTopic( pdFALSE );
             prvCloseMqttConnection( pdFALSE );
         }
     }
     else
     {
-        AwsIotLogError("Failed to create a network connection.");
+        IotLogError("Failed to create a network connection.");
     }
 
     if( xNetworkConnected )
@@ -589,7 +590,7 @@ void vStartMQTTBLEEchoDemo( void )
 
     if( echoDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
     {
-        AwsIotLogError(( "There are no networks configured for the demo." ));
+        IotLogError(( "There are no networks configured for the demo." ));
         xRet = pdFALSE;
     }
 
@@ -599,7 +600,7 @@ void vStartMQTTBLEEchoDemo( void )
         xNetworkAvailableLock = xSemaphoreCreateBinary();
         if( xNetworkAvailableLock == NULL )
         {
-            AwsIotLogError(( "Failed to create semaphore." ));
+            IotLogError(( "Failed to create semaphore." ));
             xRet = pdFALSE;
         }
     }
@@ -612,7 +613,7 @@ void vStartMQTTBLEEchoDemo( void )
         xRet = AwsIotNetworkManager_SubscribeForStateChange( echoDemoNETWORK_TYPES, prvNetworkStateChangeCallback, NULL, &xSubscriptionHandle );
         if( xRet == pdFALSE )
         {
-            AwsIotLogError(( "Failed to create Network Manager subscription." ));
+            IotLogError(( "Failed to create Network Manager subscription." ));
         }
     }
 
@@ -628,7 +629,7 @@ void vStartMQTTBLEEchoDemo( void )
 
         if( xRet == pdFALSE )
         {
-            AwsIotLogError(( "Failed to subscribe for network state change callback." ));
+            IotLogError(( "Failed to subscribe for network state change callback." ));
         }
 
     }

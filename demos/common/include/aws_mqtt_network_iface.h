@@ -33,7 +33,7 @@
 #define AWS_MQTT_NETWORK_IFACE_H_
 
 /* MQTT include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /**
  * @brief Creates the Network interface for MQTT connection.
@@ -42,7 +42,7 @@
  *
  * @return The network interface used for MQTT connection or NULL if it failed to create one.
  */
-AwsIotMqttNetIf_t* AwsIotMqtt_CreateNetIface( void );
+IotMqttNetIf_t* AwsIotMqtt_CreateNetIface( void );
 
 
 /**
@@ -55,8 +55,8 @@ AwsIotMqttNetIf_t* AwsIotMqtt_CreateNetIface( void );
  * @param[out] pConnection  Handle of the opened connection
  * @return true if the connection succeeded, false if otherwise
  */
-bool AwsIotMqtt_OpenConnection( AwsIotMqttNetIf_t* pxNetIf,
-		AwsIotMqttConnection_t* pxMqttConnection,
+bool AwsIotMqtt_OpenConnection( IotMqttNetIf_t* pxNetIf,
+		IotMqttConnection_t* pxMqttConnection,
 		size_t xRetryLimit,
 		size_t xRetryIntervalMS,
 		void** pConnection );
@@ -74,7 +74,7 @@ void AwsIotMqtt_CloseConnection( void* pConnection );
  * @param[in] pxNetIf The interface for which network connection is to be freed.
  * @param[in] pConnection Handle of the closed connection
  */
-void AwsIotMqtt_DestroyConnection( AwsIotMqttNetIf_t* pxNetIf, void* pConnection );
+void AwsIotMqtt_DestroyConnection( IotMqttNetIf_t* pxNetIf, void* pConnection );
 
 
 /**
@@ -82,6 +82,6 @@ void AwsIotMqtt_DestroyConnection( AwsIotMqttNetIf_t* pxNetIf, void* pConnection
  *
  * @param[in] pxNetIf The network interface to be freed.
  */
-void AwsIotMqtt_DestroyNetworkIface( AwsIotMqttNetIf_t* pxNetIf );
+void AwsIotMqtt_DestroyNetworkIface( IotMqttNetIf_t* pxNetIf );
 
 #endif /* AWS_MQTT_NETWORK_IFACE_H_ */

@@ -35,8 +35,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * of the real work; checking to see if the message topic is one destined for
  * the OTA agent. If not, it is simply ignored.
  */
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
+
 /* MQTT include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 /* Standard includes. */
 #include <stdio.h>
 #include <string.h>
@@ -66,7 +70,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 static void App_OTACompleteCallback(OTA_JobEvent_t eEvent );
 
 static BaseType_t prxCreateNetworkConnection( void );
-static void prvNetworkDisconnectCallback( void* pvContext );
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext );
 static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext );
 
 /*-----------------------------------------------------------*/
@@ -90,8 +94,8 @@ static MqttConnectionContext_t xConnection =
 {
      .pvNetworkConnection = NULL,
      .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
-     .xNetworkInterface   = AWS_IOT_MQTT_NETIF_INITIALIZER,
-     .xMqttConnection     = AWS_IOT_MQTT_CONNECTION_INITIALIZER,
+     .xNetworkInfo   = IOT_MQTT_NETWORK_INFO_INITIALIZER,
+     .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
      .xDisconnectCallback = prvNetworkDisconnectCallback
 };
 
@@ -139,10 +143,12 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
 }
 
 
-static void prvNetworkDisconnectCallback( void* pvContext )
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext )
 {
     ( void ) pvContext;
     xNetworkConnected = pdFALSE;
+
+    return IOT_NETWORK_SUCCESS;
 }
 
 static BaseType_t prxCreateNetworkConnection( void )
@@ -179,7 +185,7 @@ static const char *pcStateStr[eOTA_NumAgentStates] =
 
 void vOTAUpdateDemoTask( void * pvParameters )
 {
-    AwsIotMqttConnectInfo_t xConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;                                                                                                                                                                                                                                                                                                                              
+    IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;                                                                                                                                                                                                                                                                                                                              
     OTA_State_t eState;
 
 /* Remove compiler warnings about unused parameters. */
@@ -217,11 +223,9 @@ void vOTAUpdateDemoTask( void * pvParameters )
             xConnectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
             xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
             /* Connect to the broker. */
-            if( AwsIotMqtt_Connect( &( xConnection.xMqttConnection ),
-                &( xConnection.xNetworkInterface ),
+            if( IotMqtt_Connect( &( xConnection.xNetworkInfo ),
                 &xConnectInfo,
-                NULL,
-                otademoCONN_TIMEOUT_MS ) == AWS_IOT_MQTT_SUCCESS )
+                otademoCONN_TIMEOUT_MS,&( xConnection.xMqttConnection ) ) == IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
                 OTA_AgentInit( xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
@@ -233,7 +237,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
                     configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pcStateStr[eState],
                             OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
                 }
-                AwsIotMqtt_Disconnect( xConnection.xMqttConnection, false);
+                IotMqtt_Disconnect( xConnection.xMqttConnection, false);
             }
             else
             {

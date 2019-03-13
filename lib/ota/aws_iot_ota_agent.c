@@ -23,7 +23,7 @@
  * http://www.FreeRTOS.org
  */
 /* MQTT includes. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /* Standard library includes. */
 #include <string.h>
@@ -319,7 +319,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C );
 
 /* Publish a message using the platforms PubSub mechanism. */
 
-static AwsIotMqttError_t prvPublishMessage( void * pvClient,
+static IotMqttError_t prvPublishMessage( void * pvClient,
                                             const char * const pacTopic,
                                             uint16_t usTopicLen,
                                             char * pcMsg,
@@ -360,7 +360,7 @@ static bool_t prvOTA_Close( OTA_FileContext_t * const C );
 /* Called when a MQTT message is received on an OTA agent topic of interest. */
 
 static void prvOTAPublishCallback( void * pvCallbackContext,
-                                   AwsIotMqttCallbackParam_t * const pxPublishData );
+                                   IotMqttCallbackParam_t * const pxPublishData );
 
 /* Update the job status topic with our progress of the OTA transfer. */
 
@@ -587,7 +587,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
             if( xReturn == pdPASS )
             {
                 /* Wait for the OTA agent to be ready if requested. */
-                while( ( xTicksToWait-- > 0U ) && ( xOTA_Agent.eState != eOTA_AgentState_Ready ) )
+                while( ( xTicksToWait-- > 0U ) && ( xOTA_Agent.eState == eOTA_AgentState_NotReady ) )
                 {
                     vTaskDelay( 1 );
                 }
@@ -603,7 +603,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
         }
     }
 
-    if( xOTA_Agent.eState == eOTA_AgentState_Ready )
+    if( xOTA_Agent.eState != eOTA_AgentState_NotReady  )
     {
         OTA_LOG_L1( "[%s] Ready.\r\n", OTA_METHOD_NAME );
     }
@@ -682,7 +682,7 @@ OTA_Err_t OTA_CheckForUpdate( void )
 
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
     static uint32_t ulReqCounter = 0;
-    AwsIotMqttError_t eResult;
+    IotMqttError_t eResult;
     uint32_t ulMsgLen;
     uint16_t usTopicLen;
     OTA_Err_t xError = kOTA_Err_Uninitialized;
@@ -714,7 +714,7 @@ OTA_Err_t OTA_CheckForUpdate( void )
             ulMsgLen,
             1 );
 
-        if( eResult != AWS_IOT_MQTT_SUCCESS )
+        if( eResult != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] Failed to publish MQTT message.\r\n", OTA_METHOD_NAME );
             xError = kOTA_Err_PublishFailed;
@@ -1037,7 +1037,7 @@ static void prvUpdateJobStatus( OTA_FileContext_t * C,
     DEFINE_OTA_METHOD_NAME( "prvUpdateJobStatus" );
 
     uint32_t ulTopicLen, ulNumBlocks, ulReceived, ulMsgSize;
-    AwsIotMqttError_t eResult;
+    IotMqttError_t eResult;
     uint8_t eQOS;
     char pcMsg[ OTA_STATUS_MSG_MAX_SIZE ];
     char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
@@ -1178,7 +1178,7 @@ static void prvUpdateJobStatus( OTA_FileContext_t * C,
                 ulMsgSize,
                 eQOS );
 
-            if( eResult != AWS_IOT_MQTT_SUCCESS )
+            if( eResult != IOT_MQTT_SUCCESS )
             {
                 OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
             }
@@ -1208,7 +1208,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
     uint32_t ulMsgSizeToPublish;
     size_t xMsgSizeFromStream;
     uint32_t ulNumBlocks, ulBitmapLen, ulTopicLen;
-    AwsIotMqttError_t eResult;
+    IotMqttError_t eResult;
     OTA_Err_t xErr = kOTA_Err_None;
     char pcMsg[ OTA_REQUEST_MSG_MAX_SIZE ];
     char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
@@ -1255,7 +1255,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                         ulMsgSizeToPublish,
                         0 );
 
-                    if( eResult != AWS_IOT_MQTT_SUCCESS )
+                    if( eResult != IOT_MQTT_SUCCESS )
                     {
                         OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
                         /* Don't return an error. Let max momentum catch it since this may be intermittent. */
@@ -1297,7 +1297,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
 
 /* This function is called whenever we receive a MQTT publish message on one of our OTA topics. */
 static void prvOTAPublishCallback( void * pvCallbackContext,
-                                   AwsIotMqttCallbackParam_t * const pxPublishData )
+                                   IotMqttCallbackParam_t * const pxPublishData )
 {
     DEFINE_OTA_METHOD_NAME_L2( "prvOTAPublishCallback" );
 
@@ -2750,11 +2750,11 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
 
     bool_t bResult = pdFALSE;
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
-    AwsIotMqttSubscription_t stJobsSubscription;
+    IotMqttSubscription_t stJobsSubscription;
 
     /* Clear subscription struct and set common parameters for job topics used by OTA. */
     memset( &stJobsSubscription, 0, sizeof( stJobsSubscription ) );
-    stJobsSubscription.QoS = 1;
+    stJobsSubscription.qos = 1;
     stJobsSubscription.pTopicFilter = ( const char * ) pcJobTopic;         /* Point to local string storage. Built below. */
     stJobsSubscription.callback.param1 = ( void * ) eOTA_PubMsgType_Job;      /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stJobsSubscription.callback.function = prvOTAPublishCallback;
@@ -2766,11 +2766,11 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
     if( ( stJobsSubscription.topicFilterLength > 0U ) && ( stJobsSubscription.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
         /* Subscribe to the first of two jobs topics. */
-        if( AwsIotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
+        if( IotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
                                        &stJobsSubscription,
                                        1, /* Subscriptions count */
                                        0, /* flags */
-                                       OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                       OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
         }
@@ -2785,11 +2785,11 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
             if( ( stJobsSubscription.topicFilterLength > 0U ) && ( stJobsSubscription.topicFilterLength < sizeof( pcJobTopic ) ) )
             {
                 /* Subscribe to the second of two jobs topics. */
-                if( AwsIotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
+                if( IotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
                                                &stJobsSubscription,
                                                1, /* Subscriptions count */
                                                0, /* flags */
-                                               OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                               OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
                 {
                     OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stJobsSubscription.pTopicFilter );
                 }
@@ -2814,10 +2814,10 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
 
     bool_t bResult = pdFALSE;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
-    AwsIotMqttSubscription_t stOTAUpdateDataSubscription;
+    IotMqttSubscription_t stOTAUpdateDataSubscription;
 
     memset( &stOTAUpdateDataSubscription, 0, sizeof( stOTAUpdateDataSubscription ) );
-    stOTAUpdateDataSubscription.QoS = 0;
+    stOTAUpdateDataSubscription.qos = 0;
     stOTAUpdateDataSubscription.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
     stOTAUpdateDataSubscription.callback.param1 = ( void * ) eOTA_PubMsgType_Stream;            /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stOTAUpdateDataSubscription.callback.function = prvOTAPublishCallback;
@@ -2829,11 +2829,11 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
 
     if( ( stOTAUpdateDataSubscription.topicFilterLength > 0U ) && ( stOTAUpdateDataSubscription.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
     {
-        if( AwsIotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
+        if( IotMqtt_TimedSubscribe( xOTA_Agent.pvPubSubClient,
                                        &stOTAUpdateDataSubscription,
                                        1, /* Subscriptions count */
                                        0, /* flags */
-                                       OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+                                       OTA_SUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
         {
             OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, stOTAUpdateDataSubscription.pTopicFilter );
         }
@@ -2858,12 +2858,12 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
 {
     DEFINE_OTA_METHOD_NAME( "prvUnSubscribeFromDataStream" );
 
-    AwsIotMqttSubscription_t stUnSub;
+    IotMqttSubscription_t stUnSub;
 
     bool_t bResult = pdFALSE;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
 
-    stUnSub.QoS = 0;
+    stUnSub.qos = 0;
 
     if( C != NULL )
     {
@@ -2879,11 +2879,11 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
         {
             stUnSub.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
 
-            if( AwsIotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
+            if( IotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
                                              &stUnSub,
                                              1, /* Subscriptions count */
                                              0, /* flags */
-                                             OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+											 OTA_UNSUBSCRIBE_WAIT_MS ) != IOT_MQTT_SUCCESS )
             {
                 OTA_LOG_L1( "[%s] Failed: %s\n\r", OTA_METHOD_NAME, pcOTA_RxStreamTopic );
             }
@@ -2908,11 +2908,12 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 {
     DEFINE_OTA_METHOD_NAME( "prvUnSubscribeFromJobNotificationTopic" );
 
-    AwsIotMqttSubscription_t stUnSub;
+    IotMqttSubscription_t stUnSub;
+    IotMqttReference_t unsubscribeRef[ 2 ] = { NULL };
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
 
     /* Try to unsubscribe from the first of two job topics. */
-    stUnSub.QoS = 0;
+    stUnSub.qos = 0;
     stUnSub.pTopicFilter = ( const char * ) pcJobTopic;         /* Point to local string storage. Built below. */
     stUnSub.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
                                                        sizeof( pcJobTopic ),
@@ -2921,11 +2922,12 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 
     if( ( stUnSub.topicFilterLength > 0U ) && ( stUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
-        if( AwsIotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
-                                         &stUnSub,
-                                         1, /* Subscriptions count */
-                                         0, /* flags */
-                                         OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+        if( IotMqtt_Unsubscribe( xOTA_Agent.pvPubSubClient,
+                                 &stUnSub,
+                                 1, /* Subscriptions count */
+                                 IOT_MQTT_FLAG_WAITABLE, /* flags */
+								 NULL,
+                                 &( unsubscribeRef[ 0]) ) != IOT_MQTT_STATUS_PENDING )
         {
             OTA_LOG_L1( "[%s] FAIL: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
@@ -2943,11 +2945,12 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
 
     if( ( stUnSub.topicFilterLength > 0U ) && ( stUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
-        if( AwsIotMqtt_TimedUnsubscribe( xOTA_Agent.pvPubSubClient,
-                                         &stUnSub,
-                                         1, /* Subscriptions count */
-                                         0, /* flags */
-                                         OTA_SUBSCRIBE_WAIT_MS ) != AWS_IOT_MQTT_SUCCESS )
+        if( IotMqtt_Unsubscribe( xOTA_Agent.pvPubSubClient,
+                                 &stUnSub,
+                                 1, /* Subscriptions count */
+                                 IOT_MQTT_FLAG_WAITABLE, /* flags */
+								 NULL,
+                                 &( unsubscribeRef[ 1]) ) != IOT_MQTT_STATUS_PENDING )
         {
             OTA_LOG_L1( "[%s] FAIL: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
@@ -2956,33 +2959,42 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
             OTA_LOG_L1( "[%s] OK: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
     }
+
+    if( unsubscribeRef[0] != NULL)
+    {
+    	IotMqtt_Wait( unsubscribeRef[ 0 ], OTA_UNSUBSCRIBE_WAIT_MS);
+    }
+    if( unsubscribeRef[1] != NULL)
+    {
+    	IotMqtt_Wait( unsubscribeRef[ 1 ], OTA_UNSUBSCRIBE_WAIT_MS);
+    }
 }
 
 
 /* Publish a message to the specified client/topic at the given QOS. */
 
-static AwsIotMqttError_t prvPublishMessage( void * const pvClient,
+static IotMqttError_t prvPublishMessage( void * const pvClient,
                                             const char * const pacTopic,
                                             uint16_t usTopicLen,
                                             char * pcMsg,
                                             uint32_t ulMsgSize,
                                             int eQOS )
 {
-    AwsIotMqttError_t eResult;
-    AwsIotMqttPublishInfo_t xPublishParams;
+    IotMqttError_t eResult;
+    IotMqttPublishInfo_t xPublishParams;
 
     xPublishParams.pTopicName = ( const char * ) pacTopic;
     xPublishParams.topicNameLength = usTopicLen;
-    xPublishParams.QoS = eQOS;
+    xPublishParams.qos = eQOS;
     xPublishParams.pPayload = pcMsg;
     xPublishParams.payloadLength = ulMsgSize;
     xPublishParams.retryLimit = OTA_MAX_PUBLISH_RETRIES;
     xPublishParams.retryMs = OTA_RETRY_DELAY_MS;
     xPublishParams.retain = false;
     
-    eResult = AwsIotMqtt_TimedPublish( pvClient, &xPublishParams, 0, OTA_PUBLISH_WAIT_MS );
+    eResult = IotMqtt_TimedPublish( pvClient, &xPublishParams, 0, OTA_PUBLISH_WAIT_MS );
 
-    if( eResult != AWS_IOT_MQTT_SUCCESS )
+    if( eResult != IOT_MQTT_SUCCESS )
     {
         xOTA_Agent.xStatistics.ulOTA_PublishFailures++; /* Track how many publish failures we've had. */
     }

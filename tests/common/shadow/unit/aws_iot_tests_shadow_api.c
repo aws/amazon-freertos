@@ -21,16 +21,17 @@
 
 /**
  * @file aws_iot_tests_shadow_api.c
- * @brief Tests for the user-facing API functions (declared in aws_iot_shadwo.h).
+ * @brief Tests for the user-facing API functions (declared in aws_iot_shadow.h).
  */
 
 /* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 /* Standard includes. */
 #include <stdint.h>
+#include <string.h>
 
 /* POSIX includes. */
 #ifdef POSIX_UNISTD_HEADER
@@ -38,6 +39,9 @@
 #else
     #include <unistd.h>
 #endif
+
+/* Common include. */
+#include "iot_common.h"
 
 /* Shadow internal include. */
 #include "private/aws_iot_shadow_internal.h"
@@ -47,20 +51,21 @@
 #undef _LIBRARY_LOG_LEVEL
 
 /* MQTT internal include. */
-#include "private/aws_iot_mqtt_internal.h"
+#include "private/iot_mqtt_internal.h"
 
 /* Undefine logging configuration set in MQTT internal header. */
 #undef _LIBRARY_LOG_NAME
 #undef _LIBRARY_LOG_LEVEL
 
 /* Platform layer includes. */
-#include "platform/aws_iot_clock.h"
+#include "platform/iot_clock.h"
+#include "platform/iot_threads.h"
 
 /* Test framework includes. */
 #include "unity_fixture.h"
 
 /* MQTT test access include. */
-#include "aws_iot_test_access_mqtt.h"
+#include "iot_test_access_mqtt.h"
 
 /* Require Shadow library asserts to be enabled for these tests. The Shadow
  * assert function is used to abort the tests on failure from the MQTT send
@@ -85,7 +90,7 @@
  * @brief A delay that simulates the time required for an MQTT packet to be sent
  * to the server and for the server to send a response.
  */
-#define _NETWORK_ROUND_TRIP_TIME_MS     ( 250 )
+#define _NETWORK_ROUND_TRIP_TIME_MS     ( 25 )
 
 /**
  * @brief The maximum size of any MQTT acknowledgement packet (e.g. SUBACK,
@@ -96,19 +101,36 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Context for calls to the network receive function.
+ */
+typedef struct _receiveContext
+{
+    const uint8_t * pData; /**< @brief The data to receive. */
+    size_t dataLength;     /**< @brief Length of data. */
+    size_t dataIndex;      /**< @brief Next byte of data to read. */
+} _receiveContext_t;
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief The MQTT connection object shared among all the tests.
  */
-static _mqttConnection_t * _pMqttConnection = NULL;
+static _mqttConnection_t * _pMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+
+/**
+ * @brief The #IotNetworkInterface_t to share among the tests.
+ */
+static IotNetworkInterface_t _networkInterface = { 0 };
 
 /**
  * @brief Timer used to simulate a response from the network.
  */
-static AwsIotTimer_t _receiveTimer;
+static IotTimer_t _receiveTimer;
 
 /**
  * @brief Synchronizes the MQTT send and receive threads in these tests.
  */
-static AwsIotMutex_t _lastPacketMutex;
+static IotMutex_t _lastPacketMutex;
 
 /**
  * @brief The type of the last packet sent by the send thread.
@@ -131,14 +153,16 @@ static uint16_t _lastPacketIdentifier = 0;
 static void _receiveThread( void * pArgument )
 {
     uint8_t pReceivedData[ _ACKNOWLEDGEMENT_PACKET_SIZE ] = { 0 };
-    size_t receivedDataLength = 0;
-    int32_t bytesProcessed = 0;
+    _receiveContext_t receiveContext = { 0 };
+
+    receiveContext.pData = pReceivedData;
+    receiveContext.dataLength = _ACKNOWLEDGEMENT_PACKET_SIZE;
 
     /* Silence warnings about unused parameters. */
     ( void ) pArgument;
 
     /* Lock mutex to read and process the last packet sent. */
-    AwsIotMutex_Lock( &_lastPacketMutex );
+    IotMutex_Lock( &_lastPacketMutex );
 
     /* Ensure that the last packet type and identifier were set. */
     AwsIotShadow_Assert( _lastPacketType != 0 );
@@ -155,7 +179,7 @@ static void _receiveThread( void * pArgument )
 
             pReceivedData[ 0 ] = _MQTT_PACKET_TYPE_PUBACK;
             pReceivedData[ 1 ] = 2;
-            receivedDataLength = 4;
+            receiveContext.dataLength = 4;
             break;
 
         case _MQTT_PACKET_TYPE_SUBSCRIBE:
@@ -163,14 +187,14 @@ static void _receiveThread( void * pArgument )
             pReceivedData[ 0 ] = _MQTT_PACKET_TYPE_SUBACK;
             pReceivedData[ 1 ] = 3;
             pReceivedData[ 4 ] = 1;
-            receivedDataLength = 5;
+            receiveContext.dataLength = 5;
             break;
 
         case _MQTT_PACKET_TYPE_UNSUBSCRIBE:
 
             pReceivedData[ 0 ] = _MQTT_PACKET_TYPE_UNSUBACK;
             pReceivedData[ 1 ] = 2;
-            receivedDataLength = 4;
+            receiveContext.dataLength = 4;
             break;
 
         default:
@@ -181,14 +205,10 @@ static void _receiveThread( void * pArgument )
     }
 
     /* Call the MQTT receive callback to process the ACK packet. */
-    bytesProcessed = AwsIotMqtt_ReceiveCallback( ( AwsIotMqttConnection_t * ) &_pMqttConnection,
-                                                 pReceivedData,
-                                                 0,
-                                                 receivedDataLength,
-                                                 NULL );
-    AwsIotShadow_Assert( bytesProcessed == ( int32_t ) receivedDataLength );
+    IotMqtt_ReceiveCallback( &receiveContext,
+                             _pMqttConnection );
 
-    AwsIotMutex_Unlock( &_lastPacketMutex );
+    IotMutex_Unlock( &_lastPacketMutex );
 }
 
 /*-----------------------------------------------------------*/
@@ -198,28 +218,39 @@ static void _receiveThread( void * pArgument )
  * timer to respond with an ACK when necessary.
  */
 static size_t _sendSuccess( void * pSendContext,
-                            const void * const pMessage,
+                            const uint8_t * pMessage,
                             size_t messageLength )
 {
-    AwsIotMqttError_t status = AWS_IOT_MQTT_STATUS_PENDING;
-    const uint8_t * const pPacket = ( const uint8_t * const ) pMessage;
-    const uint8_t * pPacketIdentifier = NULL;
-    AwsIotMqttPublishInfo_t decodedPublish = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    size_t publishBytesProcessed = 0;
+    IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
+    _mqttOperation_t deserializedPublish = { 0 };
+    _mqttPacket_t mqttPacket = { 0 };
+    _receiveContext_t receiveContext = { 0 };
 
     /* Ignore the send context. */
     ( void ) pSendContext;
 
+    /* Read the packet type, which is the first byte in the message. */
+    mqttPacket.type = *pMessage;
+
+    /* Set the members of the receive context. */
+    receiveContext.pData = pMessage + 1;
+    receiveContext.dataLength = messageLength;
+
     /* Lock the mutex to modify the information on the last packet sent. */
-    AwsIotMutex_Lock( &_lastPacketMutex );
+    IotMutex_Lock( &_lastPacketMutex );
+
+    /* Read the remaining length. */
+    mqttPacket.remainingLength = _IotMqtt_GetRemainingLength( &receiveContext,
+                                                              &_networkInterface );
+    AwsIotShadow_Assert( mqttPacket.remainingLength != _MQTT_REMAINING_LENGTH_INVALID );
 
     /* Set the last packet type based on the outgoing message. */
-    switch( AwsIotMqttInternal_GetPacketType( pMessage, messageLength ) )
+    switch( mqttPacket.type & 0xf0 )
     {
-        case ( _MQTT_PACKET_TYPE_PUBLISH & 0xf0 ):
+        case _MQTT_PACKET_TYPE_PUBLISH:
 
             /* Only set the last packet type to PUBLISH for QoS 1. */
-            if( ( ( *pPacket & 0x06 ) >> 1 ) == 1 )
+            if( ( ( *pMessage & 0x06 ) >> 1 ) == 1 )
             {
                 _lastPacketType = _MQTT_PACKET_TYPE_PUBLISH;
             }
@@ -249,39 +280,74 @@ static size_t _sendSuccess( void * pSendContext,
     /* Check if a network response is needed. */
     if( _lastPacketType != 0 )
     {
-        /* Decode the remaining length. */
+        /* Save the packet identifier as the last packet identifier. */
         if( _lastPacketType != _MQTT_PACKET_TYPE_PUBLISH )
         {
-            status = AwsIotTestMqtt_decodeRemainingLength( pPacket + 1,
-                                                           &pPacketIdentifier,
-                                                           NULL );
-
-            /* Save the packet identifier as the last packet identifier. */
-            _lastPacketIdentifier = _UINT16_DECODE( pPacketIdentifier );
+            _lastPacketIdentifier = _UINT16_DECODE( receiveContext.pData + receiveContext.dataIndex );
+            status = IOT_MQTT_SUCCESS;
         }
         else
         {
-            status = AwsIotMqttInternal_DeserializePublish( pMessage,
-                                                            messageLength,
-                                                            &decodedPublish,
-                                                            &_lastPacketIdentifier,
-                                                            &publishBytesProcessed );
+            mqttPacket.pIncomingPublish = &deserializedPublish;
+            mqttPacket.pRemainingData = ( uint8_t * ) pMessage + ( messageLength - mqttPacket.remainingLength );
 
-            AwsIotShadow_Assert( publishBytesProcessed == messageLength );
+            status = _IotMqtt_DeserializePublish( &mqttPacket );
+            _lastPacketIdentifier = mqttPacket.packetIdentifier;
         }
 
-        AwsIotShadow_Assert( status == AWS_IOT_MQTT_SUCCESS );
+        AwsIotShadow_Assert( status == IOT_MQTT_SUCCESS );
+        AwsIotShadow_Assert( _lastPacketIdentifier != 0 );
 
         /* Set the receive thread to run after a "network round-trip". */
-        AwsIotClock_TimerArm( &_receiveTimer,
-                              _NETWORK_ROUND_TRIP_TIME_MS,
-                              0 );
+        AwsIotShadow_Assert( IotClock_TimerArm( &_receiveTimer,
+                                                _NETWORK_ROUND_TRIP_TIME_MS,
+                                                0 ) == true );
     }
 
-    AwsIotMutex_Unlock( &_lastPacketMutex );
+    IotMutex_Unlock( &_lastPacketMutex );
 
     /* Return the message length to simulate a successful send. */
     return messageLength;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Simulates a network receive function.
+ */
+static size_t _receive( void * pConnection,
+                        uint8_t * pBuffer,
+                        size_t bytesRequested )
+{
+    size_t bytesReceived = 0;
+    _receiveContext_t * pReceiveContext = pConnection;
+
+    AwsIotShadow_Assert( bytesRequested != 0 );
+    AwsIotShadow_Assert( pReceiveContext->dataIndex < pReceiveContext->dataLength );
+
+    /* Calculate how much data to copy. */
+    const size_t dataAvailable = pReceiveContext->dataLength - pReceiveContext->dataIndex;
+
+    if( bytesRequested > dataAvailable )
+    {
+        bytesReceived = dataAvailable;
+    }
+    else
+    {
+        bytesReceived = bytesRequested;
+    }
+
+    /* Copy data into given buffer. */
+    if( bytesReceived > 0 )
+    {
+        ( void ) memcpy( pBuffer,
+                         pReceiveContext->pData + pReceiveContext->dataIndex,
+                         bytesReceived );
+
+        pReceiveContext->dataIndex += bytesReceived;
+    }
+
+    return bytesReceived;
 }
 
 /*-----------------------------------------------------------*/
@@ -298,30 +364,37 @@ TEST_GROUP( Shadow_Unit_API );
  */
 TEST_SETUP( Shadow_Unit_API )
 {
-    AwsIotMqttNetIf_t networkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
+    IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
+
+    /* Initialize common components. */
+    TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
 
     /* Clear the last packet type and identifier. */
     _lastPacketType = 0;
     _lastPacketIdentifier = 0;
 
     /* Create the mutex that synchronizes the receive callback and send thread. */
-    TEST_ASSERT_EQUAL_INT( true, AwsIotMutex_Create( &_lastPacketMutex ) );
+    TEST_ASSERT_EQUAL_INT( true, IotMutex_Create( &_lastPacketMutex, false ) );
 
     /* Create the receive thread timer. */
-    AwsIotClock_TimerCreate( &_receiveTimer,
-                             _receiveThread,
-                             NULL );
+    IotClock_TimerCreate( &_receiveTimer,
+                          _receiveThread,
+                          NULL );
 
     /* Initialize the MQTT library. */
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, AwsIotMqtt_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 
     /* Set the network interface send function. */
-    networkInterface.send = _sendSuccess;
+    ( void ) memset( &_networkInterface, 0x00, sizeof( IotNetworkInterface_t ) );
+    _networkInterface.send = _sendSuccess;
+    _networkInterface.receive = _receive;
+    networkInfo.pNetworkInterface = &_networkInterface;
 
     /* Initialize the MQTT connection object to use for the Shadow tests. */
-    _pMqttConnection = AwsIotTestMqtt_createMqttConnection( false,
-                                                            &networkInterface,
-                                                            0 );
+    _pMqttConnection = IotTestMqtt_createMqttConnection( false,
+                                                         &networkInfo,
+                                                         0 );
+    TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Initialize the Shadow library. */
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, AwsIotShadow_Init( 0 ) );
@@ -338,20 +411,23 @@ TEST_TEAR_DOWN( Shadow_Unit_API )
     AwsIotShadow_Cleanup();
 
     /* Clean up the MQTT connection object. */
-    AwsIotTestMqtt_destroyMqttConnection( _pMqttConnection );
+    IotMqtt_Disconnect( _pMqttConnection, true );
+
+    /* Clean up common components. */
+    IotCommon_Cleanup();
 
     /* Clean up the MQTT library. */
-    AwsIotMqtt_Cleanup();
+    IotMqtt_Cleanup();
 
     /* Destroy the receive thread timer. */
-    AwsIotClock_TimerDestroy( &_receiveTimer );
+    IotClock_TimerDestroy( &_receiveTimer );
 
     /* Wait for the receive thread to finish and release the last packet mutex. */
-    AwsIotMutex_Lock( &_lastPacketMutex );
+    IotMutex_Lock( &_lastPacketMutex );
 
     /* Destroy the last packet mutex. */
-    AwsIotMutex_Unlock( &_lastPacketMutex );
-    AwsIotMutex_Destroy( &_lastPacketMutex );
+    IotMutex_Unlock( &_lastPacketMutex );
+    IotMutex_Destroy( &_lastPacketMutex );
 }
 
 /*-----------------------------------------------------------*/
@@ -495,24 +571,16 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
     documentInfo.thingNameLength = _TEST_THING_NAME_LENGTH;
 
     /* Invalid QoS. */
-    documentInfo.QoS = 3;
+    documentInfo.qos = 3;
     status = AwsIotShadow_Get( _pMqttConnection,
                                &documentInfo,
                                AWS_IOT_SHADOW_FLAG_WAITABLE,
                                NULL,
                                &reference );
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
-    documentInfo.QoS = 0;
+    documentInfo.qos = IOT_MQTT_QOS_0;
 
     /* Invalid retry parameters. */
-    documentInfo.retryLimit = -1;
-    status = AwsIotShadow_Get( _pMqttConnection,
-                               &documentInfo,
-                               AWS_IOT_SHADOW_FLAG_WAITABLE,
-                               NULL,
-                               &reference );
-    TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
-
     documentInfo.retryLimit = 1;
     status = AwsIotShadow_Get( _pMqttConnection,
                                &documentInfo,
@@ -569,7 +637,9 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
 TEST( Shadow_Unit_API, WaitInvalidParameters )
 {
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
-    _shadowOperation_t operation = { 0 };
+    _shadowOperation_t operation;
+
+    ( void ) memset( &operation, 0x00, sizeof( _shadowOperation_t ) );
 
     /* NULL reference. */
     status = AwsIotShadow_Wait( NULL, 0, NULL, NULL );
@@ -593,9 +663,12 @@ TEST( Shadow_Unit_API, WaitInvalidParameters )
  */
 TEST( Shadow_Unit_API, DeleteMallocFail )
 {
-    int i = 0;
+    int32_t i = 0, mqttErrorCount = 0;
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
     AwsIotShadowReference_t reference = AWS_IOT_SHADOW_REFERENCE_INITIALIZER;
+
+    /* Set a short timeout so this test runs faster. */
+    _AwsIotShadowMqttTimeoutMs = 75;
 
     for( i = 0; ; i++ )
     {
@@ -620,13 +693,26 @@ TEST( Shadow_Unit_API, DeleteMallocFail )
             break;
         }
 
-        /* If the return value isn't success, check that it is memory allocation
-         * failure. */
-        TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_NO_MEMORY, status );
+        /* Count the number of MQTT library errors. Otherwise, check that the error
+         * is a "No memory" error. */
+        if( status == AWS_IOT_SHADOW_MQTT_ERROR )
+        {
+            mqttErrorCount++;
+        }
+        else
+        {
+            TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_NO_MEMORY, status );
+        }
     }
 
-    /* Wait for any pending QoS 0 publishes to clean up. */
-    sleep( 1 );
+    /* Allow 2 MQTT library errors, which are caused by failure to allocate memory
+     * for incoming packets (SUBSCRIBE, UNSUBSCRIBE). These allocation errors do
+     * not happen in static memory mode. */
+    #if IOT_STATIC_MEMORY_ONLY == 1
+        TEST_ASSERT_EQUAL_INT32( 0, mqttErrorCount );
+    #else
+        TEST_ASSERT_EQUAL_INT32( 2, mqttErrorCount );
+    #endif
 }
 
 /*-----------------------------------------------------------*/
@@ -637,18 +723,21 @@ TEST( Shadow_Unit_API, DeleteMallocFail )
  */
 TEST( Shadow_Unit_API, GetMallocFail )
 {
-    int i = 0;
+    int32_t i = 0, mqttErrorCount = 0;
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
     AwsIotShadowDocumentInfo_t documentInfo = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
     AwsIotShadowReference_t reference = AWS_IOT_SHADOW_REFERENCE_INITIALIZER;
     const char * pRetrievedDocument = NULL;
     size_t retrievedDocumentSize = 0;
 
+    /* Set a short timeout so this test runs faster. */
+    _AwsIotShadowMqttTimeoutMs = 75;
+
     /* Set the members of the document info. */
     documentInfo.pThingName = _TEST_THING_NAME;
     documentInfo.thingNameLength = _TEST_THING_NAME_LENGTH;
-    documentInfo.QoS = 1;
-    documentInfo.get.mallocDocument = AwsIotTest_Malloc;
+    documentInfo.qos = IOT_MQTT_QOS_1;
+    documentInfo.get.mallocDocument = IotTest_Malloc;
 
     for( i = 0; ; i++ )
     {
@@ -675,25 +764,44 @@ TEST( Shadow_Unit_API, GetMallocFail )
             break;
         }
 
-        /* If the return value isn't success, check that it is memory allocation
-         * failure. */
-        TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_NO_MEMORY, status );
+        /* Count the number of MQTT library errors. Otherwise, check that the error
+         * is a "No memory" error. */
+        if( status == AWS_IOT_SHADOW_MQTT_ERROR )
+        {
+            mqttErrorCount++;
+        }
+        else
+        {
+            TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_NO_MEMORY, status );
+        }
     }
+
+    /* Allow 3 MQTT library errors, which are caused by failure to allocate memory
+     * for incoming packets (SUBSCRIBE, PUBLISH, UNSUBSCRIBE). These allocation
+     * errors do not happen in static memory mode. */
+    #if IOT_STATIC_MEMORY_ONLY == 1
+        TEST_ASSERT_EQUAL_INT32( 0, mqttErrorCount );
+    #else
+        TEST_ASSERT_EQUAL_INT32( 3, mqttErrorCount );
+    #endif
 }
 
 /*-----------------------------------------------------------*/
 
 TEST( Shadow_Unit_API, UpdateMallocFail )
 {
-    int i = 0;
+    int32_t i = 0, mqttErrorCount = 0;
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
     AwsIotShadowDocumentInfo_t documentInfo = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
     AwsIotShadowReference_t reference = AWS_IOT_SHADOW_REFERENCE_INITIALIZER;
 
+    /* Set a short timeout so this test runs faster. */
+    _AwsIotShadowMqttTimeoutMs = 75;
+
     /* Set the members of the document info. */
     documentInfo.pThingName = _TEST_THING_NAME;
     documentInfo.thingNameLength = _TEST_THING_NAME_LENGTH;
-    documentInfo.QoS = 1;
+    documentInfo.qos = IOT_MQTT_QOS_1;
     documentInfo.update.pUpdateDocument = "{\"state\":{\"reported\":{null}},\"clientToken\":\"TEST\"}";
     documentInfo.update.updateDocumentLength = 50;
 
@@ -722,10 +830,26 @@ TEST( Shadow_Unit_API, UpdateMallocFail )
             break;
         }
 
-        /* If the return value isn't success, check that it is memory allocation
-         * failure. */
-        TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_NO_MEMORY, status );
+        /* Count the number of MQTT library errors. Otherwise, check that the error
+         * is a "No memory" error. */
+        if( status == AWS_IOT_SHADOW_MQTT_ERROR )
+        {
+            mqttErrorCount++;
+        }
+        else
+        {
+            TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_NO_MEMORY, status );
+        }
     }
+
+    /* Allow 3 MQTT library errors, which are caused by failure to allocate memory
+     * for incoming packets (SUBSCRIBE, PUBLISH, UNSUBSCRIBE). These allocation
+     * errors do not happen in static memory mode. */
+    #if IOT_STATIC_MEMORY_ONLY == 1
+        TEST_ASSERT_EQUAL_INT32( 0, mqttErrorCount );
+    #else
+        TEST_ASSERT_EQUAL_INT32( 3, mqttErrorCount );
+    #endif
 }
 
 /*-----------------------------------------------------------*/

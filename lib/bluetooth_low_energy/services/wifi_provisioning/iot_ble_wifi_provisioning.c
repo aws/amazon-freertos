@@ -31,13 +31,13 @@
 #include <string.h>
 
 
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 #include "iot_ble_config.h"
 #include "iot_ble_wifi_provisioning.h"
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 
 #define ATTR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
 #define ATTR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )

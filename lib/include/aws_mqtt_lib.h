@@ -57,7 +57,7 @@ typedef enum
 } MQTTBool_t;
 
 /**
- * @brief Quality of Service (QoS).
+ * @brief Quality of Service (qos).
  */
 typedef enum
 {
@@ -72,7 +72,7 @@ typedef enum
  */
 typedef struct MQTTPublishData
 {
-    MQTTQoS_t xQos;             /**< Quality of Service (QoS). */
+    MQTTQoS_t xQos;             /**< Quality of Service (qos). */
     const uint8_t * pucTopic;   /**< The topic on which the message is received. */
     uint16_t usTopicLength;     /**< Length of the topic. */
     const void * pvData;        /**< The received message. */

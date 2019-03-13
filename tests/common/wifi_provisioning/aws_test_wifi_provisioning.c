@@ -27,7 +27,9 @@
  * @file aws_test_wifi_provisioning.c
  * @brief Tests for Wifi provisioning.
  */
-
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>
@@ -50,11 +52,7 @@ static void prvGetRealWIFINetwork( WIFINetworkProfile_t *pxNetwork );
 static void prvGetTestWIFINetwork( WIFINetworkProfile_t *pxNetwork, uint16_t usId );
 static BaseType_t prvIsSameNetwork( WIFINetworkProfile_t *pxNetwork1,  WIFINetworkProfile_t *pxNetwork2 );
 static BaseType_t prvConnectRealNetwork( void );
-static BTUuid_t xServerUUID =
-{
-	.ucType   = eBTuuidType128,
-	.uu.uu128 = testSERVER_UUID
-};
+
 
 #define testMAXWIFI_WAIT_TIME    pdMS_TO_TICKS( 10000 )
 #define testWIFI_DELAY   pdMS_TO_TICKS( 2000 )

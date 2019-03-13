@@ -30,8 +30,8 @@
  */
 
 /* MQTT v4 config file. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 /* Standard includes. */
@@ -47,13 +47,10 @@
 #include "aws_mqtt_agent_config_defaults.h"
 
 /* MQTT v4 include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /* Platform network include. */
-#include "platform/aws_iot_network.h"
-
-/* Credentials include. */
-#include "aws_clientcredential.h"
+#include "platform/iot_network_afr.h"
 
 /*-----------------------------------------------------------*/
 
@@ -85,8 +82,9 @@
  */
 typedef struct MQTTConnection
 {
-    AwsIotMqttConnection_t xMQTTConnection;       /**< MQTT v4 connection handle. */
-    AwsIotNetworkConnection_t xNetworkConnection; /**< Network connection handle. */
+    BaseType_t xNetworkConnectionCreated;         /**< Tracks if the network connection has been created. */
+    IotNetworkConnectionAfr_t xNetworkConnection; /**< Network connection handle. */
+    IotMqttConnection_t xMQTTConnection;          /**< MQTT v4 connection handle. */
     MQTTAgentCallback_t pxCallback;               /**< MQTT v1 global callback. */
     void * pvUserData;                            /**< Parameter to pxCallback. */
     StaticSemaphore_t xConnectionMutex;           /**< Protects from concurrent accesses. */
@@ -105,7 +103,7 @@ typedef struct MQTTConnection
  *
  * @return An equivalent MQTT v1 return code.
  */
-static inline MQTTAgentReturnCode_t prvConvertReturnCode( AwsIotMqttError_t xMqttStatus );
+static inline MQTTAgentReturnCode_t prvConvertReturnCode( IotMqttError_t xMqttStatus );
 
 /**
  * @brief The callback for incoming PUBLISH messages.
@@ -114,16 +112,36 @@ static inline MQTTAgentReturnCode_t prvConvertReturnCode( AwsIotMqttError_t xMqt
  * @param[in] xPublish Information on the incoming PUBLISH.
  */
 static void prvPublishCallbackWrapper( void * pvParameter,
-                                       AwsIotMqttCallbackParam_t * const xPublish );
+                                       IotMqttCallbackParam_t * const xPublish );
 
 /**
- * @brief The disconnect function set in network interfaces.
+ * @brief The set receive callback function set in the network interface.
  *
- * Wraps the network stack's disconnect function and calls an MQTT v1 disconnect
+ * @see #IotNetworkAfr_SetReceiveCallback
+ */
+static IotNetworkError_t prvSetReceiveCallbackWrapper( void * pConnection,
+                                                       IotNetworkReceiveCallback_t receiveCallback,
+                                                       void * pContext );
+
+/**
+ * @brief The send function set in the network interface.
+ *
+ * @see #IotNetworkAfr_Send
+ */
+static size_t prvSendWrapper( void * pConnection,
+                              const uint8_t * pMessage,
+                              size_t messageLength );
+
+/**
+ * @brief The network close function set in network interface.
+ *
+ * Wraps the network stack's close function and calls an MQTT v1 disconnect
  * callback.
  * @param[in] pvDisconnectHandle The MQTT connection being disconnected.
+ *
+ * @return Always returns #IOT_NETWORK_SUCCESS.
  */
-static void prvDisconnectWrapper( void * pvDisconnectHandle );
+static IotNetworkError_t prvCloseWrapper( void * pvDisconnectHandle );
 
 #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
 
@@ -179,20 +197,36 @@ static void prvDisconnectWrapper( void * pvDisconnectHandle );
  */
 static UBaseType_t uxAvailableBrokers = mqttconfigMAX_BROKERS;
 
+/**
+ * @brief A network interface to use.
+ *
+ * Wraps the network interface's functions. The create and destroy functions
+ * are not used.
+ */
+static const IotNetworkInterface_t xNetworkInterface =
+{
+    .create             = NULL,
+    .setReceiveCallback = prvSetReceiveCallbackWrapper,
+    .send               = prvSendWrapper,
+    .receive            = IotNetworkAfr_Receive,
+    .close              = prvCloseWrapper,
+    .destroy            = NULL
+};
+
 /*-----------------------------------------------------------*/
 
-static inline MQTTAgentReturnCode_t prvConvertReturnCode( AwsIotMqttError_t xMqttStatus )
+static inline MQTTAgentReturnCode_t prvConvertReturnCode( IotMqttError_t xMqttStatus )
 {
     MQTTAgentReturnCode_t xStatus = eMQTTAgentSuccess;
 
     switch( xMqttStatus )
     {
-        case AWS_IOT_MQTT_SUCCESS:
-        case AWS_IOT_MQTT_STATUS_PENDING:
+        case IOT_MQTT_SUCCESS:
+        case IOT_MQTT_STATUS_PENDING:
             xStatus = eMQTTAgentSuccess;
             break;
 
-        case AWS_IOT_MQTT_TIMEOUT:
+        case IOT_MQTT_TIMEOUT:
             xStatus = eMQTTAgentTimeout;
             break;
 
@@ -207,7 +241,7 @@ static inline MQTTAgentReturnCode_t prvConvertReturnCode( AwsIotMqttError_t xMqt
 /*-----------------------------------------------------------*/
 
 static void prvPublishCallbackWrapper( void * pvParameter,
-                                       AwsIotMqttCallbackParam_t * const xPublish )
+                                       IotMqttCallbackParam_t * const xPublish )
 {
     BaseType_t xStatus = pdPASS;
     size_t xBufferSize = 0;
@@ -262,7 +296,7 @@ static void prvPublishCallbackWrapper( void * pvParameter,
             xPublishData.u.xPublishData.usTopicLength = xPublish->message.info.topicNameLength;
             xPublishData.u.xPublishData.pvData = pucMqttBuffer + xPublish->message.info.topicNameLength;
             xPublishData.u.xPublishData.ulDataLength = ( uint32_t ) xPublish->message.info.payloadLength;
-            xPublishData.u.xPublishData.xQos = ( MQTTQoS_t ) xPublish->message.info.QoS;
+            xPublishData.u.xPublishData.xQos = ( MQTTQoS_t ) xPublish->message.info.qos;
             xPublishData.u.xPublishData.xBuffer = pucMqttBuffer;
         }
     }
@@ -320,13 +354,40 @@ static void prvPublishCallbackWrapper( void * pvParameter,
 
 /*-----------------------------------------------------------*/
 
-static void prvDisconnectWrapper( void * pvDisconnectHandle )
+static IotNetworkError_t prvSetReceiveCallbackWrapper( void * pConnection,
+                                                       IotNetworkReceiveCallback_t receiveCallback,
+                                                       void * pContext )
+{
+    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pConnection;
+
+    return IotNetworkAfr_SetReceiveCallback( &( pxConnection->xNetworkConnection ),
+                                             receiveCallback,
+                                             pContext );
+}
+
+/*-----------------------------------------------------------*/
+
+static size_t prvSendWrapper( void * pConnection,
+                              const uint8_t * pMessage,
+                              size_t messageLength )
+{
+    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pConnection;
+
+    return IotNetworkAfr_Send( &( pxConnection->xNetworkConnection ),
+                               pMessage,
+                               messageLength );
+}
+
+/*-----------------------------------------------------------*/
+
+static IotNetworkError_t prvCloseWrapper( void * pvDisconnectHandle )
 {
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pvDisconnectHandle;
+    IotNetworkError_t xNetworkStatus = IOT_NETWORK_SUCCESS;
     MQTTAgentCallbackParams_t xCallbackParams = { 0 };
 
     /* Call the network stack's disconnect function. */
-    AwsIotNetwork_CloseConnection( pxConnection->xNetworkConnection );
+    xNetworkStatus = IotNetworkAfr_Close( &( pxConnection->xNetworkConnection ) );
 
     /* Call the MQTT v1 global callback with a disconnect event. */
     if( pxConnection->pxCallback != NULL )
@@ -334,6 +395,8 @@ static void prvDisconnectWrapper( void * pvDisconnectHandle )
         xCallbackParams.xMQTTEvent = eMQTTAgentDisconnect;
         pxConnection->pxCallback( pxConnection->pvUserData, &xCallbackParams );
     }
+
+    return xNetworkStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -350,7 +413,7 @@ static void prvDisconnectWrapper( void * pvDisconnectHandle )
 
         /* Prevent other tasks from modifying stored callbacks while this function
          * runs. */
-        if( xSemaphoreTake( &( pxConnection->xConnectionMutex ),
+        if( xSemaphoreTake( ( QueueHandle_t ) &( pxConnection->xConnectionMutex ),
                             portMAX_DELAY ) == pdTRUE )
         {
             /* Check if the topic filter already has an entry. */
@@ -380,7 +443,7 @@ static void prvDisconnectWrapper( void * pvDisconnectHandle )
                 xStatus = pdPASS;
             }
 
-            ( void ) xSemaphoreGive( &( pxConnection->xConnectionMutex ) );
+            ( void ) xSemaphoreGive( ( QueueHandle_t ) &( pxConnection->xConnectionMutex ) );
         }
 
         return xStatus;
@@ -421,7 +484,7 @@ static void prvDisconnectWrapper( void * pvDisconnectHandle )
 
         /* Prevent other tasks from modifying stored callbacks while this function
          * runs. */
-        if( xSemaphoreTake( &( pxConnection->xConnectionMutex ),
+        if( xSemaphoreTake( ( QueueHandle_t ) &( pxConnection->xConnectionMutex ),
                             portMAX_DELAY ) == pdTRUE )
         {
             /* Find the given topic filter. */
@@ -434,14 +497,14 @@ static void prvDisconnectWrapper( void * pvDisconnectHandle )
                 ( void ) memset( pxCallback, 0x00, sizeof( MQTTCallback_t ) );
             }
 
-            ( void ) xSemaphoreGive( &( pxConnection->xConnectionMutex ) );
+            ( void ) xSemaphoreGive( ( QueueHandle_t ) &( pxConnection->xConnectionMutex ) );
         }
     }
 #endif /* if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 ) */
 
 /*-----------------------------------------------------------*/
 
-AwsIotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle )
+IotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle )
 {
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
 
@@ -455,7 +518,7 @@ BaseType_t MQTT_AGENT_Init( void )
     BaseType_t xStatus = pdFALSE;
 
     /* Call the initialization function of MQTT v4. */
-    if( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS )
+    if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
     {
         xStatus = pdTRUE;
     }
@@ -504,8 +567,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Create( MQTTAgentHandle_t * const pxMQTTHandle 
         else
         {
             ( void ) memset( pxNewConnection, 0x00, sizeof( MQTTConnection_t ) );
-            pxNewConnection->xMQTTConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
-            pxNewConnection->xNetworkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
+            pxNewConnection->xMQTTConnection = IOT_MQTT_CONNECTION_INITIALIZER;
         }
     }
 
@@ -526,16 +588,18 @@ MQTTAgentReturnCode_t MQTT_AGENT_Delete( MQTTAgentHandle_t xMQTTHandle )
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
 
     /* Clean up any allocated MQTT or network resources. */
-    if( pxConnection->xMQTTConnection != AWS_IOT_MQTT_CONNECTION_INITIALIZER )
+    if( pxConnection->xMQTTConnection != IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        AwsIotMqtt_Disconnect( pxConnection->xMQTTConnection, true );
-        pxConnection->xMQTTConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+        IotMqtt_Disconnect( pxConnection->xMQTTConnection, true );
+        pxConnection->xMQTTConnection = IOT_MQTT_CONNECTION_INITIALIZER;
     }
 
-    if( pxConnection->xNetworkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER )
+    if( pxConnection->xNetworkConnectionCreated == pdTRUE )
     {
-        AwsIotNetwork_DestroyConnection( pxConnection->xNetworkConnection );
-        pxConnection->xNetworkConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+        IotNetworkAfr_Destroy( &( pxConnection->xNetworkConnection ) );
+
+        memset( &( pxConnection->xNetworkConnection ), 0x00, sizeof( IotNetworkConnectionAfr_t ) );
+        pxConnection->xNetworkConnectionCreated = pdFALSE;
     }
 
     /* Free memory used by the MQTT connection. */
@@ -559,11 +623,12 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
                                           TickType_t xTimeoutTicks )
 {
     MQTTAgentReturnCode_t xStatus = eMQTTAgentSuccess;
-    AwsIotMqttError_t xMqttStatus = AWS_IOT_MQTT_STATUS_PENDING;
+    IotMqttError_t xMqttStatus = IOT_MQTT_STATUS_PENDING;
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
-    AwsIotNetworkTlsInfo_t xTlsInfo = AWS_IOT_NETWORK_TLS_INFO_INITIALIZER, * pTlsInfo = NULL;
-    AwsIotMqttNetIf_t xNetworkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
-    AwsIotMqttConnectInfo_t xMqttConnectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER, * pxCredentials = NULL;
+    IotMqttNetworkInfo_t xNetworkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
+    IotMqttConnectInfo_t xMqttConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
     /* Copy the global callback and parameter. */
     pxConnection->pxCallback = pxConnectParams->pxCallback;
@@ -573,60 +638,45 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     if( ( pxConnectParams->xSecuredConnection == pdTRUE ) ||
         ( ( pxConnectParams->xFlags & mqttagentREQUIRE_TLS ) == mqttagentREQUIRE_TLS ) )
     {
-        pTlsInfo = &xTlsInfo;
+        pxCredentials = &xCredentials;
 
-        /* Set the server certificate. */
-        xTlsInfo.pRootCa = pxConnectParams->pcCertificate;
-        xTlsInfo.rootCaLength = ( size_t ) pxConnectParams->ulCertificateSize;
-
-        /* Set client credentials. */
-        xTlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
-        xTlsInfo.clientCertLength = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
-        xTlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
-        xTlsInfo.privateKeyLength = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
+        /* Set the server certificate. Other credentials are set by the initializer. */
+        xCredentials.pRootCa = pxConnectParams->pcCertificate;
+        xCredentials.rootCaSize = ( size_t ) pxConnectParams->ulCertificateSize;
 
         /* Disable ALPN if requested. */
         if( ( pxConnectParams->xFlags & mqttagentUSE_AWS_IOT_ALPN_443 ) == 0 )
         {
-            xTlsInfo.pAlpnProtos = NULL;
+            xCredentials.pAlpnProtos = NULL;
         }
 
         /* Disable SNI if requested. */
         if( ( pxConnectParams->xURLIsIPAddress == pdTRUE ) ||
             ( ( pxConnectParams->xFlags & mqttagentURL_IS_IP_ADDRESS ) == mqttagentURL_IS_IP_ADDRESS ) )
         {
-            xTlsInfo.disableSni = true;
+            xCredentials.disableSni = true;
         }
     }
 
     /* Establish the network connection. */
-    if( AwsIotNetwork_CreateConnection( &( pxConnection->xNetworkConnection ),
-                                        clientcredentialMQTT_BROKER_ENDPOINT,
-                                        clientcredentialMQTT_BROKER_PORT,
-                                        pTlsInfo ) != AWS_IOT_NETWORK_SUCCESS )
+    if( IotNetworkAfr_Create( &xServerInfo,
+                              pxCredentials,
+                              &( pxConnection->xNetworkConnection ) ) != IOT_NETWORK_SUCCESS )
     {
         xStatus = eMQTTAgentFailure;
     }
-
-    /* Set the MQTT receive callback. */
-    if( xStatus == eMQTTAgentSuccess )
+    else
     {
-        if( AwsIotNetwork_SetMqttReceiveCallback( pxConnection->xNetworkConnection,
-                                                 &( pxConnection->xMQTTConnection ),
-                                                 AwsIotMqtt_ReceiveCallback ) != AWS_IOT_NETWORK_SUCCESS )
-        {
-            xStatus = eMQTTAgentFailure;
-        }
+        pxConnection->xNetworkConnectionCreated = pdTRUE;
     }
 
     /* Establish the MQTT connection. */
     if( xStatus == eMQTTAgentSuccess )
     {
-        /* Set the members of the MQTT network interface. */
-        xNetworkInterface.pDisconnectContext = ( void * ) pxConnection;
-        xNetworkInterface.pSendContext = ( void * ) pxConnection->xNetworkConnection;
-        xNetworkInterface.disconnect = prvDisconnectWrapper;
-        xNetworkInterface.send = AwsIotNetwork_Send;
+        /* Set the members of the network info. */
+        xNetworkInfo.createNetworkConnection = false;
+        xNetworkInfo.pNetworkConnection = pxConnection;
+        xNetworkInfo.pNetworkInterface = &xNetworkInterface;
 
         /* Set the members of the MQTT connect info. */
         xMqttConnectInfo.cleanSession = true;
@@ -635,42 +685,41 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
         xMqttConnectInfo.keepAliveSeconds = mqttconfigKEEP_ALIVE_INTERVAL_SECONDS;
 
         /* Call MQTT v4's CONNECT function. */
-        xMqttStatus = AwsIotMqtt_Connect( &( pxConnection->xMQTTConnection ),
-                                          &xNetworkInterface,
-                                          &xMqttConnectInfo,
-                                          NULL,
-                                          mqttTICKS_TO_MS( xTimeoutTicks ) );
+        xMqttStatus = IotMqtt_Connect( &xNetworkInfo,
+                                       &xMqttConnectInfo,
+                                       mqttTICKS_TO_MS( xTimeoutTicks ),
+                                       &( pxConnection->xMQTTConnection ) );
         xStatus = prvConvertReturnCode( xMqttStatus );
     }
 
     /* Add a subscription to "#" to support the global callback when subscription
      * manager is disabled. */
     #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 0 )
-        AwsIotMqttSubscription_t xGlobalSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-        AwsIotMqttReference_t xGlobalSubscriptionRef = AWS_IOT_MQTT_REFERENCE_INITIALIZER;
+        IotMqttSubscription_t xGlobalSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+        IotMqttReference_t xGlobalSubscriptionRef = IOT_MQTT_REFERENCE_INITIALIZER;
 
         if( xStatus == eMQTTAgentSuccess )
         {
             xGlobalSubscription.pTopicFilter = "#";
             xGlobalSubscription.topicFilterLength = 1;
-            xGlobalSubscription.QoS = 0;
+            xGlobalSubscription.qos = 0;
             xGlobalSubscription.callback.param1 = pxConnection;
             xGlobalSubscription.callback.function = prvPublishCallbackWrapper;
 
-            xMqttStatus = AwsIotMqtt_Subscribe( pxConnection->xMQTTConnection,
-                                                &xGlobalSubscription,
-                                                1,
-                                                AWS_IOT_MQTT_FLAG_WAITABLE,
-                                                NULL,
-                                                &xGlobalSubscriptionRef );
+            xMqttStatus = IotMqtt_Subscribe( pxConnection->xMQTTConnection,
+                                             &xGlobalSubscription,
+                                             1,
+                                             IOT_MQTT_FLAG_WAITABLE,
+                                             NULL,
+                                             &xGlobalSubscriptionRef );
             xStatus = prvConvertReturnCode( xMqttStatus );
         }
 
         /* Wait for the subscription to "#" to complete. */
         if( xStatus == eMQTTAgentSuccess )
         {
-            xMqttStatus = AwsIotMqtt_Wait( xGlobalSubscriptionRef,
-                                           mqttTICKS_TO_MS( xTimeoutTicks ) );
+            xMqttStatus = IotMqtt_Wait( xGlobalSubscriptionRef,
+                                        mqttTICKS_TO_MS( xTimeoutTicks ) );
             xStatus = prvConvertReturnCode( xMqttStatus );
         }
     #endif /* if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 ) */
@@ -689,14 +738,14 @@ MQTTAgentReturnCode_t MQTT_AGENT_Disconnect( MQTTAgentHandle_t xMQTTHandle,
     ( void ) xTimeoutTicks;
 
     /* Check that the connection is established. */
-    if( pxConnection->xMQTTConnection != AWS_IOT_MQTT_CONNECTION_INITIALIZER )
+    if( pxConnection->xMQTTConnection != IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        mqttconfigASSERT( pxConnection->xNetworkConnection != AWS_IOT_NETWORK_CONNECTION_INITIALIZER );
+        mqttconfigASSERT( pxConnection->xNetworkConnectionCreated == pdTRUE );
 
         /* Call MQTT v4's DISCONNECT function. */
-        AwsIotMqtt_Disconnect( pxConnection->xMQTTConnection,
-                               false );
-        pxConnection->xMQTTConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+        IotMqtt_Disconnect( pxConnection->xMQTTConnection,
+                            false );
+        pxConnection->xMQTTConnection = IOT_MQTT_CONNECTION_INITIALIZER;
     }
 
     return eMQTTAgentSuccess;
@@ -709,9 +758,9 @@ MQTTAgentReturnCode_t MQTT_AGENT_Subscribe( MQTTAgentHandle_t xMQTTHandle,
                                             TickType_t xTimeoutTicks )
 {
     MQTTAgentReturnCode_t xStatus = eMQTTAgentSuccess;
-    AwsIotMqttError_t xMqttStatus = AWS_IOT_MQTT_STATUS_PENDING;
+    IotMqttError_t xMqttStatus = IOT_MQTT_STATUS_PENDING;
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
-    AwsIotMqttSubscription_t xSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+    IotMqttSubscription_t xSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
 
     /* Store the topic filter if subscription management is enabled. */
     #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
@@ -738,15 +787,15 @@ MQTTAgentReturnCode_t MQTT_AGENT_Subscribe( MQTTAgentHandle_t xMQTTHandle,
         /* Set the members of the MQTT subscription. */
         xSubscription.pTopicFilter = ( const char * ) ( pxSubscribeParams->pucTopic );
         xSubscription.topicFilterLength = pxSubscribeParams->usTopicLength;
-        xSubscription.QoS = ( int ) pxSubscribeParams->xQoS;
+        xSubscription.qos = ( IotMqttQos_t ) pxSubscribeParams->xQoS;
         xSubscription.callback.param1 = pxConnection;
         xSubscription.callback.function = prvPublishCallbackWrapper;
 
-        xMqttStatus = AwsIotMqtt_TimedSubscribe( pxConnection->xMQTTConnection,
-                                                 &xSubscription,
-                                                 1,
-                                                 0,
-                                                 mqttTICKS_TO_MS( xTimeoutTicks ) );
+        xMqttStatus = IotMqtt_TimedSubscribe( pxConnection->xMQTTConnection,
+                                              &xSubscription,
+                                              1,
+                                              0,
+                                              mqttTICKS_TO_MS( xTimeoutTicks ) );
         xStatus = prvConvertReturnCode( xMqttStatus );
     }
 
@@ -759,9 +808,9 @@ MQTTAgentReturnCode_t MQTT_AGENT_Unsubscribe( MQTTAgentHandle_t xMQTTHandle,
                                               const MQTTAgentUnsubscribeParams_t * const pxUnsubscribeParams,
                                               TickType_t xTimeoutTicks )
 {
-    AwsIotMqttError_t xMqttStatus = AWS_IOT_MQTT_STATUS_PENDING;
+    IotMqttError_t xMqttStatus = IOT_MQTT_STATUS_PENDING;
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
-    AwsIotMqttSubscription_t xSubscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+    IotMqttSubscription_t xSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
 
     /* Remove any subscription callback that may be registered. */
     #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
@@ -777,11 +826,11 @@ MQTTAgentReturnCode_t MQTT_AGENT_Unsubscribe( MQTTAgentHandle_t xMQTTHandle,
     xSubscription.callback.function = prvPublishCallbackWrapper;
 
     /* Call MQTT v4 blocking UNSUBSCRIBE function. */
-    xMqttStatus = AwsIotMqtt_TimedUnsubscribe( pxConnection->xMQTTConnection,
-                                               &xSubscription,
-                                               1,
-                                               0,
-                                               mqttTICKS_TO_MS( xTimeoutTicks ) );
+    xMqttStatus = IotMqtt_TimedUnsubscribe( pxConnection->xMQTTConnection,
+                                            &xSubscription,
+                                            1,
+                                            0,
+                                            mqttTICKS_TO_MS( xTimeoutTicks ) );
 
     return prvConvertReturnCode( xMqttStatus );
 }
@@ -792,22 +841,22 @@ MQTTAgentReturnCode_t MQTT_AGENT_Publish( MQTTAgentHandle_t xMQTTHandle,
                                           const MQTTAgentPublishParams_t * const pxPublishParams,
                                           TickType_t xTimeoutTicks )
 {
-    AwsIotMqttError_t xMqttStatus = AWS_IOT_MQTT_STATUS_PENDING;
+    IotMqttError_t xMqttStatus = IOT_MQTT_STATUS_PENDING;
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
-    AwsIotMqttPublishInfo_t xPublishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    IotMqttPublishInfo_t xPublishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
     /* Set the members of the publish info. */
     xPublishInfo.pTopicName = ( const char * ) pxPublishParams->pucTopic;
     xPublishInfo.topicNameLength = pxPublishParams->usTopicLength;
-    xPublishInfo.QoS = ( int ) pxPublishParams->xQoS;
+    xPublishInfo.qos = ( IotMqttQos_t ) pxPublishParams->xQoS;
     xPublishInfo.pPayload = ( const void * ) pxPublishParams->pvData;
     xPublishInfo.payloadLength = pxPublishParams->ulDataLength;
 
     /* Call the MQTT v4 blocking PUBLISH function. */
-    xMqttStatus = AwsIotMqtt_TimedPublish( pxConnection->xMQTTConnection,
-                                           &xPublishInfo,
-                                           0,
-                                           mqttTICKS_TO_MS( xTimeoutTicks ) );
+    xMqttStatus = IotMqtt_TimedPublish( pxConnection->xMQTTConnection,
+                                        &xPublishInfo,
+                                        0,
+                                        mqttTICKS_TO_MS( xTimeoutTicks ) );
 
     return prvConvertReturnCode( xMqttStatus );
 }

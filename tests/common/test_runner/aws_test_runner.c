@@ -28,14 +28,15 @@
  * @file aws_test_runner.c
  * @brief The function to be called to run all the tests.
  */
-
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
 /* Test runner interface includes. */
 #include "aws_test_runner.h"
 
 /* MQTT v4 header must be included if its tests are enabled. */
 #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-    #include AWS_IOT_CONFIG_FILE
-    #include "aws_iot_mqtt.h"
+    #include "iot_mqtt.h"
 #endif
 
 /* FreeRTOS includes. */
@@ -45,7 +46,7 @@
 /* Unity framework includes. */
 #include "unity_fixture.h"
 #include "unity_internals.h"
-
+#include "iot_common.h"
 /* Application version info. */
 #include "aws_application_version.h"
 
@@ -115,7 +116,8 @@ static void RunTests( void )
 
         /* The MQTT v4 tests perform their own initialization and cleanup. Clean
          * up the MQTT library here to avoid memory leaks. */
-        AwsIotMqtt_Cleanup();
+        IotCommon_Cleanup();
+        IotMqtt_Cleanup();
 
         RUN_TEST_GROUP( MQTT_Unit_Validate );
         RUN_TEST_GROUP( MQTT_Unit_Subscription );
@@ -123,8 +125,9 @@ static void RunTests( void )
         RUN_TEST_GROUP( MQTT_Unit_API );
         RUN_TEST_GROUP( MQTT_System );
 
+        IotCommon_Init();
         /* Initialize the MQTT library for any tests that come after. */
-        configASSERT( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS );
+        configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTT_STRESS_TEST_ENABLED == 1 )
@@ -186,9 +189,13 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_BLE_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
+        //RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
         RUN_TEST_GROUP( Full_BLE );
     #endif
+
+#if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
+    RUN_TEST_GROUP( Full_BLE_END_TO_END );
+#endif
 
     #if ( testrunnerFULL_FREERTOS_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_FREERTOS_TCP );
@@ -217,7 +224,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     UNITY_BEGIN();
 
     /* Give the print buffer time to empty */
-    vTaskDelay( 500 );
+    vTaskDelay( pdMS_TO_TICKS( 500) );
     /* Measure the heap size before any tests are run. */
     #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
         xHeapBefore = xPortGetFreeHeapSize();
@@ -236,7 +243,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
         #endif
 
         /* Give the print buffer time to empty */
-        vTaskDelay( 500 );
+        vTaskDelay( pdMS_TO_TICKS( 500) );
         xHeapAfter = xPortGetFreeHeapSize();
         RUN_TEST_GROUP( Full_MemoryLeak );
     #endif /* if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 ) */

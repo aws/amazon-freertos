@@ -129,17 +129,6 @@ typedef IotLink_t   IotQueue_t;
          ( pLink ) != ( pStart );               \
          ( pLink ) = ( pLink )->pNext )
 
- /**
- * @brief Iterates on all instances of a linear container safely.
- *
- * @param[in] pStart The first link to iterate forward from.
- * @param[in] pLink Pointer to a link member.
- */
-#define IotContainers_ForEachSafe( pStart, pLink, pTempLink )               \
-    for( ( pLink ) = ( pStart )->pNext, ( pTempLink ) = ( pLink )->pNext;   \
-         ( pLink ) != ( pStart );                                           \
-         ( pLink ) = ( pTempLink ), ( pTempLink ) = ( pLink )->pNext )
-
 /**
  * @functionspage{linear_containers,linear containers library}
  * - @functionname{linear_containers_function_link_islinked}
@@ -898,9 +887,9 @@ static inline void IotQueue_RemoveAll( IotQueue_t * const pQueue,
  */
 /* @[declare_linear_containers_queue_removeallmatches] */
 static inline void IotQueue_RemoveAllMatches( IotQueue_t * const pQueue,
-                                              bool( *isMatch )( const IotLink_t *, void * ),
+                                              bool ( * isMatch )( const IotLink_t *, void * ),
                                               void * pMatch,
-                                              void( *freeElement )( void * ),
+                                              void ( * freeElement )( void * ),
                                               size_t linkOffset )
 /* @[declare_linear_containers_queue_removeallmatches] */
 {

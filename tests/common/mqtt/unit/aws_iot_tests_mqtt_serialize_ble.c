@@ -35,9 +35,9 @@
 
 #include <string.h>
 #include "iot_ble_config.h"
-#include "aws_iot_serializer.h"
-
-#include "private/aws_iot_mqtt_serialize_ble.h"
+#include "iot_serializer.h"
+#include "private/iot_mqtt_internal.h"
+#include "private/iot_ble_mqtt_serialize.h"
 #include "aws_clientcredential.h"
 
 /* Test framework includes. */
@@ -117,8 +117,8 @@ TEST_GROUP_RUNNER( MQTT_Unit_BLE_Serialize )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT )
 {
-	AwsIotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
-	volatile AwsIotMqttError_t status;
+	IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
     AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
@@ -134,8 +134,8 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT )
 
 	if( TEST_PROTECT() )
 	{
-		status = IotBleMqtt_SerializeConnect( &connectInfo, NULL, ( uint8_t**) &pMesg, &bufLen );
-		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+		status = IotBleMqtt_SerializeConnect( &connectInfo, ( uint8_t**) &pMesg, &bufLen );
+		TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
@@ -178,7 +178,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT )
 
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -187,15 +187,15 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH )
 {
-	AwsIotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-	volatile AwsIotMqttError_t status;
+	IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
     AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     AwsIotSerializerError_t xResult;
 	uint16_t packetIdentifier;
 
-	publishInfo.QoS = TEST_QOS1;
+	publishInfo.qos = TEST_QOS1;
 	publishInfo.pPayload = ( uint8_t* ) TEST_DATA;
 	publishInfo.payloadLength = TEST_DATA_LENGTH;
 	publishInfo.pTopicName = TEST_TOPIC;
@@ -206,8 +206,8 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH )
 
 	if( TEST_PROTECT() )
 	{
-		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
-		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier, NULL );
+		TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 		TEST_ASSERT_NOT_EQUAL( 0, packetIdentifier );
@@ -249,7 +249,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH )
 		IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -257,15 +257,15 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
 {
-	AwsIotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-	volatile AwsIotMqttError_t status;
+	IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
     AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     AwsIotSerializerError_t xResult;
 	uint16_t packetIdentifier = 0;
 
-	publishInfo.QoS = TEST_QOS0;
+	publishInfo.qos = TEST_QOS0;
 	publishInfo.pPayload = ( uint8_t* ) TEST_DATA;
 	publishInfo.payloadLength = TEST_DATA_LENGTH;
 	publishInfo.pTopicName = TEST_TOPIC;
@@ -276,8 +276,8 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
 
 	if( TEST_PROTECT() )
 	{
-		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
-		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier, NULL );
+		TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 		TEST_ASSERT_EQUAL( 0, packetIdentifier );
@@ -313,7 +313,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -321,25 +321,25 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_QOS0 )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
 {
-	AwsIotMqttSubscription_t subscriptionList[2] = { AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER,  AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER };
-	volatile AwsIotMqttError_t status;
+	IotMqttSubscription_t subscriptionList[2] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER,  IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
 	AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
 	AwsIotSerializerError_t xResult;
 	uint16_t packetIdentifier;
 
-	subscriptionList[0].QoS = TEST_QOS1;
+	subscriptionList[0].qos = TEST_QOS1;
 	subscriptionList[0].pTopicFilter = TEST_TOPIC;
 	subscriptionList[0].topicFilterLength = TEST_TOPIC_LENGTH;
-	subscriptionList[1].QoS = TEST_QOS1;
+	subscriptionList[1].qos = TEST_QOS1;
 	subscriptionList[1].pTopicFilter = TEST_TOPIC2;
 	subscriptionList[1].topicFilterLength = TEST_TOPIC2_LENGTH;
 
 	if( TEST_PROTECT() )
 	{
 		status = IotBleMqtt_SerializeSubscribe( subscriptionList, 2, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
-		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+		TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 		TEST_ASSERT_NOT_EQUAL( 0, packetIdentifier );
@@ -375,7 +375,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
 		IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -383,25 +383,25 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
 {
-	AwsIotMqttSubscription_t subscriptionList[2] = { AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER, AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER };
-	volatile AwsIotMqttError_t status;
+	IotMqttSubscription_t subscriptionList[2] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER, IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
     AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
     AwsIotSerializerError_t xResult;
 	uint16_t packetIdentifier;
 
-	subscriptionList[0].QoS = TEST_QOS1;
+	subscriptionList[0].qos = TEST_QOS1;
 	subscriptionList[0].pTopicFilter = TEST_TOPIC;
 	subscriptionList[0].topicFilterLength = TEST_TOPIC_LENGTH;
-	subscriptionList[1].QoS = TEST_QOS1;
+	subscriptionList[1].qos = TEST_QOS1;
 	subscriptionList[1].pTopicFilter = TEST_TOPIC2;
 	subscriptionList[1].topicFilterLength = TEST_TOPIC2_LENGTH;
 
 	if( TEST_PROTECT() )
 	{
 		status = IotBleMqtt_SerializeUnsubscribe( subscriptionList, 2, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
-		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+		TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 		TEST_ASSERT_NOT_EQUAL( 0, packetIdentifier );
@@ -431,7 +431,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -440,7 +440,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK )
 {
-	volatile AwsIotMqttError_t status;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
 	AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
@@ -449,7 +449,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK )
 	if( TEST_PROTECT() )
 	{
 		status = IotBleMqtt_SerializePuback( TEST_PACKET_IDENTIFIER, ( uint8_t**) &pMesg, &bufLen );
-		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+		TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
@@ -472,7 +472,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -480,7 +480,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT )
 {
-	volatile AwsIotMqttError_t status;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
     AwsIotSerializerDecoderObject_t xDecoderObj = { 0 }, xValue = { 0 };
@@ -489,7 +489,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT )
 	if( TEST_PROTECT() )
 	{
 		status = IotBleMqtt_SerializeDisconnect( ( uint8_t**) &pMesg, &bufLen );
-		TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+		TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 		TEST_ASSERT_NOT_NULL( pMesg );
 		TEST_ASSERT_NOT_EQUAL( 0UL, bufLen );
 
@@ -506,7 +506,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT )
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -553,74 +553,53 @@ static void prvCreateCONNACKPacket( uint8_t *pBuffer, size_t* pLength, int64_t r
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializeCONNACK )
 {
-	AwsIotMqttError_t status;
-	uint8_t connack[ TEST_MESG_LEN ] = { 0 };
-	size_t connackLen = TEST_MESG_LEN , bytesProcessed;
+	IotMqttError_t status;
+	uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
+	 _mqttPacket_t connack;
 
-	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_CONNECTED );
+	connack.remainingLength = TEST_MESG_LEN;
+	connack.pRemainingData = buffer;
 
-	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	prvCreateCONNACKPacket(connack.pRemainingData, &connack.remainingLength,  IOT_BLE_MQTT_STATUS_CONNECTED );
 
-	connackLen = TEST_MESG_LEN;
-	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_CONNECTING );
-	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	status =  IotBleMqtt_DeserializeConnack( &connack );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
-	connackLen = TEST_MESG_LEN;
-	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED );
-	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	prvCreateCONNACKPacket(connack.pRemainingData, &connack.remainingLength,  IOT_BLE_MQTT_STATUS_CONNECTING );
+	status =  IotBleMqtt_DeserializeConnack( &connack );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
-	connackLen = TEST_MESG_LEN;
-	    bytesProcessed = 0;
-	    prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_DISCONNECTED );
-	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	prvCreateCONNACKPacket(connack.pRemainingData, &connack.remainingLength,  IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED );
+	status =  IotBleMqtt_DeserializeConnack( &connack );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SERVER_REFUSED, status );
 
+	prvCreateCONNACKPacket(connack.pRemainingData, &connack.remainingLength,  IOT_BLE_MQTT_STATUS_DISCONNECTED );
+	status =  IotBleMqtt_DeserializeConnack( &connack );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SERVER_REFUSED, status );
 
-	connackLen = TEST_MESG_LEN;
-	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR );
-	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	prvCreateCONNACKPacket(connack.pRemainingData, &connack.remainingLength,  IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR );
+	status =  IotBleMqtt_DeserializeConnack( &connack );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SERVER_REFUSED, status );
 
-	connackLen = TEST_MESG_LEN;
-	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_UNKNOWN );
-	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SERVER_REFUSED, status );
-	TEST_ASSERT_EQUAL( connackLen, bytesProcessed );
+	prvCreateCONNACKPacket(connack.pRemainingData, &connack.remainingLength,  IOT_BLE_MQTT_STATUS_UNKNOWN );
+	status =  IotBleMqtt_DeserializeConnack( &connack );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SERVER_REFUSED, status );
 
 	/** Empty message **/
-	memset( connack, 0x00, TEST_MESG_LEN );
-	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, TEST_MESG_LEN, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( 0, bytesProcessed );
+	memset( connack.pRemainingData, 0x00, TEST_MESG_LEN );
+	status =  IotBleMqtt_DeserializeConnack( &connack );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 
     /** Tampered message **/
-	connackLen = TEST_MESG_LEN;
-	bytesProcessed = 0;
-	prvCreateCONNACKPacket(connack, &connackLen,  IOT_BLE_MQTT_STATUS_CONNECTED );
-	connack[0] = 0x00; //Not valid cbor
-    status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-    TEST_ASSERT_EQUAL( 0, bytesProcessed );
+	prvCreateCONNACKPacket(connack.pRemainingData, &connack.remainingLength,  IOT_BLE_MQTT_STATUS_CONNECTED );
+	connack.pRemainingData[0] = 0x00; //Not valid cbor
+    status =  IotBleMqtt_DeserializeConnack( &connack );
+    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 
     /** No response code */
-    connackLen = TEST_MESG_LEN;
-    bytesProcessed = 0;
-    prvCreateCONNACKPacket(connack, &connackLen,  -1 );
-	status =  IotBleMqtt_DeserializeConnack( ( uint8_t* ) connack, connackLen, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( 0, bytesProcessed );
+    prvCreateCONNACKPacket(connack.pRemainingData, &connack.remainingLength,  -1 );
+	status =  IotBleMqtt_DeserializeConnack( &connack );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 }
 
 static void prvCreatePUBLISHPacket( uint8_t *pBuffer,
@@ -698,14 +677,17 @@ static void prvCreatePUBLISHPacket( uint8_t *pBuffer,
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 {
-	AwsIotMqttError_t status;
-	uint8_t publish[ TEST_MESG_LEN ];
+	IotMqttError_t status;
+	uint8_t buffer[ TEST_MESG_LEN ];
 	size_t publishLen = TEST_MESG_LEN, bytesProcessed = 0;
-	AwsIotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-	uint16_t packetIdentifier;
+	IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+	 _mqttPacket_t publish;
 
-	prvCreatePUBLISHPacket( publish,
-	                        &publishLen,
+	publish.pRemainingData = buffer;
+	publish.remainingLength = TEST_MESG_LEN;
+
+	prvCreatePUBLISHPacket( publish.pRemainingData,
+	                        &publish.remainingLength,
 	                        TEST_TOPIC,
 	                        TEST_TOPIC_LENGTH,
 	                        TEST_DATA,
@@ -713,99 +695,102 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 	                        TEST_QOS1,
 	                        TEST_PACKET_IDENTIFIER );
 
-	status =  IotBleMqtt_DeserializePublish(  publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+	status =  IotBleMqtt_DeserializePublish( &publish );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 	TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
 	TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, publishInfo.topicNameLength );
 	TEST_ASSERT_EQUAL(0, strncmp( publishInfo.pTopicName, TEST_TOPIC, TEST_TOPIC_LENGTH ) );
 	TEST_ASSERT_EQUAL_INT( TEST_DATA_LENGTH, publishInfo.payloadLength );
 	TEST_ASSERT_EQUAL(0, strncmp( publishInfo.pPayload, TEST_DATA, TEST_DATA_LENGTH ) );
-	TEST_ASSERT_EQUAL(TEST_QOS1, publishInfo.QoS );
-	TEST_ASSERT_EQUAL(TEST_PACKET_IDENTIFIER, packetIdentifier );
+	TEST_ASSERT_EQUAL(TEST_QOS1, publishInfo.qos );
+	TEST_ASSERT_EQUAL(TEST_PACKET_IDENTIFIER, publish.packetIdentifier );
 	TEST_ASSERT_EQUAL( false, publishInfo.retain );
 
 	/** Malformed message **/
 	publishLen = TEST_MESG_LEN, bytesProcessed = 0;
-	prvCreatePUBLISHPacket( publish,
-	                            &publishLen,
+	prvCreatePUBLISHPacket( publish.pRemainingData,
+            &publish.remainingLength,
 	                            TEST_TOPIC,
 	                            TEST_TOPIC_LENGTH,
 	                            TEST_DATA,
 	                            TEST_DATA_LENGTH,
 	                            TEST_QOS1,
 	                            TEST_PACKET_IDENTIFIER );
-	publish[0] = 0x00;
-	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
+	publish.pRemainingData[0] = 0x00;
+	status =  IotBleMqtt_DeserializePublish( &publish );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
     /** NO QOS **/
     publishLen = TEST_MESG_LEN, bytesProcessed = 0;
-    prvCreatePUBLISHPacket( publish,
-                                &publishLen,
+    prvCreatePUBLISHPacket( publish.pRemainingData,
+            &publish.remainingLength,
                                 TEST_TOPIC,
                                 TEST_TOPIC_LENGTH,
                                 TEST_DATA,
                                 TEST_DATA_LENGTH,
                                 -1,
                                 TEST_PACKET_IDENTIFIER );
-	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
+	status =  IotBleMqtt_DeserializePublish( &publish );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
 	/** NO Topic **/
 	publishLen = TEST_MESG_LEN, bytesProcessed = 0;
-	prvCreatePUBLISHPacket( publish,
-	                        &publishLen,
+	prvCreatePUBLISHPacket( publish.pRemainingData,
+            &publish.remainingLength,
 	                        NULL,
 	                        0,
 	                        TEST_DATA,
 	                        TEST_DATA_LENGTH,
 	                        TEST_QOS1,
 	                        TEST_PACKET_IDENTIFIER );
-	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
+	status =  IotBleMqtt_DeserializePublish( &publish );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
 	/** NO Packet id **/
 	publishLen = TEST_MESG_LEN, bytesProcessed = 0;
-	prvCreatePUBLISHPacket( publish,
-	                        &publishLen,
+	prvCreatePUBLISHPacket( publish.pRemainingData,
+            &publish.remainingLength,
 	                        TEST_TOPIC,
 	                        TEST_TOPIC_LENGTH,
 	                        TEST_DATA,
 	                        TEST_DATA_LENGTH,
 	                        TEST_QOS1,
 	                        -1 );
-	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
+	status =  IotBleMqtt_DeserializePublish( &publish );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 
 	/** NO Payload **/
 	publishLen = TEST_MESG_LEN, bytesProcessed = 0;
-	prvCreatePUBLISHPacket( publish,
-	                        &publishLen,
+	prvCreatePUBLISHPacket( publish.pRemainingData,
+            &publish.remainingLength,
 	                        TEST_TOPIC,
 	                        TEST_TOPIC_LENGTH,
 	                        NULL,
 	                        0,
 	                        TEST_QOS1,
 	                        TEST_PACKET_IDENTIFIER );
-	status =  IotBleMqtt_DeserializePublish( publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
+	status =  IotBleMqtt_DeserializePublish( &publish );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 	TEST_ASSERT_EQUAL( 0, bytesProcessed );
 }
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 )
 {
-    AwsIotMqttError_t status;
-    uint8_t publish[ TEST_MESG_LEN ];
+    IotMqttError_t status;
+    uint8_t buffer[ TEST_MESG_LEN ];
     size_t publishLen = TEST_MESG_LEN, bytesProcessed = 0;
-    AwsIotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    uint16_t packetIdentifier;
+    IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+	 _mqttPacket_t publish;
 
-    prvCreatePUBLISHPacket( publish,
-                            &publishLen,
+	publish.pRemainingData = buffer;
+	publish.remainingLength = TEST_MESG_LEN;
+
+    prvCreatePUBLISHPacket( publish.pRemainingData,
+            &publish.remainingLength,
                             TEST_TOPIC,
                             TEST_TOPIC_LENGTH,
                             TEST_DATA,
@@ -813,14 +798,14 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 )
                             TEST_QOS0,
                             -1 );
 
-    status =  IotBleMqtt_DeserializePublish(  publish, publishLen, &publishInfo, &packetIdentifier,  &bytesProcessed );
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
+    status =  IotBleMqtt_DeserializePublish(  &publish );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
     TEST_ASSERT_EQUAL( publishLen, bytesProcessed );
     TEST_ASSERT_EQUAL_INT( TEST_TOPIC_LENGTH, publishInfo.topicNameLength );
     TEST_ASSERT_EQUAL(0, strncmp( publishInfo.pTopicName, TEST_TOPIC, TEST_TOPIC_LENGTH ) );
     TEST_ASSERT_EQUAL_INT( TEST_DATA_LENGTH, publishInfo.payloadLength );
     TEST_ASSERT_EQUAL(0, strncmp( publishInfo.pPayload, TEST_DATA, TEST_DATA_LENGTH ) );
-    TEST_ASSERT_EQUAL(TEST_QOS0, publishInfo.QoS );
+    TEST_ASSERT_EQUAL(TEST_QOS0, publishInfo.qos );
     TEST_ASSERT_EQUAL( false, publishInfo.retain );
 }
 
@@ -877,42 +862,40 @@ static void prvCreateSUBACKPacket(  uint8_t *pBuffer,
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializeSUBACK )
 {
-	AwsIotMqttError_t status;
-	uint8_t suback[ TEST_MESG_LEN ];
-	size_t subackLen = TEST_MESG_LEN, bytesProcessed = 0;
-	AwsIotMqttConnection_t mqttConnection = { 0 };
-	uint16_t packetIdentifier;
+	IotMqttError_t status;
+	uint8_t buffer[ TEST_MESG_LEN ];
+	 _mqttPacket_t suback;
 
-	prvCreateSUBACKPacket( suback, &subackLen, TEST_QOS1, TEST_PACKET_IDENTIFIER );
-	status =  IotBleMqtt_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( subackLen, bytesProcessed );
-	TEST_ASSERT_EQUAL(TEST_PACKET_IDENTIFIER, packetIdentifier );
+	suback.pRemainingData = buffer;
+	suback.remainingLength = TEST_MESG_LEN;
+
+	prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, TEST_PACKET_IDENTIFIER );
+
+	status =  IotBleMqtt_DeserializeSuback( &suback );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+	TEST_ASSERT_EQUAL(TEST_PACKET_IDENTIFIER, suback.packetIdentifier );
 
 	/** Malformed message **/
-	subackLen = TEST_MESG_LEN, bytesProcessed = 0;
-    prvCreateSUBACKPacket( suback, &subackLen, TEST_QOS1, TEST_PACKET_IDENTIFIER );
-    suback[0] = 0x00;
-	status =  IotBleMqtt_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( 0, bytesProcessed );
+	suback.remainingLength = TEST_MESG_LEN;
+    prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, TEST_PACKET_IDENTIFIER );
+    suback.pRemainingData[0] = 0x00;
+	status =  IotBleMqtt_DeserializeSuback( &suback );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 
 
     /** No Status **/
-    subackLen = TEST_MESG_LEN, bytesProcessed = 0;
-    prvCreateSUBACKPacket( suback, &subackLen, -1, TEST_PACKET_IDENTIFIER );
-    suback[0] = 0x00;
-    status =  IotBleMqtt_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-    TEST_ASSERT_EQUAL( 0, bytesProcessed );
+	suback.remainingLength = TEST_MESG_LEN;
+    prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, -1, TEST_PACKET_IDENTIFIER );
+    suback.pRemainingData[0] = 0x00;
+    status =  IotBleMqtt_DeserializeSuback( &suback );
+    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 
     /** No packet id **/
-    subackLen = TEST_MESG_LEN, bytesProcessed = 0;
-    prvCreateSUBACKPacket( suback, &subackLen, TEST_QOS1, -1 );
-    suback[0] = 0x00;
-    status =  IotBleMqtt_DeserializeSuback( mqttConnection, suback, subackLen, &packetIdentifier, &bytesProcessed );
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-    TEST_ASSERT_EQUAL( 0, bytesProcessed );
+	suback.remainingLength = TEST_MESG_LEN;
+    prvCreateSUBACKPacket( suback.pRemainingData, &suback.remainingLength, TEST_QOS1, -1 );
+    suback.pRemainingData[0] = 0x00;
+    status =  IotBleMqtt_DeserializeSuback( &suback );
+    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 }
 
 static void prvCreatePUBACKPacket(  uint8_t *pBuffer,
@@ -959,31 +942,30 @@ static void prvCreatePUBACKPacket(  uint8_t *pBuffer,
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializePUBACK )
 {
-	AwsIotMqttError_t status;
-	uint8_t puback[ TEST_MESG_LEN ] = { 0 };
-	size_t pubackLen = TEST_MESG_LEN, bytesProcessed = 0;
-	uint16_t packetIdentifier;
+	IotMqttError_t status;
+	uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
+	 _mqttPacket_t puback;
 
-	prvCreatePUBACKPacket( puback, &pubackLen, TEST_PACKET_IDENTIFIER );
-	status =  IotBleMqtt_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-	TEST_ASSERT_EQUAL( pubackLen, bytesProcessed );
-	TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
+	puback.pRemainingData = buffer;
+	puback.remainingLength = TEST_MESG_LEN;
+
+	prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, TEST_PACKET_IDENTIFIER );
+	status =  IotBleMqtt_DeserializePuback( &puback );
+	TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+	TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, puback.packetIdentifier );
 
 	/** Malformed message */
-	pubackLen = TEST_MESG_LEN, bytesProcessed = 0;
-	prvCreatePUBACKPacket( puback, &pubackLen, TEST_PACKET_IDENTIFIER );
-	puback[0] = 0x00;
-	status =  IotBleMqtt_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
-	TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-	TEST_ASSERT_EQUAL( 0, bytesProcessed );
+	puback.remainingLength = TEST_MESG_LEN;
+	prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, TEST_PACKET_IDENTIFIER );
+	puback.pRemainingData[0] = 0x00;
+	status =  IotBleMqtt_DeserializePuback( &puback );
+	TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 
 	/** No message id */
-    pubackLen = TEST_MESG_LEN, bytesProcessed = 0;
-    prvCreatePUBACKPacket( puback, &pubackLen, -1 );
-    status =  IotBleMqtt_DeserializePuback( puback, pubackLen, &packetIdentifier, &bytesProcessed );
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-    TEST_ASSERT_EQUAL( 0, bytesProcessed );
+	puback.remainingLength = TEST_MESG_LEN;
+    prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, -1 );
+    status =  IotBleMqtt_DeserializePuback( &puback );
+    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 }
 
 
@@ -1030,37 +1012,36 @@ static void prvCreateUNSUBACKPacket( uint8_t *pBuffer,
 
 TEST(MQTT_Unit_BLE_Serialize, DeserializeUNSUBACK )
 {
-    AwsIotMqttError_t status;
-    uint8_t unsuback[ TEST_MESG_LEN ] = { 0 };
-    size_t unsubackLen = TEST_MESG_LEN, bytesProcessed = 0;
-    uint16_t packetIdentifier;
+    IotMqttError_t status;
+	uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
+	 _mqttPacket_t puback;
 
-    prvCreateUNSUBACKPacket( unsuback, &unsubackLen, TEST_PACKET_IDENTIFIER );
-    status =  IotBleMqtt_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_SUCCESS, status );
-    TEST_ASSERT_EQUAL( unsubackLen, bytesProcessed );
-    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, packetIdentifier );
+	puback.pRemainingData = buffer;
+	puback.remainingLength = TEST_MESG_LEN;
+
+    prvCreateUNSUBACKPacket( puback.pRemainingData, &puback.remainingLength, TEST_PACKET_IDENTIFIER );
+    status =  IotBleMqtt_DeserializePuback( &puback );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
+    TEST_ASSERT_EQUAL( TEST_PACKET_IDENTIFIER, puback.packetIdentifier );
 
     /** Malformed message */
-    unsubackLen = TEST_MESG_LEN, bytesProcessed = 0;
-    prvCreatePUBACKPacket( unsuback, &unsubackLen, TEST_PACKET_IDENTIFIER );
-    unsuback[0] = 0x00;
-    status =  IotBleMqtt_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-    TEST_ASSERT_EQUAL( 0, bytesProcessed );
+	puback.remainingLength = TEST_MESG_LEN;
+    prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, TEST_PACKET_IDENTIFIER );
+    puback.pRemainingData[0] = 0x00;
+    status =  IotBleMqtt_DeserializePuback( &puback );
+    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 
     /** No message id */
-    unsubackLen = TEST_MESG_LEN, bytesProcessed = 0;
-    prvCreatePUBACKPacket( unsuback, &unsubackLen, -1 );
-    status =  IotBleMqtt_DeserializePuback( unsuback, unsubackLen, &packetIdentifier, &bytesProcessed );
-    TEST_ASSERT_EQUAL( AWS_IOT_MQTT_BAD_RESPONSE, status );
-    TEST_ASSERT_EQUAL( 0, bytesProcessed );
+    puback.remainingLength = TEST_MESG_LEN;
+    prvCreatePUBACKPacket( puback.pRemainingData, &puback.remainingLength, -1 );
+    status =  IotBleMqtt_DeserializePuback( &puback );
+    TEST_ASSERT_EQUAL( IOT_MQTT_BAD_RESPONSE, status );
 }
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail )
 {
-	AwsIotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
-	volatile AwsIotMqttError_t status;
+	IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
 
@@ -1074,14 +1055,14 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail )
 	if( TEST_PROTECT() )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 0 );
-		status = IotBleMqtt_SerializeConnect( &connectInfo, NULL, ( uint8_t**) &pMesg, &bufLen );
-		if( status != AWS_IOT_MQTT_SUCCESS )
+		status = IotBleMqtt_SerializeConnect( &connectInfo, ( uint8_t**) &pMesg, &bufLen );
+		if( status != IOT_MQTT_SUCCESS )
 		{
-			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
+			TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
 		}
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -1089,13 +1070,13 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeCONNECT_MallocFail )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_MallocFail )
 {
-	AwsIotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-	volatile AwsIotMqttError_t status;
+	IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
 	uint16_t packetIdentifier;
 
-	publishInfo.QoS = TEST_QOS1;
+	publishInfo.qos = TEST_QOS1;
 	publishInfo.pPayload = ( uint8_t* ) TEST_DATA;
 	publishInfo.payloadLength = TEST_DATA_LENGTH;
 	publishInfo.pTopicName = TEST_TOPIC;
@@ -1107,14 +1088,14 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_MallocFail )
 	if( TEST_PROTECT() )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 1 );
-		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
-		if( status != AWS_IOT_MQTT_SUCCESS )
+		status = IotBleMqtt_SerializePublish( &publishInfo, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier, NULL );
+		if( status != IOT_MQTT_SUCCESS )
 		{
-			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
+			TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
 		}
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -1123,13 +1104,13 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBLISH_MallocFail )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE_MallocFail )
 {
-	AwsIotMqttSubscription_t subscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-	volatile AwsIotMqttError_t status;
+	IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
 	uint16_t packetIdentifier;
 
-	subscription.QoS = TEST_QOS1;
+	subscription.qos = TEST_QOS1;
 	subscription.pTopicFilter = TEST_TOPIC;
 	subscription.topicFilterLength = TEST_TOPIC_LENGTH;
 
@@ -1137,13 +1118,13 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE_MallocFail )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 1 );
 		status = IotBleMqtt_SerializeSubscribe( &subscription, 1, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
-		if( status != AWS_IOT_MQTT_SUCCESS )
+		if( status != IOT_MQTT_SUCCESS )
 		{
-			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
+			TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
 		}
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -1151,7 +1132,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE_MallocFail )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK_MallocFail )
 {
-	volatile AwsIotMqttError_t status;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
 
@@ -1159,13 +1140,13 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK_MallocFail )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 0 );
 		status = IotBleMqtt_SerializePuback( TEST_PACKET_IDENTIFIER, ( uint8_t**) &pMesg, &bufLen );
-		if( status != AWS_IOT_MQTT_SUCCESS )
+		if( status != IOT_MQTT_SUCCESS )
 		{
-			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
+			TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
 		}
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -1173,13 +1154,13 @@ TEST(MQTT_Unit_BLE_Serialize, SerializePUBACK_MallocFail )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE_MallocFail )
 {
-	AwsIotMqttSubscription_t subscription = AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-	volatile AwsIotMqttError_t status;
+	IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
 	uint16_t packetIdentifier;
 
-	subscription.QoS = TEST_QOS1;
+	subscription.qos = TEST_QOS1;
 	subscription.pTopicFilter = TEST_TOPIC;
 	subscription.topicFilterLength = TEST_TOPIC_LENGTH;
 
@@ -1187,12 +1168,12 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE_MallocFail )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 1 );
 		status = IotBleMqtt_SerializeUnsubscribe( &subscription, 1, ( uint8_t**) &pMesg, &bufLen, &packetIdentifier );
-		if( status != AWS_IOT_MQTT_SUCCESS )
+		if( status != IOT_MQTT_SUCCESS )
 		{
-			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
+			TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
 		}
 	}
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}
@@ -1200,7 +1181,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE_MallocFail )
 
 TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT_MallocFail )
 {
-	volatile AwsIotMqttError_t status;
+	volatile IotMqttError_t status;
 	char *pMesg;
 	size_t bufLen;
 
@@ -1208,13 +1189,13 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeDISCONNECT_MallocFail )
 	{
 		UnityMalloc_MakeMallocFailAfterCount( 0 );
 		status = IotBleMqtt_SerializeDisconnect( ( uint8_t**) &pMesg, &bufLen );
-		if( status != AWS_IOT_MQTT_SUCCESS )
+		if( status != IOT_MQTT_SUCCESS )
 		{
-			TEST_ASSERT_EQUAL( AWS_IOT_MQTT_NO_MEMORY, status );
+			TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
 		}
 	}
 
-	if( status == AWS_IOT_MQTT_SUCCESS )
+	if( status == IOT_MQTT_SUCCESS )
 	{
 		IotBleMqtt_FreePacket( ( uint8_t* )pMesg );
 	}

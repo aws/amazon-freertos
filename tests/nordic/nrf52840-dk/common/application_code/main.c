@@ -38,8 +38,6 @@
 
 /* Nordic BSP includes */
 #include "bsp.h"
-#include "nordic_common.h"
-#include "nrf_drv_clock.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 #include "nrf_sdh.h"
@@ -47,9 +45,6 @@
 #include "nrf_sdh_ble.h"
 #include "nrf_sdh_freertos.h"
 #include "sensorsim.h"
-#include "ble_srv_common.h"
-#include "ble_advdata.h"
-#include "ble_advertising.h"
 #include "timers.h"
 #include "app_timer.h"
 #include "ble_conn_state.h"
@@ -59,27 +54,10 @@
 #include "ble_conn_params.h"
 #include "peer_manager.h"
 #include "peer_manager_handler.h"
-#include "fds.h"
 #include "bsp_btn_ble.h"
-
-#include "aws_ble_hal_dis.h"
-
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
-#include "ble_types.h"
-#include "nrf_ble_lesc.h"
-
-#include "bt_hal_manager_adapter_ble.h"
-#include "bt_hal_manager.h"
-#include "bt_hal_gatt_server.h"
 #include "app_uart.h"
 
-/* MQTT v4 include. */
-#include "aws_iot_mqtt.h"
-
 #include <iot_ble.h>
-#include "aws_ble_numericComparison.h"
 #include "SEGGER_RTT.h"
 #include "aws_application_version.h"
 #if defined( UART_PRESENT )
@@ -206,20 +184,14 @@ void prvUartEventHandler( app_uart_evt_t * pxEvent )
 {
     /* Declared as static so it can be pushed into the queue from the ISR. */
     static volatile uint8_t ucRxByte = 0;
-    INPUTMessage_t xInputMessage;
    BaseType_t xHigherPriorityTaskWoken;
     switch( pxEvent->evt_type )
     {
         case APP_UART_DATA_READY:
             app_uart_get( (uint8_t *)&ucRxByte );
             app_uart_put( ucRxByte );
-            
-            xInputMessage.pcData = (uint8_t *)&ucRxByte;
-            xInputMessage.xDataSize = 1;
 
-            xQueueSendFromISR(UARTqueue, (void * )&xInputMessage, &xHigherPriorityTaskWoken);
-            /* Now the buffer is empty we can switch context if necessary. */
-            //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
+       //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
     
             break;
 
@@ -352,9 +324,7 @@ static void prvMiscInitialization( void )
 
     /* Activate deep sleep mode. */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-    NumericComparisonInit();
     prvTimersInit();
-    UARTqueue = xQueueCreate( 1, sizeof( INPUTMessage_t ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -379,25 +349,7 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout )
-{
-      BaseType_t xReturnMessage = pdFALSE;
-      INPUTMessage_t xTmpINPUTmessage;
 
-      pxINPUTmessage->pcData = (uint8_t *)pvPortMalloc(sizeof(uint8_t));
-      pxINPUTmessage->xDataSize = 1;
-      if(pxINPUTmessage->pcData != NULL)
-      {
-          if (xQueueReceive(UARTqueue, (void * )&xTmpINPUTmessage, (portTickType) xAuthTimeout )) 
-          {
-              *pxINPUTmessage->pcData = *xTmpINPUTmessage.pcData;
-              pxINPUTmessage->xDataSize = xTmpINPUTmessage.xDataSize;
-              xReturnMessage = pdTRUE;
-          }
-      }
-
-      return xReturnMessage;
-}
 /**@brief Clear bond information from persistent storage. */
 static void prvDeleteBonds( void )
 {

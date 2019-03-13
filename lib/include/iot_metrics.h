@@ -30,8 +30,8 @@
 
 #include <stdint.h>
 
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 #include "iot_linear_containers.h"

@@ -36,7 +36,7 @@
 #include "FreeRTOS.h"
 #include "aws_doubly_linked_list.h"
 #include "semphr.h"
-#include "aws_iot_network.h"
+#include "iot_network_manager.h"
 
 /**
  * @brief Unique handle for a Subscription.

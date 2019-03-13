@@ -53,8 +53,10 @@
  * The UUID is defined as a base + a mask. The mask is used to compute all the 128 bit UUIDs in the attribute table
  *
  */
- #define IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID    0x00, 0xFF
+#ifndef IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK
  #define IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK    0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A
+#endif
+ #define IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID    0x00, 0xFF
  #define IOT_BLE_DEVICE_INFO_SERVICE_UUID  {IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
 
 /**

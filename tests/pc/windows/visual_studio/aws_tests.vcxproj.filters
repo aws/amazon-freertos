@@ -172,12 +172,6 @@
     <Filter Include="application_code\common_tests\freertos_tcp">
       <UniqueIdentifier>{9d7593b1-eeef-4869-93ad-387a2893e0d2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\aws\defender">
-      <UniqueIdentifier>{b78e8e57-2049-4e57-bef8-7e64f23acca0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="application_code\common_tests\defender">
-      <UniqueIdentifier>{92069cf8-0f97-4d25-af0b-97cc939488e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="application_code\common_tests\memory_leak">
       <UniqueIdentifier>{5131d122-df24-4aef-9924-853498fadda5}</UniqueIdentifier>
     </Filter>
@@ -196,9 +190,6 @@
     <Filter Include="lib\aws\common">
       <UniqueIdentifier>{7a31096f-c0b3-423c-9f49-a51986239fcb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\aws\utils\platform\static_memory">
-      <UniqueIdentifier>{2f95de8a-8e74-4f71-bf72-75c34566b3d7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="application_code\common_tests\shadow\unit">
       <UniqueIdentifier>{5412ec93-74d4-4817-ac03-e548e0514f7a}</UniqueIdentifier>
     </Filter>
@@ -214,14 +205,11 @@
     <Filter Include="lib\aws\serializer\json">
       <UniqueIdentifier>{f207b132-dfdf-432a-ba29-40d77343918f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="application_code\common_tests\serializer">
-      <UniqueIdentifier>{63328ee3-6080-46cf-9f66-f8252bc6fb18}</UniqueIdentifier>
-    </Filter>
     <Filter Include="lib\aws\metrics">
       <UniqueIdentifier>{b454a175-6acd-4b03-8418-ab8368543cc9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\aws\utils\taskpool">
-      <UniqueIdentifier>{49e54a6e-02ff-4c70-9bc5-5db01510871a}</UniqueIdentifier>
+    <Filter Include="lib\aws\common\static_memory">
+      <UniqueIdentifier>{9a8a9306-ed4b-4992-b6f0-3e514a26d621}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -762,32 +750,8 @@
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\semaphore.h">
       <Filter>lib\aws\include\FreeRTOS_POSIX</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_mqtt.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_logging.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_mqtt_internal.h">
-      <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_clock.h">
-      <Filter>lib\aws\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_static_memory.h">
-      <Filter>lib\aws\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_threads.h">
-      <Filter>lib\aws\include\platform</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h">
       <Filter>lib\aws\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\common\include\aws_iot_config_common.h">
-      <Filter>application_code\common_tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\config_files\aws_iot_config.h">
-      <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
@@ -797,15 +761,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_iot_shadow_internal.h">
       <Filter>lib\aws\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_json_utils.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_logging_setup.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\platform\aws_iot_network.h">
-      <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h">
       <Filter>lib\aws\include</Filter>
@@ -828,8 +783,56 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_taskpool.h">
+    <ClInclude Include="..\common\config_files\iot_test_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_common.h">
       <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_json_utils.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_logging_setup.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_mqtt.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_taskpool.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_error.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_logging.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_mqtt_internal.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_static_memory.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_taskpool_internal.h">
+      <Filter>lib\aws\include\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_clock.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_network.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_network_afr.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_platform_types_posix.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_threads.h">
+      <Filter>lib\aws\include\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\iot_config_common.h">
+      <Filter>application_code\common_tests\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1319,59 +1322,11 @@
     <ClCompile Include="..\..\..\common\memory_leak\aws_memory_leak.c">
       <Filter>application_code\common_tests\memory_leak</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_clock_posix.c">
-      <Filter>lib\aws\utils\platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_network_afr.c">
-      <Filter>lib\aws\utils\platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\aws_iot_threads_posix.c">
-      <Filter>lib\aws\utils\platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_api.c">
-      <Filter>lib\aws\mqtt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_operation.c">
-      <Filter>lib\aws\mqtt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_serialize.c">
-      <Filter>lib\aws\mqtt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_subscription.c">
-      <Filter>lib\aws\mqtt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_iot_mqtt_validate.c">
-      <Filter>lib\aws\mqtt</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_unistd.c">
       <Filter>lib\aws\FreeRTOS-Plus-POSIX\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_logging.c">
-      <Filter>lib\aws\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_api.c">
-      <Filter>application_code\common_tests\mqtt\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_receive.c">
-      <Filter>application_code\common_tests\mqtt\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_subscription.c">
-      <Filter>application_code\common_tests\mqtt\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt\unit\aws_iot_tests_mqtt_validate.c">
-      <Filter>application_code\common_tests\mqtt\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt\system\aws_iot_tests_mqtt_system.c">
-      <Filter>application_code\common_tests\mqtt\system</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_unistd.c">
       <Filter>application_code\common_tests\posix</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_common_posix.c">
-      <Filter>lib\aws\utils\platform\static_memory</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_mqtt_posix.c">
-      <Filter>lib\aws\utils\platform\static_memory</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_api.c">
       <Filter>lib\aws\shadow</Filter>
@@ -1385,9 +1340,6 @@
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_subscription.c">
       <Filter>lib\aws\shadow</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\common\aws_iot_json_utils.c">
-      <Filter>lib\aws\common</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\shadow\system\aws_iot_tests_shadow_system.c">
       <Filter>application_code\common_tests\shadow\system</Filter>
     </ClCompile>
@@ -1396,12 +1348,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\shadow\unit\aws_iot_tests_shadow_api.c">
       <Filter>application_code\common_tests\shadow\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_shadow_posix.c">
-      <Filter>lib\aws\utils\platform\static_memory</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\test_runner\aws_iot_tests_network.c">
-      <Filter>application_code\common_tests\test_runner</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_decoder.c">
       <Filter>lib\aws\serializer\cbor</Filter>
@@ -1415,44 +1361,80 @@
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c">
       <Filter>lib\aws\serializer\json</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_cbor.c">
-      <Filter>application_code\common_tests\serializer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_json.c">
-      <Filter>application_code\common_tests\serializer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_mqtt.c">
-      <Filter>lib\aws\defender</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_collector.c">
-      <Filter>lib\aws\defender</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_metrics_posix.c">
-      <Filter>lib\aws\utils\platform\static_memory</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\static_memory\aws_iot_static_memory_defender_posix.c">
-      <Filter>lib\aws\utils\platform\static_memory</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c">
       <Filter>lib\aws\metrics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c">
       <Filter>lib\aws\secure_sockets</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api.c">
-      <Filter>application_code\common_tests\defender</Filter>
+    <ClCompile Include="..\..\..\..\lib\common\iot_common.c">
+      <Filter>lib\aws\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c">
-      <Filter>lib\aws\defender</Filter>
+    <ClCompile Include="..\..\..\..\lib\common\iot_json_utils.c">
+      <Filter>lib\aws\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_v1.c">
-      <Filter>lib\aws\defender</Filter>
+    <ClCompile Include="..\..\..\..\lib\common\iot_logging.c">
+      <Filter>lib\aws\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api_v1.c">
-      <Filter>application_code\common_tests\defender</Filter>
+    <ClCompile Include="..\..\..\..\lib\common\iot_taskpool.c">
+      <Filter>lib\aws\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\taskpool\aws_iot_taskpool.c">
-      <Filter>lib\aws\utils\taskpool</Filter>
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\aws_iot_static_memory_shadow.c">
+      <Filter>lib\aws\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_common.c">
+      <Filter>lib\aws\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_mqtt.c">
+      <Filter>lib\aws\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_taskpool.c">
+      <Filter>lib\aws\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_api.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_network.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_operation.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_serialize.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_subscription.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_validate.c">
+      <Filter>lib\aws\mqtt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_posix.c">
+      <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_network_afr.c">
+      <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_posix.c">
+      <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\unit\iot_tests_mqtt_api.c">
+      <Filter>application_code\common_tests\mqtt\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\unit\iot_tests_mqtt_receive.c">
+      <Filter>application_code\common_tests\mqtt\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\unit\iot_tests_mqtt_subscription.c">
+      <Filter>application_code\common_tests\mqtt\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\unit\iot_tests_mqtt_validate.c">
+      <Filter>application_code\common_tests\mqtt\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\system\iot_tests_mqtt_system.c">
+      <Filter>application_code\common_tests\mqtt\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\test_runner\iot_tests_network.c">
+      <Filter>application_code\common_tests\test_runner</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

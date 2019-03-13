@@ -22,11 +22,14 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-#include "aws_iot_taskpool.h"
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
 
 #include "FreeRTOS.h"
 #include "aws_system_init.h"
 
+#include "iot_common.h"
 
 /* Library code. */
 extern BaseType_t MQTT_AGENT_Init( void );
@@ -41,7 +44,6 @@ extern BaseType_t IotMetrics_Init( void );
 BaseType_t SYSTEM_Init( void )
 {
     BaseType_t xResult = pdPASS;
-    AwsIotTaskPoolInfo_t taskPool = AWS_IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;
 
     xResult = MQTT_AGENT_Init();
 
@@ -57,7 +59,7 @@ BaseType_t SYSTEM_Init( void )
 
     if( xResult == pdPASS )
     {
-    	xResult = ( AwsIotTaskPool_CreateSystemTaskPool( &taskPool ) == AWS_IOT_TASKPOOL_SUCCESS );
+        xResult = ( IotCommon_Init() == true );
     }
 
     return xResult;

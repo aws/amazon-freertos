@@ -38,8 +38,6 @@
 
 /* Nordic BSP includes */
 #include "bsp.h"
-#include "nordic_common.h"
-#include "nrf_drv_clock.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 #include "nrf_sdh.h"
@@ -47,9 +45,6 @@
 #include "nrf_sdh_ble.h"
 #include "nrf_sdh_freertos.h"
 #include "sensorsim.h"
-#include "ble_srv_common.h"
-#include "ble_advdata.h"
-#include "ble_advertising.h"
 #include "timers.h"
 #include "app_timer.h"
 #include "ble_conn_state.h"
@@ -59,31 +54,18 @@
 #include "ble_conn_params.h"
 #include "peer_manager.h"
 #include "peer_manager_handler.h"
-#include "fds.h"
 #include "bsp_btn_ble.h"
-
-#include "aws_ble_hal_dis.h"
-
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
-#include "ble_types.h"
-#include "nrf_ble_lesc.h"
-
-#include "bt_hal_manager_adapter_ble.h"
-#include "bt_hal_manager.h"
-#include "bt_hal_gatt_server.h"
 #include "app_uart.h"
 
 /* MQTT v4 include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 #include "iot_ble.h"
-#include "aws_ble_numericComparison.h"
+#include "iot_ble_numericComparison.h"
 #include "aws_iot_network_manager.h"
 #include "SEGGER_RTT.h"
 #include "aws_application_version.h"
-#include "aws_iot_taskpool.h"
+#include "iot_taskpool.h"
 #if defined( UART_PRESENT )
     #include "nrf_uart.h"
 #endif
@@ -417,17 +399,17 @@ static void prvDeleteBonds( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     uint32_t ulEnabledNetworks;
-    AwsIotTaskPoolInfo_t taskPool = AWS_IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;
+    IotTaskPoolInfo_t taskPool = IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;
     /* FIX ME: Perform any hardware initialization, that require the RTOS to be
      * running, here. */
 
     BaseType_t xStatus = pdFALSE;
 
-    xStatus = ( AwsIotTaskPool_CreateSystemTaskPool( &taskPool ) == AWS_IOT_TASKPOOL_SUCCESS );
+    xStatus = ( IotTaskPool_CreateSystemTaskPool( &taskPool ) == IOT_TASKPOOL_SUCCESS );
 
      if( xStatus == pdPASS )
     {
-      if( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS )
+      if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
       {
           xStatus = pdTRUE;
       }

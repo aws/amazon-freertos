@@ -66,7 +66,7 @@ extern void gatt_notify_enc_cmpl(BD_ADDR bd_addr);
 **                  bd_name          - Name of the peer device.  NULL if unknown.
 **                  dev_type         - Remote device's device type.
 **                  addr_type        - LE device address type.
-**                  auth_mode        - auth mode
+**                  auth_mode        - auth mode             
 **
 ** Returns          TRUE if added OK, else FALSE
 **

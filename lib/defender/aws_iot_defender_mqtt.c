@@ -37,8 +37,8 @@
 #define _TOPIC_SUFFIX_REJECTED               _TOPIC_SUFFIX_PUBLISH "/rejected"
 
 /* defender internally manages network and mqtt connection */
-static AwsIotNetworkConnection_t _networkConnection = AWS_IOT_NETWORK_CONNECTION_INITIALIZER;
-static AwsIotMqttConnection_t _mqttConnection = AWS_IOT_MQTT_CONNECTION_INITIALIZER;
+static IotNetworkConnectionAfr_t _networkConnection = IOT_NETWORK_CONNECTION_AFR_INITIALIZER;
+static IotMqttConnection_t _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
 static char * _pPublishTopic = NULL;
 
@@ -110,12 +110,12 @@ void AwsIotDefenderInternal_DeleteTopicsNames()
 
 bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
                                             uint16_t port,
-                                            AwsIotNetworkTlsInfo_t * pTlsInfo )
+                                            IotNetworkCredentialsAfr_t * pTlsInfo )
 {
-    return AwsIotNetwork_CreateConnection( &_networkConnection,
+    return IotNetwork_CreateConnection( &_networkConnection,
                                            pAwsIotEndpoint,
                                            port,
-                                           pTlsInfo ) == AWS_IOT_NETWORK_SUCCESS;
+                                           pTlsInfo ) == IOT_NETWORK_SUCCESS;
 }
 
 /**
@@ -123,9 +123,9 @@ bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
  */
 bool AwsIotDefenderInternal_SetMqttCallback()
 {
-    return AwsIotNetwork_SetMqttReceiveCallback( _networkConnection,
+    return IotNetwork_SetMqttReceiveCallback( _networkConnection,
                                                  &_mqttConnection,
-                                                 AwsIotMqtt_ReceiveCallback ) == AWS_IOT_NETWORK_SUCCESS;
+                                                 AwsIotMqtt_ReceiveCallback ) == IOT_NETWORK_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -133,13 +133,13 @@ bool AwsIotDefenderInternal_SetMqttCallback()
 bool AwsIotDefenderInternal_MqttConnect( const char * pThingName,
                                          uint16_t thingNameLength )
 {
-    AwsIotMqttNetIf_t networkInterface = AWS_IOT_MQTT_NETIF_INITIALIZER;
-    AwsIotMqttConnectInfo_t connectInfo = AWS_IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    IotMqttNetIf_t networkInterface = IOT_MQTT_NETIF_INITIALIZER;
+    IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
     networkInterface.pDisconnectContext = ( void * ) _networkConnection;
     networkInterface.pSendContext = ( void * ) _networkConnection;
     networkInterface.disconnect = AwsIotNetwork_CloseConnection;
-    networkInterface.send = AwsIotNetwork_Send;
+    networkInterface.send = IotNetworkAfr_Send;
 
     /* Set the members of the connection info (password and username not used). */
     connectInfo.cleanSession = true;
@@ -147,11 +147,11 @@ bool AwsIotDefenderInternal_MqttConnect( const char * pThingName,
     connectInfo.pClientIdentifier = pThingName;
     connectInfo.clientIdentifierLength = thingNameLength;
 
-    return AwsIotMqtt_Connect( &_mqttConnection,
+    return IotMqtt_Connect( &_mqttConnection,
                                &networkInterface,
                                &connectInfo,
                                NULL,
-                               _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS ) ) == AWS_IOT_MQTT_SUCCESS;
+                               _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS ) ) == IOT_MQTT_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -160,25 +160,25 @@ bool AwsIotDefenderInternal_MqttSubscribe( AwsIotMqttCallbackInfo_t acceptCallba
                                            AwsIotMqttCallbackInfo_t rejectCallback )
 {
     /* subscribe to two topics: accept and reject. */
-    AwsIotMqttSubscription_t subscriptions[ 2 ] = { AWS_IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+    IotMqttSubscription_t subscriptions[ 2 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
-    subscriptions[ 0 ].QoS = 0;
+    subscriptions[ 0 ].qos = 0;
     subscriptions[ 0 ].pTopicFilter = _pAcceptTopic;
     subscriptions[ 0 ].topicFilterLength = ( uint16_t ) strlen( _pAcceptTopic );
     subscriptions[ 0 ].callback.function = acceptCallback.function;
     subscriptions[ 0 ].callback.param1 = acceptCallback.param1;
 
-    subscriptions[ 1 ].QoS = 0;
+    subscriptions[ 1 ].qos = 0;
     subscriptions[ 1 ].pTopicFilter = _pRejectTopic;
     subscriptions[ 1 ].topicFilterLength = ( uint16_t ) strlen( _pRejectTopic );
     subscriptions[ 1 ].callback.function = rejectCallback.function;
     subscriptions[ 1 ].callback.param1 = rejectCallback.param1;
 
-    return AwsIotMqtt_TimedSubscribe( _mqttConnection,
+    return IotMqtt_TimedSubscribe( _mqttConnection,
                                       subscriptions,
                                       2,
                                       0,
-                                      _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_SUBSCRIBE_TIMEOUT_SECONDS ) ) == AWS_IOT_MQTT_SUCCESS;
+                                      _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_SUBSCRIBE_TIMEOUT_SECONDS ) ) == IOT_MQTT_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -186,25 +186,25 @@ bool AwsIotDefenderInternal_MqttSubscribe( AwsIotMqttCallbackInfo_t acceptCallba
 bool AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
                                          size_t dataLength )
 {
-    AwsIotMqttPublishInfo_t publishInfo = AWS_IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
-    publishInfo.QoS = 0;
+    publishInfo.qos = 0;
     publishInfo.pTopicName = _pPublishTopic;
     publishInfo.topicNameLength = ( uint16_t ) strlen( _pPublishTopic );
     publishInfo.pPayload = pData;
     publishInfo.payloadLength = dataLength;
 
-    return AwsIotMqtt_TimedPublish( _mqttConnection,
+    return IotMqtt_TimedPublish( _mqttConnection,
                                     &publishInfo,
                                     0,
-                                    _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_PUBLISH_TIMEOUT_SECONDS ) ) == AWS_IOT_MQTT_SUCCESS;
+                                    _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_PUBLISH_TIMEOUT_SECONDS ) ) == IOT_MQTT_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
 
 void AwsIotDefenderInternal_MqttDisconnect()
 {
-    AwsIotMqtt_Disconnect( _mqttConnection, false );
+    IotMqtt_Disconnect( _mqttConnection, false );
 }
 
 /*-----------------------------------------------------------*/

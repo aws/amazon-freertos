@@ -67,9 +67,15 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
         return pdFALSE;
     }
 
-    esp_err_t ret = esp_wifi_internal_tx(ESP_IF_WIFI_STA, pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength);
+    esp_err_t ret;
+    if (xInterfaceState == INTERFACE_DOWN) {
+        ESP_LOGD(TAG, "Interface down");
+        ret = ESP_FAIL;
+    } else {
+        ret = esp_wifi_internal_tx(ESP_IF_WIFI_STA, pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to tx buffer %p, len %d, err %d", pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength, ret);
+        }
     }
 
     if (xReleaseAfterSend == pdTRUE) {
@@ -82,8 +88,7 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
 void vNetworkNotifyIFDown()
 {
     IPStackEvent_t xRxEvent = { eNetworkDownEvent, NULL };
-    if( xInterfaceState != INTERFACE_DOWN )
-    {
+    if (xInterfaceState != INTERFACE_DOWN) {
         xInterfaceState = INTERFACE_DOWN;
         xSendEventStructToIPTask( &xRxEvent, 0 );
     }

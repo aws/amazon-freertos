@@ -44,9 +44,21 @@ int sched_get_priority_max( int policy )
 
 /*-----------------------------------------------------------*/
 
+int sched_get_priority_min( int policy )
+{
+    /* Silence warnings about unused parameters. */
+    ( void ) policy;
+
+    return tskIDLE_PRIORITY;
+}
+
+/*-----------------------------------------------------------*/
+
 int sched_yield( void )
 {
     taskYIELD();
 
     return 0;
 }
+
+/*-----------------------------------------------------------*/

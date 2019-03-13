@@ -48,15 +48,15 @@
 #define _AWS_IOT_DEFENDER_H_
 
 /* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 /* Standard includes. */
 #include <stdint.h>
 
 /* MQTT include. */
-#include "aws_iot_mqtt.h"
+#include "iot_mqtt.h"
 
 /* Platform network include. */
 #include "platform/aws_iot_network.h"
@@ -213,7 +213,7 @@ typedef struct AwsIotDefenderStartInfo
 {
     const char * pAwsIotEndpoint;      /**< AWS IoT Defender service endpoint(must be valid). */
     uint16_t port;                     /**< AWS IoT Defender service port(must be valid). */
-    AwsIotNetworkTlsInfo_t tlsInfo;    /**< TLS information for secure communication(must be valid). */
+    IotNetworkCredentialsAfr_t tlsInfo;    /**< TLS information for secure communication(must be valid). */
     const char * pThingName;           /**< AWS IoT thing name(must be valid). */
     uint16_t thingNameLength;          /**< Length of AWS IoT thing name(must be valid). */
     AwsIotDefenderCallback_t callback; /**< Length of AWS IoT thing name(optional). */
@@ -294,8 +294,8 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
  *
  * void startDefender()
  * {
- *     // assume a valid AwsIotNetworkTlsInfo_t is created.
- *     const AwsIotNetworkTlsInfo_t tlsInfo;
+ *     // assume a valid IotNetworkCredentialsAfr_t is created.
+ *     const IotNetworkCredentialsAfr_t tlsInfo;
  *
  *     // define a simple callback function which simply logs
  *     const AwsIotDefenderCallback_t callback = { .function = logDefenderCallback,.param1 = NULL };

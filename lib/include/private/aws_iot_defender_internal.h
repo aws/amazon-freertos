@@ -28,15 +28,15 @@
 #define _AWS_IOT_DEFENDER_INTERNAL_H_
 
 /* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
 #endif
 
 /* Defender include. */
 #include "aws_iot_defender.h"
 
 /* Serializer include. */
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 
 /* Platform thread include. */
 #include "platform/aws_iot_threads.h"
@@ -222,14 +222,14 @@
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
 
     #define _DEFENDER_FORMAT          "cbor"
-    #define _AwsIotDefenderEncoder    _AwsIotSerializerCborEncoder /**< Global defined in aws_iot_serializer.h . */
-    #define _AwsIotDefenderDecoder    _AwsIotSerializerCborDecoder /**< Global defined in aws_iot_serializer.h . */
+    #define _AwsIotDefenderEncoder    _AwsIotSerializerCborEncoder /**< Global defined in iot_serializer.h . */
+    #define _AwsIotDefenderDecoder    _AwsIotSerializerCborDecoder /**< Global defined in iot_serializer.h . */
 
 #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
 
     #define _DEFENDER_FORMAT          "json"
-    #define _AwsIotDefenderEncoder    _AwsIotSerializerJsonEncoder /**< Global defined in aws_iot_serializer.h . */
-    #define _AwsIotDefenderDecoder    _AwsIotSerializerJsonDecoder /**< Global defined in aws_iot_serializer.h . */
+    #define _AwsIotDefenderEncoder    _AwsIotSerializerJsonEncoder /**< Global defined in iot_serializer.h . */
+    #define _AwsIotDefenderDecoder    _AwsIotSerializerJsonDecoder /**< Global defined in iot_serializer.h . */
 
 #else /* if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR */
     #error "AWS_IOT_DEFENDER_FORMAT must be either AWS_IOT_DEFENDER_FORMAT_CBOR or AWS_IOT_DEFENDER_FORMAT_JSON."
@@ -267,7 +267,7 @@ typedef struct _defenderMetrics
      * - metrics timer callback
      * - SetMetrics API
      */
-    AwsIotMutex_t mutex;
+    IotMutex_t mutex;
 } _defenderMetrics_t;
 
 /**
@@ -306,7 +306,7 @@ void AwsIotDefenderInternal_DeleteTopicsNames();
  */
 bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
                                             uint16_t port,
-                                            AwsIotNetworkTlsInfo_t * pTlsInfo );
+                                            IotNetworkCredentialsAfr_t * pTlsInfo );
 
 /**
  * Set the network connection to callback MQTT.
