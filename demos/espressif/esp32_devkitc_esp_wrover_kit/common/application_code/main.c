@@ -177,6 +177,7 @@ int app_main( void )
 
     if( SYSTEM_Init() == pdPASS )
     {
+
         /* A simple example to demonstrate key and certificate provisioning in
         * microcontroller flash using PKCS#11 interface. This should be replaced
         * by production ready key provisioning mechanism. */
@@ -211,19 +212,15 @@ int app_main( void )
 
         	}
         }       
-        configPRINTF(("Main pre DEMO_RUNNER_RunDemos:Available Heap Space: %d\n", esp_get_free_heap_size()));
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }
 
-
-#if 1
-    while (true) {
-    	configPRINTF(("Available Heap Space: %d\n", esp_get_free_heap_size()));
-        vTaskDelay( 3* pdMS_TO_TICKS( 1000UL )  );
-        }
-#endif
-
+    /* Start the scheduler.  Initialization that requires the OS to be running,
+     * including the WiFi initialization, is performed in the RTOS daemon task
+     * startup hook. */
+    // Following is taken care by initialization code in ESP IDF
+    // vTaskStartScheduler();
     return 0;
 }
 
