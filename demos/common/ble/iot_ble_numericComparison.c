@@ -113,7 +113,7 @@ void NumericComparisonInit(void)
 	#if( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
     /* Create a queue that will pass in the code to the UART task and wait validation from the user. */
     xNumericComparisonQueue = xQueueCreate( 1, sizeof( BLEPassKeyConfirm_t ) );
-    xTaskCreate(userInputTask, "InputTask", 2048, NULL, 0, NULL);
+    xTaskCreate(userInputTask, "InputTask", 2048, NULL, tskIDLE_PRIORITY, NULL);
     #endif
 
 }
