@@ -609,12 +609,70 @@ CK_RV prvWriteKey()
 {
 }
 
-CK_RV prvCreateEcPrivateKey( SearchableAttributes_t * pxSearchable,
+CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
+                             SearchableAttributes_t * pxSearchable,
                              CK_ATTRIBUTE_PTR pxTemplate,
                              CK_ULONG ulCount,
                              CK_OBJECT_HANDLE_PTR pxObject )
 {
-    CK_RV xResult;
+    CK_RV xResult = CKR_OK;
+    int lMbedReturn;
+    /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
+    mbedtls_ecp_keypair * pxKeyPair;
+    
+    pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
+    mbedtls_ecp_keypair_init( pxKeyPair );
+    mbedtls_ecp_group_init( &pxKeyPair->grp );
+    /*mbedtls_ecp_point_init( &pxKeyPair->d ); */
+    /* At this time, only P-256 curves are supported. */
+    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+
+    for( int i = 0; i < ulCount; i++ )
+    {
+        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+        switch( xAttribute.type )
+        {
+            case ( CKA_CLASS ):
+            case ( CKA_KEY_TYPE ):
+            case ( CKA_LABEL ):
+            case ( CKA_TOKEN ):
+
+                /* Do nothing.
+                 * At this time there is only token object support.
+                 * Key type was checked previously.
+                 * CLASS and LABEL have already been parsed into the Searchable Attributes. */
+                break;
+
+            case ( CKA_EC_PARAMS ):
+
+                if( memcmp( ( CK_BYTE[] ) pkcs11DER_ENCODED_OID_P256, xAttribute.pValue, xAttribute.ulValueLen ) )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only elliptic curve P-256 is supported.\r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+
+            case ( CKA_VALUE ):
+                lMbedReturn = mbedtls_mpi_read_binary( &pxKeyPair->d,
+                                                       xAttribute.pValue,
+                                                       xAttribute.ulValueLen );
+
+                if( lMbedReturn != 0 )
+                {
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+
+            default:
+                xResult = CKR_TEMPLATE_INCONSISTENT;
+                break;
+        }
+    }
+
+    return xResult;
 }
 
 
@@ -626,12 +684,12 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
 {
     CK_RV xResult = CKR_OK;
     mbedtls_rsa_context * pxRsaContext;
-    mbedtls_rsa_context xRsaCtx;
     int lMbedReturn = 0;
     CK_BBOOL xBool;
 
-    pxRsaContext = &xRsaCtx;
+    pxRsaContext = pxMbedContext->pk_ctx;
     mbedtls_rsa_init( pxRsaContext, MBEDTLS_RSA_PKCS_V15, 0 /*ignored.*/ );
+
     /* Get the memory management of this context right in the morning. */
 
     /* Parse template and collect the relevant parts. */
@@ -720,18 +778,50 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
         xResult = CKR_ATTRIBUTE_VALUE_INVALID;
     }
 
-    /****************************************************************/
+    return xResult;
+}
 
+CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
+                           CK_ATTRIBUTE_PTR pxTemplate,
+                           CK_ULONG ulCount,
+                           CK_OBJECT_HANDLE_PTR pxObject )
+{
+    /* TODO: How long is a typical RSA key anyhow?  */
 #define MAX_LENGTH_KEY    3000
     mbedtls_pk_context xMbedContext;
     int lDerKeyLength;
     CK_BYTE_PTR pxDerKey = NULL;
+    CK_RV xResult = CKR_OK;
 
     mbedtls_pk_init( &xMbedContext );
 
-    xMbedContext.pk_info = &mbedtls_rsa_info;
-    xMbedContext.pk_ctx = pxRsaContext;
+    /* RSA or Elliptic Curve? */
+    /* TODO: I could actually check the attributes.*/
+    if( ulCount > 6 )
+    {
+        mbedtls_rsa_context xRsaCtx;
+        xMbedContext.pk_ctx = &xRsaCtx;
+        xMbedContext.pk_info = &mbedtls_rsa_info;
+        xResult = prvCreateRsaPrivateKey( &xMbedContext,
+                                          pxSearchable,
+                                          pxTemplate,
+                                          ulCount,
+                                          pxObject );
+    }
+    else
+    {
+        /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
+        mbedtls_ecp_keypair xKeyPair;
+        xMbedContext.pk_ctx = &xKeyPair;
+        xMbedContext.pk_info = &mbedtls_eckey_info; /* TODO: deprecated ecdsa vs eckey?*/
+        xResult = prvCreateEcPrivateKey( &xMbedContext,
+                                         pxSearchable,
+                                         pxTemplate,
+                                         ulCount,
+                                         pxObject );
+    }
 
+    /* Convert back to DER and save to memory. */
     if( xResult == CKR_OK )
     {
         pxDerKey = pvPortMalloc( MAX_LENGTH_KEY );
@@ -767,38 +857,6 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     if( pxDerKey != NULL )
     {
         vPortFree( pxDerKey );
-    }
-
-    return xResult;
-}
-
-CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
-                           CK_ATTRIBUTE_PTR pxTemplate,
-                           CK_ULONG ulCount,
-                           CK_OBJECT_HANDLE_PTR pxObject )
-{
-    /* TODO: How long is a typical RSA key anyhow?  */
-#define MAX_LENGTH_KEY    3000
-    mbedtls_pk_context xMbedContext;
-    int lDerKeyLength;
-    CK_BYTE_PTR pxDerKey = NULL;
-    CK_RV xResult = CKR_OK;
-
-    mbedtls_pk_init( &xMbedContext );
-
-    /* RSA or Elliptic Curve? */
-    /* TODO: I could actually check the attributes.*/
-    if( ulCount > 6 )
-    {
-        xResult = prvCreateRsaPrivateKey( ( mbedtls_rsa_context ** ) xMbedContext.pk_ctx,
-                                          pxSearchable,
-                                          pxTemplate,
-                                          ulCount,
-                                          pxObject );
-    }
-    else
-    {
-        xResult = prvCreateEcPrivateKey( pxSearchable, pxTemplate, ulCount, pxObject );
     }
 
     return xResult;
