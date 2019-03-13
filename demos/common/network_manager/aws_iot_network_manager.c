@@ -204,9 +204,57 @@ static NetworkManagerInfo_t xNetworkManagerInfo = { 0 };
 
 #if BLE_ENABLED
 
-static BaseType_t prxBLEEnable( void )
+BaseType_t _registerUnregisterCb(bool unRegister)
 {
     IotBleEventsCallbacks_t xEventCb;
+    BTStatus_t xStatus;
+    BaseType_t ret = pdFALSE;
+
+	xEventCb.pConnectionCb = prvBLEConnectionCallback;
+    if(unRegister == false)
+    {
+		xStatus = IotBle_RegisterEventCb( eBLEConnection, xEventCb );
+    }else
+    {
+		xStatus = IotBle_UnRegisterEventCb( eBLEConnection, xEventCb );
+    }
+
+	xEventCb.pGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
+	if( xStatus == eBTStatusSuccess )
+	{
+		if(unRegister == false)
+		{
+			xStatus = IotBle_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
+		}else
+		{
+			xStatus = IotBle_UnRegisterEventCb( eBLEPairingStateChanged, xEventCb );
+		}
+	}
+
+#if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
+	xEventCb.pNumericComparisonCb = &BLENumericComparisonCb;
+	if( xStatus == eBTStatusSuccess )
+	{
+		if(unRegister == false)
+		{
+			xStatus = IotBle_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
+		}else
+		{
+			xStatus = IotBle_UnRegisterEventCb( eBLENumericComparisonCallback, xEventCb );
+		}
+	}
+#endif
+
+    if(xStatus == eBTStatusSuccess)
+    {
+    	ret = pdTRUE;
+    }
+
+    return ret;
+}
+
+static BaseType_t prxBLEEnable( void )
+{
     BaseType_t xRet = pdTRUE;
     static bool bInitBLE = false;
     BTStatus_t xStatus;
@@ -223,30 +271,11 @@ static BaseType_t prxBLEEnable( void )
     else
     {
         xStatus = IotBle_On();
+        IotBle_StartAdv(NULL);
     }
     /* Register BLE Connection callback */
-    if( xStatus == eBTStatusSuccess )
-    {
-        xEventCb.pConnectionCb = prvBLEConnectionCallback;
-        if( IotBle_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
-        {
-        	xStatus = eBTStatusFail;
-        }
-    }
+    _registerUnregisterCb(false);
 
-    if( xStatus == eBTStatusSuccess )
-    {
-        xEventCb.pGAPPairingStateChangedCb = &BLEGAPPairingStateChangedCb;
-        xStatus = IotBle_RegisterEventCb( eBLEPairingStateChanged, xEventCb );
-    }
-
-#if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
-    if( xStatus == eBTStatusSuccess )
-    {
-        xEventCb.pNumericComparisonCb = &BLENumericComparisonCb;
-        xStatus = IotBle_RegisterEventCb( eBLENumericComparisonCallback, xEventCb );
-    }
-#endif
     if( xStatus != eBTStatusSuccess)
     {
     	xRet = pdFALSE;
@@ -256,17 +285,12 @@ static BaseType_t prxBLEEnable( void )
 }
 
 /*-----------------------------------------------------------*/
-
+/* TODO make same function to registere/unregister or risk of memory leak. */
 static BaseType_t prxBLEDisable( void )
 {
     bool xRet = true;
-    IotBleEventsCallbacks_t xEventCb;
 
-    xEventCb.pConnectionCb = prvBLEConnectionCallback;
-    if( IotBle_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
-    {
-        xRet = false;
-    }
+    xRet = _registerUnregisterCb(true);
 
     if( xRet == true )
     {
