@@ -1428,6 +1428,23 @@ FreeRTOS_Socket_t *pxSocket;
 				break;
 			#endif /* ipconfigSOCKET_HAS_USER_WAKE_CALLBACK */
 
+			case FREERTOS_SO_SET_LOW_HIGH_WATER:
+				{
+					if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
+					{
+						/* It is not allowed to access 'pxSocket->u.xTCP'. */
+						FreeRTOS_debug_printf( ( "FREERTOS_SO_SET_LOW_HIGH_WATER: wrong socket type\n" ) );
+						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+					}
+					LowHighWater_t *pxLowHighWater = ( LowHighWater_t * ) pvOptionValue;
+					/* Send a STOP when buffer space drops below 'uxLittleSpace' bytes. */
+					pxSocket->u.xTCP.uxLittleSpace = pxLowHighWater->uxLittleSpace;
+					/* Send a GO when buffer space grows above 'uxEnoughSpace' bytes. */
+					pxSocket->u.xTCP.uxEnoughSpace = pxLowHighWater->uxEnoughSpace;
+					xReturn = 0;
+				}
+				break;
+
 			case FREERTOS_SO_SNDBUF:	/* Set the size of the send buffer, in units of MSS (TCP only) */
 			case FREERTOS_SO_RCVBUF:	/* Set the size of the receive buffer, in units of MSS (TCP only) */
 				{
