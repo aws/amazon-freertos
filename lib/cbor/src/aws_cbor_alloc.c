@@ -29,15 +29,15 @@
 #ifdef __free_rtos__
     #include "FreeRTOS.h"
     void *( *pxCBOR_malloc )( size_t ) = pvPortMalloc;
-    void (* pxCBOR_free)( void * ) = vPortFree;
-    void *(* pxCBOR_realloc)( void *,
-                              size_t ) = CBOR_ReallocImpl;
+    void ( * pxCBOR_free )( void * ) = vPortFree;
+    void *( * pxCBOR_realloc )( void *,
+                                size_t ) = CBOR_ReallocImpl;
 #else
-    void *(* pxCBOR_malloc)( size_t ) = malloc;
-    void (* pxCBOR_free)( void * ) = free;
-    void *(* pxCBOR_realloc)( void *,
-                              size_t ) = realloc;
-#endif
+    void *( * pxCBOR_malloc )( size_t ) = malloc;
+    void ( * pxCBOR_free )( void * ) = free;
+    void *( * pxCBOR_realloc )( void *,
+                                size_t ) = realloc;
+#endif /* ifdef __free_rtos__ */
 
 void * CBOR_ReallocImpl( void * pxOld_ptr,
                          size_t xNew_size )

@@ -158,11 +158,11 @@ typedef struct ShadowOperationParams
      * @brief Input parameter for #SHADOW_Update; output parameter of #SHADOW_Get.
      * - For #SHADOW_Update, set this to length of the Shadow update document.
      * - For #SHADOW_Get, this is the output parameter specifying the length of
-     #ShadowOperationParams_t.pcData. If #SHADOW_Get fails, this will be set
+     * #ShadowOperationParams_t.pcData. If #SHADOW_Get fails, this will be set
      * to @c 0.
      * @note If the received Shadow document is longer than this value, the
      * document will be truncated. A warning message will be printed if
-     #shadowENABLE_DEBUG_LOGS is @c 1.
+     * #shadowENABLE_DEBUG_LOGS is @c 1.
      * - This member is ignored by #SHADOW_Delete. */
     uint32_t ulDataLength;
 

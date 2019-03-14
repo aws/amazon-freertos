@@ -179,27 +179,29 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer, /*lint !e971 can use cha
     if( xStatus == pdPASS )
     {
         /* Loop until the full JSON is retrieved. */
-        do {
+        do
+        {
             xStatus = GGD_JSONRequestGetFile( &xSocket,
-                                              &pcBuffer[ulByteRead],
+                                              &pcBuffer[ ulByteRead ],
                                               ulBufferSize - ulByteRead,
                                               &ulByteRead,
                                               &xJSONFileRetrieveCompleted,
                                               ulJSONFileSize ); /*lint !e644 ulJSONFileSize has been initialized if code reaches here. */
-        } while ( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize - ulByteRead ) > 0 );
+        }
+        while( ( xStatus == pdPASS ) && ( xJSONFileRetrieveCompleted != pdTRUE ) && ( ulBufferSize - ulByteRead ) > 0 );
 
         /* If the JSON file was not completely received and there
          * is no space left in the buffer, it means that the buffer
          * is not large enough to hold the complete GreenGrass
          * Discovery document. The user should increase the size of
          * the buffer. */
-        if( ( xJSONFileRetrieveCompleted == pdFALSE ) && ( ( ulBufferSize - ulByteRead ) ==  0 ) )
+        if( ( xJSONFileRetrieveCompleted == pdFALSE ) && ( ( ulBufferSize - ulByteRead ) == 0 ) )
         {
             ggdconfigPRINT( "[ERROR] The supplied buffer is not large enough to hold the GreenGrass discovery document. \r\n" );
             ggdconfigPRINT( "[ERROR] Consider increasing the size of the supplied buffer. \r\n" );
         }
 
-        if( xSocket != SOCKETS_INVALID_SOCKET )             /* Check connection is closed. */
+        if( xSocket != SOCKETS_INVALID_SOCKET ) /* Check connection is closed. */
         {
             GGD_JSONRequestAbort( &xSocket );
             xStatus = pdFAIL;
@@ -227,7 +229,7 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer, /*lint !e971 can use cha
 BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
 {
     GGD_HostAddressData_t xHostAddressData;
-    char *pcHttpGetRequest = NULL;
+    char * pcHttpGetRequest = NULL;
     uint32_t ulHttpGetLength = 0;
     uint32_t ulCharsWritten = 0;
     BaseType_t xStatus;
@@ -248,26 +250,28 @@ BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
     if( xStatus == pdPASS )
     {
         /* Build the HTTP GET request string that is specific to this host. */
-        ulHttpGetLength = 1 + strlen( ggdCLOUD_DISCOVERY_ADDRESS ) + 
+        ulHttpGetLength = 1 + strlen( ggdCLOUD_DISCOVERY_ADDRESS ) +
                           strlen( clientcredentialIOT_THING_NAME );
         pcHttpGetRequest = pvPortMalloc( ulHttpGetLength );
+
         if( NULL == pcHttpGetRequest )
         {
             xStatus = pdFAIL;
         }
         else
         {
-            ulCharsWritten = snprintf( pcHttpGetRequest, 
+            ulCharsWritten = snprintf( pcHttpGetRequest,
                                        ulHttpGetLength,
-                                       ggdCLOUD_DISCOVERY_ADDRESS, 
+                                       ggdCLOUD_DISCOVERY_ADDRESS,
                                        clientcredentialIOT_THING_NAME );
+
             if( ulCharsWritten >= ulHttpGetLength )
             {
                 xStatus = pdFAIL;
             }
             else
             {
-                pcHttpGetRequest[ulHttpGetLength - 1] = '\0';
+                pcHttpGetRequest[ ulHttpGetLength - 1 ] = '\0';
 
                 /* Send HTTP request over secure connection (HTTPS) to get the GGC JSON file. */
                 xStatus = GGD_SecureConnect_Send( pcHttpGetRequest,
@@ -327,7 +331,8 @@ BaseType_t GGD_JSONRequestGetSize( Socket_t * pxSocket,
             xStatus = pdPASS;
             break;
         }
-    } while( ( xReadStatus == pdPASS ) && ( ulReadSize == ( uint32_t ) 1 ) );
+    }
+    while( ( xReadStatus == pdPASS ) && ( ulReadSize == ( uint32_t ) 1 ) );
 
     if( xStatus == pdPASS )
     {
@@ -380,7 +385,8 @@ BaseType_t GGD_JSONRequestGetSize( Socket_t * pxSocket,
             cBuffer[ 0 ] = cBuffer[ 1 ];
             cBuffer[ 1 ] = cBuffer[ 2 ];
             cBuffer[ 2 ] = cBuffer[ 3 ];
-        } while( ( xReadStatus == pdPASS ) && ( ulReadSize == ( uint32_t ) 1 ) );
+        }
+        while( ( xReadStatus == pdPASS ) && ( ulReadSize == ( uint32_t ) 1 ) );
     }
 
     if( xStatus == pdFAIL )
@@ -806,7 +812,8 @@ static BaseType_t prvGGDGetCertificate( char * pcJSONFile, /*lint !e971 can use 
 
                     ulReadIndex++;
                     ulWriteIndex++;
-                } while( ulReadIndex < pxHostAddressData->ulCertificateSize );
+                }
+                while( ulReadIndex < pxHostAddressData->ulCertificateSize );
 
                 pxHostAddressData->ulCertificateSize = ulWriteIndex;
                 pxHostAddressData->pcCertificate[ ulWriteIndex - ( uint32_t ) 1 ] = '\0';

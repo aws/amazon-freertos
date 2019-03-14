@@ -1481,8 +1481,17 @@ FreeRTOS_Socket_t *pxSocket;
 					}
 
 					pxProps = ( ( WinProperties_t * ) pvOptionValue );
-					FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_SNDBUF, &( pxProps->lTxBufSize ), sizeof( pxProps->lTxBufSize ) );
-					FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_RCVBUF, &( pxProps->lRxBufSize ), sizeof( pxProps->lRxBufSize ) );
+
+					if ( FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_SNDBUF, &( pxProps->lTxBufSize ), sizeof( pxProps->lTxBufSize ) ) != 0 )
+					{
+						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+					}
+
+					if ( FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_RCVBUF, &( pxProps->lRxBufSize ), sizeof( pxProps->lRxBufSize ) ) != 0 )
+					{
+						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+					}
+
 					#if( ipconfigUSE_TCP_WIN == 1 )
 					{
 						pxSocket->u.xTCP.uxRxWinSize = ( uint32_t )pxProps->lRxWinSize;	/* Fixed value: size of the TCP reception window */

@@ -72,10 +72,9 @@
         MQTTPublishCallback_t xFunction;                                       /**< MQTT v1 callback function. */
         void * pvParameter;                                                    /**< Parameter to xFunction. */
 
-        uint16_t usTopicFilterLength;                                          /**< Length of pcTopicFilter. */
-        char pcTopicFilter[ mqttconfigSUBSCRIPTION_MANAGER_MAX_TOPIC_LENGTH ]; /**< Topic filter. */
-    } MQTTCallback_t;
-#endif
+#else
+    static const char cUserName[] = "";
+#endif /* if ( mqttconfigENABLE_METRICS == 1 ) */
 
 /**
  * @brief Stores data on an active MQTT connection.
@@ -244,11 +243,17 @@ static void prvPublishCallbackWrapper( void * pvParameter,
                                        IotMqttCallbackParam_t * const xPublish )
 {
     BaseType_t xStatus = pdPASS;
-    size_t xBufferSize = 0;
-    uint8_t * pucMqttBuffer = NULL;
-    MQTTBool_t xCallbackReturn = eMQTTFalse;
-    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pvParameter;
-    MQTTAgentCallbackParams_t xPublishData = { 0 };
+    size_t xURLLength;
+    MQTTBrokerConnection_t * pxConnection = &( xMQTTConnections[ pxEventData->uxBrokerNumber ] );
+    char * ppcAlpns[] = { socketsAWS_IOT_ALPN_MQTT };
+    TickType_t xMqttTimeout;
+
+    /* Should not get here if the socket used to communicate with the
+     * broker is already connected. */
+    configASSERT( pxConnection->xSocket == SOCKETS_INVALID_SOCKET );
+
+    /* Calculate the length of the supplied URL. */
+    xURLLength = strlen( pxEventData->u.pxConnectParams->pcURL );
 
     /* Calculate the size of the MQTT buffer that must be allocated. */
     if( xStatus == pdPASS )
@@ -256,9 +261,44 @@ static void prvPublishCallbackWrapper( void * pvParameter,
         xBufferSize = xPublish->message.info.topicNameLength +
                       xPublish->message.info.payloadLength;
 
-        /* Check for overflow. */
-        if( ( xBufferSize < xPublish->message.info.topicNameLength ) ||
-            ( xBufferSize < xPublish->message.info.payloadLength ) )
+            /* Establish the connection. */
+            if( xStatus == pdPASS )
+            {
+                if( SOCKETS_Connect( pxConnection->xSocket, &xMQTTServerAddress, sizeof( xMQTTServerAddress ) ) != SOCKETS_ERROR_NONE )
+                {
+                    xStatus = pdFAIL;
+                }
+            }
+
+            if( xStatus == pdPASS )
+            {
+                /* Do not block now onwards. */
+                ( void ) SOCKETS_SetSockOpt( pxConnection->xSocket,
+                                             0 /* Unused. */,
+                                             SOCKETS_SO_NONBLOCK,
+                                             NULL /* Unused. */,
+                                             0 /* Unused. */ );
+
+                /* Set the Send Timeout of Socket to mqttconfigTCP_SEND_TIMEOUT_MS to block on sends. */
+
+                xMqttTimeout = pdMS_TO_TICKS( mqttconfigTCP_SEND_TIMEOUT_MS );
+
+                if( SOCKETS_SetSockOpt( pxConnection->xSocket,
+                                        0,
+                                        SOCKETS_SO_SNDTIMEO,
+                                        &xMqttTimeout,
+                                        sizeof( TickType_t ) ) != SOCKETS_ERROR_NONE )
+                {
+                    xStatus = pdFAIL;
+                }
+            }
+            else
+            {
+                /* Connection Failed. */
+                prvGracefulSocketClose( pxConnection );
+            }
+        }
+        else
         {
             mqttconfigDEBUG_LOG( ( "Incoming PUBLISH message and topic name length too large.\r\n" ) );
             xStatus = pdFAIL;
@@ -461,10 +501,23 @@ static IotNetworkError_t prvCloseWrapper( void * pvDisconnectHandle )
         /* Search the callback conversion table for the topic filter. */
         for( i = 0; i < mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS; i++ )
         {
-            if( ( pxConnection->xCallbacks[ i ].usTopicFilterLength == usTopicFilterLength ) &&
-                ( strncmp( pxConnection->xCallbacks[ i ].pcTopicFilter,
-                           pcTopicFilter,
-                           usTopicFilterLength ) == 0 ) )
+            #if ( mqttconfigENABLE_METRICS == 1 )
+                mqttconfigDEBUG_LOG( ( "Anonymous metrics will be collected. Recompile with"
+                                       "mqttconfigENABLE_METRICS set to 0 to disable.\r\n" ) );
+            #endif
+
+            /* Setup connect parameters and call the Core library connect function. */
+            xConnectParams.pucClientId = pxEventData->u.pxConnectParams->pucClientId;
+            xConnectParams.usClientIdLength = pxEventData->u.pxConnectParams->usClientIdLength;
+            xConnectParams.pucUserName = ( const uint8_t * ) cUserName;
+            xConnectParams.usUserNameLength = usUserNameLength;
+            xConnectParams.usKeepAliveIntervalSeconds = mqttconfigKEEP_ALIVE_INTERVAL_SECONDS;
+            xConnectParams.ulKeepAliveActualIntervalTicks = mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS;
+            xConnectParams.ulPingRequestTimeoutTicks = mqttconfigKEEP_ALIVE_TIMEOUT_TICKS;
+            xConnectParams.usPacketIdentifier = ( uint16_t ) ( mqttMESSAGE_IDENTIFIER_EXTRACT( pxEventData->xNotificationData.ulMessageIdentifier ) );
+            xConnectParams.ulTimeoutTicks = pxEventData->xTicksToWait;
+
+            if( MQTT_Connect( &( pxConnection->xMQTTContext ), &( xConnectParams ) ) != eMQTTSuccess )
             {
                 pxResult = &( pxConnection->xCallbacks[ i ] );
                 break;
@@ -515,7 +568,29 @@ IotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle )
 
 BaseType_t MQTT_AGENT_Init( void )
 {
-    BaseType_t xStatus = pdFALSE;
+    BaseType_t xStatus = pdFAIL;
+    MQTTNotificationData_t * pxNotificationData;
+    MQTTSubscribeParams_t xSubscribeParams;
+    MQTTBrokerConnection_t * pxConnection = &( xMQTTConnections[ pxEventData->uxBrokerNumber ] );
+
+    /* Store notification data. */
+    pxNotificationData = prvStoreNotificationData( pxConnection, pxEventData );
+
+    /* If a free buffer was not available to store the  notification data
+     * (i.e. mqttconfigMAX_PARALLEL_OPS tasks are already in progress), fail
+     * immediately. */
+    if( pxNotificationData != NULL )
+    {
+        /* Setup subscribe parameters and call the Core library subscribe function. */
+        xSubscribeParams.pucTopic = pxEventData->u.pxSubscribeParams->pucTopic;
+        xSubscribeParams.usTopicLength = pxEventData->u.pxSubscribeParams->usTopicLength;
+        xSubscribeParams.xQos = pxEventData->u.pxSubscribeParams->xQoS;
+        xSubscribeParams.usPacketIdentifier = ( uint16_t ) ( mqttMESSAGE_IDENTIFIER_EXTRACT( pxEventData->xNotificationData.ulMessageIdentifier ) );
+        xSubscribeParams.ulTimeoutTicks = pxEventData->xTicksToWait;
+        #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
+            xSubscribeParams.pvPublishCallbackContext = pxEventData->u.pxSubscribeParams->pvPublishCallbackContext;
+            xSubscribeParams.pxPublishCallback = pxEventData->u.pxSubscribeParams->pxPublishCallback;
+        #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
 
     /* Call the initialization function of MQTT v4. */
     if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
@@ -530,11 +605,18 @@ BaseType_t MQTT_AGENT_Init( void )
 
 MQTTAgentReturnCode_t MQTT_AGENT_Create( MQTTAgentHandle_t * const pxMQTTHandle )
 {
-    MQTTConnection_t * pxNewConnection = NULL;
-    MQTTAgentReturnCode_t xStatus = eMQTTAgentSuccess;
+    BaseType_t xStatus = pdFAIL;
+    MQTTNotificationData_t * pxNotificationData;
+    MQTTUnsubscribeParams_t xUnsubscribeParams;
+    MQTTBrokerConnection_t * pxConnection = &( xMQTTConnections[ pxEventData->uxBrokerNumber ] );
 
-    /* Check how many brokers are available; fail if all brokers are in use. */
-    taskENTER_CRITICAL();
+    /* Store notification data. */
+    pxNotificationData = prvStoreNotificationData( pxConnection, pxEventData );
+
+    /* If a free buffer was not available to store the  notification data
+     * (i.e. mqttconfigMAX_PARALLEL_OPS tasks are already in progress), fail
+     * immediately. */
+    if( pxNotificationData != NULL )
     {
         if( uxAvailableBrokers == 0 )
         {

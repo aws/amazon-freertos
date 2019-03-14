@@ -296,7 +296,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         /* Open the file. */
         hFile = CreateFileA( pcFileName,
                              GENERIC_READ,
-                             0,
+                             FILE_SHARE_READ,
                              NULL,
                              OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL,

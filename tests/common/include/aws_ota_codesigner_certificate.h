@@ -37,7 +37,7 @@
  * "...base64 data..."
  * "-----END CERTIFICATE-----";
  */
-#if (otatestSIG_METHOD == otatestSIG_SHA256_ECDSA)
+#if ( otatestSIG_METHOD == otatestSIG_SHA256_ECDSA )
     static const char signingcredentialSIGNING_CERTIFICATE_PEM[] =
         "-----BEGIN CERTIFICATE-----\n"
         "MIIBXDCCAQOgAwIBAgIJAPMhJT8l0C6AMAoGCCqGSM49BAMCMCExHzAdBgNVBAMM\n"
@@ -49,7 +49,7 @@
         "83Oq8sOXhSyJCWAN63gc4vp9//RFCXh/hUXPYcTWAiBgmQ5JV2MZH01Upi2lMflN\n"
         "YLbC+lYscwcSlB2tECUbJA==\n"
         "-----END CERTIFICATE-----\n";
-#elif (otatestSIG_METHOD == otatestSIG_SHA256_RSA)
+#elif ( otatestSIG_METHOD == otatestSIG_SHA256_RSA )
     static const char signingcredentialSIGNING_CERTIFICATE_PEM[] =
         "-----BEGIN CERTIFICATE-----\n"
         "MIIC6TCCAdGgAwIBAgIJAJmG5mbNWlukMA0GCSqGSIb3DQEBCwUAMCExHzAdBgNV\n"
@@ -69,7 +69,7 @@
         "8GMrCwFUbsFGMvhscPwG51rFLNonWh+ThZIwHrBwnVXmsDXayBlr6wCA50zGfBQb\n"
         "SXVRXIv/SKpj1k1slnf9IJLfArH6F0Ctjcef/Aw=\n"
         "-----END CERTIFICATE-----";
-#elif (otatestSIG_METHOD == otatestSIG_SHA1_RSA)
+#elif ( otatestSIG_METHOD == otatestSIG_SHA1_RSA )
     static const char signingcredentialSIGNING_CERTIFICATE_PEM[] =
         "-----BEGIN CERTIFICATE-----\n"
         "MIIDPDCCAiSgAwIBAgIBATANBgkqhkiG9w0BAQUFADB8MQswCQYDVQQGEwJJTDEP\n"
@@ -91,8 +91,8 @@
         "NCa9WuCyk5uwoo6mn6JIErBMLqLTBcs82vq9d7WIFHf4QpgTs2FuelY/Hyw7HRFo\n"
         "Ml3tXnR4B4lqeJy/BP6/GA==\n"
         "-----END CERTIFICATE-----";
-#else
+#else /* if ( otatestSIG_METHOD == otatestSIG_SHA256_ECDSA ) */
     static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = "Paste code signing certificate here.";
-#endif
+#endif /* if ( otatestSIG_METHOD == otatestSIG_SHA256_ECDSA ) */
 
 #endif /* ifndef __AWS_CODESIGN_KEYS__H__ */
