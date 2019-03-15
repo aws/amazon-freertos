@@ -596,7 +596,6 @@ static void prvSubscribePublishDemo( MQTTAgentHandle_t xMQTTClientHandle,
 {
     BaseType_t xResult;
     MQTTAgentConnectParams_t xConnectParams;
-    TaskStatus_t xTaskStatus;
     SubpubUserData_t xUserData;
 
     /* Create the event group used to synchronize tasks and callback functions.
@@ -659,6 +658,7 @@ static void prvSubscribePublishDemo( MQTTAgentHandle_t xMQTTClientHandle,
     {
         #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
             {
+                TaskStatus_t xTaskStatus;
                 /* Report on space efficiency of this demo task. */
                 vTaskGetInfo( NULL, &xTaskStatus, pdTRUE, eInvalid );
                 configPRINTF( ( "Heap low-water mark %u, Stack high-water mark %u.\r\n",
