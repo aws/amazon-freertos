@@ -294,7 +294,7 @@ typedef struct ShadowCallbackParams
     /**
      * @brief Called to notify users that a delta document has been generated.
      *
-     * Callback for a message on /delete/accepted. Set to NULL for no callback.
+     * Callback for a message on /update/delta. Set to NULL for no callback.
      * @note This function @b will be called whenever a delta document is generated,
      * regardless of which client performed an update. */
     ShadowDeltaCallback_t xShadowDeltaCallback;

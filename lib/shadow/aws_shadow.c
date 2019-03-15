@@ -454,6 +454,19 @@ static ShadowReturnCode_t prvConvertMQTTReturnCode( MQTTAgentReturnCode_t xMQTTR
 
 /*-----------------------------------------------------------*/
 
+// include the topic name in the debug message
+static ShadowReturnCode_t prvConvertMQTTReturnCodeWithTopic( MQTTAgentReturnCode_t xMQTTReturn,
+                                                    ShadowClientHandle_t xShadowClientHandle,
+                                                    const char * const pcAction,
+                                                    const char * const pcTopicName )
+{
+    char cDebugMessageSubject[200];
+    sprintf(cDebugMessageSubject, "%s topic '%s'", pcAction, pcTopicName);
+    return prvConvertMQTTReturnCode(xMQTTReturn, xShadowClientHandle, cDebugMessageSubject);
+}
+
+/*-----------------------------------------------------------*/
+
 static uint16_t prvCreateTopic( char * pcTopicString,
                                 const uint16_t usBufferLength,
                                 const char * pcTopicFormat,
@@ -544,9 +557,10 @@ static ShadowReturnCode_t prvRegisterCallback( BaseType_t xShadowClientID,
                                               &xUnsubscribeParams,
                                               xTimeoutTicks );
 
-        xReturn = prvConvertMQTTReturnCode( xMQTTReturn,
-                                            ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
-                                            "Unsubscribe from callback topic" );
+        xReturn = prvConvertMQTTReturnCodeWithTopic( xMQTTReturn,
+                                                     ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
+                                                     "Unsubscribe from callback",
+                                                     ( char * ) xUnsubscribeParams.pucTopic );
     }
 
     /* Registering a new callback; subscribe to topic. */
@@ -567,9 +581,10 @@ static ShadowReturnCode_t prvRegisterCallback( BaseType_t xShadowClientID,
                                             &xSubscribeParams,
                                             xTimeoutTicks );
 
-        xReturn = prvConvertMQTTReturnCode( xMQTTReturn,
-                                            ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
-                                            "Subscribe to callback topic" );
+        xReturn = prvConvertMQTTReturnCodeWithTopic( xMQTTReturn,
+                                                     ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
+                                                     "Subscribe to callback",
+                                                     ( char * ) xSubscribeParams.pucTopic );
     }
 
     /* Change the callback. */
@@ -620,9 +635,10 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
                                         &xSubscribeParams,
                                         pxTimeOutData->xTicksRemaining );
 
-    xReturn = prvConvertMQTTReturnCode( xMQTTReturn,
-                                        ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
-                                        "Subscribe to accepted topic" );
+    xReturn = prvConvertMQTTReturnCodeWithTopic( xMQTTReturn,
+                                                 ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
+                                                 "Subscribe to",
+                                                 ( char * ) xSubscribeParams.pucTopic );
 
     if( xReturn == eShadowSuccess )
     {
@@ -635,9 +651,10 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
                                             &xSubscribeParams,
                                             pxTimeOutData->xTicksRemaining );
 
-        xReturn = prvConvertMQTTReturnCode( xMQTTReturn,
-                                            ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
-                                            "Subscribe to rejected topic" );
+        xReturn = prvConvertMQTTReturnCodeWithTopic( xMQTTReturn,
+                                                     ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
+                                                     "Subscribe to",
+                                                     ( char * ) xSubscribeParams.pucTopic );
 
         if( xReturn != eShadowSuccess )
         {
@@ -654,9 +671,10 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
                                              &xUnsubscribeParams,
                                              xTimeoutTicks );
 
-            ( void ) prvConvertMQTTReturnCode( xMQTTReturn,
-                                               ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
-                                               "Cleanup: Unsubscribe from accepted topic" );
+            ( void ) prvConvertMQTTReturnCodeWithTopic( xMQTTReturn,
+                                                        ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
+                                                        "Cleanup: Unsubscribe from",
+                                                        ( char * ) xUnsubscribeParams.pucTopic );
         }
     }
 
@@ -664,6 +682,7 @@ static ShadowReturnCode_t prvShadowSubscribeToAcceptedRejected( BaseType_t
 }
 
 /*-----------------------------------------------------------*/
+
 static ShadowReturnCode_t prvShadowUnsubscribeFromAcceptedRejected( BaseType_t
                                                                     xShadowClientID,
                                                                     const char * const pcThingName,
@@ -694,9 +713,10 @@ static ShadowReturnCode_t prvShadowUnsubscribeFromAcceptedRejected( BaseType_t
                                               &xUnsubscribeParams,
                                               pxTimeOutData->xTicksRemaining );
 
-        xReturn = prvConvertMQTTReturnCode( xMQTTReturn,
-                                            ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
-                                            "Unsubscribe from accepted topic" );
+        xReturn = prvConvertMQTTReturnCodeWithTopic( xMQTTReturn,
+                                                     ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
+                                                     "Unsubscribe from",
+                                                     ( char * ) xUnsubscribeParams.pucTopic );
     }
 
     if( pcRejectedTopic != NULL )
@@ -711,9 +731,10 @@ static ShadowReturnCode_t prvShadowUnsubscribeFromAcceptedRejected( BaseType_t
                                               &xUnsubscribeParams,
                                               pxTimeOutData->xTicksRemaining );
 
-        xReturn = prvConvertMQTTReturnCode( xMQTTReturn,
-                                            ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
-                                            "Unsubscribe from rejected topic" );
+        xReturn = prvConvertMQTTReturnCodeWithTopic( xMQTTReturn,
+                                                     ( ShadowClientHandle_t ) xShadowClientID, /*lint !e923 Safe cast from pointer handle. */
+                                                     "Unsubscribe from",
+                                                     ( char * ) xUnsubscribeParams.pucTopic );
     }
 
     return xReturn;
@@ -740,6 +761,8 @@ static BaseType_t prvShadowMQTTCallback( void * pvUserData,
     if( pxCallbackParams->xMQTTEvent == eMQTTAgentPublish )
     {
         pxPublishData = ( &( pxCallbackParams->u.xPublishData ) );
+
+        Shadow_debug_printf( ( "received on topic '%s': %s\r\n", pxPublishData->pucTopic, pxPublishData->pvData ) );
 
         /* If xOperationMutex is locked, the client is waiting on the acceptance
          * or rejection of a publish. Publish results take priority over user notify
@@ -1231,9 +1254,10 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
                                               xTimeOutData.xTicksRemaining );
 
             /* Publish to operation topic. */
-            xReturn = prvConvertMQTTReturnCode( xMQTTReturn,
+            xReturn = prvConvertMQTTReturnCodeWithTopic( xMQTTReturn,
                                                 ( ShadowClientHandle_t ) ( pxParams->xShadowClientID ), /*lint !e923 Safe cast from pointer handle. */
-                                                "Publish to operation topic" );
+                                                "Publish to operation",
+                                                ( char * ) xPublishParams.pucTopic );
 
             if( xReturn == eShadowSuccess )
             {
@@ -1251,6 +1275,10 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
                 else
                 {
                     /* The update callback reports its status as xOperationResult. */
+                    Shadow_debug_printf( ( "[Shadow %d] result of %s is %d.\r\n",
+                                           pxParams->xShadowClientID,
+                                           pxParams->pcOperationName,
+                                           pxShadowClient->xOperationResult ) );
                     xReturn = pxShadowClient->xOperationResult;
                 }
             }
@@ -1644,6 +1672,8 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
     ShadowReturnCode_t xReturn = eShadowFailure;
     BaseType_t xCallbackCatalogIndex;
 
+    configPRINTF( ( "Registering callbacks...\r\n" ) );
+
     configASSERT( ( ( BaseType_t ) xShadowClientHandle >= 0 &&
                     ( BaseType_t ) xShadowClientHandle < shadowconfigMAX_CLIENTS ) ); /*lint !e923 Safe cast from pointer handle. */
 
@@ -1664,6 +1694,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
 
     /*_RB_ Casting on these calls make the code unreadable.  Types need changing to remove the need for the casts. */
     /* ToDo: sub manager. */
+    configPRINTF( ( "Registering 'updated' callback...\r\n" ) );
     xReturn = prvRegisterCallback( ( BaseType_t ) xShadowClientHandle,                                                      /*lint !e923 Safe cast from pointer handle. */
                                    ( const void ** ) &( ( pxCallbackCatalogEntry->xCallbackInfo ).xShadowUpdatedCallback ), /*lint !e9087 !e9005 cast is opaque and recast correctly inside the function. No const is being cast away either.*/
                                    ( const void ** ) &( pxCallbackParams->xShadowUpdatedCallback ),                         /*lint !e9087 !e9005 cast is opaque and recast correctly inside the function. */
@@ -1671,24 +1702,40 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
                                    ( const uint8_t * ) shadowTOPIC_UPDATE_DOCUMENTS,
                                    xTimeoutTicks );
 
-    if( xReturn == eShadowSuccess )
+    if( xReturn != eShadowSuccess )
     {
+        configPRINTF( ( "failed to register 'updated' callback: %d\r\n", xReturn ) );
+    }
+    else
+    {
+        configPRINTF( ( "Registering 'deleted' callback...\r\n" ) );
         xReturn = prvRegisterCallback( ( BaseType_t ) xShadowClientHandle,                                                      /*lint !e923 Safe cast from pointer handle. */
                                        ( const void ** ) &( ( pxCallbackCatalogEntry->xCallbackInfo ).xShadowDeletedCallback ), /*lint !e9087 !e9005 cast is opaque and recast correctly inside the function. No const is being cast away either.*/
                                        ( const void ** ) &( pxCallbackParams->xShadowDeletedCallback ),                         /*lint !e9087 !e9005 cast is opaque and recast correctly inside the function. */
                                        pxCallbackParams->pcThingName,
                                        ( const uint8_t * ) shadowTOPIC_DELETE_ACCEPTED,
                                        xTimeoutTicks );
+
+        if( xReturn != eShadowSuccess )
+        {
+            configPRINTF( ( "failed to register 'deleted' callback: %d\r\n", xReturn ) );
+        }
     }
 
     if( xReturn == eShadowSuccess )
     {
+        configPRINTF( ( "Registering 'delta' callback...\r\n" ) );
         xReturn = prvRegisterCallback( ( BaseType_t ) xShadowClientHandle,                                                    /*lint !e923 Safe cast from pointer handle. */
                                        ( const void ** ) &( ( pxCallbackCatalogEntry->xCallbackInfo ).xShadowDeltaCallback ), /*lint !e9087 !e9005 cast is opaque and recast correctly inside the function. No const is being cast away either.*/
                                        ( const void ** ) &( pxCallbackParams->xShadowDeltaCallback ),                         /*lint !e9087 !e9005 cast is opaque and recast correctly inside the function. */
                                        pxCallbackParams->pcThingName,
                                        ( const uint8_t * ) shadowTOPIC_UPDATE_DELTA,
                                        xTimeoutTicks );
+
+        if( xReturn != eShadowSuccess )
+        {
+            configPRINTF( ( "failed to register 'delta' callback: %d\r\n", xReturn ) );
+        }
     }
 
     if( ( ( pxCallbackCatalogEntry->xCallbackInfo ).xShadowUpdatedCallback == NULL ) &&
