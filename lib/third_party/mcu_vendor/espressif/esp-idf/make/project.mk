@@ -233,7 +233,7 @@ endif
 ifeq ("$(wildcard ${IDF_PATH}/version.txt)","")
 IDF_VER := $(shell cd ${IDF_PATH} && git describe --always --tags --dirty)
 else
-IDF_VER := `cat ${IDF_PATH}/version.txt`
+IDF_VER := $(shell cat ${IDF_PATH}/version.txt)
 endif
 
 # Set default LDFLAGS
