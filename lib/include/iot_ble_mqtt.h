@@ -163,6 +163,13 @@ typedef struct  IotBleMqttService
 
 #define IS_SUCCESS( status )			( status == eBTStatusSuccess )
 
+/**
+ * @cond DOXYGEN_IGNORE
+ * Doxygen should ignore this section.
+ *
+ * Declaration of a network interface struct using the functions in this file.
+ */
+extern const IotNetworkInterface_t _IotNetworkBle;
 
 /**
  * @brief Initializes the MQTT service instances.
@@ -185,7 +192,7 @@ BaseType_t IotBleMqtt_Init( void );
  * @return pdTRUE If the operation is successful
  *         pdFALSE If the operation failed
  */
-BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnection );
+IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pCredentialInfo, void * pConnection );
 
 /**
  * @brief Sets the send timeout for the BLE network connection.
@@ -206,7 +213,7 @@ BaseType_t IotBleMqtt_SetSendTimeout(  void * pConnection, uint16_t timeoutMs );
  * @return pdTRUE if the Connection is closed successfully
  *         pdFALSE if the connection is already closed.
  */
-void IotBleMqtt_CloseConnection(  void * pConnection );
+IotNetworkError_t IotBleMqtt_CloseConnection(  void * pConnection );
 
 /**
  *@brief Destroys the BLE network connection
@@ -214,7 +221,7 @@ void IotBleMqtt_CloseConnection(  void * pConnection );
  *Function frees the resources associated with the BLE network connection
  * @param connection Handle to the BLE network connection
  */
-void IotBleMqtt_DestroyConnection(  void * pConnection );
+IotNetworkError_t IotBleMqtt_DestroyConnection(  void * pConnection );
 
 
 /**

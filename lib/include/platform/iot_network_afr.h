@@ -228,7 +228,7 @@ IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection );
  *
  * Declaration of a network interface struct using the functions in this file.
  */
-extern const IotNetworkInterface_t _IotNetworkAfr;
+extern const IotNetworkInterface_t IotNetworkAfr;
 /** @endcond */
 
 #endif /* ifndef _IOT_NETWORK_AFR_H_ */

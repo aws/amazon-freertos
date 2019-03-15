@@ -39,6 +39,20 @@
 
 #include "iot_serializer.h"
 
+/**
+ * @brief An #IotNetworkInterface_t that uses the functions in this file.
+ */
+const IotNetworkInterface_t _IotNetworkBle =
+{
+    .create             = IotBleMqtt_CreateConnection,
+    .setReceiveCallback = IotBleMqtt_SetReceiveCallback,
+    .send               = IotBleMqtt_Send,
+    .receive            = IotBleMqtt_Receive,
+    .close              = IotBleMqtt_CloseConnection,
+    .destroy            = IotBleMqtt_DestroyConnection
+};
+
+
 
 #define IOT_BLE_MQTT_CHAR_CONTROL_UUID_TYPE \
 { \
@@ -1046,20 +1060,21 @@ BaseType_t IotBleMqtt_Init( void )
 
 /*-----------------------------------------------------------*/
 
-BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnection )
+IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pCredentialInfo, void * pConnection )
 {
-    BaseType_t ret = pdFALSE;
+	IotNetworkError_t ret = IOT_NETWORK_FAILURE;
     IotBleMqttService_t* pService;
     int lX;
+
+    (void)pCredentialInfo;
 
     for( lX = 0; lX < IOT_BLE_MQTT_MAX_SVC_INSTANCES; lX++ )
     {
     	pService = &_mqttBLEServices[ lX ];
         if( ( pService->isEnabled ) && ( pService->connection.pMqttConnection == NULL ) )
         {
-        	pService->connection.pMqttConnection = (IotMqttConnection_t *)pMqttConnection;
         	*((IotBleMqttService_t**)pConnection) =  pService;
-        	ret = pdTRUE;
+        	ret = IOT_NETWORK_SUCCESS;
         }
     }
 
@@ -1068,22 +1083,26 @@ BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnecti
 
 /*-----------------------------------------------------------*/
 
-void IotBleMqtt_CloseConnection( void * pConnection )
+IotNetworkError_t IotBleMqtt_CloseConnection( void * pConnection )
 {
     IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection != NULL ) )
     {
     	pService->connection.pMqttConnection = NULL;
     }
+
+    return IOT_NETWORK_SUCCESS;
 }
 
-void IotBleMqtt_DestroyConnection( void * pConnection )
+IotNetworkError_t IotBleMqtt_DestroyConnection( void * pConnection )
 {
     IotBleMqttService_t* pService = *(( IotBleMqttService_t ** ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection == NULL ) )
     {
         _resetBuffer( pService );
     }
+
+    return IOT_NETWORK_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -1113,13 +1132,15 @@ size_t  IotBleMqtt_Receive( void * pConnection,
 }
 
 
-void IotBleMqtt_SetReceiveCallback( void * pConnection,
+IotNetworkError_t IotBleMqtt_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext )
 {
     IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
 
     pService->connection.pMqttConnection = (IotMqttConnection_t *)pContext;
+
+    return IOT_NETWORK_SUCCESS;
 }
 /*-----------------------------------------------------------*/
 

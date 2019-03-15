@@ -46,6 +46,12 @@
 
 #define IOT_BLE_ENCRYPTION_REQUIRED               ( 0 )
 
+#define AWSIOT_NETWORK_TYPE_NONE     0x00000000
+#define AWSIOT_NETWORK_TYPE_WIFI     0x00000001
+#define AWSIOT_NETWORK_TYPE_BLE      0x00000002
+
+#define IO
+
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"
 

@@ -33,6 +33,12 @@
 /* Unity framework includes. */
 #include "unity.h"
 
+
+#define AWSIOT_NETWORK_TYPE_NONE     0x00000000
+#define AWSIOT_NETWORK_TYPE_WIFI     0x00000001
+#define AWSIOT_NETWORK_TYPE_BLE      0x00000002
+
+
 /* POSIX header overrides for FreeRTOS+POSIX. */
 #ifndef POSIX_ERRNO_HEADER
     #define POSIX_ERRNO_HEADER        "FreeRTOS_POSIX/errno.h"
@@ -180,24 +186,6 @@
     #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
 #endif
 
-/* Use Amazon FreeRTOS Secure Sockets network for tests. */
-#define IOT_TEST_NETWORK_HEADER    "platform/iot_network_afr.h"
-
-/* Forward declarations of network types used in the tests. */
-typedef struct IotNetworkConnectionAfr    IotTestNetworkConnection_t;
-typedef struct IotNetworkServerInfoAfr    IotTestNetworkServerInfo_t;
-typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
-
-/* Define test network initializers. */
-#define IOT_TEST_NETWORK_INTERFACE                  IOT_NETWORK_INTERFACE_AFR
-#define IOT_TEST_NETWORK_CONNECTION_INITIALIZER     IOT_NETWORK_CONNECTION_AFR_INITIALIZER
-#define IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER    AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER
-#define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER    AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER
-
-/* Network initialization and cleanup functions are not needed on FreeRTOS. */
-#define IotTestNetwork_Init()       IOT_NETWORK_SUCCESS
-#define IotTestNetwork_Cleanup()    
-
 /* MQTT library configuration. */
 #ifndef IOT_MQTT_ENABLE_METRICS
     #define IOT_MQTT_ENABLE_METRICS    ( 1 )
@@ -218,6 +206,7 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 #endif
 
 /* Set test credentials and Thing Name. */
+#define IOT_TEST_NETWORK_RETRY_DELAY_MS        ( 2000 )
 #define IOT_TEST_SERVER                        clientcredentialMQTT_BROKER_ENDPOINT
 #define IOT_TEST_PORT                          443
 #define IOT_TEST_SECURED_CONNECTION            1

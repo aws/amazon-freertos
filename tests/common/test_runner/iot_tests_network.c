@@ -29,198 +29,100 @@
     #include IOT_CONFIG_FILE
 #endif
 
-/* Standard includes. */
-#include <stdbool.h>
-#include <string.h>
+#include "platform/iot_network_afr.h"
+#include "private/iot_error.h"
+#include "iot_ble_mqtt.h"
 
-/* MQTT include. */
-#include "iot_mqtt.h"
 
-/* Test network header include. */
-#include IOT_TEST_NETWORK_HEADER
+IotMqttNetworkInfo_t _IotNetworkInfo;
+IotMqttConnection_t _IotMqttConnection;
+BaseType_t xNetworkCreated = pdFALSE;
 
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Network interface setup function for the tests.
- *
- * Creates a global network connection to be used by the tests.
- * @return true if setup succeeded; false otherwise.
- *
- * @see #IotTest_NetworkCleanup
- */
-bool IotTest_NetworkSetup( void );
-
-/**
- * @brief Network interface cleanup function for the tests.
- *
- * @see #IotTest_NetworkSetup
- */
-void IotTest_NetworkCleanup( void );
-
-/**
- * @brief Network interface connect function for the tests.
- *
- * Creates a new network connection for use with MQTT.
- *
- * @param[out] pNewConnection The handle by which this new connection will be referenced.
- *
- * @return true if a new network connection was successfully created; false otherwise.
- */
-bool IotTest_NetworkConnect( IotTestNetworkConnection_t * pNewConnection );
-
-/**
- * @brief Network interface close connection function for the tests.
- *
- * @param[in] pNetworkConnection The connection to close. Pass NULL to close
- * the global network connection created by #IotTest_NetworkSetup.
- *
- * @return Always returns #IOT_NETWORK_SUCCESS.
- */
-IotNetworkError_t IotTest_NetworkClose( void * pNetworkConnection );
-
-/**
- * @brief Network interface cleanup function for the tests.
- *
- * @param[in] pNetworkConnection The connection to destroy.
- */
-void IotTest_NetworkDestroy( void * pNetworkConnection );
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Flag that tracks if the network connection is created.
- */
-static bool _networkConnectionCreated = false;
-
-/**
- * @brief The network connection shared among the tests.
- */
-static IotTestNetworkConnection_t _networkConnection = IOT_TEST_NETWORK_CONNECTION_INITIALIZER;
-
-/**
- * @brief Network interface to use in the tests.
- */
-static IotNetworkInterface_t * const _pNetworkInterface;
-
-/**
- * @brief The MQTT network interface shared among the tests.
- */
-IotMqttNetworkInfo_t _IotTestNetworkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
-
-/**
- * @brief The MQTT connection shared among the tests.
- */
-IotMqttConnection_t _IotTestMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
-
-/*-----------------------------------------------------------*/
-
-bool IotTest_NetworkSetup( void )
+static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface  )
 {
-    /* Initialize the network library. */
-    if( IotTestNetwork_Init() != IOT_NETWORK_SUCCESS )
+    _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
+
+    IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
+    static IotNetworkConnectionAfr_t xConnection;
+    IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+
+    /* Disable ALPN if not using port 443. */
+    if( clientcredentialMQTT_BROKER_PORT != 443 )
     {
-        return false;
+        xCredentials.pAlpnProtos = NULL;
     }
 
-    if( IotTest_NetworkConnect( &_networkConnection ) == false )
+    /* Establish a TCP connection to the MQTT server. */
+    xStatus =  networkInterface->create(&xServerInfo, &xCredentials, pNetworkConnection);
+
+    if( xStatus != IOT_NETWORK_SUCCESS )
     {
-        IotTestNetwork_Cleanup();
-
-        return false;
-    }
-
-    /* Set the members of the network info. */
-    _IotTestNetworkInfo.createNetworkConnection = false;
-    _IotTestNetworkInfo.pNetworkConnection = &_networkConnection;
-    _IotTestNetworkInfo.pNetworkInterface = _pNetworkInterface;
-
-
-    _networkConnectionCreated = true;
-
-    return true;
-}
-
-/*-----------------------------------------------------------*/
-
-void IotTest_NetworkCleanup( void )
-{
-    /* Close the TCP connection to the server. */
-    if( _networkConnectionCreated == true )
-    {
-        IotTest_NetworkClose( NULL );
-        IotTest_NetworkDestroy( &_networkConnection );
-        _networkConnectionCreated = false;
-    }
-
-    /* Clean up the network library. */
-    IotTestNetwork_Cleanup();
-
-    /* Clear the network interface. */
-    ( void ) memset( &_IotTestNetworkInfo, 0x00, sizeof( IotMqttNetworkInfo_t ) );
-}
-
-/*-----------------------------------------------------------*/
-
-bool IotTest_NetworkConnect( IotTestNetworkConnection_t * pNewConnection )
-{
-    IotTestNetworkServerInfo_t serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
-    IotTestNetworkCredentials_t * pCredentials = NULL;
-
-    /* Set up TLS if the endpoint is secured. These tests should always use ALPN. */
-    #if IOT_TEST_SECURED_CONNECTION == 1
-        IotTestNetworkCredentials_t credentials = IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER;
-        pCredentials = &credentials;
-    #endif
-
-    /* Open a connection to the test server. */
-    if( _pNetworkInterface->create( &serverInfo,
-                                    pCredentials,
-                                    pNewConnection ) != IOT_NETWORK_SUCCESS )
-    {
-        return false;
-    }
-
-    return true;
-}
-
-/*-----------------------------------------------------------*/
-
-IotNetworkError_t IotTest_NetworkClose( void * pNetworkConnection )
-{
-    /* Close the provided network handle; if that is NULL, close the
-     * global network handle. */
-    if( ( pNetworkConnection != NULL ) &&
-        ( pNetworkConnection != &_networkConnection ) )
-    {
-        _pNetworkInterface->close( pNetworkConnection );
-    }
-    else if( _networkConnectionCreated == true )
-    {
-        _pNetworkInterface->close( &_networkConnection );
-    }
-
-    return IOT_NETWORK_SUCCESS;
-}
-
-/*-----------------------------------------------------------*/
-
-void IotTest_NetworkDestroy( void * pNetworkConnection )
-{
-    if( ( pNetworkConnection != NULL ) &&
-        ( pNetworkConnection != &_networkConnection ) )
-    {
-        /* Wrap the network interface's destroy function. */
-        _pNetworkInterface->destroy( pNetworkConnection );
+        _IOT_SET_AND_GOTO_CLEANUP( pdFALSE );
     }
     else
     {
-        if( _networkConnectionCreated == true )
+        xNetworkCreated = pdTRUE;
+    }
+
+    _IotNetworkInfo.createNetworkConnection = false;
+    _IotNetworkInfo.pNetworkConnection = &xConnection;
+    _IotNetworkInfo.pNetworkInterface = networkInterface;
+    _IotNetworkInfo.pMqttSerializer = (IotMqttSerializer_t *) pSerializer;
+
+    _IOT_FUNCTION_CLEANUP_BEGIN();
+
+    if( status != pdTRUE )
+    {
+        if( xNetworkCreated == pdTRUE )
         {
-            _pNetworkInterface->destroy( &_networkConnection );
-            _networkConnectionCreated = false;
+        	_IotNetworkInfo.pNetworkInterface->close(pNetworkConnection);
+        	_IotNetworkInfo.pNetworkInterface->destroy(pNetworkConnection);
         }
     }
+
+    _IOT_FUNCTION_CLEANUP_END();
 }
 
-/*-----------------------------------------------------------*/
+BaseType_t IotTestNetwork_Connect( void * pNetworkConnection, const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface )
+{
+    size_t xTriesLeft = 5;
+    BaseType_t xRet = pdFALSE;
+    BaseType_t xNetworkCreated = pdFALSE;
+    TickType_t xRetryDelay = pdMS_TO_TICKS( IOT_TEST_NETWORK_RETRY_DELAY_MS * 1000 );
+
+    while ( xTriesLeft > 0 )
+    {
+    	xNetworkCreated = _createConnection( pNetworkConnection, pSerializer, networkInterface );
+
+        if( xNetworkCreated == pdTRUE )
+        {
+            xRet = pdTRUE;
+            break;
+        }
+        else
+        {
+            xTriesLeft--;
+
+            if( xTriesLeft > 0 )
+            {
+            	configPRINTF(("Failed to connect to network, %d retries left\n", xTriesLeft));
+                vTaskDelay( xRetryDelay );
+            }else
+            {
+            	configPRINTF(("Failed to connect to network, no more retry\n"));
+            }
+        }
+    }
+
+    return xRet;
+}
+
+void IotTestNetwork_Cleanup(void * pNetworkConnection)
+{
+    if( xNetworkCreated == pdTRUE )
+    {
+    	_IotNetworkInfo.pNetworkInterface->close(pNetworkConnection);
+    	_IotNetworkInfo.pNetworkInterface->destroy(pNetworkConnection);
+    }
+}

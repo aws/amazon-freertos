@@ -38,7 +38,6 @@
 #include "iot_ble.h"
 #include "iot_ble_mqtt.h"
 #include "iot_ble_config.h"
-#include "platform/iot_network_ble.h"
 #include "platform/iot_clock.h"
 #include "platform/iot_network_afr.h"
 /* Test framework includes. */
@@ -62,10 +61,11 @@
 
 extern char _pClientIdentifier[];
 
-IotMqttNetworkInfo_t _IotNetworkInfo;
-IotMqttConnection_t _IotMqttConnection;
-IotBleMqttConnection_t _mqttBLEConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
+void * _pNetworkConnection;
 
+extern IotMqttNetworkInfo_t _IotNetworkInfo;
+extern BaseType_t IotTestNetwork_Connect( void * pNetworkConnection,  const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface );
+extern void IotTestNetwork_Cleanup(void * pNetworkConnection);
 
 extern void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * _IotNetworkInfo );
 extern void IotTestMqtt_TearDown(void);
@@ -154,20 +154,14 @@ static BaseType_t _BLEDisable( void )
 }
 
 
-static BaseType_t _removeBLEConnection()
+static void _removeBLEConnection()
 {
-	IotNetworkBle_Close(&_mqttBLEConnection);
-	IotNetworkBle_Destroy(&_mqttBLEConnection);
-	return _BLEDisable();
+	IotTestNetwork_Cleanup(_pNetworkConnection);
 }
 
 
 static BaseType_t _createBLEConnection()
 {
-    BaseType_t status = pdFALSE;
-    size_t triesLeft = ( 200 );
-    TickType_t retryDelay = pdMS_TO_TICKS( 1000 );
-
     /* Initialize common components. */
     if( IotCommon_Init() == false )
     {
@@ -181,27 +175,7 @@ static BaseType_t _createBLEConnection()
     }
 
     _BLEEnable();
-
-
-    while ( triesLeft > 0 )
-    {
-		if( IotNetworkBle_Create( &_IotMqttConnection, NULL,  &_mqttBLEConnection ) == pdTRUE )
-		{
-		    _IotNetworkInfo.createNetworkConnection = false;
-		    _IotNetworkInfo.pNetworkConnection = &_mqttBLEConnection;
-		    _IotNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_BLE;
-		    _IotNetworkInfo.pMqttSerializer = (IotMqttSerializer_t *)&IotBleMqttSerializer;
-
-			status = pdTRUE;
-			break;
-		}else
-		{
-			triesLeft--;
-			vTaskDelay(retryDelay);
-		}
-    }
-
-    return status;
+     return IotTestNetwork_Connect( &_pNetworkConnection, &IotBleMqttSerializer, &_IotNetworkBle );
 }
 /*-----------------------------------------------------------*/
 TEST_GROUP( Full_BLE_END_TO_END );

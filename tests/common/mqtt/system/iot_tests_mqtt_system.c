@@ -41,9 +41,7 @@
 /* Platform layer includes. */
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
-
-/* Test network header include. */
-#include IOT_TEST_NETWORK_HEADER
+#include "platform/iot_network_afr.h"
 
 /* Test framework includes. */
 #include "unity_fixture.h"
@@ -121,17 +119,15 @@ typedef struct _operationCompleteParams
 
 /* Network functions used by the tests, declared and implemented in one of
  * the test network function files. */
-extern bool IotTest_NetworkSetup( void );
-extern void IotTest_NetworkCleanup( void );
-extern bool IotTest_NetworkConnect( IotTestNetworkConnection_t * pNewConnection );
-extern IotNetworkError_t IotTest_NetworkClose( void * pNetworkConnection );
-extern void IotTest_NetworkDestroy( void * pConnection );
+extern BaseType_t IotTestNetwork_Connect( void * pNetworkConnection,  const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface );
+extern void IotTestNetwork_Cleanup(void * pNetworkConnection);
+
 
 /* Network variables used by the tests, declared in one of the test network
  * function files. */
-extern IotMqttNetworkInfo_t _IotTestNetworkInfo;
+extern IotMqttNetworkInfo_t _IotNetworkInfo;
 extern IotMqttConnection_t _IotTestMqttConnection;
-
+void * pConnection;
 /*-----------------------------------------------------------*/
 
 /**
@@ -290,14 +286,23 @@ static IotMqttError_t _serializeDisconnect( uint8_t ** pDisconnectPacket,
                                          pPacketSize );
 }
 
-#define _INIT_SERIALIZER( pSerializer )                             \
-    ( pSerializer )->serialize.connect       = _serializeConnect;      \
-    ( pSerializer )->serialize.publish       = _serializePublish;      \
-    ( pSerializer )->serialize.puback        = _serializePuback;       \
-    ( pSerializer )->serialize.subscribe     = _serializeSubscribe;    \
-    ( pSerializer )->serialize.unsubscribe   = _serializeUnsubscribe;  \
-    ( pSerializer )->serialize.disconnect    = _serializeDisconnect;   \
-    ( pSerializer )->freePacket              = _freePacket;
+const IotMqttSerializer_t IotMqttSerializer = {
+    .serialize.connect       = _serializeConnect,
+    .serialize.publish       = _serializePublish,
+    .serialize.publishSetDup = NULL,
+    .serialize.puback        = _serializePuback,
+    .serialize.subscribe     = _serializeSubscribe,
+    .serialize.unsubscribe   = _serializeUnsubscribe,
+    .serialize.disconnect    = _serializeDisconnect,
+    .freePacket              = _freePacket,
+    .getPacketType           = NULL,
+    .getRemainingLength      = NULL,
+    .deserialize.connack     = NULL,
+    .deserialize.publish     = NULL,
+    .deserialize.puback      = NULL,
+    .deserialize.suback      = NULL,
+    .deserialize.unsuback    = NULL
+};
 
 /*-----------------------------------------------------------*/
 
@@ -557,9 +562,9 @@ TEST_SETUP( MQTT_System )
     }
 
     /* Set up the network stack. */
-    if( IotTest_NetworkSetup() == false )
+    if( IotTestNetwork_Connect(pConnection, &IotMqttSerializer, &IotNetworkAfr) == false )
     {
-        TEST_FAIL_MESSAGE( "Failed to set up network connection." );
+        TEST_FAIL_MESSAGE( "Failed to connect." );
     }
 
     /* Generate a new, unique client identifier based on the time if no client
@@ -582,8 +587,7 @@ void IotTestMqtt_TearDown(void)
     IotMqtt_Cleanup();
 
     /* Clean up the network stack. */
-    IotTest_NetworkCleanup();
-    _IotTestMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+    IotTestNetwork_Cleanup(pConnection);
 }
 
 /*-----------------------------------------------------------*/
@@ -600,7 +604,7 @@ TEST_TEAR_DOWN( MQTT_System )
     IotMqtt_Cleanup();
 
     /* Clean up the network stack. */
-    IotTest_NetworkCleanup();
+    IotTestNetwork_Cleanup(pConnection);
 }
 
 /*-----------------------------------------------------------*/
@@ -627,13 +631,7 @@ TEST_GROUP_RUNNER( MQTT_System )
  */
 TEST( MQTT_System, SubscribePublishWaitQoS0 )
 {
-    IotMqttNetworkInfo_t networkInfo = _IotTestNetworkInfo;
-    IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
-
-    _INIT_SERIALIZER( &serializer );
-    networkInfo.pMqttSerializer = &serializer;
-    
-    IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_0, &networkInfo );
+    IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_0, &_IotNetworkInfo );
 }
 
 /*-----------------------------------------------------------*/
@@ -643,13 +641,7 @@ TEST( MQTT_System, SubscribePublishWaitQoS0 )
  */
 TEST( MQTT_System, SubscribePublishWaitQoS1 )
 {
-    IotMqttNetworkInfo_t networkInfo = _IotTestNetworkInfo;
-    IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
-
-    _INIT_SERIALIZER( &serializer );
-    networkInfo.pMqttSerializer = &serializer;
-
-    IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_1, &networkInfo );
+    IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_1, &_IotNetworkInfo );
 }
 
 /*-----------------------------------------------------------*/
@@ -700,7 +692,7 @@ TEST( MQTT_System, SubscribePublishAsync )
         if( TEST_PROTECT() )
         {
             /* Establish the MQTT connection. */
-            status = IotMqtt_Connect( &_IotTestNetworkInfo,
+            status = IotMqtt_Connect( &_IotNetworkInfo,
                                       &connectInfo,
                                       IOT_TEST_MQTT_TIMEOUT_MS,
                                       &_IotTestMqttConnection );
@@ -778,15 +770,16 @@ TEST( MQTT_System, LastWillAndTestament )
 {
     bool lwtListenerCreated = false;
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-    IotMqttNetworkInfo_t lwtNetworkInfo = _IotTestNetworkInfo;
+    IotMqttNetworkInfo_t lwtNetworkInfo = _IotNetworkInfo;
+    IotNetworkConnectionAfr_t xConnection;
     char pLwtListenerClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
     IotMqttConnection_t lwtListener = IOT_MQTT_CONNECTION_INITIALIZER;
     IotMqttConnectInfo_t lwtConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER,
                          connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     IotMqttSubscription_t willSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttPublishInfo_t willInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    IotTestNetworkConnection_t lwtListenerConnection = IOT_TEST_NETWORK_CONNECTION_INITIALIZER;
     IotSemaphore_t waitSem;
+    void * pConnectionlwt;
 
     /* Create the wait semaphore. */
     TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &waitSem, 0, 1 ) );
@@ -808,13 +801,13 @@ TEST( MQTT_System, LastWillAndTestament )
         /* Establish an independent MQTT over TCP connection to receive a Last
          * Will and Testament message. */
         TEST_ASSERT_EQUAL( true,
-                           IotTest_NetworkConnect( &lwtListenerConnection ) );
+                           IotTestNetwork_Connect(&pConnectionlwt, &IotMqttSerializer, &IotNetworkAfr) );
         lwtListenerCreated = true;
 
         if( TEST_PROTECT() )
         {
             lwtNetworkInfo.createNetworkConnection = false;
-            lwtNetworkInfo.pNetworkConnection = &lwtListenerConnection;
+            lwtNetworkInfo.pNetworkConnection = &xConnection;
             lwtConnectInfo.cleanSession = true;
             lwtConnectInfo.pClientIdentifier = pLwtListenerClientIdentifier;
             lwtConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( lwtConnectInfo.pClientIdentifier );
@@ -851,7 +844,7 @@ TEST( MQTT_System, LastWillAndTestament )
                 willInfo.pPayload = _pSamplePayload;
                 willInfo.payloadLength = _samplePayloadLength;
 
-                status = IotMqtt_Connect( &_IotTestNetworkInfo,
+                status = IotMqtt_Connect( &_IotNetworkInfo,
                                           &connectInfo,
                                           IOT_TEST_MQTT_TIMEOUT_MS,
                                           &_IotTestMqttConnection );
@@ -859,9 +852,9 @@ TEST( MQTT_System, LastWillAndTestament )
 
                 /* Abruptly close the MQTT connection. This should cause the LWT
                  * to be sent to the LWT listener. */
-                IotTest_NetworkClose( NULL );
+                IotTestNetwork_Close( pConnection );
                 IotMqtt_Disconnect( _IotTestMqttConnection, true );
-                IotTest_NetworkDestroy( NULL );
+                IotTestNetwork_Destroy( pConnection );
 
                 /* Check that the LWT was received. */
                 if( IotSemaphore_TimedWait( &waitSem,
@@ -872,14 +865,14 @@ TEST( MQTT_System, LastWillAndTestament )
             }
 
             IotMqtt_Disconnect( lwtListener, false );
-            IotTest_NetworkDestroy( &lwtListenerConnection );
+            IotTestNetwork_Destroy( &lwtListenerConnection );
             lwtListenerCreated = false;
         }
 
         if( lwtListenerCreated == true )
         {
-            IotTest_NetworkClose( &lwtListenerConnection );
-            IotTest_NetworkDestroy( &lwtListenerConnection );
+            IotTestNetwork_Close( &lwtListenerConnection );
+            IotTestNetwork_NetworkDestroy( &lwtListenerConnection );
         }
     }
 
@@ -910,7 +903,7 @@ TEST( MQTT_System, RestorePreviousSession )
     if( TEST_PROTECT() )
     {
         /* Establish a persistent MQTT connection. */
-        status = IotMqtt_Connect( &_IotTestNetworkInfo,
+        status = IotMqtt_Connect( &_IotNetworkInfo,
                                   &connectInfo,
                                   IOT_TEST_MQTT_TIMEOUT_MS,
                                   &_IotTestMqttConnection );
@@ -934,13 +927,13 @@ TEST( MQTT_System, RestorePreviousSession )
         IotTest_NetworkCleanup();
 
         /* Re-establish the network connection. */
-        TEST_ASSERT_EQUAL_INT( true, IotTest_NetworkSetup() );
+        TEST_ASSERT_EQUAL_INT( true, IotTestNetwork_Connect(&pConnection, &IotMqttSerializer, &IotNetworkAfr));
 
         /* Re-establish the MQTT connection with a previous session. */
         connectInfo.cleanSession = false;
         connectInfo.pPreviousSubscriptions = &subscription;
         connectInfo.previousSubscriptionCount = 1;
-        status = IotMqtt_Connect( &_IotTestNetworkInfo,
+        status = IotMqtt_Connect( &_IotNetworkInfo,
                                   &connectInfo,
                                   IOT_TEST_MQTT_TIMEOUT_MS,
                                   &_IotTestMqttConnection );
@@ -980,13 +973,13 @@ TEST( MQTT_System, RestorePreviousSession )
     if( TEST_PROTECT() )
     {
         /* Re-establish the network connection. */
-        TEST_ASSERT_EQUAL_INT( true, IotTest_NetworkSetup() );
+        TEST_ASSERT_EQUAL_INT( true, IotTest_NetworkConnect() );
 
         /* After this test is finished, establish one more connection with a clean
          * session to clean up persistent sessions on the MQTT server created by this
          * test. */
         connectInfo.cleanSession = true;
-        status = IotMqtt_Connect( &_IotTestNetworkInfo,
+        status = IotMqtt_Connect( &_IotNetworkInfo,
                                   &connectInfo,
                                   IOT_TEST_MQTT_TIMEOUT_MS,
                                   &_IotTestMqttConnection );
@@ -1023,7 +1016,7 @@ TEST( MQTT_System, WaitAfterDisconnect )
     publishInfo.retryMs = 5000;
 
     /* Establish the MQTT connection. */
-    status = IotMqtt_Connect( &_IotTestNetworkInfo,
+    status = IotMqtt_Connect( &_IotNetworkInfo,
                               &connectInfo,
                               IOT_TEST_MQTT_TIMEOUT_MS,
                               &_IotTestMqttConnection );
@@ -1090,7 +1083,7 @@ TEST( MQTT_System, SubscribeCompleteReentrancy )
             if( TEST_PROTECT() )
             {
                 /* Establish the MQTT connection. */
-                status = IotMqtt_Connect( &_IotTestNetworkInfo,
+                status = IotMqtt_Connect( &_IotNetworkInfo,
                                           &connectInfo,
                                           IOT_TEST_MQTT_TIMEOUT_MS,
                                           &_IotTestMqttConnection );
@@ -1161,7 +1154,7 @@ TEST( MQTT_System, IncomingPublishReentrancy )
             if( TEST_PROTECT() )
             {
                 /* Establish the MQTT connection. */
-                status = IotMqtt_Connect( &_IotTestNetworkInfo,
+                status = IotMqtt_Connect( &_IotNetworkInfo,
                                           &connectInfo,
                                           IOT_TEST_MQTT_TIMEOUT_MS,
                                           &_IotTestMqttConnection );
