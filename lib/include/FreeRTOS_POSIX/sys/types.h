@@ -149,4 +149,11 @@ typedef void                * pthread_barrierattr_t;
     typedef unsigned long   useconds_t;
 #endif
 
+/**
+ * @brief Used for file sizes.
+ */
+#if !defined( posixconfigENABLE_OFF_T ) || ( posixconfigENABLE_OFF_T == 1 )
+    typedef long int        off_t;
+#endif
+
 #endif /* ifndef _FREERTOS_POSIX_TYPES_H_ */

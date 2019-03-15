@@ -119,15 +119,15 @@ typedef struct MQTTAgentCallbackParams
  *
  * @see MQTTAgentCallbackParams_t.
  */
-typedef BaseType_t ( * MQTTAgentCallback_t ) ( void * pvUserData,
-                                               const MQTTAgentCallbackParams_t * const pxCallbackParams );
+typedef BaseType_t ( * MQTTAgentCallback_t )( void * pvUserData,
+                                              const MQTTAgentCallbackParams_t * const pxCallbackParams );
 
 /**
-* @brief Flags for the MQTT agent connect params.
-*/
-#define mqttagentURL_IS_IP_ADDRESS          0x00000001 /**< Set this bit in xFlags if the provided URL is an IP address. */
-#define mqttagentREQUIRE_TLS                0x00000002 /**< Set this bit in xFlags to use TLS. */
-#define mqttagentUSE_AWS_IOT_ALPN_443       0x00000004 /**< Set this bit in xFlags to use AWS IoT support for MQTT over TLS port 443. */
+ * @brief Flags for the MQTT agent connect params.
+ */
+#define mqttagentURL_IS_IP_ADDRESS       0x00000001    /**< Set this bit in xFlags if the provided URL is an IP address. */
+#define mqttagentREQUIRE_TLS             0x00000002    /**< Set this bit in xFlags to use TLS. */
+#define mqttagentUSE_AWS_IOT_ALPN_443    0x00000004    /**< Set this bit in xFlags to use AWS IoT support for MQTT over TLS port 443. */
 
 /**
  * @brief Parameters passed to the MQTT_AGENT_Connect API.
@@ -156,7 +156,7 @@ typedef struct MQTTAgentSubscribeParams
     const uint8_t * pucTopic;                    /**< The topic to subscribe to. This can be a topic filter containing wild cards as permitted by the MQTT protocol. */
     uint16_t usTopicLength;                      /**< The length of the topic. */
     MQTTQoS_t xQoS;                              /**< Requested Quality of Service. */
-    #if( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
+    #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
         void * pvPublishCallbackContext;         /**< Passed as it is in the publish callback. Can be NULL. */
         MQTTPublishCallback_t pxPublishCallback; /**< Callback function to be called whenever a publish message is received on this topic or on a topic which matches this
                                                   *   topic filter. If a publish message is received on a topic which matches more than one topic filters, the order in which

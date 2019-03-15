@@ -488,7 +488,7 @@ BaseType_t prvCreateSampleGetStreamResponseMessage( uint8_t * pucMessageBuffer,
 TEST( Full_OTA_CBOR, CborOtaApi )
 {
     BaseType_t xResult = pdFALSE;
-    uint8_t ucBlockPayload[OTA_FILE_BLOCK_SIZE] = { 0 };
+    uint8_t ucBlockPayload[ OTA_FILE_BLOCK_SIZE ] = { 0 };
     uint8_t ucCborWork[ CBOR_TEST_MESSAGE_BUFFER_SIZE ];
     size_t xEncodedSize = 0;
     uint32_t ulBitmap = CBOR_TEST_BITMAP_VALUE;
@@ -561,7 +561,7 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     size_t xEncodedSize = 0;
     OTA_FileContext_t xOTAFileContext = { 0 };
     Sig256_t xSig = { 0 };
-    uint8_t *pucInFile = NULL;
+    uint8_t * pucInFile = NULL;
     size_t xBlockBitmapSize = 0;
     uint8_t ucSignature[] =
     {
@@ -596,6 +596,7 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     TEST_ASSERT_NOT_NULL( xOTAFileContext.pxFile );
     xOTAFileContext.ulBlocksRemaining =
         xOTAFileContext.ulFileSize / OTA_FILE_BLOCK_SIZE;
+
     if( 0 != xOTAFileContext.ulFileSize % OTA_FILE_BLOCK_SIZE )
     {
         xOTAFileContext.ulBlocksRemaining++;
@@ -612,9 +613,9 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     xOTAFileContext.pxSignature->usSize = sizeof( ucSignature );
 
     /* Process the signed file by chunks. */
-    for(    size_t xBlock = 0;
-            ( xBlock * OTA_FILE_BLOCK_SIZE ) < xOTAFileContext.ulFileSize;
-            xBlock++ )
+    for( size_t xBlock = 0;
+         ( xBlock * OTA_FILE_BLOCK_SIZE ) < xOTAFileContext.ulFileSize;
+         xBlock++ )
     {
         /* Create the encoded data block response. */
         xChunkSize = min(
@@ -636,15 +637,16 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
             ucCborWork,
             xEncodedSize,
             &xCloseResult );
+
         if( ( xBlock * OTA_FILE_BLOCK_SIZE ) + xChunkSize == xOTAFileContext.ulFileSize )
         {
             TEST_ASSERT_EQUAL_INT32( xResultIngest, eIngest_Result_FileComplete );
         }
         else
         {
-            // eIngest_Result_Accepted_Continue = 0
-            // eIngest_Result_Duplicate_Continue = 1,  /* The block was a duplicate but that's OK. Continue. */
-            if ( (xResultIngest != eIngest_Result_Accepted_Continue) && (xResultIngest != eIngest_Result_Duplicate_Continue) )
+            /* eIngest_Result_Accepted_Continue = 0 */
+            /* eIngest_Result_Duplicate_Continue = 1, - The block was a duplicate but that's OK. Continue. */
+            if( ( xResultIngest != eIngest_Result_Accepted_Continue ) && ( xResultIngest != eIngest_Result_Duplicate_Continue ) )
             {
                 TEST_ASSERT_EQUAL_INT32_MESSAGE( eIngest_Result_Accepted_Continue, xResultIngest, "Result was not accepted or duplicate continue" );
             }

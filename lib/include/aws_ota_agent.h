@@ -217,26 +217,26 @@ typedef struct
     uint8_t * pucFilePath; /*!< Local file pathname. */
     union
     {
-        int32_t lFileHandle;      /*!< Device internal file pointer or handle.
-                                   * File type is handle after file is open for write. */
+        int32_t lFileHandle;     /*!< Device internal file pointer or handle.
+                                  * File type is handle after file is open for write. */
         #if WIN32
             FILE * pxFile;       /*!< File type is stdio FILE structure after file is open for write. */
         #endif
-        uint8_t * pucFile;        /*!< File type is RAM/Flash image pointer after file is open for write. */
+        uint8_t * pucFile;       /*!< File type is RAM/Flash image pointer after file is open for write. */
     };
     TimerHandle_t xRequestTimer; /*!< The request timer associated with this OTA context. */
-    uint32_t ulFileSize;          /*!< The size of the file in bytes. */
-    uint32_t ulBlocksRemaining;   /*!< How many blocks remain to be received (a code optimization). */
-    uint32_t ulFileAttributes;    /*!< Flags specific to the file being received (e.g. secure, bundle, archive). */
-    uint32_t ulServerFileID;      /*!< The file is referenced by this numeric ID in the OTA job. */
-    uint32_t ulRequestMomentum;   /*!< The number of stream requests published before a response was received. */
-    uint8_t * pucJobName;         /*!< The job name associated with this file from the job service. */
-    uint8_t * pucStreamName;      /*!< The stream associated with this file from the OTA service. */
-    Sig256_t * pxSignature;       /*!< Pointer to the file's signature structure. */
-    uint8_t * pucRxBlockBitmap;   /*!< Bitmap of blocks received (for de-duping and missing block request). */
-    uint8_t * pucCertFilepath;    /*!< Pathname of the certificate file used to validate the receive file. */
-    uint32_t ulUpdaterVersion;    /*!< Used by OTA self-test detection, the version of FW that did the update. */
-    bool_t xIsInSelfTest;         /*!< True if the job is in self test mode. */
+    uint32_t ulFileSize;         /*!< The size of the file in bytes. */
+    uint32_t ulBlocksRemaining;  /*!< How many blocks remain to be received (a code optimization). */
+    uint32_t ulFileAttributes;   /*!< Flags specific to the file being received (e.g. secure, bundle, archive). */
+    uint32_t ulServerFileID;     /*!< The file is referenced by this numeric ID in the OTA job. */
+    uint32_t ulRequestMomentum;  /*!< The number of stream requests published before a response was received. */
+    uint8_t * pucJobName;        /*!< The job name associated with this file from the job service. */
+    uint8_t * pucStreamName;     /*!< The stream associated with this file from the OTA service. */
+    Sig256_t * pxSignature;      /*!< Pointer to the file's signature structure. */
+    uint8_t * pucRxBlockBitmap;  /*!< Bitmap of blocks received (for de-duping and missing block request). */
+    uint8_t * pucCertFilepath;   /*!< Pathname of the certificate file used to validate the receive file. */
+    uint32_t ulUpdaterVersion;   /*!< Used by OTA self-test detection, the version of FW that did the update. */
+    bool_t xIsInSelfTest;        /*!< True if the job is in self test mode. */
 } OTA_FileContext_t;
 
 
