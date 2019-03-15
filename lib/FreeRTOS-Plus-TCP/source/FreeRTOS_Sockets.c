@@ -89,6 +89,11 @@ respectively. */
 #define socketNEXT_UDP_PORT_NUMBER_INDEX	0
 #define socketNEXT_TCP_PORT_NUMBER_INDEX	1
 
+/* Some helper macro's for defining the 20/80 % limits of uxLittleSpace / uxEnoughSpace. */
+#define sock20_PERCENT						20
+#define sock80_PERCENT						80
+#define sock100_PERCENT						100
+
 
 /*-----------------------------------------------------------*/
 
@@ -1430,13 +1435,21 @@ FreeRTOS_Socket_t *pxSocket;
 
 			case FREERTOS_SO_SET_LOW_HIGH_WATER:
 				{
+				LowHighWater_t *pxLowHighWater = ( LowHighWater_t * ) pvOptionValue;
+
 					if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
 					{
 						/* It is not allowed to access 'pxSocket->u.xTCP'. */
 						FreeRTOS_debug_printf( ( "FREERTOS_SO_SET_LOW_HIGH_WATER: wrong socket type\n" ) );
 						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
 					}
-					LowHighWater_t *pxLowHighWater = ( LowHighWater_t * ) pvOptionValue;
+					if( ( pxLowHighWater->uxLittleSpace >= pxLowHighWater->uxEnoughSpace ) ||
+						( pxLowHighWater->uxEnoughSpace > pxSocket->u.xTCP.uxRxStreamSize ) )
+					{
+						/* Impossible values. */
+						FreeRTOS_debug_printf( ( "FREERTOS_SO_SET_LOW_HIGH_WATER: bad values\n" ) );
+						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+					}
 					/* Send a STOP when buffer space drops below 'uxLittleSpace' bytes. */
 					pxSocket->u.xTCP.uxLittleSpace = pxLowHighWater->uxLittleSpace;
 					/* Send a GO when buffer space grows above 'uxEnoughSpace' bytes. */
@@ -2912,12 +2925,12 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 			if( pxSocket->u.xTCP.uxLittleSpace == 0ul )
 			{
-				pxSocket->u.xTCP.uxLittleSpace  = ( 1ul * pxSocket->u.xTCP.uxRxStreamSize ) / 5u; /*_RB_ Why divide by 5?  Can this be changed to a #define? */
+				pxSocket->u.xTCP.uxLittleSpace  = ( sock20_PERCENT * pxSocket->u.xTCP.uxRxStreamSize ) / sock100_PERCENT;
 			}
 
 			if( pxSocket->u.xTCP.uxEnoughSpace == 0ul )
 			{
-				pxSocket->u.xTCP.uxEnoughSpace = ( 4ul * pxSocket->u.xTCP.uxRxStreamSize ) / 5u; /*_RB_ Why multiply by 4?  Maybe sock80_PERCENT?*/
+				pxSocket->u.xTCP.uxEnoughSpace = ( sock80_PERCENT * pxSocket->u.xTCP.uxRxStreamSize ) / sock100_PERCENT;
 			}
 		}
 		else
