@@ -67,7 +67,11 @@
 
 /* Amazon FreeRTOS OTA agent includes. */
 #include "aws_ota_agent.h"
-#include "driver/gpio.h"
+
+/* 
+ * Push button HW platform.
+ */
+#include "aws_hw_button.h"
 
 /**
  * @brief Transport types supported for MQTT Echo demo.
@@ -127,11 +131,6 @@
 #define demoQUEUE_SEND                           ( 1000 )
 
 #define producerQUEUE_LENGTH                     ( 10 )
-
-/**
- * @brief IO pin for push button.
- */
-#define GPIO_INPUT_IO_0                          ( 4 )
 
 /*-----------------------------------------------------------*/
 
@@ -437,62 +436,12 @@ void vOtaTask( void * pvParameters )
 }
 
 
-/*-----------------------------------------------------------*/
-
-bool buttonWasPushed( void )
-{
-    int numSecsToWait = 5;
-    bool pushed = false;
-    bool released = false;
-    TickType_t buttonDelay = pdMS_TO_TICKS( demoBUTTON_DELAY );
-
-    while( numSecsToWait-- )
-    {
-        if( gpio_get_level( GPIO_NUM_0 ) == 0 )
-        {
-            /*   IotLogInfo("buttonWasPushed: button pushed\n"); */
-            pushed = true;
-            break;
-        }
-
-        vTaskDelay( buttonDelay );
-    }
-
-    if( pushed )
-    {
-        numSecsToWait = 20;
-
-        while( numSecsToWait-- )
-        {
-            if( gpio_get_level( GPIO_NUM_0 ) == 1 )
-            {
-                /* IotLogInfo("buttonWasPushed: button released\n"); */
-                released = true;
-                break;
-            }
-
-            vTaskDelay( buttonDelay );
-        }
-    }
-
-    return released;
-}
-
+#ifdef HW_BUTTON
 /*-----------------------------------------------------------*/
 
 void vBLEButtonTask( void * pvParameters )
 {
-    /* Enable GPIO 0 so that we can read the state */
-    gpio_config_t io_conf;
-
-    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
-    /*bit mask of the pins, use GPIO0 here */
-    io_conf.pin_bit_mask = ( 1 << GPIO_INPUT_IO_0 );
-    /*set as input mode */
-    io_conf.mode = GPIO_MODE_INPUT;
-    /*enable pull-up mode */
-    io_conf.pull_up_en = 1;
-    gpio_config( &io_conf );
+    buttonInit( );
 
     IotLogInfo( "vBLEButtonTask: start task\n" );
 
@@ -516,6 +465,7 @@ void vBLEButtonTask( void * pvParameters )
 
     IotLogInfo( "vBLEButtonTask: stop task\n" );
 }
+#endif /* HW_BUTTON */
 
 /*-----------------------------------------------------------*/
 
@@ -1039,6 +989,7 @@ void vStartCombinedDemo( void )
         }
     }
 
+#ifdef HW_BUTTON
     if( xRet == pdTRUE )
     {
         xRet = xTaskCreate( vBLEButtonTask,
@@ -1053,6 +1004,7 @@ void vStartCombinedDemo( void )
             IotLogError( ( "vStartCombinedDemo: Failed to start vBLEButtonTask." ) );
         }
     }
+#endif /* HW_BUTTON */
 
     if( xRet == pdTRUE )
     {
