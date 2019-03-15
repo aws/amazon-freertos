@@ -227,6 +227,8 @@ static BTStatus_t prvBTSendResponse( uint16_t usConnId,
                                      uint32_t ulTransId,
                                      BTStatus_t xStatus,
                                      BTGattResponse_t * pxResponse );
+static BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
+                                     BTService_t * pxService);
 
 static BTGattServerInterface_t xGATTserverInterface =
 {
@@ -235,6 +237,7 @@ static BTGattServerInterface_t xGATTserverInterface =
     .pxGattServerInit     = prvBTGattServerInit,
     .pxConnect            = prvBTConnect,
     .pxDisconnect         = prvBTDisconnect,
+    .pxAddServiceBlob     = prvAddServiceBlob,
     .pxAddService         = prvBTAddService,
     .pxAddIncludedService = prvBTAddIncludedService,
     .pxAddCharacteristic  = prvBTAddCharacteristic,
@@ -381,6 +384,58 @@ BTStatus_t prvBTAddIncludedService( uint8_t ucServerIf,
 }
 
 /*-----------------------------------------------------------*/
+
+
+BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
+                              BTService_t * pxService)
+{
+  uint16_t usAttrIndex = 0;
+  BTStatus_t xStatus = eBTStatusSuccess;
+  uint16_t usServiceHandle;
+
+  for( usAttrIndex = 1; usAttrIndex < pxService->xNumberOfAttributes - 1; usAttrIndex++)
+  {
+      switch(pxService->pxBLEAttributes[usAttrIndex].xAttributeType)
+      {    
+          case eBTDbPrimaryService:
+          {
+              xStatus = eBTStatusFail;
+              break;
+          }
+          case eBTDbSecondaryService:
+          {
+              xStatus = eBTStatusFail;
+              break;
+          }
+          case eBTDbIncludedService:
+          {
+
+              break;
+          }
+        
+          case eBTDbCharacteristicDecl:
+          {
+              xStatus = eBTStatusFail;
+              break;
+          }
+          case eBTDbCharacteristic:
+          {
+              prvBTAddCharacteristic(ucServerIf, 
+                                     usServiceHandle, 
+                                     &pxService->pxBLEAttributes[usAttrIndex].xCharacteristic.xUuid,
+                                     pxService->pxBLEAttributes[usAttrIndex].xCharacteristic.xProperties,
+                                     pxService->pxBLEAttributes[usAttrIndex].xCharacteristic.xPermissions);
+              break;
+          }
+          case eBTDbDescriptor:
+          {
+              break;
+          }
+          default:break;
+      }
+  }
+
+}
 
 BTStatus_t prvBTAddCharacteristic( uint8_t ucServerIf,
                                    uint16_t usServiceHandle,
