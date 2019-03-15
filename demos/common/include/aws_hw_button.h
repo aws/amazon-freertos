@@ -28,10 +28,10 @@
  * @file aws_hw_button.h
  * @brief AWS abstration of a physical push button on a particular version of HW
  *
- * Modify this file to include files to HW that is specific to a demo, then create the files 
- * specific for a that version of hw. 
+ * Make sure that files for your specific hardware support the buttonInit() and 
+ * buttonWasPushed().
  *
- * This example is for ESP32 Wrover Kit
+ * An example for ESP32 Wrover Kit
  *     ~/demos/espressif/esp32_devkitc_esp_wrover_kit/common/application_code/esp_wrover_sw3_button.c
  */
 #ifndef _HW_BUTTON_H_

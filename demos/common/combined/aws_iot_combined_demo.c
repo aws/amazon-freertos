@@ -70,8 +70,13 @@
 
 /* 
  * Push button HW platform.
+ *
+ * Include the aws_hw_button.h if turning BLE on/off by pushing a button on the hw
+ * is part of the demo. If enabling this capability please make sure the hardware
+ * specific code to push a button exists. See the aws_hw_button.h file for 
+ * further details.
  */
-#include "aws_hw_button.h"
+/*#include "aws_hw_button.h" */
 
 /**
  * @brief Transport types supported for MQTT Echo demo.
