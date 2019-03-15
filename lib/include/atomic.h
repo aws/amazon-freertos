@@ -27,14 +27,17 @@
  * 1. Disabling interrupt globally.
  * 2. ISA native atomic support.
  * The former is available to all ports (compiler-architecture combination),
- * while the latter is only available to ports compiling with GCC compiler.
+ * while the latter is only available to ports compiling with GCC compiler
+ * which also have ISA atomic support.
  *
- * User can select with implementation to use by:
- * including FreeRTOSConfig.h before atomic.h,
+ * User can select which implementation to use by:
+ * including FreeRTOSConfig.h before atomic.h in application code,
  * and then setting/clearing configUSE_ATOMIC_INSTRUCTION in FreeRTOSConfig.h.
- *
  * Define AND set configUSE_ATOMIC_INSTRUCTION to 1 for ISA native atomic support.
  * Undefine OR clear configUSE_ATOMIC_INSTRUCTION for disabling global interrupt implementation.
+ *
+ * @see GCC Built-in Functions for Memory Model Aware Atomic Operations
+ *      https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
  */
 
 #ifndef ATOMIC_H
@@ -56,7 +59,7 @@
 extern "C" {
 #endif
 
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
     /* This branch is for GCC compiler and GCC compiler only. */
     #ifndef portFORCE_INLINE
@@ -73,11 +76,11 @@ extern "C" {
         /* Nested interrupt scheme is supported in this port. */
         #define ATOMIC_ENTER_CRITICAL()     portSET_INTERRUPT_MASK_FROM_ISR()
         #define ATOMIC_EXIT_CRITICAL( x )   portCLEAR_INTERRUPT_MASK_FROM_ISR( x )
-        typedef UBaseType_t CriticalSessionType_t;
+        typedef UBaseType_t CriticalSectionType_t;
     #else
         #define ATOMIC_ENTER_CRITICAL()     portENTER_CRITICAL()
         #define ATOMIC_EXIT_CRITICAL( x )   portEXIT_CRITICAL()
-        typedef void CriticalSessionType_t;
+        typedef void CriticalSectionType_t;
     #endif /* portSET_INTERRUPT_MASK_FROM_ISR() */
 
     /* Port specific definitions --
@@ -85,7 +88,7 @@ extern "C" {
      * portFORCE_INLINE is used. If this is not defined, add the definition to the corresponding portmacro.h.
      */
 
-#endif /* configUSE_ATOMIC_INSTRUCTION */
+#endif /* configUSE_GCC_BUILTIN_ATOMICS */
 
 /*----------------------------- Swap && CAS ------------------------------*/
 
@@ -105,13 +108,13 @@ extern "C" {
 static portFORCE_INLINE bool Atomic_CompareAndSwap_u32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
 {
 
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
     return __atomic_compare_exchange( pDestination, &ulComparand, &ulExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST );
 
 #else
 
     bool bExecutionStatus = false;
-    CriticalSessionType_t temp;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
@@ -143,13 +146,13 @@ static portFORCE_INLINE void * Atomic_SwapPointers_p32( void * volatile * ppDest
 {
     void * pReturnValue;
 
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
     __atomic_exchange( ppDestination, &pExchange, &pReturnValue, __ATOMIC_SEQ_CST );
 
 #else
 
-    CriticalSessionType_t temp;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
@@ -180,13 +183,13 @@ static portFORCE_INLINE void * Atomic_SwapPointers_p32( void * volatile * ppDest
 static portFORCE_INLINE bool Atomic_CompareAndSwapPointers_p32( void * volatile * ppDestination, void * pExchange, void * pComparand )
 {
 
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
     return __atomic_compare_exchange( ppDestination, &pComparand, &pExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST );
 
 #else
 
     bool bExecutionStatus = false;
-    CriticalSessionType_t temp;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
@@ -197,6 +200,7 @@ static portFORCE_INLINE bool Atomic_CompareAndSwapPointers_p32( void * volatile 
     }
 
     ATOMIC_EXIT_CRITICAL( temp );
+
     return bExecutionStatus;
 
 #endif
@@ -216,26 +220,26 @@ static portFORCE_INLINE bool Atomic_CompareAndSwapPointers_p32( void * volatile 
  *
  * @return previous *pAddend value.
  */
-static portFORCE_INLINE int32_t Atomic_Add_i32( int32_t volatile * pAddend, int32_t lCount )
+static portFORCE_INLINE uint32_t Atomic_Add_u32( uint32_t volatile * pAddend, uint32_t ulCount )
 {
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
-    return __atomic_fetch_add(pAddend, lCount, __ATOMIC_SEQ_CST);
+    return __atomic_fetch_add(pAddend, ulCount, __ATOMIC_SEQ_CST);
 
 #else
 
-    int32_t lCurrent;
-    CriticalSessionType_t temp;
+    uint32_t ulCurrent;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
-    lCurrent = *pAddend;
+    ulCurrent = *pAddend;
 
-    *pAddend += lCount;
+    *pAddend += ulCount;
 
     ATOMIC_EXIT_CRITICAL( temp );
 
-    return lCurrent;
+    return ulCurrent;
 
 #endif
 }
@@ -250,26 +254,26 @@ static portFORCE_INLINE int32_t Atomic_Add_i32( int32_t volatile * pAddend, int3
  *
  * @return previous *pAddend value.
  */
-static portFORCE_INLINE int32_t Atomic_Subtract_i32( int32_t volatile * pAddend, int32_t lCount )
+static portFORCE_INLINE uint32_t Atomic_Subtract_u32( uint32_t volatile * pAddend, uint32_t ulCount )
 {
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
-    return __atomic_fetch_sub(pAddend, lCount, __ATOMIC_SEQ_CST);
+    return __atomic_fetch_sub(pAddend, ulCount, __ATOMIC_SEQ_CST);
 
 #else
 
-    int32_t lCurrent;
-    CriticalSessionType_t temp;
+    uint32_t ulCurrent;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL();
 
-    lCurrent = *pAddend;
+    ulCurrent = *pAddend;
 
-    *pAddend -= lCount;
+    *pAddend -= ulCount;
 
     ATOMIC_EXIT_CRITICAL( temp );
 
-    return lCurrent;
+    return ulCurrent;
 
 #endif
 }
@@ -283,26 +287,26 @@ static portFORCE_INLINE int32_t Atomic_Subtract_i32( int32_t volatile * pAddend,
  *
  * @return *pAddend value before increment.
  */
-static portFORCE_INLINE int32_t Atomic_Increment_i32( int32_t volatile * pAddend )
+static portFORCE_INLINE uint32_t Atomic_Increment_u32( uint32_t volatile * pAddend )
 {
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
     return __atomic_fetch_add(pAddend, 1, __ATOMIC_SEQ_CST);
 
 #else
 
-    int32_t lCurrent;
-    CriticalSessionType_t temp;
+    uint32_t ulCurrent;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
-    lCurrent = *pAddend;
+    ulCurrent = *pAddend;
 
     *pAddend += 1;
 
     ATOMIC_EXIT_CRITICAL( temp );
 
-    return lCurrent;
+    return ulCurrent;
 
 #endif
 }
@@ -316,26 +320,26 @@ static portFORCE_INLINE int32_t Atomic_Increment_i32( int32_t volatile * pAddend
  *
  * @return *pAddend value before decrement.
  */
-static portFORCE_INLINE int32_t Atomic_Decrement_i32( int32_t volatile * pAddend )
+static portFORCE_INLINE uint32_t Atomic_Decrement_u32( uint32_t volatile * pAddend )
 {
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
     return __atomic_fetch_sub(pAddend, 1, __ATOMIC_SEQ_CST);
 
 #else
 
-    int32_t lCurrent;
-    CriticalSessionType_t temp;
+    uint32_t ulCurrent;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
-    lCurrent = *pAddend;
+    ulCurrent = *pAddend;
 
     *pAddend -= 1;
 
     ATOMIC_EXIT_CRITICAL( temp );
 
-    return lCurrent;
+    return ulCurrent;
 
 #endif
 }
@@ -354,14 +358,14 @@ static portFORCE_INLINE int32_t Atomic_Decrement_i32( int32_t volatile * pAddend
  */
 static portFORCE_INLINE uint32_t Atomic_OR_u32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
     return __atomic_fetch_or(pDestination, ulValue, __ATOMIC_SEQ_CST);
 
 #else
 
     uint32_t ulCurrent;
-    CriticalSessionType_t temp;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
@@ -388,14 +392,14 @@ static portFORCE_INLINE uint32_t Atomic_OR_u32( uint32_t volatile * pDestination
  */
 static portFORCE_INLINE uint32_t Atomic_AND_u32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
     return __atomic_fetch_and(pDestination, ulValue, __ATOMIC_SEQ_CST);
 
 #else
 
     uint32_t ulCurrent;
-    CriticalSessionType_t temp;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
@@ -422,14 +426,14 @@ static portFORCE_INLINE uint32_t Atomic_AND_u32( uint32_t volatile * pDestinatio
  */
 static portFORCE_INLINE uint32_t Atomic_NAND_u32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
     return __atomic_fetch_nand(pDestination, ulValue, __ATOMIC_SEQ_CST);
 
 #else
 
     uint32_t ulCurrent;
-    CriticalSessionType_t temp;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
@@ -455,14 +459,14 @@ static portFORCE_INLINE uint32_t Atomic_NAND_u32( uint32_t volatile * pDestinati
  */
 static portFORCE_INLINE uint32_t Atomic_XOR_u32( uint32_t volatile * pDestination, uint32_t ulValue )
 {
-#if defined ( configUSE_ATOMIC_INSTRUCTION ) && ( configUSE_ATOMIC_INSTRUCTION == 1 )
+#if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
     return __atomic_fetch_xor(pDestination, ulValue, __ATOMIC_SEQ_CST);
 
 #else
 
     uint32_t ulCurrent;
-    CriticalSessionType_t temp;
+    CriticalSectionType_t temp;
 
     temp = ATOMIC_ENTER_CRITICAL( );
 
