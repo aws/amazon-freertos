@@ -83,8 +83,8 @@ typedef enum
 typedef struct CborData_s * CBORHandle_t;
 
 /** @brief Pointer to write function for use with assigning values to keys */
-typedef void (* write_function_t)( CBORHandle_t,
-                                   void const * );
+typedef void ( * write_function_t )( CBORHandle_t,
+                                     void const * );
 
 typedef char       * cbor_key_t;
 typedef char const * cbor_const_key_t;

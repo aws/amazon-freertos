@@ -106,8 +106,8 @@ typedef struct MQTTPublishData
  */
 #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
 
-    typedef MQTTBool_t ( * MQTTPublishCallback_t ) ( void * pvPublishCallbackContext,
-                                                     const MQTTPublishData_t * const pxPublishData );
+    typedef MQTTBool_t ( * MQTTPublishCallback_t )( void * pvPublishCallbackContext,
+                                                    const MQTTPublishData_t * const pxPublishData );
 
 #endif /* mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT */
 

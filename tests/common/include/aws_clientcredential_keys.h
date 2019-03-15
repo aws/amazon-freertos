@@ -11,7 +11,7 @@
  * "...base64 data...\n"\
  * "-----END CERTIFICATE-----\n"
  */
-#define keyCLIENT_CERTIFICATE_PEM      "Paste client certificate here."
+#define keyCLIENT_CERTIFICATE_PEM                   "Paste client certificate here."
 
 /*
  * PEM-encoded issuer certificate for AWS IoT Just In Time Registration (JITR).
@@ -39,7 +39,7 @@
  * "...base64 data...\n"\
  * "-----END RSA PRIVATE KEY-----\n"
  */
-#define keyCLIENT_PRIVATE_KEY_PEM      "Paste client private key here."
+#define keyCLIENT_PRIVATE_KEY_PEM                   "Paste client private key here."
 
 /* The constants above are set to const char * pointers defined in aws_dev_mode_key_provisioning.c,
  * and externed here for use in C files.  NOTE!  THIS IS DONE FOR CONVENIENCE

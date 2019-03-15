@@ -1199,7 +1199,8 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             }
 
             xEndTime = xTaskGetTickCount();
-        } while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
+        }
+        while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
 
         TEST_ASSERT_EQUAL_INT32_MESSAGE( xMessageLength, xNumBytesReceived, "Data was not received \r\n" );
 
@@ -1537,7 +1538,7 @@ static void prvTestSOCKETS_Recv_ByteByByte( Server_t xConn )
     }
 
     /* Close this socket before looping back to create another. */
-    TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Failed received\r\n" );
+    TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xResult, "Failed received" );
     xResult = prvShutdownHelper( xSocket );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to shutdown" );
 
@@ -1641,7 +1642,7 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_SendRecv_VaryLength )
     prvSOCKETS_SendRecv_VaryLength( eSecure );
 }
 
-/*/ *-----------------------------------------------------------* / */
+/*-----------------------------------------------------------*/
 
 static void prvSOCKETS_Socket_InvalidInputParams( Server_t xConn )
 {
