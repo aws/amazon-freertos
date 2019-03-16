@@ -63,11 +63,11 @@ extern char _pClientIdentifier[];
 
 void * _pNetworkConnection;
 
-extern IotMqttNetworkInfo_t _IotNetworkInfo;
+extern IotMqttNetworkInfo_t IotNetworkInfo;
 extern BaseType_t IotTestNetwork_Connect( void * pNetworkConnection,  const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface );
 extern void IotTestNetwork_Cleanup(void * pNetworkConnection);
 
-extern void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * _IotNetworkInfo );
+extern void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * networkInfo );
 extern void IotTestMqtt_TearDown(void);
 
 static void _BLEConnectionCallback( BTStatus_t status,
@@ -213,5 +213,5 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END )
 
 TEST( Full_BLE_END_TO_END, IotTest_SubscribePublishWait )
 {
-	IotTestMqtt_SubscribePublishWait(IOT_MQTT_QOS_1, &_IotNetworkInfo);
+	IotTestMqtt_SubscribePublishWait(IOT_MQTT_QOS_1, &IotNetworkInfo);
 }

@@ -34,8 +34,8 @@
 #include "iot_ble_mqtt.h"
 
 
-IotMqttNetworkInfo_t _IotNetworkInfo;
-IotMqttConnection_t _IotMqttConnection;
+IotMqttNetworkInfo_t IotNetworkInfo;
+IotMqttConnection_t IotMqttConnection;
 BaseType_t xNetworkCreated = pdFALSE;
 
 static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface  )
@@ -44,6 +44,10 @@ static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSer
 
     IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
     static IotNetworkConnectionAfr_t xConnection;
+    void * pConnectionInfo = NULL;
+    void * pCredentialInfo = NULL;
+
+   #if WIFI_SUPPORTED
     IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
@@ -53,8 +57,12 @@ static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSer
         xCredentials.pAlpnProtos = NULL;
     }
 
+    pConnectionInfo = &xServerInfo;
+    pCredentialInfo =  &xCredentials;
+    #endif
+
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  networkInterface->create(&xServerInfo, &xCredentials, pNetworkConnection);
+    xStatus =  networkInterface->create(pConnectionInfo,pCredentialInfo, pNetworkConnection);
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
@@ -65,10 +73,10 @@ static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSer
         xNetworkCreated = pdTRUE;
     }
 
-    _IotNetworkInfo.createNetworkConnection = false;
-    _IotNetworkInfo.pNetworkConnection = &xConnection;
-    _IotNetworkInfo.pNetworkInterface = networkInterface;
-    _IotNetworkInfo.pMqttSerializer = (IotMqttSerializer_t *) pSerializer;
+    IotNetworkInfo.createNetworkConnection = false;
+    IotNetworkInfo.pNetworkConnection = &xConnection;
+    IotNetworkInfo.pNetworkInterface = networkInterface;
+    IotNetworkInfo.pMqttSerializer = (IotMqttSerializer_t *) pSerializer;
 
     _IOT_FUNCTION_CLEANUP_BEGIN();
 
@@ -76,8 +84,8 @@ static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSer
     {
         if( xNetworkCreated == pdTRUE )
         {
-        	_IotNetworkInfo.pNetworkInterface->close(pNetworkConnection);
-        	_IotNetworkInfo.pNetworkInterface->destroy(pNetworkConnection);
+        	IotNetworkInfo.pNetworkInterface->close(pNetworkConnection);
+        	IotNetworkInfo.pNetworkInterface->destroy(pNetworkConnection);
         }
     }
 
@@ -122,7 +130,25 @@ void IotTestNetwork_Cleanup(void * pNetworkConnection)
 {
     if( xNetworkCreated == pdTRUE )
     {
-    	_IotNetworkInfo.pNetworkInterface->close(pNetworkConnection);
-    	_IotNetworkInfo.pNetworkInterface->destroy(pNetworkConnection);
+    	IotNetworkInfo.pNetworkInterface->close(pNetworkConnection);
+    	IotNetworkInfo.pNetworkInterface->destroy(pNetworkConnection);
+        xNetworkCreated = pdFALSE;
     }
 }
+
+
+void IotTestNetwork_Close(void * pNetworkConnection)
+{
+    if( xNetworkCreated == pdTRUE )
+    {
+        IotNetworkInfo.pNetworkInterface->close(pNetworkConnection);
+    }
+ }
+
+ void IotTestNetwork_Destroy(void * pNetworkConnection)
+{
+    if( xNetworkCreated == pdTRUE )
+    {
+        IotNetworkInfo.pNetworkInterface->destroy(pNetworkConnection);
+    }
+ }

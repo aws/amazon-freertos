@@ -121,12 +121,13 @@ typedef struct _operationCompleteParams
  * the test network function files. */
 extern BaseType_t IotTestNetwork_Connect( void * pNetworkConnection,  const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface );
 extern void IotTestNetwork_Cleanup(void * pNetworkConnection);
-
+extern void IotTestNetwork_Cose(void * pNetworkConnection);
+extern void IotTestNetwork_Destroy(void * pNetworkConnection);
 
 /* Network variables used by the tests, declared in one of the test network
  * function files. */
-extern IotMqttNetworkInfo_t _IotNetworkInfo;
-extern IotMqttConnection_t _IotTestMqttConnection;
+extern IotMqttNetworkInfo_t IotNetworkInfo;
+extern IotMqttConnection_t IotMqttConnection;
 void * pConnection;
 /*-----------------------------------------------------------*/
 
@@ -453,7 +454,7 @@ void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * 
         status = IotMqtt_Connect( networkInfo,
                                   &connectInfo,
                                   IOT_TEST_MQTT_TIMEOUT_MS,
-                                  &_IotTestMqttConnection );
+                                  &IotMqttConnection );
         TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
         if( TEST_PROTECT() )
@@ -467,7 +468,7 @@ void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * 
 
             /* Subscribe to the test topic filter using the blocking SUBSCRIBE
              * function. */
-            status = IotMqtt_TimedSubscribe( _IotTestMqttConnection,
+            status = IotMqtt_TimedSubscribe( IotMqttConnection,
                                              &subscription,
                                              1,
                                              0,
@@ -482,7 +483,7 @@ void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * 
             publishInfo.payloadLength = _samplePayloadLength;
 
             /* Publish the message. */
-            status = IotMqtt_TimedPublish( _IotTestMqttConnection,
+            status = IotMqtt_TimedPublish( IotMqttConnection,
                                            &publishInfo,
                                            0,
                                            IOT_TEST_MQTT_TIMEOUT_MS );
@@ -495,7 +496,7 @@ void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * 
             }
 
             /* Unsubscribe from the test topic filter. */
-            status = IotMqtt_TimedUnsubscribe( _IotTestMqttConnection,
+            status = IotMqtt_TimedUnsubscribe( IotMqttConnection,
                                                &subscription,
                                                1,
                                                0,
@@ -504,7 +505,7 @@ void IotTestMqtt_SubscribePublishWait( IotMqttQos_t qos, IotMqttNetworkInfo_t * 
         }
 
         /* Close the MQTT connection. */
-        IotMqtt_Disconnect( _IotTestMqttConnection, false );
+        IotMqtt_Disconnect( IotMqttConnection, false );
     }
 
     IotSemaphore_Destroy( &waitSem );
@@ -631,7 +632,7 @@ TEST_GROUP_RUNNER( MQTT_System )
  */
 TEST( MQTT_System, SubscribePublishWaitQoS0 )
 {
-    IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_0, &_IotNetworkInfo );
+    IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_0, &IotNetworkInfo );
 }
 
 /*-----------------------------------------------------------*/
@@ -641,7 +642,7 @@ TEST( MQTT_System, SubscribePublishWaitQoS0 )
  */
 TEST( MQTT_System, SubscribePublishWaitQoS1 )
 {
-    IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_1, &_IotNetworkInfo );
+    IotTestMqtt_SubscribePublishWait( IOT_MQTT_QOS_1, &IotNetworkInfo );
 }
 
 /*-----------------------------------------------------------*/
@@ -692,17 +693,17 @@ TEST( MQTT_System, SubscribePublishAsync )
         if( TEST_PROTECT() )
         {
             /* Establish the MQTT connection. */
-            status = IotMqtt_Connect( &_IotNetworkInfo,
+            status = IotMqtt_Connect( &IotNetworkInfo,
                                       &connectInfo,
                                       IOT_TEST_MQTT_TIMEOUT_MS,
-                                      &_IotTestMqttConnection );
+                                      &IotMqttConnection );
             TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
             if( TEST_PROTECT() )
             {
                 /* Subscribe to the test topic filter. */
                 callbackParam.expectedOperation = IOT_MQTT_SUBSCRIBE;
-                status = IotMqtt_Subscribe( _IotTestMqttConnection,
+                status = IotMqtt_Subscribe( IotMqttConnection,
                                             &subscription,
                                             1,
                                             0,
@@ -717,7 +718,7 @@ TEST( MQTT_System, SubscribePublishAsync )
 
                 /* Publish the message. */
                 callbackParam.expectedOperation = IOT_MQTT_PUBLISH_TO_SERVER;
-                status = IotMqtt_Publish( _IotTestMqttConnection,
+                status = IotMqtt_Publish( IotMqttConnection,
                                           &publishInfo,
                                           0,
                                           &callbackInfo,
@@ -738,7 +739,7 @@ TEST( MQTT_System, SubscribePublishAsync )
 
                 /* Unsubscribe from the test topic filter. */
                 callbackParam.expectedOperation = IOT_MQTT_UNSUBSCRIBE;
-                status = IotMqtt_Unsubscribe( _IotTestMqttConnection,
+                status = IotMqtt_Unsubscribe( IotMqttConnection,
                                               &subscription,
                                               1,
                                               0,
@@ -752,7 +753,7 @@ TEST( MQTT_System, SubscribePublishAsync )
                 }
             }
 
-            IotMqtt_Disconnect( _IotTestMqttConnection, false );
+            IotMqtt_Disconnect( IotMqttConnection, false );
         }
 
         IotSemaphore_Destroy( &publishWaitSem );
@@ -770,7 +771,7 @@ TEST( MQTT_System, LastWillAndTestament )
 {
     bool lwtListenerCreated = false;
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-    IotMqttNetworkInfo_t lwtNetworkInfo = _IotNetworkInfo;
+    IotMqttNetworkInfo_t lwtNetworkInfo = IotNetworkInfo;
     IotNetworkConnectionAfr_t xConnection;
     char pLwtListenerClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
     IotMqttConnection_t lwtListener = IOT_MQTT_CONNECTION_INITIALIZER;
@@ -844,16 +845,16 @@ TEST( MQTT_System, LastWillAndTestament )
                 willInfo.pPayload = _pSamplePayload;
                 willInfo.payloadLength = _samplePayloadLength;
 
-                status = IotMqtt_Connect( &_IotNetworkInfo,
+                status = IotMqtt_Connect( &IotNetworkInfo,
                                           &connectInfo,
                                           IOT_TEST_MQTT_TIMEOUT_MS,
-                                          &_IotTestMqttConnection );
+                                          &IotMqttConnection );
                 TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
                 /* Abruptly close the MQTT connection. This should cause the LWT
                  * to be sent to the LWT listener. */
                 IotTestNetwork_Close( pConnection );
-                IotMqtt_Disconnect( _IotTestMqttConnection, true );
+                IotMqtt_Disconnect( IotMqttConnection, true );
                 IotTestNetwork_Destroy( pConnection );
 
                 /* Check that the LWT was received. */
@@ -865,14 +866,14 @@ TEST( MQTT_System, LastWillAndTestament )
             }
 
             IotMqtt_Disconnect( lwtListener, false );
-            IotTestNetwork_Destroy( &lwtListenerConnection );
+            IotTestNetwork_Destroy( &pConnectionlwt );
             lwtListenerCreated = false;
         }
 
         if( lwtListenerCreated == true )
         {
-            IotTestNetwork_Close( &lwtListenerConnection );
-            IotTestNetwork_NetworkDestroy( &lwtListenerConnection );
+            IotTestNetwork_Close( &pConnectionlwt );
+            IotTestNetwork_Destroy( &pConnectionlwt );
         }
     }
 
@@ -903,10 +904,10 @@ TEST( MQTT_System, RestorePreviousSession )
     if( TEST_PROTECT() )
     {
         /* Establish a persistent MQTT connection. */
-        status = IotMqtt_Connect( &_IotNetworkInfo,
+        status = IotMqtt_Connect( &IotNetworkInfo,
                                   &connectInfo,
                                   IOT_TEST_MQTT_TIMEOUT_MS,
-                                  &_IotTestMqttConnection );
+                                  &IotMqttConnection );
         TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
         /* Add a subscription. */
@@ -915,7 +916,7 @@ TEST( MQTT_System, RestorePreviousSession )
         subscription.callback.param1 = &waitSem;
         subscription.callback.function = _publishReceived;
 
-        status = IotMqtt_TimedSubscribe( _IotTestMqttConnection,
+        status = IotMqtt_TimedSubscribe( IotMqttConnection,
                                          &subscription,
                                          1,
                                          0,
@@ -923,7 +924,7 @@ TEST( MQTT_System, RestorePreviousSession )
         TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
         /* Disconnect the MQTT connection and clean up network connection. */
-        IotMqtt_Disconnect( _IotTestMqttConnection, false );
+        IotMqtt_Disconnect( IotMqttConnection, false );
         IotTest_NetworkCleanup();
 
         /* Re-establish the network connection. */
@@ -933,10 +934,10 @@ TEST( MQTT_System, RestorePreviousSession )
         connectInfo.cleanSession = false;
         connectInfo.pPreviousSubscriptions = &subscription;
         connectInfo.previousSubscriptionCount = 1;
-        status = IotMqtt_Connect( &_IotNetworkInfo,
+        status = IotMqtt_Connect( &IotNetworkInfo,
                                   &connectInfo,
                                   IOT_TEST_MQTT_TIMEOUT_MS,
-                                  &_IotTestMqttConnection );
+                                  &IotMqttConnection );
         TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
         /* Publish a message to the subscription added in the previous session. */
@@ -945,7 +946,7 @@ TEST( MQTT_System, RestorePreviousSession )
         publishInfo.pPayload = _pSamplePayload;
         publishInfo.payloadLength = _samplePayloadLength;
 
-        status = IotMqtt_TimedPublish( _IotTestMqttConnection,
+        status = IotMqtt_TimedPublish( IotMqttConnection,
                                        &publishInfo,
                                        0,
                                        IOT_TEST_MQTT_TIMEOUT_MS );
@@ -959,7 +960,7 @@ TEST( MQTT_System, RestorePreviousSession )
         }
 
         /* Disconnect the MQTT connection. */
-        IotMqtt_Disconnect( _IotTestMqttConnection, false );
+        IotMqtt_Disconnect( IotMqttConnection, false );
         IotTest_NetworkCleanup();
     }
     else
@@ -979,13 +980,13 @@ TEST( MQTT_System, RestorePreviousSession )
          * session to clean up persistent sessions on the MQTT server created by this
          * test. */
         connectInfo.cleanSession = true;
-        status = IotMqtt_Connect( &_IotNetworkInfo,
+        status = IotMqtt_Connect( &IotNetworkInfo,
                                   &connectInfo,
                                   IOT_TEST_MQTT_TIMEOUT_MS,
-                                  &_IotTestMqttConnection );
+                                  &IotMqttConnection );
         TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
-        IotMqtt_Disconnect( _IotTestMqttConnection, false );
+        IotMqtt_Disconnect( IotMqttConnection, false );
     }
 }
 
@@ -1016,10 +1017,10 @@ TEST( MQTT_System, WaitAfterDisconnect )
     publishInfo.retryMs = 5000;
 
     /* Establish the MQTT connection. */
-    status = IotMqtt_Connect( &_IotNetworkInfo,
+    status = IotMqtt_Connect( &IotNetworkInfo,
                               &connectInfo,
                               IOT_TEST_MQTT_TIMEOUT_MS,
-                              &_IotTestMqttConnection );
+                              &IotMqttConnection );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
     if( TEST_PROTECT() )
@@ -1027,7 +1028,7 @@ TEST( MQTT_System, WaitAfterDisconnect )
         /* Publish a sequence of messages. */
         for( i = 0; i < 3; i++ )
         {
-            status = IotMqtt_Publish( _IotTestMqttConnection,
+            status = IotMqtt_Publish( IotMqttConnection,
                                       &publishInfo,
                                       IOT_MQTT_FLAG_WAITABLE,
                                       NULL,
@@ -1037,7 +1038,7 @@ TEST( MQTT_System, WaitAfterDisconnect )
     }
 
     /* Disconnect the MQTT connection. */
-    IotMqtt_Disconnect( _IotTestMqttConnection, false );
+    IotMqtt_Disconnect( IotMqttConnection, false );
 
     if( TEST_PROTECT() )
     {
@@ -1083,10 +1084,10 @@ TEST( MQTT_System, SubscribeCompleteReentrancy )
             if( TEST_PROTECT() )
             {
                 /* Establish the MQTT connection. */
-                status = IotMqtt_Connect( &_IotNetworkInfo,
+                status = IotMqtt_Connect( &IotNetworkInfo,
                                           &connectInfo,
                                           IOT_TEST_MQTT_TIMEOUT_MS,
-                                          &_IotTestMqttConnection );
+                                          &IotMqttConnection );
                 TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
                 /* Subscribe with a completion callback. */
@@ -1099,7 +1100,7 @@ TEST( MQTT_System, SubscribeCompleteReentrancy )
                 callbackInfo.function = _reentrantCallback;
                 callbackInfo.param1 = pWaitSemaphores;
 
-                status = IotMqtt_Subscribe( _IotTestMqttConnection,
+                status = IotMqtt_Subscribe( IotMqttConnection,
                                             &subscription,
                                             1,
                                             0,
@@ -1154,10 +1155,10 @@ TEST( MQTT_System, IncomingPublishReentrancy )
             if( TEST_PROTECT() )
             {
                 /* Establish the MQTT connection. */
-                status = IotMqtt_Connect( &_IotNetworkInfo,
+                status = IotMqtt_Connect( &IotNetworkInfo,
                                           &connectInfo,
                                           IOT_TEST_MQTT_TIMEOUT_MS,
-                                          &_IotTestMqttConnection );
+                                          &IotMqttConnection );
                 TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
                 /* Subscribe with to the test topics. */
@@ -1173,7 +1174,7 @@ TEST( MQTT_System, IncomingPublishReentrancy )
                 pSubscription[ 1 ].callback.function = _publishReceived;
                 pSubscription[ 1 ].callback.param1 = &( pWaitSemaphores[ 0 ] );
 
-                status = IotMqtt_TimedSubscribe( _IotTestMqttConnection,
+                status = IotMqtt_TimedSubscribe( IotMqttConnection,
                                                  pSubscription,
                                                  2,
                                                  0,
@@ -1189,7 +1190,7 @@ TEST( MQTT_System, IncomingPublishReentrancy )
                 publishInfo.retryLimit = 3;
                 publishInfo.retryMs = 5000;
 
-                status = IotMqtt_TimedPublish( _IotTestMqttConnection,
+                status = IotMqtt_TimedPublish( IotMqttConnection,
                                                &publishInfo,
                                                0,
                                                IOT_TEST_MQTT_TIMEOUT_MS );
