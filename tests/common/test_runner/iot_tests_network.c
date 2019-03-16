@@ -36,9 +36,14 @@
 
 IotMqttNetworkInfo_t IotNetworkInfo;
 IotMqttConnection_t IotMqttConnection;
+void * pNetworkConnection;
+uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
+
+
 BaseType_t xNetworkCreated = pdFALSE;
 
-static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface  )
+#if (WIFI_SUPPORTED == 1)
+static BaseType_t _createConnectionWIFI( void  )
 {
     _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
 
@@ -47,7 +52,6 @@ static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSer
     void * pConnectionInfo = NULL;
     void * pCredentialInfo = NULL;
 
-   #if WIFI_SUPPORTED
     IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
@@ -59,10 +63,9 @@ static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSer
 
     pConnectionInfo = &xServerInfo;
     pCredentialInfo =  &xCredentials;
-    #endif
 
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  networkInterface->create(pConnectionInfo,pCredentialInfo, pNetworkConnection);
+    xStatus =  networkInterface->create(pConnectionInfo,pCredentialInfo, &pNetworkConnection);
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
@@ -75,8 +78,50 @@ static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSer
 
     IotNetworkInfo.createNetworkConnection = false;
     IotNetworkInfo.pNetworkConnection = &xConnection;
-    IotNetworkInfo.pNetworkInterface = networkInterface;
-    IotNetworkInfo.pMqttSerializer = (IotMqttSerializer_t *) pSerializer;
+    IotNetworkInfo.pNetworkInterface = IotNetworkAfr;
+    IotNetworkInfo.pMqttSerializer = NULL;
+
+    _IOT_FUNCTION_CLEANUP_BEGIN();
+
+    if( status != pdTRUE )
+    {
+        if( xNetworkCreated == pdTRUE )
+        {
+        	IotNetworkInfo.pNetworkInterface->close(pNetworkConnection);
+        	IotNetworkInfo.pNetworkInterface->destroy(pNetworkConnection);
+        }
+    }
+
+    _IOT_FUNCTION_CLEANUP_END();
+ }
+#endif
+
+#if (BLE_SUPPORTED == 1)
+static BaseType_t _createConnectionBLE( void  )
+{
+    _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
+
+    IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
+    static IotNetworkConnectionAfr_t xConnection;
+    void * pConnectionInfo = NULL;
+    void * pCredentialInfo = NULL;
+
+    /* Establish a TCP connection to the MQTT server. */
+    xStatus =  IotNetworkBle.create(pConnectionInfo,pCredentialInfo, &pNetworkConnection);
+
+    if( xStatus != IOT_NETWORK_SUCCESS )
+    {
+        _IOT_SET_AND_GOTO_CLEANUP( pdFALSE );
+    }
+    else
+    {
+        xNetworkCreated = pdTRUE;
+    }
+
+    IotNetworkInfo.createNetworkConnection = false;
+    IotNetworkInfo.pNetworkConnection = &xConnection;
+    IotNetworkInfo.pNetworkInterface = &IotNetworkBle;
+    IotNetworkInfo.pMqttSerializer = (IotMqttSerializer_t *) &IotBleMqttSerializer;
 
     _IOT_FUNCTION_CLEANUP_BEGIN();
 
@@ -91,8 +136,19 @@ static BaseType_t _createConnection( void * pNetworkConnection, const IotMqttSer
 
     _IOT_FUNCTION_CLEANUP_END();
 }
+#endif
 
-BaseType_t IotTestNetwork_Connect( void * pNetworkConnection, const IotMqttSerializer_t const * pSerializer, const IotNetworkInterface_t const * networkInterface )
+void IotTestNetwork_SelectNetworkType(uint16_t networkType)
+{
+    _IotTestNetworkType = networkType;
+}
+
+BaseType_t IotTestNetwork_OverrideSerializer ( IotMqttSerializer_t * pSerializer )
+{
+    IotNetworkInfo.pMqttSerializer = pSerializer;
+}
+
+BaseType_t IotTestNetwork_Connect( void )
 {
     size_t xTriesLeft = 5;
     BaseType_t xRet = pdFALSE;
@@ -101,7 +157,22 @@ BaseType_t IotTestNetwork_Connect( void * pNetworkConnection, const IotMqttSeria
 
     while ( xTriesLeft > 0 )
     {
-    	xNetworkCreated = _createConnection( pNetworkConnection, pSerializer, networkInterface );
+        switch(_IotTestNetworkType)
+        {
+          #if (BLE_SUPPORTED == 1) 
+          case AWSIOT_NETWORK_TYPE_BLE:
+              xNetworkCreated = _createConnectionBLE( );
+              break;
+          #endif
+
+          #if (WIFI_SUPPORTED == 1)  
+          case AWSIOT_NETWORK_TYPE_WIFI:
+              xNetworkCreated = _createConnectionWIFI( );
+              break;
+          #endif
+          default:break;
+        }
+    	
 
         if( xNetworkCreated == pdTRUE )
         {
@@ -126,7 +197,7 @@ BaseType_t IotTestNetwork_Connect( void * pNetworkConnection, const IotMqttSeria
     return xRet;
 }
 
-void IotTestNetwork_Cleanup(void * pNetworkConnection)
+void IotTestNetwork_Cleanup(void)
 {
     if( xNetworkCreated == pdTRUE )
     {
@@ -137,7 +208,7 @@ void IotTestNetwork_Cleanup(void * pNetworkConnection)
 }
 
 
-void IotTestNetwork_Close(void * pNetworkConnection)
+void IotTestNetwork_Close(void)
 {
     if( xNetworkCreated == pdTRUE )
     {
@@ -145,7 +216,7 @@ void IotTestNetwork_Close(void * pNetworkConnection)
     }
  }
 
- void IotTestNetwork_Destroy(void * pNetworkConnection)
+ void IotTestNetwork_Destroy(void)
 {
     if( xNetworkCreated == pdTRUE )
     {

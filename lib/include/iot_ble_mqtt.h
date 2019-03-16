@@ -169,7 +169,7 @@ typedef struct  IotBleMqttService
  *
  * Declaration of a network interface struct using the functions in this file.
  */
-extern const IotNetworkInterface_t _IotNetworkBle;
+extern const IotNetworkInterface_t IotNetworkBle;
 
 /**
  * @brief Initializes the MQTT service instances.

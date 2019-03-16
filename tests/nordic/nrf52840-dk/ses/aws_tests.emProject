@@ -537,7 +537,6 @@
           <file file_name="../../../common/include/aws_freertos_tcp_test_access_tcp_define.h" />
           <file file_name="../../../common/include/aws_greengrass_discovery_test_access_declare.h" />
           <file file_name="../../../common/include/aws_greengrass_discovery_test_access_define.h" />
-          <file file_name="../../../common/include/aws_iot_config_common.h" />
           <file file_name="../../../common/include/aws_logging_task.h" />
           <file file_name="../../../common/include/aws_mqtt_lib_test_access_declare.h" />
           <file file_name="../../../common/include/aws_mqtt_lib_test_access_define.h" />
@@ -553,6 +552,7 @@
           <file file_name="../../../common/include/aws_test_utils.h" />
           <file file_name="../../../common/include/aws_unity_config.h" />
           <file file_name="../../../common/include/aws_application_version.h" />
+          <file file_name="../../../common/include/iot_config_common.h" />
         </folder>
         <folder Name="shadow">
           <folder Name="system">
@@ -612,6 +612,7 @@
       <file file_name="../common/config_files/FreeRTOSIPConfig.h" />
       <file file_name="../common/config_files/sdk_config.h" />
       <file file_name="../common/config_files/unity_config.h" />
+      <file file_name="../common/config_files/iot_test_config.h" />
     </folder>
   </project>
   <configuration

@@ -42,7 +42,7 @@
 /**
  * @brief An #IotNetworkInterface_t that uses the functions in this file.
  */
-const IotNetworkInterface_t _IotNetworkBle =
+const IotNetworkInterface_t IotNetworkBle =
 {
     .create             = IotBleMqtt_CreateConnection,
     .setReceiveCallback = IotBleMqtt_SetReceiveCallback,
