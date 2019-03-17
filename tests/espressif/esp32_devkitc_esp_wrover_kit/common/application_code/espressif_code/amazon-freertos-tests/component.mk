@@ -85,6 +85,7 @@ COMPONENT_SRCDIRS += ../.. \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/crypto \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/pkcs11 \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/tls \
+        $(AMAZON_FREERTOS_TESTS_DIR)/common/utils/platform \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/ota \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/wifi \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/posix \
