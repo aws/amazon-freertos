@@ -57,7 +57,8 @@
 #endif
 
 /* Use POSIX types on FreeRTOS. */
-#include "platform/iot_platform_types_posix.h"
+//#include "platform/iot_platform_types_posix.h"
+#include "platform/iot_platform_types_afr.h"
 
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
