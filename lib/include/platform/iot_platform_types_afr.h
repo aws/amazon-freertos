@@ -27,29 +27,30 @@
 #ifndef _IOT_PLATFORM_TYPES_POSIX_H_
 #define _IOT_PLATFORM_TYPES_POSIX_H_
 
-/* POSIX includes. Allow the default POSIX headers to be overridden. */
-#ifdef POSIX_TYPES_HEADER
-    #include POSIX_TYPES_HEADER
-#else
-    #include <sys/types.h>
-#endif
-#ifdef POSIX_SEMAPHORE_HEADER
-    #include POSIX_SEMAPHORE_HEADER
-#else
-    #include <semaphore.h>
-#endif
-
 #include "timers.h"
+
+
+struct iot_mutex_internal
+{
+    StaticSemaphore_t xMutex;           /**< FreeRTOS mutex. */
+    int type;                           /**< Type; used for indicating if this is reentrant or normal. */
+};
 
 /**
  * @brief The native mutex type on AFR systems.
  */
-typedef pthread_mutex_t   _IotSystemMutex_t;
+typedef struct iot_mutex_internal _IotSystemMutex_t;
+
+
+struct iot_sem_internal
+{
+    StaticSemaphore_t xSemaphore;       /**< FreeRTOS semaphore. */
+};
 
 /**
  * @brief The native semaphore type on AFR systems.
  */
-typedef sem_t             _IotSystemSemaphore_t;
+typedef struct iot_sem_internal _IotSystemSemaphore_t;
 
 
 /**
@@ -59,6 +60,16 @@ typedef sem_t             _IotSystemSemaphore_t;
  * platform_threads_function_createdetachedthread. For application use.
  */
 typedef void ( * IotThreadRoutine_t )( void * );
+
+/**
+ * @brief Holds information about an active detached thread so that we can 
+ *        delete the FreeRTOS task when it completes
+ */
+typedef struct _threadInfo
+{
+    void * pArgument;                    /**< @brief First argument to `threadRoutine`. */
+    IotThreadRoutine_t threadRoutine; /**< @brief Thread function to run. */
+} _threadInfo_t;
 
 /**
  * @brief Holds information about an active timer.
