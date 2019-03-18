@@ -49,9 +49,9 @@ static BaseType_t _createConnectionWIFI( void  )
 
     IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
     static IotNetworkConnectionAfr_t xConnection;
-    void * pConnectionInfo = NULL;
-    void * pCredentialInfo = NULL;
 
+
+    pNetworkConnection = &xConnection;
     IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
@@ -61,11 +61,8 @@ static BaseType_t _createConnectionWIFI( void  )
         xCredentials.pAlpnProtos = NULL;
     }
 
-    pConnectionInfo = &xServerInfo;
-    pCredentialInfo =  &xCredentials;
-
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  networkInterface->create(pConnectionInfo,pCredentialInfo, &pNetworkConnection);
+    xStatus =  IotNetworkAfr.create(&xServerInfo,&xCredentials, pNetworkConnection);
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
@@ -77,9 +74,8 @@ static BaseType_t _createConnectionWIFI( void  )
     }
 
     IotNetworkInfo.createNetworkConnection = false;
-    IotNetworkInfo.pNetworkConnection = &xConnection;
-    IotNetworkInfo.pNetworkInterface = IotNetworkAfr;
-    IotNetworkInfo.pMqttSerializer = NULL;
+    IotNetworkInfo.pNetworkConnection = pNetworkConnection;
+    IotNetworkInfo.pNetworkInterface = &IotNetworkAfr;
 
     _IOT_FUNCTION_CLEANUP_BEGIN();
 
@@ -102,12 +98,12 @@ static BaseType_t _createConnectionBLE( void  )
     _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
 
     IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
-    static IotNetworkConnectionAfr_t xConnection;
-    void * pConnectionInfo = NULL;
-    void * pCredentialInfo = NULL;
+    static IotBleMqttConnection_t * bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
+
+    pNetworkConnection = bleConnection;
 
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  IotNetworkBle.create(pConnectionInfo,pCredentialInfo, &pNetworkConnection);
+    xStatus =  IotNetworkBle.create(NULL,NULL, pNetworkConnection);
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
@@ -119,7 +115,8 @@ static BaseType_t _createConnectionBLE( void  )
     }
 
     IotNetworkInfo.createNetworkConnection = false;
-    IotNetworkInfo.pNetworkConnection = &xConnection;
+    IotNetworkInfo.pNetworkCredentialInfo = NULL;
+    IotNetworkInfo.pNetworkConnection = pNetworkConnection;
     IotNetworkInfo.pNetworkInterface = &IotNetworkBle;
     IotNetworkInfo.pMqttSerializer = (IotMqttSerializer_t *) &IotBleMqttSerializer;
 
@@ -143,7 +140,7 @@ void IotTestNetwork_SelectNetworkType(uint16_t networkType)
     _IotTestNetworkType = networkType;
 }
 
-BaseType_t IotTestNetwork_OverrideSerializer ( IotMqttSerializer_t * pSerializer )
+void IotTestNetwork_OverrideSerializer ( IotMqttSerializer_t * pSerializer )
 {
     IotNetworkInfo.pMqttSerializer = pSerializer;
 }

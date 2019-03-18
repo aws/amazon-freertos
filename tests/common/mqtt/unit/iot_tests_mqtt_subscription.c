@@ -1040,12 +1040,10 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         IotSemaphore_Post( &waitSem );
         IotSemaphore_Post( &waitSem );
 
-        TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->referencesMutex ),
-                                                            &( _pMqttConnection->references ),
-                                                            0 + keepAliveReference ) );
-                TEST_ASSERT_EQUAL_INT( true, _waitForCount( &( _pMqttConnection->subscriptionMutex ),
-                                                            &( pSubscription->references ),
-                                                            0 ) );
+        while( IotSemaphore_GetCount( &waitSem ) > 0)
+        {
+        	vTaskDelay( 100);
+        }
 
         /* Clear the MQTT connection flag so test cleanup does not double-free it. */
         _connectionCreated = false;

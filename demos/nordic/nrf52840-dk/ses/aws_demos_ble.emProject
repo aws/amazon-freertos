@@ -172,7 +172,6 @@
             <file file_name="../../../../lib/utils/platform/iot_threads_posix.c" />
             <file file_name="../../../../lib/utils/platform/iot_clock_posix.c" />
             <file file_name="../../../../lib/utils/platform/iot_network_afr.c" />
-            <file file_name="../../../../lib/utils/platform/iot_network_ble.c" />
           </folder>
         </folder>
         <folder Name="ota">

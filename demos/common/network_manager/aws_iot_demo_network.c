@@ -31,8 +31,8 @@
 #include "iot_demo.h"
 #include "aws_iot_network_manager.h"
 #include "aws_iot_demo_network.h"
+#include "iot_ble_mqtt.h"
 #include "platform/iot_network_afr.h"
-#include "platform/iot_network_ble.h"
 #include "private/iot_error.h"
 
 #if BLE_ENABLED
@@ -166,13 +166,13 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 {
     BaseType_t xStatus = pdFALSE;
     IotMqttNetworkInfo_t* pxNetworkInfo = &( pxNetworkContext->xNetworkInfo );
-    static IotBleMqttConnection_t bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
+    static IotBleMqttConnection_t * bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
 
-    if( IotNetworkBle_Create( &pxNetworkContext->xMqttConnection, NULL, &bleConnection ) == pdTRUE )
+    if( IotNetworkBle.create( NULL, NULL, &bleConnection ) == IOT_NETWORK_SUCCESS )
     {
     	pxNetworkInfo->createNetworkConnection = false;
     	pxNetworkInfo->pNetworkConnection = (void *)&bleConnection;
-    	pxNetworkInfo->pNetworkInterface = IOT_NETWORK_INTERFACE_BLE;
+    	pxNetworkInfo->pNetworkInterface = &IotNetworkBle;
     	pxNetworkInfo->pMqttSerializer = &IotBleMqttSerializer;
 
         pxNetworkContext->pvNetworkConnection = ( void* ) &bleConnection;

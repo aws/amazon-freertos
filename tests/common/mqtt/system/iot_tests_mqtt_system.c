@@ -123,7 +123,7 @@ extern IotMqttNetworkInfo_t IotNetworkInfo;
  * the test network function files. */
 extern BaseType_t IotTestNetwork_Connect(void);
 extern void IotTestNetwork_Cleanup(void);
-extern void IotTestNetwork_Cose(void);
+extern void IotTestNetwork_Close(void);
 extern void IotTestNetwork_Destroy(void);
 extern void IotTestNetwork_OverrideSerializer( IotMqttSerializer_t * pSerializer );
 /*-----------------------------------------------------------*/
@@ -565,7 +565,7 @@ TEST_SETUP( MQTT_System )
         TEST_FAIL_MESSAGE( "Failed to connect." );
     }
 
-    IotTestNetwork_OverrideSerializer ( &_IotTestMqttSerializer );
+    IotTestNetwork_OverrideSerializer ((IotMqttSerializer_t *)&_IotTestMqttSerializer );
 
     /* Generate a new, unique client identifier based on the time if no client
      * identifier is defined. Otherwise, copy the provided client identifier. */
@@ -614,10 +614,12 @@ TEST_TEAR_DOWN( MQTT_System )
  */
 TEST_GROUP_RUNNER( MQTT_System )
 {
+#if (DEFAULT_NETWORK == AWSIOT_NETWORK_TYPE_WIFI )
+    RUN_TEST_CASE( MQTT_System, LastWillAndTestament );
+#endif
     RUN_TEST_CASE( MQTT_System, SubscribePublishWaitQoS0 );
     RUN_TEST_CASE( MQTT_System, SubscribePublishWaitQoS1 );
     RUN_TEST_CASE( MQTT_System, SubscribePublishAsync );
-    RUN_TEST_CASE( MQTT_System, LastWillAndTestament );
     RUN_TEST_CASE( MQTT_System, RestorePreviousSession );
     RUN_TEST_CASE( MQTT_System, WaitAfterDisconnect );
     RUN_TEST_CASE( MQTT_System, SubscribeCompleteReentrancy );
@@ -766,21 +768,22 @@ TEST( MQTT_System, SubscribePublishAsync )
 /**
  * @brief Test that a LWT is published if an MQTT connection is unexpectedly closed.
  */
- #if 0
+#if (DEFAULT_NETWORK == AWSIOT_NETWORK_TYPE_WIFI )
 TEST( MQTT_System, LastWillAndTestament )
 {
     bool lwtListenerCreated = false;
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttNetworkInfo_t lwtNetworkInfo = IotNetworkInfo;
-    IotNetworkConnectionAfr_t xConnection;
+    IotNetworkConnectionAfr_t xConnection = IOT_NETWORK_CONNECTION_AFR_INITIALIZER;
     char pLwtListenerClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
     IotMqttConnection_t lwtListener = IOT_MQTT_CONNECTION_INITIALIZER;
     IotMqttConnectInfo_t lwtConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER,
                          connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     IotMqttSubscription_t willSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttPublishInfo_t willInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+    IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     IotSemaphore_t waitSem;
-    void * pConnectionlwt;
 
     /* Create the wait semaphore. */
     TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &waitSem, 0, 1 ) );
@@ -799,10 +802,16 @@ TEST( MQTT_System, LastWillAndTestament )
 
     if( TEST_PROTECT() )
     {
+	   /* Disable ALPN if not using port 443. */
+		if( clientcredentialMQTT_BROKER_PORT != 443 )
+		{
+			xCredentials.pAlpnProtos = NULL;
+		}
+
         /* Establish an independent MQTT over TCP connection to receive a Last
          * Will and Testament message. */
         TEST_ASSERT_EQUAL( true,
-                           () );
+                           (IotNetworkAfr.create(&xServerInfo,&xCredentials, &xConnection)) );
         lwtListenerCreated = true;
 
         if( TEST_PROTECT() )
@@ -866,14 +875,14 @@ TEST( MQTT_System, LastWillAndTestament )
             }
 
             IotMqtt_Disconnect( lwtListener, false );
-            IotTestNetwork_Destroy( &pConnectionlwt );
+            IotNetworkAfr.destroy( &xConnection );
             lwtListenerCreated = false;
         }
 
         if( lwtListenerCreated == true )
         {
-            IotTestNetwork_Close( &pConnectionlwt );
-            IotTestNetwork_Destroy( &pConnectionlwt );
+        	IotNetworkAfr.close( &xConnection );
+            IotNetworkAfr.destroy( &xConnection );
         }
     }
 
@@ -925,7 +934,7 @@ TEST( MQTT_System, RestorePreviousSession )
 
         /* Disconnect the MQTT connection and clean up network connection. */
         IotMqtt_Disconnect( IotMqttConnection, false );
-        IotTest_NetworkCleanup();
+        IotTestNetwork_Cleanup();
 
         /* Re-establish the network connection. */
         TEST_ASSERT_EQUAL_INT( true, IotTestNetwork_Connect());
@@ -961,12 +970,12 @@ TEST( MQTT_System, RestorePreviousSession )
 
         /* Disconnect the MQTT connection. */
         IotMqtt_Disconnect( IotMqttConnection, false );
-        IotTest_NetworkCleanup();
+        IotTestNetwork_Cleanup();
     }
     else
     {
         /* Close network connection on test failure. */
-        IotTest_NetworkClose( NULL );
+        IotTestNetwork_Close( );
     }
 
     IotSemaphore_Destroy( &waitSem );
@@ -974,7 +983,7 @@ TEST( MQTT_System, RestorePreviousSession )
     if( TEST_PROTECT() )
     {
         /* Re-establish the network connection. */
-        TEST_ASSERT_EQUAL_INT( true, IotTest_NetworkConnect() );
+        TEST_ASSERT_EQUAL_INT( true, IotTestNetwork_Connect() );
 
         /* After this test is finished, establish one more connection with a clean
          * session to clean up persistent sessions on the MQTT server created by this

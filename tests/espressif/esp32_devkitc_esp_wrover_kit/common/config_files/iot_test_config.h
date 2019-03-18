@@ -40,6 +40,8 @@ extern void IotBleMqtt_CleanupSerialize( void );
 #define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
 
 #define DEFAULT_NETWORK AWSIOT_NETWORK_TYPE_WIFI
+#define BLE_SUPPORTED 1
+#define WIFI_SUPPORTED 1
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"

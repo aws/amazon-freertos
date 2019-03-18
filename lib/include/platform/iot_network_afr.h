@@ -176,7 +176,7 @@ typedef struct IotNetworkCredentialsAfr
  * @brief Provides a pointer to an #IotNetworkInterface_t that uses the functions
  * declared in this file.
  */
-#define IOT_NETWORK_INTERFACE_AFR    ( &( _IotNetworkAfr ) )
+#define IOT_NETWORK_INTERFACE_AFR    ( &IotNetworkAfr )
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::create for Amazon FreeRTOS
