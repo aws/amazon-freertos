@@ -405,7 +405,8 @@ void vApplicationDaemonTaskStartupHook( void )
 
     BaseType_t xStatus = pdFALSE;
 
-    xStatus = ( IotTaskPool_CreateSystemTaskPool( &taskPool ) == IOT_TASKPOOL_SUCCESS );
+    xStatus = ( IotCommon_Init() == true );
+
 
      if( xStatus == pdPASS )
     {
