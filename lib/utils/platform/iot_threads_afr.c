@@ -126,12 +126,24 @@ bool Iot_CreateDetachedThread(  IotThreadRoutine_t threadRoutine,
     {
         pThreadInfo->threadRoutine = threadRoutine;
         pThreadInfo->pArgument = pArgument;
-         
+        
+        /* update supplied if we require the default stack size */
+        if ( stackSize == IOT_THREAD_DEFAULT_STACK_SIZE)
+        {
+            stackSize = 3072;
+        }
+
+        /* update supplied if we require the default thread priority */
+        if ( priority == IOT_THREAD_DEFAULT_PRIORITY )
+        {
+            priority = 5;
+        }
+
         if( xTaskCreate( _threadRoutineWrapper,
                         "iot_thread",
-                        stackSize > 0 ? stackSize : 3072,
+                        stackSize,
                         pThreadInfo,
-                        priority > 0 ? priority : 5 ,
+                        priority,
                         NULL ) != pdPASS )
         {
             /* Task creation failed. */
