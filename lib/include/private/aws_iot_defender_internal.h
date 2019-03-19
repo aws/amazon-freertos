@@ -39,7 +39,7 @@
 #include "iot_serializer.h"
 
 /* Platform thread include. */
-#include "platform/aws_iot_threads.h"
+#include "platform/iot_threads.h"
 
 /* Double linked list include. */
 #include "iot_linear_containers.h"
@@ -67,21 +67,21 @@
     #define _LIBRARY_LOG_LEVEL        AWS_IOT_LOG_LEVEL_DEFENDER
 #else
     #ifdef AWS_IOT_LOG_LEVEL_GLOBAL
-        #define _LIBRARY_LOG_LEVEL    AWS_IOT_LOG_LEVEL_GLOBAL
+        #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
     #else
-        #define _LIBRARY_LOG_LEVEL    AWS_IOT_LOG_NONE
+        #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
     #endif
 #endif
 
 #define _LIBRARY_LOG_NAME    ( "Defender" )
-#include "aws_iot_logging_setup.h"
+#include "iot_logging_setup.h"
 
 /*
  * Provide default values for undefined memory allocation functions based on
  * the usage of dynamic memory allocation.
  */
-#if AWS_IOT_STATIC_MEMORY_ONLY == 1
-    #include "platform/aws_iot_static_memory.h"
+#if IOT_STATIC_MEMORY_ONLY == 1
+    #include "private/iot_static_memory.h"
 
 /**
  * @brief Allocate an array of uint8_t. This function should have the same
@@ -119,7 +119,7 @@
         #define AwsIotDefender_FreeTopic    AwsIot_FreeDefenderTopic
     #endif
 
-#else /* if AWS_IOT_STATIC_MEMORY_ONLY */
+#else /* if IOT_STATIC_MEMORY_ONLY */
     #include <stdlib.h>
 
     #ifndef AwsIotDefender_MallocReport
@@ -138,7 +138,7 @@
         #define AwsIotDefender_FreeTopic    free
     #endif
 
-#endif /* if AWS_IOT_STATIC_MEMORY_ONLY */
+#endif /* if IOT_STATIC_MEMORY_ONLY */
 
 /**
  * @page Defender_Config Configuration
@@ -191,6 +191,10 @@
     #define AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS    ( 300 )
 #endif
 
+#ifndef AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS
+    #define AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS    ( 3 )
+#endif
+
 #ifndef AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS
     #define AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS    ( 10U )
 #endif
@@ -207,6 +211,12 @@
     #define AWS_IOT_DEFENDER_FORMAT    AWS_IOT_DEFENDER_FORMAT_CBOR
 #endif
 
+/* In current release, JSON format is not supported. */
+#if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
+    #error "AWS_IOT_DEFENDER_FORMAT_JSON is not supported."
+#endif
+
+/* Default to short tag to save memory and network. */
 #ifndef AWS_IOT_DEFENDER_USE_LONG_TAG
     #define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 0 )
 #endif
@@ -222,14 +232,14 @@
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
 
     #define _DEFENDER_FORMAT          "cbor"
-    #define _AwsIotDefenderEncoder    _AwsIotSerializerCborEncoder /**< Global defined in iot_serializer.h . */
-    #define _AwsIotDefenderDecoder    _AwsIotSerializerCborDecoder /**< Global defined in iot_serializer.h . */
+    #define _AwsIotDefenderEncoder    _IotSerializerCborEncoder /**< Global defined in iot_serializer.h . */
+    #define _AwsIotDefenderDecoder    _IotSerializerCborDecoder /**< Global defined in iot_serializer.h . */
 
 #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
 
     #define _DEFENDER_FORMAT          "json"
-    #define _AwsIotDefenderEncoder    _AwsIotSerializerJsonEncoder /**< Global defined in iot_serializer.h . */
-    #define _AwsIotDefenderDecoder    _AwsIotSerializerJsonDecoder /**< Global defined in iot_serializer.h . */
+    #define _AwsIotDefenderEncoder    _IotSerializerJsonEncoder /**< Global defined in iot_serializer.h . */
+    #define _AwsIotDefenderDecoder    _IotSerializerJsonDecoder /**< Global defined in iot_serializer.h . */
 
 #else /* if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR */
     #error "AWS_IOT_DEFENDER_FORMAT must be either AWS_IOT_DEFENDER_FORMAT_CBOR or AWS_IOT_DEFENDER_FORMAT_JSON."
@@ -249,7 +259,8 @@
  * Convert seconds to milliseconds and vice versa.
  */
 #define _defenderToMilliseconds( secondValue )    ( secondValue ) * 1000
-#define _defenderToSeconds( millisecondValue )    ( millisecondValue ) / 1000                                                                            \
+#define _defenderToSeconds( millisecondValue ) \
+    ( millisecondValue ) / 1000                \
 
 
 /**
@@ -273,7 +284,7 @@ typedef struct _defenderMetrics
 /**
  * Create a report, memory is allocated inside the function.
  */
-AwsIotDefenderEventType_t AwsIotDefenderInternal_CreateReport();
+bool AwsIotDefenderInternal_CreateReport();
 
 /**
  * Get the buffer pointer of report.
@@ -293,8 +304,7 @@ void AwsIotDefenderInternal_DeleteReport();
 /**
  * Build three topics names used by defender library.
  */
-AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( const char * pThingName,
-                                                               uint16_t thingNameLength );
+AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames();
 
 /**
  * Free the memory of three topics names.
@@ -302,49 +312,26 @@ AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( const char * pThi
 void AwsIotDefenderInternal_DeleteTopicsNames();
 
 /**
- * Creat a network connection.
- */
-bool AwsIotDefenderInternal_NetworkConnect( const char * pAwsIotEndpoint,
-                                            uint16_t port,
-                                            IotNetworkCredentialsAfr_t * pTlsInfo );
-
-/**
- * Set the network connection to callback MQTT.
- */
-bool AwsIotDefenderInternal_SetMqttCallback();
-
-/**
  * Connect to AWS with MQTT.
  */
-bool AwsIotDefenderInternal_MqttConnect( const char * pThingName,
-                                         uint16_t thingNameLength );
+IotMqttError_t AwsIotDefenderInternal_MqttConnect();
 
 /**
  * Subscribe accept/reject defender topics.
  */
-bool AwsIotDefenderInternal_MqttSubscribe( AwsIotMqttCallbackInfo_t acceptCallback,
-                                           AwsIotMqttCallbackInfo_t rejectCallback );
+IotMqttError_t AwsIotDefenderInternal_MqttSubscribe( IotMqttCallbackInfo_t acceptCallback,
+                                           IotMqttCallbackInfo_t rejectCallback );
 
 /**
  * Publish metrics data to defender topic.
  */
-bool AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
+IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
                                          size_t dataLength );
 
 /**
  * Disconnect with AWS MQTT.
  */
 void AwsIotDefenderInternal_MqttDisconnect();
-
-/**
- * Close network connection.
- */
-void AwsIotDefenderInternal_NetworkClose();
-
-/**
- * Destory network connection.
- */
-void AwsIotDefenderInternal_NetworkDestroy();
 
 /*----------------- Below this line are INTERNAL global variables --------------------*/
 

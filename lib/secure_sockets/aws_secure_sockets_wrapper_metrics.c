@@ -41,7 +41,7 @@
 #include "aws_secure_sockets.h"
 
 /* Metrics includes. */
-#include "iot_metrics.h"
+#include "platform/iot_metrics.h"
 
 #undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 

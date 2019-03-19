@@ -200,9 +200,6 @@
 #ifndef IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES
     #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 0 )
 #endif
-#ifndef IOT_MQTT_TEST
-    #define IOT_MQTT_TEST                           ( 0 )
-#endif
 #ifndef IOT_MQTT_RESPONSE_WAIT_MS
     #define IOT_MQTT_RESPONSE_WAIT_MS               ( 1000 )
 #endif
@@ -270,8 +267,10 @@
 typedef struct _mqttConnection
 {
     bool awsIotMqttMode;                             /**< @brief Specifies if this connection is to an AWS IoT MQTT server. */
+    bool ownNetworkConnection;                       /**< @brief Whether this MQTT connection owns its network connection. */
     void * pNetworkConnection;                       /**< @brief References the transport-layer network connection. */
     const IotNetworkInterface_t * pNetworkInterface; /**< @brief Network interface provided to @ref mqtt_function_connect. */
+    IotMqttCallbackInfo_t disconnectCallback;        /**< @brief A function to invoke when this connection is disconnected. */
 
     #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
         const IotMqttSerializer_t * pSerializer; /**< @brief MQTT packet serializer overrides. */
@@ -349,7 +348,7 @@ typedef struct _mqttOperation
         {
             /* Basic operation information. */
             int32_t jobReference;             /**< @brief Tracks if a job is using this operation. Must always be 0, 1, or 2. */
-            IotMqttOperationType_t operation; /**< @brief What operation this structure represents. */
+            IotMqttOperationType_t type;      /**< @brief What operation this structure represents. */
             uint32_t flags;                   /**< @brief Flags passed to the function that created this operation. */
             uint16_t packetIdentifier;        /**< @brief The packet identifier used with this operation. */
 
@@ -436,13 +435,13 @@ bool _IotMqtt_ValidatePublish( bool awsIotMqttMode,
                                const IotMqttPublishInfo_t * pPublishInfo );
 
 /**
- * @brief Check that an #IotMqttReference_t is valid and waitable.
+ * @brief Check that an #IotMqttOperation_t is valid and waitable.
  *
- * @param[in] reference The #IotMqttReference_t to validate.
+ * @param[in] operation The #IotMqttOperation_t to validate.
  *
- * @return `true` if `reference` is valid; `false` otherwise.
+ * @return `true` if `operation` is valid; `false` otherwise.
  */
-bool _IotMqtt_ValidateReference( IotMqttReference_t reference );
+bool _IotMqtt_ValidateOperation( IotMqttOperation_t operation );
 
 /**
  * @brief Check that a list of #IotMqttSubscription_t is valid.
@@ -815,13 +814,13 @@ IotMqttError_t _IotMqtt_ScheduleOperation( _mqttOperation_t * pOperation,
  * name and packet identifier. Removes a matching operation from the list if found.
  *
  * @param[in] pMqttConnection The connection associated with the operation.
- * @param[in] operation The operation type to look for.
+ * @param[in] type The operation type to look for.
  * @param[in] pPacketIdentifier A packet identifier to match. Pass `NULL` to ignore.
  *
  * @return Pointer to any matching operation; `NULL` if no match was found.
  */
 _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
-                                           IotMqttOperationType_t operation,
+                                           IotMqttOperationType_t type,
                                            const uint16_t * pPacketIdentifier );
 
 /**
@@ -932,9 +931,12 @@ bool _IotMqtt_GetNextByte( void * pNetworkConnection,
  * A network disconnect function must be set in the network interface for the
  * network connection to be closed.
  *
+ * @param[in] disconnectReason A reason to pass to the connection's disconnect
+ * callback.
  * @param[in] pMqttConnection The MQTT connection with the network connection
  * to close.
  */
-void _IotMqtt_CloseNetworkConnection( _mqttConnection_t * pMqttConnection );
+void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason,
+                                      _mqttConnection_t * pMqttConnection );
 
 #endif /* ifndef _IOT_MQTT_INTERNAL_H_ */

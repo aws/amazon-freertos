@@ -586,92 +586,79 @@ static void _sendPuback( _mqttConnection_t * pMqttConnection,
                                           size_t * ) = _IotMqtt_SerializePuback;
     void ( * freePacket )( uint8_t * ) = _IotMqtt_FreePacket;
 
-    /* Increment the reference count for the MQTT connection. */
-    if( _IotMqtt_IncrementConnectionReferences( pMqttConnection ) == true )
-    {
-        IotLogDebug( "(MQTT connection %p) Sending PUBACK for received PUBLISH %hu.",
-                     pMqttConnection,
-                     packetIdentifier );
+    IotLogDebug( "(MQTT connection %p) Sending PUBACK for received PUBLISH %hu.",
+                 pMqttConnection,
+                 packetIdentifier );
 
-        /* Choose PUBACK serializer and free packet functions. */
-        #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-            if( pMqttConnection->pSerializer != NULL )
-            {
-                if( pMqttConnection->pSerializer->serialize.puback != NULL )
-                {
-                    serializePuback = pMqttConnection->pSerializer->serialize.puback;
-                }
-                else
-                {
-                    _EMPTY_ELSE_MARKER;
-                }
-            }
-            else
-            {
-                _EMPTY_ELSE_MARKER;
-            }
-        #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-        #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-            if( pMqttConnection->pSerializer != NULL )
-            {
-                if( pMqttConnection->pSerializer->freePacket != NULL )
-                {
-                    freePacket = pMqttConnection->pSerializer->freePacket;
-                }
-                else
-                {
-                    _EMPTY_ELSE_MARKER;
-                }
-            }
-            else
-            {
-                _EMPTY_ELSE_MARKER;
-            }
-        #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-
-        /* Generate a PUBACK packet from the packet identifier. */
-        serializeStatus = serializePuback( packetIdentifier,
-                                           &pPuback,
-                                           &pubackSize );
-
-        if( serializeStatus != IOT_MQTT_SUCCESS )
+    /* Choose PUBACK serializer and free packet functions. */
+    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+        if( pMqttConnection->pSerializer != NULL )
         {
-            IotLogWarn( "(MQTT connection %p) Failed to generate PUBACK packet for "
-                        "received PUBLISH %hu.",
+            if( pMqttConnection->pSerializer->serialize.puback != NULL )
+            {
+                serializePuback = pMqttConnection->pSerializer->serialize.puback;
+            }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
+            }
+        }
+        else
+        {
+            _EMPTY_ELSE_MARKER;
+        }
+    #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
+    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+        if( pMqttConnection->pSerializer != NULL )
+        {
+            if( pMqttConnection->pSerializer->freePacket != NULL )
+            {
+                freePacket = pMqttConnection->pSerializer->freePacket;
+            }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
+            }
+        }
+        else
+        {
+            _EMPTY_ELSE_MARKER;
+        }
+    #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
+
+    /* Generate a PUBACK packet from the packet identifier. */
+    serializeStatus = serializePuback( packetIdentifier,
+                                       &pPuback,
+                                       &pubackSize );
+
+    if( serializeStatus != IOT_MQTT_SUCCESS )
+    {
+        IotLogWarn( "(MQTT connection %p) Failed to generate PUBACK packet for "
+                    "received PUBLISH %hu.",
+                    pMqttConnection,
+                    packetIdentifier );
+    }
+    else
+    {
+        bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
+                                                              pPuback,
+                                                              pubackSize );
+
+        if( bytesSent != pubackSize )
+        {
+            IotLogWarn( "(MQTT connection %p) Failed to send PUBACK for received"
+                        " PUBLISH %hu.",
                         pMqttConnection,
                         packetIdentifier );
         }
         else
         {
-            bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
-                                                                  pPuback,
-                                                                  pubackSize );
-
-            if( bytesSent != pubackSize )
-            {
-                IotLogWarn( "(MQTT connection %p) Failed to send PUBACK for received"
-                            " PUBLISH %hu.",
-                            pMqttConnection,
-                            packetIdentifier );
-            }
-            else
-            {
-                IotLogDebug( "(MQTT connection %p) PUBACK for received PUBLISH %hu sent.",
-                             pMqttConnection,
-                             packetIdentifier );
-            }
-
-            freePacket( pPuback );
+            IotLogDebug( "(MQTT connection %p) PUBACK for received PUBLISH %hu sent.",
+                         pMqttConnection,
+                         packetIdentifier );
         }
 
-        _IotMqtt_DecrementConnectionReferences( pMqttConnection );
-    }
-    else
-    {
-        IotLogWarn( "(MQTT connection %p) Connection is closed, PUBACK for received"
-                    " PUBLISH %hu will not be sent.",
-                    pMqttConnection,
-                    packetIdentifier );
+        freePacket( pPuback );
     }
 }
 
@@ -707,10 +694,12 @@ bool _IotMqtt_GetNextByte( void * pNetworkConnection,
 
 /*-----------------------------------------------------------*/
 
-void _IotMqtt_CloseNetworkConnection( _mqttConnection_t * pMqttConnection )
+void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason,
+                                      _mqttConnection_t * pMqttConnection )
 {
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     IotNetworkError_t closeStatus = IOT_NETWORK_SUCCESS;
+    IotMqttCallbackParam_t callbackParam = { .message = { 0 } };
 
     /* Mark the MQTT connection as disconnected and the keep-alive as failed. */
     IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
@@ -769,8 +758,7 @@ void _IotMqtt_CloseNetworkConnection( _mqttConnection_t * pMqttConnection )
 
     IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
 
-    /* Close the network connection regardless of whether an MQTT DISCONNECT
-     * packet was sent. */
+    /* Close the network connection. */
     if( pMqttConnection->pNetworkInterface->close != NULL )
     {
         closeStatus = pMqttConnection->pNetworkInterface->close( pMqttConnection->pNetworkConnection );
@@ -790,6 +778,21 @@ void _IotMqtt_CloseNetworkConnection( _mqttConnection_t * pMqttConnection )
     {
         IotLogWarn( "(MQTT connection %p) No network close function was set. Network connection"
                     " not closed.", pMqttConnection );
+    }
+
+    /* Invoke the disconnect callback. */
+    if( pMqttConnection->disconnectCallback.function != NULL )
+    {
+        /* Set the members of the callback parameter. */
+        callbackParam.mqttConnection = pMqttConnection;
+        callbackParam.disconnectReason = disconnectReason;
+
+        pMqttConnection->disconnectCallback.function( pMqttConnection->disconnectCallback.pCallbackContext,
+                                                      &callbackParam );
+    }
+    else
+    {
+        _EMPTY_ELSE_MARKER;
     }
 }
 
@@ -836,7 +839,12 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
         IotLogError( "(MQTT connection %p) Error processing incoming data. Closing connection.",
                      pMqttConnection );
 
-        _IotMqtt_CloseNetworkConnection( pMqttConnection );
+        _IotMqtt_CloseNetworkConnection( IOT_MQTT_BAD_PACKET_RECEIVED,
+                                         pMqttConnection );
+    }
+    else
+    {
+        _EMPTY_ELSE_MARKER;
     }
 }
 

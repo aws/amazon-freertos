@@ -414,9 +414,6 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcSnapshotRecorder.c">
       <Filter>lib\third_party\tracealyzer_recorder</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
-      <Filter>lib\aws\ota</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
@@ -600,12 +597,6 @@
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_subscription.c">
       <Filter>lib\aws\shadow</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_decoder.c">
-      <Filter>lib\aws\serializer\cbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_encoder.c">
-      <Filter>lib\aws\serializer\cbor</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_decoder.c">
       <Filter>lib\aws\serializer\json</Filter>
     </ClCompile>
@@ -614,9 +605,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c">
       <Filter>lib\aws\secure_sockets</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt_v4\iot_demo_mqtt.c">
-      <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_api.c">
       <Filter>lib\aws\mqtt</Filter>
@@ -669,11 +657,20 @@
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_posix.c">
       <Filter>lib\aws\utils\platform</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt_v4\iot_demo_mqtt_afr.c">
-      <Filter>application_code\common_demos\source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c">
       <Filter>lib\aws\metrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\demo_runner\iot_demo_afr.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_decoder.c">
+      <Filter>lib\aws\serializer\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_encoder.c">
+      <Filter>lib\aws\serializer\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\mqtt\iot_demo_mqtt.c">
+      <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1268,9 +1265,6 @@
     <ClInclude Include="..\..\..\common\include\iot_config_common.h">
       <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\include\iot_demo.h">
-      <Filter>application_code\common_demos\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\platform\iot_clock.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
@@ -1309,6 +1303,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\types\iot_mqtt_types.h">
       <Filter>lib\aws\include\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\iot_demo_logging.h">
+      <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

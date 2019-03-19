@@ -43,23 +43,10 @@
 /**
  * @brief Represents a network connection that uses Amazon FreeRTOS Secure Sockets.
  *
- * All instances of #IotNetworkConnectionAfr_t should be initialized with
- * #IOT_NETWORK_CONNECTION_AFR_INITIALIZER.
- *
- * @attention The members of this struct are intended to be opaque and may change
- * at any time. This struct should only be passed as the connection handle to the
- * functions declared in this file. Do not directly modify its members!
+ * This is an incomplete type. In application code, only pointers to this type
+ * should be used.
  */
-typedef struct IotNetworkConnectionAfr
-{
-    Socket_t socket;                             /**< @brief Amazon FreeRTOS Secure Sockets handle. */
-    StaticSemaphore_t socketMutex;               /**< @brief Prevents concurrent threads from sending on a socket. */
-    StaticEventGroup_t connectionFlags;          /**< @brief Synchronizes with the receive task. */
-    IotNetworkReceiveCallback_t receiveCallback; /**< @brief Network receive callback, if any. */
-    void * pReceiveContext;                      /**< @brief The context for the receive callback. */
-    bool bufferedByteValid;                      /**< @brief Used to determine if the buffered byte is valid. */
-    uint8_t bufferedByte;                        /**< @brief A single byte buffered from a receive, since AFR Secure Sockets does not have poll(). */
-} IotNetworkConnectionAfr_t;
+typedef struct _networkConnection IotNetworkConnectionAfr_t;
 
 /**
  * @brief Information on the remote server for connection setup.

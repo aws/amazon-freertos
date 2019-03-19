@@ -311,15 +311,14 @@ bool _IotMqtt_ValidatePublish( bool awsIotMqttMode,
 
 /*-----------------------------------------------------------*/
 
-bool _IotMqtt_ValidateReference( IotMqttReference_t reference )
+bool _IotMqtt_ValidateOperation( IotMqttOperation_t operation )
 {
     _IOT_FUNCTION_ENTRY( bool, true );
-    _mqttOperation_t * pOperation = ( _mqttOperation_t * ) reference;
 
     /* Check for NULL. */
-    if( pOperation == NULL )
+    if( operation == NULL )
     {
-        IotLogError( "Reference cannot be NULL." );
+        IotLogError( "Operation reference cannot be NULL." );
 
         _IOT_SET_AND_GOTO_CLEANUP( false );
     }
@@ -329,9 +328,9 @@ bool _IotMqtt_ValidateReference( IotMqttReference_t reference )
     }
 
     /* Check that reference is waitable. */
-    if( ( pOperation->flags & IOT_MQTT_FLAG_WAITABLE ) != IOT_MQTT_FLAG_WAITABLE )
+    if( ( operation->flags & IOT_MQTT_FLAG_WAITABLE ) != IOT_MQTT_FLAG_WAITABLE )
     {
-        IotLogError( "Reference is not a waitable MQTT operation." );
+        IotLogError( "Operation is not waitable." );
 
         _IOT_SET_AND_GOTO_CLEANUP( false );
     }

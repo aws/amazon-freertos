@@ -44,6 +44,7 @@
  * @functionspage{platform_clock,platform clock component,Clock}
  * - @functionname{platform_clock_function_gettimestring}
  * - @functionname{platform_clock_function_gettimems}
+ * - @functionname{platform_clock_function_sleepms}
  * - @functionname{platform_clock_function_timercreate}
  * - @functionname{platform_clock_function_timerdestroy}
  * - @functionname{platform_clock_function_timerarm}
@@ -52,6 +53,7 @@
 /**
  * @functionpage{IotClock_GetTimestring,platform_clock,gettimestring}
  * @functionpage{IotClock_GetTimeMs,platform_clock,gettimems}
+ * @functionpage{IotClock_SleepMs,platform_clock,sleepms}
  * @functionpage{IotClock_TimerCreate,platform_clock,timercreate}
  * @functionpage{IotClock_TimerDestroy,platform_clock,timerdestroy}
  * @functionpage{IotClock_TimerArm,platform_clock,timerarm}
@@ -85,9 +87,9 @@
  * @endcode
  */
 /* @[declare_platform_clock_gettimestring] */
-bool IotClock_GetTimestring( char * const pBuffer,
+bool IotClock_GetTimestring( char * pBuffer,
                              size_t bufferSize,
-                             size_t * const pTimestringLength );
+                             size_t * pTimestringLength );
 /* @[declare_platform_clock_gettimestring] */
 
 /**
@@ -110,6 +112,17 @@ uint64_t IotClock_GetTimeMs( void );
 /* @[declare_platform_clock_gettimems] */
 
 /**
+ * @brief Delay for the given number of milliseconds.
+ *
+ * This function suspends its calling thread for at least `sleepTimeMs` milliseconds.
+ *
+ * @param[in] sleepTimeMs Sleep time (in milliseconds).
+ */
+/* @[declare_platform_clock_sleepms] */
+void IotClock_SleepMs( uint32_t sleepTimeMs );
+/* @[declare_platform_clock_sleepms] */
+
+/**
  * @brief Create a new timer.
  *
  * This function creates a new, unarmed timer. It must be called on an uninitialized
@@ -125,7 +138,7 @@ uint64_t IotClock_GetTimeMs( void );
  * @see @ref platform_clock_function_timerdestroy, @ref platform_clock_function_timerarm
  */
 /* @[declare_platform_clock_timercreate] */
-bool IotClock_TimerCreate( IotTimer_t * const pNewTimer,
+bool IotClock_TimerCreate( IotTimer_t * pNewTimer,
                            IotThreadRoutine_t expirationRoutine,
                            void * pArgument );
 /* @[declare_platform_clock_timercreate] */
@@ -144,7 +157,7 @@ bool IotClock_TimerCreate( IotTimer_t * const pNewTimer,
  * @see @ref platform_clock_function_timercreate, @ref platform_clock_function_timerarm
  */
 /* @[declare_platform_clock_timerdestroy] */
-void IotClock_TimerDestroy( IotTimer_t * const pTimer );
+void IotClock_TimerDestroy( IotTimer_t * pTimer );
 /* @[declare_platform_clock_timerdestroy] */
 
 /**
@@ -193,7 +206,7 @@ void IotClock_TimerDestroy( IotTimer_t * const pTimer );
  * @endcode
  */
 /* @[declare_platform_clock_timerarm] */
-bool IotClock_TimerArm( IotTimer_t * const pTimer,
+bool IotClock_TimerArm( IotTimer_t * pTimer,
                         uint64_t relativeTimeoutMs,
                         uint64_t periodMs );
 /* @[declare_platform_clock_timerarm] */

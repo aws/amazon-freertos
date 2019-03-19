@@ -42,7 +42,7 @@
  *
  * @param[in] expression Expression to be evaluated.
  */
-#if AWS_IOT_METRICS_ENABLE_ASSERTS == 1
+#if IOT_METRICS_ENABLE_ASSERTS == 1
     #ifndef IotMetrics_Assert
         #include <assert.h>
         #define IotMetrics_Assert( expression )    assert( expression )
@@ -55,16 +55,16 @@
  * Provide default values for undefined memory allocation functions based on
  * the usage of dynamic memory allocation.
  */
-#if AWS_IOT_STATIC_MEMORY_ONLY == 1
-    #include "platform/aws_iot_static_memory.h"
+#if IOT_STATIC_MEMORY_ONLY == 1
+    #include "private/iot_static_memory.h"
 
 /**
  * @brief Allocate an array of uint8_t. This function should have the same
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef AwsIotMetrics_MallocTcpConnection
-        #define AwsIotMetrics_MallocTcpConnection    AwsIot_MallocMetricsTcpConnection
+    #ifndef IotMetrics_MallocTcpConnection
+        #define IotMetrics_MallocTcpConnection    Iot_MallocMetricsTcpConnection
     #endif
 
 /**
@@ -72,46 +72,36 @@
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef AwsIotMetrics_FreeTcpConnection
-        #define AwsIotMetrics_FreeTcpConnection    AwsIot_FreeMetricsTcpConnection
+    #ifndef IotMetrics_FreeTcpConnection
+        #define IotMetrics_FreeTcpConnection    Iot_FreeMetricsTcpConnection
     #endif
 
-#else /* if AWS_IOT_STATIC_MEMORY_ONLY */
+#else /* if IOT_STATIC_MEMORY_ONLY */
     #include <stdlib.h>
 
-    #ifndef AwsIotMetrics_MallocTcpConnection
-        #define AwsIotMetrics_MallocTcpConnection    malloc
+    #ifndef IotMetrics_MallocTcpConnection
+        #define IotMetrics_MallocTcpConnection    malloc
     #endif
 
-    #ifndef AwsIotMetrics_FreeTcpConnection
-        #define AwsIotMetrics_FreeTcpConnection    free
+    #ifndef IotMetrics_FreeTcpConnection
+        #define IotMetrics_FreeTcpConnection    free
     #endif
 
-#endif /* if AWS_IOT_STATIC_MEMORY_ONLY */
+#endif /* if IOT_STATIC_MEMORY_ONLY */
 
-/**
- * @page Metrics_constants Constants
- * @brief Defined constants of the Metrics library.
- * - @ref MetricsTcpConnectionOffset "TCP connections offset"
- */
-
-/**
- * @anchor MetricsTcpConnectionOffset
- * @name TCP connections offset
- *
- * @brief Offset constant used for list operations.
- */
-#define IOT_METRICS_TCP_CONNECTION_OFFSET    AwsIotLink_Offset( IotMetricsTcpConnection_t, link )
+#ifndef IotMetricsConnectionId_t
+    #define IotMetricsConnectionId_t    uint32_t
+#endif
 
 /**
  * Data handle of TCP connection
  */
 typedef struct IotMetricsTcpConnection
 {
-    void * pHandle;
-    uint16_t remotePort;
-    uint32_t remoteIP;
     IotLink_t link;
+    IotMetricsConnectionId_t id;
+    char * pRemoteIP;    /* This is limited to IPv4. */
+    uint16_t remotePort; /* In host order. */
 } IotMetricsTcpConnection_t;
 
 /**
@@ -127,7 +117,7 @@ typedef struct IotMetricsListCallback
 /**
  * This function must be called before any other functions.
  */
-BaseType_t IotMetrics_Init();
+bool IotMetrics_Init( void );
 
 /**
  * Record one TCP connection metric.
@@ -137,7 +127,7 @@ void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection );
 /**
  * Remove one TCP connection metric.
  */
-void IotMetrics_RemoveTcpConnection( void * pTcpConnectionHandle );
+void IotMetrics_RemoveTcpConnection( IotMetricsConnectionId_t tcpConnectionId );
 
 /**
  * Use a callback to process a list of TCP connections

@@ -31,11 +31,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-bool IotJsonUtils_FindJsonValue( const char * const pJsonDocument,
+bool IotJsonUtils_FindJsonValue( const char * pJsonDocument,
                                  size_t jsonDocumentLength,
-                                 const char * const pJsonKey,
+                                 const char * pJsonKey,
                                  size_t jsonKeyLength,
-                                 const char ** const pJsonValue,
-                                 size_t * const pJsonValueLength );
+                                 const char ** pJsonValue,
+                                 size_t * pJsonValueLength );
 
 #endif /* ifndef _IOT_JSON_UTILS_H_ */

@@ -116,18 +116,7 @@ typedef IotLink_t   IotQueue_t;
  * @param[in] linkName Name of the #IotLink_t in the containing struct.
  */
 #define IotLink_Container( type, pLink, linkName ) \
-    ( ( type * ) ( ( ( uint8_t * ) ( pLink ) ) - offsetof( type, linkName ) ) )
-
-/**
- * @brief Iterates on all instances of a linear container.
- *
- * @param[in] pStart The first link to iterate forward from.
- * @param[in] pLink Pointer to a link member.
- */
-#define IotContainers_ForEach( pStart, pLink )  \
-    for( ( pLink ) = ( pStart )->pNext;         \
-         ( pLink ) != ( pStart );               \
-         ( pLink ) = ( pLink )->pNext )
+    ( ( type * ) ( void * ) ( ( ( uint8_t * ) ( pLink ) ) - offsetof( type, linkName ) ) )
 
 /**
  * @functionspage{linear_containers,linear containers library}
@@ -607,7 +596,7 @@ static inline void IotListDouble_RemoveAll( IotListDouble_t * const pList,
 /* @[declare_linear_containers_list_double_findfirstmatch] */
 static inline IotLink_t * IotListDouble_FindFirstMatch( const IotListDouble_t * const pList,
                                                         const IotLink_t * const pStartPoint,
-                                                        bool ( *isMatch )( const IotLink_t *, void * ),
+                                                        bool ( *isMatch )( const IotLink_t * const, void * ),
                                                         void * pMatch )
 /* @[declare_linear_containers_list_double_findfirstmatch] */
 {

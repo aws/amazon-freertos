@@ -19,14 +19,15 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/* Standard includes */
+#include <stdio.h>
+
 /* Defender internal include. */
 #include "private/aws_iot_defender_internal.h"
 
-#include "aws_secure_sockets.h"
+#include "platform/iot_metrics.h"
 
-#include "iot_metrics.h"
-
-#include "platform/aws_iot_clock.h"
+#include "platform/iot_clock.h"
 
 #define  _HEADER_TAG           AwsIotDefenderInternal_SelectTag( "header", "hed" )
 #define  _REPORTID_TAG         AwsIotDefenderInternal_SelectTag( "report_id", "rid" )
@@ -50,9 +51,9 @@
  */
 typedef struct _metricsReport
 {
-    AwsIotSerializerEncoderObject_t object; /* Encoder object handle. */
-    uint8_t * pDataBuffer;                  /* Raw data buffer to be published with MQTT. */
-    size_t size;                            /* Raw data size. */
+    IotSerializerEncoderObject_t object; /* Encoder object handle. */
+    uint8_t * pDataBuffer;               /* Raw data buffer to be published with MQTT. */
+    size_t size;                         /* Raw data size. */
 } _metricsReport_t;
 
 typedef struct _tcpConns
@@ -69,7 +70,7 @@ typedef struct _metrics
 /* Initialize metrics report. */
 static _metricsReport_t _report =
 {
-    .object      = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM,
+    .object      = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM,
     .pDataBuffer = NULL,
     .size        = 0
 };
@@ -87,7 +88,7 @@ uint64_t _AwsIotDefenderReportId = 0;
 
 static void copyMetricsFlag();
 
-static AwsIotDefenderEventType_t getLatestMetricsData();
+static bool getLatestMetricsData();
 
 static void freeMetricsData();
 
@@ -96,20 +97,20 @@ static void tcpConnectionsCallback( void * param1,
 
 static void _serialize();
 
-static void _serializeTcpConnections( AwsIotSerializerEncoderObject_t * pMetricsObject );
+static void _serializeTcpConnections( IotSerializerEncoderObject_t * pMetricsObject );
 
 /*-----------------------------------------------------------*/
 
-void assertSuccess( AwsIotSerializerError_t error )
+void assertSuccess( IotSerializerError_t error )
 {
-    AwsIotDefender_Assert( error == AWS_IOT_SERIALIZER_SUCCESS );
+    AwsIotDefender_Assert( error == IOT_SERIALIZER_SUCCESS );
 }
 
 /*-----------------------------------------------------------*/
 
-void assertSuccessOrBufferToSmall( AwsIotSerializerError_t error )
+void assertSuccessOrBufferToSmall( IotSerializerError_t error )
 {
-    AwsIotDefender_Assert( error == AWS_IOT_SERIALIZER_SUCCESS || error == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL );
+    AwsIotDefender_Assert( error == IOT_SERIALIZER_SUCCESS || error == IOT_SERIALIZER_BUFFER_TOO_SMALL );
 }
 
 /*-----------------------------------------------------------*/
@@ -124,19 +125,20 @@ uint8_t * AwsIotDefenderInternal_GetReportBuffer()
 size_t AwsIotDefenderInternal_GetReportBufferSize()
 {
     /* Encoder might over-calculate the needed size. Therefor encoded size might be smaller than buffer size: _report.size. */
-    return _AwsIotDefenderEncoder.getEncodedSize( &_report.object, _report.pDataBuffer );
+    return _report.pDataBuffer == NULL ? 0
+           : _AwsIotDefenderEncoder.getEncodedSize( &_report.object, _report.pDataBuffer );
 }
 
 /*-----------------------------------------------------------*/
 
-AwsIotDefenderEventType_t AwsIotDefenderInternal_CreateReport()
+bool AwsIotDefenderInternal_CreateReport()
 {
     /* Assert report buffer is not allocated. */
     AwsIotDefender_Assert( _report.pDataBuffer == NULL && _report.size == 0 );
 
-    AwsIotDefenderEventType_t eventError = 0;
+    bool result = true;
 
-    AwsIotSerializerEncoderObject_t * pEncoderObject = &( _report.object );
+    IotSerializerEncoderObject_t * pEncoderObject = &( _report.object );
     size_t dataSize = 0;
     uint8_t * pReportBuffer = NULL;
 
@@ -144,12 +146,12 @@ AwsIotDefenderEventType_t AwsIotDefenderInternal_CreateReport()
     copyMetricsFlag();
 
     /* Get latest metrics data. */
-    eventError = getLatestMetricsData();
+    result = getLatestMetricsData();
 
-    if( !eventError )
+    if( result )
     {
         /* Generate report id based on current time. */
-        _AwsIotDefenderReportId = AwsIotClock_GetTimeMs();
+        _AwsIotDefenderReportId = IotClock_GetTimeMs();
 
         /* Dry-run serialization to calculate the required size. */
         _serialize();
@@ -173,14 +175,14 @@ AwsIotDefenderEventType_t AwsIotDefenderInternal_CreateReport()
         }
         else
         {
-            eventError = AWS_IOT_DEFENDER_EVENT_NO_MEMORY;
+            result = false;
         }
 
         /* Metrics data can be freed. */
         freeMetricsData();
     }
 
-    return eventError;
+    return result;
 }
 
 /*-----------------------------------------------------------*/
@@ -196,7 +198,7 @@ void AwsIotDefenderInternal_DeleteReport()
     /* Reset report members. */
     _report.pDataBuffer = NULL;
     _report.size = 0;
-    _report.object = ( AwsIotSerializerEncoderObject_t ) AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
+    _report.object = ( IotSerializerEncoderObject_t ) IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
 
     _metrics = ( _metrics_t ) {
         0
@@ -217,19 +219,20 @@ void AwsIotDefenderInternal_DeleteReport()
  */
 static void _serialize()
 {
-    AwsIotSerializerError_t serializerError = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t serializerError = IOT_SERIALIZER_SUCCESS;
 
-    AwsIotSerializerEncoderObject_t * pEncoderObject = &( _report.object );
+    IotSerializerEncoderObject_t * pEncoderObject = &( _report.object );
 
-    AwsIotSerializerEncoderObject_t reportMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t headerMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t metricsMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t reportMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t headerMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t metricsMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
 
     /* Define an assert function for serialization returned error. */
-    void (* assertNoError)( AwsIotSerializerError_t ) = _report.pDataBuffer == NULL ? assertSuccessOrBufferToSmall
-                                                        : assertSuccess;
+    void (* assertNoError)( IotSerializerError_t ) = _report.pDataBuffer == NULL ? assertSuccessOrBufferToSmall
+                                                     : assertSuccess;
 
     uint8_t metricsGroupCount = 0;
+    uint32_t i = 0;
 
     serializerError = _AwsIotDefenderEncoder.init( pEncoderObject, _report.pDataBuffer, _report.size );
     assertNoError( serializerError );
@@ -248,13 +251,13 @@ static void _serialize()
     /* Append key-value pair of "report_Id" which uses clock time. */
     serializerError = _AwsIotDefenderEncoder.appendKeyValue( &headerMap,
                                                              _REPORTID_TAG,
-                                                             AwsIotSerializer_ScalarSignedInt( _AwsIotDefenderReportId ) );
+                                                             IotSerializer_ScalarSignedInt( _AwsIotDefenderReportId ) );
     assertNoError( serializerError );
 
     /* Append key-value pair of "version". */
     serializerError = _AwsIotDefenderEncoder.appendKeyValue( &headerMap,
                                                              _VERSION_TAG,
-                                                             AwsIotSerializer_ScalarTextString( _VERSION_1_0 ) );
+                                                             IotSerializer_ScalarTextString( _VERSION_1_0 ) );
     assertNoError( serializerError );
 
     /* Close the "header" map. */
@@ -262,7 +265,7 @@ static void _serialize()
     assertNoError( serializerError );
 
     /* Count how many metrics groups user specified. */
-    for( uint8_t i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
+    for( i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
     {
         metricsGroupCount += _metricsFlagSnapshot[ i ] > 0;
     }
@@ -274,7 +277,7 @@ static void _serialize()
                                                                    metricsGroupCount );
     assertNoError( serializerError );
 
-    for( uint8_t i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
+    for( i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
     {
         /* Skip if this metrics group has 0 metrics flag. */
         if( _metricsFlagSnapshot[ i ] )
@@ -316,9 +319,9 @@ static void copyMetricsFlag()
 
 /*-----------------------------------------------------------*/
 
-static AwsIotDefenderEventType_t getLatestMetricsData()
+static bool getLatestMetricsData()
 {
-    AwsIotDefenderEventType_t eventError = 0;
+    bool result = true;
 
     /* Get TCP connections metrics data. */
     if( _metricsFlagSnapshot[ AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS ] )
@@ -327,12 +330,12 @@ static AwsIotDefenderEventType_t getLatestMetricsData()
 
 
         tcpConnectionscallback.function = tcpConnectionsCallback;
-        tcpConnectionscallback.param1 = ( void * ) &eventError;
+        tcpConnectionscallback.param1 = ( bool * ) &result;
 
         IotMetrics_ProcessTcpConnections( tcpConnectionscallback );
     }
 
-    return eventError;
+    return result;
 }
 
 /*-----------------------------------------------------------*/
@@ -341,7 +344,11 @@ static void freeMetricsData()
 {
     if( _metricsFlagSnapshot[ AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS ] )
     {
-        AwsIotMetrics_FreeTcpConnection( _metrics.tcpConns.pArray );
+        if( _metrics.tcpConns.pArray != NULL )
+        {
+            IotMetrics_FreeTcpConnection( _metrics.tcpConns.pArray );
+        }
+
         _metrics.tcpConns.pArray = NULL;
         _metrics.tcpConns.count = 0;
     }
@@ -352,20 +359,24 @@ static void freeMetricsData()
 static void tcpConnectionsCallback( void * param1,
                                     IotListDouble_t * pTcpConnectionsMetricsList )
 {
-    AwsIotDefenderEventType_t * pEventError = ( AwsIotDefenderEventType_t * ) param1;
+    bool * pResult = ( bool * ) param1;
 
     IotLink_t * pConnectionLink = IotListDouble_PeekHead( pTcpConnectionsMetricsList );
     IotMetricsTcpConnection_t * pConnection = NULL;
 
+    uint32_t i = 0;
     size_t total = IotListDouble_Count( pTcpConnectionsMetricsList );
 
     /* If there is at least one TCP connection. */
     if( total > 0 )
     {
         /* Allocate memory to copy TCP connections metrics data. */
-        _metrics.tcpConns.pArray = AwsIotMetrics_MallocTcpConnection( total * sizeof( IotMetricsTcpConnection_t ) );
+        _metrics.tcpConns.pArray = IotMetrics_MallocTcpConnection( total * sizeof( IotMetricsTcpConnection_t ) );
 
-        if( _metrics.tcpConns.pArray != NULL )
+        /* Set whether success of memory allocation to the output pointer. */
+        *pResult = _metrics.tcpConns.pArray != NULL;
+
+        if( *pResult )
         {
             /* Set count only the memory allocation succeeds. */
             _metrics.tcpConns.count = ( uint8_t ) total;
@@ -373,7 +384,7 @@ static void tcpConnectionsCallback( void * param1,
             /* At least one element in the list*/
             AwsIotDefender_Assert( pConnectionLink );
 
-            for( uint8_t i = 0; i < total; i++ )
+            for( i = 0; i < total; i++ )
             {
                 pConnection = IotLink_Container( IotMetricsTcpConnection_t, pConnectionLink, link );
 
@@ -384,24 +395,20 @@ static void tcpConnectionsCallback( void * param1,
                 pConnectionLink = pConnectionLink->pNext;
             }
         }
-        else
-        {
-            *pEventError = AWS_IOT_DEFENDER_EVENT_NO_MEMORY;
-        }
     }
 }
 
 /*-----------------------------------------------------------*/
 
-static void _serializeTcpConnections( AwsIotSerializerEncoderObject_t * pMetricsObject )
+static void _serializeTcpConnections( IotSerializerEncoderObject_t * pMetricsObject )
 {
     AwsIotDefender_Assert( pMetricsObject != NULL );
 
-    AwsIotSerializerError_t serializerError = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t serializerError = IOT_SERIALIZER_SUCCESS;
 
-    AwsIotSerializerEncoderObject_t tcpConnectionMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t establishedMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t connectionsArray = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    IotSerializerEncoderObject_t tcpConnectionMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t establishedMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t connectionsArray = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
 
     uint32_t tcpConnFlag = _AwsIotDefenderMetrics.metricsFlag[ AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS ];
 
@@ -413,10 +420,11 @@ static void _serializeTcpConnections( AwsIotSerializerEncoderObject_t * pMetrics
     uint8_t hasRemoteAddr = ( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR ) > 0;
 
     char remoteAddr[ _REMOTE_ADDR_LENGTH ] = "";
-    char * pRemoteAddr = remoteAddr;
 
-    void (* assertNoError)( AwsIotSerializerError_t ) = _report.pDataBuffer == NULL ? assertSuccessOrBufferToSmall
-                                                        : assertSuccess;
+    void (* assertNoError)( IotSerializerError_t ) = _report.pDataBuffer == NULL ? assertSuccessOrBufferToSmall
+                                                     : assertSuccess;
+
+    uint32_t i = 0;
 
     /* Create the "tcp_connections" map with 1 key "established_connections" */
     serializerError = _AwsIotDefenderEncoder.openContainerWithKey( pMetricsObject,
@@ -447,9 +455,9 @@ static void _serializeTcpConnections( AwsIotSerializerEncoderObject_t * pMetrics
                                                                            _metrics.tcpConns.count );
             assertNoError( serializerError );
 
-            for( uint8_t i = 0; i < _metrics.tcpConns.count; i++ )
+            for( i = 0; i < _metrics.tcpConns.count; i++ )
             {
-                AwsIotSerializerEncoderObject_t connectionMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+                IotSerializerEncoderObject_t connectionMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
 
                 /* open a map under "connections" */
                 serializerError = _AwsIotDefenderEncoder.openContainer( &connectionsArray,
@@ -460,12 +468,10 @@ static void _serializeTcpConnections( AwsIotSerializerEncoderObject_t * pMetrics
                 /* add remote address */
                 if( hasRemoteAddr )
                 {
-                    /* Remote IP is with host endian. So it is converted to network endian and passed into SOCKETS_inet_ntoa. */
-                    SOCKETS_inet_ntoa( SOCKETS_htonl( _metrics.tcpConns.pArray[ i ].remoteIP ), remoteAddr );
-                    sprintf( remoteAddr, "%s:%d", remoteAddr, _metrics.tcpConns.pArray[ i ].remotePort );
+                    sprintf( remoteAddr, "%s:%d", _metrics.tcpConns.pArray[ i ].pRemoteIP, _metrics.tcpConns.pArray[ i ].remotePort );
 
                     serializerError = _AwsIotDefenderEncoder.appendKeyValue( &connectionMap, _REMOTE_ADDR_TAG,
-                                                                             AwsIotSerializer_ScalarTextString( pRemoteAddr ) );
+                                                                             IotSerializer_ScalarTextString( remoteAddr ) );
                     assertNoError( serializerError );
                 }
 
@@ -481,7 +487,7 @@ static void _serializeTcpConnections( AwsIotSerializerEncoderObject_t * pMetrics
         {
             serializerError = _AwsIotDefenderEncoder.appendKeyValue( &establishedMap,
                                                                      _TOTAL_TAG,
-                                                                     AwsIotSerializer_ScalarSignedInt( _metrics.tcpConns.count ) );
+                                                                     IotSerializer_ScalarSignedInt( _metrics.tcpConns.count ) );
             assertNoError( serializerError );
         }
 

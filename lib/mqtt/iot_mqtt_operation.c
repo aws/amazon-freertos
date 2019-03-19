@@ -49,7 +49,7 @@
  */
 typedef struct _operationMatchParam
 {
-    IotMqttOperationType_t operation;   /**< @brief The operation to look for. */
+    IotMqttOperationType_t type;        /**< @brief The type of operation to look for. */
     const uint16_t * pPacketIdentifier; /**< @brief The packet identifier associated with the operation.
                                          * Set to `NULL` to ignore packet identifier. */
 } _operationMatchParam_t;
@@ -106,7 +106,7 @@ static bool _mqttOperation_match( const IotLink_t * pOperationLink,
     _operationMatchParam_t * pParam = ( _operationMatchParam_t * ) pMatch;
 
     /* Check for matching operations. */
-    if( pParam->operation == pOperation->operation )
+    if( pParam->type == pOperation->type )
     {
         /* Check for matching packet identifiers. */
         if( pParam->pPacketIdentifier == NULL )
@@ -157,7 +157,7 @@ static bool _checkRetryLimit( _mqttOperation_t * pOperation )
     #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
     /* Only PUBLISH may be retried. */
-    IotMqtt_Assert( pOperation->operation == IOT_MQTT_PUBLISH_TO_SERVER );
+    IotMqtt_Assert( pOperation->type == IOT_MQTT_PUBLISH_TO_SERVER );
 
     /* Check if the retry limit is exhausted. */
     if( pOperation->retry.count > pOperation->retry.limit )
@@ -475,7 +475,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
         {
             IotLogDebug( "(MQTT connection %p, %s operation %p) Job canceled.",
                          pMqttConnection,
-                         IotMqtt_OperationType( pOperation->operation ),
+                         IotMqtt_OperationType( pOperation->type ),
                          pOperation );
         }
         else
@@ -497,7 +497,7 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
         IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed"
                      " from %ld to %ld.",
                      pMqttConnection,
-                     IotMqtt_OperationType( pOperation->operation ),
+                     IotMqtt_OperationType( pOperation->type ),
                      pOperation,
                      pOperation->jobReference + 1,
                      pOperation->jobReference );
@@ -537,7 +537,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
 
     IotLogDebug( "(MQTT connection %p, %s operation %p) Destroying operation.",
                  pMqttConnection,
-                 IotMqtt_OperationType( pOperation->operation ),
+                 IotMqtt_OperationType( pOperation->type ),
                  pOperation );
 
     /* The job reference count must be between 0 and 2. */
@@ -552,7 +552,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
     {
         IotLogDebug( "(MQTT connection %p, %s operation %p) Removed operation from connection lists.",
                      pMqttConnection,
-                     IotMqtt_OperationType( pOperation->operation ),
+                     IotMqtt_OperationType( pOperation->type ),
                      pOperation,
                      pMqttConnection );
 
@@ -562,7 +562,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
     {
         IotLogDebug( "(MQTT connection %p, %s operation %p) Operation was not present in connection lists.",
                      pMqttConnection,
-                     IotMqtt_OperationType( pOperation->operation ),
+                     IotMqtt_OperationType( pOperation->type ),
                      pOperation );
     }
 
@@ -593,14 +593,14 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
 
         IotLogDebug( "(MQTT connection %p, %s operation %p) MQTT packet freed.",
                      pMqttConnection,
-                     IotMqtt_OperationType( pOperation->operation ),
+                     IotMqtt_OperationType( pOperation->type ),
                      pOperation );
     }
     else
     {
         IotLogDebug( "(MQTT connection %p, %s operation %p) Operation has no allocated MQTT packet.",
                      pMqttConnection,
-                     IotMqtt_OperationType( pOperation->operation ),
+                     IotMqtt_OperationType( pOperation->type ),
                      pOperation );
     }
 
@@ -611,7 +611,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
 
         IotLogDebug( "(MQTT connection %p, %s operation %p) Wait semaphore destroyed.",
                      pMqttConnection,
-                     IotMqtt_OperationType( pOperation->operation ),
+                     IotMqtt_OperationType( pOperation->type ),
                      pOperation );
     }
     else
@@ -621,7 +621,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
 
     IotLogDebug( "(MQTT connection %p, %s operation %p) Operation record destroyed.",
                  pMqttConnection,
-                 IotMqtt_OperationType( pOperation->operation ),
+                 IotMqtt_OperationType( pOperation->type ),
                  pOperation );
 
     /* Free the memory used to hold operation data. */
@@ -751,7 +751,8 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t * pTaskPool,
     /* Close the connection on failures. */
     if( status == false )
     {
-        _IotMqtt_CloseNetworkConnection( pMqttConnection );
+        _IotMqtt_CloseNetworkConnection( IOT_MQTT_KEEP_ALIVE_TIMEOUT,
+                                         pMqttConnection );
     }
     else
     {
@@ -846,7 +847,7 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
     {
         IotLogDebug( "(MQTT connection %p, %s operation %p) Sending MQTT packet.",
                      pMqttConnection,
-                     IotMqtt_OperationType( pOperation->operation ),
+                     IotMqtt_OperationType( pOperation->type ),
                      pOperation );
 
         /* Transmit the MQTT packet from the operation over the network. */
@@ -864,8 +865,11 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
             /* DISCONNECT operations are considered successful upon successful
              * transmission. In addition, non-waitable operations with no callback
              * may also be considered successful. */
-            if( pOperation->operation == IOT_MQTT_DISCONNECT )
+            if( pOperation->type == IOT_MQTT_DISCONNECT )
             {
+                /* DISCONNECT operations are always waitable. */
+                IotMqtt_Assert( waitable == true );
+
                 pOperation->status = IOT_MQTT_SUCCESS;
             }
             else if( waitable == false )
@@ -998,12 +1002,12 @@ void _IotMqtt_ProcessCompletedOperation( IotTaskPool_t * pTaskPool,
     IotMqtt_Assert( pOperation->status != IOT_MQTT_STATUS_PENDING );
 
     callbackParam.mqttConnection = pOperation->pMqttConnection;
-    callbackParam.operation.type = pOperation->operation;
+    callbackParam.operation.type = pOperation->type;
     callbackParam.operation.reference = pOperation;
     callbackParam.operation.result = pOperation->status;
 
     /* Invoke the user callback function. */
-    pOperation->notify.callback.function( pOperation->notify.callback.param1,
+    pOperation->notify.callback.function( pOperation->notify.callback.pCallbackContext,
                                           &callbackParam );
 
     /* Attempt to destroy the operation once the user callback returns. */
@@ -1050,7 +1054,7 @@ IotMqttError_t _IotMqtt_ScheduleOperation( _mqttOperation_t * pOperation,
 
         IotLogWarn( "(MQTT connection %p, %s operation %p) Failed to schedule operation job, error %s.",
                     pOperation->pMqttConnection,
-                    IotMqtt_OperationType( pOperation->operation ),
+                    IotMqtt_OperationType( pOperation->type ),
                     pOperation,
                     IotTaskPool_strerror( taskPoolStatus ) );
 
@@ -1067,7 +1071,7 @@ IotMqttError_t _IotMqtt_ScheduleOperation( _mqttOperation_t * pOperation,
 /*-----------------------------------------------------------*/
 
 _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
-                                           IotMqttOperationType_t operation,
+                                           IotMqttOperationType_t type,
                                            const uint16_t * pPacketIdentifier )
 {
     bool waitable = false;
@@ -1081,18 +1085,18 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
         IotLogDebug( "(MQTT connection %p) Searching for operation %s pending response "
                      "with packet identifier %hu.",
                      pMqttConnection,
-                     IotMqtt_OperationType( operation ),
+                     IotMqtt_OperationType( type ),
                      *pPacketIdentifier );
     }
     else
     {
         IotLogDebug( "(MQTT connection %p) Searching for operation %s pending response.",
                      pMqttConnection,
-                     IotMqtt_OperationType( operation ) );
+                     IotMqtt_OperationType( type ) );
     }
 
     /* Set the search parameters. */
-    param.operation = operation;
+    param.type = type;
     param.pPacketIdentifier = pPacketIdentifier;
 
     /* Find and remove the first matching element in the list. */
@@ -1144,7 +1148,7 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
 
                 IotLogDebug( "(MQTT connection %p, %s operation %p) Job reference changed from %ld to %ld.",
                              pMqttConnection,
-                             IotMqtt_OperationType( operation ),
+                             IotMqtt_OperationType( type ),
                              pResult,
                              ( long int ) ( pResult->jobReference - 1 ),
                              ( long int ) ( pResult->jobReference ) );
@@ -1162,13 +1166,13 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
     {
         IotLogDebug( "(MQTT connection %p) Found operation %s.",
                      pMqttConnection,
-                     IotMqtt_OperationType( operation ) );
+                     IotMqtt_OperationType( type ) );
     }
     else
     {
         IotLogDebug( "(MQTT connection %p) Operation %s not found.",
                      pMqttConnection,
-                     IotMqtt_OperationType( operation ) );
+                     IotMqtt_OperationType( type ) );
     }
 
     return pResult;
@@ -1186,7 +1190,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
 
     /* Remove any lingering subscriptions if a SUBSCRIBE failed. Rejected
      * subscriptions are removed by the deserializer, so not removed here. */
-    if( pOperation->operation == IOT_MQTT_SUBSCRIBE )
+    if( pOperation->type == IOT_MQTT_SUBSCRIBE )
     {
         switch( pOperation->status )
         {
@@ -1216,7 +1220,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
         IotLogDebug( "(MQTT connection %p, %s operation %p) Waitable operation "
                      "notified of completion.",
                      pOperation->pMqttConnection,
-                     IotMqtt_OperationType( pOperation->operation ),
+                     IotMqtt_OperationType( pOperation->type ),
                      pOperation );
     }
     else
@@ -1237,7 +1241,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
             {
                 IotLogDebug( "(MQTT connection %p, %s operation %p) Callback scheduled.",
                              pOperation->pMqttConnection,
-                             IotMqtt_OperationType( pOperation->operation ),
+                             IotMqtt_OperationType( pOperation->type ),
                              pOperation );
 
                 /* A completed operation should not be linked. */
@@ -1252,7 +1256,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
             {
                 IotLogWarn( "(MQTT connection %p, %s operation %p) Failed to schedule callback.",
                             pOperation->pMqttConnection,
-                            IotMqtt_OperationType( pOperation->operation ),
+                            IotMqtt_OperationType( pOperation->type ),
                             pOperation );
             }
 

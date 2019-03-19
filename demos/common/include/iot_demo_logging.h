@@ -20,26 +20,23 @@
  */
 
 /**
- * @file iot_demo.h
- * @brief Declares the platform-independent demo functions.
+ * @file iot_demo_logging.h
+ * @brief Sets the log level for all demos.
  */
 
-#ifndef _IOT_DEMO_H_
-#define _IOT_DEMO_H_
+#ifndef _IOT_DEMO_LOGGING_H_
+#define _IOT_DEMO_LOGGING_H_
 
 /* Build using a config header, if provided. */
 #ifdef IOT_CONFIG_FILE
     #include IOT_CONFIG_FILE
 #endif
 
-/* Standard includes. */
-#include <stdbool.h>
-#include <stdint.h>
-
-/* MQTT include. */
-#include "iot_mqtt.h"
-
-/* Configure logs for the demos. */
+/* Configure logs for the demos. The demos will have a log level of:
+ * - IOT_LOG_LEVEL_DEMO if defined.
+ * - IOT_LOG_LEVEL_GLOBAL if defined and IOT_LOG_LEVEL_DEMO is undefined.
+ * - IOT_LOG_NONE if neither IOT_LOG_LEVEL_DEMO nor IOT_LOG_LEVEL_GLOBAL are defined.
+ */
 #ifdef IOT_LOG_LEVEL_DEMO
     #define _LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_DEMO
 #else
@@ -50,18 +47,10 @@
     #endif
 #endif
 
+/* Set the library name to print with the demos. */
 #define _LIBRARY_LOG_NAME    ( "DEMO" )
+
+/* Include the logging setup header. This enables the logs. */
 #include "iot_logging_setup.h"
 
-/*----------------------------- Demo functions ------------------------------*/
-
-/* See iot_demo_mqtt.c for documentation of this function. */
-int IotDemo_RunMqttDemo( bool awsIotMqttMode,
-                         const char * const pClientIdentifier,
-                         const IotMqttNetworkInfo_t * const pNetworkInfo );
-
-/* See aws_iot_demo_shadow.c for documentation of this function. */
-int AwsIotDemo_RunShadowDemo( const char * const pThingName,
-                              const IotMqttNetworkInfo_t * const pNetworkInfo );
-
-#endif /* ifndef _IOT_DEMO_H_ */
+#endif /* ifndef _IOT_DEMO_LOGGING_H_ */

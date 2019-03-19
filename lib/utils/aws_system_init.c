@@ -26,15 +26,15 @@
     #include IOT_CONFIG_FILE
 #endif
 
+#include <stdbool.h>
+
 #include "FreeRTOS.h"
 #include "aws_system_init.h"
 
-#include "iot_common.h"
-
 /* Library code. */
-extern BaseType_t MQTT_AGENT_Init( void );
 extern BaseType_t SOCKETS_Init( void );
-extern BaseType_t IotMetrics_Init( void );
+extern bool IotCommon_Init( void );
+extern bool IotMqtt_Init( void );
 
 /*-----------------------------------------------------------*/
 
@@ -45,8 +45,6 @@ BaseType_t SYSTEM_Init( void )
 {
     BaseType_t xResult = pdPASS;
 
-    xResult = MQTT_AGENT_Init();
-
     if( xResult == pdPASS )
     {
         xResult = SOCKETS_Init();
@@ -54,12 +52,12 @@ BaseType_t SYSTEM_Init( void )
 
     if( xResult == pdPASS )
     {
-        xResult = IotMetrics_Init();
+        xResult = ( IotCommon_Init() == true );
     }
 
     if( xResult == pdPASS )
     {
-        xResult = ( IotCommon_Init() == true );
+        xResult = ( IotMqtt_Init() == true );
     }
 
     return xResult;

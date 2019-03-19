@@ -324,7 +324,7 @@ struct _shadowSubscription;
  * @ref mqtt_function_timedunsubscribe.
  */
 typedef IotMqttError_t ( * _mqttOperationFunction_t )( IotMqttConnection_t,
-                                                       const IotMqttSubscription_t * const,
+                                                       const IotMqttSubscription_t *,
                                                        size_t,
                                                        uint32_t,
                                                        uint64_t );
@@ -333,7 +333,7 @@ typedef IotMqttError_t ( * _mqttOperationFunction_t )( IotMqttConnection_t,
  * @brief Function pointer representing an MQTT library callback function.
  */
 typedef void ( * _mqttCallbackFunction_t )( void *,
-                                            IotMqttCallbackParam_t * const );
+                                            IotMqttCallbackParam_t * );
 
 /**
  * @brief Enumerations representing each of the Shadow library's API functions.
@@ -469,10 +469,10 @@ extern IotMutex_t _AwsIotShadowSubscriptionsMutex;
  *
  * @return #AWS_IOT_SHADOW_SUCCESS or #AWS_IOT_SHADOW_NO_MEMORY
  */
-AwsIotShadowError_t _AwsIotShadow_CreateOperation( _shadowOperation_t ** const pNewOperation,
+AwsIotShadowError_t _AwsIotShadow_CreateOperation( _shadowOperation_t ** pNewOperation,
                                                    _shadowOperationType_t operation,
                                                    uint32_t flags,
-                                                   const AwsIotShadowCallbackInfo_t * const pCallbackInfo );
+                                                   const AwsIotShadowCallbackInfo_t * pCallbackInfo );
 
 /**
  * @brief Free resources used to record a Shadow operation. This is called when
@@ -504,10 +504,10 @@ void _AwsIotShadow_DestroyOperation( void * pData );
  * will not return #AWS_IOT_SHADOW_NO_MEMORY when a buffer is provided.
  */
 AwsIotShadowError_t _AwsIotShadow_GenerateShadowTopic( _shadowOperationType_t type,
-                                                       const char * const pThingName,
+                                                       const char * pThingName,
                                                        size_t thingNameLength,
-                                                       char ** const pTopicBuffer,
-                                                       uint16_t * const pOperationTopicLength );
+                                                       char ** pTopicBuffer,
+                                                       uint16_t * pOperationTopicLength );
 
 /**
  * @brief Process a Shadow operation by sending the necessary MQTT packets.
@@ -523,10 +523,10 @@ AwsIotShadowError_t _AwsIotShadow_GenerateShadowTopic( _shadowOperationType_t ty
  * #AWS_IOT_SHADOW_NO_MEMORY or #AWS_IOT_SHADOW_MQTT_ERROR.
  */
 AwsIotShadowError_t _AwsIotShadow_ProcessOperation( IotMqttConnection_t mqttConnection,
-                                                    const char * const pThingName,
+                                                    const char * pThingName,
                                                     size_t thingNameLength,
-                                                    _shadowOperation_t * const pOperation,
-                                                    const AwsIotShadowDocumentInfo_t * const pDocumentInfo );
+                                                    _shadowOperation_t * pOperation,
+                                                    const AwsIotShadowDocumentInfo_t * pDocumentInfo );
 
 /**
  * @brief Notify of a completed Shadow operation.
@@ -537,7 +537,7 @@ AwsIotShadowError_t _AwsIotShadow_ProcessOperation( IotMqttConnection_t mqttConn
  * notification will cause @ref shadow_function_wait to return or invoke a
  * user-provided callback.
  */
-void _AwsIotShadow_Notify( _shadowOperation_t * const pOperation );
+void _AwsIotShadow_Notify( _shadowOperation_t * pOperation );
 
 /*---------------------- Shadow subscription functions ----------------------*/
 
@@ -554,7 +554,7 @@ void _AwsIotShadow_Notify( _shadowOperation_t * const pOperation );
  *
  * @note This function should be called with the subscription list mutex locked.
  */
-_shadowSubscription_t * _AwsIotShadow_FindSubscription( const char * const pThingName,
+_shadowSubscription_t * _AwsIotShadow_FindSubscription( const char * pThingName,
                                                         size_t thingNameLength );
 
 /**
@@ -569,8 +569,8 @@ _shadowSubscription_t * _AwsIotShadow_FindSubscription( const char * const pThin
  *
  * @note This function should be called with the subscription list mutex locked.
  */
-void _AwsIotShadow_RemoveSubscription( _shadowSubscription_t * const pSubscription,
-                                       _shadowSubscription_t ** const pRemovedSubscription );
+void _AwsIotShadow_RemoveSubscription( _shadowSubscription_t * pSubscription,
+                                       _shadowSubscription_t ** pRemovedSubscription );
 
 /**
  * @brief Free resources used for a Shadow subscription object.
@@ -602,8 +602,8 @@ void _AwsIotShadow_DestroySubscription( void * pData );
  *
  * @note This function should be called with the subscription list mutex locked.
  */
-AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * const pOperation,
-                                                       char * const pTopicBuffer,
+AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * pOperation,
+                                                       char * pTopicBuffer,
                                                        uint16_t operationTopicLength,
                                                        _mqttCallbackFunction_t callback );
 
@@ -626,9 +626,9 @@ AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * cons
  *
  * @note This function should be called with the subscription list mutex locked.
  */
-void _AwsIotShadow_DecrementReferences( _shadowOperation_t * const pOperation,
-                                        char * const pTopicBuffer,
-                                        _shadowSubscription_t ** const pRemovedSubscription );
+void _AwsIotShadow_DecrementReferences( _shadowOperation_t * pOperation,
+                                        char * pTopicBuffer,
+                                        _shadowSubscription_t ** pRemovedSubscription );
 
 /*------------------------- Shadow parser functions -------------------------*/
 
@@ -640,7 +640,7 @@ void _AwsIotShadow_DecrementReferences( _shadowOperation_t * const pOperation,
  *
  * @return Any #_shadowOperationStatus_t.
  */
-_shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * const pTopicName,
+_shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * pTopicName,
                                                           size_t topicNameLength );
 
 /**
@@ -653,10 +653,10 @@ _shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * const pTo
  *
  * @return #AWS_IOT_SHADOW_SUCCESS or #AWS_IOT_SHADOW_BAD_RESPONSE.
  */
-AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * const pTopicName,
+AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * pTopicName,
                                                   uint16_t topicNameLength,
-                                                  const char ** const pThingName,
-                                                  size_t * const pThingNameLength );
+                                                  const char ** pThingName,
+                                                  size_t * pThingNameLength );
 
 /**
  * @brief Parse a Shadow error document.
@@ -667,7 +667,7 @@ AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * const pTopicName,
  * @return One of the #AwsIotShadowError_t ranging from 400 to 500 on success.
  * #AWS_IOT_SHADOW_BAD_RESPONSE on error.
  */
-AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * const pErrorDocument,
+AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * pErrorDocument,
                                                       size_t errorDocumentLength );
 
 #endif /* ifndef _AWS_IOT_SHADOW_INTERNAL_H_ */

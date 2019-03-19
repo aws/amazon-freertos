@@ -28,9 +28,10 @@
  * The implementations can be CBOR or JSON.
  */
 
-#ifndef AWS_IOT_SERIALIZER_H
-#define AWS_IOT_SERIALIZER_H
+#ifndef _IOT_SERIALIZER_H_
+#define _IOT_SERIALIZER_H_
 
+/* Standard includes. */
 #include <string.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -41,29 +42,29 @@
     #include IOT_CONFIG_FILE
 #endif
 
-#if AWS_IOT_SERIALIZER_ENABLE_ASSERTS == 1
-    #ifndef AwsIotSerializer_Assert
+#if IOT_SERIALIZER_ENABLE_ASSERTS == 1
+    #ifndef IotSerializer_Assert
         #include <assert.h>
-        #define AwsIotSerializer_Assert( expression )    assert( expression )
+        #define IotSerializer_Assert( expression )    assert( expression )
     #endif
 #else
-    #define AwsIotSerializer_Assert( expression )
+    #define IotSerializer_Assert( expression )
 #endif
 
 /*
  * Provide default values for undefined memory allocation functions based on
  * the usage of dynamic memory allocation.
  */
-#if AWS_IOT_STATIC_MEMORY_ONLY == 1
-    #include "platform/aws_iot_static_memory.h"
+#if IOT_STATIC_MEMORY_ONLY == 1
+    #include "private/iot_static_memory.h"
 
 /**
  * @brief Allocate an array of uint8_t. This function should have the same
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef AwsIotSerializer_MallocCborEncoder
-        #define AwsIotSerializer_MallocCborEncoder    AwsIot_MallocSerializerCborEncoder
+    #ifndef IotSerializer_MallocCborEncoder
+        #define IotSerializer_MallocCborEncoder    Iot_MallocSerializerCborEncoder
     #endif
 
 /**
@@ -71,8 +72,8 @@
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef AwsIotSerializer_FreeCborEncoder
-        #define AwsIotSerializer_FreeCborEncoder    AwsIot_FreeSerializerCborEncoder
+    #ifndef IotSerializer_FreeCborEncoder
+        #define IotSerializer_FreeCborEncoder    Iot_FreeSerializerCborEncoder
     #endif
 
 /**
@@ -80,8 +81,8 @@
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef AwsIotSerializer_MallocCborParser
-        #define AwsIotSerializer_MallocCborParser    AwsIot_MallocSerializerCborParser
+    #ifndef IotSerializer_MallocCborParser
+        #define IotSerializer_MallocCborParser    Iot_MallocSerializerCborParser
     #endif
 
 /**
@@ -89,8 +90,8 @@
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef AwsIotSerializer_FreeCborParser
-        #define AwsIotSerializer_FreeCborParser    AwsIot_FreeSerializerCborParser
+    #ifndef IotSerializer_FreeCborParser
+        #define IotSerializer_FreeCborParser    Iot_FreeSerializerCborParser
     #endif
 
 /**
@@ -98,8 +99,8 @@
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef AwsIotSerializer_MallocCborValue
-        #define AwsIotSerializer_MallocCborValue    AwsIot_MallocSerializerCborValue
+    #ifndef IotSerializer_MallocCborValue
+        #define IotSerializer_MallocCborValue    Iot_MallocSerializerCborValue
     #endif
 
 /**
@@ -107,8 +108,8 @@
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef AwsIotSerializer_FreeCborValue
-        #define AwsIotSerializer_FreeCborValue    AwsIot_FreeSerializerCborValue
+    #ifndef IotSerializer_FreeCborValue
+        #define IotSerializer_FreeCborValue    Iot_FreeSerializerCborValue
     #endif
 
 /**
@@ -116,8 +117,8 @@
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef AwsIotSerializer_MallocDecoderObject
-        #define AwsIotSerializer_MallocDecoderObject    AwsIot_MallocSerializerDecoderObject
+    #ifndef IotSerializer_MallocDecoderObject
+        #define IotSerializer_MallocDecoderObject    Iot_MallocSerializerDecoderObject
     #endif
 
 /**
@@ -125,88 +126,88 @@
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef AwsIotSerializer_FreeCborValue
-        #define AwsIotSerializer_FreeCborValue    AwsIot_FreeSerializerCborValue
+    #ifndef IotSerializer_FreeDecoderObject
+        #define IotSerializer_FreeDecoderObject    Iot_FreeSerializerDecoderObject
     #endif
 
-#else /* if AWS_IOT_STATIC_MEMORY_ONLY */
+#else /* if IOT_STATIC_MEMORY_ONLY */
     #include <stdlib.h>
 
-    #ifndef AwsIotSerializer_MallocCborEncoder
-        #define AwsIotSerializer_MallocCborEncoder    malloc
+    #ifndef IotSerializer_MallocCborEncoder
+        #define IotSerializer_MallocCborEncoder    malloc
     #endif
 
-    #ifndef AwsIotSerializer_FreeCborEncoder
-        #define AwsIotSerializer_FreeCborEncoder    free
+    #ifndef IotSerializer_FreeCborEncoder
+        #define IotSerializer_FreeCborEncoder    free
     #endif
 
-    #ifndef AwsIotSerializer_MallocCborParser
-        #define AwsIotSerializer_MallocCborParser    malloc
+    #ifndef IotSerializer_MallocCborParser
+        #define IotSerializer_MallocCborParser    malloc
     #endif
 
-    #ifndef AwsIotSerializer_FreeCborParser
-        #define AwsIotSerializer_FreeCborParser    free
+    #ifndef IotSerializer_FreeCborParser
+        #define IotSerializer_FreeCborParser    free
     #endif
 
-    #ifndef AwsIotSerializer_MallocCborValue
-        #define AwsIotSerializer_MallocCborValue    malloc
+    #ifndef IotSerializer_MallocCborValue
+        #define IotSerializer_MallocCborValue    malloc
     #endif
 
-    #ifndef AwsIotSerializer_FreeCborValue
-        #define AwsIotSerializer_FreeCborValue    free
+    #ifndef IotSerializer_FreeCborValue
+        #define IotSerializer_FreeCborValue    free
     #endif
 
-    #ifndef AwsIotSerializer_MallocDecoderObject
-        #define AwsIotSerializer_MallocDecoderObject    malloc
+    #ifndef IotSerializer_MallocDecoderObject
+        #define IotSerializer_MallocDecoderObject    malloc
     #endif
 
-    #ifndef AwsIotSerializer_FreeDecoderObject
-        #define AwsIotSerializer_FreeDecoderObject    free
+    #ifndef IotSerializer_FreeDecoderObject
+        #define IotSerializer_FreeDecoderObject    free
     #endif
 
-#endif /* if AWS_IOT_STATIC_MEMORY_ONLY */
+#endif /* if IOT_STATIC_MEMORY_ONLY */
 
-#define AWS_IOT_SERIALIZER_INDEFINITE_LENGTH                       0xffffffff
+#define IOT_SERIALIZER_INDEFINITE_LENGTH                       0xffffffff
 
-#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM    { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_STREAM }
+#define IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM    { .pHandle = NULL, .type = IOT_SERIALIZER_CONTAINER_STREAM }
 
-#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP       { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_MAP }
+#define IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP       { .pHandle = NULL, .type = IOT_SERIALIZER_CONTAINER_MAP }
 
-#define AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY     { .pHandle = NULL, .type = AWS_IOT_SERIALIZER_CONTAINER_ARRAY }
+#define IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY     { .pHandle = NULL, .type = IOT_SERIALIZER_CONTAINER_ARRAY }
 
-#define AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER              { .type = AWS_IOT_SERIALIZER_UNDEFINED, .pHandle = NULL, .value = 0 }
+#define IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER              { .type = IOT_SERIALIZER_UNDEFINED, 0 }
 
-#define AWS_IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER            NULL
+#define IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER            NULL
 
 /* helper macro to create scalar data */
-#define AwsIotSerializer_ScalarSignedInt( signedIntValue )                                                                          \
-    ( AwsIotSerializerScalarData_t ) { .value = { .signedInt = ( signedIntValue ) }, .type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT } \
+#define IotSerializer_ScalarSignedInt( signedIntValue )                                                                      \
+    ( IotSerializerScalarData_t ) { .value = { .signedInt = ( signedIntValue ) }, .type = IOT_SERIALIZER_SCALAR_SIGNED_INT } \
 
-#define AwsIotSerializer_ScalarTextString( pTextStringValue )                                                                                                                                  \
-    ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( ( uint8_t * ) pTextStringValue ), .stringLength = strlen( pTextStringValue ) }, .type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING } \
+#define IotSerializer_ScalarTextString( pTextStringValue )                                                                                                                              \
+    ( IotSerializerScalarData_t ) { .value = { .pString = ( ( uint8_t * ) pTextStringValue ), .stringLength = strlen( pTextStringValue ) }, .type = IOT_SERIALIZER_SCALAR_TEXT_STRING } \
 
-#define AwsIotSerializer_ScalarByteString( pByteStringValue, length )                                                                                            \
-    ( AwsIotSerializerScalarData_t ) { .value = { .pString = ( pByteStringValue ), .stringLength = ( length ) }, .type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING } \
+#define IotSerializer_ScalarByteString( pByteStringValue, length )                                                                                        \
+    ( IotSerializerScalarData_t ) { .value = { .pString = ( pByteStringValue ), .stringLength = ( length ) }, .type = IOT_SERIALIZER_SCALAR_BYTE_STRING } \
 
 /* Determine if an object is a container. */
-#define AwsIotSerializer_IsContainer( object )                       \
-    ( ( object )                                                     \
-      && ( ( object )->type == AWS_IOT_SERIALIZER_CONTAINER_STREAM   \
-           || ( object )->type == AWS_IOT_SERIALIZER_CONTAINER_ARRAY \
-           || ( object )->type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+#define IotSerializer_IsContainer( object )                      \
+    ( ( object )                                                 \
+      && ( ( object )->type == IOT_SERIALIZER_CONTAINER_STREAM   \
+           || ( object )->type == IOT_SERIALIZER_CONTAINER_ARRAY \
+           || ( object )->type == IOT_SERIALIZER_CONTAINER_MAP ) )
 
 /* error code returned by serializer function interface */
 typedef enum
 {
-    AWS_IOT_SERIALIZER_SUCCESS = 0,
-    AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL,
-    AWS_IOT_SERIALIZER_OUT_OF_MEMORY,
-    AWS_IOT_SERIALIZER_INVALID_INPUT,
-    AWS_IOT_SERIALIZER_UNDEFINED_TYPE,
-    AWS_IOT_SERIALIZER_NOT_SUPPORTED,
-    AWS_IOT_SERIALIZER_NOT_FOUND,
-    AWS_IOT_SERIALIZER_INTERNAL_FAILURE
-} AwsIotSerializerError_t;
+    IOT_SERIALIZER_SUCCESS = 0,
+    IOT_SERIALIZER_BUFFER_TOO_SMALL,
+    IOT_SERIALIZER_OUT_OF_MEMORY,
+    IOT_SERIALIZER_INVALID_INPUT,
+    IOT_SERIALIZER_UNDEFINED_TYPE,
+    IOT_SERIALIZER_NOT_SUPPORTED,
+    IOT_SERIALIZER_NOT_FOUND,
+    IOT_SERIALIZER_INTERNAL_FAILURE
+} IotSerializerError_t;
 
 /* two categories:
  * 1. scalar: int, string, byte, ...
@@ -214,20 +215,20 @@ typedef enum
  */
 typedef enum
 {
-    AWS_IOT_SERIALIZER_UNDEFINED = 0,
-    AWS_IOT_SERIALIZER_SCALAR_NULL,
-    AWS_IOT_SERIALIZER_SCALAR_BOOL,
-    AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT,
-    AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING,
-    AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING,
+    IOT_SERIALIZER_UNDEFINED = 0,
+    IOT_SERIALIZER_SCALAR_NULL,
+    IOT_SERIALIZER_SCALAR_BOOL,
+    IOT_SERIALIZER_SCALAR_SIGNED_INT,
+    IOT_SERIALIZER_SCALAR_TEXT_STRING,
+    IOT_SERIALIZER_SCALAR_BYTE_STRING,
     /* below is container */
-    AWS_IOT_SERIALIZER_CONTAINER_STREAM,
-    AWS_IOT_SERIALIZER_CONTAINER_ARRAY,
-    AWS_IOT_SERIALIZER_CONTAINER_MAP,
-} AwsIotSerializerDataType_t;
+    IOT_SERIALIZER_CONTAINER_STREAM,
+    IOT_SERIALIZER_CONTAINER_ARRAY,
+    IOT_SERIALIZER_CONTAINER_MAP,
+} IotSerializerDataType_t;
 
 /* encapsulate data value of different types */
-typedef struct AwsIotSerializerScalarValue
+typedef struct IotSerializerScalarValue
 {
     union
     {
@@ -239,42 +240,42 @@ typedef struct AwsIotSerializerScalarValue
         };
         bool booleanValue;
     };
-} AwsIotSerializerScalarValue_t;
+} IotSerializerScalarValue_t;
 
 /* scalar data handle used in encoder */
-typedef struct AwsIotSerializerScalarData
+typedef struct IotSerializerScalarData
 {
-    AwsIotSerializerDataType_t type;
-    AwsIotSerializerScalarValue_t value;
-} AwsIotSerializerScalarData_t;
+    IotSerializerDataType_t type;
+    IotSerializerScalarValue_t value;
+} IotSerializerScalarData_t;
 
 /* container data handle used in encoder */
-typedef struct AwsIotSerializerEncoderObject
+typedef struct IotSerializerEncoderObject
 {
-    AwsIotSerializerDataType_t type;
+    IotSerializerDataType_t type;
     void * pHandle;
-} AwsIotSerializerEncoderObject_t;
+} IotSerializerEncoderObject_t;
 
 
 /* data handle used in decoder: either container or scalar */
-typedef struct AwsIotSerializerDecoderObject
+typedef struct IotSerializerDecoderObject
 {
-    AwsIotSerializerDataType_t type;
+    IotSerializerDataType_t type;
     union
     {
         /* useful when this is a container */
         void * pHandle;
         /* if the type is a container, the scalarValue is unuseful */
-        AwsIotSerializerScalarValue_t value;
+        IotSerializerScalarValue_t value;
     };
-} AwsIotSerializerDecoderObject_t;
+} IotSerializerDecoderObject_t;
 
-typedef void * AwsIotSerializerDecoderIterator_t;
+typedef void * IotSerializerDecoderIterator_t;
 
 /**
  * @brief Table containing function pointers for encoder APIs.
  */
-typedef struct AwsIotSerializerEncodeInterface
+typedef struct IotSerializerEncodeInterface
 {
     /**
      * @brief Return the actual total size after encoding finished.
@@ -282,7 +283,7 @@ typedef struct AwsIotSerializerEncodeInterface
      * @param[in] pEncoderObject: the outermost object pointer; behavior is undefined for any other object
      * @param[in] pDataBuffer: the buffer pointer passed into init; behavior is undefined for any other buffer pointer
      */
-    size_t ( * getEncodedSize )( AwsIotSerializerEncoderObject_t * pEncoderObject,
+    size_t ( * getEncodedSize )( IotSerializerEncoderObject_t * pEncoderObject,
                                  uint8_t * pDataBuffer );
 
     /**
@@ -291,40 +292,40 @@ typedef struct AwsIotSerializerEncodeInterface
      *
      * @param[in] pEncoderObject: the outermost object pointer; behavior is undefined for any other object
      */
-    size_t ( * getExtraBufferSizeNeeded )( AwsIotSerializerEncoderObject_t * pEncoderObject );
+    size_t ( * getExtraBufferSizeNeeded )( IotSerializerEncoderObject_t * pEncoderObject );
 
     /**
      * @brief Initialize the object's handle with specified buffer and max size.
      *
-     * @param[in] pEncoderObject Pointer of Encoder Object. After init, its type will be set to AWS_IOT_SERIALIZER_CONTAINER_STREAM.
+     * @param[in] pEncoderObject Pointer of Encoder Object. After init, its type will be set to IOT_SERIALIZER_CONTAINER_STREAM.
      * @param[in] pDataBuffer Pointer to allocated buffer by user;
      *            NULL pDataBuffer is valid, used to calculate needed size by calling getExtraBufferSizeNeeded.
      * @param[in] maxSize Allocated buffer size
      */
-    AwsIotSerializerError_t ( * init )( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                        uint8_t * pDataBuffer,
-                                        size_t maxSize );
+    IotSerializerError_t ( * init )( IotSerializerEncoderObject_t * pEncoderObject,
+                                     uint8_t * pDataBuffer,
+                                     size_t maxSize );
 
     /**
      * @brief Clean the object's handle
      *
      * @param[in] pEncoderObject The outermost object pointer; behavior is undefined for any other object
      */
-    void ( * destroy )( AwsIotSerializerEncoderObject_t * pEncoderObject );
+    void ( * destroy )( IotSerializerEncoderObject_t * pEncoderObject );
 
     /**
      * @brief Open a child container object.
      *
      * @param[in] pEncoderObject: the parent object. It must be a container object
      * @param[in] pNewEncoderObject: the child object to create. It must be a container object
-     * @param[in] length: pre-known length of the container or AWS_IOT_SERIALIZER_INDEFINITE_LENGTH
+     * @param[in] length: pre-known length of the container or IOT_SERIALIZER_INDEFINITE_LENGTH
      *         map: the length is number of key-value pairs
      *         array: the length is number of elements
      *         none: the length is unuseful
      */
-    AwsIotSerializerError_t ( * openContainer )( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                 AwsIotSerializerEncoderObject_t * pNewEncoderObject,
-                                                 size_t length );
+    IotSerializerError_t ( * openContainer )( IotSerializerEncoderObject_t * pEncoderObject,
+                                              IotSerializerEncoderObject_t * pNewEncoderObject,
+                                              size_t length );
 
     /**
      * @brief Open a child container object with string key.
@@ -332,15 +333,15 @@ typedef struct AwsIotSerializerEncodeInterface
      * @param[in] pEncoderObject the parent object. It must be a container object
      * @param[in] pKey Key for the child container
      * @param[in] pNewEncoderObject the child object to create. It must be a container object
-     * @param[in] length: pre-known length of the container or AWS_IOT_SERIALIZER_INDEFINITE_LENGTH
+     * @param[in] length: pre-known length of the container or IOT_SERIALIZER_INDEFINITE_LENGTH
      *         map: the length is number of key-value pairs
      *         array: the length is number of elements
      *         none: the length is unuseful
      */
-    AwsIotSerializerError_t ( * openContainerWithKey )( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                        const char * pKey,
-                                                        AwsIotSerializerEncoderObject_t * pNewEncoderObject,
-                                                        size_t length );
+    IotSerializerError_t ( * openContainerWithKey )( IotSerializerEncoderObject_t * pEncoderObject,
+                                                     const char * pKey,
+                                                     IotSerializerEncoderObject_t * pNewEncoderObject,
+                                                     size_t length );
 
     /**
      * @brief Close a child container object.
@@ -349,8 +350,8 @@ typedef struct AwsIotSerializerEncodeInterface
      * @param[in] pEncoderObject: the parent object. It must be a container object
      * @param[in] pNewEncoderObject: the child object to create. It must be a container object
      */
-    AwsIotSerializerError_t ( * closeContainer )( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                  AwsIotSerializerEncoderObject_t * pNewEncoderObject );
+    IotSerializerError_t ( * closeContainer )( IotSerializerEncoderObject_t * pEncoderObject,
+                                               IotSerializerEncoderObject_t * pNewEncoderObject );
 
     /**
      * @brief Append a scalar data to a container, with type array or none. Map container is invalid
@@ -358,8 +359,8 @@ typedef struct AwsIotSerializerEncodeInterface
      * @param[in] pEncoderObject: the parent object. It must be a container object, with type array or none.
      * @param[in] scalarData: the scalar data to encode
      */
-    AwsIotSerializerError_t ( * append )( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                          AwsIotSerializerScalarData_t scalarData );
+    IotSerializerError_t ( * append )( IotSerializerEncoderObject_t * pEncoderObject,
+                                       IotSerializerScalarData_t scalarData );
 
     /**
      * @brief Append a key-value pair to a map container. The key is string type and value is a scalar.
@@ -368,15 +369,15 @@ typedef struct AwsIotSerializerEncodeInterface
      * @param[in] pKey: text string representing key
      * @param[in] scalarData: the scalar data to encode
      */
-    AwsIotSerializerError_t ( * appendKeyValue )( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                  const char * pKey,
-                                                  AwsIotSerializerScalarData_t scalarData );
-} AwsIotSerializerEncodeInterface_t;
+    IotSerializerError_t ( * appendKeyValue )( IotSerializerEncoderObject_t * pEncoderObject,
+                                               const char * pKey,
+                                               IotSerializerScalarData_t scalarData );
+} IotSerializerEncodeInterface_t;
 
 /**
  * @brief Table containing function pointers for decoder APIs.
  */
-typedef struct AwsIotSerializerDecodeInterface
+typedef struct IotSerializerDecodeInterface
 {
     /**
      * @brief Initialize decoder object with specified buffer.
@@ -384,17 +385,17 @@ typedef struct AwsIotSerializerDecodeInterface
      * @param pDecoderObject Pointer to the decoder object allocated by user.
      * @param pDataBuffer Pointer to the buffer containing data to be decoded.
      * @param maxSize Maximum length of the buffer containing data to be decoded.
-     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     * @return IOT_SERIALIZER_SUCCESS if successful
      */
-    AwsIotSerializerError_t ( * init )( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                        const uint8_t * pDataBuffer,
-                                        size_t maxSize );
+    IotSerializerError_t ( * init )( IotSerializerDecoderObject_t * pDecoderObject,
+                                     const uint8_t * pDataBuffer,
+                                     size_t maxSize );
 
     /**
      * @brief Destroy the decoder object handle
      * @param pDecoderObject Pointer to the decoder object
      */
-    void ( * destroy )( AwsIotSerializerDecoderObject_t * pDecoderObject );
+    void ( * destroy )( IotSerializerDecoderObject_t * pDecoderObject );
 
 
     /**
@@ -403,20 +404,20 @@ typedef struct AwsIotSerializerDecodeInterface
      *
      * @param[in] pDecoderObject Pointer to the decoder object representing the container
      * @param[out] pIterator Pointer to iterator which can be used for the traversing the container by calling next()
-     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     * @return IOT_SERIALIZER_SUCCESS if successful
      */
-    AwsIotSerializerError_t ( * stepIn )( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                          AwsIotSerializerDecoderIterator_t * pIterator );
+    IotSerializerError_t ( * stepIn )( IotSerializerDecoderObject_t * pDecoderObject,
+                                       IotSerializerDecoderIterator_t * pIterator );
 
 
     /**
      * @brief Gets the object value currently pointed to by an iterator.
      * @param iterator The iterator handle
      * @param pValueObject Value of the object pointed to by the iterator.
-     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     * @return IOT_SERIALIZER_SUCCESS if successful
      */
-    AwsIotSerializerError_t ( * get )( AwsIotSerializerDecoderIterator_t iterator,
-                                       AwsIotSerializerDecoderObject_t * pValueObject );
+    IotSerializerError_t ( * get )( IotSerializerDecoderIterator_t iterator,
+                                    IotSerializerDecoderObject_t * pValueObject );
 
     /**
      *
@@ -426,11 +427,11 @@ typedef struct AwsIotSerializerDecodeInterface
      * @param[in] pDecoderObject Pointer to the decoder object representing  container
      * @param[in] pKey Pointer to the key for which value needs to be found.
      * @param[out] pValueObject Pointer to the value object for the key.
-     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     * @return IOT_SERIALIZER_SUCCESS if successful
      */
-    AwsIotSerializerError_t ( * find )( AwsIotSerializerDecoderObject_t * pDecoderObject,
-                                        const char * pKey,
-                                        AwsIotSerializerDecoderObject_t * pValueObject );
+    IotSerializerError_t ( * find )( IotSerializerDecoderObject_t * pDecoderObject,
+                                     const char * pKey,
+                                     IotSerializerDecoderObject_t * pValueObject );
 
 
     /*
@@ -444,16 +445,16 @@ typedef struct AwsIotSerializerDecodeInterface
      * If the container is an array, it skips by one array element.
      *
      * @param[in] iterator Pointer to iterator
-     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     * @return IOT_SERIALIZER_SUCCESS if successful
      */
-    AwsIotSerializerError_t ( * next )( AwsIotSerializerDecoderIterator_t iterator );
+    IotSerializerError_t ( * next )( IotSerializerDecoderIterator_t iterator );
 
     /**
      * @brief Function to check if the iterator reached end of container
      * @param[in] iterator Pointer to iterator for the container
-     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     * @return IOT_SERIALIZER_SUCCESS if successful
      */
-    bool ( * isEndOfContainer )( AwsIotSerializerDecoderIterator_t iterator );
+    bool ( * isEndOfContainer )( IotSerializerDecoderIterator_t iterator );
 
 
 
@@ -464,19 +465,19 @@ typedef struct AwsIotSerializerDecodeInterface
      *
      * @param[in] iterator Pointer to iterator for the container.
      * @param[in] The outer decoder object to the same container.
-     * @return AWS_IOT_SERIALIZER_SUCCESS if successful
+     * @return IOT_SERIALIZER_SUCCESS if successful
      */
-    AwsIotSerializerError_t ( * stepOut )( AwsIotSerializerDecoderIterator_t iterator,
-                                           AwsIotSerializerDecoderObject_t * pDecoderObject );
-} AwsIotSerializerDecodeInterface_t;
+    IotSerializerError_t ( * stepOut )( IotSerializerDecoderIterator_t iterator,
+                                        IotSerializerDecoderObject_t * pDecoderObject );
+} IotSerializerDecodeInterface_t;
 
 /* Global reference of CBOR/JSON encoder and decoder. */
-extern AwsIotSerializerEncodeInterface_t _AwsIotSerializerCborEncoder;
+extern IotSerializerEncodeInterface_t _IotSerializerCborEncoder;
 
-extern AwsIotSerializerDecodeInterface_t _AwsIotSerializerCborDecoder;
+extern IotSerializerDecodeInterface_t _IotSerializerCborDecoder;
 
-extern AwsIotSerializerEncodeInterface_t _AwsIotSerializerJsonEncoder;
+extern IotSerializerEncodeInterface_t _IotSerializerJsonEncoder;
 
-extern AwsIotSerializerDecodeInterface_t _AwsIotSerializerJsonDecoder;
+extern IotSerializerDecodeInterface_t _IotSerializerJsonDecoder;
 
-#endif /* ifndef AWS_IOT_SERIALIZER_H */
+#endif /* ifndef _IOT_SERIALIZER_H_ */

@@ -29,6 +29,7 @@
 
 /* Standard includes. */
 #include <stdint.h>
+#include <stdlib.h>
 
 /**
  * @ingroup platform_datatypes_enums
