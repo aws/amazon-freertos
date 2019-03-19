@@ -385,24 +385,6 @@ void _resetBuffer( IotBleMqttService_t* pService )
     	( void ) xStreamBufferReset( pService->connection.sendBuffer );
 
     	( void ) xSemaphoreGive( pService->connection.sendLock );
-
-
-    	/*
-    	 * Wait for completion of any receive callback.
-    	 * Releases any pending receive buffer, Set the buffer to NULL,
-    	 * reset the offset and length of the buffer to zero.
-    	 */
-    	( void ) xSemaphoreTake( pService->connection.recvLock, portMAX_DELAY );
-
-    	if( pService->connection.pRecvBuffer != NULL )
-    	{
-    		vPortFree( pService->connection.pRecvBuffer );
-    		pService->connection.pRecvBuffer = NULL;
-    	}
-
-    	pService->connection.recvBufferLen = 0;
-
-    	( void ) xSemaphoreGive( pService->connection.recvLock );
     }
 
 
@@ -758,6 +740,7 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         						                 pService->connection.pMqttConnection );
 
         				vPortFree( recvBuffer );
+                                        pService->connection.pRecvBuffer = NULL;
         				recvBuffer = NULL;
         				bufferLength = 0;
         				bufferOffset = 0;
@@ -975,6 +958,7 @@ BaseType_t IotBleMqtt_Init( void )
         pService->pServicePtr->ucInstId = id;
         pService->pServicePtr->xNumberOfAttributes = IOT_BLE_MQTT_NUMBER_ATTRIBUTES;
         pService->pServicePtr->pxBLEAttributes = (BTAttribute_t *)_pAttributeTable;
+        pService->connection.pRecvBuffer = NULL;
 
         status = IotBle_CreateService( pService->pServicePtr, (IotBleAttributeEventCallback_t *)pCallBackArray );
 
