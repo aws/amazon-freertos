@@ -71,16 +71,20 @@ extern "C" {
     /* Port specific definitions --
      * how to enter/exit critical section from atomic.
      * Refer template -- ./lib/FreeRTOS/portable/Compiler/Arch/portmacro.h
+     *
+     * Every call to ATOMIC_EXIT_CRITICAL() must be closely paired with
+     * ATOMIC_ENTER_CRITICAL().
      */
     #if defined( portSET_INTERRUPT_MASK_FROM_ISR )
+
         /* Nested interrupt scheme is supported in this port. */
-        #define ATOMIC_ENTER_CRITICAL()     portSET_INTERRUPT_MASK_FROM_ISR()
-        #define ATOMIC_EXIT_CRITICAL( x )   portCLEAR_INTERRUPT_MASK_FROM_ISR( x )
-        typedef UBaseType_t CriticalSectionType_t;
+        #define ATOMIC_ENTER_CRITICAL()     UBaseType_t uxCriticalSectionType = portSET_INTERRUPT_MASK_FROM_ISR()
+        #define ATOMIC_EXIT_CRITICAL()      portCLEAR_INTERRUPT_MASK_FROM_ISR( uxCriticalSectionType )
     #else
+
+        /* Nested interrupt scheme is NOT supported in this port. */
         #define ATOMIC_ENTER_CRITICAL()     portENTER_CRITICAL()
-        #define ATOMIC_EXIT_CRITICAL( x )   portEXIT_CRITICAL()
-        typedef void CriticalSectionType_t;
+        #define ATOMIC_EXIT_CRITICAL()      portEXIT_CRITICAL()
     #endif /* portSET_INTERRUPT_MASK_FROM_ISR() */
 
     /* Port specific definitions --
@@ -114,9 +118,8 @@ static portFORCE_INLINE bool Atomic_CompareAndSwap_u32( uint32_t volatile * pDes
 #else
 
     bool bExecutionStatus = false;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     if ( *pDestination == ulComparand )
     {
@@ -124,7 +127,7 @@ static portFORCE_INLINE bool Atomic_CompareAndSwap_u32( uint32_t volatile * pDes
         bExecutionStatus = true;
     }
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return bExecutionStatus;
 
@@ -152,15 +155,13 @@ static portFORCE_INLINE void * Atomic_SwapPointers_p32( void * volatile * ppDest
 
 #else
 
-    CriticalSectionType_t temp;
-
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     pReturnValue = *ppDestination;
 
     *ppDestination = pExchange;
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
 #endif
 
@@ -189,9 +190,8 @@ static portFORCE_INLINE bool Atomic_CompareAndSwapPointers_p32( void * volatile 
 #else
 
     bool bExecutionStatus = false;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     if ( *ppDestination == pComparand )
     {
@@ -199,7 +199,7 @@ static portFORCE_INLINE bool Atomic_CompareAndSwapPointers_p32( void * volatile 
         bExecutionStatus = true;
     }
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return bExecutionStatus;
 
@@ -229,15 +229,14 @@ static portFORCE_INLINE uint32_t Atomic_Add_u32( uint32_t volatile * pAddend, ui
 #else
 
     uint32_t ulCurrent;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     ulCurrent = *pAddend;
 
     *pAddend += ulCount;
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return ulCurrent;
 
@@ -263,15 +262,14 @@ static portFORCE_INLINE uint32_t Atomic_Subtract_u32( uint32_t volatile * pAdden
 #else
 
     uint32_t ulCurrent;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL();
+    ATOMIC_ENTER_CRITICAL();
 
     ulCurrent = *pAddend;
 
     *pAddend -= ulCount;
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return ulCurrent;
 
@@ -296,15 +294,14 @@ static portFORCE_INLINE uint32_t Atomic_Increment_u32( uint32_t volatile * pAdde
 #else
 
     uint32_t ulCurrent;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     ulCurrent = *pAddend;
 
     *pAddend += 1;
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return ulCurrent;
 
@@ -329,15 +326,14 @@ static portFORCE_INLINE uint32_t Atomic_Decrement_u32( uint32_t volatile * pAdde
 #else
 
     uint32_t ulCurrent;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     ulCurrent = *pAddend;
 
     *pAddend -= 1;
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return ulCurrent;
 
@@ -365,15 +361,14 @@ static portFORCE_INLINE uint32_t Atomic_OR_u32( uint32_t volatile * pDestination
 #else
 
     uint32_t ulCurrent;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     ulCurrent = *pDestination;
 
     *pDestination |= ulValue;
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return ulCurrent;
 
@@ -399,15 +394,14 @@ static portFORCE_INLINE uint32_t Atomic_AND_u32( uint32_t volatile * pDestinatio
 #else
 
     uint32_t ulCurrent;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     ulCurrent = *pDestination;
 
     *pDestination &= ulValue;
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return ulCurrent;
 
@@ -433,15 +427,14 @@ static portFORCE_INLINE uint32_t Atomic_NAND_u32( uint32_t volatile * pDestinati
 #else
 
     uint32_t ulCurrent;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     ulCurrent = *pDestination;
 
     *pDestination = ~(ulCurrent & ulValue);
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return ulCurrent;
 
@@ -466,15 +459,14 @@ static portFORCE_INLINE uint32_t Atomic_XOR_u32( uint32_t volatile * pDestinatio
 #else
 
     uint32_t ulCurrent;
-    CriticalSectionType_t temp;
 
-    temp = ATOMIC_ENTER_CRITICAL( );
+    ATOMIC_ENTER_CRITICAL();
 
     ulCurrent = *pDestination;
 
     *pDestination ^= ulValue;
 
-    ATOMIC_EXIT_CRITICAL( temp );
+    ATOMIC_EXIT_CRITICAL();
 
     return ulCurrent;
 
