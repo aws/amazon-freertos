@@ -162,7 +162,7 @@ bool Iot_CreateDetachedThread(  IotThreadRoutine_t threadRoutine,
 bool IotMutex_Create( IotMutex_t * pNewMutex , bool recursive )
 {
     IotLogDebug( "Creating new mutex %p.", pNewMutex );
-    struct iot_mutex_internal * pMutex = ( struct iot_mutex_internal * ) pNewMutex;
+    _iot_mutex_internal_t * pMutex = ( _iot_mutex_internal_t * ) pNewMutex;
     
     if ( recursive  )
     {
@@ -173,7 +173,7 @@ bool IotMutex_Create( IotMutex_t * pNewMutex , bool recursive )
         ( void ) xSemaphoreCreateMutexStatic( & pMutex->xMutex );
     }
     
-    pMutex->type = IOT_THREAD_MUTEX_DEFAULT; /* remember the type of mutex */
+    pMutex->recursive = recursive; /* remember the type of mutex */
 
     return true;
 }
@@ -182,7 +182,7 @@ bool IotMutex_Create( IotMutex_t * pNewMutex , bool recursive )
 
 void IotMutex_Destroy( IotMutex_t * const pMutex )
 {
-    struct iot_mutex_internal * internalMutex = ( struct iot_mutex_internal * ) pMutex;
+    _iot_mutex_internal_t * internalMutex = ( _iot_mutex_internal_t * ) pMutex;
 
     vSemaphoreDelete( ( SemaphoreHandle_t ) & internalMutex->xMutex );
 }
@@ -191,19 +191,19 @@ void IotMutex_Destroy( IotMutex_t * const pMutex )
 
 bool prIotMutexTimedLock(IotMutex_t * const pMutex, TickType_t timeout)
 {
-    struct iot_mutex_internal * internalMutex = ( struct iot_mutex_internal * ) pMutex;
+    _iot_mutex_internal_t * internalMutex = ( _iot_mutex_internal_t * ) pMutex;
     BaseType_t  lockResult;
 
     IotLogDebug( "Locking mutex %p.", internalMutex );
 
     /* Call the correct FreeRTOS mutex take function based on mutex type. */
-    if( internalMutex->type == IOT_THREAD_MUTEX_NORMAL )
+    if( internalMutex->recursive == true )
     {
-        lockResult = xSemaphoreTake( ( SemaphoreHandle_t ) & internalMutex->xMutex, timeout);
+        lockResult = xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) & internalMutex->xMutex, timeout );
     }
     else
     {
-        lockResult = xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) & internalMutex->xMutex, timeout );
+        lockResult = xSemaphoreTake( ( SemaphoreHandle_t ) & internalMutex->xMutex, timeout);
     }
   
     return ( lockResult == pdTRUE );
@@ -227,18 +227,18 @@ bool IotMutex_TryLock( IotMutex_t * const pMutex )
 
 void IotMutex_Unlock( IotMutex_t * const pMutex )
 {
-    struct iot_mutex_internal * internalMutex = ( struct iot_mutex_internal * ) pMutex;
+    _iot_mutex_internal_t * internalMutex = ( _iot_mutex_internal_t * ) pMutex;
 
     IotLogDebug( "Unlocking mutex %p.", internalMutex );
     
     /* Call the correct FreeRTOS mutex unlock function based on mutex type. */
-    if( internalMutex->type == IOT_THREAD_MUTEX_NORMAL )
+    if( internalMutex->recursive == true )
     {
-        ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) & internalMutex->xMutex );
+        ( void ) xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) & internalMutex->xMutex );
     }
     else
     {
-        ( void ) xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) & internalMutex->xMutex );
+         ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) & internalMutex->xMutex );
     }
 }
 
@@ -248,15 +248,8 @@ bool IotSemaphore_Create( IotSemaphore_t * const pNewSemaphore,
                              uint32_t initialValue,
                              uint32_t maxValue )
 {
-    struct iot_sem_internal * internalSemaphore = ( struct iot_sem_internal * ) pNewSemaphore;
+    _iot_sem_internal_t * internalSemaphore = ( _iot_sem_internal_t * ) pNewSemaphore;
     IotLogDebug( "Creating new semaphore %p.", pNewSemaphore );
-
-    if( maxValue > ( uint32_t ) SEM_VALUE_MAX )
-    {
-        IotLogError( "%lu is larger than the maximum value a semaphore may"
-                        " have on this system.", maxValue );
-        return false;
-    }
 
     ( void ) xSemaphoreCreateCountingStatic( maxValue, initialValue, &internalSemaphore->xSemaphore );
 
@@ -267,10 +260,10 @@ bool IotSemaphore_Create( IotSemaphore_t * const pNewSemaphore,
 
 uint32_t IotSemaphore_GetCount( IotSemaphore_t * const pSemaphore )
 {
-    struct iot_sem_internal * internalSemaphore = ( struct iot_sem_internal * ) pSemaphore;
-    int count = 0;
+    _iot_sem_internal_t * internalSemaphore = ( _iot_sem_internal_t * ) pSemaphore;
+    UBaseType_t count = 0;
 
-    count = ( int ) uxSemaphoreGetCount( ( SemaphoreHandle_t ) &internalSemaphore->xSemaphore );
+    count = ( UBaseType_t ) uxSemaphoreGetCount( ( SemaphoreHandle_t ) &internalSemaphore->xSemaphore );
 
     IotLogDebug( "Semaphore %p has count %d.", pSemaphore, count );
 
@@ -281,7 +274,7 @@ uint32_t IotSemaphore_GetCount( IotSemaphore_t * const pSemaphore )
 
 void IotSemaphore_Destroy( IotSemaphore_t * const pSemaphore )
 {
-    struct iot_sem_internal * internalSemaphore = ( struct iot_sem_internal * ) pSemaphore;
+    _iot_sem_internal_t * internalSemaphore = ( _iot_sem_internal_t * ) pSemaphore;
 
     IotLogDebug( "Destroying semaphore %p.", internalSemaphore );
 
@@ -292,7 +285,7 @@ void IotSemaphore_Destroy( IotSemaphore_t * const pSemaphore )
 
 void IotSemaphore_Wait( IotSemaphore_t * pSemaphore )
 {
-    struct iot_sem_internal * internalSemaphore = ( struct iot_sem_internal * ) pSemaphore;
+    _iot_sem_internal_t * internalSemaphore = ( _iot_sem_internal_t * ) pSemaphore;
 
     IotLogDebug( "Waiting on semaphore %p.", internalSemaphore );
 
@@ -309,7 +302,7 @@ void IotSemaphore_Wait( IotSemaphore_t * pSemaphore )
 
 bool IotSemaphore_TryWait( IotSemaphore_t * const pSemaphore )
 {
-    struct iot_sem_internal * internalSemaphore = ( struct iot_sem_internal * ) pSemaphore;
+    _iot_sem_internal_t * internalSemaphore = ( _iot_sem_internal_t * ) pSemaphore;
 
     IotLogDebug( "Attempting to wait on semaphore %p.", internalSemaphore );
 
@@ -321,7 +314,7 @@ bool IotSemaphore_TryWait( IotSemaphore_t * const pSemaphore )
 bool IotSemaphore_TimedWait( IotSemaphore_t * const pSemaphore,
                                 uint64_t timeoutMs )
 {
-    struct iot_sem_internal * internalSemaphore = ( struct iot_sem_internal * ) pSemaphore;
+    _iot_sem_internal_t * internalSemaphore = ( _iot_sem_internal_t * ) pSemaphore;
 
     /* Take the semaphore using the FreeRTOS API. */
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &internalSemaphore->xSemaphore,
@@ -343,7 +336,7 @@ bool IotSemaphore_TimedWait( IotSemaphore_t * const pSemaphore,
 
 void IotSemaphore_Post( IotSemaphore_t * const pSemaphore )
 {
-    struct iot_sem_internal * internalSemaphore = ( struct iot_sem_internal * ) pSemaphore;
+    _iot_sem_internal_t * internalSemaphore = ( _iot_sem_internal_t * ) pSemaphore;
 
     IotLogDebug( "Posting to semaphore %p.", internalSemaphore );
     /* Give the semaphore using the FreeRTOS API. */

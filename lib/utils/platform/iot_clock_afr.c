@@ -61,7 +61,7 @@
 
 /*-----------------------------------------------------------*/
 
-/*  Private Callback function for timer expirty, delegate work to a Task to free 
+/*  Private Callback function for timer expiry, delegate work to a Task to free 
     up the timer task for managing other timers */
 static void prvTimerCallback( TimerHandle_t xTimerHandle )
 {
@@ -87,7 +87,7 @@ bool IotClock_GetTimestring( char * const pBuffer,
                                 size_t * const pTimestringLength )
 {
     uint64_t milliSeconds = IotClock_GetTimeMs( );
-    size_t timestringLength = 0;
+    int timestringLength = 0;
 
     /* Convert the localTime struct to a string. */
     timestringLength = snprintf( pBuffer, bufferSize, "%llu",  milliSeconds );
@@ -126,7 +126,7 @@ uint64_t IotClock_GetTimeMs( void )
     ullTickCount += xCurrentTime.xTimeOnEntering;
 
     /* Return the ticks converted to Milliseconds */
-    return ( int64_t ) ullTickCount * _MILLISECONDS_PER_TICK;
+    return ullTickCount * _MILLISECONDS_PER_TICK;
 }
 
 /*-----------------------------------------------------------*/
@@ -189,8 +189,8 @@ void IotClock_TimerDestroy( IotTimer_t * const pTimer )
 /*-----------------------------------------------------------*/
 
 bool IotClock_TimerArm( IotTimer_t * const pTimer,
-                           uint64_t relativeTimeoutMs,
-                           uint64_t periodMs )
+                           uint32_t relativeTimeoutMs,
+                           uint32_t periodMs )
 {
     _timerInfo_t * pTimerInfo = ( _timerInfo_t * ) pTimer;
     

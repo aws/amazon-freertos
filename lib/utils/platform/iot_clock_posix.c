@@ -163,7 +163,7 @@ bool IotClock_GetTimestring( char * const pBuffer,
     bool status = true;
     const time_t unixTime = time( NULL );
     struct tm localTime = { 0 };
-    size_t timestringLength = 0;
+    int timestringLength = 0;
 
     /* localtime_r is the thread-safe variant of localtime. Its return value
      * should be the pointer to the localTime struct. */
@@ -258,8 +258,8 @@ void IotClock_TimerDestroy( IotTimer_t * const pTimer )
 /*-----------------------------------------------------------*/
 
 bool IotClock_TimerArm( IotTimer_t * const pTimer,
-                        uint64_t relativeTimeoutMs,
-                        uint64_t periodMs )
+                        uint32_t relativeTimeoutMs,
+                        uint32_t periodMs )
 {
     bool status = true;
     struct itimerspec timerExpiration =

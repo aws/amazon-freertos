@@ -30,27 +30,27 @@
 #include "timers.h"
 
 
-struct iot_mutex_internal
+typedef struct _iot_mutex_internal
 {
     StaticSemaphore_t xMutex;           /**< FreeRTOS mutex. */
-    int type;                           /**< Type; used for indicating if this is reentrant or normal. */
-};
+    bool recursive;                           /**< Type; used for indicating if this is reentrant or normal. */
+} _iot_mutex_internal_t;
 
 /**
  * @brief The native mutex type on AFR systems.
  */
-typedef struct iot_mutex_internal _IotSystemMutex_t;
+typedef _iot_mutex_internal_t _IotSystemMutex_t;
 
 
-struct iot_sem_internal
+typedef struct _iot_sem_internal
 {
     StaticSemaphore_t xSemaphore;       /**< FreeRTOS semaphore. */
-};
+} _iot_sem_internal_t;
 
 /**
  * @brief The native semaphore type on AFR systems.
  */
-typedef struct iot_sem_internal _IotSystemSemaphore_t;
+typedef _iot_sem_internal_t _IotSystemSemaphore_t;
 
 
 /**
@@ -87,6 +87,6 @@ typedef struct _timerInfo
  * @brief Represents an #IotTimer_t on AFR systems.
  */
 
-typedef struct _timerInfo _IotSystemTimer_t;
+typedef _timerInfo_t _IotSystemTimer_t;
 
 #endif /* ifndef _IOT_PLATFORM_TYPES_POSIX_H_ */
