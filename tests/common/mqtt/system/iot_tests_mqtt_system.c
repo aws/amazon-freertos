@@ -125,6 +125,7 @@ extern BaseType_t IotTestNetwork_Connect(void);
 extern void IotTestNetwork_Cleanup(void);
 extern void IotTestNetwork_Close(void);
 extern void IotTestNetwork_Destroy(void);
+extern IotMqttSerializer_t * IotTestNetwork_GetSerializer(void);
 extern void IotTestNetwork_OverrideSerializer( IotMqttSerializer_t * pSerializer );
 /*-----------------------------------------------------------*/
 
@@ -167,6 +168,7 @@ static bool _unsubscribeSerializerOverride = true; /**< @brief Tracks if #_unsub
 static bool _disconnectSerializerOverride = true;  /**< @brief Tracks if #_disconnectSerializerOverride was called. */
 
 /*-----------------------------------------------------------*/
+static IotMqttSerializer_t * _pMqttDefaultSerializer;
 
 /**
  * @brief Packet free function override
@@ -175,7 +177,7 @@ static void _freePacket( uint8_t * pPacket )
 {
     _freePacketOverride = true;
 
-    _IotMqtt_FreePacket( pPacket );
+    _pMqttDefaultSerializer->freePacket( pPacket );
 }
 
 /*-----------------------------------------------------------*/
@@ -189,7 +191,7 @@ static IotMqttError_t _serializeConnect( const IotMqttConnectInfo_t * pConnectIn
 {
     _connectSerializerOverride = true;
 
-    return _IotMqtt_SerializeConnect( pConnectInfo,
+    return _pMqttDefaultSerializer->serialize.connect( pConnectInfo,
                                       pConnectPacket,
                                       pPacketSize );
 }
@@ -207,7 +209,7 @@ static IotMqttError_t _serializePublish( const IotMqttPublishInfo_t * pPublishIn
 {
     _publishSerializerOverride = true;
 
-    return _IotMqtt_SerializePublish( pPublishInfo,
+    return _pMqttDefaultSerializer->serialize.publish( pPublishInfo,
                                       pPublishPacket,
                                       pPacketSize,
                                       pPacketIdentifier,
@@ -225,7 +227,7 @@ static IotMqttError_t _serializePuback( uint16_t packetIdentifier,
 {
     _pubackSerializerOverride = true;
 
-    return _IotMqtt_SerializePuback( packetIdentifier,
+    return _pMqttDefaultSerializer->serialize.puback( packetIdentifier,
                                      pPubackPacket,
                                      pPacketSize );
 }
@@ -243,7 +245,7 @@ static IotMqttError_t _serializeSubscribe( const IotMqttSubscription_t * pSubscr
 {
     _subscribeSerializerOverride = true;
 
-    return _IotMqtt_SerializeSubscribe( pSubscriptionList,
+    return _pMqttDefaultSerializer->serialize.subscribe( pSubscriptionList,
                                         subscriptionCount,
                                         pSubscribePacket,
                                         pPacketSize,
@@ -263,7 +265,7 @@ static IotMqttError_t _serializeUnsubscribe( const IotMqttSubscription_t * pSubs
 {
     _unsubscribeSerializerOverride = true;
 
-    return _IotMqtt_SerializeUnsubscribe( pSubscriptionList,
+    return _pMqttDefaultSerializer->serialize.unsubscribe( pSubscriptionList,
                                           subscriptionCount,
                                           pSubscribePacket,
                                           pPacketSize,
@@ -280,27 +282,20 @@ static IotMqttError_t _serializeDisconnect( uint8_t ** pDisconnectPacket,
 {
     _disconnectSerializerOverride = true;
 
-    return _IotMqtt_SerializeDisconnect( pDisconnectPacket,
+    return _pMqttDefaultSerializer->serialize.disconnect( pDisconnectPacket,
                                          pPacketSize );
 }
 
-static const IotMqttSerializer_t _IotTestMqttSerializer = {
-    .serialize.connect       = _serializeConnect,
-    .serialize.publish       = _serializePublish,
-    .serialize.publishSetDup = NULL,
-    .serialize.puback        = _serializePuback,
-    .serialize.subscribe     = _serializeSubscribe,
-    .serialize.unsubscribe   = _serializeUnsubscribe,
-    .serialize.disconnect    = _serializeDisconnect,
-    .freePacket              = _freePacket,
-    .getPacketType           = NULL,
-    .getRemainingLength      = NULL,
-    .deserialize.connack     = NULL,
-    .deserialize.publish     = NULL,
-    .deserialize.puback      = NULL,
-    .deserialize.suback      = NULL,
-    .deserialize.unsuback    = NULL
-};
+static IotMqttSerializer_t _IotTestMqttSerializer;
+
+#define MQTT_SERIALIZER_OVERRIDE(serializer)  \
+    serializer.serialize.connect       = _serializeConnect;\
+    serializer.serialize.publish       = _serializePublish;\
+    serializer.serialize.puback        = _serializePuback;\
+    serializer.serialize.subscribe     = _serializeSubscribe;\
+    serializer.serialize.unsubscribe   = _serializeUnsubscribe;\
+    serializer.serialize.disconnect    = _serializeDisconnect;\
+    serializer.freePacket              = _freePacket;
 
 /*-----------------------------------------------------------*/
 
@@ -565,6 +560,10 @@ TEST_SETUP( MQTT_System )
         TEST_FAIL_MESSAGE( "Failed to connect." );
     }
 
+    /* Get default serializer, copy it and override desired function. */
+    _pMqttDefaultSerializer = IotTestNetwork_GetSerializer();
+    _IotTestMqttSerializer = *_pMqttDefaultSerializer;
+    MQTT_SERIALIZER_OVERRIDE(_IotTestMqttSerializer);
     IotTestNetwork_OverrideSerializer ((IotMqttSerializer_t *)&_IotTestMqttSerializer );
 
     /* Generate a new, unique client identifier based on the time if no client

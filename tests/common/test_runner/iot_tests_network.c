@@ -239,6 +239,12 @@ void IotTestNetwork_OverrideSerializer ( IotMqttSerializer_t * pSerializer )
     IotNetworkInfo.pMqttSerializer = pSerializer;
 }
 
+IotMqttSerializer_t * IotTestNetwork_GetSerializer(void)
+{
+    return (IotMqttSerializer_t *)IotNetworkInfo.pMqttSerializer;
+}
+
+
 BaseType_t IotTestNetwork_Connect( void )
 {
     size_t xTriesLeft = 50;
