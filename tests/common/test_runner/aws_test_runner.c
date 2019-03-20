@@ -102,14 +102,16 @@ static void RunTests( void )
 
         /* The Shadow v4 tests perform their own initialization and cleanup. Clean
          * up the MQTT library here to avoid memory leaks. */
-        AwsIotMqtt_Cleanup();
+        IotCommon_Cleanup();
+        IotMqtt_Cleanup();
 
         RUN_TEST_GROUP( Shadow_Unit_Parser );
         RUN_TEST_GROUP( Shadow_Unit_API );
         RUN_TEST_GROUP( Shadow_System );
 
         /* Initialize the MQTT library for any tests that come after. */
-        configASSERT( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS );
+        configASSERT( IotCommon_Init() == true );
+        configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
@@ -125,8 +127,8 @@ static void RunTests( void )
         RUN_TEST_GROUP( MQTT_Unit_API );
         RUN_TEST_GROUP( MQTT_System );
 
-        IotCommon_Init();
         /* Initialize the MQTT library for any tests that come after. */
+        configASSERT( IotCommon_Init() == true );
         configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
 

@@ -191,15 +191,46 @@ static void _mqttSubscription_tryDestroy( void * pData )
 static void _mqttOperation_tryDestroy( void * pData )
 {
     _mqttOperation_t * pOperation = ( _mqttOperation_t * ) pData;
+    IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
 
-    /* Decrement reference count and destroy operation if possible. */
-    if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
+    /* Incoming PUBLISH operations may always be freed. */
+    if( pOperation->incomingPublish == true )
     {
-        _IotMqtt_DestroyOperation( pOperation );
+        /* Cancel the incoming PUBLISH operation's job. */
+        taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
+                                                &( pOperation->job ),
+                                                NULL );
+
+        /* If the operation's job was not canceled, it must be already executing.
+         * Any other return value is invalid. */
+        IotMqtt_Assert( ( taskPoolStatus == IOT_TASKPOOL_SUCCESS ) ||
+                        ( taskPoolStatus == IOT_TASKPOOL_CANCEL_FAILED ) );
+
+        /* Check if the incoming PUBLISH job was canceled. */
+        if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
+        {
+            /* Job was canceled. Process incoming PUBLISH now to clean up. */
+            _IotMqtt_ProcessIncomingPublish( IOT_SYSTEM_TASKPOOL,
+                                             &( pOperation->job ),
+                                             pOperation );
+        }
+        else
+        {
+            /* The executing job will process the PUBLISH, so nothing is done here. */
+            _EMPTY_ELSE_MARKER;
+        }
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        /* Decrement reference count and destroy operation if possible. */
+        if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
+        {
+            _IotMqtt_DestroyOperation( pOperation );
+        }
+        else
+        {
+            _EMPTY_ELSE_MARKER;
+        }
     }
 }
 

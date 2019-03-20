@@ -779,6 +779,20 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t * pTaskPool,
     IotMqtt_Assert( pOperation->incomingPublish == true );
     IotMqtt_Assert( pPublishJob == &( pOperation->job ) );
 
+    /* Remove the operation from the pending processing list. */
+    IotMutex_Lock( &( pOperation->pMqttConnection->referencesMutex ) );
+
+    if( IotLink_IsLinked( &( pOperation->link ) ) == true )
+    {
+        IotListDouble_Remove( &( pOperation->link ) );
+    }
+    else
+    {
+        _EMPTY_ELSE_MARKER;
+    }
+
+    IotMutex_Unlock( &( pOperation->pMqttConnection->referencesMutex ) );
+
     /* Process the current PUBLISH. */
     callbackParam.message.info = pOperation->publishInfo;
 
@@ -788,7 +802,7 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t * pTaskPool,
     /* Free any buffers associated with the current PUBLISH message. */
     if( pOperation->pReceivedData != NULL )
     {
-        IotMqtt_FreeMessage( ( void* ) pOperation->pReceivedData );
+        IotMqtt_FreeMessage( ( void * ) pOperation->pReceivedData );
     }
     else
     {

@@ -355,15 +355,15 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_serialize.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_validate.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
-    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_decoder.c" />
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_encoder.c" />
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_decoder.c" />
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_encoder.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_decoder.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_api.c" />
@@ -493,7 +493,6 @@
     <ClCompile Include="..\..\..\..\lib\third_party\cmock\src\cmock.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\unity\src\unity.c" />
-    <ClCompile Include="..\..\..\common\test_runner\iot_tests_network.c" />
     <ClCompile Include="..\..\..\common\tls\aws_test_tls.c" />
     <ClCompile Include="..\common\application_code\aws_run-time-stats-utils.c" />
     <ClCompile Include="..\common\application_code\main.c" />

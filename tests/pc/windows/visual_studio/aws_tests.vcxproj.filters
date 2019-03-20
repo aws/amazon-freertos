@@ -1124,9 +1124,6 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
-      <Filter>lib\aws\ota</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_entropy_hardware_poll.c">
       <Filter>application_code\common_tests\pkcs11</Filter>
     </ClCompile>
@@ -1349,12 +1346,6 @@
     <ClCompile Include="..\..\..\common\shadow\unit\aws_iot_tests_shadow_api.c">
       <Filter>application_code\common_tests\shadow\unit</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_decoder.c">
-      <Filter>lib\aws\serializer\cbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_encoder.c">
-      <Filter>lib\aws\serializer\cbor</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_decoder.c">
       <Filter>lib\aws\serializer\json</Filter>
     </ClCompile>
@@ -1433,8 +1424,14 @@
     <ClCompile Include="..\..\..\common\mqtt\system\iot_tests_mqtt_system.c">
       <Filter>application_code\common_tests\mqtt\system</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\test_runner\iot_tests_network.c">
-      <Filter>application_code\common_tests\test_runner</Filter>
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_decoder.c">
+      <Filter>lib\aws\serializer\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_encoder.c">
+      <Filter>lib\aws\serializer\cbor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
+      <Filter>lib\aws\ota</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

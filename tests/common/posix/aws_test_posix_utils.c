@@ -296,7 +296,7 @@ TEST(  Full_POSIX_UTILS, UTILS_TimespecToTicks )
     /* Check return value and results with valid parameters*/
     xTimeX.tv_sec = 1;
     xTimeX.tv_nsec = NANOSECONDS_PER_TICK + 1;
-    TickType_t xExpectedVal = xTimeX.tv_sec * configTICK_RATE_HZ + 2;
+    TickType_t xExpectedVal = ( TickType_t ) xTimeX.tv_sec * configTICK_RATE_HZ + 2;
     TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecToTicks( &xTimeX, &xResult ) );
     TEST_ASSERT_EQUAL_INT( ( int ) xExpectedVal, ( int ) xResult );
 }

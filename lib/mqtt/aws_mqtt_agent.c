@@ -659,8 +659,6 @@ MQTTAgentReturnCode_t MQTT_AGENT_Disconnect( MQTTAgentHandle_t xMQTTHandle,
     /* Check that the connection is established. */
     if( pxConnection->xMQTTConnection != IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        mqttconfigASSERT( pxConnection->xNetworkConnectionCreated == pdTRUE );
-
         /* Call MQTT v4's DISCONNECT function. */
         IotMqtt_Disconnect( pxConnection->xMQTTConnection,
                             0 );

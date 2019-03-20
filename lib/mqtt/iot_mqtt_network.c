@@ -302,6 +302,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 pOperation->status = status;
                 _IotMqtt_Notify( pOperation );
             }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
+            }
 
             break;
 
@@ -318,13 +322,14 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
                 break;
             }
-
-            /* Set the members of the incoming PUBLISH operation. */
-            ( void ) memset( pOperation, 0x00, sizeof( _mqttOperation_t ) );
-            pOperation->incomingPublish = true;
-            pOperation->pMqttConnection = pMqttConnection;
-
-            pIncomingPacket->pIncomingPublish = pOperation;
+            else
+            {
+                /* Set the members of the incoming PUBLISH operation. */
+                ( void ) memset( pOperation, 0x00, sizeof( _mqttOperation_t ) );
+                pOperation->incomingPublish = true;
+                pOperation->pMqttConnection = pMqttConnection;
+                pIncomingPacket->pIncomingPublish = pOperation;
+            }
 
             /* Choose a PUBLISH deserializer. */
             deserialize = _IotMqtt_DeserializePublish;
@@ -335,6 +340,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     if( pMqttConnection->pSerializer->deserialize.publish != NULL )
                     {
                         deserialize = pMqttConnection->pSerializer->deserialize.publish;
+                    }
+                    else
+                    {
+                        _EMPTY_ELSE_MARKER;
                     }
                 }
                 else
@@ -362,6 +371,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 pOperation->pReceivedData = pIncomingPacket->pRemainingData;
                 pIncomingPacket->pRemainingData = NULL;
 
+                /* Add the PUBLISH to the list of operations pending processing. */
+                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+                IotListDouble_InsertHead( &( pMqttConnection->pendingProcessing ),
+                                          &( pOperation->link ) );
+                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+
                 /* Increment the MQTT connection reference count before scheduling an
                  * incoming PUBLISH. */
                 if( _IotMqtt_IncrementConnectionReferences( pMqttConnection ) == true )
@@ -373,6 +388,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 {
                     status = IOT_MQTT_NETWORK_ERROR;
                 }
+            }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
             }
 
             /* Free PUBLISH operation on error. */
@@ -392,8 +411,26 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     IotMqtt_Assert( pIncomingPacket->pRemainingData != NULL );
                 }
 
+                /* Remove operation from pending processing list. */
+                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+
+                if( IotLink_IsLinked( &( pOperation->link ) ) == true )
+                {
+                    IotListDouble_Remove( &( pOperation->link ) );
+                }
+                else
+                {
+                    _EMPTY_ELSE_MARKER;
+                }
+
+                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+
                 IotMqtt_Assert( pOperation != NULL );
                 IotMqtt_FreeOperation( pOperation );
+            }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
             }
 
             break;
@@ -432,6 +469,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             {
                 pOperation->status = status;
                 _IotMqtt_Notify( pOperation );
+            }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
             }
 
             break;
@@ -472,6 +513,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 pOperation->status = status;
                 _IotMqtt_Notify( pOperation );
             }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
+            }
 
             break;
 
@@ -487,6 +532,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     if( pMqttConnection->pSerializer->deserialize.unsuback != NULL )
                     {
                         deserialize = pMqttConnection->pSerializer->deserialize.unsuback;
+                    }
+                    else
+                    {
+                        _EMPTY_ELSE_MARKER;
                     }
                 }
                 else
@@ -506,6 +555,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 pOperation->status = status;
                 _IotMqtt_Notify( pOperation );
             }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
+            }
 
             break;
 
@@ -523,6 +576,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     if( pMqttConnection->pSerializer->deserialize.pingresp != NULL )
                     {
                         deserialize = pMqttConnection->pSerializer->deserialize.pingresp;
+                    }
+                    else
+                    {
+                        _EMPTY_ELSE_MARKER;
                     }
                 }
                 else
@@ -552,6 +609,10 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
 
                 IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+            }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
             }
 
             break;

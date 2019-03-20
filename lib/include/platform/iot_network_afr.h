@@ -147,16 +147,16 @@ typedef struct IotNetworkCredentialsAfr
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
  */
-#define AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER                             \
-    {                                                                           \
-        .disableSni = false,                                                    \
-        .pAlpnProtos = socketsAWS_IOT_ALPN_MQTT,                                \
-        .pRootCa = NULL,                                                        \
-        .pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM,                  \
-        .pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM,                  \
-        .rootCaSize = 0,                                                        \
-        .clientCertSize = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH, \
-        .privateKeySize = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH  \
+#define AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER            \
+    {                                                          \
+        .disableSni = false,                                   \
+        .pAlpnProtos = socketsAWS_IOT_ALPN_MQTT,               \
+        .pRootCa = NULL,                                       \
+        .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
+        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
+        .rootCaSize = 0,                                       \
+        .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ), \
+        .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )  \
     }
 
 /**

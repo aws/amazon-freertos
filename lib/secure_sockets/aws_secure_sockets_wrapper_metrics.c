@@ -57,6 +57,7 @@
 
         if( result == SOCKETS_ERROR_NONE )
         {
+            #if 0
             IotMetricsTcpConnection_t connection;
             /* Cast the Socket_t to void pointer as handle. */
             connection.pHandle = ( void * ) xSocket;
@@ -70,6 +71,7 @@
             connection.remoteIP = SOCKETS_ntohl( pxAddress->ulAddress );
 
             IotMetrics_AddTcpConnection( &connection );
+            #endif
         }
 
         return result;
@@ -82,10 +84,12 @@
     {
         int32_t result = SOCKETS_Shutdown( xSocket, ulHow );
 
+        # if 0
         if( result == SOCKETS_ERROR_NONE )
         {
             IotMetrics_RemoveTcpConnection( ( void * ) xSocket );
         }
+        #endif
 
         return result;
     }
