@@ -1,6 +1,6 @@
 <!DOCTYPE CrossStudio_Project_File>
-<solution Name="aws_demos_ble" target="8" version="2">
-  <project Name="aws_demos_ble">
+<solution Name="aws_demos" target="8" version="2">
+  <project Name="aws_demos">
     <configuration
       Name="Common"
       arm_architecture="v7EM"
