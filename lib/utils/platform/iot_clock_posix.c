@@ -163,7 +163,7 @@ bool IotClock_GetTimestring( char * const pBuffer,
     bool status = true;
     const time_t unixTime = time( NULL );
     struct tm localTime = { 0 };
-    int timestringLength = 0;
+    size_t timestringLength = 0;
 
     /* localtime_r is the thread-safe variant of localtime. Its return value
      * should be the pointer to the localTime struct. */
