@@ -196,7 +196,7 @@ TEST( UTIL_Platform_Threads, IotThreads_ThreadStackSize )
 {
     static int32_t attrData = -1;
     int32_t delta = 0;
-    /* Create thread with stack size 3072 */
+    /* Create thread with stack size 4096 */
     Iot_CreateDetachedThread( threadStackSizeTestFunction, &attrData, 5, 4096 );
   
     /* Wait for the thread to complete before checking result*/

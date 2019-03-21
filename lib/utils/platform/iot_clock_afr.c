@@ -51,13 +51,8 @@
 /*
  * Time conversion constants.
  */
-#define _NANOSECONDS_PER_SECOND         ( 1000000000 ) /**< @brief Nanoseconds per second. */
-#define _NANOSECONDS_PER_MILLISECOND    ( 1000000 )    /**< @brief Nanoseconds per millisecond. */
 #define _MILLISECONDS_PER_SECOND        ( 1000 )       /**< @brief Milliseconds per second. */
 #define _MILLISECONDS_PER_TICK          ( _MILLISECONDS_PER_SECOND / configTICK_RATE_HZ ) /**< Milliseconds per FreeRTOS tick. */
-
-/*-----------------------------------------------------------*/
-
 
 /*-----------------------------------------------------------*/
 
@@ -65,7 +60,7 @@
     up the timer task for managing other timers */
 static void prvTimerCallback( TimerHandle_t xTimerHandle )
 {
-    _timerInfo_t * pxTimer = ( _timerInfo_t * ) pvTimerGetTimerID( xTimerHandle );
+    _IotSystemTimer_t * pxTimer = ( _IotSystemTimer_t * ) pvTimerGetTimerID( xTimerHandle );
 
     /* The value of the timer ID, set in timer_create, should not be NULL. */
     configASSERT( pxTimer != NULL );
@@ -83,11 +78,14 @@ static void prvTimerCallback( TimerHandle_t xTimerHandle )
 /*-----------------------------------------------------------*/
 
 bool IotClock_GetTimestring( char * const pBuffer,
-                                size_t bufferSize,
-                                size_t * const pTimestringLength )
+                             size_t bufferSize,
+                             size_t * const pTimestringLength )
 {
     uint64_t milliSeconds = IotClock_GetTimeMs( );
     int timestringLength = 0;
+
+    configASSERT( pBuffer != NULL );
+    configASSERT( pTimestringLength != NULL );
 
     /* Convert the localTime struct to a string. */
     timestringLength = snprintf( pBuffer, bufferSize, "%llu",  milliSeconds );
@@ -135,7 +133,10 @@ bool IotClock_TimerCreate( IotTimer_t * const pNewTimer,
                            IotThreadRoutine_t expirationRoutine,
                            void * pArgument )
 {
-    _timerInfo_t * pxTimer = ( _timerInfo_t*) pNewTimer;
+    _IotSystemTimer_t * pxTimer = ( _IotSystemTimer_t*) pNewTimer;
+
+    configASSERT( pNewTimer != NULL );
+    configASSERT( expirationRoutine != NULL );
 
     IotLogDebug( "Creating new timer %p.", pNewTimer );
 
@@ -161,7 +162,7 @@ bool IotClock_TimerCreate( IotTimer_t * const pNewTimer,
 
 void IotClock_TimerDestroy( IotTimer_t * const pTimer )
 {
-    _timerInfo_t * pTimerInfo = ( _timerInfo_t * ) pTimer;
+    _IotSystemTimer_t * pTimerInfo = ( _IotSystemTimer_t * ) pTimer;
 
     /* The value of the timer ID, set in timer_create, should not be NULL. */
     configASSERT( pTimerInfo != NULL );
@@ -181,7 +182,7 @@ void IotClock_TimerDestroy( IotTimer_t * const pTimer )
         /* Wait until the timer stop command is processed. */
         while( xTimerIsTimerActive( pTimerInfo->timer ) == pdTRUE )
         {
-            vTaskDelay( 100 );
+            vTaskDelay( 1 );
         }
     }
 }
@@ -192,7 +193,7 @@ bool IotClock_TimerArm( IotTimer_t * const pTimer,
                            uint32_t relativeTimeoutMs,
                            uint32_t periodMs )
 {
-    _timerInfo_t * pTimerInfo = ( _timerInfo_t * ) pTimer;
+    _IotSystemTimer_t * pTimerInfo = ( _IotSystemTimer_t * ) pTimer;
     
     configASSERT( pTimerInfo != NULL );
     

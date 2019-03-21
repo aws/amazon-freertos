@@ -33,17 +33,6 @@
 #endif
 
 /*------------------------- Thread management types -------------------------*/
-
-/**
- * @brief A value representing the system default for new thread priority.
- */
-#define IOT_THREAD_DEFAULT_PRIORITY      0
-
-/**
- * @brief A value representhing the system default for new thread stack size.
- */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    0
-
 /**
  * @ingroup platform_datatypes_handles
  * @brief The type used to represent mutexes, configured with the type

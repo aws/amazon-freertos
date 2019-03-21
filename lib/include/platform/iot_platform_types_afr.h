@@ -30,27 +30,27 @@
 #include "timers.h"
 
 
-typedef struct _iot_mutex_internal
+typedef struct iot_mutex_internal
 {
     StaticSemaphore_t xMutex;           /**< FreeRTOS mutex. */
     bool recursive;                           /**< Type; used for indicating if this is reentrant or normal. */
-} _iot_mutex_internal_t;
+} iot_mutex_internal_t;
 
 /**
  * @brief The native mutex type on AFR systems.
  */
-typedef _iot_mutex_internal_t _IotSystemMutex_t;
+typedef iot_mutex_internal_t _IotSystemMutex_t;
 
 
-typedef struct _iot_sem_internal
+typedef struct iot_sem_internal
 {
     StaticSemaphore_t xSemaphore;       /**< FreeRTOS semaphore. */
-} _iot_sem_internal_t;
+} iot_sem_internal_t;
 
 /**
  * @brief The native semaphore type on AFR systems.
  */
-typedef _iot_sem_internal_t _IotSystemSemaphore_t;
+typedef iot_sem_internal_t _IotSystemSemaphore_t;
 
 
 /**
@@ -65,28 +65,28 @@ typedef void ( * IotThreadRoutine_t )( void * );
  * @brief Holds information about an active detached thread so that we can 
  *        delete the FreeRTOS task when it completes
  */
-typedef struct _threadInfo
+typedef struct threadInfo
 {
     void * pArgument;                    /**< @brief First argument to `threadRoutine`. */
     IotThreadRoutine_t threadRoutine; /**< @brief Thread function to run. */
-} _threadInfo_t;
+} threadInfo_t;
 
 /**
  * @brief Holds information about an active timer.
  */
-typedef struct _timerInfo
+typedef struct timerInfo
 {
     timer_t timer;                          /**< @brief Underlying timer. */
     IotThreadRoutine_t threadRoutine;    /**< @brief Thread function to run on timer expiration. */
     void * pArgument;                       /**< @brief First argument to threadRoutine. */
     StaticTimer_t xTimerBuffer;             /**< Memory that holds the FreeRTOS timer. */
     TickType_t xTimerPeriod;                /**< Period of this timer. */
-} _timerInfo_t;
+} timerInfo_t;
 
 /**
  * @brief Represents an #IotTimer_t on AFR systems.
  */
 
-typedef _timerInfo_t _IotSystemTimer_t;
+typedef timerInfo_t _IotSystemTimer_t;
 
 #endif /* ifndef _IOT_PLATFORM_TYPES_POSIX_H_ */
