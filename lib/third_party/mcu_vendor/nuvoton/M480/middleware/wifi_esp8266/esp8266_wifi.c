@@ -105,14 +105,16 @@ static void ParseMacAddr( char * string, uint8_t * addr )
 /**
  * @brief  Parse an Access Point information
  */
-static void ParseApDetail( char * string, WIFIScanResult_t xBuffer )
+static void ParseApDetail( char * string, WIFIScanResult_t *xBuffer )
 {
-    char *pcDelim = "\",";
+    char *pcDelim = ",";
     char *pcPtr;
-    uint8_t ucNum = 0;
+    char *pcSave;
+    char *pcSSID;
+    uint8_t ucNum = 1;
     uint8_t ucMode;
 
-    pcPtr = strtok(string, pcDelim);
+    pcPtr = strtok_r(string, pcDelim, &pcSave);
 
     while (pcPtr != NULL) {
         switch (ucNum++) {
@@ -125,29 +127,32 @@ static void ParseApDetail( char * string, WIFIScanResult_t xBuffer )
                 /* Set as eWiFiSecurityNotSupported */
                 ucMode = 4;
             }
-            xBuffer.xSecurity = (WIFISecurity_t)ucMode;
+            xBuffer->xSecurity = (WIFISecurity_t)ucMode;
             break;
 
         case 2:
-            strlcpy(&xBuffer.cSSID[0], pcPtr, wificonfigMAX_SSID_LEN + 1);
+            pcSSID = strtok(pcPtr, "\"");
+            if (pcSSID) {
+                strlcpy(&xBuffer->cSSID[0], pcSSID, wificonfigMAX_SSID_LEN + 1);
+            }
             break;
 
         case 3:
-            xBuffer.cRSSI = (int8_t)atoi(pcPtr);
+            xBuffer->cRSSI = (int8_t)atoi(pcPtr);
             break;
 
         case 4:
-            ParseMacAddr(pcPtr, &xBuffer.ucBSSID[0]);
+            ParseMacAddr(pcPtr, &xBuffer->ucBSSID[0]);
             break;
 
         case 5:
-            xBuffer.cChannel = (int8_t)atoi(pcPtr);
+            xBuffer->cChannel = (int8_t)atoi(pcPtr);
             break;
 
         default:
             break;
         }
-        pcPtr = strtok(NULL, pcDelim);
+        pcPtr = strtok_r(NULL, pcDelim, &pcSave);
     }
 }
 
@@ -160,41 +165,25 @@ static void AT_ParseAddress( ESP_WIFI_Object_t * pxObj )
 {
     char *pcDelim = ",\r\n";
     char *pcPtr;
-    char *pcStaIp = NULL;
-    char *pcStaMac = NULL;
-    char *pcApIp = NULL;
-    char *pcApMac = NULL;
+    char *pcSave;
 
-    pcPtr = strtok((char *)pxObj->CmdData, pcDelim);
+    pcPtr = strtok_r((char *)pxObj->CmdData, pcDelim, &pcSave);
 
     while (pcPtr != NULL){
         if (strcmp(pcPtr, "+CIFSR:STAIP") == 0) {
-            pcPtr = strtok(NULL, pcDelim);
-            pcStaIp = pcPtr;
+            pcPtr = strtok_r(NULL, pcDelim, &pcSave);
+            ParseIpAddr(pcPtr, pxObj->StaIpAddr);
         } else if (strcmp(pcPtr, "+CIFSR:STAMAC") == 0) {
-            pcPtr = strtok(NULL, pcDelim);
-            pcStaMac = pcPtr;
+            pcPtr = strtok_r(NULL, pcDelim, &pcSave);
+            ParseMacAddr(pcPtr, pxObj->StaMacAddr);
         } else if (strcmp(pcPtr, "+CIFSR:APIP") == 0) {
-            pcPtr = strtok(NULL, pcDelim);
-            pcApIp = pcPtr;
+            pcPtr = strtok_r(NULL, pcDelim, &pcSave);
+            ParseIpAddr(pcPtr, pxObj->ApIpAddr);
         } else if (strcmp(pcPtr, "+CIFSR:APMAC") == 0) {
-            pcPtr = strtok(NULL, pcDelim);
-            pcApMac = pcPtr;
+            pcPtr = strtok_r(NULL, pcDelim, &pcSave);
+            ParseMacAddr(pcPtr, pxObj->ApMacAddr);
         }
-        pcPtr = strtok(NULL, pcDelim);
-    }
-
-    if (pcStaIp) {
-        ParseIpAddr(pcStaIp, pxObj->StaIpAddr);
-    }
-    if (pcStaMac) {
-        ParseMacAddr(pcStaMac, pxObj->StaMacAddr);
-    }
-    if (pcApIp) {
-        ParseIpAddr(pcApIp, pxObj->ApIpAddr);
-    }
-    if (pcApMac) {
-        ParseMacAddr(pcApMac, pxObj->ApMacAddr);
+        pcPtr = strtok_r(NULL, pcDelim, &pcSave);
     }
 }
 
@@ -205,18 +194,21 @@ static void AT_ParseAccessPoint( ESP_WIFI_Object_t * pxObj, WIFIScanResult_t * p
 {
     char *pcDelim = "()\r\n";
     char *pcPtr;
+    char *pcSave;
     uint8_t ucCount;
 
-    pcPtr = strtok((char *)pxObj->CmdData, pcDelim);
+    pcPtr = strtok_r((char *)pxObj->CmdData, pcDelim, &pcSave);
 
-    for (ucCount = 0; ucCount < ucNumNetworks; ucCount++) {
-        while (pcPtr != NULL){
+    for (ucCount = 0; ucCount < ucNumNetworks; ) {
+        if (pcPtr != NULL){
             if (strcmp(pcPtr, "+CWLAP:") == 0) {
-                pcPtr = strtok(NULL, pcDelim);
-                ParseApDetail(pcPtr, pxBuffer[ucCount]);
+                pcPtr = strtok_r(NULL, pcDelim, &pcSave);
+                ParseApDetail(pcPtr, (WIFIScanResult_t *)(&pxBuffer[ucCount]));
+                ucCount++;
             }
-            pcPtr = strtok(NULL, pcDelim);
-        }
+            pcPtr = strtok_r(NULL, pcDelim, &pcSave);
+        } else
+            break;
     }
 }
 
@@ -467,6 +459,43 @@ static ESP_WIFI_Status_t ESP_AT_Command( ESP_WIFI_Object_t * pxObj, uint8_t * pu
 }
 
 /**
+ * @brief  Check the DNS server setting
+ * @retval Operation status
+ */
+ESP_WIFI_Status_t ESP_WIFI_CheckDnsServer( ESP_WIFI_Object_t * pxObj )
+{
+    ESP_WIFI_Status_t xRet;
+    char *pcDelim = ":\r\n";
+    char *pcPtr;
+
+    sprintf((char *)pxObj->CmdData, "AT+CIPDNS_DEF?\r\n");
+    xRet = ESP_AT_Command(pxObj, pxObj->CmdData, 0);
+
+    if (xRet == ESP_WIFI_STATUS_OK) {
+        xRet = ESP_WIFI_STATUS_ERROR;
+
+        pcPtr = strtok((char *)pxObj->CmdData, pcDelim);
+        while (pcPtr != NULL){
+            if (strcmp(pcPtr, "+CIPDNS_DEF") == 0) {
+                pcPtr = strtok(NULL, pcDelim);
+
+                /* To check is there a DNS server */
+                if (strcmp(pcPtr, "255.255.255.255") == 0) {
+                    configPRINTF(("There is no DNS server, set it to be resolver1.opendns.com.\n"));
+                    /* Specify the DNS server to resolver1.opendns.com */
+                    sprintf((char *)pxObj->CmdData, "AT+CIPDNS_DEF=1,\"208.67.222.222\"\r\n");
+                    xRet = ESP_AT_Command(pxObj, pxObj->CmdData, 0);
+                }
+                break;
+            }
+            pcPtr = strtok(NULL, pcDelim);
+        }
+    }
+
+    return xRet;
+}
+
+/**
  * @brief  Initialize WIFI module
  * @param  Obj: pointer to WiF module
  * @retval Operation status
@@ -478,7 +507,8 @@ ESP_WIFI_Status_t ESP_WIFI_Init( ESP_WIFI_Object_t * pxObj )
     if (ESP_Platform_Init(pxObj) == pdTRUE) {
         /* Reset the WiFi module */
         xRet = ESP_WIFI_Reset(pxObj);
-        //xRet = ESP_WIFI_STATUS_OK;
+
+        ESP_WIFI_CheckDnsServer(pxObj);
     }
 
     return xRet;
@@ -524,6 +554,8 @@ ESP_WIFI_Status_t ESP_WIFI_Disconnect( ESP_WIFI_Object_t * pxObj )
     xRet = ESP_AT_Command(pxObj, (uint8_t *)"AT+CWQAP\r\n", 0);
     if (xRet == ESP_WIFI_STATUS_OK) {
         pxObj->IsConnected = pdFALSE;
+        /* Prevent scan AP soon and returns an error */
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 
     return xRet;

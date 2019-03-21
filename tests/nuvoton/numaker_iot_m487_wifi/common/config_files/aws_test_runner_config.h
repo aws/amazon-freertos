@@ -48,7 +48,7 @@
 #define testrunnerFULL_PKCS11_ENABLED              1  
 #define testrunnerFULL_CRYPTO_ENABLED              1  
 #define testrunnerFULL_WIFI_ENABLED                1
-#define testrunnerFULL_MEMORYLEAK_ENABLED          1  
+#define testrunnerFULL_MEMORYLEAK_ENABLED          0  
 #define testrunnerFULL_TLS_ENABLED                 1  
 #define testrunnerFULL_POSIX_ENABLED               1  
 
