@@ -33,6 +33,9 @@
 /* Unity framework includes. */
 #include "unity.h"
 
+/* Include for network interface type. */
+#include "platform/iot_network.h"
+
 /* POSIX header overrides for FreeRTOS+POSIX. */
 #ifndef POSIX_ERRNO_HEADER
     #define POSIX_ERRNO_HEADER        "FreeRTOS_POSIX/errno.h"
@@ -178,13 +181,16 @@
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */
 #define IOT_TEST_NETWORK_HEADER    "platform/iot_network_afr.h"
 
+/* Allow the network interface to be chosen by at runtime. */
+extern const IotNetworkInterface_t * IotTest_GetNetworkInterface( void );
+#define IOT_TEST_NETWORK_INTERFACE    IotTest_GetNetworkInterface();
+
 /* Forward declarations of network types used in the tests. */
 typedef struct IotNetworkConnectionAfr    IotTestNetworkConnection_t;
 typedef struct IotNetworkServerInfoAfr    IotTestNetworkServerInfo_t;
 typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 
 /* Define test network initializers. */
-#define IOT_TEST_NETWORK_INTERFACE                  IOT_NETWORK_INTERFACE_AFR
 #define IOT_TEST_NETWORK_CONNECTION_INITIALIZER     IOT_NETWORK_CONNECTION_AFR_INITIALIZER
 #define IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER    AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER
 #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER    AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER

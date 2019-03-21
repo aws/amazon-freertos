@@ -190,13 +190,13 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_BLE_ENABLED == 1 )
-        //RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
+        /* RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize ); */
         RUN_TEST_GROUP( Full_BLE );
     #endif
 
-#if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
-    RUN_TEST_GROUP( Full_BLE_END_TO_END );
-#endif
+    #if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_BLE_END_TO_END );
+    #endif
 
     #if ( testrunnerFULL_FREERTOS_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_FREERTOS_TCP );
@@ -208,8 +208,8 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
-        RUN_TEST_GROUP(Full_Serializer_CBOR);
-        RUN_TEST_GROUP(Full_Serializer_JSON);
+        RUN_TEST_GROUP( Full_Serializer_CBOR );
+        RUN_TEST_GROUP( Full_Serializer_JSON );
     #endif
 }
 /*-----------------------------------------------------------*/
@@ -225,7 +225,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     UNITY_BEGIN();
 
     /* Give the print buffer time to empty */
-    vTaskDelay( pdMS_TO_TICKS( 500) );
+    vTaskDelay( pdMS_TO_TICKS( 500 ) );
     /* Measure the heap size before any tests are run. */
     #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
         xHeapBefore = xPortGetFreeHeapSize();
@@ -244,7 +244,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
         #endif
 
         /* Give the print buffer time to empty */
-        vTaskDelay( pdMS_TO_TICKS( 500) );
+        vTaskDelay( pdMS_TO_TICKS( 500 ) );
         xHeapAfter = xPortGetFreeHeapSize();
         RUN_TEST_GROUP( Full_MemoryLeak );
     #endif /* if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 ) */
