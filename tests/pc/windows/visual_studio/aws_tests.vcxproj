@@ -16,6 +16,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>aws_IoT_MCU_Full_Tests</RootNamespace>
     <ProjectName>aws_tests</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -133,7 +134,7 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_system_init.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_tls.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_ota_agent.h" />
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_ota_agent.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_wifi.h" />
     <ClInclude Include="..\..\..\..\lib\include\event_groups.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS.h" />
@@ -356,7 +357,7 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_validate.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
-    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
