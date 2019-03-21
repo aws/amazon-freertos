@@ -61,6 +61,7 @@
       <AdditionalIncludeDirectories>..\..\..\..\lib\cbor\src;..\common\config_files;..\..\..\..\lib\third_party\win_pcap;..\common\application_code\include;..\..\..\..\tests\common\include;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\unity\src;..\..\..\..\demos\common\include;..\..\..\..\demos\pc\windows\common\application_code;..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\FreeRTOS\include;..\..\..\..\lib\FreeRTOS\portable\MSVC-MingW;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\BufferManagement;..\..\..\..\lib\FreeRTOS-Plus-TCP\Source\portable\Compiler\MSVC;..\..\..\..\lib\ota;..\..\..\..\lib\ota\portable\pc\windows;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\tracealyzer_recorder\Include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\third_party\tinycbor;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\pc\windows;..\..\..\..\tests\common\ota;..\..\..\..\tests\common\mqtt\access;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -493,6 +494,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\cmock\src\cmock.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\unity\src\unity.c" />
+    <ClCompile Include="..\..\..\common\test_runner\iot_tests_network.c" />
     <ClCompile Include="..\..\..\common\tls\aws_test_tls.c" />
     <ClCompile Include="..\common\application_code\aws_run-time-stats-utils.c" />
     <ClCompile Include="..\common\application_code\main.c" />

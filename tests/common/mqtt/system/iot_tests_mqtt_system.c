@@ -136,13 +136,17 @@ static const IotTestNetworkServerInfo_t _serverInfo = IOT_TEST_NETWORK_SERVER_IN
  */
 static IotMqttNetworkInfo_t _networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
 
+#ifdef IOT_TEST_MQTT_SERIALIZER
+
 /**
- * @brief MQTT serializer functions to call in the tests. May be overridden by a
- * defined initializer.
+ * @brief Provide a pointer to a serializer that may be overridden.
  */
-#ifdef IOT_TEST_MQTT_SERIALIZER_INITIALIZER
-    static const IotMqttSerializer_t _mqttSerializer = IOT_TEST_MQTT_SERIALIZER_INITIALIZER;
+    static const IotMqttSerializer_t * _pMqttSerializer = NULL;
 #else
+
+/**
+ * @brief Function pointers to the default MQTT serializers.
+ */
     static const IotMqttSerializer_t _mqttSerializer =
     {
         .getPacketType      = _IotMqtt_GetPacketType,
@@ -169,6 +173,11 @@ static IotMqttNetworkInfo_t _networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
             .pingresp       = _IotMqtt_DeserializePingresp
         }
     };
+
+/**
+ * @brief The MQTT serializers to use in these tests.
+ */
+    static const IotMqttSerializer_t * _pMqttSerializer = &_mqttSerializer;
 #endif /* ifdef IOT_TEST_MQTT_SERIALIZER_INITIALIZER */
 
 /**
@@ -217,7 +226,7 @@ static void _freePacket( uint8_t * pPacket )
 {
     _freePacketOverride = true;
 
-    _mqttSerializer.freePacket( pPacket );
+    _pMqttSerializer->freePacket( pPacket );
 }
 
 /*-----------------------------------------------------------*/
@@ -231,9 +240,9 @@ static IotMqttError_t _serializeConnect( const IotMqttConnectInfo_t * pConnectIn
 {
     _connectSerializerOverride = true;
 
-    return _mqttSerializer.serialize.connect( pConnectInfo,
-                                              pConnectPacket,
-                                              pPacketSize );
+    return _pMqttSerializer->serialize.connect( pConnectInfo,
+                                                pConnectPacket,
+                                                pPacketSize );
 }
 
 /*-----------------------------------------------------------*/
@@ -249,11 +258,11 @@ static IotMqttError_t _serializePublish( const IotMqttPublishInfo_t * pPublishIn
 {
     _publishSerializerOverride = true;
 
-    return _mqttSerializer.serialize.publish( pPublishInfo,
-                                              pPublishPacket,
-                                              pPacketSize,
-                                              pPacketIdentifier,
-                                              pPacketIdentifierHigh );
+    return _pMqttSerializer->serialize.publish( pPublishInfo,
+                                                pPublishPacket,
+                                                pPacketSize,
+                                                pPacketIdentifier,
+                                                pPacketIdentifierHigh );
 }
 
 /*-----------------------------------------------------------*/
@@ -267,9 +276,9 @@ static IotMqttError_t _serializePuback( uint16_t packetIdentifier,
 {
     _pubackSerializerOverride = true;
 
-    return _mqttSerializer.serialize.puback( packetIdentifier,
-                                             pPubackPacket,
-                                             pPacketSize );
+    return _pMqttSerializer->serialize.puback( packetIdentifier,
+                                               pPubackPacket,
+                                               pPacketSize );
 }
 
 /*-----------------------------------------------------------*/
@@ -285,11 +294,11 @@ static IotMqttError_t _serializeSubscribe( const IotMqttSubscription_t * pSubscr
 {
     _subscribeSerializerOverride = true;
 
-    return _mqttSerializer.serialize.subscribe( pSubscriptionList,
-                                                subscriptionCount,
-                                                pSubscribePacket,
-                                                pPacketSize,
-                                                pPacketIdentifier );
+    return _pMqttSerializer->serialize.subscribe( pSubscriptionList,
+                                                  subscriptionCount,
+                                                  pSubscribePacket,
+                                                  pPacketSize,
+                                                  pPacketIdentifier );
 }
 
 /*-----------------------------------------------------------*/
@@ -305,11 +314,11 @@ static IotMqttError_t _serializeUnsubscribe( const IotMqttSubscription_t * pSubs
 {
     _unsubscribeSerializerOverride = true;
 
-    return _mqttSerializer.serialize.unsubscribe( pSubscriptionList,
-                                                  subscriptionCount,
-                                                  pSubscribePacket,
-                                                  pPacketSize,
-                                                  pPacketIdentifier );
+    return _pMqttSerializer->serialize.unsubscribe( pSubscriptionList,
+                                                    subscriptionCount,
+                                                    pSubscribePacket,
+                                                    pPacketSize,
+                                                    pPacketIdentifier );
 }
 
 /*-----------------------------------------------------------*/
@@ -322,8 +331,8 @@ static IotMqttError_t _serializeDisconnect( uint8_t ** pDisconnectPacket,
 {
     _disconnectSerializerOverride = true;
 
-    return _mqttSerializer.serialize.disconnect( pDisconnectPacket,
-                                                 pPacketSize );
+    return _pMqttSerializer->serialize.disconnect( pDisconnectPacket,
+                                                   pPacketSize );
 }
 
 /*-----------------------------------------------------------*/
@@ -622,6 +631,12 @@ TEST_SETUP( MQTT_System )
 
     #if IOT_TEST_SECURED_CONNECTION == 1
         _networkInfo.pNetworkCredentialInfo = ( void * ) &_credentials;
+    #endif
+
+
+    /* Set the overrides for the default serializers. */
+    #ifdef IOT_TEST_MQTT_SERIALIZER
+        _pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
     #endif
 }
 

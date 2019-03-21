@@ -29,209 +29,177 @@
     #include IOT_CONFIG_FILE
 #endif
 
-#include "platform/iot_network_afr.h"
+
 #include "private/iot_error.h"
-#include "iot_ble_mqtt.h"
 
-static IotNetworkInterface_t * pNetworkInterface = NULL;
+
+static const IotNetworkInterface_t * pNetworkInterface = NULL;
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
-
+static IotMqttSerializer_t * pSerializer;
 /*-----------------------------------------------------------*/
 
 
 
-#if (WIFI_SUPPORTED == 1)
-  static const IotMqttSerializer_t _mqttSerializer =
-  {
-      .getPacketType      = _IotMqtt_GetPacketType,
-      .getRemainingLength = _IotMqtt_GetRemainingLength,
-      .freePacket         = _IotMqtt_FreePacket,
-      .serialize          =
-      {
-          .connect        = _IotMqtt_SerializeConnect,
-          .publish        = _IotMqtt_SerializePublish,
-          .publishSetDup  = _IotMqtt_PublishSetDup,
-          .puback         = _IotMqtt_SerializePuback,
-          .subscribe      = _IotMqtt_SerializeSubscribe,
-          .unsubscribe    = _IotMqtt_SerializeUnsubscribe,
-          .pingreq        = _IotMqtt_SerializePingreq,
-          .disconnect     = _IotMqtt_SerializeDisconnect
-      },
-      .deserialize        =
-      {
-          .connack        = _IotMqtt_DeserializeConnack,
-          .publish        = _IotMqtt_DeserializePublish,
-          .puback         = _IotMqtt_DeserializePuback,
-          .suback         = _IotMqtt_DeserializeSuback,
-          .unsuback       = _IotMqtt_DeserializeUnsuback,
-          .pingresp       = _IotMqtt_DeserializePingresp
-      }
-  };
-#endif
-
-#if (BLE_SUPPORTED == 1)
-static void _BLEConnectionCallback( BTStatus_t status,
-                             uint16_t connId,
-                             bool connected,
-                             BTBdaddr_t * pBa )
-{
-    if( connected == true )
+#if ( WIFI_SUPPORTED != 0 )
+    #include "platform/iot_network_afr.h"
+    #include "private/iot_mqtt_internal.h"
+    static const IotMqttSerializer_t _mqttSerializer =
     {
-        IotBle_StopAdv();
+        .getPacketType      = _IotMqtt_GetPacketType,
+        .getRemainingLength = _IotMqtt_GetRemainingLength,
+        .freePacket         = _IotMqtt_FreePacket,
+        .serialize          =
+        {
+            .connect        = _IotMqtt_SerializeConnect,
+            .publish        = _IotMqtt_SerializePublish,
+            .publishSetDup  = _IotMqtt_PublishSetDup,
+            .puback         = _IotMqtt_SerializePuback,
+            .subscribe      = _IotMqtt_SerializeSubscribe,
+            .unsubscribe    = _IotMqtt_SerializeUnsubscribe,
+            .pingreq        = _IotMqtt_SerializePingreq,
+            .disconnect     = _IotMqtt_SerializeDisconnect
+        },
+        .deserialize        =
+        {
+            .connack        = _IotMqtt_DeserializeConnack,
+            .publish        = _IotMqtt_DeserializePublish,
+            .puback         = _IotMqtt_DeserializePuback,
+            .suback         = _IotMqtt_DeserializeSuback,
+            .unsuback       = _IotMqtt_DeserializeUnsuback,
+            .pingresp       = _IotMqtt_DeserializePingresp
+        }
+    };
+#endif /* if ( WIFI_SUPPORTED == 1 ) */
+
+#if ( BLE_SUPPORTED == 1 )
+    #include "iot_ble_mqtt.h"
+    /*-----------------------------------------------------------*/
+
+    static void _BLEConnectionCallback( BTStatus_t status,
+                                        uint16_t connId,
+                                        bool connected,
+                                        BTBdaddr_t * pBa )
+    {
+        if( connected == true )
+        {
+            IotBle_StopAdv();
+        }
+        else
+        {
+            ( void ) IotBle_StartAdv( NULL );
+        }
     }
-    else
+    /*-----------------------------------------------------------*/
+
+    static BaseType_t _BLEEnable( void )
     {
-        ( void ) IotBle_StartAdv( NULL );
+        IotBleEventsCallbacks_t xEventCb;
+        BaseType_t xRet = pdTRUE;
+        static bool bInitBLE = false;
+        BTStatus_t xStatus;
 
-    }
-}
-static BaseType_t _BLEEnable( void )
-{
-    IotBleEventsCallbacks_t xEventCb;
-    BaseType_t xRet = pdTRUE;
-    static bool bInitBLE = false;
-    BTStatus_t xStatus;
+        if( bInitBLE == false )
+        {
+            xStatus = IotBle_Init();
 
-    if( bInitBLE == false )
-    {
-        xStatus = IotBle_Init();
+            if( xStatus == eBTStatusSuccess )
+            {
+                bInitBLE = true;
+            }
+        }
+        else
+        {
+            xStatus = IotBle_On();
+        }
 
+        /* Register BLE Connection callback */
         if( xStatus == eBTStatusSuccess )
         {
-            bInitBLE = true;
+            xEventCb.pConnectionCb = _BLEConnectionCallback;
+
+            if( IotBle_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
+            {
+                xStatus = eBTStatusFail;
+            }
         }
+
+        if( xStatus != eBTStatusSuccess )
+        {
+            xRet = pdFALSE;
+        }
+
+        return xRet;
     }
-    else
+
+/*-----------------------------------------------------------*/
+
+    static BaseType_t _BLEDisable( void )
     {
-        xStatus = IotBle_On();
-    }
-    /* Register BLE Connection callback */
-    if( xStatus == eBTStatusSuccess )
-    {
+        bool ret = true;
+        IotBleEventsCallbacks_t xEventCb;
+
         xEventCb.pConnectionCb = _BLEConnectionCallback;
-        if( IotBle_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
+
+        if( IotBle_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
         {
-        	xStatus = eBTStatusFail;
+            ret = false;
         }
-    }
 
-    if( xStatus != eBTStatusSuccess)
-    {
-    	xRet = pdFALSE;
-    }
-
-    return xRet;
-}
-
-static BaseType_t _BLEDisable( void )
-{
-    bool ret = true;
-    IotBleEventsCallbacks_t xEventCb;
-
-    xEventCb.pConnectionCb = _BLEConnectionCallback;
-    if( IotBle_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
-    {
-    	ret = false;
-    }
-
-    if( ret == true )
-    {
-        if( IotBle_StopAdv() != eBTStatusSuccess )
+        if( ret == true )
         {
-        	ret = false;
+            if( IotBle_StopAdv() != eBTStatusSuccess )
+            {
+                ret = false;
+            }
         }
-    }
 
-    if( ret == true )
-    {
-        if( IotBle_Off() != eBTStatusSuccess )
+        if( ret == true )
         {
-        	ret = false;
+            if( IotBle_Off() != eBTStatusSuccess )
+            {
+                ret = false;
+            }
         }
+
+        return ret;
     }
+#endif /* if ( BLE_SUPPORTED == 1 ) */
 
-	return ret;
-}
-#endif
 
+/*-----------------------------------------------------------*/
 
 const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
 {
     return pNetworkInterface;
 }
 
-void IotTestNetwork_SelectNetworkType(uint16_t networkType)
+/*-----------------------------------------------------------*/
+
+void IotTestNetwork_SelectNetworkType( uint16_t networkType )
 {
-    switch(networkType)
+    switch( networkType )
     {
-        #if (BLE_SUPPORTED == 1) 
-        case AWSIOT_NETWORK_TYPE_BLE:
-            pNetworkInterface = (IotNetworkInterface_t *)&IotNetworkBle;
-            _BLEEnable();
-        break;
+        #if ( BLE_SUPPORTED == 1 )
+            case AWSIOT_NETWORK_TYPE_BLE:
+                pNetworkInterface = ( IotNetworkInterface_t * ) &IotNetworkBle;
+                _BLEEnable();
+                break;
         #endif
-        #if (WIFI_SUPPORTED == 1) 
-        case AWSIOT_NETWORK_TYPE_BLE:
-            pNetworkInterface = (IotNetworkInterface_t *)&IotNetWorkAfr;
-            _BLEEnable();
-        break;
+        #if ( WIFI_SUPPORTED != 0 )
+            case AWSIOT_NETWORK_TYPE_WIFI:
+                pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+                break;
         #endif
-        default:break;
+        default:
+            break;
     }
+
     _IotTestNetworkType = networkType;
 }
 
-const IotMqttSerializer_t * const IotTestNetwork_GetSerializer(void)
+/*-----------------------------------------------------------*/
+
+const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void )
 {
-    return (IotMqttSerializer_t *)pSerializer;
-}
-
-
-BaseType_t IotTestNetwork_Connect( void )
-{
-    size_t xTriesLeft = 50;
-    BaseType_t xRet = pdFALSE;
-    BaseType_t xNetworkCreated = pdFALSE;
-    TickType_t xRetryDelay = pdMS_TO_TICKS( IOT_TEST_NETWORK_RETRY_DELAY_MS );
-
-    while ( xTriesLeft > 0 )
-    {
-        switch(_IotTestNetworkType)
-        {
-          #if (BLE_SUPPORTED == 1) 
-          case AWSIOT_NETWORK_TYPE_BLE:
-              xNetworkCreated = _createConnectionBLE( );
-              break;
-          #endif
-
-          #if (WIFI_SUPPORTED == 1)  
-          case AWSIOT_NETWORK_TYPE_WIFI:
-              xNetworkCreated = _createConnectionWIFI( );
-              break;
-          #endif
-          default:break;
-        }
-    	
-
-        if( xNetworkCreated == pdTRUE )
-        {
-            xRet = pdTRUE;
-            break;
-        }
-        else
-        {
-            xTriesLeft--;
-
-            if( xTriesLeft > 0 )
-            {
-            	configPRINTF(("Failed to connect to network, %d retries left\n", xTriesLeft));
-                vTaskDelay( xRetryDelay );
-            }else
-            {
-            	configPRINTF(("Failed to connect to network, no more retry\n"));
-            }
-        }
-    }
-
-    return xRet;
+    return ( IotMqttSerializer_t * ) pSerializer;
 }

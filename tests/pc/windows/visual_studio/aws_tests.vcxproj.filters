@@ -1433,6 +1433,9 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\common\test_runner\iot_tests_network.c">
+      <Filter>application_code\common_tests\test_runner</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
