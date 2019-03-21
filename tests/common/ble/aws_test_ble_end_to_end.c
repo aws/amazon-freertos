@@ -52,28 +52,6 @@
 
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Switches the network interface to use.
- */
-static bool _useBle = false;
-
-/*-----------------------------------------------------------*/
-
-const IotNetworkInterface_t * IotTest_GetNetworkInterface( void )
-{
-    /* Default to using the sockets network interface. */
-    const IotNetworkInterface_t * pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
-
-    if( _useBle == true )
-    {
-        /* Use the BLE network interface. */
-    }
-
-    return pNetworkInterface;
-}
-
-/*-----------------------------------------------------------*/
-
 TEST_GROUP( Full_BLE_END_TO_END );
 
 /*-----------------------------------------------------------*/
@@ -99,12 +77,12 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END )
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END )
 {
     /* For these tests, use the BLE network interface. */
-    _useBle = true;
+    IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
 
     RUN_TEST_CASE( Full_BLE_END_TO_END, SubscribePublishWaitQoS1 );
 
     /* Revert to sockets network interface after this test is finished. */
-    _useBle = false;
+    IotTestNetwork_SelectNetworkType(DEFAULT_NETWORK);
 }
 
 /*-----------------------------------------------------------*/

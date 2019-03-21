@@ -114,7 +114,7 @@ void IotBleMqtt_CleanupSerialize( void );
  * @param[in] receiveCallback Not used.
  * @param[in] pContext Contains the new MQTT connection.
  */
-void IotBleMqtt_SetReceiveCallback( void * pConnection,
+IotNetworkError_t IotBleMqtt_SetReceiveCallback( void * pConnection,
                                     IotNetworkReceiveCallback_t receiveCallback,
                                     void * pContext );
 

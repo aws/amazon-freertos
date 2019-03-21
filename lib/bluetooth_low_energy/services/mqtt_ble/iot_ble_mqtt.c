@@ -39,6 +39,20 @@
 
 #include "iot_serializer.h"
 
+/**
+ * @brief An #IotNetworkInterface_t that uses the functions in this file.
+ */
+const IotNetworkInterface_t IotNetworkBle =
+{
+    .create             = IotBleMqtt_CreateConnection,
+    .setReceiveCallback = IotBleMqtt_SetReceiveCallback,
+    .send               = IotBleMqtt_Send,
+    .receive            = IotBleMqtt_Receive,
+    .close              = IotBleMqtt_CloseConnection,
+    .destroy            = IotBleMqtt_DestroyConnection
+};
+
+
 
 #define IOT_BLE_MQTT_CHAR_CONTROL_UUID_TYPE \
 { \
@@ -85,8 +99,8 @@
 }
 
 #define IS_VALID_SERIALIZER_RET( ret, pxSerializerBuf )                                \
-    (  ( ret == AWS_IOT_SERIALIZER_SUCCESS ) ||                                        \
-          (  ( !pxSerializerBuf ) && ( ret == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
+    (  ( ret == IOT_SERIALIZER_SUCCESS ) ||                                        \
+          (  ( !pxSerializerBuf ) && ( ret == IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
 
 static uint16_t _handlesBuffer[IOT_BLE_MQTT_MAX_SVC_INSTANCES][IOT_BLE_MQTT_NUMBER_ATTRIBUTES];
 
@@ -371,24 +385,6 @@ void _resetBuffer( IotBleMqttService_t* pService )
     	( void ) xStreamBufferReset( pService->connection.sendBuffer );
 
     	( void ) xSemaphoreGive( pService->connection.sendLock );
-
-
-    	/*
-    	 * Wait for completion of any receive callback.
-    	 * Releases any pending receive buffer, Set the buffer to NULL,
-    	 * reset the offset and length of the buffer to zero.
-    	 */
-    	( void ) xSemaphoreTake( pService->connection.recvLock, portMAX_DELAY );
-
-    	if( pService->connection.pRecvBuffer != NULL )
-    	{
-    		vPortFree( pService->connection.pRecvBuffer );
-    		pService->connection.pRecvBuffer = NULL;
-    	}
-
-    	pService->connection.recvBufferLen = 0;
-
-    	( void ) xSemaphoreGive( pService->connection.recvLock );
     }
 
 
@@ -398,14 +394,14 @@ void _resetBuffer( IotBleMqttService_t* pService )
 
 static BaseType_t _getMqttStateFromMessage( uint8_t* pMessage, size_t messageLen, BaseType_t *pState )
 {
-    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
-    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     BaseType_t result = pdTRUE;
 
     ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pMessage, messageLen );
 
-    if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+            ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         configPRINTF(( "Failed to initialize the decoder, error = %d, object type = %d\n", ret, decoderObj.type ));
         result = pdFALSE;
@@ -414,8 +410,8 @@ static BaseType_t _getMqttStateFromMessage( uint8_t* pMessage, size_t messageLen
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_MQTT_PARAM_STATE, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             configPRINTF(( "Failed to get state parameter, error = %d, value type = %d\n", ret, value.type ));
             result = pdFALSE;
@@ -433,22 +429,22 @@ static BaseType_t _getMqttStateFromMessage( uint8_t* pMessage, size_t messageLen
 
 static BaseType_t _serializeMqttControlMessage(  BaseType_t state, uint8_t* pBuffer, size_t* pLength )
 {
-    AwsIotSerializerEncoderObject_t container = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    AwsIotSerializerEncoderObject_t stateMesgMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerScalarData_t value = { 0 };
-    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerEncoderObject_t container = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
+    IotSerializerEncoderObject_t stateMesgMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerScalarData_t value = { 0 };
+    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     BaseType_t result = pdFALSE;
     size_t length = *pLength;
 
     ret = IOT_BLE_MESG_ENCODER.init( &container, pBuffer, length );
-    if( ret == AWS_IOT_SERIALIZER_SUCCESS )
+    if( ret == IOT_SERIALIZER_SUCCESS )
     {
         ret = IOT_BLE_MESG_ENCODER.openContainer( &container, &stateMesgMap, IOT_BLE_MQTT_NUM_CONTROL_MESG_PARAMS );
     }
 
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
         value.value.signedInt = state;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &stateMesgMap, IOT_BLE_MQTT_PARAM_STATE, value );
     }
@@ -744,6 +740,7 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         						                 pService->connection.pMqttConnection );
 
         				vPortFree( recvBuffer );
+                                        pService->connection.pRecvBuffer = NULL;
         				recvBuffer = NULL;
         				bufferLength = 0;
         				bufferOffset = 0;
@@ -961,6 +958,7 @@ BaseType_t IotBleMqtt_Init( void )
         pService->pServicePtr->ucInstId = id;
         pService->pServicePtr->xNumberOfAttributes = IOT_BLE_MQTT_NUMBER_ATTRIBUTES;
         pService->pServicePtr->pxBLEAttributes = (BTAttribute_t *)_pAttributeTable;
+        pService->connection.pRecvBuffer = NULL;
 
         status = IotBle_CreateService( pService->pServicePtr, (IotBleAttributeEventCallback_t *)pCallBackArray );
 
@@ -1046,20 +1044,21 @@ BaseType_t IotBleMqtt_Init( void )
 
 /*-----------------------------------------------------------*/
 
-BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnection )
+IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pCredentialInfo, void * pConnection )
 {
-    BaseType_t ret = pdFALSE;
+	IotNetworkError_t ret = IOT_NETWORK_FAILURE;
     IotBleMqttService_t* pService;
     int lX;
+
+    (void)pCredentialInfo;
 
     for( lX = 0; lX < IOT_BLE_MQTT_MAX_SVC_INSTANCES; lX++ )
     {
     	pService = &_mqttBLEServices[ lX ];
         if( ( pService->isEnabled ) && ( pService->connection.pMqttConnection == NULL ) )
         {
-        	pService->connection.pMqttConnection = (IotMqttConnection_t *)pMqttConnection;
         	*((IotBleMqttService_t**)pConnection) =  pService;
-        	ret = pdTRUE;
+        	ret = IOT_NETWORK_SUCCESS;
         }
     }
 
@@ -1068,22 +1067,26 @@ BaseType_t IotBleMqtt_CreateConnection( void * pMqttConnection, void * pConnecti
 
 /*-----------------------------------------------------------*/
 
-void IotBleMqtt_CloseConnection( void * pConnection )
+IotNetworkError_t IotBleMqtt_CloseConnection( void * pConnection )
 {
     IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection != NULL ) )
     {
     	pService->connection.pMqttConnection = NULL;
     }
+
+    return IOT_NETWORK_SUCCESS;
 }
 
-void IotBleMqtt_DestroyConnection( void * pConnection )
+IotNetworkError_t IotBleMqtt_DestroyConnection( void * pConnection )
 {
     IotBleMqttService_t* pService = *(( IotBleMqttService_t ** ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection == NULL ) )
     {
         _resetBuffer( pService );
     }
+
+    return IOT_NETWORK_SUCCESS;
 }
 
 /*-----------------------------------------------------------*/
@@ -1113,13 +1116,15 @@ size_t  IotBleMqtt_Receive( void * pConnection,
 }
 
 
-void IotBleMqtt_SetReceiveCallback( void * pConnection,
+IotNetworkError_t IotBleMqtt_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext )
 {
     IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
 
     pService->connection.pMqttConnection = (IotMqttConnection_t *)pContext;
+
+    return IOT_NETWORK_SUCCESS;
 }
 /*-----------------------------------------------------------*/
 

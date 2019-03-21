@@ -1,4 +1,5 @@
 /*
+ * Amazon FreeRTOS Demo Bootloader V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -17,34 +18,43 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
  */
 
-/* This file contains configuration settings for the demos. */
+/**
+ * @file asn1utility.h
+ * @brief ASN1 utility header.
+ */
 
-#ifndef _IOT_TEST_CONFIG_H_
-#define _IOT_TEST_CONFIG_H_
+#ifndef _ASN1UTILITY_H_
+#define _ASN1UTILITY_H_
 
-/* Standard include. */
-#include <stdbool.h>
+#include <tinycrypt/ecc.h>
 
-/* Uncomment one of these definitions to override the log level configuration for
- * a specific library. */
-#define IOT_LOG_LEVEL_PLATFORM               IOT_LOG_INFO
-#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO
-#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO
-#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO
+/**
+ * @brief asn1_getBigInteger.
+ * Gets big integer from the data block.
+ * @param[in] - pucInt - Data
+ * @param[out] - ppucStart - returns pointer to next signature component.
+ * @param[in] - pucEnd - end of the data
+ * @return - 0 On success , 1 otherwise
+ */
+int asn1_getBigInteger( uint8_t * pucInt,
+                        uint8_t ** ppucStart,
+                        uint8_t * pucEnd );
 
-extern bool IotBleMqtt_InitSerialize( void );
-extern void IotBleMqtt_CleanupSerialize( void );
-#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
-#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
+/**
+ * @brief asn1_decodeSignature.
+ * Decodes ASN1 encoded signature.
+ * @param[in] - pucSignature - ASN1 encoded signature.
+ * @param[in] - pucStart - start of the data
+ * @param[in] - pucEnd - end of the data
+ * @return - 0 On success , 1 otherwise
+ */
+int asn1_decodeSignature( uint8_t * pucSignature,
+                          uint8_t * pucStart,
+                          uint8_t * pucEnd );
 
-#define DEFAULT_NETWORK AWSIOT_NETWORK_TYPE_BLE
-#define BLE_SUPPORTED 1
-#define WIFI_SUPPORTED 0
-
-
-/* Include the common configuration file for FreeRTOS. */
-#include "iot_config_common.h"
-
-#endif /* ifndef _IOT_TEST_CONFIG_H_ */
+#endif /* ifndef _ASN1UTILITY_H_ */

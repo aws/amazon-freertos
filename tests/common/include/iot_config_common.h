@@ -33,9 +33,6 @@
 /* Unity framework includes. */
 #include "unity.h"
 
-/* Include for network interface type. */
-#include "platform/iot_network.h"
-
 /* POSIX header overrides for FreeRTOS+POSIX. */
 #ifndef POSIX_ERRNO_HEADER
     #define POSIX_ERRNO_HEADER        "FreeRTOS_POSIX/errno.h"
@@ -64,6 +61,12 @@
 
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
+
+/* Defining network type .*/
+#define AWSIOT_NETWORK_TYPE_NONE     0x00000000
+#define AWSIOT_NETWORK_TYPE_WIFI     0x00000001
+#define AWSIOT_NETWORK_TYPE_BLE      0x00000002
+
 
 /* Standard library function overrides. */
 #define IotLogging_Puts( str )                   configPRINTF( ( "%s\n", str ) )
@@ -182,8 +185,14 @@
 #define IOT_TEST_NETWORK_HEADER    "platform/iot_network_afr.h"
 
 /* Allow the network interface to be chosen by at runtime. */
+typedef struct IotNetworkInterface IotNetworkInterface_t;
 extern const IotNetworkInterface_t * IotTest_GetNetworkInterface( void );
 #define IOT_TEST_NETWORK_INTERFACE    IotTest_GetNetworkInterface();
+
+/* Allow the network serializer to be chosen by at runtime. */
+typedef struct IotMqttSerializer IotMqttSerializer_t;
+extern const IotMqttSerializer_t * const IotTestNetwork_GetSerializer( void );
+#define IOT_TEST_MQTT_SERIALIZER_INITIALIZER *IotTestNetwork_GetSerializer();
 
 /* Forward declarations of network types used in the tests. */
 typedef struct IotNetworkConnectionAfr    IotTestNetworkConnection_t;

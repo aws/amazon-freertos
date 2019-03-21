@@ -216,7 +216,7 @@
 #define IOT_BLE_CHAR_WRITE_PERM            eBTPermWrite
 #endif
 
-#define IOT_BLE_MESG_ENCODER           ( _AwsIotSerializerCborEncoder )
-#define IOT_BLE_MESG_DECODER           ( _AwsIotSerializerCborDecoder )
+#define IOT_BLE_MESG_ENCODER           ( _IotSerializerCborEncoder )
+#define IOT_BLE_MESG_DECODER           ( _IotSerializerCborDecoder )
 
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */

@@ -81,7 +81,7 @@ typedef struct _networkConnection
 /**
  * @brief An #IotNetworkInterface_t that uses the functions in this file.
  */
-const IotNetworkInterface_t _IotNetworkAfr =
+const IotNetworkInterface_t IotNetworkAfr =
 {
     .create             = IotNetworkAfr_Create,
     .setReceiveCallback = IotNetworkAfr_SetReceiveCallback,

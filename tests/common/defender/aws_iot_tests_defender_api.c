@@ -60,7 +60,7 @@
 /* Define a decoder based on chosen format. */
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
 
-    #define _Decoder    _AwsIotSerializerCborDecoder /**< Global defined in aws_iot_serializer.h . */
+    #define _Decoder    _IotSerializerCborDecoder /**< Global defined in aws_iot_serializer.h . */
 
 #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
 
@@ -88,8 +88,8 @@ static AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIA
 
 static AwsIotDefenderCallbackInfo_t _callbackInfo;
 
-static AwsIotSerializerDecoderObject_t _decoderObject;
-static AwsIotSerializerDecoderObject_t _metricsObject;
+static IotSerializerDecoderObject_t _decoderObject;
+static IotSerializerDecoderObject_t _metricsObject;
 
 /*------------------ Functions -----------------------------*/
 
@@ -125,8 +125,8 @@ TEST_SETUP( Full_DEFENDER )
 
     _resetCalbackInfo();
 
-    _decoderObject = ( AwsIotSerializerDecoderObject_t ) AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-    _metricsObject = ( AwsIotSerializerDecoderObject_t ) AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    _decoderObject = ( IotSerializerDecoderObject_t ) AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    _metricsObject = ( IotSerializerDecoderObject_t ) AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
 
     /* Reset test callback. */
     _testCallback = ( AwsIotDefenderCallback_t ) {
@@ -651,15 +651,15 @@ static void _waitForMetricsAccepted( uint32_t timeoutSec )
     TEST_ASSERT_NOT_NULL( _callbackInfo.pPayload );
     TEST_ASSERT_GREATER_THAN( 0, _callbackInfo.payloadLength );
 
-    AwsIotSerializerDecoderObject_t decoderObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    IotSerializerDecoderObject_t decoderObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
 
-    AwsIotSerializerError_t error = _Decoder.init( &decoderObject, _callbackInfo.pPayload, _callbackInfo.payloadLength );
+    IotSerializerError_t error = _Decoder.init( &decoderObject, _callbackInfo.pPayload, _callbackInfo.payloadLength );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, decoderObject.type );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, decoderObject.type );
 
-    AwsIotSerializerDecoderObject_t statusObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    IotSerializerDecoderObject_t statusObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
 
     char status[ 10 ] = "";
     statusObject.value.pString = ( uint8_t * ) status;
@@ -667,9 +667,9 @@ static void _waitForMetricsAccepted( uint32_t timeoutSec )
 
     error = _Decoder.find( &decoderObject, "status", &statusObject );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, statusObject.type );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, statusObject.type );
 
     TEST_ASSERT_EQUAL( 0, strncmp( ( const char * ) statusObject.value.pString, "ACCEPTED", statusObject.value.stringLength ) );
 }
@@ -681,17 +681,17 @@ static void _verifyMetricsCommon()
     TEST_ASSERT_NOT_NULL( _callbackInfo.pMetricsReport );
     TEST_ASSERT_GREATER_THAN( 0, _callbackInfo.metricsReportLength );
 
-    AwsIotSerializerError_t error = _Decoder.init( &_decoderObject, _callbackInfo.pMetricsReport, _callbackInfo.metricsReportLength );
+    IotSerializerError_t error = _Decoder.init( &_decoderObject, _callbackInfo.pMetricsReport, _callbackInfo.metricsReportLength );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, _decoderObject.type );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, _decoderObject.type );
 
     error = _Decoder.find( &_decoderObject, "metrics", &_metricsObject );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, _metricsObject.type );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, _metricsObject.type );
 }
 
 /*-----------------------------------------------------------*/
@@ -702,49 +702,49 @@ static void _verifyTcpConections( int total,
     uint32_t tcpConnFlag = _AwsIotDefenderMetrics.metricsFlag[ AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS ];
 
     /* Assert find a "tcp_connections" map in "metrics" */
-    AwsIotSerializerDecoderObject_t tcpConnObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+    IotSerializerDecoderObject_t tcpConnObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
 
-    AwsIotSerializerError_t error = _Decoder.find( &_metricsObject, "tcp_connections", &tcpConnObject );
+    IotSerializerError_t error = _Decoder.find( &_metricsObject, "tcp_connections", &tcpConnObject );
 
     /* If any TCP connections flag is specified. */
     if( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_ALL )
     {
         /* Assert found the "tcp_connections" map. */
-        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
-        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, tcpConnObject.type );
+        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, tcpConnObject.type );
 
-        AwsIotSerializerDecoderObject_t estConnObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+        IotSerializerDecoderObject_t estConnObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
 
         error = _Decoder.find( &tcpConnObject, "established_connections", &estConnObject );
 
         if( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED )
         {
             /* Assert found a "established_connections" map in "tcp_connections" */
-            TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+            TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
-            TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, estConnObject.type );
+            TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, estConnObject.type );
 
-            AwsIotSerializerDecoderObject_t totalObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+            IotSerializerDecoderObject_t totalObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
 
             error = _Decoder.find( &estConnObject, "total", &totalObject );
 
             if( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL )
             {
                 /* Assert find a "total" integer with value 1 in "established_connections" */
-                TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+                TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
-                TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT, totalObject.type );
+                TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_SIGNED_INT, totalObject.type );
 
                 TEST_ASSERT_EQUAL( total, totalObject.value.signedInt );
             }
             else
             {
                 /* Assert not found the "total". */
-                TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_NOT_FOUND, error );
+                TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_FOUND, error );
             }
 
-            AwsIotSerializerDecoderObject_t connsObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+            IotSerializerDecoderObject_t connsObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
             AwsIotSerializerDecoderIterator_t connIterator = AWS_IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER;
 
             error = _Decoder.find( &estConnObject, "connections", &connsObject );
@@ -752,11 +752,11 @@ static void _verifyTcpConections( int total,
             if( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_CONNECTIONS )
             {
                 /* Assert find a "connections" array in "established_connections" */
-                TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+                TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
                 TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_ARRAY, connsObject.type );
 
                 error = _Decoder.stepIn( &connsObject, &connIterator );
-                TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+                TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
                 /* Create argument list for expected remote addresses. */
                 va_list valist;
@@ -765,21 +765,21 @@ static void _verifyTcpConections( int total,
                 for( uint8_t i = 0; i < total; i++ )
                 {
                     /* Assert find one "connection" map in "connections" */
-                    AwsIotSerializerDecoderObject_t connMap = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+                    IotSerializerDecoderObject_t connMap = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
                     error = _Decoder.get( connIterator, &connMap );
-                    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
-                    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_MAP, connMap.type );
+                    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
+                    TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_MAP, connMap.type );
 
-                    AwsIotSerializerDecoderObject_t remoteAddrObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
+                    IotSerializerDecoderObject_t remoteAddrObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
 
                     error = _Decoder.find( &connMap, "remote_addr", &remoteAddrObject );
 
                     if( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR )
                     {
                         /* Assert find a "remote_addr" string in "connection" */
-                        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+                        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
 
-                        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING, remoteAddrObject.type );
+                        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SCALAR_TEXT_STRING, remoteAddrObject.type );
 
                         /* Verify the passed address matching. */
                         TEST_ASSERT_EQUAL_STRING_LEN( va_arg( valist, char * ),
@@ -789,11 +789,11 @@ static void _verifyTcpConections( int total,
                     else
                     {
                         /* Assert not found the "remote_addr". */
-                        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_NOT_FOUND, error );
+                        TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_FOUND, error );
                     }
 
                     error = _Decoder.next( connIterator );
-                    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS, error );
+                    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
                 }
 
                 va_end( valist );
@@ -803,19 +803,19 @@ static void _verifyTcpConections( int total,
             else
             {
                 /* Assert not found the "connections". */
-                TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_NOT_FOUND, error );
+                TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_FOUND, error );
             }
         }
         else
         {
             /* Assert not found the "established_connections" map. */
-            TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_NOT_FOUND, error );
+            TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_FOUND, error );
         }
     }
     else
     {
         /* Assert not found the "tcp_connections" map. */
-        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_NOT_FOUND, error );
+        TEST_ASSERT_EQUAL( IOT_SERIALIZER_NOT_FOUND, error );
     }
 }
 
