@@ -147,6 +147,16 @@
     #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
 #endif
 
+/* Default iot thread stack_size. */
+#ifndef IOT_THREAD_DEFAULT_STACK_SIZE
+    #define IOT_THREAD_DEFAULT_STACK_SIZE    configMINIMAL_STACK_SIZE
+#endif
+
+/* Default iot thread priority. */
+#ifndef IOT_THREAD_DEFAULT_PRIORITY
+    #define IOT_THREAD_DEFAULT_PRIORITY      5
+#endif
+
 /* MQTT library configuration. */
 #ifndef IOT_MQTT_ENABLE_METRICS
     #define IOT_MQTT_ENABLE_METRICS    ( 1 )
