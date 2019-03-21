@@ -207,8 +207,8 @@ void IotClock_TimerDestroy( IotTimer_t * pTimer );
  */
 /* @[declare_platform_clock_timerarm] */
 bool IotClock_TimerArm( IotTimer_t * pTimer,
-                        uint64_t relativeTimeoutMs,
-                        uint64_t periodMs );
+                        uint32_t relativeTimeoutMs,
+                        uint32_t periodMs );
 /* @[declare_platform_clock_timerarm] */
 
 #endif /* ifndef _IOT_CLOCK_H_ */

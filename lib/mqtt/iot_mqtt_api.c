@@ -861,7 +861,7 @@ void IotMqtt_Cleanup()
 
 IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
                                 const IotMqttConnectInfo_t * pConnectInfo,
-                                uint64_t timeoutMs,
+                                uint32_t timeoutMs,
                                 IotMqttConnection_t * pMqttConnection )
 {
     _IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
@@ -1383,7 +1383,7 @@ IotMqttError_t IotMqtt_TimedSubscribe( IotMqttConnection_t mqttConnection,
                                        const IotMqttSubscription_t * pSubscriptionList,
                                        size_t subscriptionCount,
                                        uint32_t flags,
-                                       uint64_t timeoutMs )
+                                       uint32_t timeoutMs )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttOperation_t subscribeOperation = IOT_MQTT_OPERATION_INITIALIZER;
@@ -1439,7 +1439,7 @@ IotMqttError_t IotMqtt_TimedUnsubscribe( IotMqttConnection_t mqttConnection,
                                          const IotMqttSubscription_t * pSubscriptionList,
                                          size_t subscriptionCount,
                                          uint32_t flags,
-                                         uint64_t timeoutMs )
+                                         uint32_t timeoutMs )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttOperation_t unsubscribeOperation = IOT_MQTT_OPERATION_INITIALIZER;
@@ -1730,7 +1730,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
 IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
                                      const IotMqttPublishInfo_t * pPublishInfo,
                                      uint32_t flags,
-                                     uint64_t timeoutMs )
+                                     uint32_t timeoutMs )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttOperation_t publishOperation = IOT_MQTT_OPERATION_INITIALIZER,
@@ -1780,7 +1780,7 @@ IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
 /*-----------------------------------------------------------*/
 
 IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
-                             uint64_t timeoutMs )
+                             uint32_t timeoutMs )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     _mqttConnection_t * pMqttConnection = operation->pMqttConnection;

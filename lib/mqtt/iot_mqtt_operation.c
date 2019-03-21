@@ -205,7 +205,7 @@ static bool _checkRetryLimit( _mqttOperation_t * pOperation )
 static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
 {
     bool firstRetry = false;
-    uint64_t scheduleDelay = 0;
+    uint32_t scheduleDelay = 0;
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
@@ -244,12 +244,12 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
             _EMPTY_ELSE_MARKER;
         }
 
-        IotLogDebug( "(MQTT connection %p, PUBLISH operation %p) Scheduling retry %lu of %lu in %llu ms.",
+        IotLogDebug( "(MQTT connection %p, PUBLISH operation %p) Scheduling retry %lu of %lu in %lu ms.",
                      pMqttConnection,
                      pOperation,
                      ( unsigned long ) pOperation->retry.count,
                      ( unsigned long ) pOperation->retry.limit,
-                     ( unsigned long long ) scheduleDelay );
+                     ( unsigned long ) scheduleDelay );
 
         /* Check if this is the first retry. */
         firstRetry = ( pOperation->retry.count == 1 );
@@ -1039,7 +1039,7 @@ void _IotMqtt_ProcessCompletedOperation( IotTaskPool_t * pTaskPool,
 
 IotMqttError_t _IotMqtt_ScheduleOperation( _mqttOperation_t * pOperation,
                                            IotTaskPoolRoutine_t jobRoutine,
-                                           uint64_t delay )
+                                           uint32_t delay )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;

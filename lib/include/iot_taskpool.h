@@ -432,7 +432,7 @@ IotTaskPoolError_t IotTaskPool_Schedule( IotTaskPool_t * const pTaskPool,
 /* @[declare_taskpool_scheduledeferred] */
 IotTaskPoolError_t IotTaskPool_ScheduleDeferred( IotTaskPool_t * const pTaskPool,
                                                  IotTaskPoolJob_t * const pJob,
-                                                 uint64_t timeMs );
+                                                 uint32_t timeMs );
 /* @[declare_taskpool_scheduledeferred] */
 
 /**

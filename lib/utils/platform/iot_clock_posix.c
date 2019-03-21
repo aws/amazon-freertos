@@ -105,7 +105,7 @@ static void _timerExpirationWrapper( union sigval argument );
  *
  * @return `true` if `timeoutMs` was successfully converted; `false` otherwise.
  */
-bool IotClock_TimeoutToTimespec( uint64_t timeoutMs,
+bool IotClock_TimeoutToTimespec( uint32_t timeoutMs,
                                  struct timespec * pOutput );
 
 /*-----------------------------------------------------------*/
@@ -120,7 +120,7 @@ static void _timerExpirationWrapper( union sigval argument )
 
 /*-----------------------------------------------------------*/
 
-bool IotClock_TimeoutToTimespec( uint64_t timeoutMs,
+bool IotClock_TimeoutToTimespec( uint32_t timeoutMs,
                                  struct timespec * pOutput )
 {
     bool status = true;
@@ -275,8 +275,8 @@ void IotClock_TimerDestroy( IotTimer_t * pTimer )
 /*-----------------------------------------------------------*/
 
 bool IotClock_TimerArm( IotTimer_t * pTimer,
-                        uint64_t relativeTimeoutMs,
-                        uint64_t periodMs )
+                        uint32_t relativeTimeoutMs,
+                        uint32_t periodMs )
 {
     bool status = true;
     struct itimerspec timerExpiration =
@@ -285,7 +285,7 @@ bool IotClock_TimerArm( IotTimer_t * pTimer,
         .it_interval = { 0 }
     };
 
-    IotLogDebug( "Arming timer %p with timeout %llu and period %llu.",
+    IotLogDebug( "Arming timer %p with timeout %lu and period %lu.",
                  pTimer,
                  relativeTimeoutMs,
                  periodMs );

@@ -392,7 +392,7 @@ typedef struct IotMqttPublishInfo
     const void * pPayload;    /**< @brief Payload of PUBLISH. */
     size_t payloadLength;     /**< @brief Length of #IotMqttPublishInfo_t.pPayload. For LWT messages, this is limited to 65535. */
 
-    uint64_t retryMs;         /**< @brief If no response is received within this time, the message is retransmitted. */
+    uint32_t retryMs;         /**< @brief If no response is received within this time, the message is retransmitted. */
     uint32_t retryLimit;      /**< @brief How many times to attempt retransmission. */
 } IotMqttPublishInfo_t;
 

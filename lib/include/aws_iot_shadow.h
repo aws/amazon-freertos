@@ -87,7 +87,7 @@
  * @see @ref shadow_function_cleanup
  */
 /* @[declare_shadow_init] */
-AwsIotShadowError_t AwsIotShadow_Init( uint64_t mqttTimeout );
+AwsIotShadowError_t AwsIotShadow_Init( uint32_t mqttTimeout );
 /* @[declare_shadow_init] */
 
 /**
@@ -127,7 +127,7 @@ AwsIotShadowError_t AwsIotShadow_TimedDelete( IotMqttConnection_t mqttConnection
                                               const char * pThingName,
                                               size_t thingNameLength,
                                               uint32_t flags,
-                                              uint64_t timeoutMs );
+                                              uint32_t timeoutMs );
 /* @[declare_shadow_timeddelete] */
 
 /**
@@ -149,7 +149,7 @@ AwsIotShadowError_t AwsIotShadow_Get( IotMqttConnection_t mqttConnection,
 AwsIotShadowError_t AwsIotShadow_TimedGet( IotMqttConnection_t mqttConnection,
                                            const AwsIotShadowDocumentInfo_t * pGetInfo,
                                            uint32_t flags,
-                                           uint64_t timeoutMs,
+                                           uint32_t timeoutMs,
                                            const char ** pShadowDocument,
                                            size_t * pShadowDocumentLength );
 /* @[declare_shadow_timedget] */
@@ -173,7 +173,7 @@ AwsIotShadowError_t AwsIotShadow_Update( IotMqttConnection_t mqttConnection,
 AwsIotShadowError_t AwsIotShadow_TimedUpdate( IotMqttConnection_t mqttConnection,
                                               const AwsIotShadowDocumentInfo_t * pUpdateInfo,
                                               uint32_t flags,
-                                              uint64_t timeoutMs );
+                                              uint32_t timeoutMs );
 /* @[declare_shadow_timedupdate] */
 
 /**
@@ -223,7 +223,7 @@ AwsIotShadowError_t AwsIotShadow_TimedUpdate( IotMqttConnection_t mqttConnection
  *
  * // Reference and timeout.
  * AwsIotShadowOperation_t updateOperation = AWS_IOT_SHADOW_OPERATION_INITIALIZER;
- * uint64_t timeout = 5000; // 5 seconds
+ * uint32_t timeout = 5000; // 5 seconds
  *
  * // Shadow update operation.
  * result = AwsIotShadow_Update( mqttConnection,
@@ -252,7 +252,7 @@ AwsIotShadowError_t AwsIotShadow_TimedUpdate( IotMqttConnection_t mqttConnection
  *
  * // Reference and timeout.
  * AwsIotShadowOperation_t getOperation = AWS_IOT_SHADOW_OPERATION_INITIALIZER;
- * uint64_t timeout = 5000; // 5 seconds
+ * uint32_t timeout = 5000; // 5 seconds
  *
  * // Buffer pointer and size for retrieved Shadow document.
  * const char * pShadowDocument = NULL;
@@ -292,7 +292,7 @@ AwsIotShadowError_t AwsIotShadow_TimedUpdate( IotMqttConnection_t mqttConnection
  */
 /* @[declare_shadow_wait] */
 AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowOperation_t operation,
-                                       uint64_t timeoutMs,
+                                       uint32_t timeoutMs,
                                        const char ** pShadowDocument,
                                        size_t * pShadowDocumentLength );
 /* @[declare_shadow_wait] */

@@ -451,7 +451,7 @@ typedef struct AwsIotShadowDocumentInfo
 
     IotMqttQos_t qos;        /**< @brief QoS when sending a Shadow get or update message. See #IotMqttPublishInfo_t.qos. */
     uint32_t retryLimit;     /**< @brief Maximum number of retries for a Shadow get or update message. See #IotMqttPublishInfo_t.retryLimit. */
-    uint64_t retryMs;        /**< @brief First retry time for a Shadow get or update message. See IotMqttPublishInfo_t.retryMs. */
+    uint32_t retryMs;        /**< @brief First retry time for a Shadow get or update message. See IotMqttPublishInfo_t.retryMs. */
 
     union
     {

@@ -71,7 +71,7 @@ _defenderMetrics_t _AwsIotDefenderMetrics =
  * Period between reports in milliseconds.
  * Set default value.
  */
-static uint64_t _periodMilliSecond = _defenderToMilliseconds( AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS );
+static uint32_t _periodMilliSecond = _defenderToMilliseconds( AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS );
 
 static IotTaskPoolJob_t _metricsPublishJob = { 0 };
 
@@ -267,10 +267,10 @@ void AwsIotDefender_Stop( void )
 
 /*-----------------------------------------------------------*/
 
-AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds )
+AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint32_t periodSeconds )
 {
     /* Input period cannot be too long, which will cause integer overflow. */
-    AwsIotDefender_Assert( periodSeconds < _defenderToSeconds( UINT64_MAX ) );
+    AwsIotDefender_Assert( periodSeconds < _defenderToSeconds( UINT32_MAX ) );
 
     AwsIotDefenderError_t defenderError = AWS_IOT_DEFENDER_INTERNAL_FAILURE;
 
@@ -293,7 +293,7 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds )
 
 /*-----------------------------------------------------------*/
 
-uint64_t AwsIotDefender_GetPeriod( void )
+uint32_t AwsIotDefender_GetPeriod( void )
 {
     return _defenderToSeconds( _periodMilliSecond );
 }

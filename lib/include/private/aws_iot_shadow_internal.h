@@ -327,7 +327,7 @@ typedef IotMqttError_t ( * _mqttOperationFunction_t )( IotMqttConnection_t,
                                                        const IotMqttSubscription_t *,
                                                        size_t,
                                                        uint32_t,
-                                                       uint64_t );
+                                                       uint32_t );
 
 /**
  * @brief Function pointer representing an MQTT library callback function.
@@ -451,7 +451,7 @@ typedef struct _shadowSubscription
 #endif
 
 /* Declarations of variables for internal Shadow files. */
-extern uint64_t _AwsIotShadowMqttTimeoutMs;
+extern uint32_t _AwsIotShadowMqttTimeoutMs;
 extern IotListDouble_t _AwsIotShadowPendingOperations;
 extern IotListDouble_t _AwsIotShadowSubscriptions;
 extern IotMutex_t _AwsIotShadowPendingOperationsMutex;

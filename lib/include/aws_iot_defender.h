@@ -369,7 +369,7 @@ void AwsIotDefender_Stop( void );
  * @note If this function is called when defender agent is started, the period is re-calculated and updated in next iteration.
  */
 /* @[declare_defender_setperiod] */
-AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds );
+AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint32_t periodSeconds );
 /* @[declare_defender_setperiod] */
 
 /**
@@ -378,7 +378,7 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds );
  * @brief Get period in seconds.
  */
 /* @[declare_defender_getperiod] */
-uint64_t AwsIotDefender_GetPeriod( void );
+uint32_t AwsIotDefender_GetPeriod( void );
 /* @[declare_defender_getperiod] */
 
 /**

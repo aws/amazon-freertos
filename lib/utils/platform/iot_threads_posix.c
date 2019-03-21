@@ -105,7 +105,7 @@
 static void * _threadRoutineWrapper( void * pArgument );
 
 /* Platform-specific function implemented in iot_clock_posix.c */
-extern bool IotClock_TimeoutToTimespec( uint64_t timeoutMs,
+extern bool IotClock_TimeoutToTimespec( uint32_t timeoutMs,
                                         struct timespec * pOutput );
 
 /*-----------------------------------------------------------*/
@@ -472,7 +472,7 @@ bool IotSemaphore_TryWait( IotSemaphore_t * pSemaphore )
 /*-----------------------------------------------------------*/
 
 bool IotSemaphore_TimedWait( IotSemaphore_t * pSemaphore,
-                             uint64_t timeoutMs )
+                             uint32_t timeoutMs )
 {
     bool status = true;
     struct timespec timeout = { 0 };

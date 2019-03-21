@@ -252,7 +252,7 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
 /* @[declare_mqtt_connect] */
 IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
                                 const IotMqttConnectInfo_t * pConnectInfo,
-                                uint64_t timeoutMs,
+                                uint32_t timeoutMs,
                                 IotMqttConnection_t * pMqttConnection );
 /* @[declare_mqtt_connect] */
 
@@ -464,7 +464,7 @@ IotMqttError_t IotMqtt_TimedSubscribe( IotMqttConnection_t mqttConnection,
                                        const IotMqttSubscription_t * pSubscriptionList,
                                        size_t subscriptionCount,
                                        uint32_t flags,
-                                       uint64_t timeoutMs );
+                                       uint32_t timeoutMs );
 /* @[declare_mqtt_timedsubscribe] */
 
 /**
@@ -545,7 +545,7 @@ IotMqttError_t IotMqtt_TimedUnsubscribe( IotMqttConnection_t mqttConnection,
                                          const IotMqttSubscription_t * pSubscriptionList,
                                          size_t subscriptionCount,
                                          uint32_t flags,
-                                         uint64_t timeoutMs );
+                                         uint32_t timeoutMs );
 /* @[declare_mqtt_timedunsubscribe] */
 
 /**
@@ -677,7 +677,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
 IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
                                      const IotMqttPublishInfo_t * pPublishInfo,
                                      uint32_t flags,
-                                     uint64_t timeoutMs );
+                                     uint32_t timeoutMs );
 /* @[declare_mqtt_timedpublish] */
 
 /**
@@ -708,7 +708,7 @@ IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
  * @code{c}
  * // Operation reference and timeout.
  * IotMqttOperation_t publishOperation = IOT_MQTT_OPERATION_INITIALIZER;
- * uint64_t timeoutMs = 5000; // 5 seconds
+ * uint32_t timeoutMs = 5000; // 5 seconds
  *
  * // MQTT operation to wait for.
  * IotMqttError_t result = IotMqtt_Publish( mqttConnection,
@@ -731,7 +731,7 @@ IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
  */
 /* @[declare_mqtt_wait] */
 IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
-                             uint64_t timeoutMs );
+                             uint32_t timeoutMs );
 /* @[declare_mqtt_wait] */
 
 /*-------------------------- MQTT helper functions --------------------------*/

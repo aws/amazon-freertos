@@ -334,7 +334,7 @@ bool IotSemaphore_TryWait( IotSemaphore_t * pSemaphore );
  */
 /* @[declare_platform_threads_semaphoretimedwait] */
 bool IotSemaphore_TimedWait( IotSemaphore_t * pSemaphore,
-                             uint64_t timeoutMs );
+                             uint32_t timeoutMs );
 /* @[declare_platform_threads_semaphoretimedwait] */
 
 /**

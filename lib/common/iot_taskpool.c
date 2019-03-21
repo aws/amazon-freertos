@@ -58,7 +58,7 @@
 /**
  * @brief Maximum semaphore value for wait operations.
  */
-#define TASKPOOL_MAX_SEM_VALUE    0xFFFF
+#define TASKPOOL_MAX_SEM_VALUE              0xFFFF
 
 /**
  * @brief Reschedule delay in milliseconds for deferred jobs.
@@ -289,6 +289,7 @@ IotTaskPoolError_t IotTaskPool_Destroy( IotTaskPool_t * pTaskPool )
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
     uint32_t count;
+    bool completeShutdown = true;
 
     /* Track how many threads the task pool owns. */
     uint32_t activeThreads;
@@ -328,21 +329,46 @@ IotTaskPoolError_t IotTaskPool_Destroy( IotTaskPool_t * pTaskPool )
         } while( pItemLink );
 
         /* (2) Clear the timer queue. */
-        do
         {
-            pItemLink = NULL;
+            _taskPoolTimerEvent_t * pTimerEvent;
 
-            pItemLink = IotListDouble_RemoveHead( &pTaskPool->timerEventsList );
+            /* A deferred job may have fired already. Since deferred jobs will go through the same mutex
+             * the shutdown sequence is holding at this stage, there is no risk for race conditions. Yet, we
+             * need to let the deferred job to destroy the task pool. */
+
+            pItemLink = IotListDouble_PeekHead( &pTaskPool->timerEventsList );
 
             if( pItemLink != NULL )
             {
-                _taskPoolTimerEvent_t * pTimerEvent = IotLink_Container( _taskPoolTimerEvent_t, pItemLink, link );
+                uint64_t now = IotClock_GetTimeMs();
 
-                _destroyJob( pTimerEvent->pJob );
+                pTimerEvent = IotLink_Container( _taskPoolTimerEvent_t, pItemLink, link );
 
-                IotTaskPool_FreeTimerEvent( pTimerEvent );
+                if( pTimerEvent->expirationTime <= now )
+                {
+                    /* Timer may have fired already! Let the timer thread destroy
+                     * complete the taskpool destruction sequence. */
+                    completeShutdown = false;
+                }
+
+                /* Remove all timers from the timeout list. */
+                for( ; ; )
+                {
+                    pItemLink = IotListDouble_RemoveHead( &pTaskPool->timerEventsList );
+
+                    if( pItemLink == NULL )
+                    {
+                        break;
+                    }
+
+                    pTimerEvent = IotLink_Container( _taskPoolTimerEvent_t, pItemLink, link );
+
+                    _destroyJob( pTimerEvent->pJob );
+
+                    IotTaskPool_FreeTimerEvent( pTimerEvent );
+                }
             }
-        } while( pItemLink );
+        }
 
         /* (3) Clear the job cache. */
         do
@@ -374,7 +400,10 @@ IotTaskPoolError_t IotTaskPool_Destroy( IotTaskPool_t * pTaskPool )
     IotTaskPool_Assert( pTaskPool->activeThreads == 0 );
 
     /* (6) Destroy all signaling objects. */
-    _destroyTaskPool( pTaskPool );
+    if( completeShutdown == true )
+    {
+        _destroyTaskPool( pTaskPool );
+    }
 
     TASKPOOL_NO_FUNCTION_CLEANUP();
 }
@@ -624,7 +653,7 @@ IotTaskPoolError_t IotTaskPool_Schedule( IotTaskPool_t * const pTaskPool,
 
 IotTaskPoolError_t IotTaskPool_ScheduleDeferred( IotTaskPool_t * const pTaskPool,
                                                  IotTaskPoolJob_t * const pJob,
-                                                 uint64_t timeMs )
+                                                 uint32_t timeMs )
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
@@ -1600,6 +1629,9 @@ static void _timerThread( void * pArgument )
         if( _IsShutdownStarted( pTaskPool ) )
         {
             TASKPOOL_EXIT_CRITICAL();
+
+            /* Complete the shutdown sequence. */
+            _destroyTaskPool( pTaskPool );
 
             return;
         }
