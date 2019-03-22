@@ -619,7 +619,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
     int lMbedReturn;
     /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
     mbedtls_ecp_keypair * pxKeyPair;
-    
+
     pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
     mbedtls_ecp_keypair_init( pxKeyPair );
     mbedtls_ecp_group_init( &pxKeyPair->grp );
@@ -1390,6 +1390,20 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
                 mbedtls_pk_init( &pxSession->xSignKey );
 
+                /* TODO: Remove this hack.
+                 * mbedTLS call appends empty public key data when saving EC private key.
+                 * a1 04        -> Application identifier of length 4
+                 * 03 02     -> Bit string of length 2
+                 *    00 00  -> "Public key"
+                 * This is not handled by the parser.
+                 * This has not been tested very carefully either.*/
+                
+                if( pxMechanism->mechanism == CKM_ECDSA )
+                {
+                    keyData[ 1 ] = keyData[ 1 ] - 6;
+                    ulKeyDataLength -= 6;
+                }
+
                 if( 0 == mbedtls_pk_parse_key( &pxSession->xSignKey, keyData, ulKeyDataLength, NULL, 0 ) )
                 {
                     /* TODO: Check the mechanism.  Note: Currently, mechanism is being set to CKM_SHA256, rather than
@@ -1419,6 +1433,39 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+
+xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS, uint8_t * pxMbedSignature )
+{
+
+    /* Reconstruct the signature in PKCS #11 format. */
+    CK_BYTE * pxNextLength;
+    uint8_t ucSigComponentLength = pxMbedSignature[ 3 ];
+
+    /* R Component. */
+    if ( ucSigComponentLength == 33 )
+    {
+        memcpy( pxSignaturePKCS, &pxMbedSignature[ 5 ], 32 ); /* Chop off the leading zero. */
+        pxNextLength = pxMbedSignature + 5 /* Sequence, length, integer, length, leading zero */ + 32 /*(R) */ + 1 /*(S's integer tag) */;
+    }
+    else
+    {
+        memcpy( &pxSignaturePKCS[ 32 - ucSigComponentLength ], &pxMbedSignature[ 4 ], ucSigComponentLength );
+        pxNextLength = pxMbedSignature + 4 + 32 + 1;
+    }
+
+    /* S Component. */
+    ucSigComponentLength = pxNextLength[ 0 ];
+
+    if ( ucSigComponentLength == 33 )
+    {
+        memcpy( &pxSignaturePKCS[ 32 ], &pxNextLength[ 2 ], 32 ); /* Skip leading zero. */
+    }
+    else
+    {
+        memcpy( &pxSignaturePKCS[ 64 - ucSigComponentLength ], &pxNextLength[ 1 ], ucSigComponentLength );
+    }
+}
+
 /**
  * @brief Digitally sign the indicated cryptographic hash bytes.
  */
@@ -1430,6 +1477,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
+
+    size_t x = 100;
+    uint8_t ecSignature[ 100 ];
 
     if( NULL == pulSignatureLen )
     {
@@ -1467,8 +1517,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                                     MBEDTLS_MD_SHA256,
                                                     pucData,
                                                     ulDataLen,
-                                                    pucSignature,
-                                                    ( size_t * ) pulSignatureLen,
+                                                    ecSignature,
+                                                    ( size_t * ) &x,
                                                     mbedtls_ctr_drbg_random,
                                                     &xP11Context.xMbedDrbgCtx );
 
@@ -1484,6 +1534,19 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                     xResult = CKR_CANT_LOCK;
                 }
             }
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        mbedtls_pk_type_t xType = mbedtls_pk_get_type( &pxSessionObj->xSignKey );
+
+        /* Reformat the signature */
+        if( ( xType == MBEDTLS_PK_ECKEY ) ||
+            ( xType == MBEDTLS_PK_ECDSA ) )
+        {
+            xMbedTLSSignatureToPkcs11Signature( pucSignature, &ecSignature );
+            *pulSignatureLen = 64;
         }
     }
 

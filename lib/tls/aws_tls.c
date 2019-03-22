@@ -191,7 +191,7 @@ static int prvGenerateRandomBytes( void * pvCtx,
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
     BaseType_t xResult;
 
-    xResult = pxCtx->xP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
+    xResult = pxCtx->pxP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
 
     if( xResult != 0 )
     {
