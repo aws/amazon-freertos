@@ -206,7 +206,7 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
             _EMPTY_ELSE_MARKER;
         }
 
-        dataBytesRead = pMqttConnection->pNetworkInterface->receive( pNetworkConnection,
+        dataBytesRead = pMqttConnection->pNetworkInterface->receive( &pNetworkConnection,
                                                                      pIncomingPacket->pRemainingData,
                                                                      pIncomingPacket->remainingLength );
 
@@ -701,7 +701,7 @@ static void _sendPuback( _mqttConnection_t * pMqttConnection,
     }
     else
     {
-        bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
+        bytesSent = pMqttConnection->pNetworkInterface->send( &pMqttConnection->pNetworkConnection,
                                                               pPuback,
                                                               pubackSize );
 
@@ -734,7 +734,7 @@ bool _IotMqtt_GetNextByte( void * pNetworkConnection,
     size_t bytesReceived = 0;
 
     /* Attempt to read 1 byte. */
-    bytesReceived = pNetworkInterface->receive( pNetworkConnection,
+    bytesReceived = pNetworkInterface->receive( &pNetworkConnection,
                                                 &incomingByte,
                                                 1 );
 
@@ -822,7 +822,7 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
     /* Close the network connection. */
     if( pMqttConnection->pNetworkInterface->close != NULL )
     {
-        closeStatus = pMqttConnection->pNetworkInterface->close( pMqttConnection->pNetworkConnection );
+        closeStatus = pMqttConnection->pNetworkInterface->close( &pMqttConnection->pNetworkConnection );
 
         if( closeStatus == IOT_NETWORK_SUCCESS )
         {

@@ -829,7 +829,11 @@ BTStatus_t IotBle_SendIndication( IotBleEventResponse_t * pxResp,
 
     if( pxResp != NULL )
     {
+        if( bConfirm == true)
+        {
         _BTInterface.handlePendingIndicationResponse = pxResp->pAttrData->handle;
+        }
+
         status = _BTInterface.pGattServerInterface->pxSendIndication( _BTInterface.serverIf,
                                                                         pxResp->pAttrData->handle,
                                                                         connId,
@@ -861,7 +865,6 @@ BTStatus_t IotBle_SendResponse( IotBleEventResponse_t * pxResp,
         response.xAttrValue.usHandle = pxResp->pAttrData->handle;
         response.xAttrValue.xLen = pxResp->pAttrData->size;
         response.xAttrValue.xRspErrorStatus = pxResp->rspErrorStatus;
-        _BTInterface.handlePendingIndicationResponse = response.xAttrValue.usHandle;
 
         status = _BTInterface.pGattServerInterface->pxSendResponse( connId,
                                                                       transId,
