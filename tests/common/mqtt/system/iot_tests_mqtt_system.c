@@ -491,10 +491,15 @@ static void _subscribePublishWait( IotMqttQos_t qos )
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttNetworkInfo_t networkInfo = _networkInfo;
     IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
+    const IotMqttSerializer_t * pSerializer = NULL;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
     IotSemaphore_t waitSem;
+
+    /* Get default serializer and override it. */
+    pSerializer = IotTestNetwork_GetSerializer();
+    serializer = *pSerializer;
 
     /* Set the serializer overrides. */
     serializer.freePacket = _freePacket;
