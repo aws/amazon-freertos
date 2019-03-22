@@ -194,6 +194,12 @@ static const char _pSamplePayload[] =
     "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
     "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu"
     " fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in"
+    " culpa qui officia deserunt mollit anim id est laborum."
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"
+    " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis "
+    "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu"
+    " fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in"
     " culpa qui officia deserunt mollit anim id est laborum.";
 
 /**
@@ -466,7 +472,7 @@ static void _subscribePublishWait( IotMqttQos_t qos )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttNetworkInfo_t networkInfo = _networkInfo;
-    IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
+    IotMqttSerializer_t serializer = *_pMqttSerializer;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
@@ -628,6 +634,7 @@ TEST_SETUP( MQTT_System )
     _networkInfo.createNetworkConnection = true;
     _networkInfo.pNetworkServerInfo = ( void * ) &_serverInfo;
     _networkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
+    _networkInfo.pMqttSerializer = _pMqttSerializer;
 
     #if IOT_TEST_SECURED_CONNECTION == 1
         _networkInfo.pNetworkCredentialInfo = ( void * ) &_credentials;
