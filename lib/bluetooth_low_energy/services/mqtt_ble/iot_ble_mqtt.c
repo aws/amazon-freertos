@@ -891,6 +891,11 @@ void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
 }
 
 /*-----------------------------------------------------------*/
+void _closeConnection( IotBleMqttService_t *pService )
+{
+	pService->connection.pMqttConnection = NULL;
+	pService->isEnabled = false;
+}
 
 static void _connectionCallback( BTStatus_t status,
                                  uint16_t connId,
@@ -912,9 +917,7 @@ static void _connectionCallback( BTStatus_t status,
             else
             {
                 configPRINTF( ( "Disconnect received for MQTT service instance %d\n", id ) );
-                pService->isEnabled = false;
-                pService->connection.pMqttConnection = NULL;
-                _resetBuffer( pService );
+                _closeConnection(pService);
             }
         }
     }
@@ -1084,7 +1087,7 @@ IotNetworkError_t IotBleMqtt_CloseConnection( void * pConnection )
     IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection != NULL ) )
     {
-    	pService->connection.pMqttConnection = NULL;
+    	_closeConnection(pService);
     }
 
     return IOT_NETWORK_SUCCESS;
