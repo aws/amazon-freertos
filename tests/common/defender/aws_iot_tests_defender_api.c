@@ -745,7 +745,7 @@ static void _verifyTcpConections( int total,
             }
 
             IotSerializerDecoderObject_t connsObject = AWS_IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
-            AwsIotSerializerDecoderIterator_t connIterator = AWS_IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER;
+            IotSerializerDecoderIterator_t connIterator = AWS_IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER;
 
             error = _Decoder.find( &estConnObject, "connections", &connsObject );
 
@@ -753,7 +753,7 @@ static void _verifyTcpConections( int total,
             {
                 /* Assert find a "connections" array in "established_connections" */
                 TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
-                TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_ARRAY, connsObject.type );
+                TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, connsObject.type );
 
                 error = _Decoder.stepIn( &connsObject, &connIterator );
                 TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );

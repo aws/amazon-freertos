@@ -30,11 +30,11 @@
 
 #include "FreeRTOS.h"
 #include "aws_system_init.h"
+#include "iot_mqtt.h"
 
 /* Library code. */
 extern BaseType_t SOCKETS_Init( void );
 extern bool IotCommon_Init( void );
-extern bool IotMqtt_Init( void );
 
 /*-----------------------------------------------------------*/
 
@@ -57,7 +57,7 @@ BaseType_t SYSTEM_Init( void )
 
     if( xResult == pdPASS )
     {
-        xResult = ( IotMqtt_Init() == true );
+        xResult = ( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     }
 
     return xResult;

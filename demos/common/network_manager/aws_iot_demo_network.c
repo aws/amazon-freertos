@@ -115,7 +115,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
     BaseType_t xNetworkCreated = pdFALSE;
     IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
-    static IotNetworkConnectionAfr_t xConnection;
+    static IotNetworkConnectionAfr_t * pConnection = NULL;
     IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     IotMqttNetworkInfo_t* pxNetworkIface = &( pxNetworkContext->xNetworkInfo );
@@ -127,7 +127,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     }
 
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  IotNetworkAfr_Create(&xServerInfo, &xCredentials, &xConnection);
+    xStatus =  IotNetworkAfr_Create(&xServerInfo, &xCredentials, &pConnection);
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
@@ -142,9 +142,9 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
 
     ( *pxNetworkIface ) = xDefaultNetworkInterface;
     pxNetworkIface->createNetworkConnection = false;
-    pxNetworkIface->pNetworkConnection = &xConnection;
+    pxNetworkIface->pNetworkConnection = pConnection;
     pxNetworkIface->pNetworkInterface = &xNetworkInterface;
-    pxNetworkContext->pvNetworkConnection = ( void* ) &xConnection;
+    pxNetworkContext->pvNetworkConnection = ( void* ) pConnection;
 
     _IOT_FUNCTION_CLEANUP_BEGIN();
 
@@ -152,8 +152,8 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     {
         if( xNetworkCreated == pdTRUE )
         {
-            IotNetworkAfr_Close( &xConnection );
-            IotNetworkAfr_Destroy( &xConnection );
+            IotNetworkAfr_Close( pConnection );
+            IotNetworkAfr_Destroy( pConnection );
         }
     }
 

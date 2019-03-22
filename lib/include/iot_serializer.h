@@ -126,8 +126,8 @@
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotSerializer_FreeDecoderObject
-        #define IotSerializer_FreeDecoderObject    Iot_FreeSerializerDecoderObject
+    #ifndef IotSerializer_FreeCborValue
+        #define IotSerializer_FreeCborValue    Iot_FreeSerializerCborValue
     #endif
 
 #else /* if IOT_STATIC_MEMORY_ONLY */
@@ -175,7 +175,7 @@
 
 #define IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY     { .pHandle = NULL, .type = IOT_SERIALIZER_CONTAINER_ARRAY }
 
-#define IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER              { .type = IOT_SERIALIZER_UNDEFINED, 0 }
+#define IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER              { .type = IOT_SERIALIZER_UNDEFINED, .pHandle = NULL, .value = 0 }
 
 #define IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER            NULL
 

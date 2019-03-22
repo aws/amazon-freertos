@@ -95,7 +95,7 @@ TEST( Full_Serializer_CBOR, Encoder_init_with_null_buffer )
                        _encoder.init( &encoderObject, NULL, 0 ) );
 
     /* Set the type to stream. */
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_STREAM, encoderObject.type );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_STREAM, encoderObject.type );
 
     /* Assigned value to handle pointer. */
     TEST_ASSERT_NOT_NULL( encoderObject.pHandle );
@@ -194,7 +194,7 @@ TEST( Full_Serializer_CBOR, Encoder_open_a_scalar )
 {
     IotSerializerEncoderObject_t integerObject = { .pHandle = NULL, .type = IOT_SERIALIZER_SCALAR_SIGNED_INT };
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_INVALID_INPUT,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_INVALID_INPUT,
                        _encoder.openContainer( &_encoderObject, &integerObject, 1 ) );
 }
 

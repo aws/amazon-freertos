@@ -90,7 +90,7 @@ TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
                        _encoder.init( &encoderObject, NULL, 0 ) );
 
     /* Set the type to stream. */
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_STREAM, encoderObject.type );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_STREAM, encoderObject.type );
 
     /* Assigned value to handle pointer. */
     TEST_ASSERT_NOT_NULL( encoderObject.pHandle );

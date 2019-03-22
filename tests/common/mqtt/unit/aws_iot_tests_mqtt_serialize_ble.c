@@ -363,13 +363,13 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeSUBSCRIBE )
 		xValue.value.signedInt = 0;
 		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC_LIST, &xValue );
 		TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
+		TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
 		IOT_BLE_MESG_DECODER.destroy( &xValue );
 
 		xValue.value.signedInt = 0;
 		xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_QOS_LIST, &xValue );
 		TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-		TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
+		TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
 		IOT_BLE_MESG_DECODER.destroy( &xValue );
 
 		IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
@@ -425,7 +425,7 @@ TEST(MQTT_Unit_BLE_Serialize, SerializeUNSUBSCRIBE )
         xValue.value.signedInt = 0;
         xResult = IOT_BLE_MESG_DECODER.find( &xDecoderObj, IOT_BLE_MQTT_TOPIC_LIST, &xValue );
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, xResult );
-        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
+        TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_ARRAY, xValue.type );
         IOT_BLE_MESG_DECODER.destroy( &xValue );
 
         IOT_BLE_MESG_DECODER.destroy( &xDecoderObj );
