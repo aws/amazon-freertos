@@ -192,7 +192,7 @@ BaseType_t IotBleMqtt_Init( void );
  * @return pdTRUE If the operation is successful
  *         pdFALSE If the operation failed
  */
-IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pCredentialInfo, void * pConnection );
+IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pCredentialInfo, void ** pConnection );
 
 /**
  * @brief Sets the send timeout for the BLE network connection.

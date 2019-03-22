@@ -66,9 +66,7 @@ typedef struct MqttConnectionContext
  */
 BaseType_t xMqttDemoCreateNetworkConnection(
         MqttConnectionContext_t* pxNetworkContext,
-        uint32_t ulNetworkTypes,
-        uint32_t ulConnRetryIntervalSeconds,
-        uint32_t ulConnRetryLimit );
+        uint32_t ulNetworkTypes );
 
 /**
  * @brief Deletes a Network Connection.

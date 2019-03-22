@@ -114,12 +114,12 @@ static IotBleMqttService_t _mqttBLEServices[ IOT_BLE_MQTT_MAX_SVC_INSTANCES ] = 
 static BTService_t _BLEServices[ IOT_BLE_MQTT_MAX_SVC_INSTANCES ] = { 0 };
 
 static const BTAttribute_t _pAttributeTable[] = {
-     {    
+     {
           .xServiceUUID = IOT_BLE_MQTT_SERVICE_UUID_TYPE
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
               .xUuid = IOT_BLE_MQTT_CHAR_CONTROL_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
@@ -128,7 +128,7 @@ static const BTAttribute_t _pAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
               .xUuid = IOT_BLE_MQTT_CHAR_TX_MESG_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
@@ -145,7 +145,7 @@ static const BTAttribute_t _pAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
               .xUuid = IOT_BLE_MQTT_CHAR_RX_MESG_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
@@ -154,7 +154,7 @@ static const BTAttribute_t _pAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
               .xUuid = IOT_BLE_MQTT_CHAR_TX_LARGE_MESG_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
@@ -171,7 +171,7 @@ static const BTAttribute_t _pAttributeTable[] = {
      },
      {
          .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
+         .xCharacteristic =
          {
               .xUuid = IOT_BLE_MQTT_CHAR_RX_LARGE_MESG_UUID_TYPE,
               .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
@@ -599,7 +599,7 @@ void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     {
 
         pReadParam = pEventParam->pParamRead;
-        
+
         pService = _getServiceInstance( pReadParam->attrHandle );
     configASSERT( ( pService != NULL ) );
 
@@ -711,7 +711,7 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         configASSERT( ( pService != NULL ) );
 
         resp.pAttrData->handle = pWriteParam->attrHandle;
-        
+
         resp.pAttrData->uuid = CHAR_UUID( pService->pServicePtr, IOT_BLE_MQTT_CHAR_RX_LARGE );
 
         if( ( !pWriteParam->isPrep ) &&
@@ -799,7 +799,7 @@ void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         		pService->connection.pRecvBuffer = pWriteParam->pValue;
     			pService->connection.recvBufferLen = pWriteParam->length;
 
-        		( void ) IotMqtt_ReceiveCallback( &pService,
+        		( void ) IotMqtt_ReceiveCallback( pService,
         				                        pService->connection.pMqttConnection );
 				pService->connection.pRecvBuffer = NULL;
 				pService->connection.recvBufferLen = 0;
@@ -853,11 +853,11 @@ void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
             if( pEventParam->pParamWrite->attrHandle == pMQTTService->pServicePtr->pusHandlesBuffer[IOT_BLE_MQTT_CHAR_DESCR_TX_MESG])
             {
                  pMQTTService->descrVal[ IOT_BLE_MQTT_TX_MSG_DESCR ] = CCFGValue;
-            }else 
+            }else
             {
                  pMQTTService->descrVal[ IOT_BLE_MQTT_TX_LARGE_MSG_DESCR ] = CCFGValue;
             }
-            
+
             resp.eventStatus = eBTStatusSuccess;
         }
 
@@ -879,7 +879,7 @@ void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
         if( pEventParam->pParamWrite->attrHandle == pMQTTService->pServicePtr->pusHandlesBuffer[IOT_BLE_MQTT_CHAR_DESCR_TX_MESG])
         {
             resp.pAttrData->pData = ( uint8_t * ) &pMQTTService->descrVal[ IOT_BLE_MQTT_TX_MSG_DESCR ];
-        }else 
+        }else
         {
             resp.pAttrData->pData = ( uint8_t * ) &pMQTTService->descrVal[ IOT_BLE_MQTT_TX_LARGE_MSG_DESCR ];
         }
@@ -904,7 +904,7 @@ static void _connectionCallback( BTStatus_t status,
 {
     uint8_t id;
     IotBleMqttService_t *pService;
-    
+
     if( status == eBTStatusSuccess )
     {
         for( id = 0; id < IOT_BLE_MQTT_MAX_SVC_INSTANCES; id++ )
@@ -1047,7 +1047,7 @@ BaseType_t IotBleMqtt_Init( void )
 
 /*-----------------------------------------------------------*/
 
-IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pCredentialInfo, void * pConnection )
+IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pCredentialInfo, void ** pConnection )
 {
 	IotNetworkError_t ret = IOT_NETWORK_FAILURE;
     IotBleMqttService_t* pService;
@@ -1084,7 +1084,7 @@ IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pC
 
 IotNetworkError_t IotBleMqtt_CloseConnection( void * pConnection )
 {
-    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
+    IotBleMqttService_t * pService = (( IotBleMqttService_t * ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection != NULL ) )
     {
     	_closeConnection(pService);
@@ -1095,7 +1095,7 @@ IotNetworkError_t IotBleMqtt_CloseConnection( void * pConnection )
 
 IotNetworkError_t IotBleMqtt_DestroyConnection( void * pConnection )
 {
-    IotBleMqttService_t* pService = *(( IotBleMqttService_t ** ) pConnection);
+    IotBleMqttService_t* pService = (( IotBleMqttService_t * ) pConnection);
     if( ( pService != NULL ) && ( pService->connection.pMqttConnection == NULL ) )
     {
         _resetBuffer( pService );
@@ -1109,7 +1109,7 @@ IotNetworkError_t IotBleMqtt_DestroyConnection( void * pConnection )
 BaseType_t IotBleMqtt_SetSendTimeout( void * pConnection, uint16_t timeoutMS )
 {
     BaseType_t ret = pdFALSE;
-    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
+    IotBleMqttService_t * pService = (( IotBleMqttService_t * ) pConnection);
 
     if( pService != NULL )
     {
@@ -1123,7 +1123,7 @@ size_t  IotBleMqtt_Receive( void * pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested )
 {
-    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
+    IotBleMqttService_t * pService = (( IotBleMqttService_t * ) pConnection);
 
     memcpy(pBuffer, pService->connection.pRecvBuffer, bytesRequested);
 
@@ -1135,7 +1135,7 @@ IotNetworkError_t IotBleMqtt_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext )
 {
-    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
+    IotBleMqttService_t * pService = (( IotBleMqttService_t * ) pConnection);
 
     pService->connection.pMqttConnection = (IotMqttConnection_t *)pContext;
 
@@ -1145,7 +1145,7 @@ IotNetworkError_t IotBleMqtt_SetReceiveCallback( void * pConnection,
 
 size_t IotBleMqtt_Send( void* pConnection, const uint8_t * const pMessage, size_t messageLength )
 {
-    IotBleMqttService_t * pService = *(( IotBleMqttService_t ** ) pConnection);
+    IotBleMqttService_t * pService = (( IotBleMqttService_t * ) pConnection);
     size_t sendLen, remainingLen = messageLength;
     TickType_t remainingTime = pService->connection.sendTimeout;
     TimeOut_t timeout;

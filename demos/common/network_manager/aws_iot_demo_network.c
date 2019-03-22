@@ -119,7 +119,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     IotMqttNetworkInfo_t* pxNetworkIface = &( pxNetworkContext->xNetworkInfo );
-    
+
     /* Disable ALPN if not using port 443. */
     if( clientcredentialMQTT_BROKER_PORT != 443 )
     {
@@ -127,7 +127,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     }
 
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  IotNetworkAfr_Create(&xServerInfo, &xCredentials, &pConnection);
+    xStatus =  IotNetworkAfr_Create(&xServerInfo, &xCredentials, (void**)&pConnection);
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
@@ -168,14 +168,14 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
     IotMqttNetworkInfo_t* pxNetworkInfo = &( pxNetworkContext->xNetworkInfo );
     static IotBleMqttConnection_t * bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
 
-    if( IotNetworkBle.create( NULL, NULL, &bleConnection ) == IOT_NETWORK_SUCCESS )
+    if( IotNetworkBle.create( NULL, NULL, ( void * *) &bleConnection ) == IOT_NETWORK_SUCCESS )
     {
     	pxNetworkInfo->createNetworkConnection = false;
-    	pxNetworkInfo->pNetworkConnection = (void *)&bleConnection;
+    	pxNetworkInfo->pNetworkConnection = (void *)bleConnection;
     	pxNetworkInfo->pNetworkInterface = &IotNetworkBle;
     	pxNetworkInfo->pMqttSerializer = &IotBleMqttSerializer;
 
-        pxNetworkContext->pvNetworkConnection = ( void* ) &bleConnection;
+        pxNetworkContext->pvNetworkConnection = ( void* ) bleConnection;
 
         xStatus = pdTRUE;
     }

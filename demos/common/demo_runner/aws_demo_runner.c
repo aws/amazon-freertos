@@ -42,7 +42,7 @@
 extern void vStartMQTTDemo( void );
 /* extern void vStartMQTTEchoDemo( void ); */
 /* extern void vStartShadowDemoTasks( void ); */
-/* extern void vStartMQTTBLEEchoDemo( void ); */
+extern void vStartMQTTBLEEchoDemo( void );
 /* extern void vStartSimpleTCPServerTasks( void ); */
 /* extern void vStartSubpubDemoTasks( void ); */
 /* extern void vStartTCPEchoClientTasks_SeparateTasks( void ); */
@@ -60,8 +60,8 @@ void DEMO_RUNNER_RunDemos( void )
     /* vStartDeviceDefenderDemo(); */
     /* vStartGreenGrassDiscoveryTask(); */
     /* vStartOTAUpdateDemoTask(); */
-    /* vStartMQTTBLEEchoDemo(); */
-    vStartMQTTDemo();
+    vStartMQTTBLEEchoDemo();
+    //vStartMQTTDemo();
     /* vStartMQTTEchoDemo(); */
     /* vStartShadowDemoTasks(); */
     /* vStartSimpleTCPServerTasks(); */
