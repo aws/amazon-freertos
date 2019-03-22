@@ -406,9 +406,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
                 else
                 {
-                    /* The received MQTT packet must be part of the incoming
-                     * packet structure. */
-                    IotMqtt_Assert( pIncomingPacket->pRemainingData != NULL );
+                    _EMPTY_ELSE_MARKER;
                 }
 
                 /* Remove operation from pending processing list. */
@@ -701,7 +699,7 @@ static void _sendPuback( _mqttConnection_t * pMqttConnection,
     }
     else
     {
-        bytesSent = pMqttConnection->pNetworkInterface->send( &pMqttConnection->pNetworkConnection,
+        bytesSent = pMqttConnection->pNetworkInterface->send( pMqttConnection->pNetworkConnection,
                                                               pPuback,
                                                               pubackSize );
 
@@ -822,7 +820,7 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
     /* Close the network connection. */
     if( pMqttConnection->pNetworkInterface->close != NULL )
     {
-        closeStatus = pMqttConnection->pNetworkInterface->close( &pMqttConnection->pNetworkConnection );
+        closeStatus = pMqttConnection->pNetworkInterface->close( pMqttConnection->pNetworkConnection );
 
         if( closeStatus == IOT_NETWORK_SUCCESS )
         {

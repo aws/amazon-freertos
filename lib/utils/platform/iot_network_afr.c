@@ -238,7 +238,7 @@ static IotNetworkError_t _tlsSetup( const IotNetworkCredentialsAfr_t * pAfrCrede
 
 IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
                                         void * pCredentialInfo,
-                                        void * pConnection )
+                                        void ** pConnection )
 {
     _IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
     Socket_t tcpSocket = SOCKETS_INVALID_SOCKET;
@@ -252,7 +252,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     /* Cast function parameters to correct types. */
     const IotNetworkServerInfoAfr_t * pServerInfo = pConnectionInfo;
     const IotNetworkCredentialsAfr_t * pAfrCredentials = pCredentialInfo;
-    _networkConnection_t ** pNetworkConnection = pConnection;
+    _networkConnection_t ** pNetworkConnection = ( _networkConnection_t ** ) pConnection;
 
     /* Check host name length against the maximum length allowed by Secure
      * Sockets. */
@@ -372,7 +372,7 @@ IotNetworkError_t IotNetworkAfr_SetReceiveCallback( void * pConnection,
     IotNetworkError_t status = IOT_NETWORK_SUCCESS;
 
     /* Cast network connection to the correct type. */
-    _networkConnection_t * pNetworkConnection = *((_networkConnection_t **)pConnection);
+    _networkConnection_t * pNetworkConnection = *( ( _networkConnection_t ** ) pConnection );
 
     /* Set the receive callback and context. */
     pNetworkConnection->receiveCallback = receiveCallback;
@@ -407,7 +407,7 @@ size_t IotNetworkAfr_Send( void * pConnection,
     int32_t socketStatus = SOCKETS_ERROR_NONE;
 
     /* Cast network connection to the correct type. */
-    _networkConnection_t * pNetworkConnection = *((_networkConnection_t **)pConnection);
+    _networkConnection_t * pNetworkConnection = *( ( _networkConnection_t ** ) pConnection );
 
     /* Only one thread at a time may send on the connection. Lock the socket
      * mutex to prevent other threads from sending. */
@@ -440,7 +440,7 @@ size_t IotNetworkAfr_Receive( void * pConnection,
     size_t bytesReceived = 0, bytesRemaining = bytesRequested;
 
     /* Cast network connection to the correct type. */
-    _networkConnection_t * pNetworkConnection = *((_networkConnection_t **)pConnection);
+    _networkConnection_t * pNetworkConnection = *( ( _networkConnection_t ** ) pConnection );
 
     /* Write the buffered byte. THIS IS A TEMPORARY WORKAROUND AND ASSUMES THIS
      * FUNCTION IS ALWAYS CALLED FROM THE RECEIVE CALLBACK. */
@@ -496,7 +496,7 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
     int32_t socketStatus = SOCKETS_ERROR_NONE;
 
     /* Cast network connection to the correct type. */
-    _networkConnection_t * pNetworkConnection = *((_networkConnection_t **)pConnection);
+    _networkConnection_t * pNetworkConnection = *( ( _networkConnection_t ** ) pConnection );
 
     /* Call Secure Sockets shutdown function to close connection. */
     socketStatus = SOCKETS_Shutdown( pNetworkConnection->socket,
@@ -521,7 +521,7 @@ IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection )
     int32_t socketStatus = SOCKETS_ERROR_NONE;
 
     /* Cast network connection to the correct type. */
-    _networkConnection_t * pNetworkConnection = *((_networkConnection_t **)pConnection);
+    _networkConnection_t * pNetworkConnection = *( ( _networkConnection_t ** ) pConnection );
 
     /* Wait for the receive task to exit. */
     ( void ) xEventGroupWaitBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),

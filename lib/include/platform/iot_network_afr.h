@@ -171,7 +171,7 @@ typedef struct IotNetworkCredentialsAfr
  */
 IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
                                         void * pCredentialInfo,
-                                        void * const pConnection );
+                                        void ** const pConnection );
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback for

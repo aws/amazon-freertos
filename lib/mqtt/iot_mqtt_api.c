@@ -1001,7 +1001,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
     }
 
     /* Set the MQTT receive callback. */
-    networkStatus = pNewMqttConnection->pNetworkInterface->setReceiveCallback( &pNetworkConnection,
+    networkStatus = pNewMqttConnection->pNetworkInterface->setReceiveCallback( pNetworkConnection,
                                                                                IotMqtt_ReceiveCallback,
                                                                                pNewMqttConnection );
 
@@ -1164,7 +1164,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
         /* The network connection must be closed if it was created. */
         if( networkCreated == true )
         {
-            networkStatus = pNetworkInfo->pNetworkInterface->close( &pNetworkConnection );
+            networkStatus = pNetworkInfo->pNetworkInterface->close( pNetworkConnection );
 
             if( networkStatus != IOT_NETWORK_SUCCESS )
             {
