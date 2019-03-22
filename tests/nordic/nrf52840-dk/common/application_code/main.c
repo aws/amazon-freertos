@@ -97,7 +97,7 @@ SemaphoreHandle_t xUARTTxComplete;
 QueueHandle_t UARTqueue = NULL;
 
 /* clang-format on */
-
+extern void IotTestNetwork_SelectNetworkType( uint16_t networkType );
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
