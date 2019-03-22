@@ -162,7 +162,7 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
     #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
     /* Read the packet type, which is the first byte available. */
-    pIncomingPacket->type = getPacketType( pNetworkConnection,
+    pIncomingPacket->type = getPacketType( &pNetworkConnection,
                                            pMqttConnection->pNetworkInterface );
 
     /* Check that the incoming packet type is valid. */
@@ -180,7 +180,7 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
     }
 
     /* Read the remaining length. */
-    pIncomingPacket->remainingLength = getRemainingLength( pNetworkConnection,
+    pIncomingPacket->remainingLength = getRemainingLength( &pNetworkConnection,
                                                            pMqttConnection->pNetworkInterface );
 
     if( pIncomingPacket->remainingLength == _MQTT_REMAINING_LENGTH_INVALID )
@@ -734,7 +734,7 @@ bool _IotMqtt_GetNextByte( void * pNetworkConnection,
     size_t bytesReceived = 0;
 
     /* Attempt to read 1 byte. */
-    bytesReceived = pNetworkInterface->receive( &pNetworkConnection,
+    bytesReceived = pNetworkInterface->receive( pNetworkConnection,
                                                 &incomingByte,
                                                 1 );
 
