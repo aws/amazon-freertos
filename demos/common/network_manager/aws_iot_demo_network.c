@@ -186,37 +186,16 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 
 BaseType_t xMqttDemoCreateNetworkConnection(
         MqttConnectionContext_t* pxConnection,
-        uint32_t ulNetworkTypes,
-        uint32_t ulConnRetryIntervalSeconds,
-        uint32_t ulConnRetryLimit )
+        uint32_t ulNetworkTypes )
 {
-    size_t xTriesLeft = ( ulConnRetryLimit + 1 );
     BaseType_t xRet = pdFALSE;
-    TickType_t xRetryDelay = pdMS_TO_TICKS( ulConnRetryIntervalSeconds * 1000 );
 
-    while ( xTriesLeft > 0 )
-    {
-        pxConnection->ulNetworkType = prxCreateNetworkConnection( pxConnection, ulNetworkTypes );
+	pxConnection->ulNetworkType = prxCreateNetworkConnection( pxConnection, ulNetworkTypes );
 
-        if( pxConnection->ulNetworkType != AWSIOT_NETWORK_TYPE_NONE )
-        {
-            xRet = pdTRUE;
-            break;
-        }
-        else
-        {
-            xTriesLeft--;
-
-            if( xTriesLeft > 0 )
-            {
-            	configPRINTF(("Failed to connect to network, %d retries left\n", xTriesLeft));
-                vTaskDelay( xRetryDelay );
-            }else
-            {
-            	configPRINTF(("Failed to connect to network, no more retry\n"));
-            }
-        }
-    }
+	if( pxConnection->ulNetworkType != AWSIOT_NETWORK_TYPE_NONE )
+	{
+		xRet = pdTRUE;
+	}
 
     return xRet;
 }

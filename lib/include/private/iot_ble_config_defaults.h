@@ -219,4 +219,17 @@
 #define IOT_BLE_MESG_ENCODER           ( _IotSerializerCborEncoder )
 #define IOT_BLE_MESG_DECODER           ( _IotSerializerCborDecoder )
 
+/**
+ * @brief Waiting time between checks for connection established.
+ */
+#ifndef IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS
+#define IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS                ( 1000 )
+#endif
+
+/**
+ * @brief Number of retries if connection is not established.
+ */
+#ifndef IOT_BLE_MQTT_CREATE_CONNECTION_RETRY
+#define IOT_BLE_MQTT_CREATE_CONNECTION_RETRY                ( 60 )
+#endif
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */

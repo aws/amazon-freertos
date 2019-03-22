@@ -43,6 +43,8 @@
 
 /*-----------------------------------------------------------*/
 
+extern void IotTestNetwork_SelectNetworkType( uint16_t networkType );
+
 /**
  * @brief Declares and runs an MQTT system test.
  */

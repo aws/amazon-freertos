@@ -362,9 +362,7 @@ static BaseType_t prxCreateNetworkConnection( void )
     /* At least one network type is available. Connect to the network type. */
     xRet = xMqttDemoCreateNetworkConnection(
             &xConnection,
-            echoDemoNETWORK_TYPES,
-            echoDemoCONNECTION_RETRY_INTERVAL_SECONDS,
-            echoDemoCONNECTION_RETRY_LIMIT );
+            echoDemoNETWORK_TYPES );
 
     return xRet;
 }
