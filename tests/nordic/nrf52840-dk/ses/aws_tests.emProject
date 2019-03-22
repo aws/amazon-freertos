@@ -201,6 +201,9 @@
             <file file_name="../../../../lib/serializer/json/aws_iot_serializer_json_encoder.c" />
           </folder>
         </folder>
+        <folder Name="metrics">
+          <file file_name="../../../../lib/metrics/iot_metrics.c" />
+        </folder>
       </folder>
       <folder Name="third_party">
         <folder Name="mbedtls">
