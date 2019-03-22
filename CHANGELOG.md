@@ -1,5 +1,220 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.7 02/18/2019
+### New Features
+### New Boards: Cypress CYW43907 and CYW54907
+- Cypress boards CYW54907 and CYW43907 are now qualified for Amazon FreeRTOS.
+
+#### FreeRTOS Kernel V10.1.1
+- Kernel version for Amazon FreeRTOS is updated to 10.1.1.
+- Update all object handles (TaskHandle_t, QueueHandle_t, etc.) to be unique types instead of void pointers, improving type safety.
+- Add Xtensa port.
+- Updated to the latest trace recorder code.
+- Update lint checked MISRA compliance to use the latest MISRA standard.
+- Add configUSE_POSIX_ERRNO to enable per task POSIX style errno functionality.
+
+### Updates
+
+#### FreeRTOS+POSIX V1.0.3
+- Use stack based alloaction for POSIX types. Stack based allocation will reduce heap fragmentation.
+- Fixed potential overflow in Posix timespec utils.
+- Stopped Posix timer spawnning thread every time it is invoked.
+- Unlock and update owner atomically, while unlocking mutex.
+
+#### MQTT Agent V1.1.4
+- Bug fix: MQTT agent tries to setup a connection with the MQTT broker when the socket does not exist.
+
+####  Upgrading ESP-IDF to 3.1.1
+- ESP-IDF upgraded to 3.1.1.
+
+#### OTA PAL for Curiosity PIC32MZEF V1.0.3
+- Rename variables to comply with style guidelines.
+
+#### OTA PAL for Windows Simulator V1.0.2
+- Rename variables to comply with style guidelines.
+
+#### OTA PAL for CC3220SF-LAUNCHXL V1.0.1
+- Rename variables to comply with style guidelines.
+
+#### OTA Agent V1.0.1
+- Rename variables to comply with style guidelines.
+
+#### PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.0
+- Added as part of Cypress CYW43907 board port. 
+- Note that the random number generation solution in this port is provided for demonstration purposes only. See the comment in lib/pkcs11/portable/cypress/CYW943907AEVAL1F/hw_poll.c.
+
+#### PKCS #11 PAL for Cypress CYW954907AEVAL1F development kit V1.0.0
+- Added as part of Cypress CYW54907 board port.
+- Note that the random number generation solution in this port is provided for demonstration purposes only. See the comment in lib/pkcs11/portable/cypress/CYW954907AEVAL1F/hw_poll.c
+
+#### PKCS #11 PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
+- Updated as part of Updrade to ESP-IDF to 3.1.1.
+
+#### mbedTLS-based PKCS#11 V1.0.7
+- Bug Fix: Multi-threaded use of PKCS #11 Sign/Verify could cause key corruption.
+
+#### Wi-Fi for Cypress CYW943907AEVAL1F development kit V1.0.0
+- Added as part of Cypress CYW43907 board port.
+
+#### Wi-Fi for Cypress CYW954907AEVAL1F development kit V1.0.0
+- Added as part of Cypress CYW54907 board port.
+
+#### Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
+- Update as part of Updrade to ESP-IDF to 3.1.1.
+
+#### Wi-Fi for LPC54018 IoT Module V1.0.3
+- Bug fix: Update WIFI init API to return success if WIFI module was already successfully initialized.
+- Bug fix: Update WIFI AP connection API for NXP to check if DHCP was successful.
+
+## V1.4.6 12/27/2018
+### New Features
+
+#### New Board: Renesas Starter Kit+ for RX65N-2MB
+The Renesas Starter Kit+ for RX65N-2MB is now qualified for Amazon FreeRTOS. This port updates the PKCS #11 portable layer, demo projects, and tests.
+
+### Updates
+
+#### FreeRTOS+POSIX V1.0.2
+- Improvement to reduce the size of a pthread object and make the object user allocatable from stack.
+
+#### FreeRTOS+TCP V2.0.10
+- Add FreeRTOS+TCP support for the Renesas Starter Kit+ for RX65N-2MB.
+
+#### FreeRTOS Kernel V10.0.1
+- Add FreeRTOS Kernel support for the Renesas Starter Kit+ for RX65N-2MB.
+
+#### PKCS #11 PAL for MT7697Hx-Dev-Kit V1.0.1
+- Update license information.
+
+#### PKCS #11 PAL for Renesas Starter Kit+ for RX65N-2MB V1.0.0
+- Add PKCS #11 support for the Renesas Starter Kit+ for RX65N-2MB. 
+- Note that the random number generation solution in this port is provided for demonstration purposes only. See the comment in lib/third_party/mcu_vendor/renesas/amazon_freertos_common/entropy_hardware_poll.c for more information.
+
+#### Wi-Fi for MT7697Hx-Dev-Kit V1.0.1
+- Update license information.
+
+## V1.4.5 12/13/2018
+### New Features
+
+#### New Board: MediaTek MT7697Hx-Dev-Kit
+The MediaTek MT7697 System on Chip (SoC) is now qualified for Amazon FreeRTOS. You can take advantage of Amazon FreeRTOS features and benefits using the MediaTek MT7697Hx Development Kit available from MediaTek Labs.  This development board contains the MT7697 SoC, which includes an Arm Cortex-M4 MCU, low power 1T1R 802.11 b/g/n Wi-Fi, Bluetooth 4.2 subsystem and power management unit.
+
+#### lwIP Support
+Amazon FreeRTOS support for the MediaTek MT7697Hx-Dev-Kit includes for the first time support for the Lightweight TCP / IP network stack (lwIP). This flexibility will support customer choice in identifying the best TCP stack solution for IoT devices.
+
+### Updates
+
+#### FreeRTOS+TCP V2.0.9
+- Update to flush ARP cache when then network is down.
+
+#### mbedTLS-based PKCS#11 V1.0.6
+- Delete extra include headers.
+
+#### PKCS #11 PAL for MT7697Hx-Dev-Kit V1.0.0
+- Add PKCS #11 support for the MediaTek MT7697Hx-Dev-Kit.
+
+#### Secure Sockets for FreeRTOS+TCP V1.1.5
+- Update documentation.
+
+#### Secure Sockets for lwIP V1.0.0
+- Add Secure Sockets support for lwIP.
+
+#### Wi-Fi for Infineon XMC4800 IoT Connectivity Kit V1.0.1
+- Update documentation.
+
+#### Wi-Fi for MT7697Hx-Dev-Kit V1.0.0
+- Add Wi-Fi support for the MediaTek MT7697Hx-Dev-Kit.
+
+## V1.4.4 11/19/2018
+### Updates
+
+#### Device Defender Demo V1.4.4
+- Remove warnings in Device Defender Demo build.
+
+#### Microchip "OTA Demo" Factory Image Script
+- Fix post-build command and python script for generating OTA factory image for Mac users.
+
+#### Device Defender Agent V1.0.2
+- Update formatting and build warnings.
+
+#### OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
+- Fix bug in retrieving code signature verification certificate.
+
+#### OTA PAL for Curiosity PIC32MZEF V1.0.2
+- Fix bug in retrieving code signature verification certificate.
+
+## V1.4.3 11/07/2018
+### New Features
+
+#### New Board: Xilinx Zynq-7000 based MicroZed Industrial IoT Bundle
+- Update Amazon FreeRTOS with port files, demo projects, and tests for the Xilinx Zynq-7000 based MicroZed Industrial IoT Bundle
+
+### Updates
+
+#### mbedTLS Library
+- Upgrade to mbedTLS version 2.13.1.
+
+#### FreeRTOS+POSIX V1.0.1
+- Minor bug fixes.
+
+#### FreeRTOS+TCP V2.0.8
+- Update the Zynq-7000 portable layer for receive descriptor alignment.
+
+#### PKCS #11 Updates
+Update mbedTLS-based PKCS #11, and PKCS #11 PAL. These changes have been made to more closely align with the PKCS #11 standard, respond to feedback from users and partners, and make it easy for users to go to production from a prototype.
+Applications calling into PKCS #11 functions directly (rather than indirectly via an Amazon provided secure sockets or TLS layer) may experience breaking changes. 
+
+##### mbedTLS-based PKCS #11
+- C_Initialize handles initialization of randomness in an effort to minimize entropy generation (or seed access) every time sessions are created and destroyed.  To protect random values, thread safety has been enabled in mbedTLS.
+- C_SignInit and C_VerifyInit utilize the key handle that is passed in, rather than the first key found in order to comply with the PKCS #11 standard
+- C_FindObject APIs no longer instantiate keys from the aws_clientcredential_keys.h header file if keys are not found. This removes the dependency of PKCS #11 on values that will be unique per-device (a transition step for enabling production-scale provisioning). Note that calling vDevModeKeyProvisioning() is now necessary to provision the device.
+- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
+- C_FindObject and C_GetAttributeValue accept different attribute arguments.
+- C_CreateObject requires DER encoded certificates and keys instead of PEM formatted and object attributes required for creating objects have changed.  Note that vDevModeKeyProvisioning() has been updated to supply required attributes and convert inputs from DER to PEM if necessary.
+- C_GenerateKeyPair now stores keys in non-volatile memory.
+- C_Finalize is no longer invoked by helper functions to prevent threads from interfering with each other's PKCS #11 instances.
+- Some error codes have been changes to better match the PKCS #11 standard.
+- aws_tls.c and PKCS #11 AFQP tests have updates to reflect these changes.
+    - mbedTLS-based PKCS #11 V1.0.5
+    - TLS V1.1.3
+
+##### PKCS #11 PAL for mbedTLS-based PKCS #11
+- Breaking changes were made to PAL PKCS #11 functions in order to transition from file-centric API to object handle and object label based API.
+    - PKCS #11 PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
+    - PKCS #11 PAL for XMC4800 IoT Kit V1.0.1
+    - PKCS #11 PAL for Curiosity PIC32MZEF V1.0.4
+    - PKCS #11 PAL for LPC54018 IoT Module V1.0.3
+    - PKCS #11 PAL for Windows Simulator V1.0.3
+    - PKCS #11 PAL for STM32L4 Discovery kit IoT node V1.0.3
+    - PKCS #11 PAL for Xilinx Zynq MicroZed V1.0.0 (new)
+
+##### PKCS #11 for CC3220SF-LAUNCHXL
+- Updates to match behavior of mbedTLS-based PKCS #11. 
+- mbedTLS added to support conversion between DER and PEM objects.  Note that after provisioning the device, mbedTLS and provisiong PKCS #11 functions may be removed to reduce code size.
+    - PKCS #11 PAL for CC3220SF-LAUNCHXL V1.0.3
+
+##### OTA PAL Updates
+- The OTA PALs for the Curiosity PIC32MZEF and ESP32-DevKitC ESP-WROVER-KIT boards have been modified to utilize PKCS #11 API to retrieve code signing keys, rather than calling into PKCS #11 PAL functions. 
+    - OTA PAL for Curiosity PIC32MZEF V1.0.1
+    - OTA PAL for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
+
+#### Secure Socket for FreeRTOS+TCP V1.1.4
+- Minor update to handle PKCS #11 error codes.
+- Update formatting.
+
+#### Secure Sockets for Infineon XMC4800 IoT Connectivity Kit V1.0.1
+- Fix the license header from Secure Socket to Secure Sockets.
+
+#### Secure Sockets for STM32L4 Discovery kit IoT node V1.0.0 Beta 4
+- Bug fix to support Amazon Trust Services endpoints. For more information, please see https://aws.amazon.com/blogs/iot/aws-iot-core-ats-endpoints/.
+
+#### Secure Sockets for CC3220SF-LAUNCHXL V1.0.5
+- Remove duplicate file name definitions.  See aws_secure_sockets_config.h for file name defines.
+
+#### Shadow V1.0.5
+- Minor bug fixes.
+
+
 ## V1.4.2 10/17/2018
 ### New Features
 
@@ -7,12 +222,6 @@
 Update Amazon FreeRTOS with port files, demo projects, and tests for the Infineon XMC4800 IoT Connectivity Kit.
 
 ### Updates
-
-#### Add checks in the OTA agent to ignore new OTA jobs while in self-test mode
-Add a filter to the OTA agent to ignore new OTA jobs until a self-test succeeds.
-
-#### Align digital signature metadata to quad-word boundaries for Microchip boards
-Update the starting addresses of cryptographic signatures used in Microchip PIC32MZEF projects to use quad-word boundaries for the purposes of facilitating Flash memory operations.
 
 #### Update pthread Implementation in ESP-IDF
 Incorporate an update to Espressif's ESP-IDF which improves the implementation of pthread.
@@ -139,10 +348,10 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 #### MQTT Agent V1.1.2
 - Move MQTT metrics to agent
 
-#### mbedTLS-based PKCS#11 V1.0.3
+#### mbedTLS-based PKCS #11 V1.0.3
 - Reduce the number of warnings generated
 
-#### PKCS#11 for LPC54018 IoT Module V1.0.1
+#### PKCS #11 for LPC54018 IoT Module V1.0.1
 - Change project baudrate setting to resolve AFQP test failures
 
 #### Secure Sockets for NXP54018_IoT_Module V1.0.0 Beta 3
@@ -168,12 +377,12 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 
 ## V1.2.7 05/31/2018
 
-- Update the Texas Instruments SimpleLink CC3220 SDK from version 1.40.01.00 to version 2.10.00.04.
+- Update the Texas Instruments SimpleLink CC3220SF SDK from version 1.40.01.00 to version 2.10.00.04.
 - Fix the MQTT Echo Demo (Hello World Demo) to avoid truncating received strings.
 - Modify the Getting Started scripts to check if the AWS CLI is configured.
 
 #### Secure Sockets for CC3220SF-LAUNCHXL V1.0.4
-- Update comments for SimpleLink CC3220 SDK version 2.10.00.04.
+- Update comments for SimpleLink CC3220SF SDK version 2.10.00.04.
 
 --------------
 
@@ -190,11 +399,11 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 #### FreeRTOS+TCP V2.0.4
  - Add Espressif ESP32 network interface support.
 
-#### mbedTLS-based PKCS#11 V1.0.3
+#### mbedTLS-based PKCS #11 V1.0.3
  - Implement C_DigestInit, C_DigestUpdate, and C_DigestFinal for SHA-256.
  - Implement C_GenerateKeyPair for non-persistent ECDSA P256.
 
-#### PKCS#11 for ESP32-DevKitC ESP-WROVER-KIT V1.0.0
+#### PKCS #11 for ESP32-DevKitC ESP-WROVER-KIT V1.0.0
  - Add support for Espressif's ESP32-DevKitC and ESP-WROVER-KIT.
 
 #### Wi-Fi STM32L4 Discovery kit IoT node V1.0.2
@@ -235,7 +444,7 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
       mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT as 0.
 
 #### OTA PAL for Curiosity PIC32MZEF V0.9.1
- - Update for PKCS#11 PAL layer API changes.
+ - Update for PKCS #11 PAL layer API changes.
 
 #### OTA PAL for Windows Simulator V0.9.2
 - Minor restructuring of file locations.
@@ -246,32 +455,32 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 #### OTA Agent V0.9.4
  - Minor restructuring of file locations.
 
-#### mbedTLS-based PKCS#11 V1.0.2
- - Combine the mbedTLS based PKCS#11 implementation from Curiosity PIC32MZEF,
+#### mbedTLS-based PKCS #11 V1.0.2
+ - Combine the mbedTLS based PKCS #11 implementation from Curiosity PIC32MZEF,
       LPC54018 IoT Module, Windows Simulator, and STM32L4 Discovery kit IoT node into a
       single file.
  - Add support for public key verification of signatures.
  - Fix to free context structures on session failure.
  - Update C_OpenSession to use CKF_SERIAL_SESSION flag.
 
-#### PKCS#11 for Curiosity PIC32MZEF V1.0.2
+#### PKCS #11 for Curiosity PIC32MZEF V1.0.2
  - Create port specific functions for certificate and key access:
       PKCS11_PAL_SaveFile(), PKCS11_PAL_ReadFile(), PKCS11_PAL_ReleaseFileData().
 
-#### PKCS#11 for LPC54018 IoT Module V1.0.1
+#### PKCS #11 for LPC54018 IoT Module V1.0.1
  - Create port specific functions for certificate and key access:
       PKCS11_PAL_SaveFile(), PKCS11_PAL_ReadFile(), PKCS11_PAL_ReleaseFileData().
 
-#### PKCS#11 PAL for Windows Simulator V1.0.2
+#### PKCS #11 PAL for Windows Simulator V1.0.2
  - Create port specific functions for certificate and key access:
       PKCS11_PAL_SaveFile(), PKCS11_PAL_ReadFile(), PKCS11_PAL_ReleaseFileData().
 
-#### PKCS#11 for STM32L4 Discovery kit IoT node V1.0.1
+#### PKCS #11 for STM32L4 Discovery kit IoT node V1.0.1
  - Create port specific functions for certificate and key access:
       PKCS11_PAL_SaveFile(), PKCS11_PAL_ReadFile(), PKCS11_PAL_ReleaseFileData().
 
-#### PKCS#11 for CC3220SF-LAUNCHXL V1.0.2
- - PKCS#11 implementation for TI based on mbedTLS moved into this file.
+#### PKCS #11 for CC3220SF-LAUNCHXL V1.0.2
+ - PKCS #11 implementation for TI based on mbedTLS moved into this file.
 
 #### Secure Socket for FreeRTOS+TCP V1.1.2
  - Combine Secure Sockets implementation for Curiosity PIC32MZEF and Windows
@@ -298,7 +507,7 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 #### TLS V1.1.1
  - Support AWS IoT Just-in-Time Registration (JITR) by sending optional
       client-issuer certificate.
- - Use CKF_SERIAL_SESSION flag with PKCS#11.
+ - Use CKF_SERIAL_SESSION flag with PKCS #11.
 
 #### Wi-Fi for Curiosity PIC32MZEF V1.0.3
  - Update for setting the MAC Address in WIFI_On() by using new FreeRTOS+TCP
@@ -339,7 +548,7 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 #### OTA PAL for Curiosity PIC32MZEF V0.9.0
  - Beta release of the OTA Update support for the Microchip Curiosity PIC32MZEF.
 
-#### PKCS#11 for Curiosity_PIC32MZEF V1.0.1
+#### PKCS #11 for Curiosity_PIC32MZEF V1.0.1
  - Add support for the management of OTA update code signing keys.
 
 #### Wi-Fi for Curiosity PIC32MZEF V1.0.1
@@ -364,7 +573,7 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 #### Amazon FreeRTOS OTA PAL for CC3220SF-LAUNCHXL V0.9.2
  - Update to support NULL OTA file handles.
 
-#### PKCS#11 for CC3220SF-LAUNCHXL V1.0.1
+#### PKCS #11 for CC3220SF-LAUNCHXL V1.0.1
  - Add a dummy variable to a previously empty structure to fix IAR compiler errors.
 
 #### Secure Socket for Windows Simulator V1.1.1
@@ -399,7 +608,7 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
       is received.
  - Rename some files.
 
-#### PKCS#11 for Windows Simulator
+#### PKCS #11 for Windows Simulator
  - Add developer mode key provisioning support.
 
 #### Secure Socket for Curiosity PIC32MZEF V1.0.1
@@ -443,7 +652,7 @@ This release includes version 1.0.0 of FreeRTOS+POSIX.  FreeRTOS+POSIX is a POSI
 #### OTA Agent V0.9.0
 - Beta release of OTA Update library for Amazon FreeRTOS. Includes support   for the Texas Instruments CC3220SF-LAUNCHXL and Windows Simulator.
 
-#### PKCS#11 for Curiosity PIC32MZEF V1.0.0 Beta 1
+#### PKCS #11 for Curiosity PIC32MZEF V1.0.0 Beta 1
 - Add support for the Microchip Curiosity PIC32MZEF.
 
 #### Secure Socket for Curiosity PIC32MZEF V1.0.0

@@ -24,6 +24,7 @@ http://www.FreeRTOS.org
 
 """
 import os
+import traceback
 from .aws_flash_serial_comm import FlashSerialComm
 from .aws_ota_project import OtaAfrProject
 from .aws_ota_aws_agent import OtaAwsAgent
@@ -56,11 +57,10 @@ class OtaTestRunner:
         self._boardConfig = boardConfig
         self._stageParams = stageParams
         self._otaConfig = boardConfig['ota_config']
-        
-        # Initialize all objects needed by test cases.
-        self._flashComm = FlashSerialComm(boardConfig['flash_config'], boardConfig['flash_config']['output'], self._otaConfig['device_firmware_file_name'])
         self._otaProject = OtaAfrProject(os.path.join(boardConfig['afr_root'], boardConfig['demos_or_tests']), boardConfig['vendor_board_path'], boardConfig['build_config'])
         self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig['aws_ota_update_role_arn'], self._otaConfig['aws_s3_bucket_name'], stageParams, True)
+        # FlashSerialComm opens a thread. If there is an exception in OtaAwsAgent we want to exit the program, so this is initialized last.
+        self._flashComm = FlashSerialComm(boardConfig['flash_config'], boardConfig['flash_config']['output'], self._otaConfig['device_firmware_file_name'])
 
         # Get the test cases from the board's ota config.
         self._otaTestCases = self.__getOtaTestCases(self._otaConfig)
@@ -82,8 +82,8 @@ class OtaTestRunner:
                 self._otaProject.setCodesignerCertificate(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
             if self._stageParams:
                 self._otaProject.setOtaDemoRunnerForSNIDisabled()
-                # FIXME: We need all boards to have the same behavior here.
-                if 'ti' in self._boardConfig['name']:
+                # Currently 12/13/2018 only the TI CC3220SF LaunchpadXL needs the Root CA to connect to other internal Amazon development stage endpoints.
+                if 'cc3220' in self._boardConfig['name']:
                     self._otaProject.setOtaUpdateDemoForRootCA()
                     self._otaProject.addRootCAToClientCredentialKeys(self._stageParams['certificate'])
                 else:
@@ -143,5 +143,17 @@ class OtaTestRunner:
     def __cleanup(self):
         """Free resources used by the OTA agent and the flash serial object.
         """
-        self._otaAwsAgent.cleanup()
-        self._flashComm.cleanup()
+        # We will want to close the serial flash thread first so that there are no outstanding threads
+        # in case cleaning AWS Resources causes exceptions.
+        try:
+            self._flashComm.cleanup()
+        except:
+            # We still want to clean up AWS resources if the serial thread fails to cleanup. So just
+            # print the exception here.
+            print(e)
+
+        try:
+            self._otaAwsAgent.cleanup()
+        except Exception as e:
+            print(e)
+            raise

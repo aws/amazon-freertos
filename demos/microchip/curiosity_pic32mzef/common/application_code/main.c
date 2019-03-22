@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,6 +36,7 @@
 /* AWS System includes. */
 #include "aws_system_init.h"
 #include "aws_clientcredential.h"
+#include "aws_dev_mode_key_provisioning.h"
 
 /* Demo application includes. */
 #include "aws_demo_config.h"
@@ -47,10 +48,11 @@
 #include "aws_application_version.h"
 
 /* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion = {
-   .u.x.ucMajor = APP_VERSION_MAJOR,
-   .u.x.ucMinor = APP_VERSION_MINOR,
-   .u.x.usBuild = APP_VERSION_BUILD,
+const AppVersion32_t xAppFirmwareVersion =
+{
+    .u.x.ucMajor = APP_VERSION_MAJOR,
+    .u.x.ucMinor = APP_VERSION_MINOR,
+    .u.x.usBuild = APP_VERSION_BUILD,
 };
 
 /* Sleep on this platform */
@@ -171,6 +173,11 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         /* The network is up so we can run. */
         if( ( SYSTEM_Init() == pdPASS ) && ( xTasksAlreadyCreated == pdFALSE ) )
         {
+            /* A simple example to demonstrate key and certificate provisioning in
+             * microcontroller flash using PKCS#11 interface. This should be replaced
+             * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning();
+
             /* Run all demos. */
             DEMO_RUNNER_RunDemos();
             xTasksAlreadyCreated = pdTRUE;
@@ -282,7 +289,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
     const char * pcApplicationHostnameHook( void )
     {
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }
@@ -365,7 +372,10 @@ void vApplicationIdleHook( void )
 void vApplicationMallocFailedHook()
 {
     taskDISABLE_INTERRUPTS();
-    for( ;; );
+
+    for( ; ; )
+    {
+    }
 }
 /*-----------------------------------------------------------*/
 

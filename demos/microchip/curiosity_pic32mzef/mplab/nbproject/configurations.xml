@@ -36,7 +36,6 @@
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="f2" displayName="microchip_code" projectFiles="true">
-        <itemPath>../common/application_code/microchip_code/rtos_hooks.c</itemPath>
         <itemPath>../common/application_code/microchip_code/system_config.h</itemPath>
         <itemPath>../common/application_code/microchip_code/system_definitions.h</itemPath>
         <itemPath>../common/application_code/microchip_code/system_exceptions.c</itemPath>
@@ -329,6 +328,7 @@
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/pk_internal.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/platform.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/platform_time.h</itemPath>
+              <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/platform_util.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/ripemd160.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/rsa.h</itemPath>
               <itemPath>../../../../lib/third_party/mbedtls/include/mbedtls/rsa_internal.h</itemPath>
@@ -398,6 +398,7 @@
             <itemPath>../../../../lib/third_party/mbedtls/library/pkwrite.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/pk_wrap.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/platform.c</itemPath>
+            <itemPath>../../../../lib/third_party/mbedtls/library/platform_util.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/ripemd160.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/rsa.c</itemPath>
             <itemPath>../../../../lib/third_party/mbedtls/library/rsa_internal.c</itemPath>
@@ -1792,7 +1793,7 @@
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
-        <makeCustomizationPostStep>${MP_CC_DIR}\xc32-objcopy -I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin &amp;&amp; python ../../../common/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
+        <makeCustomizationPostStep>python ../../../common/ota/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" &amp;&amp; python ../../../common/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>

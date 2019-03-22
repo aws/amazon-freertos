@@ -1,4 +1,4 @@
-// Copyright 2010-2017 Espressif Systems (Shanghai) PTE LTD
+// Copyright 2010-2018 Espressif Systems (Shanghai) PTE LTD
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ extern "C"
 
 #define SPI_SLAVE_TXBIT_LSBFIRST          (1<<0)  ///< Transmit command/address/data LSB first instead of the default MSB first
 #define SPI_SLAVE_RXBIT_LSBFIRST          (1<<1)  ///< Receive data LSB first instead of the default MSB first
-#define SPI_SLAVE_BIT_LSBFIRST            (SPI_TXBIT_LSBFIRST|SPI_RXBIT_LSBFIRST); ///< Transmit and receive LSB first
+#define SPI_SLAVE_BIT_LSBFIRST            (SPI_SLAVE_TXBIT_LSBFIRST|SPI_SLAVE_RXBIT_LSBFIRST) ///< Transmit and receive LSB first
 
 
 typedef struct spi_slave_transaction_t spi_slave_transaction_t;
@@ -44,8 +44,26 @@ typedef struct {
     uint32_t flags;                 ///< Bitwise OR of SPI_SLAVE_* flags
     int queue_size;                 ///< Transaction queue size. This sets how many transactions can be 'in the air' (queued using spi_slave_queue_trans but not yet finished using spi_slave_get_trans_result) at the same time
     uint8_t mode;                   ///< SPI mode (0-3)
-    slave_transaction_cb_t post_setup_cb; ///< Callback called after the SPI registers are loaded with new data
-    slave_transaction_cb_t post_trans_cb; ///< Callback called after a transaction is done
+    slave_transaction_cb_t post_setup_cb;  /**< Callback called after the SPI registers are loaded with new data.
+                                             *
+                                             *  This callback is called within interrupt
+                                             *  context should be in IRAM for best
+                                             *  performance, see "Transferring Speed"
+                                             *  section in the SPI Master documentation for
+                                             *  full details. If not, the callback may crash
+                                             *  during flash operation when the driver is
+                                             *  initialized with ESP_INTR_FLAG_IRAM.
+                                             */
+    slave_transaction_cb_t post_trans_cb;  /**< Callback called after a transaction is done.
+                                             *
+                                             *  This callback is called within interrupt
+                                             *  context should be in IRAM for best
+                                             *  performance, see "Transferring Speed"
+                                             *  section in the SPI Master documentation for
+                                             *  full details. If not, the callback may crash
+                                             *  during flash operation when the driver is
+                                             *  initialized with ESP_INTR_FLAG_IRAM.
+                                             */
 } spi_slave_interface_config_t;
 
 /**

@@ -229,7 +229,8 @@ static char * CBOR_StrCat( char * pcDest,
             /* Inefficient, but necessary to reallocate in each loop, since some
              * embedded platforms (e.g. FreeRTOS) do not implement realloc. */
             pcDest = pxCBOR_realloc( pcDest, *pxLen );
-        } while( *pxLen <= xDest_len + xSrc_len );
+        }
+        while( *pxLen <= xDest_len + xSrc_len );
     }
 
     strncat( pcDest, pcSrc, ( *pxLen - xDest_len ) );

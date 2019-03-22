@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA AFQP V1.1.1
+ * Amazon FreeRTOS OTA AFQP V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -488,7 +488,7 @@ BaseType_t prvCreateSampleGetStreamResponseMessage( uint8_t * pucMessageBuffer,
 TEST( Full_OTA_CBOR, CborOtaApi )
 {
     BaseType_t xResult = pdFALSE;
-    uint8_t ucBlockPayload[OTA_FILE_BLOCK_SIZE] = { 0 };
+    uint8_t ucBlockPayload[ OTA_FILE_BLOCK_SIZE ] = { 0 };
     uint8_t ucCborWork[ CBOR_TEST_MESSAGE_BUFFER_SIZE ];
     size_t xEncodedSize = 0;
     uint32_t ulBitmap = CBOR_TEST_BITMAP_VALUE;
@@ -561,7 +561,7 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     size_t xEncodedSize = 0;
     OTA_FileContext_t xOTAFileContext = { 0 };
     Sig256_t xSig = { 0 };
-    uint8_t *pucInFile = NULL;
+    uint8_t * pucInFile = NULL;
     size_t xBlockBitmapSize = 0;
     uint8_t ucSignature[] =
     {
@@ -592,29 +592,30 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     /* Test OTA agent data block handling internals. Needs to be read/write
      * since we read it back in order to ensure that the blocks are hashed in
      * order. */
-    xOTAFileContext.pstFile = fopen( "testOtaFile.bin", "w+b" );
-    TEST_ASSERT_NOT_NULL( xOTAFileContext.pstFile );
+    xOTAFileContext.pxFile = fopen( "testOtaFile.bin", "w+b" );
+    TEST_ASSERT_NOT_NULL( xOTAFileContext.pxFile );
     xOTAFileContext.ulBlocksRemaining =
         xOTAFileContext.ulFileSize / OTA_FILE_BLOCK_SIZE;
+
     if( 0 != xOTAFileContext.ulFileSize % OTA_FILE_BLOCK_SIZE )
     {
         xOTAFileContext.ulBlocksRemaining++;
     }
 
     xBlockBitmapSize = 1 + ( xOTAFileContext.ulFileSize / BITS_PER_BYTE );
-    xOTAFileContext.pacRxBlockBitmap = pvPortMalloc( xBlockBitmapSize );
-    TEST_ASSERT_NOT_NULL( xOTAFileContext.pacRxBlockBitmap );
-    memset( xOTAFileContext.pacRxBlockBitmap, 0xFF, xBlockBitmapSize );
+    xOTAFileContext.pucRxBlockBitmap = pvPortMalloc( xBlockBitmapSize );
+    TEST_ASSERT_NOT_NULL( xOTAFileContext.pucRxBlockBitmap );
+    memset( xOTAFileContext.pucRxBlockBitmap, 0xFF, xBlockBitmapSize );
 
-    xOTAFileContext.pacCertFilepath = "rsasigner.crt";
+    xOTAFileContext.pucCertFilepath = "rsasigner.crt";
     xOTAFileContext.pxSignature = &xSig;
     memcpy( xOTAFileContext.pxSignature->ucData, ucSignature, sizeof( ucSignature ) );
     xOTAFileContext.pxSignature->usSize = sizeof( ucSignature );
 
     /* Process the signed file by chunks. */
-    for(    size_t xBlock = 0;
-            ( xBlock * OTA_FILE_BLOCK_SIZE ) < xOTAFileContext.ulFileSize;
-            xBlock++ )
+    for( size_t xBlock = 0;
+         ( xBlock * OTA_FILE_BLOCK_SIZE ) < xOTAFileContext.ulFileSize;
+         xBlock++ )
     {
         /* Create the encoded data block response. */
         xChunkSize = min(
@@ -636,15 +637,16 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
             ucCborWork,
             xEncodedSize,
             &xCloseResult );
+
         if( ( xBlock * OTA_FILE_BLOCK_SIZE ) + xChunkSize == xOTAFileContext.ulFileSize )
         {
             TEST_ASSERT_EQUAL_INT32( xResultIngest, eIngest_Result_FileComplete );
         }
         else
         {
-            // eIngest_Result_Accepted_Continue = 0
-            // eIngest_Result_Duplicate_Continue = 1,  /* The block was a duplicate but that's OK. Continue. */
-            if ( (xResultIngest != eIngest_Result_Accepted_Continue) && (xResultIngest != eIngest_Result_Duplicate_Continue) )
+            /* eIngest_Result_Accepted_Continue = 0 */
+            /* eIngest_Result_Duplicate_Continue = 1, - The block was a duplicate but that's OK. Continue. */
+            if( ( xResultIngest != eIngest_Result_Accepted_Continue ) && ( xResultIngest != eIngest_Result_Duplicate_Continue ) )
             {
                 TEST_ASSERT_EQUAL_INT32_MESSAGE( eIngest_Result_Accepted_Continue, xResultIngest, "Result was not accepted or duplicate continue" );
             }
@@ -652,9 +654,9 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     }
 
     /* Clean-up. */
-    if( NULL != xOTAFileContext.pstFile )
+    if( NULL != xOTAFileContext.pxFile )
     {
-        fclose( xOTAFileContext.pstFile );
+        fclose( xOTAFileContext.pxFile );
     }
 
     if( NULL != pucInFile )

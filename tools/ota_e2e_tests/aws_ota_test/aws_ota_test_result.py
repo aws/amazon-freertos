@@ -49,7 +49,7 @@ class OtaTestResult:
         Args:
             testName(str): The name of the test case.
             passOrFail(str): OtaTestResult.PASS or OtaTestResult.FAIL
-            jobStatus(nametuple(status reason)): This is typically from OtaAwsAgent.pollJobCompletion() or OtaAwsAgent.__getJobStatus().
+            jobStatus(nametuple(status reason)): This is typically from OtaAwsAgent.pollOtaUpdateCompletion() or OtaAwsAgent.__getJobStatus().
         Returns an OtaTestResult.
         """
         if passOrFail == OtaTestResult.PASS:

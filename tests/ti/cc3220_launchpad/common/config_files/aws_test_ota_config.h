@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.1
+ * Amazon FreeRTOS V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,7 +40,7 @@
 /**
  * @brief Some boards have a hard-coded name for the firmware image to boot.
  */
-#define otatestpalFRIMWARE_FILE  "/sys/mcuflashimg.bin"
+#define otatestpalFIRMWARE_FILE  "/sys/mcuflashimg.bin"
 
 /**
  * @brief Some boards will use aws_codesigner_certificate.h instead of a pre-provisioned
@@ -57,6 +57,11 @@
  * @brief 1 if prvPAL_ReadAndAssumeCertificate is implemented in the aws_ota_pal.c.
  */
 #define otatestpalREAD_AND_ASSUME_CERTIFICATE_SUPPORTED    0 
+
+/**
+ * @brief 1 if using PKCS #11 to access the code sign certificate from NVM.
+ */
+#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    0
 
 /**
  * @brief Include of signature testing data applicable to this device.

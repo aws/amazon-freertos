@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Test Runner V1.1.1
+ * Amazon FreeRTOS Test Runner V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -116,7 +116,8 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_PKCS11_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_PKCS11 );
+        RUN_TEST_GROUP( Full_PKCS11_CryptoOperation );
+        RUN_TEST_GROUP( Full_PKCS11_GeneralPurpose );
     #endif
 
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA PAL for Windows Simulator V1.0.1
+ * Amazon FreeRTOS OTA PAL for Windows Simulator V1.0.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,7 +33,7 @@
 #include "aws_ota_agent_internal.h"
 
 /* Specify the OTA signature algorithm we support on this platform. */
-const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
+const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 
 static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C );
 static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertName,
@@ -44,7 +44,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 static inline BaseType_t prvContextValidate( OTA_FileContext_t * C )
 {
     return( ( C != NULL ) &&
-            ( C->pstFile != NULL ) ); /*lint !e9034 Comparison is correct for file pointer type. */
+            ( C->pxFile != NULL ) ); /*lint !e9034 Comparison is correct for file pointer type. */
 }
 
 /* Used to set the high bit of Windows error codes for a negative return value. */
@@ -63,12 +63,12 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
 
     if( C != NULL )
     {
-        if ( C->pacFilepath != NULL )
+        if ( C->pucFilePath != NULL )
         {
-            C->pstFile = fopen( ( const char * )C->pacFilepath, "w+b" ); /*lint !e586
+            C->pxFile = fopen( ( const char * )C->pucFilePath, "w+b" ); /*lint !e586
                                                                            * C standard library call is being used for portability. */
 
-            if ( C->pstFile != NULL )
+            if ( C->pxFile != NULL )
             {
                 eResult = kOTA_Err_None;
                 OTA_LOG_L1( "[%s] Receive file created.\r\n", OTA_METHOD_NAME );
@@ -111,11 +111,11 @@ OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C )
     if( NULL != C )
     {
         /* Close the OTA update file if it's open. */
-        if( NULL != C->pstFile )
+        if( NULL != C->pxFile )
         {
-            lFileCloseResult = fclose( C->pstFile ); /*lint !e482 !e586
+            lFileCloseResult = fclose( C->pxFile ); /*lint !e482 !e586
                                                       * Context file handle state is managed by this API. */
-            C->pstFile = NULL;
+            C->pxFile = NULL;
 
             if( 0 == lFileCloseResult )
             {
@@ -157,12 +157,12 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
 
     if( prvContextValidate( C ) == pdTRUE )
     {
-        lResult = fseek( C->pstFile, ulOffset, SEEK_SET ); /*lint !e586 !e713 !e9034
+        lResult = fseek( C->pxFile, ulOffset, SEEK_SET ); /*lint !e586 !e713 !e9034
                                                             * C standard library call is being used for portability. */
 
         if( 0 == lResult )
         {
-            lResult = fwrite( pacData, 1, ulBlockSize, C->pstFile ); /*lint !e586 !e713 !e9034
+            lResult = fwrite( pacData, 1, ulBlockSize, C->pxFile ); /*lint !e586 !e713 !e9034
                                                                       * C standard library call is being used for portability. */
 
             if( lResult < 0 )
@@ -215,9 +215,9 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
         }
 
         /* Close the file. */
-        lWindowsError = fclose( C->pstFile ); /*lint !e482 !e586
+        lWindowsError = fclose( C->pxFile ); /*lint !e482 !e586
                                                * C standard library call is being used for portability. */
-        C->pstFile = NULL;
+        C->pxFile = NULL;
 
         if( lWindowsError != 0 )
         {
@@ -229,12 +229,12 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C )
 
         if( eResult == kOTA_Err_None )
         {
-            OTA_LOG_L1( "[%s] %s signature verification passed.\r\n", OTA_METHOD_NAME, pcOTA_JSON_FileSignatureKey );
+            OTA_LOG_L1( "[%s] %s signature verification passed.\r\n", OTA_METHOD_NAME, cOTA_JSON_FileSignatureKey );
         }
         else
         {
             OTA_LOG_L1( "[%s] ERROR - Failed to pass %s signature verification: %d.\r\n", OTA_METHOD_NAME,
-                        pcOTA_JSON_FileSignatureKey, eResult );
+                        cOTA_JSON_FileSignatureKey, eResult );
 
 			/* If we fail to verify the file signature that means the image is not valid. We need to set the image state to aborted. */
 			prvPAL_SetPlatformImageState( eOTA_ImageState_Aborted );
@@ -274,8 +274,8 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
         else
         {
             OTA_LOG_L1( "[%s] Started %s signature verification, file: %s\r\n", OTA_METHOD_NAME,
-                        pcOTA_JSON_FileSignatureKey, ( const char * ) C->pacCertFilepath );
-            pucSignerCert = prvPAL_ReadAndAssumeCertificate( ( const uint8_t * const ) C->pacCertFilepath, &ulSignerCertSize );
+                        cOTA_JSON_FileSignatureKey, ( const char * ) C->pucCertFilepath );
+            pucSignerCert = prvPAL_ReadAndAssumeCertificate( ( const uint8_t * const ) C->pucCertFilepath, &ulSignerCertSize );
 
             if( pucSignerCert != NULL )
             {
@@ -284,12 +284,12 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
                 if( pucBuf != NULL )
                 {
                     /* Rewind the received file to the beginning. */
-                    if( fseek( C->pstFile, 0L, SEEK_SET ) == 0 ) /*lint !e586
+                    if( fseek( C->pxFile, 0L, SEEK_SET ) == 0 ) /*lint !e586
                                                                   * C standard library call is being used for portability. */
                     {
                         do
                         {
-                            ulBytesRead = fread( pucBuf, 1, OTA_PAL_WIN_BUF_SIZE, C->pstFile ); /*lint !e586
+                            ulBytesRead = fread( pucBuf, 1, OTA_PAL_WIN_BUF_SIZE, C->pxFile ); /*lint !e586
                                                                                                * C standard library call is being used for portability. */
                             /* Include the file chunk in the signature validation. Zero size is OK. */
                             CRYPTO_SignatureVerificationUpdate( pvSigVerifyContext, pucBuf, ulBytesRead );
@@ -349,26 +349,26 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 {
     DEFINE_OTA_METHOD_NAME( "prvPAL_ReadAndAssumeCertificate" );
 
-    FILE * pstFile;
+    FILE * pxFile;
     uint8_t * pucSignerCert = NULL;
     int32_t lSize = 0; /* For MISRA mandatory. */
     int32_t lWindowsError;
 
-    pstFile = fopen( ( const char * ) pucCertName, "rb" ); /*lint !e586
+    pxFile = fopen( ( const char * ) pucCertName, "rb" ); /*lint !e586
                                                             * C standard library call is being used for portability. */
 
-    if( pstFile != NULL )
+    if( pxFile != NULL )
     {
-        lWindowsError = fseek( pstFile, 0, SEEK_END );         /*lint !e586
+        lWindowsError = fseek( pxFile, 0, SEEK_END );         /*lint !e586
                                                                 * C standard library call is being used for portability. */
 
         if( lWindowsError == 0 )                               /* fseek returns a non-zero value on error. */
         {
-            lSize = ( s32 ) ftell( pstFile );                  /*lint !e586 Allow call in this context. */
+            lSize = ( s32 ) ftell( pxFile );                  /*lint !e586 Allow call in this context. */
 
             if( lSize != -1L )                                 /* ftell returns -1 on error. */
             {
-                lWindowsError = fseek( pstFile, 0, SEEK_SET ); /*lint !e586
+                lWindowsError = fseek( pxFile, 0, SEEK_SET ); /*lint !e586
                                                                 * C standard library call is being used for portability. */
             }
             else /* ftell returned an error, pucSignerCert remains NULL. */
@@ -385,7 +385,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
 
         if( pucSignerCert != NULL )
         {
-            if( fread( pucSignerCert, 1, lSize, pstFile ) == ( size_t ) lSize ) /*lint !e586 !e732 !e9034
+            if( fread( pucSignerCert, 1, lSize, pxFile ) == ( size_t ) lSize ) /*lint !e586 !e732 !e9034
                                                                                  * C standard library call is being used for portability. */
             {
                 /* The crypto code requires the terminating zero to be part of the length so add 1 to the size. */
@@ -404,7 +404,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
             /* Nothing special to do. */
         }
 
-        lWindowsError = fclose( pstFile ); /*lint !e586
+        lWindowsError = fclose( pxFile ); /*lint !e586
                                             * C standard library call is being used for portability. */
 
         if( lWindowsError != 0 )

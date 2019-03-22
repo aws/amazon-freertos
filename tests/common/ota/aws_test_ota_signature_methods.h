@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA AFQP V1.1.1
+ * Amazon FreeRTOS OTA AFQP V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,6 @@
  * @file aws_test_ota_signature_methods.h
  * @brief List of all currently supported code signer signature methods for AWS OTA testing.
  */
-#define otatestSIG_SHA256_ECDSA     1
-#define otatestSIG_SHA1_RSA         2
-#define otatestSIG_SHA256_RSA       3
+#define otatestSIG_SHA256_ECDSA    1
+#define otatestSIG_SHA1_RSA        2
+#define otatestSIG_SHA256_RSA      3

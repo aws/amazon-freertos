@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA AFQP V1.1.1
+ * Amazon FreeRTOS OTA AFQP V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -89,4 +89,4 @@ static const int ucValidSignatureLength = 256;
 /**
  * @brief The type of signature method this file defines for the valid signature.
  */
-#define otatestSIG_METHOD   otatestSIG_SHA1_RSA
+#define otatestSIG_METHOD    otatestSIG_SHA1_RSA

@@ -1,0 +1,4 @@
+THIRPARTY=false
+PROCESSOR=ps7_cortexa9_0
+HW_PROJECT_REFERENCE=MicroZed_hw_platform_0
+MSS_FILE=system.mss

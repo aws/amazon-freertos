@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.1.1
+ * Amazon FreeRTOS Device Defender Agent V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -543,9 +543,10 @@ static void PublishJsonToDevDef( MQTTAgentHandle_t pxMQTTAgent,
         TEST_ASSERT_EQUAL_STRING( StateAsString( state ),        \
                                   StateAsString( StateGet() ) ); \
         while( state == StateGet() ) {                           \
-            ;                                                    \
+                                                                 \
         }                                                        \
-    } while( 0 )
+    }                                                            \
+    while( 0 )
 
 #define DEFENDER_AssertState( state )                 \
     TEST_ASSERT_EQUAL_STRING( StateAsString( state ), \

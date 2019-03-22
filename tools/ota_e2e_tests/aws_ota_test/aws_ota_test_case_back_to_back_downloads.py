@@ -50,10 +50,10 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
         self._otaProject.setApplicationVersion(x, y, z)
         # Build the OTA image.
         self._otaProject.buildProject()
-        # Start an OTA job.
-        jobId = self._otaAwsAgent.quickCreateJob(self._otaConfig)
+        # Start an OTA Update.
+        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig)
         # Poll on completion
-        jobStatus = self._otaAwsAgent.pollJobCompletion(jobId, self._otaConfig['ota_timeout_sec'])
+        jobStatus = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
         return jobStatus
 
     def run(self):

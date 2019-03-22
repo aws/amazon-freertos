@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V1.0.4
+ * Amazon FreeRTOS Shadow V1.0.5
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -832,24 +832,39 @@ static BaseType_t prvShadowMQTTCallback( void * pvUserData,
                 switch( xOperationName )
                 {
                     case eShadowOperationUpdateDocuments:
-                        xReturn = pxCallbackCatalogEntry->xCallbackInfo.xShadowUpdatedCallback( pvUserData,
-                                                                                                pxCallbackCatalogEntry->xCallbackInfo.pcThingName,
-                                                                                                ( const char * ) pxPublishData->pvData,
-                                                                                                pxPublishData->ulDataLength,
-                                                                                                pxPublishData->xBuffer );
+
+                        if( pxCallbackCatalogEntry->xCallbackInfo.xShadowUpdatedCallback != NULL )
+                        {
+                            xReturn = pxCallbackCatalogEntry->xCallbackInfo.xShadowUpdatedCallback( pvUserData,
+                                                                                                    pxCallbackCatalogEntry->xCallbackInfo.pcThingName,
+                                                                                                    ( const char * ) pxPublishData->pvData,
+                                                                                                    pxPublishData->ulDataLength,
+                                                                                                    pxPublishData->xBuffer );
+                        }
+
                         break;
 
                     case eShadowOperationUpdateDelta:
-                        xReturn = pxCallbackCatalogEntry->xCallbackInfo.xShadowDeltaCallback( pvUserData,
-                                                                                              pxCallbackCatalogEntry->xCallbackInfo.pcThingName,
-                                                                                              ( const char * ) pxPublishData->pvData,
-                                                                                              pxPublishData->ulDataLength,
-                                                                                              pxPublishData->xBuffer );
+
+                        if( pxCallbackCatalogEntry->xCallbackInfo.xShadowDeltaCallback != NULL )
+                        {
+                            xReturn = pxCallbackCatalogEntry->xCallbackInfo.xShadowDeltaCallback( pvUserData,
+                                                                                                  pxCallbackCatalogEntry->xCallbackInfo.pcThingName,
+                                                                                                  ( const char * ) pxPublishData->pvData,
+                                                                                                  pxPublishData->ulDataLength,
+                                                                                                  pxPublishData->xBuffer );
+                        }
+
                         break;
 
                     case eShadowOperationDeletedByAnother:
-                        pxCallbackCatalogEntry->xCallbackInfo.xShadowDeletedCallback( pvUserData,
-                                                                                      pxCallbackCatalogEntry->xCallbackInfo.pcThingName );
+
+                        if( pxCallbackCatalogEntry->xCallbackInfo.xShadowDeletedCallback != NULL )
+                        {
+                            pxCallbackCatalogEntry->xCallbackInfo.xShadowDeletedCallback( pvUserData,
+                                                                                          pxCallbackCatalogEntry->xCallbackInfo.pcThingName );
+                        }
+
                         break;
 
                     default:
@@ -1227,8 +1242,8 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
                 if( xSemaphoreTake( pxShadowClient->xCallbackSemaphore,
                                     xTimeOutData.xTicksRemaining ) != pdPASS )
                 {
-                    Shadow_debug_printf( ( "[Shadow %d] Timeout waiting on"
-                                           " %s accepted/rejected.\r\n",
+                    Shadow_debug_printf( ( "[Shadow %d] Error while waiting for"
+                                           " %s accepted/rejected callback.\r\n",
                                            pxParams->xShadowClientID,
                                            pxParams->pcOperationName ) );
                     xReturn = eShadowTimeout;

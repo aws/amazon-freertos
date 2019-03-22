@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,6 +39,9 @@
  * AWS endpoint, certificate, private key & thing name. */
 #include "aws_clientcredential.h"
 
+#include "aws_default_root_certificates.h"
+#include "aws_secure_sockets_config.h"
+
 /* Demo priorities & stack sizes. */
 #include "aws_demo_config.h"
 
@@ -48,6 +51,7 @@
 
 /* Wi-Fi Interface files. */
 #include "aws_wifi.h"
+#include "aws_pkcs11.h"
 
 /* Demo files. */
 #include "aws_logging_task.h"
@@ -58,6 +62,7 @@
 /* TI-Driver includes. */
 #include <ti/drivers/GPIO.h>
 #include <ti/drivers/SPI.h>
+#include <ti/drivers/net/wifi/simplelink.h>
 
 /* CC3220SF board file. */
 #include "Board.h"
@@ -76,12 +81,14 @@ const AppVersion32_t xAppFirmwareVersion =
 /* The length of the logging task's queue to hold messages. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
 void vApplicationDaemonTaskStartupHook( void );
 static void prvWifiConnect( void );
+static CK_RV prvProvisionRootCA( void );
+static void prvShowTiCc3220SecurityAlertCounts( void );
 
 /**
  * @brief Performs board and logging initializations, then starts the OS.
@@ -135,6 +142,7 @@ void vApplicationDaemonTaskStartupHook( void )
     /* Initialize Wi-Fi module. This is called before key provisioning because
      * initializing the Wi-Fi module also initializes the CC3220SF's file system. */
     xWifiStatus = WIFI_On();
+
     if( xWifiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "Wi-Fi module initialized.\r\n" ) );
@@ -157,15 +165,69 @@ void vApplicationDaemonTaskStartupHook( void )
      * initializing the TI File System using WIFI_On. */
     vDevModeKeyProvisioning();
 
+    prvProvisionRootCA();
+
     /* Initialize the AWS Libraries system. */
-    if ( SYSTEM_Init() == pdPASS )
+    if( SYSTEM_Init() == pdPASS )
     {
         prvWifiConnect();
 
+        /* Show the possible security alerts that will affect re-flashing the device. 
+         * When the number of security alerts reaches the threshold, the device file system is locked and 
+         * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed 
+         * here for debugging purposes. */
+        prvShowTiCc3220SecurityAlertCounts();
+
         DEMO_RUNNER_RunDemos();
     }
-
 }
+
+/* ----------------------------------------------------------*/
+
+/**
+ * @brief Imports the trusted Root CA required for a connection to
+ * AWS IoT endpoint.
+ */
+CK_RV prvProvisionRootCA( void )
+{
+    uint8_t * pucRootCA = NULL;
+    uint32_t ulRootCALength = 0;
+    CK_RV xResult = CKR_OK;
+    CK_FUNCTION_LIST_PTR xFunctionList;
+    CK_SLOT_ID xSlotId;
+    CK_SESSION_HANDLE xSessionHandle;
+    CK_OBJECT_HANDLE xCertificateHandle;
+
+    /* Use either Verisign or Starfield root CA,
+     * depending on whether this is an ATS endpoint. */
+    if( strstr( clientcredentialMQTT_BROKER_ENDPOINT, "-ats.iot" ) == NULL )
+    {
+        pucRootCA = ( uint8_t * ) tlsVERISIGN_ROOT_CERTIFICATE_PEM;
+        ulRootCALength = tlsVERISIGN_ROOT_CERTIFICATE_LENGTH;
+    }
+    else
+    {
+        pucRootCA = ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM;
+        ulRootCALength = tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH;
+    }
+
+    xResult = xInitializePkcsSession( &xFunctionList,
+                                      &xSlotId,
+                                      &xSessionHandle );
+
+    if( xResult == CKR_OK )
+    {
+        xResult = xProvisionCertificate( xSessionHandle,
+                                         pucRootCA,
+                                         ulRootCALength,
+                                         pkcs11configLABEL_ROOT_CERTIFICATE,
+                                         &xCertificateHandle );
+    }
+
+    return xResult;
+}
+
+
 /* ----------------------------------------------------------*/
 
 /**
@@ -176,7 +238,7 @@ static void prvWifiConnect( void )
 {
     WIFIReturnCode_t xWifiStatus;
     WIFINetworkParams_t xNetworkParams;
-    uint8_t ucTempIp[4];
+    uint8_t ucTempIp[ 4 ];
 
     /* Initialize Network params. */
     xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
@@ -188,17 +250,18 @@ static void prvWifiConnect( void )
 
     /* Connect to Wi-Fi. */
     xWifiStatus = WIFI_ConnectAP( &xNetworkParams );
+
     if( xWifiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "Wi-Fi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
         xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus )
+
+        if( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
         }
-
     }
     else
     {
@@ -241,7 +304,10 @@ static void prvWifiConnect( void )
 void vApplicationMallocFailedHook()
 {
     taskDISABLE_INTERRUPTS();
-    for( ;; );
+
+    for( ; ; )
+    {
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -327,21 +393,22 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Socket event handler function.
- *
- * TI SimpleLink driver expects this function to be defined to notify
- * various socket events. The actual socket event handler funtion is
- * defined by the secure sockets layer in the file lib\secure_sockets\
- * portable\ti\cc3220_launchpad\aws_secure_sockets.c. If the user chooses
- * not to download secure sockets library, this weak definition ensures
- * that there are no linker errors.
- *
- * @param  pSlSockEvent Pointer to a structure containing the socket event
- * and the relevant data.
- *
- * @see SlSockEvent_t.
+ * @brief In the Texas Instruments CC3220(SF) device, we retrieve the number of security alerts and the threshold.
  */
-void portWEAK_SYMBOL SimpleLinkSockEventHandler( void )
+static void prvShowTiCc3220SecurityAlertCounts( void )
 {
-    configPRINTF( ( "Call of stub socket event handler.\r\n" ) );
+    int32_t lResult;
+    SlFsControlGetStorageInfoResponse_t xStorageResponseInfo;
+
+    lResult = sl_FsCtl( ( SlFsCtl_e ) SL_FS_CTL_GET_STORAGE_INFO, 0, NULL, NULL, 0, ( _u8 * ) &xStorageResponseInfo, sizeof( SlFsControlGetStorageInfoResponse_t ), NULL );
+
+    if( lResult == 0 )
+    {
+        configPRINTF( ( "Security alert threshold = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlertsThreshold ) );
+        configPRINTF( ( "Current number of alerts = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlerts ) );
+    }
+    else
+    {
+        configPRINTF( ( "sl_FsCtl failed with error code: %d\r\n", lResult ) );
+    }
 }

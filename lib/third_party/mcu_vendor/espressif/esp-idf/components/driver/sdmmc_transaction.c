@@ -74,10 +74,13 @@ static esp_pm_lock_handle_t s_pm_lock;
 
 static esp_err_t handle_idle_state_events();
 static sdmmc_hw_cmd_t make_hw_cmd(sdmmc_command_t* cmd);
-static esp_err_t handle_event(sdmmc_command_t* cmd, sdmmc_req_state_t* pstate);
-static esp_err_t process_events(sdmmc_event_t evt, sdmmc_command_t* cmd, sdmmc_req_state_t* pstate);
+static esp_err_t handle_event(sdmmc_command_t* cmd, sdmmc_req_state_t* state,
+        sdmmc_event_t* unhandled_events);
+static esp_err_t process_events(sdmmc_event_t evt, sdmmc_command_t* cmd,
+        sdmmc_req_state_t* pstate, sdmmc_event_t* unhandled_events);
 static void process_command_response(uint32_t status, sdmmc_command_t* cmd);
 static void fill_dma_descriptors(size_t num_desc);
+static size_t get_free_descriptors_count();
 
 esp_err_t sdmmc_host_transaction_handler_init()
 {
@@ -111,6 +114,7 @@ void sdmmc_host_transaction_handler_deinit()
 
 esp_err_t sdmmc_host_do_transaction(int slot, sdmmc_command_t* cmdinfo)
 {
+    esp_err_t ret;
     xSemaphoreTake(s_request_mutex, portMAX_DELAY);
 #ifdef CONFIG_PM_ENABLE
     esp_pm_lock_acquire(s_pm_lock);
@@ -120,15 +124,18 @@ esp_err_t sdmmc_host_do_transaction(int slot, sdmmc_command_t* cmdinfo)
     // convert cmdinfo to hardware register value
     sdmmc_hw_cmd_t hw_cmd = make_hw_cmd(cmdinfo);
     if (cmdinfo->data) {
-        if (cmdinfo->datalen < 4 || cmdinfo->blklen % 4 != 0) {
-            ESP_LOGD(TAG, "%s: invalid size: total=%d block=%d",
-                    __func__, cmdinfo->datalen, cmdinfo->blklen);
-            return ESP_ERR_INVALID_SIZE;
+        // Length should be either <4 or >=4 and =0 (mod 4).
+        if (cmdinfo->datalen >= 4 && cmdinfo->datalen % 4 != 0) {
+            ESP_LOGD(TAG, "%s: invalid size: total=%d",
+                    __func__, cmdinfo->datalen);
+            ret = ESP_ERR_INVALID_SIZE;
+            goto out;
         }
         if ((intptr_t) cmdinfo->data % 4 != 0 ||
                 !esp_ptr_dma_capable(cmdinfo->data)) {
             ESP_LOGD(TAG, "%s: buffer %p can not be used for DMA", __func__, cmdinfo->data);
-            return ESP_ERR_INVALID_ARG;
+            ret = ESP_ERR_INVALID_ARG;
+            goto out;
         }
         // this clears "owned by IDMAC" bits
         memset(s_dma_desc, 0, sizeof(s_dma_desc));
@@ -145,26 +152,50 @@ esp_err_t sdmmc_host_do_transaction(int slot, sdmmc_command_t* cmdinfo)
         sdmmc_host_dma_prepare(&s_dma_desc[0], cmdinfo->blklen, cmdinfo->datalen);
     }
     // write command into hardware, this also sends the command to the card
-    esp_err_t ret = sdmmc_host_start_command(slot, hw_cmd, cmdinfo->arg);
+    ret = sdmmc_host_start_command(slot, hw_cmd, cmdinfo->arg);
     if (ret != ESP_OK) {
-        xSemaphoreGive(s_request_mutex);
-        return ret;
+        goto out;
     }
     // process events until transfer is complete
     cmdinfo->error = ESP_OK;
     sdmmc_req_state_t state = SDMMC_SENDING_CMD;
+    sdmmc_event_t unhandled_events = { 0 };
     while (state != SDMMC_IDLE) {
-        ret = handle_event(cmdinfo, &state);
+        ret = handle_event(cmdinfo, &state, &unhandled_events);
         if (ret != ESP_OK) {
             break;
         }
     }
     s_is_app_cmd = (ret == ESP_OK && cmdinfo->opcode == MMC_APP_CMD);
+
+out:
 #ifdef CONFIG_PM_ENABLE
     esp_pm_lock_release(s_pm_lock);
 #endif
     xSemaphoreGive(s_request_mutex);
     return ret;
+}
+
+static size_t get_free_descriptors_count()
+{
+    const size_t next = s_cur_transfer.next_desc;
+    size_t count = 0;
+    /* Starting with the current DMA descriptor, count the number of
+     * descriptors which have 'owned_by_idmac' set to 0. These are the
+     * descriptors already processed by the DMA engine.
+     */
+    for (size_t i = 0; i < SDMMC_DMA_DESC_CNT; ++i) {
+        sdmmc_desc_t* desc = &s_dma_desc[(next + i) % SDMMC_DMA_DESC_CNT];
+        if (desc->owned_by_idmac) {
+            break;
+        }
+        ++count;
+        if (desc->next_desc_ptr == NULL) {
+            /* final descriptor in the chain */
+            break;
+        }
+    }
+    return count;
 }
 
 static void fill_dma_descriptors(size_t num_desc)
@@ -185,7 +216,8 @@ static void fill_dma_descriptors(size_t num_desc)
         desc->owned_by_idmac = 1;
         desc->buffer1_ptr = s_cur_transfer.ptr;
         desc->next_desc_ptr = (last) ? NULL : &s_dma_desc[(next + 1) % SDMMC_DMA_DESC_CNT];
-        desc->buffer1_size = size_to_fill;
+        assert(size_to_fill < 4 || size_to_fill % 4 == 0);
+        desc->buffer1_size = (size_to_fill + 3) & (~3);
 
         s_cur_transfer.size_remaining -= size_to_fill;
         s_cur_transfer.ptr += size_to_fill;
@@ -218,10 +250,11 @@ static esp_err_t handle_idle_state_events()
 }
 
 
-static esp_err_t handle_event(sdmmc_command_t* cmd, sdmmc_req_state_t* state)
+static esp_err_t handle_event(sdmmc_command_t* cmd, sdmmc_req_state_t* state,
+        sdmmc_event_t* unhandled_events)
 {
-    sdmmc_event_t evt;
-    esp_err_t err = sdmmc_host_wait_for_event(cmd->timeout_ms / portTICK_PERIOD_MS, &evt);
+    sdmmc_event_t event;
+    esp_err_t err = sdmmc_host_wait_for_event(cmd->timeout_ms / portTICK_PERIOD_MS, &event);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "sdmmc_host_wait_for_event returned 0x%x", err);
         if (err == ESP_ERR_TIMEOUT) {
@@ -229,9 +262,24 @@ static esp_err_t handle_event(sdmmc_command_t* cmd, sdmmc_req_state_t* state)
         }
         return err;
     }
-    ESP_LOGV(TAG, "sdmmc_handle_event: evt %08x %08x", evt.sdmmc_status, evt.dma_status);
-    process_events(evt, cmd, state);
+    ESP_LOGV(TAG, "sdmmc_handle_event: event %08x %08x, unhandled %08x %08x",
+            event.sdmmc_status, event.dma_status,
+            unhandled_events->sdmmc_status, unhandled_events->dma_status);
+    event.sdmmc_status |= unhandled_events->sdmmc_status;
+    event.dma_status |= unhandled_events->dma_status;
+    process_events(event, cmd, state, unhandled_events);
+    ESP_LOGV(TAG, "sdmmc_handle_event: events unhandled: %08x %08x", unhandled_events->sdmmc_status, unhandled_events->dma_status);
     return ESP_OK;
+}
+
+static bool cmd_needs_auto_stop(const sdmmc_command_t* cmd)
+{
+    /* SDMMC host needs an "auto stop" flag for the following commands: */
+    return cmd->datalen > 0 &&
+           (cmd->opcode == MMC_WRITE_BLOCK_MULTIPLE ||
+            cmd->opcode == MMC_READ_BLOCK_MULTIPLE ||
+            cmd->opcode == MMC_WRITE_DAT_UNTIL_STOP ||
+            cmd->opcode == MMC_READ_DAT_UNTIL_STOP);
 }
 
 static sdmmc_hw_cmd_t make_hw_cmd(sdmmc_command_t* cmd)
@@ -246,9 +294,8 @@ static sdmmc_hw_cmd_t make_hw_cmd(sdmmc_command_t* cmd)
     } else {
         res.wait_complete = 1;
     }
-    if (s_is_app_cmd && cmd->opcode == SD_APP_SET_BUS_WIDTH) {
-        res.send_auto_stop = 1;
-        res.data_expected = 1;
+    if (cmd->opcode == MMC_GO_IDLE_STATE) {
+        res.send_init = 1;
     }
     if (cmd->flags & SCF_RSP_PRESENT) {
         res.response_expect = 1;
@@ -266,12 +313,11 @@ static sdmmc_hw_cmd_t make_hw_cmd(sdmmc_command_t* cmd)
             res.rw = 1;
         }
         assert(cmd->datalen % cmd->blklen == 0);
-        if ((cmd->datalen / cmd->blklen) > 1) {
-            res.send_auto_stop = 1;
-        }
+        res.send_auto_stop = cmd_needs_auto_stop(cmd) ? 1 : 0;
     }
-    ESP_LOGV(TAG, "%s: opcode=%d, rexp=%d, crc=%d", __func__,
-            res.cmd_index, res.response_expect, res.check_response_crc);
+    ESP_LOGV(TAG, "%s: opcode=%d, rexp=%d, crc=%d, auto_stop=%d", __func__,
+            res.cmd_index, res.response_expect, res.check_response_crc,
+            res.send_auto_stop);
     return res;
 }
 
@@ -288,22 +334,22 @@ static void process_command_response(uint32_t status, sdmmc_command_t* cmd)
             cmd->response[3] = 0;
         }
     }
-
-    if ((status & SDMMC_INTMASK_RTO) &&
-        cmd->opcode != MMC_ALL_SEND_CID &&
-        cmd->opcode != MMC_SELECT_CARD &&
-        cmd->opcode != MMC_STOP_TRANSMISSION) {
-        cmd->error = ESP_ERR_TIMEOUT;
+    esp_err_t err = ESP_OK;
+    if (status & SDMMC_INTMASK_RTO) {
+        // response timeout is only possible when response is expected
+        assert(cmd->flags & SCF_RSP_PRESENT);
+        err = ESP_ERR_TIMEOUT;
     } else if ((cmd->flags & SCF_RSP_CRC) && (status & SDMMC_INTMASK_RCRC)) {
-        cmd->error = ESP_ERR_INVALID_CRC;
+        err = ESP_ERR_INVALID_CRC;
     } else if (status & SDMMC_INTMASK_RESP_ERR) {
-        cmd->error = ESP_ERR_INVALID_RESPONSE;
+        err = ESP_ERR_INVALID_RESPONSE;
     }
-    if (cmd->error != 0) {
+    if (err != ESP_OK) {
+        cmd->error = err;
         if (cmd->data) {
             sdmmc_host_dma_stop();
         }
-        ESP_LOGD(TAG, "%s: error 0x%x  (status=%08x)", __func__, cmd->error, status);
+        ESP_LOGD(TAG, "%s: error 0x%x  (status=%08x)", __func__, err, status);
     }
 }
 
@@ -337,7 +383,8 @@ static inline bool mask_check_and_clear(uint32_t* state, uint32_t mask) {
     return ret;
 }
 
-static esp_err_t process_events(sdmmc_event_t evt, sdmmc_command_t* cmd, sdmmc_req_state_t* pstate)
+static esp_err_t process_events(sdmmc_event_t evt, sdmmc_command_t* cmd,
+        sdmmc_req_state_t* pstate, sdmmc_event_t* unhandled_events)
 {
     const char* const s_state_names[] __attribute__((unused)) = {
         "IDLE",
@@ -346,7 +393,8 @@ static esp_err_t process_events(sdmmc_event_t evt, sdmmc_command_t* cmd, sdmmc_r
         "BUSY"
     };
     sdmmc_event_t orig_evt = evt;
-    ESP_LOGV(TAG, "%s: state=%s", __func__, s_state_names[*pstate]);
+    ESP_LOGV(TAG, "%s: state=%s evt=%x dma=%x", __func__, s_state_names[*pstate],
+            evt.sdmmc_status, evt.dma_status);
     sdmmc_req_state_t next_state = *pstate;
     sdmmc_req_state_t state = (sdmmc_req_state_t) -1;
     while (next_state != state) {
@@ -358,22 +406,21 @@ static esp_err_t process_events(sdmmc_event_t evt, sdmmc_command_t* cmd, sdmmc_r
             case SDMMC_SENDING_CMD:
                 if (mask_check_and_clear(&evt.sdmmc_status, SDMMC_CMD_ERR_MASK)) {
                     process_command_response(orig_evt.sdmmc_status, cmd);
-                    if (cmd->error != ESP_ERR_TIMEOUT) {
-                        // Unless this is a timeout error, we need to wait for the
-                        // CMD_DONE interrupt
+                    break;      // Need to wait for the CMD_DONE interrupt
+                }
+                if (mask_check_and_clear(&evt.sdmmc_status, SDMMC_INTMASK_CMD_DONE)) {
+                    process_command_response(orig_evt.sdmmc_status, cmd);
+                    if (cmd->error != ESP_OK) {
+                        next_state = SDMMC_IDLE;
                         break;
                     }
+
+                    if (cmd->data == NULL) {
+                        next_state = SDMMC_IDLE;
+                    } else {
+                        next_state = SDMMC_SENDING_DATA;
+                    }
                 }
-                if (!mask_check_and_clear(&evt.sdmmc_status, SDMMC_INTMASK_CMD_DONE) &&
-                        cmd->error != ESP_ERR_TIMEOUT) {
-                    break;
-                }
-                process_command_response(orig_evt.sdmmc_status, cmd);
-                if (cmd->error != ESP_OK || cmd->data == NULL) {
-                    next_state = SDMMC_IDLE;
-                    break;
-                }
-                next_state = SDMMC_SENDING_DATA;
                 break;
 
 
@@ -385,7 +432,8 @@ static esp_err_t process_events(sdmmc_event_t evt, sdmmc_command_t* cmd, sdmmc_r
                 if (mask_check_and_clear(&evt.dma_status, SDMMC_DMA_DONE_MASK)) {
                     s_cur_transfer.desc_remaining--;
                     if (s_cur_transfer.size_remaining) {
-                        fill_dma_descriptors(1);
+                        int desc_to_fill = get_free_descriptors_count();
+                        fill_dma_descriptors(desc_to_fill);
                         sdmmc_host_dma_resume();
                     }
                     if (s_cur_transfer.desc_remaining == 0) {
@@ -410,6 +458,7 @@ static esp_err_t process_events(sdmmc_event_t evt, sdmmc_command_t* cmd, sdmmc_r
         ESP_LOGV(TAG, "%s state=%s next_state=%s", __func__, s_state_names[state], s_state_names[next_state]);
     }
     *pstate = state;
+    *unhandled_events = evt;
     return ESP_OK;
 }
 

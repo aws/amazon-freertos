@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.2
+ * Amazon FreeRTOS Demo Bootloader V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -95,7 +95,7 @@ BaseType_t BOOT_FLASH_ReadPartitionTable( BOOTPartition_Info_t * xPartitionInfo 
     uint8_t i;
 
     xPartitionInfo->ucNumOfApps = 0;
-    
+
     for( i = 0; i < ( sizeof( axPartitonTable ) / sizeof( FLASHPartition_t ) ); i++ )
     {
         switch( axPartitonTable[ i ].ucPartitionType )

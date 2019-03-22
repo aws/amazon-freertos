@@ -60,8 +60,8 @@ class OtaTestMissingFilename( OtaTestCase ):
             self._otaAwsAgent.getS3BucketName(),
             signerJobId
         )
-        # Create an OTA job without the expected 'fileName' parameter.
-        jobId = self._otaAwsAgent.createOtaUpdateJob(
+        # Create an OTA update without the expected 'fileName' parameter.
+        otaUpdateId = self._otaAwsAgent.createOtaUpdate(
             deploymentFiles = [
                 {
                     'fileVersion': '1',
@@ -77,7 +77,7 @@ class OtaTestMissingFilename( OtaTestCase ):
                 },
             ]
         )
-        return self.getTestResultAfterJobCompletion(jobId)
+        return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
 
     def getTestResult(self, jobStatus, log):
         if (jobStatus.status != 'FAILED'):

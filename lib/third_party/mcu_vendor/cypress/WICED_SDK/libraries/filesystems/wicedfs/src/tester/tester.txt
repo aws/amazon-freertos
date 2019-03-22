@@ -1,0 +1,11 @@
+WicedFS_Test - Verification Test Tool for Wiced Read Only File-System
+=====================================================================
+
+This directory contains source code for a tool which verifies the functionality of the WicedFS API.
+
+The makefile generates two executables - with and without 64-bit support. (64 Bit support is required for files over 2GB)
+
+The tool takes an existing directory on the host PC and creates a WicedFS filesystem image which contains all
+the files and subdirectories of the supplied directory. It then uses the WicedFS API to read files from the
+created filesystem and compare them to the Host PC.
+

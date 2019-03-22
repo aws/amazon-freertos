@@ -56,7 +56,7 @@ class OtaTestUnsignedImage( OtaTestCase ):
         )
 
         # Create a job.
-        jobId = self._otaAwsAgent.createOtaUpdateJob(
+        otaUpdateId = self._otaAwsAgent.createOtaUpdate(
             deploymentFiles = [
                 {
                     'fileName': self._otaConfig['device_firmware_file_name'],
@@ -66,12 +66,11 @@ class OtaTestUnsignedImage( OtaTestCase ):
                             'streamId': streamId,
                             'fileId': 0
                         },
-                    },
-                    'codeSigning': {}
+                    }
                 },
             ]
         )
-        return self.getTestResultAfterJobCompletion(jobId)
+        return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
 
     def getTestResult(self, jobStatus, log):
         if (jobStatus.status != 'FAILED'):

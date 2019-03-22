@@ -14,9 +14,9 @@ from mock import patch
 
 
 commit_is_ready_params = [
-    (["test/foo.py"], True),
-    (["test/clean.c"], True),
-    ("", True),
+    (["test/foo.py"], []),
+    (["test/clean.c"], []),
+    ("", []),
 ]
 @pytest.mark.parametrize("input, expected", commit_is_ready_params)
 def test_commit_is_ready(input, expected):
@@ -51,25 +51,27 @@ def test_is_source_file(input, expected):
     assert expected == result
 
 
-is_in_checked_directory_params = [
+is_checked_file_pattern_params = [
     ("lib/some_lib/some_file.c", True), # lib directory is checked
+    ("lib/some_lib/aws_header.h", True), # check aws headers
+    ("lib/some_lib/task.h", False), # Ignore kenrel headers
     ("demos/some_board/some_file.c", False), # demo board directories are not checked
 ]
-@pytest.mark.parametrize("input, expected", is_in_checked_directory_params)
-def test_is_in_checked_directory(input, expected):
-    result = pre_commit.is_in_checked_directory(input)
+@pytest.mark.parametrize("input, expected", is_checked_file_pattern_params)
+def test_is_checked_file_pattern(input, expected):
+    result = pre_commit.is_checked_file_pattern(input)
     assert expected == result
 
 
-is_in_ignored_directory_params = [
+is_ignored_file_pattern_params = [
     ("lib/third_party/some_lib/some_file.c", True),
     ("lib/FreeRTOS/some_file.c", True),
     ("lib/FreeRTOS-Plus-TCP/some_file.c", True),
     ("lib/include/some_file.h", False),
 ]
-@pytest.mark.parametrize("input, expected", is_in_ignored_directory_params)
-def test_is_in_ignored_directory(input, expected):
-    result = pre_commit.is_in_ignored_directory(input)
+@pytest.mark.parametrize("input, expected", is_ignored_file_pattern_params)
+def test_is_ignored_file_pattern(input, expected):
+    result = pre_commit.is_ignored_file_pattern(input)
     assert expected == result
 
 
@@ -88,7 +90,7 @@ def test_file_is_checkable(input, expected):
 def test_check_whitespace_calls_git():
     with patch('subprocess.call') as mock:
         mock.return_value = 0
-        assert False == pre_commit.check_whitespace()
+        assert [] == pre_commit.check_whitespace(["foo.c"])
         mock.assert_called_once_with(
             "git diff-index --check --cached HEAD", shell=True)
 
@@ -97,21 +99,20 @@ def test_check_whitespace_returns_false_on_error():
     with patch('subprocess.call') as mock:
         # Error code returned from git
         mock.return_value = 2
-        assert True == pre_commit.check_whitespace()
-
+        assert ['whitespace'] == pre_commit.check_whitespace(["foo.c"])
 
 
 check_uncrustify_params = [
-    (0, False),
-    (1, True),
-    (-1, True),
-    (99, True),
+    (0, []),
+    (1, ["foo.c"]),
+    (-1, ["foo.c"]),
+    (99, ["foo.c"]),
 ]
 @pytest.mark.parametrize("return_code, expected", check_uncrustify_params)
 def test_check_uncrustify(return_code, expected):
     with patch('subprocess.call') as mock:
         mock.return_value = return_code
-        assert expected == pre_commit.check_uncrustify("foo.c")
+        assert expected == pre_commit.check_uncrustify(["foo.c"])
         mock.assert_called_once_with(
             "uncrustify --check -q -c .uncrustify.cfg foo.c", shell=True)
 
@@ -129,16 +130,16 @@ def test_get_modified_files(git_result, expected):
 
 
 check_hungarian_notation_params = [
-    (0, False),
-    (1, True),
-    (-1, True),
-    (256, True),
+    (0, []),
+    (1, ["foo.c", "bar.h"]),
+    (-1, ["foo.c", "bar.h"]),
+    (256, ["foo.c", "bar.h"]),
 ]
 @pytest.mark.parametrize("return_code, expected", check_hungarian_notation_params)
 def test_check_hungarian_notation(return_code, expected):
     with patch('subprocess.call') as mock:
         mock.return_value = return_code
-        result = pre_commit.check_hungarian_notation("foo.c bar.h")
+        result = pre_commit.check_hungarian_notation(["foo.c", "bar.h"])
     assert expected == result
 
 

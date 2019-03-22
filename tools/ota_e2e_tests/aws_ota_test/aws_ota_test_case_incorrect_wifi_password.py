@@ -48,13 +48,13 @@ class OtaTestIncorrectWifiPassword( OtaTestCase ):
         self._otaProject.setClientCredentialsForWifi('invalid_ssid', 'invalid_password', 'eWiFiSecurityWPA2')
         # Build the project
         self._otaProject.buildProject()
-        # Start an OTA job.
-        jobId = self._otaAwsAgent.quickCreateJob(self._otaConfig)
+        # Start an OTA Update.
+        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig)
         # Reset the Wifi credentials to valid values.
         self._otaProject.setClientCredentialsForWifi(self._boardConfig['wifi_ssid'],
                                                      self._boardConfig['wifi_password'],
                                                      self._boardConfig['wifi_security'])
-        return self.getTestResultAfterJobCompletion(jobId)
+        return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
 
     def getTestResult(self, jobStatus, log):
         if (jobStatus.status == 'FAILED'):

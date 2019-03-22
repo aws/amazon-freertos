@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.1.1
+ * Amazon FreeRTOS V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,6 +36,7 @@
 /* AWS System includes. */
 #include "aws_system_init.h"
 #include "aws_clientcredential.h"
+#include "aws_dev_mode_key_provisioning.h"
 
 /* Demo application includes. */
 #include "aws_test_runner.h"
@@ -167,6 +168,11 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     {
         if( SYSTEM_Init() == pdPASS && xTasksAlreadyCreated == pdFALSE )
         {
+            /* A simple example to demonstrate key and certificate provisioning in
+             * microcontroller flash using PKCS#11 interface. This should be replaced
+             * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning();
+            
             /* If the network has just come up...*/
             xTaskCreate( TEST_RUNNER_RunTests_task,
                          "TestRunner",

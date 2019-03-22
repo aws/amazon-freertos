@@ -9,7 +9,7 @@ import json
 
 def describe_endpoint():
     client = boto3.client('iot')
-    endpoint = client.describe_endpoint()
+    endpoint = client.describe_endpoint(endpointType='iot:Data-ATS')
     return endpoint['endpointAddress']
 
 def get_account_id():

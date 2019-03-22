@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS#11 for CC3220SF-LAUNCHXL V1.0.2
+ * Amazon FreeRTOS PKCS #11 PAL for CC3220SF-LAUNCHXL V1.0.3
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,6 +37,7 @@
 #include "task.h"
 #include "aws_pkcs11.h"
 #include "aws_clientcredential.h"
+#include "aws_secure_sockets_config.h"
 
 /* flash driver includes. */
 #include <ti/drivers/net/wifi/simplelink.h>
@@ -45,12 +46,10 @@
 #include <stdio.h>
 #include <string.h>
 
-/**
- * @brief File storage location definitions.
- */
-#define pkcs11FILE_NAME_CLIENT_CERTIFICATE      "/certs/ClientCert.crt"
-#define pkcs11FILE_NAME_KEY                     "/certs/PrivateKey.key"
-#define pkcs11FILE_NAME_KEY_ROOT_CERTIFICATE    "/certs/RootCA.crt"
+/* mbedTLS includes. */
+#include "mbedtls/pk.h"
+#include "mbedtls/base64.h"
+#include "mbedtls/platform.h"
 
 
 /**
@@ -63,8 +62,8 @@
  */
 typedef struct P11Key
 {
-  /* IAR complains about the empty structure. */
-  uint8_t ucFakeValue;
+    /* IAR complains about the empty structure. */
+    uint8_t ucFakeValue;
 } P11Key_t, * P11KeyPtr_t;
 
 /**
@@ -130,8 +129,10 @@ static BaseType_t prvSaveFile( char * pcFileName,
         }
     }
 
-    /* Does the file need to be closed if the open fails? */
-    xCheck = sl_FsClose( lFileHdl, NULL, NULL, 0 );
+    if( lFileHdl >= 0 )
+    {
+        xCheck = sl_FsClose( lFileHdl, NULL, NULL, 0 );
+    }
 
     if( xCheck < 0 )
     {
@@ -139,6 +140,216 @@ static BaseType_t prvSaveFile( char * pcFileName,
     }
 
     return xResult;
+}
+
+/**
+ * @brief Implements libc calloc semantics using the FreeRTOS heap
+ */
+static void * prvCalloc( size_t xNmemb,
+                         size_t xSize )
+{
+    void * pvNew = pvPortMalloc( xNmemb * xSize );
+
+    if( NULL != pvNew )
+    {
+        memset( pvNew, 0, xNmemb * xSize );
+    }
+
+    return pvNew;
+}
+
+
+#define BEGIN_EC_PRIVATE_KEY     "-----BEGIN EC PRIVATE KEY-----\n"
+#define END_EC_PRIVATE_KEY       "-----END EC PRIVATE KEY-----\n"
+#define BEGIN_RSA_PRIVATE_KEY    "-----BEGIN RSA PRIVATE KEY-----\n"
+#define END_RSA_PRIVATE_KEY      "-----END RSA PRIVATE KEY-----\n"
+#define BEGIN_CERTIFICATE        "-----BEGIN CERTIFICATE-----\n"
+#define END_CERTIFICATE          "-----END CERTIFICATE-----\n"
+#define NUM_CHAR_PER_PEM_LINE    64
+
+/*
+ * @brief Converts DER objects to PEM objects.
+ *
+ * \note Only elliptic curve and RSA private keys are supported.
+ *
+ * \param[in]   pDerBuffer      A pointer the DER object.
+ * \param[in]   xDerLength      The length of the DER object (bytes)
+ * \param[out]  ppcPemBuffer    A pointer to the buffer that will be allocated
+ *                              for the PEM object.  This function performs
+ *                              a memory allocation for this buffer, and the
+ *                              caller MUST free the buffer.
+ * \param[out]  pPemLength      Length of the PEM object
+ * \param[in]   xObjectType     Type of object being converted to PEM.
+ *                              Valid values are CKO_PRIVATE_KEY and
+ *                              CKO_CERTIFICATE.
+ */
+static CK_RV prvDerToPem( uint8_t * pDerBuffer,
+                          size_t xDerLength,
+                          char ** ppcPemBuffer,
+                          size_t * pPemLength,
+                          CK_OBJECT_CLASS xObjectType )
+{
+    CK_RV xReturn = CKR_OK;
+    size_t xTotalPemLength = 0;
+    mbedtls_pk_context pk;
+    mbedtls_pk_type_t xKeyType;
+    char * pcHeader;
+    char * pcFooter;
+    unsigned char * pemBodyBuffer;
+    uint8_t * pFinalBufferPlaceholder;
+    int ulLengthOfContentsCopiedSoFar = 0;
+    int ulBytesInLine = 0;
+    int ulBytesRemaining;
+
+    if( xObjectType == CKO_PRIVATE_KEY )
+    {
+        mbedtls_pk_init( &pk );
+        /* Parse key. */
+        xReturn = mbedtls_pk_parse_key( &pk, pDerBuffer, xDerLength, NULL, 0 );
+
+        if( xReturn != 0 )
+        {
+            xReturn = CKR_ATTRIBUTE_VALUE_INVALID;
+        }
+
+        /* Get key algorithm. */
+        xKeyType = mbedtls_pk_get_type( &pk );
+
+        switch( xKeyType )
+        {
+            case ( MBEDTLS_PK_RSA ):
+            case ( MBEDTLS_PK_RSA_ALT ):
+                pcHeader = BEGIN_RSA_PRIVATE_KEY;
+                pcFooter = END_RSA_PRIVATE_KEY;
+                xTotalPemLength = strlen( BEGIN_RSA_PRIVATE_KEY ) + strlen( END_RSA_PRIVATE_KEY );
+                break;
+
+            case ( MBEDTLS_PK_ECKEY ):
+            case ( MBEDTLS_PK_ECKEY_DH ):
+            case ( MBEDTLS_PK_ECDSA ):
+                pcHeader = BEGIN_EC_PRIVATE_KEY;
+                pcFooter = END_EC_PRIVATE_KEY;
+                xTotalPemLength = strlen( BEGIN_EC_PRIVATE_KEY ) + strlen( END_EC_PRIVATE_KEY );
+                break;
+
+            default:
+                xReturn = CKR_ATTRIBUTE_VALUE_INVALID;
+                break;
+        }
+
+        mbedtls_pk_free( &pk );
+    }
+    else /* Certificate object. */
+    {
+        pcHeader = BEGIN_CERTIFICATE;
+        pcFooter = END_CERTIFICATE;
+        xTotalPemLength = strlen( BEGIN_CERTIFICATE ) + strlen( END_CERTIFICATE );
+    }
+
+    if( xReturn == CKR_OK )
+    {
+        /* A PEM object has a header, body, and footer. */
+
+        /*
+         * ------- BEGIN SOMETHING --------\n
+         * BODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODY\n
+         * BODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODY\n
+         * BODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODYBODY\n
+         * ....
+         * ------- END SOMETHING ---------\n
+         */
+
+        /* Determine the length of the Base 64 encoded body. */
+        xReturn = mbedtls_base64_encode( NULL, 0, pPemLength, pDerBuffer, xDerLength );
+
+        if( ( int32_t ) xReturn != MBEDTLS_ERR_BASE64_BUFFER_TOO_SMALL )
+        {
+            xReturn = CKR_ATTRIBUTE_VALUE_INVALID;
+        }
+        else
+        {
+            xReturn = 0;
+        }
+
+        if( xReturn == 0 )
+        {
+            /* Allocate memory for the PEM contents (excluding header, footer, newlines). */
+            pemBodyBuffer = pvPortMalloc( *pPemLength );
+
+            if( pemBodyBuffer == NULL )
+            {
+                xReturn = CKR_DEVICE_MEMORY;
+            }
+        }
+
+        if( xReturn == 0 )
+        {
+            /* Convert the body contents from DER to PEM. */
+            xReturn = mbedtls_base64_encode( pemBodyBuffer,
+                                             *pPemLength,
+                                             pPemLength,
+                                             pDerBuffer,
+                                             xDerLength );
+        }
+
+        if( xReturn == 0 )
+        {
+            /* Calculate the length required for the entire PEM object. */
+            xTotalPemLength += *pPemLength;
+            /* Add in space for the newlines. */
+            xTotalPemLength += ( *pPemLength ) / NUM_CHAR_PER_PEM_LINE;
+
+            if( ( *pPemLength ) % NUM_CHAR_PER_PEM_LINE != 0 )
+            {
+                xTotalPemLength += 1;
+            }
+
+            /* Allocate space for the full PEM certificate, including header, footer, and newlines.
+             * This space must be freed by the application. */
+            *ppcPemBuffer = pvPortMalloc( xTotalPemLength );
+
+            if( *ppcPemBuffer == NULL )
+            {
+                xReturn = CKR_DEVICE_MEMORY;
+            }
+        }
+
+        if( xReturn == 0 )
+        {
+            /* Copy the header. */
+            pFinalBufferPlaceholder = ( uint8_t * ) *ppcPemBuffer;
+            memcpy( pFinalBufferPlaceholder, pcHeader, strlen( pcHeader ) );
+            pFinalBufferPlaceholder += strlen( pcHeader );
+
+            /* Copy the Base64 encoded contents into the final buffer 64 bytes at a time, adding newlines */
+            while( ulLengthOfContentsCopiedSoFar < *pPemLength )
+            {
+                ulBytesRemaining = *pPemLength - ulLengthOfContentsCopiedSoFar;
+                ulBytesInLine = ( ulBytesRemaining > NUM_CHAR_PER_PEM_LINE ) ? NUM_CHAR_PER_PEM_LINE : ulBytesRemaining;
+                memcpy( pFinalBufferPlaceholder,
+                        pemBodyBuffer + ulLengthOfContentsCopiedSoFar,
+                        ulBytesInLine );
+                pFinalBufferPlaceholder += ulBytesInLine;
+                *pFinalBufferPlaceholder = '\n';
+                pFinalBufferPlaceholder++;
+
+                ulLengthOfContentsCopiedSoFar += ulBytesInLine;
+            }
+        }
+
+        if( pemBodyBuffer != NULL )
+        {
+            vPortFree( pemBodyBuffer );
+        }
+
+        /* Copy the footer. */
+        memcpy( pFinalBufferPlaceholder, pcFooter, strlen( pcFooter ) );
+
+        /* Update the total length of the PEM object returned by the function. */
+        *pPemLength = xTotalPemLength;
+    }
+
+    return xReturn;
 }
 
 /*
@@ -227,6 +438,8 @@ static CK_FUNCTION_LIST prvP11FunctionList =
 CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
 {   /*lint !e9072 It's OK to have different parameter name. */
     ( void ) ( pvInitArgs );
+
+    mbedtls_platform_set_calloc_free( prvCalloc, vPortFree ); /*lint !e534 This function always return 0. */
 
     return CKR_OK;
 }
@@ -388,6 +601,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                              CK_OBJECT_HANDLE_PTR pxObject )
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
+    PKCS11_KeyTemplatePtr_t pxKeyTemplate = NULL;
+    PKCS11_CertificateTemplatePtr_t pxCertificateTemplate = NULL;
+    uint8_t * pucFileName = NULL;
+    uint8_t * pcPemBuffer = NULL;
+    size_t pemLength;
 
     /*
      * Check parameters.
@@ -419,55 +637,54 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
         {
             case CKO_CERTIFICATE:
 
+                pxCertificateTemplate = ( PKCS11_CertificateTemplatePtr_t ) pxTemplate;
+
                 /* Validate the attribute count for this object class. */
-                if( 3 != ulCount )
+                if( sizeof( PKCS11_CertificateTemplate_t ) / sizeof( CK_ATTRIBUTE ) != ulCount )
                 {
                     xResult = CKR_ARGUMENTS_BAD;
                     break;
                 }
 
-                /* Validate the next attribute type. */
-                if( CKA_VALUE )
+                /* Validate the attribute template. */
+                if( ( CKA_VALUE != pxCertificateTemplate->xValue.type ) ||
+                    ( CKA_LABEL != pxCertificateTemplate->xLabel.type ) ||
+                    ( NULL == pxCertificateTemplate->xValue.pValue ) )
                 {
-                    if( CKA_VALUE != pxTemplate[ 1 ].type )
-                    {
-                        xResult = CKR_ARGUMENTS_BAD;
-                        break;
-                    }
+                    xResult = CKR_ARGUMENTS_BAD;
+                    break;
                 }
 
-                /* Validate the next attribute type. */
-                if( CKA_CERTIFICATE_TYPE )
+                /* Convert to PEM. */
+                prvDerToPem( pxCertificateTemplate->xValue.pValue,
+                             pxCertificateTemplate->xValue.ulValueLen,
+                             ( char ** ) &pcPemBuffer,
+                             &pemLength,
+                             CKO_CERTIFICATE );
+
+                if( 0 == memcmp( pxCertificateTemplate->xLabel.pValue, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
                 {
-                    if( CKA_CERTIFICATE_TYPE != pxTemplate[ 2 ].type )
-                    {
-                        xResult = CKR_ARGUMENTS_BAD;
-                        break;
-                    }
+                    pucFileName = socketsconfigSECURE_FILE_NAME_CLIENTCERT;
+                }
+                else if( 0 == memcmp( pxCertificateTemplate->xLabel.pValue, pkcs11configLABEL_ROOT_CERTIFICATE, strlen( pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
+                {
+                    pucFileName = socketsconfigSECURE_FILE_NAME_ROOTCA;
+                }
+                else
+                {
+                    pucFileName = pxCertificateTemplate->xLabel.pValue;
                 }
 
-                if( *( ( uint32_t * ) pxTemplate[ 2 ].pValue ) == pkcs11CERTIFICATE_TYPE_USER )
+                /* Write out the device certificate. */
+                if( pdFALSE == prvSaveFile( ( char * ) pucFileName,
+                                            ( char * ) pcPemBuffer,
+                                            pemLength ) )
                 {
-                    /* Write out the device certificate. */
-                    if( pdFALSE == prvSaveFile( pkcs11FILE_NAME_CLIENT_CERTIFICATE,
-                                                pxTemplate[ 1 ].pValue,
-                                                pxTemplate[ 1 ].ulValueLen - 1 ) )
-                    {
-                        xResult = CKR_DEVICE_ERROR;
-                        break;
-                    }
+                    xResult = CKR_DEVICE_ERROR;
+                    break;
                 }
-                else if( *( ( uint32_t * ) pxTemplate[ 2 ].pValue ) == pkcs11CERTIFICATE_TYPE_ROOT )
-                {
-                    /* Write out the root certificate. */
-                    if( pdFALSE == prvSaveFile( pkcs11FILE_NAME_KEY_ROOT_CERTIFICATE,
-                                                pxTemplate[ 1 ].pValue,
-                                                pxTemplate[ 1 ].ulValueLen - 1 ) )
-                    {
-                        xResult = CKR_DEVICE_ERROR;
-                        break;
-                    }
-                }
+
+                vPortFree( pcPemBuffer );
 
                 /* Create a certificate handle to return. */
                 if( CKR_OK == xResult )
@@ -479,31 +696,41 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 
             case CKO_PRIVATE_KEY:
 
+                /* Cast the template for easy field access. */
+                pxKeyTemplate = ( PKCS11_KeyTemplatePtr_t ) pxTemplate;
+
                 /* Validate the attribute count for this object class. */
-                if( 4 != ulCount )
+                if( ( sizeof( PKCS11_KeyTemplate_t ) / sizeof( CK_ATTRIBUTE ) ) != ulCount )
                 {
                     xResult = CKR_ARGUMENTS_BAD;
                     break;
                 }
 
-                /* Find the key bytes. */
-                if( CKA_VALUE )
+                /* Confirm that the template is formatted as expected for a private key. */
+                if( ( CKA_VALUE != pxKeyTemplate->xValue.type ) ||
+                    ( CKA_KEY_TYPE != pxKeyTemplate->xKeyType.type ) ||
+                    ( CKA_LABEL != pxKeyTemplate->xLabel.type ) )
                 {
-                    if( CKA_VALUE != pxTemplate[ 3 ].type )
-                    {
-                        xResult = CKR_ARGUMENTS_BAD;
-                        break;
-                    }
+                    xResult = CKR_ATTRIBUTE_TYPE_INVALID;
+                    break;
                 }
 
+                prvDerToPem( pxKeyTemplate->xValue.pValue,
+                             pxKeyTemplate->xValue.ulValueLen,
+                             ( char ** ) &pcPemBuffer,
+                             &pemLength,
+                             CKO_PRIVATE_KEY );
+
                 /* Write out the key. */
-                if( pdFALSE == prvSaveFile( pkcs11FILE_NAME_KEY,
-                                            pxTemplate[ 3 ].pValue,
-                                            pxTemplate[ 3 ].ulValueLen - 1 ) )
+                if( pdFALSE == prvSaveFile( socketsconfigSECURE_FILE_NAME_PRIVATEKEY,
+                                            ( char * ) pcPemBuffer,
+                                            pemLength ) )
                 {
                     xResult = CKR_DEVICE_ERROR;
                     break;
                 }
+
+                vPortFree( pcPemBuffer );
 
                 /* Create a key handle to return. */
                 if( CKR_OK == xResult )

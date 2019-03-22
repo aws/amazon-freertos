@@ -92,9 +92,9 @@ class OtaAwsAgent:
         uploadFirmwareToS3Bucket(localPathToFirmware, firmwareFileName)
         signFirmwareInS3Bucket(firmwareFileName, awsSignerCertArn, awsSignerCertFilename, signerPlatform)
         createIotStream(s3BucketName = None, firmwareFileName = None, customFiles = None)
-        createOtaUpdateJob(deviceImageFileName = None, streamId = None, signerJobId = None, customFiles = None)
-        quickCreateJob(otaConfig)
-        pollJobCompletion(jobId, timeout)
+        createOtaUpdate(deviceImageFileName = None, streamId = None, signerJobId = None, customFiles = None)
+        quickCreateOtaUpdate(otaConfig)
+        pollOtaUpdateCompletion(otaUpdateId, timeout)
         cancelJob(jobId)
         cleanup()
         __getJobStatus(jobId)
@@ -108,7 +108,7 @@ class OtaAwsAgent:
         # Create a Stream
         streamId = self.createIotStream( self.getS3BucketName(), signerJobId)
         # Create the OTA update job.
-        jobId = self.createOtaUpdateJob(otaConfig['device_firmware_file_name'], streamId, signerJobId)
+        otaUpdateId = self.createOtaUpdate(otaConfig['device_firmware_file_name'], streamId, signerJobId)
     """
     def __init__(self, boardName, otaRoleArn, s3BucketName, stageParams, cleanOnExit):
         self._awsIotClient = boto3.client('iot')
@@ -214,7 +214,7 @@ class OtaAwsAgent:
         AWS_SIGNER_TIMEOUT = 30
 
         if not profileName:
-            profileName = "%s%s"%(awsSignerCertArn[-10:], self._boardName[:10])
+            profileName = "%s%s"%(self.getThingName()[-8:], self._boardName[:10])
 
         # Get the object.
         firmwareObject = self._s3Bucket.get_s3_object(firmwareFileName)
@@ -306,7 +306,7 @@ class OtaAwsAgent:
 
         if signingInProgress == True:
             print("Error: code-signing timed out.")
-            return None # Return an invalid OTA job ID
+            return None # Return an invalid signer job ID
 
         if describeSigningResponse['status'] == 'Failed':
             print("Error: code-signing failed because " + describeSigningResponse['statusReason'])
@@ -353,9 +353,9 @@ class OtaAwsAgent:
 
         return createStreamResponse['streamId']
 
-    def createOtaUpdateJob(self, deploymentFiles, roleArn = None):
+    def createOtaUpdate(self, deploymentFiles, roleArn = None):
         """Create an OTA update job.
-        Returns the AWS IoT job ID.
+        Returns the AWS IoT OTA Update ID.
         Args:
             deviceImageFileName(str): The full path to the image in the device's file system. For devices not using
                 a file system any string can be put in here.
@@ -413,23 +413,23 @@ class OtaAwsAgent:
                 otaCreateInProgress = False
 
         if otaCreateInProgress == True:
-            print("Error: OTA job creation timed out for OTA job ID " + createOtaResponse['otaUpdateInfo']['otaUpdateId'])
+            print("Error: OTA update creation timed out for OTA update ID " + createOtaResponse['otaUpdateInfo']['otaUpdateId'])
             return None
 
         # Check for errors and show us what those errors might be.
         if otaGetStatusResponse['otaUpdateInfo']['otaUpdateStatus'] != 'CREATE_COMPLETE':
-            print("Error: OTA job creation failed for OTA job ID " + otaGetStatusResponse['otaUpdateInfo']['otaUpdateId'])
+            print("Error: OTA update creation failed for OTA update ID " + otaGetStatusResponse['otaUpdateInfo']['otaUpdateId'])
             if ('errorInfo' in otaGetStatusResponse['otaUpdateInfo']):
                 print('Error Info: ' + otaGetStatusResponse['otaUpdateInfo']['errorInfo']['code'] + ':' + otaGetStatusResponse['otaUpdateInfo']['errorInfo']['message'])
         else:
-            print("Created OTA job ID {0} (AWS IoT job ID = {1}).".format(
+            print("Created OTA Update ID {0} (AWS IoT job ID = {1}).".format(
                 otaGetStatusResponse['otaUpdateInfo']['otaUpdateId'],
                 otaGetStatusResponse['otaUpdateInfo']['awsIotJobId']))
 
-        return otaGetStatusResponse['otaUpdateInfo']['awsIotJobId']
+        return otaGetStatusResponse['otaUpdateInfo']['otaUpdateId']
 
-    def quickCreateJob(self, otaConfig):
-        """Create an OTA job in AWS IoT by using the otaConfig.
+    def quickCreateOtaUpdate(self, otaConfig):
+        """Create an OTA update in AWS IoT by using the otaConfig.
         We follow the path of:
             1. Upload unsigned image to the unsigned s3 bucket.
             2. Sign the image in the unsigned s3 bucket to the signed s3 bucket.
@@ -438,7 +438,7 @@ class OtaAwsAgent:
 
         This function follows the happy path OTA case. It is nice for testing changes
         where the only image is manipulated.
-        Returns AWS IoT job ID
+        Returns AWS IoT Ota Update ID
         Args:
             otaConfig - 'ota_config' from board.json
 
@@ -449,8 +449,8 @@ class OtaAwsAgent:
             os.path.basename(otaConfig['ota_firmware_file_path'])
         )
 
-        signingProfile = "%s%s"%(otaConfig['aws_signer_certificate_arn'][-10:], self._boardName[:10])
-        jobId = self.createOtaUpdateJob(
+        signingProfile = "%s%s"%(self.getThingName()[-8:], self._boardName[:10])
+        otaUpdateId = self.createOtaUpdate(
             deploymentFiles = [
                 {
                     'fileName': otaConfig['device_firmware_file_name'],
@@ -476,11 +476,11 @@ class OtaAwsAgent:
             ]
         )
 
-        return jobId
+        return otaUpdateId
 
 
     def __getJobStatus(self, jobId):
-        """Get the status of the OTA job from the jobId.
+        """Get the status of the OTA Update's job from the AWS IoT jobId.
         Args:
             jobId(str): The AWS IoT Job ID to get the status of.
         Returns: The job status and the reason for the status in a namedtuple.
@@ -505,16 +505,31 @@ class OtaAwsAgent:
         executionResponse = response['execution']
         return JobStatus(executionResponse['status'], executionResponse['statusDetails'].get('detailsMap', {}).get('reason', ''))
 
-    def pollJobCompletion(self, jobId, timeout):
+    def pollOtaUpdateCompletion(self, otaUpdateId, timeout):
         """Poll on the job status waiting for it complete.
         Returns the job status on completion. The job status is a namedtuple with fields
         'status' and 'reason'.
         Returns the job status and reason in a namedtuple (status, reason)
         Args:
-            jobId(str): The AWS IoT Job ID to poll completion of.
+            otaUpdateId(str): The AWS IoT OTA Update ID to poll completion of.
             timeout(int): The timeout in seconds to poll for.
         """
         seconds = 0
+
+        # Get the AWS Iot Job ID
+        response = {}
+        if self._stageParams:
+            response = awsIotCliCommandForNonProdStage(
+                'get-ota-update ' + \
+                '--ota-update-id ' + \
+                otaUpdateId,
+                self._stageParams
+            )
+        else:
+            response = self._awsIotClient.get_ota_update(otaUpdateId=otaUpdateId)
+        jobId = response['otaUpdateInfo']['awsIotJobId']
+
+        # Poll on the job status
         jobStatus = self.__getJobStatus(jobId)
         finishedJobStatuses = {'CANCELED', 'SUCCEEDED', 'FAILED', 'REJECTED', 'REMOVED'}
         while seconds < timeout and jobStatus.status not in finishedJobStatuses:
@@ -524,11 +539,36 @@ class OtaAwsAgent:
 
         if jobStatus.status not in finishedJobStatuses:
             if seconds >= timeout :
-                print("Timeout on OTA job.")
+                print("Timeout on OTA Update's job.")
             # Clean up incomplete jobs.
             self.cancelJob(jobId)
-        print("OTA job status: " + jobStatus.status)
+        print("OTA Update's job status: " + jobStatus.status)
+        # Clean up the OTA Update
+        self.deleteOtaUpdate(otaUpdateId)
         return jobStatus
+
+    def deleteOtaUpdate(self, otaUpdateId):
+        """
+        Cancel the input OTA Update. Cleans up the stream associated.
+        Args:
+            otaUpdateId(str): The AWS IoT OTA Update ID to cancel.
+        """
+        response = {}
+        try:
+            if self._stageParams:
+                response = awsIotCliCommandForNonProdStage(
+                    'delete-ota-update ' + \
+                    '--ota-update-id ' + \
+                    otaUpdateId + ' ' + \
+                    '--delete-stream',
+                    self._stageParams
+                )
+            else:
+                response = self._awsIotClient.delete_ota_update(otaUpdateId=otaUpdateId, deleteStream=True)
+        except Exception as e:
+            print("Unable to delete ota update with ID: " + otaUpdateId)
+            print(response)
+            print(e)
 
 
     def cancelJob(self, jobId):
@@ -537,20 +577,24 @@ class OtaAwsAgent:
         Args:
             jobId(str): The AWS IoT job ID to cancel.
         """
+        response = {}
         try:
             if self._stageParams:
-                awsIotCliCommandForNonProdStage(
+                response = awsIotCliCommandForNonProdStage(
                     'cancel-job ' + \
                     '--job-id ' + \
                     jobId + ' ' + \
                     '--comment ' + \
-                    '\"OTA integration testing cancellation of incomplete job.\"',
+                    '\"OTA integration testing cancellation of incomplete job.\" ' + \
+                    '--force',
                     self._stageParams
                 )
             else:
-                self._awsIotClient.cancel_job(jobId=jobId, comment='OTA integration testing cancellation of incomplete job.')
-        except:
-            print("Unable to delete job with ID: " + jobId)
+                response = self._awsIotClient.cancel_job(jobId=jobId, comment='OTA integration testing cancellation of incomplete job.', force=True)
+        except Exception as e:
+            print("Unable to cancel job with ID: " + jobId)
+            print(response)
+            print(e)
 
     def cleanup(self):
         """Clean up all AWS IoT resources needed by the OTA test agent.
@@ -570,7 +614,7 @@ class AWSIoTThing:
         if self._stageParams:
             self._region_name = self._stageParams['region']
             self._iot_thing = awsIotCliCommandForNonProdStage(
-                'create-thing --thing-name {}-{}'.format(name_prefix, uuid4().hex),
+                'create-thing --thing-name {}-{}'.format(name_prefix, uuid4().hex[:8]),
                 self._stageParams
             )
             self._cert_keys = awsIotCliCommandForNonProdStage(
@@ -579,7 +623,7 @@ class AWSIoTThing:
             )
         else:
             self._region_name = boto3.Session().region_name
-            self._iot_thing = self._iot_client.create_thing(thingName='{}-{}'.format(name_prefix, uuid4().hex))
+            self._iot_thing = self._iot_client.create_thing(thingName='{}-{}'.format(name_prefix, uuid4().hex[:8]))
             self._cert_keys = self._iot_client.create_keys_and_certificate(setAsActive=True)
         self.thing_name = self._iot_thing['thingName']
         self.thing_arn = self._iot_thing['thingArn']
@@ -594,23 +638,8 @@ class AWSIoTThing:
             \"Statement\": [ \
             { \
                 \"Effect\": \"Allow\", \
-                \"Action\": \"iot:Connect\", \
-                \"Resource\":\"arn:aws:iot:" + self._region_name + ":" + self._account_id + ":*\" \
-            }, \
-            { \
-                \"Effect\": \"Allow\", \
-                \"Action\": \"iot:Publish\", \
-                \"Resource\": \"arn:aws:iot:" + self._region_name + ":" + self._account_id + ":*\" \
-            }, \
-            { \
-                \"Effect\": \"Allow\", \
-                \"Action\": \"iot:Subscribe\", \
-                \"Resource\": \"arn:aws:iot:" + self._region_name + ":" + self._account_id + ":*\" \
-            }, \
-            { \
-                \"Effect\": \"Allow\", \
-                \"Action\": \"iot:Receive\", \
-                \"Resource\": \"arn:aws:iot:" + self._region_name + ":" + self._account_id + ":*\" \
+                \"Action\": \"iot:*\", \
+                \"Resource\": \"*\" \
             } \
             ] \
         }"

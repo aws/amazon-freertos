@@ -48,6 +48,8 @@
 #include "aws_demo_logging.h"
 #include "aws_system_init.h"
 
+#include "aws_dev_mode_key_provisioning.h"
+
 /* Unity includes. */
 #include "unity.h"
 
@@ -160,6 +162,8 @@ int main( void )
 
     /* Initialize AWS system libraries. */
     SYSTEM_Init();
+
+    vDevModeKeyProvisioning();
 
     vTaskStartScheduler();
 

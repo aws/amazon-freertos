@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS CBOR Library V1.0.0
+ * Amazon FreeRTOS CBOR Library V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -96,10 +96,12 @@ TEST( aws_cbor_map, AssignKey_writes_byte_to_key )
 
 TEST( aws_cbor_map, AssignKey_update_key_with_larger_int )
 {
-    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x23 } );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x23 }
+                    );
     TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
-    CBOR_AssignKey( xCborData, "2", CBOR_WriteInt, &( int ) { 0x7392 } );
+    CBOR_AssignKey( xCborData, "2", CBOR_WriteInt, &( int ) { 0x7392 }
+                    );
     TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
     /* Note, this test assert is here for documentation.  It demonstrates the
@@ -121,7 +123,8 @@ TEST( aws_cbor_map, AssignKey_update_key_with_larger_int )
     TEST_ASSERT_EQUAL_HEX8_ARRAY(
         ucExpected, xCborData->pxBufferStart, sizeof( ucExpected ) );
 
-    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x1234 } );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x1234 }
+                    );
     TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
     uint8_t ucExpectedRewrite[] =
@@ -147,13 +150,16 @@ TEST( aws_cbor_map, AssignKey_update_key_with_larger_int )
 
 TEST( aws_cbor_map, AssignKey_update_key_with_smaller_int )
 {
-    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x5CA1AB1E } );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x5CA1AB1E }
+                    );
     TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
-    CBOR_AssignKey( xCborData, "2", CBOR_WriteInt, &( int ) { 0xCAFE } );
+    CBOR_AssignKey( xCborData, "2", CBOR_WriteInt, &( int ) { 0xCAFE }
+                    );
     TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
-    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0xED } );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0xED }
+                    );
     TEST_ASSERT_EQUAL( eCborErrNoError, xCborData->xError );
 
     uint8_t ucExpectedRewrite[] =
@@ -177,7 +183,8 @@ TEST( aws_cbor_map, AssignKey_update_key_with_smaller_int )
 TEST( aws_cbor_map, AssignKey_will_return_err_if_not_map_or_empty )
 {
     *( xCborData->pxBufferStart ) = 2;
-    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x5CA1AB1E } );
+    CBOR_AssignKey( xCborData, "1", CBOR_WriteInt, &( int ) { 0x5CA1AB1E }
+                    );
     TEST_ASSERT_EQUAL( eCborErrUnsupportedReadOperation, xCborData->xError );
 }
 
@@ -456,7 +463,8 @@ TEST( aws_cbor_map, AppendKey )
     CBOR_SetCursor( xCborData, 7 );
     xCborData->pxMapEnd = xCborData->pxCursor;
 
-    CBOR_AppendKey( xCborData, "lock", CBOR_WriteInt, &( int ) { 0x0347 } );
+    CBOR_AppendKey( xCborData, "lock", CBOR_WriteInt, &( int ) { 0x0347 }
+                    );
 
     uint8_t ucExpected[] =
     {

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.2
+ * Amazon FreeRTOS Demo Bootloader V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,24 +41,24 @@
 /**
  * @brief Magic code for partition entry.
  */
-#define FLASH_PARTITION_MAGIC_CODE            0xCA5CADED
+#define FLASH_PARTITION_MAGIC_CODE    0xCA5CADED
 
 
 /**
  * @brief Maximum size of partition label.
  */
-#define FLASH_PARTITION_LABEL_SIZE            ( 16 )
+#define FLASH_PARTITION_LABEL_SIZE             ( 16 )
 
 /**
  * @brief Types and subtypes of partitions.
  */
-#define FLASH_PARTITION_TYPE_APP              ( 0 )
-#define FLASH_PARTITION_SUBTYPE_APP_OTA       ( 1 )
-#define FLASH_PARTITION_SUBTYPE_APP_DEFAULT   ( 2 )
+#define FLASH_PARTITION_TYPE_APP               ( 0 )
+#define FLASH_PARTITION_SUBTYPE_APP_OTA        ( 1 )
+#define FLASH_PARTITION_SUBTYPE_APP_DEFAULT    ( 2 )
 
-#define FLASH_PARTITION_TYPE_DATA             ( 1 )
-#define FLASH_PARTITION_SUBTYPE_DATA_WIFI     ( 1 )
-#define FLASH_PARTITION_SUBTYPE_DATA_USER     ( 2 )
+#define FLASH_PARTITION_TYPE_DATA              ( 1 )
+#define FLASH_PARTITION_SUBTYPE_DATA_WIFI      ( 1 )
+#define FLASH_PARTITION_SUBTYPE_DATA_USER      ( 2 )
 
 /**
  * @brief Structure definition for flash area.

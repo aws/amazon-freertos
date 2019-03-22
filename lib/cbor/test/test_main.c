@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS CBOR Library V1.0.0
+ * Amazon FreeRTOS CBOR Library V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,18 +26,19 @@
 
 static void runAllTests()
 {
-    RUN_TEST_GROUP(aws_cbor);
-    RUN_TEST_GROUP(aws_cbor_acceptance);
-    RUN_TEST_GROUP(aws_cbor_alloc);
-    RUN_TEST_GROUP(aws_cbor_int);
-    RUN_TEST_GROUP(aws_cbor_iter);
-    RUN_TEST_GROUP(aws_cbor_map);
-    RUN_TEST_GROUP(aws_cbor_mem);
-    RUN_TEST_GROUP(aws_cbor_print);
-    RUN_TEST_GROUP(aws_cbor_string);
+    RUN_TEST_GROUP( aws_cbor );
+    RUN_TEST_GROUP( aws_cbor_acceptance );
+    RUN_TEST_GROUP( aws_cbor_alloc );
+    RUN_TEST_GROUP( aws_cbor_int );
+    RUN_TEST_GROUP( aws_cbor_iter );
+    RUN_TEST_GROUP( aws_cbor_map );
+    RUN_TEST_GROUP( aws_cbor_mem );
+    RUN_TEST_GROUP( aws_cbor_print );
+    RUN_TEST_GROUP( aws_cbor_string );
 }
 
-int main(int argc, const char *argv[])
+int main( int argc,
+          const char * argv[] )
 {
-    UnityMain(argc, argv, runAllTests);
+    UnityMain( argc, argv, runAllTests );
 }

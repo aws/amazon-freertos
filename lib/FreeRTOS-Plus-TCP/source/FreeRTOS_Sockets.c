@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.7
+ * FreeRTOS+TCP V2.0.10
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1481,8 +1481,17 @@ FreeRTOS_Socket_t *pxSocket;
 					}
 
 					pxProps = ( ( WinProperties_t * ) pvOptionValue );
-					FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_SNDBUF, &( pxProps->lTxBufSize ), sizeof( pxProps->lTxBufSize ) );
-					FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_RCVBUF, &( pxProps->lRxBufSize ), sizeof( pxProps->lRxBufSize ) );
+
+					if ( FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_SNDBUF, &( pxProps->lTxBufSize ), sizeof( pxProps->lTxBufSize ) ) != 0 )
+					{
+						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+					}
+
+					if ( FreeRTOS_setsockopt( xSocket, 0, FREERTOS_SO_RCVBUF, &( pxProps->lRxBufSize ), sizeof( pxProps->lRxBufSize ) ) != 0 )
+					{
+						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+					}
+
 					#if( ipconfigUSE_TCP_WIN == 1 )
 					{
 						pxSocket->u.xTCP.uxRxWinSize = ( uint32_t )pxProps->lRxWinSize;	/* Fixed value: size of the TCP reception window */

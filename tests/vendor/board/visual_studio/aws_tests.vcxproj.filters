@@ -567,6 +567,9 @@
     <ClInclude Include="..\common\config_files\aws_test_ota_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
+      <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
@@ -944,10 +947,8 @@
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_cbor.c">
       <Filter>application_code\common_tests\ota</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\lib\third_party\mbedtls\library\Makefile">
+    <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
-    </None>
+    </ClCompile>
   </ItemGroup>
 </Project>

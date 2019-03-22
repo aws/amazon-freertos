@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.2
+ * Amazon FreeRTOS Demo Bootloader V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,13 +39,13 @@
 #include "aws_boot_types.h"
 
 /* Size of the ECC public key in bytes.*/
-#define ECC_PUBKEY_BIT_STRING_SIZE      ( 64U )
+#define ECC_PUBKEY_BIT_STRING_SIZE         ( 64U )
 
 /* Number of bytes to represent an component (R,S) of the the curve. */
-#define ECC_NUM_BYTES_PER_SIG_COMPONENT (32U)
+#define ECC_NUM_BYTES_PER_SIG_COMPONENT    ( 32U )
 
 /* Number of components of signature. */
-#define ECC_NUM_SIG_COMPONENTS (2U)
+#define ECC_NUM_SIG_COMPONENTS             ( 2U )
 
 /**
  * Max size of ECC signature.

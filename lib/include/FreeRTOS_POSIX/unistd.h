@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.0
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,6 +32,8 @@
 
 #ifndef _FREERTOS_POSIX_UNISTD_H_
 #define _FREERTOS_POSIX_UNISTD_H_
+
+#include "FreeRTOS_POSIX/sys/types.h"
 
 /**
  * @brief Suspend execution for an interval of time.

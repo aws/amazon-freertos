@@ -18,7 +18,6 @@ def mark_hn_errors(source_file_name):
     lines = source.split("\n")
     err_count = 0
     for line in lines:
-        line = line.strip()
         if (
             is_var_decl(line) and
             not prefix_is_correct(line)
@@ -133,7 +132,7 @@ def strip_qualifiers(line):
 
 
 def prefix_is_correct(line):
-    if "extern" in line:
+    if is_globally_linked(line):
         return True
     correct_prefix = get_prefix(line)
     identifier = get_identifier(line)
@@ -147,6 +146,19 @@ def prefix_is_correct(line):
         # So for now we just assume it's correct
         return True
     return False
+
+
+def is_globally_linked(line):
+    if "extern" in line:
+        return True
+    if "static" in line:
+        return False
+    if line.startswith(" ") or line.startswith("\t"):
+        # If the line starts with a space and is not part of a function, it will
+        # fail the style check.  So, if the line starts with a space it is part
+        # of a function.
+        return False
+    return True
 
 
 def get_identifier(line):
@@ -170,9 +182,20 @@ def get_prefix(line):
     prefix = "p" * indirection + "u" * unsigned + base_prefix
     return prefix
 
+# PKCS #11 types may have the format
+# CK_TYPE_PTR or CK_TYPE_PTR_PTR
+def count_pkcs11_indirection(line):
+    base_prefix = get_base_type(line)
+    if (re.search("_PTR_PTR$", base_prefix)):
+        return 2
+    elif (re.search("_PTR$", base_prefix)):
+        return 1
+    else:
+        return 0
 
 def count_indirection(line):
     pointer_count = line.count('*')
+    pointer_count += count_pkcs11_indirection(line)
     return pointer_count
 
 
@@ -210,9 +233,8 @@ def get_base_prefix(type_name):
 def get_identifier_prefix(identifier):
     direct_identifier = re.sub(r"^p+", "", identifier)
     indirection = "p" * (len(identifier) - len(direct_identifier))
-    for key in TYPE_PREFIXES:
-        prefix = TYPE_PREFIXES[key]
-        if re.match(r"^" + prefix + r"[A-Z]", direct_identifier):
+    for prefix in TYPE_PREFIXES.values():
+        if re.match(r"^" + prefix + r"[0-9,A-Z]", direct_identifier):
             return indirection + prefix
     return ''
 

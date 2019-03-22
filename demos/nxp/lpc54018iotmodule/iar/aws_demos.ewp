@@ -1603,6 +1603,9 @@
                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_time.h</name>
                     </file>
                     <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h</name>
+                    </file>
+                    <file>
                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\include\mbedtls\ripemd160.h</name>
                     </file>
                     <file>
@@ -1802,6 +1805,9 @@
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\library\platform.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\library\platform_util.c</name>
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\..\lib\third_party\mbedtls\library\ripemd160.c</name>

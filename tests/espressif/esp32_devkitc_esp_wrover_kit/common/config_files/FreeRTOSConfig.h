@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.0.1
+ * FreeRTOS Kernel V1.1.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -160,6 +160,10 @@
 #define INCLUDE_eTaskGetState               1
 #define configUSE_QUEUE_SETS                1
 
+#define configUSE_TICKLESS_IDLE             CONFIG_FREERTOS_USE_TICKLESS_IDLE
+#if configUSE_TICKLESS_IDLE
+#define configEXPECTED_IDLE_TIME_BEFORE_SLEEP   CONFIG_FREERTOS_IDLE_TIME_BEFORE_SLEEP
+#endif //configUSE_TICKLESS_IDLE
 #define configENABLE_TASK_SNAPSHOT			1
 
 #define configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H 1

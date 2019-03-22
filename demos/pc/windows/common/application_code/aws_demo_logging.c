@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -112,6 +112,12 @@ static DWORD WINAPI prvWin32LoggingThread( void * pvParam );
  */
 static void prvCreatePrintSocket( void * pvParameter1,
                                   uint32_t ulParameter2 );
+
+/*
+ * Write a messages to stdout, either with or without a time-stamp.
+ * A Windows thread will finally call printf() and fflush().
+ */
+static void prvLoggingPrintf( BaseType_t xFormatted, const char *pcFormat, va_list xArgs );
 
 /*-----------------------------------------------------------*/
 
@@ -273,12 +279,28 @@ static void prvCreatePrintSocket( void * pvParameter1,
 void vLoggingPrintf( const char * pcFormat,
                      ... )
 {
+    va_list xArgs;
+    va_start( xArgs, pcFormat );
+    prvLoggingPrintf( pdTRUE, pcFormat, xArgs );
+    va_end( xArgs );
+}
+/*-----------------------------------------------------------*/
+
+void vLoggingPrint( const char * pcFormat )
+{
+    prvLoggingPrintf( pdFALSE, pcFormat, NULL );
+}
+/*-----------------------------------------------------------*/
+
+static void prvLoggingPrintf( BaseType_t xFormatted,
+                              const char *pcFormat,
+                              va_list xArgs )
+{
     char cPrintString[ dlMAX_PRINT_STRING_LENGTH ];
     char cOutputString[ dlMAX_PRINT_STRING_LENGTH ];
-    char * pcSource, * pcTarget, * pcBegin;
+    char * pcSource, *pcTarget, *pcBegin;
     size_t xLength, xLength2, rc;
     static BaseType_t xMessageNumber = 0;
-    va_list args;
     uint32_t ulIPAddress;
     const char * pcTaskName;
     const char * pcNoTask = "None";
@@ -289,9 +311,6 @@ void vLoggingPrintf( const char * pcFormat,
         ( xDiskFileLoggingUsed != pdFALSE ) ||
         ( xUDPLoggingUsed != pdFALSE ) )
     {
-        /* There are a variable number of parameters. */
-        va_start( args, pcFormat );
-
         /* Additional info to place at the start of the log. */
         if( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
         {
@@ -302,11 +321,13 @@ void vLoggingPrintf( const char * pcFormat,
             pcTaskName = pcNoTask;
         }
 
-        if( strcmp( pcFormat, "\n" ) != 0 )
+        if( ( strcmp( pcFormat, "\n" ) != 0 ) && ( xFormatted != pdFALSE ) )
         {
-            xLength = snprintf( cPrintString, dlMAX_PRINT_STRING_LENGTH, "%lu %lu [%s] ",
+            xLength = snprintf( cPrintString, 
+                                dlMAX_PRINT_STRING_LENGTH, 
+                                "%lu %lu [%s] ",
                                 xMessageNumber++,
-                                ( unsigned long ) xTaskGetTickCount(),
+                                ( unsigned long )xTaskGetTickCount(),
                                 pcTaskName );
         }
         else
@@ -314,12 +335,20 @@ void vLoggingPrintf( const char * pcFormat,
             xLength = 0;
             memset( cPrintString, 0x00, dlMAX_PRINT_STRING_LENGTH );
         }
-
-        xLength2 = vsnprintf(
-            cPrintString + xLength,
-            dlMAX_PRINT_STRING_LENGTH - xLength,
-            pcFormat,
-            args );
+        if( xArgs != NULL )
+        {
+            xLength2 = vsnprintf( cPrintString + xLength,
+                                  dlMAX_PRINT_STRING_LENGTH - xLength,
+                                  pcFormat,
+                                  xArgs );
+        }
+        else
+        {
+            xLength2 = snprintf( cPrintString + xLength,
+                                 dlMAX_PRINT_STRING_LENGTH - xLength,
+                                 "%s",
+                                 pcFormat );
+        }
 
         if( xLength2 < 0 )
         {
@@ -329,7 +358,6 @@ void vLoggingPrintf( const char * pcFormat,
         }
 
         xLength += xLength2;
-        va_end( args );
 
         /* For ease of viewing, copy the string into another buffer, converting
          * IP addresses to dot notation on the way. */
@@ -358,18 +386,19 @@ void vLoggingPrintf( const char * pcFormat,
                 }
 
                 sscanf( pcTarget, "%8X", &ulIPAddress );
-                rc = sprintf( pcTarget, "%lu.%lu.%lu.%lu",
-                              ( unsigned long ) ( ulIPAddress >> 24UL ),
-                              ( unsigned long ) ( ( ulIPAddress >> 16UL ) & 0xffUL ),
-                              ( unsigned long ) ( ( ulIPAddress >> 8UL ) & 0xffUL ),
-                              ( unsigned long ) ( ulIPAddress & 0xffUL ) );
+                rc = sprintf( pcTarget, 
+                              "%lu.%lu.%lu.%lu",
+                              ( unsigned long )( ulIPAddress >> 24UL ),
+                              ( unsigned long )( ( ulIPAddress >> 16UL ) & 0xffUL ),
+                              ( unsigned long )( ( ulIPAddress >> 8UL ) & 0xffUL ),
+                              ( unsigned long )( ulIPAddress & 0xffUL ) );
                 pcTarget += rc;
                 pcSource += 3; /* skip "<n>ip" */
             }
         }
 
         /* How far through the buffer was written? */
-        xLength = ( BaseType_t ) ( pcTarget - cOutputString );
+        xLength = ( BaseType_t )( pcTarget - cOutputString );
 
         /* If the message is to be logged to a UDP port then it can be sent directly
          * because it only uses FreeRTOS function (not Win32 functions). */
@@ -389,22 +418,20 @@ void vLoggingPrintf( const char * pcFormat,
 
             if( xPrintSocket != FREERTOS_INVALID_SOCKET )
             {
-                FreeRTOS_sendto(
-                    xPrintSocket,
-                    cOutputString,
-                    xLength,
-                    0,
-                    &xPrintUDPAddress,
-                    sizeof( xPrintUDPAddress ) );
+                FreeRTOS_sendto( xPrintSocket,
+                                 cOutputString,
+                                 xLength,
+                                 0,
+                                 &xPrintUDPAddress,
+                                 sizeof( xPrintUDPAddress ) );
 
                 /* Work-around for UDP data logger behavior. */
-                FreeRTOS_sendto(
-                    xPrintSocket,
-                    "\r",
-                    sizeof( char ),
-                    0,
-                    &xPrintUDPAddress,
-                    sizeof( xPrintUDPAddress ) );
+                FreeRTOS_sendto( xPrintSocket,
+                                 "\r",
+                                 sizeof( char ),
+                                 0,
+                                 &xPrintUDPAddress,
+                                 sizeof( xPrintUDPAddress ) );
             }
         }
 
@@ -431,16 +458,14 @@ void vLoggingPrintf( const char * pcFormat,
                 xCurrentTask = GetCurrentThread();
                 iOriginalPriority = GetThreadPriority( xCurrentTask );
                 SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
-                uxStreamBufferAdd(
-                    xLogStreamBuffer,
-                    0,
-                    ( const uint8_t * ) &( xLength ),
-                    sizeof( xLength ) );
-                uxStreamBufferAdd(
-                    xLogStreamBuffer,
-                    0,
-                    ( const uint8_t * ) cOutputString,
-                    xLength );
+                uxStreamBufferAdd( xLogStreamBuffer,
+                                   0,
+                                   ( const uint8_t * ) &( xLength ),
+                                   sizeof( xLength ) );
+                uxStreamBufferAdd( xLogStreamBuffer,
+                                   0,
+                                   ( const uint8_t * )cOutputString,
+                                   xLength );
                 SetThreadPriority( GetCurrentThread(), iOriginalPriority );
             }
 
@@ -463,13 +488,6 @@ void vLoggingPrintf( const char * pcFormat,
             }
         }
     }
-}
-/*-----------------------------------------------------------*/
-
-void vLoggingPrint( const char * pcMessage )
-{
-    printf( "%s", pcMessage );
-    fflush(stdout);
 }
 /*-----------------------------------------------------------*/
 

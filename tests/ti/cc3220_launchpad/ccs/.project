@@ -193,7 +193,7 @@
 		<link>
 			<name>lib/third_party/mbedtls</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor</name>
@@ -279,16 +279,6 @@
 			<name>lib/aws/ota/aws_ota_cbor.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_cbor.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mbedtls/base64.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls/library/base64.c</locationURI>
-		</link>
-		<link>
-			<name>lib/third_party/mbedtls/base64.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/third_party/mbedtls/include/mbedtls/base64.h</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti</name>

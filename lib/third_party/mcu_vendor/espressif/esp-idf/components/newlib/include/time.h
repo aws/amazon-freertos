@@ -1,6 +1,6 @@
 /*
  * time.h
- *
+ * 
  * Struct and function declarations for dealing with time.
  */
 
@@ -161,9 +161,7 @@ int _EXFUN(clock_getres,  (clockid_t clock_id, struct timespec *res));
 #endif
 
 #if defined(_POSIX_TIMERS)
-
 #include <signal.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -267,7 +265,7 @@ extern "C" {
 #if defined(_POSIX_MONOTONIC_CLOCK)
 
 /*  The identifier for the system-wide monotonic clock, which is defined
- *      as a clock whose value cannot be set via clock_settime() and which
+ *      as a clock whose value cannot be set via clock_settime() and which 
  *          cannot have backward clock jumps. */
 
 #define CLOCK_MONOTONIC (clockid_t)4

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,5 +48,25 @@
  * @brief Default socket receive timeout.
  */
 #define socketsconfigDEFAULT_RECV_TIMEOUT    ( 10000 )
+
+/**
+ * @brief The file name for the root of trust certificate.
+ */
+#define socketsconfigSECURE_FILE_NAME_ROOTCA            "/certs/RootCA.crt"
+
+/**
+ * @brief Custom root CA.
+ */
+#define socketsconfigSECURE_FILE_NAME_CUSTOMROOTCA      "/certs/CustomRootCA.crt"
+
+/**
+ * @brief Client certificate.
+ */
+#define socketsconfigSECURE_FILE_NAME_CLIENTCERT        "/certs/ClientCert.crt"
+
+/**
+ * @brief Client private key.
+ */
+#define socketsconfigSECURE_FILE_NAME_PRIVATEKEY        "/certs/PrivateKey.key"
 
 #endif /* AWS_INC_SOCKETS_CONFIG_H_ */

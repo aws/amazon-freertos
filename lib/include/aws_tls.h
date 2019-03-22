@@ -27,6 +27,24 @@
 #ifndef __AWS__TLS__H__
 #define __AWS__TLS__H__
 
+#ifndef INC_FREERTOS_H
+    #error "include FreeRTOS.h must appear in source files before include aws_tls.h"
+#endif
+
+/**
+ * @defgroup TlsErrors TLS Error Codes
+ * @brief Error codes returned by the TLS API.
+ *
+ * Note that TLS API may also propagate port-specific
+ * error codes, or codes from mbedTLS.
+ */
+/**@{ */
+#define TLS_ERROR_HANDSHAKE_FAILED    ( -2001 )   /*!< Error in handshake. */
+#define TLS_ERROR_RNG                 ( -2002 )   /*!< Error in RNG. */
+#define TLS_ERROR_SIGN                ( -2003 )   /*!< Error in sign operation. */
+
+/**@} */
+
 /**
  * @brief Defines callback type for receiving bytes from the network.
  *
@@ -36,9 +54,9 @@
  *
  * @return The number of bytes actually read.
  */
-typedef BaseType_t ( * NetworkRecv_t ) ( void * pvCallerContext,
-                                         unsigned char * pucReceiveBuffer,
-                                         size_t xReceiveLength );
+typedef BaseType_t ( * NetworkRecv_t )( void * pvCallerContext,
+                                        unsigned char * pucReceiveBuffer,
+                                        size_t xReceiveLength );
 
 /**
  * @brief Defines callback type for sending bytes to the network.
@@ -49,9 +67,9 @@ typedef BaseType_t ( * NetworkRecv_t ) ( void * pvCallerContext,
  *
  * @return The number of bytes actually sent.
  */
-typedef BaseType_t ( * NetworkSend_t ) ( void * pvCallerContext,
-                                         const unsigned char * pucData,
-                                         size_t xDataLength );
+typedef BaseType_t ( * NetworkSend_t )( void * pvCallerContext,
+                                        const unsigned char * pucData,
+                                        size_t xDataLength );
 
 /**
  * @brief Defines parameter structure for initializing the TLS interface.

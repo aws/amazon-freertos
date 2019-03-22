@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greegrass Discovery Test V1.1.1
+ * Amazon FreeRTOS Greegrass Discovery Test V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -175,7 +175,7 @@ TEST( Full_GGD, GetGGCIPandCertificate )
 
             snprintf( cMsgBuffer, nBufferLength,
                       "GGD_GetGGCIPandCertificate returned %d on iteration %d",
-                      ( int )xStatus, ( int )i );
+                      ( int ) xStatus, ( int ) i );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xStatus, cBuffer );
         }
 

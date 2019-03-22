@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,6 +37,7 @@
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_application_version.h"
+#include "aws_dev_mode_key_provisioning.h"
 
 /* Declare the firmware version structure for all to see. */
 const AppVersion32_t xAppFirmwareVersion = {
@@ -196,6 +197,9 @@ void vApplicationDaemonTaskStartupHook( void )
         {
             /* Connect to the Wi-Fi before running the tests. */
             prvWifiConnect();
+
+            /* Provision the device with AWS certificate and private key. */
+            vDevModeKeyProvisioning();
 
             /* Start the demo tasks. */
             DEMO_RUNNER_RunDemos();

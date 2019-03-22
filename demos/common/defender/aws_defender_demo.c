@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Demo V1.4.2
+ * Amazon FreeRTOS Device Defender Demo V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -68,14 +68,13 @@ void vStartDeviceDefenderDemo( void )
 
 static void prvDefenderDemo( void * param )
 {
-    DefenderMetric_t xMetricsList[] =
-    {
-        xDefenderTCPConnections,
-    };
+    DefenderMetric_t xMetricsList[ 1 ];
     int32_t lReportPeriodSec = 300;
     DefenderErr_t eInitStatus;
     DefenderErr_t ePeriodStatus;
     DefenderErr_t eStartStatus;
+
+    xMetricsList[ 0 ] = xDefenderTCPConnections;
 
     /* Silence warning about unused param */
     ( void ) param;
