@@ -790,6 +790,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
 #define MAX_LENGTH_KEY    3000
     mbedtls_pk_context xMbedContext;
     int lDerKeyLength;
+    int lActualKeyLength;
     CK_BYTE_PTR pxDerKey = NULL;
     CK_RV xResult = CKR_OK;
 
@@ -835,6 +836,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
     if( xResult == CKR_OK )
     {
         lDerKeyLength = mbedtls_pk_write_key_der( &xMbedContext, pxDerKey, MAX_LENGTH_KEY );
+        lActualKeyLength = lDerKeyLength;
 
         if( lDerKeyLength < 0 )
         {
@@ -844,9 +846,25 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
 
     if( xResult == CKR_OK )
     {
+        /* TODO: Remove this hack.
+         * mbedTLS call appends empty public key data when saving EC private key.
+         * a1 04        -> Application identifier of length 4
+         * 03 02     -> Bit string of length 2
+         *    00 00  -> "Public key"
+         * This is not handled by the parser.
+         * This has not been tested very carefully either.*/
+        if( mbedtls_pk_get_type( &xMbedContext ) == MBEDTLS_PK_ECKEY )
+        {
+            pxDerKey[ MAX_LENGTH_KEY - lDerKeyLength + 1 ] -= 6;
+            lActualKeyLength -= 6;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
         *pxObject = PKCS11_PAL_SaveObject( pxSearchable,
                                            pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
-                                           lDerKeyLength );
+                                           lActualKeyLength );
 
         if( *pxObject == 0 )
         {
@@ -1390,19 +1408,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
                 mbedtls_pk_init( &pxSession->xSignKey );
 
-                /* TODO: Remove this hack.
-                 * mbedTLS call appends empty public key data when saving EC private key.
-                 * a1 04        -> Application identifier of length 4
-                 * 03 02     -> Bit string of length 2
-                 *    00 00  -> "Public key"
-                 * This is not handled by the parser.
-                 * This has not been tested very carefully either.*/
-                
-                if( pxMechanism->mechanism == CKM_ECDSA )
-                {
-                    keyData[ 1 ] = keyData[ 1 ] - 6;
-                    ulKeyDataLength -= 6;
-                }
+
+
+                /*if( pxMechanism->mechanism == CKM_ECDSA ) */
+                /*{ */
+                /*    keyData[ 1 ] = keyData[ 1 ] - 6; */
+                /*    ulKeyDataLength -= 6; */
+                /*} */
 
                 if( 0 == mbedtls_pk_parse_key( &pxSession->xSignKey, keyData, ulKeyDataLength, NULL, 0 ) )
                 {
@@ -1436,13 +1448,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
 xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS, uint8_t * pxMbedSignature )
 {
-
     /* Reconstruct the signature in PKCS #11 format. */
     CK_BYTE * pxNextLength;
     uint8_t ucSigComponentLength = pxMbedSignature[ 3 ];
 
     /* R Component. */
-    if ( ucSigComponentLength == 33 )
+    if( ucSigComponentLength == 33 )
     {
         memcpy( pxSignaturePKCS, &pxMbedSignature[ 5 ], 32 ); /* Chop off the leading zero. */
         pxNextLength = pxMbedSignature + 5 /* Sequence, length, integer, length, leading zero */ + 32 /*(R) */ + 1 /*(S's integer tag) */;
@@ -1456,7 +1467,7 @@ xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS, uint8_t * pxMbedS
     /* S Component. */
     ucSigComponentLength = pxNextLength[ 0 ];
 
-    if ( ucSigComponentLength == 33 )
+    if( ucSigComponentLength == 33 )
     {
         memcpy( &pxSignaturePKCS[ 32 ], &pxNextLength[ 2 ], 32 ); /* Skip leading zero. */
     }

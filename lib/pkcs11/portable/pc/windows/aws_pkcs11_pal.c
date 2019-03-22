@@ -120,6 +120,20 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
             *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
             *pHandle = eAwsCodeSigningKey;
         }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_ROOT_CERTIFICATE,
+                              sizeof( pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
+        {
+            *pcFileName = pkcs11palFILE_TRUSTED_ROOT;
+            *pHandle = eAwsTrustedServerCertificate;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_JITP_CERTIFICATE,
+                              sizeof( pkcs11configLABEL_JITP_CERTIFICATE ) ) )
+        {
+            *pcFileName = pkcs11palFILE_JITP;
+            *pHandle = eAwsJITPCertificate;
+        }
         else
         {
             *pcFileName = NULL;
@@ -163,6 +177,15 @@ void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
     }
 }
 
+/**
+ * @brief Delete an object from non-volatile storage.
+ * 
+ * @param[in] xHandle    Handle of the object to be destroyed.
+ * 
+ * @return CKR_OK if object was successfully destroyed. 
+ * Otherwise, PKCS #11-style error code.
+ * 
+ */
 CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
 {
     char * pcFileName;
@@ -352,7 +375,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         /* Open the file. */
         hFile = CreateFileA( pcFileName,
                              GENERIC_READ,
-                             FILE_SHARE_READ,
+                             0,
                              NULL,
                              OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL,
