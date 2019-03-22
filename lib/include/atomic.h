@@ -27,14 +27,14 @@
  * 1. Disabling interrupt globally.
  * 2. ISA native atomic support.
  * The former is available to all ports (compiler-architecture combination),
- * while the latter is only available to ports compiling with GCC compiler
- * which also have ISA atomic support.
+ * while the latter is only available to ports compiling with GCC (version at
+ * least 4.7.0), which also have ISA atomic support.
  *
  * User can select which implementation to use by:
- * including FreeRTOSConfig.h before atomic.h in application code,
- * and then setting/clearing configUSE_ATOMIC_INSTRUCTION in FreeRTOSConfig.h.
+ * setting/clearing configUSE_ATOMIC_INSTRUCTION in FreeRTOSConfig.h.
  * Define AND set configUSE_ATOMIC_INSTRUCTION to 1 for ISA native atomic support.
- * Undefine OR clear configUSE_ATOMIC_INSTRUCTION for disabling global interrupt implementation.
+ * Undefine OR clear configUSE_ATOMIC_INSTRUCTION for disabling global interrupt
+ * implementation.
  *
  * @see GCC Built-in Functions for Memory Model Aware Atomic Operations
  *      https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
@@ -47,19 +47,17 @@
     #error "include FreeRTOS.h must appear in source files before include atomic.h"
 #endif
 
-#ifndef PORTMACRO_H
-    #error "include portmacro.h must appear in source files before include atomic.h"
-#endif
-
 /* Standard includes. */
 #include <stdint.h>
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
+
+    /* Needed for __atomic_compare_exchange() weak=false. */
+    #include <stdbool.h>
 
     /* This branch is for GCC compiler and GCC compiler only. */
     #ifndef portFORCE_INLINE
@@ -68,8 +66,7 @@ extern "C" {
 
 #else
 
-    /* Port specific definitions --
-     * how to enter/exit critical section from atomic.
+    /* Port specific definitions -- entering/exiting critical section.
      * Refer template -- ./lib/FreeRTOS/portable/Compiler/Arch/portmacro.h
      *
      * Every call to ATOMIC_EXIT_CRITICAL() must be closely paired with
@@ -78,19 +75,24 @@ extern "C" {
     #if defined( portSET_INTERRUPT_MASK_FROM_ISR )
 
         /* Nested interrupt scheme is supported in this port. */
-        #define ATOMIC_ENTER_CRITICAL()     UBaseType_t uxCriticalSectionType = portSET_INTERRUPT_MASK_FROM_ISR()
-        #define ATOMIC_EXIT_CRITICAL()      portCLEAR_INTERRUPT_MASK_FROM_ISR( uxCriticalSectionType )
+        #define ATOMIC_ENTER_CRITICAL()     \
+            UBaseType_t uxCriticalSectionType = portSET_INTERRUPT_MASK_FROM_ISR()
+
+        #define ATOMIC_EXIT_CRITICAL()      \
+            portCLEAR_INTERRUPT_MASK_FROM_ISR( uxCriticalSectionType )
+
     #else
 
         /* Nested interrupt scheme is NOT supported in this port. */
         #define ATOMIC_ENTER_CRITICAL()     portENTER_CRITICAL()
         #define ATOMIC_EXIT_CRITICAL()      portEXIT_CRITICAL()
+
     #endif /* portSET_INTERRUPT_MASK_FROM_ISR() */
 
-    /* Port specific definitions --
-     * how to ensure "always inline".
-     * portFORCE_INLINE is used. If this is not defined, add the definition to the corresponding portmacro.h.
-     */
+    /* Port specific definition -- "always inline". */
+    #ifndef portFORCE_INLINE
+        #error "portFORCE_INLINE needs to be defined in portmacro.h"
+    #endif
 
 #endif /* configUSE_GCC_BUILTIN_ATOMICS */
 
@@ -101,51 +103,69 @@ extern "C" {
  *
  * @brief Performs an atomic compare-and-swap operation on the specified values.
  *
- * @param[in, out] pDestination  Pointer to memory location from where value is to be loaded and checked.
+ * @param[in, out] pDestination  Pointer to memory location from where value is
+ *                               to be loaded and checked.
  * @param[in] ulExchange         If condition meets, write this value to memory.
- * @param[in] ulComparand        Swap condition, checks and waits for *pDestination to be equal to ulComparand.
+ * @param[in] ulComparand        Swap condition.
  *
- * @return bool True for swapped, false for not swapped.
+ * @return Unsigned integer of value 1 or 0. 1 for swapped, 0 for not swapped.
  *
- * @note This function only swaps *pDestination with ulExchange, if previous *pDestination value equals ulComparand.
+ * @note This function only swaps *pDestination with ulExchange, if previous
+ *       *pDestination value equals ulComparand.
  */
-static portFORCE_INLINE bool Atomic_CompareAndSwap_u32( uint32_t volatile * pDestination, uint32_t ulExchange, uint32_t ulComparand )
+static portFORCE_INLINE uint32_t Atomic_CompareAndSwap_u32(
+        uint32_t volatile * pDestination,
+        uint32_t ulExchange,
+        uint32_t ulComparand )
 {
 
+    uint32_t ulReturnValue = 0;
+
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
-    return __atomic_compare_exchange( pDestination, &ulComparand, &ulExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST );
+
+    if ( __atomic_compare_exchange( pDestination,
+                                    &ulComparand,
+                                    &ulExchange,
+                                    false,
+                                    __ATOMIC_SEQ_CST,
+                                    __ATOMIC_SEQ_CST ) )
+    {
+        ulReturnValue =  1;
+    }
 
 #else
-
-    bool bExecutionStatus = false;
 
     ATOMIC_ENTER_CRITICAL();
 
     if ( *pDestination == ulComparand )
     {
         *pDestination = ulExchange;
-        bExecutionStatus = true;
+        ulReturnValue = 1;
     }
 
     ATOMIC_EXIT_CRITICAL();
 
-    return bExecutionStatus;
-
 #endif
+
+    return ulReturnValue;
 
 }
 
 /**
  * Atomic swap (pointers)
  *
- * @brief Atomically sets the address pointed to by *ppDestination to the value of *pExchange.
+ * @brief Atomically sets the address pointed to by *ppDestination to the value
+ *        of *pExchange.
  *
- * @param[in, out] ppDestination  Pointer to memory location from where a pointer value is to be loaded and writen back to.
+ * @param[in, out] ppDestination  Pointer to memory location from where a pointer
+ *                                value is to be loaded and written back to.
  * @param[in] pExchange           Pointer value to be written to *ppDestination.
  *
  * @return The initial value of *ppDestination.
  */
-static portFORCE_INLINE void * Atomic_SwapPointers_p32( void * volatile * ppDestination, void * pExchange )
+static portFORCE_INLINE void * Atomic_SwapPointers_p32(
+        void * volatile * ppDestination,
+        void * pExchange )
 {
     void * pReturnValue;
 
@@ -171,40 +191,51 @@ static portFORCE_INLINE void * Atomic_SwapPointers_p32( void * volatile * ppDest
 /**
  * Atomic compare-and-swap (pointers)
  *
- * @brief Performs an atomic compare-and-swap operation on the specified pointer values.
+ * @brief Performs an atomic compare-and-swap operation on the specified pointer
+ *        values.
  *
- * @param[in, out] ppDestination Pointer to memory location from where a pointer value is to be loaded and checked.
- * @param[in] pExchange          If condition meets, write this value to memory.
- * @param[in] pComparand         Swap condition, checks and waits for *ppDestination to be equal to *pComparand.
+ * @param[in, out] ppDestination  Pointer to memory location from where a pointer
+ *                                value is to be loaded and checked.
+ * @param[in] pExchange           If condition meets, write this value to memory.
+ * @param[in] pComparand          Swap condition.
  *
- * @return bool True for swapped, false for not swapped.
+ * @return Unsigned integer of value 1 or 0. 1 for swapped, 0 for not swapped.
  *
- * @note This function only swaps *ppDestination with pExchange, if previous *ppDestination value equals pComparand.
+ * @note This function only swaps *ppDestination with pExchange, if previous
+ *       *ppDestination value equals pComparand.
  */
-static portFORCE_INLINE bool Atomic_CompareAndSwapPointers_p32( void * volatile * ppDestination, void * pExchange, void * pComparand )
+static portFORCE_INLINE uint32_t Atomic_CompareAndSwapPointers_p32(
+        void * volatile * ppDestination,
+        void * pExchange, void * pComparand )
 {
+    uint32_t ulReturnValue = 0;
 
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
-    return __atomic_compare_exchange( ppDestination, &pComparand, &pExchange, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST );
+    if ( __atomic_compare_exchange( ppDestination,
+                                    &pComparand,
+                                    &pExchange,
+                                    false,
+                                    __ATOMIC_SEQ_CST,
+                                    __ATOMIC_SEQ_CST ) )
+    {
+        ulReturnValue = 1;
+    }
 
 #else
-
-    bool bExecutionStatus = false;
 
     ATOMIC_ENTER_CRITICAL();
 
     if ( *ppDestination == pComparand )
     {
         *ppDestination = pExchange;
-        bExecutionStatus = true;
+        ulReturnValue = 1;
     }
 
     ATOMIC_EXIT_CRITICAL();
 
-    return bExecutionStatus;
-
 #endif
 
+    return ulReturnValue;
 }
 
 
@@ -213,14 +244,17 @@ static portFORCE_INLINE bool Atomic_CompareAndSwapPointers_p32( void * volatile 
 /**
  * Atomic add
  *
- * @brief Adds count to the value of the specified 32-bit variable as an atomic operation.
+ * @brief Atomically adds count to the value of the specified pointer points to.
  *
- * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
- * @param[in] lCount       Value to be added to *pAddend.
+ * @param[in,out] pAddend  Pointer to memory location from where value is to be
+ *                         loaded and written back to.
+ * @param[in] ulCount      Value to be added to *pAddend.
  *
  * @return previous *pAddend value.
  */
-static portFORCE_INLINE uint32_t Atomic_Add_u32( uint32_t volatile * pAddend, uint32_t ulCount )
+static portFORCE_INLINE uint32_t Atomic_Add_u32(
+        uint32_t volatile * pAddend,
+        uint32_t ulCount )
 {
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
@@ -244,16 +278,20 @@ static portFORCE_INLINE uint32_t Atomic_Add_u32( uint32_t volatile * pAddend, ui
 }
 
 /**
- * Atomic sub
+ * Atomic subtract
  *
- * @brief Subtracts count from the value of the specified 32-bit variable as an atomic operation.
+ * @brief Atomically subtracts count from the value of the specified pointer
+ *        pointers to.
  *
- * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
- * @param[in] lCount       Value to be subtract from *pAddend.
+ * @param[in,out] pAddend  Pointer to memory location from where value is to be
+ *                         loaded and written back to.
+ * @param[in] ulCount      Value to be subtract from *pAddend.
  *
  * @return previous *pAddend value.
  */
-static portFORCE_INLINE uint32_t Atomic_Subtract_u32( uint32_t volatile * pAddend, uint32_t ulCount )
+static portFORCE_INLINE uint32_t Atomic_Subtract_u32(
+        uint32_t volatile * pAddend,
+        uint32_t ulCount )
 {
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
@@ -279,9 +317,10 @@ static portFORCE_INLINE uint32_t Atomic_Subtract_u32( uint32_t volatile * pAdden
 /**
  * Atomic increment
  *
- * @brief Increments the value of the specified 32-bit variable as an atomic operation.
+ * @brief Atomically increments the value of the specified pointer points to.
  *
- * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
+ * @param[in,out] pAddend  Pointer to memory location from where value is to be
+ *                         loaded and written back to.
  *
  * @return *pAddend value before increment.
  */
@@ -311,9 +350,10 @@ static portFORCE_INLINE uint32_t Atomic_Increment_u32( uint32_t volatile * pAdde
 /**
  * Atomic decrement
  *
- * @brief Decrements the value of the specified 32-bit variable as an atomic operation.
+ * @brief Atomically decrements the value of the specified pointer points to
  *
- * @param[in,out] pAddend  Pointer to memory location from where value is to be loaded and written back to.
+ * @param[in,out] pAddend  Pointer to memory location from where value is to be
+ *                         loaded and written back to.
  *
  * @return *pAddend value before decrement.
  */
@@ -347,12 +387,15 @@ static portFORCE_INLINE uint32_t Atomic_Decrement_u32( uint32_t volatile * pAdde
  *
  * @brief Performs an atomic OR operation on the specified values.
  *
- * @param [in, out] pDestination Pointer to memory location from where value is to be loaded and written back to.
- * @param [in] ulValue           Value to be ORed with *pDestination.
+ * @param [in, out] pDestination  Pointer to memory location from where value is
+ *                                to be loaded and written back to.
+ * @param [in] ulValue            Value to be ORed with *pDestination.
  *
  * @return The original value of *pDestination.
  */
-static portFORCE_INLINE uint32_t Atomic_OR_u32( uint32_t volatile * pDestination, uint32_t ulValue )
+static portFORCE_INLINE uint32_t Atomic_OR_u32(
+        uint32_t volatile * pDestination,
+        uint32_t ulValue )
 {
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
@@ -380,12 +423,15 @@ static portFORCE_INLINE uint32_t Atomic_OR_u32( uint32_t volatile * pDestination
  *
  * @brief Performs an atomic AND operation on the specified values.
  *
- * @param [in, out] pDestination Pointer to memory location from where value is to be loaded and written back to.
- * @param [in] ulValue           Value to be ANDed with *pDestination.
+ * @param [in, out] pDestination  Pointer to memory location from where value is
+ *                                to be loaded and written back to.
+ * @param [in] ulValue            Value to be ANDed with *pDestination.
  *
  * @return The original value of *pDestination.
  */
-static portFORCE_INLINE uint32_t Atomic_AND_u32( uint32_t volatile * pDestination, uint32_t ulValue )
+static portFORCE_INLINE uint32_t Atomic_AND_u32(
+        uint32_t volatile * pDestination,
+        uint32_t ulValue )
 {
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
@@ -413,12 +459,15 @@ static portFORCE_INLINE uint32_t Atomic_AND_u32( uint32_t volatile * pDestinatio
  *
  * @brief Performs an atomic NAND operation on the specified values.
  *
- * @param [in, out] pDestination Pointer to memory location from where value is to be loaded and written back to.
- * @param [in] ulValue           Value to be NANDed with *pDestination.
+ * @param [in, out] pDestination  Pointer to memory location from where value is
+ *                                to be loaded and written back to.
+ * @param [in] ulValue            Value to be NANDed with *pDestination.
  *
  * @return The original value of *pDestination.
  */
-static portFORCE_INLINE uint32_t Atomic_NAND_u32( uint32_t volatile * pDestination, uint32_t ulValue )
+static portFORCE_INLINE uint32_t Atomic_NAND_u32(
+        uint32_t volatile * pDestination,
+        uint32_t ulValue )
 {
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
@@ -443,14 +492,18 @@ static portFORCE_INLINE uint32_t Atomic_NAND_u32( uint32_t volatile * pDestinati
 
 /**
  * Atomic XOR
+ *
  * @brief Performs an atomic XOR operation on the specified values.
  *
- * @param [in, out] pDestination Pointer to memory location from where value is to be loaded and written back to.
- * @param [in] ulValue           Value to be XORed with *pDestination.
+ * @param [in, out] pDestination  Pointer to memory location from where value is
+ *                                to be loaded and written back to.
+ * @param [in] ulValue            Value to be XORed with *pDestination.
  *
  * @return The original value of *pDestination.
  */
-static portFORCE_INLINE uint32_t Atomic_XOR_u32( uint32_t volatile * pDestination, uint32_t ulValue )
+static portFORCE_INLINE uint32_t Atomic_XOR_u32(
+        uint32_t volatile * pDestination,
+        uint32_t ulValue )
 {
 #if defined ( configUSE_GCC_BUILTIN_ATOMICS ) && ( configUSE_GCC_BUILTIN_ATOMICS == 1 )
 
