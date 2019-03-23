@@ -102,14 +102,16 @@ static void RunTests( void )
 
         /* The Shadow v4 tests perform their own initialization and cleanup. Clean
          * up the MQTT library here to avoid memory leaks. */
-        AwsIotMqtt_Cleanup();
+        IotCommon_Cleanup();
+        IotMqtt_Cleanup();
 
         RUN_TEST_GROUP( Shadow_Unit_Parser );
         RUN_TEST_GROUP( Shadow_Unit_API );
         RUN_TEST_GROUP( Shadow_System );
 
         /* Initialize the MQTT library for any tests that come after. */
-        configASSERT( AwsIotMqtt_Init() == AWS_IOT_MQTT_SUCCESS );
+        configASSERT( IotCommon_Init() == true );
+        configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
@@ -125,8 +127,8 @@ static void RunTests( void )
         RUN_TEST_GROUP( MQTT_Unit_API );
         RUN_TEST_GROUP( MQTT_System );
 
-        IotCommon_Init();
         /* Initialize the MQTT library for any tests that come after. */
+        configASSERT( IotCommon_Init() == true );
         configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
 
@@ -188,13 +190,13 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_BLE_ENABLED == 1 )
-        //RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
+        /* RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize ); */
         RUN_TEST_GROUP( Full_BLE );
     #endif
 
-#if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
-    RUN_TEST_GROUP( Full_BLE_END_TO_END );
-#endif
+    #if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_BLE_END_TO_END );
+    #endif
 
     #if ( testrunnerFULL_FREERTOS_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_FREERTOS_TCP );
@@ -206,8 +208,8 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
-        RUN_TEST_GROUP(Full_Serializer_CBOR);
-        RUN_TEST_GROUP(Full_Serializer_JSON);
+        RUN_TEST_GROUP( Full_Serializer_CBOR );
+        RUN_TEST_GROUP( Full_Serializer_JSON );
     #endif
 }
 /*-----------------------------------------------------------*/
@@ -223,7 +225,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
     UNITY_BEGIN();
 
     /* Give the print buffer time to empty */
-    vTaskDelay( pdMS_TO_TICKS( 500) );
+    vTaskDelay( pdMS_TO_TICKS( 500 ) );
     /* Measure the heap size before any tests are run. */
     #if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 )
         xHeapBefore = xPortGetFreeHeapSize();
@@ -242,7 +244,7 @@ void TEST_RUNNER_RunTests_task( void * pvParameters )
         #endif
 
         /* Give the print buffer time to empty */
-        vTaskDelay( pdMS_TO_TICKS( 500) );
+        vTaskDelay( pdMS_TO_TICKS( 500 ) );
         xHeapAfter = xPortGetFreeHeapSize();
         RUN_TEST_GROUP( Full_MemoryLeak );
     #endif /* if ( testrunnerFULL_MEMORYLEAK_ENABLED == 1 ) */

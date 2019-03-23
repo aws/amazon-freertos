@@ -103,7 +103,7 @@ TEST_GROUP_RUNNER( MQTT_Unit_Validate )
 {
     RUN_TEST_CASE( MQTT_Unit_Validate, ValidateConnectInfo );
     RUN_TEST_CASE( MQTT_Unit_Validate, ValidatePublish );
-    RUN_TEST_CASE( MQTT_Unit_Validate, ValidateReference );
+    RUN_TEST_CASE( MQTT_Unit_Validate, ValidateOperation );
     RUN_TEST_CASE( MQTT_Unit_Validate, ValidateSubscriptionList );
 }
 
@@ -256,28 +256,35 @@ TEST( MQTT_Unit_Validate, ValidatePublish )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test validation of an #IotMqttReference_t.
+ * @brief Test validation of an #IotMqttOperation_t.
  */
-TEST( MQTT_Unit_Validate, ValidateReference )
+TEST( MQTT_Unit_Validate, ValidateOperation )
 {
     bool validateStatus = false;
-    _mqttOperation_t reference;
+    IotMqttOperation_t operation = IotMqtt_MallocOperation( sizeof( _mqttOperation_t ) );
 
-    ( void ) memset( &reference, 0x00, sizeof( _mqttOperation_t ) );
+    TEST_ASSERT_NOT_NULL( operation );
 
-    /* NULL parameter. */
-    validateStatus = _IotMqtt_ValidateReference( NULL );
-    TEST_ASSERT_EQUAL_INT( false, validateStatus );
+    if( TEST_PROTECT() )
+    {
+        ( void ) memset( operation, 0x00, sizeof( _mqttOperation_t ) );
 
-    /* Non-waitable reference. */
-    reference.flags = 0;
-    validateStatus = _IotMqtt_ValidateReference( &reference );
-    TEST_ASSERT_EQUAL_INT( false, validateStatus );
+        /* NULL parameter. */
+        validateStatus = _IotMqtt_ValidateOperation( NULL );
+        TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
-    /* Waitable (valid) reference. */
-    reference.flags = IOT_MQTT_FLAG_WAITABLE;
-    validateStatus = _IotMqtt_ValidateReference( &reference );
-    TEST_ASSERT_EQUAL_INT( true, validateStatus );
+        /* Non-waitable reference. */
+        operation->flags = 0;
+        validateStatus = _IotMqtt_ValidateOperation( operation );
+        TEST_ASSERT_EQUAL_INT( false, validateStatus );
+
+        /* Waitable (valid) reference. */
+        operation->flags = IOT_MQTT_FLAG_WAITABLE;
+        validateStatus = _IotMqtt_ValidateOperation( operation );
+        TEST_ASSERT_EQUAL_INT( true, validateStatus );
+    }
+
+    IotMqtt_FreeOperation( operation );
 }
 
 /*-----------------------------------------------------------*/

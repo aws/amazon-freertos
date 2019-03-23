@@ -123,17 +123,26 @@
     #endif
 #endif /* if IOT_STATIC_MEMORY_ONLY == 1 */
 
+/* Enable asserts in libraries. */
+#ifndef IOT_CONTAINERS_ENABLE_ASSERTS
+    #define IOT_CONTAINERS_ENABLE_ASSERTS      ( 1 )
+#endif
+#ifndef IOT_MQTT_ENABLE_ASSERTS
+    #define IOT_MQTT_ENABLE_ASSERTS            ( 1 )
+#endif
+#ifndef AWS_IOT_DEFENDER_ENABLE_ASSERTS
+    #define AWS_IOT_DEFENDER_ENABLE_ASSERTS    ( 1 )
+#endif
+#ifndef IOT_METRICS_ENABLE_ASSERTS
+    #define IOT_METRICS_ENABLE_ASSERTS         ( 1 )
+#endif
+
 /* Platform network configuration. */
 #ifndef IOT_NETWORK_RECEIVE_BUFFER_SIZE
     #define IOT_NETWORK_RECEIVE_BUFFER_SIZE    ( 1024 )
 #endif
 #ifndef IOT_NETWORK_SHORT_TIMEOUT_MS
     #define IOT_NETWORK_SHORT_TIMEOUT_MS       ( 100 )
-#endif
-
-/* Linear containers configuration. */
-#ifndef IOT_CONTAINERS_ENABLE_ASSERTS
-    #define IOT_CONTAINERS_ENABLE_ASSERTS    ( 1 )
 #endif
 
 /* Priority of network receive task. */
@@ -147,11 +156,8 @@
 #endif
 
 /* MQTT library configuration. */
-#ifndef IOT_MQTT_ENABLE_METRICS
-    #define IOT_MQTT_ENABLE_METRICS    ( 1 )
-#endif
-#ifndef IOT_MQTT_ENABLE_ASSERTS
-    #define IOT_MQTT_ENABLE_ASSERTS        ( 1 )
+#ifndef AWS_IOT_MQTT_ENABLE_METRICS
+    #define AWS_IOT_MQTT_ENABLE_METRICS    ( 1 )
 #endif
 #ifndef IOT_MQTT_RESPONSE_WAIT_MS
     #define IOT_MQTT_RESPONSE_WAIT_MS      ( 1000 )
@@ -162,22 +168,12 @@
 
 /* Required settings for the MQTT demos. */
 #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
-#define IOT_MQTT_TEST                           ( 0 )
-
-/* Enable metrics library assert. */
-#ifndef AWS_IOT_METRICS_ENABLE_ASSERTS
-    #define AWS_IOT_METRICS_ENABLE_ASSERTS    ( 1 )
-#endif
-
-/* Enable defender library assert. */
-#ifndef AWS_IOT_DEFENDER_ENABLE_ASSERTS
-    #define AWS_IOT_DEFENDER_ENABLE_ASSERTS    ( 1 )
-#endif
+#define IOT_BUILD_TESTS                         ( 0 )
 
 /* Configuration for defender demo: set format to CBOR. */
-#define AWS_IOT_DEFENDER_FORMAT          AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_FORMAT                 AWS_IOT_DEFENDER_FORMAT_CBOR
 
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
-#define AWS_IOT_DEFENDER_USE_LONG_TAG    ( 1 )
+#define AWS_IOT_DEFENDER_USE_LONG_TAG           ( 1 )
 
 #endif /* ifndef _IOT_CONFIG_COMMON_H_ */

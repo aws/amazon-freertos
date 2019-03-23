@@ -28,11 +28,11 @@
  * @file aws_iot_demo_network.c
  * @brief Contains implementation for network creation and teardown functions for handling different types of network connections
  */
-#include "iot_demo.h"
+#include "iot_demo_logging.h"
 #include "aws_iot_network_manager.h"
 #include "aws_iot_demo_network.h"
+#include "iot_ble_mqtt.h"
 #include "platform/iot_network_afr.h"
-#include "platform/iot_network_ble.h"
 #include "private/iot_error.h"
 
 #if BLE_ENABLED
@@ -115,11 +115,11 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
     BaseType_t xNetworkCreated = pdFALSE;
     IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
-    static IotNetworkConnectionAfr_t xConnection;
+    static IotNetworkConnectionAfr_t * pConnection = NULL;
     IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     IotMqttNetworkInfo_t* pxNetworkIface = &( pxNetworkContext->xNetworkInfo );
-    
+
     /* Disable ALPN if not using port 443. */
     if( clientcredentialMQTT_BROKER_PORT != 443 )
     {
@@ -127,7 +127,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     }
 
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  IotNetworkAfr_Create(&xServerInfo, &xCredentials, &xConnection);
+    xStatus =  IotNetworkAfr_Create(&xServerInfo, &xCredentials, (void**)&pConnection);
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
@@ -142,9 +142,9 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
 
     ( *pxNetworkIface ) = xDefaultNetworkInterface;
     pxNetworkIface->createNetworkConnection = false;
-    pxNetworkIface->pNetworkConnection = &xConnection;
+    pxNetworkIface->pNetworkConnection = pConnection;
     pxNetworkIface->pNetworkInterface = &xNetworkInterface;
-    pxNetworkContext->pvNetworkConnection = ( void* ) &xConnection;
+    pxNetworkContext->pvNetworkConnection = ( void* ) pConnection;
 
     _IOT_FUNCTION_CLEANUP_BEGIN();
 
@@ -152,8 +152,8 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     {
         if( xNetworkCreated == pdTRUE )
         {
-            IotNetworkAfr_Close( &xConnection );
-            IotNetworkAfr_Destroy( &xConnection );
+            IotNetworkAfr_Close( pConnection );
+            IotNetworkAfr_Destroy( pConnection );
         }
     }
 
@@ -166,16 +166,16 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 {
     BaseType_t xStatus = pdFALSE;
     IotMqttNetworkInfo_t* pxNetworkInfo = &( pxNetworkContext->xNetworkInfo );
-    static IotBleMqttConnection_t bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
+    static IotBleMqttConnection_t * bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
 
-    if( IotBleMqtt_CreateConnection( &pxNetworkContext->xMqttConnection, &bleConnection ) == pdTRUE )
+    if( IotNetworkBle.create( NULL, NULL, ( void * *) &bleConnection ) == IOT_NETWORK_SUCCESS )
     {
     	pxNetworkInfo->createNetworkConnection = false;
-    	pxNetworkInfo->pNetworkConnection = (void *)&bleConnection;
-    	pxNetworkInfo->pNetworkInterface = IOT_NETWORK_INTERFACE_BLE;
+    	pxNetworkInfo->pNetworkConnection = (void *)bleConnection;
+    	pxNetworkInfo->pNetworkInterface = &IotNetworkBle;
     	pxNetworkInfo->pMqttSerializer = &IotBleMqttSerializer;
 
-        pxNetworkContext->pvNetworkConnection = ( void* ) &bleConnection;
+        pxNetworkContext->pvNetworkConnection = ( void* ) bleConnection;
 
         xStatus = pdTRUE;
     }
@@ -186,37 +186,16 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 
 BaseType_t xMqttDemoCreateNetworkConnection(
         MqttConnectionContext_t* pxConnection,
-        uint32_t ulNetworkTypes,
-        uint32_t ulConnRetryIntervalSeconds,
-        uint32_t ulConnRetryLimit )
+        uint32_t ulNetworkTypes )
 {
-    size_t xTriesLeft = ( ulConnRetryLimit + 1 );
     BaseType_t xRet = pdFALSE;
-    TickType_t xRetryDelay = pdMS_TO_TICKS( ulConnRetryIntervalSeconds * 1000 );
 
-    while ( xTriesLeft > 0 )
-    {
-        pxConnection->ulNetworkType = prxCreateNetworkConnection( pxConnection, ulNetworkTypes );
+	pxConnection->ulNetworkType = prxCreateNetworkConnection( pxConnection, ulNetworkTypes );
 
-        if( pxConnection->ulNetworkType != AWSIOT_NETWORK_TYPE_NONE )
-        {
-            xRet = pdTRUE;
-            break;
-        }
-        else
-        {
-            xTriesLeft--;
-
-            if( xTriesLeft > 0 )
-            {
-            	configPRINTF(("Failed to connect to network, %d retries left\n", xTriesLeft));
-                vTaskDelay( xRetryDelay );
-            }else
-            {
-            	configPRINTF(("Failed to connect to network, no more retry\n"));
-            }
-        }
-    }
+	if( pxConnection->ulNetworkType != AWSIOT_NETWORK_TYPE_NONE )
+	{
+		xRet = pdTRUE;
+	}
 
     return xRet;
 }

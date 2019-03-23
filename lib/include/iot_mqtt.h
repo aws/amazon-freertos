@@ -21,7 +21,7 @@
 
 /**
  * @file iot_mqtt.h
- * @brief User-facing functions and structs of the MQTT 3.1.1 library.
+ * @brief User-facing functions of the MQTT 3.1.1 library.
  */
 
 #ifndef _IOT_MQTT_H_
@@ -34,23 +34,6 @@
 
 /* MQTT types include. */
 #include "types/iot_mqtt_types.h"
-
-/*------------------------- MQTT defined constants --------------------------*/
-
-/**
- * @brief Allows the use of @ref mqtt_function_wait for blocking until completion.
- *
- * This flag is always valid for @ref mqtt_function_subscribe and
- * @ref mqtt_function_unsubscribe. If passed to @ref mqtt_function_publish,
- * the parameter [pPublishInfo->qos](@ref IotMqttPublishInfo_t.qos) must not be `0`.
- *
- * An #IotMqttReference_t <b>MUST</b> be provided if this flag is set. Additionally, an
- * #IotMqttCallbackInfo_t <b>MUST NOT</b> be provided.
- *
- * @note If this flag is set, @ref mqtt_function_wait <b>MUST</b> be called to clean up
- * resources.
- */
-#define IOT_MQTT_FLAG_WAITABLE    ( 0x00000001 )
 
 /*------------------------- MQTT library functions --------------------------*/
 
@@ -262,14 +245,14 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
  *     // Do something with the MQTT connection...
  *
  *     // Clean up and close the MQTT connection once it's no longer needed.
- *     IotMqtt_Disconnect( mqttConnection, false );
+ *     IotMqtt_Disconnect( mqttConnection, 0 );
  * }
  * @endcode
  */
 /* @[declare_mqtt_connect] */
 IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
                                 const IotMqttConnectInfo_t * pConnectInfo,
-                                uint64_t timeoutMs,
+                                uint32_t timeoutMs,
                                 IotMqttConnection_t * pMqttConnection );
 /* @[declare_mqtt_connect] */
 
@@ -278,9 +261,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
  *
  * This function closes an MQTT connection and should only be called once
  * the MQTT connection is no longer needed. Its exact behavior depends on the
- * `cleanupOnly` parameter.
+ * `flags` parameter.
  *
- * Normally, `cleanupOnly` should be `false`. This gracefully shuts down an MQTT
+ * Normally, `flags` should be `0`. This gracefully shuts down an MQTT
  * connection by sending an MQTT DISCONNECT packet. Any [network close function]
  * (@ref IotNetworkInterface_t::close) provided [when the connection was established]
  * (@ref mqtt_function_connect) will also be called. Note that because the MQTT server
@@ -291,9 +274,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
  * MQTT server, the LWT message will be discarded and not published.
  *
  * Should the underlying network connection become unusable, this function should
- * be called with `cleanupOnly` set to `true`. In this case, no DISCONNECT packet
- * will be sent, and the [network close function](@ref IotNetworkInterface_t::close)
- * will not be called. This function will only free the resources used by the MQTT
+ * be called with `flags` set to #IOT_MQTT_FLAG_CLEANUP_ONLY. In this case, no
+ * DISCONNECT packet will be sent, though the [network close function](@ref IotNetworkInterface_t::close)
+ * will still be called. This function will only free the resources used by the MQTT
  * connection; it still must be called even if the network is offline to avoid leaking
  * resources.
  *
@@ -301,14 +284,11 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
  * be used.
  *
  * @param[in] mqttConnection The MQTT connection to close and clean up.
- * @param[in] cleanupOnly Passing `true` will cause this function to only perform
- * cleanup of the MQTT connection and not send a DISCONNECT packet. This parameter
- * should be `true` if the network goes offline or is otherwise unusable. Otherwise,
- * it should be `false`.
+ * @param[in] flags Flags which modify the behavior of this function. See @ref mqtt_constants_flags.
  */
 /* @[declare_mqtt_disconnect] */
 void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
-                         bool cleanupOnly );
+                         uint32_t flags );
 /* @[declare_mqtt_disconnect] */
 
 /**
@@ -346,7 +326,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
  * @param[in] subscriptionCount The number of elements in pSubscriptionList.
  * @param[in] flags Flags which modify the behavior of this function. See @ref mqtt_constants_flags.
  * @param[in] pCallbackInfo Asynchronous notification of this function's completion.
- * @param[out] pSubscribeRef Set to a handle by which this operation may be
+ * @param[out] pSubscribeOperation Set to a handle by which this operation may be
  * referenced after this function returns. This reference is invalidated once
  * the subscription operation completes.
  *
@@ -378,7 +358,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
  *
  * // Subscription information.
  * pSubscriptions[ NUMBER_OF_SUBSCRIPTIONS ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
- * IotMqttReference_t lastOperation = IOT_MQTT_REFERENCE_INITIALIZER;
+ * IotMqttOperation_t lastOperation = IOT_MQTT_OPERATION_INITIALIZER;
  *
  * // Set the subscription information.
  * for( int i = 0; i < NUMBER_OF_SUBSCRIPTIONS; i++ )
@@ -445,7 +425,7 @@ IotMqttError_t IotMqtt_Subscribe( IotMqttConnection_t mqttConnection,
                                   size_t subscriptionCount,
                                   uint32_t flags,
                                   const IotMqttCallbackInfo_t * pCallbackInfo,
-                                  IotMqttReference_t * pSubscribeRef );
+                                  IotMqttOperation_t * pSubscribeOperation );
 /* @[declare_mqtt_subscribe] */
 
 /**
@@ -484,7 +464,7 @@ IotMqttError_t IotMqtt_TimedSubscribe( IotMqttConnection_t mqttConnection,
                                        const IotMqttSubscription_t * pSubscriptionList,
                                        size_t subscriptionCount,
                                        uint32_t flags,
-                                       uint64_t timeoutMs );
+                                       uint32_t timeoutMs );
 /* @[declare_mqtt_timedsubscribe] */
 
 /**
@@ -505,7 +485,7 @@ IotMqttError_t IotMqtt_TimedSubscribe( IotMqttConnection_t mqttConnection,
  * @param[in] subscriptionCount The number of elements in pSubscriptionList.
  * @param[in] flags Flags which modify the behavior of this function. See @ref mqtt_constants_flags.
  * @param[in] pCallbackInfo Asynchronous notification of this function's completion.
- * @param[out] pUnsubscribeRef Set to a handle by which this operation may be
+ * @param[out] pUnsubscribeOperation Set to a handle by which this operation may be
  * referenced after this function returns. This reference is invalidated once
  * the unsubscribe operation completes.
  *
@@ -530,7 +510,7 @@ IotMqttError_t IotMqtt_Unsubscribe( IotMqttConnection_t mqttConnection,
                                     size_t subscriptionCount,
                                     uint32_t flags,
                                     const IotMqttCallbackInfo_t * pCallbackInfo,
-                                    IotMqttReference_t * pUnsubscribeRef );
+                                    IotMqttOperation_t * pUnsubscribeOperation );
 /* @[declare_mqtt_unsubscribe] */
 
 /**
@@ -565,7 +545,7 @@ IotMqttError_t IotMqtt_TimedUnsubscribe( IotMqttConnection_t mqttConnection,
                                          const IotMqttSubscription_t * pSubscriptionList,
                                          size_t subscriptionCount,
                                          uint32_t flags,
-                                         uint64_t timeoutMs );
+                                         uint32_t timeoutMs );
 /* @[declare_mqtt_timedunsubscribe] */
 
 /**
@@ -588,7 +568,7 @@ IotMqttError_t IotMqtt_TimedUnsubscribe( IotMqttConnection_t mqttConnection,
  * @param[in] pPublishInfo MQTT publish parameters.
  * @param[in] flags Flags which modify the behavior of this function. See @ref mqtt_constants_flags.
  * @param[in] pCallbackInfo Asynchronous notification of this function's completion.
- * @param[out] pPublishRef Set to a handle by which this operation may be
+ * @param[out] pPublishOperation Set to a handle by which this operation may be
  * referenced after this function returns. This reference is invalidated once
  * the publish operation completes.
  *
@@ -608,7 +588,7 @@ IotMqttError_t IotMqtt_TimedUnsubscribe( IotMqttConnection_t mqttConnection,
  * - #IOT_MQTT_BAD_PARAMETER
  * - #IOT_MQTT_NO_MEMORY
  *
- * @note The parameters `pCallbackInfo` and `pPublishRef` should only be used for QoS
+ * @note The parameters `pCallbackInfo` and `pPublishOperation` should only be used for QoS
  * 1 publishes. For QoS 0, they should both be `NULL`.
  *
  * @see @ref mqtt_function_timedpublish for a blocking variant of this function.
@@ -636,7 +616,7 @@ IotMqttError_t IotMqtt_TimedUnsubscribe( IotMqttConnection_t mqttConnection,
  *                                              NULL );
  *
  * // QoS 1 with retry example (using same topic name and payload as QoS 0 example):
- * IotMqttReference_t qos1Reference = IOT_MQTT_REFERENCE_INITIALIZER;
+ * IotMqttOperation_t qos1Operation = IOT_MQTT_OPERATION_INITIALIZER;
  * publishInfo.qos = IOT_MQTT_QOS_1;
  * publishInfo.retryMs = 1000; // Retry if no response is received in 1 second.
  * publishInfo.retryLimit = 5; // Retry up to 5 times.
@@ -646,12 +626,12 @@ IotMqttError_t IotMqtt_TimedUnsubscribe( IotMqttConnection_t mqttConnection,
  *                                              &publishInfo,
  *                                              IOT_MQTT_FLAG_WAITABLE,
  *                                              NULL,
- *                                              &qos1Reference );
+ *                                              &qos1Operation );
  *
  * // Wait up to 5 seconds for the publish to complete.
  * if( qos1Result == IOT_MQTT_STATUS_PENDING )
  * {
- *     qos1Result = IotMqtt_Wait( qos1Reference, 5000 );
+ *     qos1Result = IotMqtt_Wait( qos1Operation, 5000 );
  * }
  * @endcode
  */
@@ -660,7 +640,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
                                 const IotMqttPublishInfo_t * pPublishInfo,
                                 uint32_t flags,
                                 const IotMqttCallbackInfo_t * pCallbackInfo,
-                                IotMqttReference_t * pPublishRef );
+                                IotMqttOperation_t * pPublishOperation );
 /* @[declare_mqtt_publish] */
 
 /**
@@ -697,7 +677,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
 IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
                                      const IotMqttPublishInfo_t * pPublishInfo,
                                      uint32_t flags,
-                                     uint64_t timeoutMs );
+                                     uint32_t timeoutMs );
 /* @[declare_mqtt_timedpublish] */
 
 /**
@@ -717,7 +697,7 @@ IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
  * by the waitable operation. This means `reference` is invalidated as soon as
  * this function returns, even if it returns #IOT_MQTT_TIMEOUT or another error.
  *
- * @param[in] reference Reference to the operation to wait for. The flag
+ * @param[in] operation Reference to the operation to wait for. The flag
  * #IOT_MQTT_FLAG_WAITABLE must have been set for this operation.
  * @param[in] timeoutMs How long to wait before returning #IOT_MQTT_TIMEOUT.
  *
@@ -726,22 +706,22 @@ IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
  *
  * <b>Example</b>
  * @code{c}
- * // Reference and timeout.
- * IotMqttReference_t reference = IOT_MQTT_REFERENCE_INITIALIZER;
- * uint64_t timeoutMs = 5000; // 5 seconds
+ * // Operation reference and timeout.
+ * IotMqttOperation_t publishOperation = IOT_MQTT_OPERATION_INITIALIZER;
+ * uint32_t timeoutMs = 5000; // 5 seconds
  *
  * // MQTT operation to wait for.
  * IotMqttError_t result = IotMqtt_Publish( mqttConnection,
  *                                          &publishInfo,
  *                                          IOT_MQTT_FLAG_WAITABLE,
  *                                          NULL,
- *                                          &reference );
+ *                                          &publishOperation );
  *
  * // Publish should have returned IOT_MQTT_STATUS_PENDING. The call to wait
  * // returns once the result of the publish is available or the timeout expires.
  * if( result == IOT_MQTT_STATUS_PENDING )
  * {
- *     result = IotMqtt_Wait( reference, timeoutMs );
+ *     result = IotMqtt_Wait( publishOperation, timeoutMs );
  *
  *     // After the call to wait, the result of the publish is known
  *     // (not IOT_MQTT_STATUS_PENDING).
@@ -750,8 +730,8 @@ IotMqttError_t IotMqtt_TimedPublish( IotMqttConnection_t mqttConnection,
  * @endcode
  */
 /* @[declare_mqtt_wait] */
-IotMqttError_t IotMqtt_Wait( IotMqttReference_t reference,
-                             uint64_t timeoutMs );
+IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
+                             uint32_t timeoutMs );
 /* @[declare_mqtt_wait] */
 
 /*-------------------------- MQTT helper functions --------------------------*/

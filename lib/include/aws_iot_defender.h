@@ -37,11 +37,11 @@
  *
  * Amazon FreeRTOS provides a library that allows your Amazon FreeRTOS-based devices to work with AWS IoT Device Defender.
  *
- ## Dependencies
- ##- MQTT library
- ##- Serializer library
- ##- Platform(POSIX) libraries
- ##- Metrics library
+ * ## Dependencies
+ * * MQTT library
+ * * Serializer library
+ * * Platform(POSIX) libraries
+ * * Metrics library
  */
 
 #ifndef _AWS_IOT_DEFENDER_H_
@@ -54,12 +54,13 @@
 
 /* Standard includes. */
 #include <stdint.h>
+#include <stdlib.h>
+
+/* Network include. */
+#include "platform/iot_network.h"
 
 /* MQTT include. */
 #include "iot_mqtt.h"
-
-/* Platform network include. */
-#include "platform/aws_iot_network.h"
 
 /**
  * @page Defender_constants Constants
@@ -74,10 +75,11 @@
  * @name Serialization Format
  *
  * @brief Format constants: Cbor or Json.
+ * @warning JSON format is not supported for now.
  */
 /**@{ */
 #define AWS_IOT_DEFENDER_FORMAT_CBOR    1                                      /**< CBOR format. */
-#define AWS_IOT_DEFENDER_FORMAT_JSON    2                                      /**< JSON format. */
+#define AWS_IOT_DEFENDER_FORMAT_JSON    2                                      /**< JSON format (NOT supported). */
 /**@} */
 
 /**
@@ -106,7 +108,7 @@
 #define AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED                                                                          \
     ( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_CONNECTIONS | AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL ) \
 
-/**@} */
+/**@} end of DefenderMetricsFlags */
 
 /**
  * @anchor DefenderInitializers
@@ -147,13 +149,12 @@ typedef enum
  */
 typedef enum
 {
-    AWS_IOT_DEFENDER_SUCCESS = 0,        /**< Defender operation completed successfully. */
-    AWS_IOT_DEFENDER_INVALID_INPUT,      /**< At least one input parameter is invalid. */
-    AWS_IOT_DEFENDER_CONNECTION_FAILURE, /**< Connection to AWS IoT failed. */
-    AWS_IOT_DEFENDER_ALREADY_STARTED,    /**< Defender has been already started. */
-    AWS_IOT_DEFENDER_PERIOD_TOO_SHORT,   /**< Given period is too short. */
-    AWS_IOT_DEFENDER_ERROR_NO_MEMORY,    /**< Defender operation failed due to memory allocation failure. */
-    AWS_IOT_DEFENDER_INTERNAL_FAILURE    /**< Defender operation failed due to internal unexpected cause. */
+    AWS_IOT_DEFENDER_SUCCESS = 0,      /**< Defender operation completed successfully. */
+    AWS_IOT_DEFENDER_INVALID_INPUT,    /**< At least one input parameter is invalid. */
+    AWS_IOT_DEFENDER_ALREADY_STARTED,  /**< Defender has been already started. */
+    AWS_IOT_DEFENDER_PERIOD_TOO_SHORT, /**< Given period is too short. */
+    AWS_IOT_DEFENDER_ERROR_NO_MEMORY,  /**< Defender operation failed due to memory allocation failure. */
+    AWS_IOT_DEFENDER_INTERNAL_FAILURE  /**< Defender operation failed due to internal unexpected cause. */
 } AwsIotDefenderError_t;
 
 /**
@@ -162,15 +163,10 @@ typedef enum
  */
 typedef enum
 {
-    AWS_IOT_DEFENDER_METRICS_ACCEPTED = 0,         /**< Metrics report was accepted by defender service. */
-    AWS_IOT_DEFENDER_METRICS_REJECTED,             /**< Metrics report was rejected by defender service. */
-    AWS_IOT_DEFENDER_NETWORK_CONNECTION_FAILED,    /**< Failed to connect to defender service endpoint. */
-    AWS_IOT_DEFENDER_NETWORK_SET_CALLBACK_FAILED,  /**< Failed to set MQTT callback to network connection. */
-    AWS_IOT_DEFENDER_MQTT_CONNECTION_FAILED,       /**< Failed to setup MQTT connection. */
-    AWS_IOT_DEFENDER_MQTT_SUBSCRIPTION_FAILED,     /**< Failed to subscribe defender MQTT topics. */
-    AWS_IOT_DEFENDER_MQTT_PUBLISH_FAILED,          /**< Failed to publish to MQTT topics. */
-    AWS_IOT_DEFENDER_METRICS_SERIALIZATION_FAILED, /**< Failed to serialize metrics report. */
-    AWS_IOT_DEFENDER_EVENT_NO_MEMORY               /**< Metrics report was not able to be published due to memory allocation failure. */
+    AWS_IOT_DEFENDER_METRICS_ACCEPTED = 0,  /**< Metrics report was accepted by defender service. */
+    AWS_IOT_DEFENDER_METRICS_REJECTED,      /**< Metrics report was rejected by defender service. */
+    AWS_IOT_DEFENDER_FAILURE_MQTT,          /**< Defender failed to perform MQTT operation. */
+    AWS_IOT_DEFENDER_FAILURE_METRICS_REPORT /**< Defender failed to create metrics report. */
 } AwsIotDefenderEventType_t;
 
 /**
@@ -211,12 +207,9 @@ typedef struct AwsIotDefenderCallback
  */
 typedef struct AwsIotDefenderStartInfo
 {
-    const char * pAwsIotEndpoint;      /**< AWS IoT Defender service endpoint(must be valid). */
-    uint16_t port;                     /**< AWS IoT Defender service port(must be valid). */
-    IotNetworkCredentialsAfr_t tlsInfo;    /**< TLS information for secure communication(must be valid). */
-    const char * pThingName;           /**< AWS IoT thing name(must be valid). */
-    uint16_t thingNameLength;          /**< Length of AWS IoT thing name(must be valid). */
-    AwsIotDefenderCallback_t callback; /**< Length of AWS IoT thing name(optional). */
+    IotMqttNetworkInfo_t mqttNetworkInfo;    /**< MQTT Network info used by defender (required). */
+    IotMqttConnectInfo_t mqttConnectionInfo; /**< MQTT connection info used by defender (required). */
+    AwsIotDefenderCallback_t callback;       /**< Callback function parameter(optional). */
 } AwsIotDefenderStartInfo_t;
 
 /**
@@ -236,7 +229,8 @@ typedef struct AwsIotDefenderStartInfo
  * @snippet this declare_defender_setmetrics
  * @brief Set metrics that defender agent needs to collect for a metrics group.
  *
- * Metrics to be collected is global data which is independent of defender agent start or stop.
+ * * If defender agent is not started, this function will provide the metrics to be collected.
+ * * If defender agent is started, this function will update the metrics and take effect in defender agent's next iteration.
  *
  * @param[in] metricsGroup Metrics group defined in #AwsIotDefenderMetricsGroup_t
  * @param[in] metrics Bit-flags to specify what metrics to collect.
@@ -247,6 +241,7 @@ typedef struct AwsIotDefenderStartInfo
  * * On success, #AWS_IOT_DEFENDER_SUCCESS is returned.
  * * If metricsGroup is invalid, #AWS_IOT_DEFENDER_INVALID_INPUT is returned.
  * @note This function is thread safe.
+ * @note @ref Defender_function_Stop "AwsIotDefender_Stop" will clear the metrics.
  */
 
 /* @[declare_defender_setmetrics] */
@@ -294,8 +289,8 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
  *
  * void startDefender()
  * {
- *     // assume a valid IotNetworkCredentialsAfr_t is created.
- *     const IotNetworkCredentialsAfr_t tlsInfo;
+ *     // assume a valid AwsIotNetworkTlsInfo_t is created.
+ *     const AwsIotNetworkTlsInfo_t tlsInfo;
  *
  *     // define a simple callback function which simply logs
  *     const AwsIotDefenderCallback_t callback = { .function = logDefenderCallback,.param1 = NULL };
@@ -374,7 +369,7 @@ void AwsIotDefender_Stop( void );
  * @note If this function is called when defender agent is started, the period is re-calculated and updated in next iteration.
  */
 /* @[declare_defender_setperiod] */
-AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds );
+AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint32_t periodSeconds );
 /* @[declare_defender_setperiod] */
 
 /**
@@ -383,7 +378,7 @@ AwsIotDefenderError_t AwsIotDefender_SetPeriod( uint64_t periodSeconds );
  * @brief Get period in seconds.
  */
 /* @[declare_defender_getperiod] */
-uint64_t AwsIotDefender_GetPeriod( void );
+uint32_t AwsIotDefender_GetPeriod( void );
 /* @[declare_defender_getperiod] */
 
 /**
@@ -401,7 +396,7 @@ const char * AwsIotDefender_strerror( AwsIotDefenderError_t error );
  * @brief Return a string that describes #AwsIotDefenderEventType_t
  */
 /* @[declare_defender_describeeventtype] */
-const char * AwsIotDefender_DescribeEventType( AwsIotDefenderEventType_t eventType );
+const char * AwsIotDefender_GetEventError();
 /* @[declare_defender_describeeventtype] */
 
 #endif /* end of include guard: _AWS_IOT_DEFENDER_H_ */

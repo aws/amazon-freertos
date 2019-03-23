@@ -283,33 +283,46 @@ static bool _subscriptionPacketSize( IotMqttOperationType_t type,
  * @brief Guards access to the packet identifier counter.
  *
  * Each packet should have a unique packet identifier. This mutex ensures that only
- * one thread at a time may read the global packet identifer.
+ * one thread at a time may read the global packet identifer. The mutex is only needed
+ * when atomic operation is not supported.
  */
-static IotMutex_t _packetIdentifierMutex;
+#if ( IOT_ATOMIC_OPERATION != 1 )
+    static IotMutex_t _packetIdentifierMutex;
+#endif /* IOT_ATOMIC_OPERATION */
 
 /*-----------------------------------------------------------*/
 
 static uint16_t _nextPacketIdentifier( void )
 {
-    static uint16_t nextPacketIdentifier = 1;
-    uint16_t newPacketIdentifier = 0;
+    #if ( IOT_ATOMIC_OPERATION == 1 )
 
-    /* Lock the packet identifier mutex so that only one thread may read and
-     * modify nextPacketIdentifier. */
-    IotMutex_Lock( &( _packetIdentifierMutex ) );
+        /* MQTT protocol specifies 2 bytes for Packet Identifier.
+         * For atomic operation, operating 16-bit on 32-bit MCU is not faster than operating 32-bit directly.
+         * Here, using addition two bytes and casting, to achieve the same implementation as in the other branch. */
+        static uint32_t nextPacketIdentifier = 1;
 
-    /* Read the next packet identifier. */
-    newPacketIdentifier = nextPacketIdentifier;
+        return ( uint16_t ) Atomic_Add_u32( &nextPacketIdentifier, 2 );
+    #else /* ( IOT_ATOMIC_OPERATION != 1 ) */
+        static uint16_t nextPacketIdentifier = 1;
+        uint16_t newPacketIdentifier = 0;
 
-    /* The next packet identifier will be greater by 2. This prevents packet
-     * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
-     * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
-    nextPacketIdentifier = ( uint16_t ) ( nextPacketIdentifier + ( ( uint16_t ) 2 ) );
+        /* Lock the packet identifier mutex so that only one thread may read and
+         * modify nextPacketIdentifier. */
+        IotMutex_Lock( &( _packetIdentifierMutex ) );
 
-    /* Unlock the packet identifier mutex. */
-    IotMutex_Unlock( &( _packetIdentifierMutex ) );
+        /* Read the next packet identifier. */
+        newPacketIdentifier = nextPacketIdentifier;
 
-    return newPacketIdentifier;
+        /* The next packet identifier will be greater by 2. This prevents packet
+         * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
+         * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
+        nextPacketIdentifier = ( uint16_t ) ( nextPacketIdentifier + ( ( uint16_t ) 2 ) );
+
+        /* Unlock the packet identifier mutex. */
+        IotMutex_Unlock( &( _packetIdentifierMutex ) );
+
+        return newPacketIdentifier;
+    #endif /* IOT_ATOMIC_OPERATION */
 }
 
 /*-----------------------------------------------------------*/
@@ -596,19 +609,23 @@ static bool _subscriptionPacketSize( IotMqttOperationType_t type,
 IotMqttError_t _IotMqtt_InitSerialize( void )
 {
     _IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
-    bool packetMutexCreated = false;
 
-    /* Create the packet identifier mutex. */
-    packetMutexCreated = IotMutex_Create( &( _packetIdentifierMutex ), false );
+    /* Create the packet identifier mutex.
+     * This is only needed when atomic operation is not supported. */
+    #if ( IOT_ATOMIC_OPERATION != 1 )
+        bool packetMutexCreated = false;
 
-    if( packetMutexCreated == false )
-    {
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_INIT_FAILED );
-    }
-    else
-    {
-        _EMPTY_ELSE_MARKER;
-    }
+        packetMutexCreated = IotMutex_Create( &( _packetIdentifierMutex ), false );
+
+        if( packetMutexCreated == false )
+        {
+            _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_INIT_FAILED );
+        }
+        else
+        {
+            _EMPTY_ELSE_MARKER;
+        }
+    #endif /* IOT_ATOMIC_OPERATION */
 
     /* Call any additional serializer initialization function if serializer
      * overrides are enabled. */
@@ -627,22 +644,25 @@ IotMqttError_t _IotMqtt_InitSerialize( void )
 
     _IOT_FUNCTION_CLEANUP_BEGIN();
 
-    /* Clean up on error. */
-    if( status != IOT_MQTT_SUCCESS )
-    {
-        if( packetMutexCreated == true )
+    /* Only needs to clean up when atomic operation is not supported. */
+    #if ( IOT_ATOMIC_OPERATION != 1 )
+        /* Clean up on error. */
+        if( status != IOT_MQTT_SUCCESS )
         {
-            IotMutex_Destroy( &( _packetIdentifierMutex ) );
+            if( packetMutexCreated == true )
+            {
+                IotMutex_Destroy( &( _packetIdentifierMutex ) );
+            }
+            else
+            {
+                _EMPTY_ELSE_MARKER;
+            }
         }
         else
         {
             _EMPTY_ELSE_MARKER;
         }
-    }
-    else
-    {
-        _EMPTY_ELSE_MARKER;
-    }
+    #endif /* IOT_ATOMIC_OPERATION */
 
     _IOT_FUNCTION_CLEANUP_END();
 }
@@ -651,8 +671,12 @@ IotMqttError_t _IotMqtt_InitSerialize( void )
 
 void _IotMqtt_CleanupSerialize( void )
 {
-    /* Destroy the packet identifier mutex. */
-    IotMutex_Destroy( &( _packetIdentifierMutex ) );
+    #if ( IOT_ATOMIC_OPERATION != 1 )
+
+        /* Destroy the packet identifier mutex.
+         * Only needed when atomic operation is not supported.*/
+        IotMutex_Destroy( &( _packetIdentifierMutex ) );
+    #endif /* IOT_ATOMIC_OPERATION */
 
     /* Call any additional serializer cleanup initialization function is serializer
      * overrides are enabled. */

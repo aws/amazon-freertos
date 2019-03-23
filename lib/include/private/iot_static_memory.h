@@ -423,4 +423,234 @@ void * AwsIot_MallocShadowSubscription( size_t size );
 void AwsIot_FreeShadowSubscription( void * ptr );
 /* @[declare_static_memory_freeshadowsubscription] */
 
+/**
+ * @brief Allocates memory to hold data for a new [Metrics TCP Connection]
+ * (@ref static_memory_mallocmetricstcpconnection).
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Metrics TCP Connections.
+ *
+ * @param[in] size Requested size for the tcp connection. 
+ *
+ * @return Pointer to a Metrics TCP Connection. If the size argument is larger than
+ * the fixed size of a Metrics TCP Connection object or no free Metrics TCP Connections
+ * are available, `NULL` is returned.
+ */
+/* @[declare_static_memory_mallocmetricstcpconnection] */
+void * Iot_MallocMetricsTcpConnection( size_t size );
+/* @[declare_static_memory_mallocmetricstcpconnection] */
+
+/**
+ * @brief Frees an in-use [Metrics TCP Connection]
+ * (@ref static_memory_freemetricstcpconnection).
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Metrics TCP Connections.
+ *
+ * @param[in] ptr Pointer to an active Metrics TCP Connection to free.
+ */
+/* @[declare_static_memory_freemetricstcpconnection] */
+void Iot_FreeMetricsTcpConnection( void * ptr );
+/* @[declare_static_memory_freemetricstcpconnection] */
+
+/**
+ * @brief Allocates memory to hold data for a new [Serializer Cbor Encoder]
+ * (@ref static_memory_mallocserializercborencoder).
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Serializer Cbor Encoder.
+ *
+ * @param[in] size Requested size for the serializer cbor encoder.
+ *
+ * @return Pointer to a Serializer Cbor Encoder. If the size argument is larger than
+ * the fixed size of a Serializer Cbor Encoder object or no free Serializer Cbor Encoder
+ * are available, `NULL` is returned.
+ */
+/* @[declare_static_memory_mallocserializercborencoder] */
+void * Iot_MallocSerializerCborEncoder( size_t size );
+/* @[declare_static_memory_mallocserializercborencoder] */
+
+/**
+ * @brief Frees an in-use [Serializer Cbor Encoder]
+ * (@ref static_memory_freeserializercborencoder).
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Serializer Cbor Encoder.
+ *
+ * @param[in] ptr Pointer to an active Serializer Cbor Encoder to free.
+ */
+/* @[declare_static_memory_freeserializercborencoder] */
+void Iot_FreeSerializerCborEncoder( void * ptr );
+/* @[declare_static_memory_freeserializercborencoder] */
+
+/**
+ * @brief Allocates memory to hold data for a new [Serializer Cbor Parser]
+ * (@ref static_memory_mallocserializercborparser).
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Serializer Cbor Parser.
+ *
+ * @param[in] size Requested size for the serializer cbor parser.
+ *
+ * @return Pointer to a Serializer Cbor Parser. If the size argument is larger than
+ * the fixed size of a Serializer Cbor Parser object or no free Serializer Cbor Parser
+ * are available, `NULL` is returned.
+ */
+/* @[declare_static_memory_mallocserializercborparser] */
+void * Iot_MallocSerializerCborParser( size_t size );
+/* @[declare_static_memory_mallocserializercborparser] */
+
+/**
+ * @brief Frees an in-use [Serializer Cbor Parser]
+ * (@ref static_memory_freeserializercborparser).
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Serializer Cbor Parser.
+ *
+ * @param[in] ptr Pointer to an active Serializer Cbor Parser to free.
+ */
+/* @[declare_static_memory_freeserializercborparser] */
+void Iot_FreeSerializerCborParser( void * ptr );
+/* @[declare_static_memory_freeserializercborparser] */
+
+/**
+ * @brief Allocates memory to hold data for a new [Serializer Cbor Value]
+ * (@ref static_memory_mallocserializercborvalue).
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Serializer Cbor Value.
+ *
+ * @param[in] size Requested size for the serializer cbor value.
+ *
+ * @return Pointer to a Serializer Cbor Parser. If the size argument is larger than
+ * the fixed size of a Serializer Cbor Value object or no free Serializer Cbor Value
+ * are available, `NULL` is returned.
+ */
+/* @[declare_static_memory_mallocserializercborvalue] */
+void * Iot_MallocSerializerCborValue( size_t size );
+/* @[declare_static_memory_mallocserializercborvalue] */
+
+/**
+ * @brief Frees an in-use [Serializer Cbor Value]
+ * (@ref static_memory_freeserializercborvalue).
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Serializer Cbor Value.
+ *
+ * @param[in] ptr Pointer to an active Serializer Cbor Value to free.
+ */
+/* @[declare_static_memory_freeserializercborvalue] */
+void Iot_FreeSerializerCborValue( void * ptr );
+/* @[declare_static_memory_freeserializercborvalue] */
+
+/**
+ * @brief Allocates memory to hold data for a new [Serializer Decoder Object]
+ * (@ref static_memory_mallocserializerdecoderobject).
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Serializer Decoder Object.
+ *
+ * @param[in] size Requested size for the serializer decoder object.
+ *
+ * @return Pointer to a Serializer Decoder Object. If the size argument is larger than
+ * the fixed size of a Serializer Decoder Object object or no free Serializer Decoder Object
+ * are available, `NULL` is returned.
+ */
+/* @[declare_static_memory_mallocserializerdecoderobject] */
+void * Iot_MallocSerializerDecoderObject( size_t size );
+/* @[declare_static_memory_mallocserializerdecoderobject] */
+
+/**
+ * @brief Frees an in-use [Serializer Decoder Object]
+ * (@ref static_memory_freeserializerdecoderobject).
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Serializer Decoder Object.
+ *
+ * @param[in] ptr Pointer to an active Serializer Decoder Object to free.
+ */
+/* @[declare_static_memory_freeserializerdecoderobject] */
+void Iot_FreeSerializerDecoderObject( void * ptr );
+/* @[declare_static_memory_freeserializerdecoderobject] */
+
+/**
+ * @brief Allocates memory to hold data for a new [Defender Report]
+ * (@ref static_memory_mallocdefenderreport).
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Defender Report.
+ *
+ * @param[in] size Requested size for the report. Because each report
+ * contains a different metrics content, reports will be different sizes. This
+ * value should be checked to make sure that the statically-allocated report
+ * object is large enough to accommodate all the metrics data.
+ *
+ * @return Pointer to a Defender Report. If the size argument is larger than
+ * the fixed size of a Defender Report object or no free Defender Report
+ * are available, `NULL` is returned.
+ */
+/* @[declare_static_memory_mallocdefenderreport] */
+void * AwsIot_MallocDefenderReport( size_t size );
+/* @[declare_static_memory_mallocdefenderreport] */
+
+/**
+ * @brief Frees an in-use [Defender Report]
+ * (@ref static_memory_freedefenderreport).
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Defender Report.
+ *
+ * @param[in] ptr Pointer to an active Defender Report to free.
+ */
+/* @[declare_static_memory_freedefenderreport] */
+void AwsIot_FreeDefenderReport( void * ptr );
+/* @[declare_static_memory_freedefenderreport] */
+
+/**
+ * @brief Allocates memory to hold data for a new [Defender Topic]
+ * (@ref static_memory_mallocdefendertopic).
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Defender Topic.
+ *
+ * @param[in] size Requested size for the topic. Because each topic
+ * contains a different thing name, topics will be different sizes. This
+ * value should be checked to make sure that the statically-allocated topic
+ * object is large enough to accommodate all the topics.
+ *
+ * @return Pointer to a Defender Topic. If the size argument is larger than
+ * the fixed size of a Defender Topic object or no free Defender Topic
+ * are available, `NULL` is returned.
+ */
+/* @[declare_static_memory_mallocdefendertopic] */
+void * AwsIot_MallocDefenderTopic( size_t size );
+/* @[declare_static_memory_mallocdefendertopic] */
+
+/**
+ * @brief Frees an in-use [Defender Topic]
+ * (@ref static_memory_freedefendertopic).
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Defender Topic.
+ *
+ * @param[in] ptr Pointer to an active Defender Topic to free.
+ */
+/* @[declare_static_memory_freedefendertopic] */
+void AwsIot_FreeDefenderTopic( void * ptr );
+/* @[declare_static_memory_freedefendertopic] */
+
 #endif /* if !defined( _IOT_STATIC_MEMORY_H_ ) && ( IOT_STATIC_MEMORY_ONLY == 1 ) */

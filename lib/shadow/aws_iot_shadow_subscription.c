@@ -81,7 +81,7 @@ static bool _shadowSubscription_match( const IotLink_t * pSubscriptionLink,
  * #AWS_IOT_SHADOW_NO_MEMORY or #AWS_IOT_SHADOW_MQTT_ERROR.
  */
 static AwsIotShadowError_t _modifyOperationSubscriptions( IotMqttConnection_t mqttConnection,
-                                                          const char * const pTopicFilter,
+                                                          const char * pTopicFilter,
                                                           uint16_t topicFilterLength,
                                                           _mqttCallbackFunction_t callback,
                                                           _mqttOperationFunction_t mqttOperation );
@@ -109,10 +109,10 @@ static bool _shadowSubscription_match( const IotLink_t * pSubscriptionLink,
      * must never be NULL. */
     AwsIotShadow_Assert( pSubscriptionLink != NULL );
 
-    const _shadowSubscription_t * const pSubscription = IotLink_Container( _shadowSubscription_t,
-                                                                           pSubscriptionLink,
-                                                                           link );
-    const _thingName_t * const pThingName = ( _thingName_t * ) pMatch;
+    const _shadowSubscription_t * pSubscription = IotLink_Container( _shadowSubscription_t,
+                                                                     pSubscriptionLink,
+                                                                     link );
+    const _thingName_t * pThingName = ( _thingName_t * ) pMatch;
 
     if( pThingName->thingNameLength == pSubscription->thingNameLength )
     {
@@ -128,7 +128,7 @@ static bool _shadowSubscription_match( const IotLink_t * pSubscriptionLink,
 /*-----------------------------------------------------------*/
 
 static AwsIotShadowError_t _modifyOperationSubscriptions( IotMqttConnection_t mqttConnection,
-                                                          const char * const pTopicFilter,
+                                                          const char * pTopicFilter,
                                                           uint16_t topicFilterLength,
                                                           _mqttCallbackFunction_t callback,
                                                           _mqttOperationFunction_t mqttOperation )
@@ -151,7 +151,7 @@ static AwsIotShadowError_t _modifyOperationSubscriptions( IotMqttConnection_t mq
     /* Set the members of the subscription parameter. */
     subscription.pTopicFilter = pTopicFilter;
     subscription.topicFilterLength = topicFilterLength;
-    subscription.callback.param1 = NULL;
+    subscription.callback.pCallbackContext = NULL;
     subscription.callback.function = callback;
 
     /* Call the MQTT operation function. */
@@ -191,7 +191,7 @@ static AwsIotShadowError_t _modifyOperationSubscriptions( IotMqttConnection_t mq
 
 /*-----------------------------------------------------------*/
 
-_shadowSubscription_t * _AwsIotShadow_FindSubscription( const char * const pThingName,
+_shadowSubscription_t * _AwsIotShadow_FindSubscription( const char * pThingName,
                                                         size_t thingNameLength )
 {
     _shadowSubscription_t * pSubscription = NULL;
@@ -252,8 +252,8 @@ _shadowSubscription_t * _AwsIotShadow_FindSubscription( const char * const pThin
 
 /*-----------------------------------------------------------*/
 
-void _AwsIotShadow_RemoveSubscription( _shadowSubscription_t * const pSubscription,
-                                       _shadowSubscription_t ** const pRemovedSubscription )
+void _AwsIotShadow_RemoveSubscription( _shadowSubscription_t * pSubscription,
+                                       _shadowSubscription_t ** pRemovedSubscription )
 {
     int i = 0;
 
@@ -337,15 +337,15 @@ void _AwsIotShadow_DestroySubscription( void * pData )
 
 /*-----------------------------------------------------------*/
 
-AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * const pOperation,
-                                                       char * const pTopicBuffer,
+AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * pOperation,
+                                                       char * pTopicBuffer,
                                                        uint16_t operationTopicLength,
                                                        _mqttCallbackFunction_t callback )
 {
     uint16_t topicFilterLength = 0;
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
     const _shadowOperationType_t type = pOperation->type;
-    _shadowSubscription_t * const pSubscription = pOperation->pSubscription;
+    _shadowSubscription_t * pSubscription = pOperation->pSubscription;
 
     /* Do nothing if this operation has persistent subscriptions. */
     if( pSubscription->references[ type ] == _PERSISTENT_SUBSCRIPTION )
@@ -456,13 +456,13 @@ AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * cons
 
 /*-----------------------------------------------------------*/
 
-void _AwsIotShadow_DecrementReferences( _shadowOperation_t * const pOperation,
-                                        char * const pTopicBuffer,
-                                        _shadowSubscription_t ** const pRemovedSubscription )
+void _AwsIotShadow_DecrementReferences( _shadowOperation_t * pOperation,
+                                        char * pTopicBuffer,
+                                        _shadowSubscription_t ** pRemovedSubscription )
 {
     uint16_t topicFilterLength = 0;
     const _shadowOperationType_t type = pOperation->type;
-    _shadowSubscription_t * const pSubscription = pOperation->pSubscription;
+    _shadowSubscription_t * pSubscription = pOperation->pSubscription;
     uint16_t operationTopicLength = 0;
 
     /* Do nothing if this Shadow operation has persistent subscriptions. */
@@ -548,7 +548,7 @@ void _AwsIotShadow_DecrementReferences( _shadowOperation_t * const pOperation,
 /*-----------------------------------------------------------*/
 
 AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( IotMqttConnection_t mqttConnection,
-                                                                const char * const pThingName,
+                                                                const char * pThingName,
                                                                 size_t thingNameLength,
                                                                 uint32_t flags )
 {

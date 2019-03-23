@@ -2756,7 +2756,7 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
     memset( &stJobsSubscription, 0, sizeof( stJobsSubscription ) );
     stJobsSubscription.qos = 1;
     stJobsSubscription.pTopicFilter = ( const char * ) pcJobTopic;         /* Point to local string storage. Built below. */
-    stJobsSubscription.callback.param1 = ( void * ) eOTA_PubMsgType_Job;      /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
+    stJobsSubscription.callback.pCallbackContext = ( void * ) eOTA_PubMsgType_Job;      /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stJobsSubscription.callback.function = prvOTAPublishCallback;
     stJobsSubscription.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
                                                                   sizeof( pcJobTopic ),
@@ -2819,7 +2819,7 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
     memset( &stOTAUpdateDataSubscription, 0, sizeof( stOTAUpdateDataSubscription ) );
     stOTAUpdateDataSubscription.qos = 0;
     stOTAUpdateDataSubscription.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
-    stOTAUpdateDataSubscription.callback.param1 = ( void * ) eOTA_PubMsgType_Stream;            /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
+    stOTAUpdateDataSubscription.callback.pCallbackContext = ( void * ) eOTA_PubMsgType_Stream;            /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stOTAUpdateDataSubscription.callback.function = prvOTAPublishCallback;
     stOTAUpdateDataSubscription.topicFilterLength = ( uint16_t ) snprintf( pcOTA_RxStreamTopic, /*lint -e586 Intentionally using snprintf. */
                                                                            sizeof( pcOTA_RxStreamTopic ),
@@ -2909,7 +2909,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
     DEFINE_OTA_METHOD_NAME( "prvUnSubscribeFromJobNotificationTopic" );
 
     IotMqttSubscription_t stUnSub;
-    IotMqttReference_t unsubscribeRef[ 2 ] = { NULL };
+    IotMqttOperation_t unsubscribeOperation[ 2 ] = { NULL };
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
 
     /* Try to unsubscribe from the first of two job topics. */
@@ -2927,7 +2927,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
                                  1, /* Subscriptions count */
                                  IOT_MQTT_FLAG_WAITABLE, /* flags */
 								 NULL,
-                                 &( unsubscribeRef[ 0]) ) != IOT_MQTT_STATUS_PENDING )
+                                 &( unsubscribeOperation[ 0]) ) != IOT_MQTT_STATUS_PENDING )
         {
             OTA_LOG_L1( "[%s] FAIL: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
@@ -2950,7 +2950,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
                                  1, /* Subscriptions count */
                                  IOT_MQTT_FLAG_WAITABLE, /* flags */
 								 NULL,
-                                 &( unsubscribeRef[ 1]) ) != IOT_MQTT_STATUS_PENDING )
+                                 &( unsubscribeOperation[ 1]) ) != IOT_MQTT_STATUS_PENDING )
         {
             OTA_LOG_L1( "[%s] FAIL: %s\n\r", OTA_METHOD_NAME, stUnSub.pTopicFilter );
         }
@@ -2960,13 +2960,13 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
         }
     }
 
-    if( unsubscribeRef[0] != NULL)
+    if( unsubscribeOperation[0] != NULL)
     {
-    	IotMqtt_Wait( unsubscribeRef[ 0 ], OTA_UNSUBSCRIBE_WAIT_MS);
+    	IotMqtt_Wait( unsubscribeOperation[ 0 ], OTA_UNSUBSCRIBE_WAIT_MS);
     }
-    if( unsubscribeRef[1] != NULL)
+    if( unsubscribeOperation[1] != NULL)
     {
-    	IotMqtt_Wait( unsubscribeRef[ 1 ], OTA_UNSUBSCRIBE_WAIT_MS);
+    	IotMqtt_Wait( unsubscribeOperation[ 1 ], OTA_UNSUBSCRIBE_WAIT_MS);
     }
 }
 

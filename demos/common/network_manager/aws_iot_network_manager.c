@@ -29,7 +29,7 @@
  * @brief Network manager is used to handled different types of network connections and their connection/disconnection events at the application layer.
  */
 #include <string.h>
-#include "iot_demo.h"
+#include "iot_demo_logging.h"
 #include "aws_iot_network_manager.h"
 
 #if BLE_ENABLED

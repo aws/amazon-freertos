@@ -43,23 +43,10 @@
 /**
  * @brief Represents a network connection that uses Amazon FreeRTOS Secure Sockets.
  *
- * All instances of #IotNetworkConnectionAfr_t should be initialized with
- * #IOT_NETWORK_CONNECTION_AFR_INITIALIZER.
- *
- * @attention The members of this struct are intended to be opaque and may change
- * at any time. This struct should only be passed as the connection handle to the
- * functions declared in this file. Do not directly modify its members!
+ * This is an incomplete type. In application code, only pointers to this type
+ * should be used.
  */
-typedef struct IotNetworkConnectionAfr
-{
-    Socket_t socket;                             /**< @brief Amazon FreeRTOS Secure Sockets handle. */
-    StaticSemaphore_t socketMutex;               /**< @brief Prevents concurrent threads from sending on a socket. */
-    StaticEventGroup_t connectionFlags;          /**< @brief Synchronizes with the receive task. */
-    IotNetworkReceiveCallback_t receiveCallback; /**< @brief Network receive callback, if any. */
-    void * pReceiveContext;                      /**< @brief The context for the receive callback. */
-    bool bufferedByteValid;                      /**< @brief Used to determine if the buffered byte is valid. */
-    uint8_t bufferedByte;                        /**< @brief A single byte buffered from a receive, since AFR Secure Sockets does not have poll(). */
-} IotNetworkConnectionAfr_t;
+typedef struct _networkConnection IotNetworkConnectionAfr_t;
 
 /**
  * @brief Information on the remote server for connection setup.
@@ -160,23 +147,23 @@ typedef struct IotNetworkCredentialsAfr
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
  */
-#define AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER                             \
-    {                                                                           \
-        .disableSni = false,                                                    \
-        .pAlpnProtos = socketsAWS_IOT_ALPN_MQTT,                                \
-        .pRootCa = NULL,                                                        \
-        .pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM,                  \
-        .pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM,                  \
-        .rootCaSize = 0,                                                        \
-        .clientCertSize = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH, \
-        .privateKeySize = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH  \
+#define AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER            \
+    {                                                          \
+        .disableSni = false,                                   \
+        .pAlpnProtos = socketsAWS_IOT_ALPN_MQTT,               \
+        .pRootCa = NULL,                                       \
+        .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
+        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
+        .rootCaSize = 0,                                       \
+        .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ), \
+        .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )  \
     }
 
 /**
  * @brief Provides a pointer to an #IotNetworkInterface_t that uses the functions
  * declared in this file.
  */
-#define IOT_NETWORK_INTERFACE_AFR    ( &( _IotNetworkAfr ) )
+#define IOT_NETWORK_INTERFACE_AFR    ( &( IotNetworkAfr ) )
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::create for Amazon FreeRTOS
@@ -184,7 +171,7 @@ typedef struct IotNetworkCredentialsAfr
  */
 IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
                                         void * pCredentialInfo,
-                                        void * const pConnection );
+                                        void ** const pConnection );
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback for
@@ -228,7 +215,7 @@ IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection );
  *
  * Declaration of a network interface struct using the functions in this file.
  */
-extern const IotNetworkInterface_t _IotNetworkAfr;
+extern const IotNetworkInterface_t IotNetworkAfr;
 /** @endcond */
 
 #endif /* ifndef _IOT_NETWORK_AFR_H_ */

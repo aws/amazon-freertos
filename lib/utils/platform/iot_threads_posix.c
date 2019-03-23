@@ -54,6 +54,9 @@
 /* Platform threads include. */
 #include "platform/iot_threads.h"
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_PLATFORM
     #define _LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_PLATFORM
@@ -102,8 +105,8 @@
 static void * _threadRoutineWrapper( void * pArgument );
 
 /* Platform-specific function implemented in iot_clock_posix.c */
-extern bool IotClock_TimeoutToTimespec( uint64_t timeoutMs,
-                                        struct timespec * const pOutput );
+extern bool IotClock_TimeoutToTimespec( uint32_t timeoutMs,
+                                        struct timespec * pOutput );
 
 /*-----------------------------------------------------------*/
 
@@ -141,116 +144,76 @@ bool Iot_CreateDetachedThread( IotThreadRoutine_t threadRoutine,
                                int32_t priority,
                                size_t stackSize )
 {
-    bool status = true;
+    _IOT_FUNCTION_ENTRY( bool, true );
     int posixErrno = 0;
+    bool threadAttibutesCreated = false;
     _threadInfo_t * pThreadInfo = NULL;
     pthread_t newThread;
     pthread_attr_t threadAttributes;
 
+    /* Ignore priority and stack size. */
+    ( void ) priority;
+    ( void ) stackSize;
+
     IotLogDebug( "Creating new thread." );
 
-    /* Check stack size if a non-default value is given. */
-    if( status == true )
+    /* Allocate memory for the new thread. */
+    pThreadInfo = IotThreads_Malloc( sizeof( _threadInfo_t ) );
+
+    if( pThreadInfo == NULL )
     {
-        /* Adjust stack size based on system minimum. */
-        if( stackSize != IOT_THREAD_DEFAULT_STACK_SIZE )
-        {
-            if( stackSize < PTHREAD_STACK_MIN )
-            {
-                IotLogWarn( "Stack size of %lu is smaller than system minimum %d."
-                            " System minimum will be used instead.",
-                            ( unsigned long ) stackSize,
-                            PTHREAD_STACK_MIN );
+        IotLogError( "Failed to allocate memory for new thread." );
 
-                stackSize = PTHREAD_STACK_MIN;
-            }
-        }
-    }
-
-    if( status == true )
-    {
-        /* Allocate memory for the new thread. */
-        pThreadInfo = IotThreads_Malloc( sizeof( _threadInfo_t ) );
-
-        if( pThreadInfo == NULL )
-        {
-            IotLogError( "Failed to allocate memory for new thread." );
-
-            status = false;
-        }
+        _IOT_SET_AND_GOTO_CLEANUP( false );
     }
 
     /* Set up thread attributes object. */
-    if( status == true )
+    posixErrno = pthread_attr_init( &threadAttributes );
+
+    if( posixErrno != 0 )
     {
-        /* Create a new thread attributes object. */
-        posixErrno = pthread_attr_init( &threadAttributes );
+        IotLogError( "Failed to initialize thread attributes. errno=%d.",
+                     posixErrno );
 
-        if( posixErrno != 0 )
-        {
-            IotLogError( "Failed to initialize thread attributes. errno=%d.",
-                         posixErrno );
-
-            status = false;
-        }
-        else
-        {
-            /* Set the new thread to detached. */
-            posixErrno = pthread_attr_setdetachstate( &threadAttributes,
-                                                      PTHREAD_CREATE_DETACHED );
-
-            if( posixErrno != 0 )
-            {
-                IotLogError( "Failed to set detached thread attribute. errno=%d.",
-                             posixErrno );
-
-                status = false;
-            }
-
-            /* Set the stack size if given. */
-            if( status == true )
-            {
-                if( stackSize != IOT_THREAD_DEFAULT_STACK_SIZE )
-                {
-                    posixErrno = pthread_attr_setstacksize( &threadAttributes,
-                                                            stackSize );
-
-                    if( posixErrno != 0 )
-                    {
-                        IotLogError( "Failed to set stack size %lu.", ( unsigned long ) stackSize );
-
-                        status = false;
-                    }
-                }
-            }
-
-            if( status == false )
-            {
-                ( void ) pthread_attr_destroy( &threadAttributes );
-            }
-        }
+        _IOT_SET_AND_GOTO_CLEANUP( false );
     }
 
-    if( status == true )
+    threadAttibutesCreated = true;
+
+    /* Set the new thread to detached. */
+    posixErrno = pthread_attr_setdetachstate( &threadAttributes,
+                                              PTHREAD_CREATE_DETACHED );
+
+    if( posixErrno != 0 )
     {
-        /* Set the thread routine and argument. */
-        pThreadInfo->threadRoutine = threadRoutine;
-        pThreadInfo->pArgument = pArgument;
+        IotLogError( "Failed to set detached thread attribute. errno=%d.",
+                     posixErrno );
 
-        /* Create the underlying POSIX thread. */
-        posixErrno = pthread_create( &newThread,
-                                     &threadAttributes,
-                                     _threadRoutineWrapper,
-                                     pThreadInfo );
+        _IOT_SET_AND_GOTO_CLEANUP( false );
+    }
 
-        if( posixErrno != 0 )
-        {
-            IotLogError( "Failed to create new thread. errno=%d.", posixErrno );
+    /* Set the thread routine and argument. */
+    pThreadInfo->threadRoutine = threadRoutine;
+    pThreadInfo->pArgument = pArgument;
 
-            status = false;
-        }
+    /* Create the underlying POSIX thread. */
+    posixErrno = pthread_create( &newThread,
+                                 &threadAttributes,
+                                 _threadRoutineWrapper,
+                                 pThreadInfo );
 
-        /* Destroy thread attributes object. */
+    if( posixErrno != 0 )
+    {
+        IotLogError( "Failed to create new thread. errno=%d.", posixErrno );
+
+        _IOT_SET_AND_GOTO_CLEANUP( false );
+    }
+
+    _IOT_FUNCTION_CLEANUP_BEGIN();
+
+    /* Destroy thread attributes object. */
+    if( threadAttibutesCreated == true )
+    {
         posixErrno = pthread_attr_destroy( &threadAttributes );
 
         if( posixErrno != 0 )
@@ -260,6 +223,7 @@ bool Iot_CreateDetachedThread( IotThreadRoutine_t threadRoutine,
         }
     }
 
+    /* Clean up on error. */
     if( status == false )
     {
         if( pThreadInfo != NULL )
@@ -268,16 +232,17 @@ bool Iot_CreateDetachedThread( IotThreadRoutine_t threadRoutine,
         }
     }
 
-    return status;
+    _IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
 
-bool IotMutex_Create( IotMutex_t * const pNewMutex, bool recursive )
+bool IotMutex_Create( IotMutex_t * pNewMutex,
+                      bool recursive )
 {
     bool status = true;
     int mutexError = 0;
-    pthread_mutexattr_t mutexAttributes, *pMutexAttributes = NULL;
+    pthread_mutexattr_t mutexAttributes, * pMutexAttributes = NULL;
 
     if( recursive == true )
     {
@@ -338,7 +303,7 @@ bool IotMutex_Create( IotMutex_t * const pNewMutex, bool recursive )
 
 /*-----------------------------------------------------------*/
 
-void IotMutex_Destroy( IotMutex_t * const pMutex )
+void IotMutex_Destroy( IotMutex_t * pMutex )
 {
     IotLogDebug( "Destroying mutex %p.", pMutex );
 
@@ -354,7 +319,7 @@ void IotMutex_Destroy( IotMutex_t * const pMutex )
 
 /*-----------------------------------------------------------*/
 
-void IotMutex_Lock( IotMutex_t * const pMutex )
+void IotMutex_Lock( IotMutex_t * pMutex )
 {
     IotLogDebug( "Locking mutex %p.", pMutex );
 
@@ -370,7 +335,7 @@ void IotMutex_Lock( IotMutex_t * const pMutex )
 
 /*-----------------------------------------------------------*/
 
-bool IotMutex_TryLock( IotMutex_t * const pMutex )
+bool IotMutex_TryLock( IotMutex_t * pMutex )
 {
     bool status = true;
 
@@ -392,7 +357,7 @@ bool IotMutex_TryLock( IotMutex_t * const pMutex )
 
 /*-----------------------------------------------------------*/
 
-void IotMutex_Unlock( IotMutex_t * const pMutex )
+void IotMutex_Unlock( IotMutex_t * pMutex )
 {
     IotLogDebug( "Unlocking mutex %p.", pMutex );
 
@@ -408,7 +373,7 @@ void IotMutex_Unlock( IotMutex_t * const pMutex )
 
 /*-----------------------------------------------------------*/
 
-bool IotSemaphore_Create( IotSemaphore_t * const pNewSemaphore,
+bool IotSemaphore_Create( IotSemaphore_t * pNewSemaphore,
                           uint32_t initialValue,
                           uint32_t maxValue )
 {
@@ -440,7 +405,7 @@ bool IotSemaphore_Create( IotSemaphore_t * const pNewSemaphore,
 
 /*-----------------------------------------------------------*/
 
-uint32_t IotSemaphore_GetCount( IotSemaphore_t * const pSemaphore )
+uint32_t IotSemaphore_GetCount( IotSemaphore_t * pSemaphore )
 {
     int count = 0;
 
@@ -458,7 +423,7 @@ uint32_t IotSemaphore_GetCount( IotSemaphore_t * const pSemaphore )
 
 /*-----------------------------------------------------------*/
 
-void IotSemaphore_Destroy( IotSemaphore_t * const pSemaphore )
+void IotSemaphore_Destroy( IotSemaphore_t * pSemaphore )
 {
     IotLogDebug( "Destroying semaphore %p.", pSemaphore );
 
@@ -472,7 +437,7 @@ void IotSemaphore_Destroy( IotSemaphore_t * const pSemaphore )
 
 /*-----------------------------------------------------------*/
 
-void IotSemaphore_Wait( IotSemaphore_t * const pSemaphore )
+void IotSemaphore_Wait( IotSemaphore_t * pSemaphore )
 {
     IotLogDebug( "Waiting on semaphore %p.", pSemaphore );
 
@@ -486,7 +451,7 @@ void IotSemaphore_Wait( IotSemaphore_t * const pSemaphore )
 
 /*-----------------------------------------------------------*/
 
-bool IotSemaphore_TryWait( IotSemaphore_t * const pSemaphore )
+bool IotSemaphore_TryWait( IotSemaphore_t * pSemaphore )
 {
     bool status = true;
 
@@ -506,8 +471,8 @@ bool IotSemaphore_TryWait( IotSemaphore_t * const pSemaphore )
 
 /*-----------------------------------------------------------*/
 
-bool IotSemaphore_TimedWait( IotSemaphore_t * const pSemaphore,
-                             uint64_t timeoutMs )
+bool IotSemaphore_TimedWait( IotSemaphore_t * pSemaphore,
+                             uint32_t timeoutMs )
 {
     bool status = true;
     struct timespec timeout = { 0 };
@@ -539,7 +504,7 @@ bool IotSemaphore_TimedWait( IotSemaphore_t * const pSemaphore,
 
 /*-----------------------------------------------------------*/
 
-void IotSemaphore_Post( IotSemaphore_t * const pSemaphore )
+void IotSemaphore_Post( IotSemaphore_t * pSemaphore )
 {
     IotLogDebug( "Posting to semaphore %p.", pSemaphore );
 
