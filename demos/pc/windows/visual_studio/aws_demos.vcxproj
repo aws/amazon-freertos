@@ -9,6 +9,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C686325E-3261-42F7-AEB1-DDE5280E1CEB}</ProjectGuid>
     <ProjectName>aws_demos</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,6 +144,9 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c" />
