@@ -654,6 +654,12 @@ TEST_SETUP( MQTT_System )
  */
 TEST_TEAR_DOWN( MQTT_System )
 {
+    /* @TOFIX ne specific mqtt test required a taskpool shutdown ahead of mqtt shutdown to go around a leak detected by the test infra. 
+    The leak does not exist, but the infra measures at a point where if we do not shutdown the taskpool FIRST, then it looks like it is leaking. */
+   
+    #define DELAY_MS 100
+
+    vTaskDelay(pdMS_TO_TICKS(DELAY_MS));
     /* Clean up common components. */
     IotCommon_Cleanup();
 
