@@ -736,7 +736,7 @@ void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         				pService->connection.recvBufferLen = bufferOffset;
         				pService->connection.pRecvBuffer = recvBuffer;
 
-        				IotMqtt_ReceiveCallback( &pService,
+        				IotMqtt_ReceiveCallback( pService,
         						                 pService->connection.pMqttConnection );
 
         				vPortFree( recvBuffer );
@@ -894,7 +894,6 @@ void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
 void _closeConnection( IotBleMqttService_t *pService )
 {
 	pService->connection.pMqttConnection = NULL;
-	pService->isEnabled = false;
 }
 
 static void _connectionCallback( BTStatus_t status,

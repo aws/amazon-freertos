@@ -60,8 +60,6 @@ typedef struct MqttConnectionContext
  *
  * @param pxNetworkConnection Pointer to the network connection context passed from user.
  * @param ulPreferredNetworks OR separated flags indicating preferred network types.
- * @param ulConnRetryIntervalSeconds Retry interval for creating a connection.
- * @param ulConnRetryLimit Retry limit for creating a connection.
  * @return pdTRUE if network is created successfully.
  */
 BaseType_t xMqttDemoCreateNetworkConnection(

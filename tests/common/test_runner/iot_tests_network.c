@@ -32,10 +32,8 @@
 
 #include "private/iot_error.h"
 
-
-static const IotNetworkInterface_t * pNetworkInterface = NULL;
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
-static const IotMqttSerializer_t * pSerializer;
+
 /*-----------------------------------------------------------*/
 
 
@@ -170,6 +168,24 @@ static const IotMqttSerializer_t * pSerializer;
 
 const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
 {
+	const IotNetworkInterface_t * pNetworkInterface = NULL;
+
+    switch( _IotTestNetworkType )
+    {
+        #if ( BLE_SUPPORTED == 1 )
+            case AWSIOT_NETWORK_TYPE_BLE:
+                pNetworkInterface = ( IotNetworkInterface_t * ) &IotNetworkBle;
+                break;
+        #endif
+        #if ( WIFI_SUPPORTED != 0 )
+            case AWSIOT_NETWORK_TYPE_WIFI:
+                pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+                break;
+        #endif
+        default:
+            break;
+    }
+
     return pNetworkInterface;
 }
 
@@ -181,15 +197,11 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
     {
         #if ( BLE_SUPPORTED == 1 )
             case AWSIOT_NETWORK_TYPE_BLE:
-            	pSerializer = &IotBleMqttSerializer;
-                pNetworkInterface = ( IotNetworkInterface_t * ) &IotNetworkBle;
                 _BLEEnable();
                 break;
         #endif
         #if ( WIFI_SUPPORTED != 0 )
             case AWSIOT_NETWORK_TYPE_WIFI:
-            	pSerializer = &_mqttSerializer;
-                pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
                 break;
         #endif
         default:
@@ -203,5 +215,22 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
 
 const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void )
 {
+	const IotMqttSerializer_t * pSerializer = NULL;
+
+    switch( _IotTestNetworkType )
+    {
+        #if ( BLE_SUPPORTED == 1 )
+            case AWSIOT_NETWORK_TYPE_BLE:
+            	pSerializer = &IotBleMqttSerializer;
+                break;
+        #endif
+        #if ( WIFI_SUPPORTED != 0 )
+            case AWSIOT_NETWORK_TYPE_WIFI:
+            	pSerializer = &_mqttSerializer;
+                break;
+        #endif
+        default:
+            break;
+    }
     return ( IotMqttSerializer_t * ) pSerializer;
 }
