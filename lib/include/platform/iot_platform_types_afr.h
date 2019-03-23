@@ -32,15 +32,14 @@
 
 typedef struct iot_mutex_internal
 {
-    StaticSemaphore_t xMutex;           /**< FreeRTOS mutex. */
-    bool recursive;                           /**< Type; used for indicating if this is reentrant or normal. */
+    StaticSemaphore_t xMutex;      /**< FreeRTOS mutex. */
+    bool recursive;                /**< Type; used for indicating if this is reentrant or normal. */
 } iot_mutex_internal_t;
 
 /**
  * @brief The native mutex type on AFR systems.
  */
 typedef iot_mutex_internal_t _IotSystemMutex_t;
-
 
 typedef struct iot_sem_internal
 {
@@ -51,7 +50,6 @@ typedef struct iot_sem_internal
  * @brief The native semaphore type on AFR systems.
  */
 typedef iot_sem_internal_t _IotSystemSemaphore_t;
-
 
 /**
  * @brief Thread routine function.
@@ -67,7 +65,7 @@ typedef void ( * IotThreadRoutine_t )( void * );
  */
 typedef struct threadInfo
 {
-    void * pArgument;                    /**< @brief First argument to `threadRoutine`. */
+    void * pArgument;                 /**< @brief Argument to `threadRoutine`. */
     IotThreadRoutine_t threadRoutine; /**< @brief Thread function to run. */
 } threadInfo_t;
 
@@ -76,8 +74,8 @@ typedef struct threadInfo
  */
 typedef struct timerInfo
 {
-    timer_t timer;                          /**< @brief Underlying timer. */
-    IotThreadRoutine_t threadRoutine;    /**< @brief Thread function to run on timer expiration. */
+    TimerHandle_t timer;                    /**< @brief Underlying timer. */
+    IotThreadRoutine_t threadRoutine;       /**< @brief Thread function to run on timer expiration. */
     void * pArgument;                       /**< @brief First argument to threadRoutine. */
     StaticTimer_t xTimerBuffer;             /**< Memory that holds the FreeRTOS timer. */
     TickType_t xTimerPeriod;                /**< Period of this timer. */
@@ -86,7 +84,6 @@ typedef struct timerInfo
 /**
  * @brief Represents an #IotTimer_t on AFR systems.
  */
-
 typedef timerInfo_t _IotSystemTimer_t;
 
 #endif /* ifndef _IOT_PLATFORM_TYPES_POSIX_H_ */

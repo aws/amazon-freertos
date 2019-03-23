@@ -108,13 +108,11 @@ uint64_t IotClock_GetTimeMs( void )
 {
     TimeOut_t xCurrentTime = { 0 };
 
-    /* Intermediate variable used to convert TimeOut_t to struct timespec.
-     * Also used to detect overflow issues. It must be unsigned because the
-     * behavior of signed integer overflow is undefined. */
+    /* This must be unsigned because the behavior of signed integer overflow is undefined. */
     uint64_t ullTickCount = 0ULL;
 
     /* Get the current tick count and overflow count. vTaskSetTimeOutState()
-        * is used to get these values because they are both static in tasks.c. */
+     * is used to get these values because they are both static in tasks.c. */
     vTaskSetTimeOutState( &xCurrentTime );
 
     /* Adjust the tick count for the number of times a TickType_t has overflowed. */
@@ -148,7 +146,7 @@ bool IotClock_TimerCreate( IotTimer_t * const pNewTimer,
     /* Create a new FreeRTOS timer. This call will not fail because the
     * memory for it has already been allocated, so the output parameter is
     * also set. */
-    pxTimer->timer  = ( timer_t ) xTimerCreateStatic(  "timer",           /* Timer name. */
+    pxTimer->timer  = ( TimerHandle_t ) xTimerCreateStatic(  "timer",     /* Timer name. */
                                                 portMAX_DELAY,            /* Initial timer period. Timers are created disarmed. */
                                                 pdFALSE,                  /* Don't auto-reload timer. */
                                                 ( void * ) pxTimer,       /* Timer id. */
@@ -164,20 +162,17 @@ void IotClock_TimerDestroy( IotTimer_t * const pTimer )
 {
     _IotSystemTimer_t * pTimerInfo = ( _IotSystemTimer_t * ) pTimer;
 
-    /* The value of the timer ID, set in timer_create, should not be NULL. */
     configASSERT( pTimerInfo != NULL );
     configASSERT( pTimerInfo->timer != NULL );
 
     IotLogDebug( "Destroying timer %p.", pTimer );
 
-    /* Destroy the timer. */
     if( xTimerIsTimerActive( pTimerInfo->timer ) == pdTRUE )
     {
         /* Stop the FreeRTOS timer. Because the timer is statically allocated, no call
         * to xTimerDelete is necessary. The timer is stopped so that it's not referenced
         * anywhere. xTimerStop will not fail when it has unlimited block time. */
         ( void ) xTimerStop( pTimerInfo->timer, portMAX_DELAY );
-
 
         /* Wait until the timer stop command is processed. */
         while( xTimerIsTimerActive( pTimerInfo->timer ) == pdTRUE )
@@ -204,7 +199,7 @@ bool IotClock_TimerArm( IotTimer_t * const pTimer,
                     relativeTimeoutMs,
                     periodMs );
 
-    // Set the timer period in ticks
+    /* Set the timer period in ticks */
     pTimerInfo->xTimerPeriod = pdMS_TO_TICKS( periodMs );
 
     /* Set the timer to expire after relativeTimeoutMs, and restart it. */
