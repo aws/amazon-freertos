@@ -51,22 +51,6 @@ static bool wifi_conn_state;
 static bool wifi_ap_state;
 static bool wifi_auth_failure;
 
-#define WIFI_FLASH_NS     "WiFi"
-#define MAX_WIFI_KEY_WIDTH         ( 5 )
-#define MAX_SECURITY_MODE_LEN      ( 1 )
-#define MAX_WIFI_NETWORKS          ( 8 )
-
-typedef struct StorageRegistry
-{
-	uint16_t usNumNetworks;
-	uint16_t usNextStorageIdx;
-	uint16_t usStorageIdx[ MAX_WIFI_NETWORKS ];
-} StorageRegistry_t;
-static BaseType_t xIsRegistryInit = pdFALSE;
-static StorageRegistry_t xRegistry = { 0 };
-AwsIotNetworkStateChangeCb_t xStateChangeAppCallback = AWSIOT_NETWORK_STATE_CHANGE_CB_INITIALIZER;
-void *pvAppContext = NULL;
-
 /**
  * @brief Semaphore for WiFI module.
  */
@@ -309,9 +293,9 @@ err:
 /*-----------------------------------------------------------*/
 
 #define CHECK_VALID_SSID_LEN(x) \
-        ((x) > 0 && (x) <=  wificonfigMAX_SSID_LEN)
+        ((x) > 0 && (x) < wificonfigMAX_SSID_LEN)
 #define CHECK_VALID_PASSPHRASE_LEN(x) \
-        ((x) > 0 && (x) <= wificonfigMAX_PASSPHRASE_LEN)
+        ((x) > 0 && (x) < wificonfigMAX_PASSPHRASE_LEN)
 
 WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
@@ -462,42 +446,6 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
-    	ret = esp_wifi_get_mode( &xCurMode );
-    	if (ret != ESP_OK) {
-        		ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
-        		xSemaphoreGive( xWiFiSem );
-        		return eWiFiFailure;
-        }
-
-    	if( xCurMode != WIFI_MODE_STA )
-    	{
-    		esp_wifi_stop();
-
-    		ret = esp_wifi_set_mode(WIFI_MODE_STA);
-    		if (ret != ESP_OK) {
-    			ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
-    			xSemaphoreGive( xWiFiSem );
-    			return eWiFiFailure;
-    		}
-
-    		ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
-    		if (ret != ESP_OK) {
-    			ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
-    			xSemaphoreGive( xWiFiSem );
-    			return eWiFiFailure;
-    		}
-
-    		ret = esp_wifi_start();
-    		if (ret != ESP_OK) {
-    			ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
-    			xSemaphoreGive( xWiFiSem );
-    			return eWiFiFailure;
-    		}
-
-    		// Wait for wifi started event
-    		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
-    	}
-
         if ( wifi_conn_state == false && wifi_auth_failure == true )
         {
             /* It seems that WiFi needs explicit disassoc before scan request post

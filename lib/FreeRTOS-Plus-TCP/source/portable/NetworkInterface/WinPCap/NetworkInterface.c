@@ -387,6 +387,9 @@ uint32_t ulNetMask;
 		{
 			printf( "\nAn error occurred setting the packet filter.\n" );
 		}
+		/* When pcap_compile() succeeds, it allocates memory for the memory pointed to by the bpf_program struct 
+		parameter.pcap_freecode() will free that memory. */
+		pcap_freecode( &xFilterCode );
 	}
 
 	/* Create the buffers used to pass packets between the FreeRTOS simulator

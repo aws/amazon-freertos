@@ -41,8 +41,7 @@ The following MCU boards are supported for Amazon FreeRTOS:
 11. **Cypress CYW43907** - [Cypress CYW943907AEVAL1F Evaluation Kit](https://www.cypress.com/documentation/development-kitsboards/cyw943907aeval1f-evaluation-kit)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_43.html)
     * IDE: [WICED Studio](https://community.cypress.com/community/wiced-wifi)
-12. **Windows Simulator**
-To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
-* Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
-* [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
-* IDE: [Visual Studio Community Edition](https://www.visualstudio.com/downloads/)
+12. **Windows Simulator** - To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
+    * Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
+    * IDE: [Visual Studio Community Edition](https://www.visualstudio.com/downloads/)
