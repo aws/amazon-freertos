@@ -86,11 +86,12 @@ void threadTestFunction(void * param)
 
 TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 {
+    int i;
     static uint32_t attrData = 1234;
     Iot_CreateDetachedThread( threadTestFunction, &attrData, 5, 3072 );
   
     /* wait for the thread to set this */
-    for ( int i = 0 ; i<10 ; i++ )
+    for ( i = 0 ; i<10 ; i++ )
     {
         /* If we see the value has changed we stop waiting */
         if ( attrData != 1234 )
