@@ -6,7 +6,7 @@ For more information about these boards, see WM_W600_Arduino EV Board on the [Wi
 
 
 ## Prerequisites
-Before you get started with Amazon FreeRTOS on your Espressif board, you need to set up your AWS account and permissions.
+Before you get started with Amazon FreeRTOS on your board, you need to set up your AWS account and permissions.
 
 To create an AWS account, see [Create and Activate an AWS Account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/).
 
