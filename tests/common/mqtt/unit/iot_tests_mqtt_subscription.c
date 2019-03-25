@@ -88,10 +88,6 @@ extern int snprintf( char *,
     #define _AWS_IOT_MQTT_SERVER    true
 #else
     #define _AWS_IOT_MQTT_SERVER    false
-
-/* Redefine the connect info initializer if not using an AWS IoT MQTT server. */
-    #undef IOT_MQTT_CONNECT_INFO_INITIALIZER
-    #define IOT_MQTT_CONNECT_INFO_INITIALIZER    { 0 }
 #endif
 
 /*

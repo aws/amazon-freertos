@@ -53,6 +53,12 @@
 #define _LIBRARY_LOG_NAME    ( "NET" )
 #include "iot_logging_setup.h"
 
+/* Provide a default value for the number of milliseconds for a socket poll.
+ * This is a temporary workaround to deal with the lack of poll(). */
+#ifndef IOT_NETWORK_SOCKET_POLL_MS
+    #define IOT_NETWORK_SOCKET_POLL_MS    ( 1000 )
+#endif
+
 /**
  * @brief The event group bit to set when a connection's socket is shut down.
  */
@@ -114,10 +120,13 @@ static void _networkReceiveTask( void * pArgument )
         /* Block and wait for 1 byte of data. This simulates the behavior of poll().
          * THIS IS A TEMPORARY WORKAROUND AND DOES NOT PROVIDE THREAD-SAFETY AGAINST
          * MULTIPLE CALLS OF RECEIVE. */
-        socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
-                                     &( pNetworkConnection->bufferedByte ),
-                                     1,
-                                     0 );
+        do
+        {
+            socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
+                                         &( pNetworkConnection->bufferedByte ),
+                                         1,
+                                         0 );
+        } while( socketStatus == 0 );
 
         connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) );
 
@@ -246,7 +255,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     SocketsSockaddr_t serverAddress = { 0 };
     EventGroupHandle_t pConnectionFlags = NULL;
     SemaphoreHandle_t pConnectionMutex = NULL;
-    const TickType_t receiveTimeout = 0;
+    const TickType_t receiveTimeout = pdMS_TO_TICKS( IOT_NETWORK_SOCKET_POLL_MS );
     _networkConnection_t * pNewNetworkConnection = NULL;
 
     /* Cast function parameters to correct types. */
