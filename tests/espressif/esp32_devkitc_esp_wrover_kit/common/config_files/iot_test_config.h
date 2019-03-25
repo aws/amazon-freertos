@@ -29,10 +29,10 @@
 
 /* Uncomment one of these definitions to override the log level configuration for
  * a specific library. */
-#define IOT_LOG_LEVEL_PLATFORM               IOT_LOG_INFO
-#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO
-#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO
-#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO
+#define IOT_LOG_LEVEL_PLATFORM               IOT_LOG_NONE
+#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_NONE
+#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_NONE
+#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_NONE
 
 extern bool IotBleMqtt_InitSerialize( void );
 extern void IotBleMqtt_CleanupSerialize( void );
