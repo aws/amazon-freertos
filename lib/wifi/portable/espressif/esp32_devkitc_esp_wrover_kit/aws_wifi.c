@@ -351,8 +351,8 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 
         ret = esp_wifi_get_mode( &xCurMode );
         if (ret != ESP_OK) {
-        	ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
-        	xSemaphoreGive( xWiFiSem );
+            ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
         	return eWiFiFailure;
         }
 
@@ -362,20 +362,20 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
         	esp_wifi_stop();
 
         	ret = esp_wifi_set_mode(WIFI_MODE_STA);
-        	if (ret != ESP_OK) {
+        if (ret != ESP_OK) {
         		ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
-        		xSemaphoreGive( xWiFiSem );
-        		return wifi_ret;
-        	}
-        	ret = esp_wifi_start();
-        	if (ret != ESP_OK) {
-        		ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
-        		xSemaphoreGive( xWiFiSem );
-        		return wifi_ret;
-        	}
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
+        ret = esp_wifi_start();
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
 
-        	// Wait for wifi started event
-        	xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+        // Wait for wifi started event
+        xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         }
 
         ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);

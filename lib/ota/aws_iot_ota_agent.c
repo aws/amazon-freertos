@@ -2991,7 +2991,7 @@ static IotMqttError_t prvPublishMessage( void * const pvClient,
     xPublishParams.retryLimit = OTA_MAX_PUBLISH_RETRIES;
     xPublishParams.retryMs = OTA_RETRY_DELAY_MS;
     xPublishParams.retain = false;
-    
+
     eResult = IotMqtt_TimedPublish( pvClient, &xPublishParams, 0, OTA_PUBLISH_WAIT_MS );
 
     if( eResult != IOT_MQTT_SUCCESS )

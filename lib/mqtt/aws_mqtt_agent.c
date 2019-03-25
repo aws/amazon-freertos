@@ -591,7 +591,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     xNetworkInfo.pNetworkServerInfo = &xServerInfo;
     xNetworkInfo.pNetworkCredentialInfo = pxCredentials;
     xNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
-    
+
     if( pxConnectParams->pxCallback != NULL )
     {
         xNetworkInfo.disconnectCallback.function = prvDisconnectCallbackWrapper;

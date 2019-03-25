@@ -59,7 +59,7 @@
 /**
  * @brief Max passphrase length
  */
-#define wificonfigMAX_PASSPHRASE_LEN          ( 32 )
+#define wificonfigMAX_PASSPHRASE_LEN          ( 64 )
 
 /**
  * @brief Soft Access point SSID
