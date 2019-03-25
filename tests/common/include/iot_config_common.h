@@ -189,6 +189,9 @@
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */
 #define IOT_TEST_NETWORK_HEADER    "platform/iot_network_afr.h"
 
+/* All tests use a secured connection. */
+#define IOT_TEST_SECURED_CONNECTION    ( 1 )
+
 /* Allow the network interface to be chosen by at runtime. */
 typedef struct IotNetworkInterface IotNetworkInterface_t;
 extern const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void );
@@ -207,7 +210,24 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 /* Define test network initializers. */
 #define IOT_TEST_NETWORK_CONNECTION_INITIALIZER     IOT_NETWORK_CONNECTION_AFR_INITIALIZER
 #define IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER    AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER
-#define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER    AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER
+
+/* Define the credentials initializer based on the server port. Use ALPN if on
+ * 443, otherwise disable ALPN. */
+#if clientcredentialMQTT_BROKER_PORT == 443
+    #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER    AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER
+#else
+    #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER           \
+    {                                                          \
+        .disableSni = false,                                   \
+        .pAlpnProtos = NULL,                                   \
+        .pRootCa = NULL,                                       \
+        .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
+        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
+        .rootCaSize = 0,                                       \
+        .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ), \
+        .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )  \
+    }
+#endif
 
 /* Network initialization and cleanup functions are not needed on FreeRTOS. */
 #define IotTestNetwork_Init()    IOT_NETWORK_SUCCESS
@@ -229,15 +249,7 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
     #define AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS    ( 5000 )
 #endif
 
-/* Set test credentials and Thing Name. */
-#define IOT_TEST_SERVER                   clientcredentialMQTT_BROKER_ENDPOINT
-#define IOT_TEST_PORT                     443
-#define IOT_TEST_SECURED_CONNECTION       1
-#define IOT_TEST_ROOT_CA                  NULL
-#define IOT_TEST_CLIENT_CERT              clientcredentialCLIENT_CERTIFICATE_PEM
-#define IOT_TEST_CLIENT_CERT_LENGTH       clientcredentialCLIENT_CERTIFICATE_LENGTH
-#define IOT_TEST_PRIVATE_KEY              clientcredentialCLIENT_PRIVATE_KEY_PEM
-#define IOT_TEST_PRIVATE_KEY_LENGTH       clientcredentialCLIENT_PRIVATE_KEY_LENGTH
+/* Set Thing Name. */
 #define AWS_IOT_TEST_SHADOW_THING_NAME    clientcredentialIOT_THING_NAME
 
 /* Configuration for defender demo: set format to CBOR. */

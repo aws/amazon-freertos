@@ -84,10 +84,6 @@ extern int snprintf( char *,
     #define _AWS_IOT_MQTT_SERVER    true
 #else
     #define _AWS_IOT_MQTT_SERVER    false
-
-/* Redefine the connect info initializer if not using an AWS IoT MQTT server. */
-    #undef IOT_MQTT_CONNECT_INFO_INITIALIZER
-    #define IOT_MQTT_CONNECT_INFO_INITIALIZER    { 0 }
 #endif
 
 /**
@@ -494,6 +490,7 @@ static void _subscribePublishWait( IotMqttQos_t qos )
     if( TEST_PROTECT() )
     {
         /* Set the members of the MQTT connection info. */
+        connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
         connectInfo.cleanSession = true;
         connectInfo.pClientIdentifier = _pClientIdentifier;
         connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
@@ -654,12 +651,6 @@ TEST_SETUP( MQTT_System )
  */
 TEST_TEAR_DOWN( MQTT_System )
 {
-    /* @TOFIX ne specific mqtt test required a taskpool shutdown ahead of mqtt shutdown to go around a leak detected by the test infra. 
-    The leak does not exist, but the infra measures at a point where if we do not shutdown the taskpool FIRST, then it looks like it is leaking. */
-   
-    #define DELAY_MS 100
-
-    vTaskDelay(pdMS_TO_TICKS(DELAY_MS));
     /* Clean up common components. */
     IotCommon_Cleanup();
 
@@ -736,6 +727,7 @@ TEST( MQTT_System, SubscribePublishAsync )
     subscription.callback.pCallbackContext = &publishWaitSem;
 
     /* Initialize members of the connect info. */
+    connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
     connectInfo.cleanSession = true;
     connectInfo.pClientIdentifier = _pClientIdentifier;
     connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
@@ -870,6 +862,7 @@ TEST( MQTT_System, LastWillAndTestament )
 
     lwtNetworkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
 
+    lwtConnectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
     lwtConnectInfo.cleanSession = true;
     lwtConnectInfo.pClientIdentifier = pLwtListenerClientIdentifier;
     lwtConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( lwtConnectInfo.pClientIdentifier );
@@ -898,6 +891,7 @@ TEST( MQTT_System, LastWillAndTestament )
             TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
             /* Create a connection that requests the LWT. */
+            connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
             connectInfo.cleanSession = true;
             connectInfo.pClientIdentifier = _pClientIdentifier;
             connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
@@ -980,6 +974,7 @@ TEST( MQTT_System, RestorePreviousSession )
         _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
         /* Re-establish the MQTT connection with a previous session. */
+        connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
         connectInfo.cleanSession = false;
         connectInfo.pPreviousSubscriptions = &subscription;
         connectInfo.previousSubscriptionCount = 1;
@@ -1055,6 +1050,7 @@ TEST( MQTT_System, WaitAfterDisconnect )
     IotMqttOperation_t pPublishOperation[ 3 ] = { IOT_MQTT_OPERATION_INITIALIZER };
 
     /* Set the client identifier and length. */
+    connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
     connectInfo.pClientIdentifier = _pClientIdentifier;
     connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
 
@@ -1129,6 +1125,7 @@ TEST( MQTT_System, SubscribeCompleteReentrancy )
 
         if( TEST_PROTECT() )
         {
+            connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
             connectInfo.pClientIdentifier = _pClientIdentifier;
             connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
 
@@ -1200,6 +1197,7 @@ TEST( MQTT_System, IncomingPublishReentrancy )
 
         if( TEST_PROTECT() )
         {
+            connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
             connectInfo.pClientIdentifier = _pClientIdentifier;
             connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
 
