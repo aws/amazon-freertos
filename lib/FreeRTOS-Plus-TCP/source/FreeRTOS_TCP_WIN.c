@@ -292,7 +292,7 @@ void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewListItem
 	pxWhere->pxPrevious = pxNewListItem;
 
 	/* Remember which list the item is in. */
-	pxNewListItem->pvContainer = ( void * ) pxList; /* If this line fails to build then ensure configENABLE_BACKWARD_COMPATIBILITY is set to 1 in FreeRTOSConfig.h. */
+	listLIST_ITEM_CONTAINER( pxNewListItem ) = ( void * ) pxList;
 
 	( pxList->uxNumberOfItems )++;
 }

@@ -351,6 +351,11 @@ typedef struct {
 	#define PRIVILEGED_DATA
 #endif
 
+bool vApplicationSleep( TickType_t xExpectedIdleTime );
+
+#define portSUPPRESS_TICKS_AND_SLEEP( idleTime ) vApplicationSleep( idleTime )
+
+
 
 void _xt_coproc_release(volatile void * coproc_sa_base);
 
