@@ -63,11 +63,8 @@ int clock_getcpuclockid( pid_t pid,
     ( void ) pid;
     ( void ) clock_id;
 
-    /* This function is currently unsupported. It will always return -1 and
-     * set errno to EPERM. */
-    errno = EPERM;
-
-    return -1;
+    /* This function is currently unsupported. It will always return EPERM. */
+    return EPERM;
 }
 
 /*-----------------------------------------------------------*/
@@ -103,14 +100,6 @@ int clock_gettime( clockid_t clock_id,
 
     /* Silence warnings about unused parameters. */
     ( void ) clock_id;
-
-    /* Check tp. */
-    if( tp == NULL )
-    {
-        /* POSIX does not specify this function setting errno for invalid
-         * parameters, so just set the return value. */
-        iStatus = -1;
-    }
 
     if( iStatus == 0 )
     {

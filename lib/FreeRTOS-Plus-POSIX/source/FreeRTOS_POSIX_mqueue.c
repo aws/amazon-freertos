@@ -525,7 +525,7 @@ mqd_t mq_open( const char * name,
     /* Check attributes, if given. */
     if( xMessageQueue == NULL )
     {
-        if( ( attr != NULL ) && ( ( attr->mq_maxmsg < 0 ) || ( attr->mq_msgsize < 0 ) ) )
+        if ((oflag & O_CREAT) && (attr != NULL) && ((attr->mq_maxmsg <= 0) || (attr->mq_msgsize <= 0)))
         {
             /* Invalid mq_attr.mq_maxmsg or mq_attr.mq_msgsize. */
             errno = EINVAL;
@@ -840,7 +840,7 @@ int mq_unlink( const char * name )
     if( prvValidateQueueName( name, &xNameSize ) == pdFALSE )
     {
         /* Error with mq name. */
-        errno = ENAMETOOLONG;
+        errno = EINVAL;
         iStatus = -1;
     }
 

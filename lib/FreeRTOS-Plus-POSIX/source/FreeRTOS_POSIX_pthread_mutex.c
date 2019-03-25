@@ -341,21 +341,9 @@ int pthread_mutexattr_gettype( const pthread_mutexattr_t * attr,
 
 int pthread_mutexattr_init( pthread_mutexattr_t * attr )
 {
-    int iStatus = 0;
+    *( ( pthread_mutexattr_internal_t * ) ( attr ) ) = xDefaultMutexAttributes;
 
-    if( attr == NULL )
-    {
-        /* Invalid Attribute. */
-        iStatus = EINVAL;
-    }
-
-    /* Set the mutex attributes to default values. */
-    if( iStatus == 0 )
-    {
-        *( ( pthread_mutexattr_internal_t * ) ( attr ) ) = xDefaultMutexAttributes;
-    }
-
-    return iStatus;
+    return 0;
 }
 
 /*-----------------------------------------------------------*/
