@@ -175,7 +175,12 @@ int main( void )
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
-	  FreeRTOS_printf( ( "vTaskStartScheduler\n" ) );
+    
+    /* A simple example to demonstrate key and certificate provisioning in
+     * microcontroller flash using PKCS#11 interface. This should be replaced
+     * by production ready key provisioning mechanism. */
+    vDevModeKeyProvisioning();     
+    FreeRTOS_printf( ( "vTaskStartScheduler\n" ) );  
     vTaskStartScheduler();
 
     return 0;
@@ -261,7 +266,7 @@ void vApplicationDaemonTaskStartupHook( void )
     {
         /* Connect to the Wi-Fi before running the tests. */
         prvWifiConnect();
-
+        
         /* Create the task to run tests. */
         xTaskCreate( TEST_RUNNER_RunTests_task,
                      "TestRunner",
