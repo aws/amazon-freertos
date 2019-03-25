@@ -96,7 +96,6 @@
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_defender.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_common.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_json_utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_logging_setup.h" />
@@ -367,8 +366,8 @@
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_decoder.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_encoder.c" />
-    <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_decoder.c" />
-    <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c" />
+    <ClCompile Include="..\..\..\..\lib\serializer\json\iot_serializer_json_decoder.c" />
+    <ClCompile Include="..\..\..\..\lib\serializer\json\iot_serializer_json_encoder.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_api.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_operation.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_parser.c" />
@@ -488,6 +487,8 @@
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_unistd.c" />
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_utils.c" />
     <ClCompile Include="..\..\..\common\secure_sockets\aws_test_tcp.c" />
+    <ClCompile Include="..\..\..\common\serializer\iot_test_serializer_json.c" />
+    <ClCompile Include="..\..\..\common\serializer\iot_test_serializer_cbor.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_test_shadow.c" />
     <ClCompile Include="..\..\..\common\shadow\system\aws_iot_tests_shadow_system.c" />
     <ClCompile Include="..\..\..\common\shadow\unit\aws_iot_tests_shadow_api.c" />

@@ -34,7 +34,7 @@
 #include "unity.h"
 
 /* Serializer and CBOR includes. */
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 #include "cbor.h"
 
 #define _encoder        _IotSerializerCborEncoder
@@ -88,7 +88,6 @@ TEST_GROUP_RUNNER( Full_Serializer_CBOR )
 
 TEST( Full_Serializer_CBOR, Encoder_init_with_null_buffer )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
     IotSerializerEncoderObject_t encoderObject = { 0 };
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
@@ -101,7 +100,7 @@ TEST( Full_Serializer_CBOR, Encoder_init_with_null_buffer )
     TEST_ASSERT_NOT_NULL( encoderObject.pHandle );
 
     /* Append an integer. */
-    TEST_ASSERT_EQUAL( IOT_SERIALIZER_BUFFER_TOO_SMALL, _encoder.append( &encoderObject, AwsIotSerializer_ScalarSignedInt( 1 ) ) );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_BUFFER_TOO_SMALL, _encoder.append( &encoderObject, IotSerializer_ScalarSignedInt( 1 ) ) );
 
     /* Needed buffer size is 1 to encode integer "1". */
     TEST_ASSERT_EQUAL( 1, _encoder.getExtraBufferSizeNeeded( &encoderObject ) );
@@ -116,7 +115,7 @@ TEST( Full_Serializer_CBOR, Encoder_append_integer )
     int64_t value = 6;
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.append( &_encoderObject, AwsIotSerializer_ScalarSignedInt( value ) ) );
+                       _encoder.append( &_encoderObject, IotSerializer_ScalarSignedInt( value ) ) );
 
     /* --- Verification --- */
 
@@ -142,7 +141,7 @@ TEST( Full_Serializer_CBOR, Encoder_append_text_string )
     char * str = "hello world";
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.append( &_encoderObject, AwsIotSerializer_ScalarTextString( str ) ) );
+                       _encoder.append( &_encoderObject, IotSerializer_ScalarTextString( str ) ) );
 
     /* --- Verification --- */
 
@@ -164,10 +163,10 @@ TEST( Full_Serializer_CBOR, Encoder_append_text_string )
 TEST( Full_Serializer_CBOR, Encoder_append_byte_string )
 {
     uint8_t inputBytes[] = "hello world";
-    size_t inputLength = strlen( inputBytes );
+    size_t inputLength = strlen( ( const char * ) inputBytes );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.append( &_encoderObject, AwsIotSerializer_ScalarByteString( inputBytes, inputLength ) ) );
+                       _encoder.append( &_encoderObject, IotSerializer_ScalarByteString( inputBytes, inputLength ) ) );
 
     /* --- Verification --- */
 
@@ -187,7 +186,7 @@ TEST( Full_Serializer_CBOR, Encoder_append_byte_string )
 
     TEST_ASSERT_EQUAL( inputLength, outputLength );
 
-    TEST_ASSERT_EQUAL( 0, strcmp( inputBytes, outputBytes ) );
+    TEST_ASSERT_EQUAL( 0, strcmp( ( const char * ) inputBytes, ( const char * ) outputBytes ) );
 }
 
 TEST( Full_Serializer_CBOR, Encoder_open_a_scalar )
@@ -206,7 +205,7 @@ TEST( Full_Serializer_CBOR, Encoder_open_map )
                        _encoder.openContainer( &_encoderObject, &mapObject, 1 ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.appendKeyValue( &mapObject, "key", AwsIotSerializer_ScalarTextString( "value" ) ) );
+                       _encoder.appendKeyValue( &mapObject, "key", IotSerializer_ScalarTextString( "value" ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &mapObject ) );
@@ -245,7 +244,7 @@ TEST( Full_Serializer_CBOR, Encoder_open_array )
     for( uint8_t i = 0; i < 3; i++ )
     {
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                           _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
+                           _encoder.append( &arrayObject, IotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
     }
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
@@ -289,7 +288,7 @@ TEST( Full_Serializer_CBOR, Encoder_map_nest_map )
                        _encoder.openContainerWithKey( &mapObject_1, "map1", &mapObject_2, 1 ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.appendKeyValue( &mapObject_2, "key", AwsIotSerializer_ScalarTextString( "value" ) ) );
+                       _encoder.appendKeyValue( &mapObject_2, "key", IotSerializer_ScalarTextString( "value" ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &mapObject_1, &mapObject_2 ) );
@@ -340,7 +339,7 @@ TEST( Full_Serializer_CBOR, Encoder_map_nest_array )
     for( uint8_t i = 0; i < 3; i++ )
     {
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                           _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
+                           _encoder.append( &arrayObject, IotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
     }
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,

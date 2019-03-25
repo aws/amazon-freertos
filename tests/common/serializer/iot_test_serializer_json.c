@@ -28,10 +28,10 @@
 #include "unity.h"
 
 /* Serializer includes. */
-#include "aws_iot_serializer.h"
+#include "iot_serializer.h"
 
-#define _encoder        _AwsIotSerializerJsonEncoder
-#define _decoder        _AwsIotSerializerJsonDecoder
+#define _encoder        _IotSerializerJsonEncoder
+#define _decoder        _IotSerializerJsonDecoder
 
 #define _BUFFER_SIZE    100
 
@@ -100,7 +100,7 @@ TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
 
     /* Append an integer. */
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_BUFFER_TOO_SMALL,
-                       _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( 1 ) ) );
+                       _encoder.append( &arrayObject, IotSerializer_ScalarSignedInt( 1 ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_BUFFER_TOO_SMALL,
                        _encoder.closeContainer( &encoderObject, &arrayObject ) );
@@ -122,7 +122,7 @@ TEST( Full_Serializer_JSON, Encoder_append_integer )
                        _encoder.openContainer( &_encoderObject, &arrayObject, 1 ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( value ) ) );
+                       _encoder.append( &arrayObject, IotSerializer_ScalarSignedInt( value ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &arrayObject ) );
@@ -140,7 +140,7 @@ TEST( Full_Serializer_JSON, Encoder_append_text_string )
                        _encoder.openContainer( &_encoderObject, &arrayObject, 1 ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.append( &arrayObject, AwsIotSerializer_ScalarTextString( str ) ) );
+                       _encoder.append( &arrayObject, IotSerializer_ScalarTextString( str ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &arrayObject ) );
@@ -160,7 +160,7 @@ TEST( Full_Serializer_JSON, Encoder_append_byte_string )
                        _encoder.openContainer( &_encoderObject, &arrayObject, 1 ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.append( &arrayObject, AwsIotSerializer_ScalarByteString( inputBytes, inputLength ) ) );
+                       _encoder.append( &arrayObject, IotSerializer_ScalarByteString( inputBytes, inputLength ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &arrayObject ) );
@@ -180,7 +180,7 @@ TEST( Full_Serializer_JSON, Encoder_open_map )
                        _encoder.openContainer( &_encoderObject, &mapObject, 1 ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.appendKeyValue( &mapObject, "key", AwsIotSerializer_ScalarTextString( "value" ) ) );
+                       _encoder.appendKeyValue( &mapObject, "key", IotSerializer_ScalarTextString( "value" ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &mapObject ) );
@@ -201,7 +201,7 @@ TEST( Full_Serializer_JSON, Encoder_open_array )
     for( uint8_t i = 0; i < 3; i++ )
     {
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                           _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
+                           _encoder.append( &arrayObject, IotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
     }
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
@@ -223,7 +223,7 @@ TEST( Full_Serializer_JSON, Encoder_map_nest_map )
                        _encoder.openContainerWithKey( &mapObject_1, "map1", &mapObject_2, 1 ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                       _encoder.appendKeyValue( &mapObject_2, "key", AwsIotSerializer_ScalarTextString( "value" ) ) );
+                       _encoder.appendKeyValue( &mapObject_2, "key", IotSerializer_ScalarTextString( "value" ) ) );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &mapObject_1, &mapObject_2 ) );
@@ -251,7 +251,7 @@ TEST( Full_Serializer_JSON, Encoder_map_nest_array )
     for( uint8_t i = 0; i < 3; i++ )
     {
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
-                           _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
+                           _encoder.append( &arrayObject, IotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
     }
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
