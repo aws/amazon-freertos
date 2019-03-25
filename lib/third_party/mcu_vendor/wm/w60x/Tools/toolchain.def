@@ -1,0 +1,255 @@
+#---------------------------------------------------------------------------
+# Description: tool_chain_def
+# 
+# Copyright (c) 2014 Winner Microelectronics Co., Ltd. 
+# All rights reserved. 
+# 
+# Author : kevin 
+# 
+# Date : 2014-6-12 
+#---------------------------------------------------------------------------
+TOOL_GNU = 1
+COST_DOWN = 0
+WPS_FEATURE = 1
+IBSS_FEATURE = 1
+AP_FEATURE = 1
+LWIP_141 = 0
+
+ARCH_M3 = 1
+#---------------------------------------------------------------------------
+# Define Path
+#---------------------------------------------------------------------------
+ifeq ($(TOOL_GNU),1)
+#TOOL_PATH   = C:/Program\ Files\ \(x86\)/GNU\ Tools\ ARM\ Embedded/4.9\ 2014q4
+TOOL_PATH   = 
+#CROSS       = $(TOOL_PATH)/bin/arm-none-eabi-
+CROSS       = arm-none-eabi-
+LIBDIR = GNU
+else
+TOOL_PATH   = "C:/Keil_v5/ARM/ARMCC/BIN"
+CROSS       = $(TOOL_PATH)/
+TOOL_INCLUD_PATH = "C:/Keil_v5/ARM"
+TOOL_INCLUD = $(TOOL_INCLUD_PATH)
+LIBDIR = 
+endif
+
+#---------------------------------------------------------------------------
+# Define Toolchains
+#---------------------------------------------------------------------------
+ifeq ($(TOOL_GNU),1)
+  ifeq ($(WM_VERBOSE),s)
+    CC          = $(CROSS)gcc
+    ASM         = $(CROSS)gcc
+    AR          = $(CROSS)ar
+    LD          = $(CROSS)ld
+    ELF         = $(CROSS)objcopy
+    STRIP       = $(CROSS)strip
+    ECHO        = echo
+    RM          = rm
+    CP          = cp
+    MAKE        = make
+  else ifeq ($(WM_VERBOSE),)
+    CC          = @echo "    CC  $<";$(CROSS)gcc
+    ASM         = @echo "    ASM $<";$(CROSS)gcc
+    AR          = @echo "    AR  $<";$(CROSS)ar
+    LD          = @echo "    LD  $<";$(CROSS)ld
+    ELF         = @echo "    OBJCP $<";$(CROSS)objcopy
+    STRIP       = $(CROSS)strip
+    ECHO        = echo
+    RM          = rm
+    CP          = cp
+    MAKE        = make
+  endif
+else
+  CC          = $(CROSS)armcc
+  ASM         = $(CROSS)armasm
+  AR          = $(CROSS)armar
+  LD			= $(CROSS)armlink
+  ELF			= $(CROSS)fromelf
+  ECHO        = echo
+endif
+
+#---------------------------------------------------------------------------
+# Complier options
+#---------------------------------------------------------------------------
+
+CXX_optimization = -Os
+
+ifeq ($(TOOL_GNU),1)
+  CFLAGS := -Wall \
+  	  -DGCC_COMPILE=1 \
+  	  -mthumb \
+  	  $(CXX_optimization) \
+  	  --function-sections \
+  	  --data-sections \
+  	  -mcpu=cortex-m3 \
+  	  -std=gnu99 \
+  	  -mabi=aapcs \
+  	  -march=armv7-m \
+  	  -fno-builtin
+  ARMCFLAGS := -Wall \
+  	     -DGCC_COMPILE=1 -DWM_W600=1 \
+  	     -mthumb \
+  	     $(CXX_optimization) \
+  	     --function-sections \
+  	     --data-sections \
+  	     -mcpu=cortex-m3 \
+  	     -std=gnu99 \
+  	     -march=armv7-m \
+  	     -mabi=aapcs \
+  	     -fno-builtin
+  ASMFLAGS := -Wall \
+  	    -mthumb-interwork \
+  	    -mthumb \
+  	    -std=gnu99 \
+  	    -mcpu=cortex-m3 \
+  	    -march=armv7-m \
+  	    -mabi=aapcs \
+  	    -fno-builtin \
+  	    $(CXX_optimization)
+  ARFLAGS := ru
+  ARMASMFLAGS := -Wall
+  #ARMASMFLAGS += -mthumb-interwork
+  ARMARFLAGS := ru \
+  	      -mcpu=cortex-m3 \
+  	      -std=gnu99
+else
+  CFLAGS := --cpu Cortex-M3 --li -g \
+  	    -DGCC_COMPILE=0 -DWM_W600=1 \
+  	    --thumb \
+  	    -c \
+  	    -O2 \
+  	    --apcs=interwork \
+  	    --c99 \
+  	    --gnu
+  ASMFLAGS := --cpu Cortex-M3 \
+  	      --li -g \
+              --apcs=interwork
+  ARFLAGS := --create
+endif
+
+ifeq ($(COST_DOWN), 1)
+  CFLAGS += -DTLS_COST_DOWN=1
+else
+  CFLAGS += -DTLS_COST_DOWN=0
+endif
+
+_SVN_MAIN_DIR_=${TOPDIR}/.svn 
+ifeq ($(_SVN_MAIN_DIR_), $(wildcard $(_SVN_MAIN_DIR_)))
+then
+  $(shell svn info $(TOPDIR)>$(TOPDIR)/revision )
+  _SVN_Revision := $(shell grep "Revision" $(TOPDIR)/revision)
+  ifeq ($(_SVN_Revision),)
+    $(shell sed -i '/¡Á?o¨®/d' $(TOPDIR)/revision)
+    _SVN_Revision := $(shell grep "¡ã?¡À?:" $(TOPDIR)/revision)
+  endif
+  _SVN_Revision := $(wordlist 2,2, $(_SVN_Revision))
+  CFLAGS += -D_WM_REVISION_=$(_SVN_Revision)
+  $(shell rm -rf $(TOPDIR)/revision)
+endif
+
+#---------------------------------------------------------------------------
+# Define Lib Type
+#---------------------------------------------------------------------------
+ifeq ($(TOOL_GNU),1)
+  LIBTYPE := a
+else
+  LIBTYPE := lib
+endif
+
+#---------------------------------------------------------------------------
+# include 
+#---------------------------------------------------------------------------
+INCLUDES := -I$(TOPDIR)/Include/ \
+	    -I$(TOPDIR)/Src/OS/uCOS-II/ports/ \
+	    -I$(TOPDIR)/Src/OS/uCOS-II/source/ \
+	    -I$(TOPDIR)/Src/OS/uCOS-II/ \
+	    -I$(TOPDIR)/Src/OS/RTOS/include/ \
+	    -I$(TOPDIR)/Src/Wlan/Driver/ \
+	    -I$(TOPDIR)/Src/Wlan/Supplicant/ \
+	    -I$(TOPDIR)/Platform/Common/Params/ \
+	    -I$(TOPDIR)/Platform/Common/task/ \
+	    -I$(TOPDIR)/Platform/Common/mem/ \
+	    -I$(TOPDIR)/Platform/Common/fwup/ \
+	    -I$(TOPDIR)/Platform/Common/utils/ \
+	    -I$(TOPDIR)/Platform/Common/crypto/ \
+	    -I$(TOPDIR)/Platform/Common/crypto/symmetric/ \
+	    -I$(TOPDIR)/Platform/Common/crypto/digest/ \
+	    -I$(TOPDIR)/Platform/Common/crypto/math/ \
+	    -I$(TOPDIR)/Platform/Inc/ \
+	    -I$(TOPDIR)/Platform/Sys/ \
+	    -I$(TOPDIR)/Src/App/wm_atcmd/ \
+	    -I$(TOPDIR)/Src/App/matrixssl/ \
+	    -I$(TOPDIR)/Src/App/matrixssl/core/ \
+	    -I$(TOPDIR)/Src/App/libupnp-1.6.19/ixml/inc/ \
+	    -I$(TOPDIR)/Src/App/libupnp-1.6.19/upnp/inc/ \
+	    -I$(TOPDIR)/Src/App/libupnp-1.6.19/ixml/include/ \
+	    -I$(TOPDIR)/Src/App/libupnp-1.6.19/threadutil/include/ \
+	    -I$(TOPDIR)/Src/App/libupnp-1.6.19/upnp/include/ \
+	    -I$(TOPDIR)/Src/App/gmediarender-0.0.6/ \
+	    -I$(TOPDIR)/Src/App/web/ \
+	    -I$(TOPDIR)/Src/App/OTA/ \
+	    -I$(TOPDIR)/Src/App/cloud/ \
+	    -I$(TOPDIR)/Src/App/cJSON/ \
+	    -I$(TOPDIR)/Src/App/ajtcl-15.04.00a/inc/ \
+	    -I$(TOPDIR)/Src/App/ajtcl-15.04.00a/target/winnermicro/ \
+	    -I$(TOPDIR)/Src/App/ajtcl-15.04.00a/external/sha2/ \
+	    -I$(TOPDIR)/Src/App/cJSON/ \
+	    -I$(TOPDIR)/Src/App/cloud/ \
+	    -I$(TOPDIR)/Src/App/oneshotconfig/ \
+	    -I$(TOPDIR)/Src/App/dhcpserver/ \
+	    -I$(TOPDIR)/Src/App/dnsserver/ \
+	    -I$(TOPDIR)/Src/App/ping/ \
+	    -I$(TOPDIR)/Src/App/iperf/ \
+	    -I$(TOPDIR)/Src/App/libcoap/include/ \
+	    -I$(TOPDIR)/Src/App/polarssl/include/ \
+	    -I$(TOPDIR)/Src/App/mDNS/mDNSCore/ \
+	    -I$(TOPDIR)/Src/App/mDNS/mDNSPosix/ \
+	    -I$(TOPDIR)/Src/App/mqtt/ \
+	    -I$(TOPDIR)/Demo/ \
+	    -I$(TOPDIR)/Include/App/ \
+	    -I$(TOPDIR)/Include/Net/ \
+	    -I$(TOPDIR)/Include/WiFi/ \
+	    -I$(TOPDIR)/Include/OS/ \
+	    -I$(TOPDIR)/Include/Driver/ \
+	    -I$(TOPDIR)/Include/Platform/
+#	    -I$(TOPDIR)/Platform/Drivers/litepoint/
+#	    -I$(TOPDIR)/Src/App/demo/
+
+ifeq ($(TOOL_GNU),1)
+  INCLUDES += -I$(TOPDIR)/Platform/Boot/gcc/
+else
+  INCLUDES += -I$(TOOL_INCLUD_PATH)/RV31/INC/ \
+  	      -I$(TOOL_INCLUD)/CMSIS/Include/
+endif
+
+ifeq ($(LWIP_141),1)
+  INCLUDES += -I$(TOPDIR)/Src/Network/api/ \
+  	      -I$(TOPDIR)/Src/Network/lwip1.4.1/ \
+  	      -I$(TOPDIR)/Src/Network/lwip1.4.1/include/ \
+  	      -I$(TOPDIR)/Src/Network/lwip1.4.1/include/arch/ \
+  	      -I$(TOPDIR)/Src/Network/lwip1.4.1/include/ipv4/ \
+  	      -I$(TOPDIR)/Src/Network/lwip1.4.1/include/ipv4/lwip/ \
+  	      -I$(TOPDIR)/Src/Network/lwip1.4.1/include/lwip/ \
+  	      -I$(TOPDIR)/Src/Network/lwip1.4.1/include/netif/ 
+else
+  INCLUDES += -I$(TOPDIR)/Src/Network/api2.0.3/ \
+  	      -I$(TOPDIR)/Src/Network/lwip2.0.3/ \
+  	      -I$(TOPDIR)/Src/Network/lwip2.0.3/include/ \
+  	      -I$(TOPDIR)/Src/Network/lwip2.0.3/include/arch/ \
+  	      -I$(TOPDIR)/Src/Network/lwip2.0.3/include/lwip/ \
+  	      -I$(TOPDIR)/Src/Network/lwip2.0.3/include/netif/ 
+endif
+INCLUDES += -I$(TOPDIR)/Src/App/libwebsockets-2.1-stable/ \
+	    -I$(TOPDIR)/Src/App/httpclient/
+
+LIB_DIR := ${TOPDIR}/Lib/${LIBDIR}
+
+_IGNORE_GCC_INC_DEF=-D_IN_ADDR_T_DECLARED -D__MACHINE_ENDIAN_H__ -D_TIMEVAL_DEFINED -D__INSIDE_CYGWIN_NET__
+
+CFLAGS += $(_IGNORE_GCC_INC_DEF)
+ARMCFLAGS += $(_IGNORE_GCC_INC_DEF)
+ASMFLAGS += $(_IGNORE_GCC_INC_DEF)
+#ARFLAGS += $(_IGNORE_GCC_INC_DEF)
+ARMASMFLAGS += $(_IGNORE_GCC_INC_DEF)
+ARMARFLAGS += $(_IGNORE_GCC_INC_DEF)

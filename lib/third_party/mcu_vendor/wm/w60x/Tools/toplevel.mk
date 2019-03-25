@@ -1,0 +1,2 @@
+TOPDIR?=${CURDIR}/../..
+export TOPDIR

@@ -1,0 +1,7 @@
+future==0.16.0
+iso8601==0.1.12
+pyserial==3.4
+PyYAML==3.13
+serial==0.0.69
+xmodem==0.4.5
+PyPrind==2.11.2
