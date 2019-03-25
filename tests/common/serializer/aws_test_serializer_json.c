@@ -35,7 +35,7 @@
 
 #define _BUFFER_SIZE    100
 
-static AwsIotSerializerEncoderObject_t _encoderObject;
+static IotSerializerEncoderObject_t _encoderObject;
 
 static uint8_t _buffer[ _BUFFER_SIZE ];
 
@@ -49,7 +49,7 @@ TEST_SETUP( Full_Serializer_JSON )
     memset( _buffer, 0, _BUFFER_SIZE );
 
     /* Init encoder object with buffer. */
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.init( &_encoderObject, _buffer, _BUFFER_SIZE ) );
 }
 
@@ -82,27 +82,27 @@ TEST_GROUP_RUNNER( Full_Serializer_JSON )
 
 TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
 {
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
-    AwsIotSerializerEncoderObject_t encoderObject = { 0 };
-    AwsIotSerializerEncoderObject_t arrayObject = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
+    IotSerializerEncoderObject_t encoderObject = { 0 };
+    IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.init( &encoderObject, NULL, 0 ) );
 
     /* Set the type to stream. */
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_CONTAINER_STREAM, encoderObject.type );
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_CONTAINER_STREAM, encoderObject.type );
 
     /* Assigned value to handle pointer. */
     TEST_ASSERT_NOT_NULL( encoderObject.pHandle );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_BUFFER_TOO_SMALL,
                        _encoder.openContainer( &encoderObject, &arrayObject, 1 ) );
 
     /* Append an integer. */
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_BUFFER_TOO_SMALL,
                        _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( 1 ) ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_BUFFER_TOO_SMALL,
                        _encoder.closeContainer( &encoderObject, &arrayObject ) );
 
     /* Needed 4 bytes for integer 1 (over-calculated). */
@@ -115,16 +115,16 @@ TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
 
 TEST( Full_Serializer_JSON, Encoder_append_integer )
 {
-    AwsIotSerializerEncoderObject_t arrayObject = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
     int64_t value = 6;
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &arrayObject, 1 ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( value ) ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &arrayObject ) );
 
     /* --- Verification --- */
@@ -133,16 +133,16 @@ TEST( Full_Serializer_JSON, Encoder_append_integer )
 
 TEST( Full_Serializer_JSON, Encoder_append_text_string )
 {
-    AwsIotSerializerEncoderObject_t arrayObject = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
     char * str = "hello world";
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &arrayObject, 1 ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.append( &arrayObject, AwsIotSerializer_ScalarTextString( str ) ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &arrayObject ) );
 
     /* --- Verification --- */
@@ -151,18 +151,18 @@ TEST( Full_Serializer_JSON, Encoder_append_text_string )
 
 TEST( Full_Serializer_JSON, Encoder_append_byte_string )
 {
-    AwsIotSerializerEncoderObject_t arrayObject = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
     uint8_t inputBytes[] = "hello world";
     size_t inputLength = strlen( inputBytes );
 
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &arrayObject, 1 ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.append( &arrayObject, AwsIotSerializer_ScalarByteString( inputBytes, inputLength ) ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &arrayObject ) );
 
     /* --- Verification --- */
@@ -173,16 +173,16 @@ TEST( Full_Serializer_JSON, Encoder_append_byte_string )
 
 TEST( Full_Serializer_JSON, Encoder_open_map )
 {
-    AwsIotSerializerEncoderObject_t mapObject = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t mapObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
     const char * pExpectedResult = "{\"key\":\"value\"}";
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &mapObject, 1 ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.appendKeyValue( &mapObject, "key", AwsIotSerializer_ScalarTextString( "value" ) ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &mapObject ) );
 
     /* --- Verification --- */
@@ -191,20 +191,20 @@ TEST( Full_Serializer_JSON, Encoder_open_map )
 
 TEST( Full_Serializer_JSON, Encoder_open_array )
 {
-    AwsIotSerializerEncoderObject_t arrayObject = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
 
     int64_t numberArray[] = { 3, 2, 1 };
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &arrayObject, 3 ) );
 
     for( uint8_t i = 0; i < 3; i++ )
     {
-        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                            _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
     }
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &arrayObject ) );
 
     /* --- Verification --- */
@@ -213,22 +213,22 @@ TEST( Full_Serializer_JSON, Encoder_open_array )
 
 TEST( Full_Serializer_JSON, Encoder_map_nest_map )
 {
-    AwsIotSerializerEncoderObject_t mapObject_1 = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t mapObject_2 = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t mapObject_1 = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t mapObject_2 = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &mapObject_1, 1 ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainerWithKey( &mapObject_1, "map1", &mapObject_2, 1 ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.appendKeyValue( &mapObject_2, "key", AwsIotSerializer_ScalarTextString( "value" ) ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &mapObject_1, &mapObject_2 ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &mapObject_1 ) );
 
     /* --- Verification --- */
@@ -237,27 +237,27 @@ TEST( Full_Serializer_JSON, Encoder_map_nest_map )
 
 TEST( Full_Serializer_JSON, Encoder_map_nest_array )
 {
-    AwsIotSerializerEncoderObject_t mapObject = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerEncoderObject_t arrayObject = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
+    IotSerializerEncoderObject_t mapObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
 
     int64_t numberArray[] = { 3, 2, 1 };
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &mapObject, 1 ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainerWithKey( &mapObject, "array", &arrayObject, 3 ) );
 
     for( uint8_t i = 0; i < 3; i++ )
     {
-        TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+        TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                            _encoder.append( &arrayObject, AwsIotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
     }
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &mapObject, &arrayObject ) );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_SERIALIZER_SUCCESS,
+    TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.closeContainer( &_encoderObject, &mapObject ) );
 
     /* --- Verification --- */

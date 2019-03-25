@@ -153,7 +153,7 @@ bool IotMutex_Create( IotMutex_t * pNewMutex , bool recursive )
 
 /*-----------------------------------------------------------*/
 
-void IotMutex_Destroy( IotMutex_t * const pMutex )
+void IotMutex_Destroy( IotMutex_t * pMutex )
 {
     _IotSystemMutex_t * internalMutex = ( _IotSystemMutex_t * ) pMutex;
 
@@ -164,7 +164,7 @@ void IotMutex_Destroy( IotMutex_t * const pMutex )
 
 /*-----------------------------------------------------------*/
 
-bool prIotMutexTimedLock(IotMutex_t * const pMutex, TickType_t timeout)
+bool prIotMutexTimedLock(IotMutex_t * pMutex, TickType_t timeout)
 {
     _IotSystemMutex_t * internalMutex = ( _IotSystemMutex_t * ) pMutex;
     BaseType_t  lockResult;
@@ -188,21 +188,21 @@ bool prIotMutexTimedLock(IotMutex_t * const pMutex, TickType_t timeout)
 
 /*-----------------------------------------------------------*/
 
-void IotMutex_Lock( IotMutex_t * const pMutex )
+void IotMutex_Lock( IotMutex_t * pMutex )
 {
     prIotMutexTimedLock( pMutex, portMAX_DELAY );
 }
 
 /*-----------------------------------------------------------*/
 
-bool IotMutex_TryLock( IotMutex_t * const pMutex )
+bool IotMutex_TryLock( IotMutex_t * pMutex )
 {
     return prIotMutexTimedLock( pMutex, 0 );
 }
 
 /*-----------------------------------------------------------*/
 
-void IotMutex_Unlock( IotMutex_t * const pMutex )
+void IotMutex_Unlock( IotMutex_t * pMutex )
 {
     _IotSystemMutex_t * internalMutex = ( _IotSystemMutex_t * ) pMutex;
 
@@ -223,7 +223,7 @@ void IotMutex_Unlock( IotMutex_t * const pMutex )
 
 /*-----------------------------------------------------------*/
 
-bool IotSemaphore_Create( IotSemaphore_t * const pNewSemaphore,
+bool IotSemaphore_Create( IotSemaphore_t * pNewSemaphore,
                              uint32_t initialValue,
                              uint32_t maxValue )
 {
@@ -240,7 +240,7 @@ bool IotSemaphore_Create( IotSemaphore_t * const pNewSemaphore,
 
 /*-----------------------------------------------------------*/
 
-uint32_t IotSemaphore_GetCount( IotSemaphore_t * const pSemaphore )
+uint32_t IotSemaphore_GetCount( IotSemaphore_t * pSemaphore )
 {
     _IotSystemSemaphore_t * internalSemaphore = ( _IotSystemSemaphore_t * ) pSemaphore;
     UBaseType_t count = 0;
@@ -256,7 +256,7 @@ uint32_t IotSemaphore_GetCount( IotSemaphore_t * const pSemaphore )
 
 /*-----------------------------------------------------------*/
 
-void IotSemaphore_Destroy( IotSemaphore_t * const pSemaphore )
+void IotSemaphore_Destroy( IotSemaphore_t * pSemaphore )
 {
     _IotSystemSemaphore_t * internalSemaphore = ( _IotSystemSemaphore_t * ) pSemaphore;
 
@@ -292,7 +292,7 @@ void IotSemaphore_Wait( IotSemaphore_t * pSemaphore )
 
 /*-----------------------------------------------------------*/
 
-bool IotSemaphore_TryWait( IotSemaphore_t * const pSemaphore )
+bool IotSemaphore_TryWait( IotSemaphore_t * pSemaphore )
 {
     _IotSystemSemaphore_t * internalSemaphore = ( _IotSystemSemaphore_t * ) pSemaphore;
 
@@ -305,7 +305,7 @@ bool IotSemaphore_TryWait( IotSemaphore_t * const pSemaphore )
 
 /*-----------------------------------------------------------*/
 
-bool IotSemaphore_TimedWait( IotSemaphore_t * const pSemaphore,
+bool IotSemaphore_TimedWait( IotSemaphore_t * pSemaphore,
                              uint32_t timeoutMs )
 {
     _IotSystemSemaphore_t * internalSemaphore = ( _IotSystemSemaphore_t * ) pSemaphore;
@@ -330,7 +330,7 @@ bool IotSemaphore_TimedWait( IotSemaphore_t * const pSemaphore,
 
 /*-----------------------------------------------------------*/
 
-void IotSemaphore_Post( IotSemaphore_t * const pSemaphore )
+void IotSemaphore_Post( IotSemaphore_t * pSemaphore )
 {
     _IotSystemSemaphore_t * internalSemaphore = ( _IotSystemSemaphore_t * ) pSemaphore;
 

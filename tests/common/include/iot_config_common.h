@@ -62,6 +62,12 @@
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
 
+/* Defining network type .*/
+#define AWSIOT_NETWORK_TYPE_NONE     0x00000000
+#define AWSIOT_NETWORK_TYPE_WIFI     0x00000001
+#define AWSIOT_NETWORK_TYPE_BLE      0x00000002
+
+
 /* Standard library function overrides. */
 #define IotLogging_Puts( str )                   configPRINTF( ( "%s\n", str ) )
 #define IotContainers_Assert( expression )       configASSERT( expression )
@@ -92,6 +98,11 @@
 /* Memory allocation function configuration for the MQTT library. The MQTT library
  * will be affected by IOT_STATIC_MEMORY_ONLY. */
 #if IOT_STATIC_MEMORY_ONLY == 0
+    #define IotTaskPool_MallocJob                   pvPortMalloc
+    #define IotTaskPool_FreeJob                     vPortFree
+    #define IotTaskPool_MallocTimerEvent            pvPortMalloc
+    #define IotTaskPool_FreeTimerEvent              vPortFree
+
     #define IotMqtt_MallocConnection                pvPortMalloc
     #define IotMqtt_FreeConnection                  vPortFree
     #define IotMqtt_MallocMessage                   pvPortMalloc
@@ -127,33 +138,33 @@
 
 #endif /* if IOT_STATIC_MEMORY_ONLY == 0 */
 
-/* Settings required to build the libraries for testing. */
+/* Enable asserts in libraries. */
+#define AWS_IOT_DEFENDER_ENABLE_ASSERTS         ( 1 )
+#define AWS_IOT_SHADOW_ENABLE_ASSERTS           ( 1 )
 #define IOT_CONTAINERS_ENABLE_ASSERTS           ( 1 )
 #define IOT_MQTT_ENABLE_ASSERTS                 ( 1 )
+#define IOT_METRICS_ENABLE_ASSERTS              ( 1 )
+
+/* Settings required to build the libraries for testing. */
 #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
-#define IOT_MQTT_TEST                           ( 1 )
-#define AWS_IOT_SHADOW_ENABLE_ASSERTS           ( 1 )
-#define AWS_IOT_SERIALIZER_ENABLE_ASSERTS       ( 1 )
-#define AWS_IOT_MQTT_MAX_SEND_THREADS           ( 1 )
-#define AWS_IOT_METRICS_ENABLE_ASSERTS          ( 1 )
-#define AWS_IOT_DEFENDER_ENABLE_ASSERTS         ( 1 )
+#define IOT_BUILD_TESTS                         ( 1 )
 
 /* Static memory configuration. */
 #if IOT_STATIC_MEMORY_ONLY == 1
     #ifndef IOT_MESSAGE_BUFFERS
-        #define IOT_MESSAGE_BUFFERS        ( 8 )
+        #define IOT_MESSAGE_BUFFERS                    ( 8 )
     #endif
     #ifndef IOT_MESSAGE_BUFFER_SIZE
-        #define IOT_MESSAGE_BUFFER_SIZE    ( 4096 )
+        #define IOT_MESSAGE_BUFFER_SIZE                ( 4096 )
     #endif
     #ifndef IOT_MQTT_CONNECTIONS
-        #define IOT_MQTT_CONNECTIONS       ( 2 )
+        #define IOT_MQTT_CONNECTIONS                   ( 2 )
     #endif
     #ifndef IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS
         #define IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS    ( 10 )
     #endif
     #ifndef IOT_MQTT_SUBSCRIPTIONS
-        #define IOT_MQTT_SUBSCRIPTIONS     ( 16 )
+        #define IOT_MQTT_SUBSCRIPTIONS                 ( 16 )
     #endif
 #endif /* if IOT_STATIC_MEMORY_ONLY == 1 */
 
@@ -163,11 +174,6 @@
 #endif
 #ifndef IOT_NETWORK_SHORT_TIMEOUT_MS
     #define IOT_NETWORK_SHORT_TIMEOUT_MS       ( 100 )
-#endif
-
-/* Linear containers configuration. */
-#ifndef IOT_CONTAINERS_ENABLE_ASSERTS
-    #define IOT_CONTAINERS_ENABLE_ASSERTS    ( 1 )
 #endif
 
 /* Priority of network receive task. */
@@ -193,27 +199,53 @@
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */
 #define IOT_TEST_NETWORK_HEADER    "platform/iot_network_afr.h"
 
+/* All tests use a secured connection. */
+#define IOT_TEST_SECURED_CONNECTION    ( 1 )
+
+/* Allow the network interface to be chosen by at runtime. */
+typedef struct IotNetworkInterface IotNetworkInterface_t;
+extern const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void );
+#define IOT_TEST_NETWORK_INTERFACE    IotTestNetwork_GetNetworkInterface()
+
+/* Allow the network serializer to be chosen by at runtime. */
+typedef struct IotMqttSerializer IotMqttSerializer_t;
+extern const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void );
+#define IOT_TEST_MQTT_SERIALIZER IotTestNetwork_GetSerializer()
+
 /* Forward declarations of network types used in the tests. */
 typedef struct IotNetworkConnectionAfr    IotTestNetworkConnection_t;
 typedef struct IotNetworkServerInfoAfr    IotTestNetworkServerInfo_t;
 typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 
 /* Define test network initializers. */
-#define IOT_TEST_NETWORK_INTERFACE                  IOT_NETWORK_INTERFACE_AFR
 #define IOT_TEST_NETWORK_CONNECTION_INITIALIZER     IOT_NETWORK_CONNECTION_AFR_INITIALIZER
 #define IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER    AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER
-#define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER    AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER
+
+/* Define the credentials initializer based on the server port. Use ALPN if on
+ * 443, otherwise disable ALPN. */
+#if clientcredentialMQTT_BROKER_PORT == 443
+    #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER    AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER
+#else
+    #define IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER           \
+    {                                                          \
+        .disableSni = false,                                   \
+        .pAlpnProtos = NULL,                                   \
+        .pRootCa = NULL,                                       \
+        .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
+        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
+        .rootCaSize = 0,                                       \
+        .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ), \
+        .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )  \
+    }
+#endif
 
 /* Network initialization and cleanup functions are not needed on FreeRTOS. */
-#define IotTestNetwork_Init()       IOT_NETWORK_SUCCESS
-#define IotTestNetwork_Cleanup()    
+#define IotTestNetwork_Init()    IOT_NETWORK_SUCCESS
+#define IotTestNetwork_Cleanup()
 
 /* MQTT library configuration. */
-#ifndef IOT_MQTT_ENABLE_METRICS
-    #define IOT_MQTT_ENABLE_METRICS    ( 1 )
-#endif
-#ifndef IOT_MQTT_ENABLE_ASSERTS
-    #define IOT_MQTT_ENABLE_ASSERTS        ( 1 )
+#ifndef AWS_IOT_MQTT_ENABLE_METRICS
+    #define AWS_IOT_MQTT_ENABLE_METRICS    ( 1 )
 #endif
 #ifndef IOT_MQTT_RESPONSE_WAIT_MS
     #define IOT_MQTT_RESPONSE_WAIT_MS      ( 1000 )
@@ -227,21 +259,13 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
     #define AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS    ( 5000 )
 #endif
 
-/* Set test credentials and Thing Name. */
-#define IOT_TEST_SERVER                        clientcredentialMQTT_BROKER_ENDPOINT
-#define IOT_TEST_PORT                          443
-#define IOT_TEST_SECURED_CONNECTION            1
-#define IOT_TEST_ROOT_CA                       NULL
-#define IOT_TEST_CLIENT_CERT                   clientcredentialCLIENT_CERTIFICATE_PEM
-#define IOT_TEST_CLIENT_CERT_LENGTH            clientcredentialCLIENT_CERTIFICATE_LENGTH
-#define IOT_TEST_PRIVATE_KEY                   clientcredentialCLIENT_PRIVATE_KEY_PEM
-#define IOT_TEST_PRIVATE_KEY_LENGTH            clientcredentialCLIENT_PRIVATE_KEY_LENGTH
-#define AWS_IOT_TEST_SHADOW_THING_NAME         clientcredentialIOT_THING_NAME
+/* Set Thing Name. */
+#define AWS_IOT_TEST_SHADOW_THING_NAME    clientcredentialIOT_THING_NAME
 
 /* Configuration for defender demo: set format to CBOR. */
-#define AWS_IOT_DEFENDER_FORMAT                AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_FORMAT           AWS_IOT_DEFENDER_FORMAT_CBOR
 
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
-#define AWS_IOT_DEFENDER_USE_LONG_TAG          ( 1 )
+#define AWS_IOT_DEFENDER_USE_LONG_TAG     ( 1 )
 
 #endif /* ifndef _IOT_CONFIG_COMMON_H_ */

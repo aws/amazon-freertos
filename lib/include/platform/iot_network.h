@@ -29,6 +29,7 @@
 
 /* Standard includes. */
 #include <stdint.h>
+#include <stdlib.h>
 
 /**
  * @ingroup platform_datatypes_enums
@@ -114,7 +115,7 @@ typedef struct IotNetworkInterface
     /* @[declare_platform_network_create] */
     IotNetworkError_t ( * create )( void * pConnectionInfo,
                                     void * pCredentialInfo,
-                                    void * pConnection );
+                                    void ** pConnection );
     /* @[declare_platform_network_create] */
 
     /**

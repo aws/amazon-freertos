@@ -82,11 +82,11 @@
  * @return A corresponding #AwsIotShadowError_t; #AWS_IOT_SHADOW_BAD_RESPONSE
  * if `code` is unknown.
  */
-static AwsIotShadowError_t _codeToShadowStatus( unsigned long code );
+static AwsIotShadowError_t _codeToShadowStatus( uint32_t code );
 
 /*-----------------------------------------------------------*/
 
-static AwsIotShadowError_t _codeToShadowStatus( unsigned long code )
+static AwsIotShadowError_t _codeToShadowStatus( uint32_t code )
 {
     /* Convert the Shadow response code to an AwsIotShadowError_t. */
     switch( code )
@@ -135,7 +135,7 @@ static AwsIotShadowError_t _codeToShadowStatus( unsigned long code )
 
 /*-----------------------------------------------------------*/
 
-_shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * const pTopicName,
+_shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * pTopicName,
                                                           size_t topicNameLength )
 {
     const char * pSuffixStart = NULL;
@@ -186,12 +186,12 @@ _shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * const pTo
 
 /*-----------------------------------------------------------*/
 
-AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * const pErrorDocument,
+AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * pErrorDocument,
                                                       size_t errorDocumentLength )
 {
     const char * pCode = NULL, * pMessage = NULL;
     size_t codeLength = 0, messageLength = 0;
-    unsigned long code = 0;
+    uint32_t code = 0;
 
     /* Parse the code from the error document. */
     if( IotJsonUtils_FindJsonValue( pErrorDocument,
@@ -214,7 +214,7 @@ AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * const pErrorD
                          ( pCode + codeLength < pErrorDocument + errorDocumentLength ) );
 
     /* Convert the code to an unsigned integer value. */
-    code = strtoul( pCode, NULL, 10 );
+    code = ( uint32_t ) strtoul( pCode, NULL, 10 );
 
     /* Parse the error message and print it. An error document must always contain
      * a message. */
@@ -246,10 +246,10 @@ AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * const pErrorD
 
 /*-----------------------------------------------------------*/
 
-AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * const pTopicName,
+AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * pTopicName,
                                                   uint16_t topicNameLength,
-                                                  const char ** const pThingName,
-                                                  size_t * const pThingNameLength )
+                                                  const char ** pThingName,
+                                                  size_t * pThingNameLength )
 {
     const char * pThingNameStart = NULL;
     size_t thingNameLength = 0;

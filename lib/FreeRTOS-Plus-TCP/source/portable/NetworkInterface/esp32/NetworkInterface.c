@@ -73,8 +73,8 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t *const pxNetworkBu
         ret = ESP_FAIL;
     } else {
         ret = esp_wifi_internal_tx(ESP_IF_WIFI_STA, pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to tx buffer %p, len %d, err %d", pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength, ret);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to tx buffer %p, len %d, err %d", pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength, ret);
         }
     }
 

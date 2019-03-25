@@ -35,6 +35,8 @@
 #include "aws_logging_task.h"
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
+#include "iot_mqtt.h"
+#include "iot_common.h"
 
 /* Nordic BSP includes */
 #include "bsp.h"
@@ -95,7 +97,7 @@ SemaphoreHandle_t xUARTTxComplete;
 QueueHandle_t UARTqueue = NULL;
 
 /* clang-format on */
-
+extern void IotTestNetwork_SelectNetworkType( uint16_t networkType );
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
@@ -362,12 +364,33 @@ static void prvDeleteBonds( void )
 }
 void vApplicationDaemonTaskStartupHook( void )
 {
+    BaseType_t xStatus = pdFALSE;
+
+    xStatus = ( IotCommon_Init() == true );
+
+
+     if( xStatus == pdPASS )
+    {
+      if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+      {
+          xStatus = pdTRUE;
+      }
+    }
+
+    IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
+
+    if( xStatus == pdTRUE)
+    {
     xTaskCreate( TEST_RUNNER_RunTests_task,
             "RunTests_task",
             mainTEST_RUNNER_TASK_STACK_SIZE,
             NULL,
             tskIDLE_PRIORITY,
             NULL );
+     }else
+     {
+         configPRINTF(("Failed to initialize libraries\n"));
+     }
 }
 
 /*-----------------------------------------------------------*/

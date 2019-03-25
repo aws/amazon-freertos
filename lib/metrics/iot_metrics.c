@@ -1,4 +1,4 @@
-#include "iot_metrics.h"
+#include "platform/iot_metrics.h"
 #include "platform/iot_threads.h"
 
 static IotListDouble_t _connectionsList = IOT_LIST_DOUBLE_INITIALIZER;
@@ -13,22 +13,27 @@ static bool _tcpConnectionMatch( const IotLink_t * pLink,
 static bool _tcpConnectionMatch( const IotLink_t * pLink,
                                  void * pHandle )
 {
+    ( void ) pLink; // Remove this line
+    ( void ) pHandle; // Remove this line
+    #if 0
     IotMetrics_Assert( pLink != NULL );
     IotMetrics_Assert( pHandle != NULL );
 
     return pHandle == IotLink_Container( IotMetricsTcpConnection_t, pLink, link )->pHandle;
+    #endif
+    return false;
 }
 
 /*-----------------------------------------------------------*/
 
-BaseType_t IotMetrics_Init()
+bool IotMetrics_Init( void )
 {
-    BaseType_t result = pdFAIL;
+    bool result = false;
 
     if( IotMutex_Create( &_mutex, false ) )
     {
         IotListDouble_Create( &_connectionsList );
-        result = pdPASS;
+        result = true;
     }
 
     return result;
@@ -38,6 +43,8 @@ BaseType_t IotMetrics_Init()
 
 void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection )
 {
+    ( void ) pTcpConnection; // Remove this line
+    #if 0
     IotMetrics_Assert( pTcpConnection != NULL );
     IotMetrics_Assert( pTcpConnection->pHandle != NULL );
 
@@ -62,12 +69,15 @@ void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection )
     }
 
     IotMutex_Unlock( &_mutex );
+    #endif
 }
 
 /*-----------------------------------------------------------*/
 
-void IotMetrics_RemoveTcpConnection( void * pTcpConnectionHandle )
+void IotMetrics_RemoveTcpConnection( IotMetricsConnectionId_t pTcpConnectionHandle )
 {
+    ( void ) pTcpConnectionHandle; // Remove this line
+    #if 0
     IotMetrics_Assert( pTcpConnectionHandle != NULL );
 
     IotMutex_Lock( &_mutex );
@@ -83,6 +93,7 @@ void IotMetrics_RemoveTcpConnection( void * pTcpConnectionHandle )
     }
 
     IotMutex_Unlock( &_mutex );
+    #endif
 }
 
 /*-----------------------------------------------------------*/

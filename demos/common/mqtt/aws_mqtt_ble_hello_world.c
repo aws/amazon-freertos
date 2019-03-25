@@ -40,7 +40,7 @@
 #include <string.h>
 
 /* Build using a config header, if provided. */
-#include "iot_demo.h"
+#include "iot_demo_logging.h"
 
 /*
  * FreeRTOS includes.
@@ -241,7 +241,7 @@ static BaseType_t xNetworkConnected = pdFALSE;
 IotMqttError_t prxPublishMQTTMessage( const char* pcMesg, size_t xLength )
 {
     IotMqttPublishInfo_t xPublishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    IotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
+    IotMqttOperation_t xOperationLock;
     IotMqttError_t xStatus;
 
     xPublishInfo.qos = echoDemoMQTT_QOS;
@@ -362,9 +362,7 @@ static BaseType_t prxCreateNetworkConnection( void )
     /* At least one network type is available. Connect to the network type. */
     xRet = xMqttDemoCreateNetworkConnection(
             &xConnection,
-            echoDemoNETWORK_TYPES,
-            echoDemoCONNECTION_RETRY_INTERVAL_SECONDS,
-            echoDemoCONNECTION_RETRY_LIMIT );
+            echoDemoNETWORK_TYPES );
 
     return xRet;
 }
@@ -422,13 +420,12 @@ static IotMqttError_t prxOpenMqttConnection()
 
 static IotMqttError_t prxSubscribeorUnsubscribeToTopic( BaseType_t xSubscribe )
 {
-    IotMqttReference_t xOperationLock = IOT_MQTT_REFERENCE_INITIALIZER;
+    IotMqttOperation_t xOperationLock;
     IotMqttSubscription_t xSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttError_t xMqttStatus;
 
     xSubscription.qos = echoDemoMQTT_QOS;
     xSubscription.callback.function = prvEchoMessage;
-    xSubscription.callback.param1 = NULL;
     xSubscription.pTopicFilter = echoDemoMQTT_TOPIC;
     xSubscription.topicFilterLength = strlen( echoDemoMQTT_TOPIC );
 

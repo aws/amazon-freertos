@@ -77,9 +77,9 @@ static void prvTimerCallback( TimerHandle_t xTimerHandle )
 
 /*-----------------------------------------------------------*/
 
-bool IotClock_GetTimestring( char * const pBuffer,
+bool IotClock_GetTimestring( char * pBuffer,
                              size_t bufferSize,
-                             size_t * const pTimestringLength )
+                             size_t * pTimestringLength )
 {
     uint64_t milliSeconds = IotClock_GetTimeMs( );
     int timestringLength = 0;
@@ -124,10 +124,16 @@ uint64_t IotClock_GetTimeMs( void )
     /* Return the ticks converted to Milliseconds */
     return ullTickCount * _MILLISECONDS_PER_TICK;
 }
+/*-----------------------------------------------------------*/
+
+void IotClock_SleepMs( uint32_t sleepTimeMs )
+{
+    vTaskDelay(pdMS_TO_TICKS(sleepTimeMs));
+}
 
 /*-----------------------------------------------------------*/
 
-bool IotClock_TimerCreate( IotTimer_t * const pNewTimer,
+bool IotClock_TimerCreate( IotTimer_t * pNewTimer,
                            IotThreadRoutine_t expirationRoutine,
                            void * pArgument )
 {
@@ -158,7 +164,7 @@ bool IotClock_TimerCreate( IotTimer_t * const pNewTimer,
 
 /*-----------------------------------------------------------*/
 
-void IotClock_TimerDestroy( IotTimer_t * const pTimer )
+void IotClock_TimerDestroy( IotTimer_t * pTimer )
 {
     _IotSystemTimer_t * pTimerInfo = ( _IotSystemTimer_t * ) pTimer;
 
@@ -184,7 +190,7 @@ void IotClock_TimerDestroy( IotTimer_t * const pTimer )
  
 /*-----------------------------------------------------------*/
 
-bool IotClock_TimerArm( IotTimer_t * const pTimer,
+bool IotClock_TimerArm( IotTimer_t * pTimer,
                            uint32_t relativeTimeoutMs,
                            uint32_t periodMs )
 {

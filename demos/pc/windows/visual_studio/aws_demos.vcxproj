@@ -9,6 +9,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C686325E-3261-42F7-AEB1-DDE5280E1CEB}</ProjectGuid>
     <ProjectName>aws_demos</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -140,17 +141,18 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_serialize.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_validate.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
-    <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_decoder.c" />
-    <ClCompile Include="..\..\..\..\lib\serializer\cbor\aws_iot_serializer_tinycbor_encoder.c" />
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_decoder.c" />
+    <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_encoder.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_decoder.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_api.c" />
@@ -245,12 +247,12 @@
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_network_afr.c" />
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_posix.c" />
     <ClCompile Include="..\..\..\common\demo_runner\aws_demo_runner.c" />
+    <ClCompile Include="..\..\..\common\demo_runner\iot_demo_afr.c" />
     <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\common\greengrass_connectivity\aws_greengrass_discovery_demo.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_hello_world.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_subscribe_publish_loop.c" />
-    <ClCompile Include="..\..\..\common\mqtt_v4\iot_demo_mqtt_afr.c" />
-    <ClCompile Include="..\..\..\common\mqtt_v4\iot_demo_mqtt.c" />
+    <ClCompile Include="..\..\..\common\mqtt\iot_demo_mqtt.c" />
     <ClCompile Include="..\..\..\common\posix\aws_posix_demo.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c" />
     <ClCompile Include="..\..\..\common\tcp\aws_simple_tcp_echo_server.c" />
@@ -457,7 +459,7 @@
     <ClInclude Include="..\..\..\common\include\aws_subscribe_publish_loop.h" />
     <ClInclude Include="..\..\..\common\include\aws_tcp_echo_client_single_tasks.h" />
     <ClInclude Include="..\..\..\common\include\iot_config_common.h" />
-    <ClInclude Include="..\..\..\common\include\iot_demo.h" />
+    <ClInclude Include="..\..\..\common\include\iot_demo_logging.h" />
     <ClInclude Include="..\common\application_code\aws_demo_logging.h" />
     <ClInclude Include="..\common\application_code\stdbool.h" />
     <ClInclude Include="..\common\application_code\unistd.h" />

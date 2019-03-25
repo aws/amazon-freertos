@@ -82,14 +82,12 @@
  */
 typedef struct MQTTConnection
 {
-    BaseType_t xNetworkConnectionCreated;         /**< Tracks if the network connection has been created. */
-    IotNetworkConnectionAfr_t xNetworkConnection; /**< Network connection handle. */
-    IotMqttConnection_t xMQTTConnection;          /**< MQTT v4 connection handle. */
-    MQTTAgentCallback_t pxCallback;               /**< MQTT v1 global callback. */
-    void * pvUserData;                            /**< Parameter to pxCallback. */
-    StaticSemaphore_t xConnectionMutex;           /**< Protects from concurrent accesses. */
+    IotMqttConnection_t xMQTTConnection; /**< MQTT v4 connection handle. */
+    MQTTAgentCallback_t pxCallback;      /**< MQTT v1 global callback. */
+    void * pvUserData;                   /**< Parameter to pxCallback. */
+    StaticSemaphore_t xConnectionMutex;  /**< Protects from concurrent accesses. */
     #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
-        MQTTCallback_t xCallbacks                 /**< Conversion table of MQTT v1 to MQTT v4 subscription callbacks. */
+        MQTTCallback_t xCallbacks        /**< Conversion table of MQTT v1 to MQTT v4 subscription callbacks. */
         [ mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ];
     #endif
 } MQTTConnection_t;
@@ -106,42 +104,22 @@ typedef struct MQTTConnection
 static inline MQTTAgentReturnCode_t prvConvertReturnCode( IotMqttError_t xMqttStatus );
 
 /**
- * @brief The callback for incoming PUBLISH messages.
+ * @brief Wraps an MQTT v1 publish callback.
  *
- * @param[in] pvParameter The MQTT connection that received the PUBLISH.
- * @param[in] xPublish Information on the incoming PUBLISH.
+ * @param[in] pvParameter The MQTT connection.
+ * @param[in] pxPublish Information about the incoming publish.
  */
 static void prvPublishCallbackWrapper( void * pvParameter,
-                                       IotMqttCallbackParam_t * const xPublish );
+                                       IotMqttCallbackParam_t * const pxPublish );
 
 /**
- * @brief The set receive callback function set in the network interface.
+ * @brief Wraps an MQTT v1 disconnect callback.
  *
- * @see #IotNetworkAfr_SetReceiveCallback
+ * @param[in] pvCallbackContext The MQTT connection.
+ * @param[in] pxDisconnect Information about the disconnect.
  */
-static IotNetworkError_t prvSetReceiveCallbackWrapper( void * pConnection,
-                                                       IotNetworkReceiveCallback_t receiveCallback,
-                                                       void * pContext );
-
-/**
- * @brief The send function set in the network interface.
- *
- * @see #IotNetworkAfr_Send
- */
-static size_t prvSendWrapper( void * pConnection,
-                              const uint8_t * pMessage,
-                              size_t messageLength );
-
-/**
- * @brief The network close function set in network interface.
- *
- * Wraps the network stack's close function and calls an MQTT v1 disconnect
- * callback.
- * @param[in] pvDisconnectHandle The MQTT connection being disconnected.
- *
- * @return Always returns #IOT_NETWORK_SUCCESS.
- */
-static IotNetworkError_t prvCloseWrapper( void * pvDisconnectHandle );
+static void prvDisconnectCallbackWrapper( void * pvParameter,
+                                          IotMqttCallbackParam_t * pxDisconnect );
 
 #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
 
@@ -197,22 +175,6 @@ static IotNetworkError_t prvCloseWrapper( void * pvDisconnectHandle );
  */
 static UBaseType_t uxAvailableBrokers = mqttconfigMAX_BROKERS;
 
-/**
- * @brief A network interface to use.
- *
- * Wraps the network interface's functions. The create and destroy functions
- * are not used.
- */
-static const IotNetworkInterface_t xNetworkInterface =
-{
-    .create             = NULL,
-    .setReceiveCallback = prvSetReceiveCallbackWrapper,
-    .send               = prvSendWrapper,
-    .receive            = IotNetworkAfr_Receive,
-    .close              = prvCloseWrapper,
-    .destroy            = NULL
-};
-
 /*-----------------------------------------------------------*/
 
 static inline MQTTAgentReturnCode_t prvConvertReturnCode( IotMqttError_t xMqttStatus )
@@ -241,7 +203,7 @@ static inline MQTTAgentReturnCode_t prvConvertReturnCode( IotMqttError_t xMqttSt
 /*-----------------------------------------------------------*/
 
 static void prvPublishCallbackWrapper( void * pvParameter,
-                                       IotMqttCallbackParam_t * const xPublish )
+                                       IotMqttCallbackParam_t * const pxPublish )
 {
     BaseType_t xStatus = pdPASS;
     size_t xBufferSize = 0;
@@ -253,12 +215,12 @@ static void prvPublishCallbackWrapper( void * pvParameter,
     /* Calculate the size of the MQTT buffer that must be allocated. */
     if( xStatus == pdPASS )
     {
-        xBufferSize = xPublish->message.info.topicNameLength +
-                      xPublish->message.info.payloadLength;
+        xBufferSize = pxPublish->message.info.topicNameLength +
+                      pxPublish->message.info.payloadLength;
 
         /* Check for overflow. */
-        if( ( xBufferSize < xPublish->message.info.topicNameLength ) ||
-            ( xBufferSize < xPublish->message.info.payloadLength ) )
+        if( ( xBufferSize < pxPublish->message.info.topicNameLength ) ||
+            ( xBufferSize < pxPublish->message.info.payloadLength ) )
         {
             mqttconfigDEBUG_LOG( ( "Incoming PUBLISH message and topic name length too large.\r\n" ) );
             xStatus = pdFAIL;
@@ -284,19 +246,19 @@ static void prvPublishCallbackWrapper( void * pvParameter,
              * MQTT library. Therefore, the topic name and payload are copied into
              * another buffer for the user. */
             ( void ) memcpy( pucMqttBuffer,
-                             xPublish->message.info.pTopicName,
-                             xPublish->message.info.topicNameLength );
-            ( void ) memcpy( pucMqttBuffer + xPublish->message.info.topicNameLength,
-                             xPublish->message.info.pPayload,
-                             xPublish->message.info.payloadLength );
+                             pxPublish->message.info.pTopicName,
+                             pxPublish->message.info.topicNameLength );
+            ( void ) memcpy( pucMqttBuffer + pxPublish->message.info.topicNameLength,
+                             pxPublish->message.info.pPayload,
+                             pxPublish->message.info.payloadLength );
 
             /* Set the members of the callback parameter. */
             xPublishData.xMQTTEvent = eMQTTAgentPublish;
             xPublishData.u.xPublishData.pucTopic = pucMqttBuffer;
-            xPublishData.u.xPublishData.usTopicLength = xPublish->message.info.topicNameLength;
-            xPublishData.u.xPublishData.pvData = pucMqttBuffer + xPublish->message.info.topicNameLength;
-            xPublishData.u.xPublishData.ulDataLength = ( uint32_t ) xPublish->message.info.payloadLength;
-            xPublishData.u.xPublishData.xQos = ( MQTTQoS_t ) xPublish->message.info.qos;
+            xPublishData.u.xPublishData.usTopicLength = pxPublish->message.info.topicNameLength;
+            xPublishData.u.xPublishData.pvData = pucMqttBuffer + pxPublish->message.info.topicNameLength;
+            xPublishData.u.xPublishData.ulDataLength = ( uint32_t ) pxPublish->message.info.payloadLength;
+            xPublishData.u.xPublishData.xQos = ( MQTTQoS_t ) pxPublish->message.info.qos;
             xPublishData.u.xPublishData.xBuffer = pucMqttBuffer;
         }
     }
@@ -306,8 +268,8 @@ static void prvPublishCallbackWrapper( void * pvParameter,
         #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
             /* When subscription management is enabled, search for a matching subscription. */
             MQTTCallback_t * pxCallbackEntry = prvFindCallback( pxConnection,
-                                                                xPublish->message.pTopicFilter,
-                                                                xPublish->message.topicFilterLength );
+                                                                pxPublish->message.pTopicFilter,
+                                                                pxPublish->message.topicFilterLength );
 
             /* Check if a matching MQTT v1 subscription was found. */
             if( pxCallbackEntry != NULL )
@@ -354,49 +316,23 @@ static void prvPublishCallbackWrapper( void * pvParameter,
 
 /*-----------------------------------------------------------*/
 
-static IotNetworkError_t prvSetReceiveCallbackWrapper( void * pConnection,
-                                                       IotNetworkReceiveCallback_t receiveCallback,
-                                                       void * pContext )
+static void prvDisconnectCallbackWrapper( void * pvParameter,
+                                          IotMqttCallbackParam_t * pxDisconnect )
 {
-    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pConnection;
-
-    return IotNetworkAfr_SetReceiveCallback( &( pxConnection->xNetworkConnection ),
-                                             receiveCallback,
-                                             pContext );
-}
-
-/*-----------------------------------------------------------*/
-
-static size_t prvSendWrapper( void * pConnection,
-                              const uint8_t * pMessage,
-                              size_t messageLength )
-{
-    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pConnection;
-
-    return IotNetworkAfr_Send( &( pxConnection->xNetworkConnection ),
-                               pMessage,
-                               messageLength );
-}
-
-/*-----------------------------------------------------------*/
-
-static IotNetworkError_t prvCloseWrapper( void * pvDisconnectHandle )
-{
-    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pvDisconnectHandle;
-    IotNetworkError_t xNetworkStatus = IOT_NETWORK_SUCCESS;
+    MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pvParameter;
     MQTTAgentCallbackParams_t xCallbackParams = { 0 };
 
-    /* Call the network stack's disconnect function. */
-    xNetworkStatus = IotNetworkAfr_Close( &( pxConnection->xNetworkConnection ) );
+    ( void ) pxDisconnect;
 
-    /* Call the MQTT v1 global callback with a disconnect event. */
-    if( pxConnection->pxCallback != NULL )
-    {
-        xCallbackParams.xMQTTEvent = eMQTTAgentDisconnect;
-        pxConnection->pxCallback( pxConnection->pvUserData, &xCallbackParams );
-    }
+    /* This function should only be called if a callback was set. */
+    mqttconfigASSERT( pxConnection->pxCallback != NULL );
 
-    return xNetworkStatus;
+    /* Specify the disconnect event. */
+    xCallbackParams.xMQTTEvent = eMQTTAgentDisconnect;
+
+    /* Invoke the MQTT v1 callback. Ignore the return value. */
+    pxConnection->pxCallback( pxConnection->pvUserData,
+                              &xCallbackParams );
 }
 
 /*-----------------------------------------------------------*/
@@ -590,16 +526,8 @@ MQTTAgentReturnCode_t MQTT_AGENT_Delete( MQTTAgentHandle_t xMQTTHandle )
     /* Clean up any allocated MQTT or network resources. */
     if( pxConnection->xMQTTConnection != IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        IotMqtt_Disconnect( pxConnection->xMQTTConnection, true );
+        IotMqtt_Disconnect( pxConnection->xMQTTConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
         pxConnection->xMQTTConnection = IOT_MQTT_CONNECTION_INITIALIZER;
-    }
-
-    if( pxConnection->xNetworkConnectionCreated == pdTRUE )
-    {
-        IotNetworkAfr_Destroy( &( pxConnection->xNetworkConnection ) );
-
-        memset( &( pxConnection->xNetworkConnection ), 0x00, sizeof( IotNetworkConnectionAfr_t ) );
-        pxConnection->xNetworkConnectionCreated = pdFALSE;
     }
 
     /* Free memory used by the MQTT connection. */
@@ -658,39 +586,30 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
         }
     }
 
-    /* Establish the network connection. */
-    if( IotNetworkAfr_Create( &xServerInfo,
-                              pxCredentials,
-                              &( pxConnection->xNetworkConnection ) ) != IOT_NETWORK_SUCCESS )
+    /* Set the members of the network info. */
+    xNetworkInfo.createNetworkConnection = true;
+    xNetworkInfo.pNetworkServerInfo = &xServerInfo;
+    xNetworkInfo.pNetworkCredentialInfo = pxCredentials;
+    xNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+
+    if( pxConnectParams->pxCallback != NULL )
     {
-        xStatus = eMQTTAgentFailure;
-    }
-    else
-    {
-        pxConnection->xNetworkConnectionCreated = pdTRUE;
+        xNetworkInfo.disconnectCallback.function = prvDisconnectCallbackWrapper;
+        xNetworkInfo.disconnectCallback.pCallbackContext = pxConnection;
     }
 
-    /* Establish the MQTT connection. */
-    if( xStatus == eMQTTAgentSuccess )
-    {
-        /* Set the members of the network info. */
-        xNetworkInfo.createNetworkConnection = false;
-        xNetworkInfo.pNetworkConnection = pxConnection;
-        xNetworkInfo.pNetworkInterface = &xNetworkInterface;
+    /* Set the members of the MQTT connect info. */
+    xMqttConnectInfo.cleanSession = true;
+    xMqttConnectInfo.pClientIdentifier = ( const char * ) ( pxConnectParams->pucClientId );
+    xMqttConnectInfo.clientIdentifierLength = pxConnectParams->usClientIdLength;
+    xMqttConnectInfo.keepAliveSeconds = mqttconfigKEEP_ALIVE_INTERVAL_SECONDS;
 
-        /* Set the members of the MQTT connect info. */
-        xMqttConnectInfo.cleanSession = true;
-        xMqttConnectInfo.pClientIdentifier = ( const char * ) ( pxConnectParams->pucClientId );
-        xMqttConnectInfo.clientIdentifierLength = pxConnectParams->usClientIdLength;
-        xMqttConnectInfo.keepAliveSeconds = mqttconfigKEEP_ALIVE_INTERVAL_SECONDS;
-
-        /* Call MQTT v4's CONNECT function. */
-        xMqttStatus = IotMqtt_Connect( &xNetworkInfo,
-                                       &xMqttConnectInfo,
-                                       mqttTICKS_TO_MS( xTimeoutTicks ),
-                                       &( pxConnection->xMQTTConnection ) );
-        xStatus = prvConvertReturnCode( xMqttStatus );
-    }
+    /* Call MQTT v4's CONNECT function. */
+    xMqttStatus = IotMqtt_Connect( &xNetworkInfo,
+                                   &xMqttConnectInfo,
+                                   mqttTICKS_TO_MS( xTimeoutTicks ),
+                                   &( pxConnection->xMQTTConnection ) );
+    xStatus = prvConvertReturnCode( xMqttStatus );
 
     /* Add a subscription to "#" to support the global callback when subscription
      * manager is disabled. */
@@ -740,11 +659,9 @@ MQTTAgentReturnCode_t MQTT_AGENT_Disconnect( MQTTAgentHandle_t xMQTTHandle,
     /* Check that the connection is established. */
     if( pxConnection->xMQTTConnection != IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        mqttconfigASSERT( pxConnection->xNetworkConnectionCreated == pdTRUE );
-
         /* Call MQTT v4's DISCONNECT function. */
         IotMqtt_Disconnect( pxConnection->xMQTTConnection,
-                            false );
+                            0 );
         pxConnection->xMQTTConnection = IOT_MQTT_CONNECTION_INITIALIZER;
     }
 
@@ -788,7 +705,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Subscribe( MQTTAgentHandle_t xMQTTHandle,
         xSubscription.pTopicFilter = ( const char * ) ( pxSubscribeParams->pucTopic );
         xSubscription.topicFilterLength = pxSubscribeParams->usTopicLength;
         xSubscription.qos = ( IotMqttQos_t ) pxSubscribeParams->xQoS;
-        xSubscription.callback.param1 = pxConnection;
+        xSubscription.callback.pCallbackContext = pxConnection;
         xSubscription.callback.function = prvPublishCallbackWrapper;
 
         xMqttStatus = IotMqtt_TimedSubscribe( pxConnection->xMQTTConnection,
@@ -822,7 +739,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Unsubscribe( MQTTAgentHandle_t xMQTTHandle,
     /* Set the members of the subscription to remove. */
     xSubscription.pTopicFilter = ( const char * ) ( pxUnsubscribeParams->pucTopic );
     xSubscription.topicFilterLength = pxUnsubscribeParams->usTopicLength;
-    xSubscription.callback.param1 = pxConnection;
+    xSubscription.callback.pCallbackContext = pxConnection;
     xSubscription.callback.function = prvPublishCallbackWrapper;
 
     /* Call MQTT v4 blocking UNSUBSCRIBE function. */

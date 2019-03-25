@@ -28,7 +28,7 @@
  * @brief Sample demo for a BLE GATT server
  */
 #include "FreeRTOSConfig.h"
-#include "iot_demo.h"
+#include "iot_demo_logging.h"
 #include "iot_ble_config.h"
 #include "aws_ble_gatt_server_demo.h"
 #include "iot_ble.h"

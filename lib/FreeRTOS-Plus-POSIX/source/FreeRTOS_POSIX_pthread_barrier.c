@@ -37,14 +37,18 @@
 #include "FreeRTOS_POSIX/pthread.h"
 
 /*
+ * @brief barrier max count
+ *
  * Barriers are implemented on FreeRTOS event groups, of which 8 bits are usable
  * when configUSE_16_BIT_TICKS is 1. Otherwise, 24 bits are usable.
  */
+/**@{ */
 #if ( configUSE_16_BIT_TICKS == 1 )
     #define posixPTHREAD_BARRIER_MAX_COUNT        ( 8 )
 #else
     #define posixPTHREAD_BARRIER_MAX_COUNT        ( 24 )
 #endif
+/**@} */
 
 /*-----------------------------------------------------------*/
 

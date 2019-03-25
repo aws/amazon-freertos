@@ -84,17 +84,17 @@
 
 #define _jsonContainerPointer( pContainer )                  ( ( pContainer )->pBuffer + ( pContainer )->offset )
 
-#define _jsonIsValidScalar( data )                           ( ( ( data )->type >= AWS_IOT_SERIALIZER_SCALAR_NULL ) && ( ( data )->type <= AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
+#define _jsonIsValidScalar( data )                           ( ( ( data )->type >= IOT_SERIALIZER_SCALAR_NULL ) && ( ( data )->type <= IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
 
-#define _jsonIsValidContainer( container )                                \
-    (                                                                     \
-        ( container != NULL ) &&                                          \
-        ( ( container )->type >= AWS_IOT_SERIALIZER_CONTAINER_STREAM ) && \
-        ( ( container )->type <= AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+#define _jsonIsValidContainer( container )                            \
+    (                                                                 \
+        ( container != NULL ) &&                                      \
+        ( ( container )->type >= IOT_SERIALIZER_CONTAINER_STREAM ) && \
+        ( ( container )->type <= IOT_SERIALIZER_CONTAINER_MAP ) )
 
 typedef struct _jsonContainer
 {
-    AwsIotSerializerDataType_t containerType;
+    IotSerializerDataType_t containerType;
     bool isEmpty;
     uint8_t * pBuffer;
     size_t offset;
@@ -114,7 +114,7 @@ typedef struct _jsonContainer
  *
  * @return Size of the encoded buffer in bytes
  */
-static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject,
+static size_t _getEncodedSize( IotSerializerEncoderObject_t * pEncoderObject,
                                uint8_t * pDataBuffer );
 
 /**
@@ -127,7 +127,7 @@ static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject,
  *
  * @return Additional buffer size needed in bytes.
  */
-static size_t _getExtraBufferSizeNeeded( AwsIotSerializerEncoderObject_t * pEncoderObject );
+static size_t _getExtraBufferSizeNeeded( IotSerializerEncoderObject_t * pEncoderObject );
 
 /**
  * @brief Initializes the JSON encoder object
@@ -138,11 +138,11 @@ static size_t _getExtraBufferSizeNeeded( AwsIotSerializerEncoderObject_t * pEnco
  * @param[in] pBuffer Pointer to the buffer
  * @param[in] maxSize Max Size of the buffer
  *
- * @return AWS_IOT_SERIALIZER_SUCCESS on success
+ * @return IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                      uint8_t * pDataBuffer,
-                                      size_t maxSize );
+static IotSerializerError_t _init( IotSerializerEncoderObject_t * pEncoderObject,
+                                   uint8_t * pDataBuffer,
+                                   size_t maxSize );
 
 /**
  * @brief Destroys the encoder object
@@ -150,90 +150,90 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
  * Cleanup any internal buffer associated with the encoder object.
  *
  * @param pEncoderObject Pointer to the encoder object
- * @return AWS_IOT_SERIALIZER_SUCCESS on success
+ * @return IOT_SERIALIZER_SUCCESS on success
  */
-static void _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject );
+static void _destroy( IotSerializerEncoderObject_t * pEncoderObject );
 
 /**
  * @brief Open a new child container within a parent container.
  *
  * User needs to set the container type for the child container. In JSON, containers can only be either
- * map/object (AWS_IOT_SERIALIZER_CONTAINER_MAP)  or arrays (AWS_IOT_SERIALIZER_CONTAINER_ARRAY)
+ * map/object (IOT_SERIALIZER_CONTAINER_MAP)  or arrays (IOT_SERIALIZER_CONTAINER_ARRAY)
  *
  * @param[in] pEncoderObject Object representing the parent container
  * @param[in] pNewEncoderObject Object representing the child container
  * @param[in] length Length of the container
- * @return AWS_IOT_SERIALIZER_SUCCESS on success
+ * @return IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                               AwsIotSerializerEncoderObject_t * pNewEncoderObject,
-                                               size_t length );
+static IotSerializerError_t _openContainer( IotSerializerEncoderObject_t * pEncoderObject,
+                                            IotSerializerEncoderObject_t * pNewEncoderObject,
+                                            size_t length );
 
 /**
  * @brief Open a new child container as a key value pair within a parent container.
  *
  * User needs to set the container type for the child container. In JSON, containers can only be either
- * map/object (AWS_IOT_SERIALIZER_CONTAINER_MAP)  or arrays (AWS_IOT_SERIALIZER_CONTAINER_ARRAY).
- * Parent container can only be a map ( AWS_IOT_SERIALIZER_CONTAINER_MAP )
+ * map/object (IOT_SERIALIZER_CONTAINER_MAP)  or arrays (IOT_SERIALIZER_CONTAINER_ARRAY).
+ * Parent container can only be a map ( IOT_SERIALIZER_CONTAINER_MAP )
  *
  * @param[in] pEncoderObject Object representing the parent container
  * @param[in] pNewEncoderObject Object representing the child container
  * @param[in] length Length of the container
- * @return AWS_IOT_SERIALIZER_SUCCESS on success
+ * @return IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                      const char * pKey,
-                                                      AwsIotSerializerEncoderObject_t * pNewEncoderObject,
-                                                      size_t length );
+static IotSerializerError_t _openContainerWithKey( IotSerializerEncoderObject_t * pEncoderObject,
+                                                   const char * pKey,
+                                                   IotSerializerEncoderObject_t * pNewEncoderObject,
+                                                   size_t length );
 
 /**
  * @brief Closes a child container.
  *
  * @param[in] pEncoderObject Object representing the parent container
  * @param[in] pNewEncoderObject Object representing the child container
- * @return AWS_IOT_SERIALIZER_SUCCESS on success
+ * @return IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                AwsIotSerializerEncoderObject_t * pNewEncoderObject );
+static IotSerializerError_t _closeContainer( IotSerializerEncoderObject_t * pEncoderObject,
+                                             IotSerializerEncoderObject_t * pNewEncoderObject );
 
 /**
  * @brief Appends a scalar value to the JSON container
  *
  * @param[in] pEncoderObject Pointer to the container object
  * @param[in] scalarData scalar value to be appended
- * @return AWS_IOT_SERIALIZER_SUCCESS on success
+ * @return IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                        AwsIotSerializerScalarData_t scalarData );
+static IotSerializerError_t _append( IotSerializerEncoderObject_t * pEncoderObject,
+                                     IotSerializerScalarData_t scalarData );
 
 /**
  * @brief Inserts a key value pair to the JSON container.
  *
  * @param[in] pEncoderObject Pointer to the container object
  * @param[in] scalarData scalar value to be appended
- * @return AWS_IOT_SERIALIZER_SUCCESS on success
+ * @return IOT_SERIALIZER_SUCCESS on success
  */
-static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                const char * pKey,
-                                                AwsIotSerializerScalarData_t scalarData );
+static IotSerializerError_t _appendKeyValue( IotSerializerEncoderObject_t * pEncoderObject,
+                                             const char * pKey,
+                                             IotSerializerScalarData_t scalarData );
 
 
 static size_t _getSerializedLength( _jsonContainer_t * pContainer,
-                                    AwsIotSerializerDataType_t dataType,
-                                    AwsIotSerializerScalarData_t * pScalarData );
+                                    IotSerializerDataType_t dataType,
+                                    IotSerializerScalarData_t * pScalarData );
 
 
 static size_t _getKeyValueLength( _jsonContainer_t * pContainer,
                                   size_t keyLength,
-                                  AwsIotSerializerDataType_t valueType,
-                                  AwsIotSerializerScalarData_t * pScalarValue );
+                                  IotSerializerDataType_t valueType,
+                                  IotSerializerScalarData_t * pScalarValue );
 
 static size_t _getValueLength( _jsonContainer_t * pContainer,
-                               AwsIotSerializerDataType_t valueType,
-                               AwsIotSerializerScalarData_t * pScalarValue );
+                               IotSerializerDataType_t valueType,
+                               IotSerializerScalarData_t * pScalarValue );
 
 static void _stopContainer( _jsonContainer_t * pContainer,
-                            AwsIotSerializerDataType_t containerType );
+                            IotSerializerDataType_t containerType );
 static void _appendTextString( _jsonContainer_t * pContainer,
                                const char * pStr,
                                size_t strLength );
@@ -245,18 +245,18 @@ static void _appendInteger( _jsonContainer_t * pContainer,
 static void _appendBoolean( _jsonContainer_t * pContainer,
                             bool boolValue );
 static void _appendData( _jsonContainer_t * pContainer,
-                         AwsIotSerializerDataType_t dataType,
-                         AwsIotSerializerScalarData_t * pScalarData );
+                         IotSerializerDataType_t dataType,
+                         IotSerializerScalarData_t * pScalarData );
 static void _appendJsonValue( _jsonContainer_t * pContainer,
-                              AwsIotSerializerDataType_t dataType,
-                              AwsIotSerializerScalarData_t * pScalarData );
+                              IotSerializerDataType_t dataType,
+                              IotSerializerScalarData_t * pScalarData );
 static void _appendJsonKeyValuePair( _jsonContainer_t * pContainer,
                                      const char * pKey,
                                      size_t keyLength,
-                                     AwsIotSerializerDataType_t valueType,
-                                     AwsIotSerializerScalarData_t * pScalarValue );
+                                     IotSerializerDataType_t valueType,
+                                     IotSerializerScalarData_t * pScalarValue );
 
-AwsIotSerializerEncodeInterface_t _AwsIotSerializerJsonEncoder =
+IotSerializerEncodeInterface_t _AwsIotSerializerJsonEncoder =
 {
     .getEncodedSize           = _getEncodedSize,
     .getExtraBufferSizeNeeded = _getExtraBufferSizeNeeded,
@@ -272,13 +272,13 @@ AwsIotSerializerEncodeInterface_t _AwsIotSerializerJsonEncoder =
 /*-----------------------------------------------------------*/
 
 static void _stopContainer( _jsonContainer_t * pContainer,
-                            AwsIotSerializerDataType_t containerType )
+                            IotSerializerDataType_t containerType )
 {
-    if( containerType == AWS_IOT_SERIALIZER_CONTAINER_ARRAY )
+    if( containerType == IOT_SERIALIZER_CONTAINER_ARRAY )
     {
         pContainer->pBuffer[ pContainer->offset++ ] = _JSON_ARRAY_END_CHAR;
     }
-    else if( containerType == AWS_IOT_SERIALIZER_CONTAINER_MAP )
+    else if( containerType == IOT_SERIALIZER_CONTAINER_MAP )
     {
         pContainer->pBuffer[ pContainer->offset++ ] = _JSON_OBJECT_END_CHAR;
     }
@@ -286,32 +286,41 @@ static void _stopContainer( _jsonContainer_t * pContainer,
 /*-----------------------------------------------------------*/
 
 static size_t _getSerializedLength( _jsonContainer_t * pContainer,
-                                    AwsIotSerializerDataType_t dataType,
-                                    AwsIotSerializerScalarData_t * pScalarData )
+                                    IotSerializerDataType_t dataType,
+                                    IotSerializerScalarData_t * pScalarData )
 
 {
     size_t length;
+
+    ( void ) pContainer;
+
     switch( dataType )
     {
-        case AWS_IOT_SERIALIZER_CONTAINER_MAP:
-        case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
+        case IOT_SERIALIZER_CONTAINER_MAP:
+        case IOT_SERIALIZER_CONTAINER_ARRAY:
             length = _jsonEmptyContainerLength;
             break;
-        case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
+
+        case IOT_SERIALIZER_SCALAR_TEXT_STRING:
             length = _jsonStringLength( pScalarData->value.stringLength );
             break;
-        case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
+
+        case IOT_SERIALIZER_SCALAR_BYTE_STRING:
             length = _jsonByteStringLength( pScalarData->value.stringLength );
             break;
-        case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
+
+        case IOT_SERIALIZER_SCALAR_SIGNED_INT:
             length = _jsonIntegerLength( pScalarData->value.signedInt );
             break;
-        case AWS_IOT_SERIALIZER_SCALAR_BOOL:
+
+        case IOT_SERIALIZER_SCALAR_BOOL:
             length = _jsonBoolLength( pScalarData->value.booleanValue );
             break;
-        case AWS_IOT_SERIALIZER_SCALAR_NULL:
+
+        case IOT_SERIALIZER_SCALAR_NULL:
             length = _JSON_NULL_VALUE_LENGTH;
             break;
+
         default:
             length = 0;
             break;
@@ -324,8 +333,8 @@ static size_t _getSerializedLength( _jsonContainer_t * pContainer,
 
 static size_t _getKeyValueLength( _jsonContainer_t * pContainer,
                                   size_t keyLength,
-                                  AwsIotSerializerDataType_t valueType,
-                                  AwsIotSerializerScalarData_t * pScalarValue )
+                                  IotSerializerDataType_t valueType,
+                                  IotSerializerScalarData_t * pScalarValue )
 {
     size_t keyValueLength = 0, valueLength;
 
@@ -343,8 +352,8 @@ static size_t _getKeyValueLength( _jsonContainer_t * pContainer,
 /*-----------------------------------------------------------*/
 
 static size_t _getValueLength( _jsonContainer_t * pContainer,
-                               AwsIotSerializerDataType_t valueType,
-                               AwsIotSerializerScalarData_t * pScalarValue )
+                               IotSerializerDataType_t valueType,
+                               IotSerializerScalarData_t * pScalarValue )
 {
     size_t length = _getSerializedLength( pContainer, valueType, pScalarValue );
 
@@ -417,41 +426,41 @@ static void _appendBoolean( _jsonContainer_t * pContainer,
 /*-----------------------------------------------------------*/
 
 static void _appendData( _jsonContainer_t * pContainer,
-                         AwsIotSerializerDataType_t dataType,
-                         AwsIotSerializerScalarData_t * pScalarData )
+                         IotSerializerDataType_t dataType,
+                         IotSerializerScalarData_t * pScalarData )
 {
     size_t stringLength;
     char * pString;
 
     switch( dataType )
     {
-        case AWS_IOT_SERIALIZER_CONTAINER_MAP:
+        case IOT_SERIALIZER_CONTAINER_MAP:
             pContainer->pBuffer[ pContainer->offset++ ] = _JSON_OBJECT_START_CHAR;
             break;
 
-        case AWS_IOT_SERIALIZER_CONTAINER_ARRAY:
+        case IOT_SERIALIZER_CONTAINER_ARRAY:
             pContainer->pBuffer[ pContainer->offset++ ] = _JSON_ARRAY_START_CHAR;
             break;
 
-        case AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING:
+        case IOT_SERIALIZER_SCALAR_TEXT_STRING:
             pString = ( char * ) ( pScalarData->value.pString );
             stringLength = ( pScalarData->value.stringLength == 0 ) ? strlen( pString ) : pScalarData->value.stringLength;
             _appendTextString( pContainer, pString, stringLength );
             break;
 
-        case AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING:
+        case IOT_SERIALIZER_SCALAR_BYTE_STRING:
             _appendByteString( pContainer, pScalarData->value.pString, pScalarData->value.stringLength );
             break;
 
-        case AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT:
+        case IOT_SERIALIZER_SCALAR_SIGNED_INT:
             _appendInteger( pContainer, pScalarData->value.signedInt );
             break;
 
-        case AWS_IOT_SERIALIZER_SCALAR_BOOL:
+        case IOT_SERIALIZER_SCALAR_BOOL:
             _appendBoolean( pContainer, pScalarData->value.booleanValue );
             break;
 
-        case AWS_IOT_SERIALIZER_SCALAR_NULL:
+        case IOT_SERIALIZER_SCALAR_NULL:
             strncpy( ( char * ) _jsonContainerPointer( pContainer ), _JSON_NULL_VALUE, _JSON_NULL_VALUE_LENGTH );
             break;
 
@@ -463,8 +472,8 @@ static void _appendData( _jsonContainer_t * pContainer,
 /*-----------------------------------------------------------*/
 
 static void _appendJsonValue( _jsonContainer_t * pContainer,
-                              AwsIotSerializerDataType_t xType,
-                              AwsIotSerializerScalarData_t * pxScalarData )
+                              IotSerializerDataType_t xType,
+                              IotSerializerScalarData_t * pxScalarData )
 {
     if( !pContainer->isEmpty )
     {
@@ -479,8 +488,8 @@ static void _appendJsonValue( _jsonContainer_t * pContainer,
 static void _appendJsonKeyValuePair( _jsonContainer_t * pContainer,
                                      const char * pcKey,
                                      size_t keyLength,
-                                     AwsIotSerializerDataType_t xValType,
-                                     AwsIotSerializerScalarData_t * pxScalarValue )
+                                     IotSerializerDataType_t xValType,
+                                     IotSerializerScalarData_t * pxScalarValue )
 {
     if( !pContainer->isEmpty )
     {
@@ -494,15 +503,16 @@ static void _appendJsonKeyValuePair( _jsonContainer_t * pContainer,
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                      uint8_t * pDataBuffer,
-                                      size_t maxSize )
+static IotSerializerError_t _init( IotSerializerEncoderObject_t * pEncoderObject,
+                                   uint8_t * pDataBuffer,
+                                   size_t maxSize )
 {
     _jsonContainer_t * pContainer;
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
 
     /* Create a new JSON container */
     pContainer = pvPortMalloc( sizeof( _jsonContainer_t ) );
+
     if( pContainer != NULL )
     {
         pContainer->pBuffer = pDataBuffer;
@@ -513,14 +523,14 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
         pContainer->isEmpty = true;
 
         /* Set the outermost container default type as stream */
-        pEncoderObject->type = AWS_IOT_SERIALIZER_CONTAINER_STREAM;
+        pEncoderObject->type = IOT_SERIALIZER_CONTAINER_STREAM;
 
         /* Store the container pointer within the handle */
         pEncoderObject->pHandle = ( void * ) pContainer;
     }
     else
     {
-        error = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+        error = IOT_SERIALIZER_OUT_OF_MEMORY;
     }
 
     return error;
@@ -528,7 +538,7 @@ static AwsIotSerializerError_t _init( AwsIotSerializerEncoderObject_t * pEncoder
 
 /*-----------------------------------------------------------*/
 
-static void _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject )
+static void _destroy( IotSerializerEncoderObject_t * pEncoderObject )
 {
     _jsonContainer_t * pContainer;
 
@@ -540,13 +550,15 @@ static void _destroy( AwsIotSerializerEncoderObject_t * pEncoderObject )
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                               AwsIotSerializerEncoderObject_t * pNewEncoderObject,
-                                               size_t length )
+static IotSerializerError_t _openContainer( IotSerializerEncoderObject_t * pEncoderObject,
+                                            IotSerializerEncoderObject_t * pNewEncoderObject,
+                                            size_t length )
 {
     _jsonContainer_t * pContainer;
     size_t serializedLength = 0;
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
+
+    ( void ) length;
 
     if( _jsonIsValidContainer( pEncoderObject ) &&
         _jsonIsValidContainer( pNewEncoderObject ) )
@@ -563,7 +575,7 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
         {
             pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
             pContainer->remainingLength = 0;
-            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+            error = IOT_SERIALIZER_BUFFER_TOO_SMALL;
         }
 
         pContainer->isEmpty = true;
@@ -572,7 +584,7 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
     }
     else
     {
-        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
+        error = IOT_SERIALIZER_INVALID_INPUT;
     }
 
     return error;
@@ -580,21 +592,21 @@ static AwsIotSerializerError_t _openContainer( AwsIotSerializerEncoderObject_t *
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                      const char * pKey,
-                                                      AwsIotSerializerEncoderObject_t * pNewEncoderObject,
-                                                      size_t length )
+static IotSerializerError_t _openContainerWithKey( IotSerializerEncoderObject_t * pEncoderObject,
+                                                   const char * pKey,
+                                                   IotSerializerEncoderObject_t * pNewEncoderObject,
+                                                   size_t length )
 {
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
     _jsonContainer_t * pContainer = NULL;
     size_t serializedLength, keyLength = strlen( pKey );
 
+    ( void ) length;
+
     if( _jsonIsValidContainer( pEncoderObject ) &&
-            _jsonIsValidContainer( pNewEncoderObject ) &&
-            ( pEncoderObject->type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+        _jsonIsValidContainer( pNewEncoderObject ) &&
+        ( pEncoderObject->type == IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-
-
         pContainer = ( _jsonContainer_t * ) pEncoderObject->pHandle;
         serializedLength = _getKeyValueLength( pContainer, keyLength, pNewEncoderObject->type, NULL );
 
@@ -607,7 +619,7 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
         {
             pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
             pContainer->remainingLength = 0;
-            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+            error = IOT_SERIALIZER_BUFFER_TOO_SMALL;
         }
 
         pContainer->isEmpty = true;
@@ -616,7 +628,7 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
     }
     else
     {
-        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
+        error = IOT_SERIALIZER_INVALID_INPUT;
     }
 
     return error;
@@ -624,24 +636,24 @@ static AwsIotSerializerError_t _openContainerWithKey( AwsIotSerializerEncoderObj
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                AwsIotSerializerEncoderObject_t * pNewEncoderObject )
+static IotSerializerError_t _closeContainer( IotSerializerEncoderObject_t * pEncoderObject,
+                                             IotSerializerEncoderObject_t * pNewEncoderObject )
 {
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
     _jsonContainer_t * pContainer;
 
     if( _jsonIsValidContainer( pEncoderObject ) &&
-            _jsonIsValidContainer( pNewEncoderObject ) )
+        _jsonIsValidContainer( pNewEncoderObject ) )
     {
-
         pContainer = ( _jsonContainer_t * ) ( pNewEncoderObject->pHandle );
+
         if( pContainer->pBuffer != NULL )
         {
             _stopContainer( pContainer, pNewEncoderObject->type );
         }
         else
         {
-            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+            error = IOT_SERIALIZER_BUFFER_TOO_SMALL;
         }
 
         pContainer->containerType = pEncoderObject->type;
@@ -651,7 +663,7 @@ static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t 
     }
     else
     {
-        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
+        error = IOT_SERIALIZER_INVALID_INPUT;
     }
 
     return error;
@@ -659,21 +671,20 @@ static AwsIotSerializerError_t _closeContainer( AwsIotSerializerEncoderObject_t 
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                        AwsIotSerializerScalarData_t scalarData )
+static IotSerializerError_t _append( IotSerializerEncoderObject_t * pEncoderObject,
+                                     IotSerializerScalarData_t scalarData )
 {
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
     _jsonContainer_t * pContainer;
     size_t serializedLength;
 
     if( _jsonIsValidContainer( pEncoderObject ) &&
-            ( pEncoderObject->type == AWS_IOT_SERIALIZER_CONTAINER_ARRAY ) &&
-            _jsonIsValidScalar( &scalarData ) )
+        ( pEncoderObject->type == IOT_SERIALIZER_CONTAINER_ARRAY ) &&
+        _jsonIsValidScalar( &scalarData ) )
     {
-
-
         pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
         serializedLength = _getValueLength( pContainer, scalarData.type, &scalarData );
+
         if( pContainer->remainingLength >= serializedLength )
         {
             _appendJsonValue( pContainer, scalarData.type, &scalarData );
@@ -683,14 +694,14 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
         {
             pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
             pContainer->remainingLength = 0;
-            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+            error = IOT_SERIALIZER_BUFFER_TOO_SMALL;
         }
+
         pContainer->isEmpty = false;
     }
     else
     {
-        error = AWS_IOT_SERIALIZER_INVALID_INPUT;
-
+        error = IOT_SERIALIZER_INVALID_INPUT;
     }
 
     return error;
@@ -698,20 +709,19 @@ static AwsIotSerializerError_t _append( AwsIotSerializerEncoderObject_t * pEncod
 
 /*-----------------------------------------------------------*/
 
-static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t * pEncoderObject,
-                                                const char * pKey,
-                                                AwsIotSerializerScalarData_t scalarData )
+static IotSerializerError_t _appendKeyValue( IotSerializerEncoderObject_t * pEncoderObject,
+                                             const char * pKey,
+                                             IotSerializerScalarData_t scalarData )
 {
-    AwsIotSerializerError_t error = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
     _jsonContainer_t * pContainer;
     size_t serializedLength, keyLength = strlen( pKey );
 
 
     if( _jsonIsValidContainer( pEncoderObject ) &&
-        ( pEncoderObject->type == AWS_IOT_SERIALIZER_CONTAINER_MAP ) &&
+        ( pEncoderObject->type == IOT_SERIALIZER_CONTAINER_MAP ) &&
         _jsonIsValidScalar( &scalarData ) )
     {
-
         pContainer = ( _jsonContainer_t * ) ( pEncoderObject->pHandle );
         serializedLength = _getKeyValueLength( pContainer, keyLength, scalarData.type, &scalarData );
 
@@ -724,14 +734,14 @@ static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t 
         {
             pContainer->overflowLength += ( serializedLength - pContainer->remainingLength );
             pContainer->remainingLength = 0;
-            error = AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL;
+            error = IOT_SERIALIZER_BUFFER_TOO_SMALL;
         }
 
         pContainer->isEmpty = false;
     }
     else
     {
-       error = AWS_IOT_SERIALIZER_INVALID_INPUT;
+        error = IOT_SERIALIZER_INVALID_INPUT;
     }
 
     return error;
@@ -739,7 +749,7 @@ static AwsIotSerializerError_t _appendKeyValue( AwsIotSerializerEncoderObject_t 
 
 /*-----------------------------------------------------------*/
 
-static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject,
+static size_t _getEncodedSize( IotSerializerEncoderObject_t * pEncoderObject,
                                uint8_t * pDataBuffer )
 {
     size_t encodedSize = 0;
@@ -760,7 +770,7 @@ static size_t _getEncodedSize( AwsIotSerializerEncoderObject_t * pEncoderObject,
 
 /*-----------------------------------------------------------*/
 
-static size_t _getExtraBufferSizeNeeded( AwsIotSerializerEncoderObject_t * pEncoderObject )
+static size_t _getExtraBufferSizeNeeded( IotSerializerEncoderObject_t * pEncoderObject )
 {
     size_t extraSizeNeeded = 0;
     _jsonContainer_t * pContainer = NULL;

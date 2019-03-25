@@ -29,198 +29,208 @@
     #include IOT_CONFIG_FILE
 #endif
 
-/* Standard includes. */
-#include <stdbool.h>
-#include <string.h>
 
-/* MQTT include. */
-#include "iot_mqtt.h"
+#include "private/iot_error.h"
 
-/* Test network header include. */
-#include IOT_TEST_NETWORK_HEADER
+static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Network interface setup function for the tests.
- *
- * Creates a global network connection to be used by the tests.
- * @return true if setup succeeded; false otherwise.
- *
- * @see #IotTest_NetworkCleanup
- */
-bool IotTest_NetworkSetup( void );
 
-/**
- * @brief Network interface cleanup function for the tests.
- *
- * @see #IotTest_NetworkSetup
- */
-void IotTest_NetworkCleanup( void );
 
-/**
- * @brief Network interface connect function for the tests.
- *
- * Creates a new network connection for use with MQTT.
- *
- * @param[out] pNewConnection The handle by which this new connection will be referenced.
- *
- * @return true if a new network connection was successfully created; false otherwise.
- */
-bool IotTest_NetworkConnect( IotTestNetworkConnection_t * pNewConnection );
-
-/**
- * @brief Network interface close connection function for the tests.
- *
- * @param[in] pNetworkConnection The connection to close. Pass NULL to close
- * the global network connection created by #IotTest_NetworkSetup.
- *
- * @return Always returns #IOT_NETWORK_SUCCESS.
- */
-IotNetworkError_t IotTest_NetworkClose( void * pNetworkConnection );
-
-/**
- * @brief Network interface cleanup function for the tests.
- *
- * @param[in] pNetworkConnection The connection to destroy.
- */
-void IotTest_NetworkDestroy( void * pNetworkConnection );
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Flag that tracks if the network connection is created.
- */
-static bool _networkConnectionCreated = false;
-
-/**
- * @brief The network connection shared among the tests.
- */
-static IotTestNetworkConnection_t _networkConnection = IOT_TEST_NETWORK_CONNECTION_INITIALIZER;
-
-/**
- * @brief Network interface to use in the tests.
- */
-static IotNetworkInterface_t * const _pNetworkInterface;
-
-/**
- * @brief The MQTT network interface shared among the tests.
- */
-IotMqttNetworkInfo_t _IotTestNetworkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
-
-/**
- * @brief The MQTT connection shared among the tests.
- */
-IotMqttConnection_t _IotTestMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
-
-/*-----------------------------------------------------------*/
-
-bool IotTest_NetworkSetup( void )
-{
-    /* Initialize the network library. */
-    if( IotTestNetwork_Init() != IOT_NETWORK_SUCCESS )
+#if ( WIFI_SUPPORTED != 0 )
+    #include "platform/iot_network_afr.h"
+    #include "private/iot_mqtt_internal.h"
+    static const IotMqttSerializer_t _mqttSerializer =
     {
-        return false;
-    }
-
-    if( IotTest_NetworkConnect( &_networkConnection ) == false )
-    {
-        IotTestNetwork_Cleanup();
-
-        return false;
-    }
-
-    /* Set the members of the network info. */
-    _IotTestNetworkInfo.createNetworkConnection = false;
-    _IotTestNetworkInfo.pNetworkConnection = &_networkConnection;
-    _IotTestNetworkInfo.pNetworkInterface = _pNetworkInterface;
-
-
-    _networkConnectionCreated = true;
-
-    return true;
-}
-
-/*-----------------------------------------------------------*/
-
-void IotTest_NetworkCleanup( void )
-{
-    /* Close the TCP connection to the server. */
-    if( _networkConnectionCreated == true )
-    {
-        IotTest_NetworkClose( NULL );
-        IotTest_NetworkDestroy( &_networkConnection );
-        _networkConnectionCreated = false;
-    }
-
-    /* Clean up the network library. */
-    IotTestNetwork_Cleanup();
-
-    /* Clear the network interface. */
-    ( void ) memset( &_IotTestNetworkInfo, 0x00, sizeof( IotMqttNetworkInfo_t ) );
-}
-
-/*-----------------------------------------------------------*/
-
-bool IotTest_NetworkConnect( IotTestNetworkConnection_t * pNewConnection )
-{
-    IotTestNetworkServerInfo_t serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
-    IotTestNetworkCredentials_t * pCredentials = NULL;
-
-    /* Set up TLS if the endpoint is secured. These tests should always use ALPN. */
-    #if IOT_TEST_SECURED_CONNECTION == 1
-        IotTestNetworkCredentials_t credentials = IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER;
-        pCredentials = &credentials;
-    #endif
-
-    /* Open a connection to the test server. */
-    if( _pNetworkInterface->create( &serverInfo,
-                                    pCredentials,
-                                    pNewConnection ) != IOT_NETWORK_SUCCESS )
-    {
-        return false;
-    }
-
-    return true;
-}
-
-/*-----------------------------------------------------------*/
-
-IotNetworkError_t IotTest_NetworkClose( void * pNetworkConnection )
-{
-    /* Close the provided network handle; if that is NULL, close the
-     * global network handle. */
-    if( ( pNetworkConnection != NULL ) &&
-        ( pNetworkConnection != &_networkConnection ) )
-    {
-        _pNetworkInterface->close( pNetworkConnection );
-    }
-    else if( _networkConnectionCreated == true )
-    {
-        _pNetworkInterface->close( &_networkConnection );
-    }
-
-    return IOT_NETWORK_SUCCESS;
-}
-
-/*-----------------------------------------------------------*/
-
-void IotTest_NetworkDestroy( void * pNetworkConnection )
-{
-    if( ( pNetworkConnection != NULL ) &&
-        ( pNetworkConnection != &_networkConnection ) )
-    {
-        /* Wrap the network interface's destroy function. */
-        _pNetworkInterface->destroy( pNetworkConnection );
-    }
-    else
-    {
-        if( _networkConnectionCreated == true )
+        .getPacketType      = _IotMqtt_GetPacketType,
+        .getRemainingLength = _IotMqtt_GetRemainingLength,
+        .freePacket         = _IotMqtt_FreePacket,
+        .serialize          =
         {
-            _pNetworkInterface->destroy( &_networkConnection );
-            _networkConnectionCreated = false;
+            .connect        = _IotMqtt_SerializeConnect,
+            .publish        = _IotMqtt_SerializePublish,
+            .publishSetDup  = _IotMqtt_PublishSetDup,
+            .puback         = _IotMqtt_SerializePuback,
+            .subscribe      = _IotMqtt_SerializeSubscribe,
+            .unsubscribe    = _IotMqtt_SerializeUnsubscribe,
+            .pingreq        = _IotMqtt_SerializePingreq,
+            .disconnect     = _IotMqtt_SerializeDisconnect
+        },
+        .deserialize        =
+        {
+            .connack        = _IotMqtt_DeserializeConnack,
+            .publish        = _IotMqtt_DeserializePublish,
+            .puback         = _IotMqtt_DeserializePuback,
+            .suback         = _IotMqtt_DeserializeSuback,
+            .unsuback       = _IotMqtt_DeserializeUnsuback,
+            .pingresp       = _IotMqtt_DeserializePingresp
+        }
+    };
+#endif /* if ( WIFI_SUPPORTED == 1 ) */
+
+#if ( BLE_SUPPORTED == 1 )
+    #include "iot_ble_mqtt.h"
+    /*-----------------------------------------------------------*/
+
+    static void _BLEConnectionCallback( BTStatus_t status,
+                                        uint16_t connId,
+                                        bool connected,
+                                        BTBdaddr_t * pBa )
+    {
+        if( connected == true )
+        {
+            IotBle_StopAdv();
+        }
+        else
+        {
+            ( void ) IotBle_StartAdv( NULL );
         }
     }
+    /*-----------------------------------------------------------*/
+
+    static BaseType_t _BLEEnable( void )
+    {
+        IotBleEventsCallbacks_t xEventCb;
+        BaseType_t xRet = pdTRUE;
+        static bool bInitBLE = false;
+        BTStatus_t xStatus;
+
+        if( bInitBLE == false )
+        {
+            xStatus = IotBle_Init();
+
+            if( xStatus == eBTStatusSuccess )
+            {
+                bInitBLE = true;
+            }
+        }
+        else
+        {
+            xStatus = IotBle_On();
+        }
+
+        /* Register BLE Connection callback */
+        if( xStatus == eBTStatusSuccess )
+        {
+            xEventCb.pConnectionCb = _BLEConnectionCallback;
+
+            if( IotBle_RegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
+            {
+                xStatus = eBTStatusFail;
+            }
+        }
+
+        if( xStatus != eBTStatusSuccess )
+        {
+            xRet = pdFALSE;
+        }
+
+        return xRet;
+    }
+
+/*-----------------------------------------------------------*/
+
+    static BaseType_t _BLEDisable( void )
+    {
+        bool ret = true;
+        IotBleEventsCallbacks_t xEventCb;
+
+        xEventCb.pConnectionCb = _BLEConnectionCallback;
+
+        if( IotBle_UnRegisterEventCb( eBLEConnection, xEventCb ) != eBTStatusSuccess )
+        {
+            ret = false;
+        }
+
+        if( ret == true )
+        {
+            if( IotBle_StopAdv() != eBTStatusSuccess )
+            {
+                ret = false;
+            }
+        }
+
+        if( ret == true )
+        {
+            if( IotBle_Off() != eBTStatusSuccess )
+            {
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+#endif /* if ( BLE_SUPPORTED == 1 ) */
+
+
+/*-----------------------------------------------------------*/
+
+const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
+{
+	const IotNetworkInterface_t * pNetworkInterface = NULL;
+
+    switch( _IotTestNetworkType )
+    {
+        #if ( BLE_SUPPORTED == 1 )
+            case AWSIOT_NETWORK_TYPE_BLE:
+                pNetworkInterface = ( IotNetworkInterface_t * ) &IotNetworkBle;
+                break;
+        #endif
+        #if ( WIFI_SUPPORTED != 0 )
+            case AWSIOT_NETWORK_TYPE_WIFI:
+                pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+                break;
+        #endif
+        default:
+            break;
+    }
+
+    return pNetworkInterface;
 }
 
 /*-----------------------------------------------------------*/
+
+void IotTestNetwork_SelectNetworkType( uint16_t networkType )
+{
+    switch( networkType )
+    {
+        #if ( BLE_SUPPORTED == 1 )
+            case AWSIOT_NETWORK_TYPE_BLE:
+                _BLEEnable();
+                break;
+        #endif
+        #if ( WIFI_SUPPORTED != 0 )
+            case AWSIOT_NETWORK_TYPE_WIFI:
+                break;
+        #endif
+        default:
+            break;
+    }
+
+    _IotTestNetworkType = networkType;
+}
+
+/*-----------------------------------------------------------*/
+
+const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void )
+{
+	const IotMqttSerializer_t * pSerializer = NULL;
+
+    switch( _IotTestNetworkType )
+    {
+        #if ( BLE_SUPPORTED == 1 )
+            case AWSIOT_NETWORK_TYPE_BLE:
+            	pSerializer = &IotBleMqttSerializer;
+                break;
+        #endif
+        #if ( WIFI_SUPPORTED != 0 )
+            case AWSIOT_NETWORK_TYPE_WIFI:
+            	pSerializer = &_mqttSerializer;
+                break;
+        #endif
+        default:
+            break;
+    }
+    return ( IotMqttSerializer_t * ) pSerializer;
+}

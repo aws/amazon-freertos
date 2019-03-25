@@ -1,4 +1,4 @@
- c32b550eb7327f1eff3f7d43bd3e895997f4edfd esp-idf
+ 44a799c4707ef2260eda4d70e0803a0abf7e6588 esp-idf
  8bf852db77c360eebfa4b800754fdb90e29ea43e components/aws_iot/aws-iot-device-sdk-embedded-C (v2.1.1-39-g8bf852d)
  d473efc5ca3b1542ebc15536295e04c88cd1ba46 components/bt/lib (d473efc)
  6468887a12666f88b8704d797fc176cd4f40ee4c components/coap/libcoap (v4.1.1-401-g6468887)

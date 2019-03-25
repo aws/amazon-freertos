@@ -25,8 +25,8 @@
  * typical application code.
  */
 
-#ifndef _IOT_TASKPOOL_INTERNAL_H_
-#define _IOT_TASKPOOL_INTERNAL_H_
+#ifndef IOT_TASKPOOL_INTERNAL_H_
+#define IOT_TASKPOOL_INTERNAL_H_
 
 /* Task pool include. */
 #include "private/iot_error.h"
@@ -37,60 +37,62 @@
 /**
  * @brief Every public API return an enumeration value with an undelying value of 0 in case of success.
  */
-#define _TASKPOOL_SUCCEEDED( x )                       ( ( x ) == IOT_TASKPOOL_SUCCESS )
+#define TASKPOOL_SUCCEEDED( x )                       ( ( x ) == IOT_TASKPOOL_SUCCESS )
 
 /**
  * @brief Every public API returns an enumeration value with an undelying value different than 0 in case of success.
  */
-#define _TASKPOOL_FAILED( x )                          ( ( x ) != IOT_TASKPOOL_SUCCESS )
+#define TASKPOOL_FAILED( x )                          ( ( x ) != IOT_TASKPOOL_SUCCESS )
 
 /**
  * @brief Jump to the cleanup area.
  */
-#define _TASKPOOL_GOTO_CLEANUP()                       _IOT_GOTO_CLEANUP()
+#define TASKPOOL_GOTO_CLEANUP()                       _IOT_GOTO_CLEANUP()
 
- /**
+/**
  * @brief Declare the storage for the error status variable.
  */
-#define _TASKPOOL_FUNCTION_ENTRY( result )             _IOT_FUNCTION_ENTRY( IotTaskPoolError_t, result )
-
-#define _TASKPOOL_NO_FUNCTION_CLEANUP_NOLABEL()        return status
+#define  TASKPOOL_FUNCTION_ENTRY( result )            _IOT_FUNCTION_ENTRY( IotTaskPoolError_t, result )
 
 /**
  * @brief Check error and leave in case of failure.
  */
-#define _TASKPOOL_ON_ERROR_GOTO_CLEANUP( expr )        { if( _TASKPOOL_FAILED( status = ( expr ) ) ) { _IOT_GOTO_CLEANUP(); } }
+#define TASKPOOL_ON_ERROR_GOTO_CLEANUP( expr )        { if( TASKPOOL_FAILED( status = ( expr ) ) ) { _IOT_GOTO_CLEANUP(); } }
+
+/**
+ * @brief Exit if an argument is NULL.
+ */
+#define TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( ptr )      _IOT_VALIDATE_PARAMETER( IOT_TASKPOOL, ( ptr != NULL ) )
+
+/**
+ * @brief Exit if an argument is NULL.
+ */
+#define TASKPOOL_ON_ARG_ERROR_GOTO_CLEANUP( expr )    _IOT_VALIDATE_PARAMETER( IOT_TASKPOOL, ( ( expr ) == false ) )
 
 /**
  * @brief Set error and leave.
  */
-#define _TASKPOOL_SET_AND_GOTO_CLEANUP( expr )          _IOT_SET_AND_GOTO_CLEANUP( expr )
+#define TASKPOOL_SET_AND_GOTO_CLEANUP( expr )         _IOT_SET_AND_GOTO_CLEANUP( expr )
 
 /**
  * @brief Initialize error and declare start of cleanup area.
  */
-#define _TASKPOOL_FUNCTION_CLEANUP()                   _IOT_FUNCTION_CLEANUP_BEGIN( )
+#define TASKPOOL_FUNCTION_CLEANUP()                   _IOT_FUNCTION_CLEANUP_BEGIN()
 
 /**
  * @brief Initialize error and declare end of cleanup area.
  */
-#define _TASKPOOL_FUNCTION_CLEANUP_END()               _IOT_FUNCTION_CLEANUP_END()
+#define TASKPOOL_FUNCTION_CLEANUP_END()               _IOT_FUNCTION_CLEANUP_END()
 
 /**
  * @brief Create an empty cleanup area.
  */
-#define _TASKPOOL_NO_FUNCTION_CLEANUP()                _IOT_FUNCTION_EXIT_NO_CLEANUP()
+#define TASKPOOL_NO_FUNCTION_CLEANUP()                _IOT_FUNCTION_EXIT_NO_CLEANUP()
 
 /**
- * @brief Exit if an argument is NULL.
+ * @brief Does not create a cleanup area.
  */
-#define _TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( ptr )      _IOT_VALIDATE_PARAMETER( IOT_TASKPOOL, ( ptr != NULL ) )
-
-/**
- * @brief Exit if an argument is NULL.
- */
-#define _TASKPOOL_ON_ARG_ERROR_GOTO_CLEANUP( expr )    _IOT_VALIDATE_PARAMETER( IOT_TASKPOOL, ( ( expr ) == false ) )
-
+#define TASKPOOL_NO_FUNCTION_CLEANUP_NOLABEL()        return status
 
 /**
  * @def IotTaskPool_Assert( expression )
@@ -132,28 +134,39 @@
     #include "private/iot_static_memory.h"
 
 /**
- * @brief Overridable allocator.
+ * @brief Allocate an #IotTaskPoolJob_t. This function should have the
+ * same signature as [malloc].
  */
     #ifndef IotTaskPool_MallocJob
         #define IotTaskPool_MallocJob    Iot_MallocTaskPoolJob
     #endif
 
+/**
+ * @brief Allocate an #_taskPoolTimerEvent_t. This function should have the
+ * same signature as [malloc].
+ */
     #ifndef IotTaskPool_MallocTimerEvent
         #define IotTaskPool_MallocTimerEvent    Iot_MallocTaskPoolTimerEvent
     #endif
 
 /**
- * @brief Overridable deallocator.
+ * @brief Free an #IotTaskPoolJob_t. This function should have the same
+ * signature as [free]
  */
     #ifndef IotTaskPool_FreeJob
         #define IotTaskPool_FreeJob    Iot_FreeTaskPoolJob
     #endif
 
+/**
+ * @brief Free an #_taskPoolTimerEvent_t. This function should have the
+ * same signature as[ free ].
+ */
     #ifndef IotTaskPool_FreeTimerEvent
         #define IotTaskPool_FreeTimerEvent    Iot_FreeTaskPoolTimerEvent
     #endif
 
 #else /* if IOT_STATIC_MEMORY_ONLY == 1 */
+
     #include <stdlib.h>
 
 /**
@@ -187,7 +200,7 @@
  * Provide default values for undefined configuration constants.
  */
 #ifndef IOT_TASKPOOL_JOBS_RECYCLE_LIMIT
-    #define IOT_TASKPOOL_JOBS_RECYCLE_LIMIT    ( 32 )
+    #define IOT_TASKPOOL_JOBS_RECYCLE_LIMIT    ( 32UL )
 #endif
 /** @endcond */
 
@@ -197,11 +210,9 @@
  * @cond DOXYGEN_IGNORE
  * Doxygen should ignore this section.
  *
- * A few macros to manage task pool status.
+ * A macros to manage task pool memory allocation.
  */
-#define IOT_TASKPOOL_STATUS_MASK         0x0F                 /* Lower 4 bits reserved for status (IotTaskPoolJobStatus_t). */
-#define IOT_TASKPOOL_FLAGS_MASK          0xF0                 /* Upper 4 bits reserved for flags. */
-#define IOT_TASK_POOL_INTERNAL_STATIC    0x80                 /* Flag to mark a job as user-allocated. */
+#define IOT_TASK_POOL_INTERNAL_STATIC    ( ( uint32_t ) 0x00000001 )      /* Flag to mark a job as user-allocated. */
 /** @endcond */
 
 /**
@@ -213,8 +224,19 @@
 typedef struct _taskPoolTimerEvent
 {
     IotLink_t link;          /**< @brief List link member. */
+
     uint64_t expirationTime; /**< @brief When this event should be processed. */
     IotTaskPoolJob_t * pJob; /**< @brief The task pool job associated with this event. */
 } _taskPoolTimerEvent_t;
 
-#endif /* ifndef _IOT_TASKPOOL_INTERNAL_H_ */
+
+/**
+ * @cond DOXYGEN_IGNORE
+ * Doxygen should ignore this section.
+ *
+ * System task pool.
+ */
+extern IotTaskPool_t _IotSystemTaskPool;
+/** @endcond */
+
+#endif /* ifndef IOT_TASKPOOL_INTERNAL_H_ */

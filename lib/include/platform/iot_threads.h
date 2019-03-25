@@ -82,7 +82,11 @@
  * @param[in] threadRoutine The function this thread should run.
  * @param[in] pArgument The argument passed to `threadRoutine`.
  * @param[in] priority Represents the priority of the new thread, as defined by
- * the system. 
+ * the system. The value #IOT_THREAD_DEFAULT_PRIORITY (i.e. `0`) must be used to
+ * represent the system default for thread priority.
+ * @param[in] stackSize Represents the stack size of the new thread, as defined
+ * by the system. The value #IOT_THREAD_DEFAULT_STACK_SIZE (i.e. `0`) must be used
+ * to represent the system default for stack size.
  *
  * @return `true` if the new thread was successfully created; `false` otherwise.
  *
@@ -141,7 +145,7 @@ bool Iot_CreateDetachedThread( IotThreadRoutine_t threadRoutine,
  * @endcode
  */
 /* @[declare_platform_threads_mutexcreate] */
-bool IotMutex_Create( IotMutex_t * const pNewMutex, bool recursive );
+bool IotMutex_Create( IotMutex_t * pNewMutex, bool recursive );
 /* @[declare_platform_threads_mutexcreate] */
 
 /**
@@ -157,7 +161,7 @@ bool IotMutex_Create( IotMutex_t * const pNewMutex, bool recursive );
  * @see @ref platform_threads_function_mutexcreate
  */
 /* @[declare_platform_threads_mutexdestroy] */
-void IotMutex_Destroy( IotMutex_t * const pMutex );
+void IotMutex_Destroy( IotMutex_t * pMutex );
 /* @[declare_platform_threads_mutexdestroy] */
 
 /**
@@ -172,7 +176,7 @@ void IotMutex_Destroy( IotMutex_t * const pMutex );
  * @see @ref platform_threads_function_mutextrylock for a nonblocking lock.
  */
 /* @[declare_platform_threads_mutexlock] */
-void IotMutex_Lock( IotMutex_t * const pMutex );
+void IotMutex_Lock( IotMutex_t * pMutex );
 /* @[declare_platform_threads_mutexlock] */
 
 /**
@@ -189,7 +193,7 @@ void IotMutex_Lock( IotMutex_t * const pMutex );
  * @see @ref platform_threads_function_mutexlock for a blocking lock.
  */
 /* @[declare_platform_threads_mutextrylock] */
-bool IotMutex_TryLock( IotMutex_t * const pMutex );
+bool IotMutex_TryLock( IotMutex_t * pMutex );
 /* @[declare_platform_threads_mutextrylock] */
 
 /**
@@ -204,7 +208,7 @@ bool IotMutex_TryLock( IotMutex_t * const pMutex );
  * @note This function should not be called on a mutex that is already unlocked.
  */
 /* @[declare_platform_threads_mutexunlock] */
-void IotMutex_Unlock( IotMutex_t * const pMutex );
+void IotMutex_Unlock( IotMutex_t * pMutex );
 /* @[declare_platform_threads_mutexunlock] */
 
 /**
@@ -238,7 +242,7 @@ void IotMutex_Unlock( IotMutex_t * const pMutex );
  * @endcode
  */
 /* @[declare_platform_threads_semaphorecreate] */
-bool IotSemaphore_Create( IotSemaphore_t * const pNewSemaphore,
+bool IotSemaphore_Create( IotSemaphore_t * pNewSemaphore,
                           uint32_t initialValue,
                           uint32_t maxValue );
 /* @[declare_platform_threads_semaphorecreate] */
@@ -256,7 +260,7 @@ bool IotSemaphore_Create( IotSemaphore_t * const pNewSemaphore,
  * @see @ref platform_threads_function_semaphorecreate
  */
 /* @[declare_platform_threads_semaphoredestroy] */
-void IotSemaphore_Destroy( IotSemaphore_t * const pSemaphore );
+void IotSemaphore_Destroy( IotSemaphore_t * pSemaphore );
 /* @[declare_platform_threads_semaphoredestroy] */
 
 /**
@@ -270,7 +274,7 @@ void IotSemaphore_Destroy( IotSemaphore_t * const pSemaphore );
  * @return The current count of the semaphore. This function should not fail.
  */
 /* @[declare_platform_threads_semaphoregetcount] */
-uint32_t IotSemaphore_GetCount( IotSemaphore_t * const pSemaphore );
+uint32_t IotSemaphore_GetCount( IotSemaphore_t * pSemaphore );
 /* @[declare_platform_threads_semaphoregetcount] */
 
 /**
@@ -287,7 +291,7 @@ uint32_t IotSemaphore_GetCount( IotSemaphore_t * const pSemaphore );
  * @ref platform_threads_function_semaphoretimedwait for a wait with timeout.
  */
 /* @[declare_platform_threads_semaphorewait] */
-void IotSemaphore_Wait( IotSemaphore_t * const pSemaphore );
+void IotSemaphore_Wait( IotSemaphore_t * pSemaphore );
 /* @[declare_platform_threads_semaphorewait] */
 
 /**
@@ -307,7 +311,7 @@ void IotSemaphore_Wait( IotSemaphore_t * const pSemaphore );
  * @ref platform_threads_function_semaphoretimedwait for a wait with timeout.
  */
 /* @[declare_platform_threads_semaphoretrywait] */
-bool IotSemaphore_TryWait( IotSemaphore_t * const pSemaphore );
+bool IotSemaphore_TryWait( IotSemaphore_t * pSemaphore );
 /* @[declare_platform_threads_semaphoretrywait] */
 
 /**
@@ -329,7 +333,7 @@ bool IotSemaphore_TryWait( IotSemaphore_t * const pSemaphore );
  * @ref platform_threads_function_semaphorewait for a blocking wait.
  */
 /* @[declare_platform_threads_semaphoretimedwait] */
-bool IotSemaphore_TimedWait( IotSemaphore_t * const pSemaphore,
+bool IotSemaphore_TimedWait( IotSemaphore_t * pSemaphore,
                              uint32_t timeoutMs );
 /* @[declare_platform_threads_semaphoretimedwait] */
 
@@ -343,7 +347,7 @@ bool IotSemaphore_TimedWait( IotSemaphore_t * const pSemaphore,
  * @param[in] pSemaphore The semaphore to unlock.
  */
 /* @[declare_platform_threads_semaphorepost] */
-void IotSemaphore_Post( IotSemaphore_t * const pSemaphore );
+void IotSemaphore_Post( IotSemaphore_t * pSemaphore );
 /* @[declare_platform_threads_semaphorepost] */
 
 #endif /* ifndef _IOT_THREADS_H_ */

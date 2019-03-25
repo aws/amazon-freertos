@@ -43,8 +43,8 @@
 #define ATTR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
 
 #define IS_VALID_SERIALIZER_RET( ret, pxSerializerBuf )                                \
-    (  ( ret == AWS_IOT_SERIALIZER_SUCCESS ) ||                                        \
-          (  ( !pxSerializerBuf ) && ( ret == AWS_IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
+    (  ( ret == IOT_SERIALIZER_SUCCESS ) ||                                        \
+          (  ( !pxSerializerBuf ) && ( ret == IOT_SERIALIZER_BUFFER_TOO_SMALL ) ) )
 /*---------------------------------------------------------------------------------------------------------*/
 
 static IotBleWifiProvService_t WifiProvService = { 0 };
@@ -248,13 +248,13 @@ WIFIReturnCode_t _connectSavedNetwork( uint16_t index );
 WIFIReturnCode_t _addNewNetwork( WIFINetworkProfile_t * pProfile, bool connect );
 
 
-static AwsIotSerializerError_t _serializeNetwork( IotBleWifiNetworkInfo_t *pNetworkInfo, uint8_t *pBuffer, size_t *plength );
+static IotSerializerError_t _serializeNetwork( IotBleWifiNetworkInfo_t *pNetworkInfo, uint8_t *pBuffer, size_t *plength );
 
 static void _sendSavedNetwork( WIFINetworkProfile_t *pSavedNetwork, uint16_t idx );
 
 static void _sendScanNetwork( WIFIScanResult_t *pScanNetwork );
 
-static AwsIotSerializerError_t _serializeStatusResponse( WIFIReturnCode_t status, uint8_t* pBuffer, size_t* plength );
+static IotSerializerError_t _serializeStatusResponse( WIFIReturnCode_t status, uint8_t* pBuffer, size_t* plength );
 
 /*
  * @brief  The task lists the saved network configurations in flash and also scans nearby networks.
@@ -481,14 +481,14 @@ static uint16_t _getNumSavedNetworks( void )
 static BaseType_t _deserializeListNetworkRequest( uint8_t * pData, size_t length, IotBleListNetworkRequest_t* pListNetworkRequest )
 {
 
-    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
-    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     BaseType_t result = pdTRUE;
 
     ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pData, length );
 
-    if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+            ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         configPRINTF(( "Failed to initialize the decoder, error = %d, object type = %d\n", ret, decoderObj.type ));
         result = pdFALSE;
@@ -497,8 +497,8 @@ static BaseType_t _deserializeListNetworkRequest( uint8_t * pData, size_t length
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_MAX_NETWORKS_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             configPRINTF(( "Failed to get max Networks parameter, error = %d, value type = %d\n", ret, value.type ));
             result = pdFALSE;
@@ -525,8 +525,8 @@ static BaseType_t _deserializeListNetworkRequest( uint8_t * pData, size_t length
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_SCAN_TIMEOUT_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             configPRINTF(( "Failed to get timeout parameter, error = %d, value type = %d\n", ret, value.type ));
             result = pdFALSE;
@@ -579,14 +579,14 @@ static BaseType_t _handleListNetworkRequest( uint8_t * pData,
 static BaseType_t _deserializeAddNetworkRequest( uint8_t * pData, size_t length, IotBleAddNetworkRequest_t* pAddNetworkRequest )
 {
 
-    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
-    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     BaseType_t result = pdTRUE;
 
     ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pData, length );
 
-    if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+            ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         configPRINTF(( "Failed to initialize the decoder, error = %d, object type = %d\n", ret, decoderObj.type ));
         result = pdFALSE;
@@ -597,8 +597,8 @@ static BaseType_t _deserializeAddNetworkRequest( uint8_t * pData, size_t length,
         value.value.pString = NULL;
         value.value.stringLength = 0;
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_SSID_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
         {
             configPRINTF(( "Failed to get SSID parameter, error = %d, value type = %d\n", ret, value.type ));
             result = pdFALSE;
@@ -624,12 +624,12 @@ static BaseType_t _deserializeAddNetworkRequest( uint8_t * pData, size_t length,
 
     if( result == pdTRUE )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
+        value.type = IOT_SERIALIZER_SCALAR_BYTE_STRING;
         value.value.pString = NULL;
         value.value.stringLength = 0;
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_BSSID_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
         {
             configPRINTF(( "Failed to get BSSID parameter, error = %d, value type = %d\n", ret, value.type ));
             result = pdFALSE;
@@ -653,8 +653,8 @@ static BaseType_t _deserializeAddNetworkRequest( uint8_t * pData, size_t length,
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_KEY_MGMT_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             configPRINTF(( "Failed to get WIFI xSecurity parameter, error = %d, value type = %d\n", ret, value.type ));
             result = pdFALSE;
@@ -670,8 +670,8 @@ static BaseType_t _deserializeAddNetworkRequest( uint8_t * pData, size_t length,
         value.value.pString = NULL;
           value.value.stringLength = 0;
           ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_PSK_KEY, &value );
-          if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                  ( value.type != AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
+          if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                  ( value.type != IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
           {
               configPRINTF(( "Failed to get password parameter, error = %d, value type = %d\n", ret, value.type ));
               result = pdFALSE;
@@ -698,8 +698,8 @@ static BaseType_t _deserializeAddNetworkRequest( uint8_t * pData, size_t length,
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_INDEX_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             configPRINTF(( "Failed to get network index parameter, error = %d, value type = %d.\n", ret, value.type ));
             result = pdFALSE;
@@ -722,12 +722,12 @@ static BaseType_t _deserializeAddNetworkRequest( uint8_t * pData, size_t length,
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_CONNECT_KEY, &value );
-        if( ( ret == AWS_IOT_SERIALIZER_SUCCESS ) &&
-                ( value.type == AWS_IOT_SERIALIZER_SCALAR_BOOL ) )
+        if( ( ret == IOT_SERIALIZER_SUCCESS ) &&
+                ( value.type == IOT_SERIALIZER_SCALAR_BOOL ) )
         {
             pAddNetworkRequest->connect = value.value.booleanValue;
         }
-        else if( ret == AWS_IOT_SERIALIZER_NOT_FOUND )
+        else if( ret == IOT_SERIALIZER_NOT_FOUND )
         {
             configPRINTF(( "No connect flag specified, using default value connect: %d\n", IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT ));
             pAddNetworkRequest->connect = IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT;
@@ -783,14 +783,14 @@ static BaseType_t _handleSaveNetworkRequest( uint8_t * pData,
 static BaseType_t _deserializeEditNetworkRequest( uint8_t * pData, size_t length, IotBleEditNetworkRequest_t* pEditNetworkRequest )
 {
 
-    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
-    AwsIotSerializerError_t  ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerError_t  ret = IOT_SERIALIZER_SUCCESS;
     BaseType_t result = pdTRUE;
 
     ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pData, length );
 
-    if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+            ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         configPRINTF(( "Failed to initialize decoder, error = %d, object type = %d\n", ret, decoderObj.type ));
         result = pdFALSE;
@@ -799,8 +799,8 @@ static BaseType_t _deserializeEditNetworkRequest( uint8_t * pData, size_t length
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_INDEX_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             configPRINTF(( "Failed to get network index parameter, error = %d, value type = %d.\n", ret, value.type ));
             result = pdFALSE;
@@ -823,8 +823,8 @@ static BaseType_t _deserializeEditNetworkRequest( uint8_t * pData, size_t length
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_NEWINDEX_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             configPRINTF(( "Failed to get new network index parameter, error = %d, value type = %d.\n", ret, value.type ));
             result = pdFALSE;
@@ -886,14 +886,14 @@ static BaseType_t _handleEditNetworkRequest( uint8_t * pData, size_t length )
 static BaseType_t _deserializeDeleteNetworkRequest( uint8_t * pData, size_t length, IotBleDeleteNetworkRequest_t* pDeleteNetworkRequest )
 {
 
-    AwsIotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
-    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
+    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     BaseType_t result = pdTRUE;
 
     ret = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t * ) pData, length );
 
-    if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-            ( decoderObj.type != AWS_IOT_SERIALIZER_CONTAINER_MAP ) )
+    if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+            ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
         configPRINTF(( "Failed to initialize decoder, error = %d, object type = %d\n", ret, decoderObj.type ));
         result = pdFALSE;
@@ -902,8 +902,8 @@ static BaseType_t _deserializeDeleteNetworkRequest( uint8_t * pData, size_t leng
     if( result == pdTRUE )
     {
         ret = IOT_BLE_MESG_DECODER.find( &decoderObj, IOT_BLE_WIFI_PROV_INDEX_KEY, &value );
-        if( ( ret != AWS_IOT_SERIALIZER_SUCCESS ) ||
-                ( value.type != AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
+        if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
+                ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             configPRINTF(( "Failed to get network index parameter, error = %d, value type = %d.\n", ret, value.type ));
             result = pdFALSE;
@@ -964,71 +964,71 @@ static BaseType_t _handleDeleteNetworkRequest( uint8_t * pData,
 }
 
 
-AwsIotSerializerError_t _serializeNetwork( IotBleWifiNetworkInfo_t *pNetworkInfo, uint8_t *pBuffer, size_t *plength )
+IotSerializerError_t _serializeNetwork( IotBleWifiNetworkInfo_t *pNetworkInfo, uint8_t *pBuffer, size_t *plength )
 {
-    AwsIotSerializerEncoderObject_t container = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    AwsIotSerializerEncoderObject_t networkMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerScalarData_t value = { 0 };
-    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerEncoderObject_t container = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
+    IotSerializerEncoderObject_t networkMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerScalarData_t value = { 0 };
+    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     size_t length = *plength;
 
     ret = IOT_BLE_MESG_ENCODER.init( &container, pBuffer, length );
-    if( ret == AWS_IOT_SERIALIZER_SUCCESS )
+    if( ret == IOT_SERIALIZER_SUCCESS )
     {
         ret = IOT_BLE_MESG_ENCODER.openContainer( &container, &networkMap, IOT_BLE_WIFI_PROV_NUM_NETWORK_INFO_MESG_PARAMS );
     }
 
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
         value.value.signedInt = pNetworkInfo->status;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_STATUS_KEY, value );
     }
 
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_TEXT_STRING;
+        value.type = IOT_SERIALIZER_SCALAR_TEXT_STRING;
         value.value.pString = ( uint8_t * ) pNetworkInfo->pSSID;
         value.value.stringLength = pNetworkInfo->SSIDLength;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_SSID_KEY, value );
     }
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_BYTE_STRING;
+        value.type = IOT_SERIALIZER_SCALAR_BYTE_STRING;
         value.value.pString = ( uint8_t * ) pNetworkInfo->pBSSID;
         value.value.stringLength = pNetworkInfo->BSSIDLength;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_BSSID_KEY, value );
     }
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
         value.value.signedInt = pNetworkInfo->security;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_KEY_MGMT_KEY, value );
     }
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_BOOL;
+        value.type = IOT_SERIALIZER_SCALAR_BOOL;
         value.value.booleanValue = pNetworkInfo->hidden;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_HIDDEN_KEY, value );
     }
 
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
         value.value.signedInt = pNetworkInfo->RSSI;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_RSSI_KEY, value );
     }
 
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_BOOL;
+        value.type = IOT_SERIALIZER_SCALAR_BOOL;
         value.value.booleanValue = pNetworkInfo->connected;        
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_CONNECTED_KEY, value );
     }
 
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
         value.value.signedInt = pNetworkInfo->savedIdx;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_INDEX_KEY, value );
     }
@@ -1050,29 +1050,29 @@ AwsIotSerializerError_t _serializeNetwork( IotBleWifiNetworkInfo_t *pNetworkInfo
         }
 
         IOT_BLE_MESG_ENCODER.destroy( &container );
-        ret = AWS_IOT_SERIALIZER_SUCCESS;
+        ret = IOT_SERIALIZER_SUCCESS;
     }
 
     return ret;
 }
 
-static AwsIotSerializerError_t _serializeStatusResponse( WIFIReturnCode_t status, uint8_t* pBuffer, size_t* plength )
+static IotSerializerError_t _serializeStatusResponse( WIFIReturnCode_t status, uint8_t* pBuffer, size_t* plength )
 {
-    AwsIotSerializerEncoderObject_t container = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
-    AwsIotSerializerEncoderObject_t responseMap = AWS_IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    AwsIotSerializerScalarData_t value = { 0 };
-    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerEncoderObject_t container = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
+    IotSerializerEncoderObject_t responseMap = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerScalarData_t value = { 0 };
+    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     size_t length = *plength;
 
     ret = IOT_BLE_MESG_ENCODER.init( &container, pBuffer, length );
-    if( ret == AWS_IOT_SERIALIZER_SUCCESS )
+    if( ret == IOT_SERIALIZER_SUCCESS )
     {
         ret = IOT_BLE_MESG_ENCODER.openContainer( &container, &responseMap, IOT_BLE_WIFI_PROV_NUM_STATUS_MESG_PARAMS );
     }
 
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
-        value.type = AWS_IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
         value.value.signedInt = status;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &responseMap, IOT_BLE_WIFI_PROV_STATUS_KEY, value );
     }
@@ -1094,7 +1094,7 @@ static AwsIotSerializerError_t _serializeStatusResponse( WIFIReturnCode_t status
 
         IOT_BLE_MESG_ENCODER.destroy( &container );
 
-        ret = AWS_IOT_SERIALIZER_SUCCESS;
+        ret = IOT_SERIALIZER_SUCCESS;
     }
 
     return ret;
@@ -1109,9 +1109,9 @@ void _sendStatusResponse( IotBleWifiProvAttributes_t characteristic,
 
     uint8_t *pBuffer = NULL;
     size_t mesgLen;
-    AwsIotSerializerError_t ret = AWS_IOT_SERIALIZER_SUCCESS;
+    IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
     ret = _serializeStatusResponse( status, NULL, &mesgLen );
-    if( ret == AWS_IOT_SERIALIZER_SUCCESS )
+    if( ret == IOT_SERIALIZER_SUCCESS )
     {
         pBuffer = pvPortMalloc( mesgLen );
         if( pBuffer != NULL )
@@ -1120,11 +1120,11 @@ void _sendStatusResponse( IotBleWifiProvAttributes_t characteristic,
         }
         else
         {
-            ret = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+            ret = IOT_SERIALIZER_OUT_OF_MEMORY;
         }
     }
 
-    if( ret == AWS_IOT_SERIALIZER_SUCCESS )
+    if( ret == IOT_SERIALIZER_SUCCESS )
     {
         _sendResponse( characteristic, pBuffer, mesgLen );
     }
@@ -1324,7 +1324,7 @@ static void _sendSavedNetwork( WIFINetworkProfile_t *pSavedNetwork, uint16_t idx
     IotBleWifiNetworkInfo_t networkInfo = NETWORK_INFO_DEFAULT_PARAMS;
     uint8_t * message = NULL;
     size_t messageLen = 0;
-    AwsIotSerializerError_t serializerRet;
+    IotSerializerError_t serializerRet;
 
     networkInfo.pSSID = pSavedNetwork->cSSID;
     networkInfo.SSIDLength = pSavedNetwork->ucSSIDLength - 1;
@@ -1335,7 +1335,7 @@ static void _sendSavedNetwork( WIFINetworkProfile_t *pSavedNetwork, uint16_t idx
     networkInfo.savedIdx = ( int32_t ) idx;
 
     serializerRet = _serializeNetwork( &networkInfo, NULL, &messageLen );
-    if( serializerRet == AWS_IOT_SERIALIZER_SUCCESS )
+    if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
          message = pvPortMalloc( messageLen );
         if(  message != NULL )
@@ -1344,11 +1344,11 @@ static void _sendSavedNetwork( WIFINetworkProfile_t *pSavedNetwork, uint16_t idx
         }
         else
         {
-            serializerRet = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+            serializerRet = IOT_SERIALIZER_OUT_OF_MEMORY;
         }
     }
 
-    if( serializerRet == AWS_IOT_SERIALIZER_SUCCESS )
+    if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
         _sendResponse( IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR,  message, messageLen );
     }
@@ -1369,7 +1369,7 @@ static void _sendScanNetwork( WIFIScanResult_t *pScanNetwork )
     IotBleWifiNetworkInfo_t networkInfo = NETWORK_INFO_DEFAULT_PARAMS;
     uint8_t * message = NULL;
     size_t messageLen = 0;
-    AwsIotSerializerError_t serializerRet;
+    IotSerializerError_t serializerRet;
 
     networkInfo.pSSID = pScanNetwork->cSSID;
     networkInfo.SSIDLength = strlen( pScanNetwork->cSSID );
@@ -1380,7 +1380,7 @@ static void _sendScanNetwork( WIFIScanResult_t *pScanNetwork )
     networkInfo.security = pScanNetwork->xSecurity;
 
     serializerRet = _serializeNetwork( &networkInfo, NULL, &messageLen );
-    if( serializerRet == AWS_IOT_SERIALIZER_SUCCESS )
+    if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
          message = pvPortMalloc( messageLen );
         if(  message != NULL )
@@ -1389,11 +1389,11 @@ static void _sendScanNetwork( WIFIScanResult_t *pScanNetwork )
         }
         else
         {
-            serializerRet = AWS_IOT_SERIALIZER_OUT_OF_MEMORY;
+            serializerRet = IOT_SERIALIZER_OUT_OF_MEMORY;
         }
     }
 
-    if( serializerRet == AWS_IOT_SERIALIZER_SUCCESS )
+    if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
         _sendResponse( IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR,  message, messageLen );
     }

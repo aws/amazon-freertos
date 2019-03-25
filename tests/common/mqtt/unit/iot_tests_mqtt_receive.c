@@ -54,10 +54,6 @@
     #define _AWS_IOT_MQTT_SERVER    true
 #else
     #define _AWS_IOT_MQTT_SERVER    false
-
-/* Redefine the connect info initializer if not using an AWS IoT MQTT server. */
-    #undef IOT_MQTT_CONNECT_INFO_INITIALIZER
-    #define IOT_MQTT_CONNECT_INFO_INITIALIZER    { 0 }
 #endif
 
 /** @brief Default CONNACK packet for the receive tests. */
@@ -123,7 +119,7 @@ static const uint8_t _pPingrespTemplate[] = { 0xd0, 0x00 };
 #define _INITIALIZE_OPERATION( name )                                                                 \
     {                                                                                                 \
         .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,                 \
-        .job = { 0 }, .jobReference = 1, .operation = name, .flags = IOT_MQTT_FLAG_WAITABLE,          \
+        .job = { 0 }, .jobReference = 1, .type = name, .flags = IOT_MQTT_FLAG_WAITABLE,               \
         .packetIdentifier = 1, .pMqttPacket = NULL, .packetSize = 0, .notify = { .callback = { 0 } }, \
         .status = IOT_MQTT_STATUS_PENDING, .retry = { 0 }                                             \
     }
@@ -176,6 +172,11 @@ static bool _getRemainingLengthCalled = false;
  * @brief Tracks whether #_close has been called.
  */
 static bool _networkCloseCalled = false;
+
+/**
+ * @brief Tracks whether #_disconnectCallback has been called.
+ */
+static bool _disconnectCallbackCalled = false;
 
 /*-----------------------------------------------------------*/
 
@@ -344,7 +345,7 @@ static bool _processPublish( const uint8_t * pPublish,
         _mqttSubscription_t * pSubscription = IotLink_Container( _mqttSubscription_t,
                                                                  IotListDouble_PeekHead( &( _pMqttConnection->subscriptionList ) ),
                                                                  link );
-        pSubscription->callback.param1 = &invokeCount;
+        pSubscription->callback.pCallbackContext = &invokeCount;
     }
 
     /* Set the members of the receive context. */
@@ -382,10 +383,10 @@ static bool _processPublish( const uint8_t * pPublish,
 /**
  * @brief Called when a PUBLISH message is "received".
  */
-static void _publishCallback( void * param1,
+static void _publishCallback( void * pCallbackContext,
                               IotMqttCallbackParam_t * pPublish )
 {
-    IotSemaphore_t * pInvokeCount = ( IotSemaphore_t * ) param1;
+    IotSemaphore_t * pInvokeCount = ( IotSemaphore_t * ) pCallbackContext;
 
     /* QoS 2 is valid for these tests, but currently unsupported by the MQTT library.
      * Change the QoS to 0 so that QoS validation passes. */
@@ -481,6 +482,24 @@ static IotNetworkError_t _close( void * pConnection )
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief A disconnect callback function that checks for a "bad packet" reason
+ * and reports if it was invoked.
+ */
+static void _disconnectCallback( void * pCallbackContext,
+                                 IotMqttCallbackParam_t * pCallbackParam )
+{
+    /* Silence warnings about unused parameters. */
+    ( void ) pCallbackContext;
+
+    if( pCallbackParam->disconnectReason == IOT_MQTT_BAD_PACKET_RECEIVED )
+    {
+        _disconnectCallbackCalled = true;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Test group for MQTT Receive tests.
  */
 TEST_GROUP( MQTT_Unit_Receive );
@@ -512,6 +531,7 @@ TEST_SETUP( MQTT_Unit_Receive )
     _networkInterface.receive = _receive;
     _networkInterface.close = _close;
     networkInfo.pNetworkInterface = &_networkInterface;
+    networkInfo.disconnectCallback.function = _disconnectCallback;
 
     /* Initialize the MQTT library. */
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
@@ -541,6 +561,7 @@ TEST_SETUP( MQTT_Unit_Receive )
     _getPacketTypeCalled = false;
     _getRemainingLengthCalled = false;
     _networkCloseCalled = false;
+    _disconnectCallbackCalled = false;
 }
 
 /*-----------------------------------------------------------*/
@@ -551,7 +572,7 @@ TEST_SETUP( MQTT_Unit_Receive )
 TEST_TEAR_DOWN( MQTT_Unit_Receive )
 {
     /* Clean up resources taken in test setup. */
-    IotMqtt_Disconnect( _pMqttConnection, true );
+    IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
     IotCommon_Cleanup();
     IotMqtt_Cleanup();
 
@@ -705,6 +726,7 @@ TEST( MQTT_Unit_Receive, InvalidPacket )
 
     /* Processing an invalid packet should cause the network connection to be closed. */
     TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+    TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
 
     /* This test should not have called any deserializer. Set the deserialize
      * override called flag to true so that the check for it passes. */
@@ -782,6 +804,7 @@ TEST( MQTT_Unit_Receive, ConnackValid )
 
     /* Network close function should not have been invoked. */
     TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
+    TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
 }
 
 /*-----------------------------------------------------------*/
@@ -811,7 +834,9 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The CONNACK control packet type must be 0x20. */
@@ -825,7 +850,9 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* A CONNACK must have a remaining length of 2. */
@@ -840,7 +867,9 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The reserved bits in CONNACK must be 0. */
@@ -854,7 +883,9 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The fourth byte of CONNACK must be 0 if the SP flag is set. */
@@ -870,7 +901,9 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* CONNACK return codes cannot be above 5. */
@@ -885,7 +918,9 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     IotSemaphore_Destroy( &( connect.notify.waitSemaphore ) );
@@ -951,6 +986,7 @@ TEST( MQTT_Unit_Receive, PublishValid )
 
     /* Network close function should not have been invoked. */
     TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
+    TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
 }
 
 /*-----------------------------------------------------------*/
@@ -971,7 +1007,9 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The PUBLISH cannot have a QoS of 3. */
@@ -984,7 +1022,9 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a PUBLISH with an invalid "Remaining length". */
@@ -1000,7 +1040,9 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a PUBLISH where some bytes could not be received. */
@@ -1013,7 +1055,9 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a PUBLISH with a "Remaining length" smaller than the
@@ -1040,7 +1084,9 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a PUBLISH with a "Remaining length" smaller than the
@@ -1054,7 +1100,9 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a PUBLISH with packet identifier 0. */
@@ -1068,7 +1116,9 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 }
 
@@ -1112,6 +1162,7 @@ TEST( MQTT_Unit_Receive, PubackValid )
 
     /* Network close function should not have been invoked. */
     TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
+    TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
 }
 
 /*-----------------------------------------------------------*/
@@ -1142,7 +1193,9 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The PUBACK control packet type must be 0x40. */
@@ -1156,7 +1209,9 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     _operationResetAndPush( &publish );
@@ -1172,7 +1227,9 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The packet identifier in PUBACK cannot be 0. No status should be set if
@@ -1187,7 +1244,9 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Remove unprocessed PUBLISH if present. */
@@ -1302,6 +1361,7 @@ TEST( MQTT_Unit_Receive, SubackValid )
 
     /* Network close function should not have been invoked. */
     TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
+    TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
 }
 
 /*-----------------------------------------------------------*/
@@ -1333,7 +1393,9 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a SUBACK with an invalid "Remaining length". */
@@ -1350,7 +1412,9 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a SUBACK larger than the size of the data stream. */
@@ -1364,7 +1428,9 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a SUBACK with a "Remaining length" smaller than the
@@ -1379,7 +1445,9 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Attempt to process a SUBACK with a bad return code. */
@@ -1393,7 +1461,9 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The SUBACK control packet type must be 0x90. */
@@ -1407,7 +1477,9 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     IotSemaphore_Destroy( &( subscribe.notify.waitSemaphore ) );
@@ -1453,6 +1525,7 @@ TEST( MQTT_Unit_Receive, UnsubackValid )
 
     /* Network close function should not have been invoked. */
     TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
+    TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
 }
 
 /*-----------------------------------------------------------*/
@@ -1483,7 +1556,9 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The UNSUBACK control packet type must be 0xb0. */
@@ -1497,7 +1572,9 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     _operationResetAndPush( &unsubscribe );
@@ -1513,7 +1590,9 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The packet identifier in UNSUBACK cannot be 0. No status should be set if
@@ -1528,7 +1607,9 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
 
         /* Network close should have been called for invalid packet. */
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* Remove unprocessed UNSUBSCRIBE if present. */
@@ -1561,6 +1642,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
 
         TEST_ASSERT_EQUAL_INT( false, _pMqttConnection->keepAliveFailure );
         TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
     }
 
     /* Process a valid PINGRESP. */
@@ -1575,6 +1657,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
 
         TEST_ASSERT_EQUAL_INT( false, _pMqttConnection->keepAliveFailure );
         TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
     }
 
     /* An incomplete PINGRESP should not be processed, and the keep-alive failure
@@ -1590,7 +1673,9 @@ TEST( MQTT_Unit_Receive, Pingresp )
 
         TEST_ASSERT_EQUAL_INT( true, _pMqttConnection->keepAliveFailure );
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* A PINGRESP should have a remaining length of 0. */
@@ -1606,7 +1691,9 @@ TEST( MQTT_Unit_Receive, Pingresp )
 
         TEST_ASSERT_EQUAL_INT( true, _pMqttConnection->keepAliveFailure );
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 
     /* The PINGRESP control packet type must be 0xd0. */
@@ -1622,7 +1709,9 @@ TEST( MQTT_Unit_Receive, Pingresp )
 
         TEST_ASSERT_EQUAL_INT( true, _pMqttConnection->keepAliveFailure );
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
+        _disconnectCallbackCalled = false;
     }
 }
 

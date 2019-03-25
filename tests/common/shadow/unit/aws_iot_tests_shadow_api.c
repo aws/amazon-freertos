@@ -33,13 +33,6 @@
 #include <stdint.h>
 #include <string.h>
 
-/* POSIX includes. */
-#ifdef POSIX_UNISTD_HEADER
-    #include POSIX_UNISTD_HEADER
-#else
-    #include <unistd.h>
-#endif
-
 /* Common include. */
 #include "iot_common.h"
 
@@ -411,7 +404,7 @@ TEST_TEAR_DOWN( Shadow_Unit_API )
     AwsIotShadow_Cleanup();
 
     /* Clean up the MQTT connection object. */
-    IotMqtt_Disconnect( _pMqttConnection, true );
+    IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
 
     /* Clean up common components. */
     IotCommon_Cleanup();
@@ -482,7 +475,7 @@ TEST( Shadow_Unit_API, OperationInvalidParameters )
 {
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
     AwsIotShadowDocumentInfo_t documentInfo = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
-    AwsIotShadowReference_t reference = AWS_IOT_SHADOW_REFERENCE_INITIALIZER;
+    AwsIotShadowOperation_t operation = AWS_IOT_SHADOW_OPERATION_INITIALIZER;
     AwsIotShadowCallbackInfo_t callbackInfo = AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER;
 
     /* Missing Thing Name. */
@@ -525,7 +518,7 @@ TEST( Shadow_Unit_API, OperationInvalidParameters )
                                   _TEST_THING_NAME_LENGTH,
                                   AWS_IOT_SHADOW_FLAG_WAITABLE,
                                   &callbackInfo,
-                                  &reference );
+                                  &operation );
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
 
     /* No callback for non-waitable GET. */
@@ -544,7 +537,7 @@ TEST( Shadow_Unit_API, OperationInvalidParameters )
                                   _TEST_THING_NAME_LENGTH,
                                   0,
                                   &callbackInfo,
-                                  &reference );
+                                  &operation );
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
 }
 
@@ -558,14 +551,14 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
 {
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
     AwsIotShadowDocumentInfo_t documentInfo = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
-    AwsIotShadowReference_t reference = AWS_IOT_SHADOW_REFERENCE_INITIALIZER;
+    AwsIotShadowOperation_t operation = AWS_IOT_SHADOW_OPERATION_INITIALIZER;
 
     /* Missing Thing Name. */
     status = AwsIotShadow_Get( _pMqttConnection,
                                &documentInfo,
                                AWS_IOT_SHADOW_FLAG_WAITABLE,
                                NULL,
-                               &reference );
+                               &operation );
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
     documentInfo.pThingName = _TEST_THING_NAME;
     documentInfo.thingNameLength = _TEST_THING_NAME_LENGTH;
@@ -576,7 +569,7 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
                                &documentInfo,
                                AWS_IOT_SHADOW_FLAG_WAITABLE,
                                NULL,
-                               &reference );
+                               &operation );
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
     documentInfo.qos = IOT_MQTT_QOS_0;
 
@@ -586,7 +579,7 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
                                &documentInfo,
                                AWS_IOT_SHADOW_FLAG_WAITABLE,
                                NULL,
-                               &reference );
+                               &operation );
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
     documentInfo.retryLimit = 0;
 
@@ -595,7 +588,7 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
                                &documentInfo,
                                AWS_IOT_SHADOW_FLAG_WAITABLE,
                                NULL,
-                               &reference );
+                               &operation );
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
 
     /* Update with no document. */
@@ -665,7 +658,7 @@ TEST( Shadow_Unit_API, DeleteMallocFail )
 {
     int32_t i = 0, mqttErrorCount = 0;
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
-    AwsIotShadowReference_t reference = AWS_IOT_SHADOW_REFERENCE_INITIALIZER;
+    AwsIotShadowOperation_t deleteOperation = AWS_IOT_SHADOW_OPERATION_INITIALIZER;
 
     /* Set a short timeout so this test runs faster. */
     _AwsIotShadowMqttTimeoutMs = 75;
@@ -681,7 +674,7 @@ TEST( Shadow_Unit_API, DeleteMallocFail )
                                       _TEST_THING_NAME_LENGTH,
                                       AWS_IOT_SHADOW_FLAG_WAITABLE,
                                       NULL,
-                                      &reference );
+                                      &deleteOperation );
 
         /* Once the Shadow DELETE call succeeds, wait for it to complete. */
         if( status == AWS_IOT_SHADOW_STATUS_PENDING )
@@ -689,7 +682,7 @@ TEST( Shadow_Unit_API, DeleteMallocFail )
             /* No response will be received from the network, so the Shadow DELETE
              * is expected to time out. */
             TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_TIMEOUT,
-                               AwsIotShadow_Wait( reference, 0, NULL, NULL ) );
+                               AwsIotShadow_Wait( deleteOperation, 0, NULL, NULL ) );
             break;
         }
 
@@ -726,7 +719,7 @@ TEST( Shadow_Unit_API, GetMallocFail )
     int32_t i = 0, mqttErrorCount = 0;
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
     AwsIotShadowDocumentInfo_t documentInfo = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
-    AwsIotShadowReference_t reference = AWS_IOT_SHADOW_REFERENCE_INITIALIZER;
+    AwsIotShadowOperation_t getOperation = AWS_IOT_SHADOW_OPERATION_INITIALIZER;
     const char * pRetrievedDocument = NULL;
     size_t retrievedDocumentSize = 0;
 
@@ -749,7 +742,7 @@ TEST( Shadow_Unit_API, GetMallocFail )
                                    &documentInfo,
                                    AWS_IOT_SHADOW_FLAG_WAITABLE,
                                    NULL,
-                                   &reference );
+                                   &getOperation );
 
         /* Once the Shadow GET call succeeds, wait for it to complete. */
         if( status == AWS_IOT_SHADOW_STATUS_PENDING )
@@ -757,7 +750,7 @@ TEST( Shadow_Unit_API, GetMallocFail )
             /* No response will be received from the network, so the Shadow GET
              * is expected to time out. */
             TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_TIMEOUT,
-                               AwsIotShadow_Wait( reference,
+                               AwsIotShadow_Wait( getOperation,
                                                   0,
                                                   &pRetrievedDocument,
                                                   &retrievedDocumentSize ) );
@@ -793,7 +786,7 @@ TEST( Shadow_Unit_API, UpdateMallocFail )
     int32_t i = 0, mqttErrorCount = 0;
     AwsIotShadowError_t status = AWS_IOT_SHADOW_STATUS_PENDING;
     AwsIotShadowDocumentInfo_t documentInfo = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
-    AwsIotShadowReference_t reference = AWS_IOT_SHADOW_REFERENCE_INITIALIZER;
+    AwsIotShadowOperation_t updateOperation = AWS_IOT_SHADOW_OPERATION_INITIALIZER;
 
     /* Set a short timeout so this test runs faster. */
     _AwsIotShadowMqttTimeoutMs = 75;
@@ -815,7 +808,7 @@ TEST( Shadow_Unit_API, UpdateMallocFail )
                                       &documentInfo,
                                       AWS_IOT_SHADOW_FLAG_WAITABLE,
                                       NULL,
-                                      &reference );
+                                      &updateOperation );
 
         /* Once the Shadow UPDATE call succeeds, wait for it to complete. */
         if( status == AWS_IOT_SHADOW_STATUS_PENDING )
@@ -823,7 +816,7 @@ TEST( Shadow_Unit_API, UpdateMallocFail )
             /* No response will be received from the network, so the Shadow UPDATE
              * is expected to time out. */
             TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_TIMEOUT,
-                               AwsIotShadow_Wait( reference,
+                               AwsIotShadow_Wait( updateOperation,
                                                   0,
                                                   NULL,
                                                   NULL ) );
