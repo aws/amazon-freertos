@@ -35,6 +35,8 @@
 #include "FreeRTOS_Sockets.h"
 #include "semphr.h"
 #include "esp_smartconfig.h"
+#include "nvs_flash.h"
+#include "nvs.h"
 
 static const char *TAG = "WIFI";
 static EventGroupHandle_t wifi_event_group;
@@ -48,6 +50,22 @@ const int ESPTOUCH_DONE_BIT = BIT5;
 static bool wifi_conn_state;
 static bool wifi_ap_state;
 static bool wifi_auth_failure;
+
+#define WIFI_FLASH_NS     "WiFi"
+#define MAX_WIFI_KEY_WIDTH         ( 5 )
+#define MAX_SECURITY_MODE_LEN      ( 1 )
+#define MAX_WIFI_NETWORKS          ( 8 )
+
+typedef struct StorageRegistry
+{
+	uint16_t usNumNetworks;
+	uint16_t usNextStorageIdx;
+	uint16_t usStorageIdx[ MAX_WIFI_NETWORKS ];
+} StorageRegistry_t;
+static BaseType_t xIsRegistryInit = pdFALSE;
+static StorageRegistry_t xRegistry = { 0 };
+AwsIotNetworkStateChangeCb_t xStateChangeAppCallback = AWSIOT_NETWORK_STATE_CHANGE_CB_INITIALIZER;
+void *pvAppContext = NULL;
 
 /**
  * @brief Semaphore for WiFI module.
@@ -78,6 +96,10 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             wifi_conn_state = true;
             xEventGroupClearBits(wifi_event_group, DISCONNECTED_BIT);
             xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
+            if( xStateChangeAppCallback  != AWSIOT_NETWORK_STATE_CHANGE_CB_INITIALIZER )
+            {
+            	xStateChangeAppCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled, pvAppContext );
+            }
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
             ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED: %d", info->disconnected.reason);
@@ -107,6 +129,10 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             wifi_conn_state = false;
             xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
             xEventGroupSetBits(wifi_event_group, DISCONNECTED_BIT);
+            if( xStateChangeAppCallback  != AWSIOT_NETWORK_STATE_CHANGE_CB_INITIALIZER )
+            {
+            	xStateChangeAppCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled, pvAppContext );
+            }
             break;
         case SYSTEM_EVENT_AP_START:
             ESP_LOGI(TAG, "SYSTEM_EVENT_AP_START");
@@ -283,13 +309,14 @@ err:
 /*-----------------------------------------------------------*/
 
 #define CHECK_VALID_SSID_LEN(x) \
-        ((x) > 0 && (x) < wificonfigMAX_SSID_LEN)
+        ((x) > 0 && (x) <=  wificonfigMAX_SSID_LEN)
 #define CHECK_VALID_PASSPHRASE_LEN(x) \
-        ((x) > 0 && (x) < wificonfigMAX_PASSPHRASE_LEN)
+        ((x) > 0 && (x) <= wificonfigMAX_PASSPHRASE_LEN)
 
 WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
     wifi_config_t wifi_config = { 0 };
+    wifi_mode_t xCurMode;
     esp_err_t ret;
     WIFIReturnCode_t wifi_ret = eWiFiFailure;
 
@@ -322,20 +349,24 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
             strlcpy((char *) &wifi_config.sta.password, pxNetworkParams->pcPassword, pxNetworkParams->ucPasswordLength + 1);
         }
 
-        ret = esp_wifi_set_mode(WIFI_MODE_STA);
+        ret = esp_wifi_get_mode( &xCurMode );
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );
-            return wifi_ret;
+        	return eWiFiFailure;
         }
 
-        ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+        if( xCurMode != WIFI_MODE_STA )
+        {
+
+        	esp_wifi_stop();
+
+        	ret = esp_wifi_set_mode(WIFI_MODE_STA);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
+        		ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
             xSemaphoreGive( xWiFiSem );
             return wifi_ret;
         }
-
         ret = esp_wifi_start();
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
@@ -345,6 +376,14 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
 
         // Wait for wifi started event
         xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+        }
+
+        ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
+            xSemaphoreGive( xWiFiSem );
+            return wifi_ret;
+        }
 
         esp_wifi_connect();
 
@@ -403,6 +442,9 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                             uint8_t ucNumNetworks )
 {
     WIFIReturnCode_t xRetVal = eWiFiFailure;
+    wifi_config_t wifi_config = { 0 };
+    esp_err_t ret;
+    wifi_mode_t xCurMode;
 
     if (pxBuffer == NULL || ucNumNetworks == 0) {
         return eWiFiFailure;
@@ -415,9 +457,47 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
         .show_hidden = false
     };
 
+    wifi_config.sta.scan_method = WIFI_ALL_CHANNEL_SCAN;
+
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
+    	ret = esp_wifi_get_mode( &xCurMode );
+    	if (ret != ESP_OK) {
+        		ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
+        		xSemaphoreGive( xWiFiSem );
+        		return eWiFiFailure;
+        }
+
+    	if( xCurMode != WIFI_MODE_STA )
+    	{
+    		esp_wifi_stop();
+
+    		ret = esp_wifi_set_mode(WIFI_MODE_STA);
+    		if (ret != ESP_OK) {
+    			ESP_LOGE(TAG, "%s: Failed to set wifi mode %d", __func__, ret);
+    			xSemaphoreGive( xWiFiSem );
+    			return eWiFiFailure;
+    		}
+
+    		ret = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
+    		if (ret != ESP_OK) {
+    			ESP_LOGE(TAG, "%s: Failed to set wifi config %d", __func__, ret);
+    			xSemaphoreGive( xWiFiSem );
+    			return eWiFiFailure;
+    		}
+
+    		ret = esp_wifi_start();
+    		if (ret != ESP_OK) {
+    			ESP_LOGE(TAG, "%s: Failed to start wifi %d", __func__, ret);
+    			xSemaphoreGive( xWiFiSem );
+    			return eWiFiFailure;
+    		}
+
+    		// Wait for wifi started event
+    		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+    	}
+
         if ( wifi_conn_state == false && wifi_auth_failure == true )
         {
             /* It seems that WiFi needs explicit disassoc before scan request post
@@ -427,7 +507,8 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
             xEventGroupWaitBits(wifi_event_group, DISCONNECTED_BIT, pdTRUE, pdFALSE, 30);
         }
 
-        esp_err_t ret = esp_wifi_scan_start(&scanConf, true);
+
+    	ret = esp_wifi_scan_start(&scanConf, true);
         if (ret == ESP_OK)
         {
             wifi_ap_record_t *ap_info = calloc(1, sizeof(wifi_ap_record_t) * ucNumNetworks);
@@ -440,6 +521,26 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                     memcpy(pxBuffer[i].ucBSSID, ap_info[i].bssid, wificonfigMAX_BSSID_LEN);
                     pxBuffer[i].cRSSI = ap_info[i].rssi;
                     pxBuffer[i].cChannel = ap_info[i].primary;
+                    switch(ap_info[i].authmode)
+                    {
+                    case WIFI_AUTH_OPEN:
+                    	pxBuffer[i].xSecurity = eWiFiSecurityOpen;
+                    	break;
+                    case WIFI_AUTH_WEP:
+                    	pxBuffer[i].xSecurity =  eWiFiSecurityWEP;
+                    	break;
+                    case WIFI_AUTH_WPA_PSK:
+                    	pxBuffer[i].xSecurity =  eWiFiSecurityWPA;
+                    	break;
+                    case WIFI_AUTH_WPA2_PSK:
+                    	pxBuffer[i].xSecurity =  eWiFiSecurityWPA2;
+                    	break;
+                    case WIFI_AUTH_WPA_WPA2_PSK:
+                    case WIFI_AUTH_WPA2_ENTERPRISE:
+                    default:
+                    	pxBuffer[i].xSecurity  = eWiFiSecurityNotSupported;
+                    	break;
+                    }
                 }
                 free(ap_info);
                 xRetVal = eWiFiSuccess;
@@ -527,23 +628,390 @@ WIFIReturnCode_t WIFI_GetMode( WIFIDeviceMode_t * pxDeviceMode )
 }
 /*-----------------------------------------------------------*/
 
+
+esp_err_t prxSerializeWifiNetworkProfile( const WIFINetworkProfile_t * const pxNetwork, uint8_t *pucBuffer, uint32_t* pulSize )
+{
+	esp_err_t xRet = ESP_OK;
+	uint32_t ulSize;
+
+	if( pucBuffer == NULL )
+	{
+		ulSize = pxNetwork->ucSSIDLength;
+		ulSize += pxNetwork->ucPasswordLength;
+		ulSize += wificonfigMAX_BSSID_LEN;
+		ulSize += MAX_SECURITY_MODE_LEN;
+
+		*pulSize = ulSize;
+	}
+	else
+	{
+		ulSize = *pulSize;
+		memset(pucBuffer, 0x00, ulSize);
+		if( pxNetwork->ucSSIDLength < ulSize )
+		{
+			memcpy(pucBuffer, pxNetwork->cSSID, pxNetwork->ucSSIDLength );
+			pucBuffer += pxNetwork->ucSSIDLength;
+			ulSize -= pxNetwork->ucSSIDLength;
+		}
+		else
+		{
+			xRet = ESP_FAIL;
+		}
+
+		if( xRet == ESP_OK )
+		{
+			if( pxNetwork->ucPasswordLength < ulSize )
+			{
+				memcpy(pucBuffer, pxNetwork->cPassword, pxNetwork->ucPasswordLength );
+				pucBuffer += pxNetwork->ucPasswordLength;
+				ulSize -= pxNetwork->ucPasswordLength;
+			}
+			else
+			{
+				xRet = ESP_FAIL;
+			}
+		}
+
+
+		if( xRet == ESP_OK )
+		{
+			if( wificonfigMAX_BSSID_LEN < ulSize )
+			{
+				memcpy(pucBuffer, pxNetwork->ucBSSID, wificonfigMAX_BSSID_LEN  );
+				pucBuffer += wificonfigMAX_BSSID_LEN;
+				ulSize -= wificonfigMAX_BSSID_LEN;
+			}
+			else
+			{
+				xRet = ESP_FAIL;
+			}
+		}
+
+		if( xRet == ESP_OK )
+		{
+			if( ulSize >= MAX_SECURITY_MODE_LEN )
+			{
+				*pucBuffer = (uint8_t) pxNetwork->xSecurity;
+			}
+			else
+			{
+				xRet = ESP_FAIL;
+			}
+		}
+
+	}
+
+	return xRet;
+
+}
+
+
+esp_err_t prxDeSerializeWifiNetworkProfile( WIFINetworkProfile_t * const pxNetwork, uint8_t *pucBuffer, uint32_t ulSize )
+{
+	esp_err_t xRet = ESP_OK;
+	uint32_t ulLen;
+
+	ulLen = strlen( ( char * )pucBuffer );
+	if( ulLen <= wificonfigMAX_SSID_LEN )
+	{
+		memcpy(pxNetwork->cSSID, pucBuffer, ulLen );
+		pxNetwork->cSSID[ulLen] = '\0';
+		pxNetwork->ucSSIDLength = ( ulLen + 1 );
+		pucBuffer += ( ulLen + 1 );
+	}
+	else
+	{
+		xRet = ESP_FAIL;
+	}
+
+	if( xRet == ESP_OK )
+	{
+		ulLen = strlen( ( char *) pucBuffer );
+		if( ulLen <= wificonfigMAX_PASSPHRASE_LEN )
+		{
+			memcpy(pxNetwork->cPassword, pucBuffer, ulLen );
+			pxNetwork->cPassword[ulLen] = '\0';
+			pxNetwork->ucPasswordLength = ( ulLen + 1 );
+			pucBuffer += ( ulLen + 1 );
+		}
+		else
+		{
+			xRet = ESP_FAIL;
+		}
+	}
+
+	if( xRet == ESP_OK )
+	{
+		memcpy(pxNetwork->ucBSSID, pucBuffer, wificonfigMAX_BSSID_LEN );
+		pucBuffer += wificonfigMAX_BSSID_LEN;
+		pxNetwork->xSecurity = ( WIFISecurity_t ) *pucBuffer;
+	}
+
+
+	return xRet;
+}
+
+esp_err_t prvStoreWIFINetwork( nvs_handle xNvsHandle, const WIFINetworkProfile_t* pxNetwork, uint16_t usIndex )
+{
+	uint32_t ulSize = 0;
+	uint8_t *pucBuffer;
+    char cWifiKey[ MAX_WIFI_KEY_WIDTH ] = { 0 };
+	esp_err_t xRet = ESP_FAIL;
+
+	(void) prxSerializeWifiNetworkProfile( pxNetwork, NULL, &ulSize );
+	pucBuffer = calloc( 1,  ulSize );
+
+	if( pucBuffer != NULL )
+	{
+		xRet = prxSerializeWifiNetworkProfile( pxNetwork, pucBuffer, &ulSize );
+	}
+
+	if( xRet == ESP_OK )
+	{
+		snprintf(cWifiKey, MAX_WIFI_KEY_WIDTH, "%d", usIndex );
+		xRet = nvs_set_blob( xNvsHandle, cWifiKey, pucBuffer, ulSize );
+		free(pucBuffer);
+	}
+
+
+	return xRet;
+}
+
+esp_err_t prvGetWIFINetwork( nvs_handle xNvsHandle, WIFINetworkProfile_t* pxNetwork, uint16_t usIndex )
+{
+	uint32_t ulSize = 0;
+	uint8_t *pucBuffer = NULL;
+    char cWifiKey[ MAX_WIFI_KEY_WIDTH ] = { 0 };
+	esp_err_t xRet = ESP_FAIL;
+
+	if( pxNetwork != NULL )
+	{
+		snprintf(cWifiKey, MAX_WIFI_KEY_WIDTH, "%d", usIndex);
+		xRet = nvs_get_blob( xNvsHandle, cWifiKey, NULL, &ulSize );
+
+		if( xRet == ESP_OK )
+		{
+			pucBuffer = calloc( 1,  ulSize );
+			if( pucBuffer != NULL )
+			{
+				xRet = nvs_get_blob( xNvsHandle, cWifiKey, pucBuffer, &ulSize );
+			}
+			else
+			{
+				xRet = ESP_FAIL;
+			}
+		}
+
+		if( xRet == ESP_OK )
+		{
+			xRet =  prxDeSerializeWifiNetworkProfile( pxNetwork, pucBuffer, ulSize );
+			free(pucBuffer);
+		}
+	}
+
+	return xRet;
+}
+
+esp_err_t prvInitRegistry( nvs_handle xNvsHandle )
+{
+	esp_err_t xRet;
+	uint32_t ulSize = sizeof( StorageRegistry_t );
+	xRet = nvs_get_blob( xNvsHandle, "registry", &xRegistry, &ulSize );
+
+
+	if( xRet == ESP_ERR_NVS_NOT_FOUND )
+	{
+		memset( &xRegistry, 0x00, sizeof( StorageRegistry_t ) );
+		xRet = ESP_OK;
+	}
+	if( xRet == ESP_OK )
+	{
+		xIsRegistryInit = pdTRUE;
+	}
+
+	return xRet;
+}
+
+
 WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkProfile,
                                   uint16_t * pusIndex )
 {
-    return eWiFiNotSupported;
+    WIFIReturnCode_t xWiFiRet = eWiFiFailure;
+    esp_err_t xRet;
+    nvs_handle xNvsHandle = NULL;
+    BaseType_t xOpened = pdFALSE;
+
+    if( pxNetworkProfile != NULL && pusIndex != NULL )
+    {
+    	/* Try to acquire the semaphore. */
+    	if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+    	{
+    		xRet = nvs_open(WIFI_FLASH_NS, NVS_READWRITE, &xNvsHandle);
+    		if( xRet == ESP_OK )
+    		{
+    			xOpened = pdTRUE;
+    			if( xIsRegistryInit == pdFALSE )
+    			{
+    				xRet = prvInitRegistry( xNvsHandle );
+    			}
+    		}
+    		if( xRet == ESP_OK )
+    		{
+    			if( xRegistry.usNumNetworks == MAX_WIFI_NETWORKS )
+    			{
+    				xRet = ESP_FAIL;
+    			}
+    		}
+
+    		if( xRet == ESP_OK )
+    		{
+    			xRet = prvStoreWIFINetwork( xNvsHandle, pxNetworkProfile, xRegistry.usNextStorageIdx );
+    		}
+
+
+    		if( xRet == ESP_OK )
+    		{
+
+    			xRegistry.usStorageIdx[ xRegistry.usNumNetworks ] =  xRegistry.usNextStorageIdx;
+    			xRegistry.usNextStorageIdx++;
+    			xRegistry.usNumNetworks++;
+    			xRet = nvs_set_blob( xNvsHandle, "registry", &xRegistry, sizeof( xRegistry ) );
+    		}
+
+    		// Commit
+    		if( xRet == ESP_OK )
+    		{
+    			xRet = nvs_commit( xNvsHandle );
+    		}
+
+    		if( xRet == ESP_OK )
+    		{
+    			*pusIndex = ( xRegistry.usNumNetworks - 1 );
+    			xWiFiRet = eWiFiSuccess;
+    		}
+
+    		// Close
+    		if( xOpened )
+    		{
+    			nvs_close( xNvsHandle );
+    		}
+
+    		xSemaphoreGive( xWiFiSem );
+
+    	}
+    }
+
+    return xWiFiRet;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile,
                                   uint16_t usIndex )
 {
-    return eWiFiNotSupported;
+	WIFIReturnCode_t xWiFiRet = eWiFiFailure;
+	esp_err_t xRet;
+	nvs_handle xNvsHandle;
+	BaseType_t xOpened = pdFALSE;
+
+	/* Try to acquire the semaphore. */
+	if( pxNetworkProfile != NULL )
+	{
+		if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+		{
+			xRet = nvs_open(WIFI_FLASH_NS, NVS_READWRITE, &xNvsHandle);
+			if( xRet == ESP_OK )
+			{
+				xOpened = pdTRUE;
+				if( xIsRegistryInit == pdFALSE )
+				{
+					xRet = prvInitRegistry( xNvsHandle );
+				}
+			}
+			if( xRet == ESP_OK )
+			{
+				if( usIndex < xRegistry.usNumNetworks )
+				{
+					xRet = prvGetWIFINetwork( xNvsHandle, pxNetworkProfile, xRegistry.usStorageIdx[ usIndex ] );
+				}
+				else
+				{
+					xRet = ESP_FAIL;
+				}
+			}
+
+			if( xRet == ESP_OK )
+			{
+				xWiFiRet = eWiFiSuccess;
+			}
+			// Close
+			if( xOpened )
+			{
+				nvs_close( xNvsHandle );
+			}
+			xSemaphoreGive( xWiFiSem );
+		}
+	}
+
+	return xWiFiRet;
 }
 /*-----------------------------------------------------------*/
 
 WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
 {
-    return eWiFiNotSupported;
+	WIFIReturnCode_t xWiFiRet = eWiFiFailure;
+	esp_err_t xRet;
+	nvs_handle xNvsHandle = NULL;
+	char cWifiKey[ MAX_WIFI_KEY_WIDTH ] = { 0 };
+	BaseType_t xOpened = pdFALSE;
+	uint16_t usIdx;
+
+	/* Try to acquire the semaphore. */
+	if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
+	{
+		xRet = nvs_open(WIFI_FLASH_NS, NVS_READWRITE, &xNvsHandle);
+		if( xRet == ESP_OK )
+		{
+			xOpened = pdTRUE;
+			if( xIsRegistryInit == pdFALSE )
+			{
+				xRet = prvInitRegistry( xNvsHandle );
+			}
+		}
+		if( xRet == ESP_OK && usIndex < xRegistry.usNumNetworks )
+		{
+			snprintf(cWifiKey, MAX_WIFI_KEY_WIDTH, "%d", xRegistry.usStorageIdx[ usIndex ]);
+			xRet = nvs_erase_key( xNvsHandle, cWifiKey );
+
+			if( xRet == ESP_OK )
+			{
+				for( usIdx = usIndex + 1; usIdx < xRegistry.usNumNetworks; usIdx++ )
+				{
+					xRegistry.usStorageIdx[ usIdx - 1 ] = xRegistry.usStorageIdx[ usIdx ];
+				}
+				xRegistry.usNumNetworks--;
+				xRet = nvs_set_blob( xNvsHandle, "registry", &xRegistry, sizeof( xRegistry ) );
+			}
+
+			if( xRet == ESP_OK )
+			{
+				xRet = nvs_commit( xNvsHandle );
+			}
+		}
+
+		if( xRet == ESP_OK )
+		{
+			xWiFiRet = eWiFiSuccess;
+		}
+
+		// Close
+		if( xOpened )
+		{
+			nvs_close( xNvsHandle );
+		}
+		xSemaphoreGive( xWiFiSem );
+	}
+
+	return xWiFiRet;
 }
 /*-----------------------------------------------------------*/
 
@@ -864,4 +1332,14 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
     }
     return wifi_ret;
 }
+/*-----------------------------------------------------------*/
+
+WIFIReturnCode_t WIFI_RegisterStateChangeCallback( AwsIotNetworkStateChangeCb_t xCallback, void* pvContext )
+{
+	xStateChangeAppCallback = xCallback;
+	pvAppContext = pvContext;
+	return eWiFiSuccess;
+}
+
+
 /*-----------------------------------------------------------*/
