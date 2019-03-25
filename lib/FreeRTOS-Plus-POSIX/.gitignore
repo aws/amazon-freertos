@@ -1,0 +1,7 @@
+# Ignore generated files
+doc/*
+ 
+# But keep Doxyfile and DoxygenLayout.xml
+!doc/Doxyfile
+!doc/DoxygenLayout.xml
+!doc/*.txt

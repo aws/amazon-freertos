@@ -42,13 +42,9 @@
 /* FreeRTOS timer include. */
 #include "timers.h"
 
-/**
- * @defgroup Timespec zero check macros.
- */
-/**@{ */
+/* Timespec zero check macros. */
 #define TIMESPEC_IS_ZERO( xTimespec )        ( xTimespec.tv_sec == 0 && xTimespec.tv_nsec == 0 ) /**< Check for 0. */
 #define TIMESPEC_IS_NOT_ZERO( xTimespec )    ( !( TIMESPEC_IS_ZERO( xTimespec ) ) )              /**< Check for not 0. */
-/**@} */
 
 /**
  * @brief Internal timer structure.

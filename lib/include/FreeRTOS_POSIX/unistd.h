@@ -39,6 +39,12 @@
  * @brief Suspend execution for an interval of time.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sleep.html
+ *
+ * @param[in] seconds The number of seconds to suspend execution.
+ *
+ * @retval 0 - Upon successful completion.
+ *
+ * @note Return value of a positive number is not yet supported.
  */
 unsigned sleep( unsigned seconds );
 
@@ -48,7 +54,7 @@ unsigned sleep( unsigned seconds );
  * This is a useful, non-POSIX function.
  * @param[in] usec The number of microseconds to suspend execution.
  *
- * @return 0 always. This function does not specify any failure conditions.
+ * @retval 0 - Upon successful cocmpletion.
  */
 int usleep( useconds_t usec );
 
