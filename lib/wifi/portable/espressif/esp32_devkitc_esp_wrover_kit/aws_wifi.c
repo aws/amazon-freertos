@@ -309,9 +309,9 @@ err:
 /*-----------------------------------------------------------*/
 
 #define CHECK_VALID_SSID_LEN(x) \
-        ((x) > 0 && (x) <=  wificonfigMAX_SSID_LEN)
+        ((x) > 0 && (x) < wificonfigMAX_SSID_LEN)
 #define CHECK_VALID_PASSPHRASE_LEN(x) \
-        ((x) > 0 && (x) <= wificonfigMAX_PASSPHRASE_LEN)
+        ((x) > 0 && (x) < wificonfigMAX_PASSPHRASE_LEN)
 
 WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkParams )
 {
