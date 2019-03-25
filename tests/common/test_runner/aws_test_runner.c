@@ -35,7 +35,7 @@
 #include "aws_test_runner.h"
 
 /* MQTT v4 header must be included if its tests are enabled. */
-#if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
+#if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) || (testrunnerFULL_SHADOWv4_ENABLED == 1)
     #include "iot_mqtt.h"
 #endif
 
@@ -105,8 +105,8 @@ static void RunTests( void )
         IotCommon_Cleanup();
         IotMqtt_Cleanup();
 
-        RUN_TEST_GROUP( Shadow_Unit_Parser );
-        RUN_TEST_GROUP( Shadow_Unit_API );
+        //RUN_TEST_GROUP( Shadow_Unit_Parser );
+        //RUN_TEST_GROUP( Shadow_Unit_API );
         RUN_TEST_GROUP( Shadow_System );
 
         /* Initialize the MQTT library for any tests that come after. */
