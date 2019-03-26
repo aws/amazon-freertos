@@ -24,17 +24,15 @@
  * @brief Definitions of platform layer types on POSIX systems.
  */
 
-#ifndef _IOT_PLATFORM_TYPES_POSIX_H_
-#define _IOT_PLATFORM_TYPES_POSIX_H_
+#ifndef _IOT_PLATFORM_TYPES_AFR_H_
+#define _IOT_PLATFORM_TYPES_AFR_H_
 
-#include <stdbool.h>
 #include "timers.h"
-
 
 typedef struct iot_mutex_internal
 {
     StaticSemaphore_t xMutex;      /**< FreeRTOS mutex. */
-    bool recursive;                /**< Type; used for indicating if this is reentrant or normal. */
+    BaseType_t recursive;                /**< Type; used for indicating if this is reentrant or normal. */
 } iot_mutex_internal_t;
 
 /**

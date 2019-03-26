@@ -30,6 +30,7 @@
 #endif
 
 /* Platform clock include. */
+#include "platform/iot_platform_types_afr.h"
 #include "platform/iot_clock.h"
 #include "task.h"
 
