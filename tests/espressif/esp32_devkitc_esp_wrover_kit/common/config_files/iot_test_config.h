@@ -43,6 +43,10 @@ extern void IotBleMqtt_CleanupSerialize( void );
 #define BLE_SUPPORTED 1
 #define WIFI_SUPPORTED 1
 
+/* Set the task pool stack size and priority on ESP. */
+#define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
+#define IOT_THREAD_DEFAULT_PRIORITY      5
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
