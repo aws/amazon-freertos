@@ -214,6 +214,9 @@
     <Filter Include="application_code\common_tests\serializer">
       <UniqueIdentifier>{067a1587-18d8-413e-a931-59262c0e8c5f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\defender">
+      <UniqueIdentifier>{08e19228-c970-4d8c-933c-ebe94a403c77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -1398,13 +1401,7 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_validate.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_posix.c">
-      <Filter>lib\aws\utils\platform</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_network_afr.c">
-      <Filter>lib\aws\utils\platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_posix.c">
       <Filter>lib\aws\utils\platform</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\mqtt\unit\iot_tests_mqtt_api.c">
@@ -1440,6 +1437,22 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_json.c">
       <Filter>application_code\common_tests\serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_collector.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_mqtt.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_afr.c">
+      <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_afr.c">
+      <Filter>lib\aws\utils\platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

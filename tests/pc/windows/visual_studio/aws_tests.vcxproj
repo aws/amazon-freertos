@@ -313,6 +313,9 @@
     <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_mqtt.c" />
     <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_taskpool.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_collector.c" />
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_mqtt.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_clock.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_mqueue.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\source\FreeRTOS_POSIX_pthread.c" />
@@ -457,9 +460,9 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcSnapshotRecorder.c" />
     <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c" />
     <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_posix.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_afr.c" />
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_network_afr.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_posix.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_afr.c" />
     <ClCompile Include="..\..\..\common\cbor\aws_test_cbor.c" />
     <ClCompile Include="..\..\..\common\crypto\aws_test_crypto.c" />
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c" />
