@@ -124,11 +124,6 @@ typedef struct _operationCompleteParams
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Provide a pointer to a serializer that may be overridden.
- */
-static const IotMqttSerializer_t * _pMqttSerializer = NULL;
-
-/**
  * @brief Network server info to share among the tests.
  */
 static const IotTestNetworkServerInfo_t _serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
@@ -471,17 +466,12 @@ TEST_SETUP( Shadow_System )
         TEST_FAIL_MESSAGE( "Failed to initialize Shadow library." );
     }
 
-    /* Set the overrides for the default serializers. */
-    #ifdef IOT_TEST_MQTT_SERIALIZER
-        _pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
-    #endif
-
     /* Set the MQTT network setup parameters. */
     ( void ) memset( &_networkInfo, 0x00, sizeof( IotMqttNetworkInfo_t ) );
     _networkInfo.createNetworkConnection = true;
     _networkInfo.pNetworkServerInfo = ( void * ) &_serverInfo;
     _networkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
-    _networkInfo.pMqttSerializer = _pMqttSerializer;
+    _networkInfo.pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
 
     #if IOT_TEST_SECURED_CONNECTION == 1
         _networkInfo.pNetworkCredentialInfo = ( void * ) &_credentials;
