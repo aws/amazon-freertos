@@ -1603,8 +1603,9 @@ static void _rescheduleDeferredJobsTimer( IotTimer_t * const pTimer,
     }
 
     IotTaskPool_Assert( delta > 0 );
+    IotTaskPool_Assert( delta <= UINT32_MAX );
 
-    if( IotClock_TimerArm( pTimer, delta, 0 ) == false )
+    if( IotClock_TimerArm( pTimer, ( uint32_t )delta, 0 ) == false )
     {
         IotLogWarn( "Failed to re-arm timer for task pool" );
     }

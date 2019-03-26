@@ -189,6 +189,14 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_POSIX_STRESS );
     #endif
 
+    #if ( testrunnerUTIL_PLATFORM_CLOCK_ENABLED == 1 )
+        RUN_TEST_GROUP( UTIL_Platform_Clock );
+    #endif
+
+    #if ( testrunnerUTIL_PLATFORM_THREADS_ENABLED == 1 )
+        RUN_TEST_GROUP( UTIL_Platform_Threads );
+    #endif
+
     #if ( testrunnerFULL_BLE_ENABLED == 1 )
         /* RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize ); */
         RUN_TEST_GROUP( Full_BLE );
