@@ -140,6 +140,7 @@
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_serialize.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_validate.c" />
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
