@@ -22,6 +22,10 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+
+/* MQTT includes. */
+#include "iot_mqtt.h"
+
 /* Standard includes. */
 #include <stdint.h>
 #include <stdbool.h>
@@ -38,8 +42,8 @@
 #include "aws_clientcredential.h"
 #include "aws_ota_agent_internal.h"
 
-/* MQTT includes. */
-#include "aws_mqtt_agent.h"
+/* Amazon FreeRTOS network include. */
+#include "platform/iot_network_afr.h"
 
 /* Configuration for this test. */
 #include "aws_test_ota_config.h"
@@ -111,7 +115,7 @@ static const uint8_t ucOtatestSIGNATURE[] =
 /**
  * @brief Shared MQTT client handle, used across setup, tests, and teardown.
  * But only used by one test at a time. */
-static MQTTAgentHandle_t xMQTTClientHandle = NULL;
+static IotMqttConnection_t xMQTTClientHandle = NULL;
 
 /**
  * @brief Application-defined callback for the OTA agent.
@@ -130,25 +134,30 @@ TEST_GROUP( Full_OTA_AGENT );
  */
 TEST_SETUP( Full_OTA_AGENT )
 {
-    MQTTAgentReturnCode_t xMqttStatus;
-    MQTTAgentConnectParams_t xConnectParams;
+    IotMqttError_t connectStatus = IOT_MQTT_STATUS_PENDING;
+    IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+    IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
+    IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
-    /* Create the MQTT Client. */
-    xMqttStatus = MQTT_AGENT_Create( &xMQTTClientHandle );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
+    /* Set the parameters for MQTT connect. */
+    networkInfo.createNetworkConnection = true;
+    networkInfo.pNetworkServerInfo = &serverInfo;
+    networkInfo.pNetworkCredentialInfo = &credentials;
+    networkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+
+    connectInfo.awsIotMqttMode = true;
+    connectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+    connectInfo.clientIdentifierLength = sizeof( clientcredentialIOT_THING_NAME ) - 1;
 
     /* Connect to the broker. */
-    memset( &xConnectParams, 0, sizeof( xConnectParams ) );
-    xConnectParams.pucClientId = ( const uint8_t * ) ( clientcredentialIOT_THING_NAME );
-    xConnectParams.usClientIdLength = sizeof( clientcredentialIOT_THING_NAME ) - 1; /* Length doesn't include trailing 0. */
-    xConnectParams.pcURL = clientcredentialMQTT_BROKER_ENDPOINT;
-    xConnectParams.usPort = clientcredentialMQTT_BROKER_PORT;
-    xConnectParams.xFlags = mqttagentREQUIRE_TLS;
-    xMqttStatus = MQTT_AGENT_Connect( xMQTTClientHandle,
-                                      &xConnectParams,
-                                      pdMS_TO_TICKS( ( TickType_t ) otatestAGENT_INIT_WAIT ) );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( eMQTTAgentSuccess, xMqttStatus,
-                                   "Failed to connect to the MQTT broker in MQTT_AGENT_Connect() during "
+    connectStatus = IotMqtt_Connect( &networkInfo,
+                                     &connectInfo,
+                                     otatestAGENT_INIT_WAIT,
+                                     &xMQTTClientHandle );
+
+    TEST_ASSERT_EQUAL_INT_MESSAGE( IOT_MQTT_SUCCESS, connectStatus,
+                                   "Failed to connect to the MQTT broker during "
                                    "TEST_SETUP." );
 }
 
@@ -157,16 +166,8 @@ TEST_SETUP( Full_OTA_AGENT )
  */
 TEST_TEAR_DOWN( Full_OTA_AGENT )
 {
-    MQTTAgentReturnCode_t xMqttStatus;
-
     /* Disconnect from the MQTT broker. */
-    xMqttStatus = MQTT_AGENT_Disconnect( xMQTTClientHandle,
-                                         pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
-
-    /* Delete the MQTT handle. */
-    xMqttStatus = MQTT_AGENT_Delete( xMQTTClientHandle );
-    TEST_ASSERT_EQUAL_INT( eMQTTAgentSuccess, xMqttStatus );
+    IotMqtt_Disconnect( xMQTTClientHandle, 0 );
 
     xMQTTClientHandle = NULL;
 }
