@@ -110,7 +110,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
                               &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                               sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
         {
-            *pcFileName = pkcs11palFILE_NAME_KEY;
+            *pcFileName = pkcs11palFILE_DEVICE_PUBLIC_KEY;
             *pHandle = eAwsDevicePublicKey;
         }
         else if( 0 == memcmp( pcLabel,

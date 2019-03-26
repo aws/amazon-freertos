@@ -605,8 +605,25 @@ CK_RV prvCreateCertificate( SearchableAttributes_t * pxSearchable,
     return xResult;
 }
 
-CK_RV prvWriteKey()
+#define PKCS11_INVALID_KEY_TYPE    ( ( CK_KEY_TYPE ) 0xFFFFFFFF )
+
+CK_KEY_TYPE prvGetKeyType( CK_ATTRIBUTE_PTR pxTemplate,
+                           CK_ULONG ulCount )
 {
+    CK_KEY_TYPE xKeyType = PKCS11_INVALID_KEY_TYPE;
+
+    for( int i = 0; i < ulCount; i++ )
+    {
+        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+        if( xAttribute.type == CKA_KEY_TYPE )
+        {
+            memcpy( &xKeyType, xAttribute.pValue, sizeof( CK_KEY_TYPE ) );
+            break;
+        }
+    }
+
+    return xKeyType;
 }
 
 CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
@@ -793,12 +810,16 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
     int lActualKeyLength;
     CK_BYTE_PTR pxDerKey = NULL;
     CK_RV xResult = CKR_OK;
+    CK_KEY_TYPE xKeyType;
 
     mbedtls_pk_init( &xMbedContext );
 
+
+    xKeyType = prvGetKeyType( pxTemplate, ulCount );
+
     /* RSA or Elliptic Curve? */
     /* TODO: I could actually check the attributes.*/
-    if( ulCount > 6 )
+    if( xKeyType == CKK_RSA )
     {
         mbedtls_rsa_context xRsaCtx;
         xMbedContext.pk_ctx = &xRsaCtx;
@@ -809,7 +830,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
                                           ulCount,
                                           pxObject );
     }
-    else
+    else if( ( xKeyType == CKK_EC ) || ( xKeyType == CKK_ECDSA ) )
     {
         /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
         mbedtls_ecp_keypair xKeyPair;
@@ -820,6 +841,10 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
                                          pxTemplate,
                                          ulCount,
                                          pxObject );
+    }
+    else
+    {
+        xResult = CKR_TEMPLATE_INCONSISTENT;
     }
 
     /* Convert back to DER and save to memory. */
@@ -853,7 +878,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
          *    00 00  -> "Public key"
          * This is not handled by the parser.
          * This has not been tested very carefully either.*/
-        if( mbedtls_pk_get_type( &xMbedContext ) == MBEDTLS_PK_ECKEY )
+        if( ( xKeyType == CKK_EC ) || ( xKeyType == CKK_ECDSA ) )
         {
             pxDerKey[ MAX_LENGTH_KEY - lDerKeyLength + 1 ] -= 6;
             lActualKeyLength -= 6;
@@ -865,6 +890,153 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
         *pxObject = PKCS11_PAL_SaveObject( pxSearchable,
                                            pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
                                            lActualKeyLength );
+
+        if( *pxObject == 0 )
+        {
+            xResult = CKR_DEVICE_MEMORY;
+        }
+    }
+
+    if( pxDerKey != NULL )
+    {
+        vPortFree( pxDerKey );
+    }
+
+    return xResult;
+}
+
+CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
+                            SearchableAttributes_t * pxSearchable,
+                            CK_ATTRIBUTE_PTR pxTemplate,
+                            CK_ULONG ulCount,
+                            CK_OBJECT_HANDLE_PTR pxObject )
+{
+    CK_RV xResult = CKR_OK;
+    int lMbedReturn;
+    /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
+    mbedtls_ecp_keypair * pxKeyPair;
+    CK_BBOOL xBool;
+
+    pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
+    mbedtls_ecp_keypair_init( pxKeyPair );
+    mbedtls_ecp_group_init( &pxKeyPair->grp );
+
+    /* At this time, only P-256 curves are supported. */
+    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+
+    for( int i = 0; i < ulCount; i++ )
+    {
+        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+        switch( xAttribute.type )
+        {
+            case ( CKA_CLASS ):
+            case ( CKA_KEY_TYPE ):
+            case ( CKA_TOKEN ):
+            case ( CKA_LABEL ):
+
+                /* Do nothing.
+                 * At this time there is only token object support.
+                 * Key type was checked previously.
+                 * CLASS and LABEL have already been parsed into the Searchable Attributes. */
+                break;
+
+            case ( CKA_VERIFY ):
+                memcpy( &xBool, xAttribute.pValue, xAttribute.ulValueLen );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "Only EC Public Keys with verify permissions supported. \r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+
+            case ( CKA_EC_PARAMS ):
+
+                if( memcmp( ( CK_BYTE[] ) pkcs11DER_ENCODED_OID_P256, xAttribute.pValue, xAttribute.ulValueLen ) )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only elliptic curve P-256 is supported.\r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+
+            case ( CKA_EC_POINT ):
+                /* The first 2 bytes are for ASN1 type/length encoding. */
+                lMbedReturn = mbedtls_ecp_point_read_binary( &pxKeyPair->grp, &pxKeyPair->Q, ( ( uint8_t * ) ( xAttribute.pValue ) + 2 ), ( xAttribute.ulValueLen - 2 ) );
+
+                if( lMbedReturn != 0 )
+                {
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+
+            default:
+                PKCS11_PRINT( ( "Unsupported attribute found for EC public key. %d \r\n", xAttribute.type ) );
+                xResult = CKR_ATTRIBUTE_TYPE_INVALID;
+                break;
+        }
+    }
+
+    return xResult;
+}
+
+CK_RV prvCreatePublicKey( SearchableAttributes_t * pxSearchable,
+                          CK_ATTRIBUTE_PTR pxTemplate,
+                          CK_ULONG ulCount,
+                          CK_OBJECT_HANDLE_PTR pxObject )
+{
+#define MAX_PUBLIC_KEY_SIZE    3000
+    mbedtls_pk_context xMbedContext;
+    int lDerKeyLength;
+    CK_BYTE_PTR pxDerKey = NULL;
+    CK_KEY_TYPE xKeyType;
+    CK_RV xResult = CKR_OK;
+
+
+    mbedtls_pk_init( &xMbedContext );
+
+    xKeyType = prvGetKeyType( pxTemplate, ulCount );
+
+    if( xKeyType == CKK_RSA )
+    {
+    }
+    else if( ( xKeyType == CKK_EC ) || ( xKeyType == CKK_ECDSA ) )
+    {
+        mbedtls_ecp_keypair xKeyPair;
+        xMbedContext.pk_ctx = &xKeyPair;
+        xMbedContext.pk_info = &mbedtls_eckey_info; /* TODO: deprecated ecdsa vs eckey?*/
+        xResult = prvCreateECPublicKey( &xMbedContext, pxSearchable, pxTemplate, ulCount, pxObject );
+    }
+    else
+    {
+        PKCS11_PRINT( ( "Invalid key type %d \r\n", xKeyType ) );
+        xResult = CKR_TEMPLATE_INCONSISTENT;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        /* Store the key.*/
+        pxDerKey = pvPortMalloc( MAX_PUBLIC_KEY_SIZE );
+
+        if( pxDerKey == NULL )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        lDerKeyLength = mbedtls_pk_write_pubkey_der( &xMbedContext, pxDerKey, MAX_PUBLIC_KEY_SIZE );
+    }
+
+    if( xResult == CKR_OK )
+    {
+        *pxObject = PKCS11_PAL_SaveObject( pxSearchable,
+                                           pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
+                                           lDerKeyLength );
 
         if( *pxObject == 0 )
         {
@@ -940,6 +1112,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                 break;
 
             case CKO_PUBLIC_KEY:
+                xResult = prvCreatePublicKey( &xSearchable, pxTemplate, ulCount, pxObject );
                 break;
 
             default:
@@ -1407,14 +1580,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
                 }
 
                 mbedtls_pk_init( &pxSession->xSignKey );
-
-
-
-                /*if( pxMechanism->mechanism == CKM_ECDSA ) */
-                /*{ */
-                /*    keyData[ 1 ] = keyData[ 1 ] - 6; */
-                /*    ulKeyDataLength -= 6; */
-                /*} */
 
                 if( 0 == mbedtls_pk_parse_key( &pxSession->xSignKey, keyData, ulKeyDataLength, NULL, 0 ) )
                 {
