@@ -35,7 +35,7 @@
 #include "aws_test_runner.h"
 
 /* MQTT v4 header must be included if its tests are enabled. */
-#if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
+#if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) || (testrunnerFULL_SHADOWv4_ENABLED == 1)
     #include "iot_mqtt.h"
 #endif
 

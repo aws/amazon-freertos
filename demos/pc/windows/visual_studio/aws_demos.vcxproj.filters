@@ -672,6 +672,7 @@
     <ClCompile Include="..\..\..\common\mqtt\iot_demo_mqtt.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
