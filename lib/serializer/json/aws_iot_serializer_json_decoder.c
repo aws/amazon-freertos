@@ -79,7 +79,7 @@ static IotSerializerError_t _stepOut( IotSerializerDecoderIterator_t iterator,
 
 static void _destroy( IotSerializerDecoderObject_t * pDecoderObject );
 
-IotSerializerDecodeInterface_t _AwsIotSerializerJsonDecoder =
+IotSerializerDecodeInterface_t _IotSerializerJsonDecoder =
 {
     .init             = _init,
     .find             = _find,
