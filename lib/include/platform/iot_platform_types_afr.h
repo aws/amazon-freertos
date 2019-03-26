@@ -27,6 +27,7 @@
 #ifndef _IOT_PLATFORM_TYPES_POSIX_H_
 #define _IOT_PLATFORM_TYPES_POSIX_H_
 
+#include <stdbool.h>
 #include "timers.h"
 
 
