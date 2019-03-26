@@ -110,12 +110,21 @@
           <file file_name="../../../../lib/include/stream_buffer.h" />
           <file file_name="../../../../lib/include/task.h" />
           <file file_name="../../../../lib/include/timers.h" />
-          <folder
-            Name="FreeRTOS_POSIX"
-            exclude=""
-            filter=""
-            path="../../../../lib/include/FreeRTOS_POSIX"
-            recurse="Yes" />
+          <folder Name="FreeRTOS_POSIX">
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/errno.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/fcntl.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/mqueue.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/pthread.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/sched.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/semaphore.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/signal.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/time.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/unistd.h" />
+            <file file_name="../../../../lib/include/FreeRTOS_POSIX/utils.h" />
+            <folder
+              Name="sys"
+              path="../../../../lib/include/FreeRTOS_POSIX/sys" />
+          </folder>
           <file file_name="../../../../lib/include/aws_iot_mqtt.h" />
           <folder Name="platform">
             <file file_name="../../../../lib/include/platform/aws_iot_threads.h" />
@@ -146,12 +155,19 @@
           </folder>
         </folder>
         <folder Name="FreeRTOS-Plus-POSIX">
-          <folder
-            Name="source"
-            exclude=""
-            filter="*.c"
-            path="../../../../lib/FreeRTOS-Plus-POSIX/source"
-            recurse="No" />
+          <folder Name="source">
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_clock.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_mqueue.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_barrier.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_cond.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_mutex.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_sched.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_semaphore.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_timer.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_unistd.c" />
+            <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_utils.c" />
+          </folder>
           <folder Name="include">
             <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h" />
             <file file_name="../../../../lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h" />
@@ -176,9 +192,9 @@
         </folder>
         <folder Name="utils">
           <folder Name="platform">
-            <file file_name="../../../../lib/utils/platform/iot_threads_posix.c" />
-            <file file_name="../../../../lib/utils/platform/iot_clock_posix.c" />
             <file file_name="../../../../lib/utils/platform/iot_network_afr.c" />
+            <file file_name="../../../../lib/utils/platform/iot_clock_afr.c" />
+            <file file_name="../../../../lib/utils/platform/iot_threads_afr.c" />
           </folder>
         </folder>
         <folder Name="ota">
@@ -595,9 +611,6 @@
           <file file_name="../../../common/posix/aws_test_posix_timer.c" />
           <file file_name="../../../common/posix/aws_test_posix_unistd.c" />
           <file file_name="../../../common/posix/aws_test_posix_utils.c" />
-        </folder>
-        <folder Name="cbor">
-          <file file_name="../../../common/cbor/aws_test_cbor.c" />
         </folder>
         <folder Name="ota">
           <file file_name="../../../common/ota/aws_test_ota_agent.c" />
