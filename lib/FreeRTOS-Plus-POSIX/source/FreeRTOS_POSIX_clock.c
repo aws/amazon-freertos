@@ -63,11 +63,8 @@ int clock_getcpuclockid( pid_t pid,
     ( void ) pid;
     ( void ) clock_id;
 
-    /* This function is currently unsupported. It will always return -1 and
-     * set errno to EPERM. */
-    errno = EPERM;
-
-    return -1;
+    /* This function is currently unsupported. It will always return EPERM. */
+    return EPERM;
 }
 
 /*-----------------------------------------------------------*/
@@ -94,7 +91,6 @@ int clock_gettime( clockid_t clock_id,
                    struct timespec * tp )
 {
     TimeOut_t xCurrentTime = { 0 };
-    int iStatus = 0;
 
     /* Intermediate variable used to convert TimeOut_t to struct timespec.
      * Also used to detect overflow issues. It must be unsigned because the
@@ -104,32 +100,21 @@ int clock_gettime( clockid_t clock_id,
     /* Silence warnings about unused parameters. */
     ( void ) clock_id;
 
-    /* Check tp. */
-    if( tp == NULL )
-    {
-        /* POSIX does not specify this function setting errno for invalid
-         * parameters, so just set the return value. */
-        iStatus = -1;
-    }
+    /* Get the current tick count and overflow count. vTaskSetTimeOutState()
+     * is used to get these values because they are both static in tasks.c. */
+    vTaskSetTimeOutState( &xCurrentTime );
 
-    if( iStatus == 0 )
-    {
-        /* Get the current tick count and overflow count. vTaskSetTimeOutState()
-         * is used to get these values because they are both static in tasks.c. */
-        vTaskSetTimeOutState( &xCurrentTime );
+    /* Adjust the tick count for the number of times a TickType_t has overflowed.
+     * portMAX_DELAY should be the maximum value of a TickType_t. */
+    ullTickCount = ( uint64_t ) ( xCurrentTime.xOverflowCount ) << ( sizeof( TickType_t ) * 8 );
 
-        /* Adjust the tick count for the number of times a TickType_t has overflowed.
-         * portMAX_DELAY should be the maximum value of a TickType_t. */
-        ullTickCount = ( uint64_t ) ( xCurrentTime.xOverflowCount ) << ( sizeof( TickType_t ) * 8 );
+    /* Add the current tick count. */
+    ullTickCount += xCurrentTime.xTimeOnEntering;
 
-        /* Add the current tick count. */
-        ullTickCount += xCurrentTime.xTimeOnEntering;
+    /* Convert ullTickCount to timespec. */
+    UTILS_NanosecondsToTimespec( ( int64_t ) ullTickCount * NANOSECONDS_PER_TICK, tp );
 
-        /* Convert ullTickCount to timespec. */
-        UTILS_NanosecondsToTimespec( ( int64_t ) ullTickCount * NANOSECONDS_PER_TICK, tp );
-    }
-
-    return iStatus;
+    return 0;
 }
 
 /*-----------------------------------------------------------*/

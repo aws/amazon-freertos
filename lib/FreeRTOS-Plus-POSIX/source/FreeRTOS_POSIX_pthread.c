@@ -134,14 +134,7 @@ static void prvRunThread( void * pxArg )
 
 int pthread_attr_destroy( pthread_attr_t * attr )
 {
-    int iStatus = 0;
-
-    if( attr == NULL )
-    {
-        iStatus = EINVAL;
-    }
-
-    return iStatus;
+    return 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -191,21 +184,10 @@ int pthread_attr_getstacksize( const pthread_attr_t * attr,
 
 int pthread_attr_init( pthread_attr_t * attr )
 {
-    int iStatus = 0;
-
-    /* Check if the attribute is NULL. */
-    if( attr == NULL )
-    {
-        iStatus = EINVAL;
-    }
-
     /* Copy the default values into the new thread attributes object. */
-    if( iStatus == 0 )
-    {
-        *( ( pthread_attr_internal_t * ) ( attr ) ) = xDefaultThreadAttributes;
-    }
+    *( ( pthread_attr_internal_t * ) ( attr ) ) = xDefaultThreadAttributes;
 
-    return iStatus;
+    return 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -400,15 +382,7 @@ int pthread_getschedparam( pthread_t thread,
 int pthread_equal( pthread_t t1,
                    pthread_t t2 )
 {
-    int iStatus = 0;
-
-    /* Compare the thread IDs. */
-    if( ( t1 != NULL ) && ( t2 != NULL ) )
-    {
-        iStatus = ( t1 == t2 );
-    }
-
-    return iStatus;
+    return t1 == t2;
 }
 
 /*-----------------------------------------------------------*/

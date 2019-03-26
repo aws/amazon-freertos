@@ -138,7 +138,6 @@ int pthread_attr_getstacksize( const pthread_attr_t * attr,
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_init.html
  *
  * @retval 0 - Upon successful completion.
- * @retval ENOMEM - Insufficient memory exists to initialize the thread attributes object.
  * 
  * @note Currently, only stack size, sched_param, and detach state attributes
  * are supported. Also see pthread_attr_get*() and pthread_attr_set*().
@@ -460,7 +459,6 @@ int pthread_mutexattr_gettype( const pthread_mutexattr_t * attr,
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_mutexattr_init.html
  *
  * @retval 0 - Upon successful completion.
- * @retval ENOMEM - Insufficient memory exists to initialize the mutex attributes object.
  *
  * @note Currently, only the type attribute is supported. Also see pthread_mutexattr_settype() 
  *       and pthread_mutexattr_gettype().
