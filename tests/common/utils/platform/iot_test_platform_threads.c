@@ -37,6 +37,7 @@
 #include "task.h"
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test group for Platform Threads tests.
  */
@@ -69,7 +70,6 @@ TEST_GROUP_RUNNER( UTIL_Platform_Threads )
 {
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_CreateDetachedThread );
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_ThreadPriority );
-    RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_ThreadStackSize );
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_MutexTest );
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_SemaphoreTest );
 }
@@ -79,7 +79,7 @@ TEST_GROUP_RUNNER( UTIL_Platform_Threads )
 /**
  * @brief helper function for testing thread creation
  */
-void threadTestFunction(void * param)
+void threadTestFunction( void * param )
 {
     *( uint32_t * ) param = 4321;
 }
@@ -88,20 +88,23 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 {
     int i;
     static uint32_t attrData = 1234;
+
     Iot_CreateDetachedThread( threadTestFunction, &attrData, 5, 3072 );
-  
+
     /* wait for the thread to set this */
-    for ( i = 0 ; i<10 ; i++ )
+    for( i = 0; i < 10; i++ )
     {
         /* If we see the value has changed we stop waiting */
-        if ( attrData != 1234 )
-           break;
+        if( attrData != 1234 )
+        {
+            break;
+        }
 
         /* Else we wait for 100ms here */
         vTaskDelay( configTICK_RATE_HZ / 10 );
     }
-    
-    TEST_ASSERT_EQUAL( 4321,  attrData );
+
+    TEST_ASSERT_EQUAL( 4321, attrData );
 }
 
 /*-----------------------------------------------------------*/
@@ -109,21 +112,23 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 /**
  * @brief helper function for testing thread priority
  */
-void threadPriorityTestFunction(void * param)
+void threadPriorityTestFunction( void * param )
 {
     TaskStatus_t xTaskDetails;
 
     /* Use the handle to obtain further information about the task. */
     vTaskGetInfo( /* The handle of the task being queried. */
-                  NULL,
-                  /* The TaskStatus_t structure to complete with information
-                  on xTask. */
-                  &xTaskDetails,
-                  /* Include the stack high water mark value in the
-                  TaskStatus_t structure. */
-                  pdTRUE,
-                  /* Include the task state in the TaskStatus_t structure. */
-                  pdTRUE );
+        NULL,
+
+        /* The TaskStatus_t structure to complete with information
+         * on xTask. */
+        &xTaskDetails,
+
+        /* Include the stack high water mark value in the
+         * TaskStatus_t structure. */
+        pdTRUE,
+        /* Include the task state in the TaskStatus_t structure. */
+        pdTRUE );
 
     *( int32_t * ) param = xTaskDetails.uxCurrentPriority;
 }
@@ -134,150 +139,98 @@ TEST( UTIL_Platform_Threads, IotThreads_ThreadPriority )
 
     /* Create thread with priority 0 */
     Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 0, 3072 );
-  
+
     /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 ) 
+    while( attrData == -1 )
     {
         vTaskDelay( 1 );
     }
-    
-    TEST_ASSERT_EQUAL( 0,  attrData );
-    printf ("Expected Pri = 0, actual = %d\r\n", attrData );
+
+    TEST_ASSERT_EQUAL( 0, attrData );
+    printf( "Expected Pri = 0, actual = %d\r\n", attrData );
     attrData = -1;
 
     /* Create thread with priority 5 */
     Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 5, 3072 );
-  
+
     /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 ) 
+    while( attrData == -1 )
     {
         vTaskDelay( 1 );
     }
-    
-    printf ("Expected Pri = 5, actual = %d\r\n", attrData );
-    TEST_ASSERT_EQUAL( 5,  attrData );
+
+    printf( "Expected Pri = 5, actual = %d\r\n", attrData );
+    TEST_ASSERT_EQUAL( 5, attrData );
     attrData = -1;
 
     /* Create thread with priority 5 */
     Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 7, 3072 );
-  
+
     /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 ) 
+    while( attrData == -1 )
     {
         vTaskDelay( 1 );
     }
-    
-    printf ("Expected Pri = 7, actual = %d\r\n", attrData );
+
+    printf( "Expected Pri = 7, actual = %d\r\n", attrData );
 }
 /*-----------------------------------------------------------*/
 
 /**
  * @brief helper function for testing thread priority
  */
-void threadStackSizeTestFunction(void * param)
+void threadStackSizeTestFunction( void * param )
 {
     TaskStatus_t xTaskDetails;
 
     /* Use the handle to obtain further information about the task. */
     vTaskGetInfo( /* The handle of the task being queried. */
-                  NULL,
-                  /* The TaskStatus_t structure to complete with information
-                  on xTask. */
-                  &xTaskDetails,
-                  /* Include the stack high water mark value in the
-                  TaskStatus_t structure. */
-                  pdTRUE,
-                  /* Include the task state in the TaskStatus_t structure. */
-                  pdTRUE );
+        NULL,
+
+        /* The TaskStatus_t structure to complete with information
+         * on xTask. */
+        &xTaskDetails,
+
+        /* Include the stack high water mark value in the
+         * TaskStatus_t structure. */
+        pdTRUE,
+        /* Include the task state in the TaskStatus_t structure. */
+        pdTRUE );
 
     *( int32_t * ) param = 300 + xTaskDetails.usStackHighWaterMark;
 }
 
-TEST( UTIL_Platform_Threads, IotThreads_ThreadStackSize )
-{
-    static int32_t attrData = -1;
-    int32_t delta = 0;
-    /* Create thread with stack size 4096 */
-    Iot_CreateDetachedThread( threadStackSizeTestFunction, &attrData, 5, 4096 );
-  
-    /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 ) 
-    {
-        vTaskDelay( 1 );
-    }
-    
-    /* Calculate the stack size adjustment we need for the platform */
-    delta = 4096 - attrData;
-    
-      attrData = -1;
-
-    /* Create thread with stack size as default */
-    Iot_CreateDetachedThread( threadStackSizeTestFunction, &attrData, 5, IOT_THREAD_DEFAULT_STACK_SIZE );
-  
-    /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 ) 
-    {
-        vTaskDelay( 1 );
-    }
-    
-    printf ("Expected SS = %d, actual = %d\r\n", IOT_THREAD_DEFAULT_STACK_SIZE, attrData + delta );
-    attrData = -1;
-
-    /* Create thread with stack size 2048 */
-    Iot_CreateDetachedThread( threadStackSizeTestFunction, &attrData, 5, 2048 );
-  
-    /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 ) 
-    {
-        vTaskDelay( 1 );
-    }
-    
-    printf ("Expected SS = %d, actual = %d\r\n", 2048, attrData + delta );
-    TEST_ASSERT_EQUAL( 2048,  attrData + delta );
-    attrData = -1;
-
-    /* Create thread with stack size configMINIMAL_STACK_SIZE */
-    Iot_CreateDetachedThread( threadStackSizeTestFunction, &attrData, 5, configMINIMAL_STACK_SIZE );
-  
-    /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 ) 
-    {
-        vTaskDelay( 1 );
-    }
-    
-    printf ("Expected SS = %d, actual = %d\r\n", configMINIMAL_STACK_SIZE, attrData  + delta  );
-    TEST_ASSERT_EQUAL( configMINIMAL_STACK_SIZE,  attrData + delta );
-}
-
-/*-----------------------------------------------------------*/
-
 /**
  * @brief helper function for testing mutex
  */
-struct mutexTestInfo  {
-    IotMutex_t  mutex;
-    int            testValue;
+struct mutexTestInfo
+{
+    IotMutex_t mutex;
+    int testValue;
 };
 
-void mutexTestFunction(void * param)
+void mutexTestFunction( void * param )
 {
-    struct mutexTestInfo *  pTi = ( struct mutexTestInfo * ) param;
+    struct mutexTestInfo * pTi = ( struct mutexTestInfo * ) param;
 
-    if ( IotMutex_TryLock( &pTi->mutex ) )
+    if( IotMutex_TryLock( &pTi->mutex ) )
     {
         pTi->testValue = 2;
 
         /* Don't leave it locked */
         IotMutex_Unlock( &pTi->mutex );
-    } else {
+    }
+    else
+    {
         pTi->testValue = 1;
     }
 }
 
 TEST( UTIL_Platform_Threads, IotThreads_MutexTest )
 {
-    struct mutexTestInfo  ti;
-    IotMutex_Create( &ti.mutex , false );
+    struct mutexTestInfo ti;
+
+    IotMutex_Create( &ti.mutex, false );
 
     ti.testValue = 0;
     IotMutex_Lock( &ti.mutex );
@@ -285,21 +238,27 @@ TEST( UTIL_Platform_Threads, IotThreads_MutexTest )
     Iot_CreateDetachedThread( mutexTestFunction, &ti, 5, 3072 );
 
     /* Wait for signal to continue */
-    while ( ti.testValue == 0 );
-
-    if ( ti.testValue != 1 )
+    while( ti.testValue == 0 )
     {
-        TEST_FAIL_MESSAGE("Acquired locked mutex");
     }
+
+    if( ti.testValue != 1 )
+    {
+        TEST_FAIL_MESSAGE( "Acquired locked mutex" );
+    }
+
     IotMutex_Unlock( &ti.mutex );
 
     ti.testValue = 0;
     Iot_CreateDetachedThread( mutexTestFunction, &ti, 5, 3072 );
 
-    while ( ti.testValue == 0 );
-    if ( ti.testValue != 2 )
+    while( ti.testValue == 0 )
     {
-        TEST_FAIL_MESSAGE("Unable to Acquire unlocked mutex");
+    }
+
+    if( ti.testValue != 2 )
+    {
+        TEST_FAIL_MESSAGE( "Unable to Acquire unlocked mutex" );
     }
 
     /* Clean up */
@@ -312,19 +271,20 @@ TEST( UTIL_Platform_Threads, IotThreads_MutexTest )
  * @brief helper function for testing mutex
  */
 
-struct semTestInfo  {
-    IotSemaphore_t  testSemaphore;
-    int                testValue;
+struct semTestInfo
+{
+    IotSemaphore_t testSemaphore;
+    int testValue;
 };
 
-void semTestFunction(void * param)
+void semTestFunction( void * param )
 {
-    struct semTestInfo *  pTi = ( struct semTestInfo * ) param;
+    struct semTestInfo * pTi = ( struct semTestInfo * ) param;
 
     /* Wait for 1s here for sem to wait*/
     vTaskDelay( configTICK_RATE_HZ );
 
-    IotSemaphore_Post(&pTi->testSemaphore);
+    IotSemaphore_Post( &pTi->testSemaphore );
 
     /* Remember the count right after we post */
     pTi->testValue = IotSemaphore_GetCount( &pTi->testSemaphore );
@@ -332,17 +292,17 @@ void semTestFunction(void * param)
 
 TEST( UTIL_Platform_Threads, IotThreads_SemaphoreTest )
 {
-    struct semTestInfo  ti;
+    struct semTestInfo ti;
     int count = 0;
     bool result = 0;
 
     IotSemaphore_Create( &ti.testSemaphore,
                          3, /* initial value */
-                         3  /* max value */ );
+                         3 /* max value */ );
 
     /* Make sure we get 3 as we asked */
     count = IotSemaphore_GetCount( &ti.testSemaphore );
-    TEST_ASSERT_EQUAL( 3,  count );
+    TEST_ASSERT_EQUAL( 3, count );
 
     /* Take all the resources */
     IotSemaphore_Wait( &ti.testSemaphore );
@@ -351,7 +311,7 @@ TEST( UTIL_Platform_Threads, IotThreads_SemaphoreTest )
 
     /* We should have 0 left now */
     count = IotSemaphore_GetCount( &ti.testSemaphore );
-    TEST_ASSERT_EQUAL( 0,  count );
+    TEST_ASSERT_EQUAL( 0, count );
 
     /* Spawn a thread to get us out of deadlock */
     ti.testValue = 0;
@@ -367,7 +327,7 @@ TEST( UTIL_Platform_Threads, IotThreads_SemaphoreTest )
 
     /* Wait for the unavailable resource to be freed by the thread */
     IotSemaphore_Wait( &ti.testSemaphore );
-    
+
     /* At this point we should have gotten the last one, leaving 0 */
     count = IotSemaphore_GetCount( &ti.testSemaphore );
     TEST_ASSERT_EQUAL( 0, count );
