@@ -24,3 +24,6 @@ demos/common/include/aws_ota_codesigner_certificate.h
 demos/espressif/esp32_devkitc_esp_wrover_kit/make/.settings/language.settings.xml
 RemoteSystemsTempFiles/*
 demos/nordic/nrf52840-dk/ses/aws_demos_Debug.jlink
+
+# Ignore top-level build dir
+/build*/
