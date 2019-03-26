@@ -27,6 +27,9 @@
 /* Update this file with AWS Credentials. */
 #include "aws_clientcredential.h"
 
+/* The trusted root certificate of HTTP-Server */
+static const char tcptestECHO_HOST_ROOT_CA[] = "Paste root certificate here";
+
 /* Dimensions the buffer used to generate the task name. */
 #define echoMAX_TASK_NAME_LENGTH    8
 
