@@ -471,10 +471,12 @@ TEST_SETUP( Shadow_System )
     _networkInfo.createNetworkConnection = true;
     _networkInfo.pNetworkServerInfo = ( void * ) &_serverInfo;
     _networkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
+    _networkInfo.pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
 
     #if IOT_TEST_SECURED_CONNECTION == 1
         _networkInfo.pNetworkCredentialInfo = ( void * ) &_credentials;
     #endif
+
 
     /* Set the members of the connect info. Use the Shadow Thing Name as the MQTT
      * client identifier. */

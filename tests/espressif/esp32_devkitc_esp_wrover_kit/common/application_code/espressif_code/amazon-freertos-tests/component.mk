@@ -65,7 +65,7 @@ COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/port
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_cond.o \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_sched.o \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/ota/aws_test_ota_cbor.o \
-	$(AMAZON_FREERTOS_LIB_DIR)/lob/ota/aws_ota_agent.o
+	$(AMAZON_FREERTOS_LIB_DIR)/ota/aws_ota_agent.o 
 
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11 $(AMAZON_FREERTOS_LIB_DIR)/ota/portable/espressif/esp32_devkitc_esp_wrover_kit
 
@@ -85,6 +85,7 @@ COMPONENT_SRCDIRS += ../.. \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/crypto \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/pkcs11 \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/tls \
+        $(AMAZON_FREERTOS_TESTS_DIR)/common/utils/platform \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/ota \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/wifi \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/posix \

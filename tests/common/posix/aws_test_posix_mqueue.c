@@ -343,7 +343,7 @@ TEST( Full_POSIX_MQUEUE, mq_unlink_invalid_params )
     /* Try to unlink a message queue whose name is longer than NAME_MAX. */
     iStatus = mq_unlink( pcNameBuffer );
     TEST_ASSERT_EQUAL_INT( -1, iStatus );
-    TEST_ASSERT_EQUAL_INT( ENAMETOOLONG, errno );
+    TEST_ASSERT_EQUAL_INT( EINVAL, errno );
 
     /* Try to unlink a queue that doesn't exist. */
     iStatus = mq_unlink( posixtestMQ_DEFAULT_NAME );

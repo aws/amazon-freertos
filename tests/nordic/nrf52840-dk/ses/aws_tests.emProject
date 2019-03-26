@@ -204,6 +204,14 @@
         <folder Name="metrics">
           <file file_name="../../../../lib/metrics/iot_metrics.c" />
         </folder>
+        <folder Name="shadow">
+          <file file_name="../../../../lib/shadow/aws_iot_shadow_api.c" />
+          <file file_name="../../../../lib/shadow/aws_iot_shadow_operation.c" />
+          <file file_name="../../../../lib/shadow/aws_iot_shadow_parser.c" />
+          <file file_name="../../../../lib/shadow/aws_iot_shadow_subscription.c" />
+          <file file_name="../../../../lib/shadow/aws_shadow.c" />
+          <file file_name="../../../../lib/shadow/aws_shadow_json.c" />
+        </folder>
       </folder>
       <folder Name="third_party">
         <folder Name="mbedtls">
@@ -503,6 +511,15 @@
         <folder Name="test_runner">
           <file file_name="../../../common/test_runner/aws_test_runner.c" />
           <file file_name="../../../common/test_runner/iot_tests_network.c" />
+          <folder Name="nordic_code">
+            <file file_name="../common/application_code/nordic_code/SEGGER_RTT.c" />
+            <file file_name="../common/application_code/nordic_code/SEGGER_RTT.h" />
+            <file file_name="../common/application_code/nordic_code/SEGGER_RTT_Conf.h" />
+            <file file_name="../common/application_code/nordic_code/SEGGER_RTT_Syscalls_SES.c" />
+            <file file_name="../common/application_code/nordic_code/SEGGER_Flash.icf" />
+            <file file_name="../common/application_code/nordic_code/SEGGER_HardFaultHandler.c" />
+            <file file_name="../common/application_code/nordic_code/thumb_crt0.s" />
+          </folder>
         </folder>
         <folder Name="mqtt">
           <folder Name="system">
@@ -588,15 +605,6 @@
         </folder>
       </folder>
       <file file_name="../common/application_code/main.c" />
-      <folder Name="nordic_code">
-        <file file_name="../common/application_code/nordic_code/SEGGER_RTT.c" />
-        <file file_name="../common/application_code/nordic_code/SEGGER_RTT.h" />
-        <file file_name="../common/application_code/nordic_code/SEGGER_RTT_Conf.h" />
-        <file file_name="../common/application_code/nordic_code/SEGGER_RTT_Syscalls_SES.c" />
-        <file file_name="../common/application_code/nordic_code/SEGGER_Flash.icf" />
-        <file file_name="../common/application_code/nordic_code/SEGGER_HardFaultHandler.c" />
-        <file file_name="../common/application_code/nordic_code/thumb_crt0.s" />
-      </folder>
       <file file_name="../common/application_code/fake_PKCS11.c" />
     </folder>
     <folder Name="config_files">

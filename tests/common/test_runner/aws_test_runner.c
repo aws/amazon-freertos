@@ -35,7 +35,7 @@
 #include "aws_test_runner.h"
 
 /* MQTT v4 header must be included if its tests are enabled. */
-#if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
+#if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) || (testrunnerFULL_SHADOWv4_ENABLED == 1)
     #include "iot_mqtt.h"
 #endif
 
@@ -187,6 +187,14 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_POSIX_UTILS );
         RUN_TEST_GROUP( Full_POSIX_UNISTD );
         RUN_TEST_GROUP( Full_POSIX_STRESS );
+    #endif
+
+    #if ( testrunnerUTIL_PLATFORM_CLOCK_ENABLED == 1 )
+        RUN_TEST_GROUP( UTIL_Platform_Clock );
+    #endif
+
+    #if ( testrunnerUTIL_PLATFORM_THREADS_ENABLED == 1 )
+        RUN_TEST_GROUP( UTIL_Platform_Threads );
     #endif
 
     #if ( testrunnerFULL_BLE_ENABLED == 1 )

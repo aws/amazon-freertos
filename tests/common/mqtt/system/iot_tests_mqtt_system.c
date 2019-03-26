@@ -626,6 +626,11 @@ TEST_SETUP( MQTT_System )
                           _CLIENT_IDENTIFIER_MAX_LENGTH );
     #endif
 
+    /* Set the overrides for the default serializers. */
+    #ifdef IOT_TEST_MQTT_SERIALIZER
+        _pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
+    #endif
+
     /* Set the MQTT network setup parameters. */
     ( void ) memset( &_networkInfo, 0x00, sizeof( IotMqttNetworkInfo_t ) );
     _networkInfo.createNetworkConnection = true;
@@ -635,12 +640,6 @@ TEST_SETUP( MQTT_System )
 
     #if IOT_TEST_SECURED_CONNECTION == 1
         _networkInfo.pNetworkCredentialInfo = ( void * ) &_credentials;
-    #endif
-
-
-    /* Set the overrides for the default serializers. */
-    #ifdef IOT_TEST_MQTT_SERIALIZER
-        _pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
     #endif
 }
 

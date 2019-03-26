@@ -56,8 +56,8 @@
     #define POSIX_UNISTD_HEADER       "FreeRTOS_POSIX/unistd.h"
 #endif
 
-/* Use POSIX types on FreeRTOS. */
-#include "platform/iot_platform_types_posix.h"
+/* Use platform types on FreeRTOS. */
+#include "platform/iot_platform_types_afr.h"
 
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
@@ -184,6 +184,16 @@
 /* Stack size of the network receive task. */
 #ifndef IOT_NETWORK_RECEIVE_TASK_STACK_SIZE
     #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
+#endif
+
+/* Default iot thread stack_size. */
+#ifndef IOT_THREAD_DEFAULT_STACK_SIZE
+    #define IOT_THREAD_DEFAULT_STACK_SIZE    configMINIMAL_STACK_SIZE
+#endif
+
+/* Default iot thread priority. */
+#ifndef IOT_THREAD_DEFAULT_PRIORITY
+    #define IOT_THREAD_DEFAULT_PRIORITY      tskIDLE_PRIORITY
 #endif
 
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */

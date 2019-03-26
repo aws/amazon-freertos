@@ -39,7 +39,6 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
-#include "FreeRTOS_POSIX.h"
 
 /* MQTT v1 includes. */
 #include "aws_mqtt_agent.h"
@@ -599,6 +598,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     }
 
     /* Set the members of the MQTT connect info. */
+    xMqttConnectInfo.awsIotMqttMode = true;
     xMqttConnectInfo.cleanSession = true;
     xMqttConnectInfo.pClientIdentifier = ( const char * ) ( pxConnectParams->pucClientId );
     xMqttConnectInfo.clientIdentifierLength = pxConnectParams->usClientIdLength;
