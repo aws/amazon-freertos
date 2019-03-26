@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.3.0
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -140,23 +140,7 @@ static void prvSetupHardware( void );
 
 #define mainCHECK_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE )
 #define mainCHECK_DELAY                     ( ( portTickType ) 5000 / portTICK_RATE_MS )
-static void vCheckTask( void *pvParameters )
-{
-    portTickType xLastExecutionTime;
 
-    xLastExecutionTime = xTaskGetTickCount();
-
-    printf("Check Task is running ...\n");
-
-    for( ;; )
-    {
-        /* Perform this check every mainCHECK_DELAY milliseconds. */
-        vTaskDelayUntil( &xLastExecutionTime, mainCHECK_DELAY );
-				printf("Check delay ...%d\n",xTaskGetTickCount());
-			  Sleep( 1 );
-    }
-   
-}
 
 int main( void )
 {
@@ -164,14 +148,7 @@ int main( void )
      * running.  */
     prvMiscInitialization();
     FreeRTOS_printf( ( "FreeRTOS_IPInit\n") );	
-//    xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
-#if 0
-    FreeRTOS_IPInit( ucIPAddress,
-                     ucNetMask,
-                     ucGatewayAddress,
-                     ucDNSServerAddress,
-                     ucMACAddress );
-#endif
+
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
@@ -280,58 +257,7 @@ void vApplicationDaemonTaskStartupHook( void )
 
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
-#if 0
-    uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
-    char cBuffer[ 16 ];
-    static BaseType_t xTasksAlreadyCreated = pdFALSE;
-
-    /* If the network has just come up...*/
-    if( eNetworkEvent == eNetworkUp )
-    {
-        /* The network is up so we can run. */
-			  
-        if( ( SYSTEM_Init() == pdPASS ) && ( xTasksAlreadyCreated == pdFALSE ) )
-        {
-          /* A simple example to demonstrate key and certificate provisioning in
-            * microcontroller flash using PKCS#11 interface. This should be replaced
-            * by production ready key provisioning mechanism. */
-            vDevModeKeyProvisioning();
-          
-            /* If the network has just come up...*/
-            xTaskCreate( TEST_RUNNER_RunTests_task,
-                         "TestRunner",
-                         mainTEST_RUNNER_TASK_STACK_SIZE,
-                         NULL,
-                         tskIDLE_PRIORITY, NULL );
-                         
-            xTasksAlreadyCreated = pdTRUE;
-        }
-
-        /* Print out the network configuration, which may have come from a DHCP
-         * server. */
-        FreeRTOS_GetAddressConfiguration(
-            &ulIPAddress,
-            &ulNetMask,
-            &ulGatewayAddress,
-            &ulDNSServerAddress );
-        FreeRTOS_inet_ntoa( ulIPAddress, cBuffer );
-        FreeRTOS_printf( ( "\r\n\r\nIP Address: %s\r\n", cBuffer ) );
-
-        FreeRTOS_inet_ntoa( ulNetMask, cBuffer );
-        FreeRTOS_printf( ( "Subnet Mask: %s\r\n", cBuffer ) );
-
-        FreeRTOS_inet_ntoa( ulGatewayAddress, cBuffer );
-        FreeRTOS_printf( ( "Gateway Address: %s\r\n", cBuffer ) );
-
-        FreeRTOS_inet_ntoa( ulDNSServerAddress, cBuffer );
-        FreeRTOS_printf( ( "DNS Server Address: %s\r\n\r\n\r\n", cBuffer ) );
-        
-        FreeRTOS_printf( ( "Minimum Free Heap Size: %d\r\n\r\n\r\n", xPortGetMinimumEverFreeHeapSize() ) );
-        //EMAC->CAMCTL =  EMAC_CAMCTL_CMPEN_Msk | EMAC_CAMCTL_AMP_Msk;  // To disable ABP
-
-        
-    }
-#endif
+    ;
 }
 /*-----------------------------------------------------------*/
 

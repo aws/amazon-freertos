@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.3.0
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -134,23 +134,6 @@ static void prvSetupHardware( void );
 
 #define mainCHECK_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE )
 #define mainCHECK_DELAY                     ( ( portTickType ) 5000 / portTICK_RATE_MS )
-static void vCheckTask( void *pvParameters )
-{
-    portTickType xLastExecutionTime;
-
-    xLastExecutionTime = xTaskGetTickCount();
-
-    printf("Check Task is running ...\n");
-
-    for( ;; )
-    {
-        /* Perform this check every mainCHECK_DELAY milliseconds. */
-        vTaskDelayUntil( &xLastExecutionTime, mainCHECK_DELAY );
-				printf("Check delay ...%d\n",xTaskGetTickCount());
-			  Sleep( 1 );
-    }
-   
-}
 
 int main( void )
 {
@@ -158,14 +141,13 @@ int main( void )
      * running.  */
     prvMiscInitialization();
     FreeRTOS_printf( ( "FreeRTOS_IPInit\n") );	
-//    xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
-#if 1
+
     FreeRTOS_IPInit( ucIPAddress,
                      ucNetMask,
                      ucGatewayAddress,
                      ucDNSServerAddress,
                      ucMACAddress );
-#endif
+
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */

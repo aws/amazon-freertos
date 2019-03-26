@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.2.4
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -174,13 +174,13 @@ int main( void )
     prvMiscInitialization();
     FreeRTOS_printf( ( "FreeRTOS_IPInit\n" ) );	
     xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
-#if 1
+
     FreeRTOS_IPInit( ucIPAddress,
                      ucNetMask,
                      ucGatewayAddress,
                      ucDNSServerAddress,
                      ucMACAddress );
-#endif
+
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
