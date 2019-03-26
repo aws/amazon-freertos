@@ -53,8 +53,7 @@
 /* FreeRTOS+POSIX include. */
 #include "FreeRTOS_POSIX.h"
 
-/* Use POSIX platform types on FreeRTOS. */
-//#include "platform/iot_platform_types_posix.h"
+/* Use platform types on FreeRTOS. */
 #include "platform/iot_platform_types_afr.h"
 
 /* SDK version. */
@@ -163,7 +162,7 @@
 
 /* Default iot thread priority. */
 #ifndef IOT_THREAD_DEFAULT_PRIORITY
-    #define IOT_THREAD_DEFAULT_PRIORITY      5
+    #define IOT_THREAD_DEFAULT_PRIORITY      tskIDLE_PRIORITY
 #endif
 
 /* MQTT library configuration. */
