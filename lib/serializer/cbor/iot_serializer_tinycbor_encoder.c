@@ -42,24 +42,24 @@ static size_t _getEncodedSize( IotSerializerEncoderObject_t * pEncoderObject,
                                uint8_t * pDataBuffer );
 static size_t _getExtraBufferSizeNeeded( IotSerializerEncoderObject_t * pEncoderObject );
 static IotSerializerError_t _init( IotSerializerEncoderObject_t * pEncoderObject,
-                                      uint8_t * pDataBuffer,
-                                      size_t maxSize );
+                                   uint8_t * pDataBuffer,
+                                   size_t maxSize );
 static void _destroy( IotSerializerEncoderObject_t * pEncoderObject );
 static IotSerializerError_t _openContainer( IotSerializerEncoderObject_t * pEncoderObject,
-                                               IotSerializerEncoderObject_t * pNewEncoderObject,
-                                               size_t length );
+                                            IotSerializerEncoderObject_t * pNewEncoderObject,
+                                            size_t length );
 
 static IotSerializerError_t _openContainerWithKey( IotSerializerEncoderObject_t * pEncoderObject,
-                                                      const char * pKey,
-                                                      IotSerializerEncoderObject_t * pNewEncoderObject,
-                                                      size_t length );
+                                                   const char * pKey,
+                                                   IotSerializerEncoderObject_t * pNewEncoderObject,
+                                                   size_t length );
 static IotSerializerError_t _closeContainer( IotSerializerEncoderObject_t * pEncoderObject,
-                                                IotSerializerEncoderObject_t * pNewEncoderObject );
+                                             IotSerializerEncoderObject_t * pNewEncoderObject );
 static IotSerializerError_t _append( IotSerializerEncoderObject_t * pEncoderObject,
-                                        IotSerializerScalarData_t scalarData );
+                                     IotSerializerScalarData_t scalarData );
 static IotSerializerError_t _appendKeyValue( IotSerializerEncoderObject_t * pEncoderObject,
-                                                const char * pKey,
-                                                IotSerializerScalarData_t scalarData );
+                                             const char * pKey,
+                                             IotSerializerScalarData_t scalarData );
 
 
 IotSerializerEncodeInterface_t _IotSerializerCborEncoder =
@@ -126,8 +126,8 @@ static size_t _getExtraBufferSizeNeeded( IotSerializerEncoderObject_t * pEncoder
 /*-----------------------------------------------------------*/
 
 static IotSerializerError_t _init( IotSerializerEncoderObject_t * pEncoderObject,
-                                      uint8_t * pDataBuffer,
-                                      size_t maxSize )
+                                   uint8_t * pDataBuffer,
+                                   size_t maxSize )
 {
     IotSerializerError_t returnedError = IOT_SERIALIZER_SUCCESS;
 
@@ -173,8 +173,8 @@ static void _destroy( IotSerializerEncoderObject_t * pEncoderObject )
 /*-----------------------------------------------------------*/
 
 static IotSerializerError_t _openContainer( IotSerializerEncoderObject_t * pEncoderObject,
-                                               IotSerializerEncoderObject_t * pNewEncoderObject,
-                                               size_t length )
+                                            IotSerializerEncoderObject_t * pNewEncoderObject,
+                                            size_t length )
 {
     /* New object must be a container of map or array. */
     if( ( pNewEncoderObject->type != IOT_SERIALIZER_CONTAINER_ARRAY ) &&
@@ -222,9 +222,9 @@ static IotSerializerError_t _openContainer( IotSerializerEncoderObject_t * pEnco
 /*-----------------------------------------------------------*/
 
 static IotSerializerError_t _openContainerWithKey( IotSerializerEncoderObject_t * pEncoderObject,
-                                                      const char * pKey,
-                                                      IotSerializerEncoderObject_t * pNewEncoderObject,
-                                                      size_t length )
+                                                   const char * pKey,
+                                                   IotSerializerEncoderObject_t * pNewEncoderObject,
+                                                   size_t length )
 {
     IotSerializerScalarData_t keyScalarData = IotSerializer_ScalarTextString( pKey );
 
@@ -242,7 +242,7 @@ static IotSerializerError_t _openContainerWithKey( IotSerializerEncoderObject_t 
 /*-----------------------------------------------------------*/
 
 static IotSerializerError_t _closeContainer( IotSerializerEncoderObject_t * pEncoderObject,
-                                                IotSerializerEncoderObject_t * pNewEncoderObject )
+                                             IotSerializerEncoderObject_t * pNewEncoderObject )
 {
     IotSerializerError_t returnedError = IOT_SERIALIZER_SUCCESS;
     CborError cborError = CborNoError;
@@ -263,7 +263,7 @@ static IotSerializerError_t _closeContainer( IotSerializerEncoderObject_t * pEnc
 /*-----------------------------------------------------------*/
 
 static IotSerializerError_t _append( IotSerializerEncoderObject_t * pEncoderObject,
-                                        IotSerializerScalarData_t scalarData )
+                                     IotSerializerScalarData_t scalarData )
 {
     IotSerializerError_t returnedError = IOT_SERIALIZER_SUCCESS;
     CborError cborError = CborNoError;
@@ -304,8 +304,8 @@ static IotSerializerError_t _append( IotSerializerEncoderObject_t * pEncoderObje
 /*-----------------------------------------------------------*/
 
 static IotSerializerError_t _appendKeyValue( IotSerializerEncoderObject_t * pEncoderObject,
-                                                const char * pKey,
-                                                IotSerializerScalarData_t scalarData )
+                                             const char * pKey,
+                                             IotSerializerScalarData_t scalarData )
 {
     IotSerializerScalarData_t keyScalarData = IotSerializer_ScalarTextString( pKey );
     IotSerializerError_t returnedError = _append( pEncoderObject, keyScalarData );

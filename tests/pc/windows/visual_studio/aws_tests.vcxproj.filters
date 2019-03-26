@@ -211,6 +211,9 @@
     <Filter Include="lib\aws\common\static_memory">
       <UniqueIdentifier>{9a8a9306-ed4b-4992-b6f0-3e514a26d621}</UniqueIdentifier>
     </Filter>
+    <Filter Include="application_code\common_tests\serializer">
+      <UniqueIdentifier>{067a1587-18d8-413e-a931-59262c0e8c5f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -561,9 +564,6 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_tls.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_ota_agent.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\aws_wifi.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
@@ -777,9 +777,6 @@
     <ClInclude Include="..\..\..\..\lib\include\iot_metrics.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_serializer.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
@@ -834,6 +831,7 @@
     <ClInclude Include="..\..\..\common\include\iot_config_common.h">
       <Filter>application_code\common_tests\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_ota_agent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
@@ -1435,6 +1433,13 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\test_runner\iot_tests_network.c">
       <Filter>application_code\common_tests\test_runner</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
+    <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_cbor.c">
+      <Filter>application_code\common_tests\serializer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_json.c">
+      <Filter>application_code\common_tests\serializer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

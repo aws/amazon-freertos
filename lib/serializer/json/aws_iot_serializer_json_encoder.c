@@ -256,7 +256,7 @@ static void _appendJsonKeyValuePair( _jsonContainer_t * pContainer,
                                      IotSerializerDataType_t valueType,
                                      IotSerializerScalarData_t * pScalarValue );
 
-IotSerializerEncodeInterface_t _AwsIotSerializerJsonEncoder =
+IotSerializerEncodeInterface_t _IotSerializerJsonEncoder =
 {
     .getEncodedSize           = _getEncodedSize,
     .getExtraBufferSizeNeeded = _getExtraBufferSizeNeeded,
