@@ -193,7 +193,7 @@
 
 /* Default iot thread priority. */
 #ifndef IOT_THREAD_DEFAULT_PRIORITY
-    #define IOT_THREAD_DEFAULT_PRIORITY      5
+    #define IOT_THREAD_DEFAULT_PRIORITY      tskIDLE_PRIORITY
 #endif
 
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */
