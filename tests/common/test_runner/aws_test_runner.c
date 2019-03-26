@@ -105,8 +105,8 @@ static void RunTests( void )
         IotCommon_Cleanup();
         IotMqtt_Cleanup();
 
-        //RUN_TEST_GROUP( Shadow_Unit_Parser );
-        //RUN_TEST_GROUP( Shadow_Unit_API );
+        RUN_TEST_GROUP( Shadow_Unit_Parser );
+        RUN_TEST_GROUP( Shadow_Unit_API );
         RUN_TEST_GROUP( Shadow_System );
 
         /* Initialize the MQTT library for any tests that come after. */
