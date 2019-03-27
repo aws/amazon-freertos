@@ -19,6 +19,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ * The implementation is Amazon Freertos specific. It depends on aws_secure_sockets library.
+ */
+
 /* Build using a config header, if provided. */
 #ifdef IOT_CONFIG_FILE
     #include IOT_CONFIG_FILE
@@ -30,6 +34,7 @@
 /* Platform threads include. */
 #include "platform/iot_threads.h"
 
+/* Secure sockets include. */
 #include "aws_secure_sockets.h"
 
 /* xxx.xxx.xxx.xxx\0 */

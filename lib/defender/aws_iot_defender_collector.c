@@ -84,6 +84,7 @@ static uint32_t _metricsFlagSnapshot[ _DEFENDER_METRICS_GROUP_COUNT ];
 /* Report id integer. */
 uint64_t _AwsIotDefenderReportId = 0;
 
+/* Static storage holding the string of remote address: "ip:port". */
 static char _remoteAddr[ _REMOTE_ADDR_LENGTH ] = "";
 
 /*---------------------- Helper Functions -------------------------*/

@@ -162,7 +162,7 @@
 
 /* Default iot thread priority. */
 #ifndef IOT_THREAD_DEFAULT_PRIORITY
-    #define IOT_THREAD_DEFAULT_PRIORITY      tskIDLE_PRIORITY
+    #define IOT_THREAD_DEFAULT_PRIORITY    tskIDLE_PRIORITY
 #endif
 
 /* MQTT library configuration. */
@@ -188,5 +188,8 @@
 
 /* Configuration for enabling metrics library on secure sockets. */
 #define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+
+/* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
+#define IotMetricsConnectionId_t    void *
 
 #endif /* ifndef _IOT_CONFIG_COMMON_H_ */

@@ -25,8 +25,8 @@
  */
 
 /* Standard includes. */
-#include "stdio.h"
-#include "string.h"
+#include <stdio.h>
+#include <string.h>
 
 /* Demo configuration includes. */
 #include "aws_demo.h"
@@ -40,20 +40,22 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* Defender includes. */
-#include "aws_iot_defender.h"
-
 /* Secure Socket includes. */
 #include "aws_secure_sockets.h"
 
-/* POSIX sleep include. */
-#include "FreeRTOS_POSIX/unistd.h"
+/* Platform includes for demo. */
+#include "platform/iot_clock.h"
+#include "platform/iot_network_afr.h"
 
 /* Cbor includes. */
 #include "cbor.h"
 
-#include "platform/iot_network_afr.h"
+/* Defender includes. */
+#include "aws_iot_defender.h"
 
+/* Set to 1 to enable this demo to connect to echo server.
+ * Then in the demo output, it is expected to see one more established TCP connection.
+ */
 #define _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER    0
 
 /* Rx and Tx time outs are used to ensure the sockets do not wait too long for
@@ -127,6 +129,10 @@ static void _defenderTask( void * param )
 {
     ( void ) param;
 
+    /* Expected remote IP of AWS IoT endpoint in defender metrics report. */
+    uint32_t expectedIp = 0;
+    char expectedIpBuffer[ 16 ] = "";
+
     IotLogInfo( "----Device Defender Demo Start----.\r\n" );
 
     #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
@@ -144,13 +150,15 @@ static void _defenderTask( void * param )
     /* Start the defender agent. */
     _startDefender();
 
-    uint32_t ip = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
-    char buffer[ 16 ];
-    SOCKETS_inet_ntoa( ip, buffer );
-    IotLogInfo( "expected ip: %s", buffer );
+    /* Query DNS for the IP. */
+    expectedIp = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
+
+    /* Convert to string. */
+    SOCKETS_inet_ntoa( expectedIp, expectedIpBuffer );
+    IotLogInfo( "expected ip: %s", expectedIpBuffer );
 
     /* Let it run for 3 seconds */
-    sleep( 3 );
+    IotClock_SleepMs( 3000 );
 
     /* Stop the defender agent. */
     AwsIotDefender_Stop();
@@ -172,23 +180,27 @@ static void _startDefender()
 
     AwsIotDefenderStartInfo_t startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
-    /* Set fields of start info. */
+    /* Set network information. */
     startInfo.mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
     startInfo.mqttNetworkInfo.createNetworkConnection = true;
     startInfo.mqttNetworkInfo.pNetworkServerInfo = &_DEFENDER_SERVER_INFO;
     startInfo.mqttNetworkInfo.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
 
+    /* Only set ALPN protocol if the connected port is 443. */
     if( ( ( IotNetworkServerInfoAfr_t * ) ( startInfo.mqttNetworkInfo.pNetworkServerInfo ) )->port != 443 )
     {
         ( ( IotNetworkCredentialsAfr_t * ) ( startInfo.mqttNetworkInfo.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
     }
 
+    /* Set network interface. */
     startInfo.mqttNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
 
+    /* Set MQTT connection information. */
     startInfo.mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
     startInfo.mqttConnectionInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
     startInfo.mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
 
+    /* Set Defender callback. */
     startInfo.callback = callback;
 
     /* Invoke defender start API. */

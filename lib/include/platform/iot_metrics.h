@@ -97,9 +97,9 @@
 
 #endif /* if IOT_STATIC_MEMORY_ONLY */
 
-/* This is supposed to be same as the data type of socket. */
+/* This data type varies on different platform. */
 #ifndef IotMetricsConnectionId_t
-    #define IotMetricsConnectionId_t    void *
+    #error "'IotMetricsConnectionId_t' must be defended as the socket handle data type."
 #endif
 
 /**
