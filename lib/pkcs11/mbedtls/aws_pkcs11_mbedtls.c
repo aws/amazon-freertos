@@ -1721,7 +1721,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
         if( ( xType == MBEDTLS_PK_ECKEY ) ||
             ( xType == MBEDTLS_PK_ECDSA ) )
         {
-            xMbedTLSSignatureToPkcs11Signature( pucSignature, &ecSignature );
+            xMbedTLSSignatureToPkcs11Signature( pucSignature, ecSignature );
             *pulSignatureLen = 64;
         }
     }
@@ -1809,6 +1809,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj;
+    int lMbedTLSResult;
 
     /*
      * Check parameters.
@@ -1822,12 +1823,54 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     {
         pxSessionObj = prvSessionPointerFromHandle( xSession ); /*lint !e9072 It's OK to have different parameter name. */
 
+        if( 1 )                                                 /* TODO: Add check if EC */
+        {
+            /* An ECDSA signature is comprised of 2 components - R & S.  C_Sign returns them one after another. */
+            mbedtls_ecdsa_context * pxEcdsaContext;
+            mbedtls_mpi xR;
+            mbedtls_mpi xS;
+            mbedtls_mpi_init( &xR );
+            mbedtls_mpi_init( &xS );
+            lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &pucSignature[ 0 ], 32 );
+            lMbedTLSResult |= mbedtls_mpi_read_binary( &xS, &pucSignature[ 32 ], 32 );
+
+            if( lMbedTLSResult != 0 )
+            {
+                xResult = CKR_SIGNATURE_INVALID;
+                PKCS11_PRINT( ( "Failed to parse EC signature: %d \r\n", lMbedTLSResult ) );
+            }
+
+            if( xResult == CKR_OK )
+            {
+                if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
+                {
+                    /* Verify the signature. If a public key is present, use it. */
+                    if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
+                    {
+                        pxEcdsaContext = pxSessionObj->xVerifyKey.pk_ctx;
+                        lMbedTLSResult = mbedtls_ecdsa_verify( &pxEcdsaContext->grp, pucData, ulDataLen, &pxEcdsaContext->Q, &xR, &xS );
+                    }
+
+                    xSemaphoreGive( pxSessionObj->xVerifyMutex );
+
+                    if( lMbedTLSResult != 0 )
+                    {
+                        xResult = CKR_SIGNATURE_INVALID;
+                        PKCS11_PRINT( ( "Failed to parse EC signature: %d \r\n", lMbedTLSResult ) );
+                    }
+                }
+            }
+
+            mbedtls_mpi_free( &xR );
+            mbedtls_mpi_free( &xS );
+        }
+
         if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
         {
             /* Verify the signature. If a public key is present, use it. */
             if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
             {
-                if( 0 != mbedtls_pk_verify( &pxSessionObj->xVerifyKey,
+                /*if( 0 != mbedtls_pk_verify( &pxSessionObj->xVerifyKey,
                                             MBEDTLS_MD_SHA256,
                                             pucData,
                                             ulDataLen,
@@ -1835,7 +1878,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                                             ulSignatureLen ) )
                 {
                     xResult = CKR_SIGNATURE_INVALID;
-                }
+                }*/
             }
 
             xSemaphoreGive( pxSessionObj->xVerifyMutex );
