@@ -29,8 +29,8 @@
     #include IOT_CONFIG_FILE
 #endif
 
-
 /* Platform threads include. */
+#include "platform/iot_platform_types_afr.h"
 #include "platform/iot_threads.h"
 #include "types/iot_platform_types.h"
 
@@ -147,7 +147,15 @@ bool IotMutex_Create( IotMutex_t * pNewMutex,
         ( void ) xSemaphoreCreateMutexStatic( &internalMutex->xMutex );
     }
 
-    internalMutex->recursive = recursive; /* remember the type of mutex */
+    /* remember the type of mutex */
+    if( recursive )
+    {
+        internalMutex->recursive = pdTRUE;
+    }
+    else
+    {
+        internalMutex->recursive = pdFALSE;
+    }
 
     return true;
 }
@@ -176,7 +184,7 @@ bool prIotMutexTimedLock( IotMutex_t * pMutex,
     IotLogDebug( "Locking mutex %p.", internalMutex );
 
     /* Call the correct FreeRTOS mutex take function based on mutex type. */
-    if( internalMutex->recursive == true )
+    if( internalMutex->recursive == pdTRUE )
     {
         lockResult = xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) &internalMutex->xMutex, timeout );
     }
@@ -213,7 +221,7 @@ void IotMutex_Unlock( IotMutex_t * pMutex )
     IotLogDebug( "Unlocking mutex %p.", internalMutex );
 
     /* Call the correct FreeRTOS mutex unlock function based on mutex type. */
-    if( internalMutex->recursive == true )
+    if( internalMutex->recursive == pdTRUE )
     {
         ( void ) xSemaphoreGiveRecursive( ( SemaphoreHandle_t ) &internalMutex->xMutex );
     }
