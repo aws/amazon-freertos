@@ -36,7 +36,9 @@
 
 /* Network interface includes. */
 #include "platform/iot_network_afr.h"
-
+#include "iot_mqtt.h"
+/* Common include. */
+#include "iot_common.h"
 /* Test framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"
@@ -52,13 +54,19 @@ extern void IotTestNetwork_SelectNetworkType( uint16_t networkType );
     extern void TEST_MQTT_System_ ## name ## _( void ); \
     TEST_MQTT_System_ ## name ## _();
 
+/**
+ * @brief Declares and runs shadow system test.
+ */
+#define RUN_SHADOW_SYSTEM_TEST( name )                    \
+    extern void TEST_Shadow_System_ ## name ## _( void ); \
+    TEST_Shadow_System_ ## name ## _();
 /*-----------------------------------------------------------*/
 
-TEST_GROUP( Full_BLE_END_TO_END );
+TEST_GROUP( Full_BLE_END_TO_END_MQTT );
 
 /*-----------------------------------------------------------*/
 
-TEST_SETUP( Full_BLE_END_TO_END )
+TEST_SETUP( Full_BLE_END_TO_END_MQTT )
 {
     /* Run test set up from MQTT system tests. */
     extern void TEST_MQTT_System_SETUP( void );
@@ -67,7 +75,7 @@ TEST_SETUP( Full_BLE_END_TO_END )
 
 /*-----------------------------------------------------------*/
 
-TEST_TEAR_DOWN( Full_BLE_END_TO_END )
+TEST_TEAR_DOWN( Full_BLE_END_TO_END_MQTT )
 {
     /* Run test tear down from MQTT system tests. */
     extern void TEST_MQTT_System_TEAR_DOWN( void );
@@ -76,22 +84,144 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END )
 
 /*-----------------------------------------------------------*/
 
-TEST_GROUP_RUNNER( Full_BLE_END_TO_END )
+TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
 {
     /* For these tests, use the BLE network interface. */
     IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
 
-    RUN_TEST_CASE( Full_BLE_END_TO_END, SubscribePublishWaitQoS1 );
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
+
+
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS1 );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishAsync );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, LastWillAndTestament );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, RestorePreviousSession );
+
+    /* Disabled for now, This test will pass but test after will crashes the APP */
+    /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect );*/
+
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribeCompleteReentrancy );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, IncomingPublishReentrancy );
 
     /* Revert to sockets network interface after this test is finished. */
     IotTestNetwork_SelectNetworkType(DEFAULT_NETWORK);
 }
 
+
 /*-----------------------------------------------------------*/
 
-TEST( Full_BLE_END_TO_END, SubscribePublishWaitQoS1 )
+
+TEST( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 )
+{
+    RUN_MQTT_SYSTEM_TEST( SubscribePublishWaitQoS0 );
+}
+
+TEST( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS1 )
 {
     RUN_MQTT_SYSTEM_TEST( SubscribePublishWaitQoS1 );
 }
+
+TEST( Full_BLE_END_TO_END_MQTT, SubscribePublishAsync )
+{
+    RUN_MQTT_SYSTEM_TEST( SubscribePublishAsync );
+}
+
+TEST( Full_BLE_END_TO_END_MQTT, LastWillAndTestament )
+{
+    RUN_MQTT_SYSTEM_TEST( LastWillAndTestament );
+}
+
+TEST( Full_BLE_END_TO_END_MQTT, RestorePreviousSession )
+{
+    RUN_MQTT_SYSTEM_TEST( RestorePreviousSession );
+}
+
+TEST( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect )
+{
+    RUN_MQTT_SYSTEM_TEST( WaitAfterDisconnect );
+}
+
+TEST( Full_BLE_END_TO_END_MQTT, SubscribeCompleteReentrancy )
+{
+    RUN_MQTT_SYSTEM_TEST( SubscribeCompleteReentrancy );
+}
+
+TEST( Full_BLE_END_TO_END_MQTT, IncomingPublishReentrancy )
+{
+    RUN_MQTT_SYSTEM_TEST( IncomingPublishReentrancy );
+}
+
+
+
+TEST_GROUP( Full_BLE_END_TO_END_SHADOW );
+
+/*-----------------------------------------------------------*/
+
+TEST_SETUP( Full_BLE_END_TO_END_SHADOW )
+{
+    /* Run test set up from MQTT system tests. */
+    extern void TEST_Shadow_System_SETUP( void );
+    TEST_Shadow_System_SETUP();
+}
+
+/*-----------------------------------------------------------*/
+TEST_TEAR_DOWN( Full_BLE_END_TO_END_SHADOW )
+{
+    /* Run test tear down from MQTT system tests. */
+    extern void TEST_Shadow_System_TEAR_DOWN( void );
+    TEST_Shadow_System_TEAR_DOWN();
+}
+
+TEST_GROUP_RUNNER( Full_BLE_END_TO_END_SHADOW )
+{
+    /* For these tests, use the BLE network interface. */
+    IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
+
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
+
+    RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS0 );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS1 );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteBlockingQoS0 );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteBlockingQoS1 );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, DeltaCallback );
+    RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdatedCallback );
+
+    /* Revert to sockets network interface after this test is finished. */
+    IotTestNetwork_SelectNetworkType(DEFAULT_NETWORK);
+}
+
+TEST( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS0 )
+{
+	RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteAsyncQoS0 );
+}
+
+TEST( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS1 )
+{
+	RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteAsyncQoS1 );
+}
+
+TEST( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteBlockingQoS0 )
+{
+	RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteBlockingQoS0 );
+}
+
+TEST( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteBlockingQoS1 )
+{
+	RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteBlockingQoS1 );
+}
+
+TEST( Full_BLE_END_TO_END_SHADOW, DeltaCallback )
+{
+	RUN_SHADOW_SYSTEM_TEST( DeltaCallback );
+}
+
+TEST( Full_BLE_END_TO_END_SHADOW, UpdatedCallback )
+{
+	RUN_SHADOW_SYSTEM_TEST( UpdatedCallback );
+}
+
 
 /*-----------------------------------------------------------*/

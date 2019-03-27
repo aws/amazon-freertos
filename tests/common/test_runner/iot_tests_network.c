@@ -33,7 +33,7 @@
 #include "private/iot_error.h"
 
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
-
+static bool bleEnabled = false;
 /*-----------------------------------------------------------*/
 
 
@@ -197,7 +197,11 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
     {
         #if ( BLE_SUPPORTED == 1 )
             case AWSIOT_NETWORK_TYPE_BLE:
-                _BLEEnable();
+            	if( bleEnabled == false)
+            	{
+            		bleEnabled = true;
+            		_BLEEnable();
+            	}
                 break;
         #endif
         #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
