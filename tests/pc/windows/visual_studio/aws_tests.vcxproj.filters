@@ -834,7 +834,6 @@
     <ClInclude Include="..\..\..\common\include\iot_config_common.h">
       <Filter>application_code\common_tests\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_iot_ota_agent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
@@ -1425,20 +1424,15 @@
     <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_encoder.c">
       <Filter>lib\aws\serializer\cbor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
-      <Filter>lib\aws\ota</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\test_runner\iot_tests_network.c">
       <Filter>application_code\common_tests\test_runner</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_cbor.c">
       <Filter>application_code\common_tests\serializer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\serializer\aws_test_serializer_json.c">
       <Filter>application_code\common_tests\serializer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c">
       <Filter>lib\aws\defender</Filter>
     </ClCompile>
@@ -1453,6 +1447,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_afr.c">
       <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
+      <Filter>lib\aws\ota</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -648,13 +648,7 @@
     <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_taskpool.c">
       <Filter>lib\aws\common\static_memory</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_posix.c">
-      <Filter>lib\aws\utils\platform</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_network_afr.c">
-      <Filter>lib\aws\utils\platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_posix.c">
       <Filter>lib\aws\utils\platform</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c">
@@ -672,9 +666,17 @@
     <ClCompile Include="..\..\..\common\mqtt\iot_demo_mqtt.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
       <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
+      <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_afr.c">
+      <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_afr.c">
+      <Filter>lib\aws\utils\platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

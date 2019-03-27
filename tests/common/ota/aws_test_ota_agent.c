@@ -144,7 +144,7 @@ TEST_SETUP( Full_OTA_AGENT )
     networkInfo.createNetworkConnection = true;
     networkInfo.pNetworkServerInfo = &serverInfo;
     networkInfo.pNetworkCredentialInfo = &credentials;
-    networkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+    networkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
 
     connectInfo.awsIotMqttMode = true;
     connectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;

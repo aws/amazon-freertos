@@ -239,9 +239,9 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcSnapshotRecorder.c" />
     <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c" />
     <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_posix.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_afr.c" />
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_network_afr.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_posix.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_afr.c" />
     <ClCompile Include="..\..\..\common\demo_runner\aws_demo_runner.c" />
     <ClCompile Include="..\..\..\common\demo_runner\iot_demo_afr.c" />
     <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
