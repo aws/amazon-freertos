@@ -200,34 +200,42 @@ typedef struct
 
 /* Custom WIFI Test asserts. */
 #define TEST_WIFI_ASSERT_REQUIRED_API( condition, result )             \
-    if( result == eWiFiNotSupported ) {                                \
+    if( result == eWiFiNotSupported )                                  \
+    {                                                                  \
         TEST_FAIL_MESSAGE( "Required Wi-Fi API is not implemented." ); \
     }                                                                  \
-    else {                                                             \
+    else                                                               \
+    {                                                                  \
         TEST_ASSERT( condition );                                      \
     }
 
 #define TEST_WIFI_ASSERT_REQUIRED_API_MSG( condition, result, message ) \
-    if( result == eWiFiNotSupported ) {                                 \
+    if( result == eWiFiNotSupported )                                   \
+    {                                                                   \
         TEST_FAIL_MESSAGE( "Required Wi-Fi API is not implemented." );  \
     }                                                                   \
-    else {                                                              \
+    else                                                                \
+    {                                                                   \
         TEST_ASSERT_MESSAGE( condition, message );                      \
     }
 
 #define TEST_WIFI_ASSERT_OPTIONAL_API( condition, result ) \
-    if( result == eWiFiNotSupported ) {                    \
+    if( result == eWiFiNotSupported )                      \
+    {                                                      \
         TEST_ASSERT( 1 );                                  \
     }                                                      \
-    else {                                                 \
+    else                                                   \
+    {                                                      \
         TEST_ASSERT( condition );                          \
     }
 
 #define TEST_WIFI_ASSERT_OPTIONAL_API_MSG( condition, result, message ) \
-    if( result == eWiFiNotSupported ) {                                 \
+    if( result == eWiFiNotSupported )                                   \
+    {                                                                   \
         TEST_ASSERT( 1 );                                               \
     }                                                                   \
-    else {                                                              \
+    else                                                                \
+    {                                                                   \
         TEST_ASSERT_MESSAGE( condition, message );                      \
     }
 
@@ -513,8 +521,7 @@ static BaseType_t prvRoundTripTest( void )
              * this delay will not be necessary as FreeRTOS_recv() will place the RTOS
              * task into the Blocked state anyway. */
             vTaskDelay( 250 );
-        }
-        while( ( xTaskGetTickCount() - xTimeOnEnteringShutdown ) < xRxTimeOut );
+        } while( ( xTaskGetTickCount() - xTimeOnEnteringShutdown ) < xRxTimeOut );
 
         if( xSocketResult != SOCKETS_ERROR_NONE )
         {
@@ -579,7 +586,7 @@ TEST_SETUP( Full_WiFi )
     int8_t cScanSize = 10;
     WIFIReturnCode_t xWiFiStatus;
     WIFIScanResult_t xScanResults[ 10 ] = { 0 };
-  
+
     if( TEST_PROTECT() )
     {
         /* Disconnect first before running any Wi-Fi test. */
@@ -603,7 +610,9 @@ TEST_SETUP( Full_WiFi )
             ( "End of WiFi Networks\r\n" ) );
 
         vTaskDelay( testwifiCONNECTION_DELAY );
-    } else {
+    }
+    else
+    {
         TEST_FAIL();
     }
 }
@@ -733,7 +742,7 @@ TEST( Full_WiFi, AFQP_WiFiOnOff )
     {
         xWiFiStatus = WIFI_Off();
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess == xWiFiStatus, xWiFiStatus );
-                      
+
         if( eWiFiSuccess == xWiFiStatus )
         {
             xWiFiStatus = WIFI_On();
