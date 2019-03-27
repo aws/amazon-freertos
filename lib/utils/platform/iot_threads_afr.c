@@ -29,6 +29,8 @@
     #include IOT_CONFIG_FILE
 #endif
 
+#include "semphr.h"
+
 /* Platform threads include. */
 #include "platform/iot_platform_types_afr.h"
 #include "platform/iot_threads.h"

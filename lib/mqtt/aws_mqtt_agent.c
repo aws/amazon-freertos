@@ -39,6 +39,7 @@
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
+#include "semphr.h"
 
 /* MQTT v1 includes. */
 #include "aws_mqtt_agent.h"

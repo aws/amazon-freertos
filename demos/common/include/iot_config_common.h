@@ -50,8 +50,8 @@
     #define POSIX_UNISTD_HEADER       "FreeRTOS_POSIX/unistd.h"
 #endif
 
-/* FreeRTOS+POSIX include. */
-#include "FreeRTOS_POSIX.h"
+/* FreeRTOS include. */
+#include "FreeRTOS.h"
 
 /* Use platform types on FreeRTOS. */
 #include "platform/iot_platform_types_afr.h"
