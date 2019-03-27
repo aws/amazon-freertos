@@ -87,10 +87,19 @@
         #define IotMetrics_FreeTcpConnection    free
     #endif
 
+    #ifndef IotMetrics_MallocIpAddress
+        #define IotMetrics_MallocIpAddress    malloc
+    #endif
+
+    #ifndef IotMetrics_FreeIpAddress
+        #define IotMetrics_FreeIpAddress    free
+    #endif
+
 #endif /* if IOT_STATIC_MEMORY_ONLY */
 
+/* This is supposed to be same as the data type of socket. */
 #ifndef IotMetricsConnectionId_t
-    #define IotMetricsConnectionId_t    uint32_t
+    #define IotMetricsConnectionId_t    void *
 #endif
 
 /**
@@ -100,7 +109,12 @@ typedef struct IotMetricsTcpConnection
 {
     IotLink_t link;
     IotMetricsConnectionId_t id;
-    char * pRemoteIP;    /* This is limited to IPv4. */
+    /* This is limited to IPv4. */
+    struct
+    {
+        uint32_t remoteIp; /* In host byte order. */
+        char * pRemoteIp;
+    };
     uint16_t remotePort; /* In host order. */
 } IotMetricsTcpConnection_t;
 

@@ -148,6 +148,9 @@
     <Filter Include="lib\aws\metrics">
       <UniqueIdentifier>{cd5391f2-158c-467f-b84b-c51c842ecac1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\defender">
+      <UniqueIdentifier>{03a27589-9273-4715-811d-ad3ca4968154}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c">
@@ -669,14 +672,23 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
-      <Filter>lib\aws\ota</Filter>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_collector.c">
+      <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_mqtt.c">
+      <Filter>lib\aws\defender</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_clock_afr.c">
       <Filter>lib\aws\utils\platform</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\utils\platform\iot_threads_afr.c">
       <Filter>lib\aws\utils\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\defender\aws_iot_demo_defender.c">
+      <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

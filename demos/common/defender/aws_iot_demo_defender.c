@@ -29,9 +29,12 @@
 #include "string.h"
 
 /* Demo configuration includes. */
-#include "iot_demo.h"
+#include "aws_demo.h"
 #include "aws_demo_config.h"
 #include "aws_clientcredential.h"
+
+/* Demo logging include. */
+#include "iot_demo_logging.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -49,10 +52,17 @@
 /* Cbor includes. */
 #include "cbor.h"
 
+#include "platform/iot_network_afr.h"
+
+#define _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER    0
+
 /* Rx and Tx time outs are used to ensure the sockets do not wait too long for
  * missing data. */
 static const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( 2000 );
 static const TickType_t xSendTimeOut = pdMS_TO_TICKS( 2000 );
+
+static IotNetworkServerInfoAfr_t _DEFENDER_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static IotNetworkCredentialsAfr_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 static Socket_t _createSocketToEchoServer();
 
@@ -87,7 +97,7 @@ void _defenderCallback( void * param1,
 {
     ( void ) param1;
 
-    IotLogInfo( "User's callback is invoked on event %s.", AwsIotDefender_DescribeEventType( pCallbackInfo->eventType ) );
+    IotLogInfo( "User's callback is invoked on event %d.", pCallbackInfo->eventType );
 
     /* Print out the sent metrics report if there is. */
     if( pCallbackInfo->pMetricsReport != NULL )
@@ -117,12 +127,12 @@ static void _defenderTask( void * param )
 {
     ( void ) param;
 
-    AwsIotNetwork_Init();
-
     IotLogInfo( "----Device Defender Demo Start----.\r\n" );
 
-    /* Create a socket connected to echo server. */
-    Socket_t socket = _createSocketToEchoServer();
+    #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
+        /* Create a socket connected to echo server. */
+        Socket_t socket = _createSocketToEchoServer();
+    #endif
 
     /* Specify all metrics in "tcp connections" group */
     AwsIotDefender_SetMetrics( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS,
@@ -134,10 +144,10 @@ static void _defenderTask( void * param )
     /* Start the defender agent. */
     _startDefender();
 
-    uint32_t ip = SOCKETS_GetHostByName(clientcredentialMQTT_BROKER_ENDPOINT);
-    char buffer[16];
-    SOCKETS_inet_ntoa(ip, buffer);
-    IotLogInfo("expected ip: %s",buffer);
+    uint32_t ip = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
+    char buffer[ 16 ];
+    SOCKETS_inet_ntoa( ip, buffer );
+    IotLogInfo( "expected ip: %s", buffer );
 
     /* Let it run for 3 seconds */
     sleep( 3 );
@@ -145,9 +155,11 @@ static void _defenderTask( void * param )
     /* Stop the defender agent. */
     AwsIotDefender_Stop();
 
-    /* Clean up the socket. */
-    SOCKETS_Shutdown( socket, SOCKETS_SHUT_RDWR );
-    SOCKETS_Close( socket );
+    #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
+        /* Clean up the socket. */
+        SOCKETS_Shutdown( socket, SOCKETS_SHUT_RDWR );
+        SOCKETS_Close( socket );
+    #endif
 
     IotLogInfo( "----Device Defender Demo End----.\r\n" );
 }
@@ -158,31 +170,26 @@ static void _startDefender()
 {
     const AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .param1 = NULL };
 
-    AwsIotDefenderStartInfo_t startInfo =
+    AwsIotDefenderStartInfo_t startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
+
+    /* Set fields of start info. */
+    startInfo.mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
+    startInfo.mqttNetworkInfo.createNetworkConnection = true;
+    startInfo.mqttNetworkInfo.pNetworkServerInfo = &_DEFENDER_SERVER_INFO;
+    startInfo.mqttNetworkInfo.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
+
+    if( ( ( IotNetworkServerInfoAfr_t * ) ( startInfo.mqttNetworkInfo.pNetworkServerInfo ) )->port != 443 )
     {
-        .tlsInfo         = IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER,
-        .pAwsIotEndpoint = clientcredentialMQTT_BROKER_ENDPOINT,
-        .port            = clientcredentialMQTT_BROKER_PORT,
-        .pThingName      = clientcredentialIOT_THING_NAME,
-        .thingNameLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME ),
-        .callback        = callback
-    };
-
-    /* Use the default root CA provided with Amazon FreeRTOS. */
-    startInfo.tlsInfo.pRootCa = NULL;
-    startInfo.tlsInfo.rootCaLength = 0;
-
-    /* Set client credentials. */
-    startInfo.tlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
-    startInfo.tlsInfo.clientCertSize = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
-    startInfo.tlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    startInfo.tlsInfo.privateKeySize = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
-
-    /* If not connecting over port 443, disable ALPN. */
-    if( clientcredentialMQTT_BROKER_PORT != 443 )
-    {
-        startInfo.tlsInfo.pAlpnProtos = NULL;
+        ( ( IotNetworkCredentialsAfr_t * ) ( startInfo.mqttNetworkInfo.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
     }
+
+    startInfo.mqttNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+
+    startInfo.mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    startInfo.mqttConnectionInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+    startInfo.mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
+
+    startInfo.callback = callback;
 
     /* Invoke defender start API. */
     AwsIotDefender_Start( &startInfo );

@@ -186,4 +186,7 @@
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
 #define AWS_IOT_DEFENDER_USE_LONG_TAG           ( 1 )
 
+/* Configuration for enabling metrics library on secure sockets. */
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+
 #endif /* ifndef _IOT_CONFIG_COMMON_H_ */
