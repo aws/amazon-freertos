@@ -42,13 +42,6 @@
 /* MQTT internal include. */
 #include "private/iot_mqtt_internal.h"
 
-/* POSIX includes. */
-#ifdef POSIX_PTHREAD_HEADER
-    #include POSIX_PTHREAD_HEADER
-#else
-    #include <pthread.h>
-#endif
-
 /* Test framework includes. */
 #include "unity_fixture.h"
 
@@ -159,9 +152,14 @@ static bool _connectionCreated = false;
 static _mqttConnection_t * _pMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
 /**
- * @brief Synchronizes threads in the multithreaded test.
+ * @brief Synchronizes threads in the multithreaded test at start.
  */
-static pthread_barrier_t _mtTestBarrier;
+static IotSemaphore_t _mtTestStart;
+
+/**
+ * @brief Synchronizes threads in the multithreaded test at exit.
+ */
+static IotSemaphore_t _mtTestExit;
 
 /*-----------------------------------------------------------*/
 
@@ -293,7 +291,7 @@ static void _blockingCallback( void * pArgument,
 /**
  * @brief Thread routing of the multithreaded test.
  */
-static void * _multithreadTestThread( void * pArgument )
+static void _multithreadTestThread( void * pArgument )
 {
     size_t i = 0;
     int barrierResult = 0;
@@ -302,14 +300,7 @@ static void * _multithreadTestThread( void * pArgument )
     IotMqttSubscription_t subscription[ _LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     /* Synchronize with the other threads before starting the test. */
-    barrierResult = pthread_barrier_wait( &_mtTestBarrier );
-
-    if( ( barrierResult != 0 ) && ( barrierResult != PTHREAD_BARRIER_SERIAL_THREAD ) )
-    {
-        *pThreadResult = false;
-
-        return NULL;
-    }
+    IotSemaphore_Wait( &( _mtTestStart ) );
 
     /* Add items to the subscription list. */
     for( i = 0; i < _LIST_ITEM_COUNT; i++ )
@@ -329,7 +320,7 @@ static void * _multithreadTestThread( void * pArgument )
         {
             *pThreadResult = false;
 
-            return NULL;
+            return;
         }
     }
 
@@ -343,7 +334,8 @@ static void * _multithreadTestThread( void * pArgument )
 
     *pThreadResult = true;
 
-    return NULL;
+    /* Synchronize with the other threads before exiting the test. */
+    IotSemaphore_Post( &( _mtTestExit ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -767,23 +759,20 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddMallocFail )
  */
 TEST( MQTT_Unit_Subscription, SubscriptionMultithreaded )
 {
-    int i = 0, threadsCreated = 0, barrierReturn = 0;
-    volatile int threadsJoined = 0;
-    pthread_t testThreads[ _MT_THREAD_COUNT ] = { 0 };
+    int32_t i = 0, threadsCreated = 0, threadsExited = 0;
     bool threadResults[ _MT_THREAD_COUNT ] = { 0 };
 
-    /* Create the synchronization barrier. */
-    TEST_ASSERT_EQUAL_INT( 0, pthread_barrier_init( &_mtTestBarrier,
-                                                    NULL,
-                                                    _MT_THREAD_COUNT + 1 ) );
+    /* Create the synchronization semaphores. */
+    TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &( _mtTestStart ), 0, _MT_THREAD_COUNT ) );
+    TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &( _mtTestExit ), 0, _MT_THREAD_COUNT ) );
 
     /* Spawn threads for the test. */
     for( i = 0; i < _MT_THREAD_COUNT; i++ )
     {
-        if( pthread_create( &( testThreads[ i ] ),
-                            NULL,
-                            _multithreadTestThread,
-                            &( threadResults[ i ] ) ) != 0 )
+        if( Iot_CreateDetachedThread( _multithreadTestThread,
+                                      &( threadResults[ i ] ),
+                                      IOT_THREAD_DEFAULT_PRIORITY,
+                                      IOT_THREAD_DEFAULT_STACK_SIZE ) == false )
         {
             break;
         }
@@ -792,23 +781,28 @@ TEST( MQTT_Unit_Subscription, SubscriptionMultithreaded )
     /* Record how many threads were created. */
     threadsCreated = i;
 
-    /* Synchronize with the test threads. */
-    barrierReturn = pthread_barrier_wait( &_mtTestBarrier );
+    /* Signal all created threads to start. */
+    for( i = 0; i < threadsCreated; i++ )
+    {
+        IotSemaphore_Post( &_mtTestStart );
+    }
 
     /* Wait for all created threads to finish. */
     for( i = 0; i < threadsCreated; i++ )
     {
-        if( pthread_join( testThreads[ i ], NULL ) == 0 )
+        if( IotSemaphore_TimedWait( &_mtTestExit,
+                                    IOT_TEST_MQTT_TIMEOUT_MS ) == false )
         {
-            threadsJoined++;
+            break;
         }
+
+        threadsExited++;
     }
 
     if( TEST_PROTECT() )
     {
-        /* Check the results of barrier wait and thread create/join. */
-        TEST_ASSERT_TRUE( barrierReturn == 0 || barrierReturn == PTHREAD_BARRIER_SERIAL_THREAD );
-        TEST_ASSERT_EQUAL_INT( threadsCreated, threadsJoined );
+        /* Check how many threads ran. */
+        TEST_ASSERT_EQUAL_INT( threadsCreated, threadsExited );
         TEST_ASSERT_EQUAL_INT( threadsCreated, _MT_THREAD_COUNT );
 
         /* Check the results of the test threads. */
@@ -821,11 +815,9 @@ TEST( MQTT_Unit_Subscription, SubscriptionMultithreaded )
         TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
     }
 
-    /* Destroy the synchronization barrier. */
-    if( pthread_barrier_destroy( &_mtTestBarrier ) != 0 )
-    {
-        TEST_FAIL_MESSAGE( "Failed to destroy barrier" );
-    }
+    /* Destroy the synchronization semaphores. */
+    IotSemaphore_Destroy( &_mtTestStart );
+    IotSemaphore_Destroy( &_mtTestExit );
 }
 
 /*-----------------------------------------------------------*/
