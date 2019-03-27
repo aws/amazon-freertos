@@ -334,9 +334,12 @@ static bool _processPublish( const uint8_t * pPublish,
     _receiveContext_t receiveContext = { 0 };
 
     /* Create a semaphore that counts how many times the publish callback is invoked. */
-    if( IotSemaphore_Create( &invokeCount, 0, expectedInvokeCount ) == false )
+    if( expectedInvokeCount > 0 )
     {
-        return false;
+        if( IotSemaphore_Create( &invokeCount, 0, expectedInvokeCount ) == false )
+        {
+            return false;
+        }
     }
 
     /* Set the subscription parameter. */
@@ -370,8 +373,11 @@ static bool _processPublish( const uint8_t * pPublish,
 
     /* Ensure that the invoke count semaphore has a value of 0, then destroy the
      * semaphore. */
-    finalInvokeCount = IotSemaphore_GetCount( &invokeCount );
-    IotSemaphore_Destroy( &invokeCount );
+    if( expectedInvokeCount > 0 )
+    {
+        finalInvokeCount = IotSemaphore_GetCount( &invokeCount );
+        IotSemaphore_Destroy( &invokeCount );
+    }
 
     /* Check results against expected values. */
     return ( finalInvokeCount == 0 ) &&
