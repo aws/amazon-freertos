@@ -100,8 +100,19 @@
     #define AwsIotDefender_MallocTopic           pvPortMalloc
     #define AwsIotDefender_FreeTopic             vPortFree
 
-    #define AwsIotMetrics_MallocTcpConnection    pvPortMalloc
-    #define AwsIotMetrics_FreeTcpConnection      vPortFree
+    #define IotMetrics_MallocTcpConnection       pvPortMalloc
+    #define IotMetrics_FreeTcpConnection         vPortFree
+    #define IotMetrics_MallocIpAddress           pvPortMalloc
+    #define IotMetrics_FreeIpAddress             vPortFree
+
+    #define IotSerializer_MallocCborEncoder      pvPortMalloc
+    #define IotSerializer_FreeCborEncoder        vPortFree
+    #define IotSerializer_MallocCborParser       pvPortMalloc
+    #define IotSerializer_FreeCborParser         vPortFree
+    #define IotSerializer_MallocCborValue        pvPortMalloc
+    #define IotSerializer_FreeCborValue          vPortFree
+    #define IotSerializer_MallocDecoderObject    pvPortMalloc
+    #define IotSerializer_FreeDecoderObject      vPortFree
 #endif /* if IOT_STATIC_MEMORY_ONLY == 0 */
 
 /* Static memory configuration. */

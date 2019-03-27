@@ -60,12 +60,12 @@
 #include "platform/iot_platform_types_afr.h"
 
 /* SDK version. */
-#define IOT_SDK_VERSION    "4.0.0"
+#define IOT_SDK_VERSION             "4.0.0"
 
 /* Defining network type .*/
-#define AWSIOT_NETWORK_TYPE_NONE     0x00000000
-#define AWSIOT_NETWORK_TYPE_WIFI     0x00000001
-#define AWSIOT_NETWORK_TYPE_BLE      0x00000002
+#define AWSIOT_NETWORK_TYPE_NONE    0x00000000
+#define AWSIOT_NETWORK_TYPE_WIFI    0x00000001
+#define AWSIOT_NETWORK_TYPE_BLE     0x00000002
 
 
 /* Standard library function overrides. */
@@ -98,43 +98,45 @@
 /* Memory allocation function configuration for the MQTT library. The MQTT library
  * will be affected by IOT_STATIC_MEMORY_ONLY. */
 #if IOT_STATIC_MEMORY_ONLY == 0
-    #define IotTaskPool_MallocJob                   pvPortMalloc
-    #define IotTaskPool_FreeJob                     vPortFree
-    #define IotTaskPool_MallocTimerEvent            pvPortMalloc
-    #define IotTaskPool_FreeTimerEvent              vPortFree
+    #define IotTaskPool_MallocJob                pvPortMalloc
+    #define IotTaskPool_FreeJob                  vPortFree
+    #define IotTaskPool_MallocTimerEvent         pvPortMalloc
+    #define IotTaskPool_FreeTimerEvent           vPortFree
 
-    #define IotMqtt_MallocConnection                pvPortMalloc
-    #define IotMqtt_FreeConnection                  vPortFree
-    #define IotMqtt_MallocMessage                   pvPortMalloc
-    #define IotMqtt_FreeMessage                     vPortFree
-    #define IotMqtt_MallocOperation                 pvPortMalloc
-    #define IotMqtt_FreeOperation                   vPortFree
-    #define IotMqtt_MallocSubscription              pvPortMalloc
-    #define IotMqtt_FreeSubscription                vPortFree
+    #define IotMqtt_MallocConnection             pvPortMalloc
+    #define IotMqtt_FreeConnection               vPortFree
+    #define IotMqtt_MallocMessage                pvPortMalloc
+    #define IotMqtt_FreeMessage                  vPortFree
+    #define IotMqtt_MallocOperation              pvPortMalloc
+    #define IotMqtt_FreeOperation                vPortFree
+    #define IotMqtt_MallocSubscription           pvPortMalloc
+    #define IotMqtt_FreeSubscription             vPortFree
 
-    #define AwsIotShadow_MallocOperation            pvPortMalloc
-    #define AwsIotShadow_FreeOperation              vPortFree
-    #define AwsIotShadow_MallocString               pvPortMalloc
-    #define AwsIotShadow_FreeString                 vPortFree
-    #define AwsIotShadow_MallocSubscription         pvPortMalloc
-    #define AwsIotShadow_FreeSubscription           vPortFree
+    #define AwsIotShadow_MallocOperation         pvPortMalloc
+    #define AwsIotShadow_FreeOperation           vPortFree
+    #define AwsIotShadow_MallocString            pvPortMalloc
+    #define AwsIotShadow_FreeString              vPortFree
+    #define AwsIotShadow_MallocSubscription      pvPortMalloc
+    #define AwsIotShadow_FreeSubscription        vPortFree
 
-    #define AwsIotDefender_MallocReport             pvPortMalloc
-    #define AwsIotDefender_FreeReport               vPortFree
-    #define AwsIotDefender_MallocTopic              pvPortMalloc
-    #define AwsIotDefender_FreeTopic                vPortFree
+    #define AwsIotDefender_MallocReport          pvPortMalloc
+    #define AwsIotDefender_FreeReport            vPortFree
+    #define AwsIotDefender_MallocTopic           pvPortMalloc
+    #define AwsIotDefender_FreeTopic             vPortFree
 
-    #define AwsIotMetrics_MallocTcpConnection       pvPortMalloc
-    #define AwsIotMetrics_FreeTcpConnection         vPortFree
+    #define IotMetrics_MallocTcpConnection       pvPortMalloc
+    #define IotMetrics_FreeTcpConnection         vPortFree
+    #define IotMetrics_MallocIpAddress           pvPortMalloc
+    #define IotMetrics_FreeIpAddress             vPortFree
 
-    #define AwsIotSerializer_MallocCborEncoder      pvPortMalloc
-    #define AwsIotSerializer_FreeCborEncoder        vPortFree
-    #define AwsIotSerializer_MallocCborParser       pvPortMalloc
-    #define AwsIotSerializer_FreeCborParser         vPortFree
-    #define AwsIotSerializer_MallocCborValue        pvPortMalloc
-    #define AwsIotSerializer_FreeCborValue          vPortFree
-    #define AwsIotSerializer_MallocDecoderObject    pvPortMalloc
-    #define AwsIotSerializer_FreeDecoderObject      vPortFree
+    #define IotSerializer_MallocCborEncoder      pvPortMalloc
+    #define IotSerializer_FreeCborEncoder        vPortFree
+    #define IotSerializer_MallocCborParser       pvPortMalloc
+    #define IotSerializer_FreeCborParser         vPortFree
+    #define IotSerializer_MallocCborValue        pvPortMalloc
+    #define IotSerializer_FreeCborValue          vPortFree
+    #define IotSerializer_MallocDecoderObject    pvPortMalloc
+    #define IotSerializer_FreeDecoderObject      vPortFree
 
 #endif /* if IOT_STATIC_MEMORY_ONLY == 0 */
 
@@ -193,24 +195,24 @@
 
 /* Default iot thread priority. */
 #ifndef IOT_THREAD_DEFAULT_PRIORITY
-    #define IOT_THREAD_DEFAULT_PRIORITY      tskIDLE_PRIORITY
+    #define IOT_THREAD_DEFAULT_PRIORITY    tskIDLE_PRIORITY
 #endif
 
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */
-#define IOT_TEST_NETWORK_HEADER    "platform/iot_network_afr.h"
+#define IOT_TEST_NETWORK_HEADER        "platform/iot_network_afr.h"
 
 /* All tests use a secured connection. */
 #define IOT_TEST_SECURED_CONNECTION    ( 1 )
 
 /* Allow the network interface to be chosen by at runtime. */
-typedef struct IotNetworkInterface IotNetworkInterface_t;
+typedef struct IotNetworkInterface        IotNetworkInterface_t;
 extern const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void );
 #define IOT_TEST_NETWORK_INTERFACE    IotTestNetwork_GetNetworkInterface()
 
 /* Allow the network serializer to be chosen by at runtime. */
-typedef struct IotMqttSerializer IotMqttSerializer_t;
+typedef struct IotMqttSerializer          IotMqttSerializer_t;
 extern const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void );
-#define IOT_TEST_MQTT_SERIALIZER IotTestNetwork_GetSerializer()
+#define IOT_TEST_MQTT_SERIALIZER    IotTestNetwork_GetSerializer()
 
 /* Forward declarations of network types used in the tests. */
 typedef struct IotNetworkConnectionAfr    IotTestNetworkConnection_t;
@@ -237,7 +239,7 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
         .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ), \
         .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )  \
     }
-#endif
+#endif /* if clientcredentialMQTT_BROKER_PORT == 443 */
 
 /* Network initialization and cleanup functions are not needed on FreeRTOS. */
 #define IotTestNetwork_Init()    IOT_NETWORK_SUCCESS
