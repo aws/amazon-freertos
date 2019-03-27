@@ -33,6 +33,10 @@
 /* Standard includes. */
 #include <string.h>
 
+/* FreeRTOS includes. */
+#include "semphr.h"
+#include "event_groups.h"
+
 /* Error handling include. */
 #include "private/iot_error.h"
 

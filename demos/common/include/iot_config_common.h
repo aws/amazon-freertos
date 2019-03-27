@@ -24,34 +24,8 @@
 #ifndef _IOT_CONFIG_COMMON_H_
 #define _IOT_CONFIG_COMMON_H_
 
-/* POSIX header overrides for FreeRTOS+POSIX. */
-#ifndef POSIX_ERRNO_HEADER
-    #define POSIX_ERRNO_HEADER        "FreeRTOS_POSIX/errno.h"
-#endif
-#ifndef POSIX_LIMITS_HEADER
-    #define POSIX_LIMITS_HEADER       "FreeRTOS_POSIX.h"
-#endif
-#ifndef POSIX_PTHREAD_HEADER
-    #define POSIX_PTHREAD_HEADER      "FreeRTOS_POSIX/pthread.h"
-#endif
-#ifndef POSIX_SEMAPHORE_HEADER
-    #define POSIX_SEMAPHORE_HEADER    "FreeRTOS_POSIX/semaphore.h"
-#endif
-#ifndef POSIX_SIGNAL_HEADER
-    #define POSIX_SIGNAL_HEADER       "FreeRTOS_POSIX/signal.h"
-#endif
-#ifndef POSIX_TIME_HEADER
-    #define POSIX_TIME_HEADER         "FreeRTOS_POSIX/time.h"
-#endif
-#ifndef POSIX_TYPES_HEADER
-    #define POSIX_TYPES_HEADER        "FreeRTOS_POSIX/sys/types.h"
-#endif
-#ifndef POSIX_UNISTD_HEADER
-    #define POSIX_UNISTD_HEADER       "FreeRTOS_POSIX/unistd.h"
-#endif
-
-/* FreeRTOS+POSIX include. */
-#include "FreeRTOS_POSIX.h"
+/* FreeRTOS include. */
+#include "FreeRTOS.h"
 
 /* Use platform types on FreeRTOS. */
 #include "platform/iot_platform_types_afr.h"

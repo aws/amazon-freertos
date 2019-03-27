@@ -48,8 +48,7 @@
 #include "task.h"         /*lint !e537 intentional include of all interfaces used by this file. */
 #include "event_groups.h" /*lint !e537 intentional include of all interfaces used by this file. */
 #include "queue.h"
-
-
+#include "semphr.h"
 
 /* JSON job document parser includes. */
 #include "jsmn.h" /*lint !e537 All headers have multiple inclusion prevention. */
