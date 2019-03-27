@@ -579,28 +579,33 @@ TEST_SETUP( Full_WiFi )
     int8_t cScanSize = 10;
     WIFIReturnCode_t xWiFiStatus;
     WIFIScanResult_t xScanResults[ 10 ] = { 0 };
-
-    /* Disconnect first before running any Wi-Fi test. */
-    xWiFiStatus = WIFI_Disconnect();
-    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-    xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
-
-    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-    configPRINTF(
-        ( "WiFi Networks and strength: \r\n" ) );
-
-    for( lI = 0; lI < cScanSize; lI++ )
+  
+    if( TEST_PROTECT() )
     {
-        configPRINTF( ( "    %s: %d\r\n",
-                        xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
+        /* Disconnect first before running any Wi-Fi test. */
+        xWiFiStatus = WIFI_Disconnect();
+        TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+        xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
+
+        TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+        configPRINTF(
+            ( "WiFi Networks and strength: \r\n" ) );
+
+        for( lI = 0; lI < cScanSize; lI++ )
+        {
+            configPRINTF( ( "    %s: %d\r\n",
+                            xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
+        }
+
+        configPRINTF(
+            ( "End of WiFi Networks\r\n" ) );
+
+        vTaskDelay( testwifiCONNECTION_DELAY );
+    } else {
+        TEST_FAIL();
     }
-
-    configPRINTF(
-        ( "End of WiFi Networks\r\n" ) );
-
-    vTaskDelay( testwifiCONNECTION_DELAY );
 }
 
 TEST_TEAR_DOWN( Full_WiFi )
@@ -728,7 +733,7 @@ TEST( Full_WiFi, AFQP_WiFiOnOff )
     {
         xWiFiStatus = WIFI_Off();
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess == xWiFiStatus, xWiFiStatus );
-
+                      
         if( eWiFiSuccess == xWiFiStatus )
         {
             xWiFiStatus = WIFI_On();
