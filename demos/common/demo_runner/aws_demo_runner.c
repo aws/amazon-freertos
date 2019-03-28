@@ -35,6 +35,10 @@
 
 #include "aws_demo_runner.h"
 
+/* Includes for library initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
+
 /* Demo declarations. */
 /* extern void vStartDeviceDefenderDemo( void ); */
 /* extern void vStartGreenGrassDiscoveryTask( void ); */
@@ -57,7 +61,14 @@
  */
 void DEMO_RUNNER_RunDemos( void )
 {
-    /* vStartMQTTDemo( ); */
+    /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
+
+    /* vStartMQTTDemo(); */
+
+    /* These demos require the libraries to be initialized before they run. */
+    configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
+    configASSERT( IotCommon_Init() == true );
+
     /* vStartDeviceDefenderDemo(); */
     /* vStartGreenGrassDiscoveryTask(); */
     /* vStartOTAUpdateDemoTask(); */

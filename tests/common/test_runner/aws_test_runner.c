@@ -28,16 +28,9 @@
  * @file aws_test_runner.c
  * @brief The function to be called to run all the tests.
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+
 /* Test runner interface includes. */
 #include "aws_test_runner.h"
-
-/* MQTT v4 header must be included if its tests are enabled. */
-#if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) || (testrunnerFULL_SHADOWv4_ENABLED == 1)
-    #include "iot_mqtt.h"
-#endif
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -46,7 +39,7 @@
 /* Unity framework includes. */
 #include "unity_fixture.h"
 #include "unity_internals.h"
-#include "iot_common.h"
+
 /* Application version info. */
 #include "aws_application_version.h"
 
@@ -99,37 +92,17 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_SHADOWv4_ENABLED == 1 )
-
-        /* The Shadow v4 tests perform their own initialization and cleanup. Clean
-         * up the MQTT library here to avoid memory leaks. */
-        IotCommon_Cleanup();
-        IotMqtt_Cleanup();
-
         RUN_TEST_GROUP( Shadow_Unit_Parser );
         RUN_TEST_GROUP( Shadow_Unit_API );
         RUN_TEST_GROUP( Shadow_System );
-
-        /* Initialize the MQTT library for any tests that come after. */
-        configASSERT( IotCommon_Init() == true );
-        configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     #endif /* if ( testrunnerFULL_SHADOWv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTTv4_ENABLED == 1 )
-
-        /* The MQTT v4 tests perform their own initialization and cleanup. Clean
-         * up the MQTT library here to avoid memory leaks. */
-        IotCommon_Cleanup();
-        IotMqtt_Cleanup();
-
         RUN_TEST_GROUP( MQTT_Unit_Validate );
         RUN_TEST_GROUP( MQTT_Unit_Subscription );
         RUN_TEST_GROUP( MQTT_Unit_Receive );
         RUN_TEST_GROUP( MQTT_Unit_API );
         RUN_TEST_GROUP( MQTT_System );
-
-        /* Initialize the MQTT library for any tests that come after. */
-        configASSERT( IotCommon_Init() == true );
-        configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
 
     #if ( testrunnerFULL_MQTT_STRESS_TEST_ENABLED == 1 )

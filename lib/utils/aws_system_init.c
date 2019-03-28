@@ -22,19 +22,14 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
 
 #include <stdbool.h>
 
 #include "FreeRTOS.h"
 #include "aws_system_init.h"
-#include "iot_mqtt.h"
 
 /* Library code. */
 extern BaseType_t SOCKETS_Init( void );
-extern bool IotCommon_Init( void );
 
 /*-----------------------------------------------------------*/
 
@@ -48,16 +43,6 @@ BaseType_t SYSTEM_Init( void )
     if( xResult == pdPASS )
     {
         xResult = SOCKETS_Init();
-    }
-
-    if( xResult == pdPASS )
-    {
-        xResult = ( IotCommon_Init() == true );
-    }
-
-    if( xResult == pdPASS )
-    {
-        xResult = ( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     }
 
     return xResult;

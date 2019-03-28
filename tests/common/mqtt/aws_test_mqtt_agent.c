@@ -40,6 +40,8 @@
 #include "queue.h"
 #include "event_groups.h"
 #include "aws_clientcredential.h"
+#include "iot_mqtt.h"
+#include "iot_common.h"
 
 /* Unity framework includes. */
 #include "unity_fixture.h"
@@ -337,12 +339,18 @@ TEST_GROUP( Full_MQTT_Agent_Stress_Tests );
  */
 TEST_SETUP( Full_MQTT_Agent )
 {
+    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 TEST_SETUP( Full_MQTT_Agent_Stress_Tests )
 {
+    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 TEST_SETUP( Full_MQTT_Agent_ALPN )
 {
+    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 /*-----------------------------------------------------------*/
 
@@ -351,12 +359,18 @@ TEST_SETUP( Full_MQTT_Agent_ALPN )
  */
 TEST_TEAR_DOWN( Full_MQTT_Agent )
 {
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
 }
 TEST_TEAR_DOWN( Full_MQTT_Agent_Stress_Tests )
 {
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
 }
 TEST_TEAR_DOWN( Full_MQTT_Agent_ALPN )
 {
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
 }
 /*-----------------------------------------------------------*/
 

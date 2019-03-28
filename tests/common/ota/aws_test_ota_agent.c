@@ -25,6 +25,7 @@
 
 /* MQTT includes. */
 #include "iot_mqtt.h"
+#include "iot_common.h"
 
 /* Standard includes. */
 #include <stdint.h>
@@ -140,6 +141,9 @@ TEST_SETUP( Full_OTA_AGENT )
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
+    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+
     /* Set the parameters for MQTT connect. */
     networkInfo.createNetworkConnection = true;
     networkInfo.pNetworkServerInfo = &serverInfo;
@@ -170,6 +174,9 @@ TEST_TEAR_DOWN( Full_OTA_AGENT )
     IotMqtt_Disconnect( xMQTTClientHandle, 0 );
 
     xMQTTClientHandle = NULL;
+
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
 }
 
 TEST_GROUP_RUNNER( Full_OTA_AGENT )

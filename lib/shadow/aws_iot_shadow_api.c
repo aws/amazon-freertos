@@ -531,10 +531,6 @@ static AwsIotShadowError_t _modifyCallbackSubscriptions( IotMqttConnection_t mqt
         {
             pSubscription->pTopicBuffer = pTopicFilter;
         }
-        else
-        {
-            AwsIotShadow_FreeString( pTopicFilter );
-        }
     }
 
     return status;

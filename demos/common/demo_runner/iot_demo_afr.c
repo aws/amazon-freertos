@@ -80,11 +80,6 @@ static void _runDemoFunction( _demoFunction_t demoFunction )
         credentials.pAlpnProtos = NULL;
     }
 
-    /* The v4 demos do their own initialization. Clean up initialization done during
-     * system init. */
-    IotCommon_Cleanup();
-    IotMqtt_Cleanup();
-
     /* Run the demo. */
     demoFunction( true,
                   clientcredentialIOT_THING_NAME,
