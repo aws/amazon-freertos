@@ -30,7 +30,6 @@
 #include "aws_clientcredential.h"
 
 #include "platform/iot_network_afr.h"
-/*#include "platform/iot_platform_types_afr.h" */
 
 extern uint64_t _AwsIotDefenderReportId;
 
