@@ -26,12 +26,17 @@
 #ifndef _AWS_SECURE_SOCKETS_WRAPPER_METRICS_
 #define _AWS_SECURE_SOCKETS_WRAPPER_METRICS_
 
+/* Build using a config header, if provided. */
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
+
 /* This file redefines Secure Sockets functions to be called through a wrapper macro,
  * but only if metrics is enabled explicitly. */
 #ifdef AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
 
 /* This macro is included in aws_secure_socket.c and aws_secure_socket_wrapper_metrics.c.
-It will prevent the redefine in those source files. */
+ * It will prevent the redefine in those source files. */
     #ifndef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
         #define SOCKETS_Connect     Sockets_MetricsConnect
         #define SOCKETS_Shutdown    Sockets_MetricsShutdown

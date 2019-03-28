@@ -217,6 +217,9 @@
     <Filter Include="lib\aws\defender">
       <UniqueIdentifier>{08e19228-c970-4d8c-933c-ebe94a403c77}</UniqueIdentifier>
     </Filter>
+    <Filter Include="application_code\common_tests\defender">
+      <UniqueIdentifier>{875bf49e-15e1-4dfa-af48-c12240845112}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -1450,6 +1453,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\ota\aws_iot_ota_agent.c">
       <Filter>lib\aws\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api.c">
+      <Filter>application_code\common_tests\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api_v1.c">
+      <Filter>application_code\common_tests\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_v1.c">
+      <Filter>lib\aws\defender</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -29,10 +29,16 @@
 
 #include "aws_clientcredential.h"
 
+#include "platform/iot_network_afr.h"
+/*#include "platform/iot_platform_types_afr.h" */
+
 extern uint64_t _AwsIotDefenderReportId;
 
 /* Defender agent's status, initialized with eDefenderRepInit. */
 static DefenderReportStatus_t _status = eDefenderRepInit;
+
+static IotNetworkServerInfoAfr_t _AWS_IOT_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static IotNetworkCredentialsAfr_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 /*-----------------------------------------------------------*/
 
@@ -138,32 +144,30 @@ DefenderErr_t DEFENDER_Start( void )
     /* Register an internal callback. */
     const AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .param1 = NULL };
 
-    /* Use compile-time network information. */
-    AwsIotDefenderStartInfo_t startInfo =
+    AwsIotDefenderStartInfo_t startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
+
+    /* Set network information. */
+    startInfo.mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
+    startInfo.mqttNetworkInfo.createNetworkConnection = true;
+    startInfo.mqttNetworkInfo.pNetworkServerInfo = &_AWS_IOT_SERVER_INFO;
+    startInfo.mqttNetworkInfo.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
+
+    /* Only set ALPN protocol if the connected port is 443. */
+    if( ( ( IotNetworkServerInfoAfr_t * ) ( startInfo.mqttNetworkInfo.pNetworkServerInfo ) )->port != 443 )
     {
-        .tlsInfo         = IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER,
-        .pAwsIotEndpoint = clientcredentialMQTT_BROKER_ENDPOINT,
-        .port            = clientcredentialMQTT_BROKER_PORT,
-        .pThingName      = clientcredentialIOT_THING_NAME,
-        .thingNameLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME ),
-        .callback        = callback
-    };
-
-    /* Use the default root CA provided with Amazon FreeRTOS. */
-    startInfo.tlsInfo.pRootCa = NULL;
-    startInfo.tlsInfo.rootCaLength = 0;
-
-    /* Set client credentials. */
-    startInfo.tlsInfo.pClientCert = clientcredentialCLIENT_CERTIFICATE_PEM;
-    startInfo.tlsInfo.clientCertSize = ( size_t ) clientcredentialCLIENT_CERTIFICATE_LENGTH;
-    startInfo.tlsInfo.pPrivateKey = clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    startInfo.tlsInfo.privateKeySize = ( size_t ) clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
-
-    /* If not connecting over port 443, disable ALPN. */
-    if( clientcredentialMQTT_BROKER_PORT != 443 )
-    {
-        startInfo.tlsInfo.pAlpnProtos = NULL;
+        ( ( IotNetworkCredentialsAfr_t * ) ( startInfo.mqttNetworkInfo.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
     }
+
+    /* Set network interface. */
+    startInfo.mqttNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+
+    /* Set MQTT connection information. */
+    startInfo.mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    startInfo.mqttConnectionInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+    startInfo.mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
+
+    /* Set Defender callback. */
+    startInfo.callback = callback;
 
     /* Invoke defender start API. */
     return _toDefenderErr( AwsIotDefender_Start( &startInfo ) );
