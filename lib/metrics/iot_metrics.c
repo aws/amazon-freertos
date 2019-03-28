@@ -37,9 +37,6 @@
 /* Secure sockets include. */
 #include "aws_secure_sockets.h"
 
-/* xxx.xxx.xxx.xxx\0 */
-#define _MAX_IP_STRING_LENGTH    16
-
 /* Compare function to identify the TCP connection id. */
 static bool _tcpConnectionMatch( const IotLink_t * pLink,
                                  void * pId );
@@ -97,7 +94,7 @@ void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection )
             *pNewTcpConnection = *pTcpConnection;
 
             /* Allocate memory for ip string. */
-            pNewTcpConnection->pRemoteIp = IotMetrics_MallocIpAddress( _MAX_IP_STRING_LENGTH * sizeof( char ) );
+            pNewTcpConnection->pRemoteIp = IotMetrics_MallocIpAddress( IOT_METRICS_MAX_IP_STRING_LENGTH * sizeof( char ) );
 
             if( pNewTcpConnection->pRemoteIp != NULL )
             {

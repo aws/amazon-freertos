@@ -98,11 +98,11 @@
     <ClInclude Include="..\..\..\..\lib\include\iot_common.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_json_utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_logging_setup.h" />
-    <ClInclude Include="..\..\..\..\lib\include\iot_metrics.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\unistd.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_linear_containers.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_mqtt.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_serializer.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_taskpool.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\FreeRTOS_POSIX.h" />
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\FreeRTOS_POSIX_internal.h" />
@@ -148,6 +148,7 @@
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS_POSIX\utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\message_buffer.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\iot_clock.h" />
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_metrics.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\iot_network.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\iot_network_afr.h" />
     <ClInclude Include="..\..\..\..\lib\include\platform\iot_platform_types_posix.h" />
@@ -307,9 +308,12 @@
     <ClCompile Include="..\..\..\..\lib\common\iot_json_utils.c" />
     <ClCompile Include="..\..\..\..\lib\common\iot_logging.c" />
     <ClCompile Include="..\..\..\..\lib\common\iot_taskpool.c" />
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\aws_iot_static_memory_defender.c" />
     <ClCompile Include="..\..\..\..\lib\common\static_memory\aws_iot_static_memory_shadow.c" />
     <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_common.c" />
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_metrics.c" />
     <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_mqtt.c" />
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_serializer.c" />
     <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_taskpool.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
     <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_api.c" />

@@ -76,6 +76,24 @@
         #define IotMetrics_FreeTcpConnection    Iot_FreeMetricsTcpConnection
     #endif
 
+/**
+ * @brief Allocate an array of uint8_t. This function should have the same
+ * signature as [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
+ */
+    #ifndef IotMetrics_MallocIpAddress
+        #define IotMetrics_MallocIpAddress    Iot_MallocMetricsIpAddress
+    #endif
+
+/**
+ * @brief Free an array of uint8_t. This function should have the same
+ * signature as [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+ */
+    #ifndef IotMetrics_FreeIpAddress
+        #define IotMetrics_FreeIpAddress    Iot_FreeMetricsIpAddress
+    #endif
+
 #else /* if IOT_STATIC_MEMORY_ONLY */
     #include <stdlib.h>
 
@@ -101,6 +119,9 @@
 #ifndef IotMetricsConnectionId_t
     #error "'IotMetricsConnectionId_t' must be defended as the socket handle data type."
 #endif
+
+/* xxx.xxx.xxx.xxx\0 */
+#define IOT_METRICS_MAX_IP_STRING_LENGTH    16
 
 /**
  * Data handle of TCP connection

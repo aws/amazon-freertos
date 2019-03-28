@@ -456,6 +456,38 @@ void Iot_FreeMetricsTcpConnection( void * ptr );
 /* @[declare_static_memory_freemetricstcpconnection] */
 
 /**
+ * @brief Allocates memory to hold data for a new [Metrics IP Address]
+ * (@ref static_memory_mallocmetricsipaddress).
+ *
+ * This function is the analog of [malloc]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
+ * for Metrics IP Address.
+ *
+ * @param[in] size Requested size for the ip address.
+ *
+ * @return Pointer to a Metrics IP Address. If the size argument is larger than
+ * the fixed size of a Metrics IP Address object or no free Metrics IP Address
+ * are available, `NULL` is returned.
+ */
+/* @[declare_static_memory_mallocmetricsipaddress] */
+void * Iot_MallocMetricsIpAddress(size_t size);
+/* @[declare_static_memory_mallocmetricsipaddress] */
+
+/**
+ * @brief Frees an in-use [Metrics IP Address]
+ * (@ref static_memory_freemetricstcpconnection).
+ *
+ * This function is the analog of [free]
+ * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
+ * for Metrics IP Address.
+ *
+ * @param[in] ptr Pointer to an active Metrics IP Address to free.
+ */
+/* @[declare_static_memory_freemetricsipaddress] */
+void Iot_FreeMetricsIpAddress(void * ptr);
+/* @[declare_static_memory_freemetricsipaddress] */
+
+/**
  * @brief Allocates memory to hold data for a new [Serializer Cbor Encoder]
  * (@ref static_memory_mallocserializercborencoder).
  *
