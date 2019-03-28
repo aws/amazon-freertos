@@ -24,7 +24,7 @@
 
 #include "projdefs.h"
 #include "task.h"
-
+#include "iot_common.h"
 #include "aws_clientcredential.h"
 
 #include "aws_secure_sockets.h"
@@ -143,6 +143,9 @@ TEST_SETUP( Full_DEFENDER )
     SOCKETS_inet_ntoa( _ECHO_SERVER_IP, _ECHO_SERVER_ADDRESS );
     sprintf( _ECHO_SERVER_ADDRESS, "%s:%d", _ECHO_SERVER_ADDRESS, configTCP_ECHO_CLIENT_PORT );
 
+    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+
     /* Create a binary semaphore with initial value 0. */
     if( !IotSemaphore_Create( &_callbackInfoSem, 0, 1 ) )
     {
@@ -197,6 +200,9 @@ TEST_TEAR_DOWN( Full_DEFENDER )
     }
 
     IotSemaphore_Destroy( &_callbackInfoSem );
+
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
 }
 
 TEST_GROUP_RUNNER( Full_DEFENDER )

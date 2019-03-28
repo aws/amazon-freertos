@@ -28,15 +28,21 @@
 #include "unity_fixture.h"
 #include "aws_ggd_config.h"
 #include "aws_ggd_config_defaults.h"
+#include "iot_mqtt.h"
+#include "iot_common.h"
 
 TEST_GROUP( Full_GGD_Helper );
 
 TEST_SETUP( Full_GGD_Helper )
 {
+    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 
 TEST_TEAR_DOWN( Full_GGD_Helper )
 {
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
 }
 
 

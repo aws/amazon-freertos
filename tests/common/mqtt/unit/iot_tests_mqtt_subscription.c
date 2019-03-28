@@ -294,7 +294,6 @@ static void _blockingCallback( void * pArgument,
 static void _multithreadTestThread( void * pArgument )
 {
     size_t i = 0;
-    int barrierResult = 0;
     bool * pThreadResult = ( bool * ) pArgument;
     char pTopicFilters[ _LIST_ITEM_COUNT ][ _MT_TOPIC_FILTER_LENGTH ] = { { 0 } };
     IotMqttSubscription_t subscription[ _LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };

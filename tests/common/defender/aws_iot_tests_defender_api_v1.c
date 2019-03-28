@@ -35,6 +35,8 @@
 #include "aws_defender.h"
 #include "aws_mqtt_agent.h"
 #include "unity_fixture.h"
+#include "iot_mqtt.h"
+#include "iot_common.h"
 
 static bool xReportAccepted;
 static bool xReportRejected;
@@ -47,6 +49,9 @@ TEST_SETUP( Full_DEFENDER_OLD )
     vTaskDelay( pdMS_TO_TICKS( 500 ) );
     xReportAccepted = false;
     xReportRejected = false;
+
+    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 
 TEST_TEAR_DOWN( Full_DEFENDER_OLD )
@@ -54,6 +59,9 @@ TEST_TEAR_DOWN( Full_DEFENDER_OLD )
     /* Delay to allow the MQTT logs to flush */
     ( void ) DEFENDER_Stop();
     vTaskDelay( pdMS_TO_TICKS( 500 ) );
+
+    IotCommon_Cleanup();
+    IotMqtt_Cleanup();
 }
 
 TEST_GROUP_RUNNER( Full_DEFENDER_OLD )
