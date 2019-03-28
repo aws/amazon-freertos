@@ -73,7 +73,7 @@ void DEMO_RUNNER_RunDemos( void )
     /* vStartGreenGrassDiscoveryTask(); */
     /* vStartOTAUpdateDemoTask(); */
     /* vStartMQTTBLEEchoDemo(); */
-    vStartMQTTEchoDemo();
+    /* vStartMQTTEchoDemo(); */
     /* vStartShadowDemoTasks(); */
     /* vStartSimpleTCPServerTasks(); */
     /* vStartSubpubDemoTasks(); */

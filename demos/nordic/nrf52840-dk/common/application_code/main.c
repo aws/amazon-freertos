@@ -56,6 +56,7 @@
 #include "peer_manager_handler.h"
 #include "bsp_btn_ble.h"
 #include "app_uart.h"
+#include "queue.h"
 
 /* MQTT v4 include. */
 #include "iot_mqtt.h"
@@ -189,7 +190,7 @@ static void conn_params_error_handler( uint32_t nrf_error )
 /**@brief   Function for handling uart events.
  *
  * /**@snippet [Handling the data received over UART] */
- 
+
 void prvUartEventHandler( app_uart_evt_t * pxEvent )
 {
     /* Declared as static so it can be pushed into the queue from the ISR. */
@@ -201,14 +202,14 @@ void prvUartEventHandler( app_uart_evt_t * pxEvent )
         case APP_UART_DATA_READY:
             app_uart_get( (uint8_t *)&ucRxByte );
             app_uart_put( ucRxByte );
-            
+
             xInputMessage.pcData = (uint8_t *)&ucRxByte;
             xInputMessage.xDataSize = 1;
 
             xQueueSendFromISR(UARTqueue, (void * )&xInputMessage, &xHigherPriorityTaskWoken);
             /* Now the buffer is empty we can switch context if necessary. */
             //portYIELD_FROM_ISR (xHigherPriorityTaskWoken);
-    
+
             break;
 
         case APP_UART_COMMUNICATION_ERROR:
@@ -376,7 +377,7 @@ BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTime
       pxINPUTmessage->xDataSize = 1;
       if(pxINPUTmessage->pcData != NULL)
       {
-          if (xQueueReceive(UARTqueue, (void * )&xTmpINPUTmessage, (portTickType) xAuthTimeout )) 
+          if (xQueueReceive(UARTqueue, (void * )&xTmpINPUTmessage, (portTickType) xAuthTimeout ))
           {
               *pxINPUTmessage->pcData = *xTmpINPUTmessage.pcData;
               pxINPUTmessage->xDataSize = xTmpINPUTmessage.xDataSize;
