@@ -36,6 +36,8 @@
 #include "FreeRTOS_POSIX/errno.h"
 #include "FreeRTOS_POSIX/pthread.h"
 
+#include "atomic.h"
+
 /*
  * @brief barrier max count
  *
@@ -44,9 +46,9 @@
  */
 /**@{ */
 #if ( configUSE_16_BIT_TICKS == 1 )
-    #define posixPTHREAD_BARRIER_MAX_COUNT        ( 8 )
+    #define posixPTHREAD_BARRIER_MAX_COUNT    ( 8 )
 #else
-    #define posixPTHREAD_BARRIER_MAX_COUNT        ( 24 )
+    #define posixPTHREAD_BARRIER_MAX_COUNT    ( 24 )
 #endif
 /**@} */
 
@@ -58,7 +60,6 @@ int pthread_barrier_destroy( pthread_barrier_t * barrier )
 
     /* Free all resources used by the barrier. */
     ( void ) vEventGroupDelete( ( EventGroupHandle_t ) &pxBarrier->xBarrierEventGroup );
-    ( void ) vSemaphoreDelete( ( SemaphoreHandle_t ) &pxBarrier->xThreadCountMutex );
     ( void ) vSemaphoreDelete( ( SemaphoreHandle_t ) &pxBarrier->xThreadCountSemaphore );
 
     return 0;
@@ -103,10 +104,6 @@ int pthread_barrier_init( pthread_barrier_t * barrier,
          * argument isn't NULL. */
         ( void ) xEventGroupCreateStatic( &pxNewBarrier->xBarrierEventGroup );
 
-        /* Create the mutex that guards access to uThreadCount. This call
-         * will not fail when its argument isn't NULL. */
-        ( void ) xSemaphoreCreateMutexStatic( &pxNewBarrier->xThreadCountMutex );
-
         /* Create the semaphore that prevents more than count threads from being
          * unblocked by a single successful pthread_barrier_wait. This semaphore
          * counts down from count and cannot decrement below 0. */
@@ -135,31 +132,20 @@ int pthread_barrier_wait( pthread_barrier_t * barrier )
      */
     ( void ) xSemaphoreTake( ( SemaphoreHandle_t ) &pxBarrier->xThreadCountSemaphore, portMAX_DELAY );
 
-    /* Lock the mutex so that this thread can change uThreadCount. This call will
-     * never fail because it blocks forever.*/
-    ( void ) xSemaphoreTake( ( SemaphoreHandle_t ) &pxBarrier->xThreadCountMutex, portMAX_DELAY );
-
-    /* Increment thread count. This is the order that this thread entered the
-     * barrier, i.e. uThreadNumber-1 threads entered the barrier before this one. */
-    pxBarrier->uThreadCount++;
-    uThreadNumber = pxBarrier->uThreadCount;
-    configASSERT( uThreadNumber > 0 );
-
-    /* Unlock the thread count mutex to allow other threads to change thread count.
-     * This call will never fail because xThreadCountMutex is owned by this thread. */
-    ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxBarrier->xThreadCountMutex );
+    uThreadNumber = Atomic_Increment_u32( ( uint32_t * ) &pxBarrier->uThreadCount );
 
     /* Set the bit in the event group representing this thread, then wait for the other
      * threads to set their bit. This call should wait forever until all threads have set
      * their bit, so the return value is ignored. */
     ( void ) xEventGroupSync( ( EventGroupHandle_t ) &pxBarrier->xBarrierEventGroup,
-                              1 << ( uThreadNumber - 1 ),         /* Which bit in the event group to set. */
+                              1 << uThreadNumber,                 /* Which bit in the event group to set. */
                               ( 1 << pxBarrier->uThreshold ) - 1, /* Wait for all threads to set their bits. */
                               portMAX_DELAY );
 
     /* The first thread to enter the barrier gets PTHREAD_BARRIER_SERIAL_THREAD as its
      * return value and resets xThreadCountSemaphore. */
-    if( uThreadNumber == 1 )
+
+    if( uThreadNumber == 0 )
     {
         iStatus = PTHREAD_BARRIER_SERIAL_THREAD;
 
