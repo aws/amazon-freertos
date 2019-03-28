@@ -390,13 +390,4 @@ uint32_t AwsIotDefender_GetPeriod( void );
 const char * AwsIotDefender_strerror( AwsIotDefenderError_t error );
 /* @[declare_defender_strerror] */
 
-/**
- * @page Defender_function_DescribeEventType AwsIotDefender_DescribeEventType
- * @snippet this declare_defender_describeeventtype
- * @brief Return a string that describes #AwsIotDefenderEventType_t
- */
-/* @[declare_defender_describeeventtype] */
-const char * AwsIotDefender_GetEventError();
-/* @[declare_defender_describeeventtype] */
-
 #endif /* end of include guard: _AWS_IOT_DEFENDER_H_ */

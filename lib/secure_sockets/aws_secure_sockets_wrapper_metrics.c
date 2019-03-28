@@ -57,21 +57,16 @@
 
         if( result == SOCKETS_ERROR_NONE )
         {
-            #if 0
             IotMetricsTcpConnection_t connection;
             /* Cast the Socket_t to void pointer as handle. */
-            connection.pHandle = ( void * ) xSocket;
+            connection.id = ( IotMetricsConnectionId_t ) xSocket;
 
             /* The port passed to SocketsSockaddr_t is with network endian.
              * Therefor it must convert back for metrics: from network endian to host endian. */
-            connection.remotePort = SOCKETS_ntohs( pxAddress->usPort );
-
-            /* The IP passed to SocketsSockaddr_t is with network endian.
-             * Therefor it must convert back for metrics: from network endian to host endian. */
-            connection.remoteIP = SOCKETS_ntohl( pxAddress->ulAddress );
+            connection.remotePort = pxAddress->usPort;
+            connection.remoteIp = pxAddress->ulAddress;
 
             IotMetrics_AddTcpConnection( &connection );
-            #endif
         }
 
         return result;
@@ -84,12 +79,10 @@
     {
         int32_t result = SOCKETS_Shutdown( xSocket, ulHow );
 
-        # if 0
         if( result == SOCKETS_ERROR_NONE )
         {
-            IotMetrics_RemoveTcpConnection( ( void * ) xSocket );
+            IotMetrics_RemoveTcpConnection( ( IotMetricsConnectionId_t ) xSocket );
         }
-        #endif
 
         return result;
     }

@@ -87,10 +87,19 @@
         #define IotMetrics_FreeTcpConnection    free
     #endif
 
+    #ifndef IotMetrics_MallocIpAddress
+        #define IotMetrics_MallocIpAddress    malloc
+    #endif
+
+    #ifndef IotMetrics_FreeIpAddress
+        #define IotMetrics_FreeIpAddress    free
+    #endif
+
 #endif /* if IOT_STATIC_MEMORY_ONLY */
 
+/* This data type varies on different platform. */
 #ifndef IotMetricsConnectionId_t
-    #define IotMetricsConnectionId_t    uint32_t
+    #error "'IotMetricsConnectionId_t' must be defended as the socket handle data type."
 #endif
 
 /**
@@ -100,7 +109,12 @@ typedef struct IotMetricsTcpConnection
 {
     IotLink_t link;
     IotMetricsConnectionId_t id;
-    char * pRemoteIP;    /* This is limited to IPv4. */
+    /* This is limited to IPv4. */
+    struct
+    {
+        uint32_t remoteIp; /* In host byte order. */
+        char * pRemoteIp;
+    };
     uint16_t remotePort; /* In host order. */
 } IotMetricsTcpConnection_t;
 

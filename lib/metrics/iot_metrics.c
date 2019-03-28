@@ -1,32 +1,68 @@
+/*
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/*
+ * The implementation is Amazon Freertos specific. It depends on aws_secure_sockets library.
+ */
+
+/* Build using a config header, if provided. */
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
+
+/* Metrics include. */
 #include "platform/iot_metrics.h"
+
+/* Platform threads include. */
 #include "platform/iot_threads.h"
+
+/* Secure sockets include. */
+#include "aws_secure_sockets.h"
+
+/* xxx.xxx.xxx.xxx\0 */
+#define _MAX_IP_STRING_LENGTH    16
+
+/* Compare function to identify the TCP connection id. */
+static bool _tcpConnectionMatch( const IotLink_t * pLink,
+                                 void * pId );
+
+/*------------------- Global Variables ------------------------*/
 
 static IotListDouble_t _connectionsList = IOT_LIST_DOUBLE_INITIALIZER;
 static IotMutex_t _mutex;
 
-/* Compare function to identify the TCP connection data handle. */
-static bool _tcpConnectionMatch( const IotLink_t * pLink,
-                                 void * pHandle );
-
 /*-----------------------------------------------------------*/
 
 static bool _tcpConnectionMatch( const IotLink_t * pLink,
-                                 void * pHandle )
+                                 void * pId )
 {
-    ( void ) pLink; // Remove this line
-    ( void ) pHandle; // Remove this line
-    #if 0
     IotMetrics_Assert( pLink != NULL );
-    IotMetrics_Assert( pHandle != NULL );
+    IotMetrics_Assert( pId != NULL );
 
-    return pHandle == IotLink_Container( IotMetricsTcpConnection_t, pLink, link )->pHandle;
-    #endif
-    return false;
+    return *( ( IotMetricsConnectionId_t * ) pId ) == IotLink_Container( IotMetricsTcpConnection_t, pLink, link )->id;
 }
 
 /*-----------------------------------------------------------*/
 
-bool IotMetrics_Init( void )
+bool IotMetrics_Init()
 {
     bool result = false;
 
@@ -43,10 +79,7 @@ bool IotMetrics_Init( void )
 
 void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection )
 {
-    ( void ) pTcpConnection; // Remove this line
-    #if 0
     IotMetrics_Assert( pTcpConnection != NULL );
-    IotMetrics_Assert( pTcpConnection->pHandle != NULL );
 
     IotMutex_Lock( &_mutex );
 
@@ -54,62 +87,75 @@ void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection )
     if( IotListDouble_FindFirstMatch( &_connectionsList,
                                       NULL,
                                       _tcpConnectionMatch,
-                                      pTcpConnection->pHandle ) == NULL )
+                                      &pTcpConnection->id ) == NULL )
     {
-        IotMetricsTcpConnection_t * pNewTcpConnection = AwsIotMetrics_MallocTcpConnection( sizeof( IotMetricsTcpConnection_t ) );
+        IotMetricsTcpConnection_t * pNewTcpConnection = IotMetrics_MallocTcpConnection( sizeof( IotMetricsTcpConnection_t ) );
 
         if( pNewTcpConnection != NULL )
         {
-            /* Copy TCP connection to the new one. */
+            /* Copy input TCP connection to the new one. */
             *pNewTcpConnection = *pTcpConnection;
 
-            /* Insert to the list. */
-            IotListDouble_InsertTail( &_connectionsList, &( pNewTcpConnection->link ) );
+            /* Allocate memory for ip string. */
+            pNewTcpConnection->pRemoteIp = IotMetrics_MallocIpAddress( _MAX_IP_STRING_LENGTH * sizeof( char ) );
+
+            if( pNewTcpConnection->pRemoteIp != NULL )
+            {
+                /* Convert IP to string. */
+                SOCKETS_inet_ntoa( pNewTcpConnection->remoteIp, pNewTcpConnection->pRemoteIp );
+
+                /* Convert port and IP to host byte order. */
+                pNewTcpConnection->remotePort = SOCKETS_ntohs( pNewTcpConnection->remotePort );
+                pNewTcpConnection->remoteIp = SOCKETS_ntohs( pNewTcpConnection->remoteIp );
+
+                /* Insert to the list. */
+                IotListDouble_InsertTail( &_connectionsList, &( pNewTcpConnection->link ) );
+            }
+            else
+            {
+                IotMetrics_FreeTcpConnection( pNewTcpConnection );
+            }
         }
     }
 
     IotMutex_Unlock( &_mutex );
-    #endif
 }
 
 /*-----------------------------------------------------------*/
 
-void IotMetrics_RemoveTcpConnection( IotMetricsConnectionId_t pTcpConnectionHandle )
+void IotMetrics_RemoveTcpConnection( IotMetricsConnectionId_t tcpConnectionId )
 {
-    ( void ) pTcpConnectionHandle; // Remove this line
-    #if 0
-    IotMetrics_Assert( pTcpConnectionHandle != NULL );
-
     IotMutex_Lock( &_mutex );
 
     IotLink_t * pFoundConnectionLink = IotListDouble_RemoveFirstMatch( &_connectionsList,
                                                                        NULL,
                                                                        _tcpConnectionMatch,
-                                                                       pTcpConnectionHandle );
+                                                                       &tcpConnectionId );
 
     if( pFoundConnectionLink != NULL )
     {
-        AwsIotMetrics_FreeTcpConnection( IotLink_Container( IotMetricsTcpConnection_t, pFoundConnectionLink, link ) );
+        IotMetricsTcpConnection_t * pFoundTcpConnection = IotLink_Container( IotMetricsTcpConnection_t, pFoundConnectionLink, link );
+
+        IotMetrics_FreeIpAddress( pFoundTcpConnection->pRemoteIp );
+        IotMetrics_FreeTcpConnection( pFoundTcpConnection );
     }
 
     IotMutex_Unlock( &_mutex );
-    #endif
 }
 
 /*-----------------------------------------------------------*/
 
 void IotMetrics_ProcessTcpConnections( IotMetricsListCallback_t tcpConnectionsCallback )
 {
-    /* If no callback function is provided, simply return. */
-    if( tcpConnectionsCallback.function == NULL )
+    if( tcpConnectionsCallback.function != NULL )
     {
-        return;
+        IotMutex_Lock( &_mutex );
+
+        /* Execute the callback function. */
+        tcpConnectionsCallback.function( tcpConnectionsCallback.param1, &_connectionsList );
+
+        IotMutex_Unlock( &_mutex );
     }
 
-    IotMutex_Lock( &_mutex );
-
-    /* Execute the callback function. */
-    tcpConnectionsCallback.function( tcpConnectionsCallback.param1, &_connectionsList );
-
-    IotMutex_Unlock( &_mutex );
+    /* If no callback function is provided, simply return. */
 }

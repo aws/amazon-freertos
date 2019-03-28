@@ -84,6 +84,9 @@ static uint32_t _metricsFlagSnapshot[ _DEFENDER_METRICS_GROUP_COUNT ];
 /* Report id integer. */
 uint64_t _AwsIotDefenderReportId = 0;
 
+/* Static storage holding the string of remote address: "ip:port". */
+static char _remoteAddr[ _REMOTE_ADDR_LENGTH ] = "";
+
 /*---------------------- Helper Functions -------------------------*/
 
 static void copyMetricsFlag();
@@ -419,8 +422,6 @@ static void _serializeTcpConnections( IotSerializerEncoderObject_t * pMetricsObj
     uint8_t hasTotal = ( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_TOTAL ) > 0;
     uint8_t hasRemoteAddr = ( tcpConnFlag & AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS_ESTABLISHED_REMOTE_ADDR ) > 0;
 
-    char remoteAddr[ _REMOTE_ADDR_LENGTH ] = "";
-
     void (* assertNoError)( IotSerializerError_t ) = _report.pDataBuffer == NULL ? assertSuccessOrBufferToSmall
                                                      : assertSuccess;
 
@@ -468,10 +469,10 @@ static void _serializeTcpConnections( IotSerializerEncoderObject_t * pMetricsObj
                 /* add remote address */
                 if( hasRemoteAddr )
                 {
-                    sprintf( remoteAddr, "%s:%d", _metrics.tcpConns.pArray[ i ].pRemoteIP, _metrics.tcpConns.pArray[ i ].remotePort );
+                    sprintf( _remoteAddr, "%s:%d", _metrics.tcpConns.pArray[ i ].pRemoteIp, _metrics.tcpConns.pArray[ i ].remotePort );
 
                     serializerError = _AwsIotDefenderEncoder.appendKeyValue( &connectionMap, _REMOTE_ADDR_TAG,
-                                                                             IotSerializer_ScalarTextString( remoteAddr ) );
+                                                                             IotSerializer_ScalarTextString( _remoteAddr ) );
                     assertNoError( serializerError );
                 }
 
