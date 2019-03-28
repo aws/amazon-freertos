@@ -29,8 +29,10 @@
  * @brief Network manager is used to handled different types of network connections and their connection/disconnection events at the application layer.
  */
 #include <string.h>
+#include "aws_doubly_linked_list.h"
+
 #include "iot_demo_logging.h"
-#include "aws_iot_network_manager.h"
+#include "iot_network_manager.h"
 
 #if BLE_ENABLED
 #include "iot_ble_config.h"
@@ -181,7 +183,7 @@ static BaseType_t prxWIFIDisable( void );
  * @param xState State of the network
  * @param pvContext User context passed as it is to the callback
  */
-static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState, void *pvContext );
+static void prvWiFiEventCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState );
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
 /**
@@ -354,7 +356,7 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
 /*-----------------------------------------------------------*/
 
 #if WIFI_ENABLED
-static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState, void *pvContext )
+static void prvWiFiEventCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState )
 {
     if( xState != xWiFiNetworkInfo.xNetworkState )
     {
@@ -390,14 +392,6 @@ static BaseType_t prxWIFIEnable( void )
     if( WIFI_On() == eWiFiSuccess )
     {
         xRet = pdTRUE;
-    }
-
-    if( xRet == pdTRUE )
-    {
-        if( WIFI_RegisterStateChangeCallback( prvWiFiConnectionCallback, NULL ) != eWiFiSuccess )
-        {
-            xRet = pdFALSE;
-        }
     }
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
@@ -572,7 +566,14 @@ BaseType_t AwsIotNetworkManager_Init( void )
             listADD( &xNetworkManagerInfo.xNetworkListHead, &xBLENetworkInfo.xNetworkList );
 #endif
 #if WIFI_ENABLED
-            listADD( &xNetworkManagerInfo.xNetworkListHead, &xWiFiNetworkInfo.xNetworkList );
+
+        listADD( &xNetworkManagerInfo.xNetworkListHead, &xWiFiNetworkInfo.xNetworkList );
+
+        if( WIFI_RegisterNetworkStateChangeEventCallback( prvWiFiEventCallback ) != eWiFiSuccess )
+        {
+            xRet = pdFALSE;
+        }
+            
 #endif
 
             xNetworkManagerInfo.xIsInit = pdTRUE;

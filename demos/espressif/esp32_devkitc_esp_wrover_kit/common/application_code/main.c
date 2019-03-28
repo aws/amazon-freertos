@@ -57,7 +57,6 @@
 #include "driver/uart.h"
 #include "aws_application_version.h"
 #include "iot_network_manager.h"
-#include "aws_iot_network_manager.h"
 
 
 #if BLE_ENABLED
