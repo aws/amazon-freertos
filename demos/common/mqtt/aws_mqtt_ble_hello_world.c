@@ -53,7 +53,7 @@
 #include "iot_mqtt.h"
 
 /* Network connection includes */
-#include "iot_network_manager.h"
+#include "iot_network_manager_private.h"
 #include "aws_iot_demo_network.h"
 
 /* Configuration includes */

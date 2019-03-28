@@ -32,7 +32,7 @@
 #include "aws_doubly_linked_list.h"
 
 #include "iot_demo_logging.h"
-#include "iot_network_manager.h"
+#include "iot_network_manager_private.h"
 
 #if BLE_ENABLED
 #include "iot_ble_config.h"

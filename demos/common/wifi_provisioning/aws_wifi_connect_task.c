@@ -35,7 +35,7 @@
 #include "semphr.h"
 #include "aws_demo_config.h"
 #include "aws_wifi_connect_task.h"
-#include "iot_network_manager.h"
+#include "iot_network_manager_private.h"
 #include "iot_ble_wifi_provisioning.h"
 
 
