@@ -114,7 +114,7 @@ bool Iot_CreateDetachedThread( IotThreadRoutine_t threadRoutine,
 
         if( xTaskCreate( _threadRoutineWrapper,
                          "iot_thread",
-                         ( uint16_t ) stackSize,
+                         ( configSTACK_DEPTH_TYPE ) stackSize,
                          pThreadInfo,
                          priority,
                          NULL ) != pdPASS )
