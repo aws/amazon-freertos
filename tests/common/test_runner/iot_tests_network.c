@@ -29,7 +29,7 @@
     #include IOT_CONFIG_FILE
 #endif
 
-
+#include "stdbool.h"
 #include "private/iot_error.h"
 
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
