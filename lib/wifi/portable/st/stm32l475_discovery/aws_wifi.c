@@ -778,8 +778,8 @@ WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t * pucBuffer )
 
 
 WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
-{
-    xEventCallback = xCallback;
+{ 
+    /** Needs to implement dispatching network state change events **/
     return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/
