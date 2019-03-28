@@ -316,6 +316,13 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     serverAddress.usPort = SOCKETS_htons( pServerInfo->port );
     serverAddress.ulAddress = SOCKETS_GetHostByName( pServerInfo->pHostName );
 
+    /* Check for errors from DNS lookup. */
+    if( serverAddress.ulAddress == 0 )
+    {
+        IotLogError( "Failed to resolve %s.", pServerInfo->pHostName );
+        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+    }
+
     socketStatus = SOCKETS_Connect( tcpSocket,
                                     &serverAddress,
                                     sizeof( SocketsSockaddr_t ) );
@@ -326,7 +333,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
         _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
-    /* Set an infinite timeout for receive. */
+    /* Set a long timeout for receive. */
     socketStatus = SOCKETS_SetSockOpt( tcpSocket,
                                        0,
                                        SOCKETS_SO_RCVTIMEO,
