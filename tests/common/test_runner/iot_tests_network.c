@@ -31,6 +31,7 @@
 
 
 #include "private/iot_error.h"
+#include "stdbool.h"
 
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 static bool bleEnabled = false;
