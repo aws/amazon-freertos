@@ -29,7 +29,6 @@
     #include IOT_CONFIG_FILE
 #endif
 
-#include "stdbool.h"
 #include "private/iot_error.h"
 #include "stdbool.h"
 
