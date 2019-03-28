@@ -1119,4 +1119,8 @@ BaseType_t WIFI_IsConnected( void )
     return xIsConnected;
 }
 
-
+WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+{
+    /** Needs to implement dispatching network state change events **/
+    return eWiFiNotSupported;
+}

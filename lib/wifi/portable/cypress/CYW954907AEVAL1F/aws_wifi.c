@@ -498,3 +498,9 @@ BaseType_t WIFI_IsConnected(void)
     configPRINTF( ( "WIFI_IsConnected...\r\n") );
     return isConnected;
 }
+
+WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+{
+    /** Needs to implement dispatching network state change events **/
+    return eWiFiNotSupported;
+}
