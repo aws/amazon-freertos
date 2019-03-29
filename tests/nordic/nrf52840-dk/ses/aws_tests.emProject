@@ -226,7 +226,6 @@
           <file file_name="../../../../lib/shadow/aws_iot_shadow_parser.c" />
           <file file_name="../../../../lib/shadow/aws_iot_shadow_subscription.c" />
           <file file_name="../../../../lib/shadow/aws_shadow.c" />
-          <file file_name="../../../../lib/shadow/aws_shadow_json.c" />
         </folder>
       </folder>
       <folder Name="third_party">
