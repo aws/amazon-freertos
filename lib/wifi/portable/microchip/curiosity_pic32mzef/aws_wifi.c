@@ -1131,6 +1131,10 @@ WIFIReturnCode_t WIFI_NetworkDelete( uint16_t usIndex )
     #endif /* ifdef ENABLE_NETWORK_STORAGE */
 }
 
-
+WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+{
+    /** Needs to implement dispatching network state change events **/
+    return eWiFiNotSupported;
+}
 
 #endif /*PIC32_USE_ETHERNET*/

@@ -64,8 +64,7 @@ typedef struct StorageRegistry
 } StorageRegistry_t;
 static BaseType_t xIsRegistryInit = pdFALSE;
 static StorageRegistry_t xRegistry = { 0 };
-AwsIotNetworkStateChangeCb_t xStateChangeAppCallback = AWSIOT_NETWORK_STATE_CHANGE_CB_INITIALIZER;
-void *pvAppContext = NULL;
+static IotNetworkStateChangeEventCallback_t xEventCallback = NULL;
 
 /**
  * @brief Semaphore for WiFI module.
@@ -96,9 +95,9 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             wifi_conn_state = true;
             xEventGroupClearBits(wifi_event_group, DISCONNECTED_BIT);
             xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
-            if( xStateChangeAppCallback  != AWSIOT_NETWORK_STATE_CHANGE_CB_INITIALIZER )
+            if( xEventCallback != NULL )
             {
-            	xStateChangeAppCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled, pvAppContext );
+            	xEventCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateEnabled );
             }
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
@@ -129,9 +128,9 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
             wifi_conn_state = false;
             xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
             xEventGroupSetBits(wifi_event_group, DISCONNECTED_BIT);
-            if( xStateChangeAppCallback  != AWSIOT_NETWORK_STATE_CHANGE_CB_INITIALIZER )
+            if( xEventCallback != NULL )
             {
-            	xStateChangeAppCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled, pvAppContext );
+            	xEventCallback( AWSIOT_NETWORK_TYPE_WIFI, eNetworkStateDisabled );
             }
             break;
         case SYSTEM_EVENT_AP_START:
@@ -1334,12 +1333,9 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 }
 /*-----------------------------------------------------------*/
 
-WIFIReturnCode_t WIFI_RegisterStateChangeCallback( AwsIotNetworkStateChangeCb_t xCallback, void* pvContext )
+WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
 {
-	xStateChangeAppCallback = xCallback;
-	pvAppContext = pvContext;
+	xEventCallback = xCallback;
 	return eWiFiSuccess;
 }
-
-
 /*-----------------------------------------------------------*/

@@ -775,4 +775,11 @@ WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t * pucBuffer )
 
     return xRetVal;
 }
+
+
+WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+{ 
+    /** Needs to implement dispatching network state change events **/
+    return eWiFiNotSupported;
+}
 /*-----------------------------------------------------------*/

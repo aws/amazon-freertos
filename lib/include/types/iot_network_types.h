@@ -1,3 +1,4 @@
+
 /*
  * Amazon FreeRTOS
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
@@ -25,29 +26,34 @@
 
 
 /**
- * @file aws_iot_network.h
- * @brief Header file containing the network management APIs
+ * @file iot_network_types.h
+ * @brief Header file contains the network types shared by both low level networking drivers
+ * and upper level applications.
  */
-#ifndef _AWS_BLE_NUMERIC_COMPARISON_H_
-#define _AWS_BLE_NUMERIC_COMPARISON_H_
 
-#include "queue.h"
+#ifndef IOT_NETWORK_TYPES_H_
+#define IOT_NETWORK_TYPES_H_
+/**
+ * @brief Network types supported by Amazon FreeRTOS.
+ */
+#define AWSIOT_NETWORK_TYPE_NONE     0x00000000
+#define AWSIOT_NETWORK_TYPE_WIFI     0x00000001
+#define AWSIOT_NETWORK_TYPE_BLE      0x00000002
 
-typedef struct{
-	uint8_t * pcData;
-    size_t xDataSize;
-}INPUTMessage_t;
-
-extern QueueHandle_t xNumericComparisonQueue;
-
-extern void BLENumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey);
-
-extern void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
-        BTBdaddr_t * pxRemoteBdAddr,
-        BTSecurityLevel_t xSecurityLevel,
-        BTAuthFailureReason_t xReason );
-extern void NumericComparisonInit(void);
-extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout );
+/**
+ * @brief Enum types representing states for different networks.
+ */
+typedef enum AwsIotNetworkState
+{
+    eNetworkStateUnknown = 0,//!< eNetworkStateUnknown State of the network is unknown
+    eNetworkStateDisabled,   //!< eNetworkStateDisabled State of the network is disabled/disconnected
+    eNetworkStateEnabled     //!< eNetworkStateEnabled  State of the network is enabled and connected.
+} AwsIotNetworkState_t;
 
 
-#endif /* _AWS_IOT_NETWORK_MANAGER_H_ */
+/**
+ * @brief Callback invoked by a driver to post network state change events.
+ */
+typedef void ( *IotNetworkStateChangeEventCallback_t ) ( uint32_t ulNetworkType, AwsIotNetworkState_t xState );
+
+#endif /* IOT_NETWORK_TYPES_H_ */

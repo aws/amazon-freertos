@@ -29,8 +29,12 @@
  * @brief Network manager is used to handled different types of network connections and their connection/disconnection events at the application layer.
  */
 #include <string.h>
+
+
 #include "iot_demo_logging.h"
-#include "aws_iot_network_manager.h"
+#include "iot_network_manager_private.h"
+
+#include "iot_linear_containers.h"
 
 #if BLE_ENABLED
 #include "iot_ble_config.h"
@@ -57,12 +61,12 @@
 /**
  * @brief Initializer for WiFi Network Info structure.
  */
-#define _NETWORK_INFO_WIFI            { .ulNetworkType = AWSIOT_NETWORK_TYPE_WIFI, .xNetworkState = eNetworkStateUnknown }
+#define _NETWORK_INFO_WIFI            { .ulNetworkType = AWSIOT_NETWORK_TYPE_WIFI, .xNetworkList = IOT_LINK_INITIALIZER, .xNetworkState = eNetworkStateUnknown }
 
 /**
  * @brief Initializer for BLE Network Info structure.
  */
-#define _NETWORK_INFO_BLE             { .ulNetworkType = AWSIOT_NETWORK_TYPE_BLE, .xNetworkState = eNetworkStateUnknown }
+#define _NETWORK_INFO_BLE             { .ulNetworkType = AWSIOT_NETWORK_TYPE_BLE, .xNetworkList = IOT_LINK_INITIALIZER, .xNetworkState = eNetworkStateUnknown }
 
 /**
  * @brief User callback execution context used by task pool job.
@@ -82,7 +86,7 @@ typedef struct NMCallbackExecutionContext
  */
 typedef struct NMSubscription
 {
-    Link_t xSubscriptionList;
+    IotLink_t xSubscriptionList;
     uint32_t ulNetworkTypes;
     AwsIotNetworkStateChangeCb_t xUserCallback;
     void *pvUserContext;
@@ -94,7 +98,7 @@ typedef struct NMSubscription
  */
 typedef struct NMNetworkInfo
 {
-    Link_t xNetworkList;
+    IotLink_t xNetworkList;
     uint32_t ulNetworkType;
     AwsIotNetworkState_t xNetworkState;
 } NMNetworkInfo_t;
@@ -106,8 +110,8 @@ typedef struct NMNetworkInfo
 typedef struct NetworkManagerInfo
 {
     SemaphoreHandle_t xSubscriptionLock;
-    Link_t xSubscriptionListHead;
-    Link_t xNetworkListHead;
+    IotListDouble_t xSubscriptionListHead;
+    IotListDouble_t xNetworkListHead;
     IotTaskPool_t* pxTaskPool;
     NMCallbackExecutionContext_t xJobs[ _MAX_CONCURRENT_JOBS ];
     bool xIsInit;
@@ -181,7 +185,7 @@ static BaseType_t prxWIFIDisable( void );
  * @param xState State of the network
  * @param pvContext User context passed as it is to the callback
  */
-static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState, void *pvContext );
+static void prvWiFiEventCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState );
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
 /**
@@ -198,7 +202,7 @@ static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t 
 static void prvUserCallbackRoutine( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
 
 
-static NetworkManagerInfo_t xNetworkManagerInfo = { 0 };
+static NetworkManagerInfo_t xNetworkManagerInfo = { .xSubscriptionListHead = IOT_LIST_DOUBLE_INITIALIZER, .xNetworkListHead = IOT_LIST_DOUBLE_INITIALIZER };
 
 
 
@@ -354,7 +358,7 @@ static void prvBLEConnectionCallback( BTStatus_t xStatus,
 /*-----------------------------------------------------------*/
 
 #if WIFI_ENABLED
-static void prvWiFiConnectionCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState, void *pvContext )
+static void prvWiFiEventCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xState )
 {
     if( xState != xWiFiNetworkInfo.xNetworkState )
     {
@@ -390,14 +394,6 @@ static BaseType_t prxWIFIEnable( void )
     if( WIFI_On() == eWiFiSuccess )
     {
         xRet = pdTRUE;
-    }
-
-    if( xRet == pdTRUE )
-    {
-        if( WIFI_RegisterStateChangeCallback( prvWiFiConnectionCallback, NULL ) != eWiFiSuccess )
-        {
-            xRet = pdFALSE;
-        }
     }
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 0 )
@@ -488,17 +484,15 @@ static void prvInvokeSubscription( uint32_t ulNetworkType, AwsIotNetworkState_t 
 
 static void prvUserCallbackRoutine( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
 {
-    Link_t* pxLink = NULL;
+    IotLink_t* pxLink = NULL;
     NMSubscription_t* pxSubscription = NULL;
     NMCallbackExecutionContext_t* pxContext = ( NMCallbackExecutionContext_t* ) pUserContext;
     IotTaskPoolError_t xError = IOT_TASKPOOL_NO_MEMORY;
 
-    configASSERT( pxContext != NULL );
-
     ( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
-    listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
+    IotContainers_ForEach( &xNetworkManagerInfo.xSubscriptionListHead,  pxLink )
     {
-        pxSubscription = listCONTAINER( pxLink, NMSubscription_t, xSubscriptionList );
+        pxSubscription = IotLink_Container( NMSubscription_t, pxLink,  xSubscriptionList );
         pxSubscription->xUserCallback(pxContext->ulNetworkType, pxContext->xNewtorkEvent, pxSubscription->pvUserContext);
 
     }
@@ -565,16 +559,21 @@ BaseType_t AwsIotNetworkManager_Init( void )
 
         if( xRet == pdTRUE )
         {
-            listINIT_HEAD( &xNetworkManagerInfo.xSubscriptionListHead );
-            listINIT_HEAD( &xNetworkManagerInfo.xNetworkListHead );
-
+            IotListDouble_Create( &xNetworkManagerInfo.xSubscriptionListHead );
+            IotListDouble_Create( &xNetworkManagerInfo.xNetworkListHead );
+        
 #if BLE_ENABLED
-            listADD( &xNetworkManagerInfo.xNetworkListHead, &xBLENetworkInfo.xNetworkList );
-#endif
-#if WIFI_ENABLED
-            listADD( &xNetworkManagerInfo.xNetworkListHead, &xWiFiNetworkInfo.xNetworkList );
+            IotListDouble_InsertTail( &xNetworkManagerInfo.xNetworkListHead, &xBLENetworkInfo.xNetworkList );
 #endif
 
+#if WIFI_ENABLED
+
+           IotListDouble_InsertTail( &xNetworkManagerInfo.xNetworkListHead, &xWiFiNetworkInfo.xNetworkList );
+           if( WIFI_RegisterNetworkStateChangeEventCallback( prvWiFiEventCallback ) != eWiFiSuccess )
+           {
+                xRet = pdFALSE;
+           } 
+#endif
             xNetworkManagerInfo.xIsInit = pdTRUE;
         }
         else
@@ -603,8 +602,8 @@ BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes
             pxSubscription->pvUserContext = pvContext;
             pxSubscription->xUserCallback = xCallback;
 
-            ( void ) xSemaphoreTake(xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
-            listADD( &xNetworkManagerInfo.xSubscriptionListHead, &pxSubscription->xSubscriptionList );
+            ( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
+            IotListDouble_InsertTail( &xNetworkManagerInfo.xSubscriptionListHead, &pxSubscription->xSubscriptionList );
             ( void ) xSemaphoreGive( xNetworkManagerInfo.xSubscriptionLock );
             *pxHandle = ( SubscriptionHandle_t ) pxSubscription;
             xRet = pdTRUE;
@@ -625,18 +624,18 @@ BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandl
 {
     BaseType_t xRet = pdFALSE;
     NMSubscription_t* ppxSubscription, *pxListItem;
-    Link_t* pxLink;
+    IotLink_t* pxLink;
 
     if( xNetworkManagerInfo.xIsInit )
     {
         ppxSubscription = ( NMSubscription_t* ) xHandle;
         ( void ) xSemaphoreTake( xNetworkManagerInfo.xSubscriptionLock, portMAX_DELAY );
-        listFOR_EACH( pxLink, &xNetworkManagerInfo.xSubscriptionListHead )
+        IotContainers_ForEach( &xNetworkManagerInfo.xSubscriptionListHead, pxLink )
         {
-            pxListItem = listCONTAINER( pxLink, NMSubscription_t, xSubscriptionList );
+            pxListItem = IotLink_Container( NMSubscription_t, pxLink, xSubscriptionList );
             if( pxListItem == ppxSubscription )
             {
-                listREMOVE( pxLink );
+                IotListDouble_Remove( pxLink );
                 vPortFree( ppxSubscription );
                 xRet = pdTRUE;
                 break;
@@ -651,12 +650,12 @@ BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandl
 
 uint32_t AwsIotNetworkManager_GetConfiguredNetworks( void )
 {
-    Link_t* pxLink;
+    IotLink_t* pxLink;
     NMNetworkInfo_t* pxNetwork;
     uint32_t ulRet = AWSIOT_NETWORK_TYPE_NONE;
-    listFOR_EACH( pxLink, &xNetworkManagerInfo.xNetworkListHead )
+    IotContainers_ForEach( &xNetworkManagerInfo.xNetworkListHead, pxLink )
     {
-        pxNetwork = listCONTAINER( pxLink, NMNetworkInfo_t, xNetworkList );
+        pxNetwork = IotLink_Container( NMNetworkInfo_t, pxLink, xNetworkList );
         ulRet |= pxNetwork->ulNetworkType;
     }
     return ulRet;
@@ -664,12 +663,12 @@ uint32_t AwsIotNetworkManager_GetConfiguredNetworks( void )
 
 uint32_t AwsIotNetworkManager_GetEnabledNetworks( void )
 {
-    Link_t* pxLink;
+    IotLink_t* pxLink;
     NMNetworkInfo_t* pxNetwork;
     uint32_t ulRet = AWSIOT_NETWORK_TYPE_NONE;
-    listFOR_EACH( pxLink, &xNetworkManagerInfo.xNetworkListHead )
+    IotContainers_ForEach( &xNetworkManagerInfo.xNetworkListHead, pxLink )
     {
-        pxNetwork = listCONTAINER( pxLink, NMNetworkInfo_t, xNetworkList );
+        pxNetwork = IotLink_Container( NMNetworkInfo_t, pxLink, xNetworkList );
         if( pxNetwork->xNetworkState != eNetworkStateUnknown )
         {
             ulRet |= pxNetwork->ulNetworkType;
@@ -681,12 +680,12 @@ uint32_t AwsIotNetworkManager_GetEnabledNetworks( void )
 
 uint32_t AwsIotNetworkManager_GetConnectedNetworks( void )
 {
-    Link_t* pxLink;
+    IotLink_t* pxLink;
     NMNetworkInfo_t* pxNetwork;
     uint32_t ulRet = AWSIOT_NETWORK_TYPE_NONE;
-    listFOR_EACH( pxLink, &xNetworkManagerInfo.xNetworkListHead )
+    IotContainers_ForEach( &xNetworkManagerInfo.xNetworkListHead, pxLink )
     {
-        pxNetwork = listCONTAINER( pxLink, NMNetworkInfo_t, xNetworkList );
+        pxNetwork = IotLink_Container( NMNetworkInfo_t, pxLink, xNetworkList );
         if( pxNetwork->xNetworkState == eNetworkStateEnabled )
         {
             ulRet |= pxNetwork->ulNetworkType;
