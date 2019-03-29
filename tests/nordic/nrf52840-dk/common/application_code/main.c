@@ -471,7 +471,8 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    /* Disabling printf since printf requires malloc!!. */
+   /* configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) ); */
 }
 /*-----------------------------------------------------------*/
 

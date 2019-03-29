@@ -483,6 +483,7 @@
     <ClCompile Include="..\..\..\common\mqtt\unit\iot_tests_mqtt_validate.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_cbor.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_agent.c" />
+    <ClCompile Include="..\..\..\common\ota\aws_test_ota_end_to_end.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_pal.c" />
     <ClCompile Include="..\..\..\common\pkcs11\aws_test_pkcs11.c" />
     <ClCompile Include="..\..\..\common\posix\aws_test_posix_clock.c" />
