@@ -25,6 +25,19 @@ afr_module_sources(
         "${AFR_DEMOS_DIR}/include/aws_logging_task.h"
 )
 
+# C SDK MQTT demo
+afr_demo_module(demo_mqtt_v4)
+afr_module_sources(
+    demo_mqtt_v4
+    INTERFACE
+        "${AFR_DEMOS_DIR}/mqtt/iot_demo_mqtt.c"
+)
+afr_module_dependencies(
+    demo_mqtt_v4
+    INTERFACE
+        AFR::mqtt
+)
+
 # MQTT hello world demo
 afr_demo_module(demo_mqtt_hello_world)
 afr_module_sources(
@@ -118,6 +131,7 @@ afr_module_sources(
     demo_base
     INTERFACE
         "${AFR_DEMOS_DIR}/demo_runner/aws_demo_runner.c"
+        "${AFR_DEMOS_DIR}/demo_runner/iot_demo_afr.c"
         "${AFR_DEMOS_DIR}/include/aws_demo.h"
         "${AFR_DEMOS_DIR}/include/aws_demo_runner.h"
         "${AFR_DEMOS_DIR}/include/aws_clientcredential.h"

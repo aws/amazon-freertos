@@ -2,7 +2,7 @@ afr_module(ota)
 
 afr_module_sources(
     ota PRIVATE
-        "${AFR_MODULES_DIR}/ota/aws_ota_agent.c"
+        "${AFR_MODULES_DIR}/ota/aws_iot_ota_agent.c"
         "${AFR_MODULES_DIR}/ota/aws_ota_cbor.c"
         "${AFR_MODULES_DIR}/include/aws_ota_agent.h"
         "${AFR_MODULES_DIR}/include/private/aws_ota_cbor.h"

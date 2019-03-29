@@ -4,26 +4,25 @@ afr_module_sources(
     mqtt
     PRIVATE
         "${AFR_MODULES_DIR}/mqtt/aws_mqtt_agent.c"
-        "${AFR_MODULES_DIR}/mqtt/aws_mqtt_lib.c"
-        "${AFR_MODULES_DIR}/include/aws_mqtt_agent.h"
-        "${AFR_MODULES_DIR}/include/aws_mqtt_lib.h"
-        "${AFR_MODULES_DIR}/include/private/aws_mqtt_buffer.h"
-        "${AFR_MODULES_DIR}/include/private/aws_mqtt_config_defaults.h"
-        "${AFR_MODULES_DIR}/include/private/aws_mqtt_agent_config_defaults.h"
-        "${AFR_MODULES_DIR}/include/private/aws_doubly_linked_list.h"
+        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_api.c"
+        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_network.c"
+        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_operation.c"
+        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_serialize.c"
+        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_subscription.c"
+        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_validate.c"
 )
 
 afr_module_include_dirs(
     mqtt
     PUBLIC
         "${AFR_MODULES_DIR}/include"
-        "${AFR_MODULES_DIR}/include/private"
+    PRIVATE
+        "${AFR_TESTS_DIR}/mqtt/access"
 )
 
 afr_module_dependencies(
     mqtt
     PUBLIC
-        AFR::secure_sockets
-    PRIVATE
-        AFR::bufferpool
+        AFR::sdk_platform
+        AFR::sdk_common
 )

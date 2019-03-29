@@ -126,7 +126,14 @@
 
 /* Settings required to build the libraries for testing. */
 #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
-#define IOT_BUILD_TESTS                         ( 1 )
+
+#ifndef IOT_BUILD_TESTS
+    #define IOT_BUILD_TESTS                         ( 1 )
+#endif
+
+#if IOT_BUILD_TESTS != 1
+    #error "IOT_BUILD_TESTS must be 1 for test project."
+#endif
 
 /* Static memory configuration. */
 #if IOT_STATIC_MEMORY_ONLY == 1

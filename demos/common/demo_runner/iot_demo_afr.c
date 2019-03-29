@@ -109,9 +109,9 @@ void vStartMQTTDemo( void )
 {
     ( void ) xTaskCreate( _mqttDemoTask,
                           "MQTTDemo",
-                          democonfigMQTT_ECHO_TASK_STACK_SIZE,
+                          IOT_THREAD_DEFAULT_STACK_SIZE,
                           NULL,
-                          democonfigMQTT_ECHO_TASK_PRIORITY,
+                          IOT_THREAD_DEFAULT_PRIORITY,
                           NULL );
 }
 
