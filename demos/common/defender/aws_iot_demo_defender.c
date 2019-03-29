@@ -170,6 +170,8 @@ static void _defenderTask( void * param )
     #endif
 
     IotLogInfo( "----Device Defender Demo End----.\r\n" );
+    
+    vTaskDelete( NULL ); /* Delete this task. */
 }
 
 /*-----------------------------------------------------------*/

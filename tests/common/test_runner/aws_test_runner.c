@@ -148,7 +148,6 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
         RUN_TEST_GROUP( Full_DEFENDER );
-        RUN_TEST_GROUP( Full_DEFENDER_OLD );
     #endif
 
     #if ( testrunnerFULL_POSIX_ENABLED == 1 )

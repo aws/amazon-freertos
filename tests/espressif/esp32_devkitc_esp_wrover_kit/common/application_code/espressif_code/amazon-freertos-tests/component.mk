@@ -16,6 +16,7 @@ AMAZON_FREERTOS_DEMOS_DIR := $(AMAZON_FREERTOS_ROOT_DIR)/demos
 # Amazon FreeRTOS Libraries
 #--------------------------------------------------------------------------------------
 COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
+        $(AMAZON_FREERTOS_LIB_DIR)/defender \
         $(AMAZON_FREERTOS_LIB_DIR)/shadow \
         $(AMAZON_FREERTOS_LIB_DIR)/greengrass \
         $(AMAZON_FREERTOS_LIB_DIR)/utils \
@@ -54,6 +55,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/includ
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/jsmn \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include/portable/espressif/esp32_devkitc_esp_wrover_kit \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor \
+        $(AMAZON_FREERTOS_LIB_DIR)/cbor/src \
 	$(AMAZON_FREERTOS_LIB_DIR)/include/bluetooth_low_energy \
 	$(AMAZON_FREERTOS_LIB_DIR)/include/bluetooth_low_energy/private \
 	$(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif
@@ -79,6 +81,7 @@ COMPONENT_SRCDIRS += ../.. \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/framework \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/memory_leak \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/secure_sockets \
+        $(AMAZON_FREERTOS_TESTS_DIR)/common/defender \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/shadow \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/greengrass \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/crypto \

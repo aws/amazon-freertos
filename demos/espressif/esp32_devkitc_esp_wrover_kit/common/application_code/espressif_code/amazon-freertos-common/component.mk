@@ -2,6 +2,7 @@ AMAZON_FREERTOS_LIB_DIR := ../../../../../../../lib
 AMAZON_FREERTOS_DEMOS_DIR := ../../../../../../../demos
 
 COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
+        $(AMAZON_FREERTOS_LIB_DIR)/defender \
         $(AMAZON_FREERTOS_LIB_DIR)/shadow \
         $(AMAZON_FREERTOS_LIB_DIR)/greengrass \
         $(AMAZON_FREERTOS_LIB_DIR)/utils \
@@ -47,6 +48,7 @@ ifndef AMAZON_FREERTOS_ENABLE_UNIT_TEST
 COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/demo_runner \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/shadow \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/common/defender \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt_v4 \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt_v4/network/bluetooth \

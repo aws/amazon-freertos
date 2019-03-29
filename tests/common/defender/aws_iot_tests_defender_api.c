@@ -20,6 +20,7 @@
  */
 
 #include <string.h>
+#include <stdarg.h>
 #include "FreeRTOS.h"
 
 #include "projdefs.h"
