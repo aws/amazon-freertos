@@ -48,7 +48,18 @@
 /**
  *   @brief Length of a SHA256 digest, in bytes.
  */
-#define pcks11SHA256_DIGEST_LENGTH       32
+#define pcks11SHA256_DIGEST_LENGTH           32
+
+/**
+ * @brief Length of a curve P-256 ECDSA signature, in bytes.
+ */
+#define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
+
+/**
+ * @brief Length of PKCS #11 signature for RSA 2048 key, in bytes.
+ */
+#define pkcs11RSA_2048_SIGNATURE_LENGTH      ( 2048 / 8 )
+
 
 /**
  * @brief Elliptic-curve object identifiers.
@@ -134,6 +145,7 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
 
 
 #define pkcs11INVALID_OBJECT_HANDLE    0
+#define pkcs11INVALID_MECHANISM        0xFFFFFFFF
 
 #define pkcs11MAX_LABEL_LENGTH         32  /* 31 characters + 1 null terminator. */
 

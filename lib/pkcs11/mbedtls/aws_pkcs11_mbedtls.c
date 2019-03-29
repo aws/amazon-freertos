@@ -93,9 +93,11 @@ typedef struct P11Session
     CK_BBOOL xFindObjectComplete;
     SearchableAttributes_t * xFindObjectTemplate; /* Pointer to the template of the search in progress. Should be NULL if no search in progres. */
     uint8_t xFindObjectLabelLength;
-    SemaphoreHandle_t xVerifyMutex;               /* Protects the verification key from being modified while in use. */
+    CK_MECHANISM_TYPE xVerifyMechanism;
+    SemaphoreHandle_t xVerifyMutex; /* Protects the verification key from being modified while in use. */
     mbedtls_pk_context xVerifyKey;
-    SemaphoreHandle_t xSignMutex;                 /* Protects the signing key from being modified while in use. */
+    CK_MECHANISM_TYPE xSignMechanism;
+    SemaphoreHandle_t xSignMutex; /* Protects the signing key from being modified while in use. */
     mbedtls_pk_context xSignKey;
     mbedtls_sha256_context xSHA256Context;
 } P11Session_t, * P11SessionPtr_t;
@@ -259,7 +261,7 @@ CK_RV xCreateSearchableAttributeTemplate( SearchableAttributes_t * pxFindObjectI
     /* Unpack provided template and store information serially. */
     if( xResult == CKR_OK )
     {
-        for( int i = 0; i < ulCount; i++ )
+        for( uint32_t i = 0; i < ulCount; i++ )
         {
             CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
 
@@ -570,13 +572,12 @@ CK_RV prvCreateCertificate( SearchableAttributes_t * pxSearchable,
                             CK_ULONG ulCount,
                             CK_OBJECT_HANDLE_PTR pxObject )
 {
-    SearchableAttributes_t xAttributes;
     CK_RV xResult = CKR_OK;
     CK_BYTE_PTR pxCertificateValue = NULL;
     CK_ULONG xCertificateLength = 0;
 
     /* Search for the pointer to the certificate VALUE. */
-    for( int i = 0; i < ulCount; i++ )
+    for( uint32_t i = 0; i < ulCount; i++ )
     {
         CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
 
@@ -612,7 +613,7 @@ CK_KEY_TYPE prvGetKeyType( CK_ATTRIBUTE_PTR pxTemplate,
 {
     CK_KEY_TYPE xKeyType = PKCS11_INVALID_KEY_TYPE;
 
-    for( int i = 0; i < ulCount; i++ )
+    for( uint32_t i = 0; i < ulCount; i++ )
     {
         CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
 
@@ -644,7 +645,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
     /* At this time, only P-256 curves are supported. */
     mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
 
-    for( int i = 0; i < ulCount; i++ )
+    for( uint32_t i = 0; i < ulCount; i++ )
     {
         CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
 
@@ -710,7 +711,7 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     /* Get the memory management of this context right in the morning. */
 
     /* Parse template and collect the relevant parts. */
-    for( int i = 0; i < ulCount; i++ )
+    for( uint32_t i = 0; i < ulCount; i++ )
     {
         CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
 
@@ -924,7 +925,7 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
     /* At this time, only P-256 curves are supported. */
     mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
 
-    for( int i = 0; i < ulCount; i++ )
+    for( uint32_t i = 0; i < ulCount; i++ )
     {
         CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
 
@@ -1070,7 +1071,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
     SearchableAttributes_t xSearchable;
     PKCS11_CertificateTemplatePtr_t pxCertificateTemplate = NULL;
     CK_ATTRIBUTE_PTR pxObjectClassAttribute = pxTemplate;
-    CK_OBJECT_CLASS xClass;
 
     /* Avoid warnings about unused parameters. */
     ( void ) xSession;
@@ -1549,6 +1549,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = CKR_OK;
     CK_BBOOL xIsPrivate;
+    CK_BBOOL xCleanupNeeded = CK_FALSE;
+
+    mbedtls_pk_type_t xKeyType;
 
     /*lint !e9072 It's OK to have different parameter name. */
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
@@ -1557,61 +1560,111 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 
     if( NULL == pxMechanism )
     {
+        PKCS11_PRINT( ( "ERROR: Null signing mechanism provided. \r\n" ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
-    else
+
+    /* Retrieve key value from storage. */
+    if( xResult == CKR_OK )
     {
         xResult = PKCS11_PAL_GetObjectValue( xKey, &keyData, &ulKeyDataLength, &xIsPrivate );
 
-        if( xIsPrivate != CK_TRUE )
-        {
-            xResult = CKR_KEY_TYPE_INCONSISTENT;
-        }
-
         if( xResult == CKR_OK )
         {
-            if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, portMAX_DELAY ) )
+            xCleanupNeeded = CK_TRUE;
+        }
+        else
+        {
+            PKCS11_PRINT( ( "ERROR: Unable to retrieve value of private key for signing %d. \r\n", xResult ) );
+        }
+    }
+
+    /* Check that a private key was retrieved. */
+    if( xResult == CKR_OK )
+    {
+        if( xIsPrivate != CK_TRUE )
+        {
+            PKCS11_PRINT( ( "ERROR: Sign operation attempted with public key. \r\n" ) );
+            xResult = CKR_KEY_TYPE_INCONSISTENT;
+        }
+    }
+
+    /* Convert the private key from storage format to mbedTLS usable format. */
+    if( xResult == CKR_OK )
+    {
+        /* Grab the sign mutex.  This ensures that no signing operation
+         * is underway on another thread where modification of key would lead to hard fault.*/
+        if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, portMAX_DELAY ) )
+        {
+            /* Free the private key context if it exists.
+             * TODO: Check if the key is the same as was used previously. */
+            if( NULL != pxSession->xSignKey.pk_ctx )
             {
-                /* Free the private key context if it exists.
-                 * TODO: Check if the key is the same as was used previously. */
-                if( NULL != pxSession->xSignKey.pk_ctx )
-                {
-                    mbedtls_pk_free( &pxSession->xSignKey );
-                }
-
-                mbedtls_pk_init( &pxSession->xSignKey );
-
-                if( 0 == mbedtls_pk_parse_key( &pxSession->xSignKey, keyData, ulKeyDataLength, NULL, 0 ) )
-                {
-                    /* TODO: Check the mechanism.  Note: Currently, mechanism is being set to CKM_SHA256, rather than
-                     * CKM_RSA_PKCS
-                     * CKM_SHA256_RSA_PKCS
-                     * CKM_ECDSA
-                     * Calling function does not know whether key is RSA or ECDSA.
-                     * xKeyType = mbedtls_pk_get_type( &pxSession->xSignKey );
-                     */
-                }
-                else
-                {
-                    xResult = CKR_KEY_HANDLE_INVALID;
-                }
-
-                xSemaphoreGive( pxSession->xSignMutex );
+                mbedtls_pk_free( &pxSession->xSignKey );
             }
-            else
+
+            mbedtls_pk_init( &pxSession->xSignKey );
+
+            if( 0 != mbedtls_pk_parse_key( &pxSession->xSignKey, keyData, ulKeyDataLength, NULL, 0 ) )
             {
-                xResult = CKR_CANT_LOCK;
+                PKCS11_PRINT( ( "ERROR: Unable to parse private key for signing. \r\n" ) );
+                xResult = CKR_KEY_HANDLE_INVALID;
+            }
+
+            xSemaphoreGive( pxSession->xSignMutex );
+        }
+        else
+        {
+            xResult = CKR_CANT_LOCK;
+        }
+    }
+
+    /* Key has been parsed into mbedTLS pk structure.
+     * Free the memory allocated to copy the key out of flash. */
+    if( xCleanupNeeded == CK_TRUE )
+    {
+        PKCS11_PAL_GetObjectValueCleanup( keyData, ulKeyDataLength );
+    }
+
+    /* Check that the mechanism and key type are compatible, supported. */
+    if( xResult == CKR_OK )
+    {
+        xKeyType = mbedtls_pk_get_type( &pxSession->xSignKey );
+
+        if( pxMechanism->mechanism == CKM_RSA_X_509 )
+        {
+            if( xKeyType != MBEDTLS_PK_RSA )
+            {
+                PKCS11_PRINT( ( "ERROR: Signing key type (%d) does not match RSA mechanism \r\n", xKeyType ) );
+                xResult = CKR_KEY_TYPE_INCONSISTENT;
             }
         }
+        else if( pxMechanism->mechanism == CKM_ECDSA )
+        {
+            if( ( xKeyType != MBEDTLS_PK_ECDSA ) && ( xKeyType != MBEDTLS_PK_ECKEY ) )
+            {
+                PKCS11_PRINT( ( "ERROR: Signing key type (%d) does not match ECDSA mechanism \r\n", xKeyType ) );
+                xResult = CKR_KEY_TYPE_INCONSISTENT;
+            }
+        }
+        else
+        {
+            PKCS11_PRINT( ( "ERROR: Unsupported mechanism type %d \r\n", pxMechanism->mechanism ) );
+            xResult = CKR_MECHANISM_INVALID;
+        }
+    }
 
-        PKCS11_PAL_GetObjectValueCleanup( keyData, ulKeyDataLength );
+    if( xResult == CKR_OK )
+    {
+        pxSession->xSignMechanism = pxMechanism->mechanism;
     }
 
     return xResult;
 }
 
 
-xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS, uint8_t * pxMbedSignature )
+void xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
+                                         uint8_t * pxMbedSignature )
 {
     /* Reconstruct the signature in PKCS #11 format. */
     CK_BYTE * pxNextLength;
@@ -1653,9 +1706,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
-
-    size_t x = 100;
-    uint8_t ecSignature[ 100 ];
+    CK_ULONG xSignatureLength;
+    CK_ULONG xExpectedInputLength;
+    CK_BYTE_PTR pxSignatureBuffer = pucSignature;
+    uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 15 ]; /*TODO: Figure out this length. */
+    int lMbedTLSResult;
 
     if( NULL == pulSignatureLen )
     {
@@ -1664,41 +1719,64 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
     if( CKR_OK == xResult )
     {
-        if( NULL == pucSignature )
+        /* Update the signature lenght. */
+
+        if( pxSessionObj->xSignMechanism == CKM_RSA_X_509 )
         {
-            *pulSignatureLen = pkcs11SUPPORTED_KEY_BITS / 8;
+            xSignatureLength = pkcs11RSA_2048_SIGNATURE_LENGTH;
+            xExpectedInputLength = pkcs11RSA_2048_SIGNATURE_LENGTH;
+        }
+        else if( pxSessionObj->xSignMechanism == CKM_ECDSA )
+        {
+            xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
+            xExpectedInputLength = pcks11SHA256_DIGEST_LENGTH;
+            pxSignatureBuffer = ecSignature;
         }
         else
         {
-            /*
-             * Check algorithm support.
-             */
+            xResult = CKR_OPERATION_NOT_INITIALIZED;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        /* Calling application is trying to determine length needed for signature buffer. */
+        if( NULL == pucSignature )
+        {
+            *pulSignatureLen = xSignatureLength;
+        }
+        else
+        {
+            /* Check that the signature buffer is long enough. */
+            if( *pulSignatureLen < xSignatureLength )
+            {
+                xResult = CKR_BUFFER_TOO_SMALL;
+            }
+
+            /* Check that input data to be signed is the expected length. */
             if( CKR_OK == xResult )
             {
-                if( ( CK_ULONG ) cryptoSHA256_DIGEST_BYTES != ulDataLen )
+                if( xExpectedInputLength != ulDataLen )
                 {
                     xResult = CKR_DATA_LEN_RANGE;
                 }
             }
 
-            /*
-             * Sign the data.
-             */
-
+            /* Sign the data.*/
             if( CKR_OK == xResult )
             {
                 if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
                 {
-                    BaseType_t x = mbedtls_pk_sign( &pxSessionObj->xSignKey,
-                                                    MBEDTLS_MD_SHA256,
-                                                    pucData,
-                                                    ulDataLen,
-                                                    ecSignature,
-                                                    ( size_t * ) &x,
-                                                    mbedtls_ctr_drbg_random,
-                                                    &xP11Context.xMbedDrbgCtx );
+                    lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
+                                                      MBEDTLS_MD_SHA256,
+                                                      pucData,
+                                                      ulDataLen,
+                                                      pxSignatureBuffer,
+                                                      ( size_t * ) &xExpectedInputLength,
+                                                      mbedtls_ctr_drbg_random,
+                                                      &xP11Context.xMbedDrbgCtx );
 
-                    if( x != CKR_OK )
+                    if( lMbedTLSResult != CKR_OK )
                     {
                         xResult = CKR_FUNCTION_FAILED;
                     }
@@ -1715,15 +1793,22 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        mbedtls_pk_type_t xType = mbedtls_pk_get_type( &pxSessionObj->xSignKey );
-
-        /* Reformat the signature */
-        if( ( xType == MBEDTLS_PK_ECKEY ) ||
-            ( xType == MBEDTLS_PK_ECDSA ) )
+        /* If this an EC signature, reformat from ASN1 encoded to 64-byte R & S components */
+        if( pxSessionObj->xSignMechanism == CKM_ECDSA )
         {
             xMbedTLSSignatureToPkcs11Signature( pucSignature, ecSignature );
-            *pulSignatureLen = 64;
         }
+    }
+
+    if( ( xResult == CKR_OK ) || ( xResult == CKR_BUFFER_TOO_SMALL ) )
+    {
+        *pulSignatureLen = xSignatureLength;
+    }
+
+    /* Complete the operation in the context. */
+    if( xResult != CKR_BUFFER_TOO_SMALL )
+    {
+        pxSessionObj->xSignMechanism = pkcs11INVALID_MECHANISM;
     }
 
     return xResult;
@@ -1741,6 +1826,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
     P11SessionPtr_t pxSession;
     uint8_t * keyData = NULL;
     uint32_t ulKeyDataLength = 0;
+    CK_BBOOL xCleanupNeeded = CK_FALSE;
+    mbedtls_pk_type_t xKeyType;
 
     /*lint !e9072 It's OK to have different parameter name. */
     ( void ) ( xSession );
@@ -1752,15 +1839,29 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
+    /* Retrieve key value from storage. */
     if( xResult == CKR_OK )
     {
         xResult = PKCS11_PAL_GetObjectValue( xKey, &keyData, &ulKeyDataLength, &xIsPrivate );
+
+        if( xResult == CKR_OK )
+        {
+            xCleanupNeeded = CK_TRUE;
+        }
+        else
+        {
+            PKCS11_PRINT( ( "ERROR: Unable to retrieve value of public key for verify %d. \r\n", xResult ) );
+        }
     }
 
-    if( ( xResult == CKR_OK ) && ( xIsPrivate != CK_FALSE ) )
+    /* Check that a public key was retrieved. */
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_KEY_TYPE_INCONSISTENT;
-        PKCS11_PAL_GetObjectValueCleanup( keyData, ulKeyDataLength );
+        if( xIsPrivate != CK_FALSE )
+        {
+            PKCS11_PRINT( ( "ERROR: Verify operation attempted with private key. \r\n" ) );
+            xResult = CKR_KEY_TYPE_INCONSISTENT;
+        }
     }
 
     if( xResult == CKR_OK )
@@ -1780,6 +1881,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
             {
                 if( 0 != mbedtls_pk_parse_key( &pxSession->xVerifyKey, keyData, ulKeyDataLength, NULL, 0 ) )
                 {
+                    PKCS11_PRINT( ( "ERROR: Unable to parse public key for verification. \r\n" ) );
                     xResult = CKR_KEY_HANDLE_INVALID;
                 }
             }
@@ -1790,8 +1892,44 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
         {
             xResult = CKR_CANT_LOCK;
         }
+    }
 
+    if( xCleanupNeeded == CK_TRUE )
+    {
         PKCS11_PAL_GetObjectValueCleanup( keyData, ulKeyDataLength );
+    }
+
+    /* Check that the mechanism and key type are compatible, supported. */
+    if( xResult == CKR_OK )
+    {
+        xKeyType = mbedtls_pk_get_type( &pxSession->xSignKey );
+
+        if( pxMechanism->mechanism == CKM_RSA_X_509 )
+        {
+            if( xKeyType != MBEDTLS_PK_RSA )
+            {
+                PKCS11_PRINT( ( "ERROR: Verification key type (%d) does not match RSA mechanism \r\n", xKeyType ) );
+                xResult = CKR_KEY_TYPE_INCONSISTENT;
+            }
+        }
+        else if( pxMechanism->mechanism == CKM_ECDSA )
+        {
+            if( ( xKeyType != MBEDTLS_PK_ECDSA ) && ( xKeyType != MBEDTLS_PK_ECKEY ) )
+            {
+                PKCS11_PRINT( ( "ERROR: Verification key type (%d) does not match ECDSA mechanism \r\n", xKeyType ) );
+                xResult = CKR_KEY_TYPE_INCONSISTENT;
+            }
+        }
+        else
+        {
+            PKCS11_PRINT( ( "ERROR: Unsupported mechanism type %d \r\n", pxMechanism->mechanism ) );
+            xResult = CKR_MECHANISM_INVALID;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        pxSession->xVerifyMechanism = pxMechanism->mechanism;
     }
 
     return xResult;
@@ -1811,21 +1949,83 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     P11SessionPtr_t pxSessionObj;
     int lMbedTLSResult;
 
-    /*
-     * Check parameters.
-     */
+    pxSessionObj = prvSessionPointerFromHandle( xSession ); /*lint !e9072 It's OK to have different parameter name. */
+
+    /* Check parameters. */
     if( ( NULL == pucData ) ||
         ( NULL == pucSignature ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
-    else
-    {
-        pxSessionObj = prvSessionPointerFromHandle( xSession ); /*lint !e9072 It's OK to have different parameter name. */
 
-        if( 1 )                                                 /* TODO: Add check if EC */
+    /* Check that the signature and data are the expected length.
+     * These PKCS #11 mechanism expect data to be pre-hashed/formatted. */
+    if( xResult == CKR_OK )
+    {
+        if( pxSessionObj->xVerifyMechanism == CKM_RSA_X_509 )
         {
-            /* An ECDSA signature is comprised of 2 components - R & S.  C_Sign returns them one after another. */
+            if( ulDataLen != pkcs11RSA_2048_SIGNATURE_LENGTH )
+            {
+                xResult = CKR_DATA_LEN_RANGE;
+            }
+
+            if( ulSignatureLen != pkcs11RSA_2048_SIGNATURE_LENGTH )
+            {
+                xResult = CKR_SIGNATURE_LEN_RANGE;
+            }
+        }
+        else if( pxSessionObj->xVerifyMechanism == CKM_ECDSA )
+        {
+            if( ulDataLen != pcks11SHA256_DIGEST_LENGTH )
+            {
+                xResult = CKR_DATA_LEN_RANGE;
+            }
+
+            if( ulSignatureLen != pkcs11ECDSA_P256_SIGNATURE_LENGTH )
+            {
+                xResult = CKR_SIGNATURE_LEN_RANGE;
+            }
+        }
+        else
+        {
+            xResult = CKR_OPERATION_NOT_INITIALIZED;
+        }
+    }
+
+    /* Verification step. */
+    if( xResult == CKR_OK )
+    {
+        /* Perform an RSA verification. */
+        if( pxSessionObj->xVerifyMechanism == CKM_RSA_X_509 )
+        {
+            if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
+            {
+                /* Verify the signature. If a public key is present, use it. */
+                if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
+                {
+                    if( 0 != mbedtls_pk_verify( &pxSessionObj->xVerifyKey,
+                                                MBEDTLS_MD_SHA256,
+                                                pucData,
+                                                ulDataLen,
+                                                pucSignature,
+                                                ulSignatureLen ) )
+                    {
+                        xResult = CKR_SIGNATURE_INVALID;
+                    }
+                }
+
+                xSemaphoreGive( pxSessionObj->xVerifyMutex );
+            }
+            else
+            {
+                xResult = CKR_CANT_LOCK;
+            }
+        }
+        /*Perform an ECDSA verification. */
+        else if( pxSessionObj->xVerifyMechanism == CKM_ECDSA )
+        {
+            /* TODO: Refactor w/ test code
+             * An ECDSA signature is comprised of 2 components - R & S.  C_Sign returns them one after another. */
             mbedtls_ecdsa_context * pxEcdsaContext;
             mbedtls_mpi xR;
             mbedtls_mpi xS;
@@ -1864,31 +2064,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
             mbedtls_mpi_free( &xR );
             mbedtls_mpi_free( &xS );
         }
-
-        if( pdTRUE == xSemaphoreTake( pxSessionObj->xVerifyMutex, portMAX_DELAY ) )
-        {
-            /* Verify the signature. If a public key is present, use it. */
-            if( NULL != pxSessionObj->xVerifyKey.pk_ctx )
-            {
-                /*if( 0 != mbedtls_pk_verify( &pxSessionObj->xVerifyKey,
-                                            MBEDTLS_MD_SHA256,
-                                            pucData,
-                                            ulDataLen,
-                                            pucSignature,
-                                            ulSignatureLen ) )
-                {
-                    xResult = CKR_SIGNATURE_INVALID;
-                }*/
-            }
-
-            xSemaphoreGive( pxSessionObj->xVerifyMutex );
-        }
-        else
-        {
-            xResult = CKR_CANT_LOCK;
-        }
-
-        /* TODO: Deleted else. */
     }
 
     /* Return the signature verification result. */
