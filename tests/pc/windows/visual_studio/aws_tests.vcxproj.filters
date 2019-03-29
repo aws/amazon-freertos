@@ -1475,6 +1475,9 @@
     <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_serializer.c">
       <Filter>lib\aws\common\static_memory</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\common\ota\aws_test_ota_end_to_end.c">
+      <Filter>application_code\common_tests\ota</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
