@@ -55,7 +55,6 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/includ
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/jsmn \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include/portable/espressif/esp32_devkitc_esp_wrover_kit \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor \
-        $(AMAZON_FREERTOS_LIB_DIR)/cbor/src \
 	$(AMAZON_FREERTOS_LIB_DIR)/include/bluetooth_low_energy \
 	$(AMAZON_FREERTOS_LIB_DIR)/include/bluetooth_low_energy/private \
 	$(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif
