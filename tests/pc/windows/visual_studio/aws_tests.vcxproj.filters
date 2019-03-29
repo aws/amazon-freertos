@@ -780,9 +780,6 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_wrapper_metrics.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\iot_metrics.h">
-      <Filter>lib\aws\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
@@ -836,6 +833,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\common\include\iot_config_common.h">
       <Filter>application_code\common_tests\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\iot_serializer.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\platform\iot_metrics.h">
+      <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1462,6 +1465,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_v1.c">
       <Filter>lib\aws\defender</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\aws_iot_static_memory_defender.c">
+      <Filter>lib\aws\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_metrics.c">
+      <Filter>lib\aws\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\common\static_memory\iot_static_memory_serializer.c">
+      <Filter>lib\aws\common\static_memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -42,10 +42,20 @@
         #define IOT_METRICS_TCP_CONNECTIONS    ( 10 )
     #endif
 
+    #ifndef IOT_METRICS_IP_ADDRESSES
+        #define IOT_METRICS_IP_ADDRESSES    ( 10 )
+    #endif
+
 /* Validate static memory configuration settings. */
     #if IOT_METRICS_TCP_CONNECTIONS <= 0
         #error "IOT_METRICS_TCP_CONNECTIONS cannot be 0 or negative."
     #endif
+
+    #if IOT_METRICS_IP_ADDRESSES <= 0
+        #error "IOT_METRICS_IP_ADDRESSES cannot be 0 or negative."
+    #endif
+
+    #define _METRICS_TCP_CONNECTION_SIZE    ( sizeof( IotMetricsTcpConnection_t ) * IOT_METRICS_TCP_CONNECTIONS )
 
 /*-----------------------------------------------------------*/
 
@@ -66,7 +76,10 @@
  * Static memory buffers and flags, allocated and zeroed at compile-time.
  */
     static bool _inUseTcpConnections[ IOT_METRICS_TCP_CONNECTIONS ] = { 0 };
-    static IotMetricsTcpConnection_t _tcpConnections[ IOT_METRICS_TCP_CONNECTIONS ] = { { 0 } };
+    static IotMetricsTcpConnection_t _tcpConnections[ IOT_METRICS_TCP_CONNECTIONS ][ _METRICS_TCP_CONNECTION_SIZE ] = { { 0 } };
+
+    static bool _inUseIpAddresses[ IOT_METRICS_IP_ADDRESSES ] = { 0 };
+    static char _ipAddresses[ IOT_METRICS_IP_ADDRESSES ][ IOT_METRICS_MAX_IP_STRING_LENGTH ] = { { 0 } };
 
 /*-----------------------------------------------------------*/
 
@@ -75,14 +88,14 @@
         int freeIndex = -1;
         void * pNewTcpConnection = NULL;
 
-        if( size == sizeof( IotMetricsTcpConnection_t ) )
+        if( size <= _METRICS_TCP_CONNECTION_SIZE )
         {
             freeIndex = IotStaticMemory_FindFree( _inUseTcpConnections,
                                                   IOT_METRICS_TCP_CONNECTIONS );
 
             if( freeIndex != -1 )
             {
-                pNewTcpConnection = &( _tcpConnections[ freeIndex ] );
+                pNewTcpConnection = &( _tcpConnections[ freeIndex ][ 0 ] );
             }
         }
 
@@ -97,7 +110,42 @@
                                      _tcpConnections,
                                      _inUseTcpConnections,
                                      IOT_METRICS_TCP_CONNECTIONS,
-                                     sizeof( IotMetricsTcpConnection_t ) );
+                                     _METRICS_TCP_CONNECTION_SIZE );
+    }
+
+
+/*-----------------------------------------------------------*/
+
+    void * Iot_MallocMetricsIpAddress( size_t size )
+    {
+        int freeIndex = -1;
+        void * pNewIpAddress = NULL;
+
+        if( size <= IOT_METRICS_MAX_IP_STRING_LENGTH )
+        {
+            /* Get the index of a free Shadow subscription. */
+            freeIndex = IotStaticMemory_FindFree( _inUseIpAddresses,
+                                                  IOT_METRICS_IP_ADDRESSES );
+
+            if( freeIndex != -1 )
+            {
+                pNewIpAddress = &( _ipAddresses[ freeIndex ][ 0 ] );
+            }
+        }
+
+        return pNewIpAddress;
+    }
+
+/*-----------------------------------------------------------*/
+
+    void Iot_FreeMetricsIpAddress( void * ptr )
+    {
+        /* Return the in-use Shadow subscription. */
+        IotStaticMemory_ReturnInUse( ptr,
+                                     _ipAddresses,
+                                     _inUseIpAddresses,
+                                     IOT_METRICS_IP_ADDRESSES,
+                                     IOT_METRICS_MAX_IP_STRING_LENGTH );
     }
 
 #endif /* if IOT_STATIC_MEMORY_ONLY == 1 */

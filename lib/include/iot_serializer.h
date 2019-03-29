@@ -126,8 +126,8 @@
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotSerializer_FreeCborValue
-        #define IotSerializer_FreeCborValue    Iot_FreeSerializerCborValue
+    #ifndef IotSerializer_FreeDecoderObject
+        #define IotSerializer_FreeDecoderObject    Iot_FreeSerializerDecoderObject
     #endif
 
 #else /* if IOT_STATIC_MEMORY_ONLY */
