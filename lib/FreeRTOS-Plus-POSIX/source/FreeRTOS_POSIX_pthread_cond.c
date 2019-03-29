@@ -82,7 +82,7 @@ static void prvInitializeStaticCond( pthread_cond_internal_t * pxCond )
 
 int pthread_cond_broadcast( pthread_cond_t * cond )
 {
-    int i = 0;
+    unsigned i = 0;
     pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
 
     /* If the cond is uninitialized, perform initialization. */
@@ -103,12 +103,12 @@ int pthread_cond_broadcast( pthread_cond_t * cond )
             {
                 ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxCond->xCondWaitSemaphore );
             }
+
+            break;
         }
-        else
-        {
-            /* Local copy is out dated. Reload, and retry. */
-            iLocalWaitingThreads = pxCond->iWaitingThreads;
-        }
+
+        /* Local copy is out dated. Reload, and retry. */
+        iLocalWaitingThreads = pxCond->iWaitingThreads;
     }
 
     return 0;
@@ -180,11 +180,9 @@ int pthread_cond_signal( pthread_cond_t * cond )
             /* Signal one succeeded. Break. */
             break;
         }
-        else
-        {
-            /* Local copy is out dated. Reload, and retry. */
-            iLocalWaitingThreads = pxCond->iWaitingThreads;
-        }
+
+        /* Local copy may be out dated. Reload, and retry. */
+        iLocalWaitingThreads = pxCond->iWaitingThreads;
     }
 
     return 0;
@@ -245,6 +243,11 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
 
             ( void ) Atomic_Decrement_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
         }
+    }
+    else
+    {
+        /* If previous mutex unlock failed, the thread is not waiting on the condition. */
+        ( void ) Atomic_Decrement_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
     }
 
     return iStatus;
