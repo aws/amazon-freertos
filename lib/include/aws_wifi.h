@@ -39,7 +39,7 @@
 
 /* Wi-Fi configuration includes. */
 #include "aws_wifi_config.h"
-#include "iot_network_types.h"
+#include "types/iot_network_types.h"
 
 /**
  * @brief Return code denoting API status.

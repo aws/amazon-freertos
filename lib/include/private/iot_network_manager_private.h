@@ -31,7 +31,7 @@
 #ifndef AWS_IOT_NETWORK_H_
 #define AWS_IOT_NETWORK_H_
 
-#include "iot_network_types.h"
+#include "types/iot_network_types.h"
 #include "aws_iot_network_config.h"
 
 #ifndef configSUPPORTED_NETWORKS
