@@ -2070,8 +2070,202 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+
+
+CK_RV prvCheckGenerateKeyPairPrivateTemplate( SearchableAttributes_t * pxSearchable,
+                                              CK_ATTRIBUTE_PTR pxTemplate,
+                                              CK_ULONG ulTemplateLength )
+{
+    CK_ATTRIBUTE xAttribute;
+    CK_RV xResult = CKR_OK;
+    CK_BBOOL xBool;
+    CK_ULONG xTemp;
+
+    memset( pxSearchable, 0, sizeof( SearchableAttributes_t ) );
+
+    /* TODO: Check the rest of the parameters.
+     * TODO: Check that all required parameters are there. */
+    for( CK_ULONG i = 0; i < ulTemplateLength; i++ )
+    {
+        xAttribute = pxTemplate[ i ];
+
+        switch( xAttribute.type )
+        {
+            case ( CKA_LABEL ):
+
+                if( xAttribute.ulValueLen < 32 )
+                {
+                    memcpy( pxSearchable->cLabel, xAttribute.pValue, xAttribute.ulValueLen );
+                    pxSearchable->xLabelIsValid = CK_TRUE;
+                }
+                else
+                {
+                    PKCS11_PRINT( ("ERROR: Max label length 32 bytes supported. \r\n") );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+            case (CKA_TOKEN):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+                if ( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ("ERROR: Only token key generation is supported. \r\n") );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+                break;
+            /*
+            case ( CKA_CLASS ):
+                memcpy( &xTemp, xAttribute.pValue, sizeof( CK_ULONG ) );
+
+                if( xTemp == CKO_PRIVATE_KEY )
+                {
+                    pxSearchable->xClass = CKO_PRIVATE_KEY;
+                    pxSearchable->xClassIsValid = CK_TRUE;
+                }
+                else
+                {
+                    PKCS11_PRINT( ( "ERROR: Private key template must be of class private key.\r\n" ) );
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                }
+
+                break;     */
+
+
+            case ( CKA_KEY_TYPE ):
+                memcpy( &xTemp, xAttribute.pValue, sizeof( CK_ULONG ) );
+
+                if( xTemp != CKK_EC )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only EC key pair generation is supported. \r\n" ) );
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                }
+
+                break;
+
+            case ( CKA_PRIVATE ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Generating private keys that are not marked private is not supported. \r\n" ) );
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                }
+
+                break;
+
+            case ( CKA_SIGN ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Generating private keys that cannot sign is not supported. \r\n" ) );
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                }
+
+                break;
+
+            default:
+                xResult = CKR_TEMPLATE_INCONSISTENT;
+                break;
+        }
+    }
+
+    if ( xResult == CKR_OK )
+    {
+        pxSearchable->xClass = CKO_PRIVATE_KEY;
+        pxSearchable->xClassIsValid = CK_TRUE;
+    }
+
+    return xResult;
+}
+
+CK_RV prvCheckGenerateKeyPairPublicTemplate( SearchableAttributes_t * pxSearchable,
+                                             CK_ATTRIBUTE_PTR pxTemplate,
+                                             CK_ULONG ulTemplateLength )
+{
+    CK_ATTRIBUTE xAttribute;
+    CK_RV xResult = CKR_OK;
+    CK_BBOOL xBool;
+    CK_KEY_TYPE xKeyType;
+    CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
+    int lCompare;
+
+    memset( pxSearchable, 0, sizeof( SearchableAttributes_t ) );
+
+    /* TODO: Check the rest of the parameters.
+     * TODO: Check that all required parameters are there. */
+    for( CK_ULONG i = 0; i < ulTemplateLength; i++ )
+    {
+        xAttribute = pxTemplate[ i ];
+
+        switch( xAttribute.type )
+        {
+            case ( CKA_LABEL ):
+
+                if( xAttribute.ulValueLen < 32 )
+                {
+                    memcpy( pxSearchable->cLabel, xAttribute.pValue, xAttribute.ulValueLen );
+                    pxSearchable->xLabelIsValid = CK_TRUE;
+                }
+                else
+                {
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                    PKCS11_PRINT( ( "ERROR: Max label length 32 bytes supported. \r\n" ) );
+                }
+
+                break;
+
+            case ( CKA_KEY_TYPE ):
+                memcpy( &xKeyType, xAttribute.pValue, sizeof( CK_KEY_TYPE ) );
+
+                if( xKeyType != CKK_EC )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only EC key pair generation is supported. \r\n" ) );
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                }
+
+                break;
+
+            case ( CKA_EC_PARAMS ):
+                lCompare = memcmp( xEcParams, xAttribute.pValue, sizeof( xEcParams ) );
+
+                if( lCompare != 0 )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only P-256 key generation is supported. \r\n" ) );
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                }
+
+                break;
+
+            case ( CKA_VERIFY ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Generating public keys that cannot verify is not supported. \r\n" ) );
+                    xResult = CKR_TEMPLATE_INCONSISTENT;
+                }
+
+                break;
+
+            default:
+                xResult = CKR_TEMPLATE_INCONSISTENT;
+                break;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        pxSearchable->xClass = CKO_PUBLIC_KEY;
+        pxSearchable->xClassIsValid = CK_TRUE;
+    }
+
+    return xResult;
+}
+
+
 /**
- * @brief Generate a new assymetric keyset.
+ * @brief Generate a new asymmetric keyset.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_MECHANISM_PTR pxMechanism,
@@ -2082,17 +2276,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_OBJECT_HANDLE_PTR pxPublicKey,
                                                 CK_OBJECT_HANDLE_PTR pxPrivateKey )
 {
-    /* Avoid warnings about unused parameters. */
-    ( void ) ( pxPublicKey );
-    ( void ) ( ulPrivateKeyAttributeCount );
-    ( void ) ( ulPublicKeyAttributeCount );
-    ( void ) ( xSession );
-
-    PKCS11_GenerateKeyPrivateTemplatePtr_t pxPrivateTemplate = ( PKCS11_GenerateKeyPrivateTemplatePtr_t ) pxPrivateKeyTemplate;
-    PKCS11_GenerateKeyPublicTemplatePtr_t pxPublicTemplate = ( PKCS11_GenerateKeyPublicTemplatePtr_t ) pxPublicKeyTemplate;
-
     CK_RV xResult = CKR_OK;
     uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
+    SearchableAttributes_t xPrivateSearchable;
+    SearchableAttributes_t xPublicSearchable;
+    int lMbedResult;
+    mbedtls_pk_context xCtx;
+
 
     if( pucDerFile == NULL )
     {
@@ -2104,26 +2294,28 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
         xResult = CKR_MECHANISM_PARAM_INVALID;
     }
 
-    if( ( pxPrivateTemplate->xLabel.type != CKA_LABEL ) ||
-        ( pxPublicTemplate->xLabel.type != CKA_LABEL ) ||
-        ( pxPublicTemplate->xEcParams.type != CKA_EC_PARAMS ) )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_TEMPLATE_INCOMPLETE;
+        xResult = prvCheckGenerateKeyPairPrivateTemplate( &xPrivateSearchable,
+                                                          pxPrivateKeyTemplate,
+                                                          ulPrivateKeyAttributeCount );
     }
 
-    if( 0 != strcmp( pkcs11ELLIPTIC_CURVE_NISTP256, pxPublicTemplate->xEcParams.pValue ) )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_CURVE_NOT_SUPPORTED;
+        xResult = prvCheckGenerateKeyPairPublicTemplate( &xPublicSearchable,
+                                                         pxPublicKeyTemplate,
+                                                         ulPublicKeyAttributeCount );
     }
 
-    mbedtls_pk_context xCtx;
-    mbedtls_pk_init( &xCtx );
-    xResult = mbedtls_pk_setup( &xCtx, mbedtls_pk_info_from_type( MBEDTLS_PK_ECKEY ) );
-
-    if( xResult == 0 )
+    if( xResult == CKR_OK )
     {
-        /*mbedtls_ecdsa_init( xCtx.pk_ctx ); */
+        mbedtls_pk_init( &xCtx );
+        lMbedResult = mbedtls_pk_setup( &xCtx, mbedtls_pk_info_from_type( MBEDTLS_PK_ECKEY ) );
+    }
 
+    if( ( xResult == CKR_OK ) && ( lMbedResult == 0 ) )
+    {
         if( 0 != mbedtls_ecp_gen_key( MBEDTLS_ECP_DP_SECP256R1,
                                       mbedtls_pk_ec( xCtx ),
                                       mbedtls_ctr_drbg_random,
@@ -2135,18 +2327,29 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        xResult = mbedtls_pk_write_key_der( &xCtx, pucDerFile, pkcs11KEY_GEN_MAX_DER_SIZE );
+        lMbedResult = mbedtls_pk_write_key_der( &xCtx, pucDerFile, pkcs11KEY_GEN_MAX_DER_SIZE );
     }
 
     /* TODO: Write back public key value if CKA_VALUE is provided in template. */
     /* TODO: Think on how to give 2 different labels to private public key for non mbed implementations. */
 
-    if( xResult > 0 )
+    if( lMbedResult > 0 )
     {
-        *pxPrivateKey = PKCS11_PAL_SaveObject( &pxPrivateTemplate->xLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - xResult, xResult );
-        /* FIXME: This is a hack.*/
-        *pxPublicKey = *pxPrivateKey + 1;
-        xResult = CKR_OK;
+        *pxPrivateKey = PKCS11_PAL_SaveObject( &xPrivateSearchable, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
+    }
+    else
+    {
+        xResult = CKR_GENERAL_ERROR;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        lMbedResult = mbedtls_pk_write_pubkey_der( &xCtx, pucDerFile, pkcs11KEY_GEN_MAX_DER_SIZE );
+    }
+
+    if( lMbedResult > 0 )
+    {
+        *pxPublicKey = PKCS11_PAL_SaveObject( &xPublicSearchable, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
     }
     else
     {
