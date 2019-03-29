@@ -16,7 +16,10 @@ afr_module_include_dirs(
 afr_module_dependencies(
     utils
     INTERFACE
-        AFR::bufferpool
         AFR::mqtt
         AFR::secure_sockets
+        AFR::sdk_common
 )
+
+# C SDK platform layer.
+add_subdirectory(platform)

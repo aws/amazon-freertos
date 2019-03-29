@@ -51,7 +51,6 @@ afr_test_module(test_mqtt)
 afr_module_sources(
     test_mqtt
     INTERFACE
-        "${AFR_TESTS_DIR}/mqtt/aws_test_mqtt_lib.c"
         "${AFR_TESTS_DIR}/mqtt/aws_test_mqtt_agent.c"
 )
 afr_module_dependencies(

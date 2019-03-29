@@ -45,8 +45,11 @@ set(AFR_TOOLCHAIN ${__toolchain} CACHE INTERNAL "Toolchain to build Amazon FreeR
 option(AFR_ENABLE_TESTS "Build tests for Amazon FreeRTOS. Requires recompiling whole library." OFF)
 if(AFR_ENABLE_TESTS)
     add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
+    add_compile_definitions(IOT_CONFIG_FILE="iot_test_config.h")
+    add_compile_definitions(IOT_BUILD_TESTS=1)
     set(AFR_IS_TESTING 1 CACHE INTERNAL "")
 else()
+    add_compile_definitions(IOT_CONFIG_FILE="iot_demo_config.h")
     set(AFR_IS_TESTING 0 CACHE INTERNAL "")
 endif()
 
