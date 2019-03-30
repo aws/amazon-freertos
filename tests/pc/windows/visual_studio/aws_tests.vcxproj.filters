@@ -840,6 +840,9 @@
     <ClInclude Include="..\..\..\..\lib\include\platform\iot_metrics.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\atomic.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">

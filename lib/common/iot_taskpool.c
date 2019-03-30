@@ -58,7 +58,7 @@
 /**
  * @brief Maximum semaphore value for wait operations.
  */
-#define TASKPOOL_MAX_SEM_VALUE              0xFFFF
+#define TASKPOOL_MAX_SEM_VALUE              0x7FFFU
 
 /**
  * @brief Reschedule delay in milliseconds for deferred jobs.

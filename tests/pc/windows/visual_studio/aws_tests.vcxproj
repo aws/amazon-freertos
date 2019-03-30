@@ -93,6 +93,7 @@
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_mem.h" />
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_string.h" />
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h" />
+    <ClInclude Include="..\..\..\..\lib\include\atomic.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_defender.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_common.h" />

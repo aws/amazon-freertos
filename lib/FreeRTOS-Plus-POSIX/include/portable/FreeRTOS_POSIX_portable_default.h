@@ -75,7 +75,7 @@
     #define NAME_MAX             64                                               /**< Maximum number of bytes in a filename (not including terminating null). */
 #endif
 #ifndef SEM_VALUE_MAX
-    #define SEM_VALUE_MAX        0xFFFFU                                          /**< Maximum value of a sem_t. */
+    #define SEM_VALUE_MAX        0x7FFFU                                          /**< Maximum value of a sem_t. */
 #endif
 /**@} */
 
