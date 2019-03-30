@@ -1460,9 +1460,6 @@
     <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api.c">
       <Filter>application_code\common_tests\defender</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api_v1.c">
-      <Filter>application_code\common_tests\defender</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_v1.c">
       <Filter>lib\aws\defender</Filter>
     </ClCompile>
