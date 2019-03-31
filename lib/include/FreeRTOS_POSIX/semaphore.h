@@ -33,6 +33,10 @@
 #ifndef _FREERTOS_POSIX_SEMAPHORE_H_
 #define _FREERTOS_POSIX_SEMAPHORE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX/time.h"
 #include "FreeRTOS_POSIX_types.h"
@@ -98,5 +102,9 @@ int sem_trywait( sem_t * sem );
  * @note Deadlock detection is not implemented.
  */
 int sem_wait( sem_t * sem );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ifndef _FREERTOS_POSIX_SEMAPHORE_H_ */

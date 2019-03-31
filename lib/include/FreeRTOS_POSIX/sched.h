@@ -33,6 +33,10 @@
 #ifndef _FREERTOS_POSIX_SCHED_H_
 #define _FREERTOS_POSIX_SCHED_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @defgroup Scheduling policies.
  */
@@ -67,5 +71,9 @@ int sched_get_priority_max( int policy );
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/sched_yield.html
  */
 int sched_yield( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ifndef _FREERTOS_POSIX_SCHED_H_ */

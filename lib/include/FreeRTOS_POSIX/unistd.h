@@ -33,6 +33,10 @@
 #ifndef _FREERTOS_POSIX_UNISTD_H_
 #define _FREERTOS_POSIX_UNISTD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "FreeRTOS_POSIX/sys/types.h"
 
 /**
@@ -51,5 +55,9 @@ unsigned sleep( unsigned seconds );
  * @return 0 always. This function does not specify any failure conditions.
  */
 int usleep( useconds_t usec );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ifndef _FREERTOS_POSIX_UNISTD_H_ */

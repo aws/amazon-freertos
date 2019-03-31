@@ -33,6 +33,10 @@
 #ifndef _FREERTOS_POSIX_TIME_H_
 #define _FREERTOS_POSIX_TIME_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX/sys/types.h"
 #include "FreeRTOS_POSIX/signal.h"
@@ -258,5 +262,9 @@ int timer_settime( timer_t timerid,
                    int flags,
                    const struct itimerspec * value,
                    struct itimerspec * ovalue );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ifndef _FREERTOS_POSIX_TIME_H_ */

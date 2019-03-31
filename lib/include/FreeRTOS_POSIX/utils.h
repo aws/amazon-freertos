@@ -31,6 +31,10 @@
 #ifndef _FREERTOS_POSIX_UTILS_
 #define _FREERTOS_POSIX_UTILS_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* C standard library includes. */
 #include <stdbool.h>
 #include <stdint.h>
@@ -151,5 +155,9 @@ int UTILS_TimespecCompare( const struct timespec * const x,
 * @return true if the pxTimespec is valid, false otherwise.
 */
 bool UTILS_ValidateTimespec(const struct timespec * const pxTimespec);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ifndef _FREERTOS_POSIX_UTILS_ */

@@ -37,6 +37,10 @@
 #ifndef _FREERTOS_POSIX_SIGNAL_H_
 #define _FREERTOS_POSIX_SIGNAL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @defgroup Values of sigev_notify.
  */
@@ -66,5 +70,9 @@ struct sigevent
     void ( * sigev_notify_function ) ( union sigval ); /* Notification function. */
     pthread_attr_t * sigev_notify_attributes;          /* Notification attributes. */
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ifndef _FREERTOS_POSIX_SIGNAL_H_ */

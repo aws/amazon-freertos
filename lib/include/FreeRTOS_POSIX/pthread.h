@@ -33,6 +33,10 @@
 #ifndef _FREERTOS_POSIX_PTHREAD_H_
 #define _FREERTOS_POSIX_PTHREAD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* FreeRTOS+POSIX includes. POSIX states that this header shall make symbols
  * defined in sched.h and time.h visible. */
 #include "FreeRTOS_POSIX/sched.h"
@@ -369,5 +373,9 @@ pthread_t pthread_self( void );
 int pthread_setschedparam( pthread_t thread,
                            int policy,
                            const struct sched_param * param );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _FREERTOS_POSIX_PTHREAD_H_ */

@@ -33,6 +33,10 @@
 #ifndef _FREERTOS_POSIX_MQUEUE_H_
 #define _FREERTOS_POSIX_MQUEUE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX/time.h"
 
@@ -136,5 +140,9 @@ int mq_timedsend( mqd_t mqdes,
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/mq_unlink.html
  */
 int mq_unlink( const char * name );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ifndef _FREERTOS_POSIX_MQUEUE_H_ */
