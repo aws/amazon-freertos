@@ -67,6 +67,23 @@
     #error "Shadow API unit tests require AWS_IOT_SHADOW_ENABLE_ASSERTS to be 1."
 #endif
 
+/**
+ * @brief Whether to check the number of MQTT library errors in the malloc
+ * failure tests.
+ *
+ * Should only be checked if malloc overrides are available and not testing for
+ * code coverage. In static memory mode, there should be no MQTT library errors.
+ */
+#if ( IOT_TEST_COVERAGE == 1 ) || ( IOT_TEST_NO_MALLOC_OVERRIDES == 1 )
+    #define CHECK_MQTT_ERROR_COUNT( expected, actual )
+#else
+    #if ( IOT_STATIC_MEMORY_ONLY == 1 )
+        #define CHECK_MQTT_ERROR_COUNT( expected, actual )    TEST_ASSERT_EQUAL( 0, actual )
+    #else
+        #define CHECK_MQTT_ERROR_COUNT( expected, actual )    TEST_ASSERT_EQUAL( expected, actual )
+    #endif
+#endif
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -362,6 +379,12 @@ TEST_SETUP( Shadow_Unit_API )
     /* Initialize common components. */
     TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
 
+    /* Initialize the MQTT library. */
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+
+    /* Initialize the Shadow library. */
+    TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, AwsIotShadow_Init( 0 ) );
+
     /* Clear the last packet type and identifier. */
     _lastPacketType = 0;
     _lastPacketIdentifier = 0;
@@ -374,9 +397,6 @@ TEST_SETUP( Shadow_Unit_API )
                           _receiveThread,
                           NULL );
 
-    /* Initialize the MQTT library. */
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
-
     /* Set the network interface send function. */
     ( void ) memset( &_networkInterface, 0x00, sizeof( IotNetworkInterface_t ) );
     _networkInterface.send = _sendSuccess;
@@ -388,9 +408,6 @@ TEST_SETUP( Shadow_Unit_API )
                                                          &networkInfo,
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
-
-    /* Initialize the Shadow library. */
-    TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, AwsIotShadow_Init( 0 ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -400,17 +417,17 @@ TEST_SETUP( Shadow_Unit_API )
  */
 TEST_TEAR_DOWN( Shadow_Unit_API )
 {
-    /* Clean up the Shadow library. */
-    AwsIotShadow_Cleanup();
-
     /* Clean up the MQTT connection object. */
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
 
-    /* Clean up common components. */
-    IotCommon_Cleanup();
+    /* Clean up the Shadow library. */
+    AwsIotShadow_Cleanup();
 
     /* Clean up the MQTT library. */
     IotMqtt_Cleanup();
+
+    /* Clean up common components. */
+    IotCommon_Cleanup();
 
     /* Destroy the receive thread timer. */
     IotClock_TimerDestroy( &_receiveTimer );
@@ -699,13 +716,8 @@ TEST( Shadow_Unit_API, DeleteMallocFail )
     }
 
     /* Allow 2 MQTT library errors, which are caused by failure to allocate memory
-     * for incoming packets (SUBSCRIBE, UNSUBSCRIBE). These allocation errors do
-     * not happen in static memory mode. */
-    #if IOT_STATIC_MEMORY_ONLY == 1
-        TEST_ASSERT_EQUAL_INT32( 0, mqttErrorCount );
-    #else
-        TEST_ASSERT_EQUAL_INT32( 2, mqttErrorCount );
-    #endif
+     * for incoming packets (SUBSCRIBE, UNSUBSCRIBE). */
+    CHECK_MQTT_ERROR_COUNT( 2, mqttErrorCount );
 }
 
 /*-----------------------------------------------------------*/
@@ -770,13 +782,8 @@ TEST( Shadow_Unit_API, GetMallocFail )
     }
 
     /* Allow 3 MQTT library errors, which are caused by failure to allocate memory
-     * for incoming packets (SUBSCRIBE, PUBLISH, UNSUBSCRIBE). These allocation
-     * errors do not happen in static memory mode. */
-    #if IOT_STATIC_MEMORY_ONLY == 1
-        TEST_ASSERT_EQUAL_INT32( 0, mqttErrorCount );
-    #else
-        TEST_ASSERT_EQUAL_INT32( 3, mqttErrorCount );
-    #endif
+     * for incoming packets (SUBSCRIBE, PUBLISH, UNSUBSCRIBE). */
+    CHECK_MQTT_ERROR_COUNT( 3, mqttErrorCount );
 }
 
 /*-----------------------------------------------------------*/
@@ -836,13 +843,8 @@ TEST( Shadow_Unit_API, UpdateMallocFail )
     }
 
     /* Allow 3 MQTT library errors, which are caused by failure to allocate memory
-     * for incoming packets (SUBSCRIBE, PUBLISH, UNSUBSCRIBE). These allocation
-     * errors do not happen in static memory mode. */
-    #if IOT_STATIC_MEMORY_ONLY == 1
-        TEST_ASSERT_EQUAL_INT32( 0, mqttErrorCount );
-    #else
-        TEST_ASSERT_EQUAL_INT32( 3, mqttErrorCount );
-    #endif
+     * for incoming packets (SUBSCRIBE, PUBLISH, UNSUBSCRIBE). */
+    CHECK_MQTT_ERROR_COUNT( 3, mqttErrorCount );
 }
 
 /*-----------------------------------------------------------*/

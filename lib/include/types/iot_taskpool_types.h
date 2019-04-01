@@ -246,10 +246,10 @@ typedef struct IotTaskPoolInfo
      * number of worker threads at run time.
      */
 
-    size_t minThreads; /**< @brief Minimum number of threads in a task pool. These threads will be created when the task pool is first created with @ref taskpool_function_create. */
-    size_t maxThreads; /**< @brief Maximum number of threads in a task pool. A task pool may try and grow the number of active threads up to #IotTaskPoolInfo_t.maxThreads. */
-    size_t stackSize;  /**< @brief Stack size for every task pool thread. The stack size for each thread is fixed after the task pool is created and cannot be changed. */
-    int32_t priority;  /**< @brief priority for every task pool thread. The priority for each thread is fixed after the task pool is created and cannot be changed. */
+    uint32_t minThreads; /**< @brief Minimum number of threads in a task pool. These threads will be created when the task pool is first created with @ref taskpool_function_create. */
+    uint32_t maxThreads; /**< @brief Maximum number of threads in a task pool. A task pool may try and grow the number of active threads up to #IotTaskPoolInfo_t.maxThreads. */
+    uint32_t stackSize;  /**< @brief Stack size for every task pool thread. The stack size for each thread is fixed after the task pool is created and cannot be changed. */
+    int32_t priority;    /**< @brief priority for every task pool thread. The priority for each thread is fixed after the task pool is created and cannot be changed. */
 } IotTaskPoolInfo_t;
 
 /*------------------------- Task pool handles structs --------------------------*/
@@ -264,7 +264,7 @@ typedef struct IotTaskPoolInfo
 typedef struct IotTaskPoolCache
 {
     IotListDouble_t freeList; /**< @brief A list ot hold cached jobs. */
-    size_t freeCount;         /**< @brief A counter to track the number of jobs in the cache. */
+    uint32_t freeCount;       /**< @brief A counter to track the number of jobs in the cache. */
 } IotTaskPoolCache_t;
 
 

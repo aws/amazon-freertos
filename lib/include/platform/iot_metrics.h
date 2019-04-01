@@ -76,24 +76,6 @@
         #define IotMetrics_FreeTcpConnection    Iot_FreeMetricsTcpConnection
     #endif
 
-/**
- * @brief Allocate an array of uint8_t. This function should have the same
- * signature as [malloc]
- * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
- */
-    #ifndef IotMetrics_MallocIpAddress
-        #define IotMetrics_MallocIpAddress    Iot_MallocMetricsIpAddress
-    #endif
-
-/**
- * @brief Free an array of uint8_t. This function should have the same
- * signature as [free]
- * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
- */
-    #ifndef IotMetrics_FreeIpAddress
-        #define IotMetrics_FreeIpAddress    Iot_FreeMetricsIpAddress
-    #endif
-
 #else /* if IOT_STATIC_MEMORY_ONLY */
     #include <stdlib.h>
 
@@ -105,23 +87,11 @@
         #define IotMetrics_FreeTcpConnection    free
     #endif
 
-    #ifndef IotMetrics_MallocIpAddress
-        #define IotMetrics_MallocIpAddress    malloc
-    #endif
-
-    #ifndef IotMetrics_FreeIpAddress
-        #define IotMetrics_FreeIpAddress    free
-    #endif
-
 #endif /* if IOT_STATIC_MEMORY_ONLY */
 
-/* This data type varies on different platform. */
 #ifndef IotMetricsConnectionId_t
-    #error "'IotMetricsConnectionId_t' must be defended as the socket handle data type."
+    #define IotMetricsConnectionId_t    uint32_t
 #endif
-
-/* xxx.xxx.xxx.xxx\0 */
-#define IOT_METRICS_MAX_IP_STRING_LENGTH    16
 
 /**
  * Data handle of TCP connection
@@ -130,12 +100,7 @@ typedef struct IotMetricsTcpConnection
 {
     IotLink_t link;
     IotMetricsConnectionId_t id;
-    /* This is limited to IPv4. */
-    struct
-    {
-        uint32_t remoteIp; /* In host byte order. */
-        char * pRemoteIp;
-    };
+    char * pRemoteIP;    /* This is limited to IPv4. */
     uint16_t remotePort; /* In host order. */
 } IotMetricsTcpConnection_t;
 
@@ -152,7 +117,7 @@ typedef struct IotMetricsListCallback
 /**
  * This function must be called before any other functions.
  */
-bool IotMetrics_Init( void );
+bool IotMetrics_Init();
 
 /**
  * Record one TCP connection metric.

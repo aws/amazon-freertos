@@ -60,7 +60,7 @@ bool IotJsonUtils_FindJsonValue( const char * pJsonDocument,
     /* Search the characters in the JSON document for the key. The end of the JSON
      * document does not have to be searched once too few characters remain to hold a
      * value. */
-    while( i < jsonDocumentLength - jsonKeyLength - 5 )
+    while( i < jsonDocumentLength - jsonKeyLength - 3 )
     {
         /* If the first character in the key is found and there's an unescaped double
          * quote after the key length, do a string compare for the key. */

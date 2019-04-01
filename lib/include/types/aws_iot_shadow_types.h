@@ -369,10 +369,12 @@ typedef enum AwsIotShadowCallbackType
  */
 typedef struct AwsIotShadowCallbackParam
 {
-    AwsIotShadowCallbackType_t callbackType; /**< @brief Reason for invoking the Shadow callback function. */
+    AwsIotShadowCallbackType_t callbackType; /**< @brief Reason for invoking the Shadow callback function to provide context. */
 
     const char * pThingName;                 /**< @brief The Thing Name associated with this Shadow callback. */
     size_t thingNameLength;                  /**< @brief Length of #AwsIotShadowCallbackParam_t.pThingName. */
+
+    IotMqttConnection_t mqttConnection;      /**< @brief The MQTT connection associated with the Shadow callback. */
 
     union
     {
@@ -414,7 +416,7 @@ typedef struct AwsIotShadowCallbackParam
  */
 typedef struct AwsIotShadowCallbackInfo
 {
-    void * param1; /**< @brief The first parameter to pass to the callback function. */
+    void * pCallbackContext; /**< @brief The first parameter to pass to the callback function. */
 
     /**
      * @brief User-provided callback function signature.
@@ -426,7 +428,7 @@ typedef struct AwsIotShadowCallbackInfo
      * @see #AwsIotShadowCallbackParam_t for more information on the second parameter.
      */
     void ( * function )( void *,
-                         AwsIotShadowCallbackParam_t * const );
+                         AwsIotShadowCallbackParam_t * );
 } AwsIotShadowCallbackInfo_t;
 
 /**

@@ -357,10 +357,10 @@ TEST_SETUP( MQTT_Unit_Subscription )
     /* Initialize common components. */
     TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
 
-    networkInfo.pNetworkInterface = &networkInterface;
-
     /* Initialize the MQTT library. */
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+
+    networkInfo.pNetworkInterface = &networkInterface;
 
     /* Create an MQTT connection with empty network info. */
     _pMqttConnection = IotTestMqtt_createMqttConnection( _AWS_IOT_MQTT_SERVER,
@@ -386,8 +386,8 @@ TEST_TEAR_DOWN( MQTT_Unit_Subscription )
     }
 
     /* Clean up libraries. */
-    IotCommon_Cleanup();
     IotMqtt_Cleanup();
+    IotCommon_Cleanup();
 }
 
 /*-----------------------------------------------------------*/

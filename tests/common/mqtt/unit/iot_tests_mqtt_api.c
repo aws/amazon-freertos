@@ -542,8 +542,8 @@ TEST_SETUP( MQTT_Unit_API )
  */
 TEST_TEAR_DOWN( MQTT_Unit_API )
 {
-    IotCommon_Cleanup();
     IotMqtt_Cleanup();
+    IotCommon_Cleanup();
 }
 
 /*-----------------------------------------------------------*/

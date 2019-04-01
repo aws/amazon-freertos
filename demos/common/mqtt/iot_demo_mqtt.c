@@ -384,8 +384,8 @@ static int _initializeDemo( void )
  */
 static void _cleanupDemo( void )
 {
-    IotCommon_Cleanup();
     IotMqtt_Cleanup();
+    IotCommon_Cleanup();
 }
 
 /*-----------------------------------------------------------*/

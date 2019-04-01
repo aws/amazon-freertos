@@ -88,6 +88,9 @@ static bool _started = false;
 /* Internal copy of startInfo so that user's input doesn't have to be valid all the time. */
 AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
+/* For debug purpose. */
+const char * _AwsIotDefenderEventError = "None";
+
 /*-----------------------------------------------------------*/
 
 AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t metricsGroup,
@@ -321,6 +324,11 @@ const char * AwsIotDefender_strerror( AwsIotDefenderError_t error )
 
     return pErrorNames[ error ];
 }
+/*-----------------------------------------------------------*/
+const char * AwsIotDefender_GetEventError()
+{
+    return _AwsIotDefenderEventError;
+}
 
 /*-----------------------------------------------------------*/
 static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
@@ -343,8 +351,7 @@ static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
 
     IotMqttError_t mqttError = IOT_MQTT_SUCCESS;
 
-    bool mqttConnected = false;
-    bool reportCreated = false;
+    bool mqttConnected = true, reportCreated = true, reportPublished = false;
 
     const IotMqttCallbackInfo_t acceptCallbackInfo = { .function = _acceptCallback, .pCallbackContext = NULL };
     const IotMqttCallbackInfo_t rejectCallbackInfo = { .function = _rejectCallback, .pCallbackContext = NULL };
@@ -352,14 +359,12 @@ static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
     /* Step 1: connect to MQTT. */
     mqttError = AwsIotDefenderInternal_MqttConnect();
 
-    if( mqttError == IOT_MQTT_SUCCESS )
+    if( ( mqttConnected = ( mqttError == IOT_MQTT_SUCCESS ) ) )
     {
-        mqttConnected = true;
-
-        /* Step 2: subscribe to accept/reject MQTT topics. */
         mqttError = AwsIotDefenderInternal_MqttSubscribe( acceptCallbackInfo,
                                                           rejectCallbackInfo );
 
+        /* Step 2: subscribe to accept/reject MQTT topics. */
         if( mqttError == IOT_MQTT_SUCCESS )
         {
             /* Step 3: create serialized metrics report. */
@@ -372,7 +377,7 @@ static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
                 mqttError = AwsIotDefenderInternal_MqttPublish( AwsIotDefenderInternal_GetReportBuffer(),
                                                                 AwsIotDefenderInternal_GetReportBufferSize() );
 
-                if( mqttError == IOT_MQTT_SUCCESS )
+                if( ( reportPublished = ( mqttError == IOT_MQTT_SUCCESS ) ) )
                 {
                     IotLogDebug( "Metrics report has been published successfully." );
                 }
@@ -380,8 +385,7 @@ static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
         }
     }
 
-    /* If no MQTT error and report has been created, it indicates everything is good. */
-    if( ( mqttError == IOT_MQTT_SUCCESS ) && reportCreated )
+    if( reportPublished )
     {
         IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _disconnectRoutine, NULL, &_disconnectJob );
         AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
@@ -390,21 +394,25 @@ static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
                                       &_disconnectJob,
                                       _defenderToMilliseconds( AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS ) );
     }
+    /* Something is wrong during the above process. */
     else
     {
+        /* Either MQTT functions had problem or report failed to be created. */
+        AwsIotDefender_Assert( mqttError != IOT_MQTT_SUCCESS || !reportCreated );
+
         AwsIotDefenderEventType_t eventType;
 
         /* Set event type to only two possible categories. */
-        if( mqttError != IOT_MQTT_SUCCESS )
+        if( reportCreated )
         {
             eventType = AWS_IOT_DEFENDER_FAILURE_MQTT;
-            IotLogError( "Failed to perform MQTT operations, with error %s.", IotMqtt_strerror( mqttError ) );
+            _AwsIotDefenderEventError = IotMqtt_strerror( mqttError );
         }
         else
         {
             eventType = AWS_IOT_DEFENDER_FAILURE_METRICS_REPORT;
             /* As of today, no memory is the only reason to fail metrics report creation. */
-            IotLogError( "Failed to create metrics report due to no memory." );
+            _AwsIotDefenderEventError = "Failed to create metrics report due to no memory.";
         }
 
         /* Invoke user's callback if there is. */
