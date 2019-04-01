@@ -26,7 +26,7 @@
 
 /**
  * @file bt_hal_manager.h
- *
+ * @addtogroup HAL_BLUETOOTH
  * @brief BT provides the interfaces to control the Bluetooth device.
  * ,local device control and device discovery functionalities
  *
@@ -36,6 +36,7 @@
  * 2. pxEnable (if wished)
  * 3. pxGetClassicAdapter or/and pxGetLEAdapter to initialize them
  *
+ * @{
  */
 #ifndef _BT_HAL_MANAGER_H_
 #define _BT_HAL_MANAGER_H_
@@ -45,7 +46,7 @@
 #include "bt_hal_manager_types.h"
 
 /**
- * @brief Authentication requirement.
+ * @brief Security Level.
  */
 enum
 {
@@ -55,6 +56,18 @@ enum
     eBTSecLevelSecureConnect = 0x04,          /**< Mode 1 level 4, Authenticated LE Secure Connections pairing with encryption using a 128-bit strength encryption key. */
 };
 typedef uint8_t BTSecurityLevel_t;
+
+/**
+ * @brief Authentication requirement.
+ */
+enum
+{
+    eBTAuthReqBonding = 0x01,       /**< Set bonding request. */
+    eBTAuthReqMitm = 0x03,          /**< MITM protection. */
+    eBTAuthReqSecureConnect = 0x04, /**< Authenticated encryption. */
+    eBTAuthReqKeyPress = 0x05,
+};
+typedef uint8_t BTAuthReq_t;
 
 /**
  * @brief Preferred physical Transport for GATT connection .
@@ -225,14 +238,14 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t ucBleDevAddr[ 7 ]; /**< LE Bluetooth Device Address */
-    uint8_t ucC192[ 16 ];      /**< Simple Pairing Hash C-192 */
-    uint8_t ucR192[ 16 ];      /**< Simple Pairing Randomizer R-192 */
-    uint8_t ucC256[ 16 ];      /**< Simple Pairing Hash C-256 */
-    uint8_t ucR256[ 16 ];      /**< Simple Pairing Randomizer R-256 */
-    uint8_t ucSm_tk[ 16 ];     /**< Security Manager TK Value */
-    uint8_t ucLe_sc_c[ 16 ];   /**< LE Secure Connections Random Value */
-    uint8_t ucLe_sc_r[ 16 ];   /**< LE Secure Connections Random Value */
+    uint8_t ucBleDevAddr[ btADDRESS_LEN ]; /**< LE Bluetooth Device Address */
+    uint8_t ucC192[ btKEY_MAX_LEN ];      /**< Simple Pairing Hash C-192 */
+    uint8_t ucR192[ btKEY_MAX_LEN];      /**< Simple Pairing Randomizer R-192 */
+    uint8_t ucC256[ btKEY_MAX_LEN ];      /**< Simple Pairing Hash C-256 */
+    uint8_t ucR256[ btKEY_MAX_LEN ];      /**< Simple Pairing Randomizer R-256 */
+    uint8_t ucSm_tk[ btKEY_MAX_LEN ];     /**< Security Manager TK Value */
+    uint8_t ucLe_sc_c[ btKEY_MAX_LEN ];   /**< LE Secure Connections Random Value */
+    uint8_t ucLe_sc_r[ btKEY_MAX_LEN ];   /**< LE Secure Connections Random Value */
 } BTOutOfBandData_t;
 
 /**
@@ -812,3 +825,4 @@ typedef struct
 extern const BTInterface_t * BTGetBluetoothInterface();
 
 #endif /* _BT_HAL_MANAGER_H_ */
+/** @} */
