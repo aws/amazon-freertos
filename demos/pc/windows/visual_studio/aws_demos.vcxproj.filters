@@ -690,6 +690,9 @@
     <ClCompile Include="..\..\..\common\defender\aws_iot_demo_defender.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\common\shadow\aws_iot_demo_shadow.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_ARP.h">

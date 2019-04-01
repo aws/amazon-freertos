@@ -114,8 +114,10 @@
     #define IotSerializer_FreeCborValue          vPortFree
     #define IotSerializer_MallocDecoderObject    pvPortMalloc
     #define IotSerializer_FreeDecoderObject      vPortFree
-
 #endif /* if IOT_STATIC_MEMORY_ONLY == 0 */
+
+/* Unity on FreeRTOS does not provide malloc overrides. */
+#define IOT_TEST_NO_MALLOC_OVERRIDES            ( 1 )
 
 /* Enable asserts in libraries. */
 #define AWS_IOT_DEFENDER_ENABLE_ASSERTS         ( 1 )
@@ -128,7 +130,7 @@
 #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
 
 #ifndef IOT_BUILD_TESTS
-    #define IOT_BUILD_TESTS                         ( 1 )
+    #define IOT_BUILD_TESTS                     ( 1 )
 #endif
 
 #if IOT_BUILD_TESTS != 1

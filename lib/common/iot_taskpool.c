@@ -795,6 +795,8 @@ IotTaskPoolError_t IotTaskPool_TryCancel( IotTaskPool_t * const pTaskPool,
     TASKPOOL_NO_FUNCTION_CLEANUP();
 }
 
+/*-----------------------------------------------------------*/
+
 const char * IotTaskPool_strerror( IotTaskPoolError_t status )
 {
     const char * pMessage = NULL;
@@ -1181,6 +1183,8 @@ static void _initializeJob( IotTaskPoolJob_t * const pJob,
         pJob->status = IOT_TASKPOOL_STATUS_READY;
     }
 }
+
+/*-----------------------------------------------------------*/
 
 static IotTaskPoolJob_t * _fetchOrAllocateJob( IotTaskPoolCache_t * const pCache )
 {
@@ -1605,7 +1609,7 @@ static void _rescheduleDeferredJobsTimer( IotTimer_t * const pTimer,
 
     IotTaskPool_Assert( delta > 0 );
 
-    if( IotClock_TimerArm( pTimer, delta, 0 ) == false )
+    if( IotClock_TimerArm( pTimer, ( uint32_t ) delta, 0 ) == false )
     {
         IotLogWarn( "Failed to re-arm timer for task pool" );
     }
