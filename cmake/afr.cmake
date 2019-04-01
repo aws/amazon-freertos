@@ -16,7 +16,6 @@ set(AFR_TESTS_DIR "${AFR_ROOT_DIR}/tests/common" CACHE INTERNAL "Amazon FreeRTOS
 set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/third_party" CACHE INTERNAL "3rdparty libraries root.")
 
 # These paths will be used for boards that support BLE.
-set(BLE_LIBRARY_INCLUDE_DIR "${AFR_MODULES_DIR}/include/bluetooth_low_energy" CACHE INTERNAL "BLE include directory.")
 set(BLE_DEMO_COMMON_SOURCES "${AFR_DEMOS_DIR}/ble/iot_ble_numericComparison.c" CACHE INTERNAL "BLE demo common source files.")
 
 # Network manager will temporarily be built into the demo executables.

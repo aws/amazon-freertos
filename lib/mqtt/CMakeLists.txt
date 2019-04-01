@@ -3,8 +3,7 @@ afr_module(mqtt)
 # Compile BLE MQTT serializers on supported platforms.
 if(${BLE_SUPPORTED})
     set(extra_mqtt_sources "${AFR_MODULES_DIR}/mqtt/iot_ble_mqtt_serialize.c")
-    set(extra_mqtt_private_includes ${BLE_LIBRARY_INCLUDE_DIR})
-    set(extra_mqtt_dependencies AFR::serializer)
+    set(extra_mqtt_dependencies AFR::serializer AFR::ble)
 endif()
 
 # Enable test access if building tests.

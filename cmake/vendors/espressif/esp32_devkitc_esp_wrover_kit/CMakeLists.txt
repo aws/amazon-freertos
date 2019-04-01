@@ -117,7 +117,6 @@ target_include_directories(
     AFR::ble::mcu_port
     INTERFACE
         ${esp_ble_inc_dirs}
-        ${BLE_LIBRARY_INCLUDE_DIR}
 )
 
 # PKCS11
