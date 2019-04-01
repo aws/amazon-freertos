@@ -170,6 +170,7 @@
           <file file_name="../../../../lib/common/iot_json_utils.c" />
           <file file_name="../../../../lib/common/iot_logging.c" />
           <file file_name="../../../../lib/common/iot_taskpool.c" />
+          <file file_name="../../../../lib/common/aws_logging_task_dynamic_buffers.c" />
         </folder>
         <folder Name="utils">
           <folder Name="platform">
@@ -522,9 +523,6 @@
         <folder Name="network_manager">
           <file file_name="../../../common/network_manager/aws_iot_demo_network.c" />
           <file file_name="../../../common/network_manager/aws_iot_network_manager.c" />
-        </folder>
-        <folder Name="logging">
-          <file file_name="../../../common/logging/aws_logging_task_dynamic_buffers.c" />
         </folder>
         <folder Name="ota">
           <file file_name="../../../common/ota/aws_iot_ota_update_demo.c" />

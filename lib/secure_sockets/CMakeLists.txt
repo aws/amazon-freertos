@@ -3,6 +3,7 @@ afr_module(secure_sockets)
 afr_module_sources(
     secure_sockets
     PRIVATE
+        "${AFR_MODULES_DIR}/secure_sockets/aws_secure_sockets_wrapper_metrics.c"
         "${AFR_MODULES_DIR}/include/aws_secure_sockets.h"
         "${AFR_MODULES_DIR}/include/private/aws_secure_sockets_config_defaults.h"
 )

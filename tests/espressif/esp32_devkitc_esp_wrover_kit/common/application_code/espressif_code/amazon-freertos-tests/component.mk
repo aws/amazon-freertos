@@ -33,8 +33,6 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/secure_sockets/portable/freertos_plus_tcp \
         $(AMAZON_FREERTOS_LIB_DIR)/pkcs11/portable/espressif/esp32_devkitc_esp_wrover_kit \
         $(AMAZON_FREERTOS_LIB_DIR)/pkcs11/mbedtls \
-        $(AMAZON_FREERTOS_ROOT_DIR)/demos/common/logging \
-        $(AMAZON_FREERTOS_ROOT_DIR)/demos/common/devmode_key_provisioning \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/BufferManagement \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/esp32 \
@@ -48,7 +46,8 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/bluetooth_low_energy/portable/espressif \
         $(AMAZON_FREERTOS_LIB_DIR)/metrics \
         $(AMAZON_FREERTOS_LIB_DIR)/serializer/cbor \
-        $(AMAZON_FREERTOS_LIB_DIR)/serializer/json
+        $(AMAZON_FREERTOS_LIB_DIR)/serializer/json \
+        $(AMAZON_FREERTOS_LIB_DIR)/provisioning
 
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/include \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
@@ -70,7 +69,7 @@ COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/port
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11 $(AMAZON_FREERTOS_LIB_DIR)/ota/portable/espressif/esp32_devkitc_esp_wrover_kit
 
 lib/greengrass/aws_greengrass_discovery.o: CFLAGS+=-Wno-format
-demos/common/logging/aws_logging_task_dynamic_buffers.o: CFLAGS+=-Wno-format -Wno-uninitialized
+lib/common/aws_logging_task_dynamic_buffers.o: CFLAGS+=-Wno-format -Wno-uninitialized
 
 #--------------------------------------------------------------------------------------
 # Amazon FreeRTOS Tests
