@@ -182,7 +182,7 @@ afr_module_dependencies(
     test_base
     INTERFACE
         AFR::kernel
-        AFR::demo_key_provisioning
-        AFR::demo_logging
+        AFR::provisioning
+        AFR::sdk_common
         3rdparty::unity
 )
