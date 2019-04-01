@@ -44,6 +44,8 @@
 /* Defender internal includes. */
 #include "aws_iot_defender_internal.h"
 
+#include "aws_test_tcp.h"
+
 /* Total time to wait for a state to be true. */
 #define _WAIT_STATE_TOTAL_SECONDS    5
 
@@ -74,10 +76,10 @@
 
 #endif
 
-static const uint32_t _ECHO_SERVER_IP = SOCKETS_inet_addr_quick( configECHO_SERVER_ADDR0,
-                                                                 configECHO_SERVER_ADDR1,
-                                                                 configECHO_SERVER_ADDR2,
-                                                                 configECHO_SERVER_ADDR3 );
+static const uint32_t _ECHO_SERVER_IP = SOCKETS_inet_addr_quick( tcptestECHO_SERVER_ADDR0,
+                                                                 tcptestECHO_SERVER_ADDR1,
+                                                                 tcptestECHO_SERVER_ADDR2,
+                                                                 tcptestECHO_SERVER_ADDR3 );
 
 static char _ECHO_SERVER_ADDRESS[ _MAX_ADDRESS_LENGTH ];
 
@@ -142,7 +144,7 @@ TEST_SETUP( Full_DEFENDER )
 {
     /* Set echo server IP address and port to a string. */
     SOCKETS_inet_ntoa( _ECHO_SERVER_IP, _ECHO_SERVER_ADDRESS );
-    sprintf( _ECHO_SERVER_ADDRESS, "%s:%d", _ECHO_SERVER_ADDRESS, configTCP_ECHO_CLIENT_PORT );
+    sprintf( _ECHO_SERVER_ADDRESS, "%s:%d", _ECHO_SERVER_ADDRESS, tcptestECHO_PORT );
 
     TEST_ASSERT_EQUAL( true, IotCommon_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
@@ -965,10 +967,7 @@ static Socket_t _createSocketToEchoServer()
     SocketsSockaddr_t echoServerAddress;
     int32_t error = 0;
 
-    /* Echo requests are sent to the echo server.  The address of the echo
-     * server is configured by the constants configECHO_SERVER_ADDR0 to
-     * configECHO_SERVER_ADDR3 in FreeRTOSConfig.h. */
-    echoServerAddress.usPort = SOCKETS_htons( configTCP_ECHO_CLIENT_PORT );
+    echoServerAddress.usPort = SOCKETS_htons( tcptestECHO_PORT );
     echoServerAddress.ulAddress = _ECHO_SERVER_IP;
 
     socket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
