@@ -15,6 +15,18 @@ set(AFR_DEMOS_DIR "${AFR_ROOT_DIR}/demos/common" CACHE INTERNAL "Amazon FreeRTOS
 set(AFR_TESTS_DIR "${AFR_ROOT_DIR}/tests/common" CACHE INTERNAL "Amazon FreeRTOS tests root.")
 set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/third_party" CACHE INTERNAL "3rdparty libraries root.")
 
+# These paths will be used for boards that support BLE.
+set(BLE_DEMO_COMMON_SOURCES "${AFR_DEMOS_DIR}/ble/iot_ble_numericComparison.c" CACHE INTERNAL "BLE demo common source files.")
+
+# Network manager will temporarily be built into the demo executables.
+set(NETWORK_MANAGER_SOURCES
+    "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
+    "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
+    "${AFR_DEMOS_DIR}/wifi_provisioning/aws_wifi_connect_task.c"
+    CACHE INTERNAL
+    "Network manager common source files."
+)
+
 # Set regular version and Git commit version.
 set(AFR_VERSION "v${PROJECT_VERSION}")
 set(AFR_VERSION_VCS "Unknown" CACHE INTERNAL "")

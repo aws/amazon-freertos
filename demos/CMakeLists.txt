@@ -1,29 +1,6 @@
 # -------------------------------------------------------------------------------------------------
 # Demos
 # -------------------------------------------------------------------------------------------------
-# Key provisioning
-afr_demo_module(demo_key_provisioning)
-afr_module_sources(
-    demo_key_provisioning
-    INTERFACE
-        "${AFR_DEMOS_DIR}/devmode_key_provisioning/aws_dev_mode_key_provisioning.c"
-        "${AFR_DEMOS_DIR}/include/aws_dev_mode_key_provisioning.h"
-)
-afr_module_dependencies(
-    demo_key_provisioning
-    INTERFACE
-        AFR::pkcs11
-        3rdparty::mbedtls
-)
-
-# Logging
-afr_demo_module(demo_logging)
-afr_module_sources(
-    demo_logging
-    INTERFACE
-        "${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c"
-        "${AFR_DEMOS_DIR}/include/aws_logging_task.h"
-)
 
 # C SDK MQTT demo
 afr_demo_module(demo_mqtt_v4)
@@ -143,4 +120,10 @@ afr_module_include_dirs(
     INTERFACE
         "${AFR_DEMOS_DIR}/include"
 )
-afr_module_dependencies(demo_base INTERFACE AFR::kernel)
+afr_module_dependencies(
+    demo_base
+    INTERFACE
+        AFR::kernel
+        AFR::provisioning
+        AFR::sdk_common
+)
