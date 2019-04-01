@@ -23,6 +23,10 @@
  * http://www.FreeRTOS.org
  */
 
+/* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
+ * from redefining in aws_secure_sockets_wrapper_metrics.h */
+#define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
+
 /* Standard includes. */
 #include <stdint.h>
 #include <stdio.h>
@@ -43,7 +47,7 @@
 #include "aws_clientcredential.h"
 #include "aws_default_root_certificates.h"
 
-
+#undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 #define SOCKETS_PRINT( X )               vLoggingPrintf X
 
