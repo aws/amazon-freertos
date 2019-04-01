@@ -37,6 +37,8 @@
 #include "FreeRTOS_POSIX/pthread.h"
 #include "FreeRTOS_POSIX/utils.h"
 
+#include "atomic.h"
+
 /**
  * @brief Initialize a PTHREAD_COND_INITIALIZER cond.
  *
@@ -67,7 +69,6 @@ static void prvInitializeStaticCond( pthread_cond_internal_t * pxCond )
             /* Set the members of the cond. The semaphore create calls will never fail
              * when their arguments aren't NULL. */
             pxCond->xIsInitialized = pdTRUE;
-            ( void ) xSemaphoreCreateMutexStatic( &pxCond->xCondMutex );
             ( void ) xSemaphoreCreateCountingStatic( INT_MAX, 0U, &pxCond->xCondWaitSemaphore );
             pxCond->iWaitingThreads = 0;
         }
@@ -81,27 +82,34 @@ static void prvInitializeStaticCond( pthread_cond_internal_t * pxCond )
 
 int pthread_cond_broadcast( pthread_cond_t * cond )
 {
-    int i = 0;
+    unsigned i = 0;
     pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
 
     /* If the cond is uninitialized, perform initialization. */
     prvInitializeStaticCond( pxCond );
 
-    /* Lock xCondMutex to protect access to iWaitingThreads.
-     * This call will never fail because it blocks forever. */
-    ( void ) xSemaphoreTake( ( SemaphoreHandle_t ) &pxCond->xCondMutex, portMAX_DELAY );
+    /* Local copy of number of threads waiting. */
+    unsigned iLocalWaitingThreads = pxCond->iWaitingThreads;
 
-    /* Unblock all threads waiting on this condition variable. */
-    for( i = 0; i < pxCond->iWaitingThreads; i++ )
+    /* Test local copy of threads waiting is larger than zero. */
+    while( iLocalWaitingThreads > 0 )
     {
-        ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxCond->xCondWaitSemaphore );
+        /* Test-and-set. Atomically check whether the copy in memory has changed.
+         * And, if not set the copy of threads waiting in memory to zero. */
+        if( ATOMIC_COMPARE_AND_SWAP_SUCCESS == Atomic_CompareAndSwap_u32( ( uint32_t * ) &pxCond->iWaitingThreads, 0, ( uint32_t ) iLocalWaitingThreads ) )
+        {
+            /* Unblock all. */
+            for( i = 0; i < iLocalWaitingThreads; i++ )
+            {
+                ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxCond->xCondWaitSemaphore );
+            }
+
+            break;
+        }
+
+        /* Local copy is out dated. Reload, and retry. */
+        iLocalWaitingThreads = pxCond->iWaitingThreads;
     }
-
-    /* All threads were unblocked, set waiting threads to 0. */
-    pxCond->iWaitingThreads = 0;
-
-    /* Release xCondMutex. */
-    ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxCond->xCondMutex );
 
     return 0;
 }
@@ -113,7 +121,6 @@ int pthread_cond_destroy( pthread_cond_t * cond )
     pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
 
     /* Free all resources in use by the cond. */
-    vSemaphoreDelete( ( SemaphoreHandle_t ) &pxCond->xCondMutex );
     vSemaphoreDelete( ( SemaphoreHandle_t ) &pxCond->xCondWaitSemaphore );
 
     return 0;
@@ -140,7 +147,7 @@ int pthread_cond_init( pthread_cond_t * cond,
         /* Set the members of the cond. The semaphore create calls will never fail
          * when their arguments aren't NULL. */
         pxCond->xIsInitialized = pdTRUE;
-        ( void ) xSemaphoreCreateMutexStatic( &pxCond->xCondMutex );
+
         ( void ) xSemaphoreCreateCountingStatic( INT_MAX, 0U, &pxCond->xCondWaitSemaphore );
         pxCond->iWaitingThreads = 0;
     }
@@ -157,25 +164,25 @@ int pthread_cond_signal( pthread_cond_t * cond )
     /* If the cond is uninitialized, perform initialization. */
     prvInitializeStaticCond( pxCond );
 
-    /* Check that at least one thread is waiting for a signal. */
-    if( pxCond->iWaitingThreads > 0 )
-    {
-        /* Lock xCondMutex to protect access to iWaitingThreads.
-         * This call will never fail because it blocks forever. */
-        ( void ) xSemaphoreTake( ( SemaphoreHandle_t ) &pxCond->xCondMutex, portMAX_DELAY );
+    /* Local copy of number of threads waiting. */
+    unsigned iLocalWaitingThreads = pxCond->iWaitingThreads;
 
-        /* Check again that at least one thread is waiting for a signal after
-         * taking xCondMutex. If so, unblock it. */
-        if( pxCond->iWaitingThreads > 0 )
+    /* Test local copy of threads waiting is larger than zero. */
+    while( iLocalWaitingThreads > 0 )
+    {
+        /* Test-and-set. Atomically check whether the copy in memory has changed.
+         * And, if not decrease the copy of threads waiting in memory. */
+        if( ATOMIC_COMPARE_AND_SWAP_SUCCESS == Atomic_CompareAndSwap_u32( ( uint32_t * ) &pxCond->iWaitingThreads, ( uint32_t ) iLocalWaitingThreads - 1, ( uint32_t ) iLocalWaitingThreads ) )
         {
+            /* Unblock one. */
             ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxCond->xCondWaitSemaphore );
 
-            /* Decrease the number of waiting threads. */
-            pxCond->iWaitingThreads--;
+            /* Signal one succeeded. Break. */
+            break;
         }
 
-        /* Release xCondMutex. */
-        ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxCond->xCondMutex );
+        /* Local copy may be out dated. Reload, and retry. */
+        iLocalWaitingThreads = pxCond->iWaitingThreads;
     }
 
     return 0;
@@ -214,9 +221,7 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
      * unlock mutex. */
     if( iStatus == 0 )
     {
-        ( void ) xSemaphoreTake( ( SemaphoreHandle_t ) &pxCond->xCondMutex, portMAX_DELAY );
-        pxCond->iWaitingThreads++;
-        ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxCond->xCondMutex );
+        ( void ) Atomic_Increment_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
 
         iStatus = pthread_mutex_unlock( mutex );
     }
@@ -236,10 +241,13 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
             iStatus = ETIMEDOUT;
             ( void ) pthread_mutex_lock( mutex );
 
-            ( void ) xSemaphoreTake( ( SemaphoreHandle_t ) &pxCond->xCondMutex, portMAX_DELAY );
-            pxCond->iWaitingThreads--;
-            ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxCond->xCondMutex );
+            ( void ) Atomic_Decrement_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
         }
+    }
+    else
+    {
+        /* If previous mutex unlock failed, the thread is not waiting on the condition. */
+        ( void ) Atomic_Decrement_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
     }
 
     return iStatus;

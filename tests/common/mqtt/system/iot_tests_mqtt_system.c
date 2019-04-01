@@ -601,16 +601,16 @@ TEST_SETUP( MQTT_System )
         TEST_FAIL_MESSAGE( "Failed to initialize common components." );
     }
 
-    /* Initialize the MQTT library. */
-    if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
-    {
-        TEST_FAIL_MESSAGE( "Failed to initialize MQTT library." );
-    }
-
     /* Call the network stack initialization function. */
     if( IotTestNetwork_Init() != IOT_NETWORK_SUCCESS )
     {
         TEST_FAIL_MESSAGE( "Failed to initialize network stack." );
+    }
+
+    /* Initialize the MQTT library. */
+    if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
+    {
+        TEST_FAIL_MESSAGE( "Failed to initialize MQTT library." );
     }
 
     /* Generate a new, unique client identifier based on the time if no client
@@ -650,14 +650,14 @@ TEST_SETUP( MQTT_System )
  */
 TEST_TEAR_DOWN( MQTT_System )
 {
-    /* Clean up common components. */
-    IotCommon_Cleanup();
-
     /* Clean up the MQTT library. */
     IotMqtt_Cleanup();
 
     /* Clean up the network stack. */
     IotTestNetwork_Cleanup();
+
+    /* Clean up common components. */
+    IotCommon_Cleanup();
 
     /* Clear the connection pointer. */
     _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;

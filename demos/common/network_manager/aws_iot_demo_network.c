@@ -29,7 +29,7 @@
  * @brief Contains implementation for network creation and teardown functions for handling different types of network connections
  */
 #include "iot_demo_logging.h"
-#include "aws_iot_network_manager.h"
+#include "iot_network_manager_private.h"
 #include "aws_iot_demo_network.h"
 #include "iot_ble_mqtt.h"
 #include "platform/iot_network_afr.h"

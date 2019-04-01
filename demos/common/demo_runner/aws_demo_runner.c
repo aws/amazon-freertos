@@ -40,10 +40,11 @@
 #include "iot_mqtt.h"
 
 /* Demo declarations. */
+/* extern void vStartMQTTDemo( void ); */
+/* extern void vStartShadowDemo( void ); */
 /* extern void vStartDeviceDefenderDemo( void ); */
 /* extern void vStartGreenGrassDiscoveryTask( void ); */
 /* extern void vStartOTAUpdateDemoTask( void ); */
-/* extern void vStartMQTTDemo( void ); */
 /* extern void vStartMQTTEchoDemo( void ); */
 /* extern void vStartShadowDemoTasks( void ); */
 /* extern void vStartMQTTBLEEchoDemo( void );*/
@@ -64,10 +65,11 @@ void DEMO_RUNNER_RunDemos( void )
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
 
     /* vStartMQTTDemo(); */
+    /* vStartShadowDemo(); */
 
     /* These demos require the libraries to be initialized before they run. */
-    configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
     configASSERT( IotCommon_Init() == true );
+    configASSERT( IotMqtt_Init() == IOT_MQTT_SUCCESS );
 
     /* vStartDeviceDefenderDemo(); */
     /* vStartGreenGrassDiscoveryTask(); */

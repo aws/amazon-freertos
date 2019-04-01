@@ -1159,6 +1159,26 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
             _EMPTY_ELSE_MARKER;
         }
 
+        /* Destroy a network connection owned by this MQTT connection. */
+        if( ownNetworkConnection == true )
+        {
+            networkStatus = pNetworkInfo->pNetworkInterface->destroy( pNetworkConnection );
+
+            if( networkStatus != IOT_NETWORK_SUCCESS )
+            {
+                IotLogWarn( "Failed to destroy network connection." );
+            }
+            else
+            {
+                IotLogInfo( "Network connection destroyed on error." );
+            }
+        }
+        else
+        {
+            _EMPTY_ELSE_MARKER;
+        }
+
+
         if( pOperation != NULL )
         {
             _IotMqtt_DestroyOperation( pOperation );

@@ -823,7 +823,7 @@ void _AwsIotShadow_Notify( _shadowOperation_t * pOperation )
 {
     AwsIotShadowCallbackParam_t callbackParam = { 0 };
     _shadowSubscription_t * pSubscription = pOperation->pSubscription,
-                          * pRemovedSubscription;
+                          * pRemovedSubscription = NULL;
 
     /* If the operation is waiting, post to its wait semaphore and return. */
     if( ( pOperation->flags & AWS_IOT_SHADOW_FLAG_WAITABLE ) == AWS_IOT_SHADOW_FLAG_WAITABLE )
@@ -855,6 +855,7 @@ void _AwsIotShadow_Notify( _shadowOperation_t * pOperation )
     {
         /* Set the common members of the callback parameter. */
         callbackParam.callbackType = ( AwsIotShadowCallbackType_t ) pOperation->type;
+        callbackParam.mqttConnection = pOperation->mqttConnection;
         callbackParam.operation.result = pOperation->status;
         callbackParam.operation.reference = pOperation;
         callbackParam.pThingName = pSubscription->pThingName;
@@ -867,7 +868,7 @@ void _AwsIotShadow_Notify( _shadowOperation_t * pOperation )
             callbackParam.operation.get.documentLength = pOperation->get.documentLength;
         }
 
-        pOperation->notify.callback.function( pOperation->notify.callback.param1,
+        pOperation->notify.callback.function( pOperation->notify.callback.pCallbackContext,
                                               &callbackParam );
     }
 

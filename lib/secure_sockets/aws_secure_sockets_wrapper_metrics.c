@@ -58,11 +58,8 @@
         if( result == SOCKETS_ERROR_NONE )
         {
             IotMetricsTcpConnection_t connection;
-            /* Cast the Socket_t to void pointer as handle. */
-            connection.id = ( IotMetricsConnectionId_t ) xSocket;
 
-            /* The port passed to SocketsSockaddr_t is with network endian.
-             * Therefor it must convert back for metrics: from network endian to host endian. */
+            connection.id = ( IotMetricsConnectionId_t ) xSocket;
             connection.remotePort = pxAddress->usPort;
             connection.remoteIp = pxAddress->ulAddress;
 

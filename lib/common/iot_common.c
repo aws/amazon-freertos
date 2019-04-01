@@ -107,12 +107,14 @@ void IotCommon_Cleanup( void )
 {
     IotTaskPool_Destroy( IOT_SYSTEM_TASKPOOL );
 
+    /* This log message must be printed before static memory management is
+     * cleaned up. */
+    IotLogInfo( "Common libraries cleanup done." );
+
     /* Cleanup static memory if dynamic memory allocation is disabled. */
     #if IOT_STATIC_MEMORY_ONLY == 1
         IotStaticMemory_Cleanup();
     #endif
-
-    IotLogInfo( "Common libraries cleanup done." );
 }
 
 /*-----------------------------------------------------------*/

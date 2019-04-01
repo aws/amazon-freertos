@@ -1773,3 +1773,9 @@ BaseType_t WIFI_IsConnected( void )
 {
 	return _g_state.sta_ip_ready == true;
 }
+
+WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
+{
+    /** Needs to implement dispatching network state change events **/
+    return eWiFiNotSupported;
+}

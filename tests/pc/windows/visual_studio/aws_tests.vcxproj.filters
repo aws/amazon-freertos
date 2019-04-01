@@ -840,6 +840,9 @@
     <ClInclude Include="..\..\..\..\lib\include\platform\iot_metrics.h">
       <Filter>lib\aws\include\platform</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\lib\include\atomic.h">
+      <Filter>lib\aws\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
@@ -1458,9 +1461,6 @@
       <Filter>lib\aws\ota</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api.c">
-      <Filter>application_code\common_tests\defender</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api_v1.c">
       <Filter>application_code\common_tests\defender</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\defender\aws_iot_defender_v1.c">

@@ -37,6 +37,8 @@
 #include "FreeRTOS_POSIX/semaphore.h"
 #include "FreeRTOS_POSIX/utils.h"
 
+#include "atomic.h"
+
 
 /*-----------------------------------------------------------*/
 
@@ -57,8 +59,12 @@ int sem_getvalue( sem_t * sem,
 {
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
-    /* Get the semaphore count using the FreeRTOS API. */
-    *sval = ( int ) uxSemaphoreGetCount( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
+    /* Get value does not need atomic operation, since -- Open Group
+     * states "the updated value represents an actual semaphore value that
+     * occurred at some unspecified time during the call, but it need not be the
+     * actual value of the semaphore when it is returned to the calling process."
+     */
+    *sval = pxSem->value;
 
     return 0;
 }
@@ -70,7 +76,7 @@ int sem_init( sem_t * sem,
               unsigned value )
 {
     int iStatus = 0;
-    sem_internal_t * pxSem =  ( sem_internal_t * ) ( sem );
+    sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
     /* Silence warnings about unused parameters. */
     ( void ) pshared;
@@ -82,12 +88,17 @@ int sem_init( sem_t * sem,
         iStatus = -1;
     }
 
+    /* value is guaranteed to not exceed INT32_MAX, which is the default value of SEM_VALUE_MAX (0x7FFFU). */
+    pxSem->value = ( int ) value;
 
-    /* Create the FreeRTOS semaphore. This call will not fail because the
-     * memory for the semaphore has already been allocated. */
+    /* Create the FreeRTOS semaphore. 
+     * This is only used to queue threads when no semaphore is available.
+     * Initializing with semaphore initial count zero.
+     * This call will not fail because the memory for the semaphore has already been allocated. 
+     */
     if( iStatus == 0 )
     {
-        ( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, value, &pxSem->xSemaphore );
+        ( void ) xSemaphoreCreateCountingStatic( SEM_VALUE_MAX, 0, &pxSem->xSemaphore );
     }
 
     return iStatus;
@@ -99,8 +110,16 @@ int sem_post( sem_t * sem )
 {
     sem_internal_t * pxSem = ( sem_internal_t * ) ( sem );
 
-    /* Give the semaphore using the FreeRTOS API. */
-    ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
+    int iPreviouValue = Atomic_Increment_u32( ( uint32_t * ) &pxSem->value );
+
+    /* If previous semaphore value is equal or larger than zero, there is no 
+     * thread waiting for this semaphore. Otherwise (<0), call FreeRTOS interface
+     * to wake up a thread. */
+    if( iPreviouValue < 0 )
+    {
+        /* Give the semaphore using the FreeRTOS API. */
+        ( void ) xSemaphoreGive( ( SemaphoreHandle_t ) &pxSem->xSemaphore );
+    }
 
     return 0;
 }
@@ -146,24 +165,37 @@ int sem_timedwait( sem_t * sem,
         }
     }
 
-    /* Take the semaphore using the FreeRTOS API. */
-    if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxSem->xSemaphore,
-                        xDelay ) != pdTRUE )
-    {
-        if( iStatus == 0 )
-        {
-            errno = ETIMEDOUT;
-        }
-        else
-        {
-            errno = iStatus;
-        }
+    int iPreviousValue = Atomic_Decrement_u32( ( uint32_t * ) &pxSem->value );
 
-        iStatus = -1;
+    /* If previous semaphore value is larger than zero, the thread entering this function call
+     * can take the semaphore without yielding. Else (<=0), calling into FreeRTOS API to yield.
+     */
+    if( iPreviousValue > 0 )
+    {
+        /* Under no circumstance shall the function fail with a timeout if the semaphore can be locked immediately. */
+        iStatus = 0;
     }
     else
     {
-        iStatus = 0;
+        /* Take the semaphore using the FreeRTOS API. */
+        if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxSem->xSemaphore,
+                            xDelay ) != pdTRUE )
+        {
+            if( iStatus == 0 )
+            {
+                errno = ETIMEDOUT;
+            }
+            else
+            {
+                errno = iStatus;
+            }
+
+            iStatus = -1;
+        }
+        else
+        {
+            iStatus = 0;
+        }
     }
 
     return iStatus;

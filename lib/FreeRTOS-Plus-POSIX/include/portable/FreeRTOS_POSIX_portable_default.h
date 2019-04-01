@@ -75,7 +75,7 @@
     #define NAME_MAX             64                                               /**< Maximum number of bytes in a filename (not including terminating null). */
 #endif
 #ifndef SEM_VALUE_MAX
-    #define SEM_VALUE_MAX        0xFFFFU                                          /**< Maximum value of a sem_t. */
+    #define SEM_VALUE_MAX        0x7FFFU                                          /**< Maximum value of a sem_t. */
 #endif
 /**@} */
 
@@ -133,9 +133,6 @@
 #endif
 #ifndef posixconfigENABLE_ITIMERSPEC
     #define posixconfigENABLE_ITIMERSPEC             1 /**< struct itimerspec in time.h */
-#endif
-#ifndef posixconfigENABLE_TM
-    #define posixconfigENABLE_TM                     1 /**< struct tm in time.h */
 #endif
 #ifndef posixconfigENABLE_SEM_T
     #define posixconfigENABLE_SEM_T                  1 /**< struct sem_t in semaphore.h */

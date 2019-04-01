@@ -26,6 +26,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
 /* Demo includes */
 #include "aws_demo_runner.h"
@@ -63,7 +64,7 @@
 
 #include "iot_ble.h"
 #include "iot_ble_numericComparison.h"
-#include "aws_iot_network_manager.h"
+#include "iot_network_manager_private.h"
 #include "SEGGER_RTT.h"
 #include "aws_application_version.h"
 #include "iot_taskpool.h"

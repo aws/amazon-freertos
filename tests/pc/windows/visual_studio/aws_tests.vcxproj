@@ -93,6 +93,7 @@
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_mem.h" />
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_string.h" />
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h" />
+    <ClInclude Include="..\..\..\..\lib\include\atomic.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_iot_defender.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_common.h" />
@@ -469,7 +470,6 @@
     <ClCompile Include="..\..\..\common\cbor\aws_test_cbor.c" />
     <ClCompile Include="..\..\..\common\crypto\aws_test_crypto.c" />
     <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api.c" />
-    <ClCompile Include="..\..\..\common\defender\aws_iot_tests_defender_api_v1.c" />
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c" />
     <ClCompile Include="..\..\..\common\freertos_tcp\aws_test_freertos_tcp.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_greengrass_discovery.c" />

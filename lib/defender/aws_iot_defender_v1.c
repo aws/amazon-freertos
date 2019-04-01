@@ -22,6 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+#include <string.h>
 
 /* Old and new defender includes. */
 #include "aws_iot_defender.h"

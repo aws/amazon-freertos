@@ -41,11 +41,6 @@
 #include "unity_fixture.h"
 #include "unity.h"
 
-/**
- * @brief Size of the buffer in the strftime test.
- */
-#define posixtestTIME_BUFFER_SIZE    ( 16 )
-
 /*-----------------------------------------------------------*/
 
 static void prvClockSleep( const struct timespec * const pxSleepTime,
@@ -105,9 +100,6 @@ TEST_GROUP_RUNNER( Full_POSIX_CLOCK )
     RUN_TEST_CASE( Full_POSIX_CLOCK, clock_nanosleep_absolute_in_past );
     RUN_TEST_CASE( Full_POSIX_CLOCK, nanosleep );
     RUN_TEST_CASE( Full_POSIX_CLOCK, nanosleep_invalid_params );
-    RUN_TEST_CASE( Full_POSIX_CLOCK, localtime_r );
-    RUN_TEST_CASE( Full_POSIX_CLOCK, strftime );
-    RUN_TEST_CASE( Full_POSIX_CLOCK, time );
 }
 
 /*-----------------------------------------------------------*/
@@ -276,69 +268,6 @@ TEST( Full_POSIX_CLOCK, nanosleep_invalid_params )
     /* Check for error with invalid rqtp. */
     TEST_ASSERT_EQUAL_INT( -1, nanosleep( &xSleepTime, NULL ) );
     TEST_ASSERT_EQUAL_INT( EINVAL, errno );
-}
-
-/*-----------------------------------------------------------*/
-
-TEST( Full_POSIX_CLOCK, localtime_r )
-{
-    time_t xTime = time( NULL );
-    struct tm xLocalTime = { 0 };
-
-    /* Check the return value of localtime. */
-    TEST_ASSERT_EQUAL_PTR( &xLocalTime,
-                           localtime_r( &xTime, &xLocalTime ) );
-
-    /* Only check the stored tick value only if using "custom" FreeRTOS+POSIX
-     * tm struct. */
-    #if !defined( posixconfigENABLE_TM ) || ( posixconfigENABLE_TM == 1 )
-        TEST_ASSERT_TRUE( xLocalTime.tm_tick > 0 );
-    #endif
-}
-
-/*-----------------------------------------------------------*/
-
-TEST( Full_POSIX_CLOCK, strftime )
-{
-    time_t xCurrentTime = time( NULL );
-    struct tm xLocalTime = { 0 };
-    char pcTimeBuffer[ posixtestTIME_BUFFER_SIZE ] = { 0 };
-
-    /* Convert current time to struct tm. */
-    TEST_ASSERT_EQUAL_PTR( &xLocalTime,
-                           localtime_r( &xCurrentTime, &xLocalTime ) );
-
-    /* Print the time. Check that the return value is positive. */
-    TEST_ASSERT_GREATER_THAN( 0,
-                              strftime( pcTimeBuffer,
-                                        posixtestTIME_BUFFER_SIZE,
-                                        "%y",
-                                        &xLocalTime ) );
-
-    /* Check that at least one character was added to the buffer. */
-    TEST_ASSERT_NOT_EQUAL( '\0', pcTimeBuffer[ 0 ] );
-
-    /* Check that buffer size is respected. */
-    TEST_ASSERT_EQUAL( 0,
-                       strftime( pcTimeBuffer,
-                                 1,
-                                 "%y",
-                                 &xLocalTime ) );
-}
-
-/*-----------------------------------------------------------*/
-
-TEST( Full_POSIX_CLOCK, time )
-{
-    time_t xStartTime = 0, xEndTime = 0;
-
-    /* Get time using return value. Check that it's nonzero. */
-    xStartTime = time( NULL );
-    TEST_ASSERT_TRUE( xStartTime >= 0 );
-
-    /* Get time using output parameter. Check that time did not decrease. */
-    ( void ) time( &xEndTime );
-    TEST_ASSERT_TRUE( xEndTime >= xStartTime );
 }
 
 /*-----------------------------------------------------------*/
