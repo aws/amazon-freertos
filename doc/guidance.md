@@ -12,7 +12,7 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 - download and install Doxygen
 - install graphviz
 	- on mac, run "brew install graphviz"
-- goto the root directory of "amazon-freertos-staging" (this will be referenced as $ROOT_AFR_DIR)
+- goto the root directory of "amazon-freertos" (this will be referenced as $ROOT_AFR_DIR)
 	- cd $ROOT_AFR_DIR
 - run Doxygen command to generate the documents 
 	- doxygen doc/config/main
