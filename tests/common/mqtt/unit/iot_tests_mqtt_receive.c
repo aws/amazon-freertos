@@ -523,6 +523,9 @@ TEST_SETUP( MQTT_Unit_Receive )
     /* Initialize common components. */
     TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
 
+    /* Initialize the MQTT library. */
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+
     /* Set the deserializer overrides. */
     serializer.serialize.puback = _serializePuback;
     serializer.deserialize.connack = _deserializeConnack;
@@ -538,9 +541,6 @@ TEST_SETUP( MQTT_Unit_Receive )
     _networkInterface.close = _close;
     networkInfo.pNetworkInterface = &_networkInterface;
     networkInfo.disconnectCallback.function = _disconnectCallback;
-
-    /* Initialize the MQTT library. */
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 
     /* Initialize the MQTT connection used by the tests. */
     _pMqttConnection = IotTestMqtt_createMqttConnection( _AWS_IOT_MQTT_SERVER,
@@ -579,8 +579,8 @@ TEST_TEAR_DOWN( MQTT_Unit_Receive )
 {
     /* Clean up resources taken in test setup. */
     IotMqtt_Disconnect( _pMqttConnection, IOT_MQTT_FLAG_CLEANUP_ONLY );
-    IotCommon_Cleanup();
     IotMqtt_Cleanup();
+    IotCommon_Cleanup();
 
     /* Check that the tests used a deserializer override. */
     TEST_ASSERT_EQUAL_INT( true, _deserializeOverrideCalled );

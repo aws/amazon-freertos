@@ -583,7 +583,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
     ( void ) xSemaphoreGive( ( QueueHandle_t ) &( pxShadowClient->xCallbackMutex ) );
 
     /* Set the callback parameter. */
-    callbackInfo.param1 = pxShadowClient;
+    callbackInfo.pCallbackContext = pxShadowClient;
 
     /* Set the delta callback. */
     if( xShadowError == AWS_IOT_SHADOW_SUCCESS )

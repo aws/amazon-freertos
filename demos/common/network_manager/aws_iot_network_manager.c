@@ -30,6 +30,8 @@
  */
 #include <string.h>
 
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"

@@ -58,7 +58,7 @@
 /**
  * @brief Maximum semaphore value for wait operations.
  */
-#define TASKPOOL_MAX_SEM_VALUE              0x7FFFU
+#define TASKPOOL_MAX_SEM_VALUE              0xFFFF
 
 /**
  * @brief Reschedule delay in milliseconds for deferred jobs.
@@ -795,6 +795,8 @@ IotTaskPoolError_t IotTaskPool_TryCancel( IotTaskPool_t * const pTaskPool,
     TASKPOOL_NO_FUNCTION_CLEANUP();
 }
 
+/*-----------------------------------------------------------*/
+
 const char * IotTaskPool_strerror( IotTaskPoolError_t status )
 {
     const char * pMessage = NULL;
@@ -1182,6 +1184,8 @@ static void _initializeJob( IotTaskPoolJob_t * const pJob,
     }
 }
 
+/*-----------------------------------------------------------*/
+
 static IotTaskPoolJob_t * _fetchOrAllocateJob( IotTaskPoolCache_t * const pCache )
 {
     IotTaskPoolJob_t * pJob = NULL;
@@ -1535,7 +1539,8 @@ static IotTaskPoolError_t _trySafeExtraction( IotTaskPool_t * const pTaskPool,
                 break;
 
             case IOT_TASKPOOL_CANCEL_FAILED:
-                IotLogWarn( "Removing a scheduled job failed because the job could not be canceled." );
+                IotLogWarn( "Removing a scheduled job failed because the job could not be canceled, error %s.",
+                            IotTaskPool_strerror( status ) );
                 status = IOT_TASKPOOL_ILLEGAL_OPERATION;
                 break;
 
@@ -1603,9 +1608,8 @@ static void _rescheduleDeferredJobsTimer( IotTimer_t * const pTimer,
     }
 
     IotTaskPool_Assert( delta > 0 );
-    IotTaskPool_Assert( delta <= UINT32_MAX );
 
-    if( IotClock_TimerArm( pTimer, ( uint32_t )delta, 0 ) == false )
+    if( IotClock_TimerArm( pTimer, ( uint32_t ) delta, 0 ) == false )
     {
         IotLogWarn( "Failed to re-arm timer for task pool" );
     }

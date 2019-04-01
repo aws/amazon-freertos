@@ -41,10 +41,6 @@
 /* Amazon FreeRTOS network include. */
 #include "platform/iot_network_afr.h"
 
-/* C SDK library includes. */
-#include "iot_common.h"
-#include "iot_mqtt.h"
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -64,6 +60,11 @@ extern int RunMqttDemo( bool awsIotMqttMode,
                         void * pNetworkServerInfo,
                         void * pNetworkCredentialInfo,
                         const IotNetworkInterface_t * pNetworkInterface );
+extern int RunShadowDemo( bool awsIotMqttMode,
+                          const char * pIdentifier,
+                          void * pNetworkServerInfo,
+                          void * pNetworkCredentialInfo,
+                          const IotNetworkInterface_t * pNetworkInterface );
 
 /*-----------------------------------------------------------*/
 
@@ -105,13 +106,36 @@ static void _mqttDemoTask( void * pArgument )
 
 /*-----------------------------------------------------------*/
 
+static void _shadowDemoTask( void * pArgument )
+{
+    ( void ) pArgument;
+
+    _runDemoFunction( RunShadowDemo );
+
+    vTaskDelete( NULL );
+}
+
+/*-----------------------------------------------------------*/
+
 void vStartMQTTDemo( void )
 {
     ( void ) xTaskCreate( _mqttDemoTask,
                           "MQTTDemo",
-                          IOT_THREAD_DEFAULT_STACK_SIZE,
+                          democonfigMQTT_SUB_PUB_TASK_STACK_SIZE,
                           NULL,
-                          IOT_THREAD_DEFAULT_PRIORITY,
+                          democonfigMQTT_SUB_PUB_TASK_PRIORITY,
+                          NULL );
+}
+
+/*-----------------------------------------------------------*/
+
+void vStartShadowDemo( void )
+{
+    ( void ) xTaskCreate( _shadowDemoTask,
+                          "ShadowDemo",
+                          democonfigSHADOW_DEMO_TASK_STACK_SIZE,
+                          NULL,
+                          democonfigSHADOW_DEMO_TASK_PRIORITY,
                           NULL );
 }
 

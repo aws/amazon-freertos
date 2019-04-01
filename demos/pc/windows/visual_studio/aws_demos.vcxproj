@@ -254,6 +254,7 @@
     <ClCompile Include="..\..\..\common\mqtt\aws_subscribe_publish_loop.c" />
     <ClCompile Include="..\..\..\common\mqtt\iot_demo_mqtt.c" />
     <ClCompile Include="..\..\..\common\posix\aws_posix_demo.c" />
+    <ClCompile Include="..\..\..\common\shadow\aws_iot_demo_shadow.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c" />
     <ClCompile Include="..\..\..\common\tcp\aws_simple_tcp_echo_server.c" />
     <ClCompile Include="..\..\..\common\tcp\aws_tcp_echo_client_separate_tasks.c" />
