@@ -94,26 +94,6 @@
     };
 #endif
 
-#if !defined( posixconfigENABLE_TM ) || ( posixconfigENABLE_TM == 1 )
-
-/**
- * @brief calendar representation of time
- */
-    struct tm
-    {
-        time_t tm_tick;     /**< FreeRTOS tick count. */
-        int tm_sec;         /**< Seconds [0,60]. Not used. */
-        int tm_min;         /**< Minutes [0,59]. Not used. */
-        int tm_hour;        /**< Hour [0,23]. Not used. */
-        int tm_mday;        /**< Day of month [1,31]. Not used. */
-        int tm_mon;         /**< Month of year [0,11]. Not used. */
-        int tm_year;        /**< Years since 1900. Not used. */
-        int tm_wday;        /**< Day of week [0,6] (Sunday=0). Not used. */
-        int tm_yday;        /**< Day of year [0,365]. Not used. */
-        int tm_isdst;       /**< Daylight Savings flag. Not used. */
-    };
-#endif /* if !defined( posixconfigENABLE_TM ) || ( posixconfigENABLE_TM == 1 ) */
-
 /**
  * @brief Report CPU time used.
  *
@@ -195,25 +175,6 @@ int clock_settime( clockid_t clock_id,
                    const struct timespec * tp );
 
 /**
- * @brief Convert a time value to a broken-down local time.
- *
- * http://pubs.opengroup.org/onlinepubs/9699919799/functions/localtime_r.html
- *
- * @note timer is ignored
- *
- * @note This function can only store the time as tm.tm_tick. All other members of
- * the struct will be set to 0.
- *
- * @note In order to store tm.tm_tick in result, posixconfgENABLE_TM needs to be set to 1.
- * See FreeRTOS_POSIX_portable_default.h for porting configurations.
- *
- * @return Upon successful completion, returns a pointer points to the object holding structure of type tm.
- * @return If any error, rutrns NULL, with errno set to ENOTSUP.
- */
-struct tm * localtime_r( const time_t * timer,
-                         struct tm * result );
-
-/**
  * @brief High resolution sleep.
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/nanosleep.html
@@ -226,33 +187,6 @@ struct tm * localtime_r( const time_t * timer,
  */
 int nanosleep( const struct timespec * rqtp,
                struct timespec * rmtp );
-
-/**
- * @brief Convert date and time to a string.
- *
- * http://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html
- *
- * @note format is ignored.
- *
- * @retval the number of bytes placed into the array pointed to by s,
- * if the total number of resulting bytes including the terminating null byte is not more than maxsize.
- * @retval 0, otherwise. In this case, the array pointed to by s contains partially copied data.
- */
-size_t strftime( char * s,
-                 size_t maxsize,
-                 const char * format,
-                 const struct tm * timeptr );
-
-/**
- * @brief Get time.
- *
- * http://pubs.opengroup.org/onlinepubs/9699919799/functions/time.html
- *
- * @note This function returns the FreeRTOS tick count, not the seconds since UNIX epoch.
- *
- * @retval FreeRTOS tick count - upon successful completion
- */
-time_t time( time_t * tloc );
 
 /**
  * @brief Create a per-process timer.
