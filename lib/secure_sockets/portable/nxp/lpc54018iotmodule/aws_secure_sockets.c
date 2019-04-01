@@ -27,6 +27,9 @@
  * Copyright (C) NXP 2017.
  */
 
+/* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
+ * from redefining in aws_secure_sockets_wrapper_metrics.h */
+#define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -43,6 +46,7 @@
 #include "custom_stack_offload.h"
 #include "atheros_stack_offload.h"
 
+#undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /**
  * @brief Flag indicating that socket send operations are not permitted.
