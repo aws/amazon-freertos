@@ -26,6 +26,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
 /* Demo includes */
 #include "aws_demo_runner.h"
