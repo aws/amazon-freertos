@@ -25,12 +25,13 @@
 
 /**
  * @file bt_hal_manager_types.h
- *
+ * @addtogroup HAL_BLUETOOTH
  * @brief This BT HAL provides the interfaces to control the Bluetooth power states
  * ,local device control and device discovery functionalities
  * USAGE
  * -----
  *
+ * @{
  */
 #ifndef _BT_HAL_MANAGER_TYPES_H_
 #define _BT_HAL_MANAGER_TYPES_H_
@@ -47,6 +48,7 @@
  * @brief Size in byte of BT/BLE addresses.
  */
 #define btADDRESS_LEN        6
+#define btKEY_MAX_LEN    16
 
 /**
  * @brief UUID types.
@@ -138,3 +140,4 @@ typedef enum
 } BTIOtypes_t;
 
 #endif /* _BT_HAL_MANAGER_TYPES_H_ */
+/** @} */

@@ -26,12 +26,13 @@
 
 /**
  * @file bt_hal_manager_adapter_classic.h
- *
+ * @addtogroup HAL_BLUETOOTH
  * @brief BT Classic Adapter provides the interfaces to control Bluetooth classic (BR/EDR)
  * functionalities of local device control and device discovery functionalities
  * USAGE
  * -----
  *
+ * @{
  */
 
 #ifndef _BT_HAL_MANAGER_ADAPTER_CLASSIC_
@@ -76,7 +77,7 @@ typedef struct
 {
     BTUuid_t xUuid;
     uint16_t usChannel;
-    char cName[ btSERVICE_NAME_MAX_LEN ]; /* what's the maximum length */
+    char * cName; /* what's the maximum length */
 } BTServiceRecord_t;
 
 /* manufacturer information EIR data */
@@ -85,6 +86,14 @@ typedef struct
     uint32_t ulVvendor;
     uint32_t ulProduct;
 } BTEirManfInfo_t;
+
+/* gadget manufacturer information EIR data */
+typedef struct
+{
+    uint32_t ulVendor;
+    uint32_t ulProduct;
+    uint32_t ulUuid;
+} BTGadgetEirManfInfo_t;
 
 /** Bluetooth Scan types */
 typedef enum
@@ -175,6 +184,13 @@ typedef enum
      * Data type   - BTScanType_t
      */
     eBTPropertyScanType = 0x102,
+
+    /**
+     * Description - Manufacturer gadget specific info on EIR
+     * Access mode - GET
+     * Data type   - BTGadgetEirManfInfo_t.
+     */
+    eBTPropertyGadgetEIRManfInfo = 0x103,
 } BTClassicPropertyType_t;
 
 /** Bluetooth Adapter Property data structure */
@@ -219,7 +235,7 @@ typedef void (* BTaclStateChangedCallback_t)( BTStatus_t xStatus,
 /** Bluetooth DM callback structure. */
 typedef struct
 {
-    BTDevicePpropertiesCallback_t pxDevProperties_cb;
+    BTDevicePropertiesCallback_t pxDevProperties_cb;
     BTRemoteDevicePropertiesCallback_t pxRemoteDevProperties_cb;
     BTDeviceFoundCallback_t pxDeviceFound_cb;
     BTDiscoveryStateChangedCallback_t pxDiscoveryStateChanged_cb;
@@ -298,7 +314,7 @@ typedef struct
      * @param: uuid : UUID of the service.
      * @return eBTStatusSuccess if the operation is successful, else error code.
      */
-    BTStatus_t ( * pxGetRemoveServiceRecord )( BTBdaddr_t * pxRemote_addr,
+    BTStatus_t ( * pxGetRemoteServiceRecord )( BTBdaddr_t * pxRemote_addr,
                                                BTUuid_t * pxUuid );
 
     /** Starts service search on a given Bluetooth device
@@ -330,3 +346,4 @@ typedef struct
 extern const BTClassicInterface_t * BT_GetClassicAdapter();
 
 #endif /* _BT_HAL_MANAGER_ADAPTER_CLASSIC_ */
+/** @} */
