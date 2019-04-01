@@ -134,9 +134,6 @@
 #ifndef posixconfigENABLE_ITIMERSPEC
     #define posixconfigENABLE_ITIMERSPEC             1 /**< struct itimerspec in time.h */
 #endif
-#ifndef posixconfigENABLE_TM
-    #define posixconfigENABLE_TM                     1 /**< struct tm in time.h */
-#endif
 #ifndef posixconfigENABLE_SEM_T
     #define posixconfigENABLE_SEM_T                  1 /**< struct sem_t in semaphore.h */
 #endif

@@ -208,32 +208,6 @@ int clock_settime( clockid_t clock_id,
 
 /*-----------------------------------------------------------*/
 
-struct tm * localtime_r( const time_t * timer,
-                         struct tm * result )
-{
-    /* Silence warnings about unused parameters. */
-    ( void ) timer;
-    ( void ) result;
-
-    /* This function is only supported if the "custom" FreeRTOS+POSIX tm struct
-     * is used. */
-    #if ( posixconfigENABLE_TM == 0 )
-        errno = ENOTSUP;
-
-        return NULL;
-    #else
-
-        /* Zero the tm, then store the FreeRTOS tick count. The input parameter
-         * timer isn't used. */
-        ( void ) memset( result, 0x00, sizeof( struct tm ) );
-        result->tm_tick = ( time_t ) xTaskGetTickCount();
-
-        return result;
-    #endif
-}
-
-/*-----------------------------------------------------------*/
-
 int nanosleep( const struct timespec * rqtp,
                struct timespec * rmtp )
 {
