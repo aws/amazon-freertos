@@ -113,6 +113,11 @@ target_sources(
     AFR::wifi::mcu_port
     INTERFACE "${AFR_MODULES_DIR}/wifi/portable/ti/cc3220_launchpad/aws_wifi.c"
 )
+# WiFi on TI requires POSIX types
+target_link_libraries(
+    AFR::wifi::mcu_port
+    INTERFACE AFR::posix::mcu_port
+)
 
 # PKCS11
 afr_mcu_port(pkcs11)
@@ -163,6 +168,7 @@ target_link_libraries(
     PRIVATE
         AFR::wifi
         AFR::utils
+        AFR::posix::mcu_port
         --xml_link_info="${exe_target}_linkInfo.xml"
         "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
 )

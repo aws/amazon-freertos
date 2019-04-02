@@ -22,7 +22,7 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ota
     PUBLIC
-        AFR::demo_logging
+        AFR::sdk_common
     PRIVATE
         AFR::ota::mcu_port
         AFR::mqtt
