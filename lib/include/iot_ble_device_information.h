@@ -34,18 +34,20 @@
 #include "iot_ble.h"
 
 /**
- * @constantspage{ble,ble library}
+ * @constantspage{iotbledeviceinfo,ble library,Device Information}
  *
  * @section ble_constants_device_info BLE constants for Device Information service.
  * @brief GATT Service, characteristic and descriptor UUIDs used by the Device information service.
  *
+ * @snippet this define_ble_constants_device_info
+ *
  */
 /* @[define_ble_constants_device_info] */
-#define IOT_BLE_DEVICE_INFO_CHAR_UUID_BASE          IOT_BLE_DEVICE_INFO_SERVICE_UUID
-#define IOT_BLE_DEVICE_INFO_VERSION_UUID            { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
-#define IOT_BLE_DEVICE_INFO_BROKER_ENDPOINT_UUID    { 0x02, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
-#define IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
-#define IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID    0x2902
+#define IOT_BLE_DEVICE_INFO_CHAR_UUID_BASE          IOT_BLE_DEVICE_INFO_SERVICE_UUID                        /**< @brief Base UUID. */
+#define IOT_BLE_DEVICE_INFO_VERSION_UUID            { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Firmware version. */
+#define IOT_BLE_DEVICE_INFO_BROKER_ENDPOINT_UUID    { 0x02, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Broker endpoint. */
+#define IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief MTU size. */
+#define IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID    0x2902                                                  /**< @brief Client configuration. */
 /* @[define_ble_constants_device_info] */
 
 /**
@@ -88,7 +90,7 @@ typedef struct IotBleDeviceInfoService
  */
 
 /**
- * @Brief Creates and starts Amazon FreeRTOS device information service
+ * @brief Creates and starts Amazon FreeRTOS device information service
  *
  * @return pdTRUE if the service is initialized successfully, pdFALSE otherwise
  */

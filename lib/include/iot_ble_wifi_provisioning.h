@@ -39,10 +39,12 @@
 #include "aws_wifi.h"
 
 /**
- * @constantspage{ble,ble library}
+ * @constantspage{iotblewifiprov,ble library,WiFi Provisioning}
  *
  * @section ble_constants_wifi_provisioning BLE constants for WiFi provisioning service.
  * @brief GATT Service, characteristic and descriptor UUIDs used by the WiFi provisioning service.
+ *
+ * @snippet this define_ble_constants_wifi_provisioning
  *
  * @section ble_constants_wifi_provisioning_size BLE size constants for WiFi provisioning.
  * @brief BLE constants for modifying the number of WiFi networks that can be provisioned.
@@ -51,13 +53,13 @@
  *
  */
 /* @[define_ble_constants_wifi_provisioning] */
-#define IOT_BLE_WIFI_PROV_SVC_UUID_MASK               0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31
-#define IOT_BLE_WIFI_PROV_SVC_UUID                    { 0x00, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }
-#define IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_UUID      { 0x01, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }
-#define IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_UUID      { 0x02, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }
-#define IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_UUID      { 0x03, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }
-#define IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_UUID    { 0x04, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }
-#define IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID        ( 0x2902 )
+#define IOT_BLE_WIFI_PROV_SVC_UUID                    { 0x00, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Base UUID. */
+#define IOT_BLE_WIFI_PROV_SVC_UUID_MASK               0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31    /**< @brief UUID mask. */
+#define IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_UUID      { 0x01, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Network list. */
+#define IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_UUID      { 0x02, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Save network. */
+#define IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_UUID      { 0x03, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Edit network. */
+#define IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_UUID    { 0x04, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Delete network. */
+#define IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID        ( 0x2902 )                                                                            /**< @brief Client configuration. */
 /* @[define_ble_constants_wifi_provisioning] */
 
 /**
@@ -97,7 +99,7 @@ typedef enum
 } IotBleWifiProvDescriptor_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief List Network request sent by the GATT client to list saved and scanned networks.
  */
 typedef struct IotBleListNetworkRequest
@@ -107,7 +109,7 @@ typedef struct IotBleListNetworkRequest
 } IotBleListNetworkRequest_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Sent by the GATT client to provision a new WiFi network.
  */
 typedef struct IotBleAddNetworkRequest
@@ -118,7 +120,7 @@ typedef struct IotBleAddNetworkRequest
 } IotBleAddNetworkRequest_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Sent by the GATT client to change the saved WiFi networks priority order.
  */
 typedef struct IotBleEditNetworkRequest
@@ -128,7 +130,7 @@ typedef struct IotBleEditNetworkRequest
 } IotBleEditNetworkRequest_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Sent by the GATT client to delete a saved WIFI network from flash.
  *
  */
@@ -138,7 +140,7 @@ typedef struct IotBleDeleteNetworkRequest
 } IotBleDeleteNetworkRequest_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Response type used to send a WIFI network
  */
 typedef struct IotBleWifiNetworkInfo
@@ -161,14 +163,14 @@ typedef struct IotBleWifiNetworkInfo
  */
 typedef enum
 {
-    IOT_BLE_WIFI_PROV_CONNECT = 0x01, /**< IOT_BLE_WIFI_PROV_CONNECT Set When WiFi provisioning service connects to one of the saved networks in the flash */ /*!< IOT_BLE_WIFI_PROV_CONNECT */
+    IOT_BLE_WIFI_PROV_CONNECT = 0x01,   /**< IOT_BLE_WIFI_PROV_CONNECT Set When WiFi provisioning service connects to one of the saved networks in the flash */ /*!< IOT_BLE_WIFI_PROV_CONNECT */
     IOT_BLE_WIFI_PROV_CONNECTED = 0x02, /**< IOT_BLE_WIFI_PROV_CONNECTED Set when successfully connected to a WiFi Network */                                 /*!< IOT_BLE_WIFI_PROV_CONNECTED */
-    IOT_BLE_WIFI_PROV_DELETED = 0x4, /**<  eWIFIProvStopped Set when WiFi provisioning is deleted */                                                          /*!< IOT_BLE_WIFI_PROV_DELETED */
-    IOT_BLE_WIFI_PROV_FAILED = 0x8 /**< IOT_BLE_WIFI_PROV_FAILED Set When WiFi provisioning failed */                                                         /*!< IOT_BLE_WIFI_PROV_FAILED */
+    IOT_BLE_WIFI_PROV_DELETED = 0x4,    /**<  eWIFIProvStopped Set when WiFi provisioning is deleted */                                                          /*!< IOT_BLE_WIFI_PROV_DELETED */
+    IOT_BLE_WIFI_PROV_FAILED = 0x8      /**< IOT_BLE_WIFI_PROV_FAILED Set When WiFi provisioning failed */                                                         /*!< IOT_BLE_WIFI_PROV_FAILED */
 } IotBleWifiProvEvent_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Structure used for WiFi provisioning service.
  */
 typedef struct IotBleWifiProvService
