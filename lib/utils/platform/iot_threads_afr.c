@@ -326,7 +326,7 @@ bool IotSemaphore_TimedWait( IotSemaphore_t * pSemaphore,
 
     /* Take the semaphore using the FreeRTOS API. Cast the calculation to 64 bit to avoid overflows*/
     if( xSemaphoreTake( ( SemaphoreHandle_t ) &internalSemaphore->xSemaphore,
-                        ( uint64_t ) timeoutMs * configTICK_RATE_HZ / 1000 ) != pdTRUE )
+                        pdMS_TO_TICKS( timeoutMs ) ) != pdTRUE )
     {
         /* Only warn if timeout > 0 */
         if( timeoutMs > 0 )
