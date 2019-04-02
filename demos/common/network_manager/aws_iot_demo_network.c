@@ -166,7 +166,7 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 {
     BaseType_t xStatus = pdFALSE;
     IotMqttNetworkInfo_t* pxNetworkInfo = &( pxNetworkContext->xNetworkInfo );
-    static IotBleMqttConnection_t * bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
+    static IotBleMqttConnectionType_t * bleConnection = NULL;
 
     if( IotNetworkBle.create( NULL, NULL, ( void * *) &bleConnection ) == IOT_NETWORK_SUCCESS )
     {

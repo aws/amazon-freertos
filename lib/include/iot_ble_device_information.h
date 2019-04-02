@@ -33,32 +33,30 @@
 
 #include "iot_ble.h"
 
-
 /**
- * @brief Service, characteristic and descriptor UUIDS for Device information Service
+ * @constantspage{ble,ble library}
+ *
+ * @section ble_constants_device_info BLE constants for Device Information service.
+ * @brief GATT Service, characteristic and descriptor UUIDs used by the Device information service.
+ *
  */
+/* @[define_ble_constants_device_info] */
 #define IOT_BLE_DEVICE_INFO_CHAR_UUID_BASE          IOT_BLE_DEVICE_INFO_SERVICE_UUID
-#define IOT_BLE_DEVICE_INFO_VERSION_UUID       { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
+#define IOT_BLE_DEVICE_INFO_VERSION_UUID            { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
 #define IOT_BLE_DEVICE_INFO_BROKER_ENDPOINT_UUID    { 0x02, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
-#define IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK } 
-#define IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID    0x2902 
-
-/**
- * @brief Number of characteristics, descriptors and included services for Device Information Service
- */
-#define IOT_BLE_DEVICE_INFO_MAX_CHARS               4
-#define IOT_BLE_DEVICE_INFO_MAX_DESCRS              1
-#define IOT_BLE_DEVICE_INFO_MAX_INC_SVCS            0
+#define IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
+#define IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID    0x2902
+/* @[define_ble_constants_device_info] */
 
 /**
  * @brief Characteristics for Device Inforamtion Service.
  */
 typedef enum
 {
-    IOT_BLE_DEVICE_INFO_VERSION_CHAR = 0,         /**< IOT_BLE_DEVICE_INFO_VERSION_CHAR Exposes the services version for the device */
+    IOT_BLE_DEVICE_INFO_VERSION_CHAR = 0,           /**< IOT_BLE_DEVICE_INFO_VERSION_CHAR Exposes the services version for the device */
     IOT_BLE_DEVICE_INFO_MQTT_BROKER_END_POINT_CHAR, /**< IOT_BLE_DEVICE_INFO_MQTT_BROKER_END_POINT_CHAR Exposes the IOT broker endpoint with which the device is provisioned */
-    IOT_BLE_DEVICE_INFO_MTU_CHAR,                /**< IOT_BLE_DEVICE_INFO_MTU_CHAR Expose the BLE MTU for the device */
-    IOT_BLE_DEVICE_INFO_ENCODING_CHAR,           /**< IOT_BLE_DEVICE_INFO_ENCODING_CHAR Tells what type of encoding is used by the device. */
+    IOT_BLE_DEVICE_INFO_MTU_CHAR,                   /**< IOT_BLE_DEVICE_INFO_MTU_CHAR Expose the BLE MTU for the device */
+    IOT_BLE_DEVICE_INFO_ENCODING_CHAR,              /**< IOT_BLE_DEVICE_INFO_ENCODING_CHAR Tells what type of encoding is used by the device. */
 } IotBleDeviceInfoCharacteristic_t;
 
 /**
@@ -70,32 +68,32 @@ typedef enum
 } IotBleDeviceInfoDescriptor_t;
 
 /**
- *
- * Device information characteristics width.
- *
- */
-
-#define IOT_BLE_DEVICE_INFO_INT_MAX_WIDTH                  ( 6 )
-#define IOT_BLE_DEVICE_INFO_MTU_WIDTH            ( IOT_BLE_DEVICE_INFO_INT_MAX_WIDTH )
-#define IOT_BLE_DEVICE_INFO_VERSION_WIDTH        ( IOT_BLE_DEVICE_INFO_INT_MAX_WIDTH )
-#
-/**
  * @brief Structure used for Device Information Service
  */
 typedef struct IotBleDeviceInfoService
 {
-    BTService_t * pBLEService;
-    uint16_t CCFGVal[ IOT_BLE_DEVICE_INFO_MAX_DESCRS ];
-    uint16_t BLEConnId;
-    uint16_t BLEMtu;
+    BTService_t * pBLEService; /**< A pointer to the GATT service for Device Information. */
+    uint16_t CCFGVal[ 1 ];     /**< The configuration descriptor. */
+    uint16_t BLEConnId;        /**< The connection ID. */
+    uint16_t BLEMtu;           /**< The MTU size. */
 } IotBleDeviceInfoService_t;
+
+/**
+ * @functionspage{iotbledeviceinfo,GATT Service for Device Information,Device Information}
+ * - @functionname{iotbledeviceinfo_function_init}
+ */
+
+/**
+ * @functionpage{IotBleDeviceInfo_Init,iotbledeviceinfo,init}
+ */
 
 /**
  * @Brief Creates and starts Amazon FreeRTOS device information service
  *
  * @return pdTRUE if the service is initialized successfully, pdFALSE otherwise
  */
-extern BaseType_t IotBleDeviceInfo_SvcInit( void );
-
+/* @[declare_iotbledeviceinfo_init] */
+bool IotBleDeviceInfo_Init( void );
+/* @[declare_iotbledeviceinfo_init] */
 
 #endif /* IOT_BLE_DEVICE_INFORMATION_H_ */

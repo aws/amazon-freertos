@@ -1,0 +1,297 @@
+/**
+@page guide_developer_styleguide Style Guide
+@brief Guide for the coding style used in this SDK.
+
+The goal of this style guide is to encourage a readable and consistent coding style across the entire SDK.
+
+@section guide_developer_styleguide_codingstyle Coding Style
+@brief The coding style used in this SDK.
+
+The coding style aims to produce code that is readable and easy to debug. An example is provided in @ref guide_developer_styleguide_codingstyle_example.
+
+@subsection guide_developer_styleguide_codingstyle_generalguidelines General guidelines
+@brief General guidelines for library style.
+- Libraries should only use features from [C99](https://en.wikipedia.org/wiki/C99) and earlier.
+
+- Libraries should [log](@ref logging) extensively.
+- Code should be well-commented.
+- Only `/*` and @c *`/` should be used to start and end comments.
+- All comments end with a period.
+- Only spaces should be used for indenting. A single indent is 4 spaces. No tab characters should be used.
+- A parenthesis is usually followed by a space (see @ref guide_developer_styleguide_codingstyle_example).
+- Lines of code should be less than 80 characters long, although longer lines are permitted.
+- All local variables should be declared at the top of a function.
+- All global variables should be declared at the top of a file.
+- Variables are always initialized.
+- A separator is placed between different sections of a file. The current separator is:
+@code{c}
+/*-----------------------------------------------------------*/
+@endcode
+- All files must include @ref IOT_CONFIG_FILE at the top of the file <b>before any other includes</b>.
+- `static` functions must have a declaration at the top of the file and be implemented before any application-facing functions.
+
+@subsection guide_developer_styleguide_codingstyle_typeguidelines Type guidelines
+@brief Guidelines for variable types.
+- Only fixed-width integer types should be used. Exceptions for `bool` and types required by third-party APIs.
+- The default integer in the libraries should be 32 bits wide, i.e. `int32_t` or `uint32_t`.
+- Sizes and lengths should be represented with `size_t`, and Boolean variables with `bool`.
+- The portable format specifiers in `<inttypes.h>` should be used for logging fixed-width integers.
+
+@subsection guide_developer_styleguide_codingstyle_example Example File
+@brief An example file that follows the coding style rules.
+
+See @ref guide_developer_styleguide_naming for how to name the functions, variables, and macros.
+
+@code{c}
+/* Included headers are at the top of the file. The config file include is always first. */
+
+/* Build using a config header, if provided. */
+#ifdef IOT_CONFIG_FILE
+#include IOT_CONFIG_FILE
+#endif
+
+/* Standard includes are immediately after the config file. They are sorted alphabetically.
+ * They use angle brackets <> around the file name. */
+
+/* Standard includes. */
+#include <assert.h>
+#include <inttypes.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
+
+/* Library internal headers are included next. They use quotes "" around the file name. */
+
+/* Library internal include. */
+#include "private/iot_library_internal.h"
+
+/* Library application-facing headers are included last. They use quotes "" around the file name. */
+
+/* Library include. */
+#include "iot_library.h"
+
+/*-----------------------------------------------------------*/
+
+/* Defined constants follow the included headers. */
+
+/* When possible, parentheses () should be placed around contant values and a type
+ * should be specified.  */
+#define _LIBRARY_CONSTANT    ( ( int32_t ) 10 )
+
+#define _LIBRARY_FUNCTION_MACRO( argument ) \ /* Line continuators are right-aligned. */
+    {                                       \ /* Function-like macros are surrounded by curly braces {}. */
+        macro_body( argument );             \
+    }
+
+/*-----------------------------------------------------------*/
+
+/* Library typedefs follow the defined constants. */
+
+/* Forward declarations are used only when necessary. They are placed before all
+ * other typedefs. */
+
+typedef int32_t _type_t;
+
+typedef struct _structType /* Structs are named along with the typedef. */
+{
+    int32_t member;
+
+    union /* Anonymous structs/unions are permitted only inside of other structs. */
+    {
+        int32_t a;
+        int32_t b;
+    };
+
+    int32_t variableLengthMember[]; /* Variable length arrays (a C99 feature) are permitted. */
+} _structType_t;
+
+/*-----------------------------------------------------------*/
+
+/* Declarations of static and extern functions follow the typedefs. */
+
+static bool _libraryStaticFunction( void * pArgument,
+                                    size_t argumentLength );
+
+/* External function declarations should be used sparingly (using an internal
+ * header file to declare functions is preferred). */
+extern int32_t IotLibrary_ExternalFunction( void * pArgument );
+
+/*-----------------------------------------------------------*/
+
+/* Declarations of global variables follow the static and extern function
+ * declarations. Global variables are permitted, but should be avoided when
+ * possible. */
+
+/* Global variables are always initialized. */
+static int _globalVariable = 0;
+static int _globalArray[ _LIBRARY_CONSTANT ] = { 0 };
+
+/*-----------------------------------------------------------*/
+
+/* Implementations of static functions follow the global variable declarations. */
+
+static bool _libraryStaticFunction( void * pArgument,
+                                    size_t argumentLength )
+{
+    /* All local variables are declared at the top of the function. Variables are
+     * always initialized. */
+    size_t i = 0;
+    int32_t localVariable = 0;
+    int32_t * pLocalPointer = ( int32_t * ) pArgument;
+
+    /* All functions make generous use of the logging library. */
+    IotLogInfo( "Performing calculation..." );
+
+    /* Checking parameters at the beginning of functions and returning on bad
+     * parameter values is encouraged. */
+    if( ( pArgument == NULL ) || ( argumentLength == 0 ) ) /* Note the parentheses and spacing in if statements */
+    {
+        IotLogError( "Bad parameters." );
+
+        return false;
+    }
+
+    for( i = 0; i < argumentLength; i++ ) /* Note the spacing in the for loop. */
+    {
+        localVariable += IotLibrary_ExternalFunction( pArgument );
+
+        /* Use portable format specifier for fixed-width integer. */
+        IotLogDebug( "Current value is " PRId32 ".", localVariable );
+    }
+
+    if( localVariable < 0 )
+    {
+        IotLogWarn( "Failed to calculate positive value." );
+    }
+
+    IotLogInfo( "Calculation done." );
+
+    return true;
+}
+
+/* A separator is placed between all function implementations. */
+/*-----------------------------------------------------------*/
+
+/* Implementations of application-facing functions are at the bottom of the file. */
+
+bool IotLibrary_ApplicationFunction( void ) /* Functions with no arguments have void in their argument list. */
+{
+    _LIBRARY_FUNCTION_MACRO( _globalArray );
+
+    return true;
+}
+
+/* Separator and newline at end of file */
+/*-----------------------------------------------------------*/
+
+@endcode
+
+@section guide_developer_styleguide_naming Naming
+@brief Naming convention used in this SDK.
+
+The naming convention aims to differentiate this SDK's files, variables, and functions to avoid name collisions. In general:
+- The first characters of all <i>publicly visible</i> names should identify the name as part of this SDK. <br>
+  <b>Example:</b> For general-purpose libraries (such as MQTT), names start with `iot_` or `Iot`. <br>
+  <b>Example:</b> For libraries specific to AWS IoT (such as Shadow), names start with `aws_iot_` or `AwsIot`.
+- Words in names should be ordered with the most general word first and the most specific word last. Names for internal use begin with `_`. <br>
+  <b>Example:</b> `iot_mqtt_api.c` identifies a file as part of the general MQTT library. `_IotMqtt_ValidateConnect` identifies a function as part of the <i>Internal</i> component of the general MQTT library.
+- Names should avoid using abbreviations.
+
+@subsection guide_developer_styleguide_naming_definedconstantsandenumvalues Defined constants and enum values
+@brief Naming convention for constants set using preprocessor @c #`define` and enum values.
+
+@formattable{defined constants and enum values}
+@formattableentry{`IOT_`<b>LIBRARY</b>`_`<b>DESCRIPTION</b><br>`AWS_IOT_`<b>LIBRARY</b>`_`<b>DESCRIPTION</b>,Defined constants and enum values in application-facing library header files,`IOT_MQTT_SUCCESS` (iot_mqtt.h)<br>`AWS_IOT_SHADOW_SUCCESS` (aws_iot_shadow.h)}
+@formattableentry{`IOT_DEMO_`<b>DESCRIPTION</b><br>`IOT_TEST_`<b>DESCRIPTION</b>,Defined constants and enum values in demos and tests,`IOT_DEMO_MQTT_PUBLISH_BURST_SIZE`<br>`IOT_TEST_MQTT_THREADS`}
+@formattableentry{`AWS_IOT_DEMO_`<b>DESCRIPTION</b><br>`AWS_IOT_TEST_`<b>DESCRIPTION</b>,Defined constants and enum values in demos and tests specific to AWS IoT,`AWS_IOT_DEMO_THING_NAME`<br>`AWS_IOT_TEST_SHADOW_THING_NAME`}
+@formattableentry{`_`<b>DESCRIPTION</b>,Internal constants and enum values<br>No `AWS_` prefix for internal namesin AWS-specific libraries,`_MQTT_PACKET_TYPE_CONNECT`<br>(iot_mqtt_internal.h)<br>`_SHADOW_OPERATION_COUNT`<br>(aws_iot_shadow_internal.h)}
+
+Names of constants and enum values should contain only uppercase letters and underscores. All names intended for application use must begin with `IOT_` or `AWS_IOT_`, while names intended for internal use must begin with only `_`.
+
+@subsection guide_developer_styleguide_naming_files Files
+@brief Naming convention for files.
+
+@formattable{files}
+@formattableentry{`iot_`<b>library</b>`_`<b>description</b>`.extension`<br>`aws_iot_`<b>library</b>`_`<b>description</b>`.extension`,General library file,`iot_mqtt_api.c`<br>`aws_iot_shadow_api.c`}
+@formattableentry{`iot_`<b>library</b>`_internal.h`<br>`aws_iot_`<b>library</b>`_internal.h`,Internal library header,`iot_mqtt_internal.h`<br>`aws_iot_shadow_internal.h`}
+@formattableentry{`iot_demo_`<b>library</b>`.c`<br>`aws_iot_demo_`<b>library</b>`.c`,Library demo source,`iot_demo_mqtt.c`<br>`aws_iot_demo_shadow.c`}
+@formattableentry{`iot_tests_`<b>library</b>`_`<b>description</b>`.c`<br>`aws_iot_tests_`<b>library</b>`_`<b>description</b>`.c`,Library test source,`iot_tests_mqtt_api.c`<br>`aws_iot_tests_shadow_api.c`}
+
+File names contain only lowercase letters and underscores. All file names should start with `iot_` or `aws_iot_` and be named according to their purpose. For example:
+- `iot_mqtt_api.c`: A file in the MQTT library that implements the MQTT API functions.
+- `iot_demo_mqtt.c`: A file in the Demos for the MQTT library.
+- `iot_demo_mqtt_posix.c`: A file in the Demos for the MQTT library on POSIX systems.
+- `iot_tests_mqtt_api.c`: A file in the Tests for the MQTT library. Since the tests currently only run on POSIX systems, test file names do not use the `_posix` suffix.
+
+Library file names should use one or two words to describe the functions implemented in that file. For example:
+- `iot_mqtt_serialize.c`: Implements the MQTT library's packet serialization and deserialization functions.
+- `iot_clock_posix.c`: Implements the platform clock component for POSIX systems.
+
+Declarations of internal functions, structures, macros, etc. of a library should be placed in a header file with an `_internal` suffix. The `_internal` header file should go in the `lib/include/private` directory. For example:
+- `iot_mqtt_internal.h`: Declares the MQTT library's internal functions, structures, macros, etc.
+
+File names for tests and demos should all begin with `iot_demo_` and `iot_tests_`, respectively. The names should then specify the library being demoed or or tested; for example, the files names of the MQTT library's demos and tests start with `iot_demo_mqtt_` and `iot_tests_mqtt_`. Additionally, test file names should describe what tests are implemented in the file, such as `iot_tests_mqtt_api.c` for a file containing tests for the MQTT library API functions.
+
+@subsection guide_developer_styleguide_naming_functions Functions (and function-like macros)
+@brief Naming convention of functions and function-like macros.
+
+@formattable{functions}
+@formattableentry{`Iot`<b>Library</b>`_`<b>Description</b><br>`AwsIot`<b>Library</b>`_`<b>Description</b>,Externally-visible library function,`IotMqtt_Publish`<br>`AwsIotShadow_Update`}
+@formattableentry{`_Iot`<b>Library</b>`_`<b>Description</b><br>`_AwsIot`<b>Library</b>`_`<b>Description</b>,Internal (but not `static`) library function,`_IotMqtt_ValidateNetIf`<br>`_AwsIotShadow_ParseShadowStatus`}
+@formattableentry{`IotTest`<i>Library</i>`_`<b>Description</b>,Function only used in tests,`IotTest_NetworkConnect`<br>`IotTestMqtt_createMqttConnection`}
+@formattableentry{`_`<b>description</b>,`static` function (never uses `Aws` prefix),`_createMqttConnection`<br>`_codeToShadowStatus`}
+@formattableentry{`IotTest`<b>Library</b>`_`<b>accessedFunction</b>,Test access function,`IotTestMqtt_createMqttConnection`}
+
+Externally visible (i.e. not `static`) functions are [UpperCamelCased](https://en.wikipedia.org/wiki/Camel_case) and must begin with `Iot` or `AwsIot` (public API functions); or `_Iot` or `_AwsIot` (internal functions). Function names should then specify their library name; followed by an underscore; followed by a brief description of what the function does. For example:
+- `IotMqtt_Publish`: This function is part of the public MQTT API. It <i>Publishes</i> an MQTT message.
+- `_IotMqtt_ValidateNetIf`: This function is internal to the MQTT library, but not `static`. It validates an `IotMqttNetIf_t`.
+
+Functions not visible outside their source file (i.e. `static` functions) have names that are [lowerCamelCased](https://en.wikipedia.org/wiki/Camel_case) and begin with an underscore. These function names do not contain the library name or `Aws`. For example:
+- `_createMqttConnection`: A `static` function in `iot_mqtt_api.c`.
+- `_codeToShadowStatus`: A `static` function in `aws_iot_shadow_parser.c`.
+
+Test access functions begin with `IotTest`; followed by the library name; followed by an underscore; followed by the function that the test function accesses. Since the accessed function is always `static`, the accessed function will be [lowerCamelCased](https://en.wikipedia.org/wiki/Camel_case).
+
+@subsection guide_developer_styleguide_naming_types Types
+@brief Naming conventions of library `typedef` types.
+
+@formattable{types}
+@formattableentry{`Iot`<b>LibraryDescription</b>`_t`<br>`AwsIot`<b>LibraryDescription</b>`_t`,General types in application-facing library header files,`IotMqttError_t` (iot_mqtt.h)<br>`AwsIotShadowError_t` (aws_iot_shadow.h)}
+@formattableentry{`Iot`<b>LibraryFunction</b>`Info_t`<br>`AwsIot`<b>LibraryFunction</b>`Info_t`,Application-facing parameter structure,`IotMqttPublishInfo_t`<br>(Parameter structure to `IotMqtt_Publish`)<br>`AwsIotShadowDocumentInfo_t` <br>(Parameter structure for Shadow documents)}
+@formattableentry{`_`<b>libraryDescription</b>`_t`,Type in an `internal` header,`_mqttOperation_t` (iot_mqtt_internal.h)<br>`_shadowOperation_t` (aws_iot_shadow_internal.h)}
+@formattableentry{`_`<b>description</b>`_t`,Internal type in source file,`_topicMatchParams_t` (iot_mqtt_subscription.c)}
+
+Types intended for use in applications are [UpperCamelCased](https://en.wikipedia.org/wiki/Camel_case). The names must start with `Iot` or `AwsIot` and end with `_t`. Parameter structures should indicate their associated function: for example, `IotMqttPublishInfo_t` is passed as a parameter to `IotMqtt_Publish`.
+
+Types intended for internal library use defined in a header file are [lowerCamelCased](https://en.wikipedia.org/wiki/Camel_case). The names must start with `_`, followed by the library name, and end with `_t`. Internal types defined in a library source file must start with `_`, end with `_t`, and not include the library name.
+
+`struct` typedefs should always be named along with the `typedef`. The struct name should be identical to the `typedef` name, but without the `_t` at the end. For example:
+@code{c}
+typedef struct IotLibraryStruct
+{
+    int32_t member;
+} IotLibraryStruct_t;
+
+typedef struct _libraryInternalStruct
+{
+    int32_t member;
+} _libraryInternalStruct_t;
+@endcode
+
+A `struct` may contain anonymous `struct` or `union` members.
+
+@subsection guide_developer_styleguide_naming_variables Variables
+@brief Naming conventions of variables.
+
+@formattable{variables}
+@formattableentry{<b>variableDescription</b>,General local variable,`startTime`}
+@formattableentry{`p`<b>VariableDescription</b>,Local variable pointers and arrays (including strings),`pSubscriptionList`}
+@formattableentry{`_`<b>variableDescription</b>,Global variable that is `static`,`_connectMutex` (iot_mqtt_api.c)<br>`_pSamplePayload` (string)}
+@formattableentry{`_Iot`<i>Library</i><b>Description</b><br>`_AwsIot`<i>Library</i><b>Description</b>,Global variable that is <b>NOT</b> `static`,`_IotMqttTaskPool` (iot_mqtt_operation.c)<br>`_pIotSamplePayload` (string)}
+
+Local variable names are [lowerCamelCased](https://en.wikipedia.org/wiki/Camel_case) and consist only of a description of the variable. Names like `i` or `j` are acceptable for loop counters, but all other variables should have a descriptive name.
+
+Global variable names always start with a `_`. Global variables that are `static` consist of only the description in [lowerCamelCase](https://en.wikipedia.org/wiki/Camel_case). Global variables that are not static consist of the library name <b>and</b> the description in [UpperCamelCase](https://en.wikipedia.org/wiki/Camel_case); for example: `_IotLibraryNonStaticGlobalVariable`.
+
+All pointers, arrays, and strings (both global and local) start with `p` (local) or `_p` (global).
+*/

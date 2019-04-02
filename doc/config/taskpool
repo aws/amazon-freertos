@@ -3,28 +3,30 @@
 @INCLUDE = common
 
 # Basic project information.
-PROJECT_NAME = "Defender"
-PROJECT_BRIEF = "AWS IoT Device Defender library"
+PROJECT_NAME = "Task Pool"
+PROJECT_BRIEF = "Task pool library"
 
 # Library documentation output directory.
-HTML_OUTPUT = defender
+HTML_OUTPUT = taskpool
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/defender.tag
+GENERATE_TAGFILE = doc/tag/taskpool.tag
 
 # Directories containing library source code.
-INPUT = doc/lib/ \
+INPUT = doc \
+        doc/lib \
         lib/include \
         lib/include/private \
-        lib/source/defender
+        lib/include/types \
+        lib/source/common \
+        tests/common/unit
 
 # Library file names.
-FILE_PATTERNS = *defender*.h *defender*.txt
+FILE_PATTERNS = *taskpool*.c *taskpool*.h *taskpool*.txt
 
 # External tag files required by this library.
 TAGFILES = doc/tag/main.tag=../main \
-           doc/tag/mqtt.tag=../mqtt \
+           doc/tag/linear_containers.tag=../linear_containers \
            doc/tag/logging.tag=../logging \
-           doc/tag/static_memory.tag=../static_memory \
            doc/tag/platform.tag=../platform \
-           doc/tag/linear_containers.tag=../linear_containers
+           doc/tag/static_memory.tag=../static_memory \

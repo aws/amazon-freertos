@@ -3,27 +3,36 @@
 @INCLUDE = common
 
 # Basic project information.
-PROJECT_NAME = "Defender"
-PROJECT_BRIEF = "AWS IoT Device Defender library"
+PROJECT_NAME = "MQTT"
+PROJECT_BRIEF = "MQTT 3.1.1 client library"
 
 # Library documentation output directory.
-HTML_OUTPUT = defender
+HTML_OUTPUT = mqtt
+
+# Generate documentation for MQTT packet serializer overrides.
+PREDEFINED += "IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES=1"
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/defender.tag
+GENERATE_TAGFILE = doc/tag/mqtt.tag
 
 # Directories containing library source code.
-INPUT = doc/lib/ \
+INPUT = doc \
+        doc/lib \
         lib/include \
+        lib/include/types \
         lib/include/private \
-        lib/source/defender
+        lib/source/mqtt \
+        demos/ \
+        tests/ \
+        tests/mqtt/unit \
+        tests/mqtt/access \
+        tests/mqtt/system
 
 # Library file names.
-FILE_PATTERNS = *defender*.h *defender*.txt
+FILE_PATTERNS = *mqtt*.c *mqtt*.h *mqtt*.txt
 
 # External tag files required by this library.
 TAGFILES = doc/tag/main.tag=../main \
-           doc/tag/mqtt.tag=../mqtt \
            doc/tag/logging.tag=../logging \
            doc/tag/static_memory.tag=../static_memory \
            doc/tag/platform.tag=../platform \
