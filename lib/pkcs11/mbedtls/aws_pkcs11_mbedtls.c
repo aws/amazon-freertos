@@ -1152,12 +1152,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     CK_ULONG iAttrib;
     mbedtls_pk_context xKeyContext;
     mbedtls_pk_type_t xKeyType;
+    mbedtls_ecp_keypair * pxKeyPair;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0;
     CK_OBJECT_CLASS xClass;
     uint8_t * pxObjectValue = NULL;
     uint32_t ulLength = 0;
     uint8_t ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
     int lMbedTLSResult = 0;
+    size_t xSize;
 
     /* Avoid warnings about unused parameters. */
     ( void ) xSession;
@@ -1305,24 +1307,54 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                 case CKA_EC_PARAMS:
 
                     /* TODO: Add check that is key, is ec key. */
-                    if( pxTemplate[ iAttrib ].pValue == NULL )
+
+                    pxTemplate[ iAttrib ].ulValueLen = sizeof( ucP256Oid );
+
+                    if( pxTemplate[ iAttrib ].pValue != NULL )
                     {
-                        pxTemplate[ iAttrib ].ulValueLen = sizeof( ucP256Oid );
-                    }
-                    else if( pxTemplate[ iAttrib ].ulValueLen < sizeof( ucP256Oid ) )
-                    {
-                        xResult = CKR_BUFFER_TOO_SMALL;
-                    }
-                    else
-                    {
-                        memcpy( pxTemplate[ iAttrib ].pValue, ucP256Oid, sizeof( ucP256Oid ) );
+                        if( pxTemplate[ iAttrib ].ulValueLen < sizeof( ucP256Oid ) )
+                        {
+                            xResult = CKR_BUFFER_TOO_SMALL;
+                        }
+                        else
+                        {
+                            memcpy( pxTemplate[ iAttrib ].pValue, ucP256Oid, sizeof( ucP256Oid ) );
+                        }
                     }
 
                     break;
 
                 case CKA_EC_POINT:
+
                     /*mbedtls_ecp_tls_write_point */
                     /* mbedtls_ecp_point_write_binary */
+                    if( pxTemplate[ iAttrib ].pValue == NULL )
+                    {
+                        pxTemplate[ iAttrib ].ulValueLen = 67; /* TODO: Is this large enough?*/
+                    }
+                    else
+                    {
+                        pxKeyPair = ( mbedtls_ecp_keypair * ) xKeyContext.pk_ctx;
+                        *( ( uint8_t * ) pxTemplate[ iAttrib ].pValue ) = 0x04; /* Mark the point as uncompressed. */
+                        lMbedTLSResult = mbedtls_ecp_tls_write_point( &pxKeyPair->grp, &pxKeyPair->Q, MBEDTLS_ECP_PF_UNCOMPRESSED, &xSize, ( uint8_t * ) pxTemplate[ iAttrib ].pValue + 1, pxTemplate[ iAttrib ].ulValueLen - 1 );
+
+                        if( lMbedTLSResult < 0 )
+                        {
+                            if( lMbedTLSResult == MBEDTLS_ERR_ECP_BUFFER_TOO_SMALL )
+                            {
+                                xResult = CKR_BUFFER_TOO_SMALL;
+                            }
+                            else
+                            {
+                                xResult = CKR_FUNCTION_FAILED;
+                            }
+                        }
+                        else
+                        {
+                            pxTemplate[ iAttrib ].ulValueLen = xSize + 1;
+                        }
+                    }
+
                     break;
 
                 default:

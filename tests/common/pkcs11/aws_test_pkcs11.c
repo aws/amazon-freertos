@@ -229,7 +229,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_RSA )
     ( void ) xDestroyCredentials( xGlobalSession );
     xCurrentCredentials = eNone;
 
-    RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_GenerateKeyPair );
+    /* RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_GenerateKeyPair ); */ /* Generating RSA keys is not supported. */
     RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectFindObject );
     RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_FindObjectMultiThread );
     RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue );
@@ -564,7 +564,7 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
 
         /* When a NULL slot pointer is passed in,
          *  the number of slots should be updated. */
-         xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, &xSlotCount );
+        xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, &xSlotCount );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot count" );
         TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xSlotCount, "Slot count incorrectly updated" );
 
@@ -592,7 +592,6 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
         xSlotCount = 0;
         xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, pxSlotId, &xSlotCount );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_BUFFER_TOO_SMALL, xResult, "Negative Test: Improper handling of too-small slot buffer" );
-
     }
 
     if( pxSlotId != NULL )
@@ -1602,7 +1601,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     xTemplate.pValue = xEcParams;
     xTemplate.ulValueLen = sizeof( xEcParams );
     xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
-    TEST_ASSERT_EQUAL_MESSAGE( 10, xTemplate.ulValueLen, "Length of ECParameters identifier incorrect in GetAttributeValue" );
+    TEST_ASSERT_EQUAL_MESSAGE( sizeof( ucSecp256r1Oid ), xTemplate.ulValueLen, "Length of ECParameters identifier incorrect in GetAttributeValue" );
     TEST_ASSERT_EQUAL_INT8_ARRAY_MESSAGE( ucSecp256r1Oid, xEcParams, xTemplate.ulValueLen, "EcParameters did not match P256 OID." );
 
     xTemplate.type = CKA_EC_POINT;
@@ -1813,6 +1812,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
     xTemplate.type = CKA_CLASS;
     xTemplate.pValue = NULL;
     xTemplate.ulValueLen = 0;
+
     xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKey, &xTemplate, 1 );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for length of private EC key class failed." );
     TEST_ASSERT_EQUAL_MESSAGE( sizeof( CK_OBJECT_CLASS ), xTemplate.ulValueLen, "Incorrect object class length returned from GetAttributeValue." );
@@ -1891,6 +1891,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
 
     /****** Certificate check. *******/
     /* Object class. */
+
     xTemplate.type = CKA_CLASS;
     xTemplate.pValue = NULL;
     xTemplate.ulValueLen = 0;
@@ -1934,7 +1935,6 @@ static void prvFindObjectMultiThreadTask( void * pvParameters )
 
     for( xCount = 0; xCount < pkcs11testMULTI_THREAD_LOOP_COUNT; xCount++ )
     {
-        configPRINTF( ( "Count %d \r\n", xCount ) );
         xResult = xFindObjectWithLabelAndClass( xSession, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xHandle );
 
         if( xResult != CKR_OK )

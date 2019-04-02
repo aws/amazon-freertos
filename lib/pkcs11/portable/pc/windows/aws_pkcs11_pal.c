@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define PKCS11_PAL_PRINT( X )    vLoggingPrintf X
 
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
 #define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
@@ -179,12 +180,12 @@ void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
 
 /**
  * @brief Delete an object from non-volatile storage.
- * 
+ *
  * @param[in] xHandle    Handle of the object to be destroyed.
- * 
- * @return CKR_OK if object was successfully destroyed. 
+ *
+ * @return CKR_OK if object was successfully destroyed.
  * Otherwise, PKCS #11-style error code.
- * 
+ *
  */
 CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
 {
@@ -239,7 +240,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
         /* Create the file. */
         hFile = CreateFileA( pcFileName,
                              GENERIC_WRITE,
-                             0,
+                             FILE_SHARE_READ,
                              NULL,
                              CREATE_ALWAYS,
                              FILE_ATTRIBUTE_NORMAL,
@@ -248,6 +249,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
         if( INVALID_HANDLE_VALUE == hFile )
         {
             ulStatus = GetLastError();
+            PKCS11_PAL_PRINT( ( "ERROR: Unable to create file %d \r\n", ulStatus ) );
             xHandle = eInvalidHandle;
         }
 
@@ -375,7 +377,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         /* Open the file. */
         hFile = CreateFileA( pcFileName,
                              GENERIC_READ,
-                             0,
+                             FILE_SHARE_READ,
                              NULL,
                              OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL,
@@ -384,6 +386,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         if( INVALID_HANDLE_VALUE == hFile )
         {
             ulDriverReturn = GetLastError();
+            PKCS11_PAL_PRINT( ( "ERROR: Unable to open file %d \r\n", ulDriverReturn ) );
             ulReturn = CKR_FUNCTION_FAILED;
         }
 
@@ -410,6 +413,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                    ( LPDWORD ) ( &ulSize ),
                                    NULL ) )
             {
+                PKCS11_PAL_PRINT( ( "ERROR: Unable to read file \r\n" ) );
                 ulReturn = CKR_FUNCTION_FAILED;
             }
         }
