@@ -94,31 +94,6 @@ target_sources(
     INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/aws_wifi.c"
 )
 
-# BLE
-set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
-
-# Include directories for BLE on ESP
-set(
-    esp_ble_inc_dirs
-    "${espressif_dir}/components/bt/bluedroid/api/include/api"
-    "${espressif_dir}/components/bt/include"
-    "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/"
-)
-
-afr_mcu_port(ble)
-target_sources(
-    AFR::ble::mcu_port
-    INTERFACE
-        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_common_gap.c"
-        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_gap.c"
-        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_gatt_server.c"
-)
-target_include_directories(
-    AFR::ble::mcu_port
-    INTERFACE
-        ${esp_ble_inc_dirs}
-)
-
 # PKCS11
 afr_mcu_port(pkcs11)
 target_link_libraries(
@@ -158,33 +133,21 @@ target_sources(
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/test_runner/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
-    set(
-        extra_exe_sources
-        ${BLE_DEMO_COMMON_SOURCES}
-        ${NETWORK_MANAGER_SOURCES}
-    )
 endif()
 
-add_executable(
-    ${exe_target}
-    "${board_dir}/application_code/main.c"
-    ${extra_exe_sources}
-)
+add_executable(${exe_target} "${board_dir}/application_code/main.c")
 target_include_directories(
     ${exe_target}
     PUBLIC
         $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-        $<TARGET_PROPERTY:AFR::ble::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
 )
 target_link_libraries(
     ${exe_target}
     PRIVATE
         AFR::wifi
         AFR::utils
-        AFR::ble
 )
 
 set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discovery.c
