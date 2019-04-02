@@ -177,7 +177,7 @@ void vLoggingPrintf( const char * pcFormat,
                     }
 
                     xLength = snprintf( pcPrintString, configLOGGING_MAX_MESSAGE_LENGTH, "%lu %lu [%s] ",
-                                        xMessageNumber++,
+                                        ( unsigned long ) xMessageNumber++,
                                         ( unsigned long ) xTaskGetTickCount(),
                                         pcTaskName );
                 }

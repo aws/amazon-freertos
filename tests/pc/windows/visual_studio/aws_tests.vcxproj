@@ -62,6 +62,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -293,7 +294,6 @@
     <ClInclude Include="..\common\config_files\unity_config.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\demos\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_demo_logging.c" />
     <ClCompile Include="..\..\..\..\demos\pc\windows\common\application_code\aws_entropy_hardware_poll.c" />
     <ClCompile Include="..\..\..\..\lib\cbor\src\aws_cbor.c" />
@@ -368,6 +368,7 @@
     <ClCompile Include="..\..\..\..\lib\ota\portable\pc\windows\aws_ota_pal.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
+    <ClCompile Include="..\..\..\..\lib\provisioning\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_decoder.c" />

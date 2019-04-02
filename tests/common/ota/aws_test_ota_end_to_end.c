@@ -141,7 +141,7 @@ void vOTAUpdateTestTask( void * pvParameters )
 		connectInfo.awsIotMqttMode = true;
 		connectInfo.keepAliveSeconds = KEEPALIVE_SECONDS;
         connectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
-        connectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
+        connectInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
 
 		#if IOT_TEST_SECURED_CONNECTION == 1
 			networkInfo.pNetworkCredentialInfo = ( void * ) &credentials;
