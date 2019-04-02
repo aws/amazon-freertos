@@ -1150,17 +1150,19 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = CKR_OK;
     CK_BBOOL xIsPrivate = CK_TRUE;
     CK_ULONG iAttrib;
-    mbedtls_pk_context privateKeyContext;
+    mbedtls_pk_context xKeyContext;
     mbedtls_pk_type_t xKeyType;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0;
-
+    CK_OBJECT_CLASS xClass;
     uint8_t * pxObjectValue = NULL;
     uint32_t ulLength = 0;
+    uint8_t ucP256Oid[] = pkcs11DER_ENCODED_OID_P256;
+    int lMbedTLSResult = 0;
 
     /* Avoid warnings about unused parameters. */
     ( void ) xSession;
 
-    if( NULL == pxTemplate )
+    if( ( NULL == pxTemplate ) || ( 0 == ulCount ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
@@ -1172,12 +1174,61 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
         xResult = PKCS11_PAL_GetObjectValue( xObject, &pxObjectValue, &ulLength, &xIsPrivate );
     }
 
+    /* Determine what kind of object we are dealing with. */
+    if( xResult == CKR_OK )
+    {
+        /* Is it a key? */
+        mbedtls_pk_init( &xKeyContext );
+
+        if( 0 == mbedtls_pk_parse_key( &xKeyContext, pxObjectValue, ulLength, NULL, 0 ) )
+        {
+            if( xIsPrivate )
+            {
+                xClass = CKO_PRIVATE_KEY;
+            }
+            else
+            {
+                xClass = CKO_PUBLIC_KEY;
+            }
+        }
+        else if( 0 == mbedtls_pk_parse_public_key( &xKeyContext, pxObjectValue, ulLength ) )
+        {
+            xClass = CKO_PUBLIC_KEY;
+        }
+        else
+        {
+            /* TODO: Do we want to safety parse the cert?
+             * Assume certificate. */
+            xClass = CKO_CERTIFICATE;
+        }
+    }
+
     if( xResult == CKR_OK )
     {
         for( iAttrib = 0; iAttrib < ulCount && CKR_OK == xResult; iAttrib++ )
         {
             switch( pxTemplate[ iAttrib ].type )
             {
+                case CKA_CLASS:
+
+                    if( pxTemplate[ iAttrib ].pValue == NULL )
+                    {
+                        pxTemplate[ iAttrib ].ulValueLen = sizeof( CK_OBJECT_CLASS );
+                    }
+                    else
+                    {
+                        if( pxTemplate[ iAttrib ].ulValueLen >= sizeof( CK_OBJECT_CLASS ) )
+                        {
+                            memcpy( pxTemplate[ iAttrib ].pValue, &xClass, sizeof( CK_OBJECT_CLASS ) );
+                        }
+                        else
+                        {
+                            xResult = CKR_BUFFER_TOO_SMALL;
+                        }
+                    }
+
+                    break;
+
                 case CKA_VALUE:
 
                     if( xIsPrivate == CK_TRUE )
@@ -1207,24 +1258,21 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
                     if( pxTemplate[ iAttrib ].pValue == NULL )
                     {
-                        pxTemplate[ iAttrib ].ulValueLen = sizeof( mbedtls_pk_type_t );
+                        pxTemplate[ iAttrib ].ulValueLen = sizeof( CK_KEY_TYPE );
                     }
-                    else if( pxTemplate[ iAttrib ].ulValueLen < sizeof( mbedtls_pk_type_t ) )
+                    else if( pxTemplate[ iAttrib ].ulValueLen < sizeof( CK_KEY_TYPE ) )
                     {
                         xResult = CKR_BUFFER_TOO_SMALL;
                     }
                     else
                     {
-                        mbedtls_pk_init( &privateKeyContext );
-                        xResult = mbedtls_pk_parse_key( &privateKeyContext, pxObjectValue, ulLength, NULL, 0 );
-
                         if( 0 != xResult )
                         {
                             xResult = CKR_FUNCTION_FAILED;
                         }
                         else
                         {
-                            xKeyType = mbedtls_pk_get_type( &privateKeyContext );
+                            xKeyType = mbedtls_pk_get_type( &xKeyContext );
 
                             switch( xKeyType )
                             {
@@ -1250,11 +1298,31 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
                             memcpy( pxTemplate[ iAttrib ].pValue, &xPkcsKeyType, sizeof( CK_KEY_TYPE ) );
                         }
-
-                        /* Free the mbedTLS structure used to parse the key. */
-                        mbedtls_pk_free( &privateKeyContext );
                     }
 
+                    break;
+
+                case CKA_EC_PARAMS:
+
+                    /* TODO: Add check that is key, is ec key. */
+                    if( pxTemplate[ iAttrib ].pValue == NULL )
+                    {
+                        pxTemplate[ iAttrib ].ulValueLen = sizeof( ucP256Oid );
+                    }
+                    else if( pxTemplate[ iAttrib ].ulValueLen < sizeof( ucP256Oid ) )
+                    {
+                        xResult = CKR_BUFFER_TOO_SMALL;
+                    }
+                    else
+                    {
+                        memcpy( pxTemplate[ iAttrib ].pValue, ucP256Oid, sizeof( ucP256Oid ) );
+                    }
+
+                    break;
+
+                case CKA_EC_POINT:
+                    /*mbedtls_ecp_tls_write_point */
+                    /* mbedtls_ecp_point_write_binary */
                     break;
 
                 default:
@@ -1264,6 +1332,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
         /* Free the buffer where object was stored. */
         PKCS11_PAL_GetObjectValueCleanup( pxObjectValue, ulLength );
+
+        /* Free the mbedTLS structure used to parse the key. */
+        mbedtls_pk_free( &xKeyContext );
     }
 
     return xResult;
@@ -2100,36 +2171,22 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( SearchableAttributes_t * pxSearcha
                 }
                 else
                 {
-                    PKCS11_PRINT( ("ERROR: Max label length 32 bytes supported. \r\n") );
+                    PKCS11_PRINT( ( "ERROR: Max label length 32 bytes supported. \r\n" ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
 
                 break;
-            case (CKA_TOKEN):
+
+            case ( CKA_TOKEN ):
                 memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
-                if ( xBool != CK_TRUE )
+
+                if( xBool != CK_TRUE )
                 {
-                    PKCS11_PRINT( ("ERROR: Only token key generation is supported. \r\n") );
+                    PKCS11_PRINT( ( "ERROR: Only token key generation is supported. \r\n" ) );
                     xResult = CKR_ATTRIBUTE_VALUE_INVALID;
                 }
+
                 break;
-            /*
-            case ( CKA_CLASS ):
-                memcpy( &xTemp, xAttribute.pValue, sizeof( CK_ULONG ) );
-
-                if( xTemp == CKO_PRIVATE_KEY )
-                {
-                    pxSearchable->xClass = CKO_PRIVATE_KEY;
-                    pxSearchable->xClassIsValid = CK_TRUE;
-                }
-                else
-                {
-                    PKCS11_PRINT( ( "ERROR: Private key template must be of class private key.\r\n" ) );
-                    xResult = CKR_TEMPLATE_INCONSISTENT;
-                }
-
-                break;     */
-
 
             case ( CKA_KEY_TYPE ):
                 memcpy( &xTemp, xAttribute.pValue, sizeof( CK_ULONG ) );
@@ -2170,7 +2227,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( SearchableAttributes_t * pxSearcha
         }
     }
 
-    if ( xResult == CKR_OK )
+    if( xResult == CKR_OK )
     {
         pxSearchable->xClass = CKO_PRIVATE_KEY;
         pxSearchable->xClassIsValid = CK_TRUE;
