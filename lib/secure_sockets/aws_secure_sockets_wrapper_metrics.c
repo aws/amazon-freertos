@@ -49,6 +49,20 @@
 
 /*-----------------------------------------------------------*/
 
+    BaseType_t Sockets_MetricsInit( void )
+    {
+        BaseType_t result = SOCKETS_Init();
+
+        if( result == pdTRUE )
+        {
+            result = IotMetrics_Init() ? pdTRUE : pdFALSE;
+        }
+
+        return result;
+    }
+
+/*-----------------------------------------------------------*/
+
     int32_t Sockets_MetricsConnect( Socket_t xSocket,
                                     SocketsSockaddr_t * pxAddress,
                                     Socklen_t xAddressLength )
