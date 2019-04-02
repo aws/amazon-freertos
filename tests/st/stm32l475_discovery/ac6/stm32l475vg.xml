@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE targetDefinitions [ 
+	<!ELEMENT targetDefinitions (board)>
+	<!ELEMENT board (name, dbgIF+, dbgDEV, mcuId)>
+	<!ELEMENT name (#PCDATA)>
+	<!ELEMENT dbgIF (#PCDATA)>
+	<!ELEMENT dbgDEV (#PCDATA)>
+	<!ELEMENT mcuId (#PCDATA)>
+	<!ATTLIST board id CDATA #REQUIRED>
+]>
+
+<targetDefinitions>
+  <board id="stm32l475vg">
+    <name>STM32L475VG</name>
+    <dbgIF>SWD</dbgIF>
+    <dbgDEV>ST-Link</dbgDEV>
+    <mcuId>stm32l475vgtx</mcuId>
+  </board>
+</targetDefinitions>
