@@ -201,22 +201,6 @@ typedef struct
     void * pvVal;
 } BTClassicProperty_t;
 
-
-/** GET/SET local device Properties callback */
-typedef void (* BTDevicePropertiesCallback_t)( BTStatus_t xStatus,
-                                                uint32_t ulNumProperties,
-                                                BTClassicProperty_t * pxProperties );
-
-/** GET/SET Remote Device Properties callback */
-
-/** TODO: For remote device properties, do not see a need to get/set
- * multiple properties - num_properties shall be 1
- */
-typedef void ( * BTRemoteDevicePropertiesCallback_t )( BTStatus_t xStatus,
-                                                       BTBdaddr_t * pxBdAddr,
-                                                       uint32_t ulNumProperties,
-                                                       BTClassicProperty_t *pxProperties);
-
 /** New device discovered callback */
 
 /** If EIR data is not present, then BD_NAME and RSSI shall be NULL and -1
@@ -241,7 +225,6 @@ typedef struct
     BTDiscoveryStateChangedCallback_t pxDiscoveryStateChanged_cb;
     BTaclStateChangedCallback_t pxAclStateChanged_cb;
 } BTClassicCallbacks_t;
-
 
 /** Represents the standard SAL BT Classic device management interface. */
 typedef struct

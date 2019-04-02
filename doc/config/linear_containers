@@ -1,0 +1,23 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Linear Containers"
+PROJECT_BRIEF = "Linked lists and Queues"
+
+# Library documentation output directory.
+HTML_OUTPUT = linear_containers
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/linear_containers.tag
+
+# Directories containing library source code.
+INPUT = doc/lib \
+        lib/include/
+
+# Library file names.
+FILE_PATTERNS = *linear_containers*.h *linear_containers*.txt
+
+# External tag files required by this library.
+TAGFILES = doc/tag/main.tag=../main

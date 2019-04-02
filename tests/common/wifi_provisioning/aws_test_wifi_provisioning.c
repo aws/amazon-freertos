@@ -50,8 +50,8 @@ static void prvBLEDeInitialize( void );
 static void prvRemoveSavedNetworks( void );
 static void prvGetRealWIFINetwork( WIFINetworkProfile_t *pxNetwork );
 static void prvGetTestWIFINetwork( WIFINetworkProfile_t *pxNetwork, uint16_t usId );
-static BaseType_t prvIsSameNetwork( WIFINetworkProfile_t *pxNetwork1,  WIFINetworkProfile_t *pxNetwork2 );
-static BaseType_t prvConnectRealNetwork( void );
+static bool prvIsSameNetwork( WIFINetworkProfile_t *pxNetwork1,  WIFINetworkProfile_t *pxNetwork2 );
+static bool prvConnectRealNetwork( void );
 
 
 #define testMAXWIFI_WAIT_TIME    pdMS_TO_TICKS( 10000 )
@@ -102,14 +102,14 @@ TEST_GROUP_RUNNER( Full_WiFi_Provisioning )
 TEST( Full_WiFi_Provisioning, WIFI_PROVISION_Init )
 {
 
-	BaseType_t xStatus = IotBleWifiProv_Init();
-	TEST_ASSERT_EQUAL( pdTRUE, xStatus);
+	bool xStatus = IotBleWifiProv_Init();
+	TEST_ASSERT_EQUAL( true, xStatus);
 }
 
 TEST( Full_WiFi_Provisioning, WIFI_PROVISION_StartStop )
 {
 
-	BaseType_t xStatus = IotBleWifiProv_Start();
+	bool xStatus = IotBleWifiProv_Start();
 	TEST_ASSERT_EQUAL( pdPASS, xStatus);
 	xStatus = IotBleWifiProv_Stop();
 	TEST_ASSERT_EQUAL( pdPASS, xStatus );
@@ -133,7 +133,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_AddNetwork )
 		/* Verify that the network is connected */
 		memset(&xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
 		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
-		TEST_ASSERT_EQUAL( pdTRUE, test_GetConnectedNetwork( &xNetwork ) );
+		TEST_ASSERT_EQUAL( true, test_GetConnectedNetwork( &xNetwork ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cSSID, clientcredentialWIFI_SSID, sizeof( clientcredentialWIFI_SSID ) ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
@@ -237,7 +237,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ChangeNetworkPriority )
 			prvGetTestWIFINetwork(&xTestProfile, x);
 			TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, x ) );
 			xStatus = prvIsSameNetwork( &xNetwork, &xTestProfile );
-			TEST_ASSERT_EQUAL( pdTRUE,  xStatus );
+			TEST_ASSERT_EQUAL( true,  xStatus );
 		}
 
 		/* Change priority of network from 0 to 2 */
@@ -247,12 +247,12 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ChangeNetworkPriority )
 		prvGetTestWIFINetwork(&xTestProfile, 2);
 		TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, 0 ) );
 		xStatus = prvIsSameNetwork( &xNetwork, &xTestProfile );
-		TEST_ASSERT_EQUAL( pdTRUE,  xStatus );
+		TEST_ASSERT_EQUAL( true,  xStatus );
 
 		/*Verify Network1 is at storage index 2 */
 		prvGetTestWIFINetwork(&xTestProfile, 1);
 		TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, 2 ) );
-		TEST_ASSERT_EQUAL( pdTRUE, prvIsSameNetwork( &xNetwork, &xTestProfile ) );
+		TEST_ASSERT_EQUAL( true, prvIsSameNetwork( &xNetwork, &xTestProfile ) );
 
 		/* Change piority from 0 to  2  twice */
 		TEST_ASSERT_EQUAL( eWiFiSuccess, test_MoveNetwork( 0, 2 ));
@@ -262,7 +262,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ChangeNetworkPriority )
 		{
 			prvGetTestWIFINetwork(&xTestProfile, x);
 			TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, x ) );
-			TEST_ASSERT_EQUAL( pdTRUE, prvIsSameNetwork( &xNetwork, &xTestProfile ) );
+			TEST_ASSERT_EQUAL( true, prvIsSameNetwork( &xNetwork, &xTestProfile ) );
 		}
 
 		/* Move network 0 to network 1  and network 1 to network 0 */
@@ -273,7 +273,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ChangeNetworkPriority )
 		{
 			prvGetTestWIFINetwork(&xTestProfile, x);
 			TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, x ) );
-			TEST_ASSERT_EQUAL( pdTRUE, prvIsSameNetwork( &xNetwork, &xTestProfile ) );
+			TEST_ASSERT_EQUAL( true, prvIsSameNetwork( &xNetwork, &xTestProfile ) );
 		}
 	}
 
@@ -309,7 +309,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ChangeConnectedNetworkPriority )
 
 		/*Verify the connected network */
 		memset(&xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
-		TEST_ASSERT_EQUAL( pdTRUE, test_GetConnectedNetwork( &xNetwork ) );
+		TEST_ASSERT_EQUAL( true, test_GetConnectedNetwork( &xNetwork ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cSSID, clientcredentialWIFI_SSID, sizeof( clientcredentialWIFI_SSID ) ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
@@ -322,7 +322,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ChangeConnectedNetworkPriority )
 		/*Verify WiFi is connected and connected network remains same */
 		memset(&xNetwork, 0x00, sizeof( WIFINetworkProfile_t ) );
 		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
-		TEST_ASSERT_EQUAL( pdTRUE, test_GetConnectedNetwork( &xNetwork ) );
+		TEST_ASSERT_EQUAL( true, test_GetConnectedNetwork( &xNetwork ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cSSID, clientcredentialWIFI_SSID, sizeof( clientcredentialWIFI_SSID ) ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
@@ -353,7 +353,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_DeleteConnectedNetwork )
 		/* Delete the WiFi Network */
 		xStatus = test_PopNetwork( 0, NULL );
 		/*Verify there is no connected network */
-		TEST_ASSERT_EQUAL( pdFALSE, test_GetConnectedNetwork( &xNetwork ) );
+		TEST_ASSERT_EQUAL( false, test_GetConnectedNetwork( &xNetwork ) );
 	}
 
     IotBleWifiProv_Stop();
@@ -404,7 +404,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ConnectSavedNetwork )
 
 	WIFINetworkProfile_t xNetwork = { 0 };
 	WIFIReturnCode_t xStatus;
-	BaseType_t xResult;
+	bool xResult;
 	int x;
 
 	xStatus = WIFI_Disconnect();
@@ -430,10 +430,10 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ConnectSavedNetwork )
 
 		/* Connect to real network */
 		xResult = IotBleWifiProv_Connect( 0 );
-		TEST_ASSERT_EQUAL( pdTRUE, xResult );
+		TEST_ASSERT_EQUAL( true, xResult );
 		TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
 		xResult = test_GetConnectedNetwork( &xNetwork );
-		TEST_ASSERT_EQUAL( pdTRUE, xResult );
+		TEST_ASSERT_EQUAL( true, xResult );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_SSID ), xNetwork.ucSSIDLength );
 		TEST_ASSERT_EQUAL_INT32( 0, strncmp( xNetwork.cSSID, clientcredentialWIFI_SSID, sizeof( clientcredentialWIFI_SSID ) ) );
 		TEST_ASSERT_EQUAL_INT32( sizeof( clientcredentialWIFI_PASSWORD ), xNetwork.ucPasswordLength );
@@ -446,7 +446,7 @@ TEST( Full_WiFi_Provisioning, IotBleWifiProv_ConnectSavedNetwork )
 
 TEST( Full_WiFi_Provisioning, IotBleWifiProv_Deinit )
 {
-	BaseType_t xStatus = IotBleWifiProv_Delete();
+	bool xStatus = IotBleWifiProv_Delete();
 	TEST_ASSERT_EQUAL( pdPASS, xStatus);
 }
 
@@ -475,9 +475,9 @@ static void prvGetRealWIFINetwork( WIFINetworkProfile_t *pxNetwork )
 	pxNetwork->xSecurity = clientcredentialWIFI_SECURITY;
 }
 
-static BaseType_t prvIsSameNetwork( WIFINetworkProfile_t *pxNetwork1,  WIFINetworkProfile_t *pxNetwork2 )
+static bool prvIsSameNetwork( WIFINetworkProfile_t *pxNetwork1,  WIFINetworkProfile_t *pxNetwork2 )
 {
-	BaseType_t xRet = pdFALSE;
+	bool xRet = false;
 	if( pxNetwork1->ucSSIDLength == pxNetwork2->ucSSIDLength )
 	{
 	    xRet = ( 0 == strncmp( pxNetwork1->cSSID, pxNetwork2->cSSID, pxNetwork2->ucSSIDLength ) );
@@ -485,12 +485,12 @@ static BaseType_t prvIsSameNetwork( WIFINetworkProfile_t *pxNetwork1,  WIFINetwo
 	return xRet;
 }
 
-static BaseType_t prvConnectRealNetwork( void )
+static bool prvConnectRealNetwork( void )
 {
     WIFIReturnCode_t xWiFiStatus;
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFINetworkProfile_t xProfile;
-    BaseType_t xResult = pdPASS;
+    bool xResult = pdPASS;
 
     prvGetRealWIFINetwork( &xProfile );
 

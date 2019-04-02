@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_internals.h
+ * @file aws_ble_internal.h
  * @brief Sharing internal variables and function
  */
 
