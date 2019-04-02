@@ -89,18 +89,14 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
     /* For these tests, use the BLE network interface. */
     IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
 
-    IotCommon_Cleanup();
-    IotMqtt_Cleanup();
-
-
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS1 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishAsync );
-    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, LastWillAndTestament );
-    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, RestorePreviousSession );
+    /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, LastWillAndTestament );*/
+    /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, RestorePreviousSession );*/
 
     /* Disabled for now, This test will pass but test after will crashes the APP */
-    /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect );*/
+    RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect );
 
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribeCompleteReentrancy );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, IncomingPublishReentrancy );
@@ -178,9 +174,6 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END_SHADOW )
 {
     /* For these tests, use the BLE network interface. */
     IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
-
-    IotCommon_Cleanup();
-    IotMqtt_Cleanup();
 
     RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS0 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS1 );
