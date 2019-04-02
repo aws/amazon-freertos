@@ -1,7 +1,13 @@
 # Ignore uncrustify backups
 *.unc*
+*.vs/*
+*.suo
+*.db
+latex/*
 doc/html/*
 doc/output/*
+doc/tag/*
+html/*
 /.metadata/
 demos/nordic/nrf52840-dk/ses/Output/*
 lib/third_party/mcu_vendor/espressif/esp-idf/tools/kconfig/lxdialog/util.o
