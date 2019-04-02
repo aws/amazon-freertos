@@ -52,16 +52,6 @@ afr_module_sources(
     test_mqtt
     INTERFACE
         "${AFR_TESTS_DIR}/mqtt/aws_test_mqtt_agent.c"
-        "${AFR_TESTS_DIR}/mqtt/system/iot_tests_mqtt_system.c"
-        "${AFR_TESTS_DIR}/mqtt/unit/iot_tests_mqtt_api.c"
-        "${AFR_TESTS_DIR}/mqtt/unit/iot_tests_mqtt_receive.c"
-        "${AFR_TESTS_DIR}/mqtt/unit/iot_tests_mqtt_subscription.c"
-        "${AFR_TESTS_DIR}/mqtt/unit/iot_tests_mqtt_validate.c"
-)
-afr_module_include_dirs(
-    test_mqtt
-    INTERFACE
-        "${AFR_TESTS_DIR}/mqtt/access"
 )
 afr_module_dependencies(
     test_mqtt
@@ -131,9 +121,6 @@ afr_module_sources(
     test_shadow
     INTERFACE
         "${AFR_TESTS_DIR}/shadow/aws_test_shadow.c"
-        "${AFR_TESTS_DIR}/shadow/system/aws_iot_tests_shadow_system.c"
-        "${AFR_TESTS_DIR}/shadow/unit/aws_iot_tests_shadow_api.c"
-        "${AFR_TESTS_DIR}/shadow/unit/aws_iot_tests_shadow_parser.c"
 )
 afr_module_dependencies(
     test_shadow
@@ -182,7 +169,7 @@ afr_module_dependencies(
     test_base
     INTERFACE
         AFR::kernel
-        AFR::provisioning
-        AFR::sdk_common
+        AFR::demo_key_provisioning
+        AFR::demo_logging
         3rdparty::unity
 )

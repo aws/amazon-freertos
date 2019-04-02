@@ -24,9 +24,3 @@ afr_module_include_dirs(
     PUBLIC
         "${AFR_MODULES_DIR}/include"
 )
-
-afr_module_dependencies(
-    sdk_platform
-    PUBLIC
-        AFR::secure_sockets
-)
