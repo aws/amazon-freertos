@@ -521,7 +521,7 @@ void _toggleMQTTService( IotBleAttributeEvent_t * pEventParam )
     IotBleAttributeData_t attrData = { 0 };
     IotBleEventResponse_t resp;
     IotBleMqttService_t * pService;
-    bool proxyEnable;
+    uint32_t proxyEnable;
     bool result;
     uint8_t * pMesg = NULL;
     size_t mesgLen = 0;
@@ -544,7 +544,7 @@ void _toggleMQTTService( IotBleAttributeEvent_t * pEventParam )
 
             if( result == true )
             {
-                if( proxyEnable == true )
+                if( proxyEnable != 0 )
                 {
                     pService->isEnabled = true;
                 }

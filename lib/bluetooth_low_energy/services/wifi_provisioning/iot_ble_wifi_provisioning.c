@@ -617,7 +617,7 @@ static bool _handleListNetworkRequest( uint8_t * pData,
                 "WifiProvListNetwork",
                 configMINIMAL_STACK_SIZE * 6,
                 pParams,
-                IOT_BLE_WIFI_PROV_TASK_PRIORITY,
+				tskIDLE_PRIORITY,
                 NULL );
         }
         else
@@ -827,7 +827,7 @@ static bool _handleSaveNetworkRequest( uint8_t * pData,
                 "WifiProvAddNetwork",
                 configMINIMAL_STACK_SIZE * 4,
                 pParams,
-                IOT_BLE_WIFI_PROV_MODIFY_NETWORK_TASK_PRIORITY,
+				tskIDLE_PRIORITY+2,
                 NULL );
         }
         else
@@ -934,7 +934,7 @@ static bool _handleEditNetworkRequest( uint8_t * pData,
                 "WifiProvEditNetwork",
                 configMINIMAL_STACK_SIZE * 4,
                 pParams,
-                IOT_BLE_WIFI_PROV_MODIFY_NETWORK_TASK_PRIORITY,
+				tskIDLE_PRIORITY+2,
                 NULL );
         }
         else
@@ -1016,7 +1016,7 @@ static bool _handleDeleteNetworkRequest( uint8_t * pData,
                 "WifiProvDeleteNetwork",
                 configMINIMAL_STACK_SIZE * 4,
                 pParams,
-                IOT_BLE_WIFI_PROV_MODIFY_NETWORK_TASK_PRIORITY,
+				tskIDLE_PRIORITY+2,
                 NULL );
         }
         else
@@ -1222,7 +1222,7 @@ void _sendStatusResponse( IotBleWifiProvAttributes_t characteristic,
 
 void _sendResponse( IotBleWifiProvAttributes_t characteristic,
                     uint8_t * pData,
-                    IotBleAttributeData_t len )
+                    size_t len )
 {
     IotBleAttributeData_t attrData = { 0 };
     IotBleEventResponse_t resp = { 0 };
