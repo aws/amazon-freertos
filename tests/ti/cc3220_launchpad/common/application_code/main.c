@@ -46,6 +46,7 @@
 #include "aws_logging_task.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "aws_pkcs11.h"
+#include "aws_pkcs11_config.h"
 
 /* TI-Driver includes. */
 #include <ti/drivers/GPIO.h>
@@ -181,8 +182,6 @@ CK_RV prvProvisionRootCA( void )
     uint8_t * pucRootCA = NULL;
     uint32_t ulRootCALength = 0;
     CK_RV xResult = CKR_OK;
-    CK_FUNCTION_LIST_PTR xFunctionList;
-    CK_SLOT_ID xSlotId;
     CK_SESSION_HANDLE xSessionHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
 
@@ -199,9 +198,7 @@ CK_RV prvProvisionRootCA( void )
         ulRootCALength = tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH;
     }
 
-    xResult = xInitializePkcsSession( &xFunctionList,
-                                      &xSlotId,
-                                      &xSessionHandle );
+    xResult = xInitializePkcs11Session( &xSessionHandle );
 
     if( xResult == CKR_OK )
     {
