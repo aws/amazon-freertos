@@ -92,10 +92,13 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS1 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishAsync );
+
+    /* Those 2 tests are disabled. At the moment BLE doesn't support
+     * Persistant sessions nor Last Will and Testament.
+     */
     /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, LastWillAndTestament );*/
     /*RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, RestorePreviousSession );*/
 
-    /* Disabled for now, This test will pass but test after will crashes the APP */
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, WaitAfterDisconnect );
 
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribeCompleteReentrancy );
