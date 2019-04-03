@@ -19,6 +19,7 @@ afr_module_dependencies(
         AFR::mqtt
         AFR::secure_sockets
         AFR::sdk_common
+        AFR::metrics
 )
 
 # C SDK platform layer.

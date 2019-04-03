@@ -38,5 +38,4 @@ afr_module_dependencies(
     sdk_common
     PUBLIC
         AFR::sdk_platform
-        AFR::metrics
 )

@@ -3,6 +3,7 @@ afr_module(metrics)
 afr_module_sources(
     metrics
     PRIVATE
+        "${AFR_MODULES_DIR}/metrics/aws_secure_sockets_wrapper_metrics.c"
         "${AFR_MODULES_DIR}/metrics/iot_metrics.c"
         "${AFR_MODULES_DIR}/include/iot_linear_containers.h"
 )
