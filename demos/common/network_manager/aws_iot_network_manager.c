@@ -41,8 +41,11 @@
 
 /** Platform level includes **/
 #include "platform/iot_threads.h"
+#include "platform/iot_network_ble.h"
+#include "platform/iot_network_afr.h"
 
 #if BLE_ENABLED
+
 #include "iot_ble_config.h"
 #include "iot_ble.h"
 #include <iot_ble_numericComparison.h>
@@ -72,6 +75,7 @@ typedef struct IotNMNetwork
     IotLink_t link;
     uint32_t type;
     AwsIotNetworkState_t state;
+    IotNetworkInteface_t *networkInteface;
 } IotNMNetwork_t;
 
 typedef struct IotNMSubscription
@@ -171,18 +175,20 @@ static void _dispatchNetworkStateChangeCB( struct IotTaskPool * pTaskPool, struc
 #if BLE_ENABLED
 static IotNMNetwork_t bleNetwork =
 {
-    .type     = AWSIOT_NETWORK_TYPE_BLE,
-    .link     = IOT_LINK_INITIALIZER,
-    .state    = eNetworkStateUnknown
+    .type            = AWSIOT_NETWORK_TYPE_BLE,
+    .link            = IOT_LINK_INITIALIZER,
+    .state           = eNetworkStateUnknown,
+    .networkInteface = IOT_NETWORK_INTERFACE_BLE
 };
 #endif
 
 #if WIFI_ENABLED
 IotNMNetwork_t wifiNetwork =
 { 
-    .type     = AWSIOT_NETWORK_TYPE_WIFI,
-    .link     = IOT_LINK_INITIALIZER,
-    .state    = eNetworkStateUnknown
+    .type            = AWSIOT_NETWORK_TYPE_WIFI,
+    .link            = IOT_LINK_INITIALIZER,
+    .state           = eNetworkStateUnknown,
+    .networkInteface = IOT_NETWORK_INTERFACE_AFR
 };
 #endif 
 
@@ -614,7 +620,7 @@ BaseType_t AwsIotNetworkManager_Init( void )
 BaseType_t AwsIotNetworkManager_SubscribeForStateChange(uint32_t networkTypes,
                                                         AwsIotNetworkStateChangeCb_t callback,
                                                         void *pContext,
-                                                        SubscriptionHandle_t *pHandle)
+                                                        IotNetworkManagerSubscription_t *pHandle)
 {
     BaseType_t ret = pdFALSE;
     IotNMSubscription_t* pSubscription = pvPortMalloc( sizeof( IotNMSubscription_t ) );
@@ -641,7 +647,7 @@ BaseType_t AwsIotNetworkManager_SubscribeForStateChange(uint32_t networkTypes,
     return ret;
 }
 
-BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t handle )
+BaseType_t AwsIotNetworkManager_RemoveSubscription(  IotNetworkManagerSubscription_t handle )
 {
     BaseType_t ret = pdFALSE;
     IotNMSubscription_t * pSubscription = ( IotNMSubscription_t * ) handle; 
@@ -784,4 +790,23 @@ uint32_t AwsIotNetworkManager_DisableNetwork( uint32_t networkTypes )
 #endif
 
     return disabled;
+}
+
+
+IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType )
+{
+    IotNMNetwork_t *pNetwork;
+    IotLink_t* pLink;
+    IotNetworkInterface_t *pInterface = NULL;
+    
+    IotContainers_ForEach( &networkManager.networks, pLink )
+    {
+        pNetwork = IotLink_Container( IotNMNetwork_t, pLink, link );
+        if( pNetwork->type == networkType )
+        {
+            pInterface = pNetwork->networkInterface;
+        }
+    }
+
+    return pInterface;
 }

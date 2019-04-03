@@ -70,6 +70,11 @@
 #define democonfigWIFI_CONNECT_TASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigWIFI_CONNECT_TASK_PRIORITY               ( tskIDLE_PRIORITY + 5 )
 
+
+/* MQTT BLE echo task example parameters. */
+#define democonfigMQTT_BLE_ECHO_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigMQTT_BLE_ECHO_TASK_PRIORITY              ( tskIDLE_PRIORITY + 5 )
+
 /* Timeout used when establishing a connection, which required TLS
 negotiation. */
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT	       pdMS_TO_TICKS( 12000 )

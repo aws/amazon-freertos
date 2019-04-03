@@ -103,7 +103,7 @@ static MqttConnectionContext_t xConnection =
  * @brief Network manager subscription callback.
  */
 
-static SubscriptionHandle_t xSubscriptionHandle = AWSIOT_NETWORK_SUBSCRIPTION_HANDLE_INITIALIZER;
+static IotSubscriptionHandle_t xSubscriptionHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
 /**
  * @brief Semaphore to indicate a new network is available.
