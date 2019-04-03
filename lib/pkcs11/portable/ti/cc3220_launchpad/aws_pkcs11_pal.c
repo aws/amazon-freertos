@@ -38,6 +38,7 @@
 #include "aws_pkcs11.h"
 #include "aws_clientcredential.h"
 #include "aws_secure_sockets_config.h"
+#include "aws_pkcs11_config.h"
 
 /* flash driver includes. */
 #include <ti/drivers/net/wifi/simplelink.h>

@@ -619,6 +619,7 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_OBJECT_HANDLE xObjectHandle;
     CK_BYTE * pxLabel;
+    uint32_t uiIndex = 0;
     CK_BYTE * pxPkcsLabels[] =
     {
         pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
@@ -636,13 +637,13 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
-    for( int i = 0; i < 4; i++ )
+    for( ; uiIndex < sizeof( pxPkcsLabels ) / sizeof( pxPkcsLabels[ 0 ] ); uiIndex++ )
     {
-        pxLabel = pxPkcsLabels[ i ];
+        pxLabel = pxPkcsLabels[ uiIndex ];
 
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 pxLabel,
-                                                xClass[ i ],
+                                                xClass[ uiIndex ],
                                                 &xObjectHandle );
 
         if( ( xResult == CKR_OK ) && ( xObjectHandle != pkcs11INVALID_OBJECT_HANDLE ) )
@@ -653,7 +654,7 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
 
                 xResult = xFindObjectWithLabelAndClass( xSession,
                                                         pxLabel,
-                                                        xClass[ i ],
+                                                        xClass[ uiIndex ],
                                                         &xObjectHandle );
             }
         }
