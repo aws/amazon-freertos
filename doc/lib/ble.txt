@@ -97,9 +97,11 @@ Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an 
 */
 
 /**
-@handles{ble,BLE library}
 @enums{ble,BLE library}
-@paramstructs{ble, BLE library}
+@paramstructs{ble,BLE library}
+@handles{ble,BLE library}
+@functionpointers{ble,BLE library}
+@structs{ble,BLE library}
 */
 
 /**
@@ -113,4 +115,15 @@ Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an 
   @copybrief iotblewifiprov_functions
 - @subpage iotblemqtt_functions <br>
   @copybrief iotblemqtt_functions
+*/
+
+/**
+@constantspage{ble,BLE library}
+
+- @subpage iotbledeviceinfo_constants <br>
+  @copybrief iotbledeviceinfo_constants
+- @subpage iotblewifiprov_constants <br>
+  @copybrief iotblewifiprov_constants
+- @subpage iotblemqtt_constants <br>
+  @copybrief iotblemqtt_constants
 */

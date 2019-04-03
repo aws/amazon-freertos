@@ -44,10 +44,12 @@
 #include "iot_ble_mqtt_serialize.h"
 
 /**
- * @constantspage{ble,ble library}
+ * @constantspage{iotblemqtt,ble library,MQTT proxy}
  *
- * @section ble_constants_mqtt_proxy BLE constants for MQTT proxy service
+ * @section ble_constants_mqtt_proxy BLE constants for MQTT proxy service.
  * @brief GATT Service, characteristic and descriptor UUIDs used by the MQTT proxy service.
+ *
+ * @snippet this define_ble_constants_mqtt_proxy
  *
  * @section ble_constants_mqtt_proxy_timeout BLE timeout constants for MQTT proxy service.
  * @brief BLE constants for modifying the default timeout value for MQTT proxy service.
@@ -61,18 +63,17 @@
  *
  */
 /* @[define_ble_constants_mqtt_proxy] */
-#define IOT_BLE_MQTT_SERVICE_UUID               { 0x00, 0xFF, 0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9 }
-#define IOT_BLE_MQTT_CHAR_UUID_MASK             0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9
-#define IOT_BLE_MQTT_CHAR_CONTROL_UUID          { 0x01, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }
-#define IOT_BLE_MQTT_CHAR_TX_MESG_UUID          { 0x02, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }
-#define IOT_BLE_MQTT_CHAR_RX_MESG_UUID          { 0x03, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }
-#define IOT_BLE_MQTT_CHAR_TX_LARGE_MESG_UUID    { 0x04, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }
-#define IOT_BLE_MQTT_CHAR_RX_LARGE_MESG_UUID    { 0x05, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }
-#define IOT_BLE_MQTT_CCFG_UUID                  ( 0x2902 )
+#define IOT_BLE_MQTT_SERVICE_UUID               { 0x00, 0xFF, 0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9 }  /**< @brief Base UUID. */
+#define IOT_BLE_MQTT_CHAR_UUID_MASK             0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9                  /**< @brief UUID mask. */
+#define IOT_BLE_MQTT_CHAR_CONTROL_UUID          { 0x01, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }                                                         /**< @brief Control. */
+#define IOT_BLE_MQTT_CHAR_TX_MESG_UUID          { 0x02, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }                                                         /**< @brief TX buffer. */
+#define IOT_BLE_MQTT_CHAR_RX_MESG_UUID          { 0x03, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }                                                         /**< @brief RX buffer. */
+#define IOT_BLE_MQTT_CHAR_TX_LARGE_MESG_UUID    { 0x04, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }                                                         /**< @brief TX large buffer. */
+#define IOT_BLE_MQTT_CHAR_RX_LARGE_MESG_UUID    { 0x05, 0xFF, IOT_BLE_MQTT_CHAR_UUID_MASK }                                                         /**< @brief RX large buffer. */
+#define IOT_BLE_MQTT_CCFG_UUID                  ( 0x2902 )                                                                                          /**< @brief Client configuration. */
 /* @[define_ble_constants_mqtt_proxy] */
 
 /**
- *
  * @brief The default timeout in milliseconds for sending a message to the proxy.
  */
 #define IOT_BLE_MQTT_DEFAULT_SEND_TIMEOUT_MS    ( 2000 )
@@ -89,14 +90,14 @@
 typedef enum
 {
     IOT_BLE_MQTT_SERVICE,
-    IOT_BLE_MQTT_CHAR_CONTROL,              /*!< IOT_BLE_MQTT_Control Characteristic to enable/disable transferring data over MQTT service */
-    IOT_BLE_MQTT_CHAR_TX_MESG,              /*!< IOT_BLE_MQTT_TXMessage Characteristic to send notification containing a message to MQTT broker */
-    IOT_BLE_MQTT_CHAR_DESCR_TX_MESG,        /*!< IOT_BLE_MQTT_CHAR_DESCR_TX_MESG Characteristic descriptor */
-    IOT_BLE_MQTT_CHAR_RX_MESG,              /*!< IOT_BLE_MQTT_RXMessage Characteristic to receive a message from MQTT broker */
-    IOT_BLE_MQTT_CHAR_TX_LARGE_MESG,        /*!< IOT_BLE_MQTT_TXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker */
-    IOT_BLE_MQTT_CHAR_DESCR_TX_LARGE_MESG,  /*!< IOT_BLE_MQTT_CHAR_DESCR_TX_LARGE_MESG Characteristic descripto */
-    IOT_BLE_MQTT_CHAR_RX_LARGE,             /*!  IOT_BLE_MQTT_RXLargeMessage Characteristic to receive large message (> BLE MTU Size) from MQTT broke */
-    IOT_BLE_MQTT_NUMBER_ATTRIBUTES          /*!< IOT_BLE_MQTT_Attributes_t Number of attributes in eMQTT service */
+    IOT_BLE_MQTT_CHAR_CONTROL,             /*!< IOT_BLE_MQTT_Control Characteristic to enable/disable transferring data over MQTT service */
+    IOT_BLE_MQTT_CHAR_TX_MESG,             /*!< IOT_BLE_MQTT_TXMessage Characteristic to send notification containing a message to MQTT broker */
+    IOT_BLE_MQTT_CHAR_DESCR_TX_MESG,       /*!< IOT_BLE_MQTT_CHAR_DESCR_TX_MESG Characteristic descriptor */
+    IOT_BLE_MQTT_CHAR_RX_MESG,             /*!< IOT_BLE_MQTT_RXMessage Characteristic to receive a message from MQTT broker */
+    IOT_BLE_MQTT_CHAR_TX_LARGE_MESG,       /*!< IOT_BLE_MQTT_TXLargeMessage Characteristic to send a large message (> BLE MTU Size) to MQTT broker */
+    IOT_BLE_MQTT_CHAR_DESCR_TX_LARGE_MESG, /*!< IOT_BLE_MQTT_CHAR_DESCR_TX_LARGE_MESG Characteristic descripto */
+    IOT_BLE_MQTT_CHAR_RX_LARGE,            /*!  IOT_BLE_MQTT_RXLargeMessage Characteristic to receive large message (> BLE MTU Size) from MQTT broke */
+    IOT_BLE_MQTT_NUMBER_ATTRIBUTES         /*!< IOT_BLE_MQTT_Attributes_t Number of attributes in eMQTT service */
 } IotBleMqttAttributes_t;
 
 /**
@@ -111,7 +112,7 @@ typedef enum
 
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * MQTT connection over BLE.
  */
 typedef struct IotBleMqttConnectionType
@@ -126,7 +127,7 @@ typedef struct IotBleMqttConnectionType
 } IotBleMqttConnectionType_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief MQTT BLE Service structure.
  */
 typedef struct  IotBleMqttService
@@ -175,7 +176,8 @@ bool IotBleMqtt_Init( void );
  * Function finds an unused MQTT service instance, and assigns the MQTT connection handle
  * to the GATT service.
  *
- * @param[in] pMqttConnection Pointer to the MQTT connection
+ * @param[in] pConnectionInfo Pointer to the instance of MQTT connection information to initialize the connection with.
+ * @param[in] pCredentialInfo Pointer to the instance of MQTT credentials information to initialize the connection with.
  * @param[out] pConnection Handle to the BLE network Connection
  * @return pdTRUE If the operation is successful
  *         pdFALSE If the operation failed
@@ -191,7 +193,7 @@ IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo,
  *
  * Function closes the BLE network connection, further data transfer over the connection returns failure.
  *
- * @param[in] connection Handle to the MQTT BLE connection
+ * @param[in] pConnection Handle to the MQTT BLE connection
  * @return pdTRUE if the Connection is closed successfully
  *         pdFALSE if the connection is already closed.
  */
@@ -203,7 +205,7 @@ IotNetworkError_t IotBleMqtt_CloseConnection( void * pConnection );
  *@brief Destroys the BLE network connection
  *
  * Function frees the resources associated with the BLE network connection
- * @param connection Handle to the BLE network connection
+ * @param[in] pConnection Handle to the BLE network connection
  */
 /* @[declare_iotblemqtt_destroyconnection] */
 IotNetworkError_t IotBleMqtt_DestroyConnection( void * pConnection );
@@ -212,8 +214,8 @@ IotNetworkError_t IotBleMqtt_DestroyConnection( void * pConnection );
 /**
  * @brief Transfers data through a BLE network connection
  *
- * @param[in] pvConnection Handle to the BLE network connection
- * @param[in] pvMessage Pointer to the message to be transferred
+ * @param[in] pConnection Handle to the BLE network connection
+ * @param[in] pMessage Pointer to the message to be transferred
  * @param[in] messageLength Length of the message to be transferred
  * @return Number of bytes of data transferred.
  */

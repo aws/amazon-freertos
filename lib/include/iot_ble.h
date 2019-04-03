@@ -40,7 +40,7 @@
 #include "iot_linear_containers.h"
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Structure containing all advertisement parameters.
  *
  * @note: The size of the advertisement message is limited, it is up to the application to make sure everything fits in the advertisement message.
@@ -64,7 +64,7 @@ typedef struct
 } IotBleAdvertisementParams_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Connection parameters.
  */
 typedef struct
@@ -77,7 +77,7 @@ typedef struct
 
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Contains the connection info. Return when requested by IotBleGetConnectionInfoList.
  */
 typedef struct
@@ -107,14 +107,14 @@ typedef enum
 } IotBleAttributeEventType_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Attribute event type.
  */
 typedef struct IotBleAttributeEvent IotBleAttributeEvent_t;
 
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief Callback called when a request on a attribute is made by the remote device.
  *
  * @param[in] pAttribute Pointer to the attribute being accessed.
@@ -125,7 +125,7 @@ typedef void (* IotBleAttributeEventCallback_t)( IotBleAttributeEvent_t * pEvent
 /************************************************************/
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Parameters for read event.
  */
 typedef struct
@@ -138,7 +138,7 @@ typedef struct
 } IotBleReadEventParams_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Parameters for write event.
  */
 typedef struct
@@ -155,7 +155,7 @@ typedef struct
 } IotBleWriteEventParams_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Parameters for write executed event.
  */
 typedef struct
@@ -167,7 +167,7 @@ typedef struct
 } IotBleExecWriteEventParams_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Parameters for confirmation response event.
  */
 typedef struct
@@ -177,7 +177,7 @@ typedef struct
 } IotBleRespConfirmEventParams_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Parameters for indication sent event.
  */
 typedef struct
@@ -188,7 +188,7 @@ typedef struct
 } IotBleIndicationSentEventParams_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief BLE Attribute event.
  */
 struct IotBleAttributeEvent
@@ -205,7 +205,7 @@ struct IotBleAttributeEvent
 };
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief Basic info contained in an attribute.
  * This is common to all attributes.
  */
@@ -218,7 +218,7 @@ typedef struct
 } IotBleAttributeData_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief BLE Event response.
  */
 typedef struct
@@ -230,7 +230,7 @@ typedef struct
 } IotBleEventResponse_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief Callback invoked when the MTU for a given connection changes.
  *
  * @param[in] connId Connection ID
@@ -240,7 +240,7 @@ typedef void (* IotBle_MtuChangedCallback_t)( uint16_t connId,
                                               uint16_t mtu );
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief Callback indicating that a remote device has connected or been disconnected.
  * @param[in] status Returns eBTStatusSuccess if operation succeeded.
  * @param[in] connId Connection ID.
@@ -253,7 +253,7 @@ typedef void (* IotBle_ConnectionCallback_t)( BTStatus_t status,
                                               BTBdaddr_t * pRemoteBdAddr );
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief  Callback indicating the status of a listen() operation. Invoked on BLE_StartAdv.
  *
  * @param[in] status Returns eBTStatusSuccess if operation succeeded.
@@ -261,7 +261,7 @@ typedef void (* IotBle_ConnectionCallback_t)( BTStatus_t status,
 typedef void (* IotBle_StartAdvCallback_t)( BTStatus_t status );
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief  Callback invoked on BLE_ConnParameterUpdateRequest from remote device.
  *
  * @param[in] status Returns eBTStatusSuccess if operation succeeded.
@@ -275,7 +275,7 @@ typedef void ( * IotBle_ConnParameterUpdateRequestCallback_t )( BTStatus_t statu
                                                                 uint32_t connInterval );
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief Callback invoked on BLE_RemoveBond.
  *
  * @param[in] status Returns eBTStatusSuccess if operation succeeded.
@@ -285,7 +285,7 @@ typedef void (* IotBleRemoveBondCallback_t)( BTStatus_t status,
                                              const BTBdaddr_t * pRemoteBdAddr );
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief Callback invoked when pairing state is changed.
  *
  * @param[in] status Returns eBTStatusSuccess if operation succeeded.
@@ -299,7 +299,7 @@ typedef void (* IotBle_PairingStateChanged_t)( BTStatus_t status,
                                                BTAuthFailureReason_t reason );
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief Callback invoked on pairing request from remote device.
  *
  * Numeric comparison event.
@@ -310,7 +310,7 @@ typedef void ( * IotBle_NumericComparisonCallback_t )( BTBdaddr_t * pRemoteBdAdd
                                                        uint32_t passKey );
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_functionpointers
  * @brief Bonded callback, called when a bonded is established or removed.
  * Invoked on bond event or on BLE_RemoveBond.
  *
@@ -338,7 +338,7 @@ typedef enum
 } IotBleEvents_t;
 
 /**
- * @ingroup ble_datatypes_handles
+ * @ingroup ble_datatypes_structs
  * @brief BLE events not directly triggered by a function call.
  * Most of them are triggered by a remote device message.
  */

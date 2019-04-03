@@ -147,3 +147,11 @@ Log messages from the task pool library at or below this setting will be printed
 @configpossible One of the @ref logging_constants_levels.<br>
 @configdefault @ref IOT_LOG_LEVEL_GLOBAL; if that is undefined, then #IOT_LOG_NONE.
 */
+
+/**
+@enums{taskpool,task pool}
+@paramstructs{taskpool,task pool}
+@functionpointers{taskpool,task pool}
+@structs{taskpool,task pool}
+*/
+

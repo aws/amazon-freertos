@@ -84,6 +84,7 @@ ALIASES += configdefault="<b>Default value (if undefined):</b> "
 
 # Alias for starting a constants page.
 ALIASES += constantspage{2}="@page \1_constants Constants^^@brief Defined constants of the \2.^^^^Libraries may @c #`define` constants in their headers with special meanings. This page describes the meanings and uses of any constants defined by the \2. Related constants are shown in a single section on this page.^^"
+ALIASES += constantspage{3}="@page \1_constants \3^^@brief Defined constants of the \2.^^^^Libraries may @c #`define` constants in their headers with special meanings. This page describes the meanings and uses of any constants defined by the \2. Related constants are shown in a single section on this page.^^"
 
 # Alias for starting a functions page.
 ALIASES += functionspage{2}="@page \1_functions Functions^^@brief Functions of the \2.^^^^The \2 consists of the following functions."
@@ -100,6 +101,12 @@ ALIASES += handles{2}="@defgroup \1_datatypes_handles Handles^^@brief Opaque han
 
 # Alias for starting an enum group.
 ALIASES += enums{2}="@defgroup \1_datatypes_enums Enumerated types^^@brief Enumerated types of the \2."
+
+# Alias for starting a function pointers group.
+ALIASES += functionpointers{2}="@defgroup \1_datatypes_functionpointers Function pointers types^^@brief Function pointers types of the \2."
+
+# Alias for starting a structs group.
+ALIASES += structs{2}="@defgroup \1_datatypes_structs Structured types^^@brief Structured types of the \2."
 
 # Alias for starting a parameter structures group.
 ALIASES += paramstructs{2}="@defgroup \1_datatypes_paramstructs Parameter structures^^@brief Structures passed as parameters to [\2 functions](@ref \1_functions)^^^^These structures are passed as parameters to library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
