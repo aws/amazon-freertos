@@ -39,6 +39,7 @@
 #include "aws_clientcredential.h"
 #include "aws_default_root_certificates.h"
 #include "aws_pkcs11.h"
+#include "aws_pkcs11_mbedtls.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "aws_test_pkcs11_config.h"
 
@@ -1684,7 +1685,9 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     xMechanism.pParameter = NULL;
     xMechanism.ulParameterLen = 0;
     xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKey );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "SignInit failed." );
     xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, sizeof( xHashedMessage ), xSignature, &xSignatureLength );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Sign failed." );
 
     xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKey );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "VerifyInit failed." );
@@ -1711,32 +1714,8 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     mbedtls_entropy_free( &xEntropyContext );
 
     /* Reconstruct the signature in PKCS #11 format. */
-    CK_BYTE * pxNextLength;
-    uint8_t ucSigComponentLength = xSignature[ 3 ];
-
-    /* R Component. */
-    if( ucSigComponentLength == 33 )
-    {
-        memcpy( xSignaturePKCS, &xSignature[ 5 ], 32 ); /* Chop off the leading zero. */
-        pxNextLength = xSignature + 5 /* Sequence, length, integer, length, leading zero */ + 32 /*(R) */ + 1 /*(S's integer tag) */;
-    }
-    else
-    {
-        memcpy( &xSignaturePKCS[ 32 - ucSigComponentLength ], &xSignature[ 4 ], ucSigComponentLength );
-        pxNextLength = xSignature + 4 + 32 + 1;
-    }
-
-    /* S Component. */
-    ucSigComponentLength = pxNextLength[ 0 ];
-
-    if( ucSigComponentLength == 33 )
-    {
-        memcpy( &xSignaturePKCS[ 32 ], &pxNextLength[ 2 ], 32 ); /* Skip leading zero. */
-    }
-    else
-    {
-        memcpy( &xSignaturePKCS[ 64 - ucSigComponentLength ], &pxNextLength[ 1 ], ucSigComponentLength );
-    }
+    xMbedTLSSignatureToPkcs11Signature( xSignaturePKCS,
+                                        xSignature );
 
     /* Verify with PKCS #11. */
     xMechanism.mechanism = CKM_ECDSA;
@@ -2212,8 +2191,6 @@ static void prvECSignVerifyMultiThreadTask( void * pvParameters )
         lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
         lMbedTLSResult |= mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
         lMbedTLSResult |= mbedtls_ecdsa_verify( &pxEcdsaContext->grp, xHashedMessage, sizeof( xHashedMessage ), &pxEcdsaContext->Q, &xR, &xS );
-        mbedtls_mpi_free( &xR );
-        mbedtls_mpi_free( &xS );
 
         if( lMbedTLSResult != 0 )
         {
@@ -2221,6 +2198,10 @@ static void prvECSignVerifyMultiThreadTask( void * pvParameters )
             xResult = lMbedTLSResult;
             break;
         }
+
+        mbedtls_mpi_free( &xR );
+        mbedtls_mpi_free( &xS );
+
 
         xResult = pxGlobalFunctionList->C_VerifyInit( xSession, &xMechanism, xPublicKey );
 

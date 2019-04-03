@@ -1772,6 +1772,7 @@ void xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
     /* Reconstruct the signature in PKCS #11 format. */
     CK_BYTE * pxNextLength;
     uint8_t ucSigComponentLength = pxMbedSignature[ 3 ];
+    memset( pxSignaturePKCS, 0, 64 );
 
     /* R Component. */
     if( ucSigComponentLength == 33 )
@@ -1782,7 +1783,7 @@ void xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
     else
     {
         memcpy( &pxSignaturePKCS[ 32 - ucSigComponentLength ], &pxMbedSignature[ 4 ], ucSigComponentLength );
-        pxNextLength = pxMbedSignature + 4 + 32 + 1;
+        pxNextLength = pxMbedSignature + 4 + ucSigComponentLength + 1;
     }
 
     /* S Component. */
