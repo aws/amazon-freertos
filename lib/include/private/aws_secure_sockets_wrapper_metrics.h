@@ -38,6 +38,7 @@
 /* This macro is included in aws_secure_socket.c and aws_secure_socket_wrapper_metrics.c.
  * It will prevent the redefine in those source files. */
     #ifndef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
+        #define SOCKETS_Init        Sockets_MetricsInit
         #define SOCKETS_Connect     Sockets_MetricsConnect
         #define SOCKETS_Shutdown    Sockets_MetricsShutdown
     #endif
