@@ -25,10 +25,10 @@
 
 
 /**
- * @file pkcs11.c
- * @brief mbedTLS PKCS#11 implementation for software keys. This
+ * @file aws_pkcs11_mbedtls.c
+ * @brief mbedTLS-based PKCS#11 implementation for software keys. This
  * file deviates from the FreeRTOS style standard for some function names and
- * data types in order to maintain compliance with the PKCS#11 standard.
+ * data types in order to maintain compliance with the PKCS #11 standard.
  */
 
 /* FreeRTOS includes. */
@@ -251,7 +251,6 @@ CK_RV prvMbedTLS_Initialize( void )
 }
 
 
-
 CK_RV xCreateSearchableAttributeTemplate( SearchableAttributes_t * pxFindObjectInfo,
                                           CK_ATTRIBUTE_PTR pxTemplate,
                                           CK_ULONG ulCount )
@@ -299,10 +298,29 @@ CK_RV xCreateSearchableAttributeTemplate( SearchableAttributes_t * pxFindObjectI
     return xResult;
 }
 
-/**
- * @brief Initialize the Cryptoki module for use.
- */
+
 #if !defined( pkcs11configC_INITIALIZE_ALT )
+
+/**
+ * @brief Initialize the PKCS #11 module for use.
+ *
+ * @note C_Initialize is not thread-safe.
+ *
+ * C_Initialize should be called (and allowed to return) before
+ * any additional PKCS #11 operations are invoked.
+ *
+ * In this implementation, all arguments are ignored.
+ * Thread protection for the rest of PKCS #11 functions
+ * default to FreeRTOS primitives.
+ *
+ * @param[in] pvInitArgs    This parameter is ignored.
+ *
+ * @return CKR_OK if successful.
+ * CKR_CRYPTOKI_ALREADY_INITIALIZED if C_Initialize was previously called.
+ * All other errors indicate that the PKCS #11 module is not ready to be used.
+ * See <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
+ */
     CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
     { /*lint !e9072 It's OK to have different parameter name. */
         ( void ) ( pvInitArgs );
@@ -1068,7 +1086,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
     void * pvContext = NULL;
     int32_t lMbedTLSParseResult = ~0;
     PKCS11_KeyTemplatePtr_t pxKeyTemplate = NULL;
-    SearchableAttributes_t xSearchable;
+    SearchableAttributes_t xSearchable = { 0 };
     PKCS11_CertificateTemplatePtr_t pxCertificateTemplate = NULL;
     CK_ATTRIBUTE_PTR pxObjectClassAttribute = pxTemplate;
 
@@ -1150,7 +1168,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = CKR_OK;
     CK_BBOOL xIsPrivate = CK_TRUE;
     CK_ULONG iAttrib;
-    mbedtls_pk_context xKeyContext;
+    mbedtls_pk_context xKeyContext = { 0 };
     mbedtls_pk_type_t xKeyType;
     mbedtls_ecp_keypair * pxKeyPair;
     CK_KEY_TYPE xPkcsKeyType = ( CK_KEY_TYPE ) ~0;
@@ -1651,7 +1669,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
                                          CK_OBJECT_HANDLE xKey )
 {
     CK_RV xResult = CKR_OK;
-    CK_BBOOL xIsPrivate;
+    CK_BBOOL xIsPrivate = CK_TRUE;
     CK_BBOOL xCleanupNeeded = CK_FALSE;
 
     mbedtls_pk_type_t xKeyType;
@@ -1772,6 +1790,7 @@ void xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
     /* Reconstruct the signature in PKCS #11 format. */
     CK_BYTE * pxNextLength;
     uint8_t ucSigComponentLength = pxMbedSignature[ 3 ];
+
     memset( pxSignaturePKCS, 0, 64 );
 
     /* R Component. */
@@ -1810,8 +1829,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
-    CK_ULONG xSignatureLength;
-    CK_ULONG xExpectedInputLength;
+    CK_ULONG xSignatureLength = 0;
+    CK_ULONG xExpectedInputLength = 0;
     CK_BYTE_PTR pxSignatureBuffer = pucSignature;
     uint8_t ecSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 15 ]; /*TODO: Figure out this length. */
     int lMbedTLSResult;
@@ -2371,7 +2390,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     SearchableAttributes_t xPrivateSearchable;
     SearchableAttributes_t xPublicSearchable;
     int lMbedResult;
-    mbedtls_pk_context xCtx;
+    mbedtls_pk_context xCtx = { 0 };
 
 
     if( pucDerFile == NULL )

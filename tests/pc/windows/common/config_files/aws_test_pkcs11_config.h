@@ -54,7 +54,7 @@
  * All tasks of the SignVerifyRoundTrip_MultitaskLoop test must finish within
  * this timeout, or the test will fail.
  */
-#define pkcs11testEVENT_GROUP_TIMEOUT_MS      ( pdMS_TO_TICKS( 50000UL ) )
+#define pkcs11testEVENT_GROUP_TIMEOUT_MS      ( pdMS_TO_TICKS( 500000UL ) )
 
 /**
  * @brief The index of the slot that should be used to open sessions for PKCS #11 tests.

@@ -140,7 +140,6 @@ TEST_GROUP_RUNNER( Full_PKCS11_StartFinish )
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_InitializeFinalize );
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_GetSlotList );
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession );
-    RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_InitializeMultiThread );
 
     prvAfterRunningTests();
 }
@@ -668,64 +667,6 @@ TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
 }
 
 
-static void prvInitializeMultiThreadTask( void * pvParameters )
-{
-    MultithreadTaskParams_t * pxTaskParams;
-    BaseType_t xCount;
-    CK_RV xResult;
-    CK_C_INITIALIZE_ARGS xInitArgs;
-
-    pxTaskParams = ( MultithreadTaskParams_t * ) pvParameters;
-
-    xInitArgs.CreateMutex = NULL;
-    xInitArgs.DestroyMutex = NULL;
-    xInitArgs.LockMutex = NULL;
-    xInitArgs.UnlockMutex = NULL;
-    xInitArgs.flags = CKF_OS_LOCKING_OK;
-    xInitArgs.pReserved = NULL;
-
-    for( xCount = 0; xCount < pkcs11testMULTI_THREAD_LOOP_COUNT; xCount++ )
-    {
-        /* Code here. */
-        xResult = pxGlobalFunctionList->C_Initialize( &xInitArgs );
-
-        if( ( xResult != CKR_OK ) && ( xResult != CKR_CRYPTOKI_ALREADY_INITIALIZED ) )
-        {
-            configPRINTF( ( "C_Initialize multi-thread task failed.  Error: %d \r\n", xResult ) );
-            break;
-        }
-    }
-
-    /* If module already intialized, this is thread should report a successful outcome. */
-    if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
-    {
-        xResult = CKR_OK;
-    }
-
-    /* Report the result of the loop. */
-    pxTaskParams->xTestResult = xResult;
-
-    /* Report that task is finished, then delete task. */
-    ( void ) xEventGroupSetBits( xSyncEventGroup,
-                                 ( 1 << pxTaskParams->xTaskNumber ) );
-    vTaskDelete( NULL );
-}
-
-TEST( Full_PKCS11_StartFinish, AFQP_InitializeMultiThread )
-{
-    CK_RV xResult;
-
-    prvMultiThreadHelper( prvInitializeMultiThreadTask );
-
-    xResult = pxGlobalFunctionList->C_Finalize( NULL );
-    /* TODO: Does there need to be one call for each call to initialize? */
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Finalize failed in InitializeMultiThread test" );
-
-    /* Re-initialize the PKCS #11 module to put the module back in a good state. */
-    xResult = pxGlobalFunctionList->C_Initialize( &xInitializePKCS11 );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to reinitialize the PKCS #11 module" );
-}
-
 
 /*--------------------------------------------------------*/
 /*-------------- No Object Tests ------------------------ */
@@ -1149,38 +1090,8 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue )
     CK_BYTE xCertificateValue[ CERTIFICATE_VALUE_LENGTH ];
 
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
-
-    /* Get public key components from private key. */
-
-    /* Get the modulus length. */
-    xTemplate.type = CKA_MODULUS;
-    xTemplate.pValue = NULL;
-    xTemplate.ulValueLen = 0;
-    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to query attribute length" );
-    TEST_ASSERT_EQUAL_MESSAGE( MODULUS_LENGTH, xTemplate.ulValueLen, "GetAttributeValue returned incorrect length of RSA modulus" );
-
-    /* Get the modulus value. */
-    xTemplate.pValue = xModulus;
-    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get RSA modulus" );
-    TEST_ASSERT_EQUAL_MESSAGE( MODULUS_LENGTH, xTemplate.ulValueLen, "GetAttributeValue returned incorrect length of RSA modulus" );
-    /* TODO: Check value of modulus. */
-
-    /* Get the public exponent length. */
-    xTemplate.type = CKA_PUBLIC_EXPONENT;
-    xTemplate.pValue = NULL;
-    xTemplate.ulValueLen = 0;
-    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to query attribute length" );
-    TEST_ASSERT_EQUAL_MESSAGE( PUB_EXP_LENGTH, xTemplate.ulValueLen, "GetAttributeValue returned incorrect length of RSA public exponent" );
-
-    /* Get the public exponent value. */
-    xTemplate.pValue = xPubExponent;
-    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get RSA public exponent" );
-    TEST_ASSERT_EQUAL_MESSAGE( PUB_EXP_LENGTH, xTemplate.ulValueLen, "GetAttributeValue returned incorrect length for RSA public exponent" );
-    /* TODO: Check value of public exponent. */
+    
+    /* TODO: Add RSA key component GetAttributeValue checks. */
 
     /* Get the certificate value. */
     xTemplate.type = CKA_VALUE;
@@ -1727,8 +1638,6 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignaturePKCS, sizeof( xSignaturePKCS ) );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Verify failed." );
 
-
-
     /* Modify signature value and make sure verification fails. */
 }
 
@@ -2182,26 +2091,6 @@ static void prvECSignVerifyMultiThreadTask( void * pvParameters )
             configPRINTF( ( "Sign multithread test failed to Sign.  Error: %d  Count: %d \r\n", xResult, xCount ) );
             break;
         }
-
-        /* An ECDSA signature is comprised of 2 components - R & S. */
-        mbedtls_mpi xR;
-        mbedtls_mpi xS;
-        mbedtls_mpi_init( &xR );
-        mbedtls_mpi_init( &xS );
-        lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
-        lMbedTLSResult |= mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
-        lMbedTLSResult |= mbedtls_ecdsa_verify( &pxEcdsaContext->grp, xHashedMessage, sizeof( xHashedMessage ), &pxEcdsaContext->Q, &xR, &xS );
-
-        if( lMbedTLSResult != 0 )
-        {
-            configPRINTF( ( "mbedTLS failed to verify signature. Error: %d  Count %d \r\n", lMbedTLSResult, xCount ) );
-            xResult = lMbedTLSResult;
-            break;
-        }
-
-        mbedtls_mpi_free( &xR );
-        mbedtls_mpi_free( &xS );
-
 
         xResult = pxGlobalFunctionList->C_VerifyInit( xSession, &xMechanism, xPublicKey );
 
