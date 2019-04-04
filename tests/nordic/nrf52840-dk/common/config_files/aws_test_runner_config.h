@@ -37,7 +37,7 @@
 /* Enable tests by setting defines to 1 */
 #define testrunnerFULL_OTA_PAL_ENABLED             0
 #define testrunnerFULL_SHADOWv4_ENABLED            0
-#define testrunnerFULL_MQTTv4_ENABLED              1
+#define testrunnerFULL_MQTTv4_ENABLED              0
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED 0
 #define testrunnerFULL_POSIX_ENABLED               0
