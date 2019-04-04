@@ -57,6 +57,10 @@
 #include "aws_shadow_lightbulb_on_off.h"
 #include "jsmn.h"
 
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
+
 /* Task names. */
 #define shadowDemoCHAR_TASK_NAME           "Shd-IOT-%d"
 #define shadowDemoUPDATE_TASK_NAME         "ShDemoUpdt"
@@ -513,11 +517,18 @@ static void prvShadowInitTask( void * pvParameters )
  * request periodic change in state (color) of light bulb.  */
 void vStartShadowDemoTasks( void )
 {
-    ( void ) xTaskCreate( prvShadowInitTask,
-                          "MainDemoTask",
-                          shadowDemoUPDATE_TASK_STACK_SIZE,
-                          NULL,
-                          tskIDLE_PRIORITY,
-                          NULL );
+    /* Initialize common libraries and MQTT, then start demo. */
+    if( IotCommon_Init() == true )
+    {
+        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+        {
+            ( void ) xTaskCreate( prvShadowInitTask,
+                                  "MainDemoTask",
+                                  shadowDemoUPDATE_TASK_STACK_SIZE,
+                                  NULL,
+                                  tskIDLE_PRIORITY,
+                                  NULL );
+        }
+    }
 }
 /*-----------------------------------------------------------*/

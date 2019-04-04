@@ -50,6 +50,7 @@
 #include "task.h"
 
 /* MQTT library includes */
+#include "iot_common.h"
 #include "iot_mqtt.h"
 
 /* Network connection includes */
@@ -585,10 +586,29 @@ void vStartMQTTBLEEchoDemo( void )
 
     BaseType_t xRet = pdTRUE;
 
-    if( echoDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
+    /* Initialize common libraries and MQTT. */
+    if( IotCommon_Init() == false )
     {
-        IotLogError(( "There are no networks configured for the demo." ));
+        configPRINTF(( "Failed to initialize common libraries.\r\n" ));
         xRet = pdFALSE;
+    }
+
+    if( xRet == pdTRUE )
+    {
+        if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
+        {
+            configPRINTF(( "Failed to initialize MQTT library.\r\n" ));
+            xRet = pdFALSE;
+        }
+    }
+
+    if( xRet == pdTRUE )
+    {
+        if( echoDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
+        {
+            IotLogError(( "There are no networks configured for the demo." ));
+            xRet = pdFALSE;
+        }
     }
 
     /* Create semaphore to notify network available */

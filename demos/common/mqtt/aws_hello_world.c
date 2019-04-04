@@ -77,6 +77,10 @@
 #include "aws_demo_config.h"
 #include "aws_hello_world.h"
 
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
+
 /**
  * @brief MQTT client ID.
  *
@@ -505,24 +509,31 @@ static void prvMQTTConnectAndPublishTask( void * pvParameters )
 
 void vStartMQTTEchoDemo( void )
 {
-    configPRINTF( ( "Creating MQTT Echo Task...\r\n" ) );
+    /* Initialize common libraries and MQTT, then start demo. */
+    if( IotCommon_Init() == true )
+    {
+        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+        {
+            configPRINTF( ( "Creating MQTT Echo Task...\r\n" ) );
 
-    /* Create the message buffer used to pass strings from the MQTT callback
-     * function to the task that echoes the strings back to the broker.  The
-     * message buffer will only ever have to hold one message as messages are only
-     * published every 5 seconds.  The message buffer requires that there is space
-     * for the message length, which is held in a size_t variable. */
-    xEchoMessageBuffer = xMessageBufferCreate( ( size_t ) echoMAX_DATA_LENGTH + sizeof( size_t ) );
-    configASSERT( xEchoMessageBuffer );
+            /* Create the message buffer used to pass strings from the MQTT callback
+             * function to the task that echoes the strings back to the broker.  The
+             * message buffer will only ever have to hold one message as messages are only
+             * published every 5 seconds.  The message buffer requires that there is space
+             * for the message length, which is held in a size_t variable. */
+            xEchoMessageBuffer = xMessageBufferCreate( ( size_t ) echoMAX_DATA_LENGTH + sizeof( size_t ) );
+            configASSERT( xEchoMessageBuffer );
 
-    /* Create the task that publishes messages to the MQTT broker every five
-     * seconds.  This task, in turn, creates the task that echoes data received
-     * from the broker back to the broker. */
-    ( void ) xTaskCreate( prvMQTTConnectAndPublishTask,        /* The function that implements the demo task. */
-                          "MQTTEcho",                          /* The name to assign to the task being created. */
-                          democonfigMQTT_ECHO_TASK_STACK_SIZE, /* The size, in WORDS (not bytes), of the stack to allocate for the task being created. */
-                          NULL,                                /* The task parameter is not being used. */
-                          democonfigMQTT_ECHO_TASK_PRIORITY,   /* The priority at which the task being created will run. */
-                          NULL );                              /* Not storing the task's handle. */
+            /* Create the task that publishes messages to the MQTT broker every five
+             * seconds.  This task, in turn, creates the task that echoes data received
+             * from the broker back to the broker. */
+            ( void ) xTaskCreate( prvMQTTConnectAndPublishTask,        /* The function that implements the demo task. */
+                                  "MQTTEcho",                          /* The name to assign to the task being created. */
+                                  democonfigMQTT_ECHO_TASK_STACK_SIZE, /* The size, in WORDS (not bytes), of the stack to allocate for the task being created. */
+                                  NULL,                                /* The task parameter is not being used. */
+                                  democonfigMQTT_ECHO_TASK_PRIORITY,   /* The priority at which the task being created will run. */
+                                  NULL );                              /* Not storing the task's handle. */
+        }
+    }
 }
 /*-----------------------------------------------------------*/
