@@ -1364,9 +1364,6 @@
     <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c">
       <Filter>lib\aws\metrics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c">
-      <Filter>lib\aws\secure_sockets</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\common\iot_common.c">
       <Filter>lib\aws\common</Filter>
     </ClCompile>
@@ -1480,6 +1477,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\provisioning\aws_dev_mode_key_provisioning.c">
       <Filter>lib\aws\provisioning</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\metrics\aws_secure_sockets_wrapper_metrics.c">
+      <Filter>lib\aws\metrics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
