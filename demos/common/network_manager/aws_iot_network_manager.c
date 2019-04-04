@@ -75,7 +75,7 @@ typedef struct IotNMNetwork
     IotLink_t link;
     uint32_t type;
     AwsIotNetworkState_t state;
-    IotNetworkInteface_t *networkInteface;
+    const IotNetworkInterface_t *networkInterface;
 } IotNMNetwork_t;
 
 typedef struct IotNMSubscription
@@ -178,7 +178,7 @@ static IotNMNetwork_t bleNetwork =
     .type            = AWSIOT_NETWORK_TYPE_BLE,
     .link            = IOT_LINK_INITIALIZER,
     .state           = eNetworkStateUnknown,
-    .networkInteface = IOT_NETWORK_INTERFACE_BLE
+    .networkInterface = IOT_NETWORK_INTERFACE_BLE
 };
 #endif
 
@@ -188,7 +188,7 @@ IotNMNetwork_t wifiNetwork =
     .type            = AWSIOT_NETWORK_TYPE_WIFI,
     .link            = IOT_LINK_INITIALIZER,
     .state           = eNetworkStateUnknown,
-    .networkInteface = IOT_NETWORK_INTERFACE_AFR
+    .networkInterface = IOT_NETWORK_INTERFACE_AFR
 };
 #endif 
 
@@ -635,7 +635,7 @@ BaseType_t AwsIotNetworkManager_SubscribeForStateChange(uint32_t networkTypes,
         IotListDouble_InsertTail( &networkManager.subscriptions, &pSubscription->link );
         IotMutex_Unlock( &networkManager.subscriptionsLock );
         
-        *pHandle = ( SubscriptionHandle_t ) pSubscription;
+        *pHandle = ( IotNetworkManagerSubscription_t ) pSubscription;
         
         ret = pdTRUE;
     }
@@ -793,11 +793,11 @@ uint32_t AwsIotNetworkManager_DisableNetwork( uint32_t networkTypes )
 }
 
 
-IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType )
+const IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType )
 {
     IotNMNetwork_t *pNetwork;
     IotLink_t* pLink;
-    IotNetworkInterface_t *pInterface = NULL;
+    const IotNetworkInterface_t *pInterface = NULL;
     
     IotContainers_ForEach( &networkManager.networks, pLink )
     {

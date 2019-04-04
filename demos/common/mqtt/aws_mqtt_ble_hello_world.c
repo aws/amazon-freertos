@@ -56,6 +56,7 @@
 
 /* Platform includes */
 #include "platform/iot_threads.h"
+#include "platform/iot_clock.h"
 
 /* Networking includes */
 #include "types/iot_network_types.h"
@@ -66,62 +67,72 @@
 /**
  * @brief MQTT topic used to publish and subscribe to messages.
  */
-#define _IOT_ECHO_DEMO_TOPIC             "freertos/demos/echo"
+#define _TOPIC             "freertos/demos/echo"
 
 /**
  * @brief QOS value used for the MQTT echo demo.
  */
-#define _IOT_ECHO_DEMO_QOS               ( 1 )
+#define _QOS               ( 1 )
 
 /**
  * @brief Echo message sent to the broker by the MQTT echo demo.
  */
-#define _IOT_ECHO_DEMO_MESSAGE           "HelloWorld %d"
+#define _MESSAGE           "HelloWorld %d"
 
 /**
  * @brief Length of the echo message sent to the broker by the MQTT echo demo.
  */
-#define _IOT_ECHO_DEMO_MESSAGE_LENGTH               ( sizeof( _IOT_ECHO_DEMO_MESSAGE ) + 5 )
+#define _MESSAGE_LENGTH               ( sizeof( _MESSAGE ) + 5 )
 
 /**
  * @brief Suffix for ACK messages echoed back to the broker.
  */
-#define _IOT_ECHO_DEMO_ACK                           " ACK"
+#define _ACK                           " ACK"
 
 /**
  * @brief Length of the ACK messages echoed back to the broker.
  */
-#define _IOT_ECHO_DEMO_ACK_LENGTH                   ( _IOT_ECHO_DEMO_MESSAGE_LENGTH + sizeof( _IOT_ECHO_DEMO_ACK  ) )
+#define _ACK_LENGTH                   ( _MESSAGE_LENGTH + sizeof( _ACK  ) )
+
+#define _ACK_INDEX( length )                     ( length - sizeof( _ACK ) )
 
 /**
  * @brie MQTT Keepalive seconds used by the demo.
  */
-#define _IOT_ECHO_DEMO_MQTT_KEEPALIVE_SECONDS       ( 120 )
+#define _MQTT_KEEPALIVE_SECONDS       ( 120 )
 
 /**
  * @brief Maximum number of echo messages sent to the broker before the demo completes.
  */
-#define _IOT_ECHO_DEMO_MAX_MESSAGES                 ( 120 )
+#define _MAX_MESSAGES                 ( 120 )
 
 /**
  * @brief Interval in milliseconds between the echo messages sent to the broker.
  */
-#define _IOT_ECHO_DEMO_MESSAGE_INTERVAL_MS         ( 1000 )
+#define _MESSAGE_INTERVAL_MS         ( 1000 )
 
 /**
  * @brief Delay between the retries of echo messages during publish timeout.
  */
-#define _IOT_ECHO_DEMO_MESSAGE_RETRY_DELAY_MS      ( 5000 )
+#define _MESSAGE_RETRY_DELAY_MS      ( 5000 )
 
 /**
  * @brief Number of retries during a timeout before which a connection is assumed dead.
  */
-#define _IOT_ECHO_DEMO_MESSAGE_RETRIES             ( 3 )
+#define _MESSAGE_RETRIES             ( 3 )
 
 /**
  * @brief Timeout for an MQTT operation.
  */
-#define _IOT_ECHO_DEMO_MQTT_TIMEOUT_MS             ( 5000 )
+#define _MQTT_TIMEOUT_MS             ( 5000 )
+
+#define _CLIENT_IDENTIFIER_MAX_LENGTH             ( 32 )
+
+#define _KEEP_ALIVE_SECONDS                       ( 60 )
+
+#define _CLIENT_IDENTIFIER_PREFIX                 "mqttEcho"
+
+#define _TOPIC_FILTER_COUNT                       ( 1 )
 
 /* -------------------------------------------------------------------------------------------- */
 
@@ -140,8 +151,7 @@ int RunBleMqttEchoDemo( bool awsIotMqttMode,
                         const IotNetworkInterface_t *pNetworkInterface );
 
 /* ------------------------------------------------------------------------------------------- */
-
-static bool _establishMqttConnection(bool awsIotMqttMode,
+static int _establishMqttConnection( bool awsIotMqttMode,
                                      const char * pIdentifier,
                                      void * pNetworkServerInfo,
                                      void * pNetworkCredentialInfo,
@@ -171,12 +181,12 @@ static bool mqttConnected = false;
 
 static IotMqttError_t _publishMqttMessage( const char* pMessage, size_t messageLength )
 {
-     IotMqttError_t ret;
+     IotMqttError_t ret = IOT_MQTT_NETWORK_ERROR;
      IotMqttPublishInfo_t publishInfo =
      {
-         .qos = _IOT_ECHO_DEMO_QOS,
-         .pTopicName = _IOT_ECHO_DEMO_TOPIC,
-         .topicNameLength = strlen(_IOT_ECHO_DEMO_TOPIC),
+         .qos = _QOS,
+         .pTopicName = _TOPIC,
+         .topicNameLength = strlen(_TOPIC),
          .pPayload = (void *)pMessage,
          .payloadLength = messageLength
      };
@@ -187,14 +197,55 @@ static IotMqttError_t _publishMqttMessage( const char* pMessage, size_t messageL
          ret = IotMqtt_TimedPublish(mqttConnection,
                                     &publishInfo,
                                     0,
-                                    _IOT_ECHO_DEMO_MQTT_TIMEOUT_MS);
+                                    _MQTT_TIMEOUT_MS);
      }
      
      return ret;
 }
 
+static void _receiveMqttMessage( void* pUserParam, IotMqttCallbackParam_t* pPublishParam )
+{
 
-static bool _establishMqttConnection( bool awsIotMqttMode,
+    const char * pPayload = ( const char * ) pPublishParam->message.info.pPayload;
+    size_t payloadLength = pPublishParam->message.info.payloadLength;
+    char ack[ _ACK_LENGTH ] = { 0 };
+     int ackLength;
+    IotMqttError_t ret;
+   
+
+    /* User parameters are not used */
+    ( void ) pUserParam;
+
+
+    if( ( payloadLength < sizeof( _ACK )  ) ||
+         strncmp( ( pPayload + _ACK_INDEX( payloadLength ) ), _ACK, sizeof( _ACK ) ) != 0 )
+    {
+        IotLogInfo( "Received message: %.*s", payloadLength, pPayload );
+        /* This is not an ACK message */
+        ackLength = snprintf( ack,  _ACK_LENGTH, "%s %s", pPayload, _ACK );
+        if( ackLength > 0 )
+        {
+            ret = _publishMqttMessage(ack, ackLength);
+            if (ret == IOT_MQTT_SUCCESS)
+            {
+                IotLogInfo(" Published ACK message: %.*s", ackLength, ack );
+            }
+            else
+            {
+                IotLogError( "Failed to publish ACK message, error = %d", ret );
+                
+            }
+            
+        }
+        else
+        {
+            IotLogError( "Failed to create ACK message" );
+        }
+    }
+}
+
+
+static int _establishMqttConnection( bool awsIotMqttMode,
                                      const char * pIdentifier,
                                      void * pNetworkServerInfo,
                                      void * pNetworkCredentialInfo,
@@ -202,11 +253,11 @@ static bool _establishMqttConnection( bool awsIotMqttMode,
                                      IotMqttConnection_t * pMqttConnection )
 {
     int status = EXIT_SUCCESS;
-    IotMqttError_t connectStatus = IOT_MQTT_STATUS_PENDING;
+    IotMqttError_t mqttStatus = IOT_MQTT_STATUS_PENDING;
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     char pClientIdentifierBuffer[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
-    bool ret = false;
+    IotMqttSubscription_t subscription = { 0 };
 
     /* Set the members of the network info not set by the initializer. This
      * struct provided information on the transport layer to the MQTT connection. */
@@ -265,21 +316,44 @@ static bool _establishMqttConnection( bool awsIotMqttMode,
                     connectInfo.pClientIdentifier,
                     connectInfo.clientIdentifierLength );
 
-        connectStatus = IotMqtt_Connect( &networkInfo,
+        mqttStatus = IotMqtt_Connect( &networkInfo,
                                          &connectInfo,
                                          _MQTT_TIMEOUT_MS,
                                          pMqttConnection );
 
-        if( connectStatus == IOT_MQTT_SUCCESS )
+        if( mqttStatus != IOT_MQTT_SUCCESS )
         {
             IotLogError( "MQTT CONNECT returned error %s.",
-                         IotMqtt_strerror( connectStatus ) );
+                         IotMqtt_strerror( mqttStatus ) );
 
-            ret = true;
+            status = EXIT_FAILURE;
         }
     }
 
-    return ret;
+    if( status == EXIT_SUCCESS )
+    {
+        subscription.qos                       = _QOS;
+        subscription.pTopicFilter              = _TOPIC;
+        subscription.topicFilterLength         = strlen( _TOPIC );
+        subscription.callback.pCallbackContext = NULL;
+        subscription.callback.function         = _receiveMqttMessage;
+
+        mqttStatus = IotMqtt_TimedSubscribe(mqttConnection,
+                                            &subscription,
+                                            _TOPIC_FILTER_COUNT,
+                                            0,
+                                            _MQTT_TIMEOUT_MS);
+        if( mqttStatus != IOT_MQTT_SUCCESS )
+        {
+            IotLogError( "MQTT Subscribe returned error %s.",
+                         IotMqtt_strerror( mqttStatus ) );
+
+            status = EXIT_FAILURE;
+        }
+        
+    }
+
+    return status;
 }
 
 /* ------------------------------------------------------------------------------------ */
@@ -296,11 +370,11 @@ void BleMqttEchoDemoOnNetworkConnected(bool awsIotMqttMode,
             _establishMqttConnection(awsIotMqttMode,
                                      pIdentifier,
                                      pNetworkServerInfo,
-                                     pCredentialInfo,
-                                     pNetworkInterace,
+                                     pNetworkCredentialInfo,
+                                     pNetworkInterface,
                                      &mqttConnection);
 
-        IotSemaphorePost( &connectionSemaphore );
+        IotSemaphore_Post( &connectionSemaphore );
     }
 }
 
@@ -317,7 +391,7 @@ void BleMqttEchoDemoOnNetworkDisconnected( const IotNetworkInterface_t * pNetwor
             mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
         }
         mqttConnected = false;
-        IotSemaphoreWait( &connectionSemaphore );
+        IotSemaphore_Wait( &connectionSemaphore );
     }
 }
 
@@ -327,52 +401,57 @@ int RunBleMqttEchoDemo( bool awsIotMqttMode,
                         void *pNetworkCredentialInfo,
                         const IotNetworkInterface_t *pNetworkInterface )
 {
-    ( void ) pParams;
     uint32_t messageIdentifier = 1;
-    char message[ _IOT_ECHO_DEMO_MESSAGE_LENGTH ];
+    char message[ _MESSAGE_LENGTH ];
     int32_t messageLength;
     IotMqttError_t mqttRet;
-    bool ret;
+    int ret = EXIT_SUCCESS;
 
      /* Create connection Semaphore to signal new connection from the network manager callback */
-    ret = IotSemaphore_Create( &connectionSemaphore, 0, 1 );
+    if( IotSemaphore_Create( &connectionSemaphore, 0, 1 ) != true )
+    {
+        ret = EXIT_FAILURE;
+    }
 
-    if( ret == true )
+    if( ret == EXIT_SUCCESS )
     {
         mqttConnected = _establishMqttConnection(awsIotMqttMode,
                                                  pIdentifier,
                                                  pNetworkServerInfo,
-                                                 pCredentialInfo,
-                                                 pNetworkInterace);
+                                                 pNetworkCredentialInfo,
+                                                 pNetworkInterface,
+                                                 &mqttConnection);
 
         for (;;)
         {
             if (mqttConnected)
             {
                 messageLength = snprintf(message,
-                                         IOT_ECHO_DEMO_MESSAGE_LENGTH,
-                                         IOT_ECHO_DEMO_MESSAGE,
+                                         _MESSAGE_LENGTH,
+                                         _MESSAGE,
                                          messageIdentifier);
 
                 if (messageLength > 0)
                 {
 
-                    ret = _publishMessage(message, messageLength);
-                    if (ret == IOT_MQTT_SUCCES)
+                    mqttRet = _publishMqttMessage(message, messageLength);
+                    if (mqttRet == IOT_MQTT_SUCCESS)
                     {
+                        IotLogInfo( "Sent message: %.*s", messageLength, message );
                         messageIdentifier++;
                     }
                     else
                     {
-                        IotLogError(
-                            "Failed to publish message %d to the broker, error = %d",
-                            messageIdentifier,
-                            ret)
+                        IotLogError( "Failed to publish message to the broker, error = %d", mqttRet );
+                        ret = EXIT_FAILURE;
+                        break;
                     }
                 }
                 else
                 {
-                    IotLogError("Failed to create message for publish");
+                    IotLogError("Failed to create new message for publish" );
+                    ret = EXIT_FAILURE;
+                    break;
                 }
             }
             else
@@ -383,5 +462,12 @@ int RunBleMqttEchoDemo( bool awsIotMqttMode,
         }
 
         IotSemaphore_Destroy( &connectionSemaphore );
+
+        if( mqttConnection != IOT_MQTT_CONNECTION_INITIALIZER )
+        {
+            IotMqtt_Disconnect( mqttConnection, 0 );
+        }
     }
+
+    return ret;
 }

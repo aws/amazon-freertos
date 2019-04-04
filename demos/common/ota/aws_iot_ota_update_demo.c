@@ -103,7 +103,7 @@ static MqttConnectionContext_t xConnection =
  * @brief Network manager subscription callback.
  */
 
-static IotSubscriptionHandle_t xSubscriptionHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
+static IotNetworkManagerSubscription_t xSubscriptionHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
 /**
  * @brief Semaphore to indicate a new network is available.
@@ -354,7 +354,7 @@ void vStartOTAUpdateDemoTask( void )
 
     if(  xRet == pdFALSE )
     {
-        if( xSubscriptionHandle != AWSIOT_NETWORK_SUBSCRIPTION_HANDLE_INITIALIZER )
+        if( xSubscriptionHandle != IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER )
         {
             AwsIotNetworkManager_RemoveSubscription( xSubscriptionHandle );
         }

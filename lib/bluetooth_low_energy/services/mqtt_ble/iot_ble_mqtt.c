@@ -1073,7 +1073,7 @@ IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo, void * pC
 	    }
 
 		nbTry++;
-		vTaskDelay(IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS);
+		vTaskDelay( pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) );
     }while(nbTry < IOT_BLE_MQTT_CREATE_CONNECTION_RETRY);
 
     return ret;

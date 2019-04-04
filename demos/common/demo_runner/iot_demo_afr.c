@@ -119,7 +119,7 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
 {
     IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
-    IotNetworkInterface_t *pNetworkInterface;
+    const IotNetworkInterface_t *pNetworkInterface;
     bool awsIotMqttMode = false;
 
     _demoContext_t* pDemoContext = ( _demoContext_t* ) pContext;
@@ -176,7 +176,7 @@ static void _runDemoTask( void *pArgument )
      * and set by the initializers. */
     IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
-    IotNetworkInterface_t *pNetworkInterface = NULL;
+    const IotNetworkInterface_t *pNetworkInterface = NULL;
     uint32_t availableNetworkTypes = AWSIOT_NETWORK_TYPE_NONE;
     _demoContext_t* pDemoContext = ( _demoContext_t* ) pArgument;
     bool ret = true;

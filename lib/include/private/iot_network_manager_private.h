@@ -136,7 +136,7 @@ uint32_t AwsIotNetworkManager_GetEnabledNetworks( void );
 /**
  * @brief Get the network interface for a network type.
  */
-IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType ); 
+const IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType ); 
 
 /**
  * API to enable network manager for different networks
