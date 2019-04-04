@@ -1,5 +1,12 @@
 afr_module(posix KERNEL)
 
+afr_set_lib_metadata(ID "FreeRTOS-Plus-POSIX")
+afr_set_lib_metadata(DESCRIPTION "This library provides a POSIX compatibility layer for FreeRTOS.")
+afr_set_lib_metadata(DISPLAY_NAME "FreeRTOS Plus POSIX")
+afr_set_lib_metadata(CATEGORY "Operating System")
+afr_set_lib_metadata(VERSION "1.0.0")
+afr_set_lib_metadata(IS_VISIBLE "false")
+
 afr_glob_src(posix_std_headers DIRECTORY "${AFR_MODULES_DIR}/include/FreeRTOS_POSIX" RECURSE)
 afr_module_sources(
     posix PUBLIC ${posix_std_headers}
@@ -45,6 +52,7 @@ afr_module_sources(
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_unistd.c"
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_utils.c"
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_types.h"
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h"
         "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h"
 )

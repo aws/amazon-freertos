@@ -274,6 +274,17 @@ function(afr_resolve_dependencies)
         __resolve_dependencies(${__module})
     endforeach()
 
+    # For each portable layer modue, disable it if its parent module is disabled.
+    foreach(__module IN LISTS AFR_MODULES_ENABLED)
+        string(FIND ${__module} ::mcu_port __idx)
+        if(NOT __idx EQUAL -1)
+            string(SUBSTRING ${__module} 0 ${__idx} __afr_module)
+            if(NOT __afr_module IN_LIST AFR_MODULES_ENABLED)
+                afr_cache_append(AFR_MODULES_DISABLED_DEPS ${__module})
+            endif()
+        endif()
+    endforeach()
+
     afr_cache_remove(AFR_MODULES_ENABLED ${AFR_MODULES_DISABLED_DEPS})
 
     unset(__visited CACHE)
