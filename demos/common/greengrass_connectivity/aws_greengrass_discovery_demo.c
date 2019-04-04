@@ -53,6 +53,10 @@
 /* Demo includes. */
 #include "aws_demo_config.h"
 
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
+
 #define ggdDEMO_MAX_MQTT_MESSAGES      3
 #define ggdDEMO_MAX_MQTT_MSG_SIZE      500
 #define ggdDEMO_DISCOVERY_FILE_SIZE    2500
@@ -224,10 +228,17 @@ static void prvDiscoverGreenGrassCore( void * pvParameters )
 
 void vStartGreenGrassDiscoveryTask( void )
 {
-    ( void ) xTaskCreate( prvDiscoverGreenGrassCore,
-                          "IoT_GGD",
-                          democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE,
-                          NULL,
-                          democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY,
-                          NULL );
+    /* Initialize common libraries and MQTT, then start demo. */
+    if( IotCommon_Init() == true )
+    {
+        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+        {
+            ( void ) xTaskCreate( prvDiscoverGreenGrassCore,
+                                  "IoT_GGD",
+                                  democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE,
+                                  NULL,
+                                  democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY,
+                                  NULL );
+        }
+    }
 }

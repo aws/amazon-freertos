@@ -39,6 +39,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     #include IOT_CONFIG_FILE
 #endif
 
+#include "iot_common.h"
+
 /* MQTT include. */
 #include "iot_mqtt.h"
 /* Standard includes. */
@@ -183,7 +185,7 @@ static const char *pcStateStr[eOTA_NumAgentStates] =
 
 void vOTAUpdateDemoTask( void * pvParameters )
 {
-    IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;                                                                                                                                                                                                                                                                                                                              
+    IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
 
 /* Remove compiler warnings about unused parameters. */
@@ -196,7 +198,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
     configPRINTF( ( "Creating MQTT Client...\r\n" ) );
 
     /* Create the MQTT Client. */
-                                                                                                                                                                                                                     
+
     xNetworkConnected = prxCreateNetworkConnection();
 
 
@@ -273,7 +275,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
 static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 {
 	OTA_Err_t xErr = kOTA_Err_Uninitialized;
-	
+
     if ( eEvent == eOTA_JobEvent_Activate )
     {
         configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
@@ -295,7 +297,7 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 	xErr = OTA_SetImageState (eOTA_ImageState_Accepted);
         if( xErr != kOTA_Err_None )
         {
-            OTA_LOG_L1( " Error! Failed to set image state as accepted.\r\n" );    
+            OTA_LOG_L1( " Error! Failed to set image state as accepted.\r\n" );
         }
 	}
 }
@@ -307,10 +309,29 @@ void vStartOTAUpdateDemoTask( void )
 {
     BaseType_t xRet = pdTRUE;
 
-    if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
+    /* Initialize common libraries and MQTT. */
+    if( IotCommon_Init() == false )
     {
-        configPRINTF(( "There are no networks configured for the demo.\r\n" ));
+        configPRINTF(( "Failed to initialize common libraries.\r\n" ));
         xRet = pdFALSE;
+    }
+
+    if( xRet == pdTRUE )
+    {
+        if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
+        {
+            configPRINTF(( "Failed to initialize MQTT library.\r\n" ));
+            xRet = pdFALSE;
+        }
+    }
+
+    if( xRet == pdTRUE )
+    {
+        if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
+        {
+            configPRINTF(( "There are no networks configured for the demo.\r\n" ));
+            xRet = pdFALSE;
+        }
     }
 
     /* Create semaphore to notify network available */

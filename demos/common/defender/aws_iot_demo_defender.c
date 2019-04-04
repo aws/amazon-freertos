@@ -53,6 +53,10 @@
 /* Defender includes. */
 #include "aws_iot_defender.h"
 
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
+
 /* Set to 1 to enable this demo to connect to echo server.
  * Then in the demo output, it is expected to see one more established TCP connection.
  */
@@ -84,12 +88,19 @@ static void _startDefender();
 
 void vStartDefenderDemo( void )
 {
-    ( void ) xTaskCreate( _defenderTask,
-                          "Defender Demo",
-                          democonfigDEFENDER_TASK_STACK_SIZE,
-                          NULL,
-                          democonfigDEFENDER_TASK_PRIORITY,
-                          NULL );
+    /* Initialize common libraries and MQTT, then start demo. */
+    if( IotCommon_Init() == true )
+    {
+        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+        {
+            ( void ) xTaskCreate( _defenderTask,
+                                  "Defender Demo",
+                                  democonfigDEFENDER_TASK_STACK_SIZE,
+                                  NULL,
+                                  democonfigDEFENDER_TASK_PRIORITY,
+                                  NULL );
+        }
+    }
 }
 
 /*-----------------------------------------------------------*/

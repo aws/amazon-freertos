@@ -59,6 +59,10 @@
 #include "aws_demo_config.h"
 #include "aws_application_version.h"
 
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
+
 static void App_OTACompleteCallback( OTA_JobEvent_t eEvent );
 
 /*-----------------------------------------------------------*/
@@ -200,10 +204,17 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 
 void vStartOTAUpdateDemoTask( void )
 {
-    xTaskCreate( vOTAUpdateDemoTask,
-                 "OTA",
-                 democonfigOTA_UPDATE_TASK_STACK_SIZE,
-                 NULL,
-                 democonfigOTA_UPDATE_TASK_TASK_PRIORITY,
-                 NULL );
+    /* Initialize common libraries and MQTT, then start demo. */
+    if( IotCommon_Init() == true )
+    {
+        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+        {
+            xTaskCreate( vOTAUpdateDemoTask,
+                        "OTA",
+                        democonfigOTA_UPDATE_TASK_STACK_SIZE,
+                        NULL,
+                        democonfigOTA_UPDATE_TASK_TASK_PRIORITY,
+                        NULL );
+        }
+    }
 }
