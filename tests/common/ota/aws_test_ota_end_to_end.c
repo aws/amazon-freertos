@@ -108,9 +108,6 @@ void vOTAUpdateTestTask( void * pvParameters )
 	bool status = false;
     OTA_State_t eState;
 
-    IotCommon_Cleanup();
-    IotMqtt_Cleanup();
-
     /* Initialize common components. */
 	status = IotCommon_Init();
 
