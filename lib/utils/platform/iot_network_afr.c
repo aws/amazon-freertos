@@ -130,14 +130,19 @@ static void _networkReceiveTask( void * pArgument )
                                          &( pNetworkConnection->bufferedByte ),
                                          1,
                                          0 );
-        } while( socketStatus == 0 );
 
-        connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) );
+            /* On a timeout, check if the connection was closed. */
+            if( socketStatus == 0 )
+            {
+                connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) );
 
-        if( ( connectionFlags & _FLAG_SHUTDOWN ) == _FLAG_SHUTDOWN )
-        {
-            socketStatus = SOCKETS_ECLOSED;
-        }
+                if( ( connectionFlags & _FLAG_SHUTDOWN ) == _FLAG_SHUTDOWN )
+                {
+                    socketStatus = SOCKETS_ECLOSED;
+                }
+            }
+        /* Check for timeout. Some ports return 0, some return EWOULDBLOCK. */
+        } while( ( socketStatus == 0 ) || ( socketStatus == SOCKETS_EWOULDBLOCK ) );
 
         if( socketStatus <= 0 )
         {

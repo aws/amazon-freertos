@@ -34,7 +34,7 @@
 #define IOT_SDK_VERSION    "4.0.0"
 
 /* Standard library function overrides. */
-#define IotLogging_Puts( str )                 configPRINTF( ( "%s\n", str ) )
+#define IotLogging_Puts( str )                 configPRINTF( ( "%s\r\n", str ) )
 #define IotContainers_Assert( expression )     configASSERT( expression )
 #define IotMqtt_Assert( expression )           configASSERT( expression )
 
