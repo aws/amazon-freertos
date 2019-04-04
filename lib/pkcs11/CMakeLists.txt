@@ -1,5 +1,12 @@
 afr_module(pkcs11)
 
+afr_set_lib_metadata(ID "pkcs11")
+afr_set_lib_metadata(DESCRIPTION "This library implements a PKCS#11 cryptographic module. PKCS#11 standard defines a platform-independent API to create and manipulate cryptographic tokens.")
+afr_set_lib_metadata(DISPLAY_NAME "PKCS11")
+afr_set_lib_metadata(CATEGORY "Security")
+afr_set_lib_metadata(VERSION "1.0.0")
+afr_set_lib_metadata(IS_VISIBLE "false")
+
 afr_module_sources(
     pkcs11
     PRIVATE "${AFR_MODULES_DIR}/include/aws_pkcs11.h"

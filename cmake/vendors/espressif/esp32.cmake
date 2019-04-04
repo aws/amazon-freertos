@@ -1,20 +1,3 @@
-cmake_minimum_required(VERSION 3.13)
-
-# -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
-# -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(NAME "ESP32 DevKitC / WroverKit")
-afr_set_board_metadata(DISPLAY_NAME "ESP32 Module")
-afr_set_board_metadata(DESCRIPTION "...")
-afr_set_board_metadata(VENDOR_NAME "Espressif Systems")
-afr_set_board_metadata(FAMILY_NAME "ESP32")
-afr_set_board_metadata(DATA_RAM_MEMORY "520KB")
-afr_set_board_metadata(PROGRAM_MEMORY "4MB")
-afr_set_board_metadata(CODE_SIGNER "...")
-afr_set_board_metadata(SUPPORTED_IDE "...")
-afr_set_board_metadata(IDE_SystemWorkbench_NAME "...")
-afr_set_board_metadata(IDE_SystemWorkbench_COMPILERS "...")
-
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
@@ -105,6 +88,7 @@ target_sources(
     INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/aws_pkcs11_pal.c"
 )
 
+# FreeRTOS Plus TCP
 afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
@@ -125,6 +109,14 @@ target_link_libraries(
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE "${AFR_MODULES_DIR}/secure_sockets/portable/freertos_plus_tcp/aws_secure_sockets.c"
+)
+
+# OTA
+# Need to get this validated
+afr_mcu_port(ota)
+target_sources(
+    AFR::ota::mcu_port
+    INTERFACE "${AFR_MODULES_DIR}/ota/portable/espressif/esp32_devkitc_esp_wrover_kit/aws_ota_pal.c"
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -150,79 +142,81 @@ target_link_libraries(
         AFR::utils
 )
 
-set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discovery.c
-    ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
-    ${AFR_DEMOS_DIR}/secure_sockets/aws_test_tcp.c
-    ${AFR_DEMOS_DIR}/wifi/aws_test_wifi.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-format"
-)
+function(afr_build_extra_config)
+    set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discovery.c
+        ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
+        ${AFR_DEMOS_DIR}/secure_sockets/aws_test_tcp.c
+        ${AFR_DEMOS_DIR}/wifi/aws_test_wifi.c
+        PROPERTIES COMPILE_FLAGS
+        "-Wno-format"
+    )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-format -Wno-uninitialized"
-)
+    set_source_files_properties(${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c
+        PROPERTIES COMPILE_FLAGS
+        "-Wno-format -Wno-uninitialized"
+    )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_pal.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-pointer-sign -Wno-sizeof-pointer-memaccess"
-)
+    set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_pal.c
+        PROPERTIES COMPILE_FLAGS
+        "-Wno-pointer-sign -Wno-sizeof-pointer-memaccess"
+    )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-pointer-sign"
-)
+    set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
+        PROPERTIES COMPILE_FLAGS
+        "-Wno-pointer-sign"
+    )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
-    PROPERTIES COMPILE_FLAGS
-    "-Wno-int-conversion"
-)
+    set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
+        PROPERTIES COMPILE_FLAGS
+        "-Wno-int-conversion"
+    )
 
-set(IDF_TARGET esp32)
-set(ENV{IDF_PATH} ${espressif_dir})
+    set(IDF_TARGET esp32)
+    set(ENV{IDF_PATH} ${espressif_dir})
 
-# Fetch sdkconfig.defaults and modify the custom partition table csv path
-file(READ "${board_dir}/../make/sdkconfig.defaults" file_sdkconfig_default)
-string(REGEX REPLACE "partitions_example.csv" "${board_dir}/../make/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
-file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
-set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+    # Fetch sdkconfig.defaults and modify the custom partition table csv path
+    file(READ "${board_dir}/../make/sdkconfig.defaults" file_sdkconfig_default)
+    string(REGEX REPLACE "partitions_example.csv" "${board_dir}/../make/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
+    file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
+    set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
 
-# Do some configuration for idf_import_components. This enables creation of artifacts (which might not be
-# needed) for some projects
-set(IDF_BUILD_ARTIFACTS ON)
-set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
+    # Do some configuration for idf_import_components. This enables creation of artifacts (which might not be
+    # needed) for some projects
+    set(IDF_BUILD_ARTIFACTS ON)
+    set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
 
-set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
+    set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
-# This is a hack to have IDF build system use PRIVATE keyword when
-# calling target_link_libraries() on aws_demos target. This is necessary
-# as CMake doesn't allow mixing target_link_libraries() call signature
-# for the same target.
-function(target_link_libraries)
-    set(_args ARGV)
-    if ((${ARGV0} STREQUAL aws_tests) OR (${ARGV0} STREQUAL aws_demos))
-        list(INSERT ${_args} 1 PRIVATE)
-    endif()
-    _target_link_libraries(${${_args}})
+    # This is a hack to have IDF build system use PRIVATE keyword when
+    # calling target_link_libraries() on aws_demos target. This is necessary
+    # as CMake doesn't allow mixing target_link_libraries() call signature
+    # for the same target.
+    function(target_link_libraries)
+        set(_args ARGV)
+        if ((${ARGV0} STREQUAL aws_tests) OR (${ARGV0} STREQUAL aws_demos))
+            list(INSERT ${_args} 1 PRIVATE)
+        endif()
+        _target_link_libraries(${${_args}})
+    endfunction()
+
+    # Override IDF's native toolchain file
+    set(IDF_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})
+
+    # Provides idf_import_components and idf_link_components
+    include(${espressif_dir}/tools/cmake/idf_functions.cmake)
+
+    get_filename_component(
+        ABS_EXTRA_COMPONENT_DIRS
+        "${board_dir}/application_code/espressif_code" ABSOLUTE
+    )
+
+    set(IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
+    set(IDF_PROJECT_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/${exe_target}")
+
+    # Wraps add_subdirectory() to create library targets for components, and then `return` them using the given variable.
+    # In this case the variable is named `component`
+    idf_import_components(components ${espressif_dir} esp-idf)
+
+    # Wraps target_link_libraries() to link processed components by idf_import_components to target
+    idf_link_components(${exe_target} "${components}")
 endfunction()
-
-# Override IDF's native toolchain file
-set(IDF_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})
-
-# Provides idf_import_components and idf_link_components
-include(${espressif_dir}/tools/cmake/idf_functions.cmake)
-
-get_filename_component(
-    ABS_EXTRA_COMPONENT_DIRS
-    "${board_dir}/application_code/espressif_code" ABSOLUTE
-)
-
-set(IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
-set(IDF_PROJECT_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/${exe_target}")
-
-# Wraps add_subdirectory() to create library targets for components, and then `return` them using the given variable.
-# In this case the variable is named `component`
-idf_import_components(components ${espressif_dir} esp-idf)
-
-# Wraps target_link_libraries() to link processed components by idf_import_components to target
-idf_link_components(${exe_target} "${components}")

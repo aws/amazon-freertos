@@ -1,5 +1,12 @@
 afr_module(secure_sockets)
 
+afr_set_lib_metadata(ID "secure_sockets")
+afr_set_lib_metadata(DESCRIPTION "This library implements the Berkeley socket interface with encryption capabilities.")
+afr_set_lib_metadata(DISPLAY_NAME "Secure Sockets")
+afr_set_lib_metadata(CATEGORY "Connectivity")
+afr_set_lib_metadata(VERSION "1.0.0")
+afr_set_lib_metadata(IS_VISIBLE "false")
+
 afr_module_sources(
     secure_sockets
     PRIVATE

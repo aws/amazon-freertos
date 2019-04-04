@@ -24,15 +24,20 @@ if(NOT AFR_BOARD IN_LIST AFR_SUPPORTED_BOARDS)
 endif()
 
 # Import board CMake build.
-add_subdirectory("cmake/vendors/${AFR_VENDOR_NAME}/${AFR_BOARD_NAME}")
+afr_add_subdirectory("cmake/vendors/${AFR_VENDOR_NAME}/${AFR_BOARD_NAME}")
+if(NOT AFR_NON_BUILD_MODE AND COMMAND afr_build_extra_config)
+    afr_build_extra_config()
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # Initialize all modules.
-add_subdirectory("lib")
-add_subdirectory("demos")
-add_subdirectory("tests")
+afr_add_subdirectory("lib")
+afr_add_subdirectory("demos")
+if(AFR_IS_TESTING)
+    afr_add_subdirectory("tests")
+endif()
 
 # Resolve dependencies.
 afr_resolve_dependencies()
@@ -113,3 +118,8 @@ if(TARGET aws_tests)
     list(TRANSFORM AFR_TESTS_ENABLED PREPEND "AFR::")
     target_link_libraries(aws_tests PRIVATE ${AFR_TESTS_ENABLED})
 endif()
+
+# -------------------------------------------------------------------------------------------------
+# Output metadata information
+# -------------------------------------------------------------------------------------------------
+afr_write_metadata()

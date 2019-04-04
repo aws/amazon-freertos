@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.13)
-
 # These Amazon FreeRTOS related global variables are available to use.
 # AFR_ROOT_DIR          Amazon FreeRTOS source root.
 # AFR_MODULES_DIR       Amazon FreeRTOS modules root.

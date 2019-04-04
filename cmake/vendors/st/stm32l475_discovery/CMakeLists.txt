@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.13)
-
 set(stm32l475_dir "${AFR_3RDPARTY_DIR}/mcu_vendor/st/stm32l475_discovery")
 set(board_demos_dir "${AFR_ROOT_DIR}/demos/st/stm32l475_discovery/common")
 set(board_tests_dir "${AFR_ROOT_DIR}/tests/st/stm32l475_discovery/common")
@@ -12,17 +10,24 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(NAME "STM32-B-L475E-IOT01A")
+afr_set_board_metadata(ID "STM32-B-L475E-IOT01A")
 afr_set_board_metadata(DISPLAY_NAME "STM32L4 Discovery kit IoT node")
 afr_set_board_metadata(DESCRIPTION "B-L475E-IOT01A Discovery kit with low-power RF, Wi-Fi, multiway sensing")
 afr_set_board_metadata(VENDOR_NAME "STMicroelectronics")
 afr_set_board_metadata(FAMILY_NAME "STM32L4")
+afr_set_board_metadata(IS_ACTIVE "TRUE")
 afr_set_board_metadata(DATA_RAM_MEMORY "128KB")
 afr_set_board_metadata(PROGRAM_MEMORY "1MB")
 afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
 afr_set_board_metadata(SUPPORTED_IDE "SystemWorkbench")
+afr_set_board_metadata(RECOMMENDED_IDE "SystemWorkbench")
 afr_set_board_metadata(IDE_SystemWorkbench_NAME "System Workbench for STM32")
-afr_set_board_metadata(IDE_SystemWorkbench_COMPILERS "GCC")
+afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
+afr_set_board_metadata(IDE_SystemWorkbench_RECOMMENDED "TRUE")
+
+afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/st/stm32l475_discovery/ac6")
+afr_set_board_metadata(DEMO_COMMON_LOCATION "${AFR_ROOT_DIR}/demos/st/stm32l475_discovery/common")
+afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${AFR_ROOT_DIR}/lib/third_party/mcu_vendor/st")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -161,19 +166,21 @@ target_link_libraries(
         -T"${board_dir}/../ac6/STM32L475VGTx_FLASH.ld"
 )
 
-find_program(gcc_objcopy arm-none-eabi-objcopy)
-find_program(gcc_size arm-none-eabi-size)
-if(NOT gcc_objcopy)
-    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-endif()
+function(afr_build_extra_config)
+    find_program(gcc_objcopy arm-none-eabi-objcopy)
+    find_program(gcc_size arm-none-eabi-size)
+    if(NOT gcc_objcopy)
+        message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+    endif()
 
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${gcc_objcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-    COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
-)
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
-)
+    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${gcc_objcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
+        COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
+    )
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+    )
+endfunction()
