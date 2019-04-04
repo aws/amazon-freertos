@@ -129,6 +129,7 @@
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\pkcs11\aws_pkcs11.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
@@ -216,6 +217,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcKernelPort.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\tracealyzer_recorder\trcSnapshotRecorder.c" />
     <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\aws_pki_utils.c" />
     <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c" />
     <ClCompile Include="..\..\..\common\defender\aws_defender_demo.c" />
     <ClCompile Include="..\..\..\common\demo_runner\aws_demo_runner.c" />
@@ -246,6 +248,7 @@
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_string.h" />
     <ClInclude Include="..\..\..\..\lib\cbor\src\aws_cbor_types.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_defender.h" />
+    <ClInclude Include="..\..\..\..\lib\include\aws_pki_utils.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_internals.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_cpu.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_defender_tcp_conn.h" />
@@ -298,6 +301,8 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_lib_private.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_pkcs11_mbedtls.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\aws_pkcs11_pal.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_json.h" />

@@ -29,7 +29,7 @@ CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_SLOT_ID * pxSlotId;
+    CK_SLOT_ID * pxSlotId= NULL;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -128,7 +128,7 @@ CK_RV xInitializePKCS11( void )
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 {
     CK_RV xResult;
-    CK_SLOT_ID * pxSlotId;
+    CK_SLOT_ID * pxSlotId = NULL;
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_ULONG xSlotCount;
 
