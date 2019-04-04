@@ -355,6 +355,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_helper_secure_connect.c" />
+    <ClCompile Include="..\..\..\..\lib\metrics\aws_secure_sockets_wrapper_metrics.c" />
     <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_api.c" />
@@ -369,7 +370,6 @@
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\pc\windows\aws_pkcs11_pal.c" />
     <ClCompile Include="..\..\..\..\lib\provisioning\aws_dev_mode_key_provisioning.c" />
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c" />
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_decoder.c" />
     <ClCompile Include="..\..\..\..\lib\serializer\cbor\iot_serializer_tinycbor_encoder.c" />

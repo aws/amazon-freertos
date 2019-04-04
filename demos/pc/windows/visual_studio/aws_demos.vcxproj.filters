@@ -606,9 +606,6 @@
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c">
       <Filter>lib\aws\serializer\json</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c">
-      <Filter>lib\aws\secure_sockets</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_api.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
@@ -695,6 +692,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\provisioning\aws_dev_mode_key_provisioning.c">
       <Filter>lib\aws\provisioning</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\metrics\aws_secure_sockets_wrapper_metrics.c">
+      <Filter>lib\aws\metrics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
