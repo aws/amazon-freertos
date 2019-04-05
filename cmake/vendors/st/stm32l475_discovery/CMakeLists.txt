@@ -166,21 +166,27 @@ target_link_libraries(
         -T"${board_dir}/../ac6/STM32L475VGTx_FLASH.ld"
 )
 
-function(afr_build_extra_config)
-    find_program(gcc_objcopy arm-none-eabi-objcopy)
-    find_program(gcc_size arm-none-eabi-size)
-    if(NOT gcc_objcopy)
-        message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-    endif()
+if(AFR_NON_BUILD_MODE)
+    return()
+endif()
 
-    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-    add_custom_command(
-        TARGET ${exe_target} POST_BUILD
-        COMMAND "${gcc_objcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-        COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
-    )
-    add_custom_command(
-        TARGET ${exe_target} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
-    )
-endfunction()
+# -------------------------------------------------------------------------------------------------
+# Additional build configurations
+# -------------------------------------------------------------------------------------------------
+
+find_program(gcc_objcopy arm-none-eabi-objcopy)
+find_program(gcc_size arm-none-eabi-size)
+if(NOT gcc_objcopy)
+    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+endif()
+
+set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "${gcc_objcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
+    COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
+)
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+)

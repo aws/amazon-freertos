@@ -142,81 +142,88 @@ target_link_libraries(
         AFR::utils
 )
 
-function(afr_build_extra_config)
-    set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discovery.c
-        ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
-        ${AFR_DEMOS_DIR}/secure_sockets/aws_test_tcp.c
-        ${AFR_DEMOS_DIR}/wifi/aws_test_wifi.c
-        PROPERTIES COMPILE_FLAGS
-        "-Wno-format"
-    )
+if(AFR_NON_BUILD_MODE)
+    return()
+endif()
 
-    set_source_files_properties(${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c
-        PROPERTIES COMPILE_FLAGS
-        "-Wno-format -Wno-uninitialized"
-    )
 
-    set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_pal.c
-        PROPERTIES COMPILE_FLAGS
-        "-Wno-pointer-sign -Wno-sizeof-pointer-memaccess"
-    )
+# -------------------------------------------------------------------------------------------------
+# Additional build configurations
+# -------------------------------------------------------------------------------------------------
 
-    set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
-        PROPERTIES COMPILE_FLAGS
-        "-Wno-pointer-sign"
-    )
+set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discovery.c
+    ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
+    ${AFR_DEMOS_DIR}/secure_sockets/aws_test_tcp.c
+    ${AFR_DEMOS_DIR}/wifi/aws_test_wifi.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-format"
+)
 
-    set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
-        PROPERTIES COMPILE_FLAGS
-        "-Wno-int-conversion"
-    )
+set_source_files_properties(${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-format -Wno-uninitialized"
+)
 
-    set(IDF_TARGET esp32)
-    set(ENV{IDF_PATH} ${espressif_dir})
+set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_pal.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-pointer-sign -Wno-sizeof-pointer-memaccess"
+)
 
-    # Fetch sdkconfig.defaults and modify the custom partition table csv path
-    file(READ "${board_dir}/../make/sdkconfig.defaults" file_sdkconfig_default)
-    string(REGEX REPLACE "partitions_example.csv" "${board_dir}/../make/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
-    file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
-    set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-pointer-sign"
+)
 
-    # Do some configuration for idf_import_components. This enables creation of artifacts (which might not be
-    # needed) for some projects
-    set(IDF_BUILD_ARTIFACTS ON)
-    set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
+set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
+    PROPERTIES COMPILE_FLAGS
+    "-Wno-int-conversion"
+)
 
-    set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
+set(IDF_TARGET esp32)
+set(ENV{IDF_PATH} ${espressif_dir})
 
-    # This is a hack to have IDF build system use PRIVATE keyword when
-    # calling target_link_libraries() on aws_demos target. This is necessary
-    # as CMake doesn't allow mixing target_link_libraries() call signature
-    # for the same target.
-    function(target_link_libraries)
-        set(_args ARGV)
-        if ((${ARGV0} STREQUAL aws_tests) OR (${ARGV0} STREQUAL aws_demos))
-            list(INSERT ${_args} 1 PRIVATE)
-        endif()
-        _target_link_libraries(${${_args}})
-    endfunction()
+# Fetch sdkconfig.defaults and modify the custom partition table csv path
+file(READ "${board_dir}/../make/sdkconfig.defaults" file_sdkconfig_default)
+string(REGEX REPLACE "partitions_example.csv" "${board_dir}/../make/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
+file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
+set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
 
-    # Override IDF's native toolchain file
-    set(IDF_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})
+# Do some configuration for idf_import_components. This enables creation of artifacts (which might not be
+# needed) for some projects
+set(IDF_BUILD_ARTIFACTS ON)
+set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
 
-    # Provides idf_import_components and idf_link_components
-    include(${espressif_dir}/tools/cmake/idf_functions.cmake)
+set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
-    get_filename_component(
-        ABS_EXTRA_COMPONENT_DIRS
-        "${board_dir}/application_code/espressif_code" ABSOLUTE
-    )
-
-    set(IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
-    set(IDF_PROJECT_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/${exe_target}")
-
-    # Wraps add_subdirectory() to create library targets for components, and then `return` them using the given variable.
-    # In this case the variable is named `component`
-    idf_import_components(components ${espressif_dir} esp-idf)
-
-    # Wraps target_link_libraries() to link processed components by idf_import_components to target
-    idf_link_components(${exe_target} "${components}")
+# This is a hack to have IDF build system use PRIVATE keyword when
+# calling target_link_libraries() on aws_demos target. This is necessary
+# as CMake doesn't allow mixing target_link_libraries() call signature
+# for the same target.
+function(target_link_libraries)
+    set(_args ARGV)
+    if ((${ARGV0} STREQUAL aws_tests) OR (${ARGV0} STREQUAL aws_demos))
+        list(INSERT ${_args} 1 PRIVATE)
+    endif()
+    _target_link_libraries(${${_args}})
 endfunction()
+
+# Override IDF's native toolchain file
+set(IDF_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})
+
+# Provides idf_import_components and idf_link_components
+include(${espressif_dir}/tools/cmake/idf_functions.cmake)
+
+get_filename_component(
+    ABS_EXTRA_COMPONENT_DIRS
+    "${board_dir}/application_code/espressif_code" ABSOLUTE
+)
+
+set(IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
+set(IDF_PROJECT_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/${exe_target}")
+
+# Wraps add_subdirectory() to create library targets for components, and then `return` them using the given variable.
+# In this case the variable is named `component`
+idf_import_components(components ${espressif_dir} esp-idf)
+
+# Wraps target_link_libraries() to link processed components by idf_import_components to target
+idf_link_components(${exe_target} "${components}")

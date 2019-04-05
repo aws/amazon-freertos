@@ -25,9 +25,6 @@ endif()
 
 # Import board CMake build.
 afr_add_subdirectory("cmake/vendors/${AFR_VENDOR_NAME}/${AFR_BOARD_NAME}")
-if(NOT AFR_NON_BUILD_MODE AND COMMAND afr_build_extra_config)
-    afr_build_extra_config()
-endif()
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS modules
