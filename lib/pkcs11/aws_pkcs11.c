@@ -227,4 +227,12 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+void RSA_PKCS1_SHA256_HashOidSequenceFaker( uint8_t * x32ByteHashedMessage, uint8_t * x51ByteHashOidBuffer )
+{
+    uint8_t xOidSequence[] = pkcs11STUFF_APPENDED_TO_RSA_SIG;
+    memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
+    memcpy( &x51ByteHashOidBuffer[ sizeof(xOidSequence) ], x32ByteHashedMessage, 32 );
+    return;
+}
+
 /*-----------------------------------------------------------*/

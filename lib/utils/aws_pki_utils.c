@@ -1,5 +1,5 @@
-/* These helper routines are from mbedTLS. The function names have been renamed 
- * for Amazon FreeRTOS library consistency. Otherwise, the implementations 
+/* These helper routines are from mbedTLS. The function names have been renamed
+ * for Amazon FreeRTOS library consistency. Otherwise, the implementations
  * are unchanged. */
 
 /*
@@ -192,3 +192,37 @@ int PKI_RSA_RSASSA_PKCS1_v15_Encode( const unsigned char *hash,
 }
 
 /*-----------------------------------------------------------*/
+
+void PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
+                                            uint8_t * pxMbedSignature )
+{
+    /* Reconstruct the signature in PKCS #11 format. */
+    uint8_t * pxNextLength;
+    uint8_t ucSigComponentLength = pxMbedSignature[ 3 ];
+
+    memset( pxSignaturePKCS, 0, 64 );
+
+    /* R Component. */
+    if( ucSigComponentLength == 33 )
+    {
+        memcpy( pxSignaturePKCS, &pxMbedSignature[ 5 ], 32 ); /* Chop off the leading zero. */
+        pxNextLength = pxMbedSignature + 5 /* Sequence, length, integer, length, leading zero */ + 32 /*(R) */ + 1 /*(S's integer tag) */;
+    }
+    else
+    {
+        memcpy( &pxSignaturePKCS[ 32 - ucSigComponentLength ], &pxMbedSignature[ 4 ], ucSigComponentLength );
+        pxNextLength = pxMbedSignature + 4 + ucSigComponentLength + 1;
+    }
+
+    /* S Component. */
+    ucSigComponentLength = pxNextLength[ 0 ];
+
+    if( ucSigComponentLength == 33 )
+    {
+        memcpy( &pxSignaturePKCS[ 32 ], &pxNextLength[ 2 ], 32 ); /* Skip leading zero. */
+    }
+    else
+    {
+        memcpy( &pxSignaturePKCS[ 64 - ucSigComponentLength ], &pxNextLength[ 1 ], ucSigComponentLength );
+    }
+}

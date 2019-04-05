@@ -1752,7 +1752,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
     {
         xKeyType = mbedtls_pk_get_type( &pxSession->xSignKey );
 
-        if( pxMechanism->mechanism == CKM_RSA_X_509 )
+        if( pxMechanism->mechanism == CKM_RSA_PKCS )
         {
             if( xKeyType != MBEDTLS_PK_RSA )
             {
@@ -1844,10 +1844,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     {
         /* Update the signature lenght. */
 
-        if( pxSessionObj->xSignMechanism == CKM_RSA_X_509 )
+        if( pxSessionObj->xSignMechanism == CKM_RSA_PKCS )
         {
             xSignatureLength = pkcs11RSA_2048_SIGNATURE_LENGTH;
-            xExpectedInputLength = pkcs11RSA_2048_SIGNATURE_LENGTH;
+            xExpectedInputLength = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
         }
         else if( pxSessionObj->xSignMechanism == CKM_ECDSA )
         {
@@ -1891,7 +1891,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                 if( pdTRUE == xSemaphoreTake( pxSessionObj->xSignMutex, portMAX_DELAY ) )
                 {
                     lMbedTLSResult = mbedtls_pk_sign( &pxSessionObj->xSignKey,
-                                                      MBEDTLS_MD_SHA256,
+                                                      MBEDTLS_MD_NONE,
                                                       pucData,
                                                       ulDataLen,
                                                       pxSignatureBuffer,

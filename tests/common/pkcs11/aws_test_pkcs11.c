@@ -339,6 +339,7 @@ void prvAfterRunningTests( void )
     /* Re-provision the device with default RSA certs so that subsequent tests are not changed. */
     vDevModeKeyProvisioning();
     xCurrentCredentials = eClientCredential;
+    pxGlobalFunctionList->C_Initialize( NULL );
 }
 
 
@@ -1117,28 +1118,26 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0 };
     CK_BYTE xSignature[ RSA_SIGNATURE_SIZE ] = { 0 };
     CK_ULONG xSignatureLength;
-    CK_BYTE xPaddedHash[ RSA_SIGNATURE_SIZE ] = { 0 };
     CK_BYTE xModulus[ RSA_SIGNATURE_SIZE ] = { 0 };
     unsigned int ulModulusLength = 0;
     CK_BYTE xExponent[ 4 ] = { 0 };
+    CK_BYTE xHashPlusOid[ pkcs11RSA_SIGNATURE_INPUT_LENGTH ];
     unsigned int ulExponentLength = 0;
 
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
 
     CK_ATTRIBUTE xTemplate;
-
-    xResult = PKI_RSA_RSASSA_PKCS1_v15_Encode( xHashedMessage, RSA_SIGNATURE_SIZE, xPaddedHash );
-    TEST_ASSERT_EQUAL( CKR_OK, xResult );
+    RSA_PKCS1_SHA256_HashOidSequenceFaker( xHashedMessage, xHashPlusOid );
 
     /* The RSA X.509 mechanism assumes a pre-hashed input. */
-    xMechanism.mechanism = CKM_RSA_X_509;
+    xMechanism.mechanism = CKM_RSA_PKCS;
     xMechanism.pParameter = NULL;
     xMechanism.ulParameterLen = 0;
     xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit RSA." );
 
-    xSignatureLength = sizeof( xSignature );
-    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xPaddedHash, RSA_SIGNATURE_SIZE, xSignature, &xSignatureLength );
+    xSignatureLength = sizeof( xSignature );    
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashPlusOid, sizeof(xHashPlusOid), xSignature, &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to RSA Sign." );
 
     /* Verify the signature with mbedTLS */
@@ -1625,7 +1624,7 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     mbedtls_entropy_free( &xEntropyContext );
 
     /* Reconstruct the signature in PKCS #11 format. */
-    xMbedTLSSignatureToPkcs11Signature( xSignaturePKCS,
+    PKI_mbedTLSSignatureToPkcs11Signature( xSignaturePKCS,
                                         xSignature );
 
     /* Verify with PKCS #11. */

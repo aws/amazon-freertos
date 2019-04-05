@@ -16,7 +16,7 @@ typedef struct SearchableAttributes_t
 } SearchableAttributes_t;
 
 
-void xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
+void PKI_mbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
                                          uint8_t * pxMbedSignature );
 
 #endif /* AWS_PKCS11_MBEDTLS include guard. */
