@@ -111,6 +111,7 @@ COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/extra
 
 # Define the board to pass the SOCKETS_Socket_InvalidTooManySockets test.
 CFLAGS += -DIOT_CONFIG_FILE="\"iot_test_config.h\""
+CFLAGS += -DESP32
 
 tests/common/secure_sockets/aws_test_tcp.o: CFLAGS+=-Wno-uninitialized
 tests/common/wifi/aws_test_wifi.o: CFLAGS+=-Wno-uninitialized
