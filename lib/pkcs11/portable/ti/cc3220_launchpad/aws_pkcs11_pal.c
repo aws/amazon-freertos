@@ -39,6 +39,7 @@
 #include "aws_clientcredential.h"
 #include "aws_secure_sockets_config.h"
 #include "aws_pkcs11_config.h"
+#include "aws_pkcs11_pal.h"
 
 /* flash driver includes. */
 #include <ti/drivers/net/wifi/simplelink.h>
@@ -52,33 +53,16 @@
 #include "mbedtls/base64.h"
 #include "mbedtls/platform.h"
 
-
-/**
- * @brief Cryptoki module attribute definitions.
- */
-#define pkcs11SLOT_ID    1
-
-/**
- * @brief Key structure.
- */
-typedef struct P11Key
+enum eObjectHandles
 {
-    /* IAR complains about the empty structure. */
-    uint8_t ucFakeValue;
-} P11Key_t, * P11KeyPtr_t;
-
-/**
- * @brief Session structure.
- */
-typedef struct P11Session
-{
-    P11KeyPtr_t pxCurrentKey;
-    CK_ULONG ulState;
-    CK_BBOOL xOpened;
-    CK_BBOOL xFindObjectInit;
-    CK_BBOOL xFindObjectComplete;
-    CK_OBJECT_CLASS xFindObjectClass;
-} P11Session_t, * P11SessionPtr_t;
+    eInvalidHandle = 0, /* According to PKCS #11 spec, 0 is never a valid object handle. */
+    eAwsDevicePrivateKey = 1,
+    eAwsDevicePublicKey,
+    eAwsDeviceCertificate,
+    eAwsCodeSigningKey,
+    eAwsTrustedServerCertificate,
+    eAwsJITPCertificate
+};
 
 /**
  * @brief Save file to flash
@@ -86,14 +70,6 @@ typedef struct P11Session
 static BaseType_t prvSaveFile( char * pcFileName,
                                char * pucData,
                                uint32_t ulDataSize );
-
-/**
- * @brief Maps an opaque caller session handle into its internal state structure.
- */
-static P11SessionPtr_t prvSessionPointerFromHandle( CK_SESSION_HANDLE xSession )
-{
-    return ( P11SessionPtr_t ) xSession; /*lint !e923 Allow casting integer type to pointer for handle. */
-}
 
 /*-----------------------------------------------------------*/
 
@@ -142,23 +118,6 @@ static BaseType_t prvSaveFile( char * pcFileName,
 
     return xResult;
 }
-
-/**
- * @brief Implements libc calloc semantics using the FreeRTOS heap
- */
-static void * prvCalloc( size_t xNmemb,
-                         size_t xSize )
-{
-    void * pvNew = pvPortMalloc( xNmemb * xSize );
-
-    if( NULL != pvNew )
-    {
-        memset( pvNew, 0, xNmemb * xSize );
-    }
-
-    return pvNew;
-}
-
 
 #define BEGIN_EC_PRIVATE_KEY     "-----BEGIN EC PRIVATE KEY-----\n"
 #define END_EC_PRIVATE_KEY       "-----END EC PRIVATE KEY-----\n"
@@ -353,6 +312,225 @@ static CK_RV prvDerToPem( uint8_t * pDerBuffer,
     return xReturn;
 }
 
+void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
+                          char ** pcFileName )
+{
+    switch( pxHandle )
+    {
+        case ( eAwsDeviceCertificate ):
+            *pcFileName = socketsconfigSECURE_FILE_NAME_CLIENTCERT;
+            break;
+
+        case ( eAwsDevicePrivateKey ):
+            *pcFileName = socketsconfigSECURE_FILE_NAME_PRIVATEKEY;
+            break;
+
+        case ( eAwsTrustedServerCertificate ):
+            *pcFileName = socketsconfigSECURE_FILE_NAME_ROOTCA;
+            break;
+
+        default:
+            *pcFileName = NULL;
+            break;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/* PKCS #11 PAL Implementation. */
+
+/**
+ * @brief Delete an object from non-volatile storage.
+ *
+ * @param[in] xHandle    Handle of the object to be destroyed.
+ *
+ * @return CKR_OK if object was successfully destroyed.
+ * Otherwise, PKCS #11-style error code.
+ *
+ */
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+{
+    char * pcFileName;
+    CK_RV xResult;
+
+    prvHandleToFileName( xHandle, &pcFileName );
+
+    if( 0 == sl_FsDel( ( const unsigned char * )pcFileName, 0 ) )
+    {
+        xResult = CKR_OK;
+    }
+    else
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
+    }
+
+    return xResult;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Translates a PKCS #11 label into an object handle.
+ *
+ * Port-specific object handle retrieval.
+ *
+ *
+ * @param[in] pxTemplate     Pointer to the template of the object
+ *                           who's handle should be found.
+ * @param[in] usLength       The length of the label, in bytes.
+ *
+ * @return The object handle if operation was successful.
+ * Returns eInvalidHandle if unsuccessful.
+ */
+
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
+{
+    CK_OBJECT_HANDLE xHandle = eInvalidHandle;
+    char * pcFileName = NULL;
+    int16_t iStatus = 0;
+    SlFsFileInfo_t FsFileInfo = { 0 };
+
+    /* Converts a label to its respective filename and handle. */
+    prvLabelToFilenameHandle( pxTemplate->cLabel,
+                              &pcFileName,
+                              &xHandle );
+
+    /* Check if object exists/has been created before returning. */
+    iStatus = sl_FsGetInfo( ( const unsigned char * )pcFileName, 0, &FsFileInfo );
+    if( SL_ERROR_FS_FILE_NOT_EXISTS == iStatus )
+    {
+        xHandle = eInvalidHandle;
+    }
+
+    return xHandle;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Gets the value of an object in storage, by handle.
+ *
+ * Port-specific file access for cryptographic information.
+ *
+ * This call dynamically allocates the buffer which object value
+ * data is copied into.  PKCS11_PAL_GetObjectValueCleanup()
+ * should be called after each use to free the dynamically allocated
+ * buffer.
+ *
+ * @sa PKCS11_PAL_GetObjectValueCleanup
+ *
+ * @param[in] pcFileName    The name of the file to be read.
+ * @param[out] ppucData     Pointer to buffer for file data.
+ * @param[out] pulDataSize  Size (in bytes) of data located in file.
+ * @param[out] pIsPrivate   Boolean indicating if value is private (CK_TRUE)
+ *                          or exportable (CK_FALSE)
+ *
+ * @return CKR_OK if operation was successful.  CKR_KEY_HANDLE_INVALID if
+ * no such object handle was found, CKR_DEVICE_MEMORY if memory for
+ * buffer could not be allocated, CKR_FUNCTION_FAILED for device driver
+ * error.
+ */
+BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+                                      uint8_t ** ppucData,
+                                      uint32_t * pulDataSize,
+                                      CK_BBOOL * xIsPrivate )
+{
+    CK_RV ulReturn = CKR_OK;
+    uint32_t ulDriverReturn = 0;
+    int32_t iReadBytes = 0;
+    int32_t iFile = 0;
+    char * pcFileName = NULL;
+    SlFsFileInfo_t FsFileInfo = { 0 };
+
+    prvHandleToFileName( xHandle, &pcFileName );
+
+    if( xHandle == eAwsDevicePrivateKey )
+    {
+        *pIsPrivate = CK_TRUE;
+    }
+    else
+    {
+        *pIsPrivate = CK_FALSE;
+    }
+
+    if( pcFileName == NULL )
+    {
+        ulReturn = CKR_FUNCTION_FAILED;
+    }
+
+    if( 0 == ulReturn )
+    {
+        /* Check if the file exists and, if so, how big it is. */
+        if( 0 != sl_FsGetInfo( ( const unsigned char * )pcFileName, 0, &FsFileInfo ) )
+        {
+            ulReturn = CKR_FUNCTION_FAILED;
+        }
+    }
+
+    if( 0 == ulReturn )
+    {
+        /* Create a buffer. */
+        *pulDataSize = FsFileInfo.Len;
+        *ppucData = pvPortMalloc( *pulDataSize );
+        if( NULL == *ppucData )
+        {
+            ulReturn = CKR_DEVICE_MEMORY;
+        }
+    }
+
+    if( 0 == ulReturn )
+    {
+        /* Open the file. */
+        iFile = sl_FsOpen( ( const unsigned char * )pcFileName, SL_FS_READ, 0 );
+        if( iFile < 0 )
+        {
+            ulReturn = CKR_FUNCTION_FAILED;
+        }
+    }
+
+    if( 0 == ulReturn )
+    {
+        /* Read the file. */
+        iReadBytes = sl_FsRead( iFile, 0, *ppucData, *pulDataSize );
+        if( iReadBytes != *pulDataSize )
+        {
+            ulReturn = CKR_FUNCTION_FAILED;
+        }
+    }
+
+    if( 0 != iFile )
+    {
+        sl_FsClose( iFile, 0, 0 );
+    }
+
+    return ( BaseType_t )ulReturn;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Cleanup after PKCS11_GetObjectValue().
+ *
+ * @param[in] pucData       The buffer to free.
+ *                          (*ppucData from PKCS11_PAL_GetObjectValue())
+ * @param[in] ulDataSize    The length of the buffer to free.
+ *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
+ */
+void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
+                                       uint32_t ulDataSize )
+{
+    /* Unused parameters. */
+    ( void ) ulDataSize;
+
+    if( NULL != pucData )
+    {
+        vPortFree( pucData );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+#if 0
 /*
  * PKCS#11 module implementation.
  */
@@ -764,3 +942,4 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
      */
     return CKR_OK;
 }
+#endif

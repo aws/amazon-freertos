@@ -256,13 +256,14 @@ CK_RV xCreateSearchableAttributeTemplate( SearchableAttributes_t * pxFindObjectI
                                           CK_ULONG ulCount )
 {
     CK_RV xResult = CKR_OK;
+    uint32_t iAttr = 0;
 
     /* Unpack provided template and store information serially. */
     if( xResult == CKR_OK )
     {
-        for( uint32_t i = 0; i < ulCount; i++ )
+        for( ; iAttr < ulCount; iAttr++ )
         {
-            CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+            CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
             switch( xAttribute.type ) /* TODO: Are we concerned about a template with the same attribute in it twice? */
             {
@@ -593,11 +594,12 @@ CK_RV prvCreateCertificate( SearchableAttributes_t * pxSearchable,
     CK_RV xResult = CKR_OK;
     CK_BYTE_PTR pxCertificateValue = NULL;
     CK_ULONG xCertificateLength = 0;
+    uint32_t iAttr = 0;
 
     /* Search for the pointer to the certificate VALUE. */
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         if( xAttribute.type == CKA_VALUE )
         {
@@ -630,10 +632,11 @@ CK_KEY_TYPE prvGetKeyType( CK_ATTRIBUTE_PTR pxTemplate,
                            CK_ULONG ulCount )
 {
     CK_KEY_TYPE xKeyType = PKCS11_INVALID_KEY_TYPE;
+    uint32_t iAttr = 0;
 
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         if( xAttribute.type == CKA_KEY_TYPE )
         {
@@ -655,6 +658,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
     int lMbedReturn;
     /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
     mbedtls_ecp_keypair * pxKeyPair;
+    uint32_t iAttr = 0;
 
     pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
     mbedtls_ecp_keypair_init( pxKeyPair );
@@ -663,9 +667,9 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
     /* At this time, only P-256 curves are supported. */
     mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
 
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -722,6 +726,7 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     mbedtls_rsa_context * pxRsaContext;
     int lMbedReturn = 0;
     CK_BBOOL xBool;
+    uint32_t iAttr = 0;
 
     pxRsaContext = pxMbedContext->pk_ctx;
     mbedtls_rsa_init( pxRsaContext, MBEDTLS_RSA_PKCS_V15, 0 /*ignored.*/ );
@@ -729,9 +734,9 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     /* Get the memory management of this context right in the morning. */
 
     /* Parse template and collect the relevant parts. */
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -935,6 +940,7 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
     /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
     mbedtls_ecp_keypair * pxKeyPair;
     CK_BBOOL xBool;
+    uint32_t iAttr = 0;
 
     pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
     mbedtls_ecp_keypair_init( pxKeyPair );
@@ -943,9 +949,9 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
     /* At this time, only P-256 curves are supported. */
     mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
 
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -1083,12 +1089,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
-    void * pvContext = NULL;
-    int32_t lMbedTLSParseResult = ~0;
-    PKCS11_KeyTemplatePtr_t pxKeyTemplate = NULL;
     SearchableAttributes_t xSearchable = { 0 };
-    PKCS11_CertificateTemplatePtr_t pxCertificateTemplate = NULL;
-    CK_ATTRIBUTE_PTR pxObjectClassAttribute = pxTemplate;
 
     /* Avoid warnings about unused parameters. */
     ( void ) xSession;
@@ -2203,14 +2204,15 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( SearchableAttributes_t * pxSearcha
     CK_RV xResult = CKR_OK;
     CK_BBOOL xBool;
     CK_ULONG xTemp;
+    CK_ULONG iAttr = 0;
 
     memset( pxSearchable, 0, sizeof( SearchableAttributes_t ) );
 
     /* TODO: Check the rest of the parameters.
      * TODO: Check that all required parameters are there. */
-    for( CK_ULONG i = 0; i < ulTemplateLength; i++ )
+    for( ; iAttr < ulTemplateLength; iAttr++ )
     {
-        xAttribute = pxTemplate[ i ];
+        xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -2298,14 +2300,15 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( SearchableAttributes_t * pxSearchab
     CK_KEY_TYPE xKeyType;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
     int lCompare;
+    CK_ULONG iAttr = 0;
 
     memset( pxSearchable, 0, sizeof( SearchableAttributes_t ) );
 
     /* TODO: Check the rest of the parameters.
      * TODO: Check that all required parameters are there. */
-    for( CK_ULONG i = 0; i < ulTemplateLength; i++ )
+    for( ; iAttr < ulTemplateLength; iAttr++ )
     {
-        xAttribute = pxTemplate[ i ];
+        xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
