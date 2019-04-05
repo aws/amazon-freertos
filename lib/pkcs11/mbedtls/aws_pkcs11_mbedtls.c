@@ -271,11 +271,13 @@ CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
                          CK_OBJECT_CLASS * pxClass )
 {
     CK_RV xResult = CKR_TEMPLATE_INCOMPLETE;
+    uint32_t i = 0;
+    CK_ATTRIBUTE xAttribute;
 
     /* Search template for class attribute. */
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; i < ulCount; i++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        xAttribute = pxTemplate[ i ];
 
         if( xAttribute.type == CKA_CLASS )
         {
@@ -346,12 +348,13 @@ CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xHandle )
 {
     CK_RV xResult = CKR_OK;
     BaseType_t xGotSemaphore;
-
+    uint8_t i = 0;
+    
     xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
 
     if( xGotSemaphore == pdTRUE )
     {
-        for( uint8_t i = 0; i < pkcs11configMAX_NUM_OBJECTS; i++ )
+        for( ; i < pkcs11configMAX_NUM_OBJECTS; i++ )
         {
             if( xP11Context.xObjectList.xObjects[ i ].xHandle == xHandle )
             {
@@ -373,14 +376,14 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xHandle, uint8_t * pcLabel, size_t xL
 {
     CK_RV xResult = CKR_OK;
     BaseType_t xGotSemaphore;
-
+    int i= pkcs11configMAX_NUM_OBJECTS;
     CK_BBOOL xObjectFound = CK_FALSE;
     int lIndex = -1;
 
     xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
     if ( xGotSemaphore == pdTRUE )
     {
-        for ( int i= pkcs11configMAX_NUM_OBJECTS; i >= 0; i-- )
+        for ( ; i >= 0; i-- )
         {
             if ( xP11Context.xObjectList.xObjects[ i ].xHandle == xHandle )
             {
@@ -390,7 +393,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xHandle, uint8_t * pcLabel, size_t xL
             }
             else if ( xP11Context.xObjectList.xObjects[ i ].xHandle == CK_INVALID_HANDLE )
             {
-                if ( lIndex = -1 )
+                if ( lIndex == -1 )
                 {
                     lIndex = i;
                 }
@@ -736,12 +739,12 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
     CK_ULONG xCertificateLength = 0;
     CK_ATTRIBUTE_PTR pxLabel = NULL;
     CK_CERTIFICATE_TYPE xCertificateType = 0; /* = CKC_X_509; */
-
+    uint32_t iAttr = 0;
 
     /* Search for the pointer to the certificate VALUE. */
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -753,7 +756,7 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
             case ( CKA_LABEL ):
                 if ( xAttribute.ulValueLen < pkcs11configMAX_LABEL_LENGTH )
                 {
-                    pxLabel = &pxTemplate[ i ];
+                    pxLabel = &pxTemplate[ iAttr ];
                 }
                 else
                 {
@@ -814,10 +817,11 @@ CK_KEY_TYPE prvGetKeyType( CK_ATTRIBUTE_PTR pxTemplate,
                            CK_ULONG ulCount )
 {
     CK_KEY_TYPE xKeyType = PKCS11_INVALID_KEY_TYPE;
+    uint32_t iAttr = 0;
 
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         if( xAttribute.type == CKA_KEY_TYPE )
         {
@@ -839,6 +843,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
     int lMbedReturn;
     /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
     mbedtls_ecp_keypair * pxKeyPair;
+    uint32_t iAttr = 0;
 
     pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
     mbedtls_ecp_keypair_init( pxKeyPair );
@@ -847,9 +852,9 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
     /* At this time, only P-256 curves are supported. */
     mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
 
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -915,6 +920,7 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     mbedtls_rsa_context * pxRsaContext;
     int lMbedReturn = 0;
     CK_BBOOL xBool;
+    uint32_t iAttr = 0;
 
     *ppxLabel = NULL;
     pxRsaContext = pxMbedContext->pk_ctx;
@@ -923,9 +929,9 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     /* Get the memory management of this context right in the morning. */
 
     /* Parse template and collect the relevant parts. */
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -1143,6 +1149,7 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
     /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
     mbedtls_ecp_keypair * pxKeyPair;
     CK_BBOOL xBool;
+    uint32_t iAttr = 0;
 
     pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
     mbedtls_ecp_keypair_init( pxKeyPair );
@@ -1151,9 +1158,9 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
     /* At this time, only P-256 curves are supported. */
     mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
 
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+        CK_ATTRIBUTE xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -2449,13 +2456,14 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
     CK_RV xResult = CKR_OK;
     CK_BBOOL xBool;
     CK_ULONG xTemp;
+    CK_ULONG iAttr = 0;
 
 
     /* TODO: Check the rest of the parameters.
      * TODO: Check that all required parameters are there. */
-    for( CK_ULONG i = 0; i < ulTemplateLength; i++ )
+    for( ; iAttr < ulTemplateLength; iAttr++ )
     {
-        xAttribute = pxTemplate[ i ];
+        xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {
@@ -2526,12 +2534,13 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
     CK_KEY_TYPE xKeyType;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
     int lCompare;
+    CK_ULONG iAttr = 0;
 
     /* TODO: Check the rest of the parameters.
      * TODO: Check that all required parameters are there. */
-    for( CK_ULONG i = 0; i < ulTemplateLength; i++ )
+    for( ; iAttr < ulTemplateLength; iAttr++ )
     {
-        xAttribute = pxTemplate[ i ];
+        xAttribute = pxTemplate[ iAttr ];
 
         switch( xAttribute.type )
         {

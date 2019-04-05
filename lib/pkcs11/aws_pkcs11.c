@@ -8,6 +8,7 @@
 /* C runtime includes. */
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 /*-----------------------------------------------------------*/
 
@@ -153,7 +154,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
         vPortFree( pxSlotId );
     }
 
-    if( xResult == CKR_OK )
+    if( xResult == CKR_OK && pxFunctionList->C_Login != NULL )
     {
         xResult = pxFunctionList->C_Login( *pxSession,
                                            CKU_USER,
