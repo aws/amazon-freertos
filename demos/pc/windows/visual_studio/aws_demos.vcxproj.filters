@@ -696,6 +696,15 @@
     <ClCompile Include="..\..\..\..\lib\metrics\aws_secure_sockets_wrapper_metrics.c">
       <Filter>lib\aws\metrics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\common\ota\aws_iot_ota_update_demo.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\network_manager\aws_iot_demo_network.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\network_manager\aws_iot_network_manager.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\FreeRTOS-Plus-TCP\include\FreeRTOS_ARP.h">
