@@ -591,7 +591,23 @@ WIFIReturnCode_t WIFI_GetMAC( uint8_t * pucMac )
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSem, xSemaphoreWaitTicks ) == pdTRUE )
     {
-        esp_err_t ret = esp_wifi_get_mac(WIFI_MODE_STA, pucMac);
+        wifi_mode_t mode;
+        esp_err_t ret = esp_wifi_get_mode(&mode);
+        if( ret == ESP_OK )
+        {
+            if( mode == WIFI_MODE_STA )
+            {
+                ret = esp_wifi_get_mac(WIFI_IF_STA, pucMac);
+            }
+            else if( mode == WIFI_MODE_AP )
+            {
+                ret = esp_wifi_get_mac(WIFI_IF_AP, pucMac);
+            }
+            else
+            {
+                ret = ESP_ERR_INVALID_ARG;
+            }
+        }
         xRetVal = (ret == ESP_OK) ? eWiFiSuccess : eWiFiFailure;
         /* Return the semaphore. */
         xSemaphoreGive( xWiFiSem );
