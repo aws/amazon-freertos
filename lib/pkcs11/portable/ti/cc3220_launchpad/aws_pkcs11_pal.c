@@ -39,6 +39,7 @@
 #include "aws_clientcredential.h"
 #include "aws_secure_sockets_config.h"
 #include "aws_pkcs11_config.h"
+#include "aws_pkcs11_mbedtls.h"
 #include "aws_pkcs11_pal.h"
 
 /* flash driver includes. */
@@ -118,6 +119,8 @@ static BaseType_t prvSaveFile( char * pcFileName,
 
     return xResult;
 }
+
+/*-----------------------------------------------------------*/
 
 #define BEGIN_EC_PRIVATE_KEY     "-----BEGIN EC PRIVATE KEY-----\n"
 #define END_EC_PRIVATE_KEY       "-----END EC PRIVATE KEY-----\n"
@@ -312,6 +315,47 @@ static CK_RV prvDerToPem( uint8_t * pDerBuffer,
     return xReturn;
 }
 
+/*-----------------------------------------------------------*/
+
+/* Converts a label to its respective filename and handle. */
+void prvLabelToFilenameHandle( uint8_t * pcLabel,
+                               char ** pcFileName,
+                               CK_OBJECT_HANDLE_PTR pHandle )
+{
+    if( pcLabel != NULL )
+    {
+        /* Translate from the PKCS#11 label to local storage file name. */
+        if( 0 == memcmp( pcLabel,
+                         &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                         sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+        {
+            *pcFileName = socketsconfigSECURE_FILE_NAME_CLIENTCERT;
+            *pHandle = eAwsDeviceCertificate;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                              sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+        {
+            *pcFileName = socketsconfigSECURE_FILE_NAME_PRIVATEKEY;
+            *pHandle = eAwsDevicePrivateKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_ROOT_CERTIFICATE,
+                              sizeof( pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
+        {
+            *pcFileName = socketsconfigSECURE_FILE_NAME_ROOTCA;
+            *pHandle = eAwsTrustedServerCertificate;
+        }
+        else
+        {
+            *pcFileName = NULL;
+            *pHandle = eInvalidHandle;
+        }
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
                           char ** pcFileName )
 {
@@ -436,7 +480,6 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                       CK_BBOOL * xIsPrivate )
 {
     CK_RV ulReturn = CKR_OK;
-    uint32_t ulDriverReturn = 0;
     int32_t iReadBytes = 0;
     int32_t iFile = 0;
     char * pcFileName = NULL;
@@ -446,11 +489,11 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     if( xHandle == eAwsDevicePrivateKey )
     {
-        *pIsPrivate = CK_TRUE;
+        *xIsPrivate = CK_TRUE;
     }
     else
     {
-        *pIsPrivate = CK_FALSE;
+        *xIsPrivate = CK_FALSE;
     }
 
     if( pcFileName == NULL )
@@ -500,7 +543,7 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     if( 0 != iFile )
     {
-        sl_FsClose( iFile, 0, 0 );
+        sl_FsClose( iFile, NULL, NULL, 0 );
     }
 
     return ( BaseType_t )ulReturn;
@@ -526,6 +569,43 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
     {
         vPortFree( pucData );
     }
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Saves an object in non-volatile storage.
+ *
+ * Port-specific file write for cryptographic information.
+ *
+ * @param[in] pxTemplate    Structure containing searchable attributes.
+ * @param[in] pucData       The object data to be saved
+ * @param[in] pulDataSize   Size (in bytes) of object data.
+ *
+ * @return The object handle if successful.
+ * eInvalidHandle = 0 if unsuccessful.
+ */
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
+                                        uint8_t * pucData,
+                                        uint32_t ulDataSize )
+{
+    char * pcFileName = NULL;
+    CK_OBJECT_HANDLE xHandle = eInvalidHandle;
+
+    /* Converts a label to its respective filename and handle. */
+    prvLabelToFilenameHandle( pxTemplate->cLabel,
+                              &pcFileName,
+                              &xHandle );
+
+    if( pcFileName != NULL )
+    {
+        if( pdFALSE == prvSaveFile( pcFileName, pucData, ulDataSize ) )
+        {
+            xHandle = eInvalidHandle;
+        }
+    }
+
+    return xHandle;
 }
 
 /*-----------------------------------------------------------*/

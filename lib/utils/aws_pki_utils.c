@@ -25,6 +25,10 @@
 #include "FreeRTOS.h"
 #include "aws_pki_utils.h"
 
+/* CRT includes. */
+#include <stdio.h>
+#include <string.h>
+
 /* mbedTLS include. */
 #include "mbedtls/base64.h"
 #include "mbedtls/md.h"
