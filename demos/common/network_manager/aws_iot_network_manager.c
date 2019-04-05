@@ -355,11 +355,11 @@ static bool _wifiConnectAccessPoint( void )
     bool ret = true;
     static const WIFINetworkParams_t network =
     {
-        .pcSSID           = clientcredentialWIFI_SSID;
-        .ucSSIDLength     = sizeof(clientcredentialWIFI_SSID);
-        .pcPassword       = clientcredentialWIFI_PASSWORD;
-        .ucPasswordLength = sizeof(clientcredentialWIFI_PASSWORD);
-        .xSecurity        = clientcredentialWIFI_SECURITY;
+        .pcSSID           = clientcredentialWIFI_SSID,
+        .ucSSIDLength     = sizeof(clientcredentialWIFI_SSID),
+        .pcPassword       = clientcredentialWIFI_PASSWORD,
+        .ucPasswordLength = sizeof(clientcredentialWIFI_PASSWORD),
+        .xSecurity        = clientcredentialWIFI_SECURITY
     };
 
     /* Setup parameters. */

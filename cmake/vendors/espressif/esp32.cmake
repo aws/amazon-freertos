@@ -1,20 +1,3 @@
-cmake_minimum_required(VERSION 3.13)
-
-# -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS Console metadata
-# -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(NAME "ESP32 DevKitC / WroverKit")
-afr_set_board_metadata(DISPLAY_NAME "ESP32 Module")
-afr_set_board_metadata(DESCRIPTION "...")
-afr_set_board_metadata(VENDOR_NAME "Espressif Systems")
-afr_set_board_metadata(FAMILY_NAME "ESP32")
-afr_set_board_metadata(DATA_RAM_MEMORY "520KB")
-afr_set_board_metadata(PROGRAM_MEMORY "4MB")
-afr_set_board_metadata(CODE_SIGNER "...")
-afr_set_board_metadata(SUPPORTED_IDE "...")
-afr_set_board_metadata(IDE_SystemWorkbench_NAME "...")
-afr_set_board_metadata(IDE_SystemWorkbench_COMPILERS "...")
-
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
@@ -105,6 +88,7 @@ target_sources(
     INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/aws_pkcs11_pal.c"
 )
 
+# FreeRTOS Plus TCP
 afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
@@ -125,6 +109,14 @@ target_link_libraries(
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE "${AFR_MODULES_DIR}/secure_sockets/portable/freertos_plus_tcp/aws_secure_sockets.c"
+)
+
+# OTA
+# Need to get this validated
+afr_mcu_port(ota)
+target_sources(
+    AFR::ota::mcu_port
+    INTERFACE "${AFR_MODULES_DIR}/ota/portable/espressif/esp32_devkitc_esp_wrover_kit/aws_ota_pal.c"
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -149,6 +141,15 @@ target_link_libraries(
         AFR::wifi
         AFR::utils
 )
+
+if(AFR_NON_BUILD_MODE)
+    return()
+endif()
+
+
+# -------------------------------------------------------------------------------------------------
+# Additional build configurations
+# -------------------------------------------------------------------------------------------------
 
 set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
