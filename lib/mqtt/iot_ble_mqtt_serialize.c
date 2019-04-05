@@ -1021,7 +1021,7 @@ IotMqttError_t IotBleMqtt_DeserializePuback( _mqttPacket_t * pPuback )
     if ( ( error != IOT_SERIALIZER_SUCCESS )
             || ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        IotLogError( "Malformed PUBACK, decoding the packet failed, decoder error = %d", error );
+        IotLogError( "Malformed PUBACK, decoding the packet failed, decoder error = %d, object type: %d", error, decoderObj.type );
         ret = IOT_MQTT_BAD_RESPONSE;
     }
 
@@ -1045,7 +1045,7 @@ IotMqttError_t IotBleMqtt_DeserializePuback( _mqttPacket_t * pPuback )
 
     IOT_BLE_MESG_DECODER.destroy( &decoderObj );
 
-    return IOT_MQTT_SUCCESS;
+    return ret;
 
 }
 
