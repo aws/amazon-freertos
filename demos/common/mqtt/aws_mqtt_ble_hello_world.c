@@ -112,26 +112,39 @@
 #define _MESSAGE_INTERVAL_MS         ( 1000 )
 
 /**
- * @brief Delay between the retries of echo messages during publish timeout.
- */
-#define _MESSAGE_RETRY_DELAY_MS      ( 5000 )
-
-/**
- * @brief Number of retries during a timeout before which a connection is assumed dead.
+ * @brief Number of retries for a publish message before which a connection is assumed dead.
  */
 #define _MESSAGE_RETRIES             ( 3 )
 
 /**
- * @brief Timeout for an MQTT operation.
+ * @brief Delay between the retries for a publish message.
+ */
+#define _MESSAGE_RETRY_DELAY_MS      ( 5000 )
+
+/**
+ * @brief Timeout for any MQTT operation.
  */
 #define _MQTT_TIMEOUT_MS             ( 5000 )
 
-#define _CLIENT_IDENTIFIER_MAX_LENGTH             ( 32 )
-
-#define _KEEP_ALIVE_SECONDS                       ( 60 )
-
+/**
+ * @brief Prefix used to generate a unique client Identifier for an Mqtt connection.
+ */ 
 #define _CLIENT_IDENTIFIER_PREFIX                 "mqttEcho"
 
+/**
+ * @brief Maximum length for the Mqtt client identifier ( including the prefix and the unique ID ).
+ */ 
+#define _CLIENT_IDENTIFIER_MAX_LENGTH             ( 24 )
+
+/**
+ * @brief Keep alive interval for Mqtt connection. The value is used
+ * only if awsIotMqttMode is set to true.
+ */ 
+#define _KEEP_ALIVE_SECONDS                       ( 60 )
+
+/**
+ * @brief Number of topic filter subscriptions made by the demo.
+ */ 
 #define _TOPIC_FILTER_COUNT                       ( 1 )
 
 /* -------------------------------------------------------------------------------------------- */
@@ -163,19 +176,23 @@ static int _establishMqttConnection( bool awsIotMqttMode,
  */
 static IotMqttError_t _publishMqttMessage( const char* pMessage, size_t messageLength );
 
-/**
- * @brief MQTT connection used to send/receive MQTT messages.
- */
-static IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+
 
 /**
  * @brief Used by the MQTT publish task to wait for a connection before publishing the messages.
  */
-static IotSemaphore_t connectionSemaphore;
+static IotSemaphore_t networkSemaphore;
+
 /**
- * @brief Variable used to denote that mqtt is connected.
+ * @brief Variable used to denote if an active network is connected. At startup its assumed network is always connected.
  */
-static bool mqttConnected = false;
+static bool networkConnected = true;
+
+
+/**
+ * @brief An active MQTT connection used to send/receive MQTT messages.
+ */
+static IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
 /*------------------------------------------------------------------------------------*/
 
@@ -316,10 +333,10 @@ static int _establishMqttConnection( bool awsIotMqttMode,
                     connectInfo.pClientIdentifier,
                     connectInfo.clientIdentifierLength );
 
-        mqttStatus = IotMqtt_Connect( &networkInfo,
-                                         &connectInfo,
-                                         _MQTT_TIMEOUT_MS,
-                                         pMqttConnection );
+        mqttStatus = IotMqtt_Connect(&networkInfo,
+                                     &connectInfo,
+                                     _MQTT_TIMEOUT_MS,
+                                     pMqttConnection);
 
         if( mqttStatus != IOT_MQTT_SUCCESS )
         {
@@ -364,17 +381,22 @@ void BleMqttEchoDemoOnNetworkConnected(bool awsIotMqttMode,
                                        void *pNetworkCredentialInfo,
                                        const IotNetworkInterface_t *pNetworkInterface)
 {
-    if( !mqttConnected )
+    int status;
+    if( !networkConnected )
     {
-        mqttConnected =
-            _establishMqttConnection(awsIotMqttMode,
-                                     pIdentifier,
-                                     pNetworkServerInfo,
-                                     pNetworkCredentialInfo,
-                                     pNetworkInterface,
-                                     &mqttConnection);
+        networkConnected = true;
+        status = _establishMqttConnection( awsIotMqttMode,
+                                                  pIdentifier,
+                                                  pNetworkServerInfo,
+                                                  pNetworkCredentialInfo,
+                                                  pNetworkInterface,
+                                                  &mqttConnection );
+        if( status != EXIT_SUCCESS )
+        {
+            mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+        }
 
-        IotSemaphore_Post( &connectionSemaphore );
+        IotSemaphore_Post( &networkSemaphore );
     }
 }
 
@@ -383,15 +405,14 @@ void BleMqttEchoDemoOnNetworkDisconnected( const IotNetworkInterface_t * pNetwor
 {
     ( void ) pNetworkInterface;
 
-    if( mqttConnected )
+    if( networkConnected )
     {
         if( mqttConnection != IOT_MQTT_CONNECTION_INITIALIZER )
         {
             IotMqtt_Disconnect(mqttConnection, 0);
             mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
         }
-        mqttConnected = false;
-        IotSemaphore_Wait( &connectionSemaphore );
+        networkConnected = false;
     }
 }
 
@@ -404,65 +425,67 @@ int RunBleMqttEchoDemo( bool awsIotMqttMode,
     uint32_t messageIdentifier = 1;
     char message[ _MESSAGE_LENGTH ];
     int32_t messageLength;
-    IotMqttError_t mqttRet;
+    IotMqttError_t mqttStatus;
     int ret = EXIT_SUCCESS;
 
      /* Create connection Semaphore to signal new connection from the network manager callback */
-    if( IotSemaphore_Create( &connectionSemaphore, 0, 1 ) != true )
+    if( IotSemaphore_Create( &networkSemaphore, 0, 1 ) != true )
     {
         ret = EXIT_FAILURE;
     }
 
     if( ret == EXIT_SUCCESS )
     {
-        mqttConnected = _establishMqttConnection(awsIotMqttMode,
-                                                 pIdentifier,
-                                                 pNetworkServerInfo,
-                                                 pNetworkCredentialInfo,
-                                                 pNetworkInterface,
-                                                 &mqttConnection);
+        ret = _establishMqttConnection(awsIotMqttMode,
+                                       pIdentifier,
+                                       pNetworkServerInfo,
+                                       pNetworkCredentialInfo,
+                                       pNetworkInterface,
+                                       &mqttConnection);
+    }
 
+    if( ret == EXIT_SUCCESS )
+    {
         for (;;)
         {
-            if (mqttConnected)
+            if( networkConnected )
             {
                 messageLength = snprintf(message,
                                          _MESSAGE_LENGTH,
                                          _MESSAGE,
                                          messageIdentifier);
 
-                if (messageLength > 0)
+                if( messageLength > 0 )
                 {
 
-                    mqttRet = _publishMqttMessage(message, messageLength);
-                    if (mqttRet == IOT_MQTT_SUCCESS)
+                    mqttStatus = _publishMqttMessage(message, messageLength);
+                    if (mqttStatus == IOT_MQTT_SUCCESS)
                     {
-                        IotLogInfo( "Sent message: %.*s", messageLength, message );
+                        IotLogInfo( "Sent ECHO message: %.*s", messageLength, message );
                         messageIdentifier++;
                     }
                     else
                     {
-                        IotLogError( "Failed to publish message to the broker, error = %d", mqttRet );
+                        IotLogError( "Failed to send ECHO message, error = %d", IotMqtt_strerror( mqttStatus ) );
                         ret = EXIT_FAILURE;
                         break;
                     }
                 }
                 else
                 {
-                    IotLogError("Failed to create new message for publish" );
+                    IotLogError("Failed to create ECHO message" );
                     ret = EXIT_FAILURE;
                     break;
                 }
             }
             else
             {
-                IotLogInfo("Waiting for a new connection.. ");
-                IotSemaphore_Wait(&connectionSemaphore);
+                IotLogInfo("Waiting for network to be connected.. ");
+                IotSemaphore_Wait( &networkSemaphore );
             }
         }
 
-        IotSemaphore_Destroy( &connectionSemaphore );
-
+        IotSemaphore_Destroy( &networkSemaphore );
         if( mqttConnection != IOT_MQTT_CONNECTION_INITIALIZER )
         {
             IotMqtt_Disconnect( mqttConnection, 0 );
