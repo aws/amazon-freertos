@@ -673,7 +673,12 @@ TEST_GROUP_RUNNER( MQTT_System )
     RUN_TEST_CASE( MQTT_System, SubscribePublishWaitQoS0 );
     RUN_TEST_CASE( MQTT_System, SubscribePublishWaitQoS1 );
     RUN_TEST_CASE( MQTT_System, SubscribePublishAsync );
+    /* This test is disabled for espressif because it requires two TLS connections.
+     * Those connections take too much memory.
+     */
+    #if !defined( ESP32 )
     RUN_TEST_CASE( MQTT_System, LastWillAndTestament );
+    #endif
     RUN_TEST_CASE( MQTT_System, RestorePreviousSession );
     RUN_TEST_CASE( MQTT_System, WaitAfterDisconnect );
     RUN_TEST_CASE( MQTT_System, SubscribeCompleteReentrancy );
