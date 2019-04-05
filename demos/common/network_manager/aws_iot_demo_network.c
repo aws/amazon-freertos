@@ -31,16 +31,13 @@
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"
 #include "aws_iot_demo_network.h"
-#include "iot_ble_mqtt.h"
 #include "platform/iot_network_afr.h"
 #include "private/iot_error.h"
 
 #if BLE_ENABLED
+
 #include "iot_ble_mqtt.h"
-#endif
 
-
-#if BLE_ENABLED
 /**
  * @brief Creates a network connection over BLE transport type to transfer MQTT messages.
  * @return true if the connection was created successfully
