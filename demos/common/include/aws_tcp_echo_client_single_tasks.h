@@ -32,7 +32,7 @@
  * Create the TCP echo client tasks.  This is the version where an echo request
  * is made from the same task that listens for the echo reply.
  */
-demoDECLARE_DEMO( vStartTCPEchoClientTasks_SingleTasks );
+
 BaseType_t xAreSingleTaskTCPEchoClientsStillRunning( void );
 
 #endif /* AWS_TCP_ECHO_CLIENT_SINGLE_TASKS_H */

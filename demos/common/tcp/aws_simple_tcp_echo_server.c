@@ -99,14 +99,14 @@ void vStartSimpleTCPServerTasks( void )
      * inside the listening task. */
     xTaskCreate( prvConnectionListeningTask,
                  "ServerListener",
-                 democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE,
+                 democonfigDEMO_STACKSIZE,
                  NULL,
-                 democonfigTCP_ECHO_SERVER_TASK_PRIORITY + 1,
+                 democonfigDEMO_PRIORITY + 1,
                  NULL );
 
     /* Remember the requested stack size so it can be re-used by the server
      * listening task when it creates tasks to handle connections. */
-    usUsedStackSize = democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE;
+    usUsedStackSize = democonfigDEMO_STACKSIZE;
 }
 /*-----------------------------------------------------------*/
 

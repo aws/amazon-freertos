@@ -104,9 +104,6 @@
 /* Maximum size of update JSON documents. */
 #define shadowDemoBUFFER_LENGTH              128
 
-/* Stack size for task that handles shadow delta and updates. */
-#define shadowDemoUPDATE_TASK_STACK_SIZE     ( ( uint16_t ) configMINIMAL_STACK_SIZE * ( uint16_t ) 5 )
-
 /* Maximum number of jsmn tokens. */
 #define shadowDemoMAX_TOKENS                 40
 

@@ -149,9 +149,9 @@ BaseType_t xWiFiConnectTaskInitialize( void )
         xRet = xTaskCreate(
                 prvWiFiConnectTask,
                 wifiConnectTASK_NAME,
-                democonfigWIFI_CONNECT_TASK_STACK_SIZE,
+                democonfigDEMO_STACKSIZE,
                 NULL,
-                democonfigWIFI_CONNECT_TASK_PRIORITY,
+                democonfigDEMO_PRIORITY,
                 &xWifiConnectionTask );
     }
     return xRet;

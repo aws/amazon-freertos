@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS V1.4.7
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,8 +23,21 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef _AWS_DEMO_RUNNER_H_
-#define _AWS_DEMO_RUNNER_H_
+#ifndef _IOT_DEMO_RUNNER_H_
+#define _IOT_DEMO_RUNNER_H_
+
+/* #define demoMQTTDemo_ENABLED */
+/* #define   democonfigSHADOW_DEMO_ENABLED */             
+#define   democonfigBLE_MQTT_ECHO_DEMO_ENABLED      
+/* #define   democonfigMQTT_SUB_PUB_ENABLED             */
+/* #define   democonfigGREENGRASS_DISCOVERY_ENABLED     */
+/* #define   democonfigTCP_ECHO_ENABLED                 */
+/* #define   democonfigOTA_UPDATE_ENABLED               */
+/* #define   democonfigTCP_ECHO_SERVER_ENABLED          */
+/* #define   democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED  */
+/* #define   democonfigMQTT_ECHO_ENABLED                */
+/* #define   democonfigWIFI_CONNECT_ENABLED             */
+
 
 void DEMO_RUNNER_RunDemos( void );
 

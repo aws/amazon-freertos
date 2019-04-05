@@ -86,9 +86,9 @@ void vStartDefenderDemo( void )
 {
     ( void ) xTaskCreate( _defenderTask,
                           "Defender Demo",
-                          democonfigDEFENDER_TASK_STACK_SIZE,
+                          democonfigDEMO_STACKSIZE,
                           NULL,
-                          democonfigDEFENDER_TASK_PRIORITY,
+                          democonfigDEMO_PRIORITY,
                           NULL );
 }
 

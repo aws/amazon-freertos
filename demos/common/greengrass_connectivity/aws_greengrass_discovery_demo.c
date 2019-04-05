@@ -226,8 +226,8 @@ void vStartGreenGrassDiscoveryTask( void )
 {
     ( void ) xTaskCreate( prvDiscoverGreenGrassCore,
                           "IoT_GGD",
-                          democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE,
+                          democonfigDEMO_STACKSIZE,
                           NULL,
-                          democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY,
+                          democonfigDEMO_PRIORITY,
                           NULL );
 }

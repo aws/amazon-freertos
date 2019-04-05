@@ -202,8 +202,8 @@ void vStartOTAUpdateDemoTask( void )
 {
     xTaskCreate( vOTAUpdateDemoTask,
                  "OTA",
-                 democonfigOTA_UPDATE_TASK_STACK_SIZE,
+                 democonfigDEMO_STACKSIZE,
                  NULL,
-                 democonfigOTA_UPDATE_TASK_TASK_PRIORITY,
+                 democonfigDEMO_PRIORITY,
                  NULL );
 }

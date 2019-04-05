@@ -152,23 +152,23 @@ static char cTxBuffers[ echoNUM_ECHO_CLIENTS ][ echoBUFFER_SIZES ],
 
 /*-----------------------------------------------------------*/
 
-void vStartTCPEchoClientTasks_SingleTasks( void )
-{
-    BaseType_t xX;
-    char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
+// void vStartTCPEchoClientTasks_SingleTasks( void )
+// {
+//     BaseType_t xX;
+//     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
 
-    /* Create the echo client tasks. */
-    for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
-    {
-        snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", xX );
-        xTaskCreate( prvEchoClientTask,                               /* The function that implements the task. */
-                     cNameBuffer,                                     /* Just a text name for the task to aid debugging. */
-                     democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
-                     ( void * ) xX,                                   /* The task parameter, not used in this case. */
-                     democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY,   /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
-                     NULL );                                          /* The task handle is not used. */
-    }
-}
+//     /* Create the echo client tasks. */
+//     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
+//     {
+//         snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", xX );
+//         xTaskCreate( prvEchoClientTask,                               /* The function that implements the task. */
+//                      cNameBuffer,                                     /* Just a text name for the task to aid debugging. */
+//                      democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
+//                      ( void * ) xX,                                   /* The task parameter, not used in this case. */
+//                      democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY,   /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
+//                      NULL );                                          /* The task handle is not used. */
+//     }
+// }
 /*-----------------------------------------------------------*/
 
 static void prvEchoClientTask( void * pvParameters )

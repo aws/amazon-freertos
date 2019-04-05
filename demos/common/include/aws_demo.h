@@ -26,6 +26,47 @@
 #ifndef _AWS_DEMO_H_
 #define _AWS_DEMO_H_
 
-#define demoDECLARE_DEMO( f )    extern void f( void )
+#include "platform/iot_network.h"
+#include "platform/iot_threads.h"
+
+
+
+/**
+ * @brief All C SDK demo functions have this signature.
+ */
+typedef int (* demoFunction_t)( bool awsIotMqttMode,
+                                 const char * pIdentifier,
+                                 void * pNetworkServerInfo,
+                                 void * pNetworkCredentialInfo,
+                                 const IotNetworkInterface_t * pNetworkInterface );
+
+
+typedef void (* onNetworkConnected_t)( bool awsIotMqttMode,
+                                        const char * pIdentifier,
+                                        void * pNetworkServerInfo,
+                                        void * pNetworkCredentialInfo,
+                                        const IotNetworkInterface_t * pNetworkInterface );
+
+typedef void (* onNetworkDisconnected_t)( const IotNetworkInterface_t * pNetworkInteface );
+
+void runDemoTask( void * pArgument );
+
+void vApplicationInit( void );
+
+typedef struct demoContext
+{
+    /* Network types for the demo */
+    uint32_t networkTypes;
+    uint32_t connectedNetwork;
+
+    /* Function pointers for the demo */
+    demoFunction_t demoFn;
+    onNetworkConnected_t onNetworkConnectedFn;
+    onNetworkDisconnected_t onNetworkDisconnectedFn;
+
+    /* Semaphore used to synchronize internally */
+    IotSemaphore_t networkSemaphore;
+}  demoContext_t;
+
 
 #endif /* _DEMO_SELECTION_H_ */

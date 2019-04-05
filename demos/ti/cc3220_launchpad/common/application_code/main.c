@@ -55,7 +55,7 @@
 
 /* Demo files. */
 #include "aws_logging_task.h"
-#include "aws_demo_runner.h"
+#include "iot_demo_runner.h"
 #include "aws_system_init.h"
 #include "aws_dev_mode_key_provisioning.h"
 
