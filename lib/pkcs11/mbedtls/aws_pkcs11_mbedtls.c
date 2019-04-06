@@ -251,47 +251,22 @@ CK_RV prvMbedTLS_Initialize( void )
 }
 
 
-CK_RV xCreateSearchableAttributeTemplate( SearchableAttributes_t * pxFindObjectInfo,
-                                          CK_ATTRIBUTE_PTR pxTemplate,
-                                          CK_ULONG ulCount )
+CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
+                         CK_ULONG ulCount,
+                         CK_OBJECT_CLASS * pxClass )
 {
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = CKR_TEMPLATE_INCOMPLETE;
 
-    /* Unpack provided template and store information serially. */
-    if( xResult == CKR_OK )
+    /* Search template for class attribute. */
+    for( uint32_t i = 0; i < ulCount; i++ )
     {
-        for( uint32_t i = 0; i < ulCount; i++ )
+        CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+        if( xAttribute.type == CKA_CLASS )
         {
-            CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
-
-            switch( xAttribute.type ) /* TODO: Are we concerned about a template with the same attribute in it twice? */
-            {
-                case ( CKA_LABEL ):
-
-                    if( xAttribute.ulValueLen < pkcs11MAX_LABEL_LENGTH )
-                    {
-                        memcpy( pxFindObjectInfo->cLabel, xAttribute.pValue, xAttribute.ulValueLen );
-                        pxFindObjectInfo->xLabelIsValid = CK_TRUE;
-                    }
-                    else
-                    {
-                        configPRINTF( ( "Label exceeds maximum object label length (%d) \r\n", pkcs11MAX_LABEL_LENGTH ) );
-                        xResult = CKR_TEMPLATE_INCONSISTENT;
-                    }
-
-                    break;
-
-                case ( CKA_CLASS ):
-                    memcpy( &pxFindObjectInfo->xClass, xAttribute.pValue, sizeof( CK_OBJECT_CLASS ) );
-                    pxFindObjectInfo->xClassIsValid = CK_TRUE;
-                    break;
-
-                default:
-                    /* Do nothing.  It is one of the other attributes. */
-                    /*xResult = CKR_TEMPLATE_INCONSISTENT; */
-                    /*configPRINTF( ("Find objects only supported by label and/or class") ); */
-                    break;
-            }
+            memcpy( pxClass, xAttribute.pValue, sizeof( CK_OBJECT_CLASS ) );
+            xResult = CKR_OK;
+            break;
         }
     }
 
@@ -585,35 +560,65 @@ CK_DEFINE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
 }
 
 
-CK_RV prvCreateCertificate( SearchableAttributes_t * pxSearchable,
-                            CK_ATTRIBUTE_PTR pxTemplate,
+CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
                             CK_ULONG ulCount,
                             CK_OBJECT_HANDLE_PTR pxObject )
 {
     CK_RV xResult = CKR_OK;
     CK_BYTE_PTR pxCertificateValue = NULL;
     CK_ULONG xCertificateLength = 0;
+    CK_ATTRIBUTE_PTR pxLabel = NULL;
+    CK_CERTIFICATE_TYPE xCertificateType = 0; /* = CKC_X_509; */
+
 
     /* Search for the pointer to the certificate VALUE. */
     for( uint32_t i = 0; i < ulCount; i++ )
     {
         CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
 
-        if( xAttribute.type == CKA_VALUE )
+        switch( xAttribute.type )
         {
-            pxCertificateValue = xAttribute.pValue;
-            xCertificateLength = xAttribute.ulValueLen;
+            case ( CKA_VALUE ):
+                pxCertificateValue = xAttribute.pValue;
+                xCertificateLength = xAttribute.ulValueLen;
+                break;
+
+            case ( CKA_LABEL ):
+
+                pxLabel = &pxTemplate[ i ];
+                break;
+
+            case ( CKA_CERTIFICATE_TYPE ):
+                memcpy( &xCertificateType, xAttribute.pValue, sizeof( CK_CERTIFICATE_TYPE ) );
+
+                if( xCertificateType != CKC_X_509 )
+                {
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+
+            case ( CKA_CLASS ):
+            case ( CKA_SUBJECT ):
+            case ( CKA_TOKEN ):
+
+                /* Do nothing.  This was already parsed out of the template previously. */
+                break;
+
+            default:
+                xResult = CKR_TEMPLATE_INCONSISTENT;
+                break;
         }
     }
 
-    if( pxCertificateValue == NULL )
+    if( ( pxCertificateValue == NULL ) || ( pxLabel == NULL ) )
     {
         xResult = CKR_TEMPLATE_INCOMPLETE;
     }
 
     if( xResult == CKR_OK )
     {
-        *pxObject = PKCS11_PAL_SaveObject( pxSearchable, pxCertificateValue, xCertificateLength );
+        *pxObject = PKCS11_PAL_SaveObject( pxLabel, pxCertificateValue, xCertificateLength );
 
         if( *pxObject == 0 ) /*Invalid handle. */
         {
@@ -646,7 +651,7 @@ CK_KEY_TYPE prvGetKeyType( CK_ATTRIBUTE_PTR pxTemplate,
 }
 
 CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
-                             SearchableAttributes_t * pxSearchable,
+                             CK_ATTRIBUTE_PTR * ppxLabel,
                              CK_ATTRIBUTE_PTR pxTemplate,
                              CK_ULONG ulCount,
                              CK_OBJECT_HANDLE_PTR pxObject )
@@ -671,13 +676,15 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
         {
             case ( CKA_CLASS ):
             case ( CKA_KEY_TYPE ):
-            case ( CKA_LABEL ):
             case ( CKA_TOKEN ):
 
                 /* Do nothing.
                  * At this time there is only token object support.
-                 * Key type was checked previously.
-                 * CLASS and LABEL have already been parsed into the Searchable Attributes. */
+                 * Key type and object type were checked previously. */
+                break;
+
+            case ( CKA_LABEL ):
+                *ppxLabel = &pxTemplate[ i ];
                 break;
 
             case ( CKA_EC_PARAMS ):
@@ -713,7 +720,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
 
 
 CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
-                              SearchableAttributes_t * pxSearchable,
+                              CK_ATTRIBUTE_PTR * ppxLabel,
                               CK_ATTRIBUTE_PTR pxTemplate,
                               CK_ULONG ulCount,
                               CK_OBJECT_HANDLE_PTR pxObject )
@@ -723,6 +730,7 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     int lMbedReturn = 0;
     CK_BBOOL xBool;
 
+    *ppxLabel = NULL;
     pxRsaContext = pxMbedContext->pk_ctx;
     mbedtls_rsa_init( pxRsaContext, MBEDTLS_RSA_PKCS_V15, 0 /*ignored.*/ );
 
@@ -737,13 +745,16 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
         {
             case ( CKA_TOKEN ):
             case ( CKA_CLASS ):
-            case ( CKA_LABEL ):
             case ( CKA_KEY_TYPE ):
 
                 /* Do nothing.
                  * At this time there is only token object support.
-                 * Key type was checked previously.
-                 * CLASS and LABEL have already been parsed into the Searchable Attributes. */
+                 * Key type & object type were checked previously.
+                 */
+                break;
+
+            case ( CKA_LABEL ):
+                *ppxLabel = &pxTemplate[ i ];
                 break;
 
             case ( CKA_SIGN ):
@@ -817,8 +828,7 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     return xResult;
 }
 
-CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
-                           CK_ATTRIBUTE_PTR pxTemplate,
+CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
                            CK_ULONG ulCount,
                            CK_OBJECT_HANDLE_PTR pxObject )
 {
@@ -830,7 +840,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
     CK_BYTE_PTR pxDerKey = NULL;
     CK_RV xResult = CKR_OK;
     CK_KEY_TYPE xKeyType;
-
+    CK_ATTRIBUTE_PTR pxLabel = NULL;
     mbedtls_pk_init( &xMbedContext );
 
 
@@ -844,7 +854,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
         xMbedContext.pk_ctx = &xRsaCtx;
         xMbedContext.pk_info = &mbedtls_rsa_info;
         xResult = prvCreateRsaPrivateKey( &xMbedContext,
-                                          pxSearchable,
+                                          &pxLabel,
                                           pxTemplate,
                                           ulCount,
                                           pxObject );
@@ -856,7 +866,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
         xMbedContext.pk_ctx = &xKeyPair;
         xMbedContext.pk_info = &mbedtls_eckey_info; /* TODO: deprecated ecdsa vs eckey?*/
         xResult = prvCreateEcPrivateKey( &xMbedContext,
-                                         pxSearchable,
+                                         &pxLabel,
                                          pxTemplate,
                                          ulCount,
                                          pxObject );
@@ -906,7 +916,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
 
     if( xResult == CKR_OK )
     {
-        *pxObject = PKCS11_PAL_SaveObject( pxSearchable,
+        *pxObject = PKCS11_PAL_SaveObject( pxLabel,
                                            pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
                                            lActualKeyLength );
 
@@ -925,7 +935,7 @@ CK_RV prvCreatePrivateKey( SearchableAttributes_t * pxSearchable,
 }
 
 CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
-                            SearchableAttributes_t * pxSearchable,
+                            CK_ATTRIBUTE_PTR * ppxLabel,
                             CK_ATTRIBUTE_PTR pxTemplate,
                             CK_ULONG ulCount,
                             CK_OBJECT_HANDLE_PTR pxObject )
@@ -952,12 +962,16 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
             case ( CKA_CLASS ):
             case ( CKA_KEY_TYPE ):
             case ( CKA_TOKEN ):
-            case ( CKA_LABEL ):
 
                 /* Do nothing.
                  * At this time there is only token object support.
-                 * Key type was checked previously.
-                 * CLASS and LABEL have already been parsed into the Searchable Attributes. */
+                 * Key type and class were checked previously. */
+                break;
+
+            case ( CKA_LABEL ):
+
+                *ppxLabel = &pxTemplate[ i ];
+
                 break;
 
             case ( CKA_VERIFY ):
@@ -1002,8 +1016,7 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
     return xResult;
 }
 
-CK_RV prvCreatePublicKey( SearchableAttributes_t * pxSearchable,
-                          CK_ATTRIBUTE_PTR pxTemplate,
+CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
                           CK_ULONG ulCount,
                           CK_OBJECT_HANDLE_PTR pxObject )
 {
@@ -1013,7 +1026,7 @@ CK_RV prvCreatePublicKey( SearchableAttributes_t * pxSearchable,
     CK_BYTE_PTR pxDerKey = NULL;
     CK_KEY_TYPE xKeyType;
     CK_RV xResult = CKR_OK;
-
+    CK_ATTRIBUTE_PTR pxLabel = NULL;
 
     mbedtls_pk_init( &xMbedContext );
 
@@ -1027,7 +1040,7 @@ CK_RV prvCreatePublicKey( SearchableAttributes_t * pxSearchable,
         mbedtls_ecp_keypair xKeyPair;
         xMbedContext.pk_ctx = &xKeyPair;
         xMbedContext.pk_info = &mbedtls_eckey_info; /* TODO: deprecated ecdsa vs eckey?*/
-        xResult = prvCreateECPublicKey( &xMbedContext, pxSearchable, pxTemplate, ulCount, pxObject );
+        xResult = prvCreateECPublicKey( &xMbedContext, &pxLabel, pxTemplate, ulCount, pxObject );
     }
     else
     {
@@ -1053,7 +1066,7 @@ CK_RV prvCreatePublicKey( SearchableAttributes_t * pxSearchable,
 
     if( xResult == CKR_OK )
     {
-        *pxObject = PKCS11_PAL_SaveObject( pxSearchable,
+        *pxObject = PKCS11_PAL_SaveObject( pxLabel,
                                            pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
                                            lDerKeyLength );
 
@@ -1086,9 +1099,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
     void * pvContext = NULL;
     int32_t lMbedTLSParseResult = ~0;
     PKCS11_KeyTemplatePtr_t pxKeyTemplate = NULL;
-    SearchableAttributes_t xSearchable = { 0 };
+    CK_OBJECT_CLASS xClass;
     PKCS11_CertificateTemplatePtr_t pxCertificateTemplate = NULL;
     CK_ATTRIBUTE_PTR pxObjectClassAttribute = pxTemplate;
+    CK_BYTE_PTR pxLabel = NULL;
 
     /* Avoid warnings about unused parameters. */
     ( void ) xSession;
@@ -1109,28 +1123,23 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        xResult = xCreateSearchableAttributeTemplate( &xSearchable, pxTemplate, ulCount );
-
-        if( xSearchable.xClassIsValid != CK_TRUE )
-        {
-            xResult = CKR_TEMPLATE_INCOMPLETE;
-        }
+        xResult = prvGetObjectClass( pxTemplate, ulCount, &xClass );
     }
 
     if( xResult == CKR_OK )
     {
-        switch( xSearchable.xClass )
+        switch( xClass )
         {
             case CKO_CERTIFICATE:
-                xResult = prvCreateCertificate( &xSearchable, pxTemplate, ulCount, pxObject );
+                xResult = prvCreateCertificate( pxTemplate, ulCount, pxObject );
                 break;
 
             case CKO_PRIVATE_KEY:
-                xResult = prvCreatePrivateKey( &xSearchable, pxTemplate, ulCount, pxObject );
+                xResult = prvCreatePrivateKey( pxTemplate, ulCount, pxObject );
                 break;
 
             case CKO_PUBLIC_KEY:
-                xResult = prvCreatePublicKey( &xSearchable, pxTemplate, ulCount, pxObject );
+                xResult = prvCreatePublicKey( pxTemplate, ulCount, pxObject );
                 break;
 
             default:
@@ -1443,7 +1452,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     /* Unpack provided template and store information serially. */
     if( xResult == CKR_OK )
     {
-        xResult = xCreateSearchableAttributeTemplate( pxFindObjectInfo, pxTemplate, ulCount );
+        /*xResult = xCreateSearchableAttributeTemplate( pxFindObjectInfo, pxTemplate, ulCount ); */
     }
 
     /* Clean up memory if there was an error parsing the template. */
@@ -2195,7 +2204,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
 
 
 
-CK_RV prvCheckGenerateKeyPairPrivateTemplate( SearchableAttributes_t * pxSearchable,
+CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                               CK_ATTRIBUTE_PTR pxTemplate,
                                               CK_ULONG ulTemplateLength )
 {
@@ -2204,7 +2213,6 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( SearchableAttributes_t * pxSearcha
     CK_BBOOL xBool;
     CK_ULONG xTemp;
 
-    memset( pxSearchable, 0, sizeof( SearchableAttributes_t ) );
 
     /* TODO: Check the rest of the parameters.
      * TODO: Check that all required parameters are there. */
@@ -2215,18 +2223,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( SearchableAttributes_t * pxSearcha
         switch( xAttribute.type )
         {
             case ( CKA_LABEL ):
-
-                if( xAttribute.ulValueLen < 32 )
-                {
-                    memcpy( pxSearchable->cLabel, xAttribute.pValue, xAttribute.ulValueLen );
-                    pxSearchable->xLabelIsValid = CK_TRUE;
-                }
-                else
-                {
-                    PKCS11_PRINT( ( "ERROR: Max label length 32 bytes supported. \r\n" ) );
-                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                }
-
+                *ppxLabel = &xAttribute;
                 break;
 
             case ( CKA_TOKEN ):
@@ -2279,16 +2276,10 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( SearchableAttributes_t * pxSearcha
         }
     }
 
-    if( xResult == CKR_OK )
-    {
-        pxSearchable->xClass = CKO_PRIVATE_KEY;
-        pxSearchable->xClassIsValid = CK_TRUE;
-    }
-
     return xResult;
 }
 
-CK_RV prvCheckGenerateKeyPairPublicTemplate( SearchableAttributes_t * pxSearchable,
+CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                              CK_ATTRIBUTE_PTR pxTemplate,
                                              CK_ULONG ulTemplateLength )
 {
@@ -2298,8 +2289,6 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( SearchableAttributes_t * pxSearchab
     CK_KEY_TYPE xKeyType;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
     int lCompare;
-
-    memset( pxSearchable, 0, sizeof( SearchableAttributes_t ) );
 
     /* TODO: Check the rest of the parameters.
      * TODO: Check that all required parameters are there. */
@@ -2311,16 +2300,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( SearchableAttributes_t * pxSearchab
         {
             case ( CKA_LABEL ):
 
-                if( xAttribute.ulValueLen < 32 )
-                {
-                    memcpy( pxSearchable->cLabel, xAttribute.pValue, xAttribute.ulValueLen );
-                    pxSearchable->xLabelIsValid = CK_TRUE;
-                }
-                else
-                {
-                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-                    PKCS11_PRINT( ( "ERROR: Max label length 32 bytes supported. \r\n" ) );
-                }
+                *ppxLabel = &xAttribute;
 
                 break;
 
@@ -2363,12 +2343,6 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( SearchableAttributes_t * pxSearchab
         }
     }
 
-    if( xResult == CKR_OK )
-    {
-        pxSearchable->xClass = CKO_PUBLIC_KEY;
-        pxSearchable->xClassIsValid = CK_TRUE;
-    }
-
     return xResult;
 }
 
@@ -2387,10 +2361,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = CKR_OK;
     uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
-    SearchableAttributes_t xPrivateSearchable;
-    SearchableAttributes_t xPublicSearchable;
     int lMbedResult;
     mbedtls_pk_context xCtx = { 0 };
+    CK_ATTRIBUTE_PTR pxLabel;
 
 
     if( pucDerFile == NULL )
@@ -2405,14 +2378,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        xResult = prvCheckGenerateKeyPairPrivateTemplate( &xPrivateSearchable,
+        xResult = prvCheckGenerateKeyPairPrivateTemplate( &pxLabel,
                                                           pxPrivateKeyTemplate,
                                                           ulPrivateKeyAttributeCount );
     }
 
     if( xResult == CKR_OK )
     {
-        xResult = prvCheckGenerateKeyPairPublicTemplate( &xPublicSearchable,
+        xResult = prvCheckGenerateKeyPairPublicTemplate( &pxLabel,
                                                          pxPublicKeyTemplate,
                                                          ulPublicKeyAttributeCount );
     }
@@ -2444,7 +2417,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( lMbedResult > 0 )
     {
-        *pxPrivateKey = PKCS11_PAL_SaveObject( &xPrivateSearchable, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
+        *pxPrivateKey = PKCS11_PAL_SaveObject( pxLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
     }
     else
     {
@@ -2458,7 +2431,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( lMbedResult > 0 )
     {
-        *pxPublicKey = PKCS11_PAL_SaveObject( &xPublicSearchable, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
+        *pxPublicKey = PKCS11_PAL_SaveObject( pxLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
     }
     else
     {

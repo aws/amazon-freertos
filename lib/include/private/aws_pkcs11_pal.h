@@ -8,7 +8,7 @@
 /**
  *  @brief Save an object to storage.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxSearchTemplate,
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize );
 

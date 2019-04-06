@@ -211,14 +211,14 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
  *
  * Port-specific file write for cryptographic information.
  *
- * @param[in] pxTemplate    Structure containing searchable attributes.
+ * @param[in] pxLabel       Attribute containing label of the object to be stored.
  * @param[in] pucData       The object data to be saved
  * @param[in] pulDataSize   Size (in bytes) of object data.
  *
  * @return The object handle if successful.
  * eInvalidHandle = 0 if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize )
 {
@@ -229,7 +229,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pxTemplate->cLabel,
+    prvLabelToFilenameHandle( pxLabel->pValue,
                               &pcFileName,
                               &xHandle );
 
