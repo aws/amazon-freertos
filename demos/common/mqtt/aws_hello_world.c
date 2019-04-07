@@ -75,7 +75,6 @@
 
 /* Demo includes. */
 #include "aws_demo_config.h"
-#include "aws_hello_world.h"
 
 /**
  * @brief MQTT client ID.

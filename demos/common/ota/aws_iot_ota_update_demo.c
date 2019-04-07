@@ -62,8 +62,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "aws_ota_agent.h"
 
 #include "iot_network_manager_private.h"
+
 /* Required for demo task stack and priority */
-#include "aws_ota_update_demo.h"
 #include "aws_demo_config.h"
 #include "aws_application_version.h"
 

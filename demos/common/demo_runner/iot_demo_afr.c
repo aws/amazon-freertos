@@ -36,7 +36,10 @@
 #include "iot_network_manager_private.h"
 #include "platform/iot_threads.h"
 #include "aws_demo.h"
+#include "iot_common.h"
+#include "iot_mqtt.h"
 
+static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 /*-----------------------------------------------------------*/
 /* C SDK demo functions. */
 
@@ -125,8 +128,126 @@ static void _onNetworkStateChangeCallback( uint32_t networkType,
 static uint32_t _blockForAvailableNetwork( demoContext_t * pContext )
 {
     IotSemaphore_Wait( &pContext->networkSemaphore );
-
     return( AwsIotNetworkManager_GetConnectedNetworks() & pContext->networkTypes );
+}
+
+
+
+/**
+ * @brief Initialize the common libraries, Mqtt library and network manager.
+ *
+ * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
+ * `EXIT_FAILURE` otherwise.
+ */
+static int _initializeDemo( demoContext_t* pContext )
+{
+    int status = EXIT_SUCCESS;
+    bool commonLibrariesInitailized = false;
+    bool mqttInitialized            = false;
+    bool semaphoreCreated           = false;
+
+    if( IotCommon_Init() != true )
+    {
+        status = EXIT_FAILURE;
+    }
+    else
+    {
+        commonLibrariesInitailized = true;
+    }
+    
+    
+    if( status == EXIT_SUCCESS )
+    {
+        if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
+        {
+            /* Failed to initialize MQTT library. */
+            status = EXIT_FAILURE;
+        }
+        else
+        {
+            mqttInitialized = true;    
+        }
+        
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+    
+        if( AwsIotNetworkManager_Init() != pdTRUE )
+        {
+            status = EXIT_FAILURE;
+        }
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Enable all the networks for the board */
+        if( AwsIotNetworkManager_EnableNetwork(configENABLED_NETWORKS) != configENABLED_NETWORKS )
+        {
+            IotLogError("Failed to enable  all networks ");
+            status = EXIT_FAILURE;
+        }
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Create semaphore to signal that a network is available */
+        if(  IotSemaphore_Create(&pContext->networkSemaphore, 0, 1) != true )
+        {
+            status = EXIT_FAILURE;
+        }
+        else
+        {
+            semaphoreCreated = true;
+        }
+        
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Subscribe for network state change from Network Manager */
+        if( AwsIotNetworkManager_SubscribeForStateChange(
+                pContext->networkTypes,
+                _onNetworkStateChangeCallback,
+                pContext,
+                &subscription ) != pdTRUE )
+        {
+            IotLogError( "Failed to subscribe with network manager for network state change." );
+            status = EXIT_FAILURE;
+        }
+    }
+
+    if( status == EXIT_FAILURE )
+    {
+        if( mqttInitialized == true )
+        {
+            IotMqtt_Cleanup();
+        }
+
+        if( commonLibrariesInitailized == true )
+        {
+            IotCommon_Cleanup();
+        }
+
+        if( semaphoreCreated == true )
+        {
+            IotSemaphore_Destroy( & pContext->networkSemaphore );
+        }
+    }
+        
+    return status;
+}
+
+/**
+ * @brief Clean up the common libraries and the MQTT library.
+ */
+static void _cleanupDemo( demoContext_t *pContext )
+{
+     /* Remove network manager subscription */
+     AwsIotNetworkManager_RemoveSubscription( subscription );
+     IotSemaphore_Destroy(&pContext->networkSemaphore);
+     IotMqtt_Cleanup();
+     IotCommon_Cleanup();
 }
 
 void runDemoTask( void * pArgument )
@@ -138,31 +259,16 @@ void runDemoTask( void * pArgument )
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     uint32_t availableNetworkTypes = AWSIOT_NETWORK_TYPE_NONE;
     demoContext_t * pDemoContext = ( demoContext_t * ) pArgument;
-    bool ret = true;
+    int status = EXIT_SUCCESS;
     bool awsIotMqttMode = false;
-    IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
+    bool demoInitialized = false;
+ 
+    status = _initializeDemo( pDemoContext );
 
-    /* Create semaphore to signal network is available */
-    ret = IotSemaphore_Create( &pDemoContext->networkSemaphore, 0, 1 );
-
-    if( ret == true )
+    if( status == EXIT_SUCCESS )
     {
-        /* Subscribe for network state changes from Network Manager */
-        if( AwsIotNetworkManager_SubscribeForStateChange(
-                pDemoContext->networkTypes,
-                _onNetworkStateChangeCallback,
-                pDemoContext,
-                &subscription ) != pdTRUE )
-        {
-            IotLogError( "Failed to subscribe with network manager for network state change." );
-            ret = false;
-        }
-    }
-
-    if( ret == true )
-    {
+        demoInitialized = true;
         /* Check for available networks, if none available block untill a network is available. */
-
         availableNetworkTypes = ( AwsIotNetworkManager_GetConnectedNetworks() & pDemoContext->networkTypes );
 
         if( availableNetworkTypes == AWSIOT_NETWORK_TYPE_NONE )
@@ -172,7 +278,7 @@ void runDemoTask( void * pArgument )
         }
     }
 
-    if( ret == true )
+    if( status == EXIT_SUCCESS )
     {
         /* There are available networks at this point. Follow the preference order Wi-Fi, BLE, Ethernet etc.. */
 
@@ -201,11 +307,11 @@ void runDemoTask( void * pArgument )
         else
         {
             /* Other network types are not supported */
-            ret = false;
+            status = EXIT_FAILURE;
         }
     }
 
-    if( ret == true )
+    if( status == EXIT_SUCCESS )
     {
         /* Run the demo. */
         pDemoContext->demoFn( awsIotMqttMode,
@@ -219,39 +325,16 @@ void runDemoTask( void * pArgument )
                     ( unsigned long ) xPortGetMinimumEverFreeHeapSize() );
     }
 
-    /* Remove network manager subscription */
-    if( subscription != IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER )
+    if( demoInitialized  == true )
     {
-        AwsIotNetworkManager_RemoveSubscription( subscription );
+        _cleanupDemo(pDemoContext);
     }
-
-    /* Delete Network available semaphore */
-    if( ret == true )
-    {
-        IotSemaphore_Destroy( &pDemoContext->networkSemaphore );
-    }
-
+   
     vTaskDelete( NULL );
 }
 
 /*-----------------------------------------------------------*/
 
-void vStartMQTTDemo( void )
-{
-    static demoContext_t mqttDemoContext =
-    {
-        .networkTypes            = AWSIOT_NETWORK_TYPE_WIFI,
-        .connectedNetwork        = AWSIOT_NETWORK_TYPE_NONE,
-        .demoFn                  = RunMqttDemo,
-        .onNetworkConnectedFn    = NULL,
-        .onNetworkDisconnectedFn = NULL
-    };
-
-    Iot_CreateDetachedThread( runDemoTask,
-                              &mqttDemoContext, 
-                              democonfigDEMO_PRIORITY, 
-                              democonfigDEMO_STACKSIZE );
-}
 
 void vStartMQTTBLEEchoDemo( void )
 {

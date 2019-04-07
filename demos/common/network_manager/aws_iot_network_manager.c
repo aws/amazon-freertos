@@ -361,11 +361,11 @@ static bool _wifiConnectAccessPoint( void )
     bool ret = true;
     static const WIFINetworkParams_t network =
     {
-        .pcSSID           = clientcredentialWIFI_SSID;
-        .ucSSIDLength     = sizeof(clientcredentialWIFI_SSID);
-        .pcPassword       = clientcredentialWIFI_PASSWORD;
-        .ucPasswordLength = sizeof(clientcredentialWIFI_PASSWORD);
-        .xSecurity        = clientcredentialWIFI_SECURITY;
+        .pcSSID           = clientcredentialWIFI_SSID,
+        .ucSSIDLength     = sizeof(clientcredentialWIFI_SSID),
+        .pcPassword       = clientcredentialWIFI_PASSWORD,
+        .ucPasswordLength = sizeof(clientcredentialWIFI_PASSWORD),
+        .xSecurity        = clientcredentialWIFI_SECURITY
     };
 
     /* Setup parameters. */
@@ -523,7 +523,6 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
     if( pNetwork->state != newState )
     {
         pNetwork->state = newState;
-        
         error = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
                                                  _dispatchNetworkStateChangeCB,
                                                  ( void * ) _NM_PARAMS( networkType, newState ),

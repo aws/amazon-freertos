@@ -48,7 +48,6 @@
 #include "aws_mqtt_agent.h"
 
 /* This demo's configuration */
-#include "aws_subscribe_publish_loop.h"
 #include "aws_demo_config.h"
 
 /* Required to get the broker address and port. */

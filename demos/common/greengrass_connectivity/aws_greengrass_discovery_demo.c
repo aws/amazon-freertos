@@ -45,7 +45,6 @@
 #include "aws_ggd_config.h"
 #include "aws_ggd_config_defaults.h"
 #include "aws_greengrass_discovery.h"
-#include "aws_greengrass_discovery_demo.h"
 
 /* MQTT includes. */
 #include "aws_mqtt_agent.h"

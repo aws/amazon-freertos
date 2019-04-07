@@ -54,7 +54,6 @@
 #include "aws_shadow.h"
 
 /* Required for shadow demo. */
-#include "aws_shadow_lightbulb_on_off.h"
 #include "jsmn.h"
 
 /* Task names. */

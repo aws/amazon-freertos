@@ -49,7 +49,6 @@
 #include "FreeRTOS_Sockets.h"
 
 /* Demo specific includes */
-#include "aws_simple_tcp_echo_server.h"
 #include "aws_demo_config.h"
 
 /* Specifies the size of the data sent to the server in MSS units. */

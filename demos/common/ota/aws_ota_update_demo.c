@@ -55,7 +55,6 @@
 #include "aws_ota_agent.h"
 
 /* Required for demo task stack and priority */
-#include "aws_ota_update_demo.h"
 #include "aws_demo_config.h"
 #include "aws_application_version.h"
 

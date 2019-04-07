@@ -52,8 +52,6 @@
 
 #include "driver/uart.h"
 #include "aws_application_version.h"
-#include "iot_network_manager_private.h"
-
 
 #if BLE_ENABLED
 #include "bt_hal_manager_adapter_ble.h"
@@ -96,7 +94,6 @@ static void spp_uart_init(void);
  */
 int app_main( void )
 {
-	uint32_t ulEnabledNetworks;
 	 /* Perform any hardware initialization that does not require the RTOS to be
 	     * running.  */
 
@@ -121,25 +118,6 @@ int app_main( void )
         	}
         }
 #endif
-        if( AwsIotNetworkManager_Init() != pdPASS )
-        {
-        	configPRINTF(("Failed to initialize the network manager \n "));
-        	while( 1 )
-        	{
-
-        	}
-        }
-
-        ulEnabledNetworks = AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
-        if( ( ulEnabledNetworks & configENABLED_NETWORKS ) !=  configENABLED_NETWORKS )
-        {
-        	configPRINTF(("Failed to enable all the networks, enabled networks: %08x\n ", ulEnabledNetworks ));
-        	while( 1 )
-        	{
-
-        	}
-        }
-
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }
