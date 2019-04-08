@@ -87,7 +87,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
 
 #define myappONE_SECOND_DELAY_IN_TICKS  pdMS_TO_TICKS( 1000UL )
 
-#define otaDemoNETWORK_TYPES               ( AWSIOT_NETWORK_TYPE_BLE | AWSIOT_NETWORK_TYPE_WIFI )
+#define otaDemoNETWORK_TYPES               ( AWSIOT_NETWORK_TYPE_ALL ) 
 
 /**
  * @brief Structure which holds the context for an MQTT connection within Demo.
@@ -155,7 +155,6 @@ static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext )
 
 static BaseType_t prxCreateNetworkConnection( void )
 {
-
     BaseType_t xRet = pdFALSE;
 
     /* If no networks are available, block for a physical network connection */

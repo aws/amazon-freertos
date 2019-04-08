@@ -103,10 +103,20 @@ static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkCo
     }
 #endif
 
+#if ETH_ENABLED
+    if ( ( ulConnectedNetworks & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+    {
+        if ( prxCreateSecureSocketConnection( pxNetworkContext ) == pdTRUE )
+        {
+            return AWSIOT_NETWORK_TYPE_ETH;
+        }
+    }
+#endif
+
     return AWSIOT_NETWORK_TYPE_NONE;
 }
 
-#if WIFI_ENABLED
+#if WIFI_ENABLED || ETH_ENABLED
 static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext )
 {
     _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
