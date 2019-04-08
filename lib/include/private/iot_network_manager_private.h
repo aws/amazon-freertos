@@ -36,7 +36,6 @@
 
 #include "platform/iot_network.h"
 
-
 #ifndef configSUPPORTED_NETWORKS
 #error "Flag 'configSUPPORTED_NETWORKS' is not defined. Please define the flag in aws_iot_network_config.h with the list of all networks supported by the board"
 #endif
@@ -44,12 +43,6 @@
 #ifndef configENABLED_NETWORKS
 #error "Flag 'configENABLED_NETWORKS' not defined. Please define the flag in aws_iot_network_config.h with all the networks that needs to be enabled"
 #endif
-
-
-/**
- * @brief Flag used to get all the network types.
- */
-#define AWSIOT_NETWORK_TYPE_ALL      ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 
 
 #if defined( configENABLED_NETWORKS ) && defined( configSUPPORTED_NETWORKS )
@@ -67,7 +60,6 @@
  * @brief Compile time flag which can be used to check if WIFI is enabled.
  */
 #define WIFI_ENABLED       ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
-
 /**
  * @brief Initializer for a subscription handle.
  */

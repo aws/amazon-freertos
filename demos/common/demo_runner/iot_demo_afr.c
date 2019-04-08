@@ -146,47 +146,48 @@ static int _initializeDemo( demoContext_t* pContext )
     bool mqttInitialized            = false;
     bool semaphoreCreated           = false;
 
-    if( IotCommon_Init() != true )
-    {
-        status = EXIT_FAILURE;
-    }
-    else
+
+
+    /* Initialize common libraries required by network manager and demo. */
+    if( IotCommon_Init() == true )
     {
         commonLibrariesInitailized = true;
     }
-    
+    else
+    {
+        status = EXIT_FAILURE;
+    }
+
+    if (status == EXIT_SUCCESS)
+    {
+        if (AwsIotNetworkManager_Init() != pdTRUE)
+        {
+            status = EXIT_FAILURE;
+        }
+    }
+
+    /* Enable all the transport type networks used by the demo application. */
+    if(status == EXIT_SUCCESS)
+    {
+        if( AwsIotNetworkManager_EnableNetwork( pContext->networkTypes ) != pContext->networkTypes )
+        {
+            IotLogError("Failed to enable all the networks required by the demo application.");
+            status = EXIT_FAILURE;
+        }
+    }
     
     if( status == EXIT_SUCCESS )
     {
-        if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
+        /* Initialize the MQTT library used by demo application to send messages to Iot broker. */
+        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
         {
-            /* Failed to initialize MQTT library. */
-            status = EXIT_FAILURE;
+            mqttInitialized = true;
         }
         else
         {
-            mqttInitialized = true;    
+            status = EXIT_FAILURE;
         }
         
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
-    
-        if( AwsIotNetworkManager_Init() != pdTRUE )
-        {
-            status = EXIT_FAILURE;
-        }
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Enable all the networks for the board */
-        if( AwsIotNetworkManager_EnableNetwork(configENABLED_NETWORKS) != configENABLED_NETWORKS )
-        {
-            IotLogError("Failed to enable  all networks ");
-            status = EXIT_FAILURE;
-        }
     }
 
     if( status == EXIT_SUCCESS )

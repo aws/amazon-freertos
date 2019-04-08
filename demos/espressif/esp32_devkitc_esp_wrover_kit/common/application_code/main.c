@@ -53,6 +53,8 @@
 #include "driver/uart.h"
 #include "aws_application_version.h"
 
+#include "iot_network_manager_private.h"
+
 #if BLE_ENABLED
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
@@ -99,6 +101,7 @@ int app_main( void )
 
     prvMiscInitialization();
 
+
     if( SYSTEM_Init() == pdPASS )
     {
 
@@ -109,7 +112,7 @@ int app_main( void )
 
 #if BLE_ENABLED
         /* Initialize BLE. */
-        if( prvBLEStackInit() != eBTStatusSuccess )
+        if( prvBLEStackInit() != ESP_OK )
         {
         	configPRINTF(("Failed to initialize the bluetooth stack\n "));
         	while( 1 )

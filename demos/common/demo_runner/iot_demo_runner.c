@@ -63,7 +63,7 @@ void DEMO_RUNNER_RunDemos( void )
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
     static demoContext_t mqttDemoContext =
     {
-        .networkTypes            = AWSIOT_NETWORK_TYPE_WIFI,
+        .networkTypes            = ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE ),
         .connectedNetwork        = AWSIOT_NETWORK_TYPE_NONE,
         .demoFn                  = DEMO_entryFUNCTION,
         .onNetworkConnectedFn    = democonfigDEMO_onNetworkConnectedFn,
