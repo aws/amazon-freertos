@@ -162,10 +162,13 @@ else()
 endif()
 
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/ti_code")
+afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 add_executable(
     ${exe_target}
     ${board_code_src}
+    ${config_files}
     "${board_dir}/application_code/main.c"
+    "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
 )
 target_link_libraries(
     ${exe_target}
