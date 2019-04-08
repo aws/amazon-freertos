@@ -31,9 +31,10 @@ afr_add_subdirectory("cmake/vendors/${AFR_VENDOR_NAME}/${AFR_BOARD_NAME}")
 # -------------------------------------------------------------------------------------------------
 # Initialize all modules.
 afr_add_subdirectory("lib")
-afr_add_subdirectory("demos")
 if(AFR_IS_TESTING)
     afr_add_subdirectory("tests")
+else()
+    afr_add_subdirectory("demos")
 endif()
 
 # Resolve dependencies.
