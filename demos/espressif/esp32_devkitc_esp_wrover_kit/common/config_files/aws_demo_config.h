@@ -42,7 +42,7 @@
 
 
 /* Individual demos task config and overrides for the above defaults*/
-#if defined( demoMQTTDemo_ENABLED )
+#if defined( democonfigMQTTDemo_ENABLED )
     #define DEMO_entryFUNCTION                              RunMqttDemo
 #elif defined( democonfigSHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION                              RunShadowDemo
@@ -64,6 +64,8 @@
     #define DEMO_entryFUNCTION                              vStartMQTTEchoDemo  
 #elif defined(democonfigDEFENDER_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartDefenderDemo
+#elif defined(democonfigPOSIX_DEMO_ENABLED)
+    #define DEMO_entryFUNCTION                              vStartPOSIXDemo
 #else
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "At least one demo should be enabled in the file iot_demo_runner.h"

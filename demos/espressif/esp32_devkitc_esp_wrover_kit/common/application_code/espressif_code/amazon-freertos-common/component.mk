@@ -55,6 +55,7 @@ COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/greengrass_connectivity \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/tcp \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/ota \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/common/posix \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/ble \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/network_manager \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/wifi_provisioning

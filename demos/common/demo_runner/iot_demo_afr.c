@@ -336,46 +336,6 @@ void runDemoTask( void * pArgument )
 
 /*-----------------------------------------------------------*/
 
-
-void vStartMQTTBLEEchoDemo( void )
-{
-    static demoContext_t mqttBleEchoDemoContext =
-    {
-        .networkTypes            = AWSIOT_NETWORK_TYPE_BLE | AWSIOT_NETWORK_TYPE_WIFI,
-        .connectedNetwork        = AWSIOT_NETWORK_TYPE_NONE,
-        .demoFn                  = RunBleMqttEchoDemo,
-        .onNetworkConnectedFn    = BleMqttEchoDemoOnNetworkConnected,
-        .onNetworkDisconnectedFn = BleMqttEchoDemoOnNetworkDisconnected,
-    };
-
-    Iot_CreateDetachedThread( runDemoTask,
-                              &mqttBleEchoDemoContext, 
-                              democonfigDEMO_PRIORITY, 
-                              democonfigDEMO_STACKSIZE );
-}
-
-/*-----------------------------------------------------------*/
-
-void vStartShadowDemo( void )
-{
-    static demoContext_t shadowDemoContext =
-    {
-        .networkTypes            = AWSIOT_NETWORK_TYPE_WIFI,
-        .connectedNetwork        = AWSIOT_NETWORK_TYPE_NONE,
-        .demoFn                  = RunShadowDemo,
-        .onNetworkConnectedFn    = NULL,
-        .onNetworkDisconnectedFn = NULL,
-    };
-
-    Iot_CreateDetachedThread( runDemoTask,
-                              &shadowDemoContext, 
-                              democonfigDEMO_PRIORITY, 
-                              democonfigDEMO_STACKSIZE );
-}
-
-/*-----------------------------------------------------------*/
-
-
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
 
 BaseType_t xApplicationDNSQueryHook( const char * pcName )

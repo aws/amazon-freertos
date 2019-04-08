@@ -26,9 +26,8 @@
 #ifndef _IOT_DEMO_RUNNER_H_
 #define _IOT_DEMO_RUNNER_H_
 
-// 13 total
 
-/* #define   demoMQTTDemo_ENABLED */
+#define   democonfigMQTTDemo_ENABLED 
 /* #define   democonfigSHADOW_DEMO_ENABLED */             
 /* #define   democonfigBLE_MQTT_ECHO_DEMO_ENABLED  */     
 /* #define   democonfigMQTT_SUB_PUB_ENABLED    */         
@@ -36,18 +35,23 @@
 /* #define   democonfigTCP_ECHO_SERVER_ENABLED  */               
 /* #define   democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED */
 /* #define   democonfigMQTT_ECHO_ENABLED */           
+/* #define   democonfigDEFENDER_DEMO_ENABLED */
 
-#define   democonfigDEFENDER_DEMO_ENABLED             
 
 // TODO: This one needs some work, there are multiple implementations and use of Network Manager
 /* #define   democonfigOTA_UPDATE_ENABLED */
 // TODO: This one is commented out in the implementation ???
 //#define   democonfigTCP_ECHO_ENABLED
+// TODO: This demo does not compile due to include paths, especially the portable path
+// #define   democonfigPOSIX_DEMO_ENABLED
+
+// The functions are :
+    /* vStartPOSIXDemo(); */
+    /* vStartOTAUpdateDemoTask(); */
+    /* vStartTCPEchoClientTasks_SingleTasks */
+
 
 void DEMO_RUNNER_RunDemos( void );
 
 #endif
 
-    /* vStartOTAUpdateDemoTask(); */
-    /* vStartTCPEchoClientTasks_SingleTasks */
-    /* vStartPOSIXDemo(); */
