@@ -863,7 +863,7 @@ ESP_WIFI_Status_t ESP_WIFI_Send( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t * px
 
         sprintf((char *)pxObj->CmdData + strlen((char *)pxObj->CmdData), "\r\n");
         /* Must wait a period of time after the CIPSEND AT command */
-        xRet = ESP_AT_Command(pxObj, pxObj->CmdData, 100);
+        xRet = ESP_AT_Command(pxObj, pxObj->CmdData, 10);
 
         if (xRet == ESP_WIFI_STATUS_OK) {
             pxObj->ActiveCmd = CMD_SEND;
