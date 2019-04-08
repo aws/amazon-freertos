@@ -377,6 +377,12 @@ BaseType_t xApplicationDNSQueryHook( const char * pcName )
 void vApplicationMallocFailedHook()
 {
     configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    taskDISABLE_INTERRUPTS();
+
+    /* Loop forever */
+    for( ; ; )
+    {
+    }
 }
 /*-----------------------------------------------------------*/
 

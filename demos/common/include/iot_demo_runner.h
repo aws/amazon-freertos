@@ -26,15 +26,19 @@
 #ifndef _IOT_DEMO_RUNNER_H_
 #define _IOT_DEMO_RUNNER_H_
 
+/* Choose your demo here. By design only one demo can be selected at a time. If 
+    you choose more than one only the first choice will be run. If you require 
+    more than one demo to run at the same time you should create a combined 
+    demo and run both the required demo tasks from your demo entry function  */
 
-//#define   democonfigMQTTDemo_ENABLED 
+#define   democonfigMQTTDemo_ENABLED 
 /* #define   democonfigSHADOW_DEMO_ENABLED */             
 /* #define   democonfigBLE_MQTT_ECHO_DEMO_ENABLED  */     
 /* #define   democonfigMQTT_SUB_PUB_ENABLED    */         
 /* #define   democonfigGREENGRASS_DISCOVERY_ENABLED  */
 /* #define   democonfigTCP_ECHO_SERVER_ENABLED  */               
 /* #define   democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED */
-#define democonfigTCP_ECHO_TASKS_SINGLE_ENABLED
+/* #define   democonfigTCP_ECHO_TASKS_SINGLE_ENABLED */
 /* #define   democonfigMQTT_ECHO_ENABLED */           
 /* #define   democonfigDEFENDER_DEMO_ENABLED */
 /* #define   democonfigOTA_UPDATE_DEMO_ENABLED */

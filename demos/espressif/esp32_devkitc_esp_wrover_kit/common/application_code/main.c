@@ -134,7 +134,7 @@ int app_main( void )
 }
 
 /*-----------------------------------------------------------*/
-
+extern void  vApplicationIPInit( void );
 static void prvMiscInitialization( void )
 {
 	// Initialize NVS
@@ -155,7 +155,8 @@ static void prvMiscInitialization( void )
 							tskIDLE_PRIORITY+5,
 							mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-    vApplicationInit( );
+    vApplicationIPInit();
+   
 }
 
 /*-----------------------------------------------------------*/
@@ -267,6 +268,12 @@ extern void esp_vApplicationIdleHook();
 void vApplicationIdleHook()
 {
     esp_vApplicationIdleHook();
+}
+
+/*-----------------------------------------------------------*/
+
+void vApplicationDaemonTaskStartupHook( void )
+{
 }
 
 /*-----------------------------------------------------------*/

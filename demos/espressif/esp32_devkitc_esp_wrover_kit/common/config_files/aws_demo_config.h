@@ -28,11 +28,6 @@
 
 #include "iot_demo_runner.h"
 
-/* Choose your demo here. By design only one demo can be selected at a time. If 
-    you choose more than one only the first choice will be run. If you require 
-    more than one demo to run at the same time you should create a combined 
-    demo and run both the required demo tasks from your demo entry function  */
-
 
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
