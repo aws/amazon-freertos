@@ -41,11 +41,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>application_code/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
 			<name>application_code/common_tests</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -88,7 +83,7 @@
 		<link>
 			<name>application_code/common_tests/mqtt</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<location>/Volumes/workspace/amazon-freertos/tests/common/mqtt</location>
 		</link>
 		<link>
 			<name>application_code/common_tests/ota</name>
@@ -141,6 +136,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/bufferpool</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/common</name>
+			<type>2</type>
+			<location>/Volumes/workspace/amazon-freertos/lib/common</location>
+		</link>
+		<link>
 			<name>lib/aws/greengrass</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/greengrass</locationURI>
@@ -149,6 +149,11 @@
 			<name>lib/aws/include</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/include</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/metrics</name>
+			<type>2</type>
+			<location>/Volumes/workspace/amazon-freertos/lib/metrics</location>
 		</link>
 		<link>
 			<name>lib/aws/mqtt</name>
@@ -166,9 +171,19 @@
 			<locationURI>BASE_DIR_ROOT/lib/pkcs11/portable/ti/cc3220_launchpad</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/provisioning</name>
+			<type>2</type>
+			<location>/Volumes/workspace/amazon-freertos/lib/provisioning</location>
+		</link>
+		<link>
 			<name>lib/aws/secure_sockets</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/secure_sockets/portable/ti/cc3220_launchpad</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/serializer</name>
+			<type>2</type>
+			<location>/Volumes/workspace/amazon-freertos/lib/serializer</location>
 		</link>
 		<link>
 			<name>lib/aws/shadow</name>
@@ -231,16 +246,6 @@
 			<locationURI>BASE_DIR_ROOT/tests/common/greengrass/aws_test_helper_secure_connect.c</locationURI>
 		</link>
 		<link>
-			<name>application_code/common_tests/mqtt/aws_test_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/tests/common/mqtt/aws_test_mqtt_agent.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/common_tests/mqtt/aws_test_mqtt_lib.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/tests/common/mqtt/aws_test_mqtt_lib.c</locationURI>
-		</link>
-		<link>
 			<name>application_code/common_tests/ota/aws_ota_update_demo.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/ota/aws_ota_update_demo.c</locationURI>
@@ -271,9 +276,9 @@
 			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/source</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/ota/aws_ota_agent.c</name>
+			<name>lib/aws/ota/aws_iot_ota_agent.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_agent.c</locationURI>
+			<location>/Volumes/workspace/amazon-freertos/lib/ota/aws_iot_ota_agent.c</location>
 		</link>
 		<link>
 			<name>lib/aws/ota/aws_ota_cbor.c</name>
@@ -387,6 +392,60 @@
 		</link>
 	</linkedResources>
 	<filteredResources>
+		<filter>
+			<id>1554502380016</id>
+			<name>application_code/common_tests/mqtt</name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1554501059692</id>
+			<name>lib/aws/include</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-iot_ble*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1554501060110</id>
+			<name>lib/aws/include</name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-bluetooth*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1554501060193</id>
+			<name>lib/aws/include</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-iot_ble*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1554501060200</id>
+			<name>lib/aws/include</name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-bluetooth*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1554501451648</id>
+			<name>lib/aws/mqtt</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-iot_ble*</arguments>
+			</matcher>
+		</filter>
 		<filter>
 			<id>1509704012246</id>
 			<name>lib/aws/FreeRTOS/portable</name>
