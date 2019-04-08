@@ -53,6 +53,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/platform.h"
+#include "mbedtls/entropy.h"
 
 enum eObjectHandles
 {
@@ -435,7 +436,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
     SlFsFileInfo_t FsFileInfo = { 0 };
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pxTemplate->cLabel,
+    prvLabelToFilenameHandle( ( uint8_t * )pxTemplate->cLabel,
                               &pcFileName,
                               &xHandle );
 
@@ -590,22 +591,63 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
                                         uint32_t ulDataSize )
 {
     char * pcFileName = NULL;
+    char * pcPemBuffer = NULL;
+    size_t xPemLength = 0;
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pxTemplate->cLabel,
+    prvLabelToFilenameHandle( ( uint8_t *)pxTemplate->cLabel,
                               &pcFileName,
                               &xHandle );
-
     if( pcFileName != NULL )
     {
-        if( pdFALSE == prvSaveFile( pcFileName, pucData, ulDataSize ) )
+        if( 0 == prvDerToPem( pucData,
+                              ulDataSize,
+                              &pcPemBuffer,
+                              &xPemLength,
+                              eAwsDevicePrivateKey == xHandle ? CKO_PRIVATE_KEY : CKO_CERTIFICATE ) )
         {
-            xHandle = eInvalidHandle;
+            /* If the object type is valid, and the DER-to-PEM conversion
+            succeeded, try to write the data to flash. */
+            if( pdFALSE == prvSaveFile( pcFileName,
+                                        ( char * )pucData,
+                                        ulDataSize ) )
+            {
+                xHandle = eInvalidHandle;
+            }
+        }
+
+        if( NULL != pcPemBuffer )
+        {
+            /* Free the temporary buffer used for conversion. */
+            vPortFree( pcPemBuffer );
         }
     }
 
     return xHandle;
+}
+
+/*-----------------------------------------------------------*/
+
+int mbedtls_hardware_poll( void * data,
+                           unsigned char * output,
+                           size_t len,
+                           size_t * olen )
+{
+    int lStatus = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
+
+    *olen = len;
+    /* Use the SimpleLink driver to get a hardware-derived seed for additional
+    PRNG entropy. */
+    if( 0 == sl_NetUtilGet( SL_NETUTIL_TRUE_RANDOM,
+                            0,
+                            output,
+                            ( uint16_t * )olen ) )
+    {
+        lStatus = 0;
+    }
+
+    return lStatus;
 }
 
 /*-----------------------------------------------------------*/
