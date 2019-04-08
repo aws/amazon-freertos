@@ -424,6 +424,10 @@ static esp_err_t prvBLEStackInit( void )
     esp_err_t xRet = ESP_OK;
     esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
+/* ESP32 doesn't have enough memory to maintain 2 secure connection + BLE in this environment.
+* We disable BLE when not used in test to free up memory.
+*/
+#if ( (testrunnerFULL_BLE_ENABLED == 1) ||(testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1) )
 
     ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
 
@@ -451,7 +455,10 @@ static esp_err_t prvBLEStackInit( void )
     {
         xRet = esp_bluedroid_enable();
     }
-
+#else
+    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
+    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_BLE ) );
+#endif
 
     return xRet;
 
