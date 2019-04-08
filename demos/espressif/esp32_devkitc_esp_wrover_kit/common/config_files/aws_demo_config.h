@@ -41,36 +41,20 @@
 #define democonfigDEMO_onNetworkDisconnectedFn NULL
 
 
-/* Individual demos task config and overrides for the above defaults*/
-#if defined( democonfigMQTTDemo_ENABLED )
-    #define DEMO_entryFUNCTION                              RunMqttDemo
-#elif defined( democonfigSHADOW_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION                              RunShadowDemo
-#elif defined(democonfigBLE_MQTT_ECHO_DEMO_ENABLED) 
-    #define DEMO_entryFUNCTION                              RunBleMqttEchoDemo
-#elif defined(democonfigMQTT_SUB_PUB_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartSubpubDemoTasksProxy
-#elif defined(democonfigGREENGRASS_DISCOVERY_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartGreenGrassDiscoveryTask
-#elif defined(democonfigTCP_ECHO_SERVER_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartSimpleTCPServerTasksProxy
-#elif defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartTCPEchoClientTasks_SeparateTasks
+/* Some individual demos want to override these defaults, that is done in this section */
+#if defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
     #undef democonfigDEMO_STACKSIZE
     #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
     #undef democonfigDEMO_PRIORITY
     #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
-#elif defined(democonfigMQTT_ECHO_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartMQTTEchoDemo  
-#elif defined(democonfigDEFENDER_DEMO_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartDefenderDemo
-#elif defined(democonfigPOSIX_DEMO_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartPOSIXDemo
-#else
-/* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
-    #error "At least one demo should be enabled in the file iot_demo_runner.h"
-#endif 
+#endif
 
+#if defined(democonfigTCP_ECHO_TASKS_SINGLE_ENABLED)
+    #undef democonfigDEMO_STACKSIZE
+    #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+    #undef democonfigDEMO_PRIORITY
+    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
+#endif
 
 #define democonfigSHADOW_DEMO_NUM_TASKS             ( 1 )
 #define democonfigSHADOW_DEMO_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 4 )
@@ -88,7 +72,6 @@
 
 #define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigMQTT_SUB_PUB_TASK_PRIORITY        ( tskIDLE_PRIORITY + 5 )
-
 
 
 /* Timeout used when performing MQTT operations that do not need extra time

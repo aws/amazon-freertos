@@ -300,10 +300,13 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 	}
 }
 
-
 /*-----------------------------------------------------------*/
 
-void vStartOTAUpdateDemoTask( void )
+int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
 {
     BaseType_t xRet = pdTRUE;
 
@@ -364,4 +367,6 @@ void vStartOTAUpdateDemoTask( void )
             vSemaphoreDelete( xNetworkAvailableLock );
         }
     }
+
+    return xRet;
 }
