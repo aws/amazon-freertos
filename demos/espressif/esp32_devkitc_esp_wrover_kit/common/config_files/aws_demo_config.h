@@ -52,35 +52,22 @@
     #define DEMO_entryFUNCTION                              vStartSubpubDemoTasksProxy
 #elif defined(democonfigGREENGRASS_DISCOVERY_ENABLED)
     #define DEMO_entryFUNCTION                              vStartGreenGrassDiscoveryTask
+#elif defined(democonfigTCP_ECHO_SERVER_ENABLED)
+    #define DEMO_entryFUNCTION                              vStartSimpleTCPServerTasksProxy
+#elif defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
+    #define DEMO_entryFUNCTION                              vStartTCPEchoClientTasks_SeparateTasks
+    #undef democonfigDEMO_STACKSIZE
+    #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+    #undef democonfigDEMO_PRIORITY
+    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
+#elif defined(democonfigMQTT_ECHO_ENABLED)
+    #define DEMO_entryFUNCTION                              vStartMQTTEchoDemo  
+#elif defined(democonfigDEFENDER_DEMO_ENABLED)
+    #define DEMO_entryFUNCTION                              vStartDefenderDemo
 #else
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "At least one demo should be enabled in the file iot_demo_runner.h"
 #endif 
-
-     
-/* 
-#elif defined(democonfigBLE_MQTT_EchoDemoOnNetworkConnected_DEMO_ENABLED)
-    #define DEMO_entryFUNCTION                                   RBleMqttEchoDemoOnNetworkConnected
-#elif defined( democonfigTCP_ECHO_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigOTA_UPDATE_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-    #define democonfigDEMO_STACKSIZE                             ( configMINIMAL_STACK_SIZE * 6 )
-#elif defined( democonfigTCP_ECHO_SERVER_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigMQTT_ECHO_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigWIFI_CONNECT_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-    #define democonfigDEMO_STACKSIZE                             ( configMINIMAL_STACK_SIZE * 4 )
-#elif defined( democonfigWIFI_CONNECT_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigDEFENDER_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-*/
-
 
 
 #define democonfigSHADOW_DEMO_NUM_TASKS             ( 1 )
@@ -100,8 +87,7 @@
 #define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigMQTT_SUB_PUB_TASK_PRIORITY        ( tskIDLE_PRIORITY + 5 )
 
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE   ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY     ( tskIDLE_PRIORITY + 5 )
+
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */

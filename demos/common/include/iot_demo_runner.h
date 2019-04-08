@@ -26,19 +26,28 @@
 #ifndef _IOT_DEMO_RUNNER_H_
 #define _IOT_DEMO_RUNNER_H_
 
-/* #define demoMQTTDemo_ENABLED */
+// 13 total
+
+/* #define   demoMQTTDemo_ENABLED */
 /* #define   democonfigSHADOW_DEMO_ENABLED */             
 /* #define   democonfigBLE_MQTT_ECHO_DEMO_ENABLED  */     
 /* #define   democonfigMQTT_SUB_PUB_ENABLED    */         
-#define   democonfigGREENGRASS_DISCOVERY_ENABLED     
-/* #define   democonfigTCP_ECHO_ENABLED                 */
-/* #define   democonfigOTA_UPDATE_ENABLED               */
-/* #define   democonfigTCP_ECHO_SERVER_ENABLED          */
-/* #define   democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED  */
-/* #define   democonfigMQTT_ECHO_ENABLED                */
-/* #define   democonfigWIFI_CONNECT_ENABLED             */
+/* #define   democonfigGREENGRASS_DISCOVERY_ENABLED  */
+/* #define   democonfigTCP_ECHO_SERVER_ENABLED  */               
+/* #define   democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED */
+/* #define   democonfigMQTT_ECHO_ENABLED */           
 
+#define   democonfigDEFENDER_DEMO_ENABLED             
+
+// TODO: This one needs some work, there are multiple implementations and use of Network Manager
+/* #define   democonfigOTA_UPDATE_ENABLED */
+// TODO: This one is commented out in the implementation ???
+//#define   democonfigTCP_ECHO_ENABLED
 
 void DEMO_RUNNER_RunDemos( void );
 
 #endif
+
+    /* vStartOTAUpdateDemoTask(); */
+    /* vStartTCPEchoClientTasks_SingleTasks */
+    /* vStartPOSIXDemo(); */
