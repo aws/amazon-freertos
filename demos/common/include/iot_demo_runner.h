@@ -28,9 +28,9 @@
 
 /* #define demoMQTTDemo_ENABLED */
 /* #define   democonfigSHADOW_DEMO_ENABLED */             
-#define   democonfigBLE_MQTT_ECHO_DEMO_ENABLED      
-/* #define   democonfigMQTT_SUB_PUB_ENABLED             */
-/* #define   democonfigGREENGRASS_DISCOVERY_ENABLED     */
+/* #define   democonfigBLE_MQTT_ECHO_DEMO_ENABLED  */     
+/* #define   democonfigMQTT_SUB_PUB_ENABLED    */         
+#define   democonfigGREENGRASS_DISCOVERY_ENABLED     
 /* #define   democonfigTCP_ECHO_ENABLED                 */
 /* #define   democonfigOTA_UPDATE_ENABLED               */
 /* #define   democonfigTCP_ECHO_SERVER_ENABLED          */

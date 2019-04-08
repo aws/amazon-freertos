@@ -40,6 +40,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "platform/iot_network.h"
 
 /* Greengrass includes. */
 #include "aws_ggd_config.h"
@@ -221,12 +222,12 @@ static void prvDiscoverGreenGrassCore( void * pvParameters )
 
 /*-----------------------------------------------------------*/
 
-void vStartGreenGrassDiscoveryTask( void )
+int vStartGreenGrassDiscoveryTask( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
 {
-    ( void ) xTaskCreate( prvDiscoverGreenGrassCore,
-                          "IoT_GGD",
-                          democonfigDEMO_STACKSIZE,
-                          NULL,
-                          democonfigDEMO_PRIORITY,
-                          NULL );
+    prvDiscoverGreenGrassCore( NULL );
+    return 0;
 }

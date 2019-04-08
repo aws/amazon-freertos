@@ -43,6 +43,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "event_groups.h"
+#include "platform/iot_network.h"
 
 /* MQTT include. */
 #include "aws_mqtt_agent.h"
@@ -748,4 +749,15 @@ void vStartSubpubDemoTasks( void )
                      ( void * ) pdTRUE, democonfigMQTT_SUB_PUB_TASK_PRIORITY, NULL );
     }
 }
+
 /*-----------------------------------------------------------*/
+
+int vStartSubpubDemoTasksProxy( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    vStartSubpubDemoTasks( );
+    return 0;
+}
