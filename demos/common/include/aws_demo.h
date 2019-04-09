@@ -41,13 +41,13 @@ typedef int (* demoFunction_t)( bool awsIotMqttMode,
                                  const IotNetworkInterface_t * pNetworkInterface );
 
 
-typedef void (* onNetworkConnected_t)( bool awsIotMqttMode,
+typedef void (* networkConnectedCallback_t)( bool awsIotMqttMode,
                                         const char * pIdentifier,
                                         void * pNetworkServerInfo,
                                         void * pNetworkCredentialInfo,
                                         const IotNetworkInterface_t * pNetworkInterface );
 
-typedef void (* onNetworkDisconnected_t)( const IotNetworkInterface_t * pNetworkInteface );
+typedef void (* networkDisconnectedCallback_t)( const IotNetworkInterface_t * pNetworkInteface );
 
 void runDemoTask( void * pArgument );
 
@@ -59,10 +59,10 @@ typedef struct demoContext
     uint32_t networkTypes;
     uint32_t connectedNetwork;
 
-    /* Function pointers for the demo */
-    demoFunction_t demoFn;
-    onNetworkConnected_t onNetworkConnectedFn;
-    onNetworkDisconnected_t onNetworkDisconnectedFn;
+    /* Function pointers to be set by the implementations for the demo */
+    demoFunction_t                demoFunction;
+    networkConnectedCallback_t    networkConnectedCallback;
+    networkDisconnectedCallback_t networkDisconnectedCallback;
 
     /* Semaphore used to synchronize internally */
     IotSemaphore_t networkSemaphore;

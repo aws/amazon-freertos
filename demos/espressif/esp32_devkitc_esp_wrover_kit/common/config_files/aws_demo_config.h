@@ -37,8 +37,6 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
-#define democonfigDEMO_onNetworkConnectedFn    NULL
-#define democonfigDEMO_onNetworkDisconnectedFn NULL
 
 
 /* Individual demos task config and overrides for the above defaults*/
@@ -47,16 +45,16 @@
 #elif defined( democonfigSHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION                                   RunShadowDemo
 #elif defined(democonfigBLE_MQTT_ECHO_DEMO_ENABLED) 
-     #define DEMO_entryFUNCTION                                  RunBleMqttEchoDemo
+     #define DEMO_entryFUNCTION                                  RunBLEMqttEchoDemo
+     #define DEMO_networkConnectedCallback                       BLEMqttEchoDemoNetworkConnectedCallback
+     #define DEMO_networkDisconnectedCallback                    BLEMqttEchoDemoNetworkDisconnectedCallback
 #else 
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "At least one demo should be enabled in the file iot_demo_runner.h"
-#endif 
+#endif
 
      
 /* 
-#elif defined(democonfigBLE_MQTT_EchoDemoOnNetworkConnected_DEMO_ENABLED)
-    #define DEMO_entryFUNCTION                                   RBleMqttEchoDemoOnNetworkConnected
 #elif defined( democonfigTCP_ECHO_ENABLED )
     #define DEMO_entryFUNCTION                                   RunMqttDemo
 #elif defined( democonfigOTA_UPDATE_ENABLED )

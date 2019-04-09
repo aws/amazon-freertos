@@ -53,6 +53,27 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
                  void * pNetworkCredentialInfo,
                  const IotNetworkInterface_t * pNetworkInterface );
 
+
+/* Forward declaration of network connected DEMO callback to be renamed from #define in aws_demo_config.h */
+#ifdef DEMO_networkConnectedCallback
+    void DEMO_networkConnectedCallback( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface );
+#else
+    #define DEMO_networkConnectedCallback  NULL
+#endif
+
+
+/* Forward declaration of network disconnected DEMO callback to be renamed from #define in aws_demo_config.h */
+#ifdef DEMO_networkDisconnectedCallback
+    void DEMO_networkDisconnectedCallback( const IotNetworkInterface_t * pNetworkInterface );
+#else
+    #define DEMO_networkDisconnectedCallback  NULL
+#endif
+
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -63,11 +84,11 @@ void DEMO_RUNNER_RunDemos( void )
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
     static demoContext_t mqttDemoContext =
     {
-        .networkTypes            = ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE ),
-        .connectedNetwork        = AWSIOT_NETWORK_TYPE_NONE,
-        .demoFn                  = DEMO_entryFUNCTION,
-        .onNetworkConnectedFn    = democonfigDEMO_onNetworkConnectedFn,
-        .onNetworkDisconnectedFn = democonfigDEMO_onNetworkDisconnectedFn 
+        .networkTypes                  = ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE ),
+        .connectedNetwork              = AWSIOT_NETWORK_TYPE_NONE,
+        .demoFunction                  = DEMO_entryFUNCTION,
+        .networkConnectedCallback      = DEMO_networkConnectedCallback,
+        .networkDisconnectedCallback   = DEMO_networkDisconnectedCallback 
     };
 
     Iot_CreateDetachedThread( runDemoTask,
