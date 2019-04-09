@@ -123,8 +123,11 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
  * @brief Destroys the members of an MQTT connection.
  *
  * @param[in] pMqttConnection Which connection to destroy.
+ * @param[in] receiveCallback Whether the connection is being destroyed from the
+ * receive callback. This affects the MQTT operation cleanup routine.
  */
-static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection );
+static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection,
+                                    bool receiveCallback );
 
 /**
  * @brief The common component of both @ref mqtt_function_subscribe and @ref
@@ -225,7 +228,7 @@ static void _mqttOperation_tryDestroy( void * pData )
         /* Decrement reference count and destroy operation if possible. */
         if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
         {
-            _IotMqtt_DestroyOperation( pOperation );
+            _IotMqtt_DestroyOperation( pOperation, false );
         }
         else
         {
@@ -464,8 +467,11 @@ static _mqttConnection_t * _createMqttConnection( bool awsIotMqttMode,
 
 /*-----------------------------------------------------------*/
 
-static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
+static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection,
+                                    bool receiveCallback )
 {
+    IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
+
     /* Clean up keep-alive if still allocated. */
     if( pMqttConnection->keepAliveMs != 0 )
     {
@@ -501,6 +507,35 @@ static void _destroyMqttConnection( _mqttConnection_t * pMqttConnection )
                                     _mqttSubscription_tryDestroy,
                                     offsetof( _mqttSubscription_t, link ) );
     IotMutex_Unlock( &( pMqttConnection->subscriptionMutex ) );
+
+    /* Destroy an owned network connection if this function is not being called
+     * from the receive callback. */
+    if( receiveCallback == false )
+    {
+        if( pMqttConnection->ownNetworkConnection == true )
+        {
+            networkStatus = pMqttConnection->pNetworkInterface->destroy( pMqttConnection->pNetworkConnection );
+
+            if( networkStatus != IOT_NETWORK_SUCCESS )
+            {
+                IotLogWarn( "(MQTT connection %p) Failed to destroy network connection.",
+                            pMqttConnection );
+            }
+            else
+            {
+                IotLogInfo( "(MQTT connection %p) Network connection destroyed.",
+                            pMqttConnection );
+            }
+        }
+        else
+        {
+            _EMPTY_ELSE_MARKER;
+        }
+    }
+    else
+    {
+        _EMPTY_ELSE_MARKER;
+    }
 
     /* Destroy mutexes. */
     IotMutex_Destroy( &( pMqttConnection->referencesMutex ) );
@@ -713,7 +748,7 @@ static IotMqttError_t _subscriptionCommon( IotMqttOperationType_t operation,
     {
         if( pSubscriptionOperation != NULL )
         {
-            _IotMqtt_DestroyOperation( pSubscriptionOperation );
+            _IotMqtt_DestroyOperation( pSubscriptionOperation, false );
         }
     }
     else
@@ -764,7 +799,8 @@ bool _IotMqtt_IncrementConnectionReferences( _mqttConnection_t * pMqttConnection
 
 /*-----------------------------------------------------------*/
 
-void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection )
+void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection,
+                                             bool receiveCallback )
 {
     bool destroyConnection = false;
 
@@ -797,7 +833,7 @@ void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection
     {
         IotLogDebug( "(MQTT connection %p) Connection will be destroyed now.",
                      pMqttConnection );
-        _destroyMqttConnection( pMqttConnection );
+        _destroyMqttConnection( pMqttConnection, receiveCallback );
     }
     else
     {
@@ -1159,29 +1195,9 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
             _EMPTY_ELSE_MARKER;
         }
 
-        /* Destroy a network connection owned by this MQTT connection. */
-        if( ownNetworkConnection == true )
-        {
-            networkStatus = pNetworkInfo->pNetworkInterface->destroy( pNetworkConnection );
-
-            if( networkStatus != IOT_NETWORK_SUCCESS )
-            {
-                IotLogWarn( "Failed to destroy network connection." );
-            }
-            else
-            {
-                IotLogInfo( "Network connection destroyed on error." );
-            }
-        }
-        else
-        {
-            _EMPTY_ELSE_MARKER;
-        }
-
-
         if( pOperation != NULL )
         {
-            _IotMqtt_DestroyOperation( pOperation );
+            _IotMqtt_DestroyOperation( pOperation, false );
         }
         else
         {
@@ -1190,7 +1206,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
 
         if( pNewMqttConnection != NULL )
         {
-            _destroyMqttConnection( pNewMqttConnection );
+            _destroyMqttConnection( pNewMqttConnection, false );
         }
         else
         {
@@ -1215,7 +1231,6 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 {
     bool disconnected = false;
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-    IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
     _mqttOperation_t * pOperation = NULL;
 
     IotLogInfo( "(MQTT connection %p) Disconnecting connection.", mqttConnection );
@@ -1294,7 +1309,7 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
                 {
                     IotLogWarn( "(MQTT connection %p) Failed to schedule DISCONNECT for sending.",
                                 mqttConnection );
-                    _IotMqtt_DestroyOperation( pOperation );
+                    _IotMqtt_DestroyOperation( pOperation, false );
                 }
                 else
                 {
@@ -1355,27 +1370,8 @@ void IotMqtt_Disconnect( IotMqttConnection_t mqttConnection,
 
     IotMutex_Unlock( &( mqttConnection->referencesMutex ) );
 
-    /* An MQTT connection that owns its network connection should destroy it. */
-    if( mqttConnection->ownNetworkConnection == true )
-    {
-        networkStatus = mqttConnection->pNetworkInterface->destroy( mqttConnection->pNetworkConnection );
-
-        if( networkStatus != IOT_NETWORK_SUCCESS )
-        {
-            IotLogWarn( "Failed to destroy network connection." );
-        }
-        else
-        {
-            IotLogInfo( "Network connection destroyed." );
-        }
-    }
-    else
-    {
-        _EMPTY_ELSE_MARKER;
-    }
-
     /* Decrement the connection reference count and destroy it if possible. */
-    _IotMqtt_DecrementConnectionReferences( mqttConnection );
+    _IotMqtt_DecrementConnectionReferences( mqttConnection, false );
 }
 
 /*-----------------------------------------------------------*/
@@ -1719,7 +1715,7 @@ IotMqttError_t IotMqtt_Publish( IotMqttConnection_t mqttConnection,
     {
         if( pOperation != NULL )
         {
-            _IotMqtt_DestroyOperation( pOperation );
+            _IotMqtt_DestroyOperation( pOperation, false );
         }
         else
         {
@@ -1887,7 +1883,7 @@ IotMqttError_t IotMqtt_Wait( IotMqttOperation_t operation,
         /* Wait is finished; decrement operation reference count. */
         if( _IotMqtt_DecrementOperationReferences( operation, false ) == true )
         {
-            _IotMqtt_DestroyOperation( operation );
+            _IotMqtt_DestroyOperation( operation, false );
         }
         else
         {
