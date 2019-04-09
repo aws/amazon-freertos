@@ -188,16 +188,18 @@ afr_module_dependencies(
 )
 
 # BLE test
-# Only build on boards that support BLE.
-if(${BLE_SUPPORTED})
-    afr_test_module(test_ble)
-    afr_module_sources(
-        test_ble
-        INTERFACE
-            "${AFR_TESTS_DIR}/ble/aws_test_ble.c"
-            "${AFR_TESTS_DIR}/ble/aws_test_ble_end_to_end.c"
-    )
-endif()
+afr_test_module(test_ble)
+afr_module_sources(
+    test_ble
+    INTERFACE
+        "${AFR_TESTS_DIR}/ble/aws_test_ble.c"
+        "${AFR_TESTS_DIR}/ble/aws_test_ble_end_to_end.c"
+)
+afr_module_dependencies(
+    test_ble
+    INTERFACE
+        AFR::ble
+)
 
 # Memory test
 afr_test_module(test_memory)

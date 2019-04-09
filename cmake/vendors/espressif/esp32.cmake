@@ -102,10 +102,6 @@ target_link_libraries(
     AFR::pkcs11::mcu_port
     INTERFACE AFR::pkcs11_mbedtls
 )
-target_include_directories(
-    AFR::pkcs11::mcu_port
-    INTERFACE "${AFR_3RDPARTY_DIR}/pkcs11"
-)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/aws_pkcs11_pal.c"
@@ -125,9 +121,9 @@ afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
     INTERFACE
-    AFR::freertos_plus_tcp
-    AFR::pkcs11
-    AFR::tls
+        AFR::freertos_plus_tcp
+        AFR::pkcs11
+        AFR::tls
 )
 target_sources(
     AFR::secure_sockets::mcu_port
@@ -145,7 +141,7 @@ target_sources(
 )
 target_link_libraries(
     AFR::ota::mcu_port
-    INTERFACE AFR::pkcs11
+    INTERFACE 3rdparty::pkcs11
 )
 
 # -------------------------------------------------------------------------------------------------
