@@ -965,6 +965,7 @@ static void _connectionCallback( BTStatus_t status,
             else
             {
                 configPRINTF( ( "Disconnect received for MQTT service instance %d\n", id ) );
+                pService->isEnabled = false;
                 _closeConnection( pService );
             }
         }
