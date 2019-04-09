@@ -151,6 +151,9 @@
     <Filter Include="lib\aws\defender">
       <UniqueIdentifier>{03a27589-9273-4715-811d-ad3ca4968154}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\provisioning">
+      <UniqueIdentifier>{aa765f5f-2360-45b1-8ca7-4682937c69e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c">
@@ -510,9 +513,6 @@
     <ClCompile Include="..\..\..\common\tcp\aws_tcp_echo_client_separate_tasks.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c">
-      <Filter>application_code\common_demos\source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c">
       <Filter>lib\aws\secure_sockets</Filter>
     </ClCompile>
@@ -606,9 +606,6 @@
     <ClCompile Include="..\..\..\..\lib\serializer\json\aws_iot_serializer_json_encoder.c">
       <Filter>lib\aws\serializer\json</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c">
-      <Filter>lib\aws\secure_sockets</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_api.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
@@ -691,6 +688,21 @@
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\shadow\aws_iot_demo_shadow.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\provisioning\aws_dev_mode_key_provisioning.c">
+      <Filter>lib\aws\provisioning</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\metrics\aws_secure_sockets_wrapper_metrics.c">
+      <Filter>lib\aws\metrics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\ota\aws_iot_ota_update_demo.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\network_manager\aws_iot_demo_network.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\network_manager\aws_iot_network_manager.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
   </ItemGroup>

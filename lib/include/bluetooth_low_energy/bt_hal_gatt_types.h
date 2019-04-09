@@ -28,9 +28,11 @@
  * @file bt_hal_gatt_types.h
  *
  * @brief T HAL provides the standard defintions used by BT GATT interfaces.
+ * @addtogroup HAL_BLUETOOTH
  * USAGE
  * -----
  *
+ * @{
  */
 #ifndef _BT_HAL_GATT_TYPES_H_
 #define _BT_HAL_GATT_TYPES_H_
@@ -159,13 +161,12 @@ typedef enum
     eBTDbDescriptor,         /**< Characteristic descriptor. */
 } BTDbAttributeType_t;
 
-
 typedef struct BTService               BTService_t;
 
 /**
  * @brief Structure describing a characteristic.
  */
-typedef struct 
+typedef struct
 {
     BTUuid_t xUuid;    /**< Attribute UUID*/
     BTCharProperties_t xProperties;                       /**< Characteristic properties. */
@@ -184,7 +185,7 @@ typedef struct
 /**
  * @brief  Structure describing an included service.
      */
-typedef struct 
+typedef struct
 {
     BTUuid_t xUuid;    /**< Attribute UUID*/
     BTService_t * pxPtrToService;                        /**< Pointer to the service being included. */
@@ -198,11 +199,11 @@ typedef BTUuid_t BTServiceUUID_t;
 /**
  * @brief Generic BLE attribute.
      */
-typedef struct 
+typedef struct
 {
     BTDbAttributeType_t xAttributeType; /**< Type of attribute. */
     union
-    {  
+    {
         BTServiceUUID_t xServiceUUID;                 /**< UUID of the service. */
         BTCharacteristic_t xCharacteristic;           /**< Characteristic. */
         BTCharacteristicDescr_t xCharacteristicDescr; /**< Descriptor. */
@@ -212,7 +213,7 @@ typedef struct
 
 /**
  * @brief Structure describing a service.
- * Note, handles are allocated separatly so the attribute array can be allocated in ROM. 
+ * Note, handles are allocated separatly so the attribute array can be allocated in ROM.
  * pxHandlesBuffer has to dimensions: x and y [x][y] .
  * x : Number of copies of the service
  * y : needs to be equal to xNumberOfAttributes
@@ -222,13 +223,62 @@ typedef struct
  * The fitst attribute is the UUID of the service.
  */
 struct BTService
-{            
+{
     uint8_t ucInstId;                          /**< Service Instance ID. */
-    BTGattServiceTypes_t xType;                /**< Sercice type. */   
+    BTGattServiceTypes_t xType;                /**< Sercice type. */
     size_t xNumberOfAttributes;                /**< Number of attributes. */
     uint16_t * pusHandlesBuffer;               /**< Array of handles, mapping to pxBLEAttributes. */
     BTAttribute_t * pxBLEAttributes;          /**< Array of attribute, can be allocated in ROM. */
 } ;
 
+typedef struct
+{
+    uint16_t usId;
+    BTUuid_t xUuid;
+    BTDbAttributeType_t xType;
+    uint16_t usAttributeHandle;
+
+    /*
+     * If |type| is |btDB_PRIMARY_SERVICE|, or
+     * |btDB_SECONDARY_SERVICE|, this contains the start and end attribute
+     * handles.
+     */
+    uint16_t usStartHandle;
+    uint16_t usEndHandle;
+
+    /*
+     * If |type| is |btDB_CHARACTERISTIC|, this contains the properties of
+     * the characteristic.
+     */
+    uint8_t ucProperties;
+} BTGattDbElement_t;
+
+/** GATT open callback invoked in response to open */
+typedef void ( * BTConnectCallback_t)( uint16_t usConnId,
+                                       BTStatus_t xStatus,
+                                       uint8_t ucClientIf,
+                                       BTBdaddr_t * pxBda );
+
+/** Callback invoked in response to close */
+typedef void ( * BTDisconnectCallback_t)( uint16_t usConnId,
+                                          BTStatus_t xStatus,
+                                          uint8_t ucClientIf,
+                                          BTBdaddr_t * pxBda );
+
+
+/** Callback triggered in response to readRemoteRssi */
+typedef void ( * BTReadRemoteRssiCallback_t)( uint8_t ucClientIf,
+                                              BTBdaddr_t * pxBda,
+                                              uint32_t ulRssi,
+                                              BTStatus_t xStatus );
+
+/**
+ * Callback notifying an application that a remote device connection is currently congested
+ * and cannot receive any more data. An application should avoid sending more data until
+ * a further callback is received indicating the congestion status has been cleared.
+ */
+typedef void ( * BTCongestionCallback_t)( uint16_t usConnId,
+                                          bool bCongested );
 
 #endif /* _BT_HAL_GATT_TYPES_H_ */
+/** @} */

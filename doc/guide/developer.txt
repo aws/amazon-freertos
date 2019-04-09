@@ -1,0 +1,8 @@
+/**
+@page guide_developer Developer's Guide
+@brief Guide for maintaining and contributing code to this project.
+
+This guide contains the following pages. All pages assume the reader has intermediate familiarity with this SDK.
+- @subpage guide_developer_styleguide <br>
+  @copybrief guide_developer_styleguide
+*/

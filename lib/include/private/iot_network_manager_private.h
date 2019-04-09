@@ -60,6 +60,12 @@
  * @brief Compile time flag which can be used to check if WIFI is enabled.
  */
 #define WIFI_ENABLED       ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
+
+ /**
+ * @brief Compile time flag which can be used to check if Ethernet is enabled.
+ */
+#define ETH_ENABLED       ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+
 /**
  * @brief Initializer for a subscription handle.
  */

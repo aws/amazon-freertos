@@ -1,0 +1,27 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Logging"
+PROJECT_BRIEF = "Generate and print log messages"
+
+# Library documentation output directory.
+HTML_OUTPUT = logging
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/logging.tag
+
+# Directories containing library source code.
+INPUT = doc/lib \
+        lib/include \
+        lib/include/private \
+        lib/source/common
+
+# Library file names.
+FILE_PATTERNS = *logging*.c *logging*.h *logging*.txt
+
+# External tag files required by this library.
+TAGFILES = doc/tag/main.tag=../main \
+           doc/tag/static_memory.tag=../static_memory \
+           doc/tag/platform.tag=../platform

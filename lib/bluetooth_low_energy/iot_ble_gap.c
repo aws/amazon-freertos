@@ -331,7 +331,7 @@ BTStatus_t _startAllServices()
 	BTStatus_t status = eBTStatusSuccess;
 	BaseType_t error;
 
-	error = IotBleDeviceInfo_SvcInit();
+	error = IotBleDeviceInfo_Init();
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     if( error == pdPASS )

@@ -4,6 +4,7 @@
 
 # Basic project information.
 PROJECT_NAME = "Defender"
+PROJECT_BRIEF = "AWS IoT Device Defender library"
 
 # Library documentation output directory.
 HTML_OUTPUT = defender
@@ -12,13 +13,18 @@ HTML_OUTPUT = defender
 GENERATE_TAGFILE = doc/tag/defender.tag
 
 # Directories containing library source code.
-INPUT = lib/include/aws_iot_defender.h \
-        lib/include/private/aws_iot_defender_internal.h
+INPUT = doc/lib/ \
+        lib/include \
+        lib/include/private \
+        lib/source/defender
 
 # Library file names.
-FILE_PATTERNS = *.h *.c *.txt
-
-EXAMPLE_PATH = lib/include/aws_iot_defender.h
+FILE_PATTERNS = *defender*.h *defender*.txt
 
 # External tag files required by this library.
 TAGFILES = doc/tag/main.tag=../main \
+           doc/tag/mqtt.tag=../mqtt \
+           doc/tag/logging.tag=../logging \
+           doc/tag/static_memory.tag=../static_memory \
+           doc/tag/platform.tag=../platform \
+           doc/tag/linear_containers.tag=../linear_containers

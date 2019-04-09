@@ -4,6 +4,22 @@ afr_module_sources(
     common
     INTERFACE
         "${AFR_MODULES_DIR}/include/private/aws_default_root_certificates.h"
+        "${AFR_MODULES_DIR}/include/aws_appversion32.h"
+)
+
+# Extra files for delivering source files from AFR console.
+afr_module(extra INTERFACE)
+afr_module_sources(
+    extra
+    INTERFACE
+        "LICENSE"
+        "README.md"
+        "CHANGELOG.md"
+        "directories.txt"
+        "${AFR_MODULES_DIR}/utils/aws_system_init.c"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
 )
 
 # FreeRTOS module.
@@ -31,6 +47,7 @@ afr_module_sources(
         "${AFR_MODULES_DIR}/include/private/portable.h"
         "${AFR_MODULES_DIR}/include/private/projdefs.h"
         "${AFR_MODULES_DIR}/include/private/stack_macros.h"
+        "${AFR_MODULES_DIR}/include/private/threading_alt.h"
 )
 afr_module_include_dirs(
     freertos
@@ -65,6 +82,6 @@ afr_module_include_dirs(
 file(GLOB afr_modules "${AFR_MODULES_DIR}/*")
 foreach(module IN LISTS afr_modules)
     if(IS_DIRECTORY "${module}" AND EXISTS "${module}/CMakeLists.txt")
-        add_subdirectory("${module}")
+        afr_add_subdirectory("${module}")
     endif()
 endforeach()

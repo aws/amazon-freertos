@@ -54,6 +54,10 @@
 /* Defender includes. */
 #include "aws_iot_defender.h"
 
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
+
 /* Set to 1 to enable this demo to connect to echo server.
  * Then in the demo output, it is expected to see one more established TCP connection.
  */

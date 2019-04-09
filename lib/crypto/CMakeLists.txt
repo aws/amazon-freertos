@@ -1,5 +1,13 @@
 afr_module(crypto OPTIONAL)
 
+afr_set_lib_metadata(ID "crypto")
+afr_set_lib_metadata(DESCRIPTION "This library implements cryptographic signature verification. It \
+can be used for code signing in the over-the-air update process.")
+afr_set_lib_metadata(DISPLAY_NAME "Crypto Verification")
+afr_set_lib_metadata(CATEGORY "Security")
+afr_set_lib_metadata(VERSION "1.0.0")
+afr_set_lib_metadata(IS_VISIBLE "false")
+
 afr_module_sources(
     crypto
     PRIVATE

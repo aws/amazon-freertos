@@ -55,6 +55,8 @@
 #include "iot_demo_runner.h"
 #include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_network_manager_private.h"
+#include "aws_iot_network_config.h"
 
 /* Declare the firmware version structure for all to see. */
 const AppVersion32_t xAppFirmwareVersion = {
@@ -216,6 +218,11 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 
             /* Initialize AWS system libraries */
             SYSTEM_Init();
+
+            configASSERT( AwsIotNetworkManager_Init( ) == pdPASS ); 
+
+            AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
+
 
             /* Start the demo tasks. */
             DEMO_RUNNER_RunDemos();

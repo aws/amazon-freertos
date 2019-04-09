@@ -16,9 +16,8 @@ afr_module_include_dirs(
 afr_module_dependencies(
     utils
     INTERFACE
-        AFR::mqtt
         AFR::secure_sockets
-        AFR::sdk_common
+        AFR::metrics
 )
 
 # C SDK platform layer.

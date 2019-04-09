@@ -27,9 +27,8 @@
 
 #include "FreeRTOS.h"
 #include "aws_system_init.h"
+#include "aws_secure_sockets.h"
 
-/* Library code. */
-extern BaseType_t SOCKETS_Init( void );
 
 /*-----------------------------------------------------------*/
 

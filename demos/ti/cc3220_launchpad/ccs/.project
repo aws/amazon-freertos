@@ -81,6 +81,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/bufferpool</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/common</name>
+			<type>2</type>
+			<location>/Volumes/workspace/amazon-freertos/lib/common</location>
+		</link>
+		<link>
 			<name>lib/aws/greengrass</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/greengrass</locationURI>
@@ -89,6 +94,11 @@
 			<name>lib/aws/include</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/include</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/metrics</name>
+			<type>2</type>
+			<location>/Volumes/workspace/amazon-freertos/lib/metrics</location>
 		</link>
 		<link>
 			<name>lib/aws/mqtt</name>
@@ -104,6 +114,11 @@
 			<name>lib/aws/pkcs11</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/provisioning</name>
+			<type>2</type>
+			<location>/Volumes/workspace/amazon-freertos/lib/provisioning</location>
 		</link>
 		<link>
 			<name>lib/aws/secure_sockets</name>
@@ -156,11 +171,6 @@
 			<locationURI>BASE_DIR_ROOT/demos/common/demo_runner/aws_demo_runner.c</locationURI>
 		</link>
 		<link>
-			<name>application_code/common_demos/source/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
 			<name>application_code/common_demos/source/aws_greengrass_discovery_demo.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
@@ -169,11 +179,6 @@
 			<name>application_code/common_demos/source/aws_hello_world.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/common/mqtt/aws_hello_world.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/common_demos/source/aws_logging_task_dynamic_buffers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_ota_update_demo.c</name>
@@ -211,9 +216,9 @@
 			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/source</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/ota/aws_ota_agent.c</name>
+			<name>lib/aws/ota/aws_iot_ota_agent.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_agent.c</locationURI>
+			<location>/Volumes/workspace/amazon-freertos/lib/ota/aws_iot_ota_agent.c</location>
 		</link>
 		<link>
 			<name>lib/aws/ota/aws_ota_cbor.c</name>
@@ -338,6 +343,33 @@
 	</linkedResources>
 	<filteredResources>
 		<filter>
+			<id>1554488717831</id>
+			<name>lib/aws/include</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-iot_ble*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1554488717846</id>
+			<name>lib/aws/include</name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-bluetooth*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1554488845205</id>
+			<name>lib/aws/mqtt</name>
+			<type>22</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-iot_ble*</arguments>
+			</matcher>
+		</filter>
+		<filter>
 			<id>1509701838347</id>
 			<name>lib/aws/FreeRTOS/portable</name>
 			<type>9</type>
@@ -362,15 +394,6 @@
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1509701902595</id>
-			<name>lib/aws/include/private</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-*.c</arguments>
 			</matcher>
 		</filter>
 		<filter>

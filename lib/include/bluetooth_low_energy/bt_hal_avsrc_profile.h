@@ -25,19 +25,20 @@
 
 /**
  * @file bt_avsrc_profile.h
- * @brief ACE BT HAL provides the interfaces for A2DP Source profile for local device.
- * @ingroup ACE_HAL_BLUETOOTH
+ * @brief BT HAL provides the interfaces for A2DP Source profile for local device.
+ * @addtogroup HAL_BLUETOOTH
  * USAGE
  * -----
  *
+ * @{
  */
 
 
-#ifndef BT_HAL_AVSRC_PROFILE_H
-#define BT_HAL_AVSRC_PROFILE_H
+#ifndef _BT_HAL_AVSRC_PROFILE_H
+#define _BT_HAL_AVSRC_PROFILE_H
 
 #include <stdint.h>
-#include "bt_hal_gatt_types.h"
+#include "bt_hal_manager_types.h"
 
 /** Bluetooth AV connection states */
 typedef enum
@@ -107,4 +108,7 @@ typedef struct
     BTStatus_t ( * pxAvsrcDisconnect )( BTBdaddr_t * pxRemote_addr );
 } BTAvsrcInterface_t;
 
-#endif /* BT_HAL_AVSRC_PROFILE_H */
+extern const BTAvsrcInterface_t* BT_GetAvsrcInterface();
+
+#endif /* _BT_HAL_AVSRC_PROFILE_H */
+/** @} */

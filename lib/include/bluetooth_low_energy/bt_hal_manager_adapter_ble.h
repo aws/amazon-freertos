@@ -26,7 +26,7 @@
 
 /**
  * @file bt_hal_manager_adapter_ble.h
- *
+ * @addtogroup HAL_BLUETOOTH
  * @brief BT manager BLE adapter, provide GAP API functions that are specific to BLE.
  *
  * Before calling pxRegisterBleApp, common GAP need to be enabled and started.
@@ -34,6 +34,8 @@
  * 1. pxBleAdapterInit
  * 2. pxRegisterBleApp
  * 3. get the GATT interface to initialize GATT.
+ *
+ * @{
  */
 
 
@@ -186,42 +188,6 @@ typedef void (* BTScanResultCallback_t)( BTBdaddr_t * pxBda,
 
 /**
  *
- * @brief Invoked on connection event.
- *
- * @param[in] usConnId Connection ID return from BTConnectCallback_t
- * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
- * @param[in] pxBda Remote device address.
- */
-typedef void (* BTConnectCallback_t)( uint16_t usConnId,
-                                      BTStatus_t xStatus,
-                                      uint8_t ucAdapterIf,
-                                      BTBdaddr_t * pxBda );
-
-/** Callback invoked in response to close */
-
-/**
- *
- * @brief Invoked on disconnection event.
- *
- * @param[in] usConnId Connection ID return from BTConnectCallback_t.
- * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
- * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
- * @param[in] pxBda Remote device address.
- */
-typedef void (* BTDisconnectCallback_t)( uint16_t usConnId,
-                                         BTStatus_t xStatus,
-                                         uint8_t ucAdapterIf,
-                                         BTBdaddr_t * pxBda );
-
-/** Callback triggered in response to read_remote_rssi */
-typedef void (* BTReadRemoteRssiCallback_t)( uint8_t ucAdapterIf,
-                                             BTBdaddr_t * pxBda,
-                                             uint32_t ulRssi,
-                                             BTStatus_t xStatus );
-
-/**
- *
  * @brief  Callback invoked on pxStartAdv.
  *
  * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
@@ -341,18 +307,6 @@ typedef void (* BTMultiAdvDataCallback_t)( uint8_t ucAdapterIf,
  */
 typedef void (* BTMultiAdvDisableCallback_t)( uint8_t ucAdapterIf,
                                               BTStatus_t xStatus );
-
-/**
- *
- * @brief Callback notifying an application that a remote device connection is currently congested
- * and cannot receive any more data. An application should avoid sending more data until
- * a further callback is received indicating the congestion status has been cleared.
- *
- * @param[in] usConnId Connection ID return from BTConnectCallback_t
- * @param[in] bCongested
- */
-typedef void (* BTCongestionCallback_t)( uint16_t usConnId,
-                                         bool bCongested );
 
 /**
  *
@@ -791,7 +745,7 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxMultiAdvEnable )( uint8_t ucAdapterIf,
-                                       BTGattAdvertismentParams_t xAdvParams );
+                                       BTGattAdvertismentParams_t *xAdvParams );
 
     /**
      *
@@ -802,7 +756,7 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxMultiAdvUpdate )( uint8_t ucAdapterIf,
-                                       BTGattAdvertismentParams_t advParams );
+                                       BTGattAdvertismentParams_t *advParams );
 
     /**
      *
@@ -938,3 +892,4 @@ typedef struct
 } BTBleAdapter_t;
 
 #endif /* #ifndef _BT_HAL_MANAGER_ADAPTER_BLE_H_ */
+/** @} */

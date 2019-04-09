@@ -220,6 +220,9 @@
     <Filter Include="application_code\common_tests\defender">
       <UniqueIdentifier>{875bf49e-15e1-4dfa-af48-c12240845112}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\aws\provisioning">
+      <UniqueIdentifier>{6f33938d-2c8f-4923-952d-291a7a02be82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.h">
@@ -1217,9 +1220,6 @@
     <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_agent.c">
       <Filter>application_code\common_tests\mqtt</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\demos\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c">
-      <Filter>application_code</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c">
       <Filter>lib\aws\secure_sockets</Filter>
     </ClCompile>
@@ -1364,9 +1364,6 @@
     <ClCompile Include="..\..\..\..\lib\metrics\iot_metrics.c">
       <Filter>lib\aws\metrics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\aws_secure_sockets_wrapper_metrics.c">
-      <Filter>lib\aws\secure_sockets</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\common\iot_common.c">
       <Filter>lib\aws\common</Filter>
     </ClCompile>
@@ -1477,6 +1474,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_end_to_end.c">
       <Filter>application_code\common_tests\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\provisioning\aws_dev_mode_key_provisioning.c">
+      <Filter>lib\aws\provisioning</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\lib\metrics\aws_secure_sockets_wrapper_metrics.c">
+      <Filter>lib\aws\metrics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

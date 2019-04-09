@@ -53,6 +53,10 @@
 /* Demo includes. */
 #include "aws_demo_config.h"
 
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
+
 #define ggdDEMO_MAX_MQTT_MESSAGES      3
 #define ggdDEMO_MAX_MQTT_MSG_SIZE      500
 #define ggdDEMO_DISCOVERY_FILE_SIZE    2500
