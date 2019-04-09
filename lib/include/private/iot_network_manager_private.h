@@ -43,12 +43,6 @@
 #endif
 
 
-/**
- * @brief Flag used to get all the network types.
- */
-#define AWSIOT_NETWORK_TYPE_ALL      ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
-
-
 #if defined( configENABLED_NETWORKS ) && defined( configSUPPORTED_NETWORKS )
 #if ( ( configENABLED_NETWORKS | configSUPPORTED_NETWORKS ) != configSUPPORTED_NETWORKS )
 #error "Enabled networks should always be a subset of supported networks"
@@ -64,6 +58,11 @@
  * @brief Compile time flag which can be used to check if WIFI is enabled.
  */
 #define WIFI_ENABLED       ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
+
+ /**
+ * @brief Compile time flag which can be used to check if Ethernet is enabled.
+ */
+#define ETH_ENABLED       ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
 
 /**
  * @brief Initializer for a subscription handle.
