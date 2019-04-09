@@ -24,6 +24,7 @@ afr_module_dependencies(
     INTERFACE
         AFR::kernel
         AFR::provisioning
+        AFR::sdk_common
 )
 
 # Add other modules.

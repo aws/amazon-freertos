@@ -53,3 +53,18 @@ afr_module_dependencies(
     INTERFACE
         AFR::mqtt
 )
+
+# MQTT-over-BLE demo.
+# Only build on boards that support BLE.
+afr_demo_module(demo_mqtt_ble)
+afr_module_sources(
+    demo_mqtt_ble
+    INTERFACE
+        "${AFR_DEMOS_DIR}/mqtt/aws_mqtt_ble_hello_world.c"
+)
+afr_module_dependencies(
+    demo_mqtt_ble
+    INTERFACE
+        AFR::mqtt
+        AFR::ble
+)
