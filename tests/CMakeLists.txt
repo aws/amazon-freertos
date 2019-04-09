@@ -214,6 +214,7 @@ afr_module_sources(
     INTERFACE
         "${AFR_TESTS_DIR}/framework/aws_test_framework.c"
         "${AFR_TESTS_DIR}/test_runner/aws_test_runner.c"
+        "${AFR_TESTS_DIR}/test_runner/iot_tests_network.c"
         "${AFR_TESTS_DIR}/include/aws_test_framework.h"
         "${AFR_TESTS_DIR}/include/aws_test_runner.h"
         "${AFR_TESTS_DIR}/include/aws_clientcredential.h"
