@@ -77,11 +77,40 @@ target_sources(
     INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/aws_wifi.c"
 )
 
+# BLE
+set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
+
+# Include directories for BLE on ESP
+set(
+    esp_ble_inc_dirs
+    "${espressif_dir}/components/bt/bluedroid/api/include/api"
+    "${espressif_dir}/components/bt/include"
+    "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/"
+)
+
+afr_mcu_port(ble)
+target_sources(
+    AFR::ble::mcu_port
+    INTERFACE
+        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_common_gap.c"
+        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_gap.c"
+        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_gatt_server.c"
+)
+target_include_directories(
+    AFR::ble::mcu_port
+    INTERFACE
+        ${esp_ble_inc_dirs}
+)
+
 # PKCS11
 afr_mcu_port(pkcs11)
 target_link_libraries(
     AFR::pkcs11::mcu_port
     INTERFACE AFR::pkcs11_mbedtls
+)
+target_include_directories(
+    AFR::pkcs11::mcu_port
+    INTERFACE "${AFR_3RDPARTY_DIR}/pkcs11"
 )
 target_sources(
     AFR::pkcs11::mcu_port
@@ -116,7 +145,13 @@ target_sources(
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/ota/portable/espressif/esp32_devkitc_esp_wrover_kit/aws_ota_pal.c"
+    INTERFACE
+        "${AFR_MODULES_DIR}/ota/portable/espressif/esp32_devkitc_esp_wrover_kit/aws_ota_pal.c"
+        "${AFR_MODULES_DIR}/ota/portable/espressif/esp32_devkitc_esp_wrover_kit/aws_esp_ota_ops.c"
+)
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE AFR::pkcs11
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -125,21 +160,33 @@ target_sources(
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
+    set(extra_exe_sources "${AFR_TESTS_DIR}/test_runner/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
+    set(
+        extra_exe_sources
+        "${AFR_DEMOS_DIR}/ble/iot_ble_numericComparison.c"
+        ${NETWORK_MANAGER_SOURCES}
+    )
 endif()
 
-add_executable(${exe_target} "${board_dir}/application_code/main.c")
+add_executable(
+    ${exe_target}
+    "${board_dir}/application_code/main.c"
+    ${extra_exe_sources}
+)
 target_include_directories(
     ${exe_target}
     PUBLIC
         $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:AFR::ble::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
 )
 target_link_libraries(
     ${exe_target}
     PRIVATE
         AFR::wifi
         AFR::utils
+        AFR::ble
 )
 
 if(AFR_NON_BUILD_MODE)

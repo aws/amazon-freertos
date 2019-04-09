@@ -310,9 +310,9 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignatureKeyInFlash )
     CK_RV xResult;
 
     /* Import the code signing certificate into NVM using the PKCS #11 module. */
-    xResult = prvImportCodeSigningCertificate( signingcredentialSIGNING_CERTIFICATE_PEM,
+    xResult = prvImportCodeSigningCertificate( ( const uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM,
                                                sizeof( signingcredentialSIGNING_CERTIFICATE_PEM ),
-                                               pkcs11configLABEL_CODE_VERIFICATION_KEY );
+                                               ( uint8_t * ) pkcs11configLABEL_CODE_VERIFICATION_KEY );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     /* We use a dummy file name here because closing the system designated bootable

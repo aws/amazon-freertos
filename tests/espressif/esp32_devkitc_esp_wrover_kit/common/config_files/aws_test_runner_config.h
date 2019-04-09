@@ -33,6 +33,7 @@
 
 /* Unsupported tests */
 #define testrunnerFULL_OTA_CBOR_ENABLED            testrunnerUNSUPPORTED
+#define testrunnerFULL_POSIX_ENABLED               testrunnerUNSUPPORTED
 
 /* Enable tests by setting defines to 1 */
 #define testrunnerFULL_OTA_AGENT_ENABLED           0
@@ -51,7 +52,6 @@
 #define testrunnerFULL_WIFI_ENABLED                0
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_TLS_ENABLED                 0
-#define testrunnerFULL_POSIX_ENABLED               0
 #define testrunnerOTA_END_TO_END_ENABLED           0
 #define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED 0
 #define testrunnerFULL_BLE_ENABLED                 0
