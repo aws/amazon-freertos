@@ -219,10 +219,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
             /* Initialize AWS system libraries */
             SYSTEM_Init();
 
-            if ( AwsIotNetworkManager_Init( ) != pdPASS )
-            {
-                configPRINTF( ( "Failed to initialize the network manager \n " ) );
-            }
+            configASSERT( AwsIotNetworkManager_Init( ) == pdPASS ); 
 
             AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
 
