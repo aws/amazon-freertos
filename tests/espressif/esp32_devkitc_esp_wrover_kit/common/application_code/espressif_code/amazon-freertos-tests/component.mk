@@ -91,10 +91,8 @@ COMPONENT_SRCDIRS += ../.. \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/posix \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/ble \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/wifi_provisioning \
-        $(AMAZON_FREERTOS_DEMOS_DIR)/common/ota \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/src \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/extras/fixture/src \
-        $(AMAZON_FREERTOS_DEMOS_DIR)/common/ota \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/mqtt \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/mqtt/unit \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/mqtt/system \
@@ -104,7 +102,6 @@ COMPONENT_SRCDIRS += ../.. \
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/common/include \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/src \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/ota \
-        $(AMAZON_FREERTOS_DEMOS_DIR)/common/include \
         $(AMAZON_FREERTOS_TESTS_DIR)/common/mqtt/access
 
 COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_LIB_DIR)/third_party/unity/extras/fixture/src $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11

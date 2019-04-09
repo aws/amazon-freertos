@@ -262,6 +262,4 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
 #define IotMetricsConnectionId_t    void *
 
-#include "aws_demo_config.h"
-
 #endif /* ifndef _IOT_CONFIG_COMMON_H_ */
