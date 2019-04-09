@@ -613,9 +613,13 @@ static void vCliHistoryInitialize( cli_history_t *hist )
 
 static uint8_t _do_MQTT_demo_task( uint8_t len, char *param[] )
 {
-    extern void vStartMQTTEchoDemo( void );
+    extern int vStartMQTTEchoDemo( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface );
 
-    vStartMQTTEchoDemo();
+    vStartMQTTEchoDemo(false, NULL, NULL, NULL, NULL);
 
     return 0;
 }

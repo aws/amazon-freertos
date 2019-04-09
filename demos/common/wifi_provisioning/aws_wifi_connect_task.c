@@ -66,7 +66,7 @@ static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNet
  */
 static SemaphoreHandle_t xWiFiConnectLock = NULL;
 static TaskHandle_t xWifiConnectionTask = NULL;
-static SubscriptionHandle_t xHandle = NULL;
+static IotNetworkManagerSubscription_t xHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
 static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext )
 {
@@ -149,9 +149,9 @@ BaseType_t xWiFiConnectTaskInitialize( void )
         xRet = xTaskCreate(
                 prvWiFiConnectTask,
                 wifiConnectTASK_NAME,
-                democonfigWIFI_CONNECT_TASK_STACK_SIZE,
+                democonfigDEMO_STACKSIZE,
                 NULL,
-                democonfigWIFI_CONNECT_TASK_PRIORITY,
+                democonfigDEMO_PRIORITY,
                 &xWifiConnectionTask );
     }
     return xRet;

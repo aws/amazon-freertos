@@ -47,9 +47,9 @@
 /* FreeRTOS+TCP includes. */
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#include "platform/iot_network.h"
 
 /* Demo specific includes */
-#include "aws_simple_tcp_echo_server.h"
 #include "aws_demo_config.h"
 
 /* Specifies the size of the data sent to the server in MSS units. */
@@ -90,24 +90,6 @@ static uint16_t usUsedStackSize = 0;
 /* Used for error reporting. */
 static uint32_t ulConnectionCount = 0;
 
-/*-----------------------------------------------------------*/
-
-void vStartSimpleTCPServerTasks( void )
-{
-    /* Create the TCP echo server.  The echo server uses FreeRTOS+TCP through
-     * the spoofed IP and MAC address.  The WinSock client tasks are created from
-     * inside the listening task. */
-    xTaskCreate( prvConnectionListeningTask,
-                 "ServerListener",
-                 democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE,
-                 NULL,
-                 democonfigTCP_ECHO_SERVER_TASK_PRIORITY + 1,
-                 NULL );
-
-    /* Remember the requested stack size so it can be re-used by the server
-     * listening task when it creates tasks to handle connections. */
-    usUsedStackSize = democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE;
-}
 /*-----------------------------------------------------------*/
 
 static void prvConnectionListeningTask( void * pvParameters )
@@ -245,3 +227,20 @@ BaseType_t xAreTCPEchoServersStillRunning( void )
     return xReturn;
 }
 /*-----------------------------------------------------------*/
+
+int vStartSimpleTCPServerTasksProxy( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    /* Create the TCP echo server.  The echo server uses FreeRTOS+TCP through
+     * the spoofed IP and MAC address.  The WinSock client tasks are created from
+     * inside the listening task. */
+    prvConnectionListeningTask( NULL );
+
+    /* Remember the requested stack size so it can be re-used by the server
+     * listening task when it creates tasks to handle connections. */
+    usUsedStackSize = democonfigDEMO_STACKSIZE;
+    return 0;
+}

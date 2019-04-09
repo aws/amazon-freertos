@@ -45,6 +45,7 @@
 
 /* Platform includes for demo. */
 #include "platform/iot_clock.h"
+#include "platform/iot_network.h"
 #include "platform/iot_network_afr.h"
 
 /* Cbor includes. */
@@ -86,21 +87,14 @@ static void _startDefender();
 
 /*-----------------------------------------------------------*/
 
-void vStartDefenderDemo( void )
+int vStartDefenderDemo( bool awsIotMqttMode,
+                        const char * pIdentifier,
+                        void * pNetworkServerInfo,
+                        void * pNetworkCredentialInfo,
+                        const IotNetworkInterface_t * pNetworkInterface )
 {
-    /* Initialize common libraries and MQTT, then start demo. */
-    if( IotCommon_Init() == true )
-    {
-        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
-        {
-            ( void ) xTaskCreate( _defenderTask,
-                                  "Defender Demo",
-                                  democonfigDEFENDER_TASK_STACK_SIZE,
-                                  NULL,
-                                  democonfigDEFENDER_TASK_PRIORITY,
-                                  NULL );
-        }
-    }
+    _defenderTask( NULL );
+    return 0;
 }
 
 /*-----------------------------------------------------------*/

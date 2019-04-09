@@ -531,10 +531,10 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                     case WIFI_AUTH_WPA_PSK:
                     	pxBuffer[i].xSecurity =  eWiFiSecurityWPA;
                     	break;
+                    case WIFI_AUTH_WPA_WPA2_PSK:
                     case WIFI_AUTH_WPA2_PSK:
                     	pxBuffer[i].xSecurity =  eWiFiSecurityWPA2;
                     	break;
-                    case WIFI_AUTH_WPA_WPA2_PSK:
                     case WIFI_AUTH_WPA2_ENTERPRISE:
                     default:
                     	pxBuffer[i].xSecurity  = eWiFiSecurityNotSupported;

@@ -345,52 +345,6 @@ static void _mqttSubscriptionCallback( void * param1,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Initialize the common libraries and the MQTT library.
- *
- * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
- * `EXIT_FAILURE` otherwise.
- */
-static int _initializeDemo( void )
-{
-    int status = EXIT_SUCCESS;
-    IotMqttError_t mqttInitStatus = IOT_MQTT_SUCCESS;
-
-    if( IotCommon_Init() == true )
-    {
-        mqttInitStatus = IotMqtt_Init();
-
-        if( mqttInitStatus != IOT_MQTT_SUCCESS )
-        {
-            /* Failed to initialize MQTT library. */
-            status = EXIT_FAILURE;
-
-            /* Clean up the common libraries if MQTT could not be initialized. */
-            IotCommon_Cleanup();
-        }
-    }
-    else
-    {
-        /* Failed to initialize common libraries. */
-        status = EXIT_FAILURE;
-    }
-
-    return status;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Clean up the common libraries and the MQTT library.
- */
-static void _cleanupDemo( void )
-{
-    IotMqtt_Cleanup();
-    IotCommon_Cleanup();
-}
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Establish a new connection to the MQTT server.
  *
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
@@ -800,24 +754,15 @@ int RunMqttDemo( bool awsIotMqttMode,
     };
 
     /* Flags for tracking which cleanup functions must be called. */
-    bool librariesInitialized = false, connectionEstablished = false;
+    bool connectionEstablished = false;
 
-    /* Initialize the libraries required for this demo. */
-    status = _initializeDemo();
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Mark the libraries as initialized. */
-        librariesInitialized = true;
-
-        /* Establish a new MQTT connection. */
-        status = _establishMqttConnection( awsIotMqttMode,
-                                           pIdentifier,
-                                           pNetworkServerInfo,
-                                           pNetworkCredentialInfo,
-                                           pNetworkInterface,
-                                           &mqttConnection );
-    }
+    /* Establish a new MQTT connection. */
+    status = _establishMqttConnection(awsIotMqttMode,
+                                      pIdentifier,
+                                      pNetworkServerInfo,
+                                      pNetworkCredentialInfo,
+                                      pNetworkInterface,
+                                      &mqttConnection);
 
     if( status == EXIT_SUCCESS )
     {
@@ -866,12 +811,6 @@ int RunMqttDemo( bool awsIotMqttMode,
     if( connectionEstablished == true )
     {
         IotMqtt_Disconnect( mqttConnection, 0 );
-    }
-
-    /* Clean up libraries if they were initialized. */
-    if( librariesInitialized == true )
-    {
-        _cleanupDemo();
     }
 
     return status;

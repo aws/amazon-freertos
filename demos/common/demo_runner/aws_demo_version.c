@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS V1.4.7
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,14 +23,13 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef AWS_SHADOW_LIGHT_BULB_ON_OFF_H
-#define AWS_SHADOW_LIGHT_BULB_ON_OFF_H
-#include "aws_demo.h"
-
-/*
- * creates the shadow demo task
- */
-demoDECLARE_DEMO( vStartShadowDemoTasks );
+#include "aws_application_version.h"
 
 
-#endif /* AWS_SHADOW_LIGHT_BULB_ON_OFF_H */
+/* Declare the firmware version structure for all to see. */
+const AppVersion32_t xAppFirmwareVersion = {
+   .u.x.ucMajor = APP_VERSION_MAJOR,
+   .u.x.ucMinor = APP_VERSION_MINOR,
+   .u.x.usBuild = APP_VERSION_BUILD,
+};
+

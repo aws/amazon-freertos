@@ -17,3 +17,16 @@ afr_module_dependencies(
         AFR::shadow
         3rdparty::jsmn
 )
+
+# C SDK Shadow demo
+afr_demo_module(demo_shadow_v4)
+afr_module_sources(
+    demo_shadow_v4
+    INTERFACE
+        "${AFR_DEMOS_DIR}/shadow/aws_iot_demo_shadow.c"
+)
+afr_module_dependencies(
+    demo_shadow_v4
+    INTERFACE
+        AFR::shadow
+)
