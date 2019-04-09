@@ -3,6 +3,7 @@ afr_module(sdk_common)
 afr_module_sources(
     sdk_common
     PRIVATE
+        "${AFR_MODULES_DIR}/common/aws_logging_task_dynamic_buffers.c"
         "${AFR_MODULES_DIR}/common/iot_common.c"
         "${AFR_MODULES_DIR}/common/iot_json_utils.c"
         "${AFR_MODULES_DIR}/common/iot_logging.c"
@@ -37,5 +38,4 @@ afr_module_dependencies(
     sdk_common
     PUBLIC
         AFR::sdk_platform
-        AFR::metrics
 )

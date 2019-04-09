@@ -52,6 +52,7 @@
 
 
 /* MQTT library includes */
+#include "iot_common.h"
 #include "iot_mqtt.h"
 #include "iot_ble_mqtt.h"
 

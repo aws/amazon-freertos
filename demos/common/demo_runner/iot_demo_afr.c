@@ -361,7 +361,6 @@ void runDemoTask( void * pArgument )
 
 /*-----------------------------------------------------------*/
 
-
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
 
 BaseType_t xApplicationDNSQueryHook( const char * pcName )
@@ -403,6 +402,12 @@ BaseType_t xApplicationDNSQueryHook( const char * pcName )
 void vApplicationMallocFailedHook()
 {
     configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
+    taskDISABLE_INTERRUPTS();
+
+    /* Loop forever */
+    for( ; ; )
+    {
+    }
 }
 /*-----------------------------------------------------------*/
 

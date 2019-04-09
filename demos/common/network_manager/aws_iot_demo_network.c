@@ -31,16 +31,13 @@
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"
 #include "aws_iot_demo_network.h"
-#include "iot_ble_mqtt.h"
 #include "platform/iot_network_afr.h"
 #include "private/iot_error.h"
 
 #if BLE_ENABLED
+
 #include "iot_ble_mqtt.h"
-#endif
 
-
-#if BLE_ENABLED
 /**
  * @brief Creates a network connection over BLE transport type to transfer MQTT messages.
  * @return true if the connection was created successfully
@@ -106,10 +103,20 @@ static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkCo
     }
 #endif
 
+#if ETH_ENABLED
+    if ( ( ulConnectedNetworks & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+    {
+        if ( prxCreateSecureSocketConnection( pxNetworkContext ) == pdTRUE )
+        {
+            return AWSIOT_NETWORK_TYPE_ETH;
+        }
+    }
+#endif
+
     return AWSIOT_NETWORK_TYPE_NONE;
 }
 
-#if WIFI_ENABLED
+#if WIFI_ENABLED || ETH_ENABLED
 static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext )
 {
     _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
@@ -166,7 +173,7 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 {
     BaseType_t xStatus = pdFALSE;
     IotMqttNetworkInfo_t* pxNetworkInfo = &( pxNetworkContext->xNetworkInfo );
-    static IotBleMqttConnection_t * bleConnection = IOT_BLE_MQTT_CONNECTION_INITIALIZER;
+    static IotBleMqttConnectionType_t * bleConnection = NULL;
 
     if( IotNetworkBle.create( NULL, NULL, ( void * *) &bleConnection ) == IOT_NETWORK_SUCCESS )
     {

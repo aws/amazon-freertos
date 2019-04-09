@@ -43,6 +43,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "event_groups.h"
+#include "platform/iot_network.h"
 
 /* MQTT include. */
 #include "aws_mqtt_agent.h"
@@ -52,6 +53,10 @@
 
 /* Required to get the broker address and port. */
 #include "aws_clientcredential.h"
+
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
 
 /* Strings are published to a topic that has the following path. */
 #define subpubSTRING_TOPIC_PATH           "/string/"
@@ -725,27 +730,45 @@ void vStartSubpubDemoTasks( void )
     int8_t x;
     char cTaskName[ subpubCHAR_TASK_NAME_MAX_SIZE ];
 
-    /* Create the pub sub tasks which connect to the unsecure broker. */
-    for( x = 0; x < democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS; x++ )
+    /* Initialize common libraries and MQTT, then start demo. */
+    if( IotCommon_Init() == true )
     {
-        snprintf( cTaskName, subpubCHAR_TASK_NAME_MAX_SIZE, subpubCHAR_TASK_NAME, x );
-        xTaskCreate( prvPublishSubscribeTask,
-                     cTaskName,
-                     democonfigMQTT_SUB_PUB_TASK_STACK_SIZE,
-                     ( void * ) pdFALSE, democonfigMQTT_SUB_PUB_TASK_PRIORITY,
-                     NULL );
-    }
+        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+        {
+            /* Create the pub sub tasks which connect to the unsecure broker. */
+            for( x = 0; x < democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS; x++ )
+            {
+                snprintf( cTaskName, subpubCHAR_TASK_NAME_MAX_SIZE, subpubCHAR_TASK_NAME, x );
+                xTaskCreate( prvPublishSubscribeTask,
+                             cTaskName,
+                             democonfigMQTT_SUB_PUB_TASK_STACK_SIZE,
+                             ( void * ) pdFALSE, democonfigMQTT_SUB_PUB_TASK_PRIORITY,
+                             NULL );
+            }
 
-    /* Create the pub sub tasks which connect to the secure AWS IoT broker. */
-    for( x = democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS;
-         x < ( democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS + democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS );
-         x++ )
-    {
-        snprintf( cTaskName, subpubCHAR_TASK_NAME_MAX_SIZE, subpubCHAR_TASK_NAME, x );
-        xTaskCreate( prvPublishSubscribeTask,
-                     cTaskName,
-                     democonfigMQTT_SUB_PUB_TASK_STACK_SIZE,
-                     ( void * ) pdTRUE, democonfigMQTT_SUB_PUB_TASK_PRIORITY, NULL );
+            /* Create the pub sub tasks which connect to the secure AWS IoT broker. */
+            for( x = democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS;
+                 x < ( democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS + democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS );
+                 x++ )
+            {
+                snprintf( cTaskName, subpubCHAR_TASK_NAME_MAX_SIZE, subpubCHAR_TASK_NAME, x );
+                xTaskCreate( prvPublishSubscribeTask,
+                             cTaskName,
+                             democonfigMQTT_SUB_PUB_TASK_STACK_SIZE,
+                             ( void * ) pdTRUE, democonfigMQTT_SUB_PUB_TASK_PRIORITY, NULL );
+            }
+        }
     }
 }
+
 /*-----------------------------------------------------------*/
+
+int vStartSubpubDemoTasksProxy( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    vStartSubpubDemoTasks( );
+    return 0;
+}

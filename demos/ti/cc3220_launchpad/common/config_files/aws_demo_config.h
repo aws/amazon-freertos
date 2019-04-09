@@ -64,7 +64,7 @@
 #define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY      ( tskIDLE_PRIORITY )
 
 /* MQTT echo task example parameters. */
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 3 )
+#define democonfigMQTT_ECHO_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 6 )
 #define democonfigMQTT_ECHO_TASK_PRIORITY                    ( tskIDLE_PRIORITY )
 
 /* Timeout used when establishing a connection, which required TLS

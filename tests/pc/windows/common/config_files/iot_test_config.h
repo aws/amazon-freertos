@@ -28,9 +28,6 @@
 /* Library logging configuration. */
 #define IOT_LOG_LEVEL_GLOBAL    IOT_LOG_NONE
 
-/* Enable socket metrics for defender tests. */
-#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
-
 /* Include the default configuration file at the bottom of this file. */
 #include "iot_config_common.h"
 

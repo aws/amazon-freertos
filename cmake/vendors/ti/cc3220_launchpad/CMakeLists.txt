@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.13)
-
 set(simplelink_dir "${AFR_3RDPARTY_DIR}/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04")
 set(board_demos_dir "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/common")
 set(board_tests_dir "${AFR_ROOT_DIR}/tests/ti/cc3220_launchpad/common")
@@ -12,7 +10,7 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(NAME "TI-CC3220SF-LAUNCHXL")
+afr_set_board_metadata(ID "TI-CC3220SF-LAUNCHXL")
 afr_set_board_metadata(DISPLAY_NAME "CC3220SF-LAUNCHXL")
 afr_set_board_metadata(DESCRIPTION "CC3220SF SimpleLink™ Wi-Fi® LaunchPad™ Development Kit")
 afr_set_board_metadata(VENDOR_NAME "Texas Instruments")
@@ -21,10 +19,16 @@ afr_set_board_metadata(DATA_RAM_MEMORY "256KB")
 afr_set_board_metadata(PROGRAM_MEMORY "1MB")
 afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-TI-CC3220SF")
 afr_set_board_metadata(SUPPORTED_IDE "CCS;IAR")
+afr_set_board_metadata(RECOMMENDED_IDE "CCS")
 afr_set_board_metadata(IDE_CCS_NAME "Code Composer Studio")
-afr_set_board_metadata(IDE_CCS_COMPILERS "TI-ARM")
-afr_set_board_metadata(IDE_IAR_NAME "IAR Embedded Studio")
-afr_set_board_metadata(IDE_IAR_COMPILERS "IAR-ARM")
+afr_set_board_metadata(IDE_CCS_COMPILER "TI-ARM")
+afr_set_board_metadata(IDE_IAR_NAME "IAR Embedded Workbench")
+afr_set_board_metadata(IDE_IAR_COMPILER "IAR-ARM")
+afr_set_board_metadata(IS_ACTIVE "TRUE")
+afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/ccs")
+afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/iar")
+afr_set_board_metadata(DEMO_COMMON_LOCATION "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/common")
+afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${AFR_ROOT_DIR}/lib/third_party/mcu_vendor/ti")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -113,6 +117,11 @@ target_sources(
     AFR::wifi::mcu_port
     INTERFACE "${AFR_MODULES_DIR}/wifi/portable/ti/cc3220_launchpad/aws_wifi.c"
 )
+# WiFi on TI requires POSIX types
+target_link_libraries(
+    AFR::wifi::mcu_port
+    INTERFACE AFR::posix::mcu_port
+)
 
 # PKCS11
 afr_mcu_port(pkcs11)
@@ -153,16 +162,20 @@ else()
 endif()
 
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/ti_code")
+afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 add_executable(
     ${exe_target}
     ${board_code_src}
+    ${config_files}
     "${board_dir}/application_code/main.c"
+    "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
 )
 target_link_libraries(
     ${exe_target}
     PRIVATE
         AFR::wifi
         AFR::utils
+        AFR::posix::mcu_port
         --xml_link_info="${exe_target}_linkInfo.xml"
         "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
 )

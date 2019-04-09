@@ -28,54 +28,24 @@
 
 #include "iot_demo_runner.h"
 
-/* Choose your demo here. By design only one demo can be selected at a time. If 
-    you choose more than one only the first choice will be run. If you require 
-    more than one demo to run at the same time you should create a combined 
-    demo and run both the required demo tasks from your demo entry function  */
-
-
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
 
-
-/* Individual demos task config and overrides for the above defaults*/
-#if defined( demoMQTTDemo_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigSHADOW_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunShadowDemo
-#elif defined(democonfigBLE_MQTT_ECHO_DEMO_ENABLED) 
-     #define DEMO_entryFUNCTION                                  RunBLEMqttEchoDemo
-     #define DEMO_networkConnectedCallback                       BLEMqttEchoDemoNetworkConnectedCallback
-     #define DEMO_networkDisconnectedCallback                    BLEMqttEchoDemoNetworkDisconnectedCallback
-#else 
-/* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
-    #error "At least one demo should be enabled in the file iot_demo_runner.h"
+/* Some individual demos want to override these defaults, that is done in this section */
+#if defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
+    #undef democonfigDEMO_STACKSIZE
+    #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+    #undef democonfigDEMO_PRIORITY
+    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
 #endif
 
-     
-/* 
-#elif defined( democonfigTCP_ECHO_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigOTA_UPDATE_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-    #define democonfigDEMO_STACKSIZE                             ( configMINIMAL_STACK_SIZE * 6 )
-#elif defined( democonfigTCP_ECHO_SERVER_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigMQTT_ECHO_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigWIFI_CONNECT_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-    #define democonfigDEMO_STACKSIZE                             ( configMINIMAL_STACK_SIZE * 4 )
-#elif defined( democonfigWIFI_CONNECT_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-#elif defined( democonfigDEFENDER_ENABLED )
-    #define DEMO_entryFUNCTION                                   RunMqttDemo
-*/
-
-
+#if defined(democonfigTCP_ECHO_TASKS_SINGLE_ENABLED)
+    #undef democonfigDEMO_STACKSIZE
+    #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+    #undef democonfigDEMO_PRIORITY
+    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
+#endif
 
 #define democonfigSHADOW_DEMO_NUM_TASKS             ( 1 )
 #define democonfigSHADOW_DEMO_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 4 )
@@ -94,8 +64,6 @@
 #define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigMQTT_SUB_PUB_TASK_PRIORITY        ( tskIDLE_PRIORITY + 5 )
 
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE   ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY     ( tskIDLE_PRIORITY + 5 )
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */

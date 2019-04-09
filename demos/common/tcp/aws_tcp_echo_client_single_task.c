@@ -49,6 +49,7 @@
 
 /* TCP/IP abstraction includes. */
 #include "aws_secure_sockets.h"
+#include "platform/iot_network.h"
 
 /* Demo configuration */
 #include "aws_demo_config.h"
@@ -152,23 +153,29 @@ static char cTxBuffers[ echoNUM_ECHO_CLIENTS ][ echoBUFFER_SIZES ],
 
 /*-----------------------------------------------------------*/
 
-// void vStartTCPEchoClientTasks_SingleTasks( void )
-// {
-//     BaseType_t xX;
-//     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
+int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    BaseType_t xX;
+    char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
 
-//     /* Create the echo client tasks. */
-//     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
-//     {
-//         snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", xX );
-//         xTaskCreate( prvEchoClientTask,                               /* The function that implements the task. */
-//                      cNameBuffer,                                     /* Just a text name for the task to aid debugging. */
-//                      democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
-//                      ( void * ) xX,                                   /* The task parameter, not used in this case. */
-//                      democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY,   /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
-//                      NULL );                                          /* The task handle is not used. */
-//     }
-// }
+    /* Create the echo client tasks. */
+    for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
+    {
+        snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", xX );
+        xTaskCreate( prvEchoClientTask,                               /* The function that implements the task. */
+                     cNameBuffer,                                     /* Just a text name for the task to aid debugging. */
+                     democonfigDEMO_STACKSIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
+                     ( void * ) xX,                                   /* The task parameter, not used in this case. */
+                     democonfigDEMO_PRIORITY,   /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
+                     NULL );                                          /* The task handle is not used. */
+    }
+
+    return 0;
+}
 /*-----------------------------------------------------------*/
 
 static void prvEchoClientTask( void * pvParameters )

@@ -8,6 +8,7 @@
 
 /* Common include. */
 #include "iot_common.h"
+#include "iot_error.h"
 
 /* MQTT internal include. */
 #include "iot_mqtt.h"
@@ -105,21 +106,34 @@ static const char *pcStateStr[eOTA_NumAgentStates] =
 
 void vOTAUpdateTestTask( void * pvParameters )
 {
-	bool status = false;
     OTA_State_t eState;
+    IotMqttError_t mqttStatus;
 
-    IotCommon_Cleanup();
-    IotMqtt_Cleanup();
-
-    /* Initialize common components. */
-	status = IotCommon_Init();
-
-    /* Initialize the MQTT library. */
-	if(status == true)
+	/* Initialize common components. */
+	if( IotCommon_Init() == true)
 	{
-		if(IotMqtt_Init() != IOT_MQTT_SUCCESS)
+	    /* Initialize the MQTT library. */
+		if(IotMqtt_Init() == IOT_MQTT_SUCCESS)
 		{
-			status = false;
+			/* Set the MQTT network setup parameters. */
+			( void ) memset( &networkInfo, 0x00, sizeof( IotMqttNetworkInfo_t ) );
+			networkInfo.createNetworkConnection = true;
+			networkInfo.pNetworkServerInfo = ( void * ) &serverInfo;
+			networkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
+			networkInfo.pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
+
+	        /* Set the members of the MQTT connection info. */
+		    connectInfo.cleanSession = true;
+			connectInfo.awsIotMqttMode = true;
+			connectInfo.keepAliveSeconds = KEEPALIVE_SECONDS;
+	        connectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+	        connectInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
+
+			#if IOT_TEST_SECURED_CONNECTION == 1
+				networkInfo.pNetworkCredentialInfo = ( void * ) &credentials;
+			#endif
+		}else
+		{
 			configPRINTF(("Failed to initialize MQTT\n"));
 		}
 	}else
@@ -127,54 +141,38 @@ void vOTAUpdateTestTask( void * pvParameters )
 		configPRINTF(("Failed to initialize common components\n"));
 	}
 
-	if(status == true)
+
+
+
+	for( ; ; )
 	{
-		/* Set the MQTT network setup parameters. */
-		( void ) memset( &networkInfo, 0x00, sizeof( IotMqttNetworkInfo_t ) );
-		networkInfo.createNetworkConnection = true;
-		networkInfo.pNetworkServerInfo = ( void * ) &serverInfo;
-		networkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
-		networkInfo.pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
-
-        /* Set the members of the MQTT connection info. */
-	    connectInfo.cleanSession = true;
-		connectInfo.awsIotMqttMode = true;
-		connectInfo.keepAliveSeconds = KEEPALIVE_SECONDS;
-        connectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
-        connectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
-
-		#if IOT_TEST_SECURED_CONNECTION == 1
-			networkInfo.pNetworkCredentialInfo = ( void * ) &credentials;
-		#endif
-
-		if( IotMqtt_Connect( &networkInfo,
-								  &connectInfo,
-								  CONN_TIMEOUT_MS,
-								  &mqttConnection ) != IOT_MQTT_SUCCESS)
+	    mqttStatus = IotMqtt_Connect( &networkInfo,
+				  &connectInfo,
+				  CONN_TIMEOUT_MS,
+				  &mqttConnection );
+		if( mqttStatus == IOT_MQTT_SUCCESS)
 		{
-			configPRINTF(("Failed to connect MQTT\n"));
-			status = false;
-		}
-	}
+			eState = OTA_AgentInit( mqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
 
+			if(eState == eOTA_AgentState_NotReady)
+			{
+				configPRINTF(("Failed to start the OTA Agent\n"));
+			}
+			while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_NotReady )
+			{
+				/* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
+				vTaskDelay( ONE_SECOND_DELAY_IN_TICKS );
+				configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pcStateStr[eState],
+						OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
+			}
 
-	if(status == true)
-	{
-		eState = OTA_AgentInit( mqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
-
-		if(eState == eOTA_AgentState_NotReady)
+			IotMqtt_Disconnect( mqttConnection, false);
+		}else
 		{
-			configPRINTF(("Failed to start the OTA Agent\n"));
-		}
-		while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_NotReady )
-		{
-			/* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
-			vTaskDelay( ONE_SECOND_DELAY_IN_TICKS );
-			configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pcStateStr[eState],
-					OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
+			configPRINTF(("Failed to connect MQTT with status: %d\n", mqttStatus));
 		}
 
-		IotMqtt_Disconnect( mqttConnection, false);
+		vTaskDelay(ONE_SECOND_DELAY_IN_TICKS);
 	}
 
     /* All done.  FreeRTOS does not allow a task to run off the end of its

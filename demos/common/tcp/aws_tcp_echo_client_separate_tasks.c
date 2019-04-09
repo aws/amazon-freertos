@@ -45,6 +45,7 @@
 #include "task.h"
 #include "queue.h"
 #include "event_groups.h"
+#include "platform/iot_network.h"
 
 /* FreeRTOS+TCP includes. */
 /* TCP/IP abstraction includes. */
@@ -110,7 +111,11 @@ int32_t lShuttingDown = pdFALSE;
 
 /*-----------------------------------------------------------*/
 
-void vStartTCPEchoClientTasks_SeparateTasks( void )
+int vStartTCPEchoClientTasks_SeparateTasks( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
 {
     /* Create the queue used to pass the socket to use from the Tx task to the
      * Rx task. */
@@ -124,17 +129,17 @@ void vStartTCPEchoClientTasks_SeparateTasks( void )
 
     /* Create the task that sends to an echo server, but lets a different task
      * receive the reply on the same socket. */
-    xTaskCreate( prvEchoClientTxTask,                               /* The function that implements the task. */
-                 "EchoMultiTx",                                     /* Just a text name for the task to aid debugging. */
-                 democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE, /* The stack size is defined in aws_demo_config.h. */
-                 NULL,                                              /* The task parameter, not used in this case. */
-                 democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY,   /* The priority assigned to the task is defined in aws_demo_config.h. */
-                 NULL );                                            /* The task handle is not used. */
+    xTaskCreate( prvEchoClientTxTask,         /* The function that implements the task. */
+                 "EchoMultiTx",               /* Just a text name for the task to aid debugging. */
+                 democonfigDEMO_STACKSIZE,    /* The stack size is defined in aws_demo_config.h. */
+                 NULL,                        /* The task parameter, not used in this case. */
+                 democonfigDEMO_PRIORITY,     /* The priority assigned to the task is defined in aws_demo_config.h. */
+                 NULL );                      /* The task handle is not used. */
 
-    /* Create the task that receives the reply to echoes initiated by the
-     * prvEchoClientTxTask() task. */
-    xTaskCreate( prvEchoClientRxTask, "EchoMultiRx", democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE, NULL, democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY, NULL );
+    prvEchoClientRxTask( NULL );
+    return 0;
 }
+
 /*-----------------------------------------------------------*/
 
 static void prvEchoClientTxTask( void * pvParameters )

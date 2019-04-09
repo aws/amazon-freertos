@@ -75,6 +75,7 @@
 #include <string.h>
 
 /* Demo includes */
+#include "platform/iot_network.h"
 #include "aws_posix_demo.h"
 
 /* FreeRTOS+POSIX. */
@@ -264,13 +265,17 @@ static void * prvDispatcherThread( void * pvArgs )
 }
 
 /*-----------------------------------------------------------*/
-
+ 
 /**
  * @brief Job distribution with actor model.
  * 
  * See the top of this file for detailed description.
  */
-void vStartPOSIXDemo( void )
+int vStartPOSIXDemo( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
 {
     int i = 0;
     int iStatus = 0;
@@ -363,4 +368,6 @@ void vStartPOSIXDemo( void )
     {
         configPRINTF( ( "Queues did not get initialized properly. Did not run demo. %s", LINE_BREAK ) );
     }
+
+    return iStatus;
 }

@@ -30,7 +30,7 @@
 /* Library logging configuration. */
 #define IOT_LOG_LEVEL_GLOBAL    IOT_LOG_NONE
 
-/* Set the task pool stack size and priority on ESP. */
+/* Set the task pool stack size and priority on TI. */
 #define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
 
 /* Include the common configuration file for FreeRTOS. */

@@ -1,5 +1,12 @@
 afr_module(greengrass)
 
+afr_set_lib_metadata(ID "greengrass")
+afr_set_lib_metadata(DESCRIPTION "This library enables the discovery and selection of AWS Greengrass Core devices.")
+afr_set_lib_metadata(DISPLAY_NAME "Greengrass Discovery")
+afr_set_lib_metadata(CATEGORY "Amazon Services")
+afr_set_lib_metadata(VERSION "1.0.0")
+afr_set_lib_metadata(IS_VISIBLE "true")
+
 afr_module_sources(
     greengrass
     PRIVATE

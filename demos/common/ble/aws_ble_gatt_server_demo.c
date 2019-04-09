@@ -179,7 +179,7 @@ static void vCounterUpdateTaskFunction( void * pvParams );
  * @param[in] bConnected true if connection, false if disconnection
  * @param[in] pxRemoteBdAddr Remote address of the BLE device which connected or disconnected
  */
-static void vConnectionCallback( BTStatus_t xStatus,
+static void _connectionCallback( BTStatus_t xStatus,
                                  uint16_t connId,
                                  bool bConnected,
                                  BTBdaddr_t * pxRemoteBdAddr );
@@ -269,7 +269,7 @@ BaseType_t vGattDemoSvcInit( void )
 
     if( xRet == pdTRUE )
     {
-        xCallback.pConnectionCb = vConnectionCallback;
+        xCallback.pConnectionCb = _connectionCallback;
 
         if( IotBle_RegisterEventCb( eBLEConnection, xCallback ) != eBTStatusSuccess )
         {
@@ -420,7 +420,7 @@ void vEnableNotification( IotBleAttributeEvent_t * pEventParam )
 
 /*-----------------------------------------------------------*/
 
-static void vConnectionCallback( BTStatus_t xStatus,
+static void _connectionCallback( BTStatus_t xStatus,
                                  uint16_t connId,
                                  bool bConnected,
                                  BTBdaddr_t * pxRemoteBdAddr )

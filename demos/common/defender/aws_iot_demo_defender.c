@@ -45,6 +45,7 @@
 
 /* Platform includes for demo. */
 #include "platform/iot_clock.h"
+#include "platform/iot_network.h"
 #include "platform/iot_network_afr.h"
 
 /* Cbor includes. */
@@ -52,6 +53,10 @@
 
 /* Defender includes. */
 #include "aws_iot_defender.h"
+
+/* Includes for initialization. */
+#include "iot_common.h"
+#include "iot_mqtt.h"
 
 /* Set to 1 to enable this demo to connect to echo server.
  * Then in the demo output, it is expected to see one more established TCP connection.
@@ -82,14 +87,14 @@ static void _startDefender();
 
 /*-----------------------------------------------------------*/
 
-void vStartDefenderDemo( void )
+int vStartDefenderDemo( bool awsIotMqttMode,
+                        const char * pIdentifier,
+                        void * pNetworkServerInfo,
+                        void * pNetworkCredentialInfo,
+                        const IotNetworkInterface_t * pNetworkInterface )
 {
-    ( void ) xTaskCreate( _defenderTask,
-                          "Defender Demo",
-                          democonfigDEMO_STACKSIZE,
-                          NULL,
-                          democonfigDEMO_PRIORITY,
-                          NULL );
+    _defenderTask( NULL );
+    return 0;
 }
 
 /*-----------------------------------------------------------*/

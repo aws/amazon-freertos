@@ -33,7 +33,7 @@
 #define _IOT_BLE_CONFIG_H_
 
 /* Device name for this peripheral device. */
-#define IOT_BLE_DEVICE_NAME                     "ESP32_TEST"
+#define IOT_BLE_DEVICE_NAME                     "NRF52_TEST"
 
 /* Enable WIFI provisioning GATT service. */
 #define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
@@ -43,6 +43,9 @@
 #define IOT_BLE_ENABLE_NUMERIC_COMPARISON        ( 0 )
 #define IOT_BLE_ENABLE_SECURE_CONNECTION         ( 0 )
 #define IOT_BLE_INPUT_OUTPUT                     ( eBTIONone )
+
+/* MTU size. */
+#define IOT_BLE_PREFERRED_MTU_SIZE         ( NRF_SDH_BLE_GATT_MAX_MTU_SIZE )
 
 #define IOT_BLE_ENCRYPTION_REQUIRED               ( 0 )
 

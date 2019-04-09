@@ -192,6 +192,16 @@ IotNMNetwork_t wifiNetwork =
 };
 #endif 
 
+#if ETH_ENABLED
+IotNMNetwork_t ethNetwork =
+{
+    .type = AWSIOT_NETWORK_TYPE_ETH,
+    .link = IOT_LINK_INITIALIZER,
+    .state = eNetworkStateUnknown
+};
+#endif 
+
+
 static IotNetworkManager_t networkManager =
 {
     .networks              = IOT_LIST_DOUBLE_INITIALIZER,
@@ -610,6 +620,10 @@ BaseType_t AwsIotNetworkManager_Init( void )
             IotListDouble_InsertTail( &networkManager.networks, &bleNetwork.link );
             /* Registration of network event callback for BLE is handled within _bleEnable() */
 #endif
+
+#if ETH_ENABLED
+            IotListDouble_InsertTail( &networkManager.networks, &ethNetwork.link );
+#endif
          }
     }
 
@@ -757,6 +771,14 @@ uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t networkTypes )
     }
 #endif
 
+#if ETH_ENABLED
+    if ( ( ( networkTypes & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH ) &&
+        ( ethNetwork.state == eNetworkStateUnknown ) )
+    {
+        enabled |= AWSIOT_NETWORK_TYPE_ETH;
+        ethNetwork.state = eNetworkStateEnabled;
+    }
+#endif
     return enabled;
 }
 

@@ -28,9 +28,11 @@
  * @file bt_hal_gatt_client.h
  *
  * @brief BT GATT Server provides the interfaces to use Bluetooth GATT client feature
+ * @addtogroup HAL_BLUETOOTH
  * USAGE
  * -----
  *
+ * @{
  */
 
 
@@ -114,18 +116,6 @@ typedef void ( * BTRegisterClientCallback_t)( BTStatus_t xStatus,
                                               uint8_t ucClientIf,
                                               BTUuid_t * pxAppUuid );
 
-/** GATT open callback invoked in response to open */
-typedef void ( * BTConnectCallback_t)( uint16_t usConnId,
-                                       BTStatus_t xStatus,
-                                       uint8_t ucClientIf,
-                                       BTBdaddr_t * pxBda );
-
-/** Callback invoked in response to close */
-typedef void ( * BTDisconnectCallback_t)( uint16_t usConnId,
-                                          BTStatus_t xStatus,
-                                          uint8_t ucClientIf,
-                                          BTBdaddr_t * pxBda );
-
 /**
  * Invoked in response to searchService when the GATT service search
  * has been completed.
@@ -170,12 +160,6 @@ typedef void ( * BTWriteDescriptorCallback_t)( uint16_t usConnId,
                                                BTStatus_t xStatus,
                                                uint16_t usHandle );
 
-/** Callback triggered in response to readRemoteRssi */
-typedef void ( * BTReadRemoteRssiCallback_t)( uint8_t ucClientIf,
-                                              BTBdaddr_t * pxBda,
-                                              uint32_t ulRssi,
-                                              BTStatus_t xStatus );
-
 /**
  * Callback indicating the status of a listen() operation
  */
@@ -186,14 +170,6 @@ typedef void ( * BTListenCallback_t)( BTStatus_t xStatus,
 typedef void ( * BTConfigureMtuCallback_t)( uint16_t usConnId,
                                             BTStatus_t xStatus,
                                             uint32_t ulMtu );
-
-/**
- * Callback notifying an application that a remote device connection is currently congested
- * and cannot receive any more data. An application should avoid sending more data until
- * a further callback is received indicating the congestion status has been cleared.
- */
-typedef void ( * BTCongestionCallback_t)( uint16_t usConnId,
-                                          bool bCongested );
 
 /** GATT get database callback */
 typedef void ( * BTGetGattDbCallback_t)( uint16_t usConnId,
@@ -335,3 +311,4 @@ typedef struct
 } BTGattClientInterface_t;
 
 #endif /* #ifndef _BT_HAL_GATT_CLIENT_H_ */
+/** @} */

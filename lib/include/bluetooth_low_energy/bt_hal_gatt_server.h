@@ -28,6 +28,7 @@
  * @file bt_hal_gatt_server.h
  *
  * @brief BT GATT Server provides the interfaces to use Bluetooth GATT server feature
+ * @addtogroup HAL_BLUETOOTH
  *
  * Before calling any GATT server function, the Generic Access Profile needs to be initialized (see bt_hal_manager.h and bt_hal_manager_adapter*.h).
  * bt_hal_manager.h give the starting point.
@@ -38,6 +39,7 @@
  * 4. pxAddCharacteristic: Then all calls to pxAddDescriptor will add the descriptor to that characteristic
  * 5. pxStartService: Complete service create. Another service can be create afterward.
  *
+ * @{
  */
 
 #ifndef _BT_HAL_GATT_SERVER_H_
@@ -351,19 +353,6 @@ typedef void (* BTIndicationSentCallback_t)( uint16_t usConnId,
                                              BTStatus_t xStatus );
 
 /**
- * @brief Callback notifying an application that a remote device connection is currently congested
- * and cannot receive any more data. An application should avoid sending more data until
- * a further callback is received indicating the congestion status has been cleared.
- *
- * @param[in] usConnId Connection Identifier, created and return on connection event,
- *  when BTConnectionCallback_t is invoked.
- *
- * @param[in] bCongested True if congestion is happening.
- */
-typedef void (* BTCongestionCallback_t)( uint16_t usConnId,
-                                         bool bCongested );
-
-/**
  * @brief  Callback invoked when the MTU for a given connection changes.
  *
  * @param[in] usConnId Connection Identifier, created and return on connection event,
@@ -459,7 +448,7 @@ typedef struct
      * @brief Disconnect an established connection or cancel a pending one.
      *
      * Triggers BTConnectionCallback_t with bConnected = false.
-     * When available the returned reason for disconnection should be �REMOTE USER TERMINATED CONNECTION (0x13)"
+     * When available the returned reason for disconnection should be REMOTE USER TERMINATED CONNECTION (0x13)"
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
@@ -480,19 +469,19 @@ typedef struct
      * The service is started automatically.
      * @Warning: Not all platform supports changes to the attribute table while connected.
      * It should be checked that calling this API while connected  is supported by the vendor's API.
+     * Triggers BTServiceAddedCallback_t.
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
      *
-     * @param[in] pxElements database elements of all the services and characteristics.
-     *  Handles value are ignored. They will be returned by the function.
+     * @param[in] pxElements database elements of all the services and characteristics
      *
      * @param[in] ulElementsCount Total count of all the database elements
      *
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxAddServiceBlob )( uint8_t ucServerIf,
-                                   BTService_t * pxService);
+                                       BTService_t * pxService);
 
     /**
      * @brief Create a new service.
@@ -702,3 +691,4 @@ typedef struct
 } BTGattServerInterface_t;
 
 #endif /* _BT_HAL_GATT_SERVER_H_ */
+/** @} */
