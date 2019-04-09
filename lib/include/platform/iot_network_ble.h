@@ -36,7 +36,7 @@
  * @brief Provides a pointer to an #IotNetworkInterface_t that uses the functions
  * declared in this file.
  */
-#define IOT_NETWORK_INTERFACE_BLE    ( &( _IotNetworkBle ) )
+#define IOT_NETWORK_INTERFACE_BLE    ( &( IotNetworkBle ) )
 
 
 /**
@@ -89,7 +89,7 @@ IotNetworkError_t IotNetworkBle_Destroy( void * pConnection );
  *
  * Declaration of a network interface struct using the functions in this file.
  */
-extern const IotNetworkInterface_t _IotNetworkBle;
+extern const IotNetworkInterface_t IotNetworkBle;
 /** @endcond */
 
 #endif /* ifndef _IOT_NETWORK_AFR_H_ */

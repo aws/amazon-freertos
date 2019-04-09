@@ -43,12 +43,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "event_groups.h"
+#include "platform/iot_network.h"
 
 /* MQTT include. */
 #include "aws_mqtt_agent.h"
 
 /* This demo's configuration */
-#include "aws_subscribe_publish_loop.h"
 #include "aws_demo_config.h"
 
 /* Required to get the broker address and port. */
@@ -760,4 +760,15 @@ void vStartSubpubDemoTasks( void )
         }
     }
 }
+
 /*-----------------------------------------------------------*/
+
+int vStartSubpubDemoTasksProxy( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    vStartSubpubDemoTasks( );
+    return 0;
+}

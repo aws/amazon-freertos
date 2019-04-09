@@ -1105,30 +1105,28 @@ IotNetworkError_t IotBleMqtt_CreateConnection( void * pConnectionInfo,
     int lX;
     uint32_t nbTry = 0;
 
-    ( void ) pCredentialInfo;
+    (void)pCredentialInfo;
 
-    do
-    {
-        for( lX = 0; lX < IOT_BLE_MQTT_MAX_SVC_INSTANCES; lX++ )
-        {
-            pService = &_mqttBLEServices[ lX ];
+    do{
+		for( lX = 0; lX < IOT_BLE_MQTT_MAX_SVC_INSTANCES; lX++ )
+		{
+			pService = &_mqttBLEServices[ lX ];
+			if( ( pService->isEnabled ) && ( pService->connection.pMqttConnection == NULL ) )
+			{
+				*((IotBleMqttService_t**)pConnection) =  pService;
+				ret = IOT_NETWORK_SUCCESS;
+				break;
+			}
+		}
 
-            if( ( pService->isEnabled ) && ( pService->connection.pMqttConnection == NULL ) )
-            {
-                *( ( IotBleMqttService_t ** ) pConnection ) = pService;
-                ret = IOT_NETWORK_SUCCESS;
-                break;
-            }
-        }
+		if(ret == IOT_NETWORK_SUCCESS)
+	    {
+			break;
+	    }
 
-        if( ret == IOT_NETWORK_SUCCESS )
-        {
-            break;
-        }
-
-        nbTry++;
-        vTaskDelay( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS );
-    } while( nbTry < IOT_BLE_MQTT_CREATE_CONNECTION_RETRY );
+		nbTry++;
+		vTaskDelay( pdMS_TO_TICKS( IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) );
+    }while(nbTry < IOT_BLE_MQTT_CREATE_CONNECTION_RETRY);
 
     return ret;
 }

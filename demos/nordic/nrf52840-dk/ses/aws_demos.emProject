@@ -518,7 +518,10 @@
           <file file_name="../../../common/ble/iot_ble_numericComparison.c" />
         </folder>
         <folder Name="demo_runner">
-          <file file_name="../../../common/demo_runner/aws_demo_runner.c" />
+          <file file_name="../../../common/demo_runner/aws_demo_version.c" />
+          <file file_name="../../../common/demo_runner/aws_demo.c" />
+          <file file_name="../../../common/demo_runner/iot_demo_afr.c" />
+          <file file_name="../../../common/demo_runner/iot_demo_runner.c" />
         </folder>
         <folder Name="network_manager">
           <file file_name="../../../common/network_manager/aws_iot_demo_network.c" />
@@ -529,6 +532,7 @@
         </folder>
         <folder Name="mqtt">
           <file file_name="../../../common/mqtt/aws_mqtt_ble_hello_world.c" />
+          <file file_name="../../../common/mqtt/iot_demo_mqtt.c" />
         </folder>
       </folder>
       <file file_name="../common/application_code/main.c" />

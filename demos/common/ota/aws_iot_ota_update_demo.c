@@ -64,8 +64,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "aws_ota_agent.h"
 
 #include "iot_network_manager_private.h"
+
 /* Required for demo task stack and priority */
-#include "aws_ota_update_demo.h"
 #include "aws_demo_config.h"
 #include "aws_application_version.h"
 
@@ -105,7 +105,7 @@ static MqttConnectionContext_t xConnection =
  * @brief Network manager subscription callback.
  */
 
-static SubscriptionHandle_t xSubscriptionHandle = AWSIOT_NETWORK_SUBSCRIPTION_HANDLE_INITIALIZER;
+static IotNetworkManagerSubscription_t xSubscriptionHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
 /**
  * @brief Semaphore to indicate a new network is available.
@@ -301,10 +301,13 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 	}
 }
 
-
 /*-----------------------------------------------------------*/
 
-void vStartOTAUpdateDemoTask( void )
+int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
 {
     BaseType_t xRet = pdTRUE;
 
@@ -360,9 +363,9 @@ void vStartOTAUpdateDemoTask( void )
     {
         xRet = xTaskCreate( vOTAUpdateDemoTask,
                      "OTA",
-                     democonfigOTA_UPDATE_TASK_STACK_SIZE,
+                     democonfigDEMO_STACKSIZE,
                      NULL,
-                     democonfigOTA_UPDATE_TASK_TASK_PRIORITY,
+                     democonfigDEMO_PRIORITY,
                      NULL );
 
         if( xRet == pdFALSE )
@@ -374,7 +377,7 @@ void vStartOTAUpdateDemoTask( void )
 
     if(  xRet == pdFALSE )
     {
-        if( xSubscriptionHandle != AWSIOT_NETWORK_SUBSCRIPTION_HANDLE_INITIALIZER )
+        if( xSubscriptionHandle != IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER )
         {
             AwsIotNetworkManager_RemoveSubscription( xSubscriptionHandle );
         }
@@ -384,4 +387,6 @@ void vStartOTAUpdateDemoTask( void )
             vSemaphoreDelete( xNetworkAvailableLock );
         }
     }
+
+    return xRet;
 }

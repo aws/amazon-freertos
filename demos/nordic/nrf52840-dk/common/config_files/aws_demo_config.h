@@ -26,6 +26,31 @@
 #ifndef _AWS_DEMO_CONFIG_H_
 #define _AWS_DEMO_CONFIG_H_
 
+#include "iot_demo_runner.h"
+
+/* Default configuration for all demos. Individual demos can override these below */
+#define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
+#define democonfigDEMO_onNetworkConnectedFn    NULL
+#define democonfigDEMO_onNetworkDisconnectedFn NULL
+
+
+/* Some individual demos want to override these defaults, that is done in this section */
+#if defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
+    #undef democonfigDEMO_STACKSIZE
+    #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+    #undef democonfigDEMO_PRIORITY
+    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
+#endif
+
+#if defined(democonfigTCP_ECHO_TASKS_SINGLE_ENABLED)
+    #undef democonfigDEMO_STACKSIZE
+    #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
+    #undef democonfigDEMO_PRIORITY
+    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
+#endif
+
+
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */
 #define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS         ( 0 )
 
@@ -73,9 +98,6 @@ negotiation. */
 /* Timeout used when performing MQTT operations that do not need extra time
 to perform a TLS negotiation. */
 #define democonfigMQTT_TIMEOUT						       pdMS_TO_TICKS( 3000 )
-
-#define IOT_THREAD_DEFAULT_STACK_SIZE    (4 * configMINIMAL_STACK_SIZE)
-#define IOT_THREAD_DEFAULT_PRIORITY      (tskIDLE_PRIORITY)
 
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */
 #define democonfigMQTT_AGENT_CONNECT_FLAGS                 ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )

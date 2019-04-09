@@ -34,6 +34,8 @@
 #include "types/iot_network_types.h"
 #include "aws_iot_network_config.h"
 
+#include "platform/iot_network.h"
+
 #ifndef configSUPPORTED_NETWORKS
 #error "Flag 'configSUPPORTED_NETWORKS' is not defined. Please define the flag in aws_iot_network_config.h with the list of all networks supported by the board"
 #endif
@@ -67,13 +69,13 @@
 /**
  * @brief Initializer for a subscription handle.
  */
-#define AWSIOT_NETWORK_SUBSCRIPTION_HANDLE_INITIALIZER   ( NULL )
+#define IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER   ( NULL )
 
 
 /**
- * @brief Unique handle for a Subscription.
+ * @brief Unique handle for a network manager user callback subscription.
  */
-typedef void * SubscriptionHandle_t;
+typedef void * IotNetworkManagerSubscription_t;
 
 
 /**
@@ -99,7 +101,7 @@ typedef void ( *AwsIotNetworkStateChangeCb_t ) ( uint32_t ulNetworkType, AwsIotN
  * @param pxHandle Handle to the subscription
  * @return pdTRUE or pdFALSE
  */
-BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes, AwsIotNetworkStateChangeCb_t xCallback, void * pvContext, SubscriptionHandle_t* pxHandle );
+BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes, AwsIotNetworkStateChangeCb_t xCallback, void * pvContext, IotNetworkManagerSubscription_t* pxHandle );
 
 
 /**
@@ -107,7 +109,7 @@ BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes
  * @param xHandle Handle to the subscription
  * @return pdTRUE or pdFALSE
  */
-BaseType_t AwsIotNetworkManager_RemoveSubscription(  SubscriptionHandle_t xHandle );
+BaseType_t AwsIotNetworkManager_RemoveSubscription(  IotNetworkManagerSubscription_t xHandle );
 
 
 /**
@@ -128,6 +130,11 @@ uint32_t AwsIotNetworkManager_GetConfiguredNetworks( void );
  * @return Flags indicating all enabled networks.
  */
 uint32_t AwsIotNetworkManager_GetEnabledNetworks( void );
+
+/**
+ * @brief Get the network interface for a network type.
+ */
+const IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType ); 
 
 /**
  * API to enable network manager for different networks
