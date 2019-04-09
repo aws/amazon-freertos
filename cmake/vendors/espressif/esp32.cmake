@@ -80,14 +80,6 @@ target_sources(
 # BLE
 set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
 
-# Include directories for BLE on ESP
-set(
-    esp_ble_inc_dirs
-    "${espressif_dir}/components/bt/bluedroid/api/include/api"
-    "${espressif_dir}/components/bt/include"
-    "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/"
-)
-
 afr_mcu_port(ble)
 target_sources(
     AFR::ble::mcu_port
@@ -99,7 +91,9 @@ target_sources(
 target_include_directories(
     AFR::ble::mcu_port
     INTERFACE
-        ${esp_ble_inc_dirs}
+        "${espressif_dir}/components/bt/bluedroid/api/include/api"
+        "${espressif_dir}/components/bt/include"
+        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/"
 )
 
 # PKCS11
