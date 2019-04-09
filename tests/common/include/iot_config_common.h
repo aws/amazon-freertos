@@ -236,7 +236,7 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
     #define AWS_IOT_MQTT_ENABLE_METRICS    ( 1 )
 #endif
 #ifndef IOT_MQTT_RESPONSE_WAIT_MS
-    #define IOT_MQTT_RESPONSE_WAIT_MS      ( 5000 )
+    #define IOT_MQTT_RESPONSE_WAIT_MS      ( 1000 )
 #endif
 #ifndef IOT_MQTT_RETRY_MS_CEILING
     #define IOT_MQTT_RETRY_MS_CEILING      ( 60000 )
