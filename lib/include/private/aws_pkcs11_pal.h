@@ -20,7 +20,8 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
 /**
  *   @brief Look up an object handle using it's attributes
  */
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate );
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
+                                        uint8_t usLength );
 
 /**
  *   @brief Get the value of an object.

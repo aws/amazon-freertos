@@ -282,7 +282,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * Port-specific object handle retrieval.
  *
  *
- * @param[in] pxTemplate     Pointer to the template of the object
+ * @param[in] pLabel         Pointer to the label of the object
  *                           who's handle should be found.
  * @param[in] usLength       The length of the label, in bytes.
  *
@@ -290,13 +290,17 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
+                                        uint8_t usLength )
 {
+    /* Avoid compiler warnings about unused variables. */
+    ( void ) usLength;
+
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pxTemplate->cLabel,
+    prvLabelToFilenameHandle( pLabel,
                               &pcFileName,
                               &xHandle );
 

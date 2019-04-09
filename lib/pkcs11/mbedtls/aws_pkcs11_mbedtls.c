@@ -62,7 +62,8 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
                                   int ( *f_rng )( void *, unsigned char *, size_t ),
                                   void * p_rng );
 
-#define PKCS11_PRINT( X )    vLoggingPrintf X
+#define PKCS11_PRINT( X )            vLoggingPrintf X
+#define PKCS11_WARNING_PRINT( X )    /* vLoggingPrintf X */
 
 #define pkcs11NO_OPERATION            ( ( CK_MECHANISM_TYPE ) 0xFFFFFFFFF )
 
@@ -91,7 +92,7 @@ typedef struct P11Session
     CK_MECHANISM_TYPE xOperationInProgress;
     CK_BBOOL xFindObjectInit;
     CK_BBOOL xFindObjectComplete;
-    SearchableAttributes_t * xFindObjectTemplate; /* Pointer to the template of the search in progress. Should be NULL if no search in progres. */
+    CK_BYTE * pxFindObjectLabel; /* Pointer to the label for the search in progress. Should be NULL if no search in progress. */
     uint8_t xFindObjectLabelLength;
     CK_MECHANISM_TYPE xVerifyMechanism;
     SemaphoreHandle_t xVerifyMutex; /* Protects the verification key from being modified while in use. */
@@ -1410,7 +1411,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
 {
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_RV xResult = CKR_OK;
-    SearchableAttributes_t * pxFindObjectInfo = NULL;
+    CK_BYTE * pxFindObjectLabel = NULL;
 
     /* Check inputs. */
     if( ( pxSession == NULL ) || ( pxSession->xOpened != CK_TRUE ) )
@@ -1418,7 +1419,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
         xResult = CKR_SESSION_HANDLE_INVALID;
         configPRINTF( ( "Invalid session. \r\n" ) );
     }
-    else if( pxSession->xFindObjectTemplate != NULL )
+    else if( pxSession->pxFindObjectLabel != NULL )
     {
         xResult = CKR_OPERATION_ACTIVE;
         configPRINTF( ( "Find object operation already in progress. \r\n" ) );
@@ -1436,12 +1437,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     /* Malloc space to save template information. */
     if( xResult == CKR_OK )
     {
-        pxFindObjectInfo = pvPortMalloc( sizeof( SearchableAttributes_t ) );
-        pxSession->xFindObjectTemplate = pxFindObjectInfo;
+        pxFindObjectLabel = pvPortMalloc( pxTemplate->ulValueLen );
+        pxSession->pxFindObjectLabel = pxFindObjectLabel;
 
-        if( pxFindObjectInfo != NULL )
+        if( pxFindObjectLabel != NULL )
         {
-            memset( pxFindObjectInfo, 0, sizeof( SearchableAttributes_t ) );
+            memset( pxFindObjectLabel, 0, pxTemplate->ulValueLen );
         }
         else
         {
@@ -1449,19 +1450,36 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
         }
     }
 
-    /* Unpack provided template and store information serially. */
+    /* Search template for label.
+     * NOTE: This port only supports looking up objects by CKA_LABEL and all
+     * other search attributes are ignored. */
     if( xResult == CKR_OK )
     {
-        /*xResult = xCreateSearchableAttributeTemplate( pxFindObjectInfo, pxTemplate, ulCount ); */
+        xResult = CKR_TEMPLATE_INCOMPLETE;
+
+        for( int i = 0; i < ulCount; i++ )
+        {
+            CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+
+            if( xAttribute.type == CKA_LABEL )
+            {
+                memcpy( pxSession->pxFindObjectLabel, xAttribute.pValue, xAttribute.ulValueLen );
+                xResult = CKR_OK;
+            }
+            else
+            {
+                PKCS11_WARNING_PRINT( ( "WARNING: Search parameters other than label are ignored.\r\n" ) );
+            }
+        }
     }
 
     /* Clean up memory if there was an error parsing the template. */
     if( xResult != CKR_OK )
     {
-        if( pxFindObjectInfo != NULL )
+        if( pxFindObjectLabel != NULL )
         {
-            vPortFree( pxFindObjectInfo );
-            pxSession->xFindObjectTemplate = NULL;
+            vPortFree( pxFindObjectLabel );
+            pxSession->pxFindObjectLabel = NULL;
         }
     }
 
@@ -1490,7 +1508,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         xDone = pdTRUE;
     }
 
-    if( pxSession->xFindObjectTemplate == NULL )
+    if( pxSession->pxFindObjectLabel == NULL )
     {
         xResult = CKR_OPERATION_NOT_INITIALIZED;
         xDone = pdTRUE;
@@ -1511,7 +1529,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
 
     if( ( pdFALSE == xDone ) )
     {
-        *pxObject = PKCS11_PAL_FindObject( pxSession->xFindObjectTemplate );
+        *pxObject = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, strlen( pxSession->pxFindObjectLabel ) );
 
         if( *pxObject != 0 ) /* 0 is always an invalid handle. */
         {
@@ -1520,7 +1538,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         }
         else
         {
-            PKCS11_PRINT( ( "ERROR: Object with label '%s' not found. \r\n", ( char * ) pxSession->xFindObjectTemplate ) );
+            PKCS11_PRINT( ( "ERROR: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
             xResult = CKR_FUNCTION_FAILED;
         }
     }
@@ -1544,7 +1562,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
         xResult = CKR_SESSION_HANDLE_INVALID;
     }
 
-    if( pxSession->xFindObjectTemplate == NULL )
+    if( pxSession->pxFindObjectLabel == NULL )
     {
         xResult = CKR_OPERATION_NOT_INITIALIZED;
     }
@@ -1554,8 +1572,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
         /*
          * Clean-up find objects state.
          */
-        vPortFree( pxSession->xFindObjectTemplate );
-        pxSession->xFindObjectTemplate = NULL;
+        vPortFree( pxSession->pxFindObjectLabel );
+        pxSession->pxFindObjectLabel = NULL;
     }
 
     return xResult;
@@ -2223,7 +2241,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
         switch( xAttribute.type )
         {
             case ( CKA_LABEL ):
-                *ppxLabel = &xAttribute;
+                *ppxLabel = &pxTemplate[ i ];
                 break;
 
             case ( CKA_TOKEN ):
@@ -2300,7 +2318,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
         {
             case ( CKA_LABEL ):
 
-                *ppxLabel = &xAttribute;
+                *ppxLabel = &pxTemplate[ i ];
 
                 break;
 
@@ -2363,8 +2381,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
     int lMbedResult;
     mbedtls_pk_context xCtx = { 0 };
-    CK_ATTRIBUTE_PTR pxLabel;
-
+    CK_ATTRIBUTE_PTR pxPrivateLabel;
+    CK_ATTRIBUTE_PTR pxPublicLabel;
 
     if( pucDerFile == NULL )
     {
@@ -2378,14 +2396,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        xResult = prvCheckGenerateKeyPairPrivateTemplate( &pxLabel,
+        xResult = prvCheckGenerateKeyPairPrivateTemplate( &pxPrivateLabel,
                                                           pxPrivateKeyTemplate,
                                                           ulPrivateKeyAttributeCount );
     }
 
     if( xResult == CKR_OK )
     {
-        xResult = prvCheckGenerateKeyPairPublicTemplate( &pxLabel,
+        xResult = prvCheckGenerateKeyPairPublicTemplate( &pxPublicLabel,
                                                          pxPublicKeyTemplate,
                                                          ulPublicKeyAttributeCount );
     }
@@ -2417,7 +2435,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( lMbedResult > 0 )
     {
-        *pxPrivateKey = PKCS11_PAL_SaveObject( pxLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
+        *pxPrivateKey = PKCS11_PAL_SaveObject( pxPrivateLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
     }
     else
     {
@@ -2431,7 +2449,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( lMbedResult > 0 )
     {
-        *pxPublicKey = PKCS11_PAL_SaveObject( pxLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
+        *pxPublicKey = PKCS11_PAL_SaveObject( pxPublicLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
     }
     else
     {
