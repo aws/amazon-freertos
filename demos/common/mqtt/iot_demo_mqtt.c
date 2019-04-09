@@ -250,11 +250,11 @@ static void _mqttSubscriptionCallback( void * param1,
     IotMqttPublishInfo_t acknowledgementInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
     /* Print information about the incoming PUBLISH message. */
-    IotLogInfo( "Incoming PUBLISH received:\n"
-                "Subscription topic filter: %.*s\n"
-                "Publish topic name: %.*s\n"
-                "Publish retain flag: %d\n"
-                "Publish QoS: %d\n"
+    IotLogInfo( "Incoming PUBLISH received:\r\n"
+                "Subscription topic filter: %.*s\r\n"
+                "Publish topic name: %.*s\r\n"
+                "Publish retain flag: %d\r\n"
+                "Publish QoS: %d\r\n"
                 "Publish payload: %.*s",
                 pPublish->message.topicFilterLength,
                 pPublish->message.pTopicFilter,
