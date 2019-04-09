@@ -538,6 +538,8 @@
             <file file_name="../common/application_code/nordic_code/SEGGER_HardFaultHandler.c" />
             <file file_name="../common/application_code/nordic_code/thumb_crt0.s" />
           </folder>
+          <file file_name="../../../common/test_runner/aws_test.c" />
+          <file file_name="../../../common/test_runner/iot_test_afr.c" />
         </folder>
         <folder Name="mqtt">
           <folder Name="system">
