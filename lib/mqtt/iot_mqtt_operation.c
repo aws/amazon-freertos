@@ -430,7 +430,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
     {
         if( decrementOnError == true )
         {
-            _IotMqtt_DecrementConnectionReferences( pMqttConnection );
+            _IotMqtt_DecrementConnectionReferences( pMqttConnection, false );
         }
         else
         {
@@ -528,7 +528,8 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
 
 /*-----------------------------------------------------------*/
 
-void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
+void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation,
+                                bool receiveCallback )
 {
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
 
@@ -629,7 +630,7 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation )
 
     /* Decrement the MQTT connection's reference count after destroying an
      * operation. */
-    _IotMqtt_DecrementConnectionReferences( pMqttConnection );
+    _IotMqtt_DecrementConnectionReferences( pMqttConnection, receiveCallback );
 }
 
 /*-----------------------------------------------------------*/
@@ -970,7 +971,7 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
     /* Destroy the operation or notify of completion if necessary. */
     if( destroyOperation == true )
     {
-        _IotMqtt_DestroyOperation( pOperation );
+        _IotMqtt_DestroyOperation( pOperation, false );
     }
     else
     {
@@ -981,7 +982,7 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
             /* Notify of operation completion if this job set a status. */
             if( pOperation->status != IOT_MQTT_STATUS_PENDING )
             {
-                _IotMqtt_Notify( pOperation );
+                _IotMqtt_Notify( pOperation, false );
             }
             else
             {
@@ -1027,7 +1028,7 @@ void _IotMqtt_ProcessCompletedOperation( IotTaskPool_t * pTaskPool,
     /* Attempt to destroy the operation once the user callback returns. */
     if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )
     {
-        _IotMqtt_DestroyOperation( pOperation );
+        _IotMqtt_DestroyOperation( pOperation, false );
     }
     else
     {
@@ -1194,7 +1195,8 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
 
 /*-----------------------------------------------------------*/
 
-void _IotMqtt_Notify( _mqttOperation_t * pOperation )
+void _IotMqtt_Notify( _mqttOperation_t * pOperation,
+                      bool receiveCallback )
 {
     IotMqttError_t status = IOT_MQTT_SCHEDULING_ERROR;
     _mqttConnection_t * pMqttConnection = pOperation->pMqttConnection;
@@ -1288,7 +1290,7 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
         /* Decrement reference count of operations with no callback. */
         if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )
         {
-            _IotMqtt_DestroyOperation( pOperation );
+            _IotMqtt_DestroyOperation( pOperation, receiveCallback );
         }
         else
         {

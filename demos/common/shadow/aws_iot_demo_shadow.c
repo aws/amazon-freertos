@@ -405,8 +405,8 @@ static void _shadowUpdatedCallback( void * pCallbackContext,
     /* Log the previous and current states. */
     if( ( previousFound == true ) && ( currentFound == true ) )
     {
-        IotLogInfo( "Shadow was updated!\n"
-                    "Previous: {\"state\":%.*s}\n"
+        IotLogInfo( "Shadow was updated!\r\n"
+                    "Previous: {\"state\":%.*s}\r\n"
                     "Current:  {\"state\":%.*s}",
                     previousLength,
                     pPrevious,
