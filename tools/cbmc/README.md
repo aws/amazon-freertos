@@ -6,8 +6,9 @@ of the amazon:FreeRTOS codebase. A continuous integration system validates every
 pull request posted to the repository against these proofs, and developers can
 also run the proofs on their local machines.
 
-The proofs are checked using the [C Bounded Model
-Checker](http://www.cprover.org/cbmc/), an open-source static analysis tool
+The proofs are checked using the
+[C Bounded Model Checker](http://www.cprover.org/cbmc/), an open-source static
+analysis tool
 ([GitHub repository](https://github.com/diffblue/cbmc)). This README describes
 how to run the proofs on your local clone of a:FR.
 
@@ -24,28 +25,31 @@ Installing CBMC
 ---------------
 
 - Clone the [CBMC repository](https://github.com/diffblue/cbmc).
-- Follow the installation instructions for your platform in CBMC's
+
+- The canonical compilation and installation instructions are in the
   [COMPILING.md](https://github.com/diffblue/cbmc/blob/develop/COMPILING.md)
-  file.
+  file in the CBMC repository; we reproduce the most important steps for
+  Windows users here, but refer to that document if in doubt.
+  - Download and install CMake from the [CMake website](https://cmake.org/download).
+  - Download and install the "git for Windows" package, which also
+    provides the `patch` command, from [here](https://git-scm.com/download/win).
+  - Download the flex and bison for Windows package from
+    [this sourceforge site](https://sourceforge.net/projects/winflexbison).
+    "Install" it by dropping the contents of the entire unzipped
+    package into the top-level CBMC source directory.
+  - Change into the top-level CBMC source directory and run
+    ```
+    cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DWITH_JBMC=OFF
+    cmake --build build
+    ```
 
-  - For Windows users, we recommend building CBMC using CMake in a Visual Studio
-    Developer Command Prompt. There is no need to build CBMC with Java support
-    to run the a:FR proofs, so you may pass `-DWITH_JBMC=OFF` to CMake's
-    configure stage; this avoids the need to install Java dependencies on your
-    machine. We recommend that you configure for a release build of CBMC by
-    passing `-DCMAKE_BUILD_TYPE=Release` to CMake's configure stage.
-
-  - Linux and macOS users can use the CMake or Makefile build; we recommend
-    CMake for ease of installation. Again, we recommend passing
-    `-DWITH_JBMC=OFF` and `-DCMAKE_BUILD_TYPE=Release` if using CMake.
-
-- Ensure that you can run the programs `cbmc`, `goto-cc` (or `goto-cl` on
-  Windows), and `goto-instrument` from the command line. If you build CBMC with
-  CMake, the programs will have been installed under the `build/bin` directory
-  under the top-level `cbmc` directory; you should add that directory to your
-  `$PATH`. If you built CBMC using Make, then those programs will have been
-  installed in the `src/cbmc`, `src/goto-cc`, and `src/goto-instrument`
-  directories respectively.
+- Ensure that you can run the programs `cbmc`, `goto-cc` (or `goto-cl`
+  on Windows), and `goto-instrument` from the command line. If you build
+  CBMC with CMake, the programs will have been installed under the
+  `build/bin/Debug` directory under the top-level `cbmc` directory; you
+  should add that directory to your `$PATH`. If you built CBMC using
+  Make, then those programs will have been installed in the `src/cbmc`,
+  `src/goto-cc`, and `src/goto-instrument` directories respectively.
 
 
 Setting up the proofs
