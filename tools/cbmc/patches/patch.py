@@ -17,7 +17,7 @@ for patchfile in patchfiles:
     with open(patchfile) as inp, open(tmpfile, "w", newline="\n") as outp:
         outp.write(inp.read())
     cwd = os.getcwd()
-    result = subprocess.run(["git", "apply", tmpfile], cwd='../..')
+    result = subprocess.run(["git", "apply", tmpfile], cwd='../../..')
     if result.returncode:
         print("Patch failed: {}".format(patchfile))
 

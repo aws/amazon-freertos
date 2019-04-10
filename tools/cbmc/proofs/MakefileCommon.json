@@ -1,5 +1,5 @@
 {
-    "FREERTOS": [ " ../.." ],
+    "FREERTOS": [ " ../../.." ],
     "PROOFS": [ "." ],
 
     "DEF ": [
