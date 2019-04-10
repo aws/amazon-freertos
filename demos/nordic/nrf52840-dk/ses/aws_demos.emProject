@@ -482,25 +482,11 @@
           <file file_name="../../../common/include/aws_ble_gatt_server_demo.h" />
           <file file_name="../../../common/include/aws_clientcredential.h" />
           <file file_name="../../../common/include/aws_clientcredential_keys.h" />
-          <file file_name="../../../common/include/aws_defender_demo.h" />
           <file file_name="../../../common/include/aws_demo.h" />
-          <file file_name="../../../common/include/aws_demo_runner.h" />
-          <file file_name="../../../common/include/aws_dev_mode_key_provisioning.h" />
-          <file file_name="../../../common/include/aws_greengrass_discovery_demo.h" />
-          <file file_name="../../../common/include/aws_hello_world.h" />
-          <file file_name="../../../common/include/aws_iot_config_common.h" />
-          <file file_name="../../../common/include/aws_iot_demo.h" />
           <file file_name="../../../common/include/aws_iot_demo_network.h" />
-          <file file_name="../../../common/include/aws_logging_task.h" />
           <file file_name="../../../common/include/aws_mqtt_network_iface.h" />
           <file file_name="../../../common/include/aws_ota_codesigner_certificate.h" />
-          <file file_name="../../../common/include/aws_ota_update_demo.h" />
-          <file file_name="../../../common/include/aws_posix_demo.h" />
-          <file file_name="../../../common/include/aws_shadow_lightbulb_on_off.h" />
-          <file file_name="../../../common/include/aws_simple_tcp_echo_server.h" />
-          <file file_name="../../../common/include/aws_subscribe_publish_loop.h" />
-          <file file_name="../../../common/include/aws_tcp_echo_client_single_tasks.h" />
-          <file file_name="../../../common/include/aws_ble_numericComparison.h" />
+          <file file_name="../../../common/include/iot_demo_runner.h" />
         </folder>
         <folder Name="nordic_code">
           <file file_name="../common/application_code/nordic_code/SEGGER_RTT.c" />
@@ -549,7 +535,6 @@
       <file file_name="../common/config_files/FreeRTOSConfig.h" />
       <file file_name="../common/config_files/FreeRTOSIPConfig.h" />
       <file file_name="../common/config_files/sdk_config.h" />
-      <file file_name="../common/config_files/aws_iot_config.h" />
       <file file_name="../common/config_files/aws_iot_network_config.h" />
       <file file_name="../common/config_files/iot_ble_config.h" />
     </folder>

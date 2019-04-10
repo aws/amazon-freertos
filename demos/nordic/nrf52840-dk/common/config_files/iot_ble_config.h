@@ -34,7 +34,7 @@
 #include "sdk_config.h"
 /* Device name for this peripheral device */
 #define IOT_BLE_DEVICE_NAME                     "nRF52840"
-#define IOT_BLE_ENABLE_GATT_DEMO 1
+
 /* Enable WIFI provisioning GATT service */
 #define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
 

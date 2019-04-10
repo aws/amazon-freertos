@@ -220,14 +220,13 @@ static IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 static IotMqttError_t _publishMqttMessage( const char* pMessage, size_t messageLength )
 {
      IotMqttError_t ret = IOT_MQTT_NETWORK_ERROR;
-     IotMqttPublishInfo_t publishInfo =
-     {
-         .qos = _QOS,
-         .pTopicName = _TOPIC,
-         .topicNameLength = strlen(_TOPIC),
-         .pPayload = (void *)pMessage,
-         .payloadLength = messageLength
-     };
+     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
+      
+     publishInfo.qos = _QOS;
+     publishInfo.pTopicName = _TOPIC;
+     publishInfo.topicNameLength = strlen(_TOPIC);
+     publishInfo.pPayload = (void *)pMessage;
+     publishInfo.payloadLength = messageLength;
 
      if( mqttConnection != IOT_MQTT_CONNECTION_INITIALIZER )
      {

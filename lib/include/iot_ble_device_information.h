@@ -58,7 +58,6 @@ typedef enum
     IOT_BLE_DEVICE_INFO_VERSION_CHAR = 0,           /**< IOT_BLE_DEVICE_INFO_VERSION_CHAR Exposes the services version for the device */
     IOT_BLE_DEVICE_INFO_MQTT_BROKER_END_POINT_CHAR, /**< IOT_BLE_DEVICE_INFO_MQTT_BROKER_END_POINT_CHAR Exposes the IOT broker endpoint with which the device is provisioned */
     IOT_BLE_DEVICE_INFO_MTU_CHAR,                   /**< IOT_BLE_DEVICE_INFO_MTU_CHAR Expose the BLE MTU for the device */
-    IOT_BLE_DEVICE_INFO_ENCODING_CHAR,              /**< IOT_BLE_DEVICE_INFO_ENCODING_CHAR Tells what type of encoding is used by the device. */
 } IotBleDeviceInfoCharacteristic_t;
 
 /**
