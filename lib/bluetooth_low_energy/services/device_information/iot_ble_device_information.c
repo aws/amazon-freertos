@@ -52,7 +52,7 @@ static IotBleDeviceInfoService_t _service =
 {
     .pBLEService = NULL,
     .BLEConnId   = 65535,
-    .BLEMtu      = 0,
+    .BLEMtu      = IOT_BLE_PREFERRED_MTU_SIZE,
     .CCFGVal     = { 0 }
 };
 

@@ -396,43 +396,6 @@ static void prvDeleteBonds( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    uint32_t ulEnabledNetworks;
-    IotTaskPoolInfo_t taskPool = IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM;
-    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
-     * running, here. */
-
-    BaseType_t xStatus = pdFALSE;
-
-    xStatus = ( IotCommon_Init() == true );
-
-
-     if( xStatus == pdPASS )
-    {
-      if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
-      {
-          xStatus = pdTRUE;
-      }
-    }
-
-
-     if( AwsIotNetworkManager_Init() != pdPASS )
-     {
-     	configPRINTF(("Failed to initialize the network manager \n "));
-     	while( 1 )
-     	{
-
-     	}
-     }
-
-     ulEnabledNetworks = AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
-     if( ( ulEnabledNetworks & configENABLED_NETWORKS ) !=  configENABLED_NETWORKS )
-     {
-     	configPRINTF(("Failed to enable all the networks, enabled networks: %08x\n ", ulEnabledNetworks ));
-     	while( 1 )
-     	{
-
-     	}
-     }
     /* Start the demo tasks. */
     DEMO_RUNNER_RunDemos();
 }
