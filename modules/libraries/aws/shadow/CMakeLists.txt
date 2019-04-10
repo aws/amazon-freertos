@@ -12,7 +12,6 @@ afr_module_sources(
     PRIVATE
         "${AFR_MODULES_DIR}/shadow/aws_shadow.c"
         "${AFR_MODULES_DIR}/include/aws_shadow.h"
-        "${AFR_MODULES_DIR}/include/private/aws_shadow_json.h"
         "${AFR_MODULES_DIR}/include/private/aws_shadow_config_defaults.h"
 
         "${AFR_MODULES_DIR}/shadow/aws_iot_shadow_api.c"
