@@ -83,7 +83,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
 
 #define echoCONN_RETRY_LIMIT               ( 100 )
 
-#define echoKEEPALIVE_SECONDS              ( 120 )
+#define echoKEEPALIVE_SECONDS              ( 1200 )
 
 #define myappONE_SECOND_DELAY_IN_TICKS  pdMS_TO_TICKS( 1000UL )
 
@@ -187,9 +187,6 @@ void vOTAUpdateDemo( void )
     IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
 
-/* Remove compiler warnings about unused parameters. */
-    ( void ) pvParameters;
-
 	configPRINTF ( ("OTA demo version %u.%u.%u\r\n",
 		xAppFirmwareVersion.u.x.ucMajor,
 		xAppFirmwareVersion.u.x.ucMinor,
@@ -197,9 +194,7 @@ void vOTAUpdateDemo( void )
     configPRINTF( ( "Creating MQTT Client...\r\n" ) );
 
     /* Create the MQTT Client. */
-
     xNetworkConnected = prxCreateNetworkConnection();
-
 
     if( xNetworkConnected  )
     {
@@ -250,10 +245,6 @@ void vOTAUpdateDemo( void )
     {
         configPRINTF( ( "Failed to create MQTT client.\r\n" ) );
     }
-
-    /* All done.  FreeRTOS does not allow a task to run off the end of its
-     * implementing function, so the task must be deleted. */
-    vTaskDelete( NULL );
 }
 
 
