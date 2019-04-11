@@ -58,7 +58,7 @@ def awsIotCliCommandForNonProdStage(command, stageParams):
 
 class OtaAwsAgent:
     """OtaAwsAgent manages all AWS resource usage related to OTA.
-
+       
     * The AWS CLI must be configured before this class can be instantiated.
 
     - There should be a new instance of this class per OTA target board.
@@ -725,11 +725,12 @@ class AWSS3Bucket:
                         'LocationConstraint': boto3.session.Session().region_name
                     }
                 )
+            self._s3_client.BucketVersioning(self.s3_name).enable();
+            
         # If the bucket exists we want to make sure it is in the right region for the AWS development stage.
         if response and self._stageParams:
             if response['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region'] != 'us-east-1':
                 raise Exception('ERROR: Please delete S3 bucket {} because it is in region {}, and rerun this script. This script does not delete the bucket because after deleting the bucket it takes 1+ hours for a bucket of the same name of be made again.'.format(self.s3_name, response['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']))
-        self._s3_client.BucketVersioning(self.s3_name).enable();
 
     def upload_file(self, file_path, file_name):
         self._s3_client.Bucket(self.s3_name).upload_file(file_path, file_name)
