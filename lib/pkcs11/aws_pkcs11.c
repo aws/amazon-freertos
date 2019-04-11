@@ -135,8 +135,18 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
+    /* Initialize the module. */
+    if( xResult == CKR_OK )
+    {
+        xResult = C_Initialize( NULL );
+        if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
+        {
+            xResult = CKR_OK;
+        }
+    }
+
     /* Get a list of slots available. */
-    if( ( xResult == CKR_OK ) || ( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED ) )
+    if( xResult == CKR_OK )
     {
         xResult = prvGetSlotList( &pxSlotId, &xSlotCount );
     }

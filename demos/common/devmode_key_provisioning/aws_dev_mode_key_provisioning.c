@@ -654,11 +654,27 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
             {
                 xResult = pxFunctionList->C_DestroyObject( xSession, xObjectHandle );
 
-                xResult = xFindObjectWithLabelAndClass( xSession,
-                                                        ( const char * )pxLabel,
-                                                        xClass[ uiIndex ],
-                                                        &xObjectHandle );
+                /* PKCS #11 allows a module to maintain multiple objects with the same
+                label and type. The intent of this loop is to try to delete all of them.
+                However, to avoid getting stuck, we won't try to find another object
+                of the same label/type if the previous delete failed. */
+                if( xResult == CKR_OK )
+                {
+                    xResult = xFindObjectWithLabelAndClass( xSession,
+                                                            ( const char * )pxLabel,
+                                                            xClass[ uiIndex ],
+                                                            &xObjectHandle );
+                }
+                else
+                {
+                    break;
+                }
             }
+        }
+
+        if( xResult == CKR_FUNCTION_NOT_SUPPORTED )
+        {
+            break;
         }
     }
 

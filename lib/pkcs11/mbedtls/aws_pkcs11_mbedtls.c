@@ -605,6 +605,7 @@ CK_RV prvCreateCertificate( SearchableAttributes_t * pxSearchable,
         {
             pxCertificateValue = xAttribute.pValue;
             xCertificateLength = xAttribute.ulValueLen;
+            break;
         }
     }
 
@@ -1149,12 +1150,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
                                               CK_OBJECT_HANDLE xObject )
 {
-    /* TODO: Delete objects from NVM. */
     ( void ) xSession;
     ( void ) xObject;
 
-    PKCS11_PAL_DestroyObject( xObject );
-    return CKR_OK;
+    return PKCS11_PAL_DestroyObject( xObject );
 }
 
 /**

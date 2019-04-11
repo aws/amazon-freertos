@@ -200,8 +200,8 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
                                     CK_OBJECT_HANDLE_PTR pxHandle );
 
 
-void RSA_PKCS1_SHA256_HashOidSequenceFaker( x32ByteHashedMessage,
-                                 x51ByteHashOidBuffer );
+void RSA_PKCS1_SHA256_HashOidSequenceFaker( unsigned char * x32ByteHashedMessage,
+                                            unsigned char * x51ByteHashOidBuffer );
 
 
 #endif /* ifndef _AWS_PKCS11_H_ */

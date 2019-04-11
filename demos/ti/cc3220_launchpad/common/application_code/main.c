@@ -149,6 +149,34 @@ void vApplicationDaemonTaskStartupHook( void )
     if( xWifiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "Wi-Fi module initialized.\r\n" ) );
+
+        /* Initialize the AWS Libraries system. */
+        if( SYSTEM_Init() == pdPASS )
+        {
+            /* A simple example to demonstrate key and certificate provisioning in
+             * flash using PKCS #11 interface. This should be replaced by a production-ready
+             * key provisioning mechanism. This function must be called after
+             * initializing the TI File System using WIFI_On. */
+            vDevModeKeyProvisioning();
+
+            /* Import only the trusted root that is required for the user endpoint. */
+            prvProvisionRootCA();
+
+            /* Connect to the configured wireless Access Point. */
+            prvWifiConnect();
+
+            /* Show CC3220SF security alerts. When the number of security alerts 
+             * reaches a threshold, the device file system is locked and
+             * the device cannot be automatically flashed. Instead it must be 
+             * reprogrammed with Uniflash. */
+            prvShowTiCc3220SecurityAlertCounts();
+
+            DEMO_RUNNER_RunDemos();
+        }
+        else
+        {
+            configPRINTF( ( "The AWS libraries failed to initialize.\r\n" ) );
+        }
     }
     else
     {
@@ -160,28 +188,6 @@ void vApplicationDaemonTaskStartupHook( void )
         while( 1 )
         {
         }
-    }
-
-    /* A simple example to demonstrate key and certificate provisioning in
-     * flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. This function must be called after
-     * initializing the TI File System using WIFI_On. */
-    vDevModeKeyProvisioning();
-
-    prvProvisionRootCA();
-
-    /* Initialize the AWS Libraries system. */
-    if( SYSTEM_Init() == pdPASS )
-    {
-        prvWifiConnect();
-
-        /* Show the possible security alerts that will affect re-flashing the device. 
-         * When the number of security alerts reaches the threshold, the device file system is locked and 
-         * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed 
-         * here for debugging purposes. */
-        prvShowTiCc3220SecurityAlertCounts();
-
-        DEMO_RUNNER_RunDemos();
     }
 }
 
