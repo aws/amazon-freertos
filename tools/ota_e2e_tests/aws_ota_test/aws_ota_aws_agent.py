@@ -58,7 +58,7 @@ def awsIotCliCommandForNonProdStage(command, stageParams):
 
 class OtaAwsAgent:
     """OtaAwsAgent manages all AWS resource usage related to OTA.
-       
+
     * The AWS CLI must be configured before this class can be instantiated.
 
     - There should be a new instance of this class per OTA target board.
