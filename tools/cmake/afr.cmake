@@ -7,9 +7,6 @@ endif()
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
 # Set some global path variables.
-get_filename_component(__root_dir "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
-set(AFR_ROOT_DIR ${__root_dir} CACHE INTERNAL "Amazon FreeRTOS source root.")
-
 set(AFR_MODULES_DIR "${AFR_ROOT_DIR}/lib" CACHE INTERNAL "Amazon FreeRTOS modules root.")
 set(AFR_DEMOS_DIR "${AFR_ROOT_DIR}/demos/common" CACHE INTERNAL "Amazon FreeRTOS demos root.")
 set(AFR_TESTS_DIR "${AFR_ROOT_DIR}/tests/common" CACHE INTERNAL "Amazon FreeRTOS tests root.")

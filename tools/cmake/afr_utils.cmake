@@ -1,12 +1,37 @@
 # -------------------------------------------------------------------------------------------------
 # Utilities
 # -------------------------------------------------------------------------------------------------
-function(afr_get_boards arg_boards)
-    set(vendors_dir "${CMAKE_CURRENT_LIST_DIR}/cmake/vendors")
+# Set AFR source root.
+get_filename_component(__root_dir "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+set(AFR_ROOT_DIR ${__root_dir} CACHE INTERNAL "Amazon FreeRTOS source root.")
+
+# Get all supported vendors.
+function(afr_get_vendors arg_vendors)
+    set(vendors_dir "${AFR_ROOT_DIR}/vendors")
     file(GLOB __vendors RELATIVE "${vendors_dir}" "${vendors_dir}/*")
     foreach(__vendor IN LISTS __vendors)
-        file(GLOB __boards RELATIVE "${vendors_dir}/${__vendor}" "${vendors_dir}/${__vendor}/*")
-        foreach(__board IN LISTS __boards)
+        if(IS_DIRECTORY "${vendors_dir}/${__vendor}")
+            list(APPEND ${arg_vendors} "${__vendor}")
+        endif()
+    endforeach()
+
+    set(${arg_vendors} "${${arg_vendors}}" PARENT_SCOPE)
+endfunction()
+
+# Get all supported boards from a vendor.
+function(afr_get_vendor_boards arg_vendor arg_boards)
+    set(vendors_dir "${AFR_ROOT_DIR}/vendors")
+    include("${vendors_dir}/${arg_vendor}/manifest.cmake")
+
+    set(${arg_boards} "${AFR_MANIFEST_SUPPORTED_BOARDS}" PARENT_SCOPE)
+endfunction()
+
+# Get all supported boards.
+function(afr_get_boards arg_boards)
+    afr_get_vendors(afr_vendors)
+    foreach(__vendor IN LISTS afr_vendors)
+        afr_get_vendor_boards(${__vendor} vendor_boards)
+        foreach(__board IN LISTS vendor_boards)
             list(APPEND ${arg_boards} "${__vendor}.${__board}")
         endforeach()
     endforeach()
