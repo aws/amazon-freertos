@@ -1127,7 +1127,7 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
 
     CK_ATTRIBUTE xTemplate;
-    RSA_PKCS1_SHA256_HashOidSequenceFaker( xHashedMessage, xHashPlusOid );
+    vAppendSHA256AlgorithmIdentifierSequence( xHashedMessage, xHashPlusOid );
 
     /* The RSA X.509 mechanism assumes a pre-hashed input. */
     xMechanism.mechanism = CKM_RSA_PKCS;

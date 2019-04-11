@@ -211,14 +211,14 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
  *
  * Port-specific file write for cryptographic information.
  *
- * @param[in] pxTemplate    Structure containing searchable attributes.
+ * @param[in] pxLabel       Attribute containing label of the object to be stored.
  * @param[in] pucData       The object data to be saved
  * @param[in] pulDataSize   Size (in bytes) of object data.
  *
  * @return The object handle if successful.
  * eInvalidHandle = 0 if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize )
 {
@@ -229,7 +229,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pxTemplate->cLabel,
+    prvLabelToFilenameHandle( pxLabel->pValue,
                               &pcFileName,
                               &xHandle );
 
@@ -282,7 +282,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
  * Port-specific object handle retrieval.
  *
  *
- * @param[in] pxTemplate     Pointer to the template of the object
+ * @param[in] pLabel         Pointer to the label of the object
  *                           who's handle should be found.
  * @param[in] usLength       The length of the label, in bytes.
  *
@@ -290,13 +290,17 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
+                                        uint8_t usLength )
 {
+    /* Avoid compiler warnings about unused variables. */
+    ( void ) usLength;
+
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pxTemplate->cLabel,
+    prvLabelToFilenameHandle( pLabel,
                               &pcFileName,
                               &xHandle );
 

@@ -27,6 +27,7 @@
 #ifndef _AWS_PKCS11_H_
 #define _AWS_PKCS11_H_
 
+#include <stdint.h>
 
 /**
  * @brief Amazon FreeRTOS PKCS#11 Interface.
@@ -60,7 +61,7 @@
  */
 #define pkcs11RSA_2048_SIGNATURE_LENGTH      ( 2048 / 8 )
 
-#define pkcs11RSA_SIGNATURE_INPUT_LENGTH    51
+#define pkcs11RSA_SIGNATURE_INPUT_LENGTH     51
 
 
 /**
@@ -146,28 +147,30 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
 } PKCS11_GenerateKeyPrivateTemplate_t, * PKCS11_GenerateKeyPrivateTemplatePtr_t;
 
 
-#define pkcs11INVALID_OBJECT_HANDLE       0
-#define pkcs11INVALID_MECHANISM           0xFFFFFFFF
+#define pkcs11INVALID_OBJECT_HANDLE        0
+#define pkcs11INVALID_MECHANISM            0xFFFFFFFF
 
-#define pkcs11MAX_LABEL_LENGTH            32 /* 31 characters + 1 null terminator. */
+#define pkcs11MAX_LABEL_LENGTH             32 /* 31 characters + 1 null terminator. */
 
-#define pkcs11DER_ENCODED_OID_P256        { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
+#define pkcs11DER_ENCODED_OID_P256         { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
 
 /*
  * DigestInfo :: = SEQUENCE{
  *      digestAlgorithm DigestAlgorithmIdentifier,
  *      digest Digest }
- * 
+ *
  * DigestAlgorithmIdentifier :: = AlgorithmIdentifier
  * Digest :: = OCTET STRING
  *
- * NOTE: This is includes the Digest label and length without the actual digest contents :).
+ * This is the DigestInfo sequence, digest algorithm, and the octet string/length
+ * for the digest, without the actual digest itself.
  */
 #define pkcs11STUFF_APPENDED_TO_RSA_SIG    { 0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20 }
 
 CK_RV xInitializePKCS11( void );
 
-/* \brief Initializes the PKCS #11 module and opens a session.
+/**
+ * \brief Initializes the PKCS #11 module and opens a session.
  *
  * \param[out]     pxSession   Pointer to the PKCS #11 session handle
  *                             that is created by this function.
@@ -177,7 +180,7 @@ CK_RV xInitializePKCS11( void );
  */
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
 
-/*
+/**
  * \brief Searches for an object with a matching label and class provided.
  *
  *   \param[in]  xSession       An open PKCS #11 session.
@@ -193,15 +196,30 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
  * \note This function assumes that there is only one
  * object that meets the CLASS/LABEL criteria.
  */
-
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
                                     const char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle );
 
-
-void RSA_PKCS1_SHA256_HashOidSequenceFaker( unsigned char * x32ByteHashedMessage,
-                                            unsigned char * x51ByteHashOidBuffer );
+/**
+ * \brief Appends digest algorithm sequence to SHA-256 hash for RSA signatures
+ *
+ * This function pre-appends the digest algorithm identifier to the SHA-256
+ * hash of a message.
+ *
+ * DigestInfo :: = SEQUENCE{
+ *      digestAlgorithm DigestAlgorithmIdentifier,
+ *      digest Digest }
+ *
+ * \param[in] pc32ByteHashedMessage     A 32-byte buffer containing the SHA-256
+ *                                      hash of the data to be signed.
+ * \param[out] pc51ByteHashOidBuffer    A 51-byte output buffer containing the
+ *                                      DigestInfo structure.  This memory
+ *                                      must be allocated by the caller.
+ *
+ */
+void vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
+                                               uint8_t * x51ByteHashOidBuffer );
 
 
 #endif /* ifndef _AWS_PKCS11_H_ */

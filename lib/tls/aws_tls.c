@@ -319,7 +319,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
     if( CKK_RSA == pxTLSContext->xKeyType )
     {
         xMech.mechanism = CKM_RSA_PKCS;
-        RSA_PKCS1_SHA256_HashOidSequenceFaker( pucHash, xToBeSigned );
+        vAppendSHA256AlgorithmIdentifierSequence( pucHash, xToBeSigned );
         xToBeSignedLen = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
     }
     else if( CKK_EC == pxTLSContext->xKeyType )
