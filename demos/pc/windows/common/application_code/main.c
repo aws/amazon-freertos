@@ -274,6 +274,34 @@ void vApplicationIdleHook( void )
 
 /*-----------------------------------------------------------*/
 
+void vAssertCalled( const char * pcFile,
+                    uint32_t ulLine )
+{
+    const uint32_t ulLongSleep = 1000UL;
+    volatile uint32_t ulBlockVariable = 0UL;
+    volatile char * pcFileName = ( volatile char * ) pcFile;
+    volatile uint32_t ulLineNumber = ulLine;
+
+    ( void ) pcFileName;
+    ( void ) ulLineNumber;
+
+    printf( "vAssertCalled %s, %ld\n", pcFile, ( long ) ulLine );
+    fflush( stdout );
+
+    /* Setting ulBlockVariable to a non-zero value in the debugger will allow
+     * this function to be exited. */
+    taskDISABLE_INTERRUPTS();
+    {
+        while( ulBlockVariable == 0UL )
+        {
+            Sleep( ulLongSleep );
+        }
+    }
+    taskENABLE_INTERRUPTS();
+}
+
+/*-----------------------------------------------------------*/
+
 static void prvSaveTraceFile( void )
 {
     FILE * pxOutputFile;
