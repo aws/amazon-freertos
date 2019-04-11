@@ -182,7 +182,7 @@ static const char *pcStateStr[eOTA_NumAgentStates] =
      "Shutting down"
 };
 
-void vOTAUpdateDemoTask( void * pvParameters )
+void vOTAUpdateDemo( void )
 {
     IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
@@ -311,29 +311,10 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
 {
     BaseType_t xRet = pdTRUE;
 
-    /* Initialize common libraries and MQTT. */
-    if( IotCommon_Init() == false )
+    if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
     {
-        configPRINTF(( "Failed to initialize common libraries.\r\n" ));
+        configPRINTF(( "There are no networks configured for the demo.\r\n" ));
         xRet = pdFALSE;
-    }
-
-    if( xRet == pdTRUE )
-    {
-        if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
-        {
-            configPRINTF(( "Failed to initialize MQTT library.\r\n" ));
-            xRet = pdFALSE;
-        }
-    }
-
-    if( xRet == pdTRUE )
-    {
-        if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
-        {
-            configPRINTF(( "There are no networks configured for the demo.\r\n" ));
-            xRet = pdFALSE;
-        }
     }
 
     /* Create semaphore to notify network available */
@@ -361,18 +342,7 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
 
     if( xRet == pdTRUE )
     {
-        xRet = xTaskCreate( vOTAUpdateDemoTask,
-                     "OTA",
-                     democonfigDEMO_STACKSIZE,
-                     NULL,
-                     democonfigDEMO_PRIORITY,
-                     NULL );
-
-        if( xRet == pdFALSE )
-        {
-            configPRINTF(( "Failed to create OTA demo tasks.\r\n" ));
-        }
-
+        vOTAUpdateDemo( );
     }
 
     if(  xRet == pdFALSE )
