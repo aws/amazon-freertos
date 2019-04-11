@@ -43,6 +43,7 @@
 #include "iot_mqtt.h"
 #include "platform/iot_threads.h"
 #include "types/iot_network_types.h"
+#include "aws_application_version.h"
 
 #include "aws_demo.h"
 #include "aws_demo_config.h"
@@ -82,6 +83,13 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
  */
 void DEMO_RUNNER_RunDemos( void )
 {
+
+    /* Print the version number */
+    configPRINTF ( ("Demo version %u.%u.%u\r\n",
+		xAppFirmwareVersion.u.x.ucMajor,
+		xAppFirmwareVersion.u.x.ucMinor,
+		xAppFirmwareVersion.u.x.usBuild ) );
+
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
     static demoContext_t mqttDemoContext =
     {
