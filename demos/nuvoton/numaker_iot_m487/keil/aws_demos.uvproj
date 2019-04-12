@@ -419,14 +419,14 @@
           <GroupName>CMSIS</GroupName>
           <Files>
             <File>
-              <FileName>system_M480.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Source\system_M480.c</FilePath>
-            </File>
-            <File>
               <FileName>startup_M480.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Source\ARM\startup_M480.s</FilePath>
+            </File>
+            <File>
+              <FileName>system_M480.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Source\system_M480.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -449,6 +449,11 @@
           <GroupName>FreeRTOS</GroupName>
           <Files>
             <File>
+              <FileName>event_groups.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\FreeRTOS\event_groups.c</FilePath>
+            </File>
+            <File>
               <FileName>list.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\FreeRTOS\list.c</FilePath>
@@ -457,6 +462,11 @@
               <FileName>queue.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\FreeRTOS\queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>stream_buffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\FreeRTOS\stream_buffer.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
@@ -474,71 +484,6 @@
               <FilePath>..\..\..\..\lib\FreeRTOS\portable\RVDS\ARM_CM4F\port.c</FilePath>
             </File>
             <File>
-              <FileName>heap_2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\portable\MemMang\heap_2.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <uC99>2</uC99>
-                    <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>2</vShortEn>
-                    <vShortWch>2</vShortWch>
-                    <v6Lto>2</v6Lto>
-                    <v6WtE>2</v6WtE>
-                    <v6Rtti>2</v6Rtti>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
-              <FileName>event_groups.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\event_groups.c</FilePath>
-            </File>
-            <File>
-              <FileName>stream_buffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\stream_buffer.c</FilePath>
-            </File>
-            <File>
               <FileName>heap_4.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\FreeRTOS\portable\MemMang\heap_4.c</FilePath>
@@ -549,24 +494,14 @@
           <GroupName>NVT-Library</GroupName>
           <Files>
             <File>
-              <FileName>clk.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\clk.c</FilePath>
-            </File>
-            <File>
               <FileName>retarget.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\retarget.c</FilePath>
             </File>
             <File>
-              <FileName>sys.c</FileName>
+              <FileName>clk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\sys.c</FilePath>
-            </File>
-            <File>
-              <FileName>uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\uart.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\clk.c</FilePath>
             </File>
             <File>
               <FileName>crypto.c</FileName>
@@ -578,20 +513,35 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\fmc.c</FilePath>
             </File>
+            <File>
+              <FileName>sys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\sys.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\uart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>demos</GroupName>
           <Files>
             <File>
-              <FileName>aws_logging_task_dynamic_buffers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\common\logging\aws_logging_task_dynamic_buffers.c</FilePath>
-            </File>
-            <File>
               <FileName>aws_demo_runner.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\common\demo_runner\aws_demo_runner.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_tcp_echo_client_single_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\common\tcp\aws_tcp_echo_client_single_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_tcp_echo_client_separate_tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\common\tcp\aws_tcp_echo_client_separate_tasks.c</FilePath>
             </File>
             <File>
               <FileName>aws_simple_tcp_echo_server.c</FileName>
@@ -599,64 +549,24 @@
               <FilePath>..\..\..\common\tcp\aws_simple_tcp_echo_server.c</FilePath>
             </File>
             <File>
-              <FileName>aws_tcp_echo_client_single_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\common\tcp\aws_tcp_echo_client_single_task.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <uC99>2</uC99>
-                    <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>2</vShortEn>
-                    <vShortWch>2</vShortWch>
-                    <v6Lto>2</v6Lto>
-                    <v6WtE>2</v6WtE>
-                    <v6Rtti>2</v6Rtti>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
               <FileName>aws_hello_world.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\common\mqtt\aws_hello_world.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_subscribe_publish_loop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\common\mqtt\aws_subscribe_publish_loop.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_shadow_lightbulb_on_off.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_logging_task_dynamic_buffers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\common\logging\aws_logging_task_dynamic_buffers.c</FilePath>
             </File>
             <File>
               <FileName>aws_dev_mode_key_provisioning.c</FileName>
@@ -666,7 +576,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>FreeRTOS-Plus-TCP</GroupName>
+          <GroupName>lib-bufferpool</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_bufferpool_static_thread_safe.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib-crypto</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_crypto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\crypto\aws_crypto.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib-FreeRTOS-Plus-TCP</GroupName>
           <GroupOption>
             <CommonProperty>
               <UseCPPCompiler>0</UseCPPCompiler>
@@ -799,36 +729,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>lib-utils</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_system_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\utils\aws_system_init.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lib-bufferpool</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_bufferpool_static_thread_safe.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lib-secure-sockets-plus-tcp</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_secure_sockets.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>lib-mqtt</GroupName>
           <Files>
             <File>
@@ -844,17 +744,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>crypto</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_crypto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\crypto\aws_crypto.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>pkcs11</GroupName>
+          <GroupName>lib-pkcs11</GroupName>
           <Files>
             <File>
               <FileName>aws_pkcs11_mbedtls.c</FileName>
@@ -869,7 +759,52 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>mbedtls</GroupName>
+          <GroupName>lib-secure-sockets-plus-tcp</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_secure_sockets.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\secure_sockets\portable\freertos_plus_tcp\aws_secure_sockets.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib-shadow</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_shadow.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\shadow\aws_shadow.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_shadow_json.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\shadow\aws_shadow_json.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib-tls</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_tls.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\tls\aws_tls.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib-utils</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_system_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\utils\aws_system_init.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>3rd-mbedtls</GroupName>
           <Files>
             <File>
               <FileName>aes.c</FileName>
@@ -1234,12 +1169,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>tls</GroupName>
+          <GroupName>3rd-jsmn</GroupName>
           <Files>
             <File>
-              <FileName>aws_tls.c</FileName>
+              <FileName>jsmn.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\tls\aws_tls.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\jsmn\jsmn.c</FilePath>
             </File>
           </Files>
         </Group>
