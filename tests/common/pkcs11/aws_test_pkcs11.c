@@ -226,8 +226,6 @@ TEST_TEAR_DOWN( Full_PKCS11_RSA )
 TEST_GROUP_RUNNER( Full_PKCS11_RSA )
 {
     prvBeforeRunningTests();
-    ( void ) xDestroyCredentials( xGlobalSession );
-    xCurrentCredentials = eNone;
 
     /* RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_GenerateKeyPair ); */ /* Generating RSA keys is not supported. */
     RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectFindObject );
