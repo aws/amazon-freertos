@@ -62,10 +62,6 @@
 #define IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID        ( 0x2902 )                                                                            /**< @brief Client configuration. */
 /* @[define_ble_constants_wifi_provisioning] */
 
-/**
- * @brief Maximum number of WiFi networks that can be provisioned
- */
-#define IOT_BLE_WIFI_PROV_MAX_SAVED_NETWORKS    ( 8 )
 
 /**
  * @ingroup ble_datatypes_enums

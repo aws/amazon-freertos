@@ -107,7 +107,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 credentials.pAlpnProtos = NULL;
             }
 
-            IotLogInfo("OnConnected: %d", network);
             pDemoContext->networkConnectedCallback(awsIotMqttMode,
                                                    clientcredentialIOT_THING_NAME,
                                                    &serverInfo,
@@ -121,7 +120,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         pDemoContext->connectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
         if( pDemoContext->networkDisconnectedCallback != NULL )
         {
-            IotLogInfo("OnDisconnected: %d", network);
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface(network);
             pDemoContext->networkDisconnectedCallback(pNetworkInterface);
         }
@@ -137,8 +135,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
             {
                 credentials.pAlpnProtos = NULL;
             }
-
-            IotLogInfo("OnConnected: %d", networkAvailable);
 
             pDemoContext->networkConnectedCallback( awsIotMqttMode,
                                                    clientcredentialIOT_THING_NAME,
@@ -193,7 +189,7 @@ static int _initializeDemo( demoContext_t* pContext )
     /* Enable all the transport type networks used by the demo application. */
     if(status == EXIT_SUCCESS)
     {
-        if( AwsIotNetworkManager_EnableNetwork( pContext->networkTypes ) != pContext->networkTypes )
+        if( AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS ) != configENABLED_NETWORKS )
         {
             IotLogError("Failed to enable all the networks required by the demo application.");
             status = EXIT_FAILURE;

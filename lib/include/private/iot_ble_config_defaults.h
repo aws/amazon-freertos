@@ -181,12 +181,22 @@
 #endif
 
 /**
- * @brief Controls the number of network that can be discovered for WIFI provisionning
+ * @brief Controls the number of network that can be discovered for WIFI provisionning.
  *
- * A higher number will consume more stack space. The size increase in multiple of sizeof(WIFIScanResult_t)
+ * A higher number will consume more stack space. The size increase in multiple of sizeof(WIFIScanResult_t).
  */
-#ifndef IOT_BLE_MAX_NETWORK
-    #define IOT_BLE_MAX_NETWORK                  ( 50 )
+#ifndef IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS
+    #define IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS                  ( 50 )
+#endif
+
+
+ /* @brief Controls the number of network that can be saved using WIFI provisionning.
+ *
+ * The number should be set according to amount of flash space available on the device.
+ * The size increase in multiple of sizeof(WIFINetworkProfile_t).
+ */
+#ifndef IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS
+    #define IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS               ( 8 )
 #endif
 
 /**
