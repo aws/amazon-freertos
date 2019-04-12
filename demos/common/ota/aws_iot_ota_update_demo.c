@@ -168,12 +168,15 @@ static BaseType_t prxCreateNetworkConnection( void )
         /* Connect to one of the network type.*/
         xRet = xMqttDemoCreateNetworkConnection( &xConnection, otaDemoNETWORK_TYPES );
 
-        if( xRet != pdTRUE )
+        if( xRet == pdTRUE )
+        {
+        	break;
+        }else
         {
             /* Connection failed. Retry for a configured number of retries. */
             if( ulRetriesLeft > 0 )
             {
-                configPRINTF(( "Network Connection failed, retry delay %lu ms, retries left %lu", ulRetryIntervalMS, ulRetriesLeft ));
+                configPRINTF(( "Network Connection failed, retry delay %lu ms, retries left %lu\r\n", ulRetryIntervalMS, ulRetriesLeft ));
                 vTaskDelay( pdMS_TO_TICKS( ulRetryIntervalMS ));
             }
         }
