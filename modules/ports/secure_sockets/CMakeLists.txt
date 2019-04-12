@@ -21,8 +21,7 @@ afr_module_sources(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
-    PRIVATE
-        # Needs standard/common/include/private/aws_lib_init.h
+        # Requires standard/common/include/private/aws_lib_init.h
         "${AFR_MODULES_STANDARD_DIR}/common/include/private"
 )
 

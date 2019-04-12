@@ -42,8 +42,6 @@ afr_module_include_dirs(
         "${inc_dir}"
     PRIVATE
         ${extra_mqtt_private_includes}
-        # Requires common/include/private/aws_doubly_linked_list.h
-        "${AFR_MODULES_STANDARD_DIR}/common/include/private"
 )
 
 afr_module_dependencies(

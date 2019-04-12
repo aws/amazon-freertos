@@ -18,15 +18,16 @@ afr_module_sources(
         "${src_dir}/aws_ota_cbor.c"
         "${src_dir}/aws_ota_cbor.h"
         "${src_dir}/aws_ota_pal.h"
-        "${src_dir}/aws_ota_types.h"
         "${src_dir}/aws_ota_agent_internal.h"
         "${src_dir}/aws_ota_cbor_internal.h"
         "${inc_dir}/aws_ota_agent.h"
+        "${inc_dir}/aws_ota_types.h"
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
+    PRIVATE "${src_dir}"
 )
 
 afr_module_dependencies(
