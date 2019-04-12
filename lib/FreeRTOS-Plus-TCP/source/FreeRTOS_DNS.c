@@ -1348,7 +1348,7 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 		{
 			if( xDNSCache[ x ].pcName[ 0 ] == 0 )
 			{
-				break;
+				continue;
 			}
 
 			if( 0 == strcmp( xDNSCache[ x ].pcName, pcName ) )
