@@ -34,7 +34,10 @@ afr_module_sources(
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    INTERFACE "${inc_dir}"
+    INTERFACE
+        "${inc_dir}"
+        # Requires common/include/private/aws_doubly_linked_list.h
+        "${AFR_MODULES_STANDARD_DIR}/common/include/private"
 )
 
 # Test
