@@ -9,6 +9,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C686325E-3261-42F7-AEB1-DDE5280E1CEB}</ProjectGuid>
     <ProjectName>aws_demos</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -252,7 +253,7 @@
     <ClCompile Include="..\..\..\common\demo_runner\iot_demo_afr.c" />
     <ClCompile Include="..\..\..\common\demo_runner\aws_demo_version.c" />
     <ClCompile Include="..\..\..\common\demo_runner\aws_demo_network_addr.c" />
-    <ClCompile Include="..\..\..\common\demo_runner\iot_demo.c" />
+    <ClCompile Include="..\..\..\common\demo_runner\aws_demo.c" />
     <ClCompile Include="..\..\..\common\greengrass_connectivity\aws_greengrass_discovery_demo.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_hello_world.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_subscribe_publish_loop.c" />
@@ -260,7 +261,6 @@
     <ClCompile Include="..\..\..\common\network_manager\aws_iot_demo_network.c" />
     <ClCompile Include="..\..\..\common\network_manager\aws_iot_network_manager.c" />
     <ClCompile Include="..\..\..\common\ota\aws_iot_ota_update_demo.c" />
-    <ClCompile Include="..\..\..\common\posix\aws_posix_demo.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_iot_demo_shadow.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c" />
     <ClCompile Include="..\..\..\common\tcp\aws_simple_tcp_echo_server.c" />
@@ -461,7 +461,7 @@
     <ClInclude Include="..\..\..\common\include\aws_hello_world.h" />
     <ClInclude Include="..\..\..\common\include\aws_logging_task.h" />
     <ClInclude Include="..\..\..\common\include\aws_ota_update_demo.h" />
-    <ClInclude Include="..\..\..\common\include\aws_posix_demo.h" />    
+    <ClInclude Include="..\..\..\common\include\aws_posix_demo.h" />
     <ClInclude Include="..\..\..\common\include\aws_demo.h" />
     <ClInclude Include="..\..\..\common\include\aws_shadow_lightbulb_on_off.h" />
     <ClInclude Include="..\..\..\common\include\aws_simple_tcp_echo_server.h" />

@@ -58,13 +58,6 @@
 #include "iot_network_manager_private.h"
 #include "aws_iot_network_config.h"
 
-/* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion = {
-   .u.x.ucMajor = APP_VERSION_MAJOR,
-   .u.x.ucMinor = APP_VERSION_MINOR,
-   .u.x.usBuild = APP_VERSION_BUILD,
-};
-
 /* Define a name that will be used for LLMNR and NBNS searches. Once running,
  * you can "ping RTOSDemo" instead of pinging the IP address, which is useful when
  * using DHCP. */
@@ -85,7 +78,6 @@ static void prvMiscInitialisation( void );
  */
 static void prvSaveTraceFile( void );
 
-/
 /* Set the following constant to pdTRUE to log using the method indicated by the
  * name of the constant, or pdFALSE to not log using the method indicated by the
  * name of the constant.  Options include to standard out (xLogToStdout), to a disk
@@ -103,7 +95,7 @@ static UBaseType_t ulNextRand;
 static BaseType_t xTraceRunning = pdTRUE;
 
 /*-----------------------------------------------------------*/
-
+extern void vApplicationIPInit( void );
 int main( void )
 {
     const uint32_t ulLongTime_ms = pdMS_TO_TICKS( 1000UL );
@@ -125,12 +117,8 @@ int main( void )
      * vApplicationIPNetworkEventHook() below).  The address values passed in here
      * are used if ipconfigUSE_DHCP is set to 0, or if ipconfigUSE_DHCP is set to 1
      * but a DHCP server cannot be contacted. */
-    FreeRTOS_printf( ( "FreeRTOS_IPInit\n" ) );
-    FreeRTOS_IPInit( ucIPAddress,
-                     ucNetMask,
-                     ucGatewayAddress,
-                     ucDNSServerAddress,
-                     ucMACAddress );
+	FreeRTOS_printf(("FreeRTOS_IPInit\n"));
+	vApplicationIPInit();
 
     /* Start the RTOS scheduler. */
     FreeRTOS_printf( ( "vTaskStartScheduler\n" ) );
@@ -171,11 +159,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 
             /* Initialize AWS system libraries */
             SYSTEM_Init();
-
-            configASSERT( AwsIotNetworkManager_Init( ) == pdPASS ); 
-
-            AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
-
 
             /* Start the demo tasks. */
             DEMO_RUNNER_RunDemos();

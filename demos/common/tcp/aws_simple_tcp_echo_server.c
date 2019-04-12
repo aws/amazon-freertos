@@ -39,6 +39,7 @@
 /* Standard includes. */
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
