@@ -21,7 +21,7 @@
 /* Test network header include. */
 #include IOT_TEST_NETWORK_HEADER
 
-#define KEEPALIVE_SECONDS              ( 120 )
+#define KEEPALIVE_SECONDS              ( 1200 )
 #define CONN_TIMEOUT_MS                2000UL
 #define ONE_SECOND_DELAY_IN_TICKS  pdMS_TO_TICKS( 1000UL )
 
