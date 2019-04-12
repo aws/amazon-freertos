@@ -18,6 +18,10 @@ afr_module_sources(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
+    PRIVATE
+        "${inc_dir}/private"
+        "${AFR_MODULES_STANDARD_DIR}/mqtt/include"
+        "${AFR_MODULES_STANDARD_DIR}/serializer/include"
 )
 
 afr_module_dependencies(
