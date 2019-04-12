@@ -1,4 +1,4 @@
-afr_module(crypto OPTIONAL)
+afr_module(OPTIONAL)
 
 afr_set_lib_metadata(ID "crypto")
 afr_set_lib_metadata(DESCRIPTION "This library implements cryptographic signature verification. It \
@@ -8,19 +8,35 @@ afr_set_lib_metadata(CATEGORY "Security")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "false")
 
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
+
 afr_module_sources(
-    crypto
+    ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${AFR_MODULES_DIR}/crypto/aws_crypto.c"
-        "${AFR_MODULES_DIR}/include/aws_crypto.h"
+        "${src_dir}/aws_crypto.c"
+        "${inc_dir}/aws_crypto.h"
 )
 
 afr_module_include_dirs(
-    crypto
-    PUBLIC "${AFR_MODULES_DIR}/include"
+    ${AFR_CURRENT_MODULE}
+    PUBLIC "${inc_dir}"
 )
 
 afr_module_dependencies(
-    crypto
+    ${AFR_CURRENT_MODULE}
     PRIVATE 3rdparty::mbedtls
+)
+
+# Crypto test
+afr_test_module()
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/aws_test_crypto.c"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE AFR::crypto
 )

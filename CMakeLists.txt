@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 project(amazon-freertos VERSION 1.4.7)
 
 # Import global configurations.
-include("cmake/afr.cmake")
+include("tools/cmake/afr.cmake")
 
 # -------------------------------------------------------------------------------------------------
 # Configure target board
@@ -24,18 +24,22 @@ if(NOT AFR_BOARD IN_LIST AFR_SUPPORTED_BOARDS)
 endif()
 
 # Import board CMake build.
-afr_add_subdirectory("cmake/vendors/${AFR_VENDOR_NAME}/${AFR_BOARD_NAME}")
+include("vendors/${AFR_VENDOR_NAME}/manifest.cmake")
+if(DEFINED AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME})
+    afr_add_subdirectory("vendors/${AFR_VENDOR_NAME}/${AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME}}")
+elseif(DEFINED AFR_MANIFEST_BOARD_DIR)
+    afr_add_subdirectory("vendors/${AFR_VENDOR_NAME}/${AFR_MANIFEST_BOARD_DIR}/${AFR_BOARD_NAME}")
+else()
+    message(FATAL_ERROR "Could not import board CMakeLists.txt.")
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # Initialize all modules.
-afr_add_subdirectory("lib")
-if(AFR_IS_TESTING)
-    afr_add_subdirectory("tests")
-else()
-    afr_add_subdirectory("demos")
-endif()
+afr_add_subdirectory("modules")
+afr_add_subdirectory("demos")
+afr_add_subdirectory("test")
 
 # Resolve dependencies.
 afr_resolve_dependencies()

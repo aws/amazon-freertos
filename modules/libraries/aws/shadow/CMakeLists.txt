@@ -1,4 +1,4 @@
-afr_module(shadow)
+afr_module()
 
 afr_set_lib_metadata(ID "shadow")
 afr_set_lib_metadata(DESCRIPTION "This library enables communication with AWS IoT Thing Shadows.")
@@ -7,28 +7,52 @@ afr_set_lib_metadata(CATEGORY "Amazon Services")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
-afr_module_sources(
-    shadow
-    PRIVATE
-        "${AFR_MODULES_DIR}/shadow/aws_shadow.c"
-        "${AFR_MODULES_DIR}/include/aws_shadow.h"
-        "${AFR_MODULES_DIR}/include/private/aws_shadow_config_defaults.h"
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
-        "${AFR_MODULES_DIR}/shadow/aws_iot_shadow_api.c"
-        "${AFR_MODULES_DIR}/shadow/aws_iot_shadow_operation.c"
-        "${AFR_MODULES_DIR}/shadow/aws_iot_shadow_parser.c"
-        "${AFR_MODULES_DIR}/shadow/aws_iot_shadow_subscription.c"
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    PRIVATE
+        "${src_dir}/aws_shadow.c"
+        "${src_dir}/aws_shadow_config_defaults.h"
+        "${inc_dir}/aws_shadow.h"
+
+        "${src_dir}/aws_iot_shadow_api.c"
+        "${src_dir}/aws_iot_shadow_operation.c"
+        "${src_dir}/aws_iot_shadow_parser.c"
+        "${src_dir}/aws_iot_shadow_subscription.c"
+        "${inc_dir}/aws_iot_shadow.h"
 )
 
 afr_module_include_dirs(
-    shadow
-    PUBLIC
-        "${AFR_MODULES_DIR}/include"
-        "${AFR_MODULES_DIR}/include/private"
+    ${AFR_CURRENT_MODULE}
+    PUBLIC "${inc_dir}"
 )
 
 afr_module_dependencies(
-    shadow
+    ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::mqtt
+)
+
+# Shadow test
+afr_test_module()
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/aws_test_shadow.c"
+        "${test_dir}/system/aws_iot_tests_shadow_system.c"
+        "${test_dir}/unit/aws_iot_tests_shadow_api.c"
+        "${test_dir}/unit/aws_iot_tests_shadow_parser.c"
+)
+afr_module_include_dirs(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${AFR_MODULES_STANDARD_DIR}/mqtt/test/access"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::shadow
 )

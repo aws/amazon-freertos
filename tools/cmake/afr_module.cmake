@@ -22,19 +22,26 @@ set(AFR_MODULES_DISABLED_DEPS "" CACHE INTERNAL "List of Amazon FreeRTOS modules
 set(AFR_DEMOS_ENABLED         "" CACHE INTERNAL "List of supported demos for Amazon FreeRTOS.")
 set(AFR_TESTS_ENABLED         "" CACHE INTERNAL "List of supported tests for Amazon FreeRTOS.")
 
-# Define an Amazon FreeRTOS module, will add module name to global variable AFR_MODULES.
+# Define an Amazon FreeRTOS module, the module name will be added to the global variable AFR_MODULES.
+# Use NAME to provide a name for the module, if not use, the name will be inferred from the folder name.
 # Use INTERNAL to indicate the module is for internal use only and should not provide an option for user to disable it.
 # Use INTERFACE to define the module as an INTERFACE target instead of a static library, implies INTERNAL.
 # Use OPTIONAL to indicate the target should only be enabled if it's required by non-internal modules, implies INTERNAL.
 # Use KERNEL to indicate the module is part of the kernel. In this case it will not implicitly depends on kernel.
-function(afr_module module_name)
+function(afr_module)
     cmake_parse_arguments(
-        PARSE_ARGV 1
+        PARSE_ARGV 0
         "ARG"                                   # Prefix of parsed results.
         "INTERNAL;INTERFACE;OPTIONAL;KERNEL"    # Option arguments.
-        ""                                      # One value arguments.
+        "NAME"                                  # One value arguments.
         ""                                      # Multi value arguments.
     )
+
+    if(DEFINED ARG_NAME)
+        set(module_name ${ARG_NAME})
+    else()
+        get_filename_component(module_name "${CMAKE_CURRENT_LIST_DIR}" NAME)
+    endif()
 
     afr_cache_append(AFR_MODULES ${module_name})
 
@@ -65,34 +72,55 @@ function(afr_module module_name)
     if(AFR_IS_TESTING AND NOT AFR_MODULE_${module_name}_IS_INTERFACE)
         afr_module_include_dirs(${module_name} PRIVATE "${AFR_TESTS_DIR}/include")
     endif()
+
+    # Set current module name.
+    set(AFR_CURRENT_MODULE ${module_name} PARENT_SCOPE)
 endfunction()
 
 # Define a demo module.
-function(afr_demo_module demo_name)
-    afr_module(${demo_name} INTERFACE)
+function(afr_demo_module)
+    if(${ARGC} EQUAL 1)
+        set(module_name ${ARGV0})
+    else()
+        get_filename_component(module_name "${CMAKE_CURRENT_LIST_DIR}" NAME)
+    endif()
+    set(module_name demo_${module_name})
+    afr_module(NAME ${module_name} INTERFACE)
 
     # Demo implicitly depends on AFR::demo_base.
-    if(NOT "${demo_name}" STREQUAL "demo_base")
+    if(NOT "${module_name}" STREQUAL "demo_base")
         afr_module_dependencies(
-            ${demo_name}
+            ${module_name}
             INTERFACE
                 AFR::demo_base
         )
     endif()
+
+    # Set current module name.
+    set(AFR_CURRENT_MODULE ${module_name} PARENT_SCOPE)
 endfunction()
 
 # Define a test module.
-function(afr_test_module test_name)
-    afr_module(${test_name} INTERFACE)
+function(afr_test_module)
+    if(${ARGC} EQUAL 1)
+        set(module_name ${ARGV0})
+    else()
+        get_filename_component(module_name "${CMAKE_CURRENT_LIST_DIR}" NAME)
+    endif()
+    set(module_name test_${module_name})
+    afr_module(NAME ${module_name} INTERFACE)
 
     # Test implicitly depends on AFR::test_base.
-    if(NOT "${test_name}" STREQUAL "test_base")
+    if(NOT "${module_name}" STREQUAL "test_base")
         afr_module_dependencies(
-            ${test_name}
+            ${module_name}
             INTERFACE
                 AFR::test_base
         )
     endif()
+
+    # Set current module name.
+    set(AFR_CURRENT_MODULE ${module_name} PARENT_SCOPE)
 endfunction()
 
 # Define a 3rdparty module.

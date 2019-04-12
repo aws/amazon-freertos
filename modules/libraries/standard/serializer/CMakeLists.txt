@@ -1,22 +1,25 @@
-afr_module(serializer)
+afr_module()
+
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 
 afr_module_sources(
-    serializer
+    ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${AFR_MODULES_DIR}/serializer/cbor/iot_serializer_tinycbor_decoder.c"
-        "${AFR_MODULES_DIR}/serializer/cbor/iot_serializer_tinycbor_encoder.c"
-        "${AFR_MODULES_DIR}/serializer/json/aws_iot_serializer_json_decoder.c"
-        "${AFR_MODULES_DIR}/serializer/json/aws_iot_serializer_json_encoder.c"
+        "${src_dir}/cbor/iot_serializer_tinycbor_decoder.c"
+        "${src_dir}/cbor/iot_serializer_tinycbor_encoder.c"
+        "${src_dir}/json/aws_iot_serializer_json_decoder.c"
+        "${src_dir}/json/aws_iot_serializer_json_encoder.c"
+        "${inc_dir}/iot_serializer.h"
 )
 
 afr_module_include_dirs(
-    serializer
-    PUBLIC
-        "${AFR_MODULES_DIR}/include"
+    ${AFR_CURRENT_MODULE}
+    PUBLIC "${inc_dir}"
 )
 
 afr_module_dependencies(
-    serializer
+    ${AFR_CURRENT_MODULE}
     PUBLIC
         3rdparty::tinycbor
         3rdparty::mbedtls

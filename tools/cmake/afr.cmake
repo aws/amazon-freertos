@@ -7,10 +7,15 @@ endif()
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
 # Set some global path variables.
-set(AFR_MODULES_DIR "${AFR_ROOT_DIR}/lib" CACHE INTERNAL "Amazon FreeRTOS modules root.")
-set(AFR_DEMOS_DIR "${AFR_ROOT_DIR}/demos/common" CACHE INTERNAL "Amazon FreeRTOS demos root.")
-set(AFR_TESTS_DIR "${AFR_ROOT_DIR}/tests/common" CACHE INTERNAL "Amazon FreeRTOS tests root.")
-set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/third_party" CACHE INTERNAL "3rdparty libraries root.")
+set(AFR_KERNEL_DIR "${AFR_ROOT_DIR}/freertos_kernel" CACHE INTERNAL "Amazon FreeRTOS kernel root.")
+set(AFR_MODULES_DIR "${AFR_ROOT_DIR}/modules" CACHE INTERNAL "Amazon FreeRTOS modules root.")
+set(AFR_MODULES_STANDARD_DIR "${AFR_ROOT_DIR}/modules/libraries/standard" CACHE INTERNAL "Amazon FreeRTOS standard libraries root.")
+set(AFR_MODULES_AWS_DIR "${AFR_ROOT_DIR}/modules/libraries/aws" CACHE INTERNAL "Amazon FreeRTOS aws libraries root.")
+set(AFR_MODULES_PORTS_DIR "${AFR_ROOT_DIR}/modules/ports" CACHE INTERNAL "Amazon FreeRTOS portable libraries root.")
+set(AFR_DEMOS_DIR "${AFR_ROOT_DIR}/demos" CACHE INTERNAL "Amazon FreeRTOS demos root.")
+set(AFR_TEST_DIR "${AFR_ROOT_DIR}/test" CACHE INTERNAL "Amazon FreeRTOS test helpers root.")
+set(AFR_VENDORS_DIR "${AFR_ROOT_DIR}/vendors" CACHE INTERNAL "vendors content root.")
+set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/libraries/3rdparty" CACHE INTERNAL "3rdparty libraries root.")
 
 # Network manager will temporarily be built into the demo executables.
 set(NETWORK_MANAGER_SOURCES

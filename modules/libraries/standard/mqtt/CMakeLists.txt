@@ -1,15 +1,20 @@
-afr_module(mqtt)
+afr_module()
 
 afr_set_lib_metadata(ID "mqtt")
-afr_set_lib_metadata(DESCRIPTION "This library implements the MQTT protocol that enables communication with AWS IoT. MQTT is an ISO standard publish-subscribe-based messaging protocol.")
+afr_set_lib_metadata(DESCRIPTION "This library implements the MQTT protocol that enables \
+communication with AWS IoT. MQTT is an ISO standard publish-subscribe-based messaging protocol.")
 afr_set_lib_metadata(DISPLAY_NAME "MQTT")
 afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
+
 # Compile BLE MQTT serializers on supported platforms.
 if(${BLE_SUPPORTED})
-    set(extra_mqtt_sources "${AFR_MODULES_DIR}/mqtt/iot_ble_mqtt_serialize.c")
+    set(extra_mqtt_sources "${src_dir}/iot_ble_mqtt_serialize.c")
     set(extra_mqtt_dependencies AFR::serializer AFR::ble)
 endif()
 
@@ -19,30 +24,57 @@ if(${AFR_IS_TESTING})
 endif()
 
 afr_module_sources(
-    mqtt
+    ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${AFR_MODULES_DIR}/mqtt/aws_mqtt_agent.c"
-        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_api.c"
-        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_network.c"
-        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_operation.c"
-        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_serialize.c"
-        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_subscription.c"
-        "${AFR_MODULES_DIR}/mqtt/iot_mqtt_validate.c"
+        "${src_dir}/aws_mqtt_agent.c"
+        "${src_dir}/iot_mqtt_api.c"
+        "${src_dir}/iot_mqtt_network.c"
+        "${src_dir}/iot_mqtt_operation.c"
+        "${src_dir}/iot_mqtt_serialize.c"
+        "${src_dir}/iot_mqtt_subscription.c"
+        "${src_dir}/iot_mqtt_validate.c"
         ${extra_mqtt_sources}
 )
 
 afr_module_include_dirs(
-    mqtt
-    PUBLIC
-        "${AFR_MODULES_DIR}/include"
-    PRIVATE
-        ${extra_mqtt_private_includes}
+    ${AFR_CURRENT_MODULE}
+    PUBLIC "${inc_dir}"
+    PRIVATE ${extra_mqtt_private_includes}
 )
 
 afr_module_dependencies(
-    mqtt
+    ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::sdk_platform
-        AFR::sdk_common
+        AFR::platform
+        AFR::common
         ${extra_mqtt_dependencies}
+)
+
+# MQTT test
+afr_test_module()
+
+# Enable tests for BLE-over-MQTT serializers on supported boards.
+if(BLE_SUPPORTED)
+    set(extra_test_mqtt_sources "${test_dir}/unit/aws_iot_tests_mqtt_serialize_ble.c")
+endif()
+
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/aws_test_mqtt_agent.c"
+        "${test_dir}/system/iot_tests_mqtt_system.c"
+        "${test_dir}/unit/iot_tests_mqtt_api.c"
+        "${test_dir}/unit/iot_tests_mqtt_receive.c"
+        "${test_dir}/unit/iot_tests_mqtt_subscription.c"
+        "${test_dir}/unit/iot_tests_mqtt_validate.c"
+        ${extra_test_mqtt_sources}
+)
+afr_module_include_dirs(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/access"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE AFR::mqtt
 )

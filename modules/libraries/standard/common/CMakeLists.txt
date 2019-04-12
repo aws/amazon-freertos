@@ -1,41 +1,49 @@
-afr_module(sdk_common)
+afr_module()
+
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 
 afr_module_sources(
-    sdk_common
+    ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${AFR_MODULES_DIR}/common/aws_logging_task_dynamic_buffers.c"
-        "${AFR_MODULES_DIR}/common/iot_common.c"
-        "${AFR_MODULES_DIR}/common/iot_json_utils.c"
-        "${AFR_MODULES_DIR}/common/iot_logging.c"
-        "${AFR_MODULES_DIR}/common/iot_taskpool.c"
+        "${src_dir}/iot_common.c"
+        "${src_dir}/iot_json_utils.c"
 
-        "${AFR_MODULES_DIR}/common/static_memory/aws_iot_static_memory_defender.c"
-        "${AFR_MODULES_DIR}/common/static_memory/aws_iot_static_memory_shadow.c"
-        "${AFR_MODULES_DIR}/common/static_memory/iot_static_memory_common.c"
-        "${AFR_MODULES_DIR}/common/static_memory/iot_static_memory_metrics.c"
-        "${AFR_MODULES_DIR}/common/static_memory/iot_static_memory_mqtt.c"
-        "${AFR_MODULES_DIR}/common/static_memory/iot_static_memory_serializer.c"
-        "${AFR_MODULES_DIR}/common/static_memory/iot_static_memory_taskpool.c"
+        "${src_dir}/static_memory/aws_iot_static_memory_defender.c"
+        "${src_dir}/static_memory/aws_iot_static_memory_shadow.c"
+        "${src_dir}/static_memory/iot_static_memory_common.c"
+        "${src_dir}/static_memory/iot_static_memory_metrics.c"
+        "${src_dir}/static_memory/iot_static_memory_mqtt.c"
+        "${src_dir}/static_memory/iot_static_memory_serializer.c"
+        "${src_dir}/static_memory/iot_static_memory_taskpool.c"
 
-        "${AFR_MODULES_DIR}/include/iot_common.h"
-        "${AFR_MODULES_DIR}/include/iot_json_utils.h"
-        "${AFR_MODULES_DIR}/include/iot_linear_containers.h"
-        "${AFR_MODULES_DIR}/include/iot_logging_setup.h"
-        "${AFR_MODULES_DIR}/include/iot_taskpool.h"
-        "${AFR_MODULES_DIR}/include/private/iot_error.h"
-        "${AFR_MODULES_DIR}/include/private/iot_logging.h"
-        "${AFR_MODULES_DIR}/include/private/iot_static_memory.h"
-        "${AFR_MODULES_DIR}/include/private/iot_taskpool_internal.h"
+        "${inc_dir}/iot_common.h"
+        "${inc_dir}/iot_json_utils.h"
+        "${inc_dir}/private/iot_error.h"
+        "${inc_dir}/private/iot_static_memory.h"
+
+        "${inc_dir}/private/aws_default_root_certificates.h"
+        "${inc_dir}/aws_appversion32.h"
 )
 
 afr_module_include_dirs(
-    sdk_common
-    PUBLIC
-        "${AFR_MODULES_DIR}/include"
+    ${AFR_CURRENT_MODULE}
+    PUBLIC "${inc_dir}"
 )
 
 afr_module_dependencies(
-    sdk_common
+    ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::sdk_platform
+        AFR::platform
+)
+
+# Memory test
+set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
+
+afr_test_module(memory)
+
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/aws_memory_leak.c"
 )

@@ -79,6 +79,10 @@ elseif(MINGW)
     target_link_libraries(3rdparty::winpcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/libwpcap.a")
 endif()
 
+if(NOT AFR_IS_TESTING)
+    return()
+endif()
+
 # unity - test framework
 afr_3rdparty_module(unity)
 target_sources(
