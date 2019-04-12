@@ -543,10 +543,11 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                 }
                 free(ap_info);
                 xRetVal = eWiFiSuccess;
-            }else
+            }
+            else
             {
-            	ESP_LOGE(TAG, "%s: Failed to alloc %lu bytes for WIFI provisionning", __func__, (long unsigned int)(sizeof(wifi_ap_record_t) * ucNumNetworks));
-            	ESP_LOGE(TAG, "%s: Current heap: %lu, min heap %lu", __func__, (long unsigned int)xPortGetFreeHeapSize(),(long unsigned int)xPortGetMinimumEverFreeHeapSize());
+                ESP_LOGE(TAG, "%s: Failed to alloc %lu bytes for WIFI provisionning", __func__, (long unsigned int)(sizeof(wifi_ap_record_t) * ucNumNetworks));
+                ESP_LOGE(TAG, "%s: Current heap: %lu, min heap %lu", __func__, (long unsigned int)xPortGetFreeHeapSize(),(long unsigned int)xPortGetMinimumEverFreeHeapSize());
             }
         }
 

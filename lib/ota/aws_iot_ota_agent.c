@@ -53,7 +53,7 @@
 /* JSON job document parser includes. */
 #include "jsmn.h" /*lint !e537 All headers have multiple inclusion prevention. */
 #include "mbedtls/base64.h"
-#include "iot_taskpool.h"
+
 /* Returns the byte offset of the element 'e' in the typedef structure 't'.
  * Setting an arbitrarily large base of 0x10000 and masking off that base allows
  * us to do the same thing as a zero offset without the lint warnings of using a
@@ -274,7 +274,7 @@ bool_t JSON_IsCStringEqual( const char * pcJSONString,
 
 /* OTA agent private function prototypes. */
 
-static void prvOTAUpdateTask(struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
+static void prvOTAUpdateTask( void * pvUnused );
 
 /* Start a timer to kick-off the OTA update request. Pass it the OTA file context. */
 
@@ -524,8 +524,8 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                            TickType_t xTicksToWait )
 {
     DEFINE_OTA_METHOD_NAME( "OTA_AgentInit" );
-    IotTaskPoolJob_t *pJob;
-    IotTaskPoolError_t error;
+
+    static TaskHandle_t pxOTA_TaskHandle;
 
     uint32_t ulIndex;
     BaseType_t xReturn = 0;
@@ -580,27 +580,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                 xOTA_Agent.pxOTA_Files[ ulIndex ].pucFilePath = NULL;
             }
 
-            error = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
-            		                                    &prvOTAUpdateTask,
-														NULL ,
-														 &pJob );
-            if( error == IOT_TASKPOOL_SUCCESS )
-            {
-            	error = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, pJob, 0 );
-                if( error == IOT_TASKPOOL_SUCCESS )
-                {
-                	xReturn = pdPASS;
-                }else
-                {
-                	xReturn = pdFAIL;
-                	OTA_LOG_L1( "[%s] Failed to schedule job.\r\n", OTA_METHOD_NAME );
-                }
-            }else
-            {
-            	xReturn = pdFAIL;
-            	OTA_LOG_L1( "[%s] Failed to create recycle job.\r\n", OTA_METHOD_NAME );
-            }
-
+            xReturn = xTaskCreate( prvOTAUpdateTask, "OTA Task", otaconfigSTACK_SIZE, NULL, otaconfigAGENT_PRIORITY, &pxOTA_TaskHandle );
             portEXIT_CRITICAL(); /* Protected elements are initialized. It's now safe to context switch. */
 
             if( xReturn == pdPASS )
@@ -1380,7 +1360,7 @@ static void prvOTAPublishCallback( void * pvCallbackContext,
 
 /* NOTE: This implementation only supports 1 OTA context. Concurrent OTA is not supported. */
 
-static void prvOTAUpdateTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
+static void prvOTAUpdateTask( void * pvUnused )
 {
     DEFINE_OTA_METHOD_NAME( "prvOTAUpdateTask" );
 
@@ -1389,7 +1369,7 @@ static void prvOTAUpdateTask( struct IotTaskPool * pTaskPool, struct IotTaskPool
     OTA_Err_t xErr;
     OTA_PubMsg_t * pxMsgMetaData;
 
-    ( void ) pUserContext;
+    ( void ) pvUnused;
 
 
     /* Subscribe to the OTA job notification topic. */
@@ -1608,8 +1588,7 @@ static void prvOTAUpdateTask( struct IotTaskPool * pTaskPool, struct IotTaskPool
      * Finally, self destruct. */
     xOTA_Agent.eImageState = eOTA_ImageState_Unknown;
     xOTA_Agent.eState = eOTA_AgentState_NotReady;
-    /* Recycle current job */
-    IotTaskPool_RecycleJob( pTaskPool, pJob );
+    vTaskDelete( NULL );
 }
 
 
