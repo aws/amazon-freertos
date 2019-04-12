@@ -17,7 +17,7 @@ afr_module_sources(
         "${src_dir}/aws_greengrass_discovery.c"
         "${src_dir}/aws_helper_secure_connect.c"
         "${src_dir}/aws_helper_secure_connect.h"
-        "${src_dir}/aws_ggd_config_defaults.h"
+        "${inc_dir}/aws_ggd_config_defaults.h"
         "${inc_dir}/aws_greengrass_discovery.h"
 )
 
