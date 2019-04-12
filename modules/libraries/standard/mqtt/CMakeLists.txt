@@ -16,7 +16,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 if(${BLE_SUPPORTED})
     set(extra_mqtt_sources "${src_dir}/iot_ble_mqtt_serialize.c")
     set(extra_mqtt_dependencies AFR::serializer AFR::ble)
-    set(extra_mqtt_includes "${AFR_MODULES_PORTS_DIR}/bluetooth_low_energy/include/private")
+    set(extra_mqtt_includes "${AFR_MODULES_PORTS_DIR}/ble/include/private")
 endif()
 
 # Enable test access if building tests.
