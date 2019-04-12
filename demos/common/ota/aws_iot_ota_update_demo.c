@@ -83,7 +83,7 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
 
 #define otaDemoCONN_RETRY_LIMIT             ( 100 )
 
-#define otaDemoKEEPALIVE_SECONDS            ( 120 )
+#define otaDemoKEEPALIVE_SECONDS            ( 1200 )
 
 #define myappONE_SECOND_DELAY_IN_TICKS  pdMS_TO_TICKS( 1000UL )
 
@@ -256,10 +256,6 @@ void vRunOTAUpdateDemo( void )
     {
         configPRINTF( ( "Failed to create MQTT client.\r\n" ) );
     }
-
-    /* All done.  FreeRTOS does not allow a task to run off the end of its
-     * implementing function, so the task must be deleted. */
-    vTaskDelete( NULL );
 }
 
 
