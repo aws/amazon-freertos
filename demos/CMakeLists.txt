@@ -21,6 +21,8 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${AFR_DEMOS_DIR}/include"
+        "${AFR_DEMOS_DIR}/network_manager"
+        "${AFR_MODULES_PORTS_DIR}/bluetooth_low_energy/include/private"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

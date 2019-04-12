@@ -3,7 +3,8 @@
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_devkit_c")
     include("esp32_devkit_c.cmake")
-elseif("${AFR_BOARD_NAME}" STREQUAL "esp32_wrover_kit")
+endif()
+if("${AFR_BOARD_NAME}" STREQUAL "esp32_wrover_kit")
     include("esp32_wrover_kit.cmake")
 endif()
 
@@ -23,13 +24,10 @@ target_link_options(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
-set(vendor "espressif")
-set(board "esp32_devkitc_esp_wrover_kit")
-set(portable_dir "portable/${vendor}/${board}")
-
-set(espressif_dir "${AFR_3RDPARTY_DIR}/mcu_vendor/espressif/esp-idf")
-set(board_demos_dir "${AFR_ROOT_DIR}/demos/espressif/esp32_devkitc_esp_wrover_kit/common")
-set(board_tests_dir "${AFR_ROOT_DIR}/tests/espressif/esp32_devkitc_esp_wrover_kit/common")
+set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
+set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
@@ -41,36 +39,36 @@ endif()
 
 # Kernel
 afr_mcu_port(kernel)
-afr_glob_src(driver_src DIRECTORY "${espressif_dir}" RECURSE)
+afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
 
 set(
     kernel_inc_dirs
-    "${espressif_dir}/components/app_update/include/"
-    "${espressif_dir}/components/bootloader_support/include"
-    "${espressif_dir}/components/esp32/include"
-    "${espressif_dir}/components/driver/include"
-    "${espressif_dir}/components/heap/include"
-    "${espressif_dir}/components/log/include"
-    "${espressif_dir}/components/nvs_flash/include"
-    "${espressif_dir}/components/pthread/include"
-    "${espressif_dir}/components/newlib/include"
-    "${espressif_dir}/components/soc/esp32/include"
-    "${espressif_dir}/components/soc/include"
-    "${espressif_dir}/components/spi_flash/include"
+    "${esp_idf_dir}/components/app_update/include/"
+    "${esp_idf_dir}/components/bootloader_support/include"
+    "${esp_idf_dir}/components/esp32/include"
+    "${esp_idf_dir}/components/driver/include"
+    "${esp_idf_dir}/components/heap/include"
+    "${esp_idf_dir}/components/log/include"
+    "${esp_idf_dir}/components/nvs_flash/include"
+    "${esp_idf_dir}/components/pthread/include"
+    "${esp_idf_dir}/components/newlib/include"
+    "${esp_idf_dir}/components/soc/esp32/include"
+    "${esp_idf_dir}/components/soc/include"
+    "${esp_idf_dir}/components/spi_flash/include"
     "${board_dir}/application_code/espressif_code/freertos/include"
     "${board_dir}/application_code/espressif_code/ethernet/include"
     "${board_dir}/application_code/espressif_code/mbedtls/port/include"
     "${board_dir}/application_code/espressif_code/smartconfig_ack/include"
     "${board_dir}/application_code/espressif_code/tcpip_adapter/include"
-    "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC"
+    "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
 )
 target_include_directories(
     AFR::kernel::mcu_port
     INTERFACE
         ${kernel_inc_dirs}
-        "${board_dir}/config_files"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/ThirdParty/GCC/Xtensa_ESP32/include/"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include/"
         "${aws_credentials_include}"
+        "${board_dir}/config_files"
         "${CMAKE_BINARY_DIR}/config"
 )
 
@@ -83,7 +81,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
 )
 
 # BLE
@@ -93,16 +91,16 @@ afr_mcu_port(ble)
 target_sources(
     AFR::ble::mcu_port
     INTERFACE
-        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_common_gap.c"
-        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_gap.c"
-        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/aws_ble_hal_gatt_server.c"
+        "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
+        "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
+        "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
 )
 target_include_directories(
     AFR::ble::mcu_port
     INTERFACE
-        "${espressif_dir}/components/bt/bluedroid/api/include/api"
-        "${espressif_dir}/components/bt/include"
-        "${AFR_MODULES_DIR}/bluetooth_low_energy/portable/espressif/"
+        "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
+        "${esp_idf_dir}/components/bt/include"
+        "${afr_ports_dir}/ble"
 )
 
 # PKCS11
@@ -113,7 +111,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::pkcs11::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/aws_pkcs11_pal.c"
+    INTERFACE "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
 )
 
 # FreeRTOS Plus TCP
@@ -121,8 +119,8 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/esp32/NetworkInterface.c"
+        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c"
 )
 
 # Secure sockets
@@ -130,13 +128,9 @@ afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
     INTERFACE
-        AFR::freertos_plus_tcp
+        AFR::secure_sockets_freertos_tcp
         AFR::pkcs11
         AFR::tls
-)
-target_sources(
-    AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/secure_sockets/portable/freertos_plus_tcp/aws_secure_sockets.c"
 )
 
 # OTA
@@ -145,12 +139,14 @@ afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE
-        "${AFR_MODULES_DIR}/ota/portable/espressif/esp32_devkitc_esp_wrover_kit/aws_ota_pal.c"
-        "${AFR_MODULES_DIR}/ota/portable/espressif/esp32_devkitc_esp_wrover_kit/aws_esp_ota_ops.c"
+        "${afr_ports_dir}/ota/aws_ota_pal.c"
+        "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
 )
 target_link_libraries(
     AFR::ota::mcu_port
-    INTERFACE 3rdparty::pkcs11
+    INTERFACE
+        AFR::crypto
+        AFR::pkcs11
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -159,7 +155,7 @@ target_link_libraries(
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/test_runner/iot_tests_network.c")
+    set(extra_exe_sources "${AFR_TESTS_DIR}/src/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
     set(
@@ -226,7 +222,7 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
 )
 
 set(IDF_TARGET esp32)
-set(ENV{IDF_PATH} ${espressif_dir})
+set(ENV{IDF_PATH} ${esp_idf_dir})
 
 # Fetch sdkconfig.defaults and modify the custom partition table csv path
 file(READ "${board_dir}/../make/sdkconfig.defaults" file_sdkconfig_default)
@@ -257,7 +253,7 @@ endfunction()
 set(IDF_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})
 
 # Provides idf_import_components and idf_link_components
-include(${espressif_dir}/tools/cmake/idf_functions.cmake)
+include(${esp_idf_dir}/tools/cmake/idf_functions.cmake)
 
 get_filename_component(
     ABS_EXTRA_COMPONENT_DIRS
@@ -269,7 +265,7 @@ set(IDF_PROJECT_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/${exe_target}")
 
 # Wraps add_subdirectory() to create library targets for components, and then `return` them using the given variable.
 # In this case the variable is named `component`
-idf_import_components(components ${espressif_dir} esp-idf)
+idf_import_components(components ${esp_idf_dir} esp-idf)
 
 # Wraps target_link_libraries() to link processed components by idf_import_components to target
 idf_link_components(${exe_target} "${components}")
