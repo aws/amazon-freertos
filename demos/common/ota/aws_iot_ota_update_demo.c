@@ -77,13 +77,13 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
 
 /*-----------------------------------------------------------*/
 
-#define otademoCONN_TIMEOUT_MS 2000UL
+#define otaDemoCONN_TIMEOUT_MS              ( 2000UL )
 
-#define echoCONN_RETRY_INTERVAL_SECONDS    ( 5 )
+#define otaDemoCONN_RETRY_INTERVAL_MS       ( 5000 )
 
-#define echoCONN_RETRY_LIMIT               ( 100 )
+#define otaDemoCONN_RETRY_LIMIT             ( 100 )
 
-#define echoKEEPALIVE_SECONDS              ( 120 )
+#define otaDemoKEEPALIVE_SECONDS            ( 120 )
 
 #define myappONE_SECOND_DELAY_IN_TICKS  pdMS_TO_TICKS( 1000UL )
 
@@ -96,7 +96,7 @@ static MqttConnectionContext_t xConnection =
 {
      .pvNetworkConnection = NULL,
      .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
-     .xNetworkInfo   = IOT_MQTT_NETWORK_INFO_INITIALIZER,
+     .xNetworkInfo        = IOT_MQTT_NETWORK_INFO_INITIALIZER,
      .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
      .xDisconnectCallback = prvNetworkDisconnectCallback
 };
@@ -123,21 +123,17 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetwork
     if( xNetworkState == eNetworkStateEnabled )
     {
         /* Release the semaphore, to indicate other tasks that a network is available */
-        xSemaphoreGive( xNetworkAvailableLock );
+        if( xNetworkConnected == pdFALSE )
+        {
+            xSemaphoreGive( xNetworkAvailableLock );
+        }
     }
     else if ( xNetworkState == eNetworkStateDisabled )
     {
-        if( ( AwsIotNetworkManager_GetConnectedNetworks()
-                & otaDemoNETWORK_TYPES ) == AWSIOT_NETWORK_TYPE_NONE )
-        {
-            /* Take the semaphore if not taken already */
-            xSemaphoreTake( xNetworkAvailableLock, 0 );
-        }
-
         /* If the publish task is already connected to this network, set connected network flag to none,
          * to trigger a reconnect.
          */
-        if( xConnection.ulNetworkType == ulNetworkType )
+        if( ( xNetworkConnected == pdTRUE ) && ( xConnection.ulNetworkType == ulNetworkType ) )
         {
             xNetworkConnected = pdFALSE;
         }
@@ -156,21 +152,34 @@ static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext )
 static BaseType_t prxCreateNetworkConnection( void )
 {
     BaseType_t xRet = pdFALSE;
+    uint32_t ulRetriesLeft     = otaDemoCONN_RETRY_LIMIT;
+    uint32_t ulRetryIntervalMS = otaDemoCONN_RETRY_INTERVAL_MS;
 
-    /* If no networks are available, block for a physical network connection */
-    if( ( AwsIotNetworkManager_GetConnectedNetworks()
-            & otaDemoNETWORK_TYPES ) == AWSIOT_NETWORK_TYPE_NONE )
+    do
     {
-        /* Block for a Network Connection. */
-        configPRINTF(( "Waiting for a network connection.\r\n" ));
-        xSemaphoreTake( xNetworkAvailableLock, portMAX_DELAY );
-    }
+         /* No networks are available, block for a physical network connection. */
+        if( ( AwsIotNetworkManager_GetConnectedNetworks() & otaDemoNETWORK_TYPES ) == AWSIOT_NETWORK_TYPE_NONE )
+        {
+            /* Block for a Network Connection. */
+            configPRINTF(( "Waiting for a network connection.\r\n" ));
+            ( void ) xSemaphoreTake( xNetworkAvailableLock, portMAX_DELAY );
+        }
 
-    /* At least one network type is available. Connect to the network type. */
-    xRet = xMqttDemoCreateNetworkConnection(
-            &xConnection,
-            otaDemoNETWORK_TYPES );
+        /* Connect to one of the network type.*/
+        xRet = xMqttDemoCreateNetworkConnection( &xConnection, otaDemoNETWORK_TYPES );
 
+        if( xRet != pdTRUE )
+        {
+            /* Connection failed. Retry for a configured number of retries. */
+            if( ulRetriesLeft > 0 )
+            {
+                configPRINTF(( "Network Connection failed, retry delay %lu ms, retries left %lu", ulRetryIntervalMS, ulRetriesLeft ));
+                vTaskDelay( pdMS_TO_TICKS( ulRetryIntervalMS ));
+            }
+        }
+
+    } while ( ulRetriesLeft-- > 0 );
+    
     return xRet;
 }
 
@@ -182,13 +191,10 @@ static const char *pcStateStr[eOTA_NumAgentStates] =
      "Shutting down"
 };
 
-void vOTAUpdateDemoTask( void * pvParameters )
+void vRunOTAUpdateDemo( void )
 {
     IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
-
-/* Remove compiler warnings about unused parameters. */
-    ( void ) pvParameters;
 
 	configPRINTF ( ("OTA demo version %u.%u.%u\r\n",
 		xAppFirmwareVersion.u.x.ucMajor,
@@ -215,7 +221,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
             else
             {
                 xConnectInfo.awsIotMqttMode = true;
-                xConnectInfo.keepAliveSeconds = echoKEEPALIVE_SECONDS;
+                xConnectInfo.keepAliveSeconds = otaDemoKEEPALIVE_SECONDS;
             }
 
             xConnectInfo.cleanSession = true;
@@ -224,7 +230,7 @@ void vOTAUpdateDemoTask( void * pvParameters )
             /* Connect to the broker. */
             if( IotMqtt_Connect( &( xConnection.xNetworkInfo ),
                 &xConnectInfo,
-                otademoCONN_TIMEOUT_MS,&( xConnection.xMqttConnection ) ) == IOT_MQTT_SUCCESS )
+                otaDemoCONN_TIMEOUT_MS,&( xConnection.xMqttConnection ) ) == IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
                 OTA_AgentInit( xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
@@ -275,6 +281,12 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 {
 	OTA_Err_t xErr = kOTA_Err_Uninitialized;
 
+
+    /* OTA job is completed. so delete the MQTT and network connection. */
+
+    IotMqtt_Disconnect( xConnection.xMqttConnection, 0 );
+    vMqttDemoDeleteNetworkConnection( &xConnection );
+
     if ( eEvent == eOTA_JobEvent_Activate )
     {
         configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
@@ -293,7 +305,7 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 		 * this would be the place to kick off those tests before calling OTA_SetImageState()
 		 * with the final result of either accepted or rejected. */
         configPRINTF( ( "Received eOTA_JobEvent_StartTest callback from OTA Agent.\r\n" ) );
-	xErr = OTA_SetImageState (eOTA_ImageState_Accepted);
+	    xErr = OTA_SetImageState (eOTA_ImageState_Accepted);
         if( xErr != kOTA_Err_None )
         {
             OTA_LOG_L1( " Error! Failed to set image state as accepted.\r\n" );
@@ -309,73 +321,45 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
                  void * pNetworkCredentialInfo,
                  const IotNetworkInterface_t * pNetworkInterface )
 {
-    BaseType_t xRet = pdTRUE;
+    int xRet = EXIT_SUCCESS;
 
-    /* Initialize common libraries and MQTT. */
-    if( IotCommon_Init() == false )
+    if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
     {
-        configPRINTF(( "Failed to initialize common libraries.\r\n" ));
-        xRet = pdFALSE;
-    }
-
-    if( xRet == pdTRUE )
-    {
-        if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
-        {
-            configPRINTF(( "Failed to initialize MQTT library.\r\n" ));
-            xRet = pdFALSE;
-        }
-    }
-
-    if( xRet == pdTRUE )
-    {
-        if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
-        {
-            configPRINTF(( "There are no networks configured for the demo.\r\n" ));
-            xRet = pdFALSE;
-        }
+        configPRINTF(( "There are no networks configured for the demo.\r\n" ));
+        xRet = EXIT_FAILURE;
     }
 
     /* Create semaphore to notify network available */
-    if( xRet == pdTRUE )
+    if( xRet == EXIT_SUCCESS )
     {
         xNetworkAvailableLock = xSemaphoreCreateBinary();
         if( xNetworkAvailableLock == NULL )
         {
             configPRINTF(( "Failed to create semaphore.\r\n" ));
-            xRet = pdFALSE;
+            xRet = EXIT_FAILURE;
         }
     }
 
     /**
      * Create a Network Manager Subscription for all the network types supported.
      */
-    if( xRet == pdTRUE )
+    if( xRet == EXIT_SUCCESS )
     {
-        xRet = AwsIotNetworkManager_SubscribeForStateChange( otaDemoNETWORK_TYPES, prvNetworkStateChangeCallback, NULL, &xSubscriptionHandle );
-        if( xRet == pdFALSE )
+        if( AwsIotNetworkManager_SubscribeForStateChange( otaDemoNETWORK_TYPES,
+                                                          prvNetworkStateChangeCallback,
+                                                          NULL,
+                                                          &xSubscriptionHandle ) != pdTRUE )
         {
             configPRINTF(( "Failed to create Network Manager subscription.\r\n" ));
+            xRet = EXIT_FAILURE;
         }
     }
 
-    if( xRet == pdTRUE )
+    if( xRet == EXIT_SUCCESS )
     {
-        xRet = xTaskCreate( vOTAUpdateDemoTask,
-                     "OTA",
-                     democonfigDEMO_STACKSIZE,
-                     NULL,
-                     democonfigDEMO_PRIORITY,
-                     NULL );
-
-        if( xRet == pdFALSE )
-        {
-            configPRINTF(( "Failed to create OTA demo tasks.\r\n" ));
-        }
-
+        vRunOTAUpdateDemo();
     }
-
-    if(  xRet == pdFALSE )
+    else
     {
         if( xSubscriptionHandle != IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER )
         {
