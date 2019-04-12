@@ -441,9 +441,6 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborpretty.c">
       <Filter>lib\third_party\tinycbor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\demo_runner\aws_demo_runner.c">
-      <Filter>application_code\common_demos\source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\common\greengrass_connectivity\aws_greengrass_discovery_demo.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
@@ -585,9 +582,6 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\platform_util.c">
       <Filter>lib\third_party\mbedtls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\posix\aws_posix_demo.c">
-      <Filter>application_code\common_demos\source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\lib\shadow\aws_iot_shadow_api.c">
       <Filter>lib\aws\shadow</Filter>
     </ClCompile>
@@ -703,6 +697,18 @@
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\network_manager\aws_iot_network_manager.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\demo_runner\iot_demo_runner.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\demo_runner\aws_demo.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\demo_runner\aws_demo_network_addr.c">
+      <Filter>application_code\common_demos\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\common\demo_runner\aws_demo_version.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -978,12 +984,6 @@
       <Filter>lib\third_party\tinycbor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h">
-      <Filter>application_code\common_demos\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\common\include\aws_demo.h">
-      <Filter>application_code\common_demos\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\common\include\aws_demo_runner.h">
       <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\common\include\aws_greengrass_discovery_demo.h">
@@ -1340,6 +1340,16 @@
     <ClInclude Include="..\..\..\common\include\iot_demo_logging.h">
       <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\common\include\iot_demo_runner.h">
+      <Filter>application_code\common_demos\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_iot_demo_network.h">
+      <Filter>application_code\common_demos\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_demo.h">
+      <Filter>application_code\common_demos\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_demo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
