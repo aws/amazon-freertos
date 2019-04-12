@@ -1340,9 +1340,6 @@
     <ClInclude Include="..\..\..\common\include\iot_demo_logging.h">
       <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\include\aws_demo.h" />
-    <ClInclude Include="..\..\..\common\include\aws_demo.h" />
-    <ClInclude Include="..\..\..\common\include\aws_demo.h" />
     <ClInclude Include="..\..\..\common\include\iot_demo_runner.h">
       <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
@@ -1352,6 +1349,7 @@
     <ClInclude Include="..\..\..\common\include\aws_demo.h">
       <Filter>application_code\common_demos\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_demo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\platform_util.h">
