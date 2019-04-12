@@ -14,13 +14,16 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         "${inc_dir}/aws_secure_sockets.h"
-        "${inc_dir}/private/aws_secure_sockets_config_defaults.h"
-        "${inc_dir}/private/aws_secure_sockets_wrapper_metrics.h"
+        "${inc_dir}/aws_secure_sockets_config_defaults.h"
+        "${inc_dir}/aws_secure_sockets_wrapper_metrics.h"
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
+    PRIVATE
+        # Needs standard/common/include/private/aws_lib_init.h
+        "${AFR_MODULES_STANDARD_DIR}/common/include/private"
 )
 
 afr_module_dependencies(
