@@ -46,6 +46,7 @@
 
 #include "aws_demo.h"
 #include "aws_demo_config.h"
+#include "aws_iot_network_config.h"
 
 /* Forward declaration of demo entry function to be renamed from #define in aws_demo_config.h */
 int DEMO_entryFUNCTION( bool awsIotMqttMode,
@@ -85,7 +86,7 @@ void DEMO_RUNNER_RunDemos( void )
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
     static demoContext_t mqttDemoContext =
     {
-        .networkTypes                  = ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE ),
+        .networkTypes                  = configENABLED_NETWORKS,
         .connectedNetwork              = AWSIOT_NETWORK_TYPE_NONE,
         .demoFunction                  = DEMO_entryFUNCTION,
         .networkConnectedCallback      = DEMO_networkConnectedCallback,

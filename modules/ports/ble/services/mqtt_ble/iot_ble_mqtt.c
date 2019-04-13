@@ -410,8 +410,6 @@ static uint8_t * _reallocBuffer( uint8_t * oldBuffer,
 
 void _resetBuffer( IotBleMqttService_t * pService )
 {
-    if( !( pService->isEnabled ) || ( pService->connection.pMqttConnection == NULL ) )
-    {
         /*
          * Acquire send lock by blocking for a maximum wait time of send timeout.
          * This will ensure no more sender tasks enqueue the stream buffer.
@@ -422,7 +420,6 @@ void _resetBuffer( IotBleMqttService_t * pService )
         ( void ) xStreamBufferReset( pService->connection.sendBuffer );
 
         ( void ) xSemaphoreGive( pService->connection.sendLock );
-    }
 }
 
 
@@ -965,6 +962,7 @@ static void _connectionCallback( BTStatus_t status,
             else
             {
                 configPRINTF( ( "Disconnect received for MQTT service instance %d\n", id ) );
+                pService->isEnabled = false;
                 _closeConnection( pService );
             }
         }

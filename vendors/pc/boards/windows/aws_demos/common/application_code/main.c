@@ -58,13 +58,6 @@
 #include "iot_network_manager_private.h"
 #include "aws_iot_network_config.h"
 
-/* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion = {
-   .u.x.ucMajor = APP_VERSION_MAJOR,
-   .u.x.ucMinor = APP_VERSION_MINOR,
-   .u.x.usBuild = APP_VERSION_BUILD,
-};
-
 /* Define a name that will be used for LLMNR and NBNS searches. Once running,
  * you can "ping RTOSDemo" instead of pinging the IP address, which is useful when
  * using DHCP. */
@@ -85,40 +78,6 @@ static void prvMiscInitialisation( void );
  */
 static void prvSaveTraceFile( void );
 
-/* The default IP and MAC address used by the demo.  The address configuration
- * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
- * 1 but a DHCP server could not be contacted.  See the online documentation for
- * more information.  In both cases the node can be discovered using
- * "ping RTOSDemo". */
-static const uint8_t ucIPAddress[ 4 ] =
-{
-    configIP_ADDR0,
-    configIP_ADDR1,
-    configIP_ADDR2,
-    configIP_ADDR3
-};
-static const uint8_t ucNetMask[ 4 ] =
-{
-    configNET_MASK0,
-    configNET_MASK1,
-    configNET_MASK2,
-    configNET_MASK3
-};
-static const uint8_t ucGatewayAddress[ 4 ] =
-{
-    configGATEWAY_ADDR0,
-    configGATEWAY_ADDR1,
-    configGATEWAY_ADDR2,
-    configGATEWAY_ADDR3
-};
-static const uint8_t ucDNSServerAddress[ 4 ] =
-{
-    configDNS_SERVER_ADDR0,
-    configDNS_SERVER_ADDR1,
-    configDNS_SERVER_ADDR2,
-    configDNS_SERVER_ADDR3
-};
-
 /* Set the following constant to pdTRUE to log using the method indicated by the
  * name of the constant, or pdFALSE to not log using the method indicated by the
  * name of the constant.  Options include to standard out (xLogToStdout), to a disk
@@ -128,20 +87,6 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
  * the port number set by configPRINT_PORT in FreeRTOSConfig.h. */
 const BaseType_t xLogToStdout = pdTRUE, xLogToFile = pdFALSE, xLogToUDP = pdFALSE;
 
-/* Default MAC address configuration.  The demo creates a virtual network
- * connection that uses this MAC address by accessing the raw Ethernet data
- * to and from a real network connection on the host PC.  See the
- * configNETWORK_INTERFACE_TO_USE definition for information on how to configure
- * the real network connection to use. */
-const uint8_t ucMACAddress[ 6 ] =
-{
-    configMAC_ADDR0,
-    configMAC_ADDR1,
-    configMAC_ADDR2,
-    configMAC_ADDR3,
-    configMAC_ADDR4,
-    configMAC_ADDR5
-};
 
 /* Use by the pseudo random number generator. */
 static UBaseType_t ulNextRand;
@@ -150,7 +95,7 @@ static UBaseType_t ulNextRand;
 static BaseType_t xTraceRunning = pdTRUE;
 
 /*-----------------------------------------------------------*/
-
+extern void vApplicationIPInit( void );
 int main( void )
 {
     const uint32_t ulLongTime_ms = pdMS_TO_TICKS( 1000UL );
@@ -172,12 +117,8 @@ int main( void )
      * vApplicationIPNetworkEventHook() below).  The address values passed in here
      * are used if ipconfigUSE_DHCP is set to 0, or if ipconfigUSE_DHCP is set to 1
      * but a DHCP server cannot be contacted. */
-    FreeRTOS_printf( ( "FreeRTOS_IPInit\n" ) );
-    FreeRTOS_IPInit( ucIPAddress,
-                     ucNetMask,
-                     ucGatewayAddress,
-                     ucDNSServerAddress,
-                     ucMACAddress );
+	FreeRTOS_printf(("FreeRTOS_IPInit\n"));
+	vApplicationIPInit();
 
     /* Start the RTOS scheduler. */
     FreeRTOS_printf( ( "vTaskStartScheduler\n" ) );
@@ -219,11 +160,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
             /* Initialize AWS system libraries */
             SYSTEM_Init();
 
-            configASSERT( AwsIotNetworkManager_Init( ) == pdPASS ); 
-
-            AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS );
-
-
             /* Start the demo tasks. */
             DEMO_RUNNER_RunDemos();
 
@@ -252,23 +188,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 }
 /*-----------------------------------------------------------*/
 
-/**
- * @brief Warn user if pvPortMalloc fails.
- *
- * Called if a call to pvPortMalloc() fails because there is insufficient
- * free memory available in the FreeRTOS heap.  pvPortMalloc() is called
- * internally by FreeRTOS API functions that create tasks, queues, software
- * timers, and semaphores.  The size of the FreeRTOS heap is set by the
- * configTOTAL_HEAP_SIZE configuration constant in FreeRTOSConfig.h.
- *
- */
-void vApplicationMallocFailedHook()
-{
-    taskDISABLE_INTERRUPTS();
-    for( ;; );
-}
-/*-----------------------------------------------------------*/
-
 static void prvMiscInitialisation( void )
 {
     uint32_t ulLoggingIPAddress;
@@ -290,49 +209,7 @@ static void prvMiscInitialisation( void )
         ulLoggingIPAddress,
         configPRINT_PORT );
 }
-/*-----------------------------------------------------------*/
 
-#if ( ( ipconfigUSE_LLMNR != 0 ) || \
-    ( ipconfigUSE_NBNS != 0 ) ||    \
-    ( ipconfigDHCP_REGISTER_HOSTNAME == 1 ) )
-
-    const char * pcApplicationHostnameHook( void )
-    {
-        /* This function will be called during the DHCP: the machine will be registered 
-         * with an IP address plus this name. */
-        return mainHOST_NAME;
-    }
-
-#endif
-/*-----------------------------------------------------------*/
-
-#if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
-
-    BaseType_t xApplicationDNSQueryHook( const char * pcName )
-    {
-        BaseType_t xReturn;
-
-        /* Determine if a name lookup is for this node.  Two names are given
-         * to this node: that returned by pcApplicationHostnameHook() and that set
-         * by mainDEVICE_NICK_NAME. */
-        if( _stricmp( pcName, pcApplicationHostnameHook() ) == 0 )
-        {
-            xReturn = pdPASS;
-        }
-        else if( _stricmp( pcName, mainDEVICE_NICK_NAME ) == 0 )
-        {
-            xReturn = pdPASS;
-        }
-        else
-        {
-            xReturn = pdFAIL;
-        }
-
-        return xReturn;
-    }
-
-#endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
-/*-----------------------------------------------------------*/
 
 void vApplicationIdleHook( void )
 {
@@ -377,6 +254,7 @@ void vApplicationIdleHook( void )
      * idle task just sleeps to lower the CPU usage. */
     Sleep( ulMSToSleep );
 }
+
 /*-----------------------------------------------------------*/
 
 void vAssertCalled( const char * pcFile,
@@ -404,60 +282,7 @@ void vAssertCalled( const char * pcFile,
     }
     taskENABLE_INTERRUPTS();
 }
-/*-----------------------------------------------------------*/
 
-/* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
- * implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
- * used by the Idle task. */
-void vApplicationGetIdleTaskMemory( StaticTask_t ** ppxIdleTaskTCBBuffer,
-                                    StackType_t ** ppxIdleTaskStackBuffer,
-                                    uint32_t * pulIdleTaskStackSize )
-{
-/* If the buffers to be provided to the Idle task are declared inside this
- * function then they must be declared static - otherwise they will be allocated on
- * the stack and so not exists after this function exits. */
-    static StaticTask_t xIdleTaskTCB;
-    static StackType_t uxIdleTaskStack[ configMINIMAL_STACK_SIZE ];
-
-    /* Pass out a pointer to the StaticTask_t structure in which the Idle
-     * task's state will be stored. */
-    *ppxIdleTaskTCBBuffer = &xIdleTaskTCB;
-
-    /* Pass out the array that will be used as the Idle task's stack. */
-    *ppxIdleTaskStackBuffer = uxIdleTaskStack;
-
-    /* Pass out the size of the array pointed to by *ppxIdleTaskStackBuffer.
-     * Note that, as the array is necessarily of type StackType_t,
-     * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
-    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
-}
-/*-----------------------------------------------------------*/
-
-/* configUSE_STATIC_ALLOCATION and configUSE_TIMERS are both set to 1, so the
- * application must provide an implementation of vApplicationGetTimerTaskMemory()
- * to provide the memory that is used by the Timer service task. */
-void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
-                                     StackType_t ** ppxTimerTaskStackBuffer,
-                                     uint32_t * pulTimerTaskStackSize )
-{
-/* If the buffers to be provided to the Timer task are declared inside this
- * function then they must be declared static - otherwise they will be allocated on
- * the stack and so not exists after this function exits. */
-    static StaticTask_t xTimerTaskTCB;
-    static StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
-
-    /* Pass out a pointer to the StaticTask_t structure in which the Timer
-     * task's state will be stored. */
-    *ppxTimerTaskTCBBuffer = &xTimerTaskTCB;
-
-    /* Pass out the array that will be used as the Timer task's stack. */
-    *ppxTimerTaskStackBuffer = uxTimerTaskStack;
-
-    /* Pass out the size of the array pointed to by *ppxTimerTaskStackBuffer.
-     * Note that, as the array is necessarily of type StackType_t,
-     * configTIMER_TASK_STACK_DEPTH is specified in words, not bytes. */
-    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
-}
 /*-----------------------------------------------------------*/
 
 static void prvSaveTraceFile( void )
