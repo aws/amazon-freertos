@@ -416,7 +416,7 @@ void _characteristicCallback( IotBleAttributeEvent_t * pEventParam )
 
     resp.pAttrData = &attrData;
 
-    if( pEventParam->xEventType == eBLEWrite )
+     if( pEventParam->xEventType == eBLEWrite )
     {
         pWriteParam = pEventParam->pParamWrite;
         wifiProvisioning.BLEConnId = pWriteParam->connId;
@@ -566,10 +566,9 @@ static bool _deserializeListNetworkRequest( uint8_t * pData,
         {
             if( ( value.value.signedInt <= 0 ) || ( value.value.signedInt > IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS ) )
             {
-                configPRINTF( ( "WARN: Max Networks (%d) exceeds configured Max networks (%d). Caping max networks to %d\n",
-                                value.value.signedInt,
-                                IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS,
-                                IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS ) );
+                configPRINTF( ( "WARN: Networks %d exceeds configured value, truncating to  %d max network\n",
+                                (uint16_t)value.value.signedInt,
+                                IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS) );
                 pListNetworkRequest->maxNetworks = IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS;
             }
             else

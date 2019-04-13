@@ -186,7 +186,7 @@
  * A higher number will consume more stack space. The size increase in multiple of sizeof(WIFIScanResult_t).
  */
 #ifndef IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS
-    #define IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS                  ( 50 )
+    #define IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS                  ( 10 )
 #endif
 
 
