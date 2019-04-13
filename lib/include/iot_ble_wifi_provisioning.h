@@ -178,6 +178,12 @@ typedef struct IotBleWifiProvService
     uint16_t numNetworks;            /**< The number of networks. */
     int16_t connectedIdx;            /**< The index of the network that is connected. */
     bool init;                       /**< A flag to indicate if the service has been initialized. */
+
+    IotBleListNetworkRequest_t   listNetworkRequest;
+    IotBleAddNetworkRequest_t    addNetworkRequest;
+    IotBleEditNetworkRequest_t   editNetworkRequest;
+    IotBleDeleteNetworkRequest_t deleteNetworkRequest;
+
 } IotBleWifiProvService_t;
 
 /**

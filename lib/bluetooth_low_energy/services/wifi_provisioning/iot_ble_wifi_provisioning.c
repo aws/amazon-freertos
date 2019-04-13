@@ -609,44 +609,38 @@ static bool _handleListNetworkRequest( uint8_t * pData,
     bool status = false;
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolJob_t *pJob = NULL;
-    IotBleListNetworkRequest_t *pParams = pvPortMalloc(sizeof(IotBleListNetworkRequest_t));
 
-    if( pParams != NULL )
+    if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == pdTRUE )
     {
-        status = _deserializeListNetworkRequest( pData, length, pParams );
+        memset( &wifiProvisioning.listNetworkRequest, 0x00, sizeof( IotBleListNetworkRequest_t ) );
+        status = _deserializeListNetworkRequest( pData, length, &wifiProvisioning.listNetworkRequest );
 
-        if( status == true )
+        taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
+                                                      _listNetworkTask,
+                                                      NULL,
+                                                      &pJob );
+        if (taskStatus == IOT_TASKPOOL_SUCCESS)
         {
-            taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
-                                                          _listNetworkTask,
-                                                          pParams,
-                                                          &pJob );
-            if( taskStatus == IOT_TASKPOOL_SUCCESS )
+            taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
+            if (taskStatus != IOT_TASKPOOL_SUCCESS)
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
-                if( taskStatus != IOT_TASKPOOL_SUCCESS )
-                {
-                    configPRINTF(( "Failed to schedule taskpool job for list network request \r\n" ));
-                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
-                    status = false;
-
-                }
-            }
-            else
-            {
-                configPRINTF(( "Failed to allocate taskpool job for list network request \r\n" ));
+                configPRINTF(( "Failed to schedule taskpool job for list network request \r\n" ));
+                IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
+                xSemaphoreGive( wifiProvisioning.lock );
                 status = false;
             }
-	}
-
-        if( status == false )
+        }
+        else
         {
-            vPortFree( pParams );
+            configPRINTF(( "Failed to allocate taskpool job for list network request \r\n" ));
+            xSemaphoreGive( wifiProvisioning.lock );
+            status = false;
         }
     }
     else
     {
-        configPRINTF( ( "Failed to allocate memory for List Network Request\n" ) );
+        configPRINTF( ( "Failed to process the list request. Already a request is being processed.\n" ) );
+        status = false;
     }
 
     return status;
@@ -835,44 +829,40 @@ static bool _handleSaveNetworkRequest( uint8_t * pData,
     bool status = false;
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolJob_t *pJob = NULL;
-    IotBleAddNetworkRequest_t * pParams = pvPortMalloc( sizeof( IotBleAddNetworkRequest_t ) );
 
-    if( pParams != NULL )
+    if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == pdTRUE )
     {
-        status = _deserializeAddNetworkRequest( pData, length, pParams );
+        memset( &wifiProvisioning.addNetworkRequest, 0x00, sizeof( IotBleAddNetworkRequest_t ) );
+        status = _deserializeAddNetworkRequest( pData, length, &wifiProvisioning.addNetworkRequest );
 
-        if( status == true )
+        taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
+                                                      _addNetworkTask,
+                                                      NULL,
+                                                      &pJob );
+        if (taskStatus == IOT_TASKPOOL_SUCCESS)
         {
-            taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
-                                                          _addNetworkTask,
-                                                          pParams,
-                                                          &pJob );
-            if( taskStatus == IOT_TASKPOOL_SUCCESS )
+            taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
+            if (taskStatus != IOT_TASKPOOL_SUCCESS)
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
-                if( taskStatus != IOT_TASKPOOL_SUCCESS )
-                {
-                    configPRINTF(( "Failed to schedule taskpool job for add network request \r\n" ));
-                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
-                    status = false;
-                }
-            }
-            else
-            {
-                configPRINTF(( "Failed to allocate taskpool job for add network request \r\n" ));
+                configPRINTF(( "Failed to schedule taskpool job for add network request \r\n" ));
+                IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
+                xSemaphoreGive( wifiProvisioning.lock );
                 status = false;
-	    }
-	}
-
-        if( status == false )
+            }
+        }
+        else
         {
-            vPortFree( pParams );
+            configPRINTF(( "Failed to allocate taskpool job for add network request \r\n" ));
+            xSemaphoreGive( wifiProvisioning.lock );
+            status = false;
         }
     }
     else
     {
-        configPRINTF( ( "Failed to allocate memory for save network request\n " ) );
+        configPRINTF( ( "Failed to process the add network request. Already a request is being processed.\n" ) );
+        status = false;
     }
+
 
     return status;
 }
@@ -957,43 +947,38 @@ static bool _handleEditNetworkRequest( uint8_t * pData,
     bool status = false;
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolJob_t *pJob = NULL;
-    IotBleEditNetworkRequest_t * pParams = pvPortMalloc( sizeof( IotBleEditNetworkRequest_t ) );
 
-    if( pParams != NULL )
+    if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == true )
     {
-        status = _deserializeEditNetworkRequest( pData, length, pParams );
+        memset( &wifiProvisioning.editNetworkRequest, 0x00, sizeof( IotBleEditNetworkRequest_t ) );
+        status = _deserializeEditNetworkRequest( pData, length, &wifiProvisioning.editNetworkRequest );
 
-        if( status == true )
+        taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
+                                                      _editNetworkTask,
+                                                      NULL,
+                                                      &pJob );
+        if (taskStatus == IOT_TASKPOOL_SUCCESS)
         {
-            taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
-                                                          _editNetworkTask,
-                                                          pParams,
-                                                          &pJob );
-            if( taskStatus == IOT_TASKPOOL_SUCCESS )
+            taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
+            if (taskStatus != IOT_TASKPOOL_SUCCESS)
             {
-                taskStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, pJob, 0 );
-                if( taskStatus != IOT_TASKPOOL_SUCCESS )
-                {
-                    configPRINTF(( "Failed to schedule taskpool job for edit network request \r\n" ));
-                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
-                    status = false;
-                }
-            }
-            else
-            {
-                configPRINTF(( "Failed to allocate taskpool job for edit network request \r\n" ));
+                configPRINTF(( "Failed to schedule taskpool job for edit network request \r\n" ));
+                IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
+                xSemaphoreGive( wifiProvisioning.lock );
                 status = false;
             }
         }
-
-        if( status == false )
+        else
         {
-            vPortFree( pParams );
+            configPRINTF(( "Failed to allocate taskpool job for edit network request \r\n" ));
+            xSemaphoreGive( wifiProvisioning.lock );
+            status = false;
         }
     }
     else
     {
-        configPRINTF( ( "Failed to allocate memory for edit network request\n " ) );
+        configPRINTF( ( "Failed to process the edit network request. Already a request is being processed.\n" ) );
+        status = false;
     }
 
     return status;
@@ -1054,43 +1039,38 @@ static bool _handleDeleteNetworkRequest( uint8_t * pData,
     bool status = false;
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolJob_t *pJob = NULL;
-    IotBleDeleteNetworkRequest_t * pParams = pvPortMalloc( sizeof( IotBleDeleteNetworkRequest_t ) );
 
-    if( pParams != NULL )
+    if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == true )
     {
-        status = _deserializeDeleteNetworkRequest( pData, length, pParams );
+        memset( &wifiProvisioning.deleteNetworkRequest, 0x00, sizeof( IotBleDeleteNetworkRequest_t ) );
+        status = _deserializeDeleteNetworkRequest( pData, length, &wifiProvisioning.deleteNetworkRequest );
 
-        if( status == true )
+        taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
+                                                      _deleteNetworkTask,
+                                                      NULL,
+                                                      &pJob );
+        if (taskStatus == IOT_TASKPOOL_SUCCESS)
         {
-            taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
-                                                          _deleteNetworkTask,
-                                                          pParams,
-                                                          &pJob );
-            if( taskStatus == IOT_TASKPOOL_SUCCESS )
+            taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
+            if (taskStatus != IOT_TASKPOOL_SUCCESS)
             {
-                taskStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, pJob, 0 );
-                if( taskStatus != IOT_TASKPOOL_SUCCESS )
-                {
-                    configPRINTF(( "Failed to schedule taskpool job for delete network request \r\n" ));
-                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
-                    status = false;
-                }
-            }
-            else
-            {
-                configPRINTF(( "Failed to allocate taskpool job for delete network request \r\n" ));
+                configPRINTF(( "Failed to schedule taskpool job for delete network request \r\n" ));
+                IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
+                xSemaphoreGive( wifiProvisioning.lock );
                 status = false;
             }
         }
-
-        if( status == false )
+        else
         {
-            vPortFree( pParams );
+            configPRINTF(( "Failed to allocate taskpool job for delete network request \r\n" ));
+            xSemaphoreGive( wifiProvisioning.lock );
+            status = false;
         }
     }
     else
     {
-        configPRINTF( ( "Failed to allocate memory for delete network request\n " ) );
+        configPRINTF( ( "Failed to process the delete network request. Already a request is being processed.\n" ) );
+        status = false;
     }
 
     return status;
@@ -1571,48 +1551,41 @@ static void _sendScanNetwork( WIFIScanResult_t * pScanNetwork )
 
 void _listNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext  )
 {
-    IotBleListNetworkRequest_t * pListNetworReq = ( IotBleListNetworkRequest_t * ) pUserContext;;
     WIFINetworkProfile_t profile;
     uint16_t idx;
     WIFIReturnCode_t status;
 
-    if( xSemaphoreTake( wifiProvisioning.lock, portMAX_DELAY ) == true )
+    for( idx = 0; idx < wifiProvisioning.numNetworks; idx++ )
     {
-        for( idx = 0; idx < wifiProvisioning.numNetworks; idx++ )
-        {
-            status = _getSavedNetwork( idx, &profile );
-
-            if( status == eWiFiSuccess )
-            {
-                _sendSavedNetwork( &profile, idx );
-            }
-        }
-
-        memset( scanNetworks, 0x00, sizeof( scanNetworks ) );
-
-        status = WIFI_Scan( scanNetworks, pListNetworReq->maxNetworks );
-        configPRINTF(( "Scan completed with result %d \r\n", status ));
+        status = _getSavedNetwork( idx, &profile );
 
         if( status == eWiFiSuccess )
         {
-            for( idx = 0; idx < pListNetworReq->maxNetworks; idx++ )
-            {
-                if( strlen( scanNetworks[ idx ].cSSID ) > 0 )
-                {
-                    _sendScanNetwork( &scanNetworks[ idx ] );
-                }
-            }
+            _sendSavedNetwork( &profile, idx );
         }
-        else
-        {
-            _sendStatusResponse( IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR, status );
-        }
-
-        xSemaphoreGive( wifiProvisioning.lock );
     }
 
-    vPortFree( pListNetworReq );
+    memset( scanNetworks, 0x00, sizeof( WIFIScanResult_t ) * IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS );
+    
+    status = WIFI_Scan( scanNetworks, wifiProvisioning.listNetworkRequest.maxNetworks );
+    configPRINTF(( "Scan completed with result %d \r\n", status ));
 
+    if( status == eWiFiSuccess )
+    {
+        for( idx = 0; idx < wifiProvisioning.listNetworkRequest.maxNetworks; idx++ )
+        {
+            if( strlen( scanNetworks[ idx ].cSSID ) > 0 )
+            {
+                _sendScanNetwork( &scanNetworks[ idx ] );
+            }
+        }
+    }
+    else
+    {
+        _sendStatusResponse( IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR, status );
+    }
+
+    xSemaphoreGive( wifiProvisioning.lock );
     IotTaskPool_RecycleJob( pTaskPool, pJob );
 }
 
@@ -1621,32 +1594,27 @@ void _listNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * p
 static void _addNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
-    IotBleAddNetworkRequest_t * pAddNetworkReq = ( IotBleAddNetworkRequest_t * ) pUserContext;
 
-    if( xSemaphoreTake( wifiProvisioning.lock, portMAX_DELAY ) == true )
+    if( wifiProvisioning.addNetworkRequest.savedIdx != IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX )
     {
-        if( pAddNetworkReq->savedIdx != IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX )
+        ret = _connectSavedNetwork( wifiProvisioning.addNetworkRequest.savedIdx );
+    }
+    else
+    {
+        if( wifiProvisioning.numNetworks < IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS )
         {
-            ret = _connectSavedNetwork( pAddNetworkReq->savedIdx );
+            ret = _addNewNetwork( &wifiProvisioning.addNetworkRequest.network,
+                                  wifiProvisioning.addNetworkRequest.connect );
         }
         else
         {
-            if( wifiProvisioning.numNetworks < IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS )
-            {
-                ret = _addNewNetwork(&pAddNetworkReq->network, pAddNetworkReq->connect);
-            }
-            else
-            {
-                configPRINTF(( "Failed to add a new network, max networks limit (%d) reached.", IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS ));
-                ret = eWiFiFailure;
-	    }
-	}
-
-        xSemaphoreGive( wifiProvisioning.lock );
+            configPRINTF(("Failed to add a new network, max networks limit (%d) reached.", IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS));
+            ret = eWiFiFailure;
+        }
     }
 
     _sendStatusResponse( IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR, ret );
-    vPortFree( pAddNetworkReq );
+    xSemaphoreGive( wifiProvisioning.lock );
     IotTaskPool_RecycleJob( pTaskPool, pJob );
 }
 
@@ -1657,25 +1625,18 @@ static void _addNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJ
 static void _deleteNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
-    IotBleDeleteNetworkRequest_t * pDeleteNetworkReq = ( IotBleDeleteNetworkRequest_t * ) pUserContext;
-
-    if( xSemaphoreTake( wifiProvisioning.lock, portMAX_DELAY ) == true )
+    
+    ret = _popNetwork(wifiProvisioning.deleteNetworkRequest.idx, NULL);
+    if( ret == eWiFiSuccess )
     {
-        ret = _popNetwork( pDeleteNetworkReq->idx, NULL );
-
-        if( ret == eWiFiSuccess )
+        if( wifiProvisioning.connectedIdx == IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX )
         {
-            if( wifiProvisioning.connectedIdx == IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX )
-            {
-                ( void ) WIFI_Disconnect();
-            }
+            ( void )WIFI_Disconnect();
         }
-
-        xSemaphoreGive( wifiProvisioning.lock );
     }
+    _sendStatusResponse(IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR, ret);
 
-    _sendStatusResponse( IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR, ret );
-    vPortFree( pDeleteNetworkReq );
+    xSemaphoreGive(wifiProvisioning.lock);
     IotTaskPool_RecycleJob( pTaskPool, pJob );
 }
 
@@ -1686,16 +1647,9 @@ static void _deleteNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPo
 static void _editNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
-    IotBleEditNetworkRequest_t * pEditNetworkReq = ( IotBleEditNetworkRequest_t * ) pUserContext;
-
-    if( xSemaphoreTake( wifiProvisioning.lock, portMAX_DELAY ) == true )
-    {
-        ret = _moveNetwork( pEditNetworkReq->curIdx, pEditNetworkReq->newIdx );
-        xSemaphoreGive( wifiProvisioning.lock );
-    }
-
+    ret = _moveNetwork( wifiProvisioning.editNetworkRequest.curIdx, wifiProvisioning.editNetworkRequest.newIdx );
     _sendStatusResponse( IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR, ret );
-    vPortFree( pEditNetworkReq );
+    xSemaphoreGive( wifiProvisioning.lock );
     IotTaskPool_RecycleJob( pTaskPool, pJob );
 }
 
@@ -1708,7 +1662,7 @@ bool IotBleWifiProv_Init( void )
 
     if( wifiProvisioning.init == false )
     {
-        wifiProvisioning.lock = xSemaphoreCreateMutex();
+        wifiProvisioning.lock = xSemaphoreCreateBinary();
 
         if( wifiProvisioning.lock != NULL )
         {
