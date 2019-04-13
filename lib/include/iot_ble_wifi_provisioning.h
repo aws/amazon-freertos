@@ -62,10 +62,6 @@
 #define IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID        ( 0x2902 )                                                                            /**< @brief Client configuration. */
 /* @[define_ble_constants_wifi_provisioning] */
 
-/**
- * @brief Maximum number of WiFi networks that can be provisioned
- */
-#define IOT_BLE_WIFI_PROV_MAX_SAVED_NETWORKS    ( 8 )
 
 /**
  * @ingroup ble_datatypes_enums
@@ -182,6 +178,12 @@ typedef struct IotBleWifiProvService
     uint16_t numNetworks;            /**< The number of networks. */
     int16_t connectedIdx;            /**< The index of the network that is connected. */
     bool init;                       /**< A flag to indicate if the service has been initialized. */
+
+    IotBleListNetworkRequest_t   listNetworkRequest;
+    IotBleAddNetworkRequest_t    addNetworkRequest;
+    IotBleEditNetworkRequest_t   editNetworkRequest;
+    IotBleDeleteNetworkRequest_t deleteNetworkRequest;
+
 } IotBleWifiProvService_t;
 
 /**
