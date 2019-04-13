@@ -71,6 +71,10 @@ static uint32_t _getAvailableNetwork( demoContext_t *pContext )
     {
         network = AWSIOT_NETWORK_TYPE_BLE;
     }
+    else if ( ( network & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+    {
+        network = AWSIOT_NETWORK_TYPE_ETH;
+    }
     else
     {
         network = AWSIOT_NETWORK_TYPE_NONE;
@@ -314,7 +318,7 @@ void runDemoTask( void * pArgument )
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
 
 
-        if( network == AWSIOT_NETWORK_TYPE_WIFI )
+        if(( network == AWSIOT_NETWORK_TYPE_WIFI )||( network == AWSIOT_NETWORK_TYPE_ETH ))
         {            
             /* ALPN only works over port 443. Disable it otherwise. */
             if( serverInfo.port != 443 )
