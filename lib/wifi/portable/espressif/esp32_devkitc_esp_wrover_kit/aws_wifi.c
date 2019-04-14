@@ -494,7 +494,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     		}
 
     		// Wait for wifi started event
-    		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
     	}
 
         if ( wifi_conn_state == false && wifi_auth_failure == true )
