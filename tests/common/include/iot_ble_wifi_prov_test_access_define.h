@@ -94,7 +94,7 @@ WIFIReturnCode_t test_ConnectSavedNetwork( uint16_t index )
 BaseType_t test_GetConnectedNetwork( WIFINetworkProfile_t * pNetwork )
 {
     BaseType_t ret = pdFALSE;
-    if( _getSavedNetwork( WifiProvService.connectedIdx, pNetwork ) == eWiFiSuccess )
+    if( _getSavedNetwork( wifiProvisioning.connectedIdx, pNetwork ) == eWiFiSuccess )
     {
     	ret = pdTRUE;
     }
