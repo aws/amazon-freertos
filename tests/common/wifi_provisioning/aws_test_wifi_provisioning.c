@@ -534,7 +534,7 @@ static void prvGetTestWIFINetwork( WIFINetworkProfile_t *pxNetwork, uint16_t usI
 
 static void prvRemoveSavedNetworks( void )
 {
-	uint16_t usNumNetworks = IOT_BLE_WIFI_PROV_MAX_SAVED_NETWORKS;
+	uint16_t usNumNetworks = IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS;
 	WIFIReturnCode_t xRet;
 	WIFINetworkProfile_t xProfile;
 
