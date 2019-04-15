@@ -1,6 +1,7 @@
-set(simplelink_dir "${AFR_3RDPARTY_DIR}/mcu_vendor/ti/SimpleLink_CC32xx/v2_10_00_04")
-set(board_demos_dir "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/common")
-set(board_tests_dir "${AFR_ROOT_DIR}/tests/ti/cc3220_launchpad/common")
+set(simplelink_dir "${AFR_VENDORS_DIR}/ti/SimpleLink_CC32xx/v2_10_00_04")
+set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
 else()
@@ -74,17 +75,17 @@ target_sources(
         "${simplelink_dir}/kernel/freertos/dpl/SemaphoreP_freertos.c"
         "${simplelink_dir}/kernel/freertos/dpl/SystemP_freertos.c"
         "${simplelink_dir}/kernel/freertos/startup/startup_cc32xx_ccs.c"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/CCS/ARM_CM3/port.c"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/CCS/ARM_CM3/portasm.asm"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/CCS/ARM_CM3/portmacro.h"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/CCS/ARM_CM3/portmacro.h"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/MemMang/heap_4.c"
+        "${AFR_KERNEL_DIR}/portable/CCS/ARM_CM3/port.c"
+        "${AFR_KERNEL_DIR}/portable/CCS/ARM_CM3/portasm.asm"
+        "${AFR_KERNEL_DIR}/portable/CCS/ARM_CM3/portmacro.h"
+        "${AFR_KERNEL_DIR}/portable/CCS/ARM_CM3/portmacro.h"
+        "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
 )
 target_include_directories(
     AFR::kernel::mcu_port
     INTERFACE
         "${simplelink_dir}/source"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/CCS/ARM_CM3"
+        "${AFR_KERNEL_DIR}/portable/CCS/ARM_CM3"
         "${board_dir}/config_files"
         "${board_dir}/application_code/ti_code"
         # Need aws_clientcredential.h
@@ -97,14 +98,13 @@ target_link_libraries(
 
 # POSIX
 afr_mcu_port(posix)
-set(posix_port_dir "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/portable/ti/cc3220_launchpad")
 target_sources(
     AFR::posix::mcu_port
-    INTERFACE "${posix_port_dir}/FreeRTOS_POSIX_portable.h"
+    INTERFACE "${afr_ports_dir}/posix/FreeRTOS_POSIX_portable.h"
 )
 target_include_directories(
     AFR::posix::mcu_port
-    INTERFACE "${posix_port_dir}"
+    INTERFACE "${afr_ports_dir}/posix"
 )
 target_link_libraries(
     AFR::posix::mcu_port
@@ -115,12 +115,14 @@ target_link_libraries(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/wifi/portable/ti/cc3220_launchpad/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
 )
 # WiFi on TI requires POSIX types
 target_link_libraries(
     AFR::wifi::mcu_port
-    INTERFACE AFR::posix::mcu_port
+    INTERFACE
+        AFR::posix::mcu_port
+        AFR::secure_sockets
 )
 
 # PKCS11
@@ -128,8 +130,8 @@ afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${AFR_MODULES_DIR}/pkcs11/portable/ti/cc3220_launchpad/aws_pkcs11_pal.c"
-        "${AFR_MODULES_DIR}/include/private/threading_alt.h"
+        "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/threading_alt.h"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
@@ -140,14 +142,14 @@ target_link_libraries(
 afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/secure_sockets/portable/ti/cc3220_launchpad/aws_secure_sockets.c"
+    INTERFACE "${afr_ports_dir}/secure_sockets/aws_secure_sockets.c"
 )
 
 # OTA
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/ota/portable/ti/cc3220_launchpad/aws_ota_pal.c"
+    INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
 )
 
 # -------------------------------------------------------------------------------------------------
