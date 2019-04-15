@@ -509,19 +509,30 @@ BTStatus_t IotBle_Init( void )
         ( void ) xEventGroupCreateStatic( ( StaticEventGroup_t * ) &_BTInterface.waitOperationComplete );
 
         status = _BTInterface.pBTInterface->pxBtManagerInit( &_BTManagerCb );
+        if( status != eBTStatusSuccess )
+        {
+        	configPRINTF( ( "Failed to initialize BT interface: %d \n", status ) );
+        }
+
         _BTInterface.pBTLeAdapterInterface = ( BTBleAdapter_t * ) _BTInterface.pBTInterface->pxGetLeAdapter();
     }
     else
     {
+    	configPRINTF( ( "Interface is NULL \n" ) );
         status = eBTStatusParamInvalid;
     }
 
     if( ( _BTInterface.pBTLeAdapterInterface != NULL ) && ( status == eBTStatusSuccess ) )
     {
         status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &_BTBleAdapterCb );
+        if( status != eBTStatusSuccess )
+        {
+        	configPRINTF( ( "Failed to initialize adapter %d \n", status ) );
+        }
     }
     else
     {
+    	configPRINTF( ( "Adapter Interface NULL or error in status %d \n", status ) );
         status = eBTStatusFail;
     }
 
