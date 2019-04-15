@@ -556,9 +556,14 @@ BTStatus_t IotBle_Init( void )
                                      portMAX_DELAY );
 
                 status = _BTInterface.cbStatus;
+                if( status != eBTStatusSuccess )
+                {
+                	configPRINTF( ( "Callback error in property %d, error returned %d \n", index, status ) );
+                }
             }
             else
             {
+            	configPRINTF( ( "Unable to set device property %d, error returned %d \n", index, status ) );
                 break;
             }
         }
@@ -596,11 +601,6 @@ BTStatus_t IotBle_Init( void )
             status = eBTStatusFail;
             configPRINTF( ( "Cannot get GATT server interface\n" ) );
         }
-    }
-    else
-    {
-        configPRINTF( ( "NULL callback or server interface\n" ) );
-        status = eBTStatusParamInvalid;
     }
 
     /* Initialize lists. */
