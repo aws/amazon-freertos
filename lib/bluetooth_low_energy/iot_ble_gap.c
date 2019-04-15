@@ -548,6 +548,13 @@ BTStatus_t IotBle_Init( void )
 								 pdTRUE,
 								 portMAX_DELAY );
 	        status = _BTInterface.cbStatus;
+	        if( status != eBTStatusSuccess )
+	        {
+	        	configPRINTF( ( "Register BLE APP cb failed %d \n", status ) );
+	        }
+    	}else
+    	{
+    		configPRINTF( ( "Failed to register BLE APP %d \n", status ) );
     	}
     }
 
@@ -599,6 +606,10 @@ BTStatus_t IotBle_Init( void )
                                          portMAX_DELAY );
 
                     status = _BTInterface.cbStatus;
+        	        if( status != eBTStatusSuccess )
+        	        {
+        	        	configPRINTF( ( "Failed to register GATT server %d \n", status ) );
+        	        }
                 }
             }
             else
@@ -641,6 +652,13 @@ BTStatus_t IotBle_Init( void )
     	if( status == eBTStatusSuccess )
     	{
     		status = _setAdvData(( IotBleAdvertisementParams_t *)&_scanRespParams);
+	        if( status != eBTStatusSuccess )
+	        {
+	        	configPRINTF(("Failed to set scan response %d\n", status));
+	        }
+    	}else
+    	{
+    		configPRINTF(("Failed to set advertisement data %d\n", status));
     	}
     }
 
