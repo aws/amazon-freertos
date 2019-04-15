@@ -140,5 +140,5 @@ veryclean: clean
 	@RM_RECURSIVE@ html
 
 distclean: veryclean
-	$(MAKE) unpatch
+	cd $(PROOFS)/../patches && ./unpatch.py
 	cd $(PROOFS) && ./make-remove-makefiles.py
