@@ -13,6 +13,11 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint32_t ulDataSize );
 
 /**
+ * @brief Delete an object from NVM.
+ */
+CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
+
+/**
  *   @brief Look up an object handle using it's attributes
  */
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,

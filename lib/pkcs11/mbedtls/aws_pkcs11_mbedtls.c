@@ -70,12 +70,26 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
 /* The size of the buffer malloc'ed for the exported public key in C_GenerateKeyPair */
 #define pkcs11KEY_GEN_MAX_DER_SIZE    200
 
-/* PKCS#11 Object */
+
+typedef struct P11Object_t
+{
+    CK_OBJECT_HANDLE xHandle;
+    CK_BYTE xLabel[ pkcs11configMAX_LABEL_LENGTH + 1 ];    /* Plus 1 for the null terminator. */
+} P11Object_t;
+
+typedef struct P11ObjectList_t
+{
+    SemaphoreHandle_t xMutex; /* Mutex that protects write operations to the xObjects array. */
+    P11Object_t xObjects[ pkcs11configMAX_NUM_OBJECTS ];
+} P11ObjectList_t;
+
+/* PKCS #11 Object */
 typedef struct P11Struct_t
 {
     CK_BBOOL xIsInitialized;
     mbedtls_ctr_drbg_context xMbedDrbgCtx;
     mbedtls_entropy_context xMbedEntropyContext;
+    P11ObjectList_t xObjectList;
 } P11Struct_t, * P11Context_t;
 
 static P11Struct_t xP11Context;
@@ -275,7 +289,147 @@ CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
 
     return xResult;
 }
+/*-----------------------------------------------------------------------*/
+/* Functions for maintaining the PKCS #11 module's label-handle lookups. */
+/*-----------------------------------------------------------------------*/
 
+
+/**
+ * @brief Searches the PKCS #11 module's object list for label and provides handle.
+ *
+ * @param[in] pcLabel            Array containing label.
+ * @param[in] xLableLength       Length of the label, in bytes.
+ * @param[out] pxHandle          Pointer to handle to be provided.
+ *                               CK_INVALID_HANDLE if no object found.
+ */
+void prvFindObjectInListByLabel( uint8_t * pcLabel,
+                                 size_t xLabelLength,
+                                 CK_OBJECT_HANDLE_PTR pxHandle )
+{
+    *pxHandle = CK_INVALID_HANDLE;
+    uint8_t i = 0;
+
+    for( ; i < pkcs11configMAX_NUM_OBJECTS; i++ )
+    {
+        if( 0 == memcmp( pcLabel, xP11Context.xObjectList.xObjects[ i ].xLabel, xLabelLength ) )
+        {
+            *pxHandle = xP11Context.xObjectList.xObjects[ i ].xHandle;
+            break;
+        }
+    }
+}
+
+/**
+ * @brief Searches the PKCS #11 module's object list for handle and provides label info.
+ *
+ * @param[in] xHandle            The handle of the object being searched for.
+ * @param[out] ppcLabel          Pointer to an array containing label.  NULL if object not found.
+ * @param[out] pxLabelLength     Pointer to label length (includes a string null terminator).
+ *                               0 if no object found.
+ */
+void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xHandle,
+                                  uint8_t ** ppcLabel,
+                                  size_t * pxLabelLength )
+{
+    *ppcLabel = NULL;
+    *pxLabelLength = 0;
+    uint8_t i = 0;
+
+    for( ; i < pkcs11configMAX_NUM_OBJECTS; i++ )
+    {
+        if( xP11Context.xObjectList.xObjects[ i ].xHandle == xHandle )
+        {
+            *ppcLabel = xP11Context.xObjectList.xObjects[ i ].xLabel;
+            *pxLabelLength = strlen( ( const char * )xP11Context.xObjectList.xObjects[ i ].xLabel ) + 1;
+            break;
+        }
+    }
+}
+
+CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xHandle )
+{
+    CK_RV xResult = CKR_OK;
+    BaseType_t xGotSemaphore;
+    uint8_t i = 0;
+
+    xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
+
+    if( xGotSemaphore == pdTRUE )
+    {
+        for( ; i < pkcs11configMAX_NUM_OBJECTS; i++ )
+        {
+            if( xP11Context.xObjectList.xObjects[ i ].xHandle == xHandle )
+            {
+                memset( &xP11Context.xObjectList.xObjects[ i ], 0, sizeof( P11Object_t ) );
+            }
+        }
+
+        xSemaphoreGive( xP11Context.xObjectList.xMutex );
+    }
+    else
+    {
+        xResult = CKR_CANT_LOCK;
+    }
+
+    return xResult;
+}
+
+CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xHandle, uint8_t * pcLabel, size_t xLabelLength )
+{
+    CK_RV xResult = CKR_OK;
+    BaseType_t xGotSemaphore;
+    CK_BBOOL xObjectFound = CK_FALSE;
+    int lIndex = -1;
+    int i = pkcs11configMAX_NUM_OBJECTS;
+
+    xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
+    if ( xGotSemaphore == pdTRUE )
+    {
+        for ( ; i >= 0; i-- )
+        {
+            if ( xP11Context.xObjectList.xObjects[ i ].xHandle == xHandle )
+            {
+                /* Object already exists in list. */
+                xObjectFound = CK_TRUE;
+                break;
+            }
+            else if ( xP11Context.xObjectList.xObjects[ i ].xHandle == CK_INVALID_HANDLE )
+            {
+                if ( lIndex == -1 )
+                {
+                    lIndex = i;
+                }
+            }
+        }
+
+        if ( xObjectFound == CK_FALSE )
+        {
+            if ( lIndex != -1 )
+            {
+                if ( xLabelLength < pkcs11configMAX_LABEL_LENGTH )
+                {
+                    xP11Context.xObjectList.xObjects[ lIndex ].xHandle = xHandle;
+                    memcpy( xP11Context.xObjectList.xObjects[ lIndex ].xLabel, pcLabel, xLabelLength );
+                }
+                else
+                {
+                    xResult = CKR_DATA_LEN_RANGE;
+                }
+            }
+        }
+
+        xSemaphoreGive( xP11Context.xObjectList.xMutex );
+    }
+    else
+    {
+        xResult = CKR_CANT_LOCK;
+    }                           
+
+    return xResult;
+}
+
+
+/*-------------------------------------------------------------*/
 
 #if !defined( pkcs11configC_INITIALIZE_ALT )
 
@@ -303,7 +457,20 @@ CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
     { /*lint !e9072 It's OK to have different parameter name. */
         ( void ) ( pvInitArgs );
 
-        return prvMbedTLS_Initialize();
+        CK_RV xResult = CKR_OK;
+
+        if ( xP11Context.xIsInitialized != CK_TRUE )
+        {
+            memset( &xP11Context, 0, sizeof( P11Context_t ) );
+            xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
+            xResult = prvMbedTLS_Initialize();
+        }
+        else
+        {
+            xResult = CKR_CRYPTOKI_ALREADY_INITIALIZED;
+        }
+
+        return            xResult;
     }
 #endif /* if !defined( pkcs11configC_INITIALIZE_ALT ) */
 
@@ -336,6 +503,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
         {
             mbedtls_ctr_drbg_free( &xP11Context.xMbedDrbgCtx );
         }
+
+        vSemaphoreDelete( xP11Context.xObjectList.xMutex );
 
         xP11Context.xIsInitialized = CK_FALSE;
     }
@@ -588,8 +757,14 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
                 break;
 
             case ( CKA_LABEL ):
-
-                pxLabel = &pxTemplate[ iAttr ];
+                if ( xAttribute.ulValueLen < pkcs11configMAX_LABEL_LENGTH )
+                {
+                    pxLabel = &pxTemplate[ iAttr ];
+                }
+                else
+                {
+                    xResult = CKR_DATA_LEN_RANGE;
+                }
                 break;
 
             case ( CKA_CERTIFICATE_TYPE ):
@@ -628,6 +803,12 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
         {
             xResult = CKR_DEVICE_MEMORY;
         }
+    }
+
+    if ( xResult == CKR_OK )
+    {
+        xResult = prvAddObjectToList( *pxObject, pxLabel->pValue, pxLabel->ulValueLen );
+        // TODO: If this fails, should the object be wiped back out of flash?  But what if that fails?!?!? 
     }
 
     return xResult;
@@ -690,7 +871,14 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
                 break;
 
             case ( CKA_LABEL ):
-                *ppxLabel = &pxTemplate[ iAttr ];
+                if ( xAttribute.ulValueLen < pkcs11configMAX_LABEL_LENGTH )
+                {
+                    *ppxLabel = &pxTemplate[ iAttr ];
+                }
+                else
+                {
+                    xResult = CKR_DATA_LEN_RANGE;
+                }
                 break;
 
             case ( CKA_EC_PARAMS ):
@@ -761,7 +949,14 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
                 break;
 
             case ( CKA_LABEL ):
-                *ppxLabel = &pxTemplate[ iAttr ];
+                if ( xAttribute.ulValueLen < pkcs11configMAX_LABEL_LENGTH )
+                {
+                    *ppxLabel = &pxTemplate[ iAttr ];
+                }
+                else
+                {
+                    xResult = CKR_DATA_LEN_RANGE;
+                }
                 break;
 
             case ( CKA_SIGN ):
@@ -933,6 +1128,11 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
         }
     }
 
+    if ( xResult == CKR_OK )
+    {
+        xResult = prvAddObjectToList( *pxObject, pxLabel->pValue, pxLabel->ulValueLen );
+    }
+
     if( pxDerKey != NULL )
     {
         vPortFree( pxDerKey );
@@ -977,9 +1177,14 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
                 break;
 
             case ( CKA_LABEL ):
-
-                *ppxLabel = &pxTemplate[ iAttr ];
-
+                if ( xAttribute.ulValueLen < pkcs11configMAX_LABEL_LENGTH )
+                {
+                    *ppxLabel = &pxTemplate[ iAttr ];
+                }
+                else
+                {
+                    xResult = CKR_DATA_LEN_RANGE;
+                }
                 break;
 
             case ( CKA_VERIFY ):
@@ -1159,10 +1364,19 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
                                               CK_OBJECT_HANDLE xObject )
 {
+    CK_RV xResult;
+
     ( void ) xSession;
     ( void ) xObject;
 
-    return CKR_FUNCTION_NOT_SUPPORTED;
+    xResult = prvDeleteObjectFromList( xObject );
+    
+    if ( xResult == CKR_OK )
+    {
+        xResult = PKCS11_PAL_DestroyObject( xObject );
+    }
+
+    return xResult;
 }
 
 /**
@@ -1399,8 +1613,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-
-
 /**
  * @brief Begin an enumeration sequence for the objects of the specified type.
  */
@@ -1417,12 +1629,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     if( ( pxSession == NULL ) || ( pxSession->xOpened != CK_TRUE ) )
     {
         xResult = CKR_SESSION_HANDLE_INVALID;
-        configPRINTF( ( "Invalid session. \r\n" ) );
+        PKCS11_PRINT( ( "ERROR: Invalid session. \r\n" ) );
     }
     else if( pxSession->pxFindObjectLabel != NULL )
     {
         xResult = CKR_OPERATION_ACTIVE;
-        configPRINTF( ( "Find object operation already in progress. \r\n" ) );
+        PKCS11_PRINT( ( "ERROR: Find object operation already in progress. \r\n" ) );
     }
     else if( NULL == pxTemplate )
     {
@@ -1431,18 +1643,18 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     else if( ( ulCount != 1 ) && ( ulCount != 2 ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
-        configPRINTF( ( "Find objects can only filter by one attribute. \r\n" ) );
+        PKCS11_PRINT( ( "ERROR: Find objects does not support searching by %d attributes. \r\n", ulCount ) );
     }
 
     /* Malloc space to save template information. */
     if( xResult == CKR_OK )
     {
-        pxFindObjectLabel = pvPortMalloc( pxTemplate->ulValueLen );
+        pxFindObjectLabel = pvPortMalloc( pxTemplate->ulValueLen + 1 ); /* Add 1 to guarantee null termination for PAL. */
         pxSession->pxFindObjectLabel = pxFindObjectLabel;
 
         if( pxFindObjectLabel != NULL )
         {
-            memset( pxFindObjectLabel, 0, pxTemplate->ulValueLen );
+            memset( pxFindObjectLabel, 0, pxTemplate->ulValueLen + 1 );
         }
         else
         {
@@ -1520,22 +1732,37 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         xDone = pdTRUE;
     }
 
+    if( 1u != ulMaxObjectCount )
+    {
+        PKCS11_WARNING_PRINT( ( "WARN: Searching for more than 1 object not supported. \r\n" ) );
+    }
+
     if( ( pdFALSE == xDone ) && ( ( CK_BBOOL ) CK_TRUE == pxSession->xFindObjectComplete ) )
     {
         *pulObjectCount = 0;
         xResult = CKR_OK;
         xDone = pdTRUE;
     }
-
+    /* TODO: Re-inspect this previous logic. */
     if( ( pdFALSE == xDone ) )
     {
-        *pxObject = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel,
-                                           strlen( ( const char *)pxSession->pxFindObjectLabel ) );
-
-        if( *pxObject != 0 ) /* 0 is always an invalid handle. */
+        /* Try to find the object in module's list first. */
+        prvFindObjectInListByLabel( pxSession->pxFindObjectLabel,
+                                    strlen( ( const char * )pxSession->pxFindObjectLabel ), pxObject );
+        
+        /* Check with the PAL if the object was previously stored. */
+        if ( *pxObject == CK_INVALID_HANDLE )
         {
+            *pxObject = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel,
+                                               strlen( ( const char * )pxSession->pxFindObjectLabel ) );
+        }
+
+        if( *pxObject != CK_INVALID_HANDLE )
+        {
+            xResult = prvAddObjectToList( *pxObject,
+                                          pxSession->pxFindObjectLabel,
+                                          strlen( ( const char * )pxSession->pxFindObjectLabel ) );
             *pulObjectCount = 1;
-            xResult = CKR_OK;
         }
         else
         {

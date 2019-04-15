@@ -46,6 +46,12 @@
  */
 #define configPKCS11_DEFAULT_USER_PIN    "0000"
 
+#define pkcs11configMAX_LABEL_LENGTH     32
+
+#define pkcs11configMAX_NUM_OBJECTS      6
+
+#define pkcs11configPAL_DESTROY_SUPPORTED 1
+
 /**
  * @brief The PKCS #11 label for device private key.
  *
