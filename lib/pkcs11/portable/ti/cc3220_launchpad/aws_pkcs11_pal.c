@@ -415,7 +415,8 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
+                                        uint8_t usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
@@ -423,7 +424,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
     SlFsFileInfo_t FsFileInfo = { 0 };
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( ( uint8_t * )pxTemplate->cLabel,
+    prvLabelToFilenameHandle( pLabel,
                               &pcFileName,
                               &xHandle );
 
@@ -573,7 +574,7 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
  * @return The object handle if successful.
  * eInvalidHandle = 0 if unsuccessful.
  */
-CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize )
 {
@@ -583,7 +584,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( SearchableAttributes_t * pxTemplate,
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( ( uint8_t *)pxTemplate->cLabel,
+    prvLabelToFilenameHandle( ( uint8_t *)pxLabel->pValue,
                               &pcFileName,
                               &xHandle );
     if( pcFileName != NULL )

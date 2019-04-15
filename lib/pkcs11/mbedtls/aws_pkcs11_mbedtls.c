@@ -261,9 +261,9 @@ CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
     CK_ATTRIBUTE xAttribute; 
 
     /* Search template for class attribute. */
-    for( uint32_t i = 0; i < ulCount; i++ )
+    for( ; iAttr < ulCount; iAttr++ )
     {
-	xAttribute = pxTemplate[ iAttr ];
+        xAttribute = pxTemplate[ iAttr ];
 
         if( xAttribute.type == CKA_CLASS )
         {
@@ -589,7 +589,7 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
 
             case ( CKA_LABEL ):
 
-                pxLabel = &pxTemplate[ i ];
+                pxLabel = &pxTemplate[ iAttr ];
                 break;
 
             case ( CKA_CERTIFICATE_TYPE ):
@@ -690,7 +690,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
                 break;
 
             case ( CKA_LABEL ):
-                *ppxLabel = &pxTemplate[ i ];
+                *ppxLabel = &pxTemplate[ iAttr ];
                 break;
 
             case ( CKA_EC_PARAMS ):
@@ -761,7 +761,7 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
                 break;
 
             case ( CKA_LABEL ):
-                *ppxLabel = &pxTemplate[ i ];
+                *ppxLabel = &pxTemplate[ iAttr ];
                 break;
 
             case ( CKA_SIGN ):
@@ -978,7 +978,7 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
 
             case ( CKA_LABEL ):
 
-                *ppxLabel = &pxTemplate[ i ];
+                *ppxLabel = &pxTemplate[ iAttr ];
 
                 break;
 
@@ -1104,13 +1104,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
-    void * pvContext = NULL;
-    int32_t lMbedTLSParseResult = ~0;
-    PKCS11_KeyTemplatePtr_t pxKeyTemplate = NULL;
     CK_OBJECT_CLASS xClass;
-    PKCS11_CertificateTemplatePtr_t pxCertificateTemplate = NULL;
-    CK_ATTRIBUTE_PTR pxObjectClassAttribute = pxTemplate;
-    CK_BYTE_PTR pxLabel = NULL;
 
     /* Avoid warnings about unused parameters. */
     ( void ) xSession;
@@ -1168,7 +1162,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
     ( void ) xSession;
     ( void ) xObject;
 
-    return PKCS11_PAL_DestroyObject( xObject );
+    return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
 /**
@@ -1417,6 +1411,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_RV xResult = CKR_OK;
     CK_BYTE * pxFindObjectLabel = NULL;
+    uint32_t ulAttr = 0;
 
     /* Check inputs. */
     if( ( pxSession == NULL ) || ( pxSession->xOpened != CK_TRUE ) )
@@ -1462,9 +1457,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     {
         xResult = CKR_TEMPLATE_INCOMPLETE;
 
-        for( int i = 0; i < ulCount; i++ )
+        for( ; ulAttr < ulCount; ulAttr++ )
         {
-            CK_ATTRIBUTE xAttribute = pxTemplate[ i ];
+            CK_ATTRIBUTE xAttribute = pxTemplate[ ulAttr ];
 
             if( xAttribute.type == CKA_LABEL )
             {
@@ -1534,7 +1529,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
 
     if( ( pdFALSE == xDone ) )
     {
-        *pxObject = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, strlen( pxSession->pxFindObjectLabel ) );
+        *pxObject = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel,
+                                           strlen( ( const char *)pxSession->pxFindObjectLabel ) );
 
         if( *pxObject != 0 ) /* 0 is always an invalid handle. */
         {
@@ -2237,7 +2233,6 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
     CK_ULONG xTemp;
     CK_ULONG iAttr = 0;
 
-
     /* TODO: Check the rest of the parameters.
      * TODO: Check that all required parameters are there. */
     for( ; iAttr < ulTemplateLength; iAttr++ )
@@ -2247,7 +2242,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
         switch( xAttribute.type )
         {
             case ( CKA_LABEL ):
-                *ppxLabel = &pxTemplate[ i ];
+                *ppxLabel = &pxTemplate[ iAttr ];
                 break;
 
             case ( CKA_TOKEN ):
@@ -2325,7 +2320,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
         {
             case ( CKA_LABEL ):
 
-                *ppxLabel = &pxTemplate[ i ];
+                *ppxLabel = &pxTemplate[ iAttr ];
 
                 break;
 
