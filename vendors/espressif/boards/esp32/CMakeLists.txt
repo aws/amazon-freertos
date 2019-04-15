@@ -31,7 +31,7 @@ set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
-    set(aws_credentials_include "${AFR_TESTS_DIR}/include")
+    set(aws_credentials_include "${AFR_TEST_DIR}/include")
 else()
     set(board_dir "${board_demos_dir}")
     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
@@ -155,7 +155,7 @@ target_link_libraries(
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/src/iot_tests_network.c")
+    set(extra_exe_sources "${AFR_TEST_DIR}/src/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
     set(

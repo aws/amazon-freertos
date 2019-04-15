@@ -70,7 +70,7 @@ function(afr_module)
 
     # Test dependencies.
     if(AFR_IS_TESTING AND NOT AFR_MODULE_${module_name}_IS_INTERFACE)
-        afr_module_include_dirs(${module_name} PRIVATE "${AFR_TESTS_DIR}/include")
+        afr_module_include_dirs(${module_name} PRIVATE "${AFR_TEST_DIR}/include")
     endif()
 
     # Set current module name.

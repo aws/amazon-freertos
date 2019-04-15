@@ -67,6 +67,10 @@
 /* CC3220SF board file. */
 #include "Board.h"
 
+/* Logging Task Defines. */
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
+#define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
+
 /* Application version info. */
 #include "aws_application_version.h"
 
@@ -106,7 +110,7 @@ int main( void )
     Board_initGeneral();
 
     /* Start logging task. */
-    xLoggingTaskInitialize( democonfigTASKSTACKSIZE,
+    xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 

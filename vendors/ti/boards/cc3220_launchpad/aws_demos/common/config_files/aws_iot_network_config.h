@@ -1,4 +1,3 @@
-
 /*
  * Amazon FreeRTOS
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
@@ -26,36 +25,33 @@
 
 
 /**
- * @file iot_network_types.h
- * @brief Header file contains the network types shared by both low level networking drivers
- * and upper level applications.
+ * @file aws_iot_network_config.h
+ * @brief Configuration file which enables different network types.
  */
-
-#ifndef IOT_NETWORK_TYPES_H_
-#define IOT_NETWORK_TYPES_H_
-/**
- * @brief Network types supported by Amazon FreeRTOS.
- */
-#define AWSIOT_NETWORK_TYPE_NONE     0x00000000
-#define AWSIOT_NETWORK_TYPE_WIFI     0x00000001
-#define AWSIOT_NETWORK_TYPE_BLE      0x00000002
-#define AWSIOT_NETWORK_TYPE_ETH      0x00000004
-#define AWSIOT_NETWORK_TYPE_ALL      (AWSIOT_NETWORK_TYPE_ETH | AWSIOT_NETWORK_TYPE_BLE | AWSIOT_NETWORK_TYPE_WIFI)
+#ifndef AWS_IOT_NETWORK_CONFIG_H_
+#define AWS_IOT_NETWORK_CONFIG_H_
 
 /**
- * @brief Enum types representing states for different networks.
+ * @brief Configuration flag used to specify all supported network types by the board.
+ *
+ * The configuration is fixed per board and should never be changed.
+ * More than one network interfaces can be enabled by using 'OR' operation with flags for
+ * each network types supported. Flags for all supported network types can be found
+ * in "aws_iot_network.h"
  */
-typedef enum AwsIotNetworkState
-{
-    eNetworkStateUnknown = 0,//!< eNetworkStateUnknown State of the network is unknown
-    eNetworkStateDisabled,   //!< eNetworkStateDisabled State of the network is disabled/disconnected
-    eNetworkStateEnabled     //!< eNetworkStateEnabled  State of the network is enabled and connected.
-} AwsIotNetworkState_t;
 
+#define configSUPPORTED_NETWORKS    ( AWSIOT_NETWORK_TYPE_WIFI )
 
 /**
- * @brief Callback invoked by a driver to post network state change events.
+ * @brief Configuration flag which is used to enable one or more network interfaces for a board.
+ *
+ * The configuration can be changed any time to keep one or more network enabled or disabled.
+ * More than one network interfaces can be enabled by using 'OR' operation with flags for
+ * each network types supported. Flags for all supported network types can be found
+ * in "aws_iot_network.h"
+ *
  */
-typedef void ( *IotNetworkStateChangeEventCallback_t ) ( uint32_t ulNetworkType, AwsIotNetworkState_t xState );
 
-#endif /* IOT_NETWORK_TYPES_H_ */
+#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_WIFI )
+
+#endif /* CONFIG_FILES_AWS_IOT_NETWORK_CONFIG_H_ */
