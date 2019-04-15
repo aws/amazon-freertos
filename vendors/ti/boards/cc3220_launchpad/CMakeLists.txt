@@ -89,7 +89,7 @@ target_include_directories(
         "${board_dir}/config_files"
         "${board_dir}/application_code/ti_code"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
+        "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
 )
 target_link_libraries(
     AFR::kernel::mcu_port

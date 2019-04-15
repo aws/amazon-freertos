@@ -2,7 +2,7 @@
 # AFR_ROOT_DIR          Amazon FreeRTOS source root.
 # AFR_MODULES_DIR       Amazon FreeRTOS modules root.
 # AFR_DEMOS_DIR         Amazon FreeRTOS demos root.
-# AFR_TESTS_DIR         Amazon FreeRTOS tests root.
+# AFR_TEST_DIR         Amazon FreeRTOS tests root.
 # AFR_3RDPARTY_DIR      3rdparty libraries root.
 
 # AFR_VENDOR_NAME       Folder name for vendor.
@@ -120,7 +120,7 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # set(board_tests_dir "${AFR_ROOT_DIR}/tests/${vendor}/${board}/common")
 # if(AFR_IS_TESTING)
 #     set(board_dir "${board_tests_dir}")
-#     set(aws_credentials_include "${AFR_TESTS_DIR}/include")
+#     set(aws_credentials_include "${AFR_TEST_DIR}/include")
 # else()
 #     set(board_dir "${board_demos_dir}")
 #     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")

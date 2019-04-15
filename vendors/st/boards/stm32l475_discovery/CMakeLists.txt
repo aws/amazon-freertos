@@ -104,7 +104,7 @@ set(
     "${board_dir}/config_files"
     "${board_dir}/application_code"
     "${board_dir}/application_code/st_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
+    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
 )
 target_include_directories(
     AFR::kernel::mcu_port
