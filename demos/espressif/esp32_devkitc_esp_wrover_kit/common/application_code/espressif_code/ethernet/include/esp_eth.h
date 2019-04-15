@@ -245,7 +245,7 @@ static inline esp_err_t esp_eth_smi_wait_set(uint32_t reg_num, uint16_t value_ma
  *
  * @note  buf can not be null,and it is tcpip input buf.
  *
- * @param[in] buf: start address of recevie packet data.
+ * @param[in] buf: start address of received packet data.
  *
  */
 void esp_eth_free_rx_buf(void *buf);

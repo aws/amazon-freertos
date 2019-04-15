@@ -421,7 +421,7 @@ typedef struct SlFdSet_t  /* The select socket array manager */
 
 typedef struct
 {
-    _u8   Rate;               /* Recevied Rate  */
+    _u8   Rate;               /* Received Rate  */
     _u8   Channel;            /* The received channel*/
     _i8   Rssi;               /* The computed RSSI value in db of current frame */
     _u8   Padding;            /* pad to align to 32 bits */

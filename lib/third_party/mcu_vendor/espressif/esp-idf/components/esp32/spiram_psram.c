@@ -125,8 +125,8 @@ typedef struct {
     uint16_t addrBitLen;         /*!< Address byte length*/
     uint32_t *txData;            /*!< Point to send data buffer*/
     uint16_t txDataBitLen;       /*!< Send data byte length.*/
-    uint32_t *rxData;            /*!< Point to recevie data buffer*/
-    uint16_t rxDataBitLen;       /*!< Recevie Data byte length.*/
+    uint32_t *rxData;            /*!< Point to receive data buffer*/
+    uint16_t rxDataBitLen;       /*!< Receive Data byte length.*/
     uint32_t dummyBitLen;
 } psram_cmd_t;
 

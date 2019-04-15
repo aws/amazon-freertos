@@ -168,7 +168,7 @@ typedef struct ath_socket_context
     int32_t result; // API return value
     void *sock_context; // Pointer to custom socket context
     void *pReq; // Used to hold wmi netbuf to be freed from the user thread
-    uint8_t *data; // Generic pointer to data recevied from target
+    uint8_t *data; // Generic pointer to data received from target
     uint8_t domain; // IPv4/v6
     uint8_t type; // TCP vs UDP
     uint16_t remaining_bytes;

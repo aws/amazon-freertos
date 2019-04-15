@@ -306,7 +306,7 @@ char uart_rx_one_char_block(void);
 STATUS UartRxString(uint8_t *pString, uint8_t MaxStrlen);
 
 /**
-  * @brief Process uart recevied information in the interrupt handler.
+  * @brief Process uart received information in the interrupt handler.
   *        Please do not call this function in SDK.
   *
   * @param  void *para : the message receive buffer.

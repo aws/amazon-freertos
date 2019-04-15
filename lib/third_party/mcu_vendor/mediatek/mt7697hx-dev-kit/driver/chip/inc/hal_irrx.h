@@ -207,7 +207,7 @@ typedef void (*hal_irrx_callback_t)(hal_irrx_event_t event, void  *user_data);
 
 /** @brief RC5 code. The structure member bits specifies the valid bits in code[2]. */
 typedef struct {
-    uint8_t     bits;  /**<  RC5 recevied bits number. */
+    uint8_t     bits;  /**<  RC5 received bits number. */
     uint32_t    code[2];   /**<  RC5 received data code. */
 } hal_irrx_rc5_code_t;
 
