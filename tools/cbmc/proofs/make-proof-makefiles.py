@@ -153,13 +153,13 @@ def dump_makefile(dyr, system):
 
 
 def compute(value, so_far, system, key, harness, appending=False):
-    if not isinstance(value, (str, float, int)):
-        logging.error(wrap("""\
-                        in file %s, the key '%s' has value '%s',
-                        which is of the wrong type (%s)"""),
-                      os.path.join(harness, "Makefile.json"), key,
-                      str(value), str(type(value)))
-        exit(1)
+#    if not isinstance(value, (str, float, int)):
+#        logging.error(wrap("""\
+#                        in file %s, the key '%s' has value '%s',
+#                        which is of the wrong type (%s)"""),
+#                      os.path.join(harness, "Makefile.json"), key,
+#                      str(value), str(type(value)))
+#        exit(1)
 
     value = str(value)
     try:
