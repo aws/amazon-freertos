@@ -24,6 +24,7 @@
  */
 #include "FreeRTOS.h"
 #include "aws_system_init.h"
+#include "aws_crypto.h"
 
 /* Library code. */
 extern BaseType_t BUFFERPOOL_Init( void );
@@ -39,8 +40,9 @@ BaseType_t SYSTEM_Init( void )
 {
     BaseType_t xResult = pdPASS;
 
-    xResult = BUFFERPOOL_Init();
+    CRYPTO_Init( );
 
+    xResult = BUFFERPOOL_Init();
     if( xResult == pdPASS )
     {
         xResult = MQTT_AGENT_Init();

@@ -196,7 +196,6 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
  * \note This function assumes that there is only one
  * object that meets the CLASS/LABEL criteria.
  */
-
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
                                     const char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
@@ -219,7 +218,6 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
  *                                      must be allocated by the caller.
  *
  */
-
 void vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
                                                uint8_t * x51ByteHashOidBuffer );
 

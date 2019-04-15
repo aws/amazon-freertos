@@ -39,6 +39,7 @@
 #include "aws_clientcredential.h"
 #include "aws_secure_sockets_config.h"
 #include "aws_pkcs11_config.h"
+#include "aws_pkcs11_mbedtls.h"
 #include "aws_pkcs11_pal.h"
 
 /* flash driver includes. */
@@ -52,6 +53,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/platform.h"
+#include "mbedtls/entropy.h"
 
 enum eObjectHandles
 {
@@ -118,6 +120,8 @@ static BaseType_t prvSaveFile( char * pcFileName,
 
     return xResult;
 }
+
+/*-----------------------------------------------------------*/
 
 #define BEGIN_EC_PRIVATE_KEY     "-----BEGIN EC PRIVATE KEY-----\n"
 #define END_EC_PRIVATE_KEY       "-----END EC PRIVATE KEY-----\n"
@@ -312,6 +316,45 @@ static CK_RV prvDerToPem( uint8_t * pDerBuffer,
     return xReturn;
 }
 
+/* Converts a label to its respective filename and handle. */
+void prvLabelToFilenameHandle( uint8_t * pcLabel,
+                               char ** pcFileName,
+                               CK_OBJECT_HANDLE_PTR pHandle )
+{
+    if( pcLabel != NULL )
+    {
+        /* Translate from the PKCS#11 label to local storage file name. */
+        if( 0 == memcmp( pcLabel,
+                         &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                         sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+        {
+            *pcFileName = socketsconfigSECURE_FILE_NAME_CLIENTCERT;
+            *pHandle = eAwsDeviceCertificate;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                              sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+        {
+            *pcFileName = socketsconfigSECURE_FILE_NAME_PRIVATEKEY;
+            *pHandle = eAwsDevicePrivateKey;
+        }
+        else if( 0 == memcmp( pcLabel,
+                              &pkcs11configLABEL_ROOT_CERTIFICATE,
+                              sizeof( pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
+        {
+            *pcFileName = socketsconfigSECURE_FILE_NAME_ROOTCA;
+            *pHandle = eAwsTrustedServerCertificate;
+        }
+        else
+        {
+            *pcFileName = NULL;
+            *pHandle = eInvalidHandle;
+        }
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
                           char ** pcFileName )
 {
@@ -350,21 +393,8 @@ void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
  */
 CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
 {
-    char * pcFileName;
-    CK_RV xResult;
-
-    prvHandleToFileName( xHandle, &pcFileName );
-
-    if( 0 == sl_FsDel( ( const unsigned char * )pcFileName, 0 ) )
-    {
-        xResult = CKR_OK;
-    }
-    else
-    {
-        xResult = CKR_OBJECT_HANDLE_INVALID;
-    }
-
-    return xResult;
+    ( void )xHandle;
+    return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
 /*-----------------------------------------------------------*/
@@ -383,7 +413,8 @@ CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
  * Returns eInvalidHandle if unsuccessful.
  */
 
-CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
+CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
+                                        uint8_t usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     char * pcFileName = NULL;
@@ -391,7 +422,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( SearchableAttributes_t * pxTemplate )
     SlFsFileInfo_t FsFileInfo = { 0 };
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( pxTemplate->cLabel,
+    prvLabelToFilenameHandle( pLabel,
                               &pcFileName,
                               &xHandle );
 
@@ -436,7 +467,6 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                       CK_BBOOL * xIsPrivate )
 {
     CK_RV ulReturn = CKR_OK;
-    uint32_t ulDriverReturn = 0;
     int32_t iReadBytes = 0;
     int32_t iFile = 0;
     char * pcFileName = NULL;
@@ -446,11 +476,11 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     if( xHandle == eAwsDevicePrivateKey )
     {
-        *pIsPrivate = CK_TRUE;
+        *xIsPrivate = CK_TRUE;
     }
     else
     {
-        *pIsPrivate = CK_FALSE;
+        *xIsPrivate = CK_FALSE;
     }
 
     if( pcFileName == NULL )
@@ -500,7 +530,7 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     if( 0 != iFile )
     {
-        sl_FsClose( iFile, 0, 0 );
+        sl_FsClose( iFile, NULL, NULL, 0 );
     }
 
     return ( BaseType_t )ulReturn;
@@ -530,416 +560,80 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
 
 /*-----------------------------------------------------------*/
 
-#if 0
-/*
- * PKCS#11 module implementation.
- */
-
 /**
- * @brief PKCS#11 interface functions implemented by this Cryptoki module.
+ * @brief Saves an object in non-volatile storage.
+ *
+ * Port-specific file write for cryptographic information.
+ *
+ * @param[in] pxTemplate    Structure containing searchable attributes.
+ * @param[in] pucData       The object data to be saved
+ * @param[in] pulDataSize   Size (in bytes) of object data.
+ *
+ * @return The object handle if successful.
+ * eInvalidHandle = 0 if unsuccessful.
  */
-static CK_FUNCTION_LIST prvP11FunctionList =
+CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
+                                        uint8_t * pucData,
+                                        uint32_t ulDataSize )
 {
-    { CRYPTOKI_VERSION_MAJOR, CRYPTOKI_VERSION_MINOR },
-    C_Initialize,
-    C_Finalize,
-    NULL,
-    C_GetFunctionList,
-    C_GetSlotList,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    C_OpenSession,
-    C_CloseSession,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    C_CreateObject,
-    NULL,
-    C_DestroyObject,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
+    char * pcFileName = NULL;
+    char * pcPemBuffer = NULL;
+    size_t xPemLength = 0;
+    CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
-/**
- * @brief Initialize the Cryptoki module for use.
- */
-CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    ( void ) ( pvInitArgs );
-
-    mbedtls_platform_set_calloc_free( prvCalloc, vPortFree ); /*lint !e534 This function always return 0. */
-
-    return CKR_OK;
-}
-
-/**
- * @brief Un-initialize the Cryptoki module.
- */
-CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
-
-    if( NULL != pvReserved )
+    /* Converts a label to its respective filename and handle. */
+    prvLabelToFilenameHandle( ( uint8_t *)pxLabel->pValue,
+                              &pcFileName,
+                              &xHandle );
+    if( pcFileName != NULL )
     {
-        xResult = CKR_ARGUMENTS_BAD;
-    }
-
-    return xResult;
-}
-
-/**
- * @brief Query the list of interface function pointers.
- */
-CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
-
-    if( NULL == ppxFunctionList )
-    {
-        xResult = CKR_ARGUMENTS_BAD;
-    }
-    else
-    {
-        *ppxFunctionList = &prvP11FunctionList;
-    }
-
-    return xResult;
-}
-
-/**
- * @brief Query the list of slots. A single default slot is implemented.
- */
-CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
-                                            CK_SLOT_ID_PTR pxSlotList,
-                                            CK_ULONG_PTR pulCount )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    ( void ) ( xTokenPresent );
-
-    if( NULL == pxSlotList )
-    {
-        *pulCount = 1;
-    }
-    else
-    {
-        if( 0u == *pulCount )
+        if( 0 == prvDerToPem( pucData,
+                              ulDataSize,
+                              &pcPemBuffer,
+                              &xPemLength,
+                              eAwsDevicePrivateKey == xHandle ? CKO_PRIVATE_KEY : CKO_CERTIFICATE ) )
         {
-            return CKR_BUFFER_TOO_SMALL;
+            /* If the object type is valid, and the DER-to-PEM conversion
+            succeeded, try to write the data to flash. */
+            if( pdFALSE == prvSaveFile( pcFileName,
+                                        ( char * )pucData,
+                                        ulDataSize ) )
+            {
+                xHandle = eInvalidHandle;
+            }
         }
 
-        pxSlotList[ 0 ] = pkcs11SLOT_ID;
-        *pulCount = 1;
-    }
-
-    return CKR_OK;
-}
-
-
-/**
- * @brief Start a session for a cryptographic command sequence.
- */
-CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
-                                            CK_FLAGS xFlags,
-                                            CK_VOID_PTR pvApplication,
-                                            CK_NOTIFY xNotify,
-                                            CK_SESSION_HANDLE_PTR pxSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
-    P11SessionPtr_t pxSessionObj = NULL;
-
-    ( void ) ( xSlotID );
-    ( void ) ( pvApplication );
-    ( void ) ( xNotify );
-
-    /* Check arguments. */
-    if( NULL == pxSession )
-    {
-        xResult = CKR_ARGUMENTS_BAD;
-    }
-
-    /* For legacy reasons, the CKF_SERIAL_SESSION bit MUST always be set. */
-    if( 0 == ( CKF_SERIAL_SESSION & xFlags ) )
-    {
-        xResult = CKR_SESSION_PARALLEL_NOT_SUPPORTED;
-    }
-
-    /*
-     * Make space for the context.
-     */
-    if( CKR_OK == xResult )
-    {
-        pxSessionObj = ( P11SessionPtr_t ) pvPortMalloc( sizeof( P11Session_t ) ); /*lint !e9087 Allow casting void* to other types. */
-
-        if( NULL == pxSessionObj )
+        if( NULL != pcPemBuffer )
         {
-            xResult = CKR_HOST_MEMORY;
+            /* Free the temporary buffer used for conversion. */
+            vPortFree( pcPemBuffer );
         }
     }
 
-    if( CKR_OK == xResult )
-    {
-        /*
-         * Assign the session.
-         */
-
-        pxSessionObj->ulState =
-            0u != ( xFlags & CKF_RW_SESSION ) ? CKS_RW_PUBLIC_SESSION : CKS_RO_PUBLIC_SESSION;
-        pxSessionObj->xOpened = CK_TRUE;
-
-        /*
-         * Return the session.
-         */
-
-        *pxSession = ( CK_SESSION_HANDLE ) pxSessionObj; /*lint !e923 Allow casting pointer to integer type for handle. */
-    }
-
-    if( ( NULL != pxSessionObj ) && ( CKR_OK != xResult ) )
-    {
-        vPortFree( pxSessionObj );
-    }
-
-    return xResult;
+    return xHandle;
 }
 
-/**
- * @brief Terminate a session and release resources.
- */
-CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
-    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
+/*-----------------------------------------------------------*/
 
-    if( NULL != pxSession )
+int mbedtls_hardware_poll( void * data,
+                           unsigned char * output,
+                           size_t len,
+                           size_t * olen )
+{
+    int lStatus = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
+
+    /* Use the SimpleLink driver to get a hardware-derived seed for additional
+    PRNG entropy. */
+    *olen = len;
+    if( 0 == sl_NetUtilGet( SL_NETUTIL_TRUE_RANDOM,
+                            0,
+                            output,
+                            ( unsigned short int *)olen ) )
     {
-        /*
-         * Tear down the session.
-         */
-
-        vPortFree( pxSession );
+        lStatus = 0;
     }
 
-    return xResult;
+    return lStatus;
 }
 
-/**
- * @brief Import a private key, client certificate, or root certificate.
- */
-CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
-                                             CK_ATTRIBUTE_PTR pxTemplate,
-                                             CK_ULONG ulCount,
-                                             CK_OBJECT_HANDLE_PTR pxObject )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
-    PKCS11_KeyTemplatePtr_t pxKeyTemplate = NULL;
-    PKCS11_CertificateTemplatePtr_t pxCertificateTemplate = NULL;
-    uint8_t * pucFileName = NULL;
-    uint8_t * pcPemBuffer = NULL;
-    size_t pemLength;
-
-    /*
-     * Check parameters.
-     */
-
-    if( ( 2 > ulCount ) ||
-        ( NULL == pxTemplate ) ||
-        ( NULL == pxObject ) )
-    {
-        xResult = CKR_ARGUMENTS_BAD;
-    }
-
-    if( CKR_OK == xResult )
-    {
-        if( ( CKA_CLASS != pxTemplate[ 0 ].type ) ||
-            ( sizeof( CK_OBJECT_CLASS ) != pxTemplate[ 0 ].ulValueLen ) )
-        {
-            xResult = CKR_ARGUMENTS_BAD;
-        }
-    }
-
-    /*
-     * Handle the object by class.
-     */
-
-    if( CKR_OK == xResult )
-    {
-        switch( *( ( uint32_t * ) pxTemplate[ 0 ].pValue ) )
-        {
-            case CKO_CERTIFICATE:
-
-                pxCertificateTemplate = ( PKCS11_CertificateTemplatePtr_t ) pxTemplate;
-
-                /* Validate the attribute count for this object class. */
-                if( sizeof( PKCS11_CertificateTemplate_t ) / sizeof( CK_ATTRIBUTE ) != ulCount )
-                {
-                    xResult = CKR_ARGUMENTS_BAD;
-                    break;
-                }
-
-                /* Validate the attribute template. */
-                if( ( CKA_VALUE != pxCertificateTemplate->xValue.type ) ||
-                    ( CKA_LABEL != pxCertificateTemplate->xLabel.type ) ||
-                    ( NULL == pxCertificateTemplate->xValue.pValue ) )
-                {
-                    xResult = CKR_ARGUMENTS_BAD;
-                    break;
-                }
-
-                /* Convert to PEM. */
-                prvDerToPem( pxCertificateTemplate->xValue.pValue,
-                             pxCertificateTemplate->xValue.ulValueLen,
-                             ( char ** ) &pcPemBuffer,
-                             &pemLength,
-                             CKO_CERTIFICATE );
-
-                if( 0 == memcmp( pxCertificateTemplate->xLabel.pValue, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
-                {
-                    pucFileName = socketsconfigSECURE_FILE_NAME_CLIENTCERT;
-                }
-                else if( 0 == memcmp( pxCertificateTemplate->xLabel.pValue, pkcs11configLABEL_ROOT_CERTIFICATE, strlen( pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
-                {
-                    pucFileName = socketsconfigSECURE_FILE_NAME_ROOTCA;
-                }
-                else
-                {
-                    pucFileName = pxCertificateTemplate->xLabel.pValue;
-                }
-
-                /* Write out the device certificate. */
-                if( pdFALSE == prvSaveFile( ( char * ) pucFileName,
-                                            ( char * ) pcPemBuffer,
-                                            pemLength ) )
-                {
-                    xResult = CKR_DEVICE_ERROR;
-                    break;
-                }
-
-                vPortFree( pcPemBuffer );
-
-                /* Create a certificate handle to return. */
-                if( CKR_OK == xResult )
-                {
-                    pxObject = NULL;
-                }
-
-                break;
-
-            case CKO_PRIVATE_KEY:
-
-                /* Cast the template for easy field access. */
-                pxKeyTemplate = ( PKCS11_KeyTemplatePtr_t ) pxTemplate;
-
-                /* Validate the attribute count for this object class. */
-                if( ( sizeof( PKCS11_KeyTemplate_t ) / sizeof( CK_ATTRIBUTE ) ) != ulCount )
-                {
-                    xResult = CKR_ARGUMENTS_BAD;
-                    break;
-                }
-
-                /* Confirm that the template is formatted as expected for a private key. */
-                if( ( CKA_VALUE != pxKeyTemplate->xValue.type ) ||
-                    ( CKA_KEY_TYPE != pxKeyTemplate->xKeyType.type ) ||
-                    ( CKA_LABEL != pxKeyTemplate->xLabel.type ) )
-                {
-                    xResult = CKR_ATTRIBUTE_TYPE_INVALID;
-                    break;
-                }
-
-                prvDerToPem( pxKeyTemplate->xValue.pValue,
-                             pxKeyTemplate->xValue.ulValueLen,
-                             ( char ** ) &pcPemBuffer,
-                             &pemLength,
-                             CKO_PRIVATE_KEY );
-
-                /* Write out the key. */
-                if( pdFALSE == prvSaveFile( socketsconfigSECURE_FILE_NAME_PRIVATEKEY,
-                                            ( char * ) pcPemBuffer,
-                                            pemLength ) )
-                {
-                    xResult = CKR_DEVICE_ERROR;
-                    break;
-                }
-
-                vPortFree( pcPemBuffer );
-
-                /* Create a key handle to return. */
-                if( CKR_OK == xResult )
-                {
-                    pxObject = NULL;
-                }
-
-                break;
-
-            default:
-                xResult = CKR_ARGUMENTS_BAD;
-        }
-    }
-
-    return xResult;
-}
-
-/**
- * @brief Not supported by this Cryptoki module.
- */
-CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
-                                              CK_OBJECT_HANDLE xObject )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    ( void ) ( xSession );
-    ( void ) ( xObject );
-
-    /*
-     * This implementation uses virtual handles, and the certificate and
-     * private key data are attached to the session, so nothing to do here.
-     */
-    return CKR_OK;
-}
-#endif
+/*-----------------------------------------------------------*/
