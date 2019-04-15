@@ -193,6 +193,8 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Additional build configurations
 # -------------------------------------------------------------------------------------------------
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+
 
 set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
@@ -224,7 +226,14 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
 
 set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
-#add_custom_command(
-#    TARGET ${exe_target} POST_BUILD
-#    COMMAND python ../../../common/ota/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" && python ../../../common/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF
-#)
+
+find_program(xc32_bin2hex ${XC32_BIN}/xc32-bin2hex)
+set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>" 
+)
+
+# TODO: Execute this python script if we need to. Seems like it is making the OTA images? 
+#  ../../../common/ota/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" && python ../../../common/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF
