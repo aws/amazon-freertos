@@ -509,19 +509,30 @@ BTStatus_t IotBle_Init( void )
         ( void ) xEventGroupCreateStatic( ( StaticEventGroup_t * ) &_BTInterface.waitOperationComplete );
 
         status = _BTInterface.pBTInterface->pxBtManagerInit( &_BTManagerCb );
+        if( status != eBTStatusSuccess )
+        {
+        	configPRINTF( ( "Failed to initialize BT interface: %d \n", status ) );
+        }
+
         _BTInterface.pBTLeAdapterInterface = ( BTBleAdapter_t * ) _BTInterface.pBTInterface->pxGetLeAdapter();
     }
     else
     {
+    	configPRINTF( ( "Interface is NULL \n" ) );
         status = eBTStatusParamInvalid;
     }
 
     if( ( _BTInterface.pBTLeAdapterInterface != NULL ) && ( status == eBTStatusSuccess ) )
     {
         status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &_BTBleAdapterCb );
+        if( status != eBTStatusSuccess )
+        {
+        	configPRINTF( ( "Failed to initialize adapter %d \n", status ) );
+        }
     }
     else
     {
+    	configPRINTF( ( "Adapter Interface NULL or error in status %d \n", status ) );
         status = eBTStatusFail;
     }
 
@@ -537,6 +548,13 @@ BTStatus_t IotBle_Init( void )
 								 pdTRUE,
 								 portMAX_DELAY );
 	        status = _BTInterface.cbStatus;
+	        if( status != eBTStatusSuccess )
+	        {
+	        	configPRINTF( ( "Register BLE APP cb failed %d \n", status ) );
+	        }
+    	}else
+    	{
+    		configPRINTF( ( "Failed to register BLE APP %d \n", status ) );
     	}
     }
 
@@ -588,6 +606,10 @@ BTStatus_t IotBle_Init( void )
                                          portMAX_DELAY );
 
                     status = _BTInterface.cbStatus;
+        	        if( status != eBTStatusSuccess )
+        	        {
+        	        	configPRINTF( ( "Failed to register GATT server %d \n", status ) );
+        	        }
                 }
             }
             else
@@ -630,6 +652,13 @@ BTStatus_t IotBle_Init( void )
     	if( status == eBTStatusSuccess )
     	{
     		status = _setAdvData(( IotBleAdvertisementParams_t *)&_scanRespParams);
+	        if( status != eBTStatusSuccess )
+	        {
+	        	configPRINTF(("Failed to set scan response %d\n", status));
+	        }
+    	}else
+    	{
+    		configPRINTF(("Failed to set advertisement data %d\n", status));
     	}
     }
 
