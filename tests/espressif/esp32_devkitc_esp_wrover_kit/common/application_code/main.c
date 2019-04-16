@@ -418,11 +418,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     }
 }
 
-<<<<<<< HEAD
 static esp_err_t prvBLEStackInit( void )
-=======
-static bool _bleStackInit()
->>>>>>> origin/feature/ble-beta
 {
     /* Initialize BLE */
     esp_err_t xRet = ESP_OK;
@@ -467,24 +463,3 @@ static bool _bleStackInit()
     return xRet;
 
 }
-
-
-bool networkStackInit( uint16_t networkType )
-{    /* Initialize BLE */
-	bool status =false;
-
-	switch(networkType)
-	{
-	case AWSIOT_NETWORK_TYPE_BLE:
-		status = _bleStackInit();
-		break;
-	default:
-	    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
-	    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_BLE ) );
-		status = true;
-		break;
-	}
-
-	return status;
-}
-
