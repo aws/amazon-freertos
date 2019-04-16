@@ -897,6 +897,7 @@ ESP_WIFI_Status_t ESP_WIFI_Send( ESP_WIFI_Object_t * pxObj, ESP_WIFI_Conn_t * px
                 }
             } else {
                 xRet = ESP_WIFI_STATUS_TIMEOUT;
+                break;
             }
         } else {
             break;

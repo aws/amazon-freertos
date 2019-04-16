@@ -91,6 +91,16 @@
 /**
  * @brief Maximum size of WiFi AT command data buffer
  */
-#define wificonfigMAX_AT_COMMAND_SIZE         ( 1024 * 2 )
+#define wificonfigMAX_AT_COMMAND_SIZE         ( 1024 * 3 )
+
+/**
+ * @brief Maximum size of WiFi send packet
+ */
+#define wificonfigMAX_SEND_SIZE               ( 1200 )
+
+/**
+ * @brief Maximum size of WiFi receive buffer
+ */
+#define wificonfigMAX_RECV_BUF_SIZE           ( 1024 * 12 )
 
 #endif /* _AWS_WIFI_CONFIG_H_ */
