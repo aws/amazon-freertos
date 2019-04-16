@@ -332,6 +332,16 @@ static void prvMiscInitialization( void )
 }
 /*-----------------------------------------------------------*/
 
+<<<<<<< HEAD
+=======
+bool networkStackInit(uint16_t networkType)
+{
+   /* No initialization to do on Nordic. It starts up with the softdevice task. */
+   return true;
+}
+
+
+>>>>>>> origin/feature/ble-beta
 /**
  * @brief Application runtime entry point.
  */

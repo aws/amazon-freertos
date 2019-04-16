@@ -32,6 +32,10 @@
 #include "private/iot_error.h"
 #include "stdbool.h"
 
+<<<<<<< HEAD
+=======
+extern bool networkStackInit(uint16_t networkType);
+>>>>>>> origin/feature/ble-beta
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 static bool bleEnabled = false;
 /*-----------------------------------------------------------*/
@@ -200,12 +204,20 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
             	if( bleEnabled == false)
             	{
             		bleEnabled = true;
+<<<<<<< HEAD
             		_BLEEnable();
+=======
+            		if( networkStackInit(AWSIOT_NETWORK_TYPE_BLE) == true)
+            		{
+            			_BLEEnable();
+            		}
+>>>>>>> origin/feature/ble-beta
             	}
                 break;
         #endif
         #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
             case AWSIOT_NETWORK_TYPE_WIFI:
+            	networkStackInit(AWSIOT_NETWORK_TYPE_WIFI);
                 break;
         #endif
         default:
