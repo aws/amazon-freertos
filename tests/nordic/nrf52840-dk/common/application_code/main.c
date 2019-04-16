@@ -332,7 +332,7 @@ static void prvMiscInitialization( void )
 }
 /*-----------------------------------------------------------*/
 
-bool networkStackInit()
+bool networkStackInit(uint16_t networkType)
 {
    /* No initialization to do on Nordic. It starts up with the softdevice task. */
    return true;
