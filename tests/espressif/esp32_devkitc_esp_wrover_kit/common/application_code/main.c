@@ -115,6 +115,9 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR3
 };
 
+/* Initializes bluetooth */
+static esp_err_t prvBLEStackInit( void );
+
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
@@ -157,21 +160,24 @@ int app_main( void )
 
     if( SYSTEM_Init() == pdPASS )
     {
-		/* Connect to the wifi before running the tests. */
-		prvWifiConnect();
+        if( prvBLEStackInit() == eBTStatusSuccess )
+        {
+            /* Connect to the wifi before running the tests. */
+            prvWifiConnect();
 
-		/* A simple example to demonstrate key and certificate provisioning in
-		* microcontroller flash using PKCS#11 interface. This should be replaced
-		* by production ready key provisioning mechanism. */
-		vDevModeKeyProvisioning();
+            /* A simple example to demonstrate key and certificate provisioning in
+            * microcontroller flash using PKCS#11 interface. This should be replaced
+            * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning();
 
-		/* Create the task to run unit tests. */
-		xTaskCreate( TEST_RUNNER_RunTests_task,
-				"RunTests_task",
-				mainTEST_RUNNER_TASK_STACK_SIZE,
-				NULL,
-				tskIDLE_PRIORITY + 5,
-				NULL );
+            /* Create the task to run unit tests. */
+            xTaskCreate( TEST_RUNNER_RunTests_task,
+                    "RunTests_task",
+                    mainTEST_RUNNER_TASK_STACK_SIZE,
+                    NULL,
+                    tskIDLE_PRIORITY + 5,
+                    NULL );
+        }
     }
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
@@ -412,12 +418,16 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     }
 }
 
-static bool _bleStackInit()
+static esp_err_t prvBLEStackInit( void )
 {
     /* Initialize BLE */
-	bool status =false;
     esp_err_t xRet = ESP_OK;
     esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+
+/* ESP32 doesn't have enough memory to maintain 2 secure connection + BLE in this environment.
+* We disable BLE when not used in test to free up memory.
+*/
+#if ( (testrunnerFULL_BLE_ENABLED == 1) ||(testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1) )
 
     ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
 
@@ -445,32 +455,11 @@ static bool _bleStackInit()
     {
         xRet = esp_bluedroid_enable();
     }
+#else
+    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
+    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_BLE ) );
+#endif
 
-    if(xRet == ESP_OK)
-    {
-    	status = true;
-    }
+    return xRet;
 
-    return status;
 }
-
-
-bool networkStackInit( uint16_t networkType )
-{    /* Initialize BLE */
-	bool status =false;
-
-	switch(networkType)
-	{
-	case AWSIOT_NETWORK_TYPE_BLE:
-		status = _bleStackInit();
-		break;
-	default:
-	    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
-	    ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_BLE ) );
-		status = true;
-		break;
-	}
-
-	return status;
-}
-
