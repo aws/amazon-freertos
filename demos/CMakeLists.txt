@@ -6,7 +6,7 @@ afr_demo_module(base)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${AFR_DEMOS_DIR}/demo_runner/aws_demo_network_addr.c"
+        "$<$<TARGET_EXISTS:AFR::freertos_plus_tcp>:${AFR_DEMOS_DIR}/demo_runner/aws_demo_network_addr.c>"
         "${AFR_DEMOS_DIR}/demo_runner/aws_demo_version.c"
         "${AFR_DEMOS_DIR}/demo_runner/aws_demo.c"
         "${AFR_DEMOS_DIR}/demo_runner/iot_demo_afr.c"
