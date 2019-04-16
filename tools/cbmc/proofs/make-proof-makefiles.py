@@ -36,6 +36,10 @@ import sys
 import textwrap
 import traceback
 
+try:
+    basestring
+except NameError:
+    basestring = str
 
 def prolog():
     return textwrap.dedent("""\
@@ -153,7 +157,7 @@ def dump_makefile(dyr, system):
 
 
 def compute(value, so_far, system, key, harness, appending=False):
-    if not isinstance(value, (str, float, int)):
+    if not isinstance(value, (basestring, float, int)):
         logging.error(wrap("""\
                         in file %s, the key '%s' has value '%s',
                         which is of the wrong type (%s)"""),
