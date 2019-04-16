@@ -332,7 +332,7 @@ static void prvMiscInitialization( void )
 }
 /*-----------------------------------------------------------*/
 
-bool bleStackInit()
+bool networkStackInit()
 {
    /* No initialization to do on Nordic. It starts up with the softdevice task. */
    return true;
