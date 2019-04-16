@@ -70,7 +70,7 @@
 #define democonfigMQTT_TIMEOUT                         pdMS_TO_TICKS( 4000 )
 
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */
-#define democonfigMQTT_AGENT_CONNECT_FLAGS             ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
+#define democonfigMQTT_AGENT_CONNECT_FLAGS             ( mqttagentREQUIRE_TLS )
 
 /* Greengrass discovery example task parameters. */
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 32 )
