@@ -43,7 +43,6 @@
 /* #define   democonfigDEFENDER_DEMO_ENABLED */
 /* #define   democonfigOTA_UPDATE_DEMO_ENABLED */
 
-
 void DEMO_RUNNER_RunDemos( void );
 
 /* Individual demo task entry definitions */
