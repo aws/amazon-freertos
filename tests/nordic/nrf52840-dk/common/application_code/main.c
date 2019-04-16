@@ -332,6 +332,13 @@ static void prvMiscInitialization( void )
 }
 /*-----------------------------------------------------------*/
 
+bool bleStackInit()
+{
+   /* No initialization to do on Nordic. It starts up with the softdevice task. */
+   return true;
+}
+
+
 /**
  * @brief Application runtime entry point.
  */
