@@ -26,8 +26,11 @@ afr_module_sources(
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    PUBLIC "${inc_dir}"
-    PRIVATE "${src_dir}"
+    PUBLIC
+        "${inc_dir}"
+        "$<${AFR_IS_TESTING}:${src_dir}>"
+    PRIVATE
+        "${src_dir}"
 )
 
 afr_module_dependencies(

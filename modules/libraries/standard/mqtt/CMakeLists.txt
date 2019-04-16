@@ -21,7 +21,7 @@ endif()
 
 # Enable test access if building tests.
 if(${AFR_IS_TESTING})
-    list(APPEND extra_mqtt_test_includes "${test_dir}/mqtt/access")
+    list(APPEND extra_mqtt_test_includes "${test_dir}/access")
 endif()
 
 afr_module_sources(
@@ -41,6 +41,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         "${inc_dir}"
+        "$<${AFR_IS_TESTING}:${src_dir}>"
     PRIVATE
         ${extra_mqtt_includes}
         ${extra_mqtt_test_includes}
