@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from pprint import pprint
-import enum
 import json
 import sys
 import re
