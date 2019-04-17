@@ -145,7 +145,7 @@ typedef enum
     /**
      * Description - Device Type - BREDR, BLE or DUAL Mode
      * Access mode - Only GET.
-     * Data type   - BTdeviceType_t
+     * Data type   - BTDeviceType_t
      */
     eBTpropertyTypeOfDevice, /**< eBTpropertyTypeOfDevice */
 
