@@ -1,4 +1,4 @@
 jobos: ubuntu16
-cbmcflags: 	'=--object-bits;7;--32;--bounds-check;--pointer-check;--unwind;1;--unwindset;prvParseDNSReply.0:6,prvParseDNSReply.1:12,prvProcessDNSCache.0:5='
+cbmcflags: '=--object-bits;7;--32;--bounds-check;--pointer-check;--unwind;1;--unwindset;prvParseDNSReply.0:6,prvParseDNSReply.1:12,prvProcessDNSCache.0:5='
 goto: ParseDNSReply.goto
 expected: SUCCESSFUL

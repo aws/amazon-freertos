@@ -195,7 +195,7 @@ def write_cbmcbatchyaml_target(opsys, _makefile):
 # Build configuration file to run cbmc under cbmc-batch in CI
 
 define encode_options
-	'=$(shell echo $(1) | sed 's/ ,/ /g' | sed 's/ /;/g')='
+'=$(shell echo $(1) | sed 's/ ,/ /g' | sed 's/ /;/g')='
 endef
 
 cbmc-batch.yaml: Makefile ../Makefile.common
