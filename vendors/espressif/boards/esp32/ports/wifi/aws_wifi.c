@@ -444,7 +444,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     wifi_config_t wifi_config = { 0 };
     esp_err_t ret;
     wifi_mode_t xCurMode;
-
+ 
     if (pxBuffer == NULL || ucNumNetworks == 0) {
         return eWiFiFailure;
     }
@@ -494,7 +494,7 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     		}
 
     		// Wait for wifi started event
-    		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+		xEventGroupWaitBits(wifi_event_group, STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
     	}
 
         if ( wifi_conn_state == false && wifi_auth_failure == true )
@@ -543,6 +543,11 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
                 }
                 free(ap_info);
                 xRetVal = eWiFiSuccess;
+            }
+            else
+            {
+                ESP_LOGE(TAG, "%s: Failed to alloc %lu bytes for WIFI provisionning", __func__, (long unsigned int)(sizeof(wifi_ap_record_t) * ucNumNetworks));
+                ESP_LOGE(TAG, "%s: Current heap: %lu, min heap %lu", __func__, (long unsigned int)xPortGetFreeHeapSize(),(long unsigned int)xPortGetMinimumEverFreeHeapSize());
             }
         }
 
