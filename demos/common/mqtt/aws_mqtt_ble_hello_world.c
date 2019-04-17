@@ -35,25 +35,25 @@
  */
 
 
+/* Build using a config header, if provided. */
+#ifdef IOT_CONFIG_FILE
+    #include IOT_CONFIG_FILE
+#endif
+
 #include <stdbool.h>
 #include <string.h>
-
-/* Demo logging and configuration includes */
-#include "iot_demo_logging.h"
-#include "aws_demo_config.h"
-
 
 /* FreeRTOS  includes. */
 #include "FreeRTOS.h"
 #include "task.h"
 
+/* Demo logging and configuration includes */
+#include "iot_demo_logging.h"
 
 #include "aws_clientcredential.h"
 
-
 /* MQTT library includes */
 #include "iot_mqtt.h"
-#include "iot_ble_mqtt.h"
 
 /* Platform includes */
 #include "platform/iot_threads.h"
@@ -95,6 +95,9 @@
  */
 #define _ACK_LENGTH                   ( _MESSAGE_LENGTH + sizeof( _ACK  ) )
 
+/**
+ * @brief Index of ACK message within the payload.
+ */
 #define _ACK_INDEX( length )          ( length - strlen( _ACK ) )
 
 /**
@@ -306,16 +309,19 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     connectInfo.cleanSession = true;
     if( awsIotMqttMode == true )
     {
-        /* Disable keep alive for non mqtt iot mode */
+     
         connectInfo.keepAliveSeconds = _KEEP_ALIVE_SECONDS;
     }
     else
     {
-        /* awsiotMqttMode is set to false for BLE network */
-        networkInfo.pMqttSerializer = &IotBleMqttSerializer;
+        /* Disable keep alive for non mqtt iot mode */
+         connectInfo.keepAliveSeconds = 0;
     }
-    
 
+#if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+    networkInfo.pMqttSerializer = IOT_MQTT_SERIALIZER_OVERRIDE;
+#endif
+    
     /* Use the parameter client identifier if provided. Otherwise, generate a
      * unique client identifier. */
     if( pIdentifier != NULL )

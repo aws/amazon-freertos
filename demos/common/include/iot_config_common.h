@@ -168,7 +168,14 @@
 
 /* Required settings for the MQTT demos. */
 #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
+
+/* By default, set override serializer to NULL to not override the serializer */
+#ifndef IOT_MQTT_SERIALIZER_OVERRIDE
+    #define IOT_MQTT_SERIALIZER_OVERRIDE       ( NULL )
+#endif 
+
 #define IOT_BUILD_TESTS                         ( 0 )
+
 
 /* Configuration for defender demo: set format to CBOR. */
 #define AWS_IOT_DEFENDER_FORMAT                 AWS_IOT_DEFENDER_FORMAT_CBOR

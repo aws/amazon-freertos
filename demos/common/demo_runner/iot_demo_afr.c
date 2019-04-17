@@ -47,6 +47,19 @@ static IotSemaphore_t demoNetworkSemaphore;
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
+extern const IotMqttSerializer_t IotBleMqttSerializer;
+
+const IotMqttSerializer_t* getSerializerOverride( void )
+{
+    const IotMqttSerializer_t* ret = NULL;
+    
+    if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
+    {
+        ret = &IotBleMqttSerializer;
+    }
+
+    return ret;
+}
 
 /*-----------------------------------------------------------*/
 
