@@ -32,13 +32,9 @@
 
 #include "aws_clientcredential.h"
 #include "platform/iot_network_afr.h"
-#include "iot_network_manager_private.h"
 #include "platform/iot_threads.h"
 #include "iot_common.h"
 #include "iot_mqtt.h"
-
-static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
-
 
 /**
  * @brief Warn user if pvPortMalloc fails.

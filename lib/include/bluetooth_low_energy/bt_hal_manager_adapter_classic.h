@@ -134,6 +134,13 @@ typedef enum
     eBTPropertyClassOfDevice,
 
     /**
+     * Description - Device Type - BREDR, BLE or DUAL Mode
+     * Access mode - Only GET.
+     * Data type   - BTDeviceType_t.
+     */
+    eBTPropertyTypeOfDevice,
+
+    /**
      * Description - Bluetooth Service Record
      * Access mode - Only GET.
      * Data type   - BTServiceRecord_t
