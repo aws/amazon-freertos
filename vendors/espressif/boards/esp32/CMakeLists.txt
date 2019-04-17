@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-if("${AFR_BOARD_NAME}" STREQUAL "esp32_devkit_c")
-    include("esp32_devkit_c.cmake")
+if("${AFR_BOARD_NAME}" STREQUAL "esp32_devkitc")
+    include("esp32_devkitc.cmake")
 endif()
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_wrover_kit")
     include("esp32_wrover_kit.cmake")
