@@ -9,6 +9,7 @@ afr_set_lib_metadata(IS_VISIBLE "false")
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -43,6 +44,7 @@ afr_module_sources(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
+    PRIVATE "${test_dir}"
 )
 
 afr_module_dependencies(

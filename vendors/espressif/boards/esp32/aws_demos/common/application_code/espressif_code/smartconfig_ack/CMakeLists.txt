@@ -1,5 +1,3 @@
-set(AMAZON_FREERTOS_LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../../../../lib")
-
 set(COMPONENT_ADD_INCLUDEDIRS include)
 
 # Edit following two lines to set component requirements (see docs)

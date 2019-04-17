@@ -1,7 +1,7 @@
-set(AMAZON_FREERTOS_LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../../../../lib")
+set(AMAZON_FREERTOS_LIB_DIR "${AFR_MODULES_STANDARD_DIR}")
 
-set(COMPONENT_ADD_INCLUDEDIRS include ${AMAZON_FREERTOS_LIB_DIR}/FreeRTOS-Plus-TCP/include
- ${AMAZON_FREERTOS_LIB_DIR}/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC
+set(COMPONENT_ADD_INCLUDEDIRS include ${AMAZON_FREERTOS_LIB_DIR}/freertos_plus_tcp/include
+ ${AMAZON_FREERTOS_LIB_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC
 )
 
 # Edit following two lines to set component requirements (see docs)

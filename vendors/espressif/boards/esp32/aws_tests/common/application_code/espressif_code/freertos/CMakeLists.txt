@@ -1,13 +1,23 @@
-set(AMAZON_FREERTOS_LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../../../../lib") 
-set(AMAZON_FREERTOS_DEMOS_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../../../../demos")
-set(AMAZON_FREERTOS_TESTS_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../../../../tests")
+set(AMAZON_FREERTOS_KERNEL_DIR "${AFR_KERNEL_DIR}")
+set(AMAZON_FREERTOS_LIB_DIR "${AFR_MODULES_STANDARD_DIR}")
+set(AMAZON_FREERTOS_3RDPARTY_DIR "${AFR_3RDPARTY_DIR}")
+set(AMAZON_FREERTOS_DEMOS_DIR "${AFR_DEMOS_DIR}")
 
-set(COMPONENT_ADD_INCLUDEDIRS include  ../../../config_files ${AMAZON_FREERTOS_LIB_DIR}/FreeRTOS-Plus-POSIX/include ${AMAZON_FREERTOS_LIB_DIR}/include ${AMAZON_FREERTOS_LIB_DIR}/include/private ${AMAZON_FREERTOS_LIB_DIR}/FreeRTOS/portable/ThirdParty/GCC/Xtensa_ESP32/include ${AMAZON_FREERTOS_LIB_DIR}/third_party/unity/src)
+set(
+    COMPONENT_ADD_INCLUDEDIRS
+    include
+    ../../../config_files
+    ${AMAZON_FREERTOS_LIB_DIR}/freertos_plus_posix/include
+    ${AMAZON_FREERTOS_KERNEL_DIR}/include
+    ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include
+    ${AMAZON_FREERTOS_3RDPARTY_DIR}/unity/src
+)
+
 
 # Edit following two lines to set component requirements (see docs)
 set(COMPONENT_REQUIRES )
 set(COMPONENT_PRIV_REQUIRES )
 
-set(COMPONENT_SRCDIRS . ${AMAZON_FREERTOS_LIB_DIR}/FreeRTOS/portable/ThirdParty/GCC/Xtensa_ESP32 ${AMAZON_FREERTOS_LIB_DIR}/FreeRTOS)
+set(COMPONENT_SRCDIRS . ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32 ${AMAZON_FREERTOS_KERNEL_DIR})
 
 register_component()
