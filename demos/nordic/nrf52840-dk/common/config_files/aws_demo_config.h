@@ -31,8 +31,7 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
-#define democonfigDEMO_onNetworkConnectedFn    NULL
-#define democonfigDEMO_onNetworkDisconnectedFn NULL
+#define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_BLE )
 
 
 /* Some individual demos want to override these defaults, that is done in this section */
@@ -49,6 +48,7 @@
     #undef democonfigDEMO_PRIORITY
     #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
 #endif
+
 
 
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */

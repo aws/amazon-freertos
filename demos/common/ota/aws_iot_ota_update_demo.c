@@ -321,6 +321,8 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
                  const IotNetworkInterface_t * pNetworkInterface )
 {
     int xRet = EXIT_SUCCESS;
+    IotMqttError_t xMqttInitStatus;
+    bool bMqttInitialized  = false;
 
     if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
     {
@@ -336,6 +338,20 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
         {
             configPRINTF(( "Failed to create semaphore.\r\n" ));
             xRet = EXIT_FAILURE;
+        }
+    }
+
+    if( xRet == EXIT_SUCCESS )
+    {
+        /* Initialize the MQTT library. */
+        xMqttInitStatus = IotMqtt_Init();
+        if( xMqttInitStatus != IOT_MQTT_SUCCESS )
+        {
+            xRet = EXIT_FAILURE;
+        }
+        else
+        {
+            bMqttInitialized = true;
         }
     }
 
@@ -368,6 +384,11 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
         if( xNetworkAvailableLock != NULL )
         {
             vSemaphoreDelete( xNetworkAvailableLock );
+        }
+
+        if( bMqttInitialized == true )
+        {
+            IotMqtt_Cleanup();
         }
     }
 

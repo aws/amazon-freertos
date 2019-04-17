@@ -430,7 +430,7 @@ static void _shadowUpdatedCallback( void * pCallbackContext,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Initialize the common libraries, the MQTT library, and the Shadow library.
+ * @brief Initialize the MQTT library, and the Shadow library.
  *
  * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
  * `EXIT_FAILURE` otherwise.
@@ -442,29 +442,18 @@ static int _initializeDemo( void )
     AwsIotShadowError_t shadowInitStatus = AWS_IOT_SHADOW_SUCCESS;
 
     /* Flags to track cleanup on error. */
-    bool commonInitialized = false, mqttInitialized = false;
-
-    /* Initialize the common libraries. */
-    commonInitialized = IotCommon_Init();
-
-    if( commonInitialized == false )
-    {
-        status = EXIT_FAILURE;
-    }
+    bool mqttInitialized = false;
 
     /* Initialize the MQTT library. */
-    if( status == EXIT_SUCCESS )
-    {
-        mqttInitStatus = IotMqtt_Init();
+    mqttInitStatus = IotMqtt_Init();
 
-        if( mqttInitStatus == IOT_MQTT_SUCCESS )
-        {
-            mqttInitialized = true;
-        }
-        else
-        {
-            status = EXIT_FAILURE;
-        }
+    if( mqttInitStatus == IOT_MQTT_SUCCESS )
+    {
+        mqttInitialized = true;
+    }
+    else
+    {
+        status = EXIT_FAILURE;
     }
 
     /* Initialize the Shadow library. */
@@ -482,11 +471,6 @@ static int _initializeDemo( void )
     /* Clean up on error. */
     if( status == EXIT_FAILURE )
     {
-        if( commonInitialized == true )
-        {
-            IotCommon_Cleanup();
-        }
-
         if( mqttInitialized == true )
         {
             IotMqtt_Cleanup();
@@ -499,13 +483,12 @@ static int _initializeDemo( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Clean up the common libraries, the MQTT library, and the Shadow library.
+ * @brief Clean up the MQTT library, and the Shadow library.
  */
 static void _cleanupDemo( void )
 {
     AwsIotShadow_Cleanup();
     IotMqtt_Cleanup();
-    IotCommon_Cleanup();
 }
 
 /*-----------------------------------------------------------*/
