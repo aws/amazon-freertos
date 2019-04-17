@@ -3,7 +3,7 @@
 Amazon FreeRTOS uses the PKCS #11 crypto API standard for operations involving asymmetric keys, random number generation, and hashing. Use cases include TLS certificate client authentication and code-sign signature verification.  We use PKCS #11 because:
 * It is an open standard that has benefitted from 20 years of production use, 
 * It is familiar to open-source developers, and 
-* Because it has specifically been designed to allow crypto-aware apps to be agnostic of the underlying implementation (i.e. whether hardware or software based, and regardless of the choice of crypto algorithm). 
+* It has specifically been designed to allow crypto-aware apps to be agnostic of the underlying implementation (i.e. whether hardware or software based, and regardless of the choice of crypto algorithm). 
  
 Amazon FreeRTOS offers two distinct options for silicon partners to integrate with our PKCS #11-aware libraries:
  
@@ -53,4 +53,4 @@ void PKCS11_PAL_GetObjectValueCleanup(
     uint8_t * pucBuffer,
     uint32_t ulBufferSize );
 ```
-The PAL interface header is https://github.com/aws/amazon-freertos/blob/fix/pkcs11_compliance/lib/include/private/aws_pkcs11_pal.h. 
+A stub of the PAL interface can be found at https://github.com/aws/amazon-freertos/blob/master/lib/pkcs11/portable/vendor/board/aws_pkcs11_pal.c.
