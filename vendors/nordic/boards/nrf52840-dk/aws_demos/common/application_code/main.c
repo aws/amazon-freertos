@@ -32,9 +32,7 @@
 #include "iot_demo_runner.h"
 
 /* AWS library includes. */
-#include "aws_system_init.h"
 #include "aws_logging_task.h"
-#include "aws_wifi.h"
 #include "aws_clientcredential.h"
 
 /* Nordic BSP includes */

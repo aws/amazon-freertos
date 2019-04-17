@@ -44,7 +44,9 @@
 #include "iot_ble.h"
 #include "iot_ble_internal.h"
 #include "iot_ble_device_information.h"
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
 #include "iot_ble_wifi_provisioning.h"
+#endif
 #include "iot_ble_mqtt.h"
 
 #if (IOT_BLE_ADVERTISING_UUID_SIZE == 2)
