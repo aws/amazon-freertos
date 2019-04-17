@@ -31,8 +31,6 @@ digraph ble_dependencies
         node[fillcolor="#aed8a9ff"];
         rank = same;
         linear_containers[label="List/Queue", URL="@ref linear_containers"];
-        logging[label="Logging", URL="@ref logging"];
-        static_memory[label="Static memory", URL="@ref static_memory"];
     }
     subgraph
     {
@@ -43,32 +41,14 @@ digraph ble_dependencies
     ble -> linear_containers;
     ble -> platform_clock;
     ble -> platform_network;
-    ble -> static_memory [label=" if static memory only", style="dashed"];
-    ble -> logging [label=" if logging enabled", style="dashed"];
-    logging -> platform_clock;
-    logging -> static_memory [label=" if static memory only", style="dashed"];
 }
 @enddot
 
 Currently, the BLE library has the following dependencies:
 - The linear containers (list/queue) library for maintaining the data structures for scheduled and in-progress BLE operations.
-- The logging library may be used if @ref IOT_LOG_LEVEL_BLE is not @ref IOT_LOG_NONE.
 - The platform layer provides an interface to the operating system for thread management, timers, clock functions, network access, etc.
 
 In addition to the components above, the BLE library may also depend on C standard library headers.
-*/
-
-/**
-@page ble_demo Demo
-@brief The BLE demo demonstrates usage of the BLE library.
-
-The BLE demo demonstrates ???
-
-See @subpage ble_demo_config for configuration settings that change the behavior of the demo.
-
-The main BLE demo file, ???.c, contains platform-independent code. See the following guides for running the BLE demo on various platforms.
-- @subpage demo_ble <br>
-  @copybrief demo_ble
 */
 
 /**
@@ -80,11 +60,6 @@ The BLE tests reside in the `???` directory. They are divided into the following
 - `unit`: BLE unit tests. These tests do not require a network connection.
 
 The current BLE tests use the [Unity test framework](http://www.throwtheswitch.org/unity/).
-*/
-
-/**
-@configpage{ble_demo,BLE demo,Demo,demos}
-
 */
 
 /**

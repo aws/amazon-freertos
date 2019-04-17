@@ -71,6 +71,10 @@ static uint32_t _getAvailableNetwork( demoContext_t *pContext )
     {
         network = AWSIOT_NETWORK_TYPE_BLE;
     }
+    else if ( ( network & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+    {
+        network = AWSIOT_NETWORK_TYPE_ETH;
+    }
     else
     {
         network = AWSIOT_NETWORK_TYPE_NONE;
@@ -107,7 +111,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 credentials.pAlpnProtos = NULL;
             }
 
-            IotLogInfo("OnConnected: %d", network);
             pDemoContext->networkConnectedCallback(awsIotMqttMode,
                                                    clientcredentialIOT_THING_NAME,
                                                    &serverInfo,
@@ -121,7 +124,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         pDemoContext->connectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
         if( pDemoContext->networkDisconnectedCallback != NULL )
         {
-            IotLogInfo("OnDisconnected: %d", network);
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface(network);
             pDemoContext->networkDisconnectedCallback(pNetworkInterface);
         }
@@ -137,8 +139,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
             {
                 credentials.pAlpnProtos = NULL;
             }
-
-            IotLogInfo("OnConnected: %d", networkAvailable);
 
             pDemoContext->networkConnectedCallback( awsIotMqttMode,
                                                    clientcredentialIOT_THING_NAME,
@@ -193,7 +193,7 @@ static int _initializeDemo( demoContext_t* pContext )
     /* Enable all the transport type networks used by the demo application. */
     if(status == EXIT_SUCCESS)
     {
-        if( AwsIotNetworkManager_EnableNetwork( pContext->networkTypes ) != pContext->networkTypes )
+        if( AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS ) != configENABLED_NETWORKS )
         {
             IotLogError("Failed to enable all the networks required by the demo application.");
             status = EXIT_FAILURE;
@@ -314,7 +314,7 @@ void runDemoTask( void * pArgument )
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
 
 
-        if( network == AWSIOT_NETWORK_TYPE_WIFI )
+        if(( network == AWSIOT_NETWORK_TYPE_WIFI )||( network == AWSIOT_NETWORK_TYPE_ETH ))
         {            
             /* ALPN only works over port 443. Disable it otherwise. */
             if( serverInfo.port != 443 )

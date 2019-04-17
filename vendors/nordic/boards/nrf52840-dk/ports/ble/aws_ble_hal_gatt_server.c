@@ -894,6 +894,7 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
 
     if( err != 0 )
     {
+        xStatus = eBTStatusFail;
         NRF_LOG_ERROR( 0, "Error %d HVX \n\r", err );
     }
 
