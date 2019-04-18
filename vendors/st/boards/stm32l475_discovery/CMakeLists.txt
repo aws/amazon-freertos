@@ -1,6 +1,7 @@
-set(stm32l475_dir "${AFR_3RDPARTY_DIR}/mcu_vendor/st/stm32l475_discovery")
-set(board_demos_dir "${AFR_ROOT_DIR}/demos/st/stm32l475_discovery/common")
-set(board_tests_dir "${AFR_ROOT_DIR}/tests/st/stm32l475_discovery/common")
+set(stm32l475_dir "${AFR_VENDORS_DIR}/st/stm32l475_discovery")
+set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
 else()
@@ -25,9 +26,9 @@ afr_set_board_metadata(IDE_SystemWorkbench_NAME "System Workbench for STM32")
 afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
 afr_set_board_metadata(IDE_SystemWorkbench_RECOMMENDED "TRUE")
 
-afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/st/stm32l475_discovery/ac6")
-afr_set_board_metadata(DEMO_COMMON_LOCATION "${AFR_ROOT_DIR}/demos/st/stm32l475_discovery/common")
-afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${AFR_ROOT_DIR}/lib/third_party/mcu_vendor/st")
+afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/ac6")
+afr_set_board_metadata(DEMO_COMMON_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
+afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${AFR_VENDORS_DIR}/st")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -70,10 +71,6 @@ target_link_options(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
-set(vendor "st")
-set(board "stm32l475_discovery")
-set(portable_dir "portable/${vendor}/${board}")
-
 # Kernel
 afr_mcu_port(kernel)
 afr_glob_src(driver_src DIRECTORY "${stm32l475_dir}" RECURSE)
@@ -81,13 +78,13 @@ target_sources(
     AFR::kernel::mcu_port
     INTERFACE
         ${driver_src}
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/GCC/ARM_CM4F/port.c"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/GCC/ARM_CM4F/portmacro.h"
-        "${AFR_MODULES_DIR}/FreeRTOS/portable/MemMang/$<IF:${AFR_IS_TESTING},heap_4.c,heap_5.c>"
+        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
+        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
+        "${AFR_KERNEL_DIR}/portable/MemMang/$<IF:${AFR_IS_TESTING},heap_4.c,heap_5.c>"
 )
 set(
     kernel_inc_dirs
-    "${AFR_MODULES_DIR}/FreeRTOS/portable/GCC/ARM_CM4F"
+    "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
     "${stm32l475_dir}/BSP/B-L475E-IOT01"
     "${stm32l475_dir}/BSP/Components/Common"
     "${stm32l475_dir}/BSP/Components/es_wifi"
@@ -115,30 +112,34 @@ target_include_directories(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
 )
 
 # PKCS11
 afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/aws_pkcs11_pal.c"
+    INTERFACE "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
 )
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
 target_link_libraries(
     AFR::pkcs11::mcu_port
-    INTERFACE AFR::pkcs11_mbedtls
+    INTERFACE
+        AFR::pkcs11_mbedtls
+        AFR::wifi
 )
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE AFR::tls
+    INTERFACE
+        AFR::tls
+        AFR::wifi
 )
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/secure_sockets/${portable_dir}/aws_secure_sockets.c"
+    INTERFACE "${afr_ports_dir}/secure_sockets/aws_secure_sockets.c"
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -152,10 +153,13 @@ else()
     set(exe_target aws_demos)
 endif()
 
+# TODO, remove network manager src.
+afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/st_code")
 add_executable(
     ${exe_target}
     ${board_code_src}
+    ${network_manager_src}
     "${board_dir}/application_code/main.c"
 )
 target_link_libraries(
