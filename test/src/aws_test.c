@@ -23,12 +23,8 @@
  * @file  iot_demo.c
  * @brief Demo
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
 
 #include "FreeRTOS.h"
-#include "aws_clientcredential.h"
 
 
 /*-----------------------------------------------------------*/
