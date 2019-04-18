@@ -395,13 +395,13 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
     CK_BBOOL xObjectFound = CK_FALSE;
     int lInsertIndex = -1;
-    int lSearchIndex = pkcs11configMAX_NUM_OBJECTS;
+    int lSearchIndex = pkcs11configMAX_NUM_OBJECTS - 1;
 
     xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
 
     if( xGotSemaphore == pdTRUE )
     {
-        for( lSearchIndex = pkcs11configMAX_NUM_OBJECTS; lSearchIndex >= 0; lSearchIndex-- )
+        for( lSearchIndex = pkcs11configMAX_NUM_OBJECTS - 1; lSearchIndex >= 0; lSearchIndex-- )
         {
             if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xHandle == xPalHandle )
             {
@@ -411,10 +411,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             }
             else if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xHandle == CK_INVALID_HANDLE )
             {
-                if( lInsertIndex == -1 )
-                {
-                    lInsertIndex = lSearchIndex;
-                }
+                lInsertIndex = lSearchIndex;
             }
         }
 
@@ -2221,7 +2218,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = CKR_OK;
     CK_BBOOL xIsPrivate = CK_TRUE;
     CK_BBOOL xCleanupNeeded = CK_FALSE;
-
+    CK_OBJECT_HANDLE xPalHandle;
+    uint8_t * pxLabel = NULL;
+    size_t xLabelLength = 0;
     mbedtls_pk_type_t xKeyType;
 
     /*lint !e9072 It's OK to have different parameter name. */
@@ -2238,15 +2237,27 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
     /* Retrieve key value from storage. */
     if( xResult == CKR_OK )
     {
-        xResult = PKCS11_PAL_GetObjectValue( xKey, &keyData, &ulKeyDataLength, &xIsPrivate );
+        prvFindObjectInListByHandle( xKey,
+                                     &xPalHandle,
+                                     &pxLabel,
+                                     &xLabelLength );
 
-        if( xResult == CKR_OK )
+        if( xPalHandle != CK_INVALID_HANDLE )
         {
-            xCleanupNeeded = CK_TRUE;
+            xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &keyData, &ulKeyDataLength, &xIsPrivate );
+
+            if( xResult == CKR_OK )
+            {
+                xCleanupNeeded = CK_TRUE;
+            }
+            else
+            {
+                PKCS11_PRINT( ( "ERROR: Unable to retrieve value of private key for signing %d. \r\n", xResult ) );
+            }
         }
         else
         {
-            PKCS11_PRINT( ( "ERROR: Unable to retrieve value of private key for signing %d. \r\n", xResult ) );
+            xResult = CKR_KEY_HANDLE_INVALID;
         }
     }
 
@@ -2501,6 +2512,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
     uint32_t ulKeyDataLength = 0;
     CK_BBOOL xCleanupNeeded = CK_FALSE;
     mbedtls_pk_type_t xKeyType;
+    CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
+    uint8_t * pxLabel = NULL;
+    size_t xLabelLength = 0;
 
     /*lint !e9072 It's OK to have different parameter name. */
     ( void ) ( xSession );
@@ -2515,15 +2529,27 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
     /* Retrieve key value from storage. */
     if( xResult == CKR_OK )
     {
-        xResult = PKCS11_PAL_GetObjectValue( xKey, &keyData, &ulKeyDataLength, &xIsPrivate );
+        prvFindObjectInListByHandle( xKey,
+                                     &xPalHandle,
+                                     &pxLabel,
+                                     &xLabelLength );
 
-        if( xResult == CKR_OK )
+        if( xPalHandle != CK_INVALID_HANDLE )
         {
-            xCleanupNeeded = CK_TRUE;
+            xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &keyData, &ulKeyDataLength, &xIsPrivate );
+
+            if( xResult == CKR_OK )
+            {
+                xCleanupNeeded = CK_TRUE;
+            }
+            else
+            {
+                PKCS11_PRINT( ( "ERROR: Unable to retrieve value of private key for signing %d. \r\n", xResult ) );
+            }
         }
         else
         {
-            PKCS11_PRINT( ( "ERROR: Unable to retrieve value of public key for verify %d. \r\n", xResult ) );
+            xResult = CKR_KEY_HANDLE_INVALID;
         }
     }
 

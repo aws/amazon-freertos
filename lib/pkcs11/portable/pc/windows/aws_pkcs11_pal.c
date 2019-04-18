@@ -49,7 +49,7 @@
 #define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 #define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
 
-#define PKCS11_PAL_PRINT( X )            vLoggingPrintf X
+#define PKCS11_PAL_PRINT( X )    vLoggingPrintf X
 
 
 enum eObjectHandles
