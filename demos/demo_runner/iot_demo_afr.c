@@ -70,8 +70,8 @@ static uint32_t _getAvailableNetwork( demoContext_t *pContext )
     else if( ( network & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
     {
         network = AWSIOT_NETWORK_TYPE_BLE;
-    }
-    else if ( ( network & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+    }    
+    else if ( ( network & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH ) 
     {
         network = AWSIOT_NETWORK_TYPE_ETH;
     }
@@ -111,6 +111,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 credentials.pAlpnProtos = NULL;
             }
 
+            IotLogInfo("OnConnected: %d", network);
             pDemoContext->networkConnectedCallback(awsIotMqttMode,
                                                    clientcredentialIOT_THING_NAME,
                                                    &serverInfo,
@@ -124,6 +125,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         pDemoContext->connectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
         if( pDemoContext->networkDisconnectedCallback != NULL )
         {
+            IotLogInfo("OnDisconnected: %d", network);
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface(network);
             pDemoContext->networkDisconnectedCallback(pNetworkInterface);
         }
@@ -140,6 +142,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 credentials.pAlpnProtos = NULL;
             }
 
+            IotLogInfo("OnConnected: %d", networkAvailable);
             pDemoContext->networkConnectedCallback( awsIotMqttMode,
                                                    clientcredentialIOT_THING_NAME,
                                                    &serverInfo,
@@ -179,6 +182,7 @@ static int _initializeDemo( demoContext_t* pContext )
     }
     else
     {
+        IotLogError( "IotCommon_Init Failed.\r\n" );
         status = EXIT_FAILURE;
     }
 
@@ -186,6 +190,7 @@ static int _initializeDemo( demoContext_t* pContext )
     {
         if (AwsIotNetworkManager_Init() != pdTRUE)
         {
+            IotLogError( "AwsIotNetworkManager_Init Failed.\r\n" );
             status = EXIT_FAILURE;
         }
     }
@@ -209,9 +214,9 @@ static int _initializeDemo( demoContext_t* pContext )
         }
         else
         {
+            IotLogError( "IotMqtt_Init Failed.\r\n" );
             status = EXIT_FAILURE;
         }
-        
     }
 
     if( status == EXIT_SUCCESS )
@@ -225,7 +230,6 @@ static int _initializeDemo( demoContext_t* pContext )
         {
             semaphoreCreated = true;
         }
-        
     }
 
     if( status == EXIT_SUCCESS )
@@ -249,7 +253,7 @@ static int _initializeDemo( demoContext_t* pContext )
             IotMqtt_Cleanup();
         }
 
-        if( commonLibrariesInitailized == true )
+        if( commonLibrariesInitailized == true )    
         {
             IotCommon_Cleanup();
         }
@@ -279,7 +283,6 @@ void runDemoTask( void * pArgument )
 {
     /* On Amazon FreeRTOS, credentials and server info are defined in a header
      * and set by the initializers. */
-    
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
 
     uint32_t network = AWSIOT_NETWORK_TYPE_NONE;
@@ -302,10 +305,11 @@ void runDemoTask( void * pArgument )
         
         if( network == AWSIOT_NETWORK_TYPE_NONE )
         {
+            IotLogError( "No Netrowks Available!\r\n" );
             /* No connected Networks. Block for a network to be connected. */
             network = _blockForAvailableNetwork( pContext );
         }
-    }
+    } 
 
     if( status == EXIT_SUCCESS )
     {
@@ -313,8 +317,7 @@ void runDemoTask( void * pArgument )
         pContext->connectedNetwork = network;
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
 
-
-        if(( network == AWSIOT_NETWORK_TYPE_WIFI )||( network == AWSIOT_NETWORK_TYPE_ETH ))
+        if( ( network == AWSIOT_NETWORK_TYPE_WIFI )||( network == AWSIOT_NETWORK_TYPE_ETH ) )
         {            
             /* ALPN only works over port 443. Disable it otherwise. */
             if( serverInfo.port != 443 )
@@ -333,6 +336,7 @@ void runDemoTask( void * pArgument )
         else
         {
             /* Other network types are not supported */
+            IotLogError( "No supported network interface.\r\n" );
             status = EXIT_FAILURE;
         }
     }
