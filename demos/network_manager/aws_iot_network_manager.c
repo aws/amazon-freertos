@@ -382,6 +382,8 @@ static bool _wifiConnectAccessPoint( void )
     if( WIFI_ConnectAP( &( network ) ) != eWiFiSuccess )
     {
         ret = false;
+    } else {
+        wifiNetwork.state = eNetworkStateEnabled;
     }
 
     return ret;
@@ -606,12 +608,13 @@ BaseType_t AwsIotNetworkManager_Init( void )
             IotListDouble_Create( &networkManager.subscriptions );
             IotListDouble_Create( &networkManager.networks );
             IotListDouble_Create( &networkManager.pendingInvocations );
-        
+            
 #if WIFI_ENABLED
            IotListDouble_InsertTail( &networkManager.networks, &wifiNetwork.link );
-           
+
+           WIFIReturnCode_t retCode = WIFI_RegisterNetworkStateChangeEventCallback( _onNetworkStateChangeCallback );
            /* One time registration of network event callback with the Wi-Fi driver */
-           if( WIFI_RegisterNetworkStateChangeEventCallback( _onNetworkStateChangeCallback ) != eWiFiSuccess )
+           if ( ( retCode != eWiFiSuccess ) && ( retCode != eWiFiNotSupported ) )
            {
                 error = pdFALSE;
            } 
