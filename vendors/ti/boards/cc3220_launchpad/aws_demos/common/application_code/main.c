@@ -83,7 +83,6 @@
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
 void vApplicationDaemonTaskStartupHook( void );
-static void prvWifiConnect( void );
 static CK_RV prvProvisionRootCA( void );
 static void prvShowTiCc3220SecurityAlertCounts( void );
 
@@ -124,7 +123,6 @@ int main( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     UART_Handle xtUartHndl;
-    WIFIReturnCode_t xWifiStatus;
 
     /* Hardware initialization required after the RTOS is running. */
     GPIO_init();
@@ -134,47 +132,26 @@ void vApplicationDaemonTaskStartupHook( void )
     xtUartHndl = InitTerm();
     UART_control( xtUartHndl, UART_CMD_RXDISABLE, NULL );
 
-    configPRINTF( ( "Starting Wi-Fi Module ...\r\n" ) );
-
-    /* Initialize Wi-Fi module. This is called before key provisioning because
-     * initializing the Wi-Fi module also initializes the CC3220SF's file system. */
-    xWifiStatus = WIFI_On();
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "Wi-Fi module initialized.\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
-
-        /* Delay to allow the lower priority logging task to print the above status. */
-        vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
-
-        while( 1 )
-        {
-        }
-    }
+    // Emit some serial port debugging
+    vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
     /* A simple example to demonstrate key and certificate provisioning in
      * flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. This function must be called after
      * initializing the TI File System using WIFI_On. */
     vDevModeKeyProvisioning();
-
     prvProvisionRootCA();
 
     /* Initialize the AWS Libraries system. */
     if( SYSTEM_Init() == pdPASS )
     {
-        prvWifiConnect();
-
         /* Show the possible security alerts that will affect re-flashing the device. 
          * When the number of security alerts reaches the threshold, the device file system is locked and 
          * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed 
          * here for debugging purposes. */
         prvShowTiCc3220SecurityAlertCounts();
 
+        configPRINTF( ( "Running Demos.\r\n" ) );
         DEMO_RUNNER_RunDemos();
     }
 }
