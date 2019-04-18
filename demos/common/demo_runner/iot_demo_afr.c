@@ -191,6 +191,7 @@ static int _initialize( demoContext_t* pContext )
     }
     else
     {
+        IotLogInfo( "Failed to initialize the common library." );
         status = EXIT_FAILURE;
     }
 
@@ -198,6 +199,7 @@ static int _initialize( demoContext_t* pContext )
     {
         if (AwsIotNetworkManager_Init() != pdTRUE)
         {
+            IotLogError( "Failed to initialize network manager library." );
             status = EXIT_FAILURE;
         }
     }
@@ -207,6 +209,7 @@ static int _initialize( demoContext_t* pContext )
         /* Create semaphore to signal that a network is available for the demo. */
         if(  IotSemaphore_Create( &demoNetworkSemaphore, 0, 1) != true )
         {
+            IotLogError( "Failed to create semaphore to wait for a network connection." );
             status = EXIT_FAILURE;
         }
         else
@@ -224,7 +227,7 @@ static int _initialize( demoContext_t* pContext )
                                                           pContext,
                                                           &subscription ) != pdTRUE )
         {
-            IotLogError( "Failed to subscribe with network manager for network state change." );
+            IotLogError( "Failed to subscribe network state change callback." );
             status = EXIT_FAILURE;
         }
     }
@@ -247,6 +250,7 @@ static int _initialize( demoContext_t* pContext )
         if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE )
         {
             /* Network not yet initialized. Block for a network to be intialized. */
+            IotLogInfo( "No networks connected. Waiting for a network connection. ");
             demoConnectedNetwork = _waitForDemoNetworkConnection( pContext );
         }
     }
@@ -295,7 +299,9 @@ void runDemoTask( void * pArgument )
     status = _initialize( pContext );
 
     if( status == EXIT_SUCCESS )
-    {        
+    {   
+        IotLogInfo( "Successfully initialized the demo. Network type for the demo: %d", demoConnectedNetwork );
+
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
            
         /* ALPN only works over port 443. Disable it otherwise. */
@@ -320,6 +326,11 @@ void runDemoTask( void * pArgument )
 
         _cleanup();
     }
+    else
+    {
+        IotLogError( "Failed to initialize the demo. exiting..." );
+    }
+    
    
     vTaskDelete( NULL );
 }
