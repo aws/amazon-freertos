@@ -31,6 +31,7 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
+#define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_BLE )
 
 /* Some individual demos want to override these defaults, that is done in this section */
 #if defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
@@ -45,6 +46,11 @@
     #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
     #undef democonfigDEMO_PRIORITY
     #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
+#endif
+
+#if defined( democonfigBLE_MQTT_ECHO_DEMO_ENABLED )
+    #undef democonfigNETWORK_TYPES
+    #define democonfigNETWORK_TYPES                         ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 #endif
 
 #define democonfigSHADOW_DEMO_NUM_TASKS             ( 1 )
