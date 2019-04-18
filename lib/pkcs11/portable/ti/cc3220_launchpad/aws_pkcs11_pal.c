@@ -391,11 +391,13 @@ void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
  * Otherwise, PKCS #11-style error code.
  *
  */
-CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
-{
-    ( void )xHandle;
-    return CKR_FUNCTION_NOT_SUPPORTED;
-}
+#if ( pkcs11configPAL_DESTROY_SUPPORTED == 1 )
+    CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
+    {
+        ( void ) xHandle;
+        return CKR_FUNCTION_NOT_SUPPORTED;
+    }
+#endif
 
 /*-----------------------------------------------------------*/
 
@@ -427,7 +429,8 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
                               &xHandle );
 
     /* Check if object exists/has been created before returning. */
-    iStatus = sl_FsGetInfo( ( const unsigned char * )pcFileName, 0, &FsFileInfo );
+    iStatus = sl_FsGetInfo( ( const unsigned char * ) pcFileName, 0, &FsFileInfo );
+
     if( SL_ERROR_FS_FILE_NOT_EXISTS == iStatus )
     {
         xHandle = eInvalidHandle;
@@ -491,7 +494,7 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     if( 0 == ulReturn )
     {
         /* Check if the file exists and, if so, how big it is. */
-        if( 0 != sl_FsGetInfo( ( const unsigned char * )pcFileName, 0, &FsFileInfo ) )
+        if( 0 != sl_FsGetInfo( ( const unsigned char * ) pcFileName, 0, &FsFileInfo ) )
         {
             ulReturn = CKR_FUNCTION_FAILED;
         }
@@ -502,6 +505,7 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         /* Create a buffer. */
         *pulDataSize = FsFileInfo.Len;
         *ppucData = pvPortMalloc( *pulDataSize );
+
         if( NULL == *ppucData )
         {
             ulReturn = CKR_DEVICE_MEMORY;
@@ -511,7 +515,8 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     if( 0 == ulReturn )
     {
         /* Open the file. */
-        iFile = sl_FsOpen( ( const unsigned char * )pcFileName, SL_FS_READ, 0 );
+        iFile = sl_FsOpen( ( const unsigned char * ) pcFileName, SL_FS_READ, 0 );
+
         if( iFile < 0 )
         {
             ulReturn = CKR_FUNCTION_FAILED;
@@ -522,6 +527,7 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     {
         /* Read the file. */
         iReadBytes = sl_FsRead( iFile, 0, *ppucData, *pulDataSize );
+
         if( iReadBytes != *pulDataSize )
         {
             ulReturn = CKR_FUNCTION_FAILED;
@@ -533,7 +539,7 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         sl_FsClose( iFile, NULL, NULL, 0 );
     }
 
-    return ( BaseType_t )ulReturn;
+    return ( BaseType_t ) ulReturn;
 }
 
 /*-----------------------------------------------------------*/
@@ -582,21 +588,22 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Converts a label to its respective filename and handle. */
-    prvLabelToFilenameHandle( ( uint8_t *)pxLabel->pValue,
+    prvLabelToFilenameHandle( ( uint8_t * ) pxLabel->pValue,
                               &pcFileName,
                               &xHandle );
+
     if( pcFileName != NULL )
     {
         if( 0 == prvDerToPem( pucData,
                               ulDataSize,
                               &pcPemBuffer,
                               &xPemLength,
-                              eAwsDevicePrivateKey == xHandle ? CKO_PRIVATE_KEY : CKO_CERTIFICATE ) )
+                              ( eAwsDevicePrivateKey == xHandle ) ? CKO_PRIVATE_KEY : CKO_CERTIFICATE ) )
         {
             /* If the object type is valid, and the DER-to-PEM conversion
-            succeeded, try to write the data to flash. */
+             * succeeded, try to write the data to flash. */
             if( pdFALSE == prvSaveFile( pcFileName,
-                                        ( char * )pucData,
+                                        ( char * ) pucData,
                                         ulDataSize ) )
             {
                 xHandle = eInvalidHandle;
@@ -623,12 +630,13 @@ int mbedtls_hardware_poll( void * data,
     int lStatus = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
 
     /* Use the SimpleLink driver to get a hardware-derived seed for additional
-    PRNG entropy. */
+     * PRNG entropy. */
     *olen = len;
+
     if( 0 == sl_NetUtilGet( SL_NETUTIL_TRUE_RANDOM,
                             0,
                             output,
-                            ( unsigned short int *)olen ) )
+                            ( unsigned short int * ) olen ) )
     {
         lStatus = 0;
     }

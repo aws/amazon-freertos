@@ -141,6 +141,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/bufferpool</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/crypto</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/crypto</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/greengrass</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/greengrass</locationURI>
@@ -281,14 +286,19 @@
 			<locationURI>BASE_DIR_ROOT/lib/ota/aws_ota_cbor.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/pkcs11/aws_pkcs11_pal.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/lib/pkcs11/portable/ti/cc3220_launchpad/aws_pkcs11_pal.c</locationURI>
-		</link>
-		<link>
 			<name>lib/aws/pkcs11/aws_pkcs11.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/lib/pkcs11/aws_pkcs11.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/pkcs11/aws_pkcs11_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/pkcs11/portable/ti/cc3220_launchpad/aws_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mcu_vendor/ti</name>
