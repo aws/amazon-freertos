@@ -45,8 +45,12 @@
 /* Define additional serializer initialization functions for the BLE Module on ESP. */
 extern bool IotBleMqtt_InitSerialize( void );
 extern void IotBleMqtt_CleanupSerialize( void );
-#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
-#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
+#define _IotMqtt_InitSerializeAdditional     IotBleMqtt_InitSerialize
+#define _IotMqtt_CleanupSerializeAdditional  IotBleMqtt_CleanupSerialize
+
+typedef struct IotMqttSerializer IotMqttSerializer_t;
+extern const IotMqttSerializer_t* getSerializerOverride( void );
+#define IOT_MQTT_SERIALIZER_OVERRIDE        getSerializerOverride()
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"

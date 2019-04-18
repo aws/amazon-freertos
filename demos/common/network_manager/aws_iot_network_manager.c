@@ -195,9 +195,10 @@ IotNMNetwork_t wifiNetwork =
 #if ETH_ENABLED
 IotNMNetwork_t ethNetwork =
 {
-    .type = AWSIOT_NETWORK_TYPE_ETH,
-    .link = IOT_LINK_INITIALIZER,
-    .state = eNetworkStateUnknown
+    .type             = AWSIOT_NETWORK_TYPE_ETH,
+    .link             = IOT_LINK_INITIALIZER,
+    .state            = eNetworkStateUnknown,
+    .networkInterface = IOT_NETWORK_INTERFACE_AFR
 };
 #endif 
 

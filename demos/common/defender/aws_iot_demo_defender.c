@@ -93,8 +93,23 @@ int vStartDefenderDemo( bool awsIotMqttMode,
                         void * pNetworkCredentialInfo,
                         const IotNetworkInterface_t * pNetworkInterface )
 {
-    _defenderTask( NULL );
-    return 0;
+    int status = EXIT_SUCCESS;
+    IotMqttError_t mqttInitStatus;
+
+    /* Initialize the MQTT library. */
+    mqttInitStatus = IotMqtt_Init();
+    
+    if( mqttInitStatus != IOT_MQTT_SUCCESS )
+    {
+        status = EXIT_FAILURE;
+    }
+   
+    if( status == EXIT_SUCCESS )
+    {
+        _defenderTask(NULL);
+    }
+    
+    return status;
 }
 
 /*-----------------------------------------------------------*/
@@ -140,7 +155,7 @@ static void _defenderTask( void * param )
 
     IotLogInfo( "----Device Defender Demo Start----.\r\n" );
 
-    #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
+#if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
         /* Create a socket connected to echo server. */
         Socket_t socket = _createSocketToEchoServer();
     #endif

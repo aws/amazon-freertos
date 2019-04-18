@@ -57,15 +57,10 @@ typedef struct demoContext
 {
     /* Network types for the demo */
     uint32_t networkTypes;
-    uint32_t connectedNetwork;
-
     /* Function pointers to be set by the implementations for the demo */
     demoFunction_t                demoFunction;
     networkConnectedCallback_t    networkConnectedCallback;
     networkDisconnectedCallback_t networkDisconnectedCallback;
-
-    /* Semaphore used to synchronize internally */
-    IotSemaphore_t networkSemaphore;
 }  demoContext_t;
 
 

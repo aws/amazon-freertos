@@ -40,48 +40,65 @@
 #include "iot_mqtt.h"
 
 static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
-/*-----------------------------------------------------------*/
-/* C SDK demo functions. */
 
-int RunMqttDemo( bool awsIotMqttMode,
-                 const char * pIdentifier,
-                 void * pNetworkServerInfo,
-                 void * pNetworkCredentialInfo,
-                 const IotNetworkInterface_t * pNetworkInterface );
+/* Semaphore used to wait for a network to be available. */
+static IotSemaphore_t demoNetworkSemaphore;
 
-int RunShadowDemo( bool awsIotMqttMode,
-                   const char * pIdentifier,
-                   void * pNetworkServerInfo,
-                   void * pNetworkCredentialInfo,
-                   const IotNetworkInterface_t * pNetworkInterface );
+/* Variable used to indicate the connected network. */
+static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
-/*-----------------------------------------------------------*/
 
-static uint32_t _getAvailableNetwork( demoContext_t *pContext )
+#if BLE_ENABLED
+extern const IotMqttSerializer_t IotBleMqttSerializer;
+#endif
+
+const IotMqttSerializer_t* getSerializerOverride( void )
 {
-    uint32_t network = AwsIotNetworkManager_GetConnectedNetworks();
-    
-    network = ( network & pContext->networkTypes );
+    const IotMqttSerializer_t* ret = NULL;
 
-    if( ( network & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
+#if BLE_ENABLED
+    if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
     {
-        network =  AWSIOT_NETWORK_TYPE_WIFI;
+        ret = &IotBleMqttSerializer;
     }
-    else if( ( network & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
+#endif
+
+    return ret;
+}
+
+/*-----------------------------------------------------------*/
+
+static uint32_t _getConnectedNetworkForDemo( demoContext_t *pDemoContext )
+{
+    uint32_t ret = ( AwsIotNetworkManager_GetConnectedNetworks() & pDemoContext->networkTypes );
+
+    if( ( ret & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
     {
-        network = AWSIOT_NETWORK_TYPE_BLE;
+        ret =  AWSIOT_NETWORK_TYPE_WIFI;
     }
-    else if ( ( network & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+    else if( ( ret & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
     {
-        network = AWSIOT_NETWORK_TYPE_ETH;
+        ret = AWSIOT_NETWORK_TYPE_BLE;
+    }
+    else if ( ( ret & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+    {
+        ret = AWSIOT_NETWORK_TYPE_ETH;
     }
     else
     {
-        network = AWSIOT_NETWORK_TYPE_NONE;
+        ret = AWSIOT_NETWORK_TYPE_NONE;
     }
 
-    return network;
+    return ret;
 }
+
+static uint32_t _waitForDemoNetworkConnection( demoContext_t * pDemoContext )
+{
+    IotSemaphore_Wait( &demoNetworkSemaphore );
+    
+    return _getConnectedNetworkForDemo( pDemoContext );
+}
+
 
 static void _onNetworkStateChangeCallback( uint32_t network,
                                            AwsIotNetworkState_t state,
@@ -91,70 +108,68 @@ static void _onNetworkStateChangeCallback( uint32_t network,
     IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     const IotNetworkInterface_t * pNetworkInterface;
     bool awsIotMqttMode = false;
-    uint32_t networkAvailable;
 
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
-    if( ( state == eNetworkStateEnabled ) && ( pDemoContext->connectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
+    if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
     {
 
-        pDemoContext->connectedNetwork = network;
-        IotSemaphore_Post(&pDemoContext->networkSemaphore);
+        demoConnectedNetwork = network;
+        IotSemaphore_Post( &demoNetworkSemaphore);
 
         if (pDemoContext->networkConnectedCallback != NULL)
         {
-            pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface(network);
-            awsIotMqttMode = (network != AWSIOT_NETWORK_TYPE_BLE);
+            pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
+            
             /* ALPN only works over port 443. Disable it otherwise. */
-            if (serverInfo.port != 443)
+            if( serverInfo.port != 443 )
             {
                 credentials.pAlpnProtos = NULL;
             }
 
-            pDemoContext->networkConnectedCallback(awsIotMqttMode,
-                                                   clientcredentialIOT_THING_NAME,
-                                                   &serverInfo,
-                                                   &credentials,
-                                                   pNetworkInterface);
-        }
-    }
-    else if( ( state == eNetworkStateDisabled ) && ( pDemoContext->connectedNetwork == network ) )
-    {
-
-        pDemoContext->connectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
-        if( pDemoContext->networkDisconnectedCallback != NULL )
-        {
-            pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface(network);
-            pDemoContext->networkDisconnectedCallback(pNetworkInterface);
-        }
-
-        networkAvailable = _getAvailableNetwork(pDemoContext);
-        if( ( networkAvailable != AWSIOT_NETWORK_TYPE_NONE ) && ( pDemoContext->networkConnectedCallback != NULL ) )
-        {
-            pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface(networkAvailable);
-            awsIotMqttMode = (networkAvailable != AWSIOT_NETWORK_TYPE_BLE);
-
-            /* ALPN only works over port 443. Disable it otherwise. */
-            if (serverInfo.port != 443)
-            {
-                credentials.pAlpnProtos = NULL;
-            }
+            awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
 
             pDemoContext->networkConnectedCallback( awsIotMqttMode,
-                                                   clientcredentialIOT_THING_NAME,
-                                                   &serverInfo,
-                                                   &credentials,
-                                                   pNetworkInterface);
+                                                    clientcredentialIOT_THING_NAME,
+                                                    &serverInfo,
+                                                    &credentials,
+                                                    pNetworkInterface );
+        }
+    }
+    else if( ( state == eNetworkStateDisabled ) && ( demoConnectedNetwork == network ) )
+    {
+        
+        if( pDemoContext->networkDisconnectedCallback != NULL )
+        {
+            pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
+            pDemoContext->networkDisconnectedCallback( pNetworkInterface );
+        }
+
+        demoConnectedNetwork = _getConnectedNetworkForDemo( pDemoContext );        
+        if( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_NONE )
+        {
+
+            if( pDemoContext->networkConnectedCallback != NULL )
+            {
+                pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
+                
+                /* ALPN only works over port 443. Disable it otherwise. */
+                if( serverInfo.port != 443 )
+                {
+                    credentials.pAlpnProtos = NULL;
+                }
+
+                awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
+
+                pDemoContext->networkConnectedCallback( awsIotMqttMode,
+                                                        clientcredentialIOT_THING_NAME,
+                                                        &serverInfo,
+                                                        &credentials,
+                                                        pNetworkInterface );
+            }
         }
     }
 }
-
-static uint32_t _blockForAvailableNetwork( demoContext_t * pContext )
-{
-    IotSemaphore_Wait( &pContext->networkSemaphore );
-    return _getAvailableNetwork( pContext );
-}
-
 
 
 /**
@@ -163,14 +178,11 @@ static uint32_t _blockForAvailableNetwork( demoContext_t * pContext )
  * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
  * `EXIT_FAILURE` otherwise.
  */
-static int _initializeDemo( demoContext_t* pContext )
+static int _initialize( demoContext_t* pContext )
 {
     int status = EXIT_SUCCESS;
     bool commonLibrariesInitailized = false;
-    bool mqttInitialized            = false;
     bool semaphoreCreated           = false;
-
-
 
     /* Initialize common libraries required by network manager and demo. */
     if( IotCommon_Init() == true )
@@ -179,6 +191,7 @@ static int _initializeDemo( demoContext_t* pContext )
     }
     else
     {
+        IotLogInfo( "Failed to initialize the common library." );
         status = EXIT_FAILURE;
     }
 
@@ -186,39 +199,17 @@ static int _initializeDemo( demoContext_t* pContext )
     {
         if (AwsIotNetworkManager_Init() != pdTRUE)
         {
+            IotLogError( "Failed to initialize network manager library." );
             status = EXIT_FAILURE;
         }
     }
 
-    /* Enable all the transport type networks used by the demo application. */
-    if(status == EXIT_SUCCESS)
-    {
-        if( AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS ) != configENABLED_NETWORKS )
-        {
-            IotLogError("Failed to enable all the networks required by the demo application.");
-            status = EXIT_FAILURE;
-        }
-    }
-    
     if( status == EXIT_SUCCESS )
     {
-        /* Initialize the MQTT library used by demo application to send messages to Iot broker. */
-        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+        /* Create semaphore to signal that a network is available for the demo. */
+        if(  IotSemaphore_Create( &demoNetworkSemaphore, 0, 1) != true )
         {
-            mqttInitialized = true;
-        }
-        else
-        {
-            status = EXIT_FAILURE;
-        }
-        
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Create semaphore to signal that a network is available */
-        if(  IotSemaphore_Create(&pContext->networkSemaphore, 0, 1) != true )
-        {
+            IotLogError( "Failed to create semaphore to wait for a network connection." );
             status = EXIT_FAILURE;
         }
         else
@@ -230,33 +221,51 @@ static int _initializeDemo( demoContext_t* pContext )
 
     if( status == EXIT_SUCCESS )
     {
-        /* Subscribe for network state change from Network Manager */
-        if( AwsIotNetworkManager_SubscribeForStateChange(
-                pContext->networkTypes,
-                _onNetworkStateChangeCallback,
-                pContext,
-                &subscription ) != pdTRUE )
+        /* Subscribe for network state change from Network Manager. */
+        if( AwsIotNetworkManager_SubscribeForStateChange( pContext->networkTypes,
+                                                          _onNetworkStateChangeCallback,
+                                                          pContext,
+                                                          &subscription ) != pdTRUE )
         {
-            IotLogError( "Failed to subscribe with network manager for network state change." );
+            IotLogError( "Failed to subscribe network state change callback." );
             status = EXIT_FAILURE;
+        }
+    }
+
+    /* Initialize all the  networks configured for the device. */
+    if(status == EXIT_SUCCESS)
+    {
+        if( AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS ) != configENABLED_NETWORKS )
+        {
+            IotLogError( "Failed to intialize all the networks configured for the device." );
+            status = EXIT_FAILURE;
+        }
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Wait for network configured for the demo to be initialized. */
+        demoConnectedNetwork = _getConnectedNetworkForDemo( pContext );
+        
+        if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE )
+        {
+            /* Network not yet initialized. Block for a network to be intialized. */
+            IotLogInfo( "No networks connected. Waiting for a network connection. ");
+            demoConnectedNetwork = _waitForDemoNetworkConnection( pContext );
         }
     }
 
     if( status == EXIT_FAILURE )
     {
-        if( mqttInitialized == true )
+
+        if( semaphoreCreated == true )
         {
-            IotMqtt_Cleanup();
+            IotSemaphore_Destroy( &demoNetworkSemaphore );
         }
 
         if( commonLibrariesInitailized == true )
         {
             IotCommon_Cleanup();
-        }
-
-        if( semaphoreCreated == true )
-        {
-            IotSemaphore_Destroy( & pContext->networkSemaphore );
         }
     }
         
@@ -266,12 +275,11 @@ static int _initializeDemo( demoContext_t* pContext )
 /**
  * @brief Clean up the common libraries and the MQTT library.
  */
-static void _cleanupDemo( demoContext_t *pContext )
+static void _cleanup( void )
 {
      /* Remove network manager subscription */
      AwsIotNetworkManager_RemoveSubscription( subscription );
-     IotSemaphore_Destroy(&pContext->networkSemaphore);
-     IotMqtt_Cleanup();
+     IotSemaphore_Destroy( &demoNetworkSemaphore );
      IotCommon_Cleanup();
 }
 
@@ -281,80 +289,48 @@ void runDemoTask( void * pArgument )
      * and set by the initializers. */
     
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
-
-    uint32_t network = AWSIOT_NETWORK_TYPE_NONE;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
     IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
  
     int status = EXIT_SUCCESS;
     bool awsIotMqttMode = false;
-    bool demoInitialized = false;
  
-    status = _initializeDemo( pContext );
+    status = _initialize( pContext );
 
     if( status == EXIT_SUCCESS )
-    {
-        demoInitialized = true;
-        
-        /* Get any connected network. */
-        network = _getAvailableNetwork( pContext );
-        
-        if( network == AWSIOT_NETWORK_TYPE_NONE )
+    {   
+        IotLogInfo( "Successfully initialized the demo. Network type for the demo: %d", demoConnectedNetwork );
+
+        pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
+           
+        /* ALPN only works over port 443. Disable it otherwise. */
+        if( serverInfo.port != 443 )
         {
-            /* No connected Networks. Block for a network to be connected. */
-            network = _blockForAvailableNetwork( pContext );
+            credentials.pAlpnProtos = NULL;
         }
-    }
 
-    if( status == EXIT_SUCCESS )
-    {
-        /* Received a connected network */
-        pContext->connectedNetwork = network;
-        pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
+        /* Set AWS Iot Mqtt mode to false to disable keep alive for non TCP/IP networks like bluetooth */
+        awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
 
-
-        if(( network == AWSIOT_NETWORK_TYPE_WIFI )||( network == AWSIOT_NETWORK_TYPE_ETH ))
-        {            
-            /* ALPN only works over port 443. Disable it otherwise. */
-            if( serverInfo.port != 443 )
-            {
-                credentials.pAlpnProtos = NULL;
-            }
-
-            /* Set IOT Mqtt Mode to true to not disable keep alive for a TCP/IP network */
-            awsIotMqttMode = true;
-        }
-        else if( network == AWSIOT_NETWORK_TYPE_BLE )
-        {
-            /* Set AWS Iot Mqtt mode to false to disable keep alive for Non TCP network like Bluetooth */
-            awsIotMqttMode = false;
-        }
-        else
-        {
-            /* Other network types are not supported */
-            status = EXIT_FAILURE;
-        }
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
         /* Run the demo. */
         pContext->demoFunction( awsIotMqttMode,
-                                    clientcredentialIOT_THING_NAME,
-                                    &serverInfo,
-                                    &credentials,
-                                    pNetworkInterface );
+                                clientcredentialIOT_THING_NAME,
+                                &serverInfo,
+                                &credentials,
+                                pNetworkInterface );
 
         /* Report heap usage. */
         IotLogInfo( "Demo minimum ever free heap: %lu bytes.",
                     ( unsigned long ) xPortGetMinimumEverFreeHeapSize() );
-    }
 
-    if( demoInitialized  == true )
-    {
-        _cleanupDemo(pContext);
+        _cleanup();
     }
+    else
+    {
+        IotLogError( "Failed to initialize the demo. exiting..." );
+    }
+    
    
     vTaskDelete( NULL );
 }
