@@ -652,6 +652,7 @@ TEST_TEAR_DOWN( MQTT_System )
 {
     /* Clean up the MQTT library. */
     IotMqtt_Cleanup();
+    vTaskDelay(100);
 
     /* Clean up the network stack. */
     IotTestNetwork_Cleanup();
