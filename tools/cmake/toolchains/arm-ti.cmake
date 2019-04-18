@@ -32,5 +32,8 @@ include_directories(${CMAKE_FIND_ROOT_PATH}/include)
 link_directories(${CMAKE_FIND_ROOT_PATH}/lib)
 link_libraries(-llibc.a)
 
-# TI linker does not recognize response file.
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_OBJECTS OFF)
+# Overwrite CMake archiver command for TI's compiler.
+set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> a <TARGET> <LINK_FLAGS> <OBJECTS>")
+
+# Overwrite response file flag for TI's compiler.
+set(CMAKE_C_RESPONSE_FILE_LINK_FLAG "-cmd_file=")
