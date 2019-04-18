@@ -94,6 +94,12 @@ function(afr_demo_module)
             INTERFACE
                 AFR::demo_base
         )
+    else()
+        # Make demo_base depends on this dummy target when configuring tests so all demos
+        # will be disabled by this non-existing dependency.
+        if(AFR_IS_TESTING)
+            afr_module_dependencies(demo_base INTERFACE 3rdparty::dummy)
+        endif()
     endif()
 
     # Set current module name.
@@ -117,6 +123,12 @@ function(afr_test_module)
             INTERFACE
                 AFR::test_base
         )
+    else()
+        # Make test_base depends on this dummy target when configuring demos so all tests
+        # will be disabled by this non-existing dependency.
+        if(NOT AFR_IS_TESTING)
+            afr_module_dependencies(test_base INTERFACE 3rdparty::dummy)
+        endif()
     endif()
 
     # Set current module name.
