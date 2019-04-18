@@ -38,22 +38,19 @@
 #include "FreeRTOSIPConfig.h"
 #include "aws_pkcs11.h"
 #include "aws_pkcs11_config.h"
-#include "aws_pkcs11_mbedtls.h"
-#include "aws_pkcs11_pal.h"
 
 
 /* C runtime includes. */
 #include <stdio.h>
 #include <string.h>
 
-#define PKCS11_PAL_PRINT( X )    vLoggingPrintf X
 
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
 #define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 #define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
-#define pkcs11palFILE_DEVICE_PUBLIC_KEY          "FreeRTOS_P11_PubKey.dat"
-#define pkcs11palFILE_TRUSTED_ROOT               "FreeRTOS_P11_TrustedRoot.dat"
-#define pkcs11palFILE_JITP                       "FreeRTOS_P11_JITP.dat"
+
+#define PKCS11_PAL_PRINT( X )            vLoggingPrintf X
+
 
 enum eObjectHandles
 {
@@ -61,9 +58,7 @@ enum eObjectHandles
     eAwsDevicePrivateKey = 1,
     eAwsDevicePublicKey,
     eAwsDeviceCertificate,
-    eAwsCodeSigningKey,
-    eAwsTrustedServerCertificate,
-    eAwsJITPCertificate
+    eAwsCodeSigningKey
 };
 
 /*-----------------------------------------------------------*/
@@ -111,7 +106,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
                               &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                               sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
         {
-            *pcFileName = pkcs11palFILE_DEVICE_PUBLIC_KEY;
+            *pcFileName = pkcs11palFILE_NAME_KEY;
             *pHandle = eAwsDevicePublicKey;
         }
         else if( 0 == memcmp( pcLabel,
@@ -121,20 +116,6 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
             *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
             *pHandle = eAwsCodeSigningKey;
         }
-        else if( 0 == memcmp( pcLabel,
-                              &pkcs11configLABEL_ROOT_CERTIFICATE,
-                              sizeof( pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
-        {
-            *pcFileName = pkcs11palFILE_TRUSTED_ROOT;
-            *pHandle = eAwsTrustedServerCertificate;
-        }
-        else if( 0 == memcmp( pcLabel,
-                              &pkcs11configLABEL_JITP_CERTIFICATE,
-                              sizeof( pkcs11configLABEL_JITP_CERTIFICATE ) ) )
-        {
-            *pcFileName = pkcs11palFILE_JITP;
-            *pHandle = eAwsJITPCertificate;
-        }
         else
         {
             *pcFileName = NULL;
@@ -143,68 +124,6 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
     }
 }
 
-void prvHandleToFileName( CK_OBJECT_HANDLE pxHandle,
-                          char ** pcFileName )
-{
-    switch( pxHandle )
-    {
-        case ( eAwsDeviceCertificate ):
-            *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
-            break;
-
-        case ( eAwsDevicePrivateKey ):
-            *pcFileName = pkcs11palFILE_NAME_KEY;
-            break;
-
-        case ( eAwsDevicePublicKey ):
-            *pcFileName = pkcs11palFILE_DEVICE_PUBLIC_KEY;
-            break;
-
-        case ( eAwsCodeSigningKey ):
-            *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
-            break;
-
-        case ( eAwsTrustedServerCertificate ):
-            *pcFileName = pkcs11palFILE_TRUSTED_ROOT;
-            break;
-
-        case ( eAwsJITPCertificate ):
-            *pcFileName = pkcs11palFILE_JITP;
-            break;
-
-        default:
-            *pcFileName = NULL;
-            break;
-    }
-}
-
-/**
- * @brief Delete an object from non-volatile storage.
- *
- * @param[in] xHandle    Handle of the object to be destroyed.
- *
- * @return CKR_OK if object was successfully destroyed.
- * Otherwise, PKCS #11-style error code.
- *
- */
-CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle )
-{
-    char * pcFileName;
-    CK_RV xResult;
-
-    prvHandleToFileName( xHandle, &pcFileName );
-
-    if( DeleteFileA( pcFileName ) )
-    {
-        xResult = CKR_OK;
-    }
-    else
-    {
-        xResult = CKR_OBJECT_HANDLE_INVALID;
-    }
-
-    return xResult;
-}
 
 /**
  * @brief Saves an object in non-volatile storage.

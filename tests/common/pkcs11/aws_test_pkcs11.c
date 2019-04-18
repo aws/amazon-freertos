@@ -1027,7 +1027,7 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectFindObject )
                                             CKO_PRIVATE_KEY,
                                             &xFoundPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA private key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xFoundPrivateKeyHandle, "Invalid object handle found for RSA private key." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid object handle found for RSA private key." );
     TEST_ASSERT_EQUAL_MESSAGE( xPrivateKeyHandle, xFoundPrivateKeyHandle, "Private key handle found does not match private key handle created." );
 
     /* Find the newly created certificate. */
@@ -1362,6 +1362,7 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC certificate." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xClientCertificateHandle, "Invalid object handle returned for EC certificate." );
 
+#if (pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1)
     xResult = xProvisionCertificate( xGlobalSession,
                                      ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
                                      tlsATS1_ROOT_CERTIFICATE_LENGTH,
@@ -1395,6 +1396,7 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject )
 
     xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xCodeSignPublicKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy EC code sign public key." );
+#endif
 
     xCurrentCredentials = eEllipticCurveTest;
 }
@@ -1477,6 +1479,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     CK_BYTE xWhatDoesThisBufferDo[ 256 ] = { 0 };
     CK_ULONG xSignatureLength;
     CK_ATTRIBUTE xTemplate;
+    CK_OBJECT_CLASS xClass;
     /* mbedTLS structures for verification. */
     int lMbedTLSResult;
     mbedtls_ecdsa_context xEcdsaContext;
@@ -1494,6 +1497,24 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
 
     /* Call GetAttributeValue to retrieve information about the keypair stored. */
 
+    /* Check that correct object class retrieved. */
+    xTemplate.type = CKA_CLASS;
+    xTemplate.pValue = NULL;
+    xTemplate.ulValueLen = 0;
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for length of public EC key class failed." );
+    TEST_ASSERT_EQUAL_MESSAGE( sizeof( CK_OBJECT_CLASS ), xTemplate.ulValueLen, "Incorrect object class length returned from GetAttributeValue." );
+
+    xTemplate.pValue = &xClass;
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for private EC key class failed." );
+    TEST_ASSERT_EQUAL_MESSAGE( CKO_PRIVATE_KEY, xClass, "Incorrect object class returned from GetAttributeValue." );
+
+    xTemplate.pValue = &xClass;
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for public EC key class failed." );
+    TEST_ASSERT_EQUAL_MESSAGE( CKO_PUBLIC_KEY, xClass, "Incorrect object class returned from GetAttributeValue." );
+
     /* Check that both keys are stored as EC Keys. */
     xTemplate.type = CKA_KEY_TYPE;
     xTemplate.pValue = &xKeyType;
@@ -1506,6 +1527,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     TEST_ASSERT_EQUAL_MESSAGE( sizeof( CK_KEY_TYPE ), xTemplate.ulValueLen, "Length of key type incorrect in GetAttributeValue" );
     TEST_ASSERT_EQUAL_MESSAGE( CKK_EC, xKeyType, "Incorrect key type for public key" );
 
+    /* Check that correct curve retrieved for private key. */
     xTemplate.type = CKA_EC_PARAMS;
     xTemplate.pValue = xEcParams;
     xTemplate.ulValueLen = sizeof( xEcParams );
@@ -1513,6 +1535,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     TEST_ASSERT_EQUAL_MESSAGE( sizeof( ucSecp256r1Oid ), xTemplate.ulValueLen, "Length of ECParameters identifier incorrect in GetAttributeValue" );
     TEST_ASSERT_EQUAL_INT8_ARRAY_MESSAGE( ucSecp256r1Oid, xEcParams, xTemplate.ulValueLen, "EcParameters did not match P256 OID." );
 
+    /* Check that public key point can be retrieved for public key. */
     xTemplate.type = CKA_EC_POINT;
     xTemplate.pValue = xEcPoint;
     xTemplate.ulValueLen = sizeof( xEcPoint );
@@ -1563,6 +1586,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
         xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, xSignatureLength );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify ECDSA." );
     }
+    
 
     mbedtls_ecp_group_free( &xEcdsaContext.grp );
     mbedtls_ecdsa_free( &xEcdsaContext );

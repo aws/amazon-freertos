@@ -50,7 +50,8 @@
 
 #define pkcs11configMAX_NUM_OBJECTS     6
 
-#define pkcs11configPAL_DESTROY_SUPPORTED           1
+#define pkcs11configPAL_DESTROY_SUPPORTED           0
+#define pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED 0
 
 /**
  * @brief The PKCS #11 label for device private key.
