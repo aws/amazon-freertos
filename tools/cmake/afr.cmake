@@ -17,7 +17,7 @@ set(AFR_TEST_DIR "${AFR_ROOT_DIR}/test" CACHE INTERNAL "Amazon FreeRTOS test hel
 set(AFR_VENDORS_DIR "${AFR_ROOT_DIR}/vendors" CACHE INTERNAL "vendors content root.")
 set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/libraries/3rdparty" CACHE INTERNAL "3rdparty libraries root.")
 
-# Network manager will temporarily be built into the demo executables.
+# TODO, Network manager will temporarily be built into the demo executables (remove later).
 set(NETWORK_MANAGER_SOURCES
     "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
     "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"

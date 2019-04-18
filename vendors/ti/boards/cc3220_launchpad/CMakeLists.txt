@@ -163,8 +163,9 @@ else()
     set(exe_target aws_demos)
 endif()
 
-afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/ti_code")
+# TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
+afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/ti_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 add_executable(
