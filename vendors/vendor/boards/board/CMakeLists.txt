@@ -1,16 +1,19 @@
 # These Amazon FreeRTOS related global variables are available to use.
-# AFR_ROOT_DIR          Amazon FreeRTOS source root.
-# AFR_MODULES_DIR       Amazon FreeRTOS modules root.
-# AFR_DEMOS_DIR         Amazon FreeRTOS demos root.
-# AFR_TEST_DIR         Amazon FreeRTOS tests root.
-# AFR_3RDPARTY_DIR      3rdparty libraries root.
+# AFR_ROOT_DIR              Amazon FreeRTOS source root.
+# AFR_MODULES_DIR           Amazon FreeRTOS modules root.
+# AFR_MODULES_STANDARD_DIR  Amazon FreeRTOS standard modules root.
+# AFR_MODULES_AWS_DIR       Amazon FreeRTOS aws modules root.
+# AFR_MODULES_PORTS_DIR     Amazon FreeRTOS portable modules root.
+# AFR_DEMOS_DIR             Amazon FreeRTOS demos root.
+# AFR_TEST_DIR              Amazon FreeRTOS tests root.
+# AFR_3RDPARTY_DIR          3rdparty libraries root.
 
-# AFR_VENDOR_NAME       Folder name for vendor.
-# AFR_BOARD_NAME        Folder name for this board.
+# AFR_VENDOR_NAME           Folder name for vendor.
+# AFR_BOARD_NAME            Folder name for this board.
 
-# AFR_TOOLCHAIN         Compiler chosen by the user. Should be one of
-#                       the file names under ${AFR_ROOT_DIR}/cmake/toolchains
-# AFR_IS_TESTING        1 if testing enabled, otherwise, 0.
+# AFR_TOOLCHAIN             Compiler chosen by the user. Should be one of
+#                           the file names under ${AFR_ROOT_DIR}/tools/cmake/toolchains
+# AFR_IS_TESTING            1 if testing enabled, otherwise, 0.
 
 # You may also use these 2 functions we defined to glob files when needed. However, we recommend
 # to specify your source files explicitly to avoid unexpected behavior unless you're 100% sure.
@@ -48,9 +51,10 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
-# If you have multiple compiler supports, you can use AFR_TOOLCHAIN. Also might be a good idea to
-# put your compiler settings to different files and just include them here, e.g.,
-# include(<vendor_dir>/compilers/${AFR_TOOLCHAIN}.cmake)
+# If you support multiple compilers, you can use AFR_TOOLCHAIN to conditionally define the compiler
+# settings. This variable will be set to the file name of CMAKE_TOOLCHAIN_FILE. It might also be a
+# good idea to put your compiler settings to different files and just include them here, e.g.,
+# include(compilers/${AFR_TOOLCHAIN}.cmake)
 
 # ==================== Example ====================
 
