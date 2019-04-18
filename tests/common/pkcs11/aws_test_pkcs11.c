@@ -1089,7 +1089,7 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue )
     CK_BYTE xCertificateValue[ CERTIFICATE_VALUE_LENGTH ];
 
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
-    
+
     /* TODO: Add RSA key component GetAttributeValue checks. */
 
     /* Get the certificate value. */
@@ -1134,8 +1134,8 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit RSA." );
 
-    xSignatureLength = sizeof( xSignature );    
-    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashPlusOid, sizeof(xHashPlusOid), xSignature, &xSignatureLength );
+    xSignatureLength = sizeof( xSignature );
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashPlusOid, sizeof( xHashPlusOid ), xSignature, &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to RSA Sign." );
 
     /* Verify the signature with mbedTLS */
@@ -1277,15 +1277,6 @@ void prvProvisionEcTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials in test setup." );
         xCurrentCredentials = eNone;
 
-        xResult = xProvisionPrivateKey( xGlobalSession,
-                                        ( uint8_t * ) cValidECDSAPrivateKey,
-                                        sizeof( cValidECDSAPrivateKey ),
-                                        CKK_EC,
-                                        pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                        pxPrivateKeyHandle );
-        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC private key." );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, *pxPrivateKeyHandle, "Invalid object handle returned for EC private key." );
-
         xResult = xProvisionPublicKey( xGlobalSession,
                                        ( uint8_t * ) cValidECDSAPrivateKey,
                                        sizeof( cValidECDSAPrivateKey ),
@@ -1294,6 +1285,15 @@ void prvProvisionEcTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                        pxPublicKeyHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC public key." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, *pxPrivateKeyHandle, "Invalid object handle returned for EC public key." );
+
+        xResult = xProvisionPrivateKey( xGlobalSession,
+                                        ( uint8_t * ) cValidECDSAPrivateKey,
+                                        sizeof( cValidECDSAPrivateKey ),
+                                        CKK_EC,
+                                        pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                        pxPrivateKeyHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC private key." );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, *pxPrivateKeyHandle, "Invalid object handle returned for EC private key." );
 
         xResult = xProvisionCertificate( xGlobalSession,
                                          ( uint8_t * ) cValidECDSACertificate,
@@ -1362,41 +1362,41 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC certificate." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xClientCertificateHandle, "Invalid object handle returned for EC certificate." );
 
-#if (pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1)
-    xResult = xProvisionCertificate( xGlobalSession,
-                                     ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
-                                     tlsATS1_ROOT_CERTIFICATE_LENGTH,
-                                     pkcs11configLABEL_ROOT_CERTIFICATE,
-                                     &xRootCertificateHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create root EC certificate." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Invalid object handle returned for EC root certificate." );
+    #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
+        xResult = xProvisionCertificate( xGlobalSession,
+                                         ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
+                                         tlsATS1_ROOT_CERTIFICATE_LENGTH,
+                                         pkcs11configLABEL_ROOT_CERTIFICATE,
+                                         &xRootCertificateHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create root EC certificate." );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Invalid object handle returned for EC root certificate." );
 
-    xResult = xProvisionCertificate( xGlobalSession,
-                                     ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
-                                     tlsATS1_ROOT_CERTIFICATE_LENGTH,
-                                     pkcs11configLABEL_JITP_CERTIFICATE,
-                                     &xJITPCertificateHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create JITP EC certificate." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned for EC JITP certificate." );
+        xResult = xProvisionCertificate( xGlobalSession,
+                                         ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
+                                         tlsATS1_ROOT_CERTIFICATE_LENGTH,
+                                         pkcs11configLABEL_JITP_CERTIFICATE,
+                                         &xJITPCertificateHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create JITP EC certificate." );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned for EC JITP certificate." );
 
-    xResult = xProvisionPublicKey( xGlobalSession,
-                                   ( uint8_t * ) cValidECDSAPrivateKey,
-                                   sizeof( cValidECDSAPrivateKey ),
-                                   CKK_EC,
-                                   pkcs11configLABEL_CODE_VERIFICATION_KEY,
-                                   &xCodeSignPublicKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC code sign public key." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCodeSignPublicKeyHandle, "Invalid object handle returned for EC code sign public key." );
+        xResult = xProvisionPublicKey( xGlobalSession,
+                                       ( uint8_t * ) cValidECDSAPrivateKey,
+                                       sizeof( cValidECDSAPrivateKey ),
+                                       CKK_EC,
+                                       pkcs11configLABEL_CODE_VERIFICATION_KEY,
+                                       &xCodeSignPublicKeyHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC code sign public key." );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCodeSignPublicKeyHandle, "Invalid object handle returned for EC code sign public key." );
 
-    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xRootCertificateHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy root certificate." );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xRootCertificateHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy root certificate." );
 
-    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xJITPCertificateHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy JITP certificate." );
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xJITPCertificateHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy JITP certificate." );
 
-    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xCodeSignPublicKeyHandle );
-    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy EC code sign public key." );
-#endif
+        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xCodeSignPublicKeyHandle );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy EC code sign public key." );
+    #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 
     xCurrentCredentials = eEllipticCurveTest;
 }
@@ -1586,7 +1586,6 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
         xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, xSignatureLength );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify ECDSA." );
     }
-    
 
     mbedtls_ecp_group_free( &xEcdsaContext.grp );
     mbedtls_ecdsa_free( &xEcdsaContext );
@@ -1647,7 +1646,7 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
 
     /* Reconstruct the signature in PKCS #11 format. */
     PKI_mbedTLSSignatureToPkcs11Signature( xSignaturePKCS,
-                                        xSignature );
+                                           xSignature );
 
     /* Verify with PKCS #11. */
     xMechanism.mechanism = CKM_ECDSA;
