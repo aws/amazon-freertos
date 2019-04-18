@@ -36,7 +36,7 @@
 #define IOT_BLE_DEVICE_NAME                     "ESP32"
 
 /* Enable WIFI provisioning GATT service. */
-#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 1 )
 
 /* Include BLE default config at bottom to set the default values for the configurations which are not overridden */
 #include "iot_ble_config_defaults.h"

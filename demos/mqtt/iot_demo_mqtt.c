@@ -41,9 +41,6 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
-/* Common libraries include. */
-#include "iot_common.h"
-
 /* MQTT include. */
 #include "iot_mqtt.h"
 
@@ -381,6 +378,10 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     networkInfo.pNetworkCredentialInfo = pNetworkCredentialInfo;
     networkInfo.pNetworkInterface = pNetworkInterface;
 
+#if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+    networkInfo.pMqttSerializer = IOT_MQTT_SERIALIZER_OVERRIDE;
+#endif
+
     /* Set the members of the connection info not set by the initializer. */
     connectInfo.awsIotMqttMode = awsIotMqttMode;
     connectInfo.cleanSession = true;
@@ -712,6 +713,37 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
     return status;
 }
 
+/**
+ * @brief Initialize the MQTT library.
+ *
+ * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
+ * `EXIT_FAILURE` otherwise.
+ */
+static int _initializeDemo( void )
+{
+    int ret = EXIT_SUCCESS;
+    IotMqttError_t mqttInitStatus = IOT_MQTT_SUCCESS;
+
+    /* Initialize the MQTT library. */
+    mqttInitStatus = IotMqtt_Init();
+    if( mqttInitStatus != IOT_MQTT_SUCCESS )
+    {
+        ret = EXIT_FAILURE;
+    }
+
+    return ret;
+}
+
+/**
+ * @brief Clean up the  the MQTT library.
+ */
+static void _cleanupDemo( void )
+{
+    IotMqtt_Cleanup();
+}
+
+
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -756,13 +788,27 @@ int RunMqttDemo( bool awsIotMqttMode,
     /* Flags for tracking which cleanup functions must be called. */
     bool connectionEstablished = false;
 
-    /* Establish a new MQTT connection. */
-    status = _establishMqttConnection(awsIotMqttMode,
-                                      pIdentifier,
-                                      pNetworkServerInfo,
-                                      pNetworkCredentialInfo,
-                                      pNetworkInterface,
-                                      &mqttConnection);
+    /* Flag for tracking if the libraries are initialized */
+    bool librariesInitialized = false;
+
+
+    status = _initializeDemo();
+
+    if( status == EXIT_SUCCESS )
+    {
+        librariesInitialized = true;
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Establish a new MQTT connection. */
+        status = _establishMqttConnection(awsIotMqttMode,
+                                          pIdentifier,
+                                          pNetworkServerInfo,
+                                          pNetworkCredentialInfo,
+                                          pNetworkInterface,
+                                          &mqttConnection);
+    }
 
     if( status == EXIT_SUCCESS )
     {
@@ -811,6 +857,11 @@ int RunMqttDemo( bool awsIotMqttMode,
     if( connectionEstablished == true )
     {
         IotMqtt_Disconnect( mqttConnection, 0 );
+    }
+
+    if( librariesInitialized == true )
+    {
+        _cleanupDemo();
     }
 
     return status;
