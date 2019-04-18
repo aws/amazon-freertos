@@ -24,17 +24,8 @@
  * @brief Generic demo runner for C SDK libraries on Amazon FreeRTOS.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
-
-
-#include "aws_clientcredential.h"
-#include "platform/iot_network_afr.h"
-#include "platform/iot_threads.h"
-#include "iot_common.h"
-#include "iot_mqtt.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 /**
  * @brief Warn user if pvPortMalloc fails.
@@ -48,7 +39,6 @@
  */
 void vApplicationMallocFailedHook()
 {
-    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
     taskDISABLE_INTERRUPTS();
 
     /* Loop forever */
