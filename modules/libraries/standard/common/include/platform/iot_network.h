@@ -24,8 +24,8 @@
  * @brief Abstraction of network functions used by libraries in this SDK.
  */
 
-#ifndef _IOT_NETWORK_H_
-#define _IOT_NETWORK_H_
+#ifndef IOT_NETWORK_H_
+#define IOT_NETWORK_H_
 
 /* Standard includes. */
 #include <stdint.h>
@@ -231,4 +231,4 @@ typedef struct IotNetworkInterface
     /* @[declare_platform_network_destroy] */
 } IotNetworkInterface_t;
 
-#endif /* ifndef _IOT_NETWORK_H_ */
+#endif /* ifndef IOT_NETWORK_H_ */

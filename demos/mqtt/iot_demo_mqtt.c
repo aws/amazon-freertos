@@ -24,13 +24,12 @@
  * @brief Demonstrates usage of the MQTT library.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -41,24 +40,8 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 
-/* Common libraries include. */
-#include "iot_common.h"
-
 /* MQTT include. */
 #include "iot_mqtt.h"
-
-/**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Including stdio.h also brings in unwanted (and conflicting) symbols on some
- * platforms. Therefore, any functions in stdio.h needed in this file have an
- * extern declaration here. */
-extern int snprintf( char *,
-                     size_t,
-                     const char *,
-                     ... );
-/** @endcond */
 
 /**
  * @cond DOXYGEN_IGNORE
@@ -192,6 +175,15 @@ extern int snprintf( char *,
 
 /*-----------------------------------------------------------*/
 
+/* Declaration of demo function. */
+int RunMqttDemo( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface );
+
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Called by the MQTT library when an operation completes.
  *
@@ -211,18 +203,18 @@ static void _operationCompleteCallback( void * param1,
 
     /* Print the status of the completed operation. A PUBLISH operation is
      * successful when transmitted over the network. */
-    if( pOperation->operation.result == IOT_MQTT_SUCCESS )
+    if( pOperation->u.operation.result == IOT_MQTT_SUCCESS )
     {
         IotLogInfo( "MQTT %s %d successfully sent.",
-                    IotMqtt_OperationType( pOperation->operation.type ),
+                    IotMqtt_OperationType( pOperation->u.operation.type ),
                     ( int ) publishCount );
     }
     else
     {
         IotLogError( "MQTT %s %d could not be sent. Error %s.",
-                     IotMqtt_OperationType( pOperation->operation.type ),
+                     IotMqtt_OperationType( pOperation->u.operation.type ),
                      ( int ) publishCount,
-                     IotMqtt_strerror( pOperation->operation.result ) );
+                     IotMqtt_strerror( pOperation->u.operation.result ) );
     }
 }
 
@@ -245,7 +237,7 @@ static void _mqttSubscriptionCallback( void * param1,
     int acknowledgementLength = 0;
     size_t messageNumberIndex = 0, messageNumberLength = 1;
     IotSemaphore_t * pPublishesReceived = ( IotSemaphore_t * ) param1;
-    const char * pPayload = pPublish->message.info.pPayload;
+    const char * pPayload = pPublish->u.message.info.pPayload;
     char pAcknowledgementMessage[ _ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH ] = { 0 };
     IotMqttPublishInfo_t acknowledgementInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
@@ -256,17 +248,17 @@ static void _mqttSubscriptionCallback( void * param1,
                 "Publish retain flag: %d\r\n"
                 "Publish QoS: %d\r\n"
                 "Publish payload: %.*s",
-                pPublish->message.topicFilterLength,
-                pPublish->message.pTopicFilter,
-                pPublish->message.info.topicNameLength,
-                pPublish->message.info.pTopicName,
-                pPublish->message.info.retain,
-                pPublish->message.info.qos,
-                pPublish->message.info.payloadLength,
+                pPublish->u.message.topicFilterLength,
+                pPublish->u.message.pTopicFilter,
+                pPublish->u.message.info.topicNameLength,
+                pPublish->u.message.info.pTopicName,
+                pPublish->u.message.info.retain,
+                pPublish->u.message.info.qos,
+                pPublish->u.message.info.payloadLength,
                 pPayload );
 
     /* Find the message number inside of the PUBLISH message. */
-    for( messageNumberIndex = 0; messageNumberIndex < pPublish->message.info.payloadLength; messageNumberIndex++ )
+    for( messageNumberIndex = 0; messageNumberIndex < pPublish->u.message.info.payloadLength; messageNumberIndex++ )
     {
         /* The payload that was published contained ASCII characters, so find
          * beginning of the message number by checking for ASCII digits. */
@@ -278,10 +270,10 @@ static void _mqttSubscriptionCallback( void * param1,
     }
 
     /* Check that a message number was found within the PUBLISH payload. */
-    if( messageNumberIndex < pPublish->message.info.payloadLength )
+    if( messageNumberIndex < pPublish->u.message.info.payloadLength )
     {
         /* Compute the length of the message number. */
-        while( ( messageNumberIndex + messageNumberLength < pPublish->message.info.payloadLength ) &&
+        while( ( messageNumberIndex + messageNumberLength < pPublish->u.message.info.payloadLength ) &&
                ( *( pPayload + messageNumberIndex + messageNumberLength ) >= '0' ) &&
                ( *( pPayload + messageNumberIndex + messageNumberLength ) <= '9' ) )
         {
@@ -345,6 +337,40 @@ static void _mqttSubscriptionCallback( void * param1,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Initialize the MQTT library.
+ *
+ * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
+ * `EXIT_FAILURE` otherwise.
+ */
+static int _initializeDemo( void )
+{
+    int status = EXIT_SUCCESS;
+    IotMqttError_t mqttInitStatus = IOT_MQTT_SUCCESS;
+
+    mqttInitStatus = IotMqtt_Init();
+
+    if( mqttInitStatus != IOT_MQTT_SUCCESS )
+    {
+        /* Failed to initialize MQTT library. */
+        status = EXIT_FAILURE;
+    }
+
+    return status;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Clean up the MQTT library.
+ */
+static void _cleanupDemo( void )
+{
+    IotMqtt_Cleanup();
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Establish a new connection to the MQTT server.
  *
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
@@ -377,8 +403,8 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     /* Set the members of the network info not set by the initializer. This
      * struct provided information on the transport layer to the MQTT connection. */
     networkInfo.createNetworkConnection = true;
-    networkInfo.pNetworkServerInfo = pNetworkServerInfo;
-    networkInfo.pNetworkCredentialInfo = pNetworkCredentialInfo;
+    networkInfo.u.setup.pNetworkServerInfo = pNetworkServerInfo;
+    networkInfo.u.setup.pNetworkCredentialInfo = pNetworkCredentialInfo;
     networkInfo.pNetworkInterface = pNetworkInterface;
 
     /* Set the members of the connection info not set by the initializer. */
@@ -754,15 +780,24 @@ int RunMqttDemo( bool awsIotMqttMode,
     };
 
     /* Flags for tracking which cleanup functions must be called. */
-    bool connectionEstablished = false;
+    bool librariesInitialized = false, connectionEstablished = false;
 
-    /* Establish a new MQTT connection. */
-    status = _establishMqttConnection(awsIotMqttMode,
-                                      pIdentifier,
-                                      pNetworkServerInfo,
-                                      pNetworkCredentialInfo,
-                                      pNetworkInterface,
-                                      &mqttConnection);
+    /* Initialize the libraries required for this demo. */
+    status = _initializeDemo();
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Mark the libraries as initialized. */
+        librariesInitialized = true;
+
+        /* Establish a new MQTT connection. */
+        status = _establishMqttConnection( awsIotMqttMode,
+                                           pIdentifier,
+                                           pNetworkServerInfo,
+                                           pNetworkCredentialInfo,
+                                           pNetworkInterface,
+                                           &mqttConnection );
+    }
 
     if( status == EXIT_SUCCESS )
     {
@@ -811,6 +846,12 @@ int RunMqttDemo( bool awsIotMqttMode,
     if( connectionEstablished == true )
     {
         IotMqtt_Disconnect( mqttConnection, 0 );
+    }
+
+    /* Clean up libraries if they were initialized. */
+    if( librariesInitialized == true )
+    {
+        _cleanupDemo();
     }
 
     return status;

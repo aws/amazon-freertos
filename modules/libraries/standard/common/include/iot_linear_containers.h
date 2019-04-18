@@ -24,13 +24,11 @@
  * @brief Declares and implements doubly-linked lists and queues.
  */
 
-#ifndef _IOT_LINEAR_CONTAINERS_H_
-#define _IOT_LINEAR_CONTAINERS_H_
+#ifndef IOT_LINEAR_CONTAINERS_H_
+#define IOT_LINEAR_CONTAINERS_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -66,7 +64,7 @@ typedef IotLink_t   IotListDouble_t;
  * @ingroup linear_containers_datatypes_listqueue
  * @brief Represents a queue.
  */
-typedef IotLink_t   IotQueue_t;
+typedef IotLink_t   IotDeQueue_t;
 
 /**
  * @constantspage{linear_containers,linear containers library}
@@ -87,7 +85,7 @@ typedef IotLink_t   IotQueue_t;
 /* @[define_linear_containers_initializers] */
 #define IOT_LINK_INITIALIZER           { 0 }                /**< @brief Initializer for an #IotLink_t. */
 #define IOT_LIST_DOUBLE_INITIALIZER    IOT_LINK_INITIALIZER /**< @brief Initializer for an #IotListDouble_t. */
-#define IOT_QUEUE_INITIALIZER          IOT_LINK_INITIALIZER /**< @brief Initializer for an #IotQueue_t. */
+#define IOT_DEQUEUE_INITIALIZER        IOT_LINK_INITIALIZER /**< @brief Initializer for an #IotDeQueue_t. */
 /* @[define_linear_containers_initializers] */
 
 /**
@@ -154,9 +152,12 @@ typedef IotLink_t   IotQueue_t;
  * - @functionname{linear_containers_function_queue_create}
  * - @functionname{linear_containers_function_queue_count}
  * - @functionname{linear_containers_function_queue_isempty}
- * - @functionname{linear_containers_function_queue_peek}
- * - @functionname{linear_containers_function_queue_enqueue}
- * - @functionname{linear_containers_function_queue_dequeue}
+ * - @functionname{linear_containers_function_queue_peekhead}
+ * - @functionname{linear_containers_function_queue_peektail}
+ * - @functionname{linear_containers_function_queue_enqueuehead}
+ * - @functionname{linear_containers_function_queue_dequeuehead}
+ * - @functionname{linear_containers_function_queue_enqueuetail}
+ * - @functionname{linear_containers_function_queue_dequeuetail}
  * - @functionname{linear_containers_function_queue_remove}
  * - @functionname{linear_containers_function_queue_removeall}
  * - @functionname{linear_containers_function_queue_removeallmatches}
@@ -181,15 +182,18 @@ typedef IotLink_t   IotQueue_t;
  * @functionpage{IotListDouble_FindFirstMatch,linear_containers,list_double_findfirstmatch}
  * @functionpage{IotListDouble_RemoveFirstMatch,linear_containers,list_double_removefirstmatch}
  * @functionpage{IotListDouble_RemoveAllMatches,linear_containers,list_double_removeallmatches}
- * @functionpage{IotQueue_Create,linear_containers,queue_create}
- * @functionpage{IotQueue_Count,linear_containers,queue_count}
- * @functionpage{IotQueue_IsEmpty,linear_containers,queue_isempty}
- * @functionpage{IotQueue_Peek,linear_containers,queue_peek}
- * @functionpage{IotQueue_Enqueue,linear_containers,queue_enqueue}
- * @functionpage{IotQueue_Dequeue,linear_containers,queue_dequeue}
- * @functionpage{IotQueue_Remove,linear_containers,queue_remove}
- * @functionpage{IotQueue_RemoveAll,linear_containers,queue_removeall}
- * @functionpage{IotQueue_RemoveAllMatches,linear_containers,queue_removeallmatches}
+ * @functionpage{IotDeQueue_Create,linear_containers,queue_create}
+ * @functionpage{IotDeQueue_Count,linear_containers,queue_count}
+ * @functionpage{IotDeQueue_IsEmpty,linear_containers,queue_isempty}
+ * @functionpage{IotDeQueue_PeekHead,linear_containers,queue_peekhead}
+ * @functionpage{IotDeQueue_PeekTail,linear_containers,queue_peektail}
+ * @functionpage{IotDeQueue_EnqueueHead,linear_containers,queue_enqueuehead}
+ * @functionpage{IotDeQueue_DequeueHead,linear_containers,queue_dequeuehead}
+ * @functionpage{IotDeQueue_EnqueueTail,linear_containers,queue_enqueuetail}
+ * @functionpage{IotDeQueue_DequeueTail,linear_containers,queue_dequeuetail}
+ * @functionpage{IotDeQueue_Remove,linear_containers,queue_remove}
+ * @functionpage{IotDeQueue_RemoveAll,linear_containers,queue_removeall}
+ * @functionpage{IotDeQueue_RemoveAllMatches,linear_containers,queue_removeallmatches}
  */
 
 /**
@@ -748,30 +752,30 @@ static inline void IotListDouble_RemoveAllMatches( IotListDouble_t * const pList
 /**
  * @brief Create a new queue.
  *
- * This function initializes a new queue. It must be called on an uninitialized
- * #IotQueue_t before calling any other queue function. This function must not be
- * called on an already-initialized #IotQueue_t.
+ * This function initializes a new double-ended queue. It must be called on an uninitialized
+ * #IotDeQueue_t before calling any other queue function. This function must not be
+ * called on an already-initialized #IotDeQueue_t.
  *
  * This function will not fail.
  *
  * @param[in] pQueue Pointer to the memory that will hold the new queue.
  */
 /* @[declare_linear_containers_queue_create] */
-static inline void IotQueue_Create( IotQueue_t * const pQueue )
+static inline void IotDeQueue_Create( IotDeQueue_t * const pQueue )
 /* @[declare_linear_containers_queue_create] */
 {
     IotListDouble_Create( pQueue );
 }
 
 /**
- * @brief Return the number of elements contained in an #IotQueue_t.
+ * @brief Return the number of elements contained in an #IotDeQueue_t.
  *
  * @param[in] pQueue The queue with the elements to count.
  *
  * @return The number of items elements in the queue.
  */
 /* @[declare_linear_containers_queue_count] */
-static inline size_t IotQueue_Count( const IotQueue_t * const pQueue )
+static inline size_t IotDeQueue_Count( const IotDeQueue_t * const pQueue )
 /* @[declare_linear_containers_queue_count] */
 {
     return IotListDouble_Count( pQueue );
@@ -786,7 +790,7 @@ static inline size_t IotQueue_Count( const IotQueue_t * const pQueue )
  *
  */
 /* @[declare_linear_containers_queue_isempty] */
-static inline bool IotQueue_IsEmpty( const IotQueue_t * const pQueue )
+static inline bool IotDeQueue_IsEmpty( const IotDeQueue_t * const pQueue )
 /* @[declare_linear_containers_queue_isempty] */
 {
     return IotListDouble_IsEmpty( pQueue );
@@ -802,29 +806,46 @@ static inline bool IotQueue_IsEmpty( const IotQueue_t * const pQueue )
  * queue; `NULL` if the queue is empty. The macro #IotLink_Container may be used
  * to determine the address of the link's container.
  */
-/* @[declare_linear_containers_queue_peek] */
-static inline IotLink_t * IotQueue_Peek( const IotQueue_t * const pQueue )
-/* @[declare_linear_containers_queue_peek] */
+/* @[declare_linear_containers_queue_peekhead] */
+static inline IotLink_t * IotDeQueue_PeekHead( const IotDeQueue_t * const pQueue )
+/* @[declare_linear_containers_queue_peekhead] */
 {
     return IotListDouble_PeekHead( pQueue );
 }
 
 /**
- * @brief Add an element to the queue.
+ * @brief Return an #IotLink_t representing the element at the back of the queue
+ * without removing it.
+ *
+ * @param[in] pQueue The queue to peek.
+ *
+ * @return Pointer to an #IotLink_t representing the element at the head of the
+ * queue; `NULL` if the queue is empty. The macro #IotLink_Container may be used
+ * to determine the address of the link's container.
+ */
+/* @[declare_linear_containers_queue_peektail] */
+static inline IotLink_t * IotDeQueue_PeekTail( const IotDeQueue_t * const pQueue )
+/* @[declare_linear_containers_queue_peektail] */
+{
+    return IotListDouble_PeekTail( pQueue );
+}
+
+/**
+ * @brief Add an element at the head of the queue.
  *
  * @param[in] pQueue The queue that will hold the new element.
  * @param[in] pLink Pointer to the new element's link member.
  */
-/* @[declare_linear_containers_queue_enqueue] */
-static inline void IotQueue_Enqueue( IotQueue_t * const pQueue,
+/* @[declare_linear_containers_queue_enqueuehead] */
+static inline void IotDeQueue_EnqueueHead( IotDeQueue_t * const pQueue,
                                      IotLink_t * const pLink )
-/* @[declare_linear_containers_queue_enqueue] */
+/* @[declare_linear_containers_queue_enqueuehead] */
 {
-    IotListDouble_InsertTail( pQueue, pLink );
+    IotListDouble_InsertHead( pQueue, pLink );
 }
 
 /**
- * @brief Remove the oldest element in the queue.
+ * @brief Remove an element at the head of the queue.
  *
  * @param[in] pQueue The queue that holds the element to remove.
  *
@@ -832,11 +853,41 @@ static inline void IotQueue_Enqueue( IotQueue_t * const pQueue,
  * if the queue is empty. The macro #IotLink_Container may be used to determine
  * the address of the link's container.
  */
-/* @[declare_linear_containers_queue_dequeue] */
-static inline IotLink_t * IotQueue_Dequeue( IotQueue_t * const pQueue )
-/* @[declare_linear_containers_queue_dequeue] */
+/* @[declare_linear_containers_queue_dequeuehead] */
+static inline IotLink_t * IotDeQueue_DequeueHead( IotDeQueue_t * const pQueue )
+/* @[declare_linear_containers_queue_dequeuehead] */
 {
     return IotListDouble_RemoveHead( pQueue );
+}
+
+/**
+ * @brief Add an element at the tail of the queue.
+ *
+ * @param[in] pQueue The queue that will hold the new element.
+ * @param[in] pLink Pointer to the new element's link member.
+ */
+/* @[declare_linear_containers_queue_enqueuetail] */
+static inline void IotDeQueue_EnqueueTail( IotDeQueue_t * const pQueue,
+                                     IotLink_t * const pLink )
+/* @[declare_linear_containers_queue_enqueuetail] */
+{
+    IotListDouble_InsertTail( pQueue, pLink );
+}
+
+/**
+ * @brief Remove an element at the tail of the queue.
+ *
+ * @param[in] pQueue The queue that holds the element to remove.
+ *
+ * @return Pointer to an #IotLink_t representing the removed queue element; `NULL`
+ * if the queue is empty. The macro #IotLink_Container may be used to determine
+ * the address of the link's container.
+ */
+/* @[declare_linear_containers_queue_dequeuetail] */
+static inline IotLink_t * IotDeQueue_DequeueTail( IotDeQueue_t * const pQueue )
+/* @[declare_linear_containers_queue_dequeuetail] */
+{
+    return IotListDouble_RemoveTail( pQueue );
 }
 
 /**
@@ -845,7 +896,7 @@ static inline IotLink_t * IotQueue_Dequeue( IotQueue_t * const pQueue )
  * @param[in] pLink The element to remove.
  */
 /* @[declare_linear_containers_queue_remove] */
-static inline void IotQueue_Remove( IotLink_t * const pLink )
+static inline void IotDeQueue_Remove( IotLink_t * const pLink )
 /* @[declare_linear_containers_queue_remove] */
 {
     IotListDouble_Remove( pLink );
@@ -863,7 +914,7 @@ static inline void IotQueue_Remove( IotLink_t * const pLink )
  * or its value is `0`.
  */
 /* @[declare_linear_containers_queue_removeall] */
-static inline void IotQueue_RemoveAll( IotQueue_t * const pQueue,
+static inline void IotDeQueue_RemoveAll( IotDeQueue_t * const pQueue,
                                        void ( * freeElement )( void * ),
                                        size_t linkOffset )
 /* @[declare_linear_containers_queue_removeall] */
@@ -888,7 +939,7 @@ static inline void IotQueue_RemoveAll( IotQueue_t * const pQueue,
  * or its value is `0`.
  */
 /* @[declare_linear_containers_queue_removeallmatches] */
-static inline void IotQueue_RemoveAllMatches( IotQueue_t * const pQueue,
+static inline void IotDeQueue_RemoveAllMatches( IotDeQueue_t * const pQueue,
                                               bool ( * isMatch )( const IotLink_t *, void * ),
                                               void * pMatch,
                                               void ( * freeElement )( void * ),
@@ -898,4 +949,4 @@ static inline void IotQueue_RemoveAllMatches( IotQueue_t * const pQueue,
     IotListDouble_RemoveAllMatches( pQueue, isMatch, pMatch, freeElement, linkOffset );
 }
 
-#endif /* _IOT_LINEAR_CONTAINERS_H_ */
+#endif /* IOT_LINEAR_CONTAINERS_H_ */

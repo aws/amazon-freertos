@@ -24,13 +24,11 @@
  * @brief User-facing functions of the Shadow library.
  */
 
-#ifndef _AWS_IOT_SHADOW_H_
-#define _AWS_IOT_SHADOW_H_
+#ifndef AWS_IOT_SHADOW_H_
+#define AWS_IOT_SHADOW_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Shadow types include. */
 #include "types/aws_iot_shadow_types.h"
@@ -93,9 +91,10 @@ AwsIotShadowError_t AwsIotShadow_Init( uint32_t mqttTimeout );
 /**
  * @brief One-time deinitialization function for the Shadow library.
  *
- * This function frees resources taken in @ref shadow_function_init. It should
- * be called to clean up the Shadow library. After this function returns, @ref
- * shadow_function_init must be called again before calling any other Shadow
+ * This function frees resources taken in @ref shadow_function_init and deletes
+ * any [persistent subscriptions.](@ref AWS_IOT_SHADOW_FLAG_KEEP_SUBSCRIPTIONS)
+ * It should be called to clean up the Shadow library. After this function returns,
+ * @ref shadow_function_init must be called again before calling any other Shadow
  * function.
  *
  * @warning No thread-safety guarantees are provided for this function.
@@ -109,6 +108,64 @@ void AwsIotShadow_Cleanup( void );
 /**
  * @brief Delete a Thing Shadow and receive an asynchronous notification when
  * the Delete completes.
+ *
+ * This function deletes any existing Shadow document for the given Thing Name.
+ * If the given Thing has no Shadow and this function is called, the result will
+ * be #AWS_IOT_SHADOW_NOT_FOUND.
+ *
+ * Deleting a Shadow involves sending an MQTT message to AWS IoT and waiting on
+ * a response. This message will always be sent at [MQTT QoS 0](@ref #IOT_MQTT_QOS_0).
+ *
+ * @param[in] mqttConnection The MQTT connection to use for Shadow delete.
+ * @param[in] pThingName The Thing Name associated with the Shadow to delete.
+ * @param[in] thingNameLength The length of `pThingName`.
+ * @param[in] flags Flags which modify the behavior of this function. See @ref shadow_constants_flags.
+ * @param[in] pCallbackInfo Asynchronous notification of this function's completion.
+ * @param[out] pDeleteOperation Set to a handle by which this operation may be referenced
+ * after this function returns. This reference is invalidated once the Shadow delete
+ * completes.
+ *
+ * @return This function will return #AWS_IOT_SHADOW_STATUS_PENDING upon successfully
+ * queuing a Shadow delete.
+ * @return If this function fails before queuing a Shadow delete, it will return one of:
+ * - #AWS_IOT_SHADOW_BAD_PARAMETER
+ * - #AWS_IOT_SHADOW_NO_MEMORY
+ * @return Upon successful completion of the Shadow delete (either through an #AwsIotShadowCallbackInfo_t
+ * or #AwsIotShadow_Wait), the status will be #AWS_IOT_SHADOW_SUCCESS.
+ * @return Should the Shadow delete fail, the status will be one of:
+ * - #AWS_IOT_SHADOW_MQTT_ERROR
+ * - #AWS_IOT_SHADOW_BAD_RESPONSE
+ * - A Shadow service rejection reason between 400 (#AWS_IOT_SHADOW_BAD_REQUEST)
+ * and 500 (#AWS_IOT_SHADOW_SERVER_ERROR)
+ *
+ * @see @ref shadow_function_timeddelete for a blocking variant of this function.
+ *
+ * <b>Example</b>
+ * @code{c}
+ * #define THING_NAME "Test_device"
+ * #define THING_NAME_LENGTH ( sizeof( THING_NAME ) - 1 )
+ *
+ * // Shadow operation handle.
+ * AwsIotShadowOperation_t deleteOperation = AWS_IOT_SHADOW_OPERATION_INITIALIZER;
+ *
+ * // Queue a Shadow delete.
+ * AwsIotShadowError_t deleteResult = AwsIotShadow_Delete( mqttConnection,
+ *                                                         THING_NAME,
+ *                                                         THING_NAME_LENGTH,
+ *                                                         0,
+ *                                                         NULL,
+ *                                                         &deleteOperation );
+ *
+ * // Shadow delete should return AWS_IOT_SHADOW_STATUS_PENDING upon success.
+ * if( deleteResult == AWS_IOT_SHADOW_STATUS_PENDING )
+ * {
+ *     // Wait for the Shadow delete to complete.
+ *     deleteResult = AwsIotShadow_Wait( deleteOperation, 5000 );
+ *
+ *     // Delete result should be AWS_IOT_SHADOW_SUCCESS upon successfully
+ *     // deleting an existing Shadow.
+ * }
+ * @endcode
  */
 /* @[declare_shadow_delete] */
 AwsIotShadowError_t AwsIotShadow_Delete( IotMqttConnection_t mqttConnection,
@@ -121,6 +178,27 @@ AwsIotShadowError_t AwsIotShadow_Delete( IotMqttConnection_t mqttConnection,
 
 /**
  * @brief Delete a Thing Shadow with a timeout.
+ *
+ * This function queues a Shadow delete, then waits for the result. Internally, this
+ * function is a call to @ref shadow_function_delete followed by @ref shadow_function_wait.
+ * See @ref shadow_function_delete for more information on the Shadow delete operation.
+ *
+ * @param[in] mqttConnection The MQTT connection to use for Shadow delete.
+ * @param[in] pThingName The Thing Name associated with the Shadow to delete.
+ * @param[in] thingNameLength The length of `pThingName`.
+ * @param[in] flags Flags which modify the behavior of this function. See @ref shadow_constants_flags.
+ * @param[in] timeoutMs If the Shadow service does not respond to the Shadow delete
+ * within this timeout, this function returns #AWS_IOT_SHADOW_TIMEOUT.
+ *
+ * @return One of the following:
+ * - #AWS_IOT_SHADOW_SUCCESS
+ * - #AWS_IOT_SHADOW_BAD_PARAMETER
+ * - #AWS_IOT_SHADOW_NO_MEMORY
+ * - #AWS_IOT_SHADOW_MQTT_ERROR
+ * - #AWS_IOT_SHADOW_BAD_RESPONSE
+ * - #AWS_IOT_SHADOW_TIMEOUT
+ * - A Shadow service rejection reason between 400 (#AWS_IOT_SHADOW_BAD_REQUEST)
+ * and 500 (#AWS_IOT_SHADOW_SERVER_ERROR)
  */
 /* @[declare_shadow_timeddelete] */
 AwsIotShadowError_t AwsIotShadow_TimedDelete( IotMqttConnection_t mqttConnection,
@@ -133,6 +211,83 @@ AwsIotShadowError_t AwsIotShadow_TimedDelete( IotMqttConnection_t mqttConnection
 /**
  * @brief Retrieve a Thing Shadow and receive an asynchronous notification when
  * the Shadow document is received.
+ *
+ * This function retrieves the Thing Shadow document currently stored by the
+ * Shadow service. If a given Thing has no Shadow and this function is called,
+ * the result will be #AWS_IOT_SHADOW_NOT_FOUND.
+ *
+ * Shadow documents may be large, and their size is not known beforehand.
+ * Therefore, this function works best when memory is dynamically allocated.
+ * Because the Shadow document is retrieved in an MQTT PUBLISH packet, the MQTT
+ * library will allocate a buffer for the Shadow document using #IotMqtt_MallocMessage.
+ *
+ * The MQTT library may free the buffer for a retrieved Shadow document as soon
+ * as the [Shadow completion callback](@ref AwsIotShadowCallbackInfo_t) returns.
+ * Therefore, any data needed later must be copied from the Shadow document.
+ * Similarly, if the flag #AWS_IOT_SHADOW_FLAG_WAITABLE is given to this function
+ * (which indicates that the Shadow document will be needed after the Shadow
+ * operation completes), #AwsIotShadowDocumentInfo_t.mallocDocument must be
+ * provided to allocate a longer-lasting buffer.
+ *
+ * @note Because of the potentially large size of complete Shadow documents, it is more
+ * memory-efficient for most applications to use [delta callbacks]
+ * (@ref shadow_function_setdeltacallback) to retrieve Shadows from
+ * the Shadow service.
+ *
+ * @param[in] mqttConnection The MQTT connection to use for Shadow get.
+ * @param[in] pGetInfo Shadow document parameters.
+ * @param[in] flags Flags which modify the behavior of this function. See @ref shadow_constants_flags.
+ * @param[in] pCallbackInfo Asynchronous notification of this function's completion.
+ * @param[out] pGetOperation Set to a handle by which this operation may be referenced
+ * after this function returns. This reference is invalidated once the Shadow get
+ * completes.
+ *
+ * @return This function will return #AWS_IOT_SHADOW_STATUS_PENDING upon successfully
+ * queuing a Shadow get.
+ * @return If this function fails before queuing a Shadow get, it will return one of:
+ * - #AWS_IOT_SHADOW_BAD_PARAMETER
+ * - #AWS_IOT_SHADOW_NO_MEMORY
+ * @return Upon successful completion of the Shadow get (either through an #AwsIotShadowCallbackInfo_t
+ * or #AwsIotShadow_Wait), the status will be #AWS_IOT_SHADOW_SUCCESS.
+ * @return Should the Shadow get fail, the status will be one of:
+ * - #AWS_IOT_SHADOW_NO_MEMORY (Memory could not be allocated for incoming document)
+ * - #AWS_IOT_SHADOW_MQTT_ERROR
+ * - #AWS_IOT_SHADOW_BAD_RESPONSE
+ * - A Shadow service rejection reason between 400 (#AWS_IOT_SHADOW_BAD_REQUEST)
+ * and 500 (#AWS_IOT_SHADOW_SERVER_ERROR)
+ *
+ * @see @ref shadow_function_timedget for a blocking variant of this function.
+ *
+ * <b>Example</b>
+ * @code{c}
+ * // Shadow get completion callback. The retrieved document will be in
+ * // pCallbackParam. Any data in the retrieved document needed after this
+ * // function returns must be copied.
+ * void _processRetrievedDocument( void * pCallbackContext,
+ *                                 AwsIotShadowCallbackParam_t * pCallbackParam );
+ *
+ * // Parameters and return value of Shadow get.
+ * AwsIotShadowError_t result = AWS_IOT_SHADOW_STATUS_PENDING;
+ * AwsIotShadowDocumentInfo_t getInfo = { ... };
+ * uint32_t timeout = 5000; // 5 seconds
+ *
+ * // Callback for get completion.
+ * AwsIotShadowCallbackInfo_t getCallback = AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER;
+ * getCallback.function = _processRetrievedDocument;
+ *
+ * // Shadow get operation.
+ * result = AwsIotShadow_Get( mqttConnection,
+ *                            &getInfo,
+ *                            0,
+ *                            &getCallback,
+ *                            NULL );
+ *
+ * // Get should have returned AWS_IOT_SHADOW_STATUS_PENDING. The function
+ * // _processRetrievedDocument will be invoked once the Shadow get completes.
+ * @endcode
+ *
+ * See @ref shadow_function_wait <b>Example 2</b> for an example of using this
+ * function with #AWS_IOT_SHADOW_FLAG_WAITABLE and @ref shadow_function_wait.
  */
 /* @[declare_shadow_get] */
 AwsIotShadowError_t AwsIotShadow_Get( IotMqttConnection_t mqttConnection,
@@ -144,6 +299,33 @@ AwsIotShadowError_t AwsIotShadow_Get( IotMqttConnection_t mqttConnection,
 
 /**
  * @brief Retrieve a Thing Shadow with a timeout.
+ *
+ * This function queues a Shadow get, then waits for the result. Internally, this
+ * function is a call to @ref shadow_function_get followed by @ref shadow_function_wait.
+ * See @ref shadow_function_get for more information on the Shadow get operation.
+ *
+ * @param[in] mqttConnection The MQTT connection to use for Shadow get.
+ * @param[in] pGetInfo Shadow document parameters.
+ * @param[in] flags Flags which modify the behavior of this function. See @ref shadow_constants_flags.
+ * @param[in] timeoutMs If the Shadow service does not respond to the Shadow get
+ * within this timeout, this function returns #AWS_IOT_SHADOW_TIMEOUT.
+ * @param[out] pShadowDocument A pointer to a buffer containing the Shadow document
+ * retrieved by a Shadow get is placed here. The buffer was allocated with the function
+ * `pGetInfo->get.mallocDocument`. This output parameter is only valid if this function
+ * returns #AWS_IOT_SHADOW_SUCCESS.
+ * @param[out] pShadowDocumentLength The length of the Shadow document in
+ * `pShadowDocument` is placed here. This output parameter is only valid if this function
+ * returns #AWS_IOT_SHADOW_SUCCESS.
+ *
+ * @return One of the following:
+ * - #AWS_IOT_SHADOW_SUCCESS
+ * - #AWS_IOT_SHADOW_BAD_PARAMETER
+ * - #AWS_IOT_SHADOW_NO_MEMORY
+ * - #AWS_IOT_SHADOW_MQTT_ERROR
+ * - #AWS_IOT_SHADOW_BAD_RESPONSE
+ * - #AWS_IOT_SHADOW_TIMEOUT
+ * - A Shadow service rejection reason between 400 (#AWS_IOT_SHADOW_BAD_REQUEST)
+ * and 500 (#AWS_IOT_SHADOW_SERVER_ERROR)
  */
 /* @[declare_shadow_timedget] */
 AwsIotShadowError_t AwsIotShadow_TimedGet( IotMqttConnection_t mqttConnection,
@@ -157,6 +339,90 @@ AwsIotShadowError_t AwsIotShadow_TimedGet( IotMqttConnection_t mqttConnection,
 /**
  * @brief Send a Thing Shadow update and receive an asynchronous notification when
  * the Shadow Update completes.
+ *
+ * This function modifies the Thing Shadow document stored by the Shadow service.
+ * If a given Thing has no Shadow and this function is called, then a new Shadow
+ * is created.
+ *
+ * New JSON keys in the Shadow document will be appended. For example, if the Shadow service
+ * currently has a document containing key `example1` and this function sends a document
+ * only containing key `example2`, then the resulting document in the Shadow service
+ * will contain both `example1` and `example2`.
+ *
+ * Existing JSON keys in the Shadow document will be replaced. For example, if the Shadow
+ * service currently has a document containing `"example1": [0,1,2]` and this function sends
+ * a document containing key `"example1": [1,2,3]`, then the resulting document in the Shadow
+ * service will contain `"example1": [1,2,3]`.
+ *
+ * Successful Shadow updates will trigger the [Shadow updated callback]
+ * (@ref shadow_function_setupdatedcallback). If the resulting Shadow document contains
+ * different `desired` and `reported` keys, then the [Shadow delta callback]
+ * (@ref shadow_function_setdeltacallback) will be triggered as well.
+ *
+ * @attention All documents passed to this function must contain a `clientToken`.
+ * The [client token]
+ * (https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-document.html#client-token)
+ * is a string used to distinguish between Shadow updates. They are limited to 64
+ * characters; attempting to use a client token longer than 64 characters will
+ * cause the Shadow update to fail. They must be unique at any given time, i.e.
+ * they may be reused <i>as long as no two Shadow updates are using the same
+ * client token at the same time</i>.
+ *
+ * @param[in] mqttConnection The MQTT connection to use for Shadow update.
+ * @param[in] pUpdateInfo Shadow document parameters.
+ * @param[in] flags Flags which modify the behavior of this function. See @ref shadow_constants_flags.
+ * @param[in] pCallbackInfo Asynchronous notification of this function's completion.
+ * @param[out] pUpdateOperation Set to a handle by which this operation may be referenced
+ * after this function returns. This reference is invalidated once the Shadow update
+ * completes.
+ *
+ * @return This function will return #AWS_IOT_SHADOW_STATUS_PENDING upon successfully
+ * queuing a Shadow update.
+ * @return If this function fails before queuing a Shadow update, it will return one of:
+ * - #AWS_IOT_SHADOW_BAD_PARAMETER
+ * - #AWS_IOT_SHADOW_NO_MEMORY
+ * @return Upon successful completion of the Shadow update (either through an #AwsIotShadowCallbackInfo_t
+ * or #AwsIotShadow_Wait), the status will be #AWS_IOT_SHADOW_SUCCESS.
+ * @return Should the Shadow update fail, the status will be one of:
+ * - #AWS_IOT_SHADOW_MQTT_ERROR
+ * - #AWS_IOT_SHADOW_BAD_RESPONSE
+ * - A Shadow service rejection reason between 400 (#AWS_IOT_SHADOW_BAD_REQUEST)
+ * and 500 (#AWS_IOT_SHADOW_SERVER_ERROR)
+ *
+ * @see @ref shadow_function_timedupdate for a blocking variant of this function.
+ *
+ * <b>Example</b>
+ * @code{c}
+ * // Shadow update completion callback.
+ * void _updateComplete( void * pCallbackContext,
+ *                       AwsIotShadowCallbackParam_t * pCallbackParam );
+ *
+ * // Parameters and return value of Shadow update.
+ * AwsIotShadowError_t result = AWS_IOT_SHADOW_STATUS_PENDING;
+ * AwsIotShadowDocumentInfo_t updateInfo = { ... };
+ * uint32_t timeout = 5000; // 5 seconds
+ *
+ * // Set Shadow document to send.
+ * updateInfo.update.pUpdateDocument = "{...}"; // Must contain clientToken
+ * updateInfo.update.updateDocumentLength = strlen( updateInfo.update.pUpdateDocument );
+ *
+ * // Callback for update completion.
+ * AwsIotShadowCallbackInfo_t updateCallback = AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER;
+ * updateCallback.function = _updateComplete;
+ *
+ * // Shadow update operation.
+ * result = AwsIotShadow_Update( mqttConnection,
+ *                               &updateInfo,
+ *                               0,
+ *                               &updateCallback,
+ *                               NULL );
+ *
+ * // Update should have returned AWS_IOT_SHADOW_STATUS_PENDING. The function
+ * // _updateComplete will be invoked once the Shadow update completes.
+ * @endcode
+ *
+ * See @ref shadow_function_wait <b>Example 1</b> for an example of using this
+ * function with #AWS_IOT_SHADOW_FLAG_WAITABLE and @ref shadow_function_wait.
  */
 /* @[declare_shadow_update] */
 AwsIotShadowError_t AwsIotShadow_Update( IotMqttConnection_t mqttConnection,
@@ -168,6 +434,26 @@ AwsIotShadowError_t AwsIotShadow_Update( IotMqttConnection_t mqttConnection,
 
 /**
  * @brief Send a Thing Shadow update with a timeout.
+ *
+ * This function queues a Shadow update, then waits for the result. Internally, this
+ * function is a call to @ref shadow_function_update followed by @ref shadow_function_wait.
+ * See @ref shadow_function_update for more information on the Shadow update operation.
+ *
+ * @param[in] mqttConnection The MQTT connection to use for Shadow update.
+ * @param[in] pUpdateInfo Shadow document parameters.
+ * @param[in] flags Flags which modify the behavior of this function. See @ref shadow_constants_flags.
+ * @param[in] timeoutMs If the Shadow service does not respond to the Shadow update
+ * within this timeout, this function returns #AWS_IOT_SHADOW_TIMEOUT.
+ *
+ * @return One of the following:
+ * - #AWS_IOT_SHADOW_SUCCESS
+ * - #AWS_IOT_SHADOW_BAD_PARAMETER
+ * - #AWS_IOT_SHADOW_NO_MEMORY
+ * - #AWS_IOT_SHADOW_MQTT_ERROR
+ * - #AWS_IOT_SHADOW_BAD_RESPONSE
+ * - #AWS_IOT_SHADOW_TIMEOUT
+ * - A Shadow service rejection reason between 400 (#AWS_IOT_SHADOW_BAD_REQUEST)
+ * and 500 (#AWS_IOT_SHADOW_SERVER_ERROR)
  */
 /* @[declare_shadow_timedupdate] */
 AwsIotShadowError_t AwsIotShadow_TimedUpdate( IotMqttConnection_t mqttConnection,
@@ -213,7 +499,7 @@ AwsIotShadowError_t AwsIotShadow_TimedUpdate( IotMqttConnection_t mqttConnection
  * - #AWS_IOT_SHADOW_BAD_PARAMETER
  * - #AWS_IOT_SHADOW_BAD_RESPONSE
  * - #AWS_IOT_SHADOW_TIMEOUT
- * - A Shadow service rejected reason between 400 (#AWS_IOT_SHADOW_BAD_REQUEST)
+ * - A Shadow service rejection reason between 400 (#AWS_IOT_SHADOW_BAD_REQUEST)
  * and 500 (#AWS_IOT_SHADOW_SERVER_ERROR)
  *
  * <b>Example 1 (Shadow Update)</b>
@@ -334,7 +620,7 @@ AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowOperation_t operation,
  * @param[in] thingNameLength The length of `pThingName`.
  * @param[in] flags This parameter is for future-compatibility. Currently, flags
  * are not supported for this function and this parameter is ignored.
- * @param[in] pDeltaCallback Callback function and to invoke for incoming delta
+ * @param[in] pDeltaCallback Callback function to invoke for incoming delta
  * documents.
  *
  * @return One of the following:
@@ -352,8 +638,8 @@ AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowOperation_t operation,
  *
  * <b>Example</b>
  * @code{c}
- * #define _THING_NAME "Test_device"
- * #define _THING_NAME_LENGTH ( sizeof( _THING_NAME ) - 1 )
+ * #define THING_NAME "Test_device"
+ * #define THING_NAME_LENGTH ( sizeof( THING_NAME ) - 1 )
  *
  * AwsIotShadowError_t result = AWS_IOT_SHADOW_STATUS_PENDING;
  * AwsIotShadowCallbackInfo_t deltaCallback = AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER;
@@ -363,8 +649,8 @@ AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowOperation_t operation,
  *
  * // Set the delta callback for the Thing "Test_device".
  * result = AwsIotShadow_SetDeltaCallback( mqttConnection,
- *                                         _THING_NAME,
- *                                         _THING_NAME_LENGTH,
+ *                                         THING_NAME,
+ *                                         THING_NAME_LENGTH,
  *                                         0,
  *                                         &deltaCallback );
  *
@@ -374,8 +660,8 @@ AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowOperation_t operation,
  *     AwsIotShadowDocumentInfo_t updateInfo = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
  *
  *     // Set the Thing Name for Shadow update.
- *     updateInfo.pThingName = _THING_NAME;
- *     updateInfo.thingNameLength = _THING_NAME_LENGTH;
+ *     updateInfo.pThingName = THING_NAME;
+ *     updateInfo.thingNameLength = THING_NAME_LENGTH;
  *
  *     // Set the Shadow document to send. This document has different "reported"
  *     // and "desired" states. It represents a scenario where a device is currently
@@ -404,8 +690,8 @@ AwsIotShadowError_t AwsIotShadow_Wait( AwsIotShadowOperation_t operation,
  *     // Once the delta callback is no longer needed, it may be removed by passing
  *     // NULL as pDeltaCallback.
  *     result = AwsIotShadow_SetDeltaCallback( mqttConnection,
- *                                             _THING_NAME,
- *                                             _THING_NAME_LENGTH,
+ *                                             THING_NAME,
+ *                                             THING_NAME_LENGTH,
  *                                             0,
  *                                             NULL );
  *
@@ -424,6 +710,104 @@ AwsIotShadowError_t AwsIotShadow_SetDeltaCallback( IotMqttConnection_t mqttConne
 
 /**
  * @brief Set a callback to be invoked when a Thing Shadow changes.
+ *
+ * The Shadow service publishes a state document to the `update/documents` topic
+ * whenever a Thing Shadow is successfully updated. This document reports the
+ * complete previous and current Shadow documents in `previous` and `current`
+ * sections, respectively. Therefore, the `update/documents` topic is useful
+ * for monitoring Shadow updates.
+ *
+ * An <i>updated callback</i> may be invoked whenever a document is published to
+ * `update/documents`. Each Thing may have a single updated callback set. This function
+ * modifies the updated callback for a specific Thing depending on the `pUpdatedCallback`
+ * parameter and the presence of any existing updated callback.
+ * - When no existing updated callback exists for a specific Thing, a new updated
+ * callback is added.
+ * - If there is an existing updated callback and `pUpdatedCallback` is not `NULL`,
+ * then the existing callback function and parameter are replaced with `pUpdatedCallback`.
+ * - If there is an existing updated callback and `pUpdatedCallback` is `NULL`,
+ * then the updated callback is removed.
+ *
+ * @param[in] mqttConnection The MQTT connection to use for the subscription to `update/documents`.
+ * @param[in] pThingName The subscription to `update/documents` will be added for
+ * this Thing Name.
+ * @param[in] thingNameLength The length of `pThingName`.
+ * @param[in] flags This parameter is for future-compatibility. Currently, flags are
+ * not supported for this function and this parameter is ignored.
+ * @param[in] pUpdatedCallback Callback function to invoke for incoming updated documents.
+ *
+ * @return One of the following:
+ * - #AWS_IOT_SHADOW_SUCCESS
+ * - #AWS_IOT_SHADOW_BAD_PARAMETER
+ * - #AWS_IOT_SHADOW_NO_MEMORY
+ * - #AWS_IOT_SHADOW_MQTT_ERROR
+ * - #AWS_IOT_SHADOW_TIMEOUT
+ *
+ * @note Documents published to `update/documents` will be large, as they contain 2
+ * complete Shadow state documents. If an updated callback is used, ensure that the
+ * device has sufficient memory for incoming documents.
+ *
+ * @see @ref shadow_function_setdeltacallback for the function to register callbacks
+ * for delta documents.
+ *
+ * <b>Example</b>
+ * @code{c}
+ * #define THING_NAME "Test_device"
+ * #define THING_NAME_LENGTH ( sizeof( THING_NAME ) - 1 )
+ *
+ * AwsIotShadowError_t result = AWS_IOT_SHADOW_STATUS_PENDING;
+ * AwsIotShadowCallbackInfo_t updatedCallback = AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER;
+ *
+ * // _updatedCallbackFunction will be invoked when an updated document is received.
+ * updatedCallback.function = _updatedCallbackFunction;
+ *
+ * // Set the updated callback for the Thing "Test_device".
+ * result = AwsIotShadow_SetUpdatedCallback( mqttConnection,
+ *                                           THING_NAME,
+ *                                           THING_NAME_LENGTH,
+ *                                           0,
+ *                                           &updatedCallback );
+ *
+ * // Check if the callback was successfully set.
+ * if( result == AWS_IOT_SHADOW_SUCCESS )
+ * {
+ *     AwsIotShadowDocumentInfo_t updateInfo = AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER;
+ *
+ *     // Set the Thing Name for Shadow update.
+ *     updateInfo.pThingName = THING_NAME;
+ *     updateInfo.thingNameLength = THING_NAME_LENGTH;
+ *
+ *     // Set the Shadow document to send. Any Shadow update will trigger the
+ *     // updated callback.
+ *     updateInfo.update.pUpdateDocument =
+ *     "{"
+ *          "\"state\": {"
+ *              "\"reported\": { \"deviceOn\": false }"
+ *          "}"
+ *     "}";
+ *     updateInfo.update.updateDocumentLength = strlen( updateInfo.update.pUpdateDocument );
+ *
+ *     // Send the Shadow document. A successful update will trigger the updated callback.
+ *     result = AwsIotShadow_TimedUpdate( mqttConnection,
+ *                                        &updateInfo,
+ *                                        0,
+ *                                        0,
+ *                                        5000 );
+ *
+ *     // After a successful Shadow update, the updated callback will be invoked.
+ *
+ *     // Once the updated callback is no longer needed, it may be removed by
+ *     // passing NULL as pUpdatedCallback.
+ *     result = AwsIotShadow_SetUpdatedCallback( mqttConnection,
+ *                                               THING_NAME,
+ *                                               THING_NAME_LENGTH,
+ *                                               NULL );
+ *
+ *     // The return value from removing an updated callback should always be
+ *     // success.
+ *     assert( result == AWS_IOT_SHADOW_SUCCESS );
+ * }
+ * @endcode
  */
 /* @[declare_shadow_setupdatedcallback] */
 AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( IotMqttConnection_t mqttConnection,
@@ -436,7 +820,34 @@ AwsIotShadowError_t AwsIotShadow_SetUpdatedCallback( IotMqttConnection_t mqttCon
 /**
  * @brief Remove persistent Thing Shadow operation topic subscriptions.
  *
- * Not safe to call with any in-progress operation. Does not affect callbacks.
+ * Passing the flag @ref AWS_IOT_SHADOW_FLAG_KEEP_SUBSCRIPTIONS to @ref shadow_function_delete,
+ * @ref shadow_function_get, or @ref shadow_function_update causes the Shadow operation topic
+ * subscriptions to be maintained for future calls to the same function. If a persistent
+ * subscription for a Shadow topic are no longer needed, this function may be used to
+ * remove it.
+ *
+ * @param[in] mqttConnection The MQTT connection associated with the persistent subscription.
+ * @param[in] pThingName The Thing Name associated with the persistent subscription.
+ * @param[in] thingNameLength The length of `pThingName`.
+ * @param[in] flags Flags that determine which subscriptions to remove. Valid values are
+ * the bitwise OR of the following individual flags:
+ * - @ref AWS_IOT_SHADOW_FLAG_REMOVE_DELETE_SUBSCRIPTIONS
+ * - @ref AWS_IOT_SHADOW_FLAG_REMOVE_GET_SUBSCRIPTIONS
+ * - @ref AWS_IOT_SHADOW_FLAG_REMOVE_UPDATE_SUBSCRIPTIONS
+ *
+ * @return On success:
+ * - #AWS_IOT_SHADOW_SUCCESS
+ * @return If an MQTT UNSUBSCRIBE packet cannot be sent, one of the following:
+ * - #AWS_IOT_SHADOW_NO_MEMORY
+ * - #AWS_IOT_SHADOW_MQTT_ERROR
+ *
+ * @note @ref shadow_function_cleanup removes all persistent subscriptions as well.
+ *
+ * @warning This function is not safe to call with any in-progress operations!
+ * It also does not affect delta and updated callbacks registered with @ref
+ * shadow_function_setdeltacallback and @ref shadow_function_setupdatedcallback,
+ * respectively. (See documentation for those functions on how to remove their
+ * callbacks).
  */
 /* @[declare_shadow_removepersistentsubscriptions] */
 AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( IotMqttConnection_t mqttConnection,
@@ -467,4 +878,4 @@ AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( IotMqttConnectio
 const char * AwsIotShadow_strerror( AwsIotShadowError_t status );
 /* @[declare_shadow_strerror] */
 
-#endif /* ifndef _AWS_IOT_SHADOW_H_ */
+#endif /* ifndef AWS_IOT_SHADOW_H_ */

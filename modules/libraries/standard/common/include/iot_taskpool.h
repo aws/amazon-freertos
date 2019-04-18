@@ -27,10 +27,8 @@
 #ifndef IOT_TASKPOOL_H_
 #define IOT_TASKPOOL_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -66,7 +64,7 @@
  * @functionpage{IotTaskPool_Destroy,taskpool,destroy}
  * @functionpage{IotTaskPool_SetMaxThreads,taskpool,setmaxthreads}
  * @functionpage{IotTaskPool_CreateJob,taskpool,createjob}
- * @functionpage{IotTaskPool_CreateJob,taskpool,createrecyclablejob}
+ * @functionpage{IotTaskPool_CreateRecyclableJob,taskpool,createrecyclablejob}
  * @functionpage{IotTaskPool_DestroyRecyclableJob,taskpool,destroyrecyclablejob}
  * @functionpage{IotTaskPool_RecycleJob,taskpool,recyclejob}
  * @functionpage{IotTaskPool_Schedule,taskpool,schedule}
@@ -330,6 +328,7 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  * - #IOT_TASKPOOL_SUCCESS
  * - #IOT_TASKPOOL_BAD_PARAMETER
  * - #IOT_TASKPOOL_ILLEGAL_OPERATION
+ * - #IOT_TASKPOOL_NO_MEMORY
  * - #IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS
  *
  *
@@ -375,15 +374,16 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  *     // Statically allocate one job, schedule it.
  *     IotTaskPool_CreateJob( &ExecutionCb, &userContext, &job );
  *
- *     IotTaskPoolError_t errorSchedule = IotTaskPool_Schedule( pTaskPool, &job );
+ *     IotTaskPoolError_t errorSchedule = IotTaskPool_Schedule( pTaskPool, &job, 0 );
  *
  *     switch ( errorSchedule )
  *     {
  *     case IOT_TASKPOOL_SUCCESS:
  *         break;
- *     case IOT_TASKPOOL_BAD_PARAMETER:          // Invalid parameters, such as a NULL handle, can trigger this condition.
- *     case IOT_TASKPOOL_ILLEGAL_OPERATION:      // Scheduling a job that was previously scheduled or destroyed could trigger this condition.
- *     case IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS:   // Scheduling a job after trying to destroy the task pool could trigger this operation.
+ *     case IOT_TASKPOOL_BAD_PARAMETER:          // Invalid parameters, such as a NULL handle, can trigger this error.
+ *     case IOT_TASKPOOL_ILLEGAL_OPERATION:      // Scheduling a job that was previously scheduled or destroyed could trigger this error.
+ *     case IOT_TASKPOOL_NO_MEMORY:              // Scheduling a with flag #IOT_TASKPOOL_JOB_HIGH_PRIORITY could trigger this error.
+ *     case IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS:   // Scheduling a job after trying to destroy the task pool could trigger this error.
  *         // ASSERT
  *         break;
  *     default:
@@ -406,7 +406,7 @@ IotTaskPoolError_t IotTaskPool_Schedule( IotTaskPool_t * const pTaskPool,
 
 /**
  * @brief This function schedules a job created with @ref IotTaskPool_CreateJob against the task pool
- * pointed to by `pTaskPool` to be executed after a userdefined time interval.
+ * pointed to by `pTaskPool` to be executed after a user-defined time interval.
  *
  * See @ref taskpool_design for a description of the jobs lifetime and interaction with the threads used in the task pool
  * library.
@@ -506,5 +506,21 @@ IotTaskPoolError_t IotTaskPool_TryCancel( IotTaskPool_t * const pTaskPool,
 /* @[declare_taskpool_strerror] */
 const char * IotTaskPool_strerror( IotTaskPoolError_t status );
 /* @[declare_taskpool_strerror] */
+
+/**
+ * @brief The maximum number of jobs to cache.
+ */
+#ifndef IOT_TASKPOOL_JOBS_RECYCLE_LIMIT
+    #define IOT_TASKPOOL_JOBS_RECYCLE_LIMIT    ( 8UL )
+#endif
+
+/**
+ * @brief The maximum timeout i milliseconds to wait for a job to be scheduled before waking up a worker thread.
+ * A worker thread that wakes up as a result of a timeout may exit to allow the task pool to fold back to its
+ * minimum number of threads.
+ */
+#ifndef IOT_TASKPOOL_JOB_WAIT_TIMEOUT_MS
+    #define IOT_TASKPOOL_JOB_WAIT_TIMEOUT_MS    ( 60 * 1000UL )
+#endif
 
 #endif /* ifndef IOT_TASKPOOL_H_ */

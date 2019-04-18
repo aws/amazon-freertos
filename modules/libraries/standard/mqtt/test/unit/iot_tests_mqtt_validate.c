@@ -24,16 +24,14 @@
  * @brief Tests for the functions in iot_mqtt_validate.c
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <string.h>
 
-/* Common include. */
-#include "iot_common.h"
+/* SDK initialization include. */
+#include "iot_init.h"
 
 /* MQTT internal include. */
 #include "private/iot_mqtt_internal.h"
@@ -61,7 +59,9 @@
 /**
  * @brief A non-NULL function pointer.
  */
-#define _FUNCTION_POINTER      ( ( void * ) 0x1 )
+#define _FUNCTION_POINTER   \
+    ( ( void ( * )( void *, \
+                    IotMqttCallbackParam_t * ) ) 0x1 )
 
 /*-----------------------------------------------------------*/
 
@@ -77,7 +77,7 @@ TEST_GROUP( MQTT_Unit_Validate );
  */
 TEST_SETUP( MQTT_Unit_Validate )
 {
-    TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
 }
 
 /*-----------------------------------------------------------*/
@@ -87,7 +87,7 @@ TEST_SETUP( MQTT_Unit_Validate )
  */
 TEST_TEAR_DOWN( MQTT_Unit_Validate )
 {
-    IotCommon_Cleanup();
+    IotSdk_Cleanup();
 }
 
 /*-----------------------------------------------------------*/
@@ -270,12 +270,12 @@ TEST( MQTT_Unit_Validate, ValidateOperation )
         TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
         /* Non-waitable reference. */
-        operation->flags = 0;
+        operation->u.operation.flags = 0;
         validateStatus = _IotMqtt_ValidateOperation( operation );
         TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
         /* Waitable (valid) reference. */
-        operation->flags = IOT_MQTT_FLAG_WAITABLE;
+        operation->u.operation.flags = IOT_MQTT_FLAG_WAITABLE;
         validateStatus = _IotMqtt_ValidateOperation( operation );
         TEST_ASSERT_EQUAL_INT( true, validateStatus );
     }

@@ -24,17 +24,15 @@
  * @brief Tests for the user-facing API functions (declared in aws_iot_shadow.h).
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdint.h>
 #include <string.h>
 
-/* Common include. */
-#include "iot_common.h"
+/* SDK initialization include. */
+#include "iot_init.h"
 
 /* Shadow internal include. */
 #include "private/aws_iot_shadow_internal.h"
@@ -232,8 +230,8 @@ static size_t _sendSuccess( void * pSendContext,
                             size_t messageLength )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-    _mqttOperation_t deserializedPublish = { 0 };
-    _mqttPacket_t mqttPacket = { 0 };
+    _mqttOperation_t deserializedPublish = { .link = { 0 } };
+    _mqttPacket_t mqttPacket = { .u.pMqttConnection = NULL };
     _receiveContext_t receiveContext = { 0 };
 
     /* Ignore the send context. */
@@ -298,7 +296,7 @@ static size_t _sendSuccess( void * pSendContext,
         }
         else
         {
-            mqttPacket.pIncomingPublish = &deserializedPublish;
+            mqttPacket.u.pIncomingPublish = &deserializedPublish;
             mqttPacket.pRemainingData = ( uint8_t * ) pMessage + ( messageLength - mqttPacket.remainingLength );
 
             status = _IotMqtt_DeserializePublish( &mqttPacket );
@@ -376,8 +374,8 @@ TEST_SETUP( Shadow_Unit_API )
 {
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
 
-    /* Initialize common components. */
-    TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
+    /* Initialize SDK. */
+    TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
 
     /* Initialize the MQTT library. */
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
@@ -426,8 +424,8 @@ TEST_TEAR_DOWN( Shadow_Unit_API )
     /* Clean up the MQTT library. */
     IotMqtt_Cleanup();
 
-    /* Clean up common components. */
-    IotCommon_Cleanup();
+    /* Clean up SDK. */
+    IotSdk_Cleanup();
 
     /* Destroy the receive thread timer. */
     IotClock_TimerDestroy( &_receiveTimer );
@@ -617,8 +615,8 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
 
     /* Update with no client token. */
-    documentInfo.update.pUpdateDocument = "{\"state\":{\"reported\":{null}}}";
-    documentInfo.update.updateDocumentLength = 29;
+    documentInfo.u.update.pUpdateDocument = "{\"state\":{\"reported\":{null}}}";
+    documentInfo.u.update.updateDocumentLength = 29;
     status = AwsIotShadow_Update( _pMqttConnection,
                                   &documentInfo,
                                   0,
@@ -627,9 +625,9 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_BAD_PARAMETER, status );
 
     /* Client token too long. */
-    documentInfo.update.pUpdateDocument = "{\"state\":{\"reported\":{null}}},\"clientToken\": "
-                                          "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"";
-    documentInfo.update.updateDocumentLength = 146;
+    documentInfo.u.update.pUpdateDocument = "{\"state\":{\"reported\":{null}}},\"clientToken\": "
+                                            "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"";
+    documentInfo.u.update.updateDocumentLength = 146;
     status = AwsIotShadow_Update( _pMqttConnection,
                                   &documentInfo,
                                   0,
@@ -742,7 +740,7 @@ TEST( Shadow_Unit_API, GetMallocFail )
     documentInfo.pThingName = _TEST_THING_NAME;
     documentInfo.thingNameLength = _TEST_THING_NAME_LENGTH;
     documentInfo.qos = IOT_MQTT_QOS_1;
-    documentInfo.get.mallocDocument = IotTest_Malloc;
+    documentInfo.u.get.mallocDocument = IotTest_Malloc;
 
     for( i = 0; ; i++ )
     {
@@ -788,6 +786,10 @@ TEST( Shadow_Unit_API, GetMallocFail )
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Tests the behavior of @ref shadow_function_update when memory
+ * allocation fails at various points.
+ */
 TEST( Shadow_Unit_API, UpdateMallocFail )
 {
     int32_t i = 0, mqttErrorCount = 0;
@@ -802,8 +804,8 @@ TEST( Shadow_Unit_API, UpdateMallocFail )
     documentInfo.pThingName = _TEST_THING_NAME;
     documentInfo.thingNameLength = _TEST_THING_NAME_LENGTH;
     documentInfo.qos = IOT_MQTT_QOS_1;
-    documentInfo.update.pUpdateDocument = "{\"state\":{\"reported\":{null}},\"clientToken\":\"TEST\"}";
-    documentInfo.update.updateDocumentLength = 50;
+    documentInfo.u.update.pUpdateDocument = "{\"state\":{\"reported\":{null}},\"clientToken\":\"TEST\"}";
+    documentInfo.u.update.updateDocumentLength = 50;
 
     for( i = 0; ; i++ )
     {

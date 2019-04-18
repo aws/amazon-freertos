@@ -28,19 +28,17 @@
  * The implementations can be CBOR or JSON.
  */
 
-#ifndef _IOT_SERIALIZER_H_
-#define _IOT_SERIALIZER_H_
+#ifndef IOT_SERIALIZER_H_
+#define IOT_SERIALIZER_H_
+
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <string.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
 
 #if IOT_SERIALIZER_ENABLE_ASSERTS == 1
     #ifndef IotSerializer_Assert
@@ -175,19 +173,19 @@
 
 #define IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY     { .pHandle = NULL, .type = IOT_SERIALIZER_CONTAINER_ARRAY }
 
-#define IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER              { .type = IOT_SERIALIZER_UNDEFINED, .pHandle = NULL }
+#define IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER              { .type = IOT_SERIALIZER_UNDEFINED, 0 }
 
 #define IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER            NULL
 
 /* helper macro to create scalar data */
 #define IotSerializer_ScalarSignedInt( signedIntValue )                                                                      \
-    ( IotSerializerScalarData_t ) { .value = { .signedInt = ( signedIntValue ) }, .type = IOT_SERIALIZER_SCALAR_SIGNED_INT } \
+    ( IotSerializerScalarData_t ) { .value = { .u.signedInt = ( signedIntValue ) }, .type = IOT_SERIALIZER_SCALAR_SIGNED_INT } \
 
 #define IotSerializer_ScalarTextString( pTextStringValue )                                                                                                                              \
-    ( IotSerializerScalarData_t ) { .value = { .pString = ( ( uint8_t * ) pTextStringValue ), .stringLength = strlen( pTextStringValue ) }, .type = IOT_SERIALIZER_SCALAR_TEXT_STRING } \
+    ( IotSerializerScalarData_t ) { .value = { .u.string.pString = ( ( uint8_t * ) pTextStringValue ), .u.string.length = strlen( pTextStringValue ) }, .type = IOT_SERIALIZER_SCALAR_TEXT_STRING } \
 
-#define IotSerializer_ScalarByteString( pByteStringValue, length )                                                                                        \
-    ( IotSerializerScalarData_t ) { .value = { .pString = ( pByteStringValue ), .stringLength = ( length ) }, .type = IOT_SERIALIZER_SCALAR_BYTE_STRING } \
+#define IotSerializer_ScalarByteString( pByteStringValue, pByteStringLength )                                                                                        \
+    ( IotSerializerScalarData_t ) { .value = { .u.string.pString = ( pByteStringValue ), .u.string.length = ( pByteStringLength ) }, .type = IOT_SERIALIZER_SCALAR_BYTE_STRING } \
 
 /* Determine if an object is a container. */
 #define IotSerializer_IsContainer( object )                      \
@@ -236,10 +234,10 @@ typedef struct IotSerializerScalarValue
         struct
         {
             uint8_t * pString;
-            size_t stringLength;
-        };
+            size_t length;
+        } string;
         bool booleanValue;
-    };
+    } u;
 } IotSerializerScalarValue_t;
 
 /* scalar data handle used in encoder */
@@ -267,7 +265,7 @@ typedef struct IotSerializerDecoderObject
         void * pHandle;
         /* if the type is a container, the scalarValue is unuseful */
         IotSerializerScalarValue_t value;
-    };
+    } u;
 } IotSerializerDecoderObject_t;
 
 typedef void * IotSerializerDecoderIterator_t;
@@ -480,4 +478,4 @@ extern IotSerializerEncodeInterface_t _IotSerializerJsonEncoder;
 
 extern IotSerializerDecodeInterface_t _IotSerializerJsonDecoder;
 
-#endif /* ifndef _IOT_SERIALIZER_H_ */
+#endif /* ifndef IOT_SERIALIZER_H_ */

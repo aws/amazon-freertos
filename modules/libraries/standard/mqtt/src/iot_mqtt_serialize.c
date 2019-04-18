@@ -24,10 +24,8 @@
  * @brief Implements functions that generate and decode MQTT network packets.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <string.h>
@@ -40,6 +38,9 @@
 
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
+
+/* Atomic operations. */
+#include "iot_atomic.h"
 
 /*-----------------------------------------------------------*/
 
@@ -151,13 +152,30 @@
  * Username for metrics with AWS IoT.
  */
 #if AWS_IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1
-    #ifndef IOT_SDK_VERSION
-        #error "IOT_SDK_VERSION must be defined."
+
+/**
+ * @brief Check if an SDK name is defined. If not, specify "C SDK".
+ */
+    #ifdef IOT_SDK_NAME
+        #define METRICS_SDK_NAME    IOT_SDK_NAME
+    #else
+        #define METRICS_SDK_NAME    "C"
     #endif
 
-    #define _AWS_IOT_METRICS_USERNAME           ( "?SDK=C&Version=" IOT_SDK_VERSION )                    /**< @brief Specify "C SDK" and SDK version. */
-    #define _AWS_IOT_METRICS_USERNAME_LENGTH    ( ( uint16_t ) sizeof( _AWS_IOT_METRICS_USERNAME ) - 1 ) /**< @brief Length of #_AWS_IOT_METRICS_USERNAME. */
-#endif
+/**
+ * @brief In the metrics string, include the platform name if defined.
+ */
+    #ifdef IOT_PLATFORM_NAME
+        #define AWS_IOT_METRICS_USERNAME    "?SDK=" METRICS_SDK_NAME "&Version=4.0.0&Platform=" IOT_PLATFORM_NAME
+    #else
+        #define AWS_IOT_METRICS_USERNAME    "?SDK=" METRICS_SDK_NAME "&Version=4.0.0"
+    #endif
+
+/**
+ * @brief Length of #AWS_IOT_METRICS_USERNAME.
+ */
+    #define AWS_IOT_METRICS_USERNAME_LENGTH    ( ( uint16_t ) sizeof( AWS_IOT_METRICS_USERNAME ) - 1 )
+#endif /* if AWS_IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1 */
 
 /*-----------------------------------------------------------*/
 
@@ -279,50 +297,18 @@ static bool _subscriptionPacketSize( IotMqttOperationType_t type,
     };
 #endif
 
-/**
- * @brief Guards access to the packet identifier counter.
- *
- * Each packet should have a unique packet identifier. This mutex ensures that only
- * one thread at a time may read the global packet identifer. The mutex is only needed
- * when atomic operation is not supported.
- */
-#if ( IOT_ATOMIC_OPERATION != 1 )
-    static IotMutex_t _packetIdentifierMutex;
-#endif /* IOT_ATOMIC_OPERATION */
-
 /*-----------------------------------------------------------*/
 
 static uint16_t _nextPacketIdentifier( void )
 {
-    #if ( IOT_ATOMIC_OPERATION == 1 )
+    /* MQTT specifies 2 bytes for the packet identifier; however, operating on
+     * 32-bit integers is generally faster. */
+    static uint32_t nextPacketIdentifier = 1;
 
-        /* MQTT protocol specifies 2 bytes for Packet Identifier.
-         * For atomic operation, operating 16-bit on 32-bit MCU is not faster than operating 32-bit directly.
-         * Here, using addition two bytes and casting, to achieve the same implementation as in the other branch. */
-        static uint32_t nextPacketIdentifier = 1;
-
-        return ( uint16_t ) Atomic_Add_u32( &nextPacketIdentifier, 2 );
-    #else /* ( IOT_ATOMIC_OPERATION != 1 ) */
-        static uint16_t nextPacketIdentifier = 1;
-        uint16_t newPacketIdentifier = 0;
-
-        /* Lock the packet identifier mutex so that only one thread may read and
-         * modify nextPacketIdentifier. */
-        IotMutex_Lock( &( _packetIdentifierMutex ) );
-
-        /* Read the next packet identifier. */
-        newPacketIdentifier = nextPacketIdentifier;
-
-        /* The next packet identifier will be greater by 2. This prevents packet
-         * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
-         * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
-        nextPacketIdentifier = ( uint16_t ) ( nextPacketIdentifier + ( ( uint16_t ) 2 ) );
-
-        /* Unlock the packet identifier mutex. */
-        IotMutex_Unlock( &( _packetIdentifierMutex ) );
-
-        return newPacketIdentifier;
-    #endif /* IOT_ATOMIC_OPERATION */
+    /* The next packet identifier will be greater by 2. This prevents packet
+     * identifiers from ever being 0, which is not allowed by MQTT 3.1.1. Packet
+     * identifiers will follow the sequence 1,3,5...65535,1,3,5... */
+    return ( uint16_t ) Atomic_Add_u32( &nextPacketIdentifier, 2 );
 }
 
 /*-----------------------------------------------------------*/
@@ -453,7 +439,7 @@ static bool _connectPacketSize( const IotMqttConnectInfo_t * pConnectInfo,
     if( pConnectInfo->awsIotMqttMode == true )
     {
         #if AWS_IOT_MQTT_ENABLE_METRICS == 1
-            connectPacketSize += _AWS_IOT_METRICS_USERNAME_LENGTH + sizeof( uint16_t );
+            connectPacketSize += AWS_IOT_METRICS_USERNAME_LENGTH + sizeof( uint16_t );
         #endif
     }
     else
@@ -602,89 +588,6 @@ static bool _subscriptionPacketSize( IotMqttOperationType_t type,
     }
 
     return status;
-}
-
-/*-----------------------------------------------------------*/
-
-IotMqttError_t _IotMqtt_InitSerialize( void )
-{
-    _IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
-
-    /* Create the packet identifier mutex.
-     * This is only needed when atomic operation is not supported. */
-    #if ( IOT_ATOMIC_OPERATION != 1 )
-        bool packetMutexCreated = false;
-
-        packetMutexCreated = IotMutex_Create( &( _packetIdentifierMutex ), false );
-
-        if( packetMutexCreated == false )
-        {
-            _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_INIT_FAILED );
-        }
-        else
-        {
-            _EMPTY_ELSE_MARKER;
-        }
-    #endif /* IOT_ATOMIC_OPERATION */
-
-    /* Call any additional serializer initialization function if serializer
-     * overrides are enabled. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        #ifdef _IotMqtt_InitSerializeAdditional
-            if( _IotMqtt_InitSerializeAdditional() == false )
-            {
-                _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_INIT_FAILED );
-            }
-            else
-            {
-                _EMPTY_ELSE_MARKER;
-            }
-        #endif
-    #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
-
-    _IOT_FUNCTION_CLEANUP_BEGIN();
-
-    /* Only needs to clean up when atomic operation is not supported. */
-    #if ( IOT_ATOMIC_OPERATION != 1 )
-        /* Clean up on error. */
-        if( status != IOT_MQTT_SUCCESS )
-        {
-            if( packetMutexCreated == true )
-            {
-                IotMutex_Destroy( &( _packetIdentifierMutex ) );
-            }
-            else
-            {
-                _EMPTY_ELSE_MARKER;
-            }
-        }
-        else
-        {
-            _EMPTY_ELSE_MARKER;
-        }
-    #endif /* IOT_ATOMIC_OPERATION */
-
-    _IOT_FUNCTION_CLEANUP_END();
-}
-
-/*-----------------------------------------------------------*/
-
-void _IotMqtt_CleanupSerialize( void )
-{
-    #if ( IOT_ATOMIC_OPERATION != 1 )
-
-        /* Destroy the packet identifier mutex.
-         * Only needed when atomic operation is not supported.*/
-        IotMutex_Destroy( &( _packetIdentifierMutex ) );
-    #endif /* IOT_ATOMIC_OPERATION */
-
-    /* Call any additional serializer cleanup initialization function is serializer
-     * overrides are enabled. */
-    #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        #ifdef _IotMqtt_CleanupSerializeAdditional
-            _IotMqtt_CleanupSerializeAdditional();
-        #endif
-    #endif
 }
 
 /*-----------------------------------------------------------*/
@@ -939,8 +842,8 @@ IotMqttError_t _IotMqtt_SerializeConnect( const IotMqttConnectInfo_t * pConnectI
                         "Recompile with AWS_IOT_MQTT_ENABLE_METRICS set to 0 to disable." );
 
             pBuffer = _encodeString( pBuffer,
-                                     _AWS_IOT_METRICS_USERNAME,
-                                     _AWS_IOT_METRICS_USERNAME_LENGTH );
+                                     AWS_IOT_METRICS_USERNAME,
+                                     AWS_IOT_METRICS_USERNAME_LENGTH );
         #endif
     }
     else
@@ -1287,7 +1190,7 @@ void _IotMqtt_PublishSetDup( uint8_t * pPublishPacket,
 IotMqttError_t _IotMqtt_DeserializePublish( _mqttPacket_t * pPublish )
 {
     _IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
-    IotMqttPublishInfo_t * pOutput = &( pPublish->pIncomingPublish->publishInfo );
+    IotMqttPublishInfo_t * pOutput = &( pPublish->u.pIncomingPublish->u.publish.publishInfo );
     uint8_t publishFlags = 0;
     const uint8_t * pVariableHeader = pPublish->pRemainingData, * pPacketIdentifierHigh = NULL;
 
@@ -1741,7 +1644,7 @@ IotMqttError_t _IotMqtt_DeserializeSuback( _mqttPacket_t * pSuback )
                         "Topic filter %lu refused.", ( unsigned long ) i );
 
                 /* Remove a rejected subscription from the subscription manager. */
-                _IotMqtt_RemoveSubscriptionByPacket( pSuback->pMqttConnection,
+                _IotMqtt_RemoveSubscriptionByPacket( pSuback->u.pMqttConnection,
                                                      pSuback->packetIdentifier,
                                                      ( int32_t ) i );
 

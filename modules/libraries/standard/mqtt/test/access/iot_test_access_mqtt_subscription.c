@@ -28,6 +28,12 @@
  * and never compiled by itself.
  */
 
+bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
+                             void * pMatch );
+
+bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
+                              void * pMatch );
+
 /*-----------------------------------------------------------*/
 
 bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,

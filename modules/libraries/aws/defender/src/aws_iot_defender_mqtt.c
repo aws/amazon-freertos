@@ -46,7 +46,7 @@ static char * _pRejectTopic = NULL;
 
 /*-----------------------------------------------------------*/
 
-AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames()
+AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( void )
 {
     AwsIotDefenderError_t returnedError = AWS_IOT_DEFENDER_SUCCESS;
 
@@ -96,7 +96,7 @@ AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames()
 
 /*-----------------------------------------------------------*/
 
-void AwsIotDefenderInternal_DeleteTopicsNames()
+void AwsIotDefenderInternal_DeleteTopicsNames( void )
 {
     AwsIotDefender_FreeTopic( _pPublishTopic );
     AwsIotDefender_FreeTopic( _pAcceptTopic );
@@ -108,7 +108,7 @@ void AwsIotDefenderInternal_DeleteTopicsNames()
 
 /*-----------------------------------------------------------*/
 
-IotMqttError_t AwsIotDefenderInternal_MqttConnect()
+IotMqttError_t AwsIotDefenderInternal_MqttConnect( void )
 {
     return IotMqtt_Connect( &_startInfo.mqttNetworkInfo,
                             &_startInfo.mqttConnectionInfo,
@@ -162,7 +162,7 @@ IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
 
 /*-----------------------------------------------------------*/
 
-void AwsIotDefenderInternal_MqttDisconnect()
+void AwsIotDefenderInternal_MqttDisconnect( void )
 {
     IotMqtt_Disconnect( _mqttConnection, false );
 }

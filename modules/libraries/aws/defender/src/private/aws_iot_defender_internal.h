@@ -24,13 +24,11 @@
  * typical application code.
  */
 
-#ifndef _AWS_IOT_DEFENDER_INTERNAL_H_
-#define _AWS_IOT_DEFENDER_INTERNAL_H_
+#ifndef AWS_IOT_DEFENDER_INTERNAL_H_
+#define AWS_IOT_DEFENDER_INTERNAL_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Defender include. */
 #include "aws_iot_defender.h"
@@ -145,10 +143,23 @@
  * @brief Configuration settings of the Defender library
  * @par configpagemarker
  *
+ * @section AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+ * @brief Enable secure sockets metrics
+ * <b>Possible values:</b> 0 or 1 <br>
+ * <b>Recommended values:</b> 1 <br>
+ * <b>Default value (if undefined):</b> 0 <br>
+ *
+ * This macro must be defined for device defender library to collect sockets metrics correctly.
+ * Without defining it, the behavior is unknown.
+ *
+ * @code{c}
+ * #define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED (1)
+ * @endcode
+ *
  * @section AWS_IOT_DEFENDER_FORMAT
  * @brief Default format for metrics data serialization.
  *
- * <b>Possible values:</b>  #AWS_IOT_DEFENDER_FORMAT_CBOR or #AWS_IOT_DEFENDER_FORMAT_JSON <br>
+ * <b>Possible values:</b>  #AWS_IOT_DEFENDER_FORMAT_CBOR (JSON is not supported for now) <br>
  * <b>Recommended values:</b> Cbor is more compact than Json, thus more efficient. <br>
  * <b>Default value (if undefined):</b>  #AWS_IOT_DEFENDER_FORMAT_CBOR <br>
  *
@@ -284,57 +295,57 @@ typedef struct _defenderMetrics
 /**
  * Create a report, memory is allocated inside the function.
  */
-bool AwsIotDefenderInternal_CreateReport();
+bool AwsIotDefenderInternal_CreateReport( void );
 
 /**
  * Get the buffer pointer of report.
  */
-uint8_t * AwsIotDefenderInternal_GetReportBuffer();
+uint8_t * AwsIotDefenderInternal_GetReportBuffer( void );
 
 /**
  * Get the buffer size of report.
  */
-size_t AwsIotDefenderInternal_GetReportBufferSize();
+size_t AwsIotDefenderInternal_GetReportBufferSize( void );
 
 /**
  * Delete a report when it is useless. Internally, memory will be freed.
  */
-void AwsIotDefenderInternal_DeleteReport();
+void AwsIotDefenderInternal_DeleteReport( void );
 
 /**
  * Build three topics names used by defender library.
  */
-AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames();
+AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( void );
 
 /**
  * Free the memory of three topics names.
  */
-void AwsIotDefenderInternal_DeleteTopicsNames();
+void AwsIotDefenderInternal_DeleteTopicsNames( void );
 
 /**
  * Connect to AWS with MQTT.
  */
-IotMqttError_t AwsIotDefenderInternal_MqttConnect();
+IotMqttError_t AwsIotDefenderInternal_MqttConnect( void );
 
 /**
  * Subscribe accept/reject defender topics.
  */
 IotMqttError_t AwsIotDefenderInternal_MqttSubscribe( IotMqttCallbackInfo_t acceptCallback,
-                                           IotMqttCallbackInfo_t rejectCallback );
+                                                     IotMqttCallbackInfo_t rejectCallback );
 
 /**
  * Publish metrics data to defender topic.
  */
 IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
-                                         size_t dataLength );
+                                                   size_t dataLength );
 
 /**
  * Disconnect with AWS MQTT.
  */
-void AwsIotDefenderInternal_MqttDisconnect();
+void AwsIotDefenderInternal_MqttDisconnect( void );
 
 /*----------------- Below this line are INTERNAL global variables --------------------*/
 
 extern _defenderMetrics_t _AwsIotDefenderMetrics;
 
-#endif /* ifndef _AWS_IOT_DEFENDER_INTERNAL_H_ */
+#endif /* ifndef AWS_IOT_DEFENDER_INTERNAL_H_ */

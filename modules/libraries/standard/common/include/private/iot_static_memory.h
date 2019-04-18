@@ -25,15 +25,13 @@
  * @ref IOT_STATIC_MEMORY_ONLY is `1`.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* The functions in this file should only exist in static memory only mode, hence
  * the check for IOT_STATIC_MEMORY_ONLY in the double inclusion guard. */
-#if !defined( _IOT_STATIC_MEMORY_H_ ) && ( IOT_STATIC_MEMORY_ONLY == 1 )
-#define _IOT_STATIC_MEMORY_H_
+#if !defined( IOT_STATIC_MEMORY_H_ ) && ( IOT_STATIC_MEMORY_ONLY == 1 )
+#define IOT_STATIC_MEMORY_H_
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -79,7 +77,7 @@
  *
  * @return `true` if initialization succeeded; `false` otherwise.
  *
- * @attention This function is called by `IotCommon_Init` and does not need to be
+ * @attention This function is called by `IotSdk_Init` and does not need to be
  * called by itself.
  *
  * @warning No thread-safety guarantees are provided for this function.
@@ -98,7 +96,7 @@ bool IotStaticMemory_Init( void );
  * returns, @ref static_memory_function_init must be called again before
  * calling any other static memory function.
  *
- * @attention This function is called by `IotCommon_Cleanup` and does not need
+ * @attention This function is called by `IotSdk_Cleanup` and does not need
  * to be called by itself.
  *
  * @warning No thread-safety guarantees are provided for this function.
@@ -423,15 +421,16 @@ void * AwsIot_MallocShadowSubscription( size_t size );
 void AwsIot_FreeShadowSubscription( void * ptr );
 /* @[declare_static_memory_freeshadowsubscription] */
 
+/*------------------------- Metrics data management -------------------------*/
+
 /**
- * @brief Allocates memory to hold data for a new [Metrics TCP Connection]
- * (@ref static_memory_mallocmetricstcpconnection).
+ * @brief Allocates memory to hold data for a new metrics TCP Connection.
  *
  * This function is the analog of [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
- * for Metrics TCP Connections.
+ * for metrics TCP Connections.
  *
- * @param[in] size Requested size for the tcp connection. 
+ * @param[in] size Requested size for the tcp connection.
  *
  * @return Pointer to a Metrics TCP Connection. If the size argument is larger than
  * the fixed size of a Metrics TCP Connection object or no free Metrics TCP Connections
@@ -442,8 +441,7 @@ void * Iot_MallocMetricsTcpConnection( size_t size );
 /* @[declare_static_memory_mallocmetricstcpconnection] */
 
 /**
- * @brief Frees an in-use [Metrics TCP Connection]
- * (@ref static_memory_freemetricstcpconnection).
+ * @brief Frees an in-use metrics TCP Connection.
  *
  * This function is the analog of [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
@@ -456,8 +454,7 @@ void Iot_FreeMetricsTcpConnection( void * ptr );
 /* @[declare_static_memory_freemetricstcpconnection] */
 
 /**
- * @brief Allocates memory to hold data for a new [Metrics IP Address]
- * (@ref static_memory_mallocmetricsipaddress).
+ * @brief Allocates memory to hold data for a new Metrics IP Address.
  *
  * This function is the analog of [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
@@ -474,8 +471,7 @@ void * Iot_MallocMetricsIpAddress(size_t size);
 /* @[declare_static_memory_mallocmetricsipaddress] */
 
 /**
- * @brief Frees an in-use [Metrics IP Address]
- * (@ref static_memory_freemetricstcpconnection).
+ * @brief Frees an in-use Metrics IP Address.
  *
  * This function is the analog of [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
@@ -488,8 +484,7 @@ void Iot_FreeMetricsIpAddress(void * ptr);
 /* @[declare_static_memory_freemetricsipaddress] */
 
 /**
- * @brief Allocates memory to hold data for a new [Serializer Cbor Encoder]
- * (@ref static_memory_mallocserializercborencoder).
+ * @brief Allocates memory to hold data for a new Serializer Cbor Encoder.
  *
  * This function is the analog of [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
@@ -506,8 +501,7 @@ void * Iot_MallocSerializerCborEncoder( size_t size );
 /* @[declare_static_memory_mallocserializercborencoder] */
 
 /**
- * @brief Frees an in-use [Serializer Cbor Encoder]
- * (@ref static_memory_freeserializercborencoder).
+ * @brief Frees an in-use Serializer Cbor Encoder.
  *
  * This function is the analog of [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
@@ -520,8 +514,7 @@ void Iot_FreeSerializerCborEncoder( void * ptr );
 /* @[declare_static_memory_freeserializercborencoder] */
 
 /**
- * @brief Allocates memory to hold data for a new [Serializer Cbor Parser]
- * (@ref static_memory_mallocserializercborparser).
+ * @brief Allocates memory to hold data for a new Serializer Cbor Parser.
  *
  * This function is the analog of [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
@@ -538,8 +531,7 @@ void * Iot_MallocSerializerCborParser( size_t size );
 /* @[declare_static_memory_mallocserializercborparser] */
 
 /**
- * @brief Frees an in-use [Serializer Cbor Parser]
- * (@ref static_memory_freeserializercborparser).
+ * @brief Frees an in-use Serializer Cbor Parser.
  *
  * This function is the analog of [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
@@ -552,8 +544,7 @@ void Iot_FreeSerializerCborParser( void * ptr );
 /* @[declare_static_memory_freeserializercborparser] */
 
 /**
- * @brief Allocates memory to hold data for a new [Serializer Cbor Value]
- * (@ref static_memory_mallocserializercborvalue).
+ * @brief Allocates memory to hold data for a new Serializer Cbor Value.
  *
  * This function is the analog of [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
@@ -570,8 +561,7 @@ void * Iot_MallocSerializerCborValue( size_t size );
 /* @[declare_static_memory_mallocserializercborvalue] */
 
 /**
- * @brief Frees an in-use [Serializer Cbor Value]
- * (@ref static_memory_freeserializercborvalue).
+ * @brief Frees an in-use Serializer Cbor Value.
  *
  * This function is the analog of [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
@@ -584,8 +574,7 @@ void Iot_FreeSerializerCborValue( void * ptr );
 /* @[declare_static_memory_freeserializercborvalue] */
 
 /**
- * @brief Allocates memory to hold data for a new [Serializer Decoder Object]
- * (@ref static_memory_mallocserializerdecoderobject).
+ * @brief Allocates memory to hold data for a new Serializer Decoder Object.
  *
  * This function is the analog of [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
@@ -602,8 +591,7 @@ void * Iot_MallocSerializerDecoderObject( size_t size );
 /* @[declare_static_memory_mallocserializerdecoderobject] */
 
 /**
- * @brief Frees an in-use [Serializer Decoder Object]
- * (@ref static_memory_freeserializerdecoderobject).
+ * @brief Frees an in-use Serializer Decoder Object.
  *
  * This function is the analog of [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
@@ -616,8 +604,7 @@ void Iot_FreeSerializerDecoderObject( void * ptr );
 /* @[declare_static_memory_freeserializerdecoderobject] */
 
 /**
- * @brief Allocates memory to hold data for a new [Defender Report]
- * (@ref static_memory_mallocdefenderreport).
+ * @brief Allocates memory to hold data for a new Defender Report.
  *
  * This function is the analog of [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
@@ -637,8 +624,7 @@ void * AwsIot_MallocDefenderReport( size_t size );
 /* @[declare_static_memory_mallocdefenderreport] */
 
 /**
- * @brief Frees an in-use [Defender Report]
- * (@ref static_memory_freedefenderreport).
+ * @brief Frees an in-use Defender Report.
  *
  * This function is the analog of [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
@@ -651,8 +637,7 @@ void AwsIot_FreeDefenderReport( void * ptr );
 /* @[declare_static_memory_freedefenderreport] */
 
 /**
- * @brief Allocates memory to hold data for a new [Defender Topic]
- * (@ref static_memory_mallocdefendertopic).
+ * @brief Allocates memory to hold data for a new Defender Topic.
  *
  * This function is the analog of [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html)
@@ -672,8 +657,7 @@ void * AwsIot_MallocDefenderTopic( size_t size );
 /* @[declare_static_memory_mallocdefendertopic] */
 
 /**
- * @brief Frees an in-use [Defender Topic]
- * (@ref static_memory_freedefendertopic).
+ * @brief Frees an in-use Defender Topic.
  *
  * This function is the analog of [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html)
@@ -685,4 +669,4 @@ void * AwsIot_MallocDefenderTopic( size_t size );
 void AwsIot_FreeDefenderTopic( void * ptr );
 /* @[declare_static_memory_freedefendertopic] */
 
-#endif /* if !defined( _IOT_STATIC_MEMORY_H_ ) && ( IOT_STATIC_MEMORY_ONLY == 1 ) */
+#endif /* if !defined( IOT_STATIC_MEMORY_H_ ) && ( IOT_STATIC_MEMORY_ONLY == 1 ) */

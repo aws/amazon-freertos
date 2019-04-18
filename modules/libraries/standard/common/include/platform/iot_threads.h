@@ -24,13 +24,11 @@
  * @brief Threading and synchronization functions used by libraries in this SDK.
  */
 
-#ifndef _IOT_THREADS_H_
-#define _IOT_THREADS_H_
+#ifndef IOT_THREADS_H_
+#define IOT_THREADS_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -350,4 +348,4 @@ bool IotSemaphore_TimedWait( IotSemaphore_t * pSemaphore,
 void IotSemaphore_Post( IotSemaphore_t * pSemaphore );
 /* @[declare_platform_threads_semaphorepost] */
 
-#endif /* ifndef _IOT_THREADS_H_ */
+#endif /* ifndef IOT_THREADS_H_ */

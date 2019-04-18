@@ -19,16 +19,22 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/**
+ * @file iot_init.c
+ * @brief Implements functions for common intialization and cleanup of this SDK.
+ */
 
-/* Common include. */
-#include "iot_common.h"
+/* The config header is always included first. */
+#include "iot_config.h"
+
+/* SDK initialization include. */
+#include "iot_init.h"
 
 /* Task pool include. */
 #include "iot_taskpool.h"
+
+/* Metrics include. */
+#include "platform/iot_metrics.h"
 
 /* Static memory include (if dynamic memory allocation is disabled). */
 #include "private/iot_static_memory.h"
@@ -43,12 +49,12 @@
     #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
 #endif
 
-#define _LIBRARY_LOG_NAME         ( "COMMON" )
+#define _LIBRARY_LOG_NAME         ( "INIT" )
 #include "iot_logging_setup.h"
 
 /*-----------------------------------------------------------*/
 
-bool IotCommon_Init( void )
+bool IotSdk_Init( void )
 {
     _IOT_FUNCTION_ENTRY( bool, true );
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
@@ -87,7 +93,7 @@ bool IotCommon_Init( void )
     }
     else
     {
-        IotLogInfo( "Common libraries successfully initialized." );
+        IotLogInfo( "SDK successfully initialized." );
     }
 
     _IOT_FUNCTION_CLEANUP_END();
@@ -95,13 +101,13 @@ bool IotCommon_Init( void )
 
 /*-----------------------------------------------------------*/
 
-void IotCommon_Cleanup( void )
+void IotSdk_Cleanup( void )
 {
     IotTaskPool_Destroy( IOT_SYSTEM_TASKPOOL );
 
     /* This log message must be printed before static memory management is
      * cleaned up. */
-    IotLogInfo( "Common libraries cleanup done." );
+    IotLogInfo( "SDK cleanup done." );
 
     /* Cleanup static memory if dynamic memory allocation is disabled. */
     #if IOT_STATIC_MEMORY_ONLY == 1

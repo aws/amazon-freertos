@@ -24,15 +24,24 @@
  * @brief Types of the platform layer.
  */
 
-#ifndef _IOT_PLATFORM_TYPES_H_
-#define _IOT_PLATFORM_TYPES_H_
+#ifndef IOT_PLATFORM_TYPES_H_
+#define IOT_PLATFORM_TYPES_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /*------------------------- Thread management types -------------------------*/
+
+/**
+ * @brief A value representing the system default for new thread priority.
+ */
+#define IOT_THREAD_DEFAULT_PRIORITY      0
+
+/**
+ * @brief A value representhing the system default for new thread stack size.
+ */
+#define IOT_THREAD_DEFAULT_STACK_SIZE    0
+
 /**
  * @ingroup platform_datatypes_handles
  * @brief The type used to represent mutexes, configured with the type
@@ -105,4 +114,4 @@ typedef void ( * IotThreadRoutine_t )( void * );
  */
 typedef _IotSystemTimer_t IotTimer_t;
 
-#endif /* ifndef _IOT_PLATFORM_TYPES_H_ */
+#endif /* ifndef IOT_PLATFORM_TYPES_H_ */

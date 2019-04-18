@@ -24,16 +24,15 @@
  * @brief Tests for the functions in iot_mqtt_subscription.c
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
+#include <stdio.h>
 #include <string.h>
 
-/* Common include. */
-#include "iot_common.h"
+/* SDK initialization include. */
+#include "iot_init.h"
 
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
@@ -47,19 +46,6 @@
 
 /* MQTT test access include. */
 #include "iot_test_access_mqtt.h"
-
-/**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Including stdio.h also brings in unwanted (and conflicting) symbols on some
- * platforms. Therefore, any functions in stdio.h needed in this file have an
- * extern declaration here. */
-extern int snprintf( char *,
-                     size_t,
-                     const char *,
-                     ... );
-/** @endcond */
 
 /*-----------------------------------------------------------*/
 
@@ -246,18 +232,18 @@ static void _publishCallback( void * pArgument,
 
     /* If the topic filter doesn't match the topic name, ensure that the topic
      * filter contains a wildcard. */
-    if( pPublish->message.topicFilterLength != pPublish->message.info.topicNameLength )
+    if( pPublish->u.message.topicFilterLength != pPublish->u.message.info.topicNameLength )
     {
-        for( i = 0; i < pPublish->message.topicFilterLength; i++ )
+        for( i = 0; i < pPublish->u.message.topicFilterLength; i++ )
         {
-            if( ( pPublish->message.pTopicFilter[ i ] == '+' ) ||
-                ( pPublish->message.pTopicFilter[ i ] == '#' ) )
+            if( ( pPublish->u.message.pTopicFilter[ i ] == '+' ) ||
+                ( pPublish->u.message.pTopicFilter[ i ] == '#' ) )
             {
                 break;
             }
         }
 
-        TEST_ASSERT_LESS_THAN_UINT16( pPublish->message.topicFilterLength, i );
+        TEST_ASSERT_LESS_THAN_UINT16( pPublish->u.message.topicFilterLength, i );
     }
 
     /* Ensure that the MQTT connection was set correctly. */
@@ -266,7 +252,7 @@ static void _publishCallback( void * pArgument,
     /* Ensure that publish info is valid. */
     TEST_ASSERT_EQUAL_INT( true,
                            _IotMqtt_ValidatePublish( _AWS_IOT_MQTT_SERVER,
-                                                     &( pPublish->message.info ) ) );
+                                                     &( pPublish->u.message.info ) ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -309,7 +295,7 @@ static void _multithreadTestThread( void * pArgument )
         subscription[ i ].topicFilterLength = ( uint16_t ) snprintf( pTopicFilters[ i ],
                                                                      _MT_TOPIC_FILTER_LENGTH,
                                                                      _MT_TOPIC_FILTER_FORMAT,
-                                                                     &i,
+                                                                     ( void * ) &i,
                                                                      ( unsigned long ) i );
 
         if( _IotMqtt_AddSubscriptions( _pMqttConnection,
@@ -354,8 +340,8 @@ TEST_SETUP( MQTT_Unit_Subscription )
     static IotNetworkInterface_t networkInterface = { 0 };
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
 
-    /* Initialize common components. */
-    TEST_ASSERT_EQUAL_INT( true, IotCommon_Init() );
+    /* Initialize SDK. */
+    TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
 
     /* Initialize the MQTT library. */
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
@@ -387,7 +373,7 @@ TEST_TEAR_DOWN( MQTT_Unit_Subscription )
 
     /* Clean up libraries. */
     IotMqtt_Cleanup();
-    IotCommon_Cleanup();
+    IotSdk_Cleanup();
 }
 
 /*-----------------------------------------------------------*/
@@ -828,7 +814,7 @@ TEST( MQTT_Unit_Subscription, ProcessPublish )
 {
     bool callbackInvoked = false;
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-    IotMqttCallbackParam_t callbackParam = { .message = { 0 } };
+    IotMqttCallbackParam_t callbackParam = { .u.message = { 0 } };
 
     /* Set the subscription and corresponding publish info. */
     subscription.pTopicFilter = "/test";
@@ -836,10 +822,10 @@ TEST( MQTT_Unit_Subscription, ProcessPublish )
     subscription.callback.function = _publishCallback;
     subscription.callback.pCallbackContext = &callbackInvoked;
 
-    callbackParam.message.info.pTopicName = "/test";
-    callbackParam.message.info.topicNameLength = 5;
-    callbackParam.message.info.pPayload = "";
-    callbackParam.message.info.payloadLength = 0;
+    callbackParam.u.message.info.pTopicName = "/test";
+    callbackParam.u.message.info.topicNameLength = 5;
+    callbackParam.u.message.info.pPayload = "";
+    callbackParam.u.message.info.payloadLength = 0;
 
     /* Add the subscription. */
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS,
@@ -869,7 +855,7 @@ TEST( MQTT_Unit_Subscription, ProcessPublishMultiple )
 {
     bool callbackInvoked[ 3 ] = { false };
     IotMqttSubscription_t subscription[ 3 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
-    IotMqttCallbackParam_t callbackParam = { .message = { 0 } };
+    IotMqttCallbackParam_t callbackParam = { .u.message = { 0 } };
 
     /* Set the subscription info. */
     subscription[ 0 ].pTopicFilter = "/test";
@@ -888,10 +874,10 @@ TEST( MQTT_Unit_Subscription, ProcessPublishMultiple )
     subscription[ 2 ].callback.pCallbackContext = &( callbackInvoked[ 2 ] );
 
     /* Create a PUBLISH that matches all 3 subscriptions. */
-    callbackParam.message.info.pTopicName = "/test";
-    callbackParam.message.info.topicNameLength = 5;
-    callbackParam.message.info.pPayload = "";
-    callbackParam.message.info.payloadLength = 0;
+    callbackParam.u.message.info.pTopicName = "/test";
+    callbackParam.u.message.info.topicNameLength = 5;
+    callbackParam.u.message.info.pPayload = "";
+    callbackParam.u.message.info.payloadLength = 0;
 
     /* Add the subscriptions. */
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS,
@@ -966,9 +952,9 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
         ( void ) memset( pIncomingPublish[ i ], 0x00, sizeof( _mqttOperation_t ) );
         pIncomingPublish[ i ]->incomingPublish = true;
         pIncomingPublish[ i ]->pMqttConnection = _pMqttConnection;
-        pIncomingPublish[ i ]->publishInfo.pTopicName = "/test";
-        pIncomingPublish[ i ]->publishInfo.topicNameLength = 5;
-        pIncomingPublish[ i ]->publishInfo.pPayload = "";
+        pIncomingPublish[ i ]->u.publish.publishInfo.pTopicName = "/test";
+        pIncomingPublish[ i ]->u.publish.publishInfo.topicNameLength = 5;
+        pIncomingPublish[ i ]->u.publish.publishInfo.pPayload = "";
 
         IotListDouble_InsertHead( &( _pMqttConnection->pendingProcessing ),
                                   &( pIncomingPublish[ i ]->link ) );

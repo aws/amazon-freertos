@@ -24,13 +24,11 @@
  * @brief Types of the MQTT library.
  */
 
-#ifndef _IOT_MQTT_TYPES_H_
-#define _IOT_MQTT_TYPES_H_
+#ifndef IOT_MQTT_TYPES_H_
+#define IOT_MQTT_TYPES_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -461,7 +459,7 @@ typedef struct IotMqttCallbackParam
 
         /* Valid when a connection is disconnected. */
         IotMqttDisconnectReason_t disconnectReason; /**< @brief Why the MQTT connection was disconnected. */
-    };
+    } u; /**< @brief Valid member depends on callback type. */
 } IotMqttCallbackParam_t;
 
 /**
@@ -955,7 +953,7 @@ typedef struct IotMqttNetworkInfo
              * #IotMqttNetworkInfo_t::createNetworkConnection is `true`.
              */
             void * pNetworkCredentialInfo;
-        };
+        } setup;
 
         /**
          * @brief An established transport-layer network connection.
@@ -965,7 +963,7 @@ typedef struct IotMqttNetworkInfo
          * valid when #IotMqttNetworkInfo_t::createNetworkConnection is `false`.
          */
         void * pNetworkConnection;
-    };
+    } u /**< @brief Valid member depends of IotMqttNetworkInfo_t.createNetworkConnection. */;
 
     /**
      * @brief The network functions used by the new MQTT connection.
@@ -1082,4 +1080,4 @@ typedef struct IotMqttNetworkInfo
  */
 #define IOT_MQTT_FLAG_CLEANUP_ONLY    ( 0x00000001 )
 
-#endif /* ifndef _IOT_MQTT_TYPES_H_ */
+#endif /* ifndef IOT_MQTT_TYPES_H_ */

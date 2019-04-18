@@ -24,13 +24,11 @@
  * @brief Time-related functions used by libraries in this SDK.
  */
 
-#ifndef _IOT_CLOCK_H_
-#define _IOT_CLOCK_H_
+#ifndef IOT_CLOCK_H_
+#define IOT_CLOCK_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -211,4 +209,4 @@ bool IotClock_TimerArm( IotTimer_t * pTimer,
                         uint32_t periodMs );
 /* @[declare_platform_clock_timerarm] */
 
-#endif /* ifndef _IOT_CLOCK_H_ */
+#endif /* ifndef IOT_CLOCK_H_ */

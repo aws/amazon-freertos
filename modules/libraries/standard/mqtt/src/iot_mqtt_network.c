@@ -24,10 +24,8 @@
  * @brief Implements functions involving transport layer connections.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <string.h>
@@ -299,7 +297,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             if( pOperation != NULL )
             {
-                pOperation->status = status;
+                pOperation->u.operation.status = status;
                 _IotMqtt_Notify( pOperation, true );
             }
             else
@@ -328,7 +326,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 ( void ) memset( pOperation, 0x00, sizeof( _mqttOperation_t ) );
                 pOperation->incomingPublish = true;
                 pOperation->pMqttConnection = pMqttConnection;
-                pIncomingPacket->pIncomingPublish = pOperation;
+                pIncomingPacket->u.pIncomingPublish = pOperation;
             }
 
             /* Choose a PUBLISH deserializer. */
@@ -358,7 +356,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             if( status == IOT_MQTT_SUCCESS )
             {
                 /* Send a PUBACK for QoS 1 PUBLISH. */
-                if( pOperation->publishInfo.qos == IOT_MQTT_QOS_1 )
+                if( pOperation->u.publish.publishInfo.qos == IOT_MQTT_QOS_1 )
                 {
                     _sendPuback( pMqttConnection, pIncomingPacket->packetIdentifier );
                 }
@@ -368,7 +366,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
 
                 /* Transfer ownership of the received MQTT packet to the PUBLISH operation. */
-                pOperation->pReceivedData = pIncomingPacket->pRemainingData;
+                pOperation->u.publish.pReceivedData = pIncomingPacket->pRemainingData;
                 pIncomingPacket->pRemainingData = NULL;
 
                 /* Add the PUBLISH to the list of operations pending processing. */
@@ -398,11 +396,11 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             if( status != IOT_MQTT_SUCCESS )
             {
                 /* Check ownership of the received MQTT packet. */
-                if( pOperation->pReceivedData != NULL )
+                if( pOperation->u.publish.pReceivedData != NULL )
                 {
                     /* Retrieve the pointer MQTT packet pointer so it may be freed later. */
                     IotMqtt_Assert( pIncomingPacket->pRemainingData == NULL );
-                    pIncomingPacket->pRemainingData = ( uint8_t * ) pOperation->pReceivedData;
+                    pIncomingPacket->pRemainingData = ( uint8_t * ) pOperation->u.publish.pReceivedData;
                 }
                 else
                 {
@@ -465,7 +463,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             if( pOperation != NULL )
             {
-                pOperation->status = status;
+                pOperation->u.operation.status = status;
                 _IotMqtt_Notify( pOperation, true );
             }
             else
@@ -500,7 +498,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
             /* Deserialize SUBACK and notify of result. */
-            pIncomingPacket->pMqttConnection = pMqttConnection;
+            pIncomingPacket->u.pMqttConnection = pMqttConnection;
             status = deserialize( pIncomingPacket );
             pOperation = _IotMqtt_FindOperation( pMqttConnection,
                                                  IOT_MQTT_SUBSCRIBE,
@@ -508,7 +506,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             if( pOperation != NULL )
             {
-                pOperation->status = status;
+                pOperation->u.operation.status = status;
                 _IotMqtt_Notify( pOperation, true );
             }
             else
@@ -550,7 +548,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
 
             if( pOperation != NULL )
             {
-                pOperation->status = status;
+                pOperation->u.operation.status = status;
                 _IotMqtt_Notify( pOperation, true );
             }
             else
@@ -758,7 +756,7 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
 {
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     IotNetworkError_t closeStatus = IOT_NETWORK_SUCCESS;
-    IotMqttCallbackParam_t callbackParam = { .message = { 0 } };
+    IotMqttCallbackParam_t callbackParam = { .u.message = { 0 } };
 
     /* Mark the MQTT connection as disconnected and the keep-alive as failed. */
     IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
@@ -844,7 +842,7 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
     {
         /* Set the members of the callback parameter. */
         callbackParam.mqttConnection = pMqttConnection;
-        callbackParam.disconnectReason = disconnectReason;
+        callbackParam.u.disconnectReason = disconnectReason;
 
         pMqttConnection->disconnectCallback.function( pMqttConnection->disconnectCallback.pCallbackContext,
                                                       &callbackParam );
@@ -861,7 +859,7 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
                               void * pReceiveContext )
 {
     IotMqttError_t status = IOT_MQTT_SUCCESS;
-    _mqttPacket_t incomingPacket = { 0 };
+    _mqttPacket_t incomingPacket = { .u.pMqttConnection = NULL };
 
     /* Cast context to correct type. */
     _mqttConnection_t * pMqttConnection = ( _mqttConnection_t * ) pReceiveContext;

@@ -24,16 +24,15 @@
  * @brief Full system tests for the MQTT library.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
+#include <stdio.h>
 #include <string.h>
 
-/* Common include. */
-#include "iot_common.h"
+/* SDK initialization include. */
+#include "iot_init.h"
 
 /* MQTT internal include. */
 #include "private/iot_mqtt_internal.h"
@@ -47,19 +46,6 @@
 
 /* Test framework includes. */
 #include "unity_fixture.h"
-
-/**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Including stdio.h also brings in unwanted (and conflicting) symbols on some
- * platforms. Therefore, any functions in stdio.h needed in this file have an
- * extern declaration here. */
-extern int snprintf( char *,
-                     size_t,
-                     const char *,
-                     ... );
-/** @endcond */
 
 /*-----------------------------------------------------------*/
 
@@ -349,8 +335,8 @@ static void _publishReceived( void * pArgument,
     IotSemaphore_t * pWaitSem = ( IotSemaphore_t * ) pArgument;
 
     /* If the received messages matches what was sent, unblock the waiting thread. */
-    if( ( pPublish->message.info.payloadLength == _samplePayloadLength ) &&
-        ( strncmp( pPublish->message.info.pPayload,
+    if( ( pPublish->u.message.info.payloadLength == _samplePayloadLength ) &&
+        ( strncmp( pPublish->u.message.info.pPayload,
                    _pSamplePayload,
                    _samplePayloadLength ) == 0 ) )
     {
@@ -371,9 +357,9 @@ static void _operationComplete( void * pArgument,
 
     /* If the operation information matches the parameters and the operation was
      * successful, unblock the waiting thread. */
-    if( ( pParams->expectedOperation == pOperation->operation.type ) &&
-        ( pParams->operation == pOperation->operation.reference ) &&
-        ( pOperation->operation.result == IOT_MQTT_SUCCESS ) )
+    if( ( pParams->expectedOperation == pOperation->u.operation.type ) &&
+        ( pParams->operation == pOperation->u.operation.reference ) &&
+        ( pOperation->u.operation.result == IOT_MQTT_SUCCESS ) )
     {
         IotSemaphore_Post( &( pParams->waitSem ) );
     }
@@ -595,10 +581,10 @@ TEST_SETUP( MQTT_System )
     _unsubscribeSerializerOverride = false;
     _disconnectSerializerOverride = false;
 
-    /* Initialize common components. */
-    if( IotCommon_Init() == false )
+    /* Initialize SDK. */
+    if( IotSdk_Init() == false )
     {
-        TEST_FAIL_MESSAGE( "Failed to initialize common components." );
+        TEST_FAIL_MESSAGE( "Failed to initialize SDK." );
     }
 
     /* Call the network stack initialization function. */
@@ -634,12 +620,12 @@ TEST_SETUP( MQTT_System )
     /* Set the MQTT network setup parameters. */
     ( void ) memset( &_networkInfo, 0x00, sizeof( IotMqttNetworkInfo_t ) );
     _networkInfo.createNetworkConnection = true;
-    _networkInfo.pNetworkServerInfo = ( void * ) &_serverInfo;
+    _networkInfo.u.setup.pNetworkServerInfo = ( void * ) &_serverInfo;
     _networkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
     _networkInfo.pMqttSerializer = _pMqttSerializer;
 
     #if IOT_TEST_SECURED_CONNECTION == 1
-        _networkInfo.pNetworkCredentialInfo = ( void * ) &_credentials;
+        _networkInfo.u.setup.pNetworkCredentialInfo = ( void * ) &_credentials;
     #endif
 }
 
@@ -652,13 +638,12 @@ TEST_TEAR_DOWN( MQTT_System )
 {
     /* Clean up the MQTT library. */
     IotMqtt_Cleanup();
-    vTaskDelay(100);
 
     /* Clean up the network stack. */
     IotTestNetwork_Cleanup();
 
-    /* Clean up common components. */
-    IotCommon_Cleanup();
+    /* Clean up SDK. */
+    IotSdk_Cleanup();
 
     /* Clear the connection pointer. */
     _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
@@ -854,10 +839,10 @@ TEST( MQTT_System, LastWillAndTestament )
     /* Establish an independent MQTT over TCP connection to receive a Last
      * Will and Testament message. */
     lwtNetworkInfo.createNetworkConnection = true;
-    lwtNetworkInfo.pNetworkServerInfo = ( void * ) &_serverInfo;
+    lwtNetworkInfo.u.setup.pNetworkServerInfo = ( void * ) &_serverInfo;
 
     #if IOT_TEST_SECURED_CONNECTION == 1
-        lwtNetworkInfo.pNetworkCredentialInfo = ( void * ) &_credentials;
+        lwtNetworkInfo.u.setup.pNetworkCredentialInfo = ( void * ) &_credentials;
     #endif
 
     lwtNetworkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;

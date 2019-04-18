@@ -25,13 +25,11 @@
  * typical application code.
  */
 
-#ifndef _AWS_IOT_SHADOW_INTERNAL_H_
-#define _AWS_IOT_SHADOW_INTERNAL_H_
+#ifndef AWS_IOT_SHADOW_INTERNAL_H_
+#define AWS_IOT_SHADOW_INTERNAL_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Linear containers (lists and queues) include. */
 #include "iot_linear_containers.h"
@@ -410,7 +408,7 @@ typedef struct _shadowOperation
             const char * pClientToken; /**< @brief Client token in update document. */
             size_t clientTokenLength;  /**< @brief Length of client token. */
         } update;
-    };
+    } u; /**< @brief Valid member depends on _shadowOperation_t.type. */
 
     /* How to notify of an operation's completion. */
     union
@@ -670,4 +668,4 @@ AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * pTopicName,
 AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * pErrorDocument,
                                                       size_t errorDocumentLength );
 
-#endif /* ifndef _AWS_IOT_SHADOW_INTERNAL_H_ */
+#endif /* ifndef AWS_IOT_SHADOW_INTERNAL_H_ */

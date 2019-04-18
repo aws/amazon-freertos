@@ -25,13 +25,11 @@
  * typical application code.
  */
 
-#ifndef _IOT_MQTT_INTERNAL_H_
-#define _IOT_MQTT_INTERNAL_H_
+#ifndef IOT_MQTT_INTERNAL_H_
+#define IOT_MQTT_INTERNAL_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Linear containers (lists and queues) include. */
 #include "iot_linear_containers.h"
@@ -371,15 +369,15 @@ typedef struct _mqttOperation
                 uint32_t limit;
                 uint32_t nextPeriod;
             } retry;
-        };
+        } operation;
 
         /* If incomingPublish is true, this struct is valid. */
         struct
         {
             IotMqttPublishInfo_t publishInfo; /**< @brief Deserialized PUBLISH. */
             const void * pReceivedData;       /**< @brief Any buffer associated with this PUBLISH that should be freed. */
-        };
-    };
+        } publish;
+    } u; /**< @brief Valid member depends on _mqttOperation_t.incomingPublish. */
 } _mqttOperation_t;
 
 /**
@@ -403,7 +401,7 @@ typedef struct _mqttPacket
          * when deserializing PUBLISHes.
          */
         _mqttOperation_t * pIncomingPublish;
-    };
+    } u; /**< @brief Valid member depends on packet being decoded. */
 
     uint8_t * pRemainingData;  /**< @brief (Input) The remaining data in MQTT packet. */
     size_t remainingLength;    /**< @brief (Input) Length of the remaining data in the MQTT packet. */
@@ -461,21 +459,6 @@ bool _IotMqtt_ValidateSubscriptionList( IotMqttOperationType_t operation,
                                         size_t listSize );
 
 /*-------------------- MQTT packet serializer functions ---------------------*/
-
-/**
- * @brief Initialize the MQTT packet serializer. Called by @ref mqtt_function_init
- * when initializing the MQTT library.
- *
- * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_INIT_FAILED.
- */
-IotMqttError_t _IotMqtt_InitSerialize( void );
-
-/**
- * @brief Free resources taken by #_IotMqtt_InitSerialize.
- *
- * No parameters, no return values.
- */
-void _IotMqtt_CleanupSerialize( void );
 
 /**
  * @brief Get the MQTT packet type from a stream of bytes off the network.
@@ -948,4 +931,4 @@ bool _IotMqtt_GetNextByte( void * pNetworkConnection,
 void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason,
                                       _mqttConnection_t * pMqttConnection );
 
-#endif /* ifndef _IOT_MQTT_INTERNAL_H_ */
+#endif /* ifndef IOT_MQTT_INTERNAL_H_ */

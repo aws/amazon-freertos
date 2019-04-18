@@ -273,19 +273,19 @@ static IotSerializerError_t _append( IotSerializerEncoderObject_t * pEncoderObje
     switch( scalarData.type )
     {
         case IOT_SERIALIZER_SCALAR_SIGNED_INT:
-            cborError = cbor_encode_int( pCborEncoder, scalarData.value.signedInt );
+            cborError = cbor_encode_int( pCborEncoder, scalarData.value.u.signedInt );
             break;
 
         case IOT_SERIALIZER_SCALAR_TEXT_STRING:
-            cborError = cbor_encode_text_string( pCborEncoder, ( char * ) scalarData.value.pString, scalarData.value.stringLength );
+            cborError = cbor_encode_text_string( pCborEncoder, ( char * ) scalarData.value.u.string.pString, scalarData.value.u.string.length );
             break;
 
         case IOT_SERIALIZER_SCALAR_BYTE_STRING:
-            cborError = cbor_encode_byte_string( pCborEncoder, scalarData.value.pString, scalarData.value.stringLength );
+            cborError = cbor_encode_byte_string( pCborEncoder, scalarData.value.u.string.pString, scalarData.value.u.string.length );
             break;
 
         case IOT_SERIALIZER_SCALAR_BOOL:
-            cborError = cbor_encode_boolean( pCborEncoder, scalarData.value.booleanValue );
+            cborError = cbor_encode_boolean( pCborEncoder, scalarData.value.u.booleanValue );
             break;
 
         case IOT_SERIALIZER_SCALAR_NULL:

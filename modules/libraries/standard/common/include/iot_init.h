@@ -20,46 +20,44 @@
  */
 
 /**
- * @file iot_common.h
- * @brief Provides function signatures for intialization and cleanup of common
- * libraries.
+ * @file iot_init.h
+ * @brief Provides function signatures for common intialization and cleanup of
+ * this SDK.
  */
 
-#ifndef _IOT_COMMON_H_
-#define _IOT_COMMON_H_
+#ifndef IOT_INIT_H_
+#define IOT_INIT_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdbool.h>
 
 /**
- * @brief One-time initialization function for all common libraries.
+ * @brief One-time initialization function for this SDK.
  *
  * This function initializes common libraries, such as static memory and task
  * pool. <b>It must be called once (and only once) before calling any other
  * function in this SDK.</b> Calling this function more than once without first
- * calling `IotCommon_Cleanup` may result in a crash.
+ * calling `IotSdk_Cleanup` may result in a crash.
  *
  * @return `true` if initialization succeeded; `false` otherwise. Logs may be
  * printed in case of failure.
  *
  * @warning No thread-safety guarantees are provided for this function.
  */
-bool IotCommon_Init( void );
+bool IotSdk_Init( void );
 
 /**
  * @brief One-time deinitialization function for all common libraries.
  *
- * This function frees resources taken in `IotCommon_Init`. No other function
- * in this SDK may be called after calling this function unless `IotCommon_Init`
+ * This function frees resources taken in `IotSdk_Init`. No other function
+ * in this SDK may be called after calling this function unless `IotSdk_Init`
  * is called again.
  *
  * @warning No thread-safety guarantees are provided for this function.
  */
-void IotCommon_Cleanup( void );
+void IotSdk_Cleanup( void );
 
-#endif
+#endif /* IOT_INIT_H_ */

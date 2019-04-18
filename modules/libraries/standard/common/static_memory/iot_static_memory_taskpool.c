@@ -24,10 +24,8 @@
  * @brief Implementation of task pool static memory functions in iot_static_memory.h
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* This file should only be compiled if dynamic memory allocation is forbidden. */
 #if IOT_STATIC_MEMORY_ONLY == 1
@@ -71,8 +69,8 @@ extern void IotStaticMemory_ReturnInUse( void * ptr,
 static bool _pInUseTaskPoolJobs[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { 0 };                       /**< @brief Task pool jobs in-use flags. */
 static IotTaskPoolJob_t _pTaskPoolJobs[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { { 0 } };            /**< @brief Task pool jobs. */
 
-static bool _pInUseTaskPoolTimerEvents[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { 0 };                /**< @brief Task pool timer event in-use flags. */
-static _taskPoolTimerEvent_t _pTaskPoolTimerEvents[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { 0 };    /**< @brief Task pool timer events. */
+static bool _pInUseTaskPoolTimerEvents[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { 0 };                             /**< @brief Task pool timer event in-use flags. */
+static _taskPoolTimerEvent_t _pTaskPoolTimerEvents[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { { .link = { 0 } } }; /**< @brief Task pool timer events. */
 
 /*-----------------------------------------------------------*/
 

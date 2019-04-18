@@ -24,30 +24,13 @@
  * @brief Tests for the Shadow topic name and JSON parser functions.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
-
-/* Common include. */
-#include "iot_common.h"
-
-/**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Including stdio.h also brings in unwanted (and conflicting) symbols on some
- * platforms. Therefore, any functions in stdio.h needed in this file have an
- * extern declaration here. */
-extern int vsnprintf( char *,
-                      size_t,
-                      const char *,
-                      va_list );
-/** @endcond */
 
 /* Shadow internal include. */
 #include "private/aws_iot_shadow_internal.h"

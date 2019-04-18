@@ -24,10 +24,8 @@
  * @brief Implementation of common static memory functions in iot_static_memory.h
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* This file should only be compiled if dynamic memory allocation is forbidden. */
 #if IOT_STATIC_MEMORY_ONLY == 1

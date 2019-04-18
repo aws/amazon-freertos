@@ -25,8 +25,8 @@
  * and variables of the MQTT library.
  */
 
-#ifndef _IOT_TEST_ACCESS_MQTT_H_
-#define _IOT_TEST_ACCESS_MQTT_H_
+#ifndef IOT_TEST_ACCESS_MQTT_H_
+#define IOT_TEST_ACCESS_MQTT_H_
 
 /*--------------------------- iot_mqtt_api.c ---------------------------*/
 
@@ -87,4 +87,4 @@ bool IotTestMqtt_topicMatch( const IotLink_t * pSubscriptionLink,
 bool IotTestMqtt_packetMatch( const IotLink_t * pSubscriptionLink,
                               void * pMatch );
 
-#endif /* ifndef _IOT_TEST_ACCESS_MQTT_H_ */
+#endif /* ifndef IOT_TEST_ACCESS_MQTT_H_ */

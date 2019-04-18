@@ -28,6 +28,9 @@
 #ifndef IOT_TASKPOOL_INTERNAL_H_
 #define IOT_TASKPOOL_INTERNAL_H_
 
+/* The config header is always included first. */
+#include "iot_config.h"
+
 /* Task pool include. */
 #include "private/iot_error.h"
 #include "iot_taskpool.h"
@@ -192,17 +195,6 @@
     #endif
 
 #endif /* if IOT_STATIC_MEMORY_ONLY == 1 */
-
-/**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Provide default values for undefined configuration constants.
- */
-#ifndef IOT_TASKPOOL_JOBS_RECYCLE_LIMIT
-    #define IOT_TASKPOOL_JOBS_RECYCLE_LIMIT    ( 32UL )
-#endif
-/** @endcond */
 
 /* ---------------------------------------------------------------------------------------------- */
 

@@ -19,10 +19,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* This file should only be compiled if dynamic memory allocation is forbidden. */
 #if IOT_STATIC_MEMORY_ONLY == 1
@@ -73,10 +71,13 @@
         #error "IOT_SERIALIZER_DECODER_OBJECTS cannot be 0 or negative."
     #endif
 
+    /**
+     * @todo Placeholder.
+     */
     typedef struct _cborValueWrapper
     {
-        CborValue cborValue;
-        bool isOutermost;
+        CborValue cborValue; /**< @brief Placeholder. */
+        bool isOutermost;    /**< @brief Placeholder. */
     } _cborValueWrapper_t;
 
 /*-----------------------------------------------------------*/
@@ -98,13 +99,13 @@
  * Static memory buffers and flags, allocated and zeroed at compile-time.
  */
     static bool _inUseCborEncoders[ IOT_SERIALIZER_CBOR_ENCODERS ] = { 0 };
-    static CborEncoder _cborEncoders[ IOT_SERIALIZER_CBOR_ENCODERS ] = { { 0 } };
+    static CborEncoder _cborEncoders[ IOT_SERIALIZER_CBOR_ENCODERS ] = { { .data = { 0 } } };
 
     static bool _inUseCborParsers[ IOT_SERIALIZER_CBOR_PARSERS ] = { 0 };
     static CborParser _cborParsers[ IOT_SERIALIZER_CBOR_PARSERS ] = { { 0 } };
 
     static bool _inUseCborValues[ IOT_SERIALIZER_CBOR_VALUES ] = { 0 };
-    static _cborValueWrapper_t _cborValues[IOT_SERIALIZER_CBOR_VALUES] = { { 0 } };
+    static _cborValueWrapper_t _cborValues[ IOT_SERIALIZER_CBOR_VALUES ] = { { .isOutermost = false } };
 
     static bool _inUseDecoderObjects[ IOT_SERIALIZER_DECODER_OBJECTS ] = { 0 };
     static IotSerializerDecoderObject_t _decoderObjects[ IOT_SERIALIZER_DECODER_OBJECTS ] = { { 0 } };

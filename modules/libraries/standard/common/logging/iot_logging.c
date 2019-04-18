@@ -24,13 +24,12 @@
  * @brief Implementation of logging functions from iot_logging.h
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 /* Platform clock include. */
@@ -38,26 +37,6 @@
 
 /* Logging includes. */
 #include "private/iot_logging.h"
-
-/**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- *
- * Including stdio.h also brings in unwanted (and conflicting) symbols on some
- * platforms. Therefore, any functions in stdio.h needed in this file have an
- * extern declaration here. */
-extern int sprintf( char *,
-                    const char *,
-                    ... );
-extern int snprintf( char *,
-                     size_t,
-                     const char *,
-                     ... );
-extern int vsnprintf( char *,
-                      size_t,
-                      const char *,
-                      va_list );
-/** @endcond */
 
 /*-----------------------------------------------------------*/
 
@@ -88,14 +67,6 @@ extern int vsnprintf( char *,
  * function is used.
  */
 #ifndef IotLogging_Puts
-
-/**
- * @cond DOXYGEN_IGNORE
- * Doxygen should ignore this section.
- */
-extern int puts( const char * );
-/** @endcond */
-
     #define IotLogging_Puts    puts
 #endif
 

@@ -25,14 +25,13 @@
  *
  */
 
-#ifndef _IOT_METRICS_H_
-#define _IOT_METRICS_H_
+#ifndef IOT_METRICS_H_
+#define IOT_METRICS_H_
 
 #include <stdint.h>
 
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 #include "iot_linear_containers.h"
 
@@ -131,11 +130,8 @@ typedef struct IotMetricsTcpConnection
     IotLink_t link;
     IotMetricsConnectionId_t id;
     /* This is limited to IPv4. */
-    struct
-    {
-        uint32_t remoteIp; /* In host byte order. */
-        char * pRemoteIp;
-    };
+    uint32_t remoteIp; /* In host byte order. */
+    char * pRemoteIp;
     uint16_t remotePort; /* In host order. */
 } IotMetricsTcpConnection_t;
 
@@ -169,4 +165,4 @@ void IotMetrics_RemoveTcpConnection( IotMetricsConnectionId_t tcpConnectionId );
  */
 void IotMetrics_ProcessTcpConnections( IotMetricsListCallback_t tcpConnectionsCallback );
 
-#endif /* ifndef _IOT_METRICS_H_ */
+#endif /* ifndef IOT_METRICS_H_ */

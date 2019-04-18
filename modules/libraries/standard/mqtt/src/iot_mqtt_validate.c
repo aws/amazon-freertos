@@ -24,10 +24,8 @@
  * @brief Implements functions that validate the structs of the MQTT library.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Error handling include. */
 #include "private/iot_error.h"
@@ -328,7 +326,7 @@ bool _IotMqtt_ValidateOperation( IotMqttOperation_t operation )
     }
 
     /* Check that reference is waitable. */
-    if( ( operation->flags & IOT_MQTT_FLAG_WAITABLE ) != IOT_MQTT_FLAG_WAITABLE )
+    if( ( operation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) != IOT_MQTT_FLAG_WAITABLE )
     {
         IotLogError( "Operation is not waitable." );
 

@@ -24,8 +24,8 @@
  * @brief Declares JSON utility functions.
  */
 
-#ifndef _IOT_JSON_UTILS_H_
-#define _IOT_JSON_UTILS_H_
+#ifndef IOT_JSON_UTILS_H_
+#define IOT_JSON_UTILS_H_
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -38,4 +38,4 @@ bool IotJsonUtils_FindJsonValue( const char * pJsonDocument,
                                  const char ** pJsonValue,
                                  size_t * pJsonValueLength );
 
-#endif /* ifndef _IOT_JSON_UTILS_H_ */
+#endif /* ifndef IOT_JSON_UTILS_H_ */

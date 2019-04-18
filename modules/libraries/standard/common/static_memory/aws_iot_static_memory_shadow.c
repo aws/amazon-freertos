@@ -24,10 +24,8 @@
  * @brief Implementation of Shadow static memory functions in iot_static_memory.h
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* This file should only be compiled if dynamic memory allocation is forbidden. */
 #if IOT_STATIC_MEMORY_ONLY == 1
@@ -94,8 +92,8 @@ extern void IotStaticMemory_ReturnInUse( void * ptr,
 /*
  * Static memory buffers and flags, allocated and zeroed at compile-time.
  */
-static bool _pInUseShadowOperations[ AWS_IOT_SHADOW_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };               /**< @brief Shadow operation in-use flags. */
-static _shadowOperation_t _pShadowOperations[ AWS_IOT_SHADOW_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };      /**< @brief Shadow operations. */
+static bool _pInUseShadowOperations[ AWS_IOT_SHADOW_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };                          /**< @brief Shadow operation in-use flags. */
+static _shadowOperation_t _pShadowOperations[ AWS_IOT_SHADOW_MAX_IN_PROGRESS_OPERATIONS ] = { { .link = { 0 } } }; /**< @brief Shadow operations. */
 
 static bool _pInUseShadowSubscriptions[ AWS_IOT_SHADOW_SUBSCRIPTIONS ] = { 0 };                             /**< @brief Shadow subscription in-use flags. */
 static char _pShadowSubscriptions[ AWS_IOT_SHADOW_SUBSCRIPTIONS ][ _SHADOW_SUBSCRIPTION_SIZE ] = { { 0 } }; /**< @brief Shadow subscriptions. */

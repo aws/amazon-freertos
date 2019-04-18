@@ -24,10 +24,8 @@
  * @brief Implements functions that process Shadow operations.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <string.h>
@@ -182,8 +180,8 @@ static bool _shadowOperation_match( const IotLink_t * pOperationLink,
         /* Check document pointers. */
         AwsIotShadow_Assert( pParam->pDocument != NULL );
         AwsIotShadow_Assert( pParam->documentLength > 0 );
-        AwsIotShadow_Assert( pOperation->update.pClientToken != NULL );
-        AwsIotShadow_Assert( pOperation->update.clientTokenLength > 0 );
+        AwsIotShadow_Assert( pOperation->u.update.pClientToken != NULL );
+        AwsIotShadow_Assert( pOperation->u.update.clientTokenLength > 0 );
 
         IotLogDebug( "Verifying client tokens for Shadow UPDATE." );
 
@@ -199,9 +197,9 @@ static bool _shadowOperation_match( const IotLink_t * pOperationLink,
          * matches. */
         if( match == true )
         {
-            match = ( clientTokenLength == pOperation->update.clientTokenLength ) &&
+            match = ( clientTokenLength == pOperation->u.update.clientTokenLength ) &&
                     ( strncmp( pClientToken,
-                               pOperation->update.pClientToken,
+                               pOperation->u.update.pClientToken,
                                clientTokenLength ) == 0 );
         }
         else
@@ -233,13 +231,13 @@ static void _commonOperationCallback( _shadowOperationType_t type,
     /* Set the response document for a Shadow UPDATE. */
     if( type == _SHADOW_UPDATE )
     {
-        param.pDocument = pMessage->message.info.pPayload;
-        param.documentLength = pMessage->message.info.payloadLength;
+        param.pDocument = pMessage->u.message.info.pPayload;
+        param.documentLength = pMessage->u.message.info.payloadLength;
     }
 
     /* Parse the Thing Name from the MQTT topic name. */
-    if( _AwsIotShadow_ParseThingName( pMessage->message.info.pTopicName,
-                                      pMessage->message.info.topicNameLength,
+    if( _AwsIotShadow_ParseThingName( pMessage->u.message.info.pTopicName,
+                                      pMessage->u.message.info.topicNameLength,
                                       &( param.pThingName ),
                                       &( param.thingNameLength ) ) != AWS_IOT_SHADOW_SUCCESS )
     {
@@ -284,12 +282,12 @@ static void _commonOperationCallback( _shadowOperationType_t type,
     AwsIotShadow_Assert( pOperation->status == AWS_IOT_SHADOW_STATUS_PENDING );
 
     IotLogDebug( "Received Shadow response on topic %.*s",
-                 pMessage->message.info.topicNameLength,
-                 pMessage->message.info.pTopicName );
+                 pMessage->u.message.info.topicNameLength,
+                 pMessage->u.message.info.pTopicName );
 
     /* Parse the status from the topic name. */
-    status = _AwsIotShadow_ParseShadowStatus( pMessage->message.info.pTopicName,
-                                              pMessage->message.info.topicNameLength );
+    status = _AwsIotShadow_ParseShadowStatus( pMessage->u.message.info.pTopicName,
+                                              pMessage->u.message.info.topicNameLength );
 
     switch( status )
     {
@@ -304,7 +302,7 @@ static void _commonOperationCallback( _shadowOperationType_t type,
             if( type == _SHADOW_GET )
             {
                 pOperation->status = _processAcceptedGet( pOperation,
-                                                          &( pMessage->message.info ) );
+                                                          &( pMessage->u.message.info ) );
             }
             else
             {
@@ -319,8 +317,8 @@ static void _commonOperationCallback( _shadowOperationType_t type,
                         pOperation->pSubscription->thingNameLength,
                         pOperation->pSubscription->pThingName );
 
-            pOperation->status = _AwsIotShadow_ParseErrorDocument( pMessage->message.info.pPayload,
-                                                                   pMessage->message.info.payloadLength );
+            pOperation->status = _AwsIotShadow_ParseErrorDocument( pMessage->u.message.info.pPayload,
+                                                                   pMessage->u.message.info.payloadLength );
             break;
 
         default:
@@ -383,20 +381,20 @@ static AwsIotShadowError_t _processAcceptedGet( _shadowOperation_t * pOperation,
      * info. */
     if( ( pOperation->flags & AWS_IOT_SHADOW_FLAG_WAITABLE ) == 0 )
     {
-        pOperation->get.pDocument = pPublishInfo->pPayload;
-        pOperation->get.documentLength = pPublishInfo->payloadLength;
+        pOperation->u.get.pDocument = pPublishInfo->pPayload;
+        pOperation->u.get.documentLength = pPublishInfo->payloadLength;
     }
     else
     {
         IotLogDebug( "Allocating new buffer for waitable Shadow GET." );
 
         /* Parameter validation should not have allowed a NULL malloc function. */
-        AwsIotShadow_Assert( pOperation->get.mallocDocument != NULL );
+        AwsIotShadow_Assert( pOperation->u.get.mallocDocument != NULL );
 
         /* Allocate a buffer for the retrieved document. */
-        pOperation->get.pDocument = pOperation->get.mallocDocument( pPublishInfo->payloadLength );
+        pOperation->u.get.pDocument = pOperation->u.get.mallocDocument( pPublishInfo->payloadLength );
 
-        if( pOperation->get.pDocument == NULL )
+        if( pOperation->u.get.pDocument == NULL )
         {
             IotLogError( "Failed to allocate buffer for retrieved Shadow document." );
 
@@ -405,10 +403,10 @@ static AwsIotShadowError_t _processAcceptedGet( _shadowOperation_t * pOperation,
         else
         {
             /* Copy the retrieved document. */
-            ( void ) memcpy( ( void * ) pOperation->get.pDocument,
+            ( void ) memcpy( ( void * ) pOperation->u.get.pDocument,
                              pPublishInfo->pPayload,
                              pPublishInfo->payloadLength );
-            pOperation->get.documentLength = pPublishInfo->payloadLength;
+            pOperation->u.get.documentLength = pPublishInfo->payloadLength;
         }
     }
 
@@ -508,11 +506,11 @@ void _AwsIotShadow_DestroyOperation( void * pData )
 
     /* If this is a Shadow update, free any allocated client token. */
     if( ( pOperation->type == _SHADOW_UPDATE ) &&
-        ( pOperation->update.pClientToken != NULL ) )
+        ( pOperation->u.update.pClientToken != NULL ) )
     {
-        AwsIotShadow_Assert( pOperation->update.clientTokenLength > 0 );
+        AwsIotShadow_Assert( pOperation->u.update.clientTokenLength > 0 );
 
-        AwsIotShadow_FreeString( ( void * ) ( pOperation->update.pClientToken ) );
+        AwsIotShadow_FreeString( ( void * ) ( pOperation->u.update.pClientToken ) );
     }
 
     /* Free the memory used to hold operation data. */
@@ -735,8 +733,8 @@ AwsIotShadowError_t _AwsIotShadow_ProcessOperation( IotMqttConnection_t mqttConn
         /* Set the PUBLISH payload to the update document for Shadow UPDATE. */
         if( pOperation->type == _SHADOW_UPDATE )
         {
-            publishInfo.pPayload = pDocumentInfo->update.pUpdateDocument;
-            publishInfo.payloadLength = pDocumentInfo->update.updateDocumentLength;
+            publishInfo.pPayload = pDocumentInfo->u.update.pUpdateDocument;
+            publishInfo.payloadLength = pDocumentInfo->u.update.updateDocumentLength;
         }
 
         /* Set the PUBLISH payload to an empty string for Shadow DELETE and GET,
@@ -856,16 +854,16 @@ void _AwsIotShadow_Notify( _shadowOperation_t * pOperation )
         /* Set the common members of the callback parameter. */
         callbackParam.callbackType = ( AwsIotShadowCallbackType_t ) pOperation->type;
         callbackParam.mqttConnection = pOperation->mqttConnection;
-        callbackParam.operation.result = pOperation->status;
-        callbackParam.operation.reference = pOperation;
+        callbackParam.u.operation.result = pOperation->status;
+        callbackParam.u.operation.reference = pOperation;
         callbackParam.pThingName = pSubscription->pThingName;
         callbackParam.thingNameLength = pSubscription->thingNameLength;
 
         /* Set the members of the callback parameter for a received document. */
         if( pOperation->type == _SHADOW_GET )
         {
-            callbackParam.operation.get.pDocument = pOperation->get.pDocument;
-            callbackParam.operation.get.documentLength = pOperation->get.documentLength;
+            callbackParam.u.operation.get.pDocument = pOperation->u.get.pDocument;
+            callbackParam.u.operation.get.documentLength = pOperation->u.get.documentLength;
         }
 
         pOperation->notify.callback.function( pOperation->notify.callback.pCallbackContext,

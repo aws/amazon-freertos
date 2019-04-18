@@ -27,10 +27,8 @@
 #ifndef IOT_TASKPOOL_TYPES_H_
 #define IOT_TASKPOOL_TYPES_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -43,10 +41,6 @@
 #include "iot_linear_containers.h"
 
 /*-------------------------- Task pool enumerated types --------------------------*/
-
-/**
- * @enums{taskpool,Task pool library}
- */
 
 /**
  * @ingroup taskpool_datatypes_enums
@@ -209,10 +203,6 @@ struct IotTaskPoolJob;
 /*------------------------- Task pool parameter structs --------------------------*/
 
 /**
- * @paramstructs{taskpool,task pool}
- */
-
-/**
  * @ingroup taskpool_datatypes_functionpointers
  * @brief Callback type for a user callback.
  *
@@ -255,10 +245,11 @@ typedef struct IotTaskPoolInfo
 /*------------------------- Task pool handles structs --------------------------*/
 
 /**
- * @ingroup taskpool_datatypes_types
+ * @ingroup taskpool_datatypes_structs
  * @brief Task pool jobs cache.
  *
- * @warning This is a system-level data type that should not be modified.
+ * @warning This is a system-level data type that should not be modified or used directly in any application.
+ * @warning This is a system-level data type that can and will change across different versions of the platform, with no regards for backward compatibility.
  *
  */
 typedef struct IotTaskPoolCache
@@ -269,16 +260,17 @@ typedef struct IotTaskPoolCache
 
 
 /**
- * @ingroup taskpool_datatypes_types
+ * @ingroup taskpool_datatypes_structs
  * @brief The task pool data structure keeps track of the internal state and the signals for the dispatcher threads.
  * The task pool is a thread safe data structure.
  *
- * @warning This is a system-level data type that should not be modified.
+ * @warning This is a system-level data type that should not be modified or used directly in any application.
+ * @warning This is a system-level data type that can and will change across different versions of the platform, with no regards for backward compatibility.
  *
  */
 typedef struct IotTaskPool
 {
-    IotQueue_t dispatchQueue;        /**< @brief The queue for the jobs waiting to be executed. */
+    IotDeQueue_t dispatchQueue;      /**< @brief The queue for the jobs waiting to be executed. */
     IotListDouble_t timerEventsList; /**< @brief The timeouts queue for all deferred jobs waiting to be executed. */
     IotTaskPoolCache_t jobsCache;    /**< @brief A cache to re-use jobs in order to limit memory allocations. */
     uint32_t minThreads;             /**< @brief The minimum number of threads for the task pool. */
@@ -294,10 +286,11 @@ typedef struct IotTaskPool
 } IotTaskPool_t;
 
 /**
- * @ingroup taskpool_datatypes_types
+ * @ingroup taskpool_datatypes_structs
  * @brief The job data structure keeps track of the user callback and context, as well as the status of the job.
  *
- * @warning This is a system-level data type that should not be modified.
+ * @warning This is a system-level data type that should not be modified or used directly in any application.
+ * @warning This is a system-level data type that can and will change across different versions of the platform, with no regards for backward compatibility.
  *
  */
 typedef struct IotTaskPoolJob
@@ -314,7 +307,7 @@ typedef struct IotTaskPoolJob
 /**
  * @constantspage{taskpool,task pool library}
  *
- * @section taskpool_constants_initializers task pool Initializers
+ * @section taskpool_constants_initializers Task pool Initializers
  * @brief Provides default values for initializing the data types of the task pool library.
  *
  * @snippet this define_taskpool_initializers
@@ -352,17 +345,18 @@ typedef struct IotTaskPoolJob
 /* @[define_taskpool_initializers] */
 
 /**
- * @brief Schedules a job to execute immediately.
+ * @brief Flag for scheduling a job to execute immediately, even if the maximum number of threads in the
+ * task pool was reached already.
  *
  * @warning This flag may cause the task pool to create a worker to serve the job immediately, and
- * therefore using this flag may incur in additinal memory usage.
+ * therefore using this flag may incur in additional memory usage and potentially fail scheduling the job.
  */
 #define IOT_TASKPOOL_JOB_HIGH_PRIORITY    ( ( uint32_t ) 0x00000001 )
 
 /**
  * @brief Allows the use of the handle to the system task pool.
  *
- * @warning The task pool handle is not valid unless @ref taskpool_function_createsystemtaskpool is
+ * @warning The task pool handle is not valid unless @ref IotTaskPool_CreateSystemTaskPool is
  * called before the handle is used.
  */
 #define IOT_SYSTEM_TASKPOOL               ( IotTaskPool_GetSystemTaskPool() )

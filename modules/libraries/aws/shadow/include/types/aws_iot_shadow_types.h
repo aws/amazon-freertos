@@ -24,13 +24,11 @@
  * @brief Types of the Thing Shadow library.
  */
 
-#ifndef _AWS_IOT_SHADOW_TYPES_H_
-#define _AWS_IOT_SHADOW_TYPES_H_
+#ifndef AWS_IOT_SHADOW_TYPES_H_
+#define AWS_IOT_SHADOW_TYPES_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* MQTT types include. */
 #include "types/iot_mqtt_types.h"
@@ -398,7 +396,7 @@ typedef struct AwsIotShadowCallbackParam
             const char * pDocument; /**< @brief Shadow delta or updated document. */
             size_t documentLength;  /**< @brief Length of Shadow delta or updated document. */
         } callback;                 /**< @brief Shadow document from an incoming delta or updated topic. */
-    };
+    } u; /**< @brief Valid member depends on callback type. */
 } AwsIotShadowCallbackParam_t;
 
 /**
@@ -421,7 +419,7 @@ typedef struct AwsIotShadowCallbackInfo
     /**
      * @brief User-provided callback function signature.
      *
-     * @param[in] void* #AwsIotShadowCallbackInfo_t.param1
+     * @param[in] void* #AwsIotShadowCallbackInfo_t.pCallbackContext
      * @param[in] AwsIotShadowCallbackParam_t* Details on the outcome of the Shadow
      * operation or an incoming Shadow document.
      *
@@ -475,7 +473,7 @@ typedef struct AwsIotShadowDocumentInfo
             const char * pUpdateDocument; /**< @brief The Shadow document to send in the update. */
             size_t updateDocumentLength;  /**< @brief Length of Shadow update document. */
         } update;                         /**< @brief Valid members for @ref shadow_function_update. */
-    };
+    } u; /**< @brief Valid member depends on operation type. */
 } AwsIotShadowDocumentInfo_t;
 
 /*------------------------ Shadow defined constants -------------------------*/

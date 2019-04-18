@@ -24,10 +24,8 @@
  * @brief Implementation of MQTT static memory functions in iot_static_memory.h
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* This file should only be compiled if dynamic memory allocation is forbidden. */
 #if IOT_STATIC_MEMORY_ONLY == 1
@@ -103,8 +101,8 @@ extern void IotStaticMemory_ReturnInUse( void * ptr,
 static bool _pInUseMqttConnections[ IOT_MQTT_CONNECTIONS ] = { 0 };                               /**< @brief MQTT connection in-use flags. */
 static _mqttConnection_t _pMqttConnections[ IOT_MQTT_CONNECTIONS ] = { { 0 } };                   /**< @brief MQTT connections. */
 
-static bool _pInUseMqttOperations[ IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };                 /**< @brief MQTT operation in-use flags. */
-static _mqttOperation_t _pMqttOperations[ IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };          /**< @brief MQTT operations. */
+static bool _pInUseMqttOperations[ IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { 0 };                        /**< @brief MQTT operation in-use flags. */
+static _mqttOperation_t _pMqttOperations[ IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { { .link = { 0 } } }; /**< @brief MQTT operations. */
 
 static bool _pInUseMqttSubscriptions[ IOT_MQTT_SUBSCRIPTIONS ] = { 0 };                           /**< @brief MQTT subscription in-use flags. */
 static char _pMqttSubscriptions[ IOT_MQTT_SUBSCRIPTIONS ][ _MQTT_SUBSCRIPTION_SIZE ] = { { 0 } }; /**< @brief MQTT subscriptions. */

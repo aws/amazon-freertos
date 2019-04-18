@@ -24,13 +24,11 @@
  * @brief Sets the log level for all demos.
  */
 
-#ifndef _IOT_DEMO_LOGGING_H_
-#define _IOT_DEMO_LOGGING_H_
+#ifndef IOT_DEMO_LOGGING_H_
+#define IOT_DEMO_LOGGING_H_
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Configure logs for the demos. The demos will have a log level of:
  * - IOT_LOG_LEVEL_DEMO if defined.
@@ -53,4 +51,4 @@
 /* Include the logging setup header. This enables the logs. */
 #include "iot_logging_setup.h"
 
-#endif /* ifndef _IOT_DEMO_LOGGING_H_ */
+#endif /* ifndef IOT_DEMO_LOGGING_H_ */

@@ -89,16 +89,20 @@ static char _remoteAddr[ _REMOTE_ADDR_LENGTH ] = "";
 
 /*---------------------- Helper Functions -------------------------*/
 
-static void copyMetricsFlag();
+void assertSuccess( IotSerializerError_t error );
 
-static bool getLatestMetricsData();
+void assertSuccessOrBufferToSmall( IotSerializerError_t error );
 
-static void freeMetricsData();
+static void copyMetricsFlag( void );
+
+static bool getLatestMetricsData( void );
+
+static void freeMetricsData( void );
 
 static void tcpConnectionsCallback( void * param1,
                                     IotListDouble_t * pTcpConnectionsMetricsList );
 
-static void _serialize();
+static void _serialize( void );
 
 static void _serializeTcpConnections( IotSerializerEncoderObject_t * pMetricsObject );
 
@@ -106,6 +110,7 @@ static void _serializeTcpConnections( IotSerializerEncoderObject_t * pMetricsObj
 
 void assertSuccess( IotSerializerError_t error )
 {
+    ( void ) error;
     AwsIotDefender_Assert( error == IOT_SERIALIZER_SUCCESS );
 }
 
@@ -113,19 +118,20 @@ void assertSuccess( IotSerializerError_t error )
 
 void assertSuccessOrBufferToSmall( IotSerializerError_t error )
 {
+    ( void ) error;
     AwsIotDefender_Assert( error == IOT_SERIALIZER_SUCCESS || error == IOT_SERIALIZER_BUFFER_TOO_SMALL );
 }
 
 /*-----------------------------------------------------------*/
 
-uint8_t * AwsIotDefenderInternal_GetReportBuffer()
+uint8_t * AwsIotDefenderInternal_GetReportBuffer( void )
 {
     return _report.pDataBuffer;
 }
 
 /*-----------------------------------------------------------*/
 
-size_t AwsIotDefenderInternal_GetReportBufferSize()
+size_t AwsIotDefenderInternal_GetReportBufferSize( void )
 {
     /* Encoder might over-calculate the needed size. Therefor encoded size might be smaller than buffer size: _report.size. */
     return _report.pDataBuffer == NULL ? 0
@@ -134,7 +140,7 @@ size_t AwsIotDefenderInternal_GetReportBufferSize()
 
 /*-----------------------------------------------------------*/
 
-bool AwsIotDefenderInternal_CreateReport()
+bool AwsIotDefenderInternal_CreateReport( void )
 {
     /* Assert report buffer is not allocated. */
     AwsIotDefender_Assert( _report.pDataBuffer == NULL && _report.size == 0 );
@@ -190,7 +196,7 @@ bool AwsIotDefenderInternal_CreateReport()
 
 /*-----------------------------------------------------------*/
 
-void AwsIotDefenderInternal_DeleteReport()
+void AwsIotDefenderInternal_DeleteReport( void )
 {
     /* Destroy the encoder object. */
     _AwsIotDefenderEncoder.destroy( &( _report.object ) );
@@ -220,7 +226,7 @@ void AwsIotDefenderInternal_DeleteReport()
  *  }
  * }
  */
-static void _serialize()
+static void _serialize( void )
 {
     IotSerializerError_t serializerError = IOT_SERIALIZER_SUCCESS;
 
@@ -309,7 +315,7 @@ static void _serialize()
 
 /*-----------------------------------------------------------*/
 
-static void copyMetricsFlag()
+static void copyMetricsFlag( void )
 {
     /* Copy the metrics flags to snapshot so that it is unlocked quicker. */
     IotMutex_Lock( &_AwsIotDefenderMetrics.mutex );
@@ -322,7 +328,7 @@ static void copyMetricsFlag()
 
 /*-----------------------------------------------------------*/
 
-static bool getLatestMetricsData()
+static bool getLatestMetricsData( void )
 {
     bool result = true;
 
@@ -343,7 +349,7 @@ static bool getLatestMetricsData()
 
 /*-----------------------------------------------------------*/
 
-static void freeMetricsData()
+static void freeMetricsData( void )
 {
     if( _metricsFlagSnapshot[ AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS ] )
     {
