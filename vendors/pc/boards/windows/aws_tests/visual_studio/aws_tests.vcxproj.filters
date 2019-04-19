@@ -1616,23 +1616,8 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_validate.c">
       <Filter>modules\libraries\standard\mqtt\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\system\iot_tests_mqtt_system.c">
-      <Filter>modules\libraries\standard\mqtt\test\unit</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\aws_test_mqtt_agent.c">
       <Filter>modules\libraries\standard\mqtt\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_api.c">
-      <Filter>modules\libraries\standard\mqtt\test\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_receive.c">
-      <Filter>modules\libraries\standard\mqtt\test\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c">
-      <Filter>modules\libraries\standard\mqtt\test\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_validate.c">
-      <Filter>modules\libraries\standard\mqtt\test\system</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_decoder.c">
       <Filter>modules\libraries\standard\serializer\src\json</Filter>
@@ -1696,6 +1681,21 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\test\aws_test_crypto.c">
       <Filter>modules\libraries\standard\crypto\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\system\iot_tests_mqtt_system.c">
+      <Filter>modules\libraries\standard\mqtt\test\system</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c">
+      <Filter>modules\libraries\standard\mqtt\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_api.c">
+      <Filter>modules\libraries\standard\mqtt\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_receive.c">
+      <Filter>modules\libraries\standard\mqtt\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_validate.c">
+      <Filter>modules\libraries\standard\mqtt\test\unit</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
