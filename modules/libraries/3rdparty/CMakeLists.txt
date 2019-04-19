@@ -52,7 +52,6 @@ afr_glob_files(tinycbor_src DIRECTORY "${AFR_3RDPARTY_DIR}/tinycbor" RECURSE)
 target_sources(
     3rdparty::tinycbor INTERFACE
     ${tinycbor_src}
-    "${AFR_3RDPARTY_DIR}/tinycbor/LICENSE"
 )
 target_include_directories(
     3rdparty::tinycbor INTERFACE

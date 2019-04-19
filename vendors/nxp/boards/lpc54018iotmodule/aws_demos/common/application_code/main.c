@@ -53,9 +53,9 @@
  * http://www.FreeRTOS.org
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//  Includes
-///////////////////////////////////////////////////////////////////////////////
+/*///////////////////////////////////////////////////////////////////////////// */
+/*  Includes */
+/*///////////////////////////////////////////////////////////////////////////// */
 
 /* SDK Included Files */
 #include "board.h"
@@ -83,20 +83,21 @@
 #include "usb_device_descriptor.h"
 #include "virtual_com.h"
 #include "fsl_power.h"
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 
-/* The lpc54018 usb logging driver calls a blocking write function. Since this 
+/* The lpc54018 usb logging driver calls a blocking write function. Since this
  * task is the lowest priority, all of the demo's priorities must be higher than
  * this to run. */
-#define mainLOGGING_TASK_PRIORITY       (tskIDLE_PRIORITY)
-#define mainLOGGING_TASK_STACK_SIZE     (configMINIMAL_STACK_SIZE * 4)
-#define mainLOGGING_QUEUE_LENGTH        (16)
+#define mainLOGGING_TASK_PRIORITY        ( tskIDLE_PRIORITY )
+#define mainLOGGING_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
+#define mainLOGGING_QUEUE_LENGTH         ( 16 )
 
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
-#define mainLOGGING_WIFI_STATUS_DELAY   pdMS_TO_TICKS( 1000 )
+#define mainLOGGING_WIFI_STATUS_DELAY    pdMS_TO_TICKS( 1000 )
 
 /*******************************************************************************
  * Prototypes
@@ -110,99 +111,109 @@ static void prvWifiConnect( void );
 
 extern usb_cdc_vcom_struct_t s_cdcVcom;
 
-#if (defined(USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS > 0U))
-void USB0_IRQHandler(void)
-{
-    USB_DeviceLpcIp3511IsrFunction(s_cdcVcom.deviceHandle);
-}
-#endif
-#if (defined(USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U))
-void USB1_IRQHandler(void)
-{
-    USB_DeviceLpcIp3511IsrFunction(s_cdcVcom.deviceHandle);
-}
-#endif
-void USB_DeviceClockInit(void)
-{
-#if defined(USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS > 0U)
-    /* enable USB IP clock */
-    CLOCK_EnableUsbfs0DeviceClock(kCLOCK_UsbSrcFro, CLOCK_GetFroHfFreq());
-#if defined(FSL_FEATURE_USB_USB_RAM) && (FSL_FEATURE_USB_USB_RAM)
-    for (int i = 0; i < FSL_FEATURE_USB_USB_RAM; i++)
-    {
-        ((uint8_t *)FSL_FEATURE_USB_USB_RAM_BASE_ADDRESS)[i] = 0x00U;
-    }
-#endif
+#if ( defined( USB_DEVICE_CONFIG_LPCIP3511FS ) && ( USB_DEVICE_CONFIG_LPCIP3511FS > 0U ) )
+    /*-----------------------------------------------------------*/
 
-#endif
-#if defined(USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U)
-    /* enable USB IP clock */
-    CLOCK_EnableUsbhs0DeviceClock(kCLOCK_UsbSrcUsbPll, 0U);
-#if defined(FSL_FEATURE_USBHSD_USB_RAM) && (FSL_FEATURE_USBHSD_USB_RAM)
-    for (int i = 0; i < FSL_FEATURE_USBHSD_USB_RAM; i++)
+    void USB0_IRQHandler( void )
     {
-        ((uint8_t *)FSL_FEATURE_USBHSD_USB_RAM_BASE_ADDRESS)[i] = 0x00U;
+        USB_DeviceLpcIp3511IsrFunction( s_cdcVcom.deviceHandle );
     }
 #endif
+#if ( defined( USB_DEVICE_CONFIG_LPCIP3511HS ) && ( USB_DEVICE_CONFIG_LPCIP3511HS > 0U ) )
+    /*-----------------------------------------------------------*/
+
+    void USB1_IRQHandler( void )
+    {
+        USB_DeviceLpcIp3511IsrFunction( s_cdcVcom.deviceHandle );
+    }
 #endif
+/*-----------------------------------------------------------*/
+
+void USB_DeviceClockInit( void )
+{
+    #if defined( USB_DEVICE_CONFIG_LPCIP3511FS ) && ( USB_DEVICE_CONFIG_LPCIP3511FS > 0U )
+        /* enable USB IP clock */
+        CLOCK_EnableUsbfs0DeviceClock( kCLOCK_UsbSrcFro, CLOCK_GetFroHfFreq() );
+        #if defined( FSL_FEATURE_USB_USB_RAM ) && ( FSL_FEATURE_USB_USB_RAM )
+            for( int i = 0; i < FSL_FEATURE_USB_USB_RAM; i++ )
+            {
+                ( ( uint8_t * ) FSL_FEATURE_USB_USB_RAM_BASE_ADDRESS )[ i ] = 0x00U;
+            }
+        #endif
+    #endif
+    #if defined( USB_DEVICE_CONFIG_LPCIP3511HS ) && ( USB_DEVICE_CONFIG_LPCIP3511HS > 0U )
+        /* enable USB IP clock */
+        CLOCK_EnableUsbhs0DeviceClock( kCLOCK_UsbSrcUsbPll, 0U );
+        #if defined( FSL_FEATURE_USBHSD_USB_RAM ) && ( FSL_FEATURE_USBHSD_USB_RAM )
+            for( int i = 0; i < FSL_FEATURE_USBHSD_USB_RAM; i++ )
+            {
+                ( ( uint8_t * ) FSL_FEATURE_USBHSD_USB_RAM_BASE_ADDRESS )[ i ] = 0x00U;
+            }
+        #endif
+    #endif
 }
-void USB_DeviceIsrEnable(void)
+/*-----------------------------------------------------------*/
+
+void USB_DeviceIsrEnable( void )
 {
     uint8_t irqNumber;
-#if defined(USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS > 0U)
-    uint8_t usbDeviceIP3511Irq[] = USB_IRQS;
-    irqNumber = usbDeviceIP3511Irq[CONTROLLER_ID - kUSB_ControllerLpcIp3511Fs0];
-#endif
-#if defined(USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS > 0U)
-    uint8_t usbDeviceIP3511Irq[] = USBHSD_IRQS;
-    irqNumber = usbDeviceIP3511Irq[CONTROLLER_ID - kUSB_ControllerLpcIp3511Hs0];
-#endif
-/* Install isr, set priority, and enable IRQ. */
-    NVIC_SetPriority((IRQn_Type)irqNumber, USB_DEVICE_INTERRUPT_PRIORITY);
-    EnableIRQ((IRQn_Type)irqNumber);
+
+    #if defined( USB_DEVICE_CONFIG_LPCIP3511FS ) && ( USB_DEVICE_CONFIG_LPCIP3511FS > 0U )
+        uint8_t usbDeviceIP3511Irq[] = USB_IRQS;
+        irqNumber = usbDeviceIP3511Irq[ CONTROLLER_ID - kUSB_ControllerLpcIp3511Fs0 ];
+    #endif
+    #if defined( USB_DEVICE_CONFIG_LPCIP3511HS ) && ( USB_DEVICE_CONFIG_LPCIP3511HS > 0U )
+        uint8_t usbDeviceIP3511Irq[] = USBHSD_IRQS;
+        irqNumber = usbDeviceIP3511Irq[ CONTROLLER_ID - kUSB_ControllerLpcIp3511Hs0 ];
+    #endif
+    /* Install isr, set priority, and enable IRQ. */
+    NVIC_SetPriority( ( IRQn_Type ) irqNumber, USB_DEVICE_INTERRUPT_PRIORITY );
+    EnableIRQ( ( IRQn_Type ) irqNumber );
 }
 
 
-int main(void)
+/*-----------------------------------------------------------*/
+
+int main( void )
 {
     /* attach 12 MHz clock to FLEXCOMM0 (debug console) */
-    CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
+    CLOCK_AttachClk( BOARD_DEBUG_UART_CLK_ATTACH );
 
     /* reset USB0 and USB1 device */
-    RESET_PeripheralReset(kUSB0D_RST_SHIFT_RSTn);
-    RESET_PeripheralReset(kUSB1D_RST_SHIFT_RSTn);
-    RESET_PeripheralReset(kUSB0HMR_RST_SHIFT_RSTn);
-    RESET_PeripheralReset(kUSB0HSL_RST_SHIFT_RSTn);
-    RESET_PeripheralReset(kUSB1H_RST_SHIFT_RSTn);
+    RESET_PeripheralReset( kUSB0D_RST_SHIFT_RSTn );
+    RESET_PeripheralReset( kUSB1D_RST_SHIFT_RSTn );
+    RESET_PeripheralReset( kUSB0HMR_RST_SHIFT_RSTn );
+    RESET_PeripheralReset( kUSB0HSL_RST_SHIFT_RSTn );
+    RESET_PeripheralReset( kUSB1H_RST_SHIFT_RSTn );
 
-    NVIC_ClearPendingIRQ(USB0_IRQn);
-    NVIC_ClearPendingIRQ(USB0_NEEDCLK_IRQn);
-    NVIC_ClearPendingIRQ(USB1_IRQn);
-    NVIC_ClearPendingIRQ(USB1_NEEDCLK_IRQn);
+    NVIC_ClearPendingIRQ( USB0_IRQn );
+    NVIC_ClearPendingIRQ( USB0_NEEDCLK_IRQn );
+    NVIC_ClearPendingIRQ( USB1_IRQn );
+    NVIC_ClearPendingIRQ( USB1_NEEDCLK_IRQn );
 
     BOARD_InitPins();
     BOARD_BootClockFROHF96M();
 
-#if (defined USB_DEVICE_CONFIG_LPCIP3511HS) && (USB_DEVICE_CONFIG_LPCIP3511HS)
-    POWER_DisablePD(kPDRUNCFG_PD_USB1_PHY);
-    /* enable usb1 host clock */
-    CLOCK_EnableClock(kCLOCK_Usbh1);
-    /*According to reference mannual, device mode setting has to be set by access usb host register */
-    *((uint32_t *)(USBHSH_BASE + 0x50)) |= USBHSH_PORTMODE_DEV_ENABLE_MASK;
-    /* enable usb1 host clock */
-    CLOCK_DisableClock(kCLOCK_Usbh1);
-#endif
-#if (defined USB_DEVICE_CONFIG_LPCIP3511FS) && (USB_DEVICE_CONFIG_LPCIP3511FS)
-    POWER_DisablePD(kPDRUNCFG_PD_USB0_PHY); /*< Turn on USB Phy */
-    CLOCK_SetClkDiv(kCLOCK_DivUsb0Clk, 1, false);
-    CLOCK_AttachClk(kFRO_HF_to_USB0_CLK);
-    /* enable usb0 host clock */
-    CLOCK_EnableClock(kCLOCK_Usbhsl0);
-    /*According to reference mannual, device mode setting has to be set by access usb host register */
-    *((uint32_t *)(USBFSH_BASE + 0x5C)) |= USBFSH_PORTMODE_DEV_ENABLE_MASK;
-    /* disable usb0 host clock */
-    CLOCK_DisableClock(kCLOCK_Usbhsl0);
-#endif
+    #if ( defined USB_DEVICE_CONFIG_LPCIP3511HS ) && ( USB_DEVICE_CONFIG_LPCIP3511HS )
+        POWER_DisablePD( kPDRUNCFG_PD_USB1_PHY );
+        /* enable usb1 host clock */
+        CLOCK_EnableClock( kCLOCK_Usbh1 );
+        /*According to reference mannual, device mode setting has to be set by access usb host register */
+        *( ( uint32_t * ) ( USBHSH_BASE + 0x50 ) ) |= USBHSH_PORTMODE_DEV_ENABLE_MASK;
+        /* enable usb1 host clock */
+        CLOCK_DisableClock( kCLOCK_Usbh1 );
+    #endif
+    #if ( defined USB_DEVICE_CONFIG_LPCIP3511FS ) && ( USB_DEVICE_CONFIG_LPCIP3511FS )
+        POWER_DisablePD( kPDRUNCFG_PD_USB0_PHY ); /*< Turn on USB Phy */
+        CLOCK_SetClkDiv( kCLOCK_DivUsb0Clk, 1, false );
+        CLOCK_AttachClk( kFRO_HF_to_USB0_CLK );
+        /* enable usb0 host clock */
+        CLOCK_EnableClock( kCLOCK_Usbhsl0 );
+        /*According to reference mannual, device mode setting has to be set by access usb host register */
+        *( ( uint32_t * ) ( USBFSH_BASE + 0x5C ) ) |= USBFSH_PORTMODE_DEV_ENABLE_MASK;
+        /* disable usb0 host clock */
+        CLOCK_DisableClock( kCLOCK_Usbhsl0 );
+    #endif
 
     BOARD_InitDebugConsole();
 
@@ -211,9 +222,13 @@ int main(void)
                             mainLOGGING_QUEUE_LENGTH );
 
     vTaskStartScheduler();
-    for (;;)
-        ;
+
+    for( ; ; )
+    {
+    }
 }
+
+/*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void )
 {
@@ -236,7 +251,7 @@ static void prvWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4];
+    uint8_t ucTempIp[ 4 ];
 
     /* Setup WiFi parameters to connect to access point. */
     xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
@@ -245,10 +260,11 @@ static void prvWifiConnect( void )
     xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
     xNetworkParams.cChannel = 0;
-    
+
     configPRINTF( ( "Starting Wi-Fi...\r\n" ) );
 
     xWifiStatus = WIFI_On();
+
     if( xWifiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
@@ -256,7 +272,7 @@ static void prvWifiConnect( void )
     else
     {
         configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
-        
+
         /* Delay to allow the lower priority logging task to print the above status. */
         vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
@@ -266,12 +282,14 @@ static void prvWifiConnect( void )
     }
 
     xWifiStatus = WIFI_ConnectAP( &xNetworkParams );
+
     if( xWifiStatus == eWiFiSuccess )
     {
         configPRINTF( ( "Wi-Fi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
         xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus ) 
+
+        if( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
@@ -302,110 +320,16 @@ static void prvWifiConnect( void )
 
 /*-----------------------------------------------------------*/
 
-/* configUSE_STATIC_ALLOCATION is set to 1, so the application must provide an
- * implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
- * used by the Idle task. */
-void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer,
-                                   StackType_t **ppxIdleTaskStackBuffer,
-                                   uint32_t *pulIdleTaskStackSize)
+void * pvPortCalloc( size_t xNum,
+                     size_t xSize )
 {
-    /* If the buffers to be provided to the Idle task are declared inside this
-     * function then they must be declared static - otherwise they will be allocated on
-     * the stack and so not exists after this function exits. */
-    static StaticTask_t xIdleTaskTCB;
-    static StackType_t uxIdleTaskStack[configMINIMAL_STACK_SIZE];
+    void * pvReturn;
 
-    /* Pass out a pointer to the StaticTask_t structure in which the Idle
-     * task's state will be stored. */
-    *ppxIdleTaskTCBBuffer = &xIdleTaskTCB;
+    pvReturn = pvPortMalloc( xNum * xSize );
 
-    /* Pass out the array that will be used as the Idle task's stack. */
-    *ppxIdleTaskStackBuffer = uxIdleTaskStack;
-
-    /* Pass out the size of the array pointed to by *ppxIdleTaskStackBuffer.
-     * Note that, as the array is necessarily of type StackType_t,
-     * configMINIMAL_STACK_SIZE is specified in words, not bytes. */
-    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
-}
-
-/*-----------------------------------------------------------*/
-
-/* configUSE_STATIC_ALLOCATION and configUSE_TIMERS are both set to 1, so the
- * application must provide an implementation of vApplicationGetTimerTaskMemory()
- * to provide the memory that is used by the Timer service task. */
-void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer,
-                                    StackType_t **ppxTimerTaskStackBuffer,
-                                    uint32_t *pulTimerTaskStackSize)
-{
-    /* If the buffers to be provided to the Timer task are declared inside this
-     * function then they must be declared static - otherwise they will be allocated on
-     * the stack and so not exists after this function exits. */
-    static StaticTask_t xTimerTaskTCB;
-    static StackType_t uxTimerTaskStack[configTIMER_TASK_STACK_DEPTH];
-
-    /* Pass out a pointer to the StaticTask_t structure in which the Timer
-     * task's state will be stored. */
-    *ppxTimerTaskTCBBuffer = &xTimerTaskTCB;
-
-    /* Pass out the array that will be used as the Timer task's stack. */
-    *ppxTimerTaskStackBuffer = uxTimerTaskStack;
-
-    /* Pass out the size of the array pointed to by *ppxTimerTaskStackBuffer.
-     * Note that, as the array is necessarily of type StackType_t,
-     * configTIMER_TASK_STACK_DEPTH is specified in words, not bytes. */
-    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Warn user if pvPortMalloc fails.
- *
- * Called if a call to pvPortMalloc() fails because there is insufficient
- * free memory available in the FreeRTOS heap.  pvPortMalloc() is called
- * internally by FreeRTOS API functions that create tasks, queues, software
- * timers, and semaphores.  The size of the FreeRTOS heap is set by the
- * configTOTAL_HEAP_SIZE configuration constant in FreeRTOSConfig.h.
- *
- */
-void vApplicationMallocFailedHook()
-{
-    taskDISABLE_INTERRUPTS();
-    for( ;; );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Loop forever if stack overflow is detected.
- *
- * If configCHECK_FOR_STACK_OVERFLOW is set to 1,
- * this hook provides a location for applications to
- * define a response to a stack overflow.
- *
- * Use this hook to help identify that a stack overflow
- * has occurred.
- *
- */
-void vApplicationStackOverflowHook( TaskHandle_t xTask,
-                                    char * pcTaskName )
-{
-    portDISABLE_INTERRUPTS();
-
-    /* Loop forever */
-    for( ; ; );
-}
-
-/*-----------------------------------------------------------*/
-
-void *pvPortCalloc(size_t xNum, size_t xSize)
-{
-    void *pvReturn;
-
-    pvReturn = pvPortMalloc(xNum * xSize);
-    if (pvReturn != NULL)
+    if( pvReturn != NULL )
     {
-        memset(pvReturn, 0x00, xNum * xSize);
+        memset( pvReturn, 0x00, xNum * xSize );
     }
 
     return pvReturn;
