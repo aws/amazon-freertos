@@ -236,7 +236,7 @@
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_appversion32.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_json_utils.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_logging_task.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_common.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_init.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_json_utils.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_linear_containers.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_logging_setup.h" />
@@ -458,7 +458,7 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_string.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\test\aws_test_cbor.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\test\test_aws_cbor_acc.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_common.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_init.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_json_utils.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\logging\iot_logging.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_clock_afr.c" />

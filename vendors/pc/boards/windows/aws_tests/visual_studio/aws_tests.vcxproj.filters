@@ -852,9 +852,6 @@
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_logging_task.h">
       <Filter>modules\libraries\standard\common\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_common.h">
-      <Filter>modules\libraries\standard\common\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_json_utils.h">
       <Filter>modules\libraries\standard\common\include</Filter>
     </ClInclude>
@@ -1082,6 +1079,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\defender\src\private\aws_iot_defender_internal.h">
       <Filter>modules\libraries\aws\defender\src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_init.h">
+      <Filter>modules\libraries\standard\common\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1697,14 +1697,14 @@
     <ClCompile Include="..\..\ports\pkcs11\aws_pkcs11_pal.c">
       <Filter>application_code\ports\pkcs11</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_common.c">
-      <Filter>modules\libraries\standard\common</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_json_utils.c">
       <Filter>modules\libraries\standard\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\test\src\iot_tests_network.c">
       <Filter>test\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_init.c">
+      <Filter>modules\libraries\standard\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
