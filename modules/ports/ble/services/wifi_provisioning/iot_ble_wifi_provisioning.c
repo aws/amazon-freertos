@@ -31,9 +31,7 @@
 #include <string.h>
 
 
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+#include "iot_config.h"
 
 #include "iot_ble_config.h"
 #include "iot_ble_wifi_provisioning.h"
@@ -987,7 +985,7 @@ static bool _handleEditNetworkRequest( uint8_t * pData,
         }
         else
         {
-            configPRINTF(( "Failed to allocate taskpool job for edit network request \r\n" )); 
+            configPRINTF(( "Failed to allocate taskpool job for edit network request \r\n" ));
             status = false;
         }
 
@@ -1594,7 +1592,7 @@ void _listNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * p
     }
 
     memset( scanNetworks, 0x00, sizeof( WIFIScanResult_t ) * IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS );
-    
+
     status = WIFI_Scan( scanNetworks, wifiProvisioning.listNetworkRequest.maxNetworks );
 
     if( status == eWiFiSuccess )
@@ -1652,7 +1650,7 @@ static void _addNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJ
 static void _deleteNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
-    
+
     ret = _popNetwork(wifiProvisioning.deleteNetworkRequest.idx, NULL);
     if( ret == eWiFiSuccess )
     {

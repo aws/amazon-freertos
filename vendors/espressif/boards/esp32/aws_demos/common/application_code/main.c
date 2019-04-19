@@ -22,9 +22,9 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+
+#include "iot_config.h"
+
 /* FreeRTOS includes. */
 
 #include "FreeRTOS.h"
@@ -156,7 +156,7 @@ static void prvMiscInitialization( void )
 							mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
     vApplicationIPInit();
-   
+
 }
 
 /*-----------------------------------------------------------*/
@@ -300,4 +300,3 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send(&evt);
     }
 }
-

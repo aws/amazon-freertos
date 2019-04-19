@@ -24,10 +24,7 @@
  * @brief Tests for the functions in iot_clock.h
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+#include "iot_config.h"
 
 /* Test framework includes. */
 #include <string.h>
@@ -81,8 +78,8 @@ TEST( UTIL_Platform_Clock, IotClock_GetTimestring )
 {
     char buffer[128] = {};
     size_t  timeStringSize = 0;
-    IotClock_GetTimestring( 
-        buffer, 
+    IotClock_GetTimestring(
+        buffer,
         sizeof( buffer ),
         &timeStringSize );
 
@@ -92,9 +89,9 @@ TEST( UTIL_Platform_Clock, IotClock_GetTimestring )
     // Check that the string size matches what was reported
     TEST_ASSERT_EQUAL( timeStringSize, strlen(buffer) );
 
-    // Now make sure that this all works correctly also if we have a tiny buffer 
-    IotClock_GetTimestring( 
-        buffer, 
+    // Now make sure that this all works correctly also if we have a tiny buffer
+    IotClock_GetTimestring(
+        buffer,
         1,
         &timeStringSize );
 
@@ -114,12 +111,12 @@ TEST( UTIL_Platform_Clock, IotClock_GetTimeMs )
 {
     uint64_t startTime = 0;
     uint64_t endTime = 0;
-    
+
     startTime = IotClock_GetTimeMs( );
-    
+
     /* delay for 1s */
     vTaskDelay( configTICK_RATE_HZ );
-    
+
     endTime = IotClock_GetTimeMs( );
 
     /* We expect accuracy to be better than 10%, so these should be within 100ms */
@@ -143,7 +140,7 @@ TEST( UTIL_Platform_Clock, IotClock_Timer )
     uint64_t endTime = 0;
     IotTimer_t  testTimer;
     int  completionFlag = 0;
-    
+
     startTime = IotClock_GetTimeMs( );
 
     IotClock_TimerCreate(  &testTimer,
@@ -185,12 +182,12 @@ TEST( UTIL_Platform_Clock, IotClock_TimerCancellation )
     vTaskDelay( 1 );
 
     /* Then stop and destroy the timer before the callback can happen */
-    IotClock_TimerDestroy(&testTimer); 
+    IotClock_TimerDestroy(&testTimer);
 
     /* Wait 2 seconds to ensure the timer callback did not happen anyway */
     vTaskDelay( 2 * configTICK_RATE_HZ );
 
-    /* Pass if we get there and the timer never fired */ 
+    /* Pass if we get there and the timer never fired */
     TEST_ASSERT_EQUAL( 0, completionFlag );
 }
 

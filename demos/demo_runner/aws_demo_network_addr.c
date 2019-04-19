@@ -23,9 +23,7 @@
  * @file  aws_demo_network_addr.c
  * @brief Demo default network address information
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+#include "iot_config.h"
 
 #include  "FreeRTOS.h"
 #include  "FreeRTOS_IP.h"
@@ -102,4 +100,3 @@ const char * pcApplicationHostnameHook( void )
 
 #endif
 /*-----------------------------------------------------------*/
-

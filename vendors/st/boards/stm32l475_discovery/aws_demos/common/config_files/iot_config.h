@@ -21,34 +21,31 @@
 
 /* This file contains configuration settings for the demos. */
 
+#ifndef IOT_CONFIG_H_
+#define IOT_CONFIG_H_
+
 /* Standard include. */
 #include <stdbool.h>
 
-#ifndef _IOT_DEMO_CONFIG_H_
-#define _IOT_DEMO_CONFIG_H_
-
 /* MQTT demo configuration. */
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
-#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 10 )
-
-#define IOT_MQTT_RESPONSE_WAIT_MS (10000)
+#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
 
 /* Global logging configuration. */
-#define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
 #define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO
 
 /* Uncomment one of these definitions to override the log level configuration for
  * a specific library. */
-/* #define IOT_LOG_LEVEL_PLATFORM               IOT_LOG_INFO */
-/* #define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO */
-/* #define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO */
-/* #define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO */
+/*#define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO */
+/*#define IOT_LOG_LEVEL_PLATFORM               IOT_LOG_INFO */
+/*#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO */
+/*#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO */
+/*#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO */
 
-/* Set the task pool stack size and priority on ESP. */
+/* Set the task pool stack size and priority on ST. */
 #define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
-#define IOT_THREAD_DEFAULT_PRIORITY      5
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
-#endif /* ifndef _IOT_DEMO_CONFIG_H_ */
+#endif /* ifndef IOT_CONFIG_H_ */

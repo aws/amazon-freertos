@@ -28,10 +28,7 @@
  * @brief Tests for serialize/deserialize functions for MQTT BLE proxy
  */
 
-/* Build using a config header, if provided. */
-#ifdef AWS_IOT_CONFIG_FILE
-    #include AWS_IOT_CONFIG_FILE
-#endif
+#include "iot_config.h"
 
 #include "FreeRTOS.h"
 
@@ -684,7 +681,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH )
 
     _mqttOperation_t output = { 0 };
 
-    _mqttPacket_t packet = 
+    _mqttPacket_t packet =
     {
         .pRemainingData   = buffer,
         .remainingLength  = TEST_MESG_LEN,
@@ -788,7 +785,7 @@ TEST(MQTT_Unit_BLE_Serialize, DeserializePUBLISH_QOS0 )
     uint8_t buffer[ TEST_MESG_LEN ] = { 0 };
 
     _mqttOperation_t output = { 0 };
-    
+
     _mqttPacket_t packet =
     {
         .pRemainingData   = buffer,

@@ -27,9 +27,9 @@
  * @file aws_test_wifi_provisioning.c
  * @brief Tests for Wifi provisioning.
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+
+#include "iot_config.h"
+
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>

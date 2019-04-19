@@ -21,8 +21,8 @@
 
 /* This file contains configuration settings for the demos. */
 
-#ifndef _IOT_DEMO_CONFIG_H_
-#define _IOT_DEMO_CONFIG_H_
+#ifndef IOT_CONFIG_H_
+#define IOT_CONFIG_H_
 
 /* Standard include. */
 #include <stdbool.h>
@@ -30,8 +30,6 @@
 /* MQTT demo configuration. */
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
 #define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
-
-#define IOT_MQTT_RESPONSE_WAIT_MS (10000)
 
 /* Global logging configuration. */
 #define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
@@ -47,4 +45,4 @@
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
-#endif /* ifndef _IOT_DEMO_CONFIG_H_ */
+#endif /* ifndef IOT_CONFIG_H_ */

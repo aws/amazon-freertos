@@ -11,7 +11,7 @@ endif()
 afr_mcu_port(compiler)
 
 # Compiler flags
-set(c_flags -g -x c -DIOT_CONFIG_FILE=\\\"iot_demo_config.h\\\" -ffunction-sections -O1 -mprocessor=32MZ2048EFM100 -mnewlib-libc -std=gnu99 -fgnu89-inline)
+set(c_flags -g -x c -ffunction-sections -O1 -mprocessor=32MZ2048EFM100 -mnewlib-libc -std=gnu99 -fgnu89-inline)
 set(asm_flags -mprocessor=32MZ2048EFM100 -MMD -MF -DXPRJ_pic32mz_ef_curiosity=pic32mz_ef_curiosity -no-legacy-libc -Wa$<COMMA>--gdwarf-2)
 target_compile_options(
     AFR::compiler::mcu_port
@@ -44,7 +44,7 @@ endif()
 
 # Kernel
 afr_mcu_port(kernel)
-afr_glob_src(driver_src RECURSE DIRECTORY "${AFR_ROOT_DIR}/lib/third_party/mcu_vendor/microchip/harmony/v2.05/framework") 
+afr_glob_src(driver_src RECURSE DIRECTORY "${AFR_ROOT_DIR}/lib/third_party/mcu_vendor/microchip/harmony/v2.05/framework")
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
@@ -59,8 +59,8 @@ set(
     "${AFR_MODULES_STANDARD_DIR}/common/include"
     "${AFR_ROOT_DIR}/modules/libraries/3rdparty/jsmn"
     "${AFR_ROOT_DIR}/modules/libraries/3rdparty/pkcs11"
-    "${AFR_ROOT_DIR}/modules/libraries/3rdparty/tinycbor"  
-    "${AFR_MODULES_STANDARD_DIR}/crypto/include"     
+    "${AFR_ROOT_DIR}/modules/libraries/3rdparty/tinycbor"
+    "${AFR_MODULES_STANDARD_DIR}/crypto/include"
     "${AFR_MODULES_STANDARD_DIR}/tls/include"
     "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/include"
     "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
@@ -98,7 +98,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE 
+    INTERFACE
         "${afr_ports_dir}/wifi/aws_wifi.c"
         "${afr_ports_dir}/wifi/aws_wifi_assert.c"
 )
@@ -114,7 +114,7 @@ target_include_directories(
 afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
-    INTERFACE 
+    INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.c"
 )
@@ -161,7 +161,7 @@ else()
     )
 endif()
 
-#afr_glob_src(driver_code RECURSE DIRECTORY "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework") 
+#afr_glob_src(driver_code RECURSE DIRECTORY "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 add_executable(
     ${exe_target}
@@ -232,8 +232,8 @@ set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
-    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>" 
+    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
 )
 
-# TODO: Execute this python script if we need to. Seems like it is making the OTA images? 
+# TODO: Execute this python script if we need to. Seems like it is making the OTA images?
 #  ../../../common/ota/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" && python ../../../common/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF

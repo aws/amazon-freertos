@@ -24,10 +24,7 @@
  * @brief Tests for the functions in iot_threads.h
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+#include "iot_config.h"
 
 /* Test framework includes. */
 #include <string.h>

@@ -63,8 +63,6 @@ endif
 
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/third_party/pkcs11 $(AMAZON_FREERTOS_LIB_DIR)/ota/portable/espressif/esp32_devkitc_esp_wrover_kit
 
-CFLAGS += -DIOT_CONFIG_FILE="\"iot_demo_config.h\""
-
 lib/greengrass/aws_greengrass_discovery.o: CFLAGS+=-Wno-format
 lib/common/aws_logging_task_dynamic_buffers.o: CFLAGS+=-Wno-format -Wno-uninitialized
 demos/common/tcp/aws_tcp_echo_client_single_task.o: CFLAGS+=-Wno-format

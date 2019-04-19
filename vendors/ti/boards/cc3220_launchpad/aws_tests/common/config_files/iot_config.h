@@ -19,16 +19,21 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* This file contains configuration settings for the tests on FreeRTOS running
- * on Windows Simulator. */
+/* This file contains configuration settings for the demos. */
 
-#ifndef _IOT_TEST_CONFIG_H_
-#define _IOT_TEST_CONFIG_H_
+#ifndef IOT_CONFIG_H_
+#define IOT_CONFIG_H_
+
+/* Standard include. */
+#include <stdbool.h>
 
 /* Library logging configuration. */
 #define IOT_LOG_LEVEL_GLOBAL    IOT_LOG_NONE
 
-/* Include the default configuration file at the bottom of this file. */
+/* Set the task pool stack size and priority on TI. */
+#define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
+
+/* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
-#endif /* ifndef _IOT_TEST_CONFIG_H_ */
+#endif /* ifndef IOT_CONFIG_H_ */

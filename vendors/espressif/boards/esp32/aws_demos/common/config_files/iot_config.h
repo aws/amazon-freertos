@@ -21,8 +21,8 @@
 
 /* This file contains configuration settings for the demos. */
 
-#ifndef _IOT_DEMO_CONFIG_H_
-#define _IOT_DEMO_CONFIG_H_
+#ifndef IOT_CONFIG_H_
+#define IOT_CONFIG_H_
 
 /* Standard include. */
 #include <stdbool.h>
@@ -44,7 +44,17 @@
 /*#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO */
 /*#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO */
 
+/* Define additional serializer initialization functions for the BLE Module on ESP. */
+extern bool IotBleMqtt_InitSerialize( void );
+extern void IotBleMqtt_CleanupSerialize( void );
+#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
+#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
+
+/* Set the task pool stack size and priority on ESP. */
+#define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
+#define IOT_THREAD_DEFAULT_PRIORITY      5
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
-#endif /* ifndef _IOT_DEMO_CONFIG_H_ */
+#endif /* ifndef IOT_CONFIG_H_ */

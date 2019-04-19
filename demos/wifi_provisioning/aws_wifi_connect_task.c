@@ -22,9 +22,9 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+
+#include "iot_config.h"
+
 /**
  * @brief The demo task is used to connect to the list of provisioned WIFI networks in priority order.
  * The task also handles WIFI disconnection and reconnect to the provisioned APs upto a configured number of retries.
