@@ -41,6 +41,7 @@
 
 /** Platform level includes **/
 #include "platform/iot_threads.h"
+#include "platform/iot_clock.h"
 #include "platform/iot_network_ble.h"
 #include "platform/iot_network_afr.h"
 
@@ -66,6 +67,11 @@
 #define _NM_GET_NETWORK_TYPE( params )                    ( ( uint32_t ) ( ( params ) >>  16 ) & 0x0000FFFFUL )
 
 #define _NM_GET_NETWORK_STATE( params )                   ( ( AwsIotNetworkState_t ) ( ( params ) & 0x0000FFFFUL ) )
+
+#define _NM_WIFI_CONNECTION_RETRY_INTERVAL_MS                ( 1000 )
+
+#define _NM_WIFI_CONNECTION_RETRIES                          ( 5 )
+
 
 /**
  * @brief Structure wraps the type and state of each networks enabled.
@@ -369,7 +375,7 @@ static void _bleConnectionCallback(BTStatus_t status,
 static bool _wifiConnectAccessPoint( void )
 {
 
-    bool ret = true;
+    bool ret = false;
     static const WIFINetworkParams_t network =
     {
         .pcSSID           = clientcredentialWIFI_SSID,
@@ -379,13 +385,29 @@ static bool _wifiConnectAccessPoint( void )
         .xSecurity        = clientcredentialWIFI_SECURITY
     };
 
-    /* Setup parameters. */
-    if( WIFI_ConnectAP( &( network ) ) != eWiFiSuccess )
+    uint32_t numRetries = _NM_WIFI_CONNECTION_RETRIES;
+    uint32_t delayMilliseconds = _NM_WIFI_CONNECTION_RETRY_INTERVAL_MS; 
+
+
+    /* Try to connect to wifi access point with retry and exponential delay */
+    do
     {
-        ret = false;
-    } else {
-        wifiNetwork.state = eNetworkStateEnabled;
-    }
+        if( WIFI_ConnectAP( &( network ) ) == eWiFiSuccess )
+        {
+            ret = true;
+	    wifiNetwork.state = eNetworkStateEnabled;
+	    break;
+	}
+       	else
+	{
+            if( numRetries > 0 )
+            {
+                  IotClock_SleepMs( delayMilliseconds );
+		  delayMilliseconds = delayMilliseconds * 2;
+            }
+	}
+
+    } while ( numRetries-- > 0 );
 
     return ret;
 }
