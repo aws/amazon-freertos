@@ -337,40 +337,6 @@ static void _mqttSubscriptionCallback( void * param1,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Initialize the MQTT library.
- *
- * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
- * `EXIT_FAILURE` otherwise.
- */
-static int _initializeDemo( void )
-{
-    int status = EXIT_SUCCESS;
-    IotMqttError_t mqttInitStatus = IOT_MQTT_SUCCESS;
-
-    mqttInitStatus = IotMqtt_Init();
-
-    if( mqttInitStatus != IOT_MQTT_SUCCESS )
-    {
-        /* Failed to initialize MQTT library. */
-        status = EXIT_FAILURE;
-    }
-
-    return status;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Clean up the MQTT library.
- */
-static void _cleanupDemo( void )
-{
-    IotMqtt_Cleanup();
-}
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Establish a new connection to the MQTT server.
  *
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
