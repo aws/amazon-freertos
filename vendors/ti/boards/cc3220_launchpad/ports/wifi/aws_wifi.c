@@ -957,6 +957,10 @@ WIFIReturnCode_t WIFI_Scan( WIFIScanResult_t * pxBuffer,
     uint8_t i;
 
     configASSERT( pxBuffer != NULL );
+    if ( 0 == ucNumNetworks)
+    {
+        return eWiFiFailure;
+    }
 
     /* Try to acquire the semaphore. */
     if( xSemaphoreTake( xWiFiSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE )
