@@ -317,6 +317,7 @@ void prvFindObjectInListByLabel( uint8_t * pcLabel,
     uint8_t ucIndex;
 
     *pxPalHandle = CK_INVALID_HANDLE;
+    *pxAppHandle = CK_INVALID_HANDLE;
 
     for( ucIndex = 0; ucIndex < pkcs11configMAX_NUM_OBJECTS; ucIndex++ )
     {
@@ -1892,6 +1893,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = CKR_OK;
     CK_BYTE * pxFindObjectLabel = NULL;
     uint32_t ulIndex;
+    CK_ATTRIBUTE xAttribute;
 
     /* Check inputs. */
     if( ( pxSession == NULL ) || ( pxSession->xOpened != CK_TRUE ) )
@@ -1939,7 +1941,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
 
         for( ulIndex = 0; ulIndex < ulCount; ulIndex++ ) /* TODO: Re-evaluate the need for this for loop... we are making bad assumptions if 2 objects have the same label anyhow! */
         {
-            CK_ATTRIBUTE xAttribute = pxTemplate[ ulIndex ];
+            xAttribute = pxTemplate[ ulIndex ];
 
             if( xAttribute.type == CKA_LABEL )
             {

@@ -428,8 +428,11 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
                               &pcFileName,
                               &xHandle );
 
-    /* Check if object exists/has been created before returning. */
-    iStatus = sl_FsGetInfo( ( const unsigned char * ) pcFileName, 0, &FsFileInfo );
+    if (pcFileName != NULL)
+    {
+        /* Check if object exists/has been created before returning. */
+        iStatus = sl_FsGetInfo( ( const unsigned char * ) pcFileName, 0, &FsFileInfo );
+    }
 
     if( SL_ERROR_FS_FILE_NOT_EXISTS == iStatus )
     {
