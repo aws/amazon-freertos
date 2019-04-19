@@ -37,9 +37,6 @@
 #include "aws_tls.h"
 #include "task.h"
 
-/* Logging includes. */
-#include "aws_logging_task.h"
-
 /* Third-party wifi driver include. */
 #include "qcom_api.h"
 #include "aws_wifi.h"
