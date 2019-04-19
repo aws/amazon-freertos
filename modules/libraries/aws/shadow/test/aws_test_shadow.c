@@ -39,7 +39,7 @@
 #include "aws_clientcredential.h"
 #include "aws_shadow.h"
 #include "iot_mqtt.h"
-#include "iot_common.h"
+#include "iot_init.h"
 
 /* Unity framework includes. */
 #include "unity_fixture.h"
@@ -87,14 +87,14 @@ TEST_GROUP( Full_Shadow );
 
 TEST_SETUP( Full_Shadow )
 {
-    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 
 TEST_TEAR_DOWN( Full_Shadow )
 {
-    IotCommon_Cleanup();
     IotMqtt_Cleanup();
+    IotSdk_Cleanup();
 }
 
 TEST_GROUP_RUNNER( Full_Shadow )

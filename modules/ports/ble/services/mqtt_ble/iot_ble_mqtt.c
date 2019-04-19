@@ -28,10 +28,8 @@
  * @brief GATT service for transferring MQTT packets over BLE
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 #include "iot_ble_config.h"
 #include "iot_ble_mqtt.h"
@@ -453,7 +451,7 @@ static bool _getMqttStateFromMessage( uint8_t * pMessage,
         }
         else
         {
-            *pState = ( uint32_t ) value.value.signedInt;
+            *pState = ( uint32_t ) value.u.value.u.signedInt;
         }
     }
 
@@ -483,7 +481,7 @@ static bool _serializeMqttControlMessage( uint32_t state,
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
         value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        value.value.signedInt = state;
+        value.value.u.signedInt = state;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &stateMesgMap, IOT_BLE_MQTT_PARAM_STATE, value );
     }
 

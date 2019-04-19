@@ -54,7 +54,7 @@
 
 #define _castDecoderObjectToJsonContainer( pDecoderObject )    ( ( pDecoderObject )->pHandle )
 
-#define _castDecoderIteratorToJsonContainer( iterator )        ( ( ( IotSerializerDecoderObject_t * ) iterator )->pHandle )
+#define _castDecoderIteratorToJsonContainer( iterator )        ( ( ( IotSerializerDecoderObject_t * ) iterator )->u.pHandle )
 
 static IotSerializerError_t _init( IotSerializerDecoderObject_t * pDecoderObject,
                                    const uint8_t * pDataBuffer,
@@ -279,7 +279,7 @@ static IotSerializerError_t parseTokenValue( const char * pBuffer,
                if( pValue )
                {
                    pValue->type = tokenType;
-                   pValue->pHandle = _createContainer( ( pBuffer + start ), length );
+                   pValue->u.pHandle = _createContainer( ( pBuffer + start ), length );
                }
 
                ( *pOffset )++; /* Skip past the token */
@@ -295,7 +295,7 @@ static IotSerializerError_t parseTokenValue( const char * pBuffer,
                if( pValue )
                {
                    pValue->type = tokenType;
-                   pValue->pHandle = _createContainer( ( pBuffer + start ), length );
+                   pValue->u.pHandle = _createContainer( ( pBuffer + start ), length );
                }
 
                ( *pOffset )++; /* Skip past the token after parsing */
@@ -309,7 +309,7 @@ static IotSerializerError_t parseTokenValue( const char * pBuffer,
                if( pValue )
                {
                    pValue->type = tokenType;
-                   pValue->value.signedInt = val;
+                   pValue->u.value.u.signedInt = val;
                }
 
                break;
@@ -333,7 +333,7 @@ static IotSerializerError_t parseTokenValue( const char * pBuffer,
                if( pValue != NULL )
                {
                    pValue->type = tokenType;
-                   pValue->value.booleanValue = val;
+                   pValue->u.value.u.booleanValue = val;
                }
 
                break;
@@ -361,8 +361,9 @@ static IotSerializerError_t parseTokenValue( const char * pBuffer,
                {
                    if( pValue->type == IOT_SERIALIZER_SCALAR_BYTE_STRING )
                    {
-                       decodeRet = mbedtls_base64_decode( ( unsigned char * ) ( pValue->value.pString ), pValue->value.stringLength,
-                                                          &( pValue->value.stringLength ),
+                       decodeRet = mbedtls_base64_decode( ( unsigned char * ) ( pValue->u.value.u.string.pString ),
+                                                          pValue->u.value.u.string.length,
+                                                          &( pValue->u.value.u.string.length ),
                                                           ( const unsigned char * ) ( pBuffer + start ), length );
 
                        switch( decodeRet )
@@ -382,8 +383,8 @@ static IotSerializerError_t parseTokenValue( const char * pBuffer,
                    else
                    {
                        pValue->type = tokenType;
-                       pValue->value.pString = ( uint8_t * ) ( pBuffer + start );
-                       pValue->value.stringLength = length;
+                       pValue->u.value.u.string.pString = ( uint8_t * ) ( pBuffer + start );
+                       pValue->u.value.u.string.length = length;
                    }
                }
 
@@ -467,7 +468,7 @@ static IotSerializerError_t _findKeyValue( _jsonContainer_t * pObject,
                      */
                     ( void ) parseTokenValue( pObject->pStart, pObject->length, &offset, tokenType, &key );
 
-                    if( strncmp( pKey, ( const char * ) key.value.pString, key.value.stringLength ) == 0 )
+                    if( strncmp( pKey, ( const char * ) key.u.value.u.string.pString, key.u.value.u.string.length ) == 0 )
                     {
                         isKeyFound = true;
                     }
@@ -548,7 +549,7 @@ static IotSerializerError_t _init( IotSerializerDecoderObject_t * pDecoderObject
         if( pContainer != NULL )
         {
             pDecoderObject->type = tokenType;
-            pDecoderObject->pHandle = ( void * ) pContainer;
+            pDecoderObject->u.pHandle = ( void * ) pContainer;
         }
         else
         {
@@ -571,7 +572,7 @@ static IotSerializerError_t _find( IotSerializerDecoderObject_t * pDecoderObject
 
     if( pDecoderObject->type == IOT_SERIALIZER_CONTAINER_MAP )
     {
-        pContainer = ( _jsonContainer_t * ) pDecoderObject->pHandle;
+        pContainer = ( _jsonContainer_t * ) pDecoderObject->u.pHandle;
         error = _findKeyValue(
             pContainer,
             pKey,
@@ -598,7 +599,7 @@ static IotSerializerError_t _stepIn( IotSerializerDecoderObject_t * pDecoderObje
 
     if( _isValidContainer( pDecoderObject ) )
     {
-        pContainer = pDecoderObject->pHandle;
+        pContainer = pDecoderObject->u.pHandle;
 
         _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
 
@@ -618,7 +619,7 @@ static IotSerializerError_t _stepIn( IotSerializerDecoderObject_t * pDecoderObje
                 if( pNewObject != NULL )
                 {
                     pNewObject->type = pDecoderObject->type;
-                    pNewObject->pHandle = pNewContainer;
+                    pNewObject->u.pHandle = pNewContainer;
                     *pIterator = ( IotSerializerDecoderIterator_t ) pNewObject;
                 }
                 else
@@ -676,7 +677,7 @@ static bool _isEndOfContainer( IotSerializerDecoderIterator_t iterator )
 
     if( _isValidContainer( pObject ) )
     {
-        pContainer = pObject->pHandle;
+        pContainer = pObject->u.pHandle;
         ret = _isEOF( pContainer->pStart, pObject->type );
     }
 
@@ -734,7 +735,7 @@ static IotSerializerError_t _next( IotSerializerDecoderIterator_t iterator )
 
     if( _isValidContainer( pObject ) )
     {
-        pContainer = pObject->pHandle;
+        pContainer = pObject->u.pHandle;
         type = _getTokenType( pContainer->pStart, offset );
         parseTokenValue( pContainer->pStart, pContainer->length, &offset, type, NULL );
         _skipWhiteSpacesAndDelimeters( pContainer->pStart, pContainer->length, &offset );
@@ -767,8 +768,8 @@ static IotSerializerError_t _stepOut( IotSerializerDecoderIterator_t iterator,
 
     if( _isValidContainer( pIterObject ) && _isValidContainer( pDecoderObject ) )
     {
-        pContainer = pDecoderObject->pHandle;
-        pIterContainer = pIterObject->pHandle;
+        pContainer = pDecoderObject->u.pHandle;
+        pIterContainer = pIterObject->u.pHandle;
 
         if( _isEOF( pIterContainer->pStart, pIterObject->type ) )
         {
@@ -795,10 +796,10 @@ static void _destroy( IotSerializerDecoderObject_t * pDecoderObject )
 {
     if( _isValidContainer( pDecoderObject ) )
     {
-        if( pDecoderObject->pHandle != NULL )
+        if( pDecoderObject->u.pHandle != NULL )
         {
-            vPortFree( pDecoderObject->pHandle );
-            pDecoderObject->pHandle = NULL;
+            vPortFree( pDecoderObject->u.pHandle );
+            pDecoderObject->u.pHandle = NULL;
         }
     }
 }

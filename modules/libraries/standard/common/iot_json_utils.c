@@ -24,10 +24,8 @@
  * @brief Implements the functions in iot_json_utils.h
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <string.h>

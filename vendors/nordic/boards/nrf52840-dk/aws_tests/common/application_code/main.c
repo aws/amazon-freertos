@@ -36,7 +36,7 @@
 #include "aws_logging_task.h"
 #include "aws_clientcredential.h"
 #include "iot_mqtt.h"
-#include "iot_common.h"
+#include "iot_init.h"
 
 /* Nordic BSP includes */
 #include "bsp.h"
@@ -366,7 +366,7 @@ void vApplicationDaemonTaskStartupHook( void )
 {
     BaseType_t xStatus = pdFALSE;
 
-    xStatus = ( IotCommon_Init() == true );
+    xStatus = ( IotSdk_Init() == true );
 
 
      if( xStatus == pdPASS )

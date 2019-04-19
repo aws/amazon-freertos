@@ -29,10 +29,8 @@
  * This file implements the Shadow v1 API over Shadow v4.
  */
 
-/* Shadow v4 config file. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* C library includes. */
 #include <stdio.h>
@@ -204,18 +202,18 @@ static void prvDeltaCallbackWrapper( void * pvArgument,
     {
         /* The delta document must be copied in case the user wants to take
          * ownership of it. */
-        pcDeltaDocument = pvPortMalloc( pxDeltaDocument->callback.documentLength );
+        pcDeltaDocument = pvPortMalloc( pxDeltaDocument->u.callback.documentLength );
 
         if( pcDeltaDocument != NULL )
         {
             ( void ) memcpy( pcDeltaDocument,
-                             pxDeltaDocument->callback.pDocument,
-                             pxDeltaDocument->callback.documentLength );
+                             pxDeltaDocument->u.callback.pDocument,
+                             pxDeltaDocument->u.callback.documentLength );
 
             xCallbackReturn = xDeltaCallback( pxShadowClient,
                                               pcCallbackThingName,
                                               pcDeltaDocument,
-                                              ( uint32_t ) pxDeltaDocument->callback.documentLength,
+                                              ( uint32_t ) pxDeltaDocument->u.callback.documentLength,
                                               ( MQTTBufferHandle_t ) pcDeltaDocument );
 
             if( xCallbackReturn == pdFALSE )
@@ -247,18 +245,18 @@ static void prvUpdatedCallbackWrapper( void * pvArgument,
     {
         /* The updated document must be copied in case the user wants to take
          * ownership of it. */
-        pcUpdatedDocument = pvPortMalloc( pxUpdatedDocument->callback.documentLength );
+        pcUpdatedDocument = pvPortMalloc( pxUpdatedDocument->u.callback.documentLength );
 
         if( pcUpdatedDocument != NULL )
         {
             ( void ) memcpy( pcUpdatedDocument,
-                             pxUpdatedDocument->callback.pDocument,
-                             pxUpdatedDocument->callback.documentLength );
+                             pxUpdatedDocument->u.callback.pDocument,
+                             pxUpdatedDocument->u.callback.documentLength );
 
             xCallbackReturn = xUpdatedCallback( pxShadowClient,
                                                 pcCallbackThingName,
                                                 pcUpdatedDocument,
-                                                ( uint32_t ) pxUpdatedDocument->callback.documentLength,
+                                                ( uint32_t ) pxUpdatedDocument->u.callback.documentLength,
                                                 ( MQTTBufferHandle_t ) pcUpdatedDocument );
 
             if( xCallbackReturn == pdFALSE )
@@ -468,8 +466,8 @@ ShadowReturnCode_t SHADOW_Update( ShadowClientHandle_t xShadowClientHandle,
     xUpdateDocument.qos = ( IotMqttQos_t ) pxUpdateParams->xQoS;
     xUpdateDocument.pThingName = pxUpdateParams->pcThingName;
     xUpdateDocument.thingNameLength = strlen( pxUpdateParams->pcThingName );
-    xUpdateDocument.update.pUpdateDocument = pxUpdateParams->pcData;
-    xUpdateDocument.update.updateDocumentLength = ( size_t ) pxUpdateParams->ulDataLength;
+    xUpdateDocument.u.update.pUpdateDocument = pxUpdateParams->pcData;
+    xUpdateDocument.u.update.updateDocumentLength = ( size_t ) pxUpdateParams->ulDataLength;
 
     if( pxUpdateParams->ucKeepSubscriptions == 1 )
     {
@@ -502,7 +500,7 @@ ShadowReturnCode_t SHADOW_Get( ShadowClientHandle_t xShadowClientHandle,
     xGetDocument.qos = ( IotMqttQos_t ) pxGetParams->xQoS;
     xGetDocument.pThingName = pxGetParams->pcThingName;
     xGetDocument.thingNameLength = strlen( pxGetParams->pcThingName );
-    xGetDocument.get.mallocDocument = pvPortMalloc;
+    xGetDocument.u.get.mallocDocument = pvPortMalloc;
 
     if( pxGetParams->ucKeepSubscriptions == 1 )
     {

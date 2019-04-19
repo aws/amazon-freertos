@@ -302,19 +302,19 @@ static size_t _getSerializedLength( _jsonContainer_t * pContainer,
             break;
 
         case IOT_SERIALIZER_SCALAR_TEXT_STRING:
-            length = _jsonStringLength( pScalarData->value.stringLength );
+            length = _jsonStringLength( pScalarData->value.u.string.length );
             break;
 
         case IOT_SERIALIZER_SCALAR_BYTE_STRING:
-            length = _jsonByteStringLength( pScalarData->value.stringLength );
+            length = _jsonByteStringLength( pScalarData->value.u.string.length );
             break;
 
         case IOT_SERIALIZER_SCALAR_SIGNED_INT:
-            length = _jsonIntegerLength( pScalarData->value.signedInt );
+            length = _jsonIntegerLength( pScalarData->value.u.signedInt );
             break;
 
         case IOT_SERIALIZER_SCALAR_BOOL:
-            length = _jsonBoolLength( pScalarData->value.booleanValue );
+            length = _jsonBoolLength( pScalarData->value.u.booleanValue );
             break;
 
         case IOT_SERIALIZER_SCALAR_NULL:
@@ -443,21 +443,21 @@ static void _appendData( _jsonContainer_t * pContainer,
             break;
 
         case IOT_SERIALIZER_SCALAR_TEXT_STRING:
-            pString = ( char * ) ( pScalarData->value.pString );
-            stringLength = ( pScalarData->value.stringLength == 0 ) ? strlen( pString ) : pScalarData->value.stringLength;
+            pString = ( char * ) ( pScalarData->value.u.string.pString );
+            stringLength = ( pScalarData->value.u.string.length == 0 ) ? strlen( pString ) : pScalarData->value.u.string.length;
             _appendTextString( pContainer, pString, stringLength );
             break;
 
         case IOT_SERIALIZER_SCALAR_BYTE_STRING:
-            _appendByteString( pContainer, pScalarData->value.pString, pScalarData->value.stringLength );
+            _appendByteString( pContainer, pScalarData->value.u.string.pString, pScalarData->value.u.string.length );
             break;
 
         case IOT_SERIALIZER_SCALAR_SIGNED_INT:
-            _appendInteger( pContainer, pScalarData->value.signedInt );
+            _appendInteger( pContainer, pScalarData->value.u.signedInt );
             break;
 
         case IOT_SERIALIZER_SCALAR_BOOL:
-            _appendBoolean( pContainer, pScalarData->value.booleanValue );
+            _appendBoolean( pContainer, pScalarData->value.u.booleanValue );
             break;
 
         case IOT_SERIALIZER_SCALAR_NULL:

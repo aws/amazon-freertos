@@ -27,9 +27,8 @@
  * @file aws_test_ble_end_to_end.c
  * @brief Tests for ble.
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* C standard library includes. */
 #include <stdbool.h>
@@ -37,8 +36,7 @@
 /* Network interface includes. */
 #include "platform/iot_network_afr.h"
 #include "iot_mqtt.h"
-/* Common include. */
-#include "iot_common.h"
+
 /* Test framework includes. */
 #include "unity_fixture.h"
 #include "unity.h"

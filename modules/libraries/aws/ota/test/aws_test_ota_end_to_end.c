@@ -1,13 +1,11 @@
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <string.h>
 
-/* Common include. */
-#include "iot_common.h"
+/* Common includes. */
+#include "iot_init.h"
 #include "iot_error.h"
 
 /* MQTT internal include. */
@@ -110,7 +108,7 @@ void vOTAUpdateTestTask( void * pvParameters )
     IotMqttError_t mqttStatus;
 
 	/* Initialize common components. */
-	if( IotCommon_Init() == true)
+	if( IotSdk_Init() == true)
 	{
 	    /* Initialize the MQTT library. */
 		if(IotMqtt_Init() == IOT_MQTT_SUCCESS)
@@ -118,7 +116,7 @@ void vOTAUpdateTestTask( void * pvParameters )
 			/* Set the MQTT network setup parameters. */
 			( void ) memset( &networkInfo, 0x00, sizeof( IotMqttNetworkInfo_t ) );
 			networkInfo.createNetworkConnection = true;
-			networkInfo.pNetworkServerInfo = ( void * ) &serverInfo;
+			networkInfo.u.setup.pNetworkServerInfo = ( void * ) &serverInfo;
 			networkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
 			networkInfo.pMqttSerializer = IOT_TEST_MQTT_SERIALIZER;
 
@@ -130,7 +128,7 @@ void vOTAUpdateTestTask( void * pvParameters )
 	        connectInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
 
 			#if IOT_TEST_SECURED_CONNECTION == 1
-				networkInfo.pNetworkCredentialInfo = ( void * ) &credentials;
+				networkInfo.u.setup.pNetworkCredentialInfo = ( void * ) &credentials;
 			#endif
 		}else
 		{

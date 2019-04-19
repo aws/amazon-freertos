@@ -24,10 +24,8 @@
  * @brief Implementation of the functions in iot_clock.h for Amazon FreeRTOS systems.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Platform clock include. */
 #include "platform/iot_platform_types_afr.h"

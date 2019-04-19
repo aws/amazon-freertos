@@ -29,10 +29,8 @@
  * MQTT v4 and MQTT v1.
  */
 
-/* MQTT v4 config file. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Standard includes. */
 #include <string.h>
@@ -215,12 +213,12 @@ static void prvPublishCallbackWrapper( void * pvParameter,
     /* Calculate the size of the MQTT buffer that must be allocated. */
     if( xStatus == pdPASS )
     {
-        xBufferSize = pxPublish->message.info.topicNameLength +
-                      pxPublish->message.info.payloadLength;
+        xBufferSize = pxPublish->u.message.info.topicNameLength +
+                      pxPublish->u.message.info.payloadLength;
 
         /* Check for overflow. */
-        if( ( xBufferSize < pxPublish->message.info.topicNameLength ) ||
-            ( xBufferSize < pxPublish->message.info.payloadLength ) )
+        if( ( xBufferSize < pxPublish->u.message.info.topicNameLength ) ||
+            ( xBufferSize < pxPublish->u.message.info.payloadLength ) )
         {
             mqttconfigDEBUG_LOG( ( "Incoming PUBLISH message and topic name length too large.\r\n" ) );
             xStatus = pdFAIL;
@@ -246,19 +244,19 @@ static void prvPublishCallbackWrapper( void * pvParameter,
              * MQTT library. Therefore, the topic name and payload are copied into
              * another buffer for the user. */
             ( void ) memcpy( pucMqttBuffer,
-                             pxPublish->message.info.pTopicName,
-                             pxPublish->message.info.topicNameLength );
-            ( void ) memcpy( pucMqttBuffer + pxPublish->message.info.topicNameLength,
-                             pxPublish->message.info.pPayload,
-                             pxPublish->message.info.payloadLength );
+                             pxPublish->u.message.info.pTopicName,
+                             pxPublish->u.message.info.topicNameLength );
+            ( void ) memcpy( pucMqttBuffer + pxPublish->u.message.info.topicNameLength,
+                             pxPublish->u.message.info.pPayload,
+                             pxPublish->u.message.info.payloadLength );
 
             /* Set the members of the callback parameter. */
             xPublishData.xMQTTEvent = eMQTTAgentPublish;
             xPublishData.u.xPublishData.pucTopic = pucMqttBuffer;
-            xPublishData.u.xPublishData.usTopicLength = pxPublish->message.info.topicNameLength;
-            xPublishData.u.xPublishData.pvData = pucMqttBuffer + pxPublish->message.info.topicNameLength;
-            xPublishData.u.xPublishData.ulDataLength = ( uint32_t ) pxPublish->message.info.payloadLength;
-            xPublishData.u.xPublishData.xQos = ( MQTTQoS_t ) pxPublish->message.info.qos;
+            xPublishData.u.xPublishData.usTopicLength = pxPublish->u.message.info.topicNameLength;
+            xPublishData.u.xPublishData.pvData = pucMqttBuffer + pxPublish->u.message.info.topicNameLength;
+            xPublishData.u.xPublishData.ulDataLength = ( uint32_t ) pxPublish->u.message.info.payloadLength;
+            xPublishData.u.xPublishData.xQos = ( MQTTQoS_t ) pxPublish->u.message.info.qos;
             xPublishData.u.xPublishData.xBuffer = pucMqttBuffer;
         }
     }
@@ -268,8 +266,8 @@ static void prvPublishCallbackWrapper( void * pvParameter,
         #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
             /* When subscription management is enabled, search for a matching subscription. */
             MQTTCallback_t * pxCallbackEntry = prvFindCallback( pxConnection,
-                                                                pxPublish->message.pTopicFilter,
-                                                                pxPublish->message.topicFilterLength );
+                                                                pxPublish->u.message.pTopicFilter,
+                                                                pxPublish->u.message.topicFilterLength );
 
             /* Check if a matching MQTT v1 subscription was found. */
             if( pxCallbackEntry != NULL )
@@ -588,8 +586,8 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
 
     /* Set the members of the network info. */
     xNetworkInfo.createNetworkConnection = true;
-    xNetworkInfo.pNetworkServerInfo = &xServerInfo;
-    xNetworkInfo.pNetworkCredentialInfo = pxCredentials;
+    xNetworkInfo.u.setup.pNetworkServerInfo = &xServerInfo;
+    xNetworkInfo.u.setup.pNetworkCredentialInfo = pxCredentials;
     xNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
 
     if( pxConnectParams->pxCallback != NULL )

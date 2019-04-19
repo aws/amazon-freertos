@@ -1303,9 +1303,9 @@ static void prvOTAPublishCallback( void * pvCallbackContext,
     BaseType_t xReturn;
     OTA_PubMsg_t * pxMsg;
 
-	if( pxPublishData->message.info.payloadLength > OTA_DATA_BLOCK_SIZE)
+	if( pxPublishData->u.message.info.payloadLength > OTA_DATA_BLOCK_SIZE)
     {
-       OTA_LOG_L1( "Error: buffers are too small %d to contains the payload %d.\r\n", OTA_DATA_BLOCK_SIZE ,  pxPublishData->message.info.payloadLength   );
+       OTA_LOG_L1( "Error: buffers are too small %d to contains the payload %d.\r\n", OTA_DATA_BLOCK_SIZE ,  pxPublishData->u.message.info.payloadLength   );
 	   return;
 	}
     /* If we're running the OTA task, send publish messages to it for processing. */
@@ -1319,13 +1319,13 @@ static void prvOTAPublishCallback( void * pvCallbackContext,
         if(pxMsg != NULL)
         {
 			pxMsg->lMsgType = ( int32_t ) pvCallbackContext; /*lint !e923 The context variable is actually the message type. */
-			pxMsg->pxPubData.ulDataLength = pxPublishData->message.info.payloadLength;
+			pxMsg->pxPubData.ulDataLength = pxPublishData->u.message.info.payloadLength;
 			if ( ( int32_t ) pvCallbackContext == eOTA_PubMsgType_Stream){
 				OTA_LOG_L2( "[%s] Stream Received.\r\n", OTA_METHOD_NAME );
 				}
 
 
-			memcpy( pxMsg->pxPubData.vData, pxPublishData->message.info.pPayload, pxMsg->pxPubData.ulDataLength );
+			memcpy( pxMsg->pxPubData.vData, pxPublishData->u.message.info.pPayload, pxMsg->pxPubData.ulDataLength );
 			xReturn = xQueueSendToBack( xOTA_Agent.xOTA_MsgQ, &pxMsg, ( TickType_t ) 0 );
 			if( xReturn == pdPASS )
 			{

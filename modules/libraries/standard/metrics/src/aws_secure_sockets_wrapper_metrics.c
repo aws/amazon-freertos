@@ -28,10 +28,8 @@
  * It updates metrics of sockets in relevant socket functions.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
  * from redefining in aws_secure_sockets_wrapper_metrics.h */
