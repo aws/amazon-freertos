@@ -33,7 +33,7 @@
 #include "aws_greengrass_discovery_test_access_declare.h"
 #include "aws_test_runner.h"
 #include "iot_mqtt.h"
-#include "iot_common.h"
+#include "iot_init.h"
 
 #define ggdLOOP_BACK_IP                    "127.0.0.1"
 #define ggdHTTP_CONTENT_LENGTH_STRING      "content-length:"
@@ -67,7 +67,7 @@ TEST_GROUP( Full_GGD );
 
 TEST_SETUP( Full_GGD )
 {
-    TEST_ASSERT_EQUAL( true, IotCommon_Init() );
+    TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 
@@ -79,8 +79,8 @@ TEST_TEAR_DOWN( Full_GGD )
         ( void ) SOCKETS_Close( xSocket );
     }
 
-    IotCommon_Cleanup();
     IotMqtt_Cleanup();
+    IotSdk_Cleanup();
 }
 
 

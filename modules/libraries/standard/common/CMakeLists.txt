@@ -8,11 +8,11 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         # Common files
-        "${src_dir}/iot_common.c"
+        "${src_dir}/iot_init.c"
         "${src_dir}/iot_json_utils.c"
         "${inc_dir}/aws_appversion32.h"
         "${inc_dir}/aws_json_utils.h"
-        "${inc_dir}/iot_common.h"
+        "${inc_dir}/iot_init.h"
         "${inc_dir}/iot_json_utils.h"
         "${inc_dir}/iot_linear_containers.h"
 

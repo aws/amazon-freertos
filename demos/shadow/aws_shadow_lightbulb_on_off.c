@@ -57,7 +57,7 @@
 #include "jsmn.h"
 
 /* Includes for initialization. */
-#include "iot_common.h"
+#include "iot_init.h"
 #include "iot_mqtt.h"
 
 /* Task names. */
@@ -514,7 +514,7 @@ static void prvShadowInitTask( void * pvParameters )
 void vStartShadowDemoTasks( void )
 {
     /* Initialize common libraries and MQTT, then start demo. */
-    if( IotCommon_Init() == true )
+    if( IotSdk_Init() == true )
     {
         if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
         {

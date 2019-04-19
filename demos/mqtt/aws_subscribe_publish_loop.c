@@ -55,7 +55,7 @@
 #include "aws_clientcredential.h"
 
 /* Includes for initialization. */
-#include "iot_common.h"
+#include "iot_init.h"
 #include "iot_mqtt.h"
 
 /* Strings are published to a topic that has the following path. */
@@ -731,7 +731,7 @@ void vStartSubpubDemoTasks( void )
     char cTaskName[ subpubCHAR_TASK_NAME_MAX_SIZE ];
 
     /* Initialize common libraries and MQTT, then start demo. */
-    if( IotCommon_Init() == true )
+    if( IotSdk_Init() == true )
     {
         if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
         {

@@ -149,7 +149,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
 
     ( *pxNetworkIface ) = xDefaultNetworkInterface;
     pxNetworkIface->createNetworkConnection = false;
-    pxNetworkIface->pNetworkConnection = pConnection;
+    pxNetworkIface->u.pNetworkConnection = pConnection;
     pxNetworkIface->pNetworkInterface = &xNetworkInterface;
     pxNetworkContext->pvNetworkConnection = ( void* ) pConnection;
 

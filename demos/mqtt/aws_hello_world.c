@@ -78,7 +78,6 @@
 #include "aws_demo_config.h"
 
 /* Includes for initialization. */
-#include "iot_common.h"
 #include "iot_mqtt.h"
 
 /**
