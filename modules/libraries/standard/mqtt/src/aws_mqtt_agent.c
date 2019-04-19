@@ -551,7 +551,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     MQTTAgentReturnCode_t xStatus = eMQTTAgentSuccess;
     IotMqttError_t xMqttStatus = IOT_MQTT_STATUS_PENDING;
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
-    IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkServerInfoAfr_t xServerInfo = { 0 };
     IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER, * pxCredentials = NULL;
     IotMqttNetworkInfo_t xNetworkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t xMqttConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
@@ -583,6 +583,10 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
             xCredentials.disableSni = true;
         }
     }
+
+    /* Set the server info. */
+    xServerInfo.pHostName = pxConnectParams->pcURL;
+    xServerInfo.port = pxConnectParams->usPort;
 
     /* Set the members of the network info. */
     xNetworkInfo.createNetworkConnection = true;
