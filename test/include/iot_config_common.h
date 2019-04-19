@@ -242,6 +242,14 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
     #define IOT_MQTT_RETRY_MS_CEILING      ( 60000 )
 #endif
 
+/* Platform and SDK name for AWS MQTT metrics. Only used when AWS_IOT_MQTT_ENABLE_METRICS is 1. */
+#define IOT_SDK_NAME                       "AmazonFreeRTOS"
+#ifdef configPLATFORM_NAME
+    #define IOT_PLATFORM_NAME              configPLATFORM_NAME
+#else
+    #define IOT_PLATFORM_NAME              "Unknown"
+#endif
+
 /* Shadow library configuration. */
 #ifndef AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS
     #define AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS    ( 5000 )
@@ -257,6 +265,6 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 #define AWS_IOT_DEFENDER_USE_LONG_TAG     ( 1 )
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
-#define IotMetricsConnectionId_t    void *
+#define IotMetricsConnectionId_t          void *
 
 #endif /* ifndef _IOT_CONFIG_COMMON_H_ */

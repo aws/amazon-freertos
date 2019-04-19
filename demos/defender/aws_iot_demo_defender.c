@@ -55,7 +55,6 @@
 #include "aws_iot_defender.h"
 
 /* Includes for initialization. */
-#include "iot_common.h"
 #include "iot_mqtt.h"
 
 /* Set to 1 to enable this demo to connect to echo server.
@@ -205,13 +204,13 @@ static void _startDefender()
     /* Set network information. */
     startInfo.mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
     startInfo.mqttNetworkInfo.createNetworkConnection = true;
-    startInfo.mqttNetworkInfo.pNetworkServerInfo = &_DEFENDER_SERVER_INFO;
-    startInfo.mqttNetworkInfo.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
+    startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo = &_DEFENDER_SERVER_INFO;
+    startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
 
     /* Only set ALPN protocol if the connected port is 443. */
-    if( ( ( IotNetworkServerInfoAfr_t * ) ( startInfo.mqttNetworkInfo.pNetworkServerInfo ) )->port != 443 )
+    if( ( ( IotNetworkServerInfoAfr_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
     {
-        ( ( IotNetworkCredentialsAfr_t * ) ( startInfo.mqttNetworkInfo.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
+        ( ( IotNetworkCredentialsAfr_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
     }
 
     /* Set network interface. */

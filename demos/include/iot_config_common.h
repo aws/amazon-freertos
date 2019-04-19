@@ -166,24 +166,32 @@
     #define IOT_MQTT_RETRY_MS_CEILING      ( 60000 )
 #endif
 
+/* Platform and SDK name for AWS MQTT metrics. Only used when AWS_IOT_MQTT_ENABLE_METRICS is 1. */
+#define IOT_SDK_NAME             "AmazonFreeRTOS"
+#ifdef configPLATFORM_NAME
+    #define IOT_PLATFORM_NAME    configPLATFORM_NAME
+#else
+    #define IOT_PLATFORM_NAME    "Unknown"
+#endif
+
 /* Required settings for the MQTT demos. */
 #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
 
 /* By default, set override serializer to NULL to not override the serializer */
 #ifndef IOT_MQTT_SERIALIZER_OVERRIDE
-    #define IOT_MQTT_SERIALIZER_OVERRIDE       ( NULL )
-#endif 
+    #define IOT_MQTT_SERIALIZER_OVERRIDE    ( NULL )
+#endif
 
-#define IOT_BUILD_TESTS                         ( 0 )
+#define IOT_BUILD_TESTS                     ( 0 )
 
 /* Configuration for defender demo: set format to CBOR. */
-#define AWS_IOT_DEFENDER_FORMAT                 AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_FORMAT             AWS_IOT_DEFENDER_FORMAT_CBOR
 
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
-#define AWS_IOT_DEFENDER_USE_LONG_TAG           ( 1 )
+#define AWS_IOT_DEFENDER_USE_LONG_TAG       ( 1 )
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
-#define IotMetricsConnectionId_t    void *
+#define IotMetricsConnectionId_t            void *
 
 #include "aws_demo_config.h"
 

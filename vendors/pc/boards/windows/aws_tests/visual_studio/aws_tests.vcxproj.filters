@@ -331,15 +331,6 @@
     <Filter Include="modules\libraries\3rdparty\tinycbor">
       <UniqueIdentifier>{5c6fe3b7-e4f1-4582-be46-f4484f65cd2a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="application_code\ports">
-      <UniqueIdentifier>{58689a88-6b65-4279-b269-a3d076f0a204}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="application_code\ports\ota">
-      <UniqueIdentifier>{fa666e49-954e-426a-b1e5-de181afd91e5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="application_code\ports\pkcs11">
-      <UniqueIdentifier>{f717d25e-2c40-494e-830c-0c63e0a53aaf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\ports\posix">
       <UniqueIdentifier>{61d984e4-6ec3-4fae-9dbc-e5812a9a5483}</UniqueIdentifier>
     </Filter>
@@ -397,9 +388,6 @@
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\common\config_files\FreeRTOSIPConfig.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\config_files\iot_test_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\common\config_files\trcConfig.h">
@@ -1083,6 +1071,9 @@
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_init.h">
       <Filter>modules\libraries\standard\common\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\config_files\iot_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\freertos_kernel\event_groups.c">
@@ -1400,12 +1391,6 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\xtea.c">
       <Filter>modules\libraries\3rdparty\mbedtls\library</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\src\aws_crypto.c">
-      <Filter>modules\libraries\standard\crypto\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\test\aws_test_crypto.c">
-      <Filter>modules\libraries\standard\crypto\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\tls\test\aws_test_tls.c">
       <Filter>modules\libraries\standard\tls\test</Filter>
     </ClCompile>
@@ -1691,12 +1676,6 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborpretty.c">
       <Filter>modules\libraries\3rdparty\tinycbor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ports\ota\aws_ota_pal.c">
-      <Filter>application_code\ports\ota</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ports\pkcs11\aws_pkcs11_pal.c">
-      <Filter>application_code\ports\pkcs11</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_json_utils.c">
       <Filter>modules\libraries\standard\common</Filter>
     </ClCompile>
@@ -1706,13 +1685,17 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_init.c">
       <Filter>modules\libraries\standard\common</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\..\..\modules\libraries\aws\ota\test\README.md">
-      <Filter>modules\libraries\aws\ota\test</Filter>
-    </None>
-    <None Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\LICENSE">
-      <Filter>modules\libraries\3rdparty\tinycbor</Filter>
-    </None>
+    <ClCompile Include="..\..\ports\ota\aws_ota_pal.c">
+      <Filter>modules\libraries\aws\ota\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ports\pkcs11\aws_pkcs11_pal.c">
+      <Filter>modules\ports\pkcs11</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\src\aws_crypto.c">
+      <Filter>modules\libraries\standard\crypto\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\test\aws_test_crypto.c">
+      <Filter>modules\libraries\standard\crypto\test</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
