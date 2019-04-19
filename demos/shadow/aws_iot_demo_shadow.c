@@ -424,7 +424,7 @@ static void _shadowUpdatedCallback( void * pCallbackContext,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Initialize the the MQTT library and the Shadow library.
+ * @brief Initialize the MQTT library and the Shadow library.
  *
  * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
  * `EXIT_FAILURE` otherwise.
@@ -477,7 +477,7 @@ static int _initializeDemo( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Clean up the the MQTT library and the Shadow library.
+ * @brief Clean up the MQTT library and the Shadow library.
  */
 static void _cleanupDemo( void )
 {
@@ -528,6 +528,10 @@ static int _establishMqttConnection( const char * pIdentifier,
         networkInfo.u.setup.pNetworkServerInfo = pNetworkServerInfo;
         networkInfo.u.setup.pNetworkCredentialInfo = pNetworkCredentialInfo;
         networkInfo.pNetworkInterface = pNetworkInterface;
+
+#if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+        networkInfo.pMqttSerializer = IOT_MQTT_SERIALIZER_OVERRIDE;
+#endif
 
         /* Set the members of the connection info not set by the initializer. */
         connectInfo.awsIotMqttMode = true;

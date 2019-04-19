@@ -519,11 +519,11 @@ void vStartShadowDemoTasks( void )
         if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
         {
             ( void ) xTaskCreate( prvShadowInitTask,
-                                  "MainDemoTask",
-                                  shadowDemoUPDATE_TASK_STACK_SIZE,
-                                  NULL,
-                                  tskIDLE_PRIORITY,
-                                  NULL );
+                                "MainDemoTask",
+                                shadowDemoUPDATE_TASK_STACK_SIZE,
+                                NULL,
+                                tskIDLE_PRIORITY,
+                                NULL );
         }
     }
 }

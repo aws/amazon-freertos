@@ -407,6 +407,10 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     networkInfo.u.setup.pNetworkCredentialInfo = pNetworkCredentialInfo;
     networkInfo.pNetworkInterface = pNetworkInterface;
 
+#if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
+    networkInfo.pMqttSerializer = IOT_MQTT_SERIALIZER_OVERRIDE;
+#endif
+
     /* Set the members of the connection info not set by the initializer. */
     connectInfo.awsIotMqttMode = awsIotMqttMode;
     connectInfo.cleanSession = true;
@@ -737,6 +741,37 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
 
     return status;
 }
+
+/**
+ * @brief Initialize the MQTT library.
+ *
+ * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
+ * `EXIT_FAILURE` otherwise.
+ */
+static int _initializeDemo( void )
+{
+    int ret = EXIT_SUCCESS;
+    IotMqttError_t mqttInitStatus = IOT_MQTT_SUCCESS;
+
+    /* Initialize the MQTT library. */
+    mqttInitStatus = IotMqtt_Init();
+    if( mqttInitStatus != IOT_MQTT_SUCCESS )
+    {
+        ret = EXIT_FAILURE;
+    }
+
+    return ret;
+}
+
+/**
+ * @brief Clean up the  the MQTT library.
+ */
+static void _cleanupDemo( void )
+{
+    IotMqtt_Cleanup();
+}
+
+
 
 /*-----------------------------------------------------------*/
 

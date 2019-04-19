@@ -43,25 +43,24 @@
 
 #include "aws_demo.h"
 #include "aws_demo_config.h"
-#include "aws_iot_network_config.h"
 
 /* Forward declaration of demo entry function to be renamed from #define in aws_demo_config.h */
 int DEMO_entryFUNCTION( bool awsIotMqttMode,
-                 const char * pIdentifier,
-                 void * pNetworkServerInfo,
-                 void * pNetworkCredentialInfo,
-                 const IotNetworkInterface_t * pNetworkInterface );
+                        const char * pIdentifier,
+                        void * pNetworkServerInfo,
+                        void * pNetworkCredentialInfo,
+                        const IotNetworkInterface_t * pNetworkInterface );
 
 
 /* Forward declaration of network connected DEMO callback to be renamed from #define in aws_demo_config.h */
 #ifdef DEMO_networkConnectedCallback
     void DEMO_networkConnectedCallback( bool awsIotMqttMode,
-                 const char * pIdentifier,
-                 void * pNetworkServerInfo,
-                 void * pNetworkCredentialInfo,
-                 const IotNetworkInterface_t * pNetworkInterface );
+                                        const char * pIdentifier,
+                                        void * pNetworkServerInfo,
+                                        void * pNetworkCredentialInfo,
+                                        const IotNetworkInterface_t * pNetworkInterface );
 #else
-    #define DEMO_networkConnectedCallback  NULL
+    #define DEMO_networkConnectedCallback  ( NULL )
 #endif
 
 
@@ -69,7 +68,7 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
 #ifdef DEMO_networkDisconnectedCallback
     void DEMO_networkDisconnectedCallback( const IotNetworkInterface_t * pNetworkInterface );
 #else
-    #define DEMO_networkDisconnectedCallback  NULL
+    #define DEMO_networkDisconnectedCallback  ( NULL )
 #endif
 
 
@@ -83,8 +82,7 @@ void DEMO_RUNNER_RunDemos( void )
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
     static demoContext_t mqttDemoContext =
     {
-        .networkTypes                  = configENABLED_NETWORKS,
-        .connectedNetwork              = AWSIOT_NETWORK_TYPE_NONE,
+        .networkTypes                  = democonfigNETWORK_TYPES,
         .demoFunction                  = DEMO_entryFUNCTION,
         .networkConnectedCallback      = DEMO_networkConnectedCallback,
         .networkDisconnectedCallback   = DEMO_networkDisconnectedCallback 

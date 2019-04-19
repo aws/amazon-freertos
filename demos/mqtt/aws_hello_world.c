@@ -512,18 +512,28 @@ int vStartMQTTEchoDemo( bool awsIotMqttMode,
                  void * pNetworkCredentialInfo,
                  const IotNetworkInterface_t * pNetworkInterface )
 {
-    configPRINTF( ( "Starting MQTT Echo Demo...\r\n" ) );
+    int xRet = EXIT_SUCCESS;
 
-    /* Create the message buffer used to pass strings from the MQTT callback
-     * function to the task that echoes the strings back to the broker.  The
-     * message buffer will only ever have to hold one message as messages are only
-     * published every 5 seconds.  The message buffer requires that there is space
-     * for the message length, which is held in a size_t variable. */
-    xEchoMessageBuffer = xMessageBufferCreate( ( size_t ) echoMAX_DATA_LENGTH + sizeof( size_t ) );
-    configASSERT( xEchoMessageBuffer );
+    if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
+    {
+        configPRINTF( ( "Starting MQTT Echo Demo...\r\n" ) );
 
-    prvMQTTConnectAndPublishTask( NULL );
+        /* Create the message buffer used to pass strings from the MQTT callback
+         * function to the task that echoes the strings back to the broker.  The
+         * message buffer will only ever have to hold one message as messages are only
+         * published every 5 seconds.  The message buffer requires that there is space
+         * for the message length, which is held in a size_t variable. */
+         xEchoMessageBuffer = xMessageBufferCreate( ( size_t ) echoMAX_DATA_LENGTH + sizeof( size_t ) );
+         configASSERT( xEchoMessageBuffer );
 
-    return 0;
+         prvMQTTConnectAndPublishTask( NULL );
+    }
+    else
+    {
+        configPRINTF( ( "Failed to initialize MQTT library, exiting the demo.\r\n" ) );
+        xRet = EXIT_FAILURE;
+    }
+
+    return xRet;
 }
 /*-----------------------------------------------------------*/
