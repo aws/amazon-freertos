@@ -495,7 +495,7 @@ void _IotMqtt_InvokeSubscriptionCallback( _mqttConnection_t * pMqttConnection,
 
     IotMutex_Unlock( &( pMqttConnection->subscriptionMutex ) );
 
-    _IotMqtt_DecrementConnectionReferences( pMqttConnection, false );
+    _IotMqtt_DecrementConnectionReferences( pMqttConnection );
 }
 
 /*-----------------------------------------------------------*/

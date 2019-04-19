@@ -127,11 +127,8 @@ typedef struct IotNetworkInterface
      * detached thread.
      *
      * Each network connection may only have one receive callback at any time.
-     * If this function is called for a connection that already has a receive
-     * callback, the existing callback should be replaced. If the `receiveCallback`
-     * parameter is `NULL`, any existing receive callback should be removed. In
-     * addition, @ref platform_network_function_close is expected to remove any
-     * active receive callbacks.
+     * @ref platform_network_function_close is expected to remove any active
+     * receive callbacks.
      *
      * @param[in] pConnection The connection to associate with the receive callback.
      * @param[in] receiveCallback The function to invoke for incoming network data.
@@ -224,7 +221,8 @@ typedef struct IotNetworkInterface
      * @return Any #IotNetworkError_t, as defined by the network stack.
      *
      * @attention No function should be called on the network connection after
-     * calling this function.
+     * calling this function. This function must be safe to call from a
+     * [receive callback](@ref platform_network_function_receivecallback).
      */
     /* @[declare_platform_network_destroy] */
     IotNetworkError_t ( * destroy )( void * pConnection );
