@@ -19,7 +19,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* This file contains configuration settings for the demos. */
+/* This file contains configuration settings for the tests. */
 
 #ifndef IOT_CONFIG_H_
 #define IOT_CONFIG_H_
