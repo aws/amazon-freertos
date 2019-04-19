@@ -52,4 +52,3 @@ extern const uint32_t clientcredentialCLIENT_CERTIFICATE_LENGTH;
 extern const uint32_t clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
 
 #endif /* AWS_CLIENT_CREDENTIAL_KEYS_H */
-
