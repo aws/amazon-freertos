@@ -52,7 +52,6 @@
 
 
 /* MQTT library includes */
-#include "iot_common.h"
 #include "iot_mqtt.h"
 #include "iot_ble_mqtt.h"
 
@@ -243,8 +242,8 @@ static IotMqttError_t _publishMqttMessage( const char* pMessage, size_t messageL
 static void _receiveMqttMessage( void* pUserParam, IotMqttCallbackParam_t* pPublishParam )
 {
 
-    const char * pPayload = ( const char * ) pPublishParam->message.info.pPayload;
-    size_t payloadLength = pPublishParam->message.info.payloadLength;
+    const char * pPayload = ( const char * ) pPublishParam->u.message.info.pPayload;
+    size_t payloadLength = pPublishParam->u.message.info.payloadLength;
     char ack[ _ACK_LENGTH ] = { 0 };
      int ackLength;
     IotMqttError_t mqttStatus;
@@ -298,8 +297,8 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     /* Set the members of the network info not set by the initializer. This
      * struct provided information on the transport layer to the MQTT connection. */
     networkInfo.createNetworkConnection = true;
-    networkInfo.pNetworkServerInfo = pNetworkServerInfo;
-    networkInfo.pNetworkCredentialInfo = pNetworkCredentialInfo;
+    networkInfo.u.setup.pNetworkServerInfo = pNetworkServerInfo;
+    networkInfo.u.setup.pNetworkCredentialInfo = pNetworkCredentialInfo;
     networkInfo.pNetworkInterface = pNetworkInterface;
 
     /* Set the members of the connection info not set by the initializer. */

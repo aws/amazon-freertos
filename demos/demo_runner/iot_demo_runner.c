@@ -32,15 +32,12 @@
  * file will reference all the available and the developer can selectively comment
  * in or out the demos to execute. */
 
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
  
  
 /* Includes for library initialization. */
 #include "iot_demo_runner.h"
-#include "iot_common.h"
-#include "iot_mqtt.h"
 #include "platform/iot_threads.h"
 #include "types/iot_network_types.h"
 

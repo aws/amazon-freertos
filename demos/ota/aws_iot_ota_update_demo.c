@@ -35,11 +35,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * of the real work; checking to see if the message topic is one destined for
  * the OTA agent. If not, it is simply ignored.
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
-
-#include "iot_common.h"
+/* The config header is always included first. */
+#include "iot_config.h"
 
 /* MQTT include. */
 #include "iot_mqtt.h"

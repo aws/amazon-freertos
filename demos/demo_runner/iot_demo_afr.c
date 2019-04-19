@@ -24,10 +24,8 @@
  * @brief Generic demo runner for C SDK libraries on Amazon FreeRTOS.
  */
 
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 
 #include "aws_clientcredential.h"
@@ -36,7 +34,7 @@
 #include "iot_network_manager_private.h"
 #include "platform/iot_threads.h"
 #include "aws_demo.h"
-#include "iot_common.h"
+#include "iot_init.h"
 #include "iot_mqtt.h"
 
 static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
@@ -176,7 +174,7 @@ static int _initializeDemo( demoContext_t* pContext )
 
 
     /* Initialize common libraries required by network manager and demo. */
-    if( IotCommon_Init() == true )
+    if( IotSdk_Init() == true )
     {
         commonLibrariesInitailized = true;
     }
@@ -255,7 +253,7 @@ static int _initializeDemo( demoContext_t* pContext )
 
         if( commonLibrariesInitailized == true )    
         {
-            IotCommon_Cleanup();
+            IotSdk_Cleanup();
         }
 
         if( semaphoreCreated == true )
@@ -276,7 +274,7 @@ static void _cleanupDemo( demoContext_t *pContext )
      AwsIotNetworkManager_RemoveSubscription( subscription );
      IotSemaphore_Destroy(&pContext->networkSemaphore);
      IotMqtt_Cleanup();
-     IotCommon_Cleanup();
+     IotSdk_Cleanup();
 }
 
 void runDemoTask( void * pArgument )

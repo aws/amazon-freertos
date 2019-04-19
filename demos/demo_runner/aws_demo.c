@@ -23,9 +23,8 @@
  * @file  iot_demo.c
  * @brief Demo
  */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+/* The config header is always included first. */
+#include "iot_config.h"
 
 #include "FreeRTOS.h"
 #include "aws_clientcredential.h"

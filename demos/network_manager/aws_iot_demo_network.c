@@ -178,7 +178,7 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
     if( IotNetworkBle.create( NULL, NULL, ( void * *) &bleConnection ) == IOT_NETWORK_SUCCESS )
     {
     	pxNetworkInfo->createNetworkConnection = false;
-    	pxNetworkInfo->pNetworkConnection = (void *)bleConnection;
+    	pxNetworkInfo->u.pNetworkConnection = (void *)bleConnection;
     	pxNetworkInfo->pNetworkInterface = &IotNetworkBle;
     	pxNetworkInfo->pMqttSerializer = &IotBleMqttSerializer;
 
