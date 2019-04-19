@@ -216,6 +216,7 @@ set(kernel_inc_dirs
     ${lpc54018_includes}
     "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
     "${AFR_KERNEL_DIR}/portable/CCS/ARM_CM3"
+    "${AFR_KERNEL_DIR}/include"
     "${lpc54018_app_dir}/config_files"
     "${lpc54018_app_dir}/application_code/nxp_code"
     "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
