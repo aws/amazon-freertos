@@ -187,12 +187,15 @@
         static int _Command_NetInfo( SYS_CMD_DEVICE_NODE * pCmdIO,
                                      int argc,
                                      char ** argv );
+        static int _Command_Version( SYS_CMD_DEVICE_NODE * pCmdIO,
+                                     int argc,
+                                     char ** argv );
 
         static const SYS_CMD_DESCRIPTOR macCmdTbl[] =
         {
             { "macinfo", _Command_MacInfo, ": Check MAC statistics" },
             { "netinfo", _Command_NetInfo, ":Net info"              },
-            {"version",     _Command_Version,              ":Version info"},
+            { "version", _Command_Version, ":Version info"          },
         };
     #endif /* (PIC32_MAC_DEBUG_COMMANDS != 0) */
 
