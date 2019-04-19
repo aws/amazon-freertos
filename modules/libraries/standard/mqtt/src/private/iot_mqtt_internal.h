@@ -726,11 +726,8 @@ bool _IotMqtt_DecrementOperationReferences( _mqttOperation_t * pOperation,
  * the operation completes.
  *
  * @param[in] pOperation The operation which completed.
- * @param[in] receiveCallback Whether this operation is being destroyed from
- * the receive callback. This affects the MQTT operation cleanup routine.
  */
-void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation,
-                                bool receiveCallback );
+void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation );
 
 /**
  * @brief Task pool routine for processing an MQTT connection's keep-alive.
@@ -813,15 +810,12 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
  * @brief Notify of a completed MQTT operation.
  *
  * @param[in] pOperation The MQTT operation which completed.
- * @param[in] receiveCallback Whether this notification is coming from the receive
- * callback. This affects the MQTT operation cleanup routine.
  *
  * Depending on the parameters passed to a user-facing MQTT function, the
  * notification will cause @ref mqtt_function_wait to return or invoke a
  * user-provided callback.
  */
-void _IotMqtt_Notify( _mqttOperation_t * pOperation,
-                      bool receiveCallback );
+void _IotMqtt_Notify( _mqttOperation_t * pOperation );
 
 /*----------------- MQTT subscription management functions ------------------*/
 
@@ -896,11 +890,8 @@ bool _IotMqtt_IncrementConnectionReferences( _mqttConnection_t * pMqttConnection
  * Also destroys an unreferenced MQTT connection.
  *
  * @param[in] pMqttConnection The referenced MQTT connection.
- * @param[in] receiveCallback Whether the reference count is being changed from
- * the receive callback. This affects the MQTT operation cleanup routine.
  */
-void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection,
-                                             bool receiveCallback );
+void _IotMqtt_DecrementConnectionReferences( _mqttConnection_t * pMqttConnection );
 
 /**
  * @brief Read the next available byte on a network connection.

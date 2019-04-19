@@ -298,7 +298,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             if( pOperation != NULL )
             {
                 pOperation->u.operation.status = status;
-                _IotMqtt_Notify( pOperation, true );
+                _IotMqtt_Notify( pOperation );
             }
             else
             {
@@ -464,7 +464,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             if( pOperation != NULL )
             {
                 pOperation->u.operation.status = status;
-                _IotMqtt_Notify( pOperation, true );
+                _IotMqtt_Notify( pOperation );
             }
             else
             {
@@ -507,7 +507,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             if( pOperation != NULL )
             {
                 pOperation->u.operation.status = status;
-                _IotMqtt_Notify( pOperation, true );
+                _IotMqtt_Notify( pOperation );
             }
             else
             {
@@ -549,7 +549,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             if( pOperation != NULL )
             {
                 pOperation->u.operation.status = status;
-                _IotMqtt_Notify( pOperation, true );
+                _IotMqtt_Notify( pOperation );
             }
             else
             {
