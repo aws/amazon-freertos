@@ -31,7 +31,7 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
-#define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_BLE )
+#define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_WIFI )
 
 /* Some individual demos want to override these defaults, that is done in this section */
 #if defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)

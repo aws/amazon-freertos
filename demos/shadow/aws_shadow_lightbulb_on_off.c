@@ -514,17 +514,14 @@ static void prvShadowInitTask( void * pvParameters )
 void vStartShadowDemoTasks( void )
 {
     /* Initialize common libraries and MQTT, then start demo. */
-    if( IotCommon_Init() == true )
+    if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
     {
-        if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
-        {
-            ( void ) xTaskCreate( prvShadowInitTask,
-                                  "MainDemoTask",
-                                  shadowDemoUPDATE_TASK_STACK_SIZE,
-                                  NULL,
-                                  tskIDLE_PRIORITY,
-                                  NULL );
-        }
+        ( void ) xTaskCreate( prvShadowInitTask,
+                              "MainDemoTask",
+                              shadowDemoUPDATE_TASK_STACK_SIZE,
+                              NULL,
+                              tskIDLE_PRIORITY,
+                              NULL );
     }
 }
 /*-----------------------------------------------------------*/
