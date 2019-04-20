@@ -328,7 +328,9 @@ add_custom_command(
     COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
     COMMAND "echo" "Running xc32-objcopy" 
     COMMAND "echo" ${XC32_BIN}/xc32_objcopy
-    COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.hex
+    COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin
+    COMMAND "echo" "Creating binary image"
+    COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin -p MCHP-Curiosity-PIC32MZEF
 )
 
 #    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
