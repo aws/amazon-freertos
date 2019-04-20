@@ -12,19 +12,20 @@ afr_mcu_port(compiler)
 
 # Compiler flags
 set(c_flags -g -x c -ffunction-sections -O1 -mprocessor=32MZ2048EFM100 -mnewlib-libc -std=gnu99 -fgnu89-inline)
-set(asm_flags -mprocessor=32MZ2048EFM100 -MMD -MF -DXPRJ_pic32mz_ef_curiosity=pic32mz_ef_curiosity -no-legacy-libc -Wa$<COMMA>--gdwarf-2)
+set(asm_flags -mprocessor=32MZ2048EFM100 -MMD -MF  -Wa$<COMMA>--gdwarf-2)
 target_compile_options(
     AFR::compiler::mcu_port
     INTERFACE
     $<IF:$<COMPILE_LANGUAGE:C>,${c_flags},${asm_flags}>
 )
 
+
 # Linker flags
-set(linker_flags -Wl,--script=\"${AFR_ROOT_DIR}/vendors/microchip/boards/curiosity_pic32mzef/aws_demos/common/application_code/microchip_code/app_mz.ld\",--defsym=_min_heap_size=170000,--defsym=_min_stack_size=10000,--gc-sections,--no-code-in-dinit,--no-dinit-in-serial-mem,--allow-multiple-definition)
+set(linker_flags -Wl,--script=\"${AFR_ROOT_DIR}/vendors/microchip/boards/curiosity_pic32mzef/aws_demos/common/application_code/microchip_code/app_mz.ld\",--defsym=_min_heap_size=170000,--defsym=_min_stack_size=10000,--gc-sections,--no-code-in-dinit,--no-dinit-in-serial-mem,--memorysummary,memoryfile.xml,--allow-multiple-definition)
 
 target_link_options(
     AFR::compiler::mcu_port
-    INTERFACE ${linker_flags}
+    INTERFACE -mprocessor=32MZ2048EFM100 -mnewlib-libc -DXPRJ_pic32mz_ef_curiosity=pic32mz_ef_curiosity -no-legacy-libc ${linker_flags}  
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -70,13 +71,6 @@ set(
     "${AFR_KERNEL_DIR}/portable/MPLAB/PIC32MZ"
     "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework"
     "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/bsp"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/system/common"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include"
 )
 
 target_include_directories(
@@ -96,11 +90,84 @@ target_link_libraries(
     INTERFACE
     AFR::freertos_plus_tcp
 )
+
+
 target_sources(
     AFR::wifi::mcu_port
     INTERFACE
         "${afr_ports_dir}/wifi/aws_wifi.c"
         "${afr_ports_dir}/wifi/aws_wifi_assert.c"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/system/command/src/sys_command.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/bsp/bsp.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/ethmac/src/dynamic/drv_ethmac.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/ethmac/src/dynamic/drv_ethmac_lib.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/ethphy/src/dynamic/drv_ethphy.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/ethphy/src/dynamic/drv_extphy_smsc8720.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/flash/src/drv_flash_static.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/miim/src/dynamic/drv_miim.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/dynamic/drv_spi_api.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/dynamic/drv_spi_master_dma_tasks.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/dynamic/drv_spi_master_rm_tasks.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/dynamic/drv_spi_tasks.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/src/dynamic/drv_spi.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/src/dynamic/drv_spi_api.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/src/drv_spi_sys_queue_fifo.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/tmr/src/dynamic/drv_tmr.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_buffer_queue.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_buffer_queue_dma.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_byte_model.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_dma.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_read_write.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/console/wdrv_wilc1000_console.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/gpio/wdrv_wilc1000_eint.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/gpio/wdrv_wilc1000_gpio.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/spi/wdrv_wilc1000_spi.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/timer/wdrv_wilc1000_timer.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/osal/wdrv_wilc1000_osal.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_cli.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_config.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_connmgr.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_events.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_iwpriv.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_main.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_scan_helper.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/source/nm_common.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_hif.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_periph.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_wifi.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmasic.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmbus.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmdrv.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmspi.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/spi_flash/source/spi_flash.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/wdrvext_wilc1000.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/wilc1000_fw_update.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/wilc1000_task.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/osal/src/osal.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/osal/src/osal_freertos.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/peripheral/tmr/src/plib_tmr_pic32.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/clk/src/sys_clk_pic32mz.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/command/src/sys_command.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/common/src/sys_buffer.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/common/src/sys_queue.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/console/src/sys_console.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/console/src/sys_console_uart.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/debug/src/sys_debug.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/devcon/src/sys_devcon.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/devcon/src/sys_devcon_pic32mz.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/devcon/src/sys_devcon_cache_pic32mz.S"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/dma/src/sys_dma.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/int/src/sys_int_pic32.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/ports/src/sys_ports.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/ports/src/sys_ports_static.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/random/src/sys_random.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/reset/src/sys_reset.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/tmr/src/sys_tmr.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/tcpip/src/tcpip_heap_alloc.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/tcpip/src/tcpip_heap_external.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/tcpip/src/tcpip_helpers.c"
+		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/tcpip/src/tcpip_packet.c"
 )
 
 target_include_directories(
@@ -108,6 +175,13 @@ target_include_directories(
     INTERFACE
         "${AFR_ROOT_DIR}/modules/ports/secure_sockets/include"
         "${AFR_MODULES_STANDARD_DIR}/common/include/private"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/system/common"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include"
 )
 
 # PKCS11
@@ -127,14 +201,30 @@ target_sources(
     INTERFACE
         "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c"
         "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c"
+        "${AFR_ROOT_DIR}/modules/ports/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
 )
 
+target_include_directories(
+    AFR::freertos_plus_tcp::mcu_port
+    INTERFACE
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension"
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include"  
+        "${AFR_ROOT_DIR}/modules/libraries/3rdparty/mbedtls/include"
+        "${AFR_ROOT_DIR}/modules/ports/pkcs11/mbedtls"
+)   
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE "${AFR_ROOT_DIR}/modules/ports/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
+)
+
+target_link_libraries(
+    AFR::secure_sockets::mcu_port
+    INTERFACE
+        AFR::secure_sockets_freertos_tcp
+        AFR::tls
 )
 
 
@@ -161,13 +251,14 @@ else()
     )
 endif()
 
-#afr_glob_src(driver_code RECURSE DIRECTORY "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework")
+afr_glob_src(microchip_code RECURSE DIRECTORY "${AFR_ROOT_DIR}/vendors/microchip/boards/curiosity_pic32mzef/aws_demos/common/application_code/microchip_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 add_executable(
     ${exe_target}
     ${config_files}
     "${board_dir}/application_code/main.c"
-#    ${driver_code}
+    ${microchip_code}
+    ${extra_exe_sources}
 )
 
 target_link_libraries(
@@ -180,8 +271,8 @@ target_link_libraries(
 
 target_include_directories(
     ${exe_target}
-    INTERFACE
-        "${board_dir}/config_files"
+    PUBLIC
+        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/system/common"
 )
 
 
@@ -227,13 +318,26 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
 set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
 
-find_program(xc32_bin2hex ${XC32_BIN}/xc32-bin2hex)
+set(xc32_bin2hex ${XC32_BIN}/xc32-bin2hex)
+set(xc32_objcopy ${XC32_BIN}/xc32-objcopy)
 set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
+    COMMAND "echo" "Running Post-build step" 
     COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+    COMMAND "echo" "Running xc32-objcopy" 
+    COMMAND "echo" ${XC32_BIN}/xc32_objcopy
+    COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.hex
 )
+
+#    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+
+
+#add_custom_command(
+#    TARGET ${exe_target} POST_BUILD
+#    COMMAND "${xc32-objcopy}" -i ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.hex
+#)
 
 # TODO: Execute this python script if we need to. Seems like it is making the OTA images?
 #  ../../../common/ota/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" && python ../../../common/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF

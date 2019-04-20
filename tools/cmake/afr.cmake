@@ -21,7 +21,6 @@ set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/libraries/3rdparty" CACHE INTERNAL "3rd
 set(NETWORK_MANAGER_SOURCES
     "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
     "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
-    "${AFR_DEMOS_DIR}/wifi_provisioning/aws_wifi_connect_task.c"
     CACHE INTERNAL
     "Network manager common source files."
 )

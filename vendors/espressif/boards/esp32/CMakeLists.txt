@@ -94,6 +94,7 @@ target_sources(
         "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
+        "${AFR_DEMOS_DIR}/wifi_provisioning/aws_wifi_connect_task.c"
 )
 target_include_directories(
     AFR::ble::mcu_port

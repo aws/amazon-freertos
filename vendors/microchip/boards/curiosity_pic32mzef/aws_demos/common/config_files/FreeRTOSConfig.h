@@ -62,7 +62,7 @@
 #define configUSE_16_BIT_TICKS                     0
 #define configIDLE_SHOULD_YIELD                    1
 #define configUSE_MUTEXES                          1
-#define configUSE_RECURSIVE_MUTEXES                0
+#define configUSE_RECURSIVE_MUTEXES                1
 #define configUSE_COUNTING_SEMAPHORES              1
 #define configUSE_TASK_NOTIFICATIONS               1
 #define configQUEUE_REGISTRY_SIZE                  0
