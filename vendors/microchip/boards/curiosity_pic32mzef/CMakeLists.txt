@@ -79,7 +79,6 @@ target_include_directories(
         ${kernel_inc_dirs}
         "${aws_credentials_include}"
         "${board_dir}/config_files"
-#        "${CMAKE_BINARY_DIR}/config"
 )
 
 
@@ -332,14 +331,3 @@ add_custom_command(
     COMMAND "echo" "Creating binary image"
     COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin -p MCHP-Curiosity-PIC32MZEF
 )
-
-#    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
-
-
-#add_custom_command(
-#    TARGET ${exe_target} POST_BUILD
-#    COMMAND "${xc32-objcopy}" -i ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.hex
-#)
-
-# TODO: Execute this python script if we need to. Seems like it is making the OTA images?
-#  ../../../common/ota/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" && python ../../../common/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF
