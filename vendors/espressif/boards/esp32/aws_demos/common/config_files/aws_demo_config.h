@@ -53,6 +53,11 @@
     #define democonfigNETWORK_TYPES                          ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 #endif
 
+#if defined( democonfigOTA_UPDATE_DEMO_ENABLED )
+    #undef democonfigNETWORK_TYPES
+    #define democonfigNETWORK_TYPES                          ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
+#endif
+
 #define democonfigSHADOW_DEMO_NUM_TASKS             ( 1 )
 #define democonfigSHADOW_DEMO_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigSHADOW_DEMO_TASK_PRIORITY         ( tskIDLE_PRIORITY + 5 )
