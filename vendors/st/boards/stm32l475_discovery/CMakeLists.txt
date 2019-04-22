@@ -156,12 +156,23 @@ endif()
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/st_code")
+
+
+if(AFR_IS_TESTING)
+add_executable(
+    ${exe_target}
+    ${board_code_src}
+    "${board_dir}/application_code/main.c"
+)
+else()
 add_executable(
     ${exe_target}
     ${board_code_src}
     ${network_manager_src}
     "${board_dir}/application_code/main.c"
 )
+endif()
+
 target_link_libraries(
     ${exe_target}
     PRIVATE
