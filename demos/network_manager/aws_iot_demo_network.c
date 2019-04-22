@@ -32,17 +32,23 @@
 #include "iot_network_manager_private.h"
 #include "aws_iot_demo_network.h"
 #include "platform/iot_network_afr.h"
+#include "platform/iot_network_ble.h"
 #include "private/iot_error.h"
 
 #if BLE_ENABLED
-
-#include "iot_ble_mqtt.h"
 
 /**
  * @brief Creates a network connection over BLE transport type to transfer MQTT messages.
  * @return true if the connection was created successfully
  */
 static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkContext );
+
+
+/**
+ * @brief serializer used for MQTT over BLE.
+ */
+extern const IotMqttSerializer_t IotBleMqttSerializer;
+
 #endif
 
 #if WIFI_ENABLED
@@ -175,16 +181,16 @@ static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkCont
 {
     BaseType_t xStatus = pdFALSE;
     IotMqttNetworkInfo_t* pxNetworkInfo = &( pxNetworkContext->xNetworkInfo );
-    static IotBleMqttConnectionType_t * bleConnection = NULL;
+    void *pConnection = NULL;
 
-    if( IotNetworkBle.create( NULL, NULL, ( void * *) &bleConnection ) == IOT_NETWORK_SUCCESS )
+    if( IotNetworkBle.create( NULL, NULL, &pConnection ) == IOT_NETWORK_SUCCESS )
     {
     	pxNetworkInfo->createNetworkConnection = false;
-    	pxNetworkInfo->u.pNetworkConnection = (void *)bleConnection;
+    	pxNetworkInfo->pNetworkConnection = pConnection;
     	pxNetworkInfo->pNetworkInterface = &IotNetworkBle;
     	pxNetworkInfo->pMqttSerializer = &IotBleMqttSerializer;
 
-        pxNetworkContext->pvNetworkConnection = ( void* ) bleConnection;
+        pxNetworkContext->pvNetworkConnection = pConnection;
 
         xStatus = pdTRUE;
     }
@@ -219,8 +225,8 @@ void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkContext
 #if BLE_ENABLED
         if( pxNetworkContext->ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
         {
-            IotBleMqtt_CloseConnection(  pxNetworkContext->pvNetworkConnection );
-            IotBleMqtt_DestroyConnection( pxNetworkContext->pvNetworkConnection );
+            IotNetworkBle_Close( pxNetworkContext->pvNetworkConnection );
+            IotNetworkBle_Destroy( pxNetworkContext->pvNetworkConnection );
             xDeleted = pdTRUE;
         }
 #endif

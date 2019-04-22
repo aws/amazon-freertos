@@ -31,6 +31,7 @@
 #include "aws_clientcredential.h"
 #include "iot_demo_logging.h"
 #include "platform/iot_network_afr.h"
+#include "platform/iot_network_ble.h"
 #include "iot_network_manager_private.h"
 #include "platform/iot_threads.h"
 #include "aws_demo.h"

@@ -39,13 +39,26 @@
 #define IOT_NETWORK_INTERFACE_BLE    ( &( IotNetworkBle ) )
 
 
+typedef enum IotBleDataTransferServiceID
+{
+    IOT_BLE_SERVICE_MQTT = 0,
+    IOT_BLE_SERVICE_WIFI_PROVISIONING,
+    IOT_BLE_MAX_DATA_TRANSFER_SERVICES
+} IotBleDataTransferServiceID_t;
+
+typedef struct IotNetworkBleConnectionInfo
+{
+    IotBleDataTransferServiceID_t service;
+
+} IotNetworkBleConnectionInfo_t;
+
 /**
  * @brief An implementation of #IotNetworkInterface_t::create for Amazon FreeRTOS
  * Secure Sockets.
  */
 IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
                                         void * pCredentialInfo,
-                                        void * const pConnection );
+                                        void ** pConnection );
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback for

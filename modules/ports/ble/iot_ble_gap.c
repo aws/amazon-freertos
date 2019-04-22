@@ -43,7 +43,7 @@
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
     #include "iot_ble_wifi_provisioning.h"
 #endif
-#include "iot_ble_mqtt.h"
+#include "iot_ble_data_transfer.h"
 
 #if ( IOT_BLE_ADVERTISING_UUID_SIZE == 2 )
     #define BT_ADV_UUID_TYPE    eBTuuidType16
@@ -338,7 +338,10 @@ BTStatus_t _startAllServices()
 
     if( error == pdPASS )
     {
-        error = IotBleMqtt_Init();
+    	if( IotBleDataTransferService_Init( IOT_BLE_SERVICE_MQTT ) == false )
+	{
+	    error = pdFAIL;
+	}
     }
 
     if( error != pdPASS )

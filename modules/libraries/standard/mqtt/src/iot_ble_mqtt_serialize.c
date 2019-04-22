@@ -37,9 +37,11 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 
-/* MQTT internal includes. */
-#include "iot_ble_mqtt.h"
 #include "iot_ble_config.h"
+
+
+/* MQTT internal includes. */
+#include "iot_ble_data_transfer.h"
 #include "platform/iot_threads.h"
 #include "iot_serializer.h"
 #include "private/iot_ble_mqtt_serialize.h"
@@ -58,9 +60,6 @@
 #define _NUM_SUBACK_PARAMS                    ( 4 )
 #define _NUM_UNSUBACK_PARAMS                  ( 3 )
 #define _NUM_DISCONNECT_PARAMS                ( 1 )
-
-
-
 
 const IotMqttSerializer_t IotBleMqttSerializer = {
     .serialize.connect       = IotBleMqtt_SerializeConnect,
@@ -1351,9 +1350,9 @@ IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacke
 }
 
 size_t IotBleMqtt_GetRemainingLength ( void * pNetworkConnection,
-                                 const IotNetworkInterface_t * pNetworkInterface )
+                                       const IotNetworkInterface_t * pNetworkInterface )
 {
-    IotBleMqttService_t * pService = (( IotBleMqttService_t * ) pNetworkConnection);
+    IotBleDataTransferService_t * pService = (( IotBleDataTransferService_t * ) pNetworkConnection);
 
     return pService->connection.recvBufferLen;
 }
@@ -1365,7 +1364,7 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInt
    IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
     uint8_t value, packetType = _INVALID_MQTT_PACKET_TYPE;
-    IotBleMqttService_t * pService = (( IotBleMqttService_t * ) pNetworkConnection);
+    IotBleDataTransferService_t * pService = (( IotBleDataTransferService_t * ) pNetworkConnection);
 
     error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* )pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
 
