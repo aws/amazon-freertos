@@ -32,21 +32,21 @@
 #define _AWS_TEST_PKCS11_CONFIG_H_
 
 /**
- * @brief Number of simultaneous tasks for SignVerifyRoundTrip_MultitaskLoop test.
+ * @brief Number of simultaneous tasks for multithreaded tests.
  *
  * Each task consumes both stack and heap space, which may cause memory allocation
- * failures if too many tasks are created. 
+ * failures if too many tasks are created.
  */
-#define pkcs11testSIGN_VERIFY_TASK_COUNT    ( 2 )
+#define pkcs11testMULTI_THREAD_TASK_COUNT     ( 2 )
 
 /**
- * @brief The number of iterations in SignVerifyRoundTrip_MultitaskLoop.
+ * @brief The number of iterations of the test that will run in multithread tests.
  *
- * A single iteration of SignVerifyRoundTrip may take up to a minute on some
+ * A single iteration of Signing and Verifying may take up to a minute on some
  * boards. Ensure that pkcs11testEVENT_GROUP_TIMEOUT is long enough to accommodate
  * all iterations of the loop.
  */
-#define pkcs11testSIGN_VERIFY_LOOP_COUNT    ( 10 )
+#define pkcs11testMULTI_THREAD_LOOP_COUNT     ( 10 )
 
 /**
  * @brief
@@ -54,6 +54,31 @@
  * All tasks of the SignVerifyRoundTrip_MultitaskLoop test must finish within
  * this timeout, or the test will fail.
  */
-#define pkcs11testEVENT_GROUP_TIMEOUT_MS    ( pdMS_TO_TICKS( 1000000UL ) )
+#define pkcs11testEVENT_GROUP_TIMEOUT_MS      ( pdMS_TO_TICKS( 1000000UL ) )
+
+/**
+ * @brief The index of the slot that should be used to open sessions for PKCS #11 tests.
+ */
+#define pkcs11testSLOT_NUMBER                 ( 0 )
+
+/*
+ * @brief Set to 1 if RSA private keys are supported by the platform.  0 if not.
+ */
+#define pkcs11testRSA_KEY_SUPPORT             ( 1 )
+
+/*
+ * @brief Set to 1 if elliptic curve private keys are supported by the platform.  0 if not.
+ */
+#define pkcs11testEC_KEY_SUPPORT              ( 1 )
+
+/*
+ * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
+ */
+#define pkcs11testCREATE_OBJECT_SUPPORT       ( 1 )
+
+/*
+ * @brief Set to 1 if generating a device private-public key pair via C_GenerateKeyPair. 0 if not.
+ */
+#define pkcs11testGENERATE_KEYPAIR_SUPPORT    ( 1 )
 
 #endif /* _AWS_TEST_PKCS11_CONFIG_H_ */

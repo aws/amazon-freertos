@@ -40,9 +40,9 @@
 #define pkcs11testMULTI_THREAD_TASK_COUNT     ( 4 )
 
 /**
- * @brief The number of iterations in SignVerifyRoundTrip_MultitaskLoop.
+ * @brief The number of iterations of the test that will run in multithread tests.
  *
- * A single iteration of SignVerifyRoundTrip may take up to a minute on some
+ * A single iteration of Signing and Verifying may take up to a minute on some
  * boards. Ensure that pkcs11testEVENT_GROUP_TIMEOUT is long enough to accommodate
  * all iterations of the loop.
  */
