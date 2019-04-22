@@ -26,7 +26,7 @@
  */
 
 #ifndef _IOT_NETWORK_BLE_H_
-#define _IOT_NETWORK_Ble_H_
+#define _IOT_NETWORK_BLE_H_
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -105,4 +105,4 @@ IotNetworkError_t IotNetworkBle_Destroy( void * pConnection );
 extern const IotNetworkInterface_t IotNetworkBle;
 /** @endcond */
 
-#endif /* ifndef _IOT_NETWORK_AFR_H_ */
+#endif /* ifndef _IOT_NETWORK_BLE_H_ */

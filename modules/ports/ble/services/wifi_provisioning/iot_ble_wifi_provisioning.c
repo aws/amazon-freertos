@@ -35,6 +35,7 @@
 
 #include "iot_ble_config.h"
 #include "iot_ble_wifi_provisioning.h"
+#include "iot_ble_data_transfer.h"
 #include "iot_serializer.h"
 #include "iot_taskpool.h"
 
@@ -84,145 +85,13 @@ static IotBleWifiProvService_t wifiProvisioning = { 0 };
 
 /*---------------------------------------------------------------------------------------------------------*/
 
-/**
- * @brief UUID for Device Information Service.
- *
- * This UUID is used in advertisement for the companion apps to discover and connect to the device.
- */
-#define IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_UUID_TYPE         \
-    {                                                         \
-        .uu.uu128 = IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_UUID, \
-        .ucType = eBTuuidType128                              \
-    }
-
-#define IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_UUID_TYPE         \
-    {                                                         \
-        .uu.uu128 = IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_UUID, \
-        .ucType = eBTuuidType128                              \
-    }
-
-#define IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_UUID_TYPE         \
-    {                                                         \
-        .uu.uu128 = IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_UUID, \
-        .ucType = eBTuuidType128                              \
-    }
-
-#define IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_UUID_TYPE         \
-    {                                                           \
-        .uu.uu128 = IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_UUID, \
-        .ucType = eBTuuidType128                                \
-    }
-
-#define IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID_TYPE        \
-    {                                                      \
-        .uu.uu16 = IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID, \
-        .ucType = eBTuuidType16                            \
-    }
-
-
-#define IOT_BLE_WIFI_PROV_SVC_UUID_TYPE         \
-    {                                           \
-        .uu.uu128 = IOT_BLE_WIFI_PROV_SVC_UUID, \
-        .ucType = eBTuuidType128                \
-    }
-
-static uint16_t handlesBuffer[ IOT_BLE_WIFI_PROV_NB_ATTRIBUTES ];
-
-static const BTAttribute_t pAttributeTable[] =
-{
-    {
-        .xServiceUUID = IOT_BLE_WIFI_PROV_SVC_UUID_TYPE
-    },
-    {
-        .xAttributeType = eBTDbCharacteristic,
-        .xCharacteristic =
-        {
-            .xUuid        = IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_UUID_TYPE,
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
-            .xProperties  = ( eBTPropRead | eBTPropWrite | eBTPropNotify )
-        }
-    },
-    {
-        .xAttributeType = eBTDbDescriptor,
-        .xCharacteristicDescr =
-        {
-            .xUuid        = IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID_TYPE,
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
-        }
-    },
-    {
-        .xAttributeType = eBTDbCharacteristic,
-        .xCharacteristic =
-        {
-            .xUuid        = IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_UUID_TYPE,
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
-            .xProperties  = ( eBTPropRead | eBTPropWrite | eBTPropNotify )
-        }
-    },
-    {
-        .xAttributeType = eBTDbDescriptor,
-        .xCharacteristicDescr =
-        {
-            .xUuid        = IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID_TYPE,
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
-        }
-    },
-    {
-        .xAttributeType = eBTDbCharacteristic,
-        .xCharacteristic =
-        {
-            .xUuid        = IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_UUID_TYPE,
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
-            .xProperties  = ( eBTPropRead | eBTPropWrite | eBTPropNotify )
-        }
-    },
-    {
-        .xAttributeType = eBTDbDescriptor,
-        .xCharacteristicDescr =
-        {
-            .xUuid        = IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID_TYPE,
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
-        }
-    },
-    {
-        .xAttributeType = eBTDbCharacteristic,
-        .xCharacteristic =
-        {
-            .xUuid        = IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_UUID_TYPE,
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
-            .xProperties  = ( eBTPropRead | eBTPropWrite | eBTPropNotify )
-        }
-    },
-    {
-        .xAttributeType = eBTDbDescriptor,
-        .xCharacteristicDescr =
-        {
-            .xUuid        = IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID_TYPE,
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
-        }
-    }
-};
-
-static const BTService_t WIFIProvisionningService =
-{
-    .xNumberOfAttributes = IOT_BLE_WIFI_PROV_NB_ATTRIBUTES,
-    .ucInstId            = 0,
-    .xType               = eBTServiceTypePrimary,
-    .pusHandlesBuffer    = handlesBuffer,
-    .pxBLEAttributes     = ( BTAttribute_t * ) pAttributeTable
-};
-
 
 static WIFIScanResult_t scanNetworks[ IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS ] = { 0 };
 /*
  * @brief Callback registered for BLE write and read events received for each characteristic.
  */
-static void _characteristicCallback( IotBleAttributeEvent_t * pEventParam );
+static void _requestCallback( void * pConnection,  void * pContext );
 
-/*
- * @brief Callback registered for client characteristic configuration descriptors.
- */
-static void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam );
 
 static bool _deserializeListNetworkRequest( uint8_t * pData,
                                             size_t length,
@@ -341,47 +210,7 @@ static uint32_t _getNumSavedNetworks( void );
 /*
  * @brief Sends a status response for the request.
  */
-void _sendStatusResponse( IotBleWifiProvAttributes_t characteristic,
-                          WIFIReturnCode_t status );
-
-/*
- * @brief Sends a response for the request.
- */
-void _sendResponse( IotBleWifiProvAttributes_t characteristic,
-                    uint8_t * pData,
-                    size_t len );
-
-/*-----------------------------------------------------------*/
-
-static const IotBleAttributeEventCallback_t pCallBackArray[ IOT_BLE_WIFI_PROV_NB_ATTRIBUTES ] =
-{
-    NULL,
-    _characteristicCallback,
-    _clientCharCfgDescrCallback,
-    _characteristicCallback,
-    _clientCharCfgDescrCallback,
-    _characteristicCallback,
-    _clientCharCfgDescrCallback,
-    _characteristicCallback,
-    _clientCharCfgDescrCallback
-};
-
-/*-----------------------------------------------------------*/
-
-static IotBleWifiProvAttributes_t _getCharFromHandle( uint16_t handle )
-{
-    uint8_t charId;
-
-    for( charId = 0; charId < IOT_BLE_WIFI_PROV_NB_ATTRIBUTES; charId++ )
-    {
-        if( handlesBuffer[ charId ] == handle )
-        {
-            break;
-        }
-    }
-
-    return ( IotBleWifiProvAttributes_t ) charId;
-}
+void _sendStatusResponse( WIFIReturnCode_t status );
 
 /*-----------------------------------------------------------*/
 
@@ -398,118 +227,36 @@ bool IotBleWifiProv_Start( void )
     return ret;
 }
 
-void _characteristicCallback( IotBleAttributeEvent_t * pEventParam )
+static uint32_t _getRequestType( const uint8_t* pRequest, size_t requestLength  )
 {
-    IotBleWriteEventParams_t * pWriteParam;
-    IotBleReadEventParams_t * pReadParam;
-    bool result = false;
+    return 0;
+}
 
-    IotBleAttributeData_t attrData = { 0 };
-    IotBleEventResponse_t resp =
-    {
-        .eventStatus    = eBTStatusFail,
-        .rspErrorStatus = eBTRspErrorNone
-    };
-    IotBleWifiProvAttributes_t characteristic;
+static void _requestCallback( void * pConnection,  void * pContext )
+{
+    IotBleDataTransferService_t * pService = ( IotBleDataTransferService_t* ) pConnection;
+    uint32_t type = _getRequestType( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
 
-    resp.pAttrData = &attrData;
-
-     if( pEventParam->xEventType == eBLEWrite )
-    {
-        pWriteParam = pEventParam->pParamWrite;
-        wifiProvisioning.BLEConnId = pWriteParam->connId;
-
-        characteristic = _getCharFromHandle( pWriteParam->attrHandle );
-
-        switch( characteristic )
+        switch( type )
         {
             case IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR:
-                result = _handleListNetworkRequest( pWriteParam->pValue, pWriteParam->length );
+                _handleListNetworkRequest( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
                 break;
 
             case IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR:
-                result = _handleSaveNetworkRequest( pWriteParam->pValue, pWriteParam->length );
+                _handleSaveNetworkRequest( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
                 break;
 
             case IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR:
-                result = _handleEditNetworkRequest( pWriteParam->pValue, pWriteParam->length );
+                _handleEditNetworkRequest( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
                 break;
 
             case IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR:
-                result = _handleDeleteNetworkRequest( pWriteParam->pValue, pWriteParam->length );
+                _handleDeleteNetworkRequest( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
                 break;
-
-            case IOT_BLE_WIFI_PROV_NB_ATTRIBUTES:
             default:
-                result = false;
                 break;
         }
-
-        if( result == true )
-        {
-            resp.eventStatus = eBTStatusSuccess;
-        }
-
-        resp.pAttrData->handle = pWriteParam->attrHandle;
-        resp.pAttrData->pData = pWriteParam->pValue;
-        resp.pAttrData->size = pWriteParam->length;
-        resp.attrDataOffset = pWriteParam->offset;
-        IotBle_SendResponse( &resp, pWriteParam->connId, pWriteParam->transId );
-    }
-    else if( pEventParam->xEventType == eBLERead )
-    {
-        pReadParam = pEventParam->pParamRead;
-        resp.pAttrData->handle = pReadParam->attrHandle;
-        resp.pAttrData->pData = NULL;
-        resp.pAttrData->size = 0;
-        resp.attrDataOffset = 0;
-        resp.eventStatus = eBTStatusSuccess;
-        IotBle_SendResponse( &resp, pReadParam->connId, pReadParam->transId );
-    }
-}
-
-/*-----------------------------------------------------------*/
-
-static void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
-{
-    IotBleWriteEventParams_t * pWriteParam;
-    IotBleReadEventParams_t * pReadParam;
-
-    IotBleAttributeData_t attrData = { 0 };
-    IotBleEventResponse_t resp =
-    {
-        .eventStatus    = eBTStatusSuccess,
-        .rspErrorStatus = eBTRspErrorNone
-    };
-
-    resp.pAttrData = &attrData;
-
-    if( pEventParam->xEventType == eBLEWrite )
-    {
-        pWriteParam = pEventParam->pParamWrite;
-
-        if( pWriteParam->length == 2 )
-        {
-            wifiProvisioning.notifyClientEnabled = ( pWriteParam->pValue[ 1 ] << 8 ) | pWriteParam->pValue[ 0 ];
-            wifiProvisioning.BLEConnId = pWriteParam->connId;
-            resp.pAttrData->handle = pWriteParam->attrHandle;
-            resp.pAttrData->pData = pWriteParam->pValue;
-            resp.pAttrData->size = pWriteParam->length;
-            resp.attrDataOffset = pWriteParam->offset;
-        }
-
-        IotBle_SendResponse( &resp, pWriteParam->connId, pWriteParam->transId );
-    }
-    else if( pEventParam->xEventType == eBLERead )
-    {
-        pReadParam = pEventParam->pParamRead;
-        resp.pAttrData->handle = pReadParam->attrHandle;
-        resp.pAttrData->pData = ( uint8_t * ) &wifiProvisioning.notifyClientEnabled;
-        resp.pAttrData->size = 2;
-        resp.attrDataOffset = 0;
-        resp.eventStatus = eBTStatusSuccess;
-        IotBle_SendResponse( &resp, pReadParam->connId, pReadParam->transId );
-    }
 }
 
 /*-----------------------------------------------------------*/
@@ -1252,8 +999,7 @@ static IotSerializerError_t _serializeStatusResponse( WIFIReturnCode_t status,
 
 /*-----------------------------------------------------------*/
 
-void _sendStatusResponse( IotBleWifiProvAttributes_t characteristic,
-                          WIFIReturnCode_t status )
+void _sendStatusResponse( WIFIReturnCode_t status )
 {
     uint8_t * pBuffer = NULL;
     size_t mesgLen = 0;
@@ -1277,7 +1023,11 @@ void _sendStatusResponse( IotBleWifiProvAttributes_t characteristic,
 
     if( ret == IOT_SERIALIZER_SUCCESS )
     {
-        _sendResponse( characteristic, pBuffer, mesgLen );
+        
+        if( IOT_NETWORK_INTERFACE_BLE->send( wifiProvisioning.pBleConnection, pBuffer, mesgLen ) != mesgLen )
+        {
+            configPRINTF((" Failed to send status response through ble connection.\r\n" ));
+        }
     }
     else
     {
@@ -1290,24 +1040,6 @@ void _sendStatusResponse( IotBleWifiProvAttributes_t characteristic,
     }
 }
 
-void _sendResponse( IotBleWifiProvAttributes_t characteristic,
-                    uint8_t * pData,
-                    size_t len )
-{
-    IotBleAttributeData_t attrData = { 0 };
-    IotBleEventResponse_t resp = { 0 };
-
-    attrData.handle = ATTR_HANDLE( wifiProvisioning.pGattService, characteristic );
-    attrData.uuid = ATTR_UUID( wifiProvisioning.pGattService, characteristic );
-    resp.attrDataOffset = 0;
-    resp.pAttrData = &attrData;
-    resp.rspErrorStatus = eBTRspErrorNone;
-
-    attrData.pData = pData;
-    attrData.size = len;
-
-    ( void ) IotBle_SendIndication( &resp, wifiProvisioning.BLEConnId, false );
-}
 
 /*-----------------------------------------------------------*/
 
@@ -1513,7 +1245,10 @@ static void _sendSavedNetwork( WIFINetworkProfile_t * pSavedNetwork,
 
     if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
-        _sendResponse( IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR, message, messageLen );
+        if( IOT_NETWORK_INTERFACE_BLE->send( wifiProvisioning.pBleConnection, message, messageLen ) != messageLen )
+        {
+            configPRINTF((" Failed to send saved networks through ble connection.\r\n" ));
+        }
     }
     else
     {
@@ -1560,7 +1295,10 @@ static void _sendScanNetwork( WIFIScanResult_t * pScanNetwork )
 
     if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
-        _sendResponse( IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR, message, messageLen );
+        if( IOT_NETWORK_INTERFACE_BLE->send( wifiProvisioning.pBleConnection, message, messageLen ) != messageLen )
+        {
+            configPRINTF((" Failed to send scanned networks through ble connection.\r\n" ));
+        }
     }
     else
     {
@@ -1607,7 +1345,7 @@ void _listNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUse
     }
     else
     {
-        _sendStatusResponse( IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR, status );
+        _sendStatusResponse( status );
     }
 
     xSemaphoreGive( wifiProvisioning.lock );
@@ -1638,7 +1376,7 @@ static void _addNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void 
         }
     }
 
-    _sendStatusResponse( IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR, ret );
+    _sendStatusResponse( ret );
     xSemaphoreGive( wifiProvisioning.lock );
     IotTaskPool_RecycleJob( taskPool, job );
 }
@@ -1659,7 +1397,7 @@ static void _deleteNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, vo
             ( void )WIFI_Disconnect();
         }
     }
-    _sendStatusResponse(IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR, ret);
+    _sendStatusResponse( ret );
 
     xSemaphoreGive(wifiProvisioning.lock);
     IotTaskPool_RecycleJob( taskPool, job );
@@ -1673,7 +1411,7 @@ static void _editNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void
 {
     WIFIReturnCode_t ret = eWiFiFailure;
     ret = _moveNetwork( wifiProvisioning.editNetworkRequest.curIdx, wifiProvisioning.editNetworkRequest.newIdx );
-    _sendStatusResponse( IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR, ret );
+    _sendStatusResponse( ret );
     xSemaphoreGive( wifiProvisioning.lock );
     IotTaskPool_RecycleJob( taskPool, job );
 }
@@ -1682,45 +1420,55 @@ static void _editNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void
 
 bool IotBleWifiProv_Init( void )
 {
-    BTStatus_t status = eBTStatusSuccess;
-    bool error = false;
+    bool ret = true;
+    IotNetworkBleConnectionInfo_t info  = { .service = IOT_BLE_SERVICE_WIFI_PROVISIONING };
+    IotNetworkError_t error;
 
     if( wifiProvisioning.init == false )
     {
         wifiProvisioning.lock = xSemaphoreCreateBinary();
-
+        
         if( wifiProvisioning.lock != NULL )
         {
             xSemaphoreGive( wifiProvisioning.lock );
         }
         else
         {
-            status = eBTStatusFail;
+            ret = false;
         }
 
-        if( status == eBTStatusSuccess )
+        if( ret == true )
         {
-            wifiProvisioning.pGattService = ( BTService_t * ) &WIFIProvisionningService;
-            status = IotBle_CreateService( ( BTService_t * ) &WIFIProvisionningService, ( IotBleAttributeEventCallback_t * ) pCallBackArray );
+            ret = IotBleDataTransferService_Init( IOT_BLE_SERVICE_WIFI_PROVISIONING );
+            if( ret == false )
+            {
+                configPRINTF(( "Failed to create WiFi provisioning data tranfer service.\r\n" ));
+            }
         }
 
-        if( status == eBTStatusSuccess )
+        if( ret == true )
         {
-            wifiProvisioning.connectedIdx = IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX;
-            wifiProvisioning.init = true;
+            error = IOT_NETWORK_INTERFACE_BLE->create( &info, NULL, &wifiProvisioning.pBleConnection );
+            if( error != IOT_NETWORK_SUCCESS )
+            {
+                configPRINTF(( "WiFi Provisioning service failed, error in creating connection, error = %d.\r\n", error ));
+                ret = false;
+            }
         }
-    }
-    else
-    {
-        status = eBTStatusFail;
-    }
 
-    if( status == eBTStatusSuccess )
-    {
-        error = true;
-    }
+        if( ret == true )
+        {
+            error = IOT_NETWORK_INTERFACE_BLE->setReceiveCallback( wifiProvisioning.pBleConnection, _requestCallback, NULL );
+            if( error != IOT_NETWORK_SUCCESS )
+            {
+                configPRINTF(( "WiFi Provisioning service failed to set connection callback, error = %d.\r\n", error ));
+                ret = false;
+            }
+        }
 
-    return error;
+    }
+  
+    return ret;
 }
 
 /*-----------------------------------------------------------*/
@@ -1779,21 +1527,21 @@ bool IotBleWifiProv_EraseAllNetworks( void )
 
 bool IotBleWifiProv_Delete( void )
 {
-    bool ret = false;
+    bool ret = true;
 
-    if( IotBle_DeleteService( wifiProvisioning.pGattService ) == eBTStatusSuccess )
+    if( wifiProvisioning.init == true )
     {
-        ret = true;
-    }
 
-    if( ret == true )
-    {
+        IOT_NETWORK_INTERFACE_BLE->close( wifiProvisioning.pBleConnection );
+        IOT_NETWORK_INTERFACE_BLE->destroy( wifiProvisioning.pBleConnection );
+
+        //Delete service.
         if( wifiProvisioning.lock != NULL )
         {
             vSemaphoreDelete( wifiProvisioning.lock );
         }
 
-        memset( &wifiProvisioning, 0x00, sizeof( IotBleWifiProvService_t ) );
+         memset( &wifiProvisioning, 0x00, sizeof( IotBleWifiProvService_t ) );
     }
 
     return ret;

@@ -38,29 +38,6 @@
 #include "iot_ble.h"
 #include "aws_wifi.h"
 
-/**
- * @constantspage{iotblewifiprov,ble library,WiFi Provisioning}
- *
- * @section ble_constants_wifi_provisioning BLE constants for WiFi provisioning service.
- * @brief GATT Service, characteristic and descriptor UUIDs used by the WiFi provisioning service.
- *
- * @snippet this define_ble_constants_wifi_provisioning
- *
- * @section ble_constants_wifi_provisioning_size BLE size constants for WiFi provisioning.
- * @brief BLE constants for modifying the number of WiFi networks that can be provisioned.
- * - #IOT_BLE_WIFI_PROV_MAX_SAVED_NETWORKS <br>
- *   @copybrief IOT_BLE_WIFI_PROV_MAX_SAVED_NETWORKS
- *
- */
-/* @[define_ble_constants_wifi_provisioning] */
-#define IOT_BLE_WIFI_PROV_SVC_UUID                    { 0x00, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Base UUID. */
-#define IOT_BLE_WIFI_PROV_SVC_UUID_MASK               0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31    /**< @brief UUID mask. */
-#define IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_UUID      { 0x01, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Network list. */
-#define IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_UUID      { 0x02, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Save network. */
-#define IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_UUID      { 0x03, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Edit network. */
-#define IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_UUID    { 0x04, 0xFF, IOT_BLE_WIFI_PROV_SVC_UUID_MASK }                                       /**< @brief Delete network. */
-#define IOT_BLE_WIFI_PROV_CLIENT_CHAR_CFG_UUID        ( 0x2902 )                                                                            /**< @brief Client configuration. */
-/* @[define_ble_constants_wifi_provisioning] */
 
 
 /**
@@ -81,18 +58,6 @@ typedef enum
     IOT_BLE_WIFI_PROV_NB_ATTRIBUTES              /**< IOT_BLE_WIFI_PROV_NB_ATTRIBUTES Number of attributes in the enum. */
 } IotBleWifiProvAttributes_t;
 
-/**
- * @ingroup ble_datatypes_enums
- * @brief GATT descriptors used by the WiFi provisioning service.
- */
-typedef enum
-{
-    IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_CCFG = 0, /**< IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_CCFG Client Characteristic Configuration descriptor to enable notifications to send List Network response */
-    IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_CCFG,     /**< IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_CCFG Client Characteristic Configuration descriptor to enable notifications to send Save Network response */
-    IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_CCFG,     /**<  IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_CCFG Client Characteristic Configuration descriptor to enable notifications to send Edit Network response */
-    IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_CCFG,   /**< IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_CCFG Client Characteristic Configuration descriptor to enable notifications to send Delete Network response */
-    IOT_BLE_WIFI_PROV_MAX_DESCR                   /**< IOT_BLE_WIFI_PROV_MAX_DESCR */
-} IotBleWifiProvDescriptor_t;
 
 /**
  * @ingroup ble_datatypes_structs
@@ -171,10 +136,8 @@ typedef enum
  */
 typedef struct IotBleWifiProvService
 {
-    struct BTService * pGattService; /**< A pointer to the GATT service for WiFi provisioning. */
+    void * pBleConnection;           /**< A pointer to the ble connection object. */
     SemaphoreHandle_t lock;          /**< A lock to protect the WiFi provisioning service. */
-    uint16_t notifyClientEnabled;    /**< A flag to indicate whether the client should be notified. */
-    uint16_t BLEConnId;              /**< The connection ID for this GATT service. */
     uint16_t numNetworks;            /**< The number of networks. */
     int16_t connectedIdx;            /**< The index of the network that is connected. */
     bool init;                       /**< A flag to indicate if the service has been initialized. */
