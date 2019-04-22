@@ -292,20 +292,6 @@ BaseType_t xApplicationDNSQueryHook( const char * pcName )
 }
 
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
-
-extern void esp_vApplicationTickHook();
-void IRAM_ATTR vApplicationTickHook()
-{
-    esp_vApplicationTickHook();
-}
-
-/*-----------------------------------------------------------*/
-extern void esp_vApplicationIdleHook();
-void vApplicationIdleHook()
-{
-    esp_vApplicationIdleHook();
-}
-
 /*-----------------------------------------------------------*/
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
