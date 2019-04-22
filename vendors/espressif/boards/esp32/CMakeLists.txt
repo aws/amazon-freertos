@@ -102,6 +102,7 @@ target_include_directories(
         "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
         "${esp_idf_dir}/components/bt/include"
         "${afr_ports_dir}/ble"
+        "${AFR_DEMOS_DIR}/network_manager"
 )
 
 # PKCS11
