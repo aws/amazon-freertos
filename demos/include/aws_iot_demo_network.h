@@ -38,7 +38,7 @@
 #include "iot_config.h"
 
 #include "FreeRTOS.h"
-#include "iot_mqtt.h"
+#include "types/iot_mqtt_types.h"
 
 
 typedef struct MqttConnectionContext
