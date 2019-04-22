@@ -254,6 +254,7 @@
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential_keys.h" />
     <ClInclude Include="..\..\..\common\include\aws_logging_task.h" />
+    <ClInclude Include="..\..\..\common\include\aws_ota_codesigner_certificate.h" />
     <ClInclude Include="..\..\..\common\include\aws_test_framework.h" />
     <ClInclude Include="..\..\..\Common\include\aws_test_runner.h" />
     <ClInclude Include="..\..\..\common\include\aws_test_tcp.h" />

@@ -103,7 +103,7 @@
 		<link>
 			<name>application_code/common_tests/posix</name>
 			<type>2</type>
-			<location>AWS_IOT_MCU_ROOT/tests/common/posix</location>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/common/posix</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_tests/secure_sockets</name>
@@ -258,7 +258,12 @@
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/source</name>
 			<type>2</type>
-			<location>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/source</location>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/source</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/pkcs11/aws_pkcs11.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/pkcs11/aws_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
@@ -283,22 +288,22 @@
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h</name>
 			<type>1</type>
-			<location>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h</location>
-		</link>
-		<link>
-			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable.h</name>
-			<type>1</type>
-			<location>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/portable/st/stm32l475_discovery/FreeRTOS_POSIX_portable.h</location>
-		</link>
-		<link>
-			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable_default.h</name>
-			<type>1</type>
-			<location>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h</location>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h</name>
 			<type>1</type>
-			<location>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h</location>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/portable/st/stm32l475_discovery/FreeRTOS_POSIX_portable.h</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_portable_default.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/lib/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>

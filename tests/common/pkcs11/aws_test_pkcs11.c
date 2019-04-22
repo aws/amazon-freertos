@@ -205,6 +205,7 @@ TEST_SETUP( Full_PKCS11_RSA )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
 }
 
+
 TEST_TEAR_DOWN( Full_PKCS11_RSA )
 {
     CK_RV xResult;
@@ -235,6 +236,9 @@ TEST_GROUP_RUNNER( Full_PKCS11_RSA )
 
     prvAfterRunningTests();
 }
+
+
+
 
 TEST_SETUP( Full_PKCS11_EC )
 {
@@ -271,7 +275,8 @@ TEST_TEAR_DOWN( Full_PKCS11_EC )
 
 TEST_GROUP_RUNNER( Full_PKCS11_EC )
 {
-    prvBeforeRunningTests();
+#if( pkcs11testEC_KEY_SUPPORT == 1 )
+	prvBeforeRunningTests();
 
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject );
     RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObject );
@@ -285,6 +290,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
 
 
     prvAfterRunningTests();
+#endif
 }
 
 /* Data structure to store results of multi-thread tests. */
@@ -776,6 +782,7 @@ TEST( Full_PKCS11_NoObject, AFQP_GenerateRandom )
     CK_SLOT_ID xSlotId = 0;
     BaseType_t xSameSession = 0;
     BaseType_t xDifferentSessions = 0;
+    int i;
 
 #define pkcstestRAND_BUFFER_SIZE    10 /* This number is not actually flexible anymore because of the print formatting. */
     CK_BYTE xBuf1[ pkcstestRAND_BUFFER_SIZE ];
@@ -815,7 +822,7 @@ TEST( Full_PKCS11_NoObject, AFQP_GenerateRandom )
 
     /* Check that the random bytes generated within session
      * and between initializations of PKCS module are not the same. */
-    for( int i = 0; i < pkcstestRAND_BUFFER_SIZE; i++ )
+    for( i = 0; i < pkcstestRAND_BUFFER_SIZE; i++ )
     {
         if( xBuf1[ i ] == xBuf2[ i ] )
         {

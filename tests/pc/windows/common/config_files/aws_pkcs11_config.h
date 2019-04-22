@@ -36,7 +36,7 @@
 /* #define pkcs11configC_INITIALIZE_ALT */
 
 /**
- * PKCS #11 default user PIN.
+ * @brief PKCS #11 default user PIN.
  *
  * The PKCS #11 standard specifies the presence of a user PIN. That feature is
  * sensible for applications that have an interactive user interface and memory
@@ -44,14 +44,36 @@
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
  */
-#define configPKCS11_DEFAULT_USER_PIN "1234"
+#define configPKCS11_DEFAULT_USER_PIN    "0000"
 
-#define pkcs11configMAX_LABEL_LENGTH    32
+/**
+ * @brief Maximum length (in characters) for a PKCS #11 CKA_LABEL
+ * attribute.
+ */
+#define pkcs11configMAX_LABEL_LENGTH     32
 
-#define pkcs11configMAX_NUM_OBJECTS     6
+/**
+ * @brief Maximum number of token objects that can be stored
+ * by the PKCS #11 module.
+ */
+#define pkcs11configMAX_NUM_OBJECTS      6
 
-#define pkcs11configPAL_DESTROY_SUPPORTED           0
-#define pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED 0
+/**
+ * @brief Set to 1 if a PAL destroy object is implemented.
+ *
+ * If set to 0, no PAL destroy object is implemented, and this functionality
+ * is implemented in the common PKCS #11 layer.
+ */
+#define pkcs11configPAL_DESTROY_SUPPORTED                  0
+
+/**
+ * @brief Set to 1 if PAL supports storage for JITP certificate,
+ * code verify certificate, and trusted server root certificate.
+ *
+ * If set to 0, PAL does not support storage mechanism for these, and
+ * they are accessed via headers compiled into the code.
+ */
+#define pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED    0
 
 /**
  * @brief The PKCS #11 label for device private key.
@@ -59,28 +81,28 @@
  * Private key for connection to AWS IoT endpoint.  The corresponding
  * public key should be registered with the AWS IoT endpoint.
  */
-#define pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS    "Device Priv TLS Key"
+#define pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       "Device Priv TLS Key"
 
 /**
  * @brief The PKCS #11 label for device public key.
  *
  * The public key corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
  */
-#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS     "Device Pub TLS Key"
+#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        "Device Pub TLS Key"
 
 /**
  * @brief The PKCS #11 label for the device certificate.
  *
  * Device certificate corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
  */
-#define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS    "Device Cert"
+#define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS       "Device Cert"
 
 /**
  * @brief The PKCS #11 label for the object to be used for code verification.
  *
  * Used by over-the-air update code to verify an incoming signed image.
  */
-#define pkcs11configLABEL_CODE_VERIFICATION_KEY         "Code Verify Key"
+#define pkcs11configLABEL_CODE_VERIFICATION_KEY            "Code Verify Key"
 
 /**
  * @brief The PKCS #11 label for Just-In-Time-Provisioning.
@@ -89,13 +111,13 @@
  * (pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS) when using the JITR or
  * JITP flow.
  */
-#define pkcs11configLABEL_JITP_CERTIFICATE              "JITP Cert"
+#define pkcs11configLABEL_JITP_CERTIFICATE                 "JITP Cert"
 
 /**
  * @brief The PKCS #11 label for the AWS Trusted Root Certificate.
  *
  * @see aws_default_root_certificates.h
  */
-#define pkcs11configLABEL_ROOT_CERTIFICATE              "Root Cert"
+#define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

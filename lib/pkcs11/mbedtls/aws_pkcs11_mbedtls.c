@@ -53,7 +53,10 @@
 #include "aws_clientcredential.h"
 #include "aws_clientcredential_keys.h"
 #include "aws_default_root_certificates.h"
-#include "aws_ota_codesigner_certificate.h"
+
+#if ( pkcs11configOTA_SUPPORTED == 1 )
+    #include "aws_ota_codesigner_certificate.h"
+#endif
 
 /* C runtime includes. */
 #include <stdio.h>
@@ -554,10 +557,13 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                 *ppucCertData = ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM;
             }
         }
-        else if( 0 == memcmp( pucLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, strlen( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
-        {
-            *ppucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM;
-        }
+
+        #if ( pkcs11configOTA_SUPPORTED == 1 )
+            else if( 0 == memcmp( pucLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, strlen( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
+            {
+                *ppucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM;
+            }
+        #endif
         else
         {
             xResult = CK_FALSE;

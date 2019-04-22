@@ -96,6 +96,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>application_code/common_tests/pkcs11</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/tests/common/pkcs11</locationURI>
+		</link>
+		<link>
 			<name>application_code/common_tests/posix</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/tests/common/posix</locationURI>

@@ -792,6 +792,9 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_pkcs11_pal.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\common\include\aws_ota_codesigner_certificate.h">
+      <Filter>application_code\common_tests\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c">
