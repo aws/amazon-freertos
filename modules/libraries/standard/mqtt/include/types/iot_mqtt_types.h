@@ -1044,9 +1044,9 @@ typedef struct IotMqttNetworkInfo
 /** @brief Initializer for #IotMqttConnectInfo_t. */
 #define IOT_MQTT_CONNECT_INFO_INITIALIZER     { .cleanSession = true }
 /** @brief Initializer for #IotMqttPublishInfo_t. */
-#define IOT_MQTT_PUBLISH_INFO_INITIALIZER     { 0 }
+#define IOT_MQTT_PUBLISH_INFO_INITIALIZER     { .qos = IOT_MQTT_QOS_0 }
 /** @brief Initializer for #IotMqttSubscription_t. */
-#define IOT_MQTT_SUBSCRIPTION_INITIALIZER     { 0 }
+#define IOT_MQTT_SUBSCRIPTION_INITIALIZER     { .qos = IOT_MQTT_QOS_0 }
 /** @brief Initializer for #IotMqttCallbackInfo_t. */
 #define IOT_MQTT_CALLBACK_INFO_INITIALIZER    { 0 }
 /** @brief Initializer for #IotMqttConnection_t. */

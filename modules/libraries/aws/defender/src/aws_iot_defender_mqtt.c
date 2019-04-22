@@ -124,12 +124,12 @@ IotMqttError_t AwsIotDefenderInternal_MqttSubscribe( IotMqttCallbackInfo_t accep
     /* subscribe to two topics: accept and reject. */
     IotMqttSubscription_t subscriptions[ 2 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER, IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
-    subscriptions[ 0 ].qos = 0;
+    subscriptions[ 0 ].qos = IOT_MQTT_QOS_0;
     subscriptions[ 0 ].pTopicFilter = _pAcceptTopic;
     subscriptions[ 0 ].topicFilterLength = ( uint16_t ) strlen( _pAcceptTopic );
     subscriptions[ 0 ].callback = acceptCallback;
 
-    subscriptions[ 1 ].qos = 0;
+    subscriptions[ 1 ].qos = IOT_MQTT_QOS_0;
     subscriptions[ 1 ].pTopicFilter = _pRejectTopic;
     subscriptions[ 1 ].topicFilterLength = ( uint16_t ) strlen( _pRejectTopic );
     subscriptions[ 1 ].callback = rejectCallback;
@@ -148,7 +148,7 @@ IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
 {
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
-    publishInfo.qos = 0;
+    publishInfo.qos = IOT_MQTT_QOS_0;
     publishInfo.pTopicName = _pPublishTopic;
     publishInfo.topicNameLength = ( uint16_t ) strlen( _pPublishTopic );
     publishInfo.pPayload = pData;

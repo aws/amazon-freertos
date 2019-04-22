@@ -316,7 +316,7 @@ static AwsIotShadowError_t _setCallbackCommon( IotMqttConnection_t mqttConnectio
     _shadowSubscription_t * pSubscription = NULL;
 
     /* Check parameters. */
-    if( _validateThingNameFlags( type + _SHADOW_OPERATION_COUNT, /* Shadow callbacks are enumerated after the operations. */
+    if( _validateThingNameFlags( ( _shadowOperationType_t ) ( type + _SHADOW_OPERATION_COUNT ),
                                  pThingName,
                                  thingNameLength,
                                  0,
@@ -546,13 +546,15 @@ static void _callbackWrapperCommon( _shadowCallbackType_t type,
                                     const _shadowSubscription_t * pSubscription,
                                     IotMqttCallbackParam_t * pMessage )
 {
-    AwsIotShadowCallbackParam_t callbackParam = { 0 };
+    AwsIotShadowCallbackParam_t callbackParam = { .callbackType = ( AwsIotShadowCallbackType_t ) 0 };
 
     /* Ensure that a callback function is set. */
     AwsIotShadow_Assert( pSubscription->callbacks[ type ].function != NULL );
 
-    /* Set the members of the callback param. */
-    callbackParam.callbackType = type + _SHADOW_OPERATION_COUNT; /* Shadow callbacks are enumerated after the operations. */
+    /* Set the callback type. Shadow callbacks are enumerated after the operations. */
+    callbackParam.callbackType = ( AwsIotShadowCallbackType_t ) ( type + _SHADOW_OPERATION_COUNT );
+
+    /* Set the remaining members of the callback param. */
     callbackParam.mqttConnection = pMessage->mqttConnection;
     callbackParam.pThingName = pSubscription->pThingName;
     callbackParam.thingNameLength = pSubscription->thingNameLength;

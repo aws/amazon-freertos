@@ -767,7 +767,7 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t * pTaskPool,
                                       void * pContext )
 {
     _mqttOperation_t * pOperation = pContext;
-    IotMqttCallbackParam_t callbackParam = { .u.message = { 0 } };
+    IotMqttCallbackParam_t callbackParam = { .mqttConnection = NULL };
 
     /* Check parameters. The task pool and job parameter is not used when asserts
      * are disabled. */
@@ -1000,7 +1000,7 @@ void _IotMqtt_ProcessCompletedOperation( IotTaskPool_t * pTaskPool,
                                          void * pContext )
 {
     _mqttOperation_t * pOperation = ( _mqttOperation_t * ) pContext;
-    IotMqttCallbackParam_t callbackParam = { .u.operation = { 0 } };
+    IotMqttCallbackParam_t callbackParam = { 0 };
 
     /* Check parameters. The task pool and job parameter is not used when asserts
      * are disabled. */
@@ -1090,7 +1090,7 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     _mqttOperation_t * pResult = NULL;
     IotLink_t * pResultLink = NULL;
-    _operationMatchParam_t param = { 0 };
+    _operationMatchParam_t param = { .type = type, .pPacketIdentifier = pPacketIdentifier };
 
     if( pPacketIdentifier != NULL )
     {
@@ -1106,10 +1106,6 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
                      pMqttConnection,
                      IotMqtt_OperationType( type ) );
     }
-
-    /* Set the search parameters. */
-    param.type = type;
-    param.pPacketIdentifier = pPacketIdentifier;
 
     /* Find and remove the first matching element in the list. */
     IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
