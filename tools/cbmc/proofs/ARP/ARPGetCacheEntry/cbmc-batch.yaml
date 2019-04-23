@@ -1,0 +1,4 @@
+jobos: ubuntu16
+cbmcflags: '=--object-bits;7;--unwind;1;--unwindset;prvCacheLookup.0:7;--nondet-static;--unwinding-assertions;--32;--bounds-check;--pointer-check='
+goto: ARPGetCacheEntry.goto
+expected: SUCCESSFUL
