@@ -137,6 +137,17 @@
     #error "IOT_BUILD_TESTS must be 1 for test project."
 #endif
 
+/* For compatibility with the Amazon FreeRTOS test framework, UnityPrint and similar
+ * must be redefined. */
+extern int snprintf( char *,
+                     size_t,
+                     const char *,
+                     ... );
+#define UnityPrint( X )          configPRINT( ( X ) )
+#define UnityPrintNumber( X )    { char number[ 12 ] = { 0 }; snprintf( number, 12, "%d", X ); configPRINT( ( number ) ); }
+#undef UNITY_PRINT_EOL
+#define UNITY_PRINT_EOL()        configPRINT( ( "\r\n" ) )
+
 /* Static memory configuration. */
 #if IOT_STATIC_MEMORY_ONLY == 1
     #ifndef IOT_MESSAGE_BUFFERS
@@ -243,11 +254,11 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 #endif
 
 /* Platform and SDK name for AWS MQTT metrics. Only used when AWS_IOT_MQTT_ENABLE_METRICS is 1. */
-#define IOT_SDK_NAME                       "AmazonFreeRTOS"
+#define IOT_SDK_NAME             "AmazonFreeRTOS"
 #ifdef configPLATFORM_NAME
-    #define IOT_PLATFORM_NAME              configPLATFORM_NAME
+    #define IOT_PLATFORM_NAME    configPLATFORM_NAME
 #else
-    #define IOT_PLATFORM_NAME              "Unknown"
+    #define IOT_PLATFORM_NAME    "Unknown"
 #endif
 
 /* Shadow library configuration. */
