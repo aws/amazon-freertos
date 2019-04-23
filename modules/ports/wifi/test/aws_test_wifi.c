@@ -809,9 +809,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetMode_NullParameters )
     {
         xWiFiStatus = WIFI_GetMode( NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -919,9 +916,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetIP_NullParameters )
         xWiFiStatus = WIFI_GetIP( NULL );
 
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -974,9 +968,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetMAC_NullParameters )
     {
         xWiFiStatus = WIFI_GetMAC( NULL );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1023,18 +1014,12 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_NullParameters )
     {
         xWiFiStatus = WIFI_GetHostIP( testwifiTEST_DOMAIN_NAME, NULL );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_GetHostIP( NULL, ucIPAddr );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1130,9 +1115,6 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_NullParameters )
     {
         xWiFiStatus = WIFI_Scan( NULL, testwifiMAX_SCAN_NUMBER );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1224,18 +1206,12 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_NullParameters )
     {
         xWiFiStatus = WIFI_NetworkAdd( &xNetworkProfile, NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_NetworkAdd( NULL, &usIndex );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1250,9 +1226,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGet_NullParameters )
     {
         xWiFiStatus = WIFI_NetworkGet( NULL, 0 );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1520,9 +1493,6 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_NullParameters )
     {
         xWiFiStatus = WIFI_SetPMMode( eWiFiPMNormal, NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1539,18 +1509,12 @@ TEST( Full_WiFi, AFQP_WIFI_GetPMMode_NullParameters )
     {
         xWiFiStatus = WIFI_GetPMMode( &xPMMode, NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_GetPMMode( NULL, ( void * ) &ulOptionValue );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1565,9 +1529,6 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode )
     {
         xWiFiStatus = WIFI_SetPMMode( eWiFiPMNotSupported, NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1934,9 +1895,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConnectAP( NULL );
         TEST_WIFI_ASSERT_REQUIRED_API( eWiFiSuccess != xWiFiStatus, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Null SSID */
@@ -1947,9 +1905,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Test a null password when it is needed. */
@@ -1960,9 +1915,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Test a null password when it is not needed. */
@@ -1972,9 +1924,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
     {
         /* Every port will implement this differently. */
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
