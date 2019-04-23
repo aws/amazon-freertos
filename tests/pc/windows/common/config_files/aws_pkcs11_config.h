@@ -44,19 +44,19 @@
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
  */
-#define configPKCS11_DEFAULT_USER_PIN    "0000"
+#define configPKCS11_DEFAULT_USER_PIN                      "0000"
 
 /**
  * @brief Maximum length (in characters) for a PKCS #11 CKA_LABEL
  * attribute.
  */
-#define pkcs11configMAX_LABEL_LENGTH     32
+#define pkcs11configMAX_LABEL_LENGTH                       32
 
 /**
  * @brief Maximum number of token objects that can be stored
  * by the PKCS #11 module.
  */
-#define pkcs11configMAX_NUM_OBJECTS      6
+#define pkcs11configMAX_NUM_OBJECTS                        6
 
 /**
  * @brief Set to 1 if a PAL destroy object is implemented.
@@ -65,6 +65,14 @@
  * is implemented in the common PKCS #11 layer.
  */
 #define pkcs11configPAL_DESTROY_SUPPORTED                  0
+
+/**
+ * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.
+ *
+ * If set to 0, OTA code signing certificate is built in via
+ * aws_ota_codesigner_certificate.h.
+ */
+#define pkcs11configOTA_SUPPORTED                          0
 
 /**
  * @brief Set to 1 if PAL supports storage for JITP certificate,

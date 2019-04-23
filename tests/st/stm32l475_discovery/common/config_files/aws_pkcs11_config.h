@@ -67,6 +67,14 @@
 #define pkcs11configPAL_DESTROY_SUPPORTED                  0
 
 /**
+ * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.
+ *
+ * If set to 0, OTA code signing certificate is built in via
+ * aws_ota_codesigner_certificate.h.
+ */
+#define pkcs11configOTA_SUPPORTED                          0
+
+/**
  * @brief Set to 1 if PAL supports storage for JITP certificate,
  * code verify certificate, and trusted server root certificate.
  *

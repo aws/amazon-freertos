@@ -253,6 +253,7 @@ CK_RV prvMbedTLS_Initialize( void )
 
     if( xResult == CKR_OK )
     {
+    	CRYPTO_Init();
         /* Initialze the entropy source and DRBG for the PKCS#11 module */
         mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
         mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
@@ -461,6 +462,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         CK_OBJECT_HANDLE xPalHandle;
         CK_OBJECT_HANDLE xPalHandle2;
         CK_OBJECT_HANDLE xAppHandle2;
+        CK_BYTE_PTR pxZeroedData = NULL;
 
         prvFindObjectInListByHandle( xAppHandle, &xPalHandle, &pcLabel, &xLabelLength );
 
@@ -471,19 +473,27 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             if( xResult == CKR_OK )
             {
                 xFreeMemory = CK_TRUE;
-                /* Zero out the object. */
-                memset( pxObject, 0x0, ulObjectLength );
-                /* Create an object label attribute. */
-                xLabel.type = CKA_LABEL;
-                xLabel.pValue = pcLabel;
-                xLabel.ulValueLen = xLabelLength;
-
-                /* Overwrite the object in NVM with zeros. */
-                xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxObject, ulObjectLength );
-
-                if( xPalHandle2 != xPalHandle )
+                /* Some ports return a pointer to memory for which using memset directly won't work. */
+                pxZeroedData = pvPortMalloc(ulObjectLength);
+                if (NULL != pxZeroedData)
                 {
-                    xResult = CKR_GENERAL_ERROR;
+                    /* Zero out the object. */
+                    memset( pxZeroedData, 0x0, ulObjectLength );
+                    /* Create an object label attribute. */
+                    xLabel.type = CKA_LABEL;
+                    xLabel.pValue = pcLabel;
+                    xLabel.ulValueLen = xLabelLength;
+                    /* Overwrite the object in NVM with zeros. */
+                    xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ulObjectLength );
+                    if( xPalHandle2 != xPalHandle )
+                    {
+                        xResult = CKR_GENERAL_ERROR;
+                    }
+                    vPortFree(pxZeroedData);
+                }
+                else
+                {
+                	xResult = CKR_HOST_MEMORY;
                 }
             }
         }
