@@ -312,15 +312,25 @@ void runDemoTask( void * pArgument )
         awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
 
         /* Run the demo. */
-        pContext->demoFunction( awsIotMqttMode,
-                                clientcredentialIOT_THING_NAME,
-                                &serverInfo,
-                                &credentials,
-                                pNetworkInterface );
+        status = pContext->demoFunction( awsIotMqttMode,
+                                         clientcredentialIOT_THING_NAME,
+                                         &serverInfo,
+                                         &credentials,
+                                         pNetworkInterface );
 
         /* Report heap usage. */
         IotLogInfo( "Demo minimum ever free heap: %lu bytes.",
                     ( unsigned long ) xPortGetMinimumEverFreeHeapSize() );
+
+        /* Log the demo status. */
+        if( status == EXIT_SUCCESS )
+        {
+            IotLogInfo( "Demo completed successfully." );
+        }
+        else
+        {
+            IotLogError( "Error running demo." );
+        }
 
         _cleanup();
     }
