@@ -1391,7 +1391,7 @@ static IotTaskPoolError_t _scheduleInternal( IotTaskPool_t * const pTaskPool,
 
     if( TASKPOOL_SUCCEEDED( status ) )
     {
-        /* Append the job to the dispatch queue. 
+        /* Append the job to the dispatch queue.
          * Put the job at the front, if it is a high priority job. */
         if(mustGrow == true )
         {
@@ -1401,7 +1401,7 @@ static IotTaskPoolError_t _scheduleInternal( IotTaskPool_t * const pTaskPool,
         {
             IotDeQueue_EnqueueTail( &pTaskPool->dispatchQueue, &pJob->link );
         }
-        
+
 
         /* Signal a worker to pick up the job. */
         IotSemaphore_Post( &pTaskPool->dispatchSignal );
@@ -1641,7 +1641,7 @@ static void _rescheduleDeferredJobsTimer( IotTimer_t * const pTimer,
 
     IotTaskPool_Assert( delta > 0 );
 
-    if( IotClock_TimerArm( pTimer, delta, 0 ) == false )
+    if( IotClock_TimerArm( pTimer, ( uint32_t ) delta, 0 ) == false )
     {
         IotLogWarn( "Failed to re-arm timer for task pool" );
     }

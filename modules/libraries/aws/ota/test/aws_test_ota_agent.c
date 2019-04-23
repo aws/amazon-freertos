@@ -196,7 +196,7 @@ TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
 
     /* Attempt to set bad image states. */
     TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( eOTA_ImageState_Unknown ) );
-    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( -1 ) );
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( ( OTA_ImageState_t ) -1 ) );
 
     /* Ensure that the failed SetImageState calls didn't modify the image state. */
     TEST_ASSERT_EQUAL( xOTAImageState, OTA_GetImageState() );

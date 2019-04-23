@@ -333,7 +333,7 @@ TEST( Full_DEFENDER, SetMetrics_with_invalid_metrics_group )
     uint8_t i = 0;
 
     /* Input a dummy, invalid metrics group. */
-    AwsIotDefenderError_t error = AwsIotDefender_SetMetrics( 10000,
+    AwsIotDefenderError_t error = AwsIotDefender_SetMetrics( ( AwsIotDefenderMetricsGroup_t ) 10000,
                                                              AWS_IOT_DEFENDER_METRICS_ALL );
 
     /* SetMetrics should return "invalid input". */
@@ -677,7 +677,7 @@ static void _resetCalbackInfo()
         .metricsReportLength = 0,
         .pPayload = _payloadBuffer,
         .payloadLength = 0,
-        .eventType = _NO_EVENT
+        .eventType = ( AwsIotDefenderEventType_t ) _NO_EVENT
     };
 }
 

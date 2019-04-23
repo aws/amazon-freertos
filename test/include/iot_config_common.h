@@ -202,13 +202,13 @@ extern int snprintf( char *,
 #define IOT_TEST_SECURED_CONNECTION    ( 1 )
 
 /* Allow the network interface to be chosen by at runtime. */
-typedef struct IotNetworkInterface        IotNetworkInterface_t;
-extern const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void );
+struct IotNetworkInterface;
+extern const struct IotNetworkInterface * IotTestNetwork_GetNetworkInterface( void );
 #define IOT_TEST_NETWORK_INTERFACE    IotTestNetwork_GetNetworkInterface()
 
 /* Allow the network serializer to be chosen by at runtime. */
-typedef struct IotMqttSerializer          IotMqttSerializer_t;
-extern const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void );
+struct IotMqttSerializer;
+extern const struct IotMqttSerializer * IotTestNetwork_GetSerializer( void );
 #define IOT_TEST_MQTT_SERIALIZER    IotTestNetwork_GetSerializer()
 
 /* Forward declarations of network types used in the tests. */

@@ -28,6 +28,7 @@
 
 /* Test framework includes. */
 #include <string.h>
+#include <stdio.h>
 #include "unity_fixture.h"
 
 #include "platform/iot_threads.h"
@@ -125,7 +126,7 @@ void threadPriorityTestFunction( void * param )
          * TaskStatus_t structure. */
         pdTRUE,
         /* Include the task state in the TaskStatus_t structure. */
-        pdTRUE );
+        eInvalid );
 
     *( int32_t * ) param = xTaskDetails.uxCurrentPriority;
 }
@@ -192,7 +193,7 @@ void threadStackSizeTestFunction( void * param )
          * TaskStatus_t structure. */
         pdTRUE,
         /* Include the task state in the TaskStatus_t structure. */
-        pdTRUE );
+        eInvalid );
 
     *( int32_t * ) param = 300 + xTaskDetails.usStackHighWaterMark;
 }

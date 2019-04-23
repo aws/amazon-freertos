@@ -708,7 +708,7 @@ TEST( MQTT_System, SubscribePublishAsync )
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
     IotMqttCallbackInfo_t callbackInfo = IOT_MQTT_CALLBACK_INFO_INITIALIZER;
-    _operationCompleteParams_t callbackParam = { 0 };
+    _operationCompleteParams_t callbackParam = { .expectedOperation = ( IotMqttOperationType_t ) 0 };
     IotSemaphore_t publishWaitSem;
 
     /* Initialize members of the operation callback info. */
@@ -1134,7 +1134,7 @@ TEST( MQTT_System, SubscribeCompleteReentrancy )
                 TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
                 /* Subscribe with a completion callback. */
-                subscription.qos = 1;
+                subscription.qos = IOT_MQTT_QOS_1;
                 subscription.pTopicFilter = IOT_TEST_MQTT_TOPIC_PREFIX "/Reentrancy";
                 subscription.topicFilterLength = ( uint16_t ) strlen( subscription.pTopicFilter );
                 subscription.callback.function = _publishReceived;

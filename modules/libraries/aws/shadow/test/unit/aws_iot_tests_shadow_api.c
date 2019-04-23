@@ -579,7 +579,7 @@ TEST( Shadow_Unit_API, DocumentInvalidParameters )
     documentInfo.thingNameLength = _TEST_THING_NAME_LENGTH;
 
     /* Invalid QoS. */
-    documentInfo.qos = 3;
+    documentInfo.qos = ( IotMqttQos_t ) 3;
     status = AwsIotShadow_Get( _pMqttConnection,
                                &documentInfo,
                                AWS_IOT_SHADOW_FLAG_WAITABLE,

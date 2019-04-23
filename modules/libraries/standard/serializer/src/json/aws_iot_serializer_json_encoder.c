@@ -34,6 +34,7 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "iot_serializer.h"
 #include "mbedtls/base64.h"

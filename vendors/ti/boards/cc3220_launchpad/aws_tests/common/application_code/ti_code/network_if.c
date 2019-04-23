@@ -464,9 +464,6 @@ long Network_IF_DeInitDriver(void)
 //*****************************************************************************
 long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
 {
-    char acCmdStore[128];
-    unsigned short usConnTimeout;
-    unsigned char ucRecvdAPDetails;
     long lRetVal;
     unsigned long ulIP = 0;
     unsigned long ulSubMask = 0;
@@ -509,6 +506,10 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
 
     /* This code below is deactivated for testing the API returns false for invalid credentials. */
     #ifndef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        char acCmdStore[128];
+        unsigned short usConnTimeout;
+        unsigned char ucRecvdAPDetails;
+
         /* Check and loop until AP connection successful, else ask new AP SSID    */
         while (!(IS_CONNECTED(g_ulStatus)) || !(IS_IP_ACQUIRED(g_ulStatus)))
         {
@@ -524,7 +525,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
                 ucRecvdAPDetails = 0;
 
                 UART_PRINT("\n\r\n\rPlease enter the AP(open) SSID name # ");
-                
+
                 /* Get the AP name to connect over the UART                       */
                 lRetVal = GetCmd(acCmdStore, sizeof(acCmdStore));
                 if (lRetVal > 0)
@@ -589,7 +590,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
             /* Send the information                                                   */
             UART_PRINT("Device IP Address is %d.%d.%d.%d \n\r\n\r", SL_IPV4_BYTE(ulIP, 3), SL_IPV4_BYTE(ulIP, 2), SL_IPV4_BYTE(ulIP, 1), SL_IPV4_BYTE(ulIP, 0));
             return 0;
-            
+
     #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
         }
         else {

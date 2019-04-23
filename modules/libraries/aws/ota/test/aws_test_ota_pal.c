@@ -705,7 +705,7 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_InvalidImageState )
         TEST_ASSERT_EQUAL( sizeof( ucDummyData ), xOtaStatus );
 
         /* Try to set an invalid image state. */
-        eImageState = eOTA_LastImageState + 1;
+        eImageState = ( OTA_ImageState_t ) ( eOTA_LastImageState + 1 );
         xOtaStatus = prvPAL_SetPlatformImageState( eImageState );
         TEST_ASSERT_EQUAL( kOTA_Err_BadImageState, ( xOtaStatus & ~kOTA_PAL_ErrMask ) );
     }
