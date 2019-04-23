@@ -457,7 +457,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         CK_BBOOL xIsPrivate = CK_TRUE;
         CK_RV xResult = CKR_OK;
         CK_BBOOL xFreeMemory = CK_FALSE;
-        CK_BYTE_PTR pxObject;
+        CK_BYTE_PTR pxObject = NULL;
         CK_ATTRIBUTE xLabel;
         CK_OBJECT_HANDLE xPalHandle;
         CK_OBJECT_HANDLE xPalHandle2;
@@ -2949,8 +2949,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
     int lMbedResult;
     mbedtls_pk_context xCtx = { 0 };
-    CK_ATTRIBUTE_PTR pxPrivateLabel;
-    CK_ATTRIBUTE_PTR pxPublicLabel;
+    CK_ATTRIBUTE_PTR pxPrivateLabel = NULL;
+    CK_ATTRIBUTE_PTR pxPublicLabel = NULL;
     CK_OBJECT_HANDLE xPalPublic = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPalPrivate = CK_INVALID_HANDLE;
 
