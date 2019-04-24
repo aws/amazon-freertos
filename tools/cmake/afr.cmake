@@ -7,6 +7,8 @@ endif()
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
 # Set some global path variables.
+get_filename_component(__root_dir "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+set(AFR_ROOT_DIR ${__root_dir} CACHE INTERNAL "Amazon FreeRTOS source root.")
 set(AFR_KERNEL_DIR "${AFR_ROOT_DIR}/freertos_kernel" CACHE INTERNAL "Amazon FreeRTOS kernel root.")
 set(AFR_MODULES_DIR "${AFR_ROOT_DIR}/modules" CACHE INTERNAL "Amazon FreeRTOS modules root.")
 set(AFR_MODULES_STANDARD_DIR "${AFR_ROOT_DIR}/modules/libraries/standard" CACHE INTERNAL "Amazon FreeRTOS standard libraries root.")
