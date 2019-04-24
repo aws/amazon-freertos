@@ -42,6 +42,8 @@
 /*#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO */
 /*#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO */
 
+#define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 

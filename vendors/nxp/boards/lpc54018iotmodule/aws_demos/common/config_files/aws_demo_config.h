@@ -29,7 +29,7 @@
 #include "iot_demo_runner.h"
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 15 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 #define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_WIFI )
 
