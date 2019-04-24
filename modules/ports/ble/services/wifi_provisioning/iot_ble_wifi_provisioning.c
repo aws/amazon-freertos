@@ -91,8 +91,8 @@
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_RESP  ( 8 )
 /** @} */
 
-#define IOT_BLE_WIFI_PROV_NUM_NETWORK_INFO_MESG_PARAMS    ( 8 )
-#define IOT_BLE_WIFI_PROV_NUM_STATUS_MESG_PARAMS          ( 1 )
+#define IOT_BLE_WIFI_PROV_NUM_NETWORK_INFO_MESG_PARAMS    ( 9 )
+#define IOT_BLE_WIFI_PROV_NUM_STATUS_MESG_PARAMS          ( 2 )
 #define IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT          ( true )
 
 
@@ -230,43 +230,6 @@ static uint32_t _getNumSavedNetworks( void );
 static void _sendStatusResponse( int32_t responseType, WIFIReturnCode_t status );
 
 /*-----------------------------------------------------------*/
-
-bool IotBleWifiProv_Start( void )
-{
-    bool ret = false;
-    IotNetworkError_t error;
-    IotNetworkBleConnectionInfo_t info  = { .service = IOT_BLE_SERVICE_WIFI_PROVISIONING };
-
-    if( wifiProvisioning.init == true )
-    {
-
-        wifiProvisioning.numNetworks = _getNumSavedNetworks();
-
-        if( ret == true )
-        {
-            error = IOT_NETWORK_INTERFACE_BLE->create( &info, NULL, &wifiProvisioning.pBleConnection );
-            if( error != IOT_NETWORK_SUCCESS )
-            {
-                configPRINTF(( "WiFi Provisioning service failed, error in creating connection, error = %d.\r\n", error ));
-                ret = false;
-            }
-        }
-
-        if( ret == true )
-        {
-            error = IOT_NETWORK_INTERFACE_BLE->setReceiveCallback( wifiProvisioning.pBleConnection, _requestCallback, NULL );
-            if( error != IOT_NETWORK_SUCCESS )
-            {
-                configPRINTF(( "WiFi Provisioning service failed to set connection callback, error = %d.\r\n", error ));
-                ret = false;
-            }
-        }
-        
-        ret = true;
-    }
-
-    return ret;
-}
 
 static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int32_t *pType  )
 {
@@ -1547,6 +1510,47 @@ bool IotBleWifiProv_Init( void )
 }
 
 /*-----------------------------------------------------------*/
+
+
+
+bool IotBleWifiProv_Start( void )
+{
+    bool ret = true;
+    IotNetworkError_t error;
+    IotBleNetworkInfo_t info  = { .service = IOT_BLE_SERVICE_WIFI_PROVISIONING };
+
+    if( wifiProvisioning.init == true )
+    {
+
+        wifiProvisioning.numNetworks = _getNumSavedNetworks();
+
+        error = IOT_NETWORK_INTERFACE_BLE->create( &info, NULL, &wifiProvisioning.pBleConnection );
+        if( error != IOT_NETWORK_SUCCESS )
+        {
+            configPRINTF(( "WiFi Provisioning start failed, error in creating connection, error = %d.\r\n", error ));
+            ret = false;
+        }
+        
+        if( ret == true )
+        {
+            error = IOT_NETWORK_INTERFACE_BLE->setReceiveCallback( wifiProvisioning.pBleConnection, _requestCallback, NULL );
+            if( error != IOT_NETWORK_SUCCESS )
+            {
+                configPRINTF(( "WiFi Provisioning service failed to set connection callback, error = %d.\r\n", error ));
+                ret = false;
+            }
+        }
+    }
+    else
+    {
+        ret = false;
+    }
+    
+
+    return ret;
+}
+
+/*--------------------------------------------------------------------------------*/
 
 uint32_t IotBleWifiProv_GetNumNetworks( void )
 {

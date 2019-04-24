@@ -835,7 +835,7 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
 {
     IotNetworkError_t ret = IOT_NETWORK_FAILURE;
     IotBleDataTransferService_t * pService;
-    IotNetworkBleConnectionInfo_t *pInfo = ( IotNetworkBleConnectionInfo_t *) pConnectionInfo;
+    IotBleNetworkInfo_t *pInfo = ( IotBleNetworkInfo_t *) pConnectionInfo;
 
     ( void ) pCredentialInfo;
 

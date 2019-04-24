@@ -46,11 +46,11 @@ typedef enum IotBleDataTransferServiceID
     IOT_BLE_MAX_DATA_TRANSFER_SERVICES
 } IotBleDataTransferServiceID_t;
 
-typedef struct IotNetworkBleConnectionInfo
+typedef struct IotBleNetworkInfo
 {
     IotBleDataTransferServiceID_t service;
 
-} IotNetworkBleConnectionInfo_t;
+} IotBleNetworkInfo_t;
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::create for Amazon FreeRTOS
