@@ -31,6 +31,7 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
+#define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_WIFI )
 
 /* Some individual demos want to override these defaults, that is done in this section */
 #if defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
@@ -54,35 +55,24 @@
 #define shadowDemoUPDATE_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
 
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 3 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY           ( tskIDLE_PRIORITY )
-
-
-/* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS         ( 2 )
-
-/* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS           ( 2 )
-
-/* IoT simple subscribe/publish example task parameters. */
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY              ( tskIDLE_PRIORITY )
-
-/* Greengrass discovery example task parameters. */
-#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 16 )
-#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY      ( tskIDLE_PRIORITY )
-
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT pdMS_TO_TICKS( 12000 )
 #define democonfigMQTT_ECHO_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigMQTT_ECHO_TASK_PRIORITY           ( tskIDLE_PRIORITY )
 
-/* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS            ( 0 )
-/* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS              ( 1 )
 
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY        ( tskIDLE_PRIORITY + 5 )
+/* Number of sub pub tasks that connect to a broker that is not using TLS. */
+#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS         ( 0 )
+
+/* Number of sub pub tasks that connect to a broker that is using TLS. */
+#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS           ( 1 )
+
+/* IoT simple subscribe/publish example task parameters. */
+#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigMQTT_SUB_PUB_TASK_PRIORITY              ( tskIDLE_PRIORITY )
+
+/* Greengrass discovery example task parameters. */
+#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY      ( tskIDLE_PRIORITY )
+
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
