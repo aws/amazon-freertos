@@ -41,6 +41,7 @@
 
 /* Amazon FreeRTOS Includes. */
 #include "aws_pkcs11.h"
+#include "aws_pkcs11_config.h"
 #include "FreeRTOS.h"
 
 /* C runtime includes. */

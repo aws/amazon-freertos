@@ -254,7 +254,7 @@ CK_RV prvMbedTLS_Initialize( void )
         memset( &xP11Context, 0, sizeof( P11Context_t ) );
         xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
 
-    	CRYPTO_Init();
+        CRYPTO_Init();
         /* Initialze the entropy source and DRBG for the PKCS#11 module */
         mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
         mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
@@ -475,8 +475,9 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             {
                 xFreeMemory = CK_TRUE;
                 /* Some ports return a pointer to memory for which using memset directly won't work. */
-                pxZeroedData = pvPortMalloc(ulObjectLength);
-                if (NULL != pxZeroedData)
+                pxZeroedData = pvPortMalloc( ulObjectLength );
+
+                if( NULL != pxZeroedData )
                 {
                     /* Zero out the object. */
                     memset( pxZeroedData, 0x0, ulObjectLength );
@@ -486,15 +487,17 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                     xLabel.ulValueLen = xLabelLength;
                     /* Overwrite the object in NVM with zeros. */
                     xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ulObjectLength );
+
                     if( xPalHandle2 != xPalHandle )
                     {
                         xResult = CKR_GENERAL_ERROR;
                     }
-                    vPortFree(pxZeroedData);
+
+                    vPortFree( pxZeroedData );
                 }
                 else
                 {
-                	xResult = CKR_HOST_MEMORY;
+                    xResult = CKR_HOST_MEMORY;
                 }
             }
         }
@@ -2946,7 +2949,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = CKR_OK;
     uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
-    int lMbedResult;
+    int lMbedResult = 0;
     mbedtls_pk_context xCtx = { 0 };
     CK_ATTRIBUTE_PTR pxPrivateLabel = NULL;
     CK_ATTRIBUTE_PTR pxPublicLabel = NULL;

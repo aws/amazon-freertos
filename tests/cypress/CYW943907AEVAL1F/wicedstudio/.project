@@ -98,14 +98,14 @@
 			<locationURI>BASE_DIR_ROOT/tests/cypress/CYW943907AEVAL1F/common/config_files/aws_mqtt_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_pkcs11_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/tests/cypress/CYW943907AEVAL1F/common/config_files/aws_pkcs11_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_secure_sockets_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/tests/cypress/CYW943907AEVAL1F/common/config_files/aws_secure_sockets_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_pkcs11_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/cypress/CYW943907AEVAL1F/common/config_files/aws_pkcs11_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_test_pkcs11_config.h</name>
@@ -501,6 +501,11 @@
 			<name>lib/aws/pkcs11</name>
 			<type>2</type>
 			<locationURI>BASE_DIR_ROOT/lib/pkcs11/portable/cypress/CYW943907AEVAL1F</locationURI>
+		</link>
+		<link>
+			<name>lib/aws/pkcs11/aws_pkcs11.c</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/pkcs11/aws_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
