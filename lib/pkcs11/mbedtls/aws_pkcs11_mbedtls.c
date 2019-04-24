@@ -103,8 +103,6 @@ typedef struct P11Struct_t
 
 static P11Struct_t xP11Context;
 
-
-
 /**
  * @brief Session structure.
  */
@@ -253,6 +251,9 @@ CK_RV prvMbedTLS_Initialize( void )
 
     if( xResult == CKR_OK )
     {
+        memset( &xP11Context, 0, sizeof( P11Context_t ) );
+        xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
+
     	CRYPTO_Init();
         /* Initialze the entropy source and DRBG for the PKCS#11 module */
         mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
@@ -618,8 +619,6 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
         if( xP11Context.xIsInitialized != CK_TRUE )
         {
-            memset( &xP11Context, 0, sizeof( P11Context_t ) );
-            xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
             xResult = prvMbedTLS_Initialize();
         }
         else
