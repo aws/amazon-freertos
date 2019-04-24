@@ -163,6 +163,8 @@
             </folder>
             <folder Name="test">
               <file file_name="../../../../../../modules/libraries/standard/common/test/aws_memory_leak.c" />
+              <file file_name="../../../../../../modules/libraries/standard/common/test/iot_test_platform_clock.c" />
+              <file file_name="../../../../../../modules/libraries/standard/common/test/iot_test_platform_threads.c" />
             </folder>
             <file file_name="../../../../../../modules/libraries/standard/common/iot_init.c" />
           </folder>
