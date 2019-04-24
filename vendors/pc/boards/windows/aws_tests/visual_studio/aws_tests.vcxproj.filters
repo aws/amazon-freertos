@@ -1697,5 +1697,11 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\iot_test_serializer_json.c">
       <Filter>modules\libraries\standard\serializer\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_clock.c">
+      <Filter>modules\libraries\standard\common\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_threads.c">
+      <Filter>modules\libraries\standard\common\test</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -467,6 +467,8 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_threads_afr.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\taskpool\iot_taskpool.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\aws_memory_leak.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_clock.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_threads.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\src\aws_crypto.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\test\aws_test_crypto.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c" />
