@@ -36,8 +36,13 @@
 #define testwifiTASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )
 
 /**
- * @brief The task priority used in all Wi-Fi mulit-task tests. 
+ * @brief The task priority used in all Wi-Fi mulit-task tests.
  */
 #define testwifiTASK_PRIORITY               ( tskIDLE_PRIORITY )
+
+/**
+ * @brief The timeout for all tasks to finish in the Wi-Fi multi-task tests.
+ */
+#define testwifiMULTITASK_TEST_TIMEOUT      pdMS_TO_TICKS( 600000 )
 
 #endif /* _AWS_TEST_WIFI_CONFIG_H_ */
