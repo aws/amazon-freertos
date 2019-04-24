@@ -54,7 +54,7 @@ function(afr_set_metadata arg_metadata_type arg_metadata_name arg_metadata_val)
     )
 
     set(__allowed_values BOARD LIB DEMO)
-    if(NOT ${arg_metadata_type} IN_LIST __allowed_values)
+    if(NOT "${arg_metadata_type}" IN_LIST __allowed_values)
         message(FATAL_ERROR "Invalid metadata type: ${arg_metadata_type}.")
     endif()
 

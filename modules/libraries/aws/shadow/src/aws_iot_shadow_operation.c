@@ -222,7 +222,7 @@ static void _commonOperationCallback( _shadowOperationType_t type,
     _shadowOperation_t * pOperation = NULL;
     IotLink_t * pOperationLink = NULL;
     _shadowOperationStatus_t status = _UNKNOWN_STATUS;
-    _operationMatchParams_t param = { 0 };
+    _operationMatchParams_t param = { .type = ( _shadowOperationType_t ) 0 };
     uint32_t flags = 0;
 
     /* Set operation type to search. */
@@ -819,7 +819,7 @@ AwsIotShadowError_t _AwsIotShadow_ProcessOperation( IotMqttConnection_t mqttConn
 
 void _AwsIotShadow_Notify( _shadowOperation_t * pOperation )
 {
-    AwsIotShadowCallbackParam_t callbackParam = { 0 };
+    AwsIotShadowCallbackParam_t callbackParam = { .callbackType = ( AwsIotShadowCallbackType_t ) 0 };
     _shadowSubscription_t * pSubscription = pOperation->pSubscription,
                           * pRemovedSubscription = NULL;
 

@@ -208,7 +208,7 @@ static void prvPublishCallbackWrapper( void * pvParameter,
     uint8_t * pucMqttBuffer = NULL;
     MQTTBool_t xCallbackReturn = eMQTTFalse;
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pvParameter;
-    MQTTAgentCallbackParams_t xPublishData = { 0 };
+    MQTTAgentCallbackParams_t xPublishData = { .xMQTTEvent = eMQTTAgentPublish };
 
     /* Calculate the size of the MQTT buffer that must be allocated. */
     if( xStatus == pdPASS )
@@ -283,7 +283,7 @@ static void prvPublishCallbackWrapper( void * pvParameter,
                     /* Otherwise, invoke the global callback. */
                     if( pxConnection->pxCallback != NULL )
                     {
-                        xCallbackReturn = ( BaseType_t ) pxConnection->pxCallback( pxConnection->pvUserData,
+                        xCallbackReturn = ( MQTTBool_t ) pxConnection->pxCallback( pxConnection->pvUserData,
                                                                                    &xPublishData );
                     }
                 }
@@ -299,7 +299,7 @@ static void prvPublishCallbackWrapper( void * pvParameter,
 
             if( pxConnection->pxCallback != NULL )
             {
-                xCallbackReturn = ( BaseType_t ) pxConnection->pxCallback( pxConnection->pvUserData,
+                xCallbackReturn = ( MQTTBool_t ) pxConnection->pxCallback( pxConnection->pvUserData,
                                                                            &xPublishData );
             }
         #endif /* if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 ) */
@@ -318,15 +318,12 @@ static void prvDisconnectCallbackWrapper( void * pvParameter,
                                           IotMqttCallbackParam_t * pxDisconnect )
 {
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) pvParameter;
-    MQTTAgentCallbackParams_t xCallbackParams = { 0 };
+    MQTTAgentCallbackParams_t xCallbackParams = { .xMQTTEvent = eMQTTAgentDisconnect };
 
     ( void ) pxDisconnect;
 
     /* This function should only be called if a callback was set. */
     mqttconfigASSERT( pxConnection->pxCallback != NULL );
-
-    /* Specify the disconnect event. */
-    xCallbackParams.xMQTTEvent = eMQTTAgentDisconnect;
 
     /* Invoke the MQTT v1 callback. Ignore the return value. */
     pxConnection->pxCallback( pxConnection->pvUserData,

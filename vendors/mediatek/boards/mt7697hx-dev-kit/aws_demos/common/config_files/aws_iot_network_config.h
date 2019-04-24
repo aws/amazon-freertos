@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,47 +22,36 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-#ifndef AWS_CBOR_ITER_H
-#define AWS_CBOR_ITER_H
+
 
 /**
- * @file
- * @brief Provides interface to iterate over CBOR buffer
+ * @file aws_iot_network_config.h
+ * @brief Configuration file which enables different network types.
  */
-
-#include "aws_cbor.h"
-#include <stdint.h>
-
-cbor_byte_t * CBOR_NextPtr( const cbor_byte_t * pxPtr );
+#ifndef AWS_IOT_NETWORK_CONFIG_H_
+#define AWS_IOT_NETWORK_CONFIG_H_
 
 /**
- * @brief Iterates to the next CBOR data item.
+ * @brief Configuration flag used to specify all supported network types by the board.
  *
- * @pre The cursor must be pointing to the initial byte of a CBOR data item.
- *
- * @param CBORHandle_t Handle for the CBOR data struct.
+ * The configuration is fixed per board and should never be changed.
+ * More than one network interfaces can be enabled by using 'OR' operation with flags for
+ * each network types supported. Flags for all supported network types can be found
+ * in "aws_iot_network.h"
  */
-void CBOR_Next( CBORHandle_t /*xCborData*/ );
 
-cbor_byte_t * CBOR_NextKeyPtr( const cbor_byte_t * pxPtr );
+#define configSUPPORTED_NETWORKS    ( AWSIOT_NETWORK_TYPE_WIFI )
 
 /**
- * @brief Iterates to the next key in a map.
+ * @brief Configuration flag which is used to enable one or more network interfaces for a board.
  *
- * @pre The cursor must be pointing to the initial byte of a key in a map.
+ * The configuration can be changed any time to keep one or more network enabled or disabled.
+ * More than one network interfaces can be enabled by using 'OR' operation with flags for
+ * each network types supported. Flags for all supported network types can be found
+ * in "aws_iot_network.h"
  *
- * @param CBORHandle_t Handle for the CBOR data struct.
  */
-void CBOR_NextKey( CBORHandle_t /*xCborData*/ );
 
-/**
- * @brief Sets cursor at a specific postion in the CBOR buffer
- *
- * Sets the curso at a positive offset from the beginning of the buffer.
- *
- * @param CBORHandle_t Handle for the CBOR data struct.
- * @param cbor_ssize_t Position to move the cursor to.
- */
-void CBOR_SetCursor( CBORHandle_t /*xCborData*/, cbor_ssize_t /*pos*/ );
+#define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_WIFI )
 
-#endif /* end of include guard: AWS_CBOR_ITER_H */
+#endif /* CONFIG_FILES_AWS_IOT_NETWORK_CONFIG_H_ */

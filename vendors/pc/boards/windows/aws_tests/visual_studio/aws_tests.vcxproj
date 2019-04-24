@@ -467,6 +467,8 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_threads_afr.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\taskpool\iot_taskpool.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\aws_memory_leak.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_clock.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_threads.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\src\aws_crypto.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\test\aws_test_crypto.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c" />
@@ -520,8 +522,8 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_decoder.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_encoder.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\aws_test_serializer_cbor.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\aws_test_serializer_json.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\iot_test_serializer_cbor.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\iot_test_serializer_json.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\tls\src\aws_tls.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\tls\test\aws_test_tls.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\utils\src\aws_system_init.c" />

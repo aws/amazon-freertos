@@ -76,7 +76,7 @@ TEST_GROUP_RUNNER( UTIL_Platform_Clock )
  */
 TEST( UTIL_Platform_Clock, IotClock_GetTimestring )
 {
-    char buffer[128] = {};
+    char buffer[128] = { 0 };
     size_t  timeStringSize = 0;
     IotClock_GetTimestring(
         buffer,

@@ -6,7 +6,7 @@
 /*-----------------------------------------------------------*/
 
 //lib/third_party/mcu_vendor/mtk/mt76x7_combo/kernel/extend/src/wrap_heap.c
-#include "../../../../../../../lib/FreeRTOS/portable/MemMang/heap_4.c"
+#include "../../../../../freertos_kernel/portable/MemMang/heap_4.c"
 
 /*-----------------------------------------------------------*/
 

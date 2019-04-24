@@ -809,9 +809,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetMode_NullParameters )
     {
         xWiFiStatus = WIFI_GetMode( NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -919,9 +916,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetIP_NullParameters )
         xWiFiStatus = WIFI_GetIP( NULL );
 
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -974,9 +968,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetMAC_NullParameters )
     {
         xWiFiStatus = WIFI_GetMAC( NULL );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1023,18 +1014,12 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_NullParameters )
     {
         xWiFiStatus = WIFI_GetHostIP( testwifiTEST_DOMAIN_NAME, NULL );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_GetHostIP( NULL, ucIPAddr );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1130,9 +1115,6 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_NullParameters )
     {
         xWiFiStatus = WIFI_Scan( NULL, testwifiMAX_SCAN_NUMBER );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1224,18 +1206,12 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_NullParameters )
     {
         xWiFiStatus = WIFI_NetworkAdd( &xNetworkProfile, NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_NetworkAdd( NULL, &usIndex );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1250,9 +1226,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGet_NullParameters )
     {
         xWiFiStatus = WIFI_NetworkGet( NULL, 0 );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1520,9 +1493,6 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_NullParameters )
     {
         xWiFiStatus = WIFI_SetPMMode( eWiFiPMNormal, NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1539,18 +1509,12 @@ TEST( Full_WiFi, AFQP_WIFI_GetPMMode_NullParameters )
     {
         xWiFiStatus = WIFI_GetPMMode( &xPMMode, NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_GetPMMode( NULL, ( void * ) &ulOptionValue );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1565,9 +1529,6 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode )
     {
         xWiFiStatus = WIFI_SetPMMode( eWiFiPMNotSupported, NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1934,9 +1895,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConnectAP( NULL );
         TEST_WIFI_ASSERT_REQUIRED_API( eWiFiSuccess != xWiFiStatus, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Null SSID */
@@ -1947,9 +1905,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Test a null password when it is needed. */
@@ -1960,9 +1915,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
         TEST_WIFI_ASSERT_REQUIRED_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Test a null password when it is not needed. */
@@ -1972,9 +1924,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_NullParameters )
     {
         /* Every port will implement this differently. */
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2409,13 +2358,15 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d failed to connect to the AP %s with error code %d.\r\n",
+                      "FAILURE: Task %d failed to connect to the AP %s with error code %d.\r\n",
                       pxTaskParams->usTaskId,
                       xTestNetworkParams.pcSSID,
                       xWiFiConnectStatus );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
             break;
         }
+
+        configPRINTF( ( "INFO: Task %d connected to AP %s.\r\n", pxTaskParams->usTaskId, xTestNetworkParams.pcSSID ) );
 
         /* Delay. */
         vTaskDelay( testwifiCONNECTION_DELAY );
@@ -2428,12 +2379,14 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d failed to connect to the AP %s with error code %d.\r\n",
+                      "FAILURE: Task %d failed to connect to the AP %s with error code %d.\r\n",
                       pxTaskParams->usTaskId, xClientNetworkParams.pcSSID,
                       xWiFiConnectStatus );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
             break;
         }
+
+        configPRINTF( ( "INFO: Task %d connected to AP %s.\r\n", pxTaskParams->usTaskId, xClientNetworkParams.pcSSID ) );
 
         /* Delay. */
         vTaskDelay( testwifiCONNECTION_DELAY );
@@ -2450,7 +2403,7 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d timeout waiting for the other task to finish "
+                      "FAILURE: Task %d timeout waiting for the other task to finish "
                       "connection.\r\n",
                       pxTaskParams->usTaskId );
 
@@ -2464,7 +2417,7 @@ static void prvConnectionTask( void * pvParameters )
         if( xIsConnected == pdFALSE )
         {
             configPRINTF(
-                ( "Task %d indicates from WIFI_IsConnected() that it is not "
+                ( "FAILURE: Task %d indicates from WIFI_IsConnected() that it is not "
                   "connected.\r\n",
                   pxTaskParams->usTaskId ) );
             break;
@@ -2477,11 +2430,13 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d failed the round-trip test after connect.\r\n",
+                      "FAILURE: Task %d failed the round-trip test after connect.\r\n",
                       pxTaskParams->usTaskId );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
             break;
         }
+
+        configPRINTF( ( "INFO: Task %d Finished Connection verification Round trip test.\r\n", pxTaskParams->usTaskId ) );
 
         /* Wait for the other tasks before moving on to disconnecting. */
         if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
@@ -2497,7 +2452,7 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d timeout waiting for the other task to finish round-trip "
+                      "FAILURE: Task %d timeout waiting for the other task to finish round-trip "
                       "test after connect.\r\n",
                       pxTaskParams->usTaskId );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
@@ -2512,10 +2467,12 @@ static void prvConnectionTask( void * pvParameters )
 
         if( xWiFiConnectStatus != eWiFiSuccess )
         {
-            configPRINTF( ( "Task %d failed to disconnect with Wi-Fi error code %d\r\n",
+            configPRINTF( ( "FAILURE: Task %d failed to disconnect with Wi-Fi error code %d\r\n",
                             pxTaskParams->usTaskId, xWiFiConnectStatus ) );
             break;
         }
+
+        configPRINTF( ( "INFO: Task %d disconnected from AP %s.\r\n", pxTaskParams->usTaskId, xTestNetworkParams.pcSSID ) );
 
         /* Delay. */
         vTaskDelay( testwifiCONNECTION_DELAY );
@@ -2532,7 +2489,7 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d timeout waiting for the other task to finish "
+                      "FAILURE: Task %d timeout waiting for the other task to finish "
                       "disconnection.\r\n",
                       pxTaskParams->usTaskId );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
@@ -2546,7 +2503,7 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d returned eWiFiSuccess from WIFI_Disconnect(), but is not "
+                      "FAILURE: Task %d returned eWiFiSuccess from WIFI_Disconnect(), but is not "
                       "disconnected.\r\n",
                       pxTaskParams->usTaskId );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
@@ -2560,12 +2517,14 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d completed the round-trip test after supposedly "
+                      "FAILURE: Task %d completed the round-trip test after supposedly "
                       "disconnecting.\r\n",
                       pxTaskParams->usTaskId );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );
             break;
         }
+
+        configPRINTF( ( "INFO: Task %d Finished disconnection verification Round trip test.\r\n", pxTaskParams->usTaskId ) );
 
         /* Wait for the other tasks. */
         if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
@@ -2579,7 +2538,7 @@ static void prvConnectionTask( void * pvParameters )
         {
             snprintf( pxTaskParams->cStatusMsg,
                       sizeof( pxTaskParams->cStatusMsg ),
-                      "Task %d timeout waiting for the other task to finish the round "
+                      "FAILURE: Task %d timeout waiting for the other task to finish the round "
                       "trip after disconnect.\r\n",
                       pxTaskParams->usTaskId );
             configPRINTF( ( pxTaskParams->cStatusMsg ) );

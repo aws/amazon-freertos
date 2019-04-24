@@ -136,8 +136,8 @@ TEST_GROUP( Full_OTA_AGENT );
 TEST_SETUP( Full_OTA_AGENT )
 {
     IotMqttError_t connectStatus = IOT_MQTT_STATUS_PENDING;
-    IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-    IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+    IotNetworkServerInfoAfr_t serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
+    IotNetworkCredentialsAfr_t credentials = IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER;
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
@@ -196,7 +196,7 @@ TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
 
     /* Attempt to set bad image states. */
     TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( eOTA_ImageState_Unknown ) );
-    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( -1 ) );
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( ( OTA_ImageState_t ) -1 ) );
 
     /* Ensure that the failed SetImageState calls didn't modify the image state. */
     TEST_ASSERT_EQUAL( xOTAImageState, OTA_GetImageState() );

@@ -586,8 +586,6 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
 
 IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection )
 {
-    int32_t socketStatus = SOCKETS_ERROR_NONE;
-
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
 

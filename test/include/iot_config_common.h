@@ -137,6 +137,17 @@
     #error "IOT_BUILD_TESTS must be 1 for test project."
 #endif
 
+/* For compatibility with the Amazon FreeRTOS test framework, UnityPrint and similar
+ * must be redefined. */
+extern int snprintf( char *,
+                     size_t,
+                     const char *,
+                     ... );
+#define UnityPrint( X )          configPRINT( ( X ) )
+#define UnityPrintNumber( X )    { char number[ 12 ] = { 0 }; snprintf( number, 12, "%d", X ); configPRINT( ( number ) ); }
+#undef UNITY_PRINT_EOL
+#define UNITY_PRINT_EOL()        configPRINT( ( "\r\n" ) )
+
 /* Static memory configuration. */
 #if IOT_STATIC_MEMORY_ONLY == 1
     #ifndef IOT_MESSAGE_BUFFERS
@@ -191,13 +202,13 @@
 #define IOT_TEST_SECURED_CONNECTION    ( 1 )
 
 /* Allow the network interface to be chosen by at runtime. */
-typedef struct IotNetworkInterface        IotNetworkInterface_t;
-extern const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void );
+struct IotNetworkInterface;
+extern const struct IotNetworkInterface * IotTestNetwork_GetNetworkInterface( void );
 #define IOT_TEST_NETWORK_INTERFACE    IotTestNetwork_GetNetworkInterface()
 
 /* Allow the network serializer to be chosen by at runtime. */
-typedef struct IotMqttSerializer          IotMqttSerializer_t;
-extern const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void );
+struct IotMqttSerializer;
+extern const struct IotMqttSerializer * IotTestNetwork_GetSerializer( void );
 #define IOT_TEST_MQTT_SERIALIZER    IotTestNetwork_GetSerializer()
 
 /* Forward declarations of network types used in the tests. */
@@ -243,11 +254,11 @@ typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
 #endif
 
 /* Platform and SDK name for AWS MQTT metrics. Only used when AWS_IOT_MQTT_ENABLE_METRICS is 1. */
-#define IOT_SDK_NAME                       "AmazonFreeRTOS"
+#define IOT_SDK_NAME             "AmazonFreeRTOS"
 #ifdef configPLATFORM_NAME
-    #define IOT_PLATFORM_NAME              configPLATFORM_NAME
+    #define IOT_PLATFORM_NAME    configPLATFORM_NAME
 #else
-    #define IOT_PLATFORM_NAME              "Unknown"
+    #define IOT_PLATFORM_NAME    "Unknown"
 #endif
 
 /* Shadow library configuration. */

@@ -338,7 +338,7 @@
               <MiscControls>--C99 --diag_error=warning</MiscControls>
               <Define>PCFG_OS=2 _REENT_SMALL PRODUCT_VERSION=7687 MTK_BLE_SMTCN_ENABLE MTK_BT_LWIP_ENABLE MTK_BLE_BQB_TEST_ENABLE MTK_BLE_CLI_ENABLE MTK_BLE_BQB_CLI_ENABLE MTK_HCI_CONSOLE_MIX_ENABLE MTK_MINISUPP_ENABLE MTK_BSPEXT_ENABLE MTK_HAL_LOWPOWER_ENABLE MTK_LWIP_CLI_ENABLE MTK_HTTPCLIENT_SSL_ENABLE MTK_IPERF_ENABLE MTK_SMTCN_ENABLE MTK_CLI_TEST_MODE_ENABLE MTK_WIFI_REPEATER_ENABLE  CONFIG_REPEATER MTK_DEBUG_LEVEL_NONE MTK_WIFI_PRIVILEGE_ENABLE SUPPORT_MBEDTLS __MTK_BLE_ONLY_ENABLE__ MTK_SINGLE_SKU_SUPPORT HAL_DFS_MODULE_ENABLED LWIP_NO_STDINT_H=1 LWIP_TIMEVAL_PRIVATE=1</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../demos/mediatek/mt7697hx-dev-kit/common/config_files;../../../../demos/mediatek/mt7697hx-dev-kit/common/application_code/mediatek_code/include;../../../../lib/include;../../../../lib/include/private;../../../../lib/FreeRTOS/portable/RVDS/ARM_CM4F;../../../../lib/third_party/pkcs11;../../../../lib/third_party/jsmn;../../../../lib/third_party/mbedtls/include;../../../../lib/third_party/tracealyzer_recorder/Include;../../../../demos/common/include;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/chip/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/chip/mt7687/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/chip/mt7687/src/common/include;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/chip/mt7687/src/sdio_gen3/include;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/CMSIS/Include;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/CMSIS/Device/MTK/mt7687/Include;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/board/mt76x7_hdk/external_flash/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/board/mt76x7_hdk/wifi/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/board/mt76x7_hdk/util/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/driver/board/mt76x7_hdk/ept/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/kernel/service/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/kernel/extend/inc;../../../../lib/third_party/lwip/src/include;../../../../lib/third_party/lwip/src/include/lwip;../../../../lib/third_party/lwip/src/include/netif;../../../../lib/third_party/lwip/src/portable;../../../../lib/third_party/lwip/src/portable/mediatek/include;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/middleware/third_party/ping/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/middleware/MTK/dhcpd/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/middleware/MTK/minicli/inc;../../../../lib/third_party/mcu_vendor/mediatek/mt7697hx-dev-kit/middleware/MTK/minisupp/inc</IncludePath>
+              <IncludePath>../common/config_files;../common/application_code/mediatek_code/include;../../../../../../freertos_kernel/include;../../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../../modules/libraries/standard/common/include;../../../../../../modules/libraries/standard/common/include/private;../../../../../../modules/libraries/standard/utils/include;../../../../../../modules/libraries/3rdparty/pkcs11;../../../../../../modules/libraries/3rdparty/jsmn;../../../../../../modules/libraries/3rdparty/mbedtls/include;../../../../../../modules/libraries/3rdparty/tracealyzer_recorder/Include;../../../../../../modules/libraries/standard/mqtt/include;../../../../../../modules/libraries/standard/provisioning/include;../../../../../../modules/libraries/aws/shadow/include;../../../../../../modules/ports/pkcs11/mbedtls;../../../../../../modules/ports/pkcs11/include;../../../../../../modules/ports/wifi/include;../../../../../../modules/ports/secure_sockets/include/;../../../../../../demos/include;../../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/sdio_gen3/include;../../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../../vendors/mediatek/sdk/kernel/extend/inc;../../../../../../modules/libraries/3rdparty/lwip/src/include;../../../../../../modules/libraries/3rdparty/lwip/src/include/lwip;../../../../../../modules/libraries/3rdparty/lwip/src/include/netif;../../../../../../modules/libraries/3rdparty/lwip/src/portable;../../../../../../modules/libraries/3rdparty/lwip/src/portable/mediatek/include;../../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../../vendors/mediatek/sdk/middleware/MTK/minicli/inc;../../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;.;../../../../../../modules/libraries/aws/greengrass/include/;../../../../../../modules/libraries/standard/crypto/include/;../../../../../../modules/libraries/standard/tls/include/;../../../../../../demos/network_manager/</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -423,49 +423,59 @@
           <GroupName>demos/common</GroupName>
           <Files>
             <File>
-              <FileName>aws_demo_runner.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\common\demo_runner\aws_demo_runner.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_dev_mode_key_provisioning.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_greengrass_discovery_demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\common\greengrass_connectivity\aws_greengrass_discovery_demo.c</FilePath>
-            </File>
-            <File>
               <FileName>aws_logging_task_dynamic_buffers.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\logging\aws_logging_task_dynamic_buffers.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\logging\aws_logging_task_dynamic_buffers.c</FilePath>
             </File>
             <File>
               <FileName>aws_hello_world.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\mqtt\aws_hello_world.c</FilePath>
+              <FilePath>..\..\..\..\..\..\demos\mqtt\aws_hello_world.c</FilePath>
             </File>
             <File>
               <FileName>aws_subscribe_publish_loop.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\mqtt\aws_subscribe_publish_loop.c</FilePath>
+              <FilePath>..\..\..\..\..\..\demos\mqtt\aws_subscribe_publish_loop.c</FilePath>
             </File>
             <File>
               <FileName>aws_shadow_lightbulb_on_off.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\shadow\aws_shadow_lightbulb_on_off.c</FilePath>
+              <FilePath>..\..\..\..\..\..\demos\shadow\aws_shadow_lightbulb_on_off.c</FilePath>
             </File>
             <File>
               <FileName>aws_tcp_echo_client_separate_tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\tcp\aws_tcp_echo_client_separate_tasks.c</FilePath>
+              <FilePath>..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_separate_tasks.c</FilePath>
             </File>
             <File>
               <FileName>aws_tcp_echo_client_single_task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\tcp\aws_tcp_echo_client_single_task.c</FilePath>
+              <FilePath>..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_demo_runner.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\demos\demo_runner\iot_demo_runner.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_dev_mode_key_provisioning.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\provisioning\src\aws_dev_mode_key_provisioning.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_greengrass_discovery_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_demo_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_demo_afr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\demos\demo_runner\iot_demo_afr.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -475,42 +485,32 @@
             <File>
               <FileName>event_groups.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\event_groups.c</FilePath>
+              <FilePath>..\..\..\..\..\..\freertos_kernel\event_groups.c</FilePath>
             </File>
             <File>
               <FileName>list.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\list.c</FilePath>
+              <FilePath>..\..\..\..\..\..\freertos_kernel\list.c</FilePath>
             </File>
             <File>
               <FileName>queue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\queue.c</FilePath>
+              <FilePath>..\..\..\..\..\..\freertos_kernel\queue.c</FilePath>
             </File>
             <File>
               <FileName>stream_buffer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\stream_buffer.c</FilePath>
+              <FilePath>..\..\..\..\..\..\freertos_kernel\stream_buffer.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\tasks.c</FilePath>
+              <FilePath>..\..\..\..\..\..\freertos_kernel\tasks.c</FilePath>
             </File>
             <File>
               <FileName>timers.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\FreeRTOS\timers.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lib/bufferpool</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_bufferpool_static_thread_safe.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c</FilePath>
+              <FilePath>..\..\..\..\..\..\freertos_kernel\timers.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -520,7 +520,7 @@
             <File>
               <FileName>aws_crypto.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\crypto\aws_crypto.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\crypto\src\aws_crypto.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -530,12 +530,12 @@
             <File>
               <FileName>aws_greengrass_discovery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\greengrass\aws_greengrass_discovery.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\aws\greengrass\src\aws_greengrass_discovery.c</FilePath>
             </File>
             <File>
               <FileName>aws_helper_secure_connect.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\greengrass\aws_helper_secure_connect.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\aws\greengrass\src\aws_helper_secure_connect.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -543,14 +543,39 @@
           <GroupName>lib/mqtt</GroupName>
           <Files>
             <File>
-              <FileName>aws_mqtt_lib.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\mqtt\aws_mqtt_lib.c</FilePath>
-            </File>
-            <File>
               <FileName>aws_mqtt_agent.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\mqtt\aws_mqtt_agent.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\aws_mqtt_agent.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_mqtt_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_mqtt_network.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_network.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_mqtt_operation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_operation.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_mqtt_serialize.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_serialize.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_mqtt_subscription.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_subscription.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_mqtt_validate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_validate.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -560,12 +585,12 @@
             <File>
               <FileName>aws_pkcs11_mbedtls.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\ports\pkcs11\mbedtls\aws_pkcs11_mbedtls.c</FilePath>
             </File>
             <File>
               <FileName>aws_pkcs11_pal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\pkcs11\portable\mediatek\mt7697hx-dev-kit\aws_pkcs11_pal.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\boards\mt7697hx-dev-kit\ports\pkcs11\aws_pkcs11_pal.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -575,7 +600,7 @@
             <File>
               <FileName>aws_secure_sockets.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\secure_sockets\portable\lwip\aws_secure_sockets.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\ports\secure_sockets\lwip\aws_secure_sockets.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -583,14 +608,29 @@
           <GroupName>lib/shadow</GroupName>
           <Files>
             <File>
-              <FileName>aws_shadow_json.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\shadow\aws_shadow_json.c</FilePath>
-            </File>
-            <File>
               <FileName>aws_shadow.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\shadow\aws_shadow.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_shadow.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_shadow_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_shadow_operation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_operation.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_shadow_parser.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_parser.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_shadow_subscription.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_subscription.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -600,7 +640,7 @@
             <File>
               <FileName>aws_tls.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\tls\aws_tls.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\tls\src\aws_tls.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -610,7 +650,7 @@
             <File>
               <FileName>aws_system_init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\utils\aws_system_init.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\utils\src\aws_system_init.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -620,7 +660,7 @@
             <File>
               <FileName>aws_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\wifi\portable\mediatek\mt7697hx-dev-kit\aws_wifi.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\boards\mt7697hx-dev-kit\ports\wifi\aws_wifi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -630,7 +670,7 @@
             <File>
               <FileName>jsmn.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\jsmn\jsmn.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\jsmn\jsmn.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -640,362 +680,362 @@
             <File>
               <FileName>aes.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\aes.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\aes.c</FilePath>
             </File>
             <File>
               <FileName>aesni.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\aesni.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\aesni.c</FilePath>
             </File>
             <File>
               <FileName>arc4.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\arc4.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\arc4.c</FilePath>
             </File>
             <File>
               <FileName>asn1parse.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\asn1parse.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\asn1parse.c</FilePath>
             </File>
             <File>
               <FileName>asn1write.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\asn1write.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\asn1write.c</FilePath>
             </File>
             <File>
               <FileName>base64.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\base64.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\base64.c</FilePath>
             </File>
             <File>
               <FileName>bignum.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\bignum.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\bignum.c</FilePath>
             </File>
             <File>
               <FileName>blowfish.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\blowfish.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\blowfish.c</FilePath>
             </File>
             <File>
               <FileName>camellia.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\camellia.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\camellia.c</FilePath>
             </File>
             <File>
               <FileName>ccm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ccm.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ccm.c</FilePath>
             </File>
             <File>
               <FileName>certs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\certs.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\certs.c</FilePath>
             </File>
             <File>
               <FileName>cipher.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\cipher.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cipher.c</FilePath>
             </File>
             <File>
               <FileName>cipher_wrap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\cipher_wrap.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cipher_wrap.c</FilePath>
             </File>
             <File>
               <FileName>cmac.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\cmac.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cmac.c</FilePath>
             </File>
             <File>
               <FileName>ctr_drbg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ctr_drbg.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ctr_drbg.c</FilePath>
             </File>
             <File>
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\debug.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\debug.c</FilePath>
             </File>
             <File>
               <FileName>des.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\des.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\des.c</FilePath>
             </File>
             <File>
               <FileName>dhm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\dhm.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\dhm.c</FilePath>
             </File>
             <File>
               <FileName>ecdh.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ecdh.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecdh.c</FilePath>
             </File>
             <File>
               <FileName>ecdsa.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ecdsa.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecdsa.c</FilePath>
             </File>
             <File>
               <FileName>ecjpake.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ecjpake.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecjpake.c</FilePath>
             </File>
             <File>
               <FileName>ecp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ecp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecp.c</FilePath>
             </File>
             <File>
               <FileName>ecp_curves.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ecp_curves.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecp_curves.c</FilePath>
             </File>
             <File>
               <FileName>entropy.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\entropy.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\entropy.c</FilePath>
             </File>
             <File>
               <FileName>entropy_poll.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\entropy_poll.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\entropy_poll.c</FilePath>
             </File>
             <File>
               <FileName>error.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\error.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\error.c</FilePath>
             </File>
             <File>
               <FileName>gcm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\gcm.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\gcm.c</FilePath>
             </File>
             <File>
               <FileName>havege.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\havege.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\havege.c</FilePath>
             </File>
             <File>
               <FileName>hmac_drbg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\hmac_drbg.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\hmac_drbg.c</FilePath>
             </File>
             <File>
               <FileName>md.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\md.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md.c</FilePath>
             </File>
             <File>
               <FileName>md_wrap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\md_wrap.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md_wrap.c</FilePath>
             </File>
             <File>
               <FileName>md2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\md2.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md2.c</FilePath>
             </File>
             <File>
               <FileName>md4.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\md4.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md4.c</FilePath>
             </File>
             <File>
               <FileName>md5.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\md5.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md5.c</FilePath>
             </File>
             <File>
               <FileName>memory_buffer_alloc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\memory_buffer_alloc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c</FilePath>
             </File>
             <File>
               <FileName>net_sockets.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\net_sockets.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\net_sockets.c</FilePath>
             </File>
             <File>
               <FileName>oid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\oid.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\oid.c</FilePath>
             </File>
             <File>
               <FileName>padlock.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\padlock.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\padlock.c</FilePath>
             </File>
             <File>
               <FileName>pem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\pem.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pem.c</FilePath>
             </File>
             <File>
               <FileName>pk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\pk.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pk.c</FilePath>
             </File>
             <File>
               <FileName>pk_wrap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\pk_wrap.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pk_wrap.c</FilePath>
             </File>
             <File>
               <FileName>pkcs5.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\pkcs5.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkcs5.c</FilePath>
             </File>
             <File>
               <FileName>pkcs12.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\pkcs12.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkcs12.c</FilePath>
             </File>
             <File>
               <FileName>pkparse.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\pkparse.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkparse.c</FilePath>
             </File>
             <File>
               <FileName>pkwrite.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\pkwrite.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkwrite.c</FilePath>
             </File>
             <File>
               <FileName>platform.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\platform.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\platform.c</FilePath>
             </File>
             <File>
               <FileName>ripemd160.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ripemd160.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ripemd160.c</FilePath>
             </File>
             <File>
               <FileName>rsa.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\rsa.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\rsa.c</FilePath>
             </File>
             <File>
               <FileName>sha1.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\sha1.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha1.c</FilePath>
             </File>
             <File>
               <FileName>sha256.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\sha256.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha256.c</FilePath>
             </File>
             <File>
               <FileName>sha512.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\sha512.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha512.c</FilePath>
             </File>
             <File>
               <FileName>ssl_cache.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ssl_cache.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cache.c</FilePath>
             </File>
             <File>
               <FileName>ssl_ciphersuites.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ssl_ciphersuites.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_ciphersuites.c</FilePath>
             </File>
             <File>
               <FileName>ssl_cli.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ssl_cli.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cli.c</FilePath>
             </File>
             <File>
               <FileName>ssl_cookie.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ssl_cookie.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cookie.c</FilePath>
             </File>
             <File>
               <FileName>ssl_srv.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ssl_srv.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_srv.c</FilePath>
             </File>
             <File>
               <FileName>ssl_ticket.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ssl_ticket.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_ticket.c</FilePath>
             </File>
             <File>
               <FileName>ssl_tls.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\ssl_tls.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_tls.c</FilePath>
             </File>
             <File>
               <FileName>threading.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\threading.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\threading.c</FilePath>
             </File>
             <File>
               <FileName>timing.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\timing.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\timing.c</FilePath>
             </File>
             <File>
               <FileName>version.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\version.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\version.c</FilePath>
             </File>
             <File>
               <FileName>version_features.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\version_features.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\version_features.c</FilePath>
             </File>
             <File>
               <FileName>x509.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\x509.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509.c</FilePath>
             </File>
             <File>
               <FileName>x509_create.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\x509_create.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_create.c</FilePath>
             </File>
             <File>
               <FileName>x509_crl.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\x509_crl.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_crl.c</FilePath>
             </File>
             <File>
               <FileName>x509_crt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\x509_crt.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_crt.c</FilePath>
             </File>
             <File>
               <FileName>x509_csr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\x509_csr.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_csr.c</FilePath>
             </File>
             <File>
               <FileName>x509write_crt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\x509write_crt.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509write_crt.c</FilePath>
             </File>
             <File>
               <FileName>x509write_csr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\x509write_csr.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509write_csr.c</FilePath>
             </File>
             <File>
               <FileName>xtea.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\xtea.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\xtea.c</FilePath>
             </File>
             <File>
               <FileName>rsa_internal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\rsa_internal.c</FilePath>
             </File>
             <File>
               <FileName>platform_util.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mbedtls\library\platform_util.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\platform_util.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1005,232 +1045,232 @@
             <File>
               <FileName>ethernetif.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\portable\mediatek\netif\ethernetif.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\portable\mediatek\netif\ethernetif.c</FilePath>
             </File>
             <File>
               <FileName>sys_arch.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\portable\arch\sys_arch.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\portable\arch\sys_arch.c</FilePath>
             </File>
             <File>
               <FileName>lwip_log.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\portable\mediatek\lwip_log.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\portable\mediatek\lwip_log.c</FilePath>
             </File>
             <File>
               <FileName>pbuf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\pbuf.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\pbuf.c</FilePath>
             </File>
             <File>
               <FileName>tcp_out.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\tcp_out.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\tcp_out.c</FilePath>
             </File>
             <File>
               <FileName>api_lib.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\api\api_lib.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\api\api_lib.c</FilePath>
             </File>
             <File>
               <FileName>api_msg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\api\api_msg.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\api\api_msg.c</FilePath>
             </File>
             <File>
               <FileName>err.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\api\err.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\api\err.c</FilePath>
             </File>
             <File>
               <FileName>netbuf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\api\netbuf.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\api\netbuf.c</FilePath>
             </File>
             <File>
               <FileName>netdb.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\api\netdb.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\api\netdb.c</FilePath>
             </File>
             <File>
               <FileName>netifapi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\api\netifapi.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\api\netifapi.c</FilePath>
             </File>
             <File>
               <FileName>sockets.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\api\sockets.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\api\sockets.c</FilePath>
             </File>
             <File>
               <FileName>tcpip.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\api\tcpip.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\api\tcpip.c</FilePath>
             </File>
             <File>
               <FileName>def.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\def.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\def.c</FilePath>
             </File>
             <File>
               <FileName>dns.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\dns.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\dns.c</FilePath>
             </File>
             <File>
               <FileName>inet_chksum.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\inet_chksum.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\inet_chksum.c</FilePath>
             </File>
             <File>
               <FileName>init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\init.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\init.c</FilePath>
             </File>
             <File>
               <FileName>mem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\mem.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\mem.c</FilePath>
             </File>
             <File>
               <FileName>memp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\memp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\memp.c</FilePath>
             </File>
             <File>
               <FileName>netif.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\netif.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\netif.c</FilePath>
             </File>
             <File>
               <FileName>raw.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\raw.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\raw.c</FilePath>
             </File>
             <File>
               <FileName>stats.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\stats.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\stats.c</FilePath>
             </File>
             <File>
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\sys.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\sys.c</FilePath>
             </File>
             <File>
               <FileName>tcp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\tcp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\tcp.c</FilePath>
             </File>
             <File>
               <FileName>tcp_in.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\tcp_in.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\tcp_in.c</FilePath>
             </File>
             <File>
               <FileName>timeouts.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\timeouts.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\timeouts.c</FilePath>
             </File>
             <File>
               <FileName>udp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\udp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\udp.c</FilePath>
             </File>
             <File>
               <FileName>autoip.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv4\autoip.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv4\autoip.c</FilePath>
             </File>
             <File>
               <FileName>dhcp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv4\dhcp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv4\dhcp.c</FilePath>
             </File>
             <File>
               <FileName>icmp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv4\icmp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv4\icmp.c</FilePath>
             </File>
             <File>
               <FileName>igmp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv4\igmp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv4\igmp.c</FilePath>
             </File>
             <File>
               <FileName>ip4.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv4\ip4.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv4\ip4.c</FilePath>
             </File>
             <File>
               <FileName>ip4_addr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv4\ip4_addr.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv4\ip4_addr.c</FilePath>
             </File>
             <File>
               <FileName>ip4_frag.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv4\ip4_frag.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv4\ip4_frag.c</FilePath>
             </File>
             <File>
               <FileName>dhcp6.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\dhcp6.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\dhcp6.c</FilePath>
             </File>
             <File>
               <FileName>ethip6.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\ethip6.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\ethip6.c</FilePath>
             </File>
             <File>
               <FileName>icmp6.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\icmp6.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\icmp6.c</FilePath>
             </File>
             <File>
               <FileName>inet6.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\inet6.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\inet6.c</FilePath>
             </File>
             <File>
               <FileName>ip6.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\ip6.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\ip6.c</FilePath>
             </File>
             <File>
               <FileName>ip6_addr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\ip6_addr.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\ip6_addr.c</FilePath>
             </File>
             <File>
               <FileName>ip6_frag.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\ip6_frag.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\ip6_frag.c</FilePath>
             </File>
             <File>
               <FileName>mld6.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\mld6.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\mld6.c</FilePath>
             </File>
             <File>
               <FileName>nd6.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv6\nd6.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv6\nd6.c</FilePath>
             </File>
             <File>
               <FileName>etharp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ipv4\etharp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ipv4\etharp.c</FilePath>
             </File>
             <File>
               <FileName>ethernet.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\netif\ethernet.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\netif\ethernet.c</FilePath>
             </File>
             <File>
               <FileName>ip.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\lwip\src\core\ip.c</FilePath>
+              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\core\ip.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1240,332 +1280,332 @@
             <File>
               <FileName>hal_adc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_adc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_adc.c</FilePath>
             </File>
             <File>
               <FileName>hal_aes.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_aes.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_aes.c</FilePath>
             </File>
             <File>
               <FileName>hal_cache.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_cache.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_cache.c</FilePath>
             </File>
             <File>
               <FileName>hal_cache_internal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_cache_internal.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_cache_internal.c</FilePath>
             </File>
             <File>
               <FileName>hal_des.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_des.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_des.c</FilePath>
             </File>
             <File>
               <FileName>hal_dfs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_dfs.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_dfs.c</FilePath>
             </File>
             <File>
               <FileName>hal_eint.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_eint.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_eint.c</FilePath>
             </File>
             <File>
               <FileName>hal_file.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_file.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_file.c</FilePath>
             </File>
             <File>
               <FileName>hal_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_flash.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_flash.c</FilePath>
             </File>
             <File>
               <FileName>hal_gdma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_gdma.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_gdma.c</FilePath>
             </File>
             <File>
               <FileName>hal_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_gpio.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_gpio.c</FilePath>
             </File>
             <File>
               <FileName>hal_gpt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_gpt.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_gpt.c</FilePath>
             </File>
             <File>
               <FileName>hal_i2c_master.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_i2c_master.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_i2c_master.c</FilePath>
             </File>
             <File>
               <FileName>hal_i2s.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_i2s.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_i2s.c</FilePath>
             </File>
             <File>
               <FileName>hal_irtx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_irtx.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_irtx.c</FilePath>
             </File>
             <File>
               <FileName>hal_log.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_log.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_log.c</FilePath>
             </File>
             <File>
               <FileName>hal_md5.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_md5.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_md5.c</FilePath>
             </File>
             <File>
               <FileName>hal_misc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_misc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_misc.c</FilePath>
             </File>
             <File>
               <FileName>hal_nvic.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_nvic.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_nvic.c</FilePath>
             </File>
             <File>
               <FileName>hal_nvic_internal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_nvic_internal.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_nvic_internal.c</FilePath>
             </File>
             <File>
               <FileName>hal_pwm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_pwm.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_pwm.c</FilePath>
             </File>
             <File>
               <FileName>hal_rtc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_rtc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_rtc.c</FilePath>
             </File>
             <File>
               <FileName>hal_sha.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_sha.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_sha.c</FilePath>
             </File>
             <File>
               <FileName>hal_spi_master.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_spi_master.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_spi_master.c</FilePath>
             </File>
             <File>
               <FileName>hal_spi_slave.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_spi_slave.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_spi_slave.c</FilePath>
             </File>
             <File>
               <FileName>hal_uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_uart.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_uart.c</FilePath>
             </File>
             <File>
               <FileName>hal_wdt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\hal_wdt.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\hal_wdt.c</FilePath>
             </File>
             <File>
               <FileName>cos_api.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\cos_api.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\cos_api.c</FilePath>
             </File>
             <File>
               <FileName>dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\dma.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\dma.c</FilePath>
             </File>
             <File>
               <FileName>flash_sfc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\flash_sfc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\flash_sfc.c</FilePath>
             </File>
             <File>
               <FileName>gpt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\gpt.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\gpt.c</FilePath>
             </File>
             <File>
               <FileName>hal_gdma_internal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_gdma_internal.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_gdma_internal.c</FilePath>
             </File>
             <File>
               <FileName>hal_gpc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_gpc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_gpc.c</FilePath>
             </File>
             <File>
               <FileName>hal_gpio_7687.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_gpio_7687.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_gpio_7687.c</FilePath>
             </File>
             <File>
               <FileName>hal_I2C.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_I2C.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_I2C.c</FilePath>
             </File>
             <File>
               <FileName>hal_i2s_internal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_i2s_internal.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_i2s_internal.c</FilePath>
             </File>
             <File>
               <FileName>hal_irrx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_irrx.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_irrx.c</FilePath>
             </File>
             <File>
               <FileName>hal_lp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_lp.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_lp.c</FilePath>
             </File>
             <File>
               <FileName>hal_pcnt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_pcnt.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_pcnt.c</FilePath>
             </File>
             <File>
               <FileName>hal_pdma_internal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_pdma_internal.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_pdma_internal.c</FilePath>
             </File>
             <File>
               <FileName>hal_pinmux.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_pinmux.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_pinmux.c</FilePath>
             </File>
             <File>
               <FileName>hal_spim.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_spim.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_spim.c</FilePath>
             </File>
             <File>
               <FileName>hal_sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_sys.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_sys.c</FilePath>
             </File>
             <File>
               <FileName>hal_trng.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_trng.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_trng.c</FilePath>
             </File>
             <File>
               <FileName>hal_uid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\hal_uid.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_uid.c</FilePath>
             </File>
             <File>
               <FileName>i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\i2c.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\i2c.c</FilePath>
             </File>
             <File>
               <FileName>ir_tx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\ir_tx.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\ir_tx.c</FilePath>
             </File>
             <File>
               <FileName>low_hal_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\low_hal_gpio.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\low_hal_gpio.c</FilePath>
             </File>
             <File>
               <FileName>low_hal_irrx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\low_hal_irrx.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\low_hal_irrx.c</FilePath>
             </File>
             <File>
               <FileName>low_hal_irtx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\low_hal_irtx.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\low_hal_irtx.c</FilePath>
             </File>
             <File>
               <FileName>low_hal_pwm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\low_hal_pwm.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\low_hal_pwm.c</FilePath>
             </File>
             <File>
               <FileName>low_hal_rtc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\low_hal_rtc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\low_hal_rtc.c</FilePath>
             </File>
             <File>
               <FileName>low_hal_wdt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\low_hal_wdt.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\low_hal_wdt.c</FilePath>
             </File>
             <File>
               <FileName>nvic.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\nvic.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\nvic.c</FilePath>
             </File>
             <File>
               <FileName>pinmux.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\pinmux.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\pinmux.c</FilePath>
             </File>
             <File>
               <FileName>pwm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\pwm.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\pwm.c</FilePath>
             </File>
             <File>
               <FileName>sfc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\sfc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\sfc.c</FilePath>
             </File>
             <File>
               <FileName>spi_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\spi_flash.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\spi_flash.c</FilePath>
             </File>
             <File>
               <FileName>spim.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\spim.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\spim.c</FilePath>
             </File>
             <File>
               <FileName>timer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\timer.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\timer.c</FilePath>
             </File>
             <File>
               <FileName>top.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\top.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\top.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\common\uart.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\uart.c</FilePath>
             </File>
             <File>
               <FileName>connsys_bus.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\sdio_gen3\connsys_bus.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\sdio_gen3\connsys_bus.c</FilePath>
             </File>
             <File>
               <FileName>connsys_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\sdio_gen3\connsys_driver.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\sdio_gen3\connsys_driver.c</FilePath>
             </File>
             <File>
               <FileName>connsys_util.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\sdio_gen3\connsys_util.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\sdio_gen3\connsys_util.c</FilePath>
             </File>
             <File>
               <FileName>context_dump.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\chip\mt7687\src\sdio_gen3\context_dump.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\sdio_gen3\context_dump.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1575,57 +1615,57 @@
             <File>
               <FileName>io_def.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\util\src\io_def.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\util\src\io_def.c</FilePath>
             </File>
             <File>
               <FileName>get_profile_string.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\wifi\src\get_profile_string.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\wifi\src\get_profile_string.c</FilePath>
             </File>
             <File>
               <FileName>misc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\wifi\src\misc.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\wifi\src\misc.c</FilePath>
             </File>
             <File>
               <FileName>os.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\wifi\src\os.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\wifi\src\os.c</FilePath>
             </File>
             <File>
               <FileName>wifi_default_config.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\wifi\src\wifi_default_config.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\wifi\src\wifi_default_config.c</FilePath>
             </File>
             <File>
               <FileName>wifi_init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\wifi\src\wifi_init.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\wifi\src\wifi_init.c</FilePath>
             </File>
             <File>
               <FileName>wifi_os_api.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\wifi\src\wifi_os_api.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\wifi\src\wifi_os_api.c</FilePath>
             </File>
             <File>
               <FileName>wifi_profile.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\wifi\src\wifi_profile.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\wifi\src\wifi_profile.c</FilePath>
             </File>
             <File>
               <FileName>bsp_gpio_ept_config.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\ept\src\bsp_gpio_ept_config.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\ept\src\bsp_gpio_ept_config.c</FilePath>
             </File>
             <File>
               <FileName>bsp_flash_config.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\external_flash\src\bsp_flash_config.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\external_flash\src\bsp_flash_config.c</FilePath>
             </File>
             <File>
               <FileName>wifi_os_mem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\driver\board\mt76x7_hdk\wifi\src\wifi_os_mem.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\driver\board\mt76x7_hdk\wifi\src\wifi_os_mem.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1635,32 +1675,32 @@
             <File>
               <FileName>toi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\service\src\toi.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\service\src\toi.c</FilePath>
             </File>
             <File>
               <FileName>os_trace_callback.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\service\src\os_trace_callback.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\service\src\os_trace_callback.c</FilePath>
             </File>
             <File>
               <FileName>os_port_callback.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\service\src\os_port_callback.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\service\src\os_port_callback.c</FilePath>
             </File>
             <File>
               <FileName>memory_regions.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\service\src\memory_regions.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\service\src\memory_regions.c</FilePath>
             </File>
             <File>
               <FileName>exception_handler.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\service\src\exception_handler.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\service\src\exception_handler.c</FilePath>
             </File>
             <File>
               <FileName>context_info_save.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\service\src\context_info_save.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\service\src\context_info_save.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1670,17 +1710,17 @@
             <File>
               <FileName>wrap_heap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\extend\src\wrap_heap.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\extend\src\wrap_heap.c</FilePath>
             </File>
             <File>
               <FileName>port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\extend\src\RVDS\port.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\extend\src\RVDS\port.c</FilePath>
             </File>
             <File>
               <FileName>port_tick.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\kernel\extend\src\RVDS\port_tick.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\kernel\extend\src\RVDS\port_tick.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1690,7 +1730,7 @@
             <File>
               <FileName>dhcpd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\middleware\MTK\dhcpd\src\dhcpd.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\middleware\MTK\dhcpd\src\dhcpd.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1700,7 +1740,7 @@
             <File>
               <FileName>ping.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\middleware\third_party\ping\src\ping.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\middleware\third_party\ping\src\ping.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1710,7 +1750,7 @@
             <File>
               <FileName>minicli_api.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\middleware\MTK\minicli\src\minicli_api.c</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\middleware\MTK\minicli\src\minicli_api.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1720,32 +1760,87 @@
             <File>
               <FileName>libhal_core_CM4_Keil.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\prebuilt\keil\libhal_core_CM4_Keil.lib</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\prebuilt\keil\libhal_core_CM4_Keil.lib</FilePath>
             </File>
             <File>
               <FileName>libhal_protected_CM4_Keil.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\prebuilt\keil\libhal_protected_CM4_Keil.lib</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\prebuilt\keil\libhal_protected_CM4_Keil.lib</FilePath>
             </File>
             <File>
               <FileName>libkservice_CM4_MT7687_Keil.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\prebuilt\keil\libkservice_CM4_MT7687_Keil.lib</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\prebuilt\keil\libkservice_CM4_MT7687_Keil.lib</FilePath>
             </File>
             <File>
               <FileName>libminicli_CM4_Keil.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\prebuilt\keil\libminicli_CM4_Keil.lib</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\prebuilt\keil\libminicli_CM4_Keil.lib</FilePath>
             </File>
             <File>
               <FileName>libminisupp_CM4_Keil.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\prebuilt\keil\libminisupp_CM4_Keil.lib</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\prebuilt\keil\libminisupp_CM4_Keil.lib</FilePath>
             </File>
             <File>
               <FileName>libwifi_CM4_Keil.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\mediatek\mt7697hx-dev-kit\prebuilt\keil\libwifi_CM4_Keil.lib</FilePath>
+              <FilePath>..\..\..\..\..\..\vendors\mediatek\sdk\prebuilt\keil\libwifi_CM4_Keil.lib</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>modules/libraries/standard/common</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_clock_afr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_clock_afr.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_network_afr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_network_afr.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_threads_afr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_threads_afr.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_taskpool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\taskpool\iot_taskpool.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\iot_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_json_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\iot_json_utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_logging.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\logging\iot_logging.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>demos/network_manager</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_demo_network.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_network_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c</FilePath>
             </File>
           </Files>
         </Group>

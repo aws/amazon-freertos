@@ -153,12 +153,14 @@ typedef struct
 {
     uint16_t usTaskTag;
     BaseType_t xStatus;
-    TaskHandle_t xTaskHandle;
     uint8_t * pucTransmittedData;
-    SemaphoreHandle_t xSemaphore;
-    BaseType_t xTaskCreated;
+    TaskHandle_t xHandle;
+    StaticSemaphore_t xSemaphore;
+    StaticTask_t xTaskBuffer;
+    StackType_t xTaskStack[ mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE ];
 } MQTTtestAgentTaskParams_t;
-
+/* Information about tasks for the multitask test. */
+static MQTTtestAgentTaskParams_t xTaskParams[ mqttagenttestMULTI_TASK_TEST_NUM_TASKS ] = { 0 };
 
 /* Parameters for the Receive tasks. They are bundles into one structure to improve readability. */
 typedef struct
@@ -176,8 +178,8 @@ static MQTTtestAgentMultiTestRxParam_t MQTTtestAgentMultiTestRxParam[ mqttagentt
 static void prvMultiTaskTest_Rx_Task( void * pvParameters );
 static void prvMultiTaskTest_Tx_Task( void * pvParameters );
 
-/* The event group used to wait for the multitaks test completion.*/
-static EventGroupHandle_t xSyncEventGroup = NULL;
+/* The event group used to wait for the multitask test completion.*/
+static StaticEventGroup_t xSyncEventGroup;
 
 /**
  * @brief Callback for MQTT subscription.
@@ -473,7 +475,7 @@ TEST( Full_MQTT_Agent_ALPN, MQTT_Agent_SubscribePublishAlpn )
  * to each one of the x tasks.
  * Once each y Transmit tasks have submitted n messages to each of the x Receive task, it starts all over again. What varies from cycle to
  * cycle are the priorities. Receive and Transmit tasks will swich priorities in such a way as to cover all possible combination of
- * high and low prioritie.
+ * high and low priorities.
  *
  * At the end of the test, Tasks do not self delete. They get suspended. The main test function will first wait for every
  * task to complete through Amazon FreeRTOS synchronization mechanism then it will delete all the created tasks.
@@ -483,18 +485,12 @@ TEST( Full_MQTT_Agent_ALPN, MQTT_Agent_SubscribePublishAlpn )
 TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
 {
     uint16_t usIndex;
-    MQTTtestAgentTaskParams_t xTaskParams[ mqttagenttestMULTI_TASK_TEST_NUM_TASKS ];
     uint32_t usEventMask;
-    BaseType_t xResult;
-    uint8_t * pucTransmittedData;
-
-    xSyncEventGroup = NULL;
-    pucTransmittedData = NULL;
+    static uint8_t pucTransmittedData[ mqttagenttestMULTI_TASK_TEST_PUB_DATA_SIZE ];
 
     /* Initialize to unallocated. */
     for( usIndex = 0; usIndex < mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS; usIndex++ )
     {
-        xTaskParams[ usIndex ].xSemaphore = NULL;
         MQTTtestAgentMultiTestRxParam[ usIndex ].xSyncEventRx = NULL;
     }
 
@@ -502,8 +498,10 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
     {
         /* Create the event group used by the Transmit and Receive tasks to synchronize prior
          * to commencing a cycle using a new socket. */
-        xSyncEventGroup = xEventGroupCreate();
-        TEST_ASSERT_NOT_NULL_MESSAGE( xSyncEventGroup, "Couldn't create Sync event." );
+        if( xEventGroupCreateStatic( &xSyncEventGroup ) == NULL )
+        {
+            TEST_FAIL_MESSAGE( "Couldn't create Sync event." );
+        }
 
         for( usIndex = 0; usIndex < mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS; usIndex++ )
         {
@@ -511,9 +509,6 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
             TEST_ASSERT_NOT_NULL_MESSAGE( MQTTtestAgentMultiTestRxParam[ usIndex ].xSyncEventRx, "Couldn't create Sync event." );
             /* Flag memory as allocated for later Free. */
         }
-
-        pucTransmittedData = pvPortMalloc( mqttagenttestMULTI_TASK_TEST_PUB_DATA_SIZE * sizeof( uint8_t ) );
-        TEST_ASSERT_NOT_NULL_MESSAGE( pucTransmittedData, "Couldn't allocate data." );
 
         /* Data sent by Transmit tasks. And a counter to check integrity of the data when Received by Receive task. */
         for( usIndex = 0; usIndex < mqttagenttestMULTI_TASK_TEST_PUB_DATA_SIZE; usIndex++ )
@@ -530,8 +525,11 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
 
             /* Each Receive task will Receive mqttagenttestMULTI_TASK_TEST_PUBLISH_PER_LOOP * mqttagenttestMULTI_TASK_TEST_NUM_TX_TASKS messages.
              * It is possible that all of them may be Received before callback can trigger, so make semaphore count enough. */
-            xTaskParams[ usIndex ].xSemaphore = xSemaphoreCreateCounting( mqttagenttestMULTI_TASK_TEST_PUBLISH_PER_LOOP * mqttagenttestMULTI_TASK_TEST_NUM_TX_TASKS, 0 );
-            TEST_ASSERT_NOT_NULL( xTaskParams[ usIndex ].xSemaphore );
+            if( xSemaphoreCreateCountingStatic( mqttagenttestMULTI_TASK_TEST_PUBLISH_PER_LOOP * mqttagenttestMULTI_TASK_TEST_NUM_TX_TASKS,
+                                                0, &( xTaskParams[ usIndex ].xSemaphore ) ) == NULL )
+            {
+                TEST_FAIL_MESSAGE( "Failed to create receive task semaphore." );
+            }
 
             /* Create topic for each Receive task. */
             MQTTtestAgentMultiTestRxParam[ usIndex ].usTopicLength =
@@ -547,16 +545,14 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
                           usIndex );
 
             /* Create Receive Task. When created, flag it for later deletion. */
-            xTaskParams[ usIndex ].xTaskCreated = pdFALSE;
-            xResult = xTaskCreate( prvMultiTaskTest_Rx_Task, /* The function that implements the task. */
-                                   "ClientTask",             /* Just a text name for the task to aid debugging. */
-                                   mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE,
-                                   &( xTaskParams[ usIndex ] ),
-                                   mqttagenttestMULTI_TASK_TEST_TASKS_PRIORITY,
-                                   &( xTaskParams[ usIndex ].xTaskHandle ) );
-            TEST_ASSERT_EQUAL_MESSAGE( pdPASS, xResult, "Task creation failed" );
-            /* Flag Task as created for later delete. */
-            xTaskParams[ usIndex ].xTaskCreated = pdTRUE;
+            xTaskParams[ usIndex ].xHandle = xTaskCreateStatic( prvMultiTaskTest_Rx_Task, /* The function that implements the task. */
+                                                                "ClientTask",             /* Just a text name for the task to aid debugging. */
+                                                                mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE,
+                                                                &( xTaskParams[ usIndex ] ),
+                                                                mqttagenttestMULTI_TASK_TEST_TASKS_PRIORITY,
+                                                                ( StackType_t * ) &( xTaskParams[ usIndex ].xTaskStack ),
+                                                                &( xTaskParams[ usIndex ].xTaskBuffer ) );
+            TEST_ASSERT_NOT_NULL_MESSAGE( xTaskParams[ usIndex ].xHandle, "Task creation failed" );
         }
 
         /* Create Transmit tasks. */
@@ -566,20 +562,18 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
             xTaskParams[ usIndex ].xStatus = pdFAIL;
             xTaskParams[ usIndex ].pucTransmittedData = pucTransmittedData;
 
-            xTaskParams[ usIndex ].xTaskCreated = pdFALSE;
-            xResult = xTaskCreate( prvMultiTaskTest_Tx_Task, /* The function that implements the task. */
-                                   "ClientTask",             /* Just a text name for the task to aid debugging. */
-                                   mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE,
-                                   &( xTaskParams[ usIndex ] ),
-                                   mqttagenttestMULTI_TASK_TEST_TASKS_PRIORITY,
-                                   &( xTaskParams[ usIndex ].xTaskHandle ) );
-            TEST_ASSERT_EQUAL_MESSAGE( pdPASS, xResult, "Task creation failed" );
-            /* Flag Task as created for later delete. */
-            xTaskParams[ usIndex ].xTaskCreated = pdTRUE;
+            xTaskParams[ usIndex ].xHandle = xTaskCreateStatic( prvMultiTaskTest_Tx_Task, /* The function that implements the task. */
+                                                                "ClientTask",             /* Just a text name for the task to aid debugging. */
+                                                                mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE,
+                                                                &( xTaskParams[ usIndex ] ),
+                                                                mqttagenttestMULTI_TASK_TEST_TASKS_PRIORITY,
+                                                                ( StackType_t * ) &( xTaskParams[ usIndex ].xTaskStack ),
+                                                                &( xTaskParams[ usIndex ].xTaskBuffer ) );
+            TEST_ASSERT_NOT_NULL_MESSAGE( xTaskParams[ usIndex ].xHandle, "Task creation failed" );
         }
 
         /* When all task reaches the sync group, then the test is complete. */
-        usEventMask = xEventGroupSync( xSyncEventGroup, /* The event group used for the rendezvous. */
+        usEventMask = xEventGroupSync( ( EventGroupHandle_t ) &xSyncEventGroup, /* The event group used for the rendezvous. */
                                        0,
                                        mqttagenttestMULTI_TASK_TEST_EVENT_MASK,
                                        mqttagenttestMULTI_TASK_TEST_COMPLETE_TIMEOUT_TICKS );
@@ -600,16 +594,10 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
     for( usIndex = 0; usIndex < mqttagenttestMULTI_TASK_TEST_NUM_TASKS; usIndex++ )
     {
         /* Check task has been created before deleting it. */
-        if( xTaskParams[ usIndex ].xTaskCreated == pdTRUE )
+        if( xTaskParams[ usIndex ].xHandle != NULL )
         {
-            vTaskDelete( xTaskParams[ usIndex ].xTaskHandle );
+            vTaskDelete( xTaskParams[ usIndex ].xHandle );
         }
-    }
-
-    /* Delete global group event. */
-    if( xSyncEventGroup != NULL )
-    {
-        vEventGroupDelete( xSyncEventGroup );
     }
 
     for( usIndex = 0; usIndex < mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS; usIndex++ )
@@ -618,16 +606,6 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
         {
             vEventGroupDelete( MQTTtestAgentMultiTestRxParam[ usIndex ].xSyncEventRx );
         }
-
-        if( xTaskParams[ usIndex ].xSemaphore != NULL )
-        {
-            vSemaphoreDelete( xTaskParams[ usIndex ].xSemaphore );
-        }
-    }
-
-    if( pucTransmittedData != NULL )
-    {
-        vPortFree( pucTransmittedData );
     }
 }
 
@@ -677,7 +655,7 @@ static void prvMultiTaskTest_Rx_Task( void * pvParameters )
     xUnSubscribeParams.pucTopic = xSubscribeParams.pucTopic;
     xUnSubscribeParams.usTopicLength = xSubscribeParams.usTopicLength;
 
-    MQTTtestAgentCbParam.xSemaphore = pxTcptestEchoClientsTaskParams->xSemaphore;
+    MQTTtestAgentCbParam.xSemaphore = ( SemaphoreHandle_t ) &( pxTcptestEchoClientsTaskParams->xSemaphore );
 
     /* Default is pass to avoid nesting. */
     xStatus = pdPASS;
@@ -742,7 +720,8 @@ static void prvMultiTaskTest_Rx_Task( void * pvParameters )
         /* Take the semaphore to ensure the message is Received. */
         for( xPubSubIndex = 0; xPubSubIndex < mqttagenttestMULTI_TASK_TEST_PUBLISH_PER_LOOP * mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS; xPubSubIndex++ )
         {
-            if( pdFALSE == xSemaphoreTake( pxTcptestEchoClientsTaskParams->xSemaphore, mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) )
+            if( pdFALSE == xSemaphoreTake( ( SemaphoreHandle_t ) &( pxTcptestEchoClientsTaskParams->xSemaphore ),
+                                           mqttagenttestMULTI_TASK_TEST_SYNC_TIMEOUT_TICKS ) )
             {
                 mqttagenttestFAILUREPRINTF( ( "%s: Timed out waiting for pub from Transmit tasks.\r\n", __FUNCTION__ ) );
                 xStatus = pdFAIL;
@@ -815,7 +794,7 @@ static void prvMultiTaskTest_Rx_Task( void * pvParameters )
     }
 
     pxTcptestEchoClientsTaskParams->xStatus = xStatus;
-    xEventGroupSync( xSyncEventGroup, /* The event group used for the rendezvous. */
+    xEventGroupSync( ( EventGroupHandle_t ) &xSyncEventGroup, /* The event group used for the rendezvous. */
                      ( 1 << usTaskTag ),
                      mqttagenttestMULTI_TASK_TEST_EVENT_MASK,
                      mqttagenttestMULTI_TASK_TEST_COMPLETE_TIMEOUT_TICKS );
@@ -925,7 +904,7 @@ static void prvMultiTaskTest_Tx_Task( void * pvParameters )
     }
 
     xTcptestEchoClientsTaskParams->xStatus = xStatus;
-    xEventGroupSync( xSyncEventGroup, /* The event group used for the rendezvous. */
+    xEventGroupSync( ( EventGroupHandle_t ) &xSyncEventGroup, /* The event group used for the rendezvous. */
                      ( 1 << xTcptestEchoClientsTaskParams->usTaskTag ),
                      mqttagenttestMULTI_TASK_TEST_EVENT_MASK,
                      mqttagenttestMULTI_TASK_TEST_COMPLETE_TIMEOUT_TICKS );

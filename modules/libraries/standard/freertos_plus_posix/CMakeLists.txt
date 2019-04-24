@@ -51,6 +51,7 @@ afr_module_sources(
         "${test_dir}/aws_test_posix_semaphore.c"
         "${test_dir}/aws_test_posix_stress.c"
         "${test_dir}/aws_test_posix_timer.c"
+        "${test_dir}/aws_test_posix_unistd.c"
         "${test_dir}/aws_test_posix_utils.c"
 )
 afr_module_dependencies(

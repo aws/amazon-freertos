@@ -62,15 +62,12 @@
  */
 #define _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER    0
 
-/* Rx and Tx time outs are used to ensure the sockets do not wait too long for
- * missing data. */
-static const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( 2000 );
-static const TickType_t xSendTimeOut = pdMS_TO_TICKS( 2000 );
-
 static IotNetworkServerInfoAfr_t _DEFENDER_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
 static IotNetworkCredentialsAfr_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
+#if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
 static Socket_t _createSocketToEchoServer();
+#endif
 
 static void _defenderTask( void * param );
 
@@ -97,17 +94,17 @@ int vStartDefenderDemo( bool awsIotMqttMode,
 
     /* Initialize the MQTT library. */
     mqttInitStatus = IotMqtt_Init();
-    
+
     if( mqttInitStatus != IOT_MQTT_SUCCESS )
     {
         status = EXIT_FAILURE;
     }
-   
+
     if( status == EXIT_SUCCESS )
     {
         _defenderTask(NULL);
     }
-    
+
     return status;
 }
 
@@ -189,7 +186,7 @@ static void _defenderTask( void * param )
     #endif
 
     IotLogInfo( "----Device Defender Demo End----.\r\n" );
-    
+
     vTaskDelete( NULL ); /* Delete this task. */
 }
 
@@ -230,11 +227,18 @@ static void _startDefender()
 
 /*-----------------------------------------------------------*/
 
+#if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
+
 static Socket_t _createSocketToEchoServer()
 {
     Socket_t socket;
     SocketsSockaddr_t echoServerAddress;
     int32_t error = 0;
+
+    /* Rx and Tx time outs are used to ensure the sockets do not wait too long for
+     * missing data. */
+    const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( 2000 );
+    const TickType_t xSendTimeOut = pdMS_TO_TICKS( 2000 );
 
     /* Echo requests are sent to the echo server.  The address of the echo
      * server is configured by the constants configECHO_SERVER_ADDR0 to
@@ -257,6 +261,8 @@ static Socket_t _createSocketToEchoServer()
 
     return socket;
 }
+
+#endif
 
 /*-----------------------------------------------------------*/
 

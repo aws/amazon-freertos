@@ -198,18 +198,13 @@ TEST( MQTT_Unit_Validate, ValidatePublish )
     publishInfo.payloadLength = 0;
 
     /* Negative QoS or QoS > 2. */
-    publishInfo.qos = -1;
+    publishInfo.qos = ( IotMqttQos_t ) -1;
     validateStatus = _IotMqtt_ValidatePublish( false, &publishInfo );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
-    publishInfo.qos = 3;
+    publishInfo.qos = ( IotMqttQos_t ) 3;
     validateStatus = _IotMqtt_ValidatePublish( false, &publishInfo );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
     publishInfo.qos = IOT_MQTT_QOS_0;
-
-    /* Negative retry limit. */
-    publishInfo.retryLimit = -1;
-    validateStatus = _IotMqtt_ValidatePublish( false, &publishInfo );
-    TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
     /* Positive retry limit with no period. */
     publishInfo.retryLimit = 1;
@@ -318,10 +313,10 @@ TEST( MQTT_Unit_Validate, ValidateSubscriptionList )
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
     /* One subscription with invalid QoS. */
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].qos = -1;
+    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].qos = ( IotMqttQos_t ) -1;
     validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].qos = 3;
+    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].qos = ( IotMqttQos_t ) 3;
     validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
     /* QoS is not validated for UNSUBSCRIBE. */

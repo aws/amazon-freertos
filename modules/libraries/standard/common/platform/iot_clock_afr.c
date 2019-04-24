@@ -27,6 +27,9 @@
 /* The config header is always included first. */
 #include "iot_config.h"
 
+/* Standard includes. */
+#include <stdio.h>
+
 /* Platform clock include. */
 #include "platform/iot_platform_types_afr.h"
 #include "platform/iot_clock.h"

@@ -26,6 +26,9 @@
 /* The config header is always included first. */
 #include "iot_config.h"
 
+/* Standard includes. */
+#include <stdio.h>
+
 /* Metrics include. */
 #include "platform/iot_metrics.h"
 

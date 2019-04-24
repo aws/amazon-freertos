@@ -454,21 +454,30 @@ static void _subscribePublishWait( IotMqttQos_t qos )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttNetworkInfo_t networkInfo = _networkInfo;
-    static IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
     IotSemaphore_t waitSem;
 
-    /* Set the serializer overrides. */
-    serializer = *_pMqttSerializer;
-    serializer.freePacket = _freePacket;
-    serializer.serialize.connect = _serializeConnect;
-    serializer.serialize.publish = _serializePublish;
-    serializer.serialize.puback = _serializePuback;
-    serializer.serialize.subscribe = _serializeSubscribe;
-    serializer.serialize.unsubscribe = _serializeUnsubscribe;
-    serializer.serialize.disconnect = _serializeDisconnect;
+    /* The serializer must be static so that it remains in scope for the lifetime
+     * of the MQTT connection (after this function returns). */
+    static IotMqttSerializer_t serializer = IOT_MQTT_SERIALIZER_INITIALIZER;
+
+    /* Initialize the serializer on the first run, when any function pointer
+     * in the serializer is NULL. */
+    if( serializer.freePacket == NULL )
+    {
+        serializer = *_pMqttSerializer;
+        serializer.freePacket = _freePacket;
+        serializer.serialize.connect = _serializeConnect;
+        serializer.serialize.publish = _serializePublish;
+        serializer.serialize.puback = _serializePuback;
+        serializer.serialize.subscribe = _serializeSubscribe;
+        serializer.serialize.unsubscribe = _serializeUnsubscribe;
+        serializer.serialize.disconnect = _serializeDisconnect;
+    }
+
+    /* Set the serializer function pointers. */
     networkInfo.pMqttSerializer = &serializer;
 
     /* Create the wait semaphore. */
@@ -699,7 +708,7 @@ TEST( MQTT_System, SubscribePublishAsync )
     IotMqttSubscription_t subscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
     IotMqttCallbackInfo_t callbackInfo = IOT_MQTT_CALLBACK_INFO_INITIALIZER;
-    _operationCompleteParams_t callbackParam = { 0 };
+    _operationCompleteParams_t callbackParam = { .expectedOperation = ( IotMqttOperationType_t ) 0 };
     IotSemaphore_t publishWaitSem;
 
     /* Initialize members of the operation callback info. */
@@ -1125,7 +1134,7 @@ TEST( MQTT_System, SubscribeCompleteReentrancy )
                 TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
                 /* Subscribe with a completion callback. */
-                subscription.qos = 1;
+                subscription.qos = IOT_MQTT_QOS_1;
                 subscription.pTopicFilter = IOT_TEST_MQTT_TOPIC_PREFIX "/Reentrancy";
                 subscription.topicFilterLength = ( uint16_t ) strlen( subscription.pTopicFilter );
                 subscription.callback.function = _publishReceived;

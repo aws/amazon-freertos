@@ -1631,12 +1631,6 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c">
       <Filter>modules\libraries\standard\serializer\src\cbor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\aws_test_serializer_cbor.c">
-      <Filter>modules\libraries\standard\serializer\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\aws_test_serializer_json.c">
-      <Filter>modules\libraries\standard\serializer\test</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\cmock\src\cmock.c">
       <Filter>modules\libraries\3rdparty\cmock</Filter>
     </ClCompile>
@@ -1696,6 +1690,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_validate.c">
       <Filter>modules\libraries\standard\mqtt\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\iot_test_serializer_cbor.c">
+      <Filter>modules\libraries\standard\serializer\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\iot_test_serializer_json.c">
+      <Filter>modules\libraries\standard\serializer\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_clock.c">
+      <Filter>modules\libraries\standard\common\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_threads.c">
+      <Filter>modules\libraries\standard\common\test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

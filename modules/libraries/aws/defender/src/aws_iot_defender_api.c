@@ -302,27 +302,40 @@ uint32_t AwsIotDefender_GetPeriod( void )
 
 const char * AwsIotDefender_strerror( AwsIotDefenderError_t error )
 {
-    /* The string returned if the parameter is invalid. */
-    static const char * pInvalidError = "INVALID ERROR";
-    /* Lookup table of Defender errors. */
-    static const char * pErrorNames[] =
-    {
-        "SUCCESS",          /* AWS_IOT_DEFENDER_SUCCESS */
-        "INLVALID INPUT",   /* AWS_IOT_DEFENDER_INVALID_INPUT */
-        "ALREADY STARTED",  /* AWS_IOT_DEFENDER_ALREADY_STARTED */
-        "PERIOD TOO SHORT", /* AWS_IOT_DEFENDER_PERIOD_TOO_SHORT */
-        "NO MEMORY",        /* AWS_IOT_DEFENDER_ERROR_NO_MEMORY */
-        "INTERNAL FAILURE"  /* AWS_IOT_DEFENDER_INTERNAL_FAILURE */
-    };
+    const char * pMessage = NULL;
 
-    /* Check that the parameter is valid. */
-    if( ( error < 0 ) ||
-        ( error >= ( sizeof( pErrorNames ) / sizeof( pErrorNames[ 0 ] ) ) ) )
+    switch( error )
     {
-        return pInvalidError;
+        case AWS_IOT_DEFENDER_SUCCESS:
+            pMessage = "SUCCESS";
+            break;
+
+        case AWS_IOT_DEFENDER_INVALID_INPUT:
+            pMessage = "INVALID INPUT";
+            break;
+
+        case AWS_IOT_DEFENDER_ALREADY_STARTED:
+            pMessage = "ALREADY STARTED";
+            break;
+
+        case AWS_IOT_DEFENDER_PERIOD_TOO_SHORT:
+            pMessage = "PERIOD TOO SHORT";
+            break;
+
+        case AWS_IOT_DEFENDER_ERROR_NO_MEMORY:
+            pMessage = "NO MEMORY";
+            break;
+
+        case AWS_IOT_DEFENDER_INTERNAL_FAILURE:
+            pMessage = "INTERNAL FAILURE";
+            break;
+
+        default:
+            pMessage = "INVALID STATUS";
+            break;
     }
 
-    return pErrorNames[ error ];
+    return pMessage;
 }
 
 /*-----------------------------------------------------------*/

@@ -323,7 +323,7 @@ static IotMqttError_t prvPublishMessage( void * pvClient,
                                             uint16_t usTopicLen,
                                             char * pcMsg,
                                             uint32_t ulMsgSize,
-                                            int eQOS );
+                                            IotMqttQos_t eQOS );
 
 /* Called when the OTA agent receives a file data block message. */
 
@@ -711,7 +711,7 @@ OTA_Err_t OTA_CheckForUpdate( void )
             usTopicLen,
             pcMsg,
             ulMsgLen,
-            1 );
+            IOT_MQTT_QOS_1 );
 
         if( eResult != IOT_MQTT_SUCCESS )
         {
@@ -1037,12 +1037,12 @@ static void prvUpdateJobStatus( OTA_FileContext_t * C,
 
     uint32_t ulTopicLen, ulNumBlocks, ulReceived, ulMsgSize;
     IotMqttError_t eResult;
-    uint8_t eQOS;
+    IotMqttQos_t eQOS;
     char pcMsg[ OTA_STATUS_MSG_MAX_SIZE ];
     char pcTopicBuffer[ OTA_MAX_TOPIC_LEN ];
 
     /* All job state transitions except streaming progress use QOS 1 since it is required to have status in the job document. */
-    eQOS = 1;
+    eQOS = IOT_MQTT_QOS_1;
 
     /* A message size of zero means don't publish anything. */
     ulMsgSize = 0UL;
@@ -1059,7 +1059,7 @@ static void prvUpdateJobStatus( OTA_FileContext_t * C,
                 if( ( ulReceived % OTA_UPDATE_STATUS_FREQUENCY ) == 0U ) /* Output a status update once in a while. */
                 {
                     /* Downgrade Progress updates to QOS 0 to avoid overloading MQTT buffers during active streaming. */
-                    eQOS = 0;
+                    eQOS = IOT_MQTT_QOS_0;
                     ulMsgSize = ( uint32_t ) snprintf( pcMsg, /*lint -e586 Intentionally using snprintf. */
                                                        sizeof( pcMsg ),
                                                        pcOTA_JobStatus_StatusTemplate,
@@ -1252,7 +1252,7 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                         ( uint16_t ) ulTopicLen,
                         &pcMsg[ 0 ],
                         ulMsgSizeToPublish,
-                        0 );
+                        IOT_MQTT_QOS_0 );
 
                     if( eResult != IOT_MQTT_SUCCESS )
                     {
@@ -2753,7 +2753,7 @@ static bool_t prvSubscribeToJobNotificationTopics( void )
 
     /* Clear subscription struct and set common parameters for job topics used by OTA. */
     memset( &stJobsSubscription, 0, sizeof( stJobsSubscription ) );
-    stJobsSubscription.qos = 1;
+    stJobsSubscription.qos = IOT_MQTT_QOS_1;
     stJobsSubscription.pTopicFilter = ( const char * ) pcJobTopic;         /* Point to local string storage. Built below. */
     stJobsSubscription.callback.pCallbackContext = ( void * ) eOTA_PubMsgType_Job;      /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stJobsSubscription.callback.function = prvOTAPublishCallback;
@@ -2816,7 +2816,7 @@ static bool_t prvSubscribeToDataStream( OTA_FileContext_t * C )
     IotMqttSubscription_t stOTAUpdateDataSubscription;
 
     memset( &stOTAUpdateDataSubscription, 0, sizeof( stOTAUpdateDataSubscription ) );
-    stOTAUpdateDataSubscription.qos = 0;
+    stOTAUpdateDataSubscription.qos = IOT_MQTT_QOS_0;
     stOTAUpdateDataSubscription.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
     stOTAUpdateDataSubscription.callback.pCallbackContext = ( void * ) eOTA_PubMsgType_Stream;            /*lint !e923 The publish callback context is implementing data hiding with a void* type.*/
     stOTAUpdateDataSubscription.callback.function = prvOTAPublishCallback;
@@ -2862,7 +2862,7 @@ static bool_t prvUnSubscribeFromDataStream( OTA_FileContext_t * C )
     bool_t bResult = pdFALSE;
     char pcOTA_RxStreamTopic[ OTA_MAX_TOPIC_LEN ];
 
-    stUnSub.qos = 0;
+    stUnSub.qos = IOT_MQTT_QOS_0;
 
     if( C != NULL )
     {
@@ -2912,7 +2912,7 @@ static void prvUnSubscribeFromJobNotificationTopic( void )
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
 
     /* Try to unsubscribe from the first of two job topics. */
-    stUnSub.qos = 0;
+    stUnSub.qos = IOT_MQTT_QOS_0;
     stUnSub.pTopicFilter = ( const char * ) pcJobTopic;         /* Point to local string storage. Built below. */
     stUnSub.topicFilterLength = ( uint16_t ) snprintf( pcJobTopic, /*lint -e586 Intentionally using snprintf. */
                                                        sizeof( pcJobTopic ),
@@ -2977,7 +2977,7 @@ static IotMqttError_t prvPublishMessage( void * const pvClient,
                                             uint16_t usTopicLen,
                                             char * pcMsg,
                                             uint32_t ulMsgSize,
-                                            int eQOS )
+                                            IotMqttQos_t eQOS )
 {
     IotMqttError_t eResult;
     IotMqttPublishInfo_t xPublishParams;
