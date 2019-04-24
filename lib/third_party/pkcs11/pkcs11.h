@@ -264,7 +264,9 @@ extern "C" {
 #define CK_PKCS11_FUNCTION_INFO(name) \
   __PASTE(CK_,name) name;
 
+#ifdef WIN32
 #pragma pack(push, 1)
+#endif
 
 struct CK_FUNCTION_LIST {
 
@@ -277,7 +279,9 @@ struct CK_FUNCTION_LIST {
 
 };
 
+#ifdef WIN32
 #pragma pack(pop)
+#endif 
 
 #undef CK_PKCS11_FUNCTION_INFO
 
