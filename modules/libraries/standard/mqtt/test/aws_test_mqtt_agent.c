@@ -550,7 +550,7 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
                                                                 mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE,
                                                                 &( xTaskParams[ usIndex ] ),
                                                                 mqttagenttestMULTI_TASK_TEST_TASKS_PRIORITY,
-                                                                ( StackType_t * const ) &( xTaskParams[ usIndex ].xTaskStack ),
+                                                                ( StackType_t * ) &( xTaskParams[ usIndex ].xTaskStack ),
                                                                 &( xTaskParams[ usIndex ].xTaskBuffer ) );
             TEST_ASSERT_NOT_NULL_MESSAGE( xTaskParams[ usIndex ].xHandle, "Task creation failed" );
         }
@@ -567,7 +567,7 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
                                                                 mqttagenttestMULTI_TASK_TEST_TASKS_STACK_SIZE,
                                                                 &( xTaskParams[ usIndex ] ),
                                                                 mqttagenttestMULTI_TASK_TEST_TASKS_PRIORITY,
-                                                                ( StackType_t * const ) &( xTaskParams[ usIndex ].xTaskStack ),
+                                                                ( StackType_t * ) &( xTaskParams[ usIndex ].xTaskStack ),
                                                                 &( xTaskParams[ usIndex ].xTaskBuffer ) );
             TEST_ASSERT_NOT_NULL_MESSAGE( xTaskParams[ usIndex ].xHandle, "Task creation failed" );
         }
