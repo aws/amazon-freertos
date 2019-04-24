@@ -252,6 +252,7 @@ const IotNetworkInterface_t IotNetworkBle =
 
 static const IotBleAttributeEventCallback_t _callbacks[ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] =
 {
+    NULL,
     _TXMesgCharCallback,
     _clientCharCfgDescrCallback,
     _RXMesgCharCallback,
@@ -317,7 +318,7 @@ static bool _sendNotification( IotBleDataTransferService_t * pService,
     resp.eventStatus = eBTStatusSuccess;
     resp.rspErrorStatus = eBTRspErrorNone;
 
-    if( IotBle_SendIndication( &resp, bleConnectionID, false ) == eBTStatusSuccess )
+    if(  IotBle_SendIndication( &resp, bleConnectionID, false ) == eBTStatusSuccess )
     {
         status = true;
     }
@@ -527,7 +528,6 @@ static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         {
              if( ( !pWriteParam->isPrep ) && ( pService->connection.receiveCallback != NULL ) )
              {
-           
                 result = _checkAndSizeReceiveBuffer( &recvBuffer, &bufferLength, &bufferOffset, pWriteParam->length );
 
                 if( result == true )
@@ -555,10 +555,6 @@ static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
                     resp.eventStatus = eBTStatusSuccess;
                 }
-            }
-            else
-            {
-                configPRINTF( ( "BLE data transfer receive failed, connection closed.\r\n" ) );
             }
 
             IotSemaphore_Post( &pService->connection.recvLock );
@@ -615,12 +611,6 @@ static void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
                 resp.eventStatus = eBTStatusSuccess;
             }
-            else
-            {
-                 configPRINTF( ( "BLE data transfer receive failed, connection closed.\r\n" ) );
-                
-            }
-
             IotSemaphore_Post( &pService->connection.recvLock );
         }
         else
@@ -709,7 +699,7 @@ static void _connectionCallback( BTStatus_t status,
         else
         {
             bleConnected = false;
-            configPRINTF(( "BLE disconnected, closing all active BLE data transfers.\r\n" ));
+            configPRINTF(( "BLE disconnected, closing all active BLE data transfer sessions.\r\n" ));
             for( id = 0; id < IOT_BLE_MAX_DATA_TRANSFER_SERVICES; id++ )
             {
                 _closeConnection( &_dataTransferServices[ id ] );
@@ -737,7 +727,6 @@ static void _MTUChangedCallback( uint16_t connId,
 
 bool IotBleDataTransferService_Init( IotBleDataTransferServiceID_t svcID )
 {
-    uint32_t svc;
     IotBleEventsCallbacks_t callback;
     BTStatus_t status = eBTStatusFail;
     bool ret = true;
@@ -776,11 +765,11 @@ bool IotBleDataTransferService_Init( IotBleDataTransferServiceID_t svcID )
     if( ret == true )
     {
         /* Initialize the GATT service */
-            _dataTransferServices[svcID].pGattServicePtr = &_BLEServices[svc];
-            _dataTransferServices[svcID].pGattServicePtr->pusHandlesBuffer = _handlesBuffer[svc];
+            _dataTransferServices[svcID].pGattServicePtr = &_BLEServices[svcID];
+            _dataTransferServices[svcID].pGattServicePtr->pusHandlesBuffer = _handlesBuffer[svcID];
             _dataTransferServices[svcID].pGattServicePtr->ucInstId = 0;
             _dataTransferServices[svcID].pGattServicePtr->xNumberOfAttributes = IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES;
-            _dataTransferServices[svcID].pGattServicePtr->pxBLEAttributes = (BTAttribute_t *) &_pAttributeTable[svc];
+            _dataTransferServices[svcID].pGattServicePtr->pxBLEAttributes = (BTAttribute_t *) &_pAttributeTable[svcID];
             _dataTransferServices[svcID].connection.pRecvBuffer = NULL;
             _dataTransferServices[svcID].connection.sendTimeout = pdMS_TO_TICKS( IOT_BLE_DATA_TRANSFER_SEND_TIMEOUT_DEFAULT_MS );;
             
@@ -825,7 +814,7 @@ bool IotBleDataTransferService_Init( IotBleDataTransferServiceID_t svcID )
                  status = IotBle_CreateService(_dataTransferServices[ svcID ].pGattServicePtr, (IotBleAttributeEventCallback_t *)_callbacks);
                  if (status != eBTStatusSuccess)
                  {
-                      configPRINTF(("Failed to create data transfer BLE service id: %d\r\n.", svcID ));
+                      configPRINTF(("Failed to create data transfer BLE service id: %d, error = %d\r\n.", svcID, status ));
                       ret = false;
                  }
                 else
@@ -852,8 +841,10 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
 
     if( pInfo->service < IOT_BLE_MAX_DATA_TRANSFER_SERVICES )
     {
+        /* FIXME: Remove delay after adding type:0 message */ 
+        vTaskDelay( pdMS_TO_TICKS( 3000 ));
         pService = &_dataTransferServices[ pInfo->service ];
-        if( ( bleConnected == true ) && ( pService->initialized == true ) &&
+        if( ( pService->initialized == true ) && ( bleConnected == true ) &&
             ( pService->connection.receiveCallback == NULL ) )
         {
             *pConnection = pService;
