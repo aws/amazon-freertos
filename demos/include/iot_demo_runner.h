@@ -26,9 +26,9 @@
 #ifndef _IOT_DEMO_RUNNER_H_
 #define _IOT_DEMO_RUNNER_H_
 
-/* Choose your demo here. By design only one demo can be selected at a time. If 
-    you choose more than one only the first choice will be run. If you require 
-    more than one demo to run at the same time you should create a combined 
+/* Choose your demo here. By design only one demo can be selected at a time. If
+    you choose more than one only the first choice will be run. If you require
+    more than one demo to run at the same time you should create a combined
     demo and run both the required demo tasks from your demo entry function  */
 
 #define   democonfigMQTTDemo_ENABLED
@@ -50,7 +50,7 @@ void DEMO_RUNNER_RunDemos( void );
     #define DEMO_entryFUNCTION                              RunMqttDemo
 #elif defined( democonfigSHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION                              RunShadowDemo
-#elif defined(democonfigBLE_MQTT_ECHO_DEMO_ENABLED) 
+#elif defined(democonfigBLE_MQTT_ECHO_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              RunBLEMqttEchoDemo
     #define DEMO_networkConnectedCallback                   BLEMqttEchoDemoNetworkConnectedCallback
     #define DEMO_networkDisconnectedCallback                BLEMqttEchoDemoNetworkDisconnectedCallback
@@ -65,7 +65,7 @@ void DEMO_RUNNER_RunDemos( void );
 #elif defined(democonfigTCP_ECHO_TASKS_SINGLE_ENABLED)
     #define DEMO_entryFUNCTION                              vStartTCPEchoClientTasks_SingleTasks
 #elif defined(democonfigMQTT_ECHO_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartMQTTEchoDemo  
+    #define DEMO_entryFUNCTION                              vStartMQTTEchoDemo
 #elif defined(democonfigDEFENDER_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartDefenderDemo
 #elif defined(democonfigPOSIX_DEMO_ENABLED)
@@ -75,7 +75,7 @@ void DEMO_RUNNER_RunDemos( void );
 #else
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "At least one demo should be enabled in the file iot_demo_runner.h"
-#endif 
+#endif
 
 
 #endif
