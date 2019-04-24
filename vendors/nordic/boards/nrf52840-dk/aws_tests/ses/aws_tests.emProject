@@ -221,6 +221,10 @@
                 <file file_name="../../../../../../modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_encoder.c" />
               </folder>
             </folder>
+            <folder Name="test">
+              <file file_name="../../../../../../modules/libraries/standard/serializer/test/iot_test_serializer_cbor.c" />
+              <file file_name="../../../../../../modules/libraries/standard/serializer/test/iot_test_serializer_json.c" />
+            </folder>
           </folder>
           <folder Name="freertos_plus_posix">
             <file file_name="../../../../../../modules/libraries/standard/freertos_plus_posix/CMakeLists.txt" />
@@ -313,6 +317,40 @@
               <file file_name="../../../../../../modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h" />
             </folder>
           </folder>
+          <configuration Name="Debug" build_suppress_warnings="Yes" />
+        </folder>
+      </folder>
+      <folder Name="ports">
+        <folder Name="ble">
+          <file file_name="../../../../../../modules/ports/ble/CMakeLists.txt" />
+          <file file_name="../../ports/ble/aws_ble_event_manager_config.h" />
+          <file file_name="../../ports/ble/aws_ble_gap_config.h" />
+          <file file_name="../../ports/ble/aws_ble_hal_common_gap.c" />
+          <file file_name="../../ports/ble/aws_ble_hal_dis.c" />
+          <file file_name="../../ports/ble/aws_ble_hal_dis.h" />
+          <file file_name="../../ports/ble/aws_ble_hal_gap.c" />
+          <file file_name="../../ports/ble/aws_ble_hal_gatt_server.c" />
+          <file file_name="../../ports/ble/aws_ble_hal_internals.h" />
+          <file file_name="../../../../../../modules/ports/ble/iot_ble_gap.c" />
+          <file file_name="../../../../../../modules/ports/ble/iot_ble_gatt.c" />
+          <folder Name="services">
+            <folder Name="device_information">
+              <file file_name="../../../../../../modules/ports/ble/services/device_information/iot_ble_device_information.c" />
+            </folder>
+            <folder Name="mqtt_ble">
+              <file file_name="../../../../../../modules/ports/ble/services/mqtt_ble/iot_ble_mqtt.c" />
+            </folder>
+          </folder>
+          <folder Name="test">
+            <file file_name="../../../../../../modules/ports/ble/test/aws_test_ble.c" />
+            <file file_name="../../../../../../modules/ports/ble/test/aws_test_ble_end_to_end.c" />
+          </folder>
+        </folder>
+        <folder Name="ota">
+          <file file_name="../../ports/ota/asn1utility.c" />
+          <file file_name="../../ports/ota/asn1utility.h" />
+          <file file_name="../../ports/ota/aws_ota_pal.c" />
+          <file file_name="../../ports/ota/aws_ota_pal_settings.h" />
         </folder>
       </folder>
     </folder>
@@ -578,39 +616,7 @@
           </folder>
         </folder>
       </folder>
-    </folder>
-    <folder Name="ports">
-      <folder Name="ble">
-        <file file_name="../../../../../../modules/ports/ble/CMakeLists.txt" />
-        <file file_name="../../ports/ble/aws_ble_event_manager_config.h" />
-        <file file_name="../../ports/ble/aws_ble_gap_config.h" />
-        <file file_name="../../ports/ble/aws_ble_hal_common_gap.c" />
-        <file file_name="../../ports/ble/aws_ble_hal_dis.c" />
-        <file file_name="../../ports/ble/aws_ble_hal_dis.h" />
-        <file file_name="../../ports/ble/aws_ble_hal_gap.c" />
-        <file file_name="../../ports/ble/aws_ble_hal_gatt_server.c" />
-        <file file_name="../../ports/ble/aws_ble_hal_internals.h" />
-        <file file_name="../../../../../../modules/ports/ble/iot_ble_gap.c" />
-        <file file_name="../../../../../../modules/ports/ble/iot_ble_gatt.c" />
-        <folder Name="services">
-          <folder Name="device_information">
-            <file file_name="../../../../../../modules/ports/ble/services/device_information/iot_ble_device_information.c" />
-          </folder>
-          <folder Name="mqtt_ble">
-            <file file_name="../../../../../../modules/ports/ble/services/mqtt_ble/iot_ble_mqtt.c" />
-          </folder>
-        </folder>
-        <folder Name="test">
-          <file file_name="../../../../../../modules/ports/ble/test/aws_test_ble.c" />
-          <file file_name="../../../../../../modules/ports/ble/test/aws_test_ble_end_to_end.c" />
-        </folder>
-      </folder>
-      <folder Name="ota">
-        <file file_name="../../ports/ota/asn1utility.c" />
-        <file file_name="../../ports/ota/asn1utility.h" />
-        <file file_name="../../ports/ota/aws_ota_pal.c" />
-        <file file_name="../../ports/ota/aws_ota_pal_settings.h" />
-      </folder>
+      <configuration Name="Debug" build_suppress_warnings="Yes" />
     </folder>
   </project>
   <configuration

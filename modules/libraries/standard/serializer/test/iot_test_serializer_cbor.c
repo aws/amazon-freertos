@@ -88,8 +88,7 @@ TEST_GROUP_RUNNER( Full_Serializer_CBOR )
 
 TEST( Full_Serializer_CBOR, Encoder_init_with_null_buffer )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObject = { 0 };
+    IotSerializerEncoderObject_t encoderObject = { .type = ( IotSerializerDataType_t ) 0 };
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.init( &encoderObject, NULL, 0 ) );
@@ -164,7 +163,7 @@ TEST( Full_Serializer_CBOR, Encoder_append_text_string )
 TEST( Full_Serializer_CBOR, Encoder_append_byte_string )
 {
     uint8_t inputBytes[] = "hello world";
-    size_t inputLength = strlen( inputBytes );
+    size_t inputLength = strlen( ( const char * ) inputBytes );
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.append( &_encoderObject, IotSerializer_ScalarByteString( inputBytes, inputLength ) ) );
@@ -187,7 +186,7 @@ TEST( Full_Serializer_CBOR, Encoder_append_byte_string )
 
     TEST_ASSERT_EQUAL( inputLength, outputLength );
 
-    TEST_ASSERT_EQUAL( 0, strcmp( inputBytes, outputBytes ) );
+    TEST_ASSERT_EQUAL( 0, strcmp( ( const char * ) inputBytes, ( const char * ) outputBytes ) );
 }
 
 TEST( Full_Serializer_CBOR, Encoder_open_a_scalar )

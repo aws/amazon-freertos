@@ -520,8 +520,8 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_decoder.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_encoder.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\aws_test_serializer_cbor.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\aws_test_serializer_json.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\iot_test_serializer_cbor.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\test\iot_test_serializer_json.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\tls\src\aws_tls.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\tls\test\aws_test_tls.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\utils\src\aws_system_init.c" />

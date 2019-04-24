@@ -82,8 +82,7 @@ TEST_GROUP_RUNNER( Full_Serializer_JSON )
 
 TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
 {
-    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
-    IotSerializerEncoderObject_t encoderObject = { 0 };
+    IotSerializerEncoderObject_t encoderObject = {.type = ( IotSerializerDataType_t ) 0 };
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
@@ -153,7 +152,7 @@ TEST( Full_Serializer_JSON, Encoder_append_byte_string )
 {
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
     uint8_t inputBytes[] = "hello world";
-    size_t inputLength = strlen( inputBytes );
+    size_t inputLength = strlen( ( const char * ) inputBytes );
 
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
@@ -174,7 +173,6 @@ TEST( Full_Serializer_JSON, Encoder_append_byte_string )
 TEST( Full_Serializer_JSON, Encoder_open_map )
 {
     IotSerializerEncoderObject_t mapObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
-    const char * pExpectedResult = "{\"key\":\"value\"}";
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &mapObject, 1 ) );
@@ -269,5 +267,5 @@ TEST( Full_Serializer_JSON, Encoder_map_nest_array )
 static void _verifyExpectedString( const char * pExpectedResult )
 {
     TEST_ASSERT_EQUAL( strlen( pExpectedResult ), _encoder.getEncodedSize( &_encoderObject, _buffer ) );
-    TEST_ASSERT_EQUAL( 0, strncmp( pExpectedResult, _buffer, strlen( pExpectedResult ) ) );
+    TEST_ASSERT_EQUAL( 0, strncmp( pExpectedResult, ( const char * ) _buffer, strlen( pExpectedResult ) ) );
 }

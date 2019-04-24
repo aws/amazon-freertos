@@ -2,6 +2,7 @@ afr_module(OPTIONAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -24,4 +25,19 @@ afr_module_dependencies(
         AFR::common
         3rdparty::tinycbor
         3rdparty::mbedtls
+)
+
+# Serializer test
+afr_test_module()
+
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/iot_test_serializer_cbor.c"
+        "${test_dir}/iot_test_serializer_json.c"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::serializer
 )
