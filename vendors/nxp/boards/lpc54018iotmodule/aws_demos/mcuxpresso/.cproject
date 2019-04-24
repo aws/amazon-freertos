@@ -91,45 +91,57 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.undef.symbol.564845545" name="Undefined symbols (-U)" superClass="gnu.c.compiler.option.preprocessor.undef.symbol" useByScannerDiscovery="false"/>
 								<option id="gnu.c.compiler.option.include.paths.1291608121" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/config_files}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/application_code/common_demos/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/application_code/nxp_code}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/aws/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/aws/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/aws/include/private}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/jsmn}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mbedtls/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/pkcs11}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/drivers}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/port/shields/gt202}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/port/shields}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/port/env/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/common_src/hcd}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/common_src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/common_src/stack_common}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/common_src/wmi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/custom_src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/custom_src/stack_custom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/include/AR6002/hw2.0/hw}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/include/AR6002/hw4.0/hw}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/include/AR6002}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/port}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/wifi_qca/port/drivers/flexcomm_freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/CMSIS/Include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/CMSIS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/usb/device/source/lpcip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/usb/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/osa}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/utilities/io}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/utilities/log}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/utilities/str}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/utilities}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/usb/device/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/middleware/usb/device/source}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/startup}&quot;"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/drivers"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/cmsis_drivers"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/common_src/hcd"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/common_src/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/common_src/stack_common"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/common_src/wmi"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/custom_src/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/custom_src/stack_custom"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/include/AR6002"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/include/AR6002/hw2.0/hw"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/port"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/port/boards/lpc54018iotmodule/freertos"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/port/boards/lpc54018iotmodule/freertos/gt202"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/port/drivers/flexcomm_freertos"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/wifi_qca/port/env/freertos"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/usb/device"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/usb/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/middleware/usb/osa"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/utilities"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/utilities/io"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/utilities/log"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/utilities/str"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../LPC54018/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/portable/CCS/ARM_CM3"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/config_files"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/application_code/nxp_code"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../demos/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/common/include/private"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/common/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/crypto/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/mqtt/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/provisioning/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/tls/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/utils/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/greengrass/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/shadow/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/pkcs11/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/secure_sockets/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/wifi/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../demos/network_manager"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/ble/include/private"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/mbedtls/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/pkcs11/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/jsmn"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/pkcs11"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.files.831986787" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.1594779853" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false"/>
@@ -242,7 +254,7 @@
 									<listOptionValue builtIn="false" value="power_hardabi"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1787958636" name="Library search path (-L)" superClass="gnu.c.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/third_party/mcu_vendor/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../LPC54018/mcuxpresso&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.ldflags.727423895" name="Linker flags" superClass="gnu.c.link.option.ldflags" useByScannerDiscovery="false"/>
 								<option id="gnu.c.link.option.other.761519065" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" useByScannerDiscovery="false" valueType="stringList">
@@ -278,11 +290,15 @@
 								<option id="com.crt.advproject.link.gcc.multicore.empty.1032111355" name="No Multicore options for this project" superClass="com.crt.advproject.link.gcc.multicore.empty" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.config.957454519" name="Obsolete (Config)" superClass="com.crt.advproject.link.config" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.store.1710896571" name="Obsolete (Store)" superClass="com.crt.advproject.link.store" useByScannerDiscovery="false"/>
+								<option id="com.crt.advproject.link.memory.load.image.692379884" superClass="com.crt.advproject.link.memory.load.image" value="" valueType="string"/>
+								<option id="com.crt.advproject.link.memory.data.601290888" superClass="com.crt.advproject.link.memory.data" value="" valueType="string"/>
+								<option id="com.crt.advproject.link.memory.sections.349754180" superClass="com.crt.advproject.link.memory.sections" valueType="stringList"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1585246154" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
+							<tool id="com.crt.advproject.tool.debug.debug.718878917" name="MCU Debugger" superClass="com.crt.advproject.tool.debug.debug"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
@@ -313,117 +329,121 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="com.crt.config">
-		<projectStorage>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#13;
-&lt;TargetConfig&gt;&#13;
-&lt;Properties property_3="NXP" property_4="LPC54018" property_count="5" version="70200"/&gt;&#13;
-&lt;infoList vendor="NXP"&gt;&lt;info chip="LPC54018" name="LPC54018"&gt;&lt;chip&gt;&lt;name&gt;LPC54018&lt;/name&gt;&#13;
-&lt;family&gt;LPC540xx&lt;/family&gt;&#13;
-&lt;vendor&gt;NXP&lt;/vendor&gt;&#13;
-&lt;memory can_program="true" id="Flash" is_ro="true" size="0" type="Flash"/&gt;&#13;
-&lt;memory id="RAM" size="0" type="RAM"/&gt;&#13;
-&lt;memoryInstance derived_from="Flash" driver="LPC540xx_SPIFI_GENERIC.cfx" edited="true" id="BOARD_FLASH" location="0x10000000" size="0x1000000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" edited="true" id="SRAMX" location="0x0" size="0x30000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" edited="true" id="SRAM_0_1_2_3" location="0x20000000" size="0x28000"/&gt;&#13;
-&lt;memoryInstance derived_from="RAM" edited="true" id="USB_RAM" location="0x40100000" size="0x2000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SYSCON" id="SYSCON" location="0x40000000"/&gt;&#13;
-&lt;peripheralInstance derived_from="IOCON" id="IOCON" location="0x40001000"/&gt;&#13;
-&lt;peripheralInstance derived_from="GINT0" id="GINT0" location="0x40002000"/&gt;&#13;
-&lt;peripheralInstance derived_from="GINT0" id="GINT1" location="0x40003000"/&gt;&#13;
-&lt;peripheralInstance derived_from="PINT" id="PINT" location="0x40004000"/&gt;&#13;
-&lt;peripheralInstance derived_from="INPUTMUX" id="INPUTMUX" location="0x40005000"/&gt;&#13;
-&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER0" location="0x40008000"/&gt;&#13;
-&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER1" location="0x40009000"/&gt;&#13;
-&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER2" location="0x40028000"/&gt;&#13;
-&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER3" location="0x40048000"/&gt;&#13;
-&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER4" location="0x40049000"/&gt;&#13;
-&lt;peripheralInstance derived_from="WWDT" id="WWDT" location="0x4000C000"/&gt;&#13;
-&lt;peripheralInstance derived_from="MRT0" id="MRT0" location="0x4000D000"/&gt;&#13;
-&lt;peripheralInstance derived_from="UTICK0" id="UTICK0" location="0x4000E000"/&gt;&#13;
-&lt;peripheralInstance derived_from="OTPC" id="OTPC" location="0x40015000"/&gt;&#13;
-&lt;peripheralInstance derived_from="RTC" id="RTC" location="0x4002C000"/&gt;&#13;
-&lt;peripheralInstance derived_from="RIT" id="RIT" location="0x4002D000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SMARTCARD0" id="SMARTCARD0" location="0x40036000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SMARTCARD0" id="SMARTCARD1" location="0x40037000"/&gt;&#13;
-&lt;peripheralInstance derived_from="ASYNC_SYSCON" id="ASYNC_SYSCON" location="0x40040000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPIFI0" id="SPIFI0" location="0x40080000"/&gt;&#13;
-&lt;peripheralInstance derived_from="EMC" id="EMC" location="0x40081000"/&gt;&#13;
-&lt;peripheralInstance derived_from="DMA0" id="DMA0" location="0x40082000"/&gt;&#13;
-&lt;peripheralInstance derived_from="LCD" id="LCD" location="0x40083000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USB0" id="USB0" location="0x40084000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SCT0" id="SCT0" location="0x40085000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM0" location="0x40086000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM1" location="0x40087000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM2" location="0x40088000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM3" location="0x40089000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM4" location="0x4008A000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM5" location="0x40096000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM6" location="0x40097000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM7" location="0x40098000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM8" location="0x40099000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM9" location="0x4009A000"/&gt;&#13;
-&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM10" location="0x4009F000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C0" location="0x40086000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C1" location="0x40087000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C2" location="0x40088000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C3" location="0x40089000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C4" location="0x4008A000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C5" location="0x40096000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C6" location="0x40097000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C7" location="0x40098000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C8" location="0x40099000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2C0" id="I2C9" location="0x4009A000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI0" location="0x40086000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI1" location="0x40087000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI2" location="0x40088000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI3" location="0x40089000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI4" location="0x4008A000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI5" location="0x40096000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI6" location="0x40097000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI7" location="0x40098000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI8" location="0x40099000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI9" location="0x4009A000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SPI0" id="SPI10" location="0x4009F000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART0" location="0x40086000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART1" location="0x40087000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART2" location="0x40088000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART3" location="0x40089000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART4" location="0x4008A000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART5" location="0x40096000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART6" location="0x40097000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART7" location="0x40098000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART8" location="0x40099000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USART0" id="USART9" location="0x4009A000"/&gt;&#13;
-&lt;peripheralInstance derived_from="GPIO" id="GPIO" location="0x4008C000"/&gt;&#13;
-&lt;peripheralInstance derived_from="DMIC0" id="DMIC0" location="0x40090000"/&gt;&#13;
-&lt;peripheralInstance derived_from="ENET" id="ENET" location="0x40092000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USBHSD" id="USBHSD" location="0x40094000"/&gt;&#13;
-&lt;peripheralInstance derived_from="CRC_ENGINE" id="CRC_ENGINE" location="0x40095000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2S0" id="I2S0" location="0x40097000"/&gt;&#13;
-&lt;peripheralInstance derived_from="I2S0" id="I2S1" location="0x40098000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SDIF" id="SDIF" location="0x4009B000"/&gt;&#13;
-&lt;peripheralInstance derived_from="CAN0" id="CAN0" location="0x4009D000"/&gt;&#13;
-&lt;peripheralInstance derived_from="CAN0" id="CAN1" location="0x4009E000"/&gt;&#13;
-&lt;peripheralInstance derived_from="ADC0" id="ADC0" location="0x400A0000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USBFSH" id="USBFSH" location="0x400A2000"/&gt;&#13;
-&lt;peripheralInstance derived_from="USBHSH" id="USBHSH" location="0x400A3000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SHA0" id="SHA0" location="0x400A4000"/&gt;&#13;
-&lt;peripheralInstance derived_from="ITM" id="ITM" location="0xE0000000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SystemControl" id="SystemControl" location="0xE000E000"/&gt;&#13;
-&lt;peripheralInstance derived_from="SysTick" id="SysTick" location="0xE000E010"/&gt;&#13;
-&lt;peripheralInstance derived_from="NVIC" id="NVIC" location="0xE000E100"/&gt;&#13;
-&lt;peripheralInstance derived_from="ETM" id="ETM" location="0xE0041000"/&gt;&#13;
-&lt;/chip&gt;&#13;
-&lt;processor&gt;&lt;name gcc_name="cortex-m4"&gt;Cortex-M4&lt;/name&gt;&#13;
-&lt;family&gt;Cortex-M&lt;/family&gt;&#13;
-&lt;/processor&gt;&#13;
-&lt;link href="LPC54018_internal_peripheral.xml" show="embed" type="simple"/&gt;&#13;
-&lt;/info&gt;&#13;
-&lt;/infoList&gt;&#13;
+		<projectStorage>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;TargetConfig&gt;
+&lt;Properties property_3="NXP" property_4="LPC54018" property_count="5" version="100300"/&gt;
+&lt;infoList vendor="NXP"&gt;
+&lt;info chip="LPC54018" name="LPC54018"&gt;
+&lt;chip&gt;
+&lt;name&gt;LPC54018&lt;/name&gt;
+&lt;family&gt;LPC540xx&lt;/family&gt;
+&lt;vendor&gt;NXP&lt;/vendor&gt;
+&lt;memory can_program="true" id="Flash" is_ro="true" size="0" type="Flash"/&gt;
+&lt;memory id="RAM" size="352" type="RAM"/&gt;
+&lt;memoryInstance derived_from="Flash" driver="LPC540xx_SPIFI_GENERIC.cfx" edited="true" id="BOARD_FLASH" location="0x10000000" size="0x1000000"/&gt;
+&lt;memoryInstance derived_from="RAM" edited="true" id="SRAMX" location="0x0" size="0x30000"/&gt;
+&lt;memoryInstance derived_from="RAM" edited="true" id="SRAM_0_1_2_3" location="0x20000000" size="0x28000"/&gt;
+&lt;memoryInstance derived_from="RAM" edited="true" id="USB_RAM" location="0x40100000" size="0x2000"/&gt;
+&lt;peripheralInstance derived_from="SYSCON" id="SYSCON" location="0x40000000"/&gt;
+&lt;peripheralInstance derived_from="IOCON" id="IOCON" location="0x40001000"/&gt;
+&lt;peripheralInstance derived_from="GINT0" id="GINT0" location="0x40002000"/&gt;
+&lt;peripheralInstance derived_from="GINT0" id="GINT1" location="0x40003000"/&gt;
+&lt;peripheralInstance derived_from="PINT" id="PINT" location="0x40004000"/&gt;
+&lt;peripheralInstance derived_from="INPUTMUX" id="INPUTMUX" location="0x40005000"/&gt;
+&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER0" location="0x40008000"/&gt;
+&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER1" location="0x40009000"/&gt;
+&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER2" location="0x40028000"/&gt;
+&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER3" location="0x40048000"/&gt;
+&lt;peripheralInstance derived_from="CTIMER0" id="CTIMER4" location="0x40049000"/&gt;
+&lt;peripheralInstance derived_from="WWDT" id="WWDT" location="0x4000C000"/&gt;
+&lt;peripheralInstance derived_from="MRT0" id="MRT0" location="0x4000D000"/&gt;
+&lt;peripheralInstance derived_from="UTICK0" id="UTICK0" location="0x4000E000"/&gt;
+&lt;peripheralInstance derived_from="OTPC" id="OTPC" location="0x40015000"/&gt;
+&lt;peripheralInstance derived_from="RTC" id="RTC" location="0x4002C000"/&gt;
+&lt;peripheralInstance derived_from="RIT" id="RIT" location="0x4002D000"/&gt;
+&lt;peripheralInstance derived_from="SMARTCARD0" id="SMARTCARD0" location="0x40036000"/&gt;
+&lt;peripheralInstance derived_from="SMARTCARD0" id="SMARTCARD1" location="0x40037000"/&gt;
+&lt;peripheralInstance derived_from="ASYNC-SYSCON" id="ASYNC-SYSCON" location="0x40040000"/&gt;
+&lt;peripheralInstance derived_from="SPIFI0" id="SPIFI0" location="0x40080000"/&gt;
+&lt;peripheralInstance derived_from="EMC" id="EMC" location="0x40081000"/&gt;
+&lt;peripheralInstance derived_from="DMA0" id="DMA0" location="0x40082000"/&gt;
+&lt;peripheralInstance derived_from="LCD" id="LCD" location="0x40083000"/&gt;
+&lt;peripheralInstance derived_from="USB0" id="USB0" location="0x40084000"/&gt;
+&lt;peripheralInstance derived_from="SCT0" id="SCT0" location="0x40085000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM0" location="0x40086000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM1" location="0x40087000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM2" location="0x40088000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM3" location="0x40089000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM4" location="0x4008A000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM5" location="0x40096000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM6" location="0x40097000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM7" location="0x40098000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM8" location="0x40099000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM9" location="0x4009A000"/&gt;
+&lt;peripheralInstance derived_from="FLEXCOMM0" id="FLEXCOMM10" location="0x4009F000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C0" location="0x40086000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C1" location="0x40087000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C2" location="0x40088000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C3" location="0x40089000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C4" location="0x4008A000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C5" location="0x40096000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C6" location="0x40097000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C7" location="0x40098000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C8" location="0x40099000"/&gt;
+&lt;peripheralInstance derived_from="I2C0" id="I2C9" location="0x4009A000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI0" location="0x40086000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI1" location="0x40087000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI2" location="0x40088000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI3" location="0x40089000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI4" location="0x4008A000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI5" location="0x40096000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI6" location="0x40097000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI7" location="0x40098000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI8" location="0x40099000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI9" location="0x4009A000"/&gt;
+&lt;peripheralInstance derived_from="SPI0" id="SPI10" location="0x4009F000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART0" location="0x40086000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART1" location="0x40087000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART2" location="0x40088000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART3" location="0x40089000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART4" location="0x4008A000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART5" location="0x40096000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART6" location="0x40097000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART7" location="0x40098000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART8" location="0x40099000"/&gt;
+&lt;peripheralInstance derived_from="USART0" id="USART9" location="0x4009A000"/&gt;
+&lt;peripheralInstance derived_from="GPIO" id="GPIO" location="0x4008C000"/&gt;
+&lt;peripheralInstance derived_from="DMIC0" id="DMIC0" location="0x40090000"/&gt;
+&lt;peripheralInstance derived_from="ENET" id="ENET" location="0x40092000"/&gt;
+&lt;peripheralInstance derived_from="USBHSD" id="USBHSD" location="0x40094000"/&gt;
+&lt;peripheralInstance derived_from="CRC-ENGINE" id="CRC-ENGINE" location="0x40095000"/&gt;
+&lt;peripheralInstance derived_from="I2S0" id="I2S0" location="0x40097000"/&gt;
+&lt;peripheralInstance derived_from="I2S0" id="I2S1" location="0x40098000"/&gt;
+&lt;peripheralInstance derived_from="SDIF" id="SDIF" location="0x4009B000"/&gt;
+&lt;peripheralInstance derived_from="CAN0" id="CAN0" location="0x4009D000"/&gt;
+&lt;peripheralInstance derived_from="CAN0" id="CAN1" location="0x4009E000"/&gt;
+&lt;peripheralInstance derived_from="ADC0" id="ADC0" location="0x400A0000"/&gt;
+&lt;peripheralInstance derived_from="USBFSH" id="USBFSH" location="0x400A2000"/&gt;
+&lt;peripheralInstance derived_from="USBHSH" id="USBHSH" location="0x400A3000"/&gt;
+&lt;peripheralInstance derived_from="SHA0" id="SHA0" location="0x400A4000"/&gt;
+&lt;peripheralInstance derived_from="ITM" id="ITM" location="0xE0000000"/&gt;
+&lt;peripheralInstance derived_from="SystemControl" id="SystemControl" location="0xE000E000"/&gt;
+&lt;peripheralInstance derived_from="SysTick" id="SysTick" location="0xE000E010"/&gt;
+&lt;peripheralInstance derived_from="NVIC" id="NVIC" location="0xE000E100"/&gt;
+&lt;peripheralInstance derived_from="ETM" id="ETM" location="0xE0041000"/&gt;
+&lt;/chip&gt;
+&lt;processor&gt;
+&lt;name gcc_name="cortex-m4"&gt;Cortex-M4&lt;/name&gt;
+&lt;family&gt;Cortex-M&lt;/family&gt;
+&lt;/processor&gt;
+&lt;link href="LPC54018_internal_peripheral.xml" show="embed" type="simple"/&gt;
+&lt;/info&gt;
+&lt;/infoList&gt;
 &lt;/TargetConfig&gt;</projectStorage>
 	</storageModule>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_LPC54018-IoT-Module</sdkName>
-		<sdkVersion>2.3.1</sdkVersion>
+		<sdkVersion>2.5.0</sdkVersion>
 		<sdkComponents>middleware.wifi_qca.lpc54018iotmodule.freertos.shields.gt202.LPC54018;middleware.wifi_qca.lpc54018iotmodule.freertos.shields.LPC54018;middleware.wifi_qca.freertos.LPC54018;middleware.freertos.LPC54018;middleware.wifi_qca.LPC54018;middleware.wifi_qca.freertos.drivers.flexcomm.LPC54018;platform.Include_common.LPC54018;platform.Include_core_cm4.LPC54018;platform.devices.LPC54018_CMSIS.LPC54018;platform.drivers.clock.LPC54018;platform.drivers.common.LPC54018;platform.drivers.reset.LPC54018;platform.drivers.flexcomm.LPC54018;platform.drivers.flexcomm_spi.LPC54018;platform.drivers.flexcomm_spi_dma.LPC54018;platform.drivers.lpc_dma.LPC54018;platform.drivers.pint.LPC54018;platform.drivers.inputmux.LPC54018;platform.drivers.inputmux_connections.LPC54018;platform.drivers.spifi.LPC54018;platform.drivers.lpc_iocon.LPC54018;middleware.usb.device_controller_ip3511hs.LPC54018;middleware.amazon_freertos.aws_iot.drivers_lpc54018.LPC54018;middleware.amazon_freertos.aws_iot.LPC54018;middleware.mbedtls.LPC54018;platform.drivers.rng.LPC54018;platform.drivers.sha.LPC54018;platform.devices.LPC54018_startup.LPC54018;platform.drivers.flexcomm_usart.LPC54018;platform.utilities.debug_console.LPC54018;platform.drivers.lpc_gpio.LPC54018;platform.drivers.emc.LPC54018;platform.utilities.assert.LPC54018;middleware.freertos.heap.heap_4.LPC54018;middleware.amazon_freertos.aws_iot.jsmn.LPC54018;middleware.amazon_freertos.aws_iot.shadow.LPC54018;middleware.amazon_freertos.aws_iot.secure_sockets_wifi_qca.LPC54018;middleware.amazon_freertos.aws_iot.wifi.LPC54018;platform.drivers.power.LPC54018;platform.drivers.powerlib.LPC54018;lpc54018iotmodule_aws_shadow_wifi_qspi_xip;</sdkComponents>
 		<boardId>lpc54018iotmodule</boardId>
 		<package>LPC54018JET180</package>

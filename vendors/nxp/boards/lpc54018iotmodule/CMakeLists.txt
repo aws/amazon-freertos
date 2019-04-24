@@ -129,6 +129,9 @@ set(usb_osa_src
 
 set(mcuxpresso_src
     ${lpc54018_dir}/mcuxpresso/startup_lpc54018.c
+    # Add two auxiliary link scripts 
+    ${lpc54018_dir}/mcuxpresso/linkscripts/data.ldt
+    ${lpc54018_dir}/mcuxpresso/linkscripts/main_text.ldt
 )
 
 set(utilities_src
@@ -287,6 +290,8 @@ add_executable(${exe_target}
     "${lpc54018_app_dir}/application_code/main.c"
     # TODO, It is unknown why hw_poll.c has to be included here
     "${lpc54018_ports_dir}/pkcs11/hw_poll.c"
+    # TODO, network manager should be put in a shared place
+    ${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c
 )
 
 target_link_libraries(
