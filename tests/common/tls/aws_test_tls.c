@@ -64,6 +64,7 @@ static const uint32_t tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM_LENGTH = sizeof( t
  */
 static const uint32_t tlstestCLIENT_BYOC_CERTIFICATE_PEM_LENGTH = sizeof( tlstestCLIENT_BYOC_CERTIFICATE_PEM );
 static const uint32_t tlstestCLIENT_BYOC_PRIVATE_KEY_PEM_LENGTH = sizeof( tlstestCLIENT_BYOC_PRIVATE_KEY_PEM );
+
 /*-----------------------------------------------------------*/
 
 TEST_GROUP( Full_TLS );
@@ -160,6 +161,10 @@ static void prvConnectWithProvisioning( ProvisioningParams_t * pxProvisioningPar
             TEST_ASSERT_LESS_THAN_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket connect succeeded while it was expected to fail." );
         }
     }
+    else
+    {
+    	TEST_FAIL();
+    }
 
     /* Make sure to close the socket. */
     if( TEST_PROTECT() )
@@ -171,11 +176,23 @@ static void prvConnectWithProvisioning( ProvisioningParams_t * pxProvisioningPar
             xSocketOpen = pdFALSE;
         }
     }
+    else
+    {
+    	TEST_FAIL();
+    }
 
-    /* Regardless of whatever failed above, re-provision the
-     * device with default RSA certs so that subsequent tests
-     * are not changed. */
-    vDevModeKeyProvisioning();
+    if (TEST_PROTECT())
+    {
+		/* Regardless of whatever failed above, re-provision the
+		 * device with default RSA certs so that subsequent tests
+		 * are not changed. */
+		vDevModeKeyProvisioning();
+    }
+    else
+    {
+    	TEST_FAIL();
+    }
+
 }
 /*-----------------------------------------------------------*/
 
