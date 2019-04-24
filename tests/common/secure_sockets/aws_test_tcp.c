@@ -353,19 +353,19 @@ static BaseType_t prvConnectHelper( Socket_t xSocket,
                                     Server_t xConn )
 {
     BaseType_t xResult = pdFAIL;
-    SocketsSockaddr_t xEchoServerAddress;
+    SocketsSockaddr_t xAddress;
 
     if( xConn == eSecure )
     {
-        xResult = prvSecureConnectHelper( xSocket, &xEchoServerAddress );
+        xResult = prvSecureConnectHelper( xSocket, &xAddress );
     }
     else if( xConn == eNonsecure )
     {
-        xResult = prvNonSecureConnectHelper( xSocket, &xEchoServerAddress );
+        xResult = prvNonSecureConnectHelper( xSocket, &xAddress );
     }
     else if( xConn == eAwsBroker )
     {
-        xResult = prvAwsIotBrokerConnectHelper( xSocket, &xEchoServerAddress );
+        xResult = prvAwsIotBrokerConnectHelper( xSocket, &xAddress );
     }
     else
     {
@@ -378,8 +378,8 @@ static BaseType_t prvConnectHelper( Socket_t xSocket,
         uint32_t ulInitialRetryPeriodMs = tcptestLOOP_DELAY_MS;
         BaseType_t xMaxRetries = tcptestRETRY_CONNECTION_TIMES;
         RETRY_EXPONENTIAL( xResult = SOCKETS_Connect( xSocket,
-                                                      &xEchoServerAddress,
-                                                      sizeof( xEchoServerAddress ) ),
+                                                      &xAddress,
+                                                      sizeof( xAddress ) ),
                            SOCKETS_ERROR_NONE,
                            ulInitialRetryPeriodMs,
                            xMaxRetries );
