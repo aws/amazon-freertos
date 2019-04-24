@@ -222,6 +222,11 @@
 			<locationURI>AFR_HOME/lib/crypto/aws_crypto.c</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/pkcs11/aws_pkcs11.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/lib/pkcs11/aws_pkcs11.c</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
