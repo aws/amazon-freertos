@@ -594,7 +594,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
     #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
         }
         else {
-            UART_PRINT("Invalid SSID ans/or Password, Could not connect\n\r");
+            UART_PRINT("Invalid SSID and/or Password, Could not connect\n\r");
             return -1;
         }
     #endif
