@@ -503,6 +503,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/pkcs11/portable/cypress/CYW943907AEVAL1F</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/pkcs11/aws_pkcs11.c</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/lib/pkcs11/aws_pkcs11.c</locationURI>
+		</link>
+		<link>
 			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
