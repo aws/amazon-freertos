@@ -98,11 +98,6 @@
 			<locationURI>BASE_DIR_ROOT/tests/cypress/CYW943907AEVAL1F/common/config_files/aws_mqtt_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_pkcs11_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/tests/cypress/CYW943907AEVAL1F/common/config_files/aws_pkcs11_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_secure_sockets_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/tests/cypress/CYW943907AEVAL1F/common/config_files/aws_secure_sockets_config.h</locationURI>
