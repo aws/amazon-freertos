@@ -60,6 +60,7 @@
 #define _NUM_SUBACK_PARAMS                    ( 4 )
 #define _NUM_UNSUBACK_PARAMS                  ( 3 )
 #define _NUM_DISCONNECT_PARAMS                ( 1 )
+#define _NUM_PINGREQUEST_PARAMS               ( 1 )
 
 const IotMqttSerializer_t IotBleMqttSerializer = {
     .serialize.connect       = IotBleMqtt_SerializeConnect,
@@ -68,6 +69,7 @@ const IotMqttSerializer_t IotBleMqttSerializer = {
     .serialize.puback        = IotBleMqtt_SerializePuback,
     .serialize.subscribe     = IotBleMqtt_SerializeSubscribe,
     .serialize.unsubscribe   = IotBleMqtt_SerializeUnsubscribe,
+    .serialize.pingreq       = IotBleMqtt_SerializePingreq,
     .serialize.disconnect    = IotBleMqtt_SerializeDisconnect,
     .freePacket              = IotBleMqtt_FreePacket,
     .getPacketType           = IotBleMqtt_GetPacketType,
@@ -76,7 +78,8 @@ const IotMqttSerializer_t IotBleMqttSerializer = {
     .deserialize.publish     = IotBleMqtt_DeserializePublish,
     .deserialize.puback      = IotBleMqtt_DeserializePuback,
     .deserialize.suback      = IotBleMqtt_DeserializeSuback,
-    .deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback
+    .deserialize.unsuback    = IotBleMqtt_DeserializeUnsuback,
+    .deserialize.pingresp    = IotBleMqtt_DeserializePingresp
 };
 
 /**
@@ -126,6 +129,10 @@ static IotSerializerError_t _serializeUnSubscribe( const IotMqttSubscription_t *
                                                uint16_t packetIdentifier );
 
 static IotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
+                                                size_t * const pSize );
+
+
+static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
                                                 size_t * const pSize );
 
 #if _LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
@@ -637,6 +644,53 @@ static IotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
     if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &disconnectMap );
+    }
+
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    {
+        if( pBuffer == NULL )
+        {
+            *pSize = IOT_BLE_MESG_ENCODER.getExtraBufferSizeNeeded( &encoderObj );
+        }
+        else
+        {
+            *pSize = IOT_BLE_MESG_ENCODER.getEncodedSize( &encoderObj, pBuffer );
+        }
+        IOT_BLE_MESG_ENCODER.destroy( &encoderObj );
+        error = IOT_SERIALIZER_SUCCESS;
+    }
+
+    return error;
+}
+
+static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
+                                                   size_t * const pSize )
+{
+    IotSerializerError_t error = IOT_SERIALIZER_SUCCESS;
+    IotSerializerEncoderObject_t encoderObj = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_STREAM;
+    IotSerializerEncoderObject_t pingRequest = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
+    IotSerializerScalarData_t data = { 0 };
+
+    error = IOT_BLE_MESG_ENCODER.init( &encoderObj, pBuffer, *pSize );
+
+    if( error == IOT_SERIALIZER_SUCCESS )
+    {
+        error = IOT_BLE_MESG_ENCODER.openContainer(
+                &encoderObj,
+                &pingRequest,
+                _NUM_PINGREQUEST_PARAMS );
+    }
+
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    {
+        data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
+        data.value.signedInt = IOT_BLE_MQTT_MSG_TYPE_PINGREQ;
+        error = IOT_BLE_MESG_ENCODER.appendKeyValue( &pingRequest, IOT_BLE_MQTT_MSG_TYPE, data );
+    }
+
+    if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
+    {
+        error = IOT_BLE_MESG_ENCODER.closeContainer( &encoderObj, &pingRequest );
     }
 
     if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
@@ -1398,14 +1452,68 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInt
 }
 
 IotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
-                                                       size_t * const pPacketSize )
+                                            size_t * const pPacketSize )
 {
-    return IOT_MQTT_NO_MEMORY;
+    uint8_t *pBuffer = NULL;
+	size_t bufLen = 0;
+	IotSerializerError_t error;
+	IotMqttError_t ret = IOT_MQTT_SUCCESS;
+
+	error = _serializePingRequest( NULL, &bufLen);
+	if( error != IOT_SERIALIZER_SUCCESS )
+	{
+	    IotLogError( "Failed to find serialized length of DISCONNECT message, error = %d", error );
+	    ret = IOT_MQTT_BAD_PARAMETER;
+	}
+
+	if( ret == IOT_MQTT_SUCCESS )
+	{
+	    pBuffer = IotMqtt_MallocMessage( bufLen );
+
+	    /* If Memory cannot be allocated log an error and return */
+	    if( pBuffer == NULL )
+	    {
+	        IotLogError( "Failed to allocate memory for DISCONNECT message." );
+	        ret = IOT_MQTT_NO_MEMORY;
+	    }
+	}
+
+
+	if( ret == IOT_MQTT_SUCCESS )
+	{
+	    error = _serializePingRequest( pBuffer, &bufLen );
+	    if( error != IOT_SERIALIZER_SUCCESS )
+	    {
+	        IotLogError( "Failed to serialize DISCONNECT message, error = %d", error );
+	        ret = IOT_MQTT_BAD_PARAMETER;
+	    }
+	}
+
+	if( ret == IOT_MQTT_SUCCESS )
+	{
+	    *pPingreqPacket = pBuffer;
+	    *pPacketSize = bufLen;
+	}
+	else
+	{
+	    if( pBuffer != NULL )
+	    {
+	        IotMqtt_FreeMessage( pBuffer );
+	    }
+
+	    *pPingreqPacket = NULL;
+	    *pPacketSize = 0;
+	}
+
+    return ret;
+
 }
 
 IotMqttError_t IotBleMqtt_DeserializePingresp( _mqttPacket_t * pPingresp )
 {
-    return IOT_MQTT_BAD_RESPONSE;
+    /* Ping Response for BLE contains only packet type field in CBOR, which is already decoded
+       in IotBleMqtt_GetPacketType() function. Returning IOT_MQTT_SUCCESS. */
+    return IOT_MQTT_SUCCESS;
 }
 
 void IotBleMqtt_FreePacket( uint8_t * pPacket )
