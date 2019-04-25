@@ -635,6 +635,11 @@
 			<locationURI>AFR_ROOT/lib/mqtt/aws_mqtt_lib.c</locationURI>
 		</link>
 		<link>
+			<name>src/lib/aws/pkcs11/aws_pkcs11.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/lib/pkcs11/aws_pkcs11.c</locationURI>
+		</link>
+		<link>
 			<name>src/lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
@@ -653,6 +658,11 @@
 			<name>src/lib/aws/tls/aws_tls.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/lib/tls/aws_tls.c</locationURI>
+		</link>
+		<link>
+			<name>src/lib/aws/utils/aws_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/lib/utils/aws_pki_utils.c</locationURI>
 		</link>
 		<link>
 			<name>src/lib/aws/utils/aws_system_init.c</name>
