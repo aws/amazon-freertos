@@ -164,6 +164,8 @@ extern CK_RV prvMbedTLS_Initialize( void );
 
 CK_RV C_Initialize( CK_VOID_PTR pvInitArgs )
 {
+    CK_RV xResult = CKR_OK;
+
     R_FLASH_Open();
 
 #if defined (BSP_MCU_RX63N) || (BSP_MCU_RX631) || (BSP_MCU_RX630)
@@ -181,9 +183,9 @@ CK_RV C_Initialize( CK_VOID_PTR pvInitArgs )
 
     R_FLASH_Close();
 
-    prvMbedTLS_Initialize();
+    xResult = prvMbedTLS_Initialize();
 
-    return CKR_OK;
+    return xResult;
 }
 
 /**
