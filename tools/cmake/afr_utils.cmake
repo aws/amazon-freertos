@@ -103,15 +103,16 @@ function(afr_glob_files arg_files)
     endif()
 
     set(__file_list "")
-    foreach(_glob_exp IN LISTS __glob_list)
+    foreach(__glob_exp IN LISTS __glob_list)
         file(
             ${__glob_mode} glob_result
             LIST_DIRECTORIES false
             CONFIGURE_DEPENDS
-            "${ARG_DIRECTORY}/${_glob_exp}"
+            "${ARG_DIRECTORY}/${__glob_exp}"
         )
         list(APPEND __file_list ${glob_result})
     endforeach()
+    list(REMOVE_DUPLICATES __file_list)
 
     # Set output variable.
     set(${arg_files} "${__file_list}" PARENT_SCOPE)
@@ -135,8 +136,8 @@ function(afr_glob_src arg_files)
     endif()
 
     set(__glob_list)
-    foreach(_ext IN LISTS __extensions)
-        list(APPEND __glob_list "*.${_ext}")
+    foreach(__ext IN LISTS __extensions)
+        list(APPEND __glob_list "*.${__ext}")
     endforeach()
 
     if(ARG_RECURSE)
