@@ -15,7 +15,7 @@ if(${AFR_TOOLCHAIN} STREQUAL "arm-gcc")
     include("mcuxpresso.cmake")
 elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar") 
     include("iar.cmake")
-else()
+elseif(NOT AFR_NON_BUILD_MODE)
     message( FATAL_ERROR "The toolchain is not supported." )
 endif()
 
