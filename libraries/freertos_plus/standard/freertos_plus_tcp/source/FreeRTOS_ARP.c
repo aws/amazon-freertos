@@ -589,29 +589,32 @@ void vARPGenerateRequestPacket( NetworkBufferDescriptor_t * const pxNetworkBuffe
 {
 ARPPacket_t *pxARPPacket;
 
-	pxARPPacket = ( ARPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
+	if( pxNetworkBuffer->xDataLength >= sizeof(ARPPacket_t) )
+	{
+		pxARPPacket = ( ARPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
 
-	/* memcpy the const part of the header information into the correct
-	location in the packet.  This copies:
-		xEthernetHeader.ulDestinationAddress
-		xEthernetHeader.usFrameType;
-		xARPHeader.usHardwareType;
-		xARPHeader.usProtocolType;
-		xARPHeader.ucHardwareAddressLength;
-		xARPHeader.ucProtocolAddressLength;
-		xARPHeader.usOperation;
-		xARPHeader.xTargetHardwareAddress;
-	*/
-	memcpy( ( void * ) pxARPPacket, ( void * ) xDefaultPartARPPacketHeader, sizeof( xDefaultPartARPPacketHeader ) );
-	memcpy( ( void * ) pxARPPacket->xEthernetHeader.xSourceAddress.ucBytes , ( void * ) ipLOCAL_MAC_ADDRESS, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
-	memcpy( ( void * ) pxARPPacket->xARPHeader.xSenderHardwareAddress.ucBytes, ( void * ) ipLOCAL_MAC_ADDRESS, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
+		/* memcpy the const part of the header information into the correct
+		location in the packet.  This copies:
+			xEthernetHeader.ulDestinationAddress
+			xEthernetHeader.usFrameType;
+			xARPHeader.usHardwareType;
+			xARPHeader.usProtocolType;
+			xARPHeader.ucHardwareAddressLength;
+			xARPHeader.ucProtocolAddressLength;
+			xARPHeader.usOperation;
+			xARPHeader.xTargetHardwareAddress;
+		*/
+		memcpy( ( void * ) pxARPPacket, ( void * ) xDefaultPartARPPacketHeader, sizeof( xDefaultPartARPPacketHeader ) );
+		memcpy( ( void * ) pxARPPacket->xEthernetHeader.xSourceAddress.ucBytes , ( void * ) ipLOCAL_MAC_ADDRESS, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
+		memcpy( ( void * ) pxARPPacket->xARPHeader.xSenderHardwareAddress.ucBytes, ( void * ) ipLOCAL_MAC_ADDRESS, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
 
-	memcpy( ( void* )pxARPPacket->xARPHeader.ucSenderProtocolAddress, ( void* )ipLOCAL_IP_ADDRESS_POINTER, sizeof( pxARPPacket->xARPHeader.ucSenderProtocolAddress ) );
-	pxARPPacket->xARPHeader.ulTargetProtocolAddress = pxNetworkBuffer->ulIPAddress;
+		memcpy( ( void* )pxARPPacket->xARPHeader.ucSenderProtocolAddress, ( void* )ipLOCAL_IP_ADDRESS_POINTER, sizeof( pxARPPacket->xARPHeader.ucSenderProtocolAddress ) );
+		pxARPPacket->xARPHeader.ulTargetProtocolAddress = pxNetworkBuffer->ulIPAddress;
 
-	pxNetworkBuffer->xDataLength = sizeof( ARPPacket_t );
+		pxNetworkBuffer->xDataLength = sizeof( ARPPacket_t );
 
-	iptraceCREATING_ARP_REQUEST( pxNetworkBuffer->ulIPAddress );
+		iptraceCREATING_ARP_REQUEST( pxNetworkBuffer->ulIPAddress );
+	}
 }
 /*-----------------------------------------------------------*/
 

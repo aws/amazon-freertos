@@ -20,5 +20,6 @@ void harness()
 
 	NetworkBufferDescriptor_t xNetworkBuffer2;
 	xNetworkBuffer2.pucEthernetBuffer = xBuffer;
+	xNetworkBuffer2.xDataLength = ucBUFFER_SIZE;
 	vARPGenerateRequestPacket( &xNetworkBuffer2 );
 }
