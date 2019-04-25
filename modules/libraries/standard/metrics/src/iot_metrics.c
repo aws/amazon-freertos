@@ -104,7 +104,7 @@ void IotMetrics_AddTcpConnection( IotMetricsTcpConnection_t * pTcpConnection )
 
                 /* Convert port and IP to host byte order. */
                 pNewTcpConnection->remotePort = SOCKETS_ntohs( pNewTcpConnection->remotePort );
-                pNewTcpConnection->remoteIp = SOCKETS_ntohs( pNewTcpConnection->remoteIp );
+                pNewTcpConnection->remoteIp = SOCKETS_ntohl( pNewTcpConnection->remoteIp );
 
                 /* Insert to the list. */
                 IotListDouble_InsertTail( &_connectionsList, &( pNewTcpConnection->link ) );

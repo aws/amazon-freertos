@@ -48,9 +48,6 @@
 #include "platform/iot_network.h"
 #include "platform/iot_network_afr.h"
 
-/* Cbor includes. */
-#include "cbor.h"
-
 /* Defender includes. */
 #include "aws_iot_defender.h"
 
@@ -269,21 +266,5 @@ static Socket_t _createSocketToEchoServer()
 static void _print( const uint8_t * pDataBuffer,
                     size_t dataSize )
 {
-    #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
-        CborParser cborParser;
-        CborValue cborValue;
-
-        cbor_parser_init(
-            pDataBuffer,
-            dataSize,
-            0,
-            &cborParser,
-            &cborValue );
-
-        /* output to standard out */
-        cbor_value_to_pretty( stdout, &cborValue );
-        IotLogInfo( "\r\n" );
-    #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
-        IotLogInfo( "%.*s\r\n", dataSize, pDataBuffer );
-    #endif /* if ( AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR ) */
+    IotLogInfo( "%.*s\r\n", dataSize, pDataBuffer );
 }
