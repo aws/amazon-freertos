@@ -434,7 +434,7 @@ void prvFindObjectTest( void )
 
     /* Try to find an object that has never been created. */
     xResult = xFindObjectWithLabelAndClass( xGlobalSession,
-                                            "This label doesn't exist",
+                                            ( const uint8_t * ) "This label doesn't exist",
                                             CKO_PUBLIC_KEY,
                                             &xTestObjectHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Incorrect error code finding object that doesn't exist" );
@@ -1151,7 +1151,7 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     if( TEST_PROTECT() )
     {
         lMbedTLSResult = mbedtls_pk_parse_key( ( mbedtls_pk_context * ) &xMbedPkContext,
-                                               cValidRSAPrivateKey,
+                                               ( const unsigned char * ) cValidRSAPrivateKey,
                                                sizeof( cValidRSAPrivateKey ),
                                                NULL,
                                                0 );
@@ -1442,7 +1442,7 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
 
     if( TEST_PROTECT() )
     {
-        lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext, cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
+        lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext, ( const unsigned char * ) cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
         TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to parse the imported ECDSA private key." );
 
         mbedtls_ecp_keypair * pxEcdsaContext = ( mbedtls_ecp_keypair * ) xEcdsaContext.pk_ctx;
@@ -1635,7 +1635,7 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
 
     /* Initialize the private key. */
     mbedtls_pk_init( &xPkContext );
-    lMbedResult = mbedtls_pk_parse_key( &xPkContext, cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
+    lMbedResult = mbedtls_pk_parse_key( &xPkContext, ( const unsigned char * ) cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
     TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Failed to parse valid ECDSA key." );
     /* Initialize the RNG. */
     mbedtls_entropy_init( &xEntropyContext );
@@ -1706,7 +1706,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
     size_t xLength = sizeof( xCertificateValueExpected );
     int lConversionReturn;
 
-    lConversionReturn = PKI_ConvertPEMToDER( cValidECDSACertificate,
+    lConversionReturn = PKI_ConvertPEMToDER( ( const unsigned char * ) cValidECDSACertificate,
                                              sizeof( cValidECDSACertificate ),
                                              xCertificateValueExpected,
                                              &xLength );
@@ -1969,7 +1969,7 @@ static void prvECGetAttributeValueMultiThreadTask( void * pvParameters )
     size_t xLength = sizeof( xCertificateValueExpected );
     int lConversionReturn;
 
-    lConversionReturn = PKI_ConvertPEMToDER( cValidECDSACertificate,
+    lConversionReturn = PKI_ConvertPEMToDER( ( const unsigned char * ) cValidECDSACertificate,
                                              sizeof( cValidECDSACertificate ),
                                              xCertificateValueExpected,
                                              &xLength );
@@ -2164,7 +2164,7 @@ TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
 
     if( TEST_PROTECT() )
     {
-        lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext, cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
+        lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext, ( const unsigned char * ) cValidECDSAPrivateKey, sizeof( cValidECDSAPrivateKey ), NULL, 0 );
         TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to parse the imported ECDSA private key." );
 
         pxEcdsaContext = ( mbedtls_ecp_keypair * ) xEcdsaContext.pk_ctx;

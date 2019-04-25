@@ -28,6 +28,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/secure_sockets/portable/freertos_plus_tcp \
         $(AMAZON_FREERTOS_LIB_DIR)/pkcs11/portable/espressif/esp32_devkitc_esp_wrover_kit \
         $(AMAZON_FREERTOS_LIB_DIR)/pkcs11/mbedtls \
+        $(AMAZON_FREERTOS_LIB_DIR)/pkcs11 \
         $(AMAZON_FREERTOS_ROOT_DIR)/demos/common/logging \
         $(AMAZON_FREERTOS_ROOT_DIR)/demos/common/devmode_key_provisioning \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source \
@@ -41,7 +42,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/includ
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
         $(AMAZON_FREERTOS_LIB_DIR)/third_party/jsmn \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/include/portable/espressif/esp32_devkitc_esp_wrover_kit \
-        $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor
+        $(AMAZON_FREERTOS_LIB_DIR)/third_party/tinycbor \
 
 COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/portable/BufferManagement/BufferAllocation_1.o \
         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread.o \

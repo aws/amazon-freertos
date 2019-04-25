@@ -116,29 +116,29 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
     {
         /* Translate from the PKCS#11 label to local storage file name. */
         if( 0 == memcmp( pcLabel,
-                         &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                         sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+                         pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                         strlen( (char*)pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
         {
             *pcFileName = pkcs11palFILE_NAME_CLIENT_CERTIFICATE;
             *pHandle = eAwsDeviceCertificate;
         }
         else if( 0 == memcmp( pcLabel,
-                              &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                              sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+                              pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                              strlen( (char*)pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
         {
             *pcFileName = pkcs11palFILE_NAME_KEY;
             *pHandle = eAwsDevicePrivateKey;
         }
         else if( 0 == memcmp( pcLabel,
-                              &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                              sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+                              pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                              strlen( (char*)pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
         {
             *pcFileName = pkcs11palFILE_NAME_KEY;
             *pHandle = eAwsDevicePublicKey;
         }
         else if( 0 == memcmp( pcLabel,
-                              &pkcs11configLABEL_CODE_VERIFICATION_KEY,
-                              sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
+                              pkcs11configLABEL_CODE_VERIFICATION_KEY,
+                              strlen( (char*)pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
         {
             *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
             *pHandle = eAwsCodeSigningKey;

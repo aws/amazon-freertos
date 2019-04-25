@@ -252,7 +252,7 @@ CK_RV prvMbedTLS_Initialize( void )
 
     if( xResult == CKR_OK )
     {
-        memset( &xP11Context, 0, sizeof( P11Context_t ) );
+        memset( &xP11Context, 0, sizeof( xP11Context ) );
         xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
 
         CRYPTO_Init();
@@ -507,7 +507,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         {
             if( 0 == memcmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
             {
-                prvFindObjectInListByLabel( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
 
                 if( xPalHandle != CK_INVALID_HANDLE )
                 {
@@ -516,7 +516,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             }
             else if( 0 == memcmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
             {
-                prvFindObjectInListByLabel( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
 
                 if( xPalHandle != CK_INVALID_HANDLE )
                 {
@@ -548,7 +548,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     {
         BaseType_t xResult = CK_TRUE;
 
-        if( 0 == memcmp( pucLabel, pkcs11configLABEL_JITP_CERTIFICATE, strlen( pkcs11configLABEL_JITP_CERTIFICATE ) ) )
+        if( 0 == memcmp( pucLabel, pkcs11configLABEL_JITP_CERTIFICATE, strlen( ( char * ) pkcs11configLABEL_JITP_CERTIFICATE ) ) )
         {
             if( NULL != keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM )
             {
@@ -559,7 +559,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                 PKCS11_PRINT( ( "ERROR: JITP Certificate not specified.\r\n" ) );
             }
         }
-        else if( 0 == memcmp( pucLabel, pkcs11configLABEL_ROOT_CERTIFICATE, strlen( pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
+        else if( 0 == memcmp( pucLabel, pkcs11configLABEL_ROOT_CERTIFICATE, strlen( ( char * ) pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
         {
             /* Use either Verisign or Starfield root CA,
              * depending on whether this is an ATS endpoint. */
@@ -574,7 +574,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         }
 
         #if ( pkcs11configOTA_SUPPORTED == 1 )
-            else if( 0 == memcmp( pucLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, strlen( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
+            else if( 0 == memcmp( pucLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, strlen( ( char * ) pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
             {
                 *ppucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM;
             }
@@ -767,7 +767,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
      */
     if( CKR_OK == xResult )
     {
-        pxSessionObj = ( P11SessionPtr_t ) pvPortMalloc( sizeof( P11Session_t ) ); /*lint !e9087 Allow casting void* to other types. */
+        pxSessionObj = ( P11SessionPtr_t ) pvPortMalloc( sizeof( struct P11Session ) ); /*lint !e9087 Allow casting void* to other types. */
 
         if( NULL == pxSessionObj )
         {
@@ -1035,11 +1035,11 @@ CK_RV prvGetExistingKeyComponent( mbedtls_pk_context * pxMbedContext,
 
     if( 0 == memcmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
-        xPalHandle = PKCS11_PAL_FindObject( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen );
+        xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen );
     }
     else if( 0 == memcmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
-        xPalHandle = PKCS11_PAL_FindObject( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen );
+        xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen );
     }
 
     if( xPalHandle != CK_INVALID_HANDLE )
@@ -1285,8 +1285,8 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     /* TODO: How long is a typical RSA key anyhow?  */
 #define MAX_LENGTH_KEY    3000
     mbedtls_pk_context xMbedContext;
-    int lDerKeyLength;
-    int lActualKeyLength;
+    int lDerKeyLength = 0;
+    int lActualKeyLength = 0;
     CK_BYTE_PTR pxDerKey = NULL;
     CK_RV xResult = CKR_OK;
     CK_KEY_TYPE xKeyType;
