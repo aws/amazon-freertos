@@ -21,7 +21,7 @@ set(basic_flags
 
 set(extra_flags
     --debug
-    #--silent
+    --silent
     -e
     --aeabi
     --thumb

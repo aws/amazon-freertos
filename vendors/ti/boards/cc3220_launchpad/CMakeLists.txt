@@ -45,11 +45,21 @@ afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/ti/boar
 afr_mcu_port(compiler)
 target_compile_definitions(
     AFR::compiler::mcu_port
-    INTERFACE ${compiler_defined_symbols}
+    INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
+)
+target_compile_definitions(
+    AFR::compiler::mcu_port
+    INTERFACE $<$<COMPILE_LANGUAGE:ASM>:${assembler_defined_symbols}>
 )
 target_compile_options(
     AFR::compiler::mcu_port
-    INTERFACE ${compiler_flags}
+    INTERFACE
+        $<$<COMPILE_LANGUAGE:C>:${compiler_flags}>
+)
+target_compile_options(
+    AFR::compiler::mcu_port
+    INTERFACE
+        $<$<COMPILE_LANGUAGE:ASM>:${assembler_flags}>
 )
 target_link_options(
     AFR::compiler::mcu_port
