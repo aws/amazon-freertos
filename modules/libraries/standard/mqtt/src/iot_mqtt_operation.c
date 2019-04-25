@@ -278,7 +278,7 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
         if( firstRetry == true )
         {
             /* Operation must be linked. */
-            IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
+            IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) == true );
 
             /* Transfer to pending response list. */
             IotListDouble_Remove( &( pOperation->link ) );
@@ -289,6 +289,10 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
         {
             _EMPTY_ELSE_MARKER;
         }
+    }
+    else
+    {
+        _EMPTY_ELSE_MARKER;
     }
 
     /* The references mutex only needs to be unlocked on the first retry, since
@@ -371,7 +375,7 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
         /* Clear the operation data. */
         ( void ) memset( pOperation, 0x00, sizeof( _mqttOperation_t ) );
 
-        /* Initialize the some members of the new operation. */
+        /* Initialize some members of the new operation. */
         pOperation->pMqttConnection = pMqttConnection;
         pOperation->u.operation.jobReference = 1;
         pOperation->u.operation.flags = flags;
@@ -443,6 +447,10 @@ IotMqttError_t _IotMqtt_CreateOperation( _mqttConnection_t * pMqttConnection,
         {
             _EMPTY_ELSE_MARKER;
         }
+    }
+    else
+    {
+        _EMPTY_ELSE_MARKER;
     }
 
     _IOT_FUNCTION_CLEANUP_END();
@@ -918,13 +926,13 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                /* A successfully scheduled PUBLISH retry is awaiting a response
+                 * from the network. */
+                networkPending = true;
             }
         }
         else
         {
-            IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-
             /* Decrement reference count to signal completion of send job. Check
              * if the operation should be destroyed. */
             if( waitable == true )
@@ -937,10 +945,11 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
             }
 
             /* If the operation should not be destroyed, transfer it from the
-             * pending processing to the pending response list. Do not transfer
-             * operations with retries. */
+             * pending processing to the pending response list. */
             if( destroyOperation == false )
             {
+                IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
+
                 /* Operation must be linked. */
                 IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) );
 
@@ -949,6 +958,8 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
                 IotListDouble_InsertHead( &( pMqttConnection->pendingResponse ),
                                           &( pOperation->link ) );
 
+                IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
+
                 /* This operation is now awaiting a response from the network. */
                 networkPending = true;
             }
@@ -956,8 +967,6 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
             {
                 _EMPTY_ELSE_MARKER;
             }
-
-            IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
         }
     }
     else
@@ -1220,18 +1229,8 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
         _EMPTY_ELSE_MARKER;
     }
 
-    /* For a waitable operation, post to the wait semaphore. */
-    if( waitable == true )
-    {
-        IotSemaphore_Post( &( pOperation->u.operation.notify.waitSemaphore ) );
-
-        IotLogDebug( "(MQTT connection %p, %s operation %p) Waitable operation "
-                     "notified of completion.",
-                     pOperation->pMqttConnection,
-                     IotMqtt_OperationType( pOperation->u.operation.type ),
-                     pOperation );
-    }
-    else
+    /* Schedule callback invocation for non-waitable operation. */
+    if( waitable == false )
     {
         /* Non-waitable operation should have job reference of 1. */
         IotMqtt_Assert( pOperation->u.operation.jobReference == 1 );
@@ -1252,11 +1251,17 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
                              IotMqtt_OperationType( pOperation->u.operation.type ),
                              pOperation );
 
-                /* A completed operation should not be linked. */
-                IotMqtt_Assert( IotLink_IsLinked( &( pOperation->link ) ) == false );
-
                 /* Place the scheduled operation back in the list of operations pending
                  * processing. */
+                if( IotLink_IsLinked( &( pOperation->link ) ) == true )
+                {
+                    IotListDouble_Remove( &( pOperation->link ) );
+                }
+                else
+                {
+                    _EMPTY_ELSE_MARKER;
+                }
+
                 IotListDouble_InsertHead( &( pMqttConnection->pendingProcessing ),
                                           &( pOperation->link ) );
             }
@@ -1275,14 +1280,34 @@ void _IotMqtt_Notify( _mqttOperation_t * pOperation )
             _EMPTY_ELSE_MARKER;
         }
     }
+    else
+    {
+        _EMPTY_ELSE_MARKER;
+    }
 
     /* Operations that weren't scheduled may be destroyed. */
     if( status == IOT_MQTT_SCHEDULING_ERROR )
     {
-        /* Decrement reference count of operations with no callback. */
+        /* Decrement reference count of operations not scheduled. */
         if( _IotMqtt_DecrementOperationReferences( pOperation, false ) == true )
         {
             _IotMqtt_DestroyOperation( pOperation );
+        }
+        else
+        {
+            _EMPTY_ELSE_MARKER;
+        }
+
+        /* Post to a waitable operation's semaphore. */
+        if( waitable == true )
+        {
+            IotLogDebug( "(MQTT connection %p, %s operation %p) Waitable operation "
+                         "notified of completion.",
+                         pOperation->pMqttConnection,
+                         IotMqtt_OperationType( pOperation->u.operation.type ),
+                         pOperation );
+
+            IotSemaphore_Post( &( pOperation->u.operation.notify.waitSemaphore ) );
         }
         else
         {
