@@ -4,7 +4,7 @@ if(AFR_NON_BUILD_MODE)
 endif()
 
 # C SDK MQTT demo
-afr_demo_module(mqtt_v4)
+afr_demo_module(mqtt)
 
 afr_set_demo_metadata(ID "mqtt_example")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates MQTT")
