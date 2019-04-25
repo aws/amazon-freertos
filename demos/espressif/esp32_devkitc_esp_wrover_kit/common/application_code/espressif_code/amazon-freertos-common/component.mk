@@ -37,8 +37,7 @@ COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-TCP/source/port
                         $(AMAZON_FREERTOS_LIB_DIR)/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_sched.o
 
 ifndef AMAZON_FREERTOS_ENABLE_UNIT_TEST
-COMPONENT_SRCDIRS += ../.. \
-    $(AMAZON_FREERTOS_DEMOS_DIR)/common/demo_runner \
+COMPONENT_SRCDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/common/demo_runner \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/shadow \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/mqtt \
     $(AMAZON_FREERTOS_DEMOS_DIR)/common/greengrass_connectivity \
