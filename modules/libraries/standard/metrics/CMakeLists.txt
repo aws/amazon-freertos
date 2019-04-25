@@ -1,4 +1,4 @@
-afr_module()
+afr_module(INTERNAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 

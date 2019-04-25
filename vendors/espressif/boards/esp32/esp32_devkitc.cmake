@@ -16,6 +16,4 @@ afr_set_board_metadata(IDE_CMakeBuildSystem_NAME "CMakeBuildSystem")
 afr_set_board_metadata(IDE_CMakeBuildSystem_COMPILER "GCC")
 afr_set_board_metadata(IDE_CMakeBuildSystem_RECOMMENDED "TRUE")
 
-afr_set_board_metadata(IDE_CMakeBuildSystem_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/espressif/esp32_devkitc_esp_wrover_kit/make")
-afr_set_board_metadata(DEMO_COMMON_LOCATION "${AFR_ROOT_DIR}/demos/espressif/esp32_devkitc_esp_wrover_kit/common")
-afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${AFR_ROOT_DIR}/lib/third_party/mcu_vendor/espressif")
+afr_set_board_metadata(IDE_CMakeBuildSystem_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/espressif/boards/esp32/aws_demos/make")

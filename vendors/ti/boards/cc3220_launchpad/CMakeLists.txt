@@ -26,10 +26,9 @@ afr_set_board_metadata(IDE_CCS_COMPILER "TI-ARM")
 afr_set_board_metadata(IDE_IAR_NAME "IAR Embedded Workbench")
 afr_set_board_metadata(IDE_IAR_COMPILER "IAR-ARM")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
-afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/ccs")
-afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/iar")
-afr_set_board_metadata(DEMO_COMMON_LOCATION "${AFR_ROOT_DIR}/demos/ti/cc3220_launchpad/common")
-afr_set_board_metadata(THIRD_PARTY_LIB_LOCATION "${AFR_ROOT_DIR}/lib/third_party/mcu_vendor/ti")
+
+afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/ti/boards/cc3220_launchpad/aws_demos/ccs")
+afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/ti/boards/cc3220_launchpad/aws_demos/iar")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings

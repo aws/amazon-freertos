@@ -5,7 +5,7 @@ afr_set_lib_metadata(DESCRIPTION "This library implements an abstraction layer f
 afr_set_lib_metadata(DISPLAY_NAME "Wi-Fi Management")
 afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
-afr_set_lib_metadata(IS_VISIBLE "false")
+afr_set_lib_metadata(IS_VISIBLE "true")
 
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
