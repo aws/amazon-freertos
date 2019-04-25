@@ -160,7 +160,6 @@ else()
     set(exe_target aws_demos)
     set(
         extra_exe_sources
-        "${AFR_DEMOS_DIR}/ble/iot_ble_numericComparison.c"
         "${AFR_DEMOS_DIR}/wifi_provisioning/aws_wifi_connect_task.c"
         ${NETWORK_MANAGER_SOURCES}
     )
