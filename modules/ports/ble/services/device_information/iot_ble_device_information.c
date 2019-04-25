@@ -317,12 +317,12 @@ void _deviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam
     if( pEventParam->xEventType == eBLERead )
     {
         
-        pData =  ( uint8_t * ) clientcredentialMQTT_BROKER_ENDPOINT + pEventParam->pParamRead->offset;
-        len = strlen( clientcredentialMQTT_BROKER_ENDPOINT ) - pEventParam->pParamRead->offset;
+        pData = ( uint8_t * ) clientcredentialMQTT_BROKER_ENDPOINT + pEventParam->pParamRead->offset;
+        length = strlen( clientcredentialMQTT_BROKER_ENDPOINT ) - pEventParam->pParamRead->offset;
         
         attrData.handle = pEventParam->pParamRead->attrHandle;
         attrData.pData = pData;
-        attrData.size = len;
+        attrData.size = length;
         resp.pAttrData = &attrData;
         resp.attrDataOffset = 0;
         resp.eventStatus = eBTStatusSuccess;
