@@ -812,6 +812,9 @@ uint32_t AwsIotNetworkManager_DisableNetwork( uint32_t networkTypes )
 {
     uint32_t disabled = AWSIOT_NETWORK_TYPE_NONE;
 
+	/* Unused parameter when no networks enabled */
+	( void )networkTypes;
+
 #if WIFI_ENABLED
     if( ( ( networkTypes & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI ) &&
            ( wifiNetwork.state != eNetworkStateUnknown ) )

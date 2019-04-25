@@ -321,6 +321,13 @@ int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
     IotMqttError_t xMqttInitStatus;
     bool bMqttInitialized  = false;
 
+	/* Unused parameters */
+	( void )awsIotMqttMode;
+	( void )pIdentifier;
+	( void )pNetworkServerInfo;
+	( void )pNetworkCredentialInfo;
+	( void )pNetworkInterface;
+
     if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
     {
         configPRINTF(( "There are no networks configured for the demo.\r\n" ));

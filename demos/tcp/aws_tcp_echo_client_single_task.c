@@ -163,6 +163,13 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     BaseType_t xX;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
 
+	/* Unused parameters */
+	( void )awsIotMqttMode;
+	( void )pIdentifier;
+	( void )pNetworkServerInfo;
+	( void )pNetworkCredentialInfo;
+	( void )pNetworkInterface;
+
     /* Create the echo client tasks. */
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
     {

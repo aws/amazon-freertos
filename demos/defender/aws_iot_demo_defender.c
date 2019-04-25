@@ -89,6 +89,13 @@ int vStartDefenderDemo( bool awsIotMqttMode,
     int status = EXIT_SUCCESS;
     IotMqttError_t mqttInitStatus;
 
+	/* Unused parameters */
+	( void ) awsIotMqttMode;
+	( void ) pIdentifier;
+	( void ) pNetworkServerInfo;
+	( void ) pNetworkCredentialInfo;
+	( void ) pNetworkInterface;
+		
     /* Initialize the MQTT library. */
     mqttInitStatus = IotMqtt_Init();
 

@@ -231,6 +231,13 @@ int vStartGreenGrassDiscoveryTask( bool awsIotMqttMode,
                  void * pNetworkCredentialInfo,
                  const IotNetworkInterface_t * pNetworkInterface )
 {
+	/* Unused parameters */
+	( void )awsIotMqttMode;
+	( void )pIdentifier;
+	( void )pNetworkServerInfo;
+	( void )pNetworkCredentialInfo;
+	( void )pNetworkInterface;
+
     prvDiscoverGreenGrassCore( NULL );
     return 0;
 }
