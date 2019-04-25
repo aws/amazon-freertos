@@ -118,8 +118,10 @@ $(NAME)_SOURCES :=  $(AMAZON_FREERTOS_LIB_PATH)lib/bufferpool/aws_bufferpool_sta
                     $(AMAZON_FREERTOS_LIB_PATH)lib/shadow/aws_shadow_json.c                              \
                     $(AMAZON_FREERTOS_LIB_PATH)lib/tls/aws_tls.c                                         \
                     $(AMAZON_FREERTOS_LIB_PATH)lib/utils/aws_system_init.c                               \
+                    $(AMAZON_FREERTOS_LIB_PATH)lib/utils/aws_pki_utils.c                                 \
                     $(AMAZON_FREERTOS_LIB_PATH)lib/wifi/portable/cypress/$(PLATFORM)/aws_wifi.c     \
                     $(AMAZON_FREERTOS_LIB_PATH)lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c \
+                    $(AMAZON_FREERTOS_LIB_PATH)lib/pkcs11/aws_pkcs11.c \
                     $(AMAZON_FREERTOS_LIB_PATH)lib/crypto/aws_crypto.c \
                     $(AMAZON_FREERTOS_LIB_PATH)lib/pkcs11/portable/cypress/$(PLATFORM)/aws_pkcs11_pal.c \
                     $(AMAZON_FREERTOS_LIB_PATH)lib/pkcs11/portable/cypress/$(PLATFORM)/hw_poll.c
