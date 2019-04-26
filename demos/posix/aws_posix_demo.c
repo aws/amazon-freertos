@@ -76,7 +76,6 @@
 
 /* Demo includes */
 #include "platform/iot_network.h"
-#include "aws_posix_demo.h"
 
 /* FreeRTOS+POSIX. */
 #include "FreeRTOS_POSIX/pthread.h"

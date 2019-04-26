@@ -5,3 +5,4 @@ set(
 )
 
 set(AFR_MANIFEST_BOARD_DIR "boards")
+

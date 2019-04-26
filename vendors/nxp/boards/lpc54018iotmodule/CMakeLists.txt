@@ -1,14 +1,22 @@
+# Set variables.
 set(lpc54018_dir "${AFR_VENDORS_DIR}/nxp/LPC54018")
 set(lpc54018iotmodule_dir "${AFR_VENDORS_DIR}/nxp/boards/lpc54018iotmodule")
 
 set(lpc54018_ports_dir "${lpc54018iotmodule_dir}/ports")
-set(lpc54018_demos_common_dir "${lpc54018iotmodule_dir}/aws_demos/common")
-set(lpc54018_tests_common_dir "${lpc54018iotmodule_dir}/aws_tests/common")
 
 if(AFR_IS_TESTING)
-    set(lpc54018_app_dir "${lpc54018_tests_common_dir}")
+    set(lpc54018_aws_dir "${lpc54018iotmodule_dir}/aws_tests")
 else()
-    set(lpc54018_app_dir "${lpc54018_demos_common_dir}")
+    set(lpc54018_aws_dir "${lpc54018iotmodule_dir}/aws_demos")
+endif()
+
+# Include IDE specific cmake file.
+if(${AFR_TOOLCHAIN} STREQUAL "arm-gcc")
+    include("mcuxpresso.cmake")
+elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar") 
+    include("iar.cmake")
+elseif(NOT AFR_NON_BUILD_MODE)
+    message( FATAL_ERROR "The toolchain is not supported." )
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -36,79 +44,49 @@ afr_set_board_metadata(IDE_MCUXpresso_RECOMMENDED "false")
 # -------------------------------------------------------------------------------------------------
 afr_mcu_port(compiler)
 
-# Defined symbols
-set(defined_symbols
-    __REDLIB__
-    MXL12835F
-    __USE_CMSIS
-    BOARD_DEBUG_UART_TYPE=DEBUG_CONSOLE_DEVICE_TYPE_USBCDC
-    IMG_BAUDRATE=96000000
-    XIP_IMAGE
-    BOARD_USE_VIRTUALCOM
-    USB_STACK_USE_DEDICATED_RAM=1
-    SDK_DEBUGCONSOLE=1
-    CPU_LPC54018JET180=1
-    PRINTF_FLOAT_ENABLE=0
-    USB_STACK_FREERTOS
-    USE_RTOS=1
-    FSL_RTOS_FREE_RTOS
-    A_LITTLE_ENDIAN
-    CR_INTEGER_PRINTF
-    USB_DEVICE_CONFIG_LPCIP3511HS=1
-    __MCUXPRESSO
-    DEBUG
-    SDK_OS_FREE_RTOS
-    CPU_LPC54018JET180_cm4
-    CPU_LPC54018JET180
-)
-
+# Compiler defined symbols.
 target_compile_definitions(
     AFR::compiler::mcu_port
-    INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${defined_symbols}>
+    INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${compiler_defined_symbols}>
 )
 
-set(common_flags "-mcpu=cortex-m4" "-mfpu=fpv4-sp-d16" "-mfloat-abi=hard" "-mthumb")
-
-set(c_flags "-std=gnu99" "-O0" "-fno-common" "-g" "-Wall" "-c" "-ffunction-sections" "-fdata-sections" "-ffreestanding" "-fno-builtin" "-fomit-frame-pointer")
-
-set(asm_flags "-c" "-x" "assembler-with-cpp")
-
-# Compiler flags
+# Compiler flags.
 target_compile_options(
     AFR::compiler::mcu_port
     INTERFACE
-        ${common_flags}
-        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
-        -specs=redlib.specs -MMD -MP
+        $<$<COMPILE_LANGUAGE:C>:${compiler_flags}>
 )
 
 # Assembler flags
 target_compile_options(
     AFR::compiler::mcu_port
     INTERFACE
-        ${common_flags}
-        $<$<COMPILE_LANGUAGE:ASM>:${asm_flags}>
+        $<$<COMPILE_LANGUAGE:ASM>:${assembler_flags}>
 )
 
 # Linker flags
 target_link_options(
     AFR::compiler::mcu_port
     INTERFACE
-        -nostdlib
-        "SHELL:-Xlinker -print-memory-usage" "SHELL:-Xlinker --gc-sections" "SHELL:-Xlinker -Map=aws_demos.map"
-        ${common_flags}
+        ${linker_flags}
 )
 
 target_link_directories(
     AFR::compiler::mcu_port
     INTERFACE
-         "${lpc54018_dir}/mcuxpresso"
+         "${link_directories}"
 )
 
 target_link_libraries(
     AFR::compiler::mcu_port
     INTERFACE
-        "${lpc54018_dir}/mcuxpresso/libpower_hardabi.a"
+        "${link_dependent_libs}"
+)
+
+target_include_directories(
+    AFR::compiler::mcu_port
+    INTERFACE
+        "${lpc54018_aws_dir}/common/config_files"
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -125,10 +103,6 @@ afr_glob_src(wifi_qca_src DIRECTORY "${lpc54018_dir}/middleware/wifi_qca" RECURS
 
 set(usb_osa_src
     ${lpc54018_dir}/middleware/usb/osa/usb_osa_freertos.c
-)
-
-set(mcuxpresso_src
-    ${lpc54018_dir}/mcuxpresso/startup_lpc54018.c
 )
 
 set(utilities_src
@@ -202,25 +176,23 @@ target_sources(
     INTERFACE
         ${lpc54018_src}
         ${drivers_src}
-        ${mcuxpresso_src}
         ${usb_device_src}
         ${usb_osa_src}
         ${wifi_qca_src}
         ${utilities_src}
-        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
-        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
+        # Compiler specific source files.
+        ${compiler_specific_src}
 )
 
 set(kernel_inc_dirs
     ${lpc54018_includes}
-    "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
-    "${AFR_KERNEL_DIR}/portable/CCS/ARM_CM3"
     "${AFR_KERNEL_DIR}/include"
-    "${lpc54018_app_dir}/config_files"
-    "${lpc54018_app_dir}/application_code/nxp_code"
+    "${lpc54018_aws_dir}/common/config_files"
+    "${lpc54018_aws_dir}/common/application_code/nxp_code"
     "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
-
+    # Compiler specific includes.
+    ${compiler_specific_include}
 )
 
 target_include_directories(
@@ -270,7 +242,7 @@ target_sources(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
-set(CMAKE_EXECUTABLE_SUFFIX ".axf")
+set(CMAKE_EXECUTABLE_SUFFIX ${executable_suffix})
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
@@ -278,15 +250,17 @@ else()
     set(exe_target aws_demos)
 endif()
 
-afr_glob_src(board_code_src DIRECTORY "${lpc54018_app_dir}/application_code/nxp_code")
-afr_glob_src(config_files_src DIRECTORY "${lpc54018_app_dir}/config_files")
+afr_glob_src(board_code_src DIRECTORY "${lpc54018_aws_dir}/common/application_code/nxp_code")
+afr_glob_src(config_files_src DIRECTORY "${lpc54018_aws_dir}/common/config_files")
 
 add_executable(${exe_target}
     ${board_code_src}
     ${config_files_src}
-    "${lpc54018_app_dir}/application_code/main.c"
+    "${lpc54018_aws_dir}/common/application_code/main.c"
     # TODO, It is unknown why hw_poll.c has to be included here
     "${lpc54018_ports_dir}/pkcs11/hw_poll.c"
+    # TODO, network manager should be put in a shared place
+    ${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c
 )
 
 target_link_libraries(
@@ -295,25 +269,3 @@ target_link_libraries(
         AFR::wifi
         AFR::utils
 )
-
-# TODO, Figure out how to generate those linker scripts.
-# file(COPY "${lpc54018_dir}/mcuxpresso/aws_demos_Debug.ld" DESTINATION . )
-# file(COPY "${lpc54018_dir}/mcuxpresso/aws_demos_Debug_memory.ld" DESTINATION . )
-# file(COPY "${lpc54018_dir}/mcuxpresso/aws_demos_Debug_library.ld" DESTINATION . )
-# target_link_options(
-#     ${exe_target}
-#     PRIVATE
-#         -T "aws_demos_Debug.ld"
-# )
-
-# find_program(gcc_objcopy arm-none-eabi-objcopy)
-
-# if(NOT gcc_objcopy)
-#     message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-# endif()
-
-# set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-# add_custom_command(
-#     TARGET ${exe_target} POST_BUILD
-#     COMMAND "${gcc_objcopy}" -v -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-# )

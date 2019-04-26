@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configurations XML_version="1.2" id="configurations_0">
-<configuration XML_version="1.2" id="Texas Instruments XDS110 USB Debug Probe_0">
+    <configuration XML_version="1.2" id="Texas Instruments XDS110 USB Debug Probe_0">
         <instance XML_version="1.2" desc="Texas Instruments XDS110 USB Debug Probe_0" href="connections/TIXDS110_Connection.xml" id="Texas Instruments XDS110 USB Debug Probe_0" xml="TIXDS110_Connection.xml" xmlpath="connections"/>
         <connection XML_version="1.2" id="Texas Instruments XDS110 USB Debug Probe_0">
             <instance XML_version="1.2" href="drivers/tixds510cs_dap.xml" id="drivers" xml="tixds510cs_dap.xml" xmlpath="drivers"/>

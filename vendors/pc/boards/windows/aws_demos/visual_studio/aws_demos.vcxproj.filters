@@ -178,12 +178,6 @@
     <Filter Include="modules\libraries\aws\shadow\src\private">
       <UniqueIdentifier>{d48530a2-5a99-480a-91c6-dcdc6b666406}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\libraries\standard\cbor">
-      <UniqueIdentifier>{7944f605-4296-4d80-bae6-ae3388585cc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="modules\libraries\standard\cbor\src">
-      <UniqueIdentifier>{2a949232-8646-4d48-8a2f-a96f27f2e4bb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\libraries\standard\common\logging">
       <UniqueIdentifier>{a5efa7c8-6140-4867-a211-de299aea29cf}</UniqueIdentifier>
     </Filter>
@@ -747,39 +741,6 @@
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\private\aws_iot_shadow_internal.h">
       <Filter>modules\libraries\aws\shadow\src\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_alloc.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_int.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_internals.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_iter.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_jump_table.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_map.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_mem.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_print.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_string.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_types.h">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\taskpool\private\iot_taskpool_internal.h">
       <Filter>modules\libraries\standard\common\taskpool\private</Filter>
     </ClInclude>
@@ -1304,30 +1265,6 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_shadow.c">
       <Filter>modules\libraries\aws\shadow\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor.c">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_alloc.c">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_int.c">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_iter.c">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_map.c">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_mem.c">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_print.c">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_string.c">
-      <Filter>modules\libraries\standard\cbor\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\logging\iot_logging.c">
       <Filter>modules\libraries\standard\common\logging</Filter>
     </ClCompile>
@@ -1484,29 +1421,14 @@
     <ClCompile Include="..\..\..\..\..\..\demos\demo_runner\iot_demo_runner.c">
       <Filter>demos\demo_runner</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\demos\mqtt\aws_hello_world.c">
-      <Filter>demos\mqtt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\demos\mqtt\aws_subscribe_publish_loop.c">
-      <Filter>demos\mqtt</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c">
       <Filter>demos\mqtt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c">
       <Filter>demos\shadow</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\demos\shadow\aws_shadow_lightbulb_on_off.c">
-      <Filter>demos\shadow</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c">
       <Filter>demos\greengrass_connectivity</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\demos\tcp\aws_simple_tcp_echo_server.c">
-      <Filter>demos\tcp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_separate_tasks.c">
-      <Filter>demos\tcp</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c">
       <Filter>demos\tcp</Filter>

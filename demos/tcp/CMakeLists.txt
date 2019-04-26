@@ -15,7 +15,6 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         # TODO, tcp echo client separate tasks is not supported in NXP
-        #"${CMAKE_CURRENT_LIST_DIR}/aws_tcp_echo_client_separate_tasks.c"
         "${CMAKE_CURRENT_LIST_DIR}/aws_tcp_echo_client_single_task.c"
         "${CMAKE_CURRENT_LIST_DIR}/aws_tcp_echo_client_single_tasks.h"
 )

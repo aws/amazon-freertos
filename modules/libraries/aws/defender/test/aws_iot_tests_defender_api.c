@@ -908,6 +908,8 @@ static void _verifyTcpConections( int total,
 
                     error = _Decoder.next( connIterator );
                     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS, error );
+
+                    _Decoder.destroy( &connMap );
                 }
 
                 va_end( valist );

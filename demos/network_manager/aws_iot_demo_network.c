@@ -78,43 +78,6 @@ static IotNetworkInterface_t xNetworkInterface =
 		.destroy = NULL
 };
 
-static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkContext, uint32_t ulNetworkTypes )
-{
-    uint32_t ulConnectedNetworks =
-            ( AwsIotNetworkManager_GetConnectedNetworks() & ulNetworkTypes );
-
-#if BLE_ENABLED
-    if( ( ulConnectedNetworks & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
-    {
-        if( prxCreateBLEConnection( pxNetworkContext ) == pdTRUE )
-        {
-            return AWSIOT_NETWORK_TYPE_BLE;
-        }
-    }
-#endif
-
-#if WIFI_ENABLED
-    if( ( ulConnectedNetworks & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
-    {
-        if( prxCreateSecureSocketConnection( pxNetworkContext ) == pdTRUE )
-        {
-            return AWSIOT_NETWORK_TYPE_WIFI;
-        }
-    }
-#endif
-
-#if ETH_ENABLED
-    if ( ( ulConnectedNetworks & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
-    {
-        if ( prxCreateSecureSocketConnection( pxNetworkContext ) == pdTRUE )
-        {
-            return AWSIOT_NETWORK_TYPE_ETH;
-        }
-    }
-#endif
-
-    return AWSIOT_NETWORK_TYPE_NONE;
-}
 
 #if WIFI_ENABLED || ETH_ENABLED
 static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext )
@@ -167,6 +130,45 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     _IOT_FUNCTION_CLEANUP_END();
 }
 #endif
+
+
+static uint32_t prxCreateNetworkConnection(MqttConnectionContext_t* pxNetworkContext, uint32_t ulNetworkTypes)
+{
+	uint32_t ulConnectedNetworks =
+		(AwsIotNetworkManager_GetConnectedNetworks() & ulNetworkTypes);
+
+#if BLE_ENABLED
+	if ((ulConnectedNetworks & AWSIOT_NETWORK_TYPE_BLE) == AWSIOT_NETWORK_TYPE_BLE)
+	{
+		if (prxCreateBLEConnection(pxNetworkContext) == pdTRUE)
+		{
+			return AWSIOT_NETWORK_TYPE_BLE;
+		}
+	}
+#endif
+
+#if WIFI_ENABLED
+	if ((ulConnectedNetworks & AWSIOT_NETWORK_TYPE_WIFI) == AWSIOT_NETWORK_TYPE_WIFI)
+	{
+		if (prxCreateSecureSocketConnection(pxNetworkContext) == pdTRUE)
+		{
+			return AWSIOT_NETWORK_TYPE_WIFI;
+		}
+	}
+#endif
+
+#if ETH_ENABLED
+	if ((ulConnectedNetworks & AWSIOT_NETWORK_TYPE_ETH) == AWSIOT_NETWORK_TYPE_ETH)
+	{
+		if (prxCreateSecureSocketConnection(pxNetworkContext) == pdTRUE)
+		{
+			return AWSIOT_NETWORK_TYPE_ETH;
+		}
+	}
+#endif
+
+	return AWSIOT_NETWORK_TYPE_NONE;
+}
 
 #if BLE_ENABLED
 static BaseType_t prxCreateBLEConnection( MqttConnectionContext_t *pxNetworkContext )

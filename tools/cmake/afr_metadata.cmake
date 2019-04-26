@@ -81,7 +81,7 @@ function(afr_set_metadata arg_metadata_type arg_metadata_name arg_metadata_val)
     set_property(${__scope} "${__scope_name}" PROPERTY ${__prop_name} "${arg_metadata_val}")
 
     string(TOLOWER "${arg_metadata_type}" arg_metadata_type)
-    set(__metadata_file "${AFR_METADATA_OUTPUT_DIR}/${arg_metadata_type}.txt")
+    set(__metadata_file "${AFR_METADATA_OUTPUT_DIR}/ocw/${arg_metadata_type}.txt")
     get_filename_component(__cmake_file_dir "${CMAKE_CURRENT_LIST_DIR}" NAME)
     file(APPEND "${__metadata_file}" "${__cmake_file_dir}###${arg_metadata_name}:::${arg_metadata_val}\n")
 endfunction()
@@ -136,26 +136,31 @@ function(afr_get_demo_metadata arg_out_var arg_metadata_name)
 endfunction()
 
 # TODO, this wrapper function is needed because we need to keep track of all CMakeListst.txt files.
-set(AFR_METADATA_CMAKE_FILES "${CMAKE_BINARY_DIR}/metadata/module_cmake_files.txt")
+set(AFR_METADATA_CMAKE_FILES "${AFR_METADATA_OUTPUT_DIR}/ocw/_cmake_files.txt")
 function(afr_add_subdirectory module_name)
   add_subdirectory("${module_name}")
   file(APPEND "${AFR_METADATA_CMAKE_FILES}" "${module_name}/CMakeLists.txt;")
 endfunction()
 
 function(afr_write_metadata)
-    set(3rdparty_list "")
-    set(afr_version_file "${AFR_METADATA_OUTPUT_DIR}/afr_version.txt")
-    set(module_sources_file "${AFR_METADATA_OUTPUT_DIR}/module_sources.txt")
-    set(module_dependencies_file "${AFR_METADATA_OUTPUT_DIR}/module_dependencies.txt")
-    set(metadata_file "${AFR_METADATA_OUTPUT_DIR}/modules.txt")
-    set(src_all "")
-    set(inc_all "")
+    set(ide_dir "${AFR_METADATA_OUTPUT_DIR}/ide")
+    set(ocw_dir "${AFR_METADATA_OUTPUT_DIR}/ocw")
+
+    set(afr_version_file "${ocw_dir}/afr_version.txt")
+    set(module_sources_file "${ocw_dir}/module_sources.txt")
+    set(module_dependencies_file "${ocw_dir}/module_dependencies.txt")
+    set(metadata_file "${ocw_dir}/modules.txt")
     file(APPEND "${afr_version_file}" "${AFR_VERSION}")
     file(APPEND "${module_dependencies_file}" "public_modules#${AFR_MODULES_PUBLIC}\n")
     file(APPEND "${module_dependencies_file}" "modules#${AFR_STATUS_MODULES_TO_BUILD}\n")
     file(APPEND "${module_dependencies_file}" "demos#${AFR_STATUS_DEMOS_ENABLED}\n")
     string(CONCAT disabledModules ${AFR_STATUS_MODULES_DISABLED_USER} , ${AFR_STATUS_MODULES_DISABLED_DEPS})
     file(APPEND "${module_dependencies_file}" "disabledModules#${disabledModules}\n")
+
+    set(3rdparty_list "")
+    set(src_all "")
+    set(src_ocw "")
+    set(inc_all "")
 
     foreach(module IN LISTS AFR_MODULES_ENABLED)
         # Skip kernel, we already got the metadata from other kernel modules.
@@ -191,6 +196,7 @@ function(afr_write_metadata)
                 list(APPEND 3rdparty_list ${dep})
             endif()
         endforeach()
+        list(REMOVE_DUPLICATES 3rdparty_list)
 
         list(APPEND src_all ${src_list})
         list(APPEND inc_all ${inc_list})
@@ -242,8 +248,11 @@ function(afr_write_metadata)
     endif()
 
     # Add third party data
-    list(REMOVE_DUPLICATES 3rdparty_list)
+    set(src_ocw ${src_all})
     foreach(3rdparty_target IN LISTS 3rdparty_list)
+        string(LENGTH "3rdparty::" len)
+        string(SUBSTRING "${3rdparty_target}" ${len} -1 3rdparty_name)
+        list(APPEND src_ocw "${AFR_3RDPARTY_DIR}/${3rdparty_name}")
         get_target_property(lib_type ${3rdparty_target} TYPE)
         if("${lib_type}" STREQUAL "INTERFACE_LIBRARY")
             set(prop_prefix "INTERFACE_")
@@ -260,18 +269,43 @@ function(afr_write_metadata)
         endif()
     endforeach()
 
+    # Append CMake files for OCW.
+    file(READ "${ocw_dir}/_cmake_files.txt" cmake_files_list)
+    list(APPEND src_ocw ${cmake_files_list} "${AFR_ROOT_DIR}/PreLoad.cmake")
+
+    # Append extra files for OCW.
+    list(
+        APPEND src_ocw
+        "${AFR_ROOT_DIR}/LICENSE"
+        "${AFR_ROOT_DIR}/README.md"
+        "${AFR_ROOT_DIR}/CHANGELOG.md"
+        "${AFR_ROOT_DIR}/directories.txt"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
+    )
+
     # Write all sources and include dirs.
-    file(WRITE "${AFR_METADATA_OUTPUT_DIR}/source_files.txt" "${src_all}")
-    file(WRITE "${AFR_METADATA_OUTPUT_DIR}/include_files.txt" "${inc_all}")
+    string(REPLACE ";" "\n" src_ocw "${src_ocw}")
+    string(REPLACE ";" "\n" src_all "${src_all}")
+    string(REPLACE ";" "\n" inc_all "${inc_all}")
+    file(WRITE "${ocw_dir}/source_paths.txt" "${src_ocw}")
+    file(WRITE "${ide_dir}/source_paths.txt" "${src_all}")
+    file(WRITE "${ide_dir}/include_paths.txt" "${inc_all}")
     file(
         GENERATE
-        OUTPUT "${AFR_METADATA_OUTPUT_DIR}/source_files.txt"
-        INPUT "${AFR_METADATA_OUTPUT_DIR}/source_files.txt"
+        OUTPUT "${ocw_dir}/source_paths.txt"
+        INPUT "${ocw_dir}/source_paths.txt"
     )
     file(
         GENERATE
-        OUTPUT "${AFR_METADATA_OUTPUT_DIR}/include_files.txt"
-        INPUT "${AFR_METADATA_OUTPUT_DIR}/include_files.txt"
+        OUTPUT "${ide_dir}/source_paths.txt"
+        INPUT "${ide_dir}/source_paths.txt"
+    )
+    file(
+        GENERATE
+        OUTPUT "${ide_dir}/include_paths.txt"
+        INPUT "${ide_dir}/include_paths.txt"
     )
 endfunction()
 

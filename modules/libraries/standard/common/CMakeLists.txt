@@ -1,4 +1,4 @@
-afr_module()
+afr_module(INTERNAL)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")

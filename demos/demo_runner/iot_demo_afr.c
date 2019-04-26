@@ -412,6 +412,9 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     configPRINTF( ( "ERROR: stack overflow with task %s\r\n", pcTaskName ) );
     portDISABLE_INTERRUPTS();
 
+	/* Unused Parameters */
+	( void )xTask;
+
     /* Loop forever */
     for( ; ; )
     {

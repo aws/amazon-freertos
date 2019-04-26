@@ -15,7 +15,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -219,17 +219,6 @@
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\include\types\aws_iot_shadow_types.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_shadow_config_defaults.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\private\aws_iot_shadow_internal.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_alloc.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_int.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_internals.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_iter.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_jump_table.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_map.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_mem.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_print.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_string.h" />
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_types.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_appversion32.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_json_utils.h" />
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_logging_task.h" />
@@ -319,16 +308,11 @@
     <ClCompile Include="..\..\..\..\..\..\demos\demo_runner\iot_demo_afr.c" />
     <ClCompile Include="..\..\..\..\..\..\demos\demo_runner\iot_demo_runner.c" />
     <ClCompile Include="..\..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c" />
-    <ClCompile Include="..\..\..\..\..\..\demos\mqtt\aws_hello_world.c" />
-    <ClCompile Include="..\..\..\..\..\..\demos\mqtt\aws_subscribe_publish_loop.c" />
     <ClCompile Include="..\..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c" />
     <ClCompile Include="..\..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c" />
     <ClCompile Include="..\..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c" />
     <ClCompile Include="..\..\..\..\..\..\demos\ota\aws_iot_ota_update_demo.c" />
     <ClCompile Include="..\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c" />
-    <ClCompile Include="..\..\..\..\..\..\demos\shadow\aws_shadow_lightbulb_on_off.c" />
-    <ClCompile Include="..\..\..\..\..\..\demos\tcp\aws_simple_tcp_echo_server.c" />
-    <ClCompile Include="..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_separate_tasks.c" />
     <ClCompile Include="..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c" />
     <ClCompile Include="..\..\..\..\..\..\freertos_kernel\event_groups.c" />
     <ClCompile Include="..\..\..\..\..\..\freertos_kernel\list.c" />
@@ -464,14 +448,6 @@
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_parser.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_subscription.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_shadow.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_alloc.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_int.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_iter.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_map.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_mem.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_print.c" />
-    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\cbor\src\aws_cbor_string.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_init.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_json_utils.c" />
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\logging\iot_logging.c" />

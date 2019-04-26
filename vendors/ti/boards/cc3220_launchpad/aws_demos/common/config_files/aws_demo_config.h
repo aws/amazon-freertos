@@ -38,14 +38,14 @@
     #undef democonfigDEMO_STACKSIZE
     #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
     #undef democonfigDEMO_PRIORITY
-    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
+    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 )
 #endif
 
 #if defined(democonfigTCP_ECHO_TASKS_SINGLE_ENABLED)
     #undef democonfigDEMO_STACKSIZE
     #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
     #undef democonfigDEMO_PRIORITY
-    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
+    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 )
 #endif
 
 #if defined( democonfigBLE_MQTT_ECHO_DEMO_ENABLED )
@@ -75,7 +75,7 @@
  * to perform a TLS negotiation. */
 #define democonfigMQTT_TIMEOUT                         pdMS_TO_TICKS( 3000 )
 
-/* Send AWS IoT MQTT traffic encrypted to destination port 443. */
-#define democonfigMQTT_AGENT_CONNECT_FLAGS             ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
+/* Send AWS IoT MQTT traffic encrypted. */
+#define democonfigMQTT_AGENT_CONNECT_FLAGS             ( mqttagentREQUIRE_TLS )
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

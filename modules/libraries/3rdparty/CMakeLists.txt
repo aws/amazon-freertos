@@ -24,6 +24,7 @@ target_include_directories(
     afr_3rdparty_mbedtls
     PUBLIC
         "${AFR_3RDPARTY_DIR}/mbedtls/include"
+        "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
         "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls"
 )
 target_link_libraries(
@@ -48,7 +49,13 @@ target_include_directories(
 
 # tinycbor - CBOR implementation
 afr_3rdparty_module(tinycbor)
-afr_glob_files(tinycbor_src DIRECTORY "${AFR_3RDPARTY_DIR}/tinycbor" RECURSE)
+set(tinycbor_src
+    "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder.c"
+    "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder_close_container_checked.c"
+    "${AFR_3RDPARTY_DIR}/tinycbor/cborerrorstrings.c"
+    "${AFR_3RDPARTY_DIR}/tinycbor/cborparser.c"
+    "${AFR_3RDPARTY_DIR}/tinycbor/cborparser_dup_string.c"
+)
 target_sources(
     3rdparty::tinycbor INTERFACE
     ${tinycbor_src}

@@ -1,5 +1,13 @@
 afr_module(NAME ble)
 
+afr_set_lib_metadata(ID "ble")
+# Need to update from PM
+afr_set_lib_metadata(DESCRIPTION "This library implements an abstraction layer for Bluetooth Low Energy features such as setup, configuration, provisioning, security and power management")
+afr_set_lib_metadata(DISPLAY_NAME "Bluetooth Low Energy")
+afr_set_lib_metadata(CATEGORY "Connectivity")
+afr_set_lib_metadata(VERSION "1.0.0")
+afr_set_lib_metadata(IS_VISIBLE "true")
+
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")

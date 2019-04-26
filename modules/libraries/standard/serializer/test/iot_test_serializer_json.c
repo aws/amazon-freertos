@@ -189,6 +189,7 @@ TEST( Full_Serializer_JSON, Encoder_open_map )
 
 TEST( Full_Serializer_JSON, Encoder_open_array )
 {
+    uint8_t i = 0;
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
 
     int64_t numberArray[] = { 3, 2, 1 };
@@ -196,7 +197,7 @@ TEST( Full_Serializer_JSON, Encoder_open_array )
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainer( &_encoderObject, &arrayObject, 3 ) );
 
-    for( uint8_t i = 0; i < 3; i++ )
+    for( i = 0; i < 3; i++ )
     {
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                            _encoder.append( &arrayObject, IotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
@@ -235,6 +236,7 @@ TEST( Full_Serializer_JSON, Encoder_map_nest_map )
 
 TEST( Full_Serializer_JSON, Encoder_map_nest_array )
 {
+    uint8_t i = 0;
     IotSerializerEncoderObject_t mapObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_MAP;
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
 
@@ -246,7 +248,7 @@ TEST( Full_Serializer_JSON, Encoder_map_nest_array )
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                        _encoder.openContainerWithKey( &mapObject, "array", &arrayObject, 3 ) );
 
-    for( uint8_t i = 0; i < 3; i++ )
+    for( i = 0; i < 3; i++ )
     {
         TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,
                            _encoder.append( &arrayObject, IotSerializer_ScalarSignedInt( numberArray[ i ] ) ) );
