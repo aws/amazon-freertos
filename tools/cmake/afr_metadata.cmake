@@ -271,7 +271,19 @@ function(afr_write_metadata)
 
     # Append CMake files for OCW.
     file(READ "${ocw_dir}/_cmake_files.txt" cmake_files_list)
-    list(APPEND src_ocw ${cmake_files_list})
+    list(APPEND src_ocw ${cmake_files_list} "${AFR_ROOT_DIR}/PreLoad.cmake")
+
+    # Append extra files for OCW.
+    list(
+        APPEND src_ocw
+        "${AFR_ROOT_DIR}/LICENSE"
+        "${AFR_ROOT_DIR}/README.md"
+        "${AFR_ROOT_DIR}/CHANGELOG.md"
+        "${AFR_ROOT_DIR}/directories.txt"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
+        "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
+    )
 
     # Write all sources and include dirs.
     string(REPLACE ";" "\n" src_ocw "${src_ocw}")
