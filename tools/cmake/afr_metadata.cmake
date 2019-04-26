@@ -159,6 +159,7 @@ function(afr_write_metadata)
 
     set(3rdparty_list "")
     set(src_all "")
+    set(src_ocw "")
     set(inc_all "")
 
     foreach(module IN LISTS AFR_MODULES_ENABLED)
@@ -195,6 +196,7 @@ function(afr_write_metadata)
                 list(APPEND 3rdparty_list ${dep})
             endif()
         endforeach()
+        list(REMOVE_DUPLICATES 3rdparty_list)
 
         list(APPEND src_all ${src_list})
         list(APPEND inc_all ${inc_list})
@@ -246,8 +248,11 @@ function(afr_write_metadata)
     endif()
 
     # Add third party data
-    list(REMOVE_DUPLICATES 3rdparty_list)
+    set(src_ocw ${src_all})
     foreach(3rdparty_target IN LISTS 3rdparty_list)
+        string(LENGTH "3rdparty::" len)
+        string(SUBSTRING "${3rdparty_target}" ${len} -1 3rdparty_name)
+        list(APPEND src_ocw "${AFR_3RDPARTY_DIR}/${3rdparty_name}")
         get_target_property(lib_type ${3rdparty_target} TYPE)
         if("${lib_type}" STREQUAL "INTERFACE_LIBRARY")
             set(prop_prefix "INTERFACE_")
@@ -265,17 +270,26 @@ function(afr_write_metadata)
     endforeach()
 
     # Write all sources and include dirs.
-    file(WRITE "${ide_dir}/source_files.txt" "${src_all}")
-    file(WRITE "${ide_dir}/include_files.txt" "${inc_all}")
+    string(REPLACE ";" "\n" src_ocw "${src_ocw}")
+    string(REPLACE ";" "\n" src_all "${src_all}")
+    string(REPLACE ";" "\n" inc_all "${inc_all}")
+    file(WRITE "${ocw_dir}/source_paths.txt" "${src_ocw}")
+    file(WRITE "${ide_dir}/source_paths.txt" "${src_all}")
+    file(WRITE "${ide_dir}/include_paths.txt" "${inc_all}")
     file(
         GENERATE
-        OUTPUT "${ide_dir}/source_files.txt"
-        INPUT "${ide_dir}/source_files.txt"
+        OUTPUT "${ocw_dir}/source_paths.txt"
+        INPUT "${ocw_dir}/source_paths.txt"
     )
     file(
         GENERATE
-        OUTPUT "${ide_dir}/include_files.txt"
-        INPUT "${ide_dir}/include_files.txt"
+        OUTPUT "${ide_dir}/source_paths.txt"
+        INPUT "${ide_dir}/source_paths.txt"
+    )
+    file(
+        GENERATE
+        OUTPUT "${ide_dir}/include_paths.txt"
+        INPUT "${ide_dir}/include_paths.txt"
     )
 endfunction()
 
