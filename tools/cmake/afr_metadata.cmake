@@ -136,7 +136,7 @@ function(afr_get_demo_metadata arg_out_var arg_metadata_name)
 endfunction()
 
 # TODO, this wrapper function is needed because we need to keep track of all CMakeListst.txt files.
-set(AFR_METADATA_CMAKE_FILES "${AFR_METADATA_OUTPUT_DIR}/ocw/module_cmake_files.txt")
+set(AFR_METADATA_CMAKE_FILES "${AFR_METADATA_OUTPUT_DIR}/ocw/_cmake_files.txt")
 function(afr_add_subdirectory module_name)
   add_subdirectory("${module_name}")
   file(APPEND "${AFR_METADATA_CMAKE_FILES}" "${module_name}/CMakeLists.txt;")
@@ -268,6 +268,10 @@ function(afr_write_metadata)
             list(APPEND inc_all ${3rdparty_inc})
         endif()
     endforeach()
+
+    # Append CMake files for OCW.
+    file(READ "${ocw_dir}/_cmake_files.txt" cmake_files_list)
+    list(APPEND src_ocw ${cmake_files_list})
 
     # Write all sources and include dirs.
     string(REPLACE ";" "\n" src_ocw "${src_ocw}")
