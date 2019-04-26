@@ -4,8 +4,10 @@ set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
+    set(exe_target aws_tests)
 else()
     set(board_dir "${board_demos_dir}")
+    set(exe_target aws_demos)
 endif()
 
 # Include IDE specific cmake file.
@@ -164,12 +166,6 @@ target_sources(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".out")
 
-if(AFR_IS_TESTING)
-    set(exe_target aws_tests)
-else()
-    set(exe_target aws_demos)
-endif()
-
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/ti_code")
@@ -189,8 +185,7 @@ target_link_libraries(
         AFR::wifi
         AFR::utils
         AFR::posix::mcu_port
-        --xml_link_info="${exe_target}_linkInfo.xml"
-        "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
+        ${link_extra_flags}
 )
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
