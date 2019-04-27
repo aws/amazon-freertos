@@ -1,5 +1,10 @@
 # C SDK Shadow demo
-afr_demo_module(shadow_v4)
+afr_demo_module(shadow)
+
+afr_set_demo_metadata(ID "shadow_example")
+afr_set_demo_metadata(DESCRIPTION "An example that demonstrates Shadow")
+afr_set_demo_metadata(DISPLAY_NAME "Shadow Demo")
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE

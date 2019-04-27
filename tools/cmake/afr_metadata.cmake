@@ -286,9 +286,6 @@ function(afr_write_metadata)
     )
 
     # Write all sources and include dirs.
-    string(REPLACE ";" "\n" src_ocw "${src_ocw}")
-    string(REPLACE ";" "\n" src_all "${src_all}")
-    string(REPLACE ";" "\n" inc_all "${inc_all}")
     file(WRITE "${ocw_dir}/source_paths.txt" "${src_ocw}")
     file(WRITE "${ide_dir}/source_paths.txt" "${src_all}")
     file(WRITE "${ide_dir}/include_paths.txt" "${inc_all}")

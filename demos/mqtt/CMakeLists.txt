@@ -4,7 +4,11 @@ if(AFR_NON_BUILD_MODE)
 endif()
 
 # C SDK MQTT demo
-afr_demo_module(mqtt_v4)
+afr_demo_module(mqtt)
+
+afr_set_demo_metadata(ID "mqtt_example")
+afr_set_demo_metadata(DESCRIPTION "An example that demonstrates MQTT")
+afr_set_demo_metadata(DISPLAY_NAME "MQTT Demo")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -20,6 +24,10 @@ afr_module_dependencies(
 # MQTT-over-BLE demo.
 # Only build on boards that support BLE.
 afr_demo_module(mqtt_ble)
+
+afr_set_demo_metadata(ID "mqtt_ble_example")
+afr_set_demo_metadata(DESCRIPTION "An example that demonstrates MQTT over BLE")
+afr_set_demo_metadata(DISPLAY_NAME "BLE MQTT Demo")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
