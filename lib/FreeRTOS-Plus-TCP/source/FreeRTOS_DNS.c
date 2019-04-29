@@ -151,6 +151,11 @@ static uint32_t prvGetHostByName( const char *pcHostName, TickType_t xIdentifier
 	} DNSCacheRow_t;
 
 	static DNSCacheRow_t xDNSCache[ ipconfigDNS_CACHE_ENTRIES ];
+
+    void FreeRTOS_dnsclear()
+    {
+        memset( xDNSCache, 0x0, sizeof( xDNSCache ) );
+    }
 #endif /* ipconfigUSE_DNS_CACHE == 1 */
 
 #if( ipconfigUSE_LLMNR == 1 )
