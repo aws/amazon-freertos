@@ -279,13 +279,11 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 
 
     /* OTA job is completed. so delete the MQTT and network connection. */
-
-    IotMqtt_Disconnect( xConnection.xMqttConnection, 0 );
-    vMqttDemoDeleteNetworkConnection( &xConnection );
-
     if ( eEvent == eOTA_JobEvent_Activate )
     {
         configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
+        IotMqtt_Disconnect( xConnection.xMqttConnection, 0 );
+        vMqttDemoDeleteNetworkConnection( &xConnection );
         OTA_ActivateNewImage();
     }
     else if (eEvent == eOTA_JobEvent_Fail)
