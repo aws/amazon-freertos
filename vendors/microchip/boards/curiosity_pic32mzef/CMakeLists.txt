@@ -321,9 +321,15 @@ set(xc32_bin2hex ${XC32_BIN}/xc32-bin2hex)
 set(xc32_objcopy ${XC32_BIN}/xc32-objcopy)
 set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 
+# Locate microchip hexmate.
+set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
+find_program(hexmate_path hexmate PATHS ${MCHP_HEXMATE_PATH} PATH_SUFFIXES bin)
+if(NOT hexmate_path)
+    message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+endif()
+
 # These locations have to be generalized through the toolchain
 # We may have to re-build the bootloader hex file?
-set(hexmate_dir /Applications/microchip/xc8/v2.05/pic/bin) 
 set(bl_hex_file ${AFR_ROOT_DIR}/vendors/microchip/boards/curiosity_pic32mzef/bootloader/aws_bootloader.X/dist/pic32mz_ef_curiosity/production/aws_bootloader.X.production.hex)
 
 add_custom_command(
@@ -336,5 +342,5 @@ add_custom_command(
     COMMAND "echo" "Creating binary image"
     COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin -p MCHP-Curiosity-PIC32MZEF
     COMMAND "echo" "Running Hexmate to combine bootloader with image"
-#    COMMAND "${hexmate_dir}/hexmate" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
+    COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
 )
