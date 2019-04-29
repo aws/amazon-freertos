@@ -332,7 +332,7 @@ endif()
 
 # These locations have to be generalized through the toolchain
 # We may have to re-build the bootloader hex file?
-set(bl_hex_file ${CMAKE_CURRENT_LIST_DIR}/bootloader/aws_bootloader.X/dist/pic32mz_ef_curiosity/production/aws_bootloader.X.production.hex)
+set(bl_hex_file ${CMAKE_CURRENT_LIST_DIR}/bootloader/aws_bootloader.X.production.hex)
 
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
