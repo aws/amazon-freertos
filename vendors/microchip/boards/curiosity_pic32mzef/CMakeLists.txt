@@ -243,7 +243,7 @@ target_sources(
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/src/iot_tests_network.c")
+    set(extra_exe_sources "${AFR_TEST_DIR}/src/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
     set(
