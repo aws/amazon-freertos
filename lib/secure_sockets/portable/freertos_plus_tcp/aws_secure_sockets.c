@@ -526,58 +526,117 @@ BaseType_t SOCKETS_Init( void )
 }
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Create a static PKCS #11 crypto session handle to share across socket
+ * and FreeRTOS+TCP threads. Assume that two or more threads may race to be the
+ * first to initialize the static and handle that case accordingly.
+ */
 static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
                                          CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 {
-    CK_RV xResult = 0;
+    CK_RV xResult = CKR_OK;
     CK_C_GetFunctionList pxCkGetFunctionList = NULL;
     static CK_SESSION_HANDLE xPkcs11Session = 0;
     static CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
-    CK_ULONG ulCount = 1;
-    CK_SLOT_ID xSlotId = 0;
+    CK_BBOOL xNeedInit = CK_FALSE;
+    CK_SESSION_HANDLE xTempPkcs11Session = 0;
+    CK_FUNCTION_LIST_PTR pxTempPkcs11FunctionList = NULL;
+    CK_ULONG ulCount = 0;
+    CK_SLOT_ID *pxSlotIds = NULL;
 
+    /* Check if one-time initialization is needed.*/
     portENTER_CRITICAL();
-
     if( 0 == xPkcs11Session )
+    {
+        xNeedInit = CK_TRUE;
+    }
+    portEXIT_CRITICAL();
+
+    if( CK_TRUE == xNeedInit )
     {
         /* One-time initialization. */
 
-        /* Ensure that the PKCS#11 module is initialized. */
+        /* Ensure that the PKCS#11 module is initialized. We don't keep the
+        above lock here, since we don't want to make assumptions about hardware
+        requirements for accessing a crypto module. */
+
         if( 0 == xResult )
         {
             pxCkGetFunctionList = C_GetFunctionList;
-            xResult = pxCkGetFunctionList( &pxPkcs11FunctionList );
+            xResult = pxCkGetFunctionList( &pxTempPkcs11FunctionList );
         }
 
         if( 0 == xResult )
         {
-            xResult = pxPkcs11FunctionList->C_Initialize( NULL );
+            xResult = pxTempPkcs11FunctionList->C_Initialize( NULL );
         }
 
-        /* Get the default slot ID. */
+        /* Get the crypto token slot count. */
         if( ( 0 == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
         {
-            xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
-                                                           &xSlotId,
-                                                           &ulCount );
+            xResult = pxTempPkcs11FunctionList->C_GetSlotList( CK_TRUE,
+                                                               NULL,
+                                                               &ulCount );
+        }
+
+        /* Allocate memory to store the token slots. */
+        if( CKR_OK == xResult )
+        {
+            pxSlotIds = ( CK_SLOT_ID * )pvPortMalloc( sizeof( CK_SLOT_ID ) * ulCount );
+
+            if( NULL == pxSlotIds )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+        }
+
+        /* Get all of the available private key slot identities. */
+        if( CKR_OK == xResult )
+        {
+            xResult = pxTempPkcs11FunctionList->C_GetSlotList( CK_TRUE,
+                                                               pxSlotIds,
+                                                               &ulCount );
         }
 
         /* Start a session with the PKCS#11 module. */
         if( 0 == xResult )
         {
-            xResult = pxPkcs11FunctionList->C_OpenSession( xSlotId,
-                                                           CKF_SERIAL_SESSION,
-                                                           NULL,
-                                                           NULL,
-                                                           &xPkcs11Session );
+            xResult = pxTempPkcs11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
+                                                               CKF_SERIAL_SESSION,
+                                                               NULL,
+                                                               NULL,
+                                                               &xTempPkcs11Session );
         }
     }
 
-    portEXIT_CRITICAL();
+    if( CKR_OK == xResult )
+    {
+        portENTER_CRITICAL();
+        if( 0 == xPkcs11Session )
+        {
+            /* This is the first task to set the shared session. Save it.*/
+            xPkcs11Session = xTempPkcs11Session;
+            xTempPkcs11Session = 0;
+            pxPkcs11FunctionList = pxTempPkcs11FunctionList;
+            pxTempPkcs11FunctionList = 0;
+        }
 
-    /* Output the shared function pointers and session handle. */
-    *ppxFunctionList = pxPkcs11FunctionList;
-    *pxSession = xPkcs11Session;
+        /* Output the shared function pointers and session handle. */
+        *pxSession = xPkcs11Session;
+        *ppxFunctionList = pxPkcs11FunctionList;
+        portEXIT_CRITICAL();
+    }
+
+    if( 0 != xTempPkcs11Session )
+    {
+        /* This task raced the above task and lost. Free the temp session.*/
+        pxTempPkcs11FunctionList->C_CloseSession( xTempPkcs11Session );
+    }
+
+    if( NULL != pxSlotIds )
+    {
+        vPortFree( pxSlotIds );
+    }
 
     return xResult;
 }
