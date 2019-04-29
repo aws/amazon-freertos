@@ -45,6 +45,7 @@
 #include "aws_test_runner.h"
 #include "aws_test_tcp.h"
 #include "aws_test_utils.h"
+#include "aws_test_wifi.h"
 #include "aws_test_wifi_config.h"
 
 /* Testing configurations defintions. */
@@ -94,11 +95,6 @@
 #define testwifiINVALID_WIFI_SECURITY \
     eWiFiSecurityWEP   /* This must be a security type that is mismatched from the \
                         * valid AP configured in aws_clientcredentials.h. */
-
-/* Second set of valid Wi-Fi credentials for testing the connection loop. */
-#define testwifiWIFI_SSID        "Guest"
-#define testwifiWIFI_PASSWORD    "Dummy"
-#define testwifiWIFI_SECURITY    eWiFiSecurityOpen
 
 /* 14 total channels in the 2.4 GHz band. Set to the number of channels
  * available in your region. This can be configured in aws_test_wifi_config.h.
