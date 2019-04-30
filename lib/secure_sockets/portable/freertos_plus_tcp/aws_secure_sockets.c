@@ -532,7 +532,7 @@ BaseType_t SOCKETS_Init( void )
  * and FreeRTOS+TCP threads. Assume that two or more threads may race to be the
  * first to initialize the static and handle that case accordingly.
  */
-static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t *pxSessionLock,
+static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
                                          CK_SESSION_HANDLE * pxSession,
                                          CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 {
@@ -565,11 +565,8 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t *pxSessionLock,
         scheduler stopped here, since we don't want to make assumptions about hardware
         requirements for accessing a crypto module. */
 
-        if( CKR_OK == xResult )
-        {
-            pxCkGetFunctionList = C_GetFunctionList;
-            xResult = pxCkGetFunctionList( &pxPkcs11FunctionList );
-        }
+        pxCkGetFunctionList = C_GetFunctionList;
+        xResult = pxCkGetFunctionList( &pxPkcs11FunctionList );
 
         if( CKR_OK == xResult )
         {
@@ -643,11 +640,9 @@ uint32_t ulRand( void )
     {
         /* Request a sequence of cryptographically random byte values using
          * PKCS#11. */
-        xSemaphoreTake( xSessionLock, portMAX_DELAY );
         xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
                                                           ( CK_BYTE_PTR ) &ulRandomValue,
                                                           sizeof( ulRandomValue ) );
-        xSemaphoreGive( xSessionLock );
     }
 
     /* Check if any of the API calls failed. */
@@ -669,7 +664,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
                                              uint32_t ulDestinationAddress,
                                              uint16_t usDestinationPort )
 {
-    CK_RV xResult = 0;
+    CK_RV xResult = CKR_OK;
     SemaphoreHandle_t xSessionLock = NULL;
     CK_SESSION_HANDLE xPkcs11Session = 0;
     CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
@@ -677,23 +672,29 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     uint8_t ucSha256Result[ cryptoSHA256_DIGEST_BYTES ];
     CK_ULONG ulLength = sizeof( ucSha256Result );
     uint32_t ulNextSequenceNumber = 0;
-    static uint64_t ullKey = 0;
+    static uint64_t ullKey;
+    static CK_BBOOL xKeyIsInitialized = CK_FALSE;
 
     /* Acquire a crypto session handle. */
     xResult = prvSocketsGetCryptoSession( &xSessionLock,
                                           &xPkcs11Session,
                                           &pxPkcs11FunctionList );
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xSemaphoreTake( xSessionLock, portMAX_DELAY );
 
-        if( 0 == ullKey )
+        if( CK_FALSE == xKeyIsInitialized )
         {
             /* One-time initialization, per boot, of the random seed. */
             xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
                                                               ( CK_BYTE_PTR ) &ullKey,
                                                               sizeof( ullKey ) );
+
+            if( xResult == CKR_OK )
+            {
+                xKeyIsInitialized = CK_TRUE;
+            }
         }
 
         xSemaphoreGive( xSessionLock );
@@ -703,14 +704,14 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     xSemaphoreTake( xSessionLock, portMAX_DELAY );
 
     /* Start a hash. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xMechSha256.mechanism = CKM_SHA256;
         xResult = pxPkcs11FunctionList->C_DigestInit( xPkcs11Session, &xMechSha256 );
     }
 
     /* Hash the seed. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &ullKey,
@@ -718,7 +719,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Hash the source address. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &ulSourceAddress,
@@ -726,7 +727,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Hash the source port. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &usSourcePort,
@@ -734,7 +735,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Hash the destination address. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &ulDestinationAddress,
@@ -742,7 +743,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Hash the destination port. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &usDestinationPort,
@@ -750,7 +751,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Get the hash. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestFinal( xPkcs11Session,
                                                        ucSha256Result,
@@ -761,7 +762,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
 
     /* Use the first four bytes of the hash result as the starting point for
      * all initial sequence numbers for connections based on the input 4-tuple. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         memcpy( &ulNextSequenceNumber,
                 ucSha256Result,
