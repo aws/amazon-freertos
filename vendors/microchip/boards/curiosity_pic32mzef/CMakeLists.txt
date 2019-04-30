@@ -296,7 +296,7 @@ set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discove
     "-Wno-format"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c
+set_source_files_properties(${AFR_MODULES_STANDARD_DIR}/common/logging/aws_logging_task_dynamic_buffers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
 )
@@ -334,15 +334,23 @@ endif()
 # We may have to re-build the bootloader hex file?
 set(bl_hex_file ${CMAKE_CURRENT_LIST_DIR}/bootloader/aws_bootloader.X.production.hex)
 
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "echo" "Running Post-build step"
-    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
-    COMMAND "echo" "Running xc32-objcopy"
-    COMMAND "echo" ${XC32_BIN}/xc32_objcopy
-    COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin
-    COMMAND "echo" "Creating binary image"
-    COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin -p MCHP-Curiosity-PIC32MZEF
-    COMMAND "echo" "Running Hexmate to combine bootloader with image"
-    COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
-)
+
+if(AFR_IS_TESTING)
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "echo" "Running Post-build step"
+        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+    )
+else()
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "echo" "Running Post-build step"
+        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+        COMMAND "echo" "Running xc32-objcopy"
+        COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin
+        COMMAND "echo" "Creating binary image"
+        COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin -p MCHP-Curiosity-PIC32MZEF
+        COMMAND "echo" "Running Hexmate to combine bootloader with image"
+        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
+    )
+endif()
