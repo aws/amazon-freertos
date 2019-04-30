@@ -27,6 +27,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "list.h"
+#include "semphr.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #include "aws_secure_sockets.h"
@@ -531,52 +532,56 @@ BaseType_t SOCKETS_Init( void )
  * and FreeRTOS+TCP threads. Assume that two or more threads may race to be the
  * first to initialize the static and handle that case accordingly.
  */
-static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
+static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t *pxSessionLock,
+                                         CK_SESSION_HANDLE * pxSession,
                                          CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 {
     CK_RV xResult = CKR_OK;
     CK_C_GetFunctionList pxCkGetFunctionList = NULL;
     static CK_SESSION_HANDLE xPkcs11Session = 0;
     static CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
-    CK_BBOOL xNeedInit = CK_FALSE;
-    CK_SESSION_HANDLE xTempPkcs11Session = 0;
-    CK_FUNCTION_LIST_PTR pxTempPkcs11FunctionList = NULL;
+    static StaticSemaphore_t xStaticSemaphore;
+    static SemaphoreHandle_t xSessionLock = NULL;
     CK_ULONG ulCount = 0;
     CK_SLOT_ID *pxSlotIds = NULL;
 
-    /* Check if one-time initialization is needed.*/
+    /* Check if one-time initialization of the lock is needed.*/
     portENTER_CRITICAL();
-    if( 0 == xPkcs11Session )
+    if( NULL == xSessionLock )
     {
-        xNeedInit = CK_TRUE;
+        xSessionLock = xSemaphoreCreateMutexStatic( &xStaticSemaphore );
     }
+
+    *pxSessionLock = xSessionLock;
     portEXIT_CRITICAL();
 
-    if( CK_TRUE == xNeedInit )
+    /* Check if one-time initialization of the crypto handle is needed.*/
+    xSemaphoreTake( xSessionLock, portMAX_DELAY );
+    if( 0 == xPkcs11Session )
     {
         /* One-time initialization. */
 
         /* Ensure that the PKCS#11 module is initialized. We don't keep the
-        above lock here, since we don't want to make assumptions about hardware
+        scheduler stopped here, since we don't want to make assumptions about hardware
         requirements for accessing a crypto module. */
 
-        if( 0 == xResult )
+        if( CKR_OK == xResult )
         {
             pxCkGetFunctionList = C_GetFunctionList;
-            xResult = pxCkGetFunctionList( &pxTempPkcs11FunctionList );
+            xResult = pxCkGetFunctionList( &pxPkcs11FunctionList );
         }
 
-        if( 0 == xResult )
+        if( CKR_OK == xResult )
         {
-            xResult = pxTempPkcs11FunctionList->C_Initialize( NULL );
+            xResult = pxPkcs11FunctionList->C_Initialize( NULL );
         }
 
         /* Get the crypto token slot count. */
-        if( ( 0 == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
+        if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
         {
-            xResult = pxTempPkcs11FunctionList->C_GetSlotList( CK_TRUE,
-                                                               NULL,
-                                                               &ulCount );
+            xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
+                                                           NULL,
+                                                           &ulCount );
         }
 
         /* Allocate memory to store the token slots. */
@@ -593,45 +598,25 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
         /* Get all of the available private key slot identities. */
         if( CKR_OK == xResult )
         {
-            xResult = pxTempPkcs11FunctionList->C_GetSlotList( CK_TRUE,
-                                                               pxSlotIds,
-                                                               &ulCount );
+            xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
+                                                           pxSlotIds,
+                                                           &ulCount );
         }
 
         /* Start a session with the PKCS#11 module. */
-        if( 0 == xResult )
+        if( CKR_OK == xResult )
         {
-            xResult = pxTempPkcs11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
-                                                               CKF_SERIAL_SESSION,
-                                                               NULL,
-                                                               NULL,
-                                                               &xTempPkcs11Session );
+            xResult = pxPkcs11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
+                                                           CKF_SERIAL_SESSION,
+                                                           NULL,
+                                                           NULL,
+                                                           &xPkcs11Session );
         }
     }
 
-    if( CKR_OK == xResult )
-    {
-        portENTER_CRITICAL();
-        if( 0 == xPkcs11Session )
-        {
-            /* This is the first task to set the shared session. Save it.*/
-            xPkcs11Session = xTempPkcs11Session;
-            xTempPkcs11Session = 0;
-            pxPkcs11FunctionList = pxTempPkcs11FunctionList;
-            pxTempPkcs11FunctionList = 0;
-        }
-
-        /* Output the shared function pointers and session handle. */
-        *pxSession = xPkcs11Session;
-        *ppxFunctionList = pxPkcs11FunctionList;
-        portEXIT_CRITICAL();
-    }
-
-    if( 0 != xTempPkcs11Session )
-    {
-        /* This task raced the above task and lost. Free the temp session.*/
-        pxTempPkcs11FunctionList->C_CloseSession( xTempPkcs11Session );
-    }
+    *pxSession = xPkcs11Session;
+    *ppxFunctionList = pxPkcs11FunctionList;
+    xSemaphoreGive( xSessionLock );
 
     if( NULL != pxSlotIds )
     {
@@ -645,20 +630,24 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
 uint32_t ulRand( void )
 {
     CK_RV xResult = 0;
+    SemaphoreHandle_t xSessionLock = NULL;
     CK_SESSION_HANDLE xPkcs11Session = 0;
     CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
     uint32_t ulRandomValue = 0;
 
-    xResult = prvSocketsGetCryptoSession( &xPkcs11Session,
+    xResult = prvSocketsGetCryptoSession( &xSessionLock,
+                                          &xPkcs11Session,
                                           &pxPkcs11FunctionList );
 
     if( 0 == xResult )
     {
         /* Request a sequence of cryptographically random byte values using
          * PKCS#11. */
+        xSemaphoreTake( xSessionLock, portMAX_DELAY );
         xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
                                                           ( CK_BYTE_PTR ) &ulRandomValue,
                                                           sizeof( ulRandomValue ) );
+        xSemaphoreGive( xSessionLock );
     }
 
     /* Check if any of the API calls failed. */
@@ -681,6 +670,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
                                              uint16_t usDestinationPort )
 {
     CK_RV xResult = 0;
+    SemaphoreHandle_t xSessionLock = NULL;
     CK_SESSION_HANDLE xPkcs11Session = 0;
     CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
     CK_MECHANISM xMechSha256 = { 0 };
@@ -690,11 +680,14 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     static uint64_t ullKey = 0;
 
     /* Acquire a crypto session handle. */
-    xResult = prvSocketsGetCryptoSession( &xPkcs11Session,
+    xResult = prvSocketsGetCryptoSession( &xSessionLock,
+                                          &xPkcs11Session,
                                           &pxPkcs11FunctionList );
 
     if( 0 == xResult )
     {
+        xSemaphoreTake( xSessionLock, portMAX_DELAY );
+
         if( 0 == ullKey )
         {
             /* One-time initialization, per boot, of the random seed. */
@@ -702,10 +695,12 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
                                                               ( CK_BYTE_PTR ) &ullKey,
                                                               sizeof( ullKey ) );
         }
+
+        xSemaphoreGive( xSessionLock );
     }
 
     /* Lock the shared crypto session. */
-    portENTER_CRITICAL();
+    xSemaphoreTake( xSessionLock, portMAX_DELAY );
 
     /* Start a hash. */
     if( 0 == xResult )
@@ -762,7 +757,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
                                                        &ulLength );
     }
 
-    portEXIT_CRITICAL();
+    xSemaphoreGive( xSessionLock );
 
     /* Use the first four bytes of the hash result as the starting point for
      * all initial sequence numbers for connections based on the input 4-tuple. */
