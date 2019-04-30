@@ -49,6 +49,7 @@
 #define IotLogging_Puts( str )                   configPRINTF( ( "%s\n", str ) )
 #define IotContainers_Assert( expression )       configASSERT( expression )
 #define IotMqtt_Assert( expression )             configASSERT( expression )
+#define AwsIotShadow_Assert( expression )        configASSERT( expression )
 
 /* It is a known issue that some test cases need configASSERT to map to TEST_ABORT. */
 #define AwsIotSerializer_Assert( expression )    if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Serializer assert failure" )
