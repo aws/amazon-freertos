@@ -735,9 +735,7 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
     /* After all attributes have been create successfully, the service is added to the list. */
     if( status == eBTStatusSuccess )
     {
-        IotMutex_Lock( &_BTInterface.threadSafetyMutex );
         status = _createAttributes( pService );
-        IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
     }
 
     if( status == eBTStatusSuccess )

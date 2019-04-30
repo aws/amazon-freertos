@@ -61,19 +61,6 @@ typedef struct{
 	uint16_t endHandle;
 }BLEServiceListElement_t;
 
-typedef enum{
-	eBLEHALEventServerRegisteredCb,
-	eBLEHALEventAttributeAddedCb,
-	eBLEHALEventServiceStartedCb,
-	eBLEHALEventServiceStoppedCb,
-	eBLEHALEventServiceDeletedCb,
-	eBLEHALEventRegisterBleAdapterCb,
-	eBLEHALEventAdapterPropertiesCb,
-	eBLEHALEventAdvAndScanRespCb,
-	eBLENbHALEvents,
-}_bleHALEventsInternals_t;
-
-
 typedef struct{
 	IotLink_t eventList;
 	IotBleEventsCallbacks_t subscribedEventCb;
