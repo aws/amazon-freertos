@@ -202,7 +202,7 @@ cbmc-batch.yaml: Makefile ../Makefile.common
 	@echo "Building $@"
 	@$(RM) $@
 	@echo "jobos: ubuntu16" >> $@
-	@echo "cbmcflags: $(call encode_options,$(CBMCFLAGS))" >> $@
+	@echo "cbmcflags: $(call encode_options,$(CBMCFLAGS) --unwinding-assertions)" >> $@
 	@echo "goto: $(ENTRY).goto" >> $@
 	@echo "expected: SUCCESSFUL" >> $@
 
