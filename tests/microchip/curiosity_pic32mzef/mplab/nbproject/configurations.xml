@@ -336,6 +336,7 @@
           <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/pkcs11_nvm.c</itemPath>
           <itemPath>../../../../lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</itemPath>
           <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/aws_pkcs11_pal.c</itemPath>
+          <itemPath>../../../../lib/pkcs11/aws_pkcs11.c</itemPath>
         </logicalFolder>
         <logicalFolder name="secure_sockets"
                        displayName="secure_sockets"
@@ -351,6 +352,7 @@
         </logicalFolder>
         <logicalFolder name="utils" displayName="utils" projectFiles="true">
           <itemPath>../../../../lib/utils/aws_system_init.c</itemPath>
+          <itemPath>../../../../lib/utils/aws_pki_utils.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="wifi" projectFiles="true">
           <itemPath>../../../../lib/wifi/portable/microchip/curiosity_pic32mzef/aws_wifi.c</itemPath>
@@ -1814,14 +1816,12 @@
     <Elem>../../../../lib/third_party/mcu_vendor/microchip</Elem>
     <Elem>../../../../lib/FreeRTOS/portable/MPLAB</Elem>
     <Elem>../../../../lib/secure_sockets</Elem>
-    <Elem>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef</Elem>
     <Elem>../../../../lib/wifi/portable/microchip/curiosity_pic32mzef</Elem>
     <Elem>../../tmp</Elem>
     <Elem>../common/application_code</Elem>
     <Elem>../common/config_files</Elem>
     <Elem>../../../../lib/third_party/tracealyzer_recorder</Elem>
     <Elem>../../../../lib/FreeRTOS-Plus-TCP</Elem>
-    <Elem>../../../../lib/pkcs11/portable/microchip/pic32mzef</Elem>
     <Elem>../../../common</Elem>
     <Elem>../../../../demos/common/logging</Elem>
     <Elem>../../../../lib/include/private</Elem>
@@ -1829,7 +1829,6 @@
     <Elem>../../../../lib/third_party/tinycbor</Elem>
     <Elem>../../../../demos/common/devmode_key_provisioning</Elem>
     <Elem>../../../../demos/microchip/curiosity_pic32mzef/common/config_files</Elem>
-    <Elem>../../../../lib/pkcs11/mbedtls</Elem>
     <Elem>../../../../demos/common/ota</Elem>
     <Elem>../../../../lib/FreeRTOS-Plus-POSIX/include</Elem>
     <Elem>../../../../lib/FreeRTOS-Plus-POSIX/source</Elem>
@@ -1838,6 +1837,8 @@
     <Elem>../../../../lib/FreeRTOS/portable/MemMang</Elem>
     <Elem>../../../../lib/include/FreeRTOS_POSIX</Elem>
     <Elem>../../../../lib/defender/src</Elem>
+    <Elem>../../../../lib/pkcs11</Elem>
+    <Elem>../../../../lib/utils</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
