@@ -58,6 +58,11 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/dpl/SystemP_freertos.c</locationURI>
 		</link>
 		<link>
+			<name>freertos_kernel/portable/MemMang/heap_4.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
+		</link>
+		<link>
 			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
@@ -76,11 +81,6 @@
 			<name>freertos_kernel/portable/CCS/ARM_CM3/portmacro.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/CCS/ARM_CM3/portmacro.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/portable/MemMang/heap_4.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
 		</link>
 		<link>
 			<name>vendors/ti/boards/cc3220_launchpad/ports/posix/FreeRTOS_POSIX_portable.h</name>
@@ -853,16 +853,6 @@
 			<locationURI>BASE_DIR_ROOT/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
 		</link>
 		<link>
-			<name>demos/mqtt/aws_hello_world.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/mqtt/aws_hello_world.c</locationURI>
-		</link>
-		<link>
-			<name>demos/mqtt/aws_subscribe_publish_loop.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/mqtt/aws_subscribe_publish_loop.c</locationURI>
-		</link>
-		<link>
 			<name>demos/mqtt/iot_demo_mqtt.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/mqtt/iot_demo_mqtt.c</locationURI>
@@ -873,9 +863,9 @@
 			<locationURI>BASE_DIR_ROOT/demos/ota/aws_iot_ota_update_demo.c</locationURI>
 		</link>
 		<link>
-			<name>demos/shadow/aws_shadow_lightbulb_on_off.c</name>
+			<name>demos/posix/aws_posix_demo.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/shadow/aws_shadow_lightbulb_on_off.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/posix/aws_posix_demo.c</locationURI>
 		</link>
 		<link>
 			<name>demos/shadow/aws_iot_demo_shadow.c</name>
@@ -1733,26 +1723,6 @@
 			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/tinycbor/LICENSE</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/LICENSE</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/tinycbor/assert_p.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/assert_p.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/tinycbor/cbor.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/cbor.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/tinycbor/cborconstants_p.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/cborconstants_p.h</locationURI>
-		</link>
-		<link>
 			<name>modules/libraries/3rdparty/tinycbor/cborencoder.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
@@ -1776,26 +1746,6 @@
 			<name>modules/libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/tinycbor/cborpretty.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/tinycbor/compilersupport_p.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/compilersupport_p.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/tinycbor/extract_number_p.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/extract_number_p.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/tinycbor/math_support_p.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/modules/libraries/3rdparty/tinycbor/math_support_p.h</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/3rdparty/jsmn/jsmn.h</name>
