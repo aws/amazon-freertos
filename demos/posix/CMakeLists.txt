@@ -1,7 +1,7 @@
 # Posix demo
 afr_demo_module(posix)
 
-afr_set_demo_metadata(ID "posix_example")
+afr_set_demo_metadata(ID "POSIX_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates Posix")
 afr_set_demo_metadata(DISPLAY_NAME "Posix Demo")
 
