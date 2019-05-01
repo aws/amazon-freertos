@@ -114,6 +114,7 @@ C_FILES        +=   $(LIB_DIR)/mqtt/aws_mqtt_lib.c
 C_FLAGS        += -I$(LIB_DIR)/third_party/pkcs11
 C_FILES        +=   $(LIB_DIR)/pkcs11/portable/mediatek/mt7697hx-dev-kit/aws_pkcs11_pal.c
 C_FILES        +=   $(LIB_DIR)/pkcs11/mbedtls/aws_pkcs11_mbedtls.c
+C_FILES        +=   $(LIB_DIR)/pkcs11/aws_pkcs11.c
 
 C_FILES        +=   $(LIB_DIR)/secure_sockets/portable/lwip/aws_secure_sockets.c
 C_FILES        +=   $(LIB_DIR)/shadow/aws_shadow.c
@@ -121,6 +122,7 @@ C_FILES        +=   $(LIB_DIR)/shadow/aws_shadow_json.c
 
 C_FILES        +=   $(LIB_DIR)/tls/aws_tls.c
 C_FILES        +=   $(LIB_DIR)/utils/aws_system_init.c
+C_FILES        +=   $(LIB_DIR)/utils/aws_pki_utils.c
 C_FILES        +=   $(LIB_DIR)/wifi/portable/mediatek/mt7697hx-dev-kit/aws_wifi.c
 
 C_FLAGS        += -I$(LIB_DIR)/third_party/jsmn

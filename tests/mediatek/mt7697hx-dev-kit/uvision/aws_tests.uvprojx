@@ -602,6 +602,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\pkcs11\portable\mediatek\mt7697hx-dev-kit\aws_pkcs11_pal.c</FilePath>
             </File>
+            <File>
+              <FileName>aws_pkcs11.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\pkcs11\aws_pkcs11.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -646,6 +651,11 @@
               <FileName>aws_system_init.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\utils\aws_system_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_pki_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\lib\utils\aws_pki_utils.c</FilePath>
             </File>
           </Files>
         </Group>
