@@ -1,7 +1,7 @@
 # C SDK Shadow demo
 afr_demo_module(shadow)
 
-afr_set_demo_metadata(ID "shadow_example")
+afr_set_demo_metadata(ID "SHADOW_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates Shadow")
 afr_set_demo_metadata(DISPLAY_NAME "Shadow Demo")
 

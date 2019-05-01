@@ -47,6 +47,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>ports</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>common/application_code</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -138,6 +143,26 @@
 		</link>
 		<link>
 			<name>modules/ports</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>ports/ble</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>ports/ota</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>ports/pkcs11</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>ports/wifi</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -510,6 +535,51 @@
 			<name>modules/ports/wifi</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>ports/ble/aws_ble_hal_common_gap.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/ble/aws_ble_hal_common_gap.c</locationURI>
+		</link>
+		<link>
+			<name>ports/ble/aws_ble_hal_gap.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/ble/aws_ble_hal_gap.c</locationURI>
+		</link>
+		<link>
+			<name>ports/ble/aws_ble_hal_gatt_server.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/ble/aws_ble_hal_gatt_server.c</locationURI>
+		</link>
+		<link>
+			<name>ports/ble/aws_ble_hal_internals.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/ble/aws_ble_hal_internals.h</locationURI>
+		</link>
+		<link>
+			<name>ports/ota/aws_esp_ota_ops.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/ota/aws_esp_ota_ops.c</locationURI>
+		</link>
+		<link>
+			<name>ports/ota/aws_esp_ota_ops.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/ota/aws_esp_ota_ops.h</locationURI>
+		</link>
+		<link>
+			<name>ports/ota/aws_ota_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/ota/aws_ota_pal.c</locationURI>
+		</link>
+		<link>
+			<name>ports/pkcs11/aws_pkcs11_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
+		</link>
+		<link>
+			<name>ports/wifi/aws_wifi.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/boards/esp32/ports/wifi/aws_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>common/application_code/espressif_code/amazon-freertos-common</name>

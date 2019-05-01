@@ -5,7 +5,7 @@ endif()
 
 # BLE Gatt Server demo
 # Only build on boards that support BLE.
-afr_demo_module(ble_gatt_server)
+afr_demo_module(BLE_GATT_SERVER_DEMO)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
@@ -20,7 +20,7 @@ afr_module_dependencies(
 
 # BLE Number Comparison Demo
 # Only build on boards that support BLE.
-afr_demo_module(ble_numeric_comparison)
+afr_demo_module(BLE_NUMERIC_COMPARISON_DEMO)
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
