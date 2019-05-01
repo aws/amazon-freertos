@@ -31,6 +31,7 @@
 /* Standard includes. */
 #include <stdbool.h>
 #include "platform/iot_network.h"
+#include "platform/iot_threads.h"
 
 /**
  * @brief Provides a pointer to an #IotNetworkInterface_t that uses the functions
@@ -38,19 +39,13 @@
  */
 #define IOT_NETWORK_INTERFACE_BLE    ( &( IotNetworkBle ) )
 
-
-typedef enum IotBleDataTransferServiceID
+typedef struct IotBleNetworkContext
 {
-    IOT_BLE_SERVICE_MQTT = 0,
-    IOT_BLE_SERVICE_WIFI_PROVISIONING,
-    IOT_BLE_MAX_DATA_TRANSFER_SERVICES
-} IotBleDataTransferServiceID_t;
-
-typedef struct IotBleNetworkInfo
-{
-    IotBleDataTransferServiceID_t service;
-
-} IotBleNetworkInfo_t;
+    void * pChannel;
+    IotSemaphore_t                lock;
+    IotNetworkReceiveCallback_t   pCallback;
+    void                        * pContext;
+} IotBleNetworkContext_t;
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::create for Amazon FreeRTOS

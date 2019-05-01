@@ -20,6 +20,7 @@ afr_module_sources(
 
         "${src_dir}/services/device_information/iot_ble_device_information.c"
         "${src_dir}/services/mqtt_ble/iot_ble_data_transfer.c"
+        "${src_dir}/services/mqtt_ble/iot_network_ble.c"
         "${src_dir}/services/wifi_provisioning/iot_ble_wifi_provisioning.c"
 )
 

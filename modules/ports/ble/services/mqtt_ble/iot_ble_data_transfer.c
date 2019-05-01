@@ -37,67 +37,36 @@
 #include "iot_ble_data_transfer.h"
 #include "task.h"
 
-/**
- * @brief Maximum bytes which can be transferred at a time through the BLE connection.
- */
-#define IOT_BLE_DATA_TRANSFER_LENGTH( mtu )    ( ( mtu ) - 3 )
+#define _SERVICE_UUID( SERVICE_ID )         { 0x00, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
+#define _CONTROL_CHAR_UUID( SERVICE_ID )    { 0x01, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
+#define _TX_CHAR_UUID( SERVICE_ID )         { 0x02, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
+#define _RX_CHAR_UUID( SERVICE_ID )         { 0x03, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
+#define _TX_LARGE_UUID( SERVICE_ID)         { 0x04, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
+#define _RX_LARGE_UUID( SERVICE_ID )        { 0x05, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
+#define _CCFG_UUID                          ( 0x2902 )
 
-/**
- *@brief Size of the buffer used to store outstanding bytes to be send out.
- */
-#define IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE       ( 1024 )
-
-/**
- * @brief Size of the buffer to hold the received message
- *
- */
-#define IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE       ( 1024 )
-
-/**
- * @brief The default timeout in milliseconds for sending a message to the proxy.
- */
-#define IOT_BLE_DATA_TRANSFER_SEND_TIMEOUT_DEFAULT_MS    ( 2000 )
-
-
-#define UUID128( value )                 \
+#define _UUID128( value )                \
 {                                        \
     .uu.uu128 = value,                   \
     .ucType = eBTuuidType128             \
 }
 
-#define UUID16( value )                  \
+#define _UUID16( value )                 \
 {                                        \
     .uu.uu16 = value,                    \
     .ucType = eBTuuidType16              \
 }
 
-#define _SERVICE_ATTR_TABLE( INST_ID )                                                    \
+#define _ATTRIBUTE_TABLE_INITIALIZER( identifier )                                        \
 {                                                                                         \
     {                                                                                     \
-        .xServiceUUID = UUID128( IOT_BLE_DATA_TRANSFER_SERVICE_UUID( INST_ID ) )          \
+        .xServiceUUID = _UUID128( _SERVICE_UUID( identifier ) )                           \
     },                                                                                    \
     {                                                                                     \
         .xAttributeType = eBTDbCharacteristic,                                            \
         .xCharacteristic =                                                                \
         {                                                                                 \
-            .xUuid        = UUID128( IOT_BLE_DATA_TRANSFER_TX_CHAR_UUID( INST_ID ) ),     \
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),                                   \
-            .xProperties  = ( eBTPropRead | eBTPropNotify )                               \
-        }                                                                                 \
-    },                                                                                    \
-    {                                                                                     \
-        .xAttributeType = eBTDbDescriptor,                                                \
-        .xCharacteristicDescr =                                                           \
-        {                                                                                 \
-            .xUuid        = UUID16( IOT_BLE_DATA_TRANSFER_CCFG_UUID ),                    \
-            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )          \
-        }                                                                                 \
-    },                                                                                    \
-    {                                                                                     \
-        .xAttributeType = eBTDbCharacteristic,                                            \
-        .xCharacteristic =                                                                \
-        {                                                                                 \
-            .xUuid        = UUID128( IOT_BLE_DATA_TRANSFER_RX_CHAR_UUID( INST_ID ) ),     \
+            .xUuid        = _UUID128( _CONTROL_CHAR_UUID( identifier ) ),                 \
             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),         \
             .xProperties  = ( eBTPropRead | eBTPropWrite )                                \
         }                                                                                 \
@@ -105,8 +74,8 @@
     {                                                                                     \
         .xAttributeType = eBTDbCharacteristic,                                            \
         .xCharacteristic =                                                                \
-       {                                                                                  \
-            .xUuid        = UUID128(IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR_UUID( INST_ID )), \
+        {                                                                                 \
+            .xUuid        = _UUID128( _TX_CHAR_UUID( identifier ) ),                      \
             .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),                                   \
             .xProperties  = ( eBTPropRead | eBTPropNotify )                               \
         }                                                                                 \
@@ -114,28 +83,96 @@
     {                                                                                     \
         .xAttributeType = eBTDbDescriptor,                                                \
         .xCharacteristicDescr =                                                           \
-       {                                                                                  \
-            .xUuid        = UUID16( IOT_BLE_DATA_TRANSFER_CCFG_UUID ),                    \
+        {                                                                                 \
+            .xUuid        = _UUID16( _CCFG_UUID ),                                        \
             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )          \
         }                                                                                 \
     },                                                                                    \
     {                                                                                     \
         .xAttributeType = eBTDbCharacteristic,                                            \
         .xCharacteristic =                                                                \
-       {                                                                                  \
-            .xUuid        = UUID128(IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR_UUID( INST_ID )), \
+        {                                                                                 \
+            .xUuid        = _UUID128( _RX_CHAR_UUID( identifier ) ),                      \
+            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),         \
+            .xProperties  = ( eBTPropRead | eBTPropWrite )                                \
+        }                                                                                 \
+    },                                                                                    \
+    {                                                                                     \
+        .xAttributeType = eBTDbCharacteristic,                                            \
+        .xCharacteristic =                                                                \
+        {                                                                                 \
+            .xUuid        = _UUID128( _TX_LARGE_UUID( identifier ) ),                     \
+            .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),                                   \
+            .xProperties  = ( eBTPropRead | eBTPropNotify )                               \
+        }                                                                                 \
+    },                                                                                    \
+    {                                                                                     \
+        .xAttributeType = eBTDbDescriptor,                                                \
+        .xCharacteristicDescr =                                                           \
+        {                                                                                 \
+            .xUuid        = _UUID16( _CCFG_UUID ),                                        \
+            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )          \
+        }                                                                                 \
+    },                                                                                    \
+    {                                                                                     \
+        .xAttributeType = eBTDbCharacteristic,                                            \
+        .xCharacteristic =                                                                \
+        {                                                                                 \
+            .xUuid        = _UUID128(_RX_LARGE_UUID( identifier )),                       \
             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),         \
             .xProperties  = ( eBTPropRead | eBTPropWrite )                                \
         }                                                                                 \
     }                                                                                     \
 }
 
+#define _SERVICE_INITIALIZER( id )         { .identifier = id }
 
 #define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ ch_idx ] )
 
 #define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ ch_idx ].xCharacteristic.xUuid )
 
 #define DESCR_HANDLE( svc, descr_idx )    ( ( svc )->pusHandlesBuffer[ descr_idx ] )
+
+
+#define _CONTAINER( type, pChannel, channelName )  ( ( type * ) ( void * ) ( ( ( uint8_t * ) ( pChannel ) ) - offsetof( type, channelName ) ) )
+
+/**
+ * @brief Maximum bytes which can be transferred at a time through the BLE connection.
+ */
+#define _TRANSMIT_LENGTH( mtu )    ( ( mtu ) - 3 )
+
+/*-------------------------------------------------------------------------------------------------------------------------*/
+
+typedef enum IotBleDataTransferAttributes
+{
+    IOT_BLE_DATA_TRANSFER_SERVICE = 0,
+    IOT_BLE_DATA_TRANSFER_CONTROL_CHAR,
+    IOT_BLE_DATA_TRANSFER_TX_CHAR,             /*!< IOT_BLE_DATA_TRANSFER_TX_CHAR Characteristic to send message. */
+    IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR,       /*!< IOT_BLE_DATA_TRANSFER_TX_CHAR_DESCR Characteristic descriptor. */
+    IOT_BLE_DATA_TRANSFER_RX_CHAR,             /*!< IOT_BLE_DATA_TRANSFER_RX_CHAR Characteristic to receive a message.*/
+    IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR,       /*!< IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR Characteristic to send a large message (> BLE MTU Size). */
+    IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR_DESCR, /*!< IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR_DESCR Characteristic descriptor. */
+    IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR,       /*!< IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR Characteristic to receive large message (> BLE MTU Size). */
+    IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES       /*!< IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES Max number of attributes for ble data transfer service. */
+
+} IotBleDataTransferAttributes_t;
+
+/**
+ * @ingroup ble_datatypes_structs
+ * @brief MQTT BLE Service structure.
+ */
+typedef struct IotBleDataTransferService
+{
+    uint16_t  handles[ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ]; /**< Array to store the attribute handles. */
+    uint16_t  CCFGValue;                           /**< Client characteristic configuration values for all the descriptors. */
+    uint8_t   identifier;                         /**< Uniquely identifies a data transfer service. */
+    BTService_t                 gattService;      /**< Internal gatt Service structure. */
+    IotBleDataTransferChannel_t channel;          /**< Channel used ot send or receive data. */    
+
+} IotBleDataTransferService_t;
+
+
+/*-------------------------------------------------------------------------------------------------------------------------*/
 
 /*
  * @brief Gets a service instance given a GATT service.
@@ -158,6 +195,18 @@ static uint8_t * _reallocBuffer( uint8_t * oldBuffer,
                                  size_t oldBufferSize,
                                  size_t newBufferSize );
 
+
+
+static bool _send( IotBleDataTransferChannel_t * pChannel,
+                   bool isLOT,
+                   uint8_t * pData,
+                   size_t len );
+
+
+/*
+ * @brief Callback to register for events (read) on TX message characteristic.
+ */
+static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Callback to register for events (read) on TX message characteristic.
@@ -191,15 +240,6 @@ static void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam );
 
 
 /*
- * @brief Resets the send and receive buffer for the given data transfer Service.
- * Any pending connection should be closed or the service should be disabled
- * prior to resetting the buffer.
- *
- * @param[in]  pService Pointer to the data transfer service.
- */
-static void _resetBuffer( IotBleDataTransferService_t * pService );
-
-/*
  * @brief Callback for BLE connect/disconnect.
  */
 static void _connectionCallback( BTStatus_t status,
@@ -220,39 +260,30 @@ extern int snprintf( char *,
                      size_t,
                      const char *,
                      ... );
-/*------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------------------------------*/
 
 
-static const BTAttribute_t _pAttributeTable[ IOT_BLE_MAX_DATA_TRANSFER_SERVICES ][ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] = 
+static const BTAttribute_t _attributeTable[ IOT_BLE_NUM_DATA_TRANSFER_SERVICES ][ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] =
 {
-    _SERVICE_ATTR_TABLE( IOT_BLE_MQTT_SERVICE_ID ),
-    _SERVICE_ATTR_TABLE( IOT_BLE_WIFI_PROVISIONING_SERVICE_ID )
+#if( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+    _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+#endif
+    _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
 };
 
-static IotBleDataTransferService_t _dataTransferServices[ IOT_BLE_MAX_DATA_TRANSFER_SERVICES] = { 0 };
-
-static BTService_t _BLEServices[ IOT_BLE_MAX_DATA_TRANSFER_SERVICES ] = { 0 };
-
-static uint16_t _handlesBuffer[ IOT_BLE_MAX_DATA_TRANSFER_SERVICES ][ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] = { 0 };
-
-/**
- * @brief An #IotNetworkInterface_t that uses the functions in this file.
- */
-const IotNetworkInterface_t IotNetworkBle =
+static IotBleDataTransferService_t _services[ IOT_BLE_NUM_DATA_TRANSFER_SERVICES ] =
 {
-    .create             = IotNetworkBle_Create,
-    .setReceiveCallback = IotNetworkBle_SetReceiveCallback,
-    .send               = IotNetworkBle_Send,
-    .receive            = IotNetworkBle_Receive,
-    .close              = IotNetworkBle_Close,
-    .destroy            = IotNetworkBle_Destroy
+#if( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+    _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+#endif
+    _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
 };
-
-/*-----------------------------------------------------------------------------------------------------*/
 
 static const IotBleAttributeEventCallback_t _callbacks[ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] =
 {
     NULL,
+    _ControlCharCallback,
     _TXMesgCharCallback,
     _clientCharCfgDescrCallback,
     _RXMesgCharCallback,
@@ -264,12 +295,7 @@ static const IotBleAttributeEventCallback_t _callbacks[ IOT_BLE_DATA_TRANSFER_MA
 /**
  * @brief Holds the MTU Size for the BLE connection.
  */
-static uint16_t bleMTU = IOT_BLE_PREFERRED_MTU_SIZE;
-
-/**
- * @brief Holds the state of BLE connection.
- */
-static bool bleConnected = false;
+static size_t transmitLength = _TRANSMIT_LENGTH( IOT_BLE_PREFERRED_MTU_SIZE );
 
 /**
  * @brief Holds the connection id for the BLE connection
@@ -284,13 +310,13 @@ static IotBleDataTransferService_t * _getServiceFromHandle( uint16_t handle )
     uint8_t id;
     IotBleDataTransferService_t * pService = NULL;
 
-    for( id = 0; id < IOT_BLE_MAX_DATA_TRANSFER_SERVICES; id++ )
+    for( id = 0; id < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; id++ )
     {
         /* Check that the handle is included in the service. */
-        if( ( handle > _handlesBuffer[ id ][ 0 ] ) &&
-            ( handle <= _handlesBuffer[ id ][ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES - 1 ] ) )
+        if( ( handle > _services[ id ].handles[ 0 ] ) &&
+            ( handle <= _services[ id ].handles[ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES - 1 ] ) )
         {
-            pService = &_dataTransferServices[ id ];
+            pService = &_services[ id ];
             break;
         }
     }
@@ -300,27 +326,33 @@ static IotBleDataTransferService_t * _getServiceFromHandle( uint16_t handle )
 
 /*-----------------------------------------------------------*/
 
-static bool _sendNotification( IotBleDataTransferService_t * pService,
-                               IotBleDataTransferAttributes_t characteristic,
-                               uint8_t * pData,
-                               size_t len )
+static bool _send( IotBleDataTransferChannel_t * pChannel,
+                   bool isLOT,
+                   uint8_t * pData,
+                   size_t len )
 {
+    IotBleDataTransferService_t *pService = _CONTAINER( IotBleDataTransferService_t, pChannel, channel );
     IotBleAttributeData_t attrData = { 0 };
-    IotBleEventResponse_t resp;
-    bool status = false;
-
-    attrData.handle = CHAR_HANDLE( pService->pGattServicePtr, characteristic );
-    attrData.uuid = CHAR_UUID( pService->pGattServicePtr, characteristic );
-    attrData.pData = pData;
-    attrData.size = len;
-    resp.pAttrData = &attrData;
-    resp.attrDataOffset = 0;
-    resp.eventStatus = eBTStatusSuccess;
-    resp.rspErrorStatus = eBTRspErrorNone;
-
-    if(  IotBle_SendIndication( &resp, bleConnectionID, false ) == eBTStatusSuccess )
+    IotBleEventResponse_t response =
     {
-        status = true;
+        .pAttrData      = &attrData,
+        .attrDataOffset = 0,
+        .eventStatus    = eBTStatusSuccess,
+        .rspErrorStatus = eBTRspErrorNone,
+    };
+    IotBleDataTransferAttributes_t attribute; 
+    bool status = true;
+
+    attribute = ( isLOT == true ) ? IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR : IOT_BLE_DATA_TRANSFER_TX_CHAR;
+    attrData.handle = CHAR_HANDLE( &pService->gattService, attribute );
+    attrData.uuid   = CHAR_UUID( &pService->gattService, attribute );
+    attrData.pData  = pData;
+    attrData.size   = len;
+    
+
+    if(  IotBle_SendIndication( &response, bleConnectionID, false ) != eBTStatusSuccess )
+    {
+        status = false;
     }
 
     return status;
@@ -353,17 +385,57 @@ static uint8_t * _reallocBuffer( uint8_t * oldBuffer,
     return newBuffer;
 }
 
+
 /*-----------------------------------------------------------*/
 
-void _resetBuffer( IotBleDataTransferService_t * pService )
+static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
+    IotBleAttributeData_t attrData = { 0 };
+    IotBleEventResponse_t resp;
+    IotBleDataTransferService_t* pService;
+    uint8_t value;
 
-    IotSemaphore_Wait( &pService->connection.sendLock );
-    ( void ) xStreamBufferReset( pService->connection.sendBuffer );
-    IotSemaphore_Post(&pService->connection.sendLock);
+    resp.pAttrData = &attrData;
+    resp.rspErrorStatus = eBTRspErrorNone;
+    resp.eventStatus = eBTStatusFail;
+    resp.attrDataOffset = 0;
+
+    if (pEventParam->xEventType == eBLERead)
+    {
+        pService = _getServiceFromHandle(pEventParam->pParamRead->attrHandle);
+        if (pService != NULL)
+        {
+            resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
+            resp.pAttrData->pData = ( uint8_t * ) pService->channel.isReady;
+            resp.pAttrData->size = 1;
+            resp.attrDataOffset = 0;
+            resp.eventStatus = eBTStatusSuccess;
+        }
+
+        IotBle_SendResponse(&resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId);
+    }
+    else if (pEventParam->xEventType == eBLEWrite || pEventParam->xEventType == eBLEWriteNoResponse)
+    {
+        pService = _getServiceFromHandle(pEventParam->pParamWrite->attrHandle);
+        if (pService != NULL)
+        {     
+            pService->channel.isReady = ( *( ( uint8_t * ) pEventParam->pParamWrite->pValue ) == 1 );   
+            if( ( pService->channel.isReady == true ) && ( pService->channel.callback != NULL ) )
+            {
+                pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_READY,
+                                            &pService->channel,
+                                            pService->channel.pContext );
+            }
+
+            resp.pAttrData->handle = pEventParam->pParamWrite->attrHandle;
+            resp.eventStatus = eBTStatusSuccess;
+        }
+
+        IotBle_SendResponse(&resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId);
+    }
 }
 
-/*-----------------------------------------------------------*/
+/*--------------------------------------------------------------------------------*/
 
 static void _TXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
@@ -397,7 +469,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     IotBleAttributeData_t attrData = { 0 };
     IotBleEventResponse_t resp;
     IotBleDataTransferService_t * pService;
-    size_t xBytesToSend = 0;
+    size_t length;
     uint8_t * pData;
     BTStatus_t status;
 
@@ -413,15 +485,14 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         resp.eventStatus = eBTStatusFail;
         resp.attrDataOffset = 0;
         resp.pAttrData->handle = pReadParam->attrHandle;
-        xBytesToSend = IOT_BLE_DATA_TRANSFER_LENGTH( bleMTU );
 
-        pData = pvPortMalloc( xBytesToSend );
+        pData = pvPortMalloc( transmitLength );
 
         if( pData != NULL )
         {
-            xBytesToSend = xStreamBufferReceive( pService->connection.sendBuffer, pData, xBytesToSend, ( TickType_t ) 0ULL );
+            length = xStreamBufferReceive( pService->channel.sendBuffer, pData, transmitLength, ( TickType_t ) 0ULL );
             resp.pAttrData->pData = pData;
-            resp.pAttrData->size = xBytesToSend;
+            resp.pAttrData->size = length;
             resp.attrDataOffset = 0;
             resp.eventStatus = eBTStatusSuccess;
 
@@ -437,31 +508,34 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
         /* If this was the last chunk of a large message, release the send lock */
         if( ( resp.eventStatus == eBTStatusSuccess ) &&
-            ( xBytesToSend < IOT_BLE_DATA_TRANSFER_LENGTH( bleMTU ) ) )
+            ( length < transmitLength ) )
         {
-            IotSemaphore_Post( &pService->connection.sendLock );
+            IotSemaphore_Post( &pService->channel.sendLock );
+            if( pService->channel.callback  != NULL )
+            {
+                pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_SENT, &pService->channel, pService->channel.pContext );
+            }
         }
     }
 }
 
 /*-----------------------------------------------------------*/
-static bool _checkAndSizeReceiveBuffer( uint8_t ** pRecvBuffer,
-                                        uint32_t * bufferLength,
-                                        uint32_t * bufferOffset,
-                                        uint32_t rxDataLength )
+static bool _checkAndSizeReceiveBuffer( uint8_t ** pReceiveBuffer,
+                                        size_t * pBufferLength,
+                                        size_t   bufferOffset,
+                                        size_t   rxDataLength )
 {
     bool result = true;
 
     /**
      * Create a new buffer if the buffer is empty.
      */
-    if( *pRecvBuffer == NULL )
+    if( *pReceiveBuffer == NULL )
     {
-        *pRecvBuffer = pvPortMalloc( IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE );
-
-        if( *pRecvBuffer != NULL )
+        *pReceiveBuffer = pvPortMalloc( IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE );
+        if( *pReceiveBuffer != NULL )
         {
-            *bufferLength = IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE;
+            *pBufferLength = IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE;
         }
         else
         {
@@ -473,20 +547,18 @@ static bool _checkAndSizeReceiveBuffer( uint8_t ** pRecvBuffer,
         /**
          *  If current buffer can't hold the received data, resize the buffer by twicke the current size.
          */
-        if( ( *bufferOffset + rxDataLength ) > *bufferLength )
+        if( ( bufferOffset + rxDataLength ) > *pBufferLength )
         {
-            *pRecvBuffer = _reallocBuffer( *pRecvBuffer,
-                                           *bufferLength,
-                                           ( 2 * *bufferLength ) );
+            *pReceiveBuffer = _reallocBuffer( *pReceiveBuffer,
+                                              *pBufferLength,
+                                              ( 2 * *pBufferLength ) );
 
-            if( *pRecvBuffer != NULL )
+            if( *pReceiveBuffer != NULL )
             {
-                *bufferLength = ( *bufferLength * 2 );
+                *pBufferLength = ( *pBufferLength * 2 );
             }
             else
             {
-                /* Free buffer if there is an error */
-                vPortFree( *pRecvBuffer );
                 result = false;
             }
         }
@@ -498,79 +570,88 @@ static bool _checkAndSizeReceiveBuffer( uint8_t ** pRecvBuffer,
 
 static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    IotBleWriteEventParams_t * pWriteParam;
     IotBleAttributeData_t attrData = { 0 };
-    IotBleEventResponse_t resp;
+    IotBleEventResponse_t resp =
+    {
+        .pAttrData        = &attrData,
+        .rspErrorStatus   = eBTRspErrorNone,
+        .eventStatus      = eBTStatusFail,
+        .attrDataOffset   = 0
+    };
     IotBleDataTransferService_t * pService;
-    BaseType_t result = true;
-    uint8_t * pBufOffset;
-    uint8_t ret;
-    static uint8_t * recvBuffer = NULL;
-    static uint32_t bufferLength = 0;
-    static uint32_t bufferOffset = 0;
-
-    resp.pAttrData = &attrData;
-    resp.rspErrorStatus = eBTRspErrorNone;
-    resp.eventStatus = eBTStatusFail;
-    resp.attrDataOffset = 0;
+    bool status  = false;
 
     if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
-        pWriteParam = pEventParam->pParamWrite;
-        pService = _getServiceFromHandle( pWriteParam->attrHandle );
-        configASSERT( ( pService != NULL ) );
-
-        resp.pAttrData->handle = pWriteParam->attrHandle;
-
-        resp.pAttrData->uuid = CHAR_UUID( pService->pGattServicePtr, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR );
-
-        if( IotSemaphore_TryWait( &pService->connection.recvLock ) == true )
+        pService = _getServiceFromHandle( pEventParam->pParamWrite->attrHandle );
+        if( ( pService != NULL ) && ( pService->channel.isUsed ) )
         {
-             if( ( !pWriteParam->isPrep ) && ( pService->connection.receiveCallback != NULL ) )
-             {
-                result = _checkAndSizeReceiveBuffer( &recvBuffer, &bufferLength, &bufferOffset, pWriteParam->length );
-
-                if( result == true )
+            IotMutex_Lock( &pService->channel.receiveLock );
+            if( pService->channel.pendingRead  == false )
+            {
+                if( ( pService->channel.head == 0 ) &&  ( pService->channel.tail == 0 ) )
                 {
-                    /**
-                     * Copy the received data into the buffer.
-                     */
-                    pBufOffset = ( uint8_t * ) recvBuffer + bufferOffset;
-                    memcpy( pBufOffset, pWriteParam->pValue, pWriteParam->length );
-                    bufferOffset += pWriteParam->length;
-
-                    if( pWriteParam->length < IOT_BLE_DATA_TRANSFER_LENGTH( bleMTU ) )
+                    if (pService->channel.callback != NULL)
                     {
-                        pService->connection.recvBufferLen = bufferOffset;
-                        pService->connection.pRecvBuffer = recvBuffer;
-
-                        pService->connection.receiveCallback( pService, pService->connection.pContext );
-
-                        vPortFree( recvBuffer );
-                        pService->connection.pRecvBuffer = NULL;
-                        recvBuffer = NULL;
-                        bufferLength = 0;
-                        bufferOffset = 0;
+                        pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_START,
+                                                    &pService->channel,
+                                                    pService->channel.pContext );
                     }
+                }
 
+                status = _checkAndSizeReceiveBuffer( &pService->channel.pReceiveBuffer,
+                                                     &pService->channel.length,
+                                                     pService->channel.head,
+                                                     pEventParam->pParamWrite->length );
+                if( status == true )
+                {
+                    /* Copy the received data into the buffer. */
+                    memcpy( ( pService->channel.pReceiveBuffer + pService->channel.head ), 
+                            pEventParam->pParamWrite->pValue,
+                            pEventParam->pParamWrite->length );
+                
+                    pService->channel.head += pEventParam->pParamWrite->length;
+
+                    if( pEventParam->pParamWrite->length < transmitLength )
+                    {
+                        /* All chunks for large object transfer received. set channel to pending read */
+                        pService->channel.pendingRead = true;
+                        if (pService->channel.callback != NULL)
+                        {
+                            pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE,
+                                                        &pService->channel,
+                                                        pService->channel.pContext );
+                        }
+                    }                    
                     resp.eventStatus = eBTStatusSuccess;
                 }
+                else
+                {
+                    if( pService->channel.pReceiveBuffer != NULL )
+                    {
+                        vPortFree( pService->channel.pReceiveBuffer );
+                        pService->channel.pReceiveBuffer = NULL;
+                        pService->channel.head = pService->channel.tail = 0;
+                        pService->channel.length = 0;
+                    }
+
+                    configPRINTF(( "RX failed, unable to allocate buffer to read data.\r\n" ));
+                }
+            }
+            else
+            {
+                configPRINTF(( "RX failed, pending data needs to be read.\r\n" ));
             }
 
-            IotSemaphore_Post( &pService->connection.recvLock );
+            IotMutex_Unlock( &pService->channel.receiveLock );
         }
-        else
-        {
-            configPRINTF( ( "BLE data transfer receive callback failed, cannot acquire receive lock.\r\n" ) );
-        }
-        
 
         if( pEventParam->xEventType == eBLEWrite )
         {
-            resp.attrDataOffset = 0;
-            resp.pAttrData->pData = &ret;
+            resp.pAttrData->handle = pEventParam->pParamWrite->attrHandle;
+            resp.pAttrData->pData = ( uint8_t * ) &status;
             resp.pAttrData->size = 1;
-            IotBle_SendResponse( &resp, pWriteParam->connId, pWriteParam->transId );
+            IotBle_SendResponse( &resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId );
         }
     }
 }
@@ -579,51 +660,72 @@ static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
 static void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    IotBleWriteEventParams_t * pWriteParam;
     IotBleAttributeData_t attrData = { 0 };
-    IotBleEventResponse_t resp;
+    IotBleEventResponse_t resp =
+    {
+        .pAttrData = &attrData,
+        .rspErrorStatus = eBTRspErrorNone,
+        .eventStatus = eBTStatusFail,
+        .attrDataOffset = 0
+    };
     IotBleDataTransferService_t * pService;
-    uint8_t ret = 0;
-
-    resp.pAttrData = &attrData;
-    resp.rspErrorStatus = eBTRspErrorNone;
-    resp.eventStatus = eBTStatusFail;
-    resp.attrDataOffset = 0;
+    bool status = false;
 
     if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
-        pWriteParam = pEventParam->pParamWrite;
-        pService = _getServiceFromHandle( pWriteParam->attrHandle );
-        configASSERT( ( pService != NULL ) );
-        resp.pAttrData->handle = pWriteParam->attrHandle;
-        resp.pAttrData->uuid = CHAR_UUID( pService->pGattServicePtr, IOT_BLE_DATA_TRANSFER_RX_LARGE_CHAR );
+        pService = _getServiceFromHandle( pEventParam->pParamWrite->attrHandle );
 
-        if( IotSemaphore_TryWait( &pService->connection.recvLock ) == true )
+        if( ( pService != NULL ) && ( pService->channel.isUsed == true ) )
         {
-             if( ( !pWriteParam->isPrep ) && ( pService->connection.receiveCallback != NULL ) )
+            IotMutex_Lock( &pService->channel.receiveLock );
+
+            if( pService->channel.pendingRead == false )
             {
-                pService->connection.pRecvBuffer = pWriteParam->pValue;
-                pService->connection.recvBufferLen = pWriteParam->length;
+                status = _checkAndSizeReceiveBuffer( &pService->channel.pReceiveBuffer,
+                                                     &pService->channel.length,
+                                                     pService->channel.head,
+                                                     pEventParam->pParamWrite->length );
 
-                pService->connection.receiveCallback( pService, pService->connection.pContext );
-                pService->connection.pRecvBuffer = NULL;
-                pService->connection.recvBufferLen = 0;
+                if( status == true )
+                {           
+                    /* Copy the received data into the buffer. */
+                    memcpy( ( pService->channel.pReceiveBuffer + pService->channel.head ), 
+                            pEventParam->pParamWrite->pValue,
+                            pEventParam->pParamWrite->length );
+                
+                    pService->channel.head += pEventParam->pParamWrite->length;
+                    pService->channel.pendingRead = true;
+                    if (pService->channel.callback != NULL)
+                    {
+                        pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE,
+                                                    &pService->channel,
+                                                    pService->channel.pContext );
+                    }
+                    resp.eventStatus = eBTStatusSuccess;
+                }
+                else
+                {
+                    if( pService->channel.pReceiveBuffer != NULL )
+                    {
+                        vPortFree( pService->channel.pReceiveBuffer );
+                        pService->channel.pReceiveBuffer = NULL;
+                        pService->channel.head = pService->channel.tail = 0;
+                        pService->channel.length = 0;
+                    }
 
-                resp.eventStatus = eBTStatusSuccess;
+                    configPRINTF(( "RX failed, unable to allocate buffer to read data.\r\n" ));
+                }
             }
-            IotSemaphore_Post( &pService->connection.recvLock );
+            
+            IotMutex_Unlock( &pService->channel.receiveLock );
         }
-        else
-        {
-            configPRINTF( ( "BLE data transfer receive callback failed, cannot acquire receive lock.\r\n" ) );
-        }
-
+        
         if( pEventParam->xEventType == eBLEWrite )
         {
-            resp.attrDataOffset = 0;
-            resp.pAttrData->pData = &ret;
+            resp.pAttrData->handle = pEventParam->pParamWrite->attrHandle;
+            resp.pAttrData->pData = ( uint8_t * ) &status;
             resp.pAttrData->size = 1;
-            IotBle_SendResponse( &resp, pWriteParam->connId, pWriteParam->transId );
+            IotBle_SendResponse( &resp, pEventParam->pParamWrite->connId, pEventParam->pParamWrite->transId );
         }
     }
 }
@@ -651,7 +753,7 @@ static void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
 
         if( pWriteParam->length == 2 )
         {
-            pService->ccfgValue = ( pWriteParam->pValue[ 1 ] << 8 ) | pWriteParam->pValue[ 0 ];
+            pService->CCFGValue = ( pWriteParam->pValue[ 1 ] << 8 ) | pWriteParam->pValue[ 0 ];
             resp.eventStatus = eBTStatusSuccess;
         }
 
@@ -667,7 +769,7 @@ static void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
     {
         pService = _getServiceFromHandle( pEventParam->pParamRead->attrHandle );
         resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-        resp.pAttrData->pData  = ( uint8_t * ) &( pService->ccfgValue );
+        resp.pAttrData->pData  = ( uint8_t * ) &( pService->CCFGValue );
         resp.pAttrData->size   = 2;
         resp.attrDataOffset    = 0;
         resp.eventStatus      = eBTStatusSuccess;
@@ -676,36 +778,31 @@ static void _clientCharCfgDescrCallback( IotBleAttributeEvent_t * pEventParam )
 }
 
 /*-----------------------------------------------------------*/
-static void _closeConnection( IotBleDataTransferService_t * pService )
-{
-    pService->connection.receiveCallback = NULL;
-}
 
 static void _connectionCallback( BTStatus_t status,
                                  uint16_t connId,
                                  bool connected,
                                  BTBdaddr_t * pRemoteBdAddr )
 {
-    uint8_t id;
+    uint8_t index;
     IotBleDataTransferService_t * pService;
 
     if( status == eBTStatusSuccess )
     {
         if( connected == true )
         {
-            bleConnected = true;
             bleConnectionID = connId;
         }
         else
         {
-            bleConnected = false;
             configPRINTF(( "BLE disconnected, closing all active BLE data transfer sessions.\r\n" ));
-            for( id = 0; id < IOT_BLE_MAX_DATA_TRANSFER_SERVICES; id++ )
+            for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
             {
-                _closeConnection( &_dataTransferServices[ id ] );
+                IotBleDataTransfer_Close( &_services[index].channel );
+                _services[index].channel.isReady = false;
 
             }
-            bleMTU = IOT_BLE_PREFERRED_MTU_SIZE;
+            transmitLength = _TRANSMIT_LENGTH( IOT_BLE_PREFERRED_MTU_SIZE );
         }
     }
 }
@@ -713,142 +810,145 @@ static void _connectionCallback( BTStatus_t status,
 /*-----------------------------------------------------------*/
 
 static void _MTUChangedCallback( uint16_t connId,
-                                 uint16_t Mtu )
+                                 uint16_t mtu )
 {
+    size_t length = _TRANSMIT_LENGTH( mtu );
     /* Change the MTU size for the connection */
-    if( bleMTU != Mtu )
+    if( transmitLength != length )
     {
-        configPRINTF( ( "Changing MTU size for BLE connection from %d to %d\n", bleMTU, Mtu ) );
-        bleMTU = Mtu;
+        configPRINTF( ( "MTU changed, changing transmit length for data transfer service from %d to %d\n", transmitLength, length ) );
+        transmitLength = length;
     }
 }
 
 /*-----------------------------------------------------------*/
 
-bool IotBleDataTransferService_Init( IotBleDataTransferServiceID_t svcID )
+
+bool _registerCallbacks()
 {
-    IotBleEventsCallbacks_t callback;
-    BTStatus_t status = eBTStatusFail;
+    IotBleEventsCallbacks_t callback = { 0 };
     bool ret = true;
-    /* Flag to represent one time registeration of callbacks. */
-    static bool registerCallbacks = true;
+    BTStatus_t status;
 
-
-    if( registerCallbacks == true )
+    /* Register the connection callback. */
+    callback.pConnectionCb = _connectionCallback;
+    status = IotBle_RegisterEventCb(eBLEConnection, callback);
+    if( status != eBTStatusSuccess )
     {
-
-        /* Register the connection callback. */
-        callback.pConnectionCb = _connectionCallback;
-        status = IotBle_RegisterEventCb(eBLEConnection, callback);
-        if( status != eBTStatusSuccess )
-        {
-            configPRINTF(( "Failed to register connection callback, status = %d.r\n", status ));
-            ret = false;
-        }
-
-        /* Register MTU changed callback. */
-        if( ret == true )
-        {
-            callback.pMtuChangedCb = _MTUChangedCallback;
-            status = IotBle_RegisterEventCb( eBLEMtuChanged, callback );
-            if( status != eBTStatusSuccess )
-            {
-                configPRINTF(( "Failed to register MTU changed callback, status = %d.\r\n",status ));
-                ret = false;
-            }
-        }
-
-        registerCallbacks = false;
+        configPRINTF(( "Failed to register connection callback, status = %d.r\n", status ));
+        ret = false;
     }
-    
 
+    /* Register MTU changed callback. */
     if( ret == true )
     {
-        /* Initialize the GATT service */
-            _dataTransferServices[svcID].pGattServicePtr = &_BLEServices[svcID];
-            _dataTransferServices[svcID].pGattServicePtr->pusHandlesBuffer = _handlesBuffer[svcID];
-            _dataTransferServices[svcID].pGattServicePtr->ucInstId = 0;
-            _dataTransferServices[svcID].pGattServicePtr->xNumberOfAttributes = IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES;
-            _dataTransferServices[svcID].pGattServicePtr->pxBLEAttributes = (BTAttribute_t *) &_pAttributeTable[svcID];
-            _dataTransferServices[svcID].connection.pRecvBuffer = NULL;
-            _dataTransferServices[svcID].connection.sendTimeout = pdMS_TO_TICKS( IOT_BLE_DATA_TRANSFER_SEND_TIMEOUT_DEFAULT_MS );;
-            
-            ret = IotSemaphore_Create( &_dataTransferServices[ svcID ].connection.sendLock, 0, 1 );
-            if( ret == false )
-            {
-                configPRINTF(( "Failed to create semaphore for data transfer service id: %d.\r\n", svcID ));
-            }
-            else
-            {
-                IotSemaphore_Post( &_dataTransferServices[ svcID ].connection.sendLock );
-            }
-
-            ret = IotSemaphore_Create( &_dataTransferServices[ svcID ].connection.recvLock, 0, 1 );
-            if( ret == false )
-            {
-                configPRINTF(( "Failed to create semaphore for data transfer service id: %d.\r\n", svcID ));
-            }
-            else
-            {
-                IotSemaphore_Post( &_dataTransferServices[ svcID ].connection.recvLock );
-            }
-
-
-            if( ret == true )
-            {
-
-                 _dataTransferServices[ svcID ].connection.sendBuffer =
-                 xStreamBufferCreate( IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE, IOT_BLE_PREFERRED_MTU_SIZE );
-
-                if( _dataTransferServices[svcID].connection.sendBuffer == NULL )
-                {
-                     configPRINTF(( "Failed to create stream buffer for data transfer service id: %d.\r\n", svcID ));
-                     ret = false;
-                }
-            }
-
-
-            if( ret == true )
-            {
-
-                 status = IotBle_CreateService(_dataTransferServices[ svcID ].pGattServicePtr, (IotBleAttributeEventCallback_t *)_callbacks);
-                 if (status != eBTStatusSuccess)
-                 {
-                      configPRINTF(("Failed to create data transfer BLE service id: %d, error = %d\r\n.", svcID, status ));
-                      ret = false;
-                 }
-                else
-                {
-                     _dataTransferServices[ svcID ].initialized = true;
-                }
-            }
+        callback.pMtuChangedCb = _MTUChangedCallback;
+        status = IotBle_RegisterEventCb( eBLEMtuChanged, callback );
+        if( status != eBTStatusSuccess )
+        {
+            configPRINTF(( "Failed to register MTU changed callback, status = %d.\r\n",status ));
+            ret = false;
+        }
     }
 
     return ret;
 }
 
-/*-----------------------------------------------------------*/
-
-IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
-                                        void * pCredentialInfo,
-                                        void ** pConnection )
+static bool _initializeService( IotBleDataTransferService_t* pService, const BTAttribute_t* pAttributeTable )
 {
-    IotNetworkError_t ret = IOT_NETWORK_FAILURE;
-    IotBleDataTransferService_t * pService;
-    IotBleNetworkInfo_t *pInfo = ( IotBleNetworkInfo_t *) pConnectionInfo;
+    BTStatus_t status;
+    bool ret = true;
 
-    ( void ) pCredentialInfo;
+    memset( pService->handles, 0x00,  sizeof( pService->handles ) );
+    memset( &pService->gattService, 0x00, sizeof( BTService_t ) );
 
-    if( pInfo->service < IOT_BLE_MAX_DATA_TRANSFER_SERVICES )
+    pService->gattService.pusHandlesBuffer     = pService->handles;
+    pService->gattService.xNumberOfAttributes  = IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES;
+    pService->gattService.pxBLEAttributes      = ( BTAttribute_t * ) pAttributeTable;
+
+    status = IotBle_CreateService(&pService->gattService, (IotBleAttributeEventCallback_t *)_callbacks);
+    if (status != eBTStatusSuccess)
     {
-        /* FIXME: Remove delay after adding type:0 message */ 
-        vTaskDelay( pdMS_TO_TICKS( 3000 ));
-        pService = &_dataTransferServices[ pInfo->service ];
-        if( ( pService->initialized == true ) && ( bleConnected == true ) &&
-            ( pService->connection.receiveCallback == NULL ) )
+        configPRINTF(("Failed to create GATT service for service id %d, error = %d\r\n.", pService->identifier, status));
+        ret = false;
+    }
+
+    return ret;
+
+}
+
+static bool _initializeChannel( IotBleDataTransferChannel_t* pChannel )
+{
+    bool ret;
+
+    memset( pChannel, 0x00, sizeof( IotBleDataTransferChannel_t ) );
+
+    pChannel->timeout = IOT_BLE_DATA_TRANSFER_TIMEOUT_MS;
+    ret = IotSemaphore_Create( &pChannel->sendLock, 0, 1 );
+    if( ret == true )
+    {
+        IotSemaphore_Post( &pChannel->sendLock);
+    }
+    else
+    {
+        configPRINTF(( "Failed to create semaphore for send buffer.\r\n" ));
+    }
+
+    if (ret == true)
+    {
+        /* Create a recursive lock for receive. */
+        ret = IotMutex_Create( &pChannel->receiveLock, true );
+        if (ret == false)
         {
-            *pConnection = pService;
-            ret = IOT_NETWORK_SUCCESS;
+            configPRINTF(( "Failed to create mutex for receive buffer.\r\n" ));
+        }
+    }
+
+    if (ret == true)
+    {
+
+        pChannel->sendBuffer = xStreamBufferCreate( IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE, IOT_BLE_PREFERRED_MTU_SIZE );
+        if (pChannel->sendBuffer == NULL)
+        {
+            configPRINTF(( "Failed to create send buffer. \r\n" ));
+            ret = false;
+        }
+    }
+
+    return ret;
+}
+
+
+bool IotBleDataTransfer_Init( void )
+{
+    
+    static bool callbacksRegistered = false;
+    IotBleDataTransferService_t *pService = NULL;
+    uint8_t index;
+    bool ret;
+
+    ret = _registerCallbacks();
+
+    /* Initialize all data transfer services */
+    if( ret == true )
+    {
+        for (index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++)
+        {
+            ret = _initializeChannel( &_services[index].channel );
+            if (ret == false)
+            {
+                configPRINTF(("Failed to initialize channel for service id: %d\r\n.", _services[index].identifier));
+                break;
+            }
+            else
+            {
+                ret = _initializeService( &_services[index], _attributeTable[ index ] );
+                if (ret == false)
+                {
+                    configPRINTF(( "Failed to initialize channel for service id: %d\r\n.", _services[index].identifier ));
+                    break;
+                }
+            }
         }
     }
 
@@ -857,98 +957,158 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
 
 /*-----------------------------------------------------------*/
 
-IotNetworkError_t IotNetworkBle_Close( void * pConnection )
-{
-    IotBleDataTransferService_t * pService = ( IotBleDataTransferService_t * ) pConnection;
 
-    if( ( pService != NULL ) && ( pService->connection.receiveCallback != NULL ) )
+IotBleDataTransferChannel_t * IotBleDataTransfer_Open( uint8_t serviceIdentifier )
+{
+    uint8_t index;
+    IotBleDataTransferChannel_t * pChannel = NULL;
+
+    for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
     {
-        _closeConnection( pService );
+        if( _services[index].identifier == serviceIdentifier )
+        {
+            if( _services[index].channel.isUsed == false )
+            {  
+                pChannel = &_services[ index ].channel;
+                pChannel->isUsed = true;
+            }
+        }
     }
 
-    return IOT_NETWORK_SUCCESS;
+    return pChannel;
 }
 
-IotNetworkError_t IotNetworkBle_Destroy( void * pConnection )
-{
-    IotBleDataTransferService_t * pService = ( IotBleDataTransferService_t * ) pConnection;
 
-    if( ( pService != NULL ) && ( pService->connection.receiveCallback == NULL ) )
+bool IotBleDataTransfer_SetCallback( IotBleDataTransferChannel_t* pChannel, const IotBleDataTransferChannelCallback_t callback, void *pContext )
+{
+    bool ret = false;
+    if( pChannel != NULL &&
+        callback != NULL &&
+        pChannel->callback == NULL  )
     {
-        _resetBuffer( pService );
+        pChannel->callback = callback;
+        pChannel->pContext = pContext;
+
+        if( pChannel->isReady == true )
+        {
+            pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_READY, pChannel, pContext );
+        }
+
+        ret = true;
     }
 
-    return IOT_NETWORK_SUCCESS;
+    return ret;
+}
+
+
+/*-----------------------------------------------------------*/
+
+void IotBleDataTransfer_Close( IotBleDataTransferChannel_t * pChannel )
+{
+    pChannel->isUsed = false;
+    if( pChannel->callback != NULL )
+    {
+        pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED, pChannel, pChannel->pContext );
+    }
+}
+
+void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel )
+{
+
+    IotSemaphore_Wait( &pChannel->sendLock );
+    xStreamBufferReset( pChannel->sendBuffer );
+    IotSemaphore_Post( &pChannel->sendLock );
+
+    IotMutex_Lock( &pChannel->receiveLock );
+    if( pChannel->pReceiveBuffer != NULL )
+    {
+        vPortFree( pChannel->pReceiveBuffer );
+        pChannel->head = pChannel->tail = 0;
+        pChannel->length = 0;
+        pChannel->pReceiveBuffer = NULL;
+        pChannel->pendingRead = false;
+    }
+    IotMutex_Unlock( &pChannel->receiveLock );
+}
+
+/*-----------------------------------------------------------*/
+size_t IotBleDataTransfer_Receive( IotBleDataTransferChannel_t * pChannel, uint8_t * pBuffer, size_t bytesRequested )
+{
+    size_t bytesReturned = 0;
+    
+    IotMutex_Lock( &pChannel->receiveLock );
+    
+    bytesReturned = ( pChannel->head - pChannel->tail );
+    if( bytesReturned > bytesRequested )
+    {
+        bytesReturned = bytesRequested;
+    }
+
+    if( pBuffer != NULL )
+    {
+        memcpy( pBuffer, pChannel->pReceiveBuffer, bytesReturned );
+    }
+
+    pChannel->tail += bytesReturned;
+    if( ( pChannel->tail == pChannel->head ) && pChannel->pendingRead == true )
+    {
+        pChannel->head = pChannel->tail = 0;
+        pChannel->pendingRead = false;
+    }
+    
+    IotMutex_Unlock( &pChannel->receiveLock );
+
+    
+    return bytesReturned;
 }
 
 /*-----------------------------------------------------------*/
 
-size_t IotNetworkBle_Receive( void * pConnection,
-                           uint8_t * pBuffer,
-                           size_t bytesRequested )
+size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const uint8_t * const pMessage, size_t messageLength )
 {
-    IotBleDataTransferService_t * pService = ( IotBleDataTransferService_t * ) pConnection;
-    memcpy( pBuffer, pService->connection.pRecvBuffer, bytesRequested );
-    return bytesRequested;
-}
-
-
-IotNetworkError_t IotNetworkBle_SetReceiveCallback( void * pConnection,
-                                                 IotNetworkReceiveCallback_t receiveCallback,
-                                                 void * pContext )
-{
-    IotBleDataTransferService_t * pService = ( IotBleDataTransferService_t * ) pConnection;
-    pService->connection.receiveCallback = receiveCallback;
-    pService->connection.pContext = pContext;
-    return IOT_NETWORK_SUCCESS;
-}
-/*-----------------------------------------------------------*/
-
-size_t IotNetworkBle_Send( void * pConnection,
-                        const uint8_t * const pMessage,
-                        size_t messageLength )
-{
-    IotBleDataTransferService_t * pService = ( ( IotBleDataTransferService_t * ) pConnection );
     size_t sendLength, remainingLength = messageLength;
-    TickType_t timeRemaining = pdMS_TO_TICKS( pService->connection.sendTimeout );
+    TickType_t timeRemaining = pdMS_TO_TICKS( pChannel->timeout );
     TimeOut_t timeout;
     uint8_t * pData;
 
     vTaskSetTimeOutState( &timeout );
 
-    if( ( pService != NULL ) && ( pService->connection.receiveCallback != NULL ) )
+    if( pChannel->isUsed )
     {
-        if( messageLength < ( size_t ) IOT_BLE_DATA_TRANSFER_LENGTH( bleMTU ) )
+        if( messageLength < transmitLength  )
         {
-            if( _sendNotification( pService, IOT_BLE_DATA_TRANSFER_TX_CHAR, ( uint8_t * ) pMessage, messageLength ) == true )
+            if( _send( pChannel, false, ( uint8_t * ) pMessage, messageLength ) == true )
             {
+                if( pChannel->callback != NULL )
+                {
+                    pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_SENT, pChannel, pChannel->pContext );
+                }
                 remainingLength = 0;
             }
             else
             {
-                configPRINTF( ( "Failed to send data over BLE, GATT notification failed.\r\n" ) );
+                configPRINTF( ( "TX failed, GATT notification failed.\r\n" ) );
             }
         }
         else
         {
-            if( IotSemaphore_TimedWait( &pService->connection.sendLock, pService->connection.sendTimeout ) == true )
+            if( IotSemaphore_TimedWait( &pChannel->sendLock, pChannel->timeout ) == true )
             {
-                sendLength = ( size_t ) IOT_BLE_DATA_TRANSFER_LENGTH( bleMTU );
+                sendLength =  transmitLength;
                 pData = ( uint8_t * ) pMessage;
 
-                if( _sendNotification( pService, IOT_BLE_DATA_TRANSFER_TX_LARGE_CHAR, pData, sendLength ) == true )
+                if( _send( pChannel, true, pData, sendLength ) == true )
                 {
                     remainingLength = remainingLength - sendLength;
                     pData += sendLength;
 
                     while( remainingLength > 0 )
                     {
-                        if( ( pService->connection.receiveCallback == NULL ) ||
-                            ( xTaskCheckForTimeOut( &timeout, &timeRemaining ) == pdTRUE ) )
+                        if( xTaskCheckForTimeOut( &timeout, &timeRemaining ) == pdTRUE )
                         {
-                            configPRINTF( ( "Failed to send data over BLE, connection timed out or closed.\r\n" ) );
-                            xStreamBufferReset( pService->connection.sendBuffer );
-                            IotSemaphore_Post( &pService->connection.sendLock );
+                            configPRINTF( ( "TX Failed, channel timed out.\r\n" ) );
+                            xStreamBufferReset( pChannel->sendBuffer );
+                            IotSemaphore_Post( &pChannel->sendLock );
                             break;
                         }
 
@@ -961,21 +1121,21 @@ size_t IotNetworkBle_Send( void * pConnection,
                             sendLength = IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE;
                         }
 
-                        sendLength = xStreamBufferSend( pService->connection.sendBuffer, pData, sendLength, timeRemaining );
+                        sendLength = xStreamBufferSend( pChannel->sendBuffer, pData, sendLength, timeRemaining );
                         remainingLength -= sendLength;
                         pData += sendLength;
                     }
                 }
                 else
                 {
-                    configPRINTF( ( "Failed to send data over BLE, GATT notification failed.\r\n" ) );
+                    configPRINTF( ( "TX Failed, GATT notification failed.\r\n" ) );
                 }
             }
         }
     }
     else
     {
-        configPRINTF( ( "Failed to send data over BLE, connection closed.\r\n" ) );
+        configPRINTF( ( "TX Failed, channel closed.\r\n" ) );
     }
 
     return( messageLength - remainingLength );

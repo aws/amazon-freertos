@@ -338,7 +338,7 @@ BTStatus_t _startAllServices()
 
     if( error == pdPASS )
     {
-    	if( IotBleDataTransferService_Init( IOT_BLE_SERVICE_MQTT ) == false )
+    	if( IotBleDataTransfer_Init() == false )
 	{
 	    error = pdFAIL;
 	}

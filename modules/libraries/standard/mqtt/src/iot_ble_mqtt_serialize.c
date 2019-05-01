@@ -41,9 +41,10 @@
 
 
 /* MQTT internal includes. */
-#include "iot_ble_data_transfer.h"
 #include "platform/iot_threads.h"
 #include "iot_serializer.h"
+#include "platform/iot_network_ble.h"
+#include "iot_ble_data_transfer.h"
 #include "private/iot_ble_mqtt_serialize.h"
 #include "private/iot_mqtt_internal.h"
 
@@ -1406,21 +1407,23 @@ IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacke
 size_t IotBleMqtt_GetRemainingLength ( void * pNetworkConnection,
                                        const IotNetworkInterface_t * pNetworkInterface )
 {
-    IotBleDataTransferService_t * pService = (( IotBleDataTransferService_t * ) pNetworkConnection);
-
-    return pService->connection.recvBufferLen;
+    IotBleNetworkContext_t * pContext = ( IotBleNetworkContext_t * ) pNetworkConnection;
+    IotBleDataTransferChannel_t *pChannel = ( IotBleDataTransferChannel_t* ) ( pContext->pChannel );
+    return ( pChannel->head - pChannel->tail );
 }
 
 
 uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInterface_t * pNetworkInterface )
 {
 
-   IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
+    IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
     uint8_t value, packetType = _INVALID_MQTT_PACKET_TYPE;
-    IotBleDataTransferService_t * pService = (( IotBleDataTransferService_t * ) pNetworkConnection);
+    IotBleNetworkContext_t * pContext = ( IotBleNetworkContext_t * ) pNetworkConnection;
+    IotBleDataTransferChannel_t *pChannel = ( IotBleDataTransferChannel_t* ) ( pContext->pChannel );
+    size_t length = ( pChannel->head - pChannel->tail );
 
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* )pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* ) pChannel->pReceiveBuffer, length );
 
     if( ( error == IOT_SERIALIZER_SUCCESS )
             && ( decoderObj.type == IOT_SERIALIZER_CONTAINER_MAP ) )

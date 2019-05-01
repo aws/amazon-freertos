@@ -116,7 +116,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                            void * pContext )
 {
     const IotNetworkInterface_t * pNetworkInterface;
-    bool awsIotMqttMode = false;
 
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
@@ -128,16 +127,11 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         if( pDemoContext->networkConnectedCallback != NULL )
         {
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
-
             /* ALPN only works over port 443. Disable it otherwise. */
-            if( ipNetworkInfo.port != 443 )
+            if( networkInfo.port != 443 )
             {
                 credentials.pAlpnProtos = NULL;
             }
-
-            pIotNetworkInfo = ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE ) ? (void*) &bleNetworkInfo: ( void*) &ipNetworkInfo;
-
-            awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
 
             /* According to C99 standard, it should transfer from any pointer to void pointer.
              * In this case, it is "IotNetworkServerInfoAfr_t const *".
@@ -167,13 +161,10 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
 
                 /* ALPN only works over port 443. Disable it otherwise. */
-                if( ipNetworkInfo.port != 443 )
+                if( networkInfo.port != 443 )
                 {
                     credentials.pAlpnProtos = NULL;
                 }
-
-                awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
-                pIotNetworkInfo = ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE ) ? (void*) &bleNetworkInfo: ( void*) &ipNetworkInfo;
 
                 /* According to C99 standard, it should transfer from any pointer to void pointer.
                  * In this case, it is "IotNetworkServerInfoAfr_t const *".
@@ -308,14 +299,9 @@ void runDemoTask( void * pArgument )
 
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
-    IotNetworkServerInfoAfr_t ipNetworkInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-    IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
-    IotBleNetworkInfo_t bleNetworkInfo = { .service = IOT_BLE_SERVICE_MQTT };
-    void *pIotNetworkInfo = NULL;
- 
+    IotNetworkServerInfoAfr_t networkInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER; 
     int status = EXIT_SUCCESS;
-    bool awsIotMqttMode = false;
-
     status = _initialize( pContext );
 
     if( status == EXIT_SUCCESS )
@@ -325,22 +311,16 @@ void runDemoTask( void * pArgument )
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
 
         /* ALPN only works over port 443. Disable it otherwise. */
-        if( ipNetworkInfo.port != 443 )
+        if( networkInfo.port != 443 )
         {
             credentials.pAlpnProtos = NULL;
         }
-
-        /* Set AWS Iot Mqtt mode to false to disable keep alive for non TCP/IP networks like bluetooth */
-        awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
-
-        pIotNetworkInfo = ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE ) ? (void*) &bleNetworkInfo: ( void*) &ipNetworkInfo;
-
         /* Run the demo. */
-        status = pContext->demoFunction( awsIotMqttMode,
-                                         clientcredentialIOT_THING_NAME,
-                                         &serverInfo,
-                                         &credentials,
-                                         pNetworkInterface );
+        status = pContext->demoFunction( true,
+                                clientcredentialIOT_THING_NAME,
+                                &networkInfo,
+                                &credentials,
+                                pNetworkInterface );
 
         /* Report heap usage. */
         IotLogInfo( "Demo minimum ever free heap: %lu bytes.",

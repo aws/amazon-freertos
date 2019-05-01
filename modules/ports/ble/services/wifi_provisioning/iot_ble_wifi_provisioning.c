@@ -35,7 +35,6 @@
 
 #include "iot_ble_config.h"
 #include "iot_ble_wifi_provisioning.h"
-#include "iot_ble_data_transfer.h"
 #include "iot_serializer.h"
 #include "iot_taskpool.h"
 
@@ -107,8 +106,7 @@ static WIFIScanResult_t scanNetworks[ IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS
 /*
  * @brief Callback registered for BLE write and read events received for each characteristic.
  */
-static void _requestCallback( void * pConnection,  void * pContext );
-
+static void _callback( IotBleDataTransferChannelStatus_t event, IotBleDataTransferChannel_t *pChannel, void *pContext );
 
 static bool _deserializeListNetworkRequest( uint8_t * pData,
                                             size_t length,
@@ -152,12 +150,6 @@ static bool _deserializeDeleteNetworkRequest( uint8_t * pData,
  */
 static bool _handleDeleteNetworkRequest( uint8_t * pData,
                                          size_t length );
-
-
-/*
- * @brief Gets the GATT characteristic for a given attribute handle.
- */
-static IotBleWifiProvAttributes_t _getCharFromHandle( uint16_t handle );
 
 
 WIFIReturnCode_t _appendNetwork( WIFINetworkProfile_t * pProfile );
@@ -267,38 +259,56 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
     
 }
 
-static void _requestCallback( void * pConnection,  void * pContext )
+static void _callback( IotBleDataTransferChannelStatus_t event, IotBleDataTransferChannel_t *pChannel, void *pContext )
 {
-    IotBleDataTransferService_t * pService = ( IotBleDataTransferService_t* ) pConnection;
     int32_t requestType;
-    
-    if( _getRequestType( pService->connection.pRecvBuffer, pService->connection.recvBufferLen, &requestType ) == true )
+    size_t length = ( pChannel->head - pChannel->tail );
+
+    if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE )
     {
-        switch( requestType )
+        if( _getRequestType( pChannel->pReceiveBuffer, length, &requestType ) == true )
         {
-            case IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ:
-                _handleListNetworkRequest( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
-                break;
+            switch( requestType )
+            {
+                case IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ:
+                    _handleListNetworkRequest( pChannel->pReceiveBuffer, length );
+                    break;
 
-            case IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ:
-                _handleSaveNetworkRequest( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
-                break;
+                case IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ:
+                    _handleSaveNetworkRequest( pChannel->pReceiveBuffer, length );
+                    break;
 
-            case IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_REQ:
-                _handleEditNetworkRequest( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
-                break;
+                case IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_REQ:
+                    _handleEditNetworkRequest( pChannel->pReceiveBuffer, length );
+                    break;
 
-            case IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ:
-                _handleDeleteNetworkRequest( pService->connection.pRecvBuffer, pService->connection.recvBufferLen );
-                break;
-            default:
-                configPRINTF(( "Invalid request type ( %d ) received.\r\n", requestType ));
-                break;
+                case IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ:
+                    _handleDeleteNetworkRequest( pChannel->pReceiveBuffer, length );
+                    break;
+                default:
+                    configPRINTF(( "Invalid request type ( %d ) received.\r\n", requestType ));
+                    break;
+            }
         }
+        else
+        {
+            configPRINTF(( "Failed to get request type from the message.\r\n" ));
+        }
+        /* Do an empty read to flush the buffer. */
+        IotBleDataTransfer_Receive( pChannel, NULL, length );
+
     }
-    else
+    else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED )
     {
-        configPRINTF(( "Failed to get request type from the message.\r\n" ));
+        IotBleDataTransfer_Reset( pChannel );
+        wifiProvisioning.pChannel = NULL;
+    }
+    else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_READY )
+    {
+        if( wifiProvisioning.pChannel == NULL )
+        {
+            wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
+        }
     }
 }
 
@@ -1083,7 +1093,7 @@ static void _sendStatusResponse( int32_t responseType, WIFIReturnCode_t status )
     if( ret == IOT_SERIALIZER_SUCCESS )
     {
         
-        if( IOT_NETWORK_INTERFACE_BLE->send( wifiProvisioning.pBleConnection, pBuffer, mesgLen ) != mesgLen )
+        if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, pBuffer, mesgLen ) != mesgLen )
         {
             configPRINTF((" Failed to send status response through ble connection.\r\n" ));
         }
@@ -1305,7 +1315,7 @@ static void _sendSavedNetwork( int32_t responseType,
 
     if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
-        if( IOT_NETWORK_INTERFACE_BLE->send( wifiProvisioning.pBleConnection, message, messageLen ) != messageLen )
+        if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, message, messageLen ) != messageLen )
         {
             configPRINTF((" Failed to send saved networks through ble connection.\r\n" ));
         }
@@ -1355,7 +1365,7 @@ static void _sendScanNetwork( int32_t responseType, WIFIScanResult_t * pScanNetw
 
     if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
-        if( IOT_NETWORK_INTERFACE_BLE->send( wifiProvisioning.pBleConnection, message, messageLen ) != messageLen )
+        if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, message, messageLen ) != messageLen )
         {
             configPRINTF((" Failed to send scanned networks through ble connection.\r\n" ));
         }
@@ -1493,16 +1503,6 @@ bool IotBleWifiProv_Init( void )
         {
             ret = false;
         }
-
-        if( ret == true )
-        {
-            ret = IotBleDataTransferService_Init( IOT_BLE_SERVICE_WIFI_PROVISIONING );
-            if( ret == false )
-            {
-                configPRINTF(( "Failed to create WiFi provisioning data tranfer service.\r\n" ));
-            }
-        }
-
         wifiProvisioning.init = true;
     }
 
@@ -1515,39 +1515,21 @@ bool IotBleWifiProv_Init( void )
 
 bool IotBleWifiProv_Start( void )
 {
-    bool ret = true;
-    IotNetworkError_t error;
-    IotBleNetworkInfo_t info  = { .service = IOT_BLE_SERVICE_WIFI_PROVISIONING };
+    bool status = false;
 
     if( wifiProvisioning.init == true )
     {
-
         wifiProvisioning.numNetworks = _getNumSavedNetworks();
-
-        error = IOT_NETWORK_INTERFACE_BLE->create( &info, NULL, &wifiProvisioning.pBleConnection );
-        if( error != IOT_NETWORK_SUCCESS )
+        wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
+        if( wifiProvisioning.pChannel != NULL )
         {
-            configPRINTF(( "WiFi Provisioning start failed, error in creating connection, error = %d.\r\n", error ));
-            ret = false;
+            IotBleDataTransfer_SetCallback( wifiProvisioning.pChannel, _callback, NULL );
+            status = true;
         }
-        
-        if( ret == true )
-        {
-            error = IOT_NETWORK_INTERFACE_BLE->setReceiveCallback( wifiProvisioning.pBleConnection, _requestCallback, NULL );
-            if( error != IOT_NETWORK_SUCCESS )
-            {
-                configPRINTF(( "WiFi Provisioning service failed to set connection callback, error = %d.\r\n", error ));
-                ret = false;
-            }
-        }
-    }
-    else
-    {
-        ret = false;
-    }
-    
 
-    return ret;
+    }
+
+    return status;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -1611,8 +1593,8 @@ bool IotBleWifiProv_Delete( void )
     if( wifiProvisioning.init == true )
     {
 
-        IOT_NETWORK_INTERFACE_BLE->close( wifiProvisioning.pBleConnection );
-        IOT_NETWORK_INTERFACE_BLE->destroy( wifiProvisioning.pBleConnection );
+        IotBleDataTransfer_Close( wifiProvisioning.pChannel );
+        IotBleDataTransfer_Reset( wifiProvisioning.pChannel );
 
         //Delete service.
         if( wifiProvisioning.lock != NULL )

@@ -36,27 +36,8 @@
 #include "task.h"
 #include "semphr.h"
 #include "iot_ble.h"
+#include "iot_ble_data_transfer.h"
 #include "aws_wifi.h"
-
-
-
-/**
- * @ingroup ble_datatypes_enums
- * @brief GATT characteristics used by the WiFi provisioning service.
- */
-typedef enum
-{
-    IOT_BLE_WIFI_PROV_SVC = 0,                   /**< IOT_BLE_WIFI_PROV_SVC WIFI provisioning service */
-    IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR,         /**< IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR Used by the GATT client to list the saved networks and scanned networks */
-    IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_DESCR,   /**< IOT_BLE_WIFI_PROV_LIST_NETWORK_CHAR_DESCR Client Characteristic Configuration descriptor to enable notifications to send List Network response */
-    IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR,         /**< IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR Used by the GATT client to provision a new WiFi network on the device */
-    IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_DESCR,   /**< IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR_DESCR Client Characteristic Configuration descriptor to enable notifications to send Save Network response */
-    IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR,         /**<  IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR Used by the GATT client to change the priority order of the saved networks on the device */
-    IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_DESCR,   /**<   IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR_DESCR Client Characteristic Configuration descriptor to enable notifications to send Edit Network response */
-    IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR,       /**< IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR Used by the GATT client to delete the saved WiFi network on the device */
-    IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_DESCR, /**< IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR_DESCR Client Characteristic Configuration descriptor to enable notifications to send Delete Network response */
-    IOT_BLE_WIFI_PROV_NB_ATTRIBUTES              /**< IOT_BLE_WIFI_PROV_NB_ATTRIBUTES Number of attributes in the enum. */
-} IotBleWifiProvAttributes_t;
 
 
 /**
@@ -136,7 +117,7 @@ typedef enum
  */
 typedef struct IotBleWifiProvService
 {
-    void * pBleConnection;           /**< A pointer to the ble connection object. */
+    IotBleDataTransferChannel_t * pChannel;    /**< A pointer to the ble connection object. */
     SemaphoreHandle_t lock;          /**< A lock to protect the WiFi provisioning service. */
     uint16_t numNetworks;            /**< The number of networks. */
     int16_t connectedIdx;            /**< The index of the network that is connected. */
