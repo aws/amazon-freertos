@@ -13,7 +13,7 @@ endif()
 # Include IDE specific cmake file.
 if(${AFR_TOOLCHAIN} STREQUAL "arm-ti")
     include("ccs.cmake")
-elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar") 
+elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar")
     include("iar.cmake")
 elseif(NOT AFR_NON_BUILD_MODE)
     message( FATAL_ERROR "The toolchain is not supported." )
@@ -176,7 +176,7 @@ add_executable(
     ${board_code_src}
     ${config_files}
     "${board_dir}/application_code/main.c"
-    ${network_manager_src}
+    $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
     "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
 )
 target_link_libraries(
