@@ -18,7 +18,7 @@
 
 ################################################################
 # Buffer payload
-  "BUFFER_PAYLOAD": "__eval 1 if {BUFFER_SIZE} <= {BUFFER_HEADER} else {BUFFER_SIZE} - {BUFFER_HEADER}",
+  "BUFFER_PAYLOAD": "__eval 1 if {BUFFER_SIZE} <= {BUFFER_HEADER} else {BUFFER_SIZE} - {BUFFER_HEADER} + 2",
 
 ################################################################
 

@@ -108,11 +108,6 @@ are located. */
 located. */
 #define dhcpFIRST_OPTION_BYTE_OFFSET			( 0xf0 )
 
-/* When walking the variable length options field, the following value is used
-to ensure the walk has not gone past the end of the valid options.  2 bytes is
-made up of the length byte, and minimum one byte value. */
-#define dhcpMAX_OPTION_LENGTH_OF_INTEREST		( 2L )
-
 /* Standard DHCP port numbers and magic cookie value. */
 #if( ipconfigBYTE_ORDER == pdFREERTOS_LITTLE_ENDIAN )
 	#define dhcpCLIENT_PORT 0x4400u
@@ -647,9 +642,11 @@ const uint32_t ulMandatoryOptions = 2ul; /* DHCP server address, and the correct
 				/* Walk through the options until the dhcpOPTION_END_BYTE byte
 				is found, taking care not to walk off the end of the options. */
 				pucByte = &( pxDHCPMessage->ucFirstOptionByte );
-				pucLastByte = &( pucUDPPayload[ lBytes - dhcpMAX_OPTION_LENGTH_OF_INTEREST ] );
+                /* Maintain a pointer to the last valid byte (i.e. not the first
+                invalid byte). */
+				pucLastByte = pucUDPPayload + lBytes - 1;
 
-				while( pucByte < pucLastByte )
+				while( pucByte <= pucLastByte )
 				{
 					ucOptionCode = pucByte[ 0 ];
 					if( ucOptionCode == dhcpOPTION_END_BYTE )
@@ -666,12 +663,13 @@ const uint32_t ulMandatoryOptions = 2ul; /* DHCP server address, and the correct
 					}
 
 					/* Stop if the response is malformed. */
-					if( pucByte < pucLastByte - 1 )
+					if( pucByte < pucLastByte )
 					{
+                        /* There are at least two bytes left. */
 						ucLength = pucByte[ 1 ];
 						pucByte += 2;
 
-						if( pucByte >= pucLastByte - ucLength )
+						if( pucByte + ucLength > pucLastByte )
 						{
 							break;
 						}
