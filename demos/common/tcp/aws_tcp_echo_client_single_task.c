@@ -338,7 +338,7 @@ static void prvEchoClientTask( void * pvParameters )
                      * length. */
                     ulTxRxFailures[ xInstance ]++;
                     configPRINTF( ( "ERROR: xTransmitted %d xReceivedBytes %d \r\n",
-						(int)xTransmitted, (int)xReceivedBytes ) );
+                                    (int)xTransmitted, (int)xReceivedBytes ) );
                     /* Timed out without receiving anything? */
                     break;
                 }
