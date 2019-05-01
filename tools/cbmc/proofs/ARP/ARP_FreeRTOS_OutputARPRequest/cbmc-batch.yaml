@@ -1,4 +1,4 @@
 jobos: ubuntu16
-cbmcflags: '=--object-bits;7;--unwind;1;--unwinding-assertions;--32;--bounds-check;--pointer-check='
+cbmcflags: '=--object-bits;7;--32;--bounds-check;--pointer-check;--unwind;1='
 goto: OutputARPRequest.goto
 expected: SUCCESSFUL
