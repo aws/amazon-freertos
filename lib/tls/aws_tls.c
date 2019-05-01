@@ -292,9 +292,9 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          size_t xHashLen,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
-                                         int ( * piRng )( void *,
-                                                          unsigned char *,
-                                                          size_t ), /*lint !e955 This parameter is unused. */
+                                         int ( *piRng )( void *,
+                                                         unsigned char *,
+                                                         size_t ),  /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
     CK_RV xResult = 0;
@@ -319,7 +319,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
     if( CKK_RSA == pxTLSContext->xKeyType )
     {
         xMech.mechanism = CKM_RSA_PKCS;
-        vAppendSHA256AlgorithmIdentifierSequence( (uint8_t *) pucHash, xToBeSigned );
+        vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
         xToBeSignedLen = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
     }
     else if( CKK_EC == pxTLSContext->xKeyType )
@@ -622,7 +622,6 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     {
         TLS_PRINT( ( "ERROR: Loading credentials from flash into TLS context failed with error %d.\r\n", xResult ) );
     }
-
 
     return xResult;
 }
