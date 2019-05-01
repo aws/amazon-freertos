@@ -753,9 +753,6 @@
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h">
       <Filter>modules\libraries\standard\freertos_plus_posix\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\portable\pc\windows\FreeRTOS_POSIX_portable.h">
-      <Filter>modules\libraries\standard\freertos_plus_posix\include\portable</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\include\aws_mqtt_agent.h">
       <Filter>modules\libraries\standard\mqtt\include</Filter>
     </ClInclude>
@@ -929,6 +926,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h">
       <Filter>demos\tcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ports\posix\FreeRTOS_POSIX_portable.h">
+      <Filter>modules\libraries\standard\freertos_plus_posix\include\portable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
