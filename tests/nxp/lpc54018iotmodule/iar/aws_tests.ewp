@@ -1571,6 +1571,9 @@
             <group>
                 <name>pkcs11</name>
                 <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\aws_pkcs11.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c</name>
                 </file>
                 <file>
@@ -1603,6 +1606,9 @@
             </group>
             <group>
                 <name>utils</name>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\lib\utils\aws_pki_utils.c</name>
+                </file>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\lib\utils\aws_system_init.c</name>
                 </file>

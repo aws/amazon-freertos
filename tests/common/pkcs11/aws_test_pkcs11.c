@@ -239,7 +239,6 @@ TEST_GROUP_RUNNER( Full_PKCS11_RSA )
 
 
 
-
 TEST_SETUP( Full_PKCS11_EC )
 {
     #ifdef PKCS11_TEST_MEMORY_LEAK
@@ -275,22 +274,22 @@ TEST_TEAR_DOWN( Full_PKCS11_EC )
 
 TEST_GROUP_RUNNER( Full_PKCS11_EC )
 {
-#if( pkcs11testEC_KEY_SUPPORT == 1 )
-	prvBeforeRunningTests();
+    #if ( pkcs11testEC_KEY_SUPPORT == 1 )
+        prvBeforeRunningTests();
 
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObject );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValue );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Sign );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
-    RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObject );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValue );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Sign );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
 
 
-    prvAfterRunningTests();
-#endif
+        prvAfterRunningTests();
+    #endif /* if ( pkcs11testEC_KEY_SUPPORT == 1 ) */
 }
 
 /* Data structure to store results of multi-thread tests. */
@@ -362,7 +361,7 @@ static void prvMultiThreadHelper( void * pvTaskFxnPtr )
             xGlobalTaskParams[ xTaskNumber ].xTaskNumber = xTaskNumber;
             xGlobalTaskParams[ xTaskNumber ].xTestResult = 0xFFFFFFFF; /* Initialize to a non-zero value. */
 
-            xTaskCreate( pvTaskFxnPtr,                                 /* Task code. */
+            xTaskCreate( ( TaskFunction_t ) pvTaskFxnPtr,              /* Task code. */
                          "Multithread",                                /* All tasks have same name, but are distinguished by task number. */
                          pkcs11testMULTI_TASK_STACK_SIZE,              /* Task stack size. */
                          &( xGlobalTaskParams[ xTaskNumber ] ),        /* Where the task writes its result. */
@@ -900,7 +899,7 @@ TEST( Full_PKCS11_NoObject, AFQP_GenerateRandomMultiThread )
         xGlobalTaskParams[ xTaskNumber ].pvTaskData = &xSessionHandle[ xTaskNumber ];
     }
 
-    prvMultiThreadHelper( prvGenerateRandomMultiThreadTask );
+    prvMultiThreadHelper( ( void * ) prvGenerateRandomMultiThreadTask );
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
     {
@@ -1911,7 +1910,7 @@ TEST( Full_PKCS11_RSA, AFQP_FindObjectMultiThread )
 
     prvProvisionRsaTestCredentials( &xPrivateKey, &xCertificate );
 
-    prvMultiThreadHelper( prvFindObjectMultiThreadTask );
+    prvMultiThreadHelper( ( void * ) prvFindObjectMultiThreadTask );
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
     {
@@ -1944,7 +1943,7 @@ TEST( Full_PKCS11_EC, AFQP_FindObjectMultiThread )
 
     prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
 
-    prvMultiThreadHelper( prvFindObjectMultiThreadTask );
+    prvMultiThreadHelper( ( void * ) prvFindObjectMultiThreadTask );
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
     {
@@ -2059,7 +2058,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread )
 
     prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
 
-    prvMultiThreadHelper( prvECGetAttributeValueMultiThreadTask );
+    prvMultiThreadHelper( ( void * ) prvECGetAttributeValueMultiThreadTask );
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
     {
@@ -2189,7 +2188,7 @@ TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
         xGlobalTaskParams[ xTaskNumber ].pvTaskData = &xSignStructs[ xTaskNumber ];
     }
 
-    prvMultiThreadHelper( prvECSignVerifyMultiThreadTask );
+    prvMultiThreadHelper( ( void * ) prvECSignVerifyMultiThreadTask );
 
     mbedtls_pk_free( &xEcdsaContext );
 
