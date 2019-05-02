@@ -2872,6 +2872,7 @@ static BaseType_t prvTCPSendSpecialPacketHelper( NetworkBufferDescriptor_t *pxNe
 
     /* Remove compiler warnings if ipconfigIGNORE_UNKNOWN_PACKETS == 1. */
     ( void )pxNetworkBuffer;
+    ( void )ucTCPFlags;
 
     /* The packet was not consumed. */
     return pdFAIL;
