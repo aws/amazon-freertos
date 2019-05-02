@@ -140,9 +140,10 @@ typedef struct P11Session
 
 #define pkcs11GENERATE_KEY_PAIR_KEYTYPE_ATTRIBUTE_INDEX     0
 #define pkcs11GENERATE_KEY_PAIR_ECPARAMS_ATTRIBUTE_INDEX    1
-
-
-
+#define PKCS11_MODULE_IS_INITIALIZED                        ( ( xP11Context.xIsInitialized == CK_TRUE ) ? 1 : 0 )
+#define PKCS11_SESSION_IS_OPEN( xSessionHandle )                         ( ( ( ( P11SessionPtr_t ) xSessionHandle )->xOpened ) == CK_TRUE ? CKR_OK : CKR_SESSION_CLOSED )
+#define PKCS11_SESSION_IS_VALID( xSessionHandle )                        ( ( ( P11SessionPtr_t ) xSessionHandle != NULL ) ? PKCS11_SESSION_IS_OPEN( xSessionHandle ) : CKR_SESSION_HANDLE_INVALID )
+#define PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSessionHandle )    ( PKCS11_MODULE_IS_INITIALIZED ? PKCS11_SESSION_IS_VALID( xSessionHandle ) : CKR_CRYPTOKI_NOT_INITIALIZED )
 /*-----------------------------------------------------------*/
 
 
@@ -2936,7 +2937,9 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
 
 
 /**
- * @brief Generate a new asymmetric keyset.
+ * @brief Generate a new public-private keypair.
+ *
+ * @param 
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_MECHANISM_PTR pxMechanism,
@@ -2947,7 +2950,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_OBJECT_HANDLE_PTR pxPublicKey,
                                                 CK_OBJECT_HANDLE_PTR pxPrivateKey )
 {
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );;
     uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
     int lMbedResult = 0;
     mbedtls_pk_context xCtx = { 0 };
@@ -3048,6 +3051,16 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
 /**
  * @brief Generate cryptographically random bytes.
+ *
+ * @param xSession[in]          Handle of a valid PKCS #11 session.
+ * @param pucRandomData[out]    Pointer to location that random data will be placed.
+ *                              It is the responsiblity of the application to allocate
+ *                              this memory.
+ * @param ulRandomLength[in]    Length of data (in bytes) to be generated.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                CK_BYTE_PTR pucRandomData,
@@ -3055,19 +3068,26 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = CKR_OK;
 
-    /* Avoid warnings about unused parameters. */
-    ( void ) xSession;
+    xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
-    if( ( NULL == pucRandomData ) ||
-        ( ulRandomLen == 0 ) )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_ARGUMENTS_BAD;
+        PKCS11_SESSION_IS_VALID( xSession );
     }
-    else
+
+    if( xResult == CKR_OK )
     {
-        if( 0 != mbedtls_ctr_drbg_random( &xP11Context.xMbedDrbgCtx, pucRandomData, ulRandomLen ) )
+        if( ( NULL == pucRandomData ) ||
+            ( ulRandomLen == 0 ) )
         {
-            xResult = CKR_FUNCTION_FAILED;
+            xResult = CKR_ARGUMENTS_BAD;
+        }
+        else
+        {
+            if( 0 != mbedtls_ctr_drbg_random( &xP11Context.xMbedDrbgCtx, pucRandomData, ulRandomLen ) )
+            {
+                xResult = CKR_FUNCTION_FAILED;
+            }
         }
     }
 

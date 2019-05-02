@@ -778,7 +778,6 @@ TEST( Full_PKCS11_NoObject, AFQP_Digest_ErrorConditions )
 TEST( Full_PKCS11_NoObject, AFQP_GenerateRandom )
 {
     CK_RV xResult = 0;
-    CK_SLOT_ID xSlotId = 0;
     BaseType_t xSameSession = 0;
     BaseType_t xDifferentSessions = 0;
     int i;
@@ -1130,7 +1129,6 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
 
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
 
-    CK_ATTRIBUTE xTemplate;
     vAppendSHA256AlgorithmIdentifierSequence( xHashedMessage, xHashPlusOid );
 
     /* The RSA X.509 mechanism assumes a pre-hashed input. */
@@ -1250,7 +1248,7 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
 
 
 /* Valid ECDSA private key. */
-static const char cValidECDSAPrivateKey[] =
+static const unsigned char cValidECDSAPrivateKey[] =
     "-----BEGIN PRIVATE KEY-----\n"
     "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg8gHhd5ELAooWRQls\n"
     "PfpcQREiLrvEb3oLioicMYdUmrmhRANCAATFgks3zNgbMWJ7IXg43GTYEJjwjh9B\n"
@@ -1258,7 +1256,7 @@ static const char cValidECDSAPrivateKey[] =
     "-----END PRIVATE KEY-----";
 
 /* Valid ECDSA certificate. */
-static const char cValidECDSACertificate[] =
+static const unsigned char cValidECDSACertificate[] =
     "-----BEGIN CERTIFICATE-----\n"
     "MIIBVDCB+6ADAgECAgkAoJ9fIf9ayYswCgYIKoZIzj0EAwIwHTEbMBkGA1UEAwwS\n"
     "bm9ib2R5QG5vd2hlcmUuY29tMB4XDTE4MDMwODIyNDIzNFoXDTE5MDMwODIyNDIz\n"
@@ -1333,9 +1331,11 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObject )
     CK_OBJECT_HANDLE xPrivateKeyHandle;
     CK_OBJECT_HANDLE xPublicKeyHandle;
     CK_OBJECT_HANDLE xClientCertificateHandle;
+#if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
     CK_OBJECT_HANDLE xRootCertificateHandle;
     CK_OBJECT_HANDLE xCodeSignPublicKeyHandle;
     CK_OBJECT_HANDLE xJITPCertificateHandle;
+#endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 
 
     xResult = xDestroyCredentials( xGlobalSession );
