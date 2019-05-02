@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from pprint import pprint
-import enum
 import json
 import sys
 import re
@@ -190,12 +189,35 @@ def write_makefile(opsys, template, defines, makefile):
                     line = patch_compile_output(opsys, line, key, value)
             makefile.write(line)
 
+def write_cbmcbatchyaml_target(opsys, _makefile):
+    target = """
+################################################################
+# Build configuration file to run cbmc under cbmc-batch in CI
+
+define encode_options
+'=$(shell echo $(1) | sed 's/ ,/ /g' | sed 's/ /;/g')='
+endef
+
+cbmc-batch.yaml: Makefile ../Makefile.common
+	@echo "Building $@"
+	@$(RM) $@
+	@echo "jobos: ubuntu16" >> $@
+	@echo "cbmcflags: $(call encode_options,$(CBMCFLAGS))" >> $@
+	@echo "goto: $(ENTRY).goto" >> $@
+	@echo "expected: SUCCESSFUL" >> $@
+
+################################################################
+"""
+    if opsys != "windows":
+        _makefile.write(target)
+
 def makefile_from_template(opsys, template, defines, makefile="Makefile"):
     with open(makefile, "w") as _makefile:
         write_define(opsys, "FREERTOS", defines, _makefile)
         write_define(opsys, "PROOFS", defines, _makefile)
         write_common_defines(opsys, defines, _makefile)
         write_makefile(opsys, template, defines, _makefile)
+        write_cbmcbatchyaml_target(opsys, _makefile)
 
 ################################################################
 # Main
