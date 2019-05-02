@@ -428,26 +428,6 @@
               <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\logging\aws_logging_task_dynamic_buffers.c</FilePath>
             </File>
             <File>
-              <FileName>aws_hello_world.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\demos\mqtt\aws_hello_world.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_subscribe_publish_loop.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\demos\mqtt\aws_subscribe_publish_loop.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_shadow_lightbulb_on_off.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\demos\shadow\aws_shadow_lightbulb_on_off.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_tcp_echo_client_separate_tasks.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_separate_tasks.c</FilePath>
-            </File>
-            <File>
               <FileName>aws_tcp_echo_client_single_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c</FilePath>

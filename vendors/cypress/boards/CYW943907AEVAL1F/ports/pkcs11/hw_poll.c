@@ -42,6 +42,9 @@
  * truly random in nature.
  */
 
+/* Amazon FreeRTOS Includes. */
+#include "FreeRTOS.h"
+
 /* C runtime includes. */
 #include <stdio.h>
 #include <stdlib.h>

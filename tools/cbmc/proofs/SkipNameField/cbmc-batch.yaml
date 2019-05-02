@@ -1,0 +1,4 @@
+jobos: ubuntu16
+cbmcflags:        '=--object-bits;7;--unwind;0;--unwindset;prvSkipNameField.0:5;--unwinding-assertions;--32;--bounds-check;--pointer-check='
+goto: SkipNameField.goto
+expected: SUCCESSFUL

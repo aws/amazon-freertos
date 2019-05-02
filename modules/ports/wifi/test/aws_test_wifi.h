@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.4.7
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,15 +22,12 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+#ifndef _AWS_TEST_WIFI_H_
+#define _AWS_TEST_WIFI_H_
 
-/* Dummy stdbool.h using to allow building with MSVC 2010, which does not
- * provide this file. */
+/* Second set of valid Wi-Fi credentials for testing the connection loop. */
+#define testwifiWIFI_SSID        "Guest"
+#define testwifiWIFI_PASSWORD    "Dummy"
+#define testwifiWIFI_SECURITY    eWiFiSecurityOpen
 
-#ifndef _STD_BOOL_H_
-#define _STD_BOOL_H_
-
-typedef int bool;
-#define false    0
-#define true     1
-
-#endif /* _STD_BOOL_H_ */
+#endif /* ifndef AWS_TEST_WIFI_H */

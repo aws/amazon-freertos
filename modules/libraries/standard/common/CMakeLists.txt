@@ -4,6 +4,12 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
+# TODO, this is a workaround to remove aws_logging_task_dynamic_buffers.c from common, because
+# winsim use a different logging implementation.
+if(NOT AFR_BOARD STREQUAL "pc.windows")
+    set(aws_logging_task "${src_dir}/logging/aws_logging_task_dynamic_buffers.c")
+endif()
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
@@ -17,7 +23,7 @@ afr_module_sources(
         "${inc_dir}/iot_linear_containers.h"
 
         # Logging
-        "${src_dir}/logging/aws_logging_task_dynamic_buffers.c"
+        "${aws_logging_task}"
         "${src_dir}/logging/iot_logging.c"
         "${inc_dir}/private/iot_logging.h"
         "${inc_dir}/aws_logging_task.h"

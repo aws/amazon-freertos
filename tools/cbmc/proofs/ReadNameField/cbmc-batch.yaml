@@ -1,0 +1,4 @@
+jobos: ubuntu16
+cbmcflags:        '=--object-bits;7;--unwind;0;--unwindset;prvReadNameField.0:10,prvReadNameField.1:10;--unwinding-assertions;--32;--bounds-check;--pointer-check='
+goto: ReadNameField.goto
+expected: SUCCESSFUL

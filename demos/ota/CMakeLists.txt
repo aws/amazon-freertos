@@ -1,7 +1,7 @@
 # OTA demo
 afr_demo_module()
 
-afr_set_demo_metadata(ID "ota_update_example")
+afr_set_demo_metadata(ID "OTA_UPDATE_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example on how to update firmware over the air via AWS IoT")
 afr_set_demo_metadata(DISPLAY_NAME "OTA Update")
 

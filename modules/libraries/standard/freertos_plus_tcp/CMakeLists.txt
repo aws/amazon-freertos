@@ -48,6 +48,6 @@ afr_module_include_dirs(
 )
 
 afr_module_dependencies(
-    ${AFR_CURRENT_MODULE} PRIVATE
-    AFR::${AFR_CURRENT_MODULE}::mcu_port
+    ${AFR_CURRENT_MODULE}
+    PUBLIC AFR::${AFR_CURRENT_MODULE}::mcu_port
 )

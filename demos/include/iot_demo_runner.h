@@ -26,55 +26,54 @@
 #ifndef _IOT_DEMO_RUNNER_H_
 #define _IOT_DEMO_RUNNER_H_
 
+#include "aws_demo_config.h"
+
 /* Choose your demo here. By design only one demo can be selected at a time. If
     you choose more than one only the first choice will be run. If you require
     more than one demo to run at the same time you should create a combined
-    demo and run both the required demo tasks from your demo entry function  */
+    demo and run both the required demo tasks from your demo entry function  
 
-#define   democonfigMQTTDemo_ENABLED
-//#define   democonfigSHADOW_DEMO_ENABLED
-//#define   democonfigBLE_MQTT_ECHO_DEMO_ENABLED
-//#define   democonfigMQTT_SUB_PUB_ENABLED
-//#define   democonfigGREENGRASS_DISCOVERY_ENABLED
-//#define   democonfigTCP_ECHO_SERVER_ENABLED
-//#define   democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED
-//#define   democonfigTCP_ECHO_TASKS_SINGLE_ENABLED
-//#define   democonfigMQTT_ECHO_ENABLED
-//#define   democonfigDEFENDER_DEMO_ENABLED
-//#define   democonfigOTA_UPDATE_DEMO_ENABLED
+   To run a particular demo you need to define one of these. 
+   Only one demo can be configured at a time
 
-void DEMO_RUNNER_RunDemos( void );
+            CONFIG_MQTT_DEMO_ENABLED
+            CONFIG_SHADOW_DEMO_ENABLED
+            CONFIG_MQTT_BLE_DEMO_ENABLED
+            CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
+            CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
+            CONFIG_DEFENDER_DEMO_ENABLED
+            CONFIG_POSIX_DEMO_ENABLED
+            CONFIG_OTA_UPDATE_DEMO_ENABLED
+            CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
+            CONFIG_BLE_NUMERIC_COMPARISON_DEMO_ENABLED
+*/
 
 /* Individual demo task entry definitions */
-#if defined( democonfigMQTTDemo_ENABLED )
+#if defined( CONFIG_MQTT_DEMO_ENABLED )
     #define DEMO_entryFUNCTION                              RunMqttDemo
-#elif defined( democonfigSHADOW_DEMO_ENABLED )
+#elif defined( CONFIG_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION                              RunShadowDemo
-#elif defined(democonfigBLE_MQTT_ECHO_DEMO_ENABLED)
+#elif defined(CONFIG_MQTT_BLE_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              RunBLEMqttEchoDemo
     #define DEMO_networkConnectedCallback                   BLEMqttEchoDemoNetworkConnectedCallback
     #define DEMO_networkDisconnectedCallback                BLEMqttEchoDemoNetworkDisconnectedCallback
-#elif defined(democonfigMQTT_SUB_PUB_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartSubpubDemoTasksProxy
-#elif defined(democonfigGREENGRASS_DISCOVERY_ENABLED)
+#elif defined(CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartGreenGrassDiscoveryTask
-#elif defined(democonfigTCP_ECHO_SERVER_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartSimpleTCPServerTasksProxy
-#elif defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartTCPEchoClientTasks_SeparateTasks
-#elif defined(democonfigTCP_ECHO_TASKS_SINGLE_ENABLED)
+#elif defined(CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartTCPEchoClientTasks_SingleTasks
-#elif defined(democonfigMQTT_ECHO_ENABLED)
-    #define DEMO_entryFUNCTION                              vStartMQTTEchoDemo
-#elif defined(democonfigDEFENDER_DEMO_ENABLED)
+#elif defined(CONFIG_DEFENDER_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartDefenderDemo
-#elif defined(democonfigPOSIX_DEMO_ENABLED)
+#elif defined(CONFIG_POSIX_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartPOSIXDemo
-#elif defined (democonfigOTA_UPDATE_DEMO_ENABLED)
+#elif defined (CONFIG_OTA_UPDATE_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartOTAUpdateDemoTask
+#elif defined (CONFIG_BLE_GATT_SERVER_DEMO_ENABLED)
+    #define DEMO_entryFUNCTION                              vGattDemoSvcInit
+#elif defined (CONFIG_BLE_NUMERIC_COMPARISON_DEMO_ENABLED)
+    #define DEMO_entryFUNCTION                              NumericComparisonInit
 #else
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
-    #error "At least one demo should be enabled in the file iot_demo_runner.h"
+    #error "No demo to run. One demo should be enabled"
 #endif
 
 

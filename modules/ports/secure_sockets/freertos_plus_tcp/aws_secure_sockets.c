@@ -23,14 +23,11 @@
  * http://www.FreeRTOS.org
  */
 
-/* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in aws_secure_sockets_wrapper_metrics.h */
-#define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
-
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "list.h"
+#include "semphr.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #include "aws_secure_sockets.h"
@@ -38,8 +35,6 @@
 #include "task.h"
 #include "aws_pkcs11.h"
 #include "aws_crypto.h"
-
-#undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /* Internal context structure. */
 typedef struct SSOCKETContext
@@ -532,46 +527,83 @@ BaseType_t SOCKETS_Init( void )
 }
 /*-----------------------------------------------------------*/
 
-static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
+/**
+ * @brief Create a static PKCS #11 crypto session handle to share across socket
+ * and FreeRTOS+TCP threads. Assume that two or more threads may race to be the
+ * first to initialize the static and handle that case accordingly.
+ */
+static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
+                                         CK_SESSION_HANDLE * pxSession,
                                          CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 {
-    CK_RV xResult = 0;
+    CK_RV xResult = CKR_OK;
     CK_C_GetFunctionList pxCkGetFunctionList = NULL;
     static CK_SESSION_HANDLE xPkcs11Session = 0;
     static CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
-    CK_ULONG ulCount = 1;
-    CK_SLOT_ID xSlotId = 0;
+    static StaticSemaphore_t xStaticSemaphore;
+    static SemaphoreHandle_t xSessionLock = NULL;
+    CK_ULONG ulCount = 0;
+    CK_SLOT_ID *pxSlotIds = NULL;
 
+    /* Check if one-time initialization of the lock is needed.*/
     portENTER_CRITICAL();
+    if( NULL == xSessionLock )
+    {
+        xSessionLock = xSemaphoreCreateMutexStatic( &xStaticSemaphore );
+    }
 
+    *pxSessionLock = xSessionLock;
+    portEXIT_CRITICAL();
+
+    /* Check if one-time initialization of the crypto handle is needed.*/
+    xSemaphoreTake( xSessionLock, portMAX_DELAY );
     if( 0 == xPkcs11Session )
     {
         /* One-time initialization. */
 
-        /* Ensure that the PKCS#11 module is initialized. */
-        if( 0 == xResult )
-        {
-            pxCkGetFunctionList = C_GetFunctionList;
-            xResult = pxCkGetFunctionList( &pxPkcs11FunctionList );
-        }
+        /* Ensure that the PKCS#11 module is initialized. We don't keep the
+        scheduler stopped here, since we don't want to make assumptions about hardware
+        requirements for accessing a crypto module. */
 
-        if( 0 == xResult )
+        pxCkGetFunctionList = C_GetFunctionList;
+        xResult = pxCkGetFunctionList( &pxPkcs11FunctionList );
+
+        if( CKR_OK == xResult )
         {
             xResult = pxPkcs11FunctionList->C_Initialize( NULL );
         }
 
-        /* Get the default slot ID. */
-        if( ( 0 == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
+        /* Get the crypto token slot count. */
+        if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
         {
             xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
-                                                           &xSlotId,
+                                                           NULL,
+                                                           &ulCount );
+        }
+
+        /* Allocate memory to store the token slots. */
+        if( CKR_OK == xResult )
+        {
+            pxSlotIds = ( CK_SLOT_ID * )pvPortMalloc( sizeof( CK_SLOT_ID ) * ulCount );
+
+            if( NULL == pxSlotIds )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+        }
+
+        /* Get all of the available private key slot identities. */
+        if( CKR_OK == xResult )
+        {
+            xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
+                                                           pxSlotIds,
                                                            &ulCount );
         }
 
         /* Start a session with the PKCS#11 module. */
-        if( 0 == xResult )
+        if( CKR_OK == xResult )
         {
-            xResult = pxPkcs11FunctionList->C_OpenSession( xSlotId,
+            xResult = pxPkcs11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
                                                            CKF_SERIAL_SESSION,
                                                            NULL,
                                                            NULL,
@@ -579,11 +611,14 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
         }
     }
 
-    portEXIT_CRITICAL();
-
-    /* Output the shared function pointers and session handle. */
-    *ppxFunctionList = pxPkcs11FunctionList;
     *pxSession = xPkcs11Session;
+    *ppxFunctionList = pxPkcs11FunctionList;
+    xSemaphoreGive( xSessionLock );
+
+    if( NULL != pxSlotIds )
+    {
+        vPortFree( pxSlotIds );
+    }
 
     return xResult;
 }
@@ -592,11 +627,13 @@ static CK_RV prvSocketsGetCryptoSession( CK_SESSION_HANDLE * pxSession,
 uint32_t ulRand( void )
 {
     CK_RV xResult = 0;
+    SemaphoreHandle_t xSessionLock = NULL;
     CK_SESSION_HANDLE xPkcs11Session = 0;
     CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
     uint32_t ulRandomValue = 0;
 
-    xResult = prvSocketsGetCryptoSession( &xPkcs11Session,
+    xResult = prvSocketsGetCryptoSession( &xSessionLock,
+                                          &xPkcs11Session,
                                           &pxPkcs11FunctionList );
 
     if( 0 == xResult )
@@ -627,42 +664,54 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
                                              uint32_t ulDestinationAddress,
                                              uint16_t usDestinationPort )
 {
-    CK_RV xResult = 0;
+    CK_RV xResult = CKR_OK;
+    SemaphoreHandle_t xSessionLock = NULL;
     CK_SESSION_HANDLE xPkcs11Session = 0;
     CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
     CK_MECHANISM xMechSha256 = { 0 };
     uint8_t ucSha256Result[ cryptoSHA256_DIGEST_BYTES ];
     CK_ULONG ulLength = sizeof( ucSha256Result );
     uint32_t ulNextSequenceNumber = 0;
-    static uint64_t ullKey = 0;
+    static uint64_t ullKey;
+    static CK_BBOOL xKeyIsInitialized = CK_FALSE;
 
     /* Acquire a crypto session handle. */
-    xResult = prvSocketsGetCryptoSession( &xPkcs11Session,
+    xResult = prvSocketsGetCryptoSession( &xSessionLock,
+                                          &xPkcs11Session,
                                           &pxPkcs11FunctionList );
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
-        if( 0 == ullKey )
+        xSemaphoreTake( xSessionLock, portMAX_DELAY );
+
+        if( CK_FALSE == xKeyIsInitialized )
         {
             /* One-time initialization, per boot, of the random seed. */
             xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
                                                               ( CK_BYTE_PTR ) &ullKey,
                                                               sizeof( ullKey ) );
+
+            if( xResult == CKR_OK )
+            {
+                xKeyIsInitialized = CK_TRUE;
+            }
         }
+
+        xSemaphoreGive( xSessionLock );
     }
 
     /* Lock the shared crypto session. */
-    portENTER_CRITICAL();
+    xSemaphoreTake( xSessionLock, portMAX_DELAY );
 
     /* Start a hash. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xMechSha256.mechanism = CKM_SHA256;
         xResult = pxPkcs11FunctionList->C_DigestInit( xPkcs11Session, &xMechSha256 );
     }
 
     /* Hash the seed. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &ullKey,
@@ -670,7 +719,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Hash the source address. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &ulSourceAddress,
@@ -678,7 +727,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Hash the source port. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &usSourcePort,
@@ -686,7 +735,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Hash the destination address. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &ulDestinationAddress,
@@ -694,7 +743,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Hash the destination port. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestUpdate( xPkcs11Session,
                                                         ( CK_BYTE_PTR ) &usDestinationPort,
@@ -702,18 +751,18 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     }
 
     /* Get the hash. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = pxPkcs11FunctionList->C_DigestFinal( xPkcs11Session,
                                                        ucSha256Result,
                                                        &ulLength );
     }
 
-    portEXIT_CRITICAL();
+    xSemaphoreGive( xSessionLock );
 
     /* Use the first four bytes of the hash result as the starting point for
      * all initial sequence numbers for connections based on the input 4-tuple. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         memcpy( &ulNextSequenceNumber,
                 ucSha256Result,

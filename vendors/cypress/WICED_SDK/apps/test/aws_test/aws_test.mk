@@ -43,9 +43,12 @@ endif
 
 #GLOBAL_DEFINES += WLAN_FIRMWARE_PRNG_SEED
 
-export AMAZON_FREERTOS_PATH := ../../../../../../../../
-export AMAZON_FREERTOS_LIB_PATH := ../../../../../../../
-export AFR_THIRDPARTY_PATH := ../../../../../../
+export AMAZON_FREERTOS_PATH := ../../../../../../
+#export AMAZON_FREERTOS_LIB_PATH := ../../../../../../../
+export AFR_THIRDPARTY_PATH := ../../../../../../modules/libraries/3rdparty/
+export AFR_STANDARD_PATH := ../../../../../../modules/libraries/standard/
+export AFR_AWS_PATH := ../../../../../../modules/libraries/aws/
+export AFR_PORTS_MODULES_PATH := ../../../../../../modules/ports/
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/common/include/ \
                     $(AFR_THIRDPARTY_PATH)jsmn \
@@ -65,7 +68,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/common/include/ \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)tests/cypress/$(PLATFORM)/common/application_code/main.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/logging/aws_logging_task_dynamic_buffers.c \
+                      $(AFR_STANDARD_PATH)common/logging/aws_logging_task_dynamic_buffers.c \
+                      $(AFR_STANDARD_PATH)common/logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/test_runner/aws_test_runner.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/framework/aws_test_framework.c \
                       $(AFR_THIRDPARTY_PATH)unity/src/unity.c \
@@ -74,18 +78,28 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)tests/cypress/$(PLATFORM)/common/ap
                       $(AMAZON_FREERTOS_PATH)tests/common/tls/aws_test_tls.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/secure_sockets/aws_test_tcp.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/pkcs11/aws_test_pkcs11.c \
-                      $(AMAZON_FREERTOS_PATH)tests/common/mqtt/aws_test_mqtt_agent.c \
-                      $(AMAZON_FREERTOS_PATH)tests/common/mqtt/aws_test_mqtt_lib.c \
-                      $(AMAZON_FREERTOS_PATH)tests/common/shadow/aws_test_shadow.c \
-                      $(AMAZON_FREERTOS_PATH)tests/common/greengrass/aws_test_greengrass_discovery.c \
-                      $(AMAZON_FREERTOS_PATH)tests/common/greengrass/aws_test_helper_secure_connect.c \
-                      $(AMAZON_FREERTOS_PATH)tests/common/tls/aws_test_tls.c \
-                      $(AMAZON_FREERTOS_PATH)tests/common/crypto/aws_test_crypto.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c
+                      $(AFR_STANDARD_PATH)mqtt/test/aws_test_mqtt_agent.c \
+                      $(AFR_STANDARD_PATH)mqtt/test/access/iot_test_access_mqtt_api.c \
+                      $(AFR_STANDARD_PATH)mqtt/test/access/iot_test_access_mqtt_subscription.c \
+                      $(AFR_STANDARD_PATH)mqtt/test/system/iot_tests_mqtt_system.c \
+                      $(AFR_STANDARD_PATH)mqtt/test/unit/aws_iot_tests_mqtt_serialize_ble.c \
+                      $(AFR_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_api.c \
+                      $(AFR_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_receive.c \
+                      $(AFR_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_subscription.c \
+                      $(AFR_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_validate.c \
+                      $(AFR_AWS_PATH)shadow/test/aws_test_shadow.c \
+                      $(AFR_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_api.c \
+                      $(AFR_AWS_PATH)shadow/test/unit/aws_iot_tests_shadow_parser.c \
+                      $(AFR_AWS_PATH)shadow/test/system/aws_iot_tests_shadow_system.c \
+                      $(AFR_AWS_PATH)greengrass/test/aws_test_greengrass_discovery.c \
+                      $(AFR_AWS_PATH)greengrass/test/aws_test_helper_secure_connect.c \
+                      $(AFR_STANDARD_PATH)tls/test/aws_test_tls.c \
+                      $(AFR_STANDARD_PATH)crypto/test/aws_test_crypto.c \
+                      $(AFR_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
                     
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws
 
-APPLICATION_DCT := $(AMAZON_FREERTOS_PATH)tests/cypress/$(PLATFORM)/common/application_code/cypress_code/app_dct.c
+APPLICATION_DCT := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/common/application_code/cypress_code/app_dct.c
 
 WICED_AMAZON_FREERTOS_SDK := 1

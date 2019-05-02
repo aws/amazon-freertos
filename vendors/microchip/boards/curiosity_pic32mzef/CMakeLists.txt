@@ -1,3 +1,17 @@
+set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
+set(harmony_dir "${mchp_dir}/harmony/v2.05")
+set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+
+if(AFR_IS_TESTING)
+    set(board_dir "${board_tests_dir}")
+    set(aws_credentials_include "${AFR_TEST_DIR}/include")
+else()
+    set(board_dir "${board_demos_dir}")
+    set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
+endif()
+
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
@@ -21,28 +35,16 @@ target_compile_options(
 
 
 # Linker flags
-set(linker_flags -Wl,--script=\"${AFR_ROOT_DIR}/vendors/microchip/boards/curiosity_pic32mzef/aws_demos/common/application_code/microchip_code/app_mz.ld\",--defsym=_min_heap_size=170000,--defsym=_min_stack_size=10000,--gc-sections,--no-code-in-dinit,--no-dinit-in-serial-mem,--memorysummary,memoryfile.xml,--allow-multiple-definition)
+set(linker_flags -Wl,--script=\"${board_dir}/application_code/microchip_code/app_mz.ld\",--defsym=_min_heap_size=170000,--defsym=_min_stack_size=10000,--gc-sections,--no-code-in-dinit,--no-dinit-in-serial-mem,--memorysummary,memoryfile.xml,--allow-multiple-definition)
 
 target_link_options(
     AFR::compiler::mcu_port
-    INTERFACE -mprocessor=32MZ2048EFM100 -mnewlib-libc -DXPRJ_pic32mz_ef_curiosity=pic32mz_ef_curiosity -no-legacy-libc ${linker_flags}  
+    INTERFACE -mprocessor=32MZ2048EFM100 -mnewlib-libc -DXPRJ_pic32mz_ef_curiosity=pic32mz_ef_curiosity -no-legacy-libc ${linker_flags}
 )
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
-set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
-
-if(AFR_IS_TESTING)
-    set(board_dir "${board_tests_dir}")
-    set(aws_credentials_include "${AFR_TEST_DIR}/include")
-else()
-    set(board_dir "${board_demos_dir}")
-    set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
-endif()
-
 # Kernel
 afr_mcu_port(kernel)
 afr_glob_src(driver_src RECURSE DIRECTORY "${AFR_ROOT_DIR}/lib/third_party/mcu_vendor/microchip/harmony/v2.05/framework")
@@ -69,8 +71,8 @@ set(
     "${AFR_ROOT_DIR}/modules/ports/pkcs11/include"
     "${board_dir}/application_code/microchip_code"
     "${AFR_KERNEL_DIR}/portable/MPLAB/PIC32MZ"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework"
-    "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/bsp"
+    "${harmony_dir}/framework"
+    "${harmony_dir}/bsp"
 )
 
 target_include_directories(
@@ -96,77 +98,77 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/wifi/aws_wifi.c"
         "${afr_ports_dir}/wifi/aws_wifi_assert.c"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/system/command/src/sys_command.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/bsp/bsp.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/ethmac/src/dynamic/drv_ethmac.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/ethmac/src/dynamic/drv_ethmac_lib.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/ethphy/src/dynamic/drv_ethphy.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/ethphy/src/dynamic/drv_extphy_smsc8720.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/flash/src/drv_flash_static.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/miim/src/dynamic/drv_miim.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/dynamic/drv_spi_api.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/dynamic/drv_spi_master_dma_tasks.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/dynamic/drv_spi_master_rm_tasks.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/dynamic/drv_spi_tasks.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/src/dynamic/drv_spi.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/src/dynamic/drv_spi_api.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/spi/src/drv_spi_sys_queue_fifo.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/tmr/src/dynamic/drv_tmr.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_buffer_queue.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_buffer_queue_dma.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_byte_model.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_dma.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_read_write.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/console/wdrv_wilc1000_console.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/gpio/wdrv_wilc1000_eint.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/gpio/wdrv_wilc1000_gpio.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/spi/wdrv_wilc1000_spi.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/dev/timer/wdrv_wilc1000_timer.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/osal/wdrv_wilc1000_osal.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_cli.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_config.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_connmgr.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_events.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_iwpriv.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_main.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_scan_helper.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/source/nm_common.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_hif.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_periph.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_wifi.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmasic.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmbus.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmdrv.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmspi.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/spi_flash/source/spi_flash.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/wdrvext_wilc1000.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/wilc1000_fw_update.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/wilc1000_task.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/osal/src/osal.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/osal/src/osal_freertos.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/peripheral/tmr/src/plib_tmr_pic32.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/clk/src/sys_clk_pic32mz.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/command/src/sys_command.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/common/src/sys_buffer.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/common/src/sys_queue.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/console/src/sys_console.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/console/src/sys_console_uart.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/debug/src/sys_debug.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/devcon/src/sys_devcon.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/devcon/src/sys_devcon_pic32mz.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/devcon/src/sys_devcon_cache_pic32mz.S"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/dma/src/sys_dma.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/int/src/sys_int_pic32.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/ports/src/sys_ports.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/ports/src/sys_ports_static.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/random/src/sys_random.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/reset/src/sys_reset.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/system/tmr/src/sys_tmr.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/tcpip/src/tcpip_heap_alloc.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/tcpip/src/tcpip_heap_external.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/tcpip/src/tcpip_helpers.c"
-		"${AFR_ROOT_DIR}/vendors//microchip/harmony/v2.05/framework/tcpip/src/tcpip_packet.c"
+        "${harmony_dir}/framework/system/command/src/sys_command.c"
+		"${harmony_dir}/bsp/bsp.c"
+		"${harmony_dir}/framework/driver/ethmac/src/dynamic/drv_ethmac.c"
+		"${harmony_dir}/framework/driver/ethmac/src/dynamic/drv_ethmac_lib.c"
+		"${harmony_dir}/framework/driver/ethphy/src/dynamic/drv_ethphy.c"
+		"${harmony_dir}/framework/driver/ethphy/src/dynamic/drv_extphy_smsc8720.c"
+		"${harmony_dir}/framework/driver/flash/src/drv_flash_static.c"
+		"${harmony_dir}/framework/driver/miim/src/dynamic/drv_miim.c"
+		"${harmony_dir}/framework/driver/spi/dynamic/drv_spi_api.c"
+		"${harmony_dir}/framework/driver/spi/dynamic/drv_spi_master_dma_tasks.c"
+		"${harmony_dir}/framework/driver/spi/dynamic/drv_spi_master_rm_tasks.c"
+		"${harmony_dir}/framework/driver/spi/dynamic/drv_spi_tasks.c"
+		"${harmony_dir}/framework/driver/spi/src/dynamic/drv_spi.c"
+		"${harmony_dir}/framework/driver/spi/src/dynamic/drv_spi_api.c"
+		"${harmony_dir}/framework/driver/spi/src/drv_spi_sys_queue_fifo.c"
+		"${harmony_dir}/framework/driver/tmr/src/dynamic/drv_tmr.c"
+		"${harmony_dir}/framework/driver/usart/src/dynamic/drv_usart.c"
+		"${harmony_dir}/framework/driver/usart/src/dynamic/drv_usart_buffer_queue.c"
+		"${harmony_dir}/framework/driver/usart/src/dynamic/drv_usart_buffer_queue_dma.c"
+		"${harmony_dir}/framework/driver/usart/src/dynamic/drv_usart_byte_model.c"
+		"${harmony_dir}/framework/driver/usart/src/dynamic/drv_usart_dma.c"
+		"${harmony_dir}/framework/driver/usart/src/dynamic/drv_usart_read_write.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/dev/console/wdrv_wilc1000_console.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/dev/gpio/wdrv_wilc1000_eint.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/dev/gpio/wdrv_wilc1000_gpio.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/dev/spi/wdrv_wilc1000_spi.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/dev/timer/wdrv_wilc1000_timer.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/osal/wdrv_wilc1000_osal.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_cli.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_config.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_connmgr.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_events.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_iwpriv.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_main.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver/wdrv_wilc1000_scan_helper.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/common/source/nm_common.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_hif.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_periph.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/m2m_wifi.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmasic.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmbus.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmdrv.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source/nmspi.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/spi_flash/source/spi_flash.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/wdrvext_wilc1000.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/wilc1000_fw_update.c"
+		"${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/wilc1000_task.c"
+		"${harmony_dir}/framework/osal/src/osal.c"
+		"${harmony_dir}/framework/osal/src/osal_freertos.c"
+		"${harmony_dir}/framework/peripheral/tmr/src/plib_tmr_pic32.c"
+		"${harmony_dir}/framework/system/clk/src/sys_clk_pic32mz.c"
+		"${harmony_dir}/framework/system/command/src/sys_command.c"
+		"${harmony_dir}/framework/system/common/src/sys_buffer.c"
+		"${harmony_dir}/framework/system/common/src/sys_queue.c"
+		"${harmony_dir}/framework/system/console/src/sys_console.c"
+		"${harmony_dir}/framework/system/console/src/sys_console_uart.c"
+		"${harmony_dir}/framework/system/debug/src/sys_debug.c"
+		"${harmony_dir}/framework/system/devcon/src/sys_devcon.c"
+		"${harmony_dir}/framework/system/devcon/src/sys_devcon_pic32mz.c"
+		"${harmony_dir}/framework/system/devcon/src/sys_devcon_cache_pic32mz.S"
+		"${harmony_dir}/framework/system/dma/src/sys_dma.c"
+		"${harmony_dir}/framework/system/int/src/sys_int_pic32.c"
+		"${harmony_dir}/framework/system/ports/src/sys_ports.c"
+		"${harmony_dir}/framework/system/ports/src/sys_ports_static.c"
+		"${harmony_dir}/framework/system/random/src/sys_random.c"
+		"${harmony_dir}/framework/system/reset/src/sys_reset.c"
+		"${harmony_dir}/framework/system/tmr/src/sys_tmr.c"
+		"${harmony_dir}/framework/tcpip/src/tcpip_heap_alloc.c"
+		"${harmony_dir}/framework/tcpip/src/tcpip_heap_external.c"
+		"${harmony_dir}/framework/tcpip/src/tcpip_helpers.c"
+		"${harmony_dir}/framework/tcpip/src/tcpip_packet.c"
 )
 
 target_include_directories(
@@ -174,13 +176,13 @@ target_include_directories(
     INTERFACE
         "${AFR_ROOT_DIR}/modules/ports/secure_sockets/include"
         "${AFR_MODULES_STANDARD_DIR}/common/include/private"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/system/common"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include"
+        "${harmony_dir}/framework/system/common"
+        "${harmony_dir}/framework/driver/wifi/wilc1000/include"
+        "${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension"
+        "${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include"
+        "${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include"
+        "${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source"
+        "${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver/include"
 )
 
 # PKCS11
@@ -206,11 +208,11 @@ target_sources(
 target_include_directories(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension"
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include"  
+        "${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension"
+        "${harmony_dir}/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include"
         "${AFR_ROOT_DIR}/modules/libraries/3rdparty/mbedtls/include"
         "${AFR_ROOT_DIR}/modules/ports/pkcs11/mbedtls"
-)   
+)
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
@@ -241,7 +243,7 @@ target_sources(
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/src/iot_tests_network.c")
+    set(extra_exe_sources "${AFR_TEST_DIR}/src/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
     set(
@@ -250,7 +252,7 @@ else()
     )
 endif()
 
-afr_glob_src(microchip_code RECURSE DIRECTORY "${AFR_ROOT_DIR}/vendors/microchip/boards/curiosity_pic32mzef/aws_demos/common/application_code/microchip_code")
+afr_glob_src(microchip_code RECURSE DIRECTORY "${board_dir}/application_code/microchip_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 add_executable(
     ${exe_target}
@@ -265,13 +267,13 @@ target_link_libraries(
     PRIVATE
         AFR::wifi
         AFR::utils
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/bin/framework/peripheral/PIC32MZ2048EFM100_peripherals.a"
+        "${harmony_dir}/bin/framework/peripheral/PIC32MZ2048EFM100_peripherals.a"
 )
 
 target_include_directories(
     ${exe_target}
     PUBLIC
-        "${AFR_ROOT_DIR}/vendors/microchip/harmony/v2.05/framework/system/common"
+        "${harmony_dir}/framework/system/common"
 )
 
 
@@ -294,7 +296,7 @@ set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discove
     "-Wno-format"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c
+set_source_files_properties(${AFR_MODULES_STANDARD_DIR}/common/logging/aws_logging_task_dynamic_buffers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
 )
@@ -321,20 +323,34 @@ set(xc32_bin2hex ${XC32_BIN}/xc32-bin2hex)
 set(xc32_objcopy ${XC32_BIN}/xc32-objcopy)
 set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 
+# Locate microchip hexmate.
+set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
+find_program(hexmate_path hexmate PATHS ${MCHP_HEXMATE_PATH} PATH_SUFFIXES bin)
+if(NOT hexmate_path)
+    message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+endif()
+
 # These locations have to be generalized through the toolchain
 # We may have to re-build the bootloader hex file?
-set(hexmate_dir /Applications/microchip/xc8/v2.05/pic/bin) 
-set(bl_hex_file ${AFR_ROOT_DIR}/vendors/microchip/boards/curiosity_pic32mzef/bootloader/aws_bootloader.X/dist/pic32mz_ef_curiosity/production/aws_bootloader.X.production.hex)
+set(bl_hex_file ${CMAKE_CURRENT_LIST_DIR}/bootloader/aws_bootloader.X.production.hex)
 
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "echo" "Running Post-build step" 
-    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
-    COMMAND "echo" "Running xc32-objcopy" 
-    COMMAND "echo" ${XC32_BIN}/xc32_objcopy
-    COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin
-    COMMAND "echo" "Creating binary image"
-    COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin -p MCHP-Curiosity-PIC32MZEF
-    COMMAND "echo" "Running Hexmate to combine bootloader with image"
-#    COMMAND "${hexmate_dir}/hexmate" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
-)
+
+if(AFR_IS_TESTING)
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "echo" "Running Post-build step"
+        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+    )
+else()
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "echo" "Running Post-build step"
+        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+        COMMAND "echo" "Running xc32-objcopy"
+        COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin
+        COMMAND "echo" "Creating binary image"
+        COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin -p MCHP-Curiosity-PIC32MZEF
+        COMMAND "echo" "Running Hexmate to combine bootloader with image"
+        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
+    )
+endif()
