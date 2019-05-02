@@ -33,7 +33,13 @@
 
 NAME := aws
 
+export AMAZON_FREERTOS_PATH := ../../../../../
 export AFR_THIRDPARTY_PATH := ../../../../../modules/libraries/3rdparty/
+export AFR_THIRDPARTY_PATH := ../../../../../modules/libraries/3rdparty/
+export AFR_STANDARD_PATH := ../../../../../modules/libraries/standard/
+export AFR_AWS_PATH := ../../../../../modules/libraries/aws/
+export AFR_PORTS_MODULES_PATH := ../../../../../modules/ports/
+
 #$(AFR_AWS_PATH)lib/bufferpool/aws_bufferpool_static_thread_safe.c
 $(NAME)_SOURCES :=  $(AFR_AWS_PATH)greengrass/src/aws_greengrass_discovery.c        \
                     $(AFR_AWS_PATH)greengrass/src/aws_helper_secure_connect.c       \
@@ -130,7 +136,7 @@ $(NAME)_SOURCES :=  $(AFR_AWS_PATH)greengrass/src/aws_greengrass_discovery.c    
                     $(AFR_PORTS_MODULES_PATH)pkcs11/mbedtls/aws_pkcs11_mbedtls.c                              \
                     $(AFR_STANDARD_PATH)crypto/src/aws_crypto.c                                               \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/aws_pkcs11_pal.c   \
-                    $(AFR_PORTS_MODULES_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/hw_poll.c
+                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/hw_poll.c
 
 $(NAME)_INCLUDES := $(AFR_STANDARD_PATH)mqtt/include \
                     $(AFR_STANDARD_PATH)mqtt/include/types \

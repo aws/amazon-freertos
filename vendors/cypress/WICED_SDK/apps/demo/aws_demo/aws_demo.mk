@@ -36,7 +36,7 @@ GLOBAL_DEFINES := WICED_AMAZON_FREERTOS_SDK
 
 #GLOBAL_DEFINES += WLAN_FIRMWARE_PRNG_SEED
 
-export AMAZON_FREERTOS_PATH := ../../../../../../../
+export AMAZON_FREERTOS_PATH := ../../../../../../
 #export AMAZON_FREERTOS_LIB_PATH := ../../../../../../
 export AFR_THIRDPARTY_PATH := ../../../../../../modules/libraries/3rdparty/
 export AFR_STANDARD_PATH := ../../../../../../modules/libraries/standard/
@@ -59,7 +59,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/main.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/logging/aws_logging_task_dynamic_buffers.c \
+                      $(AFR_STANDARD_PATH)common/logging/aws_logging_task_dynamic_buffers.c \
+                      $(AFR_STANDARD_PATH)common/logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_runner.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_afr.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
@@ -69,7 +70,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/mqtt/iot_demo_mqtt.c \
                       $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
                       $(AFR_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/greengrass_connectivity/aws_greengrass_discovery_demo.c
+                      $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws
