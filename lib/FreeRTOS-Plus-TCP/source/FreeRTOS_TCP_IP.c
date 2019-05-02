@@ -308,6 +308,20 @@ static BaseType_t prvSendData( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescrip
 static BaseType_t prvTCPHandleState( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer );
 
 /*
+ * Common code for sending a TCP protocol control packet (i.e. no options, no
+ * payload, just flags).
+ */
+static BaseType_t prvTCPSendSpecialPacketHelper( NetworkBufferDescriptor_t *pxNetworkBuffer,
+                                                 uint8_t ucTCPFlags );
+
+/*
+ * A "challenge ACK" is as per https://tools.ietf.org/html/rfc5961#section-3.2,
+ * case #3. In summary, an RST was received with a sequence number that is
+ * unexpected but still within the window.
+ */
+static BaseType_t prvTCPSendChallengeAck( NetworkBufferDescriptor_t *pxNetworkBuffer );
+
+/*
  * Reply to a peer with the RST flag on, in case a packet can not be handled.
  */
 static BaseType_t prvTCPSendReset( NetworkBufferDescriptor_t *pxNetworkBuffer );
@@ -2840,25 +2854,40 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 }
 /*-----------------------------------------------------------*/
 
+static BaseType_t prvTCPSendSpecialPacketHelper( NetworkBufferDescriptor_t *pxNetworkBuffer, 
+                                                 uint8_t ucTCPFlags )
+{
+#if( ipconfigIGNORE_UNKNOWN_PACKETS == 0 )
+    {
+        TCPPacket_t *pxTCPPacket = ( TCPPacket_t * )( pxNetworkBuffer->pucEthernetBuffer );
+        const BaseType_t xSendLength = ( BaseType_t )
+            ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER + 0u ); /* Plus 0 options. */
+
+        pxTCPPacket->xTCPHeader.ucTCPFlags = ucTCPFlags;
+        pxTCPPacket->xTCPHeader.ucTCPOffset = ( ipSIZE_OF_TCP_HEADER + 0u ) << 2;
+
+        prvTCPReturnPacket( NULL, pxNetworkBuffer, ( uint32_t )xSendLength, pdFALSE );
+    }
+#endif /* !ipconfigIGNORE_UNKNOWN_PACKETS */
+
+    /* Remove compiler warnings if ipconfigIGNORE_UNKNOWN_PACKETS == 1. */
+    ( void )pxNetworkBuffer;
+
+    /* The packet was not consumed. */
+    return pdFAIL;
+}
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvTCPSendChallengeAck( NetworkBufferDescriptor_t *pxNetworkBuffer )
+{
+    return prvTCPSendSpecialPacketHelper( pxNetworkBuffer, ipTCP_FLAG_ACK );
+}
+/*-----------------------------------------------------------*/
+
 static BaseType_t prvTCPSendReset( NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
-	#if( ipconfigIGNORE_UNKNOWN_PACKETS == 0 )
-	{
-	TCPPacket_t *pxTCPPacket = ( TCPPacket_t * ) ( pxNetworkBuffer->pucEthernetBuffer );
-	const BaseType_t xSendLength = ( BaseType_t ) ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER + 0u );	/* Plus 0 options. */
-
-		pxTCPPacket->xTCPHeader.ucTCPFlags = ipTCP_FLAG_ACK | ipTCP_FLAG_RST;
-		pxTCPPacket->xTCPHeader.ucTCPOffset = ( ipSIZE_OF_TCP_HEADER + 0u ) << 2;
-
-		prvTCPReturnPacket( NULL, pxNetworkBuffer, ( uint32_t ) xSendLength, pdFALSE );
-	}
-	#endif /* !ipconfigIGNORE_UNKNOWN_PACKETS */
-
-	/* Remove compiler warnings if ipconfigIGNORE_UNKNOWN_PACKETS == 1. */
-	( void ) pxNetworkBuffer;
-
-	/* The packet was not consumed. */
-	return pdFAIL;
+    return prvTCPSendSpecialPacketHelper( pxNetworkBuffer, 
+                                          ipTCP_FLAG_ACK | ipTCP_FLAG_RST );
 }
 /*-----------------------------------------------------------*/
 
@@ -3017,7 +3046,7 @@ BaseType_t xResult = pdPASS;
                                                   pxSocket->u.xTCP.xTCPWindow.xSize.ulRxWindowLength ) )
                     {
                         /* Send a challenge ACK. */
-                        /* TODO */
+                        prvTCPSendChallengeAck( pxNetworkBuffer );
                     }
                 }
 
