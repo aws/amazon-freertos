@@ -60,14 +60,15 @@
 /* DNS addresses used seed in PRNG seed generation
  * 7 total addresses to for 7 DNS queries
  * TODO Define these addresses as macros (configXYZ) */
-static const char *pcDnsNames[] = {
-        "www.amazon.com",
-        "aws.amazon.com",
-        "www.imdb.com",
-        "www.zappos.com",
-        "www.amazon.co.uk",
-        "www.amazon.co.in",
-        "www.a9.com"
+static const char * pcDnsNames[] =
+{
+    "www.amazon.com",
+    "aws.amazon.com",
+    "www.imdb.com",
+    "www.zappos.com",
+    "www.amazon.co.uk",
+    "www.amazon.co.in",
+    "www.a9.com"
 };
 
 /**
@@ -101,7 +102,7 @@ static void prvMiscInitialization( void );
 
 uint32_t ulSeedValid = 0;
 uint32_t ulSeed = 0;
-static TaskHandle_t  system_monitor_thread_handle;
+static TaskHandle_t system_monitor_thread_handle;
 void system_monitor_thread_main( wiced_thread_arg_t arg );
 /*-----------------------------------------------------------*/
 
@@ -133,10 +134,10 @@ static void prvMiscInitialization( void )
     /* Perform any hardware initializations, that don't require the RTOS to be
      * running, here.
      */
-    configPRINT_STRING(( "Test Message" ));
-#ifndef WICED_DISABLE_WATCHDOG
-    xTaskCreate( (TaskFunction_t) system_monitor_thread_main, "system monitor", 512/sizeof( portSTACK_TYPE ), NULL, RTOS_HIGHEST_PRIORITY, &system_monitor_thread_handle);
-#endif
+    configPRINT_STRING( ( "Test Message" ) );
+    #ifndef WICED_DISABLE_WATCHDOG
+        xTaskCreate( ( TaskFunction_t ) system_monitor_thread_main, "system monitor", 512 / sizeof( portSTACK_TYPE ), NULL, RTOS_HIGHEST_PRIORITY, &system_monitor_thread_handle );
+    #endif
 }
 /*-----------------------------------------------------------*/
 
@@ -168,7 +169,7 @@ void prvWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4] = { 0 };
+    uint8_t ucTempIp[ 4 ] = { 0 };
 
     xWifiStatus = WIFI_On();
 
@@ -204,7 +205,8 @@ void prvWifiConnect( void )
         configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
 
         xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus )
+
+        if( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
@@ -226,18 +228,21 @@ void prvWifiConnect( void )
 /*-----------------------------------------------------------*/
 static void prvGenerateRandomSeed()
 {
-    uint8_t ucAdddressCount = sizeof( pcDnsNames  )/sizeof( char* );
-    TickType_t xTickCount = platform_tick_get_time(PLATFORM_TICK_GET_SLOW_TIME_STAMP);
+    uint8_t ucAdddressCount = sizeof( pcDnsNames ) / sizeof( char * );
+    TickType_t xTickCount = platform_tick_get_time( PLATFORM_TICK_GET_SLOW_TIME_STAMP );
+
     /* Populate first 4 bits based on the current clock after wifi init */
     ulSeed |= xTickCount & 0x0F;
+
     /* Populate remaining bits after 7 DNS queries */
-    for( uint8_t ucCount = 0; ucCount < ucAdddressCount ; ucCount++ )
+    for( uint8_t ucCount = 0; ucCount < ucAdddressCount; ucCount++ )
     {
-        SOCKETS_GetHostByName( pcDnsNames[ucCount] );
-        xTickCount = platform_tick_get_time(PLATFORM_TICK_GET_SLOW_TIME_STAMP);
+        SOCKETS_GetHostByName( pcDnsNames[ ucCount ] );
+        xTickCount = platform_tick_get_time( PLATFORM_TICK_GET_SLOW_TIME_STAMP );
         ulSeed <<= 4UL;
         ulSeed |= xTickCount & 0x0F;
     }
+
     ulSeedValid = 1;
 }
 /*-----------------------------------------------------------*/
@@ -266,8 +271,8 @@ void vApplicationIdleHook( void )
 /*-----------------------------------------------------------*/
 
 /**
-* @brief User defined application hook to process names returned by the DNS server.
-*/
+ * @brief User defined application hook to process names returned by the DNS server.
+ */
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
     BaseType_t xApplicationDNSQueryHook( const char * pcName )
     {
@@ -301,27 +306,27 @@ void vApplicationIdleHook( void )
  * @brief User defined assertion call. This function is plugged into configASSERT.
  * See FreeRTOSConfig.h to define configASSERT to something different.
  */
-void vAssertCalled(const char * pcFile,
-    uint32_t ulLine)
+void vAssertCalled( const char * pcFile,
+                    uint32_t ulLine )
 {
     /* FIX ME. If necessary, update to applicable assertion routine actions. */
 
     const uint32_t ulLongSleep = 1000UL;
     volatile uint32_t ulBlockVariable = 0UL;
-    volatile char * pcFileName = (volatile char *)pcFile;
+    volatile char * pcFileName = ( volatile char * ) pcFile;
     volatile uint32_t ulLineNumber = ulLine;
 
-    (void)pcFileName;
-    (void)ulLineNumber;
+    ( void ) pcFileName;
+    ( void ) ulLineNumber;
 
-    printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
-    fflush(stdout);
+    printf( "vAssertCalled %s, %ld\n", pcFile, ( long ) ulLine );
+    fflush( stdout );
 
     /* Setting ulBlockVariable to a non-zero value in the debugger will allow
-    * this function to be exited. */
+     * this function to be exited. */
     taskDISABLE_INTERRUPTS();
     {
-        while (ulBlockVariable == 0UL)
+        while( ulBlockVariable == 0UL )
         {
             vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
         }
@@ -334,7 +339,7 @@ void vAssertCalled(const char * pcFile,
  * @brief User defined application hook need by the FreeRTOS-Plus-TCP library.
  */
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) || ( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
-    const char * pcApplicationHostnameHook(void)
+    const char * pcApplicationHostnameHook( void )
     {
         /* FIX ME: If necessary, update to applicable registration name. */
 
