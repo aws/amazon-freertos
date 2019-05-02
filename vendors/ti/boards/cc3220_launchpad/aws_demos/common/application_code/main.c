@@ -54,8 +54,8 @@
 #include "aws_pkcs11.h"
 
 /* Demo files. */
+#include "aws_demo.h"
 #include "aws_logging_task.h"
-#include "iot_demo_runner.h"
 #include "aws_system_init.h"
 #include "aws_dev_mode_key_provisioning.h"
 

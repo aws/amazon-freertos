@@ -28,7 +28,7 @@
 #include "task.h"
 
 /* Demo includes */
-#include "iot_demo_runner.h"
+#include "aws_demo.h"
 #include "aws_demo_config.h"
 
 /* AWS library includes. */

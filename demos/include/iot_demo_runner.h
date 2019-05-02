@@ -26,6 +26,8 @@
 #ifndef _IOT_DEMO_RUNNER_H_
 #define _IOT_DEMO_RUNNER_H_
 
+#include "aws_demo_config.h"
+
 /* Choose your demo here. By design only one demo can be selected at a time. If
     you choose more than one only the first choice will be run. If you require
     more than one demo to run at the same time you should create a combined
@@ -45,10 +47,6 @@
             CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
             CONFIG_BLE_NUMERIC_COMPARISON_DEMO_ENABLED
 */
-
-#define CONFIG_MQTT_DEMO_ENABLED 
-
-void DEMO_RUNNER_RunDemos( void );
 
 /* Individual demo task entry definitions */
 #if defined( CONFIG_MQTT_DEMO_ENABLED )

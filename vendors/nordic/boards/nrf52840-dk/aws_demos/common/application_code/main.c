@@ -29,7 +29,7 @@
 #include "semphr.h"
 
 /* Demo includes */
-#include "iot_demo_runner.h"
+#include "aws_demo.h"
 
 /* AWS library includes. */
 #include "aws_logging_task.h"
