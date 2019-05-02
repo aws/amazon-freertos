@@ -156,7 +156,7 @@
 
 /* Map the logging task's printf to the board specific output function. */
     #include <stdio.h>
-    #define configPRINT_STRING( X )    printf( X );/* FIX ME: Change to your devices console print acceptance function. */
+    #define configPRINT_STRING( X )    printf( X ); /* FIX ME: Change to your devices console print acceptance function. */
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
