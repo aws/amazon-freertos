@@ -36,37 +36,44 @@ GLOBAL_DEFINES := WICED_AMAZON_FREERTOS_SDK
 
 #GLOBAL_DEFINES += WLAN_FIRMWARE_PRNG_SEED
 
-export AMAZON_FREERTOS_PATH := ../../../../../../../../
-export AMAZON_FREERTOS_LIB_PATH := ../../../../../../../
-export AFR_THIRDPARTY_PATH := ../../../../../../
+export AMAZON_FREERTOS_PATH := ../../../../../../../
+#export AMAZON_FREERTOS_LIB_PATH := ../../../../../../
+export AFR_THIRDPARTY_PATH := ../../../../../../modules/libraries/3rdparty/
+export AFR_STANDARD_PATH := ../../../../../../modules/libraries/standard/
+export AFR_AWS_PATH := ../../../../../../modules/libraries/aws/
+export AFR_PORTS_MODULES_PATH := ../../../../../../modules/ports/
 
-GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/common/include \
+GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)pkcs11 \
                     $(AFR_THIRDPARTY_PATH)lwip/src/include/lwip \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
                     $(AMAZON_FREERTOS_PATH)lib/include/ \
                     $(AMAZON_FREERTOS_PATH)lib/include/private \
-                    $(AMAZON_FREERTOS_PATH)demos/cypress/$(PLATFORM)/common/config_files \
+                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/config_files \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/arch \
-                    $(AMAZON_FREERTOS_PATH)demos/common/include/ \
-                    $(AMAZON_FREERTOS_PATH)demos/cypress/$(PLATFORM)/common/config_files \
-                    $(AMAZON_FREERTOS_PATH)demos/cypress/$(PLATFORM)/common/application_code/cypress_code/include
+                    $(AMAZON_FREERTOS_PATH)demos/include/ \
+                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/config_files \
+                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/cypress_code/include
 
 #$(info $(AMAZON_FREERTOS_PATH))
-$(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)demos/cypress/$(PLATFORM)/common/application_code/main.c \
+$(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/main.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/logging/aws_logging_task_dynamic_buffers.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/demo_runner/aws_demo_runner.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/mqtt/aws_subscribe_publish_loop.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/mqtt/aws_hello_world.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/shadow/aws_shadow_lightbulb_on_off.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c \
+                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_runner.c \
+                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_afr.c \
+                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
+                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_network_addr.c \
+                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \
+                      $(AMAZON_FREERTOS_PATH)demos/mqtt/aws_mqtt_ble_hello_world.c \
+                      $(AMAZON_FREERTOS_PATH)demos/mqtt/iot_demo_mqtt.c \
+                      $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
+                      $(AFR_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
                       $(AMAZON_FREERTOS_PATH)demos/common/greengrass_connectivity/aws_greengrass_discovery_demo.c
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws
 
-APPLICATION_DCT := $(AMAZON_FREERTOS_PATH)demos/cypress/$(PLATFORM)/common/application_code/cypress_code/app_dct.c
+APPLICATION_DCT := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/cypress_code/app_dct.c
 
 WICED_AMAZON_FREERTOS_SDK := 1
