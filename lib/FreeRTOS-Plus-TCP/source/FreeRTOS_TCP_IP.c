@@ -308,6 +308,20 @@ static BaseType_t prvSendData( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescrip
 static BaseType_t prvTCPHandleState( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer );
 
 /*
+ * Common code for sending a TCP protocol control packet (i.e. no options, no
+ * payload, just flags).
+ */
+static BaseType_t prvTCPSendSpecialPacketHelper( NetworkBufferDescriptor_t *pxNetworkBuffer,
+                                                 uint8_t ucTCPFlags );
+
+/*
+ * A "challenge ACK" is as per https://tools.ietf.org/html/rfc5961#section-3.2,
+ * case #3. In summary, an RST was received with a sequence number that is
+ * unexpected but still within the window.
+ */
+static BaseType_t prvTCPSendChallengeAck( NetworkBufferDescriptor_t *pxNetworkBuffer );
+
+/*
  * Reply to a peer with the RST flag on, in case a packet can not be handled.
  */
 static BaseType_t prvTCPSendReset( NetworkBufferDescriptor_t *pxNetworkBuffer );
@@ -2822,25 +2836,41 @@ TCPWindow_t *pxTCPWindow = &( pxSocket->u.xTCP.xTCPWindow );
 }
 /*-----------------------------------------------------------*/
 
+static BaseType_t prvTCPSendSpecialPacketHelper( NetworkBufferDescriptor_t *pxNetworkBuffer, 
+                                                 uint8_t ucTCPFlags )
+{
+#if( ipconfigIGNORE_UNKNOWN_PACKETS == 0 )
+    {
+        TCPPacket_t *pxTCPPacket = ( TCPPacket_t * )( pxNetworkBuffer->pucEthernetBuffer );
+        const BaseType_t xSendLength = ( BaseType_t )
+            ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER + 0u ); /* Plus 0 options. */
+
+        pxTCPPacket->xTCPHeader.ucTCPFlags = ucTCPFlags;
+        pxTCPPacket->xTCPHeader.ucTCPOffset = ( ipSIZE_OF_TCP_HEADER + 0u ) << 2;
+
+        prvTCPReturnPacket( NULL, pxNetworkBuffer, ( uint32_t )xSendLength, pdFALSE );
+    }
+#endif /* !ipconfigIGNORE_UNKNOWN_PACKETS */
+
+    /* Remove compiler warnings if ipconfigIGNORE_UNKNOWN_PACKETS == 1. */
+    ( void )pxNetworkBuffer;
+    ( void )ucTCPFlags;
+
+    /* The packet was not consumed. */
+    return pdFAIL;
+}
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvTCPSendChallengeAck( NetworkBufferDescriptor_t *pxNetworkBuffer )
+{
+    return prvTCPSendSpecialPacketHelper( pxNetworkBuffer, ipTCP_FLAG_ACK );
+}
+/*-----------------------------------------------------------*/
+
 static BaseType_t prvTCPSendReset( NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
-	#if( ipconfigIGNORE_UNKNOWN_PACKETS == 0 )
-	{
-	TCPPacket_t *pxTCPPacket = ( TCPPacket_t * ) ( pxNetworkBuffer->pucEthernetBuffer );
-	const BaseType_t xSendLength = ( BaseType_t ) ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER + 0u );	/* Plus 0 options. */
-
-		pxTCPPacket->xTCPHeader.ucTCPFlags = ipTCP_FLAG_ACK | ipTCP_FLAG_RST;
-		pxTCPPacket->xTCPHeader.ucTCPOffset = ( ipSIZE_OF_TCP_HEADER + 0u ) << 2;
-
-		prvTCPReturnPacket( NULL, pxNetworkBuffer, ( uint32_t ) xSendLength, pdFALSE );
-	}
-	#endif /* !ipconfigIGNORE_UNKNOWN_PACKETS */
-
-	/* Remove compiler warnings if ipconfigIGNORE_UNKNOWN_PACKETS == 1. */
-	( void ) pxNetworkBuffer;
-
-	/* The packet was not consumed. */
-	return pdFAIL;
+    return prvTCPSendSpecialPacketHelper( pxNetworkBuffer, 
+                                          ipTCP_FLAG_ACK | ipTCP_FLAG_RST );
 }
 /*-----------------------------------------------------------*/
 
@@ -2881,6 +2911,8 @@ uint32_t ulLocalIP;
 uint16_t xLocalPort;
 uint32_t ulRemoteIP;
 uint16_t xRemotePort;
+uint32_t ulSequenceNumber;
+uint32_t ulAckNumber;
 BaseType_t xResult = pdPASS;
 
 	/* Check for a minimum packet size. */
@@ -2891,6 +2923,8 @@ BaseType_t xResult = pdPASS;
 		xLocalPort = FreeRTOS_htons( pxTCPPacket->xTCPHeader.usDestinationPort );
 		ulRemoteIP = FreeRTOS_htonl( pxTCPPacket->xIPHeader.ulSourceIPAddress );
 		xRemotePort = FreeRTOS_htons( pxTCPPacket->xTCPHeader.usSourcePort );
+        ulSequenceNumber = FreeRTOS_ntohl( pxTCPPacket->xTCPHeader.ulSequenceNumber );
+        ulAckNumber = FreeRTOS_ntohl( pxTCPPacket->xTCPHeader.ulAckNr );
 
 		/* Find the destination socket, and if not found: return a socket listing to
 		the destination PORT. */
@@ -2970,13 +3004,36 @@ BaseType_t xResult = pdPASS;
 			flag. */
 			if( ( ucTCPFlags & ipTCP_FLAG_RST ) != 0u )
 			{
-				/* The target socket is not in a listening state, any RST packet
-				will cause the socket to be closed. */
-				FreeRTOS_debug_printf( ( "TCP: RST received from %lxip:%u for %u\n", ulRemoteIP, xRemotePort, xLocalPort ) );
-				/* _HT_: should indicate that 'ECONNRESET' must be returned to the used during next API. */
-				vTCPStateChange( pxSocket, eCLOSED );
+                FreeRTOS_debug_printf( ( "TCP: RST received from %lxip:%u for %u\n", ulRemoteIP, xRemotePort, xLocalPort ) );
 
-				/* The packet cannot be handled. */
+                /* Implement https://tools.ietf.org/html/rfc5961#section-3.2. */
+                if( pxSocket->u.xTCP.ucTCPState == eCONNECT_SYN )
+                {
+                    /* Per the above RFC, "In the SYN-SENT state ... the RST is 
+                    acceptable if the ACK field acknowledges the SYN." */
+                    if( ulAckNumber == pxSocket->u.xTCP.xTCPWindow.ulOurSequenceNumber )
+                    {
+                        vTCPStateChange( pxSocket, eCLOSED );
+                    }
+                }
+                else
+                {
+                    /* Check whether the packet matches the next expected sequence number. */
+                    if( ulSequenceNumber == pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber )
+                    {
+                        vTCPStateChange( pxSocket, eCLOSED );
+                    }
+                    /* Otherwise, check whether the packet is within the receive window. */
+                    else if( ulSequenceNumber > pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber &&
+                             ulSequenceNumber < ( pxSocket->u.xTCP.xTCPWindow.rx.ulCurrentSequenceNumber +
+                                                  pxSocket->u.xTCP.xTCPWindow.xSize.ulRxWindowLength ) )
+                    {
+                        /* Send a challenge ACK. */
+                        prvTCPSendChallengeAck( pxNetworkBuffer );
+                    }
+                }
+
+                /* Otherwise, do nothing. In any case, the packet cannot be handled. */
 				xResult = pdFAIL;
 			}
 			else if( ( ( ucTCPFlags & ipTCP_FLAG_CTRL ) == ipTCP_FLAG_SYN ) && ( pxSocket->u.xTCP.ucTCPState >= eESTABLISHED ) )
