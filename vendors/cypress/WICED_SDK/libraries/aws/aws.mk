@@ -40,6 +40,7 @@ export AFR_STANDARD_PATH := ../../../../../modules/libraries/standard/
 export AFR_AWS_PATH := ../../../../../modules/libraries/aws/
 export AFR_PORTS_MODULES_PATH := ../../../../../modules/ports/
 
+#$(AFR_STANDARD_PATH)mqtt/src/iot_ble_mqtt_serialize.c                                     \
 #$(AFR_AWS_PATH)lib/bufferpool/aws_bufferpool_static_thread_safe.c
 $(NAME)_SOURCES :=  $(AFR_AWS_PATH)greengrass/src/aws_greengrass_discovery.c        \
                     $(AFR_AWS_PATH)greengrass/src/aws_helper_secure_connect.c       \
@@ -117,7 +118,6 @@ $(NAME)_SOURCES :=  $(AFR_AWS_PATH)greengrass/src/aws_greengrass_discovery.c    
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509write_crt.c           \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509write_csr.c           \
                     $(AFR_STANDARD_PATH)mqtt/src/aws_mqtt_agent.c                                             \
-                    $(AFR_STANDARD_PATH)mqtt/src/iot_ble_mqtt_serialize.c                                     \
                     $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_api.c                                               \
                     $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_network.c                                           \
                     $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_operation.c                                         \
@@ -140,6 +140,10 @@ $(NAME)_SOURCES :=  $(AFR_AWS_PATH)greengrass/src/aws_greengrass_discovery.c    
 
 $(NAME)_INCLUDES := $(AFR_STANDARD_PATH)mqtt/include \
                     $(AFR_STANDARD_PATH)mqtt/include/types \
+                    $(AFR_AWS_PATH)/shadow/include \
+                    $(AFR_AWS_PATH)/shadow/include/types \
+                    $(AFR_AWS_PATH)/greengrass/include     \
+                    $(AFR_AWS_PATH)/greengrass/src         \
                     $(AFR_STANDARD_PATH)provisioning/include \
                     $(AFR_STANDARD_PATH)tls/include \
                     $(AFR_STANDARD_PATH)utils/include \
