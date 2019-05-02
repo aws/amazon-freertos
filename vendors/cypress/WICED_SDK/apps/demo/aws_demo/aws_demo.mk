@@ -46,6 +46,7 @@ export AFR_PORTS_MODULES_PATH := ../../../../../../modules/ports/
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_STANDARD_PATH)common/include \
                     $(AFR_STANDARD_PATH)common/include/platform \
+                    $(AFR_STANDARD_PATH)common/taskpool/private \
                     $(AFR_STANDARD_PATH)common/include/private \
                     $(AFR_STANDARD_PATH)common/include/types \
                     $(AFR_STANDARD_PATH)utils/include       \
@@ -90,7 +91,14 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/mqtt/iot_demo_mqtt.c \
                       $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
                       $(AFR_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
-                      $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c
+                      $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c \
+                      $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_demo_network.c \
+                      $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_network_manager.c \
+                      $(AFR_STANDARD_PATH)common/taskpool/iot_taskpool.c \
+                      $(AFR_STANDARD_PATH)common/platform/iot_clock_afr.c \
+                      $(AFR_STANDARD_PATH)common/platform/iot_network_afr.c \
+                      $(AFR_STANDARD_PATH)common/platform/iot_threads_afr.c \
+                      $(AFR_STANDARD_PATH)common/iot_init.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws

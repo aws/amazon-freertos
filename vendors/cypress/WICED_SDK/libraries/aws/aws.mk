@@ -132,6 +132,7 @@ $(NAME)_SOURCES :=  $(AFR_AWS_PATH)greengrass/src/aws_greengrass_discovery.c    
                     $(AFR_AWS_PATH)shadow/src/aws_iot_shadow_subscription.c                                   \
                     $(AFR_STANDARD_PATH)tls/src/aws_tls.c                                                     \
                     $(AFR_STANDARD_PATH)utils/src/aws_system_init.c                                           \
+                    $(AFR_STANDARD_PATH)common/platform/iot_threads_afr.c                                     \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/wifi/aws_wifi.c           \
                     $(AFR_PORTS_MODULES_PATH)pkcs11/mbedtls/aws_pkcs11_mbedtls.c                              \
                     $(AFR_STANDARD_PATH)crypto/src/aws_crypto.c                                               \
@@ -149,6 +150,7 @@ $(NAME)_INCLUDES := $(AFR_STANDARD_PATH)mqtt/include \
                     $(AFR_STANDARD_PATH)utils/include \
                     $(AFR_STANDARD_PATH)crypto/include \
                     $(AFR_STANDARD_PATH)common/include \
+                    $(AFR_STANDARD_PATH)common/include/platform \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
                     $(AFR_THIRDPARTY_PATH)unity/src

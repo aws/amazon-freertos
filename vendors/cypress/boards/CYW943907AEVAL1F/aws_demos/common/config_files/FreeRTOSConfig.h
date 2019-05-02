@@ -68,7 +68,7 @@ extern "C" {
 #define configMAX_PRIORITIES                       ( 10 )
 #define configTICK_RATE_HZ                         ( ( TickType_t ) SYSTICK_FREQUENCY )
 #define configMINIMAL_STACK_SIZE                   ( ( uint16_t ) 256 )
-#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 2048U * 1024U ) )
+#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 85U * 1024U ) )
 #define configMAX_TASK_NAME_LEN                    ( 16 )
 #ifndef configUSE_TRACE_FACILITY
 #define configUSE_TRACE_FACILITY                   ( 0 )
