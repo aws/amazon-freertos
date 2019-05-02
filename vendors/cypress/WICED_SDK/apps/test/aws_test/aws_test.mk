@@ -43,7 +43,7 @@ endif
 
 #GLOBAL_DEFINES += WLAN_FIRMWARE_PRNG_SEED
 
-export AMAZON_FREERTOS_PATH := ../../../../../../../
+export AMAZON_FREERTOS_PATH := ../../../../../../
 #export AMAZON_FREERTOS_LIB_PATH := ../../../../../../../
 export AFR_THIRDPARTY_PATH := ../../../../../../modules/libraries/3rdparty/
 export AFR_STANDARD_PATH := ../../../../../../modules/libraries/standard/
@@ -68,7 +68,8 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/common/include/ \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)tests/cypress/$(PLATFORM)/common/application_code/main.c \
-                      $(AMAZON_FREERTOS_PATH)demos/common/logging/aws_logging_task_dynamic_buffers.c \
+                      $(AFR_STANDARD_PATH)common/logging/aws_logging_task_dynamic_buffers.c \
+                      $(AFR_STANDARD_PATH)common/logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/test_runner/aws_test_runner.c \
                       $(AMAZON_FREERTOS_PATH)tests/common/framework/aws_test_framework.c \
                       $(AFR_THIRDPARTY_PATH)unity/src/unity.c \
