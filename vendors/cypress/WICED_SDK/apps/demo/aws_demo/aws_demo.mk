@@ -37,7 +37,6 @@ GLOBAL_DEFINES := WICED_AMAZON_FREERTOS_SDK
 #GLOBAL_DEFINES += WLAN_FIRMWARE_PRNG_SEED
 
 export AMAZON_FREERTOS_PATH := ../../../../../../
-#export AMAZON_FREERTOS_LIB_PATH := ../../../../../../
 export AFR_THIRDPARTY_PATH := ../../../../../../modules/libraries/3rdparty/
 export AFR_STANDARD_PATH := ../../../../../../modules/libraries/standard/
 export AFR_AWS_PATH := ../../../../../../modules/libraries/aws/
@@ -50,32 +49,29 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_STANDARD_PATH)common/include/private \
                     $(AFR_STANDARD_PATH)common/include/types \
                     $(AFR_STANDARD_PATH)utils/include       \
-                    $(AFR_PORTS_MODULES_PATH)/wifi/include  \
+                    $(AFR_PORTS_MODULES_PATH)wifi/include  \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)pkcs11 \
                     $(AFR_THIRDPARTY_PATH)lwip/src/include/lwip \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/include \
-                    $(AMAZON_FREERTOS_PATH)lib/include/private \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/config_files \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/arch \
-                    $(AMAZON_FREERTOS_PATH)demos/include/ \
-                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/config_files \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/cypress_code/include \
                     $(AFR_STANDARD_PATH)provisioning/include \
-                    $(AFR_PORTS_MODULES_PATH)/pkcs11/include  \
-                    $(AFR_PORTS_MODULES_PATH)/pkcs11/mbedtls  \
-                    $(AFR_PORTS_MODULES_PATH)/secure_sockets/include  \
+                    $(AFR_PORTS_MODULES_PATH)pkcs11/include  \
+                    $(AFR_PORTS_MODULES_PATH)pkcs11/mbedtls  \
+                    $(AFR_PORTS_MODULES_PATH)secure_sockets/include  \
                     $(AMAZON_FREERTOS_PATH)demos/network_manager \
                     $(AFR_STANDARD_PATH)mqtt/include \
                     $(AFR_STANDARD_PATH)mqtt/include/types \
                     $(AFR_STANDARD_PATH)freertos_plus_tcp/include \
                     $(AFR_STANDARD_PATH)freertos_plus_tcp/source/portable/Compiler/GCC \
-                    $(AFR_AWS_PATH)/shadow/include \
-                    $(AFR_AWS_PATH)/shadow/include/types \
-                    $(AFR_AWS_PATH)/greengrass/include     \
-                    $(AFR_AWS_PATH)/greengrass/src \
+                    $(AFR_AWS_PATH)shadow/include \
+                    $(AFR_AWS_PATH)shadow/include/types \
+                    $(AFR_AWS_PATH)greengrass/include     \
+                    $(AFR_AWS_PATH)greengrass/src \
 
 
 #$(info $(AMAZON_FREERTOS_PATH))
