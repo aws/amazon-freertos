@@ -50,6 +50,6 @@
 #if defined(MBEDTLS_SSL_MAX_CONTENT_LEN)
 #undef MBEDTLS_SSL_MAX_CONTENT_LEN
 #endif
-#define MBEDTLS_SSL_MAX_CONTENT_LEN             4096 //5120 //8192 /**< Maximum fragment length in bytes, determines the size of each of the two internal I/O buffers */ 
+#define MBEDTLS_SSL_MAX_CONTENT_LEN             6144 //5120 //8192 /**< Maximum fragment length in bytes, determines the size of each of the two internal I/O buffers */ 
 
 #endif /* MBEDTLS_USER_CONFIG_H */
