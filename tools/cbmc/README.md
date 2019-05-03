@@ -55,6 +55,11 @@ Installing CBMC
 Setting up the proofs
 ---------------------
 
+Change into the `patches` directory. Run
+```
+python compute_patch.py
+```
+
 Change into the `proofs` directory. On Windows, run
 ```
 python make-configuration-directories.py
