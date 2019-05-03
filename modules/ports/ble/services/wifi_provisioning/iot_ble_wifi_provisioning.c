@@ -106,7 +106,7 @@ static WIFIScanResult_t scanNetworks[ IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS
 /*
  * @brief Callback registered for BLE write and read events received for each characteristic.
  */
-static void _callback( IotBleDataTransferChannelStatus_t event, IotBleDataTransferChannel_t *pChannel, void *pContext );
+static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext );
 
 static bool _deserializeListNetworkRequest( uint8_t * pData,
                                             size_t length,
@@ -259,7 +259,7 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
     
 }
 
-static void _callback( IotBleDataTransferChannelStatus_t event, IotBleDataTransferChannel_t *pChannel, void *pContext )
+static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext )
 {
     int32_t requestType;
     size_t length = ( pChannel->head - pChannel->tail );
@@ -296,19 +296,6 @@ static void _callback( IotBleDataTransferChannelStatus_t event, IotBleDataTransf
         }
         /* Do an empty read to flush the buffer. */
         IotBleDataTransfer_Receive( pChannel, NULL, length );
-
-    }
-    else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED )
-    {
-        IotBleDataTransfer_Reset( pChannel );
-        wifiProvisioning.pChannel = NULL;
-    }
-    else if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_READY )
-    {
-        if( wifiProvisioning.pChannel == NULL )
-        {
-            wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
-        }
     }
 }
 
@@ -1520,6 +1507,7 @@ bool IotBleWifiProv_Start( void )
     if( wifiProvisioning.init == true )
     {
         wifiProvisioning.numNetworks = _getNumSavedNetworks();
+        
         wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
         if( wifiProvisioning.pChannel != NULL )
         {
@@ -1592,9 +1580,11 @@ bool IotBleWifiProv_Delete( void )
 
     if( wifiProvisioning.init == true )
     {
-
-        IotBleDataTransfer_Close( wifiProvisioning.pChannel );
-        IotBleDataTransfer_Reset( wifiProvisioning.pChannel );
+        if( wifiProvisioning.pChannel != NULL )
+        {
+            IotBleDataTransfer_Close( wifiProvisioning.pChannel );
+            IotBleDataTransfer_Reset( wifiProvisioning.pChannel );
+        }
 
         //Delete service.
         if( wifiProvisioning.lock != NULL )

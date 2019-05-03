@@ -157,6 +157,8 @@ typedef enum IotBleDataTransferAttributes
 
 } IotBleDataTransferAttributes_t;
 
+
+
 /**
  * @ingroup ble_datatypes_structs
  * @brief MQTT BLE Service structure.
@@ -394,6 +396,7 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
     IotBleEventResponse_t resp;
     IotBleDataTransferService_t* pService;
     uint8_t value;
+    IotBleDataTransferChannelEvent_t channelEvent;
 
     resp.pAttrData = &attrData;
     resp.rspErrorStatus = eBTRspErrorNone;
@@ -406,7 +409,7 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
         if (pService != NULL)
         {
             resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-            resp.pAttrData->pData = ( uint8_t * ) pService->channel.isReady;
+            resp.pAttrData->pData = ( uint8_t * ) pService->channel.isOpen;
             resp.pAttrData->size = 1;
             resp.attrDataOffset = 0;
             resp.eventStatus = eBTStatusSuccess;
@@ -419,14 +422,14 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
         pService = _getServiceFromHandle(pEventParam->pParamWrite->attrHandle);
         if (pService != NULL)
         {     
-            pService->channel.isReady = ( *( ( uint8_t * ) pEventParam->pParamWrite->pValue ) == 1 );   
-            if( ( pService->channel.isReady == true ) && ( pService->channel.callback != NULL ) )
+            pService->channel.isOpen = ( *( ( uint8_t * ) pEventParam->pParamWrite->pValue ) == 1 );   
+            if( pService->channel.callback != NULL )
             {
-                pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_READY,
+                channelEvent =  ( pService->channel.isOpen == true ) ? IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED : IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED;
+                pService->channel.callback( channelEvent,
                                             &pService->channel,
                                             pService->channel.pContext );
             }
-
             resp.pAttrData->handle = pEventParam->pParamWrite->attrHandle;
             resp.eventStatus = eBTStatusSuccess;
         }
@@ -584,7 +587,7 @@ static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pService = _getServiceFromHandle( pEventParam->pParamWrite->attrHandle );
-        if( ( pService != NULL ) && ( pService->channel.isUsed ) )
+        if( ( pService != NULL ) && ( pService->channel.isOpen ) )
         {
             IotMutex_Lock( &pService->channel.receiveLock );
             if( pService->channel.pendingRead  == false )
@@ -675,7 +678,7 @@ static void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     {
         pService = _getServiceFromHandle( pEventParam->pParamWrite->attrHandle );
 
-        if( ( pService != NULL ) && ( pService->channel.isUsed == true ) )
+        if( ( pService != NULL ) && ( pService->channel.isOpen == true ) )
         {
             IotMutex_Lock( &pService->channel.receiveLock );
 
@@ -799,8 +802,6 @@ static void _connectionCallback( BTStatus_t status,
             for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
             {
                 IotBleDataTransfer_Close( &_services[index].channel );
-                _services[index].channel.isReady = false;
-
             }
             transmitLength = _TRANSMIT_LENGTH( IOT_BLE_PREFERRED_MTU_SIZE );
         }
@@ -983,15 +984,16 @@ bool IotBleDataTransfer_SetCallback( IotBleDataTransferChannel_t* pChannel, cons
 {
     bool ret = false;
     if( pChannel != NULL &&
+        pChannel->isUsed == true &&
         callback != NULL &&
         pChannel->callback == NULL  )
     {
         pChannel->callback = callback;
         pChannel->pContext = pContext;
 
-        if( pChannel->isReady == true )
+        if( pChannel->isOpen == true )
         {
-            pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_READY, pChannel, pContext );
+            pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED, pChannel, pContext );
         }
 
         ret = true;
@@ -1005,17 +1007,9 @@ bool IotBleDataTransfer_SetCallback( IotBleDataTransferChannel_t* pChannel, cons
 
 void IotBleDataTransfer_Close( IotBleDataTransferChannel_t * pChannel )
 {
-    pChannel->isUsed = false;
-    if( pChannel->callback != NULL )
-    {
-        pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED, pChannel, pChannel->pContext );
-    }
-}
-
-void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel )
-{
-
-    IotSemaphore_Wait( &pChannel->sendLock );
+    pChannel->isOpen = false;
+    /* Assume nobody writes/reads from buffer after timeout. */
+    ( void ) IotSemaphore_TimedWait( &pChannel->sendLock, pChannel->timeout );
     xStreamBufferReset( pChannel->sendBuffer );
     IotSemaphore_Post( &pChannel->sendLock );
 
@@ -1029,6 +1023,18 @@ void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel )
         pChannel->pendingRead = false;
     }
     IotMutex_Unlock( &pChannel->receiveLock );
+
+    if( pChannel->callback != NULL )
+    {
+        pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED, pChannel, pChannel->pContext );
+    }
+}
+
+void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel )
+{
+    pChannel->isUsed = false;
+    pChannel->callback = NULL;
+    pChannel->pContext = NULL;
 }
 
 /*-----------------------------------------------------------*/
@@ -1073,7 +1079,7 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const ui
 
     vTaskSetTimeOutState( &timeout );
 
-    if( pChannel->isUsed )
+    if( pChannel->isOpen )
     {
         if( messageLength < transmitLength  )
         {

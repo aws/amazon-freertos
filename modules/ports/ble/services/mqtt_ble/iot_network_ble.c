@@ -36,12 +36,12 @@
 #include "iot_ble_data_transfer.h"
 
 
-static void _callback( IotBleDataTransferChannelStatus_t event, IotBleDataTransferChannel_t *pChannel, void *pContext )
+static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext )
 {
     IotBleNetworkContext_t *pNetworkContext = ( IotBleNetworkContext_t * ) pContext;
     switch( event )
     {
-        case IOT_BLE_DATA_TRANSFER_CHANNEL_READY:
+        case IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED:
             IotSemaphore_Post( &pNetworkContext->lock );
             break;
         case IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE:
@@ -86,11 +86,11 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
         if( IotSemaphore_Create( &_context.lock, 0, 1 ) == true )
         {
             IotBleDataTransfer_SetCallback( pChannel, _callback, &_context );
-            if( pChannel->isReady == false )
+            if( pChannel->isOpen == false )
             {
                 IotSemaphore_TimedWait( &_context.lock, 5000 );
             }
-            if( pChannel->isReady == true )
+            if( pChannel->isOpen == true )
             {
                 ( *pConnection ) = &_context;
                 status = IOT_NETWORK_SUCCESS;
