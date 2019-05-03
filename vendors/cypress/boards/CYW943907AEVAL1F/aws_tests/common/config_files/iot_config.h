@@ -1,6 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -18,19 +17,23 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
  */
 
-/* Dummy stdbool.h using to allow building with MSVC 2010, which does not
- * provide this file. */
+/* This file contains configuration settings for the demos. */
 
-#ifndef _STD_BOOL_H_
-#define _STD_BOOL_H_
+#ifndef IOT_CONFIG_H_
+#define IOT_CONFIG_H_
 
-typedef int bool;
-#define false    0
-#define true     1
+/* Standard include. */
+#include <stdbool.h>
 
-#endif /* _STD_BOOL_H_ */
+/* Library logging configuration. */
+#define IOT_LOG_LEVEL_GLOBAL             IOT_LOG_NONE
+
+/* Set the task pool stack size and priority on ST. */
+#define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
+
+/* Include the common configuration file for FreeRTOS. */
+#include "iot_config_common.h"
+
+#endif /* ifndef IOT_CONFIG_H_ */

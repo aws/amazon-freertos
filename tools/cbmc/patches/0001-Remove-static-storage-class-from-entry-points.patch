@@ -1,0 +1,124 @@
+From 397f1a3bc9216fb3b8b671ea04ed685aeb59c558 Mon Sep 17 00:00:00 2001
+From: Kareem Khazem <karkhaz@amazon.com>
+Date: Thu, 31 Jan 2019 15:14:07 -0800
+Subject: [PATCH 1/4] Remove static storage class from entry points
+
+Many of the entry points we wish to test are marked as being static.
+This commit removes the static keyword from all entry points that we
+test.
+---
+ lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c    |  6 +++---
+ lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c     | 14 +++++++-------
+ lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c |  2 +-
+ 3 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c
+index 4ec3e5dc3..b692e78d2 100644
+--- a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c
++++ b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c
+@@ -203,7 +203,7 @@ static void prvSendDHCPDiscover( void );
+ /*
+  * Interpret message received on the DHCP socket.
+  */
+-static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType );
++BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType );
+ 
+ /*
+  * Generate a DHCP request packet, and send it on the DHCP socket.
+@@ -239,7 +239,7 @@ static void prvCreateDHCPSocket( void );
+ /*-----------------------------------------------------------*/
+ 
+ /* The next DHCP transaction Id to be used. */
+-static DHCPData_t xDHCPData;
++DHCPData_t xDHCPData;
+ 
+ /*-----------------------------------------------------------*/
+ 
+@@ -612,7 +612,7 @@ static void prvInitialiseDHCP( void )
+ }
+ /*-----------------------------------------------------------*/
+ 
+-static BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
++BaseType_t prvProcessDHCPReplies( BaseType_t xExpectedMessageType )
+ {
+ uint8_t *pucUDPPayload, *pucLastByte;
+ struct freertos_sockaddr xClient;
+diff --git a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c
+index bf55c584b..ca7c88280 100644
+--- a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c
++++ b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c
+@@ -114,12 +114,12 @@ static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer, const char *pcH
+ /*
+  * Simple routine that jumps over the NAME field of a resource record.
+  */
+-static uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen );
++uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen );
+ 
+ /*
+  * Process a response packet from a DNS server.
+  */
+-static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier );
++uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier );
+ 
+ /*
+  * Prepare and send a message to a DNS server.  'xReadTimeOut_ms' will be passed as
+@@ -139,7 +139,7 @@ static uint32_t prvGetHostByName( const char *pcHostName, TickType_t xIdentifier
+ #endif /* ipconfigUSE_NBNS */
+ 
+ #if( ipconfigUSE_DNS_CACHE == 1 )
+-	static uint8_t *prvReadNameField( uint8_t *pucByte, size_t xSourceLen, char *pcName, size_t xLen );
++	uint8_t *prvReadNameField( uint8_t *pucByte, size_t xSourceLen, char *pcName, size_t xLen );
+ 	static void prvProcessDNSCache( const char *pcName, uint32_t *pulIP, uint32_t ulTTL, BaseType_t xLookUp );
+ 
+ 	typedef struct xDNS_CACHE_TABLE_ROW
+@@ -672,8 +672,9 @@ static const DNSMessage_t xDefaultPartDNSHeader =
+ 
+ #if( ipconfigUSE_DNS_CACHE == 1 )
+ 
+-	static uint8_t *prvReadNameField( uint8_t *pucByte, size_t xSourceLen, char *pcName, size_t xDestLen )
++	uint8_t *prvReadNameField( uint8_t *pucByte, size_t xSourceLen, char *pcName, size_t xDestLen )
+ 	{
++
+ 	size_t xNameLen = 0;
+ 	BaseType_t xCount;
+ 
+@@ -741,13 +742,12 @@ static const DNSMessage_t xDefaultPartDNSHeader =
+ 				}
+ 			}
+ 		}
+-
+ 		return pucByte;
+ 	}
+ #endif	/* ipconfigUSE_DNS_CACHE == 1 */
+ /*-----------------------------------------------------------*/
+ 
+-static uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen )
++uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen )
+ {
+ 	size_t xChunkLength;
+ 
+@@ -855,7 +855,7 @@ DNSMessage_t *pxDNSMessageHeader;
+ #endif /* ipconfigUSE_NBNS */
+ /*-----------------------------------------------------------*/
+ 
+-static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier )
++uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, TickType_t xIdentifier )
+ {
+ DNSMessage_t *pxDNSMessageHeader;
+ DNSAnswerRecord_t *pxDNSAnswerRecord;
+diff --git a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c
+index 4bf22a9ef..4e38adc81 100644
+--- a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c
++++ b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c
+@@ -206,7 +206,7 @@ extern void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewL
+ 
+ /* List of free TCP segments. */
+ #if( ipconfigUSE_TCP_WIN == 1 )
+-	static List_t xSegmentList;
++	List_t xSegmentList;
+ #endif
+ 
+ /* Logging verbosity level. */
+-- 
+2.21.0
+

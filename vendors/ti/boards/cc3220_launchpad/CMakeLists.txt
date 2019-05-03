@@ -102,7 +102,9 @@ target_include_directories(
 )
 target_link_libraries(
     AFR::kernel::mcu_port
-    INTERFACE AFR::posix
+    INTERFACE
+        AFR::posix
+        AFR::posix_headers
 )
 
 # POSIX
