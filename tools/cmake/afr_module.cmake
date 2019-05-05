@@ -218,29 +218,32 @@ macro(__check_circular_dependency node)
     endif()
 endmacro()
 
-# Recursively search dependencies for an AFR portable layer target, and add any found AFR or 3rdparty
-# target to AFR_MODULE_${mcu_port}_DEPENDS_ALL. This is to process dependency information added
-# by vendors' CMake files and generate a complete dependency graph.
-macro(__search_afr_dependencies arg_mcu_port)
+# Recursively search dependencies for a target, return all AFR and 3rdparty dependencies found. This
+# is to process dependency information added by vendors' CMake files and generate a complete
+# dependency graph.
+macro(__search_afr_dependencies arg_target arg_dependencies)
     set(__dg_path "" CACHE INTERNAL "")
-    __search_afr_dependencies_impl(${arg_mcu_port} AFR::${arg_mcu_port})
+    set(__dependencies "" CACHE INTERNAL "")
+    __search_afr_dependencies_impl(${arg_target})
+    set(${arg_dependencies} ${__dependencies})
+    unset(__dependencies CACHE)
     set(__dg_visited "" CACHE INTERNAL "")
 endmacro()
 
-function(__search_afr_dependencies_impl arg_mcu_port arg_target)
+function(__search_afr_dependencies_impl arg_target)
     __check_circular_dependency(${arg_target})
 
     if(NOT ${arg_target} IN_LIST __dg_visited)
         afr_cache_append(__dg_visited ${arg_target})
-        get_target_property(dependencies ${arg_target} INTERFACE_LINK_LIBRARIES)
+        afr_get_target_dependencies(${arg_target} dependencies)
         foreach(dep IN LISTS dependencies)
             string(FIND "${dep}" "AFR::" idx_a)
             string(FIND "${dep}" "3rdparty::" idx_b)
-            if((idx_a EQUAL 0 OR idx_b EQUAL 0) AND NOT ${dep} IN_LIST AFR_MODULE_${arg_mcu_port}_DEPENDS_ALL)
-                afr_module_dependencies(${arg_mcu_port} INTERFACE ${dep})
+            if((idx_a EQUAL 0 OR idx_b EQUAL 0) AND NOT ${dep} IN_LIST __dependencies)
+                afr_cache_append(__dependencies ${dep})
             endif()
             if(TARGET ${dep})
-                __search_afr_dependencies_impl(${arg_mcu_port} ${dep})
+                __search_afr_dependencies_impl(${dep})
             endif()
         endforeach()
     endif()
@@ -303,10 +306,22 @@ endfunction()
 
 # Traverse dependency graph and enable selected public modules with their dependencies.
 function(afr_resolve_dependencies)
-    # Process dependencies information from portable layer targets first.
+    # Process dependencies information from portable layer targets.
     foreach(mcu_port IN LISTS AFR_MODULES_PORT)
-        __search_afr_dependencies(${mcu_port})
+        __search_afr_dependencies(AFR::${mcu_port} dependencies)
+        afr_module_dependencies(${mcu_port} INTERFACE ${dependencies})
     endforeach()
+
+    # Process dependencies information from aws_demos/aws_tests.
+    if(AFR_IS_TESTING)
+        set(exe_target aws_tests)
+        set(exe_base test_base)
+    else()
+        set(exe_target aws_demos)
+        set(exe_base demo_base)
+    endif()
+    __search_afr_dependencies(${exe_target} dependencies)
+    afr_module_dependencies(${exe_base} INTERFACE ${dependencies})
 
     # Make sure kernel can be enabled first.
     __resolve_dependencies(kernel)
@@ -316,31 +331,9 @@ function(afr_resolve_dependencies)
     afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
 
     # Check if demo_base/test_base can be enabled.
-    if(AFR_IS_TESTING)
-        set(exe_target aws_tests)
-        set(exe_base test_base)
-    else()
-        set(exe_target aws_demos)
-        set(exe_base demo_base)
-    endif()
     __resolve_dependencies(${exe_base})
     if("${exe_base}" IN_LIST __dg_disabled)
-        message(WARNING "Unable to build ${exe_base} due to missing dependencies.")
-    else()
-        afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
-    endif()
-
-    # Check if aws_demos/aws_tests can be enabled
-    get_target_property(dependencies ${exe_target} LINK_LIBRARIES)
-    foreach(dep IN LISTS dependencies)
-        string(FIND "${dep}" "AFR::" idx)
-        if(idx EQUAL 0)
-            string(REPLACE "AFR::" "" dep "${dep}")
-            __resolve_dependencies(${dep})
-        endif()
-    endforeach()
-    if("${exe_target}" IN_LIST __dg_disabled)
-        message(WARNING "Unable to build ${exe_target} due to missing dependencies.")
+        message(FATAL_ERROR "Unable to build ${exe_target} due to missing dependencies.")
     else()
         afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
     endif()

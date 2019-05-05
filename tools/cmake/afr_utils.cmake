@@ -201,6 +201,21 @@ function(afr_status arg_msg)
     message("${str}")
 endfunction()
 
+function(afr_get_target_dependencies arg_target arg_dependencies)
+    if(NOT TARGET ${arg_target})
+        message(FATAL_ERROR "${arg_target} is not a target.")
+    endif()
+
+    get_target_property(dependencies ${arg_target} INTERFACE_LINK_LIBRARIES)
+    get_target_property(type ${arg_target} TYPE)
+    if(NOT "${type}" STREQUAL "INTERFACE_LIBRARY")
+        get_target_property(more_dependencies ${arg_target} LINK_LIBRARIES)
+        list(APPEND dependencies ${more_dependencies})
+    endif()
+
+    set(${arg_dependencies} ${dependencies} PARENT_SCOPE)
+endfunction()
+
 # Create a target to print the generator expression.
 function(afr_print_generator_expr target_name expression)
     add_custom_target(${target_name}
