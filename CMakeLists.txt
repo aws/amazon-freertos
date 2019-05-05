@@ -47,14 +47,14 @@ afr_resolve_dependencies()
 # -------------------------------------------------------------------------------------------------
 # Summary
 # -------------------------------------------------------------------------------------------------
-message("")
-message("====================Configuration for Amazon FreeRTOS====================")
-message("  Version:                 ${AFR_VERSION}")
-message("  Git version:             ${AFR_VERSION_VCS}")
+afr_status("")
+afr_status("====================Configuration for Amazon FreeRTOS====================")
+afr_status("  Version:                 " "${AFR_VERSION}")
+afr_status("  Git version:             " "${AFR_VERSION_VCS}")
 
 # ================ Target microcontroller =================
-message("")
-message("Target microcontroller:")
+afr_status("")
+afr_status("Target microcontroller:")
 
 afr_get_board_metadata(vendor_name VENDOR_NAME)
 afr_get_board_metadata(board_name  DISPLAY_NAME)
@@ -63,44 +63,35 @@ afr_get_board_metadata(family      FAMILY_NAME)
 afr_get_board_metadata(data_ram    DATA_RAM_MEMORY)
 afr_get_board_metadata(program_mem PROGRAM_MEMORY)
 
-message("  vendor:                  ${vendor_name}")
-message("  board:                   ${board_name}")
-message("  description:             ${description}")
-message("  family:                  ${family}")
-message("  data ram size:           ${data_ram}")
-message("  program memory size:     ${program_mem}")
+afr_status("  vendor:                  " "${vendor_name}")
+afr_status("  board:                   " "${board_name}")
+afr_status("  description:             " "${description}")
+afr_status("  family:                  " "${family}")
+afr_status("  data ram size:           " "${data_ram}")
+afr_status("  program memory size:     " "${program_mem}")
 
 # ===================== Host platform =====================
-message("")
-message("Host platform:")
+afr_status("")
+afr_status("Host platform:")
 
-message("  OS:                      ${CMAKE_HOST_SYSTEM}")
-message("  Toolchain:               ${AFR_TOOLCHAIN}")
-message("  Toolchain path:          ${CMAKE_FIND_ROOT_PATH}")
-message("  CMake generator:         ${CMAKE_GENERATOR}")
+afr_status("  OS:                      " "${CMAKE_HOST_SYSTEM}")
+afr_status("  Toolchain:               " "${AFR_TOOLCHAIN}")
+afr_status("  Toolchain path:          " "${CMAKE_FIND_ROOT_PATH}")
+afr_status("  CMake generator:         " "${CMAKE_GENERATOR}")
 
 # ================ Amazon FreeRTOS modules ================
-message("")
-message("Amazon FreeRTOS modules:")
+afr_status("")
+afr_status("Amazon FreeRTOS modules:")
 
-list(JOIN AFR_MODULES_BUILD "," AFR_STATUS_MODULES_TO_BUILD)
-list(JOIN AFR_MODULES_ENABLED_USER "," AFR_STATUS_MODULES_ENABLED_USER)
-list(JOIN AFR_MODULES_ENABLED_DEPS "," AFR_STATUS_MODULES_ENABLED_DEPS)
-list(JOIN 3RDPARTY_MODULES_ENABLED "," AFR_STATUS_3RDPARTY_MODULES_ENABLED)
-list(JOIN AFR_DEMOS_ENABLED "," AFR_STATUS_DEMOS_ENABLED)
-list(JOIN AFR_TESTS_ENABLED "," AFR_STATUS_TESTS_ENABLED)
+afr_status("  Modules to build:        " "${AFR_MODULES_BUILD}")
+afr_status("  Enabled by user:         " "${AFR_MODULES_ENABLED_USER}")
+afr_status("  Enabled by dependency:   " "${AFR_MODULES_ENABLED_DEPS}")
+afr_status("  3rdparty dependencies:   " "${3RDPARTY_MODULES_ENABLED}")
+afr_status("  Available demos:         " "${AFR_DEMOS_ENABLED}")
+afr_status("  Available tests:         " "${AFR_TESTS_ENABLED}")
 
-message("  Modules to build:        ${AFR_STATUS_MODULES_TO_BUILD}")
-message("  Enabled by user:         ${AFR_STATUS_MODULES_ENABLED_USER}")
-message("  Enabled by dependency:   ${AFR_STATUS_MODULES_ENABLED_DEPS}")
-message("  3rdparty libraries:      ${AFR_STATUS_3RDPARTY_MODULES_ENABLED}")
-
-message("")
-message("  Available demos:         ${AFR_STATUS_DEMOS_ENABLED}")
-message("  Available tests:         ${AFR_STATUS_TESTS_ENABLED}")
-
-message("=========================================================================")
-message("")
+afr_status("=========================================================================")
+afr_status("")
 
 # -------------------------------------------------------------------------------------------------
 # Demos and tests

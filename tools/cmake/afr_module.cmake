@@ -368,11 +368,14 @@ function(afr_resolve_dependencies)
             afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
         endif()
     endforeach()
+
+    # Cleanup result.
     afr_cache_remove_duplicates(AFR_MODULES_ENABLED)
     set(3rdparty_libs ${AFR_MODULES_ENABLED})
     list(FILTER 3rdparty_libs INCLUDE REGEX "3rdparty::")
-    afr_cache_append(3RDPARTY_MODULES_ENABLED ${3rdparty_libs})
     afr_cache_remove(AFR_MODULES_ENABLED ${3rdparty_libs})
+    list(TRANSFORM 3rdparty_libs REPLACE "3rdparty::" "")
+    afr_cache_append(3RDPARTY_MODULES_ENABLED ${3rdparty_libs})
     afr_cache_append(AFR_MODULES_ENABLED_DEPS ${AFR_MODULES_ENABLED})
     afr_cache_remove(AFR_MODULES_ENABLED_DEPS ${AFR_MODULES_ENABLED_USER} ${AFR_MODULES_PORT})
 

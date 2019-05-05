@@ -159,6 +159,48 @@ function(afr_glob_src arg_files)
     set(${arg_files} "${${arg_files}}" PARENT_SCOPE)
 endfunction()
 
+# Pretty print status information
+function(afr_status arg_msg)
+    if(${ARGC} EQUAL 1)
+        message("${arg_msg}")
+        return()
+    endif()
+
+    if(NOT ${ARGC} EQUAL 2)
+        message(FATAL_ERROR "Expect at most 2 arguments")
+    endif()
+
+    set(status_name "${arg_msg}")
+    set(status_val "${ARGV1}")
+    list(SORT status_val)
+    list(JOIN status_val ", " status_val)
+
+    # Calculate indent.
+    string(LENGTH "${status_name}" indent_len)
+    math(EXPR indent_len "${indent_len} - 1")
+    set(indent "")
+    foreach(i RANGE ${indent_len})
+        string(APPEND indent " ")
+    endforeach()
+
+    # Format output.
+    set(str "${status_name}${status_val}")
+    string(LENGTH "${str}" len)
+    while(len GREATER 90)
+        string(SUBSTRING "${str}" 0 90 split)
+        string(FIND "${split}" " " idx REVERSE)
+        math(EXPR idx "${idx} + 1")
+
+        string(SUBSTRING "${str}" ${idx} -1 next_str)
+        string(SUBSTRING "${str}" 0 ${idx} str)
+        message("${str}")
+        string(PREPEND next_str "${indent}")
+        string(LENGTH "${next_str}" len)
+        set(str "${next_str}")
+    endwhile()
+    message("${str}")
+endfunction()
+
 # Create a target to print the generator expression.
 function(afr_print_generator_expr target_name expression)
     add_custom_target(${target_name}
