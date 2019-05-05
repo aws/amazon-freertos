@@ -1,4 +1,4 @@
-afr_module(OPTIONAL)
+afr_module(INTERNAL)
 
 afr_set_lib_metadata(ID "tls")
 afr_set_lib_metadata(DESCRIPTION "This library implements an abstraction layer for the TLS protocol.")

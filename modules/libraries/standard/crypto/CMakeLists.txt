@@ -1,4 +1,4 @@
-afr_module(OPTIONAL)
+afr_module(INTERNAL)
 
 afr_set_lib_metadata(ID "crypto")
 afr_set_lib_metadata(DESCRIPTION "This library implements cryptographic signature verification. It \

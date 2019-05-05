@@ -1,5 +1,5 @@
 # Link to this INTERFACE target to use the default implementation based on FreeRTOS.
-afr_module(INTERFACE OPTIONAL)
+afr_module(INTERFACE)
 
 afr_set_lib_metadata(ID "FreeRTOS-Plus-POSIX")
 afr_set_lib_metadata(DESCRIPTION "This library provides a POSIX compatibility layer for FreeRTOS.")

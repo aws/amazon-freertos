@@ -1,4 +1,4 @@
-afr_module(OPTIONAL)
+afr_module(INTERNAL)
 
 afr_set_lib_metadata(ID "freertos_plus_tcp")
 afr_set_lib_metadata(DESCRIPTION "This library implements a scalable and thread-safe TCP/IP stack for FreeRTOS kernel.")

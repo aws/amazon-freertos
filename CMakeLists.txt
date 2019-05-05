@@ -84,14 +84,14 @@ message("")
 message("Amazon FreeRTOS modules:")
 
 list(JOIN AFR_MODULES_BUILD "," AFR_STATUS_MODULES_TO_BUILD)
-list(JOIN AFR_MODULES_DISABLED_USER "," AFR_STATUS_MODULES_DISABLED_USER)
-list(JOIN AFR_MODULES_DISABLED_DEPS "," AFR_STATUS_MODULES_DISABLED_DEPS)
+list(JOIN AFR_MODULES_ENABLED_USER "," AFR_STATUS_MODULES_ENABLED_USER)
+list(JOIN AFR_MODULES_ENABLED_DEPS "," AFR_STATUS_MODULES_ENABLED_DEPS)
 list(JOIN AFR_DEMOS_ENABLED "," AFR_STATUS_DEMOS_ENABLED)
 list(JOIN AFR_TESTS_ENABLED "," AFR_STATUS_TESTS_ENABLED)
 
 message("  Modules to build:        ${AFR_STATUS_MODULES_TO_BUILD}")
-message("  Disabled by user:        ${AFR_STATUS_MODULES_DISABLED_USER}")
-message("  Disabled by dependency:  ${AFR_STATUS_MODULES_DISABLED_DEPS}")
+message("  Enabled by user:         ${AFR_STATUS_MODULES_ENABLED_USER}")
+message("  Enabled by dependency:   ${AFR_STATUS_MODULES_ENABLED_DEPS}")
 
 message("")
 message("  Available demos:         ${AFR_STATUS_DEMOS_ENABLED}")
@@ -99,11 +99,6 @@ message("  Available tests:         ${AFR_STATUS_TESTS_ENABLED}")
 
 message("=========================================================================")
 message("")
-
-# Abort if we're not even able to build the kernel.
-if(NOT kernel IN_LIST AFR_MODULES_BUILD)
-    message(FATAL_ERROR "Unable to build kernel due to missing dependencies.")
-endif()
 
 # -------------------------------------------------------------------------------------------------
 # Demos and tests
