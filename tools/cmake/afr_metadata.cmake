@@ -309,6 +309,7 @@ endfunction()
 # =============== Metadata definition ===============
 set(AFR_METADATA_BOARD "" CACHE INTERNAL "List of CMake property names for hardware metadata.")
 set(AFR_METADATA_LIB "" CACHE INTERNAL "List of CMake property names for AFR library metadata.")
+set(AFR_METADATA_DEMO "" CACHE INTERNAL "List of CMake property names for AFR demo metadata.")
 
 afr_define_metadata(BOARD ID "ID for the board to uniquely identify it.")
 afr_define_metadata(BOARD DISPLAY_NAME " Name displayed on the Amazon FreeRTOS Console.")
