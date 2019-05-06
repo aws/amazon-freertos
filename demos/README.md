@@ -11,7 +11,7 @@ By default ```#define CONFIG_MQTT_DEMO_ENABLED``` MQTT demos is selected.
 ### Cmake
 Refer to CMake readme page in folder
 
-./tools/cmake
+```./tools/cmake```
 
 ### Buiding instruction per boards
 #### ESP32 
