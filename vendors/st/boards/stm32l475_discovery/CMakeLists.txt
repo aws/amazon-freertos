@@ -27,6 +27,7 @@ afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
 afr_set_board_metadata(IDE_SystemWorkbench_RECOMMENDED "TRUE")
 
 afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/st/boards/stm32l475_discovery/aws_demos/ac6")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/st/boards/stm32l475_discovery/aws_demos/common/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings

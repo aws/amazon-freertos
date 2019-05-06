@@ -1,7 +1,7 @@
 # We don't display the demos below in AFR console
-if(AFR_NON_BUILD_MODE)
-    return()
-endif()
+#if(AFR_NON_BUILD_MODE)
+#    return()
+#endif()
 
 # C SDK MQTT demo
 afr_demo_module(mqtt)

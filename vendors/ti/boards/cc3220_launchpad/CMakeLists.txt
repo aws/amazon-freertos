@@ -40,6 +40,7 @@ afr_set_board_metadata(IS_ACTIVE "TRUE")
 
 afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/ti/boards/cc3220_launchpad/aws_demos/ccs")
 afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/ti/boards/cc3220_launchpad/aws_demos/iar")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/ti/boards/cc3220_launchpad/aws_demos/common/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
