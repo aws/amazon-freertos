@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 
+# Disable in-source build.
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+    message(FATAL_ERROR "In-source build is not allowed, please use a separate build folder.")
+endif()
+
 project(amazon-freertos VERSION 1.4.7)
 
 # Import global configurations.
