@@ -50,13 +50,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 #define mainTEST_RUNNER_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 8 )
 
-/* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion = {
-   .u.x.ucMajor = APP_VERSION_MAJOR,
-   .u.x.ucMinor = APP_VERSION_MINOR,
-   .u.x.usBuild = APP_VERSION_BUILD,
-};
-
 /* The MAC address array is not declared const as the MAC address will
 normally be read from an EEPROM and not hard coded (in real deployed
 applications).*/
@@ -168,13 +161,5 @@ void vApplicationDaemonTaskStartupHook( void )
         DEMO_RUNNER_RunDemos();
     }
 }
-/*-----------------------------------------------------------*/
 
-const char * pcApplicationHostnameHook( void )
-{
-    /* Assign the name "FreeRTOS" to this network node.  This function will
-     * be called during the DHCP: the machine will be registered with an IP
-     * address plus this name. */
-    return clientcredentialIOT_THING_NAME;
-}
 /*-----------------------------------------------------------*/
