@@ -12,7 +12,7 @@ By default ```#define CONFIG_MQTT_DEMO_ENABLED``` MQTT demos is selected.
 Refer to CMake readme page in folder
 
 ```./tools/cmake```
-Note: The cmake commands provided in example are made to be run from the root directory or with the following command:  
+Note: The cmake commands provided in example are made to be executed from the root directory or with the following command:  
 ``` -C <your-build-directory>``` 
 
 ### Buiding instruction per boards
