@@ -12,6 +12,8 @@ By default ```#define CONFIG_MQTT_DEMO_ENABLED``` MQTT demos is selected.
 Refer to CMake readme page in folder
 
 ```./tools/cmake```
+Note: The cmake commands provided in example are made to be run from the root directory or with the following command:  
+``` -C <your-build-directory>``` 
 
 ### Buiding instruction per boards
 #### ESP32 
@@ -38,15 +40,15 @@ then use make to build, e.g.:
 
 You can flash your board and see the logs with the following commands:
 
-**Erase flash**: ```./vendors/espressif/esp-idf/tools/idf.py erase_flash```
+**Erase flash**: ```./vendors/espressif/esp-idf/tools/idf.py erase_flash -b <your-build-directory> ```
 
-**Flash binary to the board**: ```make flash or ./vendors/espressif/esp-idf/tools/idf.py flash```
+**Flash binary to the board**: ```make flash or ./vendors/espressif/esp-idf/tools/idf.py flash -b <your-build-directory> ```
 
-**Monitor**: ```./vendors/espressif/esp-idf/tools/idf.py monitor -p /dev/ttyUSB1```
+**Monitor**: ```./vendors/espressif/esp-idf/tools/idf.py monitor -p /dev/ttyUSB1 -b <your-build-directory> ```
 
 You can also combine commands. e.g.:  
 
-```./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -p /dev/ttyUSB1 ```
+```./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -p /dev/ttyUSB1 -b <your-build-directory> ```
  
  #### Nordic
  Does not use CMake. Project can be compiled and flashed directly after installing Segger Embedded Studio:  
