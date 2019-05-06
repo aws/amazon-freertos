@@ -1,5 +1,5 @@
 ## Running the demos
-More details available on our getting started page: https://docs.aws.amazon.com/freertos/latest/userguide/freertos-getting-started.html
+More details available on our getting started page (on development): https://docs.aws.amazon.com/freertos/latest/userguide/freertos-getting-started.html
 
 ### Selecting your demos
 Select your demo by changing the aws_demo_config.h file. 
