@@ -12,7 +12,10 @@ Refer to CMake readme page
 
 ### Buiding instruction per boards
 #### ESP32
-Uses CMake  
+Uses CMake:
+cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B<you build directory> < if you want to used test -DAFR_ENABLE_TESTS=1>
+< if you want to debug -DCMAKE_BUILD_TYPE=Debug>
+ 
 make -j4  
 Erase flash: ./vendors/espressif/esp-idf/tools/idf.py erase_flash  
 Flash: make flash or ./vendors/espressif/esp-idf/tools/idf.py flash  
