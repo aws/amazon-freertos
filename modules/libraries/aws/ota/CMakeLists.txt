@@ -69,25 +69,11 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/aws_test_ota_agent.c"
         "${test_dir}/aws_test_ota_pal.c"
-
-        # The OTA end-to-end tests use code from the demo.
-        "${AFR_DEMOS_DIR}/ota/aws_iot_ota_update_demo.c"
-
-        # aws_iot_ota_update_demo.c depends on this.
-        "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
-        "${AFR_DEMOS_DIR}/network_manager/iot_network_manager_private.h"
-
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}"
-
-        # The OTA end-to-end tests use code from the demo.
-        "${AFR_DEMOS_DIR}/include"
-
-        # aws_iot_ota_update_demo.c depends on this.
-        "${AFR_DEMOS_DIR}/network_manager"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

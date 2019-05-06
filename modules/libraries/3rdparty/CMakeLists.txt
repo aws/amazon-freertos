@@ -48,7 +48,6 @@ target_include_directories(
 )
 
 # tinycbor - CBOR implementation
-afr_3rdparty_module(tinycbor)
 set(tinycbor_src
     "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder.c"
     "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder_close_container_checked.c"
@@ -56,14 +55,30 @@ set(tinycbor_src
     "${AFR_3RDPARTY_DIR}/tinycbor/cborparser.c"
     "${AFR_3RDPARTY_DIR}/tinycbor/cborparser_dup_string.c"
 )
-target_sources(
-    3rdparty::tinycbor INTERFACE
+add_library(
+    afr_3rdparty_tinycbor STATIC
     ${tinycbor_src}
 )
-target_include_directories(
-    3rdparty::tinycbor INTERFACE
-    "${AFR_3RDPARTY_DIR}/tinycbor"
+target_sources(
+    afr_3rdparty_tinycbor
+    PRIVATE
+        ${tinycbor_src}
 )
+target_include_directories(
+    afr_3rdparty_tinycbor
+    PUBLIC
+        "${AFR_3RDPARTY_DIR}/tinycbor"
+)
+target_link_libraries(
+    afr_3rdparty_tinycbor
+    PRIVATE AFR::compiler::mcu_port
+)
+target_compile_options(
+    afr_3rdparty_tinycbor
+    PRIVATE
+        $<$<C_COMPILER_ID:GNU>:-w>
+)
+add_library(3rdparty::tinycbor ALIAS afr_3rdparty_tinycbor)
 
 # tracealyzer - Trace record library from FreeRTOS
 afr_3rdparty_module(tracealyzer)

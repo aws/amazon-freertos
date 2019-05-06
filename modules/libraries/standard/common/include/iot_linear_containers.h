@@ -438,7 +438,7 @@ static inline void IotListDouble_InsertAfter( IotLink_t * const pElement,
 /* @[declare_linear_containers_list_double_insertsorted] */
 static inline void IotListDouble_InsertSorted( IotListDouble_t * const pList,
                                                IotLink_t * const pLink,
-                                               int ( *compare )( const IotLink_t * const, const IotLink_t * const ) )
+                                               int32_t ( *compare )( const IotLink_t * const, const IotLink_t * const ) )
 /* @[declare_linear_containers_list_double_insertsorted] */
 {
     /* This function must not be called with NULL parameters. */

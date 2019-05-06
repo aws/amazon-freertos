@@ -33,7 +33,8 @@
 							<builder buildPath="${BuildDirectory}" id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.builderDebug.709560529" keepEnvironmentInBuildfile="false" name="GNU Make" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.builderDebug"/>
 							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.compilerDebug.998481463" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.compilerDebug">
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE.1149275802" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="IOT_CONFIG_FILE=\&quot;iot_demo_config.h\&quot;"/>
+									<listOptionValue builtIn="false" value="AMAZON_FREERTOS_ENABLE_UNIT_TESTS"/>
+									<listOptionValue builtIn="false" value="UNITY_INCLUDE_CONFIG_H"/>
 									<listOptionValue builtIn="false" value="CC3220sf"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.SILICON_VERSION.2000786633" name="Target processor version (--silicon_version, -mv)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.SILICON_VERSION" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.SILICON_VERSION.7M4" valueType="enumerated"/>
@@ -45,10 +46,10 @@
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../SimpleLink_CC32xx/v2_10_00_04/source"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/portable/CCS/ARM_CM3"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/config_files"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/application_code/ti_code"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../test/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/portable/CCS/ARM_CM3"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../ports/posix"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/common/include/private"/>
@@ -79,6 +80,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/unity/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/secure_sockets/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/wifi/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/pkcs11/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/tinycbor"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/jsmn"/>

@@ -1,7 +1,7 @@
 # Device Defender demo
 afr_demo_module(defender)
 
-afr_set_demo_metadata(ID "defender_example")
+afr_set_demo_metadata(ID "DEFENDER_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example that demonstrates reporting metrics to AWS IoT with Device Defender")
 afr_set_demo_metadata(DISPLAY_NAME "Device Defender")
 

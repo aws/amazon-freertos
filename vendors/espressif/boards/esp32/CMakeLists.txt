@@ -28,6 +28,8 @@ set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
@@ -229,7 +231,11 @@ file(READ "${board_dir}/../sdkconfig.defaults" file_sdkconfig_default)
 string(REGEX REPLACE "partitions_example.csv" "${board_dir}/../make/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
 file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
 set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+# Set sdkconfig generation path inside build
+set(SDKCONFIG "${AFR_ROOT_DIR}/build/sdkconfig")
 
+# Remove previously generated sdkconfig file
+file(REMOVE "${CMAKE_BINARY_DIR}/sdkconfig")
 # Do some configuration for idf_import_components. This enables creation of artifacts (which might not be
 # needed) for some projects
 set(IDF_BUILD_ARTIFACTS ON)
@@ -261,7 +267,11 @@ get_filename_component(
 )
 
 set(IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
-set(IDF_PROJECT_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/${exe_target}")
+
+# Since AFR target name has no .elf extension, manually append it to
+# IDF project executable name and make it dependent on the AFR target
+set(IDF_PROJECT_EXECUTABLE "${exe_target}${CMAKE_EXECUTABLE_SUFFIX}")
+add_custom_target("${IDF_PROJECT_EXECUTABLE}" ALL DEPENDS ${exe_target})
 
 # Wraps add_subdirectory() to create library targets for components, and then `return` them using the given variable.
 # In this case the variable is named `component`
@@ -269,3 +279,14 @@ idf_import_components(components ${esp_idf_dir} esp-idf)
 
 # Wraps target_link_libraries() to link processed components by idf_import_components to target
 idf_link_components(${exe_target} "${components}")
+
+# Monitor target for running idf_monitor.py
+add_custom_target(monitor
+    DEPENDS "${IDF_PROJECT_EXECUTABLE}"
+    COMMAND ${CMAKE_COMMAND}
+    -D IDF_PATH="${espressif_dir}"
+    -D PROJECT_ELF="${IDF_PROJECT_EXECUTABLE}"
+    -D ELF_DIR="${CMAKE_BINARY_DIR}"
+    -P run_idf_monitor.cmake
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    )

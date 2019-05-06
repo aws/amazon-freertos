@@ -51,6 +51,8 @@ typedef void (* networkDisconnectedCallback_t)( const IotNetworkInterface_t * pN
 
 void runDemoTask( void * pArgument );
 
+void DEMO_RUNNER_RunDemos( void );
+
 void vApplicationInit( void );
 
 typedef struct demoContext

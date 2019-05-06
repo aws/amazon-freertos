@@ -26,6 +26,8 @@
 #ifndef _AWS_DEMO_CONFIG_H_
 #define _AWS_DEMO_CONFIG_H_
 
+#define CONFIG_MQTT_DEMO_ENABLED 
+
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */
 #define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS          ( 1 )
 

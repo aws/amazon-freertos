@@ -43,7 +43,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "FreeRTOS_IP.h"
 
 /* Demo includes */
-#include "iot_demo_runner.h"
+#include "aws_demo.h"
 #include "aws_clientcredential.h"
 
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
