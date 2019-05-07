@@ -34,6 +34,9 @@ afr_set_board_metadata(IDE_uVision_NAME "uVision")
 afr_set_board_metadata(IDE_uVision_COMPILER "Keil-ARM")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
+afr_set_board_metadata(IDE_uVision_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/uvision")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
