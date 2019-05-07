@@ -13,5 +13,7 @@
   ],
   "DEF":
   [
+    {"disableClashDetection": ["ipconfigARP_USE_CLASH_DETECTION=0"]},
+    {"enableClashDetection": ["ipconfigARP_USE_CLASH_DETECTION=1"]}
   ]
 }
