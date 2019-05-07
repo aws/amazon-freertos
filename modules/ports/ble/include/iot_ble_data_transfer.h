@@ -24,20 +24,20 @@
  */
 
 /**
- * @file iot_ble_mqtt.h
- * @brief GATT service for transferring MQTT packets over BLE
+ * @file aws_iot_data_transfer.h
+ * @brief Header file contains the API for a generic BLE data transfer channel for sending/receiving data over BLE.
+ *        APIs could be implemented using GATT, L2CAP etc..
  */
 
-#ifndef IOT_BLE_MQTT_H
-#define IOT_BLE_MQTT_H
+#ifndef IOT_BLE_DATA_TRANSFER_H
+#define IOT_BLE_DATA_TRANSFER_H
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "platform/iot_threads.h"
 
 /*
- * @brief Events on a ble data transfer channel.
+ * @brief Events related to a ble data transfer channel.
  */
 typedef enum IotBleDataTransferChannelEvent
 {
@@ -48,7 +48,6 @@ typedef enum IotBleDataTransferChannelEvent
 
 } IotBleDataTransferChannelEvent_t;
 
-
 /**
  * @brief Forward declaration of Data transfer channel structure.
  */
@@ -58,7 +57,6 @@ typedef struct IotBleDataTransferChannel IotBleDataTransferChannel_t;
  * @brief Callback invoked whenever an event occurs on the data transfer channel.
  */
 typedef void ( * IotBleDataTransferChannelCallback_t ) ( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext );
-
 
 /**
  * @brief Initializes the data transfer services.
@@ -88,7 +86,6 @@ IotBleDataTransferChannel_t * IotBleDataTransfer_Open( uint8_t channelIdentifier
  * @return True if callback is set succesfully, false if callback is already set or channel is not opened.
  */
 bool IotBleDataTransfer_SetCallback( IotBleDataTransferChannel_t* pChannel, const IotBleDataTransferChannelCallback_t callback, void *pContext );
-
 
 /**
  * @brief Sent data over a ble data transfer channel.
@@ -122,7 +119,6 @@ size_t IotBleDataTransfer_Receive( IotBleDataTransferChannel_t * pChannel, uint8
  * @param[out] Length of the received buffer.
  * 
  */
-
 void IotBleDataTransfer_PeekReceiveBuffer( IotBleDataTransferChannel_t* pChannel, const uint8_t **pBuffer, size_t *pBufferLength );
 
 /**
@@ -146,4 +142,4 @@ void IotBleDataTransfer_Close( IotBleDataTransferChannel_t * pChannel );
  */
 void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel );
 
-#endif /* IOT_BLE_MQTT_H */
+#endif /* IOT_BLE_DATA_TRANSFER_H */

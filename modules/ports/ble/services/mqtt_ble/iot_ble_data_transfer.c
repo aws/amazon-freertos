@@ -24,8 +24,8 @@
  */
 
 /**
- * @file aws_iot_mqtt_ble.c
- * @brief GATT service for transferring data over BLE
+ * @file aws_iot_data_transfer.c
+ * @brief Implementation of BLE data transfer channel APIS using GATT service.
  */
 
 /* Build using a config header, if provided. */
@@ -144,6 +144,9 @@
 
 /*-------------------------------------------------------------------------------------------------------------------------*/
 
+/**
+ * @brief Attribute table index for the Data transfer Gatt service attributes.
+ */
 typedef enum IotBleDataTransferAttributes
 {
     IOT_BLE_DATA_TRANSFER_SERVICE = 0,
