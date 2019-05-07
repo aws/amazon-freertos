@@ -157,8 +157,6 @@ typedef enum IotBleDataTransferAttributes
 
 } IotBleDataTransferAttributes_t;
 
-
-
 /**
  * @ingroup ble_datatypes_structs
  * @brief MQTT BLE Service structure.
@@ -197,6 +195,11 @@ static uint8_t * _reallocBuffer( uint8_t * oldBuffer,
                                  size_t oldBufferSize,
                                  size_t newBufferSize );
 
+
+static bool _resizeChannelBuffer( IotBleDataChannelBuffer_t *pChannelBuffer,  size_t initialLength, size_t requiredLength );
+
+
+static void _deleteChannelBuffer( IotBleDataChannelBuffer_t *pChannelBuffer );
 
 
 static bool _send( IotBleDataTransferChannel_t * pChannel,
@@ -387,6 +390,66 @@ static uint8_t * _reallocBuffer( uint8_t * oldBuffer,
     return newBuffer;
 }
 
+/*-----------------------------------------------------------*/
+
+static bool _resizeChannelBuffer( IotBleDataChannelBuffer_t *pChannelBuffer,  size_t initialLength, size_t requiredLength )
+{
+    bool result = true;
+
+    /**
+     * Create a new buffer if the buffer is empty.
+     */
+    if( pChannelBuffer->pBuffer == NULL )
+    {
+        pChannelBuffer->pBuffer = pvPortMalloc( initialLength );
+        if( pChannelBuffer->pBuffer != NULL )
+        {
+            pChannelBuffer->bufferLength = initialLength;
+            pChannelBuffer->head = pChannelBuffer->tail = 0;
+        }
+        else
+        {
+            configPRINTF(( "Failed to allocate a buffer of size %d.\r\n", initialLength ));
+            result = false;
+        }
+    }
+    else
+    {
+        /**
+         *  If current buffer can't hold the received data, resize the buffer by twice the current size.
+         */
+        if( ( pChannelBuffer->head + requiredLength ) > pChannelBuffer->bufferLength )
+        {
+            pChannelBuffer->pBuffer = _reallocBuffer( pChannelBuffer->pBuffer,
+                                                      pChannelBuffer->bufferLength,
+                                                      ( 2 * pChannelBuffer->bufferLength ) );
+
+            if( pChannelBuffer->pBuffer != NULL )
+            {
+                pChannelBuffer->bufferLength = ( pChannelBuffer->bufferLength * 2 );
+            }
+            else
+            {
+                configPRINTF(( "Failed to re-allocate a buffer of size %d.\r\n", ( 2 * pChannelBuffer->bufferLength ) ));
+                result = false;
+            }
+        }
+    }
+
+    return result;
+}
+
+
+static void _deleteChannelBuffer( IotBleDataChannelBuffer_t *pChannelBuffer )
+{
+     if( pChannelBuffer->pBuffer != NULL )
+    {
+        vPortFree( pChannelBuffer->pBuffer );
+        pChannelBuffer->pBuffer = NULL;
+        pChannelBuffer->head = pChannelBuffer->tail = 0;
+        pChannelBuffer->bufferLength = 0;
+    }
+}
 
 /*-----------------------------------------------------------*/
 
@@ -473,7 +536,6 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     IotBleEventResponse_t resp;
     IotBleDataTransferService_t * pService;
     size_t length;
-    uint8_t * pData;
     BTStatus_t status;
 
 
@@ -489,88 +551,46 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         resp.attrDataOffset = 0;
         resp.pAttrData->handle = pReadParam->attrHandle;
 
-        pData = pvPortMalloc( transmitLength );
-
-        if( pData != NULL )
+        if( pService->channel.isOpen == true )
         {
-            length = xStreamBufferReceive( pService->channel.sendBuffer, pData, transmitLength, ( TickType_t ) 0ULL );
-            resp.pAttrData->pData = pData;
+            length = pService->channel.sendBuffer.head - pService->channel.sendBuffer.tail;
+            if( length > transmitLength )
+            {
+                length = transmitLength;
+            }
+          
+            resp.pAttrData->pData = ( pService->channel.sendBuffer.pBuffer + pService->channel.sendBuffer.tail );
             resp.pAttrData->size = length;
             resp.attrDataOffset = 0;
             resp.eventStatus = eBTStatusSuccess;
 
             status = IotBle_SendResponse( &resp, pReadParam->connId, pReadParam->transId );
 
-            if( status != eBTStatusSuccess )
+            if( status == eBTStatusSuccess )
             {
-                configPRINTF(( "Failed to send large object chunk through ble connection.\r\n" ));
-            }
+                pService->channel.sendBuffer.tail += length;
+                if( pService->channel.sendBuffer.tail == pService->channel.sendBuffer.head )
+                {
+                    pService->channel.sendBuffer.head = pService->channel.sendBuffer.tail = 0;
+                    IotSemaphore_Post( &pService->channel.sendComplete );
+                    if( pService->channel.callback  != NULL )
+                    {
+                        pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_SENT,
+                                                    &pService->channel,
+                                                    pService->channel.pContext );
+                    }
 
-            vPortFree( pData );
-        }
-
-        /* If this was the last chunk of a large message, release the send lock */
-        if( ( resp.eventStatus == eBTStatusSuccess ) &&
-            ( length < transmitLength ) )
-        {
-            IotSemaphore_Post( &pService->channel.sendLock );
-            if( pService->channel.callback  != NULL )
-            {
-                pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_SENT, &pService->channel, pService->channel.pContext );
-            }
-        }
-    }
-}
-
-/*-----------------------------------------------------------*/
-static bool _checkAndSizeReceiveBuffer( uint8_t ** pReceiveBuffer,
-                                        size_t * pBufferLength,
-                                        size_t   bufferOffset,
-                                        size_t   rxDataLength )
-{
-    bool result = true;
-
-    /**
-     * Create a new buffer if the buffer is empty.
-     */
-    if( *pReceiveBuffer == NULL )
-    {
-        *pReceiveBuffer = pvPortMalloc( IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE );
-        if( *pReceiveBuffer != NULL )
-        {
-            *pBufferLength = IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE;
-        }
-        else
-        {
-            result = false;
-        }
-    }
-    else
-    {
-        /**
-         *  If current buffer can't hold the received data, resize the buffer by twicke the current size.
-         */
-        if( ( bufferOffset + rxDataLength ) > *pBufferLength )
-        {
-            *pReceiveBuffer = _reallocBuffer( *pReceiveBuffer,
-                                              *pBufferLength,
-                                              ( 2 * *pBufferLength ) );
-
-            if( *pReceiveBuffer != NULL )
-            {
-                *pBufferLength = ( *pBufferLength * 2 );
+                }
             }
             else
-            {
-                result = false;
+            {        
+                configPRINTF(( "Failed to send large object chunk through ble connection.\r\n" ));
             }
         }
     }
-
-    return result;
 }
 
-
+/*-----------------------------------------------------------------------------------------------------------------*/
 static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
     IotBleAttributeData_t attrData = { 0 };
@@ -587,66 +607,36 @@ static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pService = _getServiceFromHandle( pEventParam->pParamWrite->attrHandle );
-        if( ( pService != NULL ) && ( pService->channel.isOpen ) )
+        if( ( pService != NULL ) && 
+            ( pService->channel.isOpen ) )
         {
-            IotMutex_Lock( &pService->channel.receiveLock );
-            if( pService->channel.pendingRead  == false )
+            status = _resizeChannelBuffer( &pService->channel.receiveBuffer, IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE, pEventParam->pParamWrite->length );
+            if( status == true )
             {
-                if( ( pService->channel.head == 0 ) &&  ( pService->channel.tail == 0 ) )
+                /* Copy the received data into the buffer. */
+                memcpy( ( pService->channel.receiveBuffer.pBuffer + pService->channel.receiveBuffer.head ), 
+                        pEventParam->pParamWrite->pValue,
+                        pEventParam->pParamWrite->length );
+            
+                pService->channel.receiveBuffer.head += pEventParam->pParamWrite->length;
+
+                if( pEventParam->pParamWrite->length < transmitLength )
                 {
+                    /* All chunks for large object transfer received. */
+                    pService->channel.pReadBuffer = &pService->channel.receiveBuffer;
                     if (pService->channel.callback != NULL)
                     {
-                        pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_START,
+                        pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE,
                                                     &pService->channel,
                                                     pService->channel.pContext );
                     }
-                }
-
-                status = _checkAndSizeReceiveBuffer( &pService->channel.pReceiveBuffer,
-                                                     &pService->channel.length,
-                                                     pService->channel.head,
-                                                     pEventParam->pParamWrite->length );
-                if( status == true )
-                {
-                    /* Copy the received data into the buffer. */
-                    memcpy( ( pService->channel.pReceiveBuffer + pService->channel.head ), 
-                            pEventParam->pParamWrite->pValue,
-                            pEventParam->pParamWrite->length );
-                
-                    pService->channel.head += pEventParam->pParamWrite->length;
-
-                    if( pEventParam->pParamWrite->length < transmitLength )
-                    {
-                        /* All chunks for large object transfer received. set channel to pending read */
-                        pService->channel.pendingRead = true;
-                        if (pService->channel.callback != NULL)
-                        {
-                            pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE,
-                                                        &pService->channel,
-                                                        pService->channel.pContext );
-                        }
-                    }                    
-                    resp.eventStatus = eBTStatusSuccess;
-                }
-                else
-                {
-                    if( pService->channel.pReceiveBuffer != NULL )
-                    {
-                        vPortFree( pService->channel.pReceiveBuffer );
-                        pService->channel.pReceiveBuffer = NULL;
-                        pService->channel.head = pService->channel.tail = 0;
-                        pService->channel.length = 0;
-                    }
-
-                    configPRINTF(( "RX failed, unable to allocate buffer to read data.\r\n" ));
-                }
+                }                    
+                resp.eventStatus = eBTStatusSuccess;
             }
             else
             {
-                configPRINTF(( "RX failed, pending data needs to be read.\r\n" ));
+                configPRINTF(( "RX failed, unable to allocate buffer to read data.\r\n" ));
             }
-
-            IotMutex_Unlock( &pService->channel.receiveLock );
         }
 
         if( pEventParam->xEventType == eBLEWrite )
@@ -673,54 +663,29 @@ static void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     };
     IotBleDataTransferService_t * pService;
     bool status = false;
+    IotBleDataChannelBuffer_t recvBuffer = { 0 };
 
     if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pService = _getServiceFromHandle( pEventParam->pParamWrite->attrHandle );
 
-        if( ( pService != NULL ) && ( pService->channel.isOpen == true ) )
+        if( ( pService != NULL ) &&
+            ( pService->channel.isOpen == true ) )
         {
-            IotMutex_Lock( &pService->channel.receiveLock );
 
-            if( pService->channel.pendingRead == false )
+            recvBuffer.pBuffer = ( uint8_t *) pEventParam->pParamWrite->pValue;
+            recvBuffer.head = pEventParam->pParamWrite->length;
+            recvBuffer.tail = 0;
+            pService->channel.pReadBuffer = &recvBuffer;
+
+            if (pService->channel.callback != NULL)
             {
-                status = _checkAndSizeReceiveBuffer( &pService->channel.pReceiveBuffer,
-                                                     &pService->channel.length,
-                                                     pService->channel.head,
-                                                     pEventParam->pParamWrite->length );
-
-                if( status == true )
-                {           
-                    /* Copy the received data into the buffer. */
-                    memcpy( ( pService->channel.pReceiveBuffer + pService->channel.head ), 
-                            pEventParam->pParamWrite->pValue,
-                            pEventParam->pParamWrite->length );
-                
-                    pService->channel.head += pEventParam->pParamWrite->length;
-                    pService->channel.pendingRead = true;
-                    if (pService->channel.callback != NULL)
-                    {
-                        pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE,
-                                                    &pService->channel,
-                                                    pService->channel.pContext );
-                    }
-                    resp.eventStatus = eBTStatusSuccess;
-                }
-                else
-                {
-                    if( pService->channel.pReceiveBuffer != NULL )
-                    {
-                        vPortFree( pService->channel.pReceiveBuffer );
-                        pService->channel.pReceiveBuffer = NULL;
-                        pService->channel.head = pService->channel.tail = 0;
-                        pService->channel.length = 0;
-                    }
-
-                    configPRINTF(( "RX failed, unable to allocate buffer to read data.\r\n" ));
-                }
+                pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE,
+                                            &pService->channel,
+                                            pService->channel.pContext );
             }
-            
-            IotMutex_Unlock( &pService->channel.receiveLock );
+
+            resp.eventStatus = eBTStatusSuccess;
         }
         
         if( pEventParam->xEventType == eBLEWrite )
@@ -824,7 +789,6 @@ static void _MTUChangedCallback( uint16_t connId,
 
 /*-----------------------------------------------------------*/
 
-
 bool _registerCallbacks()
 {
     IotBleEventsCallbacks_t callback = { 0 };
@@ -885,35 +849,14 @@ static bool _initializeChannel( IotBleDataTransferChannel_t* pChannel )
     memset( pChannel, 0x00, sizeof( IotBleDataTransferChannel_t ) );
 
     pChannel->timeout = IOT_BLE_DATA_TRANSFER_TIMEOUT_MS;
-    ret = IotSemaphore_Create( &pChannel->sendLock, 0, 1 );
+    ret = IotSemaphore_Create( &pChannel->sendComplete, 0, 1 );
     if( ret == true )
     {
-        IotSemaphore_Post( &pChannel->sendLock);
+        IotSemaphore_Post( &pChannel->sendComplete);
     }
     else
     {
         configPRINTF(( "Failed to create semaphore for send buffer.\r\n" ));
-    }
-
-    if (ret == true)
-    {
-        /* Create a recursive lock for receive. */
-        ret = IotMutex_Create( &pChannel->receiveLock, true );
-        if (ret == false)
-        {
-            configPRINTF(( "Failed to create mutex for receive buffer.\r\n" ));
-        }
-    }
-
-    if (ret == true)
-    {
-
-        pChannel->sendBuffer = xStreamBufferCreate( IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE, IOT_BLE_PREFERRED_MTU_SIZE );
-        if (pChannel->sendBuffer == NULL)
-        {
-            configPRINTF(( "Failed to create send buffer. \r\n" ));
-            ret = false;
-        }
     }
 
     return ret;
@@ -1008,22 +951,14 @@ bool IotBleDataTransfer_SetCallback( IotBleDataTransferChannel_t* pChannel, cons
 void IotBleDataTransfer_Close( IotBleDataTransferChannel_t * pChannel )
 {
     pChannel->isOpen = false;
-    /* Assume nobody writes/reads from buffer after timeout. */
-    ( void ) IotSemaphore_TimedWait( &pChannel->sendLock, pChannel->timeout );
-    xStreamBufferReset( pChannel->sendBuffer );
-    IotSemaphore_Post( &pChannel->sendLock );
 
-    IotMutex_Lock( &pChannel->receiveLock );
-    if( pChannel->pReceiveBuffer != NULL )
-    {
-        vPortFree( pChannel->pReceiveBuffer );
-        pChannel->head = pChannel->tail = 0;
-        pChannel->length = 0;
-        pChannel->pReceiveBuffer = NULL;
-        pChannel->pendingRead = false;
-    }
-    IotMutex_Unlock( &pChannel->receiveLock );
-
+    /* Nobody writes/reads from send buffer after timeout value. */
+    ( void ) IotSemaphore_TimedWait( &pChannel->sendComplete, pChannel->timeout );
+    _deleteChannelBuffer( &pChannel->sendBuffer );
+    IotSemaphore_Post( &pChannel->sendComplete );
+    
+    _deleteChannelBuffer( &pChannel->receiveBuffer );
+    
     if( pChannel->callback != NULL )
     {
         pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED, pChannel, pChannel->pContext );
@@ -1040,31 +975,23 @@ void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel )
 /*-----------------------------------------------------------*/
 size_t IotBleDataTransfer_Receive( IotBleDataTransferChannel_t * pChannel, uint8_t * pBuffer, size_t bytesRequested )
 {
-    size_t bytesReturned = 0;
-    
-    IotMutex_Lock( &pChannel->receiveLock );
-    
-    bytesReturned = ( pChannel->head - pChannel->tail );
+    size_t bytesReturned = pChannel->pReadBuffer->head - pChannel->pReadBuffer->tail;
+
     if( bytesReturned > bytesRequested )
     {
         bytesReturned = bytesRequested;
     }
-
     if( pBuffer != NULL )
     {
-        memcpy( pBuffer, pChannel->pReceiveBuffer, bytesReturned );
+        memcpy( pBuffer, ( pChannel->pReadBuffer->pBuffer +  pChannel->pReadBuffer->tail ), bytesReturned );
     }
-
-    pChannel->tail += bytesReturned;
-    if( ( pChannel->tail == pChannel->head ) && pChannel->pendingRead == true )
+    pChannel->pReadBuffer->tail += bytesReturned;
+    
+    if(  pChannel->pReadBuffer->tail ==  pChannel->pReadBuffer->head )
     {
-        pChannel->head = pChannel->tail = 0;
-        pChannel->pendingRead = false;
+         pChannel->pReadBuffer->head =  pChannel->pReadBuffer->tail = 0;
     }
-    
-    IotMutex_Unlock( &pChannel->receiveLock );
 
-    
     return bytesReturned;
 }
 
@@ -1072,12 +999,8 @@ size_t IotBleDataTransfer_Receive( IotBleDataTransferChannel_t * pChannel, uint8
 
 size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const uint8_t * const pMessage, size_t messageLength )
 {
-    size_t sendLength, remainingLength = messageLength;
-    TickType_t timeRemaining = pdMS_TO_TICKS( pChannel->timeout );
-    TimeOut_t timeout;
     uint8_t * pData;
-
-    vTaskSetTimeOutState( &timeout );
+    size_t remainingLength = messageLength;
 
     if( pChannel->isOpen )
     {
@@ -1098,44 +1021,32 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const ui
         }
         else
         {
-            if( IotSemaphore_TimedWait( &pChannel->sendLock, pChannel->timeout ) == true )
+            if( IotSemaphore_TimedWait( &pChannel->sendComplete, pChannel->timeout ) == true )
             {
-                sendLength =  transmitLength;
-                pData = ( uint8_t * ) pMessage;
-
-                if( _send( pChannel, true, pData, sendLength ) == true )
+                if( _send( pChannel, true, ( uint8_t * ) pMessage, transmitLength ) == true )
                 {
-                    remainingLength = remainingLength - sendLength;
-                    pData += sendLength;
-
-                    while( remainingLength > 0 )
+                    remainingLength -= transmitLength;
+                    if( _resizeChannelBuffer( &pChannel->sendBuffer, IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE, remainingLength ) == true )
                     {
-                        if( xTaskCheckForTimeOut( &timeout, &timeRemaining ) == pdTRUE )
-                        {
-                            configPRINTF( ( "TX Failed, channel timed out.\r\n" ) );
-                            xStreamBufferReset( pChannel->sendBuffer );
-                            IotSemaphore_Post( &pChannel->sendLock );
-                            break;
-                        }
-
-                        if( remainingLength < IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE )
-                        {
-                            sendLength = remainingLength;
-                        }
-                        else
-                        {
-                            sendLength = IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE;
-                        }
-
-                        sendLength = xStreamBufferSend( pChannel->sendBuffer, pData, sendLength, timeRemaining );
-                        remainingLength -= sendLength;
-                        pData += sendLength;
+                        memcpy( pChannel->sendBuffer.pBuffer, ( pMessage + transmitLength ), remainingLength );
+                        pChannel->sendBuffer.head += remainingLength;
+                        remainingLength = 0;
                     }
+                    else
+                    {
+                         configPRINTF( ( "TX Failed, Failed to allocate send buffer.\r\n" ) );
+                         IotSemaphore_Post( &pChannel->sendComplete );
+                    } 
                 }
                 else
                 {
                     configPRINTF( ( "TX Failed, GATT notification failed.\r\n" ) );
+                    IotSemaphore_Post( &pChannel->sendComplete );
                 }
+            }
+            else
+            {
+                 configPRINTF( ( "TX Failed, channel timed out.\r\n" ) );
             }
         }
     }

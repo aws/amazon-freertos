@@ -34,9 +34,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "FreeRTOS.h"
-#include "stream_buffer.h"
-
 #include "iot_ble.h"
 #include "platform/iot_threads.h"
 
@@ -46,12 +43,20 @@
 typedef enum IotBleDataTransferChannelEvent
 {
     IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED = 0,            /**< Indicates if the channel is opened and ready to read or write data. */
-    IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_START,    /**< Event invoked when the first chunk of a data stream is received on the channel. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE, /**< Event invoked when the last chunk of a data stream is received on the channel. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_SENT,             /**< Event invoked after the last chunk of data stream is sent over the channel. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED                 /**< Event invoked when the channel is closed. */
 
 } IotBleDataTransferChannelEvent_t;
+
+
+typedef struct IotBleDataChannelBuffer
+{
+    uint8_t * pBuffer;
+    size_t    head;
+    size_t    tail;
+    size_t    bufferLength;
+} IotBleDataChannelBuffer_t;
 
 /**
  * @brief Forward declaration of Data transfer channel structure.
@@ -68,19 +73,17 @@ typedef void ( * IotBleDataTransferChannelCallback_t ) ( IotBleDataTransferChann
  */
 struct IotBleDataTransferChannel
 {
-    uint8_t * pReceiveBuffer;                          /**< Pointer to the receiver buffer. */
-    size_t    length;                                  /**< Length of the receive buffer in bytes. */
-    size_t    head;                                    /**< Offset into the buffer to write data. */
-    size_t    tail;                                    /**< Offset into the buffer to read data. */
+    IotBleDataChannelBuffer_t    receiveBuffer;
+    IotBleDataChannelBuffer_t*   pReadBuffer;
+    IotBleDataChannelBuffer_t    sendBuffer;           
+    IotSemaphore_t               sendComplete;         /**< Lock to protect access to the send buffer. */
+
     IotBleDataTransferChannelCallback_t callback;      /**< Callback invoked on various events on the channel. */
+    
     void                *pContext;                     /**< Callback context. */
     uint32_t             timeout;                      /**< Timeout value in milliseconds for the sending/receiving data. */
     bool                 isUsed;                       /**< Flag to indicate if the channel is used. */
     bool                 isOpen;                       /**< Flag to indicate if the channel is ready to send/receive data. */
-    bool                 pendingRead;                  /**< Flag to indicate if data is pending to be read */
-    StreamBufferHandle_t sendBuffer;                   /**< Buffer to chache the data while sending out through BLE network. */
-    IotSemaphore_t       sendLock;                     /**< Lock to protect access to the send buffer. */
-    IotMutex_t           receiveLock;                  /**< Lock to protect access to the receive buffer. */
 };
 
 

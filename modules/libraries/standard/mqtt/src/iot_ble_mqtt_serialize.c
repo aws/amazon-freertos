@@ -1409,7 +1409,7 @@ size_t IotBleMqtt_GetRemainingLength ( void * pNetworkConnection,
 {
     IotBleNetworkContext_t * pContext = ( IotBleNetworkContext_t * ) pNetworkConnection;
     IotBleDataTransferChannel_t *pChannel = ( IotBleDataTransferChannel_t* ) ( pContext->pChannel );
-    return ( pChannel->head - pChannel->tail );
+    return ( pChannel->pReadBuffer->head - pChannel->pReadBuffer->tail );
 }
 
 
@@ -1418,12 +1418,12 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInt
 
     IotSerializerDecoderObject_t decoderObj = { 0 }, decoderValue = { 0 };
     IotSerializerError_t error;
-    uint8_t value, packetType = _INVALID_MQTT_PACKET_TYPE;
+    uint8_t value = 0xFF, packetType = _INVALID_MQTT_PACKET_TYPE;
     IotBleNetworkContext_t * pContext = ( IotBleNetworkContext_t * ) pNetworkConnection;
     IotBleDataTransferChannel_t *pChannel = ( IotBleDataTransferChannel_t* ) ( pContext->pChannel );
-    size_t length = ( pChannel->head - pChannel->tail );
-
-    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* ) pChannel->pReceiveBuffer, length );
+    size_t length = ( pChannel->pReadBuffer->head - pChannel->pReadBuffer->tail );
+    
+    error = IOT_BLE_MESG_DECODER.init( &decoderObj, ( uint8_t* ) pChannel->pReadBuffer->pBuffer, length );
 
     if( ( error == IOT_SERIALIZER_SUCCESS )
             && ( decoderObj.type == IOT_SERIALIZER_CONTAINER_MAP ) )

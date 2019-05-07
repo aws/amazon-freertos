@@ -88,7 +88,7 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
             IotBleDataTransfer_SetCallback( pChannel, _callback, &_context );
             if( pChannel->isOpen == false )
             {
-                IotSemaphore_TimedWait( &_context.lock, 5000 );
+                IotSemaphore_TimedWait( &_context.lock, 10000 );
             }
             if( pChannel->isOpen == true )
             {

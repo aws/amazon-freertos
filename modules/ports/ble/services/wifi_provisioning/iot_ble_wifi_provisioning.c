@@ -262,28 +262,29 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
 static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext )
 {
     int32_t requestType;
-    size_t length = ( pChannel->head - pChannel->tail );
+    size_t length;
 
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE )
     {
-        if( _getRequestType( pChannel->pReceiveBuffer, length, &requestType ) == true )
+        length = ( pChannel->pReadBuffer->head - pChannel->pReadBuffer->tail );
+        if( _getRequestType( pChannel->pReadBuffer->pBuffer, length, &requestType ) == true )
         {
             switch( requestType )
             {
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ:
-                    _handleListNetworkRequest( pChannel->pReceiveBuffer, length );
+                    _handleListNetworkRequest( pChannel->pReadBuffer->pBuffer, length );
                     break;
 
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ:
-                    _handleSaveNetworkRequest( pChannel->pReceiveBuffer, length );
+                    _handleSaveNetworkRequest( pChannel->pReadBuffer->pBuffer, length );
                     break;
 
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_REQ:
-                    _handleEditNetworkRequest( pChannel->pReceiveBuffer, length );
+                    _handleEditNetworkRequest( pChannel->pReadBuffer->pBuffer, length );
                     break;
 
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ:
-                    _handleDeleteNetworkRequest( pChannel->pReceiveBuffer, length );
+                    _handleDeleteNetworkRequest( pChannel->pReadBuffer->pBuffer, length );
                     break;
                 default:
                     configPRINTF(( "Invalid request type ( %d ) received.\r\n", requestType ));
