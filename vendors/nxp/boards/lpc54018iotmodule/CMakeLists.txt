@@ -32,12 +32,15 @@ afr_set_board_metadata(CODE_SIGNER "null")
 afr_set_board_metadata(DATA_RAM_MEMORY "360KB")
 afr_set_board_metadata(PROGRAM_MEMORY "128MB")
 afr_set_board_metadata(SUPPORTED_IDE "IAREmbeddedWorkbench;MCUXpresso")
+afr_set_board_metadata(RECOMMENDED_IDE "IAREmbeddedWorkbench")
 afr_set_board_metadata(IDE_IAREmbeddedWorkbench_NAME "IAR Embedded Workbench")
 afr_set_board_metadata(IDE_IAREmbeddedWorkbench_COMPILER "IAR")
-afr_set_board_metadata(IDE_IAREmbeddedWorkbench_RECOMMENDED "true")
 afr_set_board_metadata(IDE_MCUXpresso_NAME "MCUXpresso")
 afr_set_board_metadata(IDE_MCUXpresso_COMPILER "GCC")
-afr_set_board_metadata(IDE_MCUXpresso_RECOMMENDED "false")
+
+afr_set_board_metadata(IDE_IAREmbeddedWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/lpc54018iotmodule/aws_demos/iar")
+afr_set_board_metadata(IDE_MCUXpresso_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/lpc54018iotmodule/aws_demos/mcuxpresso")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
