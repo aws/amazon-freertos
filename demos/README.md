@@ -41,7 +41,7 @@ then use make to build, e.g.:
 
 You can flash your board and see the logs with the following commands:
 
-**Erase flash**: ```./vendors/espressif/esp-idf/tools/idf.py erase_flash -b <your-build-directory> ```
+**Erase flash**: ```./vendors/espressif/esp-idf/tools/idf.py erase_flash -B <your-build-directory> ```
 
 **Flash binary to the board**: ```make flash or ./vendors/espressif/esp-idf/tools/idf.py flash -B <your-build-directory> ```
 
