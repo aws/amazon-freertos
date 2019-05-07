@@ -108,18 +108,18 @@ static WIFIScanResult_t scanNetworks[ IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS
  */
 static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext );
 
-static bool _deserializeListNetworkRequest( uint8_t * pData,
+static bool _deserializeListNetworkRequest( const uint8_t * pData,
                                             size_t length,
                                             IotBleListNetworkRequest_t * pListNetworkRequest );
 
 /*
  * @brief Parses List Network request params and creates task to list networks.
  */
-static bool _handleListNetworkRequest( uint8_t * pData,
+static bool _handleListNetworkRequest( const uint8_t * pData,
                                        size_t length );
 
 
-static bool _deserializeAddNetworkRequest( uint8_t * pData,
+static bool _deserializeAddNetworkRequest( const uint8_t * pData,
                                            size_t length,
                                            IotBleAddNetworkRequest_t * pAddNetworkRequest );
 
@@ -127,28 +127,28 @@ static bool _deserializeAddNetworkRequest( uint8_t * pData,
  * @brief Parses Save Network request params and creates task to save the new network.
  */
 
-static bool _handleSaveNetworkRequest( uint8_t * pData,
+static bool _handleSaveNetworkRequest( const uint8_t * pData,
                                        size_t length );
 
 
-static bool _deserializeEditNetworkRequest( uint8_t * pData,
+static bool _deserializeEditNetworkRequest( const uint8_t * pData,
                                             size_t length,
                                             IotBleEditNetworkRequest_t * pEditNetworkRequest );
 
 /*
  * @brief Parses Edit Network request params and creates task to edit network priority.
  */
-static bool _handleEditNetworkRequest( uint8_t * pData,
+static bool _handleEditNetworkRequest( const uint8_t * pData,
                                        size_t length );
 
-static bool _deserializeDeleteNetworkRequest( uint8_t * pData,
+static bool _deserializeDeleteNetworkRequest( const uint8_t * pData,
                                               size_t length,
                                               IotBleDeleteNetworkRequest_t * pDeleteNetworkRequest );
 
 /*
  * @brief Parses Delete Network request params and creates task to delete a WiFi networ.
  */
-static bool _handleDeleteNetworkRequest( uint8_t * pData,
+static bool _handleDeleteNetworkRequest( const uint8_t * pData,
                                          size_t length );
 
 
@@ -262,29 +262,30 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
 static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext )
 {
     int32_t requestType;
+    const uint8_t *pBuffer;
     size_t length;
 
-    if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE )
+    if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
-        length = ( pChannel->pReadBuffer->head - pChannel->pReadBuffer->tail );
-        if( _getRequestType( pChannel->pReadBuffer->pBuffer, length, &requestType ) == true )
+        IotBleDataTransfer_PeekReceiveBuffer( pChannel, &pBuffer, &length );
+        if( _getRequestType( pBuffer, length, &requestType ) == true )
         {
             switch( requestType )
             {
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ:
-                    _handleListNetworkRequest( pChannel->pReadBuffer->pBuffer, length );
+                    _handleListNetworkRequest( pBuffer, length );
                     break;
 
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ:
-                    _handleSaveNetworkRequest( pChannel->pReadBuffer->pBuffer, length );
+                    _handleSaveNetworkRequest( pBuffer, length );
                     break;
 
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_REQ:
-                    _handleEditNetworkRequest( pChannel->pReadBuffer->pBuffer, length );
+                    _handleEditNetworkRequest( pBuffer, length );
                     break;
 
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ:
-                    _handleDeleteNetworkRequest( pChannel->pReadBuffer->pBuffer, length );
+                    _handleDeleteNetworkRequest( pBuffer, length );
                     break;
                 default:
                     configPRINTF(( "Invalid request type ( %d ) received.\r\n", requestType ));
@@ -321,7 +322,7 @@ static uint32_t _getNumSavedNetworks( void )
     return idx;
 }
 
-static bool _deserializeListNetworkRequest( uint8_t * pData,
+static bool _deserializeListNetworkRequest( const uint8_t * pData,
                                             size_t length,
                                             IotBleListNetworkRequest_t * pListNetworkRequest )
 {
@@ -388,7 +389,7 @@ static bool _deserializeListNetworkRequest( uint8_t * pData,
 
 /*-----------------------------------------------------------*/
 
-static bool _handleListNetworkRequest( uint8_t * pData,
+static bool _handleListNetworkRequest( const uint8_t * pData,
                                        size_t length )
 {
     bool status = false;
@@ -438,7 +439,7 @@ static bool _handleListNetworkRequest( uint8_t * pData,
     return status;
 }
 
-static bool _deserializeAddNetworkRequest( uint8_t * pData,
+static bool _deserializeAddNetworkRequest( const uint8_t * pData,
                                            size_t length,
                                            IotBleAddNetworkRequest_t * pAddNetworkRequest )
 {
@@ -615,7 +616,7 @@ static bool _deserializeAddNetworkRequest( uint8_t * pData,
 
 /*-----------------------------------------------------------*/
 
-static bool _handleSaveNetworkRequest( uint8_t * pData,
+static bool _handleSaveNetworkRequest( const uint8_t * pData,
                                        size_t length )
 {
     bool status = false;
@@ -667,7 +668,7 @@ static bool _handleSaveNetworkRequest( uint8_t * pData,
     return status;
 }
 
-static bool _deserializeEditNetworkRequest( uint8_t * pData,
+static bool _deserializeEditNetworkRequest( const uint8_t * pData,
                                             size_t length,
                                             IotBleEditNetworkRequest_t * pEditNetworkRequest )
 {
@@ -741,7 +742,7 @@ static bool _deserializeEditNetworkRequest( uint8_t * pData,
 
 /*-----------------------------------------------------------*/
 
-static bool _handleEditNetworkRequest( uint8_t * pData,
+static bool _handleEditNetworkRequest( const uint8_t * pData,
                                        size_t length )
 {
     bool status = false;
@@ -791,7 +792,7 @@ static bool _handleEditNetworkRequest( uint8_t * pData,
     return status;
 }
 
-static bool _deserializeDeleteNetworkRequest( uint8_t * pData,
+static bool _deserializeDeleteNetworkRequest( const uint8_t * pData,
                                               size_t length,
                                               IotBleDeleteNetworkRequest_t * pDeleteNetworkRequest )
 {
@@ -840,7 +841,7 @@ static bool _deserializeDeleteNetworkRequest( uint8_t * pData,
 
 /*-----------------------------------------------------------*/
 
-static bool _handleDeleteNetworkRequest( uint8_t * pData,
+static bool _handleDeleteNetworkRequest( const uint8_t * pData,
                                          size_t length )
 {
     bool status = false;

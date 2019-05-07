@@ -39,14 +39,6 @@
  */
 #define IOT_NETWORK_INTERFACE_BLE    ( &( IotNetworkBle ) )
 
-typedef struct IotBleNetworkContext
-{
-    void * pChannel;
-    IotSemaphore_t                lock;
-    IotNetworkReceiveCallback_t   pCallback;
-    void                        * pContext;
-} IotBleNetworkContext_t;
-
 /**
  * @brief An implementation of #IotNetworkInterface_t::create for Amazon FreeRTOS
  * Secure Sockets.

@@ -32,10 +32,11 @@
 #ifdef IOT_CONFIG_FILE
     #include IOT_CONFIG_FILE
 #endif
-
+#include "FreeRTOS.h"
 #include "iot_ble_config.h"
+#include "iot_ble.h"
 #include "iot_ble_data_transfer.h"
-#include "task.h"
+
 
 #define _SERVICE_UUID( SERVICE_ID )         { 0x00, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
 #define _CONTROL_CHAR_UUID( SERVICE_ID )    { 0x01, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
@@ -156,6 +157,39 @@ typedef enum IotBleDataTransferAttributes
     IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES       /*!< IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES Max number of attributes for ble data transfer service. */
 
 } IotBleDataTransferAttributes_t;
+
+/**
+ * @brief Structure used to represent a data channel buffer.
+ */
+typedef struct IotBleDataChannelBuffer
+{
+    uint8_t * pBuffer;
+    size_t    head;
+    size_t    tail;
+    size_t    bufferLength;
+
+} IotBleDataChannelBuffer_t;
+
+/**
+ * @brief Structure used to represent a data transfer channel. 
+ */
+struct IotBleDataTransferChannel
+{
+    IotBleDataChannelBuffer_t    lotBuffer;            /**< Points to a large object buffer. */
+    IotBleDataChannelBuffer_t *  pReceiveBuffer;       /**< Points to the buffer where data is received. */
+
+    IotBleDataChannelBuffer_t    sendBuffer;           /**< Buffer used to send data. */
+    IotSemaphore_t               sendComplete;         /**< Lock to protect access to the send buffer. */
+
+    IotBleDataTransferChannelCallback_t callback;      /**< Callback invoked on various events on the channel. */  
+    void                *pContext;                     /**< Callback context. */
+    
+    uint32_t             timeout;                      /**< Timeout value in milliseconds for the sending/receiving data. */
+    
+    bool                 isUsed;                       /**< Flag to indicate if the channel is used. */
+    bool                 isOpen;                       /**< Flag to indicate if the channel is ready to send/receive data. */
+};
+
 
 /**
  * @ingroup ble_datatypes_structs
@@ -610,23 +644,23 @@ static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
         if( ( pService != NULL ) && 
             ( pService->channel.isOpen ) )
         {
-            status = _resizeChannelBuffer( &pService->channel.receiveBuffer, IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE, pEventParam->pParamWrite->length );
+            status = _resizeChannelBuffer( &pService->channel.lotBuffer, IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE, pEventParam->pParamWrite->length );
             if( status == true )
             {
                 /* Copy the received data into the buffer. */
-                memcpy( ( pService->channel.receiveBuffer.pBuffer + pService->channel.receiveBuffer.head ), 
+                memcpy( ( pService->channel.lotBuffer.pBuffer + pService->channel.lotBuffer.head ), 
                         pEventParam->pParamWrite->pValue,
                         pEventParam->pParamWrite->length );
             
-                pService->channel.receiveBuffer.head += pEventParam->pParamWrite->length;
+                pService->channel.lotBuffer.head += pEventParam->pParamWrite->length;
 
                 if( pEventParam->pParamWrite->length < transmitLength )
                 {
                     /* All chunks for large object transfer received. */
-                    pService->channel.pReadBuffer = &pService->channel.receiveBuffer;
+                    pService->channel.pReceiveBuffer = &pService->channel.lotBuffer;
                     if (pService->channel.callback != NULL)
                     {
-                        pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE,
+                        pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED,
                                                     &pService->channel,
                                                     pService->channel.pContext );
                     }
@@ -676,11 +710,11 @@ static void _RXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
             recvBuffer.pBuffer = ( uint8_t *) pEventParam->pParamWrite->pValue;
             recvBuffer.head = pEventParam->pParamWrite->length;
             recvBuffer.tail = 0;
-            pService->channel.pReadBuffer = &recvBuffer;
+            pService->channel.pReceiveBuffer = &recvBuffer;
 
             if (pService->channel.callback != NULL)
             {
-                pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE,
+                pService->channel.callback( IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED,
                                             &pService->channel,
                                             pService->channel.pContext );
             }
@@ -956,13 +990,14 @@ void IotBleDataTransfer_Close( IotBleDataTransferChannel_t * pChannel )
     ( void ) IotSemaphore_TimedWait( &pChannel->sendComplete, pChannel->timeout );
     _deleteChannelBuffer( &pChannel->sendBuffer );
     IotSemaphore_Post( &pChannel->sendComplete );
-    
-    _deleteChannelBuffer( &pChannel->receiveBuffer );
+    _deleteChannelBuffer( &pChannel->lotBuffer );
+    pChannel->pReceiveBuffer = NULL;
     
     if( pChannel->callback != NULL )
     {
         pChannel->callback( IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED, pChannel, pChannel->pContext );
     }
+
 }
 
 void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel )
@@ -975,7 +1010,7 @@ void IotBleDataTransfer_Reset( IotBleDataTransferChannel_t * pChannel )
 /*-----------------------------------------------------------*/
 size_t IotBleDataTransfer_Receive( IotBleDataTransferChannel_t * pChannel, uint8_t * pBuffer, size_t bytesRequested )
 {
-    size_t bytesReturned = pChannel->pReadBuffer->head - pChannel->pReadBuffer->tail;
+    size_t bytesReturned = pChannel->pReceiveBuffer->head - pChannel->pReceiveBuffer->tail;
 
     if( bytesReturned > bytesRequested )
     {
@@ -983,19 +1018,37 @@ size_t IotBleDataTransfer_Receive( IotBleDataTransferChannel_t * pChannel, uint8
     }
     if( pBuffer != NULL )
     {
-        memcpy( pBuffer, ( pChannel->pReadBuffer->pBuffer +  pChannel->pReadBuffer->tail ), bytesReturned );
+        memcpy( pBuffer, ( pChannel->pReceiveBuffer->pBuffer +  pChannel->pReceiveBuffer->tail ), bytesReturned );
     }
-    pChannel->pReadBuffer->tail += bytesReturned;
+    pChannel->pReceiveBuffer->tail += bytesReturned;
     
-    if(  pChannel->pReadBuffer->tail ==  pChannel->pReadBuffer->head )
+    if(  pChannel->pReceiveBuffer->tail ==  pChannel->pReceiveBuffer->head )
     {
-         pChannel->pReadBuffer->head =  pChannel->pReadBuffer->tail = 0;
+         pChannel->pReceiveBuffer->head =  pChannel->pReceiveBuffer->tail = 0;
     }
 
     return bytesReturned;
 }
 
-/*-----------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------------------------------*/
+
+void IotBleDataTransfer_PeekReceiveBuffer( IotBleDataTransferChannel_t* pChannel, const uint8_t **pBuffer, size_t *pBufferLength )
+{
+
+    if( pChannel->pReceiveBuffer != NULL )
+    {
+        *pBuffer = ( pChannel->pReceiveBuffer->pBuffer + pChannel->pReceiveBuffer->tail );
+        *pBufferLength = ( pChannel->pReceiveBuffer->head - pChannel->pReceiveBuffer->tail );
+    }
+    else
+    {
+        *pBuffer = NULL;
+        *pBufferLength = 0;
+    }
+    
+}
+
+/*----------------------------------------------------------------------------------------------------------------------------*/
 
 size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const uint8_t * const pMessage, size_t messageLength )
 {

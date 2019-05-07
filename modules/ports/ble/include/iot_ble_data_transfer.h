@@ -33,30 +33,21 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-#include "iot_ble.h"
+#include <stdbool.h>
 #include "platform/iot_threads.h"
 
 /*
- * @brief Various events supported by a ble data transfer channel.
+ * @brief Events on a ble data transfer channel.
  */
 typedef enum IotBleDataTransferChannelEvent
 {
     IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED = 0,            /**< Indicates if the channel is opened and ready to read or write data. */
-    IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVE_COMPLETE, /**< Event invoked when the last chunk of a data stream is received on the channel. */
+    IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED,         /**< Event invoked when the last chunk of a large object or a small packet is received on the channel. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_SENT,             /**< Event invoked after the last chunk of data stream is sent over the channel. */
     IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED                 /**< Event invoked when the channel is closed. */
 
 } IotBleDataTransferChannelEvent_t;
 
-
-typedef struct IotBleDataChannelBuffer
-{
-    uint8_t * pBuffer;
-    size_t    head;
-    size_t    tail;
-    size_t    bufferLength;
-} IotBleDataChannelBuffer_t;
 
 /**
  * @brief Forward declaration of Data transfer channel structure.
@@ -67,24 +58,6 @@ typedef struct IotBleDataTransferChannel IotBleDataTransferChannel_t;
  * @brief Callback invoked whenever an event occurs on the data transfer channel.
  */
 typedef void ( * IotBleDataTransferChannelCallback_t ) ( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext );
-
-/**
- * @brief Structure used to represent a data transfer channel. 
- */
-struct IotBleDataTransferChannel
-{
-    IotBleDataChannelBuffer_t    receiveBuffer;
-    IotBleDataChannelBuffer_t*   pReadBuffer;
-    IotBleDataChannelBuffer_t    sendBuffer;           
-    IotSemaphore_t               sendComplete;         /**< Lock to protect access to the send buffer. */
-
-    IotBleDataTransferChannelCallback_t callback;      /**< Callback invoked on various events on the channel. */
-    
-    void                *pContext;                     /**< Callback context. */
-    uint32_t             timeout;                      /**< Timeout value in milliseconds for the sending/receiving data. */
-    bool                 isUsed;                       /**< Flag to indicate if the channel is used. */
-    bool                 isOpen;                       /**< Flag to indicate if the channel is ready to send/receive data. */
-};
 
 
 /**
@@ -116,6 +89,7 @@ IotBleDataTransferChannel_t * IotBleDataTransfer_Open( uint8_t channelIdentifier
  */
 bool IotBleDataTransfer_SetCallback( IotBleDataTransferChannel_t* pChannel, const IotBleDataTransferChannelCallback_t callback, void *pContext );
 
+
 /**
  * @brief Sent data over a ble data transfer channel.
  * 
@@ -128,15 +102,28 @@ bool IotBleDataTransfer_SetCallback( IotBleDataTransferChannel_t* pChannel, cons
 size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const uint8_t * const pMessage, size_t messageLength );
 
 /**
- * @brief Receive over a ble data transfer channel.
+ * @brief Function copies the requested bytes of data from the receive buffer to the user provided buffer.
+ * This should always be called in the context of a IotBleDataTransferChannelCallback_t IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED event.
  * 
  * @param[in] pChannel Pointer to data transfer channel.
- * @param[in] pBuffer Pointer to the buffer where the data will be copied.
+ * @param[in] pBuffer Pointer to the buffer where the data will be copied. Pass NULL to do an empty read to flush the data.
  * @param[in] bytesRequested Number of bytes of data requested.
  * 
- * @return Number of bytes of data returned ( should be <= Number of bytes requested ).
+ * @return Number of bytes of data returned. Should be less than or equal to the number of bytes requested.
  */
 size_t IotBleDataTransfer_Receive( IotBleDataTransferChannel_t * pChannel, uint8_t * pBuffer, size_t bytesRequested );
+
+/**
+ * @brief Returns a pointer to the received buffer and length of the received data.
+ * Function should always be called in the context of a IotBleDataTransferChannelCallback_t IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED event.
+ * 
+ * @param[in] pChannel Channel on which the callback is fired.
+ * @param[out] pBuffer Pointer to the received buffer.
+ * @param[out] Length of the received buffer.
+ * 
+ */
+
+void IotBleDataTransfer_PeekReceiveBuffer( IotBleDataTransferChannel_t* pChannel, const uint8_t **pBuffer, size_t *pBufferLength );
 
 /**
  * @brief Close a ble data tranfer channel.
@@ -151,7 +138,7 @@ void IotBleDataTransfer_Close( IotBleDataTransferChannel_t * pChannel );
 
 /**
  * @brief Resets a ble data transfer channel.
- * Makes the channel unused by removing the callbacks
+ * Makes the channel free to use and removes any callbacks assigned.
  * 
  * @param[in] pChannel Pointer to data transfer channel.
  * 
