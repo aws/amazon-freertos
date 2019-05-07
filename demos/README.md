@@ -24,15 +24,15 @@ First use _cmake_ to generate the project files for Espressif, which uses _make_
 CMake command for building Espressif demos:
 (from the root directory ofyour clone)
 
-```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B<you build directory>```
+```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B <you build directory>```
 
 if you want to build tests instead:
 
-```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B<you build directory> -DAFR_ENABLE_TESTS=1```
+```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B <you build directory> -DAFR_ENABLE_TESTS=1```
 
 if you want to build the debug flavor of the image:
 
- ```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B<you build directory> -DCMAKE_BUILD_TYPE=Debug```
+ ```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B <you build directory> -DCMAKE_BUILD_TYPE=Debug```
 
  
 then use make to build, e.g.: 
@@ -43,13 +43,13 @@ You can flash your board and see the logs with the following commands:
 
 **Erase flash**: ```./vendors/espressif/esp-idf/tools/idf.py erase_flash -b <your-build-directory> ```
 
-**Flash binary to the board**: ```make flash or ./vendors/espressif/esp-idf/tools/idf.py flash -b <your-build-directory> ```
+**Flash binary to the board**: ```make flash or ./vendors/espressif/esp-idf/tools/idf.py flash -B <your-build-directory> ```
 
-**Monitor**: ```./vendors/espressif/esp-idf/tools/idf.py monitor -p /dev/ttyUSB1 -b <your-build-directory> ```
+**Monitor**: ```./vendors/espressif/esp-idf/tools/idf.py monitor -p /dev/ttyUSB1 -B <your-build-directory> ```
 
 You can also combine commands. e.g.:  
 
-```./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -p /dev/ttyUSB1 -b <your-build-directory> ```
+```./vendors/espressif/esp-idf/tools/idf.py erase_flash flash monitor -p /dev/ttyUSB1 -B <your-build-directory> ```
  
  #### Nordic
  Does not use CMake. Project can be compiled and flashed directly after installing Segger Embedded Studio:  
