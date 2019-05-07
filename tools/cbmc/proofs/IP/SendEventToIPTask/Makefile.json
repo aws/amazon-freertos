@@ -1,0 +1,13 @@
+{
+  "ENTRY": "SendEventToIPTask",
+  "CBMCFLAGS": [
+  	"--unwind 1",
+  	"--nondet-static"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.goto",
+    "$(FREERTOS)/freertos_kernel/tasks.goto"
+  ]
+}
