@@ -4,4 +4,3 @@ void abort( void )
 {
     for(;;) {}
 }
-#endif
