@@ -136,6 +136,10 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
             awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
 
+            /* According to C99 standard, it should transfer from any pointer to void pointer.
+             * In this case, it is "IotNetworkServerInfoAfr_t const *".
+             * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
+             */
             pDemoContext->networkConnectedCallback( awsIotMqttMode,
                                                     clientcredentialIOT_THING_NAME,
                                                     ( void * ) &serverInfo,
@@ -167,6 +171,10 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
                 awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
 
+                /* According to C99 standard, it should transfer from any pointer to void pointer.
+                 * In this case, it is "IotNetworkServerInfoAfr_t const *".
+                 * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
+                 */
                 pDemoContext->networkConnectedCallback( awsIotMqttMode,
                                                         clientcredentialIOT_THING_NAME,
                                                         ( void * ) &serverInfo,
