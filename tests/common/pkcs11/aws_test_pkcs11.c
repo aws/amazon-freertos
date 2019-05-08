@@ -1860,6 +1860,7 @@ static void prvFindObjectMultiThreadTask( void * pvParameters )
         if( ( xHandle == pkcs11INVALID_OBJECT_HANDLE ) )
         {
             configPRINTF( ( "FindObject multi-thread task failed to find private key.  Invalid object handle returned.  Count: %d \r\n", xCount ) );
+            xResult = CKR_OBJECT_HANDLE_INVALID;   /* Mark xResult so that test fails. */
             break;
         }
 
@@ -1874,6 +1875,7 @@ static void prvFindObjectMultiThreadTask( void * pvParameters )
         if( ( xHandle == pkcs11INVALID_OBJECT_HANDLE ) )
         {
             configPRINTF( ( "FindObject multi-thread task failed to find certificate.  Invalid object handle returned. Count: %d \r\n", xCount ) );
+            xResult = CKR_OBJECT_HANDLE_INVALID;  /* Mark xResult so that test fails. */
             break;
         }
     }

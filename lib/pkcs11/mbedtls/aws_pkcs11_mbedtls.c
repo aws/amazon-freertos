@@ -2052,7 +2052,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
             xPalHandle = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
         }
 
-        if( *pxObject != CK_INVALID_HANDLE )
+        if( xPalHandle != CK_INVALID_HANDLE )
         {
             xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pcObjectValue, &xObjectLength, &xIsPrivate );
 
