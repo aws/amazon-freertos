@@ -120,6 +120,9 @@ int app_main( void )
 
         	}
         }
+#else
+        ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
+        ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_BLE ) );
 #endif
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();

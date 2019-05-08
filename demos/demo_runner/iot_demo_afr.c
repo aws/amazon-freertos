@@ -37,6 +37,12 @@
 #include "iot_init.h"
 #include "iot_mqtt.h"
 
+/* Server info, End point and port #. */
+static const IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+
+/* Secure connection info. */
+static IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+
 static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
 /* Semaphore used to wait for a network to be available. */
@@ -102,8 +108,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                            AwsIotNetworkState_t state,
                                            void * pContext )
 {
-    IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-    IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     const IotNetworkInterface_t * pNetworkInterface;
     bool awsIotMqttMode = false;
 
