@@ -74,6 +74,7 @@ static bool bleEnabled = false;
 #if ( BLE_SUPPORTED == 1 )
     #include "iot_ble.h"
     #include "platform/iot_network_ble.h"
+    #include "iot_mqtt.h"
     extern const IotMqttSerializer_t IotBleMqttSerializer;
     /*-----------------------------------------------------------*/
 

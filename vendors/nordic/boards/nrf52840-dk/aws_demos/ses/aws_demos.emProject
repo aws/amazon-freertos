@@ -75,6 +75,9 @@
           <file file_name="../../../../../../demos/mqtt/iot_demo_mqtt.c" />
           <file file_name="../../../../../../demos/mqtt/aws_mqtt_ble_hello_world.c" />
         </folder>
+        <folder Name="shadow">
+          <file file_name="../../../../../../demos/shadow/aws_iot_demo_shadow.c" />
+        </folder>
       </folder>
       <file file_name="../common/application_code/main.c" />
     </folder>

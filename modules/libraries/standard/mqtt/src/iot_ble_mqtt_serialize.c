@@ -685,7 +685,7 @@ static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
     if( _IS_VALID_SERIALIZER_RET( error, pBuffer ) )
     {
         data.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_PINGREQ;
+         data.value.u.signedInt = IOT_BLE_MQTT_MSG_TYPE_PINGREQ;
         error = IOT_BLE_MESG_ENCODER.appendKeyValue( &pingRequest, IOT_BLE_MQTT_MSG_TYPE, data );
     }
 
