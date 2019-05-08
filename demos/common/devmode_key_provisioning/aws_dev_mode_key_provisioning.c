@@ -146,7 +146,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
             if( pxKeyPair->grp.id == MBEDTLS_ECP_DP_SECP256R1 )
             {
-                pxEcParams = "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1;
+                pxEcParams = (uint8_t *) "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1;
             }
             else
             {
@@ -644,7 +644,7 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
         pxLabel = pxPkcsLabels[ uiIndex ];
 
         xResult = xFindObjectWithLabelAndClass( xSession,
-                                                ( const char * )pxLabel,
+                                                ( const uint8_t * )pxLabel,
                                                 xClass[ uiIndex ],
                                                 &xObjectHandle );
 
@@ -661,7 +661,7 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
                 if( xResult == CKR_OK )
                 {
                     xResult = xFindObjectWithLabelAndClass( xSession,
-                                                            ( const char * )pxLabel,
+                                                            ( const uint8_t * )pxLabel,
                                                             xClass[ uiIndex ],
                                                             &xObjectHandle );
                 }

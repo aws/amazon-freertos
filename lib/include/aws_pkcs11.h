@@ -197,7 +197,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
  * object that meets the CLASS/LABEL criteria.
  */
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
-                                    const char * pcLabelName,
+                                    const uint8_t * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle );
 
