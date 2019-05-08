@@ -90,28 +90,28 @@
  * Private key for connection to AWS IoT endpoint.  The corresponding
  * public key should be registered with the AWS IoT endpoint.
  */
-#define pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       ( ( uint8_t * ) "Device Priv TLS Key" )
+#define pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       ( "Device Priv TLS Key" )
 
 /**
  * @brief The PKCS #11 label for device public key.
  *
  * The public key corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
  */
-#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        ( ( uint8_t * ) "Device Pub TLS Key" )
+#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        ( "Device Pub TLS Key" )
 
 /**
  * @brief The PKCS #11 label for the device certificate.
  *
  * Device certificate corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
  */
-#define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS       ( ( uint8_t * ) "Device Cert" )
+#define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS       ( "Device Cert" )
 
 /**
  * @brief The PKCS #11 label for the object to be used for code verification.
  *
  * Used by over-the-air update code to verify an incoming signed image.
  */
-#define pkcs11configLABEL_CODE_VERIFICATION_KEY            ( ( uint8_t * ) "Code Verify Key" )
+#define pkcs11configLABEL_CODE_VERIFICATION_KEY            ( "Code Verify Key" )
 
 /**
  * @brief The PKCS #11 label for Just-In-Time-Provisioning.
@@ -120,13 +120,13 @@
  * (pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS) when using the JITR or
  * JITP flow.
  */
-#define pkcs11configLABEL_JITP_CERTIFICATE                 ( ( uint8_t * ) "JITP Cert" )
+#define pkcs11configLABEL_JITP_CERTIFICATE                 ( "JITP Cert" )
 
 /**
  * @brief The PKCS #11 label for the AWS Trusted Root Certificate.
  *
  * @see aws_default_root_certificates.h
  */
-#define pkcs11configLABEL_ROOT_CERTIFICATE                 ( ( uint8_t * ) "Root Cert" )
+#define pkcs11configLABEL_ROOT_CERTIFICATE                 ( "Root Cert" )
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */
