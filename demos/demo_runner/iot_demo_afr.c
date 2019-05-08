@@ -53,38 +53,40 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
 
 #if BLE_ENABLED
-extern const IotMqttSerializer_t IotBleMqttSerializer;
+    extern const IotMqttSerializer_t IotBleMqttSerializer;
 #endif
 
-const IotMqttSerializer_t* getSerializerOverride( void )
+/*-----------------------------------------------------------*/
+
+const IotMqttSerializer_t * getSerializerOverride( void )
 {
-    const IotMqttSerializer_t* ret = NULL;
+    const IotMqttSerializer_t * ret = NULL;
 
-#if BLE_ENABLED
-    if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
-    {
-        ret = &IotBleMqttSerializer;
-    }
-#endif
+    #if BLE_ENABLED
+        if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
+        {
+            ret = &IotBleMqttSerializer;
+        }
+    #endif
 
     return ret;
 }
 
 /*-----------------------------------------------------------*/
 
-static uint32_t _getConnectedNetworkForDemo( demoContext_t *pDemoContext )
+static uint32_t _getConnectedNetworkForDemo( demoContext_t * pDemoContext )
 {
     uint32_t ret = ( AwsIotNetworkManager_GetConnectedNetworks() & pDemoContext->networkTypes );
 
     if( ( ret & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
     {
-        ret =  AWSIOT_NETWORK_TYPE_WIFI;
+        ret = AWSIOT_NETWORK_TYPE_WIFI;
     }
     else if( ( ret & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
     {
         ret = AWSIOT_NETWORK_TYPE_BLE;
     }
-    else if ( ( ret & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+    else if( ( ret & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
     {
         ret = AWSIOT_NETWORK_TYPE_ETH;
     }
@@ -96,6 +98,8 @@ static uint32_t _getConnectedNetworkForDemo( demoContext_t *pDemoContext )
     return ret;
 }
 
+/*-----------------------------------------------------------*/
+
 static uint32_t _waitForDemoNetworkConnection( demoContext_t * pDemoContext )
 {
     IotSemaphore_Wait( &demoNetworkSemaphore );
@@ -103,6 +107,8 @@ static uint32_t _waitForDemoNetworkConnection( demoContext_t * pDemoContext )
     return _getConnectedNetworkForDemo( pDemoContext );
 }
 
+
+/*-----------------------------------------------------------*/
 
 static void _onNetworkStateChangeCallback( uint32_t network,
                                            AwsIotNetworkState_t state,
@@ -115,11 +121,10 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
     if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
     {
-
         demoConnectedNetwork = network;
-        IotSemaphore_Post( &demoNetworkSemaphore);
+        IotSemaphore_Post( &demoNetworkSemaphore );
 
-        if (pDemoContext->networkConnectedCallback != NULL)
+        if( pDemoContext->networkConnectedCallback != NULL )
         {
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
 
@@ -133,14 +138,13 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
             pDemoContext->networkConnectedCallback( awsIotMqttMode,
                                                     clientcredentialIOT_THING_NAME,
-                                                    &serverInfo,
+                                                    ( void * ) &serverInfo,
                                                     &credentials,
                                                     pNetworkInterface );
         }
     }
     else if( ( state == eNetworkStateDisabled ) && ( demoConnectedNetwork == network ) )
     {
-
         if( pDemoContext->networkDisconnectedCallback != NULL )
         {
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
@@ -148,9 +152,9 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         }
 
         demoConnectedNetwork = _getConnectedNetworkForDemo( pDemoContext );
+
         if( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_NONE )
         {
-
             if( pDemoContext->networkConnectedCallback != NULL )
             {
                 pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
@@ -165,7 +169,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
                 pDemoContext->networkConnectedCallback( awsIotMqttMode,
                                                         clientcredentialIOT_THING_NAME,
-                                                        &serverInfo,
+                                                        ( void * ) &serverInfo,
                                                         &credentials,
                                                         pNetworkInterface );
             }
@@ -180,11 +184,11 @@ static void _onNetworkStateChangeCallback( uint32_t network,
  * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
  * `EXIT_FAILURE` otherwise.
  */
-static int _initialize( demoContext_t* pContext )
+static int _initialize( demoContext_t * pContext )
 {
     int status = EXIT_SUCCESS;
     bool commonLibrariesInitailized = false;
-    bool semaphoreCreated           = false;
+    bool semaphoreCreated = false;
 
     /* Initialize common libraries required by network manager and demo. */
     if( IotSdk_Init() == true )
@@ -197,9 +201,9 @@ static int _initialize( demoContext_t* pContext )
         status = EXIT_FAILURE;
     }
 
-    if (status == EXIT_SUCCESS)
+    if( status == EXIT_SUCCESS )
     {
-        if (AwsIotNetworkManager_Init() != pdTRUE)
+        if( AwsIotNetworkManager_Init() != pdTRUE )
         {
             IotLogError( "Failed to initialize network manager library." );
             status = EXIT_FAILURE;
@@ -209,7 +213,7 @@ static int _initialize( demoContext_t* pContext )
     if( status == EXIT_SUCCESS )
     {
         /* Create semaphore to signal that a network is available for the demo. */
-        if(  IotSemaphore_Create( &demoNetworkSemaphore, 0, 1) != true )
+        if( IotSemaphore_Create( &demoNetworkSemaphore, 0, 1 ) != true )
         {
             IotLogError( "Failed to create semaphore to wait for a network connection." );
             status = EXIT_FAILURE;
@@ -218,7 +222,6 @@ static int _initialize( demoContext_t* pContext )
         {
             semaphoreCreated = true;
         }
-
     }
 
     if( status == EXIT_SUCCESS )
@@ -235,7 +238,7 @@ static int _initialize( demoContext_t* pContext )
     }
 
     /* Initialize all the  networks configured for the device. */
-    if(status == EXIT_SUCCESS)
+    if( status == EXIT_SUCCESS )
     {
         if( AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS ) != configENABLED_NETWORKS )
         {
@@ -252,14 +255,13 @@ static int _initialize( demoContext_t* pContext )
         if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE )
         {
             /* Network not yet initialized. Block for a network to be intialized. */
-            IotLogInfo( "No networks connected for the demo. Waiting for a network connection. ");
+            IotLogInfo( "No networks connected for the demo. Waiting for a network connection. " );
             demoConnectedNetwork = _waitForDemoNetworkConnection( pContext );
         }
     }
 
     if( status == EXIT_FAILURE )
     {
-
         if( semaphoreCreated == true )
         {
             IotSemaphore_Destroy( &demoNetworkSemaphore );
@@ -279,11 +281,13 @@ static int _initialize( demoContext_t* pContext )
  */
 static void _cleanup( void )
 {
-     /* Remove network manager subscription */
-     AwsIotNetworkManager_RemoveSubscription( subscription );
-     IotSemaphore_Destroy( &demoNetworkSemaphore );
-     IotSdk_Cleanup();
+    /* Remove network manager subscription */
+    AwsIotNetworkManager_RemoveSubscription( subscription );
+    IotSemaphore_Destroy( &demoNetworkSemaphore );
+    IotSdk_Cleanup();
 }
+
+/*-----------------------------------------------------------*/
 
 void runDemoTask( void * pArgument )
 {
@@ -343,7 +347,6 @@ void runDemoTask( void * pArgument )
         IotLogError( "Failed to initialize the demo. exiting..." );
     }
 
-
     vTaskDelete( NULL );
 }
 
@@ -351,28 +354,28 @@ void runDemoTask( void * pArgument )
 
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
 
-BaseType_t xApplicationDNSQueryHook( const char * pcName )
-{
-    BaseType_t xReturn;
+    BaseType_t xApplicationDNSQueryHook( const char * pcName )
+    {
+        BaseType_t xReturn;
 
-    /* Determine if a name lookup is for this node.  Two names are given
-     * to this node: that returned by pcApplicationHostnameHook() and that set
-     * by mainDEVICE_NICK_NAME. */
-    if( strcmp( pcName, pcApplicationHostnameHook() ) == 0 )
-    {
-        xReturn = pdPASS;
-    }
-    else if( strcmp( pcName, mainDEVICE_NICK_NAME ) == 0 )
-    {
-        xReturn = pdPASS;
-    }
-    else
-    {
-        xReturn = pdFAIL;
-    }
+        /* Determine if a name lookup is for this node.  Two names are given
+         * to this node: that returned by pcApplicationHostnameHook() and that set
+         * by mainDEVICE_NICK_NAME. */
+        if( strcmp( pcName, pcApplicationHostnameHook() ) == 0 )
+        {
+            xReturn = pdPASS;
+        }
+        else if( strcmp( pcName, mainDEVICE_NICK_NAME ) == 0 )
+        {
+            xReturn = pdPASS;
+        }
+        else
+        {
+            xReturn = pdFAIL;
+        }
 
-    return xReturn;
-}
+        return xReturn;
+    }
 
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
@@ -416,8 +419,8 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     configPRINTF( ( "ERROR: stack overflow with task %s\r\n", pcTaskName ) );
     portDISABLE_INTERRUPTS();
 
-	/* Unused Parameters */
-	( void )xTask;
+    /* Unused Parameters */
+    ( void ) xTask;
 
     /* Loop forever */
     for( ; ; )
