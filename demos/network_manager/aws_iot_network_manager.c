@@ -509,9 +509,12 @@ static void _dispatchNetworkStateChangeCB( IotTaskPool_t taskPool, IotTaskPoolJo
     pLink = IotListDouble_RemoveHead( &networkManager.pendingInvocations );
     if (pLink != NULL)
     {
-        pendingJob = IotLink_Container(IotTaskPoolJob_t, pLink, link);
+        /* We should not cast a IotTaskPoolJobStorage_t type to a IotTaskPoolJob_t the relationship 
+           between storage and handle is implementaton dependent */
+        pendingJob = (IotTaskPoolJob_t)IotLink_Container(IotTaskPoolJobStorage_t, pLink, link);
         
         error = IotTaskPool_Schedule( taskPool, pendingJob, 0 );
+
         if( error != IOT_TASKPOOL_SUCCESS )
         {
             IotLogError( "Failed to schedule a taskpool job, discarding all pending items in queue " );
@@ -519,7 +522,9 @@ static void _dispatchNetworkStateChangeCB( IotTaskPool_t taskPool, IotTaskPoolJo
             ( void ) IotTaskPool_RecycleJob( taskPool, pendingJob );
             IotContainers_ForEach( &networkManager.pendingInvocations, pLink )
             {
-                pendingJob = IotLink_Container( IotTaskPoolJob_t, pLink, link );
+                /* We should not cast a IotTaskPoolJobStorage_t type to a IotTaskPoolJob_t the relationship 
+                between storage and handle is implementaton dependent */
+                pendingJob = (IotTaskPoolJob_t)IotLink_Container( IotTaskPoolJobStorage_t, pLink, link );
                 ( void ) IotTaskPool_RecycleJob( taskPool, pendingJob );
                 networkManager.isInvocationActive = false;
 
@@ -534,12 +539,12 @@ static void _dispatchNetworkStateChangeCB( IotTaskPool_t taskPool, IotTaskPoolJo
 
     /* Recycle current job */
     IotTaskPool_RecycleJob( taskPool, job );
-
 }
 
 static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkState_t newState )
 {
     IotTaskPoolJob_t job;
+    IotTaskPoolJobStorage_t * jobStorage;
     IotNMNetwork_t* pNetwork = NULL;
     IotLink_t *pLink;
     IotTaskPoolError_t error;
@@ -566,7 +571,9 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
         {
             if( networkManager.isInvocationActive )
             {
-                IotListDouble_InsertTail( &networkManager.pendingInvocations, &job->link );
+                jobStorage = IotTaskPool_GetJobStorageFromHandle( job );
+
+                IotListDouble_InsertTail( &networkManager.pendingInvocations, &jobStorage->link );
             }
             else
             {

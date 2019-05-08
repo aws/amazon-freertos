@@ -221,11 +221,11 @@ typedef struct _taskPool * IotTaskPool_t;
  */
 typedef struct IotTaskPoolJobStorage
 {
-    IotLink_t dummy1;               /**< @brief Placeholder. */
+    IotLink_t link;                 /**< @brief Placeholder. */
     void * dummy2;                  /**< @brief Placeholder. */
     void * dummy3;                  /**< @brief Placeholder. */
     uint32_t dummy4;                /**< @brief Placeholder. */
-    IotTaskPoolJobStatus_t dummy5;  /**< @brief Placeholder. */
+    IotTaskPoolJobStatus_t status;  /**< @brief Placeholder. */
 } IotTaskPoolJobStorage_t;
 
 /**
