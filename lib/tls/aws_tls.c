@@ -429,7 +429,6 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     CK_OBJECT_HANDLE xCertObj = 0;
     CK_BYTE * pxCertificate = NULL;
     mbedtls_pk_type_t xKeyAlgo = ( mbedtls_pk_type_t ) ~0;
-    CK_BBOOL xBoolAttribute = CK_TRUE;
 
     /* Initialize the mbed contexts. */
     mbedtls_x509_crt_init( &pxCtx->xMbedX509Cli );
@@ -477,7 +476,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     {
         xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_Login( pxCtx->xP11Session,
                                                                     CKU_USER,
-                                                                    configPKCS11_DEFAULT_USER_PIN,
+                                                                    ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
                                                                     sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 

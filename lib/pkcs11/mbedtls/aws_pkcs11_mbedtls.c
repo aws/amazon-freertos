@@ -3070,10 +3070,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
-    if( xResult == CKR_OK )
-    {
-        PKCS11_SESSION_IS_VALID( xSession );
-    }
 
     if( xResult == CKR_OK )
     {
