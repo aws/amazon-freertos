@@ -25,7 +25,7 @@ set(3RDPARTY_MODULES_ENABLED  "" CACHE INTERNAL "List of 3rdparty libraries enab
 
 # Global setting for whether enable all modules by default or not.
 if(NOT AFR_ENABLE_ALL_MODULES)
-    set(AFR_ENABLE_ALL_MODULES 0 CACHE INTERNAL "")
+    set(AFR_ENABLE_ALL_MODULES 1 CACHE INTERNAL "")
 endif()
 
 # Define an Amazon FreeRTOS module, the module name will be added to the global variable AFR_MODULES.
