@@ -36,6 +36,7 @@
 #include "iot_ble_config.h"
 #include "iot_ble.h"
 #include "iot_ble_data_transfer.h"
+#include "platform/iot_threads.h"
 
 
 #define _SERVICE_UUID( SERVICE_ID )         { 0x00, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
@@ -606,7 +607,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
             if( status == eBTStatusSuccess )
             {
                 pService->channel.sendBuffer.tail += length;
-                if( pService->channel.sendBuffer.tail == pService->channel.sendBuffer.head )
+                if( length < transmitLength )
                 {
                     pService->channel.sendBuffer.head = pService->channel.sendBuffer.tail = 0;
                     IotSemaphore_Post( &pService->channel.sendComplete );
@@ -800,7 +801,6 @@ static void _connectionCallback( BTStatus_t status,
         }
         else
         {
-            configPRINTF(( "BLE disconnected, closing all active BLE data transfer sessions.\r\n" ));
             for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
             {
                 IotBleDataTransfer_Close( &_services[index].channel );
@@ -1082,16 +1082,19 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const ui
                 if( _send( pChannel, true, ( uint8_t * ) pMessage, transmitLength ) == true )
                 {
                     remainingLength -= transmitLength;
-                    if( _resizeChannelBuffer( &pChannel->sendBuffer, IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE, remainingLength ) == true )
+                    if( remainingLength > 0  )
                     {
-                        memcpy( pChannel->sendBuffer.pBuffer, ( pMessage + transmitLength ), remainingLength );
-                        pChannel->sendBuffer.head += remainingLength;
-                        remainingLength = 0;
-                    }
-                    else
-                    {
-                         configPRINTF( ( "TX Failed, Failed to allocate send buffer.\r\n" ) );
-                         IotSemaphore_Post( &pChannel->sendComplete );
+                        if( _resizeChannelBuffer( &pChannel->sendBuffer, IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE, remainingLength ) == true )
+                        {
+                            memcpy( pChannel->sendBuffer.pBuffer, ( pMessage + transmitLength ), remainingLength );
+                            pChannel->sendBuffer.head += remainingLength;
+                            remainingLength = 0;
+                        }
+                        else
+                        {
+                            configPRINTF( ( "TX Failed, Failed to allocate send buffer.\r\n" ) );
+                            IotSemaphore_Post( &pChannel->sendComplete );
+                        }
                     } 
                 }
                 else
