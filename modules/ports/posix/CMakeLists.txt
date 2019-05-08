@@ -1,4 +1,4 @@
-afr_module(KERNEL)
+afr_module()
 
 afr_glob_src(posix_headers DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/include" RECURSE)
 afr_module_sources(
@@ -19,7 +19,6 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         AFR::${AFR_CURRENT_MODULE}::mcu_port
-        AFR::compiler::mcu_port
 )
 
 # By default we don't expose the standard posix headers to the include paths. Users have to access

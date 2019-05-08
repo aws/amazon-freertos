@@ -58,6 +58,8 @@ an [interactive GUI tool](https://cmake.org/cmake/help/latest/manual/cmake-gui.1
 any of them.
 
 #### Commandline instructions
+By default demos are compiled. You can however select test by adding the command
+'-DAFR_ENABLE_TESTS=1'
 
 You can use `VENDOR` and `BOARD` to specify which MCU you are targeting, and `COMPILER` to tell
 which compiler you want to use. The values of `VENDOR` and `BOARD` must match the folder names under

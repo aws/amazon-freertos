@@ -81,7 +81,7 @@ function(afr_set_metadata arg_metadata_type arg_metadata_name arg_metadata_val)
     set_property(${__scope} "${__scope_name}" PROPERTY ${__prop_name} "${arg_metadata_val}")
 
     string(TOLOWER "${arg_metadata_type}" arg_metadata_type)
-    set(__metadata_file "${AFR_METADATA_OUTPUT_DIR}/ocw/${arg_metadata_type}.txt")
+    set(__metadata_file "${AFR_METADATA_OUTPUT_DIR}/console/${arg_metadata_type}.txt")
     get_filename_component(__cmake_file_dir "${CMAKE_CURRENT_LIST_DIR}" NAME)
     file(APPEND "${__metadata_file}" "${__cmake_file_dir}###${arg_metadata_name}:::${arg_metadata_val}\n")
 endfunction()
@@ -136,7 +136,7 @@ function(afr_get_demo_metadata arg_out_var arg_metadata_name)
 endfunction()
 
 # TODO, this wrapper function is needed because we need to keep track of all CMakeListst.txt files.
-set(AFR_METADATA_CMAKE_FILES "${AFR_METADATA_OUTPUT_DIR}/ocw/_cmake_files.txt")
+set(AFR_METADATA_CMAKE_FILES "${AFR_METADATA_OUTPUT_DIR}/console/cmake_files.txt")
 function(afr_add_subdirectory module_name)
   add_subdirectory("${module_name}")
   file(APPEND "${AFR_METADATA_CMAKE_FILES}" "${module_name}/CMakeLists.txt;")
@@ -144,12 +144,12 @@ endfunction()
 
 function(afr_write_metadata)
     set(ide_dir "${AFR_METADATA_OUTPUT_DIR}/ide")
-    set(ocw_dir "${AFR_METADATA_OUTPUT_DIR}/ocw")
+    set(console_dir "${AFR_METADATA_OUTPUT_DIR}/console")
 
-    set(afr_version_file "${ocw_dir}/afr_version.txt")
-    set(module_sources_file "${ocw_dir}/module_sources.txt")
-    set(module_dependencies_file "${ocw_dir}/module_dependencies.txt")
-    set(metadata_file "${ocw_dir}/modules.txt")
+    set(afr_version_file "${console_dir}/afr_version.txt")
+    set(module_sources_file "${console_dir}/module_sources.txt")
+    set(module_dependencies_file "${console_dir}/module_dependencies.txt")
+    set(metadata_file "${console_dir}/modules.txt")
     file(APPEND "${afr_version_file}" "${AFR_VERSION}")
     file(APPEND "${module_dependencies_file}" "public_modules#${AFR_MODULES_PUBLIC}\n")
     file(APPEND "${module_dependencies_file}" "modules#${AFR_STATUS_MODULES_TO_BUILD}\n")
@@ -159,7 +159,7 @@ function(afr_write_metadata)
 
     set(3rdparty_list "")
     set(src_all "")
-    set(src_ocw "")
+    set(src_console "")
     set(inc_all "")
 
     foreach(module IN LISTS AFR_MODULES_ENABLED)
@@ -248,11 +248,11 @@ function(afr_write_metadata)
     endif()
 
     # Add third party data
-    set(src_ocw ${src_all})
+    set(src_console ${src_all})
     foreach(3rdparty_target IN LISTS 3rdparty_list)
         string(LENGTH "3rdparty::" len)
         string(SUBSTRING "${3rdparty_target}" ${len} -1 3rdparty_name)
-        list(APPEND src_ocw "${AFR_3RDPARTY_DIR}/${3rdparty_name}")
+        list(APPEND src_console "${AFR_3RDPARTY_DIR}/${3rdparty_name}")
         get_target_property(lib_type ${3rdparty_target} TYPE)
         if("${lib_type}" STREQUAL "INTERFACE_LIBRARY")
             set(prop_prefix "INTERFACE_")
@@ -270,12 +270,12 @@ function(afr_write_metadata)
     endforeach()
 
     # Append CMake files for OCW.
-    file(READ "${ocw_dir}/_cmake_files.txt" cmake_files_list)
-    list(APPEND src_ocw ${cmake_files_list} "${AFR_ROOT_DIR}/PreLoad.cmake")
+    file(READ "${console_dir}/cmake_files.txt" cmake_files_list)
+    list(APPEND src_console ${cmake_files_list} "${AFR_ROOT_DIR}/PreLoad.cmake")
 
     # Append extra files for OCW.
     list(
-        APPEND src_ocw
+        APPEND src_console
         "${AFR_ROOT_DIR}/LICENSE"
         "${AFR_ROOT_DIR}/README.md"
         "${AFR_ROOT_DIR}/CHANGELOG.md"
@@ -286,13 +286,13 @@ function(afr_write_metadata)
     )
 
     # Write all sources and include dirs.
-    file(WRITE "${ocw_dir}/source_paths.txt" "${src_ocw}")
+    file(WRITE "${console_dir}/source_paths.txt" "${src_console}")
     file(WRITE "${ide_dir}/source_paths.txt" "${src_all}")
     file(WRITE "${ide_dir}/include_paths.txt" "${inc_all}")
     file(
         GENERATE
-        OUTPUT "${ocw_dir}/source_paths.txt"
-        INPUT "${ocw_dir}/source_paths.txt"
+        OUTPUT "${console_dir}/source_paths.txt"
+        INPUT "${console_dir}/source_paths.txt"
     )
     file(
         GENERATE
@@ -309,6 +309,7 @@ endfunction()
 # =============== Metadata definition ===============
 set(AFR_METADATA_BOARD "" CACHE INTERNAL "List of CMake property names for hardware metadata.")
 set(AFR_METADATA_LIB "" CACHE INTERNAL "List of CMake property names for AFR library metadata.")
+set(AFR_METADATA_DEMO "" CACHE INTERNAL "List of CMake property names for AFR demo metadata.")
 
 afr_define_metadata(BOARD ID "ID for the board to uniquely identify it.")
 afr_define_metadata(BOARD DISPLAY_NAME " Name displayed on the Amazon FreeRTOS Console.")

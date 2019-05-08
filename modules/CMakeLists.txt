@@ -1,13 +1,3 @@
-# Extra files for delivering source files from AFR console.
-afr_module(NAME extra INTERFACE)
-afr_module_sources(
-    extra
-    INTERFACE
-        "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
-        "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
-        "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
-)
-
 # FreeRTOS module.
 afr_module(NAME freertos INTERFACE KERNEL)
 afr_glob_src(freertos_inc DIRECTORY "${AFR_KERNEL_DIR}/include" RECURSE)

@@ -17,7 +17,7 @@ target_include_directories(
 afr_glob_src(mbedtls_src DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls" RECURSE)
 # Build to static library to save some time.
 add_library(
-    afr_3rdparty_mbedtls STATIC
+    afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
     ${mbedtls_src}
 )
 target_include_directories(
@@ -56,7 +56,7 @@ set(tinycbor_src
     "${AFR_3RDPARTY_DIR}/tinycbor/cborparser_dup_string.c"
 )
 add_library(
-    afr_3rdparty_tinycbor STATIC
+    afr_3rdparty_tinycbor STATIC EXCLUDE_FROM_ALL
     ${tinycbor_src}
 )
 target_sources(

@@ -1,7 +1,6 @@
 set(
     AFR_MANIFEST_SUPPORTED_BOARDS
-    CYW943907AEVAL1F
-    CYW954907AEVAL1F
+    ""
     CACHE INTERNAL "Supported boards list."
 )
 
