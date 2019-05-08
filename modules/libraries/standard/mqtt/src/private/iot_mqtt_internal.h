@@ -274,21 +274,22 @@ typedef struct _mqttConnection
         const IotMqttSerializer_t * pSerializer; /**< @brief MQTT packet serializer overrides. */
     #endif
 
-    bool disconnected;                 /**< @brief Tracks if this connection has been disconnected. */
-    IotMutex_t referencesMutex;        /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
-    int32_t references;                /**< @brief Counts callbacks and operations using this connection. */
-    IotListDouble_t pendingProcessing; /**< @brief List of operations waiting to be processed by a task pool routine. */
-    IotListDouble_t pendingResponse;   /**< @brief List of processed operations awaiting a server response. */
+    bool disconnected;                           /**< @brief Tracks if this connection has been disconnected. */
+    IotMutex_t referencesMutex;                  /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
+    int32_t references;                          /**< @brief Counts callbacks and operations using this connection. */
+    IotListDouble_t pendingProcessing;           /**< @brief List of operations waiting to be processed by a task pool routine. */
+    IotListDouble_t pendingResponse;             /**< @brief List of processed operations awaiting a server response. */
 
-    IotListDouble_t subscriptionList;  /**< @brief Holds subscriptions associated with this connection. */
-    IotMutex_t subscriptionMutex;      /**< @brief Grants exclusive access to the subscription list. */
+    IotListDouble_t subscriptionList;            /**< @brief Holds subscriptions associated with this connection. */
+    IotMutex_t subscriptionMutex;                /**< @brief Grants exclusive access to the subscription list. */
 
-    bool keepAliveFailure;             /**< @brief Failure flag for keep-alive operation. */
-    uint32_t keepAliveMs;              /**< @brief Keep-alive interval in milliseconds. Its max value (per spec) is 65,535,000. */
-    uint32_t nextKeepAliveMs;          /**< @brief Relative delay for next keep-alive job. */
-    IotTaskPoolJob_t keepAliveJob;     /**< @brief Task pool job for processing this connection's keep-alive. */
-    uint8_t * pPingreqPacket;          /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
-    size_t pingreqPacketSize;          /**< @brief The size of an allocated PINGREQ packet. */
+    bool keepAliveFailure;                       /**< @brief Failure flag for keep-alive operation. */
+    uint32_t keepAliveMs;                        /**< @brief Keep-alive interval in milliseconds. Its max value (per spec) is 65,535,000. */
+    uint32_t nextKeepAliveMs;                    /**< @brief Relative delay for next keep-alive job. */
+    IotTaskPoolJobStorage_t keepAliveJobStorage; /**< @brief Task pool job for processing this connection's keep-alive. */
+    IotTaskPoolJob_t keepAliveJob;               /**< @brief Task pool job for processing this connection's keep-alive. */
+    uint8_t * pPingreqPacket;                    /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
+    size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
 
 /**
@@ -337,6 +338,7 @@ typedef struct _mqttOperation
     bool incomingPublish;                /**< @brief Set to true if this operation an incoming PUBLISH. */
     _mqttConnection_t * pMqttConnection; /**< @brief MQTT connection associated with this operation. */
 
+    IotTaskPoolJobStorage_t jobStorage;  /**< @brief Task pool job storage associated with this operation. */
     IotTaskPoolJob_t job;                /**< @brief Task pool job associated with this operation. */
 
     union
@@ -736,8 +738,8 @@ void _IotMqtt_DestroyOperation( _mqttOperation_t * pOperation );
  * @param[in] pKeepAliveJob Pointer the an MQTT connection's keep-alive job.
  * @param[in] pContext Pointer to an MQTT connection, passed as an opaque context.
  */
-void _IotMqtt_ProcessKeepAlive( IotTaskPool_t * pTaskPool,
-                                IotTaskPoolJob_t * pKeepAliveJob,
+void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
+                                IotTaskPoolJob_t pKeepAliveJob,
                                 void * pContext );
 
 /**
@@ -748,8 +750,8 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t * pTaskPool,
  * @param[in] pContext Pointer to the incoming PUBLISH operation, passed as an
  * opaque context.
  */
-void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t * pTaskPool,
-                                      IotTaskPoolJob_t * pPublishJob,
+void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t pTaskPool,
+                                      IotTaskPoolJob_t pPublishJob,
                                       void * pContext );
 
 /**
@@ -760,8 +762,8 @@ void _IotMqtt_ProcessIncomingPublish( IotTaskPool_t * pTaskPool,
  * @param[in] pContext Pointer to the operation to send, passed as an opaque
  * context.
  */
-void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
-                           IotTaskPoolJob_t * pSendJob,
+void _IotMqtt_ProcessSend( IotTaskPool_t pTaskPool,
+                           IotTaskPoolJob_t pSendJob,
                            void * pContext );
 
 /**
@@ -772,8 +774,8 @@ void _IotMqtt_ProcessSend( IotTaskPool_t * pTaskPool,
  * @param[in] pContext Pointer to the completed operation, passed as an opaque
  * context.
  */
-void _IotMqtt_ProcessCompletedOperation( IotTaskPool_t * pTaskPool,
-                                         IotTaskPoolJob_t * pOperationJob,
+void _IotMqtt_ProcessCompletedOperation( IotTaskPool_t pTaskPool,
+                                         IotTaskPoolJob_t pOperationJob,
                                          void * pContext );
 
 /**

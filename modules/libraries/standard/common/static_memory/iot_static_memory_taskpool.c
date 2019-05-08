@@ -31,117 +31,154 @@
 #if IOT_STATIC_MEMORY_ONLY == 1
 
 /* Standard includes. */
-#include <stdbool.h>
-#include <stddef.h>
-#include <string.h>
+    #include <stdbool.h>
+    #include <stddef.h>
+    #include <string.h>
 
 /* Static memory include. */
-#include "private/iot_static_memory.h"
+    #include "private/iot_static_memory.h"
 
 /* Task pool internal include. */
-#include "private/iot_taskpool_internal.h"
+    #include "private/iot_taskpool_internal.h"
 
 /*-----------------------------------------------------------*/
 
 /* Validate static memory configuration settings. */
-#if IOT_TASKPOOL_JOBS_RECYCLE_LIMIT <= 0
-    #error "IOT_TASKPOOL_JOBS_RECYCLE_LIMIT cannot be 0 or negative."
-#endif
+    #if IOT_TASKPOOL_JOBS_RECYCLE_LIMIT <= 0
+        #error "IOT_TASKPOOL_JOBS_RECYCLE_LIMIT cannot be 0 or negative."
+    #endif
 
 /*-----------------------------------------------------------*/
 
 /* Extern declarations of common static memory functions in iot_static_memory_common.c
  * Because these functions are specific to this static memory implementation, they are
  * not placed in the common static memory header file. */
-extern int IotStaticMemory_FindFree( bool * const pInUse,
-                                     int limit );
-extern void IotStaticMemory_ReturnInUse( void * ptr,
-                                         void * const pPool,
-                                         bool * const pInUse,
-                                         int limit,
-                                         size_t elementSize );
+    extern int IotStaticMemory_FindFree( bool * const pInUse,
+                                         int limit );
+    extern void IotStaticMemory_ReturnInUse( void * ptr,
+                                             void * const pPool,
+                                             bool * const pInUse,
+                                             int limit,
+                                             size_t elementSize );
 
 /*-----------------------------------------------------------*/
 
 /*
  * Static memory buffers and flags, allocated and zeroed at compile-time.
  */
-static bool _pInUseTaskPoolJobs[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { 0 };                       /**< @brief Task pool jobs in-use flags. */
-static IotTaskPoolJob_t _pTaskPoolJobs[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { { 0 } };            /**< @brief Task pool jobs. */
+    static bool _pInUseTaskPools[ IOT_TASKPOOLS ] = { 0 };                                                         /**< @brief Task pools in-use flags. */
+    static _taskPool_t _pTaskPools[ IOT_TASKPOOLS ] = { { .dispatchQueue = IOT_DEQUEUE_INITIALIZER } };            /**< @brief Task pools. */
 
-static bool _pInUseTaskPoolTimerEvents[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { 0 };                             /**< @brief Task pool timer event in-use flags. */
-static _taskPoolTimerEvent_t _pTaskPoolTimerEvents[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { { .link = { 0 } } }; /**< @brief Task pool timer events. */
+    static bool _pInUseTaskPoolJobs[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { 0 };                                    /**< @brief Task pool jobs in-use flags. */
+    static IotTaskPoolJob_t _pTaskPoolJobs[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { { 0 } };                         /**< @brief Task pool jobs. */
+
+    static bool _pInUseTaskPoolTimerEvents[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { 0 };                             /**< @brief Task pool timer event in-use flags. */
+    static _taskPoolTimerEvent_t _pTaskPoolTimerEvents[ IOT_TASKPOOL_JOBS_RECYCLE_LIMIT ] = { { .link = { 0 } } }; /**< @brief Task pool timer events. */
 
 /*-----------------------------------------------------------*/
 
-void * Iot_MallocTaskPoolJob( size_t size )
-{
-    int freeIndex = -1;
-    void * pNewJob = NULL;
-
-    /* Check size argument. */
-    if( size == sizeof( IotTaskPoolJob_t ) )
+    void * IotTaskPool_MallocTaskPool( size_t size )
     {
-        /* Find a free task pool job. */
-        freeIndex = IotStaticMemory_FindFree( _pInUseTaskPoolJobs,
-                                              IOT_TASKPOOL_JOBS_RECYCLE_LIMIT );
+        int freeIndex = -1;
+        void * pNewTaskPool = NULL;
 
-        if( freeIndex != -1 )
+        /* Check size argument. */
+        if( size == sizeof( _taskPool_t ) )
         {
-            pNewJob = &( _pTaskPoolJobs[ freeIndex ] );
+            /* Find a free task pool job. */
+            freeIndex = IotStaticMemory_FindFree( _pInUseTaskPools, IOT_TASKPOOLS );
+
+            if( freeIndex != -1 )
+            {
+                pNewTaskPool = &( _pTaskPools[ freeIndex ] );
+            }
         }
+
+        return pNewTaskPool;
     }
 
-    return pNewJob;
-}
-
 /*-----------------------------------------------------------*/
 
-void Iot_FreeTaskPoolJob( void * ptr )
-{
-    /* Return the in-use task pool job. */
-    IotStaticMemory_ReturnInUse( ptr,
-                                 _pTaskPoolJobs,
-                                 _pInUseTaskPoolJobs,
-                                 IOT_TASKPOOL_JOBS_RECYCLE_LIMIT,
-                                 sizeof( IotTaskPoolJob_t ) );
-}
-
-/*-----------------------------------------------------------*/
-
-void * Iot_MallocTaskPoolTimerEvent( size_t size )
-{
-    int freeIndex = -1;
-    void * pNewTimerEvent = NULL;
-
-    /* Check size argument. */
-    if( size == sizeof( _taskPoolTimerEvent_t ) )
+    void IotTaskPool_FreeTaskPool( void * ptr )
     {
-        /* Find a free task pool timer event. */
-        freeIndex = IotStaticMemory_FindFree( _pInUseTaskPoolTimerEvents,
-                                              IOT_TASKPOOL_JOBS_RECYCLE_LIMIT );
-
-        if( freeIndex != -1 )
-        {
-            pNewTimerEvent = &( _pTaskPoolTimerEvents[ freeIndex ] );
-        }
+        /* Return the in-use task pool job. */
+        IotStaticMemory_ReturnInUse( ptr,
+                                     _pTaskPools,
+                                     _pInUseTaskPools,
+                                     IOT_TASKPOOLS,
+                                     sizeof( _taskPool_t ) );
     }
 
-    return pNewTimerEvent;
-}
+/*-----------------------------------------------------------*/
+
+    void * Iot_MallocTaskPoolJob( size_t size )
+    {
+        int freeIndex = -1;
+        void * pNewJob = NULL;
+
+        /* Check size argument. */
+        if( size == sizeof( IotTaskPoolJob_t ) )
+        {
+            /* Find a free task pool job. */
+            freeIndex = IotStaticMemory_FindFree( _pInUseTaskPoolJobs,
+                                                  IOT_TASKPOOL_JOBS_RECYCLE_LIMIT );
+
+            if( freeIndex != -1 )
+            {
+                pNewJob = &( _pTaskPoolJobs[ freeIndex ] );
+            }
+        }
+
+        return pNewJob;
+    }
 
 /*-----------------------------------------------------------*/
 
-void Iot_FreeTaskPoolTimerEvent( void * ptr )
-{
-    /* Return the in-use task pool timer event. */
-    IotStaticMemory_ReturnInUse( ptr,
-                                 _pTaskPoolTimerEvents,
-                                 _pInUseTaskPoolTimerEvents,
-                                 IOT_TASKPOOL_JOBS_RECYCLE_LIMIT,
-                                 sizeof( _taskPoolTimerEvent_t ) );
-}
+    void Iot_FreeTaskPoolJob( void * ptr )
+    {
+        /* Return the in-use task pool job. */
+        IotStaticMemory_ReturnInUse( ptr,
+                                     _pTaskPoolJobs,
+                                     _pInUseTaskPoolJobs,
+                                     IOT_TASKPOOL_JOBS_RECYCLE_LIMIT,
+                                     sizeof( IotTaskPoolJob_t ) );
+    }
 
 /*-----------------------------------------------------------*/
 
-#endif
+    void * Iot_MallocTaskPoolTimerEvent( size_t size )
+    {
+        int freeIndex = -1;
+        void * pNewTimerEvent = NULL;
+
+        /* Check size argument. */
+        if( size == sizeof( _taskPoolTimerEvent_t ) )
+        {
+            /* Find a free task pool timer event. */
+            freeIndex = IotStaticMemory_FindFree( _pInUseTaskPoolTimerEvents,
+                                                  IOT_TASKPOOL_JOBS_RECYCLE_LIMIT );
+
+            if( freeIndex != -1 )
+            {
+                pNewTimerEvent = &( _pTaskPoolTimerEvents[ freeIndex ] );
+            }
+        }
+
+        return pNewTimerEvent;
+    }
+
+/*-----------------------------------------------------------*/
+
+    void Iot_FreeTaskPoolTimerEvent( void * ptr )
+    {
+        /* Return the in-use task pool timer event. */
+        IotStaticMemory_ReturnInUse( ptr,
+                                     _pTaskPoolTimerEvents,
+                                     _pInUseTaskPoolTimerEvents,
+                                     IOT_TASKPOOL_JOBS_RECYCLE_LIMIT,
+                                     sizeof( _taskPoolTimerEvent_t ) );
+    }
+
+/*-----------------------------------------------------------*/
+
+#endif /* if IOT_STATIC_MEMORY_ONLY == 1 */
