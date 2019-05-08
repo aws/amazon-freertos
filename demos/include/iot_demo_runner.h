@@ -67,6 +67,8 @@
     #define DEMO_entryFUNCTION                              vStartPOSIXDemo
 #elif defined (CONFIG_OTA_UPDATE_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartOTAUpdateDemoTask
+    #define DEMO_networkConnectedCallback                   combinedDemoNetworkConnectedCallback
+    #define DEMO_networkDisconnectedCallback                combinedDemoNetworkDisconnectedCallback
 #elif defined (CONFIG_BLE_GATT_SERVER_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vGattDemoSvcInit
 #elif defined (CONFIG_BLE_NUMERIC_COMPARISON_DEMO_ENABLED)
