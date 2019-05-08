@@ -24,18 +24,18 @@ First use _cmake_ to generate the project files for Espressif, which uses _make_
 CMake command for building Espressif demos:
 (from the root directory ofyour clone)
 
-```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B <you build directory>```
+```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B <you build directory>```
 
 if you want to build tests instead:
 
-```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B <you build directory> -DAFR_ENABLE_TESTS=1```
+```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B <you build directory> -DAFR_ENABLE_TESTS=1```
 
 if you want to build the debug flavor of the image:
 
- ```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S. -B <you build directory> -DCMAKE_BUILD_TYPE=Debug```
+ ```cmake -DVENDOR=espressif -DBOARD=esp32_wrover_kit -DCOMPILER=xtensa-esp32 -S . -B <you build directory> -DCMAKE_BUILD_TYPE=Debug```
 
  
-then use make to build, e.g.: 
+then use make to build, e.g.(-j4 used to compile faster, with 4 cores): 
 
 ```make -j4```
 
