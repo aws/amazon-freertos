@@ -125,7 +125,6 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize )
 {
-    uint32_t ulStatus = 0;
     uint32_t * pFlashDest, * pDataSrc;
     int rowIx, nRows;
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
@@ -230,8 +229,6 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
                                         uint8_t usLength )
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
-        uint32_t certSize = 0;
-    uint8_t * pCertData = 0;
     const P11CertData_t * pCertFlash = 0;
 
     const P11KeyConfig_t * P11ConfigFlashPtr = ( const P11KeyConfig_t * ) KVA0_TO_KVA1( PKCS11_CERTIFICATE_SECTION_START_ADDRESS );

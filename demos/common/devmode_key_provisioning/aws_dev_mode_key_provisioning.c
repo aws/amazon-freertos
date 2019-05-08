@@ -146,7 +146,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
             if( pxKeyPair->grp.id == MBEDTLS_ECP_DP_SECP256R1 )
             {
-                pxEcParams = (uint8_t *) "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1;
+                pxEcParams = ( CK_BYTE * )( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
             }
             else
             {
@@ -624,10 +624,10 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
     uint32_t uiIndex = 0;
     CK_BYTE * pxPkcsLabels[] =
     {
-        pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-        pkcs11configLABEL_CODE_VERIFICATION_KEY,
-        pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-        pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+        ( CK_BYTE * )pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+        ( CK_BYTE * )pkcs11configLABEL_CODE_VERIFICATION_KEY,
+        ( CK_BYTE * )pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+        ( CK_BYTE * )pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
     };
     CK_OBJECT_CLASS xClass[] =
     {
@@ -644,7 +644,7 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
         pxLabel = pxPkcsLabels[ uiIndex ];
 
         xResult = xFindObjectWithLabelAndClass( xSession,
-                                                ( const uint8_t * )pxLabel,
+                                                ( const char * )pxLabel,
                                                 xClass[ uiIndex ],
                                                 &xObjectHandle );
 
@@ -661,7 +661,7 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
                 if( xResult == CKR_OK )
                 {
                     xResult = xFindObjectWithLabelAndClass( xSession,
-                                                            ( const uint8_t * )pxLabel,
+                                                            ( const char * )pxLabel,
                                                             xClass[ uiIndex ],
                                                             &xObjectHandle );
                 }

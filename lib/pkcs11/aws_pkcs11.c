@@ -30,7 +30,7 @@ CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_SLOT_ID * pxSlotId = NULL;
+    CK_SLOT_ID * pxSlotId= NULL;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -139,7 +139,6 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
     if( xResult == CKR_OK )
     {
         xResult = C_Initialize( NULL );
-
         if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
         {
             xResult = CKR_OK;
@@ -165,11 +164,11 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
         vPortFree( pxSlotId );
     }
 
-    if( ( xResult == CKR_OK ) && ( pxFunctionList->C_Login != NULL ) )
+    if( xResult == CKR_OK && pxFunctionList->C_Login != NULL )
     {
         xResult = pxFunctionList->C_Login( *pxSession,
                                            CKU_USER,
-                                           configPKCS11_DEFAULT_USER_PIN,
+                                           ( CK_UTF8CHAR_PTR )configPKCS11_DEFAULT_USER_PIN,
                                            sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 
@@ -195,7 +194,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
  *   before attempting to use the handle.
  */
 CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
-                                    const uint8_t * pcLabelName,
+                                    const char * pcLabelName,
                                     CK_OBJECT_CLASS xClass,
                                     CK_OBJECT_HANDLE_PTR pxHandle )
 {
@@ -205,8 +204,8 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_ATTRIBUTE xTemplate[ 2 ] =
     {
-        { CKA_LABEL, ( char * ) pcLabelName, strlen( ( char * ) pcLabelName ) + 1 },
-        { CKA_CLASS, &xClass,                sizeof( CK_OBJECT_CLASS )            }
+        { CKA_LABEL, ( char * ) pcLabelName, strlen( pcLabelName ) + 1 },
+        { CKA_CLASS, &xClass,                sizeof( CK_OBJECT_CLASS ) }
     };
 
     xResult = C_GetFunctionList( &pxFunctionList );
@@ -243,9 +242,9 @@ void vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
                                                uint8_t * x51ByteHashOidBuffer )
 {
     uint8_t xOidSequence[] = pkcs11STUFF_APPENDED_TO_RSA_SIG;
-
     memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
     memcpy( &x51ByteHashOidBuffer[ sizeof( xOidSequence ) ], x32ByteHashedMessage, 32 );
+    return;
 }
 
 /*-----------------------------------------------------------*/
