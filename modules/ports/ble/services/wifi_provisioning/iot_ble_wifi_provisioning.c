@@ -245,7 +245,7 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
         if( ( ret == IOT_SERIALIZER_SUCCESS ) &&
             ( value.type == IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            *pType = ( int32_t ) ( value.value.signedInt );
+            *pType = ( int32_t ) ( value.u.value.u.signedInt );
 
         }
         else
@@ -913,7 +913,7 @@ static IotSerializerError_t _serializeNetwork( int32_t responseType,
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
         value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        value.value.signedInt = responseType;
+        value.value.u.signedInt = responseType;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &networkMap, IOT_BLE_WIFI_PROV_MSG_TYPE_KEY, value );
     }
 
@@ -1019,7 +1019,7 @@ static IotSerializerError_t _serializeStatusResponse( int32_t responseType,
     if( IS_VALID_SERIALIZER_RET( ret, pBuffer ) )
     {
         value.type = IOT_SERIALIZER_SCALAR_SIGNED_INT;
-        value.value.signedInt = responseType;
+        value.value.u.signedInt = responseType;
         ret = IOT_BLE_MESG_ENCODER.appendKeyValue( &responseMap, IOT_BLE_WIFI_PROV_MSG_TYPE_KEY, value );
     }
 
