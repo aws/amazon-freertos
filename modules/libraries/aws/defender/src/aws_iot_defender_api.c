@@ -49,13 +49,13 @@ void _rejectCallback( void * pArgument,
 /**
  * Callback routine of _metricsPublishJob.
  */
-static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
-                                    IotTaskPoolJob_t * pJob,
+static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
+                                    IotTaskPoolJob_t pJob,
                                     void * pUserContext );
 
 /* Callback routine of _disconnectJob. */
-static void _disconnectRoutine( IotTaskPool_t * pTaskPool,
-                                IotTaskPoolJob_t * pJob,
+static void _disconnectRoutine( IotTaskPool_t pTaskPool,
+                                IotTaskPoolJob_t pJob,
                                 void * pUserContext );
 
 
@@ -73,9 +73,11 @@ _defenderMetrics_t _AwsIotDefenderMetrics =
  */
 static uint32_t _periodMilliSecond = _defenderToMilliseconds( AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS );
 
-static IotTaskPoolJob_t _metricsPublishJob = { 0 };
+static IotTaskPoolJobStorage_t _metricsPublishJobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER;
+static IotTaskPoolJob_t _metricsPublishJob = IOT_TASKPOOL_JOB_INITIALIZER;
 
-static IotTaskPoolJob_t _disconnectJob = { 0 };
+static IotTaskPoolJobStorage_t _disconnectJobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER;
+static IotTaskPoolJob_t _disconnectJob = IOT_TASKPOOL_JOB_INITIALIZER;
 
 static IotSemaphore_t _doneSem;
 
@@ -168,15 +170,15 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
         if( metricsMutexCreateSuccess )
         {
             /* Create disconnect job. */
-            taskPoolError = IotTaskPool_CreateJob( _disconnectRoutine, NULL, &_disconnectJob );
+            taskPoolError = IotTaskPool_CreateJob( _disconnectRoutine, NULL, &_disconnectJobStorage, &_disconnectJob );
             AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
             /* Create metrics job. */
-            taskPoolError = IotTaskPool_CreateJob( _metricsPublishRoutine, NULL, &_metricsPublishJob );
+            taskPoolError = IotTaskPool_CreateJob( _metricsPublishRoutine, NULL, &_metricsPublishJobStorage, &_metricsPublishJob );
             AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
             /* Schedule metrics job. */
-            taskPoolError = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, &_metricsPublishJob, 0 );
+            taskPoolError = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, _metricsPublishJob, 0 );
             AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
             /* Everything is good. Declare success. */
@@ -232,7 +234,7 @@ void AwsIotDefender_Stop( void )
     IotSemaphore_Wait( &_doneSem );
 
     IotTaskPoolJobStatus_t status;
-    IotTaskPoolError_t taskPoolError = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL, &_metricsPublishJob, &status );
+    IotTaskPoolError_t taskPoolError = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL, _metricsPublishJob, &status );
 
     /* If cancel failed, let it sleep for a while and hope everything finishes. */
     if( taskPoolError != IOT_TASKPOOL_SUCCESS )
@@ -339,8 +341,8 @@ const char * AwsIotDefender_strerror( AwsIotDefenderError_t error )
 }
 
 /*-----------------------------------------------------------*/
-static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
-                                    IotTaskPoolJob_t * pJob,
+static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
+                                    IotTaskPoolJob_t pJob,
                                     void * pUserContext )
 {
     /* Unsed parameter; silence the compiler. */
@@ -395,19 +397,17 @@ static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
             }
         }
     }
-
     /* If no MQTT error and report has been created, it indicates everything is good. */
     if( ( mqttError == IOT_MQTT_SUCCESS ) && reportCreated )
     {
-        IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _disconnectRoutine, NULL, &_disconnectJob );
+        IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _disconnectRoutine, NULL, &_disconnectJobStorage, &_disconnectJob );
 
         /* Silence warnigns when asserts are disabled. */
-        ( void ) taskPoolError;
-
+        ( void ) taskPoolError;		
         AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
         IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
-                                      &_disconnectJob,
+                                      _disconnectJob,
                                       _defenderToMilliseconds( AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS ) );
     }
     else
@@ -464,8 +464,8 @@ static void _metricsPublishRoutine( IotTaskPool_t * pTaskPool,
 
 /*-----------------------------------------------------------*/
 
-static void _disconnectRoutine( IotTaskPool_t * pTaskPool,
-                                IotTaskPoolJob_t * pJob,
+static void _disconnectRoutine( IotTaskPool_t pTaskPool,
+                                IotTaskPoolJob_t pJob,
                                 void * pUserContext )
 {
     /* Unsed parameter; silence the compiler. */
@@ -478,13 +478,15 @@ static void _disconnectRoutine( IotTaskPool_t * pTaskPool,
     AwsIotDefenderInternal_DeleteReport();
     AwsIotDefenderInternal_MqttDisconnect();
     /* Re-create metrics job. */
-    IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _metricsPublishRoutine, NULL, &_metricsPublishJob );
+    IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _metricsPublishRoutine, NULL, &_metricsPublishJobStorage, &_metricsPublishJob );
+	
     /* Silence warnigns when asserts are disabled. */
     ( void ) taskPoolError;
+	
     AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
     /* Re-schedule metrics job with period as deferred interval. */
-    taskPoolError = IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL, &_metricsPublishJob, _periodMilliSecond );
+    taskPoolError = IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL, _metricsPublishJob, _periodMilliSecond );
     AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
     IotSemaphore_Post( &_doneSem );

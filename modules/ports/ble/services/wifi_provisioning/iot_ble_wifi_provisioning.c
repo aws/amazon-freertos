@@ -313,25 +313,25 @@ static IotSerializerError_t _serializeStatusResponse( WIFIReturnCode_t status,
  * It sends the profile information for each saved and scanned networks one at a time to the GATT client.
  * Maximum number of networks to scan is set in the List network request.
  */
-static void _listNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
+static void _listNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
 
 /*
  * @brief  The task is used to save a new WiFi configuration.
  * It first connects to the network and if successful,saves the network onto flash with the highest priority.
  */
-static void _addNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
+static void _addNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
 
 /*
  * @brief  The task is used to reorder priorities of network profiles stored in flash.
  *  If the priority of existing connected network changes then it initiates a reconnection.
  */
-static void _editNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
+static void _editNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
 
 /*
  * @brief  The task is used to delete a network configuration from the flash.
  * If the network is connected, it disconnects from the network and initiates a reconnection.
  */
-static void _deleteNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
+static void _deleteNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
 
 /*
  * @brief Gets the number of saved networks from flash.
@@ -605,7 +605,7 @@ static bool _handleListNetworkRequest( uint8_t * pData,
 {
     bool status = false;
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
-    IotTaskPoolJob_t *pJob = NULL;
+    IotTaskPoolJob_t job = IOT_TASKPOOL_JOB_INITIALIZER;
 
     if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == pdTRUE )
     {
@@ -618,14 +618,14 @@ static bool _handleListNetworkRequest( uint8_t * pData,
             taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
                                                          _listNetworkTask,
                                                          NULL,
-                                                         &pJob);
+                                                         &job);
             if (taskStatus == IOT_TASKPOOL_SUCCESS)
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
+                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
                 if (taskStatus != IOT_TASKPOOL_SUCCESS)
                 {
                     configPRINTF(("Failed to schedule taskpool job for list network request \r\n"));
-                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, pJob);
+                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
                     status = false;
                 }
             }
@@ -832,7 +832,7 @@ static bool _handleSaveNetworkRequest( uint8_t * pData,
 {
     bool status = false;
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
-    IotTaskPoolJob_t *pJob = NULL;
+    IotTaskPoolJob_t job = IOT_TASKPOOL_JOB_INITIALIZER;
 
     if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == pdTRUE )
     {
@@ -844,14 +844,14 @@ static bool _handleSaveNetworkRequest( uint8_t * pData,
             taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
                                                          _addNetworkTask,
                                                          NULL,
-                                                         &pJob);
+                                                         &job);
             if (taskStatus == IOT_TASKPOOL_SUCCESS)
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
+                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
                 if (taskStatus != IOT_TASKPOOL_SUCCESS)
                 {
                     configPRINTF(("Failed to schedule taskpool job for add network request \r\n"));
-                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, pJob);
+                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
                     xSemaphoreGive(wifiProvisioning.lock);
                     status = false;
                 }
@@ -958,7 +958,7 @@ static bool _handleEditNetworkRequest( uint8_t * pData,
 {
     bool status = false;
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
-    IotTaskPoolJob_t *pJob = NULL;
+    IotTaskPoolJob_t job = IOT_TASKPOOL_JOB_INITIALIZER;
 
     if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == true )
     {
@@ -971,14 +971,14 @@ static bool _handleEditNetworkRequest( uint8_t * pData,
             taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
                                                          _editNetworkTask,
                                                          NULL,
-                                                         &pJob);
+                                                         &job);
             if (taskStatus == IOT_TASKPOOL_SUCCESS)
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
+                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
                 if (taskStatus != IOT_TASKPOOL_SUCCESS)
                 {
                     configPRINTF(("Failed to schedule taskpool job for edit network request \r\n"));
-                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, pJob);
+                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
                     status = false;
                 }
             }
@@ -1057,7 +1057,7 @@ static bool _handleDeleteNetworkRequest( uint8_t * pData,
 {
     bool status = false;
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
-    IotTaskPoolJob_t *pJob = NULL;
+    IotTaskPoolJob_t job = IOT_TASKPOOL_JOB_INITIALIZER;
 
     if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == true )
     {
@@ -1070,14 +1070,14 @@ static bool _handleDeleteNetworkRequest( uint8_t * pData,
             taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
                                                          _deleteNetworkTask,
                                                          NULL,
-                                                         &pJob);
+                                                         &job);
             if (taskStatus == IOT_TASKPOOL_SUCCESS)
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, pJob, 0);
+                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
                 if (taskStatus != IOT_TASKPOOL_SUCCESS)
                 {
                     configPRINTF(("Failed to schedule taskpool job for delete network request \r\n"));
-                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, pJob);
+                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
                     status = false;
                 }
             }
@@ -1575,7 +1575,7 @@ static void _sendScanNetwork( WIFIScanResult_t * pScanNetwork )
 }
 /*-----------------------------------------------------------*/
 
-void _listNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext  )
+void _listNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext  )
 {
     WIFINetworkProfile_t profile;
     uint16_t idx;
@@ -1611,12 +1611,12 @@ void _listNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * p
     }
 
     xSemaphoreGive( wifiProvisioning.lock );
-    IotTaskPool_RecycleJob( pTaskPool, pJob );
+    IotTaskPool_RecycleJob( taskPool, job );
 }
 
 /*-----------------------------------------------------------*/
 
-static void _addNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
+static void _addNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
 
@@ -1640,14 +1640,14 @@ static void _addNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJ
 
     _sendStatusResponse( IOT_BLE_WIFI_PROV_SAVE_NETWORK_CHAR, ret );
     xSemaphoreGive( wifiProvisioning.lock );
-    IotTaskPool_RecycleJob( pTaskPool, pJob );
+    IotTaskPool_RecycleJob( taskPool, job );
 }
 
 
 
 /*-----------------------------------------------------------*/
 
-static void _deleteNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
+static void _deleteNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
 
@@ -1662,20 +1662,20 @@ static void _deleteNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPo
     _sendStatusResponse(IOT_BLE_WIFI_PROV_DELETE_NETWORK_CHAR, ret);
 
     xSemaphoreGive(wifiProvisioning.lock);
-    IotTaskPool_RecycleJob( pTaskPool, pJob );
+    IotTaskPool_RecycleJob( taskPool, job );
 }
 
 
 
 /*-----------------------------------------------------------*/
 
-static void _editNetworkTask( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
+static void _editNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
     ret = _moveNetwork( wifiProvisioning.editNetworkRequest.curIdx, wifiProvisioning.editNetworkRequest.newIdx );
     _sendStatusResponse( IOT_BLE_WIFI_PROV_EDIT_NETWORK_CHAR, ret );
     xSemaphoreGive( wifiProvisioning.lock );
-    IotTaskPool_RecycleJob( pTaskPool, pJob );
+    IotTaskPool_RecycleJob( taskPool, job );
 }
 
 /*-----------------------------------------------------------*/

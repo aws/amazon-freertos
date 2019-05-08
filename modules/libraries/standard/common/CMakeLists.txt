@@ -54,7 +54,7 @@ afr_module_sources(
 
         # Task pool
         "${src_dir}/taskpool/iot_taskpool.c"
-        "${src_dir}/taskpool/private/iot_taskpool_internal.h"
+        "${src_dir}/include/private/iot_taskpool_internal.h"
         "${inc_dir}/types/iot_taskpool_types.h"
         "${inc_dir}/iot_taskpool.h"
 )

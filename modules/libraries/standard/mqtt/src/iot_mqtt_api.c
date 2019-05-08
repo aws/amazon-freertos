@@ -196,7 +196,7 @@ static void _mqttOperation_tryDestroy( void * pData )
     {
         /* Cancel the incoming PUBLISH operation's job. */
         taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
-                                                &( pOperation->job ),
+                                                pOperation->job,
                                                 NULL );
 
         /* If the operation's job was not canceled, it must be already executing.
@@ -209,7 +209,7 @@ static void _mqttOperation_tryDestroy( void * pData )
         {
             /* Job was canceled. Process incoming PUBLISH now to clean up. */
             _IotMqtt_ProcessIncomingPublish( IOT_SYSTEM_TASKPOOL,
-                                             &( pOperation->job ),
+                                             pOperation->job,
                                              pOperation );
         }
         else
@@ -287,6 +287,7 @@ static bool _createKeepAliveJob( const IotMqttNetworkInfo_t * pNetworkInfo,
         /* Create the task pool job that processes keep-alive. */
         jobStatus = IotTaskPool_CreateJob( _IotMqtt_ProcessKeepAlive,
                                            pMqttConnection,
+                                           &( pMqttConnection->keepAliveJobStorage ),
                                            &( pMqttConnection->keepAliveJob ) );
 
         /* Task pool job creation for a pre-allocated job should never fail.
@@ -880,7 +881,7 @@ void IotMqtt_Cleanup( void )
 IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
                                 const IotMqttConnectInfo_t * pConnectInfo,
                                 uint32_t timeoutMs,
-                                IotMqttConnection_t * pMqttConnection )
+                                IotMqttConnection_t * const pMqttConnection )
 {
     _IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     bool networkCreated = false, ownNetworkConnection = false;
@@ -1150,7 +1151,7 @@ IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
             IotLogDebug( "Scheduling first MQTT keep-alive job." );
 
             taskPoolStatus = IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
-                                                           &( pNewMqttConnection->keepAliveJob ),
+                                                           pNewMqttConnection->keepAliveJob,
                                                            pNewMqttConnection->nextKeepAliveMs );
 
             if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )

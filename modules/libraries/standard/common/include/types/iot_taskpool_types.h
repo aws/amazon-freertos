@@ -191,14 +191,58 @@ typedef enum IotTaskPoolJobStatus
     IOT_TASKPOOL_STATUS_UNDEFINED,
 } IotTaskPoolJobStatus_t;
 
+/*------------------------- Task pool types and handles --------------------------*/
+
 /**
- * @cond DOXYGEN_IGNORE
- * @brief Forward declarations for task pool types.
+ * @ingroup taskpool_datatypes_handles
+ * @brief Opaque handle of a Task Pool instance.
+ *
+ * This type identifies a Task Pool instance, which is valid after a successful call
+ * to @ref taskpool_function_createsystemtaskpool or @ref taskpool_function_create. A
+ *  variable of this type is passed as the first
+ * argument to [Task Pool library functions](@ref taskpool_functions) to identify which
+ * task pool that function acts on.
+ *
+ * A call to @ref taskpool_function_destroy makes a task pool handle invalid. Once
+ * @ref taskpool_function_destroy returns, the task handle should no longer
+ * be used.
+ *
+ * @initializer{IotTaskPool_t,IOT_TASKPOOL_INITIALIZER}
+ */
+typedef struct _taskPool * IotTaskPool_t;
+
+/**
+ * @ingroup taskpool_datatypes_structs
+ * @brief The job storage data structure provides the storage for a statically allocated Task Pool Job instance.
+ *
+ * @warning This is a system-level data type that should not be modified or used directly in any application.
+ * @warning This is a system-level data type that can and will change across different versions of the platform, with no regards for backward compatibility.
  *
  */
-struct IotTaskPool;
-struct IotTaskPoolJob;
-/** @endcond */
+typedef struct IotTaskPoolJobStorage
+{
+    IotLink_t dummy1;               /**< @brief Placeholder. */
+    void * dummy2;                  /**< @brief Placeholder. */
+    void * dummy3;                  /**< @brief Placeholder. */
+    uint32_t dummy4;                /**< @brief Placeholder. */
+    IotTaskPoolJobStatus_t dummy5;  /**< @brief Placeholder. */
+} IotTaskPoolJobStorage_t;
+
+/**
+ * @ingroup taskpool_datatypes_handles
+ * @brief Opaque handle of a Task Pool Job.
+ * 
+ * This type identifies a Task Pool Job instance, which is valid after a successful call
+ * to @ref taskpool_function_createjob or @ref taskpool_function_createrecyclablejob.
+ *
+ * A call to @ref taskpool_function_recyclejob or @ref taskpool_function_destroyrecyclablejob makes a 
+ * task pool job handle invalid. Once @ref taskpool_function_recyclejob or 
+ * @ref taskpool_function_destroyrecyclablejob returns, the task job handle should no longer be used.
+ *
+ * @initializer{IotTaskPoolJob_t,IOT_TASKPOOL_JOB_INITIALIZER}
+ *
+ */
+typedef struct _taskPoolJob * IotTaskPoolJob_t;
 
 /*------------------------- Task pool parameter structs --------------------------*/
 
@@ -211,8 +255,8 @@ struct IotTaskPoolJob;
  * calling @ref IotTaskPool_Schedule.
  *
  */
-typedef void ( * IotTaskPoolRoutine_t )( struct IotTaskPool * pTaskPool,
-                                         struct IotTaskPoolJob * pJob,
+typedef void ( * IotTaskPoolRoutine_t )( IotTaskPool_t pTaskPool,
+                                         IotTaskPoolJob_t pJob,
                                          void * pUserContext );
 
 /**
@@ -241,66 +285,6 @@ typedef struct IotTaskPoolInfo
     uint32_t stackSize;  /**< @brief Stack size for every task pool thread. The stack size for each thread is fixed after the task pool is created and cannot be changed. */
     int32_t priority;    /**< @brief priority for every task pool thread. The priority for each thread is fixed after the task pool is created and cannot be changed. */
 } IotTaskPoolInfo_t;
-
-/*------------------------- Task pool handles structs --------------------------*/
-
-/**
- * @ingroup taskpool_datatypes_structs
- * @brief Task pool jobs cache.
- *
- * @warning This is a system-level data type that should not be modified or used directly in any application.
- * @warning This is a system-level data type that can and will change across different versions of the platform, with no regards for backward compatibility.
- *
- */
-typedef struct IotTaskPoolCache
-{
-    IotListDouble_t freeList; /**< @brief A list ot hold cached jobs. */
-    uint32_t freeCount;       /**< @brief A counter to track the number of jobs in the cache. */
-} IotTaskPoolCache_t;
-
-
-/**
- * @ingroup taskpool_datatypes_structs
- * @brief The task pool data structure keeps track of the internal state and the signals for the dispatcher threads.
- * The task pool is a thread safe data structure.
- *
- * @warning This is a system-level data type that should not be modified or used directly in any application.
- * @warning This is a system-level data type that can and will change across different versions of the platform, with no regards for backward compatibility.
- *
- */
-typedef struct IotTaskPool
-{
-    IotDeQueue_t dispatchQueue;      /**< @brief The queue for the jobs waiting to be executed. */
-    IotListDouble_t timerEventsList; /**< @brief The timeouts queue for all deferred jobs waiting to be executed. */
-    IotTaskPoolCache_t jobsCache;    /**< @brief A cache to re-use jobs in order to limit memory allocations. */
-    uint32_t minThreads;             /**< @brief The minimum number of threads for the task pool. */
-    uint32_t maxThreads;             /**< @brief The maximum number of threads for the task pool. */
-    uint32_t activeThreads;          /**< @brief The number of threads in the task pool at any given time. */
-    uint32_t activeJobs;             /**< @brief The number of active jobs in the task pool at any given time. */
-    uint32_t stackSize;              /**< @brief The stack size for all task pool threads. */
-    int32_t priority;                /**< @brief The priority for all task pool threads. */
-    IotSemaphore_t dispatchSignal;   /**< @brief The synchronization object on which threads are waiting for incoming jobs. */
-    IotSemaphore_t startStopSignal;  /**< @brief The synchronization object for threads to signal start and stop condition. */
-    IotTimer_t timer;                /**< @brief The timer for deferred jobs. */
-    IotMutex_t lock;                 /**< @brief The lock to protect the task pool data structure access. */
-} IotTaskPool_t;
-
-/**
- * @ingroup taskpool_datatypes_structs
- * @brief The job data structure keeps track of the user callback and context, as well as the status of the job.
- *
- * @warning This is a system-level data type that should not be modified or used directly in any application.
- * @warning This is a system-level data type that can and will change across different versions of the platform, with no regards for backward compatibility.
- *
- */
-typedef struct IotTaskPoolJob
-{
-    IotTaskPoolRoutine_t userCallback; /**< @brief The user provided callback. */
-    void * pUserContext;               /**< @brief The user provided context. */
-    IotLink_t link;                    /**< @brief The link to insert the job in the dispatch queue. */
-    uint32_t flags;                    /**< @brief Internal flags. */
-    IotTaskPoolJobStatus_t status;     /**< @brief The status for the job. */
-} IotTaskPoolJob_t;
 
 /*------------------------- TASKPOOL defined constants --------------------------*/
 
@@ -336,12 +320,22 @@ typedef struct IotTaskPoolJob
  *
  */
 /* @[define_taskpool_initializers] */
-#define IOT_TASKPOOL_INFO_INITIALIZER_SMALL     { .minThreads = 1, .maxThreads = 1, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } /**< @brief Initializer for a small #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM    { .minThreads = 1, .maxThreads = 2, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } /**< @brief Initializer for a medium #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INFO_INITIALIZER_LARGE     { .minThreads = 2, .maxThreads = 3, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } /**< @brief Initializer for a large #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INFO_INITIALIZER_XLARGE    { .minThreads = 2, .maxThreads = 4, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } /**< @brief Initializer for a very large #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INFO_INITIALIZER           IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM                                                                                  /**< @brief Initializer for a typical #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INITIALIZER                { 0 }                                                                                                                     /**< @brief Initializer for a #IotTaskPoolJob_t. */
+/** @brief Initializer for a small #IotTaskPoolInfo_t. */
+#define IOT_TASKPOOL_INFO_INITIALIZER_SMALL     { .minThreads = 1, .maxThreads = 1, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } 
+/** @brief Initializer for a medium #IotTaskPoolInfo_t. */
+#define IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM    { .minThreads = 1, .maxThreads = 2, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } 
+/** @brief Initializer for a large #IotTaskPoolInfo_t. */
+#define IOT_TASKPOOL_INFO_INITIALIZER_LARGE     { .minThreads = 2, .maxThreads = 3, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } 
+/** @brief Initializer for a very large #IotTaskPoolInfo_t. */
+#define IOT_TASKPOOL_INFO_INITIALIZER_XLARGE    { .minThreads = 2, .maxThreads = 4, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } 
+/** @brief Initializer for a typical #IotTaskPoolInfo_t. */
+#define IOT_TASKPOOL_INFO_INITIALIZER           IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM
+/** @brief Initializer for a #IotTaskPool_t. */
+#define IOT_TASKPOOL_INITIALIZER                NULL           
+/** @brief Initializer for a #IotTaskPoolJobStorage_t. */
+#define IOT_TASKPOOL_JOB_STORAGE_INITIALIZER    { { NULL, NULL }, NULL, NULL, 0, IOT_TASKPOOL_STATUS_UNDEFINED }              
+/** @brief Initializer for a #IotTaskPoolJob_t. */
+#define IOT_TASKPOOL_JOB_INITIALIZER            NULL                                                                                                                    
 /* @[define_taskpool_initializers] */
 
 /**

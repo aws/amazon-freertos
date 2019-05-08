@@ -175,7 +175,7 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
 /**
  * @brief Taskpool routine to schedule user subscriptions for network state cnhanges. 
  */
-static void _dispatchNetworkStateChangeCB( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext );
+static void _dispatchNetworkStateChangeCB( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
 
 
 #if BLE_ENABLED
@@ -484,12 +484,12 @@ static bool _wifiDisable( void )
 /*-----------------------------------------------------------*/
 
 
-static void _dispatchNetworkStateChangeCB( struct IotTaskPool * pTaskPool, struct IotTaskPoolJob * pJob, void * pUserContext )
+static void _dispatchNetworkStateChangeCB( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext )
 {
-    IotLink_t *pLink;
-    IotTaskPoolJob_t* pPendingJob;
+    IotLink_t * pLink;
+    IotTaskPoolJob_t pendingJob;
     IotTaskPoolError_t error;
-    IotNMSubscription_t* pSubscription;
+    IotNMSubscription_t * pSubscription;
     uint32_t networkType              = _NM_GET_NETWORK_TYPE( ( uint32_t ) pUserContext );
     AwsIotNetworkState_t networkState = _NM_GET_NETWORK_STATE( ( uint32_t ) pUserContext );
 
@@ -509,18 +509,18 @@ static void _dispatchNetworkStateChangeCB( struct IotTaskPool * pTaskPool, struc
     pLink = IotListDouble_RemoveHead( &networkManager.pendingInvocations );
     if (pLink != NULL)
     {
-        pPendingJob = IotLink_Container(IotTaskPoolJob_t, pLink, link);
+        pendingJob = IotLink_Container(IotTaskPoolJob_t, pLink, link);
         
-        error = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, pPendingJob, 0 );
+        error = IotTaskPool_Schedule( taskPool, pendingJob, 0 );
         if( error != IOT_TASKPOOL_SUCCESS )
         {
             IotLogError( "Failed to schedule a taskpool job, discarding all pending items in queue " );
 
-            ( void ) IotTaskPool_RecycleJob( pTaskPool, pPendingJob );
+            ( void ) IotTaskPool_RecycleJob( taskPool, pendingJob );
             IotContainers_ForEach( &networkManager.pendingInvocations, pLink )
             {
-                pPendingJob = IotLink_Container( IotTaskPoolJob_t, pLink, link );
-                ( void ) IotTaskPool_RecycleJob( pTaskPool, pPendingJob );
+                pendingJob = IotLink_Container( IotTaskPoolJob_t, pLink, link );
+                ( void ) IotTaskPool_RecycleJob( taskPool, pendingJob );
                 networkManager.isInvocationActive = false;
 
             }
@@ -533,13 +533,13 @@ static void _dispatchNetworkStateChangeCB( struct IotTaskPool * pTaskPool, struc
     IotMutex_Unlock( &networkManager.nmLock );
 
     /* Recycle current job */
-    IotTaskPool_RecycleJob( pTaskPool, pJob );
+    IotTaskPool_RecycleJob( taskPool, job );
 
 }
 
 static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkState_t newState )
 {
-    IotTaskPoolJob_t *pJob;
+    IotTaskPoolJob_t job;
     IotNMNetwork_t* pNetwork = NULL;
     IotLink_t *pLink;
     IotTaskPoolError_t error;
@@ -561,16 +561,16 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
         error = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
                                                  _dispatchNetworkStateChangeCB,
                                                  ( void * ) _NM_PARAMS( networkType, newState ),
-                                                  &pJob );
+                                                  &job );
         if( error == IOT_TASKPOOL_SUCCESS )
         {
             if( networkManager.isInvocationActive )
             {
-                IotListDouble_InsertTail( &networkManager.pendingInvocations, &pJob->link );
+                IotListDouble_InsertTail( &networkManager.pendingInvocations, &job->link );
             }
             else
             {
-                error = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, pJob, 0 );
+                error = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, job, 0 );
                 
                 if( error == IOT_TASKPOOL_SUCCESS )
                 {
@@ -584,7 +584,7 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
                                 error);
                     
                     /* Recycle the job if schedule failed */
-                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, pJob );
+                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, job );
                 }
             }
         }

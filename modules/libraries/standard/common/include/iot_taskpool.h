@@ -38,7 +38,7 @@
 /* Task pool types. */
 #include "types/iot_taskpool_types.h"
 
-/*------------------------- TASKPOOL defined constants --------------------------*/
+/*------------------------- Task Pool library functions --------------------------*/
 
 /**
  * @functionspage{taskpool,task pool library}
@@ -55,6 +55,8 @@
  * - @functionname{taskpool_function_scheduledeferred}
  * - @functionname{taskpool_function_getstatus}
  * - @functionname{taskpool_function_trycancel}
+ * - @functionname{taskpool_function_getjobstoragefromhandle}
+ * - @functionname{taskpool_function_strerror}
  */
 
 /**
@@ -71,6 +73,8 @@
  * @functionpage{IotTaskPool_ScheduleDeferred,taskpool,scheduledeferred}
  * @functionpage{IotTaskPool_GetStatus,taskpool,getstatus}
  * @functionpage{IotTaskPool_TryCancel,taskpool,trycancel}
+ * @functionpage{IotTaskPool_GetJobStorageFromHandle,taskpool,getjobstoragefromhandle}
+ * @functionpage{IotTaskPool_strerror,taskpool,strerror}
  */
 
 /**
@@ -116,7 +120,7 @@ IotTaskPoolError_t IotTaskPool_CreateSystemTaskPool( const IotTaskPoolInfo_t * c
  *
  */
 /* @[declare_taskpool_getsystemtaskpool] */
-IotTaskPool_t * IotTaskPool_GetSystemTaskPool( void );
+IotTaskPool_t IotTaskPool_GetSystemTaskPool( void );
 /* @[declare_taskpool_getsystemtaskpool] */
 
 /**
@@ -131,7 +135,7 @@ IotTaskPool_t * IotTaskPool_GetSystemTaskPool( void );
  * pool.
  *
  * @param[in] pInfo A pointer to the task pool initialization data.
- * @param[in,out] pTaskPool A pointer to the task pool storage to be initialized.
+ * @param[out] pTaskPool A pointer to the task pool handle to be used after initialization.
  * The pointer `pTaskPool` will hold a valid handle only if (@ref IotTaskPool_Create)
  * completes succesfully.
  *
@@ -165,7 +169,7 @@ IotTaskPoolError_t IotTaskPool_Create( const IotTaskPoolInfo_t * const pInfo,
  *
  */
 /* @[declare_taskpool_destroy] */
-IotTaskPoolError_t IotTaskPool_Destroy( IotTaskPool_t * pTaskPool );
+IotTaskPoolError_t IotTaskPool_Destroy( IotTaskPool_t taskPool );
 /* @[declare_taskpool_destroy] */
 
 /**
@@ -188,7 +192,7 @@ IotTaskPoolError_t IotTaskPool_Destroy( IotTaskPool_t * pTaskPool );
  *
  */
 /* @[declare_taskpool_setmaxthreads] */
-IotTaskPoolError_t IotTaskPool_SetMaxThreads( IotTaskPool_t * pTaskPool,
+IotTaskPoolError_t IotTaskPool_SetMaxThreads( IotTaskPool_t taskPool,
                                               uint32_t maxThreads );
 /* @[declare_taskpool_setmaxthreads] */
 
@@ -199,6 +203,7 @@ IotTaskPoolError_t IotTaskPool_SetMaxThreads( IotTaskPool_t * pTaskPool,
  *
  * @param[in] userCallback A user-specified callback for the job.
  * @param[in] pUserContext A user-specified context for the callback.
+ * @param[in] pJobStorage The storage for the job data structure.
  * @param[out] pJob A pointer to an instance of @ref IotTaskPoolJob_t that will be initialized when this
  * function returns succesfully. This handle can be used to inspect the job status with
  * @ref IotTaskPool_GetStatus or cancel the job with @ref IotTaskPool_TryCancel, etc....
@@ -210,8 +215,9 @@ IotTaskPoolError_t IotTaskPool_SetMaxThreads( IotTaskPool_t * pTaskPool,
  *
  */
 /* @[declare_taskpool_createjob] */
-IotTaskPoolError_t IotTaskPool_CreateJob( const IotTaskPoolRoutine_t userCallback,
-                                          void * const pUserContext,
+IotTaskPoolError_t IotTaskPool_CreateJob( IotTaskPoolRoutine_t userCallback,
+                                          void * pUserContext,
+                                          IotTaskPoolJobStorage_t * const pJobStorage,
                                           IotTaskPoolJob_t * const pJob );
 /* @[declare_taskpool_createjob] */
 
@@ -224,7 +230,7 @@ IotTaskPoolError_t IotTaskPool_CreateJob( const IotTaskPoolRoutine_t userCallbac
  * @param[in] pTaskPool A handle to the task pool for which to create a recyclable job.
  * @param[in] userCallback A user-specified callback for the job.
  * @param[in] pUserContext A user-specified context for the callback.
- * @param[out] ppJob A pointer to an instance of @ref IotTaskPoolJob_t that will be initialized when this
+ * @param[out] pJob A pointer to an instance of @ref IotTaskPoolJob_t that will be initialized when this
  * function returns succesfully. This handle can be used to inspect the job status with
  * @ref IotTaskPool_GetStatus or cancel the job with @ref IotTaskPool_TryCancel, etc....
  *
@@ -240,10 +246,10 @@ IotTaskPoolError_t IotTaskPool_CreateJob( const IotTaskPoolRoutine_t userCallbac
  *
  */
 /* @[declare_taskpool_createrecyclablejob] */
-IotTaskPoolError_t IotTaskPool_CreateRecyclableJob( IotTaskPool_t * const pTaskPool,
-                                                    const IotTaskPoolRoutine_t userCallback,
-                                                    void * const pUserContext,
-                                                    IotTaskPoolJob_t ** const ppJob );
+IotTaskPoolError_t IotTaskPool_CreateRecyclableJob( IotTaskPool_t taskPool,
+                                                    IotTaskPoolRoutine_t userCallback,
+                                                    void * pUserContext,
+                                                    IotTaskPoolJob_t * const pJob );
 /* @[declare_taskpool_createrecyclablejob] */
 
 /**
@@ -273,8 +279,8 @@ IotTaskPoolError_t IotTaskPool_CreateRecyclableJob( IotTaskPool_t * const pTaskP
  *
  */
 /* @[declare_taskpool_destroyrecyclablejob] */
-IotTaskPoolError_t IotTaskPool_DestroyRecyclableJob( IotTaskPool_t * const pTaskPool,
-                                                     IotTaskPoolJob_t * const pJob );
+IotTaskPoolError_t IotTaskPool_DestroyRecyclableJob( IotTaskPool_t taskPool,
+                                                     IotTaskPoolJob_t job );
 /* @[declare_taskpool_destroyrecyclablejob] */
 
 /**
@@ -308,8 +314,8 @@ IotTaskPoolError_t IotTaskPool_DestroyRecyclableJob( IotTaskPool_t * const pTask
  *
  */
 /* @[declare_taskpool_recyclejob] */
-IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
-                                           IotTaskPoolJob_t * const pJob );
+IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t taskPool,
+                                           IotTaskPoolJob_t job );
 /* @[declare_taskpool_recyclejob] */
 
 /**
@@ -347,7 +353,7 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  * } JobUserContext_t;
  *
  * // An example of a user callback to invoke through a task pool thread.
- * static void ExecutionCb( IotTaskPool_t * pTaskPool, IotTaskPoolJob_t * pJob, void * context )
+ * static void ExecutionCb( IotTaskPool_t * pTaskPool, IotTaskPoolJob_t pJob, void * context )
  * {
  *     ( void )pTaskPool;
  *     ( void )pJob;
@@ -399,8 +405,8 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t * const pTaskPool,
  * @endcode
  */
 /* @[declare_taskpool_schedule] */
-IotTaskPoolError_t IotTaskPool_Schedule( IotTaskPool_t * const pTaskPool,
-                                         IotTaskPoolJob_t * const pJob,
+IotTaskPoolError_t IotTaskPool_Schedule( IotTaskPool_t taskPool,
+                                         IotTaskPoolJob_t job,
                                          uint32_t flags );
 /* @[declare_taskpool_schedule] */
 
@@ -430,8 +436,8 @@ IotTaskPoolError_t IotTaskPool_Schedule( IotTaskPool_t * const pTaskPool,
  *
  */
 /* @[declare_taskpool_scheduledeferred] */
-IotTaskPoolError_t IotTaskPool_ScheduleDeferred( IotTaskPool_t * const pTaskPool,
-                                                 IotTaskPoolJob_t * const pJob,
+IotTaskPoolError_t IotTaskPool_ScheduleDeferred( IotTaskPool_t taskPool,
+                                                 IotTaskPoolJob_t job,
                                                  uint32_t timeMs );
 /* @[declare_taskpool_scheduledeferred] */
 
@@ -452,8 +458,8 @@ IotTaskPoolError_t IotTaskPool_ScheduleDeferred( IotTaskPool_t * const pTaskPool
  * the calling thread has a chance to inspect it.
  */
 /* @[declare_taskpool_getstatus] */
-IotTaskPoolError_t IotTaskPool_GetStatus( IotTaskPool_t * const pTaskPool,
-                                          const IotTaskPoolJob_t * const pJob,
+IotTaskPoolError_t IotTaskPool_GetStatus( IotTaskPool_t taskPool,
+                                          IotTaskPoolJob_t job,
                                           IotTaskPoolJobStatus_t * const pStatus );
 /* @[declare_taskpool_getstatus] */
 
@@ -481,10 +487,25 @@ IotTaskPoolError_t IotTaskPool_GetStatus( IotTaskPool_t * const pTaskPool,
  *
  */
 /* @[declare_taskpool_trycancel] */
-IotTaskPoolError_t IotTaskPool_TryCancel( IotTaskPool_t * const pTaskPool,
-                                          IotTaskPoolJob_t * const pJob,
+IotTaskPoolError_t IotTaskPool_TryCancel( IotTaskPool_t taskPool,
+                                          IotTaskPoolJob_t job,
                                           IotTaskPoolJobStatus_t * const pStatus );
 /* @[declare_taskpool_trycancel] */
+
+/**
+ * @brief Returns a pointer to the job storage from an instance of a job handle 
+ * of type @ref IotTaskPoolJob_t. This function is guarateed to succeed for a 
+ * valid job handle.
+ *
+ * @param[in] pJob The job handle.
+ *
+ * @return A pointer to the storage associated with the job handle `pJob`.
+ * 
+ * @warning If the `pJob` handle used is invalid, the results will be undefined.
+ */
+/* @[declare_taskpool_getjobstoragefromhandle] */
+IotTaskPoolJobStorage_t * IotTaskPool_GetJobStorageFromHandle( IotTaskPoolJob_t job );
+/* @[declare_taskpool_getjobstoragefromhandle] */
 
 /**
  * @brief Returns a string that describes an @ref IotTaskPoolError_t.
@@ -506,6 +527,14 @@ IotTaskPoolError_t IotTaskPool_TryCancel( IotTaskPool_t * const pTaskPool,
 /* @[declare_taskpool_strerror] */
 const char * IotTaskPool_strerror( IotTaskPoolError_t status );
 /* @[declare_taskpool_strerror] */
+
+/**
+ * @brief The maximum number of task pools to be created when using 
+ * a memory pool.
+ */
+#ifndef IOT_TASKPOOLS
+#define IOT_TASKPOOLS                          ( 4 )
+#endif
 
 /**
  * @brief The maximum number of jobs to cache.
