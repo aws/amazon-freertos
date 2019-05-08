@@ -272,3 +272,10 @@ target_link_libraries(
         AFR::wifi
         AFR::utils
 )
+
+# Disable device defender
+afr_module_dependencies(
+    defender
+    PRIVATE
+        3rdparty::dummy
+)
