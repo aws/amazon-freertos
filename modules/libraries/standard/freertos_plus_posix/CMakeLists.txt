@@ -1,5 +1,5 @@
 # Link to this INTERFACE target to use the default implementation based on FreeRTOS.
-afr_module(INTERFACE OPTIONAL)
+afr_module(INTERFACE)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
