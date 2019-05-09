@@ -31,6 +31,7 @@
 #include "aws_clientcredential.h"
 #include "iot_demo_logging.h"
 #include "platform/iot_network_afr.h"
+#include "platform/iot_network_ble.h"
 #include "iot_network_manager_private.h"
 #include "platform/iot_threads.h"
 #include "aws_demo.h"
@@ -115,8 +116,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                            void * pContext )
 {
     const IotNetworkInterface_t * pNetworkInterface;
-    bool awsIotMqttMode = false;
-
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
     if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
@@ -127,20 +126,17 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         if( pDemoContext->networkConnectedCallback != NULL )
         {
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
-
             /* ALPN only works over port 443. Disable it otherwise. */
             if( serverInfo.port != 443 )
             {
                 credentials.pAlpnProtos = NULL;
             }
 
-            awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
-
             /* According to C99 standard, it should transfer from any pointer to void pointer.
              * In this case, it is "IotNetworkServerInfoAfr_t const *".
              * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
              */
-            pDemoContext->networkConnectedCallback( awsIotMqttMode,
+            pDemoContext->networkConnectedCallback( true,
                                                     clientcredentialIOT_THING_NAME,
                                                     ( void * ) &serverInfo,
                                                     &credentials,
@@ -169,13 +165,11 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                     credentials.pAlpnProtos = NULL;
                 }
 
-                awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
-
                 /* According to C99 standard, it should transfer from any pointer to void pointer.
                  * In this case, it is "IotNetworkServerInfoAfr_t const *".
                  * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
                  */
-                pDemoContext->networkConnectedCallback( awsIotMqttMode,
+                pDemoContext->networkConnectedCallback( true,
                                                         clientcredentialIOT_THING_NAME,
                                                         ( void * ) &serverInfo,
                                                         &credentials,
@@ -304,12 +298,8 @@ void runDemoTask( void * pArgument )
 
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
-    IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-    IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
-
-    int status = EXIT_SUCCESS;
-    bool awsIotMqttMode = false;
-
+    int status;
+    
     status = _initialize( pContext );
 
     if( status == EXIT_SUCCESS )
@@ -323,16 +313,12 @@ void runDemoTask( void * pArgument )
         {
             credentials.pAlpnProtos = NULL;
         }
-
-        /* Set AWS Iot Mqtt mode to false to disable keep alive for non TCP/IP networks like bluetooth */
-        awsIotMqttMode = ( demoConnectedNetwork != AWSIOT_NETWORK_TYPE_BLE );
-
         /* Run the demo. */
-        status = pContext->demoFunction( awsIotMqttMode,
-                                         clientcredentialIOT_THING_NAME,
-                                         &serverInfo,
-                                         &credentials,
-                                         pNetworkInterface );
+        status = pContext->demoFunction( true,
+                                clientcredentialIOT_THING_NAME,
+                                ( void * ) &serverInfo,
+                                &credentials,
+                                pNetworkInterface );
 
         /* Report heap usage. */
         IotLogInfo( "Demo minimum ever free heap: %lu bytes.",

@@ -233,7 +233,7 @@
  * @brief Waiting time between checks for connection established.
  */
 #ifndef IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS
-#define IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS                ( 1000 )
+#define IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS                ( 1000 * IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC )
 #endif
 
 /**
@@ -242,4 +242,55 @@
 #ifndef IOT_BLE_MQTT_CREATE_CONNECTION_RETRY
 #define IOT_BLE_MQTT_CREATE_CONNECTION_RETRY                ( 60 )
 #endif
+
+/*
+ * @brief UUID mask for data transfer services.
+ */
+#define IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK  0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9
+
+/**
+ * @brief Type for MQTT data transfer service.
+ *  Type will be part of the service UUID.
+ */
+#define IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT  0x00
+
+/**
+ * @brief Type for wifi provisioning data transfer service.
+ * Type will be part of the service UUID.
+ */
+#define IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING  0x01
+
+/**
+ * @brief Number of data transfer services.
+ * User should change this when adding a new data transfer service type  or
+ * removing the existing ones.
+ */
+#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+#define  IOT_BLE_NUM_DATA_TRANSFER_SERVICES                     ( 2 )
+#else
+#define IOT_BLE_NUM_DATA_TRANSFER_SERVICES                      ( 1 )
+#endif
+
+/**
+ *@brief Size of the buffer to store pending bytes to be sent out through data transfer service.
+ */
+#ifndef IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE
+#define IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE       ( 1024 )
+#endif
+
+/**
+ * @brief Initial size of the buffer used to store the data received through  data transfer service.
+ * The buffer size grows exponentially ( powers of 2 ).
+ */
+#ifndef IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE
+#define IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE       ( 1024 )
+#endif
+
+/**
+ * @brief The  timeout in milliseconds for sending a message through data transfer service.
+ */
+#ifndef IOT_BLE_DATA_TRANSFER_TIMEOUT_MS
+#define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS          ( 2000 )
+#endif
+
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */

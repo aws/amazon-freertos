@@ -306,17 +306,8 @@ static int _establishMqttConnection( bool awsIotMqttMode,
 
     /* Set the members of the connection info not set by the initializer. */
     connectInfo.awsIotMqttMode = awsIotMqttMode;
-    connectInfo.cleanSession = true;
-    if( awsIotMqttMode == true )
-    {
-     
-        connectInfo.keepAliveSeconds = _KEEP_ALIVE_SECONDS;
-    }
-    else
-    {
-        /* Disable keep alive for non mqtt iot mode */
-         connectInfo.keepAliveSeconds = 0;
-    }
+    connectInfo.cleanSession = true; 
+    connectInfo.keepAliveSeconds = _KEEP_ALIVE_SECONDS;
 
 #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
     networkInfo.pMqttSerializer = IOT_MQTT_SERIALIZER_OVERRIDE;
