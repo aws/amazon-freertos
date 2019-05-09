@@ -116,7 +116,6 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                            void * pContext )
 {
     const IotNetworkInterface_t * pNetworkInterface;
-
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
     if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
@@ -128,7 +127,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         {
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
             /* ALPN only works over port 443. Disable it otherwise. */
-            if( networkInfo.port != 443 )
+            if( serverInfo.port != 443 )
             {
                 credentials.pAlpnProtos = NULL;
             }
@@ -137,7 +136,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
              * In this case, it is "IotNetworkServerInfoAfr_t const *".
              * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
              */
-            pDemoContext->networkConnectedCallback( awsIotMqttMode,
+            pDemoContext->networkConnectedCallback( true,
                                                     clientcredentialIOT_THING_NAME,
                                                     ( void * ) &serverInfo,
                                                     &credentials,
@@ -161,7 +160,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
 
                 /* ALPN only works over port 443. Disable it otherwise. */
-                if( networkInfo.port != 443 )
+                if( serverInfo.port != 443 )
                 {
                     credentials.pAlpnProtos = NULL;
                 }
@@ -170,7 +169,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                  * In this case, it is "IotNetworkServerInfoAfr_t const *".
                  * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
                  */
-                pDemoContext->networkConnectedCallback( awsIotMqttMode,
+                pDemoContext->networkConnectedCallback( true,
                                                         clientcredentialIOT_THING_NAME,
                                                         ( void * ) &serverInfo,
                                                         &credentials,
