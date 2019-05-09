@@ -1,469 +1,290 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://aws.amazon.com/freertos
- * http://www.FreeRTOS.org
- */
+Amazon FreeRTOS OTA Update Demo V1.4.4
+Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ http://aws.amazon.com/freertos
+ http://www.FreeRTOS.org
+*/
 
 
 /**
- * @file aws_mqtt_ble_hello_world.c
- * @brief Hello world Mqtt demo over multiple network types.
+ * @file aws_ota_update_demo.c
+ * @brief A simple OTA update example.
  *
- * This demonstrates a MQTT hello world echo demo over different network types like Wi-Fi, BLE etc.
- * It uses network agnostic MQTT library, Network Interface abstraction and network manager to select a network
- * type and to dynamically switch between network types during network termination without interrupting the MQTT application.
- *
+ * This example initializes the OTA agent to enable OTA updates via the
+ * MQTT broker. It simply connects to the MQTT broker with the users
+ * credentials and spins in an indefinite loop to allow MQTT messages to be
+ * forwarded to the OTA agent for possible processing. The OTA agent does all
+ * of the real work; checking to see if the message topic is one destined for
+ * the OTA agent. If not, it is simply ignored.
  */
+/* The config header is always included first. */
+#include "iot_config.h"
 
-
-/* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
-
-#include <stdbool.h>
+/* MQTT include. */
+#include "iot_mqtt.h"
+/* Standard includes. */
+#include <stdio.h>
 #include <string.h>
 
-/* FreeRTOS  includes. */
+/* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
-/* Demo logging and configuration includes */
-#include "iot_demo_logging.h"
 
+
+/* Demo network handling */
+#include "aws_iot_demo_network.h"
+
+/* Required to get the broker address and port. */
 #include "aws_clientcredential.h"
-
-/* MQTT library includes */
-#include "iot_mqtt.h"
-
-/* Platform includes */
-#include "platform/iot_threads.h"
-#include "platform/iot_clock.h"
-
-/* Networking includes */
-#include "types/iot_network_types.h"
-#include "platform/iot_network.h"
-#include "platform/iot_network_afr.h"
-#include "iot_network_manager_private.h"
 
 /* Amazon FreeRTOS OTA agent includes. */
 #include "aws_ota_agent.h"
-/**
- * @brief MQTT topic used to publish and subscribe to messages.
- */
-#define _TOPIC             "freertos/demos/echo"
+
+#include "iot_network_manager_private.h"
+
+/* Required for demo task stack and priority */
+#include "aws_demo_config.h"
+#include "aws_application_version.h"
+
+static void App_OTACompleteCallback(OTA_JobEvent_t eEvent );
+
+static BaseType_t prxCreateNetworkConnection( void );
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext );
+static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext );
+
+/*-----------------------------------------------------------*/
+
+#define otaDemoCONN_TIMEOUT_MS              ( 2000UL )
+
+#define otaDemoCONN_RETRY_INTERVAL_MS       ( 5000 )
+
+#define otaDemoCONN_RETRY_LIMIT             ( 100 )
+
+#define otaDemoKEEPALIVE_SECONDS            ( 1200 )
+
+#define myappONE_SECOND_DELAY_IN_TICKS  pdMS_TO_TICKS( 1000UL )
+
+#define otaDemoNETWORK_TYPES               ( AWSIOT_NETWORK_TYPE_ALL ) 
 
 /**
- * @brief QOS value used for the MQTT echo demo.
+ * @brief Structure which holds the context for an MQTT connection within Demo.
  */
-#define _QOS               ( 1 )
-
-/**
- * @brief Echo message sent to the broker by the MQTT echo demo.
- */
-#define _MESSAGE           "HelloWorld %d"
-
-/**
- * @brief Length of the echo message sent to the broker by the MQTT echo demo.
- */
-#define _MESSAGE_LENGTH               ( sizeof( _MESSAGE ) + 5 )
-
-/**
- * @brief Suffix for ACK messages echoed back to the broker.
- */
-#define _ACK                           " ACK"
-
-/**
- * @brief Length of the ACK messages echoed back to the broker.
- */
-#define _ACK_LENGTH                   ( _MESSAGE_LENGTH + sizeof( _ACK  ) )
-
-/**
- * @brief Index of ACK message within the payload.
- */
-#define _ACK_INDEX( length )          ( length - strlen( _ACK ) )
-
-
-/**
- * @brief Maximum number of echo messages sent to the broker before the demo completes.
- */
-#define _MAX_MESSAGES                 ( 3600 )
-
-/**
- * @brief Interval in milliseconds between the echo messages sent to the broker.
- */
-#define _MESSAGE_INTERVAL_MS         ( 5000 )
-
-/**
- * @brief Delay between the retries for a publish message.
- */
-#define _CONNECTION_RETRY_DELAY_MS   ( 10000 )
-
-/**
- * @brief Timeout for any MQTT operation.
- */
-#define _MQTT_TIMEOUT_MS             ( 10000 )
-
-/**
- * @brief Prefix used to generate a unique client Identifier for an Mqtt connection.
- */
-#define _CLIENT_IDENTIFIER_PREFIX                 "mqttEcho"
-
-/**
- * @brief Maximum length for the Mqtt client identifier ( including the prefix and the unique ID ).
- */
-#define _CLIENT_IDENTIFIER_MAX_LENGTH             ( 24 )
-
-/**
- * @brief Keep alive interval for Mqtt connection. The value is used
- * only if awsIotMqttMode is set to true.
- */
-#define _KEEP_ALIVE_SECONDS                       ( 1200 )
-
-/**
- * @brief Number of topic filter subscriptions made by the demo.
- */
-#define _TOPIC_FILTER_COUNT                       ( 1 )
-
-/* -------------------------------------------------------------------------------------------- */
-
-/* Contains various states for the mqtt application */
-typedef enum BLEMqttDemoState
+static MqttConnectionContext_t xConnection =
 {
-	BLE_MQTT_ECHO_DEMO_INIT_STATE = 0,
-    BLE_MQTT_ECHO_DEMO_STATE_NETWORK_DISCONNECTED,
-	BLE_MQTT_ECHO_DEMO_STATE_CONNECT_INIT,
-    BLE_MQTT_ECHO_DEMO_STATE_CONNECTED,
-	BLE_MQTT_ECHO_DEMO_STATE_ERROR
-} BLEMqttDemoState_t;
+     .pvNetworkConnection = NULL,
+     .ulNetworkType       = AWSIOT_NETWORK_TYPE_NONE,
+     .xNetworkInfo        = IOT_MQTT_NETWORK_INFO_INITIALIZER,
+     .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
+     .xDisconnectCallback = prvNetworkDisconnectCallback
+};
 
-/* A wrapper structure to hold the networking information for the demo. */
-typedef struct BleMqttDemoNetworkInfo
+/**
+ * @brief Network manager subscription callback.
+ */
+
+static IotNetworkManagerSubscription_t xSubscriptionHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
+
+/**
+ * @brief Semaphore to indicate a new network is available.
+ */
+static SemaphoreHandle_t xNetworkAvailableLock = NULL;
+
+/**
+ * @brief Flag used to unset, during disconnection of currently connected network. This will
+ * trigger a reconnection from the main MQTT task.
+ */
+static BaseType_t xNetworkConnected = pdFALSE;
+
+static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext )
 {
-    bool       awsIotMqttMode;
-    const char *pClientIdentifier;
-    void       *pNetworkServerInfo;
-    void       *pNetworkCredentialInfo;
-    const IotNetworkInterface_t *pNetworkInterface;
-} BleMqttDemoNetworkInfo_t;
-
-
-void combinedDemoNetworkConnectedCallback( bool awsIotMqttMode,
-                                              const char *pIdentifier,
-                                              void *pNetworkServerInfo,
-                                              void *pNetworkCredentialInfo,
-                                              const IotNetworkInterface_t *pNetworkInterface );
-
-void combinedDemoNetworkDisconnectedCallback( const IotNetworkInterface_t * pNetworkInterface );
-
-int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
-                        const char *pIdentifier,
-                        void *pNetworkServerInfo,
-                        void *pNetworkCredentialInfo,
-                        const IotNetworkInterface_t *pNetworkInterface );
-
-/* ------------------------------------------------------------------------------------------- */
-static int _establishMqttConnection( bool awsIotMqttMode,
-                                     const char * pIdentifier,
-                                     void * pNetworkServerInfo,
-                                     void * pNetworkCredentialInfo,
-                                     const IotNetworkInterface_t * pNetworkInterface,
-                                     IotMqttConnection_t * pMqttConnection );
-
-/**
- * @brief Function to publish a message to the broker.
- */
-static IotMqttError_t _publishMqttMessage( const char* pMessage, size_t messageLength );
-
-/**
- * @brief Semaphore used by the main task to wait for a network connection before publishing MQTT messages.
- */
-static IotSemaphore_t networkConnected;
-
-/**
- * @brief Variable which holds the application state for the demo. Application is assumed to have a network
- * at the startup.
- */
-static BLEMqttDemoState_t appState = BLE_MQTT_ECHO_DEMO_INIT_STATE;
-
-/**
- * @brief Global structure which wraps networking information for demo, updated intially and during a
- * new connection.
- */
-static BleMqttDemoNetworkInfo_t demoNetworkInfo = { 0 };
-
-/**
- * @brief  MQTT connection used to send/receive MQTT messages.
- */
-static IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
-static void App_OTACompleteCallback( OTA_JobEvent_t eEvent );
-/*------------------------------------------------------------------------------------*/
-
-static IotMqttError_t _publishMqttMessage( const char* pMessage, size_t messageLength )
-{
-     IotMqttError_t ret = IOT_MQTT_NETWORK_ERROR;
-     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-
-     publishInfo.qos = _QOS;
-     publishInfo.pTopicName = _TOPIC;
-     publishInfo.topicNameLength = strlen(_TOPIC);
-     publishInfo.pPayload = (void *)pMessage;
-     publishInfo.payloadLength = messageLength;
-
-     if( mqttConnection != IOT_MQTT_CONNECTION_INITIALIZER )
-     {
-
-         ret = IotMqtt_TimedPublish(mqttConnection,
-                                    &publishInfo,
-                                    0,
-                                    _MQTT_TIMEOUT_MS);
-     }
-
-     return ret;
+    if( xNetworkState == eNetworkStateEnabled )
+    {
+        /* Release the semaphore, to indicate other tasks that a network is available */
+        if( xNetworkConnected == pdFALSE )
+        {
+            xSemaphoreGive( xNetworkAvailableLock );
+        }
+    }
+    else if ( xNetworkState == eNetworkStateDisabled )
+    {
+        /* If the publish task is already connected to this network, set connected network flag to none,
+         * to trigger a reconnect.
+         */
+        if( ( xNetworkConnected == pdTRUE ) && ( xConnection.ulNetworkType == ulNetworkType ) )
+        {
+            xNetworkConnected = pdFALSE;
+        }
+    }
 }
 
-static void _receiveMqttMessage( void* pUserParam, IotMqttCallbackParam_t* pPublishParam )
+
+static IotNetworkError_t prvNetworkDisconnectCallback( void* pvContext )
 {
+    ( void ) pvContext;
+    xNetworkConnected = pdFALSE;
 
-    const char * pPayload = ( const char * ) pPublishParam->u.message.info.pPayload;
-    size_t payloadLength = pPublishParam->u.message.info.payloadLength;
-    char ack[ _ACK_LENGTH ] = { 0 };
-     int ackLength;
-    IotMqttError_t mqttStatus;
+    return IOT_NETWORK_SUCCESS;
+}
 
+static BaseType_t prxCreateNetworkConnection( void )
+{
+    BaseType_t xRet = pdFALSE;
+    uint32_t ulRetriesLeft     = otaDemoCONN_RETRY_LIMIT;
+    uint32_t ulRetryIntervalMS = otaDemoCONN_RETRY_INTERVAL_MS;
 
-    /* User parameters are not used */
-    ( void ) pUserParam;
-
-    if( ( payloadLength < strlen( _ACK )  ) ||
-         strncmp( ( pPayload + _ACK_INDEX( payloadLength ) ), _ACK, strlen( _ACK ) ) != 0 )
+    do
     {
-        IotLogInfo( "Received ECHO message: %.*s", payloadLength, pPayload );
-        /* This is not an ACK message */
-        ackLength = snprintf( ack,  _ACK_LENGTH, "%.*s %s", payloadLength, pPayload, _ACK );
-        if( ackLength > 0 )
+         /* No networks are available, block for a physical network connection. */
+        if( ( AwsIotNetworkManager_GetConnectedNetworks() & otaDemoNETWORK_TYPES ) == AWSIOT_NETWORK_TYPE_NONE )
         {
-            mqttStatus = _publishMqttMessage(ack, ackLength);
-            if (mqttStatus == IOT_MQTT_SUCCESS)
+            /* Block for a Network Connection. */
+            configPRINTF(( "Waiting for a network connection.\r\n" ));
+            ( void ) xSemaphoreTake( xNetworkAvailableLock, portMAX_DELAY );
+        }
+
+        /* Connect to one of the network type.*/
+        xRet = xMqttDemoCreateNetworkConnection( &xConnection, otaDemoNETWORK_TYPES );
+
+        if( xRet == pdTRUE )
+        {
+        	break;
+        }else
+        {
+            /* Connection failed. Retry for a configured number of retries. */
+            if( ulRetriesLeft > 0 )
             {
-                IotLogInfo( "Sent ACK message: %.*s", ackLength, ack );
+                configPRINTF(( "Network Connection failed, retry delay %lu ms, retries left %lu\r\n", ulRetryIntervalMS, ulRetriesLeft ));
+                vTaskDelay( pdMS_TO_TICKS( ulRetryIntervalMS ));
+            }
+        }
+
+    } while ( ulRetriesLeft-- > 0 );
+    
+    return xRet;
+}
+
+static const char *pcStateStr[eOTA_NumAgentStates] =
+{
+     "Not Ready",
+     "Ready",
+     "Active",
+     "Shutting down"
+};
+
+void vRunOTAUpdateDemo( void )
+{
+    IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
+    OTA_State_t eState;
+
+	configPRINTF ( ("OTA demo version %u.%u.%u\r\n",
+		xAppFirmwareVersion.u.x.ucMajor,
+		xAppFirmwareVersion.u.x.ucMinor,
+		xAppFirmwareVersion.u.x.usBuild ) );
+    configPRINTF( ( "Creating MQTT Client...\r\n" ) );
+
+    /* Create the MQTT Client. */
+
+
+    for ( ; ; )
+    {
+        xNetworkConnected = prxCreateNetworkConnection();
+		if( xNetworkConnected  )
+		{
+            configPRINTF( ( "Connecting to broker...\r\n" ) );
+            memset( &xConnectInfo, 0, sizeof( xConnectInfo ) );
+            if( xConnection.ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
+            {
+                xConnectInfo.awsIotMqttMode = false;
+                xConnectInfo.keepAliveSeconds = 0;
             }
             else
             {
-                IotLogError( "Failed to publish ACK message, error = %d", IotMqtt_strerror( mqttStatus ) );
-
+                xConnectInfo.awsIotMqttMode = true;
+                xConnectInfo.keepAliveSeconds = otaDemoKEEPALIVE_SECONDS;
             }
 
-        }
-        else
+            xConnectInfo.cleanSession = true;
+            xConnectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
+            xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+            /* Connect to the broker. */
+            if( IotMqtt_Connect( &( xConnection.xNetworkInfo ),
+                &xConnectInfo,
+                otaDemoCONN_TIMEOUT_MS,&( xConnection.xMqttConnection ) ) == IOT_MQTT_SUCCESS )
+            {
+                configPRINTF( ( "Connected to broker.\r\n" ) );
+                OTA_AgentInit( xConnection.xMqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
+
+                while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_NotReady )
+                {
+                    /* Wait forever for OTA traffic but allow other tasks to run and output statistics only once per second. */
+                    vTaskDelay( myappONE_SECOND_DELAY_IN_TICKS );
+                    configPRINTF( ( "State: %s  Received: %u   Queued: %u   Processed: %u   Dropped: %u\r\n", pcStateStr[eState],
+                            OTA_GetPacketsReceived(), OTA_GetPacketsQueued(), OTA_GetPacketsProcessed(), OTA_GetPacketsDropped() ) );
+                }
+                IotMqtt_Disconnect( xConnection.xMqttConnection, false);
+            }
+            else
+            {
+
+                configPRINTF( ( "ERROR:  MQTT_AGENT_Connect() Failed.\r\n" ) );
+            }
+
+            vMqttDemoDeleteNetworkConnection(&xConnection);
+            /* After failure to connect or a disconnect, wait an arbitrary one second before retry. */
+            vTaskDelay( myappONE_SECOND_DELAY_IN_TICKS );
+        }else
         {
-            IotLogError( "Failed to create ACK message" );
+            configPRINTF( ( "Failed to create MQTT client.\r\n" ) );
         }
     }
 }
 
 
-static int _establishMqttConnection( bool awsIotMqttMode,
-                                     const char * pIdentifier,
-                                     void * pNetworkServerInfo,
-                                     void * pNetworkCredentialInfo,
-                                     const IotNetworkInterface_t * pNetworkInterface,
-                                     IotMqttConnection_t * pMqttConnection )
-{
-    int status = EXIT_SUCCESS;
-    IotMqttError_t mqttStatus = IOT_MQTT_STATUS_PENDING;
-    IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
-    IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    char pClientIdentifierBuffer[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
-    IotMqttSubscription_t subscription = { 0 };
-
-    /* Set the members of the network info not set by the initializer. This
-     * struct provided information on the transport layer to the MQTT connection. */
-    networkInfo.createNetworkConnection = true;
-    networkInfo.u.setup.pNetworkServerInfo = pNetworkServerInfo;
-    networkInfo.u.setup.pNetworkCredentialInfo = pNetworkCredentialInfo;
-    networkInfo.pNetworkInterface = pNetworkInterface;
-
-    /* Set the members of the connection info not set by the initializer. */
-    connectInfo.awsIotMqttMode = awsIotMqttMode;
-    connectInfo.cleanSession = true;
-    if( awsIotMqttMode == true )
-    {
-
-        connectInfo.keepAliveSeconds = _KEEP_ALIVE_SECONDS;
-    }
-    else
-    {
-        /* Disable keep alive for non mqtt iot mode */
-         connectInfo.keepAliveSeconds = 0;
-    }
-
-#if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-    networkInfo.pMqttSerializer = IOT_MQTT_SERIALIZER_OVERRIDE;
-#endif
-
-    /* Use the parameter client identifier if provided. Otherwise, generate a
-     * unique client identifier. */
-    if( pIdentifier != NULL )
-    {
-        connectInfo.pClientIdentifier = pIdentifier;
-        connectInfo.clientIdentifierLength = ( uint16_t ) strlen( pIdentifier );
-    }
-    else
-    {
-        /* Every active MQTT connection must have a unique client identifier. The demos
-         * generate this unique client identifier by appending a timestamp to a common
-         * prefix. */
-        status = snprintf( pClientIdentifierBuffer,
-                           _CLIENT_IDENTIFIER_MAX_LENGTH,
-                           _CLIENT_IDENTIFIER_PREFIX "%lu",
-                           ( long unsigned int ) IotClock_GetTimeMs() );
-
-        /* Check for errors from snprintf. */
-        if( status < 0 )
-        {
-            IotLogError( "Failed to generate unique client identifier for demo." );
-            status = EXIT_FAILURE;
-        }
-        else
-        {
-            /* Set the client identifier buffer and length. */
-            connectInfo.pClientIdentifier = pClientIdentifierBuffer;
-            connectInfo.clientIdentifierLength = ( uint16_t ) status;
-
-            status = EXIT_SUCCESS;
-        }
-    }
-
-    /* Establish the MQTT connection. */
-    if( status == EXIT_SUCCESS )
-    {
-        IotLogInfo( "MQTT demo client identifier is %.*s (length %hu).",
-                    connectInfo.clientIdentifierLength,
-                    connectInfo.pClientIdentifier,
-                    connectInfo.clientIdentifierLength );
-
-        mqttStatus = IotMqtt_Connect(&networkInfo,
-                                     &connectInfo,
-                                     _MQTT_TIMEOUT_MS,
-                                     pMqttConnection);
-
-        if( mqttStatus != IOT_MQTT_SUCCESS )
-        {
-            IotLogError( "MQTT CONNECT returned error %s.",
-                         IotMqtt_strerror( mqttStatus ) );
-
-            status = EXIT_FAILURE;
-        }
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
-        subscription.qos                       = _QOS;
-        subscription.pTopicFilter              = _TOPIC;
-        subscription.topicFilterLength         = strlen( _TOPIC );
-        subscription.callback.pCallbackContext = NULL;
-        subscription.callback.function         = _receiveMqttMessage;
-
-        mqttStatus = IotMqtt_TimedSubscribe(mqttConnection,
-                                            &subscription,
-                                            _TOPIC_FILTER_COUNT,
-                                            0,
-                                            _MQTT_TIMEOUT_MS);
-        if( mqttStatus != IOT_MQTT_SUCCESS )
-        {
-            IotLogError( "MQTT Subscribe returned error %s.",
-                         IotMqtt_strerror( mqttStatus ) );
-
-            status = EXIT_FAILURE;
-        }
-
-    }
-
-    return status;
-}
-
-
-/**
- * @brief Initialize the MQTT library.
- *
- * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
- * `EXIT_FAILURE` otherwise.
+/* The OTA agent has completed the update job or determined that we're in
+ * self test mode. If it was accepted, we want to activate the new image.
+ * This typically means we should reset the device to run the new firmware.
+ * If now is not a good time to reset the device, it may be activated later
+ * by your user code. If the update was rejected, just return without doing
+ * anything and we'll wait for another job. If it reported that we should
+ * start test mode, normally we would perform some kind of system checks to
+ * make sure our new firmware does the basic things we think it should do
+ * but we'll just go ahead and set the image as accepted for demo purposes.
+ * The accept function varies depending on your platform. Refer to the OTA
+ * PAL implementation for your platform in aws_ota_pal.c to see what it
+ * does for you.
  */
-static int _initializeDemo( void )
-{
-    int ret = EXIT_SUCCESS;
-    IotMqttError_t mqttInitStatus = IOT_MQTT_SUCCESS;
-    bool semaphoreCreated = false;
-
-    /* Create connection Semaphore to signal new connection from the demo network connected callback. */
-    semaphoreCreated = IotSemaphore_Create( &networkConnected, 0, 1 );
-    if( semaphoreCreated == false )
-    {
-        ret = EXIT_FAILURE;
-    }
-
-    if( ret == EXIT_SUCCESS )
-    {
-        /* Initialize the MQTT library. */
-        mqttInitStatus = IotMqtt_Init();
-        if (mqttInitStatus != IOT_MQTT_SUCCESS)
-        {
-            ret = EXIT_FAILURE;
-        }
-    }
-
-    /* Cleanup for failure case. */
-    if( ret == EXIT_FAILURE )
-    {
-        if( semaphoreCreated )
-        {
-            IotSemaphore_Destroy( &networkConnected );
-        }
-    }
-
-    return ret;
-}
-
-/**
- * @brief Clean up the  the MQTT library.
- */
-static void _cleanupDemo( void )
-{
-    IotSemaphore_Destroy( &networkConnected );
-    IotMqtt_Cleanup();
-}
-
-/* ------------------------------------------------------------------------------------ */
 
 static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
 {
 	OTA_Err_t xErr = kOTA_Err_Uninitialized;
 
+
     /* OTA job is completed. so delete the MQTT and network connection. */
     if ( eEvent == eOTA_JobEvent_Activate )
     {
         configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
-        IotMqtt_Disconnect( mqttConnection, 0 );
+        IotMqtt_Disconnect( xConnection.xMqttConnection, 0 );
+        vMqttDemoDeleteNetworkConnection( &xConnection );
         OTA_ActivateNewImage();
     }
     else if (eEvent == eOTA_JobEvent_Fail)
@@ -486,141 +307,93 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
         }
 	}
 }
-void combinedDemoNetworkConnectedCallback( bool awsIotMqttMode,
-                                              const char *pIdentifier,
-                                              void *pNetworkServerInfo,
-                                              void *pNetworkCredentialInfo,
-                                              const IotNetworkInterface_t *pNetworkInterface )
-{
-    if( appState == BLE_MQTT_ECHO_DEMO_STATE_NETWORK_DISCONNECTED )
-    {
-		appState = BLE_MQTT_ECHO_DEMO_STATE_CONNECT_INIT;
 
-        demoNetworkInfo.awsIotMqttMode = awsIotMqttMode;
-        demoNetworkInfo.pClientIdentifier = pIdentifier;
-        demoNetworkInfo.pNetworkCredentialInfo = pNetworkCredentialInfo;
-        demoNetworkInfo.pNetworkServerInfo = pNetworkServerInfo;
-        demoNetworkInfo.pNetworkInterface = pNetworkInterface;
-
-        IotSemaphore_Post( &networkConnected );
-    }
-}
-
-void combinedDemoNetworkDisconnectedCallback( const IotNetworkInterface_t * pNetworkInterface )
-{
-    ( void ) pNetworkInterface;
-
-    if(( appState == BLE_MQTT_ECHO_DEMO_STATE_CONNECTED )||(appState == BLE_MQTT_ECHO_DEMO_STATE_CONNECT_INIT))
-    {
-        appState = BLE_MQTT_ECHO_DEMO_STATE_NETWORK_DISCONNECTED;
-    }
-}
+/*-----------------------------------------------------------*/
 
 int vStartOTAUpdateDemoTask( bool awsIotMqttMode,
-                        const char *pIdentifier,
-                        void *pNetworkServerInfo,
-                        void *pNetworkCredentialInfo,
-                        const IotNetworkInterface_t *pNetworkInterface )
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
 {
-    uint32_t messageIdentifier = 1;
-    char message[ _MESSAGE_LENGTH ];
-    int32_t messageLength;
-    IotMqttError_t mqttStatus;
-    int i, ret = EXIT_SUCCESS;
-    bool demoInitialized = false;
+    int xRet = EXIT_SUCCESS;
+    IotMqttError_t xMqttInitStatus;
+    bool bMqttInitialized  = false;
 
-    ret = _initializeDemo();
-    if( ret == EXIT_SUCCESS )
+	/* Unused parameters */
+	( void )awsIotMqttMode;
+	( void )pIdentifier;
+	( void )pNetworkServerInfo;
+	( void )pNetworkCredentialInfo;
+	( void )pNetworkInterface;
+
+    if( otaDemoNETWORK_TYPES == AWSIOT_NETWORK_TYPE_NONE )
     {
-        demoInitialized = true;
+        configPRINTF(( "There are no networks configured for the demo.\r\n" ));
+        xRet = EXIT_FAILURE;
     }
 
-    if (ret == EXIT_SUCCESS)
+    /* Create semaphore to notify network available */
+    if( xRet == EXIT_SUCCESS )
     {
-        do
+        xNetworkAvailableLock = xSemaphoreCreateBinary();
+        if( xNetworkAvailableLock == NULL )
         {
-        	if(( appState == BLE_MQTT_ECHO_DEMO_STATE_CONNECT_INIT)||(appState == BLE_MQTT_ECHO_DEMO_INIT_STATE))
-        	{
-                do{
-        			ret = _establishMqttConnection(awsIotMqttMode,
-        										   pIdentifier,
-        										   pNetworkServerInfo,
-        										   pNetworkCredentialInfo,
-        										   pNetworkInterface,
-        										   &mqttConnection);
-                }while(ret != EXIT_SUCCESS);
-
-        		OTA_AgentInit( mqttConnection, ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
-
-        		appState = BLE_MQTT_ECHO_DEMO_STATE_CONNECTED;
-        	}
-        	else if (appState == BLE_MQTT_ECHO_DEMO_STATE_CONNECTED)
-            {
-                messageLength = snprintf(message,
-                                         _MESSAGE_LENGTH,
-                                         _MESSAGE,
-                                         messageIdentifier);
-
-                if (messageLength > 0)
-                {
-
-                    mqttStatus = _publishMqttMessage(message, messageLength);
-                    if (mqttStatus == IOT_MQTT_SUCCESS)
-                    {
-                        IotLogInfo("Sent ECHO message: %.*s", messageLength, message);
-                        messageIdentifier++;
-                        IotClock_SleepMs(_MESSAGE_INTERVAL_MS);
-                    }
-                    else
-                    {
-
-                        if ((mqttStatus == IOT_MQTT_NETWORK_ERROR) ||
-                            (mqttStatus == IOT_MQTT_TIMEOUT) ||
-                            (mqttStatus == IOT_MQTT_RETRY_NO_RESPONSE))
-                        {
-                            /* These MQTT errors are related to transient network issues
-                               or a network disconnect. */
-                        	/* Could happen if an OTA is performed at the same time. */
-                        }
-                        else
-                        {
-                            /* All other MQTT errors causes the demo to exit with a failure return code. */
-                            IotLogError("Failed to send ECHO message, error = %d, exiting demo.", IotMqtt_strerror(mqttStatus));
-                            appState = BLE_MQTT_ECHO_DEMO_STATE_ERROR;
-                            ret = EXIT_FAILURE;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    /* Failed to create an MQTT message buffer. Exit the demo with
-                     * a failure return code.
-                     */
-                    IotLogError("Failed to create an MQTT ECHO message, exiting demo.");
-                    appState = BLE_MQTT_ECHO_DEMO_STATE_ERROR;
-                    ret = EXIT_FAILURE;
-                    break;
-                }
-            }
-            else if (appState == BLE_MQTT_ECHO_DEMO_STATE_NETWORK_DISCONNECTED)
-            {
-                IotLogInfo("Network disconnected. Waiting for a new network to be connected.");
-                OTA_AgentShutdown( ( TickType_t ) ~0 );
-                IotMqtt_Disconnect(mqttConnection, 0);
-                if (mqttConnection != IOT_MQTT_CONNECTION_INITIALIZER)
-                {
-                    mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
-                }
-                IotSemaphore_Wait(&networkConnected);
-            }
-        }while(1);
+            configPRINTF(( "Failed to create semaphore.\r\n" ));
+            xRet = EXIT_FAILURE;
+        }
     }
 
-    if( demoInitialized == true )
+    if( xRet == EXIT_SUCCESS )
     {
-        _cleanupDemo();
+        /* Initialize the MQTT library. */
+        xMqttInitStatus = IotMqtt_Init();
+        if( xMqttInitStatus != IOT_MQTT_SUCCESS )
+        {
+            xRet = EXIT_FAILURE;
+        }
+        else
+        {
+            bMqttInitialized = true;
+        }
     }
 
-    return ret;
+    /**
+     * Create a Network Manager Subscription for all the network types supported.
+     */
+    if( xRet == EXIT_SUCCESS )
+    {
+        if( AwsIotNetworkManager_SubscribeForStateChange( otaDemoNETWORK_TYPES,
+                                                          prvNetworkStateChangeCallback,
+                                                          NULL,
+                                                          &xSubscriptionHandle ) != pdTRUE )
+        {
+            configPRINTF(( "Failed to create Network Manager subscription.\r\n" ));
+            xRet = EXIT_FAILURE;
+        }
+    }
+
+    if( xRet == EXIT_SUCCESS )
+    {
+        vRunOTAUpdateDemo();
+    }
+    else
+    {
+        if( xSubscriptionHandle != IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER )
+        {
+            AwsIotNetworkManager_RemoveSubscription( xSubscriptionHandle );
+        }
+
+        if( xNetworkAvailableLock != NULL )
+        {
+            vSemaphoreDelete( xNetworkAvailableLock );
+        }
+
+        if( bMqttInitialized == true )
+        {
+            IotMqtt_Cleanup();
+        }
+    }
+
+    return xRet;
 }

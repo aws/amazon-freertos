@@ -1,5 +1,5 @@
 # We don't display the 2 demos below in AFR console
-if(AFR_NON_BUILD_MODE)
+if(AFR_METADATA_MODE)
     return()
 endif()
 

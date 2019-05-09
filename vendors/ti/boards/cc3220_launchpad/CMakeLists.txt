@@ -15,7 +15,7 @@ if(${AFR_TOOLCHAIN} STREQUAL "arm-ti")
     include("ccs.cmake")
 elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar")
     include("iar.cmake")
-elseif(NOT AFR_NON_BUILD_MODE)
+elseif(NOT AFR_METADATA_MODE)
     message( FATAL_ERROR "The toolchain is not supported." )
 endif()
 

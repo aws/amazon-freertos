@@ -180,7 +180,7 @@ target_link_libraries(
         -T"${board_dir}/../ac6/STM32L475VGTx_FLASH.ld"
 )
 
-if(AFR_NON_BUILD_MODE)
+if(AFR_METADATA_MODE)
     return()
 endif()
 

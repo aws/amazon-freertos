@@ -82,7 +82,7 @@ function(afr_set_metadata arg_metadata_type arg_metadata_name arg_metadata_val)
 
     string(TOLOWER "${arg_metadata_type}" arg_metadata_type)
     set(metadata_file "${AFR_METADATA_OUTPUT_DIR}/console/${arg_metadata_type}.txt")
-    if(AFR_ENABLE_METADATA)
+    if(AFR_METADATA_MODE)
         if("${cmake_file_name}" STREQUAL "CMakeLists.txt")
             file(APPEND "${metadata_file}" "${cmake_file_dir}###${arg_metadata_name}:::${arg_metadata_val}\n")
         else()
@@ -152,11 +152,14 @@ function(afr_write_metadata)
     set(console_dir "${AFR_METADATA_OUTPUT_DIR}/console")
 
     set(afr_version_file "${console_dir}/afr_version.txt")
+    set(board_path_file "${console_dir}/vendor_board_path.txt")
     set(cmake_files_file "${AFR_METADATA_OUTPUT_DIR}/console/cmake_files.txt")
     set(module_sources_file "${console_dir}/module_sources.txt")
     set(module_dependencies_file "${console_dir}/module_dependencies.txt")
     set(metadata_file "${console_dir}/modules.txt")
     file(APPEND "${afr_version_file}" "${AFR_VERSION}")
+    file(APPEND "${board_path_file}" "vendor_path: ${AFR_VENDOR_PATH}\n")
+    file(APPEND "${board_path_file}" "board_path: ${AFR_BOARD_PATH}")
     file(APPEND "${module_dependencies_file}" "public_modules#${AFR_MODULES_PUBLIC}\n")
     file(APPEND "${module_dependencies_file}" "modules#${AFR_MODULES_TO_BUILD}\n")
     file(APPEND "${module_dependencies_file}" "demos#${AFR_DEMOS_ENABLED}\n")
@@ -166,6 +169,7 @@ function(afr_write_metadata)
     # Write all required cmake files.
     set(
         cmake_files
+        "${AFR_ROOT_DIR}/tools/cmake"
         "${AFR_ROOT_DIR}/CMakeLists.txt"
         "${AFR_ROOT_DIR}/PreLoad.cmake"
         "${AFR_ROOT_DIR}/modules/CMakeLists.txt"
@@ -293,11 +297,7 @@ function(afr_write_metadata)
         endif()
     endforeach()
 
-    # Append CMake files for OCW.
-    file(READ "${console_dir}/cmake_files.txt" cmake_files_list)
-    list(APPEND src_console ${cmake_files_list})
-
-    # Append extra files for OCW.
+    # Append extra files for Amazon FreeRTOS console.
     list(
         APPEND src_console
         "${AFR_ROOT_DIR}/CHANGELOG.md"
