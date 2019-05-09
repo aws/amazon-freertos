@@ -277,7 +277,7 @@ target_include_directories(
 )
 
 
-if(AFR_NON_BUILD_MODE)
+if(AFR_METADATA_MODE)
     return()
 endif()
 
@@ -326,10 +326,8 @@ set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 # Locate microchip hexmate.
 set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
 find_program(hexmate_path hexmate PATHS ${MCHP_HEXMATE_PATH} PATH_SUFFIXES bin)
-if(NOT AFR_ENABLE_METADATA)
-   if(NOT hexmate_path)
-       message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
-   endif()
+if(NOT hexmate_path)
+    message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
 endif()
 
 # These locations have to be generalized through the toolchain

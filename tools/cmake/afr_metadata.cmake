@@ -82,7 +82,7 @@ function(afr_set_metadata arg_metadata_type arg_metadata_name arg_metadata_val)
 
     string(TOLOWER "${arg_metadata_type}" arg_metadata_type)
     set(metadata_file "${AFR_METADATA_OUTPUT_DIR}/console/${arg_metadata_type}.txt")
-    if(AFR_ENABLE_METADATA)
+    if(AFR_METADATA_MODE)
         if("${cmake_file_name}" STREQUAL "CMakeLists.txt")
             file(APPEND "${metadata_file}" "${cmake_file_dir}###${arg_metadata_name}:::${arg_metadata_val}\n")
         else()
@@ -152,7 +152,7 @@ function(afr_write_metadata)
     set(console_dir "${AFR_METADATA_OUTPUT_DIR}/console")
 
     set(afr_version_file "${console_dir}/afr_version.txt")
-    set(board_path_file "${console_dir}/board_path.txt")
+    set(board_path_file "${console_dir}/vendor_board_path.txt")
     set(cmake_files_file "${AFR_METADATA_OUTPUT_DIR}/console/cmake_files.txt")
     set(module_sources_file "${console_dir}/module_sources.txt")
     set(module_dependencies_file "${console_dir}/module_dependencies.txt")
@@ -297,7 +297,7 @@ function(afr_write_metadata)
         endif()
     endforeach()
 
-    # Append extra files for OCW.
+    # Append extra files for Amazon FreeRTOS console.
     list(
         APPEND src_console
         "${AFR_ROOT_DIR}/CHANGELOG.md"
