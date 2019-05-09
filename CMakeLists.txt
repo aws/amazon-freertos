@@ -31,9 +31,9 @@ endif()
 # Import board CMake build.
 include("vendors/${AFR_VENDOR_NAME}/manifest.cmake")
 if(DEFINED AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME})
-    afr_add_subdirectory("vendors/${AFR_VENDOR_NAME}/${AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME}}")
+    add_subdirectory("vendors/${AFR_VENDOR_NAME}/${AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME}}")
 elseif(DEFINED AFR_MANIFEST_BOARD_DIR)
-    afr_add_subdirectory("vendors/${AFR_VENDOR_NAME}/${AFR_MANIFEST_BOARD_DIR}/${AFR_BOARD_NAME}")
+    add_subdirectory("vendors/${AFR_VENDOR_NAME}/${AFR_MANIFEST_BOARD_DIR}/${AFR_BOARD_NAME}")
 else()
     message(FATAL_ERROR "Could not import board CMakeLists.txt.")
 endif()
@@ -42,9 +42,9 @@ endif()
 # Amazon FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # Initialize all modules.
-afr_add_subdirectory("modules")
-afr_add_subdirectory("demos")
-afr_add_subdirectory("test")
+add_subdirectory("modules")
+add_subdirectory("demos")
+add_subdirectory("test")
 
 # Resolve dependencies.
 afr_resolve_dependencies()
@@ -117,4 +117,6 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Output metadata information
 # -------------------------------------------------------------------------------------------------
-afr_write_metadata()
+if(AFR_ENABLE_METADATA)
+    afr_write_metadata()
+endif()

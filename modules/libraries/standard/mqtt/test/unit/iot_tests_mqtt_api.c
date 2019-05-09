@@ -482,8 +482,8 @@ static void _disconnectCallback( void * pCallbackContext,
  * @brief A task pool job routine that decrements an MQTT operation's job
  * reference count.
  */
-static void _decrementReferencesJob( IotTaskPool_t * pTaskPool,
-                                     IotTaskPoolJob_t * pJob,
+static void _decrementReferencesJob( IotTaskPool_t pTaskPool,
+                                     IotTaskPoolJob_t pJob,
                                      void * pContext )
 {
     _mqttOperation_t * pOperation = ( _mqttOperation_t * ) pContext;
@@ -606,9 +606,10 @@ TEST( MQTT_Unit_API, OperationCreateDestroy )
     /* Schedule a job that destroys the operation. */
     TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS, IotTaskPool_CreateJob( _decrementReferencesJob,
                                                                     pOperation,
+                                                                    &( pOperation->jobStorage ),
                                                                     &( pOperation->job ) ) );
     TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS, IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL,
-                                                                   &( pOperation->job ),
+                                                                   pOperation->job,
                                                                    0 ) );
 
     /* Wait for the job to complete. */
@@ -1385,7 +1386,7 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
     /* Schedule the initial PINGREQ. */
     TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS,
                        IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
-                                                     &( _pMqttConnection->keepAliveJob ),
+                                                     _pMqttConnection->keepAliveJob,
                                                      _pMqttConnection->nextKeepAliveMs ) );
 
     /* Sleep to allow ample time for periodic PINGREQ sends and PINGRESP responses. */
@@ -1436,7 +1437,7 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
         /* Schedule the initial PINGREQ. */
         TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS,
                            IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
-                                                         &( _pMqttConnection->keepAliveJob ),
+                                                         _pMqttConnection->keepAliveJob,
                                                          _pMqttConnection->nextKeepAliveMs ) );
 
         /* Wait for the keep-alive job to send a PINGREQ. */

@@ -45,7 +45,7 @@
 #define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
 
 /* Set the task pool stack size and priority */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    2048
+#define IOT_THREAD_DEFAULT_STACK_SIZE    450
 #define IOT_THREAD_DEFAULT_PRIORITY      5
 
 /* Include the common configuration file for FreeRTOS. */

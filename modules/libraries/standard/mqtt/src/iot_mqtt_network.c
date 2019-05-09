@@ -775,7 +775,7 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
 
         /* Attempt to cancel the keep-alive job. */
         taskPoolStatus = IotTaskPool_TryCancel( IOT_SYSTEM_TASKPOOL,
-                                                &( pMqttConnection->keepAliveJob ),
+                                                pMqttConnection->keepAliveJob,
                                                 NULL );
 
         /* If the keep-alive job was not canceled, it must be already executing.

@@ -50,4 +50,4 @@ foreach(module IN LISTS afr_modules_standard afr_modules_aws afr_modules_ports)
 endforeach()
 
 # Add 3rdparty modules.
-afr_add_subdirectory("${AFR_MODULES_DIR}/libraries/3rdparty")
+add_subdirectory("${AFR_MODULES_DIR}/libraries/3rdparty")

@@ -11,7 +11,7 @@ Features of this library include:
 - Scalable performance and footprint. The [configuration settings](@ref taskpool_config) allow this library to be tailored to a system's resources.
 - Customizable caching for low memory overhead when creating jobs dynamically.
 
-This library uses a user-specified set of threads to process jobs specified by the user as a callback and a context. 
+This library uses a user-specified set of threads to process jobs specified by the user as a callback and a context.
 Overall, the task pool hinges on two main data structures: the task pool Job (IotTaskPoolJob_t) and the task pool itself (IotTaskPool_t). A task pool job carries the information about the user callback and context, one flag to track the status and a link structure for moving the job in and out of the dispatch queue and cache. User can create two types of jobs: static and recyclable. Static jobs are intended for users that know exactly how many jobs they will schedule (e.g. see Defender scenario above) or for embedding in other data structures. Static jobs need no destruction, and creation simply sets the user callback and context. Recyclable jobs are intended for scenario where user cannot know ahead of time how many jobs she will need. Recyclable jobs are dynamically allocated, and can be either destroyed after use or recycled. If jobs are recycled they are maintained in a cache (IotTaskPoolCache_t) owned by the task pool itself, and re-used when user wants to create more recyclable jobs. The task pool cache has a compile time limit, and can be pre-populated with recyclable jobs by simply creating recyclable jobs and recycling them, in an effort to limit memory allocations at run-time. This is handy for scenarios where user is aware of the steady state requirements for his application.
 User jobs are queued through a non-blocking call and processed asynchronously in the order they are received.
 - [Task pool API functions](@ref taskpool_functions) Provides a set of functions to queue an asynchronous operation on the <b>Dispatch Queue</b>. API functions are non-blocking and return after successfully queuing an operation.
@@ -70,27 +70,14 @@ The sequence diagram below illustrates the workflow described above. The applica
 
 @image html taskpool_design_typicaloperation.png width=100%
 
-The state diagrams for statically allocated, non-recyclable jobs with all legal transitions is presented in the diagram below. A static job can be created, schedule and canceled. Cancellation always succeeds, unless the job was already canceled, or completed (i.e. executed). Static jobs cannot be recycled and do no need to be destroyed. Static jobs are suitable for embedding on other data structures that own them. 
+The state diagrams for statically allocated, non-recyclable jobs with all legal transitions is presented in the diagram below. A static job can be created, schedule and canceled. Cancellation always succeeds, unless the job was already canceled, or completed (i.e. executed). Static jobs cannot be recycled and do no need to be destroyed. Static jobs are suitable for embedding on other data structures that own them.
 
 @image html StaticJobStatus.png width=40%
 
-The state diagram and legal transitions for all recyclable jobs is presented in the diagram below. A recyclable job is dynamically allocated. Just like a static job, a recyclable job can be created, schedule and canceled. Cancellation always succeeds, unless the job was already canceled, or completed (i.e. executed). Unlike static jobs, recyclable jobs can be recycled, or destroyed. Recycling a job effectively pushes a job to the task pool cache, where the task pool manages the lifetime of the job itself. The size of the cache is controlled via a compile time parameter. A user can get rid of a recyclable job by destroying it explicitly. Recyclable jobs should not be embedded in other data structures, but could be referenced from other data structures.  
+The state diagram and legal transitions for all recyclable jobs is presented in the diagram below. A recyclable job is dynamically allocated. Just like a static job, a recyclable job can be created, schedule and canceled. Cancellation always succeeds, unless the job was already canceled, or completed (i.e. executed). Unlike static jobs, recyclable jobs can be recycled, or destroyed. Recycling a job effectively pushes a job to the task pool cache, where the task pool manages the lifetime of the job itself. The size of the cache is controlled via a compile time parameter. A user can get rid of a recyclable job by destroying it explicitly. Recyclable jobs should not be embedded in other data structures, but could be referenced from other data structures.
 
 @image html RecyclableJobStatus.png width=50%
 
-*/
-
-/**
-@page taskpool_demo Demo
-@brief The task pool demo demonstrates usage of the task pool library.
-
-The task pool demo demonstrates the create-schedule workflow of task pool. After creating multiple jobs, it schedules all jobs and wait on their completion (by synchronizing at the application level), or try and cancel them.
-
-See @subpage taskpool_demo_config for configuration settings that change the behavior of the demo.
-
-The main task pool demo file, iot_demo_taskpool.c, contains platform-independent code. See the following guides for running the task pool demo on various platforms.
-- @subpage demo_taskpool <br>
-  @copybrief demo_taskpool
 */
 
 /**
@@ -105,28 +92,23 @@ The current task pool tests use the [Unity test framework](http://www.throwthesw
 */
 
 /**
-@configpage{taskpool_demo,task pool demo,Demo,demos}
-
-*/
-
-/**
 @configpage{taskpool,task pool library}
 
 @section IOT_TASKPOOL_JOB_WAIT_TIMEOUT_MS
 @brief Set this to the desired wait timeout in milliseconds for a worker in the task pool to wait for an incoming job.
 
-If a worker in the task pool wakes up because of a timeout, then the worker will terminate if it exceeds the desired minimum thread quota, which the user can configure via @ref IotTaskPoolInfo_t.minThreads. 
+If a worker in the task pool wakes up because of a timeout, then the worker will terminate if it exceeds the desired minimum thread quota, which the user can configure via @ref IotTaskPoolInfo_t.minThreads.
 
 @configdefault `1 minute`
 
 @section IOT_TASKPOOL_JOBS_RECYCLE_LIMIT
-@brief Set this to the number of recyclable tasks for the task pool to cache. 
+@brief Set this to the number of recyclable tasks for the task pool to cache.
 
 Caching dynamically allocated tasks (recyclable tasks) helps the application to limit the number of allocations at runtime.
-Caching recyclable tasks may help making the application more responsive and predictable, by removing a potential 
-for memory allocation failures, but it may also have negative repercussions on the amount of memory available at any given time. 
-It is up to the application developer to strike the correct balance these competing needs. 
-The task pool will cache when the application calling @ref IotTaskPool_RecycleJob. Any recycled tasks in excess of @ref IOT_TASKPOOL_JOBS_RECYCLE_LIMIT will be destroyed and its memory will be release. 
+Caching recyclable tasks may help making the application more responsive and predictable, by removing a potential
+for memory allocation failures, but it may also have negative repercussions on the amount of memory available at any given time.
+It is up to the application developer to strike the correct balance these competing needs.
+The task pool will cache when the application calling @ref IotTaskPool_RecycleJob. Any recycled tasks in excess of @ref IOT_TASKPOOL_JOBS_RECYCLE_LIMIT will be destroyed and its memory will be release.
 
 @configdefault `8`
 
@@ -153,5 +135,5 @@ Log messages from the task pool library at or below this setting will be printed
 @paramstructs{taskpool,task pool}
 @functionpointers{taskpool,task pool}
 @structs{taskpool,task pool}
+@handles{taskpool,task pool}
 */
-
