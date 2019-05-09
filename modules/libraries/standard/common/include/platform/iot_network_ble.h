@@ -31,7 +31,6 @@
 /* Standard includes. */
 #include <stdbool.h>
 #include "platform/iot_network.h"
-#include "platform/iot_threads.h"
 
 /**
  * @brief Provides a pointer to an #IotNetworkInterface_t that uses the functions

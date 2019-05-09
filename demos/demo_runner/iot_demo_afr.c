@@ -298,9 +298,8 @@ void runDemoTask( void * pArgument )
 
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
-    IotNetworkServerInfoAfr_t networkInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-    IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER; 
-    int status = EXIT_SUCCESS;
+    int status;
+    
     status = _initialize( pContext );
 
     if( status == EXIT_SUCCESS )
@@ -310,14 +309,14 @@ void runDemoTask( void * pArgument )
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
 
         /* ALPN only works over port 443. Disable it otherwise. */
-        if( networkInfo.port != 443 )
+        if( serverInfo.port != 443 )
         {
             credentials.pAlpnProtos = NULL;
         }
         /* Run the demo. */
         status = pContext->demoFunction( true,
                                 clientcredentialIOT_THING_NAME,
-                                &networkInfo,
+                                ( void * ) &serverInfo,
                                 &credentials,
                                 pNetworkInterface );
 

@@ -32,6 +32,7 @@
 #include "FreeRTOS.h"
 #include "iot_ble_config.h"
 #include "platform/iot_network_ble.h"
+#include "platform/iot_threads.h"
 #include "iot_ble_data_transfer.h"
 
 
