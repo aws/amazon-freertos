@@ -271,6 +271,43 @@ typedef struct
  */
 typedef void (* pxOTACompleteCallback_t)( OTA_JobEvent_t eEvent );
 
+
+
+
+typedef enum
+{
+    eOTA_PAL_ImageState_Unknown = 0,
+    eOTA_PAL_ImageState_PendingCommit,
+    eOTA_PAL_ImageState_Valid,
+    eOTA_PAL_ImageState_Invalid,
+} OTA_PAL_ImageState_t;
+
+
+typedef OTA_Err_t (* pxOTAPALAbortCallback_t)( OTA_FileContext_t * const C );
+typedef OTA_Err_t (* pxOTAPALActivateNewImageCallback_t)( void );
+typedef OTA_Err_t (* pxOTAPALCloseFileCallback_t)( OTA_FileContext_t * const C );
+typedef OTA_Err_t (* pxOTAPALCreateFileForRxCallback_t)( OTA_FileContext_t * const C );
+typedef OTA_PAL_ImageState_t (* pxOTAPALGetPlatformImageStateCallback_t)( void );
+typedef OTA_Err_t (* pxOTAPALResetDeviceCallback_t)( void );
+typedef OTA_Err_t (* pxOTAPALSetPlatformImageStateCallback_t)( OTA_ImageState_t eState ); 
+typedef int16_t (* pxOTAPALWriteBlockCallback_t)( OTA_FileContext_t * const C, uint32_t iOffset, uint8_t * const pacData, uint32_t iBlockSize );
+
+typedef struct _OTA_PAL_Callbacks {
+    pxOTAPALAbortCallback_t xAbort;
+    pxOTAPALActivateNewImageCallback_t xActivateNewImage;
+    pxOTAPALCloseFileCallback_t xCloseFile;
+    pxOTAPALCreateFileForRxCallback_t xCreateFileForRx;
+    pxOTAPALGetPlatformImageStateCallback_t xGetPlatformImageState;
+    pxOTAPALResetDeviceCallback_t xResetDevice;
+    pxOTAPALSetPlatformImageStateCallback_t xSetPlatformImageState;
+    pxOTAPALWriteBlockCallback_t xWriteBlock;
+    pxOTACompleteCallback_t xCompleteCallback;
+} OTA_PAL_Callbacks_t;
+
+
+
+
+
 /*---------------------------------------------------------------------------*/
 /*								Public API									 */
 /*---------------------------------------------------------------------------*/
@@ -298,6 +335,14 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                            const uint8_t * pucThingName,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait );
+
+
+OTA_State_t OTA_AgentInit_v2( void * pvClient,
+                           const uint8_t * pucThingName,
+                           OTA_PAL_Callbacks_t * xCallbacks,
+                           TickType_t xTicksToWait );
+
+
 
 /**
  * @brief Signal to the OTA Agent to shut down.
