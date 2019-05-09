@@ -109,11 +109,20 @@
 
 /**
  *
- * @brief Device name as it appears on the BLE network.
+ * @brief Device name that is broadcasted in advertising message.
  *
  */
-#ifndef IOT_BLE_DEVICE_NAME
-#define IOT_BLE_DEVICE_NAME                      "BLE"
+#ifndef IOT_BLE_DEVICE_SHORT_LOCAL_NAME
+#define IOT_BLE_DEVICE_SHORT_LOCAL_NAME                      "BLE"
+#endif
+
+/**
+ *
+ * @brief Device name that can be read from the name characteristic.
+ *
+ */
+#ifndef IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME
+#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                      "BLE"
 #endif
 
 /**
@@ -243,3 +252,4 @@
 #define IOT_BLE_MQTT_CREATE_CONNECTION_RETRY                ( 60 )
 #endif
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */
+

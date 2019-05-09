@@ -31,9 +31,11 @@
 #include <stddef.h>
 #include <string.h>
 #include "FreeRTOS.h"
+#include "esp_bt.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatts_api.h"
 #include "esp_gatt_common_api.h"
+#include "iot_ble_config.h"
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
@@ -593,7 +595,180 @@ BTTransport_t prvBTGetDeviceType( const BTBdaddr_t * pxBdAddr )
     return xStatus;
 }
 
+/* According to  https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/bluetooth/controller_vhci.html#_CPPv417esp_power_level_t */
+int prvConvertPowerLevelToDb(esp_power_level_t powerLevel)
+{
+	int dbm;
+
+	switch(powerLevel)
+	{
+	case ESP_PWR_LVL_N12:
+		dbm = -12;
+		break;
+	case ESP_PWR_LVL_N9:
+		dbm = -9;
+		break;
+	case ESP_PWR_LVL_N6:
+		dbm = -6;
+		break;
+	case ESP_PWR_LVL_N3:
+		dbm = -3;
+		break;
+	case ESP_PWR_LVL_N0:
+		dbm = 0;
+		break;
+	case ESP_PWR_LVL_P3:
+		dbm = 3;
+		break;
+	case ESP_PWR_LVL_P6:
+		dbm = 6;
+		break;
+	case ESP_PWR_LVL_P9:
+		dbm = 9;
+		break;
+	default:
+		dbm = 0;
+		break;
+	}
+	return dbm;
+}
+
+/**
+ * @Brief fill up the pucAdvMsg array. Return eBTStatusSuccess in case of success.
+ */
+BTStatus_t prvAddToAdvertisementMessage(uint8_t * pucAdvMsg, uint8_t * pucIndex, esp_ble_adv_data_type xDType, uint8_t * pucData, const uint8_t ucDataLength)
+{
+	BTStatus_t xStatus = eBTStatusSuccess;
+
+	if((*pucIndex) + ucDataLength + 1 < ESP_BLE_ADV_DATA_LEN_MAX)
+	{
+		pucAdvMsg[(*pucIndex)++] = ucDataLength + 1;
+		pucAdvMsg[(*pucIndex)++] = xDType;
+		memcpy(&pucAdvMsg[*pucIndex], pucData, ucDataLength);
+		(*pucIndex) += ucDataLength;
+	}else
+	{
+		configPRITNF(("Advertising data can't fit in advertisement message.\n"));
+		xStatus = eBTStatusFail;
+	}
+
+	return xStatus;
+}
+
+BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
+                            BTGattAdvertismentParams_t * pxParams,
+                            uint16_t usManufacturerLen,
+                            char * pcManufacturerData,
+                            uint16_t usServiceDataLen,
+                            char * pcServiceData,
+                            BTUuid_t * pxServiceUuid,
+                            size_t xNbServices )
+{
+	BTStatus_t xStatus = eBTStatusSuccess;
+	uint8_t ucSlaveConnectInterval[4];
+	uint8_t ucIndex, ucMessageIndex = 0;
+	uint8_t ucMessageRaw[ESP_BLE_ADV_DATA_LEN_MAX];
+	uint8_t ucFlags;
+	uint8_t ucTxPower;
+
+	if(pxParams->bIncludeName == true)
+	{
+		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_NAME_SHORT, (uint8_t *)IOT_BLE_DEVICE_SHORT_LOCAL_NAME, sizeof(IOT_BLE_DEVICE_SHORT_LOCAL_NAME)-1);
+	}
+
+	if((pxParams->bIncludeTxPower == true)&&(xStatus == eBTStatusSuccess))
+	{
+		ucTxPower = prvConvertPowerLevelToDb(esp_ble_tx_power_get(ESP_BLE_PWR_TYPE_ADV));
+		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_TX_PWR, &ucTxPower, 1);
+	}
+
+	if((xStatus == eBTStatusSuccess)&&(pxParams->ulAppearance != 0))
+	{
+		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_APPEARANCE, (uint8_t *)&pxParams->ulAppearance, 4);
+	}
+
+	if(xStatus == eBTStatusSuccess)
+	{
+		ucSlaveConnectInterval[0] = (pxParams->ulMinInterval)&0xFF;
+		ucSlaveConnectInterval[1] = (pxParams->ulMinInterval>>8)&0xFF;
+		ucSlaveConnectInterval[2] = (pxParams->ulMaxInterval)&0xFF;
+		ucSlaveConnectInterval[3] = (pxParams->ulMaxInterval>>8)&0xFF;
+		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_INT_RANGE, ucSlaveConnectInterval,4);
+	}
+
+	if(xStatus == eBTStatusSuccess)
+	{
+		ucFlags =  ( ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT );
+		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_FLAG, &ucFlags,1);
+	}
+
+	if(( pcManufacturerData != NULL )&&(xStatus == eBTStatusSuccess))
+	{
+		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_MANUFACTURER_SPECIFIC_TYPE, (uint8_t *)pcManufacturerData, usManufacturerLen);
+	}
+
+	if(( pcServiceData != NULL)&&(xStatus == eBTStatusSuccess))
+	{
+		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_128SERVICE_DATA, (uint8_t *)pcServiceData, usServiceDataLen);
+	}
+
+    if(( xNbServices != 0 )&&(xStatus == eBTStatusSuccess))
+    {
+    	for( ucIndex = 0; ucIndex < xNbServices; ucIndex++ )
+    	{
+			switch(pxServiceUuid[ucIndex].ucType)
+			{
+				case eBTuuidType16:
+					xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_16SRV_PART, (uint8_t *)&pxServiceUuid[ucIndex].uu.uu16, 2);
+					break;
+				case eBTuuidType32:
+					xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_32SRV_PART, (uint8_t *)&pxServiceUuid[ucIndex].uu.uu32, 4);
+					break;
+				case eBTuuidType128:
+					xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_128SRV_PART, pxServiceUuid[ucIndex].uu.uu128, bt128BIT_UUID_LEN);
+					break;
+			}
+
+		    if(xStatus != eBTStatusSuccess)
+		    {
+		    	break;
+		    }
+    	}
+    }
+
+    if(xStatus == eBTStatusSuccess)
+    {
+		xAdv_params.channel_map = ADV_CHNL_ALL;
+		xAdv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
+		xAdv_params.adv_int_max = pxParams->ulMaxInterval;
+		xAdv_params.adv_int_min = pxParams->ulMinInterval;
+
+		if( pxParams->usAdvertisingEventProperties == BTAdvInd )
+		{
+			xAdv_params.adv_type = ADV_TYPE_IND;
+		}
+
+		if( pxParams->usAdvertisingEventProperties == BTAdvNonconnInd )
+		{
+			xAdv_params.adv_type = ADV_TYPE_NONCONN_IND;
+		}
+
+		xAdv_params.own_addr_type = pxParams->xAddrType;
+
+		if(pxParams->bSetScanRsp == true)
+		{
+			esp_ble_gap_config_scan_rsp_data_raw(ucMessageRaw, ucMessageIndex);
+		}else
+		{
+			esp_ble_gap_config_adv_data_raw(ucMessageRaw, ucMessageIndex);
+		}
+    }
+
+	return xStatus;
+}
+
 /*-----------------------------------------------------------*/
+/*
 BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
                             BTGattAdvertismentParams_t * pxParams,
                             uint16_t usManufacturerLen,
@@ -659,7 +834,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
     return xStatus;
 }
-
+*/
 
 /*-----------------------------------------------------------*/
 
