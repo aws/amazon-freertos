@@ -101,7 +101,7 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
             if( IotSemaphore_Create( &pBleConnection->ready, 0, 1 ) == true )
             {
                 IotBleDataTransfer_SetCallback( pChannel, _callback, pBleConnection );
-                if( IotSemaphore_TimedWait( &pBleConnection->ready, 10000 ) == true )
+                if( IotSemaphore_TimedWait( &pBleConnection->ready, IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS ) == true )
                 {
                     ( *pConnection ) = &pBleConnection->pChannel;
                     status = IOT_NETWORK_SUCCESS;

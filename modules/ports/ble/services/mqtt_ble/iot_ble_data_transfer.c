@@ -1077,6 +1077,10 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const ui
         }
         else
         {
+	    /*
+	     * Data transfer service does not support concurrent large object transfer so it waits for previous
+	     * transfer to be complete or the configured timeout is reached.
+	     */
             if( IotSemaphore_TimedWait( &pChannel->sendComplete, pChannel->timeout ) == true )
             {
                 if( _send( pChannel, true, ( uint8_t * ) pMessage, transmitLength ) == true )

@@ -233,7 +233,7 @@
  * @brief Waiting time between checks for connection established.
  */
 #ifndef IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS
-#define IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS                ( 1000 )
+#define IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS                ( 1000 * IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC )
 #endif
 
 /**
