@@ -68,7 +68,7 @@ option(AFR_DEBUG_CMAKE "Turn on additional checks and messages.")
 mark_as_advanced(AFR_DEBUG_CMAKE)
 
 # Enable metadata mode. This is for internal use only to generate metadata information for a board.
-if(NOT CACHE AFR_METADATA_MODE)
+if(NOT CACHE{AFR_METADATA_MODE})
     set(AFR_METADATA_MODE 0 CACHE INTERNAL "Turn off build and generate metadata information.")
 endif()
 
