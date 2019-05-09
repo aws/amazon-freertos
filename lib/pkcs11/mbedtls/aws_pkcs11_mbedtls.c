@@ -1035,11 +1035,11 @@ CK_RV prvGetExistingKeyComponent( mbedtls_pk_context * pxMbedContext,
 
     if( 0 == memcmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
-        xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen );
+        xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
     }
     else if( 0 == memcmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
-        xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen );
+        xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
     }
 
     if( xPalHandle != CK_INVALID_HANDLE )
@@ -1094,7 +1094,6 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
     pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
     mbedtls_ecp_keypair_init( pxKeyPair );
     mbedtls_ecp_group_init( &pxKeyPair->grp );
-    /*mbedtls_ecp_point_init( &pxKeyPair->d ); */
     /* At this time, only P-256 curves are supported. */
     mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
 
@@ -2049,7 +2048,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         /* Check with the PAL if the object was previously stored. */
         if( *pxObject == CK_INVALID_HANDLE )
         {
-            xPalHandle = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
+            xPalHandle = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, ( uint8_t ) strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
         }
 
         if( xPalHandle != CK_INVALID_HANDLE )
@@ -2796,14 +2795,18 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                               CK_ATTRIBUTE_PTR pxTemplate,
                                               CK_ULONG ulTemplateLength )
 {
+#define LABEL      ( 1U )
+#define PRIVATE    ( 1U << 1 )
+#define SIGN       ( 1U << 2 )
+
     CK_ATTRIBUTE xAttribute;
     CK_RV xResult = CKR_OK;
     CK_BBOOL xBool;
     CK_ULONG xTemp;
     CK_ULONG xIndex;
+    uint32_t xAttributeMap = 0;
+    uint32_t xRequiredAttributeMap = ( LABEL | PRIVATE | SIGN );
 
-    /* TODO: Check the rest of the parameters.
-     * TODO: Check that all required parameters are there. */
     for( xIndex = 0; xIndex < ulTemplateLength; xIndex++ )
     {
         xAttribute = pxTemplate[ xIndex ];
@@ -2812,6 +2815,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
         {
             case ( CKA_LABEL ):
                 *ppxLabel = &pxTemplate[ xIndex ];
+                xAttributeMap |= LABEL;
                 break;
 
             case ( CKA_TOKEN ):
@@ -2845,6 +2849,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                 }
 
+                xAttributeMap |= PRIVATE;
                 break;
 
             case ( CKA_SIGN ):
@@ -2856,12 +2861,18 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                 }
 
+                xAttributeMap |= SIGN;
                 break;
 
             default:
                 xResult = CKR_TEMPLATE_INCONSISTENT;
                 break;
         }
+    }
+
+    if( ( xAttributeMap & xRequiredAttributeMap ) != xRequiredAttributeMap )
+    {
+        xResult = CKR_TEMPLATE_INCOMPLETE;
     }
 
     return xResult;
@@ -2871,6 +2882,10 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                              CK_ATTRIBUTE_PTR pxTemplate,
                                              CK_ULONG ulTemplateLength )
 {
+#define LABEL        ( 1U )
+#define EC_PARAMS    ( 1U << 1 )
+#define VERIFY       ( 1U << 2 )
+
     CK_ATTRIBUTE xAttribute;
     CK_RV xResult = CKR_OK;
     CK_BBOOL xBool;
@@ -2878,9 +2893,9 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
     int lCompare;
     CK_ULONG ulIndex;
+    uint32_t xAttributeMap = 0;
+    uint32_t xRequiredAttributeMap = ( LABEL | EC_PARAMS | VERIFY );
 
-    /* TODO: Check the rest of the parameters.
-     * TODO: Check that all required parameters are there. */
     for( ulIndex = 0; ulIndex < ulTemplateLength; ulIndex++ )
     {
         xAttribute = pxTemplate[ ulIndex ];
@@ -2890,7 +2905,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
             case ( CKA_LABEL ):
 
                 *ppxLabel = &pxTemplate[ ulIndex ];
-
+                xAttributeMap |= LABEL;
                 break;
 
             case ( CKA_KEY_TYPE ):
@@ -2913,6 +2928,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                 }
 
+                xAttributeMap |= EC_PARAMS;
                 break;
 
             case ( CKA_VERIFY ):
@@ -2924,6 +2940,18 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                 }
 
+                xAttributeMap |= VERIFY;
+                break;
+
+            case ( CKA_TOKEN ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only token key generation is supported. \r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
                 break;
 
             default:
@@ -2932,14 +2960,71 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
         }
     }
 
+    if( ( xAttributeMap & xRequiredAttributeMap ) != xRequiredAttributeMap )
+    {
+        xResult = CKR_TEMPLATE_INCOMPLETE;
+    }
+
     return xResult;
 }
 
 
 /**
- * @brief Generate a new public-private keypair.
+ * @brief Generate a new public-private key pair.
  *
- * @param 
+ * This port only supports generating elliptic curve P-256
+ * key pairs.
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[in] pxMechanism                   Pointer to a mechanism. At this time,
+ *                                          CKM_EC_KEY_PAIR_GEN is the only supported mechanism.
+ * @param[in] pxPublicKeyTemplate           Pointer to a list of attributes that the generated
+ *                                          public key should possess.
+ *                                          Public key template must have the following attributes:
+ *                                          - CKA_LABEL
+ *                                              - Label should be no longer than #pkcs11configMAX_LABEL_LENGTH
+ *                                              and must be supported by port's PKCS #11 PAL.
+ *                                          - CKA_EC_PARAMS
+ *                                              - Must equal pkcs11DER_ENCODED_OID_P256.
+ *                                              Only P-256 keys are supported.
+ *                                          - CKA_VERIFY
+ *                                              - Must be set to true.  Only public keys used
+ *                                              for verification are supported.
+ *                                          Public key templates may have the following attributes:
+ *                                          - CKA_KEY_TYPE
+ *                                              - Must be set to CKK_EC. Only elliptic curve key
+ *                                              generation is supported.
+ *                                          - CKA_TOKEN
+ *                                              - Must be set to CK_TRUE.
+ * @param[in] ulPublicKeyAttributeCount     Number of attributes in pxPublicKeyTemplate.
+ * @param[in] pxPrivateKeyTemplate          Pointer to a list of attributes that the generated
+ *                                          private key should possess.
+ *                                          Private key template must have the following attributes:
+ *                                          - CKA_LABEL
+ *                                              - Label should be no longer than #pkcs11configMAX_LABEL_LENGTH
+ *                                              and must be supported by port's PKCS #11 PAL.
+ *                                          - CKA_PRIVATE
+ *                                              - Must be set to true.
+ *                                          - CKA_SIGN
+ *                                              - Must be set to true.  Only private keys used
+ *                                              for signing are supported.
+ *                                          Private key template may have the following attributes:
+ *                                          - CKA_KEY_TYPE
+ *                                              - Must be set to CKK_EC. Only elliptic curve key
+ *                                              generation is supported.
+ *                                          - CKA_TOKEN
+ *                                              - Must be set to CK_TRUE. 
+ *
+ * @param[in] ulPrivateKeyAttributeCount    Number of attributes in pxPrivateKeyTemplate.
+ * @param[out] pxPublicKey                  Pointer to the handle of the public key to be created.
+ * @param[out] pxPrivateKey                 Pointer to the handle of the private key to be created.
+ *
+ * \note Not all attributes specified by the PKCS #11 standard are supported.
+ * \note CKA_LOCAL attribute is not supported.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_MECHANISM_PTR pxMechanism,
@@ -2950,7 +3035,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_OBJECT_HANDLE_PTR pxPublicKey,
                                                 CK_OBJECT_HANDLE_PTR pxPrivateKey )
 {
-    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
     int lMbedResult = 0;
     mbedtls_pk_context xCtx = { 0 };
@@ -3069,7 +3154,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = CKR_OK;
 
     xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
-
 
     if( xResult == CKR_OK )
     {
