@@ -7,15 +7,16 @@ set(AFR_ROOT_DIR ${__root_dir} CACHE INTERNAL "Amazon FreeRTOS source root.")
 
 # Get all supported vendors.
 function(afr_get_vendors arg_vendors)
+    set(result "")
     set(vendors_dir "${AFR_ROOT_DIR}/vendors")
-    file(GLOB __vendors RELATIVE "${vendors_dir}" "${vendors_dir}/*")
-    foreach(__vendor IN LISTS __vendors)
-        if(IS_DIRECTORY "${vendors_dir}/${__vendor}")
-            list(APPEND ${arg_vendors} "${__vendor}")
+    file(GLOB vendors RELATIVE "${vendors_dir}" "${vendors_dir}/*")
+    foreach(vendor IN LISTS vendors)
+        if(IS_DIRECTORY "${vendors_dir}/${vendor}")
+            list(APPEND result "${vendor}")
         endif()
     endforeach()
 
-    set(${arg_vendors} "${${arg_vendors}}" PARENT_SCOPE)
+    set(${arg_vendors} "${result}" PARENT_SCOPE)
 endfunction()
 
 # Get all supported boards from a vendor.
@@ -28,15 +29,16 @@ endfunction()
 
 # Get all supported boards.
 function(afr_get_boards arg_boards)
+    set(result "")
     afr_get_vendors(afr_vendors)
-    foreach(__vendor IN LISTS afr_vendors)
-        afr_get_vendor_boards(${__vendor} vendor_boards)
-        foreach(__board IN LISTS vendor_boards)
-            list(APPEND ${arg_boards} "${__vendor}.${__board}")
+    foreach(vendor IN LISTS afr_vendors)
+        afr_get_vendor_boards(${vendor} vendor_boards)
+        foreach(board IN LISTS vendor_boards)
+            list(APPEND result "${vendor}.${board}")
         endforeach()
     endforeach()
 
-    set(${arg_boards} "${${arg_boards}}" PARENT_SCOPE)
+    set(${arg_boards} "${result}" PARENT_SCOPE)
 endfunction()
 
 function(afr_cache_append arg_cache_var)
@@ -100,31 +102,31 @@ function(afr_glob_files arg_files)
     endif()
 
     if(ARG_RECURSE)
-        set(__glob_mode GLOB_RECURSE)
+        set(glob_mode GLOB_RECURSE)
     else()
-        set(__glob_mode GLOB)
+        set(glob_mode GLOB)
     endif()
 
     if(NOT DEFINED ARG_GLOBS)
-        set(__glob_list "*;.*")
+        set(glob_list "*;.*")
     else()
-        set(__glob_list "${ARG_GLOBS}")
+        set(glob_list "${ARG_GLOBS}")
     endif()
 
-    set(__file_list "")
-    foreach(__glob_exp IN LISTS __glob_list)
+    set(file_list "")
+    foreach(glob_exp IN LISTS glob_list)
         file(
-            ${__glob_mode} glob_result
+            ${glob_mode} glob_result
             LIST_DIRECTORIES false
             CONFIGURE_DEPENDS
-            "${ARG_DIRECTORY}/${__glob_exp}"
+            "${ARG_DIRECTORY}/${glob_exp}"
         )
-        list(APPEND __file_list ${glob_result})
+        list(APPEND file_list ${glob_result})
     endforeach()
-    list(REMOVE_DUPLICATES __file_list)
+    list(REMOVE_DUPLICATES file_list)
 
     # Set output variable.
-    set(${arg_files} "${__file_list}" PARENT_SCOPE)
+    set(${arg_files} "${file_list}" PARENT_SCOPE)
 endfunction()
 
 # Gather source files under a folder.
@@ -139,24 +141,25 @@ function(afr_glob_src arg_files)
 
     # Default to C and assembly files if no extension is specified.
     if("${ARG_EXTENSIONS}" STREQUAL "")
-        set(__extensions "c;C;h;H;s;S;asm;ASM")
+        set(extensions "c;C;h;H;s;S;asm;ASM")
     else()
-        set(__extensions "${ARG_EXTENSIONS}")
+        set(extensions "${ARG_EXTENSIONS}")
     endif()
 
-    set(__glob_list)
-    foreach(__ext IN LISTS __extensions)
-        list(APPEND __glob_list "*.${__ext}")
+    set(glob_list)
+    foreach(extension IN LISTS extensions)
+        list(APPEND glob_list "*.${extension}")
     endforeach()
 
+    set(result "")
     if(ARG_RECURSE)
-        afr_glob_files(${arg_files} RECURSE DIRECTORY ${ARG_DIRECTORY} GLOBS "${__glob_list}")
+        afr_glob_files(result RECURSE DIRECTORY ${ARG_DIRECTORY} GLOBS "${glob_list}")
     else()
-        afr_glob_files(${arg_files} DIRECTORY ${ARG_DIRECTORY} GLOBS "${__glob_list}")
+        afr_glob_files(result DIRECTORY ${ARG_DIRECTORY} GLOBS "${glob_list}")
     endif()
 
     # Set output variable.
-    set(${arg_files} "${${arg_files}}" PARENT_SCOPE)
+    set(${arg_files} "${result}" PARENT_SCOPE)
 endfunction()
 
 # Pretty print status information
