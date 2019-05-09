@@ -42,6 +42,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>esp-idf</name>
+			<type>2</type>
+			<locationURI>BASE_DIR_ROOT/esp-idf</locationURI>
+		</link>
+		<link>
 			<name>modules</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>

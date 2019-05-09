@@ -251,7 +251,7 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
 IotMqttError_t IotMqtt_Connect( const IotMqttNetworkInfo_t * pNetworkInfo,
                                 const IotMqttConnectInfo_t * pConnectInfo,
                                 uint32_t timeoutMs,
-                                IotMqttConnection_t * pMqttConnection );
+                                IotMqttConnection_t * const pMqttConnection );
 /* @[declare_mqtt_connect] */
 
 /**

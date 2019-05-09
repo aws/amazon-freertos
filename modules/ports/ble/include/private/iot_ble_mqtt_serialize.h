@@ -91,7 +91,6 @@ typedef enum {
 } MQTTBLEConnectStatus_t;
 /** @} */
 
-extern const IotMqttSerializer_t IotBleMqttSerializer;
 /**
  * @brief Initializes the serializer for MQTT messages over BLE.
  * @return true or false
@@ -102,34 +101,7 @@ bool IotBleMqtt_InitSerialize( void );
 /**
  * @brief Cleanup the serializerfor Mqtt messages over BLE.
  */
-void IotBleMqtt_CleanupSerialize( void );
-
-
-/**
- * @brief Set the new MQTT connection.
- *
- * Serialize the CONNECT message parameters into a JSON structure
- *
- * @param[in] pConnectInfo MQTT CONNECT parameters.
- * @param[in] receiveCallback Not used.
- * @param[in] pContext Contains the new MQTT connection.
- */
-IotNetworkError_t IotBleMqtt_SetReceiveCallback( void * pConnection,
-                                    IotNetworkReceiveCallback_t receiveCallback,
-                                    void * pContext );
-
-/**
- * @brief Set the new MQTT connection.
- *
- * Serialize the CONNECT message parameters into a JSON structure
- *
- * @param[in] pConnectInfo MQTT CONNECT parameters.
- * @param[in] pBuffer data to copy.
- * @param[in] bytesRequested number of bytes to copy.
- */
-size_t IotBleMqtt_Receive( void * pConnection,
-                           uint8_t * pBuffer,
-                           size_t bytesRequested );
+void IotBleMqtt_CleanupSerialize( void );   
 
 /**
  * @brief Serialize the CONNECT message sent towards MQTT BLE proxy.

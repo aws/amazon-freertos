@@ -1,12 +1,5 @@
 # Link to this INTERFACE target to use the default implementation based on FreeRTOS.
-afr_module(INTERFACE OPTIONAL)
-
-afr_set_lib_metadata(ID "FreeRTOS-Plus-POSIX")
-afr_set_lib_metadata(DESCRIPTION "This library provides a POSIX compatibility layer for FreeRTOS.")
-afr_set_lib_metadata(DISPLAY_NAME "FreeRTOS Plus POSIX")
-afr_set_lib_metadata(CATEGORY "Operating System")
-afr_set_lib_metadata(VERSION "1.0.0")
-afr_set_lib_metadata(IS_VISIBLE "false")
+afr_module(INTERFACE)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")

@@ -26,30 +26,12 @@
 #ifndef _AWS_DEMO_CONFIG_H_
 #define _AWS_DEMO_CONFIG_H_
 
-#include "iot_demo_runner.h"
+#define CONFIG_MQTT_DEMO_ENABLED 
 
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
 #define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_BLE )
-
-
-/* Some individual demos want to override these defaults, that is done in this section */
-#if defined(democonfigTCP_ECHO_TASKS_SEPARATE_ENABLED)
-    #undef democonfigDEMO_STACKSIZE
-    #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
-    #undef democonfigDEMO_PRIORITY
-    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
-#endif
-
-#if defined(democonfigTCP_ECHO_TASKS_SINGLE_ENABLED)
-    #undef democonfigDEMO_STACKSIZE
-    #define democonfigDEMO_STACKSIZE                        ( configMINIMAL_STACK_SIZE * 4 )
-    #undef democonfigDEMO_PRIORITY
-    #define democonfigDEMO_PRIORITY                         ( tskIDLE_PRIORITY + 5 ) 
-#endif
-
-
 
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */
 #define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS         ( 0 )

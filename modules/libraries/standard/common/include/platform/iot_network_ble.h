@@ -26,7 +26,7 @@
  */
 
 #ifndef _IOT_NETWORK_BLE_H_
-#define _IOT_NETWORK_Ble_H_
+#define _IOT_NETWORK_BLE_H_
 
 /* Standard includes. */
 #include <stdbool.h>
@@ -38,14 +38,13 @@
  */
 #define IOT_NETWORK_INTERFACE_BLE    ( &( IotNetworkBle ) )
 
-
 /**
  * @brief An implementation of #IotNetworkInterface_t::create for Amazon FreeRTOS
  * Secure Sockets.
  */
 IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
                                         void * pCredentialInfo,
-                                        void * const pConnection );
+                                        void ** pConnection );
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::setReceiveCallback for
@@ -92,4 +91,4 @@ IotNetworkError_t IotNetworkBle_Destroy( void * pConnection );
 extern const IotNetworkInterface_t IotNetworkBle;
 /** @endcond */
 
-#endif /* ifndef _IOT_NETWORK_AFR_H_ */
+#endif /* ifndef _IOT_NETWORK_BLE_H_ */

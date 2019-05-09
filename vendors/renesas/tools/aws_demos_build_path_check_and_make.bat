@@ -50,9 +50,9 @@ echo\
 echo %qu%Checking source code tree...%qu%
 
 if %ide%==csp (
-    set FN=%CD%\..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\RX\NetworkInterface.c
+    set FN=%CD%\..\..\..\..\modules\standard\freertos-plus-tcp\source\portable\NetworkInterface\RX\NetworkInterface.c
 ) else if %ide%==e2 (
-    set FN=%CD%\.\lib\aws\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\RX\NetworkInterface.obj
+    set FN=%CD%\.\modules\standard\freertos-plus-tcp\source\portable\NetworkInterface\RX\NetworkInterface.obj
 )
 if %verbose%==1 echo Maximum Path is "%FN%"
 set FX=%FN:~259%

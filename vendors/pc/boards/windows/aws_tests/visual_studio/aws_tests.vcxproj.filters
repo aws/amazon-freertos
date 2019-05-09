@@ -247,9 +247,6 @@
     <Filter Include="modules\libraries\standard\common\taskpool">
       <UniqueIdentifier>{67b996cc-d816-4e1b-a210-6e3dd36ebde9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\libraries\standard\common\taskpool\private">
-      <UniqueIdentifier>{7ae769e6-a2cc-4179-9f87-e824378c222f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\libraries\standard\freertos_plus_posix">
       <UniqueIdentifier>{53dde712-1917-4564-9dfb-77636c9145ed}</UniqueIdentifier>
     </Filter>
@@ -336,6 +333,9 @@
     </Filter>
     <Filter Include="modules\libraries\aws\defender\src\private">
       <UniqueIdentifier>{2820337f-58fb-4d0e-bc75-307f2303fff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\standard\common\static_memory">
+      <UniqueIdentifier>{4c98e370-fa18-4982-b5d4-d31ec02c235b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -927,9 +927,6 @@
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\private\aws_iot_shadow_internal.h">
       <Filter>modules\libraries\aws\shadow\src\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\taskpool\private\iot_taskpool_internal.h">
-      <Filter>modules\libraries\standard\common\taskpool\private</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h">
       <Filter>modules\libraries\standard\freertos_plus_posix\include</Filter>
     </ClInclude>
@@ -1031,6 +1028,9 @@
     </ClInclude>
     <ClInclude Include="..\..\ports\posix\FreeRTOS_POSIX_portable.h">
       <Filter>modules\libraries\standard\freertos_plus_posix\include\portable</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\private\iot_taskpool_internal.h">
+      <Filter>modules\libraries\standard\common\include\private</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1629,6 +1629,30 @@
       <Filter>modules\libraries\standard\common\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_threads.c">
+      <Filter>modules\libraries\standard\common\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\static_memory\aws_iot_static_memory_defender.c">
+      <Filter>modules\libraries\standard\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\static_memory\aws_iot_static_memory_shadow.c">
+      <Filter>modules\libraries\standard\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_common.c">
+      <Filter>modules\libraries\standard\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_metrics.c">
+      <Filter>modules\libraries\standard\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_mqtt.c">
+      <Filter>modules\libraries\standard\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_serializer.c">
+      <Filter>modules\libraries\standard\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_taskpool.c">
+      <Filter>modules\libraries\standard\common\static_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\test\iot_tests_taskpool.c">
       <Filter>modules\libraries\standard\common\test</Filter>
     </ClCompile>
   </ItemGroup>

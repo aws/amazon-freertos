@@ -2,39 +2,44 @@
 # Amazon FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # First we need to clean defined CACHE variables on previous CMake run.
-foreach(__module IN LISTS AFR_MODULES)
-    foreach(__prop IN ITEMS SOURCES INCLUDES DEPENDS)
-        unset(AFR_MODULE_${__module}_${__prop}_PRIVATE CACHE)
-        unset(AFR_MODULE_${__module}_${__prop}_PUBLIC CACHE)
-        unset(AFR_MODULE_${__module}_${__prop}_INTERFACE CACHE)
-        unset(AFR_MODULE_${__module}_${__prop}_ALL CACHE)
+foreach(module IN LISTS AFR_MODULES)
+    foreach(prop IN ITEMS SOURCES INCLUDES DEPENDS)
+        unset(AFR_MODULE_${module}_${prop}_PRIVATE CACHE)
+        unset(AFR_MODULE_${module}_${prop}_PUBLIC CACHE)
+        unset(AFR_MODULE_${module}_${prop}_INTERFACE CACHE)
+        unset(AFR_MODULE_${module}_${prop}_ALL CACHE)
     endforeach()
 endforeach()
 
-# Global variables
+# Global variables.
 set(AFR_MODULES               "" CACHE INTERNAL "List of Amazon FreeRTOS modules.")
+set(AFR_MODULES_PORT          "" CACHE INTERNAL "List of porting layer modules for Amazon FreeRTOS from vendors.")
 set(AFR_MODULES_PUBLIC        "" CACHE INTERNAL "List of public Amazon FreeRTOS modules.")
-set(AFR_MODULES_OPTIONAL      "" CACHE INTERNAL "List of optional internal Amazon FreeRTOS modules.")
-set(AFR_MODULES_ENABLED       "" CACHE INTERNAL "List of enabled Amazon FreeRTOS modules.")
 set(AFR_MODULES_BUILD         "" CACHE INTERNAL "List of Amazon FreeRTOS modules to build.")
-set(AFR_MODULES_DISABLED_USER "" CACHE INTERNAL "List of Amazon FreeRTOS modules disabled by user.")
-set(AFR_MODULES_DISABLED_DEPS "" CACHE INTERNAL "List of Amazon FreeRTOS modules disabled due to dependencies.")
+set(AFR_MODULES_ENABLED       "" CACHE INTERNAL "List of enabled Amazon FreeRTOS modules.")
+set(AFR_MODULES_ENABLED_USER  "" CACHE INTERNAL "List of Amazon FreeRTOS modules enabled by user.")
+set(AFR_MODULES_ENABLED_DEPS  "" CACHE INTERNAL "List of Amazon FreeRTOS modules enabled due to dependencies.")
 set(AFR_DEMOS_ENABLED         "" CACHE INTERNAL "List of supported demos for Amazon FreeRTOS.")
 set(AFR_TESTS_ENABLED         "" CACHE INTERNAL "List of supported tests for Amazon FreeRTOS.")
+set(3RDPARTY_MODULES_ENABLED  "" CACHE INTERNAL "List of 3rdparty libraries enabled due to dependencies.")
+
+# Global setting for whether enable all modules by default or not.
+if(NOT AFR_ENABLE_ALL_MODULES)
+    set(AFR_ENABLE_ALL_MODULES 1 CACHE INTERNAL "")
+endif()
 
 # Define an Amazon FreeRTOS module, the module name will be added to the global variable AFR_MODULES.
 # Use NAME to provide a name for the module, if not use, the name will be inferred from the folder name.
-# Use INTERNAL to indicate the module is for internal use only and should not provide an option for user to disable it.
+# Use INTERNAL to indicate the module is for internal use and will only be enabled if it's required by a public module.
 # Use INTERFACE to define the module as an INTERFACE target instead of a static library, implies INTERNAL.
-# Use OPTIONAL to indicate the target should only be enabled if it's required by non-internal modules, implies INTERNAL.
 # Use KERNEL to indicate the module is part of the kernel. In this case it will not implicitly depends on kernel.
 function(afr_module)
     cmake_parse_arguments(
         PARSE_ARGV 0
-        "ARG"                                   # Prefix of parsed results.
-        "INTERNAL;INTERFACE;OPTIONAL;KERNEL"    # Option arguments.
-        "NAME"                                  # One value arguments.
-        ""                                      # Multi value arguments.
+        "ARG"                          # Prefix of parsed results.
+        "INTERNAL;INTERFACE;KERNEL"    # Option arguments.
+        "NAME"                         # One value arguments.
+        ""                             # Multi value arguments.
     )
 
     if(DEFINED ARG_NAME)
@@ -51,13 +56,8 @@ function(afr_module)
         set(AFR_MODULE_${module_name}_IS_INTERFACE FALSE CACHE INTERNAL "")
     endif()
 
-    if(ARG_OPTIONAL)
-        afr_cache_append(AFR_MODULES_OPTIONAL ${module_name})
-    endif()
-
-    if(NOT (ARG_INTERNAL OR ARG_INTERFACE OR ARG_OPTIONAL))
+    if(NOT (ARG_INTERNAL OR ARG_INTERFACE))
         afr_cache_append(AFR_MODULES_PUBLIC ${module_name})
-        option(AFR_MODULE_${module_name} "Enable ${module_name} module." ON)
     endif()
 
     # All modules implicitly depends on kernel unless INTERFACE or KERNEL is provided.
@@ -136,17 +136,17 @@ function(afr_test_module)
 endfunction()
 
 # Define a 3rdparty module.
-function(afr_3rdparty_module module_name)
-    add_library(3rdparty::${module_name} INTERFACE IMPORTED GLOBAL)
+function(afr_3rdparty_module arg_name)
+    add_library(3rdparty::${arg_name} INTERFACE IMPORTED GLOBAL)
 endfunction()
 
 # Add properties to a module, will set these global variables accordingly:
-# AFR_MODULE_${module_name}_${prop_type}_PRIVATE
-# AFR_MODULE_${module_name}_${prop_type}_PUBLIC
-# AFR_MODULE_${module_name}_${prop_type}_INTERFACE
-# AFR_MODULE_${module_name}_${prop_type}_ALL
-# ${prop_type} can be SOURCES, INCLUDES or DEPENDS.
-function(__afr_module_prop module_name prop_type)
+# AFR_MODULE_${arg_module}_${arg_prop_type}_PRIVATE
+# AFR_MODULE_${arg_module}_${arg_prop_type}_PUBLIC
+# AFR_MODULE_${arg_module}_${arg_prop_type}_INTERFACE
+# AFR_MODULE_${arg_module}_${arg_prop_type}_ALL
+# ${arg_prop_type} can be SOURCES, INCLUDES or DEPENDS.
+function(__afr_module_prop arg_module arg_prop_type)
     cmake_parse_arguments(
         PARSE_ARGV 2
         "ARG"                       # Prefix of parsed results.
@@ -155,254 +155,306 @@ function(__afr_module_prop module_name prop_type)
         "PRIVATE;PUBLIC;INTERFACE"  # Multi value arguments.
     )
 
-    set(__properties SOURCES INCLUDES DEPENDS)
-    if(NOT prop_type IN_LIST __properties)
-        message(FATAL_ERROR "Specified module property ${prop_type} is invalid.")
+    set(properties SOURCES INCLUDES DEPENDS)
+    if(NOT "${arg_prop_type}" IN_LIST properties)
+        message(FATAL_ERROR "Specified module property ${arg_prop_type} is invalid.")
     endif()
 
-    set(__prop_all_var AFR_MODULE_${module_name}_${prop_type}_ALL)
-    if(NOT DEFINED ${__prop_all_var})
-        set(${__prop_all_var} "" CACHE INTERNAL "")
+    set(prop_all_var AFR_MODULE_${arg_module}_${arg_prop_type}_ALL)
+    if(NOT DEFINED ${prop_all_var})
+        set(${prop_all_var} "" CACHE INTERNAL "")
     endif()
 
-    foreach(__scope IN ITEMS PRIVATE PUBLIC INTERFACE)
-        if(DEFINED ARG_${__scope})
-            set(__prop_var AFR_MODULE_${module_name}_${prop_type}_${__scope})
-            if(NOT DEFINED ${__prop_var})
-                set(${__prop_var} "" CACHE INTERNAL "")
+    foreach(scope IN ITEMS PRIVATE PUBLIC INTERFACE)
+        if(DEFINED ARG_${scope})
+            set(prop_var AFR_MODULE_${arg_module}_${arg_prop_type}_${scope})
+            if(NOT DEFINED ${prop_var})
+                set(${prop_var} "" CACHE INTERNAL "")
             endif()
-            afr_cache_append(${__prop_var} ${ARG_${__scope}})
-            afr_cache_append(${__prop_all_var} ${ARG_${__scope}})
+            afr_cache_append(${prop_var} ${ARG_${scope}})
+            afr_cache_append(${prop_all_var} ${ARG_${scope}})
         endif()
     endforeach()
 endfunction()
 
 # Add source files to a module.
-function(afr_module_sources module_name)
-    __afr_module_prop(${module_name} SOURCES ${ARGN})
+function(afr_module_sources arg_module)
+    __afr_module_prop(${arg_module} SOURCES ${ARGN})
 endfunction()
 
 # Add include directories to a module.
-function(afr_module_include_dirs module_name)
-    __afr_module_prop(${module_name} INCLUDES ${ARGN})
+function(afr_module_include_dirs arg_module)
+    __afr_module_prop(${arg_module} INCLUDES ${ARGN})
 endfunction()
 
 # Specify dependencies of a module.
-function(afr_module_dependencies module_name)
-    __afr_module_prop(${module_name} DEPENDS ${ARGN})
+function(afr_module_dependencies arg_module)
+    __afr_module_prop(${arg_module} DEPENDS ${ARGN})
 endfunction()
 
-# Traverse dependency graph and disable modules with missing dependencies.
-function(afr_resolve_dependencies)
-    function(__check_circular_dependency node)
-        list(FIND __path ${node} __idx)
-        if(NOT __idx EQUAL -1)
-            list(SUBLIST __path ${__idx} -1 __circle)
-            list(JOIN __circle "->" __circle)
-            message(FATAL_ERROR "Circular dependency detected: ${__circle}->${node}")
-        else()
-            afr_cache_append(__path ${node})
+# -------------------------------------------------------------------------------------------------
+# Dependency resolver.
+# -------------------------------------------------------------------------------------------------
+# Helper variables for traversing dependency graph:
+# __dg_path: current search path.
+# __dg_visited: already visited nodes (modules).
+# __dg_disabled: nodes (modules) that are disabled due to missing dependencies.
+set(__dg_path     "" CACHE INTERNAL "")
+set(__dg_visited  "" CACHE INTERNAL "")
+set(__dg_disabled "" CACHE INTERNAL "")
+
+# A helper macro to handle circular dependency.
+macro(__check_circular_dependency node)
+    list(FIND __dg_path ${node} idx)
+    if(NOT idx EQUAL -1)
+        if(AFR_DEBUG_CMAKE)
+            list(SUBLIST __dg_path ${idx} -1 circle)
+            list(JOIN circle "->" circle)
+            message(WARNING "Circular dependency detected: ${circle}->${node}")
         endif()
-    endfunction()
+        return()
+    else()
+        afr_cache_append(__dg_path ${node})
+    endif()
+endmacro()
 
-    function(__search_afr_dependencies mcu_port target)
-        __check_circular_dependency(${target})
+# Recursively search dependencies for a target, return all AFR and 3rdparty dependencies found. This
+# is to process dependency information added by vendors' CMake files and generate a complete
+# dependency graph.
+macro(__search_afr_dependencies arg_target arg_dependencies)
+    set(__dg_path "" CACHE INTERNAL "")
+    set(__dependencies "" CACHE INTERNAL "")
+    __search_afr_dependencies_impl(${arg_target})
+    set(${arg_dependencies} ${__dependencies})
+    unset(__dependencies CACHE)
+    set(__dg_visited "" CACHE INTERNAL "")
+endmacro()
 
-        if(NOT ${target} IN_LIST __visited)
-            afr_cache_append(__visited ${target})
-            get_target_property(__dependencies ${target} INTERFACE_LINK_LIBRARIES)
-            foreach(__depend IN LISTS __dependencies)
-                string(FIND "${__depend}" "AFR::" __idx)
-                if(__idx EQUAL 0 AND NOT ${__depend} IN_LIST AFR_MODULE_${mcu_port}_DEPENDS_ALL)
-                    afr_module_dependencies(${mcu_port} INTERFACE ${__depend})
-                endif()
-                if(TARGET ${__depend})
-                    __search_afr_dependencies(${mcu_port} ${__depend})
-                endif()
-            endforeach()
-        endif()
+function(__search_afr_dependencies_impl arg_target)
+    __check_circular_dependency(${arg_target})
 
-        afr_cache_remove(__path ${target})
-    endfunction()
-
-    function(__resolve_dependencies module_name)
-        __check_circular_dependency(${module_name})
-
-        set(__skip ${__visited} ${AFR_MODULES_DISABLED_USER} ${AFR_MODULES_DISABLED_DEPS})
-        if(NOT ${module_name} IN_LIST __skip)
-            afr_cache_append(__visited ${module_name})
-            foreach(__dep IN LISTS AFR_MODULE_${module_name}_DEPENDS_ALL)
-                # If the dependency starts with 3rdparty::, check if it exists.
-                string(FIND "${__dep}" "3rdparty::" __idx)
-                if(__idx EQUAL 0)
-                    if(NOT TARGET ${__dep})
-                        afr_cache_append(AFR_MODULES_DISABLED_DEPS ${module_name})
-                    endif()
-                    continue()
-                endif()
-
-                # Otherwise it should be an AFR module and start with AFR::, verify it exists.
-                string(REPLACE "AFR::" "" __dep "${__dep}")
-                if(NOT "${__dep}" IN_LIST AFR_MODULES)
-                    message(FATAL_ERROR "Module ${module_name} has an nonexistent AFR dependency ${__dep}.")
-                endif()
-
-                __resolve_dependencies(${__dep})
-
-                # Add the module name to AFR_MODULES_DISABLED_DEPS if the dependency is not satisfied.
-                if(NOT ${module_name} IN_LIST AFR_MODULES_DISABLED_USER     # Skip if it's disabled by user.
-                AND NOT ${module_name} IN_LIST AFR_MODULES_DISABLED_DEPS # Skip if already disabled.
-                AND ${__dep} IN_LIST AFR_MODULES_DISABLED_DEPS
-                OR ${__dep} IN_LIST AFR_MODULES_DISABLED_USER)
-                    afr_cache_append(AFR_MODULES_DISABLED_DEPS ${module_name})
-                endif()
-            endforeach()
-        endif()
-
-        afr_cache_remove(__path ${module_name})
-    endfunction()
-
-    # Initialize dependencies for portable layer targets first.
-    set(__visited "" CACHE INTERNAL "")
-    foreach(__mcu_port IN LISTS AFR_MODULES)
-        string(FIND "${__mcu_port}" "::mcu_port" __idx REVERSE)
-        if(NOT __idx EQUAL -1)
-            set(__path "" CACHE INTERNAL "")
-            __search_afr_dependencies(${__mcu_port} AFR::${__mcu_port})
-        endif()
-    endforeach()
-
-    # Initialize enabled and disabled modules.
-    foreach(__module IN LISTS AFR_MODULES)
-        string(FIND "${__module}" "::mcu_port" __idx REVERSE)
-        set(__port_target AFR::${__module}::mcu_port)
-        # Disable the module if it has a portable layer and it's not defined by the vendor.
-        if(__idx EQUAL -1       # Make sure the ${__module} itself is not a portable layer.
-           AND ${__port_target} IN_LIST AFR_MODULE_${__module}_DEPENDS_ALL # And it has a portable layer.
-           AND NOT TARGET ${__port_target})     # And the vendor didn't define the portable layer.
-            afr_cache_append(AFR_MODULES_DISABLED_DEPS ${__module})
-            if(DEFINED AFR_MODULE_${__module})
-                unset(AFR_MODULE_${__module} CACHE)
+    if(NOT ${arg_target} IN_LIST __dg_visited)
+        afr_cache_append(__dg_visited ${arg_target})
+        afr_get_target_dependencies(${arg_target} dependencies)
+        foreach(dep IN LISTS dependencies)
+            string(FIND "${dep}" "AFR::" idx_a)
+            string(FIND "${dep}" "3rdparty::" idx_b)
+            if((idx_a EQUAL 0 OR idx_b EQUAL 0) AND NOT ${dep} IN_LIST __dependencies)
+                afr_cache_append(__dependencies ${dep})
             endif()
-        # Check if the module is explicitly disabled by the user.
-        elseif(DEFINED AFR_MODULE_${__module} AND NOT AFR_MODULE_${__module})
-            afr_cache_append(AFR_MODULES_DISABLED_USER ${__module})
-        # Otherwise, add it to the initial enabled modules list.
-        else()
-            afr_cache_append(AFR_MODULES_ENABLED ${__module})
-        endif()
-    endforeach()
-
-    # Resolve dependencies with public modules first.
-    set(__visited "" CACHE INTERNAL "")
-    foreach(__module IN LISTS AFR_MODULES_PUBLIC)
-        set(__path "" CACHE INTERNAL "")
-        __resolve_dependencies(${__module})
-    endforeach()
-
-    # Disable optional modules that are not required by others.
-    set(__visited_or_disabled ${__visited} ${AFR_MODULES_DISABLED_DEPS})
-    foreach(__module IN LISTS AFR_MODULES_OPTIONAL)
-        if(NOT ${__module} IN_LIST __visited_or_disabled)
-            afr_cache_append(AFR_MODULES_DISABLED_DEPS ${__module})
-        endif()
-    endforeach()
-
-    # Resolve dependencies with reset modules.
-    foreach(__module IN LISTS AFR_MODULES)
-        set(__path "" CACHE INTERNAL "")
-        __resolve_dependencies(${__module})
-    endforeach()
-
-    # For each portable layer modue, disable it if its parent module is disabled.
-    foreach(__module IN LISTS AFR_MODULES_ENABLED)
-        string(FIND ${__module} ::mcu_port __idx)
-        if(NOT __idx EQUAL -1)
-            string(SUBSTRING ${__module} 0 ${__idx} __afr_module)
-            if(NOT __afr_module IN_LIST AFR_MODULES_ENABLED)
-                afr_cache_append(AFR_MODULES_DISABLED_DEPS ${__module})
-            endif()
-        endif()
-    endforeach()
-
-    afr_cache_remove(AFR_MODULES_ENABLED ${AFR_MODULES_DISABLED_DEPS})
-
-    unset(__visited CACHE)
-    unset(__path CACHE)
-
-    # Define all targets and populate results.
-    foreach(__module IN LISTS AFR_MODULES_ENABLED)
-        afr_module_define_target(${__module})
-
-        if(NOT AFR_MODULE_${__module}_IS_INTERFACE)
-            afr_cache_append(AFR_MODULES_BUILD ${__module})
-        endif()
-
-        string(FIND ${__module} "_base" __is_base)
-        string(FIND ${__module} "demo_" __idx)
-        if(__is_base EQUAL -1 AND __idx EQUAL 0)
-            afr_cache_append(AFR_DEMOS_ENABLED ${__module})
-        endif()
-
-        string(FIND ${__module} "test_" __idx)
-        if(__is_base EQUAL -1 AND __idx EQUAL 0)
-            afr_cache_append(AFR_TESTS_ENABLED ${__module})
-        endif()
-    endforeach()
-
-    # No need to show disabled INTERFACE targets to user unless debug mode is enabled.
-    if(NOT AFR_DEBUG_CMAKE)
-        set(__filter ${AFR_MODULES_DISABLED_DEPS})
-        foreach(__module IN LISTS __filter)
-            if(AFR_MODULE_${__module}_IS_INTERFACE)
-                afr_cache_remove(AFR_MODULES_DISABLED_DEPS ${__module})
+            if(TARGET ${dep})
+                __search_afr_dependencies_impl(${dep})
             endif()
         endforeach()
     endif()
+
+    afr_cache_remove(__dg_path ${arg_target})
+endfunction()
+
+# Recursively search dependencies for a given module, store modules with missing dependencies in
+# __dg_disabled.
+macro(__resolve_dependencies arg_module)
+    set(__dg_path "" CACHE INTERNAL "")
+    __resolve_dependencies_impl(${arg_module})
+endmacro()
+
+function(__resolve_dependencies_impl arg_module)
+    __check_circular_dependency(${arg_module})
+
+    set(skip ${__dg_visited} ${__dg_disabled})
+    if(NOT ${arg_module} IN_LIST skip)
+        afr_cache_append(__dg_visited ${arg_module})
+        foreach(dep IN LISTS AFR_MODULE_${arg_module}_DEPENDS_ALL)
+            # If the dependency starts with 3rdparty::, check if it exists.
+            string(FIND "${dep}" "3rdparty::" idx)
+            if(idx EQUAL 0)
+                if(NOT TARGET ${dep})
+                    afr_cache_append(__dg_disabled ${arg_module})
+                    break()
+                else()
+                    afr_cache_append(__dg_visited ${dep})
+                    continue()  # No need to search dependencies of 3rdparty libraries.
+                endif()
+            endif()
+
+            # Otherwise it should be an AFR module and start with AFR::.
+            # If it's a portable layer target, check if it's defined by vendor.
+            string(REPLACE "AFR::" "" dep "${dep}")
+            string(FIND "${dep}" "::mcu_port" idx REVERSE)
+            if(NOT ${idx} EQUAL -1 AND NOT ${dep} IN_LIST AFR_MODULES_PORT)
+                afr_cache_append(__dg_disabled ${arg_module})
+                break()
+            endif()
+
+            # Verify this AFR module exists.
+            if(NOT "${dep}" IN_LIST AFR_MODULES)
+                message(FATAL_ERROR "Module ${arg_module} has an nonexistent AFR dependency ${dep}.")
+            endif()
+
+            __resolve_dependencies_impl(${dep})
+
+            # Add the module name to __dg_disabled if its dependency is missing.
+            if(NOT ${arg_module} IN_LIST __dg_disabled  # Skip if already disabled.
+                AND ${dep} IN_LIST __dg_disabled)
+                afr_cache_append(__dg_disabled ${arg_module})
+            endif()
+        endforeach()
+    endif()
+
+    afr_cache_remove(__dg_path ${arg_module})
+endfunction()
+
+# Traverse dependency graph and enable selected public modules with their dependencies.
+function(afr_resolve_dependencies)
+    # Process dependencies information from portable layer targets.
+    foreach(mcu_port IN LISTS AFR_MODULES_PORT)
+        __search_afr_dependencies(AFR::${mcu_port} dependencies)
+        afr_module_dependencies(${mcu_port} INTERFACE ${dependencies})
+    endforeach()
+
+    # Process dependencies information from aws_demos/aws_tests.
+    if(AFR_IS_TESTING)
+        set(exe_target aws_tests)
+        set(exe_base test_base)
+    else()
+        set(exe_target aws_demos)
+        set(exe_base demo_base)
+    endif()
+    __search_afr_dependencies(${exe_target} dependencies)
+    afr_module_dependencies(${exe_base} INTERFACE ${dependencies})
+
+    # Make sure kernel can be enabled first.
+    __resolve_dependencies(kernel)
+    if("kernel" IN_LIST __dg_disabled)
+        message(FATAL_ERROR "Unable to build kernel due to missing dependencies.")
+    endif()
+    afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
+
+    # Check if demo_base/test_base can be enabled.
+    __resolve_dependencies(${exe_base})
+    if("${exe_base}" IN_LIST __dg_disabled)
+        message(FATAL_ERROR "Unable to build ${exe_target} due to missing dependencies.")
+    else()
+        afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
+    endif()
+
+    # Calculate all public modules that can be enabled.
+    foreach(module IN LISTS AFR_MODULES_PUBLIC)
+        __resolve_dependencies(${module})
+        # Initialize the option.
+        if(NOT ${module} IN_LIST __dg_disabled)
+            option(AFR_MODULE_${module} "Enable ${module_name} module." ${AFR_ENABLE_ALL_MODULES})
+        else()
+            # If this module is disabled but user enabled it, throw FATAL_ERROR.
+            if(AFR_MODULE_${module})
+                message(FATAL_ERROR "Module ${module} cannot be enabled due to missing dependencies.")
+            endif()
+        endif()
+    endforeach()
+
+    # Enable all required modules, i.e., user selected + their dependencies.
+    set(__dg_visited "" CACHE INTERNAL "")
+    foreach(module IN LISTS AFR_MODULES_PUBLIC)
+        if(AFR_MODULE_${module})
+            __resolve_dependencies(${module})
+            afr_cache_append(AFR_MODULES_ENABLED_USER ${module})
+            afr_cache_append(AFR_MODULES_ENABLED ${__dg_visited})
+        endif()
+    endforeach()
+
+    # Cleanup result.
+    afr_cache_remove_duplicates(AFR_MODULES_ENABLED)
+    set(3rdparty_libs ${AFR_MODULES_ENABLED})
+    list(FILTER 3rdparty_libs INCLUDE REGEX "3rdparty::")
+    afr_cache_remove(AFR_MODULES_ENABLED ${3rdparty_libs})
+    list(TRANSFORM 3rdparty_libs REPLACE "3rdparty::" "")
+    afr_cache_append(3RDPARTY_MODULES_ENABLED ${3rdparty_libs})
+    afr_cache_append(AFR_MODULES_ENABLED_DEPS ${AFR_MODULES_ENABLED})
+    afr_cache_remove(AFR_MODULES_ENABLED_DEPS ${AFR_MODULES_ENABLED_USER} ${AFR_MODULES_PORT})
+
+    # Disable all other modules that are not required.
+    set(__dg_disabled "" CACHE INTERNAL "")
+    foreach(module IN LISTS AFR_MODULES)
+        string(REGEX MATCH "(demo_|test_)" match "${module}")
+        if("${match}" STREQUAL "" AND NOT ${module} IN_LIST AFR_MODULES_ENABLED)
+            afr_cache_append(__dg_disabled ${module})
+        endif()
+    endforeach()
+
+    # Enable available demos/tests.
+    foreach(module IN LISTS AFR_MODULES)
+        string(REGEX MATCH "(demo_|test_)" match "${module}")
+        if(NOT "${match}" STREQUAL "")
+            __resolve_dependencies(${module})
+            if(NOT ${module} IN_LIST __dg_disabled)
+                afr_cache_append(AFR_MODULES_ENABLED ${module})
+            endif()
+        endif()
+    endforeach()
+
+    # Define all targets and populate results.
+    foreach(module IN LISTS AFR_MODULES_ENABLED)
+        afr_module_define_target(${module})
+
+        if(NOT AFR_MODULE_${module}_IS_INTERFACE)
+            afr_cache_append(AFR_MODULES_BUILD ${module})
+        endif()
+
+        string(FIND ${module} "_base" is_base)
+        string(FIND ${module} "demo_" idx)
+        if(is_base EQUAL -1 AND idx EQUAL 0)
+            afr_cache_append(AFR_DEMOS_ENABLED ${module})
+        endif()
+
+        string(FIND ${module} "test_" idx)
+        if(is_base EQUAL -1 AND idx EQUAL 0)
+            afr_cache_append(AFR_TESTS_ENABLED ${module})
+        endif()
+    endforeach()
 endfunction()
 
 # Define the module target.
-function(afr_module_define_target module_name)
-    if(NOT ${module_name} IN_LIST AFR_MODULES)
-        message(FATAL_ERROR "Specified module ${module_name} does not exist.")
+function(afr_module_define_target arg_module)
+    if(NOT ${arg_module} IN_LIST AFR_MODULES)
+        message(FATAL_ERROR "Specified module ${arg_module} does not exist.")
     endif()
 
-    if(TARGET AFR::${module_name})
+    if(TARGET AFR::${arg_module})
         return()
     endif()
 
-    set(__target afr_${module_name})
-    if(AFR_MODULE_${module_name}_IS_INTERFACE)
-        add_library(${__target} INTERFACE)
+    set(target afr_${arg_module})
+    if(AFR_MODULE_${arg_module}_IS_INTERFACE)
+        add_library(${target} INTERFACE)
     else()
-        add_library(${__target} STATIC)
+        add_library(${target} STATIC)
     endif()
-    add_library(AFR::${module_name} ALIAS ${__target})
+    add_library(AFR::${arg_module} ALIAS ${target})
 
-    set(__scopes PRIVATE PUBLIC INTERFACE)
-    if(DEFINED AFR_MODULE_${module_name}_SOURCES_ALL)
-        foreach(__scope IN LISTS __scopes)
-            set(__prop "${AFR_MODULE_${module_name}_SOURCES_${__scope}}")
-            if(__prop)
-                target_sources(${__target} ${__scope} ${__prop})
+    set(scopes PRIVATE PUBLIC INTERFACE)
+    if(DEFINED AFR_MODULE_${arg_module}_SOURCES_ALL)
+        foreach(scope IN LISTS scopes)
+            set(prop "${AFR_MODULE_${arg_module}_SOURCES_${scope}}")
+            if(prop)
+                target_sources(${target} ${scope} ${prop})
             endif()
         endforeach()
     endif()
 
-    if(DEFINED AFR_MODULE_${module_name}_INCLUDES_ALL)
-        foreach(__scope IN LISTS __scopes)
-            set(__prop "${AFR_MODULE_${module_name}_INCLUDES_${__scope}}")
-            if(__prop)
-                target_include_directories(${__target} ${__scope} ${__prop})
+    if(DEFINED AFR_MODULE_${arg_module}_INCLUDES_ALL)
+        foreach(scope IN LISTS scopes)
+            set(prop "${AFR_MODULE_${arg_module}_INCLUDES_${scope}}")
+            if(prop)
+                target_include_directories(${target} ${scope} ${prop})
             endif()
         endforeach()
     endif()
 
-    if(DEFINED AFR_MODULE_${module_name}_DEPENDS_ALL)
-        foreach(__scope IN LISTS __scopes)
-            set(__prop "${AFR_MODULE_${module_name}_DEPENDS_${__scope}}")
-            if(__prop)
-                target_link_libraries(${__target} ${__scope} ${__prop})
+    if(DEFINED AFR_MODULE_${arg_module}_DEPENDS_ALL)
+        foreach(scope IN LISTS scopes)
+            set(prop "${AFR_MODULE_${arg_module}_DEPENDS_${scope}}")
+            if(prop)
+                target_link_libraries(${target} ${scope} ${prop})
             endif()
         endforeach()
     endif()
@@ -412,10 +464,10 @@ endfunction()
 # Interface for MCU vendors
 # -------------------------------------------------------------------------------------------------
 # Define an INTERFACE IMPORTED target for the portable layer of an Amazon FreeRTOS module, the
-# target name is added to the global variable AFR_MODULES. Additional dependencies can be provided
-# with DEPENDS parameter, or you can also use the target name AFR::${module_name}::mcu_port directly
-# with any CMake built-in functions.
-function(afr_mcu_port module_name)
+# target name is added to the global variables AFR_MODULES and AFR_MODULES_PORT. Additional
+# dependencies can be provided with DEPENDS parameter, or you can also use the target name
+# AFR::${arg_module}::mcu_port directly with any CMake built-in functions.
+function(afr_mcu_port arg_module)
     cmake_parse_arguments(
         PARSE_ARGV 1
         "ARG"       # Prefix of parsed results.
@@ -424,13 +476,14 @@ function(afr_mcu_port module_name)
         "DEPENDS"   # Multi value arguments.
     )
 
-    set(__port_name ${module_name}::mcu_port)
-    set(AFR_MODULE_${__port_name}_IS_INTERFACE TRUE CACHE INTERNAL "")
-    afr_cache_append(AFR_MODULES ${__port_name})
+    set(port_name ${arg_module}::mcu_port)
+    set(AFR_MODULE_${port_name}_IS_INTERFACE TRUE CACHE INTERNAL "")
+    afr_cache_append(AFR_MODULES ${port_name})
+    afr_cache_append(AFR_MODULES_PORT ${port_name})
 
-    add_library(AFR::${__port_name} INTERFACE IMPORTED GLOBAL)
+    add_library(AFR::${port_name} INTERFACE IMPORTED GLOBAL)
     target_link_libraries(
-        AFR::${__port_name}
+        AFR::${port_name}
         INTERFACE ${ARG_DEPENDS}
     )
 endfunction()

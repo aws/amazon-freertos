@@ -38,8 +38,9 @@ afr_set_board_metadata(IDE_IAR_NAME "IAR Embedded Workbench")
 afr_set_board_metadata(IDE_IAR_COMPILER "IAR-ARM")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
-afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/ti/boards/cc3220_launchpad/aws_demos/ccs")
-afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/ti/boards/cc3220_launchpad/aws_demos/iar")
+afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/ccs")
+afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/iar")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -102,7 +103,9 @@ target_include_directories(
 )
 target_link_libraries(
     AFR::kernel::mcu_port
-    INTERFACE AFR::posix
+    INTERFACE
+        AFR::posix
+        AFR::posix_headers
 )
 
 # POSIX

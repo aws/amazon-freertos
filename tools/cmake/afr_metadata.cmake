@@ -18,27 +18,27 @@ function(afr_define_metadata arg_type arg_name arg_description)
         ""                  # Multi value arguments.
     )
 
-    set(__metadata_prefix AFR_METADATA_${arg_type})
+    set(metadata_prefix AFR_METADATA_${arg_type})
 
     if(ARG_INHERITED)
-        set(__inherited INHERITED)
-        set(__scopes DIRECTORY TARGET)
+        set(inherited INHERITED)
+        set(scopes DIRECTORY TARGET)
     else()
-        set(__inherited "")
-        set(__scopes TARGET)
+        set(inherited "")
+        set(scopes TARGET)
     endif()
 
-    set(__prop_name ${__metadata_prefix}_${arg_name})
+    set(prop_name ${metadata_prefix}_${arg_name})
 
-    foreach(__scope IN LISTS __scopes)
+    foreach(scope IN LISTS scopes)
         define_property(
-            ${__scope} PROPERTY ${__prop_name} ${__inherited}
+            ${scope} PROPERTY ${prop_name} ${inherited}
             BRIEF_DOCS "${arg_description}"
             FULL_DOCS "${arg_description}"
         )
     endforeach()
 
-    afr_cache_append(${__metadata_prefix} ${arg_name})
+    afr_cache_append(${metadata_prefix} ${arg_name})
 endfunction()
 
 # If DIRECTORY option is given, will set the metadata property for ${CMAKE_CURRENT_LIST_DIR}.
@@ -53,37 +53,42 @@ function(afr_set_metadata arg_metadata_type arg_metadata_name arg_metadata_val)
         ""                  # Multi value arguments.
     )
 
-    set(__allowed_values BOARD LIB DEMO)
-    if(NOT "${arg_metadata_type}" IN_LIST __allowed_values)
+    set(allowed_values BOARD LIB DEMO)
+    if(NOT "${arg_metadata_type}" IN_LIST allowed_values)
         message(FATAL_ERROR "Invalid metadata type: ${arg_metadata_type}.")
     endif()
 
+    get_filename_component(cmake_file_dir "${CMAKE_CURRENT_LIST_DIR}" NAME)
+    get_filename_component(cmake_file_name "${CMAKE_CURRENT_LIST_FILE}" NAME)
     if(ARG_DIRECTORY)
-        set(__scope_name "${CMAKE_CURRENT_LIST_DIR}")
-        set(__scope DIRECTORY)
+        set(scope_name "${CMAKE_CURRENT_LIST_DIR}")
+        set(scope DIRECTORY)
     else()
-        get_filename_component(__cmake_file_dir "${CMAKE_CURRENT_LIST_DIR}" NAME)
-        get_filename_component(__cmake_file_name "${CMAKE_CURRENT_LIST_FILE}" NAME)
-        if("${__cmake_file_name}" STREQUAL "CMakeLists.txt")
-            set(__scope_name AFR_metadata::${arg_metadata_type}::${__cmake_file_dir})
+        if("${cmake_file_name}" STREQUAL "CMakeLists.txt")
+            set(scope_name AFR_metadata::${arg_metadata_type}::${cmake_file_dir})
         else()
-            get_filename_component(__cmake_file_name "${__cmake_file_name}" NAME_WE)
-            set(__scope_name AFR_metadata::${arg_metadata_type}::${__cmake_file_name})
+            get_filename_component(cmake_file_name "${cmake_file_name}" NAME_WE)
+            set(scope_name AFR_metadata::${arg_metadata_type}::${cmake_file_name})
         endif()
-        set(__scope TARGET)
+        set(scope TARGET)
     endif()
 
-    if("${__scope}" STREQUAL "TARGET" AND NOT TARGET ${__scope_name})
-        add_library(${__scope_name} UNKNOWN IMPORTED GLOBAL)
+    if("${scope}" STREQUAL "TARGET" AND NOT TARGET ${scope_name})
+        add_library(${scope_name} UNKNOWN IMPORTED GLOBAL)
     endif()
 
-    set(__prop_name AFR_METADATA_${arg_metadata_type}_${arg_metadata_name})
-    set_property(${__scope} "${__scope_name}" PROPERTY ${__prop_name} "${arg_metadata_val}")
+    set(prop_name AFR_METADATA_${arg_metadata_type}_${arg_metadata_name})
+    set_property(${scope} "${scope_name}" PROPERTY ${prop_name} "${arg_metadata_val}")
 
     string(TOLOWER "${arg_metadata_type}" arg_metadata_type)
-    set(__metadata_file "${AFR_METADATA_OUTPUT_DIR}/ocw/${arg_metadata_type}.txt")
-    get_filename_component(__cmake_file_dir "${CMAKE_CURRENT_LIST_DIR}" NAME)
-    file(APPEND "${__metadata_file}" "${__cmake_file_dir}###${arg_metadata_name}:::${arg_metadata_val}\n")
+    set(metadata_file "${AFR_METADATA_OUTPUT_DIR}/console/${arg_metadata_type}.txt")
+    if(AFR_ENABLE_METADATA)
+        if("${cmake_file_name}" STREQUAL "CMakeLists.txt")
+            file(APPEND "${metadata_file}" "${cmake_file_dir}###${arg_metadata_name}:::${arg_metadata_val}\n")
+        else()
+            file(APPEND "${metadata_file}" "${cmake_file_name}###${arg_metadata_name}:::${arg_metadata_val}\n")
+        endif()
+    endif()
 endfunction()
 
 # Convenient function to set board metadata.
@@ -103,18 +108,18 @@ endfunction()
 
 # Get metadata value.
 function(afr_get_metadata arg_out_var arg_metadata_type arg_metadata_name)
-    set(__target_name AFR_metadata::${arg_metadata_type}::${AFR_BOARD_NAME})
-    set(__prop_name AFR_METADATA_${arg_metadata_type}_${arg_metadata_name})
+    set(target_name AFR_metadata::${arg_metadata_type}::${AFR_BOARD_NAME})
+    set(prop_name AFR_METADATA_${arg_metadata_type}_${arg_metadata_name})
 
-    if(TARGET ${__target_name})
-        get_target_property(__prop_val ${__target_name} ${__prop_name})
+    if(TARGET ${target_name})
+        get_target_property(prop_val ${target_name} ${prop_name})
     endif()
 
-    if(NOT __prop_val)
-        set(__prop_val "UNKNOWN")
+    if(NOT prop_val)
+        set(prop_val "UNKNOWN")
     endif()
 
-    set(${arg_out_var} ${__prop_val} PARENT_SCOPE)
+    set(${arg_out_var} ${prop_val} PARENT_SCOPE)
 endfunction()
 
 # Convenient function to get board metadata.
@@ -135,31 +140,50 @@ function(afr_get_demo_metadata arg_out_var arg_metadata_name)
     set(${arg_out_var} "${${arg_out_var}}" PARENT_SCOPE)
 endfunction()
 
-# TODO, this wrapper function is needed because we need to keep track of all CMakeListst.txt files.
-set(AFR_METADATA_CMAKE_FILES "${AFR_METADATA_OUTPUT_DIR}/ocw/_cmake_files.txt")
+# TODO, we need to keep track of CMakeLists.txt files for AFR modules.
+set(AFR_METADATA_CMAKE_FILES "" CACHE INTERNAL "")
 function(afr_add_subdirectory module_name)
   add_subdirectory("${module_name}")
-  file(APPEND "${AFR_METADATA_CMAKE_FILES}" "${module_name}/CMakeLists.txt;")
+  afr_cache_append(AFR_METADATA_CMAKE_FILES "${module_name}/CMakeLists.txt")
 endfunction()
 
 function(afr_write_metadata)
     set(ide_dir "${AFR_METADATA_OUTPUT_DIR}/ide")
-    set(ocw_dir "${AFR_METADATA_OUTPUT_DIR}/ocw")
+    set(console_dir "${AFR_METADATA_OUTPUT_DIR}/console")
 
-    set(afr_version_file "${ocw_dir}/afr_version.txt")
-    set(module_sources_file "${ocw_dir}/module_sources.txt")
-    set(module_dependencies_file "${ocw_dir}/module_dependencies.txt")
-    set(metadata_file "${ocw_dir}/modules.txt")
+    set(afr_version_file "${console_dir}/afr_version.txt")
+    set(cmake_files_file "${AFR_METADATA_OUTPUT_DIR}/console/cmake_files.txt")
+    set(module_sources_file "${console_dir}/module_sources.txt")
+    set(module_dependencies_file "${console_dir}/module_dependencies.txt")
+    set(metadata_file "${console_dir}/modules.txt")
     file(APPEND "${afr_version_file}" "${AFR_VERSION}")
     file(APPEND "${module_dependencies_file}" "public_modules#${AFR_MODULES_PUBLIC}\n")
-    file(APPEND "${module_dependencies_file}" "modules#${AFR_STATUS_MODULES_TO_BUILD}\n")
-    file(APPEND "${module_dependencies_file}" "demos#${AFR_STATUS_DEMOS_ENABLED}\n")
-    string(CONCAT disabledModules ${AFR_STATUS_MODULES_DISABLED_USER} , ${AFR_STATUS_MODULES_DISABLED_DEPS})
-    file(APPEND "${module_dependencies_file}" "disabledModules#${disabledModules}\n")
+    file(APPEND "${module_dependencies_file}" "modules#${AFR_MODULES_TO_BUILD}\n")
+    file(APPEND "${module_dependencies_file}" "demos#${AFR_DEMOS_ENABLED}\n")
+    string(CONCAT enabledModules ${AFR_MODULES_ENABLED_USER} , ${AFR_MODULES_ENABLED_DEPS})
+    file(APPEND "${module_dependencies_file}" "enabledModules#${enabledModules}\n")
+
+    # Write all required cmake files.
+    set(
+        cmake_files
+        "${AFR_ROOT_DIR}/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/PreLoad.cmake"
+        "${AFR_ROOT_DIR}/modules/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/modules/libraries/3rdparty/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/demos/CMakeLists.txt"
+    )
+    foreach(cmake_file IN LISTS AFR_METADATA_CMAKE_FILES)
+        get_filename_component(module "${cmake_file}" DIRECTORY)
+        get_filename_component(module "${module}" NAME)
+        if(module IN_LIST AFR_MODULES_ENABLED)
+            list(APPEND cmake_files "${cmake_file}")
+        endif()
+    endforeach()
+    file(APPEND "${cmake_files_file}" "${cmake_files}")
 
     set(3rdparty_list "")
     set(src_all "")
-    set(src_ocw "")
+    set(src_console "")
     set(inc_all "")
 
     foreach(module IN LISTS AFR_MODULES_ENABLED)
@@ -248,11 +272,11 @@ function(afr_write_metadata)
     endif()
 
     # Add third party data
-    set(src_ocw ${src_all})
+    set(src_console ${src_all})
     foreach(3rdparty_target IN LISTS 3rdparty_list)
         string(LENGTH "3rdparty::" len)
         string(SUBSTRING "${3rdparty_target}" ${len} -1 3rdparty_name)
-        list(APPEND src_ocw "${AFR_3RDPARTY_DIR}/${3rdparty_name}")
+        list(APPEND src_console "${AFR_3RDPARTY_DIR}/${3rdparty_name}")
         get_target_property(lib_type ${3rdparty_target} TYPE)
         if("${lib_type}" STREQUAL "INTERFACE_LIBRARY")
             set(prop_prefix "INTERFACE_")
@@ -270,29 +294,30 @@ function(afr_write_metadata)
     endforeach()
 
     # Append CMake files for OCW.
-    file(READ "${ocw_dir}/_cmake_files.txt" cmake_files_list)
-    list(APPEND src_ocw ${cmake_files_list} "${AFR_ROOT_DIR}/PreLoad.cmake")
+    file(READ "${console_dir}/cmake_files.txt" cmake_files_list)
+    list(APPEND src_console ${cmake_files_list})
 
     # Append extra files for OCW.
     list(
-        APPEND src_ocw
+        APPEND src_console
+        "${AFR_ROOT_DIR}/CHANGELOG.md"
+        "${AFR_ROOT_DIR}/checksums.json"
+        "${AFR_ROOT_DIR}/directories.txt"
         "${AFR_ROOT_DIR}/LICENSE"
         "${AFR_ROOT_DIR}/README.md"
-        "${AFR_ROOT_DIR}/CHANGELOG.md"
-        "${AFR_ROOT_DIR}/directories.txt"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
     )
 
     # Write all sources and include dirs.
-    file(WRITE "${ocw_dir}/source_paths.txt" "${src_ocw}")
+    file(WRITE "${console_dir}/source_paths.txt" "${src_console}")
     file(WRITE "${ide_dir}/source_paths.txt" "${src_all}")
     file(WRITE "${ide_dir}/include_paths.txt" "${inc_all}")
     file(
         GENERATE
-        OUTPUT "${ocw_dir}/source_paths.txt"
-        INPUT "${ocw_dir}/source_paths.txt"
+        OUTPUT "${console_dir}/source_paths.txt"
+        INPUT "${console_dir}/source_paths.txt"
     )
     file(
         GENERATE
@@ -309,6 +334,7 @@ endfunction()
 # =============== Metadata definition ===============
 set(AFR_METADATA_BOARD "" CACHE INTERNAL "List of CMake property names for hardware metadata.")
 set(AFR_METADATA_LIB "" CACHE INTERNAL "List of CMake property names for AFR library metadata.")
+set(AFR_METADATA_DEMO "" CACHE INTERNAL "List of CMake property names for AFR demo metadata.")
 
 afr_define_metadata(BOARD ID "ID for the board to uniquely identify it.")
 afr_define_metadata(BOARD DISPLAY_NAME " Name displayed on the Amazon FreeRTOS Console.")

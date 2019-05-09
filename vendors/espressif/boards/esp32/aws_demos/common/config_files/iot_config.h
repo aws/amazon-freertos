@@ -34,7 +34,6 @@
 #define IOT_MQTT_RESPONSE_WAIT_MS (10000)
 
 /* Global logging configuration. */
-#define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
 #define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO
 
 /* Uncomment one of these definitions to override the log level configuration for
@@ -43,6 +42,11 @@
 /*#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO */
 /*#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO */
 /*#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO */
+#define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
+
+/* Set the task pool stack size and priority */
+#define IOT_THREAD_DEFAULT_STACK_SIZE    3840
+#define IOT_THREAD_DEFAULT_PRIORITY      5
 
 /* Define additional serializer initialization functions for the BLE Module on ESP. */
 extern bool IotBleMqtt_InitSerialize( void );
@@ -54,11 +58,8 @@ typedef struct IotMqttSerializer IotMqttSerializer_t;
 extern const IotMqttSerializer_t* getSerializerOverride( void );
 #define IOT_MQTT_SERIALIZER_OVERRIDE          getSerializerOverride()
 
-/* Set the task pool stack size and priority on ESP. */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
-#define IOT_THREAD_DEFAULT_PRIORITY      5
-
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
 #endif /* ifndef IOT_CONFIG_H_ */
+

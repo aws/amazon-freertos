@@ -42,38 +42,47 @@ endfunction()
 function(afr_cache_append arg_cache_var)
     if(AFR_DEBUG_CMAKE)
         # Verify ${arg_cache_var} is indeed a cache entry.
-        get_property(__type CACHE ${arg_cache_var} PROPERTY TYPE)
-        if(NOT __type)
+        get_property(type CACHE ${arg_cache_var} PROPERTY TYPE)
+        if(NOT type)
             message(FATAL_ERROR "${arg_cache_var} is not a cache entry.")
         endif()
 
         # Check duplicate.
-        foreach(__item IN ITEMS ${ARGN})
-            if(${__item} IN_LIST ${arg_cache_var})
-                message(WARNING "Item ${__item} already in list ${arg_cache_var}.")
+        foreach(item IN ITEMS ${ARGN})
+            if(${item} IN_LIST ${arg_cache_var})
+                message(WARNING "Item ${item} already in list ${arg_cache_var}.")
             endif()
         endforeach()
     endif()
 
-    list(APPEND ${arg_cache_var} ${ARGN})
-    get_property(__docstring CACHE ${arg_cache_var} PROPERTY HELPSTRING)
-    set(${arg_cache_var} "${${arg_cache_var}}" CACHE INTERNAL "${__docstring}")
+    set(result "${${arg_cache_var}}")
+    list(APPEND result ${ARGN})
+    get_property(docstring CACHE ${arg_cache_var} PROPERTY HELPSTRING)
+    set(${arg_cache_var} "${result}" CACHE INTERNAL "${docstring}")
 endfunction()
 
 function(afr_cache_remove arg_cache_var)
     if(AFR_DEBUG_CMAKE)
         # Verify ${arg_cache_var} is indeed a cache entry.
-        get_property(__type CACHE ${arg_cache_var} PROPERTY TYPE)
-        if(NOT __type)
+        get_property(type CACHE ${arg_cache_var} PROPERTY TYPE)
+        if(NOT type)
             message(FATAL_ERROR "${arg_cache_var} is not a cache entry.")
         endif()
     endif()
 
     if(ARGN)
-        list(REMOVE_ITEM ${arg_cache_var} ${ARGN})
-        get_property(__docstring CACHE ${arg_cache_var} PROPERTY HELPSTRING)
-        set(${arg_cache_var} "${${arg_cache_var}}" CACHE INTERNAL "${__docstring}")
+        set(result "${${arg_cache_var}}")
+        list(REMOVE_ITEM result ${ARGN})
+        get_property(docstring CACHE ${arg_cache_var} PROPERTY HELPSTRING)
+        set(${arg_cache_var} "${result}" CACHE INTERNAL "${docstring}")
     endif()
+endfunction()
+
+function(afr_cache_remove_duplicates arg_cache_var)
+    set(result "${${arg_cache_var}}")
+    list(REMOVE_DUPLICATES result)
+    get_property(docstring CACHE ${arg_cache_var} PROPERTY HELPSTRING)
+    set(${arg_cache_var} "${result}" CACHE INTERNAL "${docstring}")
 endfunction()
 
 # Gather files under a folder.
@@ -148,6 +157,72 @@ function(afr_glob_src arg_files)
 
     # Set output variable.
     set(${arg_files} "${${arg_files}}" PARENT_SCOPE)
+endfunction()
+
+# Pretty print status information
+function(afr_status arg_msg)
+    if(${ARGC} EQUAL 1)
+        message("${arg_msg}")
+        return()
+    endif()
+
+    if(NOT ${ARGC} EQUAL 2)
+        message(FATAL_ERROR "Expect at most 2 arguments")
+    endif()
+
+    set(status_name "${arg_msg}")
+    set(status_val "${ARGV1}")
+    list(SORT status_val)
+    list(JOIN status_val ", " status_val)
+
+    # Calculate indent.
+    string(LENGTH "${status_name}" indent_len)
+    if(indent_len GREATER 35)
+        message(FATAL_ERROR "Status name must be less than 35")
+    endif()
+    math(EXPR indent_len "${indent_len} - 1")
+    set(indent "")
+    foreach(i RANGE ${indent_len})
+        string(APPEND indent " ")
+    endforeach()
+
+    # Format output.
+    set(str "${status_name}${status_val}")
+    string(LENGTH "${str}" len)
+    while(len GREATER 90)
+        string(SUBSTRING "${str}" 0 90 split)
+        string(FIND "${split}" " " idx REVERSE)
+        if(idx LESS 75)
+            string(FIND "${split}" "_" idx REVERSE)
+            if(idx LESS 75)
+                set(idx 89)  # Hard truncate at 90 chars if we cannot find a good split place.
+            endif()
+        endif()
+        math(EXPR idx "${idx} + 1")
+
+        string(SUBSTRING "${str}" ${idx} -1 next_str)
+        string(SUBSTRING "${str}" 0 ${idx} str)
+        message("${str}")
+        string(PREPEND next_str "${indent}")
+        string(LENGTH "${next_str}" len)
+        set(str "${next_str}")
+    endwhile()
+    message("${str}")
+endfunction()
+
+function(afr_get_target_dependencies arg_target arg_dependencies)
+    if(NOT TARGET ${arg_target})
+        message(FATAL_ERROR "${arg_target} is not a target.")
+    endif()
+
+    get_target_property(dependencies ${arg_target} INTERFACE_LINK_LIBRARIES)
+    get_target_property(type ${arg_target} TYPE)
+    if(NOT "${type}" STREQUAL "INTERFACE_LIBRARY")
+        get_target_property(more_dependencies ${arg_target} LINK_LIBRARIES)
+        list(APPEND dependencies ${more_dependencies})
+    endif()
+
+    set(${arg_dependencies} ${dependencies} PARENT_SCOPE)
 endfunction()
 
 # Create a target to print the generator expression.

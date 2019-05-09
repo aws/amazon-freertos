@@ -75,6 +75,9 @@
           <file file_name="../../../../../../demos/mqtt/iot_demo_mqtt.c" />
           <file file_name="../../../../../../demos/mqtt/aws_mqtt_ble_hello_world.c" />
         </folder>
+        <folder Name="shadow">
+          <file file_name="../../../../../../demos/shadow/aws_iot_demo_shadow.c" />
+        </folder>
       </folder>
       <file file_name="../common/application_code/main.c" />
     </folder>
@@ -281,7 +284,8 @@
               <file file_name="../../../../../../modules/ports/ble/services/device_information/iot_ble_device_information.c" />
             </folder>
             <folder Name="mqtt_ble">
-              <file file_name="../../../../../../modules/ports/ble/services/mqtt_ble/iot_ble_mqtt.c" />
+              <file file_name="../../../../../../modules/ports/ble/services/mqtt_ble/iot_ble_data_transfer.c" />
+              <file file_name="../../../../../../modules/ports/ble/services/mqtt_ble/iot_network_ble.c" />
             </folder>
           </folder>
         </folder>
