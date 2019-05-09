@@ -326,8 +326,10 @@ set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 # Locate microchip hexmate.
 set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
 find_program(hexmate_path hexmate PATHS ${MCHP_HEXMATE_PATH} PATH_SUFFIXES bin)
-if(NOT hexmate_path)
-    message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+if (NOT AFR_METADATA_MODE)
+    if(NOT hexmate_path)
+        message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+    endif()
 endif()
 
 # These locations have to be generalized through the toolchain
