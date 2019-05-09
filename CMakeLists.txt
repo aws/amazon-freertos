@@ -29,14 +29,16 @@ if(NOT AFR_BOARD IN_LIST AFR_SUPPORTED_BOARDS)
 endif()
 
 # Import board CMake build.
-include("vendors/${AFR_VENDOR_NAME}/manifest.cmake")
+set(AFR_VENDOR_PATH "vendors/${AFR_VENDOR_NAME}" CACHE INTERNAL "")
+include("${AFR_VENDOR_PATH}/manifest.cmake")
 if(DEFINED AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME})
-    add_subdirectory("vendors/${AFR_VENDOR_NAME}/${AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME}}")
+    set(AFR_BOARD_PATH "${AFR_VENDOR_PATH}/${AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME}}" CACHE INTERNAL "")
 elseif(DEFINED AFR_MANIFEST_BOARD_DIR)
-    add_subdirectory("vendors/${AFR_VENDOR_NAME}/${AFR_MANIFEST_BOARD_DIR}/${AFR_BOARD_NAME}")
+    set(AFR_BOARD_PATH "${AFR_VENDOR_PATH}/${AFR_MANIFEST_BOARD_DIR}/${AFR_BOARD_NAME}" CACHE INTERNAL "")
 else()
     message(FATAL_ERROR "Could not import board CMakeLists.txt.")
 endif()
+add_subdirectory("${AFR_BOARD_PATH}")
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS modules
