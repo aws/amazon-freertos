@@ -177,6 +177,9 @@ function(afr_status arg_msg)
 
     # Calculate indent.
     string(LENGTH "${status_name}" indent_len)
+    if(indent_len GREATER 35)
+        message(FATAL_ERROR "Status name must be less than 35")
+    endif()
     math(EXPR indent_len "${indent_len} - 1")
     set(indent "")
     foreach(i RANGE ${indent_len})
@@ -189,6 +192,12 @@ function(afr_status arg_msg)
     while(len GREATER 90)
         string(SUBSTRING "${str}" 0 90 split)
         string(FIND "${split}" " " idx REVERSE)
+        if(idx LESS 75)
+            string(FIND "${split}" "_" idx REVERSE)
+            if(idx LESS 75)
+                set(idx 89)  # Hard truncate at 90 chars if we cannot find a good split place.
+            endif()
+        endif()
         math(EXPR idx "${idx} + 1")
 
         string(SUBSTRING "${str}" ${idx} -1 next_str)
