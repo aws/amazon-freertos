@@ -71,7 +71,7 @@ target_include_directories(
         "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include/"
         "${aws_credentials_include}"
         "${board_dir}/config_files"
-        "${CMAKE_BINARY_DIR}/config"
+        "$<$<NOT:$<BOOL:${AFR_NON_BUILD_MODE}>>:${CMAKE_BINARY_DIR}/config>"
 )
 
 # WiFi
