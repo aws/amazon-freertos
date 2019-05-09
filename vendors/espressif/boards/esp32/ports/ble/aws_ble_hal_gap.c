@@ -648,7 +648,7 @@ BTStatus_t prvAddToAdvertisementMessage(uint8_t * pucAdvMsg, uint8_t * pucIndex,
 		(*pucIndex) += ucDataLength;
 	}else
 	{
-		configPRITNF(("Advertising data can't fit in advertisement message.\n"));
+		configPRINTF(("Advertising data can't fit in advertisement message.\n"));
 		xStatus = eBTStatusFail;
 	}
 
@@ -671,10 +671,13 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 	uint8_t ucFlags;
 	uint8_t ucTxPower;
 
-	if(pxParams->bIncludeName == true)
-	{
-		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_NAME_SHORT, (uint8_t *)IOT_BLE_DEVICE_SHORT_LOCAL_NAME, sizeof(IOT_BLE_DEVICE_SHORT_LOCAL_NAME)-1);
-	}
+    if(( pxParams->ucNameType ==  BTGattAdvNameComplete)||( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= sizeof(IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME)-1))
+    {
+    	prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_NAME_CMPL, (uint8_t *)IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, sizeof(IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME)-1);
+    }else if( pxParams->ucNameType ==  BTGattAdvNameShort)
+    {
+    	prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_NAME_SHORT, (uint8_t *)IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE);
+    }
 
 	if((pxParams->bIncludeTxPower == true)&&(xStatus == eBTStatusSuccess))
 	{
@@ -687,7 +690,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_APPEARANCE, (uint8_t *)&pxParams->ulAppearance, 4);
 	}
 
-	if(xStatus == eBTStatusSuccess)
+	if((xStatus == eBTStatusSuccess)&&( pxParams->ulMinInterval != 0)&&(pxParams->ulMaxInterval != 0))
 	{
 		ucSlaveConnectInterval[0] = (pxParams->ulMinInterval)&0xFF;
 		ucSlaveConnectInterval[1] = (pxParams->ulMinInterval>>8)&0xFF;
@@ -696,7 +699,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_INT_RANGE, ucSlaveConnectInterval,4);
 	}
 
-	if(xStatus == eBTStatusSuccess)
+	if((xStatus == eBTStatusSuccess)&&(pxParams->bSetScanRsp == false))
 	{
 		ucFlags =  ( ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT );
 		xStatus = prvAddToAdvertisementMessage(ucMessageRaw,&ucMessageIndex, ESP_BLE_AD_TYPE_FLAG, &ucFlags,1);
@@ -740,8 +743,8 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     {
 		xAdv_params.channel_map = ADV_CHNL_ALL;
 		xAdv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
-		xAdv_params.adv_int_max = pxParams->ulMaxInterval;
-		xAdv_params.adv_int_min = pxParams->ulMinInterval;
+		xAdv_params.adv_int_max = IOT_BLE_ADVERTISING_INTERVAL*2;
+		xAdv_params.adv_int_min = IOT_BLE_ADVERTISING_INTERVAL;
 
 		if( pxParams->usAdvertisingEventProperties == BTAdvInd )
 		{
@@ -766,75 +769,6 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
 	return xStatus;
 }
-
-/*-----------------------------------------------------------*/
-/*
-BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
-                            BTGattAdvertismentParams_t * pxParams,
-                            uint16_t usManufacturerLen,
-                            char * pcManufacturerData,
-                            uint16_t usServiceDataLen,
-                            char * pcServiceData,
-                            BTUuid_t * pxServiceUuid,
-                            size_t xNbServices )
-{
-    esp_err_t xESPStatus = ESP_OK;
-	BTStatus_t xStatus = eBTStatusSuccess;
-    esp_ble_adv_data_t adv_data;
-    esp_bt_uuid_t xESPuuid;
-
-    adv_data.appearance = pxParams->ulAppearance;
-    adv_data.flag = ( ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT );
-    adv_data.include_name = pxParams->bIncludeName;
-    adv_data.include_txpower = pxParams->bIncludeTxPower;
-    adv_data.manufacturer_len = usManufacturerLen;
-    adv_data.max_interval = pxParams->ulMaxInterval;
-    adv_data.min_interval = pxParams->ulMinInterval;
-    adv_data.p_manufacturer_data = ( uint8_t * ) pcManufacturerData;
-    adv_data.p_service_data = ( uint8_t * ) pcServiceData;
-    adv_data.service_data_len = usServiceDataLen;
-
-    if( pxServiceUuid != NULL )
-    {
-        prvCopytoESPUUID( &xESPuuid, pxServiceUuid );
-        adv_data.p_service_uuid = xESPuuid.uuid.uuid128;
-        adv_data.service_uuid_len = xESPuuid.len;
-    }
-    else
-    {
-        adv_data.p_service_uuid = NULL;
-        adv_data.service_uuid_len = 0;
-    }
-
-    adv_data.set_scan_rsp = pxParams->bSetScanRsp;
-
-    xAdv_params.channel_map = ADV_CHNL_ALL;
-    xAdv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
-    xAdv_params.adv_int_max = pxParams->ulMaxInterval;
-    xAdv_params.adv_int_min = pxParams->ulMinInterval;
-
-    if( pxParams->usAdvertisingEventProperties == BTAdvInd )
-    {
-        xAdv_params.adv_type = ADV_TYPE_IND;
-    }
-
-    if( pxParams->usAdvertisingEventProperties == BTAdvNonconnInd )
-    {
-        xAdv_params.adv_type = ADV_TYPE_NONCONN_IND;
-    }
-
-    xAdv_params.own_addr_type = pxParams->xAddrType;
-
-    xESPStatus = esp_ble_gap_config_adv_data( &adv_data );
-
-    if( xESPStatus != ESP_OK )
-    {
-        xStatus = eBTStatusFail;
-    }
-
-    return xStatus;
-}
-*/
 
 /*-----------------------------------------------------------*/
 

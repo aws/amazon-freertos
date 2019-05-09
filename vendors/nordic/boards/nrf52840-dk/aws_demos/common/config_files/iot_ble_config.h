@@ -32,8 +32,10 @@
 #ifndef _AWS_BLE_CONFIG_H_
 #define _AWS_BLE_CONFIG_H_
 #include "sdk_config.h"
-/* Device name for this peripheral device */
-#define IOT_BLE_DEVICE_NAME                     "nRF52840"
+
+/* Device complete name for this peripheral device */
+#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                      "nRF52840"
+
 
 /* Enable WIFI provisioning GATT service */
 #define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )

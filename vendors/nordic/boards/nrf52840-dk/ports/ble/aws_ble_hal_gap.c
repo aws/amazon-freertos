@@ -399,7 +399,7 @@ BTStatus_t prvBTUnregisterBleApp( uint8_t ucAdapterIf )
         /* No app is registered */
         xErrCode == NRF_ERROR_INVALID_PARAM;
     }
-    xErrCode = ble_conn_params_stop();
+    xErrCode = ble_conn_params_stop();    
     prvBTFreeAdvData( &prvAdvData );
     prvBTFreeAdvData( &prvScanResponseData );
 
@@ -546,6 +546,11 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
     if( xBTBleAdapterCallbacks.pxAdvStartCb )
     {
         xBTBleAdapterCallbacks.pxAdvStartCb( xStatus, usGattConnHandle );
+    }
+
+    if(xStatus != eBTStatusSuccess)
+    {
+        configPRINTF(("Failed to start advertisement.\n"));
     }
 
     return xStatus;
@@ -722,9 +727,13 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
 
     xAdvData->flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
 
-    if( pxParams->bIncludeName )
+    if(( pxParams->ucNameType ==  BTGattAdvNameComplete)||( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= sizeof(IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME)-1))
     {
         xAdvData->name_type = BLE_ADVDATA_FULL_NAME;
+    }else if( pxParams->ucNameType ==  BTGattAdvNameShort)
+    {
+        xAdvData->name_type = BLE_ADVDATA_SHORT_NAME;
+        xAdvData->short_name_len = IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE;
     }
     else
     {
@@ -885,7 +894,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     if( xErrCode == NRF_SUCCESS )
     {
         xAdvConfig.ble_adv_fast_enabled = true;
-        xAdvConfig.ble_adv_fast_interval = pxParams->ulMaxInterval;
+        xAdvConfig.ble_adv_fast_interval = IOT_BLE_ADVERTISING_INTERVAL;
         xAdvConfig.ble_adv_fast_timeout = aws_ble_gap_configADV_DURATION;
         xAdvConfig.ble_adv_primary_phy = pxParams->ucPrimaryAdvertisingPhy; /* TODO: Check which values can these variable get */
         xAdvConfig.ble_adv_secondary_phy = pxParams->ucSecondaryAdvertisingPhy;

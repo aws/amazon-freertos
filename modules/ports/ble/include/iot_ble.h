@@ -59,7 +59,7 @@ typedef struct
     uint16_t manufacturerLen; /**< Length of manufacturer data. */
     uint16_t serviceDataLen;  /**< Service data length */
     bool includeTxPower;      /**< Include Tx Power in advertisement message. */
-    bool includeName;         /**< Include device name in advertisement message. */
+    BTGattAdvName nameType; /**< Specify wether to include short, complete or no name in advertisement message. */
     bool setScanRsp;          /**< Set to true if the user wishes to set up a scan response instead of an advertisement message. */
 } IotBleAdvertisementParams_t;
 
@@ -401,6 +401,17 @@ typedef union
  * and when the user needs to add his own services
  */
     void IotBle_AddCustomServicesCb( void );
+/** @endcond */
+#endif
+
+#if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 1 )
+
+/**
+ * @cond DOXYGEN_IGNORE
+ * @brief the implementation of this function need to be given when IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG is true
+ * and when the user needs to set his own advertisement message
+ */
+    void IotBle_SetCustomAdvCb( void );
 /** @endcond */
 #endif
 

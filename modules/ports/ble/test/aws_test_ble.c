@@ -493,7 +493,7 @@ BTGattAdvertismentParams_t xAdvertisementConfigA =
 {
 		.usAdvertisingEventProperties = BTAdvInd,
 		.bIncludeTxPower = true,
-		.bIncludeName = true,
+		.ucNameType = BTGattAdvNameComplete,
 		.bSetScanRsp = false,
 		.ulAppearance = 0,
 		.ulMinInterval = bletestsMAX_ADVERTISEMENT_INTERVAL/2,
@@ -508,7 +508,7 @@ BTGattAdvertismentParams_t xAdvertisementConfigB =
 {
 		.usAdvertisingEventProperties = BTAdvInd,
 		.bIncludeTxPower = true,
-		.bIncludeName = true,
+		.ucNameType = BTGattAdvNameComplete,
 		.bSetScanRsp = true,
 		.ulAppearance = 0,
 		.ulMinInterval = bletestsMAX_ADVERTISEMENT_INTERVAL/2,
