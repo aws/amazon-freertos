@@ -204,13 +204,12 @@ void vRunOTAUpdateDemo( void )
 
     /* Create the MQTT Client. */
 
-    xNetworkConnected = prxCreateNetworkConnection();
 
-
-    if( xNetworkConnected  )
+    for ( ; ; )
     {
-        for ( ; ; )
-        {
+        xNetworkConnected = prxCreateNetworkConnection();
+		if( xNetworkConnected  )
+		{
             configPRINTF( ( "Connecting to broker...\r\n" ) );
             memset( &xConnectInfo, 0, sizeof( xConnectInfo ) );
             if( xConnection.ulNetworkType == AWSIOT_NETWORK_TYPE_BLE )
@@ -246,15 +245,17 @@ void vRunOTAUpdateDemo( void )
             }
             else
             {
+
                 configPRINTF( ( "ERROR:  MQTT_AGENT_Connect() Failed.\r\n" ) );
             }
+
+            vMqttDemoDeleteNetworkConnection(&xConnection);
             /* After failure to connect or a disconnect, wait an arbitrary one second before retry. */
             vTaskDelay( myappONE_SECOND_DELAY_IN_TICKS );
+        }else
+        {
+            configPRINTF( ( "Failed to create MQTT client.\r\n" ) );
         }
-    }
-    else
-    {
-        configPRINTF( ( "Failed to create MQTT client.\r\n" ) );
     }
 }
 
