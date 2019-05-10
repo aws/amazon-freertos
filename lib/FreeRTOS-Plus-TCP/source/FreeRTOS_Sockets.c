@@ -89,6 +89,11 @@ respectively. */
 #define socketNEXT_UDP_PORT_NUMBER_INDEX	0
 #define socketNEXT_TCP_PORT_NUMBER_INDEX	1
 
+/* Some helper macro's for defining the 20/80 % limits of uxLittleSpace / uxEnoughSpace. */
+#define sock20_PERCENT						20
+#define sock80_PERCENT						80
+#define sock100_PERCENT						100
+
 
 /*-----------------------------------------------------------*/
 
@@ -1428,6 +1433,31 @@ FreeRTOS_Socket_t *pxSocket;
 				break;
 			#endif /* ipconfigSOCKET_HAS_USER_WAKE_CALLBACK */
 
+			case FREERTOS_SO_SET_LOW_HIGH_WATER:
+				{
+				LowHighWater_t *pxLowHighWater = ( LowHighWater_t * ) pvOptionValue;
+
+					if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
+					{
+						/* It is not allowed to access 'pxSocket->u.xTCP'. */
+						FreeRTOS_debug_printf( ( "FREERTOS_SO_SET_LOW_HIGH_WATER: wrong socket type\n" ) );
+						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+					}
+					if( ( pxLowHighWater->uxLittleSpace >= pxLowHighWater->uxEnoughSpace ) ||
+						( pxLowHighWater->uxEnoughSpace > pxSocket->u.xTCP.uxRxStreamSize ) )
+					{
+						/* Impossible values. */
+						FreeRTOS_debug_printf( ( "FREERTOS_SO_SET_LOW_HIGH_WATER: bad values\n" ) );
+						break;	/* will return -pdFREERTOS_ERRNO_EINVAL */
+					}
+					/* Send a STOP when buffer space drops below 'uxLittleSpace' bytes. */
+					pxSocket->u.xTCP.uxLittleSpace = pxLowHighWater->uxLittleSpace;
+					/* Send a GO when buffer space grows above 'uxEnoughSpace' bytes. */
+					pxSocket->u.xTCP.uxEnoughSpace = pxLowHighWater->uxEnoughSpace;
+					xReturn = 0;
+				}
+				break;
+
 			case FREERTOS_SO_SNDBUF:	/* Set the size of the send buffer, in units of MSS (TCP only) */
 			case FREERTOS_SO_RCVBUF:	/* Set the size of the receive buffer, in units of MSS (TCP only) */
 				{
@@ -2382,7 +2412,9 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		{
 			xResult = -pdFREERTOS_ERRNO_ENOMEM;
 		}
-		else if( pxSocket->u.xTCP.ucTCPState == eCLOSED )
+		else if( pxSocket->u.xTCP.ucTCPState == eCLOSED ||
+                 pxSocket->u.xTCP.ucTCPState == eCLOSE_WAIT ||
+                 pxSocket->u.xTCP.ucTCPState == eCLOSING )
 		{
 			xResult = -pdFREERTOS_ERRNO_ENOTCONN;
 		}
@@ -2421,22 +2453,25 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	'*pxLength' will contain the number of bytes that may be written. */
 	uint8_t *FreeRTOS_get_tx_head( Socket_t xSocket, BaseType_t *pxLength )
 	{
-	uint8_t *pucReturn;
+    uint8_t *pucReturn = NULL;
 	FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
-	StreamBuffer_t *pxBuffer = pxSocket->u.xTCP.txStream;
+	StreamBuffer_t *pxBuffer = NULL;
 
-		if( pxBuffer != NULL )
-		{
-		BaseType_t xSpace = ( BaseType_t ) uxStreamBufferGetSpace( pxBuffer );
-		BaseType_t xRemain = ( BaseType_t ) ( pxBuffer->LENGTH - pxBuffer->uxHead );
+        *pxLength = 0;
 
-			*pxLength = FreeRTOS_min_BaseType( xSpace, xRemain );
-			pucReturn = pxBuffer->ucArray + pxBuffer->uxHead;
-		}
-		else
-		{
-			*pxLength = 0;
-			pucReturn = NULL;
+        /* Confirm that this is a TCP socket before dereferencing structure
+        member pointers. */
+        if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_TCP, pdFALSE ) == pdTRUE )
+        {
+            pxBuffer = pxSocket->u.xTCP.txStream;
+            if( pxBuffer != NULL )
+            {
+            BaseType_t xSpace = ( BaseType_t )uxStreamBufferGetSpace( pxBuffer );
+            BaseType_t xRemain = ( BaseType_t )( pxBuffer->LENGTH - pxBuffer->uxHead );
+
+                *pxLength = FreeRTOS_min_BaseType( xSpace, xRemain );
+                pucReturn = pxBuffer->ucArray + pxBuffer->uxHead;
+            }
 		}
 
 		return pucReturn;
@@ -2869,12 +2904,20 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 #if( ipconfigUSE_TCP == 1 )
 
-	const struct xSTREAM_BUFFER *FreeRTOS_get_rx_buf( Socket_t xSocket )
-	{
-	FreeRTOS_Socket_t *pxSocket = (FreeRTOS_Socket_t *)xSocket;
+    const struct xSTREAM_BUFFER *FreeRTOS_get_rx_buf( Socket_t xSocket )
+    {
+    FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * )xSocket;
+    struct xSTREAM_BUFFER *pxReturn = NULL;
 
-		return pxSocket->u.xTCP.rxStream;
-	}
+        /* Confirm that this is a TCP socket before dereferencing structure
+        member pointers. */
+        if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_TCP, pdFALSE ) == pdTRUE )
+        {
+            pxReturn = pxSocket->u.xTCP.rxStream;
+        }
+
+        return pxReturn;
+    }
 
 #endif /* ipconfigUSE_TCP */
 /*-----------------------------------------------------------*/
@@ -2895,12 +2938,12 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 			if( pxSocket->u.xTCP.uxLittleSpace == 0ul )
 			{
-				pxSocket->u.xTCP.uxLittleSpace  = ( 1ul * pxSocket->u.xTCP.uxRxStreamSize ) / 5u; /*_RB_ Why divide by 5?  Can this be changed to a #define? */
+				pxSocket->u.xTCP.uxLittleSpace  = ( sock20_PERCENT * pxSocket->u.xTCP.uxRxStreamSize ) / sock100_PERCENT;
 			}
 
 			if( pxSocket->u.xTCP.uxEnoughSpace == 0ul )
 			{
-				pxSocket->u.xTCP.uxEnoughSpace = ( 4ul * pxSocket->u.xTCP.uxRxStreamSize ) / 5u; /*_RB_ Why multiply by 4?  Maybe sock80_PERCENT?*/
+				pxSocket->u.xTCP.uxEnoughSpace = ( sock80_PERCENT * pxSocket->u.xTCP.uxRxStreamSize ) / sock100_PERCENT;
 			}
 		}
 		else
