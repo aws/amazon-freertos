@@ -206,6 +206,7 @@ typedef struct IotBleDataTransferService
     uint8_t   identifier;                         /**< Uniquely identifies a data transfer service. */
     BTService_t                 gattService;      /**< Internal gatt Service structure. */
     IotBleDataTransferChannel_t channel;          /**< Channel used ot send or receive data. */    
+    bool                        isReady;
 
 } IotBleDataTransferService_t;
 
@@ -510,7 +511,7 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
         if (pService != NULL)
         {
             resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-            resp.pAttrData->pData = ( uint8_t * ) pService->channel.isOpen;
+            resp.pAttrData->pData = ( uint8_t * ) pService->isReady;
             resp.pAttrData->size = 1;
             resp.attrDataOffset = 0;
             resp.eventStatus = eBTStatusSuccess;
@@ -523,10 +524,11 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
         pService = _getServiceFromHandle(pEventParam->pParamWrite->attrHandle);
         if (pService != NULL)
         {     
-            pService->channel.isOpen = ( *( ( uint8_t * ) pEventParam->pParamWrite->pValue ) == 1 );   
+            pService->isReady = ( *( ( uint8_t * ) pEventParam->pParamWrite->pValue ) == 1 );   
             if( pService->channel.callback != NULL )
             {
-                channelEvent =  ( pService->channel.isOpen == true ) ? IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED : IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED;
+		pService->channel.isOpen = pService->isReady;
+                channelEvent =  ( pService->isReady == true ) ? IOT_BLE_DATA_TRANSFER_CHANNEL_OPENED : IOT_BLE_DATA_TRANSFER_CHANNEL_CLOSED;
                 pService->channel.callback( channelEvent,
                                             &pService->channel,
                                             pService->channel.pContext );
@@ -804,7 +806,9 @@ static void _connectionCallback( BTStatus_t status,
             for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
             {
                 IotBleDataTransfer_Close( &_services[index].channel );
+		_services[index].isReady = false;
             }
+
             transmitLength = _TRANSMIT_LENGTH( IOT_BLE_PREFERRED_MTU_SIZE );
         }
     }
@@ -952,6 +956,11 @@ IotBleDataTransferChannel_t * IotBleDataTransfer_Open( uint8_t serviceIdentifier
             {  
                 pChannel = &_services[ index ].channel;
                 pChannel->isUsed = true;
+
+		if( _services[index].isReady == true )
+		{
+		    pChannel->isOpen = true;
+		}
             }
         }
     }
