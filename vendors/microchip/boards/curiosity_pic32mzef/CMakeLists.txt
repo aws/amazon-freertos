@@ -342,6 +342,8 @@ if(AFR_IS_TESTING)
         TARGET ${exe_target} POST_BUILD
         COMMAND "echo" "Running Post-build step"
         COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+        COMMAND "echo" "Running Hexmate to combine bootloader with image"
+        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
     )
 else()
     add_custom_command(
