@@ -260,6 +260,7 @@ add_executable(
     "${board_dir}/application_code/main.c"
     ${microchip_code}
     ${extra_exe_sources}
+    "${board_dir}/application_code/microchip_code/app_mz.ld"
 )
 
 target_link_libraries(
