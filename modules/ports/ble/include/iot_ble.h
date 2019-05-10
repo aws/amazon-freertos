@@ -410,8 +410,10 @@ typedef union
  * @cond DOXYGEN_IGNORE
  * @brief the implementation of this function need to be given when IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG is true
  * and when the user needs to set his own advertisement message
+ *
+ * Set to true when it is a scan response
  */
-    void IotBle_SetCustomAdvCb( void );
+    void IotBle_SetCustomAdvCb( IotBleAdvertisementParams_t * advParams,  IotBleAdvertisementParams_t * scanParams);
 /** @endcond */
 #endif
 

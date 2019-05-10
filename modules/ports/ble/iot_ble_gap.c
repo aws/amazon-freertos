@@ -61,7 +61,7 @@ static const BTUuid_t _serverUUID =
     .ucType   = eBTuuidType128,
     .uu.uu128 = IOT_BLE_SERVER_UUID
 };
-static const IotBleAdvertisementParams_t _scanRespParams =
+static IotBleAdvertisementParams_t _scanRespParams =
 {
     .includeTxPower    = true,
     .nameType        = BTGattAdvNameNone,
@@ -77,7 +77,7 @@ static const IotBleAdvertisementParams_t _scanRespParams =
     .pUUID2            = NULL
 };
 
-static const IotBleAdvertisementParams_t _advParams =
+static IotBleAdvertisementParams_t _advParams =
 {
     .includeTxPower    = false,
     .nameType        = BTGattAdvNameShort,
@@ -647,14 +647,14 @@ BTStatus_t IotBle_Init( void )
     if( status == eBTStatusSuccess )
     {
 		#if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 0 )
-        status = _setAdvData( ( IotBleAdvertisementParams_t * ) &_advParams );
+        status = _setAdvData( &_advParams );
 
         if( status == eBTStatusSuccess )
         {
-            status = _setAdvData( ( IotBleAdvertisementParams_t * ) &_scanRespParams );
+            status = _setAdvData( &_scanRespParams );
         }
 		#else
-        IotBle_SetCustomAdvCb();
+        IotBle_SetCustomAdvCb(&_advParams, &_scanRespParams );
 		#endif
     }
 
