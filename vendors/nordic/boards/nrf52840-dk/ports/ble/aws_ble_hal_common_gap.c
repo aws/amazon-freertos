@@ -686,7 +686,7 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
     memset( &xProperties, 0, sizeof( xProperties ) );
     xProperties.xDeviceType = eBTdeviceDevtypeBle;
     /* Set the device name from the iot_ble_config.h. We store it without a trailing zero. */
-    xProperties.usDeviceNameLength = sizeof( IOT_BLE_DEVICE_NAME ) - 1;
+    xProperties.usDeviceNameLength = sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1;
     xProperties.puDeviceName = ( uint8_t * ) pvPortMalloc( xProperties.usDeviceNameLength );
     xProperties.ulMtu = NRF_SDH_BLE_GATT_MAX_MTU_SIZE;
     xProperties.bOnlySecure = true;
@@ -694,7 +694,7 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 
     if( xProperties.puDeviceName != NULL )
     {
-        memcpy( xProperties.puDeviceName, IOT_BLE_DEVICE_NAME, xProperties.usDeviceNameLength );
+        memcpy( xProperties.puDeviceName, IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, xProperties.usDeviceNameLength );
     }
     else
     {
