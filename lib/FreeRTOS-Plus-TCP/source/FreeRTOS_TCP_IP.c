@@ -3011,7 +3011,7 @@ BaseType_t xResult = pdPASS;
                 {
                     /* Per the above RFC, "In the SYN-SENT state ... the RST is 
                     acceptable if the ACK field acknowledges the SYN." */
-                    if( ulAckNumber == pxSocket->u.xTCP.xTCPWindow.ulOurSequenceNumber )
+                    if( ulAckNumber == pxSocket->u.xTCP.xTCPWindow.ulOurSequenceNumber + 1 )
                     {
                         vTCPStateChange( pxSocket, eCLOSED );
                     }
