@@ -28,7 +28,6 @@ set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
-set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(AFR_IS_TESTING)
@@ -267,11 +266,8 @@ get_filename_component(
 )
 
 set(IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
+set(IDF_PROJECT_EXECUTABLE ${exe_target})
 
-# Since AFR target name has no .elf extension, manually append it to
-# IDF project executable name and make it dependent on the AFR target
-set(IDF_PROJECT_EXECUTABLE "${exe_target}${CMAKE_EXECUTABLE_SUFFIX}")
-add_custom_target("${IDF_PROJECT_EXECUTABLE}" ALL DEPENDS ${exe_target})
 
 # Wraps add_subdirectory() to create library targets for components, and then `return` them using the given variable.
 # In this case the variable is named `component`
