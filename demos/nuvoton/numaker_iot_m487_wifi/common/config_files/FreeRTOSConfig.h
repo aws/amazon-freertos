@@ -1,6 +1,6 @@
 /*
  * FreeRTOS Kernel V10.0.1
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -217,6 +217,9 @@ extern uint32_t numaker_ulRand(void);
 #define configECHO_SERVER_ADDR2       1
 #define configECHO_SERVER_ADDR3       98
 #define configTCP_ECHO_CLIENT_PORT    7
+
+/* The platform FreeRTOS is running on. */
+#define configPLATFORM_NAME    "NuvotonNumakerM487"
 
 /* Default MAC address configuration.  The demo creates a virtual network
  * connection that uses this MAC address by accessing the raw Ethernet/WiFi data
