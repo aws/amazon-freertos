@@ -166,6 +166,11 @@ function(afr_write_metadata)
     set(enabledModules ${AFR_MODULES_ENABLED_USER} ${AFR_MODULES_ENABLED_DEPS})
     file(APPEND "${module_dependencies_file}" "enabledModules#${enabledModules}\n")
 
+    set(3rdparty_list "")
+    set(src_all "")
+    set(src_console "")
+    set(inc_all "")
+
     # Write all required cmake files.
     set(
         cmake_files
@@ -177,18 +182,14 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/demos/CMakeLists.txt"
     )
     foreach(cmake_file IN LISTS AFR_METADATA_CMAKE_FILES)
-        get_filename_component(module "${cmake_file}" DIRECTORY)
-        get_filename_component(module "${module}" NAME)
+        get_filename_component(module_dir "${cmake_file}" DIRECTORY)
+        get_filename_component(module "${module_dir}" NAME)
         if(module IN_LIST AFR_MODULES_ENABLED)
             list(APPEND cmake_files "${cmake_file}")
+            list(APPEND src_console "${module_dir}")
         endif()
     endforeach()
     file(APPEND "${cmake_files_file}" "${cmake_files}")
-
-    set(3rdparty_list "")
-    set(src_all "")
-    set(src_console "")
-    set(inc_all "")
 
     foreach(module IN LISTS AFR_MODULES_ENABLED)
         # Skip kernel, we already got the metadata from other kernel modules.
@@ -276,7 +277,7 @@ function(afr_write_metadata)
     endif()
 
     # Add third party data
-    set(src_console ${src_all})
+    list(APPEND src_console ${src_all})
     foreach(3rdparty_target IN LISTS 3rdparty_list)
         string(LENGTH "3rdparty::" len)
         string(SUBSTRING "${3rdparty_target}" ${len} -1 3rdparty_name)
@@ -308,6 +309,8 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
+        "${AFR_KERNEL_DIR}"
+        "${AFR_TEST_DIR}"
     )
 
     # Write all sources and include dirs.
