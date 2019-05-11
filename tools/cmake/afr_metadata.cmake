@@ -161,9 +161,9 @@ function(afr_write_metadata)
     file(APPEND "${board_path_file}" "vendor_path: ${AFR_VENDOR_PATH}\n")
     file(APPEND "${board_path_file}" "board_path: ${AFR_BOARD_PATH}")
     file(APPEND "${module_dependencies_file}" "public_modules#${AFR_MODULES_PUBLIC}\n")
-    file(APPEND "${module_dependencies_file}" "modules#${AFR_MODULES_TO_BUILD}\n")
+    file(APPEND "${module_dependencies_file}" "modules#${AFR_MODULES_BUILD}\n")
     file(APPEND "${module_dependencies_file}" "demos#${AFR_DEMOS_ENABLED}\n")
-    string(CONCAT enabledModules ${AFR_MODULES_ENABLED_USER} , ${AFR_MODULES_ENABLED_DEPS})
+    set(enabledModules ${AFR_MODULES_ENABLED_USER} ${AFR_MODULES_ENABLED_DEPS})
     file(APPEND "${module_dependencies_file}" "enabledModules#${enabledModules}\n")
 
     # Write all required cmake files.
