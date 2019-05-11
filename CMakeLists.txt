@@ -107,13 +107,13 @@ afr_status("")
 cmake_policy(SET CMP0079 NEW)
 
 if(TARGET aws_demos)
-    list(TRANSFORM AFR_DEMOS_ENABLED PREPEND "AFR::")
-    target_link_libraries(aws_demos PRIVATE ${AFR_DEMOS_ENABLED})
+    list(TRANSFORM AFR_DEMOS_ENABLED PREPEND "AFR::" OUTPUT_VARIABLE demos_list)
+    target_link_libraries(aws_demos PRIVATE ${demos_list})
 endif()
 
 if(TARGET aws_tests)
-    list(TRANSFORM AFR_TESTS_ENABLED PREPEND "AFR::")
-    target_link_libraries(aws_tests PRIVATE ${AFR_TESTS_ENABLED})
+    list(TRANSFORM AFR_TESTS_ENABLED PREPEND "AFR::" OUTPUT_VARIABLE tests_list)
+    target_link_libraries(aws_tests PRIVATE ${tests_list})
 endif()
 
 # -------------------------------------------------------------------------------------------------
