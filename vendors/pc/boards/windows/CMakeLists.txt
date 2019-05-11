@@ -41,7 +41,7 @@ target_compile_definitions(
 
 target_compile_options(
     AFR::compiler::mcu_port
-    INTERFACE "/MP" "/W4" "/wd4210" "/wd4127" "/wd4244" "/wd4310"
+    INTERFACE "/MP" "/wd4210" "/wd4127" "/wd4244" "/wd4310"
 )
 
 # -------------------------------------------------------------------------------------------------
