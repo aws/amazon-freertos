@@ -166,7 +166,7 @@ static void _timerThread( void * pArgument );
  * @param[in] pInfo The initialization information for the task pool.
  *
  */
-bool _performTaskPoolParameterValidation( const IotTaskPoolInfo_t * const pInfo );
+static IotTaskPoolError_t _performTaskPoolParameterValidation( const IotTaskPoolInfo_t * const pInfo );
 
 /**
  * Initializes a pre-allocated instance of a task pool.
@@ -549,41 +549,38 @@ IotTaskPoolError_t IotTaskPool_CreateRecyclableJob( IotTaskPool_t taskPoolHandle
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
+    _taskPool_t * pTaskPool = ( _taskPool_t * )taskPoolHandle;
+    _taskPoolJob_t * pTempJob = NULL;
+
     /* Parameter checking. */
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( taskPoolHandle );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( userCallback );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( ppJob );
 
-    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
-
+    TASKPOOL_ENTER_CRITICAL();
     {
-        _taskPoolJob_t * pTempJob = NULL;
-
-        TASKPOOL_ENTER_CRITICAL();
+        /* Bail out early if this task pool is shutting down. */
+        if( _IsShutdownStarted( pTaskPool ) )
         {
-            /* Bail out early if this task pool is shutting down. */
-            if( _IsShutdownStarted( pTaskPool ) )
-            {
-                TASKPOOL_EXIT_CRITICAL();
+            TASKPOOL_EXIT_CRITICAL();
 
-                TASKPOOL_SET_AND_GOTO_CLEANUP( IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS );
-            }
-
-            pTempJob = _fetchOrAllocateJob( &pTaskPool->jobsCache );
-        }
-        TASKPOOL_EXIT_CRITICAL();
-
-        if( pTempJob == NULL )
-        {
-            IotLogInfo( "Failed to allocate a job." );
-
-            TASKPOOL_SET_AND_GOTO_CLEANUP( IOT_TASKPOOL_NO_MEMORY );
+            TASKPOOL_SET_AND_GOTO_CLEANUP( IOT_TASKPOOL_SHUTDOWN_IN_PROGRESS );
         }
 
-        _initializeJob( pTempJob, userCallback, pUserContext, false );
-
-        *ppJob = pTempJob;
+        pTempJob = _fetchOrAllocateJob( &pTaskPool->jobsCache );
     }
+    TASKPOOL_EXIT_CRITICAL();
+
+    if( pTempJob == NULL )
+    {
+        IotLogInfo( "Failed to allocate a job." );
+
+        TASKPOOL_SET_AND_GOTO_CLEANUP( IOT_TASKPOOL_NO_MEMORY );
+    }
+
+    _initializeJob( pTempJob, userCallback, pUserContext, false );
+
+    *ppJob = pTempJob;
 
     TASKPOOL_NO_FUNCTION_CLEANUP();
 }
@@ -595,12 +592,12 @@ IotTaskPoolError_t IotTaskPool_DestroyRecyclableJob( IotTaskPool_t taskPoolHandl
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
+    _taskPool_t * pTaskPool = ( _taskPool_t * )taskPoolHandle;
+    _taskPoolJob_t * pJob1 = ( _taskPoolJob_t * )pJobHandle;
+
     /* Parameter checking. */
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( taskPoolHandle );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( pJobHandle );
-
-    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
-    _taskPoolJob_t * pJob1 = ( _taskPoolJob_t * ) pJobHandle;
 
     TASKPOOL_ENTER_CRITICAL();
     {
@@ -641,11 +638,11 @@ IotTaskPoolError_t IotTaskPool_RecycleJob( IotTaskPool_t taskPoolHandle,
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
+    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
+
     /* Parameter checking. */
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( taskPoolHandle );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( pJob );
-
-    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
 
     TASKPOOL_ENTER_CRITICAL();
     {
@@ -688,12 +685,12 @@ IotTaskPoolError_t IotTaskPool_Schedule( IotTaskPool_t taskPoolHandle,
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
+    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
+
     /* Parameter checking. */
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( taskPoolHandle );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( pJob );
     TASKPOOL_ON_ARG_ERROR_GOTO_CLEANUP( ( flags != 0UL ) && ( flags != IOT_TASKPOOL_JOB_HIGH_PRIORITY ) );
-
-    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
 
     TASKPOOL_ENTER_CRITICAL();
     {
@@ -726,11 +723,11 @@ IotTaskPoolError_t IotTaskPool_ScheduleDeferred( IotTaskPool_t taskPoolHandle,
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
+    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
+
     /* Parameter checking. */
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( taskPoolHandle );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( pJob );
-
-    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
 
     if( timeMs == 0UL )
     {
@@ -811,12 +808,12 @@ IotTaskPoolError_t IotTaskPool_GetStatus( IotTaskPool_t taskPoolHandle,
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
+    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
+
     /* Parameter checking. */
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( taskPoolHandle );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( pJob );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( pStatus );
-
-    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
 
     *pStatus = IOT_TASKPOOL_STATUS_UNDEFINED;
 
@@ -845,11 +842,11 @@ IotTaskPoolError_t IotTaskPool_TryCancel( IotTaskPool_t taskPoolHandle,
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
+    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
+
     /* Parameter checking. */
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( taskPoolHandle );
     TASKPOOL_ON_NULL_ARG_GOTO_CLEANUP( pJob );
-
-    _taskPool_t * pTaskPool = ( _taskPool_t * ) taskPoolHandle;
 
     if( pStatus != NULL )
     {
@@ -920,7 +917,7 @@ const char * IotTaskPool_strerror( IotTaskPoolError_t status )
 /* ---------------------------------------------------------------------------------------------- */
 /* ---------------------------------------------------------------------------------------------- */
 
-bool _performTaskPoolParameterValidation( const IotTaskPoolInfo_t * const pInfo )
+static IotTaskPoolError_t _performTaskPoolParameterValidation( const IotTaskPoolInfo_t * const pInfo )
 {
     TASKPOOL_FUNCTION_ENTRY( IOT_TASKPOOL_SUCCESS );
 
