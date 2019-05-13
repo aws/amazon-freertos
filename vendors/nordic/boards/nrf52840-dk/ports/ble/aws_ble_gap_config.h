@@ -8,7 +8,6 @@
 #define aws_ble_gap_configNEXT_CONN_PARAMS_UPDATE_DELAY     3000                              /**< Time between each call to sd_ble_gap_conn_param_update after the first call (30 seconds). */
 #define aws_ble_gap_configMAX_CONN_PARAMS_UPDATE_COUNT      3                                  /**< Number of attempts before giving up the connection parameter negotiation. */
 
-#define aws_ble_gap_configADV_INTERVAL                      300                                /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 #define aws_ble_gap_configADV_DURATION                      18000                              /**< The advertising duration (180 seconds) in units of 10 milliseconds. */
 
 #define aws_ble_gap_configMIN_CONN_INTERVAL                 MSEC_TO_UNITS( 20, UNIT_1_25_MS ) /**< Minimum acceptable connection interval (0.5 seconds). */

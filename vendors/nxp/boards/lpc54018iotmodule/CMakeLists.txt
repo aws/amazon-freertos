@@ -13,9 +13,9 @@ endif()
 # Include IDE specific cmake file.
 if(${AFR_TOOLCHAIN} STREQUAL "arm-gcc")
     include("mcuxpresso.cmake")
-elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar") 
+elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar")
     include("iar.cmake")
-elseif(NOT AFR_NON_BUILD_MODE)
+elseif(NOT AFR_METADATA_MODE)
     message( FATAL_ERROR "The toolchain is not supported." )
 endif()
 
@@ -38,8 +38,8 @@ afr_set_board_metadata(IDE_IAREmbeddedWorkbench_COMPILER "IAR")
 afr_set_board_metadata(IDE_MCUXpresso_NAME "MCUXpresso")
 afr_set_board_metadata(IDE_MCUXpresso_COMPILER "GCC")
 
-afr_set_board_metadata(IDE_IAREmbeddedWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/lpc54018iotmodule/aws_demos/iar")
-afr_set_board_metadata(IDE_MCUXpresso_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/lpc54018iotmodule/aws_demos/mcuxpresso")
+afr_set_board_metadata(IDE_IAREmbeddedWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/iar")
+afr_set_board_metadata(IDE_MCUXpresso_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/mcuxpresso")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files")
 
 # -------------------------------------------------------------------------------------------------

@@ -67,9 +67,10 @@ endif()
 option(AFR_DEBUG_CMAKE "Turn on additional checks and messages.")
 mark_as_advanced(AFR_DEBUG_CMAKE)
 
-# Enable non-build mode. This is for internal use only to generate metadata information for a board.
-option(AFR_NON_BUILD_MODE "Turn on additional checks and messages.")
-mark_as_advanced(AFR_NON_BUILD_MODE)
+# Enable metadata mode. This is for internal use only to generate metadata information for a board.
+if(NOT CACHE{AFR_METADATA_MODE})
+    set(AFR_METADATA_MODE 0 CACHE INTERNAL "Turn off build and generate metadata information.")
+endif()
 
 # Import other CMake files.
 include("${CMAKE_CURRENT_LIST_DIR}/afr_utils.cmake")

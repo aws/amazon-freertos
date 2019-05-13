@@ -26,46 +26,27 @@
 #ifndef _AWS_DEMO_CONFIG_H_
 #define _AWS_DEMO_CONFIG_H_
 
-#define CONFIG_MQTT_DEMO_ENABLED 
+#define CONFIG_MQTT_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
 #define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_WIFI )
 
-#if defined( democonfigBLE_MQTT_ECHO_DEMO_ENABLED )
+#if defined( CONFIG_MQTT_BLE_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
     #define democonfigNETWORK_TYPES                          ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 #endif
 
-#if defined( democonfigOTA_UPDATE_DEMO_ENABLED )
+#if defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
     #define democonfigNETWORK_TYPES                          ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 #endif
 
-#define democonfigSHADOW_DEMO_NUM_TASKS             ( 1 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigSHADOW_DEMO_TASK_PRIORITY         ( tskIDLE_PRIORITY + 5 )
-#define shadowDemoUPDATE_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
+#if defined( CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED )
+    #undef democonfigDEMO_STACKSIZE
+    #define democonfigDEMO_STACKSIZE          ( 9000)
+#endif
 
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY           ( tskIDLE_PRIORITY )
-
-/* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS            ( 0 )
-/* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS              ( 1 )
-
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY        ( tskIDLE_PRIORITY + 5 )
-
-
-/* Timeout used when performing MQTT operations that do not need extra time
- * to perform a TLS negotiation. */
-#define democonfigMQTT_TIMEOUT                         pdMS_TO_TICKS( 3000 )
-
-/* Send AWS IoT MQTT traffic encrypted to destination port 443. */
-#define democonfigMQTT_AGENT_CONNECT_FLAGS             ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

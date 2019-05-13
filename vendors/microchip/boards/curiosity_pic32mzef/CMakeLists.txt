@@ -260,6 +260,7 @@ add_executable(
     "${board_dir}/application_code/main.c"
     ${microchip_code}
     ${extra_exe_sources}
+    "${board_dir}/application_code/microchip_code/app_mz.ld"
 )
 
 target_link_libraries(
@@ -277,7 +278,7 @@ target_include_directories(
 )
 
 
-if(AFR_NON_BUILD_MODE)
+if(AFR_METADATA_MODE)
     return()
 endif()
 
@@ -326,8 +327,10 @@ set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 # Locate microchip hexmate.
 set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
 find_program(hexmate_path hexmate PATHS ${MCHP_HEXMATE_PATH} PATH_SUFFIXES bin)
-if(NOT hexmate_path)
-    message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+if (NOT AFR_METADATA_MODE)
+    if(NOT hexmate_path)
+        message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+    endif()
 endif()
 
 # These locations have to be generalized through the toolchain
@@ -340,6 +343,8 @@ if(AFR_IS_TESTING)
         TARGET ${exe_target} POST_BUILD
         COMMAND "echo" "Running Post-build step"
         COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+        COMMAND "echo" "Running Hexmate to combine bootloader with image"
+        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
     )
 else()
     add_custom_command(

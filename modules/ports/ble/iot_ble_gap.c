@@ -61,14 +61,14 @@ static const BTUuid_t _serverUUID =
     .ucType   = eBTuuidType128,
     .uu.uu128 = IOT_BLE_SERVER_UUID
 };
-static const IotBleAdvertisementParams_t _scanRespParams =
+static IotBleAdvertisementParams_t _scanRespParams =
 {
-    .includeTxPower    = false,
-    .includeName       = true,
+    .includeTxPower    = true,
+    .nameType        = BTGattAdvNameNone,
     .setScanRsp        = true,
     .appearance        = IOT_BLE_ADVERTISING_APPEARANCE,
-    .minInterval       = IOT_BLE_ADVERTISING_INTERVAL_MIN,
-    .maxInterval       = IOT_BLE_ADVERTISING_INTERVAL_MAX,
+    .minInterval       = IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN,
+    .maxInterval       = IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX,
     .serviceDataLen    =                                0,
     .pServiceData      = NULL,
     .manufacturerLen   =                                0,
@@ -77,14 +77,14 @@ static const IotBleAdvertisementParams_t _scanRespParams =
     .pUUID2            = NULL
 };
 
-static const IotBleAdvertisementParams_t _advParams =
+static IotBleAdvertisementParams_t _advParams =
 {
-    .includeTxPower    = true,
-    .includeName       = false,
+    .includeTxPower    = false,
+    .nameType        = BTGattAdvNameShort,
     .setScanRsp        = false,
     .appearance        = IOT_BLE_ADVERTISING_APPEARANCE,
-    .minInterval       = IOT_BLE_ADVERTISING_INTERVAL_MIN,
-    .maxInterval       = IOT_BLE_ADVERTISING_INTERVAL_MAX,
+    .minInterval       = 0,
+    .maxInterval       = 0,
     .serviceDataLen    =                                0,
     .pServiceData      = NULL,
     .manufacturerLen   =                                0,
@@ -103,8 +103,8 @@ const BTProperty_t _deviceProperties[] =
 {
     {
         .xType = eBTpropertyBdname,
-        .xLen = sizeof( IOT_BLE_DEVICE_NAME ) - 1,
-        .pvVal = ( void * ) IOT_BLE_DEVICE_NAME
+        .xLen = sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1,
+        .pvVal = ( void * ) IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME
     },
     {
         .xType = eBTpropertyBondable,
@@ -364,7 +364,7 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
     size_t countService = 0;
     BTUuid_t pServiceUuide[ _BLE_MAX_UUID_PER_ADV_MESSAGE ];
 
-    pParams.bIncludeName = pAdvParams->includeName;
+    pParams.ucNameType = pAdvParams->nameType;
     pParams.bIncludeTxPower = pAdvParams->includeTxPower;
     pParams.bSetScanRsp = pAdvParams->setScanRsp;
 
@@ -646,12 +646,16 @@ BTStatus_t IotBle_Init( void )
     /* Initialize advertisement and scan response. */
     if( status == eBTStatusSuccess )
     {
-        status = _setAdvData( ( IotBleAdvertisementParams_t * ) &_advParams );
+		#if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 0 )
+        status = _setAdvData( &_advParams );
 
         if( status == eBTStatusSuccess )
         {
-            status = _setAdvData( ( IotBleAdvertisementParams_t * ) &_scanRespParams );
+            status = _setAdvData( &_scanRespParams );
         }
+		#else
+        IotBle_SetCustomAdvCb(&_advParams, &_scanRespParams );
+		#endif
     }
 
     /* Start advertisement. */

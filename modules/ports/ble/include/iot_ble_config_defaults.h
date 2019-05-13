@@ -59,6 +59,15 @@
  #define IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID    0x00, 0xFF
  #define IOT_BLE_DEVICE_INFO_SERVICE_UUID  {IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
 
+
+/**
+ * @brief Set to true if user wants to send its own advertisement message.
+ */
+#ifndef IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG
+    #define IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG        ( 0 )
+#endif
+
+
 /**
  *
  * @brief Define the UUID that is going to be advertised.
@@ -75,20 +84,24 @@
 #define IOT_BLE_ADVERTISING_UUID_SIZE 16
 #endif
 
-
 /**
- * @brief Define the Advertising interval.
+ * @brief Define the connection interval.
  *
  */
-#if (!defined(IOT_BLE_ADVERTISING_INTERVAL_MIN)) || ( !defined(bleconfigADVERTISING_INTERVAL_MAX))
-	#ifdef IOT_BLE_ADVERTISING_INTERVAL_MIN
-	#error "bleconfigADVERTISING_INTERVAL_MAX need to be defined"
+#if (!defined(IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN)) || ( !defined(IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX))
+	#ifdef IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN
+	#error "IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX need to be defined"
 	#endif
-	#ifdef bleconfigADVERTISING_INTERVAL_MAX
-	#error "IOT_BLE_ADVERTISING_INTERVAL_MIN need to be defined"
+	#ifdef IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX
+	#error "IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN need to be defined"
 	#endif
-#define IOT_BLE_ADVERTISING_INTERVAL_MIN 0x20
-#define IOT_BLE_ADVERTISING_INTERVAL_MAX 0x40
+#define IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN 0x20
+#define IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX 0x40
+#endif
+
+/**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
+#ifndef IOT_BLE_ADVERTISING_INTERVAL
+#define IOT_BLE_ADVERTISING_INTERVAL                     300                                
 #endif
 
 /**
@@ -109,11 +122,20 @@
 
 /**
  *
- * @brief Device name as it appears on the BLE network.
+ * @brief Device name that is broadcasted in advertising message. It is the truncated complete local name
  *
  */
-#ifndef IOT_BLE_DEVICE_NAME
-#define IOT_BLE_DEVICE_NAME                      "BLE"
+#ifndef IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE
+#define IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE      4
+#endif
+
+/**
+ *
+ * @brief Device name that can be read from the name characteristic.
+ *
+ */
+#ifndef IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME
+#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                      "BLE"
 #endif
 
 /**
@@ -294,3 +316,4 @@
 #endif
 
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */
+

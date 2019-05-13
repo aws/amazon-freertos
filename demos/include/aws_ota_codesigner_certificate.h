@@ -32,9 +32,9 @@
  * PEM-encoded code signer certificate
  *
  * Must include the PEM header and footer:
- * "-----BEGIN CERTIFICATE-----"
- * "...base64 data..."
- * "-----END CERTIFICATE-----";
+ * "-----BEGIN CERTIFICATE-----\n"
+ * "...base64 data...\n"
+ * "-----END CERTIFICATE-----\n";
  */
 static const char signingcredentialSIGNING_CERTIFICATE_PEM[] = "Paste code signing certificate here.";
 

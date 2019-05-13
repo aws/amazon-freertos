@@ -15,4 +15,3 @@ afr_module_dependencies(
     INTERFACE
         AFR::posix
 )
-
