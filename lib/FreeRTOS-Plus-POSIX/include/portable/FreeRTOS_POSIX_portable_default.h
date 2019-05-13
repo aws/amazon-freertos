@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -132,6 +132,12 @@
 #endif
 #ifndef posixconfigENABLE_TM
     #define posixconfigENABLE_TM                     1 /**< struct tm in time.h */
+#endif
+#ifndef posixconfigENABLE_SEM_T
+    #define posixconfigENABLE_SEM_T                  1 /**< struct sem_t in semaphore.h */
+#endif
+#ifndef posixconfigENABLE_PTHREAD_BARRIER_T
+    #define posixconfigENABLE_PTHREAD_BARRIER_T      1 /**< pthread_barrier_t in sys/types.h */
 #endif
 /**@} */
 

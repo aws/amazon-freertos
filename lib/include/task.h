@@ -1,6 +1,6 @@
 /*
- * FreeRTOS Kernel V10.0.1
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V10.2.0
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -43,10 +43,18 @@ extern "C" {
  * MACROS AND DEFINITIONS
  *----------------------------------------------------------*/
 
-#define tskKERNEL_VERSION_NUMBER "V10.0.1"
+#define tskKERNEL_VERSION_NUMBER "V10.2.0"
 #define tskKERNEL_VERSION_MAJOR 10
-#define tskKERNEL_VERSION_MINOR 0
-#define tskKERNEL_VERSION_BUILD 1
+#define tskKERNEL_VERSION_MINOR 2
+#define tskKERNEL_VERSION_BUILD 0
+
+/* MPU region parameters passed in ulParameters
+ * of MemoryRegion_t struct. */
+#define tskMPU_REGION_READ_ONLY			( 1UL << 0UL )
+#define tskMPU_REGION_READ_WRITE		( 1UL << 1UL )
+#define tskMPU_REGION_EXECUTE_NEVER		( 1UL << 2UL )
+#define tskMPU_REGION_NORMAL_MEMORY		( 1UL << 3UL )
+#define tskMPU_REGION_DEVICE_MEMORY		( 1UL << 4UL )
 
 /**
  * task. h
@@ -58,7 +66,8 @@ extern "C" {
  * \defgroup TaskHandle_t TaskHandle_t
  * \ingroup Tasks
  */
-typedef void * TaskHandle_t;
+struct tskTaskControlBlock; /* The old naming convention is used to prevent breaking kernel aware debuggers. */
+typedef struct tskTaskControlBlock* TaskHandle_t;
 
 /*
  * Defines the prototype to which the application task hook function must
@@ -74,7 +83,7 @@ typedef enum
 	eBlocked,		/* The task being queried is in the Blocked state. */
 	eSuspended,		/* The task being queried is in the Suspended state, or is in the Blocked state with an infinite time out. */
 	eDeleted,		/* The task being queried has been deleted, but its TCB has not yet been freed. */
-	eInvalid			/* Used as an 'invalid state' value. */
+	eInvalid		/* Used as an 'invalid state' value. */
 } eTaskState;
 
 /* Actions that can be performed when vTaskNotify() is called. */
@@ -113,7 +122,7 @@ typedef struct xTASK_PARAMETERS
 {
 	TaskFunction_t pvTaskCode;
 	const char * const pcName;	/*lint !e971 Unqualified char types are allowed for strings and single characters only. */
-	uint16_t usStackDepth;
+	configSTACK_DEPTH_TYPE usStackDepth;
 	void *pvParameters;
 	UBaseType_t uxPriority;
 	StackType_t *puxStackBuffer;
@@ -135,7 +144,7 @@ typedef struct xTASK_STATUS
 	UBaseType_t uxBasePriority;		/* The priority to which the task will return if the task's current priority has been inherited to avoid unbounded priority inversion when obtaining a mutex.  Only valid if configUSE_MUTEXES is defined as 1 in FreeRTOSConfig.h. */
 	uint32_t ulRunTimeCounter;		/* The total run time allocated to the task so far, as defined by the run time stats clock.  See http://www.freertos.org/rtos-run-time-stats.html.  Only valid when configGENERATE_RUN_TIME_STATS is defined as 1 in FreeRTOSConfig.h. */
 	StackType_t *pxStackBase;		/* Points to the lowest address of the task's stack area. */
-	uint16_t usStackHighWaterMark;	/* The minimum amount of stack space that has remained for the task since the task was created.  The closer this value is to zero the closer the task has come to overflowing its stack. */
+	configSTACK_DEPTH_TYPE usStackHighWaterMark;	/* The minimum amount of stack space that has remained for the task since the task was created.  The closer this value is to zero the closer the task has come to overflowing its stack. */
 } TaskStatus_t;
 
 /* Possible return values for eTaskConfirmSleepModeStatus(). */
@@ -302,7 +311,7 @@ is used in assert() statements. */
 
 	 // Create the task, storing the handle.  Note that the passed parameter ucParameterToPass
 	 // must exist for the lifetime of the task, so in this case is declared static.  If it was just an
-	 // automatic stack variable it might no longer exist, or at least have been corrupted, by the time
+	 // an automatic stack variable it might no longer exist, or at least have been corrupted, by the time
 	 // the new task attempts to access it.
 	 xTaskCreate( vTaskCode, "NAME", STACK_SIZE, &ucParameterToPass, tskIDLE_PRIORITY, &xHandle );
      configASSERT( xHandle );
@@ -375,9 +384,9 @@ is used in assert() statements. */
  * memory to be allocated dynamically.
  *
  * @return If neither pxStackBuffer or pxTaskBuffer are NULL, then the task will
- * be created and pdPASS is returned.  If either pxStackBuffer or pxTaskBuffer
- * are NULL then the task will not be created and
- * errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY is returned.
+ * be created and a handle to the created task is returned.  If either
+ * pxStackBuffer or pxTaskBuffer are NULL then the task will not be created and
+ * NULL is returned.
  *
  * Example usage:
    <pre>
@@ -834,7 +843,7 @@ BaseType_t xTaskAbortDelay( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
- * <pre>UBaseType_t uxTaskPriorityGet( TaskHandle_t xTask );</pre>
+ * <pre>UBaseType_t uxTaskPriorityGet( const TaskHandle_t xTask );</pre>
  *
  * INCLUDE_uxTaskPriorityGet must be defined as 1 for this function to be available.
  * See the configuration section for more information.
@@ -877,15 +886,15 @@ BaseType_t xTaskAbortDelay( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
  * \defgroup uxTaskPriorityGet uxTaskPriorityGet
  * \ingroup TaskCtrl
  */
-UBaseType_t uxTaskPriorityGet( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
+UBaseType_t uxTaskPriorityGet( const TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
- * <pre>UBaseType_t uxTaskPriorityGetFromISR( TaskHandle_t xTask );</pre>
+ * <pre>UBaseType_t uxTaskPriorityGetFromISR( const TaskHandle_t xTask );</pre>
  *
  * A version of uxTaskPriorityGet() that can be used from an ISR.
  */
-UBaseType_t uxTaskPriorityGetFromISR( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
+UBaseType_t uxTaskPriorityGetFromISR( const TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
@@ -1343,20 +1352,6 @@ TickType_t xTaskGetTickCount( void ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
- * <PRE>TickType_t xTaskGetIdleTickCount( void );</PRE>
- *
- * Idle ticks are defined as ticks in which no other task than the idle task was
- * executed.
- *
- * @return The count of idle ticks since vTaskStartScheduler was called.
- *
- * \defgroup xTaskGetIdleTickCount xTaskGetIdleTickCount
- * \ingroup TaskUtils
- */
-TickType_t xTaskGetIdleTickCount( void ) PRIVILEGED_FUNCTION;
-
-/**
- * task. h
  * <PRE>TickType_t xTaskGetTickCountFromISR( void );</PRE>
  *
  * @return The count of ticks since vTaskStartScheduler was called.
@@ -1370,22 +1365,6 @@ TickType_t xTaskGetIdleTickCount( void ) PRIVILEGED_FUNCTION;
  * \ingroup TaskUtils
  */
 TickType_t xTaskGetTickCountFromISR( void ) PRIVILEGED_FUNCTION;
-
-/**
- * task. h
- * <PRE>TickType_t xTaskGetIdleTickCountFromISR( void );</PRE>
- *
- * @return The count of ticks since vTaskStartScheduler was called.
- *
- * This is a version of xTaskGetTickCount() that is safe to be called from an
- * ISR - provided that TickType_t is the natural word size of the
- * microcontroller being used or interrupt nesting is either not supported or
- * not being used.
- *
- * \defgroup xTaskGetIdleTickCountFromISR xTaskGetIdleTickCountFromISR
- * \ingroup TaskUtils
- */
-TickType_t xTaskGetIdleTickCountFromISR( void ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
@@ -1442,6 +1421,12 @@ TaskHandle_t xTaskGetHandle( const char *pcNameToQuery ) PRIVILEGED_FUNCTION; /*
  * a value of 1 means 4 bytes) since the task started.  The smaller the returned
  * number the closer the task has come to overflowing its stack.
  *
+ * uxTaskGetStackHighWaterMark() and uxTaskGetStackHighWaterMark2() are the
+ * same except for their return type.  Using configSTACK_DEPTH_TYPE allows the
+ * user to determine the return type.  It gets around the problem of the value
+ * overflowing on 8-bit types without breaking backward compatibility for
+ * applications that expect an 8-bit return type.
+ *
  * @param xTask Handle of the task associated with the stack to be checked.
  * Set xTask to NULL to check the stack of the calling task.
  *
@@ -1450,6 +1435,33 @@ TaskHandle_t xTaskGetHandle( const char *pcNameToQuery ) PRIVILEGED_FUNCTION; /*
  * xTask was created.
  */
 UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
+
+/**
+ * task.h
+ * <PRE>configSTACK_DEPTH_TYPE uxTaskGetStackHighWaterMark2( TaskHandle_t xTask );</PRE>
+ *
+ * INCLUDE_uxTaskGetStackHighWaterMark2 must be set to 1 in FreeRTOSConfig.h for
+ * this function to be available.
+ *
+ * Returns the high water mark of the stack associated with xTask.  That is,
+ * the minimum free stack space there has been (in words, so on a 32 bit machine
+ * a value of 1 means 4 bytes) since the task started.  The smaller the returned
+ * number the closer the task has come to overflowing its stack.
+ *
+ * uxTaskGetStackHighWaterMark() and uxTaskGetStackHighWaterMark2() are the
+ * same except for their return type.  Using configSTACK_DEPTH_TYPE allows the
+ * user to determine the return type.  It gets around the problem of the value
+ * overflowing on 8-bit types without breaking backward compatibility for
+ * applications that expect an 8-bit return type.
+ *
+ * @param xTask Handle of the task associated with the stack to be checked.
+ * Set xTask to NULL to check the stack of the calling task.
+ *
+ * @return The smallest amount of free stack space there has been (in words, so
+ * actual spaces on the stack rather than bytes) since the task referenced by
+ * xTask was created.
+ */
+configSTACK_DEPTH_TYPE uxTaskGetStackHighWaterMark2( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
 
 /* When using trace macros it is sometimes necessary to include task.h before
 FreeRTOS.h.  When this is done TaskHookFunction_t will not yet have been defined,
@@ -1473,9 +1485,20 @@ constant. */
 		 * task.h
 		 * <pre>void xTaskGetApplicationTaskTag( TaskHandle_t xTask );</pre>
 		 *
-		 * Returns the pxHookFunction value assigned to the task xTask.
+		 * Returns the pxHookFunction value assigned to the task xTask.  Do not
+		 * call from an interrupt service routine - call
+		 * xTaskGetApplicationTaskTagFromISR() instead.
 		 */
 		TaskHookFunction_t xTaskGetApplicationTaskTag( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
+
+		/**
+		 * task.h
+		 * <pre>void xTaskGetApplicationTaskTagFromISR( TaskHandle_t xTask );</pre>
+		 *
+		 * Returns the pxHookFunction value assigned to the task xTask.  Can
+		 * be called from an interrupt service routine.
+		 */
+		TaskHookFunction_t xTaskGetApplicationTaskTagFromISR( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
 	#endif /* configUSE_APPLICATION_TASK_TAG ==1 */
 #endif /* ifdef configUSE_APPLICATION_TASK_TAG */
 
@@ -1712,6 +1735,36 @@ void vTaskList( char * pcWriteBuffer ) PRIVILEGED_FUNCTION; /*lint !e971 Unquali
  * \ingroup TaskUtils
  */
 void vTaskGetRunTimeStats( char *pcWriteBuffer ) PRIVILEGED_FUNCTION; /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
+
+/**
+* task. h
+* <PRE>TickType_t xTaskGetIdleRunTimeCounter( void );</PRE>
+*
+* configGENERATE_RUN_TIME_STATS and configUSE_STATS_FORMATTING_FUNCTIONS
+* must both be defined as 1 for this function to be available.  The application
+* must also then provide definitions for
+* portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() and portGET_RUN_TIME_COUNTER_VALUE()
+* to configure a peripheral timer/counter and return the timers current count
+* value respectively.  The counter should be at least 10 times the frequency of
+* the tick count.
+*
+* Setting configGENERATE_RUN_TIME_STATS to 1 will result in a total
+* accumulated execution time being stored for each task.  The resolution
+* of the accumulated time value depends on the frequency of the timer
+* configured by the portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() macro.
+* While uxTaskGetSystemState() and vTaskGetRunTimeStats() writes the total
+* execution time of each task into a buffer, xTaskGetIdleRunTimeCounter()
+* returns the total execution time of just the idle task.
+*
+* @return The total run time of the idle task.  This is the amount of time the
+* idle task has actually been executing.  The unit of time is dependent on the
+* frequency configured using the portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() and
+* portGET_RUN_TIME_COUNTER_VALUE() macros.
+*
+* \defgroup xTaskGetIdleRunTimeCounter xTaskGetIdleRunTimeCounter
+* \ingroup TaskUtils
+*/
+TickType_t xTaskGetIdleRunTimeCounter( void ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
@@ -2331,7 +2384,7 @@ void vTaskSetTaskNumber( TaskHandle_t xTask, const UBaseType_t uxHandle ) PRIVIL
 void vTaskStepTick( const TickType_t xTicksToJump ) PRIVILEGED_FUNCTION;
 
 /*
- * Only avilable when configUSE_TICKLESS_IDLE is set to 1.
+ * Only available when configUSE_TICKLESS_IDLE is set to 1.
  * Provided for use within portSUPPRESS_TICKS_AND_SLEEP() to allow the port
  * specific sleep function to determine if it is ok to proceed with the sleep,
  * and if it is ok to proceed, if it is ok to sleep indefinitely.
@@ -2350,7 +2403,7 @@ eSleepModeStatus eTaskConfirmSleepModeStatus( void ) PRIVILEGED_FUNCTION;
  * For internal use only.  Increment the mutex held count when a mutex is
  * taken and return the handle of the task that has taken the mutex.
  */
-void *pvTaskIncrementMutexHeldCount( void ) PRIVILEGED_FUNCTION;
+TaskHandle_t pvTaskIncrementMutexHeldCount( void ) PRIVILEGED_FUNCTION;
 
 /*
  * For internal use only.  Same as vTaskSetTimeOutState(), but without a critial

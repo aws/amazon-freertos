@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA PAL for Curiosity PIC32MZEF V1.0.2
+ * Amazon FreeRTOS OTA PAL for Curiosity PIC32MZEF V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@
 #include "system/reset/sys_reset.h"
 
 /* Specify the OTA signature algorithm we support on this platform. */
-const char pcOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
+const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ] = "sig-sha256-ecdsa";
 
 #define OTA_HALF_SECOND_DELAY            pdMS_TO_TICKS( 500UL )
 
@@ -194,7 +194,7 @@ static bool_t prvContextUpdateImageHeaderAndTrailer( OTA_FileContext_t * C )
     if( bProgResult )
     {
         /* Create image trailer. */
-        memcpy( xImgTrailer.aucSignatureType, pcOTA_JSON_FileSignatureKey, sizeof( pcOTA_JSON_FileSignatureKey ) );
+        memcpy( xImgTrailer.aucSignatureType, cOTA_JSON_FileSignatureKey, sizeof( cOTA_JSON_FileSignatureKey ) );
         xImgTrailer.ulSignatureSize = C->pxSignature->usSize;
         memcpy( xImgTrailer.aucSignature, C->pxSignature->ucData, C->pxSignature->usSize );
 
@@ -388,7 +388,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * C )
     if( kOTA_Err_None == eResult )
     {
         /* Update the image header. */
-        OTA_LOG_L1( "[%s] %s signature verification passed.\r\n", OTA_METHOD_NAME, pcOTA_JSON_FileSignatureKey );
+        OTA_LOG_L1( "[%s] %s signature verification passed.\r\n", OTA_METHOD_NAME, cOTA_JSON_FileSignatureKey );
 
         if( prvContextUpdateImageHeaderAndTrailer( C ) == ( bool_t ) pdTRUE )
         {
@@ -403,7 +403,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * C )
     else
     {
         OTA_LOG_L1( "[%s] ERROR: Failed to pass %s signature verification: %d.\r\n", OTA_METHOD_NAME,
-                    pcOTA_JSON_FileSignatureKey, eResult );
+                    cOTA_JSON_FileSignatureKey, eResult );
     }
 
     prvContextClose( C );
@@ -428,8 +428,8 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
     else
     {
         OTA_LOG_L1( "[%s] Started %s signature verification, file: %s\r\n", OTA_METHOD_NAME,
-                    pcOTA_JSON_FileSignatureKey, ( const char * ) C->pacCertFilepath );
-        pucSignerCert = prvPAL_ReadAndAssumeCertificate( ( const uint8_t * const ) C->pacCertFilepath, &ulSignerCertSize );
+                    cOTA_JSON_FileSignatureKey, ( const char * ) C->pucCertFilepath );
+        pucSignerCert = prvPAL_ReadAndAssumeCertificate( ( const uint8_t * const ) C->pucCertFilepath, &ulSignerCertSize );
 
         if( pucSignerCert == NULL )
         {

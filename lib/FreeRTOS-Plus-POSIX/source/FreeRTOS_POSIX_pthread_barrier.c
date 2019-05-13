@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,30 +46,16 @@
     #define posixPTHREAD_BARRIER_MAX_COUNT        ( 24 )
 #endif
 
-/**
- * @brief Barrier object.
- */
-typedef struct pthread_barrier_internal
-{
-    unsigned uThreadCount;                   /**< Current number of threads that have entered barrier. */
-    unsigned uThreshold;                     /**< The count argument of pthread_barrier_init. */
-    StaticSemaphore_t xThreadCountMutex;     /**< Guards access to uThreadCount. */
-    StaticSemaphore_t xThreadCountSemaphore; /**< Prevents more than uThreshold threads from exiting pthread_barrier_wait at once. */
-    StaticEventGroup_t xBarrierEventGroup;   /**< FreeRTOS event group that blocks to wait on threads entering barrier. */
-} pthread_barrier_internal_t;
-
 /*-----------------------------------------------------------*/
 
 int pthread_barrier_destroy( pthread_barrier_t * barrier )
 {
-    pthread_barrier_internal_t * pxBarrier = ( pthread_barrier_internal_t * ) ( *barrier );
+    pthread_barrier_internal_t * pxBarrier = ( pthread_barrier_internal_t * ) ( barrier );
 
     /* Free all resources used by the barrier. */
     ( void ) vEventGroupDelete( ( EventGroupHandle_t ) &pxBarrier->xBarrierEventGroup );
     ( void ) vSemaphoreDelete( ( SemaphoreHandle_t ) &pxBarrier->xThreadCountMutex );
     ( void ) vSemaphoreDelete( ( SemaphoreHandle_t ) &pxBarrier->xThreadCountSemaphore );
-
-    vPortFree( *barrier );
 
     return 0;
 }
@@ -81,7 +67,7 @@ int pthread_barrier_init( pthread_barrier_t * barrier,
                           unsigned count )
 {
     int iStatus = 0;
-    pthread_barrier_internal_t * pxNewBarrier = NULL;
+    pthread_barrier_internal_t * pxNewBarrier = ( pthread_barrier_internal_t * ) ( barrier );
 
     /* Silence warnings about unused parameters. */
     ( void ) attr;
@@ -99,18 +85,6 @@ int pthread_barrier_init( pthread_barrier_t * barrier,
         {
             /* No memory exists in the event group for more than
              * posixPTHREAD_BARRIER_MAX_COUNT threads. */
-            iStatus = ENOMEM;
-        }
-    }
-
-    /* Allocate memory for a new barrier. */
-    if( iStatus == 0 )
-    {
-        pxNewBarrier = pvPortMalloc( sizeof( pthread_barrier_internal_t ) );
-
-        if( pxNewBarrier == NULL )
-        {
-            /* No memory. */
             iStatus = ENOMEM;
         }
     }
@@ -135,9 +109,6 @@ int pthread_barrier_init( pthread_barrier_t * barrier,
         ( void ) xSemaphoreCreateCountingStatic( ( UBaseType_t ) count, /* Max count. */
                                                  ( UBaseType_t ) count, /* Initial count. */
                                                  &pxNewBarrier->xThreadCountSemaphore );
-
-        /* Set output parameter. */
-        *barrier = pxNewBarrier;
     }
 
     return iStatus;
@@ -149,7 +120,7 @@ int pthread_barrier_wait( pthread_barrier_t * barrier )
 {
     int iStatus = 0;
     unsigned i = 0; /* Loop iterator. */
-    pthread_barrier_internal_t * pxBarrier = ( pthread_barrier_internal_t * ) ( *barrier );
+    pthread_barrier_internal_t * pxBarrier = ( pthread_barrier_internal_t * ) ( barrier );
     unsigned uThreadNumber = 0;
 
     /* Decrement the number of threads waiting on this barrier. This will prevent more

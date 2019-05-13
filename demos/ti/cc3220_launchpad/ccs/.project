@@ -256,6 +256,11 @@
 			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h</locationURI>
 		</link>
 		<link>
+			<name>lib/aws/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_types.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/lib/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_types.h</locationURI>
+		</link>
+		<link>
 			<name>lib/third_party/mcu_vendor/ti/SimpleLink_CC32xx</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>

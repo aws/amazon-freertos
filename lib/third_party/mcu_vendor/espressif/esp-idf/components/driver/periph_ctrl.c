@@ -23,7 +23,7 @@ static portMUX_TYPE periph_spinlock = portMUX_INITIALIZER_UNLOCKED;
 
 /* Static functions to return register address & mask for clk_en / rst of each peripheral */
 static uint32_t get_clk_en_mask(periph_module_t periph);
-static uint32_t get_rst_en_mask(periph_module_t periph);
+static uint32_t get_rst_en_mask(periph_module_t periph, bool enable);
 static uint32_t get_clk_en_reg(periph_module_t periph);
 static uint32_t get_rst_en_reg(periph_module_t periph);
 
@@ -31,7 +31,7 @@ void periph_module_enable(periph_module_t periph)
 {
     portENTER_CRITICAL(&periph_spinlock);
     DPORT_SET_PERI_REG_MASK(get_clk_en_reg(periph), get_clk_en_mask(periph));
-    DPORT_CLEAR_PERI_REG_MASK(get_rst_en_reg(periph), get_rst_en_mask(periph));
+    DPORT_CLEAR_PERI_REG_MASK(get_rst_en_reg(periph), get_rst_en_mask(periph, true));
     portEXIT_CRITICAL(&periph_spinlock);
 }
 
@@ -39,15 +39,15 @@ void periph_module_disable(periph_module_t periph)
 {
     portENTER_CRITICAL(&periph_spinlock);
     DPORT_CLEAR_PERI_REG_MASK(get_clk_en_reg(periph), get_clk_en_mask(periph));
-    DPORT_SET_PERI_REG_MASK(get_rst_en_reg(periph), get_rst_en_mask(periph));
+    DPORT_SET_PERI_REG_MASK(get_rst_en_reg(periph), get_rst_en_mask(periph, false));
     portEXIT_CRITICAL(&periph_spinlock);
 }
 
 void periph_module_reset(periph_module_t periph)
 {
     portENTER_CRITICAL(&periph_spinlock);
-    DPORT_SET_PERI_REG_MASK(get_rst_en_reg(periph), get_rst_en_mask(periph));
-    DPORT_CLEAR_PERI_REG_MASK(get_rst_en_reg(periph), get_rst_en_mask(periph));
+    DPORT_SET_PERI_REG_MASK(get_rst_en_reg(periph), get_rst_en_mask(periph, false));
+    DPORT_CLEAR_PERI_REG_MASK(get_rst_en_reg(periph), get_rst_en_mask(periph, false));
     portEXIT_CRITICAL(&periph_spinlock);
 }
 
@@ -91,11 +91,11 @@ static uint32_t get_clk_en_mask(periph_module_t periph)
         case PERIPH_PCNT_MODULE:
             return DPORT_PCNT_CLK_EN;
         case PERIPH_SPI_MODULE:
-            return DPORT_SPI_CLK_EN_1;
+            return DPORT_SPI01_CLK_EN;
         case PERIPH_HSPI_MODULE:
-            return DPORT_SPI_CLK_EN;
+            return DPORT_SPI2_CLK_EN;
         case PERIPH_VSPI_MODULE:
-            return DPORT_SPI_CLK_EN_2;
+            return DPORT_SPI3_CLK_EN;
         case PERIPH_SPI_DMA_MODULE:
             return DPORT_SPI_DMA_CLK_EN;
         case PERIPH_SDMMC_MODULE:
@@ -114,12 +114,22 @@ static uint32_t get_clk_en_mask(periph_module_t periph)
             return DPORT_WIFI_CLK_BT_EN_M;
         case PERIPH_WIFI_BT_COMMON_MODULE:
             return DPORT_WIFI_CLK_WIFI_BT_COMMON_M;
+        case PERIPH_BT_BASEBAND_MODULE:
+            return DPORT_BT_BASEBAND_EN;
+        case PERIPH_BT_LC_MODULE:
+            return DPORT_BT_LC_EN;
+        case PERIPH_AES_MODULE:
+            return DPORT_PERI_EN_AES;
+        case PERIPH_SHA_MODULE:
+            return DPORT_PERI_EN_SHA;
+        case PERIPH_RSA_MODULE:
+            return DPORT_PERI_EN_RSA;
         default:
             return 0;
     }
 }
 
-static uint32_t get_rst_en_mask(periph_module_t periph)
+static uint32_t get_rst_en_mask(periph_module_t periph, bool enable)
 {
     switch(periph) {
         case PERIPH_RMT_MODULE:
@@ -159,11 +169,11 @@ static uint32_t get_rst_en_mask(periph_module_t periph)
         case PERIPH_PCNT_MODULE:
             return DPORT_PCNT_RST;
         case PERIPH_SPI_MODULE:
-            return DPORT_SPI_RST_1;
+            return DPORT_SPI01_RST;
         case PERIPH_HSPI_MODULE:
-            return DPORT_SPI_RST;
+            return DPORT_SPI2_RST;
         case PERIPH_VSPI_MODULE:
-            return DPORT_SPI_RST_2;
+            return DPORT_SPI3_RST;
         case PERIPH_SPI_DMA_MODULE:
             return DPORT_SPI_DMA_RST;
         case PERIPH_SDMMC_MODULE:
@@ -174,9 +184,35 @@ static uint32_t get_rst_en_mask(periph_module_t periph)
             return DPORT_CAN_RST;
         case PERIPH_EMAC_MODULE:
             return DPORT_EMAC_RST;
+        case PERIPH_AES_MODULE:
+            if (enable == true) {
+                // Clear reset on digital signature & secure boot units, otherwise AES unit is held in reset also.
+                return (DPORT_PERI_EN_AES | DPORT_PERI_EN_DIGITAL_SIGNATURE | DPORT_PERI_EN_SECUREBOOT);
+            } else {
+                //Don't return other units to reset, as this pulls reset on RSA & SHA units, respectively.
+                return DPORT_PERI_EN_AES;
+            }
+        case PERIPH_SHA_MODULE:
+            if (enable == true) {
+                // Clear reset on secure boot, otherwise SHA is held in reset
+                return (DPORT_PERI_EN_SHA | DPORT_PERI_EN_SECUREBOOT);
+            } else {
+                // Don't assert reset on secure boot, otherwise AES is held in reset
+                return DPORT_PERI_EN_SHA;
+            }
+        case PERIPH_RSA_MODULE:
+            if (enable == true) {
+                // Also clear reset on digital signature, otherwise RSA is held in reset
+                return (DPORT_PERI_EN_RSA | DPORT_PERI_EN_DIGITAL_SIGNATURE);
+            } else {
+                // Don't reset digital signature unit, as this resets AES also
+                return DPORT_PERI_EN_RSA;
+            }
         case PERIPH_WIFI_MODULE:
         case PERIPH_BT_MODULE:
         case PERIPH_WIFI_BT_COMMON_MODULE:
+        case PERIPH_BT_BASEBAND_MODULE:
+        case PERIPH_BT_LC_MODULE:
             return 0;
         default:
             return 0;
@@ -195,6 +231,8 @@ static bool is_wifi_clk_peripheral(periph_module_t periph)
     case PERIPH_WIFI_MODULE:
     case PERIPH_BT_MODULE:
     case PERIPH_WIFI_BT_COMMON_MODULE:
+    case PERIPH_BT_BASEBAND_MODULE:
+    case PERIPH_BT_LC_MODULE:
         return true;
     default:
         return false;
@@ -203,12 +241,20 @@ static bool is_wifi_clk_peripheral(periph_module_t periph)
 
 static uint32_t get_clk_en_reg(periph_module_t periph)
 {
-    return is_wifi_clk_peripheral(periph) ? DPORT_WIFI_CLK_EN_REG : DPORT_PERIP_CLK_EN_REG;
+    if (periph == PERIPH_AES_MODULE || periph == PERIPH_SHA_MODULE || periph == PERIPH_RSA_MODULE) {
+        return DPORT_PERI_CLK_EN_REG;
+    } else {
+        return is_wifi_clk_peripheral(periph) ? DPORT_WIFI_CLK_EN_REG : DPORT_PERIP_CLK_EN_REG;
+    }
 }
 
 static uint32_t get_rst_en_reg(periph_module_t periph)
 {
-    return is_wifi_clk_peripheral(periph) ? DPORT_CORE_RST_EN_REG : DPORT_PERIP_RST_EN_REG;
+    if (periph == PERIPH_AES_MODULE || periph == PERIPH_SHA_MODULE || periph == PERIPH_RSA_MODULE) {
+        return DPORT_PERI_RST_EN_REG;
+    } else {
+        return is_wifi_clk_peripheral(periph) ? DPORT_CORE_RST_EN_REG : DPORT_PERIP_RST_EN_REG;
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT Library V1.1.3
+ * Amazon FreeRTOS MQTT Library V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1918,7 +1918,8 @@ static uint8_t prvEncodeRemainingLength( uint32_t ulRemainingLength,
             ucBytesWritten = 0;
             break;
         }
-    } while( ulRemainingLength > ( uint32_t ) 0 );
+    }
+    while( ulRemainingLength > ( uint32_t ) 0 );
 
     return ucBytesWritten;
 }

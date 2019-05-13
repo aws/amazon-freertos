@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.6
+ * Amazon FreeRTOS Demo Bootloader V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,7 +51,7 @@
 
 void BOOT_PAL_LaunchApplication( const void * const pvLaunchAddress )
 {
-    void (* pfApplicationEntry)( void ) = ( void ( * )( void ) )pvLaunchAddress;
+    void ( * pfApplicationEntry )( void ) = ( void ( * )( void ) )pvLaunchAddress;
 
     /* Disable any interrupts. */
     PLIB_INT_Disable( INT_ID_0 );
@@ -69,7 +69,7 @@ void BOOT_PAL_LaunchApplication( const void * const pvLaunchAddress )
 void BOOT_PAL_LaunchApplicationDesc( const BOOTImageDescriptor_t * const pvLaunchDescriptor )
 {
     DEFINE_BOOT_METHOD_NAME( "BOOT_PAL_LaunchApplicationDesc" );
-    
+
     void * pvExecAddress = pvLaunchDescriptor->pvExecAddress;
 
     /* The microchip flash is organized in two memory banks and it should
@@ -79,7 +79,7 @@ void BOOT_PAL_LaunchApplicationDesc( const BOOTImageDescriptor_t * const pvLaunc
     {
         /* Executing from upper bank so toggle.*/
         AWS_NVM_ToggleFlashBanks();
-        
+
         BOOT_LOG_L1( "\n[%s] Memory banks are swapped. \r\n", BOOT_METHOD_NAME );
     }
 

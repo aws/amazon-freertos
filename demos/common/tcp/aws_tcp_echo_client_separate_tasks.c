@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.6
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -130,7 +130,7 @@ void vStartTCPEchoClientTasks_SeparateTasks( void )
                  NULL,                                              /* The task parameter, not used in this case. */
                  democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY,   /* The priority assigned to the task is defined in aws_demo_config.h. */
                  NULL );                                            /* The task handle is not used. */
-  
+
     /* Create the task that receives the reply to echoes initiated by the
      * prvEchoClientTxTask() task. */
     xTaskCreate( prvEchoClientRxTask, "EchoMultiRx", democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE, NULL, democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY, NULL );
@@ -153,12 +153,14 @@ static void prvEchoClientTxTask( void * pvParameters )
     ( void ) pvParameters;
 
     #if ( ipconfigUSE_TCP_WIN == 1 )
-        WinProperties_t xWinProps;
-        /* Fill in the required buffer and window sizes. */
-        xWinProps.lTxBufSize = 6 * ipconfigTCP_MSS;
-        xWinProps.lTxWinSize = 3;
-        xWinProps.lRxBufSize = 6 * ipconfigTCP_MSS;
-        xWinProps.lRxWinSize = 3;
+        {
+            WinProperties_t xWinProps;
+            /* Fill in the required buffer and window sizes. */
+            xWinProps.lTxBufSize = 6 * ipconfigTCP_MSS;
+            xWinProps.lTxWinSize = 3;
+            xWinProps.lRxBufSize = 6 * ipconfigTCP_MSS;
+            xWinProps.lRxWinSize = 3;
+        }
     #endif
 
     /* Echo requests are sent to the echo server.  The address of the echo
@@ -297,7 +299,8 @@ static void prvEchoClientTxTask( void * pvParameters )
                 {
                     break;
                 }
-            } while( ( xTaskGetTickCount() - xTimeEnteringLoop ) < ( xReceiveTimeOut * 2 ) );
+            }
+            while( ( xTaskGetTickCount() - xTimeEnteringLoop ) < ( xReceiveTimeOut * 2 ) );
         }
         else
         {

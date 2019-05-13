@@ -36,7 +36,6 @@
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="f2" displayName="microchip_code" projectFiles="true">
-        <itemPath>../common/application_code/microchip_code/rtos_hooks.c</itemPath>
         <itemPath>../common/application_code/microchip_code/system_config.h</itemPath>
         <itemPath>../common/application_code/microchip_code/system_definitions.h</itemPath>
         <itemPath>../common/application_code/microchip_code/system_exceptions.c</itemPath>
@@ -1889,6 +1888,7 @@
         <property key="symbol-stripping" value=""/>
         <property key="trace-symbols" value=""/>
         <property key="warn-section-align" value="false"/>
+        <appendMe value="--allow-multiple-definition"/>
       </C32-LD>
       <C32CPP>
         <property key="additional-warnings" value="false"/>

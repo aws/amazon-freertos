@@ -27,14 +27,18 @@ def commit_is_ready(file_names=""):
 
     checks = [
         check_secrets,
-        check_hungarian_notation,
+        #check_hungarian_notation,
         check_uncrustify,
         check_whitespace,
     ]
-    for check in checks:
-        failed_files = check(files_to_check)
-        if failed_files:
-            return failed_files
+
+    # If there is no file to check, return. This can happen if all the modified
+    # files are ignored as defined in is_ignored_file_pattern.
+    if files_to_check:
+        for check in checks:
+            failed_files = check(files_to_check)
+            if failed_files:
+                return failed_files
     return []
 
 
@@ -71,7 +75,6 @@ def is_checked_file_pattern(file_name):
         r"lib/.*aws_",
         r"lib/.*\.c",
         r"tests/common/",
-        r"tools/",
     ]
     for checked_pattern in checked_patterns:
         if re.findall(checked_pattern, file_name):
@@ -91,6 +94,7 @@ def is_ignored_file_pattern(file_name):
         "lib/secure_sockets/portable",
         "lib/third_party/",
         "lib/wifi/portable",
+        "tests/common/posix",
     ]
     for ignored_pattern in ignored_patterns:
         if re.findall(ignored_pattern, file_name):

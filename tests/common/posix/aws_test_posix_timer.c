@@ -54,6 +54,15 @@
  */
 static void * prvTimerCallbackThread( void * pvArg );
 
+/**
+ * @brief Callback function that notifies of timer expiration. (no thread)
+ *
+ * @param[out] pvArg A pointer to a TimerCallbackThreadArgs_t struct.
+ *
+ * @return NULL.
+ */
+static void * prvTimerCallback( void * pvArg );
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -72,7 +81,7 @@ typedef struct TimerCallbackThreadReturn
 /**
  * @brief Used to synchronize the timer callback thread and test runner thread.
  */
-static sem_t xSemaphore = NULL;
+static sem_t xSemaphore = { 0 };
 
 /**
  * @brief The default event notification structure.
@@ -80,7 +89,7 @@ static sem_t xSemaphore = NULL;
 static struct sigevent xDefaultSigevent =
 {
     .sigev_notify            = SIGEV_THREAD,
-    .sigev_notify_function   = ( void ( * )( union sigval ) )prvTimerCallbackThread,
+    .sigev_notify_function   = ( void ( * )( union sigval ) )prvTimerCallback,
     .sigev_signo             = 0,
     .sigev_notify_attributes = NULL,
     .sigev_value.sival_ptr   = NULL
@@ -99,6 +108,24 @@ static void * prvTimerCallbackThread( void * pvArg )
 
         /* Record this thread's ID so that it can be joined by the main test thread. */
         pxReturn->xTimerCallbackThread = pthread_self();
+    }
+
+    /* Post to the semaphore and unblock the main test thread. */
+    ( void ) sem_post( &xSemaphore );
+
+    return NULL;
+}
+
+/*-----------------------------------------------------------*/
+
+static void * prvTimerCallback( void * pvArg )
+{
+    TimerCallbackThreadReturn_t * pxReturn = ( TimerCallbackThreadReturn_t * ) pvArg;
+
+    if( pxReturn != NULL )
+    {
+        /* Get the time that this function was called. */
+        pxReturn->iStatus = clock_gettime( CLOCK_REALTIME, &pxReturn->xExpirationTime );
     }
 
     /* Post to the semaphore and unblock the main test thread. */
@@ -137,6 +164,7 @@ TEST_GROUP_RUNNER( Full_POSIX_TIMER )
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_settime_min_resolution );
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_settime_disarm );
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_settime_abstime );
+    RUN_TEST_CASE( Full_POSIX_TIMER, timer_settime_abstime_with_pthread_attr );
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_settime_abstime_in_past );
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_settime_ovalue );
     RUN_TEST_CASE( Full_POSIX_TIMER, timer_periodic );
@@ -252,21 +280,18 @@ TEST( Full_POSIX_TIMER, timer_settime_min_resolution )
         /* Wait for the timer callback to release the semaphore. */
         ( void ) sem_wait( &xSemaphore );
 
-        /* Join the timer callback thread. */
-        ( void ) pthread_join( xThreadReturnValues.xTimerCallbackThread, NULL );
-
         /* Check the timer callback thread's return value. */
         TEST_ASSERT_EQUAL_INT( 0, xThreadReturnValues.iStatus );
 
         /* Calculate the elapsed time since the timer was started. Ensure that
          * it's positive. */
-        iStatus = UTILS_TimespecSubtract( &xElapsedTime, &xThreadReturnValues.xExpirationTime, &xStartTime );
+        iStatus = UTILS_TimespecSubtract( &xThreadReturnValues.xExpirationTime, &xStartTime, &xElapsedTime );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
         TEST_ASSERT_TRUE( ( xElapsedTime.tv_sec > 0 ) || ( xElapsedTime.tv_nsec > 0 ) );
 
         /* Ensure the timer did not fire before the minimum sleep resolution. */
-        iStatus = UTILS_TimespecSubtract( &xElapsedTime, &xElapsedTime, &xInterval.it_value );
-        TEST_ASSERT_TRUE( iStatus >= 0 );
+        iStatus = UTILS_TimespecSubtract( &xElapsedTime, &xInterval.it_value, &xElapsedTime );
+        TEST_ASSERT_TRUE( iStatus == 0 );
     }
 
     /* Delete timer. */
@@ -360,6 +385,80 @@ TEST( Full_POSIX_TIMER, timer_settime_disarm )
 
 /*-----------------------------------------------------------*/
 
+TEST( Full_POSIX_TIMER, timer_settime_abstime_with_pthread_attr )
+{
+    int iStatus = 0;
+    timer_t xTimer = NULL;
+    struct itimerspec xAbsoluteTimeout = { { 0 }, { 0 } };
+    struct sigevent xNotificationEvent = xDefaultSigevent;
+    TimerCallbackThreadReturn_t xThreadReturnValues = { 0 };
+    struct timespec xTimeDifference = { 0 };
+    pthread_attr_t xTimerCallbackAttributes;
+    volatile BaseType_t xTimerCreated = pdFALSE, xThreadAttributesCreated = pdFALSE;
+
+    /* Set pointer for thread attributes, which should create callback thread  */
+    xNotificationEvent.sigev_notify_attributes = &xTimerCallbackAttributes;
+
+    /* Set pointer for thread return values. */
+    xNotificationEvent.sigev_value.sival_ptr = &xThreadReturnValues;
+
+    /* Update notification event callback function */
+    xNotificationEvent.sigev_notify_function = ( void ( * )( union sigval ) )prvTimerCallbackThread;
+
+    /* Initialize pthread attributes */
+    iStatus = pthread_attr_init( &xTimerCallbackAttributes );
+    TEST_ASSERT_EQUAL_INT( 0, iStatus );
+    xThreadAttributesCreated = pdTRUE;
+
+    /* Create a timer. */
+    iStatus = timer_create( CLOCK_REALTIME, &xNotificationEvent, &xTimer );
+    TEST_ASSERT_EQUAL_INT( 0, iStatus );
+    xTimerCreated = pdTRUE;
+
+    if( TEST_PROTECT() )
+    {
+        /* Set an absolute timeout. */
+        iStatus = clock_gettime( CLOCK_REALTIME, &xAbsoluteTimeout.it_value );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+        iStatus = UTILS_TimespecAddNanoseconds( &xAbsoluteTimeout.it_value,
+                                                posixtestSHORT_TIMER_DELAY_NANOSECONDS,
+                                                &xAbsoluteTimeout.it_value );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+        iStatus = timer_settime( xTimer, TIMER_ABSTIME, &xAbsoluteTimeout, NULL );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+
+        /* Wait for the timer callback to release the semaphore. */
+        ( void ) sem_wait( &xSemaphore );
+
+        /* Join the timer callback thread. */
+        ( void ) pthread_join( xThreadReturnValues.xTimerCallbackThread, NULL );
+
+        /* Check the timer callback thread's return value. */
+        TEST_ASSERT_EQUAL_INT( 0, xThreadReturnValues.iStatus );
+
+        /* Calculate the difference between the timeout expiration and the absolute
+         * timeout. Ensure that it's small and positive. */
+        iStatus = UTILS_TimespecSubtract( &xThreadReturnValues.xExpirationTime, &xAbsoluteTimeout.it_value, &xTimeDifference );
+        TEST_ASSERT_EQUAL_INT( 0, iStatus );
+        TEST_ASSERT_TRUE( ( xTimeDifference.tv_sec == 0 ) && ( xTimeDifference.tv_nsec >= 0 ) );
+    }
+
+    /* Clean up resources. */
+    if( xThreadAttributesCreated == pdTRUE )
+    {
+        ( void ) pthread_attr_destroy( &xTimerCallbackAttributes );
+    }
+
+    if( xTimerCreated == pdTRUE )
+    {
+        ( void ) timer_delete( xTimer );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 TEST( Full_POSIX_TIMER, timer_settime_abstime )
 {
     int iStatus = 0;
@@ -383,8 +482,8 @@ TEST( Full_POSIX_TIMER, timer_settime_abstime )
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
         iStatus = UTILS_TimespecAddNanoseconds( &xAbsoluteTimeout.it_value,
-                                                &xAbsoluteTimeout.it_value,
-                                                posixtestSHORT_TIMER_DELAY_NANOSECONDS );
+                                                posixtestSHORT_TIMER_DELAY_NANOSECONDS,
+                                                &xAbsoluteTimeout.it_value );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
 
         iStatus = timer_settime( xTimer, TIMER_ABSTIME, &xAbsoluteTimeout, NULL );
@@ -393,15 +492,12 @@ TEST( Full_POSIX_TIMER, timer_settime_abstime )
         /* Wait for the timer callback to release the semaphore. */
         ( void ) sem_wait( &xSemaphore );
 
-        /* Join the timer callback thread. */
-        ( void ) pthread_join( xThreadReturnValues.xTimerCallbackThread, NULL );
-
         /* Check the timer callback thread's return value. */
         TEST_ASSERT_EQUAL_INT( 0, xThreadReturnValues.iStatus );
 
         /* Calculate the difference between the timeout expiration and the absolute
          * timeout. Ensure that it's small and positive. */
-        iStatus = UTILS_TimespecSubtract( &xTimeDifference, &xThreadReturnValues.xExpirationTime, &xAbsoluteTimeout.it_value );
+        iStatus = UTILS_TimespecSubtract( &xThreadReturnValues.xExpirationTime, &xAbsoluteTimeout.it_value, &xTimeDifference );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
         TEST_ASSERT_TRUE( ( xTimeDifference.tv_sec == 0 ) && ( xTimeDifference.tv_nsec >= 0 ) );
     }
@@ -444,15 +540,12 @@ TEST( Full_POSIX_TIMER, timer_settime_abstime_in_past )
         /* Wait for the timer callback to release the semaphore. */
         ( void ) sem_wait( &xSemaphore );
 
-        /* Join the timer callback thread. */
-        ( void ) pthread_join( xThreadReturnValues.xTimerCallbackThread, NULL );
-
         /* Check the timer callback thread's return value. */
         TEST_ASSERT_EQUAL_INT( 0, xThreadReturnValues.iStatus );
 
         /* Calculate the difference between the timeout expiration and the start time.
          * Ensure that it's small and positive. */
-        iStatus = UTILS_TimespecSubtract( &xTimeDifference, &xThreadReturnValues.xExpirationTime, &xStartTime );
+        iStatus = UTILS_TimespecSubtract( &xThreadReturnValues.xExpirationTime, &xStartTime, &xTimeDifference );
         TEST_ASSERT_EQUAL_INT( 0, iStatus );
         TEST_ASSERT_TRUE( ( xTimeDifference.tv_sec == 0 ) && ( xTimeDifference.tv_nsec >= 0 ) );
     }
@@ -523,6 +616,9 @@ TEST( Full_POSIX_TIMER, timer_periodic )
 
     /* Set pointer for thread attributes. */
     xNotificationEvent.sigev_notify_attributes = &xTimerCallbackAttributes;
+
+    /* Update notification event callback function */
+    xNotificationEvent.sigev_notify_function = ( void ( * )( union sigval ) )prvTimerCallbackThread;
 
     /* This test will check how many timer expirations occurred in 1 second. */
     iExpectedTimerExpirations = NANOSECONDS_PER_SECOND / posixtestSHORT_TIMER_DELAY_NANOSECONDS;

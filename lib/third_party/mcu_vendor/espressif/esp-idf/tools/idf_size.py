@@ -23,6 +23,7 @@
 import argparse, sys, subprocess, re
 import os.path
 import pprint
+import operator
 
 DEFAULT_TOOLCHAIN_PREFIX = "xtensa-esp32-elf-"
 
@@ -81,9 +82,9 @@ def load_sections(map_file):
     is a dict with details about this section, including a "sources" key which holds a list of source file line information for each symbol linked into the section.
     """
     scan_to_header(map_file, "Linker script and memory map")
-    scan_to_header(map_file, "END GROUP")
     sections = {}
     section = None
+    sym_backup = None
     for line in map_file:
         # output section header, ie '.iram0.text     0x0000000040080400    0x129a5'
         RE_SECTION_HEADER = r"(?P<name>[^ ]+) +0x(?P<address>[\da-f]+) +0x(?P<size>[\da-f]+)$"
@@ -100,17 +101,35 @@ def load_sections(map_file):
 
         # source file line, ie
         # 0x0000000040080400       0xa4 /home/gus/esp/32/idf/examples/get-started/hello_world/build/esp32/libesp32.a(cpu_start.o)
-        RE_SOURCE_LINE = r".*? +0x(?P<address>[\da-f]+) +0x(?P<size>[\da-f]+) (?P<archive>.+\.a)\((?P<object_file>.+\.o)\)"
-        m = re.match(RE_SOURCE_LINE, line)
-        if section is not None and m is not None:  # input source file details
+        RE_SOURCE_LINE = r"\s*(?P<sym_name>\S*).* +0x(?P<address>[\da-f]+) +0x(?P<size>[\da-f]+) (?P<archive>.+\.a)\((?P<object_file>.+\.ob?j?)\)"
+
+        m = re.match(RE_SOURCE_LINE, line, re.M)
+        if not m:
+            # cmake build system links some object files directly, not part of any archive
+            RE_SOURCE_LINE = r"\s*(?P<sym_name>\S*).* +0x(?P<address>[\da-f]+) +0x(?P<size>[\da-f]+) (?P<object_file>.+\.ob?j?)"
+            m = re.match(RE_SOURCE_LINE, line)
+        if section is not None and m is not None:  # input source file details=ma,e
+            sym_name = m.group("sym_name") if len(m.group("sym_name")) > 0 else sym_backup
+            try:
+                archive = m.group("archive")
+            except IndexError:
+                archive = "(exe)"
+
             source = {
                 "size" : int(m.group("size"), 16),
                 "address" : int(m.group("address"), 16),
-                "archive" : os.path.basename(m.group("archive")),
-                "object_file" : m.group("object_file"),
+                "archive" : os.path.basename(archive),
+                "object_file" : os.path.basename(m.group("object_file")),
+                "sym_name" : sym_name,
             }
             source["file"] = "%s:%s" % (source["archive"], source["object_file"])
             section["sources"] += [ source ]
+
+        # In some cases the section name appears on the previous line, back it up in here
+        RE_SYMBOL_ONLY_LINE = r"^ (?P<sym_name>\S*)$"
+        m = re.match(RE_SYMBOL_ONLY_LINE, line)
+        if section is not None and m is not None:
+            sym_backup = m.group("sym_name")
 
     return sections
 
@@ -147,6 +166,9 @@ def main():
         '--archives', help='Print per-archive sizes', action='store_true')
 
     parser.add_argument(
+        '--archive_details', help='Print detailed symbols per archive')
+
+    parser.add_argument(
         '--files', help='Print per-file sizes', action='store_true')
 
     args = parser.parse_args()
@@ -160,6 +182,9 @@ def main():
     if args.files:
         print("Per-file contributions to ELF file:")
         print_detailed_sizes(sections, "file", "Object File")
+    if args.archive_details:
+        print "Symbols within the archive:", args.archive_details, "(Not all symbols may be reported)"
+        print_archive_symbols(sections, args.archive_details)
 
 def print_summary(memory_config, sections):
     def get_size(section):
@@ -204,27 +229,52 @@ def print_detailed_sizes(sections, key, header):
                 "& rodata",
                 "Total")
     print("%24s %10s %6s %6s %10s %8s %7s" % headings)
-    for k in sorted(sizes.keys()):
+    result = {}
+    for k in (sizes.keys()):
         v = sizes[k]
+        result[k] = {}
+        result[k]["data"] = v.get(".dram0.data", 0)
+        result[k]["bss"] = v.get(".dram0.bss", 0)
+        result[k]["iram"] = sum(t for (s,t) in v.items() if s.startswith(".iram0"))
+        result[k]["flash_text"] = v.get(".flash.text", 0)
+        result[k]["flash_rodata"] = v.get(".flash.rodata", 0)
+        result[k]["total"] = sum(result[k].values())
+
+    def return_total_size(elem):
+        val = elem[1]
+        return val["total"]
+    for k,v in sorted(result.items(), key=return_total_size, reverse=True):
         if ":" in k:  # print subheadings for key of format archive:file
             sh,k = k.split(":")
-            if sh != sub_heading:
-                print(sh)
-                sub_heading = sh
-
-        data = v.get(".dram0.data", 0)
-        bss = v.get(".dram0.bss", 0)
-        iram = sum(t for (s,t) in v.items() if s.startswith(".iram0"))
-        flash_text = v.get(".flash.text", 0)
-        flash_rodata = v.get(".flash.rodata", 0)
-        total = data + bss + iram + flash_text + flash_rodata
         print("%24s %10d %6d %6d %10d %8d %7d" % (k[:24],
-                                                   data,
-                                                   bss,
-                                                   iram,
-                                                   flash_text,
-                                                   flash_rodata,
-                                                   total))
+                                                  v["data"],
+                                                  v["bss"],
+                                                  v["iram"],
+                                                  v["flash_text"],
+                                                  v["flash_rodata"],
+                                                  v["total"]))
+
+def print_archive_symbols(sections, archive):
+    interested_sections = [".dram0.data", ".dram0.bss", ".iram0.text", ".iram0.vectors", ".flash.text", ".flash.rodata"]
+    result = {}
+    for t in interested_sections:
+        result[t] = {}
+    for section in sections.values():
+        section_name = section["name"]
+        if section_name not in interested_sections:
+            continue
+        for s in section["sources"]:
+            if archive != s["archive"]:
+                continue
+            s["sym_name"] = re.sub("(.text.|.literal.|.data.|.bss.|.rodata.)", "", s["sym_name"]);
+            result[section_name][s["sym_name"]] = result[section_name].get(s["sym_name"], 0) + s["size"]
+    for t in interested_sections:
+        print "\nSymbols from section:", t
+        section_total = 0
+        for key,val in sorted(result[t].items(), key=lambda (k,v): v, reverse=True):
+            print("%s(%d)"% (key.replace(t + ".", ""), val)),
+            section_total += val
+        print "\nSection total:",section_total
 
 if __name__ == "__main__":
     main()

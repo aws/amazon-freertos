@@ -50,6 +50,7 @@
 /* TI-Driver includes. */
 #include <ti/drivers/GPIO.h>
 #include <ti/drivers/SPI.h>
+#include <ti/drivers/net/wifi/simplelink.h>
 
 /* CC3220SF board file. */
 #include "Board.h"
@@ -70,7 +71,7 @@
 void vApplicationDaemonTaskStartupHook( void );
 static void prvWifiConnect( void );
 static CK_RV prvProvisionRootCA( void );
-
+static void prvShowTiCc3220SecurityAlertCounts( void );
 
 /**
  * @brief Performs board and logging initializations, then starts the OS.
@@ -151,6 +152,12 @@ void vApplicationDaemonTaskStartupHook( void )
     if( SYSTEM_Init() == pdPASS )
     {
         prvWifiConnect();
+
+        /* Show the possible security alerts that will affect re-flashing the device. 
+         * When the number of security alerts reaches the threshold, the device file system is locked and 
+         * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed 
+         * here for debugging purposes. */
+        prvShowTiCc3220SecurityAlertCounts();
 
         /* Create the task to run tests. */
         xTaskCreate( TEST_RUNNER_RunTests_task,
@@ -383,22 +390,22 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Socket event handler function.
- *
- * TI SimpleLink driver expects this function to be defined to notify
- * various socket events. The actual socket event handler funtion is
- * defined by the secure sockets layer in the file lib\secure_sockets\
- * portable\ti\cc3220_launchpad\aws_secure_sockets.c. If the user chooses
- * not to download secure sockets library, this weak definition ensures
- * that there are no linker errors.
- *
- * @param  pSlSockEvent Pointer to a structure containing the socket event
- * and the relevant data.
- *
- * @see SlSockEvent_t.
+ * @brief In the Texas Instruments CC3220(SF) device, we retrieve the number of security alerts and the threshold.
  */
-
-void portWEAK_SYMBOL SimpleLinkSockEventHandler( void )
+static void prvShowTiCc3220SecurityAlertCounts( void )
 {
-    configPRINTF( ( "Call of stub socket event handler.\r\n" ) );
+    int32_t lResult;
+    SlFsControlGetStorageInfoResponse_t xStorageResponseInfo;
+
+    lResult = sl_FsCtl( ( SlFsCtl_e ) SL_FS_CTL_GET_STORAGE_INFO, 0, NULL, NULL, 0, ( _u8 * ) &xStorageResponseInfo, sizeof( SlFsControlGetStorageInfoResponse_t ), NULL );
+
+    if( lResult == 0 )
+    {
+        configPRINTF( ( "Security alert threshold = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlertsThreshold ) );
+        configPRINTF( ( "Current number of alerts = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlerts ) );
+    }
+    else
+    {
+        configPRINTF( ( "sl_FsCtl failed with error code: %d\r\n", lResult ) );
+    }
 }

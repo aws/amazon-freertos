@@ -89,4 +89,4 @@ static const int ucValidSignatureLength = 256;
 /**
  * @brief The type of signature method this file defines for the valid signature.
  */
-#define otatestSIG_METHOD   otatestSIG_SHA1_RSA
+#define otatestSIG_METHOD    otatestSIG_SHA1_RSA

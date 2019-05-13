@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.6
+ * Amazon FreeRTOS Demo Bootloader V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -52,7 +52,7 @@ BaseType_t BOOT_FLASH_Write( const uint32_t * pulAddress,
 {
     BaseType_t xReturn = pdFALSE;
 
-    if( ( lLength  % AWS_NVM_QUAD_SIZE ) == 0 )
+    if( ( lLength % AWS_NVM_QUAD_SIZE ) == 0 )
     {
         /* Use quad word write. */
         xReturn = AWS_NVM_QuadWordWrite( pulAddress, pulData, lLength / AWS_NVM_QUAD_SIZE );
@@ -116,7 +116,7 @@ BaseType_t BOOT_FLASH_EraseHeader( const BOOTImageDescriptor_t * pxAppDescriptor
 BaseType_t BOOT_FLASH_EraseBank( const BOOTImageDescriptor_t * pxAppDescriptor )
 {
     DEFINE_BOOT_METHOD_NAME( "BOOT_FLASH_EraseBank" );
-    
+
     BaseType_t xReturn = pdFALSE;
     uint8_t ucFlashArea;
 
@@ -131,14 +131,14 @@ BaseType_t BOOT_FLASH_EraseBank( const BOOTImageDescriptor_t * pxAppDescriptor )
     {
         xReturn = AWS_FlashErase( UPPER_FLASH_REGION_ERASE_OPERATION );
     }
-    
-    if(xReturn == pdTRUE)
+
+    if( xReturn == pdTRUE )
     {
-        BOOT_LOG_L2( "[%s] Bank erased at : 0x%08x\r\n",BOOT_METHOD_NAME, pxAppDescriptor);
+        BOOT_LOG_L2( "[%s] Bank erased at : 0x%08x\r\n", BOOT_METHOD_NAME, pxAppDescriptor );
     }
     else
     {
-        BOOT_LOG_L2( "[%s] Bank erase failed at : 0x%08x\r\n",BOOT_METHOD_NAME, pxAppDescriptor); 
+        BOOT_LOG_L2( "[%s] Bank erase failed at : 0x%08x\r\n", BOOT_METHOD_NAME, pxAppDescriptor );
     }
 
     return xReturn;
@@ -182,9 +182,9 @@ BaseType_t BOOT_FLASH_ValidateAddress( const BOOTImageDescriptor_t * pxAppDescri
     BOOT_LOG_L3( "[%s] Exe Address: 0x%08x\r\n",
                  BOOT_METHOD_NAME,
                  pxAppDescriptor->pvExecAddress );
-    
-     /* Validate the start address is less than end address.*/
-    xReturn = xReturn &&  ( pxAppDescriptor->pvStartAddress < pxAppDescriptor->pvEndAddress );
+
+    /* Validate the start address is less than end address.*/
+    xReturn = xReturn && ( pxAppDescriptor->pvStartAddress < pxAppDescriptor->pvEndAddress );
 
     return xReturn;
 }

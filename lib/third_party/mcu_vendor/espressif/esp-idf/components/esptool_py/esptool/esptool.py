@@ -20,6 +20,7 @@ from __future__ import division, print_function
 
 import argparse
 import base64
+import binascii
 import copy
 import hashlib
 import inspect
@@ -30,10 +31,36 @@ import struct
 import sys
 import time
 import zlib
+import string
 
-import serial
+try:
+    import serial
+except ImportError:
+    print("Pyserial is not installed for %s. Check the README for installation instructions." % (sys.executable))
+    raise
 
-__version__ = "2.2.1"
+# check 'serial' is 'pyserial' and not 'serial' https://github.com/espressif/esptool/issues/269
+try:
+    if "serialization" in serial.__doc__ and "deserialization" in serial.__doc__:
+        raise ImportError("""
+esptool.py depends on pyserial, but there is a conflict with a currently installed package named 'serial'.
+
+You may be able to work around this by 'pip uninstall serial; pip install pyserial' \
+but this may break other installed Python software that depends on 'serial'.
+
+There is no good fix for this right now, apart from configuring virtualenvs. \
+See https://github.com/espressif/esptool/issues/269#issuecomment-385298196 for discussion of the underlying issue(s).""")
+except TypeError:
+    pass  # __doc__ returns None for pyserial
+
+try:
+    import serial.tools.list_ports as list_ports
+except ImportError:
+    print("The installed version (%s) of pyserial appears to be too old for esptool.py (Python interpreter %s). "
+          "Check the README for installation instructions." % (sys.VERSION, sys.executable))
+    raise
+
+__version__ = "2.6"
 
 MAX_UINT32 = 0xffffffff
 MAX_UINT24 = 0xffffff
@@ -45,6 +72,8 @@ MAX_TIMEOUT = CHIP_ERASE_TIMEOUT * 2  # longest any command can run
 SYNC_TIMEOUT = 0.1                    # timeout for syncing with bootloader
 MD5_TIMEOUT_PER_MB = 8                # timeout (per megabyte) for calculating md5sum
 ERASE_REGION_TIMEOUT_PER_MB = 30      # timeout (per megabyte) for erasing a region
+MEM_END_ROM_TIMEOUT = 0.05            # special short timeout for ESP_MEM_END, as it may never respond
+DEFAULT_SERIAL_WRITE_TIMEOUT = 10     # timeout for serial port write
 
 
 def timeout_per_mb(seconds_per_mb, size_bytes):
@@ -99,6 +128,12 @@ else:
     def byte(bitstr, index):
         return bitstr[index]
 
+# Provide a 'basestring' class on Python 3
+try:
+    basestring
+except NameError:
+    basestring = str
+
 
 def esp8266_function_only(func):
     """ Attribute for a function only supported on ESP8266 """
@@ -106,7 +141,7 @@ def esp8266_function_only(func):
 
 
 class ESPLoader(object):
-    """ Base class providing access to ESP ROM & softtware stub bootloaders.
+    """ Base class providing access to ESP ROM & software stub bootloaders.
     Subclasses provide ESP8266 & ESP32 specific functionality.
 
     Don't instantiate this base class directly, either instantiate a subclass or
@@ -183,7 +218,7 @@ class ESPLoader(object):
         with ones which throw NotImplementedInROMError().
 
         """
-        if isinstance(port, str):
+        if isinstance(port, basestring):
             self._port = serial.serial_for_url(port)
         else:
             self._port = port
@@ -194,6 +229,13 @@ class ESPLoader(object):
         # https://github.com/espressif/esptool/issues/44#issuecomment-107094446
         self._set_port_baudrate(baud)
         self._trace_enabled = trace_enabled
+        # set write timeout, to prevent esptool blocked at write forever.
+        try:
+            self._port.write_timeout = DEFAULT_SERIAL_WRITE_TIMEOUT
+        except NotImplementedError:
+            # no write timeout for RFC2217 ports
+            # need to set the property back to None or it will continue to fail
+            self._port.write_timeout = None
 
     def _set_port_baudrate(self, baud):
         try:
@@ -215,17 +257,19 @@ class ESPLoader(object):
         """
         detect_port = ESPLoader(port, baud, trace_enabled=trace_enabled)
         detect_port.connect(connect_mode)
-        print('Detecting chip type...', end='')
-        sys.stdout.flush()
-        date_reg = detect_port.read_reg(ESPLoader.UART_DATA_REG_ADDR)
+        try:
+            print('Detecting chip type...', end='')
+            sys.stdout.flush()
+            date_reg = detect_port.read_reg(ESPLoader.UART_DATA_REG_ADDR)
 
-        for cls in [ESP8266ROM, ESP32ROM]:
-            if date_reg == cls.DATE_REG_VALUE:
-                # don't connect a second time
-                inst = cls(detect_port._port, baud, trace_enabled=trace_enabled)
-                print(' %s' % inst.CHIP_NAME)
-                return inst
-        print('')
+            for cls in [ESP8266ROM, ESP32ROM]:
+                if date_reg == cls.DATE_REG_VALUE:
+                    # don't connect a second time
+                    inst = cls(detect_port._port, baud, trace_enabled=trace_enabled)
+                    print(' %s' % inst.CHIP_NAME, end='')
+                    return inst
+        finally:
+            print('')  # end line
         raise FatalError("Unexpected UART datecode value 0x%08x. Failed to autodetect chip type." % date_reg)
 
     """ Read a SLIP packet from the serial port """
@@ -237,7 +281,7 @@ class ESPLoader(object):
         buf = b'\xc0' \
               + (packet.replace(b'\xdb',b'\xdb\xdd').replace(b'\xc0',b'\xdb\xdc')) \
               + b'\xc0'
-        self.trace("Write %d bytes: %r", len(buf), buf)
+        self.trace("Write %d bytes: %s", len(buf), HexFormatter(buf))
         self._port.write(buf)
 
     def trace(self, message, *format_args):
@@ -272,8 +316,8 @@ class ESPLoader(object):
 
         try:
             if op is not None:
-                self.trace("command op=0x%02x data len=%s wait_response=%d timeout=%.3f data=%r",
-                           op, len(data), 1 if wait_response else 0, timeout, data)
+                self.trace("command op=0x%02x data len=%s wait_response=%d timeout=%.3f data=%s",
+                           op, len(data), 1 if wait_response else 0, timeout, HexFormatter(data))
                 pkt = struct.pack(b'<BBHI', 0x00, op, len(data), chk) + data
                 self.write(pkt)
 
@@ -336,6 +380,16 @@ class ESPLoader(object):
         for i in range(7):
             self.command()
 
+    def _setDTR(self, state):
+        self._port.setDTR(state)
+
+    def _setRTS(self, state):
+        self._port.setRTS(state)
+        # Work-around for adapters on Windows using the usbser.sys driver:
+        # generate a dummy change to DTR so that the set-control-line-state
+        # request is sent with the updated RTS state and the same DTR state
+        self._port.setDTR(self._port.dtr)
+
     def _connect_attempt(self, mode='default_reset', esp32r0_delay=False):
         """ A single connection attempt, with esp32r0 workaround options """
         # esp32r0_delay is a workaround for bugs with the most common auto reset
@@ -349,6 +403,11 @@ class ESPLoader(object):
         # Details: https://github.com/espressif/esptool/issues/136
         last_error = None
 
+        # If we're doing no_sync, we're likely communicating as a pass through
+        # with an intermediate device to the ESP32
+        if mode == "no_reset_no_sync":
+            return last_error
+
         # issue reset-to-bootloader:
         # RTS = either CH_PD/EN or nRESET (both active low = chip in reset
         # DTR = GPIO0 (active low = boot to flasher)
@@ -356,23 +415,23 @@ class ESPLoader(object):
         # DTR & RTS are active low signals,
         # ie True = pin @ 0V, False = pin @ VCC.
         if mode != 'no_reset':
-            self._port.setDTR(False)  # IO0=HIGH
-            self._port.setRTS(True)   # EN=LOW, chip in reset
+            self._setDTR(False)  # IO0=HIGH
+            self._setRTS(True)   # EN=LOW, chip in reset
             time.sleep(0.1)
             if esp32r0_delay:
                 # Some chips are more likely to trigger the esp32r0
                 # watchdog reset silicon bug if they're held with EN=LOW
                 # for a longer period
                 time.sleep(1.2)
-            self._port.setDTR(True)   # IO0=LOW
-            self._port.setRTS(False)  # EN=HIGH, chip out of reset
+            self._setDTR(True)   # IO0=LOW
+            self._setRTS(False)  # EN=HIGH, chip out of reset
             if esp32r0_delay:
                 # Sleep longer after reset.
                 # This workaround only works on revision 0 ESP32 chips,
                 # it exploits a silicon bug spurious watchdog reset.
                 time.sleep(0.4)  # allow watchdog reset to occur
             time.sleep(0.05)
-            self._port.setDTR(False)  # IO0=HIGH, done
+            self._setDTR(False)  # IO0=HIGH, done
 
         for _ in range(5):
             try:
@@ -397,7 +456,7 @@ class ESPLoader(object):
         last_error = None
 
         try:
-            for _ in range(10):
+            for _ in range(7):
                 last_error = self._connect_attempt(mode=mode, esp32r0_delay=False)
                 if last_error is None:
                     return
@@ -425,6 +484,18 @@ class ESPLoader(object):
 
     """ Start downloading an application image to RAM """
     def mem_begin(self, size, blocks, blocksize, offset):
+        if self.IS_STUB:  # check we're not going to overwrite a running stub with this data
+            stub = self.STUB_CODE
+            load_start = offset
+            load_end = offset + size
+            for (start, end) in [(stub["data_start"], stub["data_start"] + len(stub["data"])),
+                                 (stub["text_start"], stub["text_start"] + len(stub["text"]))]:
+                if load_start < end and load_end > start:
+                    raise FatalError(("Software loader is resident at 0x%08x-0x%08x. " +
+                                      "Can't load binary at overlapping address range 0x%08x-0x%08x. " +
+                                      "Either change binary loading address, or use the --no-stub " +
+                                      "option to disable the software loader.") % (start, end, load_start, load_end))
+
         return self.check_command("enter RAM download mode", self.ESP_MEM_BEGIN,
                                   struct.pack('<IIII', size, blocks, blocksize, offset))
 
@@ -436,8 +507,19 @@ class ESPLoader(object):
 
     """ Leave download mode and run the application """
     def mem_finish(self, entrypoint=0):
-        return self.check_command("leave RAM download mode", self.ESP_MEM_END,
-                                  struct.pack('<II', int(entrypoint == 0), entrypoint))
+        # Sending ESP_MEM_END usually sends a correct response back, however sometimes
+        # (with ROM loader) the executed code may reset the UART or change the baud rate
+        # before the transmit FIFO is empty. So in these cases we set a short timeout and
+        # ignore errors.
+        timeout = DEFAULT_TIMEOUT if self.IS_STUB else MEM_END_ROM_TIMEOUT
+        data = struct.pack('<II', int(entrypoint == 0), entrypoint)
+        try:
+            return self.check_command("leave RAM download mode", self.ESP_MEM_END,
+                                      data=data, timeout=timeout)
+        except FatalError:
+            if self.IS_STUB:
+                raise
+            pass
 
     """ Start downloading to Flash (performs an erase)
 
@@ -615,6 +697,8 @@ class ESPLoader(object):
         while len(data) < length:
             p = self.read()
             data += p
+            if len(data) < length and len(p) < self.FLASH_SECTOR_SIZE:
+                raise FatalError('Corrupt data, expected 0x%x bytes but received 0x%x bytes' % (self.FLASH_SECTOR_SIZE, len(p)))
             self.write(struct.pack('<I', len(data)))
             if progress_fn and (len(data) % 1024 == 0 or len(data) == length):
                 progress_fn(len(data), length)
@@ -816,9 +900,9 @@ class ESPLoader(object):
         self.run_spiflash_command(SPIFLASH_WRDI)
 
     def hard_reset(self):
-        self._port.setRTS(True)  # EN->LOW
+        self._setRTS(True)  # EN->LOW
         time.sleep(0.1)
-        self._port.setRTS(False)
+        self._setRTS(False)
 
     def soft_reset(self, stay_in_bootloader):
         if not self.IS_STUB:
@@ -885,6 +969,12 @@ class ESP8266ROM(ESPLoader):
         is_8285 = (efuses & ((1 << 4) | 1 << 80)) != 0  # One or the other efuse bit is set for ESP8285
         return "ESP8285" if is_8285 else "ESP8266EX"
 
+    def get_chip_features(self):
+        features = ["WiFi"]
+        if self.get_chip_description() == "ESP8285":
+            features += ["Embedded Flash"]
+        return features
+
     def flash_spi_attach(self, hspi_arg):
         if self.IS_STUB:
             super(ESP8266ROM, self).flash_spi_attach(hspi_arg)
@@ -899,7 +989,7 @@ class ESP8266ROM(ESPLoader):
             super(ESP8266ROM, self).flash_set_parameters(size)
 
     def chip_id(self):
-        """ Read Chip ID from OTP ROM - see http://esp8266-re.foogod.com/wiki/System_get_chip_id_%28IoT_RTOS_SDK_0.9.9%29 """
+        """ Read Chip ID from efuse - the equivalent of the SDK system_get_chip_id() function """
         id0 = self.read_reg(self.ESP_OTP_MAC0)
         id1 = self.read_reg(self.ESP_OTP_MAC1)
         return (id0 >> 24) | ((id1 & MAX_UINT24) << 8)
@@ -937,6 +1027,9 @@ class ESP8266ROM(ESPLoader):
             return (num_sectors + 1) // 2 * sector_size
         else:
             return (num_sectors - head_sectors) * sector_size
+
+    def override_vddsdio(self, new_voltage):
+        raise NotImplementedInROMError("Overriding VDDSDIO setting only applies to ESP32")
 
 
 class ESP8266StubLoader(ESP8266ROM):
@@ -990,15 +1083,12 @@ class ESP32ROM(ESPLoader):
 
     BOOTLOADER_FLASH_OFFSET = 0x1000
 
-    def get_chip_description(self):
-        blk3 = self.read_efuse(3)
-        chip_version = (blk3 >> 12) & 0xF
-        pkg_version = (blk3 >> 9) & 0x07
+    OVERRIDE_VDDSDIO_CHOICES = ["1.8V", "1.9V", "OFF"]
 
-        silicon_rev = {
-            0: "0",
-            8: "1"
-        }.get(chip_version, "(unknown 0x%x)" % chip_version)
+    def get_chip_description(self):
+        word3 = self.read_efuse(3)
+        chip_ver_rev1 = (word3 >> 15) & 0x1
+        pkg_version = (word3 >> 9) & 0x07
 
         chip_name = {
             0: "ESP32D0WDQ6",
@@ -1007,16 +1097,63 @@ class ESP32ROM(ESPLoader):
             5: "ESP32-PICO-D4",
         }.get(pkg_version, "unknown ESP32")
 
-        return "%s (revision %s)" % (chip_name, silicon_rev)
+        return "%s (revision %d)" % (chip_name, chip_ver_rev1)
+
+    def get_chip_features(self):
+        features = ["WiFi"]
+        word3 = self.read_efuse(3)
+
+        # names of variables in this section are lowercase
+        #  versions of EFUSE names as documented in TRM and
+        # ESP-IDF efuse_reg.h
+
+        chip_ver_dis_bt = word3 & (1 << 1)
+        if chip_ver_dis_bt == 0:
+            features += ["BT"]
+
+        chip_ver_dis_app_cpu = word3 & (1 << 0)
+        if chip_ver_dis_app_cpu:
+            features += ["Single Core"]
+        else:
+            features += ["Dual Core"]
+
+        chip_cpu_freq_rated = word3 & (1 << 13)
+        if chip_cpu_freq_rated:
+            chip_cpu_freq_low = word3 & (1 << 12)
+            if chip_cpu_freq_low:
+                features += ["160MHz"]
+            else:
+                features += ["240MHz"]
+
+        pkg_version = (word3 >> 9) & 0x07
+        if pkg_version in [2, 4, 5]:
+            features += ["Embedded Flash"]
+
+        word4 = self.read_efuse(4)
+        adc_vref = (word4 >> 8) & 0x1F
+        if adc_vref:
+            features += ["VRef calibration in efuse"]
+
+        blk3_part_res = word3 >> 14 & 0x1
+        if blk3_part_res:
+            features += ["BLK3 partially reserved"]
+
+        word6 = self.read_efuse(6)
+        coding_scheme = word6 & 0x3
+        features += ["Coding Scheme %s" % {
+            0: "None",
+            1: "3/4",
+            2: "Repeat (UNSUPPORTED)",
+            3: "Invalid"}[coding_scheme]]
+
+        return features
 
     def read_efuse(self, n):
         """ Read the nth word of the ESP3x EFUSE region. """
         return self.read_reg(self.EFUSE_REG_BASE + (4 * n))
 
     def chip_id(self):
-        word16 = self.read_efuse(1)
-        word17 = self.read_efuse(2)
-        return ((word17 & MAX_UINT24) << 24) | (word16 >> 8) & MAX_UINT24
+        raise NotSupportedError(self, "chip_id")
 
     def read_mac(self):
         """ Read MAC from EFUSE region """
@@ -1030,6 +1167,28 @@ class ESP32ROM(ESPLoader):
 
     def get_erase_size(self, offset, size):
         return size
+
+    def override_vddsdio(self, new_voltage):
+        new_voltage = new_voltage.upper()
+        if new_voltage not in self.OVERRIDE_VDDSDIO_CHOICES:
+            raise FatalError("The only accepted VDDSDIO overrides are '1.8V', '1.9V' and 'OFF'")
+        RTC_CNTL_SDIO_CONF_REG = 0x3ff48074
+        RTC_CNTL_XPD_SDIO_REG = (1 << 31)
+        RTC_CNTL_DREFH_SDIO_M = (3 << 29)
+        RTC_CNTL_DREFM_SDIO_M = (3 << 27)
+        RTC_CNTL_DREFL_SDIO_M = (3 << 25)
+        # RTC_CNTL_SDIO_TIEH = (1 << 23)  # not used here, setting TIEH=1 would set 3.3V output, not safe for esptool.py to do
+        RTC_CNTL_SDIO_FORCE = (1 << 22)
+        RTC_CNTL_SDIO_PD_EN = (1 << 21)
+
+        reg_val = RTC_CNTL_SDIO_FORCE  # override efuse setting
+        reg_val |= RTC_CNTL_SDIO_PD_EN
+        if new_voltage != "OFF":
+            reg_val |= RTC_CNTL_XPD_SDIO_REG  # enable internal LDO
+        if new_voltage == "1.9V":
+            reg_val |= (RTC_CNTL_DREFH_SDIO_M | RTC_CNTL_DREFM_SDIO_M | RTC_CNTL_DREFL_SDIO_M)  # boost voltage
+        self.write_reg(RTC_CNTL_SDIO_CONF_REG, reg_val)
+        print("VDDSDIO regulator set to %s" % new_voltage)
 
 
 class ESP32StubLoader(ESP32ROM):
@@ -1060,20 +1219,20 @@ class ESPBOOTLOADER(object):
 
 def LoadFirmwareImage(chip, filename):
     """ Load a firmware image. Can be for ESP8266 or ESP32. ESP8266 images will be examined to determine if they are
-        original ROM firmware images (ESPFirmwareImage) or "v2" OTA bootloader images.
+        original ROM firmware images (ESP8266ROMFirmwareImage) or "v2" OTA bootloader images.
 
-        Returns a BaseFirmwareImage subclass, either ESPFirmwareImage (v1) or OTAFirmwareImage (v2).
+        Returns a BaseFirmwareImage subclass, either ESP8266ROMFirmwareImage (v1) or ESP8266V2FirmwareImage (v2).
     """
     with open(filename, 'rb') as f:
-        if chip == 'esp32':
+        if chip.lower() == 'esp32':
             return ESP32FirmwareImage(f)
         else:  # Otherwise, ESP8266 so look at magic to determine the image type
             magic = ord(f.read(1))
             f.seek(0)
             if magic == ESPLoader.ESP_IMAGE_MAGIC:
-                return ESPFirmwareImage(f)
+                return ESP8266ROMFirmwareImage(f)
             elif magic == ESPBOOTLOADER.IMAGE_V2_MAGIC:
-                return OTAFirmwareImage(f)
+                return ESP8266V2FirmwareImage(f)
             else:
                 raise FatalError("Invalid image magic number: %d" % magic)
 
@@ -1083,10 +1242,11 @@ class ImageSegment(object):
     (very similar to a section in an ELFImage also) """
     def __init__(self, addr, data, file_offs=None):
         self.addr = addr
-        # pad all ImageSegments to at least 4 bytes length
-        self.data = pad_to(data, 4, b'\x00')
+        self.data = data
         self.file_offs = file_offs
         self.include_in_checksum = True
+        if self.addr != 0:
+            self.pad_to_alignment(4)  # pad all "real" ImageSegments 4 byte aligned length
 
     def copy_with_new_addr(self, new_addr):
         """ Return a new ImageSegment with same data, but mapped at
@@ -1111,6 +1271,9 @@ class ImageSegment(object):
             r += " file_offs 0x%08x" % (self.file_offs)
         return r
 
+    def pad_to_alignment(self, alignment):
+        self.data = pad_to(self.data, alignment, b'\x00')
+
 
 class ELFSection(ImageSegment):
     """ Wrapper class for a section in an ELF image, has a section
@@ -1125,18 +1288,25 @@ class ELFSection(ImageSegment):
 
 class BaseFirmwareImage(object):
     SEG_HEADER_LEN = 8
+    SHA256_DIGEST_LEN = 32
 
     """ Base class with common firmware image functions """
     def __init__(self):
         self.segments = []
         self.entrypoint = 0
+        self.elf_sha256 = None
+        self.elf_sha256_offset = 0
 
     def load_common_header(self, load_file, expected_magic):
             (magic, segments, self.flash_mode, self.flash_size_freq, self.entrypoint) = struct.unpack('<BBBBI', load_file.read(8))
 
-            if magic != expected_magic or segments > 16:
-                raise FatalError('Invalid firmware image magic=%d segments=%d' % (magic, segments))
+            if magic != expected_magic:
+                raise FatalError('Invalid firmware image magic=0x%x' % (magic))
             return segments
+
+    def verify(self):
+        if len(self.segments) > 16:
+            raise FatalError('Invalid segment count %d (max 16). Usually this indicates a linker script problem.' % len(self.segments))
 
     def load_segment(self, f, is_irom_segment=False):
         """ Load the next segment from the image file """
@@ -1155,12 +1325,33 @@ class BaseFirmwareImage(object):
             if offset > 0x40200000 or offset < 0x3ffe0000 or size > 65536:
                 print('WARNING: Suspicious segment 0x%x, length %d' % (offset, size))
 
+    def maybe_patch_segment_data(self, f, segment_data):
+        """If SHA256 digest of the ELF file needs to be inserted into this segment, do so. Returns segment data."""
+        segment_len = len(segment_data)
+        file_pos = f.tell()
+        if self.elf_sha256_offset >= file_pos and self.elf_sha256_offset < file_pos + segment_len:
+            # SHA256 digest needs to be patched into this segment,
+            # calculate offset of the digest inside the segment.
+            patch_offset = self.elf_sha256_offset - file_pos
+            # Sanity checks
+            if patch_offset < self.SEG_HEADER_LEN or patch_offset + self.SHA256_DIGEST_LEN > segment_len:
+                raise FatalError('Can not place SHA256 digest on segment boundary' +
+                                 '(elf_sha256_offset=%d, file_pos=%d, segment_size=%d)' %
+                                 (self.elf_sha256_offset, file_pos, segment_len))
+            assert(len(self.elf_sha256) == self.SHA256_DIGEST_LEN)
+            # offset relative to the data part
+            patch_offset -= self.SEG_HEADER_LEN
+            segment_data = segment_data[0:patch_offset] + self.elf_sha256 + \
+                segment_data[patch_offset + self.SHA256_DIGEST_LEN:]
+        return segment_data
+
     def save_segment(self, f, segment, checksum=None):
         """ Save the next segment to the image file, return next checksum value if provided """
-        f.write(struct.pack('<II', segment.addr, len(segment.data)))
-        f.write(segment.data)
+        segment_data = self.maybe_patch_segment_data(f, segment.data)
+        f.write(struct.pack('<II', segment.addr, len(segment_data)))
+        f.write(segment_data)
         if checksum is not None:
-            return ESPLoader.checksum(segment.data, checksum)
+            return ESPLoader.checksum(segment_data, checksum)
 
     def read_checksum(self, f):
         """ Return ESPLoader checksum from end of just-read image """
@@ -1207,13 +1398,13 @@ class BaseFirmwareImage(object):
         return [s for s in self.segments if s != irom_segment]
 
 
-class ESPFirmwareImage(BaseFirmwareImage):
+class ESP8266ROMFirmwareImage(BaseFirmwareImage):
     """ 'Version 1' firmware image, segments loaded directly by the ROM bootloader. """
 
     ROM_LOADER = ESP8266ROM
 
     def __init__(self, load_file=None):
-        super(ESPFirmwareImage, self).__init__()
+        super(ESP8266ROMFirmwareImage, self).__init__()
         self.flash_mode = 0
         self.flash_size_freq = 0
         self.version = 1
@@ -1224,6 +1415,8 @@ class ESPFirmwareImage(BaseFirmwareImage):
             for _ in range(segments):
                 self.load_segment(load_file)
             self.checksum = self.read_checksum(load_file)
+
+            self.verify()
 
     def default_output_name(self, input_file):
         """ Derive a default output name from the ELF name. """
@@ -1247,7 +1440,7 @@ class ESPFirmwareImage(BaseFirmwareImage):
             self.append_checksum(f, checksum)
 
 
-class OTAFirmwareImage(BaseFirmwareImage):
+class ESP8266V2FirmwareImage(BaseFirmwareImage):
     """ 'Version 2' firmware image, segments loaded by software bootloader stub
         (ie Espressif bootloader or rboot)
     """
@@ -1255,7 +1448,7 @@ class OTAFirmwareImage(BaseFirmwareImage):
     ROM_LOADER = ESP8266ROM
 
     def __init__(self, load_file=None):
-        super(OTAFirmwareImage, self).__init__()
+        super(ESP8266V2FirmwareImage, self).__init__()
         self.version = 2
         if load_file is not None:
             segments = self.load_common_header(load_file, ESPBOOTLOADER.IMAGE_V2_MAGIC)
@@ -1268,8 +1461,7 @@ class OTAFirmwareImage(BaseFirmwareImage):
             # the file is saved in the image with a zero load address
             # in the header, so we need to calculate a load address
             irom_segment = self.load_segment(load_file, True)
-            # for actual mapped addr, add ESP8266ROM.IROM_MAP_START + flashing_Addr + 8
-            irom_segment.addr = 0
+            irom_segment.addr = 0  # for actual mapped addr, add ESP8266ROM.IROM_MAP_START + flashing_addr + 8
             irom_segment.include_in_checksum = False
 
             first_flash_mode = self.flash_mode
@@ -1294,6 +1486,8 @@ class OTAFirmwareImage(BaseFirmwareImage):
                 self.load_segment(load_file)
             self.checksum = self.read_checksum(load_file)
 
+            self.verify()
+
     def default_output_name(self, input_file):
         """ Derive a default output name from the ELF name. """
         irom_segment = self.get_irom_segment()
@@ -1314,6 +1508,7 @@ class OTAFirmwareImage(BaseFirmwareImage):
             if irom_segment is not None:
                 # save irom0 segment, make sure it has load addr 0 in the file
                 irom_segment = irom_segment.copy_with_new_addr(0)
+                irom_segment.pad_to_alignment(16)  # irom_segment must end on a 16 byte boundary
                 self.save_segment(f, irom_segment)
 
             # second header, matches V1 header and contains loadable segments
@@ -1323,6 +1518,29 @@ class OTAFirmwareImage(BaseFirmwareImage):
             for segment in normal_segments:
                 checksum = self.save_segment(f, segment, checksum)
             self.append_checksum(f, checksum)
+
+        # calculate a crc32 of entire file and append
+        # (algorithm used by recent 8266 SDK bootloaders)
+        with open(filename, 'rb') as f:
+            crc = esp8266_crc32(f.read())
+        with open(filename, 'ab') as f:
+            f.write(struct.pack(b'<I', crc))
+
+
+# Backwards compatibility for previous API, remove in esptool.py V3
+ESPFirmwareImage = ESP8266ROMFirmwareImage
+OTAFirmwareImage = ESP8266V2FirmwareImage
+
+
+def esp8266_crc32(data):
+    """
+    CRC32 algorithm used by 8266 SDK bootloader (and gen_appbin.py).
+    """
+    crc = binascii.crc32(data, 0) & 0xFFFFFFFF
+    if crc & 0x80000000:
+        return crc ^ 0xFFFFFFFF
+    else:
+        return crc + 1
 
 
 class ESP32FirmwareImage(BaseFirmwareImage):
@@ -1342,8 +1560,11 @@ class ESP32FirmwareImage(BaseFirmwareImage):
 
     EXTENDED_HEADER_STRUCT_FMT = "B" * 16
 
+    IROM_ALIGN = 65536
+
     def __init__(self, load_file=None):
         super(ESP32FirmwareImage, self).__init__()
+        self.secure_pad = False
         self.flash_mode = 0
         self.flash_size_freq = 0
         self.version = 1
@@ -1376,6 +1597,8 @@ class ESP32FirmwareImage(BaseFirmwareImage):
                 calc_digest.update(load_file.read(end - start))
                 self.calc_digest = calc_digest.digest()  # TODO: decide what to do here?
 
+            self.verify()
+
     def is_flash_addr(self, addr):
         return (ESP32ROM.IROM_MAP_START <= addr < ESP32ROM.IROM_MAP_END) \
             or (ESP32ROM.DROM_MAP_START <= addr < ESP32ROM.DROM_MAP_END)
@@ -1402,8 +1625,6 @@ class ESP32FirmwareImage(BaseFirmwareImage):
             flash_segments = [copy.deepcopy(s) for s in sorted(self.segments, key=lambda s:s.addr) if self.is_flash_addr(s.addr)]
             ram_segments = [copy.deepcopy(s) for s in sorted(self.segments, key=lambda s:s.addr) if not self.is_flash_addr(s.addr)]
 
-            IROM_ALIGN = 65536
-
             # check for multiple ELF sections that are mapped in the same flash mapping region.
             # this is usually a sign of a broken linker script, but if you have a legitimate
             # use case then let us know (we can merge segments here, but as a rule you probably
@@ -1411,7 +1632,7 @@ class ESP32FirmwareImage(BaseFirmwareImage):
             if len(flash_segments) > 0:
                 last_addr = flash_segments[0].addr
                 for segment in flash_segments[1:]:
-                    if segment.addr // IROM_ALIGN == last_addr // IROM_ALIGN:
+                    if segment.addr // self.IROM_ALIGN == last_addr // self.IROM_ALIGN:
                         raise FatalError(("Segment loaded at 0x%08x lands in same 64KB flash mapping as segment loaded at 0x%08x. " +
                                           "Can't generate binary. Suggest changing linker script or ELF to merge sections.") %
                                          (segment.addr, last_addr))
@@ -1423,15 +1644,15 @@ class ESP32FirmwareImage(BaseFirmwareImage):
                 #
                 # (this is because the segment's vaddr may not be IROM_ALIGNed, more likely is aligned
                 # IROM_ALIGN+0x18 to account for the binary file header
-                align_past = (segment.addr % IROM_ALIGN) - self.SEG_HEADER_LEN
-                pad_len = (IROM_ALIGN - (f.tell() % IROM_ALIGN)) + align_past
-                if pad_len == 0 or pad_len == IROM_ALIGN:
+                align_past = (segment.addr % self.IROM_ALIGN) - self.SEG_HEADER_LEN
+                pad_len = (self.IROM_ALIGN - (f.tell() % self.IROM_ALIGN)) + align_past
+                if pad_len == 0 or pad_len == self.IROM_ALIGN:
                     return 0  # already aligned
 
                 # subtract SEG_HEADER_LEN a second time, as the padding block has a header as well
                 pad_len -= self.SEG_HEADER_LEN
                 if pad_len < 0:
-                    pad_len += IROM_ALIGN
+                    pad_len += self.IROM_ALIGN
                 return pad_len
 
             # try to fit each flash segment on a 64kB aligned boundary
@@ -1450,8 +1671,8 @@ class ESP32FirmwareImage(BaseFirmwareImage):
                     total_segments += 1
                 else:
                     # write the flash segment
-                    assert (f.tell() + 8) % IROM_ALIGN == segment.addr % IROM_ALIGN
-                    checksum = self.save_segment(f, segment, checksum)
+                    assert (f.tell() + 8) % self.IROM_ALIGN == segment.addr % self.IROM_ALIGN
+                    checksum = self.save_flash_segment(f, segment, checksum)
                     flash_segments.pop(0)
                     total_segments += 1
 
@@ -1460,11 +1681,31 @@ class ESP32FirmwareImage(BaseFirmwareImage):
                 checksum = self.save_segment(f, segment, checksum)
                 total_segments += 1
 
+            if self.secure_pad:
+                # pad the image so that after signing it will end on a a 64KB boundary.
+                # This ensures all mapped flash content will be verified.
+                if not self.append_digest:
+                    raise FatalError("secure_pad only applies if a SHA-256 digest is also appended to the image")
+                align_past = (f.tell() + self.SEG_HEADER_LEN) % self.IROM_ALIGN
+                # 16 byte aligned checksum (force the alignment to simplify calculations)
+                checksum_space = 16
+                # after checksum: SHA-256 digest + (to be added by signing process) version, signature + 12 trailing bytes due to alignment
+                space_after_checksum = 32 + 4 + 64 + 12
+                pad_len = (self.IROM_ALIGN - align_past - checksum_space - space_after_checksum) % self.IROM_ALIGN
+                pad_segment = ImageSegment(0, b'\x00' * pad_len, f.tell())
+
+                checksum = self.save_segment(f, pad_segment, checksum)
+                total_segments += 1
+
             # done writing segments
             self.append_checksum(f, checksum)
+            image_length = f.tell()
+
+            if self.secure_pad:
+                assert ((image_length + space_after_checksum) % self.IROM_ALIGN) == 0
+
             # kinda hacky: go back to the initial header and write the new segment count
             # that includes padding segments. This header is not checksummed
-            image_length = f.tell()
             f.seek(1)
             try:
                 f.write(chr(total_segments))
@@ -1480,6 +1721,16 @@ class ESP32FirmwareImage(BaseFirmwareImage):
 
             with open(filename, 'wb') as real_file:
                 real_file.write(f.getvalue())
+
+    def save_flash_segment(self, f, segment, checksum=None):
+        """ Save the next segment to the image file, return next checksum value if provided """
+        segment_end_pos = f.tell() + len(segment.data) + self.SEG_HEADER_LEN
+        segment_len_remainder = segment_end_pos % self.IROM_ALIGN
+        if segment_len_remainder < 0x24:
+            # Work around a bug in ESP-IDF 2nd stage bootloader, that it didn't map the
+            # last MMU page, if an IROM/DROM segment was < 0x24 bytes over the page boundary.
+            segment.data += b'\x00' * (0x24 - segment_len_remainder)
+        return self.save_segment(f, segment, checksum)
 
     def load_extended_header(self, load_file):
         def split_byte(n):
@@ -1597,8 +1848,15 @@ class ELFFile(object):
             return f.read(size)
 
         prog_sections = [ELFSection(lookup_string(n_offs), lma, read_data(offs, size)) for (n_offs, _type, lma, size, offs) in prog_sections
-                         if lma != 0]
+                         if lma != 0 and size > 0]
         self.sections = prog_sections
+
+    def sha256(self):
+        # return SHA256 hash of the input ELF file
+        sha256 = hashlib.sha256()
+        with open(self.name, 'rb') as f:
+            sha256.update(f.read())
+        return sha256.digest()
 
 
 def slip_reader(port, trace_function):
@@ -1617,7 +1875,7 @@ def slip_reader(port, trace_function):
             waiting_for = "header" if partial_packet is None else "content"
             trace_function("Timed out waiting for packet %s", waiting_for)
             raise FatalError("Timed out waiting for packet %s" % waiting_for)
-        trace_function("Read %d bytes: %r", len(read_bytes), read_bytes)
+        trace_function("Read %d bytes: %s", len(read_bytes), HexFormatter(read_bytes))
         for b in read_bytes:
             if type(b) is int:
                 b = bytes([b])  # python 2/3 compat
@@ -1626,9 +1884,9 @@ def slip_reader(port, trace_function):
                 if b == b'\xc0':
                     partial_packet = b""
                 else:
-                    trace_function("Read invalid data: %r", read_bytes)
-                    trace_function("Remaining data in serial buffer: %r", port.read(port.inWaiting()))
-                    raise FatalError('Invalid head of packet (%r)' % b)
+                    trace_function("Read invalid data: %s", HexFormatter(read_bytes))
+                    trace_function("Remaining data in serial buffer: %s", HexFormatter(port.read(port.inWaiting())))
+                    raise FatalError('Invalid head of packet (0x%s)' % hexify(b))
             elif in_escape:  # part-way through escape sequence
                 in_escape = False
                 if b == b'\xdc':
@@ -1636,13 +1894,13 @@ def slip_reader(port, trace_function):
                 elif b == b'\xdd':
                     partial_packet += b'\xdb'
                 else:
-                    trace_function("Read invalid data: %r", read_bytes)
-                    trace_function("Remaining data in serial buffer: %r", port.read(port.inWaiting()))
-                    raise FatalError('Invalid SLIP escape (%r%r)' % (b'\xdb', b))
+                    trace_function("Read invalid data: %s", HexFormatter(read_bytes))
+                    trace_function("Remaining data in serial buffer: %s", HexFormatter(port.read(port.inWaiting())))
+                    raise FatalError('Invalid SLIP escape (0xdb, 0x%s)' % (hexify(b)))
             elif b == b'\xdb':  # start of escape sequence
                 in_escape = True
             elif b == b'\xc0':  # end of packet
-                trace_function("Full packet: %r", partial_packet)
+                trace_function("Received full packet: %s", HexFormatter(partial_packet))
                 yield partial_packet
                 partial_packet = None
             else:  # normal byte in packet
@@ -1679,25 +1937,47 @@ def flash_size_bytes(size):
         raise FatalError("Unknown size %s" % size)
 
 
-def hexify(s):
+def hexify(s, uppercase=True):
+    format_str = '%02X' if uppercase else '%02x'
     if not PYTHON2:
-        return ''.join('%02X' % c for c in s)
+        return ''.join(format_str % c for c in s)
     else:
-        return ''.join('%02X' % ord(c) for c in s)
+        return ''.join(format_str % ord(c) for c in s)
 
 
-def unhexify(hs):
-    s = bytes()
+class HexFormatter(object):
+    """
+    Wrapper class which takes binary data in its constructor
+    and returns a hex string as it's __str__ method.
 
-    for i in range(0, len(hs) - 1, 2):
-        hex_string = hs[i:i + 2]
+    This is intended for "lazy formatting" of trace() output
+    in hex format. Avoids overhead (significant on slow computers)
+    of generating long hex strings even if tracing is disabled.
 
-        if not PYTHON2:
-            s += bytes([int(hex_string, 16)])
+    Note that this doesn't save any overhead if passed as an
+    argument to "%", only when passed to trace()
+
+    If auto_split is set (default), any long line (> 16 bytes) will be
+    printed as separately indented lines, with ASCII decoding at the end
+    of each line.
+    """
+    def __init__(self, binary_string, auto_split=True):
+        self._s = binary_string
+        self._auto_split = auto_split
+
+    def __str__(self):
+        if self._auto_split and len(self._s) > 16:
+            result = ""
+            s = self._s
+            while len(s) > 0:
+                line = s[:16]
+                ascii_line = "".join(c if (c == ' ' or (c in string.printable and c not in string.whitespace))
+                                     else '.' for c in line.decode('ascii', 'replace'))
+                s = s[16:]
+                result += "\n    %-16s %-16s | %s" % (hexify(line[:8], False), hexify(line[8:], False), ascii_line)
+            return result
         else:
-            s += chr(int(hex_string, 16))
-
-    return s
+            return hexify(self._s, False)
 
 
 def pad_to(data, alignment, pad_character=b'\xFF'):
@@ -1734,6 +2014,11 @@ class NotImplementedInROMError(FatalError):
     def __init__(self, bootloader, func):
         FatalError.__init__(self, "%s ROM does not support function %s." % (bootloader.CHIP_NAME, func.__name__))
 
+
+class NotSupportedError(FatalError):
+    def __init__(self, esp, function_name):
+        FatalError.__init__(self, "Function %s is not supported for %s." % (function_name, esp.CHIP_NAME))
+
 # "Operation" commands, executable at command line. One function each
 #
 # Each function takes either two args (<ESPLoader instance>, <args>) or a single <args>
@@ -1741,18 +2026,19 @@ class NotImplementedInROMError(FatalError):
 
 
 def load_ram(esp, args):
-    image = LoadFirmwareImage(esp, args.filename)
+    image = LoadFirmwareImage(esp.CHIP_NAME, args.filename)
 
     print('RAM boot...')
-    for (offset, size, data) in image.segments:
-        print('Downloading %d bytes at %08x...' % (size, offset), end=' ')
+    for seg in image.segments:
+        size = len(seg.data)
+        print('Downloading %d bytes at %08x...' % (size, seg.addr), end=' ')
         sys.stdout.flush()
-        esp.mem_begin(size, div_roundup(size, esp.ESP_RAM_BLOCK), esp.ESP_RAM_BLOCK, offset)
+        esp.mem_begin(size, div_roundup(size, esp.ESP_RAM_BLOCK), esp.ESP_RAM_BLOCK, seg.addr)
 
         seq = 0
-        while len(data) > 0:
-            esp.mem_block(data[0:esp.ESP_RAM_BLOCK], seq)
-            data = data[esp.ESP_RAM_BLOCK:]
+        while len(seg.data) > 0:
+            esp.mem_block(seg.data[0:esp.ESP_RAM_BLOCK], seq)
+            seg.data = seg.data[esp.ESP_RAM_BLOCK:]
             seq += 1
         print('done!')
 
@@ -1770,15 +2056,15 @@ def write_mem(esp, args):
 
 
 def dump_mem(esp, args):
-    f = open(args.filename, 'wb')
-    for i in range(args.size // 4):
-        d = esp.read_reg(args.address + (i * 4))
-        f.write(struct.pack(b'<I', d))
-        if f.tell() % 1024 == 0:
-            print('\r%d bytes read... (%d %%)' % (f.tell(),
-                                                  f.tell() * 100 // args.size),
-                  end=' ')
-        sys.stdout.flush()
+    with open(args.filename, 'wb') as f:
+        for i in range(args.size // 4):
+            d = esp.read_reg(args.address + (i * 4))
+            f.write(struct.pack(b'<I', d))
+            if f.tell() % 1024 == 0:
+                print('\r%d bytes read... (%d %%)' % (f.tell(),
+                                                      f.tell() * 100 // args.size),
+                      end=' ')
+            sys.stdout.flush()
     print('Done!')
 
 
@@ -1839,6 +2125,9 @@ def write_flash(esp, args):
                              % (argfile.name, argfile.tell(), address, flash_end))
         argfile.seek(0)
 
+    if args.erase_all:
+        erase_flash(esp, args)
+
     for address, argfile in args.addr_filename:
         if args.no_stub:
             print('Erasing flash...')
@@ -1866,7 +2155,7 @@ def write_flash(esp, args):
             sys.stdout.flush()
             block = image[0:esp.FLASH_WRITE_SIZE]
             if args.compress:
-                esp.flash_defl_block(block, seq, timeout=DEFAULT_TIMEOUT * ratio)
+                esp.flash_defl_block(block, seq, timeout=DEFAULT_TIMEOUT * ratio * 2)
             else:
                 # Pad the last block
                 block = block + b'\xff' * (esp.FLASH_WRITE_SIZE - len(block))
@@ -1938,14 +2227,15 @@ def image_info(args):
 
 
 def make_image(args):
-    image = ESPFirmwareImage()
+    image = ESP8266ROMFirmwareImage()
     if len(args.segfile) == 0:
         raise FatalError('No segments specified')
     if len(args.segfile) != len(args.segaddr):
         raise FatalError('Number of specified files does not match number of specified addresses')
     for (seg, addr) in zip(args.segfile, args.segaddr):
-        data = open(seg, 'rb').read()
-        image.segments.append(ImageSegment(addr, data))
+        with open(seg, 'rb') as f:
+            data = f.read()
+            image.segments.append(ImageSegment(addr, data))
     image.entrypoint = args.entrypoint
     image.save(args.output)
 
@@ -1958,15 +2248,22 @@ def elf2image(args):
 
     if args.chip == 'esp32':
         image = ESP32FirmwareImage()
+        image.secure_pad = args.secure_pad
     elif args.version == '1':  # ESP8266
-        image = ESPFirmwareImage()
+        image = ESP8266ROMFirmwareImage()
     else:
-        image = OTAFirmwareImage()
+        image = ESP8266V2FirmwareImage()
     image.entrypoint = e.entrypoint
     image.segments = e.sections  # ELFSection is a subclass of ImageSegment
     image.flash_mode = {'qio':0, 'qout':1, 'dio':2, 'dout': 3}[args.flash_mode]
     image.flash_size_freq = image.ROM_LOADER.FLASH_SIZES[args.flash_size]
     image.flash_size_freq += {'40m':0, '26m':1, '20m':2, '80m': 0xf}[args.flash_freq]
+
+    if args.elf_sha256_offset:
+        image.elf_sha256 = e.sha256()
+        image.elf_sha256_offset = args.elf_sha256_offset
+
+    image.verify()
 
     if args.output is None:
         args.output = image.default_output_name(args.input)
@@ -1982,8 +2279,12 @@ def read_mac(esp, args):
 
 
 def chip_id(esp, args):
-    chipid = esp.chip_id()
-    print('Chip ID: 0x%08x' % chipid)
+    try:
+        chipid = esp.chip_id()
+        print('Chip ID: 0x%08x' % chipid)
+    except NotSupportedError:
+        print('Warning: %s has no Chip ID. Reading MAC instead.' % esp.CHIP_NAME)
+        read_mac(esp, args)
 
 
 def erase_flash(esp, args):
@@ -2028,7 +2329,8 @@ def read_flash(esp, args):
     t = time.time() - t
     print('\rRead %d bytes at 0x%x in %.1f seconds (%.1f kbit/s)...'
           % (len(data), args.address, t, len(data) / t * 8 / 1000))
-    open(args.filename, 'wb').write(data)
+    with open(args.filename, 'wb') as f:
+        f.write(data)
 
 
 def verify_flash(esp, args):
@@ -2090,7 +2392,13 @@ def version(args):
 #
 
 
-def main():
+def main(custom_commandline=None):
+    """
+    Main function for esptool
+
+    custom_commandline - Optional override for default arguments parsing (that uses sys.argv), can be a list of custom arguments
+    as strings.
+    """
     parser = argparse.ArgumentParser(description='esptool.py v%s - ESP8266 ROM Bootloader Utility' % __version__, prog='esptool')
 
     parser.add_argument('--chip', '-c',
@@ -2101,7 +2409,7 @@ def main():
     parser.add_argument(
         '--port', '-p',
         help='Serial port device',
-        default=os.environ.get('ESPTOOL_PORT', ESPLoader.DEFAULT_PORT))
+        default=os.environ.get('ESPTOOL_PORT', None))
 
     parser.add_argument(
         '--baud', '-b',
@@ -2112,7 +2420,7 @@ def main():
     parser.add_argument(
         '--before',
         help='What to do before connecting to the chip',
-        choices=['default_reset', 'no_reset'],
+        choices=['default_reset', 'no_reset', 'no_reset_no_sync'],
         default=os.environ.get('ESPTOOL_BEFORE', 'default_reset'))
 
     parser.add_argument(
@@ -2130,6 +2438,12 @@ def main():
         '--trace', '-t',
         help="Enable trace-level output of esptool.py interactions.",
         action='store_true')
+
+    parser.add_argument(
+        '--override-vddsdio',
+        help="Override ESP32 VDDSDIO internal voltage regulator (use with care)",
+        choices=ESP32ROM.OVERRIDE_VDDSDIO_CHOICES,
+        nargs='?')
 
     subparsers = parser.add_subparsers(
         dest='operation',
@@ -2181,15 +2495,18 @@ def main():
                             default=os.environ.get('ESPTOOL_FS', 'detect' if auto_detect else '1MB'))
         add_spi_connection_arg(parent)
 
-    parser_write_flash = subparsers.add_parser(
-        'write_flash',
-        help='Write a binary blob to flash')
+    parser_write_flash = subparsers.add_parser('write_flash', help='Write a binary blob to flash')
     parser_write_flash.add_argument('addr_filename', metavar='<address> <filename>', help='Address followed by binary filename, separated by space',
                                     action=AddrFilenamePairAction)
+    parser_write_flash.add_argument('--erase-all', '-e',
+                                    help='Erase all regions of flash (not just write areas) before programming',
+                                    action="store_true")
+
     add_spi_flash_subparsers(parser_write_flash, is_elf2image=False)
     parser_write_flash.add_argument('--no-progress', '-p', help='Suppress progress output', action="store_true")
     parser_write_flash.add_argument('--verify', help='Verify just-written data on flash ' +
                                     '(mostly superfluous, data is read back during flashing)', action='store_true')
+
     compress_args = parser_write_flash.add_mutually_exclusive_group(required=False)
     compress_args.add_argument('--compress', '-z', help='Compress data in transfer (default unless --no-stub is specified)',action="store_true", default=None)
     compress_args.add_argument('--no-compress', '-u', help='Disable data compression during transfer (default if --no-stub is specified)',action="store_true")
@@ -2217,6 +2534,9 @@ def main():
     parser_elf2image.add_argument('input', help='Input ELF file')
     parser_elf2image.add_argument('--output', '-o', help='Output filename prefix (for version 1 image), or filename (for version 2 single image)', type=str)
     parser_elf2image.add_argument('--version', '-e', help='Output image version', choices=['1','2'], default='1')
+    parser_elf2image.add_argument('--secure-pad', action='store_true', help='Pad image so once signed it will end on a 64KB boundary. For ESP32 images only.')
+    parser_elf2image.add_argument('--elf-sha256-offset', help='If set, insert SHA256 hash (32 bytes) of the input ELF file at specified offset in the binary.',
+                                  type=arg_auto_int, default=None)
 
     add_spi_flash_subparsers(parser_elf2image, is_elf2image=True)
 
@@ -2288,7 +2608,7 @@ def main():
 
     expand_file_arguments()
 
-    args = parser.parse_args()
+    args = parser.parse_args(custom_commandline)
 
     print('esptool.py v%s' % __version__)
 
@@ -2308,21 +2628,49 @@ def main():
         operation_args = inspect.getfullargspec(operation_func).args
 
     if operation_args[0] == 'esp':  # operation function takes an ESPLoader connection object
-        initial_baud = min(ESPLoader.ESP_ROM_BAUD, args.baud)  # don't sync faster than the default baud rate
-        if args.chip == 'auto':
-            esp = ESPLoader.detect_chip(args.port, initial_baud, args.before, args.trace)
+        if args.before != "no_reset_no_sync":
+            initial_baud = min(ESPLoader.ESP_ROM_BAUD, args.baud)  # don't sync faster than the default baud rate
         else:
-            chip_class = {
-                'esp8266': ESP8266ROM,
-                'esp32': ESP32ROM,
-            }[args.chip]
-            esp = chip_class(args.port, initial_baud, args.trace)
-            esp.connect(args.before)
+            initial_baud = args.baud
+
+        if args.port is None:
+            ser_list = sorted(ports.device for ports in list_ports.comports())
+            print("Found %d serial ports" % len(ser_list))
+        else:
+            ser_list = [args.port]
+        esp = None
+        for each_port in reversed(ser_list):
+            print("Serial port %s" % each_port)
+            try:
+                if args.chip == 'auto':
+                    esp = ESPLoader.detect_chip(each_port, initial_baud, args.before, args.trace)
+                else:
+                    chip_class = {
+                        'esp8266': ESP8266ROM,
+                        'esp32': ESP32ROM,
+                    }[args.chip]
+                    esp = chip_class(each_port, initial_baud, args.trace)
+                    esp.connect(args.before)
+                break
+            except (FatalError, OSError) as err:
+                if args.port is not None:
+                    raise
+                print("%s failed to connect: %s" % (each_port, err))
+                esp = None
+        if esp is None:
+            raise FatalError("All of the %d available serial ports could not connect to a Espressif device." % len(ser_list))
 
         print("Chip is %s" % (esp.get_chip_description()))
 
+        print("Features: %s" % ", ".join(esp.get_chip_features()))
+
+        read_mac(esp, args)
+
         if not args.no_stub:
             esp = esp.run_stub()
+
+        if args.override_vddsdio:
+            esp.override_vddsdio(args.override_vddsdio)
 
         if args.baud > initial_baud:
             try:
@@ -2346,11 +2694,21 @@ def main():
             detect_flash_size(esp, args)
             esp.flash_set_parameters(flash_size_bytes(args.flash_size))
 
-        operation_func(esp, args)
+        try:
+            operation_func(esp, args)
+        finally:
+            try:  # Clean up AddrFilenamePairAction files
+                for address, argfile in args.addr_filename:
+                    argfile.close()
+            except AttributeError:
+                pass
 
-        # finish execution based on args.after
-        if args.after == 'hard_reset':
-            print('Hard resetting...')
+        # Handle post-operation behaviour (reset or other)
+        if operation_func == load_ram:
+            # the ESP is now running the loaded image, so let it run
+            print('Exiting immediately.')
+        elif args.after == 'hard_reset':
+            print('Hard resetting via RTS pin...')
             esp.hard_reset()
         elif args.after == 'soft_reset':
             print('Soft resetting...')
@@ -2360,6 +2718,8 @@ def main():
             print('Staying in bootloader.')
             if esp.IS_STUB:
                 esp.soft_reset(True)  # exit stub back to ROM loader
+
+        esp._port.close()
 
     else:
         operation_func(args)
@@ -2459,7 +2819,7 @@ class AddrFilenamePairAction(argparse.Action):
         for i in range(0,len(values),2):
             try:
                 address = int(values[i],0)
-            except ValueError as e:
+            except ValueError:
                 raise argparse.ArgumentError(self,'Address "%s" must be a number' % values[i])
             try:
                 argfile = open(values[i + 1], 'rb')
@@ -2486,104 +2846,104 @@ class AddrFilenamePairAction(argparse.Action):
 
 # Binary stub code (see flasher_stub dir for source & details)
 ESP8266ROM.STUB_CODE = eval(zlib.decompress(base64.b64decode(b"""
-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\
-neIoDdsQM/v3/wLWvxs5\
+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\
 """)))
 ESP32ROM.STUB_CODE = eval(zlib.decompress(base64.b64decode(b"""
-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\
-S0yomEyqQut//QdAk8Ky\
+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\
 """)))
 
 

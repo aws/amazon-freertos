@@ -47,6 +47,7 @@
 
 typedef struct {
     uint32_t head_canary;
+    MULTI_HEAP_BLOCK_OWNER
     size_t alloc_size;
 } poison_head_t;
 
@@ -67,6 +68,7 @@ static uint8_t *poison_allocated_region(poison_head_t *head, size_t alloc_size)
     poison_tail_t *tail = (poison_tail_t *)(data + alloc_size);
     head->alloc_size = alloc_size;
     head->head_canary = HEAD_CANARY_PATTERN;
+    MULTI_HEAP_SET_BLOCK_OWNER(head);
 
     uint32_t tail_canary = TAIL_CANARY_PATTERN;
     if ((intptr_t)tail % sizeof(void *) == 0) {
@@ -180,7 +182,8 @@ void *multi_heap_malloc(multi_heap_handle_t heap, size_t size)
         data = poison_allocated_region(head, size);
 #ifdef SLOW
         /* check everything we got back is FREE_FILL_PATTERN & swap for MALLOC_FILL_PATTERN */
-        assert( verify_fill_pattern(data, size, true, true, true) );
+        bool ret = verify_fill_pattern(data, size, true, true, true);
+        assert( ret );
 #endif
     }
 
@@ -242,6 +245,8 @@ void *multi_heap_realloc(multi_heap_handle_t heap, void *p, size_t size)
        place.)
 
        For now we just malloc a new buffer, copy, and free. :|
+
+       Note: If this ever changes, multi_heap defrag realloc test should be enabled.
     */
     size_t orig_alloc_size = head->alloc_size;
 
@@ -258,6 +263,12 @@ void *multi_heap_realloc(multi_heap_handle_t heap, void *p, size_t size)
     return result;
 }
 
+void *multi_heap_get_block_address(multi_heap_block_handle_t block)
+{
+    char *head = multi_heap_get_block_address_impl(block);
+    return head + sizeof(poison_head_t);
+}
+
 size_t multi_heap_get_allocated_size(multi_heap_handle_t heap, void *p)
 {
     poison_head_t *head = verify_allocated_region(p, true);
@@ -267,6 +278,11 @@ size_t multi_heap_get_allocated_size(multi_heap_handle_t heap, void *p)
         return result - POISON_OVERHEAD;
     }
     return 0;
+}
+
+void *multi_heap_get_block_owner(multi_heap_block_handle_t block)
+{
+    return MULTI_HEAP_GET_BLOCK_OWNER((poison_head_t*)multi_heap_get_block_address_impl(block));
 }
 
 multi_heap_handle_t multi_heap_register(void *start, size_t size)

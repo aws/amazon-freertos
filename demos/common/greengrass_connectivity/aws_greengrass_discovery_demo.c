@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass Demo V1.4.6
+ * Amazon FreeRTOS Greengrass Demo V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -204,10 +204,9 @@ static void prvDiscoverGreenGrassCore( void * pvParameters )
             /* Report on space efficiency of this demo task. */
             #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
                 {
-                    configPRINTF(
-                        ( "Heap low watermark: %u. Stack high watermark: %u.\r\n",
-                          xPortGetMinimumEverFreeHeapSize(),
-                          uxTaskGetStackHighWaterMark( NULL ) ) );
+                    configPRINTF( ( "Heap low watermark: %u. Stack high watermark: %u.\r\n",
+                                    xPortGetMinimumEverFreeHeapSize(),
+                                    uxTaskGetStackHighWaterMark( NULL ) ) );
                 }
             #endif
         }
@@ -217,7 +216,7 @@ static void prvDiscoverGreenGrassCore( void * pvParameters )
         }
     }
 
-    configPRINTF( ("----Demo finished----\r\n") );
+    configPRINTF( ( "----Demo finished----\r\n" ) );
     vTaskDelete( NULL );
 }
 

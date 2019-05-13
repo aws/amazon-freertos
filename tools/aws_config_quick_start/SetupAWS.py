@@ -73,7 +73,7 @@ def update_credential_file():
     with open('configure.json') as file:
         json_text = json.load(file)
 
-    afr_source_dir = json_text['afr_source_dir']
+    afr_source_dir = os.path.expanduser(json_text['afr_source_dir'])
     thing_name = json_text['thing_name']
     wifi_ssid = json_text['wifi_ssid']
     wifi_passwd = json_text['wifi_password']
@@ -122,11 +122,18 @@ def delete_prereq():
     cert_id =  cert_id_file.read()
     cert_obj = certs.Certificate(cert_id)
     cert_obj.delete()
+    cert_id_file.close()
+    cert_id_file_path = os.path.abspath(cert_id_filename)
+    os.chmod(cert_id_file_path, 0o666)
     os.remove(cert_id_filename)
 
     # Delete cert_pem file and private_key_pem file
     cert_pem_filename = thing_name + '_cert_pem_file'
     private_key_pem_filename = thing_name + '_private_key_pem_file'
+    cert_pem_file_path = os.path.abspath(cert_pem_filename)
+    private_key_pem_file_path = os.path.abspath(private_key_pem_filename)
+    os.chmod(cert_pem_file_path, 0o666)
+    os.chmod(private_key_pem_file_path, 0o666)
     os.remove(cert_pem_filename)
     os.remove(private_key_pem_filename)
 
@@ -139,7 +146,7 @@ def cleanup_creds():
     with open('configure.json') as file:
         json_text = json.load(file)
 
-    afr_source_dir = json_text['afr_source_dir']
+    afr_source_dir = os.path.expanduser(json_text['afr_source_dir'])
     # Cleanup modified 'aws_clientcredential.h' file
     misc.cleanup_client_credential_file(afr_source_dir)
 

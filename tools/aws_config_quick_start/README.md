@@ -5,7 +5,7 @@ and the configuring the files `aws_clientcredential.h` and `aws_cliencredential_
 Make sure you have `aws cli` configured on your machine with access_key, secret_key and region.
 
 Open the file `configure.json` and fill in the following details:
-* afr_source_dir : The absolute path of the amazon-freertos directory.
+* afr_source_dir : The path of the amazon-freertos directory. By default, this is set to the top level of this repo (../..).
 * thing_name : Name of the thing you want to create
 * wifi_ssid : The SSID of the wifi you want to use.
 * wifi_password : The password of your wifi.

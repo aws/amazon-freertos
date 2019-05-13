@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.6
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -220,11 +220,11 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              uint8_t * pucCertificate,
                              size_t xCertificateLength,
                              uint8_t * pucLabel,
-                             CK_OBJECT_HANDLE_PTR xObjectHandle )
+                             CK_OBJECT_HANDLE_PTR pxObjectHandle )
 {
     PKCS11_CertificateTemplate_t xCertificateTemplate;
     CK_OBJECT_CLASS xCertificateClass = CKO_CERTIFICATE;
-    CK_FUNCTION_LIST_PTR xFunctionList;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_RV xResult;
     uint8_t * pucDerObject = NULL;
     int32_t lConversionReturn = 0;
@@ -242,7 +242,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     xCertificateTemplate.xLabel.pValue = ( CK_VOID_PTR ) pucLabel;
     xCertificateTemplate.xLabel.ulValueLen = sizeof( pucLabel );
 
-    xResult = C_GetFunctionList( &xFunctionList );
+    xResult = C_GetFunctionList( &pxFunctionList );
 
     if( xResult == CKR_OK )
     {
@@ -270,16 +270,25 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
             xCertificateTemplate.xValue.pValue = pucDerObject;
             xCertificateTemplate.xValue.ulValueLen = xDerLen;
         }
+        else
+        {
+            configPRINTF( ( "ERROR: Failed to provision certificate %d \r\n", lConversionReturn ) );
+        }
 
         /* Create an object using the encoded client certificate. */
         if( CKR_OK == xResult )
         {
-            configPRINTF( ( "Write code signing certificate...\r\n" ) );
+            configPRINTF( ( "Write certificate...\r\n" ) );
 
-            xResult = xFunctionList->C_CreateObject( xSession,
-                                                     ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
-                                                     sizeof( xCertificateTemplate ) / sizeof( CK_ATTRIBUTE ),
-                                                     xObjectHandle );
+            xResult = pxFunctionList->C_CreateObject( xSession,
+                                                      ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
+                                                      sizeof( xCertificateTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                      pxObjectHandle );
+        }
+
+        if( xResult != CKR_OK )
+        {
+            configPRINTF( ( "ERROR: Failed to provision certificate %d \r\n", xResult ) );
         }
 
         if( pucDerObject != NULL )
@@ -299,7 +308,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     CK_RV xResult;
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
     CK_KEY_TYPE xPrivateKeyType = ( CK_KEY_TYPE ) pxParams->ulClientPrivateKeyType;
-    CK_FUNCTION_LIST_PTR xFunctionList;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_OBJECT_HANDLE xObject = 0;
     uint8_t * pucDerObject = NULL;
     int32_t lConversionReturn = 0;
@@ -307,7 +316,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
     PKCS11_KeyTemplate_t xPrivateKeyTemplate;
 
-    xResult = C_GetFunctionList( &xFunctionList );
+    xResult = C_GetFunctionList( &pxFunctionList );
 
     /* Initialize the device private key template. */
     xPrivateKeyTemplate.xObjectClass.type = CKA_CLASS;
@@ -345,6 +354,11 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                                     xPrivateKeyTemplate.xValue.ulValueLen,
                                                     pucDerObject,
                                                     &xDerLen );
+
+            if( lConversionReturn != 0 )
+            {
+                configPRINTF( ( "ERROR: Failed to parse private key %d \r\n", lConversionReturn ) );
+            }
         }
         else
         {
@@ -362,10 +376,10 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         {
             configPRINTF( ( "Write device private key...\r\n" ) );
 
-            xResult = xFunctionList->C_CreateObject( xSession,
-                                                     ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
-                                                     sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-                                                     &xObject );
+            xResult = pxFunctionList->C_CreateObject( xSession,
+                                                      ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
+                                                      sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                      &xObject );
         }
 
         if( pucDerObject != NULL )
@@ -374,8 +388,10 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
-    configPRINTF( ( "Key provisioning done...\r\n" ) );
-
+    if( xResult != CKR_OK )
+    {
+        configPRINTF( ( "ERROR: Failed to provision private key %d \r\n", xResult ) );
+    }
 
     return xResult;
 }
@@ -385,12 +401,12 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
 {
     CK_RV xResult = CKR_OK;
-    CK_FUNCTION_LIST_PTR xFunctionList = NULL;
+    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     CK_SLOT_ID xSlotId = 0;
     CK_SESSION_HANDLE xSession = 0;
 
     /* Initialize the PKCS Module */
-    xResult = xInitializePkcsSession( &xFunctionList,
+    xResult = xInitializePkcsSession( &pxFunctionList,
                                       &xSlotId,
                                       &xSession );
 
@@ -399,7 +415,7 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
         xResult = xProvisionDevice( xSession, xParams );
     }
 
-    xFunctionList->C_CloseSession( xSession );
+    pxFunctionList->C_CloseSession( xSession );
 }
 /*-----------------------------------------------------------*/
 

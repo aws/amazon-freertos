@@ -567,7 +567,7 @@ static CK_RV prvImportPublicKey( CK_SESSION_HANDLE xSession,
         { CKA_CLASS,    &xPublicKeyClass,                         sizeof( xPublicKeyClass )                         },
         { CKA_KEY_TYPE, &xKeyType,                                sizeof( xKeyType )                                },
         { CKA_LABEL,    &pkcs11configLABEL_CODE_VERIFICATION_KEY, sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) },
-        { CKA_VALUE,    ( CK_VOID_PTR ) pucPublicKeyDer,          ( CK_ULONG ) xPublicKeyBufferLength              }
+        { CKA_VALUE,    ( CK_VOID_PTR ) pucPublicKeyDer,          ( CK_ULONG ) xPublicKeyBufferLength               }
     };
 
     /* Create an object using the public key. */

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -55,13 +55,16 @@ size_t UTILS_strnlen( const char * const pcString,
  *
  * @param[in] pxAbsoluteTime A time in the future, specified as seconds and
  * nanoseconds since CLOCK_REALTIME's 0.
+ * @param[in] pxCurrentTime current time, specified as seconds and
+ * nanoseconds.
  * @param[out] pxResult Where the result of the conversion is stored. The result
  * is rounded up for fractional ticks.
  *
  * @return 0 on success. Otherwise, ETIMEDOUT if pxAbsoluteTime is in the past,
  * or EINVAL for invalid parameters.
  */
-int UTILS_AbsoluteTimespecToTicks( const struct timespec * const pxAbsoluteTime,
+int UTILS_AbsoluteTimespecToDeltaTicks( const struct timespec * const pxAbsoluteTime,
+                                   const struct timespec * const pxCurrentTime,
                                    TickType_t * const pxResult );
 
 /**
@@ -90,41 +93,53 @@ void UTILS_NanosecondsToTimespec( int64_t llSource,
 /**
  * @brief Calculates pxResult = x + y.
  *
- * @param[out] pxResult Where the result of the calculation is stored.
  * @param[in] x The first argument for addition.
  * @param[in] y The second argument for addition.
+ * @param[out] pxResult Where the result of the calculation is stored.
  *
- * @return -1 if any argument was NULL; 1 if result is negative; otherwise, 0.
+ * @return -1 if any argument was NULL; 1 if result is negative (overflow); otherwise, 0.
  */
-int UTILS_TimespecAdd( struct timespec * const pxResult,
-                       const struct timespec * const x,
-                       const struct timespec * const y );
+int UTILS_TimespecAdd( const struct timespec * const x,
+                       const struct timespec * const y,
+                       struct timespec * const pxResult );
 
 /**
  * @brief Calculates pxResult = x + ( struct timespec ) nanosec.
  *
- * @param[out] pxResult Where the result of the calculation is stored.
  * @param[in] x The first argument for addition.
  * @param[in] llNanoseconds The second argument for addition.
+ * @param[out] pxResult Where the result of the calculation is stored.
  *
  * @return -1 if pxResult or x was NULL; 1 if result is negative; otherwise, 0.
  */
-int UTILS_TimespecAddNanoseconds( struct timespec * const pxResult,
-                                  const struct timespec * const x,
-                                  int64_t llNanoseconds );
+int UTILS_TimespecAddNanoseconds( const struct timespec * const x,
+                                  int64_t llNanoseconds,
+                                  struct timespec * const pxResult );
 
 /**
- * @brief Calculates pxResult = x - y.
+ * @brief Calculates pxResult = x - y. If the result is negative contents of
+ * pResult are undefined
  *
- * @param[out] pxResult Where the result of the calculation is stored.
  * @param[in] x The first argument for subtraction.
  * @param[in] y The second argument for subtraction.
+ * @param[out] pxResult Where the result of the calculation is stored.
  *
  * @return -1 if any argument was NULL; 1 if result is negative; otherwise, 0.
  */
-int UTILS_TimespecSubtract( struct timespec * const pxResult,
-                            const struct timespec * const x,
-                            const struct timespec * const y );
+int UTILS_TimespecSubtract( const struct timespec * const x,
+                            const struct timespec * const y,
+                            struct timespec * const pxResult);
+
+/**
+ * @brief Compare  x == y.
+ *
+ * @param[in] x The first argument for comparison.
+ * @param[in] y The second argument for comparison.
+ *
+ * @return 0 if x == y; 1 if x > y; -1 if x < y or any argument was NULL
+ */
+int UTILS_TimespecCompare( const struct timespec * const x,
+                           const struct timespec * const y);
 
 /**
 * @brief Checks that a timespec conforms to POSIX.

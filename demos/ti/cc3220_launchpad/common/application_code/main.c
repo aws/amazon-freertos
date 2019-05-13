@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.6
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -88,7 +88,7 @@ const AppVersion32_t xAppFirmwareVersion =
 void vApplicationDaemonTaskStartupHook( void );
 static void prvWifiConnect( void );
 static CK_RV prvProvisionRootCA( void );
-
+static void prvShowTiCc3220SecurityAlertCounts( void );
 
 /**
  * @brief Performs board and logging initializations, then starts the OS.
@@ -171,6 +171,12 @@ void vApplicationDaemonTaskStartupHook( void )
     if( SYSTEM_Init() == pdPASS )
     {
         prvWifiConnect();
+
+        /* Show the possible security alerts that will affect re-flashing the device. 
+         * When the number of security alerts reaches the threshold, the device file system is locked and 
+         * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed 
+         * here for debugging purposes. */
+        prvShowTiCc3220SecurityAlertCounts();
 
         DEMO_RUNNER_RunDemos();
     }
@@ -385,3 +391,24 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 }
 
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief In the Texas Instruments CC3220(SF) device, we retrieve the number of security alerts and the threshold.
+ */
+static void prvShowTiCc3220SecurityAlertCounts( void )
+{
+    int32_t lResult;
+    SlFsControlGetStorageInfoResponse_t xStorageResponseInfo;
+
+    lResult = sl_FsCtl( ( SlFsCtl_e ) SL_FS_CTL_GET_STORAGE_INFO, 0, NULL, NULL, 0, ( _u8 * ) &xStorageResponseInfo, sizeof( SlFsControlGetStorageInfoResponse_t ), NULL );
+
+    if( lResult == 0 )
+    {
+        configPRINTF( ( "Security alert threshold = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlertsThreshold ) );
+        configPRINTF( ( "Current number of alerts = %d\r\n", xStorageResponseInfo.FilesUsage.NumOfAlerts ) );
+    }
+    else
+    {
+        configPRINTF( ( "sl_FsCtl failed with error code: %d\r\n", lResult ) );
+    }
+}

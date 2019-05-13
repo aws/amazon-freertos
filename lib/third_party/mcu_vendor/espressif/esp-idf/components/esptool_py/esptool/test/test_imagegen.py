@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+import os
 import os.path
 import subprocess
+import struct
 import sys
 import unittest
+import hashlib
 
 from elftools.elf.elffile import ELFFile
 
@@ -137,18 +140,20 @@ class ESP8266V12SectionHeaderNotAtEnd(BaseTestCase):
     """ Ref https://github.com/espressif/esptool/issues/197 -
     this ELF image has the section header not at the end of the file """
     ELF="esp8266-nonossdkv12-example.elf"
-    BIN=ELF+"-0x00000.bin"
+    BIN_LOAD=ELF+"-0x00000.bin"
+    BIN_IROM=ELF+"-0x40000.bin"
 
     def test_elf_section_header_not_at_end(self):
         self.run_elf2image("esp8266", self.ELF)
-        image = esptool.LoadFirmwareImage("esp8266", self.BIN)
+        image = esptool.LoadFirmwareImage("esp8266", self.BIN_LOAD)
         self.assertEqual(3, len(image.segments))
         self.assertImageContainsSection(image, self.ELF, ".data")
         self.assertImageContainsSection(image, self.ELF, ".text")
         self.assertImageContainsSection(image, self.ELF, ".rodata")
 
     def tearDown(self):
-        try_delete(self.BIN)
+        try_delete(self.BIN_LOAD)
+        try_delete(self.BIN_IROM)
 
 class ESP8266V2ImageTests(BaseTestCase):
 
@@ -165,11 +170,21 @@ class ESP8266V2ImageTests(BaseTestCase):
                              "IROM segment 'load address' should be zero")
             with open(elfpath, "rb") as f:
                 e = ELFFile(f)
-                sh_size = (e.get_section_by_name(".irom0.text").header.sh_size + 3) & ~3
-                self.assertEqual(len(irom_segment.data), sh_size, "irom segment (0x%x) should be same size as .irom0.text section (0x%x)" % (len(irom_segment.data), sh_size))
+                sh_size = (e.get_section_by_name(".irom0.text").header.sh_size + 15) & ~15
+                self.assertEqual(len(irom_segment.data), sh_size, "irom segment (0x%x) should be same size (16 padded) as .irom0.text section (0x%x)" % (len(irom_segment.data), sh_size))
+
+            # check V2 CRC (for ESP8266 SDK bootloader)
+            with open(binpath, "rb") as f:
+                f.seek(-4, os.SEEK_END)
+                image_len = f.tell()
+                crc_stored = struct.unpack("<I", f.read(4))[0]
+                f.seek(0)
+                crc_calc = esptool.esp8266_crc32(f.read(image_len))
+                self.assertEqual(crc_stored, crc_calc)
 
             # test imageinfo doesn't fail
             self.assertImageInfo(binpath)
+
         finally:
             try_delete(binpath)
 
@@ -197,21 +212,30 @@ class ESP32ImageTests(BaseTestCase):
         ELF="esp32-bootloader.elf"
         BIN="esp32-bootloader.bin"
         image = self._test_elf2image(ELF, BIN)
-        self.assertEqual(4, len(image.segments))
+        self.assertEqual(3, len(image.segments))
         for section in [ ".iram1.text", ".iram_pool_1.text",
-                         ".dram0.data", ".dram0.rodata"]:
+                         ".dram0.rodata"]:
             self.assertImageContainsSection(image, ELF, section)
 
     def test_app_template(self):
         ELF="esp32-app-template.elf"
         BIN="esp32-app-template.bin"
         image = self._test_elf2image(ELF, BIN)
-        self.assertEqual(8, len(image.segments))
+        self.assertEqual(7, len(image.segments))
         # the other two segments are padding segments
         for section in [ ".iram0.text", ".iram0.vectors",
                          ".dram0.data", ".flash.rodata",
-                         ".flash.text", ".rtc.text"]:
+                         ".flash.text" ]:
             self.assertImageContainsSection(image, ELF, section)
+
+    def test_too_many_sections(self):
+        ELF="esp32-too-many-sections.elf"
+        BIN="esp32-too-many-sections.bin"
+        with self.assertRaises(subprocess.CalledProcessError) as e:
+            self._test_elf2image(ELF, BIN)
+        output = e.exception.output
+        self.assertIn(b"max 16", output)
+        self.assertIn(b"linker script", output)
 
 class ESP8266FlashHeaderTests(BaseTestCase):
     def test_2mb(self):
@@ -241,6 +265,26 @@ class ESP32FlashHeaderTests(BaseTestCase):
                 self.assertEqualHex(0x40, header[3])
         finally:
             try_delete(BIN)
+
+class ELFSHA256Tests(BaseTestCase):
+    ELF = "esp32-app-template.elf"
+    BIN = "esp32-app-template.bin"
+
+    def test_binary_patched(self):
+        self.run_elf2image("esp32", self.ELF, extra_args=["--elf-sha256-offset", "32"])
+        image = esptool.LoadFirmwareImage("esp32", self.BIN)
+        rodata_segment = image.segments[0]
+        observed_sha256 = rodata_segment.data[0:32]
+
+        sha256 = hashlib.sha256()
+        with open(self.ELF, "rb") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            f.seek(0, 0)
+            sha256.update(f.read(size))
+        expected_sha256 = sha256.digest()
+
+        self.assertSequenceEqual(expected_sha256, observed_sha256)
 
 
 if __name__ == '__main__':

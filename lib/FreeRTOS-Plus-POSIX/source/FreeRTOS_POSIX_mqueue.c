@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -172,15 +172,23 @@ static int prvCalculateTickTimeout( long lMessageQueueFlags,
         }
         else
         {
+            struct timespec xCurrentTime = { 0 };
+
             /* Check that the given timespec is valid. */
             if( UTILS_ValidateTimespec( pxAbsoluteTimeout ) == false )
             {
                 iStatus = EINVAL;
             }
 
+            /* Get current time */
+            if( ( iStatus == 0 ) && ( clock_gettime( CLOCK_REALTIME, &xCurrentTime ) != 0 ) )
+            {
+                iStatus = EINVAL;
+            }
+
             /* Convert absolute timespec to ticks. */
             if( ( iStatus == 0 ) &&
-                ( UTILS_AbsoluteTimespecToTicks( pxAbsoluteTimeout, pxTimeoutTicks ) != 0 ) )
+                ( UTILS_AbsoluteTimespecToDeltaTicks( pxAbsoluteTimeout, &xCurrentTime, pxTimeoutTicks ) != 0 ) )
             {
                 iStatus = ETIMEDOUT;
             }

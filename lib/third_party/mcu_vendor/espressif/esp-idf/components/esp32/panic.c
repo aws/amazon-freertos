@@ -40,6 +40,7 @@
 #include "esp_cache_err_int.h"
 #include "esp_app_trace.h"
 #include "esp_system.h"
+#include "sdkconfig.h"
 #if CONFIG_SYSVIEW_ENABLE
 #include "SEGGER_RTT.h"
 #endif
@@ -166,6 +167,7 @@ static const char *edesc[] = {
 
 static void commonErrorHandler(XtExcFrame *frame);
 static inline void disableAllWdts();
+static void illegal_instruction_helper(XtExcFrame *frame);
 
 //The fact that we've panic'ed probably means the other CPU is now running wild, possibly
 //messing up the serial output, so we stall it here.
@@ -312,7 +314,7 @@ void xt_unhandled_exception(XtExcFrame *frame)
         } else {
             panicPutStr("Unknown");
         }
-        panicPutStr(")\r\n");
+        panicPutStr(")");
         if (esp_cpu_in_ocd_debug_mode()) {
             panicPutStr(" at pc=");
             panicPutHex(frame->pc);
@@ -331,10 +333,36 @@ void xt_unhandled_exception(XtExcFrame *frame)
             return;
         }
         panicPutStr(". Exception was unhandled.\r\n");
+        if (exccause == 0 /* IllegalInstruction */) {
+            illegal_instruction_helper(frame);
+        }
     }
     commonErrorHandler(frame);
 }
 
+static void illegal_instruction_helper(XtExcFrame *frame)
+{
+    /* Print out memory around the instruction word */
+    uint32_t epc = frame->pc;
+    epc = (epc & ~0x3) - 4;
+
+    /* check that the address was sane */
+    if (epc < SOC_IROM_MASK_LOW || epc >= SOC_IROM_HIGH) {
+        return;
+    }
+    volatile uint32_t* pepc = (uint32_t*)epc;
+
+    panicPutStr("Memory dump at 0x");
+    panicPutHex(epc);
+    panicPutStr(": ");
+    
+    panicPutHex(*pepc);
+    panicPutStr(" ");
+    panicPutHex(*(pepc + 1));
+    panicPutStr(" ");
+    panicPutHex(*(pepc + 2));
+    panicPutStr("\r\n");
+}
 
 /*
   If watchdogs are enabled, the panic handler runs the risk of getting aborted pre-emptively because
@@ -653,7 +681,11 @@ void esp_clear_watchpoint(int no)
 
 void _esp_error_check_failed(esp_err_t rc, const char *file, int line, const char *function, const char *expression)
 {
-    ets_printf("ESP_ERROR_CHECK failed: esp_err_t 0x%x at 0x%08x\n", rc, (intptr_t)__builtin_return_address(0) - 3);
+    ets_printf("ESP_ERROR_CHECK failed: esp_err_t 0x%x", rc);
+#ifdef CONFIG_ESP_ERR_TO_NAME_LOOKUP
+    ets_printf(" (%s)", esp_err_to_name(rc));
+#endif //CONFIG_ESP_ERR_TO_NAME_LOOKUP
+    ets_printf(" at 0x%08x\n", (intptr_t)__builtin_return_address(0) - 3);
     if (spi_flash_cache_enabled()) { // strings may be in flash cache
         ets_printf("file: \"%s\" line %d\nfunc: %s\nexpression: %s\n", file, line, function, expression);
     }

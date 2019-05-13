@@ -29,6 +29,7 @@
 #include "esp_intr.h"
 #include "esp_attr.h"
 #include "esp_intr_alloc.h"
+#include "esp_ipc.h"
 #include <limits.h>
 #include <assert.h>
 
@@ -194,10 +195,10 @@ static void insert_vector_desc(vector_desc_t *to_insert)
         prev=vd;
         vd=vd->next;
     }
-    if (vd==NULL && prev==NULL) {
+    if ((vector_desc_head==NULL) || (prev==NULL)) {
         //First item
+        to_insert->next = vd;
         vector_desc_head=to_insert;
-        vector_desc_head->next=NULL;
     } else {
         prev->next=to_insert;
         to_insert->next=vd;
@@ -709,9 +710,11 @@ esp_err_t esp_intr_free(intr_handle_t handle)
 {
     bool free_shared_vector=false;
     if (!handle) return ESP_ERR_INVALID_ARG;
-    //This routine should be called from the interrupt the task is scheduled on.
-    if (handle->vector_desc->cpu!=xPortGetCoreID()) return ESP_ERR_INVALID_ARG;
-
+    //Assign this routine to the core where this interrupt is allocated on.
+    if (handle->vector_desc->cpu!=xPortGetCoreID()) {
+        esp_err_t ret = esp_ipc_call_blocking(handle->vector_desc->cpu, (esp_ipc_func_t)&esp_intr_free, (void *)handle);
+        return ret == ESP_OK ? ESP_OK : ESP_FAIL;
+    }
     portENTER_CRITICAL(&spinlock);
     esp_intr_disable(handle);
     if (handle->vector_desc->flags&VECDESC_FL_SHARED) {

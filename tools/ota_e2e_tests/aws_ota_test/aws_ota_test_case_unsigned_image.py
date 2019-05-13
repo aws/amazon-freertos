@@ -66,8 +66,7 @@ class OtaTestUnsignedImage( OtaTestCase ):
                             'streamId': streamId,
                             'fileId': 0
                         },
-                    },
-                    'codeSigning': {}
+                    }
                 },
             ]
         )

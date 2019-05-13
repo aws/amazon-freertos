@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.2
+ * Amazon FreeRTOS+POSIX V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -77,7 +77,15 @@
  * @defgroup Compile-time initializers.
  */
 /**@{ */
-#define PTHREAD_COND_INITIALIZER         FREERTOS_POSIX_COND_INITIALIZER  /**< pthread_cond_t. */
+#if posixconfigENABLE_PTHREAD_COND_T == 1
+    #define PTHREAD_COND_INITIALIZER         FREERTOS_POSIX_COND_INITIALIZER  /**< pthread_cond_t. */
+#else
+    /**
+     * pthread cond initializer place holder for compilation to go through
+     * for the ports that don't define PTHREAD_COND_INITIALIZER (for example: esp)
+     */
+    #define PTHREAD_COND_INITIALIZER  ((pthread_cond_t) 0xFFFFFFFF)
+#endif
 
 #if posixconfigENABLE_PTHREAD_MUTEX_T == 1
     #define PTHREAD_MUTEX_INITIALIZER    FREERTOS_POSIX_MUTEX_INITIALIZER /**< pthread_mutex_t. */
