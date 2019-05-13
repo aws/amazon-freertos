@@ -222,21 +222,6 @@ typedef union MultiParmPtr
 } MultiParmPtr_t;
 
 
-/* OTA job document parser error codes. */
-
-typedef enum
-{
-    eOTA_JobParseErr_Unknown = -1,        /* The error code has not yet been set by a logic path. */
-    eOTA_JobParseErr_None = 0,            /* Signifies no error has occurred. */
-    eOTA_JobParseErr_BusyWithExistingJob, /* We're busy with a job but received a new job document. */
-    eOTA_JobParseErr_NullJob,             /* A null job was reported (no job ID). */
-    eOTA_JobParseErr_BusyWithSameJob,     /* We're already busy with the reported job ID. */
-    eOTA_JobParseErr_ZeroFileSize,        /* Job document specified a zero sized file. This is not allowed. */
-    eOTA_JobParseErr_NonConformingJobDoc, /* The job document failed to fulfill the model requirements. */
-    eOTA_JobParseErr_BadModelInitParams,  /* There was an invalid initialization parameter used in the document model. */
-    eOTA_JobParseErr_NoContextAvailable   /* There wasn't an OTA context available. */
-} OTA_JobParseErr_t;
-
 
 /*lint -e830 -e9003 Keep these in one location for easy discovery should they change in the future. */
 /* Topic strings used by the OTA process. */
@@ -381,6 +366,10 @@ static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
 
 static void prvDefaultOTACompleteCallback( OTA_JobEvent_t eEvent );
 
+/* Default Custom Callback handler if not provided to OTA_AgentInit_v2() */
+static OTA_Err_t prvDefaultCustomJobCallback( const char * pcJSON, uint32_t ulMsgLen );
+
+
 /* A helper function to cleanup resources during OTA agent shutdown. */
 
 static void prvAgentShutdownCleanup( void );
@@ -451,7 +440,8 @@ typedef struct ota_agent_context
     .xResetDevice              = prvPAL_ResetDevice, \
     .xSetPlatformImageState    = prvPAL_SetPlatformImageState, \
     .xWriteBlock               = prvPAL_WriteBlock, \
-    .xCompleteCallback         = prvDefaultOTACompleteCallback \
+    .xCompleteCallback         = prvDefaultOTACompleteCallback, \
+    .xCustomJobCallback        = prvDefaultCustomJobCallback \
 }
 
 /* This is THE OTA agent context and initialization state. */
@@ -472,6 +462,16 @@ static OTA_AgentContext_t xOTA_Agent =
     .xPALCallbacks                 = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER
 };
 
+
+
+static OTA_Err_t prvDefaultCustomJobCallback( const char * pcJSON, uint32_t ulMsgLen )
+{
+    DEFINE_OTA_METHOD_NAME( "prvDefaultCustomJobCallback" );
+
+    OTA_LOG_L1( "[%s] Received Custom Job inside OTA Agent.\r\n", OTA_METHOD_NAME );
+
+    return eOTA_JobParseErr_NonConformingJobDoc;
+}
 
 /* This is the default OTA callback handler if the user does not provide
  * one. It will do the basic activation and commit of accepted images.
@@ -602,6 +602,10 @@ OTA_State_t OTA_AgentInit_v2( void * pvClient,
         if( xCallbacks->xCompleteCallback != NULL )
         {
             xOTA_Agent.xPALCallbacks.xCompleteCallback = xCallbacks->xCompleteCallback;
+        }
+        if( xCallbacks->xCustomJobCallback != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xCustomJobCallback = xCallbacks->xCustomJobCallback;
         }
     }
 
@@ -2490,7 +2494,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
         }
         else
         { /* No need to print an error message. The JSON parser should have already. */
-            eErr = eOTA_JobParseErr_NonConformingJobDoc;
+            eErr = xOTA_Agent.xPALCallbacks.xCustomJobCallback(pcJSON, ulMsgLen);
         }
     }
 

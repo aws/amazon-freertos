@@ -283,6 +283,23 @@ typedef enum
 } OTA_PAL_ImageState_t;
 
 
+
+/* OTA job document parser error codes. */
+
+typedef enum
+{
+    eOTA_JobParseErr_Unknown = -1,        /* The error code has not yet been set by a logic path. */
+    eOTA_JobParseErr_None = 0,            /* Signifies no error has occurred. */
+    eOTA_JobParseErr_BusyWithExistingJob, /* We're busy with a job but received a new job document. */
+    eOTA_JobParseErr_NullJob,             /* A null job was reported (no job ID). */
+    eOTA_JobParseErr_BusyWithSameJob,     /* We're already busy with the reported job ID. */
+    eOTA_JobParseErr_ZeroFileSize,        /* Job document specified a zero sized file. This is not allowed. */
+    eOTA_JobParseErr_NonConformingJobDoc, /* The job document failed to fulfill the model requirements. */
+    eOTA_JobParseErr_BadModelInitParams,  /* There was an invalid initialization parameter used in the document model. */
+    eOTA_JobParseErr_NoContextAvailable   /* There wasn't an OTA context available. */
+} OTA_JobParseErr_t;
+
+
 typedef OTA_Err_t (* pxOTAPALAbortCallback_t)( OTA_FileContext_t * const C );
 typedef OTA_Err_t (* pxOTAPALActivateNewImageCallback_t)( void );
 typedef OTA_Err_t (* pxOTAPALCloseFileCallback_t)( OTA_FileContext_t * const C );
@@ -291,6 +308,7 @@ typedef OTA_PAL_ImageState_t (* pxOTAPALGetPlatformImageStateCallback_t)( void )
 typedef OTA_Err_t (* pxOTAPALResetDeviceCallback_t)( void );
 typedef OTA_Err_t (* pxOTAPALSetPlatformImageStateCallback_t)( OTA_ImageState_t eState ); 
 typedef int16_t (* pxOTAPALWriteBlockCallback_t)( OTA_FileContext_t * const C, uint32_t iOffset, uint8_t * const pacData, uint32_t iBlockSize );
+typedef OTA_Err_t (* pxOTACustomJobCallback_t)( const char * pcJSON, uint32_t ulMsgLen );
 
 typedef struct _OTA_PAL_Callbacks {
     pxOTAPALAbortCallback_t xAbort;
@@ -302,6 +320,7 @@ typedef struct _OTA_PAL_Callbacks {
     pxOTAPALSetPlatformImageStateCallback_t xSetPlatformImageState;
     pxOTAPALWriteBlockCallback_t xWriteBlock;
     pxOTACompleteCallback_t xCompleteCallback;
+    pxOTACustomJobCallback_t xCustomJobCallback;
 } OTA_PAL_Callbacks_t;
 
 
