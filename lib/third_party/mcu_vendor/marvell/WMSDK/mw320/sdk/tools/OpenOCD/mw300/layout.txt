@@ -1,0 +1,9 @@
+# Component	   Address    Size    device  Name[8]
+FC_COMP_BOOT2      0x0	      0x6000   0       boot2
+FC_COMP_PSM	   0x6000     0x4000   0       psm
+FC_COMP_FW         0xa000     0x60000  0       mcufw
+FC_COMP_FW         0x6a000    0x60000  0       mcufw
+FC_COMP_FTFS       0xca000    0x30000  0       ftfs
+FC_COMP_FTFS       0xfa000    0x30000  0       ftfs
+FC_COMP_WLAN_FW    0x12a000   0x49000  0       wififw
+FC_COMP_WLAN_FW    0x173000   0x49000  0       wififw
