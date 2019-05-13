@@ -231,7 +231,7 @@ string(REGEX REPLACE "partitions_example.csv" "${board_dir}/../make/partitions_e
 file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
 set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
 # Set sdkconfig generation path inside build
-set(SDKCONFIG "${AFR_ROOT_DIR}/build/sdkconfig")
+set(SDKCONFIG "${CMAKE_BINARY_DIR}/sdkconfig")
 
 # Remove previously generated sdkconfig file
 file(REMOVE "${CMAKE_BINARY_DIR}/sdkconfig")
