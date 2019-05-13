@@ -1,0 +1,35 @@
+menu "Firmware Upgrades"
+
+config FWUPG_ED_CHACHA
+	prompt "ED25519 and Chacha-20 based Secure Upgrades"
+	bool
+	default y
+	help
+	  Select this option if you want to use Chacha-20 based encryption
+	  and ED25519 based signing mechanism for the secure firmware
+	  upgrades.
+
+config FWUPG_RSA_AES
+       prompt "RSA and AES based Secure Upgrades"
+       bool
+       select ENABLE_TLS
+       default n
+       help
+	  Select this option if you want to use AES based encryption
+	  and RSA based signing mechanism for the secure firmware
+	  upgrades.
+
+config WIFI_FW_UPGRADE
+	prompt "WiFi Firmware Upgrade Support"
+	bool
+	default y
+config BT_FW_UPGRADE
+	prompt "BT/BLE Firmware Upgrade Support"
+	bool
+	default n
+	help
+	  Select this option if you have a BT/BLE chip connected externally to
+	  MW300 and you want to provide a mechanism for BT/BLE firmware
+	  upgrades.
+endmenu
+

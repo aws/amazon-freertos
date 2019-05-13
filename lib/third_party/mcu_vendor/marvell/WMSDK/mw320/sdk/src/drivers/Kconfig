@@ -1,0 +1,15 @@
+
+menu "I2C configuration"
+menu "I2C debug options"
+
+config DRV_I2C_DEBUG_DUMP
+       bool "Dump all I/O bytes"
+       def_bool n
+       help
+	Enabling this will help the developer
+	debug I2C I/O packets. All the bytes
+	going in or out of the module will
+	be dumped onto the console.
+
+endmenu
+endmenu
