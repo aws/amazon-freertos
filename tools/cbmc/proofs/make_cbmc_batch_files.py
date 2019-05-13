@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# unpatching changes for the CBMC proofs.
+# Generation of the cbmc-batch.yaml files for the CBMC proofs.
 #
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -22,21 +22,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import subprocess
 import os
-import sys
-from glob import glob
+import subprocess
 
-from patches_constants import PATCHES_DIR
 
-try:
-    os.remove(os.path.join(PATCHES_DIR, "patched"))
-except FileNotFoundError:
-    print("Nothing to do here.")
-    sys.exit(0)
-for tmpfile in glob(os.path.join(PATCHES_DIR, "*.patch")):
-    print("unpatch", tmpfile)
-    result = subprocess.run(["git", "apply", "-R", tmpfile],
-                            cwd=os.path.join("..", "..", ".."))
-    if result.returncode:
-        print("Unpatching failed: {}".format(tmpfile))
+def remove_cbmc_yaml_files():
+    for dyr, _, files in os.walk("."):
+        cbmc_batch_files = [os.path.join(os.path.abspath(dyr), file)
+                            for file in files if file == "cbmc-batch.yaml"]
+        for file in cbmc_batch_files:
+            os.remove(file)
+
+
+def create_cbmc_yaml_files():
+    for dyr, _, files in os.walk("."):
+        harness = [file for file in files if file.endswith("_harness.c")]
+        if harness and "Makefile" in files:
+            subprocess.run(["make", "cbmc-batch.yaml"],
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE,
+                           cwd=os.path.abspath(dyr),
+                           check=True)
+
+if __name__ == '__main__':
+    remove_cbmc_yaml_files()
+    create_cbmc_yaml_files()

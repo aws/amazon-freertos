@@ -55,22 +55,13 @@ Installing CBMC
 Setting up the proofs
 ---------------------
 
-Change into the `patches` directory. Run
-```
-python compute_patch.py
-```
-
 Change into the `proofs` directory. On Windows, run
 ```
-python make-configuration-directories.py
-python make-common-makefile.py
-python make-proof-makefiles.py
+python prepare.py
 ```
 On macOS or Linux, run
 ```
-./make-configuration-directories.py
-./make-common-makefile.py
-./make-proof-makefiles.py
+./prepare.py
 ```
 If you are on a Windows machine but want to generate Linux Makefiles (or vice
 versa), you can pass the `--system linux` or `--system windows` options to those

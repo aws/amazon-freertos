@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# unpatching changes for the CBMC proofs.
+# Constants for the generation of patches for CBMC proofs.
 #
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -22,21 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import subprocess
 import os
-import sys
-from glob import glob
 
-from patches_constants import PATCHES_DIR
+PATCHES_DIR = os.path.dirname(os.path.abspath(__file__))
 
-try:
-    os.remove(os.path.join(PATCHES_DIR, "patched"))
-except FileNotFoundError:
-    print("Nothing to do here.")
-    sys.exit(0)
-for tmpfile in glob(os.path.join(PATCHES_DIR, "*.patch")):
-    print("unpatch", tmpfile)
-    result = subprocess.run(["git", "apply", "-R", tmpfile],
-                            cwd=os.path.join("..", "..", ".."))
-    if result.returncode:
-        print("Unpatching failed: {}".format(tmpfile))
+
+shared_prefix = ["..", "..", "..", "demos", "pc", "windows", "common",
+				 "config_files"]
+absolute_prefix = os.path.abspath(os.path.join(PATCHES_DIR, *shared_prefix))
+HEADERS = [os.path.join(absolute_prefix, "FreeRTOSConfig.h"), 
+           os.path.join(absolute_prefix, "FreeRTOSIPConfig.h")]

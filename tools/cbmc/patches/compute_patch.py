@@ -24,20 +24,24 @@
 
 
 import json
-import logging
 import os
 import re
 import subprocess
 import textwrap
+import unittest
 
-logging.basicConfig(format="{script}: %(levelname)s %(message)s".format(
-    script=os.path.basename(__file__)))
+from patches_constants import PATCHES_DIR
+from patches_constants import HEADERS
 
-LOGGER = logging.getLogger("ComputeConfigurations")
+
+DEFINE_REGEX_MAKEFILE = re.compile(r"(?:['\"])?([\w]+)")
+DEFINE_REGEX_HEADER = re.compile(r"\s*#\s*define\s*([\w]+)")
 
 class DirtyGitError(Exception):
     pass
 
+class PatchCreationError(Exception):
+    pass
 
 def prolog():
     return textwrap.dedent("""\
@@ -55,30 +59,37 @@ def find_all_defines():
        lines before parsing. Then we extract all defines from the file.
     """
     defines = set()
-    for fldr, _, fyles in os.walk("../proofs/."):
+
+    proof_dir = os.path.abspath(os.path.join(PATCHES_DIR, "..", "proofs"))
+
+    for fldr, _, fyles in os.walk(proof_dir):
         if not "Makefile.json" in fyles:
             continue
         file = os.path.join(fldr, "Makefile.json")
         with open(file, "r") as source:
             content = "".join([line for line in source
-                               if not line.startswith("#")])
+                               if line and not line.strip().startswith("#")])
             makefile = json.loads(content)
             if "DEF" in makefile.keys():
-                define_regex = r"(\w+)\=(?:[\w\{\}\.]+)"
+                """This regex parses the define declaration in Makefile.json
+                   'macro(x)=false' is an example for a declaration.
+                   'macro' is expected to be matched.
+                """
                 for define in makefile["DEF"]:
-                    matched = re.match(define_regex, define)
+                    matched = DEFINE_REGEX_MAKEFILE.match(define)
                     if matched:
                         defines.add(matched.group(1))
     return defines
 
 def manipulate_headerfile(defines, header_file):
     """Wraps all defines used in an ifndef."""
-    define_re = re.compile(r"\s*#\s*define\s*(\w+)\s")
+
+    # This regex matches the actual define in the header file.
     modified_content = ""
     with open(header_file, "r") as source:
         last = ""
         for line in source:
-            match = re.match(define_re, line)
+            match = DEFINE_REGEX_HEADER.match(line)
             if (match and
                     match.group(1) in defines and
                     not last.lstrip().startswith("#ifndef")):
@@ -94,40 +105,125 @@ def manipulate_headerfile(defines, header_file):
         output.write(modified_content)
 
 
-def header_dirty(header_file):
+def header_dirty(header_files):
     """Check that the header_file is not previously modified."""
-    diff_state = subprocess.run(["git", "diff-files"],
-                                 capture_output=True)
 
-    if bytes(header_file.replace("../", ""), "latin-1") in diff_state.stdout:
-        return True
+    # Git does not update the modified file list returned by diff-files on
+    # apply -R (at least not on MacOS).
+    # Running git status updates git's internal state.
+    status = subprocess.run(["git", "status"], stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE, universal_newlines=True)
+
+    diff_state = subprocess.run(["git", "diff-files"], stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, universal_newlines=True)
+
+    if status.returncode:
+        raise DirtyGitError(textwrap.dedent("""\
+                Could not run git status. Exited: {}
+                stderr: {}
+                """.format(status.returncode, status.stderr)))
+
+    if diff_state.returncode:
+        raise DirtyGitError(textwrap.dedent("""\
+                Could not run git diff-files. Exited: {}
+                stderr: {}
+                """.format(diff_state.returncode, diff_state.stderr)))
+
+    for header_file in header_files:
+        if os.path.basename(header_file) + "\n" in diff_state.stdout:
+            return True
     return False
 
 
 def create_patch(defines, header_file):
     """Computes a patch enclosing defines used in CBMC proofs with #ifndef."""
+    manipulate_headerfile(defines, header_file)
+    patch = subprocess.run(["git", "diff", header_file],
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE, universal_newlines=True)
+    cleaned = subprocess.run(["git", "checkout", "--", header_file],
+                             stdout=subprocess.DEVNULL,
+                             stderr=subprocess.PIPE, universal_newlines=True)
 
-    if not header_dirty(header_file):
-        manipulate_headerfile(defines, header_file)
-        patch = subprocess.run(["git", "diff", header_file],
-                               capture_output=True)
-        subprocess.call(["git", "checkout", "--", header_file])
-        header_path_part = header_file.replace("../", "").replace("/", "_")
-        path_name = "auto_patch_" + header_path_part + ".patch"
-        with open(path_name, "wb") as patch_file:
-            patch_file.write(patch.stdout)
-    else:
-        error_message = textwrap.dedent("""\
-        It seems like {} is in dirty state.
-        This script cannot patch files in dirty state.""".format(header_file))
-        raise DirtyGitError(error_message)
+    if patch.returncode:
+        raise PatchCreationError(textwrap.dedent("""\
+                git diff exited with error code: {}
+                stderr: {}
+                """.format(patch.returncode, patch.stderr)))
 
-def create_patches():
+    if cleaned.returncode:
+        raise DirtyGitError(textwrap.dedent("""\
+                git checkout for cleaning files failed with error code: {}
+                on file {}
+                stderr: {}
+                """.format(cleaned.returncode, header_file, cleaned.stderr)))
+
+    header_path_part = header_file.replace(os.sep, "_")
+    path_name = "auto_patch_" + header_path_part + ".patch"
+    path_name = os.path.join(PATCHES_DIR, path_name)
+    with open(path_name, "w") as patch_file:
+        patch_file.write(patch.stdout)
+
+
+def create_patches(headers):
     defines = find_all_defines()
-    shared_prefix = "../../../demos/pc/windows/common/config_files/"
-    create_patch(defines, shared_prefix + "FreeRTOSConfig.h")
-    create_patch(defines, shared_prefix + "FreeRTOSIPConfig.h")
 
+    if not header_dirty(headers):
+        for header in headers:
+            create_patch(defines, header)
+    else:
+        raise DirtyGitError(textwrap.dedent("""\
+                It seems like one of the header files is in dirty state.
+                This script cannot patch files in dirty state.
+                """))
+
+# Invoke 'python3 -m unittest compute_patch.py" for running tests.
+class TestDefineRegexes(unittest.TestCase):
+    def test_makefile_regex(self):
+        input1 = "ipconfigETHERNET_MINIMUM_PACKET_BYTES={MINIMUM_PACKET_BYTES}"
+        input2 = "ipconfigETHERNET_MINIMUM_PACKET_BYTES=50"
+        input3 = "'configASSERT(X)=__CPROVER_assert(x, \"must hold\")'"
+        input4 = '"configASSERT (X)=__CPROVER_assert(x, "must hold")"'
+        input5 = "configASSERT(X)=__CPROVER_assert(x,\"must hold\")"
+
+        match1 = DEFINE_REGEX_MAKEFILE.match(input1)
+        match2 = DEFINE_REGEX_MAKEFILE.match(input2)
+        match3 = DEFINE_REGEX_MAKEFILE.match(input3)
+        match4 = DEFINE_REGEX_MAKEFILE.match(input4)
+        match5 = DEFINE_REGEX_MAKEFILE.match(input5)
+
+        self.assertIsNotNone(match1)
+        self.assertIsNotNone(match2)
+        self.assertIsNotNone(match3)
+        self.assertIsNotNone(match4)
+        self.assertIsNotNone(match5)
+
+        self.assertEqual(match1.group(1),
+                         "ipconfigETHERNET_MINIMUM_PACKET_BYTES")
+        self.assertEqual(match2.group(1),
+                         "ipconfigETHERNET_MINIMUM_PACKET_BYTES")
+        self.assertEqual(match3.group(1), "configASSERT")
+        self.assertEqual(match4.group(1), "configASSERT")
+        self.assertEqual(match5.group(1), "configASSERT")
+
+
+    def test_header_regex(self):
+        input1 = ("#define configASSERT( x )    if( ( x ) == 0 )" +
+                  "vAssertCalled( __FILE__, __LINE__ )")
+        input2 = "#define ipconfigMAX_ARP_RETRANSMISSIONS           ( 5 )"
+        input3 = "#define ipconfigINCLUDE_FULL_INET_ADDR            1"
+
+        match1 = DEFINE_REGEX_HEADER.match(input1)
+        match2 = DEFINE_REGEX_HEADER.match(input2)
+        match3 = DEFINE_REGEX_HEADER.match(input3)
+
+        self.assertIsNotNone(match1)
+        self.assertIsNotNone(match2)
+        self.assertIsNotNone(match3)
+
+        self.assertEqual(match1.group(1), "configASSERT")
+        self.assertEqual(match2.group(1), "ipconfigMAX_ARP_RETRANSMISSIONS")
+        self.assertEqual(match3.group(1), "ipconfigINCLUDE_FULL_INET_ADDR")
 
 if __name__ == '__main__':
-    create_patches()
+    create_patches(HEADERS)
