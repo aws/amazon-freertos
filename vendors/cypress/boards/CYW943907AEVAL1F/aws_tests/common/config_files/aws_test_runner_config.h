@@ -29,12 +29,12 @@
 /* Uncomment this line if you want to run AFQP tests only. */
 /* #define testrunnerAFQP_ENABLED */
 
-#define testrunnerUNSUPPORTED                      0
+#define testrunnerUNSUPPORTED               0
 
 /* Unsupported tests. */
-#define testrunnerFULL_OTA_CBOR_ENABLED            testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_AGENT_ENABLED           testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_PAL_ENABLED             testrunnerUNSUPPORTED
+#define testrunnerFULL_OTA_CBOR_ENABLED     testrunnerUNSUPPORTED
+#define testrunnerFULL_OTA_AGENT_ENABLED    testrunnerUNSUPPORTED
+#define testrunnerFULL_OTA_PAL_ENABLED      testrunnerUNSUPPORTED
 
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
