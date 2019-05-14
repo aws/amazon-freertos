@@ -147,9 +147,6 @@ void vApplicationDaemonTaskStartupHook( void )
     /* Initialize the AWS Libraries system. */
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Connect to the Wi-Fi before running the tests. */
-        prvWifiConnect();
-
         /* Generate seed for PRNG */
         prvGenerateRandomSeed();
 
