@@ -22,6 +22,10 @@
  * express and approved by Marvell in writing.
  */
 
+/* The random number generation solution in this port is for demonstration 
+ * purposes only. For production development, it is recommended to use a 
+ * source which will be truly random in nature.
+ */
 
 /**
  * @file aws_pkcs11_pal.c
