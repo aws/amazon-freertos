@@ -409,11 +409,13 @@ typedef union
 /**
  * @cond DOXYGEN_IGNORE
  * @brief the implementation of this function need to be given when IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG is true
- * and when the user needs to set his own advertisement message
+ * and when the user needs to set his own advertisement/scan response message
  *
- * Set to true when it is a scan response
+  * @param[out] pAdvParams: Advertisment structure. Needs to be filled by the user.
+ *  @param[out] pScanParams: Scan response structure. Needs to be filled by the user.
+ *
  */
-    void IotBle_SetCustomAdvCb( IotBleAdvertisementParams_t * advParams,  IotBleAdvertisementParams_t * scanParams);
+    void IotBle_SetCustomAdvCb( IotBleAdvertisementParams_t * pAdvParams,  IotBleAdvertisementParams_t * pScanParams);
 /** @endcond */
 #endif
 

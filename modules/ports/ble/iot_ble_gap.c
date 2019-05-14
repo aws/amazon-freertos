@@ -646,16 +646,16 @@ BTStatus_t IotBle_Init( void )
     /* Initialize advertisement and scan response. */
     if( status == eBTStatusSuccess )
     {
-		#if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 0 )
+		#if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 1 )
+        IotBle_SetCustomAdvCb(&_advParams, &_scanRespParams );
+		#endif
+
         status = _setAdvData( &_advParams );
 
         if( status == eBTStatusSuccess )
         {
             status = _setAdvData( &_scanRespParams );
         }
-		#else
-        IotBle_SetCustomAdvCb(&_advParams, &_scanRespParams );
-		#endif
     }
 
     /* Start advertisement. */
