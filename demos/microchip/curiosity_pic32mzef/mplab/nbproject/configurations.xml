@@ -250,6 +250,7 @@
           <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/pkcs11_nvm.c</itemPath>
           <itemPath>../../../../lib/pkcs11/portable/microchip/curiosity_pic32mzef/aws_pkcs11_pal.c</itemPath>
           <itemPath>../../../../lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</itemPath>
+          <itemPath>../../../../lib/pkcs11/aws_pkcs11.c</itemPath>
         </logicalFolder>
         <logicalFolder name="secure_sockets"
                        displayName="secure_sockets"
@@ -265,6 +266,7 @@
         </logicalFolder>
         <logicalFolder name="utils" displayName="utils" projectFiles="true">
           <itemPath>../../../../lib/utils/aws_system_init.c</itemPath>
+          <itemPath>../../../../lib/utils/aws_pki_utils.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="wifi" projectFiles="true">
           <itemPath>../../../../lib/wifi/portable/microchip/curiosity_pic32mzef/aws_wifi.c</itemPath>
