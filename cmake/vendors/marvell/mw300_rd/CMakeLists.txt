@@ -247,14 +247,6 @@ target_sources(
     INTERFACE "${AFR_MODULES_DIR}/secure_sockets/portable/freertos_plus_tcp/aws_secure_sockets.c"
 )
 
-# OTA
-afr_mcu_port(ota)
-target_sources(
-    AFR::ota::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/ota/${portable_dir}/aws_ota_pal.c"
-	"${AFR_ROOT_DIR}/demos/common/ota/aws_ota_update_demo.c"
-)
-
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
