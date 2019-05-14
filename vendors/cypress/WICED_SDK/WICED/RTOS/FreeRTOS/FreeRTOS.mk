@@ -57,7 +57,7 @@ $(NAME)_SOURCES :=  $(AMAZON_FREERTOS_PATH)freertos_kernel/event_groups.c \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/tasks.c \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/timers.c \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/stream_buffer.c \
-                    $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/MemMang/heap_4.c
+                    $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/MemMang/heap_3.c
 
 # Win32_x86 specific sources and includes
 $(NAME)_Win32_x86_SOURCES  := $(AMAZON_FREERTOS_PATH)freertos_kernel/portable/MSVC-MingW/port.c
