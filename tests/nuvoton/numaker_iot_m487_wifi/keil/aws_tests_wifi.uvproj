@@ -149,7 +149,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>20</TargetSelection>
+          <TargetSelection>-1</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -377,7 +377,7 @@
               <MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
               <Define>MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\" UNITY_INCLUDE_CONFIG_H RVDS_ARMCM4_NUC4xx __LITTLE_ENDIAN__ AMAZON_FREERTOS_ENABLE_UNIT_TESTS M487</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\include\FreeRTOS_POSIX;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Include;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\inc;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\middleware\wifi_esp8266;..\..\..\..\tests\common\include;..\..\..\..\lib\FreeRTOS\portable\RVDS\ARM_CM4F;..\;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\protocols\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\M487;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\Keil;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\CMSIS\Include;..\common\config_files;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\mbedtls\\library;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\nuvoton\m480;..\common\application_code\nuvoton_code</IncludePath>
+              <IncludePath>..\..\..\..\lib\include;..\..\..\..\lib\include\private;..\..\..\..\lib\include\FreeRTOS_POSIX;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\Device\Nuvoton\numaker_iot_m487_wifi\Include;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\StdDriver\inc;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\middleware\wifi_esp8266;..\..\..\..\tests\common\include;..\..\..\..\lib\FreeRTOS\portable\RVDS\ARM_CM4F;..\;..\..\..\..\lib\FreeRTOS-Plus-TCP\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\protocols\include;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\NetworkInterface\M487;..\..\..\..\lib\FreeRTOS-Plus-TCP\source\portable\Compiler\Keil;..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\CMSIS\Include;..\common\config_files;..\..\..\..\lib\third_party\mbedtls\include;..\..\..\..\lib\third_party\mbedtls\\library;..\..\..\common\include;..\..\..\..\lib\third_party\jsmn;..\..\..\..\lib\third_party\unity\src;..\..\..\..\lib\third_party\unity\extras\fixture\src;..\..\..\..\lib\third_party\pkcs11;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include;..\..\..\..\lib\FreeRTOS-Plus-POSIX\include\portable\nuvoton\numaker_iot_m487_wifi;..\common\application_code\nuvoton_code</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -424,12 +424,12 @@
             <File>
               <FileName>system_M480.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Source\system_M480.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\Device\Nuvoton\numaker_iot_m487_wifi\Source\system_M480.c</FilePath>
             </File>
             <File>
               <FileName>startup_M480.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\Device\Nuvoton\M480\Source\ARM\startup_M480.s</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\Device\Nuvoton\numaker_iot_m487_wifi\Source\ARM\startup_M480.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -555,37 +555,37 @@
             <File>
               <FileName>clk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\clk.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\StdDriver\src\clk.c</FilePath>
             </File>
             <File>
               <FileName>retarget.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\retarget.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\StdDriver\src\retarget.c</FilePath>
             </File>
             <File>
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\sys.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\StdDriver\src\sys.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\uart.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\StdDriver\src\uart.c</FilePath>
             </File>
             <File>
               <FileName>crypto.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\crypto.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\StdDriver\src\crypto.c</FilePath>
             </File>
             <File>
               <FileName>fmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\fmc.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\StdDriver\src\fmc.c</FilePath>
             </File>
             <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\StdDriver\src\gpio.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\StdDriver\src\gpio.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1024,7 +1024,7 @@
             <File>
               <FileName>aws_pkcs11_pal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\pkcs11\portable\nuvoton\m480\aws_pkcs11_pal.c</FilePath>
+              <FilePath>..\..\..\..\lib\pkcs11\portable\nuvoton\numaker_iot_m487_wifi\aws_pkcs11_pal.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1439,17 +1439,17 @@
             <File>
               <FileName>aws_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\wifi\portable\nuvoton\M480\aws_wifi.c</FilePath>
+              <FilePath>..\..\..\..\lib\wifi\portable\nuvoton\numaker_iot_m487_wifi\aws_wifi.c</FilePath>
             </File>
             <File>
               <FileName>aws_secure_sockets.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\secure_sockets\portable\nuvoton\M480\aws_secure_sockets.c</FilePath>
+              <FilePath>..\..\..\..\lib\secure_sockets\portable\nuvoton\numaker_iot_m487_wifi\aws_secure_sockets.c</FilePath>
             </File>
             <File>
               <FileName>esp8266_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\M480\middleware\wifi_esp8266\esp8266_wifi.c</FilePath>
+              <FilePath>..\..\..\..\lib\third_party\mcu_vendor\nuvoton\numaker_iot_m487_wifi\middleware\wifi_esp8266\esp8266_wifi.c</FilePath>
             </File>
           </Files>
         </Group>

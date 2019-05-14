@@ -30,10 +30,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "FreeRTOS_IP.h"
-#include "FreeRTOS_Sockets.h"
-
-
 /* AWS System includes. */
 #include "aws_system_init.h"
 #include "aws_wifi.h"
@@ -281,11 +277,6 @@ void vApplicationDaemonTaskStartupHook( void )
 }
 /*-----------------------------------------------------------*/
 
-void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
-{
-    ;
-}
-/*-----------------------------------------------------------*/
 
 void prvWifiConnect( void )
 {
@@ -297,11 +288,11 @@ void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        FreeRTOS_printf( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
+        configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
     }
     else
     {
-        FreeRTOS_printf( ( "Wi-Fi module failed to initialize.\r\n" ) );
+        configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
 
         /* Delay to allow the lower priority logging task to print the above status. 
          * The while loop below will block the above printing. */
@@ -324,12 +315,12 @@ void prvWifiConnect( void )
 
     if( xWifiStatus == eWiFiSuccess )
     {
-        FreeRTOS_printf( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
+        configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
 
         xWifiStatus = WIFI_GetIP( ucIpAddr );
         if ( eWiFiSuccess == xWifiStatus ) 
         {
-            FreeRTOS_printf( ( "IP Address acquired %d.%d.%d.%d\r\n",
+            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucIpAddr[ 0 ], ucIpAddr[ 1 ], ucIpAddr[ 2 ], ucIpAddr[ 3 ] ) );
         }
     }
@@ -337,23 +328,23 @@ void prvWifiConnect( void )
     {
 #if 0
         /* Connection failed, configure SoftAP. */
-        FreeRTOS_printf( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
+        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
         xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
         xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
         xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
         xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
 
-        FreeRTOS_printf( ( "Connect to SoftAP %s using password %s. \r\n",
+        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
                         xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
 
         while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
         {
-            FreeRTOS_printf( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
                             xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
         }
 
-        FreeRTOS_printf( ( "Wi-Fi configuration successful. \r\n" ) );
+        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
 #endif
     }
 }
