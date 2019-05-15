@@ -1318,7 +1318,7 @@
 		<link>
 			<name>modules/libraries/standard/common/test</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/libraries/standard/common/test</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/standard/crypto/CMakeLists.txt</name>
@@ -3354,21 +3354,6 @@
 			<name>modules/libraries/standard/common/taskpool/private</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/test/aws_memory_leak.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/libraries/standard/common/test/aws_memory_leak.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/test/iot_test_platform_clock.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/libraries/standard/common/test/iot_test_platform_clock.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/test/iot_test_platform_threads.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/libraries/standard/common/test/iot_test_platform_threads.c</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/standard/crypto/include/aws_crypto.h</name>
