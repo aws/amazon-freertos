@@ -45,7 +45,7 @@ afr_mcu_port(compiler)
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE
-	${compiler_defined_symbols}>
+    ${compiler_defined_symbols}>
 )
 
 # Compiler flags.
@@ -69,12 +69,6 @@ target_link_options(
         ${linker_flags}
 )
 
-target_link_directories(
-    AFR::compiler::mcu_port
-    INTERFACE
-         ${link_directories}
-)
-
 target_link_libraries(
     AFR::compiler::mcu_port
     INTERFACE
@@ -95,24 +89,23 @@ target_include_directories(
 # Kernel
 afr_mcu_port(kernel)
 
-afr_glob_src(drivers_src DIRECTORY "${xmclib_dir}/drivers/src")
-afr_glob_src(esp_at_lib  RECURSE DIRECTORY "${xmclib_dir}/third_party/ESP_AT_Lib/src")
-afr_glob_src(newlib DIRECTORY "${xmclib_dir}/Newlib")
+afr_glob_src(driver_src DIRECTORY "${xmclib_dir}/drivers/src")
+afr_glob_src(esp_at_lib RECURSE DIRECTORY "${xmclib_dir}/third_party/ESP_AT_Lib/src")
 
-set( xmclib_includes
+set( board_includes
      "${xmclib_dir}/CMSIS/Include"
-	 "${xmclib_dir}/drivers/inc"
-	 "${xmclib_dir}/third_party/ESP_AT_Lib/src/include"
+     "${xmclib_dir}/drivers/inc"
+     "${xmclib_dir}/third_party/ESP_AT_Lib/src/include"
+     "${xmclib_dir}/CMSIS/Infineon/XMC4800_series/Include"
 )
 
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
-		${driver_src}
-		${esp_at_lib}
-		${newlib}
         ${compiler_specific_src}
+        ${driver_src}
+        ${esp_at_lib}
 )
 
 set(kernel_inc_dirs
@@ -120,7 +113,8 @@ set(kernel_inc_dirs
     "${xmc4800_aws_dir}/common/config_files"
     "${xmc4800_aws_dir}/common/application_code/infineon_code"
     "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
-	${xmclib_includes}
+    "${AFR_3RDPARTY_DIR}/mbedtls/include"
+    ${board_includes}
     ${compiler_specific_include}
 )
 
@@ -159,7 +153,7 @@ target_link_libraries(
     INTERFACE
         AFR::tls
         AFR::wifi
-		AFR::pkcs11
+        AFR::pkcs11
 )
 
 target_sources(
@@ -181,13 +175,15 @@ endif()
 
 afr_glob_src(board_src DIRECTORY "${xmc4800_aws_dir}/common/application_code/infineon_code")
 afr_glob_src(config_files_src DIRECTORY "${xmc4800_aws_dir}/common/config_files")
+afr_glob_src(newlib DIRECTORY "${xmclib_dir}/Newlib")
 
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 
 add_executable(${exe_target}
-    ${xmc4800_board_src}
+    ${board_src}
     ${config_files_src}
+    ${newlib}
     "${xmc4800_aws_dir}/common/application_code/main.c"
     $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
 )
