@@ -143,6 +143,13 @@ target_link_libraries(
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 
+# Build an OTA test that only builds on Windows.
+afr_module_sources(
+    test_ota
+    INTERFACE
+        "${AFR_MODULES_AWS_DIR}/ota/test/aws_test_ota_cbor.c"
+)
+
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
 else()
