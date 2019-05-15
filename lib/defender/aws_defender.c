@@ -330,7 +330,7 @@ static DEFENDERBool_t prvSubscribeToAcceptCbor( void )
     /* Initialize non-static field values. */
     xSubParams.pucTopic = ( const uint8_t * )
                           prvGetDefenderMqttTopicString( defenderMQTT_TOPIC_ACCEPTED );
-    xSubParams.usTopicLength = ( uint16_t ) 
+    xSubParams.usTopicLength = ( uint16_t )
                                strlen( ( const char * ) xSubParams.pucTopic );
 
     if( NULL == xSubParams.pucTopic )
@@ -380,9 +380,9 @@ static DEFENDERBool_t prvSubscribeToRejectCbor( void )
     DEFENDERBool_t xError = eDefenderFalse;
 
     /* Initialize non-static field values. */
-    xSubParams.pucTopic = ( const uint8_t * ) 
+    xSubParams.pucTopic = ( const uint8_t * )
                           prvGetDefenderMqttTopicString( defenderMQTT_TOPIC_REJECTED );
-    xSubParams.usTopicLength = ( uint16_t ) 
+    xSubParams.usTopicLength = ( uint16_t )
                                strlen( ( const char * ) xSubParams.pucTopic );
 
     if( NULL == xSubParams.pucTopic )
@@ -462,7 +462,7 @@ static DEFENDERBool_t prvPublishCborToDevDef( CBORHandle_t xReport )
     /* Initialize non-static field values. */
     xPubRecParams.pucTopic = ( const uint8_t * )
                              prvGetDefenderMqttTopicString( defenderMQTT_TOPIC_PUBLISH );
-    xPubRecParams.usTopicLength = ( uint16_t ) 
+    xPubRecParams.usTopicLength = ( uint16_t )
                                   strlen( ( const char * ) xPubRecParams.pucTopic );
     xPubRecParams.pvData = pucBuffer;
     xPubRecParams.ulDataLength = lBufLen;
