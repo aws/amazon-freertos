@@ -71,7 +71,7 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_WiFi );
     #endif
 
-    #if ( testrunnerFULL_LINEAR_CONTAINERS_ENABLED == 1 )
+    #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
             RUN_TEST_GROUP( Common_Unit_Task_Pool );
     #endif
 
