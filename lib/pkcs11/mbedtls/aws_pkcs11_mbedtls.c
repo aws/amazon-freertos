@@ -2229,7 +2229,29 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Begin a digital signature generation session.
+ * @brief Begin creating a digital signature.
+ *
+ * \sa C_Sign() completes signatures initiated by C_SignInit().
+ *
+ * \note C_Sign() parameters are shared by a session.  Calling
+ * C_SignInit() & C_Sign() with the same session across different
+ * tasks may lead to unexpected results.
+ *
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[in] pxMechanism                   Mechanism used to sign.
+ *                                          This port supports the following mechanisms:
+ *                                          - CKM_RSA_PKCS for RSA signatures
+ *                                          - CKM_ECDSA for elliptic curve signatures
+ *                                          Note that neither of these mechanisms perform
+ *                                          hash operations.
+ * @param[in] xKey                          The handle of the private key to be used for
+ *                                          signature. Key must be compatible with the
+ *                                          mechanism chosen by pxMechanism.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
                                          CK_MECHANISM_PTR pxMechanism,
@@ -2364,7 +2386,23 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-
+/**
+ * @brief Converts an ECDSA signature from the format provided by mbedTLS
+ * to the format expected by PKCS #11.
+ *
+ * For P-256 signatures, PKCS #11 expects a 64 byte signature, in the
+ * format of 32 byte R component followed by 32 byte S component.
+ *
+ * mbedTLS provides signatures in DER encoded, zero-padded format.
+ *
+ * @param[out] pxSignaturePKCS            Pointer to a 64 byte buffer
+ *                                        where PKCS #11 formatted signature
+ *                                        will be placed.  Caller must
+ *                                        allocate 64 bytes of memory.
+ * @param[in] pxMbedSignature             Pointer to DER encoded ECDSA
+ *                                        signature.
+ *
+ */
 void xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
                                          uint8_t * pxMbedSignature )
 {
@@ -2400,7 +2438,35 @@ void xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
 }
 
 /**
- * @brief Digitally sign the indicated cryptographic hash bytes.
+ * @brief Performs a digital signature operation.
+ *
+ * \sa C_SignInit() initiates signatures signature creation.
+ *
+ * \note C_Sign() parameters are shared by a session.  Calling
+ * C_SignInit() & C_Sign() with the same session across different
+ * tasks may lead to unexpected results.
+ *
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[in] pucData                       Data to be signed.
+ *                                          Note: Some applications may require this data to
+ *                                          be hashed before passing to C_Sign().
+ * @param[in] ulDataLen                     Length of pucData, in bytes.
+ * @param[out] pucSignature                 Buffer where signature will be placed.
+ *                                          Caller is responsible for allocating memory.
+ *                                          Providing NULL for this input will cause
+ *                                          pulSignatureLen to be updated for length of
+ *                                          buffer required.
+ * @param[in,out] pulSignatureLen           Length of pucSignature buffer.
+ *                                          If pucSignature is non-NULL, pulSignatureLen is
+ *                                          updated to contain the actual signature length.
+ *                                          If pucSignature is NULL, pulSignatureLen is
+ *                                          updated to the buffer length required for signature
+ *                                          data.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                      CK_BYTE_PTR pucData,
@@ -2423,7 +2489,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
     if( CKR_OK == xResult )
     {
-        /* Update the signature lenght. */
+        /* Update the signature length. */
 
         if( pxSessionObj->xSignMechanism == CKM_RSA_PKCS )
         {
@@ -2519,7 +2585,27 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Begin a digital signature verification session.
+ * @brief Begin a digital signature verification.
+ *
+ * \sa C_Verify() completes verifications initiated by C_VerifyInit().
+ *
+ * \note C_Verify() parameters are shared by a session.  Calling
+ * C_VerifyInit() & C_Verify() with the same session across different
+ * tasks may lead to unexpected results.
+ *
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[in] pxMechanism                   Mechanism used to verify signature.
+ *                                          This port supports the following mechanisms:
+ *                                          - CKM_RSA_X_509 for RSA verifications
+ *                                          - CKM_ECDSA for elliptic curve verifications
+ * @param[in] xKey                          The handle of the public key to be used for
+ *                                          verification. Key must be compatible with the
+ *                                          mechanism chosen by pxMechanism.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
                                            CK_MECHANISM_PTR pxMechanism,
@@ -2655,8 +2741,26 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Verify the digital signature of the specified data using the public
- * key attached to this session.
+ * @brief Verifies a digital signature.
+ *
+ * \note C_VerifyInit() must have been called previously.
+ *
+ * \note C_Verify() parameters are shared by a session.  Calling
+ * C_VerifyInit() & C_Verify() with the same session across different
+ * tasks may lead to unexpected results.
+ *
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[in] pucData                       Data who's signature is to be verified.
+ *                                          Note: In this implementation, this is generally
+ *                                          expected to be the hash of the data.
+ * @param[in] ulDataLen                     Length of pucData.
+ * @param[in] pucSignature                  The signature to be verified.
+ * @param[in] ulSignatureLength             Length of pucSignature in bytes.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                                        CK_BYTE_PTR pucData,
@@ -2740,7 +2844,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                 xResult = CKR_CANT_LOCK;
             }
         }
-        /*Perform an ECDSA verification. */
+
+        /* Perform an ECDSA verification. */
         else if( pxSessionObj->xVerifyMechanism == CKM_ECDSA )
         {
             /* TODO: Refactor w/ test code
@@ -3013,7 +3118,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
  *                                              - Must be set to CKK_EC. Only elliptic curve key
  *                                              generation is supported.
  *                                          - CKA_TOKEN
- *                                              - Must be set to CK_TRUE. 
+ *                                              - Must be set to CK_TRUE.
  *
  * @param[in] ulPrivateKeyAttributeCount    Number of attributes in pxPrivateKeyTemplate.
  * @param[out] pxPublicKey                  Pointer to the handle of the public key to be created.
@@ -3085,9 +3190,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
         }
     }
 
-    /* TODO: Write back public key value if CKA_VALUE is provided in template. */
-    /* TODO: Think on how to give 2 different labels to private public key for non mbed implementations. */
-
     if( xResult == CKR_OK )
     {
         lMbedResult = mbedtls_pk_write_pubkey_der( &xCtx, pucDerFile, pkcs11KEY_GEN_MAX_DER_SIZE );
@@ -3109,7 +3211,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( lMbedResult > 0 )
     {
-        xPalPrivate = PKCS11_PAL_SaveObject( pxPrivateLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult );
+        xPalPrivate = PKCS11_PAL_SaveObject( pxPrivateLabel, pucDerFile + pkcs11KEY_GEN_MAX_DER_SIZE - lMbedResult, lMbedResult ); /* TS-7249. */
     }
     else
     {
@@ -3119,8 +3221,16 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     if( ( xPalPublic != CK_INVALID_HANDLE ) && ( xPalPrivate != CK_INVALID_HANDLE ) )
     {
         xResult = prvAddObjectToList( xPalPrivate, pxPrivateKey, pxPrivateLabel->pValue, pxPrivateLabel->ulValueLen );
-        xResult = prvAddObjectToList( xPalPublic, pxPublicKey, pxPublicLabel->pValue, pxPublicLabel->ulValueLen );
-        /* TODO: If saving either key fails, both should be deleted. */
+
+        if( xResult == CKR_OK )
+        {
+            xResult = prvAddObjectToList( xPalPublic, pxPublicKey, pxPublicLabel->pValue, pxPublicLabel->ulValueLen );
+
+            if( xResult != CKR_OK )
+            {
+                PKCS11_PAL_DestroyObject( *pxPrivateKey );
+            }
+        }
     }
 
     /* Clean up. */
