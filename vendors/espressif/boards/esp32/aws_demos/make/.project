@@ -504,7 +504,7 @@
 		<link>
 			<name>modules/ports/ble</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble</locationURI>
 		</link>
 		<link>
 			<name>modules/ports/pkcs11</name>
@@ -773,36 +773,6 @@
 		</link>
 		<link>
 			<name>modules/libraries/standard/utils</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/iot_ble_gap.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/iot_ble_gap.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/iot_ble_gatt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/iot_ble_gatt.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/services</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/test</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -1875,116 +1845,6 @@
 			<name>modules/libraries/standard/utils/src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/bt_hal_avsrc_profile.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/bt_hal_avsrc_profile.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/bt_hal_gatt_client.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/bt_hal_gatt_client.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/bt_hal_gatt_server.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/bt_hal_gatt_server.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/bt_hal_gatt_types.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/bt_hal_gatt_types.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/bt_hal_manager.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/bt_hal_manager.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/bt_hal_manager_adapter_ble.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/bt_hal_manager_adapter_ble.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/bt_hal_manager_adapter_classic.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/bt_hal_manager_adapter_classic.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/bt_hal_manager_types.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/bt_hal_manager_types.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/iot_ble.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/iot_ble.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/iot_ble_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/iot_ble_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/iot_ble_device_information.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/iot_ble_device_information.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/iot_ble_mqtt.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/iot_ble_mqtt.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/iot_ble_wifi_provisioning.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/iot_ble_wifi_provisioning.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/private</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/services/device_information</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/services/mqtt_ble</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/services/wifi_provisioning</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/test/aws_test_ble.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/test/aws_test_ble.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/test/aws_test_ble_end_to_end.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/test/aws_test_ble_end_to_end.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/test/aws_test_wifi_provisioning.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/test/aws_test_wifi_provisioning.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/test/iot_ble_wifi_prov_test_access_declare.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/test/iot_ble_wifi_prov_test_access_declare.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/test/iot_ble_wifi_prov_test_access_define.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/test/iot_ble_wifi_prov_test_access_define.h</locationURI>
 		</link>
 		<link>
 			<name>modules/ports/pkcs11/include/aws_pkcs11.h</name>
@@ -4285,31 +4145,6 @@
 			<name>modules/libraries/standard/utils/src/aws_system_init.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/libraries/standard/utils/src/aws_system_init.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/private/iot_ble_internal.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/private/iot_ble_internal.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/include/private/iot_ble_mqtt_serialize.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/include/private/iot_ble_mqtt_serialize.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/services/device_information/iot_ble_device_information.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/services/device_information/iot_ble_device_information.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/services/mqtt_ble/iot_ble_mqtt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/services/mqtt_ble/iot_ble_mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/ble/services/wifi_provisioning/iot_ble_wifi_provisioning.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/modules/ports/ble/services/wifi_provisioning/iot_ble_wifi_provisioning.c</locationURI>
 		</link>
 		<link>
 			<name>modules/ports/posix/include/FreeRTOS_POSIX/errno.h</name>

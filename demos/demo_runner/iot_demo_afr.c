@@ -320,10 +320,6 @@ void runDemoTask( void * pArgument )
                                 &credentials,
                                 pNetworkInterface );
 
-        /* Report heap usage. */
-        IotLogInfo( "Demo minimum ever free heap: %lu bytes.",
-                    ( unsigned long ) xPortGetMinimumEverFreeHeapSize() );
-
         /* Log the demo status. */
         if( status == EXIT_SUCCESS )
         {
