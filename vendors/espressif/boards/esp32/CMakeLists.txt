@@ -134,6 +134,14 @@ target_link_libraries(
         AFR::tls
 )
 
+if(AFR_IS_TESTING)
+target_compile_definitions(
+    AFR::compiler::mcu_port
+    INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
+    -DESP32
+)
+endif()
+
 # OTA
 # Need to get this validated
 afr_mcu_port(ota)
