@@ -571,41 +571,34 @@ static void _TXMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 
 static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    IotBleReadEventParams_t * pReadParam;
     IotBleAttributeData_t attrData = { 0 };
-    IotBleEventResponse_t resp;
+    IotBleEventResponse_t resp = {
+	.pAttrData      = &attrData,  
+        .eventStatus    = eBTStatusSuccess,
+        .rspErrorStatus = eBTRspErrorNone,
+    };
+
     IotBleDataTransferService_t * pService;
     size_t length;
     BTStatus_t status;
 
-
     if( pEventParam->xEventType == eBLERead )
     {
-        pReadParam = pEventParam->pParamRead;
-
-        pService = _getServiceFromHandle( pReadParam->attrHandle );
-
-        resp.pAttrData = &attrData;
-        resp.rspErrorStatus = eBTRspErrorNone;
-        resp.eventStatus = eBTStatusFail;
-        resp.attrDataOffset = 0;
-        resp.pAttrData->handle = pReadParam->attrHandle;
-
+        resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
+        
+	pService = _getServiceFromHandle( pEventParam->pParamRead->attrHandle );
         if( pService->channel.isOpen == true )
         {
-            length = pService->channel.sendBuffer.head - pService->channel.sendBuffer.tail;
+            length = ( pService->channel.sendBuffer.head - pService->channel.sendBuffer.tail );
             if( length > transmitLength )
             {
                 length = transmitLength;
             }
           
-            resp.pAttrData->pData = ( pService->channel.sendBuffer.pBuffer + pService->channel.sendBuffer.tail );
-            resp.pAttrData->size = length;
-            resp.attrDataOffset = 0;
-            resp.eventStatus = eBTStatusSuccess;
+            attrData.pData = ( pService->channel.sendBuffer.pBuffer + pService->channel.sendBuffer.tail );
+            attrData.size = length;
 
-            status = IotBle_SendResponse( &resp, pReadParam->connId, pReadParam->transId );
-
+            status = IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
             if( status == eBTStatusSuccess )
             {
                 pService->channel.sendBuffer.tail += length;
@@ -627,6 +620,13 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
                 configPRINTF(( "Failed to send large object chunk through ble connection.\r\n" ));
             }
         }
+	else
+	{
+	    /** Send an empty response, if the device closed the channel in between.
+	     *  Its upto the application to handle the partial data buffer sent.
+	     **/
+            ( void ) IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
+	}
     }
 }
 
