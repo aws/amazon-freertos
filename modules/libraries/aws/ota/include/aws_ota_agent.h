@@ -301,14 +301,14 @@ typedef enum
 
 
 typedef OTA_Err_t (* pxOTAPALAbortCallback_t)( OTA_FileContext_t * const C );
-typedef OTA_Err_t (* pxOTAPALActivateNewImageCallback_t)( void );
+typedef OTA_Err_t (* pxOTAPALActivateNewImageCallback_t)( uint32_t ulServerFileID );
 typedef OTA_Err_t (* pxOTAPALCloseFileCallback_t)( OTA_FileContext_t * const C );
 typedef OTA_Err_t (* pxOTAPALCreateFileForRxCallback_t)( OTA_FileContext_t * const C );
-typedef OTA_PAL_ImageState_t (* pxOTAPALGetPlatformImageStateCallback_t)( void );
-typedef OTA_Err_t (* pxOTAPALResetDeviceCallback_t)( void );
-typedef OTA_Err_t (* pxOTAPALSetPlatformImageStateCallback_t)( OTA_ImageState_t eState ); 
+typedef OTA_PAL_ImageState_t (* pxOTAPALGetPlatformImageStateCallback_t)( uint32_t ulServerFileID );
+typedef OTA_Err_t (* pxOTAPALResetDeviceCallback_t)( uint32_t ulServerFileID );
+typedef OTA_Err_t (* pxOTAPALSetPlatformImageStateCallback_t)( uint32_t ulServerFileID, OTA_ImageState_t eState ); 
 typedef int16_t (* pxOTAPALWriteBlockCallback_t)( OTA_FileContext_t * const C, uint32_t iOffset, uint8_t * const pacData, uint32_t iBlockSize );
-typedef OTA_Err_t (* pxOTACustomJobCallback_t)( const char * pcJSON, uint32_t ulMsgLen );
+typedef OTA_JobParseErr_t (* pxOTACustomJobCallback_t)( const char * pcJSON, uint32_t ulMsgLen );
 
 typedef struct _OTA_PAL_Callbacks {
     pxOTAPALAbortCallback_t xAbort;
@@ -356,7 +356,7 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                            TickType_t xTicksToWait );
 
 
-OTA_State_t OTA_AgentInit_v2( void * pvClient,
+OTA_State_t OTA_AgentInit_internal( void * pvClient,
                            const uint8_t * pucThingName,
                            OTA_PAL_Callbacks_t * xCallbacks,
                            TickType_t xTicksToWait );
