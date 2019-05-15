@@ -114,7 +114,6 @@ CK_RV xInitializePKCS11( void )
     xInitArgs.flags = CKF_OS_LOCKING_OK;
     xInitArgs.pReserved = NULL;
 
-
     xResult = C_GetFunctionList( &pxFunctionList );
 
     /* Initialize the PKCS #11 module. */
@@ -138,7 +137,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
     /* Initialize the module. */
     if( xResult == CKR_OK )
     {
-        xResult = C_Initialize( NULL );
+        xResult = xInitializePKCS11();
         if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
         {
             xResult = CKR_OK;

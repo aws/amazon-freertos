@@ -663,7 +663,7 @@ BaseType_t TLS_Init( void ** ppvContext,
         /* Ensure that the PKCS #11 module is initialized. */
         if( 0 == xResult )
         {
-            xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_Initialize( NULL );
+            xResult = ( BaseType_t )xInitializePKCS11();
 
             /* It is ok if the module was previously initialized. */
             if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )

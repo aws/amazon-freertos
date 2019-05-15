@@ -570,7 +570,7 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 
         if( CKR_OK == xResult )
         {
-            xResult = pxPkcs11FunctionList->C_Initialize( NULL );
+            xResult = xInitializePKCS11();
         }
 
         /* Get the crypto token slot count. */

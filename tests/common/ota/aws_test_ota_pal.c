@@ -261,7 +261,7 @@ CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
 
     if( CKR_OK == xResult )
     {
-        xResult = xFunctionList->C_Initialize( NULL );
+        xResult = xInitializePKCS11();
     }
 
     if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )

@@ -342,7 +342,7 @@ void prvAfterRunningTests( void )
     /* Re-provision the device with default RSA certs so that subsequent tests are not changed. */
     vDevModeKeyProvisioning();
     xCurrentCredentials = eClientCredential;
-    pxGlobalFunctionList->C_Initialize( NULL );
+    xInitializePKCS11();
 }
 
 
@@ -505,29 +505,20 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetFunctionList )
 TEST( Full_PKCS11_StartFinish, AFQP_InitializeFinalize )
 {
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-
     CK_RV xResult;
-    CK_C_INITIALIZE_ARGS xInitArgs;
 
     xResult = C_GetFunctionList( &pxFunctionList );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get function list." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxFunctionList, "Invalid function list pointer." );
 
-    xInitArgs.CreateMutex = NULL;
-    xInitArgs.DestroyMutex = NULL;
-    xInitArgs.LockMutex = NULL;
-    xInitArgs.UnlockMutex = NULL;
-    xInitArgs.flags = CKF_OS_LOCKING_OK;
-    xInitArgs.pReserved = NULL;
-
-    xResult = pxFunctionList->C_Initialize( &xInitArgs );
+    xResult = xInitializePKCS11();
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
 
     if( TEST_PROTECT() )
     {
         /* Call initialize a second time.  Since this call may be made many times,
          * it is important that PKCS #11 implementations be tolerant of multiple calls. */
-        xResult = pxFunctionList->C_Initialize( &xInitArgs );
+        xResult = xInitializePKCS11();
         TEST_ASSERT_EQUAL_MESSAGE( CKR_CRYPTOKI_ALREADY_INITIALIZED, xResult, "Second PKCS #11 module initialization. " );
 
         /* C_Finalize should fail if pReserved isn't NULL. */
@@ -550,16 +541,8 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
     CK_SLOT_ID * pxSlotId = NULL;
     CK_ULONG xSlotCount = 0;
     CK_ULONG xExtraSlotCount = 0;
-    CK_C_INITIALIZE_ARGS xInitArgs;
 
-    xInitArgs.CreateMutex = NULL;
-    xInitArgs.DestroyMutex = NULL;
-    xInitArgs.LockMutex = NULL;
-    xInitArgs.UnlockMutex = NULL;
-    xInitArgs.flags = CKF_OS_LOCKING_OK;
-    xInitArgs.pReserved = NULL;
-
-    xResult = pxGlobalFunctionList->C_Initialize( &xInitArgs );
+    xResult = xInitializePKCS11();
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module" );
 
     if( TEST_PROTECT() )
@@ -617,18 +600,8 @@ TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
     CK_SESSION_HANDLE xSession = 0;
     CK_BBOOL xSessionOpen = CK_FALSE;
     CK_RV xResult = CKR_OK;
-    CK_C_INITIALIZE_ARGS xInitArgs;
 
-    /* Happy path. */
-
-    xInitArgs.CreateMutex = NULL;
-    xInitArgs.DestroyMutex = NULL;
-    xInitArgs.LockMutex = NULL;
-    xInitArgs.UnlockMutex = NULL;
-    xInitArgs.flags = CKF_OS_LOCKING_OK;
-    xInitArgs.pReserved = NULL;
-
-    xResult = pxGlobalFunctionList->C_Initialize( &xInitArgs );
+    xResult = xInitializePKCS11();
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module" );
 
     if( TEST_PROTECT() )
