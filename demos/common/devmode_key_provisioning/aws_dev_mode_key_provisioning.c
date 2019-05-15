@@ -163,7 +163,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                 xPrivateKeyTemplate.xKeyType.ulValueLen = sizeof( xPrivateKeyType );
                 xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
                 xPrivateKeyTemplate.xLabel.pValue = pucLabel;
-                xPrivateKeyTemplate.xLabel.ulValueLen = strlen( ( const char * )pucLabel ) + 1;
+                xPrivateKeyTemplate.xLabel.ulValueLen = strlen( ( const char * )pucLabel );
                 xPrivateKeyTemplate.xEcParams.type = CKA_EC_PARAMS;
                 xPrivateKeyTemplate.xEcParams.pValue = pxEcParams;
                 xPrivateKeyTemplate.xEcParams.ulValueLen = EC_PARAMS_LENGTH;
@@ -365,7 +365,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
             { CKA_MODULUS,         &xModulus + 1,     MODULUS_LENGTH                  }, /* Extra byte allocated at beginning for 0 padding. */
             { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                 },
             { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )       },
-            { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) + 1 }
+            { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) }
         };
 
         xResult = pxFunctionList->C_CreateObject( xSession,
@@ -397,7 +397,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
             { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                 },
             { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )             },
             { CKA_EC_POINT,  xEcPoint,          xLength + 2                     },
-            { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) + 1 }
+            { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) }
         };
 
         xResult = pxFunctionList->C_CreateObject( xSession,
@@ -442,7 +442,7 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
         { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                 },
         { CKA_MODULUS_BITS,    &xModulusBits,     sizeof( xModulusBits )          },
         { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )       },
-        { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) + 1 }
+        { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) }
     };
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] =
@@ -452,7 +452,7 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
         { CKA_SUBJECT, xSubject,           sizeof( xSubject )               },
         { CKA_DECRYPT, &xTrue,             sizeof( xTrue )                  },
         { CKA_SIGN,    &xTrue,             sizeof( xTrue )                  },
-        { CKA_LABEL,   pucPrivateKeyLabel, strlen( ( const char * )pucPrivateKeyLabel ) + 1 }
+        { CKA_LABEL,   pucPrivateKeyLabel, strlen( ( const char * )pucPrivateKeyLabel ) }
     };
 
     xResult = C_GetFunctionList( &pxFunctionList );
@@ -497,7 +497,7 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
         { CKA_KEY_TYPE,  &xKeyType,         sizeof( xKeyType )              },
         { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                 },
         { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )             },
-        { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) + 1 }
+        { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) }
     };
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] =
@@ -506,7 +506,7 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
         { CKA_TOKEN,    &xTrue,             sizeof( xTrue )                  },
         { CKA_PRIVATE,  &xTrue,             sizeof( xTrue )                  },
         { CKA_SIGN,     &xTrue,             sizeof( xTrue )                  },
-        { CKA_LABEL,    pucPrivateKeyLabel, strlen( ( const char * )pucPrivateKeyLabel ) + 1 }
+        { CKA_LABEL,    pucPrivateKeyLabel, strlen( ( const char * )pucPrivateKeyLabel ) }
     };
 
     xResult = C_GetFunctionList( &pxFunctionList );
@@ -554,7 +554,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     xCertificateTemplate.xValue.ulValueLen = ( CK_ULONG ) xCertificateLength;
     xCertificateTemplate.xLabel.type = CKA_LABEL;
     xCertificateTemplate.xLabel.pValue = ( CK_VOID_PTR ) pucLabel;
-    xCertificateTemplate.xLabel.ulValueLen = strlen( ( const char * )pucLabel ) + 1;
+    xCertificateTemplate.xLabel.ulValueLen = strlen( ( const char * )pucLabel );
     xCertificateTemplate.xCertificateType.type = CKA_CERTIFICATE_TYPE;
     xCertificateTemplate.xCertificateType.pValue = &xCertificateType;
     xCertificateTemplate.xCertificateType.ulValueLen = sizeof( CK_CERTIFICATE_TYPE );

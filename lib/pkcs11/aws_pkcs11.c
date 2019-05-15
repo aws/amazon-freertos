@@ -204,7 +204,7 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_ATTRIBUTE xTemplate[ 2 ] =
     {
-        { CKA_LABEL, ( char * ) pcLabelName, strlen( pcLabelName ) + 1 },
+        { CKA_LABEL, ( char * ) pcLabelName, strlen( pcLabelName ) },
         { CKA_CLASS, &xClass,                sizeof( CK_OBJECT_CLASS ) }
     };
 
