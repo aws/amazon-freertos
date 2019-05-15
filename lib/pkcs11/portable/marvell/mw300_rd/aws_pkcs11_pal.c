@@ -277,6 +277,9 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     ret = psm_get_variable(sys_psm_get_handle(), pcFileName, *ppucData, *pulDataSize);
     if (ret < 0)
     {
+        os_mem_free(*ppucData);
+        *ppucData = NULL;
+        *pulDataSize = 0;
         /* TODO: Check what print function to use */
         wmprintf("Error: get variable from sys psm failed\r\n");
         return CKR_FUNCTION_FAILED;
