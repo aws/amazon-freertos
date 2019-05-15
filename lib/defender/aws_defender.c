@@ -59,6 +59,11 @@ static TaskHandle_t xDefenderTaskHandle = NULL;
 /* Timeout period for MQTT connections. */
 static TickType_t xMQTTTimeoutPeriodTicks = pdMS_TO_TICKS( 10U * 1000U );
 
+/* Device-specific MQTT topic for defender metrics. */
+#define defenderMQTT_TOPIC_PUBLISH      "$aws/things/%s/defender/metrics/cbor"
+#define defenderMQTT_TOPIC_ACCEPTED     "$aws/things/%s/defender/metrics/cbor/accepted"
+#define defenderMQTT_TOPIC_REJECTED     "$aws/things/%s/defender/metrics/cbor/rejected"
+
 /**
  * @brief      Publishes metrics report to service
  *
@@ -276,11 +281,42 @@ static DefenderState_t prvStateSubscribe( void )
     return eDefenderStateSubscribeMqttSuccess;
 }
 
+static char * prvGetDefenderMqttTopicString( char * pcTopicTemplate )
+{
+    char* pcTopic = NULL;
+    uint32_t ulTopicLength = 0;
+    uint32_t ulCharsWritten = 0;
+
+    /* Determine the maximum resulting string length. */
+    ulTopicLength = 1 + strlen( pcTopicTemplate ) + strlen( clientcredentialIOT_THING_NAME );
+
+    /* Allocate memory. */
+    pcTopic = pvPortMalloc( ulTopicLength );
+
+    if( NULL != pcTopic )
+    {
+        /* Build the topic string including the device name. */
+        ulCharsWritten = snprintf( pcTopic,
+                                   ulTopicLength,
+                                   pcTopicTemplate,
+                                   clientcredentialIOT_THING_NAME );
+
+        if( ulCharsWritten < ulTopicLength )
+        {
+            pcTopic[ ulTopicLength - 1 ] = 0;
+        }
+        else
+        {
+            vPortFree( pcTopic );
+            pcTopic = NULL;
+        }
+    }
+
+    return pcTopic;
+}
+
 static DEFENDERBool_t prvSubscribeToAcceptCbor( void )
 {
-    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/"
-                         clientcredentialIOT_THING_NAME
-                         "/defender/metrics/cbor/accepted";
     MQTTAgentSubscribeParams_t xSubParams =
     {
         .pucTopic                 = NULL,
@@ -289,17 +325,32 @@ static DEFENDERBool_t prvSubscribeToAcceptCbor( void )
         .pvPublishCallbackContext = NULL,
         .pxPublishCallback        = xAcceptCallback,
     };
-    MQTTAgentReturnCode_t xSubResult = 0;
+    DEFENDERBool_t xError = eDefenderFalse;
 
     /* Initialize non-static field values. */
-    xSubParams.pucTopic = pucTopic;
-    xSubParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
+    xSubParams.pucTopic = ( const uint8_t * )
+        prvGetDefenderMqttTopicString( defenderMQTT_TOPIC_ACCEPTED );
+    xSubParams.usTopicLength = ( uint16_t )strlen( ( const char * )xSubParams.pucTopic );
 
-    xSubResult = MQTT_AGENT_Subscribe( xDefenderMQTTAgent,
+    if( NULL == xSubParams.pucTopic )
+    {
+        xError = eDefenderTrue;
+    }
+
+    if( eDefenderFalse == xError )
+    {
+        if( 0 != MQTT_AGENT_Subscribe( xDefenderMQTTAgent,
                                        &xSubParams,
-                                       xMQTTTimeoutPeriodTicks );
+                                       xMQTTTimeoutPeriodTicks ) )
+        {
+            xError = eDefenderTrue;
+        }
+    }
 
-    DEFENDERBool_t xError = eMQTTAgentSuccess != xSubResult;
+    if( NULL != xSubParams.pucTopic )
+    {
+        vPortFree( ( void * )xSubParams.pucTopic );
+    }
 
     return xError;
 }
@@ -317,9 +368,6 @@ static MQTTBool_t xAcceptCallback( void * pxPvPublishCallbackContext,
 
 static DEFENDERBool_t prvSubscribeToRejectCbor( void )
 {
-    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/"
-                         clientcredentialIOT_THING_NAME
-                         "/defender/metrics/cbor/rejected";
     MQTTAgentSubscribeParams_t xSubParams =
     {
         .pucTopic                 = NULL,
@@ -328,17 +376,31 @@ static DEFENDERBool_t prvSubscribeToRejectCbor( void )
         .pvPublishCallbackContext = NULL,
         .pxPublishCallback        = prvRejectCallback,
     };
-    MQTTAgentReturnCode_t xSubResult = 0;
+    DEFENDERBool_t xError = eDefenderFalse;
 
     /* Initialize non-static field values. */
-    xSubParams.pucTopic = pucTopic;
-    xSubParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
+    xSubParams.pucTopic = ( const uint8_t * )prvGetDefenderMqttTopicString( defenderMQTT_TOPIC_REJECTED );
+    xSubParams.usTopicLength = ( uint16_t ) strlen( ( const char * )xSubParams.pucTopic );
 
-    xSubResult = MQTT_AGENT_Subscribe( xDefenderMQTTAgent,
-                                       &xSubParams,
-                                       xMQTTTimeoutPeriodTicks );
+    if( NULL == xSubParams.pucTopic )
+    {
+        xError = eDefenderTrue;
+    }
 
-    DEFENDERBool_t xError = eMQTTAgentSuccess != xSubResult;
+    if( eDefenderFalse == xError )
+    {
+        if( 0 != MQTT_AGENT_Subscribe( xDefenderMQTTAgent,
+            &xSubParams,
+            xMQTTTimeoutPeriodTicks ) )
+        {
+            xError = eDefenderTrue;
+        }
+    }
+
+    if( NULL != xSubParams.pucTopic )
+    {
+        vPortFree( ( void * )xSubParams.pucTopic );
+    }
 
     return xError;
 }
@@ -390,32 +452,40 @@ static DEFENDERBool_t prvPublishCborToDevDef( CBORHandle_t xReport )
         .pvData        = NULL,
         .ulDataLength  = 0,
     };
-    uint8_t * pucTopic = ( uint8_t * )
-                         "$aws/things/"
-                         clientcredentialIOT_THING_NAME
-                         "/defender/metrics/cbor";
     uint8_t const * pucBuffer = CBOR_GetRawBuffer( xReport );
     int32_t lBufLen = CBOR_GetBufferSize( xReport );
-    MQTTAgentReturnCode_t xPublishResult = 0;
+    DEFENDERBool_t xError = eDefenderFalse;
 
     /* Initialize non-static field values. */
-    xPubRecParams.pucTopic = pucTopic;
-    xPubRecParams.usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic );
+    xPubRecParams.pucTopic = ( const uint8_t * )prvGetDefenderMqttTopicString( defenderMQTT_TOPIC_PUBLISH );
+    xPubRecParams.usTopicLength = ( uint16_t ) strlen( ( const char * )xPubRecParams.pucTopic );
     xPubRecParams.pvData = pucBuffer;
     xPubRecParams.ulDataLength = lBufLen;
 
-    xPublishResult = MQTT_AGENT_Publish( xDefenderMQTTAgent,
-                                         &xPubRecParams,
-                                         xMQTTTimeoutPeriodTicks );
-
-    if( eMQTTAgentSuccess != xPublishResult )
+    if( NULL == xPubRecParams.pucTopic )
     {
-        eDefenderReportStatus = eDefenderRepNotSent;
-
-        return true;
+        xError = eDefenderTrue;
     }
 
-    eDefenderReportStatus = eDefenderRepNoAck;
+    if( eDefenderFalse == xError )
+    {
+        if( 0 != MQTT_AGENT_Publish( xDefenderMQTTAgent,
+            &xPubRecParams,
+            xMQTTTimeoutPeriodTicks ) )
+        {
+            xError = eDefenderTrue;
+            eDefenderReportStatus = eDefenderRepNotSent;
+        }
+        else
+        {
+            eDefenderReportStatus = eDefenderRepNoAck;
+        }
+    }
+
+    if( NULL != xPubRecParams.pucTopic )
+    {
+        vPortFree( ( void * )xPubRecParams.pucTopic );
+    }
 
     return eDefenderFalse;
 }
