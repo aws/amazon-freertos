@@ -20,11 +20,11 @@ set (AFR_MODULE_defender 0)
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(ID "mt7697hx-dev-kit")
-afr_set_board_metadata(DISPLAY_NAME "MT7697Hx Development Kit")
-afr_set_board_metadata(DESCRIPTION "MT7697Hx Development Kit")
+afr_set_board_metadata(ID "MT7697Hx-Dev-Kit")
+afr_set_board_metadata(DISPLAY_NAME "MT7697Hx-Dev-Kit")
+afr_set_board_metadata(DESCRIPTION "Development kit for USI MT7697Hx")
 afr_set_board_metadata(VENDOR_NAME "MediaTek")
-afr_set_board_metadata(FAMILY_NAME "MT76x7 Series")
+afr_set_board_metadata(FAMILY_NAME "MT7697Hx")
 afr_set_board_metadata(DATA_RAM_MEMORY "352KB")
 afr_set_board_metadata(PROGRAM_MEMORY "4MB")
 afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
