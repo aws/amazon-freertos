@@ -573,10 +573,7 @@ static void prvFinishWiFiTesting( void )
     }
 }
 
-/* Unity TEST initializations. */
-TEST_GROUP( Full_WiFi );
-
-TEST_SETUP( Full_WiFi )
+static void prvWIFIinit(void)
 {
     int32_t lI = 0;
     int8_t cScanSize = 10;
@@ -613,9 +610,19 @@ TEST_SETUP( Full_WiFi )
     }
 }
 
+/* Unity TEST initializations. */
+TEST_GROUP( Full_WiFi );
+
+TEST_SETUP( Full_WiFi )
+{
+
+}
+
 TEST_TEAR_DOWN( Full_WiFi )
 {
+	prvWIFIinit();
 }
+
 
 TEST_GROUP_RUNNER( Full_WiFi )
 {
@@ -674,7 +681,7 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels );
 
-    #if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
+
         RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
@@ -684,11 +691,39 @@ TEST_GROUP_RUNNER( Full_WiFi )
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
         RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
-    #endif
+
 
     prvFinishWiFiTesting();
 }
 
+TEST_GROUP( Full_WiFiConfigureAP );
+
+TEST_SETUP( Full_WiFiConfigureAP )
+{
+
+}
+
+TEST_TEAR_DOWN( Full_WiFiConfigureAP )
+{
+	prvWIFIinit();
+}
+
+
+TEST_GROUP_RUNNER( Full_WiFiConfigureAP )
+{
+#if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
+	RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
+	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
+	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
+	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
+	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
+	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
+	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
+	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
+	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
+#endif
+    prvFinishWiFiTesting();
+}
 /**
  * @brief Turn the Wi-Fi off then on in a loop and verify success. The Wi-Fi
  * should be ON after this test is finished.

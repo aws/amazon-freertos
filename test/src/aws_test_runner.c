@@ -69,6 +69,7 @@ static void RunTests( void )
      * first tests in this function. */
     #if ( testrunnerFULL_WIFI_ENABLED == 1 )
         RUN_TEST_GROUP( Full_WiFi );
+        RUN_TEST_GROUP( Full_WiFiConfigureAP );
     #endif
 
     #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
