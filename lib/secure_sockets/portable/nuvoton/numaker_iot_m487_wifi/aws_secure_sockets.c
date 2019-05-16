@@ -273,15 +273,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
     return (Socket_t)ulSocketNum;
 }
-/*-----------------------------------------------------------*/
 
-Socket_t SOCKETS_Accept( Socket_t xSocket,
-                         SocketsSockaddr_t * pxAddress,
-                         Socklen_t * pxAddressLength )
-{
-    /* FIX ME. */
-    return SOCKETS_INVALID_SOCKET;
-}
 /*-----------------------------------------------------------*/
 
 int32_t SOCKETS_Connect( Socket_t xSocket,
@@ -692,7 +684,6 @@ BaseType_t SOCKETS_Init( void )
 
 uint32_t ulRand( void )
 {
-    /* FIX ME. */
     return 0;
 }
 /*-----------------------------------------------------------*/
