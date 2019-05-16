@@ -1,5 +1,66 @@
 # Change Log for Amazon FreeRTOS
 
+## V0.0.0 05/13/2019
+### New Featuress
+### New Boards: Marvell MW320 and MW322
+- Marvell boards MW320 and MW322 are now qualified for Amazon FreeRTOS.
+- Disclaimer on RNG: The random number generation solution in this port is for demonstration purposes only. 
+
+#### FreeRTOS Kernel V10.2.0
+- Kernel version for Amazon FreeRTOS is updated to V10.2.0.
+- Added Support for RISC-V.
+- Added Support for ARMv8M.
+
+### Updates
+
+#### Greengrass Discovery V1.0.3
+- Include C runtime header for snprintf.
+- Sanity check the number of bytes written.
+- Thing name can be a none string literal.
+
+#### MQTT Agent V1.1.4
+- Set the socket to block on sends with a timeout in prvSetupConnection.
+
+#### Secure Sockets for FreeRTOS+TCP V1.1.5
+- ulApplicationGetNextSequenceNumber is now thread safe without stopping the scheduler.
+- Leave the scheduler running during PKCS #11 calls.
+
+#### Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.1
+- lib/wifi: fix issue with WiFi configuration for non-null strings, and fix scanning failure under certain disconnect scenarios. 
+- ib/FreeRTOS-Plus-TCP: do not send eNetworkDownEvent to stack if interface is already down.
+- mbedtls: configurable options for controlling dynamic memory allocations.
+- lib/third_party: update ESP-IDF to latest v3.1.3 release.
+- NetworkInterface: check interface state before sending packets to WiFi driver.
+- Fix WIFI_GetMac returning wrong mac address.
+
+#### PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.0
+- Fix Cypress build error with IDE.
+
+#### PKCS #11 PAL for Cypress CYW954907AEVAL1F development kit V1.0.0
+- Fix Cypress build error with  IDE.
+
+#### FreeRTOS+TCP V2.0.10
+- Make RST packet handling more robust.
+- Make TCP window high and low watermark thresholds runtime configurable.
+- Fix parsing of the last option in a DHCP response packet.
+- Fix TCP window size calculation.
+- Allow the DNS cache to be programmatically cleared.
+- Free the memory allocated by the pcap_compile routine in the WinPCap network interface module.
+
+#### Shadow V1.0.5 
+- Add a debug message in the event that JSMN runs out of memory trying to parse JSON.    
+- Print a debug message for any JSMN error, not just 'JSMN_ERROR_NOMEM'.
+
+#### PKCS #11 PAL for Windows Simulator V1.0.3
+- Convert errors in TLS wrapper to negative error codes.
+
+#### OTA Agent V1.0.1
+- Update documentation.
+
+#### TLS V1.1.3
+- TLS_Send now handles the error condition when space is not avaiable.	
+- Convert errors in TLS wrapper to negative error codes.
+
 ## V1.4.7 02/18/2019
 ### New Features
 ### New Boards: Cypress CYW43907 and CYW54907
