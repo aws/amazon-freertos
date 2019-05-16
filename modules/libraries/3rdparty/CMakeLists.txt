@@ -49,6 +49,7 @@ target_include_directories(
 
 # tinycbor - CBOR implementation
 set(tinycbor_src
+    "${AFR_3RDPARTY_DIR}/tinycbor/cborpretty.c"
     "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder.c"
     "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder_close_container_checked.c"
     "${AFR_3RDPARTY_DIR}/tinycbor/cborerrorstrings.c"
