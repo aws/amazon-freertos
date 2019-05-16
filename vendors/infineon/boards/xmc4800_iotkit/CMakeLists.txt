@@ -242,6 +242,7 @@ endif()
 afr_glob_src(esp_at_lib RECURSE DIRECTORY "${xmclib_dir}/third_party/ESP_AT_Lib/src")
 afr_glob_src(board_src DIRECTORY "${xmc4800_aws_dir}/common/application_code/infineon_code")
 afr_glob_src(newlib DIRECTORY "${xmclib_dir}/Newlib")
+afr_glob_src(config_src DIRECTORY "${xmc4800_aws_dir}/common/config_files")
 
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
@@ -249,6 +250,7 @@ afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 add_executable( 
     ${exe_target}
     ${board_src}
+    ${config_src}
     ${newlib}
     ${esp_at_lib}
     "${xmc4800_aws_dir}/common/application_code/main.c"
