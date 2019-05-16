@@ -177,17 +177,6 @@ bool IotBleWifiProv_Start( void );
 /* @[declare_iotblewifiprov_start] */
 
 /**
- * @brief Stops WIFI provisioning BLE service
- *
- * Stops GATT service, Pauses the background task which connects to saved WiFi networks.
- *
- * @return true if GATT service is stopped successufly, false otherwise.
- */
-/* @[declare_iotblewifiprov_stop] */
-bool IotBleWifiProv_Stop( void );
-/* @[declare_iotblewifiprov_stop] */
-
-/**
  * @brief Gets the total number of provisioned networks.
  *
  *

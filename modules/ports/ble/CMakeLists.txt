@@ -49,6 +49,7 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/aws_test_ble.c"
         "${test_dir}/aws_test_ble_end_to_end.c"
+        "${test_dir}/aws_test_wifi_provisioning.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

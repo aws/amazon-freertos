@@ -36,7 +36,7 @@
 #define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                     "TEST_ESP32"
 
 /* Enable WIFI provisioning GATT service. */
-#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
+#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 1 )
 #define IOT_BLE_ENABLE_GATT_DEMO                 ( 0 )
 
 /* Disable numeric comparison */
