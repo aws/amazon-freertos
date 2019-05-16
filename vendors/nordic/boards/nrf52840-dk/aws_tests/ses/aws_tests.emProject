@@ -165,6 +165,7 @@
               <file file_name="../../../../../../modules/libraries/standard/common/test/aws_memory_leak.c" />
               <file file_name="../../../../../../modules/libraries/standard/common/test/iot_test_platform_clock.c" />
               <file file_name="../../../../../../modules/libraries/standard/common/test/iot_test_platform_threads.c" />
+              <file file_name="../../../../../../modules/libraries/standard/common/test/iot_tests_taskpool.c" />
             </folder>
             <file file_name="../../../../../../modules/libraries/standard/common/iot_init.c" />
           </folder>

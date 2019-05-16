@@ -79,6 +79,7 @@ afr_module_sources(
         "${test_dir}/aws_memory_leak.c"
         "${test_dir}/iot_test_platform_clock.c"
         "${test_dir}/iot_test_platform_threads.c"
+        "${test_dir}/iot_tests_taskpool.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

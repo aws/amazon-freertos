@@ -57,6 +57,7 @@
 #define testrunnerFULL_BLE_ENABLED                 0
 #define testrunnerFULL_WIFI_PROVISIONING_ENABLED   0
 #define testrunnerUTIL_PLATFORM_CLOCK_ENABLED      0
+#define testrunnerFULL_LINEAR_CONTAINERS_ENABLED   0
 #define testrunnerUTIL_PLATFORM_THREADS_ENABLED    0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

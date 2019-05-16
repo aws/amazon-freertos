@@ -44,6 +44,7 @@
 #define testrunnerOTA_END_TO_END_ENABLED           0
 #define testrunnerFULL_BLE_ENABLED                 0
 #define testrunnerFULL_SERIALIZER_ENABLED          0
+#define testrunnerFULL_LINEAR_CONTAINERS_ENABLED   0
 /*
 #define testrunnerFULL_OTA_CBOR_ENABLED            1
 #define testrunnerFULL_CBOR_ENABLED                1
