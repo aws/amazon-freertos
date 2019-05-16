@@ -76,6 +76,8 @@
 /* Memory allocation function configuration for the MQTT library. The MQTT library
  * will be affected by IOT_STATIC_MEMORY_ONLY. */
 #if IOT_STATIC_MEMORY_ONLY == 0
+    #define IotTaskPool_MallocTaskPool           pvPortMalloc
+    #define IotTaskPool_FreeTaskPool             vPortFree
     #define IotTaskPool_MallocJob                pvPortMalloc
     #define IotTaskPool_FreeJob                  vPortFree
     #define IotTaskPool_MallocTimerEvent         pvPortMalloc
