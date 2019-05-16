@@ -2119,6 +2119,24 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
     return xResult;
 }
 
+/**
+ * @brief Begins a digest (hash) operation.
+ *
+ * \sa C_DigestUpdate(), C_DigestFinal()
+ *
+ * \note Digest parameters are shared by a session.  Calling
+ * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal with the
+ * same session across different tasks may lead to unexpected results.
+ *
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[in] pMechanism                    Digesting mechanism.  This port only supports
+ *                                          the mechanism CKM_SHA256.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
+ */
 CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
                                            CK_MECHANISM_PTR pMechanism )
 {
@@ -2155,6 +2173,35 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+
+/**
+ * @brief Continues a multi-part digest (hash) operation.
+ *
+ * \sa C_DigestInit(), C_DigestFinal()
+ *
+ * \note Digest parameters are shared by a session.  Calling
+ * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal with the
+ * same session across different tasks may lead to unexpected results.
+ *
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[out] pDigest                      Pointer to the location that receives
+ *                                          the message digest.  Caller is
+ *                                          responsible for allocating memory.
+ *                                          Providing NULL for this input will cause
+ *                                          pulDigestLen to be updated for length of
+ *                                          buffer required.
+ * @param[in,out] pulDigestLen              Points to the location that holds the length
+ *                                          of the message digest.  If pDigest is NULL,
+ *                                          this value is updated to contain the length
+ *                                          of the buffer needed to hold the digest. Else
+ *                                          it is updated to contain the actual length of
+ *                                          the digest placed in pDigest.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
+ */
 CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
                                              CK_BYTE_PTR pPart,
                                              CK_ULONG ulPartLen )
@@ -2183,6 +2230,34 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+/**
+ * @brief Complete a multi-part digest (hash) operation.
+ *
+ * \sa C_DigestInit(), C_DigestUpdate()
+ *
+ * \note Digest parameters are shared by a session.  Calling
+ * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal with the
+ * same session across different tasks may lead to unexpected results.
+ *
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[out] pDigest                      Pointer to the location that receives
+ *                                          the message digest.  Memory must be allocated
+ *                                          by the caller.                                          Caller is responsible for allocating memory.
+ *                                          Providing NULL for this input will cause
+ *                                          pulDigestLen to be updated for length of
+ *                                          buffer required.
+ * @param[in,out] pulDigestLen              Points to the location that holds the length
+ *                                          of the message digest.  If pDigest is NULL,
+ *                                          this value is updated to contain the length
+ *                                          of the buffer needed to hold the digest. Else
+ *                                          it is updated to contain the actual length of
+ *                                          the digest placed in pDigest.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
+ */
 CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
                                             CK_BYTE_PTR pDigest,
                                             CK_ULONG_PTR pulDigestLen )
