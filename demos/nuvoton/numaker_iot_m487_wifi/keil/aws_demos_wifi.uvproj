@@ -149,7 +149,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>-1</TargetSelection>
+          <TargetSelection>20</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -632,12 +632,12 @@
           <GroupName>lib-grenngrass</GroupName>
           <Files>
             <File>
-              <FileName>aws_mqtt_agent.c</FileName>
+              <FileName>aws_greengrass_discovery.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\greengrass\aws_greengrass_discovery.c</FilePath>
             </File>
             <File>
-              <FileName>aws_mqtt_lib.c</FileName>
+              <FileName>aws_helper_secure_connect.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\lib\greengrass\aws_helper_secure_connect.c</FilePath>
             </File>
