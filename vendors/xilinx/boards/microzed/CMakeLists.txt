@@ -74,6 +74,15 @@ target_include_directories(
     INTERFACE
         "${board_dir}/config_files"
         "${board_dir}/application_code/xilinx_code"
+        "${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/include"
+        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CA9"
+        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/include"
+        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
+        "${AFR_MODULES_STANDARD_DIR}/tls/include"
+        "${AFR_3RDPARTY_DIR}/pkcs11"
+        "${AFR_MODULES_PORTS_DIR}/pkcs11/include"
+        "${AFR_MODULES_PORTS_DIR}/wifi/include"
+        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface"
         # Need aws_clientcredential.h
         "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
         ${compiler_specific_include}
@@ -95,6 +104,28 @@ target_link_libraries(
     AFR::pkcs11::mcu_port
     INTERFACE 3rdparty::mbedtls
 )
+#target_include_directories(
+#    AFR::pkcs11::mcu_port
+#    INTERFACE
+#        "${AFR_MODULES_STANDARD_DIR}/crypto/include/"
+#)
+
+
+# FreeRTOS Plus TCP
+afr_mcu_port(freertos_plus_tcp)
+target_sources(
+    AFR::freertos_plus_tcp::mcu_port
+    INTERFACE
+        #"${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/NetworkInterface.c"
+)
+target_include_directories(
+    AFR::freertos_plus_tcp::mcu_port
+    INTERFACE
+        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
+)
+
+
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
@@ -103,7 +134,18 @@ target_sources(
     INTERFACE "${AFR_MODULES_PORTS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
 )
 
-
+target_include_directories(
+    AFR::secure_sockets::mcu_port
+    INTERFACE
+       "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
+       "${AFR_3RDPARTY_DIR}/lwip/src/portable"
+       "${AFR_ROOT_DIR}/modules/ports/wifi/include"
+       "${AFR_MODULES_STANDARD_DIR}/common/include"
+       "${AFR_MODULES_STANDARD_DIR}/tls/include"
+       #"${AFR_3RDPARTY_DIR}/mbedtls/include"
+       "${AFR_MODULES_STANDARD_DIR}/crypto/include"
+       #"${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls"
+)
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
