@@ -4,7 +4,7 @@
  * @brief    system call for semihost.
  *
  *
- * @copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
 // ----------------------------------------------------------------------------

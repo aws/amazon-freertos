@@ -3,7 +3,7 @@
  * @version  V1.00
  * @brief    M480 series Timer PWM Controller(Timer PWM) driver header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __TIMER_PWM_H__
 #define __TIMER_PWM_H__

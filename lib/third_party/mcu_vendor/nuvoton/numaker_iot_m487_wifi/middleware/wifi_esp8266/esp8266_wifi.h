@@ -3,7 +3,7 @@
  * @version  V1.10
  * @brief    M480 series ESP8266 WiFi driver header file
  *
- * @copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __ESP_WIFI_H
 #define __ESP_WIFI_H

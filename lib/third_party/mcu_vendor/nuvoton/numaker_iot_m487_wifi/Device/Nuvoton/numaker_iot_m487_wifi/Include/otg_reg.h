@@ -3,7 +3,7 @@
  * @version  V1.00
  * @brief    OTG register definition header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __OTG_REG_H__
 #define __OTG_REG_H__

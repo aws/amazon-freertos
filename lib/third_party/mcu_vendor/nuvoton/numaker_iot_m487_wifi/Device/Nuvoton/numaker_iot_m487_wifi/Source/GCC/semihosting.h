@@ -3,7 +3,7 @@
  * @version  V1.00
  * @brief    semihosting header file
  *
- * @copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __SEMIHOSTING_H__
 #define __SEMIHOSTING_H__

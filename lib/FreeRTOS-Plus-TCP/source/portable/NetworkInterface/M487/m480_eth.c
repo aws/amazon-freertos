@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Nuvoton Technology Corp. 
+ * Copyright (c) 2019 Nuvoton Technology Corp.
  *
  * Description:   M480 MAC driver source file
  */

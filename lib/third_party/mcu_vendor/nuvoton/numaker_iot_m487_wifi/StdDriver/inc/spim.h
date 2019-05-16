@@ -3,7 +3,7 @@
  * @version V1.00
  * @brief   M480 series SPIM driver header file
  *
- * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __SPIM_H__
 #define __SPIM_H__
