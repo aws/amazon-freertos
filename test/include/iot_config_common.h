@@ -146,10 +146,10 @@ extern int snprintf( char *,
                      size_t,
                      const char *,
                      ... );
-#define UnityPrint( X )          configPRINT( ( X ) )
-#define UnityPrintNumber( X )    { char number[ 12 ] = { 0 }; snprintf( number, 12, "%d", X ); configPRINT( ( number ) ); }
+#define UnityPrint( X )          configPRINTF( ( X ) )
+#define UnityPrintNumber( X )    { char number[ 12 ] = { 0 }; snprintf( number, 12, "%d", X ); configPRINTF( ( number ) ); }
 #undef UNITY_PRINT_EOL
-#define UNITY_PRINT_EOL()        configPRINT( ( "\r\n" ) )
+#define UNITY_PRINT_EOL()        configPRINTF( ( "\r\n" ) )
 
 /* Static memory configuration. */
 #if IOT_STATIC_MEMORY_ONLY == 1
