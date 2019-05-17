@@ -210,6 +210,8 @@ TEST_TEAR_DOWN( Full_DEFENDER )
 
 TEST_GROUP_RUNNER( Full_DEFENDER )
 {
+    IotMetrics_Init();
+    
     /*
      * Setup: none
      * Action: call Start API with invliad IoT endpoint
