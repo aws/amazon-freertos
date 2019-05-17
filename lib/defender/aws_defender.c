@@ -47,7 +47,7 @@ static char const * const pcDefenderMQTTEndpoint =
 /* Status of last report sent. */
 static DefenderReportStatus_t eDefenderReportStatus;
 /* Set of agent states. */
-static DefenderState_t ( * DEFENDER_States[ eDefenderStateCount ] ) ( void ) = { 0 };
+static DefenderState_t( *DEFENDER_States[ eDefenderStateCount ] ) ( void ) = { 0 };
 /* The current state. */
 static DefenderState_t eDefenderState;
 /* Period between reports. */
@@ -288,7 +288,7 @@ static char * prvGetDefenderMqttTopicString( char * pcTopicTemplate )
     uint32_t ulCharsWritten = 0;
 
     /* Determine the maximum resulting string length. */
-    ulTopicLength = 1 + strlen( pcTopicTemplate ) + strlen( clientcredentialIOT_THING_NAME );
+    ulTopicLength = strlen( pcTopicTemplate ) - 2 /* Subtract the %s in topic templates. */ + strlen( clientcredentialIOT_THING_NAME ) + 1 /* NULL Terminator. */;
 
     /* Allocate memory. */
     pcTopic = pvPortMalloc( ulTopicLength );
@@ -301,11 +301,7 @@ static char * prvGetDefenderMqttTopicString( char * pcTopicTemplate )
                                    pcTopicTemplate,
                                    clientcredentialIOT_THING_NAME );
 
-        if( ulCharsWritten < ulTopicLength )
-        {
-            pcTopic[ ulTopicLength - 1 ] = 0;
-        }
-        else
+        if( ulCharsWritten != ulTopicLength - 1 )
         {
             vPortFree( pcTopic );
             pcTopic = NULL;
