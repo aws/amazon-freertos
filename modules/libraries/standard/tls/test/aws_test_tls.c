@@ -93,8 +93,8 @@ TEST_GROUP_RUNNER( Full_TLS )
 
 TEST_GROUP_RUNNER( Quarantine_TLS )
 {
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
+    RUN_TEST_CASE( Quarantine_TLS, AFQP_TLS_ConnectEC );
+    RUN_TEST_CASE( Quarantine_TLS, AFQP_TLS_ConnectBYOCCredentials );
 }
 
 /*-----------------------------------------------------------*/
@@ -294,7 +294,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectRSA )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectEC )
+TEST( Quarantine_TLS, AFQP_TLS_ConnectEC )
 {
     ProvisioningParams_t xParams;
 
@@ -341,7 +341,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectUntrustedCert )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectBYOCCredentials )
+TEST( Quarantine_TLS, AFQP_TLS_ConnectBYOCCredentials )
 {
     ProvisioningParams_t xParams;
 

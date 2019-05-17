@@ -826,12 +826,12 @@ TEST_GROUP_RUNNER( Full_TCP )
 
 TEST_GROUP_RUNNER( Quarantine_TCP )
 {
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+    RUN_TEST_CASE( Quarantine_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
 
     #if tcptestSECURE_SERVER == 1
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections );
+        RUN_TEST_CASE( Quarantine_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+        RUN_TEST_CASE( Quarantine_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
+        RUN_TEST_CASE( Quarantine_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections );
     #endif
 }
 
@@ -2165,7 +2165,7 @@ static void prvServerDomainName( void )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION )
+TEST( Quarantine_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2410,14 +2410,14 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
     vTaskPrioritySet( NULL, tskIDLE_PRIORITY );
 }
 
-TEST( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks )
+TEST( Quarantine_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_Threadsafe_SameSocketDifferentTasks( eNonsecure );
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks )
+TEST( Quarantine_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2877,7 +2877,7 @@ static void prvTwoSecureConnections( void )
     }
 }
 
-TEST( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections )
+TEST( Quarantine_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
