@@ -1,6 +1,6 @@
 # Change Log for Amazon FreeRTOS
 
-## V0.0.0 05/16/2019
+## V1.4.8 05/16/2019
 ### New Featuress
 ### New Boards: Marvell MW320 and MW322
 - Marvell boards MW320 and MW322 are now qualified for Amazon FreeRTOS.
