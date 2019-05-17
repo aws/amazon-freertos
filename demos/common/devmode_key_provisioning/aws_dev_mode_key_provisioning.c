@@ -163,7 +163,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                 xPrivateKeyTemplate.xKeyType.ulValueLen = sizeof( xPrivateKeyType );
                 xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
                 xPrivateKeyTemplate.xLabel.pValue = pucLabel;
-                xPrivateKeyTemplate.xLabel.ulValueLen = strlen( ( const char * )pucLabel );
+                xPrivateKeyTemplate.xLabel.ulValueLen = strlen( ( const char * ) pucLabel );
                 xPrivateKeyTemplate.xEcParams.type = CKA_EC_PARAMS;
                 xPrivateKeyTemplate.xEcParams.pValue = pxEcParams;
                 xPrivateKeyTemplate.xEcParams.ulValueLen = EC_PARAMS_LENGTH;
@@ -237,18 +237,18 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
             if( lMbedResult != 0 )
             {
-                configPRINTF( ("Failed to parse RSA private key components. \r\n") );
+                configPRINTF( ( "Failed to parse RSA private key components. \r\n" ) );
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
             }
 
             /* Export Exponent 1, Exponent 2, Coefficient. */
-            lMbedResult |= mbedtls_mpi_write_binary( ( const ) & xRsaContext->DP, pxExp1, EXPONENT_1_LENGTH + 1 );
-            lMbedResult |= mbedtls_mpi_write_binary( ( const ) & xRsaContext->DQ, pxExp2, EXPONENT_2_LENGTH + 1 );
-            lMbedResult |= mbedtls_mpi_write_binary( ( const ) & xRsaContext->QP, pxCoefficient, COEFFICIENT_LENGTH + 1 );
+            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->DP, pxExp1, EXPONENT_1_LENGTH + 1 );
+            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->DQ, pxExp2, EXPONENT_2_LENGTH + 1 );
+            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->QP, pxCoefficient, COEFFICIENT_LENGTH + 1 );
 
-            if ( lMbedResult != 0 )
+            if( lMbedResult != 0 )
             {
-                configPRINTF(( "Failed to parse RSA private key Chinese Remainder Theorem variables. \r\n" ));
+                configPRINTF( ( "Failed to parse RSA private key Chinese Remainder Theorem variables. \r\n" ) );
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
             }
         }
@@ -388,13 +388,13 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
                                               NULL, 0 );
         CK_ATTRIBUTE xPublicKeyTemplate[] =
         {
-            { CKA_CLASS,           &xClass,           sizeof( CK_OBJECT_CLASS )       },
-            { CKA_KEY_TYPE,        &xPublicKeyType,   sizeof( CK_KEY_TYPE )           },
-            { CKA_TOKEN,           &xTrue,            sizeof( xTrue )                 },
-            { CKA_MODULUS,         &xModulus + 1,     MODULUS_LENGTH                  }, /* Extra byte allocated at beginning for 0 padding. */
-            { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                 },
-            { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )       },
-            { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) }
+            { CKA_CLASS,           &xClass,           sizeof( CK_OBJECT_CLASS )                    },
+            { CKA_KEY_TYPE,        &xPublicKeyType,   sizeof( CK_KEY_TYPE )                        },
+            { CKA_TOKEN,           &xTrue,            sizeof( xTrue )                              },
+            { CKA_MODULUS,         &xModulus + 1,     MODULUS_LENGTH                               }, /* Extra byte allocated at beginning for 0 padding. */
+            { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                              },
+            { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )                    },
+            { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
         };
 
         xResult = pxFunctionList->C_CreateObject( xSession,
@@ -420,13 +420,13 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
 
         CK_ATTRIBUTE xPublicKeyTemplate[] =
         {
-            { CKA_CLASS,     &xClass,           sizeof( xClass )                },
-            { CKA_KEY_TYPE,  &xPublicKeyType,   sizeof( xPublicKeyType )        },
-            { CKA_TOKEN,     &xTrue,            sizeof( xTrue )                 },
-            { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                 },
-            { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )             },
-            { CKA_EC_POINT,  xEcPoint,          xLength + 2                     },
-            { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) }
+            { CKA_CLASS,     &xClass,           sizeof( xClass )                             },
+            { CKA_KEY_TYPE,  &xPublicKeyType,   sizeof( xPublicKeyType )                     },
+            { CKA_TOKEN,     &xTrue,            sizeof( xTrue )                              },
+            { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                              },
+            { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )                          },
+            { CKA_EC_POINT,  xEcPoint,          xLength + 2                                  },
+            { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
         };
 
         xResult = pxFunctionList->C_CreateObject( xSession,
@@ -467,21 +467,21 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTrue = CK_TRUE;
     CK_ATTRIBUTE xPublicKeyTemplate[] =
     {
-        { CKA_ENCRYPT,         &xTrue,            sizeof( xTrue )                 },
-        { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                 },
-        { CKA_MODULUS_BITS,    &xModulusBits,     sizeof( xModulusBits )          },
-        { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )       },
-        { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) }
+        { CKA_ENCRYPT,         &xTrue,            sizeof( xTrue )                              },
+        { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                              },
+        { CKA_MODULUS_BITS,    &xModulusBits,     sizeof( xModulusBits )                       },
+        { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )                    },
+        { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
     };
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] =
     {
-        { CKA_TOKEN,   &xTrue,             sizeof( xTrue )                  },
-        { CKA_PRIVATE, &xTrue,             sizeof( xTrue )                  },
-        { CKA_SUBJECT, xSubject,           sizeof( xSubject )               },
-        { CKA_DECRYPT, &xTrue,             sizeof( xTrue )                  },
-        { CKA_SIGN,    &xTrue,             sizeof( xTrue )                  },
-        { CKA_LABEL,   pucPrivateKeyLabel, strlen( ( const char * )pucPrivateKeyLabel ) }
+        { CKA_TOKEN,   &xTrue,             sizeof( xTrue )                               },
+        { CKA_PRIVATE, &xTrue,             sizeof( xTrue )                               },
+        { CKA_SUBJECT, xSubject,           sizeof( xSubject )                            },
+        { CKA_DECRYPT, &xTrue,             sizeof( xTrue )                               },
+        { CKA_SIGN,    &xTrue,             sizeof( xTrue )                               },
+        { CKA_LABEL,   pucPrivateKeyLabel, strlen( ( const char * ) pucPrivateKeyLabel ) }
     };
 
     xResult = C_GetFunctionList( &pxFunctionList );
@@ -523,19 +523,19 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTrue = CK_TRUE;
     CK_ATTRIBUTE xPublicKeyTemplate[] =
     {
-        { CKA_KEY_TYPE,  &xKeyType,         sizeof( xKeyType )              },
-        { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                 },
-        { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )             },
-        { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * )pucPublicKeyLabel ) }
+        { CKA_KEY_TYPE,  &xKeyType,         sizeof( xKeyType )                           },
+        { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                              },
+        { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )                          },
+        { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
     };
 
     CK_ATTRIBUTE xPrivateKeyTemplate[] =
     {
-        { CKA_KEY_TYPE, &xKeyType,          sizeof( xKeyType )               },
-        { CKA_TOKEN,    &xTrue,             sizeof( xTrue )                  },
-        { CKA_PRIVATE,  &xTrue,             sizeof( xTrue )                  },
-        { CKA_SIGN,     &xTrue,             sizeof( xTrue )                  },
-        { CKA_LABEL,    pucPrivateKeyLabel, strlen( ( const char * )pucPrivateKeyLabel ) }
+        { CKA_KEY_TYPE, &xKeyType,          sizeof( xKeyType )                            },
+        { CKA_TOKEN,    &xTrue,             sizeof( xTrue )                               },
+        { CKA_PRIVATE,  &xTrue,             sizeof( xTrue )                               },
+        { CKA_SIGN,     &xTrue,             sizeof( xTrue )                               },
+        { CKA_LABEL,    pucPrivateKeyLabel, strlen( ( const char * ) pucPrivateKeyLabel ) }
     };
 
     xResult = C_GetFunctionList( &pxFunctionList );
@@ -583,7 +583,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     xCertificateTemplate.xValue.ulValueLen = ( CK_ULONG ) xCertificateLength;
     xCertificateTemplate.xLabel.type = CKA_LABEL;
     xCertificateTemplate.xLabel.pValue = ( CK_VOID_PTR ) pucLabel;
-    xCertificateTemplate.xLabel.ulValueLen = strlen( ( const char * )pucLabel );
+    xCertificateTemplate.xLabel.ulValueLen = strlen( ( const char * ) pucLabel );
     xCertificateTemplate.xCertificateType.type = CKA_CERTIFICATE_TYPE;
     xCertificateTemplate.xCertificateType.pValue = &xCertificateType;
     xCertificateTemplate.xCertificateType.ulValueLen = sizeof( CK_CERTIFICATE_TYPE );

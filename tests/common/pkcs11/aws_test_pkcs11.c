@@ -1590,7 +1590,7 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     xMechanism.ulParameterLen = 0;
     xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKey );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "SignInit failed." );
-    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, sizeof( xHashedMessage ), xSignature, &xSignatureLength );
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, sizeof( xHashedMessage ), xSignature, ( CK_ULONG * ) &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Sign failed." );
 
     xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKey );

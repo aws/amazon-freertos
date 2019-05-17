@@ -294,10 +294,11 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          size_t * pxSigLen,
                                          int ( *piRng )( void *,
                                                          unsigned char *,
-                                                         size_t ),  /*lint !e955 This parameter is unused. */
+                                                         size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
     CK_RV xResult = 0;
+    int lFinalResult = 0;
     TLSContext_t * pxTLSContext = ( TLSContext_t * ) pvContext;
     CK_MECHANISM xMech = { 0 };
     CK_BYTE xToBeSigned[ 256 ];
@@ -404,10 +405,10 @@ static int prvPrivateKeySigningCallback( void * pvContext,
     if( xResult != 0 )
     {
         TLS_PRINT( ( "ERROR: Failure in signing callback: %d \r\n", xResult ) );
-        xResult = TLS_ERROR_SIGN;
+        lFinalResult = TLS_ERROR_SIGN;
     }
 
-    return ( int ) xResult;
+    return lFinalResult;
 }
 
 /*-----------------------------------------------------------*/
@@ -663,7 +664,7 @@ BaseType_t TLS_Init( void ** ppvContext,
         /* Ensure that the PKCS #11 module is initialized. */
         if( 0 == xResult )
         {
-            xResult = ( BaseType_t )xInitializePKCS11();
+            xResult = ( BaseType_t ) xInitializePKCS11();
 
             /* It is ok if the module was previously initialized. */
             if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )

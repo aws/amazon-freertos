@@ -1337,7 +1337,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
                                           ulCount,
                                           pxObject );
     }
-    else if( ( xKeyType == CKK_EC ) || ( xKeyType == CKK_ECDSA ) )
+    else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
     {
         /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
         mbedtls_ecp_keypair xKeyPair;
@@ -1391,7 +1391,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
          *    00 00  -> "Public key"
          * This is not handled by the parser.
          * This has not been tested very carefully either.*/
-        if( ( xKeyType == CKK_EC ) || ( xKeyType == CKK_ECDSA ) )
+        if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
         {
             pxDerKey[ MAX_LENGTH_KEY - lDerKeyLength + 1 ] -= 6;
             lActualKeyLength -= 6;
@@ -1535,7 +1535,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
     if( xKeyType == CKK_RSA )
     {
     }
-    else if( ( xKeyType == CKK_EC ) || ( xKeyType == CKK_ECDSA ) )
+    else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
     {
         prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
