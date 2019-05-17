@@ -126,7 +126,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
     if( xPrivateKeyType == CKK_EC )
     {
         PKCS11_PrivateEcKeyTemplate_t xPrivateKeyTemplate;
-        CK_BYTE * pxD;        /* Private value D. */
+        CK_BYTE * pxD;               /* Private value D. */
         CK_BYTE * pxEcParams = NULL; /* DER-encoding of an ANSI X9.62 Parameters value */
 
 #define EC_PARAMS_LENGTH    10
@@ -146,7 +146,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
             if( pxKeyPair->grp.id == MBEDTLS_ECP_DP_SECP256R1 )
             {
-                pxEcParams = ( CK_BYTE * )( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
+                pxEcParams = ( CK_BYTE * ) ( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
             }
             else
             {
@@ -191,6 +191,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
     if( xPrivateKeyType == CKK_RSA )
     {
         PKCS11_PrivateRsaKeyTemplate_t xPrivateKeyTemplate;
+        mbedtls_rsa_context * xRsaContext = xMbedPkContext.pk_ctx;
         CK_BBOOL xTrue = CK_TRUE;
         CK_BYTE * pxModulus;
         CK_BYTE * pxE;
@@ -199,6 +200,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
         CK_BYTE * pxPrime2;
         CK_BYTE * pxExp1;
         CK_BYTE * pxExp2;
+        CK_BYTE * pxCoefficient;
 #define MODULUS_LENGTH        256
 #define E_LENGTH              3
 #define D_LENGTH              256
@@ -217,6 +219,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
         pxPrime2 = pvPortMalloc( PRIME_2_LENGTH + 1 );
         pxExp1 = pvPortMalloc( EXPONENT_1_LENGTH + 1 );
         pxExp2 = pvPortMalloc( EXPONENT_2_LENGTH + 1 );
+        pxCoefficient = pvPortMalloc( COEFFICIENT_LENGTH + 1 );
 
         if( ( pxModulus == NULL ) || ( pxE == NULL ) || ( pxD == NULL ) || ( pxPrime1 == NULL ) || ( pxPrime2 == NULL ) || ( pxExp1 == NULL ) || ( pxExp2 == NULL ) )
         {
@@ -225,7 +228,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
         if( xResult == CKR_OK )
         {
-            lMbedResult = mbedtls_rsa_export_raw( ( mbedtls_rsa_context * ) xMbedPkContext.pk_ctx,
+            lMbedResult = mbedtls_rsa_export_raw( xRsaContext,
                                                   pxModulus, MODULUS_LENGTH + 1,
                                                   pxPrime1, PRIME_1_LENGTH + 1,
                                                   pxPrime2, PRIME_2_LENGTH + 1,
@@ -234,6 +237,18 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
             if( lMbedResult != 0 )
             {
+                configPRINTF( ("Failed to parse RSA private key components. \r\n") );
+                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+            }
+
+            /* Export Exponent 1, Exponent 2, Coefficient. */
+            lMbedResult |= mbedtls_mpi_write_binary( ( const ) & xRsaContext->DP, pxExp1, EXPONENT_1_LENGTH + 1 );
+            lMbedResult |= mbedtls_mpi_write_binary( ( const ) & xRsaContext->DQ, pxExp2, EXPONENT_2_LENGTH + 1 );
+            lMbedResult |= mbedtls_mpi_write_binary( ( const ) & xRsaContext->QP, pxCoefficient, COEFFICIENT_LENGTH + 1 );
+
+            if ( lMbedResult != 0 )
+            {
+                configPRINTF(( "Failed to parse RSA private key Chinese Remainder Theorem variables. \r\n" ));
                 xResult = CKR_ATTRIBUTE_VALUE_INVALID;
             }
         }
@@ -269,6 +284,15 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
             xPrivateKeyTemplate.xPrime2.type = CKA_PRIME_2;
             xPrivateKeyTemplate.xPrime2.pValue = pxPrime2 + 1;
             xPrivateKeyTemplate.xPrime2.ulValueLen = PRIME_2_LENGTH;
+            xPrivateKeyTemplate.xExp1.type = CKA_EXPONENT_1;
+            xPrivateKeyTemplate.xExp1.pValue = pxExp1 + 1;
+            xPrivateKeyTemplate.xExp1.ulValueLen = EXPONENT_1_LENGTH;
+            xPrivateKeyTemplate.xExp2.type = CKA_EXPONENT_2;
+            xPrivateKeyTemplate.xExp2.pValue = pxExp2 + 1;
+            xPrivateKeyTemplate.xExp2.ulValueLen = EXPONENT_2_LENGTH;
+            xPrivateKeyTemplate.xCoefficient.type = CKA_COEFFICIENT;
+            xPrivateKeyTemplate.xCoefficient.pValue = pxCoefficient + 1;
+            xPrivateKeyTemplate.xCoefficient.ulValueLen = COEFFICIENT_LENGTH;
             xPrivateKeyTemplate.xTokenObject.type = CKA_TOKEN;
             xPrivateKeyTemplate.xTokenObject.pValue = &xTokenStorage;
             xPrivateKeyTemplate.xTokenObject.ulValueLen = sizeof( xTokenStorage );
@@ -312,6 +336,11 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
         if( NULL != pxExp2 )
         {
             vPortFree( pxExp2 );
+        }
+
+        if( NULL != pxCoefficient )
+        {
+            vPortFree( pxCoefficient );
         }
     }
 
@@ -548,7 +577,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     xCertificateTemplate.xObjectClass.ulValueLen = sizeof( xCertificateClass );
     xCertificateTemplate.xSubject.type = CKA_SUBJECT;
     xCertificateTemplate.xSubject.pValue = xSubject;
-    xCertificateTemplate.xSubject.ulValueLen = strlen( ( const char * )xSubject );
+    xCertificateTemplate.xSubject.ulValueLen = strlen( ( const char * ) xSubject );
     xCertificateTemplate.xValue.type = CKA_VALUE;
     xCertificateTemplate.xValue.pValue = ( CK_VOID_PTR ) pucCertificate;
     xCertificateTemplate.xValue.ulValueLen = ( CK_ULONG ) xCertificateLength;
@@ -624,10 +653,10 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
     uint32_t uiIndex = 0;
     CK_BYTE * pxPkcsLabels[] =
     {
-        ( CK_BYTE * )pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-        ( CK_BYTE * )pkcs11configLABEL_CODE_VERIFICATION_KEY,
-        ( CK_BYTE * )pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-        ( CK_BYTE * )pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+        ( CK_BYTE * ) pkcs11configLABEL_CODE_VERIFICATION_KEY,
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
     };
     CK_OBJECT_CLASS xClass[] =
     {
@@ -644,7 +673,7 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
         pxLabel = pxPkcsLabels[ uiIndex ];
 
         xResult = xFindObjectWithLabelAndClass( xSession,
-                                                ( const char * )pxLabel,
+                                                ( const char * ) pxLabel,
                                                 xClass[ uiIndex ],
                                                 &xObjectHandle );
 
@@ -655,13 +684,13 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
                 xResult = pxFunctionList->C_DestroyObject( xSession, xObjectHandle );
 
                 /* PKCS #11 allows a module to maintain multiple objects with the same
-                label and type. The intent of this loop is to try to delete all of them.
-                However, to avoid getting stuck, we won't try to find another object
-                of the same label/type if the previous delete failed. */
+                 * label and type. The intent of this loop is to try to delete all of them.
+                 * However, to avoid getting stuck, we won't try to find another object
+                 * of the same label/type if the previous delete failed. */
                 if( xResult == CKR_OK )
                 {
                     xResult = xFindObjectWithLabelAndClass( xSession,
-                                                            ( const char * )pxLabel,
+                                                            ( const char * ) pxLabel,
                                                             xClass[ uiIndex ],
                                                             &xObjectHandle );
                 }

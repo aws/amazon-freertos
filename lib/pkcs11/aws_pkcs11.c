@@ -1,4 +1,5 @@
 #include "aws_pkcs11.h"
+#include "pkcs11.h"
 #include "aws_pkcs11_config.h"
 #include "FreeRTOS.h"
 

@@ -880,11 +880,27 @@ CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
     return xResult;
 }
 
+
+/**
+ * @brief This function is not implemented for this port.
+ *
+ * C_Login() is only implemented for compatibility with other ports.
+ * All inputs to this function are ignored, and calling this
+ * function on this port does not add any security.
+ *
+ * @return CKR_OK.
+ */
 CK_DEFINE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
                                       CK_USER_TYPE userType,
                                       CK_UTF8CHAR_PTR pPin,
                                       CK_ULONG ulPinLen )
 {
+    /* Avoid warnings about unused parameters. */
+    ( void ) hSession;
+    ( void ) userType;
+    ( void ) pPin;
+    ( void ) ulPinLen;
+
     /* THIS FUNCTION IS NOT IMPLEMENTED FOR MBEDTLS-BASED PORTS.
      * If login capability is required, implement it here.
      * Defined for compatibility with other PKCS #11 ports. */
@@ -1262,6 +1278,18 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
                                                        NULL, 0 );                                /* E */
                 break;
 
+            case ( CKA_EXPONENT_1 ):
+                lMbedReturn |= mbedtls_mpi_read_binary( &pxRsaContext->DP, xAttribute.pValue, xAttribute.ulValueLen );
+                break;
+
+            case ( CKA_EXPONENT_2 ):
+                lMbedReturn |= mbedtls_mpi_read_binary( &pxRsaContext->DQ, xAttribute.pValue, xAttribute.ulValueLen );
+                break;
+
+            case ( CKA_COEFFICIENT ):
+                lMbedReturn |= mbedtls_mpi_read_binary( &pxRsaContext->QP, xAttribute.pValue, xAttribute.ulValueLen );
+                break;
+
             default:
                 PKCS11_PRINT( ( "Unknown attribute found for RSA private key. %d \r\n", xAttribute.type ) );
                 xResult = CKR_TEMPLATE_INCONSISTENT;
@@ -1588,7 +1616,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                              CK_ULONG ulCount,
                                              CK_OBJECT_HANDLE_PTR pxObject )
 {   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_OBJECT_CLASS xClass;
 
@@ -1641,17 +1669,21 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Free resources attached to an object handle.
+ * @brief Destroy an object.
+ *
+ * @param[in] xSession                   Handle of a valid PKCS #11 session.
+ * @param[in] xObject                    Handle of the object to be destroyed.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
                                               CK_OBJECT_HANDLE xObject )
 {
-    CK_RV xResult;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
     ( void ) xSession;
-    ( void ) xObject;
-
-
 
     xResult = PKCS11_PAL_DestroyObject( xObject );
 
@@ -1667,7 +1699,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                                                   CK_ULONG ulCount )
 {
     /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_BBOOL xIsPrivate = CK_TRUE;
     CK_ULONG iAttrib;
     mbedtls_pk_context xKeyContext = { 0 };
@@ -1854,8 +1886,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
                 case CKA_EC_POINT:
 
-                    /*mbedtls_ecp_tls_write_point */
-                    /* mbedtls_ecp_point_write_binary */
                     if( pxTemplate[ iAttrib ].pValue == NULL )
                     {
                         pxTemplate[ iAttrib ].ulValueLen = 67; /* TODO: Is this large enough?*/
@@ -1864,7 +1894,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                     {
                         pxKeyPair = ( mbedtls_ecp_keypair * ) xKeyContext.pk_ctx;
                         *( ( uint8_t * ) pxTemplate[ iAttrib ].pValue ) = 0x04; /* Mark the point as uncompressed. */
-                        lMbedTLSResult = mbedtls_ecp_tls_write_point( &pxKeyPair->grp, &pxKeyPair->Q, MBEDTLS_ECP_PF_UNCOMPRESSED, &xSize, ( uint8_t * ) pxTemplate[ iAttrib ].pValue + 1, pxTemplate[ iAttrib ].ulValueLen - 1 );
+                        lMbedTLSResult = mbedtls_ecp_tls_write_point( &pxKeyPair->grp,
+                                                                      &pxKeyPair->Q,
+                                                                      MBEDTLS_ECP_PF_UNCOMPRESSED,
+                                                                      &xSize,
+                                                                      ( uint8_t * ) pxTemplate[ iAttrib ].pValue + 1,
+                                                                      pxTemplate[ iAttrib ].ulValueLen - 1 );
 
                         if( lMbedTLSResult < 0 )
                         {
@@ -1901,14 +1936,33 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Begin an enumeration sequence for the objects of the specified type.
+ * @brief Initializes a search for an object by its label.
+ *
+ * \sa C_FindObjects() and C_FindObjectsFinal() which must be called
+ * after C_FindObjectsInit().
+ *
+ * \note FindObjects parameters are shared by a session.  Calling
+ * C_FindObjectsInit(), C_FindObjects(), and C_FindObjectsFinal() with the
+ * same session across different tasks may lead to unexpected results.
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[in] pxTemplate                    Pointer to a template which specifies
+ *                                          the object attributes to match.
+ *                                          In this port, the only searchable attribute
+ *                                          is object label.  All other attributes will
+ *                                          be ignored.
+ * @param[in] ulCount                       The number of attributes in pxTemplate.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
                                                 CK_ATTRIBUTE_PTR pxTemplate,
                                                 CK_ULONG ulCount )
 {
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
-    CK_RV xResult = CKR_OK;
     CK_BYTE * pxFindObjectLabel = NULL;
     uint32_t ulIndex;
     CK_ATTRIBUTE xAttribute;
@@ -1987,14 +2041,41 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Query the objects of the requested type.
+ * @brief Find an object.
+ *
+ * \sa C_FindObjectsInit() which must be called before calling C_FindObjects()
+ * and C_FindObjectsFinal(), which must be called after.
+ *
+ * \note FindObjects parameters are shared by a session.  Calling
+ * C_FindObjectsInit(), C_FindObjects(), and C_FindObjectsFinal() with the
+ * same session across different tasks may lead to unexpected results.
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ * @param[out] pxObject                     Points to the handle of the object to
+ *                                          be found.
+ * @param[in] ulMaxObjectCount              The size of the pxObject object handle
+ *                                          array. In this port, this value should
+ *                                          always be set to 1, as searching for
+ *                                          multiple objects is not supported.
+ * @param[out] pulObjectCount               The actual number of objects that are
+ *                                          found. In this port, if an object is found
+ *                                          this value will be 1, otherwise if the
+ *                                          object is not found, it will be set to 0.
+ *
+ * \note In the event that an object does not exist, CKR_OK will be returned, but
+ * pulObjectCount will be set to 0.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                                             CK_OBJECT_HANDLE_PTR pxObject,
                                             CK_ULONG ulMaxObjectCount,
                                             CK_ULONG_PTR pulObjectCount )
 {   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
+
     BaseType_t xDone = pdFALSE;
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
@@ -2087,11 +2168,26 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Terminate object enumeration.
+ * @brief Completes an object search operation.
+ *
+ * \sa C_FindObjectsInit(), C_FindObjects() which must be called before
+ * calling C_FindObjectsFinal().
+ *
+ * \note FindObjects parameters are shared by a session.  Calling
+ * C_FindObjectsInit(), C_FindObjects(), and C_FindObjectsFinal() with the
+ * same session across different tasks may lead to unexpected results.
+ *
+ *
+ * @param[in] xSession                      Handle of a valid PKCS #11 session.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
 {   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
+
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
     /*
@@ -2125,7 +2221,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
  * \sa C_DigestUpdate(), C_DigestFinal()
  *
  * \note Digest parameters are shared by a session.  Calling
- * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal with the
+ * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal() with the
  * same session across different tasks may lead to unexpected results.
  *
  *
@@ -2140,7 +2236,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
 CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
                                            CK_MECHANISM_PTR pMechanism )
 {
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
     if( pxSession == NULL )
@@ -2180,7 +2276,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
  * \sa C_DigestInit(), C_DigestFinal()
  *
  * \note Digest parameters are shared by a session.  Calling
- * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal with the
+ * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal() with the
  * same session across different tasks may lead to unexpected results.
  *
  *
@@ -2206,7 +2302,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
                                              CK_BYTE_PTR pPart,
                                              CK_ULONG ulPartLen )
 {
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
     if( pxSession == NULL )
@@ -2236,7 +2332,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
  * \sa C_DigestInit(), C_DigestUpdate()
  *
  * \note Digest parameters are shared by a session.  Calling
- * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal with the
+ * C_DigestInit(), C_DigestUpdate(), and C_DigestFinal() with the
  * same session across different tasks may lead to unexpected results.
  *
  *
@@ -2262,7 +2358,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
                                             CK_BYTE_PTR pDigest,
                                             CK_ULONG_PTR pulDigestLen )
 {
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
+
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
     if( pxSession == NULL )
@@ -2332,7 +2429,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
                                          CK_MECHANISM_PTR pxMechanism,
                                          CK_OBJECT_HANDLE xKey )
 {
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_BBOOL xIsPrivate = CK_TRUE;
     CK_BBOOL xCleanupNeeded = CK_FALSE;
     CK_OBJECT_HANDLE xPalHandle;
@@ -2549,7 +2646,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                      CK_BYTE_PTR pucSignature,
                                      CK_ULONG_PTR pulSignatureLen )
 {   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
     CK_ULONG xSignatureLength = 0;
     CK_ULONG xExpectedInputLength = 0;
@@ -2686,7 +2783,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
                                            CK_MECHANISM_PTR pxMechanism,
                                            CK_OBJECT_HANDLE xKey )
 {
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_BBOOL xIsPrivate = CK_TRUE;
     P11SessionPtr_t pxSession;
     uint8_t * keyData = NULL;
@@ -2843,7 +2940,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
                                        CK_BYTE_PTR pucSignature,
                                        CK_ULONG ulSignatureLen )
 {
-    CK_RV xResult = CKR_OK;
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSessionObj;
     int lMbedTLSResult;
 

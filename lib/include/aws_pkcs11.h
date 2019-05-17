@@ -117,6 +117,9 @@ typedef struct PKCS11_PrivateRsaKeyTemplate
     CK_ATTRIBUTE xPublicExponent;  /* CKA_PUBLIC_EXPONENT, the public exponent E */
     CK_ATTRIBUTE xPrime1;          /* CKA_PRIME_1, P */
     CK_ATTRIBUTE xPrime2;          /* CKA_PRIME_2, Q */
+    CK_ATTRIBUTE xExp1;            /* CKA_EXPONENT_1, DP */
+    CK_ATTRIBUTE xExp2;            /* CKA_EXPONENT_2, DQ */
+    CK_ATTRIBUTE xCoefficient;     /* CKA_COEFFICIENT, QP */
     CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN, if true, the value should be persistent. */
 } PKCS11_PrivateRsaKeyTemplate_t, * PKCS11_PrivateRsaKeyTemplatePtr_t;
 
