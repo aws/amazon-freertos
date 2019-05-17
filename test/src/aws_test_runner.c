@@ -146,6 +146,7 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_TLS_ENABLED == 1 )
         RUN_TEST_GROUP( Full_TLS );
+        RUN_TEST_GROUP( Quarantine_TLS );
     #endif
 
     #if ( testrunnerFULL_CBOR_ENABLED == 1 )

@@ -67,6 +67,14 @@ static const uint32_t tlstestCLIENT_BYOC_PRIVATE_KEY_PEM_LENGTH = sizeof( tlstes
 /*-----------------------------------------------------------*/
 
 TEST_GROUP( Full_TLS );
+TEST_GROUP( Quarantine_TLS );
+
+TEST_SETUP( Quarantine_TLS )
+{
+}
+TEST_TEAR_DOWN( Quarantine_TLS )
+{
+}
 
 TEST_SETUP( Full_TLS )
 {
@@ -78,10 +86,14 @@ TEST_TEAR_DOWN( Full_TLS )
 
 TEST_GROUP_RUNNER( Full_TLS )
 {
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectRSA );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
+}
+
+TEST_GROUP_RUNNER( Quarantine_TLS )
+{
+    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
 }
 
