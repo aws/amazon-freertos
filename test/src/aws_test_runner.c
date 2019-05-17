@@ -82,6 +82,7 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_TCP );
+        RUN_TEST_GROUP( Quarantine_TCP );
     #endif
 
     #if ( testrunnerFULL_GGD_ENABLED == 1 )

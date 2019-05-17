@@ -185,6 +185,15 @@ size_t xHeapA;
 /* Group declaration required by Unity framework. */
 TEST_GROUP( Full_TCP );
 
+/* Unstable tests that require further review. */
+TEST_GROUP( Quarantine_TCP );
+TEST_SETUP( Quarantine_TCP )
+{
+}
+TEST_TEAR_DOWN( Quarantine_TCP )
+{
+}
+
 /* Setup required by Unity framework. */
 TEST_SETUP( Full_TCP )
 {
@@ -507,8 +516,7 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
                 }
             }
         }
-    }
-    while( pdFALSE == xIsConnected );
+    } while( pdFALSE == xIsConnected );
 
     return xResult;
 }
@@ -614,8 +622,7 @@ static BaseType_t prvShutdownHelper( Socket_t xSocket )
                                     pcRxBuffer,         /* The buffer into which the received data will be written. */
                                     tcptestBUFFER_SIZE, /* The size of the buffer provided to receive the data. */
                                     0 );
-        }
-        while( xResult >= 0 );
+        } while( xResult >= 0 );
 
         xResult = 0;
     }
@@ -771,7 +778,6 @@ TEST_GROUP_RUNNER( Full_TCP )
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_ShutdownInvalidParams );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_ShutdownWithoutReceiving );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_On_Unconnected_Socket );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Connect_InvalidParams );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Connect_InvalidAddressLength );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
@@ -796,9 +802,7 @@ TEST_GROUP_RUNNER( Full_TCP )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownInvalidParams );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownWithoutReceiving );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Recv_On_Unconnected_Socket );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_TRUSTED_SERVER_CERTIFICATE );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidParams );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidAddressLength );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
@@ -816,9 +820,19 @@ TEST_GROUP_RUNNER( Full_TCP )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Recv_Invalid );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SockEventHandler );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_NonBlockingConnect );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSecureOptionsAfterConnect );
     #endif /* if ( tcptestSECURE_SERVER == 1 ) */
+}
+
+TEST_GROUP_RUNNER( Quarantine_TCP )
+{
+    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+
+    #if tcptestSECURE_SERVER == 1
+        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
+        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections );
+    #endif
 }
 
 /*-------------------------------------------------------------------*/
@@ -1199,8 +1213,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             }
 
             xEndTime = xTaskGetTickCount();
-        }
-        while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
+        } while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
 
         TEST_ASSERT_EQUAL_INT32_MESSAGE( xMessageLength, xNumBytesReceived, "Data was not received \r\n" );
 
@@ -1339,8 +1352,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     do
     {
         xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    }
-    while( xResult >= 0 );
+    } while( xResult >= 0 );
 
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
@@ -1383,8 +1395,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     do
     {
         xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    }
-    while( xResult >= 0 );
+    } while( xResult >= 0 );
 
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
