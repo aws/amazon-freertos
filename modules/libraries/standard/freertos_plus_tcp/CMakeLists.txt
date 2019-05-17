@@ -52,3 +52,8 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/aws_test_freertos_tcp.c"
 )
+
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC AFR::freertos_plus_tcp
+)
