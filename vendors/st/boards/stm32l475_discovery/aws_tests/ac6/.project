@@ -1618,6 +1618,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/common/test/aws_memory_leak.c</locationURI>
 		</link>
 		<link>
+			<name>modules/libraries/standard/common/test/iot_tests_taskpool.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/common/test/iot_tests_taskpool.c</locationURI>
+		</link>
+		<link>
 			<name>modules/libraries/standard/common/test/iot_test_platform_clock.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/common/test/iot_test_platform_clock.c</locationURI>
