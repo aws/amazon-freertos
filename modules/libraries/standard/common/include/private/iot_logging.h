@@ -47,7 +47,7 @@
  * @section logging_constants_levels Log levels
  * @brief Log levels for the libraries in this SDK.
  *
- * Each library should specify a log level by setting @ref _LIBRARY_LOG_LEVEL.
+ * Each library should specify a log level by setting @ref LIBRARY_LOG_LEVEL.
  * All log messages with a level at or below the specified level will be printed
  * for that library.
  *
@@ -68,7 +68,7 @@
  * @brief No log messages.
  *
  * Log messages with this level will be silently discarded. When @ref
- * _LIBRARY_LOG_LEVEL is #IOT_LOG_NONE, logging is disabled and no [logging functions]
+ * LIBRARY_LOG_LEVEL is #IOT_LOG_NONE, logging is disabled and no [logging functions]
  * (@ref logging_functions) can be called.
  */
 #define IOT_LOG_NONE     0
@@ -168,7 +168,7 @@ typedef struct IotLogConfig
  * This function is the generic logging function shared across all libraries.
  * The library-specific logging function @ref logging_function_log is implemented
  * using this function. Like @ref logging_function_log, this function is only
- * available when @ref _LIBRARY_LOG_LEVEL is #IOT_LOG_NONE.
+ * available when @ref LIBRARY_LOG_LEVEL is #IOT_LOG_NONE.
  *
  * In most cases, the library-specific logging function @ref logging_function_log
  * should be called instead of this function.
@@ -176,8 +176,8 @@ typedef struct IotLogConfig
  * @param[in] libraryLogSetting The log level setting of the library, used to
  * determine if the log message should be printed. Must be one of the @ref
  * logging_constants_levels.
- * @param[in] pLibraryName The library name to print. See @ref _LIBRARY_LOG_NAME.
- * @param[in] messageLevel The log level of the this message. See @ref _LIBRARY_LOG_LEVEL.
+ * @param[in] pLibraryName The library name to print. See @ref LIBRARY_LOG_NAME.
+ * @param[in] messageLevel The log level of the this message. See @ref LIBRARY_LOG_LEVEL.
  * @param[in] pLogConfig Pointer to a #IotLogConfig_t. Optional; pass `NULL` to ignore.
  * @param[in] pFormat Format string for the log message.
  * @param[in] ... Arguments for format specification.
@@ -199,12 +199,12 @@ void IotLog_Generic( int libraryLogSetting,
  * This function is the generic buffer logging function shared across all libraries.
  * The library-specific buffer logging function @ref logging_function_printbuffer is
  * implemented using this function. Like @ref logging_function_printbuffer, this
- * function is only available when @ref _LIBRARY_LOG_LEVEL is #IOT_LOG_DEBUG.
+ * function is only available when @ref LIBRARY_LOG_LEVEL is #IOT_LOG_DEBUG.
  *
  * In most cases, the library-specific buffer logging function @ref
  * logging_function_printbuffer should be called instead of this function.
  *
- * @param[in] pLibraryName The library name to print with the log. See @ref _LIBRARY_LOG_NAME.
+ * @param[in] pLibraryName The library name to print with the log. See @ref LIBRARY_LOG_NAME.
  * @param[in] pHeader A message to print before printing the buffer.
  * @param[in] pBuffer The buffer to print.
  * @param[in] bufferSize The number of bytes in `pBuffer` to print.

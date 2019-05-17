@@ -69,39 +69,6 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Find a free buffer using the "in-use" flags.
- *
- * If a free buffer is found, this function marks the buffer in-use. This function
- * is common to the static memory implementation.
- *
- * @param[in] pInUse The "in-use" flags to search.
- * @param[in] limit How many flags to check.
- *
- * @return The index of a free buffer; -1 if no free buffers are available.
- */
-int IotStaticMemory_FindFree( bool * const pInUse,
-                              int limit );
-
-/**
- * @brief Return an "in-use" buffer.
- *
- * This function is common to the static memory implementation.
- *
- * @param[in] ptr Pointer to the buffer to return.
- * @param[in] pPool The pool of buffers that the in-use buffer was allocation from.
- * @param[in] pInUse The "in-use" flags for pPool.
- * @param[in] limit How many buffers (and flags) to check while searching for ptr.
- * @param[in] elementSize The size of a single element in pPool.
- */
-void IotStaticMemory_ReturnInUse( void * ptr,
-                                  void * const pPool,
-                                  bool * const pInUse,
-                                  int limit,
-                                  size_t elementSize );
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Guards access to critical sections.
  */
 static IotMutex_t _mutex;
@@ -114,10 +81,11 @@ static char _pMessageBuffers[ IOT_MESSAGE_BUFFERS ][ IOT_MESSAGE_BUFFER_SIZE ] =
 
 /*-----------------------------------------------------------*/
 
-int IotStaticMemory_FindFree( bool * const pInUse,
-                              int limit )
+int32_t IotStaticMemory_FindFree( bool * pInUse,
+                                  size_t limit )
 {
-    int i = 0, freeIndex = -1;
+    size_t i = 0;
+    int32_t freeIndex = -1;
 
     /* Perform the search for a free buffer in a critical section. */
     IotMutex_Lock( &( _mutex ) );
@@ -128,7 +96,7 @@ int IotStaticMemory_FindFree( bool * const pInUse,
         {
             /* If a free buffer is found, mark it "in-use" and return its index. */
             pInUse[ i ] = true;
-            freeIndex = i;
+            freeIndex = ( int32_t ) i;
             break;
         }
     }
@@ -142,12 +110,12 @@ int IotStaticMemory_FindFree( bool * const pInUse,
 /*-----------------------------------------------------------*/
 
 void IotStaticMemory_ReturnInUse( void * ptr,
-                                  void * const pPool,
-                                  bool * const pInUse,
-                                  int limit,
+                                  void * pPool,
+                                  bool * pInUse,
+                                  size_t limit,
                                   size_t elementSize )
 {
-    int i = 0;
+    size_t i = 0;
     uint8_t * element = NULL;
 
     /* Clear ptr. */
@@ -160,7 +128,7 @@ void IotStaticMemory_ReturnInUse( void * ptr,
     for( i = 0; i < limit; i++ )
     {
         /* Calculate address of the i-th element in pPool. */
-        element = ( ( uint8_t * ) pPool ) + elementSize * ( size_t ) i;
+        element = ( ( uint8_t * ) pPool ) + elementSize * i;
 
         /* Check for a match. */
         if( ( ( void * ) element == ptr ) &&
@@ -200,7 +168,7 @@ size_t Iot_MessageBufferSize( void )
 
 void * Iot_MallocMessageBuffer( size_t size )
 {
-    int freeIndex = -1;
+    int32_t freeIndex = -1;
     void * pNewBuffer = NULL;
 
     /* Check that size is within the fixed message buffer size. */

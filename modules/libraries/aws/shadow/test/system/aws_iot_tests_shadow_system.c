@@ -83,17 +83,17 @@
 /**
  * @brief The length of @ref AWS_IOT_TEST_SHADOW_THING_NAME.
  */
-#define _THING_NAME_LENGTH              ( sizeof( AWS_IOT_TEST_SHADOW_THING_NAME ) - 1 )
+#define THING_NAME_LENGTH              ( sizeof( AWS_IOT_TEST_SHADOW_THING_NAME ) - 1 )
 
 /**
  * @brief The Shadow document used for these tests.
  */
-#define _TEST_SHADOW_DOCUMENT           "{\"state\":{\"reported\":{\"key\":\"value\"}},\"clientToken\":\"shadowtest\"}"
+#define TEST_SHADOW_DOCUMENT           "{\"state\":{\"reported\":{\"key\":\"value\"}},\"clientToken\":\"shadowtest\"}"
 
 /**
- * @brief The length of #_TEST_SHADOW_DOCUMENT.
+ * @brief The length of #TEST_SHADOW_DOCUMENT.
  */
-#define _TEST_SHADOW_DOCUMENT_LENGTH    ( sizeof( _TEST_SHADOW_DOCUMENT ) - 1 )
+#define TEST_SHADOW_DOCUMENT_LENGTH    ( sizeof( TEST_SHADOW_DOCUMENT ) - 1 )
 
 /*-----------------------------------------------------------*/
 
@@ -149,10 +149,10 @@ static void _operationComplete( void * pArgument,
     AwsIotShadow_Assert( pOperation->mqttConnection == _mqttConnection );
     AwsIotShadow_Assert( pOperation->u.operation.result == AWS_IOT_SHADOW_SUCCESS );
     AwsIotShadow_Assert( pOperation->u.operation.reference == pParams->operation );
-    AwsIotShadow_Assert( pOperation->thingNameLength == _THING_NAME_LENGTH );
+    AwsIotShadow_Assert( pOperation->thingNameLength == THING_NAME_LENGTH );
     AwsIotShadow_Assert( strncmp( pOperation->pThingName,
                                   AWS_IOT_TEST_SHADOW_THING_NAME,
-                                  _THING_NAME_LENGTH ) == 0 );
+                                  THING_NAME_LENGTH ) == 0 );
 
     /* Check the retrieved Shadow document. */
     if( pOperation->callbackType == AWS_IOT_SHADOW_GET_COMPLETE )
@@ -286,7 +286,7 @@ static void _updateGetDeleteAsync( IotMqttQos_t qos )
 
     /* Initialize the common members of the Shadow document info. */
     documentInfo.pThingName = AWS_IOT_TEST_SHADOW_THING_NAME;
-    documentInfo.thingNameLength = _THING_NAME_LENGTH;
+    documentInfo.thingNameLength = THING_NAME_LENGTH;
     documentInfo.qos = qos;
 
     /* Create the wait semaphore for operations. */
@@ -298,8 +298,8 @@ static void _updateGetDeleteAsync( IotMqttQos_t qos )
         callbackParam.expectedType = AWS_IOT_SHADOW_UPDATE_COMPLETE;
 
         /* Set the members of the Shadow document info for UPDATE. */
-        documentInfo.u.update.pUpdateDocument = _TEST_SHADOW_DOCUMENT;
-        documentInfo.u.update.updateDocumentLength = _TEST_SHADOW_DOCUMENT_LENGTH;
+        documentInfo.u.update.pUpdateDocument = TEST_SHADOW_DOCUMENT;
+        documentInfo.u.update.updateDocumentLength = TEST_SHADOW_DOCUMENT_LENGTH;
 
         /* Create a new Shadow document. */
         status = AwsIotShadow_Update( _mqttConnection,
@@ -337,7 +337,7 @@ static void _updateGetDeleteAsync( IotMqttQos_t qos )
         /* Delete the Shadow document. */
         status = AwsIotShadow_Delete( _mqttConnection,
                                       AWS_IOT_TEST_SHADOW_THING_NAME,
-                                      _THING_NAME_LENGTH,
+                                      THING_NAME_LENGTH,
                                       0,
                                       &callbackInfo,
                                       &( callbackParam.operation ) );
@@ -366,12 +366,12 @@ static void _updateGetDeleteBlocking( IotMqttQos_t qos )
 
     /* Initialize the common members of the Shadow document info. */
     documentInfo.pThingName = AWS_IOT_TEST_SHADOW_THING_NAME;
-    documentInfo.thingNameLength = _THING_NAME_LENGTH;
+    documentInfo.thingNameLength = THING_NAME_LENGTH;
     documentInfo.qos = qos;
 
     /* Set the members of the Shadow document info for UPDATE. */
-    documentInfo.u.update.pUpdateDocument = _TEST_SHADOW_DOCUMENT;
-    documentInfo.u.update.updateDocumentLength = _TEST_SHADOW_DOCUMENT_LENGTH;
+    documentInfo.u.update.pUpdateDocument = TEST_SHADOW_DOCUMENT;
+    documentInfo.u.update.updateDocumentLength = TEST_SHADOW_DOCUMENT_LENGTH;
 
     /* Create a new Shadow document. */
     status = AwsIotShadow_TimedUpdate( _mqttConnection,
@@ -410,7 +410,7 @@ static void _updateGetDeleteBlocking( IotMqttQos_t qos )
     /* Delete the Shadow document. */
     status = AwsIotShadow_TimedDelete( _mqttConnection,
                                        AWS_IOT_TEST_SHADOW_THING_NAME,
-                                       _THING_NAME_LENGTH,
+                                       THING_NAME_LENGTH,
                                        0,
                                        AWS_IOT_TEST_SHADOW_TIMEOUT );
     TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
@@ -490,7 +490,7 @@ TEST_SETUP( Shadow_System )
     /* Delete any existing Shadow so all tests start with no Shadow. */
     status = AwsIotShadow_TimedDelete( _mqttConnection,
                                        AWS_IOT_TEST_SHADOW_THING_NAME,
-                                       _THING_NAME_LENGTH,
+                                       THING_NAME_LENGTH,
                                        0,
                                        AWS_IOT_TEST_SHADOW_TIMEOUT );
 
@@ -597,7 +597,7 @@ TEST( Shadow_System, DeltaCallback )
     IotSemaphore_t waitSem;
 
     /* Create a semaphore to wait on. */
-    TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &waitSem, 0, 1 ) );
+    TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &waitSem, 0, 2 ) );
 
     /* Set the delta callback information. */
     deltaCallback.pCallbackContext = &waitSem;
@@ -605,7 +605,7 @@ TEST( Shadow_System, DeltaCallback )
 
     /* Set a desired state in the Update document. */
     updateDocument.pThingName = AWS_IOT_TEST_SHADOW_THING_NAME;
-    updateDocument.thingNameLength = _THING_NAME_LENGTH;
+    updateDocument.thingNameLength = THING_NAME_LENGTH;
     updateDocument.u.update.pUpdateDocument = "{\"state\": {\"desired\": {\"key\": true}}, \"clientToken\":\"shadowtest\"}";
     updateDocument.u.update.updateDocumentLength = 65;
 
@@ -614,7 +614,7 @@ TEST( Shadow_System, DeltaCallback )
         /* Set the delta callback. */
         status = AwsIotShadow_SetDeltaCallback( _mqttConnection,
                                                 AWS_IOT_TEST_SHADOW_THING_NAME,
-                                                _THING_NAME_LENGTH,
+                                                THING_NAME_LENGTH,
                                                 0,
                                                 &deltaCallback );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
@@ -646,7 +646,7 @@ TEST( Shadow_System, DeltaCallback )
         /* Remove the delta callback. */
         status = AwsIotShadow_SetDeltaCallback( _mqttConnection,
                                                 AWS_IOT_TEST_SHADOW_THING_NAME,
-                                                _THING_NAME_LENGTH,
+                                                THING_NAME_LENGTH,
                                                 0,
                                                 NULL );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
@@ -654,7 +654,7 @@ TEST( Shadow_System, DeltaCallback )
         /* Remove persistent subscriptions for Shadow Update. */
         status = AwsIotShadow_RemovePersistentSubscriptions( _mqttConnection,
                                                              AWS_IOT_TEST_SHADOW_THING_NAME,
-                                                             _THING_NAME_LENGTH,
+                                                             THING_NAME_LENGTH,
                                                              AWS_IOT_SHADOW_FLAG_REMOVE_UPDATE_SUBSCRIPTIONS );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
     }
@@ -683,7 +683,7 @@ TEST( Shadow_System, UpdatedCallback )
 
     /* Set a desired state in the Update document. */
     updateDocument.pThingName = AWS_IOT_TEST_SHADOW_THING_NAME;
-    updateDocument.thingNameLength = _THING_NAME_LENGTH;
+    updateDocument.thingNameLength = THING_NAME_LENGTH;
     updateDocument.u.update.pUpdateDocument = "{\"state\": {\"desired\": {\"key\": true}}, \"clientToken\":\"shadowtest\"}";
     updateDocument.u.update.updateDocumentLength = 65;
 
@@ -692,7 +692,7 @@ TEST( Shadow_System, UpdatedCallback )
         /* Set the updated callback. */
         status = AwsIotShadow_SetUpdatedCallback( _mqttConnection,
                                                   AWS_IOT_TEST_SHADOW_THING_NAME,
-                                                  _THING_NAME_LENGTH,
+                                                  THING_NAME_LENGTH,
                                                   0,
                                                   &updatedCallback );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );
@@ -713,7 +713,7 @@ TEST( Shadow_System, UpdatedCallback )
         /* Remove the updated callback. */
         status = AwsIotShadow_SetUpdatedCallback( _mqttConnection,
                                                   AWS_IOT_TEST_SHADOW_THING_NAME,
-                                                  _THING_NAME_LENGTH,
+                                                  THING_NAME_LENGTH,
                                                   0,
                                                   NULL );
         TEST_ASSERT_EQUAL( AWS_IOT_SHADOW_SUCCESS, status );

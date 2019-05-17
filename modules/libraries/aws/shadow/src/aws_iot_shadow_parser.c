@@ -42,33 +42,33 @@
 /**
  * @brief The JSON key for the error code in a Shadow error document.
  */
-#define _ERROR_DOCUMENT_CODE_KEY              "code"
+#define ERROR_DOCUMENT_CODE_KEY              "code"
 
 /**
- * @brief The length of #_ERROR_DOCUMENT_CODE_KEY.
+ * @brief The length of #ERROR_DOCUMENT_CODE_KEY.
  */
-#define _ERROR_DOCUMENT_CODE_KEY_LENGTH       ( sizeof( _ERROR_DOCUMENT_CODE_KEY ) - 1 )
+#define ERROR_DOCUMENT_CODE_KEY_LENGTH       ( sizeof( ERROR_DOCUMENT_CODE_KEY ) - 1 )
 
 /**
  * @brief The JSON key for the error message in a Shadow error document.
  */
-#define _ERROR_DOCUMENT_MESSAGE_KEY           "message"
+#define ERROR_DOCUMENT_MESSAGE_KEY           "message"
 
 /**
- * @brief The length of #_ERROR_DOCUMENT_MESSAGE_KEY.
+ * @brief The length of #ERROR_DOCUMENT_MESSAGE_KEY.
  */
-#define _ERROR_DOCUMENT_MESSAGE_KEY_LENGTH    ( sizeof( _ERROR_DOCUMENT_MESSAGE_KEY ) - 1 )
+#define ERROR_DOCUMENT_MESSAGE_KEY_LENGTH    ( sizeof( ERROR_DOCUMENT_MESSAGE_KEY ) - 1 )
 
 /**
  * @brief The minimum possible length of a Shadow topic name, per the Shadow
  * spec.
  */
-#define _MINIMUM_SHADOW_TOPIC_NAME_LENGTH                                 \
-    ( _SHADOW_TOPIC_PREFIX_LENGTH +                                       \
-      ( uint16_t ) sizeof( _SHADOW_GET_OPERATION_STRING ) +               \
-      ( _SHADOW_ACCEPTED_SUFFIX_LENGTH < _SHADOW_REJECTED_SUFFIX_LENGTH ? \
-        _SHADOW_ACCEPTED_SUFFIX_LENGTH :                                  \
-        _SHADOW_REJECTED_SUFFIX_LENGTH ) )
+#define MINIMUM_SHADOW_TOPIC_NAME_LENGTH                                \
+    ( SHADOW_TOPIC_PREFIX_LENGTH +                                      \
+      ( uint16_t ) sizeof( SHADOW_GET_OPERATION_STRING ) +              \
+      ( SHADOW_ACCEPTED_SUFFIX_LENGTH < SHADOW_REJECTED_SUFFIX_LENGTH ? \
+        SHADOW_ACCEPTED_SUFFIX_LENGTH :                                 \
+        SHADOW_REJECTED_SUFFIX_LENGTH ) )
 
 /*-----------------------------------------------------------*/
 
@@ -140,10 +140,10 @@ _shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * pTopicNam
 
     /* Check that the Shadow status topic name is at least as long as the
      * "accepted" suffix. */
-    if( topicNameLength > _SHADOW_ACCEPTED_SUFFIX_LENGTH )
+    if( topicNameLength > SHADOW_ACCEPTED_SUFFIX_LENGTH )
     {
         /* Calculate where the "accepted" suffix should start. */
-        pSuffixStart = pTopicName + topicNameLength - _SHADOW_ACCEPTED_SUFFIX_LENGTH;
+        pSuffixStart = pTopicName + topicNameLength - SHADOW_ACCEPTED_SUFFIX_LENGTH;
 
         /* pSuffixStart must be in pTopicName. */
         AwsIotShadow_Assert( ( pSuffixStart > pTopicName ) &&
@@ -151,8 +151,8 @@ _shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * pTopicNam
 
         /* Check if the end of the Shadow status topic name is "accepted". */
         if( strncmp( pSuffixStart,
-                     _SHADOW_ACCEPTED_SUFFIX,
-                     _SHADOW_ACCEPTED_SUFFIX_LENGTH ) == 0 )
+                     SHADOW_ACCEPTED_SUFFIX,
+                     SHADOW_ACCEPTED_SUFFIX_LENGTH ) == 0 )
         {
             return _SHADOW_ACCEPTED;
         }
@@ -160,10 +160,10 @@ _shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * pTopicNam
 
     /* Check that the Shadow status topic name is at least as long as the
      * "rejected" suffix. */
-    if( topicNameLength > _SHADOW_REJECTED_SUFFIX_LENGTH )
+    if( topicNameLength > SHADOW_REJECTED_SUFFIX_LENGTH )
     {
         /* Calculate where the "rejected" suffix should start. */
-        pSuffixStart = pTopicName + topicNameLength - _SHADOW_REJECTED_SUFFIX_LENGTH;
+        pSuffixStart = pTopicName + topicNameLength - SHADOW_REJECTED_SUFFIX_LENGTH;
 
         /* pSuffixStart must be in pTopicName. */
         AwsIotShadow_Assert( ( pSuffixStart > pTopicName ) &&
@@ -171,8 +171,8 @@ _shadowOperationStatus_t _AwsIotShadow_ParseShadowStatus( const char * pTopicNam
 
         /* Check if the end of the Shadow status topic name is "rejected". */
         if( strncmp( pSuffixStart,
-                     _SHADOW_REJECTED_SUFFIX,
-                     _SHADOW_REJECTED_SUFFIX_LENGTH ) == 0 )
+                     SHADOW_REJECTED_SUFFIX,
+                     SHADOW_REJECTED_SUFFIX_LENGTH ) == 0 )
         {
             return _SHADOW_REJECTED;
         }
@@ -194,8 +194,8 @@ AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * pErrorDocumen
     /* Parse the code from the error document. */
     if( IotJsonUtils_FindJsonValue( pErrorDocument,
                                     errorDocumentLength,
-                                    _ERROR_DOCUMENT_CODE_KEY,
-                                    _ERROR_DOCUMENT_CODE_KEY_LENGTH,
+                                    ERROR_DOCUMENT_CODE_KEY,
+                                    ERROR_DOCUMENT_CODE_KEY_LENGTH,
                                     &pCode,
                                     &codeLength ) == false )
     {
@@ -218,8 +218,8 @@ AwsIotShadowError_t _AwsIotShadow_ParseErrorDocument( const char * pErrorDocumen
      * a message. */
     if( IotJsonUtils_FindJsonValue( pErrorDocument,
                                     errorDocumentLength,
-                                    _ERROR_DOCUMENT_MESSAGE_KEY,
-                                    _ERROR_DOCUMENT_MESSAGE_KEY_LENGTH,
+                                    ERROR_DOCUMENT_MESSAGE_KEY,
+                                    ERROR_DOCUMENT_MESSAGE_KEY_LENGTH,
                                     &pMessage,
                                     &messageLength ) == true )
     {
@@ -253,24 +253,24 @@ AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * pTopicName,
     size_t thingNameLength = 0;
 
     /* Check that the topic name length exceeds the minimum possible length. */
-    if( topicNameLength < _MINIMUM_SHADOW_TOPIC_NAME_LENGTH )
+    if( topicNameLength < MINIMUM_SHADOW_TOPIC_NAME_LENGTH )
     {
         return AWS_IOT_SHADOW_BAD_RESPONSE;
     }
 
     /* All Shadow topic names must start with the same prefix. */
-    if( strncmp( _SHADOW_TOPIC_PREFIX,
+    if( strncmp( SHADOW_TOPIC_PREFIX,
                  pTopicName,
-                 _SHADOW_TOPIC_PREFIX_LENGTH ) != 0 )
+                 SHADOW_TOPIC_PREFIX_LENGTH ) != 0 )
     {
         return AWS_IOT_SHADOW_BAD_RESPONSE;
     }
 
     /* The Thing Name starts immediately after the topic prefix. */
-    pThingNameStart = pTopicName + _SHADOW_TOPIC_PREFIX_LENGTH;
+    pThingNameStart = pTopicName + SHADOW_TOPIC_PREFIX_LENGTH;
 
     /* Calculate the length of the Thing Name. */
-    while( ( thingNameLength + _SHADOW_TOPIC_PREFIX_LENGTH < ( size_t ) topicNameLength ) &&
+    while( ( thingNameLength + SHADOW_TOPIC_PREFIX_LENGTH < ( size_t ) topicNameLength ) &&
            ( pThingNameStart[ thingNameLength ] != '/' ) )
     {
         thingNameLength++;
@@ -278,7 +278,7 @@ AwsIotShadowError_t _AwsIotShadow_ParseThingName( const char * pTopicName,
 
     /* The end of the topic name was reached without finding a '/'. The topic
      * name is invalid. */
-    if( thingNameLength + _SHADOW_TOPIC_PREFIX_LENGTH >= ( size_t ) topicNameLength )
+    if( thingNameLength + SHADOW_TOPIC_PREFIX_LENGTH >= ( size_t ) topicNameLength )
     {
         return AWS_IOT_SHADOW_BAD_RESPONSE;
     }

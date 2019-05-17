@@ -45,9 +45,9 @@
  * logging function to call.
  *
  * This function prints a single log message. It is available when @ref
- * _LIBRARY_LOG_LEVEL is not #IOT_LOG_NONE. Log messages automatically
+ * LIBRARY_LOG_LEVEL is not #IOT_LOG_NONE. Log messages automatically
  * include the [log level](@ref logging_constants_levels), [library name]
- * (@ref _LIBRARY_LOG_NAME), and time. An optional @ref IotLogConfig_t may
+ * (@ref LIBRARY_LOG_NAME), and time. An optional @ref IotLogConfig_t may
  * be passed to this function to hide information for a single log message.
  *
  * The logging library must be set up before this function may be called. See
@@ -79,14 +79,14 @@
 /**
  * @def IotLog_PrintBuffer( pHeader, pBuffer, bufferSize )
  * @brief Log the contents of buffer as bytes. Only available when @ref
- * _LIBRARY_LOG_LEVEL is #IOT_LOG_DEBUG.
+ * LIBRARY_LOG_LEVEL is #IOT_LOG_DEBUG.
  *
  * This function prints the bytes located at a given memory address. It is
  * intended for debugging only, and is therefore only available when @ref
- * _LIBRARY_LOG_LEVEL is #IOT_LOG_DEBUG.
+ * LIBRARY_LOG_LEVEL is #IOT_LOG_DEBUG.
  *
  * Log messages printed by this function <b>always</b> include the [log level]
- * (@ref logging_constants_levels), [library name](@ref _LIBRARY_LOG_NAME),
+ * (@ref logging_constants_levels), [library name](@ref LIBRARY_LOG_NAME),
  * and time.  In addition, this function may print an optional header `pHeader`
  * before it prints the contents of the buffer. This function does not have an
  * #IotLogConfig_t parameter.
@@ -164,23 +164,23 @@
  * @endcode
  */
 
-/* Check that _LIBRARY_LOG_LEVEL is defined and has a valid value. */
-#if !defined( _LIBRARY_LOG_LEVEL ) ||            \
-    ( _LIBRARY_LOG_LEVEL != IOT_LOG_NONE &&  \
-      _LIBRARY_LOG_LEVEL != IOT_LOG_ERROR && \
-      _LIBRARY_LOG_LEVEL != IOT_LOG_WARN &&  \
-      _LIBRARY_LOG_LEVEL != IOT_LOG_INFO &&  \
-      _LIBRARY_LOG_LEVEL != IOT_LOG_DEBUG )
-    #error "Please define _LIBRARY_LOG_LEVEL as either IOT_LOG_NONE, IOT_LOG_ERROR, IOT_LOG_WARN, IOT_LOG_INFO, or IOT_LOG_DEBUG."
-/* Check that _LIBRARY_LOG_NAME is defined and has a valid value. */
-#elif !defined( _LIBRARY_LOG_NAME )
-    #error "Please define _LIBRARY_LOG_NAME."
+/* Check that LIBRARY_LOG_LEVEL is defined and has a valid value. */
+#if !defined( LIBRARY_LOG_LEVEL ) ||            \
+    ( LIBRARY_LOG_LEVEL != IOT_LOG_NONE &&  \
+      LIBRARY_LOG_LEVEL != IOT_LOG_ERROR && \
+      LIBRARY_LOG_LEVEL != IOT_LOG_WARN &&  \
+      LIBRARY_LOG_LEVEL != IOT_LOG_INFO &&  \
+      LIBRARY_LOG_LEVEL != IOT_LOG_DEBUG )
+    #error "Please define LIBRARY_LOG_LEVEL as either IOT_LOG_NONE, IOT_LOG_ERROR, IOT_LOG_WARN, IOT_LOG_INFO, or IOT_LOG_DEBUG."
+/* Check that LIBRARY_LOG_NAME is defined and has a valid value. */
+#elif !defined( LIBRARY_LOG_NAME )
+    #error "Please define LIBRARY_LOG_NAME."
 #else
     /* Define IotLog if the log level is greater than "none". */
-    #if _LIBRARY_LOG_LEVEL > IOT_LOG_NONE
+    #if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
         #define IotLog( messageLevel, pLogConfig, ... )   \
-                IotLog_Generic( _LIBRARY_LOG_LEVEL,       \
-                                _LIBRARY_LOG_NAME,        \
+                IotLog_Generic( LIBRARY_LOG_LEVEL,        \
+                                LIBRARY_LOG_NAME,        \
                                 messageLevel,             \
                                 pLogConfig,               \
                                 __VA_ARGS__ )
@@ -192,9 +192,9 @@
         #define IotLogDebug( ... )     IotLog( IOT_LOG_DEBUG, NULL, __VA_ARGS__ )
 
         /* If log level is DEBUG, enable the function to print buffers. */
-        #if _LIBRARY_LOG_LEVEL >= IOT_LOG_DEBUG
+        #if LIBRARY_LOG_LEVEL >= IOT_LOG_DEBUG
         #define IotLog_PrintBuffer( pHeader, pBuffer, bufferSize )    \
-                IotLog_GenericPrintBuffer( _LIBRARY_LOG_NAME,         \
+                IotLog_GenericPrintBuffer( LIBRARY_LOG_NAME,         \
                                            pHeader,                   \
                                            pBuffer,                   \
                                            bufferSize )

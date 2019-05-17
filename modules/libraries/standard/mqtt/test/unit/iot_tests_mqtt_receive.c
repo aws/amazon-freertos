@@ -49,9 +49,9 @@
  * @brief Determine which MQTT server mode to test (AWS IoT or Mosquitto).
  */
 #if !defined( IOT_TEST_MQTT_MOSQUITTO ) || IOT_TEST_MQTT_MOSQUITTO == 0
-    #define _AWS_IOT_MQTT_SERVER    true
+    #define AWS_IOT_MQTT_SERVER    true
 #else
-    #define _AWS_IOT_MQTT_SERVER    false
+    #define AWS_IOT_MQTT_SERVER    false
 #endif
 
 /** @brief Default CONNACK packet for the receive tests. */
@@ -91,39 +91,39 @@ static const uint8_t _pPingrespTemplate[] = { 0xd0, 0x00 };
 /**
  * @brief Topic name and filter used in the tests.
  */
-#define _TEST_TOPIC_NAME             "/test/topic"
+#define TEST_TOPIC_NAME             "/test/topic"
 
 /**
- * @brief Length of #_TEST_TOPIC_NAME.
+ * @brief Length of #TEST_TOPIC_NAME.
  */
-#define _TEST_TOPIC_LENGTH           ( ( uint16_t ) ( sizeof( _TEST_TOPIC_NAME ) - 1 ) )
+#define TEST_TOPIC_LENGTH           ( ( uint16_t ) ( sizeof( TEST_TOPIC_NAME ) - 1 ) )
 
 /**
  * @brief Timeout for waiting on a PUBLISH callback.
  */
-#define _PUBLISH_CALLBACK_TIMEOUT    ( 1000 )
+#define PUBLISH_CALLBACK_TIMEOUT    ( 1000 )
 
 /**
  * @brief Declare a buffer holding a packet and its size.
  */
-#define _DECLARE_PACKET( pTemplate, bufferName, sizeName ) \
-    uint8_t bufferName[ sizeof( pTemplate ) ] = { 0 };     \
-    const size_t sizeName = sizeof( pTemplate );           \
+#define DECLARE_PACKET( pTemplate, bufferName, sizeName ) \
+    uint8_t bufferName[ sizeof( pTemplate ) ] = { 0 };    \
+    const size_t sizeName = sizeof( pTemplate );          \
     ( void ) memcpy( bufferName, pTemplate, sizeName );
 
 /**
  * @brief Initializer for operations in the tests.
  */
-#define _INITIALIZE_OPERATION( name )                                                               \
-    {                                                                                               \
-        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection, .job = { 0 }, \
-        .u.operation =                                                                              \
-        {                                                                                           \
-            .jobReference = 1, .type = name, .flags = IOT_MQTT_FLAG_WAITABLE,                       \
-            .packetIdentifier = 1, .pMqttPacket = NULL, .packetSize = 0,                            \
-            .notify= { .callback = { 0 } }, .status = IOT_MQTT_STATUS_PENDING,                      \
-            .retry = { 0 }                                                                          \
-        }                                                                                           \
+#define INITIALIZE_OPERATION( name )                                                             \
+    {                                                                                            \
+        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,            \
+        .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER, \
+        .u.operation =                                                                           \
+        {                                                                                        \
+            .jobReference = 1, .type = name, .flags = IOT_MQTT_FLAG_WAITABLE,                    \
+            .packetIdentifier = 1, .pMqttPacket = NULL, .packetSize = 0,                         \
+            .notify = { .callback = { 0 } }, .status = IOT_MQTT_STATUS_PENDING, .retry = { 0 }   \
+        }                                                                                        \
     }
 
 /*-----------------------------------------------------------*/
@@ -365,7 +365,7 @@ static bool _processPublish( const uint8_t * pPublish,
     for( i = 0; i < expectedInvokeCount; i++ )
     {
         waitResult = IotSemaphore_TimedWait( &invokeCount,
-                                             _PUBLISH_CALLBACK_TIMEOUT );
+                                             PUBLISH_CALLBACK_TIMEOUT );
 
         if( waitResult == false )
         {
@@ -401,10 +401,10 @@ static void _publishCallback( void * pCallbackContext,
     pPublish->u.message.info.qos = IOT_MQTT_QOS_0;
 
     /* Check that the parameters to this function are valid. */
-    if( ( _IotMqtt_ValidatePublish( _AWS_IOT_MQTT_SERVER,
+    if( ( _IotMqtt_ValidatePublish( AWS_IOT_MQTT_SERVER,
                                     &( pPublish->u.message.info ) ) == true ) &&
-        ( pPublish->u.message.info.topicNameLength == _TEST_TOPIC_LENGTH ) &&
-        ( strncmp( _TEST_TOPIC_NAME, pPublish->u.message.info.pTopicName, _TEST_TOPIC_LENGTH ) == 0 ) )
+        ( pPublish->u.message.info.topicNameLength == TEST_TOPIC_LENGTH ) &&
+        ( strncmp( TEST_TOPIC_NAME, pPublish->u.message.info.pTopicName, TEST_TOPIC_LENGTH ) == 0 ) )
     {
         IotSemaphore_Post( pInvokeCount );
     }
@@ -545,7 +545,7 @@ TEST_SETUP( MQTT_Unit_Receive )
     networkInfo.disconnectCallback.function = _disconnectCallback;
 
     /* Initialize the MQTT connection used by the tests. */
-    _pMqttConnection = IotTestMqtt_createMqttConnection( _AWS_IOT_MQTT_SERVER,
+    _pMqttConnection = IotTestMqtt_createMqttConnection( AWS_IOT_MQTT_SERVER,
                                                          &networkInfo,
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
@@ -554,8 +554,8 @@ TEST_SETUP( MQTT_Unit_Receive )
     _pMqttConnection->pSerializer = &serializer;
 
     /* Set the members of the subscription. */
-    _subscription.pTopicFilter = _TEST_TOPIC_NAME;
-    _subscription.topicFilterLength = _TEST_TOPIC_LENGTH;
+    _subscription.pTopicFilter = TEST_TOPIC_NAME;
+    _subscription.topicFilterLength = TEST_TOPIC_LENGTH;
     _subscription.callback.function = _publishCallback;
 
     /* Add the subscription to the MQTT connection. */
@@ -685,7 +685,7 @@ TEST( MQTT_Unit_Receive, DecodeRemainingLength )
         receiveContext.pData = pRemainingLength;
         receiveContext.dataLength = 4;
 
-        TEST_ASSERT_EQUAL( _MQTT_REMAINING_LENGTH_INVALID,
+        TEST_ASSERT_EQUAL( MQTT_REMAINING_LENGTH_INVALID,
                            _IotMqtt_GetRemainingLength( &receiveContext,
                                                         &_networkInterface ) );
     }
@@ -700,7 +700,7 @@ TEST( MQTT_Unit_Receive, DecodeRemainingLength )
         receiveContext.pData = pRemainingLength;
         receiveContext.dataLength = 4;
 
-        TEST_ASSERT_EQUAL( _MQTT_REMAINING_LENGTH_INVALID,
+        TEST_ASSERT_EQUAL( MQTT_REMAINING_LENGTH_INVALID,
                            _IotMqtt_GetRemainingLength( &receiveContext,
                                                         &_networkInterface ) );
     }
@@ -753,7 +753,7 @@ TEST( MQTT_Unit_Receive, InvalidPacket )
 TEST( MQTT_Unit_Receive, ConnackValid )
 {
     uint8_t i = 0;
-    _mqttOperation_t connect = _INITIALIZE_OPERATION( IOT_MQTT_CONNECT );
+    _mqttOperation_t connect = INITIALIZE_OPERATION( IOT_MQTT_CONNECT );
 
     /* Create the wait semaphore so notifications don't crash. The value of
      * this semaphore will not be checked, so the maxValue argument is arbitrary. */
@@ -764,7 +764,7 @@ TEST( MQTT_Unit_Receive, ConnackValid )
     /* Even though no CONNECT is in the receive queue, 4 bytes should still be
      * processed (should not crash). */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &connect,
                                                      pConnack,
                                                      connackSize,
@@ -773,7 +773,7 @@ TEST( MQTT_Unit_Receive, ConnackValid )
 
     /* Process a valid, successful CONNACK with no SP flag. */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         _operationResetAndPush( &connect );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &connect,
                                                      pConnack,
@@ -783,7 +783,7 @@ TEST( MQTT_Unit_Receive, ConnackValid )
 
     /* Process a valid, successful CONNACK with SP flag set. */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         pConnack[ 2 ] = 0x01;
         _operationResetAndPush( &connect );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &connect,
@@ -795,7 +795,7 @@ TEST( MQTT_Unit_Receive, ConnackValid )
     /* Check each of the CONNACK failure codes, which range from 1 to 5. */
     for( i = 0x01; i < 0x06; i++ )
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
 
         /* Set the CONNECT state and code. */
         _operationResetAndPush( &connect );
@@ -823,7 +823,7 @@ TEST( MQTT_Unit_Receive, ConnackValid )
  */
 TEST( MQTT_Unit_Receive, ConnackInvalid )
 {
-    _mqttOperation_t connect = _INITIALIZE_OPERATION( IOT_MQTT_CONNECT );
+    _mqttOperation_t connect = INITIALIZE_OPERATION( IOT_MQTT_CONNECT );
 
     /* Create the wait semaphore so notifications don't crash. The value of
      * this semaphore will not be checked, so the maxValue argument is arbitrary. */
@@ -833,7 +833,7 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
     /* An incomplete CONNACK should not be processed, and no status should be set. */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         _operationResetAndPush( &connect );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &connect,
                                                      pConnack,
@@ -849,7 +849,7 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
     /* The CONNACK control packet type must be 0x20. */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         pConnack[ 0 ] = 0x21;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &connect,
                                                      pConnack,
@@ -865,7 +865,7 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
     /* A CONNACK must have a remaining length of 2. */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         pConnack[ 1 ] = 0x03;
         _operationResetAndPush( &connect );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &connect,
@@ -882,7 +882,7 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
     /* The reserved bits in CONNACK must be 0. */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         pConnack[ 2 ] = 0x80;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &connect,
                                                      pConnack,
@@ -898,7 +898,7 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
     /* The fourth byte of CONNACK must be 0 if the SP flag is set. */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         pConnack[ 2 ] = 0x01;
         pConnack[ 3 ] = 0x01;
         _operationResetAndPush( &connect );
@@ -916,7 +916,7 @@ TEST( MQTT_Unit_Receive, ConnackInvalid )
 
     /* CONNACK return codes cannot be above 5. */
     {
-        _DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
+        DECLARE_PACKET( _pConnackTemplate, pConnack, connackSize );
         pConnack[ 3 ] = 0x06;
         _operationResetAndPush( &connect );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &connect,
@@ -944,7 +944,7 @@ TEST( MQTT_Unit_Receive, PublishValid )
 {
     /* Process a valid QoS 0 PUBLISH. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       publishSize,
                                                       1 ) );
@@ -953,7 +953,7 @@ TEST( MQTT_Unit_Receive, PublishValid )
     /* Process a valid QoS 1 PUBLISH. Prevent an attempt to send PUBACK by
      * making no memory available for the PUBACK. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         pPublish[ 0 ] = 0x32;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       publishSize,
@@ -962,7 +962,7 @@ TEST( MQTT_Unit_Receive, PublishValid )
 
     /* Process a valid QoS 2 PUBLISH. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         pPublish[ 0 ] = 0x34;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       publishSize,
@@ -971,7 +971,7 @@ TEST( MQTT_Unit_Receive, PublishValid )
 
     /* Process a valid PUBLISH with DUP flag set. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         pPublish[ 0 ] = 0x38;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       publishSize,
@@ -981,7 +981,7 @@ TEST( MQTT_Unit_Receive, PublishValid )
     /* Remove the subscription. Even though there is no matching subscription,
      * all bytes of the PUBLISH should still be processed (should not crash). */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
 
         _IotMqtt_RemoveSubscriptionByTopicFilter( _pMqttConnection,
                                                   &_subscription,
@@ -1008,7 +1008,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
     /* Attempting to process a packet smaller than 5 bytes should result in no
      * bytes processed. 5 bytes is the minimum size of a PUBLISH. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       4,
                                                       0 ) );
@@ -1022,7 +1022,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
     /* The PUBLISH cannot have a QoS of 3. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         pPublish[ 0 ] = 0x36;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       publishSize,
@@ -1037,7 +1037,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
     /* Attempt to process a PUBLISH with an invalid "Remaining length". */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         pPublish[ 1 ] = 0xff;
         pPublish[ 2 ] = 0xff;
         pPublish[ 3 ] = 0xff;
@@ -1055,7 +1055,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
     /* Attempt to process a PUBLISH where some bytes could not be received. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         pPublish[ 2 ] = 0x03;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       publishSize,
@@ -1072,7 +1072,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
      * spec allows. */
     {
         /* QoS 0. */
-        _DECLARE_PACKET( _pPublishTemplate, pPublish0, publish0Size );
+        DECLARE_PACKET( _pPublishTemplate, pPublish0, publish0Size );
         pPublish0[ 1 ] = 0x02;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish0,
                                                       publish0Size,
@@ -1083,7 +1083,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
         _networkCloseCalled = false;
 
         /* QoS 1. */
-        _DECLARE_PACKET( _pPublishTemplate, pPublish1, publish1Size );
+        DECLARE_PACKET( _pPublishTemplate, pPublish1, publish1Size );
         pPublish1[ 0 ] = 0x32;
         pPublish1[ 1 ] = 0x04;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish1,
@@ -1100,7 +1100,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
     /* Attempt to process a PUBLISH with a "Remaining length" smaller than the
      * end of the variable header. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         pPublish[ 1 ] = 0x0a;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
                                                       publishSize,
@@ -1115,7 +1115,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
 
     /* Attempt to process a PUBLISH with packet identifier 0. */
     {
-        _DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
+        DECLARE_PACKET( _pPublishTemplate, pPublish, publishSize );
         pPublish[ 0 ] = 0x32;
         pPublish[ 17 ] = 0x00;
         TEST_ASSERT_EQUAL_INT( true, _processPublish( pPublish,
@@ -1138,7 +1138,7 @@ TEST( MQTT_Unit_Receive, PublishInvalid )
  */
 TEST( MQTT_Unit_Receive, PubackValid )
 {
-    _mqttOperation_t publish = _INITIALIZE_OPERATION( IOT_MQTT_PUBLISH_TO_SERVER );
+    _mqttOperation_t publish = INITIALIZE_OPERATION( IOT_MQTT_PUBLISH_TO_SERVER );
 
     /* Create the wait semaphore so notifications don't crash. The value of
      * this semaphore will not be checked, so the maxValue argument is arbitrary. */
@@ -1149,7 +1149,7 @@ TEST( MQTT_Unit_Receive, PubackValid )
     /* Even though no PUBLISH is in the receive queue, 4 bytes should still be
      * processed (should not crash). */
     {
-        _DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
+        DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &publish,
                                                      pPuback,
                                                      pubackSize,
@@ -1158,7 +1158,7 @@ TEST( MQTT_Unit_Receive, PubackValid )
 
     /* Process a valid PUBACK. */
     {
-        _DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
+        DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
         _operationResetAndPush( &publish );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &publish,
                                                      pPuback,
@@ -1181,7 +1181,7 @@ TEST( MQTT_Unit_Receive, PubackValid )
  */
 TEST( MQTT_Unit_Receive, PubackInvalid )
 {
-    _mqttOperation_t publish = _INITIALIZE_OPERATION( IOT_MQTT_PUBLISH_TO_SERVER );
+    _mqttOperation_t publish = INITIALIZE_OPERATION( IOT_MQTT_PUBLISH_TO_SERVER );
 
     /* Create the wait semaphore so notifications don't crash. The value of
      * this semaphore will not be checked, so the maxValue argument is arbitrary. */
@@ -1193,7 +1193,7 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
 
     /* An incomplete PUBACK should not be processed, and no status should be set. */
     {
-        _DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
+        DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &publish,
                                                      pPuback,
                                                      pubackSize - 1,
@@ -1208,7 +1208,7 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
 
     /* The PUBACK control packet type must be 0x40. */
     {
-        _DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
+        DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
         pPuback[ 0 ] = 0x41;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &publish,
                                                      pPuback,
@@ -1226,7 +1226,7 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
 
     /* A PUBACK must have a remaining length of 2. */
     {
-        _DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
+        DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
         pPuback[ 1 ] = 0x03;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &publish,
                                                      pPuback,
@@ -1243,7 +1243,7 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
     /* The packet identifier in PUBACK cannot be 0. No status should be set if
      * packet identifier 0 is received. */
     {
-        _DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
+        DECLARE_PACKET( _pPubackTemplate, pPuback, pubackSize );
         pPuback[ 3 ] = 0x00;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &publish,
                                                      pPuback,
@@ -1275,7 +1275,7 @@ TEST( MQTT_Unit_Receive, PubackInvalid )
 TEST( MQTT_Unit_Receive, SubackValid )
 {
     _mqttSubscription_t * pNewSubscription = NULL;
-    _mqttOperation_t subscribe = _INITIALIZE_OPERATION( IOT_MQTT_SUBSCRIBE );
+    _mqttOperation_t subscribe = INITIALIZE_OPERATION( IOT_MQTT_SUBSCRIBE );
     IotMqttSubscription_t pSubscriptions[ 2 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     /* Create the wait semaphore so notifications don't crash. The value of
@@ -1287,13 +1287,13 @@ TEST( MQTT_Unit_Receive, SubackValid )
     /* Add 2 additional subscriptions to the MQTT connection. */
     pSubscriptions[ 0 ].qos = IOT_MQTT_QOS_1;
     pSubscriptions[ 0 ].callback.function = _publishCallback;
-    pSubscriptions[ 0 ].pTopicFilter = _TEST_TOPIC_NAME "1";
-    pSubscriptions[ 0 ].topicFilterLength = _TEST_TOPIC_LENGTH + 1;
+    pSubscriptions[ 0 ].pTopicFilter = TEST_TOPIC_NAME "1";
+    pSubscriptions[ 0 ].topicFilterLength = TEST_TOPIC_LENGTH + 1;
 
     pSubscriptions[ 1 ].qos = IOT_MQTT_QOS_1;
     pSubscriptions[ 1 ].callback.function = _publishCallback;
-    pSubscriptions[ 1 ].pTopicFilter = _TEST_TOPIC_NAME "2";
-    pSubscriptions[ 1 ].topicFilterLength = _TEST_TOPIC_LENGTH + 1;
+    pSubscriptions[ 1 ].pTopicFilter = TEST_TOPIC_NAME "2";
+    pSubscriptions[ 1 ].topicFilterLength = TEST_TOPIC_LENGTH + 1;
 
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _IotMqtt_AddSubscriptions( _pMqttConnection,
                                                                     1,
@@ -1314,7 +1314,7 @@ TEST( MQTT_Unit_Receive, SubackValid )
     /* Even though no SUBSCRIBE is in the receive queue, all bytes of the SUBACK
      * should still be processed (should not crash). */
     {
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &subscribe,
                                                      pSuback,
                                                      subackSize,
@@ -1324,7 +1324,7 @@ TEST( MQTT_Unit_Receive, SubackValid )
     /* Process a valid SUBACK where all subscriptions are successful. */
     {
         IotMqttSubscription_t currentSubscription = IOT_MQTT_SUBSCRIPTION_INITIALIZER;
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         _operationResetAndPush( &subscribe );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &subscribe,
                                                      pSuback,
@@ -1336,15 +1336,20 @@ TEST( MQTT_Unit_Receive, SubackValid )
                                                            pSubscriptions[ 0 ].pTopicFilter,
                                                            pSubscriptions[ 0 ].topicFilterLength,
                                                            &currentSubscription ) );
-        currentSubscription.qos = pSubscriptions[ 0 ].qos;
-        TEST_ASSERT_EQUAL_MEMORY( &pSubscriptions[ 0 ],
-                                  &currentSubscription,
-                                  sizeof( IotMqttSubscription_t ) );
+        TEST_ASSERT_EQUAL_UINT16( currentSubscription.topicFilterLength,
+                                  pSubscriptions[ 0 ].topicFilterLength );
+        TEST_ASSERT_EQUAL_STRING_LEN( currentSubscription.pTopicFilter,
+                                      pSubscriptions[ 0 ].pTopicFilter,
+                                      currentSubscription.topicFilterLength );
+        TEST_ASSERT_EQUAL_PTR( currentSubscription.callback.function,
+                               pSubscriptions[ 0 ].callback.function );
+        TEST_ASSERT_EQUAL_PTR( currentSubscription.callback.pCallbackContext,
+                               pSubscriptions[ 0 ].callback.pCallbackContext );
     }
 
     /* Process a valid SUBACK where some subscriptions were rejected. */
     {
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         pSuback[ 4 ] = 0x80;
         pSuback[ 6 ] = 0x80;
         _operationResetAndPush( &subscribe );
@@ -1356,8 +1361,8 @@ TEST( MQTT_Unit_Receive, SubackValid )
         /* Check that rejected subscriptions were removed from the subscription
          * list. */
         TEST_ASSERT_EQUAL_INT( false, IotMqtt_IsSubscribed( _pMqttConnection,
-                                                            _TEST_TOPIC_NAME,
-                                                            _TEST_TOPIC_LENGTH,
+                                                            TEST_TOPIC_NAME,
+                                                            TEST_TOPIC_LENGTH,
                                                             NULL ) );
         TEST_ASSERT_EQUAL_INT( false, IotMqtt_IsSubscribed( _pMqttConnection,
                                                             pSubscriptions[ 1 ].pTopicFilter,
@@ -1380,7 +1385,7 @@ TEST( MQTT_Unit_Receive, SubackValid )
  */
 TEST( MQTT_Unit_Receive, SubackInvalid )
 {
-    _mqttOperation_t subscribe = _INITIALIZE_OPERATION( IOT_MQTT_SUBSCRIBE );
+    _mqttOperation_t subscribe = INITIALIZE_OPERATION( IOT_MQTT_SUBSCRIBE );
 
     /* Create the wait semaphore so notifications don't crash. The value of
      * this semaphore will not be checked, so the maxValue argument is arbitrary. */
@@ -1393,7 +1398,7 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
     /* Attempting to process a packet smaller than 5 bytes should result in no
      * bytes processed. 5 bytes is the minimum size of a SUBACK. */
     {
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &subscribe,
                                                      pSuback,
                                                      4,
@@ -1408,7 +1413,7 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
     /* Attempt to process a SUBACK with an invalid "Remaining length". */
     {
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         pSuback[ 1 ] = 0xff;
         pSuback[ 2 ] = 0xff;
         pSuback[ 3 ] = 0xff;
@@ -1427,7 +1432,7 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
     /* Attempt to process a SUBACK larger than the size of the data stream. */
     {
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         pSuback[ 1 ] = 0x52;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &subscribe,
                                                      pSuback,
@@ -1444,7 +1449,7 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
     /* Attempt to process a SUBACK with a "Remaining length" smaller than the
      * spec allows. */
     {
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         pSuback[ 1 ] = 0x02;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &subscribe,
                                                      pSuback,
@@ -1460,7 +1465,7 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
     /* Attempt to process a SUBACK with a bad return code. */
     {
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         pSuback[ 6 ] = 0xff;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &subscribe,
                                                      pSuback,
@@ -1476,7 +1481,7 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
 
     /* The SUBACK control packet type must be 0x90. */
     {
-        _DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
+        DECLARE_PACKET( _pSubackTemplate, pSuback, subackSize );
         pSuback[ 0 ] = 0x91;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &subscribe,
                                                      pSuback,
@@ -1501,7 +1506,7 @@ TEST( MQTT_Unit_Receive, SubackInvalid )
  */
 TEST( MQTT_Unit_Receive, UnsubackValid )
 {
-    _mqttOperation_t unsubscribe = _INITIALIZE_OPERATION( IOT_MQTT_UNSUBSCRIBE );
+    _mqttOperation_t unsubscribe = INITIALIZE_OPERATION( IOT_MQTT_UNSUBSCRIBE );
 
     /* Create the wait semaphore so notifications don't crash. The value of
      * this semaphore will not be checked, so the maxValue argument is arbitrary. */
@@ -1512,7 +1517,7 @@ TEST( MQTT_Unit_Receive, UnsubackValid )
     /* Even though no UNSUBSCRIBE is in the receive queue, 4 bytes should still be
      * processed (should not crash). */
     {
-        _DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
+        DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &unsubscribe,
                                                      pUnsuback,
                                                      unsubackSize,
@@ -1521,7 +1526,7 @@ TEST( MQTT_Unit_Receive, UnsubackValid )
 
     /* Process a valid UNSUBACK. */
     {
-        _DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
+        DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
         _operationResetAndPush( &unsubscribe );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &unsubscribe,
                                                      pUnsuback,
@@ -1544,7 +1549,7 @@ TEST( MQTT_Unit_Receive, UnsubackValid )
  */
 TEST( MQTT_Unit_Receive, UnsubackInvalid )
 {
-    _mqttOperation_t unsubscribe = _INITIALIZE_OPERATION( IOT_MQTT_UNSUBSCRIBE );
+    _mqttOperation_t unsubscribe = INITIALIZE_OPERATION( IOT_MQTT_UNSUBSCRIBE );
 
     /* Create the wait semaphore so notifications don't crash. The value of
      * this semaphore will not be checked, so the maxValue argument is arbitrary. */
@@ -1556,7 +1561,7 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
 
     /* An incomplete UNSUBACK should not be processed, and no status should be set. */
     {
-        _DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
+        DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &unsubscribe,
                                                      pUnsuback,
                                                      unsubackSize - 1,
@@ -1571,7 +1576,7 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
 
     /* The UNSUBACK control packet type must be 0xb0. */
     {
-        _DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
+        DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
         pUnsuback[ 0 ] = 0xb1;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &unsubscribe,
                                                      pUnsuback,
@@ -1589,7 +1594,7 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
 
     /* An UNSUBACK must have a remaining length of 2. */
     {
-        _DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
+        DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
         pUnsuback[ 1 ] = 0x03;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &unsubscribe,
                                                      pUnsuback,
@@ -1606,7 +1611,7 @@ TEST( MQTT_Unit_Receive, UnsubackInvalid )
     /* The packet identifier in UNSUBACK cannot be 0. No status should be set if
      * packet identifier 0 is received. */
     {
-        _DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
+        DECLARE_PACKET( _pUnsubackTemplate, pUnsuback, unsubackSize );
         pUnsuback[ 3 ] = 0x00;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( &unsubscribe,
                                                      pUnsuback,
@@ -1642,7 +1647,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
     {
         _pMqttConnection->keepAliveFailure = false;
 
-        _DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
+        DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( NULL,
                                                      pPingresp,
                                                      pingrespSize,
@@ -1657,7 +1662,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
     {
         _pMqttConnection->keepAliveFailure = true;
 
-        _DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
+        DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( NULL,
                                                      pPingresp,
                                                      pingrespSize,
@@ -1673,7 +1678,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
     {
         _pMqttConnection->keepAliveFailure = true;
 
-        _DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
+        DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( NULL,
                                                      pPingresp,
                                                      pingrespSize - 1,
@@ -1690,7 +1695,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
     {
         _pMqttConnection->keepAliveFailure = true;
 
-        _DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
+        DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         pPingresp[ 1 ] = 0x01;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( NULL,
                                                      pPingresp,
@@ -1708,7 +1713,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
     {
         _pMqttConnection->keepAliveFailure = true;
 
-        _DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
+        DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         pPingresp[ 0 ] = 0xd1;
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( NULL,
                                                      pPingresp,

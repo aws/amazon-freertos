@@ -67,9 +67,9 @@
  * @brief Determine which MQTT server mode to test (AWS IoT or Mosquitto).
  */
 #if !defined( IOT_TEST_MQTT_MOSQUITTO ) || IOT_TEST_MQTT_MOSQUITTO == 0
-    #define _AWS_IOT_MQTT_SERVER    true
+    #define AWS_IOT_MQTT_SERVER    true
 #else
-    #define _AWS_IOT_MQTT_SERVER    false
+    #define AWS_IOT_MQTT_SERVER    false
 #endif
 
 /**
@@ -82,9 +82,9 @@
  * obligated to accept plus a NULL terminator.
  */
 #ifdef IOT_TEST_MQTT_CLIENT_IDENTIFIER
-    #define _CLIENT_IDENTIFIER_MAX_LENGTH    ( sizeof( IOT_TEST_MQTT_CLIENT_IDENTIFIER ) + 4 )
+    #define CLIENT_IDENTIFIER_MAX_LENGTH    ( sizeof( IOT_TEST_MQTT_CLIENT_IDENTIFIER ) + 4 )
 #else
-    #define _CLIENT_IDENTIFIER_MAX_LENGTH    ( 24 )
+    #define CLIENT_IDENTIFIER_MAX_LENGTH    ( 24 )
 #endif
 
 /*-----------------------------------------------------------*/
@@ -192,7 +192,7 @@ static const size_t _samplePayloadLength = sizeof( _pSamplePayload ) - 1;
 /**
  * @brief Buffer holding the client identifier used for the tests.
  */
-static char _pClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
+static char _pClientIdentifier[ CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
 
 /*
  * Track if the serializer overrides were called for a test.
@@ -486,7 +486,7 @@ static void _subscribePublishWait( IotMqttQos_t qos )
     if( TEST_PROTECT() )
     {
         /* Set the members of the MQTT connection info. */
-        connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+        connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
         connectInfo.cleanSession = true;
         connectInfo.pClientIdentifier = _pClientIdentifier;
         connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
@@ -613,13 +613,13 @@ TEST_SETUP( MQTT_System )
      * identifier is defined. Otherwise, copy the provided client identifier. */
     #ifndef IOT_TEST_MQTT_CLIENT_IDENTIFIER
         ( void ) snprintf( _pClientIdentifier,
-                           _CLIENT_IDENTIFIER_MAX_LENGTH,
+                           CLIENT_IDENTIFIER_MAX_LENGTH,
                            "iot%llu",
                            ( long long unsigned int ) IotClock_GetTimeMs() );
     #else
         ( void ) strncpy( _pClientIdentifier,
                           IOT_TEST_MQTT_CLIENT_IDENTIFIER,
-                          _CLIENT_IDENTIFIER_MAX_LENGTH );
+                          CLIENT_IDENTIFIER_MAX_LENGTH );
     #endif
 
     /* Set the overrides for the default serializers. */
@@ -722,7 +722,7 @@ TEST( MQTT_System, SubscribePublishAsync )
     subscription.callback.pCallbackContext = &publishWaitSem;
 
     /* Initialize members of the connect info. */
-    connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+    connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
     connectInfo.cleanSession = true;
     connectInfo.pClientIdentifier = _pClientIdentifier;
     connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
@@ -823,7 +823,7 @@ TEST( MQTT_System, LastWillAndTestament )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
     IotMqttNetworkInfo_t lwtNetworkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
-    char pLwtListenerClientIdentifier[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
+    char pLwtListenerClientIdentifier[ CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
     IotMqttConnection_t lwtListener = IOT_MQTT_CONNECTION_INITIALIZER;
     IotMqttConnectInfo_t lwtConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER,
                          connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
@@ -837,13 +837,13 @@ TEST( MQTT_System, LastWillAndTestament )
     /* Generate a client identifier for LWT listener. */
     #ifndef IOT_TEST_MQTT_CLIENT_IDENTIFIER
         ( void ) snprintf( pLwtListenerClientIdentifier,
-                           _CLIENT_IDENTIFIER_MAX_LENGTH,
+                           CLIENT_IDENTIFIER_MAX_LENGTH,
                            "iotlwt%llu",
                            ( long long unsigned int ) IotClock_GetTimeMs() );
     #else
         ( void ) strncpy( pLwtListenerClientIdentifier,
                           IOT_TEST_MQTT_CLIENT_IDENTIFIER "LWT",
-                          _CLIENT_IDENTIFIER_MAX_LENGTH );
+                          CLIENT_IDENTIFIER_MAX_LENGTH );
     #endif
 
     /* Establish an independent MQTT over TCP connection to receive a Last
@@ -857,7 +857,7 @@ TEST( MQTT_System, LastWillAndTestament )
 
     lwtNetworkInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
 
-    lwtConnectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+    lwtConnectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
     lwtConnectInfo.cleanSession = true;
     lwtConnectInfo.pClientIdentifier = pLwtListenerClientIdentifier;
     lwtConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( lwtConnectInfo.pClientIdentifier );
@@ -886,7 +886,7 @@ TEST( MQTT_System, LastWillAndTestament )
             TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
             /* Create a connection that requests the LWT. */
-            connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+            connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
             connectInfo.cleanSession = true;
             connectInfo.pClientIdentifier = _pClientIdentifier;
             connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
@@ -969,7 +969,7 @@ TEST( MQTT_System, RestorePreviousSession )
         _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
         /* Re-establish the MQTT connection with a previous session. */
-        connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+        connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
         connectInfo.cleanSession = false;
         connectInfo.pPreviousSubscriptions = &subscription;
         connectInfo.previousSubscriptionCount = 1;
@@ -1045,7 +1045,7 @@ TEST( MQTT_System, WaitAfterDisconnect )
     IotMqttOperation_t pPublishOperation[ 3 ] = { IOT_MQTT_OPERATION_INITIALIZER };
 
     /* Set the client identifier and length. */
-    connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+    connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
     connectInfo.pClientIdentifier = _pClientIdentifier;
     connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
 
@@ -1120,7 +1120,7 @@ TEST( MQTT_System, SubscribeCompleteReentrancy )
 
         if( TEST_PROTECT() )
         {
-            connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+            connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
             connectInfo.pClientIdentifier = _pClientIdentifier;
             connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
 
@@ -1192,7 +1192,7 @@ TEST( MQTT_System, IncomingPublishReentrancy )
 
         if( TEST_PROTECT() )
         {
-            connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+            connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
             connectInfo.pClientIdentifier = _pClientIdentifier;
             connectInfo.clientIdentifierLength = ( uint16_t ) strlen( _pClientIdentifier );
 

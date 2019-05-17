@@ -20,8 +20,8 @@
  */
 
 /**
- * @file aws_iot_static_memory_shadow.c
- * @brief Implementation of Shadow static memory functions in iot_static_memory.h
+ * @file aws_iot_shadow_static_memory.c
+ * @brief Implementation of Shadow static memory functions.
  */
 
 /* The config header is always included first. */
@@ -69,23 +69,10 @@
  * @brief The size of a static memory Shadow subscription.
  *
  * Since the pThingName member of #_shadowSubscription_t is variable-length,
- * the constant #_MAX_THING_NAME_LENGTH is used for the length of
+ * the constant #MAX_THING_NAME_LENGTH is used for the length of
  * #_shadowSubscription_t.pThingName.
  */
-#define _SHADOW_SUBSCRIPTION_SIZE    ( sizeof( _shadowSubscription_t ) + _MAX_THING_NAME_LENGTH )
-
-/*-----------------------------------------------------------*/
-
-/* Extern declarations of common static memory functions in iot_static_memory_common.c
- * Because these functions are specific to this static memory implementation, they are
- * not placed in the common static memory header file. */
-extern int IotStaticMemory_FindFree( bool * const pInUse,
-                                     int limit );
-extern void IotStaticMemory_ReturnInUse( void * ptr,
-                                         void * const pPool,
-                                         bool * const pInUse,
-                                         int limit,
-                                         size_t elementSize );
+#define SHADOW_SUBSCRIPTION_SIZE    ( sizeof( _shadowSubscription_t ) + MAX_THING_NAME_LENGTH )
 
 /*-----------------------------------------------------------*/
 
@@ -96,13 +83,13 @@ static bool _pInUseShadowOperations[ AWS_IOT_SHADOW_MAX_IN_PROGRESS_OPERATIONS ]
 static _shadowOperation_t _pShadowOperations[ AWS_IOT_SHADOW_MAX_IN_PROGRESS_OPERATIONS ] = { { .link = { 0 } } }; /**< @brief Shadow operations. */
 
 static bool _pInUseShadowSubscriptions[ AWS_IOT_SHADOW_SUBSCRIPTIONS ] = { 0 };                             /**< @brief Shadow subscription in-use flags. */
-static char _pShadowSubscriptions[ AWS_IOT_SHADOW_SUBSCRIPTIONS ][ _SHADOW_SUBSCRIPTION_SIZE ] = { { 0 } }; /**< @brief Shadow subscriptions. */
+static char _pShadowSubscriptions[ AWS_IOT_SHADOW_SUBSCRIPTIONS ][ SHADOW_SUBSCRIPTION_SIZE ] = { { 0 } };  /**< @brief Shadow subscriptions. */
 
 /*-----------------------------------------------------------*/
 
-void * AwsIot_MallocShadowOperation( size_t size )
+void * AwsIotShadow_MallocOperation( size_t size )
 {
-    int freeIndex = -1;
+    int32_t freeIndex = -1;
     void * pNewOperation = NULL;
 
     /* Check size argument. */
@@ -123,7 +110,7 @@ void * AwsIot_MallocShadowOperation( size_t size )
 
 /*-----------------------------------------------------------*/
 
-void AwsIot_FreeShadowOperation( void * ptr )
+void AwsIotShadow_FreeOperation( void * ptr )
 {
     /* Return the in-use Shadow operation. */
     IotStaticMemory_ReturnInUse( ptr,
@@ -135,12 +122,12 @@ void AwsIot_FreeShadowOperation( void * ptr )
 
 /*-----------------------------------------------------------*/
 
-void * AwsIot_MallocShadowSubscription( size_t size )
+void * AwsIotShadow_MallocSubscription( size_t size )
 {
-    int freeIndex = -1;
+    int32_t freeIndex = -1;
     void * pNewSubscription = NULL;
 
-    if( size <= _SHADOW_SUBSCRIPTION_SIZE )
+    if( size <= SHADOW_SUBSCRIPTION_SIZE )
     {
         /* Get the index of a free Shadow subscription. */
         freeIndex = IotStaticMemory_FindFree( _pInUseShadowSubscriptions,
@@ -157,14 +144,14 @@ void * AwsIot_MallocShadowSubscription( size_t size )
 
 /*-----------------------------------------------------------*/
 
-void AwsIot_FreeShadowSubscription( void * ptr )
+void AwsIotShadow_FreeSubscription( void * ptr )
 {
     /* Return the in-use Shadow subscription. */
     IotStaticMemory_ReturnInUse( ptr,
                                  _pShadowSubscriptions,
                                  _pInUseShadowSubscriptions,
                                  AWS_IOT_SHADOW_SUBSCRIPTIONS,
-                                 _SHADOW_SUBSCRIPTION_SIZE );
+                                 SHADOW_SUBSCRIPTION_SIZE );
 }
 
 /*-----------------------------------------------------------*/

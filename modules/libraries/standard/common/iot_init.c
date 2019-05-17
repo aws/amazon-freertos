@@ -33,8 +33,8 @@
 /* Task pool include. */
 #include "iot_taskpool.h"
 
-/* Metrics include. */
-#include "platform/iot_metrics.h"
+/* Atomic include. */
+#include "iot_atomic.h"
 
 /* Static memory include (if dynamic memory allocation is disabled). */
 #include "private/iot_static_memory.h"
@@ -44,21 +44,42 @@
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
-    #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
 #else
-    #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
 #endif
 
-#define _LIBRARY_LOG_NAME         ( "INIT" )
+#define LIBRARY_LOG_NAME         ( "INIT" )
 #include "iot_logging_setup.h"
+
+/*-----------------------------------------------------------*/
+
+#if IOT_ATOMIC_GENERIC == 1
+
+/**
+ * @brief Provides atomic operations with thread safety.
+ */
+    IotMutex_t IotAtomicMutex;
+#endif
 
 /*-----------------------------------------------------------*/
 
 bool IotSdk_Init( void )
 {
-    _IOT_FUNCTION_ENTRY( bool, true );
+    IOT_FUNCTION_ENTRY( bool, true );
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolInfo_t taskPoolInfo = IOT_TASKPOOL_INFO_INITIALIZER_LARGE;
+
+    /* Initialize the mutex for generic atomic operations if needed. */
+    #if IOT_ATOMIC_GENERIC == 1
+        bool genericAtomicInitialized = IotMutex_Create( &IotAtomicMutex, false );
+
+        if( genericAtomicInitialized == false )
+        {
+            IotLogError( "Failed to initialize atomic operations." );
+            IOT_SET_AND_GOTO_CLEANUP( false );
+        }
+    #endif
 
     /* Initialize static memory if dynamic memory allocation is disabled. */
     #if IOT_STATIC_MEMORY_ONLY == 1
@@ -67,7 +88,7 @@ bool IotSdk_Init( void )
         if( staticMemoryInitialized == false )
         {
             IotLogError( "Failed to initialize static memory." );
-            _IOT_GOTO_CLEANUP();
+            IOT_SET_AND_GOTO_CLEANUP( false );
         }
     #endif
 
@@ -77,13 +98,19 @@ bool IotSdk_Init( void )
     if( taskPoolStatus != IOT_TASKPOOL_SUCCESS )
     {
         IotLogError( "Failed to create system task pool." );
-        _IOT_SET_AND_GOTO_CLEANUP( false );
+        IOT_SET_AND_GOTO_CLEANUP( false );
     }
 
-    _IOT_FUNCTION_CLEANUP_BEGIN();
+    IOT_FUNCTION_CLEANUP_BEGIN();
 
     if( status == false )
     {
+        #if IOT_ATOMIC_GENERIC == 1
+            if( genericAtomicInitialized == true )
+            {
+                IotMutex_Destroy( &IotAtomicMutex );
+            }
+        #endif
         #if IOT_STATIC_MEMORY_ONLY == 1
             if( staticMemoryInitialized == true )
             {
@@ -96,7 +123,7 @@ bool IotSdk_Init( void )
         IotLogInfo( "SDK successfully initialized." );
     }
 
-    _IOT_FUNCTION_CLEANUP_END();
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -112,6 +139,11 @@ void IotSdk_Cleanup( void )
     /* Cleanup static memory if dynamic memory allocation is disabled. */
     #if IOT_STATIC_MEMORY_ONLY == 1
         IotStaticMemory_Cleanup();
+    #endif
+
+    /* Clean up the mutex for generic atomic operations if needed. */
+    #if IOT_ATOMIC_GENERIC == 1
+        IotMutex_Destroy( &IotAtomicMutex );
     #endif
 }
 

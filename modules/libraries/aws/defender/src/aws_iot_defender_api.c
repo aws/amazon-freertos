@@ -28,9 +28,9 @@
 /* Clock include. */
 #include "platform/iot_clock.h"
 
-#define _WAIT_METRICS_JOB_MAX_SECONDS    ( 5 )
+#define WAIT_METRICS_JOB_MAX_SECONDS    ( 5 )
 
-#if _WAIT_METRICS_JOB_MAX_SECONDS < AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS
+#if WAIT_METRICS_JOB_MAX_SECONDS < AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS
     #error "_WAIT_METRICS_JOB_MAX_SECONDS must be greater than AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS."
 #endif
 
@@ -95,7 +95,7 @@ AwsIotDefenderStartInfo_t _startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t metricsGroup,
                                                  uint32_t metrics )
 {
-    if( metricsGroup >= _DEFENDER_METRICS_GROUP_COUNT )
+    if( metricsGroup >= DEFENDER_METRICS_GROUP_COUNT )
     {
         IotLogError( "Input metrics group is invalid. Please use AwsIotDefenderMetricsGroup_t data type." );
 
@@ -240,7 +240,7 @@ void AwsIotDefender_Stop( void )
     if( taskPoolError != IOT_TASKPOOL_SUCCESS )
     {
         IotLogWarn( "Failed to cancel metrics publish job with return code %d and status %d.", taskPoolError, status );
-        IotClock_SleepMs( _WAIT_METRICS_JOB_MAX_SECONDS * 1000 );
+        IotClock_SleepMs( WAIT_METRICS_JOB_MAX_SECONDS * 1000 );
     }
 
     /* Destroy metrics' mutex. */

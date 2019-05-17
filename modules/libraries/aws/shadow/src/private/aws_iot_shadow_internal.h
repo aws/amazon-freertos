@@ -60,16 +60,16 @@
 
 /* Configure logs for Shadow functions. */
 #ifdef AWS_IOT_LOG_LEVEL_SHADOW
-    #define _LIBRARY_LOG_LEVEL        AWS_IOT_LOG_LEVEL_SHADOW
+    #define LIBRARY_LOG_LEVEL        AWS_IOT_LOG_LEVEL_SHADOW
 #else
     #ifdef IOT_LOG_LEVEL_GLOBAL
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
     #else
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
     #endif
 #endif
 
-#define _LIBRARY_LOG_NAME    ( "Shadow" )
+#define LIBRARY_LOG_NAME    ( "Shadow" )
 #include "iot_logging_setup.h"
 
 /*
@@ -84,54 +84,42 @@
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef AwsIotShadow_MallocOperation
-        #define AwsIotShadow_MallocOperation    AwsIot_MallocShadowOperation
-    #endif
+    void * AwsIotShadow_MallocOperation( size_t size );
 
 /**
  * @brief Free a #_shadowOperation_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef AwsIotShadow_FreeOperation
-        #define AwsIotShadow_FreeOperation    AwsIot_FreeShadowOperation
-    #endif
+    void AwsIotShadow_FreeOperation( void * ptr );
 
 /**
  * @brief Allocate a buffer for a short string, used for topic names or client
  * tokens. This function should have the same signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef AwsIotShadow_MallocString
-        #define AwsIotShadow_MallocString    Iot_MallocMessageBuffer
-    #endif
+    #define AwsIotShadow_MallocString    Iot_MallocMessageBuffer
 
 /**
  * @brief Free a string. This function should have the same signature as
  * [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef AwsIotShadow_FreeString
-        #define AwsIotShadow_FreeString    Iot_FreeMessageBuffer
-    #endif
+    #define AwsIotShadow_FreeString      Iot_FreeMessageBuffer
 
 /**
  * @brief Allocate a #_shadowSubscription_t. This function should have the
  * same signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef AwsIotShadow_MallocSubscription
-        #define AwsIotShadow_MallocSubscription    AwsIot_MallocShadowSubscription
-    #endif
+    void * AwsIotShadow_MallocSubscription( size_t size );
 
 /**
  * @brief Free a #_shadowSubscription_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef AwsIotShadow_FreeSubscription
-        #define AwsIotShadow_FreeSubscription    AwsIot_FreeShadowSubscription
-    #endif
+    void AwsIotShadow_FreeSubscription( void * ptr );
 #else /* if IOT_STATIC_MEMORY_ONLY == 1 */
     #include <stdlib.h>
 
@@ -175,14 +163,14 @@
  * @brief The longest Thing Name accepted by the Shadow service, per the [AWS IoT
  * Service Limits](https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html#limits_iot).
  */
-#define _MAX_THING_NAME_LENGTH                    ( 128 )
+#define MAX_THING_NAME_LENGTH                    ( 128 )
 
 /**
  * @brief The number of currently available Shadow operations.
  *
  * The 3 Shadow operations are DELETE, GET, and UPDATE.
  */
-#define _SHADOW_OPERATION_COUNT                   ( 3 )
+#define SHADOW_OPERATION_COUNT                   ( 3 )
 
 /**
  * @brief The number of currently available Shadow callbacks.
@@ -190,109 +178,109 @@
  * The 2 Shadow callbacks are `update/delta` (AKA "Delta") and `/update/documents`
  * (AKA "Updated").
  */
-#define _SHADOW_CALLBACK_COUNT                    ( 2 )
+#define SHADOW_CALLBACK_COUNT                    ( 2 )
 
 /**
  * @brief The common prefix of all Shadow MQTT topics, per the [AWS IoT Shadow
  * spec](https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html).
  */
-#define _SHADOW_TOPIC_PREFIX                      "$aws/things/"
+#define SHADOW_TOPIC_PREFIX                      "$aws/things/"
 
 /**
- * @brief The length of #_SHADOW_TOPIC_PREFIX.
+ * @brief The length of #SHADOW_TOPIC_PREFIX.
  */
-#define _SHADOW_TOPIC_PREFIX_LENGTH               ( ( uint16_t ) ( sizeof( _SHADOW_TOPIC_PREFIX ) - 1 ) )
+#define SHADOW_TOPIC_PREFIX_LENGTH               ( ( uint16_t ) ( sizeof( SHADOW_TOPIC_PREFIX ) - 1 ) )
 
 /**
  * @brief The string representing a Shadow DELETE operation in a Shadow MQTT topic.
  */
-#define _SHADOW_DELETE_OPERATION_STRING           "/shadow/delete"
+#define SHADOW_DELETE_OPERATION_STRING           "/shadow/delete"
 
 /**
- * @brief The length of #_SHADOW_DELETE_OPERATION_STRING.
+ * @brief The length of #SHADOW_DELETE_OPERATION_STRING.
  */
-#define _SHADOW_DELETE_OPERATION_STRING_LENGTH    ( ( uint16_t ) ( sizeof( _SHADOW_DELETE_OPERATION_STRING ) - 1 ) )
+#define SHADOW_DELETE_OPERATION_STRING_LENGTH    ( ( uint16_t ) ( sizeof( SHADOW_DELETE_OPERATION_STRING ) - 1 ) )
 
 /**
  * @brief The string representing a Shadow GET operation in a Shadow MQTT topic.
  */
-#define _SHADOW_GET_OPERATION_STRING              "/shadow/get"
+#define SHADOW_GET_OPERATION_STRING              "/shadow/get"
 
 /**
- * @brief The length of #_SHADOW_GET_OPERATION_STRING.
+ * @brief The length of #SHADOW_GET_OPERATION_STRING.
  */
-#define _SHADOW_GET_OPERATION_STRING_LENGTH       ( ( uint16_t ) ( sizeof( _SHADOW_GET_OPERATION_STRING ) - 1 ) )
+#define SHADOW_GET_OPERATION_STRING_LENGTH       ( ( uint16_t ) ( sizeof( SHADOW_GET_OPERATION_STRING ) - 1 ) )
 
 /**
  * @brief The string representing a Shadow UPDATE operation in a Shadow MQTT topic.
  */
-#define _SHADOW_UPDATE_OPERATION_STRING           "/shadow/update"
+#define SHADOW_UPDATE_OPERATION_STRING           "/shadow/update"
 
 /**
- * @brief The length of #_SHADOW_UPDATE_OPERATION_STRING.
+ * @brief The length of #SHADOW_UPDATE_OPERATION_STRING.
  */
-#define _SHADOW_UPDATE_OPERATION_STRING_LENGTH    ( ( uint16_t ) ( sizeof( _SHADOW_UPDATE_OPERATION_STRING ) - 1 ) )
+#define SHADOW_UPDATE_OPERATION_STRING_LENGTH    ( ( uint16_t ) ( sizeof( SHADOW_UPDATE_OPERATION_STRING ) - 1 ) )
 
 /**
  * @brief The suffix for a Shadow operation "accepted" topic.
  */
-#define _SHADOW_ACCEPTED_SUFFIX                   "/accepted"
+#define SHADOW_ACCEPTED_SUFFIX                   "/accepted"
 
 /**
- * @brief The length of #_SHADOW_ACCEPTED_SUFFIX.
+ * @brief The length of #SHADOW_ACCEPTED_SUFFIX.
  */
-#define _SHADOW_ACCEPTED_SUFFIX_LENGTH            ( ( uint16_t ) ( sizeof( _SHADOW_ACCEPTED_SUFFIX ) - 1 ) )
+#define SHADOW_ACCEPTED_SUFFIX_LENGTH            ( ( uint16_t ) ( sizeof( SHADOW_ACCEPTED_SUFFIX ) - 1 ) )
 
 /**
  * @brief The suffix for a Shadow operation "rejected" topic.
  */
-#define _SHADOW_REJECTED_SUFFIX                   "/rejected"
+#define SHADOW_REJECTED_SUFFIX                   "/rejected"
 
 /**
- * @brief The length of #_SHADOW_REJECTED_SUFFIX.
+ * @brief The length of #SHADOW_REJECTED_SUFFIX.
  */
-#define _SHADOW_REJECTED_SUFFIX_LENGTH            ( ( uint16_t ) ( sizeof( _SHADOW_REJECTED_SUFFIX ) - 1 ) )
+#define SHADOW_REJECTED_SUFFIX_LENGTH            ( ( uint16_t ) ( sizeof( SHADOW_REJECTED_SUFFIX ) - 1 ) )
 
 /**
  * @brief The suffix for a Shadow delta topic.
  */
-#define _SHADOW_DELTA_SUFFIX                      "/delta"
+#define SHADOW_DELTA_SUFFIX                      "/delta"
 
 /**
- * @brief The length of #_SHADOW_DELTA_SUFFIX.
+ * @brief The length of #SHADOW_DELTA_SUFFIX.
  */
-#define _SHADOW_DELTA_SUFFIX_LENGTH               ( ( uint16_t ) ( sizeof( _SHADOW_DELTA_SUFFIX ) - 1 ) )
+#define SHADOW_DELTA_SUFFIX_LENGTH               ( ( uint16_t ) ( sizeof( SHADOW_DELTA_SUFFIX ) - 1 ) )
 
 /**
  * @brief The suffix for a Shadow updated topic.
  */
-#define _SHADOW_UPDATED_SUFFIX                    "/documents"
+#define SHADOW_UPDATED_SUFFIX                    "/documents"
 
 /**
- * @brief The length of #_SHADOW_UPDATED_SUFFIX.
+ * @brief The length of #SHADOW_UPDATED_SUFFIX.
  */
-#define _SHADOW_UPDATED_SUFFIX_LENGTH             ( ( uint16_t ) ( sizeof( _SHADOW_UPDATED_SUFFIX ) - 1 ) )
+#define SHADOW_UPDATED_SUFFIX_LENGTH             ( ( uint16_t ) ( sizeof( SHADOW_UPDATED_SUFFIX ) - 1 ) )
 
 /**
  * @brief The length of the longest Shadow suffix.
  */
-#define _SHADOW_LONGEST_SUFFIX_LENGTH             _SHADOW_UPDATED_SUFFIX_LENGTH
+#define SHADOW_LONGEST_SUFFIX_LENGTH             SHADOW_UPDATED_SUFFIX_LENGTH
 
 /**
  * @brief The JSON key used to represent client tokens in a Shadow update document.
  */
-#define _CLIENT_TOKEN_KEY                         "clientToken"
+#define CLIENT_TOKEN_KEY                         "clientToken"
 
 /**
- * @brief The length of #_CLIENT_TOKEN_KEY.
+ * @brief The length of #CLIENT_TOKEN_KEY.
  */
-#define _CLIENT_TOKEN_KEY_LENGTH                  ( sizeof( _CLIENT_TOKEN_KEY ) - 1 )
+#define CLIENT_TOKEN_KEY_LENGTH                  ( sizeof( CLIENT_TOKEN_KEY ) - 1 )
 
 /**
  * @brief The longest client token accepted by the Shadow service, per AWS IoT
  * service limits.
  */
-#define _MAX_CLIENT_TOKEN_LENGTH                  ( 64 )
+#define MAX_CLIENT_TOKEN_LENGTH                  ( 64 )
 
 /**
  * @brief A flag to represent persistent subscriptions in a Shadow subscriptions
@@ -301,7 +289,7 @@
  * Its value is negative to distinguish it from valid subscription counts, which
  * are 0 or positive.
  */
-#define _PERSISTENT_SUBSCRIPTION                  ( -1 )
+#define PERSISTENT_SUBSCRIPTION                  ( -1 )
 
 /*----------------------- Shadow internal data types ------------------------*/
 
@@ -408,7 +396,7 @@ typedef struct _shadowOperation
             const char * pClientToken; /**< @brief Client token in update document. */
             size_t clientTokenLength;  /**< @brief Length of client token. */
         } update;
-    } u; /**< @brief Valid member depends on _shadowOperation_t.type. */
+    } u;                               /**< @brief Valid member depends on _shadowOperation_t.type. */
 
     /* How to notify of an operation's completion. */
     union
@@ -425,10 +413,10 @@ typedef struct _shadowOperation
  */
 typedef struct _shadowSubscription
 {
-    IotLink_t link;                                                 /**< @brief List link member. */
+    IotLink_t link;                                                /**< @brief List link member. */
 
-    int32_t references[ _SHADOW_OPERATION_COUNT ];                  /**< @brief Reference counter for Shadow operation topics. */
-    AwsIotShadowCallbackInfo_t callbacks[ _SHADOW_CALLBACK_COUNT ]; /**< @brief Shadow callbacks for this Thing. */
+    int32_t references[ SHADOW_OPERATION_COUNT ];                  /**< @brief Reference counter for Shadow operation topics. */
+    AwsIotShadowCallbackInfo_t callbacks[ SHADOW_CALLBACK_COUNT ]; /**< @brief Shadow callbacks for this Thing. */
 
     /**
      * @brief Buffer allocated for removing Shadow topics.
@@ -443,7 +431,7 @@ typedef struct _shadowSubscription
 } _shadowSubscription_t;
 
 /* Declarations of names printed in logs. */
-#if _LIBRARY_LOG_LEVEL > IOT_LOG_NONE
+#if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
     extern const char * const _pAwsIotShadowOperationNames[];
     extern const char * const _pAwsIotShadowCallbackNames[];
 #endif
@@ -496,7 +484,7 @@ void _AwsIotShadow_DestroyOperation( void * pData );
  *
  * @warning This function does not check the length of `pTopicBuffer`! Any provided
  * buffer must be large enough to accommodate the full Shadow topic, plus
- * #_SHADOW_LONGEST_SUFFIX_LENGTH.
+ * #SHADOW_LONGEST_SUFFIX_LENGTH.
  *
  * @return #AWS_IOT_SHADOW_SUCCESS or #AWS_IOT_SHADOW_NO_MEMORY. This function
  * will not return #AWS_IOT_SHADOW_NO_MEMORY when a buffer is provided.
@@ -620,7 +608,7 @@ AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * pOpe
  *
  * @warning This function does not check the length of `pTopicBuffer`! Any provided
  * buffer must be large enough to accommodate the full Shadow topic, plus
- * #_SHADOW_LONGEST_SUFFIX_LENGTH.
+ * #SHADOW_LONGEST_SUFFIX_LENGTH.
  *
  * @note This function should be called with the subscription list mutex locked.
  */

@@ -21,49 +21,7 @@
 
 /**
  * @file aws_iot_defender.h
- * @brief User-facing functions and structs of AWS IoT Device Defender libraries
- *
- * [Link to AWS documentation](https://docs.aws.amazon.com/iot/latest/developerguide/device-defender-detect.html)
- *
- */
-
-/**
- * @mainpage
- *
- * ## Introduction
- * AWS IoT Device Defender is an IoT security service that allows you to audit the configuration of your devices,
- * monitor connected devices to detect abnormal behavior, and to mitigate security risks.
- * Part of it relies on an dedicated agent to collect device-side metrics and send to AWS Iot.
- *
- * Amazon FreeRTOS provides a library that allows your Amazon FreeRTOS-based devices to work with AWS IoT Device Defender.
- *
- * ## Dependencies
- *
- * @dot "Device Defender Library dependencies"
- * digraph library_dependencies
- * {
- *  node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
- *  edge[fontname=Helvetica, fontsize=10];
- *
- *  defender[label="Device Defender", fillcolor="#cc00ccff"];
- *
- *  logging[label="Logging", fillcolor="#aed8a9ff", URL="@ref logging"];
- *  static_memory[label="Static memory", fillcolor="#aed8a9ff", URL="@ref static_memory"];
- *  linear_containers[label="List/Queue", fillcolor="#aed8a9ff", URL="@ref linear_containers"];
- *  taskpool[label="Taskpool", fillcolor="#aed8a9ff", URL="@ref taskpool"]
- *  mqtt[label="MQTT", fillcolor="#aed8a9ff", URL="@ref mqtt"]
- *  platform_threads[label="Thread", fillcolor="#e89025ff", URL="@ref platform_threads"];
- *  platform_clock[label="Clock", fillcolor="#e89025ff", URL="@ref platform_clock"];
- *
- *  defender -> linear_containers;
- *  defender -> logging [label=" if logging enabled", style="dashed"];
- *  defender -> static_memory [label=" if static memory only", style="dashed"];
- *  defender -> platform_threads;
- *  defender -> platform_clock;
- *  defender -> taskpool;
- *  defender -> mqtt;
- * }
- * @enddot
+ * @brief User-facing functions and structs of AWS IoT Device Defender library.
  */
 
 #ifndef AWS_IOT_DEFENDER_H_
@@ -421,4 +379,4 @@ uint32_t AwsIotDefender_GetPeriod( void );
 const char * AwsIotDefender_strerror( AwsIotDefenderError_t error );
 /* @[declare_defender_strerror] */
 
-#endif /* end of include guard: AWS_IOT_DEFENDER_H_ */
+#endif /* AWS_IOT_DEFENDER_H_ */

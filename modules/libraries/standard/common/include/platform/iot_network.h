@@ -229,4 +229,61 @@ typedef struct IotNetworkInterface
     /* @[declare_platform_network_destroy] */
 } IotNetworkInterface_t;
 
+/**
+ * @ingroup platform_datatypes_paramstructs
+ * @brief Information on the remote server for connection setup.
+ *
+ * May be passed to #IotNetworkInterface_t.create as `pConnectionInfo`. This
+ * structure contains commonly-used parameters, but may be replaced with an
+ * alternative.
+ */
+typedef struct IotNetworkServerInfo
+{
+    const char * pHostName; /**< @brief Server host name. Must be NULL-terminated. */
+    uint16_t port;          /**< @brief Server port in host-order. */
+} IotNetworkServerInfo_t;
+
+/**
+ * @ingroup platform_datatypes_paramstructs
+ * @brief Contains the credentials necessary for connection setup.
+ *
+ * May be passed to #IotNetworkInterface_t.create as `pCredentialInfo`. This
+ * structure contains commonly-used parameters, but may be replaced with an
+ * alternative.
+ */
+typedef struct IotNetworkCredentials
+{
+    /**
+     * @brief Set this to a non-NULL value to use ALPN.
+     *
+     * This string must be NULL-terminated.
+     *
+     * See [this link]
+     * (https://aws.amazon.com/blogs/iot/mqtt-with-tls-client-authentication-on-port-443-why-it-is-useful-and-how-it-works/)
+     * for more information.
+     */
+    const char * pAlpnProtos;
+
+    /**
+     * @brief Set this to a non-zero value to use TLS max fragment length
+     * negotiation (TLS MFLN).
+     *
+     * @note The network stack may have a minimum value for this parameter and
+     * may return an error if this parameter is too small.
+     */
+    size_t maxFragmentLength;
+
+    /**
+     * @brief Disable server name indication (SNI) for a TLS session.
+     */
+    bool disableSni;
+
+    const char * pRootCa;     /**< @brief String representing a trusted server root certificate. */
+    size_t rootCaSize;        /**< @brief Size associated with #IotNetworkCredentials_t.pRootCa. */
+    const char * pClientCert; /**< @brief String representing the client certificate. */
+    size_t clientCertSize;    /**< @brief Size associated with #IotNetworkCredentials_t.pClientCert. */
+    const char * pPrivateKey; /**< @brief String representing the client certificate's private key. */
+    size_t privateKeySize;    /**< @brief Size associated with #IotNetworkCredentials_t.pPrivateKey. */
+} IotNetworkCredentials_t;
+
 #endif /* ifndef IOT_NETWORK_H_ */

@@ -95,12 +95,12 @@ static bool _incomingPacketValid( uint8_t packetType )
     switch( packetType & 0xf0 )
     {
         /* Valid incoming packet types. */
-        case _MQTT_PACKET_TYPE_CONNACK:
-        case _MQTT_PACKET_TYPE_PUBLISH:
-        case _MQTT_PACKET_TYPE_PUBACK:
-        case _MQTT_PACKET_TYPE_SUBACK:
-        case _MQTT_PACKET_TYPE_UNSUBACK:
-        case _MQTT_PACKET_TYPE_PINGRESP:
+        case MQTT_PACKET_TYPE_CONNACK:
+        case MQTT_PACKET_TYPE_PUBLISH:
+        case MQTT_PACKET_TYPE_PUBACK:
+        case MQTT_PACKET_TYPE_SUBACK:
+        case MQTT_PACKET_TYPE_UNSUBACK:
+        case MQTT_PACKET_TYPE_PINGRESP:
             break;
 
         /* Any other packet type is invalid. */
@@ -118,7 +118,7 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
                                           const _mqttConnection_t * pMqttConnection,
                                           _mqttPacket_t * pIncomingPacket )
 {
-    _IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
+    IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
     size_t dataBytesRead = 0;
 
     /* Default functions for retrieving packet type and length. */
@@ -141,7 +141,7 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
 
             if( pMqttConnection->pSerializer->getRemainingLength != NULL )
@@ -150,12 +150,12 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
         }
         else
         {
-            _EMPTY_ELSE_MARKER;
+            EMPTY_ELSE_MARKER;
         }
     #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
@@ -170,24 +170,24 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
                      pMqttConnection,
                      pIncomingPacket->type );
 
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_RESPONSE );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_RESPONSE );
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 
     /* Read the remaining length. */
     pIncomingPacket->remainingLength = getRemainingLength( pNetworkConnection,
                                                            pMqttConnection->pNetworkInterface );
 
-    if( pIncomingPacket->remainingLength == _MQTT_REMAINING_LENGTH_INVALID )
+    if( pIncomingPacket->remainingLength == MQTT_REMAINING_LENGTH_INVALID )
     {
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_RESPONSE );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_RESPONSE );
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 
     /* Allocate a buffer for the remaining data and read the data. */
@@ -197,11 +197,11 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
 
         if( pIncomingPacket->pRemainingData == NULL )
         {
-            _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
         else
         {
-            _EMPTY_ELSE_MARKER;
+            EMPTY_ELSE_MARKER;
         }
 
         dataBytesRead = pMqttConnection->pNetworkInterface->receive( pNetworkConnection,
@@ -210,20 +210,20 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
 
         if( dataBytesRead != pIncomingPacket->remainingLength )
         {
-            _IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_RESPONSE );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_RESPONSE );
         }
         else
         {
-            _EMPTY_ELSE_MARKER;
+            EMPTY_ELSE_MARKER;
         }
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 
     /* Clean up on error. */
-    _IOT_FUNCTION_CLEANUP_BEGIN();
+    IOT_FUNCTION_CLEANUP_BEGIN();
 
     if( status != IOT_MQTT_SUCCESS )
     {
@@ -233,15 +233,15 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
         }
         else
         {
-            _EMPTY_ELSE_MARKER;
+            EMPTY_ELSE_MARKER;
         }
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 
-    _IOT_FUNCTION_CLEANUP_END();
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -265,7 +265,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
     /* Mask out the low bits of packet type to ignore flags. */
     switch( ( pIncomingPacket->type & 0xf0 ) )
     {
-        case _MQTT_PACKET_TYPE_CONNACK:
+        case MQTT_PACKET_TYPE_CONNACK:
             IotLogDebug( "(MQTT connection %p) CONNACK in data stream.", pMqttConnection );
 
             /* Choose CONNACK deserializer. */
@@ -280,12 +280,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     }
                     else
                     {
-                        _EMPTY_ELSE_MARKER;
+                        EMPTY_ELSE_MARKER;
                     }
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
             #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
@@ -302,12 +302,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
 
             break;
 
-        case _MQTT_PACKET_TYPE_PUBLISH:
+        case MQTT_PACKET_TYPE_PUBLISH:
             IotLogDebug( "(MQTT connection %p) PUBLISH in data stream.", pMqttConnection );
 
             /* Allocate memory to handle the incoming PUBLISH. */
@@ -341,12 +341,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     }
                     else
                     {
-                        _EMPTY_ELSE_MARKER;
+                        EMPTY_ELSE_MARKER;
                     }
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
             #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
@@ -362,7 +362,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
 
                 /* Transfer ownership of the received MQTT packet to the PUBLISH operation. */
@@ -389,7 +389,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
 
             /* Free PUBLISH operation on error. */
@@ -404,7 +404,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
 
                 /* Remove operation from pending processing list. */
@@ -416,7 +416,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
 
                 IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
@@ -426,12 +426,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
 
             break;
 
-        case _MQTT_PACKET_TYPE_PUBACK:
+        case MQTT_PACKET_TYPE_PUBACK:
             IotLogDebug( "(MQTT connection %p) PUBACK in data stream.", pMqttConnection );
 
             /* Choose PUBACK deserializer. */
@@ -446,12 +446,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     }
                     else
                     {
-                        _EMPTY_ELSE_MARKER;
+                        EMPTY_ELSE_MARKER;
                     }
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
             #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
@@ -468,12 +468,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
 
             break;
 
-        case _MQTT_PACKET_TYPE_SUBACK:
+        case MQTT_PACKET_TYPE_SUBACK:
             IotLogDebug( "(MQTT connection %p) SUBACK in data stream.", pMqttConnection );
 
             /* Choose SUBACK deserializer. */
@@ -488,12 +488,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     }
                     else
                     {
-                        _EMPTY_ELSE_MARKER;
+                        EMPTY_ELSE_MARKER;
                     }
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
             #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
@@ -511,12 +511,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
 
             break;
 
-        case _MQTT_PACKET_TYPE_UNSUBACK:
+        case MQTT_PACKET_TYPE_UNSUBACK:
             IotLogDebug( "(MQTT connection %p) UNSUBACK in data stream.", pMqttConnection );
 
             /* Choose UNSUBACK deserializer. */
@@ -531,12 +531,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     }
                     else
                     {
-                        _EMPTY_ELSE_MARKER;
+                        EMPTY_ELSE_MARKER;
                     }
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
             #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
@@ -553,14 +553,14 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
 
             break;
 
         default:
             /* The only remaining valid type is PINGRESP. */
-            IotMqtt_Assert( ( pIncomingPacket->type & 0xf0 ) == _MQTT_PACKET_TYPE_PINGRESP );
+            IotMqtt_Assert( ( pIncomingPacket->type & 0xf0 ) == MQTT_PACKET_TYPE_PINGRESP );
             IotLogDebug( "(MQTT connection %p) PINGRESP in data stream.", pMqttConnection );
 
             /* Choose PINGRESP deserializer. */
@@ -575,12 +575,12 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
                     }
                     else
                     {
-                        _EMPTY_ELSE_MARKER;
+                        EMPTY_ELSE_MARKER;
                     }
                 }
                 else
                 {
-                    _EMPTY_ELSE_MARKER;
+                    EMPTY_ELSE_MARKER;
                 }
             #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
@@ -608,7 +608,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
 
             break;
@@ -622,7 +622,7 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 
     return status;
@@ -657,12 +657,12 @@ static void _sendPuback( _mqttConnection_t * pMqttConnection,
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
         }
         else
         {
-            _EMPTY_ELSE_MARKER;
+            EMPTY_ELSE_MARKER;
         }
     #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
     #if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
@@ -674,12 +674,12 @@ static void _sendPuback( _mqttConnection_t * pMqttConnection,
             }
             else
             {
-                _EMPTY_ELSE_MARKER;
+                EMPTY_ELSE_MARKER;
             }
         }
         else
         {
-            _EMPTY_ELSE_MARKER;
+            EMPTY_ELSE_MARKER;
         }
     #endif /* if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 */
 
@@ -805,12 +805,12 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
         }
         else
         {
-            _EMPTY_ELSE_MARKER;
+            EMPTY_ELSE_MARKER;
         }
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 
     IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
@@ -849,7 +849,7 @@ void _IotMqtt_CloseNetworkConnection( IotMqttDisconnectReason_t disconnectReason
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 }
 
@@ -882,12 +882,12 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
         }
         else
         {
-            _EMPTY_ELSE_MARKER;
+            EMPTY_ELSE_MARKER;
         }
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 
     /* Close the network connection on a bad response. */
@@ -901,7 +901,7 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
     }
     else
     {
-        _EMPTY_ELSE_MARKER;
+        EMPTY_ELSE_MARKER;
     }
 }
 

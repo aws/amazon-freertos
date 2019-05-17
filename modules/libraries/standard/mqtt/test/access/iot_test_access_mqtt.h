@@ -44,15 +44,15 @@ _mqttConnection_t * IotTestMqtt_createMqttConnection( bool awsIotMqttMode,
 /*
  * Macros for reading the high and low byte of a 2-byte unsigned int.
  */
-#define _UINT16_HIGH_BYTE( x )    ( ( uint8_t ) ( x >> 8 ) )            /**< @brief Get high byte. */
-#define _UINT16_LOW_BYTE( x )     ( ( uint8_t ) ( x & 0x00ff ) )        /**< @brief Get low byte. */
+#define UINT16_HIGH_BYTE( x )    ( ( uint8_t ) ( x >> 8 ) )            /**< @brief Get high byte. */
+#define UINT16_LOW_BYTE( x )     ( ( uint8_t ) ( x & 0x00ff ) )        /**< @brief Get low byte. */
 
 /**
  * @brief Macro for decoding a 2-byte unsigned int from a sequence of bytes.
  *
  * @param[in] ptr A uint8_t* that points to the high byte.
  */
-#define _UINT16_DECODE( ptr )                               \
+#define UINT16_DECODE( ptr )                                \
     ( uint16_t ) ( ( ( ( uint16_t ) ( *( ptr ) ) ) << 8 ) | \
                    ( ( uint16_t ) ( *( ptr + 1 ) ) ) )
 

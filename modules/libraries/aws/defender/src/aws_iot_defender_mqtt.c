@@ -25,13 +25,13 @@
 #include "private/aws_iot_defender_internal.h"
 
 /* Define topics segments used by defender. */
-#define _TOPIC_PREFIX             "$aws/things/"
+#define TOPIC_PREFIX             "$aws/things/"
 
-#define _TOPIC_SUFFIX_PUBLISH     "/defender/metrics/" _DEFENDER_FORMAT
+#define TOPIC_SUFFIX_PUBLISH     "/defender/metrics/" DEFENDER_FORMAT
 
-#define _TOPIC_SUFFIX_ACCEPTED    _TOPIC_SUFFIX_PUBLISH "/accepted"
+#define TOPIC_SUFFIX_ACCEPTED    TOPIC_SUFFIX_PUBLISH "/accepted"
 
-#define _TOPIC_SUFFIX_REJECTED    _TOPIC_SUFFIX_PUBLISH "/rejected"
+#define TOPIC_SUFFIX_REJECTED    TOPIC_SUFFIX_PUBLISH "/rejected"
 
 extern AwsIotDefenderStartInfo_t _startInfo;
 
@@ -54,9 +54,9 @@ AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( void )
     uint16_t thingNameLength = _startInfo.mqttConnectionInfo.clientIdentifierLength;
 
     /* Calculate topics lengths. Plus one for string terminator. */
-    size_t publishTopicLength = strlen( _TOPIC_PREFIX ) + thingNameLength + strlen( _TOPIC_SUFFIX_PUBLISH ) + 1;
-    size_t acceptTopicLength = strlen( _TOPIC_PREFIX ) + thingNameLength + strlen( _TOPIC_SUFFIX_ACCEPTED ) + 1;
-    size_t rejectTopicLength = strlen( _TOPIC_PREFIX ) + thingNameLength + strlen( _TOPIC_SUFFIX_REJECTED ) + 1;
+    size_t publishTopicLength = strlen( TOPIC_PREFIX ) + thingNameLength + strlen( TOPIC_SUFFIX_PUBLISH ) + 1;
+    size_t acceptTopicLength = strlen( TOPIC_PREFIX ) + thingNameLength + strlen( TOPIC_SUFFIX_ACCEPTED ) + 1;
+    size_t rejectTopicLength = strlen( TOPIC_PREFIX ) + thingNameLength + strlen( TOPIC_SUFFIX_REJECTED ) + 1;
 
     /* Allocate memory for each of them. */
     char * pPublishTopic = AwsIotDefender_MallocTopic( publishTopicLength * sizeof( char ) );
@@ -78,17 +78,17 @@ AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( void )
         _pAcceptTopic = pAcceptTopic;
         _pRejectTopic = pRejectTopic;
 
-        strcpy( _pPublishTopic, _TOPIC_PREFIX );
+        strcpy( _pPublishTopic, TOPIC_PREFIX );
         strncat( _pPublishTopic, pThingName, thingNameLength );
-        strcat( _pPublishTopic, _TOPIC_SUFFIX_PUBLISH );
+        strcat( _pPublishTopic, TOPIC_SUFFIX_PUBLISH );
 
-        strcpy( _pAcceptTopic, _TOPIC_PREFIX );
+        strcpy( _pAcceptTopic, TOPIC_PREFIX );
         strncat( _pAcceptTopic, pThingName, thingNameLength );
-        strcat( _pAcceptTopic, _TOPIC_SUFFIX_ACCEPTED );
+        strcat( _pAcceptTopic, TOPIC_SUFFIX_ACCEPTED );
 
-        strcpy( _pRejectTopic, _TOPIC_PREFIX );
+        strcpy( _pRejectTopic, TOPIC_PREFIX );
         strncat( _pRejectTopic, pThingName, thingNameLength );
-        strcat( _pRejectTopic, _TOPIC_SUFFIX_REJECTED );
+        strcat( _pRejectTopic, TOPIC_SUFFIX_REJECTED );
     }
 
     return returnedError;

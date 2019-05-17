@@ -123,19 +123,19 @@
  *
  * @see @ref platform_clock_function_gettimestring
  */
-#define _MAX_TIMESTRING_LENGTH    ( 64 )
+#define MAX_TIMESTRING_LENGTH    ( 64 )
 
 /**
  * @brief The longest string in #_pLogLevelStrings (below), plus 3 to accommodate
  * `[]` and a null-terminator.
  */
-#define _MAX_LOG_LEVEL_LENGTH     ( 8 )
+#define MAX_LOG_LEVEL_LENGTH     ( 8 )
 
 /**
  * @brief How many bytes @ref logging_function_genericprintbuffer should output on
  * each line.
  */
-#define _BYTES_PER_LINE           ( 16 )
+#define BYTES_PER_LINE           ( 16 )
 
 /*-----------------------------------------------------------*/
 
@@ -207,7 +207,7 @@ void IotLog_Generic( int libraryLogSetting,
     if( ( pLogConfig == NULL ) || ( pLogConfig->hideLogLevel == false ) )
     {
         /* Add length of log level if requested. */
-        bufferSize += _MAX_LOG_LEVEL_LENGTH;
+        bufferSize += MAX_LOG_LEVEL_LENGTH;
     }
 
     /* Estimate the amount of buffer needed for this log message. */
@@ -220,7 +220,7 @@ void IotLog_Generic( int libraryLogSetting,
     if( ( pLogConfig == NULL ) || ( pLogConfig->hideTimestring == false ) )
     {
         /* Add length of timestring if requested. */
-        bufferSize += _MAX_TIMESTRING_LENGTH;
+        bufferSize += MAX_TIMESTRING_LENGTH;
     }
 
     /* Add 64 as an initial (arbitrary) guess for the length of the message. */
@@ -401,8 +401,8 @@ void IotLog_GenericPrintBuffer( const char * const pLibraryName,
 
     /* Allocate memory to hold each line of the log message. Since each byte
      * of pBuffer is printed in 4 characters (2 digits, a space, and a null-
-     * terminator), the size of each line is 4 * _BYTES_PER_LINE. */
-    char * pMessageBuffer = IotLogging_Malloc( 4 * _BYTES_PER_LINE );
+     * terminator), the size of each line is 4 * BYTES_PER_LINE. */
+    char * pMessageBuffer = IotLogging_Malloc( 4 * BYTES_PER_LINE );
 
     /* Exit if no memory is available. */
     if( pMessageBuffer == NULL )
@@ -423,9 +423,9 @@ void IotLog_GenericPrintBuffer( const char * const pLibraryName,
     /* Print each byte in pBuffer. */
     for( i = 0; i < bufferSize; i++ )
     {
-        /* Print a line if _BYTES_PER_LINE is reached. But don't print a line
+        /* Print a line if BYTES_PER_LINE is reached. But don't print a line
          * at the beginning (when i=0). */
-        if( ( i % _BYTES_PER_LINE == 0 ) && ( i != 0 ) )
+        if( ( i % BYTES_PER_LINE == 0 ) && ( i != 0 ) )
         {
             IotLogging_Puts( pMessageBuffer );
 
@@ -433,10 +433,8 @@ void IotLog_GenericPrintBuffer( const char * const pLibraryName,
             offset = 0;
         }
 
-        /* Print a single byte into pMessageBuffer. This call to sprintf won't
-         * cause any buffer overflows because it always prints 4 characters per
-         * invocation and sufficient memory has been allocated. */
-        ( void ) sprintf( pMessageBuffer + offset, "%02x ", pBuffer[ i ] );
+        /* Print a single byte into pMessageBuffer. */
+        ( void ) snprintf( pMessageBuffer + offset, 4, "%02x ", pBuffer[ i ] );
 
         /* Move the offset where the next character is printed. */
         offset += 3;

@@ -45,21 +45,21 @@
  * @brief Determine which MQTT server mode to test (AWS IoT or Mosquitto).
  */
 #if !defined( IOT_TEST_MQTT_MOSQUITTO ) || IOT_TEST_MQTT_MOSQUITTO == 0
-    #define _AWS_IOT_MQTT_SERVER    true
+    #define AWS_IOT_MQTT_SERVER    true
 #else
-    #define _AWS_IOT_MQTT_SERVER    false
+    #define AWS_IOT_MQTT_SERVER    false
 #endif
 
 /**
  * @brief Length of the subscription array used in
  * #TEST_MQTT_Unit_Validate_ValidateSubscriptionList_.
  */
-#define _SUBSCRIPTION_COUNT    ( _AWS_IOT_MQTT_SERVER_MAX_TOPIC_FILTERS_PER_SUBSCRIBE )
+#define SUBSCRIPTION_COUNT    ( AWS_IOT_MQTT_SERVER_MAX_TOPIC_FILTERS_PER_SUBSCRIBE )
 
 /**
  * @brief A non-NULL function pointer.
  */
-#define _FUNCTION_POINTER   \
+#define FUNCTION_POINTER    \
     ( ( void ( * )( void *, \
                     IotMqttCallbackParam_t * ) ) 0x1 )
 
@@ -113,7 +113,7 @@ TEST( MQTT_Unit_Validate, ValidateConnectInfo )
     bool validateStatus = false;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 
-    connectInfo.awsIotMqttMode = _AWS_IOT_MQTT_SERVER;
+    connectInfo.awsIotMqttMode = AWS_IOT_MQTT_SERVER;
 
     /* NULL parameter. */
     validateStatus = _IotMqtt_ValidateConnect( NULL );
@@ -137,9 +137,9 @@ TEST( MQTT_Unit_Validate, ValidateConnectInfo )
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
     /* AWS IoT MQTT service limit tests. */
-    #if _AWS_IOT_MQTT_SERVER == true
+    #if AWS_IOT_MQTT_SERVER == true
         /* Client identifier too long. */
-        connectInfo.clientIdentifierLength = _AWS_IOT_MQTT_SERVER_MAX_CLIENTID + 1;
+        connectInfo.clientIdentifierLength = AWS_IOT_MQTT_SERVER_MAX_CLIENTID + 1;
         validateStatus = _IotMqtt_ValidateConnect( &connectInfo );
         TEST_ASSERT_EQUAL_INT( false, validateStatus );
         connectInfo.clientIdentifierLength = 24;
@@ -150,15 +150,15 @@ TEST( MQTT_Unit_Validate, ValidateConnectInfo )
         TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
         /* Keep-alive too small. */
-        connectInfo.keepAliveSeconds = _AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE - 1;
+        connectInfo.keepAliveSeconds = AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE - 1;
         validateStatus = _IotMqtt_ValidateConnect( &connectInfo );
         TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
         /* Keep-alive too large. */
-        connectInfo.keepAliveSeconds = _AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE + 1;
+        connectInfo.keepAliveSeconds = AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE + 1;
         validateStatus = _IotMqtt_ValidateConnect( &connectInfo );
         TEST_ASSERT_EQUAL_INT( true, validateStatus );
-    #endif /* if _AWS_IOT_MQTT_SERVER == true */
+    #endif /* if AWS_IOT_MQTT_SERVER == true */
 }
 
 /*-----------------------------------------------------------*/
@@ -224,7 +224,7 @@ TEST( MQTT_Unit_Validate, ValidatePublish )
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
     /* AWS IoT MQTT service limit tests. */
-    #if _AWS_IOT_MQTT_SERVER == true
+    #if AWS_IOT_MQTT_SERVER == true
         /* QoS 2. */
         publishInfo.qos = IOT_MQTT_QOS_2;
         validateStatus = _IotMqtt_ValidatePublish( true, &publishInfo );
@@ -238,10 +238,10 @@ TEST( MQTT_Unit_Validate, ValidatePublish )
         publishInfo.retain = false;
 
         /* Topic name too long. */
-        publishInfo.topicNameLength = _AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH + 1;
+        publishInfo.topicNameLength = AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH + 1;
         validateStatus = _IotMqtt_ValidatePublish( true, &publishInfo );
         TEST_ASSERT_EQUAL_INT( false, validateStatus );
-    #endif /* if _AWS_IOT_MQTT_SERVER == true */
+    #endif /* if AWS_IOT_MQTT_SERVER == true */
 }
 
 /*-----------------------------------------------------------*/
@@ -287,7 +287,7 @@ TEST( MQTT_Unit_Validate, ValidateSubscriptionList )
 {
     size_t i = 0;
     bool validateStatus = false;
-    IotMqttSubscription_t pSubscriptions[ _SUBSCRIPTION_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+    IotMqttSubscription_t pSubscriptions[ SUBSCRIPTION_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     /* NULL parameter. */
     validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, NULL, 1 );
@@ -298,105 +298,105 @@ TEST( MQTT_Unit_Validate, ValidateSubscriptionList )
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
     /* Uninitialized subscriptions. */
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
     /* Initialize all subscriptions to valid values. */
-    for( i = 0; i < _SUBSCRIPTION_COUNT; i++ )
+    for( i = 0; i < SUBSCRIPTION_COUNT; i++ )
     {
         pSubscriptions[ i ].pTopicFilter = "/test";
         pSubscriptions[ i ].topicFilterLength = 5;
-        pSubscriptions[ i ].callback.function = _FUNCTION_POINTER;
+        pSubscriptions[ i ].callback.function = FUNCTION_POINTER;
     }
 
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
     /* One subscription with invalid QoS. */
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].qos = ( IotMqttQos_t ) -1;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].qos = ( IotMqttQos_t ) -1;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].qos = ( IotMqttQos_t ) 3;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].qos = ( IotMqttQos_t ) 3;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
     /* QoS is not validated for UNSUBSCRIBE. */
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_UNSUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_UNSUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].qos = IOT_MQTT_QOS_0;
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].qos = IOT_MQTT_QOS_0;
 
     /* One subscription with no callback. */
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].callback.function = NULL;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].callback.function = NULL;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
     /* Callback is not validated for UNSUBSCRIBE. */
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_UNSUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_UNSUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].callback.function = _FUNCTION_POINTER;
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].callback.function = FUNCTION_POINTER;
 
     /* Valid subscription filters. */
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "#";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 1;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "#";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 1;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "/#";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "/#";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "/+/";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 3;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "/+/";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 3;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "+/";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "+/";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "/+";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "/+";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "+/+/+/+";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 7;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "+/+/+/+";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 7;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( true, validateStatus );
 
     /* Invalid subscription filters. */
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "#/";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "#/";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "#/#";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 3;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "#/#";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 3;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "a#";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "a#";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "a+";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "a+";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "+a";
-    pSubscriptions[ _SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
-    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, _SUBSCRIPTION_COUNT );
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].pTopicFilter = "+a";
+    pSubscriptions[ SUBSCRIPTION_COUNT - 1 ].topicFilterLength = 2;
+    validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE, false, pSubscriptions, SUBSCRIPTION_COUNT );
     TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
     /* AWS IoT MQTT service limit tests. */
-    #if _AWS_IOT_MQTT_SERVER == true
+    #if AWS_IOT_MQTT_SERVER == true
         /* Too many subscriptions. */
         validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE,
                                                             true,
                                                             pSubscriptions,
-                                                            _AWS_IOT_MQTT_SERVER_MAX_TOPIC_FILTERS_PER_SUBSCRIBE + 1 );
+                                                            AWS_IOT_MQTT_SERVER_MAX_TOPIC_FILTERS_PER_SUBSCRIBE + 1 );
         TEST_ASSERT_EQUAL_INT( false, validateStatus );
 
         /* QoS 2. */
@@ -404,18 +404,18 @@ TEST( MQTT_Unit_Validate, ValidateSubscriptionList )
         validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE,
                                                             true,
                                                             pSubscriptions,
-                                                            _SUBSCRIPTION_COUNT );
+                                                            SUBSCRIPTION_COUNT );
         TEST_ASSERT_EQUAL_INT( false, validateStatus );
         pSubscriptions[ 0 ].qos = IOT_MQTT_QOS_0;
 
         /* Topic filter too long. */
-        pSubscriptions[ 0 ].topicFilterLength = _AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH + 1;
+        pSubscriptions[ 0 ].topicFilterLength = AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH + 1;
         validateStatus = _IotMqtt_ValidateSubscriptionList( IOT_MQTT_SUBSCRIBE,
                                                             true,
                                                             pSubscriptions,
-                                                            _SUBSCRIPTION_COUNT );
+                                                            SUBSCRIPTION_COUNT );
         TEST_ASSERT_EQUAL_INT( false, validateStatus );
-    #endif /* if _AWS_IOT_MQTT_SERVER == true */
+    #endif /* if AWS_IOT_MQTT_SERVER == true */
 }
 
 /*-----------------------------------------------------------*/

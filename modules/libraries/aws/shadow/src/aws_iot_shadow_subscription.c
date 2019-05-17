@@ -261,7 +261,7 @@ void _AwsIotShadow_RemoveSubscription( _shadowSubscription_t * pSubscription,
 
     /* If any Shadow operation's subscription reference count is not 0, then the
      * subscription cannot be removed. */
-    for( i = 0; i < _SHADOW_OPERATION_COUNT; i++ )
+    for( i = 0; i < SHADOW_OPERATION_COUNT; i++ )
     {
         if( pSubscription->references[ i ] > 0 )
         {
@@ -273,7 +273,7 @@ void _AwsIotShadow_RemoveSubscription( _shadowSubscription_t * pSubscription,
 
             return;
         }
-        else if( pSubscription->references[ i ] == _PERSISTENT_SUBSCRIPTION )
+        else if( pSubscription->references[ i ] == PERSISTENT_SUBSCRIPTION )
         {
             IotLogDebug( "Subscription object for %.*s has persistent subscriptions. "
                          "Subscription will not be removed.",
@@ -285,7 +285,7 @@ void _AwsIotShadow_RemoveSubscription( _shadowSubscription_t * pSubscription,
     }
 
     /* If any Shadow callbacks are active, then the subscription cannot be removed. */
-    for( i = 0; i < _SHADOW_CALLBACK_COUNT; i++ )
+    for( i = 0; i < SHADOW_CALLBACK_COUNT; i++ )
     {
         if( pSubscription->callbacks[ i ].function != NULL )
         {
@@ -346,7 +346,7 @@ AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * pOpe
     _shadowSubscription_t * pSubscription = pOperation->pSubscription;
 
     /* Do nothing if this operation has persistent subscriptions. */
-    if( pSubscription->references[ type ] == _PERSISTENT_SUBSCRIPTION )
+    if( pSubscription->references[ type ] == PERSISTENT_SUBSCRIPTION )
     {
         IotLogDebug( "Shadow %s for %.*s has persistent subscriptions. Reference "
                      "count will not be incremented.",
@@ -366,9 +366,9 @@ AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * pOpe
     {
         /* Place the topic "accepted" suffix at the end of the Shadow topic buffer. */
         ( void ) memcpy( pTopicBuffer + operationTopicLength,
-                         _SHADOW_ACCEPTED_SUFFIX,
-                         _SHADOW_ACCEPTED_SUFFIX_LENGTH );
-        topicFilterLength = ( uint16_t ) ( operationTopicLength + _SHADOW_ACCEPTED_SUFFIX_LENGTH );
+                         SHADOW_ACCEPTED_SUFFIX,
+                         SHADOW_ACCEPTED_SUFFIX_LENGTH );
+        topicFilterLength = ( uint16_t ) ( operationTopicLength + SHADOW_ACCEPTED_SUFFIX_LENGTH );
 
         /* There should not be an active subscription for the accepted topic. */
         AwsIotShadow_Assert( IotMqtt_IsSubscribed( pOperation->mqttConnection,
@@ -390,9 +390,9 @@ AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * pOpe
 
         /* Place the topic "rejected" suffix at the end of the Shadow topic buffer. */
         ( void ) memcpy( pTopicBuffer + operationTopicLength,
-                         _SHADOW_REJECTED_SUFFIX,
-                         _SHADOW_REJECTED_SUFFIX_LENGTH );
-        topicFilterLength = ( uint16_t ) ( operationTopicLength + _SHADOW_REJECTED_SUFFIX_LENGTH );
+                         SHADOW_REJECTED_SUFFIX,
+                         SHADOW_REJECTED_SUFFIX_LENGTH );
+        topicFilterLength = ( uint16_t ) ( operationTopicLength + SHADOW_REJECTED_SUFFIX_LENGTH );
 
         /* There should not be an active subscription for the rejected topic. */
         AwsIotShadow_Assert( IotMqtt_IsSubscribed( pOperation->mqttConnection,
@@ -412,9 +412,9 @@ AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * pOpe
             /* Failed to add subscription to Shadow "rejected" topic. Remove
              * subscription for the Shadow "accepted" topic. */
             ( void ) memcpy( pTopicBuffer + operationTopicLength,
-                             _SHADOW_ACCEPTED_SUFFIX,
-                             _SHADOW_ACCEPTED_SUFFIX_LENGTH );
-            topicFilterLength = ( uint16_t ) ( operationTopicLength + _SHADOW_ACCEPTED_SUFFIX_LENGTH );
+                             SHADOW_ACCEPTED_SUFFIX,
+                             SHADOW_ACCEPTED_SUFFIX_LENGTH );
+            topicFilterLength = ( uint16_t ) ( operationTopicLength + SHADOW_ACCEPTED_SUFFIX_LENGTH );
 
             ( void ) _modifyOperationSubscriptions( pOperation->mqttConnection,
                                                     pTopicBuffer,
@@ -441,7 +441,7 @@ AwsIotShadowError_t _AwsIotShadow_IncrementReferences( _shadowOperation_t * pOpe
     /* Otherwise, set the persistent subscriptions flag. */
     else
     {
-        pSubscription->references[ type ] = _PERSISTENT_SUBSCRIPTION;
+        pSubscription->references[ type ] = PERSISTENT_SUBSCRIPTION;
 
         IotLogDebug( "Set persistent subscriptions flag for Shadow %s of %.*s.",
                      _pAwsIotShadowOperationNames[ type ],
@@ -464,7 +464,7 @@ void _AwsIotShadow_DecrementReferences( _shadowOperation_t * pOperation,
     uint16_t operationTopicLength = 0;
 
     /* Do nothing if this Shadow operation has persistent subscriptions. */
-    if( pSubscription->references[ type ] == _PERSISTENT_SUBSCRIPTION )
+    if( pSubscription->references[ type ] == PERSISTENT_SUBSCRIPTION )
     {
         IotLogDebug( "Shadow %s for %.*s has persistent subscriptions. Reference "
                      "count will not be decremented.",
@@ -501,9 +501,9 @@ void _AwsIotShadow_DecrementReferences( _shadowOperation_t * pOperation,
 
         /* Place the topic "accepted" suffix at the end of the Shadow topic buffer. */
         ( void ) memcpy( pTopicBuffer + operationTopicLength,
-                         _SHADOW_ACCEPTED_SUFFIX,
-                         _SHADOW_ACCEPTED_SUFFIX_LENGTH );
-        topicFilterLength = ( uint16_t ) ( operationTopicLength + _SHADOW_ACCEPTED_SUFFIX_LENGTH );
+                         SHADOW_ACCEPTED_SUFFIX,
+                         SHADOW_ACCEPTED_SUFFIX_LENGTH );
+        topicFilterLength = ( uint16_t ) ( operationTopicLength + SHADOW_ACCEPTED_SUFFIX_LENGTH );
 
         /* There should be an active subscription for the accepted topic. */
         AwsIotShadow_Assert( IotMqtt_IsSubscribed( pOperation->mqttConnection,
@@ -520,9 +520,9 @@ void _AwsIotShadow_DecrementReferences( _shadowOperation_t * pOperation,
 
         /* Place the topic "rejected" suffix at the end of the Shadow topic buffer. */
         ( void ) memcpy( pTopicBuffer + operationTopicLength,
-                         _SHADOW_REJECTED_SUFFIX,
-                         _SHADOW_REJECTED_SUFFIX_LENGTH );
-        topicFilterLength = ( uint16_t ) ( operationTopicLength + _SHADOW_ACCEPTED_SUFFIX_LENGTH );
+                         SHADOW_REJECTED_SUFFIX,
+                         SHADOW_REJECTED_SUFFIX_LENGTH );
+        topicFilterLength = ( uint16_t ) ( operationTopicLength + SHADOW_ACCEPTED_SUFFIX_LENGTH );
 
         /* There should be an active subscription for the accepted topic. */
         AwsIotShadow_Assert( IotMqtt_IsSubscribed( pOperation->mqttConnection,
@@ -584,7 +584,7 @@ AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( IotMqttConnectio
 
         pSubscription = IotLink_Container( _shadowSubscription_t, pSubscriptionLink, link );
 
-        for( i = 0; i < _SHADOW_OPERATION_COUNT; i++ )
+        for( i = 0; i < SHADOW_OPERATION_COUNT; i++ )
         {
             if( ( flags & ( 0x1UL << i ) ) != 0 )
             {
@@ -596,7 +596,7 @@ AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( IotMqttConnectio
                 /* Subscription must have a topic buffer. */
                 AwsIotShadow_Assert( pSubscription->pTopicBuffer != NULL );
 
-                if( pSubscription->references[ i ] == _PERSISTENT_SUBSCRIPTION )
+                if( pSubscription->references[ i ] == PERSISTENT_SUBSCRIPTION )
                 {
                     /* Generate the prefix of the Shadow topic. This function will not
                      * fail when given a buffer. */
@@ -608,9 +608,9 @@ AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( IotMqttConnectio
 
                     /* Remove the "accepted" topic. */
                     ( void ) memcpy( pSubscription->pTopicBuffer + operationTopicLength,
-                                     _SHADOW_ACCEPTED_SUFFIX,
-                                     _SHADOW_ACCEPTED_SUFFIX_LENGTH );
-                    topicFilterLength = ( uint16_t ) ( operationTopicLength + _SHADOW_ACCEPTED_SUFFIX_LENGTH );
+                                     SHADOW_ACCEPTED_SUFFIX,
+                                     SHADOW_ACCEPTED_SUFFIX_LENGTH );
+                    topicFilterLength = ( uint16_t ) ( operationTopicLength + SHADOW_ACCEPTED_SUFFIX_LENGTH );
 
                     removeAcceptedStatus = _modifyOperationSubscriptions( mqttConnection,
                                                                           pSubscription->pTopicBuffer,
@@ -625,10 +625,10 @@ AwsIotShadowError_t AwsIotShadow_RemovePersistentSubscriptions( IotMqttConnectio
 
                     /* Remove the "rejected" topic. */
                     ( void ) memcpy( pSubscription->pTopicBuffer + operationTopicLength,
-                                     _SHADOW_REJECTED_SUFFIX,
-                                     _SHADOW_ACCEPTED_SUFFIX_LENGTH );
+                                     SHADOW_REJECTED_SUFFIX,
+                                     SHADOW_ACCEPTED_SUFFIX_LENGTH );
                     topicFilterLength = ( uint16_t ) ( operationTopicLength +
-                                                       _SHADOW_REJECTED_SUFFIX_LENGTH );
+                                                       SHADOW_REJECTED_SUFFIX_LENGTH );
 
                     removeRejectedStatus = _modifyOperationSubscriptions( mqttConnection,
                                                                           pSubscription->pTopicBuffer,

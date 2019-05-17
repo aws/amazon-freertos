@@ -41,23 +41,23 @@
  * @param[in] statusType The type of the status variable for this function.
  * @param[in] initialValue The initial value to assign to the status variable.
  */
-#define _IOT_FUNCTION_ENTRY( statusType, initialValue )    statusType status = initialValue
+#define IOT_FUNCTION_ENTRY( statusType, initialValue )    statusType status = initialValue
 
 /**
  * @brief Declares the label that begins a cleanup section.
  *
  * This macro should be placed at the end of a function and followed by
- * #_IOT_FUNCTION_CLEANUP_END.
+ * #IOT_FUNCTION_CLEANUP_END.
  */
-#define _IOT_FUNCTION_CLEANUP_BEGIN()                      iotCleanup:
+#define IOT_FUNCTION_CLEANUP_BEGIN()                      iotCleanup:
 
 /**
  * @brief Declares the end of a cleanup section.
  *
  * This macro should be placed at the end of a function and preceded by
- * #_IOT_FUNCTION_CLEANUP_BEGIN.
+ * #IOT_FUNCTION_CLEANUP_BEGIN.
  */
-#define _IOT_FUNCTION_CLEANUP_END()                        return status
+#define IOT_FUNCTION_CLEANUP_END()                        return status
 
 /**
  * @brief Declares an empty cleanup section.
@@ -65,19 +65,19 @@
  * This macro should be placed at the end of a function to exit on error if no
  * cleanup is required.
  */
-#define _IOT_FUNCTION_EXIT_NO_CLEANUP()                    _IOT_FUNCTION_CLEANUP_BEGIN(); _IOT_FUNCTION_CLEANUP_END()
+#define IOT_FUNCTION_EXIT_NO_CLEANUP()                    IOT_FUNCTION_CLEANUP_BEGIN(); IOT_FUNCTION_CLEANUP_END()
 
 /**
  * @brief Jump to the cleanup section.
  */
-#define _IOT_GOTO_CLEANUP()                                goto iotCleanup
+#define IOT_GOTO_CLEANUP()                                goto iotCleanup
 
 /**
  * @brief Assign a value to the status variable and jump to the cleanup section.
  *
  * @param[in] statusValue The value to assign to the status variable.
  */
-#define _IOT_SET_AND_GOTO_CLEANUP( statusValue )           { status = ( statusValue ); _IOT_GOTO_CLEANUP(); }
+#define IOT_SET_AND_GOTO_CLEANUP( statusValue )           { status = ( statusValue ); IOT_GOTO_CLEANUP(); }
 
 /**
  * @brief Jump to the cleanup section if a condition is `false`.
@@ -87,7 +87,7 @@
  *
  * @param[in] condition The condition to check.
  */
-#define _IOT_GOTO_CLEANUP_IF_FALSE( condition )            { if( ( condition ) == false ) { _IOT_GOTO_CLEANUP(); } }
+#define IOT_GOTO_CLEANUP_IF_FALSE( condition )            { if( ( condition ) == false ) { IOT_GOTO_CLEANUP(); } }
 
 /**
  * @brief Assign a value to the status variable and jump to the cleanup section
@@ -96,9 +96,9 @@
  * @param[in] statusValue The value to assign to the status variable.
  * @param[in] condition The condition to check.
  */
-#define _IOT_SET_AND_GOTO_CLEANUP_IF_FALSE( statusValue, condition ) \
-    if( ( condition ) == false )                                     \
-        _IOT_SET_AND_GOTO_CLEANUP( statusValue )
+#define IOT_SET_AND_GOTO_CLEANUP_IF_FALSE( statusValue, condition ) \
+    if( ( condition ) == false )                                    \
+        IOT_SET_AND_GOTO_CLEANUP( statusValue )
 
 /**
  * @brief Check a condition; if `false`, assign the "Bad parameter" status value
@@ -107,7 +107,7 @@
  * @param[in] libraryPrefix The library prefix of the status variable.
  * @param[in] condition The condition to check.
  */
-#define _IOT_VALIDATE_PARAMETER( libraryPrefix, condition ) \
-    _IOT_SET_AND_GOTO_CLEANUP_IF_FALSE( libraryPrefix ## _BAD_PARAMETER, condition )
+#define IOT_VALIDATE_PARAMETER( libraryPrefix, condition ) \
+    IOT_SET_AND_GOTO_CLEANUP_IF_FALSE( libraryPrefix ## _BAD_PARAMETER, condition )
 
 #endif /* ifndef IOT_ERROR_H_ */

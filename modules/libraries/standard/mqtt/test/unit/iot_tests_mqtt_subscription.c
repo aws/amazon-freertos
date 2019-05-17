@@ -64,31 +64,24 @@
  * @brief Determine which MQTT server mode to test (AWS IoT or Mosquitto).
  */
 #if !defined( IOT_TEST_MQTT_MOSQUITTO ) || IOT_TEST_MQTT_MOSQUITTO == 0
-    #define _AWS_IOT_MQTT_SERVER    true
+    #define AWS_IOT_MQTT_SERVER    true
 #else
-    #define _AWS_IOT_MQTT_SERVER    false
+    #define AWS_IOT_MQTT_SERVER    false
 #endif
 
 /*
  * Constants relating to the test subscription list.
  */
-#define _LIST_ITEM_COUNT             ( 10 )                                      /**< @brief Number of subscriptions. */
-#define _TEST_TOPIC_FILTER_FORMAT    ( "/test%lu" )                              /**< @brief Format of each topic filter. */
-#define _TEST_TOPIC_FILTER_LENGTH    ( sizeof( _TEST_TOPIC_FILTER_FORMAT ) + 1 ) /**< @brief Maximum length of each topic filter. */
-
-/*
- * Constants relating to the multithreaded subscription test.
- */
-#define _MT_THREAD_COUNT             ( 8 )         /**< @brief Number of threads. */
-#define _MT_TOPIC_FILTER_FORMAT      ( "/%p-%lu" ) /**< @brief Format of each topic filter. */
-#define _MT_TOPIC_FILTER_LENGTH      ( 16 )        /**< @brief Maximum length of each topic filter. */
+#define LIST_ITEM_COUNT             ( 10 )                                     /**< @brief Number of subscriptions. */
+#define TEST_TOPIC_FILTER_FORMAT    ( "/test%lu" )                             /**< @brief Format of each topic filter. */
+#define TEST_TOPIC_FILTER_LENGTH    ( sizeof( TEST_TOPIC_FILTER_FORMAT ) + 1 ) /**< @brief Maximum length of each topic filter. */
 
 /**
  * @brief A non-NULL function pointer to use for subscription callback. This
  * "function" should cause a crash if actually called.
  */
-#define _CALLBACK_FUNCTION  \
-    ( ( void ( * )( void *, \
+#define SUBSCRIPTION_CALLBACK_FUNCTION \
+    ( ( void ( * )( void *,            \
                     IotMqttCallbackParam_t * ) ) 0x1 )
 
 /**
@@ -96,7 +89,7 @@
  * and #TEST_MQTT_Unit_Subscription_TopicFilterMatchFalse_ should be shorter than this
  * length.
  */
-#define _TOPIC_FILTER_MATCH_MAX_LENGTH    ( 32 )
+#define TOPIC_FILTER_MATCH_MAX_LENGTH    ( 32 )
 
 /**
  * @brief Macro to check a single topic name against a topic filter.
@@ -110,7 +103,7 @@
  * @note This macro may only be used when a #_mqttSubscription_t pointer named pTopicFilter
  * is in scope.
  */
-#define _TEST_TOPIC_MATCH( topicNameString, topicFilterString, exactMatch, expectedResult )             \
+#define TEST_TOPIC_MATCH( topicNameString, topicFilterString, exactMatch, expectedResult )              \
     {                                                                                                   \
         _topicMatchParams_t _topicMatchParams = { 0 };                                                  \
         _topicMatchParams.pTopicName = topicNameString;                                                 \
@@ -118,7 +111,7 @@
         _topicMatchParams.exactMatchOnly = exactMatch;                                                  \
                                                                                                         \
         pTopicFilter->topicFilterLength = ( uint16_t ) snprintf( pTopicFilter->pTopicFilter,            \
-                                                                 _TOPIC_FILTER_MATCH_MAX_LENGTH,        \
+                                                                 TOPIC_FILTER_MATCH_MAX_LENGTH,         \
                                                                  topicFilterString );                   \
                                                                                                         \
         TEST_ASSERT_EQUAL_INT( expectedResult,                                                          \
@@ -137,16 +130,6 @@ static bool _connectionCreated = false;
  */
 static _mqttConnection_t * _pMqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
-/**
- * @brief Synchronizes threads in the multithreaded test at start.
- */
-static IotSemaphore_t _mtTestStart;
-
-/**
- * @brief Synchronizes threads in the multithreaded test at exit.
- */
-static IotSemaphore_t _mtTestExit;
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -157,18 +140,18 @@ static void _populateList( void )
     size_t i = 0;
     _mqttSubscription_t * pSubscription = NULL;
 
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
+    for( i = 0; i < LIST_ITEM_COUNT; i++ )
     {
-        pSubscription = IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + _TEST_TOPIC_FILTER_LENGTH );
+        pSubscription = IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TEST_TOPIC_FILTER_LENGTH );
         TEST_ASSERT_NOT_NULL( pSubscription );
 
-        ( void ) memset( pSubscription, 0x00, sizeof( _mqttSubscription_t ) + _TEST_TOPIC_FILTER_LENGTH );
+        ( void ) memset( pSubscription, 0x00, sizeof( _mqttSubscription_t ) + TEST_TOPIC_FILTER_LENGTH );
         pSubscription->packetInfo.identifier = 1;
         pSubscription->packetInfo.order = i;
-        pSubscription->callback.function = _CALLBACK_FUNCTION;
+        pSubscription->callback.function = SUBSCRIPTION_CALLBACK_FUNCTION;
         pSubscription->topicFilterLength = ( uint16_t ) snprintf( pSubscription->pTopicFilter,
-                                                                  _TEST_TOPIC_FILTER_LENGTH,
-                                                                  _TEST_TOPIC_FILTER_FORMAT,
+                                                                  TEST_TOPIC_FILTER_LENGTH,
+                                                                  TEST_TOPIC_FILTER_FORMAT,
                                                                   ( unsigned long ) i );
 
         IotListDouble_InsertHead( &( _pMqttConnection->subscriptionList ),
@@ -251,7 +234,7 @@ static void _publishCallback( void * pArgument,
 
     /* Ensure that publish info is valid. */
     TEST_ASSERT_EQUAL_INT( true,
-                           _IotMqtt_ValidatePublish( _AWS_IOT_MQTT_SERVER,
+                           _IotMqtt_ValidatePublish( AWS_IOT_MQTT_SERVER,
                                                      &( pPublish->u.message.info ) ) );
 }
 
@@ -270,57 +253,6 @@ static void _blockingCallback( void * pArgument,
 
     /* Wait until signaled. */
     IotSemaphore_Wait( pSemaphore );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Thread routing of the multithreaded test.
- */
-static void _multithreadTestThread( void * pArgument )
-{
-    size_t i = 0;
-    bool * pThreadResult = ( bool * ) pArgument;
-    char pTopicFilters[ _LIST_ITEM_COUNT ][ _MT_TOPIC_FILTER_LENGTH ] = { { 0 } };
-    IotMqttSubscription_t subscription[ _LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
-
-    /* Synchronize with the other threads before starting the test. */
-    IotSemaphore_Wait( &( _mtTestStart ) );
-
-    /* Add items to the subscription list. */
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
-    {
-        subscription[ i ].callback.function = _CALLBACK_FUNCTION;
-        subscription[ i ].pTopicFilter = pTopicFilters[ i ];
-        subscription[ i ].topicFilterLength = ( uint16_t ) snprintf( pTopicFilters[ i ],
-                                                                     _MT_TOPIC_FILTER_LENGTH,
-                                                                     _MT_TOPIC_FILTER_FORMAT,
-                                                                     ( void * ) &i,
-                                                                     ( unsigned long ) i );
-
-        if( _IotMqtt_AddSubscriptions( _pMqttConnection,
-                                       1,
-                                       &( subscription[ i ] ),
-                                       1 ) != IOT_MQTT_SUCCESS )
-        {
-            *pThreadResult = false;
-
-            return;
-        }
-    }
-
-    /* Remove the previously added items from the list. */
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
-    {
-        _IotMqtt_RemoveSubscriptionByTopicFilter( _pMqttConnection,
-                                                  &( subscription[ i ] ),
-                                                  1 );
-    }
-
-    *pThreadResult = true;
-
-    /* Synchronize with the other threads before exiting the test. */
-    IotSemaphore_Post( &( _mtTestExit ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -349,7 +281,7 @@ TEST_SETUP( MQTT_Unit_Subscription )
     networkInfo.pNetworkInterface = &networkInterface;
 
     /* Create an MQTT connection with empty network info. */
-    _pMqttConnection = IotTestMqtt_createMqttConnection( _AWS_IOT_MQTT_SERVER,
+    _pMqttConnection = IotTestMqtt_createMqttConnection( AWS_IOT_MQTT_SERVER,
                                                          &networkInfo,
                                                          0 );
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
@@ -390,7 +322,6 @@ TEST_GROUP_RUNNER( MQTT_Unit_Subscription )
     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter );
     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionAddDuplicate );
     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionAddMallocFail );
-    RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionMultithreaded );
     RUN_TEST_CASE( MQTT_Unit_Subscription, ProcessPublish );
     RUN_TEST_CASE( MQTT_Unit_Subscription, ProcessPublishMultiple );
     RUN_TEST_CASE( MQTT_Unit_Subscription, SubscriptionReferences );
@@ -502,7 +433,7 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
     TEST_ASSERT_NOT_EQUAL( NULL, pSubscription );
 
     /* Packet present, order not present. */
-    packetMatchParams.order = _LIST_ITEM_COUNT;
+    packetMatchParams.order = LIST_ITEM_COUNT;
     pSubscriptionLink = IotListDouble_FindFirstMatch( &( _pMqttConnection->subscriptionList ),
                                                       NULL,
                                                       IotTestMqtt_packetMatch,
@@ -520,7 +451,7 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
 
     /* Packet and order not present. */
     packetMatchParams.packetIdentifier = 0;
-    packetMatchParams.order = _LIST_ITEM_COUNT;
+    packetMatchParams.order = LIST_ITEM_COUNT;
     pSubscriptionLink = IotListDouble_FindFirstMatch( &( _pMqttConnection->subscriptionList ),
                                                       NULL,
                                                       IotTestMqtt_packetMatch,
@@ -535,7 +466,7 @@ TEST( MQTT_Unit_Subscription, ListFindByPacket )
  */
 TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
 {
-    long i = 0;
+    int32_t i = 0;
 
     /* On empty list (should not crash). */
     _IotMqtt_RemoveSubscriptionByPacket( _pMqttConnection,
@@ -545,7 +476,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
     _populateList();
 
     /* Remove all subscriptions by packet one-by-one. */
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
+    for( i = 0; i < LIST_ITEM_COUNT; i++ )
     {
         _IotMqtt_RemoveSubscriptionByPacket( _pMqttConnection,
                                              1,
@@ -571,8 +502,8 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByPacket )
 TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
 {
     size_t i = 0;
-    char pTopicFilters[ _LIST_ITEM_COUNT ][ _TEST_TOPIC_FILTER_LENGTH ] = { { 0 } };
-    IotMqttSubscription_t subscription[ _LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+    char pTopicFilters[ LIST_ITEM_COUNT ][ TEST_TOPIC_FILTER_LENGTH ] = { { 0 } };
+    IotMqttSubscription_t subscription[ LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     /* On empty list (should not crash). */
     subscription[ 0 ].pTopicFilter = "/topic";
@@ -585,11 +516,11 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
     subscription[ 0 ].pTopicFilter = pTopicFilters[ 0 ];
 
     /* Removal one-by-one. */
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
+    for( i = 0; i < LIST_ITEM_COUNT; i++ )
     {
         subscription[ 0 ].topicFilterLength = ( uint16_t ) snprintf( pTopicFilters[ 0 ],
-                                                                     _TEST_TOPIC_FILTER_LENGTH,
-                                                                     _TEST_TOPIC_FILTER_FORMAT,
+                                                                     TEST_TOPIC_FILTER_LENGTH,
+                                                                     TEST_TOPIC_FILTER_FORMAT,
                                                                      ( unsigned long ) i );
 
         _IotMqtt_RemoveSubscriptionByTopicFilter( _pMqttConnection,
@@ -605,18 +536,18 @@ TEST( MQTT_Unit_Subscription, SubscriptionRemoveByTopicFilter )
     TEST_ASSERT_EQUAL_INT( false, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
 
     /* Removal all at once. */
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
+    for( i = 0; i < LIST_ITEM_COUNT; i++ )
     {
         subscription[ i ].pTopicFilter = pTopicFilters[ i ];
         subscription[ i ].topicFilterLength = ( uint16_t ) snprintf( pTopicFilters[ i ],
-                                                                     _TEST_TOPIC_FILTER_LENGTH,
-                                                                     _TEST_TOPIC_FILTER_FORMAT,
+                                                                     TEST_TOPIC_FILTER_LENGTH,
+                                                                     TEST_TOPIC_FILTER_FORMAT,
                                                                      ( unsigned long ) i );
     }
 
     _IotMqtt_RemoveSubscriptionByTopicFilter( _pMqttConnection,
                                               subscription,
-                                              _LIST_ITEM_COUNT );
+                                              LIST_ITEM_COUNT );
 
     /* List should be empty. */
     TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
@@ -633,18 +564,18 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     _mqttSubscription_t * pSubscription = NULL;
     IotLink_t * pSubscriptionLink = NULL;
     _topicMatchParams_t topicMatchParams = { 0 };
-    char pTopicFilters[ _LIST_ITEM_COUNT ][ _TEST_TOPIC_FILTER_LENGTH ] = { { 0 } };
+    char pTopicFilters[ LIST_ITEM_COUNT ][ TEST_TOPIC_FILTER_LENGTH ] = { { 0 } };
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-    IotMqttSubscription_t subscription[ _LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+    IotMqttSubscription_t subscription[ LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     /* Set valid values in the subscription list. */
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
+    for( i = 0; i < LIST_ITEM_COUNT; i++ )
     {
-        subscription[ i ].callback.function = _CALLBACK_FUNCTION;
+        subscription[ i ].callback.function = SUBSCRIPTION_CALLBACK_FUNCTION;
         subscription[ i ].pTopicFilter = pTopicFilters[ i ];
         subscription[ i ].topicFilterLength = ( uint16_t ) snprintf( pTopicFilters[ i ],
-                                                                     _TEST_TOPIC_FILTER_LENGTH,
-                                                                     _TEST_TOPIC_FILTER_FORMAT,
+                                                                     TEST_TOPIC_FILTER_LENGTH,
+                                                                     TEST_TOPIC_FILTER_FORMAT,
                                                                      ( unsigned long ) i );
     }
 
@@ -652,7 +583,7 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
     status = _IotMqtt_AddSubscriptions( _pMqttConnection,
                                         1,
                                         subscription,
-                                        _LIST_ITEM_COUNT );
+                                        LIST_ITEM_COUNT );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, status );
 
     /* Change the callback information, but not the topic filter. */
@@ -702,30 +633,30 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddDuplicate )
 TEST( MQTT_Unit_Subscription, SubscriptionAddMallocFail )
 {
     size_t i = 0;
-    char pTopicFilters[ _LIST_ITEM_COUNT ][ _TEST_TOPIC_FILTER_LENGTH ] = { { 0 } };
+    char pTopicFilters[ LIST_ITEM_COUNT ][ TEST_TOPIC_FILTER_LENGTH ] = { { 0 } };
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-    IotMqttSubscription_t subscription[ _LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+    IotMqttSubscription_t subscription[ LIST_ITEM_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     /* Set valid values in the subscription list. */
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
+    for( i = 0; i < LIST_ITEM_COUNT; i++ )
     {
-        subscription[ i ].callback.function = _CALLBACK_FUNCTION;
+        subscription[ i ].callback.function = SUBSCRIPTION_CALLBACK_FUNCTION;
         subscription[ i ].pTopicFilter = pTopicFilters[ i ];
         subscription[ i ].topicFilterLength = ( uint16_t ) snprintf( pTopicFilters[ i ],
-                                                                     _TEST_TOPIC_FILTER_LENGTH,
-                                                                     _TEST_TOPIC_FILTER_FORMAT,
+                                                                     TEST_TOPIC_FILTER_LENGTH,
+                                                                     TEST_TOPIC_FILTER_FORMAT,
                                                                      ( unsigned long ) i );
     }
 
     /* Set malloc to fail at various points. */
-    for( i = 0; i < _LIST_ITEM_COUNT; i++ )
+    for( i = 0; i < LIST_ITEM_COUNT; i++ )
     {
         UnityMalloc_MakeMallocFailAfterCount( ( int ) i );
 
         status = _IotMqtt_AddSubscriptions( _pMqttConnection,
                                             1,
                                             subscription,
-                                            _LIST_ITEM_COUNT );
+                                            LIST_ITEM_COUNT );
 
         if( status == IOT_MQTT_SUCCESS )
         {
@@ -735,74 +666,6 @@ TEST( MQTT_Unit_Subscription, SubscriptionAddMallocFail )
         TEST_ASSERT_EQUAL( IOT_MQTT_NO_MEMORY, status );
         TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
     }
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Tests adding and removing subscriptions in a multithreaded environment.
- */
-TEST( MQTT_Unit_Subscription, SubscriptionMultithreaded )
-{
-    int32_t i = 0, threadsCreated = 0, threadsExited = 0;
-    bool threadResults[ _MT_THREAD_COUNT ] = { 0 };
-
-    /* Create the synchronization semaphores. */
-    TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &( _mtTestStart ), 0, _MT_THREAD_COUNT ) );
-    TEST_ASSERT_EQUAL_INT( true, IotSemaphore_Create( &( _mtTestExit ), 0, _MT_THREAD_COUNT ) );
-
-    /* Spawn threads for the test. */
-    for( i = 0; i < _MT_THREAD_COUNT; i++ )
-    {
-        if( Iot_CreateDetachedThread( _multithreadTestThread,
-                                      &( threadResults[ i ] ),
-                                      IOT_THREAD_DEFAULT_PRIORITY,
-                                      IOT_THREAD_DEFAULT_STACK_SIZE ) == false )
-        {
-            break;
-        }
-    }
-
-    /* Record how many threads were created. */
-    threadsCreated = i;
-
-    /* Signal all created threads to start. */
-    for( i = 0; i < threadsCreated; i++ )
-    {
-        IotSemaphore_Post( &_mtTestStart );
-    }
-
-    /* Wait for all created threads to finish. */
-    for( i = 0; i < threadsCreated; i++ )
-    {
-        if( IotSemaphore_TimedWait( &_mtTestExit,
-                                    IOT_TEST_MQTT_TIMEOUT_MS ) == false )
-        {
-            break;
-        }
-
-        threadsExited++;
-    }
-
-    if( TEST_PROTECT() )
-    {
-        /* Check how many threads ran. */
-        TEST_ASSERT_EQUAL_INT( threadsCreated, threadsExited );
-        TEST_ASSERT_EQUAL_INT( threadsCreated, _MT_THREAD_COUNT );
-
-        /* Check the results of the test threads. */
-        for( i = 0; i < _MT_THREAD_COUNT; i++ )
-        {
-            TEST_ASSERT_EQUAL_INT( true, threadResults[ i ] );
-        }
-
-        /* The subscription list should be empty. */
-        TEST_ASSERT_EQUAL_INT( true, IotListDouble_IsEmpty( &( _pMqttConnection->subscriptionList ) ) );
-    }
-
-    /* Destroy the synchronization semaphores. */
-    IotSemaphore_Destroy( &_mtTestStart );
-    IotSemaphore_Destroy( &_mtTestExit );
 }
 
 /*-----------------------------------------------------------*/
@@ -1023,37 +886,37 @@ TEST( MQTT_Unit_Subscription, SubscriptionReferences )
 TEST( MQTT_Unit_Subscription, TopicFilterMatchTrue )
 {
     _mqttSubscription_t * pTopicFilter =
-        IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + _TOPIC_FILTER_MATCH_MAX_LENGTH );
+        IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TOPIC_FILTER_MATCH_MAX_LENGTH );
 
     TEST_ASSERT_NOT_EQUAL( NULL, pTopicFilter );
 
     if( TEST_PROTECT() )
     {
         /* Exact matching. */
-        _TEST_TOPIC_MATCH( "/exact", "/exact", true, true );
-        _TEST_TOPIC_MATCH( "/exact", "/exact", false, true );
+        TEST_TOPIC_MATCH( "/exact", "/exact", true, true );
+        TEST_TOPIC_MATCH( "/exact", "/exact", false, true );
 
         /* Topic level wildcard matching. */
-        _TEST_TOPIC_MATCH( "/aws", "/+", false, true );
-        _TEST_TOPIC_MATCH( "/aws/iot", "/aws/+", false, true );
-        _TEST_TOPIC_MATCH( "/aws/iot/shadow", "/aws/+/shadow", false, true );
-        _TEST_TOPIC_MATCH( "/aws/iot/shadow", "/aws/+/+", false, true );
-        _TEST_TOPIC_MATCH( "aws/", "aws/+", false, true );
-        _TEST_TOPIC_MATCH( "/aws", "+/+", false, true );
-        _TEST_TOPIC_MATCH( "aws//iot", "aws/+/iot", false, true );
-        _TEST_TOPIC_MATCH( "aws//iot", "aws//+", false, true );
-        _TEST_TOPIC_MATCH( "aws///iot", "aws/+/+/iot", false, true );
+        TEST_TOPIC_MATCH( "/aws", "/+", false, true );
+        TEST_TOPIC_MATCH( "/aws/iot", "/aws/+", false, true );
+        TEST_TOPIC_MATCH( "/aws/iot/shadow", "/aws/+/shadow", false, true );
+        TEST_TOPIC_MATCH( "/aws/iot/shadow", "/aws/+/+", false, true );
+        TEST_TOPIC_MATCH( "aws/", "aws/+", false, true );
+        TEST_TOPIC_MATCH( "/aws", "+/+", false, true );
+        TEST_TOPIC_MATCH( "aws//iot", "aws/+/iot", false, true );
+        TEST_TOPIC_MATCH( "aws//iot", "aws//+", false, true );
+        TEST_TOPIC_MATCH( "aws///iot", "aws/+/+/iot", false, true );
 
         /* Multi level wildcard matching. */
-        _TEST_TOPIC_MATCH( "/aws/iot/shadow", "#", false, true );
-        _TEST_TOPIC_MATCH( "aws/iot/shadow", "#", false, true );
-        _TEST_TOPIC_MATCH( "/aws/iot/shadow", "/#", false, true );
-        _TEST_TOPIC_MATCH( "aws/iot/shadow", "aws/iot/#", false, true );
-        _TEST_TOPIC_MATCH( "aws/iot/shadow/thing", "aws/iot/#", false, true );
-        _TEST_TOPIC_MATCH( "aws", "aws/#", false, true );
+        TEST_TOPIC_MATCH( "/aws/iot/shadow", "#", false, true );
+        TEST_TOPIC_MATCH( "aws/iot/shadow", "#", false, true );
+        TEST_TOPIC_MATCH( "/aws/iot/shadow", "/#", false, true );
+        TEST_TOPIC_MATCH( "aws/iot/shadow", "aws/iot/#", false, true );
+        TEST_TOPIC_MATCH( "aws/iot/shadow/thing", "aws/iot/#", false, true );
+        TEST_TOPIC_MATCH( "aws", "aws/#", false, true );
 
         /* Both topic level and multi level wildcard. */
-        _TEST_TOPIC_MATCH( "aws/iot/shadow/thing/temp", "aws/+/shadow/#", false, true );
+        TEST_TOPIC_MATCH( "aws/iot/shadow/thing/temp", "aws/+/shadow/#", false, true );
     }
 
     IotMqtt_FreeSubscription( pTopicFilter );
@@ -1068,36 +931,36 @@ TEST( MQTT_Unit_Subscription, TopicFilterMatchTrue )
 TEST( MQTT_Unit_Subscription, TopicFilterMatchFalse )
 {
     _mqttSubscription_t * pTopicFilter =
-        IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + _TOPIC_FILTER_MATCH_MAX_LENGTH );
+        IotMqtt_MallocSubscription( sizeof( _mqttSubscription_t ) + TOPIC_FILTER_MATCH_MAX_LENGTH );
 
     TEST_ASSERT_NOT_EQUAL( NULL, pTopicFilter );
 
     if( TEST_PROTECT() )
     {
         /* Topic filter longer than filter name. */
-        _TEST_TOPIC_MATCH( "/short", "/toolong", true, false );
-        _TEST_TOPIC_MATCH( "/short", "/toolong", false, false );
+        TEST_TOPIC_MATCH( "/short", "/toolong", true, false );
+        TEST_TOPIC_MATCH( "/short", "/toolong", false, false );
 
         /* Case mismatch. */
-        _TEST_TOPIC_MATCH( "/exact", "/eXaCt", true, false );
-        _TEST_TOPIC_MATCH( "/exact", "/ExAcT", false, false );
+        TEST_TOPIC_MATCH( "/exact", "/eXaCt", true, false );
+        TEST_TOPIC_MATCH( "/exact", "/ExAcT", false, false );
 
         /* Substrings should not match. */
-        _TEST_TOPIC_MATCH( "aws/", "aws/iot", true, false );
-        _TEST_TOPIC_MATCH( "aws/", "aws/iot", false, false );
+        TEST_TOPIC_MATCH( "aws/", "aws/iot", true, false );
+        TEST_TOPIC_MATCH( "aws/", "aws/iot", false, false );
 
         /* Topic level wildcard matching. */
-        _TEST_TOPIC_MATCH( "aws", "aws/", false, false );
-        _TEST_TOPIC_MATCH( "aws/iot/shadow", "aws/+", false, false );
-        _TEST_TOPIC_MATCH( "aws/iot/shadow", "aws/+/thing", false, false );
-        _TEST_TOPIC_MATCH( "/aws", "+", false, false );
+        TEST_TOPIC_MATCH( "aws", "aws/", false, false );
+        TEST_TOPIC_MATCH( "aws/iot/shadow", "aws/+", false, false );
+        TEST_TOPIC_MATCH( "aws/iot/shadow", "aws/+/thing", false, false );
+        TEST_TOPIC_MATCH( "/aws", "+", false, false );
 
         /* Multi level wildcard matching. */
-        _TEST_TOPIC_MATCH( "aws/iot/shadow", "iot/#", false, false );
-        _TEST_TOPIC_MATCH( "aws/iot", "/#", false, false );
+        TEST_TOPIC_MATCH( "aws/iot/shadow", "iot/#", false, false );
+        TEST_TOPIC_MATCH( "aws/iot", "/#", false, false );
 
         /* Both topic level and multi level wildcard. */
-        _TEST_TOPIC_MATCH( "aws/iot/shadow", "iot/+/#", false, false );
+        TEST_TOPIC_MATCH( "aws/iot/shadow", "iot/+/#", false, false );
     }
 
     IotMqtt_FreeSubscription( pTopicFilter );

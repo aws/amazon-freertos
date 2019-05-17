@@ -33,11 +33,14 @@
 #include <stdint.h>
 #include <string.h>
 
+/* SDK initialization include. */
+#include "iot_init.h"
+
 /* Platform layer includes. */
 #include "platform/iot_threads.h"
 #include "platform/iot_clock.h"
 
-/* MQTT internal include. */
+/* Task pool internal include. */
 #include "private/iot_taskpool_internal.h"
 
 /* Task pool include. */
@@ -80,6 +83,7 @@ TEST_GROUP( Common_Unit_Task_Pool );
  */
 TEST_SETUP( Common_Unit_Task_Pool )
 {
+    TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
 }
 
 /*-----------------------------------------------------------*/
@@ -89,6 +93,7 @@ TEST_SETUP( Common_Unit_Task_Pool )
  */
 TEST_TEAR_DOWN( Common_Unit_Task_Pool )
 {
+    IotSdk_Cleanup();
 }
 
 /*-----------------------------------------------------------*/
@@ -223,7 +228,7 @@ static void ExecutionWithoutDestroyCb( IotTaskPool_t pTaskPool,
     IotTaskPoolError_t error;
     IotTaskPoolJobStatus_t status;
 
-    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
+    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );
@@ -249,7 +254,7 @@ static void ExecutionBlockingWithoutDestroyCb( IotTaskPool_t pTaskPool,
     IotTaskPoolError_t error;
     IotTaskPoolJobStatus_t status;
 
-    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
+    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );
@@ -276,7 +281,7 @@ static void ExecutionWithRecycleCb( IotTaskPool_t pTaskPool,
     IotTaskPoolError_t error;
     IotTaskPoolJobStatus_t status;
 
-    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
+    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );
@@ -304,7 +309,7 @@ static void ExecutionLongWithoutDestroyCb( IotTaskPool_t pTaskPool,
     IotTaskPoolError_t error;
     IotTaskPoolJobStatus_t status;
 
-    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
+    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );
@@ -333,7 +338,7 @@ static void BlankExecution( IotTaskPool_t pTaskPool,
     ( void ) pJob;
     ( void ) pContext;
 
-    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
+    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );

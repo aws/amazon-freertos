@@ -36,17 +36,17 @@
  * - IOT_LOG_NONE if neither IOT_LOG_LEVEL_DEMO nor IOT_LOG_LEVEL_GLOBAL are defined.
  */
 #ifdef IOT_LOG_LEVEL_DEMO
-    #define _LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_DEMO
+    #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_DEMO
 #else
     #ifdef IOT_LOG_LEVEL_GLOBAL
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
     #else
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
     #endif
 #endif
 
 /* Set the library name to print with the demos. */
-#define _LIBRARY_LOG_NAME    ( "DEMO" )
+#define LIBRARY_LOG_NAME    ( "DEMO" )
 
 /* Include the logging setup header. This enables the logs. */
 #include "iot_logging_setup.h"

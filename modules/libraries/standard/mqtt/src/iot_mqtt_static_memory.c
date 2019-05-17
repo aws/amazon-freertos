@@ -20,8 +20,8 @@
  */
 
 /**
- * @file iot_static_memory_mqtt.c
- * @brief Implementation of MQTT static memory functions in iot_static_memory.h
+ * @file iot_mqtt_static_memory.c
+ * @brief Implementation of MQTT static memory functions.
  */
 
 /* The config header is always included first. */
@@ -52,11 +52,11 @@
 #ifndef IOT_MQTT_CONNECTIONS
     #define IOT_MQTT_CONNECTIONS                   ( 1 )
 #endif
-#ifndef IOT_MQTT_SUBSCRIPTIONS
-    #define IOT_MQTT_SUBSCRIPTIONS                 ( 8 )
-#endif
 #ifndef IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS
     #define IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS    ( 10 )
+#endif
+#ifndef IOT_MQTT_SUBSCRIPTIONS
+    #define IOT_MQTT_SUBSCRIPTIONS                 ( 8 )
 #endif
 /** @endcond */
 
@@ -64,34 +64,21 @@
 #if IOT_MQTT_CONNECTIONS <= 0
     #error "IOT_MQTT_CONNECTIONS cannot be 0 or negative."
 #endif
-#if IOT_MQTT_SUBSCRIPTIONS <= 0
-    #error "IOT_MQTT_SUBSCRIPTIONS cannot be 0 or negative."
-#endif
 #if IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS <= 0
     #error "IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS cannot be 0 or negative."
+#endif
+#if IOT_MQTT_SUBSCRIPTIONS <= 0
+    #error "IOT_MQTT_SUBSCRIPTIONS cannot be 0 or negative."
 #endif
 
 /**
  * @brief The size of a static memory MQTT subscription.
  *
  * Since the pTopic member of #_mqttSubscription_t is variable-length, the constant
- * #_AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH is used for the length of
+ * #AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH is used for the length of
  * #_mqttSubscription_t.pTopicFilter.
  */
-#define _MQTT_SUBSCRIPTION_SIZE    ( sizeof( _mqttSubscription_t ) + _AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH )
-
-/*-----------------------------------------------------------*/
-
-/* Extern declarations of common static memory functions in iot_static_memory_common.c
- * Because these functions are specific to this static memory implementation, they are
- * not placed in the common static memory header file. */
-extern int IotStaticMemory_FindFree( bool * const pInUse,
-                                     int limit );
-extern void IotStaticMemory_ReturnInUse( void * ptr,
-                                         void * const pPool,
-                                         bool * const pInUse,
-                                         int limit,
-                                         size_t elementSize );
+#define MQTT_SUBSCRIPTION_SIZE    ( sizeof( _mqttSubscription_t ) + AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH )
 
 /*-----------------------------------------------------------*/
 
@@ -105,13 +92,13 @@ static bool _pInUseMqttOperations[ IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { 0 }
 static _mqttOperation_t _pMqttOperations[ IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS ] = { { .link = { 0 } } }; /**< @brief MQTT operations. */
 
 static bool _pInUseMqttSubscriptions[ IOT_MQTT_SUBSCRIPTIONS ] = { 0 };                           /**< @brief MQTT subscription in-use flags. */
-static char _pMqttSubscriptions[ IOT_MQTT_SUBSCRIPTIONS ][ _MQTT_SUBSCRIPTION_SIZE ] = { { 0 } }; /**< @brief MQTT subscriptions. */
+static char _pMqttSubscriptions[ IOT_MQTT_SUBSCRIPTIONS ][ MQTT_SUBSCRIPTION_SIZE ] = { { 0 } };  /**< @brief MQTT subscriptions. */
 
 /*-----------------------------------------------------------*/
 
-void * Iot_MallocMqttConnection( size_t size )
+void * IotMqtt_MallocConnection( size_t size )
 {
-    int freeIndex = -1;
+    int32_t freeIndex = -1;
     void * pNewConnection = NULL;
 
     /* Check size argument. */
@@ -132,7 +119,7 @@ void * Iot_MallocMqttConnection( size_t size )
 
 /*-----------------------------------------------------------*/
 
-void Iot_FreeMqttConnection( void * ptr )
+void IotMqtt_FreeConnection( void * ptr )
 {
     /* Return the in-use MQTT connection. */
     IotStaticMemory_ReturnInUse( ptr,
@@ -144,9 +131,9 @@ void Iot_FreeMqttConnection( void * ptr )
 
 /*-----------------------------------------------------------*/
 
-void * Iot_MallocMqttOperation( size_t size )
+void * IotMqtt_MallocOperation( size_t size )
 {
-    int freeIndex = -1;
+    int32_t freeIndex = -1;
     void * pNewOperation = NULL;
 
     /* Check size argument. */
@@ -167,7 +154,7 @@ void * Iot_MallocMqttOperation( size_t size )
 
 /*-----------------------------------------------------------*/
 
-void Iot_FreeMqttOperation( void * ptr )
+void IotMqtt_FreeOperation( void * ptr )
 {
     /* Return the in-use MQTT operation. */
     IotStaticMemory_ReturnInUse( ptr,
@@ -179,12 +166,12 @@ void Iot_FreeMqttOperation( void * ptr )
 
 /*-----------------------------------------------------------*/
 
-void * Iot_MallocMqttSubscription( size_t size )
+void * IotMqtt_MallocSubscription( size_t size )
 {
-    int freeIndex = -1;
+    int32_t freeIndex = -1;
     void * pNewSubscription = NULL;
 
-    if( size <= _MQTT_SUBSCRIPTION_SIZE )
+    if( size <= MQTT_SUBSCRIPTION_SIZE )
     {
         /* Get the index of a free MQTT subscription. */
         freeIndex = IotStaticMemory_FindFree( _pInUseMqttSubscriptions,
@@ -201,14 +188,14 @@ void * Iot_MallocMqttSubscription( size_t size )
 
 /*-----------------------------------------------------------*/
 
-void Iot_FreeMqttSubscription( void * ptr )
+void IotMqtt_FreeSubscription( void * ptr )
 {
     /* Return the in-use MQTT subscription. */
     IotStaticMemory_ReturnInUse( ptr,
                                  _pMqttSubscriptions,
                                  _pInUseMqttSubscriptions,
                                  IOT_MQTT_SUBSCRIPTIONS,
-                                 _MQTT_SUBSCRIPTION_SIZE );
+                                 MQTT_SUBSCRIPTION_SIZE );
 }
 
 /*-----------------------------------------------------------*/

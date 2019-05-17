@@ -154,7 +154,7 @@ static void _updatedCallbackWrapper( void * pArgument,
  */
 uint32_t _AwsIotShadowMqttTimeoutMs = AWS_IOT_SHADOW_DEFAULT_MQTT_TIMEOUT_MS;
 
-#if _LIBRARY_LOG_LEVEL > IOT_LOG_NONE
+#if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
 
 /**
  * @brief Printable names for the Shadow callbacks.
@@ -187,12 +187,12 @@ static AwsIotShadowError_t _validateThingNameFlags( _shadowOperationType_t type,
         return AWS_IOT_SHADOW_BAD_PARAMETER;
     }
 
-    if( thingNameLength > _MAX_THING_NAME_LENGTH )
+    if( thingNameLength > MAX_THING_NAME_LENGTH )
     {
         IotLogError( "Thing Name length of %lu exceeds the maximum allowed"
                      "length of %d.",
                      ( unsigned long ) thingNameLength,
-                     _MAX_THING_NAME_LENGTH );
+                     MAX_THING_NAME_LENGTH );
 
         return AWS_IOT_SHADOW_BAD_PARAMETER;
     }
@@ -316,7 +316,7 @@ static AwsIotShadowError_t _setCallbackCommon( IotMqttConnection_t mqttConnectio
     _shadowSubscription_t * pSubscription = NULL;
 
     /* Check parameters. */
-    if( _validateThingNameFlags( ( _shadowOperationType_t ) ( type + _SHADOW_OPERATION_COUNT ),
+    if( _validateThingNameFlags( ( _shadowOperationType_t ) ( type + SHADOW_OPERATION_COUNT ),
                                  pThingName,
                                  thingNameLength,
                                  0,
@@ -432,21 +432,21 @@ static AwsIotShadowError_t _modifyCallbackSubscriptions( IotMqttConnection_t mqt
     uint16_t operationTopicLength = 0;
 
     /* Lookup table for Shadow callback suffixes. */
-    const char * const pCallbackSuffix[ _SHADOW_CALLBACK_COUNT ] =
+    const char * const pCallbackSuffix[ SHADOW_CALLBACK_COUNT ] =
     {
-        _SHADOW_DELTA_SUFFIX,  /* Delta callback. */
-        _SHADOW_UPDATED_SUFFIX /* Updated callback. */
+        SHADOW_DELTA_SUFFIX,  /* Delta callback. */
+        SHADOW_UPDATED_SUFFIX /* Updated callback. */
     };
 
     /* Lookup table for Shadow callback suffix lengths. */
-    const uint16_t pCallbackSuffixLength[ _SHADOW_CALLBACK_COUNT ] =
+    const uint16_t pCallbackSuffixLength[ SHADOW_CALLBACK_COUNT ] =
     {
-        _SHADOW_DELTA_SUFFIX_LENGTH,  /* Delta callback. */
-        _SHADOW_UPDATED_SUFFIX_LENGTH /* Updated callback. */
+        SHADOW_DELTA_SUFFIX_LENGTH,  /* Delta callback. */
+        SHADOW_UPDATED_SUFFIX_LENGTH /* Updated callback. */
     };
 
     /* Lookup table for Shadow callback function wrappers. */
-    const _mqttCallbackFunction_t pCallbackWrapper[ _SHADOW_CALLBACK_COUNT ] =
+    const _mqttCallbackFunction_t pCallbackWrapper[ SHADOW_CALLBACK_COUNT ] =
     {
         _deltaCallbackWrapper,   /* Delta callback. */
         _updatedCallbackWrapper, /* Updated callback. */
@@ -552,7 +552,7 @@ static void _callbackWrapperCommon( _shadowCallbackType_t type,
     AwsIotShadow_Assert( pSubscription->callbacks[ type ].function != NULL );
 
     /* Set the callback type. Shadow callbacks are enumerated after the operations. */
-    callbackParam.callbackType = ( AwsIotShadowCallbackType_t ) ( type + _SHADOW_OPERATION_COUNT );
+    callbackParam.callbackType = ( AwsIotShadowCallbackType_t ) ( type + SHADOW_OPERATION_COUNT );
 
     /* Set the remaining members of the callback param. */
     callbackParam.mqttConnection = pMessage->mqttConnection;
@@ -893,13 +893,13 @@ AwsIotShadowError_t AwsIotShadow_Update( IotMqttConnection_t mqttConnection,
     /* Check UPDATE document for a client token. */
     if( IotJsonUtils_FindJsonValue( pUpdateInfo->u.update.pUpdateDocument,
                                     pUpdateInfo->u.update.updateDocumentLength,
-                                    _CLIENT_TOKEN_KEY,
-                                    _CLIENT_TOKEN_KEY_LENGTH,
+                                    CLIENT_TOKEN_KEY,
+                                    CLIENT_TOKEN_KEY_LENGTH,
                                     &pClientToken,
                                     &clientTokenLength ) == false )
     {
         IotLogError( "Shadow document for Shadow UPDATE must have a %s key.",
-                     _CLIENT_TOKEN_KEY );
+                     CLIENT_TOKEN_KEY );
 
         return AWS_IOT_SHADOW_BAD_PARAMETER;
     }
@@ -907,10 +907,10 @@ AwsIotShadowError_t AwsIotShadow_Update( IotMqttConnection_t mqttConnection,
     /* Check the client token length. It must be greater than the length of its
      * enclosing double quotes (2) and less than the maximum allowed by the Shadow
      * service. */
-    if( ( clientTokenLength < 2 ) || ( clientTokenLength > _MAX_CLIENT_TOKEN_LENGTH ) )
+    if( ( clientTokenLength < 2 ) || ( clientTokenLength > MAX_CLIENT_TOKEN_LENGTH ) )
     {
         IotLogError( "Client token length must be between 2 and %d (including "
-                     "enclosing quotes).", _MAX_CLIENT_TOKEN_LENGTH + 2 );
+                     "enclosing quotes).", MAX_CLIENT_TOKEN_LENGTH + 2 );
 
         return AWS_IOT_SHADOW_BAD_PARAMETER;
     }

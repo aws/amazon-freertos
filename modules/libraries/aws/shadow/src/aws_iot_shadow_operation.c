@@ -124,7 +124,7 @@ static void _updateCallback( void * pArgument,
 
 /*-----------------------------------------------------------*/
 
-#if _LIBRARY_LOG_LEVEL > IOT_LOG_NONE
+#if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
 
 /**
  * @brief Printable names for each of the Shadow operations.
@@ -137,7 +137,7 @@ static void _updateCallback( void * pArgument,
         "SET DELTA",
         "SET UPDATED"
     };
-#endif /* if _LIBRARY_LOG_LEVEL > IOT_LOG_NONE */
+#endif /* if LIBRARY_LOG_LEVEL > IOT_LOG_NONE */
 
 /**
  * @brief List of active Shadow operations awaiting a response from the Shadow
@@ -188,8 +188,8 @@ static bool _shadowOperation_match( const IotLink_t * pOperationLink,
         /* Check for the client token in the UPDATE response document. */
         match = IotJsonUtils_FindJsonValue( pParam->pDocument,
                                             pParam->documentLength,
-                                            _CLIENT_TOKEN_KEY,
-                                            _CLIENT_TOKEN_KEY_LENGTH,
+                                            CLIENT_TOKEN_KEY,
+                                            CLIENT_TOKEN_KEY_LENGTH,
                                             &pClientToken,
                                             &clientTokenLength );
 
@@ -530,19 +530,19 @@ AwsIotShadowError_t _AwsIotShadow_GenerateShadowTopic( _shadowOperationType_t ty
     char * pBuffer = NULL;
 
     /* Lookup table for Shadow operation strings. */
-    const char * const pOperationString[ _SHADOW_OPERATION_COUNT ] =
+    const char * const pOperationString[ SHADOW_OPERATION_COUNT ] =
     {
-        _SHADOW_DELETE_OPERATION_STRING, /* Shadow delete operation. */
-        _SHADOW_GET_OPERATION_STRING,    /* Shadow get operation. */
-        _SHADOW_UPDATE_OPERATION_STRING  /* Shadow update operation. */
+        SHADOW_DELETE_OPERATION_STRING, /* Shadow delete operation. */
+        SHADOW_GET_OPERATION_STRING,    /* Shadow get operation. */
+        SHADOW_UPDATE_OPERATION_STRING  /* Shadow update operation. */
     };
 
     /* Lookup table for Shadow operation string lengths. */
-    const uint16_t pOperationStringLength[ _SHADOW_OPERATION_COUNT ] =
+    const uint16_t pOperationStringLength[ SHADOW_OPERATION_COUNT ] =
     {
-        _SHADOW_DELETE_OPERATION_STRING_LENGTH, /* Shadow delete operation. */
-        _SHADOW_GET_OPERATION_STRING_LENGTH,    /* Shadow get operation. */
-        _SHADOW_UPDATE_OPERATION_STRING_LENGTH  /* Shadow update operation. */
+        SHADOW_DELETE_OPERATION_STRING_LENGTH, /* Shadow delete operation. */
+        SHADOW_GET_OPERATION_STRING_LENGTH,    /* Shadow get operation. */
+        SHADOW_UPDATE_OPERATION_STRING_LENGTH  /* Shadow update operation. */
     };
 
     /* Only Shadow delete, get, and update operation types should be passed to this
@@ -552,10 +552,10 @@ AwsIotShadowError_t _AwsIotShadow_GenerateShadowTopic( _shadowOperationType_t ty
                          ( type == _SHADOW_UPDATE ) );
 
     /* Calculate the required topic buffer length. */
-    bufferLength = ( uint16_t ) ( _SHADOW_TOPIC_PREFIX_LENGTH +
+    bufferLength = ( uint16_t ) ( SHADOW_TOPIC_PREFIX_LENGTH +
                                   thingNameLength +
                                   pOperationStringLength[ type ] +
-                                  _SHADOW_LONGEST_SUFFIX_LENGTH );
+                                  SHADOW_LONGEST_SUFFIX_LENGTH );
 
     /* Allocate memory for the topic buffer if no topic buffer is given. */
     if( *pTopicBuffer == NULL )
@@ -574,8 +574,8 @@ AwsIotShadowError_t _AwsIotShadow_GenerateShadowTopic( _shadowOperationType_t ty
     }
 
     /* Copy the Shadow topic prefix into the topic buffer. */
-    ( void ) memcpy( pBuffer, _SHADOW_TOPIC_PREFIX, _SHADOW_TOPIC_PREFIX_LENGTH );
-    operationTopicLength = ( uint16_t ) ( operationTopicLength + _SHADOW_TOPIC_PREFIX_LENGTH );
+    ( void ) memcpy( pBuffer, SHADOW_TOPIC_PREFIX, SHADOW_TOPIC_PREFIX_LENGTH );
+    operationTopicLength = ( uint16_t ) ( operationTopicLength + SHADOW_TOPIC_PREFIX_LENGTH );
 
     /* Copy the Thing Name into the topic buffer. */
     ( void ) memcpy( pBuffer + operationTopicLength, pThingName, thingNameLength );
@@ -618,7 +618,7 @@ AwsIotShadowError_t _AwsIotShadow_ProcessOperation( IotMqttConnection_t mqttConn
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
     /* Lookup table for Shadow operation callbacks. */
-    const _mqttCallbackFunction_t shadowCallbacks[ _SHADOW_OPERATION_COUNT ] =
+    const _mqttCallbackFunction_t shadowCallbacks[ SHADOW_OPERATION_COUNT ] =
     {
         _deleteCallback,
         _getCallback,

@@ -60,16 +60,16 @@
 
 /* Configure logs for MQTT functions. */
 #ifdef IOT_LOG_LEVEL_MQTT
-    #define _LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_MQTT
+    #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_MQTT
 #else
     #ifdef IOT_LOG_LEVEL_GLOBAL
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
     #else
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
     #endif
 #endif
 
-#define _LIBRARY_LOG_NAME    ( "MQTT" )
+#define LIBRARY_LOG_NAME    ( "MQTT" )
 #include "iot_logging_setup.h"
 
 /*
@@ -84,72 +84,56 @@
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef IotMqtt_MallocConnection
-        #define IotMqtt_MallocConnection    Iot_MallocMqttConnection
-    #endif
+    void * IotMqtt_MallocConnection( size_t size );
 
 /**
  * @brief Free an #_mqttConnection_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotMqtt_FreeConnection
-        #define IotMqtt_FreeConnection    Iot_FreeMqttConnection
-    #endif
+    void IotMqtt_FreeConnection( void * ptr );
 
 /**
  * @brief Allocate memory for an MQTT packet. This function should have the
  * same signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef IotMqtt_MallocMessage
-        #define IotMqtt_MallocMessage    Iot_MallocMessageBuffer
-    #endif
+    #define IotMqtt_MallocMessage    Iot_MallocMessageBuffer
 
 /**
  * @brief Free an MQTT packet. This function should have the same signature
  * as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotMqtt_FreeMessage
-        #define IotMqtt_FreeMessage    Iot_FreeMessageBuffer
-    #endif
+    #define IotMqtt_FreeMessage      Iot_FreeMessageBuffer
 
 /**
  * @brief Allocate an #_mqttOperation_t. This function should have the same
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef IotMqtt_MallocOperation
-        #define IotMqtt_MallocOperation    Iot_MallocMqttOperation
-    #endif
+    void * IotMqtt_MallocOperation( size_t size );
 
 /**
  * @brief Free an #_mqttOperation_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotMqtt_FreeOperation
-        #define IotMqtt_FreeOperation    Iot_FreeMqttOperation
-    #endif
+    void IotMqtt_FreeOperation( void * ptr );
 
 /**
  * @brief Allocate an #_mqttSubscription_t. This function should have the
  * same signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef IotMqtt_MallocSubscription
-        #define IotMqtt_MallocSubscription    Iot_MallocMqttSubscription
-    #endif
+    void * IotMqtt_MallocSubscription( size_t size );
 
 /**
  * @brief Free an #_mqttSubscription_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotMqtt_FreeSubscription
-        #define IotMqtt_FreeSubscription    Iot_FreeMqttSubscription
-    #endif
+    void IotMqtt_FreeSubscription( void * ptr );
 #else /* if IOT_STATIC_MEMORY_ONLY == 1 */
     #include <stdlib.h>
 
@@ -213,8 +197,8 @@
  * this is defined to nothing. When running code coverage testing, this is defined
  * to an assembly NOP.
  */
-#ifndef _EMPTY_ELSE_MARKER
-    #define _EMPTY_ELSE_MARKER
+#ifndef EMPTY_ELSE_MARKER
+    #define EMPTY_ELSE_MARKER
 #endif
 
 /*
@@ -225,11 +209,11 @@
  *
  * Used to validate parameters if when connecting to an AWS IoT MQTT server.
  */
-#define _AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE                      ( 30 )   /**< @brief Minumum keep-alive interval accepted by AWS IoT. */
-#define _AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE                      ( 1200 ) /**< @brief Maximum keep-alive interval accepted by AWS IoT. */
-#define _AWS_IOT_MQTT_SERVER_MAX_CLIENTID                       ( 128 )  /**< @brief Maximum length of client identifier accepted by AWS IoT. */
-#define _AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH                   ( 256 )  /**< @brief Maximum length of topic names or filters accepted by AWS IoT. */
-#define _AWS_IOT_MQTT_SERVER_MAX_TOPIC_FILTERS_PER_SUBSCRIBE    ( 8 )    /**< @brief Maximum number of topic filters in a single SUBSCRIBE packet. */
+#define AWS_IOT_MQTT_SERVER_MIN_KEEPALIVE                      ( 30 )   /**< @brief Minumum keep-alive interval accepted by AWS IoT. */
+#define AWS_IOT_MQTT_SERVER_MAX_KEEPALIVE                      ( 1200 ) /**< @brief Maximum keep-alive interval accepted by AWS IoT. */
+#define AWS_IOT_MQTT_SERVER_MAX_CLIENTID                       ( 128 )  /**< @brief Maximum length of client identifier accepted by AWS IoT. */
+#define AWS_IOT_MQTT_SERVER_MAX_TOPIC_LENGTH                   ( 256 )  /**< @brief Maximum length of topic names or filters accepted by AWS IoT. */
+#define AWS_IOT_MQTT_SERVER_MAX_TOPIC_FILTERS_PER_SUBSCRIBE    ( 8 )    /**< @brief Maximum number of topic filters in a single SUBSCRIBE packet. */
 
 /*
  * MQTT control packet type and flags. Always the first byte of an MQTT
@@ -238,24 +222,24 @@
  * For details, see
  * http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/csprd02/mqtt-v3.1.1-csprd02.html#_Toc385349757
  */
-#define _MQTT_PACKET_TYPE_CONNECT                               ( ( uint8_t ) 0x10U ) /**< @brief CONNECT (client-to-server). */
-#define _MQTT_PACKET_TYPE_CONNACK                               ( ( uint8_t ) 0x20U ) /**< @brief CONNACK (server-to-client). */
-#define _MQTT_PACKET_TYPE_PUBLISH                               ( ( uint8_t ) 0x30U ) /**< @brief PUBLISH (bi-directional). */
-#define _MQTT_PACKET_TYPE_PUBACK                                ( ( uint8_t ) 0x40U ) /**< @brief PUBACK (server-to-client). */
-#define _MQTT_PACKET_TYPE_SUBSCRIBE                             ( ( uint8_t ) 0x82U ) /**< @brief SUBSCRIBE (client-to-server). */
-#define _MQTT_PACKET_TYPE_SUBACK                                ( ( uint8_t ) 0x90U ) /**< @brief SUBACK (server-to-client). */
-#define _MQTT_PACKET_TYPE_UNSUBSCRIBE                           ( ( uint8_t ) 0xa2U ) /**< @brief UNSUBSCRIBE (client-to-server). */
-#define _MQTT_PACKET_TYPE_UNSUBACK                              ( ( uint8_t ) 0xb0U ) /**< @brief UNSUBACK (server-to-client). */
-#define _MQTT_PACKET_TYPE_PINGREQ                               ( ( uint8_t ) 0xc0U ) /**< @brief PINGREQ (client-to-server). */
-#define _MQTT_PACKET_TYPE_PINGRESP                              ( ( uint8_t ) 0xd0U ) /**< @brief PINGRESP (server-to-client). */
-#define _MQTT_PACKET_TYPE_DISCONNECT                            ( ( uint8_t ) 0xe0U ) /**< @brief DISCONNECT (client-to-server). */
+#define MQTT_PACKET_TYPE_CONNECT                               ( ( uint8_t ) 0x10U ) /**< @brief CONNECT (client-to-server). */
+#define MQTT_PACKET_TYPE_CONNACK                               ( ( uint8_t ) 0x20U ) /**< @brief CONNACK (server-to-client). */
+#define MQTT_PACKET_TYPE_PUBLISH                               ( ( uint8_t ) 0x30U ) /**< @brief PUBLISH (bi-directional). */
+#define MQTT_PACKET_TYPE_PUBACK                                ( ( uint8_t ) 0x40U ) /**< @brief PUBACK (server-to-client). */
+#define MQTT_PACKET_TYPE_SUBSCRIBE                             ( ( uint8_t ) 0x82U ) /**< @brief SUBSCRIBE (client-to-server). */
+#define MQTT_PACKET_TYPE_SUBACK                                ( ( uint8_t ) 0x90U ) /**< @brief SUBACK (server-to-client). */
+#define MQTT_PACKET_TYPE_UNSUBSCRIBE                           ( ( uint8_t ) 0xa2U ) /**< @brief UNSUBSCRIBE (client-to-server). */
+#define MQTT_PACKET_TYPE_UNSUBACK                              ( ( uint8_t ) 0xb0U ) /**< @brief UNSUBACK (server-to-client). */
+#define MQTT_PACKET_TYPE_PINGREQ                               ( ( uint8_t ) 0xc0U ) /**< @brief PINGREQ (client-to-server). */
+#define MQTT_PACKET_TYPE_PINGRESP                              ( ( uint8_t ) 0xd0U ) /**< @brief PINGRESP (server-to-client). */
+#define MQTT_PACKET_TYPE_DISCONNECT                            ( ( uint8_t ) 0xe0U ) /**< @brief DISCONNECT (client-to-server). */
 
 /**
  * @brief A value that represents an invalid remaining length.
  *
  * This value is greater than what is allowed by the MQTT specification.
  */
-#define _MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
+#define MQTT_REMAINING_LENGTH_INVALID                          ( ( size_t ) 268435456 )
 
 /*---------------------- MQTT internal data structures ----------------------*/
 
@@ -274,22 +258,22 @@ typedef struct _mqttConnection
         const IotMqttSerializer_t * pSerializer; /**< @brief MQTT packet serializer overrides. */
     #endif
 
-    bool disconnected;                           /**< @brief Tracks if this connection has been disconnected. */
-    IotMutex_t referencesMutex;                  /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
-    int32_t references;                          /**< @brief Counts callbacks and operations using this connection. */
-    IotListDouble_t pendingProcessing;           /**< @brief List of operations waiting to be processed by a task pool routine. */
-    IotListDouble_t pendingResponse;             /**< @brief List of processed operations awaiting a server response. */
+    bool disconnected;                              /**< @brief Tracks if this connection has been disconnected. */
+    IotMutex_t referencesMutex;                     /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
+    int32_t references;                             /**< @brief Counts callbacks and operations using this connection. */
+    IotListDouble_t pendingProcessing;              /**< @brief List of operations waiting to be processed by a task pool routine. */
+    IotListDouble_t pendingResponse;                /**< @brief List of processed operations awaiting a server response. */
 
-    IotListDouble_t subscriptionList;            /**< @brief Holds subscriptions associated with this connection. */
-    IotMutex_t subscriptionMutex;                /**< @brief Grants exclusive access to the subscription list. */
+    IotListDouble_t subscriptionList;               /**< @brief Holds subscriptions associated with this connection. */
+    IotMutex_t subscriptionMutex;                   /**< @brief Grants exclusive access to the subscription list. */
 
-    bool keepAliveFailure;                       /**< @brief Failure flag for keep-alive operation. */
-    uint32_t keepAliveMs;                        /**< @brief Keep-alive interval in milliseconds. Its max value (per spec) is 65,535,000. */
-    uint32_t nextKeepAliveMs;                    /**< @brief Relative delay for next keep-alive job. */
-    IotTaskPoolJobStorage_t keepAliveJobStorage; /**< @brief Task pool job for processing this connection's keep-alive. */
-    IotTaskPoolJob_t keepAliveJob;               /**< @brief Task pool job for processing this connection's keep-alive. */
-    uint8_t * pPingreqPacket;                    /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
-    size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
+    bool keepAliveFailure;                          /**< @brief Failure flag for keep-alive operation. */
+    uint32_t keepAliveMs;                           /**< @brief Keep-alive interval in milliseconds. Its max value (per spec) is 65,535,000. */
+    uint32_t nextKeepAliveMs;                       /**< @brief Relative delay for next keep-alive job. */
+    IotTaskPoolJobStorage_t keepAliveJobStorage;     /**< @brief Task pool job for processing this connection's keep-alive. */
+    IotTaskPoolJob_t keepAliveJob;                  /**< @brief Task pool job for processing this connection's keep-alive. */
+    uint8_t * pPingreqPacket;                       /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
+    size_t pingreqPacketSize;                       /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
 
 /**
@@ -347,10 +331,10 @@ typedef struct _mqttOperation
         struct
         {
             /* Basic operation information. */
-            int32_t jobReference;             /**< @brief Tracks if a job is using this operation. Must always be 0, 1, or 2. */
-            IotMqttOperationType_t type;      /**< @brief What operation this structure represents. */
-            uint32_t flags;                   /**< @brief Flags passed to the function that created this operation. */
-            uint16_t packetIdentifier;        /**< @brief The packet identifier used with this operation. */
+            int32_t jobReference;        /**< @brief Tracks if a job is using this operation. Must always be 0, 1, or 2. */
+            IotMqttOperationType_t type; /**< @brief What operation this structure represents. */
+            uint32_t flags;              /**< @brief Flags passed to the function that created this operation. */
+            uint16_t packetIdentifier;   /**< @brief The packet identifier used with this operation. */
 
             /* Serialized packet and size. */
             uint8_t * pMqttPacket;           /**< @brief The MQTT packet to send over the network. */
@@ -379,7 +363,7 @@ typedef struct _mqttOperation
             IotMqttPublishInfo_t publishInfo; /**< @brief Deserialized PUBLISH. */
             const void * pReceivedData;       /**< @brief Any buffer associated with this PUBLISH that should be freed. */
         } publish;
-    } u; /**< @brief Valid member depends on _mqttOperation_t.incomingPublish. */
+    } u;                                      /**< @brief Valid member depends on _mqttOperation_t.incomingPublish. */
 } _mqttOperation_t;
 
 /**
@@ -403,7 +387,7 @@ typedef struct _mqttPacket
          * when deserializing PUBLISHes.
          */
         _mqttOperation_t * pIncomingPublish;
-    } u; /**< @brief Valid member depends on packet being decoded. */
+    } u;                       /**< @brief Valid member depends on packet being decoded. */
 
     uint8_t * pRemainingData;  /**< @brief (Input) The remaining data in MQTT packet. */
     size_t remainingLength;    /**< @brief (Input) Length of the remaining data in the MQTT packet. */
@@ -484,7 +468,7 @@ uint8_t _IotMqtt_GetPacketType( void * pNetworkConnection,
  * @param[in] pNetworkInterface Function pointers used to interact with the
  * network.
  *
- * @return The remaining length; #_MQTT_REMAINING_LENGTH_INVALID on error.
+ * @return The remaining length; #MQTT_REMAINING_LENGTH_INVALID on error.
  */
 size_t _IotMqtt_GetRemainingLength( void * pNetworkConnection,
                                     const IotNetworkInterface_t * pNetworkInterface );

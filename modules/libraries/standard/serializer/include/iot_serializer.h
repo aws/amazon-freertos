@@ -61,108 +61,83 @@
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef IotSerializer_MallocCborEncoder
-        #define IotSerializer_MallocCborEncoder    Iot_MallocSerializerCborEncoder
-    #endif
+    void * IotSerializer_MallocCborEncoder( size_t size );
 
 /**
  * @brief Free an array of uint8_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotSerializer_FreeCborEncoder
-        #define IotSerializer_FreeCborEncoder    Iot_FreeSerializerCborEncoder
-    #endif
+    void IotSerializer_FreeCborEncoder( void * ptr );
 
 /**
  * @brief Allocate an array of uint8_t. This function should have the same
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef IotSerializer_MallocCborParser
-        #define IotSerializer_MallocCborParser    Iot_MallocSerializerCborParser
-    #endif
+    void * IotSerializer_MallocCborParser( size_t size );
 
 /**
  * @brief Free an array of uint8_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotSerializer_FreeCborParser
-        #define IotSerializer_FreeCborParser    Iot_FreeSerializerCborParser
-    #endif
+    void IotSerializer_FreeCborParser( void * ptr );
 
 /**
  * @brief Allocate an array of uint8_t. This function should have the same
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef IotSerializer_MallocCborValue
-        #define IotSerializer_MallocCborValue    Iot_MallocSerializerCborValue
-    #endif
+    void * IotSerializer_MallocCborValue( size_t size );
 
 /**
  * @brief Free an array of uint8_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotSerializer_FreeCborValue
-        #define IotSerializer_FreeCborValue    Iot_FreeSerializerCborValue
-    #endif
+    void IotSerializer_FreeCborValue( void * ptr );
 
 /**
  * @brief Allocate an array of uint8_t. This function should have the same
  * signature as [malloc]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html).
  */
-    #ifndef IotSerializer_MallocDecoderObject
-        #define IotSerializer_MallocDecoderObject    Iot_MallocSerializerDecoderObject
-    #endif
+    void * IotSerializer_MallocDecoderObject( size_t size );
 
 /**
  * @brief Free an array of uint8_t. This function should have the same
  * signature as [free]
  * (http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
  */
-    #ifndef IotSerializer_FreeDecoderObject
-        #define IotSerializer_FreeDecoderObject    Iot_FreeSerializerDecoderObject
-    #endif
-
+    void IotSerializer_FreeDecoderObject( void * ptr );
 #else /* if IOT_STATIC_MEMORY_ONLY */
     #include <stdlib.h>
 
     #ifndef IotSerializer_MallocCborEncoder
-        #define IotSerializer_MallocCborEncoder    malloc
+        #define IotSerializer_MallocCborEncoder      malloc
     #endif
-
     #ifndef IotSerializer_FreeCborEncoder
-        #define IotSerializer_FreeCborEncoder    free
+        #define IotSerializer_FreeCborEncoder        free
     #endif
-
     #ifndef IotSerializer_MallocCborParser
-        #define IotSerializer_MallocCborParser    malloc
+        #define IotSerializer_MallocCborParser       malloc
     #endif
-
     #ifndef IotSerializer_FreeCborParser
-        #define IotSerializer_FreeCborParser    free
+        #define IotSerializer_FreeCborParser         free
     #endif
-
     #ifndef IotSerializer_MallocCborValue
-        #define IotSerializer_MallocCborValue    malloc
+        #define IotSerializer_MallocCborValue        malloc
     #endif
-
     #ifndef IotSerializer_FreeCborValue
-        #define IotSerializer_FreeCborValue    free
+        #define IotSerializer_FreeCborValue          free
     #endif
-
     #ifndef IotSerializer_MallocDecoderObject
         #define IotSerializer_MallocDecoderObject    malloc
     #endif
-
     #ifndef IotSerializer_FreeDecoderObject
-        #define IotSerializer_FreeDecoderObject    free
+        #define IotSerializer_FreeDecoderObject      free
     #endif
-
 #endif /* if IOT_STATIC_MEMORY_ONLY */
 
 #define IOT_SERIALIZER_INDEFINITE_LENGTH                       0xffffffff
@@ -178,13 +153,13 @@
 #define IOT_SERIALIZER_DECODER_ITERATOR_INITIALIZER            NULL
 
 /* helper macro to create scalar data */
-#define IotSerializer_ScalarSignedInt( signedIntValue )                                                                      \
+#define IotSerializer_ScalarSignedInt( signedIntValue )                                                                        \
     ( IotSerializerScalarData_t ) { .value = { .u.signedInt = ( signedIntValue ) }, .type = IOT_SERIALIZER_SCALAR_SIGNED_INT } \
 
-#define IotSerializer_ScalarTextString( pTextStringValue )                                                                                                                              \
+#define IotSerializer_ScalarTextString( pTextStringValue )                                                                                                                                          \
     ( IotSerializerScalarData_t ) { .value = { .u.string.pString = ( ( uint8_t * ) pTextStringValue ), .u.string.length = strlen( pTextStringValue ) }, .type = IOT_SERIALIZER_SCALAR_TEXT_STRING } \
 
-#define IotSerializer_ScalarByteString( pByteStringValue, pByteStringLength )                                                                                        \
+#define IotSerializer_ScalarByteString( pByteStringValue, pByteStringLength )                                                                                                    \
     ( IotSerializerScalarData_t ) { .value = { .u.string.pString = ( pByteStringValue ), .u.string.length = ( pByteStringLength ) }, .type = IOT_SERIALIZER_SCALAR_BYTE_STRING } \
 
 /* Determine if an object is a container. */

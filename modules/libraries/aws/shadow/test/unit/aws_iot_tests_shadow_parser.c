@@ -46,7 +46,7 @@
 /**
  * @brief The size of the buffers allocated for holding Shadow error documents.
  */
-#define _ERROR_DOCUMENT_BUFFER_SIZE    ( 128 )
+#define ERROR_DOCUMENT_BUFFER_SIZE    ( 128 )
 
 /*-----------------------------------------------------------*/
 
@@ -94,14 +94,14 @@ static void _generateParseErrorDocument( char * pErrorDocument,
     /* Generate an error document. */
     va_start( arguments, pFormat );
     errorDocumentLength = vsnprintf( pErrorDocument,
-                                     _ERROR_DOCUMENT_BUFFER_SIZE,
+                                     ERROR_DOCUMENT_BUFFER_SIZE,
                                      pFormat,
                                      arguments );
     va_end( arguments );
 
     /* Check for errors from vsnprintf. */
     TEST_ASSERT_GREATER_THAN_INT( 0, errorDocumentLength );
-    TEST_ASSERT_LESS_THAN_INT( _ERROR_DOCUMENT_BUFFER_SIZE, errorDocumentLength );
+    TEST_ASSERT_LESS_THAN_INT( ERROR_DOCUMENT_BUFFER_SIZE, errorDocumentLength );
 
     /* Parse the error document and check the result. */
     TEST_ASSERT_EQUAL( expectedCode,
@@ -366,7 +366,7 @@ TEST( Shadow_Unit_Parser, JsonInvalid )
 TEST( Shadow_Unit_Parser, ErrorDocument )
 {
     size_t i = 0;
-    char pErrorDocument[ _ERROR_DOCUMENT_BUFFER_SIZE ] = { 0 };
+    char pErrorDocument[ ERROR_DOCUMENT_BUFFER_SIZE ] = { 0 };
     AwsIotShadowError_t pValidErrorCodes[] =
     {
         AWS_IOT_SHADOW_BAD_REQUEST,
@@ -398,7 +398,7 @@ TEST( Shadow_Unit_Parser, ErrorDocument )
  */
 TEST( Shadow_Unit_Parser, ErrorDocumentInvalid )
 {
-    char pErrorDocument[ _ERROR_DOCUMENT_BUFFER_SIZE ] = { 0 };
+    char pErrorDocument[ ERROR_DOCUMENT_BUFFER_SIZE ] = { 0 };
 
     /* Parse an error document with an unknown code. */
     _generateParseErrorDocument( pErrorDocument,
