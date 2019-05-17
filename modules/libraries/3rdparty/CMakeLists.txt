@@ -90,7 +90,7 @@ target_sources(
 )
 target_include_directories(
     3rdparty::tracealyzer INTERFACE
-    "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/include"
+    "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
 )
 
 # WinPcap - pcap port for windows
