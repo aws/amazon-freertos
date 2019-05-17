@@ -612,6 +612,14 @@ static void prvWIFIinit(void)
 
 /* Unity TEST initializations. */
 TEST_GROUP( Full_WiFi );
+TEST_GROUP( Quarantine_WiFi );
+
+TEST_SETUP( Quarantine_WiFi )
+{
+}
+TEST_TEAR_DOWN( Quarantine_WiFi )
+{
+}
 
 TEST_SETUP( Full_WiFi )
 {
@@ -639,9 +647,6 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiReset );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPing );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiIsConnected );
-    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
-    RUN_TEST_CASE( Full_WiFi,
-                   AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOffLoop );
 
     /* Null parameter tests. */
@@ -681,18 +686,6 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels );
 
-
-        RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
-        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
-
-
     prvFinishWiFiTesting();
 }
 
@@ -724,6 +717,24 @@ TEST_GROUP_RUNNER( Full_WiFiConfigureAP )
 #endif
     prvFinishWiFiTesting();
 }
+
+TEST_GROUP_RUNNER( Quarantine_WiFi )
+{
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConfigureAP );
+    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP );
+    RUN_TEST_CASE( Quarantine_WiFi,
+                   AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce );
+
+    prvFinishWiFiTesting();
+}
+
 /**
  * @brief Turn the Wi-Fi off then on in a loop and verify success. The Wi-Fi
  * should be ON after this test is finished.
@@ -1572,7 +1583,7 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode )
  * network created by it on your phone and configure. You should expect it to
  * return eWiFiSuccess.
  */
-TEST( Full_WiFi, AFQP_WiFiConfigureAP )
+TEST( Quarantine_WiFi, AFQP_WiFiConfigureAP )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1594,7 +1605,7 @@ TEST( Full_WiFi, AFQP_WiFiConfigureAP )
 /**
  * @brief Call WIFI_ConfigureAP with NULL parameters and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
+TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1657,7 +1668,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
 /**
  * @brief Configure the AP with an invalid security type an verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
+TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1681,7 +1692,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
  * @brief Configure the SoftAP with a SSID exceeding the maximum SSID length and
  * verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
+TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
 {
     char cLengthExceedingSSID[ wificonfigMAX_SSID_LEN + 2 ];
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1711,7 +1722,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
  * @brief Configure the SoftAP with a password exceeding the maximum password
  * length and verify failure.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
+TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
 {
     char cLengthExceedingPassword[ wificonfigMAX_PASSPHRASE_LEN + 2 ];
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1740,7 +1751,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
 /**
  * @brief Configure the SoftAP with a zero length SSID and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
+TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1762,7 +1773,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
 /**
  * @brief Configure the SoftAP with a zero length password and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
+TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1785,7 +1796,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
  * @brief Configure the SoftAP over all channels specified in
  * testwifiMAX_CHANNEL_NUMBER and verify stability.
  */
-TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
+TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     uint32_t ulIndex;
@@ -2256,7 +2267,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
  * credentials defined in this test over and over and verify we are still
  * connected.
  */
-TEST( Full_WiFi, AFQP_WiFiConnectMultipleAP )
+TEST( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP )
 {
     BaseType_t xIsConnected;
     BaseType_t xMaxRetries = 6;
@@ -2597,7 +2608,7 @@ static void prvConnectionTask( void * pvParameters )
  * @brief Spawn two threads to connect and disconnect at the same time. This is
  * to verify thread safety in the Wi-Fi driver API.
  */
-TEST( Full_WiFi, AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce )
+TEST( Quarantine_WiFi, AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce )
 {
     BaseType_t xTaskCreateResult;
     char cBuffer[ 256 ];

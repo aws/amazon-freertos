@@ -70,6 +70,7 @@ static void RunTests( void )
     #if ( testrunnerFULL_WIFI_ENABLED == 1 )
         RUN_TEST_GROUP( Full_WiFi );
         RUN_TEST_GROUP( Full_WiFiConfigureAP );
+        RUN_TEST_GROUP( Quarantine_WiFi );
     #endif
 
     #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
@@ -177,7 +178,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_BLE_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize ); 
+        RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
         RUN_TEST_GROUP( Full_BLE );
     #endif
 
