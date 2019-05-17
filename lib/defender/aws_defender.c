@@ -287,8 +287,11 @@ static char * prvGetDefenderMqttTopicString( char * pcTopicTemplate )
     uint32_t ulTopicLength = 0;
     uint32_t ulCharsWritten = 0;
 
-    /* Determine the maximum resulting string length. */
-    ulTopicLength = 1 + strlen( pcTopicTemplate ) + strlen( clientcredentialIOT_THING_NAME );
+    /* Determine the maximum resulting string length including NULL terminator.
+    The input parameter is assumed to include a %s for inserting the Thing 
+    name.*/
+    ulTopicLength = strlen( pcTopicTemplate ) +
+                    strlen( clientcredentialIOT_THING_NAME ) - 1;
 
     /* Allocate memory. */
     pcTopic = pvPortMalloc( ulTopicLength );
@@ -301,11 +304,7 @@ static char * prvGetDefenderMqttTopicString( char * pcTopicTemplate )
                                    pcTopicTemplate,
                                    clientcredentialIOT_THING_NAME );
 
-        if( ulCharsWritten < ulTopicLength )
-        {
-            pcTopic[ ulTopicLength - 1 ] = 0;
-        }
-        else
+        if( ulCharsWritten >= ulTopicLength )
         {
             vPortFree( pcTopic );
             pcTopic = NULL;
