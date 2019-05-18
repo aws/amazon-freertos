@@ -739,6 +739,61 @@
 			<locationURI>AFR_HOME/modules/libraries/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_api.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/aws_iot_defender_api.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_collector.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/aws_iot_defender_collector.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/aws_iot_defender_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_v1.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/aws_iot_defender_v1.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/private/aws_iot_defender_internal.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/private/aws_iot_defender_internal.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/include/aws_iot_defender.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/include/aws_iot_defender.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/include/iot_serializer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/include/iot_serializer.h</locationURI>
+		</link>
+		<link>
 			<name>modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
@@ -859,9 +914,24 @@
 			<locationURI>AFR_HOME/modules/libraries/standard/mqtt/test/unit/iot_tests_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>modules/libraries/standard/serializer/test/iot_test_serializer_cbor.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/test/iot_test_serializer_cbor.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/test/iot_test_serializer_json.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/test/iot_test_serializer_json.c</locationURI>
+		</link>
+		<link>
 			<name>modules/libraries/standard/tls/test/aws_test_tls.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/modules/libraries/standard/tls/test/aws_test_tls.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/test/aws_iot_tests_defender_api.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/test/aws_iot_tests_defender_api.c</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/aws/greengrass/test/aws_test_greengrass_discovery.c</name>
@@ -2107,6 +2177,36 @@
 			<name>modules/libraries/3rdparty/pkcs11/pkcs11t.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/modules/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborpretty.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborparser.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/3rdparty/jsmn/jsmn.h</name>

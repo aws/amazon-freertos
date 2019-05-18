@@ -264,13 +264,6 @@ target_link_libraries(
         AFR::utils
 )
 
-# Disable device defender
-afr_module_dependencies(
-    defender
-    PRIVATE
-        3rdparty::dummy
-)
-
 find_program( gcc_objectcopy arm-none-eabi-objcopy)
 
 find_program(gcc_size arm-none-eabi-size)
