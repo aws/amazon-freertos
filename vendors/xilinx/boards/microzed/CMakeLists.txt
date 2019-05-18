@@ -12,18 +12,19 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(ID "microzed")
-afr_set_board_metadata(DISPLAY_NAME "Xilinx MicroZEed")
-afr_set_board_metadata(DESCRIPTION "Xilinx Avnet MicroZed Industrial IoT Kit")
+afr_set_board_metadata(ID "Xilinx-Avnet-MicroZed")
+afr_set_board_metadata(DISPLAY_NAME "Microzed Industrial IoT Bundle")
+afr_set_board_metadata(DESCRIPTION "MicroZed development board built on Xilinx Zynq-7000 SoC")
 afr_set_board_metadata(VENDOR_NAME "Xilinx")
-afr_set_board_metadata(FAMILY_NAME "Zynq-7000 SoC")
+afr_set_board_metadata(FAMILY_NAME "Zynq-7000")
 afr_set_board_metadata(DATA_RAM_MEMORY "1GB")
-afr_set_board_metadata(PROGRAM_MEMORY "QSPI OR MicroSD")
+afr_set_board_metadata(PROGRAM_MEMORY "128MB")
 afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
 afr_set_board_metadata(SUPPORTED_IDE "XSDK")
 afr_set_board_metadata(RECOMMENDED_IDE "XSDK")
+afr_set_board_metadata(IDE_XSDK_NAME "Xilinx SDK")
+afr_set_board_metadata(IDE_XSDK_COMPILER "GCC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
-
 afr_set_board_metadata(IDE_XSDK_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
 
