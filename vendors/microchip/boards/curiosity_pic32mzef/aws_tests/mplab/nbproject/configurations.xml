@@ -244,6 +244,39 @@
 							<itemPath>../../../../../../modules/libraries/standard/serializer/test/iot_test_serializer_json.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
+					<logicalFolder name="freertos_plus_posix" displayName="freertos_plus_posix" projectFiles="true">
+						<logicalFolder name="source" displayName="source" projectFiles="true">
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_clock.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_barrier.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_cond.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_timer.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/source/FreeRTOS_POSIX_utils.c</itemPath>
+						</logicalFolder>
+						<logicalFolder name="include" displayName="include" projectFiles="true">
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/include/FreeRTOS_POSIX.h</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/include/FreeRTOS_POSIX_types.h</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/include/FreeRTOS_POSIX_internal.h</itemPath>
+							<logicalFolder name="portable" displayName="portable" projectFiles="true">
+								<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/include/portable/FreeRTOS_POSIX_portable_default.h</itemPath>
+							</logicalFolder>
+						</logicalFolder>
+						<logicalFolder name="test" displayName="test" projectFiles="true">
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/test/aws_test_posix_clock.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/test/aws_test_posix_mqueue.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/test/aws_test_posix_pthread.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/test/aws_test_posix_semaphore.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/test/aws_test_posix_stress.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/test/aws_test_posix_timer.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/test/aws_test_posix_unistd.c</itemPath>
+							<itemPath>../../../../../../modules/libraries/standard/freertos_plus_posix/test/aws_test_posix_utils.c</itemPath>
+						</logicalFolder>
+					</logicalFolder>
 				</logicalFolder>
 				<logicalFolder name="aws" displayName="aws" projectFiles="true">
 					<logicalFolder name="defender" displayName="defender" projectFiles="true">
@@ -473,6 +506,11 @@
 							</logicalFolder>
 						</logicalFolder>
 					</logicalFolder>
+					<logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
+						<itemPath>../../../../../../modules/libraries/3rdparty/pkcs11/pkcs11.h</itemPath>
+						<itemPath>../../../../../../modules/libraries/3rdparty/pkcs11/pkcs11f.h</itemPath>
+						<itemPath>../../../../../../modules/libraries/3rdparty/pkcs11/pkcs11t.h</itemPath>
+					</logicalFolder>
 					<logicalFolder name="unity" displayName="unity" projectFiles="true">
 						<logicalFolder name="src" displayName="src" projectFiles="true">
 							<itemPath>../../../../../../modules/libraries/3rdparty/unity/src/unity.c</itemPath>
@@ -489,11 +527,6 @@
 								</logicalFolder>
 							</logicalFolder>
 						</logicalFolder>
-					</logicalFolder>
-					<logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
-						<itemPath>../../../../../../modules/libraries/3rdparty/pkcs11/pkcs11.h</itemPath>
-						<itemPath>../../../../../../modules/libraries/3rdparty/pkcs11/pkcs11f.h</itemPath>
-						<itemPath>../../../../../../modules/libraries/3rdparty/pkcs11/pkcs11t.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="tinycbor" displayName="tinycbor" projectFiles="true">
 						<itemPath>../../../../../../modules/libraries/3rdparty/tinycbor/cborpretty.c</itemPath>
@@ -542,6 +575,25 @@
 						<itemPath>../../../../../../modules/ports/wifi/test/aws_test_wifi.c</itemPath>
 					</logicalFolder>
 				</logicalFolder>
+				<logicalFolder name="posix" displayName="posix" projectFiles="true">
+					<logicalFolder name="include" displayName="include" projectFiles="true">
+						<logicalFolder name="FreeRTOS_POSIX" displayName="FreeRTOS_POSIX" projectFiles="true">
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/errno.h</itemPath>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/fcntl.h</itemPath>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/mqueue.h</itemPath>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/pthread.h</itemPath>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/sched.h</itemPath>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/semaphore.h</itemPath>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/signal.h</itemPath>
+							<logicalFolder name="sys" displayName="sys" projectFiles="true">
+								<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/sys/types.h</itemPath>
+							</logicalFolder>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/time.h</itemPath>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/unistd.h</itemPath>
+							<itemPath>../../../../../../modules/ports/posix/include/FreeRTOS_POSIX/utils.h</itemPath>
+						</logicalFolder>
+					</logicalFolder>
+				</logicalFolder>
 			</logicalFolder>
 		</logicalFolder>
 		<logicalFolder name="vendors" displayName="vendors" projectFiles="true">
@@ -560,6 +612,9 @@
 							<logicalFolder name="ota" displayName="ota" projectFiles="true">
 								<itemPath>../../ports/ota/aws_ota_pal.c</itemPath>
 								<itemPath>../../ports/ota/aws_nvm.c</itemPath>
+							</logicalFolder>
+							<logicalFolder name="posix" displayName="posix" projectFiles="true">
+								<itemPath>../../ports/posix/FreeRTOS_POSIX_portable.h</itemPath>
 							</logicalFolder>
 						</logicalFolder>
 						<logicalFolder name="aws_tests" displayName="aws_tests" projectFiles="true">
@@ -824,7 +879,7 @@
 				</logicalFolder>
 			</logicalFolder>
 		</logicalFolder>
-		<logicalFolder name="LinkerScript" projectFiles="true" displayName="Linker Files">
+		<logicalFolder name="" projectFiles="true" displayName="Linker Files">
 			<itemPath>../common/application_code/microchip_code/app_mz.ld</itemPath>
 		</logicalFolder>
 	</logicalFolder>
@@ -861,7 +916,7 @@
 				<makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
 				<makeCustomizationPreStep/>
 				<makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
-				<makeCustomizationPostStep>${MP_CC_DIR}/xc32-objcopy -I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin &amp;&amp; python ../../../../../../demos/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
+				<makeCustomizationPostStep>xc32-objcopy -I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin &amp;&amp; python ../../../../../../demos/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
 				<makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
 				<makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
 				<makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
@@ -874,7 +929,7 @@
 				<property key="enable-symbols" value="true"/>
 				<property key="enable-unroll-loops" value="false"/>
 				<property key="exclude-floating-point" value="false"/>
-				<property key="extra-include-directories" value="../../../../../../freertos_kernel/include;../../../../../../modules/libraries/standard/common/include;../../../../../../modules/libraries/3rdparty/jsmn;../../../../../../modules/libraries/3rdparty/pkcs11;../../../../../../modules/libraries/3rdparty/tinycbor;../../../../../../modules/libraries/standard/crypto/include;../../../../../../modules/libraries/standard/tls/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../../modules/ports/wifi/include;../../../../../../modules/ports/pkcs11/include;../common/application_code/microchip_code;../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../harmony/v2.05/framework;../../../../harmony/v2.05/bsp;../../../../../../test/include;../common/config_files;../../../../../../modules/libraries/standard/common/include/private;../../../../../../modules/libraries/standard/provisioning/include;../../../../../../modules/ports/secure_sockets/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/test;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../../modules/libraries/3rdparty/mbedtls/include;../../../../../../modules/ports/pkcs11/mbedtls;../../../../harmony/v2.05/framework/system/common;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../../modules/libraries/standard/utils/include;../../../../../../modules/libraries/standard/mqtt/test/access;../../../../../../modules/libraries/standard/mqtt/include;../../../../../../modules/libraries/standard/mqtt/src;../../../../../../modules/libraries/aws/defender/include;../../../../../../modules/libraries/standard/serializer/include;../../../../../../modules/libraries/aws/greengrass/test;../../../../../../modules/libraries/aws/greengrass/include;../../../../../../modules/libraries/aws/greengrass/src;../../../../../../modules/libraries/aws/ota/src;../../../../../../modules/libraries/aws/ota/include;../../../../../../modules/libraries/aws/ota/test;../../../../../../modules/libraries/aws/shadow/include;../../../../../../modules/libraries/aws/shadow/src;../../../../../../modules/libraries/aws/defender/src/private;../../../../../../modules/libraries/3rdparty/unity/src;../../../../../../modules/libraries/3rdparty/unity/extras/fixture/src;../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls"/>
+				<property key="extra-include-directories" value="../../../../../../freertos_kernel/include;../../../../../../modules/libraries/standard/common/include;../../../../../../modules/libraries/3rdparty/jsmn;../../../../../../modules/libraries/3rdparty/pkcs11;../../../../../../modules/libraries/3rdparty/tinycbor;../../../../../../modules/libraries/standard/crypto/include;../../../../../../modules/libraries/standard/tls/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../../modules/ports/wifi/include;../../../../../../modules/ports/pkcs11/include;../common/application_code/microchip_code;../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../harmony/v2.05/framework;../../../../harmony/v2.05/bsp;../../../../../../test/include;../common/config_files;../../../../../../modules/libraries/standard/common/include/private;../../../../../../modules/libraries/standard/provisioning/include;../../../../../../modules/ports/secure_sockets/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/test;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../../modules/libraries/3rdparty/mbedtls/include;../../../../../../modules/ports/pkcs11/mbedtls;../../../../harmony/v2.05/framework/system/common;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../../modules/libraries/standard/utils/include;../../../../../../modules/libraries/standard/mqtt/test/access;../../../../../../modules/libraries/standard/mqtt/include;../../../../../../modules/libraries/standard/mqtt/src;../../../../../../modules/libraries/aws/defender/include;../../../../../../modules/libraries/standard/serializer/include;../../../../../../modules/libraries/aws/greengrass/test;../../../../../../modules/libraries/aws/greengrass/include;../../../../../../modules/libraries/aws/greengrass/src;../../../../../../modules/libraries/aws/ota/src;../../../../../../modules/libraries/aws/ota/include;../../../../../../modules/libraries/aws/ota/test;../../../../../../modules/libraries/aws/shadow/include;../../../../../../modules/libraries/aws/shadow/src;../../../../../../modules/ports/posix/include;../../ports/posix;../../../../../../modules/libraries/standard/freertos_plus_posix/include;../../../../../../modules/libraries/aws/defender/src/private;../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls;../../../../../../modules/libraries/3rdparty/unity/src;../../../../../../modules/libraries/3rdparty/unity/extras/fixture/src"/>
 				<property key="generate-16-bit-code" value="false"/>
 				<property key="generate-micro-compressed-code" value="false"/>
 				<property key="isolate-each-function" value="true"/>
@@ -902,7 +957,7 @@
 				<property key="exclude-floating-point-library" value="false"/>
 				<property key="expand-macros" value="false"/>
 				<property key="extra-include-directories-for-assembler" value=""/>
-				<property key="extra-include-directories-for-preprocessor" value="../../../../../../freertos_kernel/include;../../../../../../modules/libraries/standard/common/include;../../../../../../modules/libraries/3rdparty/jsmn;../../../../../../modules/libraries/3rdparty/pkcs11;../../../../../../modules/libraries/3rdparty/tinycbor;../../../../../../modules/libraries/standard/crypto/include;../../../../../../modules/libraries/standard/tls/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../../modules/ports/wifi/include;../../../../../../modules/ports/pkcs11/include;../common/application_code/microchip_code;../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../harmony/v2.05/framework;../../../../harmony/v2.05/bsp;../../../../../../test/include;../common/config_files;../../../../../../modules/libraries/standard/common/include/private;../../../../../../modules/libraries/standard/provisioning/include;../../../../../../modules/ports/secure_sockets/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/test;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../../modules/libraries/3rdparty/mbedtls/include;../../../../../../modules/ports/pkcs11/mbedtls;../../../../harmony/v2.05/framework/system/common;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../../modules/libraries/standard/utils/include;../../../../../../modules/libraries/standard/mqtt/test/access;../../../../../../modules/libraries/standard/mqtt/include;../../../../../../modules/libraries/standard/mqtt/src;../../../../../../modules/libraries/aws/defender/include;../../../../../../modules/libraries/standard/serializer/include;../../../../../../modules/libraries/aws/greengrass/test;../../../../../../modules/libraries/aws/greengrass/include;../../../../../../modules/libraries/aws/greengrass/src;../../../../../../modules/libraries/aws/ota/src;../../../../../../modules/libraries/aws/ota/include;../../../../../../modules/libraries/aws/ota/test;../../../../../../modules/libraries/aws/shadow/include;../../../../../../modules/libraries/aws/shadow/src;../../../../../../modules/libraries/aws/defender/src/private;../../../../../../modules/libraries/3rdparty/unity/src;../../../../../../modules/libraries/3rdparty/unity/extras/fixture/src;../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls"/>
+				<property key="extra-include-directories-for-preprocessor" value="../../../../../../freertos_kernel/include;../../../../../../modules/libraries/standard/common/include;../../../../../../modules/libraries/3rdparty/jsmn;../../../../../../modules/libraries/3rdparty/pkcs11;../../../../../../modules/libraries/3rdparty/tinycbor;../../../../../../modules/libraries/standard/crypto/include;../../../../../../modules/libraries/standard/tls/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../../modules/ports/wifi/include;../../../../../../modules/ports/pkcs11/include;../common/application_code/microchip_code;../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../harmony/v2.05/framework;../../../../harmony/v2.05/bsp;../../../../../../test/include;../common/config_files;../../../../../../modules/libraries/standard/common/include/private;../../../../../../modules/libraries/standard/provisioning/include;../../../../../../modules/ports/secure_sockets/include;../../../../../../modules/libraries/standard/freertos_plus_tcp/test;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../../modules/libraries/3rdparty/mbedtls/include;../../../../../../modules/ports/pkcs11/mbedtls;../../../../harmony/v2.05/framework/system/common;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../../modules/libraries/standard/utils/include;../../../../../../modules/libraries/standard/mqtt/test/access;../../../../../../modules/libraries/standard/mqtt/include;../../../../../../modules/libraries/standard/mqtt/src;../../../../../../modules/libraries/aws/defender/include;../../../../../../modules/libraries/standard/serializer/include;../../../../../../modules/libraries/aws/greengrass/test;../../../../../../modules/libraries/aws/greengrass/include;../../../../../../modules/libraries/aws/greengrass/src;../../../../../../modules/libraries/aws/ota/src;../../../../../../modules/libraries/aws/ota/include;../../../../../../modules/libraries/aws/ota/test;../../../../../../modules/libraries/aws/shadow/include;../../../../../../modules/libraries/aws/shadow/src;../../../../../../modules/ports/posix/include;../../ports/posix;../../../../../../modules/libraries/standard/freertos_plus_posix/include;../../../../../../modules/libraries/aws/defender/src/private;../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls;../../../../../../modules/libraries/3rdparty/unity/src;../../../../../../modules/libraries/3rdparty/unity/extras/fixture/src"/>
 				<property key="false-conditionals" value="false"/>
 				<property key="generate-16-bit-code" value="false"/>
 				<property key="generate-micro-compressed-code" value="false"/>
