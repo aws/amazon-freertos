@@ -8,15 +8,15 @@
 
 #### FreeRTOS Kernel V10.2.0
 - Kernel version for Amazon FreeRTOS is updated to V10.2.0.
-- Added Support for RISC-V.
-- Added Support for ARMv8M.
+- Add Support for RISC-V.
+- Add Support for ARMv8M.
 
 ### Updates
 
 #### Greengrass Discovery V1.0.4
 - Include C runtime header for snprintf.
 - Sanity check the number of bytes written.
-- Thing name can be a none string literal.
+- Thing name can be a non-string literal.
 
 #### MQTT Agent V1.1.5
 - Set the socket to block on sends with a timeout in prvSetupConnection.
@@ -52,7 +52,7 @@
 - Print a debug message for any JSMN error, not just 'JSMN_ERROR_NOMEM'.
 
 #### PKCS #11 PAL for Windows Simulator V1.0.4
-- Convert errors in TLS wrapper to negative error codes.
+- Update to permit multithreaded read from object storage.
 
 #### OTA Agent V1.0.2
 - Update documentation.
@@ -70,7 +70,7 @@
 - Kernel version for Amazon FreeRTOS is updated to 10.1.1.
 - Update all object handles (TaskHandle_t, QueueHandle_t, etc.) to be unique types instead of void pointers, improving type safety.
 - Add Xtensa port.
-- Updated to the latest trace recorder code.
+- Update to the latest trace recorder code.
 - Update lint checked MISRA compliance to use the latest MISRA standard.
 - Add configUSE_POSIX_ERRNO to enable per task POSIX style errno functionality.
 
