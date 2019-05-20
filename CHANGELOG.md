@@ -61,6 +61,9 @@
 - TLS_Send now handles the error condition when space is not avaiable.	
 - Convert errors in TLS wrapper to negative error codes.
 
+#### Curiosity PIC32MZEF Linker Update for XC32 Compiler
+- The latest XC32 compiler (version 2.15) does not allow multiple definitions by default. Explicitly enabling multiple definitions in aws_tests and aws_demos projects for now. 
+
 ## V1.4.7 02/18/2019
 ### New Features
 ### New Boards: Cypress CYW43907 and CYW54907
