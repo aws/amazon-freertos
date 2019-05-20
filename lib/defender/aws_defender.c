@@ -288,8 +288,8 @@ static char * prvGetDefenderMqttTopicString( char * pcTopicTemplate )
     uint32_t ulCharsWritten = 0;
 
     /* Determine the maximum resulting string length including NULL terminator.
-    The input parameter is assumed to include a %s for inserting the Thing 
-    name.*/
+     * The input parameter is assumed to include a %s for inserting the Thing
+     * name.*/
     ulTopicLength = strlen( pcTopicTemplate ) +
                     strlen( clientcredentialIOT_THING_NAME ) - 1;
 
