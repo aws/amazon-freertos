@@ -51,7 +51,7 @@ set( defined_symbols
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE
-    ${defined_symbols}>
+    ${defined_symbols}
 )
 
 #Set Compiler Debug options
