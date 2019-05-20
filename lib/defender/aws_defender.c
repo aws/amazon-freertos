@@ -304,7 +304,7 @@ static char * prvGetDefenderMqttTopicString( char * pcTopicTemplate )
                                    pcTopicTemplate,
                                    clientcredentialIOT_THING_NAME );
 
-        if( ulCharsWritten >= ulTopicLength )
+        if( ulCharsWritten != ulTopicLength - 1 )
         {
             vPortFree( pcTopic );
             pcTopic = NULL;
