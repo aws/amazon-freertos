@@ -46,6 +46,8 @@
 
 #include "aws_test_tcp.h"
 
+#include "platform/iot_metrics.h"
+
 /* Total time to wait for a state to be true. */
 #define _WAIT_STATE_TOTAL_SECONDS    5
 

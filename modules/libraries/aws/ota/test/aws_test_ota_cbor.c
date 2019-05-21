@@ -169,6 +169,7 @@ static BaseType_t prvReadCborTestFile( char * pcFileName,
 /*-----------------------------------------------------------*/
 
 TEST_GROUP( Full_OTA_CBOR );
+TEST_GROUP( Quarantine_OTA_CBOR );
 
 CHAR szOriginalWorkingDirectory[ MAX_PATH ];
 
@@ -217,11 +218,24 @@ TEST_TEAR_DOWN( Full_OTA_CBOR )
     }
 }
 
+TEST_SETUP( Quarantine_OTA_CBOR )
+{
+    TEST_Full_OTA_CBOR_SETUP();
+}
+TEST_TEAR_DOWN( Quarantine_OTA_CBOR )
+{
+    TEST_Full_OTA_CBOR_TEAR_DOWN();
+}
+
 TEST_GROUP_RUNNER( Full_OTA_CBOR )
 {
     RUN_TEST_CASE( Full_OTA_CBOR, CborOtaApi );
     RUN_TEST_CASE( Full_OTA_CBOR, CborOtaAgentIngest );
-    RUN_TEST_CASE( Full_OTA_CBOR, CborOtaServerFiles );
+}
+
+TEST_GROUP_RUNNER( Quarantine_OTA_CBOR )
+{
+    RUN_TEST_CASE( Quarantine_OTA_CBOR, CborOtaServerFiles );
 }
 
 #define CBOR_TEST_MESSAGE_BUFFER_SIZE                     2048
@@ -665,7 +679,7 @@ TEST( Full_OTA_CBOR, CborOtaAgentIngest )
     }
 }
 
-TEST( Full_OTA_CBOR, CborOtaServerFiles )
+TEST( Quarantine_OTA_CBOR, CborOtaServerFiles )
 {
     BaseType_t xResultBool = pdFALSE;
     uint8_t * pucInFile = NULL;
