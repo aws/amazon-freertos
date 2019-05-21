@@ -126,6 +126,7 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_OTA_CBOR_ENABLED == 1 )
         RUN_TEST_GROUP( Full_OTA_CBOR );
+        RUN_TEST_GROUP( Quarantine_OTA_CBOR );
     #endif
 
     #if ( testrunnerFULL_OTA_AGENT_ENABLED == 1 )

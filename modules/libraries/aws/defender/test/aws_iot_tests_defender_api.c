@@ -36,6 +36,7 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 #include "platform/iot_network_afr.h"
+#include "platform/iot_metrics.h"
 
 #include "iot_serializer.h"
 
@@ -45,6 +46,8 @@
 #include "aws_iot_defender_internal.h"
 
 #include "aws_test_tcp.h"
+
+#include "platform/iot_metrics.h"
 
 /* Total time to wait for a state to be true. */
 #define _WAIT_STATE_TOTAL_SECONDS    5

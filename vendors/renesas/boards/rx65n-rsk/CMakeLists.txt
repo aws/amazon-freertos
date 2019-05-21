@@ -265,7 +265,7 @@ afr_module_dependencies(
         3rdparty::dummy
 )
 
-# Disable device defender
+# Disable serializer
 afr_module_dependencies(
     serializer
     PRIVATE

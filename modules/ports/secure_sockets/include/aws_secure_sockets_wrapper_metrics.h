@@ -28,7 +28,7 @@
 
 /* This file redefines Secure Sockets functions to be called through a wrapper macro,
  * but only if metrics is enabled explicitly. */
-#ifdef AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+#if AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED == 1
 
 /* This macro is included in aws_secure_socket.c and aws_secure_socket_wrapper_metrics.c.
  * It will prevent the redefine in those source files. */
