@@ -1984,6 +1984,7 @@
         <property key="symbol-stripping" value=""/>
         <property key="trace-symbols" value=""/>
         <property key="warn-section-align" value="false"/>
+        <appendMe value="--allow-multiple-definition"/>
       </C32-LD>
       <C32CPP>
         <property key="additional-warnings" value="false"/>

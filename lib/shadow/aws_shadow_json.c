@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V1.0.5
+ * Amazon FreeRTOS Shadow V1.0.6
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,6 +47,12 @@
 #define shadowJSON_ERROR_CODE       "code"
 #define shadowJSON_ERROR_MESSAGE    "message"
 #define shadowJSON_CLIENT_TOKEN     "clientToken"
+
+#if shadowconfigENABLE_DEBUG_LOGS == 1
+    #define Shadow_json_debug_printf( X )    configPRINTF( X )
+#else
+    #define Shadow_json_debug_printf( X )
+#endif
 
 /**
  * @brief Given a JSON key, get its value. Does not work on arrays or objects.  Returns
@@ -185,6 +191,12 @@ static int16_t prvParseJSON( const char * const pcDoc,
                                       ulDocLength,
                                       pxJSMNTokens,
                                       shadowconfigJSON_JSMN_TOKENS );
+
+    /* Report errors in JSON parsing. */
+    if( sReturn < 0 )
+    {
+        Shadow_json_debug_printf( ( "[Shadow JSON]: Error parsing JSON: JSMN error code %d\r\n", sReturn ) );
+    }
 
     return sReturn;
 }

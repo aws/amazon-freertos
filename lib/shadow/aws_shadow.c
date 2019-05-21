@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V1.0.5
+ * Amazon FreeRTOS Shadow V1.0.6
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1242,8 +1242,8 @@ static ShadowReturnCode_t prvShadowOperation( ShadowOperationCallParams_t * pxPa
                 if( xSemaphoreTake( pxShadowClient->xCallbackSemaphore,
                                     xTimeOutData.xTicksRemaining ) != pdPASS )
                 {
-                    Shadow_debug_printf( ( "[Shadow %d] Timeout waiting on"
-                                           " %s accepted/rejected.\r\n",
+                    Shadow_debug_printf( ( "[Shadow %d] Error while waiting for"
+                                           " %s accepted/rejected callback.\r\n",
                                            pxParams->xShadowClientID,
                                            pxParams->pcOperationName ) );
                     xReturn = eShadowTimeout;

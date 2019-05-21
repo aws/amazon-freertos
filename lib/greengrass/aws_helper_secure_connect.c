@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass Discovery V1.0.3
+ * Amazon FreeRTOS Greengrass Discovery V1.0.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -218,9 +218,8 @@ void GGD_SecureConnect_Disconnect( Socket_t * pxSocket )
 
     #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
         {
-            configPRINTF( (
-                              "Stack high watermark for discovery helper task: %u.\r\n",
-                              uxTaskGetStackHighWaterMark( NULL ) ) );
+            configPRINTF( ( "Stack high watermark for discovery helper task: %u.\r\n",
+                            uxTaskGetStackHighWaterMark( NULL ) ) );
         }
     #endif
 }

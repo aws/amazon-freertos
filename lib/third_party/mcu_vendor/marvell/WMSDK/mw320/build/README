@@ -1,0 +1,41 @@
+Writing a Makefile
+------------------
+* A build.mk file defines the rules for building the application
+* A typical build.mk file is shown below:
+
+exec-y              += smart_plug
+smart_plug-objs-y   := src/main.c src/plug.c
+smart_plug-cflags-y := -I$(d)/src -D_ENABLE_FEATURE_X_
+
+* A quick note about the above 3 lines:
+  - We first define that a firmware named 'smart_plug' has to be
+    generated. This is indicated by adding it to the 'exec-y'
+    variable.
+  - The objects that will be part of this firmware are defined by
+    adding them to the 'smart_plug-objs-y' variable. Note that all the
+    other libraries that are part of the SDK will automatically be
+    used for the linking phase.
+  - The compiler flags that should be included while compiling the
+    above object files are defined with 'smart_plug-cflags-y'
+    variable.
+	- The special variable 'd' holds the path to the directory
+	  where the build.mk file resides.
+
+Other Options
+-------------
+Some of the other application specific options include:
+
+* Custom board file:
+smart_plug-board-y := src/smart_plug_v1.c
+
+* Custom linker file:
+smart_plug-linkerscript-y    := $(d)/src/smart_plug.ld
+
+* Build FTFS:
+smart_plug-ftfs-y        := smart_plug_v1.ftfs
+smart_plug_v1-ftfs-dir-y := $(d)/www
+smart_plug_v1-ftfs-api-y := 100
+
+
+Please refer to the detailed Build System Documentation in the WMSDK
+Developer Reference.

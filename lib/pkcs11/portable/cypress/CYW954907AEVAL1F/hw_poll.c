@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Cypress CYW954907AEVAL1F development kit V1.0.0
+ * Amazon FreeRTOS PKCS #11 PAL for Cypress CYW954907AEVAL1F development kit V1.0.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
@@ -41,6 +41,9 @@
  * For production development, it is recommended to use a source which will be
  * truly random in nature.
  */
+
+/* Amazon FreeRTOS Includes. */
+#include "FreeRTOS.h"
 
 /* C runtime includes. */
 #include <stdio.h>

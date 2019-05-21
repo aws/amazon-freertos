@@ -27,8 +27,8 @@
 
 #include "aws_cbor.h"
 
-typedef void (* UpdateMetric_t)( void );
-typedef CBORHandle_t (* ReportMetric_t)( void );
+typedef void ( * UpdateMetric_t )( void );
+typedef CBORHandle_t ( * ReportMetric_t )( void );
 
 struct DefenderMetric_s
 {

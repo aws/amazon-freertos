@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * Amazon FreeRTOS V1.4.8
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -185,13 +185,15 @@ static void prvEchoClientTask( void * pvParameters )
     TickType_t xTimeOnEntering;
 
     #if ( ipconfigUSE_TCP_WIN == 1 )
-        WinProperties_t xWinProps;
+        {
+            WinProperties_t xWinProps;
 
-        /* Fill in the buffer and window sizes that will be used by the socket. */
-        xWinProps.lTxBufSize = ipconfigTCP_TX_BUFFER_LENGTH;
-        xWinProps.lTxWinSize = configECHO_CLIENT_TX_WINDOW_SIZE;
-        xWinProps.lRxBufSize = ipconfigTCP_RX_BUFFER_LENGTH;
-        xWinProps.lRxWinSize = configECHO_CLIENT_RX_WINDOW_SIZE;
+            /* Fill in the buffer and window sizes that will be used by the socket. */
+            xWinProps.lTxBufSize = ipconfigTCP_TX_BUFFER_LENGTH;
+            xWinProps.lTxWinSize = configECHO_CLIENT_TX_WINDOW_SIZE;
+            xWinProps.lRxBufSize = ipconfigTCP_RX_BUFFER_LENGTH;
+            xWinProps.lRxWinSize = configECHO_CLIENT_RX_WINDOW_SIZE;
+        }
     #endif /* ipconfigUSE_TCP_WIN */
 
     /* This task can be created a number of times.  Each instance is numbered
@@ -359,7 +361,8 @@ static void prvEchoClientTask( void * pvParameters )
                 {
                     break;
                 }
-            } while( ( xTaskGetTickCount() - xTimeOnEntering ) < xReceiveTimeOut );
+            }
+            while( ( xTaskGetTickCount() - xTimeOnEntering ) < xReceiveTimeOut );
         }
         else
         {

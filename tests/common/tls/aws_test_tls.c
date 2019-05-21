@@ -182,7 +182,7 @@ static void prvConnectWithProvisioning( ProvisioningParams_t * pxProvisioningPar
 /* The AWS IoT Core may accept the connection of untrusted or malformed certificates. This function
  * will connect to the MQTT broker endpoint, send data, then verify that the server closes the connection
  * following. */
-static void prvExpectFailAfterDataSentWithProvisioning(ProvisioningParams_t * pxProvisioningParams)
+static void prvExpectFailAfterDataSentWithProvisioning( ProvisioningParams_t * pxProvisioningParams )
 {
     const char * pcAWSIoTAddress = clientcredentialMQTT_BROKER_ENDPOINT;
     uint16_t usAWSIoTPort = clientcredentialMQTT_BROKER_PORT;
@@ -190,56 +190,57 @@ static void prvExpectFailAfterDataSentWithProvisioning(ProvisioningParams_t * px
     Socket_t xSocket;
     BaseType_t xSocketOpen = pdFALSE;
     BaseType_t xResult;
-    char * ucRecvBuffer = &cBuffer[0];
+    char * ucRecvBuffer = &cBuffer[ 0 ];
 
-    if (TEST_PROTECT())
+    if( TEST_PROTECT() )
     {
         /* Provision the device with the supplied parameters. */
-        vAlternateKeyProvisioning(pxProvisioningParams);
+        vAlternateKeyProvisioning( pxProvisioningParams );
 
         /* Create socket. */
-        xSocket = SOCKETS_Socket(SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP);
-        TEST_ASSERT_NOT_EQUAL(xSocket, SOCKETS_INVALID_SOCKET);
+        xSocket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
+        TEST_ASSERT_NOT_EQUAL( xSocket, SOCKETS_INVALID_SOCKET );
         xSocketOpen = pdTRUE;
 
         /* Mark the socket as secure. */
-        xResult = SOCKETS_SetSockOpt(xSocket, 0, SOCKETS_SO_REQUIRE_TLS, NULL, 0);
-        TEST_ASSERT_EQUAL_INT32_MESSAGE(SOCKETS_ERROR_NONE, xResult, "Socket set sock opt require tls failed");
+        xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_REQUIRE_TLS, NULL, 0 );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt require tls failed" );
 
-        xResult = SOCKETS_SetSockOpt(xSocket, 0, SOCKETS_SO_SERVER_NAME_INDICATION, pcAWSIoTAddress, 1u + strlen(pcAWSIoTAddress));
-        TEST_ASSERT_EQUAL_INT32_MESSAGE(SOCKETS_ERROR_NONE, xResult, "Socket set sock opt server name indication failed");
+        xResult = SOCKETS_SetSockOpt( xSocket, 0, SOCKETS_SO_SERVER_NAME_INDICATION, pcAWSIoTAddress, 1u + strlen( pcAWSIoTAddress ) );
+        TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket set sock opt server name indication failed" );
 
         /* Connect. */
-        xMQTTServerAddress.usPort = SOCKETS_htons(usAWSIoTPort);
+        xMQTTServerAddress.usPort = SOCKETS_htons( usAWSIoTPort );
         xMQTTServerAddress.ucSocketDomain = SOCKETS_AF_INET;
-        xResult = SOCKETS_Connect(xSocket, &xMQTTServerAddress, sizeof(xMQTTServerAddress));
+        xResult = SOCKETS_Connect( xSocket, &xMQTTServerAddress, sizeof( xMQTTServerAddress ) );
 
         /* If the socket connection passes we want to make sure the AWS IoT Core MQTT broker server will close the
          * connection after we send data to it. */
-        if (xResult == SOCKETS_ERROR_NONE)
+        if( xResult == SOCKETS_ERROR_NONE )
         {
             /* Assuming the network is up, we should be able to push data out to the AWS IoT broker endpoint. */
-            xResult = SOCKETS_Send(xSocket, pcAWSIoTAddress, strlen(pcAWSIoTAddress), 0);
-            TEST_ASSERT_GREATER_THAN_INT32_MESSAGE(0, xResult, "Socket was not able to send.");
+            xResult = SOCKETS_Send( xSocket, pcAWSIoTAddress, strlen( pcAWSIoTAddress ), 0 );
+            TEST_ASSERT_GREATER_THAN_INT32_MESSAGE( 0, xResult, "Socket was not able to send." );
 
             /* The AWS IoT broker endpoint should have close the connection with the reciept of the data above. */
-            xResult = SOCKETS_Recv(xSocket, ucRecvBuffer, testrunnerBUFFER_SIZE, 0);
-            configPRINTF(("A negative result is expected from SOCKETS_Recv and we got: %d\r\n", xResult));
-            TEST_ASSERT_LESS_THAN_INT32_MESSAGE(0, xResult, "SOCKETS_Recv passed or timed out when it should have failed.");
+            xResult = SOCKETS_Recv( xSocket, ucRecvBuffer, testrunnerBUFFER_SIZE, 0 );
+            configPRINTF( ( "A negative result is expected from SOCKETS_Recv and we got: %d\r\n", xResult ) );
+            TEST_ASSERT_LESS_THAN_INT32_MESSAGE( 0, xResult, "SOCKETS_Recv passed or timed out when it should have failed." );
         }
+
         /* Pass this portion if the socket connection fails. */
     }
 
     /* Make sure to close the socket. */
-    if (TEST_PROTECT())
+    if( TEST_PROTECT() )
     {
-        if (xSocketOpen == pdTRUE)
+        if( xSocketOpen == pdTRUE )
         {
             /* Always Shutdown the socket.*/
-            SOCKETS_Shutdown(xSocket, SOCKETS_SHUT_RDWR);
+            SOCKETS_Shutdown( xSocket, SOCKETS_SHUT_RDWR );
 
-            xResult = SOCKETS_Close(xSocket);
-            TEST_ASSERT_EQUAL_INT32_MESSAGE(SOCKETS_ERROR_NONE, xResult, "Socket failed to close");
+            xResult = SOCKETS_Close( xSocket );
+            TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
             xSocketOpen = pdFALSE;
         }
     }

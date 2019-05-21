@@ -543,9 +543,10 @@ static void PublishJsonToDevDef( MQTTAgentHandle_t pxMQTTAgent,
         TEST_ASSERT_EQUAL_STRING( StateAsString( state ),        \
                                   StateAsString( StateGet() ) ); \
         while( state == StateGet() ) {                           \
-            ;                                                    \
+                                                                 \
         }                                                        \
-    } while( 0 )
+    }                                                            \
+    while( 0 )
 
 #define DEFENDER_AssertState( state )                 \
     TEST_ASSERT_EQUAL_STRING( StateAsString( state ), \

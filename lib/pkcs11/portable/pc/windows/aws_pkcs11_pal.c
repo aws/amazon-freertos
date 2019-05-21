@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 PAL for Windows Simulator V1.0.3
+ * Amazon FreeRTOS PKCS #11 PAL for Windows Simulator V1.0.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -296,7 +296,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         /* Open the file. */
         hFile = CreateFileA( pcFileName,
                              GENERIC_READ,
-                             0,
+                             FILE_SHARE_READ,
                              NULL,
                              OPEN_EXISTING,
                              FILE_ATTRIBUTE_NORMAL,

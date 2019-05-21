@@ -23,7 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
- /**
+/**
  * @file aws_greengrass_discovery.h
  * @brief greengrass discovery API.
  */
@@ -46,7 +46,7 @@ typedef struct
 {
     const char * pcGroupName;   /**< Contains the Group name of the GGC device. */
     const char * pcCoreAddress; /**< Contains the ARN of the GGC device. */
-    uint8_t ucInterface;  /**< Contains the interface # of the GGC device. */
+    uint8_t ucInterface;        /**< Contains the interface # of the GGC device. */
 } HostParameters_t;
 
 /**
@@ -110,7 +110,7 @@ BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket );
  * The JSON file request through "GGD_JSONRequestStart"
  * has to be done prior to call this function.
  *
- * @param [in] pxSocket: Socket for the cloud connection. 
+ * @param [in] pxSocket: Socket for the cloud connection.
  * Returns SOCKETS_INVALID_SOCKET if connection is closed
  *
  * @param [out] pulJSONFileSize: The size of the requested JSON file.
@@ -171,14 +171,14 @@ BaseType_t GGD_JSONRequestGetFile( Socket_t * pxSocket,
  * @brief Need to be called if GGD_JSONRequestGetFile cannot be called.
  *
  * @param [in] pxSocket: Socket to close the cloud connection.Set to SOCKETS_INVALID_SOCKET.
- *  
+ *
  */
 void GGD_JSONRequestAbort( Socket_t * pxSocket );
 
 /*
  * @brief  Get host IP and certificate
  *
- * Get host IP and certificate with the JSON file given the greengrass group 
+ * Get host IP and certificate with the JSON file given the greengrass group
  * and cloud core address the user wants to connect.
  *
  * @note:  The JSON file contains the certificate that is going to be used to
@@ -204,7 +204,7 @@ void GGD_JSONRequestAbort( Socket_t * pxSocket );
  * @param [in] ulJSON_File_Size: Size in byte of the array.
  *
  * @param [in] pxHostParameters: Contains the group name, cloud address of the desired
- * core to connect to and interface to use (WIFI, ETH0 etc...). 
+ * core to connect to and interface to use (WIFI, ETH0 etc...).
  * @warning: Cannot be NULL if xAutoSelectFlag is set to pdFALSE
  *
  * @param [in] xAutoSelectFlag: The user can opt for the auto select option.

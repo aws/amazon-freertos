@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * Amazon FreeRTOS
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,32 +35,31 @@
 /*
  * MQTT Broker endpoint.
  */
-static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "Paste AWS IoT Broker endpoint here.";
-
+static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "";
 
 /* Use of a "define" and not a "static const" here to be able to
-* use pre-compile concatenation on the string. */
-#define clientcredentialIOT_THING_NAME "Paste AWS IoT Thing name here."
+ * use pre-compile concatenation on the string. */
+#define clientcredentialIOT_THING_NAME               "Paste AWS IoT Thing name here."
 
 /*
  * Port number the MQTT broker is using.
  */
-#define clientcredentialMQTT_BROKER_PORT 8883
+#define clientcredentialMQTT_BROKER_PORT             8883
 
 /*
  * Port number the Green Grass Discovery use for JSON retrieval from cloud is using.
  */
-#define clientcredentialGREENGRASS_DISCOVERY_PORT 8443
+#define clientcredentialGREENGRASS_DISCOVERY_PORT    8443
 
 /*
  * Wi-Fi network to join.
  */
-#define clientcredentialWIFI_SSID       "Paste Wi-Fi SSID here."
+#define clientcredentialWIFI_SSID                    "Paste Wi-Fi SSID here."
 
 /*
  * Password needed to join Wi-Fi network.
  */
-#define clientcredentialWIFI_PASSWORD   "Paste Wi-Fi password here."
+#define clientcredentialWIFI_PASSWORD                "Paste Wi-Fi password here."
 
 /**
  * @brief Security type
@@ -68,6 +67,6 @@ static const char clientcredentialMQTT_BROKER_ENDPOINT[] = "Paste AWS IoT Broker
  * Possible values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA,
  * eWiFiSecurityWPA2
  */
-#define clientcredentialWIFI_SECURITY   eWiFiSecurityWPA2
+#define clientcredentialWIFI_SECURITY                eWiFiSecurityWPA2
 
-#endif
+#endif /* ifndef __AWS_CLIENTCREDENTIAL__H__ */

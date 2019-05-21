@@ -175,7 +175,7 @@ TEST( Full_GGD, GetGGCIPandCertificate )
 
             snprintf( cMsgBuffer, nBufferLength,
                       "GGD_GetGGCIPandCertificate returned %d on iteration %d",
-                      ( int )xStatus, ( int )i );
+                      ( int ) xStatus, ( int ) i );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( pdPASS, xStatus, cBuffer );
         }
 
