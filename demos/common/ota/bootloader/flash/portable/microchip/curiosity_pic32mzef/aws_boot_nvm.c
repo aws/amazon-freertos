@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.7
+ * Amazon FreeRTOS Demo Bootloader V1.4.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,7 +50,7 @@
 
 #define NVM_PROGRAM_UNLOCK_KEY2    0x556699AA
 
-#define AWS_NVM_QUAD_MASK    0xfffffff0
+#define AWS_NVM_QUAD_MASK          0xfffffff0
 
 /* prototypes */
 static bool AWS_NVMOperation( uint32_t nvmop );
@@ -142,7 +142,8 @@ void AWS_NVM_ToggleFlashBanks( void )
         PLIB_NVM_ProgramFlashBank1LowerRegion( NVM_ID_0 );
     }
     else
-    {   /* bank 2 is upper */
+    {
+        /* bank 2 is upper */
         PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY1 );
         PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY2 );
         PLIB_NVM_ProgramFlashBank2LowerRegion( NVM_ID_0 );
@@ -160,92 +161,93 @@ static void AWS_NVMClearError( void )
 
 /*-----------------------------------------------------------*/
 
-    bool AWS_UpperBootPageErase( const uint32_t * pagePtr )
+bool AWS_UpperBootPageErase( const uint32_t * pagePtr )
+{
+    uint32_t phys_addr = KVA_TO_PA( ( uint32_t ) pagePtr );
+
+    PLIB_NVM_FlashAddressToModify( NVM_ID_0, phys_addr );
+
+    if( !AWS_NVMOperation( PAGE_ERASE_OPERATION ) )
     {
-        uint32_t phys_addr = KVA_TO_PA( ( uint32_t ) pagePtr );
+        /* failed; clear the NVM error */
+        AWS_NVMClearError();
 
-        PLIB_NVM_FlashAddressToModify( NVM_ID_0, phys_addr );
-
-        if( !AWS_NVMOperation( PAGE_ERASE_OPERATION ) )
-        { /* failed; clear the NVM error */
-            AWS_NVMClearError();
-
-            return false;
-        }
-
-        return true;
+        return false;
     }
+
+    return true;
+}
 
 /* writes a row into the upper boot flash */
 /* ptrFlash indicates the address and pData the data to be written */
-    bool AWS_UpperBootWriteRow( const uint32_t * ptrFlash,
-                                const uint32_t * rowData )
+bool AWS_UpperBootWriteRow( const uint32_t * ptrFlash,
+                            const uint32_t * rowData )
+{
+    uint32_t phys_flash_addr = KVA_TO_PA( ( uint32_t ) ptrFlash );
+    uint32_t phys_data_addr = KVA_TO_PA( ( uint32_t ) rowData );
+
+    PLIB_NVM_FlashAddressToModify( NVM_ID_0, phys_flash_addr );
+    PLIB_NVM_DataBlockSourceAddress( NVM_ID_0, phys_data_addr );
+
+    if( !AWS_NVMOperation( ROW_PROGRAM_OPERATION ) )
     {
-        uint32_t phys_flash_addr = KVA_TO_PA( ( uint32_t ) ptrFlash );
-        uint32_t phys_data_addr = KVA_TO_PA( ( uint32_t ) rowData );
+        AWS_NVMClearError();
 
-        PLIB_NVM_FlashAddressToModify( NVM_ID_0, phys_flash_addr );
-        PLIB_NVM_DataBlockSourceAddress( NVM_ID_0, phys_data_addr );
-
-        if( !AWS_NVMOperation( ROW_PROGRAM_OPERATION ) )
-        {
-            AWS_NVMClearError();
-
-            return false;
-        }
-
-        return true;
+        return false;
     }
+
+    return true;
+}
 
 
 /*-----------------------------------------------------------*/
 
-    void AWS_UpperBootPageProtectionDisable( void )
-    {
-        PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, 0 );
-        PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY1 );
-        PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY2 );
+void AWS_UpperBootPageProtectionDisable( void )
+{
+    PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, 0 );
+    PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY1 );
+    PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY2 );
 
-        PLIB_NVM_BootPageWriteProtectionDisable( NVM_ID_0, UPPER_BOOT_ALIAS_PAGE4 );
-    }
-
-/*-----------------------------------------------------------*/
-
-    void AWS_UpperBootPageProtectionEnable( void )
-    {
-        PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, 0 );
-        PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY1 );
-        PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY2 );
-
-        PLIB_NVM_BootPageWriteProtectionEnable( NVM_ID_0, UPPER_BOOT_ALIAS_PAGE4 );
-    }
+    PLIB_NVM_BootPageWriteProtectionDisable( NVM_ID_0, UPPER_BOOT_ALIAS_PAGE4 );
+}
 
 /*-----------------------------------------------------------*/
 
-    bool AWS_UpperBootPageIsProtected( void )
-    {
-        return PLIB_NVM_IsBootPageWriteProtected( NVM_ID_0, UPPER_BOOT_ALIAS_PAGE4 );
-    }
+void AWS_UpperBootPageProtectionEnable( void )
+{
+    PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, 0 );
+    PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY1 );
+    PLIB_NVM_FlashWriteKeySequence( NVM_ID_0, NVM_PROGRAM_UNLOCK_KEY2 );
+
+    PLIB_NVM_BootPageWriteProtectionEnable( NVM_ID_0, UPPER_BOOT_ALIAS_PAGE4 );
+}
+
+/*-----------------------------------------------------------*/
+
+bool AWS_UpperBootPageIsProtected( void )
+{
+    return PLIB_NVM_IsBootPageWriteProtected( NVM_ID_0, UPPER_BOOT_ALIAS_PAGE4 );
+}
 
 
 /*-----------------------------------------------------------*/
 
-    bool AWS_FlashProgramIsSwapped( void )
-    {
-        return PLIB_NVM_ProgramFlashBank2IsLowerRegion( NVM_ID_0 );
-    }
+bool AWS_FlashProgramIsSwapped( void )
+{
+    return PLIB_NVM_ProgramFlashBank2IsLowerRegion( NVM_ID_0 );
+}
 
 /*-----------------------------------------------------------*/
 
-    bool AWS_FlashErase( uint32_t ulFlashNvop )
+bool AWS_FlashErase( uint32_t ulFlashNvop )
+{
+    if( !AWS_NVMOperation( ulFlashNvop ) )
     {
-        if( !AWS_NVMOperation( ulFlashNvop ) )
-        {
-            /* failed; clear the NVM error */
-            AWS_NVMClearError();
+        /* failed; clear the NVM error */
+        AWS_NVMClearError();
 
-            return false;
-        }
-
-        return true;
+        return false;
     }
+
+    return true;
+}

@@ -275,7 +275,7 @@ TEST( Full_FREERTOS_TCP, prvParseDnsResponse )
     ulAddress = TEST_FreeRTOS_TCP_prvParseDNSReply(
         ucBadDnsResponseH,
         sizeof( ucBadDnsResponseH ),
-        *( uint16_t * )ucBadDnsResponseH );
+        *( uint16_t * ) ucBadDnsResponseH );
     TEST_ASSERT_EQUAL_UINT32( 0, ulAddress );
     /* End test. */
 
@@ -283,7 +283,7 @@ TEST( Full_FREERTOS_TCP, prvParseDnsResponse )
     ulAddress = TEST_FreeRTOS_TCP_prvParseDNSReply(
         ucBadDnsResponseI,
         sizeof( ucBadDnsResponseI ),
-        *( uint16_t * )ucBadDnsResponseI );
+        *( uint16_t * ) ucBadDnsResponseI );
     TEST_ASSERT_EQUAL_UINT32( 0, ulAddress );
     /* End test. */
 }

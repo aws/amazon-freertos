@@ -1,0 +1,17 @@
+{
+  "ENTRY": "ARPRefreshCacheEntry",
+  "CBMCFLAGS":
+  [
+      "--unwind 1",
+      "--unwindset vARPRefreshCacheEntry.0:7,memcmp.0:17",
+      "--nondet-static"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_ARP.goto"
+  ],
+  "DEF":
+  [
+  ]
+}

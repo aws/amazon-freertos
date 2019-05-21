@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS CBOR Library V1.0.1
+ * Amazon FreeRTOS CBOR Library V1.0.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -229,7 +229,8 @@ static char * CBOR_StrCat( char * pcDest,
             /* Inefficient, but necessary to reallocate in each loop, since some
              * embedded platforms (e.g. FreeRTOS) do not implement realloc. */
             pcDest = pxCBOR_realloc( pcDest, *pxLen );
-        } while( *pxLen <= xDest_len + xSrc_len );
+        }
+        while( *pxLen <= xDest_len + xSrc_len );
     }
 
     strncat( pcDest, pcSrc, ( *pxLen - xDest_len ) );

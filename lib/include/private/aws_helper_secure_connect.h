@@ -23,7 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
- /**
+/**
  * @file aws_helper_secure_connect.h
  * @brief Header file for helper_secure_connect.
  */
@@ -41,7 +41,7 @@
  * @param [in] ulReceiveTimeOut : Receive Timeout in millisecond.
  *
  * @param [in] ulSendTimeOut : Send Timeout in millisecond
- * 
+ *
  * @param [out] pvTLSCtx: Opaque context.
  *
  * @param [out] xSocket : Returned socket type.

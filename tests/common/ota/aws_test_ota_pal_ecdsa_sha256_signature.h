@@ -59,6 +59,6 @@ static const int ucValidSignatureLength = 70;
 /**
  * @brief The type of signature method this file defines for the valid signature.
  */
-#define otatestSIG_METHOD   otatestSIG_SHA256_ECDSA
+#define otatestSIG_METHOD    otatestSIG_SHA256_ECDSA
 
 #endif /* ifndef _AWS_TEST_PAL_ECDSA_SHA256_SIGNATURE_H_ */

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS TLS V1.1.3
+ * Amazon FreeRTOS TLS V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -180,8 +180,17 @@ static int prvGenerateRandomBytes( void * pvCtx,
                                    size_t xRandomLength )
 {
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
+    BaseType_t xResult;
 
-    return ( int ) pxCtx->xP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
+    xResult = pxCtx->xP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
+
+    if( xResult != 0 )
+    {
+        TLS_PRINT( ( "ERROR: Failed to generate random bytes %d \r\n", xResult ) );
+        xResult = TLS_ERROR_RNG;
+    }
+
+    return xResult;
 }
 
 /**
@@ -271,7 +280,9 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          size_t xHashLen,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
-                                         int ( *piRng )( void *, unsigned char *, size_t ), /*lint !e955 This parameter is unused. */
+                                         int ( * piRng )( void *,
+                                                          unsigned char *,
+                                                          size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
     BaseType_t xResult = 0;
@@ -301,7 +312,8 @@ static int prvPrivateKeySigningCallback( void * pvContext,
 
     if( xResult != 0 )
     {
-        configPRINTF( ( "Failure in signing callback: %d \r\n", xResult ) );
+        TLS_PRINT( ( "ERROR: Failure in signing callback: %d \r\n", xResult ) );
+        xResult = TLS_ERROR_SIGN;
     }
 
     return xResult;
@@ -503,6 +515,11 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
         vPortFree( pxCertificate );
     }
 
+    if( CKR_OK != xResult )
+    {
+        TLS_PRINT( ( "ERROR: Loading credentials from flash into TLS context failed with error %d.\r\n", xResult ) );
+    }
+
     return xResult;
 }
 
@@ -616,7 +633,8 @@ BaseType_t TLS_Connect( void * pvContext )
             xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
                                               ( const unsigned char * ) tlsATS1_ROOT_CERTIFICATE_PEM,
                                               tlsATS1_ROOT_CERTIFICATE_LENGTH );
-            if ( 0 == xResult )
+
+            if( 0 == xResult )
             {
                 xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509CA,
                                                   ( const unsigned char * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
@@ -719,6 +737,12 @@ BaseType_t TLS_Connect( void * pvContext )
     {
         pxCtx->xTLSHandshakeSuccessful = pdTRUE;
     }
+    else if( xResult > 0 )
+    {
+        TLS_PRINT( ( "ERROR: TLS_Connect failed with error code %d \r\n", xResult ) );
+        /* Convert PKCS #11 failures to a negative error code. */
+        xResult = TLS_ERROR_HANDSHAKE_FAILED;
+    }
 
     /* Free up allocated memory. */
     mbedtls_x509_crt_free( &pxCtx->xMbedX509CA );
@@ -801,11 +825,12 @@ BaseType_t TLS_Send( void * pvContext,
                 /* Sent data, so update the tally and keep looping. */
                 xWritten += ( size_t ) xResult;
             }
-            else if( 0 == xResult )
+            else if( ( 0 == xResult ) || ( -pdFREERTOS_ERRNO_ENOSPC == xResult ) )
             {
-                /* No data sent (and no error). The secure sockets
+                /* No data sent. The secure sockets
                  * API supports non-blocking send, so stop the loop but don't
                  * flag an error. */
+                xResult = 0;
                 break;
             }
             else if( MBEDTLS_ERR_SSL_WANT_WRITE != xResult )

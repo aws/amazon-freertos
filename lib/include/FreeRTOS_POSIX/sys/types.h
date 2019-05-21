@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS+POSIX V1.0.3
+ * Amazon FreeRTOS+POSIX V1.0.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -147,6 +147,13 @@ typedef void                * pthread_barrierattr_t;
  */
 #if !defined( posixconfigENABLE_USECONDS_T ) || ( posixconfigENABLE_USECONDS_T == 1 )
     typedef unsigned long   useconds_t;
+#endif
+
+/**
+ * @brief Used for file sizes.
+ */
+#if !defined( posixconfigENABLE_OFF_T ) || ( posixconfigENABLE_OFF_T == 1 )
+    typedef long int        off_t;
 #endif
 
 #endif /* ifndef _FREERTOS_POSIX_TYPES_H_ */

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Demo Bootloader V1.4.7
+ * Amazon FreeRTOS Demo Bootloader V1.4.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -73,11 +73,11 @@ BaseType_t BOOT_CRYPTO_Verify( const uint8_t * pucData,
     int32_t lReturn;
     uint32_t ulBitStringPos = 0;
 
-    uint8_t pucHash[ TC_SHA256_DIGEST_SIZE  ];
-    
+    uint8_t pucHash[ TC_SHA256_DIGEST_SIZE ];
+
     /* ASN.1 encodes signature.*/
     uint8_t pucSignatureEncoded[ BOOT_ECC_SIGNATURE_SIZE_MAX ];
-    
+
     /* Decoded signature containing required elements on the curve.*/
     uint8_t pucSignatureDecoded[ ECC_NUM_SIG_COMPONENTS * ECC_NUM_BYTES_PER_SIG_COMPONENT ];
 
@@ -137,10 +137,9 @@ BaseType_t BOOT_CRYPTO_Verify( const uint8_t * pucData,
      */
     if( xResult == pdTRUE )
     {
-         xResult = asn1_decodeSignature( pucSignatureDecoded,
-                                         pucSignatureEncoded,
-                                         pucSignatureEncoded + ulSignatureSize ) ;
-
+        xResult = asn1_decodeSignature( pucSignatureDecoded,
+                                        pucSignatureEncoded,
+                                        pucSignatureEncoded + ulSignatureSize );
     }
 
     /*
@@ -149,11 +148,11 @@ BaseType_t BOOT_CRYPTO_Verify( const uint8_t * pucData,
     if( xResult == pdTRUE )
     {
         /* Skip the ASN.1 tags to get public key */
-        ulBitStringPos =  ulCodeSignPublickeyLength - ECC_PUBKEY_BIT_STRING_SIZE  ;
-        
+        ulBitStringPos = ulCodeSignPublickeyLength - ECC_PUBKEY_BIT_STRING_SIZE;
+
         lReturn = uECC_verify( pucCodeSignPublicKey + ulBitStringPos,
                                pucHash,
-                               TC_SHA256_DIGEST_SIZE ,
+                               TC_SHA256_DIGEST_SIZE,
                                pucSignatureDecoded,
                                uECC_secp256r1() );
 

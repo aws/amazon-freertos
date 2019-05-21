@@ -26,17 +26,17 @@
 #define _AWS_TLS_TEST_H_
 
 /*
-* PEM-encoded client certificate.
-*
-* Certificate for P-256 elliptic curve key.
-*/
+ * PEM-encoded client certificate.
+ *
+ * Certificate for P-256 elliptic curve key.
+ */
 static const char tlstestCLIENT_CERTIFICATE_PEM_EC[] = "Paste client certificate here.";
 
 /*
-* PEM-encoded client private key.
-*
-* This is a P-256 elliptic curve key.
-*/
+ * PEM-encoded client private key.
+ *
+ * This is a P-256 elliptic curve key.
+ */
 static const char tlstestCLIENT_PRIVATE_KEY_PEM_EC[] = "Paste client private key here.";
 
 /* One character of this certificate has been changed in the issuer
@@ -55,4 +55,4 @@ static const char tlstestCLIENT_BYOC_CERTIFICATE_PEM[] = "Paste client certifica
 /* Device private key created using BYOC instructions. */
 static const char tlstestCLIENT_BYOC_PRIVATE_KEY_PEM[] = "Paste client private key here.";
 
-#endif
+#endif /* ifndef _AWS_TLS_TEST_H_ */

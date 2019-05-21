@@ -122,11 +122,18 @@ def delete_prereq():
     cert_id =  cert_id_file.read()
     cert_obj = certs.Certificate(cert_id)
     cert_obj.delete()
+    cert_id_file.close()
+    cert_id_file_path = os.path.abspath(cert_id_filename)
+    os.chmod(cert_id_file_path, 0o666)
     os.remove(cert_id_filename)
 
     # Delete cert_pem file and private_key_pem file
     cert_pem_filename = thing_name + '_cert_pem_file'
     private_key_pem_filename = thing_name + '_private_key_pem_file'
+    cert_pem_file_path = os.path.abspath(cert_pem_filename)
+    private_key_pem_file_path = os.path.abspath(private_key_pem_filename)
+    os.chmod(cert_pem_file_path, 0o666)
+    os.chmod(private_key_pem_file_path, 0o666)
     os.remove(cert_pem_filename)
     os.remove(private_key_pem_filename)
 

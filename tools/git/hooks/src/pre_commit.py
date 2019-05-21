@@ -27,7 +27,7 @@ def commit_is_ready(file_names=""):
 
     checks = [
         check_secrets,
-        check_hungarian_notation,
+        #check_hungarian_notation,
         check_uncrustify,
         check_whitespace,
     ]
@@ -75,7 +75,6 @@ def is_checked_file_pattern(file_name):
         r"lib/.*aws_",
         r"lib/.*\.c",
         r"tests/common/",
-        r"tools/",
     ]
     for checked_pattern in checked_patterns:
         if re.findall(checked_pattern, file_name):

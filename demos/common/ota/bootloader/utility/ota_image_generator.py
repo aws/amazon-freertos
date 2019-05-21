@@ -336,7 +336,7 @@ def getOTADescriptor(userConfigFilePath, inputImagePath, ruleFolderPath, hardwar
     # 7. calculate and validate the end address
     fileSize = getFileSize(inputImagePath)
     endAddress = getEndAddress(fileSize, int(startAddress, 16))  # get end address in decimal format
-    endAddress = hex(endAddress).upper()  # convert to hexadecimal format
+    endAddress = format32BitHexStr(hex(endAddress)) # convert to hexadecimal format
 
     # make sure minAddrHardwarePlatform < endAddress <= maxAddressHardwarePlatform
     endMin = format32BitHexStr(hex(int(minAddrHardwarePlatform, 16) + 1))

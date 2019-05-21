@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA Agent V1.0.1
+ * Amazon FreeRTOS OTA Agent V1.0.2
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -430,7 +430,7 @@ static OTA_AgentContext_t xOTA_Agent =
     .eState                         = eOTA_AgentState_NotReady,
     .ucThingName                    = { 0 },
     .pvPubSubClient                 = NULL,
-    .xOTA_Files                     = { { 0 } }, /*lint !e910 !e9080 Zero initialization of all members of the single file context structure.*/
+    .xOTA_Files                     = { { 0 } },               /*lint !e910 !e9080 Zero initialization of all members of the single file context structure.*/
     .xOTA_EventFlags                = NULL,
     .xOTAJobCompleteCallback        = NULL,
     .pucOTA_Singleton_ActiveJobName = NULL,
@@ -952,13 +952,15 @@ static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
         if( xOTA_Agent.pucOTA_Singleton_ActiveJobName != NULL )
         {
             if( eState == eOTA_ImageState_Testing )
-            {   /* We discovered we're ready for test mode, put job status in self_test active. */
+            {
+                /* We discovered we're ready for test mode, put job status in self_test active. */
                 prvUpdateJobStatus( NULL, eJobStatus_InProgress, ( int32_t ) eJobReason_SelfTestActive, ( int32_t ) NULL );
             }
             else
             {
                 if( eState == eOTA_ImageState_Accepted )
-                {   /* Now that we've accepted the firmware update, we can complete the job. */
+                {
+                    /* Now that we've accepted the firmware update, we can complete the job. */
                     prvStopSelfTestTimer();
                     prvUpdateJobStatus( NULL, eJobStatus_Succeeded, ( int32_t ) eJobReason_Accepted, xAppFirmwareVersion.u.lVersion32 );
                 }
@@ -1041,7 +1043,8 @@ static void prvUpdateJobStatus( OTA_FileContext_t * C,
                                                         ulNumBlocks );
                 }
                 else
-                {   /* Don't send a status update yet. */
+                {
+                    /* Don't send a status update yet. */
                     ulMsgSize = 0UL;
                 }
             }
@@ -1120,7 +1123,8 @@ static void prvUpdateJobStatus( OTA_FileContext_t * C,
             }
         }
         else
-        {   /* Unknown status code. Just ignore it. */
+        {
+            /* Unknown status code. Just ignore it. */
             ulMsgSize = 0UL;
         }
     }
@@ -1494,8 +1498,9 @@ static void prvOTAUpdateTask( void * pvUnused )
                                         }
                                     }
                                     else
-                                    {   /* We're actively receiving a file so update the job status as needed. */
-                                      /* First reset the momentum counter since we received a good block. */
+                                    {
+                                        /* We're actively receiving a file so update the job status as needed. */
+                                        /* First reset the momentum counter since we received a good block. */
                                         pxC->ulRequestMomentum = 0;
                                         prvUpdateJobStatus( pxC, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
                                     }
@@ -1531,7 +1536,8 @@ static void prvOTAUpdateTask( void * pvUnused )
                 }
 
                 if( pxC == NULL )
-                {   /* Any event that releases the context structure tells us we're not active anymore. */
+                {
+                    /* Any event that releases the context structure tells us we're not active anymore. */
                     xOTA_Agent.eState = eOTA_AgentState_Ready;
                 }
             }
@@ -2004,7 +2010,8 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
                                                             pcStringCopy );
                                             }
                                             else
-                                            {   /* Stop processing on error. */
+                                            {
+                                                /* Stop processing on error. */
                                                 eErr = eDocParseErr_OutOfMemory;
                                                 /* break; */
                                             }
@@ -2064,7 +2071,8 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
 
                                                 if( mbedtls_base64_decode( pxSig256->ucData, sizeof( pxSig256->ucData ), &xActualLen,
                                                                            ( const uint8_t * ) &pcJSON[ pxValTok->start ], ulTokenLen ) != 0 )
-                                                {   /* Stop processing on error. */
+                                                {
+                                                    /* Stop processing on error. */
                                                     OTA_LOG_L1( "[%s] mbedtls_base64_decode failed.\r\n", OTA_METHOD_NAME );
                                                     eErr = eDocParseErr_Base64Decode;
                                                     /* break; */
@@ -2282,7 +2290,8 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             eErr = eOTA_JobParseErr_BadModelInitParams;
         }
         else if( prvParseJSONbyModel( pcJSON, ulMsgLen, &xOTA_JobDocModel ) == eDocParseErr_None )
-        {   /* Validate the job document parameters. */
+        {
+            /* Validate the job document parameters. */
             eErr = eOTA_JobParseErr_None;
 
             if( pxC->ulFileSize == 0U )
@@ -2303,7 +2312,8 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                         eErr = eOTA_JobParseErr_BusyWithExistingJob;
                     }
                     else
-                    {   /* The same job is being reported so free the duplicate job name from the context. */
+                    {
+                        /* The same job is being reported so free the duplicate job name from the context. */
                         OTA_LOG_L1( "[%s] Superfluous report of current job.\r\n", OTA_METHOD_NAME );
                         vPortFree( pxC->pucJobName );
                         pxC->pucJobName = NULL;
@@ -2317,7 +2327,8 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                 }
             }
             else
-            {   /* Assume control of the job name from the context. */
+            {
+                /* Assume control of the job name from the context. */
                 xOTA_Agent.pucOTA_Singleton_ActiveJobName = pxC->pucJobName;
                 pxC->pucJobName = NULL;
             }
@@ -2391,7 +2402,8 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             }
         }
         else
-        {   /* No need to print an error message. The JSON parser should have already. */
+        {
+            /* No need to print an error message. The JSON parser should have already. */
             eErr = eOTA_JobParseErr_NonConformingJobDoc;
         }
     }
