@@ -45,7 +45,7 @@
 #include "iot_serializer.h"
 #include "platform/iot_network_ble.h"
 #include "iot_ble_data_transfer.h"
-#include "private/iot_ble_mqtt_serialize.h"
+#include "iot_ble_mqtt_serialize.h"
 #include "private/iot_mqtt_internal.h"
 
 #define _INVALID_MQTT_PACKET_TYPE        ( 0xF0 )
@@ -1409,9 +1409,9 @@ size_t IotBleMqtt_GetRemainingLength ( void * pNetworkConnection,
 {
     const uint8_t *pBuffer;
     size_t length;
-    
+
     IotBleDataTransfer_PeekReceiveBuffer( *( IotBleDataTransferChannel_t ** ) ( pNetworkConnection ), &pBuffer, &length );
-    
+
     return length;
 }
 
@@ -1424,9 +1424,9 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInt
     uint8_t value = 0xFF, packetType = _INVALID_MQTT_PACKET_TYPE;
     const uint8_t *pBuffer;
     size_t length;
-    
+
     IotBleDataTransfer_PeekReceiveBuffer( *( IotBleDataTransferChannel_t ** ) ( pNetworkConnection ), &pBuffer, &length );
-    
+
     error = IOT_BLE_MESG_DECODER.init( &decoderObj, pBuffer, length );
 
     if( ( error == IOT_SERIALIZER_SUCCESS )

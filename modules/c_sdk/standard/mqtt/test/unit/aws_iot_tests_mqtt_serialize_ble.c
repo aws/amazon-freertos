@@ -36,7 +36,7 @@
 #include "iot_ble_config.h"
 #include "iot_serializer.h"
 #include "private/iot_mqtt_internal.h"
-#include "private/iot_ble_mqtt_serialize.h"
+#include "iot_ble_mqtt_serialize.h"
 #include "aws_clientcredential.h"
 
 /* Test framework includes. */
