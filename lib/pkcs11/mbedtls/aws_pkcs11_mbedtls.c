@@ -140,7 +140,7 @@ typedef struct P11Session
 
 #define pkcs11GENERATE_KEY_PAIR_KEYTYPE_ATTRIBUTE_INDEX     0
 #define pkcs11GENERATE_KEY_PAIR_ECPARAMS_ATTRIBUTE_INDEX    1
-#define PKCS11_MODULE_IS_INITIALIZED                        ( ( xP11Context.xIsInitialized == CK_TRUE ) ? 1 : 0 )
+#define PKCS11_MODULE_IS_INITIALIZED                        ( ( xP11Context.xIsInitialized == CK_TRUE ) ? CK_TRUE : CK_FALSE )
 #define PKCS11_SESSION_IS_OPEN( xSessionHandle )                         ( ( ( ( P11SessionPtr_t ) xSessionHandle )->xOpened ) == CK_TRUE ? CKR_OK : CKR_SESSION_CLOSED )
 #define PKCS11_SESSION_IS_VALID( xSessionHandle )                        ( ( ( P11SessionPtr_t ) xSessionHandle != NULL ) ? PKCS11_SESSION_IS_OPEN( xSessionHandle ) : CKR_SESSION_HANDLE_INVALID )
 #define PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSessionHandle )    ( PKCS11_MODULE_IS_INITIALIZED ? PKCS11_SESSION_IS_VALID( xSessionHandle ) : CKR_CRYPTOKI_NOT_INITIALIZED )
@@ -704,24 +704,36 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
      * on a physical token, this parameter is ignored. */
     ( void ) ( xTokenPresent );
 
-    if( NULL == pulCount )
+    if( PKCS11_MODULE_IS_INITIALIZED != CK_TRUE )
     {
-        xResult = CKR_ARGUMENTS_BAD;
+        xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
     }
-    else if( NULL == pxSlotList )
+
+    if( xResult == CKR_OK )
     {
-        *pulCount = 1;
-    }
-    else
-    {
-        if( 0u == *pulCount )
+        if( NULL == pulCount )
         {
-            xResult = CKR_BUFFER_TOO_SMALL;
+            xResult = CKR_ARGUMENTS_BAD;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        if( NULL == pxSlotList )
+        {
+            *pulCount = 1;
         }
         else
         {
-            pxSlotList[ 0 ] = pkcs11SLOT_ID;
-            *pulCount = 1;
+            if( 0u == *pulCount )
+            {
+                xResult = CKR_BUFFER_TOO_SMALL;
+            }
+            else
+            {
+                pxSlotList[ 0 ] = pkcs11SLOT_ID;
+                *pulCount = 1;
+            }
         }
     }
 
@@ -745,7 +757,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
     ( void ) ( xNotify );
 
     /* Check that the PKCS #11 module is initialized. */
-    if( xP11Context.xIsInitialized != CK_TRUE )
+    if( PKCS11_MODULE_IS_INITIALIZED != CK_TRUE )
     {
         xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
     }
@@ -834,11 +846,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
  * @brief Terminate a session and release resources.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
-    CK_RV xResult = CKR_OK;
+{
+    /*lint !e9072 It's OK to have different parameter name. */
+    CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
-    if( NULL != pxSession )
+    if( xResult == CKR_OK )
     {
         /*
          * Tear down the session.
@@ -1620,18 +1633,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_OBJECT_CLASS xClass;
 
-
-    /* Avoid warnings about unused parameters. */
-    ( void ) xSession;
-
-    /*
-     * Check parameters.
-     */
-    if( pxSession->xOpened != CK_TRUE )
-    {
-        xResult = CKR_SESSION_HANDLE_INVALID;
-    }
-
     if( ( NULL == pxTemplate ) ||
         ( NULL == pxObject ) )
     {
@@ -1683,9 +1684,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
-    ( void ) xSession;
-
-    xResult = PKCS11_PAL_DestroyObject( xObject );
+    if( xResult == CKR_OK )
+    {
+        xResult = PKCS11_PAL_DestroyObject( xObject );
+    }
 
     return xResult;
 }
@@ -1715,14 +1717,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     size_t xSize;
     uint8_t * pcLabel = NULL;
 
-    /* Avoid warnings about unused parameters. */
-    ( void ) xSession;
 
     if( ( NULL == pxTemplate ) || ( 0 == ulCount ) )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
-    else
+
+    if( xResult == CKR_OK )
     {
         /*
          * Copy the object into a buffer.
@@ -1967,25 +1968,22 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
     uint32_t ulIndex;
     CK_ATTRIBUTE xAttribute;
 
-    /* Check inputs. */
-    if( ( pxSession == NULL ) || ( pxSession->xOpened != CK_TRUE ) )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_SESSION_HANDLE_INVALID;
-        PKCS11_PRINT( ( "ERROR: Invalid session. \r\n" ) );
-    }
-    else if( pxSession->pxFindObjectLabel != NULL )
-    {
-        xResult = CKR_OPERATION_ACTIVE;
-        PKCS11_PRINT( ( "ERROR: Find object operation already in progress. \r\n" ) );
-    }
-    else if( NULL == pxTemplate )
-    {
-        xResult = CKR_ARGUMENTS_BAD;
-    }
-    else if( ( ulCount != 1 ) && ( ulCount != 2 ) )
-    {
-        xResult = CKR_ARGUMENTS_BAD;
-        PKCS11_PRINT( ( "ERROR: Find objects does not support searching by %d attributes. \r\n", ulCount ) );
+        if( pxSession->pxFindObjectLabel != NULL )
+        {
+            xResult = CKR_OPERATION_ACTIVE;
+            PKCS11_PRINT( ( "ERROR: Find object operation already in progress. \r\n" ) );
+        }
+        else if( NULL == pxTemplate )
+        {
+            xResult = CKR_ARGUMENTS_BAD;
+        }
+        else if( ( ulCount != 1 ) && ( ulCount != 2 ) )
+        {
+            xResult = CKR_ARGUMENTS_BAD;
+            PKCS11_PRINT( ( "ERROR: Find objects does not support searching by %d attributes. \r\n", ulCount ) );
+        }
     }
 
     /* Malloc space to save template information. */
@@ -2096,28 +2094,31 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         xDone = pdTRUE;
     }
 
-    if( pxSession->pxFindObjectLabel == NULL )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_OPERATION_NOT_INITIALIZED;
-        xDone = pdTRUE;
-    }
+        if( pxSession->pxFindObjectLabel == NULL )
+        {
+            xResult = CKR_OPERATION_NOT_INITIALIZED;
+            xDone = pdTRUE;
+        }
 
-    if( 0u == ulMaxObjectCount )
-    {
-        xResult = CKR_ARGUMENTS_BAD;
-        xDone = pdTRUE;
-    }
+        if( 0u == ulMaxObjectCount )
+        {
+            xResult = CKR_ARGUMENTS_BAD;
+            xDone = pdTRUE;
+        }
 
-    if( 1u != ulMaxObjectCount )
-    {
-        PKCS11_WARNING_PRINT( ( "WARN: Searching for more than 1 object not supported. \r\n" ) );
-    }
+        if( 1u != ulMaxObjectCount )
+        {
+            PKCS11_WARNING_PRINT( ( "WARN: Searching for more than 1 object not supported. \r\n" ) );
+        }
 
-    if( ( pdFALSE == xDone ) && ( ( CK_BBOOL ) CK_TRUE == pxSession->xFindObjectComplete ) )
-    {
-        *pulObjectCount = 0;
-        xResult = CKR_OK;
-        xDone = pdTRUE;
+        if( ( pdFALSE == xDone ) && ( ( CK_BBOOL ) CK_TRUE == pxSession->xFindObjectComplete ) )
+        {
+            *pulObjectCount = 0;
+            xResult = CKR_OK;
+            xDone = pdTRUE;
+        }
     }
 
     /* TODO: Re-inspect this previous logic. */
@@ -2193,14 +2194,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
     /*
      * Check parameters.
      */
-    if( pxSession->xOpened != CK_TRUE )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_SESSION_HANDLE_INVALID;
-    }
-
-    if( pxSession->pxFindObjectLabel == NULL )
-    {
-        xResult = CKR_OPERATION_NOT_INITIALIZED;
+        if( pxSession->pxFindObjectLabel == NULL )
+        {
+            xResult = CKR_OPERATION_NOT_INITIALIZED;
+        }
     }
 
     if( xResult == CKR_OK )
@@ -2239,14 +2238,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
-    if( pxSession == NULL )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_SESSION_HANDLE_INVALID;
-    }
-
-    if( pMechanism->mechanism != CKM_SHA256 )
-    {
-        xResult = CKR_MECHANISM_INVALID;
+        if( pMechanism->mechanism != CKM_SHA256 )
+        {
+            xResult = CKR_MECHANISM_INVALID;
+        }
     }
 
     /*
@@ -2305,13 +2302,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
-    if( pxSession == NULL )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_SESSION_HANDLE_INVALID;
-    }
-    else if( pxSession->xOperationInProgress != CKM_SHA256 )
-    {
-        xResult = CKR_OPERATION_NOT_INITIALIZED;
+        if( pxSession->xOperationInProgress != CKM_SHA256 )
+        {
+            xResult = CKR_OPERATION_NOT_INITIALIZED;
+        }
     }
 
     if( xResult == CKR_OK )
@@ -2362,14 +2358,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
 
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
-    if( pxSession == NULL )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_SESSION_HANDLE_INVALID;
-    }
-    else if( pxSession->xOperationInProgress != CKM_SHA256 )
-    {
-        xResult = CKR_OPERATION_NOT_INITIALIZED;
-        pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+        if( pxSession->xOperationInProgress != CKM_SHA256 )
+        {
+            xResult = CKR_OPERATION_NOT_INITIALIZED;
+            pxSession->xOperationInProgress = pkcs11NO_OPERATION;
+        }
     }
 
     if( xResult == CKR_OK )
@@ -2793,9 +2788,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint8_t * pxLabel = NULL;
     size_t xLabelLength = 0;
-
-    /*lint !e9072 It's OK to have different parameter name. */
-    ( void ) ( xSession );
 
     pxSession = prvSessionPointerFromHandle( xSession );
 
