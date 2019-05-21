@@ -57,11 +57,13 @@ Setting up the proofs
 
 Change into the `proofs` directory. On Windows, run
 ```
+python make-configuration-directories.py
 python make-common-makefile.py
 python make-proof-makefiles.py
 ```
 On macOS or Linux, run
 ```
+./make-configuration-directories.py
 ./make-common-makefile.py
 ./make-proof-makefiles.py
 ```
