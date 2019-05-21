@@ -73,7 +73,6 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)test/include \
                     $(AFR_PORTS_MODULES_PATH)wifi/include \
                     $(AFR_PORTS_MODULES_PATH)wifi/test \
                     $(AFR_STANDARD_PATH)provisioning/include \
-                    $(AMAZON_FREERTOS_PATH)demos/network_manager \
                     $(AFR_STANDARD_PATH)mqtt/include \
                     $(AFR_STANDARD_PATH)mqtt/include/types \
                     $(AFR_STANDARD_PATH)mqtt/src \
@@ -126,6 +125,8 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_STANDARD_PATH)common/platform/iot_clock_afr.c \
                       $(AFR_STANDARD_PATH)common/platform/iot_network_afr.c \
                       $(AFR_STANDARD_PATH)common/platform/iot_threads_afr.c \
+                      $(AFR_STANDARD_PATH)common/test/iot_test_platform_clock.c \
+                      $(AFR_STANDARD_PATH)common/test/iot_test_platform_threads.c \
                       $(AFR_STANDARD_PATH)common/iot_init.c \
                     
 $(NAME)_COMPONENTS += utilities/wifi
