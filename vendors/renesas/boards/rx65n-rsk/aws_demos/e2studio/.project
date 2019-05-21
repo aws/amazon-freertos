@@ -22,6 +22,116 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>freertos_kernel/event_groups.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/event_groups.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/list.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/list.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/queue.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/queue.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/stream_buffer.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/stream_buffer.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/tasks.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/tasks.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/timers.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/timers.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/FreeRTOS.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/FreeRTOS.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/atomic.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/atomic.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/deprecated_definitions.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/deprecated_definitions.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/event_groups.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/event_groups.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/list.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/list.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/message_buffer.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/message_buffer.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/mpu_prototypes.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/mpu_prototypes.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/mpu_wrappers.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/mpu_wrappers.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/portable.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/portable.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/projdefs.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/projdefs.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/queue.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/queue.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/semphr.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/semphr.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/stack_macros.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/stack_macros.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/stream_buffer.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/stream_buffer.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/task.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/task.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/timers.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/timers.h</locationURI>
+		</link>
+		<link>
 			<name>vendors/renesas/amazon_freertos_common/entropy_hardware_poll.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/amazon_freertos_common/entropy_hardware_poll.c</locationURI>
@@ -757,149 +867,109 @@
 			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/portable/Renesas/RX600v2/portmacro.h</locationURI>
 		</link>
 		<link>
+			<name>demos/demo_runner/aws_demo_network_addr.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_network_addr.c</locationURI>
+		</link>
+		<link>
+			<name>demos/demo_runner/aws_demo_version.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_version.c</locationURI>
+		</link>
+		<link>
+			<name>demos/demo_runner/aws_demo.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/demo_runner/iot_demo_afr.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_afr.c</locationURI>
+		</link>
+		<link>
+			<name>demos/demo_runner/iot_demo_runner.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_runner.c</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_demo.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_demo.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_clientcredential.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_clientcredential.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_clientcredential_keys.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_clientcredential_keys.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_application_version.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_application_version.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/iot_demo_runner.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_demo_runner.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/iot_demo_logging.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_demo_logging.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/iot_config_common.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_config_common.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_iot_demo_network.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_iot_demo_network.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
+		</link>
+		<link>
+			<name>modules/ports/pkcs11/include/aws_pkcs11.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/pkcs11/include/aws_pkcs11.h</locationURI>
+		</link>
+		<link>
 			<name>vendors/renesas/boards/rx65n-rsk/ports/pkcs11/aws_pkcs11_pal.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</name>
+			<name>modules/ports/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/ether_callback.c</name>
+			<name>modules/ports/pkcs11/mbedtls/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/ether_callback.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/NetworkInterface.c</name>
+			<name>modules/libraries/standard/crypto/src/aws_crypto.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/NetworkInterface.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/crypto/src/aws_crypto.c</locationURI>
 		</link>
 		<link>
-			<name>tools/certificate_configuration/PEMfileToCString.html</name>
+			<name>modules/libraries/standard/crypto/include/aws_crypto.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/tools/certificate_configuration/PEMfileToCString.html</locationURI>
-		</link>
-		<link>
-			<name>tools/certificate_configuration/CertificateConfigurator.html</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/tools/certificate_configuration/CertificateConfigurator.html</locationURI>
-		</link>
-		<link>
-			<name>tools/certificate_configuration/js/generator.js</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/tools/certificate_configuration/js/generator.js</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/event_groups.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/event_groups.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/list.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/list.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/queue.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/queue.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/stream_buffer.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/stream_buffer.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/tasks.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/tasks.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/timers.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/timers.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/FreeRTOS.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/FreeRTOS.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/atomic.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/atomic.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/deprecated_definitions.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/deprecated_definitions.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/event_groups.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/event_groups.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/list.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/list.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/message_buffer.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/message_buffer.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/mpu_prototypes.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/mpu_prototypes.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/mpu_wrappers.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/mpu_wrappers.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/portable.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/portable.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/projdefs.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/projdefs.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/queue.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/queue.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/semphr.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/semphr.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/stack_macros.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/stack_macros.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/stream_buffer.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/stream_buffer.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/task.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/task.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/timers.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/timers.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/crypto/include/aws_crypto.h</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/standard/common/iot_init.c</name>
@@ -1062,9 +1132,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/common/taskpool/iot_taskpool.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/standard/common/taskpool/private/iot_taskpool_internal.h</name>
+			<name>modules/libraries/standard/common/include/private/iot_taskpool_internal.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/common/taskpool/private/iot_taskpool_internal.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/common/include/private/iot_taskpool_internal.h</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/standard/common/include/types/iot_taskpool_types.h</name>
@@ -1077,14 +1147,24 @@
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/common/include/iot_taskpool.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/standard/crypto/src/aws_crypto.c</name>
+			<name>modules/ports/secure_sockets/include/aws_secure_sockets.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/crypto/src/aws_crypto.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/secure_sockets/include/aws_secure_sockets.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/standard/crypto/include/aws_crypto.h</name>
+			<name>modules/ports/secure_sockets/include/aws_secure_sockets_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/crypto/include/aws_crypto.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/secure_sockets/include/aws_secure_sockets_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>modules/ports/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</locationURI>
+		</link>
+		<link>
+			<name>modules/ports/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/standard/freertos_plus_tcp/source/FreeRTOS_ARP.c</name>
@@ -1207,6 +1287,41 @@
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/freertos_plus_tcp/include/NetworkInterface.h</locationURI>
 		</link>
 		<link>
+			<name>modules/libraries/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/ether_callback.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/ether_callback.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/NetworkInterface.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/NetworkInterface.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/tls/src/aws_tls.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/tls/src/aws_tls.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/tls/include/aws_tls.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/tls/include/aws_tls.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/utils/src/aws_system_init.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/utils/src/aws_system_init.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/utils/include/aws_system_init.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/utils/include/aws_system_init.h</locationURI>
+		</link>
+		<link>
 			<name>modules/libraries/standard/metrics/src/aws_secure_sockets_wrapper_metrics.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/metrics/src/aws_secure_sockets_wrapper_metrics.c</locationURI>
@@ -1250,36 +1365,6 @@
 			<name>modules/libraries/standard/mqtt/src/iot_mqtt_validate.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/tls/src/aws_tls.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/tls/src/aws_tls.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/tls/include/aws_tls.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/tls/include/aws_tls.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/utils/src/aws_system_init.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/utils/src/aws_system_init.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/utils/include/aws_system_init.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/utils/include/aws_system_init.h</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -1347,91 +1432,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/shadow/include/aws_iot_shadow.h</locationURI>
 		</link>
 		<link>
-			<name>modules/ports/pkcs11/include/aws_pkcs11.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/pkcs11/include/aws_pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/pkcs11/mbedtls/threading_alt.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/pkcs11/mbedtls/threading_alt.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/secure_sockets/include/aws_secure_sockets.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/secure_sockets/include/aws_secure_sockets.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/secure_sockets/include/aws_secure_sockets_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/secure_sockets/include/aws_secure_sockets_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/ports/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c</locationURI>
-		</link>
-		<link>
-			<name>demos/demo_runner/aws_demo_network_addr.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_network_addr.c</locationURI>
-		</link>
-		<link>
-			<name>demos/demo_runner/aws_demo_version.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo_version.c</locationURI>
-		</link>
-		<link>
-			<name>demos/demo_runner/aws_demo.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/aws_demo.c</locationURI>
-		</link>
-		<link>
-			<name>demos/demo_runner/iot_demo_afr.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_afr.c</locationURI>
-		</link>
-		<link>
-			<name>demos/demo_runner/iot_demo_runner.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_runner.c</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_demo.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_demo.h</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_clientcredential.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_clientcredential.h</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_clientcredential_keys.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_clientcredential_keys.h</locationURI>
-		</link>
-		<link>
-			<name>demos/include/aws_application_version.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_application_version.h</locationURI>
-		</link>
-		<link>
-			<name>demos/include/iot_demo_runner.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_demo_runner.h</locationURI>
-		</link>
-		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
@@ -1447,92 +1447,82 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/shadow/aws_iot_demo_shadow.c</locationURI>
 		</link>
 		<link>
-			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
-		</link>
-		<link>
-			<name>demos/tcp/aws_tcp_echo_client_single_tasks.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/FreeRTOSConfig.h</name>
+			<name>config_files/FreeRTOSConfig.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/FreeRTOSConfig.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/FreeRTOSIPConfig.h</name>
+			<name>config_files/FreeRTOSIPConfig.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_bufferpool_config.h</name>
+			<name>config_files/aws_bufferpool_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_bufferpool_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_demo_config.h</name>
+			<name>config_files/aws_demo_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_demo_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_ggd_config.h</name>
+			<name>config_files/aws_ggd_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_ggd_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_iot_network_config.h</name>
+			<name>config_files/aws_iot_network_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_mqtt_agent_config.h</name>
+			<name>config_files/aws_mqtt_agent_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_mqtt_config.h</name>
+			<name>config_files/aws_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_mqtt_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_ota_agent_config.h</name>
+			<name>config_files/aws_ota_agent_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_ota_agent_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_pkcs11_config.h</name>
+			<name>config_files/aws_pkcs11_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_pkcs11_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_secure_sockets_config.h</name>
+			<name>config_files/aws_secure_sockets_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_shadow_config.h</name>
+			<name>config_files/aws_shadow_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_shadow_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_wifi_config.h</name>
+			<name>config_files/aws_wifi_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/aws_wifi_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/iot_config.h</name>
+			<name>config_files/iot_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/iot_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/mbedtls_user_config.h</name>
+			<name>config_files/mbedtls_user_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/config_files/mbedtls_user_config.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/aws_demos/common/application_code/main.c</name>
+			<name>application_code/main.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/common/application_code/main.c</locationURI>
 		</link>
@@ -2267,16 +2257,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/jsmn/jsmn.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/jsmn/jsmn.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/jsmn/jsmn.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/jsmn/jsmn.c</locationURI>
-		</link>
-		<link>
 			<name>modules/libraries/3rdparty/pkcs11/pkcs11.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
@@ -2291,225 +2271,18 @@
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
+		<link>
+			<name>modules/libraries/3rdparty/jsmn/jsmn.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/jsmn/jsmn.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/jsmn/jsmn.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/jsmn/jsmn.c</locationURI>
+		</link>
 	</linkedResources>
-	<filteredResources>
-		<filter>
-			<id>1545475476368</id>
-			<name/>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-src</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1537786054362</id>
-			<name>application_code/renesas_code/src</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-attention!.txt</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1513514756448</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-Renesas</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1513514757749</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-MemMang</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1513514757807</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1509693556349</id>
-			<name>lib/aws/include/private</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-*.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1536905062046</id>
-			<name>lib/third_party/mcu_vendor/renesas</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-tools</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1536904742727</id>
-			<name>application_code/renesas_code/src/amazon_freertos_common/compiler_support</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-ccrx</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1536927312156</id>
-			<name>application_code/renesas_code/src/amazon_freertos_common/network_support</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-onchip_rx_ether</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1513514967899</id>
-			<name>lib/aws/FreeRTOS/portable/MemMang</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-heap_4.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1513515128489</id>
-			<name>lib/aws/FreeRTOS/portable/Renesas</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-RX600v2</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1536291011837</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_bsp/board</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-true-all|rx65n|generic_rx65n</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1536291077902</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_bsp/mcu</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-true-all|rx65n</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1515504232772</id>
-			<name>lib/aws/FreeRTOS-Plus-TCP/source/portable/BufferManagement</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-BufferAllocation_2.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1515504311064</id>
-			<name>lib/aws/FreeRTOS-Plus-TCP/source/portable/Compiler</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-Renesas</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1515491646756</id>
-			<name>lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-RX</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1539520892012</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_bsp/board/all</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-true-reset_program/.S|iar_call_inits/.s</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1564441882426</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_ether_rx/src/targets</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-rx65n</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1564441856894</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_flash_rx/src/targets</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-rx65n</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535360922766</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_riic_rx/src/targets</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-rx65n</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1545475354414</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_s12ad_rx/src/targets</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-rx65x</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535360980389</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_sci_iic_rx/src/targets</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-rx65n</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1564441820170</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_sci_rx/src/targets</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-rx65n</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1537708651935</id>
-			<name>application_code/renesas_code/src/FIT_modified_code/r_bsp/mcu/rx65n/register_access</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-ccrx</arguments>
-			</matcher>
-		</filter>
-	</filteredResources>
+	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>AWS_IOT_MCU_ROOT</name>
