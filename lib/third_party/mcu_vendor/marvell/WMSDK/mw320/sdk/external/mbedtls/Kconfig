@@ -1,0 +1,10 @@
+menu "TLS"
+
+config ENABLE_TLS
+	bool "Enable TLS Library (mbedTLS)"
+	def_bool y
+	help
+		This option enables the TLS.
+	depends on OS_FREERTOS && LWIP_STACK
+
+endmenu
