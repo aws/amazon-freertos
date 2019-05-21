@@ -27,7 +27,7 @@
 #include "task.h"
 #include "iot_init.h"
 #include "aws_clientcredential.h"
-
+#include "platform/iot_metrics.h"
 #include "aws_secure_sockets.h"
 
 #include "unity_fixture.h"
