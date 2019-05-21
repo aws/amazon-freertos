@@ -51,6 +51,6 @@
 /**
  * @brief Enable metrics of secure socket.
  */
-//#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED    ( 1 )
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED    ( 1 )
 
 #endif /* _AWS_SECURE_SOCKETS_CONFIG_H_ */
