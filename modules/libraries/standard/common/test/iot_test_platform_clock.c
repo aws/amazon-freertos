@@ -33,6 +33,7 @@
 #include "platform/iot_clock.h"
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test group for Platform Clock tests.
  */
@@ -63,10 +64,10 @@ TEST_TEAR_DOWN( UTIL_Platform_Clock )
  */
 TEST_GROUP_RUNNER( UTIL_Platform_Clock )
 {
-    //RUN_TEST_CASE( UTIL_Platform_Clock, IotClock_GetTimestring );
-    //RUN_TEST_CASE( UTIL_Platform_Clock, IotClock_GetTimeMs );
+    RUN_TEST_CASE( UTIL_Platform_Clock, IotClock_GetTimestring );
+    RUN_TEST_CASE( UTIL_Platform_Clock, IotClock_GetTimeMs );
     RUN_TEST_CASE( UTIL_Platform_Clock, IotClock_Timer );
-    //RUN_TEST_CASE( UTIL_Platform_Clock, IotClock_TimerCancellation );
+    RUN_TEST_CASE( UTIL_Platform_Clock, IotClock_TimerCancellation );
 }
 
 /*-----------------------------------------------------------*/
@@ -76,31 +77,31 @@ TEST_GROUP_RUNNER( UTIL_Platform_Clock )
  */
 TEST( UTIL_Platform_Clock, IotClock_GetTimestring )
 {
-    char buffer[128] = { 0 };
-    size_t  timeStringSize = 0;
+    char buffer[ 128 ] = { 0 };
+    size_t timeStringSize = 0;
+
     IotClock_GetTimestring(
         buffer,
         sizeof( buffer ),
         &timeStringSize );
 
-    // Check that we got a string and not empty
+    /* Check that we got a string and not empty */
     TEST_ASSERT_NOT_EQUAL( 0, timeStringSize );
 
-    // Check that the string size matches what was reported
-    TEST_ASSERT_EQUAL( timeStringSize, strlen(buffer) );
+    /* Check that the string size matches what was reported */
+    TEST_ASSERT_EQUAL( timeStringSize, strlen( buffer ) );
 
-    // Now make sure that this all works correctly also if we have a tiny buffer
+    /* Now make sure that this all works correctly also if we have a tiny buffer */
     IotClock_GetTimestring(
         buffer,
         1,
         &timeStringSize );
 
-    // Check that we got a string and not empty
+    /* Check that we got a string and not empty */
     TEST_ASSERT_GREATER_THAN( 1, timeStringSize );
 
-    // Check that the string size matches what was reported
-    TEST_ASSERT_EQUAL( 0, strlen(buffer) );
-
+    /* Check that the string size matches what was reported */
+    TEST_ASSERT_EQUAL( 0, strlen( buffer ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -112,12 +113,12 @@ TEST( UTIL_Platform_Clock, IotClock_GetTimeMs )
     uint64_t startTime = 0;
     uint64_t endTime = 0;
 
-    startTime = IotClock_GetTimeMs( );
+    startTime = IotClock_GetTimeMs();
 
     /* delay for 1s */
     vTaskDelay( configTICK_RATE_HZ );
 
-    endTime = IotClock_GetTimeMs( );
+    endTime = IotClock_GetTimeMs();
 
     /* We expect accuracy to be better than 10%, so these should be within 100ms */
     TEST_ASSERT_INT32_WITHIN( 100, startTime + 1000, endTime );
@@ -130,59 +131,62 @@ TEST( UTIL_Platform_Clock, IotClock_GetTimeMs )
 
 void IotClock_GetTimeMs_Test_Callback( void * param )
 {
-    // Indicate that the timer has expired
-    *( int * )param = 1;
+    /* Indicate that the timer has expired */
+    *( int * ) param = 1;
 }
 
 TEST( UTIL_Platform_Clock, IotClock_Timer )
 {
     uint64_t startTime = 0;
     uint64_t endTime = 0;
-    IotTimer_t  testTimer;
-    volatile int  completionFlag = 0;
+    IotTimer_t testTimer;
+    /* Define volatile because otherwise CC-RX (Renesas) compiler will optimize out this local variable. */
+    volatile int completionFlag = 0;
 
-    startTime = IotClock_GetTimeMs( );
+    startTime = IotClock_GetTimeMs();
 
-    IotClock_TimerCreate(  &testTimer,
-                              IotClock_GetTimeMs_Test_Callback,
-                              (void* )&completionFlag );
+    IotClock_TimerCreate( &testTimer,
+                          IotClock_GetTimeMs_Test_Callback,
+                          ( void * ) &completionFlag );
 
     /* Arm the timer for 1s and no repeats */
     IotClock_TimerArm( &testTimer,
-                          1000,
-                          0 );
+                       1000,
+                       0 );
 
     /* We block until the timer has returned or we time out*/
-    while ( completionFlag == 0 );
+    while( completionFlag == 0 )
+    {
+    }
 
-    endTime = IotClock_GetTimeMs( );
-    IotClock_TimerDestroy(&testTimer);
+    endTime = IotClock_GetTimeMs();
+    IotClock_TimerDestroy( &testTimer );
 
     /* Timer was set for 1000ms, make sure we ended within 100ms of 1000ms */
-    TEST_ASSERT_INT32_WITHIN( 100, startTime+1000, endTime );
+    TEST_ASSERT_INT32_WITHIN( 100, startTime + 1000, endTime );
 }
 
 
 
 TEST( UTIL_Platform_Clock, IotClock_TimerCancellation )
 {
-    IotTimer_t  testTimer;
-    int  completionFlag = 0;
+    IotTimer_t testTimer;
+    int completionFlag = 0;
 
-    IotClock_TimerCreate(  &testTimer,
-                              IotClock_GetTimeMs_Test_Callback,
-                              &completionFlag );
+    IotClock_TimerCreate( &testTimer,
+                          IotClock_GetTimeMs_Test_Callback,
+                          &completionFlag );
 
     /* Arm the timer for 100ms and no repeats */
     IotClock_TimerArm( &testTimer,
-                          100,
-                          0 );
+                       100,
+                       0 );
 
     /* We block for 1 tick */
     vTaskDelay( 1 );
 
     /* Then stop and destroy the timer before the callback can happen */
-    IotClock_TimerDestroy(&testTimer);
+    IotClock_TimerDestroy( &testTimer );
 
     /* Wait 2 seconds to ensure the timer callback did not happen anyway */
     vTaskDelay( 2 * configTICK_RATE_HZ );
