@@ -370,7 +370,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
     if( xResult != CKR_OK )
     {
-        configPRINTF( ( "ERROR: Failed to provision private key %d \r\n", xResult ) );
+        configPRINTF( ( "ERROR: Failed to provision private key %d.\r\n", xResult ) );
     }
 
     return xResult;
@@ -407,7 +407,7 @@ void vDevModeKeyProvisioning( void )
 
     if( NULL == xParams.pcClientPrivateKey )
     {
-        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key." ) );
+        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key.\r\n" ) );
         configASSERT( NULL != xParams.pcClientPrivateKey );
         return;
     }
@@ -418,9 +418,9 @@ void vDevModeKeyProvisioning( void )
 
     xParams.pcClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
 
-    if( NULL == xParams.pcClientPrivateKey )
+    if( NULL == xParams.pcClientCertificate )
     {
-        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device certificate." ) );
+        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device certificate.\r\n" ) );
         configASSERT( NULL != xParams.pcClientCertificate );
         return;
     }
