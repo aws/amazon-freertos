@@ -36,6 +36,7 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 #include "platform/iot_network_afr.h"
+#include "platform/iot_metrics.h"
 
 #include "iot_serializer.h"
 

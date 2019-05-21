@@ -36,16 +36,21 @@
  *
  * Valid values are pdLITTLE_ENDIAN and pdBIG_ENDIAN.
  */
-#define socketsconfigBYTE_ORDER              pdLITTLE_ENDIAN
+#define socketsconfigBYTE_ORDER                   pdLITTLE_ENDIAN
 
 /**
  * @brief Default socket send timeout.
  */
-#define socketsconfigDEFAULT_SEND_TIMEOUT    ( 10000 )
+#define socketsconfigDEFAULT_SEND_TIMEOUT         ( 10000 )
 
 /**
  * @brief Default socket receive timeout.
  */
-#define socketsconfigDEFAULT_RECV_TIMEOUT    ( 10000 )
+#define socketsconfigDEFAULT_RECV_TIMEOUT         ( 10000 )
+
+/**
+ * @brief Enable metrics of secure socket.
+ */
+//#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED    ( 1 )
 
 #endif /* _AWS_SECURE_SOCKETS_CONFIG_H_ */
