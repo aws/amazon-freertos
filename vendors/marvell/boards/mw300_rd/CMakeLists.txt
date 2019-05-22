@@ -49,7 +49,7 @@ target_compile_definitions(
 set(SDK_VERSION_INTERNAL "\"v1.2.r6.p1\"")
 set(SDK_VERSION ${SDK_VERSION_INTERNAL})
 
-set(compiler_flags
+set(global-cflags-y
 	"-mcpu=cortex-m4"
 	"-mthumb"
 	"-g"
@@ -68,17 +68,31 @@ set(compiler_flags
 	"-Wno-sign-compare"
 	"-Wno-type-limits"
 	"-std=c99"
+	"-DSDK_VERSION=${SDK_VERSION}"
+)
+
+# ARM Cortex M4 flags
+set(tc-lflags-tc-cortex-m4-y
+	"-mcpu=cortex-m4"
+	"-mthumb"
+	"-g"
+	"-Os"
+	"-fdata-sections"
+	"-ffunction-sections"
+	"-ffreestanding"
+	"-MMD"
+	"-Wall"
+	"-fno-strict-aliasing"
+	"-fno-common"
 	"-mfloat-abi=softfp"
 	"-mfpu=fpv4-sp-d16"
 	"-D__FPU_PRESENT"
-	"-DSDK_VERSION=${SDK_VERSION}"
-        -include ${mw320_dir}/sdk/src/incl/autoconf.h
-) 
+)
 
 target_compile_options(
     AFR::compiler::mcu_port
     INTERFACE ${global-cflags-y} ${tc-lflags-tc-cortex-m4-y}
-    	
+    -include ${mw320_dir}/sdk/src/incl/autoconf.h   	
 )
 
 # Global include directories
@@ -125,9 +139,7 @@ target_link_options(
 # Amazon FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
 # ==================== Marvell ====================
-set(vendor ${AFR_VENDOR_NAME})
 set(board ${AFR_BOARD_NAME})
-set(portable_dir "portable/${vendor}/${board}")
 
 # Kernel
 afr_mcu_port(kernel)
@@ -165,6 +177,8 @@ set(
     "${mw320_dir}/sdk/src/wlan/wifidriver/incl"
     "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
     "${mw320_dir}/sdk/src/incl/platform/os/freertos"
+    "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/include"
+    "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
 )
 
 # Global include directories
@@ -172,13 +186,6 @@ target_include_directories(
      AFR::kernel::mcu_port
      INTERFACE ${kernel_inc_directories}
 )
-
-# POSIX
-# afr_mcu_port(posix)
-# target_include_directories(
-#     AFR::posix::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/${portable_dir}"
-# )
 
 # WiFi
 afr_mcu_port(wifi)
@@ -198,17 +205,13 @@ target_sources(
 
 # PKCS11
 afr_mcu_port(pkcs11)
+target_link_libraries(
+    AFR::pkcs11::mcu_port
+    INTERFACE AFR::pkcs11_mbedtls
+)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-)
-
-# Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
-target_link_libraries(
-    AFR::pkcs11::mcu_port
-    INTERFACE
-        AFR::pkcs11_mbedtls
-        AFR::wifi
 )
 
 # Secure sockets
@@ -216,14 +219,22 @@ afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
     INTERFACE
+        AFR::secure_sockets_freertos_tcp
+        AFR::pkcs11
         AFR::tls
-        AFR::wifi
 )
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE "${AFR_MODULES_PORTS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
 )
 
+target_include_directories(
+    AFR::secure_sockets::mcu_port
+    INTERFACE
+       "${AFR_MODULES_PORTS_DIR}/pkcs11/include"
+       "${AFR_3RDPARTY_DIR}/pkcs11"
+       "${AFR_MODULES_STANDARD_DIR}/crypto/include"
+)
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
@@ -238,6 +249,14 @@ add_executable(
     ${board_code_src}
     ${config_files}
     "${board_dir}/application_code/main.c"
+)
+
+target_include_directories(
+    ${exe_target}
+    PUBLIC
+       "${AFR_MODULES_PORTS_DIR}/pkcs11/include"
+       "${AFR_3RDPARTY_DIR}/pkcs11"
+       "${AFR_MODULES_STANDARD_DIR}/crypto/include"
 )
 
 target_link_libraries(
