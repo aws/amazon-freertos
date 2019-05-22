@@ -15,7 +15,7 @@ else()
 endif()
 
 #Ensure Defender is not included in build
-set (AFR_MODULE_defender 0)
+set(AFR_MODULE_defender 0 CACHE INTERNAL "")
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
@@ -45,31 +45,31 @@ target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
     -D__MICROLIB
-    -D_REENT_SMALL 
-    -DPRODUCT_VERSION=7687 
-    -DMTK_BLE_SMTCN_ENABLE 
-    -DMTK_BT_LWIP_ENABLE 
-    -DMTK_BLE_BQB_TEST_ENABLE 
-    -DMTK_BLE_CLI_ENABLE 
-    -DMTK_BLE_BQB_CLI_ENABLE 
-    -DMTK_HCI_CONSOLE_MIX_ENABLE 
-    -DMTK_MINISUPP_ENABLE 
-    -DMTK_BSPEXT_ENABLE 
-    -DMTK_HAL_LOWPOWER_ENABLE 
-    -DMTK_LWIP_CLI_ENABLE 
-    -DMTK_HTTPCLIENT_SSL_ENABLE 
-    -DMTK_IPERF_ENABLE 
-    -DMTK_SMTCN_ENABLE 
-    -DMTK_CLI_TEST_MODE_ENABLE 
-    -DMTK_WIFI_REPEATER_ENABLE 
-    -DCONFIG_REPEATER 
-    -DMTK_DEBUG_LEVEL_NONE 
-    -DMTK_WIFI_PRIVILEGE_ENABLE 
-    -DSUPPORT_MBEDTLS 
-    -D__MTK_BLE_ONLY_ENABLE__ 
-    -DMTK_SINGLE_SKU_SUPPORT 
-    -DHAL_DFS_MODULE_ENABLED 
-    -DLWIP_NO_STDINT_H=1 
+    -D_REENT_SMALL
+    -DPRODUCT_VERSION=7687
+    -DMTK_BLE_SMTCN_ENABLE
+    -DMTK_BT_LWIP_ENABLE
+    -DMTK_BLE_BQB_TEST_ENABLE
+    -DMTK_BLE_CLI_ENABLE
+    -DMTK_BLE_BQB_CLI_ENABLE
+    -DMTK_HCI_CONSOLE_MIX_ENABLE
+    -DMTK_MINISUPP_ENABLE
+    -DMTK_BSPEXT_ENABLE
+    -DMTK_HAL_LOWPOWER_ENABLE
+    -DMTK_LWIP_CLI_ENABLE
+    -DMTK_HTTPCLIENT_SSL_ENABLE
+    -DMTK_IPERF_ENABLE
+    -DMTK_SMTCN_ENABLE
+    -DMTK_CLI_TEST_MODE_ENABLE
+    -DMTK_WIFI_REPEATER_ENABLE
+    -DCONFIG_REPEATER
+    -DMTK_DEBUG_LEVEL_NONE
+    -DMTK_WIFI_PRIVILEGE_ENABLE
+    -DSUPPORT_MBEDTLS
+    -D__MTK_BLE_ONLY_ENABLE__
+    -DMTK_SINGLE_SKU_SUPPORT
+    -DHAL_DFS_MODULE_ENABLED
+    -DLWIP_NO_STDINT_H=1
     -DLWIP_TIMEVAL_PRIVATE=1
 )
 target_compile_definitions(
@@ -186,7 +186,7 @@ target_sources(
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/src/sdio_gen3/connsys_driver.c"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/src/sdio_gen3/connsys_util.c"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/src/sdio_gen3/context_dump.c"
- 
+
         # Tracelyzer recorder files
         $<IF:${AFR_IS_TESTING}, "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcKernelPort.c" , >
         $<IF:${AFR_IS_TESTING}, "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcSnapshotRecorder.c" , >
@@ -215,7 +215,7 @@ target_include_directories(
         "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
         "${AFR_MODULES_STANDARD_DIR}/mqtt/include"
         "${AFR_MODULES_STANDARD_DIR}/common/include"
-        
+
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/include"
         "${AFR_3RDPARTY_DIR}/lwip/src/include"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable"
@@ -284,7 +284,7 @@ target_sources(
     "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/mld6.c"
     "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/nd6.c"
     "${AFR_3RDPARTY_DIR}/lwip/src/netif/ethernet.c"
-    
+
     # MediaTek SDK Wifi Files
     "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/MTK/dhcpd/src/dhcpd.c"
     "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/third_party/ping/src/ping.c"
@@ -318,7 +318,7 @@ target_include_directories(
         "${board_dir}/application_code/mediatek_code/include"
 )
 
-# WiFi on MTK requires Secure Sockets 
+# WiFi on MTK requires Secure Sockets
 target_link_libraries(
     AFR::wifi::mcu_port
     INTERFACE
@@ -352,7 +352,7 @@ target_include_directories(
 afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE 
+    INTERFACE
         "${AFR_ROOT_DIR}/modules/ports/secure_sockets/lwip/aws_secure_sockets.c"
         "${AFR_ROOT_DIR}/modules/libraries/standard/tls/src/aws_tls.c"
 )
@@ -425,4 +425,3 @@ add_custom_command(
     TARGET ${exe_target} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
 )
-
