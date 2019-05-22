@@ -34,7 +34,8 @@
 #define IOT_MQTT_RESPONSE_WAIT_MS (1000)
 
 /* Global logging configuration. */
-/* #define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO */
+
+#define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_NONE
 
 /* Uncomment one of these definitions to override the log level configuration for
  * a specific library. */

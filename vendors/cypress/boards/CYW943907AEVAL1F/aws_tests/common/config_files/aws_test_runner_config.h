@@ -39,6 +39,7 @@
 #define testrunnerFULL_OTA_AGENT_ENABLED              testrunnerUNSUPPORTED
 #define testrunnerFULL_OTA_PAL_ENABLED                testrunnerUNSUPPORTED
 #define testrunnerOTA_END_TO_END_ENABLED              testrunnerUNSUPPORTED
+#define testrunnerFULL_MEMORYLEAK_ENABLED             testrunnerUNSUPPORTED
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
 #define testrunnerFULL_TASKPOOL_ENABLED               0
@@ -59,7 +60,6 @@
 #define testrunnerFULL_SHADOWv4_ENABLED               0
 #define testrunnerFULL_TCP_ENABLED                    1
 #define testrunnerFULL_TLS_ENABLED                    0
-#define testrunnerFULL_MEMORYLEAK_ENABLED             0
 #define testrunnerFULL_SERIALIZER_ENABLED             0
 #define testrunnerUTIL_PLATFORM_CLOCK_ENABLED         0
 #define testrunnerUTIL_PLATFORM_THREADS_ENABLED       0
