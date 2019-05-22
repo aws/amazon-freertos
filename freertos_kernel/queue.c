@@ -541,6 +541,7 @@ static void prvInitialiseNewQueue( const UBaseType_t uxQueueLength, const UBaseT
 	TaskHandle_t pxReturn;
 	Queue_t * const pxSemaphore = ( Queue_t * ) xSemaphore;
 
+		configASSERT( xSemaphore );
 		/* This function is called by xSemaphoreGetMutexHolder(), and should not
 		be called directly.  Note:  This is a good way of determining if the
 		calling task is the mutex holder, but not a good way of determining the
